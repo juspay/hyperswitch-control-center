@@ -246,7 +246,8 @@ let getURL = (
   | PAYMENT | SETTINGS => ""
   | PAYMENT_METHOD_CONFIG => `payment_methods/filter`
   }
-  `${HSwitchGlobalVars.hyperSwitchApiPrefix}/${endpoint}`
+  Js.log2(Window.env.apiBaseUrl, "apiBaseURL")
+  `${Window.env.apiBaseUrl}/${endpoint}`
 }
 
 let sessionExpired = ref(false)

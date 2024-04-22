@@ -1105,7 +1105,7 @@ let onSubmit = async (
 }
 
 let getWebhooksUrl = (~connectorName, ~merchantId) => {
-  `${HSwitchGlobalVars.hyperSwitchApiPrefix}/webhooks/${merchantId}/${connectorName}`
+  `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
 }
 
 let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) => {

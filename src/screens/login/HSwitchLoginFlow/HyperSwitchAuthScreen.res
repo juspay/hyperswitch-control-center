@@ -3,10 +3,18 @@ open HyperSwitchAuthUtils
 module AuthPage = {
   open FramerMotion.Motion
   open HyperSwitchAuth
+  open HyperSwitchAuthTypes
   @react.component
   let make = (~authType, ~setAuthType, ~setAuthStatus, ~mode, ~setMode) => {
     let {testLiveToggle, whiteLabel} =
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+    let (logoVariant, iconUlr) = switch (Window.env.logoUrl, whiteLabel) {
+    | (Some(url), true) => (IconWithURL, url)
+    | (Some(url), false) => (IconWithURL, url)
+    | _ => (IconWithText, "")
+    }
+
     let screen =
       <div
         className="h-full flex flex-col items-center justify-between overflow-scoll text-grey-0 w-full mobile:w-30-rem">
@@ -17,7 +25,7 @@ module AuthPage = {
           <Div layoutId="form" className="bg-white w-full text-black mobile:border rounded-lg">
             <div className="px-7 py-6">
               <Div layoutId="logo">
-                <HyperSwitchLogo logoHeight="h-8" theme={Dark} />
+                <HyperSwitchLogo logoHeight="h-8" theme={Dark} logoVariant iconUlr />
               </Div>
             </div>
             <Div layoutId="border" className="border-b w-full" />

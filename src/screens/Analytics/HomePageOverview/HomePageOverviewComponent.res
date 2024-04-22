@@ -138,7 +138,7 @@ module SystemMetricsInsights = {
     let getStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
       urlConfig: [
         {
-          uri: `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+          uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
           metrics: metrics->getStringListFromArrayDict,
           singleStatBody: singleStatBodyMake,
           singleStatTimeSeriesBody: singleStatBodyMake,
@@ -149,8 +149,7 @@ module SystemMetricsInsights = {
       defaultColumns,
       getData: getStatData,
       totalVolumeCol: None,
-      matrixUriMapper: _ =>
-        `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+      matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
     }
 
     let metrics = ["latency"]->Array.map(key => {

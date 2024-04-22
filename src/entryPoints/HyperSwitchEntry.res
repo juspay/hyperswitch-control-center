@@ -10,11 +10,79 @@ module HyperSwitchEntryComponent = {
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let defaultGlobalConfig: Window.customStyle = {
+    let defaultGlobalConfig: HyperSwitchConfigTypes.customStyle = {
       primaryColor: "#006DF9",
       primaryHover: "#005ED6",
       sidebar: "#242F48",
     }
+
+    let configTheme = (uiConfg: JSON.t) => {
+      open LogicUtils
+      let dict = uiConfg->getDictFromJsonObject->getDictfromDict("theme")
+      let {primaryColor, primaryHover, sidebar} = defaultGlobalConfig
+      let value: HyperSwitchConfigTypes.customStyle = {
+        primaryColor: dict->getString("primary_color", primaryColor),
+        primaryHover: dict->getString("primary_hover_color", primaryHover),
+        sidebar: dict->getString("sidebar_color", sidebar),
+      }
+      Window.appendStyle(value)
+    }
+
+    let configureFavIcon = faviconUrl => {
+      try {
+        open DOMUtils
+        let a = createElement(DOMUtils.document, "link")
+        let _ = setAttribute(a, "href", `${faviconUrl}`)
+        let _ = setAttribute(a, "rel", "shortcut icon")
+        let _ = setAttribute(a, "type", "image/x-icon")
+        let _ = appendHead(a)
+      } catch {
+      | _ => Exn.raiseError("Error on configuring favicon")
+      }
+    }
+
+    let configURL = (urlConfig: JSON.t) => {
+      open LogicUtils
+      open HyperSwitchConfigTypes
+      try {
+        let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
+        Js.log(dict)
+        let value: urlConfig = {
+          apiBaseUrl: dict->getString("api_url", ""),
+          mixpanelToken: dict->getString("mixpanelToken", ""),
+          faviconUrl: dict->getString("favicon_url", "/HyperswitchFavicon.png"),
+          logoUrl: dict->getOptionString("logo_url"),
+          sdkBaseUrl: dict->getOptionString("sdk_url"),
+        }
+        DOMUtils.window._env_ = value
+        configureFavIcon(value.faviconUrl)->ignore
+      } catch {
+      | _ => Exn.raiseError("Error on configuring endpoint")
+      }
+    }
+
+    let fetchConfig = async () => {
+      try {
+        open LogicUtils
+        let domain =
+          url.search->getDictFromUrlSearchParams->Dict.get("domain")->Option.getOr("default")
+        let apiURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/config/merchant-config?domain=${domain}`
+        let res = await fetchDetails(apiURL)
+        let featureFlags = res->FeatureFlagUtils.featureFlagType
+        let _ = res->configTheme
+        let _ = res->configURL
+
+        setFeatureFlag(._ => featureFlags)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => Custom)
+      }
+    }
+
+    React.useEffect0(() => {
+      let _ = fetchConfig()
+      None
+    })
     React.useEffect0(() => {
       HSiwtchTimeZoneUtils.getUserTimeZone()->setZone
       None
@@ -22,7 +90,7 @@ module HyperSwitchEntryComponent = {
 
     React.useEffect2(() => {
       MixPanel.init(
-        HSwitchGlobalVars.mixpanelToken,
+        "",
         {
           "batch_requests": true,
           "loaded": () => {
@@ -63,53 +131,6 @@ module HyperSwitchEntryComponent = {
       }
       None
     }, [url.path])
-
-    let configTheme = (uiConfg: JSON.t) => {
-      open LogicUtils
-      let dict = uiConfg->getDictFromJsonObject->getDictfromDict("theme")
-      let {primaryColor, primaryHover, sidebar} = defaultGlobalConfig
-      let value: Window.customStyle = {
-        primaryColor: dict->getString("primary_color", primaryColor),
-        primaryHover: dict->getString("primary_hover_color", primaryHover),
-        sidebar: dict->getString("sidebar_color", sidebar),
-      }
-      Window.appendStyle(value)
-    }
-
-    let configURL = (urlConfig: JSON.t) => {
-      open LogicUtils
-      let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoint")
-      let value: Window.env = {
-        apiBaseUrl: dict->getString("api_url", ""),
-        sdkBaseUrl: dict->getString("sdk_url", ""),
-        mixpanelToken: dict->getString("mixpanelToken", ""),
-      }
-      Window.env.apiBaseUrl = value.apiBaseUrl
-      Window.env.sdkBaseUrl = value.sdkBaseUrl
-      Window.env.mixpanelToken = value.mixpanelToken
-    }
-
-    let fetchConfig = async () => {
-      try {
-        open LogicUtils
-        let domain =
-          url.search->getDictFromUrlSearchParams->Dict.get("domain")->Option.getOr("default")
-        let apiURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/config/merchant-config?domain=${domain}`
-        let res = await fetchDetails(apiURL)
-        let featureFlags = res->FeatureFlagUtils.featureFlagType
-        let _ = res->configTheme
-        let _ = res->configURL
-        setFeatureFlag(._ => featureFlags)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } catch {
-      | _ => setScreenState(_ => Custom)
-      }
-    }
-
-    React.useEffect0(() => {
-      let _ = fetchConfig()
-      None
-    })
 
     <PageLoaderWrapper
       screenState

@@ -1,5 +1,5 @@
 type document = {mutable title: string}
-type window
+type window = {mutable _env_: HyperSwitchConfigTypes.urlConfig}
 @val external document: document = "document"
 @send external getElementById: (document, string) => Dom.element = "getElementById"
 @send external createElement: (document, string) => Dom.element = "createElement"
@@ -18,4 +18,7 @@ external event: string => event = "Event"
 @send external remove: (Dom.element, unit) => unit = "remove"
 @scope(("document", "body"))
 external appendChild: Dom.element => unit = "appendChild"
+
+@scope(("document", "head"))
+external appendHead: Dom.element => unit = "appendChild"
 external domProps: {..} => JsxDOM.domProps = "%identity"

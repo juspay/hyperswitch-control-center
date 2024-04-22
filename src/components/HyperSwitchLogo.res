@@ -1,11 +1,10 @@
-type logoVariant = Icon | Text | IconWithText | IconWithURL
 type theme = Light | Dark
 
 @react.component
 let make = (
   ~logoClass="",
   ~handleClick=?,
-  ~logoVariant=IconWithText,
+  ~logoVariant=HyperSwitchAuthTypes.IconWithText,
   ~logoHeight="h-6",
   ~theme=Dark,
   ~iconUlr=?,

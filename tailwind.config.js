@@ -6,7 +6,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 function withOpacity(variableName) {
   return ({ opacityValue }) => {
-    console.log(opacityValue, variableName, "opacityValue");
     if (opacityValue !== undefined) {
       return `rgba(var(${variableName}), ${opacityValue})`;
     }
