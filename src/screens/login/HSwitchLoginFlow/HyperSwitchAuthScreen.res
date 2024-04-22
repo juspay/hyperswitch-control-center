@@ -10,11 +10,10 @@ module AuthPage = {
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let (logoVariant, iconUlr) = switch (Window.env.logoUrl, whiteLabel) {
-    | (Some(url), true) => (IconWithURL, url)
-    | (Some(url), false) => (IconWithURL, url)
-    | _ => (IconWithText, "")
+    | (Some(url), true) => (IconWithURL, Some(url))
+    | (Some(url), false) => (IconWithURL, Some(url))
+    | _ => (IconWithText, None)
     }
-
     let screen =
       <div
         className="h-full flex flex-col items-center justify-between overflow-scoll text-grey-0 w-full mobile:w-30-rem">
