@@ -8,12 +8,9 @@ let port = 9000
 
 open NodeJs
 
-@module("./featuregflagconfig.mjs")
-external featureFlagConfigHandler: (Http.request, Http.response, bool, string) => unit =
-  "featureFlagConfigHandler"
-
 @module("./config.mjs")
-external configHandler: (Http.request, Http.response, bool, string) => unit = "configHandler"
+external configHandler: (Http.request, Http.response, bool, string, string) => unit =
+  "configHandler"
 
 @module("./health.mjs")
 external healthHandler: (Http.request, Http.response) => unit = "healthHandler"
@@ -58,6 +55,14 @@ let currentCommitHash = nullableGitCommitStr->Option.getOr("no-commit-hash")
 
 let serverHandler: Http.serverHandler = (request, response) => {
   let arr = request.url.toString(.)->String.split("?")
+  let domain =
+    arr
+    ->Array.get(1)
+    ->Option.getOr("domain=default")
+    ->Js.String2.split("=")
+    ->Array.get(1)
+    ->Option.getOr("default")
+
   let path =
     arr
     ->Array.get(0)
@@ -68,7 +73,15 @@ let serverHandler: Http.serverHandler = (request, response) => {
   if path === "/config/merchant-config" && request.method === "GET" {
     let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/config.toml")
     Promise.make((resolve, _reject) => {
-      configHandler(request, response, true, path)
+      let domain = switch String.split("?")(request.url.toString(.)) {
+      | [_path, queryString] =>
+        switch String.split("=")(queryString) {
+        | [_param, domainValue] => domainValue
+        | _ => "default" // Handle if domain parameter is missing
+        }
+      | _ => "default" // Handle if URL format is unexpected
+      }
+      configHandler(request, response, true, domain, path)
       ()->resolve(. _)
     })
   } else if path === "/health" && request.method === "GET" {

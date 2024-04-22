@@ -23,7 +23,6 @@ function updateConfigWithEnv(updatedConfig, domain = "", prefix = "") {
       updateConfigWithEnv(updatedConfig[key], domain, key); // Recursively update nested objects
     } else {
       // Check if environment variable exists for the key
-      console.log(`${domain}__${prefix}__${key}`);
       const envVar = process.env[`${domain}__${prefix}__${key}`];
       if (envVar !== undefined) {
         // Convert string to appropriate type if necessary (e.g., "true" to true)
@@ -40,50 +39,58 @@ function updateConfigWithEnv(updatedConfig, domain = "", prefix = "") {
   return updatedConfig;
 }
 
-const errorHandler = (res) => {
+const errorHandler = (res, errorMessage = "something went wrong") => {
   res.writeHead(500, { "Content-Type": "text/plain" });
+  console.log(errorMessage);
   res.end("Internal Server Error");
 };
 
 // Main function to read TOML file, override config, and output the result
 const configHandler = (
-  req,
+  _req,
   res,
   is_deployed = false,
+  domain = "default",
   configPath = "dist/server/config/config.toml",
 ) => {
   let configFile = is_deployed ? configPath : "config/config.toml";
   try {
-    let { domain = "default" } = req.query;
     Fs.readFile(configFile, { encoding: "utf8" }, (err, data) => {
       if (err) {
-        console.error(err, "error error error");
-        errorHandler(res);
+        errorHandler(res, "Error on Reading File");
         return;
       }
       let config;
       try {
         config = toml.parse(data);
       } catch {
-        errorHandler(res);
+        errorHandler(res, "Error on Parsing toml");
         return;
       }
       let merchantConfig = config["default"];
       try {
+        // If the domain is present in the toml file
         if (
           domain.length > 0 &&
           config[domain] != undefined &&
           Object.keys(config[domain]).length > 0
         ) {
           merchantConfig = updateConfigWithEnv(config[domain], domain, "theme");
+        }
+        // If the domain not is present in the toml file but need to overide the default value with the theme set in the env
+        else if (domain && domain.length > 0 && domain !== undefined) {
+          merchantConfig = updateConfigWithEnv(
+            config["default"],
+            domain,
+            "theme",
+          );
         } else {
           merchantConfig = updateConfigWithEnv("default", "", merchantConfig);
         }
       } catch {
-        errorHandler(res);
+        errorHandler(res, "Error on Overding ENV");
         return;
       }
-
       if (typeof merchantConfig === "object") {
         res.writeHead(200, {
           "Content-Type": "application/json",
@@ -92,13 +99,12 @@ const configHandler = (
         res.write(JSON.stringify(merchantConfig));
         res.end();
       } else {
-        errorHandler(res);
+        errorHandler(res, "Error on sending response");
         return;
       }
     });
   } catch (error) {
-    console.log(error);
-    errorHandler(res);
+    errorHandler(res, "Server Error");
   }
 };
 

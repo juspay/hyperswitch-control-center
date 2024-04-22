@@ -2,7 +2,6 @@ const path = require("path");
 const webpack = require("webpack");
 const { merge } = require("webpack-merge");
 const common = require("./webpack.common.js");
-const featureFlag = import("./src/server/featureflagconfig.mjs");
 const config = import("./src/server/config.mjs");
 
 const appName = process.env.appName;
@@ -13,9 +12,10 @@ let proxy = {};
 
 let configMiddleware = (req, res, next) => {
   if (req.path == "/config/merchant-config" && req.method == "GET") {
+    let { domain = "default" } = req.query;
     config
       .then((result) => {
-        result.configHandler(req, res, false);
+        result.configHandler(req, res, false, domain);
       })
       .catch((error) => {
         console.log(error, "error");

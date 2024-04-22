@@ -46,13 +46,12 @@ module HyperSwitchEntryComponent = {
       open HyperSwitchConfigTypes
       try {
         let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
-        Js.log(dict)
         let value: urlConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
           mixpanelToken: dict->getString("mixpanelToken", ""),
           faviconUrl: dict->getString("favicon_url", "/HyperswitchFavicon.png"),
-          logoUrl: dict->getOptionString("logo_url"),
-          sdkBaseUrl: dict->getOptionString("sdk_url"),
+          logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
+          sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.faviconUrl)->ignore
@@ -90,7 +89,7 @@ module HyperSwitchEntryComponent = {
 
     React.useEffect2(() => {
       MixPanel.init(
-        "",
+        Window.env.mixpanelToken,
         {
           "batch_requests": true,
           "loaded": () => {
@@ -107,7 +106,7 @@ module HyperSwitchEntryComponent = {
         },
       )
       None
-    }, (name, email))
+    }, (name, email, Window.env.mixpanelToken))
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle
