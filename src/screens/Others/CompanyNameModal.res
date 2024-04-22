@@ -1,16 +1,16 @@
 module OtherfieldRender = {
   @react.component
   let make = (~field_name) => {
+    open LogicUtils
     let valueField = ReactFinalForm.useField(field_name).input
     let textField = ReactFinalForm.useField(`${field_name}_otherstring`).input
 
     let textInput: ReactFinalForm.fieldRenderPropsInput = {
       name: `${field_name}_otherstring`,
       onBlur: _ev => {
-        let textFieldValue = textField.value->LogicUtils.getStringFromJson("")
-        let valueFieldValue =
-          valueField.value->LogicUtils.getArrayFromJson([])->LogicUtils.getStrArrayFromJsonArray
-        if textFieldValue->String.length > 0 {
+        let textFieldValue = textField.value->getStringFromJson("")
+        let valueFieldValue = valueField.value->getArrayFromJson([])->getStrArrayFromJsonArray
+        if textFieldValue->isNonEmptyString {
           valueFieldValue->Array.push(textFieldValue)
         }
         valueField.onChange(valueFieldValue->Identity.anyTypeToReactEvent)
@@ -28,7 +28,7 @@ module OtherfieldRender = {
     <div className="flex gap-2 items-center">
       <CheckBoxIcon
         key={`${field_name}_otherstring`}
-        isSelected={textField.value->LogicUtils.getStringFromJson("")->String.length > 0}
+        isSelected={textField.value->getStringFromJson("")->isNonEmptyString}
       />
       <TextInput placeholder={"Others"} input=textInput />
     </div>
@@ -70,7 +70,7 @@ let make = (~showModal, ~setShowModal) => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
       let bodyValues = values->constructOnboardingSurveyBody->JSON.Encode.object
-      let body = [("OnboardingSurvey", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
+      let body = [("OnboardingSurvey", bodyValues)]->getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
     } catch {
     | _ => {
