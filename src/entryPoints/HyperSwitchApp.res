@@ -222,9 +222,9 @@ let make = () => {
                     <div
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
-                        {switch url.path {
-                        | list{_, "home"} => featureFlagDetails.quickStart ? <HomeV2 /> : <Home />
-                        | list{_, "fraud-risk-management", ...remainingPath} =>
+                        {switch url.path->urlPath {
+                        | list{"home"} => featureFlagDetails.quickStart ? <HomeV2 /> : <Home />
+                        | list{"fraud-risk-management", ...remainingPath} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.frm}
                             permission=userPermissionJson.connectorsView>
@@ -237,7 +237,7 @@ let make = () => {
                             />
                           </AccessControl>
 
-                        | list{_, "connectors", ...remainingPath} =>
+                        | list{"connectors", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.connectorsView>
                             <EntityScaffold
                               entityName="Connectors"
@@ -248,7 +248,7 @@ let make = () => {
                             />
                           </AccessControl>
 
-                        | list{_, "payoutconnectors", ...remainingPath} =>
+                        | list{"payoutconnectors", ...remainingPath} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.payOut}
                             permission=userPermissionJson.connectorsView>
@@ -261,7 +261,7 @@ let make = () => {
                             />
                           </AccessControl>
 
-                        | list{_, "payoutrouting", ...remainingPath} =>
+                        | list{"payoutrouting", ...remainingPath} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.payOut}
                             permission=userPermissionJson.workflowsView>
@@ -273,7 +273,7 @@ let make = () => {
                             />
                           </AccessControl>
 
-                        | list{_, "3ds-authenticators", ...remainingPath} =>
+                        | list{"3ds-authenticators", ...remainingPath} =>
                           <AccessControl
                             permission=userPermissionJson.connectorsView
                             isEnabled={featureFlagDetails.threedsAuthenticator}>
@@ -286,7 +286,7 @@ let make = () => {
                             />
                           </AccessControl>
 
-                        | list{_, "payments", ...remainingPath} =>
+                        | list{"payments", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.operationsView>
                             <FilterContext
                               key="payments" index="payments" disableSessionStorage=true>
@@ -299,7 +299,7 @@ let make = () => {
                               />
                             </FilterContext>
                           </AccessControl>
-                        | list{_, "refunds", ...remainingPath} =>
+                        | list{"refunds", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.operationsView>
                             <FilterContext key="refunds" index="refunds" disableSessionStorage=true>
                               <EntityScaffold
@@ -311,7 +311,7 @@ let make = () => {
                               />
                             </FilterContext>
                           </AccessControl>
-                        | list{_, "disputes", ...remainingPath} =>
+                        | list{"disputes", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.operationsView>
                             <EntityScaffold
                               entityName="Disputes"
@@ -321,7 +321,7 @@ let make = () => {
                               renderShow={id => <ShowDisputes id />}
                             />
                           </AccessControl>
-                        | list{_, "customers", ...remainingPath} =>
+                        | list{"customers", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.operationsView>
                             <EntityScaffold
                               entityName="Customers"
@@ -331,7 +331,7 @@ let make = () => {
                               renderShow={id => <ShowCustomers id />}
                             />
                           </AccessControl>
-                        | list{_, "routing", ...remainingPath} =>
+                        | list{"routing", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.workflowsView>
                             <EntityScaffold
                               entityName="Routing"
@@ -340,15 +340,15 @@ let make = () => {
                               renderShow={routingType => <RoutingConfigure routingType />}
                             />
                           </AccessControl>
-                        | list{_, "users", "invite-users"} =>
+                        | list{"users", "invite-users"} =>
                           <AccessControl permission=userPermissionJson.usersManage>
                             <InviteUsers />
                           </AccessControl>
-                        | list{_, "users", "create-custom-role"} =>
+                        | list{"users", "create-custom-role"} =>
                           <AccessControl permission=userPermissionJson.usersManage>
                             <CreateCustomRole />
                           </AccessControl>
-                        | list{_, "users", ...remainingPath} =>
+                        | list{"users", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.usersView>
                             <EntityScaffold
                               entityName="UserManagement"
@@ -357,19 +357,19 @@ let make = () => {
                               renderShow={_ => <ShowUserData />}
                             />
                           </AccessControl>
-                        | list{_, "analytics-payments"} =>
+                        | list{"analytics-payments"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
                             <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
                               <PaymentAnalytics />
                             </FilterContext>
                           </AccessControl>
-                        | list{_, "analytics-refunds"} =>
+                        | list{"analytics-refunds"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
                             <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
                               <RefundsAnalytics />
                             </FilterContext>
                           </AccessControl>
-                        | list{_, "analytics-disputes"} =>
+                        | list{"analytics-disputes"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.disputeAnalytics}
                             permission=userPermissionJson.analyticsView>
@@ -377,7 +377,7 @@ let make = () => {
                               <DisputeAnalytics />
                             </FilterContext>
                           </AccessControl>
-                        | list{_, "analytics-user-journey"} =>
+                        | list{"analytics-user-journey"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.userJourneyAnalytics
                             permission=userPermissionJson.analyticsView>
@@ -385,11 +385,11 @@ let make = () => {
                               <UserJourneyAnalytics />
                             </FilterContext>
                           </AccessControl>
-                        | list{_, "developer-api-keys"} =>
+                        | list{"developer-api-keys"} =>
                           <AccessControl permission=userPermissionJson.merchantDetailsManage>
                             <KeyManagement.KeysManagement />
                           </AccessControl>
-                        | list{_, "developer-system-metrics"} =>
+                        | list{"developer-system-metrics"} =>
                           <AccessControl
                             isEnabled={userRole->String.includes("internal_") &&
                               featureFlagDetails.systemMetrics}
@@ -399,7 +399,7 @@ let make = () => {
                             </FilterContext>
                           </AccessControl>
 
-                        | list{_, "payment-settings", ...remainingPath} =>
+                        | list{"payment-settings", ...remainingPath} =>
                           <EntityScaffold
                             entityName="PaymentSettings"
                             remainingPath
@@ -407,43 +407,43 @@ let make = () => {
                             renderShow={profileId =>
                               <PaymentSettings webhookOnly=false showFormOnly=false />}
                           />
-                        | list{_, "recon"} =>
+                        | list{"recon"} =>
                           <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
                             <Recon />
                           </AccessControl>
-                        | list{_, "sdk"} =>
+                        | list{"sdk"} =>
                           <AccessControl
                             isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
                             <SDKPage />
                           </AccessControl>
-                        | list{_, "3ds"} =>
+                        | list{"3ds"} =>
                           <AccessControl permission=userPermissionJson.workflowsView>
                             <HSwitchThreeDS />
                           </AccessControl>
-                        | list{_, "surcharge"} =>
+                        | list{"surcharge"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.surcharge}
                             permission=userPermissionJson.workflowsView>
                             <Surcharge />
                           </AccessControl>
-                        | list{_, "account-settings"} =>
+                        | list{"account-settings"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.sampleData
                             permission=userPermissionJson.merchantDetailsManage>
                             <HSwitchSettings />
                           </AccessControl>
-                        | list{_, "account-settings", "profile"} => <HSwitchProfileSettings />
+                        | list{"account-settings", "profile"} => <HSwitchProfileSettings />
 
-                        | list{_, "business-details"} =>
+                        | list{"business-details"} =>
                           <AccessControl isEnabled=featureFlagDetails.default permission={Access}>
                             <BusinessDetails />
                           </AccessControl>
-                        | list{_, "business-profiles"} =>
+                        | list{"business-profiles"} =>
                           <AccessControl permission=Access>
                             <BusinessProfile />
                           </AccessControl>
 
-                        | list{_, "configure-pmts", ...remainingPath} =>
+                        | list{"configure-pmts", ...remainingPath} =>
                           <AccessControl
                             permission=userPermissionJson.connectorsView
                             isEnabled={featureFlagDetails.configurePmts}>
@@ -455,35 +455,35 @@ let make = () => {
                                 <PaymentSettings webhookOnly=false showFormOnly=false />}
                             />
                           </AccessControl>
-                        | list{_, "quick-start"} => determineQuickStartPageState()
-                        | list{_, "woocommerce"} => determineWooCommerce()
-                        | list{_, "stripe-plus-paypal"} => determineStripePlusPayPal()
-                        | list{_, "search"} => <SearchResultsPage />
-                        | list{_, "payment-attempts"} =>
+                        | list{"quick-start"} => determineQuickStartPageState()
+                        | list{"woocommerce"} => determineWooCommerce()
+                        | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
+                        | list{"search"} => <SearchResultsPage />
+                        | list{"payment-attempts"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
                             permission=userPermissionJson.operationsView>
                             <PaymentAttemptTable />
                           </AccessControl>
-                        | list{_, "payment-intents"} =>
+                        | list{"payment-intents"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
                             permission=userPermissionJson.operationsView>
                             <PaymentIntentTable />
                           </AccessControl>
-                        | list{_, "refunds-global"} =>
+                        | list{"refunds-global"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
                             permission=userPermissionJson.operationsView>
                             <RefundsTable />
                           </AccessControl>
-                        | list{_, "dispute-global"} =>
+                        | list{"dispute-global"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
                             permission=userPermissionJson.operationsView>
                             <DisputeTable />
                           </AccessControl>
-                        | list{_, "unauthorized"} => <UnauthorizedPage />
+                        | list{"unauthorized"} => <UnauthorizedPage />
                         | _ =>
                           RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
                           <Home />
