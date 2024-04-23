@@ -1,5 +1,14 @@
 @val external appVersion: string = "appVersion"
 
+let dashboardBasePath = Some("/dashboard")
+
+let appendDashboardPath = (~url) => {
+  switch dashboardBasePath {
+  | Some(dashboardBaseUrl) => `${dashboardBaseUrl}${url}`
+  | None => url
+  }
+}
+
 let mixpanelToken = Window.env.mixpanelToken->Option.getOr("mixpanel-token")
 
 type hostType = Live | Sandbox | Local | Netlify
@@ -12,35 +21,11 @@ let hostType = switch hostName {
 | _ => hostName->String.includes("netlify") ? Netlify : Local
 }
 
-let getHostURLFromVariant = (host: hostType) => {
-  switch host {
-  | Live => "https://live.hyperswitch.io"
-  | Sandbox => "https://app.hyperswitch.io"
-  | Netlify => `https://${hostName}`
-  | Local => `${Window.Location.origin}`
-  }
-}
-
-let liveURL = Live->getHostURLFromVariant
-let sandboxURL = Sandbox->getHostURLFromVariant
-let localURL = Local->getHostURLFromVariant
-let netlifyUrl = Netlify->getHostURLFromVariant
+let getHostURLFromVariant = `${Window.Location.origin}${appendDashboardPath(~url="")}`
 
 let isHyperSwitchDashboard = GlobalVars.dashboardAppName === #hyperswitch
 
 let hyperSwitchApiPrefix = Window.env.apiBaseUrl->Option.getOr("/api")
-
-let dashboardUrl = switch hostType {
-| Live => Live->getHostURLFromVariant
-| Sandbox | Local | Netlify => Sandbox->getHostURLFromVariant
-}
-
-let hyperSwitchFEPrefix = switch hostType {
-| Live => liveURL
-| Sandbox => sandboxURL
-| Local => localURL
-| Netlify => netlifyUrl
-}
 
 let playgroundUserEmail = "dummyuser@dummymerchant.com"
 let playgroundUserPassword = "Dummy@1234"

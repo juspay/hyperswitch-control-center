@@ -132,6 +132,9 @@ module ExternalUser = {
       merchant_id: defaultMerchantId,
       merchant_name: defaultMerchantId,
       is_active: false,
+      role_id: "",
+      role_name: "",
+      org_id: "",
     }
     let (showModal, setShowModal) = React.useState(_ => false)
     let (options, setOptions) = React.useState(_ => [])
