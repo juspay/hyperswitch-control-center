@@ -134,7 +134,7 @@ module PredefinedOption = {
         attributes=[("data-daterange-dropdown-value", dateRangeDropdownVal)]>
         <div>
           <div
-            className={`${optionBG} px-4 py-2 hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100  cursor-pointer text-sm text-gray-500 dark:text-gray-400`}
+            className={`${optionBG} mx-2 rounded-md p-2 hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100  cursor-pointer text-sm font-medium text-grey-900`}
             onClick=handleClick>
             {React.string(dateRangeDropdownVal)}
           </div>
@@ -624,7 +624,7 @@ module Base = {
       None
     }, (startDate, endDate, localStartDate, localEndDate))
 
-    let customStyleForBtn = "rounded-lg"
+    let customStyleForBtn = "rounded-lg bg-white"
 
     let timeVisibilityClass = showTime ? "block" : "hidden"
 
@@ -715,10 +715,10 @@ module Base = {
     }
 
     let calendarElement =
-      <div className={`flex md:flex-row flex-col w-full`}>
+      <div className={`flex md:flex-row flex-col w-full py-2`}>
         {if predefinedDays->Array.length > 0 && showOption {
           <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
-            <div className="flex flex-wrap md:flex-col">
+            <div className="flex flex-wrap gap-1 md:flex-col">
               {filteredPredefinedDays
               ->Array.mapWithIndex((value, i) => {
                 <div
@@ -743,7 +743,7 @@ module Base = {
               })
               ->React.array}
               <div
-                className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3 px-4 py-2  hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer text-sm text-gray-500 dark:text-gray-400 ${customeRangeBg}}`}
+                className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3   hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customeRangeBg}}`}
                 onClick={_ => {
                   setCalendarVisibility(_ => true)
                   setIsCustomSelected(_ => true)
@@ -770,7 +770,7 @@ module Base = {
               disableFutureDates
               ?dateRangeLimit
               setShowMsg
-              calendarContaierStyle="md:m-3 border-0 md:border"
+              calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
               ?allowedDateRange
             />
             <div
@@ -783,47 +783,21 @@ module Base = {
             } else {
               <div
                 id="neglectTopbarTheme"
-                className="flex flex-row flex-wrap gap-4 bg-white dark:bg-jp-gray-lightgray_background p-3 align-center justify-end ">
-                <div
-                  className="text-gray-700 font-fira-code dark:text-gray-400 flex-wrap font-medium self-center text-sm">
-                  {if (
-                    displayStartDate->isNonEmptyString &&
-                    displayEndDate->isNonEmptyString &&
-                    !disableApply &&
-                    !hideDate
-                  ) {
-                    <div className="flex flex-col">
-                      <AddDataAttributes attributes=[("data-date-range-start", displayStartDate)]>
-                        <div> {React.string(modifiedStartDate)} </div>
-                      </AddDataAttributes>
-                      <AddDataAttributes attributes=[("data-date-range-end", displayEndDate)]>
-                        <div> {React.string(modifiedEndDate)} </div>
-                      </AddDataAttributes>
-                    </div>
-                  } else if showMsg {
-                    let msg = `Date Range should not exceed ${dateRangeLimit
-                      ->Option.getOr(0)
-                      ->Int.toString} days`
-                    <span className="w-full flex flex-row items-center mr-0 text-red-500">
-                      <FormErrorIcon />
-                      {React.string(msg)}
-                    </span>
-                  } else {
-                    React.null
-                  }}
-                </div>
+                className="flex flex-row flex-wrap gap-3 bg-white dark:bg-jp-gray-lightgray_background px-3 mt-3 mb-1 align-center justify-end ">
                 <Button
                   text="Cancel"
+                  customButtonStyle="rounded-lg"
                   buttonType=Secondary
                   buttonState=Normal
-                  buttonSize=Small
+                  buttonSize=XSmall
                   onClick={cancelButton}
                 />
                 <Button
                   text="Apply"
+                  customButtonStyle="rounded-lg"
                   buttonType=Primary
                   buttonState={endDate->LogicUtils.isEmptyString ? Disabled : Normal}
-                  buttonSize=Small
+                  buttonSize=XSmall
                   onClick={handleApply}
                 />
               </div>
@@ -831,7 +805,7 @@ module Base = {
           </div>
         </AddDataAttributes>
       </div>
-
+    open HeadlessUI
     <>
       <div className={"md:relative daterangSelection"}>
         <AddDataAttributes
@@ -862,11 +836,21 @@ module Base = {
               calendarElement
             </BottomModal>
           } else {
-            <div
-              ref={dropdownRef->ReactDOM.Ref.domRef}
-              className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 bg-white dark:bg-jp-gray-lightgray_background rounded border-jp-gray-500 dark:border-jp-gray-960 shadow-md dark:shadow-sm dark:shadow-gray-700 max-h-min max-w-min overflow-auto`}>
-              calendarElement
-            </div>
+            <Transition
+              \"as"="span"
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              show={isDropdownExpandedActual}
+              leaveTo="transform opacity-0 scale-95">
+              <div
+                ref={dropdownRef->ReactDOM.Ref.domRef}
+                className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2`}>
+                calendarElement
+              </div>
+            </Transition>
           }
         } else {
           React.null
