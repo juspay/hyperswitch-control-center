@@ -1,22 +1,6 @@
 import * as Fs from "fs";
 import toml from "@iarna/toml";
 
-// Function to override config values from environment variables
-const overrideConfigWithEnv = (config, prefix) => {
-  for (let key in config) {
-    if (
-      prefix !== undefined &&
-      prefix.length > 0 &&
-      process.env[`${prefix}__${key}`]
-    ) {
-      config[key] = process.env[`${prefix}__${key}`];
-    } else if (process.env[key]) {
-      config[key] = process.env[key];
-    }
-  }
-  return config;
-};
-
 function updateConfigWithEnv(updatedConfig, domain = "", prefix = "") {
   for (const key in updatedConfig) {
     if (typeof updatedConfig[key] === "object" && updatedConfig[key] !== null) {
