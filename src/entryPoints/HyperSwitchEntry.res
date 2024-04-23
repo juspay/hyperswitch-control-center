@@ -65,7 +65,7 @@ module HyperSwitchEntryComponent = {
         open LogicUtils
         let domain =
           url.search->getDictFromUrlSearchParams->Dict.get("domain")->Option.getOr("default")
-        let apiURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/config/merchant-config?domain=${domain}`
+        let apiURL = `${HSwitchGlobalVars.getHostURLFromVariant}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         let _ = res->configTheme
