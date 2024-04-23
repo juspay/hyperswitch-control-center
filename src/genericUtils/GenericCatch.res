@@ -4,7 +4,7 @@ let handleCatch = (
   ~shouldResolve=false,
   ~raiseError=false,
   ~showErrorToast=false,
-  ~showToast=?,
+  ~showToast: option<ToastState.showToastFn>=?,
   ~toastMessage="",
   (),
 ) => {
@@ -15,8 +15,9 @@ let handleCatch = (
     | None => Exn.raiseError("Failed to Fetch")
     }
   }
+
   if showErrorToast {
-    let _ = switch showToast {
+    switch showToast {
     | Some(fn) => fn(~toastType=ToastState.ToastError, ~message=toastMessage, ())
     | None => ()
     }
