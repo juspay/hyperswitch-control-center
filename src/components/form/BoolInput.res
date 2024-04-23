@@ -114,16 +114,13 @@ let make = (
   ~boolCustomClass="",
   ~addAttributeId="",
 ) => {
-  Js.log(baseInput)
   let boolInput = baseInput->ffInputToBoolInput
   let boolValue: JSON.t = boolInput.value
-  Js.log2(boolValue, "boolInput")
   let isSelected = switch boolValue->JSON.Classify.classify {
   | Bool(true) => true
   | String(str) => str === "true"
   | _ => false
   }
-  Js.log2(isSelected, "isSelected")
   let setIsSelected = boolInput.onChange
 
   isCheckBox
