@@ -17,7 +17,10 @@ let useFetchEnumDetails = () => {
       setEnumVariantValues(._ => responseDict->JSON.Encode.object->JSON.stringify)
       Nullable.make(responseDict)
     } catch {
-    | Exn.Error(e) => GenericCatch.handleCatch(~error=e, ())
+    | Exn.Error(e) => {
+        let _ = GenericCatch.handleCatch(~error=e, ~raiseError=true, ())
+        Dict.make()->Nullable.make
+      }
     }
   }
 }

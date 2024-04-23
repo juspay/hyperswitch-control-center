@@ -11,7 +11,7 @@ let useFetchMerchantDetails = () => {
         merchantDetailsJSON->MerchantAccountDetailsMapper.getMerchantDetails
       )
     } catch {
-    | Exn.Error(e) => GenericCatch.handleCatch(~error=e, ())
+    | Exn.Error(e) => GenericCatch.handleCatch(~error=e, ~raiseError=true, ())
     }
   }
 }

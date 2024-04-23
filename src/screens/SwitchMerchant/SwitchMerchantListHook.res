@@ -10,7 +10,7 @@ let useFetchSwitchMerchantList = () => {
       let typedValueOfResponse = res->SwitchMerchantUtils.convertListResponseToTypedResponse
       setSwitchMerchantListAtom(._ => typedValueOfResponse)
     } catch {
-    | Exn.Error(e) => GenericCatch.handleCatch(~error=e, ())
+    | Exn.Error(e) => GenericCatch.handleCatch(~error=e, ~raiseError=true, ())
     }
   }
 }

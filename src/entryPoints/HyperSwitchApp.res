@@ -71,7 +71,12 @@ let make = () => {
       }
     } catch {
     | Exn.Error(e) =>
-      GenericCatch.handleCatch(~error=e, ~callbackFun=getAgreementEnumCatch, ())->ignore
+      GenericCatch.handleCatch(
+        ~error=e,
+        ~raiseError=true,
+        ~callbackFun=getAgreementEnumCatch,
+        (),
+      )->ignore
     }
   }
 
@@ -83,7 +88,10 @@ let make = () => {
       setQuickStartPageState(_ => pageStateToSet->QuickStartUtils.enumToVarinatMapper)
       responseValueDict
     } catch {
-    | Exn.Error(e) => GenericCatch.handleCatch(~error=e, ())
+    | Exn.Error(e) => {
+        let _ = GenericCatch.handleCatch(~error=e, ~raiseError=true, ())
+        Dict.make()
+      }
     }
   }
 
@@ -98,7 +106,14 @@ let make = () => {
       setuserPermissionJson(._ => permissionJson)
       permissionJson
     } catch {
-    | Exn.Error(e) => GenericCatch.handleCatch(~error=e, ())
+    | Exn.Error(e) => {
+        let _ = GenericCatch.handleCatch(~error=e, ~raiseError=true, ())
+        JSON.Encode.null
+        ->getArrayFromJson([])
+        ->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
+        ->Array.map(ele => ele->mapStringToPermissionType)
+        ->getPermissionJson
+      }
     }
   }
 

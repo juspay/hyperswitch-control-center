@@ -10,7 +10,10 @@ let useFetchConnectorList = () => {
       setConnectorList(._ => res->ConnectorListMapper.getArrayOfConnectorListPayloadType)
       res
     } catch {
-    | Exn.Error(e) => GenericCatch.handleCatch(~error=e, ())
+    | Exn.Error(e) => {
+        let _ = GenericCatch.handleCatch(~error=e, ~raiseError=true, ())
+        JSON.Encode.null
+      }
     }
   }
 }

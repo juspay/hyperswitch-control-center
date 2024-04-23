@@ -10,7 +10,10 @@ let useFetchBusinessProfiles = () => {
       setBusinessProfiles(._ => res->BusinessProfileMapper.getArrayOfBusinessProfile)
       Nullable.make(res->BusinessProfileMapper.getArrayOfBusinessProfile)
     } catch {
-    | Exn.Error(e) => GenericCatch.handleCatch(~error=e, ())
+    | Exn.Error(e) => {
+        let _ = GenericCatch.handleCatch(~error=e, ~raiseError=true, ())
+        Nullable.make(JSON.Encode.array([])->BusinessProfileMapper.getArrayOfBusinessProfile)
+      }
     }
   }
 }
