@@ -109,7 +109,8 @@ let make = () => {
 
   let onProceed = async (~paymentId) => {
     switch paymentId {
-    | Some(val) => RescriptReactRouter.replace(`/payments/${val}`)
+    | Some(val) =>
+      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url=`/payments/${val}`))
     | None => ()
     }
   }
@@ -118,7 +119,7 @@ let make = () => {
     setKey(_ => Date.now()->Float.toString)
     setInitialValues(_ => values->SDKPaymentUtils.getTypedValueForPayment)
     setIsSDKOpen(_ => true)
-    RescriptReactRouter.push("/sdk")
+    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/sdk"))
     Nullable.null->Promise.resolve
   }
 
@@ -149,7 +150,7 @@ let make = () => {
           <div className="p-7 h-full bg-sidebar-blue">
             <TestPayment
               key
-              returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/sdk`}
+              returnUrl={`${HSwitchGlobalVars.getHostURLFromVariant}/sdk`}
               onProceed
               sdkWidth="!w-[100%]"
               isTestCredsNeeded=false

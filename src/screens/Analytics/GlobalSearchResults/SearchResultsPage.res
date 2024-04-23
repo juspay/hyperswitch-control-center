@@ -7,7 +7,7 @@ module RenderSearchResultBody = {
     let redirectOnSelect = element => {
       let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("")
       if redirectLink->isNonEmptyString {
-        redirectLink->RescriptReactRouter.replace
+        HSwitchGlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.replace
       }
     }
 
