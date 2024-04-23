@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.23.2
+
+### Bug Fixes
+
+- Base url show payments fix ([#603](https://github.com/juspay/hyperswitch-control-center/pull/603)) ([`f774020`](https://github.com/juspay/hyperswitch-control-center/commit/f774020650198a6adb8848c3203ed2f5193d2225))
+
+**Full Changelog:** [`2024.04.23.1...2024.04.23.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.23.1...2024.04.23.2)
+
+- - -
+
 ## 2024.04.23.1
 
 ### Bug Fixes
