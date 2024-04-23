@@ -7,29 +7,33 @@ module ShowMoreLink = {
     ~textStyleClass="",
     ~searchText,
   ) => {
-    let linkText = `View ${section.total_results->Int.toString} result${section.total_results > 1
-        ? "s"
-        : ""}`
+    <UIUtils.RenderIf condition={section.total_results > 10}>
+      {
+        let linkText = `View ${section.total_results->Int.toString} result${section.total_results > 1
+            ? "s"
+            : ""}`
 
-    switch section.section {
-    | Local | Default | Others => React.null
-    | PaymentAttempts | PaymentIntents | Refunds | Disputes =>
-      <div
-        onClick={_ => {
-          let link = switch section.section {
-          | PaymentAttempts => `payment-attempts?query=${searchText}`
-          | PaymentIntents => `payment-intents?query=${searchText}`
-          | Refunds => `refunds-global?query=${searchText}`
-          | Disputes => `dispute-global?query=${searchText}`
-          | Local | Others | Default => ""
-          }
-          HSwitchGlobalVars.appendDashboardPath(~url=link)->RescriptReactRouter.push
-          cleanUpFunction()
-        }}
-        className={`font-medium cursor-pointer underline underline-offset-2 ${textStyleClass}`}>
-        {linkText->React.string}
-      </div>
-    }
+        switch section.section {
+        | Local | Default | Others => React.null
+        | PaymentAttempts | PaymentIntents | Refunds | Disputes =>
+          <div
+            onClick={_ => {
+              let link = switch section.section {
+              | PaymentAttempts => `payment-attempts?query=${searchText}`
+              | PaymentIntents => `payment-intents?query=${searchText}`
+              | Refunds => `refunds-global?query=${searchText}`
+              | Disputes => `dispute-global?query=${searchText}`
+              | Local | Others | Default => ""
+              }
+              HSwitchGlobalVars.appendDashboardPath(~url=link)->RescriptReactRouter.push
+              cleanUpFunction()
+            }}
+            className={`font-medium cursor-pointer underline underline-offset-2 ${textStyleClass}`}>
+            {linkText->React.string}
+          </div>
+        }
+      }
+    </UIUtils.RenderIf>
   }
 }
 
