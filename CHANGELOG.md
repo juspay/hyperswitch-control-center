@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.23.1
+
+### Bug Fixes
+
+- Agreement version change ([#600](https://github.com/juspay/hyperswitch-control-center/pull/600)) ([`f819f26`](https://github.com/juspay/hyperswitch-control-center/commit/f819f26f30e8084f4c5c0bbe21937987114ae322))
+
+### Miscellaneous Tasks
+
+- Update connector metadata for nmi and 3ds ([#602](https://github.com/juspay/hyperswitch-control-center/pull/602)) ([`b9f8499`](https://github.com/juspay/hyperswitch-control-center/commit/b9f8499c6c72f51e00c488bf9474757eb027635e))
+
+**Full Changelog:** [`2024.04.23.0...2024.04.23.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.23.0...2024.04.23.1)
+
+- - -
+
 ## 2024.04.23.0
 
 ### Features
