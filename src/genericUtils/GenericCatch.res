@@ -17,7 +17,7 @@ let handleCatch = (
   }
   if showErrorToast {
     let _ = switch showToast {
-    | Some(fn) => fn
+    | Some(fn) => fn(~toastType=ToastState.ToastError, ~message=toastMessage, ())
     | None => ()
     }
   }
