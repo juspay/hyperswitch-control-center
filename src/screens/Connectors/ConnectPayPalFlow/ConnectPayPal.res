@@ -157,7 +157,7 @@ module RedirectionToPayPalFlow = {
     open HSwitchGlobalVars
     let url = RescriptReactRouter.useUrl()
     let path = url.path->List.toArray->Array.joinWith("/")
-    let connectorId = url.path->List.toArray->LogicUtils.getValueFromArray(2, "")
+    let connectorId = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (actionUrl, setActionUrl) = React.useState(_ => "")
@@ -247,7 +247,7 @@ let make = (
     HyperswitchAtom.paypalAccountStatusAtom,
   )
   let connectorValue = isUpdateFlow
-    ? url.path->List.toArray->getValueFromArray(2, "")
+    ? HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
     : url.search->getDictFromUrlSearchParams->Dict.get("connectorId")->Option.getOr("")
 
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)

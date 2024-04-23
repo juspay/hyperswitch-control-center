@@ -301,8 +301,8 @@ let make = (
     ->Array.length
   let isFeedbackModalToBeOpen =
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
-  let redirectPath = switch url.path {
-  | list{_, "payoutconnectors", _} => "/payoutconnectors"
+  let redirectPath = switch url.path->HSwitchUtils.urlPath {
+  | list{"payoutconnectors", _} => "/payoutconnectors"
   | _ => "/connectors"
   }
 

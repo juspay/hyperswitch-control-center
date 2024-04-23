@@ -251,3 +251,11 @@ let urlPath = urlPathList => {
   | _ => urlPathList
   }
 }
+
+let getConnectorIDFromUrl = (urlList, defaultValue) => {
+  open HSwitchGlobalVars
+  switch dashboardBasePath {
+  | Some(_) => urlList->Array.get(2)->Option.getOr(defaultValue)
+  | _ => urlList->Array.get(1)->Option.getOr(defaultValue)
+  }
+}

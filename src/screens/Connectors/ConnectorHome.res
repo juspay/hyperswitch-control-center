@@ -65,15 +65,15 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let connectorTypeFromName = connector->getConnectorNameTypeFromString()
   let profileIdFromUrl =
     UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getOptionString("profile_id")
-  let connectorID = url.path->List.toArray->Array.get(2)->Option.getOr("")
+  let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
 
-  let isUpdateFlow = switch url.path {
-  | list{_, "connectors", "new"} => false
-  | list{_, "payoutconnectors", "new"} => false
+  let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
+  | list{"connectors", "new"} => false
+  | list{"payoutconnectors", "new"} => false
   | _ => true
   }
 
