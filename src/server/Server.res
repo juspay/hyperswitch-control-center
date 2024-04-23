@@ -61,7 +61,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
     ->String.replaceRegExp(%re("/^\/\//"), "/")
     ->String.replaceRegExp(%re("/^\/v4\//"), "/")
 
-  if path === "/config/merchant-access" && request.method === "POST" {
+  if path->String.includes("/config/merchant-access") && request.method === "POST" {
     let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/FeatureFlag.json")
     Promise.make((resolve, _reject) => {
       configHandler(request, response, true, path)

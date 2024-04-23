@@ -1,56 +1,43 @@
 module MerchantDetailsSection = {
   @react.component
   let make = () => {
-    let fetchDetails = APIUtils.useGetMethod()
-    let (merchantInfo, setMerchantInfo) = React.useState(_ => Dict.make())
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-    let titleClass = "text-hyperswitch_black text-base w-1/5"
-    let subTitleClass = "text-hyperswitch_black opacity-50 text-base font-semibold "
+    open HSwitchProfileSettingsEntity
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let (offset, setOffset) = React.useState(_ => 0)
     let sectionHeadingClass = "font-semibold text-fs-18"
 
-    let getMerchantDetails = async () => {
+    let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
+    let switchMerchantListValue = Recoil.useRecoilValueFromAtom(
+      HyperswitchAtom.switchMerchantListAtom,
+    )
+
+    React.useEffect0(() => {
       try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-        let accountUrl = APIUtils.getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get, ())
-        let merchantDetailsJSON = await fetchDetails(accountUrl)
-        let merchantInfoDict = merchantDetailsJSON->LogicUtils.getDictFromJsonObject
-        let requiredInfo =
-          [
-            (
-              "merchant_id",
-              merchantInfoDict->LogicUtils.getString("merchant_id", "")->JSON.Encode.string,
-            ),
-            (
-              "merchant_name",
-              merchantInfoDict->LogicUtils.getString("merchant_name", "")->JSON.Encode.string,
-            ),
-          ]->Dict.fromArray
-        setMerchantInfo(_ => requiredInfo)
+        let _ = fetchSwitchMerchantList()
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Custom)
       }
-    }
-    React.useEffect0(() => {
-      getMerchantDetails()->ignore
       None
     })
 
     <PageLoaderWrapper screenState sectionHeight="h-40-vh">
-      <div className="flex flex-col gap-10  bg-white border rounded w-full px-10 pt-6 pb-10">
-        <p className=sectionHeadingClass> {"Merchant Info"->React.string} </p>
-        <div className="flex gap-10 ">
-          <p className=titleClass> {"Merchant Name"->React.string} </p>
-          <p className=subTitleClass>
-            {merchantInfo->LogicUtils.getString("merchant_name", "")->React.string}
-          </p>
+      <div>
+        <div className="border bg-gray-50 rounded-t-lg border-b-0 w-full px-10 py-6">
+          <p className=sectionHeadingClass> {"Merchant Info"->React.string} </p>
         </div>
-        <div className="flex gap-10 ">
-          <p className=titleClass> {"Merchant Id"->React.string} </p>
-          <p className=subTitleClass>
-            {merchantInfo->LogicUtils.getString("merchant_id", "")->React.string}
-          </p>
-        </div>
+        <LoadedTable
+          title="Merchant Info"
+          hideTitle=true
+          resultsPerPage=7
+          visibleColumns
+          entity={merchantTableEntity}
+          actualData={switchMerchantListValue->Array.map(Nullable.make)}
+          totalResults={switchMerchantListValue->Array.length}
+          offset
+          setOffset
+          currrentFetchCount={switchMerchantListValue->Array.length}
+        />
       </div>
     </PageLoaderWrapper>
   }
@@ -90,7 +77,7 @@ module ResetPassword = {
     }
 
     <div className="flex gap-10 items-center">
-      <p className="text-hyperswitch_black text-base  w-1/5"> {"Password"->React.string} </p>
+      <p className="text-hyperswitch_black text-base  w-1/5"> {"Password:"->React.string} </p>
       <div className="flex flex-col gap-5 items-start md:flex-row md:items-center flex-wrap">
         <p className="text-hyperswitch_black opacity-50 text-base font-semibold break-all">
           {"********"->React.string}
@@ -118,6 +105,8 @@ module BasicDetailsSection = {
     let subTitleClass = "text-hyperswitch_black opacity-50 text-base font-semibold break-all"
     let sectionHeadingClass = "font-semibold text-fs-18"
     let userName = getFromUserDetails("name")
+    let userTitle = LogicUtils.userNameToTitle(userName)
+
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
 
     let getMerchantInfoValue = value => {
@@ -125,30 +114,35 @@ module BasicDetailsSection = {
       merchantDetails->LogicUtils.getString(value, "Not Added")
     }
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    <div className="flex flex-col gap-10 bg-white border rounded w-full px-10 pt-6 pb-10">
-      <p className=sectionHeadingClass> {"User Info"->React.string} </p>
-      <div className="flex gap-10 items-center">
-        <p className=titleClass> {"Email"->React.string} </p>
-        <p className=subTitleClass> {getMerchantInfoValue("email")->React.string} </p>
+    <div>
+      <div className="border bg-gray-50 rounded-t-lg w-full px-10 py-6">
+        <p className=sectionHeadingClass> {"User Info"->React.string} </p>
       </div>
-      <div className="flex gap-10 items-center">
-        <p className=titleClass> {"Name"->React.string} </p>
-        <p className=subTitleClass>
-          {(userName->String.length === 0 ? "--" : userName)->React.string}
-        </p>
+      <div
+        className="flex flex-col gap-5 bg-white border border-t-0 rounded-b-lg w-full px-10 pt-6 pb-10">
+        <div className="flex gap-10 items-center">
+          <p className=titleClass> {"Name:"->React.string} </p>
+          <p className=subTitleClass>
+            {(userName->LogicUtils.isNonEmptyString ? userTitle : "--")->React.string}
+          </p>
+        </div>
+        <hr />
+        <div className="flex gap-10 items-center">
+          <p className=titleClass> {"Email:"->React.string} </p>
+          <p className=subTitleClass> {getMerchantInfoValue("email")->React.string} </p>
+        </div>
+        <hr />
+        <UIUtils.RenderIf condition={!isPlayground && featureFlagDetails.email}>
+          <ResetPassword />
+        </UIUtils.RenderIf>
       </div>
-      <UIUtils.RenderIf condition={!isPlayground && featureFlagDetails.email}>
-        <ResetPassword />
-      </UIUtils.RenderIf>
     </div>
   }
 }
 @react.component
 let make = () => {
   <div className="flex flex-col overflow-scroll gap-8">
-    <PageUtils.PageHeading
-      title="Profile" subTitle="View, customise and manage your personal profile and preferences."
-    />
+    <PageUtils.PageHeading title="Profile" subTitle="Manage your profile settings here" />
     <div className="flex flex-col flex-wrap  gap-12">
       <BasicDetailsSection />
       <MerchantDetailsSection />

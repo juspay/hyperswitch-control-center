@@ -141,7 +141,7 @@ let make = (
     ? "border-red-500 focus:border-red-500  dark:border-red-500 dark:hover:border-red-500 dark:focus:border-red-500 focus:shadow-text_input_shadow focus:shadow-red-500"
     : `border-jp-gray-lightmode_steelgray ${borderColor.primaryFocused} dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:${borderColor.primaryFocused} focus:shadow-text_input_shadow ${shadowColor.primaryFocused}`
 
-  let dashboardClass = customDashboardClass->Option.getOr("h-10 text-sm font-semibold")
+  let dashboardClass = customDashboardClass->Option.getOr("h-10 text-sm font-normal")
   let rightPaddingClass = if description->LogicUtils.isNonEmptyString || isInValid {
     "pr-10"
   } else {

@@ -11,7 +11,7 @@ let make = () => {
         buttonType={Primary}
         onClick={_ => {
           setDashboardPageState(_ => #HOME)
-          RescriptReactRouter.replace("/home")
+          RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
         }}
       />
     </div>

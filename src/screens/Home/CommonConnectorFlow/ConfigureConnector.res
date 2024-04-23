@@ -176,7 +176,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
       }
       let _ = await PaymentType(paymentBody)->usePostEnumDetails(#TestPayment)
       setQuickStartPageState(_ => IntegrateApp(LANDING))
-      RescriptReactRouter.replace("/quick-start")
+      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/quick-start"))
       if paymentId->Option.isSome {
         mixpanelEvent(~eventName=`quickstart_checkout_pay`, ())
       } else {
@@ -218,7 +218,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
             text="Exit to Homepage"
             onClick={_ => {
               setDashboardPageState(_ => #HOME)
-              RescriptReactRouter.replace("/home")
+              RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
             }}
             buttonSize=Small
           />}
@@ -307,7 +307,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
             />}>
             <TestPayment
               initialValues={activeBusinessProfile->SDKPaymentUtils.initialValueForForm}
-              returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/quick-start`}
+              returnUrl={`${HSwitchGlobalVars.getHostURLFromVariant}/quick-start`}
               onProceed={updateTestPaymentEnum}
               keyValue=key
               sdkWidth="w-full"

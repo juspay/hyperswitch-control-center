@@ -154,10 +154,10 @@ module RedirectionToPayPalFlow = {
   let make = (~getPayPalStatus, ~profileId) => {
     open APIUtils
     open PayPalFlowTypes
-
+    open HSwitchGlobalVars
     let url = RescriptReactRouter.useUrl()
     let path = url.path->List.toArray->Array.joinWith("/")
-    let connectorId = url.path->List.toArray->LogicUtils.getValueFromArray(1, "")
+    let connectorId = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (actionUrl, setActionUrl) = React.useState(_ => "")
@@ -166,8 +166,8 @@ module RedirectionToPayPalFlow = {
       open LogicUtils
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let returnURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${path}?name=paypal&is_back=true&is_simplified_paypal=true&profile_id=${profileId}`
-
+        let fePrefix = getHostURLFromVariant->String.replace(appendDashboardPath(~url=""), "")
+        let returnURL = `${fePrefix}/${path}?name=paypal&is_back=true&is_simplified_paypal=true&profile_id=${profileId}`
         let body = PayPalFlowUtils.generatePayPalBody(
           ~connectorId={connectorId},
           ~returnUrl=Some(returnURL),
@@ -247,7 +247,7 @@ let make = (
     HyperswitchAtom.paypalAccountStatusAtom,
   )
   let connectorValue = isUpdateFlow
-    ? url.path->List.toArray->getValueFromArray(1, "")
+    ? HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
     : url.search->getDictFromUrlSearchParams->Dict.get("connectorId")->Option.getOr("")
 
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)
@@ -311,7 +311,9 @@ let make = (
       let connectorId = res->getDictFromJsonObject->getString("merchant_connector_id", "")
       setConnectorId(_ => connectorId)
       setScreenState(_ => Success)
-      RescriptReactRouter.replace(`/connectors/${connectorId}?name=paypal`)
+      RescriptReactRouter.replace(
+        HSwitchGlobalVars.appendDashboardPath(~url=`/connectors/${connectorId}?name=paypal`),
+      )
     } catch {
     | Exn.Error(e) =>
       switch Exn.message(e) {

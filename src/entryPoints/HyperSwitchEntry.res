@@ -96,7 +96,7 @@ module HyperSwitchEntryComponent = {
 
     let fetchFeatureFlags = async () => {
       try {
-        let url = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/config/merchant-access`
+        let url = `${HSwitchGlobalVars.getHostURLFromVariant}/config/merchant-access`
         let typedResponse =
           (
             await postDetails(url, Dict.make()->JSON.Encode.object, Post, ())
