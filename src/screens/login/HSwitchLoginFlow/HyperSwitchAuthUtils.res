@@ -207,7 +207,7 @@ let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
     <div
       onClick={_ => {
         setAuthType(_ => authType)
-        path->RescriptReactRouter.push
+        HSwitchGlobalVars.appendDashboardPath(~url=path)->RescriptReactRouter.push
       }}
       className={`text-sm text-center ${textColor.primaryNormal} cursor-pointer hover:underline underline-offset-2`}>
       {btnText->React.string}
@@ -276,18 +276,8 @@ module ToggleLiveTestMode = {
   open HSwitchGlobalVars
   @react.component
   let make = (~authType, ~mode, ~setMode, ~setAuthType, ~customClass="") => {
-    let liveButtonRedirectUrl = switch hostType {
-    | Live | Sandbox => liveURL
-    | Local => localURL
-    | Netlify => netlifyUrl
-    }
-
-    let testButtonRedirectUrl = switch hostType {
-    | Live | Sandbox => sandboxURL
-    | Local => localURL
-    | Netlify => netlifyUrl
-    }
-
+    let liveButtonRedirectUrl = getHostURLFromVariant
+    let testButtonRedirectUrl = getHostURLFromVariant
     <>
       {switch authType {
       | LoginWithPassword
@@ -375,7 +365,7 @@ module Header = {
             form.resetFieldState("email")
             form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
             setAuthType(_ => authType)
-            path->RescriptReactRouter.push
+            HSwitchGlobalVars.appendDashboardPath(~url=path)->RescriptReactRouter.push
           }}
           id="card-subtitle"
           className={`font-semibold ${textColor.primaryNormal} cursor-pointer`}>

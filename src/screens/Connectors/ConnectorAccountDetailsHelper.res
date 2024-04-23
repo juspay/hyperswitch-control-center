@@ -393,7 +393,9 @@ module BusinessProfileRender = {
             className={`ml-1 ${hereTextStyle}`}
             onClick={_ => {
               setDashboardPageState(_ => #HOME)
-              RescriptReactRouter.push("/business-profiles")
+              RescriptReactRouter.push(
+                HSwitchGlobalVars.appendDashboardPath(~url="/business-profiles"),
+              )
             }}>
             {React.string("here.")}
           </span>

@@ -3,6 +3,35 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.23.0
+
+### Features
+
+- Base url change ([#595](https://github.com/juspay/hyperswitch-control-center/pull/595)) ([`7c3bf0c`](https://github.com/juspay/hyperswitch-control-center/commit/7c3bf0c7bb79d71a49c2e2031a32b7c190a4bf7c))
+
+### Miscellaneous Tasks
+
+- Profile page changes ([#566](https://github.com/juspay/hyperswitch-control-center/pull/566)) ([`6f2dbb4`](https://github.com/juspay/hyperswitch-control-center/commit/6f2dbb46e88a8bc7b7d5e4ceb304491a71b71159))
+
+**Full Changelog:** [`2024.04.18.0...2024.04.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.18.0...2024.04.23.0)
+
+- - -
+
+## 2024.04.18.0
+
+### Features
+
+- Support merchant business country ([`d365865`](https://github.com/juspay/hyperswitch-control-center/commit/d3658651e911e632c604419df9951c1bd5d15f39))
+
+### Bug Fixes
+
+- Make applepay merchant business country required fields ([#592](https://github.com/juspay/hyperswitch-control-center/pull/592)) ([`b50cf5a`](https://github.com/juspay/hyperswitch-control-center/commit/b50cf5a1fd7402274f2a6b4b20952ad4d6280c9a))
+- Added dummy connector image ([#591](https://github.com/juspay/hyperswitch-control-center/pull/591)) ([`63d30d6`](https://github.com/juspay/hyperswitch-control-center/commit/63d30d69c65d9e9f8944cc9bcc92720126bfc62f))
+
+**Full Changelog:** [`2024.04.17.0...2024.04.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.17.0...2024.04.18.0)
+
+- - -
+
 ## 2024.04.17.0
 
 ### Features

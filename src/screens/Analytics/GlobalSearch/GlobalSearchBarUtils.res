@@ -23,8 +23,7 @@ module ShowMoreLink = {
           | Disputes => `dispute-global?query=${searchText}`
           | Local | Others | Default => ""
           }
-
-          link->RescriptReactRouter.push
+          HSwitchGlobalVars.appendDashboardPath(~url=link)->RescriptReactRouter.push
           cleanUpFunction()
         }}
         className={`font-medium cursor-pointer underline underline-offset-2 ${textStyleClass}`}>
