@@ -342,6 +342,9 @@ let camelToSnake = str => {
   ->String.toLowerCase
 }
 
+let userNameToTitle = str =>
+  str->String.split(".")->Array.map(capitalizeString)->Array.joinWith(" ")
+
 let camelCaseToTitle = str => {
   str->capitalizeString->String.replaceRegExp(%re("/([a-z0-9A-Z])([A-Z])/g"), "$1 $2")
 }
