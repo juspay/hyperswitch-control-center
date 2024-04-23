@@ -101,7 +101,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
       body->getDictFromJsonObject->Dict.set("role_name", roleNameValue->JSON.Encode.string)
       let _ = await updateDetails(url, body, Post, ())
       setScreenState(_ => PageLoaderWrapper.Success)
-      RescriptReactRouter.replace("/users")
+      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/users"))
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")

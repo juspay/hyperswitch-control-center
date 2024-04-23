@@ -103,7 +103,7 @@ let useApiFetcher = () => {
               | LoggedIn(_) =>
                 LocalStorage.clear()
                 setAuthStatus(LoggedOut)
-                RescriptReactRouter.push("/login")
+                RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
                 resolve(resp)
 
               | _ => resolve(resp)

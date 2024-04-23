@@ -186,7 +186,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
 
     showToast(~message, ~toastType, ())
 
-    RescriptReactRouter.push("/users")
+    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/users"))
     Nullable.null
   }
 

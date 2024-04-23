@@ -10,7 +10,7 @@ let make = () => {
   let userRole = HSLocalStorage.getFromUserDetails("user_role")
 
   React.useEffect1(() => {
-    RescriptReactRouter.push("agreement-signature")
+    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/agreement-signature"))
     None
   }, [dashboardPageState])
 

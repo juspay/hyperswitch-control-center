@@ -156,7 +156,7 @@ let make = () => {
 
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal
-      ? RescriptReactRouter.replace("/home")
+      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
       : setDashboardPageState(_ => #STRIPE_PLUS_PAYPAL)
 
     React.null
@@ -164,7 +164,7 @@ let make = () => {
 
   let determineWooCommerce = () => {
     enumDetails->checkWooCommerce
-      ? RescriptReactRouter.replace("/home")
+      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
       : setDashboardPageState(_ => #WOOCOMMERCE_FLOW)
 
     React.null
@@ -174,7 +174,7 @@ let make = () => {
     isProdIntentCompleted->Option.getOr(false) &&
     enumDetails.integrationCompleted &&
     !(enumDetails.testPayment.payment_id->isEmptyString)
-      ? RescriptReactRouter.replace("/home")
+      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
       : setDashboardPageState(_ => #QUICK_START)
 
     React.null
@@ -226,7 +226,7 @@ let make = () => {
                     <div
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
-                        {switch url.path {
+                        {switch url.path->urlPath {
                         | list{"home"} => featureFlagDetails.quickStart ? <HomeV2 /> : <Home />
                         | list{"fraud-risk-management", ...remainingPath} =>
                           <AccessControl
@@ -403,7 +403,6 @@ let make = () => {
                             </FilterContext>
                           </AccessControl>
 
-                        // TODO : reevaluatet the conditions
                         | list{"payment-settings", ...remainingPath} =>
                           <EntityScaffold
                             entityName="PaymentSettings"
@@ -439,7 +438,6 @@ let make = () => {
                           </AccessControl>
                         | list{"account-settings", "profile"} => <HSwitchProfileSettings />
 
-                        // TODO : reevaluate the condition
                         | list{"business-details"} =>
                           <AccessControl isEnabled=featureFlagDetails.default permission={Access}>
                             <BusinessDetails />
@@ -491,7 +489,7 @@ let make = () => {
                           </AccessControl>
                         | list{"unauthorized"} => <UnauthorizedPage />
                         | _ =>
-                          RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)
+                          RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
                           <Home />
                         }}
                       </ErrorBoundary>

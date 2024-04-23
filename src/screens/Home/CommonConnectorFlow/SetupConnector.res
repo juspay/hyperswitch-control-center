@@ -34,7 +34,11 @@ module SelectProcessor = {
         onClick={_ => {
           setConnectorConfigureState(_ => Select_configuration_type)
           mixpanelEvent(~eventName=`quickstart_select_processor`, ())
-          RescriptReactRouter.replace(`/${url.path->LogicUtils.getListHead}?name=${connectorName}`)
+          RescriptReactRouter.replace(
+            HSwitchGlobalVars.appendDashboardPath(
+              ~url=`/${url.path->LogicUtils.getListHead}?name=${connectorName}`,
+            ),
+          )
         }}
         buttonSize=Small
       />}

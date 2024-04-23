@@ -35,7 +35,9 @@ let devServer = {
   compress: true,
   hot: true,
   port: port,
-  historyApiFallback: true,
+  historyApiFallback: {
+    rewrites: [{ from: /^\/dashboard/, to: "/index.html" }],
+  },
   proxy: proxy,
   onBeforeSetupMiddleware: (devServer) => {
     devServer.app.use(configMiddleware);

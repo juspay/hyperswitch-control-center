@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.23.0
+
+### Features
+
+- Base url change ([#595](https://github.com/juspay/hyperswitch-control-center/pull/595)) ([`7c3bf0c`](https://github.com/juspay/hyperswitch-control-center/commit/7c3bf0c7bb79d71a49c2e2031a32b7c190a4bf7c))
+
+### Miscellaneous Tasks
+
+- Profile page changes ([#566](https://github.com/juspay/hyperswitch-control-center/pull/566)) ([`6f2dbb4`](https://github.com/juspay/hyperswitch-control-center/commit/6f2dbb46e88a8bc7b7d5e4ceb304491a71b71159))
+
+**Full Changelog:** [`2024.04.18.0...2024.04.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.18.0...2024.04.23.0)
+
+- - -
+
 ## 2024.04.18.0
 
 ### Features

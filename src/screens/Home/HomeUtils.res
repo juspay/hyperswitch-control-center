@@ -176,7 +176,7 @@ module CheckoutCard = {
         })
       } else {
         mixpanelEvent(~eventName=`try_test_payment`, ())
-        RescriptReactRouter.replace("/sdk")
+        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/sdk"))
       }
     }
 
@@ -230,7 +230,7 @@ module ControlCenter = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                RescriptReactRouter.push("/connectors")
+                RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/connectors"))
               }}
             />
           </CardFooter>
@@ -249,7 +249,9 @@ module ControlCenter = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                RescriptReactRouter.push("/developer-api-keys")
+                RescriptReactRouter.push(
+                  HSwitchGlobalVars.appendDashboardPath(~url="/developer-api-keys"),
+                )
               }}
             />
           </CardFooter>
