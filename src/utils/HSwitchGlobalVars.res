@@ -32,7 +32,7 @@ let playgroundUserPassword = "Dummy@1234"
 
 let urlFordownloadingAgreementMapper = switch hostType {
 | Sandbox => "https://app.hyperswitch.io/agreement/tc-hyperswitch-aug-23.pdf"
-| Live => "https://live.hyperswitch.io/agreement/tc-hyperswitch-aug-23.pdf"
+| Live => "https://live.hyperswitch.io/agreement/tc-hyperswitch-apr-24.pdf"
 | _ => "https://app.hyperswitch.io/agreement/tc-hyperswitch-aug-23.pdf"
 }
 
@@ -42,4 +42,4 @@ let urlToDownloadApplePayCertificate = switch hostType {
 | _ => "/apple-developer-merchantid-domain-association"
 }
 
-let agreementVersion = "1.1.0"
+let agreementVersion = "2.0.0"
