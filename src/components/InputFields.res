@@ -521,3 +521,14 @@ let checkboxInput = (
     wrapBasis
   />
 }
+
+let boolInput = (
+  ~isDisabled,
+  ~isCheckBox=false,
+  ~boolCustomClass="",
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder as _,
+  (),
+) => {
+  <BoolInput input isDisabled isCheckBox boolCustomClass />
+}
