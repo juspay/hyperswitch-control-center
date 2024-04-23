@@ -843,9 +843,10 @@ let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) =>
 let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(BLUESNAP), "merchant_id") => false
-  | (Processors(CHECKOUT), "acquirer_bin") => false
-  | (Processors(CHECKOUT), "acquirer_merchant_id") => false
-
+  | (Processors(CHECKOUT), "acquirer_bin") | (Processors(NMI), "acquirer_bin") => false
+  | (Processors(CHECKOUT), "acquirer_merchant_id")
+  | (Processors(NMI), "acquirer_merchant_id") => false
+  | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") => false
   | _ => true
   }
 }
