@@ -38,6 +38,15 @@ let currencyField = (
     (),
   )
 
+let toggleField = (~name) => {
+  FormRenderer.makeFieldInfo(
+    ~name,
+    ~label="Pull Mechanism Enabled",
+    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg", ()),
+    (),
+  )
+}
+
 let inputField = (
   ~name,
   ~field,
@@ -106,13 +115,14 @@ module RenderConnectorInputFields = {
     ~disabled=false,
     ~description="",
   ) => {
+    Js.log(connector)
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     open ConnectorUtils
     open LogicUtils
     let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))
     keys
     ->Array.mapWithIndex((field, i) => {
-      let label = details->getString(field, "")
+      let label = details->getString(field, "default")
       let formName = isLabelNested ? `${name}.${field}` : name
       <UIUtils.RenderIf condition={label->isNonEmptyString} key={i->Int.toString}>
         <AddDataAttributes attributes=[("data-testid", label->titleToSnake->String.toLowerCase)]>
@@ -122,6 +132,10 @@ module RenderConnectorInputFields = {
               field={switch (connector, field) {
               | (Processors(BRAINTREE), "merchant_config_currency") =>
                 currencyField(~name=formName, ())
+
+              | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") =>
+                toggleField(~name=formName)
+
               | _ =>
                 inputField(
                   ~name=formName,
