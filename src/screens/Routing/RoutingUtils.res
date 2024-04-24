@@ -280,7 +280,7 @@ let filterConnectorListCoreJson = (json, ~retainInList) => {
 }
 
 let urlToVariantMapper = (url: RescriptReactRouter.url) => {
-  switch url.path {
+  switch url.path->HSwitchUtils.urlPath {
   | list{"payoutrouting", _} => PayoutRouting
   | list{"3ds", _} => ThreedsRouting
   | list{"surcharge", _} => SurchargeRouting

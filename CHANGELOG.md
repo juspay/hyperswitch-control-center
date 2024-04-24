@@ -3,6 +3,44 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.23.2
+
+### Bug Fixes
+
+- Base url show payments fix ([#603](https://github.com/juspay/hyperswitch-control-center/pull/603)) ([`f774020`](https://github.com/juspay/hyperswitch-control-center/commit/f774020650198a6adb8848c3203ed2f5193d2225))
+
+**Full Changelog:** [`2024.04.23.1...2024.04.23.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.23.1...2024.04.23.2)
+
+- - -
+
+## 2024.04.23.1
+
+### Bug Fixes
+
+- Agreement version change ([#600](https://github.com/juspay/hyperswitch-control-center/pull/600)) ([`f819f26`](https://github.com/juspay/hyperswitch-control-center/commit/f819f26f30e8084f4c5c0bbe21937987114ae322))
+
+### Miscellaneous Tasks
+
+- Update connector metadata for nmi and 3ds ([#602](https://github.com/juspay/hyperswitch-control-center/pull/602)) ([`b9f8499`](https://github.com/juspay/hyperswitch-control-center/commit/b9f8499c6c72f51e00c488bf9474757eb027635e))
+
+**Full Changelog:** [`2024.04.23.0...2024.04.23.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.23.0...2024.04.23.1)
+
+- - -
+
+## 2024.04.23.0
+
+### Features
+
+- Base url change ([#595](https://github.com/juspay/hyperswitch-control-center/pull/595)) ([`7c3bf0c`](https://github.com/juspay/hyperswitch-control-center/commit/7c3bf0c7bb79d71a49c2e2031a32b7c190a4bf7c))
+
+### Miscellaneous Tasks
+
+- Profile page changes ([#566](https://github.com/juspay/hyperswitch-control-center/pull/566)) ([`6f2dbb4`](https://github.com/juspay/hyperswitch-control-center/commit/6f2dbb46e88a8bc7b7d5e4ceb304491a71b71159))
+
+**Full Changelog:** [`2024.04.18.0...2024.04.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.18.0...2024.04.23.0)
+
+- - -
+
 ## 2024.04.18.0
 
 ### Features

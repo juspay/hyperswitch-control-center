@@ -163,7 +163,7 @@ let make = () => {
 
   let getCssOnView = "xl:w-77-rem  mx-7 xl:ml-[7rem]"
   let centerItems = pageView === SETUP_COMPLETED ? "justify-center" : ""
-  let urlPush = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/prod-onboarding?${routerUrl.search}`
+  let urlPush = HSwitchGlobalVars.appendDashboardPath(~url=`/prod-onboarding?${routerUrl.search}`)
 
   let userRole = HSLocalStorage.getFromUserDetails("user_role")
 
@@ -171,7 +171,7 @@ let make = () => {
     open LogicUtils
     if prodEnums.setupComplete {
       setDashboardPageState(_ => #HOME)
-      let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
+      let baseUrlPath = `${HSwitchGlobalVars.getHostURLFromVariant}/${routerUrl.path
         ->List.toArray
         ->Array.joinWith("/")}`
       routerUrl.search->isNonEmptyString
@@ -215,7 +215,9 @@ let make = () => {
       let connectorName = json->getDictFromJsonObject->getString("connector_name", "")
       setInitialValues(_ => json)
       setPreviewState(_ => Some(headerVariant->ProdOnboardingUtils.getPreviewState))
-      RescriptReactRouter.replace(`prod-onboarding?name=${connectorName}`)
+      RescriptReactRouter.replace(
+        HSwitchGlobalVars.appendDashboardPath(~url=`/prod-onboarding?name=${connectorName}`),
+      )
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }
