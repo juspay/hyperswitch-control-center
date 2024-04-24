@@ -18,10 +18,10 @@ let make = (~setAuthType, ~setAuthStatus) => {
       if !(token->isEmptyString) && !(email->isEmptyString) {
         setAuthStatus(LoggedIn(getDummyAuthInfoForToken(token)))
         setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
-        RescriptReactRouter.replace(`${HSwitchGlobalVars.hyperSwitchFEPrefix}/home`)
+        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
       } else {
         setAuthStatus(LoggedOut)
-        RescriptReactRouter.replace(`${HSwitchGlobalVars.hyperSwitchFEPrefix}/login`)
+        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
       }
     } catch {
     | Exn.Error(e) => {
@@ -73,7 +73,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
             buttonSize={Small}
             customButtonStyle="cursor-pointer cursor-pointer w-5 rounded-md"
             onClick={_ => {
-              RescriptReactRouter.replace(`${HSwitchGlobalVars.hyperSwitchFEPrefix}/login`)
+              RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
               setAuthType(_ => LoginWithEmail)
             }}
           />

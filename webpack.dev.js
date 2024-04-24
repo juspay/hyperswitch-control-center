@@ -11,7 +11,7 @@ let port = 9000;
 let proxy = {};
 
 let configMiddleware = (req, res, next) => {
-  if (req.path == "/config/merchant-access" && req.method == "POST") {
+  if (req.path.includes("/config/merchant-access") && req.method == "POST") {
     configScripts
       .then((result) => {
         result.configHandler(req, res, false);
@@ -33,7 +33,9 @@ let devServer = {
   compress: true,
   hot: true,
   port: port,
-  historyApiFallback: true,
+  historyApiFallback: {
+    rewrites: [{ from: /^\/dashboard/, to: "/index.html" }],
+  },
   proxy: proxy,
   onBeforeSetupMiddleware: (devServer) => {
     devServer.app.use(configMiddleware);

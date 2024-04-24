@@ -239,3 +239,23 @@ let checkWooCommerce = (enumDetails: QuickStartTypes.responseType) => {
 
 let noAccessControlText = "You do not have the required permissions to access this module. Please contact your admin."
 let noAccessControlTextForProcessors = "You do not have the required permissions to connect this processor. Please contact admin."
+
+let urlPath = urlPathList => {
+  open HSwitchGlobalVars
+  switch dashboardBasePath {
+  | Some(_) =>
+    switch urlPathList {
+    | list{_, ...rest} => rest
+    | _ => urlPathList
+    }
+  | _ => urlPathList
+  }
+}
+
+let getConnectorIDFromUrl = (urlList, defaultValue) => {
+  open HSwitchGlobalVars
+  switch dashboardBasePath {
+  | Some(_) => urlList->Array.get(2)->Option.getOr(defaultValue)
+  | _ => urlList->Array.get(1)->Option.getOr(defaultValue)
+  }
+}

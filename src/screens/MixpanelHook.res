@@ -56,7 +56,7 @@ let useSendEvent = () => {
 
     try {
       let _ = await fetchApi(
-        `${dashboardUrl}/mixpanel/track`,
+        `${getHostURLFromVariant}/mixpanel/track`,
         ~method_=Fetch.Post,
         ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
         (),
