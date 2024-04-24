@@ -25,7 +25,5 @@ let handleCatch = (
 
   if shouldResolve {
     Promise.resolve()->ignore
-  } else {
-    ()
   }
 }
