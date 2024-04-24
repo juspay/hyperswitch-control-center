@@ -20,7 +20,10 @@ let getStepName = step => {
 
 let payoutConnectorList: array<connectorTypes> = [Processors(ADYEN), Processors(WISE)]
 
-let threedsAuthenticatorList: array<connectorTypes> = [ThreeDsAuthenticator(THREEDSECUREIO)]
+let threedsAuthenticatorList: array<connectorTypes> = [
+  ThreeDsAuthenticator(THREEDSECUREIO),
+  ThreeDsAuthenticator(NETCETERA),
+]
 
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
@@ -361,6 +364,9 @@ let helcimInfo = {
 let threedsecuredotioInfo = {
   description: "A brief description of the connector (100-150 chars) -  A secure, affordable and easy to connect 3DS authentication platform. Improve the user experience during checkout, enhance the conversion rates and stay compliant with the regulations with 3dsecure.io.",
 }
+let netceteraInfo = {
+  description: "A brief description of the connector (100-150 chars) -  A secure, affordable and easy to connect 3DS authentication platform. Improve the user experience during checkout, enhance the conversion rates and stay compliant with the regulations with 3dsecure.io.",
+}
 
 let unknownConnectorInfo = {
   description: "unkown connector",
@@ -443,6 +449,7 @@ let getConnectorNameString = (connector: processorTypes) =>
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "threedsecureio"
+  | NETCETERA => "netcetera"
   }
 
 let getConnectorNameString = (connector: connectorTypes) => {
@@ -517,6 +524,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | ThreeDsAuthenticator =>
     switch connector {
     | "threedsecureio" => ThreeDsAuthenticator(THREEDSECUREIO)
+    | "netcetera" => ThreeDsAuthenticator(NETCETERA)
     | _ => UnknownConnector("Not known")
     }
   | _ => UnknownConnector("Not known")
@@ -584,6 +592,7 @@ let getProcessorInfo = connector => {
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => threedsecuredotioInfo
+  | NETCETERA => netceteraInfo
   }
 
 let getConnectorInfo = connector => {
@@ -1315,6 +1324,7 @@ let getDisplayNameForProcessor = connector =>
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "3dsecure.io"
+  | NETCETERA => "Netcetera"
   }
 
 let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {
