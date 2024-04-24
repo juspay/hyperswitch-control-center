@@ -193,7 +193,6 @@ module Base = {
     let (localStartDate, setLocalStartDate) = React.useState(_ => startDateVal)
     let (localEndDate, setLocalEndDate) = React.useState(_ => endDateVal)
     let (_localOpt, setLocalOpt) = React.useState(_ => "")
-    let (showMsg, setShowMsg) = React.useState(_ => false)
 
     let (isDropdownExpanded, setIsDropdownExpanded) = React.useState(_ => false)
     let (calendarVisibility, setCalendarVisibility) = React.useState(_ => false)
@@ -232,7 +231,6 @@ module Base = {
       | Some(maxLen) => {
           let diff = getStartEndDiff(localStartDate, localEndDate)
           if diff > (maxLen->Int.toFloat *. 24. *. 60. *. 60. -. 1.) *. 1000. {
-            setShowMsg(_ => true)
             resetStartEndInput()
           }
         }
@@ -584,29 +582,6 @@ module Base = {
       }
     }
 
-    let displayStartDate = convertTimeStamp(
-      ~isoStringToCustomTimeZone,
-      localStartDate,
-      formatDateTime,
-    )
-    let modifiedStartDate = if removeConversion {
-      (displayStartDate->DayJs.getDayJsForString).subtract(. 330, "minute").format(.
-        "YYYY-MM-DDTHH:mm:ss[Z]",
-      )
-    } else {
-      displayStartDate
-    }
-
-    let displayEndDate = convertTimeStamp(~isoStringToCustomTimeZone, localEndDate, formatDateTime)
-
-    let modifiedEndDate = if removeConversion {
-      (displayEndDate->DayJs.getDayJsForString).subtract(. 330, "minute").format(.
-        "YYYY-MM-DDTHH:mm:ss[Z]",
-      )
-    } else {
-      displayEndDate
-    }
-
     React.useEffect4(() => {
       if startDate->isNonEmptyString && endDate->isNonEmptyString {
         if (
@@ -769,7 +744,6 @@ module Base = {
               disablePastDates
               disableFutureDates
               ?dateRangeLimit
-              setShowMsg
               calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
               ?allowedDateRange
             />
