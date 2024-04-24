@@ -142,7 +142,7 @@ module BasicDetailsSection = {
         <div className="flex gap-10 items-center">
           <p className=titleClass> {"Name:"->React.string} </p>
           <p className=subTitleClass>
-            {(userName->String.length === 0 ? "--" : userTitle)->React.string}
+            {(userName->LogicUtils.isNonEmptyString ? userTitle : "--")->React.string}
           </p>
         </div>
         <hr />
