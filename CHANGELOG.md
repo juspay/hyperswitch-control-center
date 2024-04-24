@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.24.1
+
+### Features
+
+- Added netcetera threeds authenticator ([#605](https://github.com/juspay/hyperswitch-control-center/pull/605)) ([`3527e00`](https://github.com/juspay/hyperswitch-control-center/commit/3527e00c96957c6ea437d14dc374836556abb2aa))
+
+### Bug Fixes
+
+- Netcetera icon added ([#607](https://github.com/juspay/hyperswitch-control-center/pull/607)) ([`b4501ca`](https://github.com/juspay/hyperswitch-control-center/commit/b4501cab70b6fa172317e15e04991be1cf8d89c6))
+
+**Full Changelog:** [`2024.04.24.0...2024.04.24.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.24.0...2024.04.24.1)
+
+- - -
+
 ## 2024.04.24.0
 
 ### Features
