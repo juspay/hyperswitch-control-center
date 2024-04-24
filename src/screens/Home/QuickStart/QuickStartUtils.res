@@ -705,3 +705,11 @@ let getCurrentStep = dict => {
     #GoLive
   }
 }
+
+let filterDashboardFromUrlPath = urlPathArray => {
+  open HSwitchGlobalVars
+  switch dashboardBasePath {
+  | Some(_) => urlPathArray->Array.filter(value => value !== "dashboard")
+  | _ => urlPathArray
+  }
+}
