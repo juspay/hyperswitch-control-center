@@ -115,7 +115,6 @@ module RenderConnectorInputFields = {
     ~disabled=false,
     ~description="",
   ) => {
-    Js.log(connector)
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     open ConnectorUtils
     open LogicUtils
@@ -125,7 +124,8 @@ module RenderConnectorInputFields = {
       let label = details->getString(field, "default")
       let formName = isLabelNested ? `${name}.${field}` : name
       <UIUtils.RenderIf
-        condition={label->isNonEmptyString || field === "pull_mechanism_for_external_3ds_enabled"}
+        condition={label !== "default" ||
+          (label === "default" && field === "pull_mechanism_for_external_3ds_enabled")}
         key={i->Int.toString}>
         <AddDataAttributes attributes=[("data-testid", label->titleToSnake->String.toLowerCase)]>
           <div key={label}>
