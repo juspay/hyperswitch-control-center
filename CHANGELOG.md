@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.24.2
+
+### Bug Fixes
+
+- Empty box in connector fix ([#608](https://github.com/juspay/hyperswitch-control-center/pull/608)) ([`202e340`](https://github.com/juspay/hyperswitch-control-center/commit/202e34041abbcbfe8ccf0ab7596b9d72f15279c3))
+
+**Full Changelog:** [`2024.04.24.1...2024.04.24.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.24.1...2024.04.24.2)
+
+- - -
+
 ## 2024.04.24.1
 
 ### Features
