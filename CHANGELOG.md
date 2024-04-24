@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.24.0
+
+### Features
+
+- Authorize.net in prod ([#606](https://github.com/juspay/hyperswitch-control-center/pull/606)) ([`6de72a6`](https://github.com/juspay/hyperswitch-control-center/commit/6de72a6a432baa818741cfd77202238da617b4c7))
+
+**Full Changelog:** [`2024.04.23.2...2024.04.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.23.2...2024.04.24.0)
+
+- - -
+
 ## 2024.04.23.2
 
 ### Bug Fixes
