@@ -81,7 +81,7 @@ type processorTypes =
   | PLACETOPAY
   | ZSL
 
-type threeDsAuthenticatorTypes = THREEDSECUREIO
+type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
 type connectorTypes =
   | Processors(processorTypes)
