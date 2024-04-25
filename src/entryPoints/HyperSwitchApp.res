@@ -28,7 +28,7 @@ let make = () => {
     enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
-  let (companyNameModal, setCompanyNameModal) = React.useState(_ => false)
+  let (surveyModal, setSurveyModal) = React.useState(_ => false)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->getIntFromString(-1)
   let merchantId = getFromMerchantDetails("merchant_id")
@@ -99,7 +99,7 @@ let make = () => {
       let onboardingDetailsFilled =
         firstValueFromArray->getDictFromJsonObject->getDictfromDict("OnboardingSurvey")
       let val = onboardingDetailsFilled->Dict.keysToArray->Array.length === 0
-      setCompanyNameModal(_ => val)
+      setSurveyModal(_ => val)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -516,8 +516,8 @@ let make = () => {
                 <ProdIntentForm />
               </RenderIf>
               <RenderIf
-                condition={userPermissionJson.merchantDetailsManage === Access && companyNameModal}>
-                <CompanyNameModal showModal=companyNameModal setShowModal=setCompanyNameModal />
+                condition={userPermissionJson.merchantDetailsManage === Access && surveyModal}>
+                <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
               </RenderIf>
             </div>
           </div>
