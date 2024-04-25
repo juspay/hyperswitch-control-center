@@ -57,13 +57,13 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
       let sortedHistoryRecords =
         recordsData
-        ->Js.Array2.sortInPlaceWith((item1, item2) => {
+        ->Array.toSorted((item1, item2) => {
           if activeIds->Array.includes(item1.id) {
-            -1
+            -1.
           } else if activeIds->Array.includes(item2.id) {
-            1
+            1.
           } else {
-            0
+            0.
           }
         })
         ->Array.map(Nullable.make)

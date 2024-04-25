@@ -36,6 +36,12 @@ type paymentAttemptStatus = [
   | #NONE
 ]
 
+type refundStatus =
+  | Success
+  | Pending
+  | Failure
+  | None
+
 let statusVariantMapper: string => status = statusLabel =>
   switch statusLabel->String.toUpperCase {
   | "SUCCEEDED" => Succeeded
@@ -76,6 +82,15 @@ let paymentAttemptStatusVariantMapper: string => paymentAttemptStatus = statusLa
   | "DEVICE_DATA_COLLECTION_PENDING" => #DEVICE_DATA_COLLECTION_PENDING
   | _ => #NONE
   }
+
+let refundStatusVariantMapper: string => refundStatus = statusLabel => {
+  switch statusLabel->String.toUpperCase {
+  | "SUCCESS" => Success
+  | "PENDING" => Pending
+  | "FAILURE" => Failure
+  | _ => None
+  }
+}
 
 let isTestData = id => id->String.includes("test_")
 

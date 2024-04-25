@@ -30,9 +30,7 @@ module TextView = {
     str->LogicUtils.isNonEmptyString
       ? <AddDataAttributes attributes=[("data-plc-text", str)]>
           <div
-            className={`text-opacity-75 dark:text-opacity-75 
-              hover:text-opacity-100 dark:hover:text-opacity-100  
-              mx-1  ${fontColor} ${fontWeight} `}>
+            className={`text-opacity-75 dark:text-opacity-75 hover:text-opacity-100 dark:hover:text-opacity-100 mx-1 ${fontColor} ${fontWeight} `}>
             {React.string(str)}
           </div>
         </AddDataAttributes>
