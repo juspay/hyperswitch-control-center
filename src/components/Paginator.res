@@ -57,7 +57,7 @@ let make = (
   }
   let paginate = React.useCallback5(pageNumber => {
     let total = Math.ceil(Int.toFloat(totalResults) /. Int.toFloat(resultsPerPage))->Float.toInt
-    //  for handling page count
+    // for handling page count
     let defaultPageNumber = Math.Int.min(total, pageNumber)
     let page = defaultPageNumber
 

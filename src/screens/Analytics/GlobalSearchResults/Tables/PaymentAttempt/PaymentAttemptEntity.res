@@ -387,26 +387,32 @@ let getHeading = colType => {
 }
 
 let getCell = (paymentObj, colType): Table.cell => {
-  let orderStatus = paymentObj.status->HSwitchOrderUtils.statusVariantMapper
-
   switch colType {
   | PaymentId => Text(paymentObj.payment_id)
   | MerchantId => Text(paymentObj.merchant_id)
   | Status =>
+    let orderStatus = paymentObj.status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper
     Label({
       title: paymentObj.status->String.toUpperCase,
       color: switch orderStatus {
-      | Succeeded
-      | PartiallyCaptured =>
+      | #CHARGED
+      | #PARTIAL_CHARGED
+      | #COD_INITIATED
+      | #AUTO_REFUNDED =>
         LabelGreen
-      | Failed
-      | Cancelled =>
+      | #AUTHENTICATION_FAILED
+      | #ROUTER_DECLINED
+      | #AUTHORIZATION_FAILED
+      | #CAPTURE_FAILED
+      | #VOID_FAILED
+      | #FAILURE =>
         LabelRed
-      | Processing
-      | RequiresCustomerAction
-      | RequiresConfirmation
-      | RequiresPaymentMethod =>
-        LabelLightBlue
+      | #AUTHENTICATION_PENDING
+      | #AUTHORIZING
+      | #VOID_INITIATED
+      | #CAPTURE_INITIATED
+      | #PENDING =>
+        LabelYellow
       | _ => LabelLightBlue
       },
     })

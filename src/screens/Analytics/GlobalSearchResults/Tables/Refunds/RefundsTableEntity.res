@@ -207,8 +207,6 @@ let getHeading = colType => {
 }
 
 let getCell = (refundsObj, colType): Table.cell => {
-  let refundStatus = refundsObj.refund_status->HSwitchOrderUtils.statusVariantMapper
-
   switch colType {
   | InternalReferenceId => Text(refundsObj.internal_reference_id)
   | RefundId => Text(refundsObj.refund_id)
@@ -235,20 +233,13 @@ let getCell = (refundsObj, colType): Table.cell => {
       "",
     )
   | Refundstatus =>
+    let refundStatus = refundsObj.refund_status->HSwitchOrderUtils.refundStatusVariantMapper
     Label({
       title: refundsObj.refund_status->String.toUpperCase,
       color: switch refundStatus {
-      | Succeeded
-      | PartiallyCaptured =>
-        LabelGreen
-      | Failed
-      | Cancelled =>
-        LabelRed
-      | Processing
-      | RequiresCustomerAction
-      | RequiresConfirmation
-      | RequiresPaymentMethod =>
-        LabelLightBlue
+      | Success => LabelGreen
+      | Failure => LabelRed
+      | Pending => LabelYellow
       | _ => LabelLightBlue
       },
     })
