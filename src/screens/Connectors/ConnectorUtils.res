@@ -362,10 +362,10 @@ let helcimInfo = {
 }
 
 let threedsecuredotioInfo = {
-  description: "A brief description of the connector (100-150 chars) -  A secure, affordable and easy to connect 3DS authentication platform. Improve the user experience during checkout, enhance the conversion rates and stay compliant with the regulations with 3dsecure.io.",
+  description: "A secure, affordable and easy to connect 3DS authentication platform. Improve the user experience during checkout, enhance the conversion rates and stay compliant with the regulations with 3dsecure.io",
 }
 let netceteraInfo = {
-  description: "A brief description of the connector (100-150 chars) -  A secure, affordable and easy to connect 3DS authentication platform. Improve the user experience during checkout, enhance the conversion rates and stay compliant with the regulations with 3dsecure.io.",
+  description: "Cost-effective 3DS authentication platform ensuring security. Elevate checkout experience, boost conversion rates, and maintain regulatory compliance with Netcetera",
 }
 
 let unknownConnectorInfo = {
