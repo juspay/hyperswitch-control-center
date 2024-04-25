@@ -70,7 +70,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
     ->String.replaceRegExp(%re("/^\/\//"), "/")
     ->String.replaceRegExp(%re("/^\/v4\//"), "/")
 
-  if path->String.includes("/config/merchant-access") && request.method === "GET" {
+  if path->String.includes("/config/merchant-config") && request.method === "GET" {
     let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/config.toml")
     Promise.make((resolve, _reject) => {
       configHandler(request, response, true, domain, path)
