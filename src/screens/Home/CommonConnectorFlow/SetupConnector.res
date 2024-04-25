@@ -9,6 +9,8 @@ module SelectProcessor = {
   ) => {
     open ConnectorUtils
     let url = RescriptReactRouter.useUrl()
+    let basePath =
+      url.path->List.toArray->QuickStartUtils.filterDashboardFromUrlPath->Array.joinWith("/")
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let connectorName = selectedConnector->getConnectorNameString
     let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
@@ -34,7 +36,9 @@ module SelectProcessor = {
         onClick={_ => {
           setConnectorConfigureState(_ => Select_configuration_type)
           mixpanelEvent(~eventName=`quickstart_select_processor`, ())
-          RescriptReactRouter.replace(`/${url.path->LogicUtils.getListHead}?name=${connectorName}`)
+          RescriptReactRouter.replace(
+            HSwitchGlobalVars.appendDashboardPath(~url=`/${basePath}?name=${connectorName}`),
+          )
         }}
         buttonSize=Small
       />}

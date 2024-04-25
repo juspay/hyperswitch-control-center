@@ -176,7 +176,8 @@ module NoData = {
         <Button
           text={"Make a Payment"}
           buttonSize={Small}
-          onClick={_ => RescriptReactRouter.push("/home")}
+          onClick={_ =>
+            RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/home"))}
           buttonType={Primary}
         />
       </NoDataFound>

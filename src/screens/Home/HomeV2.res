@@ -168,7 +168,7 @@ module QuickStart = {
         }
         setConfigureButtonState(_ => Button.Normal)
         setDashboardPageState(_ => #QUICK_START)
-        RescriptReactRouter.push("/quick-start")
+        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/quick-start"))
       } catch {
       | _ => setConfigureButtonState(_ => Button.Normal)
       }
@@ -252,7 +252,9 @@ module RecipesAndPlugins = {
           className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
           onClick={_ => {
             mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
-            RescriptReactRouter.push("stripe-plus-paypal")
+            RescriptReactRouter.push(
+              HSwitchGlobalVars.appendDashboardPath(~url="/stripe-plus-paypal"),
+            )
           }}>
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle> {"Use PayPal with Stripe"->React.string} </p>
@@ -280,7 +282,7 @@ module RecipesAndPlugins = {
           className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
           onClick={_ => {
             mixpanelEvent(~eventName=`woocommerce`, ())
-            RescriptReactRouter.push("woocommerce")
+            RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/woocommerce"))
           }}>
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle> {"WooCommerce plugin"->React.string} </p>
@@ -348,7 +350,7 @@ module Resources = {
         "https://hyperswitch.io/docs"->Window._open
       } else if item.id === "tryTheDemo" {
         mixpanelEvent(~eventName=`test_payment`, ())
-        RescriptReactRouter.replace("/sdk")
+        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/sdk"))
       }
     }
 
