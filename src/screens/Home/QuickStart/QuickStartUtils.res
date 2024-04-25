@@ -28,6 +28,7 @@ let quickStartEnumIntialArray: array<sectionHeadingVariant> = [
   #StripeConnected,
   #PaypalConnected,
   #SPTestPayment,
+  #OnboardingSurvey,
 ]
 
 let connectorChoiceStringVariantMapper = stringValue =>
@@ -703,5 +704,13 @@ let getCurrentStep = dict => {
     #IntegrationCompleted
   } else {
     #GoLive
+  }
+}
+
+let filterDashboardFromUrlPath = urlPathArray => {
+  open HSwitchGlobalVars
+  switch dashboardBasePath {
+  | Some(_) => urlPathArray->Array.filter(value => value !== "dashboard")
+  | _ => urlPathArray
   }
 }
