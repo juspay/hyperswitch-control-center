@@ -28,7 +28,7 @@ let make = () => {
     enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
-  let (companyNameModal, setCompanyNameModal) = React.useState(_ => false)
+  let (surveyModal, setSurveyModal) = React.useState(_ => false)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->getIntFromString(-1)
   let merchantId = getFromMerchantDetails("merchant_id")
@@ -86,6 +86,27 @@ let make = () => {
     }
   }
 
+  let fetchOnboardingSurveyDetails = async () => {
+    try {
+      let url = `${getURL(
+          ~entityName=USERS,
+          ~userType=#USER_DATA,
+          ~methodType=Get,
+          (),
+        )}?keys=OnboardingSurvey`
+      let res = await fetchDetails(url)
+      let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
+      let onboardingDetailsFilled =
+        firstValueFromArray->getDictFromJsonObject->getDictfromDict("OnboardingSurvey")
+      let val = onboardingDetailsFilled->Dict.keysToArray->Array.length === 0
+      setSurveyModal(_ => val)
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
+      }
+    }
+  }
   let fetchPermissions = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#GET_PERMISSIONS, ~methodType=Get, ())
@@ -109,7 +130,7 @@ let make = () => {
       Window.connectorWasmInit()->ignore
       let _ = await fetchSwitchMerchantList()
       let permissionJson = await fetchPermissions()
-
+      let _ = await fetchOnboardingSurveyDetails()
       if merchantId->isNonEmptyString {
         if (
           permissionJson.connectorsView === Access ||
@@ -144,15 +165,6 @@ let make = () => {
     setUpDashboard()->ignore
     None
   })
-
-  React.useEffect1(() => {
-    if merchantDetailsTypedValue.merchant_name->Option.isNone {
-      setCompanyNameModal(_ => true)
-    } else {
-      setCompanyNameModal(_ => false)
-    }
-    None
-  }, [merchantDetailsTypedValue.merchant_name])
 
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal
@@ -504,9 +516,8 @@ let make = () => {
                 <ProdIntentForm />
               </RenderIf>
               <RenderIf
-                condition={userPermissionJson.merchantDetailsManage === Access &&
-                  merchantDetailsTypedValue.merchant_name->Option.isNone}>
-                <CompanyNameModal showModal=companyNameModal setShowModal=setCompanyNameModal />
+                condition={userPermissionJson.merchantDetailsManage === Access && surveyModal}>
+                <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
               </RenderIf>
             </div>
           </div>

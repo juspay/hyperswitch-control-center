@@ -63,6 +63,7 @@ type userType = [
   | #MERCHANT_DATA
   | #USER_DATA
   | #USER_DELETE
+  | #USER_UPDATE
   | #UPDATE_ROLE
   | #INVITE_MULTIPLE
   | #RESEND_INVITE
