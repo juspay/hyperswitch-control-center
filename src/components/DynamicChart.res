@@ -805,7 +805,7 @@ let make = (
           <form onSubmit={handleSubmit}>
             <AddDataAttributes attributes=[("data-chart-segment", "Chart-1")]>
               <div
-                className="border rounded  bg-white  border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart">
+                className="border rounded bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart">
                 <div
                   className={`flex flex-row border-b w-full border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 text-gray-500 px-4 py-2 ${metricPickerdisplayClass}`}>
                   <div className="w-3/4 flex justify-between">
@@ -975,7 +975,7 @@ let make = (
               <div
                 className="mt-5 rounded bg-white border dark:border-jp-gray-960 dark:bg-jp-gray-950">
                 <div
-                  className="flex flex-row justify-between dark:border-jp-gray-960 dark:bg-jp-gray-950 text-gray-500 p-4 py-2 border-b rounded  bg-white  border-jp-gray-500">
+                  className="flex flex-row justify-between dark:border-jp-gray-960 dark:bg-jp-gray-950 text-gray-500 p-4 py-2 border-b rounded bg-white border-jp-gray-500">
                   <div className="flex flex-row w-3/4 justify-center">
                     <div style={ReactDOM.Style.make(~flexBasis="16%", ())} className="gap-1">
                       <div />
@@ -1021,7 +1021,7 @@ let make = (
                   switch chartDimensionView {
                   | OneDimension =>
                     <HighchartTimeSeriesChart.LineChart1D
-                      class="flex rounded overflow-scroll bg-white border-t-0  border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950"
+                      class="flex rounded overflow-scroll bg-white border-t-0 border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950"
                       rawChartData=data
                       selectedMetrics
                       chartPlace="bottom_"
