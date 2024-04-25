@@ -11,7 +11,7 @@ let port = 9000;
 let proxy = {};
 
 let configMiddleware = (req, res, next) => {
-  if (req.path == "/config/merchant-config" && req.method == "GET") {
+  if (req.path.includes("/config/merchant-config") && req.method == "GET") {
     let { domain = "default" } = req.query;
     config
       .then((result) => {

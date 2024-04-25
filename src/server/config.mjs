@@ -92,4 +92,4 @@ const configHandler = (
   }
 };
 
-export { configHandler, overrideConfigWithEnv };
+export { configHandler };
