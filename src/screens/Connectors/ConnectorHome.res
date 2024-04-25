@@ -65,13 +65,13 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let connectorTypeFromName = connector->getConnectorNameTypeFromString()
   let profileIdFromUrl =
     UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getOptionString("profile_id")
-  let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
+  let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
 
-  let isUpdateFlow = switch url.path {
+  let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"connectors", "new"} => false
   | list{"payoutconnectors", "new"} => false
   | _ => true
@@ -207,7 +207,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ => {
-        RescriptReactRouter.push("/connectors")
+        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/connectors"))
         setScreenState(_ => PageLoaderWrapper.Success)
       }}
       isButton=true
