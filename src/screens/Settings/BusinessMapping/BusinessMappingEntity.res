@@ -18,10 +18,10 @@ module ProfileActions = {
         let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(profileId), ())
         let res = await updateDetails(url, values, Post, ())
         let filteredProfileList =
-          businessProfiles->Array.filter(businessProfile =>
-            businessProfile.profile_id !== profileId
-          )
-        filteredProfileList->Array.push(res->BusinessProfileMapper.businessProfileTypeMapper)
+          businessProfiles
+          ->Array.filter(businessProfile => businessProfile.profile_id !== profileId)
+          ->Array.concat([res->BusinessProfileMapper.businessProfileTypeMapper])
+
         setBusinessProfiles(._ => filteredProfileList)
         showToast(~message="Updated profile name!", ~toastType=ToastSuccess, ())
       } catch {
