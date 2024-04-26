@@ -85,7 +85,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
     } else {
       "no-cache"
     }
-
+    Js.log2(request.url, "requestURL")
     let newRequest = {
       ...request,
       url: path->NodeJs.Http.asUrl,
