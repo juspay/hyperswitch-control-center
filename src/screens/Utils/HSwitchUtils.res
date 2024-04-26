@@ -241,14 +241,18 @@ let noAccessControlText = "You do not have the required permissions to access th
 let noAccessControlTextForProcessors = "You do not have the required permissions to connect this processor. Please contact admin."
 
 let urlPath = urlPathList => {
+  Js.log2(urlPathList, "ACTUAL PATH")
   open HSwitchGlobalVars
-  switch dashboardBasePath {
+  let path = switch dashboardBasePath {
   | Some(_) =>
     switch urlPathList {
     | list{_, ...rest} => rest
     | _ => urlPathList
     }
-  | _ => urlPathList
+  | _ =>
+    urlPathList
+
+    Js.log2(path, "AFTER REMOVING")
   }
 }
 

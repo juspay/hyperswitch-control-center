@@ -79,7 +79,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
     })
   } else {
     open ServerHandler
-
+    Js.log2(request.url, "REQUEST URL")
     let cache = if request.url.toString(.)->String.endsWith(".svg") {
       "max-age=3600, must-revalidate"
     } else {
