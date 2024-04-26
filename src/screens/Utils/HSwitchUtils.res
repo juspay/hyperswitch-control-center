@@ -249,11 +249,10 @@ let urlPath = urlPathList => {
     | list{_, ...rest} => rest
     | _ => urlPathList
     }
-  | _ =>
-    urlPathList
-
-    Js.log2(path, "AFTER REMOVING")
+  | _ => urlPathList
   }
+  Js.log2(path, "AFTER REMOVING")
+  path
 }
 
 let getConnectorIDFromUrl = (urlList, defaultValue) => {
