@@ -22,7 +22,7 @@ type featureFlag = {
   globalSearch: bool,
   disputeAnalytics: bool,
   configurePmts: bool,
-  whiteLabel: bool,
+  branding: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -52,7 +52,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     globalSearch: dict->getBool("global_search", false),
     disputeAnalytics: dict->getBool("dispute_analytics", false),
     configurePmts: dict->getBool("configure_pmts", false),
-    whiteLabel: dict->getBool("white_label", false),
+    branding: dict->getBool("branding", false),
   }
   typedFeatureFlag
 }

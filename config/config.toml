@@ -31,5 +31,5 @@ threeds_authenticator=false
 global_search=false
 dispute_analytics=false
 configure_pmts=false
-white_label=false
+branding=false
 

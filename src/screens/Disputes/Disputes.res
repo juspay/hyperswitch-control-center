@@ -5,7 +5,7 @@ let make = () => {
   let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
     ConfigContext.configContext,
   )
-  let {whiteLabel} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let (disputesData, setDisputesData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -40,7 +40,7 @@ let make = () => {
 
   let customUI =
     <>
-      <UIUtils.RenderIf condition={!whiteLabel}>
+      <UIUtils.RenderIf condition={!branding}>
         <div
           className={`${borderColor.primaryNormal} flex  items-start  text-sm rounded-md gap-2 px-4 py-3 mt-5`}>
           <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />

@@ -9,7 +9,7 @@ let make = (
   ~customStyleForDefaultLandingPage="",
   ~customLoader=?,
 ) => {
-  let {whiteLabel} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let loaderLottieFile = LottieFiles.useLottieJson("hyperswitch_loader.json")
   switch screenState {
   | Loading =>
@@ -17,7 +17,7 @@ let make = (
     | Some(loader) => loader
     | _ =>
       <div className={`${sectionHeight} w-scrren flex flex-col justify-center items-center`}>
-        <UIUtils.RenderIf condition={!whiteLabel}>
+        <UIUtils.RenderIf condition={!branding}>
           <div className="w-20 h-16">
             <ReactSuspenseWrapper>
               <div className="scale-400 pt-px">
@@ -26,7 +26,7 @@ let make = (
             </ReactSuspenseWrapper>
           </div>
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={whiteLabel}>
+        <UIUtils.RenderIf condition={branding}>
           <Loader />
         </UIUtils.RenderIf>
       </div>

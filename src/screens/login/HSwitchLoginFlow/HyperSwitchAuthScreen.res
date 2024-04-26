@@ -6,10 +6,9 @@ module AuthPage = {
   open HyperSwitchAuthTypes
   @react.component
   let make = (~authType, ~setAuthType, ~setAuthStatus, ~mode, ~setMode) => {
-    let {testLiveToggle, whiteLabel} =
-      HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {testLiveToggle, branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-    let (logoVariant, iconUrl) = switch (Window.env.logoUrl, whiteLabel) {
+    let (logoVariant, iconUrl) = switch (Window.env.logoUrl, branding) {
     | (Some(url), true) => (IconWithURL, Some(url))
     | (Some(url), false) => (IconWithURL, Some(url))
     | _ => (IconWithText, None)
@@ -32,7 +31,7 @@ module AuthPage = {
               <HyperSwitchAuth setAuthStatus authType setAuthType />
             </div>
           </Div>
-          <UIUtils.RenderIf condition={!whiteLabel}>
+          <UIUtils.RenderIf condition={!branding}>
             <Div
               layoutId="footer-links"
               className="justify-center text-sm mobile:text-base flex flex-col mobile:flex-row mobile:gap-3 items-center w-full max-w-xl text-center">
@@ -40,7 +39,7 @@ module AuthPage = {
             </Div>
           </UIUtils.RenderIf>
         </div>
-        <UIUtils.RenderIf condition={!whiteLabel}>
+        <UIUtils.RenderIf condition={!branding}>
           <PageFooterSection />
         </UIUtils.RenderIf>
       </div>
