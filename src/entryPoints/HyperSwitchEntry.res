@@ -59,12 +59,14 @@ module HyperSwitchEntryComponent = {
       | _ => Exn.raiseError("Error on configuring endpoint")
       }
     }
+    // Need to modify based on the usedcase
+    let getDomain = () => {
+      SessionStorgae.getItemFromSession("domain")->LogicUtils.getValFromNullableValue("default")
+    }
 
     let fetchConfig = async () => {
       try {
-        open LogicUtils
-        let domain =
-          url.search->getDictFromUrlSearchParams->Dict.get("domain")->Option.getOr("default")
+        let domain = getDomain()
         let apiURL = `${HSwitchGlobalVars.getHostURLFromVariant}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
@@ -79,7 +81,7 @@ module HyperSwitchEntryComponent = {
     }
 
     React.useEffect0(() => {
-      let _ = fetchConfig()
+      let _ = fetchConfig()->ignore
       None
     })
     React.useEffect0(() => {
