@@ -130,7 +130,10 @@ let make = () => {
       Window.connectorWasmInit()->ignore
       let _ = await fetchSwitchMerchantList()
       let permissionJson = await fetchPermissions()
-      let _ = await fetchOnboardingSurveyDetails()
+
+      if !featureFlagDetails.isLiveMode {
+        let _ = await fetchOnboardingSurveyDetails()
+      }
       if merchantId->isNonEmptyString {
         if (
           permissionJson.connectorsView === Access ||
@@ -516,7 +519,9 @@ let make = () => {
                 <ProdIntentForm />
               </RenderIf>
               <RenderIf
-                condition={userPermissionJson.merchantDetailsManage === Access && surveyModal}>
+                condition={!featureFlagDetails.isLiveMode &&
+                userPermissionJson.merchantDetailsManage === Access &&
+                surveyModal}>
                 <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
               </RenderIf>
             </div>
