@@ -1,7 +1,7 @@
 let username = `cypress+${Math.round(+new Date() / 1000)}@gmail.com`;
 describe("Auth Module", () => {
   it("check the components in the sign up page", () => {
-    cy.visit("http://localhost:9000");
+    cy.visit("http://localhost:9000/");
     cy.get("#card-subtitle").click();
     cy.url().should("include", "/register");
     cy.get("#card-header").should("contain", "Welcome to Hyperswitch");
@@ -13,7 +13,7 @@ describe("Auth Module", () => {
 
   it("check singup flow", () => {
     const password = "cypress98#";
-    cy.visit("http://localhost:9000");
+    cy.visit("http://localhost:9000/");
     cy.get("#card-subtitle").click();
     cy.url().should("include", "/register");
     cy.get("[data-testid=email]").type(username);
@@ -33,7 +33,7 @@ describe("Auth Module", () => {
   });
 
   it("check auth page back button functioning", () => {
-    cy.visit("http://localhost:9000/dashboard");
+    cy.visit("http://localhost:9000/");
     cy.get("#card-subtitle").click();
     cy.url().should("include", "/register");
     cy.get("#card-header").should("contain", "Welcome to Hyperswitch");
@@ -105,7 +105,7 @@ describe("Auth Module", () => {
   });
 
   it("should display an error message with invalid credentials", () => {
-    cy.visit("http://localhost:9000");
+    cy.visit("http://localhost:9000/");
     cy.get("[data-testid=email]").type("xxx@gmail.com");
     cy.get("[data-testid=password]").type("xxxx");
     cy.get('button[type="submit"]').click({ force: true });
@@ -114,7 +114,7 @@ describe("Auth Module", () => {
 
   it("should login successfully with email containing spaces", () => {
     const password = "cypress98#";
-    cy.visit("http://localhost:9000");
+    cy.visit("http://localhost:9000/");
     cy.get("[data-testid=email]").type(`  ${username}  `);
     cy.get("[data-testid=password]").type(password);
     cy.get('button[type="submit"]').click({ force: true });
