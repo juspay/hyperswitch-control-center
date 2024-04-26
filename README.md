@@ -149,9 +149,9 @@ The `surcharge` feature flag enables the ability to apply surcharges to payments
 
 Enabling `user_journey_analytics` grants access to the user journey module within the analytics section of the dashboard. This feature provides comprehensive graphical representations of payment analytics, facilitating a deeper understanding of user behavior and usage patterns.
 
-### White label
+### Branding
 
-Enabling `white_label` feature flag enables customization of branding elements like logos, colors.
+Enabling `branding` feature flag enables customization of branding elements like logos, colors.
 
 ---
 
