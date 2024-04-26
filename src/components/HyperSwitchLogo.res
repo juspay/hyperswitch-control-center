@@ -7,7 +7,7 @@ let make = (
   ~logoVariant=HyperSwitchAuthTypes.IconWithText,
   ~logoHeight="h-6",
   ~theme=Dark,
-  ~iconUlr=None,
+  ~iconUrl=None,
 ) => {
   let iconFolder = switch theme {
   | Dark => "Dark"
@@ -25,7 +25,7 @@ let make = (
   | Icon => `/assets/${iconFolder}/hyperswitchLogoIcon.svg`
   | Text => `/assets/${iconFolder}/hyperswitchLogoText.svg`
   | IconWithText => `/assets/${iconFolder}/hyperswitchLogoIconWithText.svg`
-  | IconWithURL => `${iconUlr->Option.getOr("")}`
+  | IconWithURL => `${iconUrl->Option.getOr("")}`
   }
 
   <div className={`${logoClass}`} onClick={handleClickEvent}>

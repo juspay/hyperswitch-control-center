@@ -9,7 +9,7 @@ module AuthPage = {
     let {testLiveToggle, whiteLabel} =
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-    let (logoVariant, iconUlr) = switch (Window.env.logoUrl, whiteLabel) {
+    let (logoVariant, iconUrl) = switch (Window.env.logoUrl, whiteLabel) {
     | (Some(url), true) => (IconWithURL, Some(url))
     | (Some(url), false) => (IconWithURL, Some(url))
     | _ => (IconWithText, None)
@@ -24,7 +24,7 @@ module AuthPage = {
           <Div layoutId="form" className="bg-white w-full text-black mobile:border rounded-lg">
             <div className="px-7 py-6">
               <Div layoutId="logo">
-                <HyperSwitchLogo logoHeight="h-8" theme={Dark} logoVariant iconUlr />
+                <HyperSwitchLogo logoHeight="h-8" theme={Dark} logoVariant iconUrl />
               </Div>
             </div>
             <Div layoutId="border" className="border-b w-full" />
