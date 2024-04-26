@@ -171,12 +171,11 @@ let make = () => {
     open LogicUtils
     if prodEnums.setupComplete {
       setDashboardPageState(_ => #HOME)
-      let baseUrlPath = `${HSwitchGlobalVars.getHostURLFromVariant}/${routerUrl.path
-        ->List.toArray
-        ->Array.joinWith("/")}`
       routerUrl.search->isNonEmptyString
-        ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
-        : RescriptReactRouter.push(`${baseUrlPath}`)
+        ? RescriptReactRouter.push(
+            `${HSwitchGlobalVars.appendDashboardPath(~url="/home")}?${routerUrl.search}`,
+          )
+        : RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
     } else {
       RescriptReactRouter.push(urlPush)
       setPageView(_ => SETUP_COMPLETED)
