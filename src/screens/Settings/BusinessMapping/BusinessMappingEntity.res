@@ -24,10 +24,10 @@ module ProfileActions = {
         filteredProfileList->Array.push(res->BusinessProfileMapper.businessProfileTypeMapper)
         setBusinessProfiles(._ => filteredProfileList)
         showToast(~message="Updated profile name!", ~toastType=ToastSuccess, ())
-        setShowModal(_ => false)
       } catch {
       | _ => showToast(~message="Failed to update profile name!", ~toastType=ToastError, ())
       }
+      setShowModal(_ => false)
       Nullable.null
     }
 
