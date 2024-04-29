@@ -68,9 +68,7 @@ module NoData = {
       paymentModal
       setPaymentModal
       showRedirectCTA={!isLiveMode}
-      onClickUrl={isConfigureConnector
-        ? "/sdk"
-        : `${HSwitchGlobalVars.hyperSwitchFEPrefix}/connectors`}
+      onClickUrl={isConfigureConnector ? "/sdk" : `/connectors`}
     />
   }
 }

@@ -28,7 +28,7 @@ let make = () => {
     enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
-  let (companyNameModal, setCompanyNameModal) = React.useState(_ => false)
+  let (surveyModal, setSurveyModal) = React.useState(_ => false)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->getIntFromString(-1)
   let merchantId = getFromMerchantDetails("merchant_id")
@@ -86,6 +86,27 @@ let make = () => {
     }
   }
 
+  let fetchOnboardingSurveyDetails = async () => {
+    try {
+      let url = `${getURL(
+          ~entityName=USERS,
+          ~userType=#USER_DATA,
+          ~methodType=Get,
+          (),
+        )}?keys=OnboardingSurvey`
+      let res = await fetchDetails(url)
+      let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
+      let onboardingDetailsFilled =
+        firstValueFromArray->getDictFromJsonObject->getDictfromDict("OnboardingSurvey")
+      let val = onboardingDetailsFilled->Dict.keysToArray->Array.length === 0
+      setSurveyModal(_ => val)
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
+      }
+    }
+  }
   let fetchPermissions = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#GET_PERMISSIONS, ~methodType=Get, ())
@@ -110,6 +131,9 @@ let make = () => {
       let _ = await fetchSwitchMerchantList()
       let permissionJson = await fetchPermissions()
 
+      if !featureFlagDetails.isLiveMode {
+        let _ = await fetchOnboardingSurveyDetails()
+      }
       if merchantId->isNonEmptyString {
         if (
           permissionJson.connectorsView === Access ||
@@ -145,18 +169,9 @@ let make = () => {
     None
   })
 
-  React.useEffect1(() => {
-    if merchantDetailsTypedValue.merchant_name->Option.isNone {
-      setCompanyNameModal(_ => true)
-    } else {
-      setCompanyNameModal(_ => false)
-    }
-    None
-  }, [merchantDetailsTypedValue.merchant_name])
-
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal
-      ? RescriptReactRouter.replace("/home")
+      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
       : setDashboardPageState(_ => #STRIPE_PLUS_PAYPAL)
 
     React.null
@@ -164,7 +179,7 @@ let make = () => {
 
   let determineWooCommerce = () => {
     enumDetails->checkWooCommerce
-      ? RescriptReactRouter.replace("/home")
+      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
       : setDashboardPageState(_ => #WOOCOMMERCE_FLOW)
 
     React.null
@@ -174,7 +189,7 @@ let make = () => {
     isProdIntentCompleted->Option.getOr(false) &&
     enumDetails.integrationCompleted &&
     !(enumDetails.testPayment.payment_id->isEmptyString)
-      ? RescriptReactRouter.replace("/home")
+      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
       : setDashboardPageState(_ => #QUICK_START)
 
     React.null
@@ -222,7 +237,7 @@ let make = () => {
                     <div
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
-                        {switch url.path {
+                        {switch url.path->urlPath {
                         | list{"home"} => featureFlagDetails.quickStart ? <HomeV2 /> : <Home />
                         | list{"fraud-risk-management", ...remainingPath} =>
                           <AccessControl
@@ -399,7 +414,6 @@ let make = () => {
                             </FilterContext>
                           </AccessControl>
 
-                        // TODO : reevaluatet the conditions
                         | list{"payment-settings", ...remainingPath} =>
                           <EntityScaffold
                             entityName="PaymentSettings"
@@ -435,7 +449,6 @@ let make = () => {
                           </AccessControl>
                         | list{"account-settings", "profile"} => <HSwitchProfileSettings />
 
-                        // TODO : reevaluate the condition
                         | list{"business-details"} =>
                           <AccessControl isEnabled=featureFlagDetails.default permission={Access}>
                             <BusinessDetails />
@@ -487,7 +500,7 @@ let make = () => {
                           </AccessControl>
                         | list{"unauthorized"} => <UnauthorizedPage />
                         | _ =>
-                          RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)
+                          RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
                           <Home />
                         }}
                       </ErrorBoundary>
@@ -506,9 +519,10 @@ let make = () => {
                 <ProdIntentForm />
               </RenderIf>
               <RenderIf
-                condition={userPermissionJson.merchantDetailsManage === Access &&
-                  merchantDetailsTypedValue.merchant_name->Option.isNone}>
-                <CompanyNameModal showModal=companyNameModal setShowModal=setCompanyNameModal />
+                condition={!featureFlagDetails.isLiveMode &&
+                userPermissionJson.merchantDetailsManage === Access &&
+                surveyModal}>
+                <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
               </RenderIf>
             </div>
           </div>

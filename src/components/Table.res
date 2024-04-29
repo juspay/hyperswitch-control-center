@@ -132,7 +132,9 @@ module TableRow = {
     let fontSize = "text-fs-13"
     let fontWeight = ""
     let textColor = "text-jp-gray-900  dark:text-jp-gray-text_darktheme dark:text-opacity-75"
-    let hoverClass = "hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-table_hover_dark"
+    let hoverClass = onRowClickPresent
+      ? "hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-table_hover_dark"
+      : ""
     let tableBodyText = if isHighchartLegend {
       `group rounded-md ${cursorClass} text-fs-10 font-medium dark:text-jp-gray-dark_chart_legend_text jp-gray-light_chart_legend_text pb-4 whitespace-nowrap text-ellipsis overflow-x-hidden`
     } else {
@@ -360,7 +362,7 @@ module TableHeadingCell = {
     let headerBgColor =
       headerCustomBgColor->Option.isSome
         ? headerCustomBgColor->Option.getOr("")
-        : "bg-gray-50 dark:bg-jp-gray-darkgray_background"
+        : "bg-offset_white dark:bg-jp-gray-darkgray_background"
     let paddingClass = "px-4 py-3"
     let roundedClass = if isFirstCol {
       "rounded-tl"

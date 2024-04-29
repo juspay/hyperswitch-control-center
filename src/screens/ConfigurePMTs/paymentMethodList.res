@@ -35,7 +35,7 @@ let make = (~isPayoutFlow=false) => {
   })
 
   React.useEffect1(() => {
-    RescriptReactRouter.replace(`/configure-pmts`)
+    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/configure-pmts"))
     getConnectorListAndUpdateState()->ignore
     None
   }, [isPayoutFlow])
@@ -63,7 +63,7 @@ let make = (~isPayoutFlow=false) => {
 
   let handleClearFilter = async () => {
     setScreenState(_ => Loading)
-    RescriptReactRouter.replace(`/configure-pmts`)
+    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/configure-pmts"))
     await HyperSwitchUtils.delay(500)
     let dict = Dict.make()->pmtConfigFilter
     let res = connectorResponse->getFilterdConnectorList(dict)

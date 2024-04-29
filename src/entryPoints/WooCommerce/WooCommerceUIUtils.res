@@ -9,6 +9,8 @@ module SelectProcessor = {
   ) => {
     let url = RescriptReactRouter.useUrl()
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
+    let basePath = url.path->List.toArray->Array.joinWith("/")
+
     <QuickStartUIUtils.BaseComponent
       headerText="Select Processor"
       customCss="show-scrollbar"
@@ -21,7 +23,7 @@ module SelectProcessor = {
         }}
         onClick={_ => {
           setConnectorConfigureState(_ => Configure_keys)
-          RescriptReactRouter.replace(`/${url.path->LogicUtils.getListHead}?name=${connectorName}`)
+          RescriptReactRouter.replace(`/${basePath}?name=${connectorName}`)
         }}
         buttonSize=Small
       />}>

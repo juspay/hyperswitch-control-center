@@ -202,6 +202,7 @@ let getURL = (
     | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
     | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
     | #USER_DELETE => `${userUrl}/user/delete`
+    | #USER_UPDATE => `${userUrl}/update`
     | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
     | #SIGNUP
     | #SIGNOUT
@@ -270,7 +271,7 @@ let handleLogout = async (
     setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
     setIsSidebarExpanded(_ => false)
     clearRecoilValue()
-    RescriptReactRouter.push("/login")
+    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
     let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
     let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
     LocalStorage.clear()
@@ -312,7 +313,7 @@ let responseHandler = async (
         | 401 =>
           if !sessionExpired.contents {
             showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false, ())
-            RescriptReactRouter.push("/login")
+            RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
             sessionExpired := true
           }
 

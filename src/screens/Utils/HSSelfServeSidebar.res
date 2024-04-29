@@ -20,7 +20,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
   )
   let handleBackButton = _ => {
     setDashboardPageState(_ => #HOME)
-    RescriptReactRouter.replace("/home")
+    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
   }
 
   let completedSteps =
@@ -65,7 +65,9 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
 
       let onClick = _ => {
         if sidebarOption.status === COMPLETED {
-          RescriptReactRouter.replace(sidebarOption.link)
+          RescriptReactRouter.replace(
+            HSwitchGlobalVars.appendDashboardPath(~url=sidebarOption.link),
+          )
         }
       }
       let subOptionsArray = sidebarOption.subOptions->Option.getOr([])

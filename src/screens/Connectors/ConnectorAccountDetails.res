@@ -8,7 +8,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
+  let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
