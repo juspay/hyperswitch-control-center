@@ -150,7 +150,7 @@ let make = () => {
           <div className="p-7 h-full bg-sidebar-blue">
             <TestPayment
               key
-              returnUrl={`${HSwitchGlobalVars.getHostURLFromVariant}/sdk`}
+              returnUrl={`${HSwitchGlobalVars.getHostUrlWithBasePath}/sdk`}
               onProceed
               sdkWidth="!w-[100%]"
               isTestCredsNeeded=false

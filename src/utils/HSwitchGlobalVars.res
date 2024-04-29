@@ -21,7 +21,9 @@ let hostType = switch hostName {
 | _ => hostName->String.includes("netlify") ? Netlify : Local
 }
 
-let getHostURLFromVariant = `${Window.Location.origin}${appendDashboardPath(~url="")}`
+let getHostUrlWithBasePath = `${Window.Location.origin}${appendDashboardPath(~url="")}`
+
+let getHostUrl = Window.Location.origin
 
 let isHyperSwitchDashboard = GlobalVars.dashboardAppName === #hyperswitch
 
