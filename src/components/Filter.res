@@ -247,7 +247,7 @@ let make = (
   ~filterFieldsPortalName="",
   ~initalCount=0,
   ~showFiltersBtn=false,
-  ~hideFiltersDefaultValue=?,
+  ~hideFiltersDefaultValue as _=?,
   ~showSelectFiltersSearch=false,
   ~disableURIdecode=false,
 ) => {
@@ -292,13 +292,6 @@ let make = (
   let isMobileView = MatchMedia.useMobileChecker()
 
   let (initialValueJson, setInitialValueJson) = React.useState(_ => JSON.Encode.object(Dict.make()))
-
-  let hideFiltersInit = switch hideFiltersDefaultValue {
-  | Some(value) => value
-  | _ => true
-  }
-
-  let (hideFilters, setHideFilters) = React.useState(_ => hideFiltersInit)
 
   let localFilterJson = RemoteFiltersUtils.getInitialValuesFromUrl(
     ~searchParams,
@@ -461,50 +454,31 @@ let make = (
   }
 
   let isFilterSection = React.useContext(TableFilterSectionContext.filterSectionContext)
-  let verticalGap = !isMobileView ? "gap-y-2" : ""
+  let verticalGap = !isMobileView ? "gap-y-3" : ""
 
   <Form onSubmit initialValues=initialValueJson>
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
       <div>
-        <div className={`flex gap-2 items-center flex-wrap ${verticalGap}`}>
+        <div className={`flex gap-3 items-center flex-wrap ${verticalGap}`}>
           {customLeftView}
           <UIUtils.RenderIf condition={fixedFilters->Array.length > 0}>
             <FormRenderer.FieldsRenderer
               fields={fixedFilters->Array.map(item => item.field)}
               labelClass="hidden"
-              labelPadding="pb-2"
+              fieldWrapperClass="p-0"
             />
           </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={hideFilters && isFilterSection}>
+          <UIUtils.RenderIf condition={isFilterSection}>
             <PortalCapture key={`customizedColumn-${title}`} name={`customizedColumn-${title}`} />
           </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={showFiltersBtn}>
-            <ToolTip
-              description={!hideFilters
-                ? "Hide filters control panel(this will not clear the filters)"
-                : "Apply filters from exhaustive list of dimensions"}
-              toolTipFor={<div className={`my-1 ${tooltipStyling} showFilterButton`}>
-                <Button
-                  text={isMobileView ? "" : hideFilters ? "Show Filters" : "Hide Filters"}
-                  buttonType=SecondaryFilled
-                  buttonSize=XSmall
-                  leftIcon=CustomIcon(
-                    <Icon
-                      name={hideFilters ? "show-filters" : "minus"}
-                      size=14
-                      className={isMobileView ? "mr-0.75" : "ml-1.5 mr-1"}
-                    />,
-                  )
-                  onClick={_ => {
-                    setHideFilters(_ => !hideFilters)
-                  }}
-                />
-              </div>}
-              toolTipPosition={isMobileView ? BottomLeft : Right}
-            />
+          <FormRenderer.FieldsRenderer
+            fields={selectedFiltersList} labelClass="hidden" fieldWrapperClass="p-0"
+          />
+          <UIUtils.RenderIf condition={fixedFilters->Array.length === 0}>
+            {refreshFilterUi}
           </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={!clearFilterAfterRefresh && hideFilters && count > 0}>
+          <UIUtils.RenderIf condition={!clearFilterAfterRefresh && count > 0}>
             <ClearFilters
               filterButtonStyle
               defaultFilterKeys
@@ -513,33 +487,6 @@ let make = (
               outsidefilter={initalCount > 0}
             />
           </UIUtils.RenderIf>
-        </div>
-        <div className="flex items-center">
-          <div
-            className={`flex ${isMobileView
-                ? "flex-wrap"
-                : "flex-row justify-between"} w-full items-center gap-2`}>
-            <div className={`md:justify-between flex items-center flex-wrap  ${addFilterStyle}`}>
-              <UIUtils.RenderIf condition={!hideFilters}>
-                <div className={`flex ${!isMobileView ? "w-full" : "flex-wrap"}`}>
-                  <div
-                    className={`flex flex-wrap ${!isMobileView
-                        ? "items-center flex-1 gap-y-2 gap-x-3 w-full"
-                        : ""}`}>
-                    <FormRenderer.FieldsRenderer
-                      fields={selectedFiltersList} labelClass="hidden" labelPadding="pb-2"
-                    />
-                    <UIUtils.RenderIf condition={fixedFilters->Array.length === 0}>
-                      {refreshFilterUi}
-                    </UIUtils.RenderIf>
-                    <PortalCapture
-                      key={`customizedColumn-${title}`} name={`customizedColumn-${title}`}
-                    />
-                  </div>
-                </div>
-              </UIUtils.RenderIf>
-            </div>
-          </div>
         </div>
       </div>
     </AddDataAttributes>}

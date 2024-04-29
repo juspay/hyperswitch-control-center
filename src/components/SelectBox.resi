@@ -399,4 +399,5 @@ let make: (
   ~dropdownClassName: string=?,
   ~onItemSelect: (JsxEvent.Mouse.t, Js_string.t) => unit=?,
   ~wrapBasis: string=?,
+  ~isFilterComponent: bool=?,
 ) => React.element

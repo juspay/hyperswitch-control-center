@@ -2188,12 +2188,16 @@ let make = (
   ~dropdownClassName="",
   ~onItemSelect=(_, _) => (),
   ~wrapBasis="",
+  ~isFilterComponent=false,
   (),
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let (selectedString, setSelectedString) = React.useState(_ => "")
   let newInputSelect = input->ffInputToSelectInput
   let newInputRadio = input->ffInputToRadioInput
+
+  let customButtonStyle = isFilterComponent ? "" : "bg-white rounded-lg !px-4 !py-2 !h-10"
+
   if isDropDown {
     <BaseDropdown
       buttonText
