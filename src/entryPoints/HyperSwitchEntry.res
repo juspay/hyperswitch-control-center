@@ -61,12 +61,13 @@ module HyperSwitchEntryComponent = {
     }
     // Need to modify based on the usedcase
     let getDomain = () => {
-      SessionStorgae.getItemFromSession("domain")->LogicUtils.getValFromNullableValue("default")
+      SessionStorage.getItemFromSession("domain")->LogicUtils.getValFromNullableValue("default")
     }
 
     let fetchConfig = async () => {
       try {
         let domain = getDomain()
+        Js.log(domain)
         let apiURL = `${HSwitchGlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
