@@ -86,63 +86,6 @@ module ClearFilters = {
   }
 }
 
-module CheckCustomFilters = {
-  @react.component
-  let make = (
-    ~options: array<EntityType.optionType<'t>>,
-    ~checkedFilters,
-    ~removeFilters,
-    ~addFilters,
-    ~showAddFilter,
-    ~showSelectFiltersSearch,
-  ) => {
-    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-    )
-    let values = formState.values
-
-    let onChangeSelect = ev => {
-      let fieldNameArr = ev->Identity.formReactEventToArrayOfString
-      let newlyAdded = Array.filter(fieldNameArr, newVal => !Array.includes(checkedFilters, newVal))
-
-      if Array.length(newlyAdded) > 0 {
-        addFilters(newlyAdded)
-      } else {
-        removeFilters(fieldNameArr, values)
-      }
-    }
-
-    let selectOptions = options->Array.map(obj => obj.urlKey)
-
-    <div className="md:justify-between flex p-1 items-center flex-wrap">
-      {if Array.length(options) > 0 && showAddFilter {
-        <div className="flex flex-wrap">
-          <CustomInputSelectBox
-            onChange=onChangeSelect
-            options={selectOptions->Array.map(item => {
-              {
-                SelectBox.label: LogicUtils.snakeToTitle(item),
-                SelectBox.value: item,
-              }
-            })}
-            allowMultiSelect=true
-            buttonText="Add Filters"
-            isDropDown=true
-            hideMultiSelectButtons=true
-            buttonType=Button.FilterAdd
-            value={checkedFilters->Array.map(JSON.Encode.string)->JSON.Encode.array}
-            searchable=showSelectFiltersSearch
-          />
-        </div>
-      } else {
-        React.null
-      }}
-    </div>
-  }
-}
-
-let defaultAutoApply = false
-
 module AutoSubmitter = {
   @react.component
   let make = (~autoApply, ~submit, ~defaultFilterKeys) => {
@@ -283,13 +226,13 @@ let make = (
   ~refreshFilters=true,
   ~remoteFilters: array<EntityType.initialFilters<'t>>,
   ~remoteOptions: array<EntityType.optionType<'t>>,
-  ~localOptions: array<EntityType.optionType<'t>>,
+  ~localOptions as _: array<EntityType.optionType<'t>>,
   ~localFilters: array<EntityType.initialFilters<'t>>,
   ~mandatoryRemoteKeys=[],
   ~popupFilterFields: array<EntityType.optionType<'t>>=[],
   ~showRemoteOptions=false,
   ~tableName=?,
-  ~autoApply=defaultAutoApply,
+  ~autoApply=false,
   ~showExtraFiltersInline=false,
   ~addFilterStyle="",
   ~filterButtonStyle="",
@@ -340,7 +283,6 @@ let make = (
   }, [updatedSelectedList->JSON.stringify])
 
   let getNewQuery = DateRefreshHooks.useConstructQueryOnBasisOfOpt()
-  let totalFilters = selectedFiltersList->Array.length + localOptions->Array.length
   let (checkedFilters, setCheckedFilters) = React.useState(_ => [])
   let (clearFilterAfterRefresh, setClearFilterAfterRefresh) = React.useState(_ => false)
   let (count, setCount) = React.useState(_ => initalCount)
@@ -482,70 +424,6 @@ let make = (
     Nullable.null->resolve
   }
 
-  let addFilters = newlyAdded => {
-    let localCheckedFilters = Array.map(checkedFilters, checkedStr => {
-      checkedStr
-    })
-    let localSelectedFiltersList = Array.map(selectedFiltersList, filter => {
-      filter
-    })
-    newlyAdded->Array.forEach(value => {
-      let optionObjArry = remoteOptions->Array.filter(option => option.urlKey === value)
-      let defaultEntityOptionType: EntityType.optionType<
-        't,
-      > = EntityType.getDefaultEntityOptionType()
-      let optionObj = optionObjArry[0]->Option.getOr(defaultEntityOptionType)
-      let _ = Array.push(localSelectedFiltersList, optionObj.field)
-      let _a = Array.push(localCheckedFilters, value)
-    })
-    setCheckedFilters(_prev => localCheckedFilters)
-    setSelectedFiltersList(_prev => localSelectedFiltersList)
-  }
-
-  let removeFilters = (fieldNameArr, values) => {
-    let toBeRemoved = checkedFilters->Array.filter(oldVal => !Array.includes(fieldNameArr, oldVal))
-    switch values->JSON.Decode.object {
-    | Some(dict) =>
-      dict
-      ->Dict.toArray
-      ->Array.forEach(entry => {
-        let (key, _val) = entry
-
-        if toBeRemoved->Array.includes(key) {
-          dict->Dict.set(key, JSON.Encode.string(""))
-        }
-      })
-    | None => ()
-    }
-
-    let finalFieldList = selectedFiltersList->Array.filter(val => {
-      val.inputNames
-      ->Array.get(0)
-      ->Option.map(name => !Array.includes(toBeRemoved, name))
-      ->Option.getOr(false)
-    })
-    let filtersAfterRemoving =
-      checkedFilters->Array.filter(val => !Array.includes(toBeRemoved, val))
-
-    let newValueJson =
-      initialValueJson
-      ->JSON.Decode.object
-      ->Option.map(Dict.toArray)
-      ->Option.getOr([])
-      ->Array.filter(entry => {
-        let (key, _value) = entry
-        !Array.includes(toBeRemoved, key)
-      })
-      ->Dict.fromArray
-      ->JSON.Encode.object
-
-    setInitialValueJson(_ => newValueJson)
-    setCheckedFilters(_prev => filtersAfterRemoving)
-    setSelectedFiltersList(_prev => finalFieldList)
-  }
-
-  let fieldsFromOption = popupFilterFields->Array.map(option => {option.field})
-
   let handleRefresh = _ => {
     let newQueryStr = getNewQuery(
       ~queryString=query,
@@ -660,49 +538,6 @@ let make = (
                   </div>
                 </div>
               </UIUtils.RenderIf>
-            </div>
-            <div className={`flex items-center justify-end flex-wrap`}>
-              <div>
-                {if showExtraFiltersInline || showRemoteOptions {
-                  if !hideFilters {
-                    <div>
-                      <CheckCustomFilters
-                        options={remoteOptions}
-                        checkedFilters
-                        addFilters
-                        removeFilters
-                        showAddFilter={fieldsFromOption->Array.length > 0 ||
-                          (showRemoteOptions && remoteOptions->Array.length > 0)}
-                        showSelectFiltersSearch
-                      />
-                    </div>
-                  } else {
-                    React.null
-                  }
-                } else {
-                  React.null
-                }}
-              </div>
-              {!hideFilters ? customRightView : React.null}
-              <ApplyFilterButton
-                autoApply
-                totalFilters
-                hideFilters
-                filterButtonStyle
-                defaultFilterKeys
-                selectedFiltersList
-              />
-              {if showClearFilterButton && !hideFilters && count > 0 {
-                <ClearFilters
-                  filterButtonStyle
-                  defaultFilterKeys
-                  ?clearFilters
-                  count
-                  outsidefilter={initalCount > 0}
-                />
-              } else {
-                React.null
-              }}
             </div>
           </div>
         </div>
