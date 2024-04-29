@@ -240,7 +240,7 @@ module LabelCell = {
     | LabelBlue => `${backgroundColor} dark:bg-opacity-50`
     | LabelGray => "bg-blue-table_gray"
     | LabelOrange => `bg-orange-950 ${bgOpacity} dark:bg-opacity-50`
-    | LabelYellow => "bg-blue-table_yellow"
+    | LabelYellow => "bg-yellow-600"
     | LabelDarkGreen => "bg-green-700"
     | LabelDarkRed => "bg-red-400"
     | LabelBrown => "bg-brown-600 bg-opacity-50"
@@ -253,7 +253,6 @@ module LabelCell = {
 
     let textColor = switch labelColor {
     | LabelGray => "text-jp-gray-900"
-    | LabelYellow => "text-jp-gray-900"
     | LabelWhite => "text-jp-gray-700"
     | _ => "text-white"
     }

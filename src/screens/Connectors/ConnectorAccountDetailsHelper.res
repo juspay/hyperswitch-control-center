@@ -121,12 +121,13 @@ module RenderConnectorInputFields = {
     let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))
     keys
     ->Array.mapWithIndex((field, i) => {
-      let label = details->getString(field, "default")
+      let label = switch field {
+      | "pull_mechanism_for_external_3ds_enabled" => "Pull Mechanism Enabled"
+      | _ => details->getString(field, "")
+      }
+
       let formName = isLabelNested ? `${name}.${field}` : name
-      <UIUtils.RenderIf
-        condition={label !== "default" ||
-          (label === "default" && field === "pull_mechanism_for_external_3ds_enabled")}
-        key={i->Int.toString}>
+      <UIUtils.RenderIf condition={label->isNonEmptyString} key={i->Int.toString}>
         <AddDataAttributes attributes=[("data-testid", label->titleToSnake->String.toLowerCase)]>
           <div key={label}>
             <FormRenderer.FieldRenderer
