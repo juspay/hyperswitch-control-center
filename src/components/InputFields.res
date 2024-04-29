@@ -152,6 +152,7 @@ let multiSelectInput = (
   ~dropdownClassName="",
   ~baseComponentMethod=?,
   ~disableSelect=false,
+  ~isFilterComponent=false,
   (),
 ) => {
   <SelectBox
@@ -204,6 +205,7 @@ let multiSelectInput = (
     wrapBasis
     dropdownClassName
     ?baseComponentMethod
+    isFilterComponent
   />
 }
 

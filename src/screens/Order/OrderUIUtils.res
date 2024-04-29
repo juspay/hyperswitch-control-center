@@ -121,6 +121,7 @@ let initialFilters = json => {
           ~showToolTip=true,
           ~showNameAsToolTip=true,
           ~customButtonStyle="bg-none",
+          ~isFilterComponent=true,
           (),
         ),
         (),

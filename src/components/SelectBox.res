@@ -61,6 +61,7 @@ module ListItem = {
     ~showToolTipOptions=false,
     ~textEllipsisForDropDownOptions=false,
     ~textColorClass="",
+    ~isFilterComponent=false,
   ) => {
     let {globalUIConfig: {font}} = React.useContext(ConfigContext.configContext)
     let labelText = switch labelValue->String.length {
@@ -147,7 +148,9 @@ module ListItem = {
     }
     let parentRef = React.useRef(Nullable.null)
 
-    let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme"
+    let textColor = isFilterComponent
+      ? "text-jp-2-gray-300"
+      : "text-jp-gray-900 dark:text-jp-gray-text_darktheme"
 
     let textColor = if textColorClass->LogicUtils.isNonEmptyString {
       textColorClass
@@ -168,7 +171,11 @@ module ListItem = {
     let selectedNoBadgeColor = "bg-blue-500"
     let optionIconStroke = ""
 
-    let optionTextSize = !isDropDown && optionSize === Large ? "text-fs-16" : "text-base"
+    let optionTextSize = isFilterComponent
+      ? "text-fs-14"
+      : !isDropDown && optionSize === Large
+      ? "text-fs-16"
+      : "text-base"
     let searchMatchTextColor = `dark:${font.textColor.primaryNormal} ${font.textColor.primaryNormal}`
     let optionDescPadding = if optionSize === Small {
       showToggle ? "pl-12" : "pl-7"
@@ -460,7 +467,9 @@ module BaseSelect = {
     ~onItemSelect=(_, _) => (),
     ~wrapBasis="",
     ~preservedAppliedOptions=[],
+    ~isFilterComponent=false,
   ) => {
+    let customSearchStyle = isFilterComponent ? "bg-white p-2 border-b-2" : customSearchStyle
     let {globalUIConfig: {font}} = React.useContext(ConfigContext.configContext)
     let (searchString, setSearchString) = React.useState(() => "")
     let maxHeight = if maxHeight->String.includes("72") {
@@ -557,9 +566,11 @@ module BaseSelect = {
 
     let borderClass = if !hideBorder {
       if isDropDown {
-        "bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded  shadow-generic_shadow dark:shadow-generic_shadow_dark animate-textTransition transition duration-400"
+        `bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 ${isFilterComponent
+            ? "rounded-lg"
+            : "rounded shadow-generic_shadow dark:shadow-generic_shadow_dark"} animate-textTransition transition duration-400`
       } else if showToggle {
-        "bg-white border rounded dark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded  "
+        "bg-white border rounded dark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960"
       } else {
         ""
       }
@@ -674,6 +685,8 @@ module BaseSelect = {
       ""
     }
 
+    let customSearchStyle = isFilterComponent ? "" : customSearchStyle
+
     <div
       id="neglectTopbarTheme"
       className={`${widthClass} ${outerClass} ${borderClass} ${animationClass} ${dropdownClassName}`}>
@@ -692,7 +705,7 @@ module BaseSelect = {
         }
       }}
       {if showSelectAll && isDropDown {
-        if !isMobileView {
+        if !isMobileView && !isFilterComponent {
           <div
             className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 z-index: 50`}>
             <div className="flex flex-row justify-between">
@@ -736,7 +749,7 @@ module BaseSelect = {
               filteredOptions->Array.find(item => item.value === "Loading...")->Option.isNone}>
             <div
               onClick={selectAll(noOfSelected === 0)}
-              className={`flex px-3 pt-2 pb-1 mx-1 rounded-lg gap-3 text-jp-2-gray-300 items-center text-fs-14 font-medium cursor-pointer`}>
+              className={`flex px-3 py-2 border-b-2 gap-3 text-jp-2-gray-300 items-center text-fs-14 font-medium cursor-pointer`}>
               <CheckBoxIcon
                 isSelected={noOfSelected !== 0}
                 size=optionSize
@@ -874,6 +887,7 @@ module BaseSelect = {
                   toggleProps
                   checkboxDimension
                   iconStroke=item.iconStroke
+                  isFilterComponent
                 />
                 {switch optionRigthElement {
                 | Some(rightElement) => rightElement
@@ -1223,6 +1237,7 @@ module BaseRadio = {
     ~showSearchIcon=true,
     ~showToolTipOptions=false,
     ~textEllipsisForDropDownOptions=false,
+    ~isFilterComponent=false,
   ) => {
     let options = React.useMemo1(() => {
       options->Array.map(makeNonOptional)
@@ -1377,7 +1392,9 @@ module BaseRadio = {
         </UIUtils.RenderIf>
       }}
       <div
-        className={`${maxHeight} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
+        className={`${maxHeight} ${listPadding} ${overflowClass} ${isFilterComponent
+            ? "text-jp-2-gray-300 text-fs-14 font-medium"
+            : "text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 "}  ${inlineClass} ${baseComponentCustomStyle}`}>
         {if newOptions->Array.length === 0 && showMatchingRecordsText {
           <div className="flex justify-center items-center m-4">
             {React.string("No matching records found")}
@@ -1438,6 +1455,75 @@ module BaseRadio = {
           }
         }}
       </div>
+    </div>
+  }
+}
+
+module InfraSelectBox = {
+  @react.component
+  let make = (
+    ~options: array<dropdownOption>,
+    ~input: ReactFinalForm.fieldRenderPropsInput,
+    ~deselectDisable=false,
+    ~allowMultiSelect=true,
+    ~borderRadius="rounded-full",
+    ~selectedClass="border-jp-gray-600 dark:border-jp-gray-800 text-jp-gray-850 dark:text-jp-gray-400",
+    ~nonSelectedClass="border-jp-gray-900 dark:border-jp-gray-300 text-jp-gray-900 dark:text-jp-gray-300 font-semibold",
+    ~showTickMark=true,
+  ) => {
+    let transformedOptions = useTransformed(options)
+
+    let newInputSelect = input->ffInputToSelectInput
+    let values = newInputSelect.value
+    let saneValue = React.useMemo1(() =>
+      switch values->JSON.Decode.array {
+      | Some(jsonArr) => jsonArr->LogicUtils.getStrArrayFromJsonArray
+      | _ => []
+      }
+    , [values])
+
+    let onItemClick = (itemDataValue, isDisabled) => {
+      if !isDisabled {
+        if allowMultiSelect {
+          let data = if Array.includes(saneValue, itemDataValue) {
+            if deselectDisable {
+              saneValue
+            } else {
+              saneValue->Array.filter(x => x !== itemDataValue)
+            }
+          } else {
+            Array.concat(saneValue, [itemDataValue])
+          }
+          newInputSelect.onChange(data)
+        } else {
+          newInputSelect.onChange([itemDataValue])
+        }
+      }
+    }
+
+    <div className={`md:max-h-72 overflow-auto font-medium flex flex-wrap gap-y-4 gap-x-2.5`}>
+      {transformedOptions
+      ->Array.mapWithIndex((option, i) => {
+        let isSelected = saneValue->Array.includes(option.value)
+        let selectedClass = isSelected ? selectedClass : nonSelectedClass
+
+        <div
+          key={Int.toString(i)}
+          onClick={_ => onItemClick(option.value, option.isDisabled)}
+          className={`px-4 py-1 border ${borderRadius} flex flex-row gap-2 items-center cursor-pointer ${selectedClass}`}>
+          {if isSelected && showTickMark {
+            <Icon
+              className="align-middle font-thin text-jp-gray-900 dark:text-jp-gray-300"
+              size=12
+              name="check"
+            />
+          } else {
+            React.null
+          }}
+          {React.string(option.label)}
+        </div>
+      })
+      ->React.array}
     </div>
   }
 }
@@ -1520,6 +1606,7 @@ module BaseDropdown = {
     ~searchInputPlaceHolder="",
     ~showSearchIcon=true,
     ~sortingBasedOnDisabled=?,
+    ~isFilterComponent=false,
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1530,7 +1617,9 @@ module BaseDropdown = {
 
     let showBorder = isFilterSection && !isMobileView ? Some(false) : showBorder
 
-    let dropdownOuterClass = "border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded  shadow-generic_shadow dark:shadow-generic_shadow_dark"
+    let dropdownOuterClass = isFilterComponent
+      ? "bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+      : "rounded border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960  shadow-generic_shadow dark:shadow-generic_shadow_dark"
 
     let newInputSelect = input->ffInputToSelectInput
     let newInputRadio = input->ffInputToRadioInput
@@ -1727,6 +1816,7 @@ module BaseDropdown = {
         showSearchIcon
         ?sortingBasedOnDisabled
         preservedAppliedOptions
+        isFilterComponent
       />
     } else if addButton {
       <BaseSelectButton
@@ -1969,75 +2059,6 @@ module BaseDropdown = {
   }
 }
 
-module InfraSelectBox = {
-  @react.component
-  let make = (
-    ~options: array<dropdownOption>,
-    ~input: ReactFinalForm.fieldRenderPropsInput,
-    ~deselectDisable=false,
-    ~allowMultiSelect=true,
-    ~borderRadius="rounded-full",
-    ~selectedClass="border-jp-gray-600 dark:border-jp-gray-800 text-jp-gray-850 dark:text-jp-gray-400",
-    ~nonSelectedClass="border-jp-gray-900 dark:border-jp-gray-300 text-jp-gray-900 dark:text-jp-gray-300 font-semibold",
-    ~showTickMark=true,
-  ) => {
-    let transformedOptions = useTransformed(options)
-
-    let newInputSelect = input->ffInputToSelectInput
-    let values = newInputSelect.value
-    let saneValue = React.useMemo1(() =>
-      switch values->JSON.Decode.array {
-      | Some(jsonArr) => jsonArr->LogicUtils.getStrArrayFromJsonArray
-      | _ => []
-      }
-    , [values])
-
-    let onItemClick = (itemDataValue, isDisabled) => {
-      if !isDisabled {
-        if allowMultiSelect {
-          let data = if Array.includes(saneValue, itemDataValue) {
-            if deselectDisable {
-              saneValue
-            } else {
-              saneValue->Array.filter(x => x !== itemDataValue)
-            }
-          } else {
-            Array.concat(saneValue, [itemDataValue])
-          }
-          newInputSelect.onChange(data)
-        } else {
-          newInputSelect.onChange([itemDataValue])
-        }
-      }
-    }
-
-    <div className={`md:max-h-72 overflow-auto font-medium flex flex-wrap gap-y-4 gap-x-2.5`}>
-      {transformedOptions
-      ->Array.mapWithIndex((option, i) => {
-        let isSelected = saneValue->Array.includes(option.value)
-        let selectedClass = isSelected ? selectedClass : nonSelectedClass
-
-        <div
-          key={Int.toString(i)}
-          onClick={_ => onItemClick(option.value, option.isDisabled)}
-          className={`px-4 py-1 border ${borderRadius} flex flex-row gap-2 items-center cursor-pointer ${selectedClass}`}>
-          {if isSelected && showTickMark {
-            <Icon
-              className="align-middle font-thin text-jp-gray-900 dark:text-jp-gray-300"
-              size=12
-              name="check"
-            />
-          } else {
-            React.null
-          }}
-          {React.string(option.label)}
-        </div>
-      })
-      ->React.array}
-    </div>
-  }
-}
-
 module ChipFilterSelectBox = {
   @react.component
   let make = (
@@ -2196,7 +2217,9 @@ let make = (
   let newInputSelect = input->ffInputToSelectInput
   let newInputRadio = input->ffInputToRadioInput
 
-  let customButtonStyle = isFilterComponent ? "" : "bg-white rounded-lg !px-4 !py-2 !h-10"
+  let customButtonStyle = isFilterComponent
+    ? "bg-white rounded-lg !px-4 !py-2 !h-10"
+    : customButtonStyle
 
   if isDropDown {
     <BaseDropdown
@@ -2263,6 +2286,7 @@ let make = (
       dropdownClassName
       ?searchInputPlaceHolder
       showSearchIcon
+      isFilterComponent
     />
   } else if allowMultiSelect {
     <BaseSelect
@@ -2307,6 +2331,7 @@ let make = (
       dropdownClassName
       onItemSelect
       wrapBasis
+      isFilterComponent
     />
   } else {
     <BaseRadio
