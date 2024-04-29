@@ -18,8 +18,8 @@ let useFetchEnumDetails = () => {
       Nullable.make(responseDict)
     } catch {
     | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
+        let _ = GenericCatch.handleCatch(~error=e, ~raiseError=true, ())
+        Dict.make()->Nullable.make
       }
     }
   }

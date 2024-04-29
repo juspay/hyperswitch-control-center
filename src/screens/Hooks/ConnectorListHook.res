@@ -11,8 +11,8 @@ let useFetchConnectorList = () => {
       res
     } catch {
     | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
+        let _ = GenericCatch.handleCatch(~error=e, ~raiseError=true, ())
+        JSON.Encode.null
       }
     }
   }

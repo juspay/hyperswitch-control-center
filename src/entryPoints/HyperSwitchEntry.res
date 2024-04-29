@@ -94,6 +94,10 @@ module HyperSwitchEntryComponent = {
       None
     }, [url.path])
 
+    let featureFlagDetailsCatch = () => {
+      setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
+    }
+
     let fetchFeatureFlags = async () => {
       try {
         let url = `${HSwitchGlobalVars.getHostURLFromVariant}/config/merchant-access`
@@ -105,8 +109,7 @@ module HyperSwitchEntryComponent = {
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | Exn.Error(e) =>
-        let err = Exn.message(e)->Option.getOr("Something went wrong!")
-        setScreenState(_ => PageLoaderWrapper.Error(err))
+        GenericCatch.handleCatch(~error=e, ~callbackFun=featureFlagDetailsCatch, ())->ignore
       }
     }
 
