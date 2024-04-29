@@ -276,8 +276,8 @@ module ToggleLiveTestMode = {
   open HSwitchGlobalVars
   @react.component
   let make = (~authType, ~mode, ~setMode, ~setAuthType, ~customClass="") => {
-    let liveButtonRedirectUrl = getHostURLFromVariant
-    let testButtonRedirectUrl = getHostURLFromVariant
+    let liveButtonRedirectUrl = getHostUrlWithBasePath
+    let testButtonRedirectUrl = getHostUrlWithBasePath
     <>
       {switch authType {
       | LoginWithPassword
