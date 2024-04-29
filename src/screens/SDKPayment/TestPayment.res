@@ -44,7 +44,7 @@ let make = (
   let getClientSecret = async () => {
     open SDKPaymentUtils
     try {
-      let url = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments`
+      let url = `${Window.env.apiBaseUrl}/payments`
       let paymentData =
         initialValues
         ->Identity.genericTypeToJson

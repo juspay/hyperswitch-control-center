@@ -3,37 +3,51 @@ before(() => {
   cy.singup_curl(username, "cypress98#");
 });
 beforeEach(() => {
-  cy.intercept("POST", "/config/merchant-access", {
+  cy.intercept("GET", "merchant-config?domain=default", {
     statusCode: 200,
     body: {
-      test_live_toggle: false,
-      is_live_mode: true,
-      email: false,
-      quick_start: false,
-      audit_trail: false,
-      system_metrics: false,
-      sample_data: false,
-      frm: false,
-      payout: true,
-      recon: false,
-      test_processors: false,
-      feedback: false,
-      mixpanel: false,
-      generate_report: false,
-      user_journey_analytics: false,
-      surcharge: false,
-      permission_based_module: false,
-      dispute_evidence_upload: false,
-      paypal_automatic_flow: false,
-      invite_multiple: false,
-      "accept-invite": false,
+      theme: {
+        primary_color: "#006DF9",
+        primary_hover_color: "#005ED6",
+        sidebar_color: "#242F48",
+      },
+      endpoints: {
+        api_url: "http://localhost:8080",
+        sdk_url: "",
+        logo_url: "",
+        favicon_url: "",
+        mixpanel_token: "",
+      },
+      features: {
+        test_live_toggle: false,
+        is_live_mode: true,
+        email: false,
+        quick_start: false,
+        audit_trail: false,
+        system_metrics: false,
+        sample_data: false,
+        frm: false,
+        payout: true,
+        recon: false,
+        test_processors: false,
+        feedback: false,
+        mixpanel: false,
+        generate_report: false,
+        user_journey_analytics: false,
+        surcharge: false,
+        permission_based_module: false,
+        dispute_evidence_upload: false,
+        paypal_automatic_flow: false,
+        invite_multiple: false,
+        "accept-invite": false,
+      },
     },
-  }).as("getData");
+  }).as("getFeatureData");
   cy.intercept("GET", "/agreement/tc-hyperswitch-aug-23.pdf", {
     statusCode: 200,
   }).as("getPDF");
   cy.visit("http://localhost:9000");
-  cy.wait("@getData");
+  cy.wait("@getFeatureData");
   cy.login_UI(username, "cypress98#");
   cy.wait("@getPDF");
 });
@@ -107,6 +121,6 @@ describe("Prod quick start", () => {
     cy.get("[data-button-for=connectAndProceed]").click({ force: true });
     cy.contains("Basic Account Setup Successful");
     cy.get("[data-button-for=goToDashboard]").click({ force: true });
-    cy.url().should("eq", "http://localhost:9000/home");
+    cy.url().should("eq", "http://localhost:9000/dashboard/home");
   });
 });

@@ -229,6 +229,10 @@ let make = () => {
                             {modeText->React.string}
                           </div>
                         </div>}
+                        headerLeftActions={switch Window.env.logoUrl {
+                        | Some(url) => <img src={`${url}`} />
+                        | None => React.null
+                        }}
                       />
                     </div>
                   </div>

@@ -5,6 +5,7 @@ let make = () => {
   let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
     ConfigContext.configContext,
   )
+  let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let (disputesData, setDisputesData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -39,20 +40,22 @@ let make = () => {
 
   let customUI =
     <>
-      <div
-        className={`${borderColor.primaryNormal} flex  items-start  text-sm rounded-md gap-2 px-4 py-3 mt-5`}>
-        <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
-        <p>
-          {"Missing disputes? Disputes might not be supported for your payment processor or might not yet have been integrated with hyperswitch. Please check the"->React.string}
-          <a
-            href="https://hyperswitch.io/pm-list"
-            target="_blank"
-            className={`${textColor.primaryNormal}`}>
-            {" feature matrix "->React.string}
-          </a>
-          {"for your processor."->React.string}
-        </p>
-      </div>
+      <UIUtils.RenderIf condition={!branding}>
+        <div
+          className={`${borderColor.primaryNormal} flex  items-start  text-sm rounded-md gap-2 px-4 py-3 mt-5`}>
+          <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
+          <p>
+            {"Missing disputes? Disputes might not be supported for your payment processor or might not yet have been integrated with hyperswitch. Please check the"->React.string}
+            <a
+              href="https://hyperswitch.io/pm-list"
+              target="_blank"
+              className={`${textColor.primaryNormal}`}>
+              {" feature matrix "->React.string}
+            </a>
+            {"for your processor."->React.string}
+          </p>
+        </div>
+      </UIUtils.RenderIf>
       <HelperComponents.BluredTableComponent
         infoText="No disputes as of now." moduleName=" " showRedirectCTA=false
       />

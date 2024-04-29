@@ -59,3 +59,4 @@ type subCode =
   | UR_16
 
 type flowType = MERCHANT_SELECT | DASHBOARD_ENTRY | ERROR
+type logoVariant = Icon | Text | IconWithText | IconWithURL

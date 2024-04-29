@@ -367,7 +367,7 @@ module Attempts = {
         className={`flex  items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
         <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
         <span>
-          {`You can validate the information shown here by cross checking the hyperswitch payment attempt identifier (Attempt ID) in your payment processor portal.`->React.string}
+          {`You can validate the information shown here by cross checking the payment attempt identifier (Attempt ID) in your payment processor portal.`->React.string}
         </span>
       </div>
       <p className="font-bold text-fs-16 text-jp-gray-900"> {"Payment Attempts"->React.string} </p>

@@ -108,7 +108,7 @@ let getDisputeTable: JSON.t => array<disputeTableType> = json => {
 let makeFieldInfo = FormRenderer.makeFieldInfo
 
 let disputeTableEntity = EntityType.makeEntity(
-  ~uri=`${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+  ~uri=`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
   ~getObjects=getDisputeTable,
   ~dataKey="queryData",
   ~defaultColumns=defaultDisputeColumns,
@@ -256,7 +256,7 @@ let getStatData = (
 let getSingleStatEntity = (metrics, connector_success_rate) => {
   urlConfig: [
     {
-      uri: `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
@@ -265,7 +265,7 @@ let getSingleStatEntity = (metrics, connector_success_rate) => {
   defaultColumns: getColumns(connector_success_rate),
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
 }
 
 let metricsConfig: array<LineChartUtils.metricsConfig> = [
@@ -289,7 +289,7 @@ let metricsConfig: array<LineChartUtils.metricsConfig> = [
 
 let chartEntity = tabKeys =>
   DynamicChart.makeEntity(
-    ~uri=String(`${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`),
+    ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`),
     ~filterKeys=tabKeys,
     ~dateFilterKeys=(startTimeFilterKey, endTimeFilterKey),
     ~currentMetrics=("Dispute Status Metric", "Total Amount Disputed"), // 2nd metric will be static and we won't show the 2nd metric option to the first metric
@@ -298,7 +298,7 @@ let chartEntity = tabKeys =>
     ~chartTypes=[Line],
     ~uriConfig=[
       {
-        uri: `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+        uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
         timeSeriesBody: DynamicChart.getTimeSeriesChart,
         legendBody: DynamicChart.getLegendBody,
         metrics: metricsConfig,
