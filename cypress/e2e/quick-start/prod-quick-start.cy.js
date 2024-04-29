@@ -3,7 +3,7 @@ before(() => {
   cy.singup_curl(username, "cypress98#");
 });
 beforeEach(() => {
-  cy.intercept("GET", "/config/merchant-config?domain=default", {
+  cy.intercept("GET", "merchant-config?domain=default", {
     statusCode: 200,
     body: {
       theme: {
@@ -42,12 +42,12 @@ beforeEach(() => {
         "accept-invite": false,
       },
     },
-  }).as("getData");
+  }).as("getFeatureData");
   cy.intercept("GET", "/agreement/tc-hyperswitch-aug-23.pdf", {
     statusCode: 200,
   }).as("getPDF");
   cy.visit("http://localhost:9000");
-  cy.wait("@getData");
+  cy.wait("@getFeatureData");
   cy.login_UI(username, "cypress98#");
   cy.wait("@getPDF");
 });
@@ -121,6 +121,6 @@ describe("Prod quick start", () => {
     cy.get("[data-button-for=connectAndProceed]").click({ force: true });
     cy.contains("Basic Account Setup Successful");
     cy.get("[data-button-for=goToDashboard]").click({ force: true });
-    cy.url().should("eq", "http://localhost:9000/home");
+    cy.url().should("eq", "http://localhost:9000/dashboard/home");
   });
 });
