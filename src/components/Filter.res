@@ -1,106 +1,5 @@
 let makeFieldInfo = FormRenderer.makeFieldInfo
 
-module ClearForm = {
-  @react.component
-  let make = () => {
-    let form = ReactFinalForm.useForm()
-    <div className="ml-2">
-      <Button
-        text="Clear Form" onClick={e => form.reset(JSON.Encode.object(Dict.make())->Nullable.make)}
-      />
-    </div>
-  }
-}
-
-module ModalUI = {
-  @react.component
-  let make = (
-    ~showModal,
-    ~setShowModal,
-    ~initialValueJson,
-    ~fieldsFromOption,
-    ~isButtonDisabled,
-  ) => {
-    let form = ReactFinalForm.useForm()
-
-    let footerUi =
-      <div
-        className="flex flex-row justify-between p-4 border-t border-jp-gray-500 dark:border-jp-gray-960 items-center">
-        <ClearForm />
-        <div className="flex flex-row gap-2 place-content-end">
-          <Button
-            text="Cancel"
-            buttonType=SecondaryFilled
-            buttonSize=Small
-            onClick={_ev => {
-              form.reset(initialValueJson->Nullable.make)
-              setShowModal(_ => false)
-            }}
-          />
-          <FormRenderer.SubmitButton text="Submit" disabledParamter=isButtonDisabled />
-        </div>
-      </div>
-
-    <Modal
-      modalHeading="Advanced Search"
-      showModal
-      setShowModal
-      borderBottom=true
-      childClass="p-2 m-2"
-      modalClass="w-full md:w-2/3 mx-auto mt-0"
-      onCloseClickCustomFun={_ev => {
-        form.reset(initialValueJson->Nullable.make)
-        setShowModal(_ => false)
-      }}
-      modalFooter=footerUi>
-      <AddDataAttributes attributes=[("data-filter", "advanceFilters")]>
-        <div
-          className="overflow-auto"
-          style={ReactDOMStyle.make(~maxHeight="calc(100vh - 15rem)", ())}>
-          <div className="flex flex-wrap h-fit">
-            {switch fieldsFromOption->Array.get(0) {
-            | Some(field) =>
-              <FormRenderer.FieldRenderer
-                field fieldWrapperClass="w-full !min-w-[200px] p-4 -my-4"
-              />
-            | None => React.null
-            }}
-          </div>
-          <div className="flex flex-wrap h-fit ">
-            {switch fieldsFromOption->Array.get(1) {
-            | Some(field) =>
-              <FormRenderer.FieldRenderer
-                field fieldWrapperClass="w-full !min-w-[200px] p-4 -my-4"
-              />
-            | None => React.null
-            }}
-            {switch fieldsFromOption->Array.get(3) {
-            | Some(field) =>
-              <FormRenderer.FieldRenderer
-                field fieldWrapperClass="w-full !min-w-[200px] p-4 -my-4"
-              />
-            | None => React.null
-            }}
-          </div>
-          <div className="flex flex-wrap h-fit mb-10">
-            {switch fieldsFromOption->Array.get(2) {
-            | Some(field) =>
-              <FormRenderer.FieldRenderer
-                field fieldWrapperClass="w-full !min-w-[200px] p-4 -my-4"
-              />
-            | None => React.null
-            }}
-            <FormRenderer.FieldsRenderer
-              fields={fieldsFromOption->Array.sliceToEnd(~start=4)}
-              fieldWrapperClass="w-1/3 !min-w-[200px] p-4 -my-4"
-            />
-          </div>
-        </div>
-      </AddDataAttributes>
-    </Modal>
-  }
-}
-
 module ClearFilters = {
   @react.component
   let make = (
@@ -246,7 +145,7 @@ let defaultAutoApply = false
 
 module AutoSubmitter = {
   @react.component
-  let make = (~showModal, ~autoApply, ~submit, ~defaultFilterKeys) => {
+  let make = (~autoApply, ~submit, ~defaultFilterKeys) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Nullable.make,
     )
@@ -260,7 +159,7 @@ module AutoSubmitter = {
         })
 
         // if autoApply is false then still autoApply can work for the default filters
-        if !showModal && (autoApply || defaultFieldsHaveChanged) {
+        if autoApply || defaultFieldsHaveChanged {
           submit(formState.values, 0)->ignore
         }
       }
@@ -377,7 +276,7 @@ module ApplyFilterButton = {
 let make = (
   ~defaultFilters,
   ~fixedFilters: array<EntityType.initialFilters<'t>>=[],
-  ~requiredSearchFieldsList,
+  ~requiredSearchFieldsList as _,
   ~setOffset=?,
   ~title="",
   ~path="",
@@ -441,8 +340,6 @@ let make = (
   }, [updatedSelectedList->JSON.stringify])
 
   let getNewQuery = DateRefreshHooks.useConstructQueryOnBasisOfOpt()
-  let (isButtonDisabled, setIsButtonDisabled) = React.useState(_ => false)
-
   let totalFilters = selectedFiltersList->Array.length + localOptions->Array.length
   let (checkedFilters, setCheckedFilters) = React.useState(_ => [])
   let (clearFilterAfterRefresh, setClearFilterAfterRefresh) = React.useState(_ => false)
@@ -454,15 +351,11 @@ let make = (
 
   let (initialValueJson, setInitialValueJson) = React.useState(_ => JSON.Encode.object(Dict.make()))
 
-  let countSelectedFilters = React.useMemo1(() => {
-    Dict.keysToArray(initialValueJson->JSON.Decode.object->Option.getOr(Dict.make()))->Array.length
-  }, [initialValueJson])
   let hideFiltersInit = switch hideFiltersDefaultValue {
   | Some(value) => value
   | _ => true
   }
 
-  let (showModal, setShowModal) = React.useState(_ => false)
   let (hideFilters, setHideFilters) = React.useState(_ => hideFiltersInit)
 
   let localFilterJson = RemoteFiltersUtils.getInitialValuesFromUrl(
@@ -586,7 +479,6 @@ let make = (
 
     open Promise
 
-    setShowModal(_ => false)
     Nullable.null->resolve
   }
 
@@ -652,28 +544,6 @@ let make = (
     setSelectedFiltersList(_prev => finalFieldList)
   }
 
-  let validate = values => {
-    let valuesDict = values->JsonFlattenUtils.flattenObject(false)
-    let errors = Dict.make()
-
-    requiredSearchFieldsList->Array.forEach(key => {
-      if Dict.get(valuesDict, key)->Option.isNone {
-        let key = if key == "filters.dateCreated.lte" || key == "filters.dateCreated.gte" {
-          "Date Range"
-        } else {
-          key
-        }
-        Dict.set(errors, key, "Required"->JSON.Encode.string)
-      }
-    })
-    if errors->Dict.toArray->Array.length > 0 {
-      setIsButtonDisabled(_ => true)
-    } else {
-      setIsButtonDisabled(_ => false)
-    }
-    errors->JSON.Encode.object
-  }
-
   let fieldsFromOption = popupFilterFields->Array.map(option => {option.field})
 
   let handleRefresh = _ => {
@@ -713,183 +583,130 @@ let make = (
   }
 
   let isFilterSection = React.useContext(TableFilterSectionContext.filterSectionContext)
-  let advancedSearchByttonType: Button.buttonType = SecondaryFilled
-  let advancedSearchMargin = !isMobileView ? "ml-1" : "ml-1 mt-1"
   let verticalGap = !isMobileView ? "gap-y-2" : ""
-  let filterWidth = ""
-  let badge: Button.badge = {value: countSelectedFilters->Int.toString, color: BadgeBlue}
 
-  let advacedAndClearButtons =
-    <>
-      <UIUtils.RenderIf
-        condition={fieldsFromOption->Array.length > 0 &&
-        !showExtraFiltersInline &&
-        !showRemoteOptions}>
-        <Portal to={`tableFilterTopRight-${title}`}>
-          <div className=advancedSearchMargin>
-            <Button
-              text="Advanced Search"
-              leftIcon=NoIcon
-              buttonType=advancedSearchByttonType
-              buttonSize=Small
-              onClick={_ev => setShowModal(_ => true)}
-              badge={countSelectedFilters > 0
-                ? badge
-                : {
-                    value: 1->Int.toString,
-                    color: NoBadge,
-                  }}
+  <Form onSubmit initialValues=initialValueJson>
+    <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys />
+    {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
+      <div>
+        <div className={`flex gap-2 items-center flex-wrap ${verticalGap}`}>
+          {customLeftView}
+          <UIUtils.RenderIf condition={fixedFilters->Array.length > 0}>
+            <FormRenderer.FieldsRenderer
+              fields={fixedFilters->Array.map(item => item.field)}
+              labelClass="hidden"
+              labelPadding="pb-2"
             />
-          </div>
-        </Portal>
-      </UIUtils.RenderIf>
-      <UIUtils.RenderIf
-        condition={!hideFilters && fixedFilters->Array.length === 0 && showClearFilter}>
-        <ClearFilters
-          filterButtonStyle
-          defaultFilterKeys
-          ?clearFilters
-          count
-          isCountRequired=false
-          outsidefilter={initalCount > 0}
-        />
-      </UIUtils.RenderIf>
-    </>
-  let fieldWrapperClass = None
-  <>
-    <Form onSubmit initialValues=initialValueJson>
-      <AutoSubmitter showModal autoApply submit=onSubmit defaultFilterKeys />
-      {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
-        <div>
-          <div className={`flex gap-2 items-center flex-wrap ${verticalGap}`}>
-            {customLeftView}
-            <UIUtils.RenderIf condition={fixedFilters->Array.length > 0}>
-              <FormRenderer.FieldsRenderer
-                fields={fixedFilters->Array.map(item => item.field)}
-                labelClass="hidden"
-                labelPadding="pb-2"
-                ?fieldWrapperClass
-              />
-            </UIUtils.RenderIf>
-            <UIUtils.RenderIf condition={hideFilters && isFilterSection}>
-              <PortalCapture key={`customizedColumn-${title}`} name={`customizedColumn-${title}`} />
-            </UIUtils.RenderIf>
-            <UIUtils.RenderIf condition={showFiltersBtn}>
-              <ToolTip
-                description={!hideFilters
-                  ? "Hide filters control panel(this will not clear the filters)"
-                  : "Apply filters from exhaustive list of dimensions"}
-                toolTipFor={<div className={`my-1 ${tooltipStyling} showFilterButton`}>
-                  <Button
-                    text={isMobileView ? "" : hideFilters ? "Show Filters" : "Hide Filters"}
-                    buttonType=SecondaryFilled
-                    buttonSize=XSmall
-                    leftIcon=CustomIcon(
-                      <Icon
-                        name={hideFilters ? "show-filters" : "minus"}
-                        size=14
-                        className={isMobileView ? "mr-0.75" : "ml-1.5 mr-1"}
-                      />,
-                    )
-                    onClick={_ => {
-                      setHideFilters(_ => !hideFilters)
-                    }}
-                  />
-                </div>}
-                toolTipPosition={isMobileView ? BottomLeft : Right}
-              />
-            </UIUtils.RenderIf>
-            <UIUtils.RenderIf condition={!clearFilterAfterRefresh && hideFilters && count > 0}>
-              <ClearFilters
-                filterButtonStyle
-                defaultFilterKeys
-                ?clearFilters
-                count
-                outsidefilter={initalCount > 0}
-              />
-            </UIUtils.RenderIf>
-          </div>
-          <div className="flex items-center">
-            <div
-              className={`flex ${isMobileView
-                  ? "flex-wrap"
-                  : "flex-row justify-between"} w-full items-center gap-2`}>
-              <div
-                className={`md:justify-between flex items-center flex-wrap ${filterWidth} ${addFilterStyle}`}>
-                <UIUtils.RenderIf condition={!hideFilters}>
-                  <div className={`flex ${!isMobileView ? "w-full" : "flex-wrap"}`}>
-                    <div
-                      className={`flex flex-wrap ${!isMobileView
-                          ? "items-center flex-1 gap-y-2 gap-x-3 w-full"
-                          : ""}`}>
-                      <FormRenderer.FieldsRenderer
-                        fields={selectedFiltersList} labelClass="hidden" labelPadding="pb-2"
-                      />
-                      <UIUtils.RenderIf condition={fixedFilters->Array.length === 0}>
-                        {refreshFilterUi}
-                      </UIUtils.RenderIf>
-                      advacedAndClearButtons
-                      <PortalCapture
-                        key={`customizedColumn-${title}`} name={`customizedColumn-${title}`}
+          </UIUtils.RenderIf>
+          <UIUtils.RenderIf condition={hideFilters && isFilterSection}>
+            <PortalCapture key={`customizedColumn-${title}`} name={`customizedColumn-${title}`} />
+          </UIUtils.RenderIf>
+          <UIUtils.RenderIf condition={showFiltersBtn}>
+            <ToolTip
+              description={!hideFilters
+                ? "Hide filters control panel(this will not clear the filters)"
+                : "Apply filters from exhaustive list of dimensions"}
+              toolTipFor={<div className={`my-1 ${tooltipStyling} showFilterButton`}>
+                <Button
+                  text={isMobileView ? "" : hideFilters ? "Show Filters" : "Hide Filters"}
+                  buttonType=SecondaryFilled
+                  buttonSize=XSmall
+                  leftIcon=CustomIcon(
+                    <Icon
+                      name={hideFilters ? "show-filters" : "minus"}
+                      size=14
+                      className={isMobileView ? "mr-0.75" : "ml-1.5 mr-1"}
+                    />,
+                  )
+                  onClick={_ => {
+                    setHideFilters(_ => !hideFilters)
+                  }}
+                />
+              </div>}
+              toolTipPosition={isMobileView ? BottomLeft : Right}
+            />
+          </UIUtils.RenderIf>
+          <UIUtils.RenderIf condition={!clearFilterAfterRefresh && hideFilters && count > 0}>
+            <ClearFilters
+              filterButtonStyle
+              defaultFilterKeys
+              ?clearFilters
+              count
+              outsidefilter={initalCount > 0}
+            />
+          </UIUtils.RenderIf>
+        </div>
+        <div className="flex items-center">
+          <div
+            className={`flex ${isMobileView
+                ? "flex-wrap"
+                : "flex-row justify-between"} w-full items-center gap-2`}>
+            <div className={`md:justify-between flex items-center flex-wrap  ${addFilterStyle}`}>
+              <UIUtils.RenderIf condition={!hideFilters}>
+                <div className={`flex ${!isMobileView ? "w-full" : "flex-wrap"}`}>
+                  <div
+                    className={`flex flex-wrap ${!isMobileView
+                        ? "items-center flex-1 gap-y-2 gap-x-3 w-full"
+                        : ""}`}>
+                    <FormRenderer.FieldsRenderer
+                      fields={selectedFiltersList} labelClass="hidden" labelPadding="pb-2"
+                    />
+                    <UIUtils.RenderIf condition={fixedFilters->Array.length === 0}>
+                      {refreshFilterUi}
+                    </UIUtils.RenderIf>
+                    <PortalCapture
+                      key={`customizedColumn-${title}`} name={`customizedColumn-${title}`}
+                    />
+                  </div>
+                </div>
+              </UIUtils.RenderIf>
+            </div>
+            <div className={`flex items-center justify-end flex-wrap`}>
+              <div>
+                {if showExtraFiltersInline || showRemoteOptions {
+                  if !hideFilters {
+                    <div>
+                      <CheckCustomFilters
+                        options={remoteOptions}
+                        checkedFilters
+                        addFilters
+                        removeFilters
+                        showAddFilter={fieldsFromOption->Array.length > 0 ||
+                          (showRemoteOptions && remoteOptions->Array.length > 0)}
+                        showSelectFiltersSearch
                       />
                     </div>
-                  </div>
-                </UIUtils.RenderIf>
-              </div>
-              <div className={`flex items-center justify-end flex-wrap`}>
-                <div>
-                  {if showExtraFiltersInline || showRemoteOptions {
-                    if !hideFilters {
-                      <div>
-                        <CheckCustomFilters
-                          options={remoteOptions}
-                          checkedFilters
-                          addFilters
-                          removeFilters
-                          showAddFilter={fieldsFromOption->Array.length > 0 ||
-                            (showRemoteOptions && remoteOptions->Array.length > 0)}
-                          showSelectFiltersSearch
-                        />
-                      </div>
-                    } else {
-                      React.null
-                    }
                   } else {
                     React.null
-                  }}
-                </div>
-                {!hideFilters ? customRightView : React.null}
-                <ApplyFilterButton
-                  autoApply
-                  totalFilters
-                  hideFilters
-                  filterButtonStyle
-                  defaultFilterKeys
-                  selectedFiltersList
-                />
-                {if showClearFilterButton && !hideFilters && count > 0 {
-                  <ClearFilters
-                    filterButtonStyle
-                    defaultFilterKeys
-                    ?clearFilters
-                    count
-                    outsidefilter={initalCount > 0}
-                  />
+                  }
                 } else {
                   React.null
                 }}
               </div>
+              {!hideFilters ? customRightView : React.null}
+              <ApplyFilterButton
+                autoApply
+                totalFilters
+                hideFilters
+                filterButtonStyle
+                defaultFilterKeys
+                selectedFiltersList
+              />
+              {if showClearFilterButton && !hideFilters && count > 0 {
+                <ClearFilters
+                  filterButtonStyle
+                  defaultFilterKeys
+                  ?clearFilters
+                  count
+                  outsidefilter={initalCount > 0}
+                />
+              } else {
+                React.null
+              }}
             </div>
           </div>
         </div>
-      </AddDataAttributes>}
-    </Form>
-    <LabelVisibilityContext showLabel=true>
-      <TableFilterSectionContext isFilterSection=false>
-        <Form onSubmit validate initialValues=initialValueJson>
-          <ModalUI showModal setShowModal initialValueJson fieldsFromOption isButtonDisabled />
-        </Form>
-      </TableFilterSectionContext>
-    </LabelVisibilityContext>
-  </>
+      </div>
+    </AddDataAttributes>}
+  </Form>
 }
