@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.28.0
+
+### Features
+
+- Profile name update ([#610](https://github.com/juspay/hyperswitch-control-center/pull/610)) ([`4b73368`](https://github.com/juspay/hyperswitch-control-center/commit/4b7336816f5fc0c562248bb75028c8bc7554734d))
+
+### Bug Fixes
+
+- Onboarding survey api call fix ([#609](https://github.com/juspay/hyperswitch-control-center/pull/609)) ([`405dd1a`](https://github.com/juspay/hyperswitch-control-center/commit/405dd1a90f1e156d63ccb554f52f3394c5952574))
+
+**Full Changelog:** [`2024.04.25.0...2024.04.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.25.0...2024.04.28.0)
+
+- - -
+
 ## 2024.04.25.0
 
 ### Features
