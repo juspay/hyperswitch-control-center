@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.29.0
+
+### Bug Fixes
+
+- Prod onboarding url issue ([#614](https://github.com/juspay/hyperswitch-control-center/pull/614)) ([`c915e58`](https://github.com/juspay/hyperswitch-control-center/commit/c915e581357366a32868f5efd3ab04a12cba0930))
+
+### Miscellaneous Tasks
+
+- Config feature flags on run time ([#588](https://github.com/juspay/hyperswitch-control-center/pull/588)) ([`946c06a`](https://github.com/juspay/hyperswitch-control-center/commit/946c06a128cc39466df2cef96fcd6cea7fffcc20))
+
+**Full Changelog:** [`2024.04.28.0...2024.04.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.28.0...2024.04.29.0)
+
+- - -
+
 ## 2024.04.28.0
 
 ### Features
