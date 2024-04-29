@@ -168,14 +168,8 @@ let make = () => {
   let userRole = HSLocalStorage.getFromUserDetails("user_role")
 
   let getSetupCompleteEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
-    open LogicUtils
     if prodEnums.setupComplete {
       setDashboardPageState(_ => #HOME)
-      routerUrl.search->isNonEmptyString
-        ? RescriptReactRouter.push(
-            `${HSwitchGlobalVars.appendDashboardPath(~url="/home")}?${routerUrl.search}`,
-          )
-        : RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
     } else {
       RescriptReactRouter.push(urlPush)
       setPageView(_ => SETUP_COMPLETED)
