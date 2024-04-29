@@ -31,6 +31,8 @@ let useSendEvent = () => {
   | Local => "localhost"
   }
 
+  let mixpanelToken = Window.env.mixpanelToken
+
   let trackApi = async (~email, ~merchantId, ~description, ~event) => {
     let body = {
       "event": event,

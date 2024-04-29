@@ -56,7 +56,7 @@ let make = () => {
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
-            filterUrl={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/filter`}
+            filterUrl={`${Window.env.apiBaseUrl}/refunds/filter`}
             setFilters
             endTimeFilterKey
             startTimeFilterKey

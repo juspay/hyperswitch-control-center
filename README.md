@@ -66,7 +66,7 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 
 ### Running with Docker
 
-1. `docker run -p 9000:9000  -e apiBaseUrl=your-backend-url -e sdkBaseUrl=your-sdk-url juspaydotin/hyperswitch-control-center:latest`
+1. `docker run -p 9000:9000  -e default__endpoints__api_url=your-backend-url -e default__endpoints__sdk_url=your-sdk-url juspaydotin/hyperswitch-control-center:latest`
 
 ### Accessing the Application
 
@@ -80,7 +80,7 @@ Feature flags allow the users to enable or disable certain functionalities or fl
 
 ### Using feature flags
 
-The FeatureFlag.json file can be found under config/FeatueFlag.json. By default, all the feature flags are turned off (`False` value).
+The config.toml file can be found under config/config.toml. By default, all the feature flags are turned off (`False` value).
 
 ### Feature flag descriptions
 
@@ -131,6 +131,7 @@ The `test_live_toggle` feature flag enables users to toggle between test and liv
 #### Is Live Mode
 
 The `is_live_mode` feature flag enables the live mode - that the user is accessing. When enabled, it will show a visual indicator within the dashboard signaling whether the user is currently in a test environment or live production environment.
+In Live mode, current users are not allowed to sign up. Users must be created manually.
 
 #### Email
 
@@ -148,11 +149,41 @@ The `surcharge` feature flag enables the ability to apply surcharges to payments
 
 Enabling `user_journey_analytics` grants access to the user journey module within the analytics section of the dashboard. This feature provides comprehensive graphical representations of payment analytics, facilitating a deeper understanding of user behavior and usage patterns.
 
+### Branding
+
+Enabling `branding` feature flag enables customization of branding elements like logos, colors.
+
 ---
 
-## Deployment
+## Customize the Color and Logo
 
-You can deploy the application to a hosting platform like Netlify, Vercel, or Firebase Hosting. Configure the deployment settings as needed for your chosen platform.
+Priamry color,logo and favicon can customizied by setting the values in the config.toml
+
+```
+[default.theme]
+primary_color="#006DF9"
+primary_hover_color="#005ED6"
+sidebar_color="#242F48"
+[default.endpoints]
+logo_url=""
+favicon_url=""
+```
+
+## Enable the features on Run time by overriding the default value
+
+You can override these default values either by exporting them directly
+
+```
+export default__theme__sidebar_color="#3b0764";
+export default__features__threeds_authenticator=true;
+export default__features__is_live_mode=true;
+
+```
+
+Or, you can set these values as environment variables by defining them in the `.env` file and pass the file
+during the docker run command
+
+`docker run -p 9000:9000 --env-file=.env juspaydotin/hyperswitch-control-center:latest`
 
 ### Deploy on AWS cloud
 

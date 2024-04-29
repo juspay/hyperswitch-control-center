@@ -279,16 +279,17 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let loadDOM = async () => {
     try {
-      let hyperswitchSdkPrefix =
-        Window.env.sdkBaseUrl->Option.getOr(
-          "https://beta.hyperswitch.io/v1/HyperLoader.js?default=true",
-        )
-      let script = DOMUtils.document->DOMUtils.createElement("script")
-      script->DOMUtils.setAttribute("src", hyperswitchSdkPrefix)
-      DOMUtils.appendChild(script)
-      let _ = Some(_ => script->DOMUtils.remove())
-      await HyperSwitchUtils.delay(1000)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      switch Window.env.sdkBaseUrl {
+      | Some(url) => {
+          let script = DOMUtils.document->DOMUtils.createElement("script")
+          script->DOMUtils.setAttribute("src", url)
+          DOMUtils.appendChild(script)
+          let _ = Some(_ => script->DOMUtils.remove())
+          await HyperSwitchUtils.delay(1000)
+          setScreenState(_ => PageLoaderWrapper.Success)
+        }
+      | None => setScreenState(_ => Error("URL Not Configured"))
+      }
     } catch {
     | _ => setScreenState(_ => Error(""))
     }
