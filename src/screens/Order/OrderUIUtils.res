@@ -113,15 +113,14 @@ let initialFilters = json => {
       field: FormRenderer.makeFieldInfo(
         ~label="",
         ~name=key,
-        ~customInput=InputFields.multiSelectInput(
-          ~options=values->SelectBox.makeOptions,
+        ~customInput=InputFields.filterMultiSelectInput(
+          ~options=values->FilterSelectBox.makeOptions,
           ~buttonText=title,
           ~showSelectionAsChips=false,
           ~searchable=true,
           ~showToolTip=true,
           ~showNameAsToolTip=true,
           ~customButtonStyle="bg-none",
-          ~isFilterComponent=true,
           (),
         ),
         (),

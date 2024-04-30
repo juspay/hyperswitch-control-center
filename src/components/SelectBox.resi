@@ -47,10 +47,8 @@ module ListItem: {
     ~showToolTipOptions: bool=?,
     ~textEllipsisForDropDownOptions: bool=?,
     ~textColorClass: string=?,
-    ~isFilterComponent: bool=?,
   ) => React.element
 }
-
 type dropdownOptionWithoutOptional = {
   label: string,
   value: string,
@@ -130,7 +128,6 @@ module BaseSelect: {
     ~onItemSelect: (JsxEvent.Mouse.t, Js_string.t) => unit=?,
     ~wrapBasis: string=?,
     ~preservedAppliedOptions: array<Js_string.t>=?,
-    ~isFilterComponent: bool=?,
   ) => React.element
 }
 module BaseSelectButton: {
@@ -221,20 +218,6 @@ module BaseRadio: {
     ~showSearchIcon: bool=?,
     ~showToolTipOptions: bool=?,
     ~textEllipsisForDropDownOptions: bool=?,
-    ~isFilterComponent: bool=?,
-  ) => React.element
-}
-module InfraSelectBox: {
-  @react.component
-  let make: (
-    ~options: array<dropdownOption>,
-    ~input: ReactFinalForm.fieldRenderPropsInput,
-    ~deselectDisable: bool=?,
-    ~allowMultiSelect: bool=?,
-    ~borderRadius: string=?,
-    ~selectedClass: string=?,
-    ~nonSelectedClass: string=?,
-    ~showTickMark: bool=?,
   ) => React.element
 }
 type direction = BottomLeft | BottomMiddle | BottomRight | TopLeft | TopMiddle | TopRight
@@ -308,7 +291,19 @@ module BaseDropdown: {
     ~searchInputPlaceHolder: string=?,
     ~showSearchIcon: bool=?,
     ~sortingBasedOnDisabled: bool=?,
-    ~isFilterComponent: bool=?,
+  ) => React.element
+}
+module InfraSelectBox: {
+  @react.component
+  let make: (
+    ~options: array<dropdownOption>,
+    ~input: ReactFinalForm.fieldRenderPropsInput,
+    ~deselectDisable: bool=?,
+    ~allowMultiSelect: bool=?,
+    ~borderRadius: string=?,
+    ~selectedClass: string=?,
+    ~nonSelectedClass: string=?,
+    ~showTickMark: bool=?,
   ) => React.element
 }
 module ChipFilterSelectBox: {
@@ -404,5 +399,4 @@ let make: (
   ~dropdownClassName: string=?,
   ~onItemSelect: (JsxEvent.Mouse.t, Js_string.t) => unit=?,
   ~wrapBasis: string=?,
-  ~isFilterComponent: bool=?,
 ) => React.element
