@@ -61,7 +61,6 @@ module ListItem = {
     ~showToolTipOptions=false,
     ~textEllipsisForDropDownOptions=false,
     ~textColorClass="",
-    ~isFilterComponent=false,
   ) => {
     let {globalUIConfig: {font}} = React.useContext(ConfigContext.configContext)
     let labelText = switch labelValue->String.length {
@@ -148,9 +147,7 @@ module ListItem = {
     }
     let parentRef = React.useRef(Nullable.null)
 
-    let textColor = isFilterComponent
-      ? "text-jp-2-gray-300"
-      : "text-jp-gray-900 dark:text-jp-gray-text_darktheme"
+    let textColor = "text-jp-2-gray-300"
 
     let textColor = if textColorClass->LogicUtils.isNonEmptyString {
       textColorClass
@@ -171,11 +168,8 @@ module ListItem = {
     let selectedNoBadgeColor = "bg-blue-500"
     let optionIconStroke = ""
 
-    let optionTextSize = isFilterComponent
-      ? "text-fs-14"
-      : !isDropDown && optionSize === Large
-      ? "text-fs-16"
-      : "text-base"
+    let optionTextSize = "text-fs-14"
+
     let searchMatchTextColor = `dark:${font.textColor.primaryNormal} ${font.textColor.primaryNormal}`
     let optionDescPadding = if optionSize === Small {
       showToggle ? "pl-12" : "pl-7"
@@ -427,8 +421,6 @@ module BaseSelect = {
     ~onBlur=?,
     ~showClearAll=true,
     ~isHorizontal=false,
-    ~insertselectBtnRef=?,
-    ~insertclearBtnRef=?,
     ~customLabelStyle=?,
     ~showToggle=false,
     ~showSerialNumber=false,
@@ -467,9 +459,8 @@ module BaseSelect = {
     ~onItemSelect=(_, _) => (),
     ~wrapBasis="",
     ~preservedAppliedOptions=[],
-    ~isFilterComponent=false,
   ) => {
-    let customSearchStyle = isFilterComponent ? "bg-white p-2 border-b-2" : customSearchStyle
+    let customSearchStyle = "bg-white p-2 border-b-2"
     let {globalUIConfig: {font}} = React.useContext(ConfigContext.configContext)
     let (searchString, setSearchString) = React.useState(() => "")
     let maxHeight = if maxHeight->String.includes("72") {
@@ -566,9 +557,8 @@ module BaseSelect = {
 
     let borderClass = if !hideBorder {
       if isDropDown {
-        `bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 ${isFilterComponent
-            ? "rounded-lg"
-            : "rounded shadow-generic_shadow dark:shadow-generic_shadow_dark"} animate-textTransition transition duration-400`
+        `bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 
+            rounded-lg animate-textTransition transition duration-400`
       } else if showToggle {
         "bg-white border rounded dark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960"
       } else {
@@ -612,8 +602,6 @@ module BaseSelect = {
         })
 
     let searchRef = React.useRef(Nullable.null)
-    let selectBtnRef = insertselectBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
-    let clearBtnRef = insertclearBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
     let (isChooseAllToggleSelected, setChooseAllToggleSelected) = React.useState(() => false)
     let gapClass = switch optionRigthElement {
     | Some(_) => "flex gap-4"
@@ -685,8 +673,6 @@ module BaseSelect = {
       ""
     }
 
-    let customSearchStyle = isFilterComponent ? "" : customSearchStyle
-
     <div
       id="neglectTopbarTheme"
       className={`${widthClass} ${outerClass} ${borderClass} ${animationClass} ${dropdownClassName}`}>
@@ -705,44 +691,7 @@ module BaseSelect = {
         }
       }}
       {if showSelectAll && isDropDown {
-        if !isMobileView && !isFilterComponent {
-          <div
-            className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 z-index: 50`}>
-            <div className="flex flex-row justify-between">
-              <div ref=?selectBtnRef onClick={selectAll(true)}>
-                <Button
-                  text="SELECT ALL"
-                  buttonType=NonFilled
-                  buttonSize=Small
-                  customButtonStyle="w-32 text-fs-11 mx-1"
-                  buttonState={noOfSelected !== options->Array.length ? Normal : Disabled}
-                />
-              </div>
-              <div ref=?clearBtnRef onClick={selectAll(false)}>
-                <Button
-                  text="CLEAR ALL"
-                  buttonType=NonFilled
-                  buttonSize=Small
-                  customButtonStyle="w-32 text-fs-11 mx-1"
-                  buttonState={noOfSelected !== 0 && showClearAll ? Normal : Disabled}
-                />
-              </div>
-            </div>
-            {if (
-              noOfSelected !== options->Array.length && noOfSelected !== 0 && showSelectionAsChips
-            ) {
-              <div className="text-sm text-gray-500 text-start mt-1 ml-1.5 font-bold">
-                {React.string(
-                  `${noOfSelected->Int.toString} items selected out of ${options
-                    ->Array.length
-                    ->Int.toString} options`,
-                )}
-              </div>
-            } else {
-              React.null
-            }}
-          </div>
-        } else if !isMobileView {
+        if !isMobileView {
           let clearAllCondition = noOfSelected > 0
           <UIUtils.RenderIf
             condition={filteredOptions->Array.length > 1 &&
@@ -887,7 +836,6 @@ module BaseSelect = {
                   toggleProps
                   checkboxDimension
                   iconStroke=item.iconStroke
-                  isFilterComponent
                 />
                 {switch optionRigthElement {
                 | Some(rightElement) => rightElement
@@ -1237,7 +1185,6 @@ module BaseRadio = {
     ~showSearchIcon=true,
     ~showToolTipOptions=false,
     ~textEllipsisForDropDownOptions=false,
-    ~isFilterComponent=false,
   ) => {
     let options = React.useMemo1(() => {
       options->Array.map(makeNonOptional)
@@ -1392,9 +1339,8 @@ module BaseRadio = {
         </UIUtils.RenderIf>
       }}
       <div
-        className={`${maxHeight} ${listPadding} ${overflowClass} ${isFilterComponent
-            ? "text-jp-2-gray-300 text-fs-14 font-medium"
-            : "text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 "}  ${inlineClass} ${baseComponentCustomStyle}`}>
+        className={`${maxHeight} ${listPadding} ${overflowClass} text-jp-2-gray-300 text-fs-14 font-medium"
+             ${inlineClass} ${baseComponentCustomStyle}`}>
         {if newOptions->Array.length === 0 && showMatchingRecordsText {
           <div className="flex justify-center items-center m-4">
             {React.string("No matching records found")}
@@ -1606,7 +1552,6 @@ module BaseDropdown = {
     ~searchInputPlaceHolder="",
     ~showSearchIcon=true,
     ~sortingBasedOnDisabled=?,
-    ~isFilterComponent=false,
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1617,9 +1562,7 @@ module BaseDropdown = {
 
     let showBorder = isFilterSection && !isMobileView ? Some(false) : showBorder
 
-    let dropdownOuterClass = isFilterComponent
-      ? "bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-      : "rounded border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960  shadow-generic_shadow dark:shadow-generic_shadow_dark"
+    let dropdownOuterClass = "bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
 
     let newInputSelect = input->ffInputToSelectInput
     let newInputRadio = input->ffInputToRadioInput
@@ -1644,20 +1587,12 @@ module BaseDropdown = {
     }
 
     let clearBtnRef = React.useRef(Nullable.null)
-    let insertselectBtnRef = element => {
-      if !Js.Nullable.isNullable(element) {
-        selectBtnRef.current = element
-      }
-    }
+
     React.useEffect1(() => {
       setShowDropDown(_ => false)
       None
     }, [dropDownCustomBtnClick])
-    let insertclearBtnRef = element => {
-      if !Js.Nullable.isNullable(element) {
-        clearBtnRef.current = element
-      }
-    }
+
     let refs = autoApply
       ? [selectBoxRef, dropdownRef]
       : [selectBoxRef, dropdownRef, selectBtnRef, clearBtnRef]
@@ -1795,8 +1730,6 @@ module BaseDropdown = {
         showClearAll
         onBlur=newInputSelect.onBlur
         showSelectAll
-        insertselectBtnRef
-        insertclearBtnRef
         showSelectionAsChips
         ?searchable
         disableSelect
@@ -1816,7 +1749,6 @@ module BaseDropdown = {
         showSearchIcon
         ?sortingBasedOnDisabled
         preservedAppliedOptions
-        isFilterComponent
       />
     } else if addButton {
       <BaseSelectButton
@@ -2209,7 +2141,6 @@ let make = (
   ~dropdownClassName="",
   ~onItemSelect=(_, _) => (),
   ~wrapBasis="",
-  ~isFilterComponent=false,
   (),
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
@@ -2217,9 +2148,7 @@ let make = (
   let newInputSelect = input->ffInputToSelectInput
   let newInputRadio = input->ffInputToRadioInput
 
-  let customButtonStyle = isFilterComponent
-    ? "bg-white rounded-lg !px-4 !py-2 !h-10"
-    : customButtonStyle
+  let customButtonStyle = "bg-white rounded-lg !px-4 !py-2 !h-10"
 
   if isDropDown {
     <BaseDropdown
@@ -2286,7 +2215,6 @@ let make = (
       dropdownClassName
       ?searchInputPlaceHolder
       showSearchIcon
-      isFilterComponent
     />
   } else if allowMultiSelect {
     <BaseSelect
@@ -2331,7 +2259,6 @@ let make = (
       dropdownClassName
       onItemSelect
       wrapBasis
-      isFilterComponent
     />
   } else {
     <BaseRadio
