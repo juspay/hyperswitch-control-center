@@ -254,7 +254,6 @@ let make = (
   let {query} = React.useContext(FilterContext.filterContext)
   let alreadySelectedFiltersUserpref = `remote_filters_selected_keys_${tableName->Option.getOr("")}`
   let {addConfig} = React.useContext(UserPrefContext.userPrefContext)
-  let syncIcon = "sync"
 
   let (selectedFiltersList, setSelectedFiltersList) = React.useState(_ =>
     remoteFilters->Array.map(item => item.field)
@@ -282,9 +281,7 @@ let make = (
     None
   }, [updatedSelectedList->JSON.stringify])
 
-  let getNewQuery = DateRefreshHooks.useConstructQueryOnBasisOfOpt()
   let (checkedFilters, setCheckedFilters) = React.useState(_ => [])
-  let (clearFilterAfterRefresh, setClearFilterAfterRefresh) = React.useState(_ => false)
   let (count, setCount) = React.useState(_ => initalCount)
 
   let searchParams = query->decodeURI
@@ -417,43 +414,6 @@ let make = (
     Nullable.null->resolve
   }
 
-  let handleRefresh = _ => {
-    let newQueryStr = getNewQuery(
-      ~queryString=query,
-      ~disableFutureDates=true,
-      ~disablePastDates=false,
-      ~startKey="startTime",
-      ~endKey="endTime",
-      ~optKey="opt",
-    )
-    let urlValue = `${path}?${newQueryStr}`
-    setClearFilterAfterRefresh(_ => true)
-    setInitialValueJson(_ => Dict.make()->JSON.Encode.object)
-    Window.Location.replace(urlValue)
-  }
-
-  let refreshFilterUi = {
-    if refreshFilters {
-      <ToolTip
-        description={"Refresh the dashboard with applied settings"}
-        toolTipFor={<div className={`my-1 mx-2 ${tooltipStyling} syncButton`}>
-          <Button
-            buttonType={SecondaryFilled}
-            buttonSize=Small
-            text="Refresh"
-            rightIcon={FontAwesome(syncIcon)}
-            onClick=handleRefresh
-          />
-        </div>}
-        toolTipPosition=Bottom
-        height="h-fit"
-      />
-    } else {
-      React.null
-    }
-  }
-
-  let isFilterSection = React.useContext(TableFilterSectionContext.filterSectionContext)
   let verticalGap = !isMobileView ? "gap-y-3" : ""
 
   <Form onSubmit initialValues=initialValueJson>
@@ -469,16 +429,10 @@ let make = (
               fieldWrapperClass="p-0"
             />
           </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={isFilterSection}>
-            <PortalCapture key={`customizedColumn-${title}`} name={`customizedColumn-${title}`} />
-          </UIUtils.RenderIf>
           <FormRenderer.FieldsRenderer
             fields={selectedFiltersList} labelClass="hidden" fieldWrapperClass="p-0"
           />
-          <UIUtils.RenderIf condition={fixedFilters->Array.length === 0}>
-            {refreshFilterUi}
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={!clearFilterAfterRefresh && count > 0}>
+          <UIUtils.RenderIf condition={count > 0}>
             <ClearFilters
               filterButtonStyle
               defaultFilterKeys
