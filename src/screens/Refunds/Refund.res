@@ -59,7 +59,7 @@ let make = () => {
             placeholder="Search payment id or refund id"
             setSearchVal=setSearchText
             searchVal=searchText
-            filterUrl={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/filter`}
+            filterUrl={`${Window.env.apiBaseUrl}/refunds/filter`}
             setFilters
             endTimeFilterKey
             startTimeFilterKey

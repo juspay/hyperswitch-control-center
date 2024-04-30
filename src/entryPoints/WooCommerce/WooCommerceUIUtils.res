@@ -9,8 +9,7 @@ module SelectProcessor = {
   ) => {
     let url = RescriptReactRouter.useUrl()
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
-    let basePath =
-      url.path->List.toArray->QuickStartUtils.filterDashboardFromUrlPath->Array.joinWith("/")
+    let basePath = url.path->List.toArray->Array.joinWith("/")
 
     <QuickStartUIUtils.BaseComponent
       headerText="Select Processor"
@@ -24,9 +23,7 @@ module SelectProcessor = {
         }}
         onClick={_ => {
           setConnectorConfigureState(_ => Configure_keys)
-          RescriptReactRouter.replace(
-            HSwitchGlobalVars.appendDashboardPath(~url=`/${basePath}?name=${connectorName}`),
-          )
+          RescriptReactRouter.replace(`/${basePath}?name=${connectorName}`)
         }}
         buttonSize=Small
       />}>
@@ -137,7 +134,6 @@ module SelectPaymentMethods = {
       ->ConnectorUtils.getConnectorPaymentMethodDetails(
         setPaymentMethods,
         setMetaData,
-        _ => (),
         false,
         false,
         connectorName,

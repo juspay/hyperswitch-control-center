@@ -9,13 +9,26 @@ let make = (
   ~customStyleForDefaultLandingPage="",
   ~customLoader=?,
 ) => {
+  let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let loaderLottieFile = LottieFiles.useLottieJson("hyperswitch_loader.json")
   switch screenState {
   | Loading =>
     switch customLoader {
     | Some(loader) => loader
     | _ =>
       <div className={`${sectionHeight} w-scrren flex flex-col justify-center items-center`}>
-        <Loader />
+        <UIUtils.RenderIf condition={!branding}>
+          <div className="w-20 h-16">
+            <ReactSuspenseWrapper>
+              <div className="scale-400 pt-px">
+                <Lottie animationData={loaderLottieFile} autoplay=true loop=true />
+              </div>
+            </ReactSuspenseWrapper>
+          </div>
+        </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={branding}>
+          <Loader />
+        </UIUtils.RenderIf>
       </div>
     }
   | Error(_err) =>

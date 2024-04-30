@@ -145,8 +145,11 @@ module SidebarChecklist = {
 @react.component
 let make = () => {
   open ProdOnboardingTypes
+  open HSwitchGlobalVars
   open ConnectorTypes
+  open LogicUtils
   open APIUtils
+
   let fetchDetails = useGetMethod()
   let (pageView, setPageView) = React.useState(_ => SELECT_PROCESSOR)
   let (selectedConnector, setSelectedConnector) = React.useState(_ => Processors(STRIPE))
@@ -163,17 +166,14 @@ let make = () => {
 
   let getCssOnView = "xl:w-77-rem  mx-7 xl:ml-[7rem]"
   let centerItems = pageView === SETUP_COMPLETED ? "justify-center" : ""
-  let urlPush = HSwitchGlobalVars.appendDashboardPath(~url=`/prod-onboarding?${routerUrl.search}`)
+  let urlPush = appendDashboardPath(~url=`/prod-onboarding?${routerUrl.search}`)
 
   let userRole = HSLocalStorage.getFromUserDetails("user_role")
 
   let getSetupCompleteEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
-    open LogicUtils
     if prodEnums.setupComplete {
       setDashboardPageState(_ => #HOME)
-      let baseUrlPath = `${HSwitchGlobalVars.getHostURLFromVariant}/${routerUrl.path
-        ->List.toArray
-        ->Array.joinWith("/")}`
+      let baseUrlPath = `${getHostUrl}/${routerUrl.path->List.toArray->Array.joinWith("/")}`
       routerUrl.search->isNonEmptyString
         ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
         : RescriptReactRouter.push(`${baseUrlPath}`)
@@ -195,7 +195,6 @@ let make = () => {
   }
 
   let getSetupProcessorEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
-    open LogicUtils
     let connectorId = prodEnums.setupProcessor.connector_id
     if connectorId->isNonEmptyString {
       setConnectorID(_ => connectorId)
@@ -208,7 +207,6 @@ let make = () => {
   }
 
   let getConnectorDetails = async headerVariant => {
-    open LogicUtils
     try {
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID), ())
       let json = await fetchDetails(connectorUrl)
@@ -216,7 +214,7 @@ let make = () => {
       setInitialValues(_ => json)
       setPreviewState(_ => Some(headerVariant->ProdOnboardingUtils.getPreviewState))
       RescriptReactRouter.replace(
-        HSwitchGlobalVars.appendDashboardPath(~url=`/prod-onboarding?name=${connectorName}`),
+        appendDashboardPath(~url=`/prod-onboarding?name=${connectorName}`),
       )
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))

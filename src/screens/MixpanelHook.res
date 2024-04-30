@@ -31,6 +31,8 @@ let useSendEvent = () => {
   | Local => "localhost"
   }
 
+  let mixpanelToken = Window.env.mixpanelToken
+
   let trackApi = async (~email, ~merchantId, ~description, ~event) => {
     let body = {
       "event": event,
@@ -56,7 +58,7 @@ let useSendEvent = () => {
 
     try {
       let _ = await fetchApi(
-        `${getHostURLFromVariant}/mixpanel/track`,
+        `${getHostUrl}/mixpanel/track`,
         ~method_=Fetch.Post,
         ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
         (),

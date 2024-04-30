@@ -15,7 +15,7 @@ module ReplaceAPIKey = {
         headerSectionText="Live Domain"
         subtextSectionText="Configure this base url in your application for all server-server calls"
         customRightSection={<HelperComponents.KeyAndCopyArea
-          copyValue=HSwitchGlobalVars.hyperSwitchApiPrefix
+          copyValue=Window.env.apiBaseUrl
           shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-max"
         />}
         rightTag={<Icon name="server-tag" size=30 customWidth="50" />}

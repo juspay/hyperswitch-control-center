@@ -9,8 +9,6 @@ let appendDashboardPath = (~url) => {
   }
 }
 
-let mixpanelToken = Window.env.mixpanelToken->Option.getOr("mixpanel-token")
-
 type hostType = Live | Sandbox | Local | Netlify
 
 let hostName = Window.Location.hostname
@@ -21,11 +19,11 @@ let hostType = switch hostName {
 | _ => hostName->String.includes("netlify") ? Netlify : Local
 }
 
-let getHostURLFromVariant = `${Window.Location.origin}${appendDashboardPath(~url="")}`
+let getHostUrlWithBasePath = `${Window.Location.origin}${appendDashboardPath(~url="")}`
+
+let getHostUrl = Window.Location.origin
 
 let isHyperSwitchDashboard = GlobalVars.dashboardAppName === #hyperswitch
-
-let hyperSwitchApiPrefix = Window.env.apiBaseUrl->Option.getOr("/api")
 
 let playgroundUserEmail = "dummyuser@dummymerchant.com"
 let playgroundUserPassword = "Dummy@1234"
