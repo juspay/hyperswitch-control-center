@@ -128,7 +128,6 @@ module ApplyFilterButton = {
   let make = (
     ~autoApply,
     ~totalFilters,
-    ~hideFilters,
     ~filterButtonStyle,
     ~defaultFilterKeys,
     ~selectedFiltersList: array<FormRenderer.fieldInfoType>,
@@ -205,7 +204,7 @@ module ApplyFilterButton = {
 
     if autoApply || totalFilters === 0 {
       React.null
-    } else if !hideFilters && showApplyFilter {
+    } else if showApplyFilter {
       <div className={`flex justify-between items-center ${filterButtonStyle}`}>
         <FormRenderer.SubmitButton text="Apply Filters" icon={Button.FontAwesome("check")} />
       </div>
@@ -259,6 +258,8 @@ let make = (
     remoteFilters->Array.map(item => item.field)
   )
 
+  let (filters, setFilters) = React.useState(_ => [])
+
   React.useEffect1(_ => {
     if remoteFilters->Array.length >= selectedFiltersList->Array.length {
       setSelectedFiltersList(_ => remoteFilters->Array.map(item => item.field))
@@ -289,7 +290,7 @@ let make = (
   let isMobileView = MatchMedia.useMobileChecker()
 
   let (initialValueJson, setInitialValueJson) = React.useState(_ => JSON.Encode.object(Dict.make()))
-
+  let totalFilters = selectedFiltersList->Array.length
   let localFilterJson = RemoteFiltersUtils.getInitialValuesFromUrl(
     ~searchParams,
     ~initialFilters=localFilters,
@@ -416,6 +417,8 @@ let make = (
 
   let verticalGap = !isMobileView ? "gap-y-3" : ""
 
+  open HeadlessUI
+
   <Form onSubmit initialValues=initialValueJson>
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
@@ -429,8 +432,72 @@ let make = (
               fieldWrapperClass="p-0"
             />
           </UIUtils.RenderIf>
+          <Menu \"as"="div" className="relative inline-block text-left">
+            {menuProps =>
+              <div>
+                <Menu.Button
+                  className="inline-flex item-cemter whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg h-10 hover:bg-opacity-80 bg-white border">
+                  {buttonProps => {
+                    <>
+                      <Icon className={"mr-2 mt-0.5"} name="plus" size=15 />
+                      {"Add Filters"->React.string}
+                    </>
+                  }}
+                </Menu.Button>
+                <Transition
+                  \"as"="span"
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95">
+                  {<Menu.Items
+                    className="absolute left-0 w-fit z-50 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    {props => {
+                      <>
+                        <div className="px-1 py-1">
+                          {selectedFiltersList
+                          ->Array.mapWithIndex((option, i) =>
+                            <Menu.Item key={i->Int.toString}>
+                              {props =>
+                                <div className="relative">
+                                  <button
+                                    onClick={_ => {
+                                      let updatedFilters = filters->Array.concat([option])
+                                      setFilters(_ => updatedFilters)
+                                    }}
+                                    className={
+                                      let activeClasses = if props["active"] {
+                                        "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                                      } else {
+                                        "group flex rounded-md items-center w-full px-2 py-2 text-sm"
+                                      }
+                                      `${activeClasses} font-medium`
+                                    }>
+                                    <div className="mr-5">
+                                      {option.inputNames
+                                      ->Array.get(0)
+                                      ->Option.getOr("")
+                                      ->React.string}
+                                    </div>
+                                  </button>
+                                </div>}
+                            </Menu.Item>
+                          )
+                          ->React.array}
+                        </div>
+                      </>
+                    }}
+                  </Menu.Items>}
+                </Transition>
+              </div>}
+          </Menu>
           <FormRenderer.FieldsRenderer
-            fields={selectedFiltersList} labelClass="hidden" fieldWrapperClass="p-0"
+            fields={filters} labelClass="hidden" fieldWrapperClass="p-0"
+          />
+          <ApplyFilterButton
+            autoApply totalFilters filterButtonStyle defaultFilterKeys selectedFiltersList
           />
           <UIUtils.RenderIf condition={count > 0}>
             <ClearFilters
