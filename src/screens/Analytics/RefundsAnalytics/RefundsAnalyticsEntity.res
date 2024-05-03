@@ -104,17 +104,18 @@ let getRefundTable: JSON.t => array<refundTableType> = json => {
   })
 }
 
-let refundTableEntity = EntityType.makeEntity(
-  ~uri=`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
-  ~getObjects=getRefundTable,
-  ~dataKey="queryData",
-  ~defaultColumns=defaultRefundColumns,
-  ~requiredSearchFieldsList=[startTimeFilterKey, endTimeFilterKey],
-  ~allColumns=allRefundColumns,
-  ~getCell,
-  ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
-  (),
-)
+let refundTableEntity = () =>
+  EntityType.makeEntity(
+    ~uri=`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+    ~getObjects=getRefundTable,
+    ~dataKey="queryData",
+    ~defaultColumns=defaultRefundColumns,
+    ~requiredSearchFieldsList=[startTimeFilterKey, endTimeFilterKey],
+    ~allColumns=allRefundColumns,
+    ~getCell,
+    ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
+    (),
+  )
 
 let singleStateInitialValue = {
   refund_success_rate: 0.0,
