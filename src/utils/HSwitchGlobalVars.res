@@ -8,7 +8,8 @@ let appendTrailingSlash = url => {
 
 let appendDashboardPath = (~url) => {
   switch dashboardBasePath {
-  | Some(dashboardBaseUrl) => if url->String.length === 0 {
+  | Some(dashboardBaseUrl) =>
+    if url->String.length === 0 {
       dashboardBaseUrl
     } else {
       `${dashboardBaseUrl}${url->appendTrailingSlash}`
