@@ -102,8 +102,8 @@ module NoData = {
   }
 }
 
-// let filterUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/filter`
-let filterUrlV2 = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/filter_v2`
+// let filterUrl = `${Window.env.apiBaseUrl}/payments/filter`
+let filterUrlV2 = `${Window.env.apiBaseUrl}/payments/filter_v2`
 
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
