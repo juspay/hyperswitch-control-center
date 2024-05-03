@@ -73,8 +73,6 @@ module NoData = {
   }
 }
 
-let filterUrl = `https://sandbox.hyperswitch.io/payments/filter`
-
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
 let filterByData = (txnArr, value) => {
