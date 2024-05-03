@@ -17,8 +17,8 @@ module ClearFilters = {
     } else {
       "mt-1 ml-10"
     }
-    let textStyle = ""
-    let leftIcon: Button.iconType = CustomIcon(<Icon name="clear_filter_img" size=14 />)
+    let textStyle = "text-red-900"
+    let leftIcon: Button.iconType = CustomIcon(<Icon name="trash-outline" size=24 />)
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values", "initialValues"])->Nullable.make,
@@ -75,13 +75,17 @@ module ClearFilters = {
       })
       ->Array.length > 0
     }, (formState.initialValues, defaultFilterKeys))
-    let text = isCountRequired ? `Clear ${count->Int.toString} Filters` : "Clear Filters"
+    let text = "Clear All"
     <UIUtils.RenderIf condition={hasExtraFilters || outsidefilter}>
-      <div className={`${filterButtonStyle} ${outerClass}`}>
-        <Button
-          text showBorder=false textStyle leftIcon onClick=handleClearFilter buttonType=NonFilled
-        />
-      </div>
+      <Button
+        text
+        customButtonStyle="bg-white rounded-lg !p-2 !h-10 !border"
+        showBorder=false
+        textStyle
+        leftIcon
+        onClick=handleClearFilter
+        buttonType={Secondary}
+      />
     </UIUtils.RenderIf>
   }
 }
@@ -436,10 +440,10 @@ let make = (
               {menuProps =>
                 <div>
                   <Menu.Button
-                    className="inline-flex item-cemter whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg h-10 hover:bg-opacity-80 bg-white border">
+                    className="flex items-center whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg h-10 hover:bg-opacity-80 bg-white border">
                     {buttonProps => {
                       <>
-                        <Icon className={"mr-2 mt-0.5"} name="plus" size=15 />
+                        <Icon className={"mr-2"} name="plus" size=15 />
                         {"Add Filters"->React.string}
                       </>
                     }}

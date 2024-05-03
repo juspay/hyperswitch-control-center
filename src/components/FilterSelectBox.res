@@ -1627,8 +1627,8 @@ module BaseDropdown = {
       )
     }
 
-    let downArrowIcon = "angle-down"
-    let arrowIconSize = 14
+    let downArrowIcon = "angle-down-outline"
+    let arrowIconSize = 24
 
     let (dropDowntext, leftIcon: Button.iconType, iconStroke) = allowMultiSelect
       ? (buttonText, defaultLeftIcon, "")
@@ -1854,57 +1854,50 @@ module BaseDropdown = {
                 />
               | _ => {
                   let selectButton =
-                    <AddDataAttributes attributes=[("data-dropdown-for", buttonText)]>
-                      <div
-                        className={`flex ${customButtonStyle} ${showDropDown
-                            ? buttonStyleOnDropDownOpened
-                            : ""} transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)]`}>
-                        <Button
-                          text=selectButtonText
-                          leftIcon
-                          onClick
-                          ?textStyle
-                          buttonSize
-                          ellipsisOnly={ellipsisOnly || !showSelectionAsChips}
-                          badge={!showSelectionAsChips
-                            ? badgeForSelect
-                            : {value: 0->Int.toString, color: NoBadge}}
-                          rightIcon={CustomIcon(buttonIcon)}
-                          buttonState={disableSelect ? Disabled : Normal}
-                          fullLength
-                          buttonType={FilterAdd}
-                          isPhoneDropdown
-                          isDropdownOpen=showDropDown
-                          iconBorderColor={iconStroke}
-                          isSelectBoxButton=false
-                          customButtonStyle={``}
-                          ?showBorder
-                          ?allowButtonTextMinWidth
-                          ?textStyleClass
-                          showBtnTextToolTip
-                        />
-                        <Icon size={20} name="times-circle" />
+                    <div
+                      onClick
+                      className={`${textStyle->Option.getOr(
+                          "",
+                        )} flex justify-center items-center whitespace-pre leading-5  text-sm  font-medium hover:bg-opacity-80  cursor-pointer mr-2 border-r-2 pr-1`}>
+                      <div className="text-ellipsis overflow-hidden w-full max-w-sm h-fit">
+                        {selectButtonText->React.string}
                       </div>
-                    </AddDataAttributes>
-                  if (
-                    showToolTip &&
-                    newInputSelect.value !== ""->JSON.Encode.string &&
-                    !showDropDown &&
-                    showNameAsToolTip
-                  ) {
-                    <ToolTip
-                      description={showNameAsToolTip
-                        ? `Select ${LogicUtils.snakeToTitle(newInputSelect.name)}`
-                        : newInputSelect.value
-                          ->LogicUtils.getStrArryFromJson
-                          ->Array.joinWith(",\n")}
-                      toolTipFor=selectButton
-                      toolTipPosition=Bottom
-                      tooltipWidthClass=""
-                    />
-                  } else {
-                    selectButton
-                  }
+                      {buttonIcon}
+                      <UIUtils.RenderIf condition={badgeForSelect.color === BadgeBlue}>
+                        <div
+                          className="px-2 py-0.5 bg-blue-500 rounded-lg text-white text-sm font-medium leading-5 mx-1 h-fit">
+                          {badgeForSelect.value->React.string}
+                        </div>
+                      </UIUtils.RenderIf>
+                    </div>
+
+                  <div
+                    className={`flex ${customButtonStyle} ${showDropDown
+                        ? buttonStyleOnDropDownOpened
+                        : ""} transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)]  border`}>
+                    {if (
+                      showToolTip &&
+                      newInputSelect.value !== ""->JSON.Encode.string &&
+                      !showDropDown &&
+                      showNameAsToolTip
+                    ) {
+                      <ToolTip
+                        description={showNameAsToolTip
+                          ? `Select ${LogicUtils.snakeToTitle(newInputSelect.name)}`
+                          : newInputSelect.value
+                            ->LogicUtils.getStrArryFromJson
+                            ->Array.joinWith(",\n")}
+                        toolTipFor=selectButton
+                        toolTipPosition=Bottom
+                        tooltipWidthClass=""
+                      />
+                    } else {
+                      selectButton
+                    }}
+                    <div className="p-1 rounded-lg hover:bg-gray-200 cursor-pointer ">
+                      <Icon size={13} name="cross-outline" />
+                    </div>
+                  </div>
                 }
               }
             }

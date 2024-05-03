@@ -237,10 +237,37 @@ License)
       d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"
     ></path>
   </symbol>
+  <symbol id="angle-down-outline" viewBox="0 0 20 20">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g clip-path="url(#clip0_18216_35831)">
+      <mask id="mask0_18216_35831" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="-4" width="24" height="24">
+      <rect width="24" height="24" transform="matrix(1 0 0 -1 0 20)" fill="#D9D9D9"/>
+      </mask>
+      <g mask="url(#mask0_18216_35831)">
+      <path d="M10 13L5.13513 8.13514L6.27027 7L10 10.7297L13.7297 7L14.8649 8.13514L10 13Z" fill="#333333"/>
+      </g>
+      </g>
+      <defs>
+      <clipPath id="clip0_18216_35831">
+      <rect width="20" height="20" fill="white" transform="matrix(1 0 0 -1 0 20)"/>
+      </clipPath>
+      </defs>
+  </svg>
+  </symbol>
   <symbol id="angle-left" viewBox="0 0 256 512">
     <path
       d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
     ></path>
+  </symbol>
+  <symbol id="trash-outline" viewBox="0 0 20 20">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <mask id="mask0_18207_14361" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="20" height="20">
+      <rect width="20" height="20" fill="#D9D9D9"/>
+      </mask>
+      <g mask="url(#mask0_18207_14361)">
+      <path d="M6.66675 16C6.30008 16 5.98619 15.8694 5.72508 15.6083C5.46397 15.3472 5.33341 15.0333 5.33341 14.6667V6H4.66675V4.66667H8.00008V4H12.0001V4.66667H15.3334V6H14.6667V14.6667C14.6667 15.0333 14.5362 15.3472 14.2751 15.6083C14.014 15.8694 13.7001 16 13.3334 16H6.66675ZM13.3334 6H6.66675V14.6667H13.3334V6ZM8.00008 13.3333H9.33341V7.33333H8.00008V13.3333ZM10.6667 13.3333H12.0001V7.33333H10.6667V13.3333Z" fill="#F04E42"/>
+      </g>
+    </svg>
   </symbol>
   <symbol id="angle-right" viewBox="0 0 256 512">
     <path
@@ -1462,6 +1489,11 @@ License)
     <path
       d="M488 352h-40V96c0-17.67-14.33-32-32-32H192v96h160v328c0 13.25 10.75 24 24 24h48c13.25 0 24-10.75 24-24v-40h40c13.25 0 24-10.75 24-24v-48c0-13.26-10.75-24-24-24zM160 24c0-13.26-10.75-24-24-24H88C74.75 0 64 10.74 64 24v40H24C10.75 64 0 74.74 0 88v48c0 13.25 10.75 24 24 24h40v256c0 17.67 14.33 32 32 32h224v-96H160V24z"
     ></path>
+  </symbol>
+  <symbol id="cross-outline" viewBox="0 0 10 10">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.00001 9.16675L0.833344 8.00008L3.83334 5.00008L0.833344 2.02091L2.00001 0.854248L5.00001 3.85425L7.97918 0.854248L9.14584 2.02091L6.14584 5.00008L9.14584 8.00008L7.97918 9.16675L5.00001 6.16675L2.00001 9.16675Z" fill="#333333"/>
+      </svg>
   </symbol>
   <symbol id="cross" viewBox="0 0 384 512">
     <svg
