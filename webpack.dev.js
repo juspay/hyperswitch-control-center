@@ -2,7 +2,7 @@ const path = require("path");
 const webpack = require("webpack");
 const { merge } = require("webpack-merge");
 const common = require("./webpack.common.js");
-const configScripts = import("./src/server/config.mjs");
+const config = import("./src/server/config.mjs");
 
 const appName = process.env.appName;
 const integ = process.env.integ;
@@ -11,10 +11,11 @@ let port = 9000;
 let proxy = {};
 
 let configMiddleware = (req, res, next) => {
-  if (req.path.includes("/config/merchant-access") && req.method == "POST") {
-    configScripts
+  if (req.path.includes("/config/merchant-config") && req.method == "GET") {
+    let { domain = "default" } = req.query;
+    config
       .then((result) => {
-        result.configHandler(req, res, false);
+        result.configHandler(req, res, false, domain);
       })
       .catch((error) => {
         console.log(error, "error");
@@ -23,6 +24,7 @@ let configMiddleware = (req, res, next) => {
       });
     return;
   }
+
   next();
 };
 

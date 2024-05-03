@@ -22,11 +22,12 @@ type featureFlag = {
   globalSearch: bool,
   disputeAnalytics: bool,
   configurePmts: bool,
+  branding: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
   open LogicUtils
-  let dict = featureFlags->getDictFromJsonObject
+  let dict = featureFlags->getDictFromJsonObject->getDictfromDict("features")
   let typedFeatureFlag: featureFlag = {
     default: dict->getBool("default", true),
     testLiveToggle: dict->getBool("test_live_toggle", false),
@@ -47,10 +48,11 @@ let featureFlagType = (featureFlags: JSON.t) => {
     surcharge: dict->getBool("surcharge", false),
     disputeEvidenceUpload: dict->getBool("dispute_evidence_upload", false),
     paypalAutomaticFlow: dict->getBool("paypal_automatic_flow", false),
-    threedsAuthenticator: dict->getBool("threeds-authenticator", false),
+    threedsAuthenticator: dict->getBool("threeds_authenticator", false),
     globalSearch: dict->getBool("global_search", false),
     disputeAnalytics: dict->getBool("dispute_analytics", false),
     configurePmts: dict->getBool("configure_pmts", false),
+    branding: dict->getBool("branding", false),
   }
   typedFeatureFlag
 }

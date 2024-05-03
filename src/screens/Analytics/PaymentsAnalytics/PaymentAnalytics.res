@@ -66,7 +66,7 @@ let make = () => {
     <Analytics
       pageTitle=title
       pageSubTitle=subTitle
-      filterUri={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/filters/${domain}`}
+      filterUri={`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`}
       key="PaymentsAnalytics"
       moduleName="Payments"
       deltaMetrics={getStringListFromArrayDict(metrics)}
@@ -77,7 +77,7 @@ let make = () => {
       singleStatEntity={getSingleStatEntity(metrics, !isLiveMode)}
       getTable={getPaymentTable}
       colMapper
-      tableEntity={paymentTableEntity}
+      tableEntity={paymentTableEntity()}
       defaultSort="total_volume"
       deltaArray=[]
       tableUpdatedHeading=getUpdatedHeading

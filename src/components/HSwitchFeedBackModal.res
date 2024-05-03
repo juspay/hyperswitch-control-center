@@ -40,7 +40,7 @@ let make = (
   | FeedBackModal =>
     <>
       <RatingOptions icons=["angry", "frown", "smile", "smile-beam", "grin-hearts"] size=30 />
-      <div className="text-md w-full font-medium mt-7  -mb-1 text-dark_black opacity-80 my-5">
+      <div className="text-md w-full font-medium mt-7 -mb-1 text-dark_black opacity-80 my-5">
         {"Type of feedback"->React.string}
       </div>
       <div className="mb-5 mt-1">

@@ -80,19 +80,19 @@ let useAddLogsAroundFetchNew = () => {
     ->thenResolve(text => {
       // will add the check for n line saperated is the length is 0 then no data
       // if (
-      //   Array.length(
-      //     json
-      //     ->LogicUtils.getDictFromJsonObject
-      //     ->LogicUtils.getJsonObjectFromDict("queryData")
-      //     ->LogicUtils.getArrayFromJson([]),
-      //   ) === 0
+      //  Array.length(
+      //   json
+      //   ->LogicUtils.getDictFromJsonObject
+      //   ->LogicUtils.getJsonObjectFromDict("queryData")
+      //   ->LogicUtils.getArrayFromJson([]),
+      //  ) === 0
       // ) {
-      //   addLogs(
-      //     ~moduleName,
-      //     ~event=`${logTitle} Fetch Ends with no data`,
-      //     ~environment=GlobalVars.environment,
-      //     (),
-      //   )
+      //  addLogs(
+      //   ~moduleName,
+      //   ~event=`${logTitle} Fetch Ends with no data`,
+      //   ~environment=GlobalVars.environment,
+      //   (),
+      //  )
       // }
       text
     })

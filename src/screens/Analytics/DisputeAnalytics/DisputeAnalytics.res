@@ -48,7 +48,7 @@ let make = () => {
     <Analytics
       pageTitle=title
       pageSubTitle=subTitle
-      filterUri={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/filters/${domain}`}
+      filterUri={`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`}
       key="DisputesAnalytics"
       moduleName="Disputes"
       deltaMetrics={getStringListFromArrayDict(metrics)}
@@ -59,7 +59,7 @@ let make = () => {
       singleStatEntity={getSingleStatEntity(metrics, ())}
       getTable={getDisputeTable}
       colMapper
-      tableEntity={disputeTableEntity}
+      tableEntity={disputeTableEntity()}
       defaultSort="total_volume"
       deltaArray=[]
       tableUpdatedHeading=getUpdatedHeading

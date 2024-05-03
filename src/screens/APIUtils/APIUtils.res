@@ -202,6 +202,7 @@ let getURL = (
     | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
     | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
     | #USER_DELETE => `${userUrl}/user/delete`
+    | #USER_UPDATE => `${userUrl}/update`
     | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
     | #SIGNUP
     | #SIGNOUT
@@ -246,7 +247,7 @@ let getURL = (
   | PAYMENT | SETTINGS => ""
   | PAYMENT_METHOD_CONFIG => `payment_methods/filter`
   }
-  `${HSwitchGlobalVars.hyperSwitchApiPrefix}/${endpoint}`
+  `${Window.env.apiBaseUrl}/${endpoint}`
 }
 
 let sessionExpired = ref(false)

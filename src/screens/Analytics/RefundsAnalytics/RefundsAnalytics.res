@@ -70,7 +70,7 @@ let make = () => {
     <Analytics
       pageTitle=title
       pageSubTitle=subTitle
-      filterUri={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/filters/${domain}`}
+      filterUri={`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`}
       key="RefundsAnalytics"
       moduleName="Refunds"
       deltaMetrics={getStringListFromArrayDict(metrics)}
@@ -81,7 +81,7 @@ let make = () => {
       singleStatEntity={getSingleStatEntity(metrics)}
       getTable={getRefundTable}
       colMapper
-      tableEntity={refundTableEntity}
+      tableEntity={refundTableEntity()}
       defaultSort="total_volume"
       deltaArray=[]
       tableUpdatedHeading=getUpdatedHeading

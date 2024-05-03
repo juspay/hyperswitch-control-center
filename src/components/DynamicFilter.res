@@ -246,6 +246,7 @@ let make = (
       tableName=moduleName
       revampedFilter
       ?hideFiltersDefaultValue
+      disableURIdecode=true
     />
   </div>
 }

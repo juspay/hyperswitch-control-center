@@ -170,7 +170,7 @@ let make = (
           </div>
         </div>
       </div>
-      //  </Reveal>
+      // </Reveal>
     </div>
   </AddDataAttributes>
 }

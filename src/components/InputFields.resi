@@ -260,3 +260,12 @@ let checkboxInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: 'a,
 ) => React.element
+
+let boolInput: (
+  ~isDisabled: bool,
+  ~isCheckBox: bool=?,
+  ~boolCustomClass: string=?,
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder: 'a,
+  unit,
+) => React.element

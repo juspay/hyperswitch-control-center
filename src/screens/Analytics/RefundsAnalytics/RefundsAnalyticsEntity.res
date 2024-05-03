@@ -104,17 +104,18 @@ let getRefundTable: JSON.t => array<refundTableType> = json => {
   })
 }
 
-let refundTableEntity = EntityType.makeEntity(
-  ~uri=`${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
-  ~getObjects=getRefundTable,
-  ~dataKey="queryData",
-  ~defaultColumns=defaultRefundColumns,
-  ~requiredSearchFieldsList=[startTimeFilterKey, endTimeFilterKey],
-  ~allColumns=allRefundColumns,
-  ~getCell,
-  ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
-  (),
-)
+let refundTableEntity = () =>
+  EntityType.makeEntity(
+    ~uri=`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+    ~getObjects=getRefundTable,
+    ~dataKey="queryData",
+    ~defaultColumns=defaultRefundColumns,
+    ~requiredSearchFieldsList=[startTimeFilterKey, endTimeFilterKey],
+    ~allColumns=allRefundColumns,
+    ~getCell,
+    ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
+    (),
+  )
 
 let singleStateInitialValue = {
   refund_success_rate: 0.0,
@@ -337,7 +338,7 @@ let getStatSentiment = {
 let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
   urlConfig: [
     {
-      uri: `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
@@ -346,7 +347,7 @@ let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> =
   defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
   statSentiment: getStatSentiment,
 }
 
@@ -376,7 +377,7 @@ let metricsConfig: array<LineChartUtils.metricsConfig> = [
 
 let chartEntity = tabKeys =>
   DynamicChart.makeEntity(
-    ~uri=String(`${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`),
+    ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`),
     ~filterKeys=tabKeys,
     ~dateFilterKeys=(startTimeFilterKey, endTimeFilterKey),
     ~currentMetrics=("refund_success_rate", "refund_count"), // 2nd metric will be static and we won't show the 2nd metric option to the first metric
@@ -385,7 +386,7 @@ let chartEntity = tabKeys =>
     ~chartTypes=[Line],
     ~uriConfig=[
       {
-        uri: `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+        uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
         timeSeriesBody: DynamicChart.getTimeSeriesChart,
         legendBody: DynamicChart.getLegendBody,
         metrics: metricsConfig,

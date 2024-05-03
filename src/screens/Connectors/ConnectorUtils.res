@@ -20,7 +20,10 @@ let getStepName = step => {
 
 let payoutConnectorList: array<connectorTypes> = [Processors(ADYEN), Processors(WISE)]
 
-let threedsAuthenticatorList: array<connectorTypes> = [ThreeDsAuthenticator(THREEDSECUREIO)]
+let threedsAuthenticatorList: array<connectorTypes> = [
+  ThreeDsAuthenticator(THREEDSECUREIO),
+  ThreeDsAuthenticator(NETCETERA),
+]
 
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
@@ -76,6 +79,7 @@ let connectorList: array<connectorTypes> = [
 let connectorListForLive: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(ADYEN),
+  Processors(AUTHORIZEDOTNET),
   Processors(PAYPAL),
   Processors(BANKOFAMERICA),
   Processors(BLUESNAP),
@@ -358,7 +362,10 @@ let helcimInfo = {
 }
 
 let threedsecuredotioInfo = {
-  description: "A brief description of the connector (100-150 chars) -  A secure, affordable and easy to connect 3DS authentication platform. Improve the user experience during checkout, enhance the conversion rates and stay compliant with the regulations with 3dsecure.io.",
+  description: "A secure, affordable and easy to connect 3DS authentication platform. Improve the user experience during checkout, enhance the conversion rates and stay compliant with the regulations with 3dsecure.io",
+}
+let netceteraInfo = {
+  description: "Cost-effective 3DS authentication platform ensuring security. Elevate checkout experience, boost conversion rates, and maintain regulatory compliance with Netcetera",
 }
 
 let unknownConnectorInfo = {
@@ -442,6 +449,7 @@ let getConnectorNameString = (connector: processorTypes) =>
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "threedsecureio"
+  | NETCETERA => "netcetera"
   }
 
 let getConnectorNameString = (connector: connectorTypes) => {
@@ -516,6 +524,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | ThreeDsAuthenticator =>
     switch connector {
     | "threedsecureio" => ThreeDsAuthenticator(THREEDSECUREIO)
+    | "netcetera" => ThreeDsAuthenticator(NETCETERA)
     | _ => UnknownConnector("Not known")
     }
   | _ => UnknownConnector("Not known")
@@ -583,6 +592,7 @@ let getProcessorInfo = connector => {
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => threedsecuredotioInfo
+  | NETCETERA => netceteraInfo
   }
 
 let getConnectorInfo = connector => {
@@ -843,9 +853,10 @@ let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) =>
 let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(BLUESNAP), "merchant_id") => false
-  | (Processors(CHECKOUT), "acquirer_bin") => false
-  | (Processors(CHECKOUT), "acquirer_merchant_id") => false
-
+  | (Processors(CHECKOUT), "acquirer_bin") | (Processors(NMI), "acquirer_bin") => false
+  | (Processors(CHECKOUT), "acquirer_merchant_id")
+  | (Processors(NMI), "acquirer_merchant_id") => false
+  | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") => false
   | _ => true
   }
 }
@@ -1105,7 +1116,7 @@ let onSubmit = async (
 }
 
 let getWebhooksUrl = (~connectorName, ~merchantId) => {
-  `${HSwitchGlobalVars.hyperSwitchApiPrefix}/webhooks/${merchantId}/${connectorName}`
+  `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
 }
 
 let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) => {
@@ -1194,7 +1205,6 @@ let getConnectorPaymentMethodDetails = async (
   initialValues,
   setPaymentMethods,
   setMetaData,
-  setScreenState,
   isUpdateFlow,
   isPayoutFlow,
   connector,
@@ -1211,7 +1221,6 @@ let getConnectorPaymentMethodDetails = async (
       ->getPaymentMethodEnabled
     setPaymentMethods(_ => paymentMethodEnabled)
     setMetaData(_ => metaData)
-    setScreenState(_ => PageLoaderWrapper.Success)
     defaultSelectAllCards(
       paymentMethodEnabled,
       isUpdateFlow,
@@ -1222,7 +1231,7 @@ let getConnectorPaymentMethodDetails = async (
   } catch {
   | Exn.Error(e) => {
       let err = Exn.message(e)->Option.getOr("Something went wrong")
-      setScreenState(_ => PageLoaderWrapper.Error(err))
+      Exn.raiseError(err)
     }
   }
 }
@@ -1313,6 +1322,7 @@ let getDisplayNameForProcessor = connector =>
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "3dsecure.io"
+  | NETCETERA => "Netcetera"
   }
 
 let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {
