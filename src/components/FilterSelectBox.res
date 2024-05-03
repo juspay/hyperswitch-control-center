@@ -607,11 +607,17 @@ module BaseSelect = {
     | Some(_) => "flex gap-4"
     | None => ""
     }
+
+    let form = ReactFinalForm.useForm()
+
     let onClick = ev => {
+      form.submit()->ignore
+
       switch setShowDropDown {
       | Some(fn) => fn(_ => false)
       | None => ()
       }
+
       switch onApply {
       | Some(fn) => fn(ev)
       | None => ()
@@ -847,26 +853,15 @@ module BaseSelect = {
           }
         }}
       </div>
-      {if hasApplyButton {
-        <Button
-          buttonType=Primary
-          text="Apply"
-          flattenTop=false
-          customButtonStyle="w-full items-center"
-          buttonState={!applyBtnDisabled ? Normal : Disabled}
-          onClick
-        />
-      } else {
-        <UIUtils.RenderIf condition={isDropDown && noOfSelected > 0 && showSelectCountButton}>
-          <Button
-            buttonType=Primary
-            text={`Select ${noOfSelected->Int.toString}`}
-            flattenTop=true
-            customButtonStyle="w-full items-center"
-            onClick
-          />
-        </UIUtils.RenderIf>
-      }}
+      <button type_="submit" className="hidden" />
+      <Button
+        buttonType=Primary
+        text="Apply"
+        flattenTop=false
+        customButtonStyle="w-full items-center"
+        buttonState={applyBtnDisabled ? Disabled : Normal}
+        onClick
+      />
     </div>
   }
 }
@@ -1860,8 +1855,11 @@ module BaseDropdown = {
               | _ => {
                   let selectButton =
                     <AddDataAttributes attributes=[("data-dropdown-for", buttonText)]>
-                      <div>
-                        {<Button
+                      <div
+                        className={`flex ${customButtonStyle} ${showDropDown
+                            ? buttonStyleOnDropDownOpened
+                            : ""} transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)]`}>
+                        <Button
                           text=selectButtonText
                           leftIcon
                           onClick
@@ -1874,19 +1872,18 @@ module BaseDropdown = {
                           rightIcon={CustomIcon(buttonIcon)}
                           buttonState={disableSelect ? Disabled : Normal}
                           fullLength
-                          buttonType={Dropdown}
+                          buttonType={FilterAdd}
                           isPhoneDropdown
                           isDropdownOpen=showDropDown
                           iconBorderColor={iconStroke}
-                          isSelectBoxButton=true
-                          customButtonStyle={`${customButtonStyle} ${showDropDown
-                              ? buttonStyleOnDropDownOpened
-                              : ""} transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)]`}
+                          isSelectBoxButton=false
+                          customButtonStyle={``}
                           ?showBorder
                           ?allowButtonTextMinWidth
                           ?textStyleClass
                           showBtnTextToolTip
-                        />}
+                        />
+                        <Icon size={20} name="times-circle" />
                       </div>
                     </AddDataAttributes>
                   if (

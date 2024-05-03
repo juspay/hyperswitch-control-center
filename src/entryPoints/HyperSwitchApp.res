@@ -307,7 +307,8 @@ let make = () => {
 
                         | list{"payments", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.operationsView>
-                            <FilterContext key="payments" index="payments">
+                            <FilterContext
+                              key="payments" index="payments" disableSessionStorage=true>
                               <EntityScaffold
                                 entityName="Payments"
                                 remainingPath
