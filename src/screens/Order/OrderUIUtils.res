@@ -102,9 +102,6 @@ module NoData = {
   }
 }
 
-// let filterUrl = `${Window.env.apiBaseUrl}/payments/filter`
-let filterUrlV2 = `${Window.env.apiBaseUrl}/payments/filter_v2`
-
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
 let filterByData = (txnArr, value) => {
