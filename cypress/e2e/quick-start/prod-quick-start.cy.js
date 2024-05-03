@@ -1,6 +1,6 @@
 let username = `cypressquickstart+${Math.round(+new Date() / 1000)}@gmail.com`;
 before(() => {
-  cy.singup_curl(username, "cypress98#");
+  cy.singup_curl(username, "Cypress98#");
 });
 beforeEach(() => {
   cy.intercept("GET", "merchant-config?domain=default", {
@@ -48,7 +48,7 @@ beforeEach(() => {
   }).as("getPDF");
   cy.visit("http://localhost:9000");
   cy.wait("@getFeatureData");
-  cy.login_UI(username, "cypress98#");
+  cy.login_UI(username, "Cypress98#");
   cy.wait("@getPDF");
 });
 describe("Prod quick start", () => {
