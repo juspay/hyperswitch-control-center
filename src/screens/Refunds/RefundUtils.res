@@ -103,10 +103,10 @@ let initialFixedFilter = () => [
   ),
 ]
 
-let initialFilters = json => {
+let initialFilters = (json, filtervalues) => {
   open LogicUtils
   let filterDict = json->getDictFromJsonObject
-
+  Js.log2("filtervalues", filtervalues)
   filterDict
   ->Dict.keysToArray
   ->Array.filterWithIndex((_item, index) => index <= 2)

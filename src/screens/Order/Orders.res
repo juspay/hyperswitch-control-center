@@ -87,7 +87,8 @@ let make = (~previewOnly=false) => {
       placeholder="Search payment id"
       setSearchVal=setSearchText
       searchVal=searchText
-      filterUrl
+      filterUrl=""
+      filterUrlV2
       setFilters
       endTimeFilterKey
       startTimeFilterKey

@@ -1,3 +1,32 @@
+type filterTypes = {
+  connector: array<string>,
+  currency: array<string>,
+  authentication_type: array<string>,
+  payment_method: array<string>,
+  payment_method_types: array<string>,
+  status: array<string>,
+  connector_label: array<string>,
+}
+
+type filter = [
+  | #connector
+  | #payment_method
+  | #currency
+  | #authentication_type
+  | #status
+  | #payment_method_types
+  | #connector_label
+]
+
+type conditionalFilters = [
+  | #connectorLabel
+  | #paymentMethodTypes
+]
+
+external toconditionalFilterType: 'a => conditionalFilters = "%identity"
+
+external tofilterType: 'a => filter = "%identity"
+
 module RenderAccordian = {
   @react.component
   let make = (~initialExpandedArray=[], ~accordion) => {
@@ -73,7 +102,8 @@ module NoData = {
   }
 }
 
-let filterUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/filter`
+// let filterUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/filter`
+let filterUrlV2 = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/filter_v2`
 
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
@@ -99,15 +129,88 @@ let filterByData = (txnArr, value) => {
   })
 }
 
-let initialFilters = json => {
+let getConditionalFilter = (key, dict, filterValues) => {
   open LogicUtils
-  let filterDict = json->getDictFromJsonObject
+  let x: conditionalFilters = key->toconditionalFilterType
+  let filtersArr = switch x {
+  | #connectorLabel =>
+    let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+    let new_arr = []
+    let _ = arr->Array.map(item => {
+      let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(item, [])
+      let _ = connectorLabelArr->Array.map(item => {
+        let a = item->getDictFromJsonObject->getString("connector_label", "")
+        new_arr->Array.push(a)
+        new_arr
+      })
+    })
+    new_arr
+  | #paymentMethodTypes =>
+    let arr = filterValues->getArrayFromDict("payment_method", [])->getStrArrayFromJsonArray
 
-  filterDict
-  ->Dict.keysToArray
-  ->Array.map((key): EntityType.initialFilters<'t> => {
+    let new_arr = []
+    let _ = arr->Array.map(item => {
+      let paymentMethodTypeArr =
+        dict
+        ->getDictfromDict("payment_method")
+        ->getArrayFromDict(item, [])
+        ->getStrArrayFromJsonArray
+      let _ = paymentMethodTypeArr->Array.map(item => {
+        new_arr->Array.push(item)
+      })
+      new_arr
+    })
+    new_arr
+  }
+  filtersArr
+}
+
+let itemToObjMapper = dict => {
+  open LogicUtils
+  {
+    connector: dict->getDictfromDict("connector")->Dict.keysToArray,
+    currency: dict->getArrayFromDict("currency", [])->getStrArrayFromJsonArray,
+    authentication_type: dict
+    ->getArrayFromDict("authentication_type", [])
+    ->getStrArrayFromJsonArray,
+    status: dict->getArrayFromDict("status", [])->getStrArrayFromJsonArray,
+    payment_method: dict->getDictfromDict("payment_method")->Dict.keysToArray,
+    payment_method_types: [],
+    connector_label: [],
+  }
+}
+
+let initialFilters = (json, filtervalues) => {
+  open LogicUtils
+
+  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+  let paymentMethodFilter =
+    filtervalues->getArrayFromDict("payment_method", [])->getStrArrayFromJsonArray
+
+  let filterDict = json->getDictFromJsonObject
+  let filterArr = filterDict->itemToObjMapper
+  let arr = filterDict->Dict.keysToArray
+
+  if connectorFilter->Array.length !== 0 {
+    arr->Array.push("connector_label")
+  }
+  if paymentMethodFilter->Array.length !== 0 {
+    arr->Array.push("payment_method_types")
+  }
+
+  arr->Array.map((key): EntityType.initialFilters<'t> => {
+    let x: filter = key->tofilterType
+    let values = switch x {
+    | #connector => filterArr.connector
+    | #payment_method => filterArr.payment_method
+    | #currency => filterArr.currency
+    | #authentication_type => filterArr.authentication_type
+    | #status => filterArr.status
+    | #payment_method_types => getConditionalFilter(key, filterDict, filtervalues)
+    | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
+    }
+
     let title = `Select ${key->snakeToTitle}`
-    let values = filterDict->getArrayFromDict(key, [])->getStrArrayFromJsonArray
 
     {
       field: FormRenderer.makeFieldInfo(

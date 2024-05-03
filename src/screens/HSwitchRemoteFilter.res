@@ -156,6 +156,7 @@ module RemoteTableFilters = {
   @react.component
   let make = (
     ~filterUrl,
+    ~filterUrlV2,
     ~setFilters,
     ~endTimeFilterKey,
     ~startTimeFilterKey,
@@ -195,14 +196,35 @@ module RemoteTableFilters = {
     open Promise
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
     let updateDetails = useUpdateMethod()
-    let {filterValueJson} = FilterContext.filterContext->React.useContext
+    // let {filterValueJson} = FilterContext.filterContext->React.useContext
     let startTimeVal = filterValueJson->getString("start_time", "")
     let endTimeVal = filterValueJson->getString("end_time", "")
 
+    let fetchDetails = useGetMethod()
+
+    let fetchAllFilters = async () => {
+      try {
+        setFilterDataJson(_ => None)
+        let response = await fetchDetails(filterUrlV2)
+        setFilterDataJson(_ => response->Some)
+      } catch {
+      | _ => ()
+      }
+    }
+
+    React.useEffect0(() => {
+      fetchAllFilters()->ignore
+      None
+    })
+
     React.useEffect3(() => {
-      setFilterDataJson(_ => None)
-      if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      if (
+        startTimeVal->isNonEmptyString &&
+        endTimeVal->isNonEmptyString &&
+        filterUrl->isNonEmptyString
+      ) {
         try {
+          setFilterDataJson(_ => None)
           updateDetails(filterUrl, filterBody->JSON.Encode.object, Post, ())
           ->thenResolve(json => setFilterDataJson(_ => json->Some))
           ->catch(_ => resolve())
@@ -223,7 +245,16 @@ module RemoteTableFilters = {
       None
     }, [filterValue])
 
-    let remoteFilters = filterData->initialFilters
+    let getAllFilter =
+      filterValue
+      ->Dict.toArray
+      ->Array.map(item => {
+        let (key, value) = item
+        (key, value->UrlFetchUtils.getFilterValue)
+      })
+      ->Dict.fromArray
+
+    let remoteFilters = filterData->initialFilters(getAllFilter)
     let initialDisplayFilters =
       remoteFilters->Array.filter((item: EntityType.initialFilters<'t>) =>
         item.localFilter->Option.isSome

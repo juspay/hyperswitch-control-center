@@ -60,6 +60,7 @@ let make = () => {
             setSearchVal=setSearchText
             searchVal=searchText
             filterUrl={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/filter`}
+            filterUrlV2=""
             setFilters
             endTimeFilterKey
             startTimeFilterKey
