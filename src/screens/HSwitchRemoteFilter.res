@@ -264,6 +264,7 @@ module RemoteTableFilters = {
         filterFieldsPortalName=""
         showFiltersBtn={filterData->getFilterFields->Array.length > 0}
         hideFiltersDefaultValue
+        disableURIdecode=true
       />
     | _ =>
       <RemoteFilter
@@ -285,6 +286,7 @@ module RemoteTableFilters = {
         filterFieldsPortalName=""
         showFiltersBtn=false
         hideFiltersDefaultValue
+        disableURIdecode=true
       />
     }
   }
