@@ -40,7 +40,7 @@ let majorMarkets = FormRenderer.makeFieldInfo(
   ~label="Major markets",
   ~name="hyperswitch.major_markets",
   ~customInput=InputFields.checkboxInput(
-    ~options=["North America", "Europe", "LATAM", "APAC", "Africe"]->SelectBox.makeOptions,
+    ~options=["North America", "Europe", "LATAM", "APAC", "Africa"]->SelectBox.makeOptions,
     ~buttonText="Major markets",
     (),
   ),
