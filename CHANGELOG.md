@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.03.0
+
+### Bug Fixes
+
+- Filter fix ([#618](https://github.com/juspay/hyperswitch-control-center/pull/618)) ([`562195e`](https://github.com/juspay/hyperswitch-control-center/commit/562195ed649851486c7f698ddc68ac2045966f75))
+- Updated calendly link ([#615](https://github.com/juspay/hyperswitch-control-center/pull/615)) ([`28592bd`](https://github.com/juspay/hyperswitch-control-center/commit/28592bde6e1facb72baeedad892958844b9331ed))
+- Accept invite in home fix ([#619](https://github.com/juspay/hyperswitch-control-center/pull/619)) ([`d127cba`](https://github.com/juspay/hyperswitch-control-center/commit/d127cbaac21c0aa2afe645c9460eaee9dc516d1b))
+
+**Full Changelog:** [`2024.04.29.0...2024.05.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.29.0...2024.05.03.0)
+
+- - -
+
 ## 2024.04.29.0
 
 ### Bug Fixes

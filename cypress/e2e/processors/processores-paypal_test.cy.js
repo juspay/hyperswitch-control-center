@@ -1,9 +1,9 @@
 let username = `cypressprocessores+${Math.round(+new Date() / 1000)}@gmail.com`;
 before(() => {
-  cy.singup_curl(username, "cypress98#");
+  cy.singup_curl(username, "Cypress98#");
 });
 beforeEach(() => {
-  cy.login_UI(username, "cypress98#");
+  cy.login_UI(username, "Cypress98#");
 });
 describe("Processors Create Module", () => {
   it("should successfully create the paypal test processor", () => {

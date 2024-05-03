@@ -12,7 +12,7 @@ describe("Auth Module", () => {
   });
 
   it("check singup flow", () => {
-    const password = "cypress98#";
+    const password = "Cypress98#";
     cy.visit("http://localhost:9000/");
     cy.get("#card-subtitle").click();
     cy.url().should("include", "/register");
@@ -96,7 +96,7 @@ describe("Auth Module", () => {
   });
 
   it("should successfully log in with valid credentials", () => {
-    const password = "cypress98#";
+    const password = "Cypress98#";
     cy.visit("http://localhost:9000/dashboard/login");
     cy.get("[data-testid=email]").type(username);
     cy.get("[data-testid=password]").type(password);
@@ -113,7 +113,7 @@ describe("Auth Module", () => {
   });
 
   it("should login successfully with email containing spaces", () => {
-    const password = "cypress98#";
+    const password = "Cypress98#";
     cy.visit("http://localhost:9000/");
     cy.get("[data-testid=email]").type(`  ${username}  `);
     cy.get("[data-testid=password]").type(password);

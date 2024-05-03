@@ -33,7 +33,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
 
   let onSubmit = (values, _) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
-    Window._open("https://calendly.com/bernard-eugine/hyperswitch")
+    Window._open("https://calendar.app.google/U2xpGxE8zigYjeft5")
     updateProdDetails(values)
   }
 

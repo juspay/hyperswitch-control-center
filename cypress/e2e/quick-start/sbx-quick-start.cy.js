@@ -2,7 +2,7 @@ let username = `cypresssbxquickstart+${Math.round(
   +new Date() / 1000,
 )}@gmail.com`;
 before(() => {
-  cy.singup_curl(username, "cypress98#");
+  cy.singup_curl(username, "Cypress98#");
 });
 beforeEach(() => {
   cy.intercept("GET", "/config/merchant-config?domain=default", {
@@ -47,7 +47,7 @@ beforeEach(() => {
   }).as("getData");
   cy.visit("http://localhost:9000");
   cy.wait("@getData");
-  cy.login_UI(username, "cypress98#");
+  cy.login_UI(username, "Cypress98#");
 });
 
 describe("Sandbox quick start", () => {

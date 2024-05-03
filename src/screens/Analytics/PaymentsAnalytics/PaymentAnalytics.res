@@ -77,7 +77,7 @@ let make = () => {
       singleStatEntity={getSingleStatEntity(metrics, !isLiveMode)}
       getTable={getPaymentTable}
       colMapper
-      tableEntity={paymentTableEntity}
+      tableEntity={paymentTableEntity()}
       defaultSort="total_volume"
       deltaArray=[]
       tableUpdatedHeading=getUpdatedHeading
