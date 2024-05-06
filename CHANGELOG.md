@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.06.0
+
+### Miscellaneous Tasks
+
+- Update wasm ([#621](https://github.com/juspay/hyperswitch-control-center/pull/621)) ([`2dc1c0a`](https://github.com/juspay/hyperswitch-control-center/commit/2dc1c0ad70e419486b8d993756dde0af11b00666))
+
+**Full Changelog:** [`2024.05.03.0...2024.05.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.03.0...2024.05.06.0)
+
+- - -
+
 ## 2024.05.03.0
 
 ### Bug Fixes
