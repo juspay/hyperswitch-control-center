@@ -255,14 +255,9 @@ module RemoteTableFilters = {
         remoteOptions
         remoteFilters
         autoApply=false
-        showExtraFiltersInline=true
-        showClearFilterButton=true
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters
-        filterFieldsPortalName=""
-        showFiltersBtn={filterData->getFilterFields->Array.length > 0}
-        hideFiltersDefaultValue
       />
     | _ =>
       <Filter
@@ -276,14 +271,9 @@ module RemoteTableFilters = {
         remoteOptions=[]
         remoteFilters=[]
         autoApply=false
-        showExtraFiltersInline=true
-        showClearFilterButton=true
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters
-        filterFieldsPortalName=""
-        showFiltersBtn=false
-        hideFiltersDefaultValue
       />
     }
   }

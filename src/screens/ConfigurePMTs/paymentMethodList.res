@@ -84,9 +84,7 @@ let make = (~isPayoutFlow=false) => {
           remoteOptions=[]
           localOptions=[]
           defaultFilters={Dict.make()->JSON.Encode.object}
-          refreshFilters=false
           clearFilters={() => handleClearFilter()->ignore}
-          hideFiltersDefaultValue=false
           autoApply=false
         />
       </div>

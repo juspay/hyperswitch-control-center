@@ -3,20 +3,12 @@ let makeFieldInfo = FormRenderer.makeFieldInfo
 module ClearFilters = {
   @react.component
   let make = (
-    ~filterButtonStyle,
     ~defaultFilterKeys=[],
     ~clearFilters=?,
-    ~count,
     ~isCountRequired=true,
     ~outsidefilter=false,
   ) => {
     let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
-    let isMobileView = MatchMedia.useMobileChecker()
-    let outerClass = if isMobileView {
-      "flex items-center justify-end"
-    } else {
-      "mt-1 ml-10"
-    }
     let textStyle = "text-red-900"
     let leftIcon: Button.iconType = CustomIcon(<Icon name="trash-outline" size=24 />)
 
@@ -134,11 +126,11 @@ module ApplyFilterButton = {
     ~totalFilters,
     ~filterButtonStyle,
     ~defaultFilterKeys,
-    ~selectedFiltersList: array<FormRenderer.fieldInfoType>,
+    ~allFilters: array<FormRenderer.fieldInfoType>,
   ) => {
     let defaultinputField = FormRenderer.makeInputFieldInfo(~name="-", ())
     let inputFieldsDict =
-      selectedFiltersList
+      allFilters
       ->Array.map(filter => {
         let inputFieldsArr = filter.inputFields
         let inputField = inputFieldsArr->LogicUtils.getValueFromArray(0, defaultinputField)
@@ -226,79 +218,52 @@ let make = (
   ~setOffset=?,
   ~title="",
   ~path="",
-  ~refreshFilters=true,
   ~remoteFilters: array<EntityType.initialFilters<'t>>,
   ~remoteOptions: array<EntityType.optionType<'t>>,
   ~localOptions as _: array<EntityType.optionType<'t>>,
   ~localFilters: array<EntityType.initialFilters<'t>>,
   ~mandatoryRemoteKeys=[],
   ~popupFilterFields: array<EntityType.optionType<'t>>=[],
-  ~showRemoteOptions=false,
   ~tableName=?,
   ~autoApply=false,
-  ~showExtraFiltersInline=false,
   ~addFilterStyle="",
   ~filterButtonStyle="",
-  ~tooltipStyling="",
-  ~showClearFilterButton=false,
   ~defaultFilterKeys=[],
   ~customRightView=React.null,
   ~customLeftView=React.null,
   ~updateUrlWith=?,
   ~clearFilters=?,
   ~showClearFilter=true,
-  ~filterFieldsPortalName="",
   ~initalCount=0,
-  ~showFiltersBtn=false,
-  ~hideFiltersDefaultValue as _=?,
   ~showSelectFiltersSearch=false,
   ~disableURIdecode=false,
 ) => {
+  open HeadlessUI
+  let isMobileView = MatchMedia.useMobileChecker()
   let {query} = React.useContext(FilterContext.filterContext)
-  let alreadySelectedFiltersUserpref = `remote_filters_selected_keys_${tableName->Option.getOr("")}`
-  let {addConfig} = React.useContext(UserPrefContext.userPrefContext)
-
-  let (selectedFiltersList, setSelectedFiltersList) = React.useState(_ =>
+  let (allFilters, setAllFilters) = React.useState(_ =>
     remoteFilters->Array.map(item => item.field)
   )
-
+  let (initialValueJson, setInitialValueJson) = React.useState(_ => JSON.Encode.object(Dict.make()))
   let (filters, setFilters) = React.useState(_ => [])
+  let (checkedFilters, setCheckedFilters) = React.useState(_ => [])
+  let (count, setCount) = React.useState(_ => initalCount)
+  let searchParams = query->decodeURI
+  let verticalGap = !isMobileView ? "gap-y-3" : ""
 
   React.useEffect1(_ => {
-    if remoteFilters->Array.length >= selectedFiltersList->Array.length {
-      setSelectedFiltersList(_ => remoteFilters->Array.map(item => item.field))
+    if remoteFilters->Array.length >= allFilters->Array.length {
+      setAllFilters(_ => remoteFilters->Array.map(item => item.field))
     }
     None
   }, remoteFilters)
 
-  let updatedSelectedList = React.useMemo1(() => {
-    selectedFiltersList
-    ->Array.map(item => {
-      item.inputNames->Array.get(0)->Option.getOr("")
-    })
-    ->LogicUtils.getJsonFromArrayOfString
-  }, [selectedFiltersList])
-
-  React.useEffect1(() => {
-    if remoteFilters->Array.length > 0 {
-      addConfig(alreadySelectedFiltersUserpref, updatedSelectedList)
-    }
-    None
-  }, [updatedSelectedList->JSON.stringify])
-
-  let (checkedFilters, setCheckedFilters) = React.useState(_ => [])
-  let (count, setCount) = React.useState(_ => initalCount)
-
-  let searchParams = query->decodeURI
-
-  let isMobileView = MatchMedia.useMobileChecker()
-
-  let (initialValueJson, setInitialValueJson) = React.useState(_ => JSON.Encode.object(Dict.make()))
   let localFilterJson = RemoteFiltersUtils.getInitialValuesFromUrl(
     ~searchParams,
     ~initialFilters=localFilters,
     (),
   )
+
   let clearFilterJson =
     RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
@@ -341,7 +306,7 @@ let make = (
           filter
         })
 
-        let localSelectedFiltersList = Array.map(selectedFiltersList, filter => {
+        let localSelectedFiltersList = Array.map(allFilters, filter => {
           filter
         })
 
@@ -371,7 +336,7 @@ let make = (
         })
         setCount(_prev => clearFilterJson + initalCount)
         setCheckedFilters(_prev => localCheckedFilters)
-        setSelectedFiltersList(_prev => localSelectedFiltersList)
+        setAllFilters(_prev => localSelectedFiltersList)
         let finalInitialValueJson =
           initialValues->JsonFlattenUtils.unflattenObject->JSON.Encode.object
         setInitialValueJson(_ => finalInitialValueJson)
@@ -418,9 +383,12 @@ let make = (
     Nullable.null->resolve
   }
 
-  let verticalGap = !isMobileView ? "gap-y-3" : ""
-
-  open HeadlessUI
+  let addFilter = option => {
+    let updatedFilters = filters->Array.concat([option])
+    let updatedAllFilter = allFilters->Array.filter(item => item !== option)
+    setFilters(_ => updatedFilters)
+    setAllFilters(_ => updatedAllFilter)
+  }
 
   <Form onSubmit initialValues=initialValueJson>
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys />
@@ -435,7 +403,7 @@ let make = (
               fieldWrapperClass="p-0"
             />
           </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={selectedFiltersList->Array.length > 0}>
+          <UIUtils.RenderIf condition={allFilters->Array.length > 0}>
             <Menu \"as"="div" className="relative inline-block text-left">
               {menuProps =>
                 <div>
@@ -461,16 +429,13 @@ let make = (
                       {props => {
                         <>
                           <div className="px-1 py-1">
-                            {selectedFiltersList
+                            {allFilters
                             ->Array.mapWithIndex((option, i) =>
                               <Menu.Item key={i->Int.toString}>
                                 {props =>
                                   <div className="relative">
                                     <button
-                                      onClick={_ => {
-                                        let updatedFilters = filters->Array.concat([option])
-                                        setFilters(_ => updatedFilters)
-                                      }}
+                                      onClick={_ => addFilter(option)}
                                       className={
                                         let activeClasses = if props["active"] {
                                           "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
@@ -502,13 +467,7 @@ let make = (
             fields={filters} labelClass="hidden" fieldWrapperClass="p-0"
           />
           <UIUtils.RenderIf condition={count > 0}>
-            <ClearFilters
-              filterButtonStyle
-              defaultFilterKeys
-              ?clearFilters
-              count
-              outsidefilter={initalCount > 0}
-            />
+            <ClearFilters defaultFilterKeys ?clearFilters outsidefilter={initalCount > 0} />
           </UIUtils.RenderIf>
         </div>
       </div>

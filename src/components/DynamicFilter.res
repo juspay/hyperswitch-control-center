@@ -225,25 +225,18 @@ let make = (
       localOptions=[]
       remoteOptions
       remoteFilters=initialFilters
-      refreshFilters
       popupFilterFields
       autoApply=false
-      showExtraFiltersInline=true
       addFilterStyle="pt-4"
       filterButtonStyle
-      tooltipStyling=""
-      showClearFilterButton=true
       defaultFilterKeys
       customRightView=customFilters
       customLeftView
       ?updateUrlWith
       clearFilters
-      filterFieldsPortalName
       initalCount={currentCustomFilterValue->isNonEmptyString ? 1 : 0}
-      showFiltersBtn=filtersDisplayOption
       showSelectFiltersSearch
       tableName=moduleName
-      ?hideFiltersDefaultValue
     />
   </div>
 }
