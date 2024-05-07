@@ -1824,7 +1824,6 @@ module BaseDropdown = {
     let onDeleteClick = name => {
       [name]->removeKeys
       setRefreshFilters()
-      Js.log2(">>", name)
     }
 
     <div className={`flex relative  flex-row  flex-wrap`}>
