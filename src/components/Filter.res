@@ -246,7 +246,6 @@ let make = (
   )
   let (initialValueJson, setInitialValueJson) = React.useState(_ => JSON.Encode.object(Dict.make()))
   let (filters, setFilters) = React.useState(_ => [])
-  let (checkedFilters, setCheckedFilters) = React.useState(_ => [])
   let (count, setCount) = React.useState(_ => initalCount)
   let searchParams = query->decodeURI
   let verticalGap = !isMobileView ? "gap-y-3" : ""
@@ -275,8 +274,6 @@ let make = (
     ->Dict.keysToArray
     ->Array.length
 
-  let popupUrlKeyArr = popupFilterFields->Array.map(item => item.urlKey)
-
   React.useEffect1(() => {
     let initialValues = RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
@@ -302,40 +299,28 @@ let make = (
 
     switch initialValues->JSON.Decode.object {
     | Some(dict) => {
-        let localCheckedFilters = Array.map(checkedFilters, filter => {
-          filter
-        })
-
-        let localSelectedFiltersList = Array.map(allFilters, filter => {
-          filter
-        })
+        let localSelectedFiltersList = allFilters
+        let selectedFilters = []
 
         dict
         ->Dict.toArray
         ->Array.forEach(entry => {
           let (key, _value) = entry
-          let keyIdx = checkedFilters->Array.findIndex(item => item === key)
-          if keyIdx === -1 {
-            let optionObjIdx = remoteOptions->Array.findIndex(
-              option => {
-                option.urlKey === key
-              },
-            )
-            if optionObjIdx !== -1 {
-              let defaultEntityOptionType: EntityType.optionType<
-                't,
-              > = EntityType.getDefaultEntityOptionType()
-              let optionObj = remoteOptions[optionObjIdx]->Option.getOr(defaultEntityOptionType)
-              let optionObjUrlKey = optionObj.urlKey
-              if !(popupUrlKeyArr->Array.includes(optionObjUrlKey)) {
-                Array.push(localSelectedFiltersList, optionObj.field)
-                Array.push(localCheckedFilters, key)
-              }
-            }
+
+          let item = remoteFilters->Array.find(
+            item => {
+              item.field.inputNames->Array.get(0)->Option.getOr("") === key
+            },
+          )
+
+          switch item {
+          | Some(val) => selectedFilters->Array.push(val.field)->ignore
+          | _ => ()
           }
         })
+
+        setFilters(_ => selectedFilters)
         setCount(_prev => clearFilterJson + initalCount)
-        setCheckedFilters(_prev => localCheckedFilters)
         setAllFilters(_prev => localSelectedFiltersList)
         let finalInitialValueJson =
           initialValues->JsonFlattenUtils.unflattenObject->JSON.Encode.object
