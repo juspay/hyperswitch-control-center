@@ -107,17 +107,18 @@ let getDisputeTable: JSON.t => array<disputeTableType> = json => {
 
 let makeFieldInfo = FormRenderer.makeFieldInfo
 
-let disputeTableEntity = EntityType.makeEntity(
-  ~uri=`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
-  ~getObjects=getDisputeTable,
-  ~dataKey="queryData",
-  ~defaultColumns=defaultDisputeColumns,
-  ~requiredSearchFieldsList=[startTimeFilterKey, endTimeFilterKey],
-  ~allColumns=allDisputeColumns,
-  ~getCell,
-  ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
-  (),
-)
+let disputeTableEntity = () =>
+  EntityType.makeEntity(
+    ~uri=`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+    ~getObjects=getDisputeTable,
+    ~dataKey="queryData",
+    ~defaultColumns=defaultDisputeColumns,
+    ~requiredSearchFieldsList=[startTimeFilterKey, endTimeFilterKey],
+    ~allColumns=allDisputeColumns,
+    ~getCell,
+    ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
+    (),
+  )
 
 let singleStateInitialValue = {
   total_amount_disputed: 0.0,

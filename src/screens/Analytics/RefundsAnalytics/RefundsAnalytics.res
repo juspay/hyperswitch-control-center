@@ -81,7 +81,7 @@ let make = () => {
       singleStatEntity={getSingleStatEntity(metrics)}
       getTable={getRefundTable}
       colMapper
-      tableEntity={refundTableEntity}
+      tableEntity={refundTableEntity()}
       defaultSort="total_volume"
       deltaArray=[]
       tableUpdatedHeading=getUpdatedHeading

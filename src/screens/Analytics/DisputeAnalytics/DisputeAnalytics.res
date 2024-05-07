@@ -59,7 +59,7 @@ let make = () => {
       singleStatEntity={getSingleStatEntity(metrics, ())}
       getTable={getDisputeTable}
       colMapper
-      tableEntity={disputeTableEntity}
+      tableEntity={disputeTableEntity()}
       defaultSort="total_volume"
       deltaArray=[]
       tableUpdatedHeading=getUpdatedHeading

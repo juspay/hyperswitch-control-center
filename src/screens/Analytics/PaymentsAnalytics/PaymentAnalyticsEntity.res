@@ -224,17 +224,18 @@ let getPaymentTable: JSON.t => array<paymentTableType> = json => {
 
 let makeFieldInfo = FormRenderer.makeFieldInfo
 
-let paymentTableEntity = EntityType.makeEntity(
-  ~uri=`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
-  ~getObjects=getPaymentTable,
-  ~dataKey="queryData",
-  ~defaultColumns=defaultPaymentColumns,
-  ~requiredSearchFieldsList=[startTimeFilterKey, endTimeFilterKey],
-  ~allColumns=allPaymentColumns,
-  ~getCell,
-  ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
-  (),
-)
+let paymentTableEntity = () =>
+  EntityType.makeEntity(
+    ~uri=`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+    ~getObjects=getPaymentTable,
+    ~dataKey="queryData",
+    ~defaultColumns=defaultPaymentColumns,
+    ~requiredSearchFieldsList=[startTimeFilterKey, endTimeFilterKey],
+    ~allColumns=allPaymentColumns,
+    ~getCell,
+    ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
+    (),
+  )
 
 let singleStateInitialValue = {
   payment_success_rate: 0.0,

@@ -2,9 +2,18 @@
 
 let dashboardBasePath = Some("/dashboard")
 
+let appendTrailingSlash = url => {
+  url->String.startsWith("/") ? url : `/${url}`
+}
+
 let appendDashboardPath = (~url) => {
   switch dashboardBasePath {
-  | Some(dashboardBaseUrl) => `${dashboardBaseUrl}${url}`
+  | Some(dashboardBaseUrl) =>
+    if url->String.length === 0 {
+      dashboardBaseUrl
+    } else {
+      `${dashboardBaseUrl}${url->appendTrailingSlash}`
+    }
   | None => url
   }
 }
