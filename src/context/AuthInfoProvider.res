@@ -1,14 +1,14 @@
 open HyperSwitchAuthTypes
 
 type defaultProviderTypes = {
-  currentAuthState: authStatus,
+  authStatus: authStatus,
   setAuthStatus: authStatus => unit,
   flowType: flowType,
   setFlow: flowType => unit,
 }
 
 let defaultContextValue = {
-  currentAuthState: CheckingAuthStatus,
+  authStatus: CheckingAuthStatus,
   setAuthStatus: _ => (),
   flowType: ERROR,
   setFlow: _ => (),
@@ -22,7 +22,7 @@ module Provider = {
 
 @react.component
 let make = (~children) => {
-  let (currentAuthState, setCurrentAuthState) = React.useState(_ => CheckingAuthStatus)
+  let (authStatus, setAuth) = React.useState(_ => CheckingAuthStatus)
   let (flowType, setFlowType) = React.useState(_ =>
     Some(
       HSLocalStorage.getFromUserDetails("token_type"),
@@ -35,12 +35,12 @@ let make = (~children) => {
     | LoggedOut
     | CheckingAuthStatus => ()
     }
-    setCurrentAuthState(_ => newAuthStatus)
-  }, [setCurrentAuthState])
+    setAuth(_ => newAuthStatus)
+  }, [setAuth])
 
   let setFlow = React.useCallback1(flowType => {
     setFlowType(_ => flowType)
   }, [setFlowType])
 
-  <Provider value={{currentAuthState, setAuthStatus, flowType, setFlow}}> children </Provider>
+  <Provider value={{authStatus, setAuthStatus, flowType, setFlow}}> children </Provider>
 }
