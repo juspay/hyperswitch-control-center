@@ -18,7 +18,14 @@ let getStepName = step => {
   }
 }
 
-let payoutConnectorList: array<connectorTypes> = [Processors(ADYEN), Processors(WISE)]
+let payoutConnectorList: array<connectorTypes> = [
+  Processors(ADYEN),
+  Processors(CYBERSOURCE),
+  Processors(EBANX),
+  Processors(PAYPAL),
+  Processors(STRIPE),
+  Processors(WISE),
+]
 
 let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(THREEDSECUREIO),
@@ -207,6 +214,10 @@ let worldpayInfo = {
 
 let cybersourceInfo = {
   description: "Reliable processor providing fraud management tools, secure payment processing, and a variety of payment methods.",
+}
+
+let ebanxInfo = {
+  description: "Ebanx enables global organizations to grow exponentially in Rising Markets by leveraging a platform of end-to-end localized payment and financial solutions.",
 }
 
 let aciInfo = {
@@ -401,6 +412,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | AIRWALLEX => "airwallex"
   | WORLDPAY => "worldpay"
   | CYBERSOURCE => "cybersource"
+  | EBANX => "ebanx"
   | ACI => "aci"
   | WORLDLINE => "worldline"
   | FISERV => "fiserv"
@@ -476,6 +488,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "airwallex" => Processors(AIRWALLEX)
     | "worldpay" => Processors(WORLDPAY)
     | "cybersource" => Processors(CYBERSOURCE)
+    | "ebanx" => Processors(EBANX)
     | "aci" => Processors(ACI)
     | "worldline" => Processors(WORLDLINE)
     | "fiserv" => Processors(FISERV)
@@ -545,6 +558,7 @@ let getProcessorInfo = connector => {
   | AIRWALLEX => airwallexInfo
   | WORLDPAY => worldpayInfo
   | CYBERSOURCE => cybersourceInfo
+  | EBANX => ebanxInfo
   | ACI => aciInfo
   | WORLDLINE => worldlineInfo
   | FISERV => fiservInfo
@@ -1275,6 +1289,7 @@ let getDisplayNameForProcessor = connector =>
   | AIRWALLEX => "Airwallex"
   | WORLDPAY => "Worldpay"
   | CYBERSOURCE => "Cybersource"
+  | EBANX => "Ebanx"
   | ACI => "ACI Worldwide"
   | WORLDLINE => "Worldline"
   | FISERV => "Fiserv"
