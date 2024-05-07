@@ -240,12 +240,12 @@ let make = (
 ) => {
   open HeadlessUI
   let isMobileView = MatchMedia.useMobileChecker()
-  let {query} = React.useContext(FilterContext.filterContext)
+  let {query, refreshFilters} = React.useContext(FilterContext.filterContext)
   let (allFilters, setAllFilters) = React.useState(_ =>
     remoteFilters->Array.map(item => item.field)
   )
   let (initialValueJson, setInitialValueJson) = React.useState(_ => JSON.Encode.object(Dict.make()))
-  let (filters, setFilters) = React.useState(_ => [])
+  let (filterList, setFilterList) = React.useState(_ => [])
   let (count, setCount) = React.useState(_ => initalCount)
   let searchParams = query->decodeURI
   let verticalGap = !isMobileView ? "gap-y-3" : ""
@@ -274,7 +274,7 @@ let make = (
     ->Dict.keysToArray
     ->Array.length
 
-  React.useEffect1(() => {
+  React.useEffect2(() => {
     let initialValues = RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
       ~initialFilters={Array.concat(remoteFilters, fixedFilters)},
@@ -299,8 +299,8 @@ let make = (
 
     switch initialValues->JSON.Decode.object {
     | Some(dict) => {
-        let localSelectedFiltersList = allFilters
         let selectedFilters = []
+        let filtersUnseletced = []
 
         dict
         ->Dict.toArray
@@ -319,9 +319,15 @@ let make = (
           }
         })
 
-        setFilters(_ => selectedFilters)
+        remoteFilters->Array.forEach(item => {
+          if !(selectedFilters->Array.includes(item.field)) {
+            filtersUnseletced->Array.push(item.field)->ignore
+          }
+        })
+
+        setFilterList(_ => selectedFilters)
         setCount(_prev => clearFilterJson + initalCount)
-        setAllFilters(_prev => localSelectedFiltersList)
+        setAllFilters(_prev => filtersUnseletced)
         let finalInitialValueJson =
           initialValues->JsonFlattenUtils.unflattenObject->JSON.Encode.object
         setInitialValueJson(_ => finalInitialValueJson)
@@ -330,7 +336,7 @@ let make = (
     | None => ()
     }
     None
-  }, [searchParams])
+  }, (searchParams, refreshFilters))
 
   let onSubmit = (values, _) => {
     let obj = values->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
@@ -369,9 +375,9 @@ let make = (
   }
 
   let addFilter = option => {
-    let updatedFilters = filters->Array.concat([option])
+    let updatedFilters = filterList->Array.concat([option])
     let updatedAllFilter = allFilters->Array.filter(item => item !== option)
-    setFilters(_ => updatedFilters)
+    setFilterList(_ => updatedFilters)
     setAllFilters(_ => updatedAllFilter)
   }
 
@@ -449,7 +455,7 @@ let make = (
             </Menu>
           </UIUtils.RenderIf>
           <FormRenderer.FieldsRenderer
-            fields={filters} labelClass="hidden" fieldWrapperClass="p-0"
+            fields={filterList} labelClass="hidden" fieldWrapperClass="p-0"
           />
           <UIUtils.RenderIf condition={count > 0}>
             <ClearFilters defaultFilterKeys ?clearFilters outsidefilter={initalCount > 0} />

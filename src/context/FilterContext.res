@@ -11,6 +11,8 @@ type filterUpdater = {
   filterValue: Dict.t<string>,
   updateExistingKeys: Dict.t<string> => unit,
   removeKeys: array<string> => unit,
+  refreshFilters: bool,
+  setRefreshFilters: unit => unit,
   filterValueJson: Dict.t<JSON.t>,
   reset: unit => unit,
 }
@@ -21,6 +23,8 @@ let filterUpdater = {
   updateExistingKeys: _dict => (),
   removeKeys: _arr => (),
   filterValueJson: Dict.make(),
+  refreshFilters: false,
+  setRefreshFilters: () => (),
   reset: () => (),
 }
 
@@ -34,11 +38,16 @@ module Provider = {
 let make = (~index: string, ~children, ~disableSessionStorage=false) => {
   open FilterUtils
   open LogicUtils
+  let (refreshFilters, setRefreshFiltersBase) = React.useState(_ => false)
   let query = React.useMemo0(() => {ref("")})
   let searcParamsToDict = query.contents->parseFilterString
   let (filterDict, setfilterDict) = React.useState(_ => searcParamsToDict)
 
-  let updateFilter = React.useMemo2(() => {
+  let updateFilter = React.useMemo3(() => {
+    let setRefreshFilters = () => {
+      setRefreshFiltersBase(_ => !refreshFilters)
+    }
+
     let updateFilter = (dict: Dict.t<string>) => {
       setfilterDict(prev => {
         let prevDictArr =
@@ -96,6 +105,8 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
     {
       query: query.contents,
       filterValue: filterDict,
+      refreshFilters,
+      setRefreshFilters,
       updateExistingKeys: updateFilter,
       removeKeys,
       filterValueJson: filterDict
@@ -107,7 +118,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
       ->Dict.fromArray,
       reset,
     }
-  }, (filterDict, setfilterDict))
+  }, (filterDict, setfilterDict, refreshFilters))
 
   React.useEffect0(() => {
     switch sessionStorage.getItem(. index)->Nullable.toOption {

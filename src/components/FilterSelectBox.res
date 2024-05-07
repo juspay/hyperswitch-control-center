@@ -1554,7 +1554,7 @@ module BaseDropdown = {
       DropdownTextWeighContextWrapper.selectedTextWeightContext,
     )
     let isFilterSection = React.useContext(TableFilterSectionContext.filterSectionContext)
-
+    let {removeKeys, setRefreshFilters} = React.useContext(FilterContext.filterContext)
     let showBorder = isFilterSection && !isMobileView ? Some(false) : showBorder
 
     let dropdownOuterClass = "bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
@@ -1821,6 +1821,12 @@ module BaseDropdown = {
       textStyle
     }
 
+    let onDeleteClick = name => {
+      [name]->removeKeys
+      setRefreshFilters()
+      Js.log2(">>", name)
+    }
+
     <div className={`flex relative  flex-row  flex-wrap`}>
       <div className={`flex relative ${flexWrapper} ${fullLength ? "w-full" : ""}`}>
         <div
@@ -1894,7 +1900,9 @@ module BaseDropdown = {
                     } else {
                       selectButton
                     }}
-                    <div className="p-1 rounded-lg hover:bg-gray-200 cursor-pointer ">
+                    <div
+                      className="p-1 rounded-lg hover:bg-gray-200 cursor-pointer "
+                      onClick={_ => newInputSelect.name->onDeleteClick}>
                       <Icon size={13} name="cross-outline" />
                     </div>
                   </div>
