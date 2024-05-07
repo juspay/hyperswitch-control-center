@@ -28,12 +28,10 @@ let make = (~children) => {
   })
 
   <div className="font-inter-style">
-    <AuthInfoProvider>
-      {switch authStatus {
-      | LoggedOut => <HyperSwitchAuthScreen setAuthStatus />
-      | LoggedIn(_token) => children
-      | CheckingAuthStatus => <Loader />
-      }}
-    </AuthInfoProvider>
+    {switch authStatus {
+    | LoggedOut => <HyperSwitchAuthScreen setAuthStatus />
+    | LoggedIn(_token) => children
+    | CheckingAuthStatus => <Loader />
+    }}
   </div>
 }
