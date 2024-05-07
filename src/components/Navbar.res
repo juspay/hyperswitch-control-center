@@ -38,7 +38,7 @@ let make = (
   let (showModal, setShowModal) = React.useState(_ => false)
   let (isAppearancePopupOpen, setIsAppearancePopupOpen) = React.useState(_ => false)
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
-  let (authStatus, _setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+  let {currentAuthState} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let mobileMargin = isMobileView ? "" : "mr-7"
 
@@ -55,7 +55,7 @@ let make = (
   )
 
   let leftMarginOnNav = "ml-0"
-  switch authStatus {
+  switch currentAuthState {
   | LoggedIn(_info) =>
     <div id="navbar" className={`w-full mx-auto`}>
       <div

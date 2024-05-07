@@ -6,9 +6,9 @@ let make = () => {
   let flowType =
     Some(
       HSLocalStorage.getFromUserDetails("flow_type"),
-    )->HyperSwitchAuthUtils.flowTypeStrToVariantMapper
+    )->HSwitchLoginUtils.flowTypeStrToVariantMapper
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
-  let (_, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let updateDetails = useUpdateMethod()
   let (merchantData, setMerchantData) = React.useState(_ => [])
   let merchantDataJsonFromLocalStorage =

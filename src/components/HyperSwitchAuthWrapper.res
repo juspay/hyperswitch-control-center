@@ -37,7 +37,7 @@ let make = (~children) => {
   })
 
   <div className="font-inter-style">
-    <AuthInfoProvider value={(currentAuthState, setAuthStatus)}>
+    <AuthInfoProvider>
       {switch currentAuthState {
       | LoggedOut => <HyperSwitchAuthScreen setAuthStatus />
       | LoggedIn(_token) => children

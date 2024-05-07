@@ -42,14 +42,14 @@ type betaEndpoint = {
 }
 
 let useApiFetcher = () => {
-  let (authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+  let {currentAuthState, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let token = React.useMemo1(() => {
-    switch authStatus {
+    switch currentAuthState {
     | LoggedIn(info) => Some(info.token)
     | _ => None
     }
-  }, [authStatus])
+  }, [currentAuthState])
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
 
   React.useCallback1(
@@ -99,7 +99,7 @@ let useApiFetcher = () => {
           resp => {
             setReqProgress(. p => p - 1)
             if resp->Fetch.Response.status === 401 {
-              switch authStatus {
+              switch currentAuthState {
               | LoggedIn(_) =>
                 LocalStorage.clear()
                 setAuthStatus(LoggedOut)
