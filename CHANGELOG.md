@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.07.0
+
+### Miscellaneous Tasks
+
+- Added new payout connectors ([#623](https://github.com/juspay/hyperswitch-control-center/pull/623)) ([`4c1a399`](https://github.com/juspay/hyperswitch-control-center/commit/4c1a399f506c77a3ada70cfa3a9bbc8732486107))
+- React QR code library addition ([#617](https://github.com/juspay/hyperswitch-control-center/pull/617)) ([`c28c302`](https://github.com/juspay/hyperswitch-control-center/commit/c28c302241847aa75516dfa3d0deaae9a5ca94b2))
+
+**Full Changelog:** [`2024.05.06.0...2024.05.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.06.0...2024.05.07.0)
+
+- - -
+
 ## 2024.05.06.0
 
 ### Miscellaneous Tasks
