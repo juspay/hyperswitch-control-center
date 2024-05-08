@@ -240,7 +240,7 @@ let make = (
 ) => {
   open HeadlessUI
   let isMobileView = MatchMedia.useMobileChecker()
-  let {query, refreshFilters} = React.useContext(FilterContext.filterContext)
+  let {query, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
   let (allFilters, setAllFilters) = React.useState(_ =>
     remoteFilters->Array.map(item => item.field)
   )
@@ -298,15 +298,11 @@ let make = (
     }
 
     switch initialValues->JSON.Decode.object {
-    | Some(dict) => {
+    | Some(_) => {
         let selectedFilters = []
         let filtersUnseletced = []
 
-        dict
-        ->Dict.toArray
-        ->Array.forEach(entry => {
-          let (key, _value) = entry
-
+        filterKeys->Array.forEach(key => {
           let item = remoteFilters->Array.find(
             item => {
               item.field.inputNames->Array.get(0)->Option.getOr("") === key
@@ -336,7 +332,7 @@ let make = (
     | None => ()
     }
     None
-  }, (searchParams, refreshFilters))
+  }, (searchParams, filterKeys))
 
   let onSubmit = (values, _) => {
     let obj = values->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
@@ -376,9 +372,15 @@ let make = (
 
   let addFilter = option => {
     let updatedFilters = filterList->Array.concat([option])
-    let updatedAllFilter = allFilters->Array.filter(item => item !== option)
-    setFilterList(_ => updatedFilters)
-    setAllFilters(_ => updatedAllFilter)
+
+    let keys = []
+    updatedFilters->Array.forEach(item =>
+      switch item.inputNames->Array.get(0) {
+      | Some(val) => keys->Array.push(val)->ignore
+      | _ => ()
+      }
+    )
+    setfilterKeys(_ => keys)
   }
 
   <Form onSubmit initialValues=initialValueJson>
