@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.08.0
+
+### Miscellaneous Tasks
+
+- Auth provider changes ([#625](https://github.com/juspay/hyperswitch-control-center/pull/625)) ([`4db2372`](https://github.com/juspay/hyperswitch-control-center/commit/4db23721e2573673b1a70363141d237171c2c26e))
+
+**Full Changelog:** [`2024.05.07.0...2024.05.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.07.0...2024.05.08.0)
+
+- - -
+
 ## 2024.05.07.0
 
 ### Miscellaneous Tasks
