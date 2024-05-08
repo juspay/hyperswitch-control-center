@@ -53,17 +53,15 @@ module AuthPage = {
 
 @react.component
 let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
-  open APIUtils
   open HyperSwitchAuthTypes
   let url = RescriptReactRouter.useUrl()
   let (mode, setMode) = React.useState(_ => TestButtonMode)
-  let updateDetails = useUpdateMethod()
+
   let {isLiveMode, email: isMagicLinkEnabled} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let authInitState = isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword
   let (authType, setAuthType) = React.useState(_ => authInitState)
-
   let (actualAuthType, setActualAuthType) = React.useState(_ => authInitState)
 
   React.useEffect1(() => {
@@ -127,10 +125,10 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     }
     None
   }, [authType])
-  // switch authType {
-  // | EmailVerify | MagicLinkVerify => <HyperSwitchEmailVerifyScreen setAuthType setAuthStatus />
-  // | ActivateFromEmail => <HSAcceptInviteFromEmail />
-  // | _ =>
-  <AuthPage authType setAuthType setAuthStatus mode setMode />
-  // }
+
+  switch authType {
+  | EmailVerify | MagicLinkVerify => <HyperSwitchEmailVerifyScreen />
+  | ActivateFromEmail => <HSAcceptInviteFromEmail />
+  | _ => <AuthPage authType setAuthType mode setMode setAuthStatus />
+  }
 }

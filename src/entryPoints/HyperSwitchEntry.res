@@ -133,16 +133,18 @@ module HyperSwitchEntryComponent = {
       None
     }, [url.path])
 
+    let decisionScreen = featureFlagDetails.newAuthEnabled
+      ? <HSwitchDecisionScreen />
+      : <DecisionScreen />
+
     <PageLoaderWrapper
       screenState
       sectionHeight="h-screen"
       customUI={<NoDataFound message="Oops! Missing config" renderType=NotFound />}>
       <div className="text-black">
-        <AuthInfoProvider>
+        <AuthInfoProvider featureFlagDetails>
           <HyperSwitchAuthWrapper>
-            <GlobalProvider>
-              <HSwitchDecisionScreen />
-            </GlobalProvider>
+            <GlobalProvider> {decisionScreen} </GlobalProvider>
           </HyperSwitchAuthWrapper>
         </AuthInfoProvider>
       </div>

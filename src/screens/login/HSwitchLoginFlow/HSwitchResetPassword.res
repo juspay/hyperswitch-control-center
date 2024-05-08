@@ -16,6 +16,8 @@ let make = () => {
 
   let setResetPassword = async body => {
     try {
+      // TODO : replace with the actual route for reset password
+      // and also write the logic for force_set_password & reset_password
       let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD, ~methodType=Post, ())
       let _ = await updateDetails(url, body, Post, ())
       setAuthStatus(LoggedOut)

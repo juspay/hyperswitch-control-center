@@ -6,6 +6,7 @@ let make = (~children) => {
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let authLogic = () => {
     open HSwitchLoginUtils
@@ -74,7 +75,7 @@ let make = (~children) => {
     | list{"user", "verify_email"}
     | list{"user", "set_password"}
     | list{"user", "accept_invite_from_email"} =>
-      fetchDetails()->ignore
+      featureFlagDetails.newAuthEnabled ? fetchDetails()->ignore : setAuthStatus(LoggedOut)
 
     | _ => authLogic()
     }

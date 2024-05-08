@@ -200,13 +200,18 @@ let getURL = (
       }
     | #GET_PERMISSIONS | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
     | #SIGNINV2 => `${userUrl}/v2/signin?token_only=true`
+    | #SIGNINV2_TOKEN_ONLY => `${userUrl}/v2/signin?token_only=true`
     | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email?token_only=true`
+    | #VERIFY_EMAILV2_TOKEN_ONLY => `${userUrl}/v2/verify_email?token_only=true`
     | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
     | #USER_DELETE => `${userUrl}/user/delete`
     | #USER_UPDATE => `${userUrl}/update`
     | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
     | #SIGNUP => `${userUrl}/signup?token_only=true`
+    | #SIGNUP_TOKEN_ONLY => `${userUrl}/signup?token_only=true`
     | #FROM_EMAIL => `${userUrl}/from_email`
+    | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
+      `${userUrl}/${(userType :> string)->String.toLowerCase}?token_only=true`
     | #SIGNOUT
     | #RESET_PASSWORD
     | #SET_METADATA

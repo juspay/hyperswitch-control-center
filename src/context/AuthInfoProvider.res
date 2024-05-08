@@ -12,7 +12,7 @@ module Provider = {
 }
 
 @react.component
-let make = (~children) => {
+let make = (~children, ~featureFlagDetails: FeatureFlagUtils.featureFlag) => {
   let (authStatus, setAuth) = React.useState(_ => CheckingAuthStatus)
 
   let setAuthStatus = React.useCallback1((newAuthStatus: HyperSwitchAuthTypes.authStatus) => {
@@ -20,13 +20,16 @@ let make = (~children) => {
     switch newAuthStatus {
     | LoggedIn(info) => {
         sptToken(info.token, info.flowType->variantToStringFlowMapper)
+
         // add feature flag
         // add to accept email from url
-        RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(
-            ~url=`/${info.flowType->variantToStringFlowMapper}`,
-          ),
-        )
+        if featureFlagDetails.newAuthEnabled {
+          RescriptReactRouter.replace(
+            HSwitchGlobalVars.appendDashboardPath(
+              ~url=`/${info.flowType->variantToStringFlowMapper}`,
+            ),
+          )
+        }
       }
     | LoggedOut => clearLocalStorage()
     | CheckingAuthStatus => ()

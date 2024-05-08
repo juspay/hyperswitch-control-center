@@ -32,4 +32,5 @@ global_search=false
 dispute_analytics=false
 configure_pmts=false
 branding=false
+new_auth_enabled=false
 

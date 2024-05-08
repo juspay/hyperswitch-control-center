@@ -23,6 +23,7 @@ type featureFlag = {
   disputeAnalytics: bool,
   configurePmts: bool,
   branding: bool,
+  newAuthEnabled: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -53,6 +54,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     disputeAnalytics: dict->getBool("dispute_analytics", false),
     configurePmts: dict->getBool("configure_pmts", false),
     branding: dict->getBool("branding", false),
+    newAuthEnabled: dict->getBool("new_auth_enabled", false),
   }
   typedFeatureFlag
 }

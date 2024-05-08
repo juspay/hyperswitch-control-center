@@ -51,7 +51,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let getUserWithEmailPassword = async (body, email, userType) => {
     open HSwitchLoginUtils
     try {
-      if false {
+      if featureFlagValues.newAuthEnabled {
         let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
         let res = await updateDetails(url, body, Post, ())
         let token = parseResponseJson(~json=res, ~email)
