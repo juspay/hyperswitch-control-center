@@ -42,7 +42,7 @@ type betaEndpoint = {
 }
 
 let useApiFetcher = () => {
-  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let token = React.useMemo1(() => {
     switch authStatus {
@@ -102,7 +102,7 @@ let useApiFetcher = () => {
               switch authStatus {
               | LoggedIn(_) =>
                 LocalStorage.clear()
-                setAuthStatus(LoggedOut)
+                setAuthStateToLogout()
                 RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
                 resolve(resp)
 

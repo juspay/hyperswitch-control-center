@@ -263,12 +263,12 @@ let handleLogout = async (
     ~contentType: AuthHooks.contentType=?,
     unit,
   ) => Promise.t<Fetch.Response.t>,
-  ~setAuthStatus,
+  ~setAuthStateToLogout,
   ~setIsSidebarExpanded,
   ~clearRecoilValue,
 ) => {
   try {
-    setAuthStatus(BasicAuthTypes.LoggedOut)
+    setAuthStateToLogout()
     setIsSidebarExpanded(_ => false)
     clearRecoilValue()
     RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
@@ -370,7 +370,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
@@ -388,7 +388,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
           _ => {
             let _ = handleLogout(
               ~fetchApi,
-              ~setAuthStatus,
+              ~setAuthStateToLogout,
               ~setIsSidebarExpanded,
               ~clearRecoilValue,
             )
@@ -428,7 +428,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
@@ -446,7 +446,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
           _ => {
             let _ = handleLogout(
               ~fetchApi,
-              ~setAuthStatus,
+              ~setAuthStateToLogout,
               ~setIsSidebarExpanded,
               ~clearRecoilValue,
             )

@@ -48,4 +48,5 @@ type flowType = MERCHANT_SELECT | DASHBOARD_ENTRY | ERROR
 type defaultProviderTypes = {
   authStatus: authStatus,
   setAuthStatus: authStatus => unit,
+  setAuthStateToLogout: unit => unit,
 }

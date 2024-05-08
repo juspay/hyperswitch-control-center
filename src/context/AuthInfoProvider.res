@@ -3,6 +3,7 @@ open BasicAuthTypes
 let defaultContextValue = {
   authStatus: CheckingAuthStatus,
   setAuthStatus: _ => (),
+  setAuthStateToLogout: _ => (),
 }
 
 let authStatusContext = React.createContext(defaultContextValue)
@@ -24,5 +25,9 @@ let make = (~children) => {
     setAuth(_ => newAuthStatus)
   }, [setAuth])
 
-  <Provider value={{authStatus, setAuthStatus}}> children </Provider>
+  let setAuthStateToLogout = React.useCallback0(() => {
+    setAuth(_ => LoggedOut)
+  })
+
+  <Provider value={authStatus, setAuthStatus, setAuthStateToLogout}> children </Provider>
 }
