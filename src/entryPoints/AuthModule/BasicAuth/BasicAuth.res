@@ -1,8 +1,8 @@
 @react.component
-let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, ~setAuthType) => {
-  open HyperSwitchAuthUtils
+let make = (~setAuthStatus: BasicAuthTypes.authStatus => unit, ~authType, ~setAuthType) => {
+  open BasicAuthUtils
   open APIUtils
-  open HyperSwitchAuthForm
+  open CommonAuthForm
   open HSwitchGlobalVars
   open LogicUtils
 
@@ -21,7 +21,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     switch error.code->errorSubCodeMapper {
     | UR_03 => "An account already exists with this email"
     | UR_05 => {
-        setAuthType(_ => HyperSwitchAuthTypes.ResendVerifyEmail)
+        setAuthType(_ => CommonAuthTypes.ResendVerifyEmail)
         "Kindly verify your account"
       }
     | UR_16 => "Please use a valid email"
@@ -56,7 +56,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
 
       // home
       if !(token->isEmptyString) {
-        setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
+        setAuthStatus(LoggedIn(BasicAuthTypes.getDummyAuthInfoForToken(token)))
       } else {
         showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
         setAuthStatus(LoggedOut)
@@ -68,6 +68,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   }
 
   let openPlayground = _ => {
+    open CommonAuthUtils
     let body = getEmailPasswordBody(playgroundUserEmail, playgroundUserPassword, country)
     getUserWithEmailPassword(body, playgroundUserEmail, #SIGNINV2)->ignore
     HSLocalStorage.setIsPlaygroundInLocalStorage(true)
@@ -111,7 +112,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   }
 
   let logMixpanelEvents = email => {
-    open HyperSwitchAuthTypes
+    open CommonAuthTypes
     switch authType {
     | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ~email, ())
     | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ~email, ())
@@ -122,7 +123,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
 
   let onSubmit = async (values, _) => {
     try {
-      open HyperSwitchAuthTypes
+      open CommonAuthUtils
       let valuesDict = values->getDictFromJsonObject
       let email = valuesDict->getString("email", "")
       setEmail(_ => email)
@@ -173,6 +174,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   }
 
   let resendEmail = () => {
+    open CommonAuthUtils
     let body = email->getEmailBody()
     switch authType {
     | MagicLinkEmailSent => getUserWithEmail(body)->ignore
@@ -206,7 +208,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     }
     None
   })
-  let note = useNote(authType, setAuthType, featureFlagValues.email)
+  let note = CommonAuthHooks.useNote(authType, setAuthType, featureFlagValues.email)
   <ReactFinalForm.Form
     key="auth"
     initialValues
@@ -215,7 +217,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     onSubmit
     render={({handleSubmit}) => {
       <>
-        <Header authType setAuthType email />
+        <CommonAuth.Header authType setAuthType email />
         <form
           onSubmit={handleSubmit}
           className={`flex flex-col justify-evenly gap-5 h-full w-full !overflow-visible text-grey-600`}>

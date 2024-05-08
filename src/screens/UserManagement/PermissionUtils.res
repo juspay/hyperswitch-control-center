@@ -1,4 +1,4 @@
-open AuthTypes
+open CommonAuthTypes
 open UserManagementTypes
 
 let mapPermissionTypeToString = permissionType => {

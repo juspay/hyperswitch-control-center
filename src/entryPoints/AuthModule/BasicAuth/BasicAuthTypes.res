@@ -32,21 +32,6 @@ let getDummyAuthInfoForToken = token => {
   authInfo
 }
 
-type authType =
-  | LoginWithPassword
-  | LoginWithEmail
-  | SignUP
-  | EmailVerify
-  | MagicLinkVerify
-  | ForgetPassword
-  | ForgetPasswordEmailSent
-  | ResendVerifyEmailSent
-  | MagicLinkEmailSent
-  | ResetPassword
-  | ResendVerifyEmail
-  | LiveMode
-  | ActivateFromEmail
-
 type modeType = TestButtonMode | LiveButtonMode
 
 type data = {code: string, message: string, type_: string}
@@ -59,7 +44,6 @@ type subCode =
   | UR_16
 
 type flowType = MERCHANT_SELECT | DASHBOARD_ENTRY | ERROR
-type logoVariant = Icon | Text | IconWithText | IconWithURL
 
 type defaultProviderTypes = {
   authStatus: authStatus,

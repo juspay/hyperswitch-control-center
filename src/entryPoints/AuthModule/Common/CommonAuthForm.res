@@ -1,9 +1,9 @@
-open HyperSwitchAuthUtils
 let fieldWrapperClass = "w-full flex flex-col"
 let labelClass = "!text-black !font-medium"
 module EmailPasswordForm = {
   @react.component
   let make = (~setAuthType) => {
+    open CommonInputFields
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -15,7 +15,7 @@ module EmailPasswordForm = {
           <AddDataAttributes attributes=[("data-testid", "forgot-password")]>
             <label
               className={`not-italic text-[12px] font-semibold font-ibm-plex ${textColor.primaryNormal} cursor-pointer`}
-              onClick={_ => setAuthType(_ => HyperSwitchAuthTypes.ForgetPassword)}>
+              onClick={_ => setAuthType(_ => CommonAuthTypes.ForgetPassword)}>
               {"Forgot Password?"->React.string}
             </label>
           </AddDataAttributes>
@@ -28,6 +28,7 @@ module EmailPasswordForm = {
 module EmailForm = {
   @react.component
   let make = () => {
+    open CommonInputFields
     <FormRenderer.FieldRenderer field=emailField labelClass fieldWrapperClass />
   }
 }
@@ -35,6 +36,7 @@ module EmailForm = {
 module ResetPasswordForm = {
   @react.component
   let make = () => {
+    open CommonInputFields
     <>
       <FormRenderer.FieldRenderer field=createPasswordField labelClass fieldWrapperClass />
       <FormRenderer.FieldRenderer field=confirmPasswordField labelClass fieldWrapperClass />

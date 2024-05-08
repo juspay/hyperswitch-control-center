@@ -4,9 +4,7 @@ let make = () => {
   open APIUtils
   open LogicUtils
   let flowType =
-    Some(
-      HSLocalStorage.getFromUserDetails("flow_type"),
-    )->HSwitchLoginUtils.flowTypeStrToVariantMapper
+    Some(HSLocalStorage.getFromUserDetails("flow_type"))->BasicAuthUtils.flowTypeStrToVariantMapper
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let updateDetails = useUpdateMethod()
@@ -74,7 +72,7 @@ let make = () => {
         ]->getJsonFromArrayOfJson
       let res = await updateDetails(url, body, Post, ())
       let email = HSLocalStorage.getFromMerchantDetails("email")
-      let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email)
+      let token = BasicAuthUtils.parseResponseJson(~json=res, ~email)
       LocalStorage.setItem("login", token)
       LocalStorage.removeItem("accept_invite_data")
       setUserDetails("flow_type", "dashboard_entry"->JSON.Encode.string)

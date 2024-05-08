@@ -1,4 +1,4 @@
-open HyperSwitchAuthTypes
+open BasicAuthTypes
 
 let defaultContextValue = {
   authStatus: CheckingAuthStatus,
@@ -15,7 +15,7 @@ module Provider = {
 let make = (~children) => {
   let (authStatus, setAuth) = React.useState(_ => CheckingAuthStatus)
 
-  let setAuthStatus = React.useCallback1((newAuthStatus: HyperSwitchAuthTypes.authStatus) => {
+  let setAuthStatus = React.useCallback1((newAuthStatus: BasicAuthTypes.authStatus) => {
     switch newAuthStatus {
     | LoggedIn(info) => LocalStorage.setItem("login", info.token)
     | LoggedOut

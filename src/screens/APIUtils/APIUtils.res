@@ -268,7 +268,7 @@ let handleLogout = async (
   ~clearRecoilValue,
 ) => {
   try {
-    setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
+    setAuthStatus(BasicAuthTypes.LoggedOut)
     setIsSidebarExpanded(_ => false)
     clearRecoilValue()
     RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
