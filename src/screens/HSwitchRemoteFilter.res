@@ -168,7 +168,7 @@ module RemoteTableFilters = {
     ~customLeftView,
     (),
   ) => {
-    let {filterValue, updateExistingKeys, filterValueJson, removeKeys} =
+    let {filterValue, updateExistingKeys, filterValueJson, reset} =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
 
@@ -229,19 +229,6 @@ module RemoteTableFilters = {
       )
     let remoteOptions = []
 
-    let clearFilters = () => {
-      filterData->getDictFromJsonObject->Dict.keysToArray->removeKeys
-    }
-
-    let hideFiltersDefaultValue = !(
-      filterValue
-      ->Dict.keysToArray
-      ->Array.filter(item =>
-        [startTimeFilterKey, endTimeFilterKey]->Array.find(key => key == item)->Option.isNone
-      )
-      ->Array.length > 0
-    )
-
     switch filterDataJson {
     | Some(_) =>
       <Filter
@@ -257,7 +244,7 @@ module RemoteTableFilters = {
         autoApply=false
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
-        clearFilters
+        clearFilters={() => reset()}
       />
     | _ =>
       <Filter
@@ -273,7 +260,7 @@ module RemoteTableFilters = {
         autoApply=false
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
-        clearFilters
+        clearFilters={() => reset()}
       />
     }
   }
