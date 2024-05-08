@@ -1,6 +1,6 @@
 @react.component
 let make = (~setAuthType, ~setAuthStatus) => {
-  open BasicAuthTypes
+  open AuthInfoProvider
   open APIUtils
   open LogicUtils
   let url = RescriptReactRouter.useUrl()
@@ -15,7 +15,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
       let token = BasicAuthUtils.parseResponseJson(~json=res, ~email)
       await HyperSwitchUtils.delay(1000)
       if !(token->isEmptyString) && !(email->isEmptyString) {
-        setAuthStatus(LoggedIn(BasicAuthTypes.getDummyAuthInfoForToken(token)))
+        setAuthStatus(LoggedIn(BasicAuth(BasicAuthTypes.getDummyAuthInfoForToken(token))))
         setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
         RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
       } else {

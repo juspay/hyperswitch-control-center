@@ -1,6 +1,6 @@
 type authorization = NoAccess | Access
 type logoVariant = Icon | Text | IconWithText | IconWithURL
-type authType =
+type authFlow =
   | LoginWithPassword
   | LoginWithEmail
   | SignUP

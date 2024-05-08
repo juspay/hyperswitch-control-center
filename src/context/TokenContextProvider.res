@@ -6,7 +6,7 @@ type tokenContextObjectType = {
   setToken: (option<string> => option<string>) => unit,
   tokenDetailsDict: Dict.t<JSON.t>,
   setTokenDetailsDict: (Dict.t<JSON.t> => Dict.t<JSON.t>) => unit,
-  parentAuthInfo: option<BasicAuthTypes.authInfo>,
+  parentAuthInfo: option<BasicAuthTypes.basicAuthInfo>,
 }
 
 let defaultTokenObj = {

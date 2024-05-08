@@ -1,4 +1,3 @@
-open BasicAuthTypes
 @react.component
 let make = (~children) => {
   let url = RescriptReactRouter.useUrl()
@@ -16,7 +15,7 @@ let make = (~children) => {
       switch LocalStorage.getItem("login")->Nullable.toOption {
       | Some(token) =>
         if !(token->LogicUtils.isEmptyString) {
-          setAuthStatus(LoggedIn(BasicAuthTypes.getDummyAuthInfoForToken(token)))
+          setAuthStatus(LoggedIn(BasicAuth(BasicAuthTypes.getDummyAuthInfoForToken(token))))
         } else {
           setAuthStatus(LoggedOut)
         }

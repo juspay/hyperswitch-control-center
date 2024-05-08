@@ -1,10 +1,9 @@
-type authInfo = {
+type basicAuthInfo = {
   token: string,
   merchantId: string,
   username: string,
 }
 
-type authStatus = LoggedOut | LoggedIn(authInfo) | CheckingAuthStatus
 open LogicUtils
 
 let getAuthInfo = (json, str) => {
@@ -44,9 +43,3 @@ type subCode =
   | UR_16
 
 type flowType = MERCHANT_SELECT | DASHBOARD_ENTRY | ERROR
-
-type defaultProviderTypes = {
-  authStatus: authStatus,
-  setAuthStatus: authStatus => unit,
-  setAuthStateToLogout: unit => unit,
-}

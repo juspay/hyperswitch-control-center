@@ -1,5 +1,5 @@
 @react.component
-let make = (~setAuthStatus: BasicAuthTypes.authStatus => unit, ~authType, ~setAuthType) => {
+let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   open BasicAuthUtils
   open APIUtils
   open CommonAuthForm
@@ -56,7 +56,8 @@ let make = (~setAuthStatus: BasicAuthTypes.authStatus => unit, ~authType, ~setAu
 
       // home
       if !(token->isEmptyString) {
-        setAuthStatus(LoggedIn(BasicAuthTypes.getDummyAuthInfoForToken(token)))
+        open AuthInfoProvider
+        setAuthStatus(LoggedIn(BasicAuth(BasicAuthTypes.getDummyAuthInfoForToken(token))))
       } else {
         showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
         setAuthStatus(LoggedOut)

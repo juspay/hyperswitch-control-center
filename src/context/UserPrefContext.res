@@ -41,10 +41,7 @@ let make = (~children) => {
   let userPrefInitialVal: Dict.t<userPref> = UserPrefUtils.getUserPref()
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  let username = switch authStatus {
-  | LoggedIn(authInfo) => authInfo.username
-  | _ => ""
-  }
+  let username = ""
   let (userPref, setUserPref) = React.useState(_ => userPrefInitialVal)
   let url = RescriptReactRouter.useUrl()
   let urlPathConcationation = `/${url.path->LogicUtils.stripV4->List.toArray->Array.joinWith("/")}`

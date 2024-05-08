@@ -1,5 +1,12 @@
-open BasicAuthTypes
+type authType = BasicAuth(BasicAuthTypes.basicAuthInfo) | ToptAuth(ToptTypes.totpAuthInfo)
 
+type authStatus = LoggedOut | LoggedIn(authType) | CheckingAuthStatus
+
+type defaultProviderTypes = {
+  authStatus: authStatus,
+  setAuthStatus: authStatus => unit,
+  setAuthStateToLogout: unit => unit,
+}
 let defaultContextValue = {
   authStatus: CheckingAuthStatus,
   setAuthStatus: _ => (),
@@ -16,9 +23,14 @@ module Provider = {
 let make = (~children) => {
   let (authStatus, setAuth) = React.useState(_ => CheckingAuthStatus)
 
-  let setAuthStatus = React.useCallback1((newAuthStatus: BasicAuthTypes.authStatus) => {
+  let setAuthStatus = React.useCallback1((newAuthStatus: authStatus) => {
     switch newAuthStatus {
-    | LoggedIn(info) => LocalStorage.setItem("login", info.token)
+    | LoggedIn(info) =>
+      switch info {
+      | BasicAuth(basicInfo) => LocalStorage.setItem("login", basicInfo.token)
+      | ToptAuth(totpInfo) => LocalStorage.setItem("login", totpInfo.token)
+      }
+
     | LoggedOut
     | CheckingAuthStatus => ()
     }

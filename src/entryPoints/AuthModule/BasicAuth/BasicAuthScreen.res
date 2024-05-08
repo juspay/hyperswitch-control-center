@@ -51,7 +51,7 @@ module BasicAuthPage = {
 }
 
 @react.component
-let make = (~setAuthStatus: BasicAuthTypes.authStatus => unit) => {
+let make = (~setAuthStatus) => {
   open BasicAuthTypes
   open CommonAuthTypes
   let url = RescriptReactRouter.useUrl()
