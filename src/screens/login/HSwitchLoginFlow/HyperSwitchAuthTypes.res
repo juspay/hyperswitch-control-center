@@ -60,3 +60,8 @@ type subCode =
 
 type flowType = MERCHANT_SELECT | DASHBOARD_ENTRY | ERROR
 type logoVariant = Icon | Text | IconWithText | IconWithURL
+
+type defaultProviderTypes = {
+  authStatus: authStatus,
+  setAuthStatus: authStatus => unit,
+}

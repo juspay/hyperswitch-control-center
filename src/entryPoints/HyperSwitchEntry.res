@@ -139,11 +139,13 @@ module HyperSwitchEntryComponent = {
       sectionHeight="h-screen"
       customUI={<NoDataFound message="Oops! Missing config" renderType=NotFound />}>
       <div className="text-black">
-        <HyperSwitchAuthWrapper>
-          <GlobalProvider>
-            <DecisionScreen />
-          </GlobalProvider>
-        </HyperSwitchAuthWrapper>
+        <AuthInfoProvider>
+          <HyperSwitchAuthWrapper>
+            <GlobalProvider>
+              <DecisionScreen />
+            </GlobalProvider>
+          </HyperSwitchAuthWrapper>
+        </AuthInfoProvider>
       </div>
     </PageLoaderWrapper>
   }
