@@ -67,7 +67,6 @@ module HyperSwitchEntryComponent = {
     let fetchConfig = async () => {
       try {
         let domain = getDomain()
-        Js.log(domain)
         let apiURL = `${HSwitchGlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
@@ -142,7 +141,7 @@ module HyperSwitchEntryComponent = {
         <AuthInfoProvider>
           <HyperSwitchAuthWrapper>
             <GlobalProvider>
-              <DecisionScreen />
+              <HSwitchDecisionScreen />
             </GlobalProvider>
           </HyperSwitchAuthWrapper>
         </AuthInfoProvider>

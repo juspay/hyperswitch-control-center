@@ -186,6 +186,7 @@ let getURL = (
     let userUrl = `user`
     switch userType {
     | #NONE => ""
+    | #USER_INFO => userUrl
     | #USER_DATA => `${userUrl}/data`
     | #MERCHANT_DATA => `${userUrl}/data`
     | #INVITE_MULTIPLE
@@ -198,13 +199,14 @@ let getURL = (
       | _ => `${userUrl}/${(userType :> string)->String.toLowerCase}`
       }
     | #GET_PERMISSIONS | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
-    | #SIGNINV2 => `${userUrl}/v2/signin`
-    | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
+    | #SIGNINV2 => `${userUrl}/v2/signin?token_only=true`
+    | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email?token_only=true`
     | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
     | #USER_DELETE => `${userUrl}/user/delete`
     | #USER_UPDATE => `${userUrl}/update`
     | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
-    | #SIGNUP
+    | #SIGNUP => `${userUrl}/signup?token_only=true`
+    | #FROM_EMAIL => `${userUrl}/from_email`
     | #SIGNOUT
     | #RESET_PASSWORD
     | #SET_METADATA

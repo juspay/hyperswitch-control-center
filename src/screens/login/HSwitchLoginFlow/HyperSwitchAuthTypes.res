@@ -1,36 +1,23 @@
+type flowType =
+  | MERCHANT_SELECT
+  | DASHBOARD_ENTRY
+  | TOTP_SETUP
+  | FORCE_SET_PASSWORD
+  | ACCEPT_INVITE
+  | VERIFY_EMAIL
+  | ACCEPT_INVITATION_FROM_EMAIL
+  | RESET_PASSWORD
+  | USER_INFO
+  | ERROR
+
 type authInfo = {
   token: string,
   merchantId: string,
   username: string,
+  flowType: flowType,
 }
 
 type authStatus = LoggedOut | LoggedIn(authInfo) | CheckingAuthStatus
-open LogicUtils
-
-let getAuthInfo = (json, str) => {
-  let dict = json->JsonFlattenUtils.flattenObject(false)
-  let tokenKey = "token"
-  let merchantIdKey = "merchantId"
-  let userNameKey = "username"
-
-  let authInfo = {
-    token: getString(dict, tokenKey, str),
-    merchantId: getString(dict, merchantIdKey, str),
-    username: getString(dict, userNameKey, ""),
-  }
-
-  Some(authInfo)
-}
-
-let getDummyAuthInfoForToken = token => {
-  let authInfo = {
-    token,
-    merchantId: "",
-    username: "",
-  }
-
-  authInfo
-}
 
 type authType =
   | LoginWithPassword
@@ -58,10 +45,13 @@ type subCode =
   | UR_05
   | UR_16
 
-type flowType = MERCHANT_SELECT | DASHBOARD_ENTRY | ERROR
 type logoVariant = Icon | Text | IconWithText | IconWithURL
 
 type defaultProviderTypes = {
   authStatus: authStatus,
   setAuthStatus: authStatus => unit,
+}
+type sptTokenType = {
+  token: option<string>,
+  token_type: flowType,
 }

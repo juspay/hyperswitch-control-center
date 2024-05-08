@@ -16,13 +16,23 @@ let make = (~children) => {
   let (authStatus, setAuth) = React.useState(_ => CheckingAuthStatus)
 
   let setAuthStatus = React.useCallback1((newAuthStatus: HyperSwitchAuthTypes.authStatus) => {
+    open HSwitchLoginUtils
     switch newAuthStatus {
-    | LoggedIn(info) => LocalStorage.setItem("login", info.token)
-    | LoggedOut
+    | LoggedIn(info) => {
+        sptToken(info.token, info.flowType->variantToStringFlowMapper)
+        // add feature flag
+        // add to accept email from url
+        RescriptReactRouter.replace(
+          HSwitchGlobalVars.appendDashboardPath(
+            ~url=`/${info.flowType->variantToStringFlowMapper}`,
+          ),
+        )
+      }
+    | LoggedOut => clearLocalStorage()
     | CheckingAuthStatus => ()
     }
     setAuth(_ => newAuthStatus)
   }, [setAuth])
 
-  <Provider value={{authStatus, setAuthStatus}}> children </Provider>
+  <Provider value={authStatus, setAuthStatus}> children </Provider>
 }

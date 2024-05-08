@@ -49,17 +49,32 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   }
 
   let getUserWithEmailPassword = async (body, email, userType) => {
+    open HSwitchLoginUtils
     try {
-      let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
-      let res = await updateDetails(url, body, Post, ())
-      let token = parseResponseJson(~json=res, ~email)
+      if false {
+        let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
+        let res = await updateDetails(url, body, Post, ())
+        let token = parseResponseJson(~json=res, ~email)
 
-      // home
-      if !(token->isEmptyString) {
-        setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
+        // home
+        if !(token->isEmptyString) {
+          setAuthStatus(LoggedIn(getDummyAuthInfoForToken(token, DASHBOARD_ENTRY)))
+        } else {
+          showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
+          setAuthStatus(LoggedOut)
+        }
       } else {
-        showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
-        setAuthStatus(LoggedOut)
+        let res =
+          [("token", "asdfvadf"->JSON.Encode.string), ("token_type", "totp"->JSON.Encode.string)]
+          ->Dict.fromArray
+          ->JSON.Encode.object
+        let token = "asdfvadf"
+        let token_Type =
+          res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
+        setAuthStatus(LoggedIn(getDummyAuthInfoForToken(token, token_Type)))
+        RescriptReactRouter.replace(
+          HSwitchGlobalVars.appendDashboardPath(~url=`/${token_Type->variantToStringFlowMapper}`),
+        )
       }
     } catch {
     | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
@@ -206,6 +221,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     }
     None
   })
+
   let note = useNote(authType, setAuthType, featureFlagValues.email)
   <ReactFinalForm.Form
     key="auth"

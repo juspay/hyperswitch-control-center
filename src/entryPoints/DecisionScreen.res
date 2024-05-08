@@ -9,5 +9,6 @@ let make = () => {
   | DASHBOARD_ENTRY
   | ERROR =>
     <HyperSwitchApp />
+  | _ => React.null
   }
 }

@@ -1,5 +1,5 @@
 @react.component
-let make = (~setAuthType, ~setAuthStatus) => {
+let make = () => {
   open HyperSwitchAuthTypes
   open APIUtils
   open LogicUtils
@@ -7,6 +7,8 @@ let make = (~setAuthType, ~setAuthStatus) => {
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
+  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+
   let emailVerifyUpdate = async body => {
     try {
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#VERIFY_EMAILV2}, ())
@@ -15,7 +17,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
       let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email)
       await HyperSwitchUtils.delay(1000)
       if !(token->isEmptyString) && !(email->isEmptyString) {
-        setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
+        setAuthStatus(LoggedIn(HSwitchLoginUtils.getDummyAuthInfoForToken(token, DASHBOARD_ENTRY)))
         setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
         RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
       } else {
@@ -31,12 +33,45 @@ let make = (~setAuthType, ~setAuthStatus) => {
     }
   }
 
+  let emailWithSPT = async body => {
+    try {
+      open HSwitchLoginUtils
+      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#VERIFY_EMAILV2}, ())
+      let res = await updateDetails(url, body, Post, ())
+      let res =
+        [("token", "asdfvadf"->JSON.Encode.string), ("token_type", "totp"->JSON.Encode.string)]
+        ->Dict.fromArray
+        ->JSON.Encode.object
+      let token = "asdfvadf"
+      let token_Type =
+        res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
+      setAuthStatus(LoggedIn(HSwitchLoginUtils.getDummyAuthInfoForToken(token, token_Type)))
+      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/user_info"))
+
+      // let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email)
+      // await HyperSwitchUtils.delay(1000)
+      // if !(token->isEmptyString) {
+      //   setAuthStatus(LoggedIn(HSwitchLoginUtils.getDummyAuthInfoForToken(token, USER_INFO)))
+      //   // setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
+      //   // RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
+      // } else {
+      //   setAuthStatus(LoggedOut)
+      //   RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+      // }
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Verification Failed")
+        setErrorMessage(_ => err)
+        setAuthStatus(LoggedOut)
+      }
+    }
+  }
   React.useEffect0(() => {
     open HyperSwitchAuthUtils
     let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
 
     switch tokenFromUrl {
-    | Some(token) => token->generateBodyForEmailRedirection->emailVerifyUpdate->ignore
+    | Some(token) => token->generateBodyForEmailRedirection->emailWithSPT->ignore
     | None => setErrorMessage(_ => "Token not received")
     }
     None
@@ -72,7 +107,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
             customButtonStyle="cursor-pointer cursor-pointer w-5 rounded-md"
             onClick={_ => {
               RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-              setAuthType(_ => HyperSwitchAuthTypes.LoginWithEmail)
+              // setAuthType(_ => HyperSwitchAuthTypes.LoginWithEmail)
             }}
           />
         </div>

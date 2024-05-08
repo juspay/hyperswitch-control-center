@@ -53,9 +53,11 @@ module AuthPage = {
 
 @react.component
 let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
+  open APIUtils
   open HyperSwitchAuthTypes
   let url = RescriptReactRouter.useUrl()
   let (mode, setMode) = React.useState(_ => TestButtonMode)
+  let updateDetails = useUpdateMethod()
   let {isLiveMode, email: isMagicLinkEnabled} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -125,9 +127,10 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     }
     None
   }, [authType])
-  switch authType {
-  | EmailVerify | MagicLinkVerify => <HyperSwitchEmailVerifyScreen setAuthType setAuthStatus />
-  | ActivateFromEmail => <HSAcceptInviteFromEmail setAuthType setAuthStatus />
-  | _ => <AuthPage authType setAuthType setAuthStatus mode setMode />
-  }
+  // switch authType {
+  // | EmailVerify | MagicLinkVerify => <HyperSwitchEmailVerifyScreen setAuthType setAuthStatus />
+  // | ActivateFromEmail => <HSAcceptInviteFromEmail />
+  // | _ =>
+  <AuthPage authType setAuthType setAuthStatus mode setMode />
+  // }
 }

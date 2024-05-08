@@ -83,6 +83,8 @@ module.exports = {
         boxShadowMultiple:
           "2px -2px 24px 0px rgba(0, 0, 0, 0.04), -2px 2px 24px 0px rgba(0, 0, 0, 0.02)",
         homePageBoxShadow: "0px 2px 16px 2px rgba(51, 51, 51, 0.16)",
+        focusBoxShadow:
+          "0px 1px 2px 0px rgba(0, 0, 0, 0.05), 0px 0px 0px 4px rgba(232, 243, 255, 1)",
       },
       fontSize: {
         "fs-10": "10px",

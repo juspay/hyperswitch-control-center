@@ -71,5 +71,7 @@ type userType = [
   | #ACCEPT_INVITE
   | #GET_PERMISSIONS
   | #CREATE_CUSTOM_ROLE
+  | #FROM_EMAIL
+  | #USER_INFO
   | #NONE
 ]

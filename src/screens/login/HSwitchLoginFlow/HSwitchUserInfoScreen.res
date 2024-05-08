@@ -2,47 +2,34 @@
 let make = () => {
   open HyperSwitchAuthTypes
   open APIUtils
-  open LogicUtils
+
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
+  let fetchDetails = APIUtils.useGetMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  let acceptInviteFormEmail = async body => {
+  let userInfo = async () => {
+    open HSwitchLoginUtils
+    open LogicUtils
     try {
-      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL, ())
-      let res = await updateDetails(url, body, Post, ())
-      let email = res->JSON.Decode.object->Option.getOr(Dict.make())->getString("email", "")
-      let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email)
-
-      if !(token->isEmptyString) && !(email->isEmptyString) {
-        setAuthStatus(LoggedIn(HSwitchLoginUtils.getDummyAuthInfoForToken(token, DASHBOARD_ENTRY)))
-        setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
-      } else {
-        setAuthStatus(LoggedOut)
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-      }
+      // TODO: user info api call
+      let token = getSptTokenType()
+      let url = getURL(~entityName=USERS, ~userType=#USER_INFO, ~methodType=Get, ())
+      Js.log2("url", url)
+      let response = await fetchDetails(url)
+      let email = response->getDictFromJsonObject->getString("email", "")
+      let token = HyperSwitchAuthUtils.parseResponseJson(~json=response, ~email)
+      setAuthStatus(LoggedIn(HSwitchLoginUtils.getDummyAuthInfoForToken(token, DASHBOARD_ENTRY)))
     } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Verification Failed")
-        setErrorMessage(_ => err)
-        setAuthStatus(LoggedOut)
-      }
+    | _ => setAuthStatus(LoggedOut)
     }
   }
 
   React.useEffect0(() => {
-    open HyperSwitchAuthUtils
-
-    let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
-
-    switch tokenFromUrl {
-    | Some(token) => token->generateBodyForEmailRedirection->acceptInviteFormEmail->ignore
-    | None => setErrorMessage(_ => "Token not received")
-    }
-
+    Js.log("Log in User Infi")
+    userInfo()->ignore
     None
   })
 
@@ -75,16 +62,15 @@ let make = () => {
             buttonSize={Small}
             customButtonStyle="cursor-pointer cursor-pointer w-5 rounded-md"
             onClick={_ => {
-              // RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-              setAuthStatus(LoggedOut)
-              // setAuthType(_ => LoginWithEmail)
+              RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+              // setAuthType(_ => HyperSwitchAuthTypes.LoginWithEmail)
             }}
           />
         </div>
       </div>
     } else {
-      <div className="h-full w-full flex justify-center items-center text-white opacity-50">
-        {"Accepting invite... You will be redirecting to the Dashboard.."->React.string}
+      <div className="h-full w-full flex justify-center items-center text-white opacity-90">
+        {"You will be redirecting to the dashbord.."->React.string}
       </div>
     }}
   </HSwitchUtils.BackgroundImageWrapper>
