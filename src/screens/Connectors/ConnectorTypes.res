@@ -39,6 +39,7 @@ type processorTypes =
   | AIRWALLEX
   | WORLDPAY
   | CYBERSOURCE
+  | EBANX
   | ACI
   | WORLDLINE
   | FISERV

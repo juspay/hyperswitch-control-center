@@ -39,12 +39,11 @@ Follow these simple steps to set up Hyperswitch on your local machine.
    npm install --force
    ```
 
-4. Update the .env file in the root directory.
+4. Update the config.toml file
 
    ```bash
-   apiBaseUrl = your-backend-url
-   sdkBaseUrl = your-sdk-url
-   mixpanelToken = mixpanel-token
+   api_url = your-backend-url
+   sdk_url = your-sdk-url
    # To view Mixpanel events on the Mixpanel dashboard, you must add your Mixpanel token; otherwise, you can ignore this requirement.
    ```
 

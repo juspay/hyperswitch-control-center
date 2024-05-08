@@ -3,6 +3,39 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.07.0
+
+### Miscellaneous Tasks
+
+- Added new payout connectors ([#623](https://github.com/juspay/hyperswitch-control-center/pull/623)) ([`4c1a399`](https://github.com/juspay/hyperswitch-control-center/commit/4c1a399f506c77a3ada70cfa3a9bbc8732486107))
+- React QR code library addition ([#617](https://github.com/juspay/hyperswitch-control-center/pull/617)) ([`c28c302`](https://github.com/juspay/hyperswitch-control-center/commit/c28c302241847aa75516dfa3d0deaae9a5ca94b2))
+
+**Full Changelog:** [`2024.05.06.0...2024.05.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.06.0...2024.05.07.0)
+
+- - -
+
+## 2024.05.06.0
+
+### Miscellaneous Tasks
+
+- Update wasm ([#621](https://github.com/juspay/hyperswitch-control-center/pull/621)) ([`2dc1c0a`](https://github.com/juspay/hyperswitch-control-center/commit/2dc1c0ad70e419486b8d993756dde0af11b00666))
+
+**Full Changelog:** [`2024.05.03.0...2024.05.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.03.0...2024.05.06.0)
+
+- - -
+
+## 2024.05.03.0
+
+### Bug Fixes
+
+- Filter fix ([#618](https://github.com/juspay/hyperswitch-control-center/pull/618)) ([`562195e`](https://github.com/juspay/hyperswitch-control-center/commit/562195ed649851486c7f698ddc68ac2045966f75))
+- Updated calendly link ([#615](https://github.com/juspay/hyperswitch-control-center/pull/615)) ([`28592bd`](https://github.com/juspay/hyperswitch-control-center/commit/28592bde6e1facb72baeedad892958844b9331ed))
+- Accept invite in home fix ([#619](https://github.com/juspay/hyperswitch-control-center/pull/619)) ([`d127cba`](https://github.com/juspay/hyperswitch-control-center/commit/d127cbaac21c0aa2afe645c9460eaee9dc516d1b))
+
+**Full Changelog:** [`2024.04.29.0...2024.05.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.29.0...2024.05.03.0)
+
+- - -
+
 ## 2024.04.29.0
 
 ### Bug Fixes
