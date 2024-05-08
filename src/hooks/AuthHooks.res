@@ -42,7 +42,7 @@ type betaEndpoint = {
 }
 
 let useApiFetcher = () => {
-  let (authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let token = React.useMemo1(() => {
     switch authStatus {

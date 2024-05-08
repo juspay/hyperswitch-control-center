@@ -2,16 +2,7 @@ open HyperSwitchAuthTypes
 @react.component
 let make = (~children) => {
   let url = RescriptReactRouter.useUrl()
-  let (currentAuthState, setCurrentAuthState) = React.useState(_ => CheckingAuthStatus)
-
-  let setAuthStatus = React.useCallback1((newAuthStatus: HyperSwitchAuthTypes.authStatus) => {
-    switch newAuthStatus {
-    | LoggedIn(info) => LocalStorage.setItem("login", info.token)
-    | LoggedOut
-    | CheckingAuthStatus => ()
-    }
-    setCurrentAuthState(_ => newAuthStatus)
-  }, [setCurrentAuthState])
+  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   React.useEffect0(() => {
     switch url.path {
@@ -37,12 +28,10 @@ let make = (~children) => {
   })
 
   <div className="font-inter-style">
-    <AuthInfoProvider value={(currentAuthState, setAuthStatus)}>
-      {switch currentAuthState {
-      | LoggedOut => <HyperSwitchAuthScreen setAuthStatus />
-      | LoggedIn(_token) => children
-      | CheckingAuthStatus => <Loader />
-      }}
-    </AuthInfoProvider>
+    {switch authStatus {
+    | LoggedOut => <HyperSwitchAuthScreen setAuthStatus />
+    | LoggedIn(_token) => children
+    | CheckingAuthStatus => <Loader />
+    }}
   </div>
 }

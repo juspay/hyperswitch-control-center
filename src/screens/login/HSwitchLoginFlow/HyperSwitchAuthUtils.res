@@ -22,15 +22,6 @@ module TermsAndCondition = {
   }
 }
 
-let flowTypeStrToVariantMapper = val => {
-  switch val {
-  | Some("merchant_select") => MERCHANT_SELECT
-  | Some("dashboard_entry") => DASHBOARD_ENTRY
-  | Some(_) => ERROR
-  | None => ERROR
-  }
-}
-
 let emailField = FormRenderer.makeFieldInfo(
   ~label="Email",
   ~name="email",
@@ -138,7 +129,10 @@ let parseResponseJson = (~json, ~email) => {
   | None => JSON.Encode.null
   }
 
-  if flowType->Option.isSome && flowType->flowTypeStrToVariantMapper === MERCHANT_SELECT {
+  if (
+    flowType->Option.isSome &&
+      flowType->HSwitchLoginUtils.flowTypeStrToVariantMapper === MERCHANT_SELECT
+  ) {
     LocalStorage.setItem(
       "accept_invite_data",
       valuesDict->getArrayFromDict("merchants", [])->JSON.stringifyAny->Option.getOr(""),

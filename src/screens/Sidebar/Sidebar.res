@@ -505,7 +505,7 @@ let make = (
   let email = HSLocalStorage.getFromMerchantDetails("email")
 
   let (openItem, setOpenItem) = React.useState(_ => "")
-  let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let {getFromSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)

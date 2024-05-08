@@ -19,7 +19,7 @@ module BaseTableComponent = {
   ) => {
     open DynamicTableUtils
 
-    let (authStatus, _setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+    let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
     let _userInfoText = React.useMemo1(() => {
       switch authStatus {
       | LoggedIn(info) =>
