@@ -1,9 +1,10 @@
 @react.component
 let make = (~setAuthType, ~setAuthStatus) => {
   open BasicAuthTypes
+
   open APIUtils
   open LogicUtils
-  open AuthInfoProvider
+  open AuthProviderTypes
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")

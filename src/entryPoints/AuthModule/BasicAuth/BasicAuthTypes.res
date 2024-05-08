@@ -33,13 +33,4 @@ let getDummyAuthInfoForToken = token => {
 
 type modeType = TestButtonMode | LiveButtonMode
 
-type data = {code: string, message: string, type_: string}
-
-type subCode =
-  | UR_00
-  | UR_01
-  | UR_03
-  | UR_05
-  | UR_16
-
 type flowType = MERCHANT_SELECT | DASHBOARD_ENTRY | ERROR

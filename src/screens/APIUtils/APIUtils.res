@@ -214,6 +214,16 @@ let getURL = (
     | #PERMISSION_INFO
     | #ACCEPT_INVITE_FROM_EMAIL =>
       `${userUrl}/${(userType :> string)->String.toLowerCase}`
+    | #SIGNINV3 => `${userUrl}/v2/signin?token_only=true`
+    | #SIGNINV2_TOKEN_ONLY => `${userUrl}/v2/signin?token_only=true`
+    | #VERIFY_EMAILV3 => `${userUrl}/v2/verify_email?token_only=true`
+    | #VERIFY_EMAILV2_TOKEN_ONLY => `${userUrl}/v2/verify_email?token_only=true`
+    | #SIGNUPV2 => `${userUrl}/signup?token_only=true`
+    | #SIGNUP_TOKEN_ONLY => `${userUrl}/signup?token_only=true`
+    | #FROM_EMAIL => `${userUrl}/from_email`
+    | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
+      `${userUrl}/${(userType :> string)->String.toLowerCase}?token_only=true`
+    | #USER_INFO => userUrl
     }
   | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
   | USER_MANAGEMENT => {

@@ -1,11 +1,11 @@
 @react.component
 let make = (~setAuthStatus, ~authType, ~setAuthType) => {
-  open BasicAuthUtils
+  //   open BasicAuthUtils
   open APIUtils
   open CommonAuthForm
   open HSwitchGlobalVars
   open LogicUtils
-
+  open TotpUtils
   let url = RescriptReactRouter.useUrl()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let initialValues = Dict.make()->JSON.Encode.object
@@ -51,18 +51,19 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
 
   let getUserWithEmailPassword = async (body, email, userType) => {
     try {
-      let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
-      let res = await updateDetails(url, body, Post, ())
-      let token = parseResponseJson(~json=res, ~email)
-
-      // home
-      if !(token->isEmptyString) {
-        open AuthProviderTypes
-        setAuthStatus(LoggedIn(BasicAuth(BasicAuthTypes.getDummyAuthInfoForToken(token))))
-      } else {
-        showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
-        setAuthStatus(LoggedOut)
-      }
+      // Need to make a API Call
+      open AuthProviderTypes
+      let res =
+        [("token", "asdfvadf"->JSON.Encode.string), ("token_type", "totp"->JSON.Encode.string)]
+        ->Dict.fromArray
+        ->JSON.Encode.object
+      let token = "asdfvadf"
+      let token_Type =
+        res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
+      setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, token_Type))))
+      RescriptReactRouter.replace(
+        HSwitchGlobalVars.appendDashboardPath(~url=`/${token_Type->variantToStringFlowMapper}`),
+      )
     } catch {
     | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
     }
@@ -78,6 +79,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
 
   let setResetPassword = async body => {
     try {
+      // Need to check this
       let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD, ~methodType=Post, ())
       let _ = await updateDetails(url, body, Post, ())
       LocalStorage.clear()
@@ -91,6 +93,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
 
   let setForgetPassword = async body => {
     try {
+      // Need to check this
       let url = getURL(~entityName=USERS, ~userType=#FORGOT_PASSWORD, ~methodType=Post, ())
       let _ = await updateDetails(url, body, Post, ())
       setAuthType(_ => ForgetPasswordEmailSent)
@@ -103,6 +106,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
 
   let resendVerifyEmail = async body => {
     try {
+      // Need to check this
       let url = getURL(~entityName=USERS, ~userType=#VERIFY_EMAIL_REQUEST, ~methodType=Post, ())
       let _ = await updateDetails(url, body, Post, ())
       setAuthType(_ => ResendVerifyEmailSent)

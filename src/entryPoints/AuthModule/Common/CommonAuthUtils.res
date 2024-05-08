@@ -1,3 +1,4 @@
+open CommonAuthTypes
 let passwordKeyValidation = (value, key, keyVal, errors) => {
   let mustHave: array<string> = []
   if value->LogicUtils.isNonEmptyString && key === keyVal {
@@ -47,6 +48,12 @@ let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, err
   }
 }
 
+let isValidEmail = value =>
+  !Js.Re.test_(
+    %re(`/^(([^<>()[\]\.,;:\s@"]+(\.[^<>()[\]\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
+    value,
+  )
+
 let getResetpasswordBodyJson = (password, token) =>
   [("password", password->JSON.Encode.string), ("token", token->JSON.Encode.string)]
   ->Dict.fromArray
@@ -75,4 +82,40 @@ let getEmailBody = (email, ~country=?, ()) => {
 let generateBodyForEmailRedirection = token => {
   open LogicUtils
   [("token", token->JSON.Encode.string)]->getJsonFromArrayOfJson
+}
+
+let errorMapper = dict => {
+  open LogicUtils
+  {
+    code: dict->getString("code", "UR_00"),
+    message: dict->getString("message", "something went wrong"),
+    type_: dict->getString("message", "something went wrong"),
+  }
+}
+
+let parseErrorMessage = errorMessage => {
+  let parsedValue = switch Exn.message(errorMessage) {
+  | Some(msg) => msg->LogicUtils.safeParse
+  | None => JSON.Encode.null
+  }
+
+  switch JSON.Classify.classify(parsedValue) {
+  | Object(obj) => obj->errorMapper
+  | String(_str) => Dict.make()->errorMapper
+  | _ => Dict.make()->errorMapper
+  }
+}
+
+let errorSubCodeMapper = (subCode: string) => {
+  switch subCode {
+  | "UR_01" => UR_01
+  | "UR_03" => UR_03
+  | "UR_05" => UR_05
+  | "UR_16" => UR_16
+  | _ => UR_00
+  }
+}
+
+let clearLocalStorage = () => {
+  LocalStorage.clear()
 }

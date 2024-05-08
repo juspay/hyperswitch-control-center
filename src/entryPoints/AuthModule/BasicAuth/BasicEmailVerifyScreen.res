@@ -1,6 +1,6 @@
 @react.component
 let make = (~setAuthType, ~setAuthStatus) => {
-  open AuthInfoProvider
+  open AuthProviderTypes
   open APIUtils
   open LogicUtils
   let url = RescriptReactRouter.useUrl()

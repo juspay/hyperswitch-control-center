@@ -1,6 +1,4 @@
-type authType = BasicAuth(BasicAuthTypes.basicAuthInfo) | ToptAuth(ToptTypes.totpAuthInfo)
-
-type authStatus = LoggedOut | LoggedIn(authType) | CheckingAuthStatus
+open AuthProviderTypes
 
 type defaultProviderTypes = {
   authStatus: authStatus,
@@ -28,10 +26,11 @@ let make = (~children) => {
     | LoggedIn(info) =>
       switch info {
       | BasicAuth(basicInfo) => LocalStorage.setItem("login", basicInfo.token)
-      | ToptAuth(totpInfo) => LocalStorage.setItem("login", totpInfo.token)
+      | ToptAuth(totpInfo) =>
+        TotpUtils.sptToken(totpInfo.token, totpInfo.token_type->TotpUtils.variantToStringFlowMapper)
       }
 
-    | LoggedOut
+    | LoggedOut => CommonAuthUtils.clearLocalStorage()
     | CheckingAuthStatus => ()
     }
     setAuth(_ => newAuthStatus)
