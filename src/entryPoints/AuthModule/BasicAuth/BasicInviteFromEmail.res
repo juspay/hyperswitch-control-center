@@ -50,5 +50,9 @@ let make = (~setAuthType, ~setAuthStatus) => {
     setAuthType(_ => CommonAuthTypes.LoginWithEmail)
   }
 
-  <EmailVerifyScreen errorMessage onClick />
+  <EmailVerifyScreen
+    errorMessage
+    onClick
+    trasitionMessage="Accepting invite... You will be redirecting to the Dashboard.."
+  />
 }

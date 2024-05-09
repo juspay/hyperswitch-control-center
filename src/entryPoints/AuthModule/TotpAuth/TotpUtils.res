@@ -53,7 +53,7 @@ let flowTypeStrToVariantMapper = val => {
   | Some("merchant_select") => MERCHANT_SELECT
   | Some("dashboard_entry") => DASHBOARD_ENTRY
 
-  | Some("totp") => TOTP_SETUP
+  | Some("totp") => TOTP
 
   // rotate password
   | Some("force_set_password") => FORCE_SET_PASSWORD
@@ -76,7 +76,7 @@ let variantToStringFlowMapper = val => {
   switch val {
   | DASHBOARD_ENTRY => "dashboard_entry"
   | MERCHANT_SELECT => "merchant_select"
-  | TOTP_SETUP => "totp"
+  | TOTP => "totp"
   | FORCE_SET_PASSWORD => "force_set_password"
   | ACCEPT_INVITE => "accept_invite"
   | VERIFY_EMAIL => "verify_email"
@@ -110,4 +110,39 @@ let totpAuthInfoForToken = (token, token_type) => {
     token_type,
   }
   totpInfo
+}
+
+let setMerchantDetailsInLocalStorage = (key, value) => {
+  let localStorageData = HSLocalStorage.getInfoFromLocalStorage(~lStorageKey="merchant")
+  localStorageData->Dict.set(key, value)
+
+  "merchant"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
+}
+
+let setUserDetailsInLocalStorage = (key, value) => {
+  let localStorageData = HSLocalStorage.getInfoFromLocalStorage(~lStorageKey="user")
+  localStorageData->Dict.set(key, value)
+  "user"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
+}
+
+let parseResponseJson = (~json, ~email) => {
+  open LogicUtils
+
+  let valuesDict = json->JSON.Decode.object->Option.getOr(Dict.make())
+
+  let verificationValue = valuesDict->getOptionInt("verification_days_left")->Option.getOr(-1)
+  setMerchantDetailsInLocalStorage(
+    "merchant_id",
+    valuesDict->getString("merchant_id", "")->JSON.Encode.string,
+  )
+  setMerchantDetailsInLocalStorage("email", email->JSON.Encode.string)
+  setMerchantDetailsInLocalStorage(
+    "verification",
+    verificationValue->Int.toString->JSON.Encode.string,
+  )
+  setUserDetailsInLocalStorage("name", valuesDict->getString("name", "")->JSON.Encode.string)
+  setUserDetailsInLocalStorage(
+    "user_role",
+    valuesDict->getString("user_role", "")->JSON.Encode.string,
+  )
 }

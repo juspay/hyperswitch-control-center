@@ -2,10 +2,9 @@
 let make = () => {
   open APIUtils
 
-  let url = RescriptReactRouter.useUrl()
-  let updateDetails = useUpdateMethod()
   let fetchDetails = APIUtils.useGetMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
@@ -14,28 +13,41 @@ let make = () => {
     open LogicUtils
     try {
       // TODO: user info api call
-      let token = TotpUtils.getSptTokenType()
       let url = getURL(~entityName=USERS, ~userType=#USER_INFO, ~methodType=Get, ())
-      Js.log2("url", url)
       let response = await fetchDetails(url)
       let email = response->getDictFromJsonObject->getString("email", "")
-      let token = BasicAuthUtils.parseResponseJson(~json=response, ~email)
-      //   setAuthStatus(LoggedIn(HSwitchLoginUtils.getDummyAuthInfoForToken(token, DASHBOARD_ENTRY)))
-      setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, DASHBOARD_ENTRY))))
+      TotpUtils.parseResponseJson(~json=response, ~email)
+
+      // TODO : check where to get Token in this case
+      let tokenDetails = TotpUtils.getSptTokenType()
+      switch tokenDetails.token {
+      | Some(token) =>
+        setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, DASHBOARD_ENTRY))))
+
+      | _ => setAuthStatus(LoggedOut)
+      }
+      setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setAuthStatus(LoggedOut)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Verification Failed")
+        setErrorMessage(_ => err)
+        setAuthStatus(LoggedOut)
+      }
     }
   }
 
   React.useEffect0(() => {
-    Js.log("Log in User Infi")
     userInfo()->ignore
     None
   })
   let onClick = () => {
-    // TO DO
-    Js.log("Implement onError")
+    setAuthStatus(LoggedOut)
   }
 
-  <EmailVerifyScreen errorMessage onClick />
+  <PageLoaderWrapper screenState>
+    <EmailVerifyScreen
+      errorMessage onClick trasitionMessage="You will be redirecting to the dashboard.."
+    />
+  </PageLoaderWrapper>
 }

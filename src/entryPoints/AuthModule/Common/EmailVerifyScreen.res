@@ -1,5 +1,5 @@
 @react.component
-let make = (~errorMessage, ~onClick) => {
+let make = (~errorMessage, ~onClick, ~trasitionMessage) => {
   <HSwitchUtils.BackgroundImageWrapper customPageCss="font-semibold md:text-3xl p-16">
     {if errorMessage->String.length !== 0 {
       <div className="flex flex-col justify-between gap-32 flex items-center justify-center h-2/3">
@@ -34,7 +34,7 @@ let make = (~errorMessage, ~onClick) => {
       </div>
     } else {
       <div className="h-full w-full flex justify-center items-center text-white opacity-90">
-        {"Verifing... You will be redirecting.."->React.string}
+        {trasitionMessage->React.string}
       </div>
     }}
   </HSwitchUtils.BackgroundImageWrapper>

@@ -1,11 +1,12 @@
 @react.component
 let make = (~setAuthStatus, ~authType, ~setAuthType) => {
-  //   open BasicAuthUtils
   open APIUtils
   open CommonAuthForm
   open HSwitchGlobalVars
   open LogicUtils
   open TotpUtils
+  open AuthProviderTypes
+
   let url = RescriptReactRouter.useUrl()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let initialValues = Dict.make()->JSON.Encode.object
@@ -52,14 +53,11 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let getUserWithEmailPassword = async (body, email, userType) => {
     try {
       // Need to make a API Call
-      open AuthProviderTypes
-      let res =
-        [("token", "asdfvadf"->JSON.Encode.string), ("token_type", "totp"->JSON.Encode.string)]
-        ->Dict.fromArray
-        ->JSON.Encode.object
-      let token = "asdfvadf"
+      let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
+      let res = await updateDetails(url, body, Post, ())
       let token_Type =
         res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
+      let token = res->getDictFromJsonObject->getString("token", "")
       setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, token_Type))))
       RescriptReactRouter.replace(
         HSwitchGlobalVars.appendDashboardPath(~url=`/${token_Type->variantToStringFlowMapper}`),
@@ -149,12 +147,12 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         | (false, SignUP) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
-            getUserWithEmailPassword(body, email, #SIGNUP)
+            getUserWithEmailPassword(body, email, #SIGNUP_TOKEN_ONLY)
           }
         | (_, LoginWithPassword) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
-            getUserWithEmailPassword(body, email, #SIGNINV2)
+            getUserWithEmailPassword(body, email, #SIGNINV2_TOKEN_ONLY)
           }
         | (_, ResetPassword) => {
             let queryDict = url.search->getDictFromUrlSearchParams

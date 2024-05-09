@@ -46,5 +46,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
     setAuthType(_ => CommonAuthTypes.LoginWithEmail)
   }
 
-  <EmailVerifyScreen errorMessage onClick />
+  <EmailVerifyScreen
+    errorMessage onClick trasitionMessage="Verifing... You will be redirecting.."
+  />
 }

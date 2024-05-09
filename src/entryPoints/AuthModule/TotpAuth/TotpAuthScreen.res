@@ -27,7 +27,7 @@ module BasicAuthPage = {
             </div>
             <Div layoutId="border" className="border-b w-full" />
             <div className="p-7">
-              <BasicAuth setAuthStatus authType setAuthType />
+              <TotpAuth setAuthStatus authType setAuthType />
             </div>
           </Div>
           <UIUtils.RenderIf condition={!branding}>
