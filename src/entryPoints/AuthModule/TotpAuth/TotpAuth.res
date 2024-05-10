@@ -50,9 +50,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     Nullable.null
   }
 
-  let getUserWithEmailPassword = async (body, email, userType) => {
+  let getUserWithEmailPassword = async (body, userType) => {
     try {
-      // Need to make a API Call
       let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post, ())
       let token_Type =
@@ -71,7 +70,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let openPlayground = _ => {
     open CommonAuthUtils
     let body = getEmailPasswordBody(playgroundUserEmail, playgroundUserPassword, country)
-    getUserWithEmailPassword(body, playgroundUserEmail, #SIGNINV2)->ignore
+    getUserWithEmailPassword(body, #SIGNINV2)->ignore
     HSLocalStorage.setIsPlaygroundInLocalStorage(true)
   }
 
@@ -147,12 +146,12 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         | (false, SignUP) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
-            getUserWithEmailPassword(body, email, #SIGNUP_TOKEN_ONLY)
+            getUserWithEmailPassword(body, #SIGNUP_TOKEN_ONLY)
           }
         | (_, LoginWithPassword) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
-            getUserWithEmailPassword(body, email, #SIGNINV2_TOKEN_ONLY)
+            getUserWithEmailPassword(body, #SIGNINV2_TOKEN_ONLY)
           }
         | (_, ResetPassword) => {
             let queryDict = url.search->getDictFromUrlSearchParams

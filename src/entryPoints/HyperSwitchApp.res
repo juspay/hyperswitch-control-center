@@ -522,12 +522,12 @@ let make = () => {
               <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
                 <ProdIntentForm />
               </RenderIf>
-              // <RenderIf
-              //   condition={!featureFlagDetails.isLiveMode &&
-              //   userPermissionJson.merchantDetailsManage === Access &&
-              //   surveyModal}>
-              //   <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
-              // </RenderIf>
+              <RenderIf
+                condition={!featureFlagDetails.isLiveMode &&
+                userPermissionJson.merchantDetailsManage === Access &&
+                surveyModal}>
+                <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
+              </RenderIf>
             </div>
           </div>
         | #WOOCOMMERCE_FLOW => <WooCommerce />
