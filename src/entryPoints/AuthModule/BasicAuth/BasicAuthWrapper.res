@@ -1,4 +1,3 @@
-open HyperSwitchAuthTypes
 @react.component
 let make = (~children) => {
   let url = RescriptReactRouter.useUrl()
@@ -16,7 +15,7 @@ let make = (~children) => {
       switch LocalStorage.getItem("login")->Nullable.toOption {
       | Some(token) =>
         if !(token->LogicUtils.isEmptyString) {
-          setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
+          setAuthStatus(LoggedIn(BasicAuth(BasicAuthTypes.getDummyAuthInfoForToken(token))))
         } else {
           setAuthStatus(LoggedOut)
         }
@@ -29,7 +28,7 @@ let make = (~children) => {
 
   <div className="font-inter-style">
     {switch authStatus {
-    | LoggedOut => <HyperSwitchAuthScreen setAuthStatus />
+    | LoggedOut => <BasicAuthScreen setAuthStatus />
     | LoggedIn(_token) => children
     | CheckingAuthStatus => <Loader />
     }}

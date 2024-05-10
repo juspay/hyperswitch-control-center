@@ -1,10 +1,9 @@
-type authInfo = {
+type basicAuthInfo = {
   token: string,
   merchantId: string,
   username: string,
 }
 
-type authStatus = LoggedOut | LoggedIn(authInfo) | CheckingAuthStatus
 open LogicUtils
 
 let getAuthInfo = (json, str) => {
@@ -32,36 +31,6 @@ let getDummyAuthInfoForToken = token => {
   authInfo
 }
 
-type authType =
-  | LoginWithPassword
-  | LoginWithEmail
-  | SignUP
-  | EmailVerify
-  | MagicLinkVerify
-  | ForgetPassword
-  | ForgetPasswordEmailSent
-  | ResendVerifyEmailSent
-  | MagicLinkEmailSent
-  | ResetPassword
-  | ResendVerifyEmail
-  | LiveMode
-  | ActivateFromEmail
-
 type modeType = TestButtonMode | LiveButtonMode
 
-type data = {code: string, message: string, type_: string}
-
-type subCode =
-  | UR_00
-  | UR_01
-  | UR_03
-  | UR_05
-  | UR_16
-
 type flowType = MERCHANT_SELECT | DASHBOARD_ENTRY | ERROR
-type logoVariant = Icon | Text | IconWithText | IconWithURL
-
-type defaultProviderTypes = {
-  authStatus: authStatus,
-  setAuthStatus: authStatus => unit,
-}

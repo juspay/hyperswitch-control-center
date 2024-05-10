@@ -21,7 +21,7 @@ type resourcesTypes = {
   subText: string,
   redirectLink: string,
   id: string,
-  access: AuthTypes.authorization,
+  access: CommonAuthTypes.authorization,
 }
 
 let countries: array<ReactHyperJs.country> = [
@@ -143,7 +143,7 @@ module CheckoutCard = {
     let fetchApi = AuthHooks.useApiFetcher()
     let showPopUp = PopUpState.useShowPopUp()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+    let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
     let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
@@ -166,7 +166,7 @@ module CheckoutCard = {
               _ => {
                 let _ = APIUtils.handleLogout(
                   ~fetchApi,
-                  ~setAuthStatus,
+                  ~setAuthStateToLogout,
                   ~setIsSidebarExpanded,
                   ~clearRecoilValue,
                 )

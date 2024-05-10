@@ -85,7 +85,7 @@ let getHistoryRules: JSON.t => array<historyData> = json => {
 
 let payoutHistoryEntity = (
   activeRoutingIds: array<string>,
-  ~permission: AuthTypes.authorization,
+  ~permission: CommonAuthTypes.authorization,
 ) => {
   EntityType.makeEntity(
     ~uri=``,

@@ -201,9 +201,11 @@ let getURL = (
     | #SIGNINV2 => `${userUrl}/v2/signin`
     | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
     | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
+    | #ACCEPT_INVITE_TOKEN_ONLY => `${userUrl}/user/invite/accept?token_only=tru`
     | #USER_DELETE => `${userUrl}/user/delete`
     | #USER_UPDATE => `${userUrl}/update`
     | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
+    | #MERCHANTS_SELECT => `${userUrl}/merchants_select/list`
     | #SIGNUP
     | #SIGNOUT
     | #RESET_PASSWORD
@@ -212,8 +214,18 @@ let getURL = (
     | #FORGOT_PASSWORD
     | #CREATE_MERCHANT
     | #PERMISSION_INFO
-    | #ACCEPT_INVITE_FROM_EMAIL =>
+    | #ACCEPT_INVITE_FROM_EMAIL
+    | #ROTATE_PASSWORD =>
       `${userUrl}/${(userType :> string)->String.toLowerCase}`
+    | #SIGNINV2_TOKEN_ONLY => `${userUrl}/v2/signin?token_only=true`
+    | #VERIFY_EMAILV2_TOKEN_ONLY => `${userUrl}/v2/verify_email?token_only=true`
+    | #SIGNUPV2 => `${userUrl}/signup`
+    | #SIGNUP_TOKEN_ONLY => `${userUrl}/signup?token_only=true`
+    | #RESET_PASSWORD_TOKEN_ONLY => `${userUrl}/reset_password?token_only=true`
+    | #FROM_EMAIL => `${userUrl}/from_email`
+    | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
+      `${userUrl}/${(userType :> string)->String.toLowerCase}?token_only=true`
+    | #USER_INFO => userUrl
     }
   | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
   | USER_MANAGEMENT => {
@@ -263,12 +275,12 @@ let handleLogout = async (
     ~contentType: AuthHooks.contentType=?,
     unit,
   ) => Promise.t<Fetch.Response.t>,
-  ~setAuthStatus,
+  ~setAuthStateToLogout,
   ~setIsSidebarExpanded,
   ~clearRecoilValue,
 ) => {
   try {
-    setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
+    setAuthStateToLogout()
     setIsSidebarExpanded(_ => false)
     clearRecoilValue()
     RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
@@ -370,7 +382,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
@@ -388,7 +400,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
           _ => {
             let _ = handleLogout(
               ~fetchApi,
-              ~setAuthStatus,
+              ~setAuthStateToLogout,
               ~setIsSidebarExpanded,
               ~clearRecoilValue,
             )
@@ -428,7 +440,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
@@ -446,7 +458,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
           _ => {
             let _ = handleLogout(
               ~fetchApi,
-              ~setAuthStatus,
+              ~setAuthStateToLogout,
               ~setIsSidebarExpanded,
               ~clearRecoilValue,
             )
