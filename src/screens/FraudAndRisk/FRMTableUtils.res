@@ -14,7 +14,7 @@ let getPreviouslyConnectedList: JSON.t => array<ConnectorTypes.connectorPayload>
   )->ConnectorTableUtils.sortPreviouslyConnectedList
 }
 
-let connectorEntity = (path: string, ~permission: AuthTypes.authorization) => {
+let connectorEntity = (path: string, ~permission: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,

@@ -505,7 +505,7 @@ let make = (
   let email = HSLocalStorage.getFromMerchantDetails("email")
 
   let (openItem, setOpenItem) = React.useState(_ => "")
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let {getFromSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
@@ -563,7 +563,7 @@ let make = (
   let handleLogout = _ => {
     let _ = APIUtils.handleLogout(
       ~fetchApi,
-      ~setAuthStatus,
+      ~setAuthStateToLogout,
       ~setIsSidebarExpanded,
       ~clearRecoilValue,
     )

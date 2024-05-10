@@ -1,8 +1,14 @@
-open HyperSwitchAuthTypes
+open AuthProviderTypes
 
+type defaultProviderTypes = {
+  authStatus: authStatus,
+  setAuthStatus: authStatus => unit,
+  setAuthStateToLogout: unit => unit,
+}
 let defaultContextValue = {
   authStatus: CheckingAuthStatus,
   setAuthStatus: _ => (),
+  setAuthStateToLogout: _ => (),
 }
 
 let authStatusContext = React.createContext(defaultContextValue)
@@ -15,14 +21,24 @@ module Provider = {
 let make = (~children) => {
   let (authStatus, setAuth) = React.useState(_ => CheckingAuthStatus)
 
-  let setAuthStatus = React.useCallback1((newAuthStatus: HyperSwitchAuthTypes.authStatus) => {
+  let setAuthStatus = React.useCallback1((newAuthStatus: authStatus) => {
     switch newAuthStatus {
-    | LoggedIn(info) => LocalStorage.setItem("login", info.token)
-    | LoggedOut
+    | LoggedIn(info) =>
+      switch info {
+      | BasicAuth(basicInfo) => LocalStorage.setItem("login", basicInfo.token)
+      | ToptAuth(totpInfo) =>
+        TotpUtils.sptToken(totpInfo.token, totpInfo.token_type->TotpUtils.variantToStringFlowMapper)
+      }
+
+    | LoggedOut => CommonAuthUtils.clearLocalStorage()
     | CheckingAuthStatus => ()
     }
     setAuth(_ => newAuthStatus)
   }, [setAuth])
 
-  <Provider value={{authStatus, setAuthStatus}}> children </Provider>
+  let setAuthStateToLogout = React.useCallback0(() => {
+    setAuth(_ => LoggedOut)
+  })
+
+  <Provider value={authStatus, setAuthStatus, setAuthStateToLogout}> children </Provider>
 }

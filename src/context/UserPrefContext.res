@@ -42,7 +42,11 @@ let make = (~children) => {
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let username = switch authStatus {
-  | LoggedIn(authInfo) => authInfo.username
+  | LoggedIn(authType) =>
+    switch authType {
+    | BasicAuth(basicAuthInfo) => basicAuthInfo.username
+    | ToptAuth(totpAuthInfo) => totpAuthInfo.username
+    }
   | _ => ""
   }
   let (userPref, setUserPref) = React.useState(_ => userPrefInitialVal)

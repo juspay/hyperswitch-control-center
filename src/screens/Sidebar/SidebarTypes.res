@@ -2,7 +2,7 @@ type optionType = {
   name: string,
   icon: string,
   link: string,
-  access: AuthTypes.authorization,
+  access: CommonAuthTypes.authorization,
   searchOptions?: array<(string, string)>,
   remoteIcon?: bool,
 }
@@ -13,13 +13,13 @@ type optionTypeWithTag = {
   iconStyles?: string,
   iconSize?: int,
   link: string,
-  access: AuthTypes.authorization,
+  access: CommonAuthTypes.authorization,
   searchOptions?: array<(string, string)>,
 }
 type nestedOption = {
   name: string,
   link: string,
-  access: AuthTypes.authorization,
+  access: CommonAuthTypes.authorization,
   searchOptions?: array<(string, string)>,
   remoteIcon?: bool,
   iconTag?: string,

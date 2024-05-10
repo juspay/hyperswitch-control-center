@@ -15,7 +15,7 @@ type permissionType =
   | OrganizationManage
   | UnknownPermission(string)
 
-open AuthTypes
+open CommonAuthTypes
 type permissionJson = {
   operationsView: authorization,
   operationsManage: authorization,

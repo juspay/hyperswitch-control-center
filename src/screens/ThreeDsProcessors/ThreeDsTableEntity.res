@@ -70,7 +70,7 @@ let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
   LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
 }
 
-let threeDsAuthenticatorEntity = (path: string, ~permission: AuthTypes.authorization) => {
+let threeDsAuthenticatorEntity = (path: string, ~permission: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,

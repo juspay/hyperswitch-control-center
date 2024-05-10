@@ -1,9 +1,8 @@
-open HyperSwitchAuthUtils
+open BasicAuthUtils
 
-module AuthPage = {
+module BasicAuthPage = {
   open FramerMotion.Motion
-  open HyperSwitchAuth
-  open HyperSwitchAuthTypes
+  open CommonAuthTypes
   @react.component
   let make = (~authType, ~setAuthType, ~setAuthStatus, ~mode, ~setMode) => {
     let {testLiveToggle, branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -28,19 +27,19 @@ module AuthPage = {
             </div>
             <Div layoutId="border" className="border-b w-full" />
             <div className="p-7">
-              <HyperSwitchAuth setAuthStatus authType setAuthType />
+              <TotpAuth setAuthStatus authType setAuthType />
             </div>
           </Div>
           <UIUtils.RenderIf condition={!branding}>
             <Div
               layoutId="footer-links"
               className="justify-center text-sm mobile:text-base flex flex-col mobile:flex-row mobile:gap-3 items-center w-full max-w-xl text-center">
-              <TermsAndCondition />
+              <CommonAuth.TermsAndCondition />
             </Div>
           </UIUtils.RenderIf>
         </div>
         <UIUtils.RenderIf condition={!branding}>
-          <PageFooterSection />
+          <CommonAuth.PageFooterSection />
         </UIUtils.RenderIf>
       </div>
 
@@ -52,8 +51,9 @@ module AuthPage = {
 }
 
 @react.component
-let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
-  open HyperSwitchAuthTypes
+let make = (~setAuthStatus) => {
+  open BasicAuthTypes
+  open CommonAuthTypes
   let url = RescriptReactRouter.useUrl()
   let (mode, setMode) = React.useState(_ => TestButtonMode)
   let {isLiveMode, email: isMagicLinkEnabled} =
@@ -126,8 +126,8 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     None
   }, [authType])
   switch authType {
-  | EmailVerify | MagicLinkVerify => <HyperSwitchEmailVerifyScreen setAuthType setAuthStatus />
-  | ActivateFromEmail => <HSAcceptInviteFromEmail setAuthType setAuthStatus />
-  | _ => <AuthPage authType setAuthType setAuthStatus mode setMode />
+  | EmailVerify | MagicLinkVerify => <BasicEmailVerifyScreen setAuthType setAuthStatus />
+  | ActivateFromEmail => <BasicInviteFromEmail setAuthType setAuthStatus />
+  | _ => <BasicAuthPage authType setAuthType setAuthStatus mode setMode />
   }
 }

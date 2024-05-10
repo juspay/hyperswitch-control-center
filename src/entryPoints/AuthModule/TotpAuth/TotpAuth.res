@@ -1,10 +1,11 @@
 @react.component
-let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, ~setAuthType) => {
-  open HyperSwitchAuthUtils
+let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   open APIUtils
-  open HyperSwitchAuthForm
+  open CommonAuthForm
   open HSwitchGlobalVars
   open LogicUtils
+  open TotpUtils
+  open AuthProviderTypes
 
   let url = RescriptReactRouter.useUrl()
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -17,11 +18,12 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let handleAuthError = e => {
+    open CommonAuthUtils
     let error = e->parseErrorMessage
     switch error.code->errorSubCodeMapper {
     | UR_03 => "An account already exists with this email"
     | UR_05 => {
-        setAuthType(_ => HyperSwitchAuthTypes.ResendVerifyEmail)
+        setAuthType(_ => CommonAuthTypes.ResendVerifyEmail)
         "Kindly verify your account"
       }
     | UR_16 => "Please use a valid email"
@@ -48,19 +50,17 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     Nullable.null
   }
 
-  let getUserWithEmailPassword = async (body, email, userType) => {
+  let getUserWithEmailPassword = async (body, userType) => {
     try {
       let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post, ())
-      let token = parseResponseJson(~json=res, ~email)
-
-      // home
-      if !(token->isEmptyString) {
-        setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
-      } else {
-        showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
-        setAuthStatus(LoggedOut)
-      }
+      let token_Type =
+        res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
+      let token = res->getDictFromJsonObject->getString("token", "")
+      setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, token_Type))))
+      RescriptReactRouter.replace(
+        HSwitchGlobalVars.appendDashboardPath(~url=`/${token_Type->variantToStringFlowMapper}`),
+      )
     } catch {
     | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
     }
@@ -68,13 +68,15 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   }
 
   let openPlayground = _ => {
+    open CommonAuthUtils
     let body = getEmailPasswordBody(playgroundUserEmail, playgroundUserPassword, country)
-    getUserWithEmailPassword(body, playgroundUserEmail, #SIGNINV2)->ignore
+    getUserWithEmailPassword(body, #SIGNINV2)->ignore
     HSLocalStorage.setIsPlaygroundInLocalStorage(true)
   }
 
   let setResetPassword = async body => {
     try {
+      // Need to check this
       let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD, ~methodType=Post, ())
       let _ = await updateDetails(url, body, Post, ())
       LocalStorage.clear()
@@ -88,6 +90,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
 
   let setForgetPassword = async body => {
     try {
+      // Need to check this
       let url = getURL(~entityName=USERS, ~userType=#FORGOT_PASSWORD, ~methodType=Post, ())
       let _ = await updateDetails(url, body, Post, ())
       setAuthType(_ => ForgetPasswordEmailSent)
@@ -100,6 +103,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
 
   let resendVerifyEmail = async body => {
     try {
+      // Need to check this
       let url = getURL(~entityName=USERS, ~userType=#VERIFY_EMAIL_REQUEST, ~methodType=Post, ())
       let _ = await updateDetails(url, body, Post, ())
       setAuthType(_ => ResendVerifyEmailSent)
@@ -111,7 +115,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   }
 
   let logMixpanelEvents = email => {
-    open HyperSwitchAuthTypes
+    open CommonAuthTypes
     switch authType {
     | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ~email, ())
     | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ~email, ())
@@ -122,7 +126,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
 
   let onSubmit = async (values, _) => {
     try {
-      open HyperSwitchAuthTypes
+      open CommonAuthUtils
       let valuesDict = values->getDictFromJsonObject
       let email = valuesDict->getString("email", "")
       setEmail(_ => email)
@@ -142,12 +146,12 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
         | (false, SignUP) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
-            getUserWithEmailPassword(body, email, #SIGNUP)
+            getUserWithEmailPassword(body, #SIGNUP_TOKEN_ONLY)
           }
         | (_, LoginWithPassword) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
-            getUserWithEmailPassword(body, email, #SIGNINV2)
+            getUserWithEmailPassword(body, #SIGNINV2_TOKEN_ONLY)
           }
         | (_, ResetPassword) => {
             let queryDict = url.search->getDictFromUrlSearchParams
@@ -173,6 +177,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   }
 
   let resendEmail = () => {
+    open CommonAuthUtils
     let body = email->getEmailBody()
     switch authType {
     | MagicLinkEmailSent => getUserWithEmail(body)->ignore
@@ -206,7 +211,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     }
     None
   })
-  let note = useNote(authType, setAuthType, featureFlagValues.email)
+  let note = CommonAuthHooks.useNote(authType, setAuthType, featureFlagValues.email)
   <ReactFinalForm.Form
     key="auth"
     initialValues
@@ -215,7 +220,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     onSubmit
     render={({handleSubmit}) => {
       <>
-        <Header authType setAuthType email />
+        <CommonAuth.Header authType setAuthType email />
         <form
           onSubmit={handleSubmit}
           className={`flex flex-col justify-evenly gap-5 h-full w-full !overflow-visible text-grey-600`}>

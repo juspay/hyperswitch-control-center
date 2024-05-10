@@ -26,7 +26,7 @@ let make = React.memo((~merchantId="", ~verificationDays) => {
   }
 
   let rec resendEmailVerify = async () => {
-    let body = email->HyperSwitchAuthUtils.getEmailBody()
+    let body = email->CommonAuthUtils.getEmailBody()
     try {
       let url = getURL(~entityName=USERS, ~userType=#VERIFY_EMAIL_REQUEST, ~methodType=Post, ())
       let _ = await updateDetails(url, body, Post, ())

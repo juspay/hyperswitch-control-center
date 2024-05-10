@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.10.0
+
+### Features
+
+- Bambora to prod ([#629](https://github.com/juspay/hyperswitch-control-center/pull/629)) ([`822d7aa`](https://github.com/juspay/hyperswitch-control-center/commit/822d7aabdcfccc83031360df722ec5dba74e246e))
+
+### Miscellaneous Tasks
+
+- Disable agreement and onboarding survey when branding is enabled ([`a851334`](https://github.com/juspay/hyperswitch-control-center/commit/a8513341ec9ff331c9c1841ef386d52293a4fd68))
+
+**Full Changelog:** [`2024.05.08.0...2024.05.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.08.0...2024.05.10.0)
+
+- - -
+
 ## 2024.05.08.0
 
 ### Miscellaneous Tasks
