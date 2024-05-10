@@ -131,7 +131,7 @@ let make = () => {
       let _ = await fetchSwitchMerchantList()
       let permissionJson = await fetchPermissions()
 
-      if !featureFlagDetails.isLiveMode {
+      if !featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
         let _ = await fetchOnboardingSurveyDetails()
       }
       if merchantId->isNonEmptyString {
@@ -150,7 +150,7 @@ let make = () => {
         let _ = await fetchInitialEnums()
       }
 
-      if featureFlagDetails.isLiveMode {
+      if featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
         getAgreementEnum()->ignore
       } else {
         setDashboardPageState(_ => #HOME)
