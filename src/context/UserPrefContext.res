@@ -42,7 +42,8 @@ let make = (~children) => {
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let username = switch authStatus {
-  | LoggedIn(authType) => switch authType {
+  | LoggedIn(authType) =>
+    switch authType {
     | BasicAuth(basicAuthInfo) => basicAuthInfo.username
     | ToptAuth(totpAuthInfo) => totpAuthInfo.username
     }
