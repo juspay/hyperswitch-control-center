@@ -90,6 +90,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(PAYPAL),
   Processors(BANKOFAMERICA),
   Processors(BLUESNAP),
+  Processors(BAMBORA),
   Processors(BRAINTREE),
   Processors(CHECKOUT),
   Processors(CRYPTOPAY),
