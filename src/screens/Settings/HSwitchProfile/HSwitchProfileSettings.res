@@ -100,20 +100,15 @@ module ResetPassword = {
 module BasicDetailsSection = {
   @react.component
   let make = () => {
-    open HSLocalStorage
     open CommonAuthHooks
     let titleClass = "text-hyperswitch_black text-base  w-1/5"
     let subTitleClass = "text-hyperswitch_black opacity-50 text-base font-semibold break-all"
     let sectionHeadingClass = "font-semibold text-fs-18"
-    let {username: userName} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+    let {username: userName, email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let userTitle = LogicUtils.userNameToTitle(userName)
 
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
 
-    let getMerchantInfoValue = value => {
-      let merchantDetails = getInfoFromLocalStorage(~lStorageKey="merchant")
-      merchantDetails->LogicUtils.getString(value, "Not Added")
-    }
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     <div>
       <div className="border bg-gray-50 rounded-t-lg w-full px-10 py-6">
@@ -130,7 +125,7 @@ module BasicDetailsSection = {
         <hr />
         <div className="flex gap-10 items-center">
           <p className=titleClass> {"Email:"->React.string} </p>
-          <p className=subTitleClass> {getMerchantInfoValue("email")->React.string} </p>
+          <p className=subTitleClass> {email->React.string} </p>
         </div>
         <hr />
         <UIUtils.RenderIf condition={!isPlayground && featureFlagDetails.email}>

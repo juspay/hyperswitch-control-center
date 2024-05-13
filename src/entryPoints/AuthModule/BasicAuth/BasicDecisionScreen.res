@@ -10,6 +10,7 @@ let make = () => {
     }
   | _ => ERROR
   }
+  Js.log2(flowType, "flowType")
   switch flowType {
   | MERCHANT_SELECT => <AcceptInvite />
   | DASHBOARD_ENTRY

@@ -25,10 +25,15 @@ let make = (~children) => {
     switch newAuthStatus {
     | LoggedIn(info) =>
       switch info {
-      // Re-Check
       | BasicAuth(basicInfo) =>
         switch basicInfo.token {
-        | Some(_) => setAuth(_ => newAuthStatus)
+        | Some(token) =>
+          if !(token->LogicUtils.isEmptyString) {
+            setAuth(_ => newAuthStatus)
+          } else {
+            setAuth(_ => LoggedOut)
+            CommonAuthUtils.clearLocalStorage()
+          }
         | None => {
             setAuth(_ => LoggedOut)
             CommonAuthUtils.clearLocalStorage()

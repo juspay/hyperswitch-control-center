@@ -11,16 +11,12 @@ let make = (~children) => {
     | list{"user", "login"}
     | list{"register"} =>
       setAuthStatus(LoggedOut)
-    | _ =>
-      switch LocalStorage.getItem("login")->Nullable.toOption {
-      | Some(token) =>
-        if !(token->LogicUtils.isEmptyString) {
-          let authInfo = BasicAuthUtils.getBasicAuthInfo()
-          setAuthStatus(LoggedIn(BasicAuth(authInfo)))
-        } else {
-          setAuthStatus(LoggedOut)
+    | _ => {
+        let authInfo = BasicAuthUtils.getBasicAuthInfo()
+        switch authInfo.token {
+        | Some(_) => setAuthStatus(LoggedIn(BasicAuth(authInfo)))
+        | None => setAuthStatus(LoggedOut)
         }
-      | None => setAuthStatus(LoggedOut)
       }
     }
 
