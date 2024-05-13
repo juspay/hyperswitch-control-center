@@ -23,11 +23,6 @@ let make = () => {
         res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
       let token = res->getDictFromJsonObject->getString("token", "")
       setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, token_type))))
-      RescriptReactRouter.replace(
-        HSwitchGlobalVars.appendDashboardPath(
-          ~url=`/user/${token_type->variantToStringFlowMapper}`,
-        ),
-      )
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Verification Failed")

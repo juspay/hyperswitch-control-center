@@ -1,6 +1,5 @@
 @react.component
 let make = () => {
-  let url = RescriptReactRouter.useUrl()
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let flowType = switch authStatus {
@@ -16,18 +15,18 @@ let make = () => {
     setAuthStatus(LoggedOut)
   }
 
-  switch (flowType, url.path->HSwitchUtils.getUrlPath) {
-  | (MERCHANT_SELECT, "merchant_select")
-  | (ACCEPT_INVITE, "accept_invite") =>
+  switch flowType {
+  | MERCHANT_SELECT
+  | ACCEPT_INVITE =>
     <TotpMerchantSelectScreen />
-  | (TOTP, "totp") => <TotpSetup />
-  | (FORCE_SET_PASSWORD, "force_set_password")
-  | (RESET_PASSWORD, "set_password") =>
+  | TOTP => <TotpSetup />
+  | FORCE_SET_PASSWORD
+  | RESET_PASSWORD =>
     <TotpResetPassword flowType />
-  | (ACCEPT_INVITATION_FROM_EMAIL, "accept_invite_from_email") => <TotpAcceptInviteScreen />
-  | (VERIFY_EMAIL, "verify_email") => <TotpEmailVerifyScreen />
-  | (USER_INFO, "user_info") => <TotpUserInfoScreen />
-  | (DASHBOARD_ENTRY, _) => <HyperSwitchApp />
-  | (ERROR, _) | (_, _) => <CommonAuthError onClick=onClickErrorPageButton />
+  | ACCEPT_INVITATION_FROM_EMAIL => <TotpAcceptInviteScreen />
+  | VERIFY_EMAIL => <TotpEmailVerifyScreen />
+  | USER_INFO => <TotpUserInfoScreen />
+  | DASHBOARD_ENTRY => <HyperSwitchApp />
+  | ERROR => <CommonAuthError onClick=onClickErrorPageButton />
   }
 }

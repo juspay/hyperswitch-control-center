@@ -85,11 +85,6 @@ let make = () => {
           response->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
         let token = response->getDictFromJsonObject->getString("token", "")
         setAuthStatus(LoggedIn(ToptAuth(totpAuthInfoForToken(token, token_type))))
-        RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(
-            ~url=`/user/${token_type->TotpUtils.variantToStringFlowMapper}`,
-          ),
-        )
       } else {
         showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
       }
@@ -109,11 +104,6 @@ let make = () => {
         response->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
       let token = response->getDictFromJsonObject->getString("token", "")
       setAuthStatus(LoggedIn(ToptAuth(totpAuthInfoForToken(token, token_type))))
-      RescriptReactRouter.replace(
-        HSwitchGlobalVars.appendDashboardPath(
-          ~url=`/user/${token_type->TotpUtils.variantToStringFlowMapper}`,
-        ),
-      )
     } catch {
     | _ => showToast(~message="Something went wrong!", ~toastType=ToastError, ())
     }

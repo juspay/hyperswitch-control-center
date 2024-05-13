@@ -49,11 +49,6 @@ let make = (~children) => {
               ),
             ),
           )
-          RescriptReactRouter.replace(
-            HSwitchGlobalVars.appendDashboardPath(
-              ~url=`/user/${token_type->TotpUtils.variantToStringFlowMapper}`,
-            ),
-          )
         }
       | None => setAuthStatus(LoggedOut)
       }
