@@ -24,12 +24,12 @@ let getAuthInfo = json => {
 }
 
 let setLoginResToStorage = json => {
-  LocalStorage.setItem("testing", json->JSON.stringifyAny->Option.getOr(""))
+  LocalStorage.setItem("USER_INFO", json->JSON.stringifyAny->Option.getOr(""))
   json->getAuthInfo
 }
 
 let getBasicAuthInfo = () => {
-  let json = LocalStorage.getItem("testing")->getValFromNullableValue("")->safeParse
+  let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
   json->getAuthInfo
 }
 

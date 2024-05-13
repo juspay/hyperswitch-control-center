@@ -501,6 +501,8 @@ let make = (
     ConfigContext.configContext,
   )
   let fetchApi = AuthHooks.useApiFetcher()
+  let getURL = APIUtils.useGetURL()
+
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
@@ -562,12 +564,17 @@ let make = (
   let transformClass = "transform md:translate-x-0 transition"
 
   let handleLogout = _ => {
-    let _ = APIUtils.handleLogout(
-      ~fetchApi,
-      ~setAuthStateToLogout,
-      ~setIsSidebarExpanded,
-      ~clearRecoilValue,
-    )
+    try {
+      let _ = APIUtils.handleLogout(
+        ~fetchApi,
+        ~setAuthStateToLogout,
+        ~setIsSidebarExpanded,
+        ~clearRecoilValue,
+        ~getURL,
+      )
+    } catch {
+    | Exn.Error(e) => Js.log(e)
+    }
   }
 
   <div

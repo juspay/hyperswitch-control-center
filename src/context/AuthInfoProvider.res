@@ -28,21 +28,34 @@ let make = (~children) => {
       // Re-Check
       | BasicAuth(basicInfo) =>
         switch basicInfo.token {
-        | Some(token) => LocalStorage.setItem("login", token)
-        | None => CommonAuthUtils.clearLocalStorage()
+        | Some(_) => setAuth(_ => newAuthStatus)
+        | None => {
+            setAuth(_ => LoggedOut)
+            CommonAuthUtils.clearLocalStorage()
+          }
         }
       | ToptAuth(totpInfo) =>
         switch totpInfo.token {
-        | Some(token) =>
-          TotpUtils.sptToken(token, totpInfo.token_type->TotpUtils.variantToStringFlowMapper)
-        | None => CommonAuthUtils.clearLocalStorage()
+        | Some(token) => {
+            setAuth(_ => newAuthStatus)
+            TotpUtils.sptToken(token, totpInfo.token_type->TotpUtils.variantToStringFlowMapper)
+          }
+        | None => {
+            setAuth(_ => LoggedOut)
+            CommonAuthUtils.clearLocalStorage()
+          }
         }
       }
 
-    | LoggedOut => CommonAuthUtils.clearLocalStorage()
-    | CheckingAuthStatus => ()
+    | LoggedOut => {
+        setAuth(_ => LoggedOut)
+        CommonAuthUtils.clearLocalStorage()
+      }
+    | CheckingAuthStatus => {
+        setAuth(_ => CheckingAuthStatus)
+        CommonAuthUtils.clearLocalStorage()
+      }
     }
-    setAuth(_ => newAuthStatus)
   }, [setAuth])
 
   let setAuthStateToLogout = React.useCallback0(() => {
