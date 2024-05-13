@@ -1520,13 +1520,11 @@ module BaseDropdown = {
     ~showMatchingRecordsText=true,
     ~hasApplyButton=false,
     ~dropdownCustomWidth=?,
-    ~allowButtonTextMinWidth=?,
     ~customMarginStyle=?,
     ~customButtonLeftIcon: option<Button.iconType>=?,
     ~customTextPaddingClass=?,
     ~customButtonPaddingClass=?,
     ~customButtonIconMargin=?,
-    ~textStyleClass=?,
     ~buttonStyleOnDropDownOpened="",
     ~selectedString="",
     ~setSelectedString=_ => (),
@@ -1630,15 +1628,15 @@ module BaseDropdown = {
     let downArrowIcon = "angle-down-outline"
     let arrowIconSize = 24
 
-    let (dropDowntext, leftIcon: Button.iconType, iconStroke) = allowMultiSelect
-      ? (buttonText, defaultLeftIcon, "")
+    let dropDowntext = allowMultiSelect
+      ? buttonText
       : switch newInputRadio.value->JSON.Decode.string {
         | Some(str) =>
           switch transformedOptions->Array.find(x => x.value === str) {
-          | Some(x) => (x.label, x.icon, x.iconStroke)
-          | None => (buttonText, defaultLeftIcon, "")
+          | Some(x) => x.label
+          | None => buttonText
           }
-        | None => (buttonText, defaultLeftIcon, "")
+        | None => buttonText
         }
 
     let dropDirection = React.useMemo1(() => {
@@ -2103,7 +2101,6 @@ let make = (
   ~descriptionOnHover=false,
   ~fixedDropDownDirection=?,
   ~dropdownCustomWidth=?,
-  ~allowButtonTextMinWidth=?,
   ~baseComponent=?,
   ~baseComponentMethod=?,
   ~customMarginStyle=?,
@@ -2112,7 +2109,6 @@ let make = (
   ~customTextPaddingClass=?,
   ~customButtonPaddingClass=?,
   ~customButtonIconMargin=?,
-  ~textStyleClass=?,
   ~setExtSearchString=_ => (),
   ~buttonStyleOnDropDownOpened="",
   ~listFlexDirection="",
@@ -2182,7 +2178,6 @@ let make = (
       descriptionOnHover
       ?dropdownCustomWidth
       ?fixedDropDownDirection
-      ?allowButtonTextMinWidth
       ?baseComponent
       ?baseComponentMethod
       ?customMarginStyle
@@ -2191,7 +2186,6 @@ let make = (
       ?customTextPaddingClass
       ?customButtonPaddingClass
       ?customButtonIconMargin
-      ?textStyleClass
       buttonStyleOnDropDownOpened
       selectedString
       setSelectedString

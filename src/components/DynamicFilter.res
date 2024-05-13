@@ -162,7 +162,6 @@ let make = (
   ~filterFieldsPortalName="navbarSecondRow",
   ~filtersDisplayOption=true,
   ~showSelectFiltersSearch=false,
-  ~hideFiltersDefaultValue=?,
   ~refreshFilters=true,
 ) => {
   open LogicUtils
