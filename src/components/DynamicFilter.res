@@ -211,8 +211,8 @@ let make = (
   }
 
   let clearFilters = () => {
-    Js.log2(">>", "here")
-    filterValue->Dict.keysToArray->removeKeys
+    let clearFilterKeys = [customFilterKey]->Array.concat(tabNames)
+    removeKeys(clearFilterKeys)
   }
 
   <div className="flex-1 ml-1">

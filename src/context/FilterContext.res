@@ -104,6 +104,7 @@ let make = (~index: string, ~children) => {
         query := dict->FilterUtils.parseFilterDict
         dict
       })
+      clearLocalStorage()
     }
     {
       query: query.contents,
