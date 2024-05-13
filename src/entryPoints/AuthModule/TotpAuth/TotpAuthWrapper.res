@@ -77,7 +77,8 @@ let make = (~children) => {
 
     | "verify_email"
     | "set_password"
-    | "accept_invite_from_email" => fetchDetails()->ignore
+    | "accept_invite_from_email" =>
+      fetchDetails()->ignore
 
     | _ => authLogic()
     }

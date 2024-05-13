@@ -26,7 +26,8 @@ let make = (~children) => {
     | LoggedIn(info) =>
       switch info {
       | BasicAuth(basicInfo) => LocalStorage.setItem("login", basicInfo.token)
-      | ToptAuth(totpInfo) => TotpUtils.sptToken(
+      | ToptAuth(totpInfo) =>
+        TotpUtils.sptToken(
           totpInfo.token,
           totpInfo.token_type->TotpUtils.variantToStringFlowMapper,
           totpInfo.email_token,

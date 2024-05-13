@@ -165,7 +165,8 @@ let parseResponseJson = (~json, ~email) => {
 
 let getEmailToken = (authStatus: AuthProviderTypes.authStatus) => {
   switch authStatus {
-  | LoggedIn(info) => switch info {
+  | LoggedIn(info) =>
+    switch info {
     | ToptAuth(totpInfo) => totpInfo.email_token
     | _ => None
     }
