@@ -1,6 +1,6 @@
 open BasicAuthTypes
+open LogicUtils
 let flowTypeStrToVariantMapper = val => {
-  open BasicAuthTypes
   switch val {
   | Some("merchant_select") => MERCHANT_SELECT
   | Some("dashboard_entry") => DASHBOARD_ENTRY
@@ -9,9 +9,32 @@ let flowTypeStrToVariantMapper = val => {
   }
 }
 
+let getAuthInfo = json => {
+  let dict = json->JsonFlattenUtils.flattenObject(false)
+  let authInfo = {
+    email: getOptionString(dict, "email"),
+    flowType: getOptionString(dict, "flow_type"),
+    merchantId: getOptionString(dict, "merchant_id"),
+    username: getOptionString(dict, "name"),
+    token: getOptionString(dict, "token"),
+    userRole: getOptionString(dict, "user_role"),
+    verificationDaysLeft: getOptionBool(dict, "verification_days_left"),
+  }
+  authInfo
+}
+
+let setLoginResToStorage = json => {
+  LocalStorage.setItem("testing", json->JSON.stringifyAny->Option.getOr(""))
+  json->getAuthInfo
+}
+
+let getBasicAuthInfo = () => {
+  let json = LocalStorage.getItem("testing")->getValFromNullableValue("")->safeParse
+  json->getAuthInfo
+}
+
 let parseResponseJson = (~json, ~email) => {
   open HSwitchUtils
-  open LogicUtils
   let valuesDict = json->JSON.Decode.object->Option.getOr(Dict.make())
   let verificationValue = valuesDict->getOptionInt("verification_days_left")->Option.getOr(-1)
   let flowType = valuesDict->getOptionString("flow_type")
@@ -33,6 +56,7 @@ let parseResponseJson = (~json, ~email) => {
   setMerchantDetails("verification", verificationValue->Int.toString->JSON.Encode.string)
   setUserDetails("name", valuesDict->getString("name", "")->JSON.Encode.string)
   setUserDetails("user_role", valuesDict->getString("user_role", "")->JSON.Encode.string)
+  let _ = json->setLoginResToStorage
   valuesDict->getString("token", "")
 }
 

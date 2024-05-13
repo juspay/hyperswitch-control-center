@@ -46,7 +46,7 @@ let make = () => {
 
       let token_Type =
         res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
-      let token = res->getDictFromJsonObject->getString("token", "")
+      let token = res->getDictFromJsonObject->getOptionString("token")
       setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, token_Type))))
       RescriptReactRouter.replace(
         HSwitchGlobalVars.appendDashboardPath(~url=`/${token_Type->variantToStringFlowMapper}`),

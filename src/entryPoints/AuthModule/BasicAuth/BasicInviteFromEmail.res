@@ -1,7 +1,5 @@
 @react.component
 let make = (~setAuthType, ~setAuthStatus) => {
-  open BasicAuthTypes
-
   open APIUtils
   open LogicUtils
   open AuthProviderTypes
@@ -14,11 +12,9 @@ let make = (~setAuthType, ~setAuthStatus) => {
     try {
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL, ())
       let res = await updateDetails(url, body, Post, ())
-      let email = res->JSON.Decode.object->Option.getOr(Dict.make())->getString("email", "")
-      let token = BasicAuthUtils.parseResponseJson(~json=res, ~email)
-
-      if !(token->isEmptyString) && !(email->isEmptyString) {
-        setAuthStatus(LoggedIn(BasicAuth(getDummyAuthInfoForToken(token))))
+      let typedAuthInfo = res->BasicAuthUtils.setLoginResToStorage
+      if typedAuthInfo.token->Option.isSome && typedAuthInfo.email->Option.isSome {
+        setAuthStatus(LoggedIn(BasicAuth(typedAuthInfo)))
         setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
         RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
       } else {

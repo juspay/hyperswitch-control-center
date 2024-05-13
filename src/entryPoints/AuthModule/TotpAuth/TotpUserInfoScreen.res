@@ -22,7 +22,9 @@ let make = () => {
       let tokenDetails = TotpUtils.getSptTokenType()
       switch tokenDetails.token {
       | Some(token) =>
-        setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, DASHBOARD_ENTRY))))
+        setAuthStatus(
+          LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(Some(token), DASHBOARD_ENTRY))),
+        )
 
       | _ => setAuthStatus(LoggedOut)
       }

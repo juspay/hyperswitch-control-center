@@ -11,10 +11,12 @@ type totpFlowType =
   | ERROR
 
 type totpAuthInfo = {
-  token: string,
-  merchantId: string,
-  username: string,
+  token: option<string>,
+  merchantId: option<string>,
+  username: option<string>,
   token_type: totpFlowType,
+  email: option<string>,
+  userRole: option<string>,
 }
 type sptTokenType = {
   token: option<string>,

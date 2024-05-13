@@ -103,11 +103,15 @@ let sptToken = (token, tokenType) => {
 }
 
 let totpAuthInfoForToken = (token, token_type) => {
+  let email = None
+  let userRole = None
   let totpInfo = {
     token,
-    merchantId: "",
-    username: "",
+    merchantId: None,
+    username: None,
     token_type,
+    email,
+    userRole,
   }
   totpInfo
 }

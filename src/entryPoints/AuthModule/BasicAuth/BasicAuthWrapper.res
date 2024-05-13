@@ -15,7 +15,8 @@ let make = (~children) => {
       switch LocalStorage.getItem("login")->Nullable.toOption {
       | Some(token) =>
         if !(token->LogicUtils.isEmptyString) {
-          setAuthStatus(LoggedIn(BasicAuth(BasicAuthTypes.getDummyAuthInfoForToken(token))))
+          let authInfo = BasicAuthUtils.getBasicAuthInfo()
+          setAuthStatus(LoggedIn(BasicAuth(authInfo)))
         } else {
           setAuthStatus(LoggedOut)
         }

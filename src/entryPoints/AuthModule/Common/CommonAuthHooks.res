@@ -55,3 +55,30 @@ let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
     }}
   </div>
 }
+
+let useCommonAuthInfo = () => {
+  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let authInfo: option<CommonAuthTypes.commonAuthInfo> = switch authStatus {
+  | LoggedIn(info) =>
+    switch info {
+    | BasicAuth({token, merchantId, username, email, userRole}) =>
+      Some({
+        token,
+        merchantId,
+        username,
+        email,
+        userRole,
+      })
+    | ToptAuth({token, merchantId, username, email, userRole}) =>
+      Some({
+        token,
+        merchantId,
+        username,
+        email,
+        userRole,
+      })
+    }
+  | _ => None
+  }
+  authInfo
+}
