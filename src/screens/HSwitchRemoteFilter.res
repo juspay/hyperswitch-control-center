@@ -218,6 +218,9 @@ module RemoteTableFilters = {
       if filterValueJson->Dict.keysToArray->Array.length != 0 {
         setFilters(_ => filterValueJson->Some)
         setOffset(_ => 0)
+      } else {
+        setFilters(_ => Dict.make()->Some)
+        setOffset(_ => 0)
       }
       None
     }, [filterValue])
