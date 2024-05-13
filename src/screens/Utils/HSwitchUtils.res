@@ -61,13 +61,6 @@ let isValidEmail = value =>
     value,
   )
 
-let setMerchantDetails = (key, value) => {
-  let localStorageData = getInfoFromLocalStorage(~lStorageKey="merchant")
-  localStorageData->Dict.set(key, value)
-
-  "merchant"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
-}
-
 // TODO : Remove once user-management flow introduces
 let setUserDetails = (key, value) => {
   let localStorageData = getInfoFromLocalStorage(~lStorageKey="user")

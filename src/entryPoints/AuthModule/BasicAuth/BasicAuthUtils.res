@@ -33,15 +33,10 @@ let getBasicAuthInfo = () => {
   json->getAuthInfo
 }
 
-let parseResponseJson = (~json, ~email) => {
-  open HSwitchUtils
+let parseResponseJson = (~json) => {
   let valuesDict = json->JSON.Decode.object->Option.getOr(Dict.make())
-  let verificationValue = valuesDict->getOptionInt("verification_days_left")->Option.getOr(-1)
+
   let flowType = valuesDict->getOptionString("flow_type")
-  let flowTypeVal = switch flowType {
-  | Some(val) => val->JSON.Encode.string
-  | None => JSON.Encode.null
-  }
 
   if flowType->Option.isSome && flowType->flowTypeStrToVariantMapper === MERCHANT_SELECT {
     LocalStorage.setItem(
@@ -49,15 +44,6 @@ let parseResponseJson = (~json, ~email) => {
       valuesDict->getArrayFromDict("merchants", [])->JSON.stringifyAny->Option.getOr(""),
     )
   }
-  setUserDetails("flow_type", flowTypeVal)
-
-  setMerchantDetails("merchant_id", valuesDict->getString("merchant_id", "")->JSON.Encode.string)
-  setMerchantDetails("email", email->JSON.Encode.string)
-  setMerchantDetails("verification", verificationValue->Int.toString->JSON.Encode.string)
-  setUserDetails("name", valuesDict->getString("name", "")->JSON.Encode.string)
-  setUserDetails("user_role", valuesDict->getString("user_role", "")->JSON.Encode.string)
-  let _ = json->setLoginResToStorage
-  valuesDict->getString("token", "")
 }
 
 let validateForm = (values: JSON.t, keys: array<string>) => {
