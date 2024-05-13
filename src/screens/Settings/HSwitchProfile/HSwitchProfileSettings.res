@@ -101,10 +101,11 @@ module BasicDetailsSection = {
   @react.component
   let make = () => {
     open HSLocalStorage
+    open CommonAuthHooks
     let titleClass = "text-hyperswitch_black text-base  w-1/5"
     let subTitleClass = "text-hyperswitch_black opacity-50 text-base font-semibold break-all"
     let sectionHeadingClass = "font-semibold text-fs-18"
-    let userName = getFromUserDetails("name")
+    let {username: userName} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let userTitle = LogicUtils.userNameToTitle(userName)
 
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()

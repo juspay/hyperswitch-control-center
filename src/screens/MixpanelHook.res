@@ -7,15 +7,14 @@ type functionType = (
 
 let useSendEvent = () => {
   open HSwitchGlobalVars
-  open HSLocalStorage
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
-  let {email: authInfoEmail, merchantId} =
+  let {email: authInfoEmail, merchantId, username: name} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
-  let name = getFromUserDetails("name")
+
   let deviceId = switch LocalStorage.getItem("deviceid")->Nullable.toOption {
   | Some(id) => id
-  | None => getFromUserDetails("email")
+  | None => authInfoEmail
   }
 
   let parseEmail = email => {

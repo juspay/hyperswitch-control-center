@@ -1,11 +1,18 @@
 @react.component
 let make = () => {
-  open HSwitchUtils
   open APIUtils
   open LogicUtils
-  let {email} = CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
-  let flowType =
-    Some(HSLocalStorage.getFromUserDetails("flow_type"))->BasicAuthUtils.flowTypeStrToVariantMapper
+
+  let showToast = ToastState.useShowToast()
+  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let flowType = switch authStatus {
+  | LoggedIn(info) =>
+    switch info {
+    | BasicAuth(basicInfo) => basicInfo.flowType->BasicAuthUtils.flowTypeStrToVariantMapper
+    | _ => ERROR
+    }
+  | _ => ERROR
+  }
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let updateDetails = useUpdateMethod()
@@ -58,11 +65,16 @@ let make = () => {
           ("need_dashboard_entry_response", true->JSON.Encode.bool),
         ]->getJsonFromArrayOfJson
       let res = await updateDetails(url, body, Post, ())
-      let token = BasicAuthUtils.parseResponseJson(~json=res, ~email)
-      LocalStorage.setItem("login", token)
-      LocalStorage.removeItem("accept_invite_data")
-      setUserDetails("flow_type", "dashboard_entry"->JSON.Encode.string)
-      setDashboardPageState(_ => #HOME)
+      let {token} = res->BasicAuthUtils.setLoginResToStorage
+      if token->Option.isSome {
+        open AuthProviderTypes
+        LocalStorage.removeItem("accept_invite_data")
+        setAuthStatus(LoggedIn(BasicAuth(BasicAuthUtils.getAuthInfo(res))))
+        setDashboardPageState(_ => #HOME)
+      } else {
+        showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
+        setAuthStatus(LoggedOut)
+      }
     } catch {
     | _ => ()
     }

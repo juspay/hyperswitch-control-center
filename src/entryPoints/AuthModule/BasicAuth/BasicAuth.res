@@ -49,14 +49,15 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     Nullable.null
   }
 
-  let getUserWithEmailPassword = async (body, email, userType) => {
+  let getUserWithEmailPassword = async (body, userType) => {
     try {
       let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post, ())
-      let token = parseResponseJson(~json=res, ~email)
+
+      let {token} = res->BasicAuthUtils.setLoginResToStorage
 
       // home
-      if !(token->isEmptyString) {
+      if token->Option.isSome {
         open AuthProviderTypes
         setAuthStatus(LoggedIn(BasicAuth(BasicAuthUtils.getAuthInfo(res))))
       } else {
@@ -64,7 +65,10 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         setAuthStatus(LoggedOut)
       }
     } catch {
-    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
+    | Exn.Error(e) => {
+        Js.log(e)
+        showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
+      }
     }
     Nullable.null
   }
@@ -72,7 +76,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let openPlayground = _ => {
     open CommonAuthUtils
     let body = getEmailPasswordBody(playgroundUserEmail, playgroundUserPassword, country)
-    getUserWithEmailPassword(body, playgroundUserEmail, #SIGNINV2)->ignore
+    getUserWithEmailPassword(body, #SIGNINV2)->ignore
     HSLocalStorage.setIsPlaygroundInLocalStorage(true)
   }
 
@@ -145,12 +149,12 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         | (false, SignUP) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
-            getUserWithEmailPassword(body, email, #SIGNUP)
+            getUserWithEmailPassword(body, #SIGNUP)
           }
         | (_, LoginWithPassword) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
-            getUserWithEmailPassword(body, email, #SIGNINV2)
+            getUserWithEmailPassword(body, #SIGNINV2)
           }
         | (_, ResetPassword) => {
             let queryDict = url.search->getDictFromUrlSearchParams
