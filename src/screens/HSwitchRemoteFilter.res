@@ -29,53 +29,6 @@ let getDateFilteredObject = () => {
   }
 }
 
-let getFilterFields: JSON.t => array<EntityType.optionType<'t>> = json => {
-  open LogicUtils
-  let filterDict = json->getDictFromJsonObject
-
-  filterDict
-  ->Dict.keysToArray
-  ->Array.reduce([], (acc, key) => {
-    let title = `Select ${key->snakeToTitle}`
-    let values = filterDict->getArrayFromDict(key, [])->getStrArrayFromJsonArray
-
-    let dropdownOptions: EntityType.optionType<'t> = {
-      urlKey: key,
-      field: {
-        FormRenderer.makeFieldInfo(
-          ~label="",
-          ~name=key,
-          ~customInput=InputFields.multiSelectInput(
-            ~options={
-              values
-              ->SelectBox.makeOptions
-              ->Array.map(item => {
-                let value = {...item, label: item.value}
-                value
-              })
-            },
-            ~buttonText=title,
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
-          (),
-        )
-      },
-      parser: val => val,
-      localFilter: None,
-    }
-
-    if values->Array.length > 0 {
-      acc->Array.push(dropdownOptions)
-    }
-    acc
-  })
-}
-
 let useSetInitialFilters = (~updateExistingKeys, ~startTimeFilterKey, ~endTimeFilterKey) => {
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
@@ -168,7 +121,7 @@ module RemoteTableFilters = {
     ~setOffset,
     (),
   ) => {
-    let {filterValue, updateExistingKeys, filterValueJson, removeKeys} =
+    let {filterValue, updateExistingKeys, filterValueJson, reset} =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
 
@@ -217,7 +170,7 @@ module RemoteTableFilters = {
       None
     })
 
-    React.useEffect3(() => {
+    React.useEffect1(() => {
       if (
         startTimeVal->isNonEmptyString &&
         endTimeVal->isNonEmptyString &&
@@ -234,7 +187,7 @@ module RemoteTableFilters = {
         }
       }
       None
-    }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
+    }, [filterBody->JSON.Encode.object->JSON.stringify])
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
     React.useEffect1(() => {
@@ -254,7 +207,10 @@ module RemoteTableFilters = {
       })
       ->Dict.fromArray
 
-    let remoteFilters = filterData->initialFilters(getAllFilter)
+    let remoteFilters = React.useMemo1(() => {
+      filterData->initialFilters(getAllFilter)
+    }, [getAllFilter])
+
     let initialDisplayFilters =
       remoteFilters->Array.filter((item: EntityType.initialFilters<'t>) =>
         item.localFilter->Option.isSome
@@ -262,7 +218,7 @@ module RemoteTableFilters = {
     let remoteOptions = []
 
     let clearFilters = () => {
-      filterData->getDictFromJsonObject->Dict.keysToArray->removeKeys
+      reset()
     }
 
     let hideFiltersDefaultValue = !(
@@ -289,11 +245,11 @@ module RemoteTableFilters = {
         autoApply=false
         showExtraFiltersInline=true
         showClearFilterButton=true
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        defaultFilterKeys=[]
         updateUrlWith={updateExistingKeys}
         clearFilters
         filterFieldsPortalName=""
-        showFiltersBtn={filterData->getFilterFields->Array.length > 0}
+        showFiltersBtn=true
         hideFiltersDefaultValue
         disableURIdecode=true
       />
@@ -311,7 +267,7 @@ module RemoteTableFilters = {
         autoApply=false
         showExtraFiltersInline=true
         showClearFilterButton=true
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        defaultFilterKeys=[]
         updateUrlWith={updateExistingKeys}
         clearFilters
         filterFieldsPortalName=""

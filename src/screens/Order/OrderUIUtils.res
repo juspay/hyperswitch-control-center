@@ -3,7 +3,7 @@ type filterTypes = {
   currency: array<string>,
   authentication_type: array<string>,
   payment_method: array<string>,
-  payment_method_types: array<string>,
+  payment_method_type: array<string>,
   status: array<string>,
   connector_label: array<string>,
 }
@@ -14,18 +14,22 @@ type filter = [
   | #currency
   | #authentication_type
   | #status
-  | #payment_method_types
+  | #payment_method_type
   | #connector_label
+  | #unknown
 ]
 
-type conditionalFilters = [
-  | #connectorLabel
-  | #paymentMethodTypes
-]
-
-external toconditionalFilterType: 'a => conditionalFilters = "%identity"
-
-external tofilterType: 'a => filter = "%identity"
+let getFilterTypeFromString = filterType => {
+  switch filterType {
+  | "connector" => #connector
+  | "payment_method" => #payment_method
+  | "currency" => #currency
+  | "authentication_type" => #authentication_type
+  | "payment_method_type" => #payment_method_type
+  | "connector_label" => #connector_label
+  | _ => #unknown
+  }
+}
 
 module RenderAccordian = {
   @react.component
@@ -128,38 +132,65 @@ let filterByData = (txnArr, value) => {
 
 let getConditionalFilter = (key, dict, filterValues) => {
   open LogicUtils
-  let x: conditionalFilters = key->toconditionalFilterType
-  let filtersArr = switch x {
-  | #connectorLabel =>
-    let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-    let new_arr = []
-    let _ = arr->Array.map(item => {
-      let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(item, [])
-      let _ = connectorLabelArr->Array.map(item => {
-        let a = item->getDictFromJsonObject->getString("connector_label", "")
-        new_arr->Array.push(a)
-        new_arr
-      })
-    })
-    new_arr
-  | #paymentMethodTypes =>
-    let arr = filterValues->getArrayFromDict("payment_method", [])->getStrArrayFromJsonArray
 
-    let new_arr = []
-    let _ = arr->Array.map(item => {
-      let paymentMethodTypeArr =
-        dict
-        ->getDictfromDict("payment_method")
-        ->getArrayFromDict(item, [])
-        ->getStrArrayFromJsonArray
-      let _ = paymentMethodTypeArr->Array.map(item => {
-        new_arr->Array.push(item)
+  let filtersArr = switch key->getFilterTypeFromString {
+  | #connector_label => {
+      let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+      let new_arr = []
+      let _ = arr->Array.map(item => {
+        let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(item, [])
+        let _ = connectorLabelArr->Array.map(item => {
+          let a = item->getDictFromJsonObject->getString("connector_label", "")
+          new_arr->Array.push(a)
+          new_arr
+        })
       })
       new_arr
-    })
-    new_arr
+    }
+  | #payment_method_type => {
+      let arr = filterValues->getArrayFromDict("payment_method", [])->getStrArrayFromJsonArray
+
+      let new_arr = []
+      let _ = arr->Array.map(item => {
+        let paymentMethodTypeArr =
+          dict
+          ->getDictfromDict("payment_method")
+          ->getArrayFromDict(item, [])
+          ->getStrArrayFromJsonArray
+        let _ = paymentMethodTypeArr->Array.map(item => {
+          new_arr->Array.push(item)
+        })
+        new_arr
+      })
+      new_arr
+    }
+  | _ => []
   }
+
   filtersArr
+}
+
+let getMerchantIdforConnector: (Js.Dict.t<'a>, Js.Dict.t<'a>) => array<SelectBox.dropdownOption> = (
+  dict,
+  filterValues,
+) => {
+  open LogicUtils
+  let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+  let new_arr: array<SelectBox.dropdownOption> = []
+  let _ = arr->Array.map(item => {
+    let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(item, [])
+    let _ = connectorLabelArr->Array.map(item => {
+      let a = item->getDictFromJsonObject->getString("connector_label", "")
+      let b = item->getDictFromJsonObject->getString("merchant_connector_id", "")
+      let ops: SelectBox.dropdownOption = {
+        label: a,
+        value: b,
+      }
+      new_arr->Array.push(ops)
+    })
+  })
+
+  new_arr
 }
 
 let itemToObjMapper = dict => {
@@ -172,7 +203,7 @@ let itemToObjMapper = dict => {
     ->getStrArrayFromJsonArray,
     status: dict->getArrayFromDict("status", [])->getStrArrayFromJsonArray,
     payment_method: dict->getDictfromDict("payment_method")->Dict.keysToArray,
-    payment_method_types: [],
+    payment_method_type: [],
     connector_label: [],
   }
 }
@@ -180,9 +211,12 @@ let itemToObjMapper = dict => {
 let initialFilters = (json, filtervalues) => {
   open LogicUtils
 
-  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  let paymentMethodFilter =
+  let connectorFilter = React.useMemo1(() => {
+    filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+  }, [filtervalues])
+  let paymentMethodFilter = React.useMemo1(() => {
     filtervalues->getArrayFromDict("payment_method", [])->getStrArrayFromJsonArray
+  }, [filtervalues])
 
   let filterDict = json->getDictFromJsonObject
   let filterArr = filterDict->itemToObjMapper
@@ -192,29 +226,39 @@ let initialFilters = (json, filtervalues) => {
     arr->Array.push("connector_label")
   }
   if paymentMethodFilter->Array.length !== 0 {
-    arr->Array.push("payment_method_types")
+    arr->Array.push("payment_method_type")
   }
 
   arr->Array.map((key): EntityType.initialFilters<'t> => {
-    let x: filter = key->tofilterType
-    let values = switch x {
+    let values = switch key->getFilterTypeFromString {
     | #connector => filterArr.connector
     | #payment_method => filterArr.payment_method
     | #currency => filterArr.currency
     | #authentication_type => filterArr.authentication_type
     | #status => filterArr.status
-    | #payment_method_types => getConditionalFilter(key, filterDict, filtervalues)
+    | #payment_method_type => getConditionalFilter(key, filterDict, filtervalues)
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
+    | _ => []
     }
 
     let title = `Select ${key->snakeToTitle}`
 
+    let options = switch key->getFilterTypeFromString {
+    | #connector_label => getMerchantIdforConnector(filterDict, filtervalues)
+    | _ => values->SelectBox.makeOptions
+    }
+
+    let name = switch key->getFilterTypeFromString {
+    | #connector_label => "merchant_connector_id"
+    | _ => key
+    }
+
     {
       field: FormRenderer.makeFieldInfo(
         ~label="",
-        ~name=key,
+        ~name,
         ~customInput=InputFields.multiSelectInput(
-          ~options=values->SelectBox.makeOptions,
+          ~options,
           ~buttonText=title,
           ~showSelectionAsChips=false,
           ~searchable=true,

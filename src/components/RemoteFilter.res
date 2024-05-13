@@ -379,14 +379,8 @@ module ApplyFilterButton = {
       ReactFinalForm.useFormSubscription(["values", "dirtyFields", "initialValues"])->Nullable.make,
     )
 
-    let formCurrentValues =
-      formState.values
-      ->LogicUtils.getDictFromJsonObject
-      ->DictionaryUtils.deleteKeys(defaultFilterKeys)
-    let formInitalValues =
-      formState.initialValues
-      ->LogicUtils.getDictFromJsonObject
-      ->DictionaryUtils.deleteKeys(defaultFilterKeys)
+    let formCurrentValues = formState.values->LogicUtils.getDictFromJsonObject
+    let formInitalValues = formState.initialValues->LogicUtils.getDictFromJsonObject
     let dirtyFields = formState.dirtyFields->Dict.keysToArray
 
     let getFormattedDict = dict => {
@@ -550,9 +544,7 @@ let make = (
   )
 
   React.useEffect1(_ => {
-    if remoteFilters->Array.length >= selectedFiltersList->Array.length {
-      setSelectedFiltersList(_ => remoteFilters->Array.map(item => item.field))
-    }
+    setSelectedFiltersList(_ => remoteFilters->Array.map(item => item.field))
     None
   }, remoteFilters)
 
@@ -674,7 +666,6 @@ let make = (
         })
         setCount(_prev => clearFilterJson + initalCount)
         setCheckedFilters(_prev => localCheckedFilters)
-        setSelectedFiltersList(_prev => localSelectedFiltersList)
         let finalInitialValueJson =
           initialValues->JsonFlattenUtils.unflattenObject->JSON.Encode.object
         setInitialValueJson(_ => finalInitialValueJson)
@@ -902,14 +893,6 @@ let make = (
       {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
         <div>
           <div className={`flex flex-wrap flex-1 ${verticalGap}`}>
-            <UIUtils.RenderIf condition={fixedFilters->Array.length > 0}>
-              <FormRenderer.FieldsRenderer
-                fields={fixedFilters->Array.map(item => item.field)}
-                labelClass="hidden"
-                labelPadding="pb-2"
-                ?fieldWrapperClass
-              />
-            </UIUtils.RenderIf>
             <UIUtils.RenderIf condition={hideFilters && isFilterSection}>
               <PortalCapture key={`customizedColumn-${title}`} name={`customizedColumn-${title}`} />
             </UIUtils.RenderIf>
@@ -1035,6 +1018,14 @@ let make = (
                         className={`flex flex-wrap ${!isMobileView
                             ? "items-center flex-1 gap-y-2 gap-x-3 w-full"
                             : ""}`}>
+                        <UIUtils.RenderIf condition={fixedFilters->Array.length > 0}>
+                          <FormRenderer.FieldsRenderer
+                            fields={fixedFilters->Array.map(item => item.field)}
+                            labelClass="hidden"
+                            labelPadding="pb-2"
+                            ?fieldWrapperClass
+                          />
+                        </UIUtils.RenderIf>
                         <FormRenderer.FieldsRenderer
                           fields={selectedFiltersList} labelClass="hidden" labelPadding="pb-2"
                         />
