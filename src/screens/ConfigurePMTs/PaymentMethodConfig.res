@@ -72,6 +72,7 @@ let make = (
   ~element: option<React.element>=?,
 ) => {
   open FormRenderer
+
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (showPaymentMthdConfigModal, setShowPaymentMthdConfigModal) = React.useState(_ => false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
@@ -86,6 +87,7 @@ let make = (
     merchant_connector_id,
   } = paymentMethodConfig
   open APIUtils
+  let getURL = useGetURL()
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()

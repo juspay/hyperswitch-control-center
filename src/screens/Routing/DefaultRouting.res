@@ -4,6 +4,7 @@ open MerchantAccountUtils
 @react.component
 let make = (~urlEntityName, ~baseUrlForRedirection) => {
   open LogicUtils
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
   let showPopUp = PopUpState.useShowPopUp()

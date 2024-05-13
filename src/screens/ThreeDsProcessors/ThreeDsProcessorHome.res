@@ -33,7 +33,7 @@ let make = () => {
   open ConnectorUtils
   open APIUtils
   open LogicUtils
-
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let url = RescriptReactRouter.useUrl()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())

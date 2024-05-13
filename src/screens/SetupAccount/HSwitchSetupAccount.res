@@ -7,7 +7,7 @@ let make = () => {
   let finalTickLottieFile = LottieFiles.useLottieJson("FinalTick.json")
   let (stepCounter, setStepCounter) = React.useState(_ => #INITIALIZE)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-
+  let getURL = useGetURL()
   let activeBusinessProfile =
     HyperswitchAtom.businessProfilesAtom
     ->Recoil.useRecoilValueFromAtom

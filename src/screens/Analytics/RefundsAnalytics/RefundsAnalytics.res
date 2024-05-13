@@ -4,6 +4,7 @@ open HSAnalyticsUtils
 
 @react.component
 let make = () => {
+  let getURL = useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])

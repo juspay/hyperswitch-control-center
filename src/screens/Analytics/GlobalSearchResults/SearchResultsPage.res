@@ -78,6 +78,7 @@ let make = () => {
   open SearchResultsPageUtils
   open GlobalSearchTypes
   open GlobalSearchBarUtils
+  let getURL = APIUtils.useGetURL()
   let fetchDetails = APIUtils.useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
   let prefix = useUrlPrefix()
@@ -94,7 +95,7 @@ let make = () => {
   let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
   let getSearchResults = async results => {
     try {
-      let url = APIUtils.getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
+      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
       let body = [("query", query->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
       let response = await fetchDetails(url, body, Post, ())
 

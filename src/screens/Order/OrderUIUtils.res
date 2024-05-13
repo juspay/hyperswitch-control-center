@@ -16,6 +16,7 @@ module GenerateSampleDataButton = {
   open APIUtils
   @react.component
   let make = (~previewOnly, ~getOrdersList) => {
+    let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
@@ -211,7 +212,7 @@ let getOrdersList = async (
   open APIUtils
   open LogicUtils
   setScreenState(_ => PageLoaderWrapper.Loading)
-
+  let getURL = useGetURL()
   try {
     let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post, ())
     let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Fetch.Post, ())

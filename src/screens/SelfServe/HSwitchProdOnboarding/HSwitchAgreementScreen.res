@@ -1,6 +1,7 @@
 @react.component
 let make = () => {
   open APIUtils
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())

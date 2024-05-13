@@ -1,6 +1,7 @@
 @react.component
 let make = (~remainingPath, ~previewOnly=false) => {
   open APIUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
   let pathVar = url.path->List.toArray->Array.joinWith("/")

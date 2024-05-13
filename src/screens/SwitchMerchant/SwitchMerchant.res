@@ -4,6 +4,7 @@ module NewAccountCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal) => {
     open APIUtils
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
@@ -124,10 +125,8 @@ module ExternalUser = {
   @react.component
   let make = (~switchMerchant, ~isAddMerchantEnabled) => {
     open UIUtils
-    let defaultMerchantId = switch CommonAuthHooks.useCommonAuthInfo() {
-    | Some(info) => info.merchantId->Option.getOr("")
-    | None => ""
-    }
+    let {merchantId: defaultMerchantId} =
+      CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let switchMerchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.switchMerchantListAtom)
     let merchantDetailsTypedValue = HSwitchUtils.useMerchantDetailsValue()
@@ -249,6 +248,7 @@ module ExternalUser = {
 @react.component
 let make = (~userRole, ~isAddMerchantEnabled=false) => {
   open APIUtils
+  let getURL = useGetURL()
   let {setAuthStatus, authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let (value, setValue) = React.useState(() => "")
   let merchantId = switch authStatus {

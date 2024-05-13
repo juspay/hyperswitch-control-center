@@ -76,6 +76,7 @@ module Simplified = {
     open WalletHelper
     open APIUtils
     open ApplePayWalletIntegrationUtils
+    let getURL = useGetURL()
     let url = RescriptReactRouter.useUrl()
     let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
@@ -427,6 +428,7 @@ let make = (~metadataInputs, ~update, ~metaData, ~setShowWalletConfigurationModa
   open ApplePayWalletIntegrationTypes
   open APIUtils
   open WalletHelper
+  let getURL = useGetURL()
   let (appleIntegrationType, setApplePayIntegrationType) = React.useState(_ => #simplified)
   let (applePayIntegrationStep, setApplePayIntegrationSteps) = React.useState(_ => Landing)
   let (verifiedDomainList, setVefifiedDomainList) = React.useState(_ => [])

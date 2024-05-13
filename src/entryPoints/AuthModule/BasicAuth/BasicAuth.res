@@ -5,7 +5,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   open CommonAuthForm
   open HSwitchGlobalVars
   open LogicUtils
-
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let initialValues = Dict.make()->JSON.Encode.object

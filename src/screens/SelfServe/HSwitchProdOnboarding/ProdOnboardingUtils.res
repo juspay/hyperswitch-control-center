@@ -164,8 +164,20 @@ let getProdApiBody = (
   }
 }
 
-let getProdOnboardingUrl = (enum: ProdOnboardingTypes.sectionHeadingVariant) => {
-  open APIUtils
+let getProdOnboardingUrl = (
+  enum: ProdOnboardingTypes.sectionHeadingVariant,
+  getURL: (
+    ~entityName: APIUtilsTypes.entityName,
+    ~methodType: Fetch.requestMethod,
+    ~id: option<string>=?,
+    ~connector: option<'a>=?,
+    ~userType: APIUtilsTypes.userType=?,
+    ~userRoleTypes: APIUtilsTypes.userRoleTypes=?,
+    ~reconType: APIUtilsTypes.reconType=?,
+    ~queryParamerters: option<string>=?,
+    unit,
+  ) => string,
+) => {
   `${getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Get, ())}?keys=${(enum :> string)}`
 }
 

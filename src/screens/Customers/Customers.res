@@ -2,6 +2,7 @@
 let make = () => {
   open APIUtils
   open CustomersEntity
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (customersData, setCustomersData) = React.useState(_ => [])

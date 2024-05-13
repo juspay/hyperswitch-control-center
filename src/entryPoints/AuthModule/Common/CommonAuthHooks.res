@@ -55,30 +55,40 @@ let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
     }}
   </div>
 }
+let defaultAuthInfo: CommonAuthTypes.commonAuthInfo = {
+  token: "",
+  merchantId: "",
+  username: "",
+  email: "",
+  userRole: "",
+}
 
 let useCommonAuthInfo = () => {
-  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let authInfo: option<CommonAuthTypes.commonAuthInfo> = switch authStatus {
   | LoggedIn(info) =>
     switch info {
     | BasicAuth({token, merchantId, username, email, userRole}) =>
       Some({
-        token,
-        merchantId,
-        username,
-        email,
-        userRole,
+        token: token->Option.getOr(""),
+        merchantId: merchantId->Option.getOr(""),
+        username: username->Option.getOr(""),
+        email: email->Option.getOr(""),
+        userRole: userRole->Option.getOr(""),
       })
     | ToptAuth({token, merchantId, username, email, userRole}) =>
       Some({
-        token,
-        merchantId,
-        username,
-        email,
-        userRole,
+        token: token->Option.getOr(""),
+        merchantId: merchantId->Option.getOr(""),
+        username: username->Option.getOr(""),
+        email: email->Option.getOr(""),
+        userRole: userRole->Option.getOr(""),
       })
     }
-  | _ => None
+  | _ => {
+      setAuthStatus(LoggedOut)
+      None
+    }
   }
   authInfo
 }

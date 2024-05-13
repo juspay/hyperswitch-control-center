@@ -126,6 +126,7 @@ let make = (
   open APIUtils
   open BusinessMappingUtils
   open BusinessMappingEntity
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
   let (offset, setOffset) = React.useState(_ => 0)

@@ -2,7 +2,7 @@
 let make = () => {
   open APIUtils
   open LogicUtils
-
+  let getURL = useGetURL()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
