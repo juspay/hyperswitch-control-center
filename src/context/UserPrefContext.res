@@ -39,10 +39,14 @@ module Provider = {
 let make = (~children) => {
   // this fetch will only happen once after that context will be updated each time when url chnaged and it keep hitting the update api
   let userPrefInitialVal: Dict.t<userPref> = UserPrefUtils.getUserPref()
-  let (authStatus, _setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let username = switch authStatus {
-  | LoggedIn(authInfo) => authInfo.username
+  | LoggedIn(authType) =>
+    switch authType {
+    | BasicAuth(basicAuthInfo) => basicAuthInfo.username
+    | ToptAuth(totpAuthInfo) => totpAuthInfo.username
+    }
   | _ => ""
   }
   let (userPref, setUserPref) = React.useState(_ => userPrefInitialVal)

@@ -28,7 +28,7 @@ let make = (
   ~isRelative=true,
   ~dismissable=false,
 ) => {
-  let description = access === AuthTypes.Access ? description : noAccessDescription
+  let description = access === CommonAuthTypes.Access ? description : noAccessDescription
 
   <ToolTip
     description

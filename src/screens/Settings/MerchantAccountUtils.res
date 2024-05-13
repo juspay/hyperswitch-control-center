@@ -3,55 +3,6 @@ let parseKey = api_key => {
   api_key->String.slice(~start=0, ~end=6)->String.concat(String.repeat("*", 20))
 }
 
-let passwordKeyValidation = (value, key, keyVal, errors) => {
-  let mustHave: array<string> = []
-  if value->LogicUtils.isNonEmptyString && key === keyVal {
-    if value->String.length < 8 {
-      Dict.set(
-        errors,
-        key,
-        "Your password is not strong enough. Password size must be more than 8"->JSON.Encode.string,
-      )
-    } else {
-      if !Js.Re.test_(%re("/^(?=.*[A-Z])/"), value) {
-        mustHave->Array.push("uppercase")
-      }
-      if !Js.Re.test_(%re("/^(?=.*[a-z])/"), value) {
-        mustHave->Array.push("lowercase")
-      }
-      if !Js.Re.test_(%re("/^(?=.*[0-9])/"), value) {
-        mustHave->Array.push("numeric")
-      }
-      if !Js.Re.test_(%re("/^(?=.*[!@#$%^&*_])/"), value) {
-        mustHave->Array.push("special")
-      }
-      if mustHave->Array.length > 0 {
-        Dict.set(
-          errors,
-          key,
-          `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWith(
-              ",",
-            )} character`->JSON.Encode.string,
-        )
-      }
-    }
-  }
-}
-
-let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, errors) => {
-  if (
-    key === confirmKey &&
-    value->LogicUtils.isNonEmptyString &&
-    !Js.Option.equal(
-      (. a, b) => a == b,
-      Dict.get(valuesDict, passwordKey),
-      Dict.get(valuesDict, key),
-    )
-  ) {
-    Dict.set(errors, key, "The New password does not match!"->JSON.Encode.string)
-  }
-}
-
 let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   open LogicUtils
   let {
