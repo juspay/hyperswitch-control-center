@@ -68,19 +68,3 @@ let passwordField = FormRenderer.makeFieldInfo(
   ~isRequired=false,
   (),
 )
-
-let totpInputField = FormRenderer.makeFieldInfo(
-  ~label="OTP",
-  ~name="totp",
-  ~placeholder="Enter your One time password",
-  ~type_="number",
-  ~customInput=InputFields.textInput(
-    ~type_="text",
-    ~inputMode="numeric",
-    ~maxLength=6,
-    ~autoComplete="off",
-    (),
-  ),
-  ~isRequired=false,
-  (),
-)

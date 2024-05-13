@@ -24,34 +24,6 @@ module EmailPasswordForm = {
     </div>
   }
 }
-module EmailPasswordFormWithOTP = {
-  @react.component
-  let make = (~setAuthType, ~showTotpInput=false) => {
-    open CommonInputFields
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
-    let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
-    <div className="flex flex-col gap-3">
-      <FormRenderer.FieldRenderer field=emailField labelClass fieldWrapperClass />
-      <div className="flex flex-col gap-3">
-        <FormRenderer.FieldRenderer field=passwordField labelClass fieldWrapperClass />
-        <UIUtils.RenderIf condition={email}>
-          <AddDataAttributes attributes=[("data-testid", "forgot-password")]>
-            <label
-              className={`not-italic text-[12px] font-semibold font-ibm-plex ${textColor.primaryNormal} cursor-pointer`}
-              onClick={_ => setAuthType(_ => CommonAuthTypes.ForgetPassword)}>
-              {"Forgot Password?"->React.string}
-            </label>
-          </AddDataAttributes>
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={showTotpInput}>
-          <FormRenderer.FieldRenderer field=totpInputField labelClass fieldWrapperClass />
-        </UIUtils.RenderIf>
-      </div>
-    </div>
-  }
-}
-
 module EmailForm = {
   @react.component
   let make = () => {

@@ -8,8 +8,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   open AuthProviderTypes
 
   let url = RescriptReactRouter.useUrl()
-  let beginTotp = TotpHooks.useBeginTotp()
-  let verifyTotp = TotpHooks.useVerifyTotp()
+
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let initialValues = Dict.make()->JSON.Encode.object
   let clientCountry = HSwitchUtils.getBrowswerDetails().clientCountry
@@ -18,7 +17,6 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (email, setEmail) = React.useState(_ => "")
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let (showTotpInput, setShowTotpInput) = React.useState(_ => false)
 
   let handleAuthError = e => {
     open CommonAuthUtils
@@ -33,54 +31,6 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     | UR_01 => "Incorrect email or password"
     | _ => "Register failed, Try again"
     }
-  }
-
-  let beginTotp = async (~token, ~token_type) => {
-    // TODO: api call to get the TOTP url
-    try {
-      let secret_key_response = await beginTotp()
-      Js.log2("secret_key_response", secret_key_response->JSON.Classify.classify)
-      switch secret_key_response->JSON.Classify.classify {
-      | Object(objectValue) => {
-          Js.log2("objectValueobjectValue", objectValue)
-          setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, token_type))))
-          RescriptReactRouter.replace(
-            HSwitchGlobalVars.appendDashboardPath(
-              ~url=`/${token_type->TotpUtils.variantToStringFlowMapper}?token=${token}`,
-            ),
-          )
-        }
-      | _ => setShowTotpInput(_ => true)
-      }
-    } catch {
-    | _ => ()
-    }
-  }
-
-  let verifyTOTP = async valuesDict => {
-    try {
-      // TODO : add api to verify totp
-      let otp = valuesDict->getString("totp", "")
-
-      if otp->String.length > 0 {
-        let body = [("totp", otp->JSON.Encode.string)]->getJsonFromArrayOfJson
-        let response = await verifyTotp(body)
-        let token_Type =
-          response->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
-        let token = response->getDictFromJsonObject->getString("token", "")
-        setAuthStatus(LoggedIn(ToptAuth(totpAuthInfoForToken(token, token_Type))))
-        RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(
-            ~url=`/${token_Type->TotpUtils.variantToStringFlowMapper}?token=${token}`,
-          ),
-        )
-      } else {
-        showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
-      }
-    } catch {
-    | _ => ()
-    }
-    Nullable.null
   }
 
   let getUserWithEmail = async body => {
@@ -112,20 +62,6 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
       RescriptReactRouter.replace(
         HSwitchGlobalVars.appendDashboardPath(~url=`/${token_Type->variantToStringFlowMapper}`),
       )
-    } catch {
-    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
-    }
-    Nullable.null
-  }
-  let getUserWithEmailPasswordSignin = async (body, userType) => {
-    try {
-      let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
-      let res = await updateDetails(url, body, Post, ())
-      let token_type =
-        res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
-      let token = res->getDictFromJsonObject->getString("token", "")
-      sptToken(token, res->getDictFromJsonObject->getString("token_type", ""))
-      beginTotp(~token, ~token_type)->ignore
     } catch {
     | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
     }
@@ -216,12 +152,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         | (_, LoginWithPassword) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
-
-            if showTotpInput {
-              verifyTOTP(valuesDict)
-            } else {
-              getUserWithEmailPasswordSignin(body, #SIGNINV2_TOKEN_ONLY)
-            }
+            getUserWithEmailPassword(body, #SIGNINV2_TOKEN_ONLY)
           }
         | (_, ResetPassword) => {
             let queryDict = url.search->getDictFromUrlSearchParams
@@ -295,7 +226,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
           onSubmit={handleSubmit}
           className={`flex flex-col justify-evenly gap-5 h-full w-full !overflow-visible text-grey-600`}>
           {switch authType {
-          | LoginWithPassword => <EmailPasswordFormWithOTP setAuthType showTotpInput />
+          | LoginWithPassword => <EmailPasswordForm setAuthType />
           | ForgetPassword =>
             <UIUtils.RenderIf condition={featureFlagValues.email}>
               <EmailForm />
@@ -331,7 +262,6 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
             <div> {note} </div>
           </AddDataAttributes>
         </form>
-        <FormValuesSpy />
       </>
     }}
   />

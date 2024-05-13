@@ -22,11 +22,12 @@ module ConfirmPopUpElement = {
 @react.component
 let make = () => {
   open HSwitchUtils
+  open APIUtils
 
-  let beginTotp = TotpHooks.useBeginTotp()
-  let verifyTotp = TotpHooks.useVerifyTotp()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
+  let updateDetails = useUpdateMethod()
+  let fetchDetails = useGetMethod()
   let (otp, setOtp) = React.useState(_ => "")
   let (totpUrl, setTotpUrl) = React.useState(_ => "")
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
@@ -37,8 +38,10 @@ let make = () => {
     open LogicUtils
     try {
       setTotpUrl(_ => "")
-      let response = await beginTotp()
-      switch response->JSON.Classify.classify {
+      let url = getURL(~entityName=USERS, ~userType=#BEGIN_TOTP, ~methodType=Get, ())
+      let response = await fetchDetails(url)
+      let responseDict = response->getDictFromJsonObject->getJsonObjectFromDict("secret")
+      switch responseDict->JSON.Classify.classify {
       | Object(objectValue) => {
           let otpUrl = objectValue->getString("totp_url", "")
           let recoveryCodes = objectValue->getStrArray("recovery_codes")
@@ -57,6 +60,19 @@ let make = () => {
     None
   })
 
+  let verifyTotp = async body => {
+    try {
+      let url = getURL(~entityName=USERS, ~userType=#VERIFY_TOTP, ~methodType=Get, ())
+      let response = await updateDetails(url, body, Post, ())
+      response
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
+      }
+    }
+  }
+
   let verifyTOTP = async () => {
     try {
       open LogicUtils
@@ -71,7 +87,7 @@ let make = () => {
         setAuthStatus(LoggedIn(ToptAuth(totpAuthInfoForToken(token, token_Type))))
         RescriptReactRouter.replace(
           HSwitchGlobalVars.appendDashboardPath(
-            ~url=`/${token_Type->TotpUtils.variantToStringFlowMapper}?token=${token}`,
+            ~url=`/${token_Type->TotpUtils.variantToStringFlowMapper}`,
           ),
         )
       } else {
@@ -95,7 +111,7 @@ let make = () => {
       setAuthStatus(LoggedIn(ToptAuth(totpAuthInfoForToken(token, token_Type))))
       RescriptReactRouter.replace(
         HSwitchGlobalVars.appendDashboardPath(
-          ~url=`/${token_Type->TotpUtils.variantToStringFlowMapper}?token=${token}`,
+          ~url=`/${token_Type->TotpUtils.variantToStringFlowMapper}`,
         ),
       )
     } catch {
@@ -124,14 +140,23 @@ let make = () => {
     })
   }
 
+  let handleTotpSubmitClick = () => {
+    if recoveryCodes->Array.length > 0 {
+      confirmRecoveryCodesPopUp()
+    } else {
+      verifyTOTP()->ignore
+    }
+  }
+
+  let buttonText = showQR ? "Enable 2FA" : "Verify OTP"
+  let modalHeaderText = showQR ? "Enable Two Factor Authentication" : "Enter TOTP Code"
+
   <BackgroundImageWrapper>
     <div className="h-full w-full flex items-center justify-center p-6">
       <div
         className={`bg-white ${showQR ? "h-40-rem" : "h-20-rem"} w-200 rounded-2xl flex flex-col`}>
         <div className="p-6 border-b-2 flex justify-between items-center">
-          <p className={`${h2TextStyle} text-grey-900`}>
-            {"Enable Two Factor Authentication"->React.string}
-          </p>
+          <p className={`${h2TextStyle} text-grey-900`}> {modalHeaderText->React.string} </p>
           <UIUtils.RenderIf condition={recoveryCodes->Array.length > 0}>
             <ToolTip
               description="Download recovery codes"
@@ -199,12 +224,12 @@ let make = () => {
               onClick={_ => skipTotpSetup()->ignore}
             />
             <Button
-              text="Enable 2FA"
+              text=buttonText
               buttonType=Primary
               buttonSize=Small
               customButtonStyle="group"
               buttonState={otp->String.length > 0 ? Normal : Disabled}
-              onClick={_ => confirmRecoveryCodesPopUp()}
+              onClick={_ => handleTotpSubmitClick()}
               rightIcon={CustomIcon(
                 <Icon
                   name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
