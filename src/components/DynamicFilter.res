@@ -171,7 +171,7 @@ let make = (
   let defaultFilters = ""->JSON.Encode.string
   let (showModal, setShowModal) = React.useState(_ => false)
 
-  let {updateExistingKeys, filterValue, reset} = React.useContext(FilterContext.filterContext)
+  let {updateExistingKeys, filterValue, removeKeys} = React.useContext(FilterContext.filterContext)
 
   let currentCustomFilterValue = filterValue->Dict.get(customFilterKey)->Option.getOr("")
 
@@ -210,6 +210,11 @@ let make = (
     React.null
   }
 
+  let clearFilters = () => {
+    Js.log2(">>", "here")
+    filterValue->Dict.keysToArray->removeKeys
+  }
+
   <div className="flex-1 ml-1">
     <Filter
       defaultFilters
@@ -227,7 +232,7 @@ let make = (
       customRightView=customFilters
       customLeftView
       ?updateUrlWith
-      clearFilters={() => reset()}
+      clearFilters
       initalCount={currentCustomFilterValue->isNonEmptyString ? 1 : 0}
       showSelectFiltersSearch
       tableName=moduleName

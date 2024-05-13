@@ -82,7 +82,7 @@ let initialFixedFilter = () => [
       localFilter: None,
       field: FormRenderer.makeMultiInputFieldInfo(
         ~label="",
-        ~comboCustomInput=InputFields.dateRangeField(
+        ~comboCustomInput=InputFields.filterDateRangeField(
           ~startKey=startTimeFilterKey,
           ~endKey=endTimeFilterKey,
           ~format="YYYY-MM-DDTHH:mm:ss[Z]",
@@ -118,8 +118,8 @@ let initialFilters = json => {
       field: FormRenderer.makeFieldInfo(
         ~label="",
         ~name=key,
-        ~customInput=InputFields.multiSelectInput(
-          ~options=values->SelectBox.makeOptions,
+        ~customInput=InputFields.filterMultiSelectInput(
+          ~options=values->FilterSelectBox.makeOptions,
           ~buttonText=title,
           ~showSelectionAsChips=false,
           ~searchable=true,
