@@ -206,6 +206,8 @@ let getURL = (
     | #USER_UPDATE => `${userUrl}/update`
     | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
     | #MERCHANTS_SELECT => `${userUrl}/merchants_select/list`
+    | #BEGIN_TOTP => `${userUrl}/totp/begin`
+    | #VERIFY_TOTP => `${userUrl}/totp/verify`
     | #SIGNUP
     | #SIGNOUT
     | #RESET_PASSWORD

@@ -82,5 +82,7 @@ type userType = [
   | #USER_INFO
   | #SIGNUPV2
   | #ROTATE_PASSWORD
+  | #BEGIN_TOTP
+  | #VERIFY_TOTP
   | #NONE
 ]
