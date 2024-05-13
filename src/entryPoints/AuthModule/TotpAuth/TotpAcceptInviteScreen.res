@@ -3,10 +3,9 @@ let make = () => {
   open AuthProviderTypes
   open APIUtils
 
-  let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let acceptInviteFromEmailWithSPT = async body => {
     try {
@@ -20,12 +19,14 @@ let make = () => {
         (),
       )
       let res = await updateDetails(url, body, Post, ())
-      let token_Type =
+      let token_type =
         res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
       let token = res->getDictFromJsonObject->getString("token", "")
-      setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, token_Type))))
+      setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, token_type))))
       RescriptReactRouter.replace(
-        HSwitchGlobalVars.appendDashboardPath(~url=`/${token_Type->variantToStringFlowMapper}`),
+        HSwitchGlobalVars.appendDashboardPath(
+          ~url=`/user/${token_type->variantToStringFlowMapper}`,
+        ),
       )
     } catch {
     | Exn.Error(e) => {
@@ -37,12 +38,12 @@ let make = () => {
   }
 
   React.useEffect0(() => {
-    open LogicUtils
     open CommonAuthUtils
+    open TotpUtils
 
-    let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
+    let emailToken = authStatus->getEmailToken
 
-    switch tokenFromUrl {
+    switch emailToken {
     | Some(token) => token->generateBodyForEmailRedirection->acceptInviteFromEmailWithSPT->ignore
     | None => setErrorMessage(_ => "Token not received")
     }

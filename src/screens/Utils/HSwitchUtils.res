@@ -260,3 +260,12 @@ let getConnectorIDFromUrl = (urlList, defaultValue) => {
   | _ => urlList->Array.get(1)->Option.getOr(defaultValue)
   }
 }
+
+let getUrlPath = urlPath => {
+  let urlArray = urlPath->List.toArray
+  let arrayLength = urlArray->Array.length
+  switch urlArray->Array.get(arrayLength - 1) {
+  | Some(value) => value
+  | None => ""
+  }
+}

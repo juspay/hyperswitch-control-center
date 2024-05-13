@@ -90,24 +90,40 @@ let variantToStringFlowMapper = val => {
 let getSptTokenType: unit => TotpTypes.sptTokenType = () => {
   let token = LocalStorage.getItem("login")->Nullable.toOption
   let tokenType = LocalStorage.getItem("token_type")->Nullable.toOption->flowTypeStrToVariantMapper
+  let emailToken = LocalStorage.getItem("email_token")->Nullable.toOption
 
   {
     token,
     token_type: tokenType,
+    email_token: emailToken,
   }
 }
 
-let sptToken = (token, tokenType) => {
+let sptToken = (token, tokenType, email_token) => {
   LocalStorage.setItem("login", token)
   LocalStorage.setItem("token_type", tokenType)
+
+  switch email_token {
+  | Some(token_value) => LocalStorage.setItem("email_token", token_value)
+  | _ => ()
+  }
 }
 
-let totpAuthInfoForToken = (token, token_type) => {
+let getEmailTokenValue = email_token => {
+  let sptToken = getSptTokenType()
+  switch email_token {
+  | Some(email_token) => Some(email_token)
+  | None => sptToken.email_token
+  }
+}
+
+let totpAuthInfoForToken = (~email_token=None, token, token_type) => {
   let totpInfo = {
     token,
     merchantId: "",
     username: "",
     token_type,
+    email_token: email_token->getEmailTokenValue,
   }
   totpInfo
 }
@@ -145,4 +161,14 @@ let parseResponseJson = (~json, ~email) => {
     "user_role",
     valuesDict->getString("user_role", "")->JSON.Encode.string,
   )
+}
+
+let getEmailToken = (authStatus: AuthProviderTypes.authStatus) => {
+  switch authStatus {
+  | LoggedIn(info) => switch info {
+    | ToptAuth(totpInfo) => totpInfo.email_token
+    | _ => None
+    }
+  | _ => None
+  }
 }

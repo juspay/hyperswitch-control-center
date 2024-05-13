@@ -14,7 +14,6 @@ let make = (~children) => {
     switch tokenDetails.token {
     | Some(token) =>
       if !(token->LogicUtils.isEmptyString) {
-        Js.log(tokenDetails)
         setAuthStatus(
           LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, tokenDetails.token_type))),
         )
@@ -35,22 +34,24 @@ let make = (~children) => {
       switch tokenFromUrl {
       | Some(token) => {
           let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post, ())
-
-          let flowType = response->getDictFromJsonObject->getString("token_type", "")
-
-          let flowVariant =
-            flowType->String.length > 0
-              ? Some(flowType)->TotpUtils.flowTypeStrToVariantMapper
+          let tokenType = response->getDictFromJsonObject->getString("token_type", "")
+          let token_type =
+            tokenType->String.length > 0
+              ? Some(tokenType)->TotpUtils.flowTypeStrToVariantMapper
               : ERROR
 
           let responseToken = response->getDictFromJsonObject->getString("token", "")
 
           setAuthStatus(
-            LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(responseToken, flowVariant))),
+            LoggedIn(
+              ToptAuth(
+                TotpUtils.totpAuthInfoForToken(responseToken, token_type, ~email_token=Some(token)),
+              ),
+            ),
           )
           RescriptReactRouter.replace(
             HSwitchGlobalVars.appendDashboardPath(
-              ~url=`/${flowVariant->TotpUtils.variantToStringFlowMapper}?token=${token}`,
+              ~url=`/user/${token_type->TotpUtils.variantToStringFlowMapper}`,
             ),
           )
         }
@@ -62,18 +63,36 @@ let make = (~children) => {
   }
 
   React.useEffect0(() => {
-    switch url.path {
-    | list{"user", "login"}
-    | list{"register"} =>
+    open HSwitchUtils
+
+    /* NOTE: We created this function to retrieve the last element of the array because when arriving from email, 
+     the URL doesn't have "dashboard" appended. 
+     However, upon dashboard refresh, the base path gets appended, which affects the switch case logic.
+ */
+
+    switch url.path->getUrlPath {
+    | "login"
+    | "register" =>
       setAuthStatus(LoggedOut)
 
-    | list{"user", "verify_email"}
-    | list{"user", "set_password"}
-    | list{"user", "accept_invite_from_email"} =>
-      fetchDetails()->ignore
+    | "verify_email"
+    | "set_password"
+    | "accept_invite_from_email" => fetchDetails()->ignore
 
     | _ => authLogic()
     }
+
+    // | list{"user", "login"}
+    // | list{"register"} =>
+    //   setAuthStatus(LoggedOut)
+
+    // | list{"user", "verify_email"}
+    // | list{"user", "set_password"}
+    // | list{"user", "accept_invite_from_email"} =>
+    //   fetchDetails()->ignore
+
+    // | _ => authLogic()
+    // }
 
     None
   })

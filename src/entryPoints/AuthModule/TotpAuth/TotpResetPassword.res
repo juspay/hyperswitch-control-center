@@ -8,23 +8,19 @@ let make = (~flowType) => {
   open CommonAuthForm
   open BasicAuthUtils
 
-  let url = RescriptReactRouter.useUrl()
   let initialValues = Dict.make()->JSON.Encode.object
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let setResetPassword = async body => {
     try {
-      // TODO : replace with the actual route for reset password
-      // and also write the logic for force_set_password & reset_password
       let url = getURL(
         ~entityName=USERS,
         ~userType=#RESET_PASSWORD_TOKEN_ONLY,
         ~methodType=Post,
         (),
       )
-      Js.log2("bodybodybody", body)
       let _ = await updateDetails(url, body, Post, ())
       setAuthStatus(LoggedOut)
       LocalStorage.clear()
@@ -70,12 +66,18 @@ let make = (~flowType) => {
   }
 
   let onSubmit = async (values, _) => {
+    open TotpUtils
     try {
       let valuesDict = values->getDictFromJsonObject
-      let queryDict = url.search->getDictFromUrlSearchParams
-      let password_reset_token = queryDict->Dict.get("token")->Option.getOr("")
-      let password = getString(valuesDict, "create_password", "")
-      confirmButtonAction(password, password_reset_token)->ignore
+      let emailToken = authStatus->getEmailToken
+
+      switch emailToken {
+      | Some(email_token) => {
+          let password = getString(valuesDict, "create_password", "")
+          confirmButtonAction(password, email_token)->ignore
+        }
+      | None => setAuthStatus(LoggedOut)
+      }
     } catch {
     | _ => showToast(~message="Something went wrong, Try again", ~toastType=ToastError, ())
     }

@@ -15,8 +15,10 @@ type totpAuthInfo = {
   merchantId: string,
   username: string,
   token_type: totpFlowType,
+  email_token: option<string>,
 }
 type sptTokenType = {
   token: option<string>,
   token_type: totpFlowType,
+  email_token: option<string>,
 }

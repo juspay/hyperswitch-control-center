@@ -55,12 +55,14 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     try {
       let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post, ())
-      let token_Type =
+      let token_type =
         res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
       let token = res->getDictFromJsonObject->getString("token", "")
-      setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, token_Type))))
+      setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, token_type))))
       RescriptReactRouter.replace(
-        HSwitchGlobalVars.appendDashboardPath(~url=`/${token_Type->variantToStringFlowMapper}`),
+        HSwitchGlobalVars.appendDashboardPath(
+          ~url=`/user/${token_type->variantToStringFlowMapper}`,
+        ),
       )
     } catch {
     | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())

@@ -51,7 +51,7 @@ let make = () => {
       | _ => setShowQR(_ => false)
       }
     } catch {
-    | _ => ()
+    | _ => setAuthStatus(LoggedOut)
     }
   }
 
@@ -81,20 +81,20 @@ let make = () => {
       if otp->String.length > 0 {
         let body = [("totp", otp->JSON.Encode.string)]->getJsonFromArrayOfJson
         let response = await verifyTotp(body)
-        let token_Type =
+        let token_type =
           response->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
         let token = response->getDictFromJsonObject->getString("token", "")
-        setAuthStatus(LoggedIn(ToptAuth(totpAuthInfoForToken(token, token_Type))))
+        setAuthStatus(LoggedIn(ToptAuth(totpAuthInfoForToken(token, token_type))))
         RescriptReactRouter.replace(
           HSwitchGlobalVars.appendDashboardPath(
-            ~url=`/${token_Type->TotpUtils.variantToStringFlowMapper}`,
+            ~url=`/user/${token_type->TotpUtils.variantToStringFlowMapper}`,
           ),
         )
       } else {
         showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
       }
     } catch {
-    | _ => ()
+    | _ => showToast(~message="Invalid OTP. Refresh QR code!", ~toastType=ToastError, ())
     }
   }
 
@@ -105,17 +105,17 @@ let make = () => {
 
       let body = [("totp", JSON.Encode.null)]->getJsonFromArrayOfJson
       let response = await verifyTotp(body)
-      let token_Type =
+      let token_type =
         response->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
       let token = response->getDictFromJsonObject->getString("token", "")
-      setAuthStatus(LoggedIn(ToptAuth(totpAuthInfoForToken(token, token_Type))))
+      setAuthStatus(LoggedIn(ToptAuth(totpAuthInfoForToken(token, token_type))))
       RescriptReactRouter.replace(
         HSwitchGlobalVars.appendDashboardPath(
-          ~url=`/${token_Type->TotpUtils.variantToStringFlowMapper}`,
+          ~url=`/user/${token_type->TotpUtils.variantToStringFlowMapper}`,
         ),
       )
     } catch {
-    | _ => ()
+    | _ => showToast(~message="Something went wrong!", ~toastType=ToastError, ())
     }
   }
 
