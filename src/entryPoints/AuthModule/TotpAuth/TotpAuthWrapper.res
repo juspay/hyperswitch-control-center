@@ -58,37 +58,16 @@ let make = (~children) => {
   }
 
   React.useEffect0(() => {
-    open HSwitchUtils
-
-    /* NOTE: We created this function to retrieve the last element of the array because when arriving from email, 
-     the URL doesn't have "dashboard" appended. 
-     However, upon dashboard refresh, the base path gets appended, which affects the switch case logic.
- */
-
-    switch url.path->getUrlPath {
-    | "login"
-    | "register" =>
+    switch url.path {
+    | list{"user", "login"}
+    | list{"register"} =>
       setAuthStatus(LoggedOut)
-
-    | "verify_email"
-    | "set_password"
-    | "accept_invite_from_email" =>
+    | list{"user", "verify_email"}
+    | list{"user", "set_password"}
+    | list{"user", "accept_invite_from_email"} =>
       fetchDetails()->ignore
-
     | _ => authLogic()
     }
-
-    // | list{"user", "login"}
-    // | list{"register"} =>
-    //   setAuthStatus(LoggedOut)
-
-    // | list{"user", "verify_email"}
-    // | list{"user", "set_password"}
-    // | list{"user", "accept_invite_from_email"} =>
-    //   fetchDetails()->ignore
-
-    // | _ => authLogic()
-    // }
 
     None
   })
