@@ -24,6 +24,7 @@ module EmailPasswordForm = {
     </div>
   }
 }
+
 module EmailForm = {
   @react.component
   let make = () => {

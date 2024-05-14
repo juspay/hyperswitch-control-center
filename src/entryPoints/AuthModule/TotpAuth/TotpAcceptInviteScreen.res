@@ -11,7 +11,7 @@ let make = () => {
     try {
       open TotpUtils
       open LogicUtils
-      // TODO: Replace with the actual API and response
+
       let url = getURL(
         ~entityName=USERS,
         ~methodType=Post,

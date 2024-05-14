@@ -8,7 +8,6 @@ let make = () => {
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let verifyEmailWithSPT = async body => {
-    // TODO: Replace with the actual API and response
     try {
       open TotpUtils
       open LogicUtils

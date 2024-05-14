@@ -9,16 +9,13 @@ let make = () => {
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let userInfo = async () => {
-    // open HSwitchLoginUtils
     open LogicUtils
     try {
-      // TODO: user info api call
       let url = getURL(~entityName=USERS, ~userType=#USER_INFO, ~methodType=Get, ())
       let response = await fetchDetails(url)
       let email = response->getDictFromJsonObject->getString("email", "")
       TotpUtils.parseResponseJson(~json=response, ~email)
 
-      // TODO : check where to get Token in this case
       let tokenDetails = TotpUtils.getSptTokenType()
       switch tokenDetails.token {
       | Some(token) =>

@@ -24,7 +24,6 @@ let make = () => {
   }
 
   React.useEffect0(() => {
-    // TODO: add the api to get the list of merchant ids
     getListOfMerchantIds()->ignore
     None
   })
