@@ -21,6 +21,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
   let logoutUser = () => {
     CommonAuthUtils.clearLocalStorage()
     setAuthStatus(LoggedOut)
+    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
   }
 
   <BackgroundImageWrapper>

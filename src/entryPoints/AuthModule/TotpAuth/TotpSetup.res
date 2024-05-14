@@ -89,7 +89,7 @@ let make = () => {
         showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
       }
     } catch {
-    | _ => showToast(~message="Invalid OTP. Refresh QR code!", ~toastType=ToastError, ())
+    | _ => setOtp(_ => "")
     }
   }
 
@@ -141,6 +141,7 @@ let make = () => {
   let logoutUser = () => {
     CommonAuthUtils.clearLocalStorage()
     setAuthStatus(LoggedOut)
+    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
   }
 
   let buttonText = showQR ? "Enable 2FA" : "Verify OTP"
@@ -196,11 +197,6 @@ let make = () => {
                     : "blur-sm"}`}>
                 <p className=p3Regular> {"Scan the QR Code into your app"->React.string} </p>
                 <ReactQRCode value=totpUrl size=150 />
-                <p
-                  className="text-xs text-blue-500 cursor-pointer"
-                  onClick={_ => getTOTPString()->ignore}>
-                  {"Refresh QR"->React.string}
-                </p>
               </div>
             </div>
             <div className="h-px w-11/12 bg-grey-200 opacity-50" />

@@ -9,8 +9,9 @@ let make = () => {
   let (merchantData, setMerchantData) = React.useState(_ => [])
 
   let logoutUser = () => {
-    LocalStorage.clear()
+    CommonAuthUtils.clearLocalStorage()
     setAuthStatus(LoggedOut)
+    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
   }
 
   let getListOfMerchantIds = async () => {
