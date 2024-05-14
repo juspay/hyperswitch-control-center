@@ -12,6 +12,7 @@ let make = () => {
   let getURL = useGetURL()
   let logoutUser = () => {
     LocalStorage.clear()
+    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
     setAuthStatus(LoggedOut)
   }
 

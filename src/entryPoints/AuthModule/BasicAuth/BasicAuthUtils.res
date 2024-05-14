@@ -19,7 +19,7 @@ let getAuthInfo = json => {
     token: getOptionString(dict, "token"),
     userRole: getOptionString(dict, "user_role"),
     verificationDaysLeft: getOptionBool(dict, "verification_days_left"),
-    acceptInviteData: getOptionalArrayFromDict(dict, "accept_invite_data"),
+    acceptInviteData: getOptionalArrayFromDict(dict, "merchants"),
   }
   authInfo
 }
