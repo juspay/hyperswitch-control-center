@@ -50,6 +50,10 @@ let make = () => {
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
+  let filterUrlV2 = React.useMemo1(() => {
+    `${Window.env.apiBaseUrl}/payments/filter_v2`
+  }, [Window.env.apiBaseUrl])
+
   <ErrorBoundary>
     <div className="min-h-[50vh]">
       <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
@@ -59,8 +63,8 @@ let make = () => {
             placeholder="Search payment id or refund id"
             setSearchVal=setSearchText
             searchVal=searchText
-            filterUrl={`${Window.env.apiBaseUrl}/refunds/filter`}
-            filterUrlV2=""
+            filterUrl=""
+            filterUrlV2
             setFilters
             endTimeFilterKey
             startTimeFilterKey

@@ -149,7 +149,6 @@ module RemoteTableFilters = {
     open Promise
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
     let updateDetails = useUpdateMethod()
-    // let {filterValueJson} = FilterContext.filterContext->React.useContext
     let startTimeVal = filterValueJson->getString("start_time", "")
     let endTimeVal = filterValueJson->getString("end_time", "")
 

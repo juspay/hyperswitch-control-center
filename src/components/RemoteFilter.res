@@ -362,7 +362,6 @@ module ApplyFilterButton = {
     ~totalFilters,
     ~hideFilters,
     ~filterButtonStyle,
-    ~defaultFilterKeys,
     ~selectedFiltersList: array<FormRenderer.fieldInfoType>,
   ) => {
     let defaultinputField = FormRenderer.makeInputFieldInfo(~name="-", ())
@@ -1064,12 +1063,7 @@ let make = (
                   </div>
                   {!hideFilters ? customView : React.null}
                   <ApplyFilterButton
-                    autoApply
-                    totalFilters
-                    hideFilters
-                    filterButtonStyle
-                    defaultFilterKeys
-                    selectedFiltersList
+                    autoApply totalFilters hideFilters filterButtonStyle selectedFiltersList
                   />
                   {if showClearFilterButton && !hideFilters && count > 0 {
                     <ClearFilters

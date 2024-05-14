@@ -24,6 +24,7 @@ let getFilterTypeFromString = filterType => {
   | "connector" => #connector
   | "payment_method" => #payment_method
   | "currency" => #currency
+  | "status" => #status
   | "authentication_type" => #authentication_type
   | "payment_method_type" => #payment_method_type
   | "connector_label" => #connector_label
