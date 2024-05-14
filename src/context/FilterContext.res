@@ -43,7 +43,7 @@ let make = (~index: string, ~children) => {
   let searcParamsToDict = query.contents->parseFilterString
   let (filterDict, setfilterDict) = React.useState(_ => searcParamsToDict)
 
-  let clearLocalStorage = () => {
+  let clearSessionStorage = () => {
     sessionStorage.removeItem(. index)
     sessionStorage.removeItem(. `${index}-list`)
     setfilterKeys(_ => [])
@@ -89,7 +89,7 @@ let make = (~index: string, ~children) => {
       let dict = Dict.make()
       setfilterDict(_ => dict)
       query := dict->FilterUtils.parseFilterDict
-      clearLocalStorage()
+      clearSessionStorage()
     }
 
     let removeKeys = (arr: array<string>) => {
@@ -104,7 +104,7 @@ let make = (~index: string, ~children) => {
         query := dict->FilterUtils.parseFilterDict
         dict
       })
-      clearLocalStorage()
+      clearSessionStorage()
     }
     {
       query: query.contents,
@@ -146,7 +146,7 @@ let make = (~index: string, ~children) => {
     | None => ()
     }
 
-    Some(() => clearLocalStorage())
+    Some(() => clearSessionStorage())
   })
 
   React.useEffect2(() => {

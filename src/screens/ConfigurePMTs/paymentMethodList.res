@@ -70,6 +70,7 @@ let make = (~isPayoutFlow=false) => {
     setFiltersConnectors(_ => res)
     setScreenState(_ => Success)
   }
+
   <div>
     <PageUtils.PageHeading
       title={`Configure PMTs at Checkout`}
@@ -77,7 +78,7 @@ let make = (~isPayoutFlow=false) => {
     />
     <PageLoaderWrapper screenState>
       <div>
-        <Filter
+        <RemoteFilter
           remoteFilters={configuredConnectors->initialFilters(businessProfiles)}
           requiredSearchFieldsList=[]
           localFilters=[]

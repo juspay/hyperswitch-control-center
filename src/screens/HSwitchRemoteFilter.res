@@ -29,53 +29,6 @@ let getDateFilteredObject = () => {
   }
 }
 
-let getFilterFields: JSON.t => array<EntityType.optionType<'t>> = json => {
-  open LogicUtils
-  let filterDict = json->getDictFromJsonObject
-
-  filterDict
-  ->Dict.keysToArray
-  ->Array.reduce([], (acc, key) => {
-    let title = `Select ${key->snakeToTitle}`
-    let values = filterDict->getArrayFromDict(key, [])->getStrArrayFromJsonArray
-
-    let dropdownOptions: EntityType.optionType<'t> = {
-      urlKey: key,
-      field: {
-        FormRenderer.makeFieldInfo(
-          ~label="",
-          ~name=key,
-          ~customInput=InputFields.multiSelectInput(
-            ~options={
-              values
-              ->SelectBox.makeOptions
-              ->Array.map(item => {
-                let value = {...item, label: item.value}
-                value
-              })
-            },
-            ~buttonText=title,
-            ~showSelectionAsChips=false,
-            ~searchable=true,
-            ~showToolTip=true,
-            ~showNameAsToolTip=true,
-            ~customButtonStyle="bg-none",
-            (),
-          ),
-          (),
-        )
-      },
-      parser: val => val,
-      localFilter: None,
-    }
-
-    if values->Array.length > 0 {
-      acc->Array.push(dropdownOptions)
-    }
-    acc
-  })
-}
-
 let useSetInitialFilters = (~updateExistingKeys, ~startTimeFilterKey, ~endTimeFilterKey) => {
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
@@ -191,21 +144,23 @@ module RemoteTableFilters = {
     }, (startTimeVal, endTimeVal, filterValue))
 
     open APIUtils
-    open Promise
+
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
     let updateDetails = useUpdateMethod()
     let {filterValueJson} = FilterContext.filterContext->React.useContext
     let startTimeVal = filterValueJson->getString("start_time", "")
     let endTimeVal = filterValueJson->getString("end_time", "")
 
+    let getFilters = async () => {
+      let json = await updateDetails(filterUrl, filterBody->JSON.Encode.object, Post, ())
+      setFilterDataJson(_ => json->Some)
+    }
+
     React.useEffect3(() => {
       setFilterDataJson(_ => None)
       if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
         try {
-          updateDetails(filterUrl, filterBody->JSON.Encode.object, Post, ())
-          ->thenResolve(json => setFilterDataJson(_ => json->Some))
-          ->catch(_ => resolve())
-          ->ignore
+          getFilters()->ignore
         } catch {
         | _ => ()
         }
