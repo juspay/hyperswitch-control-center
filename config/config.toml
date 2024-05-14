@@ -32,4 +32,4 @@ global_search=false
 dispute_analytics=false
 configure_pmts=false
 branding=false
-
+totp=false

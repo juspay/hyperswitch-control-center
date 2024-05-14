@@ -48,7 +48,7 @@ module ResetPassword = {
   let make = () => {
     open HSLocalStorage
     open APIUtils
-    open HyperSwitchAuthUtils
+    let getURL = useGetURL()
     let (isLoading, setIsLoading) = React.useState(_ => false)
     let email = getFromMerchantDetails("email")
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
@@ -72,7 +72,7 @@ module ResetPassword = {
     }
 
     let setPassword = () => {
-      let body = email->getEmailBody()
+      let body = email->CommonAuthUtils.getEmailBody()
       body->resetPassword->ignore
     }
 

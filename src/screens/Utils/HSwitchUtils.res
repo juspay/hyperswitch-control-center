@@ -46,19 +46,6 @@ let feedbackModalOpenCountForConnectors = 4
 
 let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
 
-let setMerchantDetails = (key, value) => {
-  let localStorageData = getInfoFromLocalStorage(~lStorageKey="merchant")
-  localStorageData->Dict.set(key, value)
-
-  "merchant"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
-}
-
-// TODO : Remove once user-management flow introduces
-let setUserDetails = (key, value) => {
-  let localStorageData = getInfoFromLocalStorage(~lStorageKey="user")
-  localStorageData->Dict.set(key, value)
-  "user"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
-}
 let getSearchOptionsForProcessors = (~processorList, ~getNameFromString) => {
   let searchOptionsForProcessors =
     processorList->Array.map(item => (
@@ -73,6 +60,20 @@ let isValidEmail = value =>
     %re(`/^(([^<>()[\]\.,;:\s@"]+(\.[^<>()[\]\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
     value,
   )
+
+let setMerchantDetails = (key, value) => {
+  let localStorageData = getInfoFromLocalStorage(~lStorageKey="merchant")
+  localStorageData->Dict.set(key, value)
+
+  "merchant"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
+}
+
+// TODO : Remove once user-management flow introduces
+let setUserDetails = (key, value) => {
+  let localStorageData = getInfoFromLocalStorage(~lStorageKey="user")
+  localStorageData->Dict.set(key, value)
+  "user"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
+}
 
 let useMerchantDetailsValue = () => Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
 

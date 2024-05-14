@@ -36,6 +36,7 @@ module DeleteConnectorMenu = {
   @react.component
   let make = (~pageName="connector", ~connectorInfo: ConnectorTypes.connectorPayload) => {
     open APIUtils
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let deleteConnector = async () => {
       try {
@@ -284,6 +285,7 @@ let make = (
   open ConnectorUtils
   let {feedback, paypalAutomaticFlow} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()

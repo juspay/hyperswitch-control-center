@@ -5,6 +5,7 @@ module ProfileActions = {
   @react.component
   let make = (~defaultProfileName, ~profileId) => {
     open APIUtils
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let (showModal, setShowModal) = React.useState(_ => false)

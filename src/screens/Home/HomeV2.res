@@ -240,8 +240,8 @@ module RecipesAndPlugins = {
     let blockConditionAccessVal =
       userPermissionJson.connectorsView === NoAccess &&
         userPermissionJson.connectorsManage === NoAccess
-        ? AuthTypes.NoAccess
-        : AuthTypes.Access
+        ? CommonAuthTypes.NoAccess
+        : CommonAuthTypes.Access
 
     <div className="flex flex-col gap-4">
       <p className=headingStyle> {"Recipes & Plugins"->React.string} </p>

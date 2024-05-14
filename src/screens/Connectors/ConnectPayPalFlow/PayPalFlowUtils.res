@@ -139,7 +139,7 @@ let conditionForIntegrationSteps: array<PayPalFlowTypes.setupAccountStatus> = [
 let useDeleteTrackingDetails = () => {
   open APIUtils
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-
+  let getURL = useGetURL()
   async (connectorId, connector) => {
     try {
       let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/reset_tracking_id`
@@ -162,7 +162,7 @@ let useDeleteConnectorAccountDetails = () => {
   open LogicUtils
   open APIUtils
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-
+  let getURL = useGetURL()
   async (initialValues, connectorId, connector, isUpdateFlow, disabled, status) => {
     try {
       let dictOfJson = initialValues->getDictFromJsonObject

@@ -10,7 +10,7 @@ module UserUtilsPopover = {
   let make = (~infoValue: UserRoleEntity.userTableTypes, ~setIsUpdateRoleSelected) => {
     open HeadlessUI
     open APIUtils
-
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let merchantEmail = HSLocalStorage.getFromMerchantDetails("email")
@@ -96,6 +96,7 @@ module UserHeading = {
     ~newRoleSelected,
   ) => {
     open APIUtils
+    let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
@@ -221,6 +222,7 @@ module UserHeading = {
 @react.component
 let make = () => {
   open APIUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
   let (roleData, setRoleData) = React.useState(_ => JSON.Encode.null)

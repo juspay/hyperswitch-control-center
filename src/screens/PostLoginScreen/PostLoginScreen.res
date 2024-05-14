@@ -75,11 +75,12 @@ module SurveyComponent = {
 @react.component
 let make = () => {
   open APIUtils
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let userName = HSLocalStorage.getFromUserDetails("name")
   let (currentStep, setCurrentStep) = React.useState(_ => 0)
   let (carouselDirection, setCarouselDirection) = React.useState(_ => RIGHT)
-  let (_, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let isPostLoginQuestionnairePending =

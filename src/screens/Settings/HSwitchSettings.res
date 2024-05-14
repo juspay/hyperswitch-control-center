@@ -21,6 +21,7 @@ module TileComponent = {
     ~cardName,
   ) => {
     open APIUtils
+    let getURL = useGetURL()
     let showPopUp = PopUpState.useShowPopUp()
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()

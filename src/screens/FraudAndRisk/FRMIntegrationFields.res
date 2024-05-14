@@ -179,6 +179,7 @@ let make = (
   open FRMTypes
   open APIUtils
   open Promise
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let fetchApi = useUpdateMethod()
   let frmName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")

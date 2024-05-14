@@ -115,6 +115,7 @@ module SetupWebhookUser = {
 let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.previewStates>) => {
   open APIUtils
   open ProdOnboardingTypes
+  let getURL = useGetURL()
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()

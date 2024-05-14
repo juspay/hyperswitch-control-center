@@ -3,7 +3,7 @@ let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid b
 let useGetData = () => {
   open LogicUtils
   let filters = Dict.make()
-
+  let getURL = APIUtils.useGetURL()
   async (
     ~updateDetails: (
       string,
@@ -23,7 +23,7 @@ let useGetData = () => {
     filters->Dict.set("query", query->JSON.Encode.string)
 
     try {
-      let url = APIUtils.getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ~id=Some(path), ())
+      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ~id=Some(path), ())
       let res = await updateDetails(url, filters->JSON.Encode.object, Fetch.Post, ())
       let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("hits", [])
       let total = res->getDictFromJsonObject->getInt("count", 0)

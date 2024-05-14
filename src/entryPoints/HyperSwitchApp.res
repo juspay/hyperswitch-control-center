@@ -8,7 +8,7 @@ let make = () => {
   open LogicUtils
   open HyperswitchAtom
   open HSLocalStorage
-
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
   let {
@@ -48,7 +48,7 @@ let make = () => {
 
   let getAgreementEnum = async () => {
     try {
-      let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl
+      let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl(getURL)
       let response = await fetchDetails(url)
 
       let productionAgreementResponse =
@@ -131,7 +131,7 @@ let make = () => {
       let _ = await fetchSwitchMerchantList()
       let permissionJson = await fetchPermissions()
 
-      if !featureFlagDetails.isLiveMode {
+      if !featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
         let _ = await fetchOnboardingSurveyDetails()
       }
       if merchantId->isNonEmptyString {
@@ -150,7 +150,7 @@ let make = () => {
         let _ = await fetchInitialEnums()
       }
 
-      if featureFlagDetails.isLiveMode {
+      if featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
         getAgreementEnum()->ignore
       } else {
         setDashboardPageState(_ => #HOME)

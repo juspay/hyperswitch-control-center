@@ -21,7 +21,7 @@ let make = () => {
     setAcceptedMerchantId(_ => Array.make(~length=filteredSwitchMerchantList->Array.length, false))
     None
   }, [switchMerchantListValue])
-
+  let getURL = useGetURL()
   let acceptInvite = async _ => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITE, ~methodType=Post, ())

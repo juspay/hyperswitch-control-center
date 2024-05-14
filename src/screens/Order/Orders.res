@@ -4,6 +4,7 @@ let make = (~previewOnly=false) => {
   open HSwitchRemoteFilter
   open OrderUIUtils
   open LogicUtils
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
@@ -51,6 +52,7 @@ let make = (~previewOnly=false) => {
           ~setOffset,
           ~setTotalCount,
           ~offset,
+          ~getURL,
         )
         ->ignore
 
@@ -68,6 +70,7 @@ let make = (~previewOnly=false) => {
         ~setOffset,
         ~setTotalCount,
         ~offset,
+        ~getURL,
       )
       ->ignore
     }

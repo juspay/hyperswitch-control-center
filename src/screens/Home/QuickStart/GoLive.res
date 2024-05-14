@@ -28,6 +28,7 @@ let make = (~goLive) => {
   open QuickStartTypes
   open APIUtils
   open ProdVerifyModalUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()

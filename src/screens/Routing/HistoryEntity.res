@@ -83,7 +83,10 @@ let getHistoryRules: JSON.t => array<historyData> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let historyEntity = (activeRoutingIds: array<string>, ~permission: AuthTypes.authorization) => {
+let historyEntity = (
+  activeRoutingIds: array<string>,
+  ~permission: CommonAuthTypes.authorization,
+) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getHistoryRules,

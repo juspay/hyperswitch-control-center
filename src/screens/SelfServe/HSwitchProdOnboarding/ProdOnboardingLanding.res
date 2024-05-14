@@ -149,7 +149,7 @@ let make = () => {
   open ConnectorTypes
   open LogicUtils
   open APIUtils
-
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (pageView, setPageView) = React.useState(_ => SELECT_PROCESSOR)
   let (selectedConnector, setSelectedConnector) = React.useState(_ => Processors(STRIPE))

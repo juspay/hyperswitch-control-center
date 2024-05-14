@@ -461,6 +461,7 @@ let make = (
   ~urlEntityName,
   ~baseUrlForRedirection,
 ) => {
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile

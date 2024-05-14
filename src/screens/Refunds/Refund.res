@@ -4,6 +4,7 @@ let make = () => {
   open HSwitchRemoteFilter
   open LogicUtils
   open RefundUtils
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (refundData, setRefundsData) = React.useState(_ => [])
@@ -41,6 +42,7 @@ let make = () => {
         ~offset,
         ~setOffset,
         ~setTotalCount,
+        ~getURL,
       )
       ->ignore
     | _ => ()

@@ -52,6 +52,7 @@ module SelectPaymentMethods = {
     ~buttonState,
   ) => {
     open QuickStartUtils
+    let getURL = APIUtils.useGetURL()
     let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
     let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
     let updateAPIHook = APIUtils.useUpdateMethod()
@@ -112,7 +113,7 @@ module SelectPaymentMethods = {
           metadata: metaData,
         }
         let body = ConnectorUtils.constructConnectorRequestBody(obj, initialValues)
-        let connectorUrl = APIUtils.getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
+        let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
 
         let response = await updateAPIHook(connectorUrl, body, Post, ())
         setInitialValues(_ => response)
