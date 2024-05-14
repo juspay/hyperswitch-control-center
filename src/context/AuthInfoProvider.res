@@ -20,37 +20,36 @@ module Provider = {
 @react.component
 let make = (~children) => {
   let (authStatus, setAuth) = React.useState(_ => CheckingAuthStatus)
-
   let setAuthStatus = React.useCallback1((newAuthStatus: authStatus) => {
     switch newAuthStatus {
     | LoggedIn(info) =>
       switch info {
       | BasicAuth(basicInfo) =>
         switch basicInfo.token {
-        | Some(token) => {
-            Js.log2("token", token)
-            if !(token->LogicUtils.isEmptyString) {
-              setAuth(_ => newAuthStatus)
-            } else {
-              setAuth(_ => LoggedOut)
-              CommonAuthUtils.clearLocalStorage()
-            }
+        | Some(token) =>
+          if !(token->LogicUtils.isEmptyString) {
+            setAuth(_ => newAuthStatus)
+            BasicAuthUtils.setBasicAuthResToStorage(basicInfo)
+          } else {
+            setAuth(_ => LoggedOut)
+            CommonAuthUtils.clearLocalStorage()
           }
         | None => {
             setAuth(_ => LoggedOut)
             CommonAuthUtils.clearLocalStorage()
           }
         }
-      | ToptAuth(totpInfo) =>
+      | TotpAuth(totpInfo) =>
         switch totpInfo.token {
-        | Some(token) => {
+        | Some(token) =>
+          if !(token->LogicUtils.isEmptyString) {
             setAuth(_ => newAuthStatus)
-            TotpUtils.sptToken(
-              totpInfo.token,
-              totpInfo.token_type->TotpUtils.variantToStringFlowMapper,
-              totpInfo.email_token,
-            )
+            TotpUtils.setTotpAuthResToStorage(totpInfo)
+          } else {
+            setAuth(_ => LoggedOut)
+            CommonAuthUtils.clearLocalStorage()
           }
+
         | None => {
             setAuth(_ => LoggedOut)
             CommonAuthUtils.clearLocalStorage()
@@ -61,11 +60,9 @@ let make = (~children) => {
     | LoggedOut => {
         setAuth(_ => LoggedOut)
         CommonAuthUtils.clearLocalStorage()
+        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
       }
-    | CheckingAuthStatus => {
-        setAuth(_ => CheckingAuthStatus)
-        CommonAuthUtils.clearLocalStorage()
-      }
+    | CheckingAuthStatus => setAuth(_ => CheckingAuthStatus)
     }
   }, [setAuth])
 

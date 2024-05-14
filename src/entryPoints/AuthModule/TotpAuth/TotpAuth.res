@@ -55,10 +55,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     try {
       let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post, ())
-      let token_type =
-        res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
-      let token = res->getDictFromJsonObject->getString("token", "")
-      setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(Some(token), token_type))))
+      setAuthStatus(LoggedIn(TotpAuth(totpAuthInfoForToken(res))))
     } catch {
     | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
     }

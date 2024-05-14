@@ -88,10 +88,7 @@ let make = () => {
       if otp->String.length > 0 {
         let body = [("totp", otp->JSON.Encode.string)]->getJsonFromArrayOfJson
         let response = await verifyTotpLogic(body)
-        let token_type =
-          response->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
-        let token = response->getDictFromJsonObject->getString("token", "")
-        setAuthStatus(LoggedIn(ToptAuth(totpAuthInfoForToken(Some(token), token_type))))
+        setAuthStatus(LoggedIn(TotpAuth(totpAuthInfoForToken(response))))
       } else {
         showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
       }
@@ -107,10 +104,7 @@ let make = () => {
 
       let body = [("totp", JSON.Encode.null)]->getJsonFromArrayOfJson
       let response = await verifyTotpLogic(body)
-      let token_type =
-        response->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
-      let token = response->getDictFromJsonObject->getString("token", "")
-      setAuthStatus(LoggedIn(ToptAuth(totpAuthInfoForToken(Some(token), token_type))))
+      setAuthStatus(LoggedIn(TotpAuth(totpAuthInfoForToken(response))))
     } catch {
     | _ => showToast(~message="Something went wrong!", ~toastType=ToastError, ())
     }

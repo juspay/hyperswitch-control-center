@@ -69,10 +69,11 @@ module HyperSwitchEntryComponent = {
         let apiURL = `${HSwitchGlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
+        setFeatureFlag(._ => featureFlags)
         let _ = res->configTheme
         let _ = res->configURL
-
-        setFeatureFlag(._ => featureFlags)
+        // Delay added on Expecting feature flag recoil gets updated
+        await HyperSwitchUtils.delay(1000)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | _ => setScreenState(_ => Custom)
@@ -131,7 +132,6 @@ module HyperSwitchEntryComponent = {
       }
       None
     }, [url.path])
-
     <PageLoaderWrapper
       screenState
       sectionHeight="h-screen"

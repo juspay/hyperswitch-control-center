@@ -54,17 +54,7 @@ let make = (~authType, ~setAuthType) => {
     try {
       let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post, ())
-
-      let {token} = res->BasicAuthUtils.setLoginResToStorage
-
-      // home
-      if token->Option.isSome {
-        open AuthProviderTypes
-        setAuthStatus(LoggedIn(BasicAuth(BasicAuthUtils.getAuthInfo(res))))
-      } else {
-        showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
-        setAuthStatus(LoggedOut)
-      }
+      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getAuthInfo)))
     } catch {
     | Exn.Error(e) => {
         Js.log(e)

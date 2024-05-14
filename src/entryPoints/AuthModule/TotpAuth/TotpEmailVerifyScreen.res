@@ -12,7 +12,6 @@ let make = () => {
   let verifyEmailWithSPT = async body => {
     try {
       open TotpUtils
-      open LogicUtils
       let url = getURL(
         ~entityName=USERS,
         ~methodType=Post,
@@ -20,11 +19,7 @@ let make = () => {
         (),
       )
       let res = await updateDetails(url, body, Post, ())
-
-      let token_type =
-        res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
-      let token = res->getDictFromJsonObject->getString("token", "")
-      setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(Some(token), token_type))))
+      setAuthStatus(LoggedIn(TotpAuth(totpAuthInfoForToken(res))))
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Verification Failed")

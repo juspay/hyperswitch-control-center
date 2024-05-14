@@ -14,14 +14,8 @@ let make = (~setAuthType) => {
     try {
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL, ())
       let res = await updateDetails(url, body, Post, ())
-      let typedAuthInfo = res->BasicAuthUtils.setLoginResToStorage
-      if typedAuthInfo.token->Option.isSome && typedAuthInfo.email->Option.isSome {
-        setAuthStatus(LoggedIn(BasicAuth(typedAuthInfo)))
-        setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
-      } else {
-        setAuthStatus(LoggedOut)
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-      }
+      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getAuthInfo)))
+      setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Verification Failed")

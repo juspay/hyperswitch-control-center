@@ -12,14 +12,13 @@ let make = (~children) => {
     | list{"register"} =>
       setAuthStatus(LoggedOut)
     | _ => {
-        let authInfo = BasicAuthUtils.getBasicAuthInfo()
+        let authInfo = BasicAuthUtils.getBasicAuthInfoFromStrorage()
         switch authInfo.token {
         | Some(_) => setAuthStatus(LoggedIn(BasicAuth(authInfo)))
         | None => setAuthStatus(LoggedOut)
         }
       }
     }
-
     None
   })
 

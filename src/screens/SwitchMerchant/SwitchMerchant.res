@@ -255,7 +255,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   | LoggedIn(info) =>
     switch info {
     | BasicAuth(basicInfo) => basicInfo.merchantId->Option.getOr("")
-    | ToptAuth(totpInfo) => totpInfo.merchantId->Option.getOr("")
+    | TotpAuth(totpInfo) => totpInfo.merchantId->Option.getOr("")
     }
   | _ => ""
   }
@@ -292,8 +292,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       let body = Dict.make()
       body->Dict.set("merchant_id", value->JSON.Encode.string)
       let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
-      let typedAuthInfo = res->BasicAuthUtils.setLoginResToStorage
-      setAuthStatus(LoggedIn(BasicAuth(typedAuthInfo)))
+      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getAuthInfo)))
       setSuccessModal(_ => true)
       await HyperSwitchUtils.delay(2000)
       Window.Location.reload()

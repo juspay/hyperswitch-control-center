@@ -8,18 +8,9 @@ let make = (~children) => {
 
   let authLogic = () => {
     open TotpUtils
-
-    let tokenDetails = getSptTokenType()
-
-    switch tokenDetails.token {
-    | Some(token) =>
-      if !(token->LogicUtils.isEmptyString) {
-        setAuthStatus(
-          LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(Some(token), tokenDetails.token_type))),
-        )
-      } else {
-        setAuthStatus(LoggedOut)
-      }
+    let authInfo = getTotputhInfoFromStrorage()
+    switch authInfo.token {
+    | Some(_) => setAuthStatus(LoggedIn(TotpAuth(authInfo)))
     | None => setAuthStatus(LoggedOut)
     }
   }
@@ -30,24 +21,11 @@ let make = (~children) => {
     try {
       let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
       let url = getURL(~entityName=USERS, ~userType=#FROM_EMAIL, ~methodType=Post, ())
-
       switch tokenFromUrl {
       | Some(token) => {
           let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post, ())
-          let tokenType = response->getDictFromJsonObject->getString("token_type", "")
-          let token_type =
-            tokenType->String.length > 0
-              ? Some(tokenType)->TotpUtils.flowTypeStrToVariantMapper
-              : ERROR
-
-          let responseToken = response->getDictFromJsonObject->getOptionString("token")
-
           setAuthStatus(
-            LoggedIn(
-              ToptAuth(
-                TotpUtils.totpAuthInfoForToken(responseToken, token_type, ~email_token=Some(token)),
-              ),
-            ),
+            LoggedIn(TotpAuth(TotpUtils.totpAuthInfoForToken(response, ~email_token=Some(token)))),
           )
         }
       | None => setAuthStatus(LoggedOut)

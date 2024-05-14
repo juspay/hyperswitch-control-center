@@ -13,15 +13,9 @@ let make = (~setAuthType) => {
     try {
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#VERIFY_EMAILV2}, ())
       let res = await updateDetails(url, body, Post, ())
-      let typedAuthInfo = res->BasicAuthUtils.setLoginResToStorage
       await HyperSwitchUtils.delay(1000)
-      if typedAuthInfo.token->Option.isSome && typedAuthInfo.email->Option.isSome {
-        setAuthStatus(LoggedIn(BasicAuth(typedAuthInfo)))
-        setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
-      } else {
-        setAuthStatus(LoggedOut)
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-      }
+      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getAuthInfo)))
+      setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Verification Failed")

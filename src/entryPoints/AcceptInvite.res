@@ -56,11 +56,11 @@ let make = () => {
           ("need_dashboard_entry_response", true->JSON.Encode.bool),
         ]->getJsonFromArrayOfJson
       let res = await updateDetails(url, body, Post, ())
-      let {token} = res->BasicAuthUtils.setLoginResToStorage
-      if token->Option.isSome {
+      let typedInfo = res->BasicAuthUtils.getAuthInfo
+      if typedInfo.token->Option.isSome {
         open AuthProviderTypes
         LocalStorage.removeItem("accept_invite_data")
-        setAuthStatus(LoggedIn(BasicAuth(BasicAuthUtils.getAuthInfo(res))))
+        setAuthStatus(LoggedIn(BasicAuth(typedInfo)))
         setDashboardPageState(_ => #HOME)
       } else {
         showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())

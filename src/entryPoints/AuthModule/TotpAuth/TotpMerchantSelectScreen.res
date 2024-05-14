@@ -8,19 +8,13 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let (merchantData, setMerchantData) = React.useState(_ => [])
 
-  let logoutUser = () => {
-    CommonAuthUtils.clearLocalStorage()
-    setAuthStatus(LoggedOut)
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-  }
-
   let getListOfMerchantIds = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#MERCHANTS_SELECT, ~methodType=Get, ())
       let listOfMerchants = await fetchDetails(url)
       setMerchantData(_ => listOfMerchants->getArrayFromJson([]))
     } catch {
-    | _ => logoutUser()
+    | _ => setAuthStatus(LoggedOut)
     }
   }
 
@@ -43,11 +37,7 @@ let make = () => {
       })
       let body = [("merchant_ids", acceptedMerchantIds->JSON.Encode.array)]->getJsonFromArrayOfJson
       let res = await updateDetails(url, body, Post, ())
-
-      let token_type =
-        res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
-      let token = res->getDictFromJsonObject->getString("token", "")
-      setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(Some(token), token_type))))
+      setAuthStatus(LoggedIn(TotpAuth(totpAuthInfoForToken(res))))
     } catch {
     | _ => ()
     }

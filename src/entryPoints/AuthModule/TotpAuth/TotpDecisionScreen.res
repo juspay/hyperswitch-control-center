@@ -5,7 +5,7 @@ let make = () => {
   let flowType = switch authStatus {
   | LoggedIn(info) =>
     switch info {
-    | ToptAuth(totpInfo) => totpInfo.token_type
+    | TotpAuth(totpInfo) => totpInfo.token_type->TotpUtils.flowTypeStrToVariantMapper
     | _ => ERROR
     }
   | _ => ERROR
