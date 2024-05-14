@@ -6,15 +6,14 @@ let make = () => {
   | LoggedIn(info) =>
     switch info {
     | BasicAuth(basicInfo) => basicInfo.flowType->BasicAuthUtils.flowTypeStrToVariantMapper
-    | _ => ERROR
+    | _ => DASHBOARD_ENTRY
     }
   | _ => ERROR
   }
   Js.log2(flowType, "flowType")
   switch flowType {
   | MERCHANT_SELECT => <AcceptInvite />
-  | DASHBOARD_ENTRY
-  | ERROR =>
-    <HyperSwitchApp />
+  | DASHBOARD_ENTRY => <HyperSwitchApp />
+  | ERROR => <> </>
   }
 }

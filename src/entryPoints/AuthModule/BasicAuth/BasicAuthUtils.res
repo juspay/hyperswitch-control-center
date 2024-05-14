@@ -4,8 +4,8 @@ let flowTypeStrToVariantMapper = val => {
   switch val {
   | Some("merchant_select") => MERCHANT_SELECT
   | Some("dashboard_entry") => DASHBOARD_ENTRY
-  | Some(_) => ERROR
-  | None => ERROR
+  | Some(_) => DASHBOARD_ENTRY
+  | None => DASHBOARD_ENTRY
   }
 }
 
@@ -19,6 +19,7 @@ let getAuthInfo = json => {
     token: getOptionString(dict, "token"),
     userRole: getOptionString(dict, "user_role"),
     verificationDaysLeft: getOptionBool(dict, "verification_days_left"),
+    acceptInviteData: getOptionalArrayFromDict(dict, "accept_invite_data"),
   }
   authInfo
 }

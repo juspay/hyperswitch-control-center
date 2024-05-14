@@ -6,6 +6,7 @@ type basicAuthInfo = {
   flowType: option<string>,
   userRole: option<string>,
   verificationDaysLeft: option<bool>,
+  acceptInviteData: option<array<JSON.t>>,
 }
 
 type modeType = TestButtonMode | LiveButtonMode

@@ -1,8 +1,9 @@
 @react.component
-let make = (~setAuthType, ~setAuthStatus) => {
+let make = (~setAuthType) => {
   open AuthProviderTypes
   open APIUtils
   open LogicUtils
+  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
@@ -17,10 +18,9 @@ let make = (~setAuthType, ~setAuthStatus) => {
       if typedAuthInfo.token->Option.isSome && typedAuthInfo.email->Option.isSome {
         setAuthStatus(LoggedIn(BasicAuth(typedAuthInfo)))
         setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
       } else {
         setAuthStatus(LoggedOut)
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
       }
     } catch {
     | Exn.Error(e) => {

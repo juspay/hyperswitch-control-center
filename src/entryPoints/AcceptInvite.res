@@ -5,20 +5,10 @@ let make = () => {
 
   let showToast = ToastState.useShowToast()
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let flowType = switch authStatus {
-  | LoggedIn(info) =>
-    switch info {
-    | BasicAuth(basicInfo) => basicInfo.flowType->BasicAuthUtils.flowTypeStrToVariantMapper
-    | _ => ERROR
-    }
-  | _ => ERROR
-  }
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let updateDetails = useUpdateMethod()
   let (merchantData, setMerchantData) = React.useState(_ => [])
-  let merchantDataJsonFromLocalStorage =
-    LocalStorage.getItem("accept_invite_data")->getValFromNullableValue("")->safeParse
   let getURL = useGetURL()
   let logoutUser = () => {
     LocalStorage.clear()
@@ -26,28 +16,28 @@ let make = () => {
   }
 
   React.useEffect0(() => {
-    switch JSON.Classify.classify(merchantDataJsonFromLocalStorage) {
-    | Array(arr) =>
+    let acceptInvitedata = switch authStatus {
+    | LoggedIn(info) =>
+      switch info {
+      | BasicAuth(basicInfo) => basicInfo.acceptInviteData
+      | _ => None
+      }
+    | _ => None
+    }
+
+    switch acceptInvitedata {
+    | Some(arr) =>
       if arr->Array.length > 0 {
         setMerchantData(_ => arr)
+        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/accept-invite"))
       } else {
         logoutUser()
       }
-    | _ => logoutUser()
+    | None => logoutUser()
     }
 
     None
   })
-
-  React.useEffect1(() => {
-    if flowType === MERCHANT_SELECT {
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/accept-invite"))
-    } else {
-      setDashboardPageState(_ => #HOME)
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
-    }
-    None
-  }, [flowType])
 
   let onClickLoginToDashboard = async () => {
     try {

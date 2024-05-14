@@ -1,10 +1,11 @@
 @react.component
-let make = (~setAuthStatus, ~authType, ~setAuthType) => {
+let make = (~authType, ~setAuthType) => {
   open BasicAuthUtils
   open APIUtils
   open CommonAuthForm
   open HSwitchGlobalVars
   open LogicUtils
+  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let mixpanelEvent = MixpanelHook.useSendEvent()

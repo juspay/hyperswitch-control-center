@@ -27,12 +27,14 @@ let make = (~children) => {
       switch info {
       | BasicAuth(basicInfo) =>
         switch basicInfo.token {
-        | Some(token) =>
-          if !(token->LogicUtils.isEmptyString) {
-            setAuth(_ => newAuthStatus)
-          } else {
-            setAuth(_ => LoggedOut)
-            CommonAuthUtils.clearLocalStorage()
+        | Some(token) => {
+            Js.log2("token", token)
+            if !(token->LogicUtils.isEmptyString) {
+              setAuth(_ => newAuthStatus)
+            } else {
+              setAuth(_ => LoggedOut)
+              CommonAuthUtils.clearLocalStorage()
+            }
           }
         | None => {
             setAuth(_ => LoggedOut)

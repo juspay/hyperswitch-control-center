@@ -314,6 +314,7 @@ let responseHandler = async (
   ~showPopUp: React.callback<PopUpState.popUpProps, unit>,
   ~isPlayground,
   ~popUpCallBack,
+  ~setAuthStatus,
 ) => {
   let json = try {
     await res->Fetch.Response.json
@@ -340,6 +341,7 @@ let responseHandler = async (
         | 401 =>
           if !sessionExpired.contents {
             showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false, ())
+            setAuthStatus(AuthProviderTypes.LoggedOut)
             RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
             sessionExpired := true
           }
@@ -394,6 +396,7 @@ let catchHandler = (
 }
 
 let useGetMethod = (~showErrorToast=true, ()) => {
+  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -435,6 +438,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
         ~showPopUp,
         ~isPlayground,
         ~popUpCallBack,
+        ~setAuthStatus,
       )
     } catch {
     | Exn.Error(e) =>
@@ -453,6 +457,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
 }
 
 let useUpdateMethod = (~showErrorToast=true, ()) => {
+  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -509,6 +514,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
         ~isPlayground,
         ~showPopUp,
         ~popUpCallBack,
+        ~setAuthStatus,
       )
     } catch {
     | Exn.Error(e) =>
