@@ -214,7 +214,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     key="auth"
     initialValues
     subscription=ReactFinalForm.subscribeToValues
-    validate={values => validateForm(values, validateKeys)}
+    validate={values => validateTotpForm(values, validateKeys)}
     onSubmit
     render={({handleSubmit}) => {
       <>
