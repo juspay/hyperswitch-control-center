@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.12.0
+
+### Features
+
+- Changes for new auth flow ([#630](https://github.com/juspay/hyperswitch-control-center/pull/630)) ([`aab2dd2`](https://github.com/juspay/hyperswitch-control-center/commit/aab2dd273cd7044a4efb634e7a296eba3831bda7))
+
+**Full Changelog:** [`2024.05.10.0...2024.05.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.10.0...2024.05.12.0)
+
+- - -
+
 ## 2024.05.10.0
 
 ### Features

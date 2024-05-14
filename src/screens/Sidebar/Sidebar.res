@@ -500,6 +500,7 @@ let make = (
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
     ConfigContext.configContext,
   )
+
   let fetchApi = AuthHooks.useApiFetcher()
   let getURL = APIUtils.useGetURL()
 
