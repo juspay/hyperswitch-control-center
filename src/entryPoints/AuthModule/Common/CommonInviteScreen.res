@@ -5,6 +5,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
 
   let textHeadingClass = getTextClass((H2, Optional))
   let textSubHeadingClass = getTextClass((P1, Regular))
+  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let isAtleastOneAccept = React.useMemo1(() => {
     merchantData
@@ -17,8 +18,13 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
     ->getBool("is_active", false)
   }, [merchantData])
 
+  let logoutUser = () => {
+    CommonAuthUtils.clearLocalStorage()
+    setAuthStatus(LoggedOut)
+  }
+
   <BackgroundImageWrapper>
-    <div className="h-full w-full flex items-center justify-center p-6">
+    <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
       <div className="bg-white h-35-rem w-200 rounded-2xl">
         <div className="p-6 border-b-2">
           <img src={`assets/Dark/hyperswitchLogoIconWithText.svg`} />
@@ -76,6 +82,14 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
             buttonState={isAtleastOneAccept ? Normal : Disabled}
           />
         </div>
+      </div>
+      <div className="text-grey-200 flex gap-2">
+        {"Log in with a different account?"->React.string}
+        <p
+          className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
+          onClick={_ => logoutUser()}>
+          {"Click here to log out."->React.string}
+        </p>
       </div>
     </div>
   </BackgroundImageWrapper>

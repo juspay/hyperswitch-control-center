@@ -138,11 +138,16 @@ let make = () => {
     }
   }
 
+  let logoutUser = () => {
+    CommonAuthUtils.clearLocalStorage()
+    setAuthStatus(LoggedOut)
+  }
+
   let buttonText = showQR ? "Enable 2FA" : "Verify OTP"
   let modalHeaderText = showQR ? "Enable Two Factor Authentication" : "Enter TOTP Code"
 
   <BackgroundImageWrapper>
-    <div className="h-full w-full flex items-center justify-center p-6">
+    <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
       <div
         className={`bg-white ${showQR ? "h-40-rem" : "h-20-rem"} w-200 rounded-2xl flex flex-col`}>
         <div className="p-6 border-b-2 flex justify-between items-center">
@@ -228,6 +233,14 @@ let make = () => {
             />
           </div>
         </div>
+      </div>
+      <div className="text-grey-200 flex gap-2">
+        {"Log in with a different account?"->React.string}
+        <p
+          className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
+          onClick={_ => logoutUser()}>
+          {"Click here to log out."->React.string}
+        </p>
       </div>
     </div>
   </BackgroundImageWrapper>
