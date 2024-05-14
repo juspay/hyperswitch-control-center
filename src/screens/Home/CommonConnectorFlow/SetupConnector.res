@@ -180,6 +180,7 @@ module SelectPaymentMethods = {
     open ConnectorUtils
     let {quickStartPageState} = React.useContext(GlobalProvider.defaultContext)
     let updateAPIHook = APIUtils.useUpdateMethod()
+    let getURL = APIUtils.useGetURL()
     let showToast = ToastState.useShowToast()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
@@ -217,7 +218,7 @@ module SelectPaymentMethods = {
           metadata: metaData,
         }
         let body = constructConnectorRequestBody(obj, initialValues)
-        let connectorUrl = APIUtils.getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
+        let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
 
         let response = await updateAPIHook(connectorUrl, body, Post, ())
 

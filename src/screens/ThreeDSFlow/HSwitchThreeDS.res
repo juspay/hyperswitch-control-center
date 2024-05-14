@@ -6,6 +6,7 @@ module ActiveRulePreview = {
   open APIUtils
   @react.component
   let make = (~initialRule, ~setInitialRule) => {
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showPopUp = PopUpState.useShowPopUp()
     let showToast = ToastState.useShowToast()
@@ -138,6 +139,7 @@ let make = () => {
   // Three Ds flow
   open APIUtils
   open ThreeDSUtils
+  let getURL = useGetURL()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod(~showErrorToast=false, ())

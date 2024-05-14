@@ -47,13 +47,14 @@ module DownloadAPIKeyButton = {
     ~currentTabName="",
     ~buttonStyle="",
   ) => {
+    let getURL = APIUtils.useGetURL()
     let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
     let (showCopyToClipboard, setShowCopyToClipboard) = React.useState(_ => false)
 
     let apiKeyGeneration = async () => {
       try {
-        let url = APIUtils.getURL(~entityName=API_KEYS, ~methodType=Post, ())
+        let url = getURL(~entityName=API_KEYS, ~methodType=Post, ())
         let body =
           [
             ("name", "DefaultAPIKey"->JSON.Encode.string),
@@ -389,6 +390,7 @@ module LandingPageTileForIntegrateDocs = {
     ~customRedirection=?,
   ) => {
     open APIUtils
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let {
       integrationDetails,

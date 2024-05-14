@@ -1,5 +1,6 @@
 let useFetchSwitchMerchantList = () => {
   open APIUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let setSwitchMerchantListAtom = HyperswitchAtom.switchMerchantListAtom->Recoil.useSetRecoilState
   let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get, ())

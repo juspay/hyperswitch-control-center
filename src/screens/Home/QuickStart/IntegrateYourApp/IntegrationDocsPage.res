@@ -5,6 +5,7 @@ module RequestPage = {
     open UserOnboardingUtils
     open APIUtils
 
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let requestedValue = requestedPlatform->LogicUtils.capitalizeString

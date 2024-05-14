@@ -4,6 +4,7 @@ module NewAccountCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal) => {
     open APIUtils
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
@@ -248,13 +249,13 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   open LogicUtils
   open HSLocalStorage
   open APIUtils
+  let getURL = useGetURL()
   let (value, setValue) = React.useState(() => "")
   let merchantId = getFromMerchantDetails("merchant_id")
   let updateDetails = useUpdateMethod()
   let showPopUp = PopUpState.useShowPopUp()
   let isInternalUser = userRole->String.includes("internal_")
   let (successModal, setSuccessModal) = React.useState(_ => false)
-
   let input = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
     {
       name: "-",

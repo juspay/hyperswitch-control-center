@@ -15,7 +15,7 @@ let make = (
   open APIUtils
   open ConnectorTypes
   open QuickStartTypes
-
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let mixpanelEvent = MixpanelHook.useSendEvent()

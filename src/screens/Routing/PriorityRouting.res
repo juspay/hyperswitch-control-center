@@ -18,6 +18,7 @@ module SimpleRoutingView = {
     ~isActive,
     ~baseUrlForRedirection,
   ) => {
+    let getURL = useGetURL()
     let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
     let nameFromForm = ReactFinalForm.useField(`name`).input.value
     let descriptionFromForm = ReactFinalForm.useField(`description`).input.value
@@ -225,6 +226,7 @@ let make = (
   ~baseUrlForRedirection,
 ) => {
   open LogicUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (formState, setFormState) = React.useState(_ => CreateConfig)
   let (pageState, setPageState) = React.useState(() => Create)

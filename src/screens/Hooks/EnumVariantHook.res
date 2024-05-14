@@ -1,6 +1,7 @@
 let useFetchEnumDetails = () => {
   open APIUtils
   open HomeUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let setEnumVariantValues = Recoil.useSetRecoilState(HyperswitchAtom.enumVariantAtom)
 
@@ -64,6 +65,7 @@ let useUpdateEnumInRecoil = () => {
 
 let usePostEnumDetails = () => {
   open APIUtils
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let updateEnumInRecoil = useUpdateEnumInRecoil()
 

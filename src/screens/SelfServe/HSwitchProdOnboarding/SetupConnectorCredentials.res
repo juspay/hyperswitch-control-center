@@ -79,6 +79,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   open ProdOnboardingTypes
   open ConnectorUtils
   open APIUtils
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let connectorName = selectedConnector->getConnectorNameString

@@ -5,6 +5,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
   open APIUtils
   open LogicUtils
   open AuthProviderTypes
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")

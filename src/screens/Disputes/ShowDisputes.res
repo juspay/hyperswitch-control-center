@@ -171,6 +171,7 @@ module DisputesInfo = {
 @react.component
 let make = (~id) => {
   open APIUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom

@@ -6,7 +6,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   open LogicUtils
   open TotpUtils
   open AuthProviderTypes
-
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let initialValues = Dict.make()->JSON.Encode.object

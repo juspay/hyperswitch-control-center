@@ -48,6 +48,7 @@ module ResetPassword = {
   let make = () => {
     open HSLocalStorage
     open APIUtils
+    let getURL = useGetURL()
     let (isLoading, setIsLoading) = React.useState(_ => false)
     let email = getFromMerchantDetails("email")
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()

@@ -11,7 +11,7 @@ let make = () => {
   let (merchantData, setMerchantData) = React.useState(_ => [])
   let merchantDataJsonFromLocalStorage =
     LocalStorage.getItem("accept_invite_data")->getValFromNullableValue("")->safeParse
-
+  let getURL = useGetURL()
   let logoutUser = () => {
     LocalStorage.clear()
     setAuthStatus(LoggedOut)

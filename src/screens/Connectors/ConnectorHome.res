@@ -57,6 +57,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   open ConnectorTypes
   open ConnectorUtils
   open APIUtils
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom

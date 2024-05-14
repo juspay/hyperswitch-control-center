@@ -5,6 +5,7 @@ open ConnectorTypes
 let make = (~connectProcessorValue: connectProcessor) => {
   open QuickStartUtils
   open APIUtils
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
   let mixpanelEvent = MixpanelHook.useSendEvent()

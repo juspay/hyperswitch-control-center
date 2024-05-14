@@ -72,6 +72,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   open APIUtils
   open LogicUtils
   open UIUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
 

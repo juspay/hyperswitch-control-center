@@ -76,7 +76,7 @@ module NewProcessorCards = {
 let make = () => {
   open FRMInfo
   open UIUtils
-
+  let getURL = APIUtils.useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchDetails = APIUtils.useGetMethod()
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
@@ -100,7 +100,7 @@ let make = () => {
   React.useEffect0(() => {
     open Promise
     open LogicUtils
-    fetchDetails(APIUtils.getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ()))
+    fetchDetails(getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ()))
     ->thenResolve(json => {
       let processorsList = json->getArrayFromJson([])->Array.map(getDictFromJsonObject)
 

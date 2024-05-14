@@ -16,6 +16,7 @@ module GenerateSampleDataButton = {
   open APIUtils
   @react.component
   let make = (~previewOnly, ~getOrdersList) => {
+    let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
@@ -201,6 +202,17 @@ let getOrdersList = async (
     ~contentType: AuthHooks.contentType=?,
     unit,
   ) => promise<JSON.t>,
+  ~getURL: (
+    ~entityName: APIUtilsTypes.entityName,
+    ~methodType: Fetch.requestMethod,
+    ~id: option<string>=?,
+    ~connector: option<'a>=?,
+    ~userType: APIUtilsTypes.userType=?,
+    ~userRoleTypes: APIUtilsTypes.userRoleTypes=?,
+    ~reconType: APIUtilsTypes.reconType=?,
+    ~queryParamerters: option<string>=?,
+    unit,
+  ) => string,
   ~setOrdersData,
   ~previewOnly,
   ~setScreenState,
@@ -208,10 +220,8 @@ let getOrdersList = async (
   ~setTotalCount,
   ~offset,
 ) => {
-  open APIUtils
   open LogicUtils
   setScreenState(_ => PageLoaderWrapper.Loading)
-
   try {
     let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post, ())
     let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Fetch.Post, ())
