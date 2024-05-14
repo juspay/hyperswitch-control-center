@@ -758,93 +758,42 @@ let make = (
                 {if chartLoading && shimmerType === Shimmer {
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else {
-                  switch entityAllMetrics
-                  ->Array.filter(item => item.metric_label === chartTopMetricFromUrl)
-                  ->Array.get(0) {
-                  | Some(selectedMetrics) =>
-                    let metricsUri = uriConfig->Array.find(uriMetrics => {
-                      uriMetrics.metrics
-                      ->Array.map(item => {item.metric_label})
-                      ->Array.includes(selectedMetrics.metric_label)
+                  <div>
+                    {entityAllMetrics
+                    ->Array.map(selectedMetrics => {
+                      switch uriConfig->Array.get(0) {
+                      | Some(metricsUri) => {
+                          let (data, legendData, timeCol) = switch rawChartData
+                          ->Option.getOr([])
+                          ->Array.find(item => item.metricsUrl === metricsUri.uri) {
+                          | Some(dataVal) => (
+                              dataVal.rawData,
+                              dataVal.legendData,
+                              metricsUri.timeCol,
+                            )
+                          | None => ([], [], "")
+                          }
+
+                          <HighchartTimeSeriesChart.LineChart1D
+                            class="flex overflow-scroll"
+                            rawChartData=data
+                            selectedMetrics
+                            chartTitleText={selectedMetrics.metric_label}
+                            xAxis=timeCol
+                            groupKey
+                            chartTitle=true
+                            key={""}
+                            legendData
+                            showTableLegend
+                            showMarkers
+                            legendType
+                          />
+                        }
+                      | _ => React.null
+                      }
                     })
-                    let (data, legendData, timeCol) = switch metricsUri {
-                    | Some(val) =>
-                      switch rawChartData
-                      ->Option.getOr([])
-                      ->Array.find(item => item.metricsUrl === val.uri) {
-                      | Some(dataVal) => (dataVal.rawData, dataVal.legendData, val.timeCol)
-                      | None => ([], [], "")
-                      }
-                    | None => ([], [], "")
-                    }
-                    switch chartTypeFromUrl->chartReverseMappers {
-                    | Line =>
-                      switch chartDimensionView {
-                      | OneDimension =>
-                        <HighchartTimeSeriesChart.LineChart1D
-                          class="flex overflow-scroll"
-                          rawChartData=data
-                          selectedMetrics
-                          chartPlace="top_"
-                          xAxis=timeCol
-                          groupKey
-                          chartTitle=false
-                          key={toggleKey}
-                          legendData
-                          showTableLegend
-                          showMarkers
-                          legendType
-                        />
-
-                      | TwoDimension =>
-                        <HighchartTimeSeriesChart.LineChart2D
-                          rawChartData=data
-                          selectedMetrics
-                          xAxis=timeCol
-                          groupBy=selectedTabState
-                          key={toggleKey}
-                          // legendData
-                        />
-                      | ThreeDimension =>
-                        <HighchartTimeSeriesChart.LineChart3D
-                          rawChartData=data
-                          selectedMetrics
-                          xAxis=timeCol
-                          groupBy=selectedTabState
-                          chartKey={toggleKey}
-                          // legendData
-                        />
-                      | No_Dims => React.null
-                      }
-
-                    | Bar =>
-                      <div className="">
-                        <HighchartBarChart.HighBarChart1D
-                          rawData=data groupKey selectedMetrics key={toggleKey}
-                        />
-                      </div>
-                    | SemiDonut =>
-                      <div className="m-4">
-                        <HighchartPieChart
-                          rawData=data groupKey titleKey selectedMetrics key={toggleKey}
-                        />
-                      </div>
-                    | HorizontalBar =>
-                      <div className="m-4">
-                        <HighchartHorizontalBarChart
-                          rawData=data groupKey titleKey selectedMetrics key={toggleKey}
-                        />
-                      </div>
-                    | Funnel =>
-                      <FunnelChart
-                        data
-                        metrics={entityAllMetrics}
-                        moduleName={entity.moduleName}
-                        description={entity.chartDescription}
-                      />
-                    }
-                  | None => React.null
-                  }
+                    ->React.array}
+                  </div>
                 }}
               </div>
             </AddDataAttributes>
