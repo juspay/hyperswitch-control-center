@@ -58,7 +58,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
       // home
       if !(token->isEmptyString) {
         open AuthProviderTypes
-        setAuthStatus(LoggedIn(BasicAuth(BasicAuthUtils.getAuthInfo(res))))
+        setAuthStatus(LoggedIn(BasicAuth(BasicAuthTypes.getDummyAuthInfoForToken(token))))
       } else {
         showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
         setAuthStatus(LoggedOut)

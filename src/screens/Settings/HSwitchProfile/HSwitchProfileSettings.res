@@ -46,11 +46,11 @@ module MerchantDetailsSection = {
 module ResetPassword = {
   @react.component
   let make = () => {
+    open HSLocalStorage
     open APIUtils
-    open CommonAuthHooks
     let getURL = useGetURL()
     let (isLoading, setIsLoading) = React.useState(_ => false)
-    let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+    let email = getFromMerchantDetails("email")
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
 
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())

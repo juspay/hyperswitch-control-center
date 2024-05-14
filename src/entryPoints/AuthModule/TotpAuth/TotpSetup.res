@@ -41,7 +41,7 @@ let make = () => {
         ->Dict.fromArray
         ->JSON.Encode.object
 
-      let token = Some("asdfvadf")
+      let token = "asdfvadf"
       let token_Type =
         res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
 

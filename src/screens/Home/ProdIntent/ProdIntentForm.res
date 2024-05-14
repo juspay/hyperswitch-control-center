@@ -2,10 +2,10 @@
 let make = (~isFromMilestoneCard=false) => {
   open APIUtils
   open ProdVerifyModalUtils
-  open CommonAuthHooks
+
   let fetchDetails = useGetMethod()
   let getURL = useGetURL()
-  let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let email = HSLocalStorage.getFromMerchantDetails("email")
   let {showProdIntentForm, setShowProdIntentForm, setIsProdIntentCompleted} = React.useContext(
     GlobalProvider.defaultContext,
   )

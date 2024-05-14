@@ -12,10 +12,11 @@ let make = (~setAuthType, ~setAuthStatus) => {
     try {
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#VERIFY_EMAILV2}, ())
       let res = await updateDetails(url, body, Post, ())
-      let typedAuthInfo = res->BasicAuthUtils.setLoginResToStorage
+      let email = res->JSON.Decode.object->Option.getOr(Dict.make())->getString("email", "")
+      let token = BasicAuthUtils.parseResponseJson(~json=res, ~email)
       await HyperSwitchUtils.delay(1000)
-      if typedAuthInfo.token->Option.isSome && typedAuthInfo.email->Option.isSome {
-        setAuthStatus(LoggedIn(BasicAuth(typedAuthInfo)))
+      if !(token->isEmptyString) && !(email->isEmptyString) {
+        setAuthStatus(LoggedIn(BasicAuth(BasicAuthTypes.getDummyAuthInfoForToken(token))))
         setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
         RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
       } else {

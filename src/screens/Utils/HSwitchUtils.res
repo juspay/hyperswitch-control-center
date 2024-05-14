@@ -103,13 +103,9 @@ let getBrowswerDetails = () => {
   }
 }
 
-let getBodyForFeedBack = (
-  ~email,
-  ~values,
-  ~modalType=HSwitchFeedBackModalUtils.FeedBackModal,
-  (),
-) => {
+let getBodyForFeedBack = (values, ~modalType=HSwitchFeedBackModalUtils.FeedBackModal, ()) => {
   open HSwitchFeedBackModalUtils
+  let email = getFromMerchantDetails("email")
   let valueDict = values->getDictFromJsonObject
   let rating = valueDict->getInt("rating", 1)
 

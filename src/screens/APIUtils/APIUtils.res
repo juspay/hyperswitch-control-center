@@ -1,10 +1,11 @@
+open HSLocalStorage
 open LogicUtils
 open APIUtilsTypes
-open CommonAuthHooks
 exception JsonException(JSON.t)
 
 let useGetURL = () => {
-  (
+  let merchantId = getFromMerchantDetails("merchant_id")
+  let getUrl = (
     ~entityName: entityName,
     ~methodType: Fetch.requestMethod,
     ~id=None,
@@ -15,7 +16,6 @@ let useGetURL = () => {
     ~queryParamerters: option<string>=None,
     (),
   ) => {
-    let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let connectorBaseURL = `account/${merchantId}/connectors`
 
     let endpoint = switch entityName {
@@ -263,6 +263,7 @@ let useGetURL = () => {
     }
     `${Window.env.apiBaseUrl}/${endpoint}`
   }
+  getUrl
 }
 
 let sessionExpired = ref(false)

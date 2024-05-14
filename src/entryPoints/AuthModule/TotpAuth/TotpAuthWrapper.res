@@ -16,7 +16,7 @@ let make = (~children) => {
       if !(token->LogicUtils.isEmptyString) {
         Js.log(tokenDetails)
         setAuthStatus(
-          LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(Some(token), tokenDetails.token_type))),
+          LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, tokenDetails.token_type))),
         )
       } else {
         setAuthStatus(LoggedOut)
@@ -43,7 +43,7 @@ let make = (~children) => {
               ? Some(flowType)->TotpUtils.flowTypeStrToVariantMapper
               : ERROR
 
-          let responseToken = response->getDictFromJsonObject->getOptionString("token")
+          let responseToken = response->getDictFromJsonObject->getString("token", "")
 
           setAuthStatus(
             LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(responseToken, flowVariant))),

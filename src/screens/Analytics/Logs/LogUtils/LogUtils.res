@@ -40,7 +40,8 @@ let itemToObjMapper = flowString => {
 }
 
 // will be removed once the backend does the URl mapping
-let nameToURLMapper = (~id, ~merchantId) => {
+let nameToURLMapper = (~id) => {
+  let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
   urlName =>
     switch urlName->itemToObjMapper {
     | PaymentsCancel => `/payments/${id}/cancel`

@@ -134,7 +134,6 @@ module MenuOption = {
 
 module ConnectorSummaryGrid = {
   open PageLoaderWrapper
-  open CommonAuthHooks
   @react.component
   let make = (
     ~connectorInfo: ConnectorTypes.connectorPayload,
@@ -150,7 +149,7 @@ module ConnectorSummaryGrid = {
         ele.profile_id === connectorInfo.profile_id
       )
       ->Option.getOr(defaultBusinessProfile)
-    let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+    let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
     let copyValueOfWebhookEndpoint = ConnectorUtils.getWebhooksUrl(
       ~connectorName={connectorInfo.merchant_connector_id},
       ~merchantId,

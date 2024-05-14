@@ -1,13 +1,12 @@
 open APIUtils
-
+open HSLocalStorage
 @react.component
 let make = (~merchantId="", ~verificationDays) => {
-  open CommonAuthHooks
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let getURL = useGetURL()
-  let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let email = getFromMerchantDetails("email")
   let verificationMessage = `${verificationDays->Int.toString} ${verificationDays === 1
       ? "day"
       : "days"} to go!`

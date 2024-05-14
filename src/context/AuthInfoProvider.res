@@ -25,18 +25,9 @@ let make = (~children) => {
     switch newAuthStatus {
     | LoggedIn(info) =>
       switch info {
-      // Re-Check
-      | BasicAuth(basicInfo) =>
-        switch basicInfo.token {
-        | Some(token) => LocalStorage.setItem("login", token)
-        | None => CommonAuthUtils.clearLocalStorage()
-        }
+      | BasicAuth(basicInfo) => LocalStorage.setItem("login", basicInfo.token)
       | ToptAuth(totpInfo) =>
-        switch totpInfo.token {
-        | Some(token) =>
-          TotpUtils.sptToken(token, totpInfo.token_type->TotpUtils.variantToStringFlowMapper)
-        | None => CommonAuthUtils.clearLocalStorage()
-        }
+        TotpUtils.sptToken(totpInfo.token, totpInfo.token_type->TotpUtils.variantToStringFlowMapper)
       }
 
     | LoggedOut => CommonAuthUtils.clearLocalStorage()

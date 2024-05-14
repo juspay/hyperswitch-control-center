@@ -1,11 +1,3 @@
-type commonAuthInfo = {
-  token: string,
-  merchantId: string,
-  username: string,
-  email: string,
-  userRole: string,
-}
-
 type authorization = NoAccess | Access
 type logoVariant = Icon | Text | IconWithText | IconWithURL
 type authFlow =
@@ -23,6 +15,7 @@ type authFlow =
   | LiveMode
   | ActivateFromEmail
 type data = {code: string, message: string, type_: string}
+
 type subCode =
   | UR_00
   | UR_01

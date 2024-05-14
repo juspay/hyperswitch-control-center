@@ -496,14 +496,13 @@ let make = (
   ~verticalOffset="120px",
 ) => {
   open UIUtils
-  open CommonAuthHooks
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
     ConfigContext.configContext,
   )
   let fetchApi = AuthHooks.useApiFetcher()
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
-  let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let email = HSLocalStorage.getFromMerchantDetails("email")
 
   let (openItem, setOpenItem) = React.useState(_ => "")
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)

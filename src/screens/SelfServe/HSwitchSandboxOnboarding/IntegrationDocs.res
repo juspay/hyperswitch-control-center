@@ -4,8 +4,6 @@ module RequestPage = {
     open UserOnboardingTypes
     open UserOnboardingUtils
     open APIUtils
-    open CommonAuthHooks
-    let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let getURL = useGetURL()
     let requestedValue = requestedPlatform->Option.getOr("")->LogicUtils.capitalizeString
     let (isSubmitButtonEnabled, setIsSubmitButtonEnabled) = React.useState(_ => true)
@@ -15,13 +13,15 @@ module RequestPage = {
     let handleSubmitRequest = async () => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
-        let values =
+        let requestedBody =
           [
             ("rating", 5.0->JSON.Encode.float),
             ("category", "Platform Request"->JSON.Encode.string),
             ("feedbacks", `Request for ${requestedValue}`->JSON.Encode.string),
-          ]->LogicUtils.getJsonFromArrayOfJson
-        let requestedBody = HSwitchUtils.getBodyForFeedBack(~email, ~values, ())->JSON.Encode.object
+          ]
+          ->LogicUtils.getJsonFromArrayOfJson
+          ->HSwitchUtils.getBodyForFeedBack()
+          ->JSON.Encode.object
 
         let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post, ())

@@ -3,7 +3,6 @@ let make = () => {
   open HSwitchUtils
   open APIUtils
   open LogicUtils
-  let {email} = CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let flowType =
     Some(HSLocalStorage.getFromUserDetails("flow_type"))->BasicAuthUtils.flowTypeStrToVariantMapper
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
@@ -58,6 +57,7 @@ let make = () => {
           ("need_dashboard_entry_response", true->JSON.Encode.bool),
         ]->getJsonFromArrayOfJson
       let res = await updateDetails(url, body, Post, ())
+      let email = HSLocalStorage.getFromMerchantDetails("email")
       let token = BasicAuthUtils.parseResponseJson(~json=res, ~email)
       LocalStorage.setItem("login", token)
       LocalStorage.removeItem("accept_invite_data")
