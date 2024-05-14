@@ -1,5 +1,6 @@
 let useFetchBusinessProfiles = () => {
   open APIUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let setBusinessProfiles = Recoil.useSetRecoilState(HyperswitchAtom.businessProfilesAtom)
 

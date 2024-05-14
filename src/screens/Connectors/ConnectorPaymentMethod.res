@@ -11,6 +11,7 @@ let make = (
   open APIUtils
   open PageLoaderWrapper
   open LogicUtils
+  let getURL = useGetURL()
   let _showAdvancedConfiguration = false
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>

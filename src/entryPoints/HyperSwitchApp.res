@@ -8,7 +8,7 @@ let make = () => {
   open LogicUtils
   open HyperswitchAtom
   open HSLocalStorage
-
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
   let {
@@ -48,7 +48,7 @@ let make = () => {
 
   let getAgreementEnum = async () => {
     try {
-      let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl
+      let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl(getURL)
       let response = await fetchDetails(url)
 
       let productionAgreementResponse =

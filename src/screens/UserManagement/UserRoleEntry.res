@@ -14,7 +14,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
-
+  let getURL = useGetURL()
   let getUserData = async () => {
     setScreenStateUsers(_ => PageLoaderWrapper.Loading)
     try {

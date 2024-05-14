@@ -3,6 +3,8 @@ let make = () => {
   open AuthProviderTypes
   open APIUtils
 
+  let getURL = useGetURL()
+
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)

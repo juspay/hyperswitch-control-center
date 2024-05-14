@@ -155,6 +155,7 @@ module RedirectionToPayPalFlow = {
     open APIUtils
     open PayPalFlowTypes
     open HSwitchGlobalVars
+    let getURL = useGetURL()
     let url = RescriptReactRouter.useUrl()
     let path = url.path->List.toArray->Array.joinWith("/")
     let connectorId = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")

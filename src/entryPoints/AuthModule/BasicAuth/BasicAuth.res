@@ -5,7 +5,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   open CommonAuthForm
   open HSwitchGlobalVars
   open LogicUtils
-
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let initialValues = Dict.make()->JSON.Encode.object
@@ -64,7 +64,10 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         setAuthStatus(LoggedOut)
       }
     } catch {
-    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
+    | Exn.Error(e) => {
+        Js.log2(e, "error")
+        showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
+      }
     }
     Nullable.null
   }

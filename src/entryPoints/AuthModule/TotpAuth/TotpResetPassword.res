@@ -7,6 +7,7 @@ let make = (~flowType) => {
   open CommonAuthUtils
   open CommonAuthForm
   open BasicAuthUtils
+  let getURL = useGetURL()
 
   let initialValues = Dict.make()->JSON.Encode.object
   let showToast = ToastState.useShowToast()

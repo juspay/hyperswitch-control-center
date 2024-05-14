@@ -93,6 +93,7 @@ let make = () => {
   open APIUtils
   open ThreeDSUtils
   open SurchargeUtils
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())

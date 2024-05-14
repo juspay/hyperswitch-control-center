@@ -28,6 +28,8 @@ let make = () => {
   let showPopUp = PopUpState.useShowPopUp()
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
+  let getURL = useGetURL()
+
   let (otp, setOtp) = React.useState(_ => "")
   let (totpUrl, setTotpUrl) = React.useState(_ => "")
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)

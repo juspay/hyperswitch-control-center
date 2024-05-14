@@ -2,6 +2,7 @@
 let make = () => {
   open AuthProviderTypes
   open APIUtils
+  let getURL = useGetURL()
 
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")

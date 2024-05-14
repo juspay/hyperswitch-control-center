@@ -1,11 +1,11 @@
 open APIUtils
 open HSLocalStorage
-
 @react.component
-let make = React.memo((~merchantId="", ~verificationDays) => {
+let make = (~merchantId="", ~verificationDays) => {
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
+  let getURL = useGetURL()
   let email = getFromMerchantDetails("email")
   let verificationMessage = `${verificationDays->Int.toString} ${verificationDays === 1
       ? "day"
@@ -54,4 +54,4 @@ let make = React.memo((~merchantId="", ~verificationDays) => {
       {"your email address for uninterrupted access. "->React.string}
     </span>
   </div>
-})
+}

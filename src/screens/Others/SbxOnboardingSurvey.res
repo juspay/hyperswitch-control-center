@@ -40,7 +40,7 @@ let make = (~showModal, ~setShowModal) => {
   open APIUtils
   open LogicUtils
   open OnboardingSurveyModalUtils
-
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")

@@ -10,7 +10,7 @@ let make = (
   open APIUtils
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
-
+  let getURL = useGetURL()
   let onSubmit = async (values, _) => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())

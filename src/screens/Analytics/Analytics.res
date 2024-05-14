@@ -19,22 +19,6 @@ module BaseTableComponent = {
   ) => {
     open DynamicTableUtils
 
-    let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-    let _userInfoText = React.useMemo1(() => {
-      switch authStatus {
-      | LoggedIn(info) =>
-        switch info {
-        | BasicAuth(basicInfo) =>
-          `${basicInfo.merchantId}_tab_performance_table_table_${basicInfo.username}_currentTime` // tab name also need to be added based on tab currentTime need to be added
-        | ToptAuth(toptInfo) =>
-          `${toptInfo.merchantId}_tab_performance_table_table_${toptInfo.username}_currentTime`
-        }
-
-      | LoggedOut => ""
-      | CheckingAuthStatus => ""
-      }
-    }, [authStatus])
-
     let (offset, setOffset) = React.useState(_ => 0)
     let (_, setCounter) = React.useState(_ => 1)
     let refetch = React.useCallback1(_ => {

@@ -4,7 +4,7 @@ module RequestPage = {
     open UserOnboardingTypes
     open UserOnboardingUtils
     open APIUtils
-
+    let getURL = useGetURL()
     let requestedValue = requestedPlatform->Option.getOr("")->LogicUtils.capitalizeString
     let (isSubmitButtonEnabled, setIsSubmitButtonEnabled) = React.useState(_ => true)
     let showToast = ToastState.useShowToast()

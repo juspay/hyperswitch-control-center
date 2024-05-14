@@ -1,7 +1,7 @@
 @react.component
 let make = (~children) => {
   open APIUtils
-
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)

@@ -1,6 +1,7 @@
 let useBeginTotp = () => {
   open APIUtils
   open LogicUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   async _ => {
     try {
@@ -19,7 +20,7 @@ let useBeginTotp = () => {
 
 let useVerifyTotp = () => {
   open APIUtils
-
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   async body => {
     try {

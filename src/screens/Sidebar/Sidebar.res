@@ -499,6 +499,7 @@ let make = (
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
     ConfigContext.configContext,
   )
+  let getURL = APIUtils.useGetURL()
   let fetchApi = AuthHooks.useApiFetcher()
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
@@ -566,6 +567,7 @@ let make = (
       ~setAuthStateToLogout,
       ~setIsSidebarExpanded,
       ~clearRecoilValue,
+      ~getURL,
     )
   }
 

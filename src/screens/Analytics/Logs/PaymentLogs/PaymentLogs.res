@@ -2,6 +2,7 @@
 let make = (~paymentId, ~createdAt) => {
   open LogTypes
   open APIUtils
+  let getURL = useGetURL()
   let apiLogsUrl = getURL(~entityName=PAYMENT_LOGS, ~methodType=Get, ~id=Some(paymentId), ())
   let sdkLogsUrl = getURL(~entityName=SDK_EVENT_LOGS, ~methodType=Post, ~id=Some(paymentId), ())
   let startTime = createdAt->Date.fromString->Date.getTime -. 1000. *. 60. *. 5.

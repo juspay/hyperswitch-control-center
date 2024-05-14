@@ -4,7 +4,7 @@ let make = (~isFromMilestoneCard=false) => {
   open ProdVerifyModalUtils
 
   let fetchDetails = useGetMethod()
-
+  let getURL = useGetURL()
   let email = HSLocalStorage.getFromMerchantDetails("email")
   let {showProdIntentForm, setShowProdIntentForm, setIsProdIntentCompleted} = React.useContext(
     GlobalProvider.defaultContext,
