@@ -15,7 +15,7 @@ let make = () => {
     let acceptInvitedata = switch authStatus {
     | LoggedIn(info) =>
       switch info {
-      | BasicAuth(basicInfo) => basicInfo.acceptInviteData
+      | BasicAuth(basicInfo) => basicInfo.merchants
       | _ => None
       }
     | _ => None

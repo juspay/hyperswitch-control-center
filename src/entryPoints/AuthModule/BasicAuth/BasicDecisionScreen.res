@@ -5,7 +5,7 @@ let make = () => {
   let flowType = switch authStatus {
   | LoggedIn(info) =>
     switch info {
-    | BasicAuth(basicInfo) => basicInfo.flowType->BasicAuthUtils.flowTypeStrToVariantMapper
+    | BasicAuth(basicInfo) => basicInfo.flow_type->BasicAuthUtils.flowTypeStrToVariantMapper
     | _ => DASHBOARD_ENTRY
     }
   | _ => ERROR

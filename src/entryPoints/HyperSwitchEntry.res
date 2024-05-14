@@ -3,7 +3,7 @@ module HyperSwitchEntryComponent = {
   let make = () => {
     open CommonAuthHooks
     let fetchDetails = APIUtils.useGetMethod()
-    let {email, username: name} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+    let {email, name} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState

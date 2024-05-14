@@ -1,9 +1,9 @@
 type commonAuthInfo = {
   token: string,
-  merchantId: string,
-  username: string,
+  merchant_id: string,
+  name: string,
   email: string,
-  userRole: string,
+  user_role: string,
 }
 
 type authorization = NoAccess | Access

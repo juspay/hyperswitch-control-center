@@ -69,7 +69,7 @@ let make = () => {
   let (formState, setFormState) = React.useState(_ => Preview)
   let (fetchState, setFetchState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (isDisabled, setIsDisabled) = React.useState(_ => false)
-  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let onSubmit = async (values, _) => {
     try {
       setFetchState(_ => Loading)

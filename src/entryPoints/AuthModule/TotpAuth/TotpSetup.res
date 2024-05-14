@@ -139,12 +139,6 @@ let make = () => {
     }
   }
 
-  let logoutUser = () => {
-    CommonAuthUtils.clearLocalStorage()
-    setAuthStatus(LoggedOut)
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-  }
-
   let buttonText = showQR ? "Enable 2FA" : "Verify OTP"
   let modalHeaderText = showQR ? "Enable Two Factor Authentication" : "Enter TOTP Code"
 

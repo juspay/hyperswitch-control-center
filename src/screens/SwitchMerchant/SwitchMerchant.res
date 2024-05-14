@@ -125,7 +125,7 @@ module ExternalUser = {
   @react.component
   let make = (~switchMerchant, ~isAddMerchantEnabled) => {
     open UIUtils
-    let {merchantId: defaultMerchantId} =
+    let {merchant_id: defaultMerchantId} =
       CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let switchMerchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.switchMerchantListAtom)
@@ -254,8 +254,8 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   let merchantId = switch authStatus {
   | LoggedIn(info) =>
     switch info {
-    | BasicAuth(basicInfo) => basicInfo.merchantId->Option.getOr("")
-    | TotpAuth(totpInfo) => totpInfo.merchantId->Option.getOr("")
+    | BasicAuth(basicInfo) => basicInfo.merchant_id->Option.getOr("")
+    | TotpAuth(totpInfo) => totpInfo.merchant_id->Option.getOr("")
     }
   | _ => ""
   }

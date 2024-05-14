@@ -448,7 +448,7 @@ let reconTag = (recon, isReconEnabled) =>
     : emptyComponent
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
-  let {userRole} =
+  let {user_role: userRole} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)

@@ -44,8 +44,8 @@ let make = (~children) => {
   let username = switch authStatus {
   | LoggedIn(authType) =>
     switch authType {
-    | BasicAuth(basicAuthInfo) => basicAuthInfo.username->Option.getOr("")
-    | TotpAuth(totpAuthInfo) => totpAuthInfo.username->Option.getOr("")
+    | BasicAuth(basicAuthInfo) => basicAuthInfo.name->Option.getOr("")
+    | TotpAuth(totpAuthInfo) => totpAuthInfo.name->Option.getOr("")
     }
   | _ => ""
   }

@@ -104,7 +104,7 @@ module BasicDetailsSection = {
     let titleClass = "text-hyperswitch_black text-base  w-1/5"
     let subTitleClass = "text-hyperswitch_black opacity-50 text-base font-semibold break-all"
     let sectionHeadingClass = "font-semibold text-fs-18"
-    let {username: userName, email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+    let {name: userName, email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let userTitle = LogicUtils.userNameToTitle(userName)
 
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()

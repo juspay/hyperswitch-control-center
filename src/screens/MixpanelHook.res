@@ -9,7 +9,7 @@ let useSendEvent = () => {
   open HSwitchGlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
-  let {email: authInfoEmail, merchantId, username: name} =
+  let {email: authInfoEmail, merchant_id, name} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
 
   let deviceId = switch LocalStorage.getItem("deviceid")->Nullable.toOption {
@@ -73,7 +73,12 @@ let useSendEvent = () => {
     let eventName = eventName->String.toLowerCase
 
     if featureFlagDetails.mixpanel {
-      trackApi(~email={email->parseEmail}, ~merchantId, ~description, ~event={eventName})->ignore
+      trackApi(
+        ~email={email->parseEmail},
+        ~merchantId=merchant_id,
+        ~description,
+        ~event={eventName},
+      )->ignore
     }
   }
 }

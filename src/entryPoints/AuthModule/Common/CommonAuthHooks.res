@@ -57,10 +57,10 @@ let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
 }
 let defaultAuthInfo: CommonAuthTypes.commonAuthInfo = {
   token: "",
-  merchantId: "",
-  username: "",
+  merchant_id: "",
+  name: "",
   email: "",
-  userRole: "",
+  user_role: "",
 }
 
 let useCommonAuthInfo = () => {
@@ -68,21 +68,21 @@ let useCommonAuthInfo = () => {
   let authInfo: option<CommonAuthTypes.commonAuthInfo> = switch authStatus {
   | LoggedIn(info) =>
     switch info {
-    | BasicAuth({token, merchantId, username, email, userRole}) =>
+    | BasicAuth({token, merchant_id, name, email, user_role}) =>
       Some({
         token: token->Option.getOr(""),
-        merchantId: merchantId->Option.getOr(""),
-        username: username->Option.getOr(""),
+        merchant_id: merchant_id->Option.getOr(""),
+        name: name->Option.getOr(""),
         email: email->Option.getOr(""),
-        userRole: userRole->Option.getOr(""),
+        user_role: user_role->Option.getOr(""),
       })
-    | TotpAuth({token, merchantId, username, email, userRole}) =>
+    | TotpAuth({token, merchant_id, name, email, user_role}) =>
       Some({
         token: token->Option.getOr(""),
-        merchantId: merchantId->Option.getOr(""),
-        username: username->Option.getOr(""),
+        merchant_id: merchant_id->Option.getOr(""),
+        name: name->Option.getOr(""),
         email: email->Option.getOr(""),
-        userRole: userRole->Option.getOr(""),
+        user_role: user_role->Option.getOr(""),
       })
     }
   | _ => None

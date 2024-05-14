@@ -61,10 +61,10 @@ let getTotpAuthInfo = (~email_token=None, json) => {
   let dict = json->JsonFlattenUtils.flattenObject(false)
   let totpInfo = {
     email: getOptionString(dict, "email"),
-    merchantId: getOptionString(dict, "merchant_id"),
-    username: getOptionString(dict, "name"),
+    merchant_id: getOptionString(dict, "merchant_id"),
+    name: getOptionString(dict, "name"),
     token: getOptionString(dict, "token"),
-    userRole: getOptionString(dict, "user_role"),
+    user_role: getOptionString(dict, "user_role"),
     token_type: dict->getOptionString("token_type"),
     email_token: email_token->getEmailTokenValue,
   }

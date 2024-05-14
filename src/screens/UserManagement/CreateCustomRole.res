@@ -47,7 +47,7 @@ module NewCustomRoleInputFields = {
   open CommonAuthHooks
   @react.component
   let make = () => {
-    let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+    let {user_role: userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     <div className="flex justify-between">
       <div className="flex flex-col gap-4 w-full">
         <FormRenderer.FieldRenderer

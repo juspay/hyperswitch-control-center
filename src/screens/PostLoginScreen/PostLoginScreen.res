@@ -78,7 +78,7 @@ let make = () => {
   open CommonAuthHooks
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
-  let {username: userName} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {name: userName} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let (currentStep, setCurrentStep) = React.useState(_ => 0)
   let (carouselDirection, setCarouselDirection) = React.useState(_ => RIGHT)
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)

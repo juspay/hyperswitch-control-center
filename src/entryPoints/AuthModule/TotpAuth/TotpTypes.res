@@ -12,10 +12,10 @@ type totpFlowType =
 
 type totpAuthInfo = {
   token: option<string>,
-  merchantId: option<string>,
-  username: option<string>,
+  merchant_id: option<string>,
+  name: option<string>,
   token_type: option<string>,
   email: option<string>,
-  userRole: option<string>,
+  user_role: option<string>,
   email_token: option<string>,
 }

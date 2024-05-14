@@ -1,12 +1,12 @@
 type basicAuthInfo = {
   token: option<string>,
-  merchantId: option<string>,
-  username: option<string>,
+  merchant_id: option<string>,
+  name: option<string>,
   email: option<string>,
-  flowType: option<string>,
-  userRole: option<string>,
-  verificationDaysLeft: option<bool>,
-  acceptInviteData: option<array<JSON.t>>,
+  flow_type: option<string>,
+  user_role: option<string>,
+  verification_days_left: option<bool>,
+  merchants: option<array<JSON.t>>,
 }
 
 type flowType = MERCHANT_SELECT | DASHBOARD_ENTRY | ERROR

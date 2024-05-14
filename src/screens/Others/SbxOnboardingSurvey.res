@@ -44,7 +44,8 @@ let make = (~showModal, ~setShowModal) => {
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-  let {merchantId, email: userEmail} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {merchant_id: merchantId, email: userEmail} =
+    useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
 

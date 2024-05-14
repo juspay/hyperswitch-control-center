@@ -13,13 +13,13 @@ let getBasicAuthInfo = json => {
   let dict = json->JsonFlattenUtils.flattenObject(false)
   let authInfo = {
     email: getOptionString(dict, "email"),
-    flowType: getOptionString(dict, "flow_type"),
-    merchantId: getOptionString(dict, "merchant_id"),
-    username: getOptionString(dict, "name"),
+    flow_type: getOptionString(dict, "flow_type"),
+    merchant_id: getOptionString(dict, "merchant_id"),
+    name: getOptionString(dict, "name"),
     token: getOptionString(dict, "token"),
-    userRole: getOptionString(dict, "user_role"),
-    verificationDaysLeft: getOptionBool(dict, "verification_days_left"),
-    acceptInviteData: getOptionalArrayFromDict(dict, "merchants"),
+    user_role: getOptionString(dict, "user_role"),
+    verification_days_left: getOptionBool(dict, "verification_days_left"),
+    merchants: getOptionalArrayFromDict(dict, "merchants"),
   }
   authInfo
 }

@@ -169,7 +169,7 @@ let make = () => {
   let centerItems = pageView === SETUP_COMPLETED ? "justify-center" : ""
   let urlPush = appendDashboardPath(~url=`/prod-onboarding?${routerUrl.search}`)
 
-  let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {user_role: userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let getSetupCompleteEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
     if prodEnums.setupComplete {

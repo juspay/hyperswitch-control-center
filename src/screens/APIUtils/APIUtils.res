@@ -4,7 +4,7 @@ open CommonAuthHooks
 exception JsonException(JSON.t)
 
 let useGetURL = () => {
-  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let getUrl = (
     ~entityName: entityName,
     ~methodType: Fetch.requestMethod,
