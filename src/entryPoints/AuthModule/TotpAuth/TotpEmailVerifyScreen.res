@@ -35,7 +35,9 @@ let make = () => {
   React.useEffect0(() => {
     open CommonAuthUtils
     open TotpUtils
+    open HSwitchGlobalVars
 
+    RescriptReactRouter.replace(appendDashboardPath(~url="/accept_invite_from_email"))
     let emailToken = authStatus->getEmailToken
 
     switch emailToken {

@@ -3,15 +3,17 @@ external focus: (Dom.element, unit) => unit = "focus"
 module InputFieldForOtp = {
   @react.component
   let make = (~inputRef, ~value, ~index, ~handleChange, ~handleFocus) => {
-    let inputClass = `text-center h-full w-full border border-jp-2-light-gray-600 rounded-lg outline-none focus:border-blue-500 focus:shadow-focusBoxShadow text-2xl`
+    let inputClass = `text-center h-full w-full border border-jp-2-light-gray-600 rounded-lg outline-none focus:border-blue-500 focus:shadow-focusBoxShadow text-2xl overflow-hidden`
 
     let onChange = ev => {
       let currValue = {ev->ReactEvent.Form.target}["value"]
-      let newValue =
-        value->String.slice(~start=0, ~end=index) ++
-        currValue ++
-        value->String.sliceToEnd(~start=index + 1)
-      handleChange(newValue)
+      if %re("/^[0-9]+$/")->Js.Re.test_(currValue) || currValue === "" {
+        let newValue =
+          value->String.slice(~start=0, ~end=index) ++
+          currValue ++
+          value->String.sliceToEnd(~start=index + 1)
+        handleChange(newValue)
+      }
     }
     let subVal = value->String.slice(~start=index, ~end=index + 1)
 
@@ -26,12 +28,12 @@ module InputFieldForOtp = {
 
     <input
       ref={inputRef->ReactDOM.Ref.domRef}
-      type_="text"
       value={subVal}
       className=inputClass
       onChange
       onFocus={handleFocus}
       onKeyDown={handleKeyDown}
+      autoComplete="off"
     />
   }
 }

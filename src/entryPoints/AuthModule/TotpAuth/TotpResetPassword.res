@@ -22,19 +22,19 @@ let make = (~flowType) => {
         (),
       )
       let _ = await updateDetails(url, body, Post, ())
-      setAuthStatus(LoggedOut)
+
       LocalStorage.clear()
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
       RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url=`/login`))
     } catch {
     | _ => showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())
     }
+    setAuthStatus(LoggedOut)
   }
 
   let rotatePassword = async password => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#ROTATE_PASSWORD, ~methodType=Post, ())
-
       let body = [("password", password->JSON.Encode.string)]->getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
       setAuthStatus(LoggedOut)
@@ -42,7 +42,18 @@ let make = (~flowType) => {
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
       RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url=`/login`))
     } catch {
-    | _ => showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+        let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
+
+        if errorCode === "UR_29" {
+          showToast(~message=errorMessage, ~toastType=ToastError, ())
+        } else {
+          showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())
+          setAuthStatus(LoggedOut)
+        }
+      }
     }
   }
 
@@ -54,30 +65,29 @@ let make = (~flowType) => {
   | _ => (IconWithText, None)
   }
 
-  let confirmButtonAction = (password, password_reset_token) => {
+  let confirmButtonAction = password => {
     open TotpTypes
+    open TotpUtils
     switch flowType {
-    | FORCE_SET_PASSWORD => rotatePassword(password)
+    | FORCE_SET_PASSWORD => rotatePassword(password)->ignore
     | _ => {
-        let body = getResetpasswordBodyJson(password, password_reset_token)
-        setResetPassword(body)
+        let emailToken = authStatus->getEmailToken
+        switch emailToken {
+        | Some(email_token) => {
+            let body = getResetpasswordBodyJson(password, email_token)
+            setResetPassword(body)->ignore
+          }
+        | None => setAuthStatus(LoggedOut)
+        }
       }
     }
   }
 
   let onSubmit = async (values, _) => {
-    open TotpUtils
     try {
       let valuesDict = values->getDictFromJsonObject
-      let emailToken = authStatus->getEmailToken
-
-      switch emailToken {
-      | Some(email_token) => {
-          let password = getString(valuesDict, "create_password", "")
-          confirmButtonAction(password, email_token)->ignore
-        }
-      | None => setAuthStatus(LoggedOut)
-      }
+      let password = getString(valuesDict, "create_password", "")
+      confirmButtonAction(password)
     } catch {
     | _ => showToast(~message="Something went wrong, Try again", ~toastType=ToastError, ())
     }
@@ -85,9 +95,15 @@ let make = (~flowType) => {
   }
 
   let headerText = switch flowType {
-  | FORCE_SET_PASSWORD => "Change password"
+  | FORCE_SET_PASSWORD => "Set password"
   | _ => "Reset password"
   }
+
+  React.useEffect0(_ => {
+    open HSwitchGlobalVars
+    RescriptReactRouter.replace(appendDashboardPath(~url="/reset_password"))
+    None
+  })
 
   <HSwitchUtils.BackgroundImageWrapper
     customPageCss="flex flex-col items-center justify-center overflow-scroll ">
