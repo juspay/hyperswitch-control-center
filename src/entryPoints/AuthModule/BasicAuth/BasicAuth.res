@@ -64,7 +64,10 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         setAuthStatus(LoggedOut)
       }
     } catch {
-    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
+    | Exn.Error(e) => {
+        Js.log2(e, "error")
+        showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
+      }
     }
     Nullable.null
   }
