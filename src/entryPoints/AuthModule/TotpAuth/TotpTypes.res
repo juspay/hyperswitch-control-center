@@ -17,8 +17,10 @@ type totpAuthInfo = {
   token_type: totpFlowType,
   email: option<string>,
   userRole: option<string>,
+  email_token: option<string>,
 }
 type sptTokenType = {
   token: option<string>,
   token_type: totpFlowType,
+  email_token: option<string>,
 }

@@ -45,7 +45,11 @@ let make = (~children) => {
         switch totpInfo.token {
         | Some(token) => {
             setAuth(_ => newAuthStatus)
-            TotpUtils.sptToken(token, totpInfo.token_type->TotpUtils.variantToStringFlowMapper)
+            TotpUtils.sptToken(
+              totpInfo.token,
+              totpInfo.token_type->TotpUtils.variantToStringFlowMapper,
+              totpInfo.email_token,
+            )
           }
         | None => {
             setAuth(_ => LoggedOut)

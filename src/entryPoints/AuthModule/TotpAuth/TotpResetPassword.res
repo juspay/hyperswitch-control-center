@@ -6,39 +6,36 @@ let make = (~flowType) => {
   open CommonAuthTypes
   open CommonAuthUtils
   open CommonAuthForm
-  open BasicAuthUtils
+
   let getURL = useGetURL()
-  let url = RescriptReactRouter.useUrl()
+
   let initialValues = Dict.make()->JSON.Encode.object
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let setResetPassword = async body => {
     try {
-      // TODO : replace with the actual route for reset password
-      // and also write the logic for force_set_password & reset_password
       let url = getURL(
         ~entityName=USERS,
         ~userType=#RESET_PASSWORD_TOKEN_ONLY,
         ~methodType=Post,
         (),
       )
-      Js.log2("bodybodybody", body)
       let _ = await updateDetails(url, body, Post, ())
-      setAuthStatus(LoggedOut)
+
       LocalStorage.clear()
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
       RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url=`/login`))
     } catch {
     | _ => showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())
     }
+    setAuthStatus(LoggedOut)
   }
 
   let rotatePassword = async password => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#ROTATE_PASSWORD, ~methodType=Post, ())
-
       let body = [("password", password->JSON.Encode.string)]->getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
       setAuthStatus(LoggedOut)
@@ -46,7 +43,18 @@ let make = (~flowType) => {
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
       RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url=`/login`))
     } catch {
-    | _ => showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+        let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
+
+        if errorCode === "UR_29" {
+          showToast(~message=errorMessage, ~toastType=ToastError, ())
+        } else {
+          showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())
+          setAuthStatus(LoggedOut)
+        }
+      }
     }
   }
 
@@ -58,13 +66,20 @@ let make = (~flowType) => {
   | _ => (IconWithText, None)
   }
 
-  let confirmButtonAction = (password, password_reset_token) => {
+  let confirmButtonAction = password => {
     open TotpTypes
+    open TotpUtils
     switch flowType {
-    | FORCE_SET_PASSWORD => rotatePassword(password)
+    | FORCE_SET_PASSWORD => rotatePassword(password)->ignore
     | _ => {
-        let body = getResetpasswordBodyJson(password, password_reset_token)
-        setResetPassword(body)
+        let emailToken = authStatus->getEmailToken
+        switch emailToken {
+        | Some(email_token) => {
+            let body = getResetpasswordBodyJson(password, email_token)
+            setResetPassword(body)->ignore
+          }
+        | None => setAuthStatus(LoggedOut)
+        }
       }
     }
   }
@@ -72,10 +87,8 @@ let make = (~flowType) => {
   let onSubmit = async (values, _) => {
     try {
       let valuesDict = values->getDictFromJsonObject
-      let queryDict = url.search->getDictFromUrlSearchParams
-      let password_reset_token = queryDict->Dict.get("token")->Option.getOr("")
       let password = getString(valuesDict, "create_password", "")
-      confirmButtonAction(password, password_reset_token)->ignore
+      confirmButtonAction(password)
     } catch {
     | _ => showToast(~message="Something went wrong, Try again", ~toastType=ToastError, ())
     }
@@ -83,9 +96,15 @@ let make = (~flowType) => {
   }
 
   let headerText = switch flowType {
-  | FORCE_SET_PASSWORD => "Change password"
+  | FORCE_SET_PASSWORD => "Set password"
   | _ => "Reset password"
   }
+
+  React.useEffect0(_ => {
+    open HSwitchGlobalVars
+    RescriptReactRouter.replace(appendDashboardPath(~url="/reset_password"))
+    None
+  })
 
   <HSwitchUtils.BackgroundImageWrapper
     customPageCss="flex flex-col items-center justify-center overflow-scroll ">
@@ -104,7 +123,8 @@ let make = (~flowType) => {
               key="auth"
               initialValues
               subscription=ReactFinalForm.subscribeToValues
-              validate={values => validateForm(values, ["create_password", "comfirm_password"])}
+              validate={values =>
+                TotpUtils.validateTotpForm(values, ["create_password", "comfirm_password"])}
               onSubmit
               render={({handleSubmit}) => {
                 <div className="flex flex-col gap-6">

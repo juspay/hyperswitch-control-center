@@ -50,7 +50,6 @@ module ConnectorOverview = {
             {`${configuredConnectors->Array.length->Int.toString} Active Processors`->React.string}
           </p>
         </div>
-        // TODO : Check the permission for this
         <ACLButton
           text="+ Add More"
           access={userPermissionJson.connectorsView}

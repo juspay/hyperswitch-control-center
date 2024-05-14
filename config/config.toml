@@ -30,6 +30,6 @@ paypal_automatic_flow=false
 threeds_authenticator=false
 global_search=false
 dispute_analytics=false
-configure_pmts=false
+configure_pmts=true
 branding=false
 totp=false

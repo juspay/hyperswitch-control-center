@@ -10,7 +10,6 @@ module HomePageHorizontalStepper = {
     let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
     let typedValueOfEnum = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
 
-    // TODO : To be used when Test Payment flow if is integrated
     let step = if !(typedValueOfEnum.testPayment.payment_id->LogicUtils.isNonEmptyString) {
       0
     } else if !typedValueOfEnum.integrationCompleted {
@@ -236,7 +235,6 @@ module RecipesAndPlugins = {
     let isWooCommercePalCompleted = enumDetails->checkWooCommerce
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
-    // TODO :: Need to re-evaluate the condition , Check for the permission
     let blockConditionAccessVal =
       userPermissionJson.connectorsView === NoAccess &&
         userPermissionJson.connectorsManage === NoAccess

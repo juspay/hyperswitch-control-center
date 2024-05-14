@@ -9,8 +9,9 @@ let make = () => {
   let (merchantData, setMerchantData) = React.useState(_ => [])
 
   let logoutUser = () => {
-    LocalStorage.clear()
+    CommonAuthUtils.clearLocalStorage()
     setAuthStatus(LoggedOut)
+    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
   }
 
   let getListOfMerchantIds = async () => {
@@ -24,7 +25,6 @@ let make = () => {
   }
 
   React.useEffect0(() => {
-    // TODO: add the api to get the list of merchant ids
     getListOfMerchantIds()->ignore
     None
   })
@@ -44,13 +44,10 @@ let make = () => {
       let body = [("merchant_ids", acceptedMerchantIds->JSON.Encode.array)]->getJsonFromArrayOfJson
       let res = await updateDetails(url, body, Post, ())
 
-      let token_Type =
+      let token_type =
         res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
-      let token = res->getDictFromJsonObject->getOptionString("token")
-      setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, token_Type))))
-      RescriptReactRouter.replace(
-        HSwitchGlobalVars.appendDashboardPath(~url=`/${token_Type->variantToStringFlowMapper}`),
-      )
+      let token = res->getDictFromJsonObject->getString("token", "")
+      setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(Some(token), token_type))))
     } catch {
     | _ => ()
     }

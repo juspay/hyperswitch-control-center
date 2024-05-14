@@ -90,28 +90,46 @@ let variantToStringFlowMapper = val => {
 let getSptTokenType: unit => TotpTypes.sptTokenType = () => {
   let token = LocalStorage.getItem("login")->Nullable.toOption
   let tokenType = LocalStorage.getItem("token_type")->Nullable.toOption->flowTypeStrToVariantMapper
+  let emailToken = LocalStorage.getItem("email_token")->Nullable.toOption
 
   {
     token,
     token_type: tokenType,
+    email_token: emailToken,
   }
 }
 
-let sptToken = (token, tokenType) => {
-  LocalStorage.setItem("login", token)
+let sptToken = (token, tokenType, email_token) => {
   LocalStorage.setItem("token_type", tokenType)
+
+  switch email_token {
+  | Some(token_value) => LocalStorage.setItem("email_token", token_value)
+  | _ => ()
+  }
+
+  switch token {
+  | Some(tok) => LocalStorage.setItem("login", tok)
+  | _ => ()
+  }
 }
 
-let totpAuthInfoForToken = (token, token_type) => {
-  let email = None
-  let userRole = None
+let getEmailTokenValue = email_token => {
+  let sptToken = getSptTokenType()
+  switch email_token {
+  | Some(email_token) => Some(email_token)
+  | None => sptToken.email_token
+  }
+}
+
+let totpAuthInfoForToken = (~email_token=None, token, token_type) => {
   let totpInfo = {
     token,
     merchantId: None,
     username: None,
+    email: None,
+    userRole: None,
     token_type,
-    email,
-    userRole,
+    email_token: email_token->getEmailTokenValue,
   }
   totpInfo
 }
@@ -149,4 +167,63 @@ let parseResponseJson = (~json, ~email) => {
     "user_role",
     valuesDict->getString("user_role", "")->JSON.Encode.string,
   )
+}
+
+let getEmailToken = (authStatus: AuthProviderTypes.authStatus) => {
+  switch authStatus {
+  | LoggedIn(info) =>
+    switch info {
+    | ToptAuth(totpInfo) => totpInfo.email_token
+    | _ => None
+    }
+  | _ => None
+  }
+}
+
+let validateTotpForm = (values: JSON.t, keys: array<string>) => {
+  let valuesDict = values->LogicUtils.getDictFromJsonObject
+
+  let errors = Dict.make()
+  keys->Array.forEach(key => {
+    let value = LogicUtils.getString(valuesDict, key, "")
+
+    // empty check
+    if value->LogicUtils.isEmptyString {
+      switch key {
+      | "email" => Dict.set(errors, key, "Please enter your Email ID"->JSON.Encode.string)
+      | "password" => Dict.set(errors, key, "Please enter your Password"->JSON.Encode.string)
+      | "create_password" => Dict.set(errors, key, "Please enter your Password"->JSON.Encode.string)
+      | "comfirm_password" =>
+        Dict.set(errors, key, "Please enter your Password Once Again"->JSON.Encode.string)
+      | _ =>
+        Dict.set(
+          errors,
+          key,
+          `${key->LogicUtils.capitalizeString} cannot be empty`->JSON.Encode.string,
+        )
+      }
+    }
+
+    // email check
+    if (
+      value->LogicUtils.isNonEmptyString && key === "email" && value->CommonAuthUtils.isValidEmail
+    ) {
+      Dict.set(errors, key, "Please enter valid Email ID"->JSON.Encode.string)
+    }
+
+    // password check
+    CommonAuthUtils.passwordKeyValidation(value, key, "create_password", errors)
+
+    // confirm password check
+    CommonAuthUtils.confirmPasswordCheck(
+      value,
+      key,
+      "comfirm_password",
+      "create_password",
+      valuesDict,
+      errors,
+    )
+  })
+
+  errors->JSON.Encode.object
 }

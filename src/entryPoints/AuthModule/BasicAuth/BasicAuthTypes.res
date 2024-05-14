@@ -9,6 +9,4 @@ type basicAuthInfo = {
   acceptInviteData: option<array<JSON.t>>,
 }
 
-type modeType = TestButtonMode | LiveButtonMode
-
 type flowType = MERCHANT_SELECT | DASHBOARD_ENTRY | ERROR

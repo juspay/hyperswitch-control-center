@@ -72,7 +72,9 @@ let validateForm = (values: JSON.t, keys: array<string>) => {
     }
 
     // email check
-    if value->LogicUtils.isNonEmptyString && key === "email" && value->HSwitchUtils.isValidEmail {
+    if (
+      value->LogicUtils.isNonEmptyString && key === "email" && value->CommonAuthUtils.isValidEmail
+    ) {
       Dict.set(errors, key, "Please enter valid Email ID"->JSON.Encode.string)
     }
 
@@ -91,54 +93,4 @@ let validateForm = (values: JSON.t, keys: array<string>) => {
   })
 
   errors->JSON.Encode.object
-}
-
-module ToggleLiveTestMode = {
-  open HSwitchGlobalVars
-  open CommonAuthTypes
-  @react.component
-  let make = (~authType, ~mode, ~setMode, ~setAuthType, ~customClass="") => {
-    let liveButtonRedirectUrl = getHostUrlWithBasePath
-    let testButtonRedirectUrl = getHostUrlWithBasePath
-    <>
-      {switch authType {
-      | LoginWithPassword
-      | LoginWithEmail
-      | LiveMode => {
-          let borderStyle = "border-b-1 border-grey-600 border-opacity-50"
-          let selectedtStyle = "border-b-2 inline-block relative -bottom-px py-2"
-          let testModeStyles = mode === TestButtonMode ? selectedtStyle : ""
-          let liveModeStyles = mode === LiveButtonMode ? selectedtStyle : ""
-
-          <FramerMotion.Motion.Div
-            transition={{duration: 0.3}} layoutId="toggle" className="w-full">
-            <div className={`w-full p-2 ${customClass} `}>
-              <div className={`flex items-center ${borderStyle} gap-4`}>
-                <div
-                  className={`!shadow-none text-white text-start text-fs-16 font-semibold cursor-pointer flex justify-center`}
-                  onClick={_ => {
-                    setMode(_ => TestButtonMode)
-                    setAuthType(_ => LoginWithEmail)
-                    Window.Location.replace(testButtonRedirectUrl)
-                  }}>
-                  <span className={`${testModeStyles}`}> {"Test Mode"->React.string} </span>
-                </div>
-                <div
-                  className={`!shadow-none text-white text-start text-fs-16 font-semibold cursor-pointer flex justify-center`}
-                  onClick={_ => {
-                    setMode(_ => LiveButtonMode)
-                    setAuthType(_ => LoginWithEmail)
-                    Window.Location.replace(liveButtonRedirectUrl)
-                  }}>
-                  <span className={`${liveModeStyles}`}> {"Live Mode"->React.string} </span>
-                </div>
-              </div>
-            </div>
-          </FramerMotion.Motion.Div>
-        }
-
-      | _ => React.null
-      }}
-    </>
-  }
 }
