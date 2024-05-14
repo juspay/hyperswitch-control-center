@@ -227,7 +227,7 @@ let useGetURL = () => {
       | #FROM_EMAIL => `${userUrl}/from_email`
       | #BEGIN_TOTP => `${userUrl}/totp/begin`
       | #VERIFY_TOTP => `${userUrl}/totp/verify`
-      | #INVITE_MULTIPLE_TOKEN_ONLY => `${userUrl}/user/invite/accept?token_only=true`
+      | #INVITE_MULTIPLE_TOKEN_ONLY => `${userUrl}/user/invite_multiple?token_only=true`
       | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
         `${userUrl}/${(userType :> string)->String.toLowerCase}?token_only=true`
       | #USER_INFO => userUrl
