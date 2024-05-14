@@ -1,4 +1,4 @@
-open BasicAuthUtils
+open CommonAuthUtils
 
 module BasicAuthPage = {
   open FramerMotion.Motion
@@ -52,8 +52,8 @@ module BasicAuthPage = {
 
 @react.component
 let make = (~setAuthStatus) => {
-  open BasicAuthTypes
   open CommonAuthTypes
+
   let url = RescriptReactRouter.useUrl()
   let (mode, setMode) = React.useState(_ => TestButtonMode)
   let {isLiveMode, email: isMagicLinkEnabled} =

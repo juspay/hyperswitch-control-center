@@ -1,6 +1,5 @@
-open BasicAuthUtils
-
-module BasicAuthPage = {
+open CommonAuthUtils
+module TotpAuthPage = {
   open FramerMotion.Motion
   open CommonAuthTypes
   @react.component
@@ -52,7 +51,6 @@ module BasicAuthPage = {
 
 @react.component
 let make = (~setAuthStatus) => {
-  open BasicAuthTypes
   open CommonAuthTypes
   let url = RescriptReactRouter.useUrl()
   let (mode, setMode) = React.useState(_ => TestButtonMode)
@@ -125,9 +123,6 @@ let make = (~setAuthStatus) => {
     }
     None
   }, [authType])
-  switch authType {
-  | EmailVerify | MagicLinkVerify => <BasicEmailVerifyScreen setAuthType setAuthStatus />
-  | ActivateFromEmail => <BasicInviteFromEmail setAuthType setAuthStatus />
-  | _ => <BasicAuthPage authType setAuthType setAuthStatus mode setMode />
-  }
+
+  <TotpAuthPage authType setAuthType setAuthStatus mode setMode />
 }

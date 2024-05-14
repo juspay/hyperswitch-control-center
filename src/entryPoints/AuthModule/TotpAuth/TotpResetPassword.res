@@ -6,7 +6,7 @@ let make = (~flowType) => {
   open CommonAuthTypes
   open CommonAuthUtils
   open CommonAuthForm
-  open BasicAuthUtils
+
   let getURL = useGetURL()
 
   let initialValues = Dict.make()->JSON.Encode.object
@@ -123,7 +123,8 @@ let make = (~flowType) => {
               key="auth"
               initialValues
               subscription=ReactFinalForm.subscribeToValues
-              validate={values => validateForm(values, ["create_password", "comfirm_password"])}
+              validate={values =>
+                TotpUtils.validateTotpForm(values, ["create_password", "comfirm_password"])}
               onSubmit
               render={({handleSubmit}) => {
                 <div className="flex flex-col gap-6">
