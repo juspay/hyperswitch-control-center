@@ -5,6 +5,7 @@ module InviteEmailForm = {
     open LogicUtils
     open APIUtils
     open UIUtils
+    let getURL = useGetURL()
     let {globalUIConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
     let fetchDetails = useGetMethod()
     let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -81,6 +82,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   open APIUtils
   open LogicUtils
   open UIUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()

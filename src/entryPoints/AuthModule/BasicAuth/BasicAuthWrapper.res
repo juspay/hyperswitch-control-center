@@ -11,15 +11,12 @@ let make = (~children) => {
     | list{"user", "login"}
     | list{"register"} =>
       setAuthStatus(LoggedOut)
-    | _ =>
-      switch LocalStorage.getItem("login")->Nullable.toOption {
-      | Some(token) =>
-        if !(token->LogicUtils.isEmptyString) {
-          setAuthStatus(LoggedIn(BasicAuth(BasicAuthTypes.getDummyAuthInfoForToken(token))))
-        } else {
-          setAuthStatus(LoggedOut)
+    | _ => {
+        let authInfo = BasicAuthUtils.getBasicAuthInfo()
+        switch authInfo.token {
+        | Some(_) => setAuthStatus(LoggedIn(BasicAuth(authInfo)))
+        | None => setAuthStatus(LoggedOut)
         }
-      | None => setAuthStatus(LoggedOut)
       }
     }
 
@@ -28,7 +25,7 @@ let make = (~children) => {
 
   <div className="font-inter-style">
     {switch authStatus {
-    | LoggedOut => <BasicAuthScreen setAuthStatus />
+    | LoggedOut => <BasicAuthScreen />
     | LoggedIn(_token) => children
     | CheckingAuthStatus => <Loader />
     }}

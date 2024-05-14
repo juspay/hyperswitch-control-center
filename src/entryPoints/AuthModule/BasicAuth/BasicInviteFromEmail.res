@@ -1,10 +1,10 @@
 @react.component
-let make = (~setAuthType, ~setAuthStatus) => {
-  open BasicAuthTypes
-
+let make = (~setAuthType) => {
   open APIUtils
   open LogicUtils
   open AuthProviderTypes
+  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
@@ -14,16 +14,13 @@ let make = (~setAuthType, ~setAuthStatus) => {
     try {
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL, ())
       let res = await updateDetails(url, body, Post, ())
-      let email = res->JSON.Decode.object->Option.getOr(Dict.make())->getString("email", "")
-      let token = BasicAuthUtils.parseResponseJson(~json=res, ~email)
-
-      if !(token->isEmptyString) && !(email->isEmptyString) {
-        setAuthStatus(LoggedIn(BasicAuth(getDummyAuthInfoForToken(token))))
+      let typedAuthInfo = res->BasicAuthUtils.setLoginResToStorage
+      if typedAuthInfo.token->Option.isSome && typedAuthInfo.email->Option.isSome {
+        setAuthStatus(LoggedIn(BasicAuth(typedAuthInfo)))
         setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
       } else {
         setAuthStatus(LoggedOut)
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
       }
     } catch {
     | Exn.Error(e) => {
@@ -46,8 +43,9 @@ let make = (~setAuthType, ~setAuthStatus) => {
     None
   })
   let onClick = () => {
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+    setAuthStatus(LoggedOut)
     setAuthType(_ => CommonAuthTypes.LoginWithEmail)
+    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
   }
 
   <EmailVerifyScreen

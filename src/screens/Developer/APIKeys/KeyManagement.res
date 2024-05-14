@@ -11,6 +11,7 @@ module ApiEditModal = {
     ~action=Create,
     ~keyId=?,
   ) => {
+    let getURL = APIUtils.useGetURL()
     let (apiKey, setApiKey) = React.useState(_ => "")
     let (showCustomDate, setShowCustomDate) = React.useState(_ => false)
     let (modalState, setModalState) = React.useState(_ => action)
@@ -65,10 +66,10 @@ module ApiEditModal = {
         let url = switch action {
         | Update => {
             let key_id = keyId->Option.getOr("")
-            APIUtils.getURL(~entityName=API_KEYS, ~methodType=Post, ~id=Some(key_id), ())
+            getURL(~entityName=API_KEYS, ~methodType=Post, ~id=Some(key_id), ())
           }
 
-        | _ => APIUtils.getURL(~entityName=API_KEYS, ~methodType=Post, ())
+        | _ => getURL(~entityName=API_KEYS, ~methodType=Post, ())
         }
 
         let json = await updateDetails(url, body->JSON.Encode.object, Post, ())
@@ -207,6 +208,7 @@ module TableActionsCell = {
   open HSwitchSettingTypes
   @react.component
   let make = (~keyId, ~getAPIKeyDetails: unit => promise<unit>, ~data: apiKey) => {
+    let getURL = APIUtils.useGetURL()
     let showToast = ToastState.useShowToast()
     let (showModal, setShowModal) = React.useState(_ => false)
     let showPopUp = PopUpState.useShowPopUp()
@@ -217,12 +219,7 @@ module TableActionsCell = {
         Dict.set(body, "key_id", keyId->JSON.Encode.string)
         Dict.set(body, "revoked", true->JSON.Encode.bool)
 
-        let deleteUrl = APIUtils.getURL(
-          ~entityName=API_KEYS,
-          ~methodType=Delete,
-          ~id=Some(keyId),
-          (),
-        )
+        let deleteUrl = getURL(~entityName=API_KEYS, ~methodType=Delete, ~id=Some(keyId), ())
         (await deleteDetails(deleteUrl, body->JSON.Encode.object, Delete, ()))->ignore
         getAPIKeyDetails()->ignore
       } catch {
@@ -293,6 +290,7 @@ module ApiKeysTable = {
   open HSwitchSettingTypes
   @react.component
   let make = () => {
+    let getURL = APIUtils.useGetURL()
     let fetchDetails = APIUtils.useGetMethod()
     let (offset, setOffset) = React.useState(_ => 0)
     let (data, setData) = React.useState(_ => [])
@@ -300,7 +298,7 @@ module ApiKeysTable = {
 
     let getAPIKeyDetails = async () => {
       try {
-        let apiKeyListUrl = APIUtils.getURL(~entityName=API_KEYS, ~methodType=Get, ())
+        let apiKeyListUrl = getURL(~entityName=API_KEYS, ~methodType=Get, ())
         let apiKeys = await fetchDetails(apiKeyListUrl)
         setData(_ => apiKeys->getItems)
         setScreenState(_ => PageLoaderWrapper.Success)

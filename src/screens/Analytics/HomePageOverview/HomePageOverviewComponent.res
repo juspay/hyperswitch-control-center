@@ -180,6 +180,7 @@ module OverviewInfo = {
   open APIUtils
   @react.component
   let make = () => {
+    let getURL = useGetURL()
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let updateDetails = useUpdateMethod()

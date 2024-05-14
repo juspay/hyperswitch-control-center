@@ -15,6 +15,7 @@ module SelectPaymentMethods = {
     let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
     let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
     let enums = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
+    let getURL = APIUtils.useGetURL()
     let updateAPIHook = APIUtils.useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let postEnumDetails = EnumVariantHook.usePostEnumDetails()
@@ -84,7 +85,7 @@ module SelectPaymentMethods = {
           metadata: metaData,
         }
         let body = ConnectorUtils.constructConnectorRequestBody(obj, initialValues)
-        let connectorUrl = APIUtils.getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
+        let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
         if enums.configurationType->String.length === 0 && connectorName === "stripe" {
           let _ = await updateEnumForMultipleConfigurationType(
             #MultipleProcessorWithSmartRouting->QuickStartUtils.connectorChoiceVariantToString,

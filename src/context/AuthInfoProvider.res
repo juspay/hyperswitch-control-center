@@ -25,15 +25,44 @@ let make = (~children) => {
     switch newAuthStatus {
     | LoggedIn(info) =>
       switch info {
-      | BasicAuth(basicInfo) => LocalStorage.setItem("login", basicInfo.token)
+      | BasicAuth(basicInfo) =>
+        switch basicInfo.token {
+        | Some(token) => {
+            Js.log2("token", token)
+            if !(token->LogicUtils.isEmptyString) {
+              setAuth(_ => newAuthStatus)
+            } else {
+              setAuth(_ => LoggedOut)
+              CommonAuthUtils.clearLocalStorage()
+            }
+          }
+        | None => {
+            setAuth(_ => LoggedOut)
+            CommonAuthUtils.clearLocalStorage()
+          }
+        }
       | ToptAuth(totpInfo) =>
-        TotpUtils.sptToken(totpInfo.token, totpInfo.token_type->TotpUtils.variantToStringFlowMapper)
+        switch totpInfo.token {
+        | Some(token) => {
+            setAuth(_ => newAuthStatus)
+            TotpUtils.sptToken(token, totpInfo.token_type->TotpUtils.variantToStringFlowMapper)
+          }
+        | None => {
+            setAuth(_ => LoggedOut)
+            CommonAuthUtils.clearLocalStorage()
+          }
+        }
       }
 
-    | LoggedOut => CommonAuthUtils.clearLocalStorage()
-    | CheckingAuthStatus => ()
+    | LoggedOut => {
+        setAuth(_ => LoggedOut)
+        CommonAuthUtils.clearLocalStorage()
+      }
+    | CheckingAuthStatus => {
+        setAuth(_ => CheckingAuthStatus)
+        CommonAuthUtils.clearLocalStorage()
+      }
     }
-    setAuth(_ => newAuthStatus)
   }, [setAuth])
 
   let setAuthStateToLogout = React.useCallback0(() => {

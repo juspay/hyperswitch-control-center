@@ -4,7 +4,8 @@ module RequestPage = {
     open UserOnboardingTypes
     open UserOnboardingUtils
     open APIUtils
-
+    let {email} = CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let requestedValue = requestedPlatform->LogicUtils.capitalizeString
@@ -13,15 +14,13 @@ module RequestPage = {
     let handleSubmitRequest = async () => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
-        let requestedBody =
+        let values =
           [
             ("rating", 5.0->JSON.Encode.float),
             ("category", "Platform Request"->JSON.Encode.string),
             ("feedbacks", `Request for ${requestedValue}`->JSON.Encode.string),
-          ]
-          ->LogicUtils.getJsonFromArrayOfJson
-          ->HSwitchUtils.getBodyForFeedBack()
-          ->JSON.Encode.object
+          ]->LogicUtils.getJsonFromArrayOfJson
+        let requestedBody = HSwitchUtils.getBodyForFeedBack(~email, ~values, ())->JSON.Encode.object
 
         let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post, ())

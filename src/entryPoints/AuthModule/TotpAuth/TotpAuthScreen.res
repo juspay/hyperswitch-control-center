@@ -126,8 +126,8 @@ let make = (~setAuthStatus) => {
     None
   }, [authType])
   switch authType {
-  | EmailVerify | MagicLinkVerify => <BasicEmailVerifyScreen setAuthType setAuthStatus />
-  | ActivateFromEmail => <BasicInviteFromEmail setAuthType setAuthStatus />
+  | EmailVerify | MagicLinkVerify => <BasicEmailVerifyScreen setAuthType />
+  | ActivateFromEmail => <BasicInviteFromEmail setAuthType />
   | _ => <BasicAuthPage authType setAuthType setAuthStatus mode setMode />
   }
 }

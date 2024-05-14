@@ -5,6 +5,7 @@ let make = () => {
   open ConnectorTypes
   open LogicUtils
   open FRMInfo
+  let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()

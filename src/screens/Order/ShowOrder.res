@@ -492,6 +492,7 @@ module FraudRiskBannerDetails = {
   open APIUtils
   @react.component
   let make = (~order: order, ~refetch) => {
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
@@ -609,6 +610,7 @@ module FraudRiskBanner = {
 let make = (~id) => {
   open APIUtils
   open OrderUIUtils
+  let getURL = useGetURL()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchDetails = useGetMethod()

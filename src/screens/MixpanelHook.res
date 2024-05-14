@@ -7,17 +7,18 @@ type functionType = (
 
 let useSendEvent = () => {
   open HSwitchGlobalVars
-  open HSLocalStorage
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
-  let name = getFromUserDetails("name")
+  let {email: authInfoEmail, merchantId, username: name} =
+    CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
+
   let deviceId = switch LocalStorage.getItem("deviceid")->Nullable.toOption {
   | Some(id) => id
-  | None => getFromUserDetails("email")
+  | None => authInfoEmail
   }
 
   let parseEmail = email => {
-    email->String.length == 0 ? getFromMerchantDetails("email") : email
+    email->String.length == 0 ? authInfoEmail : email
   }
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -70,7 +71,6 @@ let useSendEvent = () => {
 
   (~eventName, ~email="", ~description=None, ()) => {
     let eventName = eventName->String.toLowerCase
-    let merchantId = getFromMerchantDetails("merchant_id")
 
     if featureFlagDetails.mixpanel {
       trackApi(~email={email->parseEmail}, ~merchantId, ~description, ~event={eventName})->ignore

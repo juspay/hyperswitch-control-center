@@ -60,6 +60,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
   open FRMUtils
   open APIUtils
   open ConnectorTypes
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
 

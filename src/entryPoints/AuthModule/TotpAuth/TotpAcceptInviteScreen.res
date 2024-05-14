@@ -2,7 +2,7 @@
 let make = () => {
   open AuthProviderTypes
   open APIUtils
-
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
@@ -22,7 +22,7 @@ let make = () => {
       let res = await updateDetails(url, body, Post, ())
       let token_Type =
         res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
-      let token = res->getDictFromJsonObject->getString("token", "")
+      let token = res->getDictFromJsonObject->getOptionString("token")
       setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, token_Type))))
       RescriptReactRouter.replace(
         HSwitchGlobalVars.appendDashboardPath(~url=`/${token_Type->variantToStringFlowMapper}`),

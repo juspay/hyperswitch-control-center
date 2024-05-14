@@ -21,6 +21,7 @@ module VolumeRoutingView = {
     ~connectorList,
     ~baseUrlForRedirection,
   ) => {
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
     let listLength = connectors->Array.length
@@ -217,6 +218,7 @@ let make = (
   ~urlEntityName,
   ~baseUrlForRedirection,
 ) => {
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile

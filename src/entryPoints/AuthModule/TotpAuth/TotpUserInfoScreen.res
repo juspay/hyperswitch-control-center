@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
   open APIUtils
-
+  let getURL = useGetURL()
   let fetchDetails = APIUtils.useGetMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -22,7 +22,9 @@ let make = () => {
       let tokenDetails = TotpUtils.getSptTokenType()
       switch tokenDetails.token {
       | Some(token) =>
-        setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, DASHBOARD_ENTRY))))
+        setAuthStatus(
+          LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(Some(token), DASHBOARD_ENTRY))),
+        )
 
       | _ => setAuthStatus(LoggedOut)
       }
