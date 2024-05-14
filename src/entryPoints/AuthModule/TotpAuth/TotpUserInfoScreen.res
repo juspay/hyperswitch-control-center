@@ -25,7 +25,7 @@ let make = () => {
       let dict = response->getDictFromJsonObject
       dict->setOptionString("token", token)
       dict->Dict.set("token_type", DASHBOARD_ENTRY->variantToStringFlowMapper->JSON.Encode.string)
-      let info = TotpUtils.totpAuthInfoForToken(dict->JSON.Encode.object)
+      let info = TotpUtils.getTotpAuthInfo(dict->JSON.Encode.object)
       setAuthStatus(LoggedIn(TotpAuth(info)))
       setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
       setScreenState(_ => PageLoaderWrapper.Success)

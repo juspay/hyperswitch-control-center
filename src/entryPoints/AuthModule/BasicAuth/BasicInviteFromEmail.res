@@ -14,7 +14,7 @@ let make = (~setAuthType) => {
     try {
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL, ())
       let res = await updateDetails(url, body, Post, ())
-      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getAuthInfo)))
+      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
       setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
     } catch {
     | Exn.Error(e) => {

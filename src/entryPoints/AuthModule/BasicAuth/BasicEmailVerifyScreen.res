@@ -14,7 +14,7 @@ let make = (~setAuthType) => {
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#VERIFY_EMAILV2}, ())
       let res = await updateDetails(url, body, Post, ())
       await HyperSwitchUtils.delay(1000)
-      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getAuthInfo)))
+      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
       setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
     } catch {
     | Exn.Error(e) => {

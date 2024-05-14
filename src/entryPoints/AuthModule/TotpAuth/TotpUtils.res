@@ -56,7 +56,7 @@ let getEmailTokenValue = email_token => {
   }
 }
 
-let totpAuthInfoForToken = (~email_token=None, json) => {
+let getTotpAuthInfo = (~email_token=None, json) => {
   open LogicUtils
   let dict = json->JsonFlattenUtils.flattenObject(false)
   let totpInfo = {
@@ -82,7 +82,7 @@ let setTotpAuthResToStorage = json => {
 let getTotputhInfoFromStrorage = () => {
   open LogicUtils
   let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
-  json->totpAuthInfoForToken
+  json->getTotpAuthInfo
 }
 
 let getEmailToken = (authStatus: AuthProviderTypes.authStatus) => {

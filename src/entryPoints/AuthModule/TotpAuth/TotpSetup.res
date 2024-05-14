@@ -88,7 +88,7 @@ let make = () => {
       if otp->String.length > 0 {
         let body = [("totp", otp->JSON.Encode.string)]->getJsonFromArrayOfJson
         let response = await verifyTotpLogic(body)
-        setAuthStatus(LoggedIn(TotpAuth(totpAuthInfoForToken(response))))
+        setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(response))))
       } else {
         showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
       }
@@ -104,7 +104,7 @@ let make = () => {
 
       let body = [("totp", JSON.Encode.null)]->getJsonFromArrayOfJson
       let response = await verifyTotpLogic(body)
-      setAuthStatus(LoggedIn(TotpAuth(totpAuthInfoForToken(response))))
+      setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(response))))
     } catch {
     | _ => showToast(~message="Something went wrong!", ~toastType=ToastError, ())
     }
@@ -238,7 +238,7 @@ let make = () => {
           {"Log in with a different account?"->React.string}
           <p
             className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
-            onClick={_ => logoutUser()}>
+            onClick={_ => setAuthStatus(LoggedOut)}>
             {"Click here to log out."->React.string}
           </p>
         </div>

@@ -18,12 +18,6 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
     ->getBool("is_active", false)
   }, [merchantData])
 
-  let logoutUser = () => {
-    CommonAuthUtils.clearLocalStorage()
-    setAuthStatus(LoggedOut)
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-  }
-
   <BackgroundImageWrapper>
     <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
       <div className="bg-white h-35-rem w-200 rounded-2xl">
@@ -88,7 +82,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
         {"Log in with a different account?"->React.string}
         <p
           className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
-          onClick={_ => logoutUser()}>
+          onClick={_ => setAuthStatus(LoggedOut)}>
           {"Click here to log out."->React.string}
         </p>
       </div>

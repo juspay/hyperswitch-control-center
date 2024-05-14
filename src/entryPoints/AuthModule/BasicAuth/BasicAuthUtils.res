@@ -9,7 +9,7 @@ let flowTypeStrToVariantMapper = val => {
   }
 }
 
-let getAuthInfo = json => {
+let getBasicAuthInfo = json => {
   let dict = json->JsonFlattenUtils.flattenObject(false)
   let authInfo = {
     email: getOptionString(dict, "email"),
@@ -26,25 +26,11 @@ let getAuthInfo = json => {
 
 let setBasicAuthResToStorage = json => {
   LocalStorage.setItem("USER_INFO", json->JSON.stringifyAny->Option.getOr(""))
-  // json->getAuthInfo
 }
 
 let getBasicAuthInfoFromStrorage = () => {
   let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
-  json->getAuthInfo
-}
-
-let parseResponseJson = (~json) => {
-  let valuesDict = json->JSON.Decode.object->Option.getOr(Dict.make())
-
-  let flowType = valuesDict->getOptionString("flow_type")
-
-  if flowType->Option.isSome && flowType->flowTypeStrToVariantMapper === MERCHANT_SELECT {
-    LocalStorage.setItem(
-      "accept_invite_data",
-      valuesDict->getArrayFromDict("merchants", [])->JSON.stringifyAny->Option.getOr(""),
-    )
-  }
+  json->getBasicAuthInfo
 }
 
 let validateForm = (values: JSON.t, keys: array<string>) => {

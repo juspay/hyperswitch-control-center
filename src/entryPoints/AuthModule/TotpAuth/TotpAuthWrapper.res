@@ -25,7 +25,7 @@ let make = (~children) => {
       | Some(token) => {
           let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post, ())
           setAuthStatus(
-            LoggedIn(TotpAuth(TotpUtils.totpAuthInfoForToken(response, ~email_token=Some(token)))),
+            LoggedIn(TotpAuth(TotpUtils.getTotpAuthInfo(response, ~email_token=Some(token)))),
           )
         }
       | None => setAuthStatus(LoggedOut)

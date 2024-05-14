@@ -10,11 +10,6 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let (merchantData, setMerchantData) = React.useState(_ => [])
   let getURL = useGetURL()
-  let logoutUser = () => {
-    LocalStorage.clear()
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-    setAuthStatus(LoggedOut)
-  }
 
   React.useEffect0(() => {
     let acceptInvitedata = switch authStatus {
@@ -32,9 +27,9 @@ let make = () => {
         setMerchantData(_ => arr)
         RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/accept-invite"))
       } else {
-        logoutUser()
+        setAuthStatus(LoggedOut)
       }
-    | None => logoutUser()
+    | None => setAuthStatus(LoggedOut)
     }
 
     None
@@ -56,7 +51,7 @@ let make = () => {
           ("need_dashboard_entry_response", true->JSON.Encode.bool),
         ]->getJsonFromArrayOfJson
       let res = await updateDetails(url, body, Post, ())
-      let typedInfo = res->BasicAuthUtils.getAuthInfo
+      let typedInfo = res->BasicAuthUtils.getBasicAuthInfo
       if typedInfo.token->Option.isSome {
         open AuthProviderTypes
         LocalStorage.removeItem("accept_invite_data")

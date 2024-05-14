@@ -54,12 +54,9 @@ let make = (~authType, ~setAuthType) => {
     try {
       let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post, ())
-      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getAuthInfo)))
+      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
     } catch {
-    | Exn.Error(e) => {
-        Js.log(e)
-        showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
-      }
+    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
     }
     Nullable.null
   }

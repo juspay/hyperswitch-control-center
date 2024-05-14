@@ -292,7 +292,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       let body = Dict.make()
       body->Dict.set("merchant_id", value->JSON.Encode.string)
       let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
-      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getAuthInfo)))
+      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
       setSuccessModal(_ => true)
       await HyperSwitchUtils.delay(2000)
       Window.Location.reload()
