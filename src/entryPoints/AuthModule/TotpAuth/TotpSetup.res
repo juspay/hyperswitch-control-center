@@ -65,7 +65,7 @@ let make = () => {
     None
   })
 
-  let verifyTotp = async body => {
+  let verifyTotpLogic = async body => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#VERIFY_TOTP, ~methodType=Get, ())
       let response = await updateDetails(url, body, Post, ())
@@ -85,7 +85,7 @@ let make = () => {
 
       if otp->String.length > 0 {
         let body = [("totp", otp->JSON.Encode.string)]->getJsonFromArrayOfJson
-        let response = await verifyTotp(body)
+        let response = await verifyTotpLogic(body)
         let token_type =
           response->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
         let token = response->getDictFromJsonObject->getString("token", "")
@@ -104,7 +104,7 @@ let make = () => {
       open TotpUtils
 
       let body = [("totp", JSON.Encode.null)]->getJsonFromArrayOfJson
-      let response = await verifyTotp(body)
+      let response = await verifyTotpLogic(body)
       let token_type =
         response->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
       let token = response->getDictFromJsonObject->getString("token", "")
