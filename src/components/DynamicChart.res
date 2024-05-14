@@ -299,7 +299,6 @@ let make = (
 
   let {filterValue} = React.useContext(FilterContext.filterContext)
   let (_switchToMobileView, setSwitchToMobileView) = React.useState(_ => false)
-  let (selectedTabState, setSelectedTabState) = React.useState(_ => selectedTab)
 
   let customFilterKey = switch entity {
   | {customFilterKey} => customFilterKey
@@ -424,19 +423,8 @@ let make = (
     updateChartCompFilters(dict)
     None
   })
-  let chartDimensionView = switch selectedTabState {
-  | Some(selectedTab) =>
-    switch selectedTab->Array.length {
-    | 1 => OneDimension
-    | 2 => TwoDimension
-    | 3 => ThreeDimension
-    | _ => No_Dims
-    }
-  | None => No_Dims
-  }
+
   let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
-  let chartTypeFromUrl = getChartCompFilters->getString("chartType", "Line chart")
-  let chartTopMetricFromUrl = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
   let (granularity, setGranularity) = React.useState(_ => None)
   let (rawChartData, setRawChartData) = React.useState(_ => None)
   let (shimmerType, setShimmerType) = React.useState(_ => AnalyticsUtils.Shimmer)
@@ -483,8 +471,6 @@ let make = (
   let (startTimeFilterKey, endTimeFilterKey) = dateFilterKeys
 
   let (chartLoading, setChartLoading) = React.useState(_ => true)
-  let (chartToggleKey, setChartToggleKey) = React.useState(_ => false)
-  let toggleKey = React.useMemo1(() => {chartToggleKey ? "0" : "1"}, [chartToggleKey])
   // By default, total_volume metric will always be there
 
   let isMobileView = MatchMedia.useMobileChecker()
@@ -617,7 +603,7 @@ let make = (
     })
   }, [updatedChartConfigArr])
 
-  let (groupKeyFromTab, titleKey) = React.useMemo1(() => {
+  let (groupKeyFromTab, _titleKey) = React.useMemo1(() => {
     switch (tabTitleMapper, selectedTab) {
     | (Some(dict), Some(arr)) => {
         let groupKey = arr->Array.get(0)->Option.getOr("")
@@ -714,16 +700,10 @@ let make = (
     })
 
     setGroupKey(_ => groupKeyFromTab)
-    setSelectedTabState(_ => selectedTab)
+
     setRawChartData(_ => Some(chartData))
     setChartLoading(_ => false)
   }
-  React.useEffect1(() => {
-    if !chartLoading {
-      setChartToggleKey(prev => !prev)
-    }
-    None
-  }, [chartLoading])
 
   React.useEffect1(() => {
     let chartType =
