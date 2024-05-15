@@ -353,13 +353,6 @@ let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> =
 
 let metricsConfig: array<LineChartUtils.metricsConfig> = [
   {
-    metric_name_db: "refund_count",
-    metric_label: "Volume",
-    metric_type: Volume,
-    thresholdVal: None,
-    step_up_threshold: None,
-  },
-  {
     metric_name_db: "refund_success_rate",
     metric_label: "Success Rate",
     metric_type: Rate,
@@ -367,8 +360,8 @@ let metricsConfig: array<LineChartUtils.metricsConfig> = [
     step_up_threshold: None,
   },
   {
-    metric_name_db: "refund_processed_amount",
-    metric_label: "Processed Amount",
+    metric_name_db: "refund_count",
+    metric_label: "Volume",
     metric_type: Volume,
     thresholdVal: None,
     step_up_threshold: None,
