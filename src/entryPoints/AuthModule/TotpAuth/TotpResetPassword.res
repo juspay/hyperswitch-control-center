@@ -39,7 +39,6 @@ let make = (~flowType) => {
       let body = [("password", password->JSON.Encode.string)]->getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
       setAuthStatus(LoggedOut)
-      LocalStorage.clear()
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
       RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url=`/login`))
     } catch {
@@ -119,35 +118,31 @@ let make = (~flowType) => {
           </div>
           <Div layoutId="border" className="border-b w-full" />
           <div className="p-7">
-            <ReactFinalForm.Form
+            <Form
               key="auth"
               initialValues
-              subscription=ReactFinalForm.subscribeToValues
               validate={values =>
                 TotpUtils.validateTotpForm(values, ["create_password", "comfirm_password"])}
-              onSubmit
-              render={({handleSubmit}) => {
-                <div className="flex flex-col gap-6">
-                  <h1 id="card-header" className="font-semibold text-xl md:text-2xl">
-                    {headerText->React.string}
-                  </h1>
-                  <form
-                    onSubmit={handleSubmit}
-                    className={`flex flex-col justify-evenly gap-5 h-full w-full !overflow-visible text-grey-600`}>
-                    <ResetPasswordForm />
-                    <div id="auth-submit-btn" className="flex flex-col gap-2">
-                      <FormRenderer.SubmitButton
-                        customSumbitButtonStyle="!w-full !rounded"
-                        text="Confirm"
-                        userInteractionRequired=true
-                        showToolTip=false
-                        loadingText="Loading..."
-                      />
-                    </div>
-                  </form>
+              onSubmit>
+              <div className="flex flex-col gap-6">
+                <h1 id="card-header" className="font-semibold text-xl md:text-2xl">
+                  {headerText->React.string}
+                </h1>
+                <div
+                  className="flex flex-col justify-evenly gap-5 h-full w-full !overflow-visible text-grey-600">
+                  <ResetPasswordForm />
+                  <div id="auth-submit-btn" className="flex flex-col gap-2">
+                    <FormRenderer.SubmitButton
+                      customSumbitButtonStyle="!w-full !rounded"
+                      text="Confirm"
+                      userInteractionRequired=true
+                      showToolTip=false
+                      loadingText="Loading..."
+                    />
+                  </div>
                 </div>
-              }}
-            />
+              </div>
+            </Form>
           </div>
         </Div>
       </div>

@@ -37,6 +37,7 @@ let make = () => {
   let (showQR, setShowQR) = React.useState(_ => true)
   let (recoveryCodes, setRecoveryCodes) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
 
   let getTOTPString = async () => {
     open LogicUtils
@@ -86,6 +87,7 @@ let make = () => {
       open LogicUtils
       open TotpUtils
 
+      setButtonState(_ => Button.Loading)
       if otp->String.length > 0 {
         let body = [("totp", otp->JSON.Encode.string)]->getJsonFromArrayOfJson
         let response = await verifyTotpLogic(body)
@@ -93,6 +95,7 @@ let make = () => {
       } else {
         showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
       }
+      setButtonState(_ => Button.Normal)
     } catch {
     | _ => setOtp(_ => "")
     }
@@ -218,7 +221,7 @@ let make = () => {
                 buttonType=Primary
                 buttonSize=Small
                 customButtonStyle="group"
-                buttonState={otp->String.length === 6 ? Normal : Disabled}
+                buttonState={otp->String.length === 6 ? buttonState : Disabled}
                 onClick={_ => handleTotpSubmitClick()}
                 rightIcon={CustomIcon(
                   <Icon
