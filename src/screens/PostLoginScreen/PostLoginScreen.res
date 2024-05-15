@@ -75,9 +75,10 @@ module SurveyComponent = {
 @react.component
 let make = () => {
   open APIUtils
+  open CommonAuthHooks
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
-  let userName = HSLocalStorage.getFromUserDetails("name")
+  let {name: userName} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let (currentStep, setCurrentStep) = React.useState(_ => 0)
   let (carouselDirection, setCarouselDirection) = React.useState(_ => RIGHT)
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)

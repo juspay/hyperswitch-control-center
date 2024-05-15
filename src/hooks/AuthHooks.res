@@ -8,8 +8,7 @@ type contentType = Headers(string) | Unknown
 
 @val external sessionStorage: sessionStorage = "sessionStorage"
 
-let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ()) => {
-  let hyperSwitchToken = LocalStorage.getItem("login")->Nullable.toOption
+let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ~token, ()) => {
   let isMixpanel = uri->String.includes("mixpanel")
 
   let headerObj = if isMixpanel {
@@ -18,7 +17,7 @@ let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ()) 
       ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
-    let res = switch hyperSwitchToken {
+    let res = switch token {
     | Some(token) => {
         headers->Dict.set("authorization", `Bearer ${token}`)
         headers->Dict.set("api-key", `hyperswitch`)
@@ -48,8 +47,8 @@ let useApiFetcher = () => {
     switch authStatus {
     | LoggedIn(info) =>
       switch info {
-      | BasicAuth(basicInfo) => Some(basicInfo.token)
-      | ToptAuth(totpInfo) => Some(totpInfo.token)
+      | BasicAuth(basicInfo) => basicInfo.token
+      | TotpAuth(totpInfo) => totpInfo.token
       }
     | _ => None
     }
@@ -89,7 +88,7 @@ let useApiFetcher = () => {
             ~method_,
             ~body?,
             ~credentials=SameOrigin,
-            ~headers=getHeaders(~headers, ~uri, ~contentType, ()),
+            ~headers=getHeaders(~headers, ~uri, ~contentType, ~token, ()),
             (),
           ),
         )

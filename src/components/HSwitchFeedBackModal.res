@@ -8,6 +8,7 @@ let make = (
 ) => {
   open HSwitchFeedBackModalUtils
   open APIUtils
+  let {email} = CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
   let getURL = useGetURL()
@@ -16,7 +17,10 @@ let make = (
       let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
       let body =
         [
-          ("Feedback", values->HSwitchUtils.getBodyForFeedBack(~modalType, ())->JSON.Encode.object),
+          (
+            "Feedback",
+            HSwitchUtils.getBodyForFeedBack(~email, ~values, ~modalType, ())->JSON.Encode.object,
+          ),
         ]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
       let successMessage = switch modalType {
