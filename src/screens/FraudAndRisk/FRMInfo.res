@@ -1,5 +1,5 @@
 open FRMTypes
-let frmList: array<frmName> = [Signifyd]
+let frmList: array<frmName> = [Signifyd, Riskifyed]
 
 let flowTypeList = [PreAuth, PostAuth]
 
