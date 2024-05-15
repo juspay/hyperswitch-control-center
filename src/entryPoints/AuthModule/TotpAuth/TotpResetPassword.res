@@ -23,14 +23,14 @@ let make = (~flowType) => {
         (),
       )
       let _ = await updateDetails(url, body, Post, ())
-
-      LocalStorage.clear()
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url=`/login`))
+      setAuthStatus(LoggedOut)
     } catch {
-    | _ => showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to update!")
+        Exn.raiseError(err)
+      }
     }
-    setAuthStatus(LoggedOut)
   }
 
   let rotatePassword = async password => {
@@ -38,9 +38,54 @@ let make = (~flowType) => {
       let url = getURL(~entityName=USERS, ~userType=#ROTATE_PASSWORD, ~methodType=Post, ())
       let body = [("password", password->JSON.Encode.string)]->getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
-      setAuthStatus(LoggedOut)
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url=`/login`))
+      setAuthStatus(LoggedOut)
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to update!")
+        Exn.raiseError(err)
+      }
+    }
+  }
+
+  let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+  let (logoVariant, iconUrl) = switch (Window.env.logoUrl, branding) {
+  | (Some(url), true) => (IconWithURL, Some(url))
+  | (Some(url), false) => (IconWithURL, Some(url))
+  | _ => (IconWithText, None)
+  }
+
+  let confirmButtonAction = async password => {
+    open TotpTypes
+    open TotpUtils
+    try {
+      switch flowType {
+      | FORCE_SET_PASSWORD => await rotatePassword(password)
+      | _ => {
+          let emailToken = authStatus->getEmailToken
+          switch emailToken {
+          | Some(email_token) => {
+              let body = getResetpasswordBodyJson(password, email_token)
+              await setResetPassword(body)
+            }
+          | None => Exn.raiseError("Missing Token")
+          }
+        }
+      }
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to update!")
+        Exn.raiseError(err)
+      }
+    }
+  }
+
+  let onSubmit = async (values, _) => {
+    try {
+      let valuesDict = values->getDictFromJsonObject
+      let password = getString(valuesDict, "create_password", "")
+      let _ = await confirmButtonAction(password)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -54,42 +99,6 @@ let make = (~flowType) => {
           setAuthStatus(LoggedOut)
         }
       }
-    }
-  }
-
-  let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
-  let (logoVariant, iconUrl) = switch (Window.env.logoUrl, branding) {
-  | (Some(url), true) => (IconWithURL, Some(url))
-  | (Some(url), false) => (IconWithURL, Some(url))
-  | _ => (IconWithText, None)
-  }
-
-  let confirmButtonAction = password => {
-    open TotpTypes
-    open TotpUtils
-    switch flowType {
-    | FORCE_SET_PASSWORD => rotatePassword(password)->ignore
-    | _ => {
-        let emailToken = authStatus->getEmailToken
-        switch emailToken {
-        | Some(email_token) => {
-            let body = getResetpasswordBodyJson(password, email_token)
-            setResetPassword(body)->ignore
-          }
-        | None => setAuthStatus(LoggedOut)
-        }
-      }
-    }
-  }
-
-  let onSubmit = async (values, _) => {
-    try {
-      let valuesDict = values->getDictFromJsonObject
-      let password = getString(valuesDict, "create_password", "")
-      confirmButtonAction(password)
-    } catch {
-    | _ => showToast(~message="Something went wrong, Try again", ~toastType=ToastError, ())
     }
     Nullable.null
   }
