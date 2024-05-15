@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.15.1
+
+### Features
+
+- Feat: integrate totp auth ([#640](https://github.com/juspay/hyperswitch-control-center/pull/640)) ([`2da7d26`](https://github.com/juspay/hyperswitch-control-center/commit/2da7d26f894853917921da17e3dc14f718b9effb))
+
+### Miscellaneous Tasks
+
+- Analytics modification ([#634](https://github.com/juspay/hyperswitch-control-center/pull/634)) ([`511fe09`](https://github.com/juspay/hyperswitch-control-center/commit/511fe09c07bcd04944812c10e27c8966c58f6dab))
+
+**Full Changelog:** [`2024.05.15.0...2024.05.15.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.15.0...2024.05.15.1)
+
+- - -
+
 ## 2024.05.15.0
 
 ### Miscellaneous Tasks
