@@ -21,7 +21,8 @@ let getFRMNameTypeFromString = connector => {
 
 let getFRMAuthType = connector => {
   switch connector {
-  | Signifyd | Riskifyed => "HeaderKey"
+  | Signifyd => "HeaderKey"
+  | Riskifyed => "BodyKey"
   | UnknownFRM(str) => str
   }
 }
@@ -49,6 +50,14 @@ let riskifyedInfo: frmInfo = {
       placeholder: "Enter API Key",
       label: "API Key",
       name: "connector_account_details.api_key",
+      inputType: InputFields.textInput(),
+      isRequired: true,
+      encodeToBase64: false,
+    },
+    {
+      placeholder: "Enter Key1",
+      label: "Key1",
+      name: "connector_account_details.key1",
       inputType: InputFields.textInput(),
       isRequired: true,
       encodeToBase64: false,
