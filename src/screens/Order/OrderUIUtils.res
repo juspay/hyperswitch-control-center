@@ -172,19 +172,19 @@ let getConditionalFilter = (key, dict, filterValues) => {
   filtersArr
 }
 
-let getMerchantIdforConnector: (Js.Dict.t<'a>, Js.Dict.t<'a>) => array<SelectBox.dropdownOption> = (
-  dict,
-  filterValues,
-) => {
+let getMerchantIdforConnector: (
+  Js.Dict.t<'a>,
+  Js.Dict.t<'a>,
+) => array<FilterSelectBox.dropdownOption> = (dict, filterValues) => {
   open LogicUtils
   let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  let new_arr: array<SelectBox.dropdownOption> = []
+  let new_arr: array<FilterSelectBox.dropdownOption> = []
   let _ = arr->Array.map(item => {
     let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(item, [])
     let _ = connectorLabelArr->Array.map(item => {
       let a = item->getDictFromJsonObject->getString("connector_label", "")
       let b = item->getDictFromJsonObject->getString("merchant_connector_id", "")
-      let ops: SelectBox.dropdownOption = {
+      let ops: FilterSelectBox.dropdownOption = {
         label: a,
         value: b,
       }
@@ -247,7 +247,7 @@ let initialFilters = (json, filtervalues) => {
 
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getMerchantIdforConnector(filterDict, filtervalues)
-    | _ => values->SelectBox.makeOptions
+    | _ => values->FilterSelectBox.makeOptions
     }
 
     let name = switch key->getFilterTypeFromString {
@@ -259,7 +259,7 @@ let initialFilters = (json, filtervalues) => {
       field: FormRenderer.makeFieldInfo(
         ~label="",
         ~name,
-        ~customInput=InputFields.multiSelectInput(
+        ~customInput=InputFields.filterMultiSelectInput(
           ~options,
           ~buttonText=title,
           ~showSelectionAsChips=false,
@@ -282,7 +282,7 @@ let initialFixedFilter = () => [
       localFilter: None,
       field: FormRenderer.makeMultiInputFieldInfo(
         ~label="",
-        ~comboCustomInput=InputFields.dateRangeField(
+        ~comboCustomInput=InputFields.filterDateRangeField(
           ~startKey=startTimeFilterKey,
           ~endKey=endTimeFilterKey,
           ~format="YYYY-MM-DDTHH:mm:ss[Z]",

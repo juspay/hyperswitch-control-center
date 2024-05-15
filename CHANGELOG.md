@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.14.0
+
+### Miscellaneous Tasks
+
+- Convert get url to hook ([#635](https://github.com/juspay/hyperswitch-control-center/pull/635)) ([`75bfdd8`](https://github.com/juspay/hyperswitch-control-center/commit/75bfdd87c5c76c637b63ec8c4cb5bb7d1b4bda05))
+
+**Full Changelog:** [`2024.05.12.0...2024.05.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.12.0...2024.05.14.0)
+
+- - -
+
 ## 2024.05.12.0
 
 ### Features

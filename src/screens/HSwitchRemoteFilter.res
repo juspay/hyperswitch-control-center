@@ -57,10 +57,10 @@ let useSetInitialFilters = (~updateExistingKeys, ~startTimeFilterKey, ~endTimeFi
 module SearchBarFilter = {
   @react.component
   let make = (~placeholder, ~setSearchVal, ~searchVal) => {
-    let (searchValBase, setSearchValBase) = React.useState(_ => "")
+    let (baseValue, setBaseValue) = React.useState(_ => "")
     let onChange = ev => {
       let value = ReactEvent.Form.target(ev)["value"]
-      setSearchValBase(_ => value)
+      setBaseValue(_ => value)
     }
 
     React.useEffect1(() => {
@@ -68,38 +68,41 @@ module SearchBarFilter = {
         let keyPressed = event->ReactEvent.Keyboard.key
 
         if keyPressed == "Enter" {
-          setSearchVal(_ => searchValBase)
+          setSearchVal(_ => baseValue)
         }
       }
       Window.addEventListener("keydown", onKeyPress)
       Some(() => Window.removeEventListener("keydown", onKeyPress))
-    }, [searchValBase])
+    }, [baseValue])
 
     React.useEffect1(() => {
-      if searchValBase->String.length < 1 && searchVal->LogicUtils.isNonEmptyString {
-        setSearchVal(_ => searchValBase)
+      if baseValue->String.length === 0 && searchVal->LogicUtils.isNonEmptyString {
+        setSearchVal(_ => baseValue)
       }
       None
-    }, [searchValBase])
+    }, [baseValue])
 
     let inputSearch: ReactFinalForm.fieldRenderPropsInput = {
       name: "name",
       onBlur: _ev => (),
       onChange,
       onFocus: _ev => (),
-      value: searchValBase->JSON.Encode.string,
+      value: baseValue->JSON.Encode.string,
       checked: true,
     }
 
-    <div className="w-1/3 flex items-center">
-      {InputFields.textInput(~input=inputSearch, ~placeholder, ~customStyle=`w-full`, ())}
-      <Button
-        leftIcon={FontAwesome("search")}
-        buttonType={Secondary}
-        onClick={_ => {
-          setSearchVal(_ => searchValBase)
-        }}
-      />
+    <div className="w-64">
+      {InputFields.textInput(
+        ~input=inputSearch,
+        ~placeholder,
+        ~customStyle="rounded-lg placeholder:opacity-90",
+        ~customPaddingClass="px-0",
+        ~leftIcon=<Icon size=14 name="search" />,
+        ~iconOpacity="opacity-100",
+        ~leftIconCustomStyle="pl-4",
+        ~inputStyle="!placeholder:opacity-90",
+        (),
+      )}
     </div>
   }
 }
@@ -115,17 +118,13 @@ module RemoteTableFilters = {
     ~startTimeFilterKey,
     ~initialFilters,
     ~initialFixedFilter,
-    ~placeholder,
-    ~setSearchVal,
-    ~searchVal,
     ~setOffset,
+    ~customLeftView,
     (),
   ) => {
     let {filterValue, updateExistingKeys, filterValueJson, reset} =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
-
-    let customViewTop = <SearchBarFilter placeholder setSearchVal searchVal />
 
     React.useEffect0(() => {
       if filterValueJson->Dict.keysToArray->Array.length === 0 {
@@ -146,11 +145,16 @@ module RemoteTableFilters = {
     }, (startTimeVal, endTimeVal, filterValue))
 
     open APIUtils
-    open Promise
+
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
     let updateDetails = useUpdateMethod()
     let startTimeVal = filterValueJson->getString("start_time", "")
     let endTimeVal = filterValueJson->getString("end_time", "")
+
+    let getFilters = async () => {
+      let json = await updateDetails(filterUrl, filterBody->JSON.Encode.object, Post, ())
+      setFilterDataJson(_ => json->Some)
+    }
 
     let fetchDetails = useGetMethod()
 
@@ -169,7 +173,7 @@ module RemoteTableFilters = {
       None
     })
 
-    React.useEffect1(() => {
+    React.useEffect3(() => {
       if (
         startTimeVal->isNonEmptyString &&
         endTimeVal->isNonEmptyString &&
@@ -177,21 +181,21 @@ module RemoteTableFilters = {
       ) {
         try {
           setFilterDataJson(_ => None)
-          updateDetails(filterUrl, filterBody->JSON.Encode.object, Post, ())
-          ->thenResolve(json => setFilterDataJson(_ => json->Some))
-          ->catch(_ => resolve())
-          ->ignore
+          getFilters()->ignore
         } catch {
         | _ => ()
         }
       }
       None
-    }, [filterBody->JSON.Encode.object->JSON.stringify])
+    }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
     React.useEffect1(() => {
       if filterValueJson->Dict.keysToArray->Array.length != 0 {
         setFilters(_ => filterValueJson->Some)
+        setOffset(_ => 0)
+      } else {
+        setFilters(_ => Dict.make()->Some)
         setOffset(_ => 0)
       }
       None
@@ -216,24 +220,11 @@ module RemoteTableFilters = {
       )
     let remoteOptions = []
 
-    let clearFilters = () => {
-      reset()
-    }
-
-    let hideFiltersDefaultValue = !(
-      filterValue
-      ->Dict.keysToArray
-      ->Array.filter(item =>
-        [startTimeFilterKey, endTimeFilterKey]->Array.find(key => key == item)->Option.isNone
-      )
-      ->Array.length > 0
-    )
-
     switch filterDataJson {
     | Some(_) =>
-      <RemoteFilter
+      <Filter
         key="0"
-        customViewTop
+        customLeftView
         defaultFilters
         fixedFilters={initialFixedFilter()}
         requiredSearchFieldsList=[]
@@ -242,20 +233,14 @@ module RemoteTableFilters = {
         remoteOptions
         remoteFilters
         autoApply=false
-        showExtraFiltersInline=true
-        showClearFilterButton=true
-        defaultFilterKeys=[]
+        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
-        clearFilters
-        filterFieldsPortalName=""
-        showFiltersBtn=true
-        hideFiltersDefaultValue
-        disableURIdecode=true
+        clearFilters={() => reset()}
       />
     | _ =>
-      <RemoteFilter
+      <Filter
         key="1"
-        customViewTop
+        customLeftView
         defaultFilters
         fixedFilters={initialFixedFilter()}
         requiredSearchFieldsList=[]
@@ -264,15 +249,9 @@ module RemoteTableFilters = {
         remoteOptions=[]
         remoteFilters=[]
         autoApply=false
-        showExtraFiltersInline=true
-        showClearFilterButton=true
-        defaultFilterKeys=[]
+        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
-        clearFilters
-        filterFieldsPortalName=""
-        showFiltersBtn=false
-        hideFiltersDefaultValue
-        disableURIdecode=true
+        clearFilters={() => reset()}
       />
     }
   }

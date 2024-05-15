@@ -617,6 +617,7 @@ let make = (~id) => {
   let showToast = ToastState.useShowToast()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  Js.log2("screenState hhhhhhhhhhhh", screenState)
   let (refetchCounter, setRefetchCounter) = React.useState(_ => 0)
   let (showModal, setShowModal) = React.useState(_ => false)
 
