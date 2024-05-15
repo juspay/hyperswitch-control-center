@@ -3,7 +3,7 @@ let make = (~isPayoutFlow=false) => {
   open PaymentMethodConfigUtils
   open PaymentMethodEntity
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
+  let _businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (connectorResponse, setConnectorResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
@@ -12,7 +12,7 @@ let make = (~isPayoutFlow=false) => {
   let (filteredConnectors, setFiltersConnectors) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->getConnectedList
   )
-  let (configuredConnectors, setConfiguredConnectors) = React.useState(_ =>
+  let (_configuredConnectors, setConfiguredConnectors) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->getConnectedList
   )
   let (offset, setOffset) = React.useState(_ => 0)
@@ -61,51 +61,26 @@ let make = (~isPayoutFlow=false) => {
     None
   }, [allFilters])
 
-  let handleClearFilter = async () => {
-    setScreenState(_ => Loading)
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/configure-pmts"))
-    await HyperSwitchUtils.delay(500)
-    let dict = Dict.make()->pmtConfigFilter
-    let res = connectorResponse->getFilterdConnectorList(dict)
-    setFiltersConnectors(_ => res)
-    setScreenState(_ => Success)
-  }
   <div>
     <PageUtils.PageHeading
       title={`Configure PMTs at Checkout`}
       subTitle={"Control the visibility of your payment methods at the checkout"}
     />
     <PageLoaderWrapper screenState>
-      <div>
-        <RemoteFilter
-          remoteFilters={configuredConnectors->initialFilters(businessProfiles)}
-          requiredSearchFieldsList=[]
-          localFilters=[]
-          remoteOptions=[]
-          localOptions=[]
-          defaultFilters={Dict.make()->JSON.Encode.object}
-          refreshFilters=false
-          clearFilters={() => handleClearFilter()->ignore}
-          hideFiltersDefaultValue=false
-          autoApply=false
-        />
-      </div>
-      <div>
-        <LoadedTable
-          title=" "
-          actualData={filteredConnectors->Array.map(Nullable.make)}
-          totalResults={filteredConnectors->Array.length}
-          resultsPerPage=20
-          showSerialNumber=true
-          offset
-          setOffset
-          entity={PaymentMethodEntity.paymentMethodEntity(
-            ~setReferesh=getConnectorListAndUpdateState,
-          )}
-          currrentFetchCount={filteredConnectors->Array.length}
-          collapseTableRow=false
-        />
-      </div>
+      <LoadedTable
+        title=" "
+        actualData={filteredConnectors->Array.map(Nullable.make)}
+        totalResults={filteredConnectors->Array.length}
+        resultsPerPage=20
+        showSerialNumber=true
+        offset
+        setOffset
+        entity={PaymentMethodEntity.paymentMethodEntity(
+          ~setReferesh=getConnectorListAndUpdateState,
+        )}
+        currrentFetchCount={filteredConnectors->Array.length}
+        collapseTableRow=false
+      />
     </PageLoaderWrapper>
   </div>
 }
