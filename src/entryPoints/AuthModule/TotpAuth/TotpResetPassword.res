@@ -92,7 +92,7 @@ let make = (~flowType) => {
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
 
-        if errorCode === "UR_29" {
+        if errorCode->errorSubCodeMapper === UR_29 {
           showToast(~message=errorMessage, ~toastType=ToastError, ())
         } else {
           showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())

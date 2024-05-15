@@ -37,9 +37,8 @@ let make = (~setAuthType) => {
     None
   })
   let onClick = () => {
-    setAuthStatus(LoggedOut)
     setAuthType(_ => CommonAuthTypes.LoginWithEmail)
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+    setAuthStatus(LoggedOut)
   }
 
   <EmailVerifyScreen
