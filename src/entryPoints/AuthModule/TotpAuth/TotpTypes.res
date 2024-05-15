@@ -16,6 +16,6 @@ type totpAuthInfo = {
   name: option<string>,
   token_type: option<string>,
   email: option<string>,
-  user_role: option<string>,
+  role_id: option<string>,
   email_token: option<string>,
 }

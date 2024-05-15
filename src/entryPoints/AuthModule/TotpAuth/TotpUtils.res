@@ -64,7 +64,7 @@ let getTotpAuthInfo = (~email_token=None, json) => {
     merchant_id: getOptionString(dict, "merchant_id"),
     name: getOptionString(dict, "name"),
     token: getOptionString(dict, "token"),
-    user_role: getOptionString(dict, "user_role"),
+    role_id: getOptionString(dict, "role_id"),
     token_type: dict->getOptionString("token_type"),
     email_token: email_token->getEmailTokenValue,
   }
