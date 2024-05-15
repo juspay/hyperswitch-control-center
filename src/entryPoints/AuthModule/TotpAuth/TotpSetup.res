@@ -11,7 +11,8 @@ module ConfirmPopUpElement = {
       </p>
       <UIUtils.RenderIf condition={recoveryCodes->Array.length > 0}>
         <p
-          className="text-blue-800 cursor-pointer underline" onClick={_ => downloadRecoveryCodes()}>
+          className="text-blue-600 cursor-pointer underline underline-offset-2"
+          onClick={_ => downloadRecoveryCodes()}>
           {"Download recovery codes"->React.string}
         </p>
       </UIUtils.RenderIf>
@@ -36,6 +37,7 @@ let make = () => {
   let (showQR, setShowQR) = React.useState(_ => true)
   let (recoveryCodes, setRecoveryCodes) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
 
   let getTOTPString = async () => {
     open LogicUtils
@@ -85,6 +87,7 @@ let make = () => {
       open LogicUtils
       open TotpUtils
 
+      setButtonState(_ => Button.Loading)
       if otp->String.length > 0 {
         let body = [("totp", otp->JSON.Encode.string)]->getJsonFromArrayOfJson
         let response = await verifyTotpLogic(body)
@@ -92,6 +95,7 @@ let make = () => {
       } else {
         showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
       }
+      setButtonState(_ => Button.Normal)
     } catch {
     | _ => setOtp(_ => "")
     }
@@ -142,8 +146,8 @@ let make = () => {
   let buttonText = showQR ? "Enable 2FA" : "Verify OTP"
   let modalHeaderText = showQR ? "Enable Two Factor Authentication" : "Enter TOTP Code"
 
-  <BackgroundImageWrapper>
-    <PageLoaderWrapper screenState>
+  <PageLoaderWrapper screenState>
+    <BackgroundImageWrapper>
       <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
         <div
           className={`bg-white ${showQR
@@ -217,7 +221,7 @@ let make = () => {
                 buttonType=Primary
                 buttonSize=Small
                 customButtonStyle="group"
-                buttonState={otp->String.length > 0 ? Normal : Disabled}
+                buttonState={otp->String.length === 6 ? buttonState : Disabled}
                 onClick={_ => handleTotpSubmitClick()}
                 rightIcon={CustomIcon(
                   <Icon
@@ -237,6 +241,6 @@ let make = () => {
           </p>
         </div>
       </div>
-    </PageLoaderWrapper>
-  </BackgroundImageWrapper>
+    </BackgroundImageWrapper>
+  </PageLoaderWrapper>
 }

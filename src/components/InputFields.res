@@ -102,6 +102,111 @@ let infraSelectInput = (
   />
 }
 
+let filterMultiSelectInput = (
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~options: array<FilterSelectBox.dropdownOption>,
+  ~optionSize: CheckBoxIcon.size=Small,
+  ~placeholder as _,
+  ~buttonText,
+  ~buttonSize=?,
+  ~hideMultiSelectButtons=false,
+  ~showSelectionAsChips=true,
+  ~showToggle=false,
+  ~isDropDown=true,
+  ~searchable=false,
+  ~showBorder=?,
+  ~optionRigthElement=?,
+  ~customStyle="",
+  ~customMargin="",
+  ~customButtonStyle=?,
+  ~hideBorder=false,
+  ~allSelectType=FilterSelectBox.Icon,
+  ~showToolTip=false,
+  ~showNameAsToolTip=false,
+  ~buttonType=Button.SecondaryFilled,
+  ~showSelectAll=true,
+  ~isHorizontal=false,
+  ~fullLength=?,
+  ~fixedDropDownDirection=?,
+  ~dropdownCustomWidth=?,
+  ~customMarginStyle=?,
+  ~buttonTextWeight=?,
+  ~marginTop=?,
+  ~customButtonLeftIcon=?,
+  ~customButtonPaddingClass=?,
+  ~customButtonIconMargin=?,
+  ~customTextPaddingClass=?,
+  ~listFlexDirection="",
+  ~buttonClickFn=?,
+  ~showDescriptionAsTool=true,
+  ~optionClass="",
+  ~selectClass="",
+  ~toggleProps="",
+  ~showSelectCountButton=false,
+  ~showAllSelectedOptions=true,
+  ~leftIcon=?,
+  ~customBackColor=?,
+  ~customSelectAllStyle=?,
+  ~onItemSelect=(_, _) => (),
+  ~wrapBasis="",
+  ~dropdownClassName="",
+  ~baseComponentMethod=?,
+  ~disableSelect=false,
+  (),
+) => {
+  <FilterSelectBox
+    input
+    options
+    optionSize
+    buttonText
+    ?buttonSize
+    allowMultiSelect=true
+    hideMultiSelectButtons
+    showSelectionAsChips
+    isDropDown
+    showToggle
+    searchable
+    ?showBorder
+    customStyle
+    customMargin
+    ?optionRigthElement
+    hideBorder
+    allSelectType
+    ?customButtonStyle
+    ?fixedDropDownDirection
+    showToolTip
+    showNameAsToolTip
+    disableSelect
+    buttonType
+    showSelectAll
+    ?fullLength
+    isHorizontal
+    ?customMarginStyle
+    ?dropdownCustomWidth
+    ?buttonTextWeight
+    ?marginTop
+    ?customButtonLeftIcon
+    ?customButtonPaddingClass
+    ?customButtonIconMargin
+    ?customTextPaddingClass
+    listFlexDirection
+    ?buttonClickFn
+    showDescriptionAsTool
+    optionClass
+    selectClass
+    toggleProps
+    showSelectCountButton
+    showAllSelectedOptions
+    ?leftIcon
+    ?customBackColor
+    ?customSelectAllStyle
+    onItemSelect
+    wrapBasis
+    dropdownClassName
+    ?baseComponentMethod
+  />
+}
+
 let multiSelectInput = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
@@ -385,6 +490,49 @@ let singleDatePickerInput = (
     ?showTime
     ?fullLength
   />
+}
+
+let filterDateRangeField = (
+  ~startKey: string,
+  ~endKey: string,
+  ~format,
+  ~disablePastDates=false,
+  ~disableFutureDates=false,
+  ~showTime=false,
+  ~predefinedDays=[],
+  ~disableApply=false,
+  ~numMonths=1,
+  ~dateRangeLimit=?,
+  ~removeFilterOption=?,
+  ~optFieldKey=?,
+  ~showSeconds=true,
+  ~hideDate=false,
+  ~selectStandardTime=false,
+  ~isTooltipVisible=true,
+  (),
+): comboCustomInputRecord => {
+  let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+    <DateRangeField
+      disablePastDates
+      disableFutureDates
+      format
+      predefinedDays
+      numMonths
+      showTime
+      disableApply
+      startKey
+      endKey
+      ?dateRangeLimit
+      ?removeFilterOption
+      ?optFieldKey
+      showSeconds
+      hideDate
+      selectStandardTime
+      isTooltipVisible
+    />
+  }
+
+  {fn, names: [startKey, endKey]}
 }
 
 let dateRangeField = (

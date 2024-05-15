@@ -55,6 +55,7 @@ let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
     }}
   </div>
 }
+
 let defaultAuthInfo: CommonAuthTypes.commonAuthInfo = {
   token: "",
   merchant_id: "",

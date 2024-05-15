@@ -203,7 +203,7 @@ let useGetURL = () => {
       | #SIGNINV2 => `${userUrl}/v2/signin`
       | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
       | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
-      | #ACCEPT_INVITE_TOKEN_ONLY => `${userUrl}/user/invite/accept?token_only=tru`
+      | #ACCEPT_INVITE_TOKEN_ONLY => `${userUrl}/user/invite/accept?token_only=true`
       | #USER_DELETE => `${userUrl}/user/delete`
       | #USER_UPDATE => `${userUrl}/update`
       | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
@@ -229,7 +229,7 @@ let useGetURL = () => {
       | #VERIFY_TOTP => `${userUrl}/totp/verify`
       | #INVITE_MULTIPLE_TOKEN_ONLY => `${userUrl}/user/invite_multiple?token_only=true`
       | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
-        `${userUrl}/${(userType :> string)->String.toLowerCase}?token_only=true`
+        `${userUrl}/accept_invite_from_email?token_only=true`
       | #USER_INFO => userUrl
       }
     | RECON => `recon/${(reconType :> string)->String.toLowerCase}`

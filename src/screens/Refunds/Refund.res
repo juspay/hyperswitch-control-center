@@ -58,9 +58,6 @@ let make = () => {
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
-            placeholder="Search payment id or refund id"
-            setSearchVal=setSearchText
-            searchVal=searchText
             filterUrl={`${Window.env.apiBaseUrl}/refunds/filter`}
             setFilters
             endTimeFilterKey
@@ -68,6 +65,11 @@ let make = () => {
             initialFilters
             initialFixedFilter
             setOffset
+            customLeftView={<SearchBarFilter
+              placeholder="Search payment id or refund id"
+              setSearchVal=setSearchText
+              searchVal=searchText
+            />}
           />
         </div>
         <UIUtils.RenderIf condition={generateReport}>

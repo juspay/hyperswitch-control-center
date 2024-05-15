@@ -58,7 +58,6 @@ let make = (
   ~forcePreventConcatData=false,
   ~collapseTableRow=false,
   ~showRefreshFilter=true,
-  ~showRemoteOptions=false,
   ~filterButtonStyle="",
   ~getRowDetails=_ => React.null,
   ~onMouseEnter=?,
@@ -341,13 +340,11 @@ let make = (
           }}
           <UIUtils.RenderIf condition=showRemoteFilter>
             <LabelVisibilityContext showLabel=false>
-              <RemoteFilter
+              <Filter
                 defaultFilters=entity.defaultFilters
                 requiredSearchFieldsList=entity.requiredSearchFieldsList
                 setOffset
-                refreshFilters=showRefreshFilter
                 filterButtonStyle
-                showRemoteOptions
                 ?path
                 title
                 remoteFilters
