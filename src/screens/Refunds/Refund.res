@@ -53,7 +53,7 @@ let make = () => {
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let filterUrlV2 = React.useMemo1(() => {
-    `${Window.env.apiBaseUrl}/payments/filter_v2`
+    `${Window.env.apiBaseUrl}/payments/v2/filter`
   }, [Window.env.apiBaseUrl])
 
   <ErrorBoundary>
