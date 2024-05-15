@@ -1,7 +1,9 @@
 @react.component
 let make = (~children) => {
   let url = RescriptReactRouter.useUrl()
-  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus, setAuthStatus, setAuthStateToLogout} = React.useContext(
+    AuthInfoProvider.authStatusContext,
+  )
 
   React.useEffect0(() => {
     switch url.path {
@@ -10,7 +12,7 @@ let make = (~children) => {
     | list{"user", "accept_invite_from_email"}
     | list{"user", "login"}
     | list{"register"} =>
-      setAuthStatus(LoggedOut)
+      setAuthStateToLogout()
     | _ => {
         let authInfo = BasicAuthUtils.getBasicAuthInfoFromStrorage()
         switch authInfo.token {

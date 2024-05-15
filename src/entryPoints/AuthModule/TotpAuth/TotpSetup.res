@@ -11,7 +11,8 @@ module ConfirmPopUpElement = {
       </p>
       <UIUtils.RenderIf condition={recoveryCodes->Array.length > 0}>
         <p
-          className="text-blue-800 cursor-pointer underline" onClick={_ => downloadRecoveryCodes()}>
+          className="text-blue-600 cursor-pointer underline underline-offset-2"
+          onClick={_ => downloadRecoveryCodes()}>
           {"Download recovery codes"->React.string}
         </p>
       </UIUtils.RenderIf>
@@ -142,8 +143,8 @@ let make = () => {
   let buttonText = showQR ? "Enable 2FA" : "Verify OTP"
   let modalHeaderText = showQR ? "Enable Two Factor Authentication" : "Enter TOTP Code"
 
-  <BackgroundImageWrapper>
-    <PageLoaderWrapper screenState>
+  <PageLoaderWrapper screenState>
+    <BackgroundImageWrapper>
       <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
         <div
           className={`bg-white ${showQR
@@ -217,7 +218,7 @@ let make = () => {
                 buttonType=Primary
                 buttonSize=Small
                 customButtonStyle="group"
-                buttonState={otp->String.length > 0 ? Normal : Disabled}
+                buttonState={otp->String.length === 6 ? Normal : Disabled}
                 onClick={_ => handleTotpSubmitClick()}
                 rightIcon={CustomIcon(
                   <Icon
@@ -237,6 +238,6 @@ let make = () => {
           </p>
         </div>
       </div>
-    </PageLoaderWrapper>
-  </BackgroundImageWrapper>
+    </BackgroundImageWrapper>
+  </PageLoaderWrapper>
 }

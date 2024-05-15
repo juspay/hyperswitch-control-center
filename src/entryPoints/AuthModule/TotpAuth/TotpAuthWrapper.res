@@ -54,7 +54,7 @@ let make = (~children) => {
     {switch authStatus {
     | LoggedOut => <TotpAuthScreen setAuthStatus />
     | LoggedIn(_token) => children
-    | CheckingAuthStatus => <Loader />
+    | CheckingAuthStatus => <PageLoaderWrapper.ScreenLoader />
     }}
   </div>
 }
