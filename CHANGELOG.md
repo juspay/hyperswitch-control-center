@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.15.0
+
+### Miscellaneous Tasks
+
+- Filter refactor ([#627](https://github.com/juspay/hyperswitch-control-center/pull/627)) ([`a9f138a`](https://github.com/juspay/hyperswitch-control-center/commit/a9f138af231f6480b209065bea12e3537e25b0d4))
+
+**Full Changelog:** [`2024.05.14.0...2024.05.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.14.0...2024.05.15.0)
+
+- - -
+
 ## 2024.05.14.0
 
 ### Miscellaneous Tasks
