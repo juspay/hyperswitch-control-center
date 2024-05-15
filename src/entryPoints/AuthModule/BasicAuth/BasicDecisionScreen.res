@@ -1,6 +1,6 @@
 @react.component
 let make = () => {
-  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let flowType = switch authStatus {
   | LoggedIn(info) =>
@@ -10,9 +10,13 @@ let make = () => {
     }
   | _ => ERROR
   }
+
+  let onClickErrorPageButton = () => {
+    setAuthStatus(LoggedOut)
+  }
   switch flowType {
   | MERCHANT_SELECT => <AcceptInvite />
   | DASHBOARD_ENTRY => <HyperSwitchApp />
-  | ERROR => <> </>
+  | ERROR => <CommonAuthError onClick=onClickErrorPageButton />
   }
 }
