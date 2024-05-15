@@ -627,12 +627,6 @@ let make = (
     isMobileView ? "flex flex-col gap-4 my-4" : "flex flex-row gap-4 my-4"
   }, [isMobileView])
 
-  let hideFiltersDefaultValue =
-    filterValue
-    ->Dict.keysToArray
-    ->Array.filter(item => tabKeys->Array.find(key => key == item)->Option.isSome)
-    ->Array.length < 1
-
   let topFilterUi = switch filterDataJson {
   | Some(filterData) => {
       let filterData = switch analyticsType {
@@ -664,7 +658,6 @@ let make = (
           key="0"
           filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
           showCustomFilter=false
-          hideFiltersDefaultValue
           refreshFilters=false
         />
       </div>

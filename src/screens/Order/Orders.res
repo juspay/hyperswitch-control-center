@@ -88,9 +88,6 @@ let make = (~previewOnly=false) => {
 
   let filtersUI = React.useMemo0(() => {
     <RemoteTableFilters
-      placeholder="Search payment id"
-      setSearchVal=setSearchText
-      searchVal=searchText
       filterUrl
       setFilters
       endTimeFilterKey
@@ -98,6 +95,9 @@ let make = (~previewOnly=false) => {
       initialFilters
       initialFixedFilter
       setOffset
+      customLeftView={<SearchBarFilter
+        placeholder="Search payment id" setSearchVal=setSearchText searchVal=searchText
+      />}
     />
   })
 
