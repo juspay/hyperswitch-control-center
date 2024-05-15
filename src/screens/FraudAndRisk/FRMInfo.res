@@ -47,16 +47,16 @@ let riskifyedInfo: frmInfo = {
   description: "Frictionless fraud management for eCommerce",
   connectorFields: [
     {
-      placeholder: "Enter API Key",
-      label: "API Key",
+      placeholder: "Enter Secret token",
+      label: "Secret token",
       name: "connector_account_details.api_key",
       inputType: InputFields.textInput(),
       isRequired: true,
       encodeToBase64: false,
     },
     {
-      placeholder: "Enter Key1",
-      label: "Key1",
+      placeholder: "Enter Domain name",
+      label: "Domain name",
       name: "connector_account_details.key1",
       inputType: InputFields.textInput(),
       isRequired: true,
