@@ -68,6 +68,7 @@ let make = (~children) => {
 
   let setAuthStateToLogout = React.useCallback0(() => {
     setAuth(_ => LoggedOut)
+    CommonAuthUtils.clearLocalStorage()
   })
 
   <Provider value={authStatus, setAuthStatus, setAuthStateToLogout}> children </Provider>
