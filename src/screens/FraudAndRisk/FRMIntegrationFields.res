@@ -179,6 +179,7 @@ let make = (
   open FRMTypes
   open APIUtils
   open Promise
+  open CommonAuthHooks
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let fetchApi = useUpdateMethod()
@@ -186,6 +187,8 @@ let make = (
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let (pageState, setPageState) = React.useState(_ => PageLoaderWrapper.Success)
+
+  let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let initialValues = React.useMemo1(() => {
     open LogicUtils
@@ -234,7 +237,6 @@ let make = (
   }
 
   let updateMerchantDetails = async () => {
-    let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
     let info =
       [
         ("data", "signifyd"->JSON.Encode.string),

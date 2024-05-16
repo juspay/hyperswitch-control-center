@@ -1,10 +1,9 @@
 module HyperSwitchEntryComponent = {
   @react.component
   let make = () => {
-    open HSLocalStorage
+    open CommonAuthHooks
     let fetchDetails = APIUtils.useGetMethod()
-    let email = getFromMerchantDetails("email")
-    let name = getFromUserDetails("name")
+    let {email, name} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
@@ -67,14 +66,14 @@ module HyperSwitchEntryComponent = {
     let fetchConfig = async () => {
       try {
         let domain = getDomain()
-        Js.log(domain)
         let apiURL = `${HSwitchGlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
+        setFeatureFlag(._ => featureFlags)
         let _ = res->configTheme
         let _ = res->configURL
-
-        setFeatureFlag(._ => featureFlags)
+        // Delay added on Expecting feature flag recoil gets updated
+        await HyperSwitchUtils.delay(1000)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | _ => setScreenState(_ => Custom)
@@ -133,7 +132,6 @@ module HyperSwitchEntryComponent = {
       }
       None
     }, [url.path])
-
     <PageLoaderWrapper
       screenState
       sectionHeight="h-screen"

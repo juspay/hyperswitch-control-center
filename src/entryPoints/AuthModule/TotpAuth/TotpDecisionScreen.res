@@ -1,27 +1,32 @@
 @react.component
 let make = () => {
-  let url = RescriptReactRouter.useUrl()
-  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let flowType = switch authStatus {
   | LoggedIn(info) =>
     switch info {
-    | ToptAuth(totpInfo) => totpInfo.token_type
+    | TotpAuth(totpInfo) => totpInfo.token_type->TotpUtils.flowTypeStrToVariantMapper
     | _ => ERROR
     }
   | _ => ERROR
   }
 
-  switch (flowType, url.path->HSwitchUtils.urlPath) {
-  | (MERCHANT_SELECT, list{"merchant_select"}) | (ACCEPT_INVITE, list{"accept_invite"}) =>
+  let onClickErrorPageButton = () => {
+    setAuthStatus(LoggedOut)
+  }
+
+  switch flowType {
+  | MERCHANT_SELECT
+  | ACCEPT_INVITE =>
     <TotpMerchantSelectScreen />
-  | (TOTP, list{"totp"}) => <TotpSetup />
-  | (FORCE_SET_PASSWORD, list{"force_set_password"}) | (RESET_PASSWORD, list{"reset_password"}) =>
+  | TOTP => <TotpSetup />
+  | FORCE_SET_PASSWORD
+  | RESET_PASSWORD =>
     <TotpResetPassword flowType />
-  | (ACCEPT_INVITATION_FROM_EMAIL, list{"accept_invite_from_email"}) => <TotpAcceptInviteScreen />
-  | (VERIFY_EMAIL, list{"verify_email"}) => <TotpEmailVerifyScreen />
-  | (USER_INFO, list{"user_info"}) => <TotpUserInfoScreen />
-  | (DASHBOARD_ENTRY, _) => <HyperSwitchApp />
-  | (ERROR, _) | (_, _) => <> </>
+  | ACCEPT_INVITATION_FROM_EMAIL => <TotpAcceptInviteScreen />
+  | VERIFY_EMAIL => <TotpEmailVerifyScreen />
+  | USER_INFO => <TotpUserInfoScreen />
+  | DASHBOARD_ENTRY => <HyperSwitchApp />
+  | ERROR => <CommonAuthError onClick=onClickErrorPageButton />
   }
 }

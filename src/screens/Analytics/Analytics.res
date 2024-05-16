@@ -821,7 +821,7 @@ let make = (
               <div className="flex flex-col h-full overflow-scroll w-full">
                 <DynamicTabs
                   tabs=filteredTabVales
-                  maxSelection=3
+                  maxSelection=1
                   tabId=moduleName
                   setActiveTab
                   updateUrlDict={dict => {

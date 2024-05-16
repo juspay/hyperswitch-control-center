@@ -55,6 +55,8 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   open LogUtils
   open LogTypes
   open APIUtils
+  let {merchant_id: merchantId} =
+    CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let fetchPostDetils = useUpdateMethod()
   let (data, setData) = React.useState(_ => [])
@@ -151,7 +153,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
             index
             logsDataLength={data->Array.length - 1}
             getLogType
-            nameToURLMapper={nameToURLMapper(~id={id})}
+            nameToURLMapper={nameToURLMapper(~id={id}, ~merchantId)}
             filteredKeys
           />
         })
