@@ -61,13 +61,6 @@ let isValidEmail = value =>
     value,
   )
 
-let setMerchantDetails = (key, value) => {
-  let localStorageData = getInfoFromLocalStorage(~lStorageKey="merchant")
-  localStorageData->Dict.set(key, value)
-
-  "merchant"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
-}
-
 // TODO : Remove once user-management flow introduces
 let setUserDetails = (key, value) => {
   let localStorageData = getInfoFromLocalStorage(~lStorageKey="user")
@@ -103,9 +96,13 @@ let getBrowswerDetails = () => {
   }
 }
 
-let getBodyForFeedBack = (values, ~modalType=HSwitchFeedBackModalUtils.FeedBackModal, ()) => {
+let getBodyForFeedBack = (
+  ~email,
+  ~values,
+  ~modalType=HSwitchFeedBackModalUtils.FeedBackModal,
+  (),
+) => {
   open HSwitchFeedBackModalUtils
-  let email = getFromMerchantDetails("email")
   let valueDict = values->getDictFromJsonObject
   let rating = valueDict->getInt("rating", 1)
 

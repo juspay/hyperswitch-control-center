@@ -103,6 +103,7 @@ let make = () => {
   }, [url.search])
 
   open APIUtils
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
 
   let skipAndContinue = async () => {

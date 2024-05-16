@@ -36,6 +36,7 @@ module DeleteConnectorMenu = {
   @react.component
   let make = (~pageName="connector", ~connectorInfo: ConnectorTypes.connectorPayload) => {
     open APIUtils
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let deleteConnector = async () => {
       try {
@@ -133,6 +134,7 @@ module MenuOption = {
 
 module ConnectorSummaryGrid = {
   open PageLoaderWrapper
+  open CommonAuthHooks
   @react.component
   let make = (
     ~connectorInfo: ConnectorTypes.connectorPayload,
@@ -148,7 +150,7 @@ module ConnectorSummaryGrid = {
         ele.profile_id === connectorInfo.profile_id
       )
       ->Option.getOr(defaultBusinessProfile)
-    let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
+    let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let copyValueOfWebhookEndpoint = ConnectorUtils.getWebhooksUrl(
       ~connectorName={connectorInfo.merchant_connector_id},
       ~merchantId,
@@ -284,6 +286,7 @@ let make = (
   open ConnectorUtils
   let {feedback, paypalAutomaticFlow} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()

@@ -14,9 +14,20 @@ let getRefundsList = async (
   ~offset,
   ~setTotalCount,
   ~setOffset,
+  ~getURL: (
+    ~entityName: APIUtilsTypes.entityName,
+    ~methodType: Fetch.requestMethod,
+    ~id: option<string>=?,
+    ~connector: option<'a>=?,
+    ~userType: APIUtilsTypes.userType=?,
+    ~userRoleTypes: APIUtilsTypes.userRoleTypes=?,
+    ~reconType: APIUtilsTypes.reconType=?,
+    ~queryParamerters: option<string>=?,
+    unit,
+  ) => string,
 ) => {
-  open APIUtils
   open LogicUtils
+
   setScreenState(_ => PageLoaderWrapper.Loading)
   try {
     let refundsUrl = getURL(~entityName=REFUNDS, ~methodType=Post, ~id=Some("refund-post"), ())
@@ -82,7 +93,7 @@ let initialFixedFilter = () => [
       localFilter: None,
       field: FormRenderer.makeMultiInputFieldInfo(
         ~label="",
-        ~comboCustomInput=InputFields.dateRangeField(
+        ~comboCustomInput=InputFields.filterDateRangeField(
           ~startKey=startTimeFilterKey,
           ~endKey=endTimeFilterKey,
           ~format="YYYY-MM-DDTHH:mm:ss[Z]",
@@ -118,8 +129,8 @@ let initialFilters = json => {
       field: FormRenderer.makeFieldInfo(
         ~label="",
         ~name=key,
-        ~customInput=InputFields.multiSelectInput(
-          ~options=values->SelectBox.makeOptions,
+        ~customInput=InputFields.filterMultiSelectInput(
+          ~options=values->FilterSelectBox.makeOptions,
           ~buttonText=title,
           ~showSelectionAsChips=false,
           ~searchable=true,

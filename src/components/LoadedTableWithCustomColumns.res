@@ -90,11 +90,12 @@ let make = (
     <UIUtils.RenderIf condition={!hideRightTitleElement}>
       <Portal to={`${title}CustomizeColumn`}>
         <Button
-          leftIcon=Button.CustomIcon(<Icon name="vertical_slider" />)
+          leftIcon=Button.CustomIcon(<Icon name="edit" size=16 />)
           text="Customize Columns"
           buttonType=SecondaryFilled
           buttonSize=XSmall
           onClick={_ => setShowColumnSelector(_ => true)}
+          customButtonStyle="!rounded-lg !bg-white !h-10 !text-black"
         />
       </Portal>
     </UIUtils.RenderIf>

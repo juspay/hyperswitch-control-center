@@ -155,7 +155,7 @@ let make = (
   | None => "pl-2"
   }
   let verticalPadding = ""
-  let placeholderClass = ""
+  let placeholderClass = "placeholder-opacity-50"
   let textAndBgClass = `${customDarkBackground} text-jp-gray-900 text-opacity-75 focus:text-opacity-100 dark:text-jp-gray-text_darktheme dark:text-opacity-75 dark:placeholder-jp-gray-text_darktheme dark:placeholder-opacity-25 dark:focus:text-opacity-100`
 
   let width = widthMatchwithPlaceholderLength->Option.isSome ? "" : customWidth

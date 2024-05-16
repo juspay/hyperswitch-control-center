@@ -7,8 +7,8 @@ let make = () => {
   open PermissionUtils
   open LogicUtils
   open HyperswitchAtom
-  open HSLocalStorage
-
+  open CommonAuthHooks
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
   let {
@@ -30,9 +30,8 @@ let make = () => {
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let (surveyModal, setSurveyModal) = React.useState(_ => false)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let verificationDays = getFromMerchantDetails("verification")->getIntFromString(-1)
-  let merchantId = getFromMerchantDetails("merchant_id")
-  let userRole = getFromUserDetails("user_role")
+  let {merchant_id: merchantId, user_role: userRole} =
+    useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
@@ -48,7 +47,7 @@ let make = () => {
 
   let getAgreementEnum = async () => {
     try {
-      let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl
+      let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl(getURL)
       let response = await fetchDetails(url)
 
       let productionAgreementResponse =
@@ -211,9 +210,9 @@ let make = () => {
                 <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
-                  <RenderIf condition={verificationDays > 0}>
-                    <DelayedVerificationBanner verificationDays={verificationDays} />
-                  </RenderIf>
+                  // <RenderIf condition={verificationDays > 0}>
+                  //   <DelayedVerificationBanner verificationDays={verificationDays} />
+                  // </RenderIf>
                   // TODO : To be removed after new navbar design
                   <div className="border-b shadow hyperswitch_box_shadow ">
                     <div className="w-full max-w-fixedPageWidth px-9">
@@ -307,8 +306,7 @@ let make = () => {
 
                         | list{"payments", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.operationsView>
-                            <FilterContext
-                              key="payments" index="payments" disableSessionStorage=true>
+                            <FilterContext key="payments" index="payments">
                               <EntityScaffold
                                 entityName="Payments"
                                 remainingPath
@@ -320,7 +318,7 @@ let make = () => {
                           </AccessControl>
                         | list{"refunds", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.operationsView>
-                            <FilterContext key="refunds" index="refunds" disableSessionStorage=true>
+                            <FilterContext key="refunds" index="refunds">
                               <EntityScaffold
                                 entityName="Refunds"
                                 remainingPath

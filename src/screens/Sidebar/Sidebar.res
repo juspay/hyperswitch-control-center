@@ -496,13 +496,17 @@ let make = (
   ~verticalOffset="120px",
 ) => {
   open UIUtils
+  open CommonAuthHooks
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
     ConfigContext.configContext,
   )
+
   let fetchApi = AuthHooks.useApiFetcher()
+  let getURL = APIUtils.useGetURL()
+
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
-  let email = HSLocalStorage.getFromMerchantDetails("email")
+  let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let (openItem, setOpenItem) = React.useState(_ => "")
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
@@ -561,12 +565,17 @@ let make = (
   let transformClass = "transform md:translate-x-0 transition"
 
   let handleLogout = _ => {
-    let _ = APIUtils.handleLogout(
-      ~fetchApi,
-      ~setAuthStateToLogout,
-      ~setIsSidebarExpanded,
-      ~clearRecoilValue,
-    )
+    try {
+      let _ = APIUtils.handleLogout(
+        ~fetchApi,
+        ~setAuthStateToLogout,
+        ~setIsSidebarExpanded,
+        ~clearRecoilValue,
+        ~getURL,
+      )
+    } catch {
+    | Exn.Error(e) => Js.log(e)
+    }
   }
 
   <div

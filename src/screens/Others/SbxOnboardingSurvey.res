@@ -40,11 +40,12 @@ let make = (~showModal, ~setShowModal) => {
   open APIUtils
   open LogicUtils
   open OnboardingSurveyModalUtils
-
+  open CommonAuthHooks
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-  let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
-  let userEmail = HSLocalStorage.getFromMerchantDetails("email")
+  let {merchant_id: merchantId, email: userEmail} =
+    useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
 

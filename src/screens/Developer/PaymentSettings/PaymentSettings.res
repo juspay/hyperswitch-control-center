@@ -33,6 +33,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open HSwitchUtils
   open MerchantAccountUtils
   open HSwitchSettingTypes
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let id = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, profileId)
   let businessProfileDetails = BusinessProfileHook.useGetBusinessProflile(id)

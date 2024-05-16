@@ -2,6 +2,7 @@ open APIUtils
 open PageLoaderWrapper
 @react.component
 let make = () => {
+  let getURL = useGetURL()
   let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
     ConfigContext.configContext,
   )

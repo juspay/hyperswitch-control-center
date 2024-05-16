@@ -4,6 +4,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   open APIUtils
   open LogicUtils
   open ConnectorAccountDetailsHelper
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -165,12 +166,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
           (),
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
-      let url = APIUtils.getURL(
-        ~entityName=CONNECTOR,
-        ~methodType=Post,
-        ~connector=Some(connector),
-        (),
-      )
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connector), ())
       let _ = await updateDetails(url, body, Post, ())
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore

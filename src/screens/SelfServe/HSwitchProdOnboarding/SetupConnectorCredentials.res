@@ -79,6 +79,8 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   open ProdOnboardingTypes
   open ConnectorUtils
   open APIUtils
+  open CommonAuthHooks
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let connectorName = selectedConnector->getConnectorNameString
@@ -88,7 +90,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   // TODO: Change the state to memo
   let (connectorDetails, setConnectorDetails) = React.useState(_ => JSON.Encode.null)
   let (isLoading, setIsLoading) = React.useState(_ => false)
-  let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
+  let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let (initialValues, setInitialValues) = React.useState(_ => JSON.Encode.null)
 
   let getDetails = async () => {

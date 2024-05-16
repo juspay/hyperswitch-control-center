@@ -1,10 +1,10 @@
-open BasicAuthUtils
+open CommonAuthUtils
 
 module BasicAuthPage = {
   open FramerMotion.Motion
   open CommonAuthTypes
   @react.component
-  let make = (~authType, ~setAuthType, ~setAuthStatus, ~mode, ~setMode) => {
+  let make = (~authType, ~setAuthType, ~mode, ~setMode) => {
     let {testLiveToggle, branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let (logoVariant, iconUrl) = switch (Window.env.logoUrl, branding) {
@@ -27,7 +27,7 @@ module BasicAuthPage = {
             </div>
             <Div layoutId="border" className="border-b w-full" />
             <div className="p-7">
-              <BasicAuth setAuthStatus authType setAuthType />
+              <BasicAuth authType setAuthType />
             </div>
           </Div>
           <UIUtils.RenderIf condition={!branding}>
@@ -51,9 +51,9 @@ module BasicAuthPage = {
 }
 
 @react.component
-let make = (~setAuthStatus) => {
-  open BasicAuthTypes
+let make = () => {
   open CommonAuthTypes
+
   let url = RescriptReactRouter.useUrl()
   let (mode, setMode) = React.useState(_ => TestButtonMode)
   let {isLiveMode, email: isMagicLinkEnabled} =
@@ -126,8 +126,8 @@ let make = (~setAuthStatus) => {
     None
   }, [authType])
   switch authType {
-  | EmailVerify | MagicLinkVerify => <BasicEmailVerifyScreen setAuthType setAuthStatus />
-  | ActivateFromEmail => <BasicInviteFromEmail setAuthType setAuthStatus />
-  | _ => <BasicAuthPage authType setAuthType setAuthStatus mode setMode />
+  | EmailVerify | MagicLinkVerify => <BasicEmailVerifyScreen setAuthType />
+  | ActivateFromEmail => <BasicInviteFromEmail setAuthType />
+  | _ => <BasicAuthPage authType setAuthType mode setMode />
   }
 }

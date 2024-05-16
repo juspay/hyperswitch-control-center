@@ -297,10 +297,8 @@ let make = (
   | None => _ => ()
   }
 
-  let currentTheme = ThemeProvider.useTheme()
   let {filterValue} = React.useContext(FilterContext.filterContext)
   let (_switchToMobileView, setSwitchToMobileView) = React.useState(_ => false)
-  let (selectedTabState, setSelectedTabState) = React.useState(_ => selectedTab)
 
   let customFilterKey = switch entity {
   | {customFilterKey} => customFilterKey
@@ -425,21 +423,8 @@ let make = (
     updateChartCompFilters(dict)
     None
   })
-  let chartDimensionView = switch selectedTabState {
-  | Some(selectedTab) =>
-    switch selectedTab->Array.length {
-    | 1 => OneDimension
-    | 2 => TwoDimension
-    | 3 => ThreeDimension
-    | _ => No_Dims
-    }
-  | None => No_Dims
-  }
+
   let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
-  let chartTypeFromUrl = getChartCompFilters->getString("chartType", "Line chart")
-  let chartTopMetricFromUrl = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
-  let chartBottomMetricFromUrl =
-    getChartCompFilters->getString("chartBottomMetric", currentBottomMetrix)
   let (granularity, setGranularity) = React.useState(_ => None)
   let (rawChartData, setRawChartData) = React.useState(_ => None)
   let (shimmerType, setShimmerType) = React.useState(_ => AnalyticsUtils.Shimmer)
@@ -485,11 +470,7 @@ let make = (
 
   let (startTimeFilterKey, endTimeFilterKey) = dateFilterKeys
 
-  let (isExpandedUpper, setIsExpandedUpper) = React.useState(_ => true)
-  let (isExpandedLower, setIsExpandedLower) = React.useState(_ => true)
   let (chartLoading, setChartLoading) = React.useState(_ => true)
-  let (chartToggleKey, setChartToggleKey) = React.useState(_ => false)
-  let toggleKey = React.useMemo1(() => {chartToggleKey ? "0" : "1"}, [chartToggleKey])
   // By default, total_volume metric will always be there
 
   let isMobileView = MatchMedia.useMobileChecker()
@@ -622,7 +603,7 @@ let make = (
     })
   }, [updatedChartConfigArr])
 
-  let (groupKeyFromTab, titleKey) = React.useMemo1(() => {
+  let (groupKeyFromTab, _titleKey) = React.useMemo1(() => {
     switch (tabTitleMapper, selectedTab) {
     | (Some(dict), Some(arr)) => {
         let groupKey = arr->Array.get(0)->Option.getOr("")
@@ -719,16 +700,10 @@ let make = (
     })
 
     setGroupKey(_ => groupKeyFromTab)
-    setSelectedTabState(_ => selectedTab)
+
     setRawChartData(_ => Some(chartData))
     setChartLoading(_ => false)
   }
-  React.useEffect1(() => {
-    if !chartLoading {
-      setChartToggleKey(prev => !prev)
-    }
-    None
-  }, [chartLoading])
 
   React.useEffect1(() => {
     let chartType =
@@ -747,52 +722,6 @@ let make = (
     }
     None
   }, [updatedChartBody])
-  let transformMetric = (arr: array<LineChartUtils.metricsConfig>) => {
-    arr->Array.map(item => {
-      let a: SelectBox.dropdownOption = {
-        label: item.metric_label,
-        value: item.metric_label,
-      }
-      a
-    })
-  }
-  let inputMetricTop: ReactFinalForm.fieldRenderPropsInput = {
-    name: "inputMetricTop",
-    onChange: ev => {
-      updateChartCompFilters(
-        Dict.fromArray([("chartTopMetric", ev->Identity.formReactEventToString)]),
-      )
-    },
-    value: chartTopMetricFromUrl->JSON.Encode.string,
-    onBlur: _ev => (),
-    onFocus: _ev => (),
-    checked: true,
-  }
-  let inputMetricBottom: ReactFinalForm.fieldRenderPropsInput = {
-    name: "inputMetricBottom",
-    onChange: ev => {
-      updateChartCompFilters(
-        Dict.fromArray([("chartBottomMetric", ev->Identity.formReactEventToString)]),
-      )
-    },
-    value: chartBottomMetricFromUrl->JSON.Encode.string,
-    onBlur: _ev => (),
-    onFocus: _ev => (),
-    checked: true,
-  }
-
-  // Note need to add the granularity for the charts
-  let dropDownButtonTextStyle = "font-medium text-jp-gray-900 dark:text-white"
-  let customButtonStyle = "dark:bg-inherit"
-
-  let metricsDropDown = React.useMemo2(() => {
-    transformMetric(entityAllMetrics)
-  }, (entityAllMetrics, isMobileView))
-
-  let metricPickerdisplayClass =
-    [SemiDonut, HorizontalBar, Funnel]->Array.includes(chartTypeFromUrl->chartReverseMappers)
-      ? "hidden"
-      : ""
 
   if statusDict->Dict.valuesToArray->Array.includes(504) {
     <AnalyticsUtils.NoDataFoundPage />
@@ -805,269 +734,52 @@ let make = (
           <form onSubmit={handleSubmit}>
             <AddDataAttributes attributes=[("data-chart-segment", "Chart-1")]>
               <div
-                className="border rounded bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart">
-                <div
-                  className={`flex flex-row border-b w-full border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 text-gray-500 px-4 py-2 ${metricPickerdisplayClass}`}>
-                  <div className="w-3/4 flex justify-between">
-                    <div>
-                      <SelectBox
-                        input=inputMetricTop
-                        searchable=false
-                        options={metricsDropDown}
-                        buttonType={currentTheme === Light ? Button.Secondary : Button.Pagination}
-                        showBorder=false
-                        textStyle={`!text-fs-13 !${dropDownButtonTextStyle}`}
-                        customButtonStyle={`metricButton ${customButtonStyle}`}
-                        buttonText="Choose Metric"
-                        fixedDropDownDirection=SelectBox.BottomRight
-                      />
-                    </div>
-                    <div />
-                  </div>
-                  <div className="w-1/4 flex items-center justify-end">
-                    {if chartLoading && shimmerType === SideLoader {
-                      <div className="animate-spin mb-4 flex-end">
-                        <Icon name="spinner" size=20 />
-                      </div>
-                    } else {
-                      <div
-                        className="cursor-pointer pt-2"
-                        onClick={_ => {
-                          setChartLoading(_ => false)
-                          setIsExpandedUpper(cont => !cont)
-                        }}>
-                        <div
-                          className={isMobileView
-                            ? ""
-                            : "flex flex-col justify-center -ml-8 -mb-5"}>
-                          <Icon name={isExpandedUpper ? "collpase-alt" : "expand-alt"} size=15 />
-                        </div>
-                        {if isMobileView {
-                          React.null
-                        } else {
-                          let text = isExpandedUpper ? "Collapse" : "Expand"
-                          <AddDataAttributes attributes=[("data-text", text)]>
-                            <div> {React.string(text)} </div>
-                          </AddDataAttributes>
-                        }}
-                      </div>
-                    }}
-                  </div>
-                </div>
+                className="border rounded bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart pt-7">
                 {if chartLoading && shimmerType === Shimmer {
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
-                } else if isExpandedUpper {
-                  switch entityAllMetrics
-                  ->Array.filter(item => item.metric_label === chartTopMetricFromUrl)
-                  ->Array.get(0) {
-                  | Some(selectedMetrics) =>
-                    let metricsUri = uriConfig->Array.find(uriMetrics => {
-                      uriMetrics.metrics
-                      ->Array.map(item => {item.metric_label})
-                      ->Array.includes(selectedMetrics.metric_label)
-                    })
-                    let (data, legendData, timeCol) = switch metricsUri {
-                    | Some(val) =>
-                      switch rawChartData
-                      ->Option.getOr([])
-                      ->Array.find(item => item.metricsUrl === val.uri) {
-                      | Some(dataVal) => (dataVal.rawData, dataVal.legendData, val.timeCol)
-                      | None => ([], [], "")
-                      }
-                    | None => ([], [], "")
-                    }
-                    switch chartTypeFromUrl->chartReverseMappers {
-                    | Line =>
-                      switch chartDimensionView {
-                      | OneDimension =>
-                        <HighchartTimeSeriesChart.LineChart1D
-                          class="flex overflow-scroll"
-                          rawChartData=data
-                          selectedMetrics
-                          chartPlace="top_"
-                          xAxis=timeCol
-                          groupKey
-                          chartTitle=false
-                          key={toggleKey}
-                          legendData
-                          showTableLegend
-                          showMarkers
-                          legendType
-                        />
-
-                      | TwoDimension =>
-                        <HighchartTimeSeriesChart.LineChart2D
-                          rawChartData=data
-                          selectedMetrics
-                          xAxis=timeCol
-                          groupBy=selectedTabState
-                          key={toggleKey}
-                          // legendData
-                        />
-                      | ThreeDimension =>
-                        <HighchartTimeSeriesChart.LineChart3D
-                          rawChartData=data
-                          selectedMetrics
-                          xAxis=timeCol
-                          groupBy=selectedTabState
-                          chartKey={toggleKey}
-                          // legendData
-                        />
-                      | No_Dims => React.null
-                      }
-
-                    | Bar =>
-                      <div className="">
-                        <HighchartBarChart.HighBarChart1D
-                          rawData=data groupKey selectedMetrics key={toggleKey}
-                        />
-                      </div>
-                    | SemiDonut =>
-                      <div className="m-4">
-                        <HighchartPieChart
-                          rawData=data groupKey titleKey selectedMetrics key={toggleKey}
-                        />
-                      </div>
-                    | HorizontalBar =>
-                      <div className="m-4">
-                        <HighchartHorizontalBarChart
-                          rawData=data groupKey titleKey selectedMetrics key={toggleKey}
-                        />
-                      </div>
-                    | Funnel =>
-                      <FunnelChart
-                        data
-                        metrics={entityAllMetrics}
-                        moduleName={entity.moduleName}
-                        description={entity.chartDescription}
-                      />
-                    }
-                  | None => React.null
-                  }
                 } else {
-                  React.null
+                  <div>
+                    {entityAllMetrics
+                    ->Array.map(selectedMetrics => {
+                      switch uriConfig->Array.get(0) {
+                      | Some(metricsUri) => {
+                          let (data, legendData, timeCol) = switch rawChartData
+                          ->Option.getOr([])
+                          ->Array.find(item => item.metricsUrl === metricsUri.uri) {
+                          | Some(dataVal) => (
+                              dataVal.rawData,
+                              dataVal.legendData,
+                              metricsUri.timeCol,
+                            )
+                          | None => ([], [], "")
+                          }
+
+                          <HighchartTimeSeriesChart.LineChart1D
+                            class="flex overflow-scroll"
+                            rawChartData=data
+                            selectedMetrics
+                            chartTitleText={selectedMetrics.metric_label}
+                            xAxis=timeCol
+                            groupKey
+                            chartTitle=true
+                            key={""}
+                            legendData
+                            showTableLegend
+                            showMarkers
+                            legendType
+                          />
+                        }
+                      | _ => React.null
+                      }
+                    })
+                    ->React.array}
+                  </div>
                 }}
               </div>
             </AddDataAttributes>
           </form>
         }}
       />
-      {if enableBottomChart {
-        switch entityAllMetrics
-        ->Array.filter(item => item.metric_label === chartBottomMetricFromUrl)
-        ->Array.get(0) {
-        | Some(selectedMetrics) =>
-          let metricsUri = uriConfig->Array.find(uriMetrics => {
-            uriMetrics.metrics
-            ->Array.map(item => {item.metric_label})
-            ->Array.includes(selectedMetrics.metric_label)
-          })
-          let (data, legendData, timeCol) = switch metricsUri {
-          | Some(val) =>
-            switch rawChartData->Option.getOr([])->Array.find(item => item.metricsUrl === val.uri) {
-            | Some(dataVal) => (dataVal.rawData, dataVal.legendData, val.timeCol)
-            | None => ([], [], "")
-            }
-          | None => ([], [], "")
-          }
-          if !isMobileView {
-            <AddDataAttributes attributes=[("data-chart-segment", "Chart-2")]>
-              <div
-                className="mt-5 rounded bg-white border dark:border-jp-gray-960 dark:bg-jp-gray-950">
-                <div
-                  className="flex flex-row justify-between dark:border-jp-gray-960 dark:bg-jp-gray-950 text-gray-500 p-4 py-2 border-b rounded bg-white border-jp-gray-500">
-                  <div className="flex flex-row w-3/4 justify-center">
-                    <div style={ReactDOM.Style.make(~flexBasis="16%", ())} className="gap-1">
-                      <div />
-                      <div />
-                    </div>
-                    <div>
-                      <SelectBox
-                        input=inputMetricBottom
-                        searchable=false
-                        options={metricsDropDown}
-                        buttonType={currentTheme === Light ? Button.Secondary : Button.Pagination}
-                        showBorder=false
-                        textStyle={`text-fs-13 ${dropDownButtonTextStyle}`}
-                        customButtonStyle={`metricButton ${customButtonStyle}`}
-                        buttonText="Choose Metric"
-                        fixedDropDownDirection=SelectBox.BottomRight
-                      />
-                    </div>
-                  </div>
-                  <div className="w-1/4 flex items-center justify-end">
-                    {if chartLoading && shimmerType === SideLoader {
-                      <div className="animate-spin mb-5 flex-end">
-                        <Icon name="spinner" size=20 />
-                      </div>
-                    } else {
-                      let text = isExpandedLower ? "Collapse" : "Expand"
-                      <div
-                        className="cursor-pointer"
-                        onClick={_ => {setIsExpandedLower(cont => !cont)}}>
-                        <div className="flex flex-col justify-center -ml-8 -mb-5">
-                          <Icon name={isExpandedLower ? "collpase-alt" : "expand-alt"} size=15 />
-                        </div>
-                        <AddDataAttributes attributes=[("data-text", text)]>
-                          <div> {React.string(text)} </div>
-                        </AddDataAttributes>
-                      </div>
-                    }}
-                  </div>
-                </div>
-                {if chartLoading && shimmerType === Shimmer {
-                  <Shimmer styleClass="w-full h-96" shimmerType={Big} />
-                } else if isExpandedLower {
-                  switch chartDimensionView {
-                  | OneDimension =>
-                    <HighchartTimeSeriesChart.LineChart1D
-                      class="flex rounded overflow-scroll bg-white border-t-0 border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950"
-                      rawChartData=data
-                      selectedMetrics
-                      chartPlace="bottom_"
-                      xAxis=timeCol
-                      groupKey
-                      chartTitle=false
-                      chartKey={toggleKey}
-                      legendData
-                      showMarkers
-                      chartTitleText={selectedMetrics.metric_label ++ "-2"}
-                      legendType
-                    />
-
-                  | TwoDimension =>
-                    <HighchartTimeSeriesChart.LineChart2D
-                      class="flex rounded overflow-scroll bg-white border-t-0 border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950"
-                      rawChartData=data
-                      selectedMetrics
-                      xAxis=timeCol
-                      groupBy=selectedTabState
-                      chartKey={toggleKey}
-                    />
-                  | ThreeDimension =>
-                    <HighchartTimeSeriesChart.LineChart3D
-                      class="flex rounded overflow-scroll bg-white border-t-0 border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950"
-                      rawChartData=data
-                      selectedMetrics
-                      xAxis=timeCol
-                      groupBy=selectedTabState
-                      chartKey={toggleKey}
-                    />
-                  | No_Dims => React.null
-                  }
-                } else {
-                  React.null
-                }}
-              </div>
-            </AddDataAttributes>
-          } else {
-            React.null
-          }
-        | None => React.null
-        }
-      } else {
-        React.null
-      }}
     </div>
   }
 }

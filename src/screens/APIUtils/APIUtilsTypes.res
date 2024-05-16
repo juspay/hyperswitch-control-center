@@ -68,6 +68,7 @@ type userType = [
   | #USER_UPDATE
   | #UPDATE_ROLE
   | #INVITE_MULTIPLE
+  | #INVITE_MULTIPLE_TOKEN_ONLY
   | #RESEND_INVITE
   | #CREATE_MERCHANT
   | #ACCEPT_INVITE
@@ -82,5 +83,7 @@ type userType = [
   | #USER_INFO
   | #SIGNUPV2
   | #ROTATE_PASSWORD
+  | #BEGIN_TOTP
+  | #VERIFY_TOTP
   | #NONE
 ]

@@ -44,9 +44,10 @@ module RenderCustomRoles = {
 
 module NewCustomRoleInputFields = {
   open UserManagementUtils
+  open CommonAuthHooks
   @react.component
   let make = () => {
-    let userRole = HSLocalStorage.getFromUserDetails("user_role")
+    let {user_role: userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     <div className="flex justify-between">
       <div className="flex flex-col gap-4 w-full">
         <FormRenderer.FieldRenderer
@@ -72,6 +73,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   open APIUtils
   open LogicUtils
   open UIUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
 

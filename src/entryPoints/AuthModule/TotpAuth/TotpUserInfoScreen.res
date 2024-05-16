@@ -1,31 +1,32 @@
 @react.component
 let make = () => {
   open APIUtils
-
+  let getURL = useGetURL()
   let fetchDetails = APIUtils.useGetMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-
+  let {setAuthStatus, authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let token = switch authStatus {
+  | LoggedIn(info) =>
+    switch info {
+    | TotpAuth(totpInfo) => totpInfo.token
+    | _ => None
+    }
+  | _ => None
+  }
   let userInfo = async () => {
-    // open HSwitchLoginUtils
     open LogicUtils
+    open TotpTypes
+    open TotpUtils
     try {
-      // TODO: user info api call
       let url = getURL(~entityName=USERS, ~userType=#USER_INFO, ~methodType=Get, ())
       let response = await fetchDetails(url)
-      let email = response->getDictFromJsonObject->getString("email", "")
-      TotpUtils.parseResponseJson(~json=response, ~email)
-
-      // TODO : check where to get Token in this case
-      let tokenDetails = TotpUtils.getSptTokenType()
-      switch tokenDetails.token {
-      | Some(token) =>
-        setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, DASHBOARD_ENTRY))))
-
-      | _ => setAuthStatus(LoggedOut)
-      }
+      let dict = response->getDictFromJsonObject
+      dict->setOptionString("token", token)
+      dict->Dict.set("token_type", DASHBOARD_ENTRY->variantToStringFlowMapper->JSON.Encode.string)
+      let info = TotpUtils.getTotpAuthInfo(dict->JSON.Encode.object)
+      setAuthStatus(LoggedIn(TotpAuth(info)))
       setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

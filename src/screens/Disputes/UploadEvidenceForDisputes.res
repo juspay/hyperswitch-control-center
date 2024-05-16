@@ -81,6 +81,7 @@ module UploadDisputeEvidenceModal = {
   ) => {
     open APIUtils
     open LogicUtils
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let acceptFile = (keyValue, fileValue) => {
       let url = getURL(~entityName=DISPUTES_ATTACH_EVIDENCE, ~methodType=Put, ())
@@ -208,6 +209,7 @@ module DisputesInfoBarComponent = {
     open LogicUtils
     open DisputesUtils
     open PageLoaderWrapper
+    let getURL = useGetURL()
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
       ConfigContext.configContext,
     )
@@ -384,7 +386,7 @@ module DisputesInfoBarComponent = {
 let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) => {
   open APIUtils
   open DisputesUtils
-
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showPopUp = PopUpState.useShowPopUp()
   let showToast = ToastState.useShowToast()

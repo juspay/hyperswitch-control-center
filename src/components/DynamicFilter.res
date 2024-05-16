@@ -155,15 +155,13 @@ let make = (
   ~tabNames: array<string>,
   ~updateUrlWith=?,
   ~showCustomFilter=true,
-  ~customViewTop=React.null,
+  ~customLeftView=React.null,
   ~filterButtonStyle="",
   ~moduleName="",
   ~customFilterKey="",
   ~filterFieldsPortalName="navbarSecondRow",
   ~filtersDisplayOption=true,
   ~showSelectFiltersSearch=false,
-  ~revampedFilter=false,
-  ~hideFiltersDefaultValue=?,
   ~refreshFilters=true,
 ) => {
   open LogicUtils
@@ -218,7 +216,7 @@ let make = (
   }
 
   <div className="flex-1 ml-1">
-    <RemoteFilter
+    <Filter
       defaultFilters
       fixedFilters=initialFixedFilters
       requiredSearchFieldsList=[]
@@ -226,27 +224,18 @@ let make = (
       localOptions=[]
       remoteOptions
       remoteFilters=initialFilters
-      refreshFilters
       popupFilterFields
       autoApply=false
-      showExtraFiltersInline=true
       addFilterStyle="pt-4"
       filterButtonStyle
-      tooltipStyling=""
-      showClearFilterButton=true
       defaultFilterKeys
-      customView=customFilters
-      customViewTop
+      customRightView=customFilters
+      customLeftView
       ?updateUrlWith
       clearFilters
-      filterFieldsPortalName
       initalCount={currentCustomFilterValue->isNonEmptyString ? 1 : 0}
-      showFiltersBtn=filtersDisplayOption
       showSelectFiltersSearch
       tableName=moduleName
-      revampedFilter
-      ?hideFiltersDefaultValue
-      disableURIdecode=true
     />
   </div>
 }

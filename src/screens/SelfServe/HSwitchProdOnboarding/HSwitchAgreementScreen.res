@@ -1,13 +1,15 @@
 @react.component
 let make = () => {
   open APIUtils
+  open CommonAuthHooks
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let {dashboardPageState, setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let (isAgreeEnable, setIsAgreeEnable) = React.useState(_ => false)
   let (isSelected, setIsSelected) = React.useState(_ => false)
-  let userRole = HSLocalStorage.getFromUserDetails("user_role")
+  let {user_role: userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   React.useEffect1(() => {
     RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/agreement-signature"))

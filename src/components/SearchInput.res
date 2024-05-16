@@ -8,10 +8,10 @@ let make = (
   ~searchIconCss="ml-2",
   ~roundedBorder=true,
   ~widthClass="w-full",
-  ~heightClass="h-10",
+  ~heightClass="h-8",
   ~searchRef=?,
   ~shouldSubmitForm=true,
-  ~placeholderCss="bg-transparent",
+  ~placeholderCss="bg-transparent text-fs-14",
   ~bgColor="bg-white border-jp-gray-600 border-opacity-75 focus-within:border-blue-500",
   ~iconName="new_search_icon",
   ~onKeyDown=_ => {()},
@@ -58,9 +58,6 @@ let make = (
     dark:bg-jp-gray-lightgray_background
     dark:focus-within:border-blue-500 hover:border-opacity-100 
     dark:border-jp-gray-850 dark:border-opacity-50 dark:hover:border-opacity-100`}>
-    <UIUtils.RenderIf condition=showSearchIcon>
-      <Icon className={`align-begin 16`} size=16 name=iconName />
-    </UIUtils.RenderIf>
     <input
       ref={searchRef->ReactDOM.Ref.domRef}
       type_="text"

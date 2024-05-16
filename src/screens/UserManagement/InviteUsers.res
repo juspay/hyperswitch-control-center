@@ -5,6 +5,7 @@ module InviteEmailForm = {
     open LogicUtils
     open APIUtils
     open UIUtils
+    let getURL = useGetURL()
     let {globalUIConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
     let fetchDetails = useGetMethod()
     let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -81,6 +82,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   open APIUtils
   open LogicUtils
   open UIUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
@@ -90,7 +92,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   | None => "merchant_view_only"
   }
 
-  let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {email, totp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (roleTypeValue, setRoleTypeValue) = React.useState(_ => defaultRole)
@@ -103,8 +105,16 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
     [("roleType", [defaultRole->JSON.Encode.string]->JSON.Encode.array)]->getJsonFromArrayOfJson
   })
 
+  let getURLForInviteMultipleUser = {
+    if totp {
+      getURL(~entityName=USERS, ~userType=#INVITE_MULTIPLE_TOKEN_ONLY, ~methodType=Post, ())
+    } else {
+      getURL(~entityName=USERS, ~userType=#INVITE_MULTIPLE, ~methodType=Post, ())
+    }
+  }
+
   let inviteListOfUsersWithInviteMultiple = async values => {
-    let url = getURL(~entityName=USERS, ~userType=#INVITE_MULTIPLE, ~methodType=Post, ())
+    let url = getURLForInviteMultipleUser
     if !email {
       setLoaderForInviteUsers(_ => true)
     }

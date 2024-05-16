@@ -13,6 +13,7 @@ let make = (
   ~amoutAvailableToRefund,
   ~refetch,
 ) => {
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let notShowRefundReasonList = ["adyen"]

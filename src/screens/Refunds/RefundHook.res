@@ -1,6 +1,7 @@
 open APIUtils
 
 let useGetRefundData = (refundId, setScreenState) => {
+  let getURL = useGetURL()
   let (refundData, setRefundData) = React.useState(() => JSON.Encode.null)
   let fetchDetails = useGetMethod()
   let accountUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(refundId), ())

@@ -50,7 +50,6 @@ module ConnectorOverview = {
             {`${configuredConnectors->Array.length->Int.toString} Active Processors`->React.string}
           </p>
         </div>
-        // TODO : Check the permission for this
         <ACLButton
           text="+ Add More"
           access={userPermissionJson.connectorsView}
@@ -180,6 +179,7 @@ module OverviewInfo = {
   open APIUtils
   @react.component
   let make = () => {
+    let getURL = useGetURL()
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let updateDetails = useUpdateMethod()

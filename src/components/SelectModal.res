@@ -21,6 +21,7 @@ let make = (
   ~showSerialNumber=true,
   ~showConversionRate=false,
   ~headerTextClass="text-3xl font-semibold tracking-tight",
+  ~headerClass="",
 ) => {
   let maxLengthArray = (arr, setValues) => {
     switch maxSelection {
@@ -80,7 +81,7 @@ let make = (
       closeOnOutsideClick
       revealFrom
       modalClass="w-full h-screen md:w-96 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
-      headingClass="py-6 px-2.5 h-24 border-b border-solid flex flex-col justify-center !bg-white dark:!bg-black border-slate-300"
+      headingClass={`${headerClass} py-6 px-2.5 h-24 border-b border-solid flex flex-col justify-center !bg-white dark:!bg-black border-slate-300`}
       headerTextClass
       childClass="p-0 m-0">
       <div

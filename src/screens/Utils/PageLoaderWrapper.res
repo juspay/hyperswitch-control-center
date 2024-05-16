@@ -1,5 +1,28 @@
 type viewType = Loading | Error(string) | Success | Custom
 
+module ScreenLoader = {
+  @react.component
+  let make = (~sectionHeight="h-80-vh") => {
+    let loaderLottieFile = LottieFiles.useLottieJson("hyperswitch_loader.json")
+    let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+    <div className={`${sectionHeight} w-scrren flex flex-col justify-center items-center`}>
+      <UIUtils.RenderIf condition={!branding}>
+        <div className="w-20 h-16">
+          <ReactSuspenseWrapper>
+            <div className="scale-400 pt-px">
+              <Lottie animationData={loaderLottieFile} autoplay=true loop=true />
+            </div>
+          </ReactSuspenseWrapper>
+        </div>
+      </UIUtils.RenderIf>
+      <UIUtils.RenderIf condition={branding}>
+        <Loader />
+      </UIUtils.RenderIf>
+    </div>
+  }
+}
+
 @react.component
 let make = (
   ~children=?,
@@ -9,27 +32,11 @@ let make = (
   ~customStyleForDefaultLandingPage="",
   ~customLoader=?,
 ) => {
-  let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let loaderLottieFile = LottieFiles.useLottieJson("hyperswitch_loader.json")
   switch screenState {
   | Loading =>
     switch customLoader {
     | Some(loader) => loader
-    | _ =>
-      <div className={`${sectionHeight} w-scrren flex flex-col justify-center items-center`}>
-        <UIUtils.RenderIf condition={!branding}>
-          <div className="w-20 h-16">
-            <ReactSuspenseWrapper>
-              <div className="scale-400 pt-px">
-                <Lottie animationData={loaderLottieFile} autoplay=true loop=true />
-              </div>
-            </ReactSuspenseWrapper>
-          </div>
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={branding}>
-          <Loader />
-        </UIUtils.RenderIf>
-      </div>
+    | _ => <ScreenLoader sectionHeight />
     }
   | Error(_err) =>
     <DefaultLandingPage

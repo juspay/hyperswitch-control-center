@@ -19,22 +19,6 @@ module BaseTableComponent = {
   ) => {
     open DynamicTableUtils
 
-    let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-    let _userInfoText = React.useMemo1(() => {
-      switch authStatus {
-      | LoggedIn(info) =>
-        switch info {
-        | BasicAuth(basicInfo) =>
-          `${basicInfo.merchantId}_tab_performance_table_table_${basicInfo.username}_currentTime` // tab name also need to be added based on tab currentTime need to be added
-        | ToptAuth(toptInfo) =>
-          `${toptInfo.merchantId}_tab_performance_table_table_${toptInfo.username}_currentTime`
-        }
-
-      | LoggedOut => ""
-      | CheckingAuthStatus => ""
-      }
-    }, [authStatus])
-
     let (offset, setOffset) = React.useState(_ => 0)
     let (_, setCounter) = React.useState(_ => 1)
     let refetch = React.useCallback1(_ => {
@@ -643,12 +627,6 @@ let make = (
     isMobileView ? "flex flex-col gap-4 my-4" : "flex flex-row gap-4 my-4"
   }, [isMobileView])
 
-  let hideFiltersDefaultValue =
-    filterValue
-    ->Dict.keysToArray
-    ->Array.filter(item => tabKeys->Array.find(key => key == item)->Option.isSome)
-    ->Array.length < 1
-
   let topFilterUi = switch filterDataJson {
   | Some(filterData) => {
       let filterData = switch analyticsType {
@@ -680,7 +658,6 @@ let make = (
           key="0"
           filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
           showCustomFilter=false
-          hideFiltersDefaultValue
           refreshFilters=false
         />
       </div>
@@ -844,7 +821,7 @@ let make = (
               <div className="flex flex-col h-full overflow-scroll w-full">
                 <DynamicTabs
                   tabs=filteredTabVales
-                  maxSelection=3
+                  maxSelection=1
                   tabId=moduleName
                   setActiveTab
                   updateUrlDict={dict => {

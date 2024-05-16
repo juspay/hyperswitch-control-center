@@ -1,45 +1,39 @@
 @react.component
 let make = () => {
-  open HSwitchUtils
   open APIUtils
   open LogicUtils
-  let flowType =
-    Some(HSLocalStorage.getFromUserDetails("flow_type"))->BasicAuthUtils.flowTypeStrToVariantMapper
+
+  let showToast = ToastState.useShowToast()
+  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let updateDetails = useUpdateMethod()
   let (merchantData, setMerchantData) = React.useState(_ => [])
-  let merchantDataJsonFromLocalStorage =
-    LocalStorage.getItem("accept_invite_data")->getValFromNullableValue("")->safeParse
-
-  let logoutUser = () => {
-    LocalStorage.clear()
-    setAuthStatus(LoggedOut)
-  }
+  let getURL = useGetURL()
 
   React.useEffect0(() => {
-    switch JSON.Classify.classify(merchantDataJsonFromLocalStorage) {
-    | Array(arr) =>
+    let acceptInvitedata = switch authStatus {
+    | LoggedIn(info) =>
+      switch info {
+      | BasicAuth(basicInfo) => basicInfo.merchants
+      | _ => None
+      }
+    | _ => None
+    }
+
+    switch acceptInvitedata {
+    | Some(arr) =>
       if arr->Array.length > 0 {
         setMerchantData(_ => arr)
+        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/accept-invite"))
       } else {
-        logoutUser()
+        setAuthStatus(LoggedOut)
       }
-    | _ => logoutUser()
+    | None => setAuthStatus(LoggedOut)
     }
 
     None
   })
-
-  React.useEffect1(() => {
-    if flowType === MERCHANT_SELECT {
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/accept-invite"))
-    } else {
-      setDashboardPageState(_ => #HOME)
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
-    }
-    None
-  }, [flowType])
 
   let onClickLoginToDashboard = async () => {
     try {
@@ -57,12 +51,16 @@ let make = () => {
           ("need_dashboard_entry_response", true->JSON.Encode.bool),
         ]->getJsonFromArrayOfJson
       let res = await updateDetails(url, body, Post, ())
-      let email = HSLocalStorage.getFromMerchantDetails("email")
-      let token = BasicAuthUtils.parseResponseJson(~json=res, ~email)
-      LocalStorage.setItem("login", token)
-      LocalStorage.removeItem("accept_invite_data")
-      setUserDetails("flow_type", "dashboard_entry"->JSON.Encode.string)
-      setDashboardPageState(_ => #HOME)
+      let typedInfo = res->BasicAuthUtils.getBasicAuthInfo
+      if typedInfo.token->Option.isSome {
+        open AuthProviderTypes
+        LocalStorage.removeItem("accept_invite_data")
+        setAuthStatus(LoggedIn(BasicAuth(typedInfo)))
+        setDashboardPageState(_ => #HOME)
+      } else {
+        showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
+        setAuthStatus(LoggedOut)
+      }
     } catch {
     | _ => ()
     }
