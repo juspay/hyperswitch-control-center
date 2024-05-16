@@ -85,27 +85,28 @@ let make = () => {
     }
   }
 
-  let fetchOnboardingSurveyDetails = async () => {
-    try {
-      let url = `${getURL(
-          ~entityName=USERS,
-          ~userType=#USER_DATA,
-          ~methodType=Get,
-          (),
-        )}?keys=OnboardingSurvey`
-      let res = await fetchDetails(url)
-      let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
-      let onboardingDetailsFilled =
-        firstValueFromArray->getDictFromJsonObject->getDictfromDict("OnboardingSurvey")
-      let val = onboardingDetailsFilled->Dict.keysToArray->Array.length === 0
-      setSurveyModal(_ => val)
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
+  // TODO: Move this to prod onboarding form
+  // let fetchOnboardingSurveyDetails = async () => {
+  //   try {
+  //     let url = `${getURL(
+  //         ~entityName=USERS,
+  //         ~userType=#USER_DATA,
+  //         ~methodType=Get,
+  //         (),
+  //       )}?keys=OnboardingSurvey`
+  //     let res = await fetchDetails(url)
+  //     let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
+  //     let onboardingDetailsFilled =
+  //       firstValueFromArray->getDictFromJsonObject->getDictfromDict("OnboardingSurvey")
+  //     let val = onboardingDetailsFilled->Dict.keysToArray->Array.length === 0
+  //     setSurveyModal(_ => val)
+  //   } catch {
+  //   | Exn.Error(e) => {
+  //       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+  //       Exn.raiseError(err)
+  //     }
+  //   }
+  // }
   let fetchPermissions = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#GET_PERMISSIONS, ~methodType=Get, ())
@@ -130,9 +131,10 @@ let make = () => {
       let _ = await fetchSwitchMerchantList()
       let permissionJson = await fetchPermissions()
 
-      if !featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
-        let _ = await fetchOnboardingSurveyDetails()
-      }
+      // TODO: Move this to prod onboarding form
+      // if !featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
+      //   let _ = await fetchOnboardingSurveyDetails()
+      // }
       if merchantId->isNonEmptyString {
         if (
           permissionJson.connectorsView === Access ||
@@ -523,7 +525,7 @@ let make = () => {
               <RenderIf
                 condition={!featureFlagDetails.isLiveMode &&
                 userPermissionJson.merchantDetailsManage === Access &&
-                surveyModal}>
+                !(merchantDetailsTypedValue.merchant_name->Option.isSome)}>
                 <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
               </RenderIf>
             </div>
