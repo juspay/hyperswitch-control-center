@@ -1,36 +1,12 @@
 type basicAuthInfo = {
-  token: string,
-  merchantId: string,
-  username: string,
+  token: option<string>,
+  merchant_id: option<string>,
+  name: option<string>,
+  email: option<string>,
+  flow_type: option<string>,
+  user_role: option<string>,
+  verification_days_left: option<bool>,
+  merchants: option<array<JSON.t>>,
 }
-
-open LogicUtils
-
-let getAuthInfo = (json, str) => {
-  let dict = json->JsonFlattenUtils.flattenObject(false)
-  let tokenKey = "token"
-  let merchantIdKey = "merchantId"
-  let userNameKey = "username"
-
-  let authInfo = {
-    token: getString(dict, tokenKey, str),
-    merchantId: getString(dict, merchantIdKey, str),
-    username: getString(dict, userNameKey, ""),
-  }
-
-  Some(authInfo)
-}
-
-let getDummyAuthInfoForToken = token => {
-  let authInfo = {
-    token,
-    merchantId: "",
-    username: "",
-  }
-
-  authInfo
-}
-
-type modeType = TestButtonMode | LiveButtonMode
 
 type flowType = MERCHANT_SELECT | DASHBOARD_ENTRY | ERROR

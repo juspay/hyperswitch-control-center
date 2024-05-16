@@ -683,8 +683,8 @@ let chartTitleStyle = (theme: ThemeProvider.theme) => {
     }->genericObjectOrRecordToJson
   | Light =>
     {
-      "color": "#354052",
-      "fontSize": "13px",
+      "color": "#474D59",
+      "fontSize": "16px",
       "fontWeight": "500",
       "fontFamily": "IBM Plex Sans",
       "fontStyle": "normal",

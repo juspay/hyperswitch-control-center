@@ -217,7 +217,7 @@ let make = (
   ~disableIndicationArrow=false,
   ~tabContainerClass="",
   ~showBorder=true,
-  ~maxSelection=3,
+  ~maxSelection=1,
   ~tabId="",
   ~setActiveTab: string => unit,
   ~updateUrlDict=?,
@@ -379,6 +379,7 @@ let make = (
     }
   })
   let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
+  let (formattedOptions, setFormattedOptions) = React.useState(_ => [])
   // this will update the current available tabs to the userpreference
   React.useEffect1(() => {
     let collapsibleTabsValues =
@@ -496,28 +497,36 @@ let make = (
     setShowModal(_ => false)
   }
 
-  let formattedOptions = tabs->Array.map((x): SelectBox.dropdownOption => {
-    switch x.description {
-    | Some(description) => {
-        label: x.title,
-        value: x.value,
-        icon: CustomRightIcon(
-          description->LogicUtils.isNonEmptyString
-            ? <ToolTip
-                customStyle="-mr-1.5"
-                arrowCustomStyle={isMobileView ? "" : "ml-1.5"}
-                description
-                toolTipPosition={ToolTip.BottomLeft}
-                justifyClass="ml-2 h-auto mb-0.5"
-              />
-            : React.null,
-        ),
-      }
-    | _ => {label: x.title, value: x.value}
-    }
-  })
+  React.useEffect1(() => {
+    let options =
+      tabs
+      ->Array.filter(tab =>
+        !(collapsibleTabs->Array.map(item => item.value)->Array.includes(tab.value))
+      )
+      ->Array.map((x): SelectBox.dropdownOption => {
+        switch x.description {
+        | Some(description) => {
+            label: x.title,
+            value: x.value,
+            icon: CustomRightIcon(
+              description->LogicUtils.isNonEmptyString
+                ? <ToolTip
+                    customStyle="-mr-1.5"
+                    arrowCustomStyle={isMobileView ? "" : "ml-1.5"}
+                    description
+                    toolTipPosition={ToolTip.BottomLeft}
+                    justifyClass="ml-2 h-auto mb-0.5"
+                  />
+                : React.null,
+            ),
+          }
+        | _ => {label: x.title, value: x.value}
+        }
+      })
 
-  let wrapperStyle = ""
+    setFormattedOptions(_ => options)
+    None
+  }, [collapsibleTabs])
 
   let addBtnStyle = `text-black cursor-pointer border-2 border-black-900 !px-4 !rounded-lg `
 
@@ -538,7 +547,7 @@ let make = (
           <div className="flex flex-row">
             <div
               className={`flex flex-row mt-5 ${tabOuterClass}
-            ${wrapperStyle}  ${tabContainerClass}`}>
+             ${tabContainerClass}`}>
               {collapsibleTabs
               ->Array.mapWithIndex((tab, i) => {
                 let ref = if i == 0 {
@@ -586,38 +595,40 @@ let make = (
               isVisible=isRightArrowVisible
             />
           </UIUtils.RenderIf>
-          <div
-            className="flex flex-row"
-            style={ReactDOMStyle.make(~marginTop="20px", ~marginLeft="7px", ())}>
-            <ToolTip
-              description=toolTipDescription
-              toolTipFor={<Button
-                text="+"
-                buttonType={NonFilled}
-                buttonSize=Small
-                customButtonStyle=addBtnStyle
-                textStyle=addBtnTextStyle
-                onClick={_ev => setShowModal(_ => true)}
-              />}
-              toolTipPosition=Top
-              tooltipWidthClass="w-fit"
-            />
-          </div>
+          <UIUtils.RenderIf condition={formattedOptions->Array.length > 0}>
+            <div
+              className="flex flex-row"
+              style={ReactDOMStyle.make(~marginTop="20px", ~marginLeft="7px", ())}>
+              <ToolTip
+                description=toolTipDescription
+                toolTipFor={<Button
+                  text="+"
+                  buttonType={NonFilled}
+                  buttonSize=Small
+                  customButtonStyle=addBtnStyle
+                  textStyle=addBtnTextStyle
+                  onClick={_ev => setShowModal(_ => true)}
+                />}
+                toolTipPosition=Top
+                tooltipWidthClass="w-fit"
+              />
+            </div>
+          </UIUtils.RenderIf>
         </div>
       </div>
       <SelectModal
-        modalHeading="Add Segments"
-        modalHeadingDescription={`You can choose upto maximum of ${maxSelection->Int.toString} segments`}
+        modalHeading="Add Segment"
         ?headerTextClass
         showModal
         setShowModal
         onSubmit
         initialValues=[]
         options=formattedOptions
-        submitButtonText="Add Segments"
+        submitButtonText="Add Segment"
         showSelectAll=false
         showDeSelectAll=true
         maxSelection
+        headerClass="h-fit"
       />
       <div className=bottomBorderClass />
     </ErrorBoundary>

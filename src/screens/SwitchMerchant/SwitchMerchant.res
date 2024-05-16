@@ -125,7 +125,8 @@ module ExternalUser = {
   @react.component
   let make = (~switchMerchant, ~isAddMerchantEnabled) => {
     open UIUtils
-    let defaultMerchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
+    let {merchant_id: defaultMerchantId} =
+      CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let switchMerchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.switchMerchantListAtom)
     let merchantDetailsTypedValue = HSwitchUtils.useMerchantDetailsValue()
@@ -246,12 +247,18 @@ module ExternalUser = {
 
 @react.component
 let make = (~userRole, ~isAddMerchantEnabled=false) => {
-  open LogicUtils
-  open HSLocalStorage
   open APIUtils
   let getURL = useGetURL()
+  let {setAuthStatus, authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let (value, setValue) = React.useState(() => "")
-  let merchantId = getFromMerchantDetails("merchant_id")
+  let merchantId = switch authStatus {
+  | LoggedIn(info) =>
+    switch info {
+    | BasicAuth(basicInfo) => basicInfo.merchant_id->Option.getOr("")
+    | TotpAuth(totpInfo) => totpInfo.merchant_id->Option.getOr("")
+    }
+  | _ => ""
+  }
   let updateDetails = useUpdateMethod()
   let showPopUp = PopUpState.useShowPopUp()
   let isInternalUser = userRole->String.includes("internal_")
@@ -285,14 +292,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       let body = Dict.make()
       body->Dict.set("merchant_id", value->JSON.Encode.string)
       let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
-      let responseDict = res->getDictFromJsonObject
-      let switchedMerchantId = responseDict->getString("merchant_id", "")
-      let token = BasicAuthUtils.parseResponseJson(
-        ~json=res,
-        ~email=responseDict->LogicUtils.getString("email", ""),
-      )
-      LocalStorage.setItem("login", token)
-      HSwitchUtils.setMerchantDetails("merchant_id", switchedMerchantId->JSON.Encode.string)
+      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
       setSuccessModal(_ => true)
       await HyperSwitchUtils.delay(2000)
       Window.Location.reload()

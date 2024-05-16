@@ -1,8 +1,9 @@
 @react.component
-let make = (~setAuthType, ~setAuthStatus) => {
+let make = (~setAuthType) => {
   open AuthProviderTypes
   open APIUtils
   open LogicUtils
+  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
@@ -12,17 +13,9 @@ let make = (~setAuthType, ~setAuthStatus) => {
     try {
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#VERIFY_EMAILV2}, ())
       let res = await updateDetails(url, body, Post, ())
-      let email = res->JSON.Decode.object->Option.getOr(Dict.make())->getString("email", "")
-      let token = BasicAuthUtils.parseResponseJson(~json=res, ~email)
       await HyperSwitchUtils.delay(1000)
-      if !(token->isEmptyString) && !(email->isEmptyString) {
-        setAuthStatus(LoggedIn(BasicAuth(BasicAuthTypes.getDummyAuthInfoForToken(token))))
-        setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
-      } else {
-        setAuthStatus(LoggedOut)
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-      }
+      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
+      setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Verification Failed")

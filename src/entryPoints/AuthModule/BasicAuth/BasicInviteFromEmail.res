@@ -1,10 +1,9 @@
 @react.component
-let make = (~setAuthType, ~setAuthStatus) => {
-  open BasicAuthTypes
-
+let make = (~setAuthType) => {
   open APIUtils
   open LogicUtils
   open AuthProviderTypes
+  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
@@ -15,17 +14,8 @@ let make = (~setAuthType, ~setAuthStatus) => {
     try {
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL, ())
       let res = await updateDetails(url, body, Post, ())
-      let email = res->JSON.Decode.object->Option.getOr(Dict.make())->getString("email", "")
-      let token = BasicAuthUtils.parseResponseJson(~json=res, ~email)
-
-      if !(token->isEmptyString) && !(email->isEmptyString) {
-        setAuthStatus(LoggedIn(BasicAuth(getDummyAuthInfoForToken(token))))
-        setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
-      } else {
-        setAuthStatus(LoggedOut)
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-      }
+      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
+      setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Verification Failed")
@@ -47,8 +37,8 @@ let make = (~setAuthType, ~setAuthStatus) => {
     None
   })
   let onClick = () => {
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
     setAuthType(_ => CommonAuthTypes.LoginWithEmail)
+    setAuthStatus(LoggedOut)
   }
 
   <EmailVerifyScreen

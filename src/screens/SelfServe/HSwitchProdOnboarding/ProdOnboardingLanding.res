@@ -149,6 +149,7 @@ let make = () => {
   open ConnectorTypes
   open LogicUtils
   open APIUtils
+  open CommonAuthHooks
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (pageView, setPageView) = React.useState(_ => SELECT_PROCESSOR)
@@ -168,7 +169,7 @@ let make = () => {
   let centerItems = pageView === SETUP_COMPLETED ? "justify-center" : ""
   let urlPush = appendDashboardPath(~url=`/prod-onboarding?${routerUrl.search}`)
 
-  let userRole = HSLocalStorage.getFromUserDetails("user_role")
+  let {user_role: userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let getSetupCompleteEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
     if prodEnums.setupComplete {

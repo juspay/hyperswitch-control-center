@@ -10,10 +10,11 @@ module UserUtilsPopover = {
   let make = (~infoValue: UserRoleEntity.userTableTypes, ~setIsUpdateRoleSelected) => {
     open HeadlessUI
     open APIUtils
+    open CommonAuthHooks
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let merchantEmail = HSLocalStorage.getFromMerchantDetails("email")
+    let {email: merchantEmail} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let showPopUp = PopUpState.useShowPopUp()
 
     let deleteUser = async () => {

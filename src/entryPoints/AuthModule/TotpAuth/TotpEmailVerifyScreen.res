@@ -2,18 +2,16 @@
 let make = () => {
   open AuthProviderTypes
   open APIUtils
-  //   open LogicUtils
+
   let getURL = useGetURL()
-  let url = RescriptReactRouter.useUrl()
+
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let verifyEmailWithSPT = async body => {
-    // TODO: Replace with the actual API and response
     try {
       open TotpUtils
-      open LogicUtils
       let url = getURL(
         ~entityName=USERS,
         ~methodType=Post,
@@ -21,14 +19,7 @@ let make = () => {
         (),
       )
       let res = await updateDetails(url, body, Post, ())
-
-      let token_Type =
-        res->getDictFromJsonObject->getOptionString("token_type")->flowTypeStrToVariantMapper
-      let token = res->getDictFromJsonObject->getString("token", "")
-      setAuthStatus(LoggedIn(ToptAuth(TotpUtils.totpAuthInfoForToken(token, token_Type))))
-      RescriptReactRouter.replace(
-        HSwitchGlobalVars.appendDashboardPath(~url=`/${token_Type->variantToStringFlowMapper}`),
-      )
+      setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(res))))
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Verification Failed")
@@ -39,12 +30,14 @@ let make = () => {
   }
 
   React.useEffect0(() => {
-    open LogicUtils
     open CommonAuthUtils
+    open TotpUtils
+    open HSwitchGlobalVars
 
-    let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
+    RescriptReactRouter.replace(appendDashboardPath(~url="/accept_invite_from_email"))
+    let emailToken = authStatus->getEmailToken
 
-    switch tokenFromUrl {
+    switch emailToken {
     | Some(token) => token->generateBodyForEmailRedirection->verifyEmailWithSPT->ignore
     | None => setErrorMessage(_ => "Token not received")
     }
