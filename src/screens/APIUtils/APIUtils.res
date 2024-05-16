@@ -123,8 +123,17 @@ let useGetURL = () => {
       switch methodType {
       | Get =>
         switch id {
-        | Some(key_id) => `refunds/${key_id}`
-        | None => ""
+        | Some(key_id) =>
+          switch queryParamerters {
+          | Some(queryParams) => `refunds/${key_id}?${queryParams}`
+          | None => `refunds/${key_id}`
+          }
+
+        | None =>
+          switch queryParamerters {
+          | Some(queryParams) => `refunds/list?${queryParams}`
+          | None => `refunds/list?limit=100`
+          }
         }
       | Post =>
         switch id {

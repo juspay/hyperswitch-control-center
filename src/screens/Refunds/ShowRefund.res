@@ -73,22 +73,59 @@ module RefundInfo = {
 
 @react.component
 let make = (~id) => {
+  open LogicUtils
+  open APIUtils
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading
   )
+  let showToast = ToastState.useShowToast()
   let (_screenStateForOrder, setScreenStateForOrder) = React.useState(_ =>
     PageLoaderWrapper.Loading
   )
   let (offset, setOffset) = React.useState(_ => 0)
   let (orderData, setOrdersData) = React.useState(_ => [])
   let refundData = RefundHook.useGetRefundData(id, setScreenStateForRefund)
-
+  let (refetchCounter, setRefetchCounter) = React.useState(_ => 0)
   let paymentId =
     refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
 
-  let orderDataForPaymentId = OrderHooks.useGetOrdersData(paymentId, 0, setScreenStateForOrder)
+  let orderDataForPaymentId = OrderHooks.useGetOrdersData(
+    paymentId,
+    refetchCounter,
+    setScreenStateForOrder,
+  )
+
+  open HSwitchOrderUtils
+  let showSyncButton = React.useCallback1(_ => {
+    let status = refundData->getDictFromJsonObject->getString("status", "")->statusVariantMapper
+
+    !(id->isTestData) && status !== Succeeded && status !== Failed
+  }, [refundData])
+
+  let refetch = React.useCallback1(() => {
+    setRefetchCounter(p => p + 1)
+  }, [setRefetchCounter])
+
+  let refreshStatus = async () => {
+    try {
+      let getRefreshStatusUrl = getURL(
+        ~entityName=REFUNDS,
+        ~methodType=Get,
+        ~id=Some(id),
+        ~queryParamerters=Some("force_sync=true"),
+        (),
+      )
+      let _ = await fetchDetails(getRefreshStatusUrl)
+      showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
+      refetch()
+    } catch {
+    | _ => ()
+    }
+  }
 
   React.useEffect1(() => {
     let jsonArray = [orderDataForPaymentId]
@@ -99,8 +136,8 @@ let make = (~id) => {
   }, [orderDataForPaymentId])
 
   <div className="flex flex-col overflow-scroll">
-    <div className="mb-4 flex justify-between">
-      <div className="flex items-center">
+    <div className="flex justify-between w-full">
+      <div className="flex items-center justify-between w-full">
         <div>
           <PageUtils.PageHeading title="Refunds" />
           <BreadCrumbNavigation
@@ -109,7 +146,21 @@ let make = (~id) => {
             cursorStyle="cursor-pointer"
           />
         </div>
-        <div />
+        <UIUtils.RenderIf
+          condition={showSyncButton() && screenStateForRefund === PageLoaderWrapper.Success}>
+          <ACLButton
+            access={userPermissionJson.operationsView}
+            text="Sync"
+            leftIcon={Button.CustomIcon(
+              <Icon
+                name="sync" className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+              />,
+            )}
+            customButtonStyle="!w-fit !px-4"
+            buttonType={Primary}
+            onClick={_ => refreshStatus()->ignore}
+          />
+        </UIUtils.RenderIf>
       </div>
     </div>
     <PageLoaderWrapper
