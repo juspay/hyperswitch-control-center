@@ -676,7 +676,7 @@ module BaseSelect = {
 
     <div
       id="neglectTopbarTheme"
-      className={`${widthClass} ${outerClass} ${borderClass} ${animationClass} ${dropdownClassName}  max-h-80`}>
+      className={`${widthClass} ${outerClass} ${borderClass} ${animationClass} ${dropdownClassName}`}>
       {switch searchable {
       | Some(val) =>
         if val {

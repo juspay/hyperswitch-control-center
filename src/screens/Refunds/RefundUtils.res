@@ -146,12 +146,11 @@ let getConditionalFilter = (key, dict, filterValues) => {
   | #connector_label => {
       let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
       let new_arr = []
-      let _ = arr->Array.map(item => {
+      arr->Array.forEach(item => {
         let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(item, [])
-        let _ = connectorLabelArr->Array.map(item => {
-          let a = item->getDictFromJsonObject->getString("connector_label", "")
-          new_arr->Array.push(a)
-          new_arr
+        connectorLabelArr->Array.forEach(item => {
+          let connector_label = item->getDictFromJsonObject->getString("connector_label", "")
+          new_arr->Array.push(connector_label)
         })
       })
       new_arr
@@ -169,16 +168,16 @@ let getMerchantIdforConnector: (
   open LogicUtils
   let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   let new_arr: array<FilterSelectBox.dropdownOption> = []
-  let _ = arr->Array.map(item => {
+  arr->Array.forEach(item => {
     let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(item, [])
-    let _ = connectorLabelArr->Array.map(item => {
-      let a = item->getDictFromJsonObject->getString("connector_label", "")
-      let b = item->getDictFromJsonObject->getString("merchant_connector_id", "")
-      let ops: FilterSelectBox.dropdownOption = {
-        label: a,
-        value: b,
+    connectorLabelArr->Array.forEach(item => {
+      let label = item->getDictFromJsonObject->getString("connector_label", "")
+      let value = item->getDictFromJsonObject->getString("merchant_connector_id", "")
+      let option: FilterSelectBox.dropdownOption = {
+        label,
+        value,
       }
-      new_arr->Array.push(ops)
+      new_arr->Array.push(option)
     })
   })
 
@@ -203,16 +202,15 @@ let initialFilters = (json, filtervalues) => {
   }, [filtervalues])
 
   let filterDict = json->getDictFromJsonObject
-  let filterArr = filterDict->itemToObjMapper
-
-  let a = filterDict->Dict.keysToArray
-  let b = a->Array.filterWithIndex((_item, index) => index <= 2)
+  let arr = filterDict->Dict.keysToArray->Array.filterWithIndex((_item, index) => index <= 2)
 
   if connectorFilter->Array.length !== 0 {
-    b->Array.push("connector_label")
+    arr->Array.push("connector_label")
   }
 
-  b->Array.map((key): EntityType.initialFilters<'t> => {
+  let filterArr = filterDict->itemToObjMapper
+
+  arr->Array.map((key): EntityType.initialFilters<'t> => {
     let title = `Select ${key->snakeToTitle}`
 
     let values = switch key->getFilterTypeFromString {

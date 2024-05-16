@@ -108,10 +108,8 @@ module SearchBarFilter = {
 }
 
 module RemoteTableFilters = {
-  open LogicUtils
   @react.component
   let make = (
-    ~filterUrl,
     ~filterUrlV2,
     ~setFilters,
     ~endTimeFilterKey,
@@ -134,27 +132,9 @@ module RemoteTableFilters = {
       None
     })
 
-    let endTimeVal = filterValueJson->getString(endTimeFilterKey, "")
-    let startTimeVal = filterValueJson->getString(startTimeFilterKey, "")
-
-    let filterBody = React.useMemo3(() => {
-      [
-        (startTimeFilterKey, startTimeVal->JSON.Encode.string),
-        (endTimeFilterKey, endTimeVal->JSON.Encode.string),
-      ]->Dict.fromArray
-    }, (startTimeVal, endTimeVal, filterValue))
-
     open APIUtils
 
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
-    let updateDetails = useUpdateMethod()
-    let startTimeVal = filterValueJson->getString("start_time", "")
-    let endTimeVal = filterValueJson->getString("end_time", "")
-
-    let getFilters = async () => {
-      let json = await updateDetails(filterUrl, filterBody->JSON.Encode.object, Post, ())
-      setFilterDataJson(_ => json->Some)
-    }
 
     let fetchDetails = useGetMethod()
 
@@ -173,21 +153,6 @@ module RemoteTableFilters = {
       None
     })
 
-    React.useEffect3(() => {
-      if (
-        startTimeVal->isNonEmptyString &&
-        endTimeVal->isNonEmptyString &&
-        filterUrl->isNonEmptyString
-      ) {
-        try {
-          setFilterDataJson(_ => None)
-          getFilters()->ignore
-        } catch {
-        | _ => ()
-        }
-      }
-      None
-    }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
     React.useEffect1(() => {

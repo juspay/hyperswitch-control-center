@@ -55,15 +55,14 @@ module ClearFilters = {
       ->Option.getOr(Dict.make())
       ->Dict.toArray
       ->Array.filter(entry => {
-        let (key, value) = entry
+        let (_, value) = entry
         let isEmptyValue = switch value->JSON.Classify.classify {
         | String(str) => str->LogicUtils.isEmptyString
         | Array(arr) => arr->Array.length === 0
         | Null => true
         | _ => false
         }
-
-        !(defaultFilterKeys->Array.includes(key)) && !isEmptyValue
+        !isEmptyValue
       })
       ->Array.length > 0
     }, (formState.initialValues, defaultFilterKeys))
@@ -121,6 +120,7 @@ let getStrFromJson = (key, val) => {
 
 module ApplyFilterButton = {
   @react.component
+  open LogicUtils
   let make = (
     ~autoApply,
     ~totalFilters,
@@ -133,7 +133,7 @@ module ApplyFilterButton = {
       allFilters
       ->Array.map(filter => {
         let inputFieldsArr = filter.inputFields
-        let inputField = inputFieldsArr->LogicUtils.getValueFromArray(0, defaultinputField)
+        let inputField = inputFieldsArr->getValueFromArray(0, defaultinputField)
         (inputField.name, inputField)
       })
       ->Dict.fromArray
@@ -143,13 +143,9 @@ module ApplyFilterButton = {
     )
 
     let formCurrentValues =
-      formState.values
-      ->LogicUtils.getDictFromJsonObject
-      ->DictionaryUtils.deleteKeys(defaultFilterKeys)
+      formState.values->getDictFromJsonObject->DictionaryUtils.deleteKeys(defaultFilterKeys)
     let formInitalValues =
-      formState.initialValues
-      ->LogicUtils.getDictFromJsonObject
-      ->DictionaryUtils.deleteKeys(defaultFilterKeys)
+      formState.initialValues->getDictFromJsonObject->DictionaryUtils.deleteKeys(defaultFilterKeys)
     let dirtyFields = formState.dirtyFields->Dict.keysToArray
 
     let getFormattedDict = dict => {
@@ -185,7 +181,7 @@ module ApplyFilterButton = {
         ->Array.reduce(true, (acc, item) => {
           let (_, value) = item
           switch value->JSON.Classify.classify {
-          | String(str) => str->LogicUtils.isEmptyString
+          | String(str) => str->isEmptyString
           | Array(arr) => arr->Array.length === 0
           | Object(dict) => dict->Dict.toArray->Array.length === 0
           | Null => true
@@ -239,6 +235,7 @@ let make = (
   ~disableURIdecode=true,
 ) => {
   open HeadlessUI
+  open LogicUtils
   let url = RescriptReactRouter.useUrl()
   let isMobileView = MatchMedia.useMobileChecker()
   let {query, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
@@ -252,20 +249,21 @@ let make = (
   let verticalGap = !isMobileView ? "gap-y-3" : ""
 
   React.useEffect1(_ => {
-    setAllFilters(_ => remoteFilters->Array.map(item => item.field))
+    let updatedAllFilters = remoteFilters->Array.map(item => item.field)
+    setAllFilters(_ => updatedAllFilters)
     None
   }, remoteFilters)
 
   let localFilterJson = RemoteFiltersUtils.getInitialValuesFromUrl(
     ~searchParams,
-    ~initialFilters=localFilters,
+    ~initialFilters={Array.concat(localFilters, fixedFilters)},
     (),
   )
 
   let clearFilterJson =
     RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
-      ~initialFilters=localFilters,
+      ~initialFilters={Array.concat(localFilters, fixedFilters)},
       ~options=remoteOptions,
       (),
     )
@@ -285,7 +283,7 @@ let make = (
     | Some(fn) =>
       fn(
         initialValues
-        ->LogicUtils.getDictFromJsonObject
+        ->getDictFromJsonObject
         ->Dict.toArray
         ->Array.map(item => {
           let (key, value) = item

@@ -62,7 +62,6 @@ let make = () => {
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
-            filterUrl=""
             filterUrlV2
             setFilters
             endTimeFilterKey

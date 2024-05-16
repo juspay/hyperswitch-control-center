@@ -139,12 +139,11 @@ let getConditionalFilter = (key, dict, filterValues) => {
   | #connector_label => {
       let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
       let new_arr = []
-      let _ = arr->Array.map(item => {
+      arr->Array.forEach(item => {
         let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(item, [])
-        let _ = connectorLabelArr->Array.map(item => {
-          let a = item->getDictFromJsonObject->getString("connector_label", "")
-          new_arr->Array.push(a)
-          new_arr
+        connectorLabelArr->Array.forEach(item => {
+          let connector_label = item->getDictFromJsonObject->getString("connector_label", "")
+          new_arr->Array.push(connector_label)
         })
       })
       new_arr
@@ -153,16 +152,15 @@ let getConditionalFilter = (key, dict, filterValues) => {
       let arr = filterValues->getArrayFromDict("payment_method", [])->getStrArrayFromJsonArray
 
       let new_arr = []
-      let _ = arr->Array.map(item => {
+      arr->Array.forEach(item => {
         let paymentMethodTypeArr =
           dict
           ->getDictfromDict("payment_method")
           ->getArrayFromDict(item, [])
           ->getStrArrayFromJsonArray
-        let _ = paymentMethodTypeArr->Array.map(item => {
+        paymentMethodTypeArr->Array.forEach(item => {
           new_arr->Array.push(item)
         })
-        new_arr
       })
       new_arr
     }
@@ -179,19 +177,18 @@ let getMerchantIdforConnector: (
   open LogicUtils
   let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   let new_arr: array<FilterSelectBox.dropdownOption> = []
-  let _ = arr->Array.map(item => {
+  arr->Array.forEach(item => {
     let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(item, [])
-    let _ = connectorLabelArr->Array.map(item => {
-      let a = item->getDictFromJsonObject->getString("connector_label", "")
-      let b = item->getDictFromJsonObject->getString("merchant_connector_id", "")
-      let ops: FilterSelectBox.dropdownOption = {
-        label: a,
-        value: b,
+    connectorLabelArr->Array.forEach(item => {
+      let label = item->getDictFromJsonObject->getString("connector_label", "")
+      let value = item->getDictFromJsonObject->getString("merchant_connector_id", "")
+      let option: FilterSelectBox.dropdownOption = {
+        label,
+        value,
       }
-      new_arr->Array.push(ops)
+      new_arr->Array.push(option)
     })
   })
-
   new_arr
 }
 

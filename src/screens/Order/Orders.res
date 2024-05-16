@@ -91,7 +91,6 @@ let make = (~previewOnly=false) => {
 
   let filtersUI = React.useMemo0(() => {
     <RemoteTableFilters
-      filterUrl=""
       filterUrlV2
       setFilters
       endTimeFilterKey
