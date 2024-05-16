@@ -210,12 +210,10 @@ let itemToObjMapper = dict => {
 let initialFilters = (json, filtervalues) => {
   open LogicUtils
 
-  let connectorFilter = React.useMemo1(() => {
-    filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  }, [filtervalues])
-  let paymentMethodFilter = React.useMemo1(() => {
+  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+
+  let paymentMethodFilter =
     filtervalues->getArrayFromDict("payment_method", [])->getStrArrayFromJsonArray
-  }, [filtervalues])
 
   let filterDict = json->getDictFromJsonObject
   let filterArr = filterDict->itemToObjMapper

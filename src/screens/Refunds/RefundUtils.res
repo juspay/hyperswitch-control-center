@@ -197,9 +197,7 @@ let itemToObjMapper = dict => {
 let initialFilters = (json, filtervalues) => {
   open LogicUtils
 
-  let connectorFilter = React.useMemo1(() => {
-    filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  }, [filtervalues])
+  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
 
   let filterDict = json->getDictFromJsonObject
   let arr = filterDict->Dict.keysToArray->Array.filterWithIndex((_item, index) => index <= 2)
