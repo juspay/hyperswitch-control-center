@@ -1,7 +1,7 @@
 # Override envars using -e
 # make release -e NS=docker.io/juspay/test -e VERSION=1.2.3 -e IMAGE_NAME=docker-test
 NS ?= juspaydotin
-VERSION ?= v1.0.0
+VERSION ?= latest
 IMAGE_NAME ?= hyperswitch-control-center
 BRANCH_NAME ?= $(shell git rev-parse --abbrev-ref HEAD)
 CONTAINER_NAME ?= hyperswitch-control-center
