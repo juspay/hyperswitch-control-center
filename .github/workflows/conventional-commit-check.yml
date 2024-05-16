@@ -1,4 +1,4 @@
-name: Conventional Commit Message Check
+name: Pull Request Convention Checks
 
 on:
   # This is a dangerous event trigger as it causes the workflow to run in the
@@ -84,6 +84,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh --repo ${{ github.event.repository.full_name }} pr edit --remove-label 'S-conventions-not-followed' ${{ github.event.pull_request.number }}
+
   pr_linked_issues_check:
     name: Verify PR contains one or more linked issues
     runs-on: ubuntu-latest
