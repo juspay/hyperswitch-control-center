@@ -3,7 +3,7 @@ let make = (~isPayoutFlow=false) => {
   open PaymentMethodConfigUtils
   open PaymentMethodEntity
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let _businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
+  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (connectorResponse, setConnectorResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
@@ -12,9 +12,10 @@ let make = (~isPayoutFlow=false) => {
   let (filteredConnectors, setFiltersConnectors) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->getConnectedList
   )
-  let (_configuredConnectors, setConfiguredConnectors) = React.useState(_ =>
+  let (configuredConnectors, setConfiguredConnectors) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->getConnectedList
   )
+  let {updateExistingKeys, reset} = FilterContext.filterContext->React.useContext
   let (offset, setOffset) = React.useState(_ => 0)
   let allFilters: PaymentMethodConfigTypes.paymentMethodConfigFilters = React.useMemo1(() => {
     filters->pmtConfigFilter
@@ -61,12 +62,36 @@ let make = (~isPayoutFlow=false) => {
     None
   }, [allFilters])
 
+  let handleClearFilter = async () => {
+    setScreenState(_ => Loading)
+    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/configure-pmts"))
+    await HyperSwitchUtils.delay(500)
+    let dict = Dict.make()->pmtConfigFilter
+    let res = connectorResponse->getFilterdConnectorList(dict)
+    setFiltersConnectors(_ => res)
+    setScreenState(_ => Success)
+    reset()
+  }
+
   <div>
     <PageUtils.PageHeading
       title={`Configure PMTs at Checkout`}
       subTitle={"Control the visibility of your payment methods at the checkout"}
     />
     <PageLoaderWrapper screenState>
+      <Filter
+        key="0"
+        defaultFilters={Dict.make()->JSON.Encode.object}
+        fixedFilters=[]
+        requiredSearchFieldsList=[]
+        localFilters={configuredConnectors->initialFilters(businessProfiles)}
+        localOptions=[]
+        remoteOptions=[]
+        remoteFilters={configuredConnectors->initialFilters(businessProfiles)}
+        defaultFilterKeys=[]
+        updateUrlWith={updateExistingKeys}
+        clearFilters={() => handleClearFilter()->ignore}
+      />
       <LoadedTable
         title=" "
         actualData={filteredConnectors->Array.map(Nullable.make)}
