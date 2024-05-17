@@ -573,6 +573,7 @@ let make = (
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
+    (),
   )
 
   React.useEffect0(() => {
