@@ -125,16 +125,6 @@ let make = (~id) => {
     None
   })
 
-  // let orderDataForPaymentId = OrderHooks.useGetOrdersData(paymentId, 0, setScreenStateForOrder)
-
-  // React.useEffect1(() => {
-  //   let jsonArray = [orderDataForPaymentId]
-  // let paymentArray =
-  //   jsonArray->JSON.Encode.array->LogicUtils.getArrayDataFromJson(OrderEntity.itemToObjMapper)
-  //   setOrdersData(_ => paymentArray->Array.map(Nullable.make))
-  //   None
-  // }, [orderDataForPaymentId])
-
   <div className="flex flex-col overflow-scroll">
     <div className="mb-4 flex justify-between">
       <div className="flex items-center">
