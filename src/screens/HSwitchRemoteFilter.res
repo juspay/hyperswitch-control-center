@@ -123,6 +123,7 @@ module RemoteTableFilters = {
     let {filterValue, updateExistingKeys, filterValueJson, reset} =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
+    let showToast = ToastState.useShowToast()
 
     React.useEffect0(() => {
       if filterValueJson->Dict.keysToArray->Array.length === 0 {
@@ -144,7 +145,7 @@ module RemoteTableFilters = {
         let response = await fetchDetails(filterUrlV2)
         setFilterDataJson(_ => response->Some)
       } catch {
-      | _ => ()
+      | _ => showToast(~message="Failed to load filters", ~toastType=ToastError, ())
       }
     }
 
