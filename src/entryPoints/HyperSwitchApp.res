@@ -466,13 +466,15 @@ let make = () => {
                           <AccessControl
                             permission=userPermissionJson.connectorsView
                             isEnabled={featureFlagDetails.configurePmts}>
-                            <EntityScaffold
-                              entityName="ConfigurePMTs"
-                              remainingPath
-                              renderList={() => <PaymentMethodList />}
-                              renderShow={profileId =>
-                                <PaymentSettings webhookOnly=false showFormOnly=false />}
-                            />
+                            <FilterContext key="ConfigurePmts" index="ConfigurePmts">
+                              <EntityScaffold
+                                entityName="ConfigurePMTs"
+                                remainingPath
+                                renderList={() => <PaymentMethodList />}
+                                renderShow={profileId =>
+                                  <PaymentSettings webhookOnly=false showFormOnly=false />}
+                              />
+                            </FilterContext>
                           </AccessControl>
                         | list{"quick-start"} => determineQuickStartPageState()
                         | list{"woocommerce"} => determineWooCommerce()

@@ -357,7 +357,6 @@ let make = (
                 ?autoApply
                 showClearFilter
                 showSelectFiltersSearch=showFiltersSearch
-                disableURIdecode
               />
             </LabelVisibilityContext>
           </UIUtils.RenderIf>
