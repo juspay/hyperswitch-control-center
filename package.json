@@ -11,7 +11,7 @@
     "prod:start": "webpack serve --config webpack.dev.js",
     "build:netlify": "webpack --config webpack.prod.js --env netlifyHosted",
     "build:prod": "npm run re:clean && npm run re:build && APP_VERSION=$npm_package_version && webpack --config webpack.prod.js",
-    "build:test": "export apiBaseUrl=http://localhost:8080 && npm run re:clean && npm run re:build && APP_VERSION=$npm_package_version && webpack --config webpack.prod.js",
+    "build:test": "npm run re:clean && npm run re:build && APP_VERSION=$npm_package_version && webpack --config webpack.prod.js",
     "re:build": "rescript",
     "re:clean": "rescript clean",
     "re:start": "rescript build -w",

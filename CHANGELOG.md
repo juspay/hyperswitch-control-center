@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.16.0
+
+### Miscellaneous Tasks
+
+- Add workflow to check linked issue ([#650](https://github.com/juspay/hyperswitch-control-center/pull/650)) ([`840ef97`](https://github.com/juspay/hyperswitch-control-center/commit/840ef97e6edda6f8f972f5b965312f3a613f1775))
+- Update cypress workflow ([#652](https://github.com/juspay/hyperswitch-control-center/pull/652)) ([`69a1031`](https://github.com/juspay/hyperswitch-control-center/commit/69a1031196d6487117da456934eca4c5c23e10f6))
+- Update makefile ([`ad380c3`](https://github.com/juspay/hyperswitch-control-center/commit/ad380c3274fb028cde804d5e6176b2f2a0833442))
+
+**Full Changelog:** [`2024.05.15.1...2024.05.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.15.1...2024.05.16.0)
+
+- - -
+
 ## 2024.05.15.1
 
 ### Features
