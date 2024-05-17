@@ -53,7 +53,6 @@ let make = (~authType, ~setAuthType) => {
   let getUserWithEmailPassword = async (body, userType) => {
     try {
       let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
-      Js.log(url)
       let res = await updateDetails(url, body, Post, ())
       setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
     } catch {
