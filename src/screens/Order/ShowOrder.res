@@ -620,12 +620,11 @@ let make = (~id) => {
 
   let frmDetailsRef = React.useRef(Nullable.null)
 
-  let orderHooks = OperationHook.useOperationHook()
-
+  let fetchDetails = useGetMethod()
   let fetchOrderDetails = async url => {
     try {
       setScreenState(_ => Loading)
-      let res = await orderHooks(url)
+      let res = await fetchDetails(url)
       setOrderData(_ => res)
       setScreenState(_ => Success)
     } catch {
