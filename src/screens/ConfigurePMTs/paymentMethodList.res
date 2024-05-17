@@ -8,19 +8,19 @@ let make = (~isPayoutFlow=false) => {
   let (connectorResponse, setConnectorResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
-  let filters = UrlUtils.useGetFilterDictFromUrl("")
   let (filteredConnectors, setFiltersConnectors) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->getConnectedList
   )
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->getConnectedList
   )
-  let {updateExistingKeys, reset} = FilterContext.filterContext->React.useContext
+  let {updateExistingKeys, reset, filterValueJson} =
+    FilterContext.filterContext->React.useContext
   let (offset, setOffset) = React.useState(_ => 0)
   let allFilters: PaymentMethodConfigTypes.paymentMethodConfigFilters = React.useMemo1(() => {
-    filters->pmtConfigFilter
-  }, [filters])
-  let getConnectorListAndUpdateState = React.useCallback0(async () => {
+    filterValueJson->pmtConfigFilter
+  }, [filterValueJson])
+  let getConnectorListAndUpdateState = async () => {
     try {
       setScreenState(_ => Loading)
       let response = await fetchConnectorListResponse()
@@ -33,20 +33,16 @@ let make = (~isPayoutFlow=false) => {
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
-  })
+  }
 
-  React.useEffect1(() => {
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/configure-pmts"))
+  React.useEffect2(() => {
     getConnectorListAndUpdateState()->ignore
     None
-  }, [isPayoutFlow])
+  }, (isPayoutFlow, filterValueJson))
 
   let applyFilter = async () => {
-    setScreenState(_ => Loading)
     let res = connectorResponse->getFilterdConnectorList(allFilters)
     setFiltersConnectors(_ => res)
-    await HyperSwitchUtils.delay(500)
-    setScreenState(_ => Success)
   }
 
   React.useEffect1(() => {
@@ -63,13 +59,10 @@ let make = (~isPayoutFlow=false) => {
   }, [allFilters])
 
   let handleClearFilter = async () => {
-    setScreenState(_ => Loading)
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/configure-pmts"))
     await HyperSwitchUtils.delay(500)
     let dict = Dict.make()->pmtConfigFilter
     let res = connectorResponse->getFilterdConnectorList(dict)
     setFiltersConnectors(_ => res)
-    setScreenState(_ => Success)
     reset()
   }
 
