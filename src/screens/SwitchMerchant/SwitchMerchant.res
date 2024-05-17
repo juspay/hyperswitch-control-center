@@ -311,7 +311,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
 
       setSuccessModal(_ => true)
       await HyperSwitchUtils.delay(2000)
-      // Window.Location.reload()
+      Window.Location.reload()
       setSuccessModal(_ => false)
     } catch {
     | _ => setValue(_ => "")
