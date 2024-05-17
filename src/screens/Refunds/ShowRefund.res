@@ -88,8 +88,8 @@ let make = (~id) => {
     refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
   let fetchRefundData = async () => {
     try {
-      let accountUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id), ())
-      let refundData = await operationHook(id, accountUrl)
+      let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id), ())
+      let refundData = await operationHook(refundUrl)
       let paymentId =
         refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
       let orderUrl = getURL(
@@ -99,7 +99,7 @@ let make = (~id) => {
         ~queryParamerters=Some("expand_attempts=true"),
         (),
       )
-      let orderData = await operationHook(paymentId, orderUrl)
+      let orderData = await operationHook(orderUrl)
       let paymentArray =
         [orderData]->JSON.Encode.array->LogicUtils.getArrayDataFromJson(OrderEntity.itemToObjMapper)
       setOrdersData(_ => paymentArray->Array.map(Nullable.make))

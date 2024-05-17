@@ -625,7 +625,7 @@ let make = (~id) => {
   let fetchOrderDetails = async url => {
     try {
       setScreenState(_ => Loading)
-      let res = await orderHooks(id, url)
+      let res = await orderHooks(url)
       setOrderData(_ => res)
       setScreenState(_ => Success)
     } catch {
