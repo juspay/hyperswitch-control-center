@@ -83,7 +83,6 @@ let make = (~id) => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (orderData, setOrdersData) = React.useState(_ => [])
   let operationHook = OperationHook.useOperationHook()
-  // let orderHook = OrderHooks.useGetOrdersData()
   let showToast = ToastState.useShowToast()
   let paymentId =
     refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
