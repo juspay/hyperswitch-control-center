@@ -46,40 +46,43 @@ let make = (~showModal, ~setShowModal) => {
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let {merchant_id: merchantId, email: userEmail} =
     useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-  let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
+  let (merchantDetailsTypedValue, setMerchantDetailsValue) =
+    HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilState
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
 
   let getMerchantNameFromJson = values =>
     values->getDictFromJsonObject->getString("merchant_name", "")
 
-  let updateUserName = async values => {
-    try {
-      let userName = values->getDictFromJsonObject->getString("user_name", "")
-      let url = getURL(~entityName=USERS, ~userType=#USER_UPDATE, ~methodType=Post, ())
-      let body = values->constructUserUpdateBody
-      let _ = await updateDetails(url, body, Post, ())
-      HSwitchUtils.setUserDetails("name", userName->JSON.Encode.string)
-    } catch {
-    | _ => {
-        showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError, ())
-        setShowModal(_ => true)
-      }
-    }
-  }
+  // TODO: Move this to prod onboarding form
+  // let updateUserName = async values => {
+  //   try {
+  //     let userName = values->getDictFromJsonObject->getString("user_name", "")
+  //     let url = getURL(~entityName=USERS, ~userType=#USER_UPDATE, ~methodType=Post, ())
+  //     let body = values->constructUserUpdateBody
+  //     let _ = await updateDetails(url, body, Post, ())
+  //     HSwitchUtils.setUserDetails("name", userName->JSON.Encode.string)
+  //   } catch {
+  //   | _ => {
+  //       showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError, ())
+  //       setShowModal(_ => true)
+  //     }
+  //   }
+  // }
 
-  let updateOnboardingSurveyDetails = async values => {
-    try {
-      let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
-      let bodyValues = values->constructOnboardingSurveyBody->JSON.Encode.object
-      let body = [("OnboardingSurvey", bodyValues)]->getJsonFromArrayOfJson
-      let _ = await updateDetails(url, body, Post, ())
-    } catch {
-    | _ => {
-        showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError, ())
-        setShowModal(_ => true)
-      }
-    }
-  }
+  // TODO: Move this to prod onboarding form
+  // let updateOnboardingSurveyDetails = async values => {
+  //   try {
+  //     let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
+  //     let bodyValues = values->constructOnboardingSurveyBody->JSON.Encode.object
+  //     let body = [("OnboardingSurvey", bodyValues)]->getJsonFromArrayOfJson
+  //     let _ = await updateDetails(url, body, Post, ())
+  //   } catch {
+  //   | _ => {
+  //       showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError, ())
+  //       setShowModal(_ => true)
+  //     }
+  //   }
+  // }
 
   let udpateMerchantDetails = async values => {
     try {
@@ -110,8 +113,10 @@ let make = (~showModal, ~setShowModal) => {
   let onSubmit = async (values, _) => {
     try {
       let _ = values->udpateMerchantDetails
-      let _ = values->updateOnboardingSurveyDetails
-      let _ = values->updateUserName
+
+      // TODO: Move this to prod onboarding form
+      // let _ = values->updateOnboardingSurveyDetails
+      // let _ = values->updateUserName
       showToast(~message=`Successfully updated onboarding survey`, ~toastType=ToastSuccess, ())
       setShowModal(_ => false)
     } catch {
@@ -126,32 +131,47 @@ let make = (~showModal, ~setShowModal) => {
   let validateForm = values => {
     let errors = Dict.make()
     let valueDict = values->getDictFromJsonObject
-    let dictKeys = valueDict->Dict.keysToArray
-    let hyperswitchDict = valueDict->getDictfromDict("hyperswitch")
 
-    if dictKeys->Array.length === 0 || hyperswitchDict->Dict.keysToArray->Array.length == 0 {
-      Dict.set(errors, "Required", "Please fill the details"->JSON.Encode.string)
-    } else if valueDict->getString("merchant_name", "")->isEmptyString {
+    // TODO: Move this to prod onboarding form
+    // let dictKeys = valueDict->Dict.keysToArray
+    // let hyperswitchDict = valueDict->getDictfromDict("hyperswitch")
+
+    // TODO: Move this to prod onboarding form
+    // if dictKeys->Array.length === 0 || hyperswitchDict->Dict.keysToArray->Array.length == 0 {
+    //   Dict.set(errors, "Required", "Please fill the details"->JSON.Encode.string)
+    // }
+    //  else if valueDict->getString("user_name", "")->isEmptyString {
+    //   Dict.set(errors, "Required", "User name required"->JSON.Encode.string)
+    // } else {
+    //   keysToValidateForHyperswitch->Array.forEach(key => {
+    //     switch hyperswitchDict->getJsonObjectFromDict(key)->JSON.Classify.classify {
+    //     | String(strValue) =>
+    //       if strValue->isEmptyString {
+    //         Dict.set(errors, key, "Required"->JSON.Encode.string)
+    //       }
+    //     | Array(arrayValue) =>
+    //       if arrayValue->Array.length === 0 {
+    //         Dict.set(errors, key, "Required"->JSON.Encode.string)
+    //       }
+    //     | _ => Dict.set(errors, key, "Required"->JSON.Encode.string)
+    //     }
+    //   })
+    // }
+
+    if valueDict->getString("merchant_name", "")->isEmptyString {
       Dict.set(errors, "Required", "Business name required"->JSON.Encode.string)
-    } else if valueDict->getString("user_name", "")->isEmptyString {
-      Dict.set(errors, "Required", "User name required"->JSON.Encode.string)
-    } else {
-      keysToValidateForHyperswitch->Array.forEach(key => {
-        switch hyperswitchDict->getJsonObjectFromDict(key)->JSON.Classify.classify {
-        | String(strValue) =>
-          if strValue->isEmptyString {
-            Dict.set(errors, key, "Required"->JSON.Encode.string)
-          }
-        | Array(arrayValue) =>
-          if arrayValue->Array.length === 0 {
-            Dict.set(errors, key, "Required"->JSON.Encode.string)
-          }
-        | _ => Dict.set(errors, key, "Required"->JSON.Encode.string)
-        }
-      })
     }
     errors->JSON.Encode.object
   }
+
+  React.useEffect1(() => {
+    if merchantDetailsTypedValue.merchant_name->Option.isNone {
+      setShowModal(_ => true)
+    } else {
+      setShowModal(_ => false)
+    }
+    None
+  }, [merchantDetailsTypedValue.merchant_name])
 
   <Modal
     showModal
@@ -171,28 +191,29 @@ let make = (~showModal, ~setShowModal) => {
           <Accordion
             initialExpandedArray=[0]
             accordion={[
-              {
-                title: "User details ",
-                renderContent: () => {
-                  <div>
-                    <FormRenderer.DesktopRow>
-                      <FormRenderer.FieldRenderer
-                        fieldWrapperClass="w-full"
-                        field={userName}
-                        labelClass="!text-black font-medium !-ml-[0.5px]"
-                      />
-                    </FormRenderer.DesktopRow>
-                    <FormRenderer.DesktopRow>
-                      <FormRenderer.FieldRenderer
-                        fieldWrapperClass="w-full"
-                        field={designation}
-                        labelClass="!text-black font-medium !-ml-[0.5px]"
-                      />
-                    </FormRenderer.DesktopRow>
-                  </div>
-                },
-                renderContentOnTop: None,
-              },
+              // TODO: Move this to prod onboarding form
+              // {
+              //   title: "User details ",
+              //   renderContent: () => {
+              //     <div>
+              //       <FormRenderer.DesktopRow>
+              //         <FormRenderer.FieldRenderer
+              //           fieldWrapperClass="w-full"
+              //           field={userName}
+              //           labelClass="!text-black font-medium !-ml-[0.5px]"
+              //         />
+              //       </FormRenderer.DesktopRow>
+              //       <FormRenderer.DesktopRow>
+              //         <FormRenderer.FieldRenderer
+              //           fieldWrapperClass="w-full"
+              //           field={designation}
+              //           labelClass="!text-black font-medium !-ml-[0.5px]"
+              //         />
+              //       </FormRenderer.DesktopRow>
+              //     </div>
+              //   },
+              //   renderContentOnTop: None,
+              // },
               {
                 title: "Business details ",
                 renderContent: () => {
@@ -202,69 +223,71 @@ let make = (~showModal, ~setShowModal) => {
                       field={businessName}
                       labelClass="!text-black font-medium !-ml-[0.5px]"
                     />
-                    <FormRenderer.FieldRenderer
-                      fieldWrapperClass="w-full"
-                      field={businessWebsite}
-                      labelClass="!text-black font-medium !-ml-[0.5px]"
-                    />
-                    <FormRenderer.FieldRenderer
-                      fieldWrapperClass="w-full"
-                      field={aboutBusiness}
-                      labelClass="!text-black font-medium !-ml-[0.5px]"
-                    />
-                    <FormRenderer.FieldRenderer
-                      fieldWrapperClass="w-full"
-                      field={majorMarkets}
-                      labelClass="!text-black font-medium !-ml-[0.5px]"
-                    />
-                    <FormRenderer.FieldRenderer
-                      fieldWrapperClass="w-full"
-                      field={businessSize}
-                      labelClass="!text-black font-medium !-ml-[0.5px]"
-                    />
+                    // TODO: Move this to prod onboarding form
+                    // <FormRenderer.FieldRenderer
+                    //   fieldWrapperClass="w-full"
+                    //   field={businessWebsite}
+                    //   labelClass="!text-black font-medium !-ml-[0.5px]"
+                    // />
+                    // <FormRenderer.FieldRenderer
+                    //   fieldWrapperClass="w-full"
+                    //   field={aboutBusiness}
+                    //   labelClass="!text-black font-medium !-ml-[0.5px]"
+                    // />
+                    // <FormRenderer.FieldRenderer
+                    //   fieldWrapperClass="w-full"
+                    //   field={majorMarkets}
+                    //   labelClass="!text-black font-medium !-ml-[0.5px]"
+                    // />
+                    // <FormRenderer.FieldRenderer
+                    //   fieldWrapperClass="w-full"
+                    //   field={businessSize}
+                    //   labelClass="!text-black font-medium !-ml-[0.5px]"
+                    // />
                   </div>
                 },
                 renderContentOnTop: None,
               },
-              {
-                title: "Hyperswitch details ",
-                renderContent: () => {
-                  <div>
-                    <FormRenderer.FieldRenderer
-                      fieldWrapperClass="w-full"
-                      field={hyperswitchUsage}
-                      labelClass="!text-black font-medium !-ml-[0.5px]"
-                    />
-                    <div>
-                      <FormRenderer.FieldRenderer
-                        fieldWrapperClass="w-full"
-                        field={hyperswitchFeatures}
-                        labelClass="!text-black font-medium !-ml-[0.5px]"
-                      />
-                      <OtherfieldRender field_name="hyperswitch.required_features" />
-                    </div>
-                    <div>
-                      <FormRenderer.FieldRenderer
-                        fieldWrapperClass="w-full"
-                        field={processorRequired}
-                        labelClass="!text-black font-medium !-ml-[0.5px]"
-                      />
-                      <OtherfieldRender field_name="hyperswitch.required_processors" />
-                    </div>
-                    <FormRenderer.FieldRenderer
-                      fieldWrapperClass="w-full"
-                      field={plannedGoLiveDate}
-                      labelClass="!text-black font-medium !-ml-[0.5px]"
-                    />
-                    <FormRenderer.FieldRenderer
-                      fieldWrapperClass="w-full"
-                      field={miscellaneousTextField}
-                      labelClass="!text-black font-medium !-ml-[0.5px]"
-                    />
-                  </div>
-                },
-                renderContentOnTop: None,
-              },
+              // TODO: Move this to prod onboarding form
+              // {
+              //   title: "Hyperswitch details ",
+              //   renderContent: () => {
+              //     <div>
+              //       <FormRenderer.FieldRenderer
+              //         fieldWrapperClass="w-full"
+              //         field={hyperswitchUsage}
+              //         labelClass="!text-black font-medium !-ml-[0.5px]"
+              //       />
+              //       <div>
+              //         <FormRenderer.FieldRenderer
+              //           fieldWrapperClass="w-full"
+              //           field={hyperswitchFeatures}
+              //           labelClass="!text-black font-medium !-ml-[0.5px]"
+              //         />
+              //         <OtherfieldRender field_name="hyperswitch.required_features" />
+              //       </div>
+              //       <div>
+              //         <FormRenderer.FieldRenderer
+              //           fieldWrapperClass="w-full"
+              //           field={processorRequired}
+              //           labelClass="!text-black font-medium !-ml-[0.5px]"
+              //         />
+              //         <OtherfieldRender field_name="hyperswitch.required_processors" />
+              //       </div>
+              //       <FormRenderer.FieldRenderer
+              //         fieldWrapperClass="w-full"
+              //         field={plannedGoLiveDate}
+              //         labelClass="!text-black font-medium !-ml-[0.5px]"
+              //       />
+              //       <FormRenderer.FieldRenderer
+              //         fieldWrapperClass="w-full"
+              //         field={miscellaneousTextField}
+              //         labelClass="!text-black font-medium !-ml-[0.5px]"
+              //       />
+              //     </div>
+              //   },
+              //   renderContentOnTop: None,
+              // },
             ]}
             accordianTopContainerCss="rounded-md"
             contentExpandCss="p-4"

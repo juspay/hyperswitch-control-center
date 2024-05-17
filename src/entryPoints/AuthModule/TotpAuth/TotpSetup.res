@@ -58,6 +58,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {
+        setButtonState(_ => Button.Normal)
         setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch!"))
         setAuthStatus(LoggedOut)
       }
@@ -97,7 +98,10 @@ let make = () => {
       }
       setButtonState(_ => Button.Normal)
     } catch {
-    | _ => setOtp(_ => "")
+    | _ => {
+        setOtp(_ => "")
+        setButtonState(_ => Button.Normal)
+      }
     }
   }
 
@@ -105,12 +109,16 @@ let make = () => {
     try {
       open LogicUtils
       open TotpUtils
-
+      setButtonState(_ => Button.Loading)
       let body = [("totp", JSON.Encode.null)]->getJsonFromArrayOfJson
       let response = await verifyTotpLogic(body)
       setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(response))))
+      setButtonState(_ => Button.Normal)
     } catch {
-    | _ => showToast(~message="Something went wrong!", ~toastType=ToastError, ())
+    | _ => {
+        setButtonState(_ => Button.Normal)
+        showToast(~message="Something went wrong!", ~toastType=ToastError, ())
+      }
     }
   }
 
