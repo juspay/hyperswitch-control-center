@@ -1,30 +1,20 @@
 open APIUtils
 
-let useGetRefundData = (refundId, setScreenState) => {
-  let getURL = useGetURL()
-  let (refundData, setRefundData) = React.useState(() => JSON.Encode.null)
+let useGetRefundData = () => {
   let fetchDetails = useGetMethod()
-  let accountUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(refundId), ())
 
-  let setLoadDataForRefunds = async () => {
+  async (refundId, url) => {
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
       if refundId->String.length !== 0 {
-        let refundDataResponse = await fetchDetails(accountUrl)
-        setRefundData(_ => refundDataResponse)
-        setScreenState(_ => PageLoaderWrapper.Success)
+        await fetchDetails(url)
+      } else {
+        Exn.raiseError("OrderID Not Found")
       }
     } catch {
-    | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      setScreenState(_ => PageLoaderWrapper.Error(err))
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to fetch merchant details!")
+        Exn.raiseError(err)
+      }
     }
   }
-
-  React.useEffect1(() => {
-    setLoadDataForRefunds()->ignore
-    None
-  }, [refundId])
-
-  refundData
 }

@@ -29,7 +29,7 @@ let make = (
       let refundsUrl = getURL(~entityName=REFUNDS, ~methodType=Post, ())
       let res = await updateDetails(refundsUrl, body, Post, ())
       let refundStatus = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("status", "")
-      refetch()
+      refetch()->ignore
       switch refundStatus->statusVariantMapper {
       | Succeeded => showToast(~message="Refund successful", ~toastType=ToastSuccess, ())
       | Failed =>
