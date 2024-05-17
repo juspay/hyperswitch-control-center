@@ -232,11 +232,9 @@ let make = (
   ~showClearFilter=true,
   ~initalCount=0,
   ~showSelectFiltersSearch=false,
-  ~disableURIdecode=true,
 ) => {
   open HeadlessUI
-  open LogicUtils
-  let url = RescriptReactRouter.useUrl()
+
   let isMobileView = MatchMedia.useMobileChecker()
   let {query, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
   let (allFilters, setAllFilters) = React.useState(_ =>
@@ -245,7 +243,7 @@ let make = (
   let (initialValueJson, setInitialValueJson) = React.useState(_ => JSON.Encode.object(Dict.make()))
   let (filterList, setFilterList) = React.useState(_ => [])
   let (count, setCount) = React.useState(_ => initalCount)
-  let searchParams = disableURIdecode ? query : url.search->decodeURI
+  let searchParams = query->decodeURI
   let verticalGap = !isMobileView ? "gap-y-3" : ""
 
   React.useEffect1(_ => {
@@ -283,7 +281,7 @@ let make = (
     | Some(fn) =>
       fn(
         initialValues
-        ->getDictFromJsonObject
+        ->LogicUtils.getDictFromJsonObject
         ->Dict.toArray
         ->Array.map(item => {
           let (key, value) = item

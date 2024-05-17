@@ -215,17 +215,28 @@ let initialFilters = (
   open FormRenderer
   open LogicUtils
 
+  open HSwitchSettingTypes
+  let businessProfileNameDropDownOption = arrBusinessProfile =>
+    arrBusinessProfile->Array.map(ele => {
+      let obj: FilterSelectBox.dropdownOption = {
+        label: {`${ele.profile_name} (${ele.profile_id})`},
+        value: ele.profile_id,
+      }
+      obj
+    })
+
   [
     {
       field: makeFieldInfo(
-        ~label="Prfofile",
         ~name="profileId",
-        ~subHeading="",
-        ~description="",
-        ~customInput=InputFields.multiSelectInput(
-          ~options={businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption},
+        ~customInput=InputFields.filterMultiSelectInput(
+          ~options={businessProfiles->businessProfileNameDropDownOption},
           ~buttonText="Select Profile",
           ~showSelectionAsChips=false,
+          ~searchable=true,
+          ~showToolTip=true,
+          ~showNameAsToolTip=true,
+          ~customButtonStyle="bg-none",
           (),
         ),
         (),
@@ -234,17 +245,20 @@ let initialFilters = (
     },
     {
       field: makeFieldInfo(
-        ~label="Connector",
         ~name="connectorId",
-        ~subHeading="",
-        ~description="",
-        ~customInput=InputFields.multiSelectInput(
-          ~options=configuredConnectors
-          ->Array.map(ele => ele.connector_name)
-          ->getUniqueArray
-          ->SelectBox.makeOptions,
+        ~customInput=InputFields.filterMultiSelectInput(
+          ~options={
+            configuredConnectors
+            ->Array.map(ele => ele.connector_name)
+            ->getUniqueArray
+            ->FilterSelectBox.makeOptions
+          },
           ~buttonText="Select Connector",
           ~showSelectionAsChips=false,
+          ~searchable=true,
+          ~showToolTip=true,
+          ~showNameAsToolTip=true,
+          ~customButtonStyle="bg-none",
           (),
         ),
         (),
@@ -253,17 +267,20 @@ let initialFilters = (
     },
     {
       field: makeFieldInfo(
-        ~label="Payment Method",
         ~name="paymentMethod",
-        ~subHeading="",
-        ~description="",
-        ~customInput=InputFields.multiSelectInput(
-          ~options=configuredConnectors
-          ->Array.map(ele => ele.payment_method)
-          ->getUniqueArray
-          ->SelectBox.makeOptions,
+        ~customInput=InputFields.filterMultiSelectInput(
+          ~options={
+            configuredConnectors
+            ->Array.map(ele => ele.payment_method)
+            ->getUniqueArray
+            ->FilterSelectBox.makeOptions
+          },
           ~buttonText="Select Payment Method",
           ~showSelectionAsChips=false,
+          ~searchable=true,
+          ~showToolTip=true,
+          ~showNameAsToolTip=true,
+          ~customButtonStyle="bg-none",
           (),
         ),
         (),
@@ -272,18 +289,20 @@ let initialFilters = (
     },
     {
       field: makeFieldInfo(
-        ~label="Payment Method Type",
         ~name="paymentMethodType",
-        ~subHeading="",
-        ~description="",
-        ~customInput=InputFields.multiSelectInput(
-          ~options=configuredConnectors
-          ->Array.map(ele => ele.payment_method_type)
-          ->getUniqueArray
-          ->SelectBox.makeOptions,
+        ~customInput=InputFields.filterMultiSelectInput(
+          ~options={
+            configuredConnectors
+            ->Array.map(ele => ele.payment_method_type)
+            ->getUniqueArray
+            ->FilterSelectBox.makeOptions
+          },
           ~buttonText="Select Payment Method Type",
           ~showSelectionAsChips=false,
-          ~dropdownClassName={"h-72"},
+          ~searchable=true,
+          ~showToolTip=true,
+          ~showNameAsToolTip=true,
+          ~customButtonStyle="bg-none",
           (),
         ),
         (),
