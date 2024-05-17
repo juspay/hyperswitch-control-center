@@ -249,6 +249,7 @@ module ExternalUser = {
 let make = (~userRole, ~isAddMerchantEnabled=false) => {
   open APIUtils
   let getURL = useGetURL()
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {setAuthStatus, authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let (value, setValue) = React.useState(() => "")
   let merchantId = switch authStatus {
@@ -287,12 +288,27 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   }, [value])
 
   let switchMerchant = async value => {
+    open LogicUtils
     try {
       let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Post, ())
       let body = Dict.make()
       body->Dict.set("merchant_id", value->JSON.Encode.string)
       let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
-      setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
+
+      // TODO: When BE changes the response of this api re-evaluate the below conditions
+      if featureFlagDetails.totp {
+        let responseDict = res->getDictFromJsonObject
+        responseDict->Dict.set(
+          "token_type",
+          DASHBOARD_ENTRY->TotpUtils.variantToStringFlowMapper->JSON.Encode.string,
+        )
+        setAuthStatus(
+          LoggedIn(TotpAuth(TotpUtils.getTotpAuthInfo(responseDict->JSON.Encode.object))),
+        )
+      } else {
+        setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
+      }
+
       setSuccessModal(_ => true)
       await HyperSwitchUtils.delay(2000)
       Window.Location.reload()
