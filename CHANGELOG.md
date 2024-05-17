@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.17.0
+
+### Bug Fixes
+
+- Totp switch merchant bug fix ([#655](https://github.com/juspay/hyperswitch-control-center/pull/655)) ([`d1830c5`](https://github.com/juspay/hyperswitch-control-center/commit/d1830c5da34e11cec8eaca62ed61c3f5726eb921))
+
+### Miscellaneous Tasks
+
+- Chore: added riskifyd ([#643](https://github.com/juspay/hyperswitch-control-center/pull/643)) ([`5ee1616`](https://github.com/juspay/hyperswitch-control-center/commit/5ee16164dc9ec89136f766703e2c94d95373d68f))
+
+**Full Changelog:** [`2024.05.16.0...2024.05.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.16.0...2024.05.17.0)
+
+- - -
+
 ## 2024.05.16.0
 
 ### Miscellaneous Tasks
