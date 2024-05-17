@@ -620,7 +620,7 @@ let make = (~id) => {
 
   let frmDetailsRef = React.useRef(Nullable.null)
 
-  let orderHooks = OrderHooks.useGetOrdersData()
+  let orderHooks = OperationHook.useOperationHook()
 
   let fetchOrderDetails = async url => {
     try {

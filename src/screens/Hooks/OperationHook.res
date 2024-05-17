@@ -1,11 +1,11 @@
 open APIUtils
-
-let useGetRefundData = () => {
+// Common Hook is used to fetch order and refund details
+let useOperationHook = () => {
   let fetchDetails = useGetMethod()
 
-  async (refundId, url) => {
+  async (orderId, url) => {
     try {
-      if refundId->String.length !== 0 {
+      if orderId->String.length !== 0 {
         await fetchDetails(url)
       } else {
         Exn.raiseError("OrderID Not Found")

@@ -82,15 +82,15 @@ let make = (~id) => {
   let (refundData, setRefundData) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (offset, setOffset) = React.useState(_ => 0)
   let (orderData, setOrdersData) = React.useState(_ => [])
-  let refundHook = RefundHook.useGetRefundData()
-  let orderHook = OrderHooks.useGetOrdersData()
+  let operationHook = OperationHook.useOperationHook()
+  // let orderHook = OrderHooks.useGetOrdersData()
   let showToast = ToastState.useShowToast()
   let paymentId =
     refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
   let fetchRefundData = async () => {
     try {
       let accountUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id), ())
-      let refundData = await refundHook(id, accountUrl)
+      let refundData = await operationHook(id, accountUrl)
       let paymentId =
         refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
       let orderUrl = getURL(
@@ -100,7 +100,7 @@ let make = (~id) => {
         ~queryParamerters=Some("expand_attempts=true"),
         (),
       )
-      let orderData = await orderHook(paymentId, orderUrl)
+      let orderData = await operationHook(paymentId, orderUrl)
       let paymentArray =
         [orderData]->JSON.Encode.array->LogicUtils.getArrayDataFromJson(OrderEntity.itemToObjMapper)
       setOrdersData(_ => paymentArray->Array.map(Nullable.make))
