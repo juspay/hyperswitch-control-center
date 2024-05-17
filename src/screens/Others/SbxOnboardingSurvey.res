@@ -46,7 +46,8 @@ let make = (~showModal, ~setShowModal) => {
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let {merchant_id: merchantId, email: userEmail} =
     useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-  let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
+  let (merchantDetailsTypedValue, setMerchantDetailsValue) =
+    HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilState
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
 
   let getMerchantNameFromJson = values =>
@@ -162,6 +163,15 @@ let make = (~showModal, ~setShowModal) => {
     }
     errors->JSON.Encode.object
   }
+
+  React.useEffect1(() => {
+    if merchantDetailsTypedValue.merchant_name->Option.isNone {
+      setShowModal(_ => true)
+    } else {
+      setShowModal(_ => false)
+    }
+    None
+  }, [merchantDetailsTypedValue.merchant_name])
 
   <Modal
     showModal

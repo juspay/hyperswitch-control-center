@@ -24,6 +24,7 @@ let make = () => {
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let enumDetails =
     enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -38,7 +39,6 @@ let make = () => {
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
     : "bg-orange-600/80 border-orange-500 text-grey-700"
 
-  let merchantDetailsTypedValue = useMerchantDetailsValue()
   let isReconEnabled = merchantDetailsTypedValue.recon_status === Active
 
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
@@ -524,8 +524,7 @@ let make = () => {
               </RenderIf>
               <RenderIf
                 condition={!featureFlagDetails.isLiveMode &&
-                userPermissionJson.merchantDetailsManage === Access &&
-                !(merchantDetailsTypedValue.merchant_name->Option.isSome)}>
+                merchantDetailsTypedValue.merchant_name->Option.isNone}>
                 <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
               </RenderIf>
             </div>
