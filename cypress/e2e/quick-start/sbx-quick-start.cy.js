@@ -1,38 +1,51 @@
 let username = `cypresssbxquickstart+${Math.round(+new Date() / 1000)}@gmail.com`;
 before(() => {
-  cy.singup_curl(username, "cypress98#");
+  cy.singup_curl(username, "Cypress98#");
 });
 beforeEach(() => {
-  cy.intercept("POST", "/config/merchant-access", {
+  cy.intercept("GET", "/config/merchant-config?domain=default", {
     statusCode: 200,
     body: {
-      test_live_toggle: false,
-      is_live_mode: false,
-      email: false,
-      quick_start: true,
-      audit_trail: false,
-      system_metrics: false,
-      sample_data: false,
-      frm: false,
-      payout: true,
-      recon: false,
-      test_processors: true,
-      feedback: false,
-      mixpanel: false,
-      generate_report: false,
-      user_journey_analytics: false,
-      authentication_analytics: false,
-      surcharge: false,
-      permission_based_module: false,
-      dispute_evidence_upload: false,
-      paypal_automatic_flow: false,
-      invite_multiple: false,
-      "accept-invite": false,
+      theme: {
+        primary_color: "#006DF9",
+        primary_hover_color: "#005ED6",
+        sidebar_color: "#242F48",
+      },
+      endpoints: {
+        api_url: "http://localhost:8080",
+        sdk_url: "",
+        logo_url: "",
+        favicon_url: "",
+        mixpanel_token: "",
+      },
+      features: {
+        test_live_toggle: false,
+        is_live_mode: false,
+        email: false,
+        quick_start: true,
+        audit_trail: false,
+        system_metrics: false,
+        sample_data: false,
+        frm: false,
+        payout: true,
+        recon: false,
+        test_processors: true,
+        feedback: false,
+        mixpanel: false,
+        generate_report: false,
+        user_journey_analytics: false,
+        surcharge: false,
+        permission_based_module: false,
+        dispute_evidence_upload: false,
+        paypal_automatic_flow: false,
+        invite_multiple: false,
+        "accept-invite": false,
+      },
     },
   }).as("getData");
   cy.visit("http://localhost:9000");
   cy.wait("@getData");
-  cy.login_UI(username, "cypress98#");
+  cy.login_UI(username, "Cypress98#");
 });
 
 describe("Sandbox quick start", () => {
@@ -58,7 +71,7 @@ describe("Sandbox quick start", () => {
     fillInputFields("merchant_name", "quick_start_flow_test");
     cy.contains("Quick Start");
     cy.contains(
-      "Configure and start using Hyperswitch to get an overview of our offerings and how hyperswitch can help you control your payments"
+      "Configure and start using Hyperswitch to get an overview of our offerings and how hyperswitch can help you control your payments",
     );
     clickButton("startExploring");
     clickButton("getStartedNow");
@@ -71,10 +84,13 @@ describe("Sandbox quick start", () => {
     clickButton("proceed");
     customComponentButtonType("ConnectorApiKeys");
     clickButton("proceed");
-    fillInputFields("connector_account_details.api_key", "sk_test_stripe_dummy_api_key");
+    fillInputFields(
+      "connector_account_details.api_key",
+      "sk_test_stripe_dummy_api_key",
+    );
     fillInputFields(
       "connector_webhook_details.merchant_secret",
-      "stripe_dummy_source_verification_keys"
+      "stripe_dummy_source_verification_keys",
     );
     clickButton("proceed");
     clickButton("proceed");
@@ -86,11 +102,17 @@ describe("Sandbox quick start", () => {
     clickButton("proceed");
     customComponentButtonType("ConnectorApiKeys");
     clickButton("proceed");
-    fillInputFields("connector_account_details.api_key", "sk_test_paypal_dummy_api_key");
-    fillInputFields("connector_account_details.key1", "sk_test_paypal_dummy_client_id");
+    fillInputFields(
+      "connector_account_details.api_key",
+      "sk_test_paypal_dummy_api_key",
+    );
+    fillInputFields(
+      "connector_account_details.key1",
+      "sk_test_paypal_dummy_client_id",
+    );
     fillInputFields(
       "connector_webhook_details.merchant_secret",
-      "paypal_dummy_source_verification_keys"
+      "paypal_dummy_source_verification_keys",
     );
     clickButton("proceed");
     clickButton("proceed");
@@ -103,7 +125,9 @@ describe("Sandbox quick start", () => {
     cy.contains("Preview Checkout page");
     cy.get(`[data-button-for=skipThisStep]`).should("be.visible");
     clickButton("skipThisStep");
-    cy.contains("Configuration is complete. You can now start integrating with us!");
+    cy.contains(
+      "Configuration is complete. You can now start integrating with us!",
+    );
     clickButton("iWantToIntegrateHyperswitchIntoMyApp");
     // integrate to my app flow
     customComponentButtonType("MigrateFromStripe");
@@ -121,7 +145,10 @@ describe("Sandbox quick start", () => {
     selectDropDownOption("Select Country", "Albania");
     fillInputFields("business_website", "https://google.com");
     fillInputFields("poc_name", "temp_poc_name");
-    fillInputFields("poc_email", `cypressquickstart+${Math.round(+new Date() / 1000)}@gmail.com`);
+    fillInputFields(
+      "poc_email",
+      `cypressquickstart+${Math.round(+new Date() / 1000)}@gmail.com`,
+    );
     fillInputFields("comments", "temp_tax_identification_number");
     clickButton("submit");
     clickButton("goToHome");

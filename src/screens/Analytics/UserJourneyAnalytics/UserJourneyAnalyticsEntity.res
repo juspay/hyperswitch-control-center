@@ -246,7 +246,7 @@ let getStatThresholds = {
 let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
   urlConfig: [
     {
-      uri: `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
@@ -255,7 +255,7 @@ let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> =
   defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
   statSentiment: getStatSentiment,
   statThreshold: getStatThresholds,
 }
@@ -327,7 +327,7 @@ let userJourneyFunnelMetricsConfig: array<LineChartUtils.metricsConfig> = [
 
 let commonUserJourneyChartEntity = tabKeys =>
   DynamicChart.makeEntity(
-    ~uri=String(`${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`),
+    ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`),
     ~filterKeys=tabKeys,
     ~dateFilterKeys=(startTimeFilterKey, endTimeFilterKey),
     ~currentMetrics=("Success Rate", "Volume"), // 2nd metric will be static and we won't show the 2nd metric option to the first metric
@@ -336,7 +336,7 @@ let commonUserJourneyChartEntity = tabKeys =>
     ~chartTypes=[SemiDonut],
     ~uriConfig=[
       {
-        uri: `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+        uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
         timeSeriesBody: DynamicChart.getTimeSeriesChart,
         legendBody: DynamicChart.getLegendBody,
         metrics: paymentMetricsConfig,
@@ -357,7 +357,7 @@ let userJourneyChartEntity = tabKeys => {
   ...commonUserJourneyChartEntity(tabKeys),
   uriConfig: [
     {
-      uri: `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
       timeSeriesBody: DynamicChart.getTimeSeriesChart,
       legendBody: DynamicChart.getLegendBody,
       metrics: userJourneyMetricsConfig,
@@ -372,7 +372,7 @@ let userJourneyBarChartEntity = tabKeys => {
   chartTypes: [HorizontalBar],
   uriConfig: [
     {
-      uri: `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
       timeSeriesBody: DynamicChart.getTimeSeriesChart,
       legendBody: DynamicChart.getLegendBody,
       metrics: userJourneyMetricsConfig,
@@ -387,7 +387,7 @@ let userJourneyFunnelChartEntity = tabKeys => {
   chartTypes: [Funnel],
   uriConfig: [
     {
-      uri: `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
+      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
       timeSeriesBody: DynamicChart.getTimeSeriesChart,
       legendBody: DynamicChart.getLegendBody,
       metrics: userJourneyFunnelMetricsConfig,

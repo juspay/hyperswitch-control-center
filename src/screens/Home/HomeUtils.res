@@ -21,7 +21,7 @@ type resourcesTypes = {
   subText: string,
   redirectLink: string,
   id: string,
-  access: AuthTypes.authorization,
+  access: CommonAuthTypes.authorization,
 }
 
 let countries: array<ReactHyperJs.country> = [
@@ -143,7 +143,7 @@ module CheckoutCard = {
     let fetchApi = AuthHooks.useApiFetcher()
     let showPopUp = PopUpState.useShowPopUp()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+    let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
     let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
@@ -166,7 +166,7 @@ module CheckoutCard = {
               _ => {
                 let _ = APIUtils.handleLogout(
                   ~fetchApi,
-                  ~setAuthStatus,
+                  ~setAuthStateToLogout,
                   ~setIsSidebarExpanded,
                   ~clearRecoilValue,
                 )
@@ -176,7 +176,7 @@ module CheckoutCard = {
         })
       } else {
         mixpanelEvent(~eventName=`try_test_payment`, ())
-        RescriptReactRouter.replace("/sdk")
+        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/sdk"))
       }
     }
 
@@ -230,7 +230,7 @@ module ControlCenter = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                RescriptReactRouter.push("/connectors")
+                RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/connectors"))
               }}
             />
           </CardFooter>
@@ -238,7 +238,7 @@ module ControlCenter = {
         <CardLayout width="w-full" customStyle={isLiveMode ? "" : "h-4/6"}>
           <CardHeader
             heading="Credentials and Keys"
-            subHeading="Your secret credentials to start integrating hyperswitch."
+            subHeading="Your secret credentials to start integrating"
             leftIcon=Some("merchantInfo")
             customSubHeadingStyle="w-full max-w-none"
           />
@@ -249,7 +249,9 @@ module ControlCenter = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                RescriptReactRouter.push("/developer-api-keys")
+                RescriptReactRouter.push(
+                  HSwitchGlobalVars.appendDashboardPath(~url="/developer-api-keys"),
+                )
               }}
             />
           </CardFooter>

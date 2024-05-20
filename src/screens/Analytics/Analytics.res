@@ -19,16 +19,6 @@ module BaseTableComponent = {
   ) => {
     open DynamicTableUtils
 
-    let (authStatus, _setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
-    let _userInfoText = React.useMemo1(() => {
-      switch authStatus {
-      | LoggedIn(info) =>
-        `${info.merchantId}_tab_performance_table_table_${info.username}_currentTime` // tab name also need to be added based on tab currentTime need to be added
-      | LoggedOut => ""
-      | CheckingAuthStatus => ""
-      }
-    }, [authStatus])
-
     let (offset, setOffset) = React.useState(_ => 0)
     let (_, setCounter) = React.useState(_ => 1)
     let refetch = React.useCallback1(_ => {
@@ -107,6 +97,9 @@ module TableWrapper = {
     ~weeklyTableMetricsCols,
     ~distributionArray=None,
   ) => {
+    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let customFilter = Recoil.useRecoilValueFromAtom(AnalyticsAtoms.customFilterAtom)
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let filterValueDict = filterValueJson
@@ -363,8 +356,8 @@ module TableWrapper = {
       ? <>
           <UIUtils.RenderIf condition={tableData->Array.length > 0}>
             <div
-              className="flex border items-start border-blue-500 text-sm rounded-md gap-2 px-4 py-3 mt-7">
-              <Icon name="info-vacent" className="text-blue-500 mt-1" size=18 />
+              className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3 mt-7`}>
+              <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
               {"'Other' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
             </div>
           </UIUtils.RenderIf>
@@ -635,12 +628,6 @@ let make = (
     isMobileView ? "flex flex-col gap-4 my-4" : "flex flex-row gap-4 my-4"
   }, [isMobileView])
 
-  let hideFiltersDefaultValue =
-    filterValue
-    ->Dict.keysToArray
-    ->Array.filter(item => tabKeys->Array.find(key => key == item)->Option.isSome)
-    ->Array.length < 1
-
   let topFilterUi = switch filterDataJson {
   | Some(filterData) => {
       let filterData = switch analyticsType {
@@ -673,7 +660,6 @@ let make = (
           key="0"
           filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
           showCustomFilter=false
-          hideFiltersDefaultValue
           refreshFilters=false
         />
       </div>
@@ -849,7 +835,7 @@ let make = (
               <div className="flex flex-col h-full overflow-scroll w-full">
                 <DynamicTabs
                   tabs=filteredTabVales
-                  maxSelection=3
+                  maxSelection=1
                   tabId=moduleName
                   setActiveTab
                   updateUrlDict={dict => {

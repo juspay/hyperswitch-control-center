@@ -1,5 +1,6 @@
 @react.component
 let make = () => {
+  let getURL = APIUtils.useGetURL()
   let fetchDetails = APIUtils.useGetMethod()
   let (merchantInfo, setMerchantInfo) = React.useState(() =>
     JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails
@@ -9,7 +10,7 @@ let make = () => {
   let getMerchantDetails = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let accountUrl = APIUtils.getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get, ())
+      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get, ())
       let merchantDetails = await fetchDetails(accountUrl)
       let merchantInfo = merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails
       setMerchantInfo(_ => merchantInfo)

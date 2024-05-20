@@ -496,13 +496,20 @@ let make = (
   ~verticalOffset="120px",
 ) => {
   open UIUtils
+  open CommonAuthHooks
+  let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
+    ConfigContext.configContext,
+  )
+
   let fetchApi = AuthHooks.useApiFetcher()
+  let getURL = APIUtils.useGetURL()
+
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
-  let email = HSLocalStorage.getFromMerchantDetails("email")
+  let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let (openItem, setOpenItem) = React.useState(_ => "")
-  let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+  let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let {getFromSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
@@ -558,15 +565,21 @@ let make = (
   let transformClass = "transform md:translate-x-0 transition"
 
   let handleLogout = _ => {
-    let _ = APIUtils.handleLogout(
-      ~fetchApi,
-      ~setAuthStatus,
-      ~setIsSidebarExpanded,
-      ~clearRecoilValue,
-    )
+    try {
+      let _ = APIUtils.handleLogout(
+        ~fetchApi,
+        ~setAuthStateToLogout,
+        ~setIsSidebarExpanded,
+        ~clearRecoilValue,
+        ~getURL,
+      )
+    } catch {
+    | Exn.Error(e) => Js.log(e)
+    }
   }
 
-  <div className={`bg-sidebar-blue flex group border-r border-jp-gray-500 relative`}>
+  <div
+    className={`${backgroundColor.primaryNormal} flex group border-r border-jp-gray-500 relative`}>
     <div
       ref={sideBarRef->ReactDOM.Ref.domRef}
       className={`flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
@@ -578,7 +591,7 @@ let make = (
       onMouseLeave={_ => onMouseHoverLeaveEvent()}>
       <div
         ref={sideBarRef->ReactDOM.Ref.domRef}
-        className={`bg-sidebar-blue flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
+        className={`${backgroundColor.primaryNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
         style={ReactDOMStyle.make(~width=sidebarWidth, ())}>
         <div className="flex items-center justify-between p-1 mr-2">
           <div
@@ -695,7 +708,9 @@ let make = (
                           onClick={_ => {
                             panelProps["close"]()
                             RescriptReactRouter.replace(
-                              `${HSwitchGlobalVars.hyperSwitchFEPrefix}/account-settings/profile`,
+                              HSwitchGlobalVars.appendDashboardPath(
+                                ~url="/account-settings/profile",
+                              ),
                             )
                           }}
                           text="Profile"

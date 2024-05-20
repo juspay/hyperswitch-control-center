@@ -4,11 +4,12 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   open APIUtils
   open LogicUtils
   open ConnectorAccountDetailsHelper
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
+  let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -165,12 +166,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
           (),
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
-      let url = APIUtils.getURL(
-        ~entityName=CONNECTOR,
-        ~methodType=Post,
-        ~connector=Some(connector),
-        (),
-      )
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connector), ())
       let _ = await updateDetails(url, body, Post, ())
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore

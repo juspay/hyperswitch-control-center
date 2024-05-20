@@ -25,7 +25,7 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 Cypress.Commands.add("login_UI", (name = "", pass = "") => {
-  cy.visit("http://localhost:9000/");
+  cy.visit("http://localhost:9000");
   const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
   const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
   cy.get("[data-testid=email]").type(username);

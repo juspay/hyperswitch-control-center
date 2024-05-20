@@ -4,6 +4,7 @@ open HSAnalyticsUtils
 
 @react.component
 let make = () => {
+  let getURL = useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])
@@ -66,7 +67,7 @@ let make = () => {
     <Analytics
       pageTitle=title
       pageSubTitle=subTitle
-      filterUri={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/filters/${domain}`}
+      filterUri={`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`}
       key="PaymentsAnalytics"
       moduleName="Payments"
       deltaMetrics={getStringListFromArrayDict(metrics)}
@@ -77,7 +78,7 @@ let make = () => {
       singleStatEntity={getSingleStatEntity(metrics, !isLiveMode)}
       getTable={getPaymentTable}
       colMapper
-      tableEntity={paymentTableEntity}
+      tableEntity={paymentTableEntity()}
       defaultSort="total_volume"
       deltaArray=[]
       tableUpdatedHeading=getUpdatedHeading

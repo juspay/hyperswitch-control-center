@@ -10,10 +10,11 @@ module UserUtilsPopover = {
   let make = (~infoValue: UserRoleEntity.userTableTypes, ~setIsUpdateRoleSelected) => {
     open HeadlessUI
     open APIUtils
-
+    open CommonAuthHooks
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let merchantEmail = HSLocalStorage.getFromMerchantDetails("email")
+    let {email: merchantEmail} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let showPopUp = PopUpState.useShowPopUp()
 
     let deleteUser = async () => {
@@ -23,7 +24,7 @@ module UserUtilsPopover = {
           [("email", infoValue.email->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Delete, ())
         showToast(~message=`User has been successfully deleted.`, ~toastType=ToastSuccess, ())
-        RescriptReactRouter.replace("/users")
+        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/users"))
       } catch {
       | _ => ()
       }
@@ -96,6 +97,7 @@ module UserHeading = {
     ~newRoleSelected,
   ) => {
     open APIUtils
+    let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
@@ -138,7 +140,7 @@ module UserHeading = {
         setPermissionInfo(_ => updatedPermissionListForGivenRole)
         setIsUpdateRoleSelected(_ => false)
       } catch {
-      | _ => RescriptReactRouter.replace("/users")
+      | _ => RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/users"))
       }
     }
 
@@ -152,7 +154,7 @@ module UserHeading = {
           ]->LogicUtils.getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post, ())
         showToast(~message=`Role successfully updated!`, ~toastType=ToastSuccess, ())
-        RescriptReactRouter.replace("/users")
+        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/users"))
       } catch {
       | _ => ()
       }
@@ -221,6 +223,7 @@ module UserHeading = {
 @react.component
 let make = () => {
   open APIUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
   let (roleData, setRoleData) = React.useState(_ => JSON.Encode.null)
@@ -328,7 +331,8 @@ let make = () => {
       buttonText="Back"
       overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
-      onClickHandler={_ => RescriptReactRouter.replace("/users")}
+      onClickHandler={_ =>
+        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/users"))}
       isButton=true
     />
 

@@ -93,6 +93,7 @@ let make = () => {
   open APIUtils
   open ThreeDSUtils
   open SurchargeUtils
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
@@ -180,7 +181,7 @@ let make = () => {
       )
       fetchDetails()->ignore
       setShowWarning(_ => true)
-      RescriptReactRouter.replace(`/surcharge`)
+      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/surcharge"))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
     } catch {
@@ -265,7 +266,9 @@ let make = () => {
                 buttonType=Secondary
                 onClick={_ => {
                   setPageView(_ => LANDING)
-                  RescriptReactRouter.replace(`/surcharge`)
+                  RescriptReactRouter.replace(
+                    HSwitchGlobalVars.appendDashboardPath(~url="/surcharge"),
+                  )
                 }}
               />
               <FormRenderer.SubmitButton

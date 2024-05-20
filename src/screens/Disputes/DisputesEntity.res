@@ -23,8 +23,9 @@ let allColumns = [
   PaymentId,
 ]
 
-let getStatus = dispute => {
+let useGetStatus = dispute => {
   open DisputesUtils
+  let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
   let orderStatusLabel = dispute.dispute_status->String.toUpperCase
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch dispute.dispute_status->disputeStatusVariantMapper {
@@ -41,11 +42,11 @@ let getStatus = dispute => {
   | DisputeOpened
   | DisputeCancelled
   | DisputeChallenged =>
-    <div className={`${fixedCss} bg-blue-500 bg-opacity-50`}>
+    <div className={`${fixedCss} ${backgroundColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | _ =>
-    <div className={`${fixedCss} bg-blue-500 bg-opacity-50`}>
+    <div className={`${fixedCss} ${backgroundColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   }
@@ -126,9 +127,9 @@ let getCell = (disputesData, colType): Table.cell => {
   open DisputesUtils
   open HelperComponents
   switch colType {
-  | DisputeId => CustomCell(<CopyTextCustomComp displayValue=disputesData.dispute_id />, "")
-  | PaymentId => CustomCell(<CopyTextCustomComp displayValue=disputesData.payment_id />, "")
-  | AttemptId => CustomCell(<CopyTextCustomComp displayValue=disputesData.attempt_id />, "")
+  | DisputeId => DisplayCopyCell(disputesData.dispute_id)
+  | PaymentId => DisplayCopyCell(disputesData.payment_id)
+  | AttemptId => DisplayCopyCell(disputesData.attempt_id)
   | Amount => Text(amountValue(disputesData.amount, disputesData.currency))
   | Currency => Text(disputesData.currency)
   | DisputeStage =>
@@ -200,6 +201,9 @@ let disputesEntity = EntityType.makeEntity(
   ~getHeading,
   ~getCell,
   ~dataKey="",
-  ~getShowLink={disputesData => `/disputes/${disputesData.dispute_id}`},
+  ~getShowLink={
+    disputesData =>
+      HSwitchGlobalVars.appendDashboardPath(~url=`/disputes/${disputesData.dispute_id}`)
+  },
   (),
 )

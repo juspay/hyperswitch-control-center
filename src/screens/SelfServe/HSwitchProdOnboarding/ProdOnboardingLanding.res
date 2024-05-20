@@ -15,10 +15,14 @@ module CheckListSection = {
     ~getConnectorDetails,
     ~setPreviewState,
   ) => {
+    let {globalUIConfig: {font: {textColor}, backgroundColor}} = React.useContext(
+      ConfigContext.configContext,
+    )
+
     let stepColor =
       checkListItems->Array.includes(pageView)
-        ? "bg-blue-500 text-white py-px px-2 rounded-md"
-        : "bg-blue-500 bg-opacity-20 text-blue-500 py-px px-2 rounded-md"
+        ? `${backgroundColor} text-white py-px px-2 rounded-md`
+        : `${backgroundColor} bg-opacity-20  ${textColor.primaryNormal} py-px px-2 rounded-md`
     let bgColor = checkListItems->Array.includes(pageView) ? "bg-white" : "bg-jp-gray-light_gray_bg"
     let selectedItemColor = indexVal =>
       indexVal->getIndexFromVariant === pageView->getIndexFromVariant
@@ -84,9 +88,11 @@ module CheckListSection = {
 module ProgressBar = {
   @react.component
   let make = (~progressState) => {
-    <div className="bg-blue-500 bg-opacity-20 h-1.5 w-full">
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+    <div className={`${backgroundColor} bg-opacity-20 h-1.5 w-full`}>
       <div
-        className={`h-full bg-blue-500`} style={ReactDOMStyle.make(~width=`${progressState}%`, ())}
+        className={`h-full ${backgroundColor}`}
+        style={ReactDOMStyle.make(~width=`${progressState}%`, ())}
       />
     </div>
   }
@@ -109,7 +115,7 @@ module SidebarChecklist = {
     | 2 => `0% completed`
     | _ => `${progressState->Int.toString}% completed`
     }
-    <div className="flex flex-col h-full w-[30rem] border bg-white shadow shadow-sidebarShadow">
+    <div className="flex flex-col h-full w-[30rem] border bg-white shadow">
       <p className="font-semibold text-xl p-6"> {"Setup Basic Live Account"->React.string} </p>
       <div className=dividerColor />
       <div className="flex flex-col gap-4 px-6 py-8">
@@ -139,8 +145,12 @@ module SidebarChecklist = {
 @react.component
 let make = () => {
   open ProdOnboardingTypes
+  open HSwitchGlobalVars
   open ConnectorTypes
+  open LogicUtils
   open APIUtils
+  open CommonAuthHooks
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (pageView, setPageView) = React.useState(_ => SELECT_PROCESSOR)
   let (selectedConnector, setSelectedConnector) = React.useState(_ => Processors(STRIPE))
@@ -157,17 +167,14 @@ let make = () => {
 
   let getCssOnView = "xl:w-77-rem  mx-7 xl:ml-[7rem]"
   let centerItems = pageView === SETUP_COMPLETED ? "justify-center" : ""
-  let urlPush = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/prod-onboarding?${routerUrl.search}`
+  let urlPush = appendDashboardPath(~url=`/prod-onboarding?${routerUrl.search}`)
 
-  let userRole = HSLocalStorage.getFromUserDetails("user_role")
+  let {user_role: userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let getSetupCompleteEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
-    open LogicUtils
     if prodEnums.setupComplete {
       setDashboardPageState(_ => #HOME)
-      let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
-        ->List.toArray
-        ->Array.joinWith("/")}`
+      let baseUrlPath = `${getHostUrl}/${routerUrl.path->List.toArray->Array.joinWith("/")}`
       routerUrl.search->isNonEmptyString
         ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
         : RescriptReactRouter.push(`${baseUrlPath}`)
@@ -189,7 +196,6 @@ let make = () => {
   }
 
   let getSetupProcessorEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
-    open LogicUtils
     let connectorId = prodEnums.setupProcessor.connector_id
     if connectorId->isNonEmptyString {
       setConnectorID(_ => connectorId)
@@ -202,14 +208,15 @@ let make = () => {
   }
 
   let getConnectorDetails = async headerVariant => {
-    open LogicUtils
     try {
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID), ())
       let json = await fetchDetails(connectorUrl)
       let connectorName = json->getDictFromJsonObject->getString("connector_name", "")
       setInitialValues(_ => json)
       setPreviewState(_ => Some(headerVariant->ProdOnboardingUtils.getPreviewState))
-      RescriptReactRouter.replace(`prod-onboarding?name=${connectorName}`)
+      RescriptReactRouter.replace(
+        appendDashboardPath(~url=`/prod-onboarding?name=${connectorName}`),
+      )
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }

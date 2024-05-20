@@ -6,8 +6,6 @@ let make = (
   ~customSpinnerIconColor: string="",
   ~loadingTextColor="",
 ) => {
-  let loaderLottieFile = LottieFiles.useLottieJson("hyperswitch_loader.json")
-
   let animationType = if slow {
     "animate-spin-slow"
   } else {
@@ -32,11 +30,7 @@ let make = (
     <div className="w-full flex justify-center py-10">
       <div className="w-20 h-16">
         <React.Suspense fallback={loader}>
-          <ErrorBoundary>
-            <div className="scale-400 pt-px">
-              <Lottie animationData={loaderLottieFile} autoplay=true loop=true />
-            </div>
-          </ErrorBoundary>
+          <ErrorBoundary> {loader} </ErrorBoundary>
         </React.Suspense>
       </div>
     </div>

@@ -105,8 +105,8 @@ let initialFilterFields = json => {
               field: FormRenderer.makeFieldInfo(
                 ~label="",
                 ~name=dimension,
-                ~customInput=InputFields.multiSelectInput(
-                  ~options=value->SelectBox.makeOptions,
+                ~customInput=InputFields.filterMultiSelectInput(
+                  ~options=value->FilterSelectBox.makeOptions,
                   ~buttonText=dimensionTitleCase,
                   ~showSelectionAsChips=false,
                   ~searchable=true,
@@ -137,7 +137,7 @@ let initialFixedFilterFields = _json => {
         localFilter: None,
         field: FormRenderer.makeMultiInputFieldInfo(
           ~label="",
-          ~comboCustomInput=InputFields.dateRangeField(
+          ~comboCustomInput=InputFields.filterDateRangeField(
             ~startKey=startTimeFilterKey,
             ~endKey=endTimeFilterKey,
             ~format="YYYY-MM-DDTHH:mm:ss[Z]",
@@ -176,10 +176,9 @@ module NoData = {
         <Button
           text={"Make a Payment"}
           buttonSize={Small}
-          onClick={_ => RescriptReactRouter.push("/home")}
-          buttonType=Secondary
-          customButtonStyle={`!bg-blue-500 mt-3`}
-          textStyle={`!text-white`}
+          onClick={_ =>
+            RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/home"))}
+          buttonType={Primary}
         />
       </NoDataFound>
     </div>

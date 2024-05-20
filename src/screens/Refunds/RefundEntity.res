@@ -1,5 +1,4 @@
 open LogicUtils
-open HelperComponents
 open HSwitchOrderUtils
 
 type refunds = {
@@ -48,7 +47,8 @@ let allColumns = [
   RefundStatus,
 ]
 
-let getStatus = order => {
+let useGetStatus = order => {
+  let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
   let orderStatusLabel = order.status->String.toUpperCase
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch order.status->statusVariantMapper {
@@ -64,11 +64,11 @@ let getStatus = order => {
   | Processing
   | RequiresCustomerAction
   | RequiresPaymentMethod =>
-    <div className={`${fixedCss} bg-blue-500 bg-opacity-50`}>
+    <div className={`${fixedCss} ${backgroundColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | _ =>
-    <div className={`${fixedCss} bg-blue-500 bg-opacity-50`}>
+    <div className={`${fixedCss} ${backgroundColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   }
@@ -120,9 +120,9 @@ let getCell = (refundData, colType): Table.cell => {
   | Currency => Text(refundData.currency)
   | ErrorCode => Text(refundData.error_code)
   | ErrorMessage => Text(refundData.error_message)
-  | PaymentId => CustomCell(<CopyTextCustomComp displayValue=refundData.payment_id />, "")
+  | PaymentId => DisplayCopyCell(refundData.payment_id)
   | RefundReason => Text(refundData.reason)
-  | RefundId => CustomCell(<CopyTextCustomComp displayValue=refundData.refund_id />, "")
+  | RefundId => DisplayCopyCell(refundData.refund_id)
   | RefundStatus =>
     Label({
       title: refundData.status->String.toUpperCase,
@@ -174,6 +174,8 @@ let refundEntity = EntityType.makeEntity(
   ~getHeading,
   ~getCell,
   ~dataKey="",
-  ~getShowLink={refundData => `/refunds/${refundData.refund_id}`},
+  ~getShowLink={
+    refundData => HSwitchGlobalVars.appendDashboardPath(~url=`/refunds/${refundData.refund_id}`)
+  },
   (),
 )

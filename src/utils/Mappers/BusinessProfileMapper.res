@@ -42,8 +42,7 @@ let businessProfileTypeMapper = values => {
 }
 
 let convertObjectToType = value => {
-  let reversedArray = value->Array.toReversed
-  reversedArray->Array.map(businessProfileTypeMapper)
+  value->Array.map(businessProfileTypeMapper)
 }
 
 let getArrayOfBusinessProfile = businessProfileValue => {

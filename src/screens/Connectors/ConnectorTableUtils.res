@@ -63,7 +63,8 @@ let connectorStatusStyle = connectorStatus =>
 
 let getCell = (connector: connectorPayload, colType): Table.cell => {
   switch colType {
-  | Name => Text(connector.connector_name)
+  | Name =>
+    CustomCell(<HelperComponents.ConnectorCustomCell connectorName=connector.connector_name />, "")
   | TestMode => Text(connector.test_mode ? "True" : "False")
   | Disabled =>
     Label({
@@ -78,7 +79,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       </div>,
       "",
     )
-  | ProfileId => Text(connector.profile_id)
+  | ProfileId => DisplayCopyCell(connector.profile_id)
   | ProfileName =>
     Table.CustomCell(
       <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
@@ -114,7 +115,7 @@ let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
   LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
 }
 
-let connectorEntity = (path: string, ~permission: AuthTypes.authorization) => {
+let connectorEntity = (path: string, ~permission: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,
@@ -125,7 +126,9 @@ let connectorEntity = (path: string, ~permission: AuthTypes.authorization) => {
     ~getShowLink={
       connec =>
         PermissionUtils.linkForGetShowLinkViaAccess(
-          ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
+          ~url=HSwitchGlobalVars.appendDashboardPath(
+            ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
+          ),
           ~permission,
         )
     },

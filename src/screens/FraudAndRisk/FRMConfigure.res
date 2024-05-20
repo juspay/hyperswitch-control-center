@@ -5,17 +5,18 @@ let make = () => {
   open ConnectorTypes
   open LogicUtils
   open FRMInfo
+  let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let frmName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
-  let frmID = url.path->List.toArray->Array.get(1)->Option.getOr("")
+  let frmID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
 
   let initStep = PaymentMethods
 
-  let isUpdateFlow = switch url.path {
+  let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"fraud-risk-management", "new"} => false
   | _ => true
   }

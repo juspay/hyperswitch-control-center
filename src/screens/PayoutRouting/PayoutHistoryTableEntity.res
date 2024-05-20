@@ -85,7 +85,7 @@ let getHistoryRules: JSON.t => array<historyData> = json => {
 
 let payoutHistoryEntity = (
   activeRoutingIds: array<string>,
-  ~permission: AuthTypes.authorization,
+  ~permission: CommonAuthTypes.authorization,
 ) => {
   EntityType.makeEntity(
     ~uri=``,
@@ -98,11 +98,13 @@ let payoutHistoryEntity = (
     ~getShowLink={
       value => {
         PermissionUtils.linkForGetShowLinkViaAccess(
-          ~url=`/payoutrouting/${value.kind
-            ->routingTypeMapper
-            ->routingTypeName}?id=${value.id}${activeRoutingIds->Array.includes(value.id)
-              ? "&isActive=true"
-              : ""}`,
+          ~url=HSwitchGlobalVars.appendDashboardPath(
+            ~url=`/payoutrouting/${value.kind
+              ->routingTypeMapper
+              ->routingTypeName}?id=${value.id}${activeRoutingIds->Array.includes(value.id)
+                ? "&isActive=true"
+                : ""}`,
+          ),
           ~permission,
         )
       }

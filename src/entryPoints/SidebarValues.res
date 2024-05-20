@@ -34,7 +34,7 @@ module GetProductionAccess = {
           {productionAccessString->React.string}
         </div>
         <UIUtils.RenderIf condition={!isProdIntent}>
-          <Icon name="thin-right-arrow" customIconColor="white" size=20 />
+          <Icon name="thin-right-arrow" customIconColor="text-white" size=20 />
         </UIUtils.RenderIf>
       </div>
     | None =>
@@ -120,7 +120,6 @@ let operations = (isOperationsEnabled, ~permissionJson) => {
     : emptyComponent
 }
 
-// TODO : need to re-revaluate the permission
 let paymentProcessor = (isLiveMode, permissionJson) => {
   SubLevelLink({
     name: "Payment Processors",
@@ -135,7 +134,6 @@ let paymentProcessor = (isLiveMode, permissionJson) => {
   })
 }
 
-// TODO : need to re-revaluate the permission
 let payoutConnectors = (~permissionJson) => {
   SubLevelLink({
     name: "Payout Processors",
@@ -148,7 +146,6 @@ let payoutConnectors = (~permissionJson) => {
   })
 }
 
-// TODO : need to re-revaluate the permission
 let fraudAndRisk = (~permissionJson) => {
   SubLevelLink({
     name: "Fraud & Risk",
@@ -362,7 +359,6 @@ let accountSettings = permissionJson => {
   })
 }
 
-// TODO : need to re-revaluate the permission
 let businessDetails = () => {
   SubLevelLink({
     name: "Business Details",
@@ -372,7 +368,6 @@ let businessDetails = () => {
   })
 }
 
-// TODO : need to re-revaluate the permission
 let businessProfiles = () => {
   SubLevelLink({
     name: "Business Profiles",
@@ -428,7 +423,6 @@ let systemMetric = permissionJson => {
   })
 }
 
-// TODO : need to re-revaluate the permission
 let paymentSettings = () => {
   SubLevelLink({
     name: "Payment Settings",
@@ -467,7 +461,8 @@ let reconTag = (recon, isReconEnabled) =>
     : emptyComponent
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
-  let userRole = HSLocalStorage.getFromUserDetails("user_role")
+  let {user_role: userRole} =
+    CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 

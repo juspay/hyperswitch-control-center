@@ -8,15 +8,19 @@ let make = (
 ) => {
   open HSwitchFeedBackModalUtils
   open APIUtils
+  let {email} = CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
-
+  let getURL = useGetURL()
   let onSubmit = async (values, _) => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
       let body =
         [
-          ("Feedback", values->HSwitchUtils.getBodyForFeedBack(~modalType, ())->JSON.Encode.object),
+          (
+            "Feedback",
+            HSwitchUtils.getBodyForFeedBack(~email, ~values, ~modalType, ())->JSON.Encode.object,
+          ),
         ]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
       let successMessage = switch modalType {
@@ -40,7 +44,7 @@ let make = (
   | FeedBackModal =>
     <>
       <RatingOptions icons=["angry", "frown", "smile", "smile-beam", "grin-hearts"] size=30 />
-      <div className="text-md w-full font-medium mt-7  -mb-1 text-dark_black opacity-80 my-5">
+      <div className="text-md w-full font-medium mt-7 -mb-1 text-dark_black opacity-80 my-5">
         {"Type of feedback"->React.string}
       </div>
       <div className="mb-5 mt-1">
@@ -62,7 +66,7 @@ let make = (
 
   let submitBtnText = switch modalType {
   | FeedBackModal => "Send"
-  | RequestConnectorModal => "Send a Request"
+  | RequestConnectorModal => "Submit Request"
   }
 
   <Modal
@@ -72,16 +76,16 @@ let make = (
     setShowModal
     borderBottom=true
     closeOnOutsideClick=true
-    modalClass="w-full max-w-xl mx-auto my-8 dark:!bg-jp-gray-lightgray_background pb-3">
+    modalClass="w-full max-w-xl m-auto dark:!bg-jp-gray-lightgray_background pb-3">
     <Form onSubmit validate={values => values->validateFields(~modalType)}>
       <LabelVisibilityContext showLabel>
         <div className="flex flex-col justify-center">
           {modalFormFields}
           <div className="flex justify-end gap-3 p-1 mt-4">
-            <FormRenderer.SubmitButton text=submitBtnText />
             <Button
               buttonType=Button.Secondary onClick={_ => setShowModal(_ => false)} text="Cancel"
             />
+            <FormRenderer.SubmitButton text=submitBtnText />
           </div>
         </div>
       </LabelVisibilityContext>

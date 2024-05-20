@@ -38,6 +38,9 @@ let make = (
   ~phoneInput=false,
   ~removeValidationCheck=false,
 ) => {
+  let {globalUIConfig: {shadow: {shadowColor}, border: {borderColor}}} = React.useContext(
+    ConfigContext.configContext,
+  )
   let showPopUp = PopUpState.useShowPopUp()
   let isInValid = try {
     let {meta} = ReactFinalForm.useField(input.name)
@@ -136,9 +139,9 @@ let make = (
 
   let borderClass = isInValid
     ? "border-red-500 focus:border-red-500  dark:border-red-500 dark:hover:border-red-500 dark:focus:border-red-500 focus:shadow-text_input_shadow focus:shadow-red-500"
-    : "border-jp-gray-lightmode_steelgray focus:border-blue-500 dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:focus:border-blue-500 focus:shadow-text_input_shadow focus:shadow-blue-500"
+    : `border-jp-gray-lightmode_steelgray ${borderColor.primaryFocused} dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:${borderColor.primaryFocused} focus:shadow-text_input_shadow ${shadowColor.primaryFocused}`
 
-  let dashboardClass = customDashboardClass->Option.getOr("h-10 text-sm font-semibold")
+  let dashboardClass = customDashboardClass->Option.getOr("h-10 text-sm font-normal")
   let rightPaddingClass = if description->LogicUtils.isNonEmptyString || isInValid {
     "pr-10"
   } else {
@@ -152,7 +155,7 @@ let make = (
   | None => "pl-2"
   }
   let verticalPadding = ""
-  let placeholderClass = ""
+  let placeholderClass = "placeholder-opacity-50"
   let textAndBgClass = `${customDarkBackground} text-jp-gray-900 text-opacity-75 focus:text-opacity-100 dark:text-jp-gray-text_darktheme dark:text-opacity-75 dark:placeholder-jp-gray-text_darktheme dark:placeholder-opacity-25 dark:focus:text-opacity-100`
 
   let width = widthMatchwithPlaceholderLength->Option.isSome ? "" : customWidth

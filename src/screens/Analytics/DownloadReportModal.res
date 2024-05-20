@@ -17,6 +17,7 @@ type timeRange = {timeRange: startAndEndTime, dimensions: array<string>}
 @react.component
 let make = (~reportModal, ~setReportModal, ~entityName) => {
   open APIUtils
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
 

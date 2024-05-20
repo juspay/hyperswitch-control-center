@@ -33,13 +33,13 @@ let make = () => {
   open ConnectorUtils
   open APIUtils
   open LogicUtils
-
+  let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let url = RescriptReactRouter.useUrl()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
   let fetchDetails = useGetMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
+  let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
@@ -49,7 +49,7 @@ let make = () => {
       HyperswitchAtom.businessProfilesAtom,
     )->MerchantAccountUtils.getValueFromBusinessProfile
 
-  let isUpdateFlow = switch url.path {
+  let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
   | list{"3ds-authenticators", "new"} => false
   | _ => true
   }
@@ -184,7 +184,7 @@ let make = () => {
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
 
     validateConnectorRequiredFields(
-      connectorName->getConnectorNameTypeFromString(),
+      connectorName->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator, ()),
       valuesFlattenJson,
       connectorAccountFields,
       connectorMetaDataFields,
@@ -198,7 +198,10 @@ let make = () => {
   | Preview => <MenuOption updateStepValue=ConfigurationFields setCurrentStep />
   | _ =>
     <Button
-      text="Done" buttonType=Primary onClick={_ => RescriptReactRouter.push("/3ds-authenticators")}
+      text="Done"
+      buttonType=Primary
+      onClick={_ =>
+        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/3ds-authenticators"))}
     />
   }
 
@@ -241,10 +244,13 @@ let make = () => {
               </div>
               <div className={`flex flex-col gap-2 p-2 md:p-10`}>
                 <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
-                  connector={connectorName->getConnectorNameTypeFromString()}
+                  connector={connectorName->getConnectorNameTypeFromString(
+                    ~connectorType=ThreeDsAuthenticator,
+                    (),
+                  )}
                   connectorAccountFields
                   selectedConnector={connectorName
-                  ->getConnectorNameTypeFromString()
+                  ->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator, ())
                   ->getConnectorInfo}
                   connectorMetaDataFields
                   connectorWebHookDetails

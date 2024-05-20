@@ -4,10 +4,12 @@ open HomeUtils
 module HomePageHorizontalStepper = {
   @react.component
   let make = (~stepperItemsArray: array<string>, ~className="") => {
+    let {globalUIConfig: {backgroundColor, border: {borderColor}}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
     let typedValueOfEnum = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
 
-    // TODO : To be used when Test Payment flow if is integrated
     let step = if !(typedValueOfEnum.testPayment.payment_id->LogicUtils.isNonEmptyString) {
       0
     } else if !typedValueOfEnum.integrationCompleted {
@@ -18,16 +20,16 @@ module HomePageHorizontalStepper = {
 
     let getStepperStyle = index => {
       if index < step {
-        "bg-white border-blue-500"
+        `bg-white border ${borderColor.primaryNormal}`
       } else if index === step {
-        "bg-blue-500 text-white border-transparent"
+        `${backgroundColor} text-white border-transparent`
       } else {
         "border-gray-500 text-gray-500"
       }
     }
     let getProgressBarStyle = index => {
       if index < step {
-        "bg-blue-500  w-full"
+        `${backgroundColor}  w-full`
       } else {
         ""
       }
@@ -41,9 +43,9 @@ module HomePageHorizontalStepper = {
         <div className="flex flex-col gap-2.5 w-full" key={index->Int.toString}>
           <div className="flex items-center gap-2">
             <span
-              className={`h-6 w-7 flex items-center justify-center border-1 rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>
+              className={`h-6 w-7 flex items-center justify-center rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>
               <UIUtils.RenderIf condition={index < step}>
-                <Icon name="check" size=12 customIconColor="#006DF9" />
+                <Icon name="check" size=12 className="text-blue-500" />
               </UIUtils.RenderIf>
               <UIUtils.RenderIf condition={index >= step}>
                 {(index + 1)->Int.toString->React.string}
@@ -165,7 +167,7 @@ module QuickStart = {
         }
         setConfigureButtonState(_ => Button.Normal)
         setDashboardPageState(_ => #QUICK_START)
-        RescriptReactRouter.push("/quick-start")
+        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/quick-start"))
       } catch {
       | _ => setConfigureButtonState(_ => Button.Normal)
       }
@@ -233,12 +235,11 @@ module RecipesAndPlugins = {
     let isWooCommercePalCompleted = enumDetails->checkWooCommerce
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
-    // TODO :: Need to re-evaluate the condition , Check for the permission
     let blockConditionAccessVal =
       userPermissionJson.connectorsView === NoAccess &&
         userPermissionJson.connectorsManage === NoAccess
-        ? AuthTypes.NoAccess
-        : AuthTypes.Access
+        ? CommonAuthTypes.NoAccess
+        : CommonAuthTypes.Access
 
     <div className="flex flex-col gap-4">
       <p className=headingStyle> {"Recipes & Plugins"->React.string} </p>
@@ -249,7 +250,9 @@ module RecipesAndPlugins = {
           className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
           onClick={_ => {
             mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
-            RescriptReactRouter.push("stripe-plus-paypal")
+            RescriptReactRouter.push(
+              HSwitchGlobalVars.appendDashboardPath(~url="/stripe-plus-paypal"),
+            )
           }}>
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle> {"Use PayPal with Stripe"->React.string} </p>
@@ -277,7 +280,7 @@ module RecipesAndPlugins = {
           className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
           onClick={_ => {
             mixpanelEvent(~eventName=`woocommerce`, ())
-            RescriptReactRouter.push("woocommerce")
+            RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/woocommerce"))
           }}>
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle> {"WooCommerce plugin"->React.string} </p>
@@ -345,7 +348,7 @@ module Resources = {
         "https://hyperswitch.io/docs"->Window._open
       } else if item.id === "tryTheDemo" {
         mixpanelEvent(~eventName=`test_payment`, ())
-        RescriptReactRouter.replace("/sdk")
+        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/sdk"))
       }
     }
 
@@ -418,7 +421,7 @@ let make = () => {
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
 
   <div className="w-full flex flex-col gap-6">
-    <AcceptInviteHome />
+    // <AcceptInviteHome />
     <div className="w-full flex flex-col gap-7">
       <QuickStartModule />
       <div>

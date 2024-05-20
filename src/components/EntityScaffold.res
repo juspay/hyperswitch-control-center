@@ -3,7 +3,7 @@ let make = (
   ~entityName="",
   ~remainingPath,
   ~isAdminAccount=false,
-  ~access: AuthTypes.authorization=Access,
+  ~access: CommonAuthTypes.authorization=Access,
   ~renderList,
   ~renderNewForm=_ => React.null,
   ~renderShow=_ => React.null,

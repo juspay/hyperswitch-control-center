@@ -50,6 +50,7 @@ module TableRow = {
     ~allowedDateRange: option<dateObj>=?,
   ) => {
     open LogicUtils
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let customTimezoneToISOString = TimeZoneHook.useCustomTimeZoneToIsoString()
     let highlight = cellHighlighter
 
@@ -168,7 +169,7 @@ module TableRow = {
 
             let textColor =
               today == renderingDate
-                ? "text-blue-500"
+                ? `${textColor.primaryNormal}`
                 : "text-jp-gray-900 text-opacity-75 dark:text-opacity-75"
             let classN = if obj->isEmptyString || hSelf.highlightSelf {
               `h-9 p-0 w-9 font-semibold font-fira-code text-center ${textColor}  dark:text-jp-gray-text_darktheme  ${dayClass}`

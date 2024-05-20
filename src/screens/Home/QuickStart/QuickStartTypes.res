@@ -65,6 +65,7 @@ type sectionHeadingVariant = [
   | #ReplaceAPIKeys
   | #ReconfigureCheckout
   | #LoadCheckout
+  | #OnboardingSurvey
 ]
 
 type processorType = {

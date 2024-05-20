@@ -44,8 +44,6 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
 }
 
 let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.cell => {
-  open HelperComponents
-
   switch attemptColType {
   | Amount =>
     CustomCell(
@@ -55,7 +53,8 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
       "",
     )
   | Currency => Text(attempt.currency)
-  | Connector => CustomCell(<ConnectorCustomCell connectorName=attempt.connector />, "")
+  | Connector =>
+    CustomCell(<HelperComponents.ConnectorCustomCell connectorName=attempt.connector />, "")
   | Status =>
     Label({
       title: attempt.status->String.toUpperCase,
@@ -74,10 +73,9 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
     })
   | PaymentMethod => Text(attempt.payment_method)
   | PaymentMethodType => Text(attempt.payment_method_type)
-  | AttemptId => CustomCell(<CopyTextCustomComp displayValue=attempt.attempt_id />, "")
+  | AttemptId => DisplayCopyCell(attempt.attempt_id)
   | ErrorMessage => Text(attempt.error_message)
-  | ConnectorTransactionID =>
-    CustomCell(<CopyTextCustomComp displayValue=attempt.connector_transaction_id />, "")
+  | ConnectorTransactionID => DisplayCopyCell(attempt.connector_transaction_id)
   | CaptureMethod => Text(attempt.capture_method)
   | AuthenticationType => Text(attempt.authentication_type)
   | CancellationReason => Text(attempt.cancellation_reason)
@@ -456,7 +454,8 @@ let getHeading = (colType: colType) => {
   }
 }
 
-let getStatus = order => {
+let useGetStatus = order => {
+  let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
   let orderStatusLabel = order.status->String.toUpperCase
   let fixedStatusCss = "text-sm text-white font-bold px-3 py-2 rounded-md"
   switch order.status->HSwitchOrderUtils.statusVariantMapper {
@@ -474,11 +473,11 @@ let getStatus = order => {
   | RequiresCustomerAction
   | RequiresConfirmation
   | RequiresPaymentMethod =>
-    <div className={`${fixedStatusCss} bg-blue-500 bg-opacity-50`}>
+    <div className={`${fixedStatusCss} ${backgroundColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | _ =>
-    <div className={`${fixedStatusCss} bg-blue-500 bg-opacity-50`}>
+    <div className={`${fixedStatusCss} ${backgroundColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   }
@@ -609,7 +608,6 @@ let getHeadingForOtherDetails = otherDetailsColType => {
 }
 
 let getCellForSummary = (order, summaryColType, _): Table.cell => {
-  open HelperComponents
   switch summaryColType {
   | Created => Date(order.created)
   | NetAmount =>
@@ -620,7 +618,7 @@ let getCellForSummary = (order, summaryColType, _): Table.cell => {
       "",
     )
   | LastUpdated => Date(order.last_updated)
-  | PaymentId => CustomCell(<CopyTextCustomComp displayValue=order.payment_id />, "")
+  | PaymentId => DisplayCopyCell(order.payment_id)
   | Currency => Text(order.currency)
   | AmountReceived =>
     CustomCell(
@@ -633,8 +631,7 @@ let getCellForSummary = (order, summaryColType, _): Table.cell => {
   | OrderQuantity => Text(order.order_quantity)
   | ProductName => Text(order.product_name)
   | ErrorMessage => Text(order.error_message)
-  | ConnectorTransactionID =>
-    CustomCell(<CopyTextCustomComp displayValue=order.connector_transaction_id />, "")
+  | ConnectorTransactionID => DisplayCopyCell(order.connector_transaction_id)
   }
 }
 
@@ -893,6 +890,8 @@ let orderEntity = EntityType.makeEntity(
   ~getHeading,
   ~getCell,
   ~dataKey="",
-  ~getShowLink={order => `/payments/${order.payment_id}`},
+  ~getShowLink={
+    order => HSwitchGlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}`)
+  },
   (),
 )

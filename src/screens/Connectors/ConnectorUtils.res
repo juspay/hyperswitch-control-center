@@ -18,9 +18,19 @@ let getStepName = step => {
   }
 }
 
-let payoutConnectorList: array<connectorTypes> = [Processors(ADYEN), Processors(WISE)]
+let payoutConnectorList: array<connectorTypes> = [
+  Processors(ADYEN),
+  Processors(CYBERSOURCE),
+  Processors(EBANX),
+  Processors(PAYPAL),
+  Processors(STRIPE),
+  Processors(WISE),
+]
 
-let threedsAuthenticatorList: array<connectorTypes> = [ThreeDsAuthenticator(THREEDSECUREIO)]
+let threedsAuthenticatorList: array<connectorTypes> = [
+  ThreeDsAuthenticator(THREEDSECUREIO),
+  ThreeDsAuthenticator(NETCETERA),
+]
 
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
@@ -69,15 +79,18 @@ let connectorList: array<connectorTypes> = [
   Processors(WORLDLINE),
   Processors(WORLDPAY),
   Processors(ZEN),
+  Processors(ZSL),
   Processors(PLACETOPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(ADYEN),
+  Processors(AUTHORIZEDOTNET),
   Processors(PAYPAL),
   Processors(BANKOFAMERICA),
   Processors(BLUESNAP),
+  Processors(BAMBORA),
   Processors(BRAINTREE),
   Processors(CHECKOUT),
   Processors(CRYPTOPAY),
@@ -202,6 +215,10 @@ let worldpayInfo = {
 
 let cybersourceInfo = {
   description: "Reliable processor providing fraud management tools, secure payment processing, and a variety of payment methods.",
+}
+
+let ebanxInfo = {
+  description: "Ebanx enables global organizations to grow exponentially in Rising Markets by leveraging a platform of end-to-end localized payment and financial solutions.",
 }
 
 let aciInfo = {
@@ -357,7 +374,10 @@ let helcimInfo = {
 }
 
 let threedsecuredotioInfo = {
-  description: "A brief description of the connector (100-150 chars) -  A secure, affordable and easy to connect 3DS authentication platform. Improve the user experience during checkout, enhance the conversion rates and stay compliant with the regulations with 3dsecure.io.",
+  description: "A secure, affordable and easy to connect 3DS authentication platform. Improve the user experience during checkout, enhance the conversion rates and stay compliant with the regulations with 3dsecure.io",
+}
+let netceteraInfo = {
+  description: "Cost-effective 3DS authentication platform ensuring security. Elevate checkout experience, boost conversion rates, and maintain regulatory compliance with Netcetera",
 }
 
 let unknownConnectorInfo = {
@@ -376,6 +396,10 @@ let billwerkInfo = {
   description: "Billwerk+ Pay is an acquirer independent payment gateway that helps you get the best acquirer rates, select a wide variety of payment methods.",
 }
 
+let zslInfo = {
+  description: "It is a payment processor that enables businesses to accept payments securely through local bank transfers.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -389,6 +413,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | AIRWALLEX => "airwallex"
   | WORLDPAY => "worldpay"
   | CYBERSOURCE => "cybersource"
+  | EBANX => "ebanx"
   | ACI => "aci"
   | WORLDLINE => "worldline"
   | FISERV => "fiserv"
@@ -431,11 +456,13 @@ let getConnectorNameString = (connector: processorTypes) =>
   | HELCIM => "helcim"
   | PLACETOPAY => "placetopay"
   | BILLWERK => "billwerk"
+  | ZSL => "zsl"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "threedsecureio"
+  | NETCETERA => "netcetera"
   }
 
 let getConnectorNameString = (connector: connectorTypes) => {
@@ -462,6 +489,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "airwallex" => Processors(AIRWALLEX)
     | "worldpay" => Processors(WORLDPAY)
     | "cybersource" => Processors(CYBERSOURCE)
+    | "ebanx" => Processors(EBANX)
     | "aci" => Processors(ACI)
     | "worldline" => Processors(WORLDLINE)
     | "fiserv" => Processors(FISERV)
@@ -504,11 +532,13 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "helcim" => Processors(HELCIM)
     | "placetopay" => Processors(PLACETOPAY)
     | "billwerk" => Processors(BILLWERK)
+    | "zsl" => Processors(ZSL)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
     switch connector {
     | "threedsecureio" => ThreeDsAuthenticator(THREEDSECUREIO)
+    | "netcetera" => ThreeDsAuthenticator(NETCETERA)
     | _ => UnknownConnector("Not known")
     }
   | _ => UnknownConnector("Not known")
@@ -529,6 +559,7 @@ let getProcessorInfo = connector => {
   | AIRWALLEX => airwallexInfo
   | WORLDPAY => worldpayInfo
   | CYBERSOURCE => cybersourceInfo
+  | EBANX => ebanxInfo
   | ACI => aciInfo
   | WORLDLINE => worldlineInfo
   | FISERV => fiservInfo
@@ -570,11 +601,13 @@ let getProcessorInfo = connector => {
   | HELCIM => helcimInfo
   | PLACETOPAY => placetopayInfo
   | BILLWERK => billwerkInfo
+  | ZSL => zslInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => threedsecuredotioInfo
+  | NETCETERA => netceteraInfo
   }
 
 let getConnectorInfo = connector => {
@@ -835,9 +868,10 @@ let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) =>
 let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(BLUESNAP), "merchant_id") => false
-  | (Processors(CHECKOUT), "acquirer_bin") => false
-  | (Processors(CHECKOUT), "acquirer_merchant_id") => false
-
+  | (Processors(CHECKOUT), "acquirer_bin") | (Processors(NMI), "acquirer_bin") => false
+  | (Processors(CHECKOUT), "acquirer_merchant_id")
+  | (Processors(NMI), "acquirer_merchant_id") => false
+  | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") => false
   | _ => true
   }
 }
@@ -1097,7 +1131,7 @@ let onSubmit = async (
 }
 
 let getWebhooksUrl = (~connectorName, ~merchantId) => {
-  `${HSwitchGlobalVars.hyperSwitchApiPrefix}/webhooks/${merchantId}/${connectorName}`
+  `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
 }
 
 let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) => {
@@ -1186,7 +1220,6 @@ let getConnectorPaymentMethodDetails = async (
   initialValues,
   setPaymentMethods,
   setMetaData,
-  setScreenState,
   isUpdateFlow,
   isPayoutFlow,
   connector,
@@ -1203,7 +1236,6 @@ let getConnectorPaymentMethodDetails = async (
       ->getPaymentMethodEnabled
     setPaymentMethods(_ => paymentMethodEnabled)
     setMetaData(_ => metaData)
-    setScreenState(_ => PageLoaderWrapper.Success)
     defaultSelectAllCards(
       paymentMethodEnabled,
       isUpdateFlow,
@@ -1214,7 +1246,7 @@ let getConnectorPaymentMethodDetails = async (
   } catch {
   | Exn.Error(e) => {
       let err = Exn.message(e)->Option.getOr("Something went wrong")
-      setScreenState(_ => PageLoaderWrapper.Error(err))
+      Exn.raiseError(err)
     }
   }
 }
@@ -1258,6 +1290,7 @@ let getDisplayNameForProcessor = connector =>
   | AIRWALLEX => "Airwallex"
   | WORLDPAY => "Worldpay"
   | CYBERSOURCE => "Cybersource"
+  | EBANX => "Ebanx"
   | ACI => "ACI Worldwide"
   | WORLDLINE => "Worldline"
   | FISERV => "Fiserv"
@@ -1280,8 +1313,8 @@ let getDisplayNameForProcessor = connector =>
   | IATAPAY => "IATA Pay"
   | BITPAY => "Bitpay"
   | PHONYPAY => "Phony Pay"
-  | FAUXPAY => "Faux Pay"
-  | PRETENDPAY => "Pretend Pay"
+  | FAUXPAY => "Fauxpay"
+  | PRETENDPAY => "Pretendpay"
   | CRYPTOPAY => "Cryptopay"
   | CASHTOCODE => "CashtoCode"
   | PAYME => "PayMe"
@@ -1289,8 +1322,8 @@ let getDisplayNameForProcessor = connector =>
   | POWERTRANZ => "Powertranz"
   | TSYS => "TSYS"
   | NOON => "Noon"
-  | STRIPE_TEST => "Stripe Test"
-  | PAYPAL_TEST => "PayPal Test"
+  | STRIPE_TEST => "Stripe Dummy"
+  | PAYPAL_TEST => "Paypal Dummy"
   | WISE => "Wise"
   | STAX => "Stax"
   | GOCARDLESS => "GoCardless"
@@ -1299,11 +1332,13 @@ let getDisplayNameForProcessor = connector =>
   | BANKOFAMERICA => "Bank of America"
   | HELCIM => "Helcim"
   | PLACETOPAY => "Placetopay"
+  | ZSL => "ZSL"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   switch threeDsAuthenticator {
   | THREEDSECUREIO => "3dsecure.io"
+  | NETCETERA => "Netcetera"
   }
 
 let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {

@@ -14,7 +14,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
-
+  let getURL = useGetURL()
   let getUserData = async () => {
     setScreenStateUsers(_ => PageLoaderWrapper.Loading)
     try {
@@ -117,7 +117,7 @@ let make = () => {
       buttonType=Primary
       onClick={_ => {
         mixpanelEvent(~eventName="invite_users", ())
-        RescriptReactRouter.push("/users/invite-users")
+        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/users/invite-users"))
       }}
       customButtonStyle="w-48"
     />
@@ -128,7 +128,9 @@ let make = () => {
       buttonType=Primary
       onClick={_ => {
         mixpanelEvent(~eventName="invite_users", ())
-        RescriptReactRouter.push("/users/create-custom-role")
+        RescriptReactRouter.push(
+          HSwitchGlobalVars.appendDashboardPath(~url="/users/create-custom-role"),
+        )
       }}
       customButtonStyle="w-48"
     />

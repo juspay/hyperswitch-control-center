@@ -24,7 +24,7 @@ let make = (
     ?justifyClass
     toolTipFor={<AddDataAttributes
       attributes=[("data-testid", dataAttrStr->Option.getOr("")->String.toLowerCase)]>
-      <div className onClick={permission === AuthTypes.Access ? onClick : {_ => ()}}>
+      <div className onClick={permission === CommonAuthTypes.Access ? onClick : {_ => ()}}>
         {children}
       </div>
     </AddDataAttributes>}

@@ -10,4 +10,4 @@ docker --version
 # docker-compose
 # docker-compose --version
 # # Start Docker Compose services in detached mode
-docker-compose up -d
+docker-compose up -d pg redis-standalone migration_runner hyperswitch-server

@@ -33,8 +33,9 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open HSwitchUtils
   open MerchantAccountUtils
   open HSwitchSettingTypes
+  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let id = url.path->List.toArray->Array.get(1)->Option.getOr(profileId)
+  let id = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, profileId)
   let businessProfileDetails = BusinessProfileHook.useGetBusinessProflile(id)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()

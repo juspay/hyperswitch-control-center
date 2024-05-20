@@ -46,19 +46,6 @@ let feedbackModalOpenCountForConnectors = 4
 
 let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
 
-let setMerchantDetails = (key, value) => {
-  let localStorageData = getInfoFromLocalStorage(~lStorageKey="merchant")
-  localStorageData->Dict.set(key, value)
-
-  "merchant"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
-}
-
-// TODO : Remove once user-management flow introduces
-let setUserDetails = (key, value) => {
-  let localStorageData = getInfoFromLocalStorage(~lStorageKey="user")
-  localStorageData->Dict.set(key, value)
-  "user"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
-}
 let getSearchOptionsForProcessors = (~processorList, ~getNameFromString) => {
   let searchOptionsForProcessors =
     processorList->Array.map(item => (
@@ -73,6 +60,13 @@ let isValidEmail = value =>
     %re(`/^(([^<>()[\]\.,;:\s@"]+(\.[^<>()[\]\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
     value,
   )
+
+// TODO : Remove once user-management flow introduces
+let setUserDetails = (key, value) => {
+  let localStorageData = getInfoFromLocalStorage(~lStorageKey="user")
+  localStorageData->Dict.set(key, value)
+  "user"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
+}
 
 let useMerchantDetailsValue = () => Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
 
@@ -102,9 +96,13 @@ let getBrowswerDetails = () => {
   }
 }
 
-let getBodyForFeedBack = (values, ~modalType=HSwitchFeedBackModalUtils.FeedBackModal, ()) => {
+let getBodyForFeedBack = (
+  ~email,
+  ~values,
+  ~modalType=HSwitchFeedBackModalUtils.FeedBackModal,
+  (),
+) => {
   open HSwitchFeedBackModalUtils
-  let email = getFromMerchantDetails("email")
   let valueDict = values->getDictFromJsonObject
   let rating = valueDict->getInt("rating", 1)
 
@@ -239,3 +237,23 @@ let checkWooCommerce = (enumDetails: QuickStartTypes.responseType) => {
 
 let noAccessControlText = "You do not have the required permissions to access this module. Please contact your admin."
 let noAccessControlTextForProcessors = "You do not have the required permissions to connect this processor. Please contact admin."
+
+let urlPath = urlPathList => {
+  open HSwitchGlobalVars
+  switch dashboardBasePath {
+  | Some(_) =>
+    switch urlPathList {
+    | list{_, ...rest} => rest
+    | _ => urlPathList
+    }
+  | _ => urlPathList
+  }
+}
+
+let getConnectorIDFromUrl = (urlList, defaultValue) => {
+  open HSwitchGlobalVars
+  switch dashboardBasePath {
+  | Some(_) => urlList->Array.get(2)->Option.getOr(defaultValue)
+  | _ => urlList->Array.get(1)->Option.getOr(defaultValue)
+  }
+}

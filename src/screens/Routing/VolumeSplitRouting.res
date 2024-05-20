@@ -21,6 +21,7 @@ module VolumeRoutingView = {
     ~connectorList,
     ~baseUrlForRedirection,
   ) => {
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
     let listLength = connectors->Array.length
@@ -43,7 +44,9 @@ module VolumeRoutingView = {
         )
         let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
         showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
-        RescriptReactRouter.replace(`${baseUrlForRedirection}?`)
+        RescriptReactRouter.replace(
+          HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
+        )
         setScreenState(_ => Success)
       } catch {
       | Exn.Error(e) =>
@@ -51,7 +54,9 @@ module VolumeRoutingView = {
         | Some(message) =>
           if message->String.includes("IR_16") {
             showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
-            RescriptReactRouter.replace(baseUrlForRedirection)
+            RescriptReactRouter.replace(
+              HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
+            )
             setScreenState(_ => Success)
           } else {
             showToast(
@@ -77,7 +82,9 @@ module VolumeRoutingView = {
         let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
         let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
         showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
-        RescriptReactRouter.replace(`${baseUrlForRedirection}?`)
+        RescriptReactRouter.replace(
+          HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
+        )
         setScreenState(_ => Success)
       } catch {
       | Exn.Error(e) =>
@@ -211,6 +218,7 @@ let make = (
   ~urlEntityName,
   ~baseUrlForRedirection,
 ) => {
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
@@ -318,7 +326,7 @@ let make = (
       )
       setScreenState(_ => Success)
       if isSaveRule {
-        RescriptReactRouter.replace(`/routing`)
+        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/routing"))
       }
       Nullable.make(res)
     } catch {

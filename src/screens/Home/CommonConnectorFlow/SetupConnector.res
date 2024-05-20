@@ -9,6 +9,7 @@ module SelectProcessor = {
   ) => {
     open ConnectorUtils
     let url = RescriptReactRouter.useUrl()
+    let basePath = url.path->List.toArray->Array.joinWith("/")
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let connectorName = selectedConnector->getConnectorNameString
     let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
@@ -34,7 +35,7 @@ module SelectProcessor = {
         onClick={_ => {
           setConnectorConfigureState(_ => Select_configuration_type)
           mixpanelEvent(~eventName=`quickstart_select_processor`, ())
-          RescriptReactRouter.replace(`/${url.path->LogicUtils.getListHead}?name=${connectorName}`)
+          RescriptReactRouter.replace(`/${basePath}?name=${connectorName}`)
         }}
         buttonSize=Small
       />}
@@ -179,6 +180,7 @@ module SelectPaymentMethods = {
     open ConnectorUtils
     let {quickStartPageState} = React.useContext(GlobalProvider.defaultContext)
     let updateAPIHook = APIUtils.useUpdateMethod()
+    let getURL = APIUtils.useGetURL()
     let showToast = ToastState.useShowToast()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
@@ -216,7 +218,7 @@ module SelectPaymentMethods = {
           metadata: metaData,
         }
         let body = constructConnectorRequestBody(obj, initialValues)
-        let connectorUrl = APIUtils.getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
+        let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
 
         let response = await updateAPIHook(connectorUrl, body, Post, ())
 
@@ -242,7 +244,6 @@ module SelectPaymentMethods = {
       ->getConnectorPaymentMethodDetails(
         setPaymentMethods,
         setMetaData,
-        _ => (),
         false,
         false,
         connectorName,

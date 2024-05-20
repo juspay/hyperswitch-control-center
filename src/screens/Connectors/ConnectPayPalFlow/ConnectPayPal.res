@@ -12,6 +12,7 @@ let preRequisiteList = [
 module PayPalCreateNewAccountModal = {
   @react.component
   let make = (~butttonDisplayText, ~actionUrl, ~setScreenState) => {
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
     let initializePayPalWindow = () => {
       try {
         Window.payPalCreateAccountWindow()
@@ -31,7 +32,7 @@ module PayPalCreateNewAccountModal = {
 
     <AddDataAttributes attributes=[("data-paypal-button", "true")]>
       <a
-        className="!w-fit rounded-md bg-blue-500 text-white px-4  h-fit border py-3 flex items-center justify-center gap-2"
+        className={`!w-fit rounded-md ${backgroundColor} text-white px-4  h-fit border py-3 flex items-center justify-center gap-2`}
         href={`${actionUrl}&displayMode=minibrowser`}
         target="PPFrame">
         {butttonDisplayText->React.string}
@@ -66,8 +67,13 @@ module ManualSetupScreen = {
 module LandingScreen = {
   @react.component
   let make = (~configuartionType, ~setConfigurationType) => {
+    let {
+      globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
+    } = React.useContext(ConfigContext.configContext)
     let getBlockColor = value =>
-      configuartionType === value ? "border border-blue-500 bg-blue-500 bg-opacity-10 " : "border"
+      configuartionType === value
+        ? `${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10 `
+        : "border"
 
     <div className="flex flex-col gap-10">
       <div className="flex flex-col gap-4">
@@ -88,7 +94,7 @@ module LandingScreen = {
                 <Icon
                   name={configuartionType === items.variantType ? "selected" : "nonselected"}
                   size=20
-                  className="cursor-pointer !text-blue-500"
+                  className={`cursor-pointer !${textColor.primaryNormal}`}
                 />
               </div>
               <div className="flex gap-2 items-center ">
@@ -148,10 +154,11 @@ module RedirectionToPayPalFlow = {
   let make = (~getPayPalStatus, ~profileId) => {
     open APIUtils
     open PayPalFlowTypes
-
+    open HSwitchGlobalVars
+    let getURL = useGetURL()
     let url = RescriptReactRouter.useUrl()
     let path = url.path->List.toArray->Array.joinWith("/")
-    let connectorId = url.path->List.toArray->LogicUtils.getValueFromArray(1, "")
+    let connectorId = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (actionUrl, setActionUrl) = React.useState(_ => "")
@@ -160,8 +167,7 @@ module RedirectionToPayPalFlow = {
       open LogicUtils
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let returnURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${path}?name=paypal&is_back=true&is_simplified_paypal=true&profile_id=${profileId}`
-
+        let returnURL = `${getHostUrl}/${path}?name=paypal&is_back=true&is_simplified_paypal=true&profile_id=${profileId}`
         let body = PayPalFlowUtils.generatePayPalBody(
           ~connectorId={connectorId},
           ~returnUrl=Some(returnURL),
@@ -241,7 +247,7 @@ let make = (
     HyperswitchAtom.paypalAccountStatusAtom,
   )
   let connectorValue = isUpdateFlow
-    ? url.path->List.toArray->getValueFromArray(1, "")
+    ? HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
     : url.search->getDictFromUrlSearchParams->Dict.get("connectorId")->Option.getOr("")
 
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)
@@ -305,7 +311,9 @@ let make = (
       let connectorId = res->getDictFromJsonObject->getString("merchant_connector_id", "")
       setConnectorId(_ => connectorId)
       setScreenState(_ => Success)
-      RescriptReactRouter.replace(`/connectors/${connectorId}?name=paypal`)
+      RescriptReactRouter.replace(
+        HSwitchGlobalVars.appendDashboardPath(~url=`/connectors/${connectorId}?name=paypal`),
+      )
     } catch {
     | Exn.Error(e) =>
       switch Exn.message(e) {

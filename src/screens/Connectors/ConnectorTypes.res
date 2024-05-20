@@ -39,6 +39,7 @@ type processorTypes =
   | AIRWALLEX
   | WORLDPAY
   | CYBERSOURCE
+  | EBANX
   | ACI
   | WORLDLINE
   | FISERV
@@ -79,8 +80,9 @@ type processorTypes =
   | PROPHETPAY
   | HELCIM
   | PLACETOPAY
+  | ZSL
 
-type threeDsAuthenticatorTypes = THREEDSECUREIO
+type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
 type connectorTypes =
   | Processors(processorTypes)

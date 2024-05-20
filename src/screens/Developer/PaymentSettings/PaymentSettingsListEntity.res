@@ -50,7 +50,7 @@ let getItems: JSON.t => array<profileEntity> = json => {
   LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let webhookProfileTableEntity = (~permission: AuthTypes.authorization) =>
+let webhookProfileTableEntity = (~permission: CommonAuthTypes.authorization) =>
   EntityType.makeEntity(
     ~uri="",
     ~getObjects=getItems,
@@ -62,7 +62,9 @@ let webhookProfileTableEntity = (~permission: AuthTypes.authorization) =>
     ~getShowLink={
       profile =>
         PermissionUtils.linkForGetShowLinkViaAccess(
-          ~url=`/payment-settings/${profile.profile_id}`,
+          ~url=HSwitchGlobalVars.appendDashboardPath(
+            ~url=`/payment-settings/${profile.profile_id}`,
+          ),
           ~permission,
         )
     },

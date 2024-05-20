@@ -244,6 +244,8 @@ external fcWidget: 'a = "fcWidget"
 type boundingClient = {x: int, y: int, width: int, height: int}
 @send external getBoundingClientRect: Dom.element => boundingClient = "getBoundingClientRect"
 
-type env = {apiBaseUrl?: string, sdkBaseUrl?: string, mixpanelToken?: string}
 @val @scope("window")
-external env: env = "_env_"
+external appendStyle: HyperSwitchConfigTypes.customStyle => unit = "appendStyle"
+
+@val @scope("window")
+external env: HyperSwitchConfigTypes.urlConfig = "_env_"

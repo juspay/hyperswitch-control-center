@@ -6,6 +6,7 @@ module ActiveRulePreview = {
   open APIUtils
   @react.component
   let make = (~initialRule, ~setInitialRule) => {
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showPopUp = PopUpState.useShowPopUp()
     let showToast = ToastState.useShowToast()
@@ -138,6 +139,7 @@ let make = () => {
   // Three Ds flow
   open APIUtils
   open ThreeDSUtils
+  let getURL = useGetURL()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
@@ -236,7 +238,7 @@ let make = () => {
       )
       fetchDetails()->ignore
       setShowWarning(_ => true)
-      RescriptReactRouter.replace(`/3ds`)
+      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/3ds"))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
     } catch {
@@ -280,7 +282,7 @@ let make = () => {
   }
   let redirectToNewRule = () => {
     setPageView(_ => NEW)
-    RescriptReactRouter.replace(`/3ds?type=new`)
+    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/3ds?type=new"))
   }
   let handleCreateNew = () => {
     mixpanelEvent(~eventName="create_new_3ds_rule", ())
@@ -323,7 +325,7 @@ let make = () => {
                 buttonType=Secondary
                 onClick={_ => {
                   setPageView(_ => LANDING)
-                  RescriptReactRouter.replace(`/3ds`)
+                  RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/3ds"))
                 }}
               />
               <FormRenderer.SubmitButton

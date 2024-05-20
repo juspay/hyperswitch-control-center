@@ -10,10 +10,6 @@ let getBooleanFromLocalStorage = (~key) => {
   stringifiedJson->LogicUtils.safeParse->LogicUtils.getBoolFromJson(false)
 }
 
-let getFromMerchantDetails = key => {
-  getInfoFromLocalStorage(~lStorageKey="merchant")->LogicUtils.getString(key, "")
-}
-
 let getFromUserDetails = key => {
   getInfoFromLocalStorage(~lStorageKey="user")->LogicUtils.getString(key, "")
 }

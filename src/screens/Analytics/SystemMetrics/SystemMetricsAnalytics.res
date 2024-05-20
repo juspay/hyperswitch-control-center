@@ -81,7 +81,7 @@ module HSiwtchPaymentConfirmLatency = {
   open LogicUtils
   @react.component
   let make = () => {
-    let url = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`
+    let url = `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`
     let (isLoading, setIsLoading) = React.useState(_ => true)
     let (latency, setLatency) = React.useState(_ => 0)
     let (connectorLatency, setConnectorLatency) = React.useState(_ => 0)
@@ -329,6 +329,7 @@ let make = () => {
   open SystemMetricsAnalyticsUtils
   open HSAnalyticsUtils
   open LogicUtils
+  let getURL = useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])
@@ -361,7 +362,7 @@ let make = () => {
     <SystemMetricsAnalytics
       pageTitle=title
       pageSubTitle=subTitle
-      filterUri={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/filters/${domain}`}
+      filterUri={`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`}
       key="SystemMetrics"
       moduleName="SystemMetrics"
       chartEntity={default: chartEntity(tabKeys)}

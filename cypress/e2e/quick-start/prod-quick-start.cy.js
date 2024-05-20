@@ -1,41 +1,54 @@
 let username = `cypressquickstart+${Math.round(+new Date() / 1000)}@gmail.com`;
 before(() => {
-  cy.singup_curl(username, "cypress98#");
+  cy.singup_curl(username, "Cypress98#");
 });
 beforeEach(() => {
-  cy.intercept("POST", "/config/merchant-access", {
+  cy.intercept("GET", "merchant-config?domain=default", {
     statusCode: 200,
     body: {
-      test_live_toggle: false,
-      is_live_mode: true,
-      email: false,
-      quick_start: false,
-      audit_trail: false,
-      system_metrics: false,
-      sample_data: false,
-      frm: false,
-      payout: true,
-      recon: false,
-      test_processors: false,
-      feedback: false,
-      mixpanel: false,
-      generate_report: false,
-      user_journey_analytics: false,
-      authentication_analytics: false,
-      surcharge: false,
-      permission_based_module: false,
-      dispute_evidence_upload: false,
-      paypal_automatic_flow: false,
-      invite_multiple: false,
-      "accept-invite": false,
+      theme: {
+        primary_color: "#006DF9",
+        primary_hover_color: "#005ED6",
+        sidebar_color: "#242F48",
+      },
+      endpoints: {
+        api_url: "http://localhost:8080",
+        sdk_url: "",
+        logo_url: "",
+        favicon_url: "",
+        mixpanel_token: "",
+      },
+      features: {
+        test_live_toggle: false,
+        is_live_mode: true,
+        email: false,
+        quick_start: false,
+        audit_trail: false,
+        system_metrics: false,
+        sample_data: false,
+        frm: false,
+        payout: true,
+        recon: false,
+        test_processors: false,
+        feedback: false,
+        mixpanel: false,
+        generate_report: false,
+        user_journey_analytics: false,
+        surcharge: false,
+        permission_based_module: false,
+        dispute_evidence_upload: false,
+        paypal_automatic_flow: false,
+        invite_multiple: false,
+        "accept-invite": false,
+      },
     },
-  }).as("getData");
+  }).as("getFeatureData");
   cy.intercept("GET", "/agreement/tc-hyperswitch-aug-23.pdf", {
     statusCode: 200,
   }).as("getPDF");
   cy.visit("http://localhost:9000");
-  cy.wait("@getData");
-  cy.login_UI(username, "cypress98#");
+  cy.wait("@getFeatureData");
+  cy.login_UI(username, "Cypress98#");
   cy.wait("@getPDF");
 });
 describe("Prod quick start", () => {
@@ -50,11 +63,15 @@ describe("Prod quick start", () => {
     cy.get("[data-button-for='accept&Proceed']").click({ force: true });
     cy.get("[data-testid=adyen]").click();
     cy.get("[data-button-for='proceed']").click({ force: true });
-    cy.get('input[name="connector_account_details.api_key"]').type("adyen_test_cypress_api_key");
-    cy.get('input[name="connector_account_details.key1"]').type("adyen_test_cypress_account_id");
+    cy.get('input[name="connector_account_details.api_key"]').type(
+      "adyen_test_cypress_api_key",
+    );
+    cy.get('input[name="connector_account_details.key1"]').type(
+      "adyen_test_cypress_account_id",
+    );
     cy.get('input[name="metadata.endpoint_prefix"]').type("https://adyne.in");
     cy.get('input[name="connector_webhook_details.merchant_secret"]').type(
-      "adyen_test_cypress_source_verification"
+      "adyen_test_cypress_source_verification",
     );
     cy.get("[data-selected-checkbox=NotSelected]").click({ force: true });
     cy.get("[data-button-for=back]").should("exist");
@@ -71,31 +88,39 @@ describe("Prod quick start", () => {
   it("should successfully configure live endpoints", () => {
     cy.get("[data-button-for='accept&Proceed']").click({ force: true });
     cy.contains("Replace API keys & Live Endpoints");
-    cy.contains("Point your application's client and server to our live environment");
+    cy.contains(
+      "Point your application's client and server to our live environment",
+    );
     cy.contains("Live Domain");
-    cy.contains("Configure this base url in your application for all server-server calls");
+    cy.contains(
+      "Configure this base url in your application for all server-server calls",
+    );
     cy.contains("Publishable Key");
     cy.contains(
-      "Use this key to authenticate all calls from your application's client to Hyperswitch SDK"
+      "Use this key to authenticate all calls from your application's client to Hyperswitch SDK",
     );
     cy.contains("API Key");
     cy.contains(
-      "Use this key to authenticate all API requests from your application's server to Hyperswitch server"
+      "Use this key to authenticate all API requests from your application's server to Hyperswitch server",
     );
     cy.get("[data-button-for=createAndDownloadAPIKey]").click({ force: true });
     cy.get("[data-button-for=connectAndProceed]").click({ force: true });
     cy.contains("Setup Webhooks On Your End");
-    cy.contains("Create webhook endpoints to allow us to receive and notify you of payment events");
+    cy.contains(
+      "Create webhook endpoints to allow us to receive and notify you of payment events",
+    );
     cy.contains("Merchant Webhook Endpoint");
-    cy.contains("Provide the endpoint where you would want us to send live payment events");
+    cy.contains(
+      "Provide the endpoint where you would want us to send live payment events",
+    );
     cy.contains("Payment Response Hash Key");
     cy.contains(
-      "Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more"
+      "Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more",
     );
     cy.get('input[name="webhookEndpoint"]').type("https://google.com");
     cy.get("[data-button-for=connectAndProceed]").click({ force: true });
     cy.contains("Basic Account Setup Successful");
     cy.get("[data-button-for=goToDashboard]").click({ force: true });
-    cy.url().should("eq", "http://localhost:9000/home");
+    cy.url().should("eq", "http://localhost:9000/dashboard/home");
   });
 });

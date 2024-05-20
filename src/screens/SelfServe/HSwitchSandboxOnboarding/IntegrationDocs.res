@@ -4,7 +4,9 @@ module RequestPage = {
     open UserOnboardingTypes
     open UserOnboardingUtils
     open APIUtils
-
+    open CommonAuthHooks
+    let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+    let getURL = useGetURL()
     let requestedValue = requestedPlatform->Option.getOr("")->LogicUtils.capitalizeString
     let (isSubmitButtonEnabled, setIsSubmitButtonEnabled) = React.useState(_ => true)
     let showToast = ToastState.useShowToast()
@@ -13,15 +15,13 @@ module RequestPage = {
     let handleSubmitRequest = async () => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
-        let requestedBody =
+        let values =
           [
             ("rating", 5.0->JSON.Encode.float),
             ("category", "Platform Request"->JSON.Encode.string),
             ("feedbacks", `Request for ${requestedValue}`->JSON.Encode.string),
-          ]
-          ->LogicUtils.getJsonFromArrayOfJson
-          ->HSwitchUtils.getBodyForFeedBack()
-          ->JSON.Encode.object
+          ]->LogicUtils.getJsonFromArrayOfJson
+        let requestedBody = HSwitchUtils.getBodyForFeedBack(~email, ~values, ())->JSON.Encode.object
 
         let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post, ())
@@ -108,6 +108,7 @@ let make = (
 ) => {
   open UserOnboardingUtils
   open UserOnboardingTypes
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let (frontEndLang, setFrontEndLang) = React.useState(_ =>
     currentRoute === SampleProjects ? #ChooseLanguage : #ReactJs
@@ -163,7 +164,7 @@ let make = (
 
   let buttonStyle =
     tabIndex === tabs->Array.length - 1
-      ? "!border !border-blue-500 !rounded-md bg-white !text-blue-500"
+      ? `!border !rounded-md bg-white !${textColor.primaryNormal}`
       : "!rounded-md"
   let requestedPlatform = getRequestedPlatforms()
   <div className="w-full h-full flex flex-col bg-white">
@@ -239,7 +240,7 @@ let make = (
                 {"Explore our detailed developer documentation on our"->React.string}
               </p>
               <p
-                className="text-base font-semibold text-blue-500 cursor-pointer underline"
+                className={`text-base font-semibold ${textColor.primaryNormal} cursor-pointer underline`}
                 onClick={_ => handleDeveloperDocs()}>
                 {"Developer Docs"->React.string}
               </p>

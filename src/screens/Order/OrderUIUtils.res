@@ -16,6 +16,7 @@ module GenerateSampleDataButton = {
   open APIUtils
   @react.component
   let make = (~previewOnly, ~getOrdersList) => {
+    let getURL = useGetURL()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
@@ -62,20 +63,16 @@ module NoData = {
         ? isLiveMode
             ? "There are no payments as of now."
             : "There are no payments as of now. Try making a test payment and visualise the checkout experience."
-        : "Connect to a connector like Stripe, Adyen or Hyperswitch provided test connector to make your first payment."}
+        : "Connect to a payment processor to make your first payment"}
       buttonText={isConfigureConnector ? "Make a payment" : "Connect a connector"}
       moduleName=""
       paymentModal
       setPaymentModal
       showRedirectCTA={!isLiveMode}
-      onClickUrl={isConfigureConnector
-        ? "/sdk"
-        : `${HSwitchGlobalVars.hyperSwitchFEPrefix}/connectors`}
+      onClickUrl={isConfigureConnector ? "/sdk" : `/connectors`}
     />
   }
 }
-
-let filterUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/filter`
 
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
@@ -115,8 +112,8 @@ let initialFilters = json => {
       field: FormRenderer.makeFieldInfo(
         ~label="",
         ~name=key,
-        ~customInput=InputFields.multiSelectInput(
-          ~options=values->SelectBox.makeOptions,
+        ~customInput=InputFields.filterMultiSelectInput(
+          ~options=values->FilterSelectBox.makeOptions,
           ~buttonText=title,
           ~showSelectionAsChips=false,
           ~searchable=true,
@@ -138,7 +135,7 @@ let initialFixedFilter = () => [
       localFilter: None,
       field: FormRenderer.makeMultiInputFieldInfo(
         ~label="",
-        ~comboCustomInput=InputFields.dateRangeField(
+        ~comboCustomInput=InputFields.filterDateRangeField(
           ~startKey=startTimeFilterKey,
           ~endKey=endTimeFilterKey,
           ~format="YYYY-MM-DDTHH:mm:ss[Z]",
@@ -205,6 +202,17 @@ let getOrdersList = async (
     ~contentType: AuthHooks.contentType=?,
     unit,
   ) => promise<JSON.t>,
+  ~getURL: (
+    ~entityName: APIUtilsTypes.entityName,
+    ~methodType: Fetch.requestMethod,
+    ~id: option<string>=?,
+    ~connector: option<'a>=?,
+    ~userType: APIUtilsTypes.userType=?,
+    ~userRoleTypes: APIUtilsTypes.userRoleTypes=?,
+    ~reconType: APIUtilsTypes.reconType=?,
+    ~queryParamerters: option<string>=?,
+    unit,
+  ) => string,
   ~setOrdersData,
   ~previewOnly,
   ~setScreenState,
@@ -212,10 +220,8 @@ let getOrdersList = async (
   ~setTotalCount,
   ~offset,
 ) => {
-  open APIUtils
   open LogicUtils
   setScreenState(_ => PageLoaderWrapper.Loading)
-
   try {
     let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post, ())
     let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Fetch.Post, ())

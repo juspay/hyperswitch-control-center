@@ -42,7 +42,7 @@ module OrderInfo = {
                 tooltipWidthClass="w-fit"
               />
             </div>
-            {getStatus(data)}
+            {useGetStatus(data)}
             <ACLButton
               access={userPermissionJson.operationsManage}
               text="+ Refund"
@@ -309,6 +309,9 @@ module Attempts = {
   open OrderEntity
   @react.component
   let make = (~orderDict) => {
+    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
@@ -360,10 +363,11 @@ module Attempts = {
     }
 
     <div className="flex flex-col gap-4">
-      <div className="flex border items-start border-blue-500 text-sm rounded-md gap-2 px-4 py-3">
-        <Icon name="info-vacent" className="text-blue-500 mt-1" size=18 />
+      <div
+        className={`flex  items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
+        <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
         <span>
-          {`You can validate the information shown here by cross checking the hyperswitch payment attempt identifier (Attempt ID) in your payment processor portal.`->React.string}
+          {`You can validate the information shown here by cross checking the payment attempt identifier (Attempt ID) in your payment processor portal.`->React.string}
         </span>
       </div>
       <p className="font-bold text-fs-16 text-jp-gray-900"> {"Payment Attempts"->React.string} </p>
@@ -488,6 +492,7 @@ module FraudRiskBannerDetails = {
   open APIUtils
   @react.component
   let make = (~order: order, ~refetch) => {
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
@@ -503,7 +508,7 @@ module FraudRiskBannerDetails = {
 
         let _ = await updateDetails(ordersDecisionUrl, Dict.make()->JSON.Encode.object, Post, ())
         showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
-        refetch()
+        refetch()->ignore
       } catch {
       | _ => ()
       }
@@ -574,6 +579,7 @@ module FraudRiskBannerDetails = {
 module FraudRiskBanner = {
   @react.component
   let make = (~frmMessage: frmMessage, ~refElement: React.ref<Js.nullable<Dom.element>>) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <div
       className="flex justify-between items-center w-full  p-4 rounded-md bg-white border border-[#C04141]/50 ">
       <div className="flex gap-2">
@@ -586,7 +592,7 @@ module FraudRiskBanner = {
         />
       </div>
       <div
-        className="text-blue-500 font-semibold text-fs-16 cursor-pointer"
+        className={`${textColor.primaryNormal} font-semibold text-fs-16 cursor-pointer`}
         onClick={_ => {
           refElement.current
           ->Nullable.toOption
@@ -604,18 +610,49 @@ module FraudRiskBanner = {
 let make = (~id) => {
   open APIUtils
   open OrderUIUtils
+  let getURL = useGetURL()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (refetchCounter, setRefetchCounter) = React.useState(_ => 0)
   let (showModal, setShowModal) = React.useState(_ => false)
+  let (orderData, setOrderData) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
   let frmDetailsRef = React.useRef(Nullable.null)
 
-  let orderData = OrderHooks.useGetOrdersData(id, refetchCounter, setScreenState)
+  let fetchDetails = useGetMethod()
+  let fetchOrderDetails = async url => {
+    try {
+      setScreenState(_ => Loading)
+      let res = await fetchDetails(url)
+      setOrderData(_ => res)
+      setScreenState(_ => Success)
+    } catch {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
+      | Some(message) =>
+        if message->String.includes("HE_02") {
+          setScreenState(_ => Custom)
+        } else {
+          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError, ())
+          setScreenState(_ => Error("Failed to Fetch!"))
+        }
+
+      | None => setScreenState(_ => Error("Failed to Fetch!"))
+      }
+    }
+  }
+  React.useEffect0(() => {
+    let accountUrl = getURL(
+      ~entityName=ORDERS,
+      ~methodType=Get,
+      ~id=Some(id),
+      ~queryParamerters=Some("expand_attempts=true"),
+      (),
+    )
+    fetchOrderDetails(accountUrl)->ignore
+    None
+  })
   let order = OrderEntity.itemToObjMapper(orderData->getDictFromJsonObject)
 
   let refundData =
@@ -640,10 +677,6 @@ let make = (~id) => {
     orderData->getDictFromJsonObject->getString("created", "")
   }, [orderData])
 
-  let refetch = React.useCallback1(() => {
-    setRefetchCounter(p => p + 1)
-  }, [setRefetchCounter])
-
   let openRefundModal = _ => {
     setShowModal(_ => true)
   }
@@ -663,9 +696,8 @@ let make = (~id) => {
         ~queryParamerters=Some("force_sync=true"),
         (),
       )
-      let _ = await fetchDetails(getRefreshStatusUrl)
+      let _ = await fetchOrderDetails(getRefreshStatusUrl)
       showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
-      refetch()
     } catch {
     | _ => ()
     }
@@ -698,7 +730,9 @@ let make = (~id) => {
         </UIUtils.RenderIf>
         <div />
       </div>
-      <OrderActions orderDict={orderData->getDictFromJsonObject} refetch showModal setShowModal />
+      <OrderActions
+        orderDict={orderData->getDictFromJsonObject} refetch={refreshStatus} showModal setShowModal
+      />
     </div>
     <UIUtils.RenderIf condition={order.frm_message.frm_status === "fraud"}>
       <FraudRiskBanner frmMessage={order.frm_message} refElement=frmDetailsRef />
@@ -757,7 +791,7 @@ let make = (~id) => {
                 title: "FRM Details",
                 renderContent: () => {
                   <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
-                    <FraudRiskBannerDetails order refetch />
+                    <FraudRiskBannerDetails order refetch={refreshStatus} />
                   </div>
                 },
                 renderContentOnTop: None,

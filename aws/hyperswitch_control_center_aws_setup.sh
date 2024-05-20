@@ -87,9 +87,9 @@ sudo amazon-linux-extras install docker
 sudo service docker start
 sudo usermod -a -G docker ec2-user
 
-docker pull juspaydotin/hyperswitch-control-center:v1.0.0
+docker pull juspaydotin/hyperswitch-control-center:latest
 
-docker run -p 80:9000 -e apiBaseUrl=${apiBaseUrl} -e sdkBaseUrl=${sdkBaseUrl} juspaydotin/hyperswitch-control-center:v1.0.0
+docker run -p 80:9000 -e default__endpoint__api_url=${apiBaseUrl} -e default__endpoint__sdk_url=${sdkBaseUrl} juspaydotin/hyperswitch-control-center:latest
 
 EOF
 

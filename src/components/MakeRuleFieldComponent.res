@@ -30,9 +30,7 @@ module TextView = {
     str->LogicUtils.isNonEmptyString
       ? <AddDataAttributes attributes=[("data-plc-text", str)]>
           <div
-            className={`text-opacity-75 dark:text-opacity-75 
-              hover:text-opacity-100 dark:hover:text-opacity-100  
-              mx-1  ${fontColor} ${fontWeight} `}>
+            className={`text-opacity-75 dark:text-opacity-75 hover:text-opacity-100 dark:hover:text-opacity-100 mx-1 ${fontColor} ${fontWeight} `}>
             {React.string(str)}
           </div>
         </AddDataAttributes>
@@ -44,6 +42,7 @@ module CompressedView = {
   @react.component
   let make = (~id, ~isFirst) => {
     open LogicUtils
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let conditionInput = ReactFinalForm.useField(id).input
 
     let displayForValue = value =>
@@ -71,7 +70,9 @@ module CompressedView = {
     | Some((logical, field, operator, value, key)) =>
       <div className="flex flex-wrap items-center gap-4">
         {if !isFirst {
-          <TextView str=logical fontColor="text-blue-500" fontWeight="font-semibold" />
+          <TextView
+            str=logical fontColor={`${textColor.primaryNormal}`} fontWeight="font-semibold"
+          />
         } else {
           React.null
         }}

@@ -4,6 +4,7 @@ let make = () => {
   open HSwitchRemoteFilter
   open LogicUtils
   open RefundUtils
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (refundData, setRefundsData) = React.useState(_ => [])
@@ -41,6 +42,7 @@ let make = () => {
         ~offset,
         ~setOffset,
         ~setTotalCount,
+        ~getURL,
       )
       ->ignore
     | _ => ()
@@ -56,16 +58,18 @@ let make = () => {
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
-            placeholder="Search payment id or refund id"
-            setSearchVal=setSearchText
-            searchVal=searchText
-            filterUrl={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/filter`}
+            filterUrl={`${Window.env.apiBaseUrl}/refunds/filter`}
             setFilters
             endTimeFilterKey
             startTimeFilterKey
             initialFilters
             initialFixedFilter
             setOffset
+            customLeftView={<SearchBarFilter
+              placeholder="Search payment id or refund id"
+              setSearchVal=setSearchText
+              searchVal=searchText
+            />}
           />
         </div>
         <UIUtils.RenderIf condition={generateReport}>

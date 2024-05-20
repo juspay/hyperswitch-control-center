@@ -84,7 +84,7 @@ let make = () => {
 
   React.useEffect1(() => {
     if dashboardPageState !== #HOME {
-      RescriptReactRouter.push("/onboarding")
+      RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/onboarding"))
     }
     None
   }, [dashboardPageState])
@@ -103,6 +103,7 @@ let make = () => {
   }, [url.search])
 
   open APIUtils
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
 
   let skipAndContinue = async () => {

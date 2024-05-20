@@ -28,6 +28,7 @@ let quickStartEnumIntialArray: array<sectionHeadingVariant> = [
   #StripeConnected,
   #PaypalConnected,
   #SPTestPayment,
+  #OnboardingSurvey,
 ]
 
 let connectorChoiceStringVariantMapper = stringValue =>

@@ -4,6 +4,7 @@ module NewAccountCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal) => {
     open APIUtils
+    let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
@@ -93,6 +94,7 @@ module AddNewMerchantButton = {
     open HeadlessUI
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <ACLDiv
       permission={userPermissionJson.merchantDetailsManage}
       onClick={_ => setShowModal(_ => true)}
@@ -109,7 +111,7 @@ module AddNewMerchantButton = {
               } else {
                 "group flex rounded-md items-center px-2 py-2 text-sm"
               }
-              `${activeClasses} text-blue-500 flex gap-2 font-medium w-56`
+              `${activeClasses} ${textColor.primaryNormal} flex gap-2 font-medium w-56`
             }>
             <Icon name="plus-circle" size=15 />
             {"Add a new merchant"->React.string}
@@ -123,13 +125,18 @@ module ExternalUser = {
   @react.component
   let make = (~switchMerchant, ~isAddMerchantEnabled) => {
     open UIUtils
-    let defaultMerchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
+    let {merchant_id: defaultMerchantId} =
+      CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let switchMerchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.switchMerchantListAtom)
     let merchantDetailsTypedValue = HSwitchUtils.useMerchantDetailsValue()
     let defaultSelectedMerchantType = {
       merchant_id: defaultMerchantId,
       merchant_name: defaultMerchantId,
       is_active: false,
+      role_id: "",
+      role_name: "",
+      org_id: "",
     }
     let (showModal, setShowModal) = React.useState(_ => false)
     let (options, setOptions) = React.useState(_ => [])
@@ -159,7 +166,7 @@ module ExternalUser = {
         {menuProps =>
           <div>
             <Menu.Button
-              className="inline-flex whitespace-pre leading-5 justify-center text-sm font-medium px-4 py-2 font-medium rounded-md hover:bg-opacity-80 bg-white border">
+              className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-md hover:bg-opacity-80 bg-white border">
               {buttonProps => {
                 <>
                   {selectedMerchantObject.merchant_name->React.string}
@@ -212,7 +219,7 @@ module ExternalUser = {
                                 condition={selectedMerchantObject.merchant_name ===
                                   option.merchant_name}>
                                 <Icon
-                                  className="absolute top-2 right-2 text-blue-500"
+                                  className={`absolute top-2 right-2 ${textColor.primaryNormal}`}
                                   name="check"
                                   size=15
                                 />
@@ -240,16 +247,23 @@ module ExternalUser = {
 
 @react.component
 let make = (~userRole, ~isAddMerchantEnabled=false) => {
-  open LogicUtils
-  open HSLocalStorage
   open APIUtils
+  let getURL = useGetURL()
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {setAuthStatus, authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let (value, setValue) = React.useState(() => "")
-  let merchantId = getFromMerchantDetails("merchant_id")
+  let merchantId = switch authStatus {
+  | LoggedIn(info) =>
+    switch info {
+    | BasicAuth(basicInfo) => basicInfo.merchant_id->Option.getOr("")
+    | TotpAuth(totpInfo) => totpInfo.merchant_id->Option.getOr("")
+    }
+  | _ => ""
+  }
   let updateDetails = useUpdateMethod()
   let showPopUp = PopUpState.useShowPopUp()
   let isInternalUser = userRole->String.includes("internal_")
   let (successModal, setSuccessModal) = React.useState(_ => false)
-
   let input = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
     {
       name: "-",
@@ -274,19 +288,27 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   }, [value])
 
   let switchMerchant = async value => {
+    open LogicUtils
     try {
       let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Post, ())
       let body = Dict.make()
       body->Dict.set("merchant_id", value->JSON.Encode.string)
       let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
-      let responseDict = res->getDictFromJsonObject
-      let switchedMerchantId = responseDict->getString("merchant_id", "")
-      let token = HyperSwitchAuthUtils.parseResponseJson(
-        ~json=res,
-        ~email=responseDict->LogicUtils.getString("email", ""),
-      )
-      LocalStorage.setItem("login", token)
-      HSwitchUtils.setMerchantDetails("merchant_id", switchedMerchantId->JSON.Encode.string)
+
+      // TODO: When BE changes the response of this api re-evaluate the below conditions
+      if featureFlagDetails.totp {
+        let responseDict = res->getDictFromJsonObject
+        responseDict->Dict.set(
+          "token_type",
+          DASHBOARD_ENTRY->TotpUtils.variantToStringFlowMapper->JSON.Encode.string,
+        )
+        setAuthStatus(
+          LoggedIn(TotpAuth(TotpUtils.getTotpAuthInfo(responseDict->JSON.Encode.object))),
+        )
+      } else {
+        setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
+      }
+
       setSuccessModal(_ => true)
       await HyperSwitchUtils.delay(2000)
       Window.Location.reload()

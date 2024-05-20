@@ -28,10 +28,12 @@ let make = (~goLive) => {
   open QuickStartTypes
   open APIUtils
   open ProdVerifyModalUtils
+  open CommonAuthHooks
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let email = HSLocalStorage.getFromMerchantDetails("email")
+  let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
   let (isSubmitBtnDisabled, setIsSubmitBtnDisabled) = React.useState(_ => false)
@@ -101,7 +103,7 @@ let make = (~goLive) => {
         buttonType={Secondary}
         onClick={_ => {
           setDashboardPageState(_ => #HOME)
-          RescriptReactRouter.replace("/home")
+          RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
         }}
       />
     </div>
@@ -135,7 +137,7 @@ let make = (~goLive) => {
               text="Exit to Homepage"
               onClick={_ => {
                 setDashboardPageState(_ => #HOME)
-                RescriptReactRouter.replace("/home")
+                RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
               }}
               buttonSize=Small
             />}>

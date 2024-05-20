@@ -102,6 +102,111 @@ let infraSelectInput = (
   />
 }
 
+let filterMultiSelectInput = (
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~options: array<FilterSelectBox.dropdownOption>,
+  ~optionSize: CheckBoxIcon.size=Small,
+  ~placeholder as _,
+  ~buttonText,
+  ~buttonSize=?,
+  ~hideMultiSelectButtons=false,
+  ~showSelectionAsChips=true,
+  ~showToggle=false,
+  ~isDropDown=true,
+  ~searchable=false,
+  ~showBorder=?,
+  ~optionRigthElement=?,
+  ~customStyle="",
+  ~customMargin="",
+  ~customButtonStyle=?,
+  ~hideBorder=false,
+  ~allSelectType=FilterSelectBox.Icon,
+  ~showToolTip=false,
+  ~showNameAsToolTip=false,
+  ~buttonType=Button.SecondaryFilled,
+  ~showSelectAll=true,
+  ~isHorizontal=false,
+  ~fullLength=?,
+  ~fixedDropDownDirection=?,
+  ~dropdownCustomWidth=?,
+  ~customMarginStyle=?,
+  ~buttonTextWeight=?,
+  ~marginTop=?,
+  ~customButtonLeftIcon=?,
+  ~customButtonPaddingClass=?,
+  ~customButtonIconMargin=?,
+  ~customTextPaddingClass=?,
+  ~listFlexDirection="",
+  ~buttonClickFn=?,
+  ~showDescriptionAsTool=true,
+  ~optionClass="",
+  ~selectClass="",
+  ~toggleProps="",
+  ~showSelectCountButton=false,
+  ~showAllSelectedOptions=true,
+  ~leftIcon=?,
+  ~customBackColor=?,
+  ~customSelectAllStyle=?,
+  ~onItemSelect=(_, _) => (),
+  ~wrapBasis="",
+  ~dropdownClassName="",
+  ~baseComponentMethod=?,
+  ~disableSelect=false,
+  (),
+) => {
+  <FilterSelectBox
+    input
+    options
+    optionSize
+    buttonText
+    ?buttonSize
+    allowMultiSelect=true
+    hideMultiSelectButtons
+    showSelectionAsChips
+    isDropDown
+    showToggle
+    searchable
+    ?showBorder
+    customStyle
+    customMargin
+    ?optionRigthElement
+    hideBorder
+    allSelectType
+    ?customButtonStyle
+    ?fixedDropDownDirection
+    showToolTip
+    showNameAsToolTip
+    disableSelect
+    buttonType
+    showSelectAll
+    ?fullLength
+    isHorizontal
+    ?customMarginStyle
+    ?dropdownCustomWidth
+    ?buttonTextWeight
+    ?marginTop
+    ?customButtonLeftIcon
+    ?customButtonPaddingClass
+    ?customButtonIconMargin
+    ?customTextPaddingClass
+    listFlexDirection
+    ?buttonClickFn
+    showDescriptionAsTool
+    optionClass
+    selectClass
+    toggleProps
+    showSelectCountButton
+    showAllSelectedOptions
+    ?leftIcon
+    ?customBackColor
+    ?customSelectAllStyle
+    onItemSelect
+    wrapBasis
+    dropdownClassName
+    ?baseComponentMethod
+  />
+}
+
 let multiSelectInput = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
@@ -387,6 +492,49 @@ let singleDatePickerInput = (
   />
 }
 
+let filterDateRangeField = (
+  ~startKey: string,
+  ~endKey: string,
+  ~format,
+  ~disablePastDates=false,
+  ~disableFutureDates=false,
+  ~showTime=false,
+  ~predefinedDays=[],
+  ~disableApply=false,
+  ~numMonths=1,
+  ~dateRangeLimit=?,
+  ~removeFilterOption=?,
+  ~optFieldKey=?,
+  ~showSeconds=true,
+  ~hideDate=false,
+  ~selectStandardTime=false,
+  ~isTooltipVisible=true,
+  (),
+): comboCustomInputRecord => {
+  let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+    <DateRangeField
+      disablePastDates
+      disableFutureDates
+      format
+      predefinedDays
+      numMonths
+      showTime
+      disableApply
+      startKey
+      endKey
+      ?dateRangeLimit
+      ?removeFilterOption
+      ?optFieldKey
+      showSeconds
+      hideDate
+      selectStandardTime
+      isTooltipVisible
+    />
+  }
+
+  {fn, names: [startKey, endKey]}
+}
+
 let dateRangeField = (
   ~startKey: string,
   ~endKey: string,
@@ -475,4 +623,60 @@ let passwordMatchField = (
   (),
 ) => {
   <PasswordStrengthInput input placeholder displayStatus=false ?leftIcon />
+}
+
+let checkboxInput = (
+  ~isHorizontal=false,
+  ~options: array<SelectBox.dropdownOption>,
+  ~optionSize: CheckBoxIcon.size=Small,
+  ~isSelectedStateMinus=false,
+  ~disableSelect=false,
+  ~buttonText="",
+  ~maxHeight=?,
+  ~searchable=?,
+  ~searchInputPlaceHolder=?,
+  ~dropdownCustomWidth=?,
+  ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
+  ~customLabelStyle=?,
+  ~customMarginStyle="mx-3 py-2 gap-2",
+  ~customStyle="",
+  ~checkboxDimension="",
+  ~wrapBasis="",
+  (),
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder as _,
+) => {
+  <SelectBox
+    input
+    options
+    optionSize
+    isSelectedStateMinus
+    disableSelect
+    allowMultiSelect=true
+    isDropDown=false
+    showSelectAll=false
+    buttonText
+    isHorizontal
+    ?maxHeight
+    ?searchable
+    ?searchInputPlaceHolder
+    ?dropdownCustomWidth
+    customSearchStyle
+    ?customLabelStyle
+    customMarginStyle
+    customStyle
+    checkboxDimension
+    wrapBasis
+  />
+}
+
+let boolInput = (
+  ~isDisabled,
+  ~isCheckBox=false,
+  ~boolCustomClass="",
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder as _,
+  (),
+) => {
+  <BoolInput input isDisabled isCheckBox boolCustomClass />
 }

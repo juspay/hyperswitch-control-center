@@ -37,8 +37,8 @@ module ToastHeading = {
     let onClickButtonText = () => {
       RescriptReactRouter.push(
         switch toastProps.helpLink {
-        | Some(str) => str
-        | None => ""
+        | Some(str) => HSwitchGlobalVars.appendDashboardPath(~url=str)
+        | None => HSwitchGlobalVars.appendDashboardPath(~url="")
         },
       )
     }

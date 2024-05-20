@@ -40,15 +40,14 @@ let itemToObjMapper = flowString => {
 }
 
 // will be removed once the backend does the URl mapping
-let nameToURLMapper = (~id) => {
-  let merchant_id = HSLocalStorage.getFromMerchantDetails("merchant_id")
+let nameToURLMapper = (~id, ~merchantId) => {
   urlName =>
     switch urlName->itemToObjMapper {
     | PaymentsCancel => `/payments/${id}/cancel`
     | PaymentsCapture => `/payments/${id}/capture`
     | PaymentsConfirm => `/payments/${id}/confirm`
     | PaymentsCreate => "/payments"
-    | PaymentsStart => `/payments/redirect/${id}/${merchant_id}`
+    | PaymentsStart => `/payments/redirect/${id}/${merchantId}`
     | PaymentsUpdate => `/payments/${id}`
     | RefundsCreate => "/refunds"
     | RefundsUpdate => `/refunds/${id}`
@@ -122,9 +121,16 @@ let parseSdkResponse = arr => {
   let logsArr = sdkLogsArray->Array.filter(sdkLog => {
     let eventDict = sdkLog->getDictFromJsonObject
     let eventName = eventDict->getString("event_name", "")
-    let filteredEventNames = ["StripeElementsCalled"]
+    let filteredEventNames = ["OrcaElementsCalled"]
     filteredEventNames->Array.includes(eventName)->not
   })
 
   logsArr
+}
+
+let apiNameMapper = apiName => {
+  switch apiName {
+  | "PSync" => "Payments Sync"
+  | _ => apiName
+  }
 }

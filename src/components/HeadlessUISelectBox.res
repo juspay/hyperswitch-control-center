@@ -25,6 +25,7 @@ let make = (
   ~textClass="text-sm",
   ~closeListOnClick=false,
 ) => {
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let dropdownPositionClass = switch dropdownPosition {
   | Left => "right-0"
   | _ => "left-0"
@@ -98,7 +99,10 @@ let make = (
                                     className={option.customTextStyle->Belt.Option.getWithDefault(
                                       "",
                                     )}>
-                                    <span className={selected ? "text-blue-500 font-semibold" : ""}>
+                                    <span
+                                      className={selected
+                                        ? `${textColor.primaryNormal} font-semibold`
+                                        : ""}>
                                       {React.string(option.label)}
                                     </span>
                                   </div>
@@ -135,7 +139,7 @@ let make = (
                 </BottomModal>
               } else {
                 <Menu.Items
-                  className={`absolute z-10 ${dropdownPositionClass} mt-2 p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none  ${dropDownClass}`}>
+                  className={`absolute z-10 ${dropdownPositionClass} mt-2 p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${dropDownClass}`}>
                   {props =>
                     options
                     ->Array.mapWithIndex((option, index) => {
@@ -178,7 +182,10 @@ let make = (
                               }}
                               <AddDataAttributes attributes=[("data-options", option.label)]>
                                 <div className={option.customTextStyle->Option.getOr("")}>
-                                  <span className={selected ? "text-blue-500 font-semibold" : ""}>
+                                  <span
+                                    className={selected
+                                      ? `${textColor.primaryNormal} font-semibold`
+                                      : ""}>
                                     {React.string(option.label)}
                                   </span>
                                 </div>

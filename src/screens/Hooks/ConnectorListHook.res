@@ -1,5 +1,6 @@
 let useFetchConnectorList = () => {
   open APIUtils
+  let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let setConnectorList = HyperswitchAtom.connectorListAtom->Recoil.useSetRecoilState
 

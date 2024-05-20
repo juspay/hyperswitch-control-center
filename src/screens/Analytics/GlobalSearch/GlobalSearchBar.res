@@ -186,6 +186,7 @@ let make = () => {
   open HeadlessUI
   open LogicUtils
   open UIUtils
+  let getURL = APIUtils.useGetURL()
   let prefix = useUrlPrefix()
   let setGLobalSearchResults = HyperswitchAtom.globalSeacrchAtom->Recoil.useSetRecoilState
   let fetchDetails = APIUtils.useUpdateMethod()
@@ -206,13 +207,13 @@ let make = () => {
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
-      redirectLink->RescriptReactRouter.push
+      HSwitchGlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
     }
   }
 
   let getSearchResults = async results => {
     try {
-      let url = APIUtils.getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
+      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
       let body = [("query", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
       let response = await fetchDetails(url, body, Post, ())
 

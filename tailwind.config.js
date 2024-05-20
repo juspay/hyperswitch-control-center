@@ -1,3 +1,17 @@
+///////////////////////////////////////////////////////////////////////////////
+
+///  ***Reference***  ///
+/// https://github.com/fbrill/dynamic-colors-in-tailwind/blob/main/utils/index.js///
+
+///////////////////////////////////////////////////////////////////////////////
+function withOpacity(variableName) {
+  return ({ opacityValue }) => {
+    if (opacityValue !== undefined) {
+      return `rgba(var(${variableName}), ${opacityValue})`;
+    }
+    return `rgb(var(${variableName}))`;
+  };
+}
 const plugin = require("tailwindcss/plugin");
 
 module.exports = {
@@ -11,6 +25,7 @@ module.exports = {
       screens: {
         mobile: "28.125rem",
         tablet: "93.75rem",
+        laptop: "67.5rem",
         desktop: "118.75rem",
       },
       scale: {
@@ -68,6 +83,8 @@ module.exports = {
         boxShadowMultiple:
           "2px -2px 24px 0px rgba(0, 0, 0, 0.04), -2px 2px 24px 0px rgba(0, 0, 0, 0.02)",
         homePageBoxShadow: "0px 2px 16px 2px rgba(51, 51, 51, 0.16)",
+        focusBoxShadow:
+          "0px 1px 2px 0px rgba(0, 0, 0, 0.05), 0px 0px 0px 4px rgba(232, 243, 255, 1)",
       },
       fontSize: {
         "fs-10": "10px",
@@ -81,6 +98,12 @@ module.exports = {
         "fs-28": "28px",
       },
       colors: {
+        primary: {
+          DEFAULT: withOpacity("--color-primary"), // Default primary color
+          hover: withOpacity("--color-hover"),
+          sidebar: withOpacity("--color-sidebar"),
+          custom: "#006DF9", // Custom primary color
+        },
         blue: {
           100: "#F1F2F4",
           200: "#DAECFF",
@@ -128,10 +151,8 @@ module.exports = {
           950: "#F04849",
           960: "#EF6969",
           980: "#FC5454",
-          990: "#F97F77",
           failed_page_bg: "#FDEDE8",
         },
-        "sidebar-blue": "#242F48",
         "profile-sidebar-blue": "#16488F",
         "status-green": "#36AF47",
         "popover-background": "#334264",
@@ -151,10 +172,10 @@ module.exports = {
           400: "#D1D4D8",
           500: "#D8DDE9",
           600: "#CCCFD4",
-          700: "#9A9FA8",
+          700: "#666666",
           800: "#67707D",
           850: "#31333A",
-          900: "#354052",
+          900: "#333333",
           950: "#202124",
           960: "#2C2D2F",
           970: "#1B1B1D",
