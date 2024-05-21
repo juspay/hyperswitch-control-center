@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.20.0
+
+### Bug Fixes
+
+- Redirect to be send inside confirm params ([#664](https://github.com/juspay/hyperswitch-control-center/pull/664)) ([`db770dc`](https://github.com/juspay/hyperswitch-control-center/commit/db770dcd63dbb4a141758d9fd9117208d99b10f5))
+
+**Full Changelog:** [`2024.05.19.0...2024.05.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.19.0...2024.05.20.0)
+
+- - -
+
 ## 2024.05.19.0
 
 ### Miscellaneous Tasks
