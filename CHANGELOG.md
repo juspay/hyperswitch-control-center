@@ -3,6 +3,27 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.20.0
+
+### Bug Fixes
+
+- Redirect to be send inside confirm params ([#664](https://github.com/juspay/hyperswitch-control-center/pull/664)) ([`db770dc`](https://github.com/juspay/hyperswitch-control-center/commit/db770dcd63dbb4a141758d9fd9117208d99b10f5))
+
+**Full Changelog:** [`2024.05.19.0...2024.05.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.19.0...2024.05.20.0)
+
+- - -
+
+## 2024.05.19.0
+
+### Miscellaneous Tasks
+
+- Refactor payment hooks ([#661](https://github.com/juspay/hyperswitch-control-center/pull/661)) ([`9688b41`](https://github.com/juspay/hyperswitch-control-center/commit/9688b41a3543e5846e85f5ff068a3046a65a60b7))
+- Payment method table filters ([#659](https://github.com/juspay/hyperswitch-control-center/pull/659)) ([`e1e25da`](https://github.com/juspay/hyperswitch-control-center/commit/e1e25da9dc58173b5bb41965f34e4a3fc638a122))
+
+**Full Changelog:** [`2024.05.17.0...2024.05.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.17.0...2024.05.19.0)
+
+- - -
+
 ## 2024.05.17.0
 
 ### Bug Fixes
