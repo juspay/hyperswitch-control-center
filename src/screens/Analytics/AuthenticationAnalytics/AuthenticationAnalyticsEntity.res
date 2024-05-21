@@ -3,26 +3,28 @@ open DynamicSingleStat
 
 open HSAnalyticsUtils
 open AnalyticsTypes
-let domain = "sdk_events"
+let domain = "auth_events"
 
 let singleStatInitialValue = {
-  authentication_unsuccessful_count: 0,
-  three_ds_challenge_flow_count: 0,
-  three_ds_frictionless_flow_count: 0,
-  three_ds_method_invoked_count: 0,
-  three_ds_method_skipped_count: 0,
-  three_ds_method_successful_count: 0,
-  three_ds_method_unsuccessful_count: 0,
+  three_ds_sdk_count: 0,
+  authentication_successful_count: 0,
+  authentication_attempt_count: 0,
+  challenge_flow_count: 0,
+  challenge_flow_attempt_count: 0,
+  challenge_flow_success_count: 0,
+  frictionless_flow_count: 0,
+  frictionless_flow_success_count: 0,
 }
 
 let singleStatSeriesInitialValue = {
-  authentication_unsuccessful_count: 0,
-  three_ds_challenge_flow_count: 0,
-  three_ds_frictionless_flow_count: 0,
-  three_ds_method_invoked_count: 0,
-  three_ds_method_skipped_count: 0,
-  three_ds_method_successful_count: 0,
-  three_ds_method_unsuccessful_count: 0,
+  three_ds_sdk_count: 0,
+  authentication_successful_count: 0,
+  authentication_attempt_count: 0,
+  challenge_flow_count: 0,
+  challenge_flow_attempt_count: 0,
+  challenge_flow_success_count: 0,
+  frictionless_flow_count: 0,
+  frictionless_flow_success_count: 0,
   time_series: "",
 }
 
@@ -30,13 +32,14 @@ let singleStatItemToObjMapper = json => {
   json
   ->JSON.Decode.object
   ->Option.map(dict => {
-    authentication_unsuccessful_count: dict->getInt("authentication_unsuccessful_count", 0),
-    three_ds_challenge_flow_count: dict->getInt("three_ds_challenge_flow_count", 0),
-    three_ds_frictionless_flow_count: dict->getInt("three_ds_frictionless_flow_count", 0),
-    three_ds_method_invoked_count: dict->getInt("three_ds_method_invoked_count", 0),
-    three_ds_method_skipped_count: dict->getInt("three_ds_method_skipped_count", 0),
-    three_ds_method_successful_count: dict->getInt("three_ds_method_successful_count", 0),
-    three_ds_method_unsuccessful_count: dict->getInt("three_ds_method_unsuccessful_count", 0),
+    three_ds_sdk_count: dict->getInt("three_ds_sdk_count", 0),
+    authentication_successful_count: dict->getInt("authentication_successful_count", 0),
+    authentication_attempt_count: dict->getInt("authentication_attempt_count", 0),
+    challenge_flow_count: dict->getInt("challenge_flow_count", 0),
+    challenge_flow_attempt_count: dict->getInt("challenge_flow_attempt_count", 0),
+    challenge_flow_success_count: dict->getInt("challenge_flow_success_count", 0),
+    frictionless_flow_count: dict->getInt("frictionless_flow_count", 0),
+    frictionless_flow_success_count: dict->getInt("frictionless_flow_success_count", 0),
   })
   ->Option.getOr({
     singleStatInitialValue
@@ -48,13 +51,14 @@ let singleStatSeriesItemToObjMapper = json => {
   ->JSON.Decode.object
   ->Option.map(dict => {
     time_series: dict->getString("time_bucket", ""),
-    authentication_unsuccessful_count: dict->getInt("authentication_unsuccessful_count", 0),
-    three_ds_challenge_flow_count: dict->getInt("three_ds_challenge_flow_count", 0),
-    three_ds_frictionless_flow_count: dict->getInt("three_ds_frictionless_flow_count", 0),
-    three_ds_method_invoked_count: dict->getInt("three_ds_method_invoked_count", 0),
-    three_ds_method_skipped_count: dict->getInt("three_ds_method_skipped_count", 0),
-    three_ds_method_successful_count: dict->getInt("three_ds_method_successful_count", 0),
-    three_ds_method_unsuccessful_count: dict->getInt("three_ds_method_unsuccessful_count", 0),
+    three_ds_sdk_count: dict->getInt("three_ds_sdk_count", 0),
+    authentication_successful_count: dict->getInt("authentication_successful_count", 0),
+    authentication_attempt_count: dict->getInt("authentication_attempt_count", 0),
+    challenge_flow_count: dict->getInt("challenge_flow_count", 0),
+    challenge_flow_attempt_count: dict->getInt("challenge_flow_attempt_count", 0),
+    challenge_flow_success_count: dict->getInt("challenge_flow_success_count", 0),
+    frictionless_flow_count: dict->getInt("frictionless_flow_count", 0),
+    frictionless_flow_success_count: dict->getInt("frictionless_flow_success_count", 0),
   })
   ->Option.getOr({
     singleStatSeriesInitialValue
@@ -73,23 +77,25 @@ let timeSeriesObjMapper = json =>
   json->getQueryData->Array.map(json => singleStatSeriesItemToObjMapper(json))
 
 type colT =
+  | ThreeDsCount
   | AuthenticationSuccessRate
-  | ThreeDsChallengeFlowRate
-  | ThreeDsFrictionlessFlowRate
-  | ThreeDsMethodInvokedRate
-  | ThreeDsMethodSkippedRate
-  | ThreeDsMethodSuccessRate
+  | ChallengeFlowRate
+  | FrictionlessFlowRate
+  | ChallengeAttemptRate
+  | ChallengeSuccessRate
+  | FrictionlessSuccessRate
 
 let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
     columns: [
+      ThreeDsCount,
       AuthenticationSuccessRate,
-      ThreeDsChallengeFlowRate,
-      ThreeDsFrictionlessFlowRate,
-      ThreeDsMethodInvokedRate,
-      ThreeDsMethodSkippedRate,
-      ThreeDsMethodSuccessRate,
+      ChallengeFlowRate,
+      FrictionlessFlowRate,
+      ChallengeAttemptRate,
+      ChallengeSuccessRate,
+      FrictionlessSuccessRate,
     ],
   },
 ]
@@ -108,61 +114,59 @@ let compareLogic = (firstValue, secondValue) => {
 
 let constructData = (key, singlestatTimeseriesData: array<authenticationSingleStatSeries>) => {
   switch key {
+  | ThreeDsCount =>
+    singlestatTimeseriesData->Array.map(ob => {
+      (ob.time_series->DateTimeUtils.parseAsFloat, ob.three_ds_sdk_count->Int.toFloat)
+    })
   | AuthenticationSuccessRate =>
     singlestatTimeseriesData->Array.map(ob => {
-      let total_authentication_requests =
-        (ob.three_ds_method_invoked_count + ob.three_ds_method_skipped_count)->Int.toFloat
       (
         ob.time_series->DateTimeUtils.parseAsFloat,
-        (total_authentication_requests -. ob.authentication_unsuccessful_count->Int.toFloat) *.
+        ob.authentication_successful_count->Int.toFloat *.
         100. /.
-        total_authentication_requests,
+        ob.authentication_attempt_count->Int.toFloat,
       )
     })
 
-  | ThreeDsChallengeFlowRate =>
+  | ChallengeFlowRate =>
     singlestatTimeseriesData->Array.map(ob => {
-      let total_three_ds_requests =
-        (ob.three_ds_challenge_flow_count + ob.three_ds_frictionless_flow_count)->Int.toFloat
       (
         ob.time_series->DateTimeUtils.parseAsFloat,
-        ob.three_ds_challenge_flow_count->Int.toFloat *. 100. /. total_three_ds_requests,
+        ob.challenge_flow_count->Int.toFloat *. 100. /. ob.three_ds_sdk_count->Int.toFloat,
       )
     })
-  | ThreeDsFrictionlessFlowRate =>
+  | FrictionlessFlowRate =>
     singlestatTimeseriesData->Array.map(ob => {
-      let total_three_ds_requests =
-        (ob.three_ds_challenge_flow_count + ob.three_ds_frictionless_flow_count)->Int.toFloat
       (
         ob.time_series->DateTimeUtils.parseAsFloat,
-        ob.three_ds_frictionless_flow_count->Int.toFloat *. 100. /. total_three_ds_requests,
+        ob.frictionless_flow_count->Int.toFloat *. 100. /. ob.three_ds_sdk_count->Int.toFloat,
       )
     })
-  | ThreeDsMethodInvokedRate =>
+  | ChallengeAttemptRate =>
     singlestatTimeseriesData->Array.map(ob => {
-      let total_three_ds_requests =
-        (ob.three_ds_method_invoked_count + ob.three_ds_method_skipped_count)->Int.toFloat
       (
         ob.time_series->DateTimeUtils.parseAsFloat,
-        ob.three_ds_method_invoked_count->Int.toFloat *. 100. /. total_three_ds_requests,
+        ob.challenge_flow_attempt_count->Int.toFloat *.
+        100. /.
+        ob.challenge_flow_count->Int.toFloat,
       )
     })
-  | ThreeDsMethodSkippedRate =>
+  | ChallengeSuccessRate =>
     singlestatTimeseriesData->Array.map(ob => {
-      let total_three_ds_requests =
-        (ob.three_ds_method_invoked_count + ob.three_ds_method_skipped_count)->Int.toFloat
       (
         ob.time_series->DateTimeUtils.parseAsFloat,
-        ob.three_ds_method_skipped_count->Int.toFloat *. 100. /. total_three_ds_requests,
+        ob.challenge_flow_success_count->Int.toFloat *.
+        100. /.
+        ob.challenge_flow_count->Int.toFloat,
       )
     })
-  | ThreeDsMethodSuccessRate =>
+  | FrictionlessSuccessRate =>
     singlestatTimeseriesData->Array.map(ob => {
-      let total_three_ds_requests =
-        (ob.three_ds_method_successful_count + ob.three_ds_method_unsuccessful_count)->Int.toFloat
       (
         ob.time_series->DateTimeUtils.parseAsFloat,
-        ob.three_ds_method_successful_count->Int.toFloat *. 100. /. total_three_ds_requests,
+        ob.frictionless_flow_success_count->Int.toFloat *.
+        100. /.
+        ob.frictionless_flow_count->Int.toFloat,
       )
     })
   }->Array.toSorted(compareLogic)
@@ -176,108 +180,87 @@ let getStatData = (
   _mode,
 ) => {
   switch colType {
+  | ThreeDsCount => {
+      title: "Payments requiring 3DS Authentication",
+      tooltipText: "Total number of payments which require 3DS Authentication.",
+      deltaTooltipComponent: _ => React.null,
+      value: singleStatData.three_ds_sdk_count->Int.toFloat,
+      delta: 0.0,
+      data: constructData(ThreeDsCount, timeSeriesData),
+      statType: "Volume",
+      showDelta: false,
+    }
   | AuthenticationSuccessRate => {
-      let total_authentication_requests =
-        (singleStatData.three_ds_method_invoked_count +
-        singleStatData.three_ds_method_skipped_count)->Int.toFloat
-      {
-        title: "Authentication Success Rate",
-        tooltipText: "Successful Authentication Requests over Total Requests",
-        deltaTooltipComponent: _ => React.null,
-        value: (total_authentication_requests -.
-        singleStatData.authentication_unsuccessful_count->Int.toFloat) *.
-        100.0 /.
-        total_authentication_requests,
-        delta: 0.0,
-        data: constructData(AuthenticationSuccessRate, timeSeriesData),
-        statType: "Rate",
-        showDelta: false,
-      }
+      title: "Authentication Success Rate",
+      tooltipText: "Successful Authentication Requests over Total Requests.",
+      deltaTooltipComponent: _ => React.null,
+      value: singleStatData.authentication_successful_count->Int.toFloat *.
+      100.0 /.
+      singleStatData.authentication_attempt_count->Int.toFloat,
+      delta: 0.0,
+      data: constructData(AuthenticationSuccessRate, timeSeriesData),
+      statType: "Rate",
+      showDelta: false,
     }
-  | ThreeDsChallengeFlowRate => {
-      let total_three_ds_requests =
-        (singleStatData.three_ds_challenge_flow_count +
-        singleStatData.three_ds_frictionless_flow_count)->Int.toFloat
-      {
-        title: "Challenge Flow Rate",
-        tooltipText: "Percentage of sessions where users went through a challenge flow",
-        deltaTooltipComponent: _ => React.null,
-        value: singleStatData.three_ds_challenge_flow_count->Int.toFloat *.
-        100.0 /.
-        total_three_ds_requests,
-        delta: 0.0,
-        data: constructData(ThreeDsChallengeFlowRate, timeSeriesData),
-        statType: "Rate",
-        showDelta: false,
-      }
+  | ChallengeFlowRate => {
+      title: "Challenge Flow Rate",
+      tooltipText: "Payments requiring a challenge to be passed over total number of payments which require 3DS Authentication.",
+      deltaTooltipComponent: _ => React.null,
+      value: singleStatData.challenge_flow_count->Int.toFloat *.
+      100.0 /.
+      singleStatData.three_ds_sdk_count->Int.toFloat,
+      delta: 0.0,
+      data: constructData(ChallengeFlowRate, timeSeriesData),
+      statType: "Rate",
+      showDelta: false,
     }
-  | ThreeDsFrictionlessFlowRate => {
-      let total_three_ds_requests =
-        (singleStatData.three_ds_challenge_flow_count +
-        singleStatData.three_ds_frictionless_flow_count)->Int.toFloat
-      {
-        title: "Frictionless Flow Rate",
-        tooltipText: "Percentage of sessions where users went through a frictionless flow",
-        deltaTooltipComponent: _ => React.null,
-        value: singleStatData.three_ds_frictionless_flow_count->Int.toFloat *.
-        100.0 /.
-        total_three_ds_requests,
-        delta: 0.0,
-        data: constructData(ThreeDsFrictionlessFlowRate, timeSeriesData),
-        statType: "Rate",
-        showDelta: false,
-      }
+  | FrictionlessFlowRate => {
+      title: "Frictionless Flow Rate",
+      tooltipText: "Payments going through a frictionless flow over total number of payments which require 3DS Authentication.",
+      deltaTooltipComponent: _ => React.null,
+      value: singleStatData.frictionless_flow_count->Int.toFloat *.
+      100.0 /.
+      singleStatData.three_ds_sdk_count->Int.toFloat,
+      delta: 0.0,
+      data: constructData(FrictionlessFlowRate, timeSeriesData),
+      statType: "Rate",
+      showDelta: false,
     }
-  | ThreeDsMethodInvokedRate => {
-      let total_three_ds_requests =
-        (singleStatData.three_ds_method_invoked_count +
-        singleStatData.three_ds_method_skipped_count)->Int.toFloat
-      {
-        title: "Three DS Method Invocation Rate",
-        tooltipText: "Percentage of sessions where Three DS Method was invoked",
-        deltaTooltipComponent: _ => React.null,
-        value: singleStatData.three_ds_method_invoked_count->Int.toFloat *.
-        100. /.
-        total_three_ds_requests,
-        delta: 0.0,
-        data: constructData(ThreeDsMethodInvokedRate, timeSeriesData),
-        statType: "Rate",
-        showDelta: false,
-      }
+  | ChallengeAttemptRate => {
+      title: "Challenge Attempt Rate",
+      tooltipText: "Percentage of payments where user attempted the challenge.",
+      deltaTooltipComponent: _ => React.null,
+      value: singleStatData.challenge_flow_attempt_count->Int.toFloat *.
+      100. /.
+      singleStatData.challenge_flow_count->Int.toFloat,
+      delta: 0.0,
+      data: constructData(ChallengeAttemptRate, timeSeriesData),
+      statType: "Rate",
+      showDelta: false,
     }
-  | ThreeDsMethodSkippedRate => {
-      let total_three_ds_requests =
-        (singleStatData.three_ds_method_invoked_count +
-        singleStatData.three_ds_method_skipped_count)->Int.toFloat
-      {
-        title: "Three DS Method Skip Rate",
-        tooltipText: "Percentage of sessions where Three DS Method was skipped",
-        deltaTooltipComponent: _ => React.null,
-        value: singleStatData.three_ds_method_skipped_count->Int.toFloat *.
-        100. /.
-        total_three_ds_requests,
-        delta: 0.0,
-        data: constructData(ThreeDsMethodSkippedRate, timeSeriesData),
-        statType: "Rate",
-        showDelta: false,
-      }
+  | ChallengeSuccessRate => {
+      title: "Challenge Success Rate",
+      tooltipText: "Total number of payments authenticated where user successfully attempted the challenge over the total number of payments requiring a challenge to be passed.",
+      deltaTooltipComponent: _ => React.null,
+      value: singleStatData.challenge_flow_success_count->Int.toFloat *.
+      100. /.
+      singleStatData.challenge_flow_count->Int.toFloat,
+      delta: 0.0,
+      data: constructData(ChallengeSuccessRate, timeSeriesData),
+      statType: "Rate",
+      showDelta: false,
     }
-  | ThreeDsMethodSuccessRate => {
-      let total_three_ds_requests =
-        (singleStatData.three_ds_method_successful_count +
-        singleStatData.three_ds_method_unsuccessful_count)->Int.toFloat
-      {
-        title: "Three DS Method Success Rate",
-        tooltipText: "Successful Three DS Method Requests over Total Requests",
-        deltaTooltipComponent: _ => React.null,
-        value: singleStatData.three_ds_method_successful_count->Int.toFloat *.
-        100. /.
-        total_three_ds_requests,
-        delta: 0.0,
-        data: constructData(ThreeDsMethodSuccessRate, timeSeriesData),
-        statType: "Rate",
-        showDelta: false,
-      }
+  | FrictionlessSuccessRate => {
+      title: "Frictionless Success Rate",
+      tooltipText: "Total number of payments authenticated over a frictionless flow successfully over the total number of payments going through a frictionless flow.",
+      deltaTooltipComponent: _ => React.null,
+      value: singleStatData.challenge_flow_success_count->Int.toFloat *.
+      100. /.
+      singleStatData.challenge_flow_count->Int.toFloat,
+      delta: 0.0,
+      data: constructData(FrictionlessSuccessRate, timeSeriesData),
+      statType: "Rate",
+      showDelta: false,
     }
   }
 }
@@ -327,7 +310,7 @@ let paymentMetricsConfig: array<LineChartUtils.metricsConfig> = [
 
 let authenticationMetricsConfig: array<LineChartUtils.metricsConfig> = [
   {
-    metric_name_db: "three_ds_method_invoked_count",
+    metric_name_db: "three_ds_sdk_count",
     metric_label: "Volume",
     metric_type: Volume,
     thresholdVal: None,
@@ -338,68 +321,36 @@ let authenticationMetricsConfig: array<LineChartUtils.metricsConfig> = [
 
 let authenticationFunnelMetricsConfig: array<LineChartUtils.metricsConfig> = [
   {
-    metric_name_db: "three_ds_method_skipped_count",
+    metric_name_db: "three_ds_sdk_count",
     metric_label: "Payment Confirm with 3DS 2.0 Flow",
-    disabled: true,
     metric_type: Volume,
     thresholdVal: None,
     step_up_threshold: None,
     legendOption: (Average, Overall),
   },
   {
-    metric_name_db: "three_ds_method_invoked_count",
-    metric_label: "Payments with 3DS 2.0 Flow",
-    metric_type: Volume,
-    thresholdVal: None,
-    step_up_threshold: None,
-    legendOption: (Average, Overall),
-    data_transformation_func: dict => {
-      let total_auth_attempts =
-        dict->getFloat("three_ds_method_invoked_count", 0.0) +.
-          dict->getFloat("three_ds_method_skipped_count", 0.0)
-      dict->Dict.set("three_ds_method_invoked_count", total_auth_attempts->JSON.Encode.float)
-      dict
-    },
-  },
-  {
-    metric_name_db: "three_ds_method_unsuccessful_count",
-    metric_label: "3DS Method Call",
-    disabled: true,
+    metric_name_db: "authentication_attempt_count",
+    metric_label: "Authentication Attempt",
     metric_type: Volume,
     thresholdVal: None,
     step_up_threshold: None,
     legendOption: (Average, Overall),
   },
   {
-    metric_name_db: "three_ds_method_successful_count",
-    metric_label: "3DS Method Call",
-    disabled: false,
-    metric_type: Volume,
-    thresholdVal: None,
-    step_up_threshold: None,
-    legendOption: (Average, Overall),
-    data_transformation_func: dict => {
-      let total_auth_attempts =
-        dict->getFloat("three_ds_method_successful_count", 0.0) +.
-          dict->getFloat("three_ds_method_unsuccessful_count", 0.0)
-      dict->Dict.set("three_ds_method_successful_count", total_auth_attempts->JSON.Encode.float)
-      dict
-    },
-  },
-  {
-    metric_name_db: "authentication_unsuccessful_count",
+    metric_name_db: "authentication_success_count",
     metric_label: "Authentication Successful",
     metric_type: Volume,
     thresholdVal: None,
     step_up_threshold: None,
     legendOption: (Average, Overall),
-    data_transformation_func: dict => {
-      let total_auth_attempts =
-        dict->getFloat("three_ds_method_invoked_count", 0.0) -.
-          dict->getFloat("authentication_unsuccessful_count", 0.0)
-      dict->Dict.set("authentication_unsuccessful_count", total_auth_attempts->JSON.Encode.float)
-      dict
-    },
+  },
+  {
+    metric_name_db: "authentication_success_count",
+    metric_label: "Authentication Successful",
+    metric_type: Volume,
+    thresholdVal: None,
+    step_up_threshold: None,
+    legendOption: (Average, Overall),
   },
 ]
 

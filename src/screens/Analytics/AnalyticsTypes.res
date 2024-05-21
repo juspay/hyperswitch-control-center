@@ -228,23 +228,25 @@ type paymentTableType = {
 }
 
 type authenticationSingleStat = {
-  authentication_unsuccessful_count: int,
-  three_ds_challenge_flow_count: int,
-  three_ds_frictionless_flow_count: int,
-  three_ds_method_invoked_count: int,
-  three_ds_method_skipped_count: int,
-  three_ds_method_successful_count: int,
-  three_ds_method_unsuccessful_count: int,
+  three_ds_sdk_count: int,
+  authentication_successful_count: int,
+  authentication_attempt_count: int,
+  challenge_flow_count: int,
+  challenge_flow_attempt_count: int,
+  challenge_flow_success_count: int,
+  frictionless_flow_count: int,
+  frictionless_flow_success_count: int,
 }
 
 type authenticationSingleStatSeries = {
-  authentication_unsuccessful_count: int,
-  three_ds_challenge_flow_count: int,
-  three_ds_frictionless_flow_count: int,
-  three_ds_method_invoked_count: int,
-  three_ds_method_skipped_count: int,
-  three_ds_method_successful_count: int,
-  three_ds_method_unsuccessful_count: int,
+  three_ds_sdk_count: int,
+  authentication_successful_count: int,
+  authentication_attempt_count: int,
+  challenge_flow_count: int,
+  challenge_flow_attempt_count: int,
+  challenge_flow_success_count: int,
+  frictionless_flow_count: int,
+  frictionless_flow_success_count: int,
   time_series: string,
 }
 

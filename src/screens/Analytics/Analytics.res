@@ -492,7 +492,7 @@ let make = (
   ~deltaMetrics: array<string>,
   ~deltaArray: array<string>,
   ~singleStatEntity: DynamicSingleStat.entityType<'singleStatColType, 'b, 'b2>,
-  ~filterUri,
+  ~filterUri: option<string>,
   ~tableUpdatedHeading: option<
     (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
   >=?,
@@ -602,10 +602,14 @@ let make = (
     setFilterDataJson(_ => None)
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       try {
-        updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
-        ->thenResolve(json => setFilterDataJson(_ => json->Some))
-        ->catch(_ => resolve())
-        ->ignore
+        switch filterUri {
+        | Some(filterUri) =>
+          updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
+          ->thenResolve(json => setFilterDataJson(_ => json->Some))
+          ->catch(_ => resolve())
+          ->ignore
+        | None => ()
+        }
       } catch {
       | _ => ()
       }
