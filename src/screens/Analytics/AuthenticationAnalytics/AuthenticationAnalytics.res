@@ -57,8 +57,8 @@ let make = () => {
     a
   })
 
-  let title = "Authentication analytics"
-  let subTitle = "Authentication analytics is a level deeper into payment analytics and aims at providing you a wholesome understanding of the end users and their usage patterns."
+  let title = "Authentication Analytics"
+  let subTitle = "Know more about how well your users are able to authenticate payments"
 
   <div>
     <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
@@ -71,8 +71,6 @@ let make = () => {
         deltaMetrics={getStringListFromArrayDict(metrics)}
         chartEntity={
           default: commonAuthenticationChartEntity(tabKeys),
-          userPieChart: authenticationChartEntity(tabKeys),
-          userBarChart: authenticationBarChartEntity(tabKeys),
           userFunnelChart: authenticationFunnelChartEntity(tabKeys),
         }
         tabKeys

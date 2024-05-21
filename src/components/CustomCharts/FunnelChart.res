@@ -149,7 +149,9 @@ let make = (
                     className={`flex flex-row gap-4 h-full items-center w-max`}
                     style={ReactDOMStyle.make(~marginBottom, ~paddingTop, ())}>
                     <div
-                      className="flex font-semibold text-xl text-black dark:text-white w-max items-start">
+                      className={`flex font-semibold text-xl ${metricVal <= 0.
+                          ? "text-red-400"
+                          : "text-black dark:text-white"} w-max items-start`}>
                       {switch selectedMetric {
                       | Volume =>
                         shortNum(~labelValue=metricVal, ~numberFormat=getDefaultNumberFormat(), ())

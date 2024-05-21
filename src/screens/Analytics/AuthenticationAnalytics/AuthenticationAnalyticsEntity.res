@@ -182,7 +182,7 @@ let getStatData = (
   switch colType {
   | ThreeDsCount => {
       title: "Payments requiring 3DS Authentication",
-      tooltipText: "Total number of payments which require 3DS Authentication.",
+      tooltipText: "Total number of payments which require 3DS 2.0 Authentication.",
       deltaTooltipComponent: _ => React.null,
       value: singleStatData.three_ds_sdk_count->Int.toFloat,
       delta: 0.0,
@@ -204,7 +204,7 @@ let getStatData = (
     }
   | ChallengeFlowRate => {
       title: "Challenge Flow Rate",
-      tooltipText: "Payments requiring a challenge to be passed over total number of payments which require 3DS Authentication.",
+      tooltipText: "Payments requiring a challenge to be passed over total number of payments which require 3DS 2.0 Authentication.",
       deltaTooltipComponent: _ => React.null,
       value: singleStatData.challenge_flow_count->Int.toFloat *.
       100.0 /.
@@ -216,7 +216,7 @@ let getStatData = (
     }
   | FrictionlessFlowRate => {
       title: "Frictionless Flow Rate",
-      tooltipText: "Payments going through a frictionless flow over total number of payments which require 3DS Authentication.",
+      tooltipText: "Payments going through a frictionless flow over total number of payments which require 3DS 2.0 Authentication.",
       deltaTooltipComponent: _ => React.null,
       value: singleStatData.frictionless_flow_count->Int.toFloat *.
       100.0 /.
@@ -265,21 +265,6 @@ let getStatData = (
   }
 }
 
-let getStatSentiment = {
-  open AnalyticsUtils
-  [
-    ("Checkout Page Impressions", Positive),
-    ("Total Payments", Positive),
-    ("Converted User Sessions", Positive),
-    ("Dropped Out User Sessions", Negative),
-    ("Average Payment Time", Negative),
-  ]->Dict.fromArray
-}
-
-let getStatThresholds = {
-  [("Dropped Out User Sessions", 40.), ("Converted User Sessions", 60.)]->Dict.fromArray
-}
-
 let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
   urlConfig: [
     {
@@ -293,13 +278,13 @@ let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> =
   getData: getStatData,
   totalVolumeCol: None,
   matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
-  statSentiment: getStatSentiment,
-  statThreshold: getStatThresholds,
+  statSentiment: Dict.make(),
+  statThreshold: Dict.make(),
 }
 
 let paymentMetricsConfig: array<LineChartUtils.metricsConfig> = [
   {
-    metric_name_db: "payment_attempts",
+    metric_name_db: "three_ds_sdk_count",
     metric_label: "Volume",
     metric_type: Volume,
     thresholdVal: None,
@@ -322,7 +307,7 @@ let authenticationMetricsConfig: array<LineChartUtils.metricsConfig> = [
 let authenticationFunnelMetricsConfig: array<LineChartUtils.metricsConfig> = [
   {
     metric_name_db: "three_ds_sdk_count",
-    metric_label: "Payment Confirm with 3DS 2.0 Flow",
+    metric_label: "Payments requiring 3DS 2.0 Authentication",
     metric_type: Volume,
     thresholdVal: None,
     step_up_threshold: None,
@@ -330,7 +315,7 @@ let authenticationFunnelMetricsConfig: array<LineChartUtils.metricsConfig> = [
   },
   {
     metric_name_db: "authentication_attempt_count",
-    metric_label: "Authentication Attempt",
+    metric_label: "Authentication Request Attempt",
     metric_type: Volume,
     thresholdVal: None,
     step_up_threshold: None,
@@ -338,19 +323,41 @@ let authenticationFunnelMetricsConfig: array<LineChartUtils.metricsConfig> = [
   },
   {
     metric_name_db: "authentication_success_count",
-    metric_label: "Authentication Successful",
+    metric_label: "Authentication Request Successful",
     metric_type: Volume,
     thresholdVal: None,
     step_up_threshold: None,
     legendOption: (Average, Overall),
   },
   {
-    metric_name_db: "authentication_success_count",
+    metric_name_db: "challenge_attempt_count",
+    metric_label: "Authentication Attempted",
+    metric_type: Volume,
+    thresholdVal: None,
+    step_up_threshold: None,
+    legendOption: (Average, Overall),
+    data_transformation_func: dict => {
+      let total_auth_attempts =
+        dict->getFloat("challenge_attempt_count", 0.0) +.
+          dict->getFloat("frictionless_flow_count", 0.0)
+      dict->Dict.set("challenge_attempt_count", total_auth_attempts->JSON.Encode.float)
+      dict
+    },
+  },
+  {
+    metric_name_db: "challenge_success_count",
     metric_label: "Authentication Successful",
     metric_type: Volume,
     thresholdVal: None,
     step_up_threshold: None,
     legendOption: (Average, Overall),
+    data_transformation_func: dict => {
+      let total_auth_attempts =
+        dict->getFloat("challenge_success_count", 0.0) +.
+          dict->getFloat("frictionless_success_count", 0.0)
+      dict->Dict.set("challenge_success_count", total_auth_attempts->JSON.Encode.float)
+      dict
+    },
   },
 ]
 
@@ -381,35 +388,6 @@ let commonAuthenticationChartEntity = tabKeys =>
     },
     (),
   )
-
-let authenticationChartEntity = tabKeys => {
-  ...commonAuthenticationChartEntity(tabKeys),
-  uriConfig: [
-    {
-      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
-      timeSeriesBody: DynamicChart.getTimeSeriesChart,
-      legendBody: DynamicChart.getLegendBody,
-      metrics: authenticationMetricsConfig,
-      timeCol: "time_bucket",
-      filterKeys: tabKeys,
-    },
-  ],
-}
-
-let authenticationBarChartEntity = tabKeys => {
-  ...commonAuthenticationChartEntity(tabKeys),
-  chartTypes: [HorizontalBar],
-  uriConfig: [
-    {
-      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
-      timeSeriesBody: DynamicChart.getTimeSeriesChart,
-      legendBody: DynamicChart.getLegendBody,
-      metrics: authenticationMetricsConfig,
-      timeCol: "time_bucket",
-      filterKeys: tabKeys,
-    },
-  ],
-}
 
 let authenticationFunnelChartEntity = tabKeys => {
   ...commonAuthenticationChartEntity(tabKeys),
