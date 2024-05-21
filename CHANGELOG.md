@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.21.0
+
+### Bug Fixes
+
+- TOTP setup access-code changes ([#668](https://github.com/juspay/hyperswitch-control-center/pull/668)) ([`6784a85`](https://github.com/juspay/hyperswitch-control-center/commit/6784a859a1b55b6a7edf40b12857881d7c02fd46))
+- Switch merchant business name modal fix ([#670](https://github.com/juspay/hyperswitch-control-center/pull/670)) ([`c5689d1`](https://github.com/juspay/hyperswitch-control-center/commit/c5689d17ea1bc2fa45b434c3b7b095bfab0c59cb))
+- Icons are not working on firefox ([#673](https://github.com/juspay/hyperswitch-control-center/pull/673)) ([`0e46add`](https://github.com/juspay/hyperswitch-control-center/commit/0e46add797727e1244df4aacf6f4edabbc6979a4))
+- Global search not working in Firefox ([#677](https://github.com/juspay/hyperswitch-control-center/pull/677)) ([`40a0380`](https://github.com/juspay/hyperswitch-control-center/commit/40a0380f16b604e71ac8f937a21c69a23dc5348d))
+- Favicon missing in firebox ([#675](https://github.com/juspay/hyperswitch-control-center/pull/675)) ([`3f628cb`](https://github.com/juspay/hyperswitch-control-center/commit/3f628cbfff366028d1387e2a01c8d030e7b12cab))
+
+**Full Changelog:** [`2024.05.20.0...2024.05.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.20.0...2024.05.21.0)
+
+- - -
+
 ## 2024.05.20.0
 
 ### Bug Fixes
