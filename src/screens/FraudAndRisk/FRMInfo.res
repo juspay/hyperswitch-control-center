@@ -1,81 +1,13 @@
 open FRMTypes
-let frmList: array<frmName> = [Signifyd, Riskifyed]
+let frmList: array<ConnectorTypes.connectorTypes> = [FRM(Signifyd), FRM(Riskifyed)]
 
 let flowTypeList = [PreAuth, PostAuth]
 
-let getFRMNameString = frm => {
-  switch frm {
-  | Signifyd => "signifyd"
-  | Riskifyed => "riskified"
-  | UnknownFRM(str) => str
-  }
-}
-
-let getFRMNameTypeFromString = connector => {
+let getFRMAuthType = (connector: ConnectorTypes.connectorTypes) => {
   switch connector {
-  | "signifyd" => Signifyd
-  | "riskified" => Riskifyed
-  | _ => UnknownFRM("Not known")
-  }
-}
-
-let getFRMAuthType = connector => {
-  switch connector {
-  | Signifyd => "HeaderKey"
-  | Riskifyed => "BodyKey"
-  | UnknownFRM(str) => str
-  }
-}
-
-let signifydInfo: frmInfo = {
-  name: Signifyd,
-  description: "One platform to protect the entire shopper journey end-to-end",
-  connectorFields: [
-    {
-      placeholder: "Enter API Key",
-      label: "API Key",
-      name: "connector_account_details.api_key",
-      inputType: InputFields.textInput(),
-      isRequired: true,
-      encodeToBase64: false,
-    },
-  ],
-}
-
-let riskifyedInfo: frmInfo = {
-  name: Riskifyed,
-  description: "Frictionless fraud management for eCommerce",
-  connectorFields: [
-    {
-      placeholder: "Enter Secret token",
-      label: "Secret token",
-      name: "connector_account_details.api_key",
-      inputType: InputFields.textInput(),
-      isRequired: true,
-      encodeToBase64: false,
-    },
-    {
-      placeholder: "Enter Domain name",
-      label: "Domain name",
-      name: "connector_account_details.key1",
-      inputType: InputFields.textInput(),
-      isRequired: true,
-      encodeToBase64: false,
-    },
-  ],
-}
-
-let unknownFRMInfo: frmInfo = {
-  name: UnknownFRM("Unknown FRM"),
-  description: "",
-  connectorFields: [],
-}
-
-let getFRMInfo = (frmPlayer: frmName) => {
-  switch frmPlayer {
-  | Signifyd => signifydInfo
-  | Riskifyed => riskifyedInfo
-  | UnknownFRM(_) => unknownFRMInfo
+  | FRM(Signifyd) => "HeaderKey"
+  | FRM(Riskifyed) => "BodyKey"
+  | _ => ""
   }
 }
 

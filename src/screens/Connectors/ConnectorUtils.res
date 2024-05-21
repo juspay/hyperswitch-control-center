@@ -400,6 +400,39 @@ let zslInfo = {
   description: "It is a payment processor that enables businesses to accept payments securely through local bank transfers.",
 }
 
+let signifydInfo = {
+  description: "One platform to protect the entire shopper journey end-to-end",
+  validate: [
+    {
+      placeholder: "Enter API Key",
+      label: "API Key",
+      name: "connector_account_details.api_key",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+  ],
+}
+
+let riskifyedInfo = {
+  description: "Frictionless fraud management for eCommerce",
+  validate: [
+    {
+      placeholder: "Enter Secret token",
+      label: "Secret token",
+      name: "connector_account_details.api_key",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+    {
+      placeholder: "Enter Domain name",
+      label: "Domain name",
+      name: "connector_account_details.key1",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+  ],
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -465,11 +498,19 @@ let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthentica
   | NETCETERA => "netcetera"
   }
 
+let getFRMNameString = (frm: frmTypes) => {
+  switch frm {
+  | Signifyd => "signifyd"
+  | Riskifyed => "riskified"
+  }
+}
+
 let getConnectorNameString = (connector: connectorTypes) => {
   switch connector {
   | Processors(connector) => connector->getConnectorNameString
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
     threeDsAuthenticator->getThreeDsAuthenticatorNameString
+  | FRM(frmConnector) => frmConnector->getFRMNameString
   | UnknownConnector(str) => str
   }
 }
@@ -541,6 +582,12 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "netcetera" => ThreeDsAuthenticator(NETCETERA)
     | _ => UnknownConnector("Not known")
     }
+  | FRMPlayer =>
+    switch connector {
+    | "riskified" => FRM(Riskifyed)
+    | "signifyd" => FRM(Signifyd)
+    | _ => UnknownConnector("Not known")
+    }
   | _ => UnknownConnector("Not known")
   }
 }
@@ -609,11 +656,17 @@ let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   | THREEDSECUREIO => threedsecuredotioInfo
   | NETCETERA => netceteraInfo
   }
+let getFrmInfo = frm =>
+  switch frm {
+  | Signifyd => signifydInfo
+  | Riskifyed => riskifyedInfo
+  }
 
 let getConnectorInfo = connector => {
   switch connector {
   | Processors(connector) => connector->getProcessorInfo
   | ThreeDsAuthenticator(threeDsAuthenticator) => threeDsAuthenticator->getThreedsAuthenticatorInfo
+  | FRM(frm) => frm->getFrmInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }
@@ -1341,6 +1394,12 @@ let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   | NETCETERA => "Netcetera"
   }
 
+let getDisplayNameForFRMConnector = frmConnector =>
+  switch frmConnector {
+  | Signifyd => "Signifyd"
+  | Riskifyed => "Riskified"
+  }
+
 let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {
   let connectorType =
     connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType, ())
@@ -1348,6 +1407,7 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   | Processors(connector) => connector->getDisplayNameForProcessor
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
     threeDsAuthenticator->getDisplayNameForThreedsAuthenticator
+  | FRM(frmConnector) => frmConnector->getDisplayNameForFRMConnector
   | UnknownConnector(str) => str
   }
 }
