@@ -566,14 +566,6 @@ let getSingleStatEntity = (metrics, connector_success_rate) => {
 
 let metricsConfig: array<LineChartUtils.metricsConfig> = [
   {
-    metric_name_db: "payment_count",
-    metric_label: "Volume",
-    metric_type: Volume,
-    thresholdVal: None,
-    step_up_threshold: None,
-    legendOption: (Average, Overall),
-  },
-  {
     metric_name_db: "payment_success_rate",
     metric_label: "Success Rate",
     metric_type: Rate,
@@ -582,8 +574,8 @@ let metricsConfig: array<LineChartUtils.metricsConfig> = [
     legendOption: (Current, Overall),
   },
   {
-    metric_name_db: "payment_processed_amount",
-    metric_label: "Processed Amount",
+    metric_name_db: "payment_count",
+    metric_label: "Volume",
     metric_type: Volume,
     thresholdVal: None,
     step_up_threshold: None,
