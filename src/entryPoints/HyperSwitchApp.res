@@ -526,6 +526,7 @@ let make = () => {
               </RenderIf>
               <RenderIf
                 condition={!featureFlagDetails.isLiveMode &&
+                userPermissionJson.merchantDetailsManage === Access &&
                 merchantDetailsTypedValue.merchant_name->Option.isNone}>
                 <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
               </RenderIf>
