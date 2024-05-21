@@ -1,7 +1,7 @@
 type urlConfig = {
   apiBaseUrl: string,
-  faviconUrl: string,
   mixpanelToken: string,
+  faviconUrl: option<string>,
   logoUrl: option<string>,
   sdkBaseUrl: option<string>,
 }
