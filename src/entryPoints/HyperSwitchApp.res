@@ -404,6 +404,15 @@ let make = () => {
                               <UserJourneyAnalytics />
                             </FilterContext>
                           </AccessControl>
+                        | list{"analytics-authentication"} =>
+                          <AccessControl
+                            isEnabled=featureFlagDetails.authenticationAnalytics
+                            permission=userPermissionJson.analyticsView>
+                            <FilterContext
+                              key="AuthenticationAnalytics" index="AuthenticationAnalytics">
+                              <AuthenticationAnalytics />
+                            </FilterContext>
+                          </AccessControl>
                         | list{"developer-api-keys"} =>
                           <AccessControl permission=userPermissionJson.merchantDetailsManage>
                             <KeyManagement.KeysManagement />
