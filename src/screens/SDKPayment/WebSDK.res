@@ -158,54 +158,49 @@ module CheckoutForm = {
       None
     }, (layout, elements, methodsOrder))
 
-    let handleSubmit = () => {
-      let confirmParams =
-        [
-          (
-            "confirmParams",
-            [
-              ("return_url", returnUrl->JSON.Encode.string),
-              ("redirect", "always"->JSON.Encode.string),
-            ]
-            ->Dict.fromArray
-            ->JSON.Encode.object,
-          ),
-        ]->LogicUtils.getJsonFromArrayOfJson
-      hyper.confirmPayment(confirmParams)
-      ->then(val => {
-        let resDict = val->JSON.Decode.object->Option.getOr(Dict.make())
-        let errorDict =
-          resDict->Dict.get("error")->Option.flatMap(JSON.Decode.object)->Option.getOr(Dict.make())
-
-        let errorMsg = errorDict->Dict.get("message")
-
-        switch errorMsg {
-        | Some(val) => {
-            let str =
-              val
-              ->LogicUtils.getStringFromJson("")
-              ->String.replace("\"", "")
-              ->String.replace("\"", "")
-            if str == "Something went wrong" {
-              setPaymentStatus(_ => CUSTOMSTATE)
-              setError(_ => None)
-            } else {
-              setPaymentStatus(_ => FAILED(val->LogicUtils.getStringFromJson("")))
-              setError(_ => errorMsg)
-            }
+    let handleSubmit = async () => {
+      open LogicUtils
+      try {
+        let confirmParams =
+          [
+            (
+              "confirmParams",
+              [
+                ("return_url", returnUrl->JSON.Encode.string),
+                ("redirect", "always"->JSON.Encode.string),
+              ]
+              ->Dict.fromArray
+              ->JSON.Encode.object,
+            ),
+          ]->getJsonFromArrayOfJson
+        let res = await hyper.confirmPayment(confirmParams)
+        let status = res->getDictFromJsonObject->getOptionString("status")
+        switch status {
+        | Some(str) =>
+          switch str {
+          | "failed" => setPaymentStatus(_ => FAILED("Failed"))
+          | "succeeded" => setPaymentStatus(_ => SUCCESS)
+          | _ => setPaymentStatus(_ => CUSTOMSTATE)
           }
-
-        | _ => ()
+        | None => setPaymentStatus(_ => CUSTOMSTATE)
         }
-        setClientSecret(_ => None)
-
-        setError(_ => errorMsg)
-        setBtnState(_ => Button.Normal)
-
-        resolve()
-      })
-      ->ignore
+      } catch {
+      | Exn.Error(e) => {
+          let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+          let str = err->String.replace("\"", "")->String.replace("\"", "")
+          if str == "Something went wrong" {
+            setPaymentStatus(_ => CUSTOMSTATE)
+            setError(_ => None)
+          } else {
+            setPaymentStatus(_ => FAILED(err))
+            setError(_ => Some(err))
+          }
+        }
+      }
+      setClientSecret(_ => None)
+      setBtnState(_ => Button.Normal)
     }
+
     React.useEffect1(() => {
       hyper.retrievePaymentIntent(clientSecret)
       ->then(_ => {
@@ -234,7 +229,7 @@ module CheckoutForm = {
               customButtonStyle={`p-1 mt-2 w-full rounded-md ${primaryColor}`}
               onClick={_ => {
                 setBtnState(_ => Button.Loading)
-                handleSubmit()
+                handleSubmit()->ignore
               }}
             />
           </div>
