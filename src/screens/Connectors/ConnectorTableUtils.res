@@ -61,7 +61,7 @@ let connectorStatusStyle = connectorStatus =>
   | _ => "text-grey-800 opacity-50"
   }
 
-let getTableCell = (connectorType: ConnectorTypes.connector) => {
+let getTableCell = (~connectorType: ConnectorTypes.connector=Processor, ()) => {
   let getCell = (connector: connectorPayload, colType): Table.cell => {
     switch colType {
     | Name =>
@@ -129,7 +129,7 @@ let connectorEntity = (path: string, ~permission: CommonAuthTypes.authorization)
     ~getObjects=getPreviouslyConnectedList,
     ~defaultColumns,
     ~getHeading,
-    ~getCell=getTableCell(Processor),
+    ~getCell=getTableCell(~connectorType=Processor, ()),
     ~dataKey="",
     ~getShowLink={
       connec =>
