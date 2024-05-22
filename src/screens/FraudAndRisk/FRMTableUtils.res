@@ -20,7 +20,7 @@ let connectorEntity = (path: string, ~permission: CommonAuthTypes.authorization)
     ~getObjects=getPreviouslyConnectedList,
     ~defaultColumns=ConnectorTableUtils.defaultColumns,
     ~getHeading=ConnectorTableUtils.getHeading,
-    ~getCell=ConnectorTableUtils.getCell,
+    ~getCell=ConnectorTableUtils.getTableCell(~connectorType=FRMPlayer, ()),
     ~dataKey="",
     ~getShowLink={
       connec =>
