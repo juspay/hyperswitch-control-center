@@ -73,6 +73,8 @@ module RefundInfo = {
 
 @react.component
 let make = (~id) => {
+  open LogicUtils
+  open HSwitchOrderUtils
   let getURL = APIUtils.useGetURL()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -86,6 +88,7 @@ let make = (~id) => {
   let showToast = ToastState.useShowToast()
   let paymentId =
     refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
+
   let fetchRefundData = async () => {
     try {
       let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id), ())
@@ -125,9 +128,24 @@ let make = (~id) => {
     None
   })
 
+  let showSyncButton = React.useCallback1(_ => {
+    let refundDict = refundData->getDictFromJsonObject
+    let status = refundDict->getString("status", "")->statusVariantMapper
+
+    !(id->isTestData) &&
+    status !== Succeeded &&
+    status !== Failed &&
+    refundDict->Dict.keysToArray->Array.length > 0
+  }, [refundData])
+
+  let syncData = () => {
+    fetchRefundData()->ignore
+    showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
+  }
+
   <div className="flex flex-col overflow-scroll">
-    <div className="mb-4 flex justify-between">
-      <div className="flex items-center">
+    <div className="flex justify-between w-full">
+      <div className="flex items-center justify-between w-full">
         <div>
           <PageUtils.PageHeading title="Refunds" />
           <BreadCrumbNavigation
@@ -136,7 +154,20 @@ let make = (~id) => {
             cursorStyle="cursor-pointer"
           />
         </div>
-        <div />
+        <UIUtils.RenderIf condition={showSyncButton()}>
+          <ACLButton
+            access={userPermissionJson.operationsView}
+            text="Sync"
+            leftIcon={Button.CustomIcon(
+              <Icon
+                name="sync" className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+              />,
+            )}
+            customButtonStyle="!w-fit !px-4"
+            buttonType={Primary}
+            onClick={_ => syncData()}
+          />
+        </UIUtils.RenderIf>
       </div>
     </div>
     <PageLoaderWrapper

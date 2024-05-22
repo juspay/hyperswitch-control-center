@@ -30,7 +30,7 @@ type refundsColType =
   | MetaData
   | ConnectorName
 
-let defaultColumns = [RefundId, Amount, RefundStatus, PaymentId, Created]
+let defaultColumns = [RefundId, ConnectorName, Amount, RefundStatus, PaymentId, Created]
 
 let allColumns = [
   Amount,
