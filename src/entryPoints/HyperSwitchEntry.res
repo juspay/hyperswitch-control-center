@@ -27,11 +27,11 @@ module HyperSwitchEntryComponent = {
       Window.appendStyle(value)
     }
 
-    let configureFavIcon = faviconUrl => {
+    let configureFavIcon = (faviconUrl: option<string>) => {
       try {
         open DOMUtils
         let a = createElement(DOMUtils.document, "link")
-        let _ = setAttribute(a, "href", `${faviconUrl}`)
+        let _ = setAttribute(a, "href", `${faviconUrl->Option.getOr("/HyperswitchFavicon.png")}`)
         let _ = setAttribute(a, "rel", "shortcut icon")
         let _ = setAttribute(a, "type", "image/x-icon")
         let _ = appendHead(a)
@@ -48,7 +48,7 @@ module HyperSwitchEntryComponent = {
         let value: urlConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
           mixpanelToken: dict->getString("mixpanelToken", ""),
-          faviconUrl: dict->getString("favicon_url", "/HyperswitchFavicon.png"),
+          faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
           logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
         }

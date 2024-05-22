@@ -73,30 +73,57 @@ module RefundInfo = {
 
 @react.component
 let make = (~id) => {
+  let getURL = APIUtils.useGetURL()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading
   )
-  let (_screenStateForOrder, setScreenStateForOrder) = React.useState(_ =>
-    PageLoaderWrapper.Loading
-  )
+  let (refundData, setRefundData) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (offset, setOffset) = React.useState(_ => 0)
   let (orderData, setOrdersData) = React.useState(_ => [])
-  let refundData = RefundHook.useGetRefundData(id, setScreenStateForRefund)
-
+  let fetchDetails = APIUtils.useGetMethod()
+  let showToast = ToastState.useShowToast()
   let paymentId =
     refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
+  let fetchRefundData = async () => {
+    try {
+      let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id), ())
+      let refundData = await fetchDetails(refundUrl)
+      let paymentId =
+        refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
+      let orderUrl = getURL(
+        ~entityName=ORDERS,
+        ~methodType=Get,
+        ~id=Some(paymentId),
+        ~queryParamerters=Some("expand_attempts=true"),
+        (),
+      )
+      let orderData = await fetchDetails(orderUrl)
+      let paymentArray =
+        [orderData]->JSON.Encode.array->LogicUtils.getArrayDataFromJson(OrderEntity.itemToObjMapper)
+      setOrdersData(_ => paymentArray->Array.map(Nullable.make))
+      setRefundData(_ => refundData)
+      setScreenStateForRefund(_ => Success)
+    } catch {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
+      | Some(message) =>
+        if message->String.includes("HE_02") {
+          setScreenStateForRefund(_ => Custom)
+        } else {
+          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError, ())
+          setScreenStateForRefund(_ => Error("Failed to Fetch!"))
+        }
 
-  let orderDataForPaymentId = OrderHooks.useGetOrdersData(paymentId, 0, setScreenStateForOrder)
-
-  React.useEffect1(() => {
-    let jsonArray = [orderDataForPaymentId]
-    let paymentArray =
-      jsonArray->JSON.Encode.array->LogicUtils.getArrayDataFromJson(OrderEntity.itemToObjMapper)
-    setOrdersData(_ => paymentArray->Array.map(Nullable.make))
+      | None => setScreenStateForRefund(_ => Error("Failed to Fetch!"))
+      }
+    }
+  }
+  React.useEffect0(() => {
+    fetchRefundData()->ignore
     None
-  }, [orderDataForPaymentId])
+  })
 
   <div className="flex flex-col overflow-scroll">
     <div className="mb-4 flex justify-between">

@@ -508,7 +508,7 @@ module FraudRiskBannerDetails = {
 
         let _ = await updateDetails(ordersDecisionUrl, Dict.make()->JSON.Encode.object, Post, ())
         showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
-        refetch()
+        refetch()->ignore
       } catch {
       | _ => ()
       }
@@ -613,16 +613,46 @@ let make = (~id) => {
   let getURL = useGetURL()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (refetchCounter, setRefetchCounter) = React.useState(_ => 0)
   let (showModal, setShowModal) = React.useState(_ => false)
+  let (orderData, setOrderData) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
   let frmDetailsRef = React.useRef(Nullable.null)
 
-  let orderData = OrderHooks.useGetOrdersData(id, refetchCounter, setScreenState)
+  let fetchDetails = useGetMethod()
+  let fetchOrderDetails = async url => {
+    try {
+      setScreenState(_ => Loading)
+      let res = await fetchDetails(url)
+      setOrderData(_ => res)
+      setScreenState(_ => Success)
+    } catch {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
+      | Some(message) =>
+        if message->String.includes("HE_02") {
+          setScreenState(_ => Custom)
+        } else {
+          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError, ())
+          setScreenState(_ => Error("Failed to Fetch!"))
+        }
+
+      | None => setScreenState(_ => Error("Failed to Fetch!"))
+      }
+    }
+  }
+  React.useEffect0(() => {
+    let accountUrl = getURL(
+      ~entityName=ORDERS,
+      ~methodType=Get,
+      ~id=Some(id),
+      ~queryParamerters=Some("expand_attempts=true"),
+      (),
+    )
+    fetchOrderDetails(accountUrl)->ignore
+    None
+  })
   let order = OrderEntity.itemToObjMapper(orderData->getDictFromJsonObject)
 
   let refundData =
@@ -647,10 +677,6 @@ let make = (~id) => {
     orderData->getDictFromJsonObject->getString("created", "")
   }, [orderData])
 
-  let refetch = React.useCallback1(() => {
-    setRefetchCounter(p => p + 1)
-  }, [setRefetchCounter])
-
   let openRefundModal = _ => {
     setShowModal(_ => true)
   }
@@ -670,9 +696,8 @@ let make = (~id) => {
         ~queryParamerters=Some("force_sync=true"),
         (),
       )
-      let _ = await fetchDetails(getRefreshStatusUrl)
+      let _ = await fetchOrderDetails(getRefreshStatusUrl)
       showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
-      refetch()
     } catch {
     | _ => ()
     }
@@ -705,7 +730,9 @@ let make = (~id) => {
         </UIUtils.RenderIf>
         <div />
       </div>
-      <OrderActions orderDict={orderData->getDictFromJsonObject} refetch showModal setShowModal />
+      <OrderActions
+        orderDict={orderData->getDictFromJsonObject} refetch={refreshStatus} showModal setShowModal
+      />
     </div>
     <UIUtils.RenderIf condition={order.frm_message.frm_status === "fraud"}>
       <FraudRiskBanner frmMessage={order.frm_message} refElement=frmDetailsRef />
@@ -764,7 +791,7 @@ let make = (~id) => {
                 title: "FRM Details",
                 renderContent: () => {
                   <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
-                    <FraudRiskBannerDetails order refetch />
+                    <FraudRiskBannerDetails order refetch={refreshStatus} />
                   </div>
                 },
                 renderContentOnTop: None,
