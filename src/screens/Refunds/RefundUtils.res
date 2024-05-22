@@ -145,15 +145,13 @@ let getConditionalFilter = (key, dict, filterValues) => {
   let filtersArr = switch key->getFilterTypeFromString {
   | #connector_label => {
       let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-      let new_arr = []
-      arr->Array.forEach(item => {
-        let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(item, [])
-        connectorLabelArr->Array.forEach(item => {
-          let connector_label = item->getDictFromJsonObject->getString("connector_label", "")
-          new_arr->Array.push(connector_label)
+      let newArr = arr->Array.flatMap(connector => {
+        let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
+        connectorLabelArr->Array.map(item => {
+          item->getDictFromJsonObject->getString("connector_label", "")
         })
       })
-      new_arr
+      newArr
     }
   | _ => []
   }
@@ -164,20 +162,19 @@ let getConditionalFilter = (key, dict, filterValues) => {
 let getOptionsForRefundFilters = (dict, filterValues) => {
   open LogicUtils
   let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  let new_arr: array<FilterSelectBox.dropdownOption> = []
-  arr->Array.forEach(item => {
-    let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(item, [])
-    connectorLabelArr->Array.forEach(item => {
+  let newArr = arr->Array.flatMap(connector => {
+    let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
+    connectorLabelArr->Array.map(item => {
       let label = item->getDictFromJsonObject->getString("connector_label", "")
       let value = item->getDictFromJsonObject->getString("merchant_connector_id", "")
       let option: FilterSelectBox.dropdownOption = {
         label,
         value,
       }
-      new_arr->Array.push(option)
+      option
     })
   })
-  new_arr
+  newArr
 }
 
 let itemToObjMapper = dict => {
