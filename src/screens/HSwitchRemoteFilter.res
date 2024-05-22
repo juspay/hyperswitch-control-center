@@ -7,7 +7,7 @@ let formateDateString = date => {
   date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]")
 }
 
-let getDateFilteredObject = () => {
+let getDateFilteredObject = (~range=7, ()) => {
   let currentDate = Date.make()
 
   let end_time = currentDate->formateDateString
@@ -19,7 +19,7 @@ let getDateFilteredObject = () => {
       ~date=currentDate->Js.Date.getDate,
       (),
     )
-    ->Js.Date.setDate((currentDate->Js.Date.getDate->Float.toInt - 7)->Int.toFloat)
+    ->Js.Date.setDate((currentDate->Js.Date.getDate->Float.toInt - range)->Int.toFloat)
     ->Js.Date.fromFloat
     ->formateDateString
 
@@ -29,13 +29,19 @@ let getDateFilteredObject = () => {
   }
 }
 
-let useSetInitialFilters = (~updateExistingKeys, ~startTimeFilterKey, ~endTimeFilterKey) => {
+let useSetInitialFilters = (
+  ~updateExistingKeys,
+  ~startTimeFilterKey,
+  ~endTimeFilterKey,
+  ~range=7,
+  (),
+) => {
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
     let inititalSearchParam = Dict.make()
 
-    let defaultDate = getDateFilteredObject()
+    let defaultDate = getDateFilteredObject(~range, ())
 
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       [
@@ -168,6 +174,21 @@ module RemoteTableFilters = {
       None
     }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
+
+    let setInitialFilters = useSetInitialFilters(
+      ~updateExistingKeys,
+      ~startTimeFilterKey,
+      ~endTimeFilterKey,
+      ~range=30,
+      (),
+    )
+
+    React.useEffect1(() => {
+      if filterValueJson->Dict.keysToArray->Array.length < 1 {
+        setInitialFilters()
+      }
+      None
+    }, [filterDataJson])
 
     React.useEffect1(() => {
       if filterValueJson->Dict.keysToArray->Array.length != 0 {
