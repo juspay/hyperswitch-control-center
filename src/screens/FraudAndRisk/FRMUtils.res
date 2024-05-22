@@ -22,14 +22,14 @@ let toggleDefaultStyle = "mb-2 relative inline-flex flex-shrink-0 h-6 w-12 borde
 let accordionDefaultStyle = "border pointer-events-none inline-block h-3 w-3 rounded-full bg-white dark:bg-white shadow-lg transform ring-0 transition ease-in-out duration-200"
 let size = "w-14 h-14 rounded-full"
 
-let generateInitialValuesDict = (~selectedFRMInfo, ~isLiveMode, ()) => {
+let generateInitialValuesDict = (~selectedFRMName, ~isLiveMode, ()) => {
   let frmAccountDetailsDict =
     [
-      ("auth_type", selectedFRMInfo.name->getFRMAuthType->JSON.Encode.string),
+      ("auth_type", selectedFRMName->getFRMAuthType->JSON.Encode.string),
     ]->LogicUtils.getJsonFromArrayOfJson
 
   [
-    ("connector_name", selectedFRMInfo.name->getFRMNameString->JSON.Encode.string),
+    ("connector_name", selectedFRMName->ConnectorUtils.getConnectorNameString->JSON.Encode.string),
     ("connector_type", "payment_vas"->JSON.Encode.string),
     ("disabled", false->JSON.Encode.bool),
     ("test_mode", !isLiveMode->JSON.Encode.bool),

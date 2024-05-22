@@ -9,6 +9,7 @@ type connectorIntegrationField = {
   testValidationRegex?: string,
   liveExpectedFormat?: string,
   testExpectedFormat?: string,
+  description?: string,
 }
 
 type metadataFields = {
@@ -84,9 +85,14 @@ type processorTypes =
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
+type frmTypes =
+  | Signifyd
+  | Riskifyed
+
 type connectorTypes =
   | Processors(processorTypes)
   | ThreeDsAuthenticator(threeDsAuthenticatorTypes)
+  | FRM(frmTypes)
   | UnknownConnector(string)
 
 type paymentMethod =

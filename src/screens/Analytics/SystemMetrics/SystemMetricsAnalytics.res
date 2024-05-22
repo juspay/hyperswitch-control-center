@@ -244,6 +244,7 @@ module SystemMetricsAnalytics = {
       ~updateExistingKeys,
       ~startTimeFilterKey,
       ~endTimeFilterKey,
+      (),
     )
 
     React.useEffect0(() => {

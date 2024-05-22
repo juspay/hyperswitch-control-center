@@ -291,7 +291,8 @@ let make = () => {
 
   React.useEffect0(() => {
     let onKeyPress = event => {
-      event->ReactEvent.Keyboard.preventDefault
+      // TODO: Check this again as it is stopping all the user inputs from keyboard
+      //  event->ReactEvent.Keyboard.preventDefault
       let metaKey = event->ReactEvent.Keyboard.metaKey
       let keyPressed = event->ReactEvent.Keyboard.key
       let ctrlKey = event->ReactEvent.Keyboard.ctrlKey

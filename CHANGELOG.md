@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.22.0
+
+### Bug Fixes
+
+- Added dummy connector image ([#680](https://github.com/juspay/hyperswitch-control-center/pull/680)) ([`50bbf60`](https://github.com/juspay/hyperswitch-control-center/commit/50bbf608de2dfaddc299195637bf0495ef3c137c))
+- Checkbox click & text click select custom role ([#666](https://github.com/juspay/hyperswitch-control-center/pull/666)) ([`c9147ec`](https://github.com/juspay/hyperswitch-control-center/commit/c9147ec8bdf87cc1452198492bf7f20402c358b3))
+- Sdk return url ([#684](https://github.com/juspay/hyperswitch-control-center/pull/684)) ([`1103381`](https://github.com/juspay/hyperswitch-control-center/commit/110338180f941c5bfcd503b38922d6cba3c96993))
+- Input box issue fix ([#686](https://github.com/juspay/hyperswitch-control-center/pull/686)) ([`5e229c9`](https://github.com/juspay/hyperswitch-control-center/commit/5e229c9986c65a3130d468bcff054f74f8bffb2f))
+
+### Miscellaneous Tasks
+
+- Frm type changes ([#679](https://github.com/juspay/hyperswitch-control-center/pull/679)) ([`8a5bf2c`](https://github.com/juspay/hyperswitch-control-center/commit/8a5bf2cdf3841b7ed1c618719c9dca38e14b514d))
+
+**Full Changelog:** [`2024.05.21.0...2024.05.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.21.0...2024.05.22.0)
+
+- - -
+
 ## 2024.05.21.0
 
 ### Bug Fixes
