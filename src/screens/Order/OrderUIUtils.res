@@ -170,10 +170,7 @@ let getConditionalFilter = (key, dict, filterValues) => {
   filtersArr
 }
 
-let getMerchantIdforConnector: (
-  Js.Dict.t<'a>,
-  Js.Dict.t<'a>,
-) => array<FilterSelectBox.dropdownOption> = (dict, filterValues) => {
+let getOptionsForOrderFilters = (dict, filterValues) => {
   open LogicUtils
   let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   let new_arr: array<FilterSelectBox.dropdownOption> = []
@@ -241,7 +238,7 @@ let initialFilters = (json, filtervalues) => {
     let title = `Select ${key->snakeToTitle}`
 
     let options = switch key->getFilterTypeFromString {
-    | #connector_label => getMerchantIdforConnector(filterDict, filtervalues)
+    | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
     | _ => values->FilterSelectBox.makeOptions
     }
 
