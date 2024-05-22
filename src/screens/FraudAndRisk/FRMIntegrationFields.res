@@ -44,11 +44,10 @@ module AdvanceSettings = {
 }
 
 module IntegrationFieldsForm = {
-  open FRMTypes
   open FRMUtils
   @react.component
   let make = (
-    ~selectedFRMInfo,
+    ~selectedFRMName,
     ~initialValues,
     ~onSubmit,
     ~renderCountrySelector=true,
@@ -65,7 +64,7 @@ module IntegrationFieldsForm = {
 
     let validateRequiredFields = (
       valuesFlattenJson,
-      ~fields: array<frmIntegrationField>,
+      ~fields: array<ConnectorTypes.connectorIntegrationField>,
       ~errors,
     ) => {
       fields->Array.forEach(field => {
@@ -76,8 +75,8 @@ module IntegrationFieldsForm = {
           ->Option.getOr(""->JSON.Encode.string)
           ->LogicUtils.getStringFromJson("")
 
-        if field.isRequired && value->String.length === 0 {
-          Dict.set(errors, key, `Please enter ${field.label}`->JSON.Encode.string)
+        if field.isRequired->Option.getOr(true) && value->String.length === 0 {
+          Dict.set(errors, key, `Please enter ${field.label->Option.getOr("")}`->JSON.Encode.string)
         }
       })
     }
@@ -89,11 +88,16 @@ module IntegrationFieldsForm = {
       }
     }
 
+    let selectedFRMInfo = selectedFRMName->ConnectorUtils.getConnectorInfo
+
     let validate = values => {
       let errors = Dict.make()
       let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
       //checking for required fields
-      valuesFlattenJson->validateRequiredFields(~fields=selectedFRMInfo.connectorFields, ~errors)
+      valuesFlattenJson->validateRequiredFields(
+        ~fields=selectedFRMInfo.validate->Option.getOr([]),
+        ~errors,
+      )
 
       if renderCountrySelector {
         valuesFlattenJson->validateCountryCurrency(~errors)
@@ -106,7 +110,10 @@ module IntegrationFieldsForm = {
       let errors = Dict.make()
       let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
       //checking for required fields
-      valuesFlattenJson->validateRequiredFields(~fields=selectedFRMInfo.connectorFields, ~errors)
+      valuesFlattenJson->validateRequiredFields(
+        ~fields=selectedFRMInfo.validate->Option.getOr([]),
+        ~errors,
+      )
 
       if renderCountrySelector {
         valuesFlattenJson->validateCountryCurrency(~errors)
@@ -120,19 +127,19 @@ module IntegrationFieldsForm = {
         <div className="grid grid-cols-2 flex-1 gap-5">
           <div className="flex flex-col gap-3">
             <AdvanceSettings isUpdateFlow frmName renderCountrySelector />
-            {selectedFRMInfo.connectorFields
+            {selectedFRMInfo.validate
+            ->Option.getOr([])
             ->Array.mapWithIndex((field, index) => {
-              let parse = field.encodeToBase64 ? base64Parse : leadingSpaceStrParser
-              let format = field.encodeToBase64 ? Some(base64Format) : None
-
+              let parse =
+                field.encodeToBase64->Option.getOr(false) ? base64Parse : leadingSpaceStrParser
+              let format = field.encodeToBase64->Option.getOr(false) ? Some(base64Format) : None
               <div key={index->Int.toString}>
                 <FormRenderer.FieldRenderer
                   labelClass="font-semibold !text-black"
                   field={FormRenderer.makeFieldInfo(
-                    ~label=field.label,
+                    ~label=field.label->Option.getOr(""),
                     ~name={field.name},
-                    ~placeholder=field.placeholder,
-                    ~customInput=field.inputType,
+                    ~placeholder=field.placeholder->Option.getOr(""),
                     ~description=field.description->Option.getOr(""),
                     ~isRequired=true,
                     ~parse,
@@ -169,14 +176,13 @@ module IntegrationFieldsForm = {
 @react.component
 let make = (
   ~setCurrentStep,
-  ~selectedFRMInfo,
+  ~selectedFRMName,
   ~retrivedValues=None,
   ~setInitialValues,
   ~isUpdateFlow,
 ) => {
   open FRMUtils
   open FRMInfo
-  open FRMTypes
   open APIUtils
   open Promise
   open CommonAuthHooks
@@ -200,7 +206,7 @@ let make = (
 
         frmAccountDetailsObj->Dict.set(
           "auth_type",
-          selectedFRMInfo.name->getFRMAuthType->JSON.Encode.string,
+          selectedFRMName->getFRMAuthType->JSON.Encode.string,
         )
 
         initialValuesObj->Dict.set(
@@ -212,7 +218,7 @@ let make = (
       }
 
     | None =>
-      generateInitialValuesDict(~selectedFRMInfo, ~isLiveMode={featureFlagDetails.isLiveMode}, ())
+      generateInitialValuesDict(~selectedFRMName, ~isLiveMode={featureFlagDetails.isLiveMode}, ())
     }
   }, [retrivedValues])
 
@@ -283,6 +289,6 @@ let make = (
   }
 
   <IntegrationFieldsForm
-    selectedFRMInfo initialValues onSubmit pageState isUpdateFlow setCurrentStep frmName
+    selectedFRMName initialValues onSubmit pageState isUpdateFlow setCurrentStep frmName
   />
 }

@@ -61,46 +61,54 @@ let connectorStatusStyle = connectorStatus =>
   | _ => "text-grey-800 opacity-50"
   }
 
-let getCell = (connector: connectorPayload, colType): Table.cell => {
-  switch colType {
-  | Name =>
-    CustomCell(<HelperComponents.ConnectorCustomCell connectorName=connector.connector_name />, "")
-  | TestMode => Text(connector.test_mode ? "True" : "False")
-  | Disabled =>
-    Label({
-      title: connector.disabled ? "DISABLED" : "ENABLED",
-      color: connector.disabled ? LabelRed : LabelGreen,
-    })
+let getTableCell = (~connectorType: ConnectorTypes.connector=Processor, ()) => {
+  let getCell = (connector: connectorPayload, colType): Table.cell => {
+    switch colType {
+    | Name =>
+      CustomCell(
+        <HelperComponents.ConnectorCustomCell
+          connectorName=connector.connector_name connectorType
+        />,
+        "",
+      )
+    | TestMode => Text(connector.test_mode ? "True" : "False")
+    | Disabled =>
+      Label({
+        title: connector.disabled ? "DISABLED" : "ENABLED",
+        color: connector.disabled ? LabelRed : LabelGreen,
+      })
 
-  | Status =>
-    Table.CustomCell(
-      <div className={`font-semibold ${connector.status->connectorStatusStyle}`}>
-        {connector.status->String.toUpperCase->React.string}
-      </div>,
-      "",
-    )
-  | ProfileId => DisplayCopyCell(connector.profile_id)
-  | ProfileName =>
-    Table.CustomCell(
-      <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
-      "",
-    )
-  | ConnectorLabel => Text(connector.connector_label)
+    | Status =>
+      Table.CustomCell(
+        <div className={`font-semibold ${connector.status->connectorStatusStyle}`}>
+          {connector.status->String.toUpperCase->React.string}
+        </div>,
+        "",
+      )
+    | ProfileId => DisplayCopyCell(connector.profile_id)
+    | ProfileName =>
+      Table.CustomCell(
+        <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
+        "",
+      )
+    | ConnectorLabel => Text(connector.connector_label)
 
-  // | Actions =>
-  //   Table.CustomCell(<ConnectorActions connector_id={connector.merchant_connector_id} />, "")
-  | Actions => Table.CustomCell(<div />, "")
-  | PaymentMethods =>
-    Table.CustomCell(
-      <div>
-        {connector.payment_methods_enabled
-        ->getAllPaymentMethods
-        ->Array.joinWith(", ")
-        ->React.string}
-      </div>,
-      "",
-    )
+    // | Actions =>
+    //   Table.CustomCell(<ConnectorActions connector_id={connector.merchant_connector_id} />, "")
+    | Actions => Table.CustomCell(<div />, "")
+    | PaymentMethods =>
+      Table.CustomCell(
+        <div>
+          {connector.payment_methods_enabled
+          ->getAllPaymentMethods
+          ->Array.joinWith(", ")
+          ->React.string}
+        </div>,
+        "",
+      )
+    }
   }
+  getCell
 }
 
 let comparatorFunction = (connector1: connectorPayload, connector2: connectorPayload) => {
@@ -121,7 +129,7 @@ let connectorEntity = (path: string, ~permission: CommonAuthTypes.authorization)
     ~getObjects=getPreviouslyConnectedList,
     ~defaultColumns,
     ~getHeading,
-    ~getCell,
+    ~getCell=getTableCell(~connectorType=Processor, ()),
     ~dataKey="",
     ~getShowLink={
       connec =>
