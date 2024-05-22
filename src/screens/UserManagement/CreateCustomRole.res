@@ -21,15 +21,9 @@ module RenderCustomRoles = {
 
     <UIUtils.RenderIf
       condition={groupName->PermissionUtils.mapStringToPermissionType !== OrganizationManage}>
-      <div className="flex gap-6 items-start">
+      <div className="flex gap-6 items-start cursor-pointer" onClick={_ => onClickGroup(groupName)}>
         <div className="mt-1">
-          <CheckBoxIcon
-            isSelected={checkboxSelected}
-            setIsSelected={_ => {
-              onClickGroup(groupName)
-            }}
-            size={Large}
-          />
+          <CheckBoxIcon isSelected={checkboxSelected} size={Large} />
         </div>
         <div className="flex flex-col gap-3 items-start">
           <div className="font-semibold"> {heading->React.string} </div>

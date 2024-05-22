@@ -20,8 +20,9 @@ module CustomerInfo = {
             className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
-              <UIUtils.RenderIf condition={!(excludeColKeys->Array.includes(colType))}>
-                <div className={`flex ${widthClass} items-center`} key={Int.toString(i)}>
+              <UIUtils.RenderIf
+                condition={!(excludeColKeys->Array.includes(colType))} key={Int.toString(i)}>
+                <div className={`flex ${widthClass} items-center`}>
                   <OrderUtils.DisplayKeyValueParams
                     heading={getHeading(colType)}
                     value={getCell(data, colType)}
