@@ -344,12 +344,7 @@ let make = (
                                         }
                                         `${activeClasses} font-medium`
                                       }>
-                                      <div className="mr-5">
-                                        {option.inputNames
-                                        ->Array.get(0)
-                                        ->Option.getOr("")
-                                        ->React.string}
-                                      </div>
+                                      <div className="mr-5"> {option.label->React.string} </div>
                                     </button>
                                   </div>}
                               </Menu.Item>
