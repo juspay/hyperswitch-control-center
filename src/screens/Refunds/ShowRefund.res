@@ -74,66 +74,74 @@ module RefundInfo = {
 @react.component
 let make = (~id) => {
   open LogicUtils
-  open APIUtils
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  open HSwitchOrderUtils
+  let getURL = APIUtils.useGetURL()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading
   )
-  let showToast = ToastState.useShowToast()
-  let (_screenStateForOrder, setScreenStateForOrder) = React.useState(_ =>
-    PageLoaderWrapper.Loading
-  )
+  let (refundData, setRefundData) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (offset, setOffset) = React.useState(_ => 0)
   let (orderData, setOrdersData) = React.useState(_ => [])
-  let refundData = RefundHook.useGetRefundData(id, setScreenStateForRefund)
-  let (refetchCounter, setRefetchCounter) = React.useState(_ => 0)
+  let fetchDetails = APIUtils.useGetMethod()
+  let showToast = ToastState.useShowToast()
   let paymentId =
     refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
 
-  let orderDataForPaymentId = OrderHooks.useGetOrdersData(
-    paymentId,
-    refetchCounter,
-    setScreenStateForOrder,
-  )
-
-  open HSwitchOrderUtils
-  let showSyncButton = React.useCallback1(_ => {
-    let status = refundData->getDictFromJsonObject->getString("status", "")->statusVariantMapper
-
-    !(id->isTestData) && status !== Succeeded && status !== Failed
-  }, [refundData])
-
-  let refetch = React.useCallback1(() => {
-    setRefetchCounter(p => p + 1)
-  }, [setRefetchCounter])
-
-  let refreshStatus = async () => {
+  let fetchRefundData = async () => {
     try {
-      let getRefreshStatusUrl = getURL(
-        ~entityName=REFUNDS,
+      let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id), ())
+      let refundData = await fetchDetails(refundUrl)
+      let paymentId =
+        refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
+      let orderUrl = getURL(
+        ~entityName=ORDERS,
         ~methodType=Get,
-        ~id=Some(id),
-        ~queryParamerters=Some("force_sync=true"),
+        ~id=Some(paymentId),
+        ~queryParamerters=Some("expand_attempts=true"),
         (),
       )
-      let _ = await fetchDetails(getRefreshStatusUrl)
-      showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
-      refetch()
+      let orderData = await fetchDetails(orderUrl)
+      let paymentArray =
+        [orderData]->JSON.Encode.array->LogicUtils.getArrayDataFromJson(OrderEntity.itemToObjMapper)
+      setOrdersData(_ => paymentArray->Array.map(Nullable.make))
+      setRefundData(_ => refundData)
+      setScreenStateForRefund(_ => Success)
     } catch {
-    | _ => ()
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
+      | Some(message) =>
+        if message->String.includes("HE_02") {
+          setScreenStateForRefund(_ => Custom)
+        } else {
+          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError, ())
+          setScreenStateForRefund(_ => Error("Failed to Fetch!"))
+        }
+
+      | None => setScreenStateForRefund(_ => Error("Failed to Fetch!"))
+      }
     }
   }
-
-  React.useEffect1(() => {
-    let jsonArray = [orderDataForPaymentId]
-    let paymentArray =
-      jsonArray->JSON.Encode.array->LogicUtils.getArrayDataFromJson(OrderEntity.itemToObjMapper)
-    setOrdersData(_ => paymentArray->Array.map(Nullable.make))
+  React.useEffect0(() => {
+    fetchRefundData()->ignore
     None
-  }, [orderDataForPaymentId])
+  })
+
+  let showSyncButton = React.useCallback1(_ => {
+    let refundDict = refundData->getDictFromJsonObject
+    let status = refundDict->getString("status", "")->statusVariantMapper
+
+    !(id->isTestData) &&
+    status !== Succeeded &&
+    status !== Failed &&
+    refundDict->Dict.keysToArray->Array.length > 0
+  }, [refundData])
+
+  let syncData = () => {
+    fetchRefundData()->ignore
+    showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
+  }
 
   <div className="flex flex-col overflow-scroll">
     <div className="flex justify-between w-full">
@@ -146,8 +154,7 @@ let make = (~id) => {
             cursorStyle="cursor-pointer"
           />
         </div>
-        <UIUtils.RenderIf
-          condition={showSyncButton() && screenStateForRefund === PageLoaderWrapper.Success}>
+        <UIUtils.RenderIf condition={showSyncButton()}>
           <ACLButton
             access={userPermissionJson.operationsView}
             text="Sync"
@@ -158,7 +165,7 @@ let make = (~id) => {
             )}
             customButtonStyle="!w-fit !px-4"
             buttonType={Primary}
-            onClick={_ => refreshStatus()->ignore}
+            onClick={_ => syncData()}
           />
         </UIUtils.RenderIf>
       </div>

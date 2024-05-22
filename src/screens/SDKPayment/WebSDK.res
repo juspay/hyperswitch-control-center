@@ -163,9 +163,13 @@ module CheckoutForm = {
         [
           (
             "confirmParams",
-            [("return_url", returnUrl->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object,
+            [
+              ("return_url", returnUrl->JSON.Encode.string),
+              ("redirect", "always"->JSON.Encode.string),
+            ]
+            ->Dict.fromArray
+            ->JSON.Encode.object,
           ),
-          ("redirect", "always"->JSON.Encode.string),
         ]->LogicUtils.getJsonFromArrayOfJson
       hyper.confirmPayment(confirmParams)
       ->then(val => {

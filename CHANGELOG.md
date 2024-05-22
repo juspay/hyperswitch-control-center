@@ -3,6 +3,53 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.20.0
+
+### Bug Fixes
+
+- Redirect to be send inside confirm params ([#664](https://github.com/juspay/hyperswitch-control-center/pull/664)) ([`db770dc`](https://github.com/juspay/hyperswitch-control-center/commit/db770dcd63dbb4a141758d9fd9117208d99b10f5))
+
+**Full Changelog:** [`2024.05.19.0...2024.05.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.19.0...2024.05.20.0)
+
+- - -
+
+## 2024.05.19.0
+
+### Miscellaneous Tasks
+
+- Refactor payment hooks ([#661](https://github.com/juspay/hyperswitch-control-center/pull/661)) ([`9688b41`](https://github.com/juspay/hyperswitch-control-center/commit/9688b41a3543e5846e85f5ff068a3046a65a60b7))
+- Payment method table filters ([#659](https://github.com/juspay/hyperswitch-control-center/pull/659)) ([`e1e25da`](https://github.com/juspay/hyperswitch-control-center/commit/e1e25da9dc58173b5bb41965f34e4a3fc638a122))
+
+**Full Changelog:** [`2024.05.17.0...2024.05.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.17.0...2024.05.19.0)
+
+- - -
+
+## 2024.05.17.0
+
+### Bug Fixes
+
+- Totp switch merchant bug fix ([#655](https://github.com/juspay/hyperswitch-control-center/pull/655)) ([`d1830c5`](https://github.com/juspay/hyperswitch-control-center/commit/d1830c5da34e11cec8eaca62ed61c3f5726eb921))
+
+### Miscellaneous Tasks
+
+- Chore: added riskifyd ([#643](https://github.com/juspay/hyperswitch-control-center/pull/643)) ([`5ee1616`](https://github.com/juspay/hyperswitch-control-center/commit/5ee16164dc9ec89136f766703e2c94d95373d68f))
+
+**Full Changelog:** [`2024.05.16.0...2024.05.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.16.0...2024.05.17.0)
+
+- - -
+
+## 2024.05.16.0
+
+### Miscellaneous Tasks
+
+- Add workflow to check linked issue ([#650](https://github.com/juspay/hyperswitch-control-center/pull/650)) ([`840ef97`](https://github.com/juspay/hyperswitch-control-center/commit/840ef97e6edda6f8f972f5b965312f3a613f1775))
+- Update cypress workflow ([#652](https://github.com/juspay/hyperswitch-control-center/pull/652)) ([`69a1031`](https://github.com/juspay/hyperswitch-control-center/commit/69a1031196d6487117da456934eca4c5c23e10f6))
+- Update makefile ([`ad380c3`](https://github.com/juspay/hyperswitch-control-center/commit/ad380c3274fb028cde804d5e6176b2f2a0833442))
+
+**Full Changelog:** [`2024.05.15.1...2024.05.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.15.1...2024.05.16.0)
+
+- - -
+
 ## 2024.05.15.1
 
 ### Features

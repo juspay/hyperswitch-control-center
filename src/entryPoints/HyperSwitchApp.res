@@ -24,6 +24,7 @@ let make = () => {
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let enumDetails =
     enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -38,7 +39,6 @@ let make = () => {
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
     : "bg-orange-600/80 border-orange-500 text-grey-700"
 
-  let merchantDetailsTypedValue = useMerchantDetailsValue()
   let isReconEnabled = merchantDetailsTypedValue.recon_status === Active
 
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
@@ -85,27 +85,28 @@ let make = () => {
     }
   }
 
-  let fetchOnboardingSurveyDetails = async () => {
-    try {
-      let url = `${getURL(
-          ~entityName=USERS,
-          ~userType=#USER_DATA,
-          ~methodType=Get,
-          (),
-        )}?keys=OnboardingSurvey`
-      let res = await fetchDetails(url)
-      let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
-      let onboardingDetailsFilled =
-        firstValueFromArray->getDictFromJsonObject->getDictfromDict("OnboardingSurvey")
-      let val = onboardingDetailsFilled->Dict.keysToArray->Array.length === 0
-      setSurveyModal(_ => val)
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
+  // TODO: Move this to prod onboarding form
+  // let fetchOnboardingSurveyDetails = async () => {
+  //   try {
+  //     let url = `${getURL(
+  //         ~entityName=USERS,
+  //         ~userType=#USER_DATA,
+  //         ~methodType=Get,
+  //         (),
+  //       )}?keys=OnboardingSurvey`
+  //     let res = await fetchDetails(url)
+  //     let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
+  //     let onboardingDetailsFilled =
+  //       firstValueFromArray->getDictFromJsonObject->getDictfromDict("OnboardingSurvey")
+  //     let val = onboardingDetailsFilled->Dict.keysToArray->Array.length === 0
+  //     setSurveyModal(_ => val)
+  //   } catch {
+  //   | Exn.Error(e) => {
+  //       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+  //       Exn.raiseError(err)
+  //     }
+  //   }
+  // }
   let fetchPermissions = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#GET_PERMISSIONS, ~methodType=Get, ())
@@ -130,9 +131,10 @@ let make = () => {
       let _ = await fetchSwitchMerchantList()
       let permissionJson = await fetchPermissions()
 
-      if !featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
-        let _ = await fetchOnboardingSurveyDetails()
-      }
+      // TODO: Move this to prod onboarding form
+      // if !featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
+      //   let _ = await fetchOnboardingSurveyDetails()
+      // }
       if merchantId->isNonEmptyString {
         if (
           permissionJson.connectorsView === Access ||
@@ -464,13 +466,15 @@ let make = () => {
                           <AccessControl
                             permission=userPermissionJson.connectorsView
                             isEnabled={featureFlagDetails.configurePmts}>
-                            <EntityScaffold
-                              entityName="ConfigurePMTs"
-                              remainingPath
-                              renderList={() => <PaymentMethodList />}
-                              renderShow={profileId =>
-                                <PaymentSettings webhookOnly=false showFormOnly=false />}
-                            />
+                            <FilterContext key="ConfigurePmts" index="ConfigurePmts">
+                              <EntityScaffold
+                                entityName="ConfigurePMTs"
+                                remainingPath
+                                renderList={() => <PaymentMethodList />}
+                                renderShow={profileId =>
+                                  <PaymentSettings webhookOnly=false showFormOnly=false />}
+                              />
+                            </FilterContext>
                           </AccessControl>
                         | list{"quick-start"} => determineQuickStartPageState()
                         | list{"woocommerce"} => determineWooCommerce()
@@ -523,7 +527,7 @@ let make = () => {
               <RenderIf
                 condition={!featureFlagDetails.isLiveMode &&
                 userPermissionJson.merchantDetailsManage === Access &&
-                surveyModal}>
+                merchantDetailsTypedValue.merchant_name->Option.isNone}>
                 <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
               </RenderIf>
             </div>
