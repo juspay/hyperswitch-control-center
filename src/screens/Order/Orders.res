@@ -76,10 +76,6 @@ let make = (~previewOnly=false) => {
     }
   }
 
-  let isNonEmptyValue = value => {
-    value->Option.getOr(Dict.make())->Dict.toArray->Array.length > 0
-  }
-
   React.useEffect3(() => {
     if filters->isNonEmptyValue {
       fetchOrders()

@@ -16,7 +16,7 @@ let make = () => {
   let pageDetail = pageDetailDict->Dict.get("Refunds")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
 
-  React.useEffect3(() => {
+  let fetchRefunds = () => {
     switch filters {
     | Some(dict) =>
       let filters = Dict.make()
@@ -46,6 +46,12 @@ let make = () => {
       )
       ->ignore
     | _ => ()
+    }
+  }
+
+  React.useEffect3(() => {
+    if filters->OrderUIUtils.isNonEmptyValue {
+      fetchRefunds()
     }
     None
   }, (offset, filters, searchText))
