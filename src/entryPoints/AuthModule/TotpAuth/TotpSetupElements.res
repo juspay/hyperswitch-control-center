@@ -2,7 +2,7 @@ let h2TextStyle = HSwitchUtils.getTextClass((H2, Optional))
 let p2Regular = HSwitchUtils.getTextClass((P2, Regular))
 let p3Regular = HSwitchUtils.getTextClass((P3, Regular))
 
-module ScanQRComponent = {
+module ScanQR = {
   @react.component
   let make = (~totpUrl, ~isQrVisible) => {
     <>
@@ -51,7 +51,7 @@ module ScanQRComponent = {
   }
 }
 
-module TotpInputComponent = {
+module TotpInput = {
   @react.component
   let make = (~otp, ~setOtp) => {
     <div className="flex flex-col gap-4 items-center">

@@ -167,9 +167,9 @@ module ConfigureTotpScreen = {
       </div>
       <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
         <UIUtils.RenderIf condition={showQR}>
-          <TotpSetupElements.ScanQRComponent totpUrl isQrVisible />
+          <TotpSetupElements.ScanQR totpUrl isQrVisible />
         </UIUtils.RenderIf>
-        <TotpSetupElements.TotpInputComponent otp setOtp />
+        <TotpSetupElements.TotpInput otp setOtp />
         <div className="flex justify-end gap-4">
           <Button
             text="Skip now"
