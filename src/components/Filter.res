@@ -173,7 +173,7 @@ let make = (
   let clearFilterJson =
     RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
-      ~initialFilters={Array.concat(localFilters, fixedFilters)},
+      ~initialFilters={localFilters},
       ~options=remoteOptions,
       (),
     )
@@ -338,9 +338,9 @@ let make = (
                                       onClick={_ => addFilter(option)}
                                       className={
                                         let activeClasses = if props["active"] {
-                                          "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                                          "group flex rounded-md items-center w-44 px-2 py-2 text-sm bg-gray-100 dark:bg-black"
                                         } else {
-                                          "group flex rounded-md items-center w-full px-2 py-2 text-sm"
+                                          "group flex rounded-md items-center w-44 px-2 py-2 text-sm"
                                         }
                                         `${activeClasses} font-medium`
                                       }>

@@ -558,9 +558,9 @@ module BaseSelect = {
     let borderClass = if !hideBorder {
       if isDropDown {
         `bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 
-            rounded-lg animate-textTransition transition duration-400`
+            rounded-lg rounded-b-none animate-textTransition transition duration-400`
       } else if showToggle {
-        "bg-white border rounded dark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960"
+        "bg-white border rounded rounded-b-none dark:bg-jp-gray-darkgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960"
       } else {
         ""
       }
@@ -679,186 +679,190 @@ module BaseSelect = {
       ""
     }
 
-    <div
-      id="neglectTopbarTheme"
-      className={`${widthClass} ${outerClass} ${borderClass} ${animationClass} ${dropdownClassName} max-h-80`}>
-      {switch searchable {
-      | Some(val) =>
-        if val {
-          searchInputUI
-        } else {
-          React.null
-        }
-      | None =>
-        if isDropDown && options->Array.length > 5 {
-          searchInputUI
-        } else {
-          React.null
-        }
-      }}
-      {if showSelectAll && isDropDown {
-        if !isMobileView {
-          let clearAllCondition = noOfSelected > 0
-          <UIUtils.RenderIf
-            condition={filteredOptions->Array.length > 1 &&
-              filteredOptions->Array.find(item => item.value === "Loading...")->Option.isNone}>
-            <div
-              onClick={selectAll(noOfSelected === 0)}
-              className={`flex px-3 py-2 border-b-2 gap-3 text-jp-2-gray-300 items-center text-fs-14 font-medium cursor-pointer`}>
-              <CheckBoxIcon
-                isSelected={noOfSelected !== 0}
-                size=optionSize
-                isSelectedStateMinus=clearAllCondition
-              />
-              {{clearAllCondition ? "Clear All" : "Select All"}->React.string}
-            </div>
-          </UIUtils.RenderIf>
-        } else {
-          <div
-            onClick={selectAll(noOfSelected !== options->Array.length)}
-            className={`flex ${isHorizontal
-                ? "flex-col"
-                : "flex-row"} justify-between pr-4 pl-5 pt-6 pb-1 text-base font-semibold ${font.textColor.primaryNormal} cursor-pointer`}>
-            {"SELECT ALL"->React.string}
-            <CheckBoxIcon isSelected={noOfSelected === options->Array.length} />
-          </div>
-        }
-      } else {
-        React.null
-      }}
-      {if showToggle {
-        <div>
-          <div className={`grid grid-cols-2 items-center ${marginClass}`}>
-            <div
-              className="ml-5 font-bold text-fs-16 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
-              {React.string(heading)}
-            </div>
-            {if showSelectAll {
-              <div className="flex  mr-5 justify-end">
-                {switch allSelectType {
-                | Icon =>
-                  <BoolInput.BaseComponent
-                    isSelected=isChooseAllToggleSelected
-                    setIsSelected=toggleSelectAll
-                    isDisabled=disableSelect
-                    size=optionSize
-                  />
-                | Text =>
-                  <AddDataAttributes
-                    attributes=[
-                      (
-                        "data-select-box",
-                        {isChooseAllToggleSelected ? "deselectAll" : "selectAll"},
-                      ),
-                    ]>
-                    <div
-                      className={`font-semibold ${font.textColor.primaryNormal} ${disabledClass} ${customSelectAllStyle}`}
-                      onClick={_ => {
-                        toggleSelectAll(!isChooseAllToggleSelected)
-                      }}>
-                      {if isChooseAllToggleSelected {
-                        "Deselect All"->React.string
-                      } else {
-                        "Select All"->React.string
-                      }}
-                    </div>
-                  </AddDataAttributes>
-                }}
+    <div>
+      <div
+        id="neglectTopbarTheme"
+        className={`${widthClass} ${outerClass} ${borderClass} ${animationClass} ${dropdownClassName} max-h-80`}>
+        {switch searchable {
+        | Some(val) =>
+          if val {
+            searchInputUI
+          } else {
+            React.null
+          }
+        | None =>
+          if isDropDown && options->Array.length > 5 {
+            searchInputUI
+          } else {
+            React.null
+          }
+        }}
+        {if showSelectAll && isDropDown {
+          if !isMobileView {
+            let clearAllCondition = noOfSelected > 0
+            <UIUtils.RenderIf
+              condition={filteredOptions->Array.length > 1 &&
+                filteredOptions->Array.find(item => item.value === "Loading...")->Option.isNone}>
+              <div
+                onClick={selectAll(noOfSelected === 0)}
+                className={`flex px-3 py-2 border-b-2 gap-3 text-jp-2-gray-300 items-center text-fs-14 font-medium cursor-pointer`}>
+                <CheckBoxIcon
+                  isSelected={noOfSelected !== 0}
+                  size=optionSize
+                  isSelectedStateMinus=clearAllCondition
+                />
+                {{clearAllCondition ? "Clear All" : "Select All"}->React.string}
               </div>
+            </UIUtils.RenderIf>
+          } else {
+            <div
+              onClick={selectAll(noOfSelected !== options->Array.length)}
+              className={`flex ${isHorizontal
+                  ? "flex-col"
+                  : "flex-row"} justify-between pr-4 pl-5 pt-6 pb-1 text-base font-semibold ${font.textColor.primaryNormal} cursor-pointer`}>
+              {"SELECT ALL"->React.string}
+              <CheckBoxIcon isSelected={noOfSelected === options->Array.length} />
+            </div>
+          }
+        } else {
+          React.null
+        }}
+        {if showToggle {
+          <div>
+            <div className={`grid grid-cols-2 items-center ${marginClass}`}>
+              <div
+                className="ml-5 font-bold text-fs-16 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
+                {React.string(heading)}
+              </div>
+              {if showSelectAll {
+                <div className="flex  mr-5 justify-end">
+                  {switch allSelectType {
+                  | Icon =>
+                    <BoolInput.BaseComponent
+                      isSelected=isChooseAllToggleSelected
+                      setIsSelected=toggleSelectAll
+                      isDisabled=disableSelect
+                      size=optionSize
+                    />
+                  | Text =>
+                    <AddDataAttributes
+                      attributes=[
+                        (
+                          "data-select-box",
+                          {isChooseAllToggleSelected ? "deselectAll" : "selectAll"},
+                        ),
+                      ]>
+                      <div
+                        className={`font-semibold ${font.textColor.primaryNormal} ${disabledClass} ${customSelectAllStyle}`}
+                        onClick={_ => {
+                          toggleSelectAll(!isChooseAllToggleSelected)
+                        }}>
+                        {if isChooseAllToggleSelected {
+                          "Deselect All"->React.string
+                        } else {
+                          "Select All"->React.string
+                        }}
+                      </div>
+                    </AddDataAttributes>
+                  }}
+                </div>
+              } else {
+                React.null
+              }}
+            </div>
+            {if !hideBorder {
+              <div
+                className="my-2 bg-jp-gray-lightmode_steelgray dark:bg-jp-gray-960  "
+                style={ReactDOMStyle.make(~height="1px", ())}
+              />
             } else {
               React.null
             }}
           </div>
-          {if !hideBorder {
-            <div
-              className="my-2 bg-jp-gray-lightmode_steelgray dark:bg-jp-gray-960  "
-              style={ReactDOMStyle.make(~height="1px", ())}
-            />
+        } else {
+          React.null
+        }}
+        <div
+          className={`overflow-auto ${listPadding} ${isHorizontal
+              ? "flex flex-row grow"
+              : ""}  ${showToggle ? "ml-3" : maxHeight}` ++ {
+            wrapBasis->LogicUtils.isEmptyString ? "" : " flex flex-wrap justify-between"
+          }}>
+          {if filteredOptions->Array.length === 0 {
+            <div className="flex justify-center items-center m-4">
+              {React.string("No matching records found")}
+            </div>
+          } else if (
+            filteredOptions->Array.find(item => item.value === "Loading...")->Option.isSome
+          ) {
+            <Loader />
           } else {
-            React.null
+            {
+              filteredOptions
+              ->Array.mapWithIndex((item, indx) => {
+                let valueToConsider = item.value
+                let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
+                let isPrevSelected = switch filteredOptions->Array.get(indx - 1) {
+                | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
+                | None => false
+                }
+                let isNextSelected = switch filteredOptions->Array.get(indx + 1) {
+                | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
+                | None => false
+                }
+                let isSelected = index > -1
+                let serialNumber =
+                  isSelected && showSerialNumber ? Some(Int.toString(index + 1)) : None
+                let leftVacennt = isDropDown && textIconPresent && item.icon === NoIcon
+                <div className={`${gapClass} ${wrapBasis}`} key={item.value}>
+                  <ListItem
+                    isDropDown
+                    isSelected
+                    optionSize
+                    isSelectedStateMinus
+                    isPrevSelected
+                    isNextSelected
+                    searchString
+                    onClick={onItemClick(valueToConsider, item.isDisabled || disableSelect)}
+                    text=item.label
+                    labelValue=item.label
+                    multiSelect=true
+                    customLabelStyle
+                    icon=item.icon
+                    leftVacennt
+                    isDisabled={item.isDisabled || disableSelect}
+                    showToggle
+                    customStyle
+                    serialNumber
+                    isMobileView
+                    description=item.description
+                    customMarginStyle
+                    listFlexDirection
+                    dataId=indx
+                    showDescriptionAsTool
+                    optionClass
+                    selectClass
+                    toggleProps
+                    checkboxDimension
+                    iconStroke=item.iconStroke
+                  />
+                  {switch optionRigthElement {
+                  | Some(rightElement) => rightElement
+                  | None => React.null
+                  }}
+                </div>
+              })
+              ->React.array
+            }
           }}
         </div>
-      } else {
-        React.null
-      }}
-      <div
-        className={`overflow-auto ${listPadding} ${isHorizontal
-            ? "flex flex-row grow"
-            : ""}  ${showToggle ? "ml-3" : maxHeight}` ++ {
-          wrapBasis->LogicUtils.isEmptyString ? "" : " flex flex-wrap justify-between"
-        }}>
-        {if filteredOptions->Array.length === 0 {
-          <div className="flex justify-center items-center m-4">
-            {React.string("No matching records found")}
-          </div>
-        } else if filteredOptions->Array.find(item => item.value === "Loading...")->Option.isSome {
-          <Loader />
-        } else {
-          {
-            filteredOptions
-            ->Array.mapWithIndex((item, indx) => {
-              let valueToConsider = item.value
-              let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
-              let isPrevSelected = switch filteredOptions->Array.get(indx - 1) {
-              | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
-              | None => false
-              }
-              let isNextSelected = switch filteredOptions->Array.get(indx + 1) {
-              | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
-              | None => false
-              }
-              let isSelected = index > -1
-              let serialNumber =
-                isSelected && showSerialNumber ? Some(Int.toString(index + 1)) : None
-              let leftVacennt = isDropDown && textIconPresent && item.icon === NoIcon
-              <div className={`${gapClass} ${wrapBasis}`} key={item.value}>
-                <ListItem
-                  isDropDown
-                  isSelected
-                  optionSize
-                  isSelectedStateMinus
-                  isPrevSelected
-                  isNextSelected
-                  searchString
-                  onClick={onItemClick(valueToConsider, item.isDisabled || disableSelect)}
-                  text=item.label
-                  labelValue=item.label
-                  multiSelect=true
-                  customLabelStyle
-                  icon=item.icon
-                  leftVacennt
-                  isDisabled={item.isDisabled || disableSelect}
-                  showToggle
-                  customStyle
-                  serialNumber
-                  isMobileView
-                  description=item.description
-                  customMarginStyle
-                  listFlexDirection
-                  dataId=indx
-                  showDescriptionAsTool
-                  optionClass
-                  selectClass
-                  toggleProps
-                  checkboxDimension
-                  iconStroke=item.iconStroke
-                />
-                {switch optionRigthElement {
-                | Some(rightElement) => rightElement
-                | None => React.null
-                }}
-              </div>
-            })
-            ->React.array
-          }
-        }}
+        <button type_="submit" className="hidden" />
       </div>
-      <button type_="submit" className="hidden" />
       <Button
         buttonType=Primary
         text="Apply"
         flattenTop=false
-        customButtonStyle="w-full items-center"
+        customButtonStyle="w-full items-center sticky bottom-0"
         buttonState={applyBtnDisabled ? Disabled : Normal}
         onClick
       />

@@ -175,7 +175,7 @@ module RemoteTableFilters = {
         setInitialFilters()
       }
       None
-    }, [filterDataJson])
+    }, [filterValueJson])
 
     React.useEffect1(() => {
       if filterValueJson->Dict.keysToArray->Array.length != 0 {
