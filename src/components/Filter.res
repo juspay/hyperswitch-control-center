@@ -173,7 +173,7 @@ let make = (
   let clearFilterJson =
     RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
-      ~initialFilters={Array.concat(localFilters, fixedFilters)},
+      ~initialFilters={localFilters},
       ~options=remoteOptions,
       (),
     )
