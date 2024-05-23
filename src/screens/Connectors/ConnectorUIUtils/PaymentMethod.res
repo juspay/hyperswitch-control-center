@@ -117,6 +117,10 @@ module CardRenderer = {
     }
     let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
 
+    let removeSelectedWallet = () => {
+      setSelectedWallet(_ => Dict.make()->itemProviderMapper)
+    }
+
     <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>
         <RenderIf
@@ -196,6 +200,7 @@ module CardRenderer = {
             headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
             showModal={showWalletConfigurationModal}
             setShowModal={setShowWalletConfigurationModal}
+            onCloseClickCustomFun={removeSelectedWallet}
             paddingClass=""
             revealFrom=Reveal.Right
             modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
@@ -208,6 +213,7 @@ module CardRenderer = {
               updateDetails
               paymentMethodsEnabled
               paymentMethod
+              onCloseClickCustomFun={removeSelectedWallet}
             />
           </Modal>
         </RenderIf>
