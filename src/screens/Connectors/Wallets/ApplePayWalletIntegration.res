@@ -303,6 +303,7 @@ module Landing = {
   open WalletHelper
   @react.component
   let make = (
+    ~connector,
     ~setApplePayIntegrationType,
     ~appleIntegrationType,
     ~setShowWalletConfigurationModal,
@@ -310,19 +311,25 @@ module Landing = {
   ) => {
     open ApplePayWalletIntegrationTypes
     <>
-      <div
-        className="p-6 m-2 cursor-pointer"
-        onClick={_e => setApplePayIntegrationType(_ => #simplified)}>
-        <Card heading="Web Domain" isSelected={appleIntegrationType === #simplified}>
-          <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-            {"Get Apple Pay enabled on your web domains by hosting a verification file, that’s it."->React.string}
-          </div>
-          <div className="flex gap-2 mt-4">
-            <CustomTag tagText="Faster Configuration" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-            <CustomTag tagText="Recommended" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-          </div>
-        </Card>
-      </div>
+      {switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+      | Processors(STRIPE) | Processors(BANKOFAMERICA) | Processors(CYBERSOURCE) =>
+        <div
+          className="p-6 m-2 cursor-pointer"
+          onClick={_e => setApplePayIntegrationType(_ => #simplified)}>
+          <Card heading="Web Domain" isSelected={appleIntegrationType === #simplified}>
+            <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
+              {"Get Apple Pay enabled on your web domains by hosting a verification file, that’s it."->React.string}
+            </div>
+            <div className="flex gap-2 mt-4">
+              <CustomTag
+                tagText="Faster Configuration" tagSize=4 tagLeftIcon=Some("ellipse-green")
+              />
+              <CustomTag tagText="Recommended" tagSize=4 tagLeftIcon=Some("ellipse-green") />
+            </div>
+          </Card>
+        </div>
+      | _ => React.null
+      }}
       <div
         className="p-6 m-2 cursor-pointer" onClick={_e => setApplePayIntegrationType(_ => #manual)}>
         <Card heading="iOS Certificate" isSelected={appleIntegrationType === #manual}>
@@ -363,6 +370,7 @@ module Verified = {
     ~appleIntegrationType,
     ~setApplePayIntegrationSteps,
     ~setShowWalletConfigurationModal,
+    ~onCloseClickCustomFun,
   ) => {
     open WalletHelper
     open ApplePayWalletIntegrationTypes
@@ -413,6 +421,7 @@ module Verified = {
           <Button
             onClick={_ev => {
               setShowWalletConfigurationModal(_ => false)
+              onCloseClickCustomFun()
             }}
             text="Proceed"
             buttonType={Primary}
@@ -424,12 +433,19 @@ module Verified = {
 }
 
 @react.component
-let make = (~metadataInputs, ~update, ~metaData, ~setShowWalletConfigurationModal, ~connector) => {
+let make = (
+  ~metadataInputs,
+  ~update,
+  ~metaData,
+  ~setShowWalletConfigurationModal,
+  ~connector,
+  ~onCloseClickCustomFun,
+) => {
   open ApplePayWalletIntegrationTypes
   open APIUtils
   open WalletHelper
   let getURL = useGetURL()
-  let (appleIntegrationType, setApplePayIntegrationType) = React.useState(_ => #simplified)
+  let (appleIntegrationType, setApplePayIntegrationType) = React.useState(_ => #manual)
   let (applePayIntegrationStep, setApplePayIntegrationSteps) = React.useState(_ => Landing)
   let (verifiedDomainList, setVefifiedDomainList) = React.useState(_ => [])
   let (merchantBusinessCountry, setMerchantBusinessCountry) = React.useState(_ => [])
@@ -463,10 +479,23 @@ let make = (~metadataInputs, ~update, ~metaData, ~setShowWalletConfigurationModa
     }
   }
 
-  React.useEffect0(() => {
-    getProcessorDetails()->ignore
+  React.useEffect1(() => {
+    // Need to refactor
+    if connector->String.length > 0 {
+      {
+        switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+        | Processors(STRIPE)
+        | Processors(BANKOFAMERICA)
+        | Processors(CYBERSOURCE) =>
+          setApplePayIntegrationType(_ => #simplified)
+        | _ => setApplePayIntegrationType(_ => #manual)
+        }
+      }
+
+      getProcessorDetails()->ignore
+    }
     None
-  })
+  }, [connector])
   <PageLoaderWrapper
     screenState={screenState}
     customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
@@ -480,6 +509,7 @@ let make = (~metadataInputs, ~update, ~metaData, ~setShowWalletConfigurationModa
       {switch applePayIntegrationStep {
       | Landing =>
         <Landing
+          connector
           setApplePayIntegrationType
           setShowWalletConfigurationModal
           setApplePayIntegrationSteps
@@ -513,6 +543,7 @@ let make = (~metadataInputs, ~update, ~metaData, ~setShowWalletConfigurationModa
           setShowWalletConfigurationModal
           setApplePayIntegrationSteps
           appleIntegrationType
+          onCloseClickCustomFun
         />
       }}
     </div>
