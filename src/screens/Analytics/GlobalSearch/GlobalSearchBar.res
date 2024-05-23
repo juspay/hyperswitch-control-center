@@ -131,7 +131,9 @@ module SearchResultsComponent = {
         let borderClass =
           index !== searchResults->Array.length - 1 ? "border-b-1 dark:border-jp-gray-960" : ""
         <FramerMotion.Motion.Div
-          layoutId={section.section->getSectionHeader} className={`px-3 mb-3 py-1 ${borderClass}`}>
+          key={Int.toString(index)}
+          layoutId={section.section->getSectionHeader}
+          className={`px-3 mb-3 py-1 ${borderClass}`}>
           <FramerMotion.Motion.Div
             initial={{opacity: 0.5}}
             animate={{opacity: 0.5}}
@@ -153,7 +155,7 @@ module SearchResultsComponent = {
           ->Array.mapWithIndex((item, i) => {
             let elementsArray = item.texts
 
-            <OptionWrapper index={i} value={item} redirectOnSelect>
+            <OptionWrapper key={Int.toString(i)} index={i} value={item} redirectOnSelect>
               {elementsArray
               ->Array.mapWithIndex(
                 (item, index) => {
@@ -291,13 +293,12 @@ let make = () => {
 
   React.useEffect0(() => {
     let onKeyPress = event => {
-      // TODO: Check this again as it is stopping all the user inputs from keyboard
-      //  event->ReactEvent.Keyboard.preventDefault
       let metaKey = event->ReactEvent.Keyboard.metaKey
       let keyPressed = event->ReactEvent.Keyboard.key
       let ctrlKey = event->ReactEvent.Keyboard.ctrlKey
 
       if Window.Navigator.platform->String.includes("Mac") && metaKey && keyPressed == "k" {
+        event->ReactEvent.Keyboard.preventDefault
         setShowModal(_ => true)
       } else if ctrlKey && keyPressed == "k" {
         event->ReactEvent.Keyboard.preventDefault
