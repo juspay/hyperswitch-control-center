@@ -333,7 +333,7 @@ let make = (
                             ->Array.mapWithIndex((option, i) =>
                               <Menu.Item key={i->Int.toString}>
                                 {props =>
-                                  <div className="relative">
+                                  <div className="relative w-max">
                                     <button
                                       onClick={_ => addFilter(option)}
                                       className={
@@ -344,7 +344,9 @@ let make = (
                                         }
                                         `${activeClasses} font-medium`
                                       }>
-                                      <div className="mr-5"> {option.label->React.string} </div>
+                                      <div className="mr-5">
+                                        {option.label->LogicUtils.snakeToTitle->React.string}
+                                      </div>
                                     </button>
                                   </div>}
                               </Menu.Item>
