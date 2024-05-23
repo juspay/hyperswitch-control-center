@@ -2,7 +2,7 @@ let h2TextStyle = HSwitchUtils.getTextClass((H2, Optional))
 let p2Regular = HSwitchUtils.getTextClass((P2, Regular))
 let p3Regular = HSwitchUtils.getTextClass((P3, Regular))
 
-module ScanQR = {
+module TotpScanQR = {
   @react.component
   let make = (~totpUrl, ~isQrVisible) => {
     <>
