@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.23.0
+
+### Miscellaneous Tasks
+
+- Filter & list api for payment & refunds ([#620](https://github.com/juspay/hyperswitch-control-center/pull/620)) ([`5900070`](https://github.com/juspay/hyperswitch-control-center/commit/5900070eff25b78ad9c3cdf2d46b14c77b627285))
+
+**Full Changelog:** [`2024.05.22.1...2024.05.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.22.1...2024.05.23.0)
+
+- - -
+
 ## 2024.05.22.1
 
 ### Features
