@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.22.1
+
+### Features
+
+- Authentication analytics ([#678](https://github.com/juspay/hyperswitch-control-center/pull/678)) ([`09f5eb7`](https://github.com/juspay/hyperswitch-control-center/commit/09f5eb75c8a25729cd2894c4d6dcde00285d28b8))
+
+### Miscellaneous Tasks
+
+- Payment filter modification ([#683](https://github.com/juspay/hyperswitch-control-center/pull/683)) ([`5ff2aef`](https://github.com/juspay/hyperswitch-control-center/commit/5ff2aef82a4582dd4b55b031702d80b7517a23f2))
+- Refunds table and force sync button for refunds view ([#654](https://github.com/juspay/hyperswitch-control-center/pull/654)) ([`c008487`](https://github.com/juspay/hyperswitch-control-center/commit/c008487eee028f9b82c076de0e8c7779dc989fdd))
+
+**Full Changelog:** [`2024.05.22.0...2024.05.22.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.22.0...2024.05.22.1)
+
+- - -
+
 ## 2024.05.22.0
 
 ### Bug Fixes
