@@ -10,10 +10,10 @@ let singleStatInitialValue = {
   authentication_success_count: 0,
   authentication_attempt_count: 0,
   challenge_flow_count: 0,
-  challenge_flow_attempt_count: 0,
-  challenge_flow_success_count: 0,
+  challenge_attempt_count: 0,
+  challenge_success_count: 0,
   frictionless_flow_count: 0,
-  frictionless_flow_success_count: 0,
+  frictionless_success_count: 0,
 }
 
 let singleStatSeriesInitialValue = {
@@ -21,10 +21,10 @@ let singleStatSeriesInitialValue = {
   authentication_success_count: 0,
   authentication_attempt_count: 0,
   challenge_flow_count: 0,
-  challenge_flow_attempt_count: 0,
-  challenge_flow_success_count: 0,
+  challenge_attempt_count: 0,
+  challenge_success_count: 0,
   frictionless_flow_count: 0,
-  frictionless_flow_success_count: 0,
+  frictionless_success_count: 0,
   time_series: "",
 }
 
@@ -36,10 +36,10 @@ let singleStatItemToObjMapper = json => {
     authentication_success_count: dict->getInt("authentication_success_count", 0),
     authentication_attempt_count: dict->getInt("authentication_attempt_count", 0),
     challenge_flow_count: dict->getInt("challenge_flow_count", 0),
-    challenge_flow_attempt_count: dict->getInt("challenge_flow_attempt_count", 0),
-    challenge_flow_success_count: dict->getInt("challenge_flow_success_count", 0),
+    challenge_attempt_count: dict->getInt("challenge_attempt_count", 0),
+    challenge_success_count: dict->getInt("challenge_success_count", 0),
     frictionless_flow_count: dict->getInt("frictionless_flow_count", 0),
-    frictionless_flow_success_count: dict->getInt("frictionless_flow_success_count", 0),
+    frictionless_success_count: dict->getInt("frictionless_success_count", 0),
   })
   ->Option.getOr({
     singleStatInitialValue
@@ -55,10 +55,10 @@ let singleStatSeriesItemToObjMapper = json => {
     authentication_success_count: dict->getInt("authentication_success_count", 0),
     authentication_attempt_count: dict->getInt("authentication_attempt_count", 0),
     challenge_flow_count: dict->getInt("challenge_flow_count", 0),
-    challenge_flow_attempt_count: dict->getInt("challenge_flow_attempt_count", 0),
-    challenge_flow_success_count: dict->getInt("challenge_flow_success_count", 0),
+    challenge_attempt_count: dict->getInt("challenge_attempt_count", 0),
+    challenge_success_count: dict->getInt("challenge_success_count", 0),
     frictionless_flow_count: dict->getInt("frictionless_flow_count", 0),
-    frictionless_flow_success_count: dict->getInt("frictionless_flow_success_count", 0),
+    frictionless_success_count: dict->getInt("frictionless_success_count", 0),
   })
   ->Option.getOr({
     singleStatSeriesInitialValue
@@ -146,25 +146,21 @@ let constructData = (key, singlestatTimeseriesData: array<authenticationSingleSt
     singlestatTimeseriesData->Array.map(ob => {
       (
         ob.time_series->DateTimeUtils.parseAsFloat,
-        ob.challenge_flow_attempt_count->Int.toFloat *.
-        100. /.
-        ob.challenge_flow_count->Int.toFloat,
+        ob.challenge_attempt_count->Int.toFloat *. 100. /. ob.challenge_flow_count->Int.toFloat,
       )
     })
   | ChallengeSuccessRate =>
     singlestatTimeseriesData->Array.map(ob => {
       (
         ob.time_series->DateTimeUtils.parseAsFloat,
-        ob.challenge_flow_success_count->Int.toFloat *.
-        100. /.
-        ob.challenge_flow_count->Int.toFloat,
+        ob.challenge_success_count->Int.toFloat *. 100. /. ob.challenge_flow_count->Int.toFloat,
       )
     })
   | FrictionlessSuccessRate =>
     singlestatTimeseriesData->Array.map(ob => {
       (
         ob.time_series->DateTimeUtils.parseAsFloat,
-        ob.frictionless_flow_success_count->Int.toFloat *.
+        ob.frictionless_success_count->Int.toFloat *.
         100. /.
         ob.frictionless_flow_count->Int.toFloat,
       )
@@ -230,7 +226,7 @@ let getStatData = (
       title: "Challenge Attempt Rate",
       tooltipText: "Percentage of payments where user attempted the challenge.",
       deltaTooltipComponent: _ => React.null,
-      value: singleStatData.challenge_flow_attempt_count->Int.toFloat *.
+      value: singleStatData.challenge_attempt_count->Int.toFloat *.
       100. /.
       singleStatData.challenge_flow_count->Int.toFloat,
       delta: 0.0,
@@ -242,7 +238,7 @@ let getStatData = (
       title: "Challenge Success Rate",
       tooltipText: "Total number of payments authenticated where user successfully attempted the challenge over the total number of payments requiring a challenge to be passed.",
       deltaTooltipComponent: _ => React.null,
-      value: singleStatData.challenge_flow_success_count->Int.toFloat *.
+      value: singleStatData.challenge_success_count->Int.toFloat *.
       100. /.
       singleStatData.challenge_flow_count->Int.toFloat,
       delta: 0.0,
@@ -254,7 +250,7 @@ let getStatData = (
       title: "Frictionless Success Rate",
       tooltipText: "Total number of payments authenticated over a frictionless flow successfully over the total number of payments going through a frictionless flow.",
       deltaTooltipComponent: _ => React.null,
-      value: singleStatData.challenge_flow_success_count->Int.toFloat *.
+      value: singleStatData.challenge_success_count->Int.toFloat *.
       100. /.
       singleStatData.challenge_flow_count->Int.toFloat,
       delta: 0.0,

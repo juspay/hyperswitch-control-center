@@ -232,10 +232,10 @@ type authenticationSingleStat = {
   authentication_success_count: int,
   authentication_attempt_count: int,
   challenge_flow_count: int,
-  challenge_flow_attempt_count: int,
-  challenge_flow_success_count: int,
+  challenge_attempt_count: int,
+  challenge_success_count: int,
   frictionless_flow_count: int,
-  frictionless_flow_success_count: int,
+  frictionless_success_count: int,
 }
 
 type authenticationSingleStatSeries = {
@@ -243,10 +243,10 @@ type authenticationSingleStatSeries = {
   authentication_success_count: int,
   authentication_attempt_count: int,
   challenge_flow_count: int,
-  challenge_flow_attempt_count: int,
-  challenge_flow_success_count: int,
+  challenge_attempt_count: int,
+  challenge_success_count: int,
   frictionless_flow_count: int,
-  frictionless_flow_success_count: int,
+  frictionless_success_count: int,
   time_series: string,
 }
 
