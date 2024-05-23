@@ -94,8 +94,6 @@ let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
   let amount = dictOfValues->getFloat("amount", 100.00)
   let countryCurrency = dictOfValues->getString("country_currency", "US-USD")->String.split("-")
 
-  Js.log2("countryCurrency", countryCurrency)
-
   {
     amount,
     currency: countryCurrency->Array.at(1)->Option.getOr("USD"),
