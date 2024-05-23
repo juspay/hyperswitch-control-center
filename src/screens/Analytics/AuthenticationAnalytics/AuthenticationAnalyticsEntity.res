@@ -7,7 +7,7 @@ let domain = "auth_events"
 
 let singleStatInitialValue = {
   three_ds_sdk_count: 0,
-  authentication_successful_count: 0,
+  authentication_success_count: 0,
   authentication_attempt_count: 0,
   challenge_flow_count: 0,
   challenge_flow_attempt_count: 0,
@@ -18,7 +18,7 @@ let singleStatInitialValue = {
 
 let singleStatSeriesInitialValue = {
   three_ds_sdk_count: 0,
-  authentication_successful_count: 0,
+  authentication_success_count: 0,
   authentication_attempt_count: 0,
   challenge_flow_count: 0,
   challenge_flow_attempt_count: 0,
@@ -33,7 +33,7 @@ let singleStatItemToObjMapper = json => {
   ->JSON.Decode.object
   ->Option.map(dict => {
     three_ds_sdk_count: dict->getInt("three_ds_sdk_count", 0),
-    authentication_successful_count: dict->getInt("authentication_successful_count", 0),
+    authentication_success_count: dict->getInt("authentication_success_count", 0),
     authentication_attempt_count: dict->getInt("authentication_attempt_count", 0),
     challenge_flow_count: dict->getInt("challenge_flow_count", 0),
     challenge_flow_attempt_count: dict->getInt("challenge_flow_attempt_count", 0),
@@ -52,7 +52,7 @@ let singleStatSeriesItemToObjMapper = json => {
   ->Option.map(dict => {
     time_series: dict->getString("time_bucket", ""),
     three_ds_sdk_count: dict->getInt("three_ds_sdk_count", 0),
-    authentication_successful_count: dict->getInt("authentication_successful_count", 0),
+    authentication_success_count: dict->getInt("authentication_success_count", 0),
     authentication_attempt_count: dict->getInt("authentication_attempt_count", 0),
     challenge_flow_count: dict->getInt("challenge_flow_count", 0),
     challenge_flow_attempt_count: dict->getInt("challenge_flow_attempt_count", 0),
@@ -122,7 +122,7 @@ let constructData = (key, singlestatTimeseriesData: array<authenticationSingleSt
     singlestatTimeseriesData->Array.map(ob => {
       (
         ob.time_series->DateTimeUtils.parseAsFloat,
-        ob.authentication_successful_count->Int.toFloat *.
+        ob.authentication_success_count->Int.toFloat *.
         100. /.
         ob.authentication_attempt_count->Int.toFloat,
       )
@@ -194,7 +194,7 @@ let getStatData = (
       title: "Authentication Success Rate",
       tooltipText: "Successful Authentication Requests over Total Requests.",
       deltaTooltipComponent: _ => React.null,
-      value: singleStatData.authentication_successful_count->Int.toFloat *.
+      value: singleStatData.authentication_success_count->Int.toFloat *.
       100.0 /.
       singleStatData.authentication_attempt_count->Int.toFloat,
       delta: 0.0,

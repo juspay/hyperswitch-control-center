@@ -229,7 +229,7 @@ type paymentTableType = {
 
 type authenticationSingleStat = {
   three_ds_sdk_count: int,
-  authentication_successful_count: int,
+  authentication_success_count: int,
   authentication_attempt_count: int,
   challenge_flow_count: int,
   challenge_flow_attempt_count: int,
@@ -240,7 +240,7 @@ type authenticationSingleStat = {
 
 type authenticationSingleStatSeries = {
   three_ds_sdk_count: int,
-  authentication_successful_count: int,
+  authentication_success_count: int,
   authentication_attempt_count: int,
   challenge_flow_count: int,
   challenge_flow_attempt_count: int,
