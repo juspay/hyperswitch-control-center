@@ -162,7 +162,7 @@ let make = (
     let updatedAllFilters = remoteFilters->Array.map(item => item.field)
     setAllFilters(_ => updatedAllFilters)
     None
-  }, remoteFilters)
+  }, [remoteFilters])
 
   let localFilterJson = RemoteFiltersUtils.getInitialValuesFromUrl(
     ~searchParams,
