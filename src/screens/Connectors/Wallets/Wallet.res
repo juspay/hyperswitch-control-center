@@ -25,6 +25,7 @@ module Wallets = {
     ~updateDetails,
     ~paymentMethodsEnabled,
     ~paymentMethod,
+    ~onCloseClickCustomFun,
   ) => {
     open LogicUtils
     let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
@@ -122,19 +123,19 @@ module Wallets = {
       })
       ->React.array
     }
-    Js.log(configurationFields->Dict.keysToArray)
     <div>
-      {switch (
-        method.payment_method_type->getPaymentMethodTypeFromString,
-        connector->getConnectorNameTypeFromString(),
-      ) {
-      | (ApplePay, Processors(STRIPE))
-      | (ApplePay, Processors(BANKOFAMERICA))
-      | (ApplePay, Processors(CYBERSOURCE)) =>
+      {switch method.payment_method_type->getPaymentMethodTypeFromString {
+      | ApplePay =>
         <ApplePayWalletIntegration
-          metadataInputs update metaData setShowWalletConfigurationModal connector
+          metadataInputs
+          update
+          metaData
+          setShowWalletConfigurationModal
+          connector
+          onCloseClickCustomFun
         />
-      | _ =>
+
+      | GooglePay =>
         <UIUtils.RenderIf condition={configurationFields->Dict.keysToArray->Array.length > 0}>
           <Form initialValues={metaData} onSubmit validate>
             {fields}
@@ -147,6 +148,7 @@ module Wallets = {
             <FormValuesSpy />
           </Form>
         </UIUtils.RenderIf>
+      | _ => React.null
       }}
     </div>
   }

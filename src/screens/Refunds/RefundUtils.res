@@ -224,7 +224,7 @@ let initialFilters = (json, filtervalues) => {
 
     {
       field: FormRenderer.makeFieldInfo(
-        ~label="",
+        ~label=key,
         ~name,
         ~customInput=InputFields.filterMultiSelectInput(
           ~options,

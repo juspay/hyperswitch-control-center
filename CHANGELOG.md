@@ -3,6 +3,27 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.23.1
+
+### Bug Fixes
+
+- Global search in firefox ([#692](https://github.com/juspay/hyperswitch-control-center/pull/692)) ([`866c899`](https://github.com/juspay/hyperswitch-control-center/commit/866c8996f420f7655199cf94108ef974e7983607))
+- Apple pay connector integration ([#701](https://github.com/juspay/hyperswitch-control-center/pull/701)) ([`3adc1e9`](https://github.com/juspay/hyperswitch-control-center/commit/3adc1e97643168c0c09da488d439c94656796976))
+- Payment refunds api optimization ([#697](https://github.com/juspay/hyperswitch-control-center/pull/697)) ([`22268ef`](https://github.com/juspay/hyperswitch-control-center/commit/22268ef59b491283ea9d4e182aef9dc2af7cb1d1))
+
+### Refactors
+
+- Totp elements separation ([#696](https://github.com/juspay/hyperswitch-control-center/pull/696)) ([`41b9d0d`](https://github.com/juspay/hyperswitch-control-center/commit/41b9d0d79b4d4dd969ff727b0ffe1d9f8e5b2e6b))
+
+### Miscellaneous Tasks
+
+- Change label for add filters menu ([#690](https://github.com/juspay/hyperswitch-control-center/pull/690)) ([`928ccf6`](https://github.com/juspay/hyperswitch-control-center/commit/928ccf6e1d577aad7d41b1d7b1debaa2d2c741d2))
+- Minor ui fixes in filters ([#699](https://github.com/juspay/hyperswitch-control-center/pull/699)) ([`f4ba4fc`](https://github.com/juspay/hyperswitch-control-center/commit/f4ba4fc29ce104e9f8bbe4e476176bfd1c473693))
+
+**Full Changelog:** [`2024.05.23.0...2024.05.23.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.23.0...2024.05.23.1)
+
+- - -
+
 ## 2024.05.23.0
 
 ### Miscellaneous Tasks
