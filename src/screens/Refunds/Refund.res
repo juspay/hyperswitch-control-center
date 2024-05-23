@@ -52,13 +52,17 @@ let make = () => {
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
+  let filterUrlV2 = React.useMemo1(() => {
+    `${Window.env.apiBaseUrl}/payments/v2/filter`
+  }, [Window.env.apiBaseUrl])
+
   <ErrorBoundary>
     <div className="min-h-[50vh]">
       <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
-            filterUrl={`${Window.env.apiBaseUrl}/refunds/filter`}
+            filterUrlV2
             setFilters
             endTimeFilterKey
             startTimeFilterKey

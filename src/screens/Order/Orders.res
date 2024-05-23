@@ -84,11 +84,14 @@ let make = (~previewOnly=false) => {
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
 
   let customUI = <NoData isConfigureConnector paymentModal setPaymentModal />
-  let filterUrl = `${Window.env.apiBaseUrl}/payments/filter`
+
+  let filterUrlV2 = React.useMemo1(() => {
+    `${Window.env.apiBaseUrl}/payments/v2/filter`
+  }, [Window.env.apiBaseUrl])
 
   let filtersUI = React.useMemo0(() => {
     <RemoteTableFilters
-      filterUrl
+      filterUrlV2
       setFilters
       endTimeFilterKey
       startTimeFilterKey

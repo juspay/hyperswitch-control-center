@@ -55,15 +55,14 @@ module ClearFilters = {
       ->Option.getOr(Dict.make())
       ->Dict.toArray
       ->Array.filter(entry => {
-        let (key, value) = entry
+        let (_, value) = entry
         let isEmptyValue = switch value->JSON.Classify.classify {
         | String(str) => str->LogicUtils.isEmptyString
         | Array(arr) => arr->Array.length === 0
         | Null => true
         | _ => false
         }
-
-        !(defaultFilterKeys->Array.includes(key)) && !isEmptyValue
+        !isEmptyValue
       })
       ->Array.length > 0
     }, (formState.initialValues, defaultFilterKeys))
@@ -119,97 +118,6 @@ let getStrFromJson = (key, val) => {
   }
 }
 
-module ApplyFilterButton = {
-  @react.component
-  let make = (
-    ~autoApply,
-    ~totalFilters,
-    ~filterButtonStyle,
-    ~defaultFilterKeys,
-    ~allFilters: array<FormRenderer.fieldInfoType>,
-  ) => {
-    let defaultinputField = FormRenderer.makeInputFieldInfo(~name="-", ())
-    let inputFieldsDict =
-      allFilters
-      ->Array.map(filter => {
-        let inputFieldsArr = filter.inputFields
-        let inputField = inputFieldsArr->LogicUtils.getValueFromArray(0, defaultinputField)
-        (inputField.name, inputField)
-      })
-      ->Dict.fromArray
-
-    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values", "dirtyFields", "initialValues"])->Nullable.make,
-    )
-
-    let formCurrentValues =
-      formState.values
-      ->LogicUtils.getDictFromJsonObject
-      ->DictionaryUtils.deleteKeys(defaultFilterKeys)
-    let formInitalValues =
-      formState.initialValues
-      ->LogicUtils.getDictFromJsonObject
-      ->DictionaryUtils.deleteKeys(defaultFilterKeys)
-    let dirtyFields = formState.dirtyFields->Dict.keysToArray
-
-    let getFormattedDict = dict => {
-      dict
-      ->Dict.toArray
-      ->Array.map(entry => {
-        let (key, value) = entry
-        let inputField = inputFieldsDict->Dict.get(key)->Option.getOr(defaultinputField)
-        let formattor = inputField.format
-        let value = switch formattor {
-        | Some(fn) => fn(. ~value, ~name=key)
-        | None => value
-        }
-        (key, value)
-      })
-      ->Dict.fromArray
-    }
-
-    let showApplyFilter = {
-      let formattedInitialValues = formInitalValues->getFormattedDict
-      let formattedCurrentValues = formCurrentValues->getFormattedDict
-
-      let equalDictCheck = DictionaryUtils.checkEqualJsonDicts(
-        formattedInitialValues,
-        formattedCurrentValues,
-        ~checkKeys=dirtyFields,
-        ~ignoreKeys=["opt"],
-      )
-
-      let otherCheck =
-        formattedCurrentValues
-        ->Dict.toArray
-        ->Array.reduce(true, (acc, item) => {
-          let (_, value) = item
-          switch value->JSON.Classify.classify {
-          | String(str) => str->LogicUtils.isEmptyString
-          | Array(arr) => arr->Array.length === 0
-          | Object(dict) => dict->Dict.toArray->Array.length === 0
-          | Null => true
-          | _ => false
-          } &&
-          acc
-        })
-      !equalDictCheck && !otherCheck
-    }
-
-    // if all values are empty then don't show the apply filters let it be the clear filters visible
-
-    if autoApply || totalFilters === 0 {
-      React.null
-    } else if showApplyFilter {
-      <div className={`flex justify-between items-center ${filterButtonStyle}`}>
-        <FormRenderer.SubmitButton text="Apply Filters" icon={Button.FontAwesome("check")} />
-      </div>
-    } else {
-      React.null
-    }
-  }
-}
-
 @react.component
 let make = (
   ~defaultFilters,
@@ -251,22 +159,21 @@ let make = (
   let verticalGap = !isMobileView ? "gap-y-3" : ""
 
   React.useEffect1(_ => {
-    if remoteFilters->Array.length >= allFilters->Array.length {
-      setAllFilters(_ => remoteFilters->Array.map(item => item.field))
-    }
+    let updatedAllFilters = remoteFilters->Array.map(item => item.field)
+    setAllFilters(_ => updatedAllFilters)
     None
   }, remoteFilters)
 
   let localFilterJson = RemoteFiltersUtils.getInitialValuesFromUrl(
     ~searchParams,
-    ~initialFilters=localFilters,
+    ~initialFilters={Array.concat(localFilters, fixedFilters)},
     (),
   )
 
   let clearFilterJson =
     RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
-      ~initialFilters=localFilters,
+      ~initialFilters={Array.concat(localFilters, fixedFilters)},
       ~options=remoteOptions,
       (),
     )
@@ -426,7 +333,7 @@ let make = (
                             ->Array.mapWithIndex((option, i) =>
                               <Menu.Item key={i->Int.toString}>
                                 {props =>
-                                  <div className="relative">
+                                  <div className="relative w-max">
                                     <button
                                       onClick={_ => addFilter(option)}
                                       className={
@@ -438,10 +345,7 @@ let make = (
                                         `${activeClasses} font-medium`
                                       }>
                                       <div className="mr-5">
-                                        {option.inputNames
-                                        ->Array.get(0)
-                                        ->Option.getOr("")
-                                        ->React.string}
+                                        {option.label->LogicUtils.snakeToTitle->React.string}
                                       </div>
                                     </button>
                                   </div>}

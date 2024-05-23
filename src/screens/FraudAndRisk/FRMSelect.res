@@ -1,13 +1,17 @@
 module NewProcessorCards = {
-  open FRMTypes
   open FRMInfo
   @react.component
-  let make = (~configuredFRMs: array<frmName>) => {
+  let make = (~configuredFRMs: array<ConnectorTypes.connectorTypes>) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let frmAvailableForIntegration = frmList
     let unConfiguredFRMs =
       frmAvailableForIntegration->Array.filter(total =>
-        configuredFRMs->Array.find(item => item === total)->Option.isNone
+        configuredFRMs
+        ->Array.find(item =>
+          item->ConnectorUtils.getConnectorNameString ===
+            total->ConnectorUtils.getConnectorNameString
+        )
+        ->Option.isNone
       )
 
     let handleClick = frmName => {
@@ -17,7 +21,7 @@ module NewProcessorCards = {
     }
     let unConfiguredFRMCount = unConfiguredFRMs->Array.length
 
-    let descriptedFRMs = (frmList, heading) => {
+    let descriptedFRMs = (frmList: array<ConnectorTypes.connectorTypes>, heading) => {
       <>
         <h2
           className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
@@ -26,8 +30,8 @@ module NewProcessorCards = {
         <div className="grid gap-4 lg:grid-cols-4 md:grid-cols-2 grid-cols-1 mb-5">
           {frmList
           ->Array.mapWithIndex((frm, i) => {
-            let frmName = frm->getFRMNameString
-            let frmInfo = frm->getFRMInfo
+            let frmName = frm->ConnectorUtils.getConnectorNameString
+            let frmInfo = frm->ConnectorUtils.getConnectorInfo
 
             <CardUtils.CardLayout key={Int.toString(i)} width="w-full">
               <div className="flex gap-2 items-center mb-3">
@@ -74,14 +78,16 @@ module NewProcessorCards = {
 
 @react.component
 let make = () => {
-  open FRMInfo
   open UIUtils
   let getURL = APIUtils.useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchDetails = APIUtils.useGetMethod()
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-  let (configuredFRMs, setConfiguredFRMs) = React.useState(_ => [])
+  let (
+    configuredFRMs: array<ConnectorTypes.connectorTypes>,
+    setConfiguredFRMs,
+  ) = React.useState(_ => [])
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -112,10 +118,15 @@ let make = () => {
         let previousData = frmList->Array.map(ConnectorListMapper.getProcessorPayloadType)
         setFilteredFRMData(_ => previousData->Array.map(Nullable.make))
         setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
-        let arr =
+        let arr: array<ConnectorTypes.connectorTypes> =
           frmList->Array.map(
             paymentMethod =>
-              paymentMethod->getString("connector_name", "")->getFRMNameTypeFromString,
+              paymentMethod
+              ->getString("connector_name", "")
+              ->ConnectorUtils.getConnectorNameTypeFromString(
+                ~connectorType=ConnectorTypes.FRMPlayer,
+                (),
+              ),
           )
         setConfiguredFRMs(_ => arr)
         setScreenState(_ => Success)

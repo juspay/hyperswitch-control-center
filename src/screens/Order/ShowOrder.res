@@ -682,9 +682,13 @@ let make = (~id) => {
   }
 
   let showSyncButton = React.useCallback1(_ => {
-    let status = orderData->getDictFromJsonObject->getString("status", "")->statusVariantMapper
+    let orderDict = orderData->getDictFromJsonObject
+    let status = orderDict->getString("status", "")->statusVariantMapper
 
-    !(id->isTestData) && status !== Succeeded && status !== Failed
+    !(id->isTestData) &&
+    status !== Succeeded &&
+    status !== Failed &&
+    orderDict->Dict.keysToArray->Array.length > 0
   }, [orderData])
 
   let refreshStatus = async () => {

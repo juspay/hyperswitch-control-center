@@ -49,7 +49,7 @@ let make = () => {
     <Analytics
       pageTitle=title
       pageSubTitle=subTitle
-      filterUri={`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`}
+      filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
       key="DisputesAnalytics"
       moduleName="Disputes"
       deltaMetrics={getStringListFromArrayDict(metrics)}

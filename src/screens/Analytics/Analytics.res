@@ -414,13 +414,14 @@ module TabDetails = {
 
     let wrapperClass = React.useMemo1(() =>
       switch analyticsType {
-      | USER_JOURNEY => `h-auto basis-full mt-4 ${isMobileView ? "w-full" : "w-1/2"}`
+      | AUTHENTICATION | USER_JOURNEY =>
+        `h-auto basis-full mt-4 ${isMobileView ? "w-full" : "w-1/2"}`
       | _ => "bg-white border rounded p-8 mt-5 mb-7"
       }
     , [isMobileView])
 
     let tabTitleMapper = switch analyticsType {
-    | USER_JOURNEY =>
+    | AUTHENTICATION | USER_JOURNEY =>
       [
         ("browser_name", "browser"),
         ("component", "checkout_platform"),
@@ -465,7 +466,7 @@ module TabDetails = {
       </div>
 
     switch analyticsType {
-    | USER_JOURNEY => tab
+    | AUTHENTICATION | USER_JOURNEY => tab
     | _ => <FramerMotion.TransitionComponent id={id}> {tab} </FramerMotion.TransitionComponent>
     }
   }
@@ -491,7 +492,7 @@ let make = (
   ~deltaMetrics: array<string>,
   ~deltaArray: array<string>,
   ~singleStatEntity: DynamicSingleStat.entityType<'singleStatColType, 'b, 'b2>,
-  ~filterUri,
+  ~filterUri: option<string>,
   ~tableUpdatedHeading: option<
     (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
   >=?,
@@ -573,6 +574,7 @@ let make = (
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
+    (),
   )
 
   React.useEffect0(() => {
@@ -601,10 +603,14 @@ let make = (
     setFilterDataJson(_ => None)
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       try {
-        updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
-        ->thenResolve(json => setFilterDataJson(_ => json->Some))
-        ->catch(_ => resolve())
-        ->ignore
+        switch filterUri {
+        | Some(filterUri) =>
+          updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
+          ->thenResolve(json => setFilterDataJson(_ => json->Some))
+          ->catch(_ => resolve())
+          ->ignore
+        | None => ()
+        }
       } catch {
       | _ => ()
       }
@@ -630,6 +636,7 @@ let make = (
   let topFilterUi = switch filterDataJson {
   | Some(filterData) => {
       let filterData = switch analyticsType {
+      | AUTHENTICATION
       | USER_JOURNEY => {
           let filteredDims = ["payment_method", "payment_experience", "source"]
           let queryData =
@@ -709,13 +716,13 @@ let make = (
           </div>
           <div className="flex flex-row">
             {switch analyticsType {
-            | USER_JOURNEY =>
-              switch (pieChartEntity, barChartEntity, funnelChartEntity) {
-              | (Some(pieChartEntity), Some(barChartEntity), Some(funnelChartEntity)) =>
-                <div className="flex flex-col bg-transparent w-full h-max">
+            | AUTHENTICATION | USER_JOURNEY =>
+              <div className="flex flex-col bg-transparent w-full h-max">
+                {switch funnelChartEntity {
+                | Some(funnelChartEntity) =>
                   <div className={tabDetailsClass}>
                     <TabDetails
-                      chartEntity={{...funnelChartEntity, moduleName: "UserJourneyFunnel"}}
+                      chartEntity={{...funnelChartEntity, moduleName: `${moduleName}Funnel`}}
                       activeTab={None}
                       defaultSort
                       getTable
@@ -726,7 +733,7 @@ let make = (
                       deltaArray
                       tableUpdatedHeading
                       tableGlobalFilter
-                      moduleName={"UserJourneyFunnel"}
+                      moduleName={`${moduleName}Funnel`}
                       updateUrl={dict => {
                         let updateUrlWithPrefix = updateUrlWithPrefix("Funnel")
                         updateUrlWithPrefix(dict)
@@ -734,7 +741,11 @@ let make = (
                       weeklyTableMetricsCols
                     />
                   </div>
-                  <div className={tabDetailsClass}>
+                | None => React.null
+                }}
+                <div className={tabDetailsClass}>
+                  {switch analyticsType {
+                  | USER_JOURNEY =>
                     <TabDetails
                       chartEntity={chartEntity}
                       activeTab={Some(["payment_method"])}
@@ -754,8 +765,12 @@ let make = (
                       }}
                       weeklyTableMetricsCols
                     />
+                  | _ => React.null
+                  }}
+                  {switch barChartEntity {
+                  | Some(barChartEntity) =>
                     <TabDetails
-                      chartEntity={{...barChartEntity, moduleName: "UserJourneyBar"}}
+                      chartEntity={{...barChartEntity, moduleName: `${moduleName}Bar`}}
                       activeTab={Some(["browser_name"])}
                       defaultSort
                       getTable
@@ -766,14 +781,18 @@ let make = (
                       deltaArray
                       tableUpdatedHeading
                       tableGlobalFilter
-                      moduleName={"UserJourneyBar"}
+                      moduleName={`${moduleName}Bar`}
                       updateUrl={dict => {
                         let updateUrlWithPrefix = updateUrlWithPrefix("Bar")
                         updateUrlWithPrefix(dict)
                       }}
                       weeklyTableMetricsCols
                     />
-                  </div>
+                  | None => React.null
+                  }}
+                </div>
+                {switch pieChartEntity {
+                | Some(pieChartEntity) =>
                   <div className={tabDetailsClass}>
                     <TabDetails
                       chartEntity={pieChartEntity}
@@ -814,9 +833,9 @@ let make = (
                       weeklyTableMetricsCols
                     />
                   </div>
-                </div>
-              | _ => React.null
-              }
+                | None => React.null
+                }}
+              </div>
             | _ =>
               <div className="flex flex-col h-full overflow-scroll w-full">
                 <DynamicTabs
