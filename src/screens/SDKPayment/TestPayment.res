@@ -136,7 +136,7 @@ let make = (
               publishableKey
               sdkType=ELEMENT
               paymentStatus
-              currency={initialValues.currency->SDKPaymentUtils.getCurrencyValue}
+              currency={initialValues.currency}
               setPaymentStatus
               elementOptions
               paymentElementOptions
@@ -153,7 +153,7 @@ let make = (
           publishableKey
           sdkType=ELEMENT
           paymentStatus
-          currency={initialValues.currency->SDKPaymentUtils.getCurrencyValue}
+          currency={initialValues.currency}
           setPaymentStatus
           elementOptions
           paymentElementOptions

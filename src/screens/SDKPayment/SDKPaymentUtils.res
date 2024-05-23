@@ -59,10 +59,6 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
   }
 }
 
-let getCurrencyValue = (countryCurrency: string) => {
-  countryCurrency->String.split("-")->Array.get(1)->Option.getOr("USD")->String.trim
-}
-
 let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
   open LogicUtils
   let dictOfValues = values->getDictFromJsonObject
@@ -74,6 +70,8 @@ let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
   let billingPhone = getDictFormDictOfValues("shipping")->getDictfromDict("phone")
   let billingEmail = getDictFormDictOfValues("billing")->getString("email", "")
   let metaData = getDictFormDictOfValues("metadata")->getDictfromDict("order_details")
+  let amount = dictOfValues->getFloat("amount", 100.00)
+  let countryCurrency = dictOfValues->getString("country_currency", "US-USD")->String.split("-")
 
   let mandateData: SDKPaymentTypes.mandateData = {
     customer_acceptance: {
@@ -87,12 +85,10 @@ let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
     mandate_type: {
       multi_use: {
         amount: 10000,
-        currency: dictOfValues->getString("currency", "United States-USD")->getCurrencyValue,
+        currency: countryCurrency->Array.at(1)->Option.getOr("USD"),
       },
     },
   }
-  let amount = dictOfValues->getFloat("amount", 100.00)
-  let countryCurrency = dictOfValues->getString("country_currency", "US-USD")->String.split("-")
 
   {
     amount,
