@@ -42,16 +42,10 @@ let make = (
   }
 
   let getClientSecret = async () => {
-    open SDKPaymentUtils
     try {
       let url = `${Window.env.apiBaseUrl}/payments`
-      let paymentData =
-        initialValues
-        ->Identity.genericTypeToJson
-        ->JSON.stringify
-        ->safeParse
-        ->getTypedValueForPayment
-      paymentData.currency = paymentData.currency->getCurrencyValue
+      let paymentData = initialValues->Identity.genericTypeToJson->JSON.stringify->safeParse
+      paymentData->getDictFromJsonObject->Dict.delete("country_currency")
       let body = paymentData->Identity.genericTypeToJson
       let response = await updateDetails(url, body, Post, ())
       let clientSecret = response->getDictFromJsonObject->getOptionString("client_secret")

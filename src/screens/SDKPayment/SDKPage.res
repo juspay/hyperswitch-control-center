@@ -10,7 +10,7 @@ module SDKConfiguarationFields = {
     let dropDownOptions = HomeUtils.countries->Array.map((item): SelectBox.dropdownOption => {
       {
         label: `${item.countryName} (${item.currency})`,
-        value: `${item.countryName}-${item.currency}`,
+        value: `${item.isoAlpha2}-${item.currency}`,
       }
     })
 
@@ -30,7 +30,7 @@ module SDKConfiguarationFields = {
     )
     let selectCurrencyField = FormRenderer.makeFieldInfo(
       ~label="Currency",
-      ~name="currency",
+      ~name="country_currency",
       ~placeholder="",
       ~customInput=InputFields.selectInput(
         ~options=dropDownOptions,
