@@ -162,7 +162,7 @@ let make = (
     let updatedAllFilters = remoteFilters->Array.map(item => item.field)
     setAllFilters(_ => updatedAllFilters)
     None
-  }, remoteFilters)
+  }, [remoteFilters])
 
   let localFilterJson = RemoteFiltersUtils.getInitialValuesFromUrl(
     ~searchParams,
@@ -338,15 +338,28 @@ let make = (
                                       onClick={_ => addFilter(option)}
                                       className={
                                         let activeClasses = if props["active"] {
-                                          "group flex rounded-md items-center w-44 px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                                          "group flex rounded-md items-center w-48 px-2 py-2 text-sm bg-gray-100 dark:bg-black"
                                         } else {
-                                          "group flex rounded-md items-center w-44 px-2 py-2 text-sm"
+                                          "group flex rounded-md items-center w-48 px-2 py-2 text-sm"
                                         }
                                         `${activeClasses} font-medium`
                                       }>
-                                      <div className="mr-5">
-                                        {option.label->LogicUtils.snakeToTitle->React.string}
-                                      </div>
+                                      <UIUtils.RenderIf
+                                        condition={option.label->LogicUtils.isNonEmptyString}>
+                                        <div className="mr-5">
+                                          {option.label->LogicUtils.snakeToTitle->React.string}
+                                        </div>
+                                      </UIUtils.RenderIf>
+                                      <UIUtils.RenderIf
+                                        condition={option.label->LogicUtils.isEmptyString}>
+                                        <div className="mr-5">
+                                          {option.inputNames
+                                          ->Array.get(0)
+                                          ->Option.getOr("")
+                                          ->LogicUtils.snakeToTitle
+                                          ->React.string}
+                                        </div>
+                                      </UIUtils.RenderIf>
                                     </button>
                                   </div>}
                               </Menu.Item>
