@@ -72,6 +72,7 @@ type order = {
   payment_method: string,
   payment_method_type: string,
   payment_method_data: option<JSON.t>,
+  external_authentication_details: option<JSON.t>,
   payment_token: string,
   shipping: string,
   billing: string,
@@ -120,6 +121,15 @@ type frmColType =
   | FRMConnector
   | FRMMessage
   | MerchantDecision
+
+type authenticationColType =
+  | AuthenticationFlow
+  | DsTransactionId
+  | ElectronicCommerceIndicator
+  | ErrorCode
+  | ErrorMessage
+  | Status
+  | Version
 
 type attemptColType =
   | AttemptId
