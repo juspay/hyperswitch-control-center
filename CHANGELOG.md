@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.24.0
+
+### Features
+
+- Added authentication details block in payment details ([#703](https://github.com/juspay/hyperswitch-control-center/pull/703)) ([`89c7108`](https://github.com/juspay/hyperswitch-control-center/commit/89c7108c309a3273529f97c96f8f42604009751f))
+
+### Bug Fixes
+
+- Sdk country currency issue ([#704](https://github.com/juspay/hyperswitch-control-center/pull/704)) ([`f7a9250`](https://github.com/juspay/hyperswitch-control-center/commit/f7a925004b1033eff1a4f0887120159c8f8578a0))
+
+### Miscellaneous Tasks
+
+- Fix console warning ([#702](https://github.com/juspay/hyperswitch-control-center/pull/702)) ([`ae03248`](https://github.com/juspay/hyperswitch-control-center/commit/ae032488b0322fdca0ef6667d0c70c55de755bcf))
+
+**Full Changelog:** [`2024.05.23.1...2024.05.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.23.1...2024.05.24.0)
+
+- - -
+
 ## 2024.05.23.1
 
 ### Bug Fixes
