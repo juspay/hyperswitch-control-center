@@ -1,7 +1,7 @@
 let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.paymentType = defaultBusinessProfile => {
   {
     amount: 10000.00,
-    currency: "United States-USD",
+    currency: "USD",
     profile_id: defaultBusinessProfile.profile_id,
     description: "Default value",
     customer_id: "hyperswitch_sdk_demo_id",
@@ -55,28 +55,23 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
     capture_method: "automatic",
     amount_to_capture: Nullable.make(100.00),
     return_url: `${Window.Location.origin}${Window.Location.pathName}`,
+    country_currency: "US-USD",
   }
-}
-
-let getCurrencyValue = (countryCurrency: string) => {
-  countryCurrency->String.split("-")->Array.get(1)->Option.getOr("USD")->String.trim
 }
 
 let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
   open LogicUtils
   let dictOfValues = values->getDictFromJsonObject
-  let shippingAddress =
-    values->getDictFromJsonObject->getDictfromDict("shipping")->getDictfromDict("address")
-  let shippingPhone =
-    values->getDictFromJsonObject->getDictfromDict("shipping")->getDictfromDict("phone")
-  let billingAddress =
-    values->getDictFromJsonObject->getDictfromDict("billing")->getDictfromDict("address")
-  let billingPhone =
-    values->getDictFromJsonObject->getDictfromDict("shipping")->getDictfromDict("phone")
-  let billingEmail =
-    values->getDictFromJsonObject->getDictfromDict("billing")->getString("email", "")
-  let metaData =
-    values->getDictFromJsonObject->getDictfromDict("metadata")->getDictfromDict("order_details")
+  let getDictFormDictOfValues = key => dictOfValues->getDictfromDict(key)
+
+  let shippingAddress = getDictFormDictOfValues("shipping")->getDictfromDict("address")
+  let shippingPhone = getDictFormDictOfValues("shipping")->getDictfromDict("phone")
+  let billingAddress = getDictFormDictOfValues("billing")->getDictfromDict("address")
+  let billingPhone = getDictFormDictOfValues("shipping")->getDictfromDict("phone")
+  let billingEmail = getDictFormDictOfValues("billing")->getString("email", "")
+  let metaData = getDictFormDictOfValues("metadata")->getDictfromDict("order_details")
+  let amount = dictOfValues->getFloat("amount", 100.00)
+  let countryCurrency = dictOfValues->getString("country_currency", "US-USD")->String.split("-")
 
   let mandateData: SDKPaymentTypes.mandateData = {
     customer_acceptance: {
@@ -90,15 +85,14 @@ let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
     mandate_type: {
       multi_use: {
         amount: 10000,
-        currency: dictOfValues->getString("currency", "United States-USD")->getCurrencyValue,
+        currency: countryCurrency->Array.at(1)->Option.getOr("USD"),
       },
     },
   }
-  let amount = dictOfValues->getFloat("amount", 100.00)
 
   {
     amount,
-    currency: dictOfValues->getString("currency", "United States-USD"),
+    currency: countryCurrency->Array.at(1)->Option.getOr("USD"),
     profile_id: dictOfValues->getString("profile_id", ""),
     customer_id: dictOfValues->getString("customer_id", ""),
     description: dictOfValues->getString("description", "Default value"),
@@ -132,7 +126,7 @@ let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
         city: billingAddress->getString("city", ""),
         state: billingAddress->getString("state", ""),
         zip: billingAddress->getString("zip", ""),
-        country: billingAddress->getString("country", ""),
+        country: countryCurrency->Array.at(0)->Option.getOr("US"),
         first_name: billingAddress->getString("first_name", ""),
         last_name: billingAddress->getString("last_name", ""),
       },
@@ -155,5 +149,6 @@ let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
     payment_type: amount === 0.00 ? Nullable.make("setup_mandate") : Nullable.null,
     setup_future_usage: amount === 0.00 ? Nullable.make("off_session") : Nullable.null,
     mandate_data: amount === 0.00 ? Nullable.make(mandateData) : Nullable.null,
+    country_currency: dictOfValues->getString("country_currency", "US-USD"),
   }
 }
