@@ -412,3 +412,7 @@ let getOrdersList = async (
   | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
   }
 }
+
+let isNonEmptyValue = value => {
+  value->Option.getOr(Dict.make())->Dict.toArray->Array.length > 0
+}

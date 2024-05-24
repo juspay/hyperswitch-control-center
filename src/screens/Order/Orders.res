@@ -77,7 +77,9 @@ let make = (~previewOnly=false) => {
   }
 
   React.useEffect3(() => {
-    fetchOrders()
+    if filters->isNonEmptyValue {
+      fetchOrders()
+    }
     None
   }, (offset, filters, searchText))
 
