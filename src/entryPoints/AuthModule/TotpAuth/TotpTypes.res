@@ -19,3 +19,5 @@ type totpAuthInfo = {
   role_id: option<string>,
   email_token: option<string>,
 }
+
+type totpStatusType = TOTP_SHOW_QR | TOTP_SHOW_RC
