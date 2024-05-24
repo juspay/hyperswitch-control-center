@@ -430,6 +430,11 @@ module TabDetails = {
     | _ => Dict.make()
     }
 
+    let comparitionWidget = switch analyticsType {
+    | AUTHENTICATION | USER_JOURNEY => false
+    | _ => true
+    }
+
     let tab =
       <div className=wrapperClass>
         <DynamicChart
@@ -442,6 +447,7 @@ module TabDetails = {
           showTableLegend=false
           showMarkers=true
           legendType=HighchartTimeSeriesChart.Points
+          comparitionWidget
         />
         {switch tableEntity {
         | Some(tableEntity) =>
