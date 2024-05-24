@@ -1,12 +1,12 @@
-module WarningArea = {
-  @react.component
-  let make = (~warningText) => {
-    <h1 className="text-orange-950 bg-orange-100 border w-full py-2 px-4 rounded-md ">
-      <span className="text-orange-950 font-bold text-fs-14 mr-2"> {"NOTE:"->React.string} </span>
-      {warningText->React.string}
-    </h1>
-  }
-}
+// module WarningArea = {
+//   @react.component
+//   let make = (~warningText) => {
+//     <h1 className="text-orange-950 bg-orange-100 border w-full py-2 px-4 rounded-md ">
+//       <span className="text-orange-950 font-bold text-fs-14 mr-2"> {"NOTE:"->React.string} </span>
+//       {warningText->React.string}
+//     </h1>
+//   }
+// }
 module AddEntryBtn = {
   @react.component
   let make = (
@@ -176,7 +176,7 @@ let make = (
             subTitle="Add and manage profiles to represent different businesses across countries."
           />
           <UIUtils.RenderIf condition={businessProfileValues->Array.length > 1}>
-            <WarningArea
+            <HSwitchUtils.WarningArea
               warningText="Warning! Now that you've configured more than one profile, you must mandatorily pass 'profile_id' in payments API request every time"
             />
           </UIUtils.RenderIf>
