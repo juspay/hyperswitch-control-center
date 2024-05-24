@@ -238,6 +238,7 @@ let useGetURL = () => {
       | #BEGIN_TOTP => `${userUrl}/totp/begin`
       | #VERIFY_TOTP => `${userUrl}/totp/verify`
       | #INVITE_MULTIPLE_TOKEN_ONLY => `${userUrl}/user/invite_multiple?token_only=true`
+      | #GENERATE_RECOVERY_CODES => `${userUrl}/recovery_codes/generate`
       | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
         `${userUrl}/accept_invite_from_email?token_only=true`
       | #USER_INFO => userUrl
