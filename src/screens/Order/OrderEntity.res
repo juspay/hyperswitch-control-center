@@ -107,6 +107,23 @@ let getFrmCell = (orderDetais: order, frmColType: frmColType): Table.cell => {
   }
 }
 
+let getAuthenticationCell = (orderDetais: order, colType: authenticationColType): Table.cell => {
+  let authenticationDetails =
+    orderDetais.external_authentication_details
+    ->Option.getOr(JSON.Encode.null)
+    ->getDictFromJsonObject
+  switch colType {
+  | AuthenticationFlow => Text(authenticationDetails->getString("authentication_flow", ""))
+  | DsTransactionId => Text(authenticationDetails->getString("ds_transaction_id", ""))
+  | ElectronicCommerceIndicator =>
+    Text(authenticationDetails->getString("electronic_commerce_indicator", ""))
+  | ErrorCode => Text(authenticationDetails->getString("error_code", ""))
+  | ErrorMessage => Text(authenticationDetails->getString("error_message", ""))
+  | Status => Text(authenticationDetails->getString("status", ""))
+  | Version => Text(authenticationDetails->getString("version", ""))
+  }
+}
+
 let refundColumns: array<refundsColType> = [Created, LastUpdated, Amount, PaymentId, RefundStatus]
 
 let attemptsColumns: array<attemptColType> = [
@@ -127,6 +144,16 @@ let frmColumns: array<frmColType> = [
   FRMConnector,
   FRMMessage,
   MerchantDecision,
+]
+
+let authenticationColumns: array<authenticationColType> = [
+  AuthenticationFlow,
+  DsTransactionId,
+  ElectronicCommerceIndicator,
+  ErrorCode,
+  ErrorMessage,
+  Status,
+  Version,
 ]
 
 let refundDetailsFields = [
@@ -249,6 +276,32 @@ let getFrmHeading = (frmDetailsColType: frmColType) => {
   | FRMMessage => Table.makeHeaderInfo(~key="frm_message", ~title="FRM Message", ~showSort=true, ())
   | MerchantDecision =>
     Table.makeHeaderInfo(~key="merchant_decision", ~title="Merchant Decision", ~showSort=true, ())
+  }
+}
+
+let getAuthenticationHeading = (authenticationDetailsColType: authenticationColType) => {
+  switch authenticationDetailsColType {
+  | AuthenticationFlow =>
+    Table.makeHeaderInfo(
+      ~key="authentication_flow",
+      ~title="Authentication Flow",
+      ~showSort=true,
+      (),
+    )
+  | DsTransactionId =>
+    Table.makeHeaderInfo(~key="ds_transaction_id", ~title="Ds Transaction Id", ~showSort=true, ())
+  | ElectronicCommerceIndicator =>
+    Table.makeHeaderInfo(
+      ~key="electronic_commerce_indicator",
+      ~title="Electronic Commerce Indicator",
+      ~showSort=true,
+      (),
+    )
+  | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code", ~showSort=true, ())
+  | ErrorMessage =>
+    Table.makeHeaderInfo(~key="error_message", ~title="Error Message", ~showSort=true, ())
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~showSort=true, ())
+  | Version => Table.makeHeaderInfo(~key="version", ~title="Version", ~showSort=true, ())
   }
 }
 
@@ -837,6 +890,14 @@ let itemToObjMapper = dict => {
       let paymentMethodData = dict->getJsonObjectFromDict("payment_method_data")
       switch paymentMethodData->JSON.Classify.classify {
       | Object(value) => Some(value->getJsonObjectFromDict("card"))
+      | _ => None
+      }
+    },
+    external_authentication_details: {
+      let externalAuthenticationDetails =
+        dict->getJsonObjectFromDict("external_authentication_details")
+      switch externalAuthenticationDetails->JSON.Classify.classify {
+      | Object(_) => Some(externalAuthenticationDetails)
       | _ => None
       }
     },

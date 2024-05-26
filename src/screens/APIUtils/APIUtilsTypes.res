@@ -86,5 +86,6 @@ type userType = [
   | #ROTATE_PASSWORD
   | #BEGIN_TOTP
   | #VERIFY_TOTP
+  | #GENERATE_RECOVERY_CODES
   | #NONE
 ]

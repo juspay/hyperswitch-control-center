@@ -576,6 +576,33 @@ module FraudRiskBannerDetails = {
   }
 }
 
+module AuthenticationDetails = {
+  open OrderEntity
+  @react.component
+  let make = (~order: order) => {
+    <div
+      className="w-full bg-white dark:bg-jp-gray-lightgray_background rounded-md px-4 pb-5 h-full">
+      <div
+        className={`flex flex-wrap dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+        {authenticationColumns
+        ->Array.mapWithIndex((colType, i) => {
+          <div className="w-1/3" key={i->Int.toString}>
+            <DisplayKeyValueParams
+              heading={getAuthenticationHeading(colType)}
+              value={getAuthenticationCell(order, colType)}
+              customMoneyStyle="!font-normal !text-sm"
+              labelMargin="!py-0 mt-2"
+              overiddingHeadingStyles="text-black text-sm font-medium"
+              textColor="!font-normal !text-jp-gray-700"
+            />
+          </div>
+        })
+        ->React.array}
+      </div>
+    </div>
+  }
+}
+
 module FraudRiskBanner = {
   @react.component
   let make = (~frmMessage: frmMessage, ~refElement: React.ref<Js.nullable<Dom.element>>) => {
@@ -830,6 +857,21 @@ let make = (~id) => {
                       jsonToDisplay={order.payment_method_data->JSON.stringifyAny->Option.getOr("")}
                       overrideBackgroundColor="bg-white"
                     />
+                  </div>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={order.external_authentication_details->Option.isSome}>
+          <RenderAccordian
+            accordion={[
+              {
+                title: "External Authentication Details",
+                renderContent: () => {
+                  <div className="bg-white p-2">
+                    <AuthenticationDetails order />
                   </div>
                 },
                 renderContentOnTop: None,

@@ -63,11 +63,10 @@ module ConfirmPopUpElement = {
 
 module ConfigureTotpScreen = {
   @react.component
-  let make = (~isQrVisible, ~totpUrl, ~recoveryCodes, ~showQR) => {
+  let make = (~isQrVisible, ~totpUrl, ~showQR, ~setTotpStatus) => {
     open APIUtils
 
     let showToast = ToastState.useShowToast()
-    let showPopUp = PopUpState.useShowPopUp()
     let updateDetails = useUpdateMethod()
     let getURL = useGetURL()
     let (otp, setOtp) = React.useState(_ => "")
@@ -91,12 +90,17 @@ module ConfigureTotpScreen = {
       try {
         open LogicUtils
         open TotpUtils
+        open TotpTypes
 
         setButtonState(_ => Button.Loading)
         if otp->String.length > 0 {
           let body = [("totp", otp->JSON.Encode.string)]->getJsonFromArrayOfJson
           let response = await verifyTotpLogic(body)
-          setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(response))))
+          if showQR {
+            setTotpStatus(_ => TOTP_SHOW_RC)
+          } else {
+            setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(response))))
+          }
         } else {
           showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
         }
@@ -126,36 +130,36 @@ module ConfigureTotpScreen = {
       }
     }
 
-    let downloadRecoveryCodes = () => {
-      open LogicUtils
-      try {
-        DownloadUtils.downloadOld(
-          ~fileName="recoveryCodes.txt",
-          ~content=JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3),
-        )
-      } catch {
-      | _ => showToast(~message="Failed to fetch recovery codes!", ~toastType=ToastError, ())
-      }
-    }
+    // let downloadRecoveryCodes = () => {
+    //   open LogicUtils
+    //   try {
+    //     DownloadUtils.downloadOld(
+    //       ~fileName="recoveryCodes.txt",
+    //       ~content=JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3),
+    //     )
+    //   } catch {
+    //   | _ => showToast(~message="Failed to fetch recovery codes!", ~toastType=ToastError, ())
+    //   }
+    // }
 
-    let confirmRecoveryCodesPopUp = () => {
-      showPopUp({
-        popUpType: (Warning, WithIcon),
-        heading: "Confirm action",
-        description: <ConfirmPopUpElement recoveryCodes downloadRecoveryCodes />,
-        handleConfirm: {
-          text: "Continue",
-          onClick: _ => verifyTOTP()->ignore,
-        },
-      })
-    }
+    // let confirmRecoveryCodesPopUp = () => {
+    //   showPopUp({
+    //     popUpType: (Warning, WithIcon),
+    //     heading: "Confirm action",
+    //     description: <ConfirmPopUpElement recoveryCodes downloadRecoveryCodes />,
+    //     handleConfirm: {
+    //       text: "Continue",
+    //       onClick: _ => verifyTOTP()->ignore,
+    //     },
+    //   })
+    // }
 
     let handleTotpSubmitClick = () => {
-      if recoveryCodes->Array.length > 0 {
-        confirmRecoveryCodesPopUp()
-      } else {
-        verifyTOTP()->ignore
-      }
+      // if recoveryCodes->Array.length > 0 {
+      //   confirmRecoveryCodesPopUp()
+      // } else {
+      verifyTOTP()->ignore
+      // }
     }
 
     let buttonText = showQR ? "Enable 2FA" : "Verify OTP"
@@ -205,10 +209,9 @@ let make = () => {
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (isQrVisible, setIsQrVisible) = React.useState(_ => false)
-
   let (totpUrl, setTotpUrl) = React.useState(_ => "")
-  let (recoveryCodes, setRecoveryCodes) = React.useState(_ => [])
   let (showQR, setShowQR) = React.useState(_ => true)
+  let (totpStatus, setTotpStatus) = React.useState(_ => TotpTypes.TOTP_SHOW_QR)
 
   let delayTimer = () => {
     let timeoutId = {
@@ -234,9 +237,9 @@ let make = () => {
       switch responseDict->JSON.Classify.classify {
       | Object(objectValue) => {
           let otpUrl = objectValue->getString("totp_url", "")
-          let recoveryCodes = objectValue->getStrArray("recovery_codes")
+          // let recoveryCodes = objectValue->getStrArray("recovery_codes")
           setTotpUrl(_ => otpUrl)
-          setRecoveryCodes(_ => recoveryCodes)
+          // setRecoveryCodes(_ => recoveryCodes)
         }
       | _ => setShowQR(_ => false)
       }
@@ -261,7 +264,10 @@ let make = () => {
   <PageLoaderWrapper screenState>
     <BackgroundImageWrapper>
       <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
-        <ConfigureTotpScreen isQrVisible totpUrl recoveryCodes showQR />
+        {switch totpStatus {
+        | TOTP_SHOW_QR => <ConfigureTotpScreen isQrVisible totpUrl showQR setTotpStatus />
+        | TOTP_SHOW_RC => <TotpSetupElements.TotpRecoveryCodes setTotpStatus />
+        }}
         <div className="text-grey-200 flex gap-2">
           {"Log in with a different account?"->React.string}
           <p
