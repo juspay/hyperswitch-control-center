@@ -66,100 +66,130 @@ module TotpInput = {
 
 module TotpRecoveryCodes = {
   @react.component
-  let make = (~setTotpStatus) => {
+  let make = (~setTotpStatus, ~onClickDownload) => {
+    let showToast = ToastState.useShowToast()
     let getURL = APIUtils.useGetURL()
     let fetchDetails = APIUtils.useGetMethod()
     let (recoveryCodes, setRecoveryCodes) = React.useState(_ => [])
-    let firstHalf = recoveryCodes->Array.copy
-    firstHalf->Array.splice(~start=0, ~remove=recoveryCodes->Array.length / 2, ~insert=[])
-
-    let secondHalf = recoveryCodes->Array.copy
-    secondHalf->Array.splice(
-      ~start=recoveryCodes->Array.length / 2,
-      ~remove=recoveryCodes->Array.length,
-      ~insert=[],
-    )
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
     let generateRecoveryCodes = async () => {
       open TotpTypes
       try {
         open LogicUtils
+        setScreenState(_ => PageLoaderWrapper.Loading)
         let url = getURL(~entityName=USERS, ~userType=#GENERATE_RECOVERY_CODES, ~methodType=Get, ())
         let response = await fetchDetails(url)
-        setRecoveryCodes(_ => response->getStrArryFromJson)
-        // setRecoveryCodes(_ => [
-        //   "adcsfda",
-        //   "fvsed",
-        //   "Awrefer",
-        //   "Aqreffqer",
-        //   "Aqrfwer",
-        //   "Erfew",
-        //   "erwgwrtg",
-        // ])
-        // setTotpStatus(_ => TOTP_SHOW_RC)
+        let recoveryCodesValue = response->getDictFromJsonObject->getStrArray("recovery_codes")
+        setRecoveryCodes(_ => recoveryCodesValue)
+        setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       // TODO : Change to TOTP_SHOW_QR
-      | _ => setTotpStatus(_ => TOTP_SHOW_RC)
+      | _ => setTotpStatus(_ => TOTP_SHOW_QR)
       }
     }
 
-    React.useEffect(() => {
+    let downloadRecoveryCodes = () => {
+      open LogicUtils
+      DownloadUtils.downloadOld(
+        ~fileName="recoveryCodes.txt",
+        ~content=JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3),
+      )
+    }
+
+    let copyRecoveryCodes = ev => {
+      open LogicUtils
+      ev->ReactEvent.Mouse.stopPropagation
+      Clipboard.writeText(JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3))
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+    }
+
+    React.useEffect0(() => {
       generateRecoveryCodes()->ignore
       None
     })
-    <div className={`bg-white h-40-rem w-133 rounded-2xl flex flex-col`}>
-      <div className="p-6 border-b-2 flex justify-between items-center">
-        <p className={`${h2TextStyle} text-grey-900`}>
-          {"Two factor recovery codes"->React.string}
-        </p>
-      </div>
-      <div className="px-8 py-8 flex flex-col flex-1 justify-between">
-        <div className="flex flex-col  gap-6">
-          <p className="text-jp-gray-700">
-            {"Recovery codes provide a way to access your account if you lose your device and can't receive two-factor authentication codes."->React.string}
+
+    <PageLoaderWrapper screenState>
+      <div className={`bg-white h-40-rem w-133 rounded-2xl flex flex-col`}>
+        <div className="p-6 border-b-2 flex justify-between items-center">
+          <p className={`${h2TextStyle} text-grey-900`}>
+            {"Two factor recovery codes"->React.string}
           </p>
-          <HSwitchUtils.WarningArea
-            warningText="These codes are the last resort for accessing your account in case you lose your password and second factors. If you cannot find these codes, you will lose access to your account."
-          />
-          <div
-            className="border border-gray-200 rounded-md bg-jp-gray-100 py-6 px-12 flex gap-8 flex justify-evenly">
-            <div className="flex flex-col gap-2 ">
-              {firstHalf
-              ->Array.map(recoveryCode =>
-                <div className="flex items-center  gap-2">
-                  <div className="p-1 rounded-full bg-jp-gray-600" />
-                  <p className="text-jp-gray-700 text-xl"> {recoveryCode->React.string} </p>
-                </div>
-              )
-              ->React.array}
-            </div>
-            <div className="flex flex-col gap-2 ">
-              {secondHalf
-              ->Array.map(recoveryCode =>
-                <div className="flex items-center  gap-2">
-                  <div className="p-1 rounded-full bg-jp-gray-600" />
-                  <p className="text-jp-gray-700 text-xl"> {recoveryCode->React.string} </p>
-                </div>
-              )
-              ->React.array}
+        </div>
+        <div className="px-8 py-8 flex flex-col flex-1 justify-between">
+          <div className="flex flex-col  gap-6">
+            <p className="text-jp-gray-700">
+              {"Recovery codes provide a way to access your account if you lose your device and can't receive two-factor authentication codes."->React.string}
+            </p>
+            <HSwitchUtils.WarningArea
+              warningText="These codes are the last resort for accessing your account in case you lose your password and second factors. If you cannot find these codes, you will lose access to your account."
+            />
+            <div
+              className="border border-gray-200 rounded-md bg-jp-gray-100 py-6 px-12 flex gap-8 flex justify-evenly">
+              <div className="grid grid-cols-2 gap-4">
+                {recoveryCodes
+                ->Array.map(recoveryCode =>
+                  <div className="flex items-center  gap-2">
+                    <div className="p-1 rounded-full bg-jp-gray-600" />
+                    <p className="text-jp-gray-700 text-xl"> {recoveryCode->React.string} </p>
+                  </div>
+                )
+                ->React.array}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex gap-4 justify-end">
-          <Button
-            leftIcon={CustomIcon(<img src={`/assets/CopyToClipboard.svg`} />)}
-            text={"Copy"}
-            buttonType={Secondary}
-            buttonSize={Small}
-          />
-          <Button
-            leftIcon={FontAwesome("download-api-key")}
-            text={"Download"}
-            buttonType={Primary}
-            buttonSize={Small}
-          />
+          <div className="flex gap-4 justify-end">
+            <Button
+              leftIcon={CustomIcon(<img src={`/assets/CopyToClipboard.svg`} />)}
+              text={"Copy"}
+              buttonType={Secondary}
+              buttonSize={Small}
+              onClick={copyRecoveryCodes}
+            />
+            <Button
+              leftIcon={FontAwesome("download-api-key")}
+              text={"Download"}
+              buttonType={Primary}
+              buttonSize={Small}
+              onClick={_ => {
+                downloadRecoveryCodes()
+                onClickDownload(false)->ignore
+              }}
+            />
+          </div>
         </div>
       </div>
+    </PageLoaderWrapper>
+  }
+}
+
+module RecoveryCodesInput = {
+  @react.component
+  let make = (~recoveryCode, ~setRecoveryCode) => {
+    let recoveryCodeInput: ReactFinalForm.fieldRenderPropsInput = {
+      name: "recovery_code_input",
+      onBlur: _ev => (),
+      onChange: ev => {
+        let value = ReactEvent.Form.target(ev)["value"]
+        // if %re("/^[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}$/")->Js.Re.test_(value) || value != "" {
+        setRecoveryCode(_ => value)
+        // }
+      },
+      onFocus: _ev => (),
+      value: recoveryCode->JSON.Encode.string,
+      checked: true,
+    }
+
+    <div className="flex flex-col gap-4 items-center">
+      <p> {"Enter a 8-digit recovery code generated provided during signup."->React.string} </p>
+      <TextInput
+        input=recoveryCodeInput
+        placeholder="ABCD-EFGH"
+        customWidth="w-96"
+        customStyle="h-16 text-xl justify-center"
+        pattern="[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}"
+        maxLength=9
+      />
     </div>
   }
 }

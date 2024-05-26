@@ -20,4 +20,4 @@ type totpAuthInfo = {
   email_token: option<string>,
 }
 
-type totpStatusType = TOTP_SHOW_QR | TOTP_SHOW_RC
+type totpStatusType = TOTP_SHOW_QR | TOTP_SHOW_RC | TOTP_INPUT_RECOVERY_CODE
