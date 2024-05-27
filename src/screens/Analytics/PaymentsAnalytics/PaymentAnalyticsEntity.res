@@ -23,6 +23,8 @@ let colMapper = (col: paymentColType) => {
   | Currency => "currency"
   | AuthType => "authentication_type"
   | Status => "status"
+  | ClientSource => "client_source"
+  | ClientVersion => "client_version"
   | WeeklySuccessRate => "weekly_payment_success_rate"
   | NoCol => ""
   }
@@ -103,6 +105,8 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentTableType = dict => {
     currency: dict->getString(Currency->colMapper, "OTHER")->String.toUpperCase,
     authentication_type: dict->getString(AuthType->colMapper, "OTHER")->String.toUpperCase,
     refund_status: dict->getString(Status->colMapper, "OTHER")->String.toUpperCase,
+    client_source: dict->getString(ClientSource->colMapper, "OTHER")->String.toUpperCase,
+    client_version: dict->getString(ClientVersion->colMapper, "OTHER")->String.toUpperCase,
     weekly_payment_success_rate: dict->getWeeklySR->String.toUpperCase,
     payment_error_message: dict->parseErrorReasons,
   }
@@ -182,6 +186,10 @@ let getUpdatedHeading = (
         (),
       )
     | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown, ~showSort=false, ())
+    | ClientSource =>
+      Table.makeHeaderInfo(~key, ~title="Client Source", ~dataType=DropDown, ~showSort=false, ())
+    | ClientVersion =>
+      Table.makeHeaderInfo(~key, ~title="Client Version", ~dataType=DropDown, ~showSort=false, ())
 
     | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false, ())
     }
@@ -207,6 +215,8 @@ let getCell = (paymentTable, colType): Table.cell => {
   | Currency => Text(paymentTable.currency)
   | AuthType => Text(paymentTable.authentication_type)
   | Status => Text(paymentTable.refund_status)
+  | ClientSource => Text(paymentTable.client_source)
+  | ClientVersion => Text(paymentTable.client_version)
   | WeeklySuccessRate => Text(paymentTable.weekly_payment_success_rate)
   | PaymentErrorMessage =>
     Table.CustomCell(<ErrorReasons errors={paymentTable.payment_error_message} />, "NA")

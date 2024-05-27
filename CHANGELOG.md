@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.26.0
+
+### Bug Fixes
+
+- User analytics fix ([#709](https://github.com/juspay/hyperswitch-control-center/pull/709)) ([`2e03162`](https://github.com/juspay/hyperswitch-control-center/commit/2e03162dd914d7e161b39e6d127040525804bf0b))
+
+### Miscellaneous Tasks
+
+- Download access code component ([#707](https://github.com/juspay/hyperswitch-control-center/pull/707)) ([`82f145c`](https://github.com/juspay/hyperswitch-control-center/commit/82f145cf0307a56afb546354f1d0146d51266792))
+
+**Full Changelog:** [`2024.05.24.0...2024.05.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.24.0...2024.05.26.0)
+
+- - -
+
 ## 2024.05.24.0
 
 ### Features

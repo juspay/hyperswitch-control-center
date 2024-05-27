@@ -160,6 +160,8 @@ type paymentColType =
   | PaymentMethodType
   | Currency
   | AuthType
+  | ClientSource
+  | ClientVersion
   | Status
   | WeeklySuccessRate
   | NoCol
@@ -171,6 +173,8 @@ let defaultPaymentColumns = [
   Currency,
   AuthType,
   Status,
+  ClientSource,
+  ClientVersion,
 ]
 
 let allPaymentColumns = [
@@ -223,6 +227,8 @@ type paymentTableType = {
   payment_method_type: string,
   currency: string,
   authentication_type: string,
+  client_source: string,
+  client_version: string,
   refund_status: string,
   weekly_payment_success_rate: string,
 }

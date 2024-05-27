@@ -85,6 +85,8 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   | ConnectorMetadata => Text(attempt.connector_metadata)
   | PaymentExperience => Text(attempt.payment_experience)
   | ReferenceID => Text(attempt.reference_id)
+  | ClientSource => Text(attempt.client_source)
+  | ClientVersion => Text(attempt.client_version)
   }
 }
 
@@ -185,6 +187,8 @@ let attemptDetailsField = [
   ConnectorMetadata,
   PaymentExperience,
   ReferenceID,
+  ClientSource,
+  ClientVersion,
 ]
 
 let getRefundHeading = (refundsColType: refundsColType) => {
@@ -254,6 +258,10 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
     Table.makeHeaderInfo(~key="payment_experience", ~title="Payment Experience", ~showSort=true, ())
   | ReferenceID =>
     Table.makeHeaderInfo(~key="reference_id", ~title="Reference ID", ~showSort=true, ())
+  | ClientSource =>
+    Table.makeHeaderInfo(~key="client_source", ~title="Client Source", ~showSort=true, ())
+  | ClientVersion =>
+    Table.makeHeaderInfo(~key="client_version", ~title="Client Version", ~showSort=true, ())
   }
 }
 
@@ -349,6 +357,8 @@ let attemptsItemToObjMapper = dict => {
   payment_experience: dict->getString("payment_experience", ""),
   payment_method_type: dict->getString("payment_method_type", ""),
   reference_id: dict->getString("reference_id", ""),
+  client_source: dict->getString("client_source", ""),
+  client_version: dict->getString("client_version", ""),
 }
 
 let getRefunds: JSON.t => array<refunds> = json => {
