@@ -38,7 +38,7 @@ module EnterAccessCode = {
       </div>
       <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
         <div className="flex flex-col justify-center items-center gap-4">
-          <TotpSetupElements.RecoveryCodesInput recoveryCode setRecoveryCode />
+          <TwoFaElements.RecoveryCodesInput recoveryCode setRecoveryCode />
           <p className={`${p2Regular} text-jp-gray-700`}>
             {"Didn't get a code? "->React.string}
             <span
@@ -120,10 +120,10 @@ module ConfigureTotpScreen = {
       </div>
       <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
         <UIUtils.RenderIf condition={!isTotpSet}>
-          <TotpSetupElements.TotpScanQR totpUrl isQrVisible />
+          <TwoFaElements.TotpScanQR totpUrl isQrVisible />
         </UIUtils.RenderIf>
         <div className="flex flex-col justify-center items-center gap-4">
-          <TotpSetupElements.TotpInput otp setOtp />
+          <TwoFaElements.TotpInput otp setOtp />
           <UIUtils.RenderIf condition={isTotpSet}>
             <p className={`${p2Regular} text-jp-gray-700`}>
               {"Didn't get a code? "->React.string}
@@ -247,9 +247,7 @@ let make = () => {
         | TOTP_SHOW_QR =>
           <ConfigureTotpScreen isQrVisible totpUrl isTotpSet setTotpStatus terminateTwoFactorAuth />
         | TOTP_SHOW_RC =>
-          <TotpSetupElements.TotpRecoveryCodes
-            setTotpStatus onClickDownload={terminateTwoFactorAuth}
-          />
+          <TotpRecoveryCodes setTotpStatus onClickDownload={terminateTwoFactorAuth} />
         | TOTP_INPUT_RECOVERY_CODE =>
           <EnterAccessCode setTotpStatus onClickVerifyAccessCode={terminateTwoFactorAuth} />
         }}
