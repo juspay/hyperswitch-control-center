@@ -171,9 +171,7 @@ module RecoveryCodesInput = {
       onBlur: _ev => (),
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
-        // if %re("/^[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}$/")->Js.Re.test_(value) || value != "" {
         setRecoveryCode(_ => value)
-        // }
       },
       onFocus: _ev => (),
       value: recoveryCode->JSON.Encode.string,
@@ -184,10 +182,9 @@ module RecoveryCodesInput = {
       <p> {"Enter a 8-digit recovery code generated provided during signup."->React.string} </p>
       <TextInput
         input=recoveryCodeInput
-        placeholder="ABCD-EFGH"
+        placeholder="XXXX-XXXX"
         customWidth="w-96"
         customStyle="h-16 text-xl justify-center"
-        pattern="[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}"
         maxLength=9
       />
     </div>
