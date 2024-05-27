@@ -49,6 +49,8 @@ type paymentAttemptObject = {
   net_amount: string,
   unified_code: string,
   unified_message: string,
+  client_source: string,
+  client_version: string,
 }
 
 type cols =
@@ -102,6 +104,8 @@ type cols =
   | NetAmount
   | UnifiedCode
   | UnifiedMessage
+  | ClientSource
+  | ClientVersion
 
 let visibleColumns = [
   PaymentId,
@@ -166,6 +170,8 @@ let colMapper = (col: cols) => {
   | NetAmount => "net_amount"
   | UnifiedCode => "unified_code"
   | UnifiedMessage => "unified_message"
+  | ClientSource => "client_source"
+  | ClientVersion => "client_version"
   }
 }
 
@@ -223,6 +229,8 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentAttemptObject = dict => {
     net_amount: dict->getString(NetAmount->colMapper, "NA"),
     unified_code: dict->getString(UnifiedCode->colMapper, "NA"),
     unified_message: dict->getString(UnifiedMessage->colMapper, "NA"),
+    client_source: dict->getString(ClientSource->colMapper, "NA"),
+    client_version: dict->getString(ClientVersion->colMapper, "NA"),
   }
 }
 
@@ -383,6 +391,10 @@ let getHeading = colType => {
     Table.makeHeaderInfo(~key, ~title="Unified Code", ~dataType=TextType, ~showSort=false, ())
   | UnifiedMessage =>
     Table.makeHeaderInfo(~key, ~title="Unified Message", ~dataType=TextType, ~showSort=false, ())
+  | ClientSource =>
+    Table.makeHeaderInfo(~key, ~title="Client Source", ~dataType=TextType, ~showSort=false, ())
+  | ClientVersion =>
+    Table.makeHeaderInfo(~key, ~title="Client Version", ~dataType=TextType, ~showSort=false, ())
   }
 }
 
@@ -476,6 +488,8 @@ let getCell = (paymentObj, colType): Table.cell => {
   | NetAmount => Text(paymentObj.net_amount)
   | UnifiedCode => Text(paymentObj.unified_code)
   | UnifiedMessage => Text(paymentObj.unified_message)
+  | ClientSource => Text(paymentObj.client_source)
+  | ClientVersion => Text(paymentObj.client_version)
   }
 }
 
