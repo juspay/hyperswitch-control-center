@@ -3,6 +3,34 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.27.0
+
+### Features
+
+- Added client cols in payment analytics and payment attempt entity ([#710](https://github.com/juspay/hyperswitch-control-center/pull/710)) ([`2e471cc`](https://github.com/juspay/hyperswitch-control-center/commit/2e471ccfdc6898a60fcafb7dd634e53623baa647))
+
+### Miscellaneous Tasks
+
+- Recovery code component ([#715](https://github.com/juspay/hyperswitch-control-center/pull/715)) ([`a3093b0`](https://github.com/juspay/hyperswitch-control-center/commit/a3093b06eafbadef6b06322d1f1f21c7da0f7ad4))
+
+**Full Changelog:** [`2024.05.26.0...2024.05.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.26.0...2024.05.27.0)
+
+- - -
+
+## 2024.05.26.0
+
+### Bug Fixes
+
+- User analytics fix ([#709](https://github.com/juspay/hyperswitch-control-center/pull/709)) ([`2e03162`](https://github.com/juspay/hyperswitch-control-center/commit/2e03162dd914d7e161b39e6d127040525804bf0b))
+
+### Miscellaneous Tasks
+
+- Download access code component ([#707](https://github.com/juspay/hyperswitch-control-center/pull/707)) ([`82f145c`](https://github.com/juspay/hyperswitch-control-center/commit/82f145cf0307a56afb546354f1d0146d51266792))
+
+**Full Changelog:** [`2024.05.24.0...2024.05.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.24.0...2024.05.26.0)
+
+- - -
+
 ## 2024.05.24.0
 
 ### Features

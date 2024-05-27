@@ -130,36 +130,8 @@ module ConfigureTotpScreen = {
       }
     }
 
-    // let downloadRecoveryCodes = () => {
-    //   open LogicUtils
-    //   try {
-    //     DownloadUtils.downloadOld(
-    //       ~fileName="recoveryCodes.txt",
-    //       ~content=JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3),
-    //     )
-    //   } catch {
-    //   | _ => showToast(~message="Failed to fetch recovery codes!", ~toastType=ToastError, ())
-    //   }
-    // }
-
-    // let confirmRecoveryCodesPopUp = () => {
-    //   showPopUp({
-    //     popUpType: (Warning, WithIcon),
-    //     heading: "Confirm action",
-    //     description: <ConfirmPopUpElement recoveryCodes downloadRecoveryCodes />,
-    //     handleConfirm: {
-    //       text: "Continue",
-    //       onClick: _ => verifyTOTP()->ignore,
-    //     },
-    //   })
-    // }
-
     let handleTotpSubmitClick = () => {
-      // if recoveryCodes->Array.length > 0 {
-      //   confirmRecoveryCodesPopUp()
-      // } else {
       verifyTOTP()->ignore
-      // }
     }
 
     let buttonText = showQR ? "Enable 2FA" : "Verify OTP"
@@ -171,9 +143,9 @@ module ConfigureTotpScreen = {
       </div>
       <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
         <UIUtils.RenderIf condition={showQR}>
-          <TotpSetupElements.TotpScanQR totpUrl isQrVisible />
+          <TwoFaElements.TotpScanQR totpUrl isQrVisible />
         </UIUtils.RenderIf>
-        <TotpSetupElements.TotpInput otp setOtp />
+        <TwoFaElements.TotpInput otp setOtp />
         <div className="flex justify-end gap-4">
           <Button
             text="Skip now"
@@ -266,7 +238,7 @@ let make = () => {
       <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
         {switch totpStatus {
         | TOTP_SHOW_QR => <ConfigureTotpScreen isQrVisible totpUrl showQR setTotpStatus />
-        | TOTP_SHOW_RC => <TotpSetupElements.TotpRecoveryCodes setTotpStatus />
+        | TOTP_SHOW_RC => <TotpRecoveryCodes setTotpStatus onClickDownload={_ => ()} />
         }}
         <div className="text-grey-200 flex gap-2">
           {"Log in with a different account?"->React.string}
