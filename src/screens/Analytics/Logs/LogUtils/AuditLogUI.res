@@ -112,7 +112,8 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       if logs->Array.length === 0 && isError.contents {
         setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
       } else {
-        setScreenState(_ => PageLoaderWrapper.Success)
+        Js.log("Lig")
+        // setScreenState(_ => PageLoaderWrapper.Success)
         logs->Array.sort(sortByCreatedAt)
         setData(_ => logs)
         switch logs->Array.get(0) {
@@ -191,11 +192,12 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     </UIUtils.RenderIf>
 
   open OrderUtils
-  <PageLoaderWrapper
-    screenState
-    customUI={<NoDataFound
-      message={`No logs available for this ${(logType :> string)->String.toLowerCase}`}
-    />}>
+  // <PageLoaderWrapper
+  //   screenState
+  //   customUI={<NoDataFound
+  //     message={`No logs available for this ${(logType :> string)->String.toLowerCase}`}
+  //   />}>
+  <>
     <UIUtils.RenderIf condition={id->HSwitchOrderUtils.isTestData || data->Array.length === 0}>
       <div
         className="flex items-center gap-2 bg-white w-full border-2 p-3 !opacity-100 rounded-lg text-md font-medium">
@@ -212,5 +214,6 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
         {codeBlock}
       </Section>
     </UIUtils.RenderIf>
-  </PageLoaderWrapper>
+  </>
+  // </PageLoaderWrapper>
 }

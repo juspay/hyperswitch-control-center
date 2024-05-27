@@ -761,9 +761,9 @@ let make = (~id) => {
         </UIUtils.RenderIf>
         <div />
       </div>
-      <OrderActions
-        orderDict={orderData->getDictFromJsonObject} refetch={refreshStatus} showModal setShowModal
-      />
+      // <OrderActions
+      //   orderDict={orderData->getDictFromJsonObject} refetch={refreshStatus} showModal setShowModal
+      // />
     </div>
     <UIUtils.RenderIf condition={order.frm_message.frm_status === "fraud"}>
       <FraudRiskBanner frmMessage={order.frm_message} refElement=frmDetailsRef />
