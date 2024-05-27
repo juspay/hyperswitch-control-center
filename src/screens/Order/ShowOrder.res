@@ -650,9 +650,9 @@ let make = (~id) => {
   let fetchDetails = useGetMethod()
   let fetchOrderDetails = async url => {
     try {
-      setScreenState(_ => Loading)
+      // setScreenState(_ => Loading)
       let res = await fetchDetails(url)
-      setOrderData(_ => res)
+      // setOrderData(_ => res)
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
