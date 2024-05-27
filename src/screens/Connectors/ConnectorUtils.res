@@ -96,6 +96,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(CRYPTOPAY),
   Processors(CASHTOCODE),
   Processors(CYBERSOURCE),
+  Processors(KLARNA),
   Processors(IATAPAY),
   Processors(NMI),
   Processors(PAYME),
