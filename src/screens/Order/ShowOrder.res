@@ -756,22 +756,22 @@ let make = (~id) => {
         <div className="overflow-scroll">
           <Attempts order={orderData} />
         </div>
-        // <UIUtils.RenderIf condition={isRefundDataAvailable}>
-        //   <div className="overflow-scroll">
-        //     <RenderAccordian
-        //       initialExpandedArray={isRefundDataAvailable ? [0] : []}
-        //       accordion={[
-        //         {
-        //           title: "Refunds",
-        //           renderContent: () => {
-        //             <Refunds refundData={orderData.refunds} />
-        //           },
-        //           renderContentOnTop: None,
-        //         },
-        //       ]}
-        //     />
-        //   </div>
-        // </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={isRefundDataAvailable}>
+          <div className="overflow-scroll">
+            <RenderAccordian
+              initialExpandedArray={isRefundDataAvailable ? [0] : []}
+              accordion={[
+                {
+                  title: "Refunds",
+                  renderContent: () => {
+                    <Refunds refundData={orderData.refunds} />
+                  },
+                  renderContentOnTop: None,
+                },
+              ]}
+            />
+          </div>
+        </UIUtils.RenderIf>
         // <UIUtils.RenderIf condition={isDisputeDataVisible}>
         //   <div className="overflow-scroll">
         //     <RenderAccordian
