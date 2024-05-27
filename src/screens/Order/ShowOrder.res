@@ -788,21 +788,21 @@ let make = (~id) => {
             />
           </div>
         </UIUtils.RenderIf>
-        <div className="overflow-scroll">
-          <RenderAccordian
-            accordion={[
-              {
-                title: "FRM Details",
-                renderContent: () => {
-                  <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
-                    <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
-                  </div>
-                },
-                renderContentOnTop: None,
-              },
-            ]}
-          />
-        </div>
+        // <div className="overflow-scroll">
+        //   <RenderAccordian
+        //     accordion={[
+        //       {
+        //         title: "FRM Details",
+        //         renderContent: () => {
+        //           <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
+        //             <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
+        //           </div>
+        //         },
+        //         renderContentOnTop: None,
+        //       },
+        //     ]}
+        //   />
+        // </div>
         <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
           <RenderAccordian
             accordion={[
