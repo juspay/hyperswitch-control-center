@@ -816,28 +816,28 @@ let make = (~id) => {
             ]}
           />
         </UIUtils.RenderIf>
-        // <UIUtils.RenderIf
-        //   condition={orderData.payment_method === "card" &&
-        //     orderData.payment_method_data->Option.isSome}>
-        //   <RenderAccordian
-        //     accordion={[
-        //       {
-        //         title: "Payment Method Details",
-        //         renderContent: () => {
-        //           <div className="bg-white p-2">
-        //             <PrettyPrintJson
-        //               jsonToDisplay={orderData.payment_method_data
-        //               ->JSON.stringifyAny
-        //               ->Option.getOr("")}
-        //               overrideBackgroundColor="bg-white"
-        //             />
-        //           </div>
-        //         },
-        //         renderContentOnTop: None,
-        //       },
-        //     ]}
-        //   />
-        // </UIUtils.RenderIf>
+        <UIUtils.RenderIf
+          condition={orderData.payment_method === "card" &&
+            orderData.payment_method_data->Option.isSome}>
+          <RenderAccordian
+            accordion={[
+              {
+                title: "Payment Method Details",
+                renderContent: () => {
+                  <div className="bg-white p-2">
+                    <PrettyPrintJson
+                      jsonToDisplay={orderData.payment_method_data
+                      ->JSON.stringifyAny
+                      ->Option.getOr("")}
+                      overrideBackgroundColor="bg-white"
+                    />
+                  </div>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </UIUtils.RenderIf>
         <UIUtils.RenderIf condition={orderData.external_authentication_details->Option.isSome}>
           <RenderAccordian
             accordion={[
