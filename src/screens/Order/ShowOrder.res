@@ -786,21 +786,21 @@ let make = (~id) => {
             />
           </div>
         </UIUtils.RenderIf>
-        // <div className="overflow-scroll">
-        //   <RenderAccordian
-        //     accordion={[
-        //       {
-        //         title: "FRM Details",
-        //         renderContent: () => {
-        //           <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
-        //             <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
-        //           </div>
-        //         },
-        //         renderContentOnTop: None,
-        //       },
-        //     ]}
-        //   />
-        // </div>
+        <div className="overflow-scroll">
+          <RenderAccordian
+            accordion={[
+              {
+                title: "FRM Details",
+                renderContent: () => {
+                  <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
+                    <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
+                  </div>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </div>
         <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
           <RenderAccordian
             accordion={[
@@ -816,28 +816,28 @@ let make = (~id) => {
             ]}
           />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf
-          condition={orderData.payment_method === "card" &&
-            orderData.payment_method_data->Option.isSome}>
-          <RenderAccordian
-            accordion={[
-              {
-                title: "Payment Method Details",
-                renderContent: () => {
-                  <div className="bg-white p-2">
-                    <PrettyPrintJson
-                      jsonToDisplay={orderData.payment_method_data
-                      ->JSON.stringifyAny
-                      ->Option.getOr("")}
-                      overrideBackgroundColor="bg-white"
-                    />
-                  </div>
-                },
-                renderContentOnTop: None,
-              },
-            ]}
-          />
-        </UIUtils.RenderIf>
+        // <UIUtils.RenderIf
+        //   condition={orderData.payment_method === "card" &&
+        //     orderData.payment_method_data->Option.isSome}>
+        //   <RenderAccordian
+        //     accordion={[
+        //       {
+        //         title: "Payment Method Details",
+        //         renderContent: () => {
+        //           <div className="bg-white p-2">
+        //             <PrettyPrintJson
+        //               jsonToDisplay={orderData.payment_method_data
+        //               ->JSON.stringifyAny
+        //               ->Option.getOr("")}
+        //               overrideBackgroundColor="bg-white"
+        //             />
+        //           </div>
+        //         },
+        //         renderContentOnTop: None,
+        //       },
+        //     ]}
+        //   />
+        // </UIUtils.RenderIf>
         <UIUtils.RenderIf condition={orderData.external_authentication_details->Option.isSome}>
           <RenderAccordian
             accordion={[
@@ -871,56 +871,56 @@ let make = (~id) => {
         //     ]}
         //   />
         // </UIUtils.RenderIf>
-        // <RenderAccordian
-        //   accordion={[
-        //     {
-        //       title: "More Payment Details",
-        //       renderContent: () => {
-        //         <div className="mb-10">
-        //           <ShowOrderDetails
-        //             data=orderData
-        //             getHeading=OrderEntity.getHeadingForOtherDetails
-        //             getCell=OrderEntity.getCellForOtherDetails
-        //             detailsFields=[
-        //               FirstName,
-        //               LastName,
-        //               Phone,
-        //               Email,
-        //               CustomerId,
-        //               Description,
-        //               Shipping,
-        //               Billing,
-        //               BillingEmail,
-        //               AmountCapturable,
-        //               ErrorCode,
-        //               MandateData,
-        //               MerchantId,
-        //               ReturnUrl,
-        //               OffSession,
-        //               CaptureOn,
-        //               NextAction,
-        //               SetupFutureUsage,
-        //               CancellationReason,
-        //               StatementDescriptorName,
-        //               StatementDescriptorSuffix,
-        //               PaymentExperience,
-        //               FRMName,
-        //               FRMTransactionType,
-        //               FRMStatus,
-        //             ]
-        //             isNonRefundConnector={isNonRefundConnector(orderData.connector)}
-        //             paymentStatus={orderData.status}
-        //             openRefundModal={() => ()}
-        //             widthClass="md:w-1/4 w-full"
-        //             paymentId={orderData.payment_id}
-        //             border=""
-        //           />
-        //         </div>
-        //       },
-        //       renderContentOnTop: None,
-        //     },
-        //   ]}
-        // />
+        <RenderAccordian
+          accordion={[
+            {
+              title: "More Payment Details",
+              renderContent: () => {
+                <div className="mb-10">
+                  <ShowOrderDetails
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[
+                      FirstName,
+                      LastName,
+                      Phone,
+                      Email,
+                      CustomerId,
+                      Description,
+                      Shipping,
+                      Billing,
+                      BillingEmail,
+                      AmountCapturable,
+                      ErrorCode,
+                      MandateData,
+                      MerchantId,
+                      ReturnUrl,
+                      OffSession,
+                      CaptureOn,
+                      NextAction,
+                      SetupFutureUsage,
+                      CancellationReason,
+                      StatementDescriptorName,
+                      StatementDescriptorSuffix,
+                      PaymentExperience,
+                      FRMName,
+                      FRMTransactionType,
+                      FRMStatus,
+                    ]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                </div>
+              },
+              renderContentOnTop: None,
+            },
+          ]}
+        />
       </div>
     </PageLoaderWrapper>
   </div>
