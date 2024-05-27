@@ -81,10 +81,8 @@ module ShowOrderDetails = {
 
 module OrderInfo = {
   open OrderEntity
-
   @react.component
   let make = (~order, ~openRefundModal, ~isNonRefundConnector, ~paymentId, ~isMetadata=false) => {
-    // let order = itemToObjMapper(orderDict)
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
     let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
@@ -439,11 +437,10 @@ module Disputes = {
 }
 
 module OrderActions = {
-  open OrderEntity
   @react.component
-  let make = (~orderDict, ~refetch, ~showModal, ~setShowModal) => {
+  let make = (~orderData, ~refetch, ~showModal, ~setShowModal) => {
     let (amoutAvailableToRefund, setAmoutAvailableToRefund) = React.useState(_ => 0.0)
-    let refundData = orderDict->getArrayFromDict("refunds", [])->JSON.Encode.array->getRefunds
+    let refundData = orderData.refunds
 
     let amountRefunded = ref(0.0)
     let requestedRefundAmount = ref(0.0)
@@ -456,15 +453,13 @@ module OrderActions = {
     })
     React.useEffect1(_ => {
       setAmoutAvailableToRefund(_ =>
-        orderDict->getFloat("amount", 0.0) /. 100.0 -.
+        orderData.amount /. 100.0 -.
         amountRefunded.contents /. 100.0 -.
         requestedRefundAmount.contents /. 100.0
       )
 
       None
-    }, [orderDict->Dict.keysToArray->Array.length])
-
-    let order = itemToObjMapper(orderDict)
+    }, [orderData])
 
     <div className="flex flex-row justify-right gap-2">
       <Modal
@@ -475,7 +470,12 @@ module OrderActions = {
         modalClass="w-fit absolute top-0 lg:top-0 md:top-1/3 left-0 lg:left-1/3 md:left-1/3 md:w-4/12 mt-10"
         bgClass="bg-white dark:bg-jp-gray-darkgray_background">
         <OrderRefundForm
-          order setShowModal requestedRefundAmount amountRefunded amoutAvailableToRefund refetch
+          order={orderData}
+          setShowModal
+          requestedRefundAmount
+          amountRefunded
+          amoutAvailableToRefund
+          refetch
         />
       </Modal>
     </div>
@@ -637,7 +637,7 @@ let make = (~id) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (_showModal, setShowModal) = React.useState(_ => false)
+  let (showModal, setShowModal) = React.useState(_ => false)
   let (orderData, setOrderData) = React.useState(_ => Dict.make()->OrderEntity.itemToObjMapper)
 
   let frmDetailsRef = React.useRef(Nullable.null)
@@ -734,9 +734,7 @@ let make = (~id) => {
         </UIUtils.RenderIf>
         <div />
       </div>
-      // <OrderActions
-      //   orderDict={orderData->getDictFromJsonObject} refetch={refreshStatus} showModal setShowModal
-      // />
+      <OrderActions orderData={orderData} refetch={refreshStatus} showModal setShowModal />
     </div>
     <UIUtils.RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
       <FraudRiskBanner frmMessage={orderData.frm_message} refElement=frmDetailsRef />
@@ -788,21 +786,21 @@ let make = (~id) => {
             />
           </div>
         </UIUtils.RenderIf>
-        // <div className="overflow-scroll">
-        //   <RenderAccordian
-        //     accordion={[
-        //       {
-        //         title: "FRM Details",
-        //         renderContent: () => {
-        //           <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
-        //             <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
-        //           </div>
-        //         },
-        //         renderContentOnTop: None,
-        //       },
-        //     ]}
-        //   />
-        // </div>
+        <div className="overflow-scroll">
+          <RenderAccordian
+            accordion={[
+              {
+                title: "FRM Details",
+                renderContent: () => {
+                  <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
+                    <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
+                  </div>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </div>
         <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
           <RenderAccordian
             accordion={[
@@ -873,56 +871,56 @@ let make = (~id) => {
             ]}
           />
         </UIUtils.RenderIf>
-        // <RenderAccordian
-        //   accordion={[
-        //     {
-        //       title: "More Payment Details",
-        //       renderContent: () => {
-        //         <div className="mb-10">
-        //           <ShowOrderDetails
-        //             data=orderData
-        //             getHeading=OrderEntity.getHeadingForOtherDetails
-        //             getCell=OrderEntity.getCellForOtherDetails
-        //             detailsFields=[
-        //               FirstName,
-        //               LastName,
-        //               Phone,
-        //               Email,
-        //               CustomerId,
-        //               Description,
-        //               Shipping,
-        //               Billing,
-        //               BillingEmail,
-        //               AmountCapturable,
-        //               ErrorCode,
-        //               MandateData,
-        //               MerchantId,
-        //               ReturnUrl,
-        //               OffSession,
-        //               CaptureOn,
-        //               NextAction,
-        //               SetupFutureUsage,
-        //               CancellationReason,
-        //               StatementDescriptorName,
-        //               StatementDescriptorSuffix,
-        //               PaymentExperience,
-        //               FRMName,
-        //               FRMTransactionType,
-        //               FRMStatus,
-        //             ]
-        //             isNonRefundConnector={isNonRefundConnector(orderData.connector)}
-        //             paymentStatus={orderData.status}
-        //             openRefundModal={() => ()}
-        //             widthClass="md:w-1/4 w-full"
-        //             paymentId={orderData.payment_id}
-        //             border=""
-        //           />
-        //         </div>
-        //       },
-        //       renderContentOnTop: None,
-        //     },
-        //   ]}
-        // />
+        <RenderAccordian
+          accordion={[
+            {
+              title: "More Payment Details",
+              renderContent: () => {
+                <div className="mb-10">
+                  <ShowOrderDetails
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[
+                      FirstName,
+                      LastName,
+                      Phone,
+                      Email,
+                      CustomerId,
+                      Description,
+                      Shipping,
+                      Billing,
+                      BillingEmail,
+                      AmountCapturable,
+                      ErrorCode,
+                      MandateData,
+                      MerchantId,
+                      ReturnUrl,
+                      OffSession,
+                      CaptureOn,
+                      NextAction,
+                      SetupFutureUsage,
+                      CancellationReason,
+                      StatementDescriptorName,
+                      StatementDescriptorSuffix,
+                      PaymentExperience,
+                      FRMName,
+                      FRMTransactionType,
+                      FRMStatus,
+                    ]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                </div>
+              },
+              renderContentOnTop: None,
+            },
+          ]}
+        />
       </div>
     </PageLoaderWrapper>
   </div>
