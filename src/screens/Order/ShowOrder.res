@@ -652,7 +652,7 @@ let make = (~id) => {
     try {
       setScreenState(_ => Loading)
       let res = await fetchDetails(url)
-      // setOrderData(_ => res)
+      setOrderData(_ => res)
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
