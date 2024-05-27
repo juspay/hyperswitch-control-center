@@ -753,9 +753,9 @@ let make = (~id) => {
           openRefundModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
-        // <div className="overflow-scroll">
-        //   <Attempts order={orderData} />
-        // </div>
+        <div className="overflow-scroll">
+          <Attempts order={orderData} />
+        </div>
         // <UIUtils.RenderIf condition={isRefundDataAvailable}>
         //   <div className="overflow-scroll">
         //     <RenderAccordian
