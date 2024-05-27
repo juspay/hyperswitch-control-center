@@ -36,6 +36,8 @@ type attempts = {
   payment_experience: string,
   payment_method_type: string,
   reference_id: string,
+  client_source: string,
+  client_version: string,
 }
 
 type frmMessage = {
@@ -150,6 +152,8 @@ type attemptColType =
   | ConnectorMetadata
   | PaymentExperience
   | ReferenceID
+  | ClientSource
+  | ClientVersion
 
 type colType =
   | PaymentId
