@@ -677,34 +677,15 @@ let make = (~id) => {
     None
   })
 
-  // let refundData =
-  //   orderData
-  //   ->getDictFromJsonObject
-  //   ->getArrayFromDict("refunds", [])
-  //   ->JSON.Encode.array
-  //   ->OrderEntity.getRefunds
-
   let isRefundDataAvailable = orderData.refunds->Array.length !== 0
 
-  // let disputesData =
-  //   orderData
-  //   ->getDictFromJsonObject
-  // ->getArrayFromDict("disputes", [])
-  // ->JSON.Encode.array
-  // ->DisputesEntity.getDisputes
-
   let isDisputeDataVisible = orderData.disputes->Array.length !== 0
-
-  // let createdAt = React.useMemo1(() => {
-  //   orderData->getDictFromJsonObject->getString("created", "")
-  // }, [orderData])
 
   let openRefundModal = _ => {
     setShowModal(_ => true)
   }
 
   let showSyncButton = React.useCallback1(_ => {
-    // let orderDict = orderData->getDictFromJsonObject
     let status = orderData.status->statusVariantMapper
 
     !(id->isTestData) && status !== Succeeded && status !== Failed
@@ -772,176 +753,176 @@ let make = (~id) => {
           openRefundModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
-        <div className="overflow-scroll">
-          <Attempts order={orderData} />
-        </div>
-        <UIUtils.RenderIf condition={isRefundDataAvailable}>
-          <div className="overflow-scroll">
-            <RenderAccordian
-              initialExpandedArray={isRefundDataAvailable ? [0] : []}
-              accordion={[
-                {
-                  title: "Refunds",
-                  renderContent: () => {
-                    <Refunds refundData={orderData.refunds} />
-                  },
-                  renderContentOnTop: None,
-                },
-              ]}
-            />
-          </div>
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={isDisputeDataVisible}>
-          <div className="overflow-scroll">
-            <RenderAccordian
-              initialExpandedArray={isDisputeDataVisible ? [0] : []}
-              accordion={[
-                {
-                  title: "Disputes",
-                  renderContent: () => {
-                    <Disputes disputesData={orderData.disputes} />
-                  },
-                  renderContentOnTop: None,
-                },
-              ]}
-            />
-          </div>
-        </UIUtils.RenderIf>
-        <div className="overflow-scroll">
-          <RenderAccordian
-            accordion={[
-              {
-                title: "FRM Details",
-                renderContent: () => {
-                  <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
-                    <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
-                  </div>
-                },
-                renderContentOnTop: None,
-              },
-            ]}
-          />
-        </div>
-        <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
-          <RenderAccordian
-            accordion={[
-              {
-                title: "Events and logs",
-                renderContent: () => {
-                  <LogsWrapper wrapperFor={#PAYMENT}>
-                    <PaymentLogs paymentId={id} createdAt={orderData.created} />
-                  </LogsWrapper>
-                },
-                renderContentOnTop: None,
-              },
-            ]}
-          />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf
-          condition={orderData.payment_method === "card" &&
-            orderData.payment_method_data->Option.isSome}>
-          <RenderAccordian
-            accordion={[
-              {
-                title: "Payment Method Details",
-                renderContent: () => {
-                  <div className="bg-white p-2">
-                    <PrettyPrintJson
-                      jsonToDisplay={orderData.payment_method_data
-                      ->JSON.stringifyAny
-                      ->Option.getOr("")}
-                      overrideBackgroundColor="bg-white"
-                    />
-                  </div>
-                },
-                renderContentOnTop: None,
-              },
-            ]}
-          />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={orderData.external_authentication_details->Option.isSome}>
-          <RenderAccordian
-            accordion={[
-              {
-                title: "External Authentication Details",
-                renderContent: () => {
-                  <div className="bg-white p-2">
-                    <AuthenticationDetails order={orderData} />
-                  </div>
-                },
-                renderContentOnTop: None,
-              },
-            ]}
-          />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!(orderData.metadata->LogicUtils.isEmptyDict)}>
-          <RenderAccordian
-            accordion={[
-              {
-                title: "Payment Metadata",
-                renderContent: () => {
-                  <div className="bg-white p-2">
-                    <PrettyPrintJson
-                      jsonToDisplay={orderData.metadata->JSON.stringifyAny->Option.getOr("")}
-                      overrideBackgroundColor="bg-white"
-                    />
-                  </div>
-                },
-                renderContentOnTop: None,
-              },
-            ]}
-          />
-        </UIUtils.RenderIf>
-        <RenderAccordian
-          accordion={[
-            {
-              title: "More Payment Details",
-              renderContent: () => {
-                <div className="mb-10">
-                  <ShowOrderDetails
-                    data=orderData
-                    getHeading=OrderEntity.getHeadingForOtherDetails
-                    getCell=OrderEntity.getCellForOtherDetails
-                    detailsFields=[
-                      FirstName,
-                      LastName,
-                      Phone,
-                      Email,
-                      CustomerId,
-                      Description,
-                      Shipping,
-                      Billing,
-                      BillingEmail,
-                      AmountCapturable,
-                      ErrorCode,
-                      MandateData,
-                      MerchantId,
-                      ReturnUrl,
-                      OffSession,
-                      CaptureOn,
-                      NextAction,
-                      SetupFutureUsage,
-                      CancellationReason,
-                      StatementDescriptorName,
-                      StatementDescriptorSuffix,
-                      PaymentExperience,
-                      FRMName,
-                      FRMTransactionType,
-                      FRMStatus,
-                    ]
-                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
-                    paymentStatus={orderData.status}
-                    openRefundModal={() => ()}
-                    widthClass="md:w-1/4 w-full"
-                    paymentId={orderData.payment_id}
-                    border=""
-                  />
-                </div>
-              },
-              renderContentOnTop: None,
-            },
-          ]}
-        />
+        // <div className="overflow-scroll">
+        //   <Attempts order={orderData} />
+        // </div>
+        // <UIUtils.RenderIf condition={isRefundDataAvailable}>
+        //   <div className="overflow-scroll">
+        //     <RenderAccordian
+        //       initialExpandedArray={isRefundDataAvailable ? [0] : []}
+        //       accordion={[
+        //         {
+        //           title: "Refunds",
+        //           renderContent: () => {
+        //             <Refunds refundData={orderData.refunds} />
+        //           },
+        //           renderContentOnTop: None,
+        //         },
+        //       ]}
+        //     />
+        //   </div>
+        // </UIUtils.RenderIf>
+        // <UIUtils.RenderIf condition={isDisputeDataVisible}>
+        //   <div className="overflow-scroll">
+        //     <RenderAccordian
+        //       initialExpandedArray={isDisputeDataVisible ? [0] : []}
+        //       accordion={[
+        //         {
+        //           title: "Disputes",
+        //           renderContent: () => {
+        //             <Disputes disputesData={orderData.disputes} />
+        //           },
+        //           renderContentOnTop: None,
+        //         },
+        //       ]}
+        //     />
+        //   </div>
+        // </UIUtils.RenderIf>
+        // <div className="overflow-scroll">
+        //   <RenderAccordian
+        //     accordion={[
+        //       {
+        //         title: "FRM Details",
+        //         renderContent: () => {
+        //           <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
+        //             <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
+        //           </div>
+        //         },
+        //         renderContentOnTop: None,
+        //       },
+        //     ]}
+        //   />
+        // </div>
+        // <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
+        //   <RenderAccordian
+        //     accordion={[
+        //       {
+        //         title: "Events and logs",
+        //         renderContent: () => {
+        //           <LogsWrapper wrapperFor={#PAYMENT}>
+        //             <PaymentLogs paymentId={id} createdAt={orderData.created} />
+        //           </LogsWrapper>
+        //         },
+        //         renderContentOnTop: None,
+        //       },
+        //     ]}
+        //   />
+        // </UIUtils.RenderIf>
+        // <UIUtils.RenderIf
+        //   condition={orderData.payment_method === "card" &&
+        //     orderData.payment_method_data->Option.isSome}>
+        //   <RenderAccordian
+        //     accordion={[
+        //       {
+        //         title: "Payment Method Details",
+        //         renderContent: () => {
+        //           <div className="bg-white p-2">
+        //             <PrettyPrintJson
+        //               jsonToDisplay={orderData.payment_method_data
+        //               ->JSON.stringifyAny
+        //               ->Option.getOr("")}
+        //               overrideBackgroundColor="bg-white"
+        //             />
+        //           </div>
+        //         },
+        //         renderContentOnTop: None,
+        //       },
+        //     ]}
+        //   />
+        // </UIUtils.RenderIf>
+        // <UIUtils.RenderIf condition={orderData.external_authentication_details->Option.isSome}>
+        //   <RenderAccordian
+        //     accordion={[
+        //       {
+        //         title: "External Authentication Details",
+        //         renderContent: () => {
+        //           <div className="bg-white p-2">
+        //             <AuthenticationDetails order={orderData} />
+        //           </div>
+        //         },
+        //         renderContentOnTop: None,
+        //       },
+        //     ]}
+        //   />
+        // </UIUtils.RenderIf>
+        // <UIUtils.RenderIf condition={!(orderData.metadata->LogicUtils.isEmptyDict)}>
+        //   <RenderAccordian
+        //     accordion={[
+        //       {
+        //         title: "Payment Metadata",
+        //         renderContent: () => {
+        //           <div className="bg-white p-2">
+        //             <PrettyPrintJson
+        //               jsonToDisplay={orderData.metadata->JSON.stringifyAny->Option.getOr("")}
+        //               overrideBackgroundColor="bg-white"
+        //             />
+        //           </div>
+        //         },
+        //         renderContentOnTop: None,
+        //       },
+        //     ]}
+        //   />
+        // </UIUtils.RenderIf>
+        // <RenderAccordian
+        //   accordion={[
+        //     {
+        //       title: "More Payment Details",
+        //       renderContent: () => {
+        //         <div className="mb-10">
+        //           <ShowOrderDetails
+        //             data=orderData
+        //             getHeading=OrderEntity.getHeadingForOtherDetails
+        //             getCell=OrderEntity.getCellForOtherDetails
+        //             detailsFields=[
+        //               FirstName,
+        //               LastName,
+        //               Phone,
+        //               Email,
+        //               CustomerId,
+        //               Description,
+        //               Shipping,
+        //               Billing,
+        //               BillingEmail,
+        //               AmountCapturable,
+        //               ErrorCode,
+        //               MandateData,
+        //               MerchantId,
+        //               ReturnUrl,
+        //               OffSession,
+        //               CaptureOn,
+        //               NextAction,
+        //               SetupFutureUsage,
+        //               CancellationReason,
+        //               StatementDescriptorName,
+        //               StatementDescriptorSuffix,
+        //               PaymentExperience,
+        //               FRMName,
+        //               FRMTransactionType,
+        //               FRMStatus,
+        //             ]
+        //             isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+        //             paymentStatus={orderData.status}
+        //             openRefundModal={() => ()}
+        //             widthClass="md:w-1/4 w-full"
+        //             paymentId={orderData.payment_id}
+        //             border=""
+        //           />
+        //         </div>
+        //       },
+        //       renderContentOnTop: None,
+        //     },
+        //   ]}
+        // />
       </div>
     </PageLoaderWrapper>
   </div>
