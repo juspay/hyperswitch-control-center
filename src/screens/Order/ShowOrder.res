@@ -5,90 +5,86 @@ open OrderTypes
 
 type scrollIntoViewParams = {behavior: string, block: string, inline: string}
 @send external scrollIntoView: (Dom.element, scrollIntoViewParams) => unit = "scrollIntoView"
+module ShowOrderDetails = {
+  open OrderEntity
+  @react.component
+  let make = (
+    ~data,
+    ~getHeading,
+    ~getCell,
+    ~detailsFields,
+    ~justifyClassName="justify-start",
+    ~widthClass="md:w-1/2 w-full",
+    ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
+    ~isButtonEnabled=false,
+    ~isNonRefundConnector,
+    ~paymentStatus,
+    ~openRefundModal,
+    ~paymentId,
+    ~connectorList=?,
+    ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
+  ) => {
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let typedPaymentStatus = paymentStatus->statusVariantMapper
+    <Section customCssClass={`${border} ${bgColor} rounded-md p-5 h-full`}>
+      <UIUtils.RenderIf condition=isButtonEnabled>
+        <div className="flex items-center flex-wrap gap-3 m-3">
+          <div className="flex items-start">
+            <div className="md:text-5xl font-bold">
+              {`${(data.amount /. 100.00)->Float.toString} ${data.currency} `->React.string}
+            </div>
+            <ToolTip
+              description="Original amount that was authorized for the payment"
+              toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
+              toolTipPosition=Top
+              tooltipWidthClass="w-fit"
+            />
+          </div>
+          {useGetStatus(data)}
+          <ACLButton
+            access={userPermissionJson.operationsManage}
+            text="+ Refund"
+            onClick={_ => {
+              openRefundModal()
+            }}
+            buttonType={Secondary}
+            buttonState={!isNonRefundConnector &&
+            (typedPaymentStatus === Succeeded || typedPaymentStatus === PartiallyCaptured) &&
+            !(paymentId->isTestData)
+              ? Normal
+              : Disabled}
+          />
+        </div>
+      </UIUtils.RenderIf>
+      <FormRenderer.DesktopRow>
+        <div
+          className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+          {detailsFields
+          ->Array.mapWithIndex((colType, i) => {
+            <div className=widthClass key={i->Int.toString}>
+              <DisplayKeyValueParams
+                heading={getHeading(colType)}
+                value={getCell(data, colType, connectorList->Option.getOr([]))}
+                customMoneyStyle="!font-normal !text-sm"
+                labelMargin="!py-0 mt-2"
+                overiddingHeadingStyles="text-black text-sm font-medium"
+                textColor="!font-normal !text-jp-gray-700"
+              />
+            </div>
+          })
+          ->React.array}
+        </div>
+      </FormRenderer.DesktopRow>
+    </Section>
+  }
+}
 
 module OrderInfo = {
   open OrderEntity
-  module Details = {
-    @react.component
-    let make = (
-      ~data,
-      ~getHeading,
-      ~getCell,
-      ~detailsFields,
-      ~justifyClassName="justify-start",
-      ~widthClass="md:w-1/2 w-full",
-      ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
-      ~isButtonEnabled=false,
-      ~isNonRefundConnector,
-      ~paymentStatus,
-      ~openRefundModal,
-      ~paymentId,
-      ~connectorList=?,
-      ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
-    ) => {
-      let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-      let typedPaymentStatus = paymentStatus->statusVariantMapper
-      <Section customCssClass={`${border} ${bgColor} rounded-md p-5 h-full`}>
-        <UIUtils.RenderIf condition=isButtonEnabled>
-          <div className="flex items-center flex-wrap gap-3 m-3">
-            <div className="flex items-start">
-              <div className="md:text-5xl font-bold">
-                {`${(data.amount /. 100.00)->Float.toString} ${data.currency} `->React.string}
-              </div>
-              <ToolTip
-                description="Original amount that was authorized for the payment"
-                toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
-                toolTipPosition=Top
-                tooltipWidthClass="w-fit"
-              />
-            </div>
-            {useGetStatus(data)}
-            <ACLButton
-              access={userPermissionJson.operationsManage}
-              text="+ Refund"
-              onClick={_ => {
-                openRefundModal()
-              }}
-              buttonType={Secondary}
-              buttonState={!isNonRefundConnector &&
-              (typedPaymentStatus === Succeeded || typedPaymentStatus === PartiallyCaptured) &&
-              !(paymentId->isTestData)
-                ? Normal
-                : Disabled}
-            />
-          </div>
-        </UIUtils.RenderIf>
-        <FormRenderer.DesktopRow>
-          <div
-            className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
-            {detailsFields
-            ->Array.mapWithIndex((colType, i) => {
-              <div className=widthClass key={i->Int.toString}>
-                <DisplayKeyValueParams
-                  heading={getHeading(colType)}
-                  value={getCell(data, colType, connectorList->Option.getOr([]))}
-                  customMoneyStyle="!font-normal !text-sm"
-                  labelMargin="!py-0 mt-2"
-                  overiddingHeadingStyles="text-black text-sm font-medium"
-                  textColor="!font-normal !text-jp-gray-700"
-                />
-              </div>
-            })
-            ->React.array}
-          </div>
-        </FormRenderer.DesktopRow>
-      </Section>
-    }
-  }
+
   @react.component
-  let make = (
-    ~orderDict,
-    ~openRefundModal,
-    ~isNonRefundConnector,
-    ~paymentId,
-    ~isMetadata=false,
-  ) => {
-    let order = itemToObjMapper(orderDict)
+  let make = (~order, ~openRefundModal, ~isNonRefundConnector, ~paymentId, ~isMetadata=false) => {
+    // let order = itemToObjMapper(orderDict)
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
     let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
@@ -97,7 +93,7 @@ module OrderInfo = {
         <div className="md:flex md:gap-10 md:items-stretch md:mt-5 mb-10">
           <div className="md:w-1/2 w-full">
             <div className={`${headingStyles}`}> {"Summary"->React.string} </div>
-            <Details
+            <ShowOrderDetails
               data=order
               getHeading=getHeadingForSummary
               getCell=getCellForSummary
@@ -118,7 +114,7 @@ module OrderInfo = {
           </div>
           <div className="md:w-1/2 w-full">
             <div className={`${headingStyles}`}> {"About Payment"->React.string} </div>
-            <Details
+            <ShowOrderDetails
               data=order
               getHeading=getHeadingForAboutPayment
               getCell=getCellForAboutPayment
@@ -142,7 +138,7 @@ module OrderInfo = {
       </UIUtils.RenderIf>
       <UIUtils.RenderIf condition={isMetadata}>
         <div className="mb-10">
-          <Details
+          <ShowOrderDetails
             data=order
             getHeading=getHeadingForOtherDetails
             getCell=getCellForOtherDetails
@@ -308,7 +304,7 @@ module Refunds = {
 module Attempts = {
   open OrderEntity
   @react.component
-  let make = (~orderDict) => {
+  let make = (~order) => {
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
       ConfigContext.configContext,
     )
@@ -346,8 +342,7 @@ module Attempts = {
       }
     }
 
-    let attemptsData =
-      orderDict->getArrayFromDict("attempts", [])->JSON.Encode.array->OrderEntity.getAttempts
+    let attemptsData = order.attempts
 
     let heading = attemptsColumns->Array.map(getAttemptHeading)
 
@@ -642,17 +637,18 @@ let make = (~id) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (showModal, setShowModal) = React.useState(_ => false)
-  let (orderData, setOrderData) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (_showModal, setShowModal) = React.useState(_ => false)
+  let (orderData, setOrderData) = React.useState(_ => Dict.make()->OrderEntity.itemToObjMapper)
 
   let frmDetailsRef = React.useRef(Nullable.null)
 
   let fetchDetails = useGetMethod()
   let fetchOrderDetails = async url => {
     try {
-      // setScreenState(_ => Loading)
+      setScreenState(_ => Loading)
       let res = await fetchDetails(url)
-      // setOrderData(_ => res)
+      let order = OrderEntity.itemToObjMapper(res->getDictFromJsonObject)
+      setOrderData(_ => order)
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -680,42 +676,38 @@ let make = (~id) => {
     fetchOrderDetails(accountUrl)->ignore
     None
   })
-  let order = OrderEntity.itemToObjMapper(orderData->getDictFromJsonObject)
 
-  let refundData =
-    orderData
-    ->getDictFromJsonObject
-    ->getArrayFromDict("refunds", [])
-    ->JSON.Encode.array
-    ->OrderEntity.getRefunds
+  // let refundData =
+  //   orderData
+  //   ->getDictFromJsonObject
+  //   ->getArrayFromDict("refunds", [])
+  //   ->JSON.Encode.array
+  //   ->OrderEntity.getRefunds
 
-  let isRefundDataAvailable = refundData->Array.length !== 0
+  let isRefundDataAvailable = orderData.refunds->Array.length !== 0
 
-  let disputesData =
-    orderData
-    ->getDictFromJsonObject
-    ->getArrayFromDict("disputes", [])
-    ->JSON.Encode.array
-    ->DisputesEntity.getDisputes
+  // let disputesData =
+  //   orderData
+  //   ->getDictFromJsonObject
+  // ->getArrayFromDict("disputes", [])
+  // ->JSON.Encode.array
+  // ->DisputesEntity.getDisputes
 
-  let isDisputeDataVisible = disputesData->Array.length !== 0
+  let isDisputeDataVisible = orderData.disputes->Array.length !== 0
 
-  let createdAt = React.useMemo1(() => {
-    orderData->getDictFromJsonObject->getString("created", "")
-  }, [orderData])
+  // let createdAt = React.useMemo1(() => {
+  //   orderData->getDictFromJsonObject->getString("created", "")
+  // }, [orderData])
 
   let openRefundModal = _ => {
     setShowModal(_ => true)
   }
 
   let showSyncButton = React.useCallback1(_ => {
-    let orderDict = orderData->getDictFromJsonObject
-    let status = orderDict->getString("status", "")->statusVariantMapper
+    // let orderDict = orderData->getDictFromJsonObject
+    let status = orderData.status->statusVariantMapper
 
-    !(id->isTestData) &&
-    status !== Succeeded &&
-    status !== Failed &&
-    orderDict->Dict.keysToArray->Array.length > 0
+    !(id->isTestData) && status !== Succeeded && status !== Failed
   }, [orderData])
 
   let refreshStatus = async () => {
@@ -765,8 +757,8 @@ let make = (~id) => {
       //   orderDict={orderData->getDictFromJsonObject} refetch={refreshStatus} showModal setShowModal
       // />
     </div>
-    <UIUtils.RenderIf condition={order.frm_message.frm_status === "fraud"}>
-      <FraudRiskBanner frmMessage={order.frm_message} refElement=frmDetailsRef />
+    <UIUtils.RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
+      <FraudRiskBanner frmMessage={orderData.frm_message} refElement=frmDetailsRef />
     </UIUtils.RenderIf>
     <PageLoaderWrapper
       screenState
@@ -776,12 +768,12 @@ let make = (~id) => {
       <div className="flex flex-col gap-8">
         <OrderInfo
           paymentId=id
-          orderDict={orderData->getDictFromJsonObject}
+          order={orderData}
           openRefundModal
-          isNonRefundConnector={isNonRefundConnector(orderData)}
+          isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
         <div className="overflow-scroll">
-          <Attempts orderDict={orderData->getDictFromJsonObject} />
+          <Attempts order={orderData} />
         </div>
         <UIUtils.RenderIf condition={isRefundDataAvailable}>
           <div className="overflow-scroll">
@@ -791,7 +783,7 @@ let make = (~id) => {
                 {
                   title: "Refunds",
                   renderContent: () => {
-                    <Refunds refundData />
+                    <Refunds refundData={orderData.refunds} />
                   },
                   renderContentOnTop: None,
                 },
@@ -807,7 +799,7 @@ let make = (~id) => {
                 {
                   title: "Disputes",
                   renderContent: () => {
-                    <Disputes disputesData />
+                    <Disputes disputesData={orderData.disputes} />
                   },
                   renderContentOnTop: None,
                 },
@@ -822,7 +814,7 @@ let make = (~id) => {
                 title: "FRM Details",
                 renderContent: () => {
                   <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
-                    <FraudRiskBannerDetails order refetch={refreshStatus} />
+                    <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
                   </div>
                 },
                 renderContentOnTop: None,
@@ -837,7 +829,7 @@ let make = (~id) => {
                 title: "Events and logs",
                 renderContent: () => {
                   <LogsWrapper wrapperFor={#PAYMENT}>
-                    <PaymentLogs paymentId={id} createdAt />
+                    <PaymentLogs paymentId={id} createdAt={orderData.created} />
                   </LogsWrapper>
                 },
                 renderContentOnTop: None,
@@ -846,7 +838,8 @@ let make = (~id) => {
           />
         </UIUtils.RenderIf>
         <UIUtils.RenderIf
-          condition={order.payment_method === "card" && order.payment_method_data->Option.isSome}>
+          condition={orderData.payment_method === "card" &&
+            orderData.payment_method_data->Option.isSome}>
           <RenderAccordian
             accordion={[
               {
@@ -854,7 +847,9 @@ let make = (~id) => {
                 renderContent: () => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
-                      jsonToDisplay={order.payment_method_data->JSON.stringifyAny->Option.getOr("")}
+                      jsonToDisplay={orderData.payment_method_data
+                      ->JSON.stringifyAny
+                      ->Option.getOr("")}
                       overrideBackgroundColor="bg-white"
                     />
                   </div>
@@ -864,14 +859,14 @@ let make = (~id) => {
             ]}
           />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={order.external_authentication_details->Option.isSome}>
+        <UIUtils.RenderIf condition={orderData.external_authentication_details->Option.isSome}>
           <RenderAccordian
             accordion={[
               {
                 title: "External Authentication Details",
                 renderContent: () => {
                   <div className="bg-white p-2">
-                    <AuthenticationDetails order />
+                    <AuthenticationDetails order={orderData} />
                   </div>
                 },
                 renderContentOnTop: None,
@@ -879,7 +874,7 @@ let make = (~id) => {
             ]}
           />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!(order.metadata->LogicUtils.isEmptyDict)}>
+        <UIUtils.RenderIf condition={!(orderData.metadata->LogicUtils.isEmptyDict)}>
           <RenderAccordian
             accordion={[
               {
@@ -887,7 +882,7 @@ let make = (~id) => {
                 renderContent: () => {
                   <div className="bg-white p-2">
                     <PrettyPrintJson
-                      jsonToDisplay={order.metadata->JSON.stringifyAny->Option.getOr("")}
+                      jsonToDisplay={orderData.metadata->JSON.stringifyAny->Option.getOr("")}
                       overrideBackgroundColor="bg-white"
                     />
                   </div>
@@ -902,13 +897,46 @@ let make = (~id) => {
             {
               title: "More Payment Details",
               renderContent: () => {
-                <OrderInfo
-                  paymentId=id
-                  orderDict={orderData->getDictFromJsonObject}
-                  openRefundModal
-                  isNonRefundConnector={isNonRefundConnector(orderData)}
-                  isMetadata=true
-                />
+                <div className="mb-10">
+                  <ShowOrderDetails
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[
+                      FirstName,
+                      LastName,
+                      Phone,
+                      Email,
+                      CustomerId,
+                      Description,
+                      Shipping,
+                      Billing,
+                      BillingEmail,
+                      AmountCapturable,
+                      ErrorCode,
+                      MandateData,
+                      MerchantId,
+                      ReturnUrl,
+                      OffSession,
+                      CaptureOn,
+                      NextAction,
+                      SetupFutureUsage,
+                      CancellationReason,
+                      StatementDescriptorName,
+                      StatementDescriptorSuffix,
+                      PaymentExperience,
+                      FRMName,
+                      FRMTransactionType,
+                      FRMStatus,
+                    ]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                </div>
               },
               renderContentOnTop: None,
             },
