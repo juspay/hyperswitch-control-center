@@ -82,100 +82,56 @@ module ShowOrderDetails = {
 module OrderInfo = {
   open OrderEntity
   @react.component
-  let make = (~order, ~openRefundModal, ~isNonRefundConnector, ~paymentId, ~isMetadata=false) => {
+  let make = (~order, ~openRefundModal, ~isNonRefundConnector, ~paymentId) => {
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
     let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
     <div className="md:flex md:flex-col md:gap-5">
-      <UIUtils.RenderIf condition={!isMetadata}>
-        <div className="md:flex md:gap-10 md:items-stretch md:mt-5 mb-10">
-          <div className="md:w-1/2 w-full">
-            <div className={`${headingStyles}`}> {"Summary"->React.string} </div>
-            <ShowOrderDetails
-              data=order
-              getHeading=getHeadingForSummary
-              getCell=getCellForSummary
-              detailsFields=[
-                Created,
-                LastUpdated,
-                AmountReceived,
-                PaymentId,
-                ConnectorTransactionID,
-                ErrorMessage,
-              ]
-              isButtonEnabled=true
-              isNonRefundConnector
-              paymentStatus
-              openRefundModal
-              paymentId
-            />
-          </div>
-          <div className="md:w-1/2 w-full">
-            <div className={`${headingStyles}`}> {"About Payment"->React.string} </div>
-            <ShowOrderDetails
-              data=order
-              getHeading=getHeadingForAboutPayment
-              getCell=getCellForAboutPayment
-              detailsFields=[
-                ProfileId,
-                ProfileName,
-                Connector,
-                ConnectorLabel,
-                PaymentMethodType,
-                PaymentMethod,
-                AuthenticationType,
-              ]
-              isNonRefundConnector
-              paymentStatus
-              openRefundModal
-              paymentId
-              connectorList
-            />
-          </div>
-        </div>
-      </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={isMetadata}>
-        <div className="mb-10">
+      <div className="md:flex md:gap-10 md:items-stretch md:mt-5 mb-10">
+        <div className="md:w-1/2 w-full">
+          <div className={`${headingStyles}`}> {"Summary"->React.string} </div>
           <ShowOrderDetails
             data=order
-            getHeading=getHeadingForOtherDetails
-            getCell=getCellForOtherDetails
+            getHeading=getHeadingForSummary
+            getCell=getCellForSummary
             detailsFields=[
-              FirstName,
-              LastName,
-              Phone,
-              Email,
-              CustomerId,
-              Description,
-              Shipping,
-              Billing,
-              BillingEmail,
-              AmountCapturable,
-              ErrorCode,
-              MandateData,
-              MerchantId,
-              ReturnUrl,
-              OffSession,
-              CaptureOn,
-              NextAction,
-              SetupFutureUsage,
-              CancellationReason,
-              StatementDescriptorName,
-              StatementDescriptorSuffix,
-              PaymentExperience,
-              FRMName,
-              FRMTransactionType,
-              FRMStatus,
+              Created,
+              LastUpdated,
+              AmountReceived,
+              PaymentId,
+              ConnectorTransactionID,
+              ErrorMessage,
+            ]
+            isButtonEnabled=true
+            isNonRefundConnector
+            paymentStatus
+            openRefundModal
+            paymentId
+          />
+        </div>
+        <div className="md:w-1/2 w-full">
+          <div className={`${headingStyles}`}> {"About Payment"->React.string} </div>
+          <ShowOrderDetails
+            data=order
+            getHeading=getHeadingForAboutPayment
+            getCell=getCellForAboutPayment
+            detailsFields=[
+              ProfileId,
+              ProfileName,
+              Connector,
+              ConnectorLabel,
+              PaymentMethodType,
+              PaymentMethod,
+              AuthenticationType,
             ]
             isNonRefundConnector
             paymentStatus
             openRefundModal
-            widthClass="md:w-1/4 w-full"
             paymentId
-            border=""
+            connectorList
           />
         </div>
-      </UIUtils.RenderIf>
+      </div>
     </div>
   }
 }
