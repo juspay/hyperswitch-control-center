@@ -82,3 +82,31 @@ module ShowRecoveryCodes = {
     </div>
   }
 }
+
+module RecoveryCodesInput = {
+  @react.component
+  let make = (~recoveryCode, ~setRecoveryCode) => {
+    let recoveryCodeInput: ReactFinalForm.fieldRenderPropsInput = {
+      name: "recovery_code_input",
+      onBlur: _ev => (),
+      onChange: ev => {
+        let value = ReactEvent.Form.target(ev)["value"]
+        setRecoveryCode(_ => value)
+      },
+      onFocus: _ev => (),
+      value: recoveryCode->JSON.Encode.string,
+      checked: true,
+    }
+
+    <div className="flex flex-col gap-4 items-center">
+      <p> {"Enter a 8-digit recovery code generated provided during signup."->React.string} </p>
+      <TextInput
+        input=recoveryCodeInput
+        placeholder="XXXX-XXXX"
+        customWidth="w-96"
+        customStyle="h-16 text-xl justify-center"
+        maxLength=9
+      />
+    </div>
+  }
+}
