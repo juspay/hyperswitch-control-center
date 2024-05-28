@@ -22,9 +22,24 @@ type props = {
   children: string,
 }
 
-open LazyUtils
+// open LazyUtils
+// module SyntaxHighlighter = {
+//   let make: props => React.element = reactLazy(.() => {
+//     import_("react-syntax-highlighter")
+//   })
+// }
+
 module SyntaxHighlighter = {
-  let make: props => React.element = reactLazy(.() => {
-    import_("react-syntax-highlighter")
-  })
+  @module("react-syntax-highlighter") @react.component
+  external make: (
+    ~language: string=?,
+    ~style: editorStyle=?,
+    ~customStyle: style,
+    ~showLineNumbers: bool,
+    ~wrapLines: bool=?,
+    ~wrapLongLines: bool=?,
+    ~lineNumberContainerStyle: style,
+    ~children: string,
+  ) => React.element = "default"
+  // let make: props => React.element = props => import_("react-syntax-highlighter")
 }
