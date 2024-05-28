@@ -21,7 +21,7 @@ module EnterAccessCode = {
           let _ = await verifyRecoveryCodeLogic(body)
           onClickVerifyAccessCode(false)->ignore
         } else {
-          showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
+          showToast(~message="Recovery code cannot be empty!", ~toastType=ToastError, ())
         }
         setButtonState(_ => Button.Normal)
       } catch {
@@ -204,7 +204,7 @@ let make = () => {
       setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(response))))
     } catch {
     | _ => {
-        setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch!"))
+        setScreenState(_ => PageLoaderWrapper.Error("Failed to complete 2fa!"))
         setTotpStatus(_ => TotpTypes.TOTP_SHOW_QR)
       }
     }
