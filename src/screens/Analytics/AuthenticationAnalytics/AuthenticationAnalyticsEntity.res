@@ -326,6 +326,15 @@ let authenticationFunnelMetricsConfig: array<LineChartUtils.metricsConfig> = [
     legendOption: (Average, Overall),
   },
   {
+    metric_name_db: "frictionless_flow_count",
+    metric_label: "Frictionless Attempted",
+    disabled: true,
+    metric_type: Volume,
+    thresholdVal: None,
+    step_up_threshold: None,
+    legendOption: (Average, Overall),
+  },
+  {
     metric_name_db: "challenge_attempt_count",
     metric_label: "Authentication Attempted",
     metric_type: Volume,
@@ -339,6 +348,15 @@ let authenticationFunnelMetricsConfig: array<LineChartUtils.metricsConfig> = [
       dict->Dict.set("challenge_attempt_count", total_auth_attempts->JSON.Encode.float)
       dict
     },
+  },
+  {
+    metric_name_db: "frictionless_success_count",
+    metric_label: "Frictionless Successful",
+    disabled: true,
+    metric_type: Volume,
+    thresholdVal: None,
+    step_up_threshold: None,
+    legendOption: (Average, Overall),
   },
   {
     metric_name_db: "challenge_success_count",
