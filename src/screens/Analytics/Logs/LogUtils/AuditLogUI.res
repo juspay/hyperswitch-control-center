@@ -112,8 +112,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       if logs->Array.length === 0 && isError.contents {
         setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
       } else {
-        Js.log("Lig")
-        // setScreenState(_ => PageLoaderWrapper.Success)
+        setScreenState(_ => PageLoaderWrapper.Success)
         logs->Array.sort(sortByCreatedAt)
         setData(_ => logs)
         switch logs->Array.get(0) {
@@ -192,28 +191,28 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     </UIUtils.RenderIf>
 
   open OrderUtils
-  // <PageLoaderWrapper
-  //   screenState
-  //   customUI={<NoDataFound
-  //     message={`No logs available for this ${(logType :> string)->String.toLowerCase}`}
-  //   />}>
-  <>
-    <UIUtils.RenderIf condition={id->HSwitchOrderUtils.isTestData || data->Array.length === 0}>
-      <div
-        className="flex items-center gap-2 bg-white w-full border-2 p-3 !opacity-100 rounded-lg text-md font-medium">
-        <Icon name="info-circle-unfilled" size=16 />
-        <div className={`text-lg font-medium opacity-50`}>
-          {`No logs available for this ${(logType :> string)->String.toLowerCase}`->React.string}
+  <PageLoaderWrapper
+    screenState
+    customUI={<NoDataFound
+      message={`No logs available for this ${(logType :> string)->String.toLowerCase}`}
+    />}>
+    {<>
+      <UIUtils.RenderIf condition={id->HSwitchOrderUtils.isTestData || data->Array.length === 0}>
+        <div
+          className="flex items-center gap-2 bg-white w-full border-2 p-3 !opacity-100 rounded-lg text-md font-medium">
+          <Icon name="info-circle-unfilled" size=16 />
+          <div className={`text-lg font-medium opacity-50`}>
+            {`No logs available for this ${(logType :> string)->String.toLowerCase}`->React.string}
+          </div>
         </div>
-      </div>
-    </UIUtils.RenderIf>
-    <UIUtils.RenderIf condition={!(id->HSwitchOrderUtils.isTestData || data->Array.length === 0)}>
-      <Section
-        customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 flex gap-7 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] max-w-[72rem] overflow-scroll`}>
-        {timeLine}
-        {codeBlock}
-      </Section>
-    </UIUtils.RenderIf>
-  </>
-  // </PageLoaderWrapper>
+      </UIUtils.RenderIf>
+      <UIUtils.RenderIf condition={!(id->HSwitchOrderUtils.isTestData || data->Array.length === 0)}>
+        <Section
+          customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 flex gap-7 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] max-w-[72rem] overflow-scroll`}>
+          {timeLine}
+          {codeBlock}
+        </Section>
+      </UIUtils.RenderIf>
+    </>}
+  </PageLoaderWrapper>
 }

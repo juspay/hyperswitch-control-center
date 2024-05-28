@@ -853,24 +853,24 @@ let make = (~id) => {
             ]}
           />
         </UIUtils.RenderIf>
-        // <UIUtils.RenderIf condition={!(orderData.metadata->LogicUtils.isEmptyDict)}>
-        //   <RenderAccordian
-        //     accordion={[
-        //       {
-        //         title: "Payment Metadata",
-        //         renderContent: () => {
-        //           <div className="bg-white p-2">
-        //             <PrettyPrintJson
-        //               jsonToDisplay={orderData.metadata->JSON.stringifyAny->Option.getOr("")}
-        //               overrideBackgroundColor="bg-white"
-        //             />
-        //           </div>
-        //         },
-        //         renderContentOnTop: None,
-        //       },
-        //     ]}
-        //   />
-        // </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={!(orderData.metadata->LogicUtils.isEmptyDict)}>
+          <RenderAccordian
+            accordion={[
+              {
+                title: "Payment Metadata",
+                renderContent: () => {
+                  <div className="bg-white p-2">
+                    <PrettyPrintJson
+                      jsonToDisplay={orderData.metadata->JSON.stringifyAny->Option.getOr("")}
+                      overrideBackgroundColor="bg-white"
+                    />
+                  </div>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </UIUtils.RenderIf>
         <RenderAccordian
           accordion={[
             {
