@@ -26,6 +26,7 @@ module ShowOrderDetails = {
   ) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let typedPaymentStatus = paymentStatus->statusVariantMapper
+    let statusUI = useGetStatus(data)
     <Section customCssClass={`${border} ${bgColor} rounded-md p-5 h-full`}>
       <UIUtils.RenderIf condition=isButtonEnabled>
         <div className="flex items-center flex-wrap gap-3 m-3">
@@ -40,7 +41,7 @@ module ShowOrderDetails = {
               tooltipWidthClass="w-fit"
             />
           </div>
-          {useGetStatus(data)}
+          {statusUI}
           <ACLButton
             access={userPermissionJson.operationsManage}
             text="+ Refund"
