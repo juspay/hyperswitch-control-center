@@ -101,6 +101,8 @@ type order = {
   merchant_connector_id: string,
   merchant_decision: string,
   profile_id: string,
+  disputes: array<DisputeTypes.disputes>,
+  attempts: array<attempts>,
 }
 
 type refundsColType =
