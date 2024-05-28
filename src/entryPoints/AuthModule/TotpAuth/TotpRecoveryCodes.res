@@ -1,7 +1,7 @@
 let h2TextStyle = HSwitchUtils.getTextClass((H2, Optional))
 
 @react.component
-let make = (~setTotpStatus, ~onClickDownload) => {
+let make = (~setTwoFaPageState, ~onClickDownload) => {
   let showToast = ToastState.useShowToast()
   let getURL = APIUtils.useGetURL()
   let fetchDetails = APIUtils.useGetMethod()
@@ -19,7 +19,7 @@ let make = (~setTotpStatus, ~onClickDownload) => {
       setRecoveryCodes(_ => recoveryCodesValue)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setTotpStatus(_ => TOTP_SHOW_QR)
+    | _ => setTwoFaPageState(_ => TOTP_SHOW_QR)
     }
   }
 
