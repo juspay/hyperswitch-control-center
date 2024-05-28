@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.28.0
+
+### Features
+
+- Api enhancement for totp flow and recovery code input ([#713](https://github.com/juspay/hyperswitch-control-center/pull/713)) ([`7268044`](https://github.com/juspay/hyperswitch-control-center/commit/726804470e37b886646342f2040133c62697c3ae))
+
+### Bug Fixes
+
+- Authentication analytics funnel ([#726](https://github.com/juspay/hyperswitch-control-center/pull/726)) ([`e0e0314`](https://github.com/juspay/hyperswitch-control-center/commit/e0e0314e0e174bbd76525d3a7cf23290409fc4a9))
+- Intermittent black screen while switching merchant ([#725](https://github.com/juspay/hyperswitch-control-center/pull/725)) ([`3458b53`](https://github.com/juspay/hyperswitch-control-center/commit/3458b535778ebd56523b2fef12714ed5535146d1))
+
+### Miscellaneous Tasks
+
+- Profile page component addition for 2fa ([#722](https://github.com/juspay/hyperswitch-control-center/pull/722)) ([`81eee64`](https://github.com/juspay/hyperswitch-control-center/commit/81eee64b3f4e3d2329d584e694fd7746c79dabd3))
+- Page title changes ([#729](https://github.com/juspay/hyperswitch-control-center/pull/729)) ([`e286d1f`](https://github.com/juspay/hyperswitch-control-center/commit/e286d1f058b7d0e7e190c8ce5c34e598e199a16d))
+
+**Full Changelog:** [`2024.05.27.0...2024.05.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.27.0...2024.05.28.0)
+
+- - -
+
 ## 2024.05.27.0
 
 ### Features
