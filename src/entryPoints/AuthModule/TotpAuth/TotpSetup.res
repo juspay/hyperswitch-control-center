@@ -19,7 +19,7 @@ module EnterAccessCode = {
         if recoveryCode->String.length > 0 {
           let body = [("recovery_code", recoveryCode->JSON.Encode.string)]->getJsonFromArrayOfJson
           let _ = await verifyRecoveryCodeLogic(body)
-          onClickVerifyAccessCode(false)->ignore
+          onClickVerifyAccessCode(~skip_2fa=false)->ignore
         } else {
           showToast(~message="Recovery code cannot be empty!", ~toastType=ToastError, ())
         }
@@ -98,7 +98,7 @@ module ConfigureTotpScreen = {
           let _ = await verifyTotpLogic(body, methodType)
 
           if twoFaStatus === TWO_FA_SET {
-            terminateTwoFactorAuth(false)->ignore
+            terminateTwoFactorAuth(~skip_2fa=false)->ignore
           } else {
             setTwoFaPageState(_ => TotpTypes.TOTP_SHOW_RC)
           }
@@ -115,7 +115,7 @@ module ConfigureTotpScreen = {
     }
 
     let skipTotpSetup = async () => {
-      terminateTwoFactorAuth(true)->ignore
+      terminateTwoFactorAuth(~skip_2fa=true)->ignore
     }
 
     let buttonText = twoFaStatus === TWO_FA_SET ? "Verify OTP" : "Enable 2FA"
@@ -200,7 +200,7 @@ let make = () => {
     )
   }
 
-  let terminateTwoFactorAuth = async skip_2fa => {
+  let terminateTwoFactorAuth = async (~skip_2fa) => {
     try {
       open TotpUtils
       open LogicUtils

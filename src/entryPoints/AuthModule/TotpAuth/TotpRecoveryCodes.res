@@ -75,7 +75,7 @@ let make = (~setTwoFaPageState, ~onClickDownload) => {
             buttonSize={Small}
             onClick={_ => {
               downloadRecoveryCodes()
-              onClickDownload(false)->ignore
+              onClickDownload(~skip_2fa=false)->ignore
             }}
           />
         </div>
