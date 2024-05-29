@@ -49,11 +49,11 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
       order_details: {
         product_name: "Apple iphone 15",
         quantity: 1,
-        amount: 100.00,
+        amount: 10000.00,
       },
     },
     capture_method: "automatic",
-    amount_to_capture: Nullable.make(100.00),
+    amount_to_capture: Nullable.make(10000.00),
     return_url: `${Window.Location.origin}${Window.Location.pathName}`,
     country_currency: "US-USD",
   }
