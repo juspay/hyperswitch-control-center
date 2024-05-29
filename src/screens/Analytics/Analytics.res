@@ -580,6 +580,7 @@ let make = (
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
+    ~origin="analytics",
     (),
   )
 
@@ -603,6 +604,7 @@ let make = (
   let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = FilterContext.filterContext->React.useContext
+  Js.log(filterValueJson)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   React.useEffect3(() => {
