@@ -936,7 +936,6 @@ let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) =
   | (Processors(NMI), "acquirer_merchant_id") => false
   | (Processors(PAYPAL), "paypal_sdk") => false
   | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") => false
-
   | _ => true
   }
 }
