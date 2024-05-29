@@ -178,6 +178,7 @@ let make = () => {
   open TotpTypes
 
   let getURL = APIUtils.useGetURL()
+  let showToast = ToastState.useShowToast()
   let fetchDetails = APIUtils.useGetMethod()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -185,6 +186,7 @@ let make = () => {
   let (totpUrl, setTotpUrl) = React.useState(_ => "")
   let (twoFaStatus, setTwoFaStatus) = React.useState(_ => TWO_FA_NOT_SET)
   let (twoFaPageState, setTwoFaPageState) = React.useState(_ => TotpTypes.TOTP_SHOW_QR)
+  let (showNewQR, setShowNewQR) = React.useState(_ => false)
 
   let delayTimer = () => {
     let timeoutId = {
@@ -201,9 +203,9 @@ let make = () => {
   }
 
   let terminateTwoFactorAuth = async (~skip_2fa) => {
+    open LogicUtils
     try {
       open TotpUtils
-      open LogicUtils
 
       let url = `${getURL(
           ~entityName=USERS,
@@ -215,9 +217,21 @@ let make = () => {
       let response = await fetchDetails(url)
       setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(response))))
     } catch {
-    | _ => {
-        setScreenState(_ => PageLoaderWrapper.Error("Failed to complete 2fa!"))
-        setTwoFaPageState(_ => TotpTypes.TOTP_SHOW_QR)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+
+        if (
+          errorCode->CommonAuthUtils.errorSubCodeMapper === UR_40 ||
+            errorCode->CommonAuthUtils.errorSubCodeMapper === UR_41
+        ) {
+          setTwoFaPageState(_ => TotpTypes.TOTP_SHOW_QR)
+          showToast(~message="Failed to complete 2fa!", ~toastType=ToastError, ())
+          setShowNewQR(prev => !prev)
+        } else {
+          showToast(~message="Something went wrong", ~toastType=ToastError, ())
+          setScreenState(_ => PageLoaderWrapper.Error(err))
+        }
       }
     }
   }
@@ -247,10 +261,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect1(() => {
     getTOTPString()->ignore
     None
-  })
+  }, [showNewQR])
 
   <PageLoaderWrapper screenState>
     <BackgroundImageWrapper>
@@ -261,7 +275,9 @@ let make = () => {
             isQrVisible totpUrl twoFaStatus setTwoFaPageState terminateTwoFactorAuth
           />
         | TOTP_SHOW_RC =>
-          <TotpRecoveryCodes setTwoFaPageState onClickDownload={terminateTwoFactorAuth} />
+          <TotpRecoveryCodes
+            setTwoFaPageState onClickDownload={terminateTwoFactorAuth} setShowNewQR
+          />
         | TOTP_INPUT_RECOVERY_CODE =>
           <EnterAccessCode setTwoFaPageState onClickVerifyAccessCode={terminateTwoFactorAuth} />
         }}

@@ -260,9 +260,6 @@ module Attempts = {
   open OrderEntity
   @react.component
   let make = (~order) => {
-    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ConfigContext.configContext,
-    )
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
@@ -313,13 +310,6 @@ module Attempts = {
     }
 
     <div className="flex flex-col gap-4">
-      <div
-        className={`flex  items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
-        <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
-        <span>
-          {`You can validate the information shown here by cross checking the payment attempt identifier (Attempt ID) in your payment processor portal.`->React.string}
-        </span>
-      </div>
       <p className="font-bold text-fs-16 text-jp-gray-900"> {"Payment Attempts"->React.string} </p>
       <CustomExpandableTable
         title="Attempts"
@@ -654,7 +644,7 @@ let make = (~id) => {
         ~entityName=ORDERS,
         ~methodType=Get,
         ~id=Some(id),
-        ~queryParamerters=Some("force_sync=true"),
+        ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
         (),
       )
       let _ = await fetchOrderDetails(getRefreshStatusUrl)
@@ -708,6 +698,22 @@ let make = (~id) => {
           openRefundModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
+        <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
+          <RenderAccordian
+            initialExpandedArray=[0]
+            accordion={[
+              {
+                title: "Events and logs",
+                renderContent: () => {
+                  <LogsWrapper wrapperFor={#PAYMENT}>
+                    <PaymentLogs paymentId={id} createdAt={orderData.created} />
+                  </LogsWrapper>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </UIUtils.RenderIf>
         <div className="overflow-scroll">
           <Attempts order={orderData} />
         </div>
@@ -758,21 +764,6 @@ let make = (~id) => {
             ]}
           />
         </div>
-        <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
-          <RenderAccordian
-            accordion={[
-              {
-                title: "Events and logs",
-                renderContent: () => {
-                  <LogsWrapper wrapperFor={#PAYMENT}>
-                    <PaymentLogs paymentId={id} createdAt={orderData.created} />
-                  </LogsWrapper>
-                },
-                renderContentOnTop: None,
-              },
-            ]}
-          />
-        </UIUtils.RenderIf>
         <UIUtils.RenderIf
           condition={orderData.payment_method === "card" &&
             orderData.payment_method_data->Option.isSome}>
