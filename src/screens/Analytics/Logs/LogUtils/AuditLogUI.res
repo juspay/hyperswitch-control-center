@@ -184,10 +184,14 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
           <UIUtils.RenderIf
             condition={logDetails.request->isNonEmptyString &&
               selectedOption.optionType !== WEBHOOKS}>
-            <PrettyPrintJson jsonToDisplay=logDetails.request headerText={requestHeader->Some} />
+            <div className="border-b-2 border-border-light-grey pb-3">
+              <PrettyPrintJson jsonToDisplay=logDetails.request headerText={requestHeader->Some} />
+            </div>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf condition={logDetails.response->isNonEmptyString}>
-            <PrettyPrintJson jsonToDisplay={logDetails.response} headerText />
+            <div className="border-b-2 border-border-light-grey pb-3">
+              <PrettyPrintJson jsonToDisplay={logDetails.response} headerText />
+            </div>
           </UIUtils.RenderIf>
         </div>
       </div>
