@@ -156,7 +156,7 @@ let make = (
   let statusCodeBorderColor = switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "border border-blue-500"
+    | "INFO" => `${borderColor.primaryNormal}`
     | "ERROR" => "border border-red-400"
     | "WARNING" => "border border-yellow-800"
     | _ => "border border-gray-700 opacity-50"
