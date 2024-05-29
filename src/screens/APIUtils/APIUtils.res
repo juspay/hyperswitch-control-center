@@ -235,10 +235,12 @@ let useGetURL = () => {
       | #SIGNUP_TOKEN_ONLY => `${userUrl}/signup?token_only=true`
       | #RESET_PASSWORD_TOKEN_ONLY => `${userUrl}/reset_password?token_only=true`
       | #FROM_EMAIL => `${userUrl}/from_email`
-      | #BEGIN_TOTP => `${userUrl}/totp/begin`
-      | #VERIFY_TOTP => `${userUrl}/totp/verify`
+      | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
+      | #VERIFY_TOTP => `${userUrl}/2fa/totp/verify`
+      | #VERIFY_RECOVERY_CODE => `${userUrl}/2fa/recovery_code/verify`
       | #INVITE_MULTIPLE_TOKEN_ONLY => `${userUrl}/user/invite_multiple?token_only=true`
-      | #GENERATE_RECOVERY_CODES => `${userUrl}/recovery_codes/generate`
+      | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
+      | #TERMINATE_TWO_FACTOR_AUTH => `${userUrl}/2fa/terminate`
       | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
         `${userUrl}/accept_invite_from_email?token_only=true`
       | #USER_INFO => userUrl

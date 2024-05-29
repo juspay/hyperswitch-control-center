@@ -237,6 +237,12 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       <UIUtils.RenderIf condition={currentStep !== Preview && showStepIndicator}>
         <ConnectorCurrentStepIndicator currentStep stepsArr borderWidth />
       </UIUtils.RenderIf>
+      <UIUtils.RenderIf
+        condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
+        <HSwitchUtils.WarningArea
+          warningText="This is a test connector and will not be reflected on your payment processor dashboard."
+        />
+      </UIUtils.RenderIf>
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
         {switch currentStep {
