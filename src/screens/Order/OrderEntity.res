@@ -946,6 +946,8 @@ let itemToObjMapper = dict => {
     frm_message: dict->getFRMDetails,
     merchant_decision: dict->getString("merchant_decision", ""),
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
+    disputes: dict->getArrayFromDict("disputes", [])->JSON.Encode.array->DisputesEntity.getDisputes,
+    attempts: dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts,
   }
 }
 

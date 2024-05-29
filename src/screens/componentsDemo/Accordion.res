@@ -169,23 +169,21 @@ let make = (
   ~gapClass="",
   ~titleStyle="font-bold text-lg text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50 hover:text-jp-gray-800 dark:hover:text-opacity-100",
 ) => {
-  <ErrorBoundary>
-    <div className={`w-full ${gapClass}`}>
-      {accordion
-      ->Array.mapWithIndex((accordion, i) => {
-        <AccordionInfo
-          key={Int.toString(i)}
-          accordion
-          arrowFillColor
-          arrowPosition
-          accordianTopContainerCss
-          accordianBottomContainerCss
-          contentExpandCss
-          expanded={initialExpandedArray->Array.includes(i)}
-          titleStyle
-        />
-      })
-      ->React.array}
-    </div>
-  </ErrorBoundary>
+  <div className={`w-full ${gapClass}`}>
+    {accordion
+    ->Array.mapWithIndex((accordion, i) => {
+      <AccordionInfo
+        key={Int.toString(i)}
+        accordion
+        arrowFillColor
+        arrowPosition
+        accordianTopContainerCss
+        accordianBottomContainerCss
+        contentExpandCss
+        expanded={initialExpandedArray->Array.includes(i)}
+        titleStyle
+      />
+    })
+    ->React.array}
+  </div>
 }

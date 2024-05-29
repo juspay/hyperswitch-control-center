@@ -141,7 +141,17 @@ let dummyConnectorList = isTestProcessorsEnabled =>
     : []
 
 let checkIsDummyConnector = (connectorName, isTestProcessorsEnabled) =>
-  isTestProcessorsEnabled->dummyConnectorList->Array.includes(connectorName)
+  if isTestProcessorsEnabled {
+    switch connectorName {
+    | Processors(STRIPE_TEST)
+    | Processors(PAYPAL_TEST)
+    | Processors(FAUXPAY)
+    | Processors(PRETENDPAY) => true
+    | _ => false
+    }
+  } else {
+    false
+  }
 
 let stripeInfo = {
   description: "Versatile processor supporting credit cards, digital wallets, and bank transfers.",
