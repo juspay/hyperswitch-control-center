@@ -703,6 +703,7 @@ let make = (~id) => {
         />
         <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
           <RenderAccordian
+            initialExpandedArray=[0]
             accordion={[
               {
                 title: "Events and logs",
