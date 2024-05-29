@@ -1,14 +1,12 @@
-let useBeginTotp = () => {
+let useVerifyTotp = () => {
   open APIUtils
-  open LogicUtils
   let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-  async _ => {
+  let updateDetails = useUpdateMethod()
+  async (body, methodType) => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#BEGIN_TOTP, ~methodType=Get, ())
-      let response = await fetchDetails(url)
-      let dict = response->getDictFromJsonObject->getJsonObjectFromDict("secret")
-      dict
+      let url = getURL(~entityName=USERS, ~userType=#VERIFY_TOTP, ~methodType, ())
+      let response = await updateDetails(url, body, methodType, ())
+      response
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -18,13 +16,13 @@ let useBeginTotp = () => {
   }
 }
 
-let useVerifyTotp = () => {
+let useVerifyRecoveryCode = () => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   async body => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#VERIFY_TOTP, ~methodType=Get, ())
+      let url = getURL(~entityName=USERS, ~userType=#VERIFY_RECOVERY_CODE, ~methodType=Post, ())
       let response = await updateDetails(url, body, Post, ())
       response
     } catch {

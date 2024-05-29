@@ -209,7 +209,14 @@ let getRefundHeading = (refundsColType: refundsColType) => {
 
 let getAttemptHeading = (attemptColType: attemptColType) => {
   switch attemptColType {
-  | AttemptId => Table.makeHeaderInfo(~key="attempt_id", ~title="Attempt ID", ~showSort=true, ())
+  | AttemptId =>
+    Table.makeHeaderInfo(
+      ~key="attempt_id",
+      ~title="Attempt ID",
+      ~showSort=true,
+      ~description="You can validate the information shown here by cross checking the payment attempt identifier (Attempt ID) in your payment processor portal.",
+      (),
+    )
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~showSort=true, ())
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true, ())
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=true, ())
@@ -946,6 +953,8 @@ let itemToObjMapper = dict => {
     frm_message: dict->getFRMDetails,
     merchant_decision: dict->getString("merchant_decision", ""),
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
+    disputes: dict->getArrayFromDict("disputes", [])->JSON.Encode.array->DisputesEntity.getDisputes,
+    attempts: dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts,
   }
 }
 

@@ -2,104 +2,105 @@ let h2TextStyle = HSwitchUtils.getTextClass((H2, Optional))
 let p2Regular = HSwitchUtils.getTextClass((P2, Regular))
 let p3Regular = HSwitchUtils.getTextClass((P3, Regular))
 
-module ConfirmPopUpElement = {
+module EnterAccessCode = {
   @react.component
-  let make = (~recoveryCodes, ~downloadRecoveryCodes) => {
-    open LogicUtils
+  let make = (~setTwoFaPageState, ~onClickVerifyAccessCode) => {
     let showToast = ToastState.useShowToast()
+    let verifyRecoveryCodeLogic = TotpHooks.useVerifyRecoveryCode()
+    let (recoveryCode, setRecoveryCode) = React.useState(_ => "")
+    let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
 
-    let firstHalf = recoveryCodes->Array.copy
-    firstHalf->Array.splice(~start=0, ~remove=recoveryCodes->Array.length / 2, ~insert=[])
+    let verifyAccessCode = async () => {
+      try {
+        open LogicUtils
 
-    let secondHalf = recoveryCodes->Array.copy
-    secondHalf->Array.splice(
-      ~start=recoveryCodes->Array.length / 2,
-      ~remove=recoveryCodes->Array.length,
-      ~insert=[],
-    )
+        setButtonState(_ => Button.Loading)
 
-    let onCopyClick = ev => {
-      ev->ReactEvent.Mouse.stopPropagation
-      Clipboard.writeText(JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3))
-      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+        if recoveryCode->String.length > 0 {
+          let body = [("recovery_code", recoveryCode->JSON.Encode.string)]->getJsonFromArrayOfJson
+          let _ = await verifyRecoveryCodeLogic(body)
+          onClickVerifyAccessCode(~skip_2fa=false)->ignore
+        } else {
+          showToast(~message="Recovery code cannot be empty!", ~toastType=ToastError, ())
+        }
+        setButtonState(_ => Button.Normal)
+      } catch {
+      | _ => {
+          setRecoveryCode(_ => "")
+          setButtonState(_ => Button.Normal)
+        }
+      }
     }
 
-    <div className="flex flex-col gap-2 w-full">
-      <div className="flex gap-1">
-        <p>
-          {"Have you secured your recovery codes? If not,"->React.string}
-          <span
-            className="text-blue-600 underline underline-offset-2 mx-1 cursor-pointer"
-            onClick={_ => downloadRecoveryCodes()}>
-            {"download"->React.string}
-          </span>
-          {"them now as this prompt may not reappear."->React.string}
-        </p>
+    <div className={`bg-white h-20-rem w-200 rounded-2xl flex flex-col`}>
+      <div className="p-6 border-b-2 flex justify-between items-center">
+        <p className={`${h2TextStyle} text-grey-900`}> {"Enter access code"->React.string} </p>
       </div>
-      <UIUtils.RenderIf condition={recoveryCodes->Array.length > 0}>
-        <div className="border border-gray-200 rounded-md bg-jp-gray-300 p-4 flex justify-between">
-          <div className="flex gap-6">
-            <div className="flex flex-col gap-2 ">
-              {firstHalf
-              ->Array.map(recoveryCode => <p> {recoveryCode->React.string} </p>)
-              ->React.array}
-            </div>
-            <div className="flex flex-col gap-2 ">
-              {secondHalf
-              ->Array.map(recoveryCode => <p> {recoveryCode->React.string} </p>)
-              ->React.array}
-            </div>
-          </div>
-          <img
-            src={`/assets/CopyToClipboard.svg`}
-            className="cursor-pointer h-fit w-fit"
-            onClick={onCopyClick}
+      <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
+        <div className="flex flex-col justify-center items-center gap-4">
+          <TwoFaElements.RecoveryCodesInput recoveryCode setRecoveryCode />
+          <p className={`${p2Regular} text-jp-gray-700`}>
+            {"Didn't get a code? "->React.string}
+            <span
+              className="cursor-pointer underline underline-offset-2 text-blue-600"
+              onClick={_ => setTwoFaPageState(_ => TotpTypes.TOTP_SHOW_QR)}>
+              {"Use totp instead"->React.string}
+            </span>
+          </p>
+        </div>
+        <div className="flex justify-end gap-4">
+          <Button text="Skip now" buttonType={Secondary} buttonSize=Small />
+          <Button
+            text="Verify recovery code"
+            buttonType=Primary
+            buttonSize=Small
+            buttonState
+            customButtonStyle="group"
+            rightIcon={CustomIcon(
+              <Icon
+                name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
+              />,
+            )}
+            onClick={_ => verifyAccessCode()->ignore}
           />
         </div>
-      </UIUtils.RenderIf>
+      </div>
     </div>
   }
 }
 
 module ConfigureTotpScreen = {
   @react.component
-  let make = (~isQrVisible, ~totpUrl, ~showQR, ~setTotpStatus) => {
-    open APIUtils
+  let make = (
+    ~isQrVisible,
+    ~totpUrl,
+    ~twoFaStatus,
+    ~setTwoFaPageState,
+    ~terminateTwoFactorAuth,
+  ) => {
+    open TotpTypes
+
+    let verifyTotpLogic = TotpHooks.useVerifyTotp()
 
     let showToast = ToastState.useShowToast()
-    let updateDetails = useUpdateMethod()
-    let getURL = useGetURL()
     let (otp, setOtp) = React.useState(_ => "")
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
-    let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-
-    let verifyTotpLogic = async body => {
-      try {
-        let url = getURL(~entityName=USERS, ~userType=#VERIFY_TOTP, ~methodType=Get, ())
-        let response = await updateDetails(url, body, Post, ())
-        response
-      } catch {
-      | Exn.Error(e) => {
-          let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-          Exn.raiseError(err)
-        }
-      }
-    }
 
     let verifyTOTP = async () => {
       try {
         open LogicUtils
-        open TotpUtils
-        open TotpTypes
 
         setButtonState(_ => Button.Loading)
+
         if otp->String.length > 0 {
           let body = [("totp", otp->JSON.Encode.string)]->getJsonFromArrayOfJson
-          let response = await verifyTotpLogic(body)
-          if showQR {
-            setTotpStatus(_ => TOTP_SHOW_RC)
+          let methodType = twoFaStatus === TWO_FA_SET ? Fetch.Post : Fetch.Put
+          let _ = await verifyTotpLogic(body, methodType)
+
+          if twoFaStatus === TWO_FA_SET {
+            terminateTwoFactorAuth(~skip_2fa=false)->ignore
           } else {
-            setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(response))))
+            setTwoFaPageState(_ => TotpTypes.TOTP_SHOW_RC)
           }
         } else {
           showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
@@ -114,38 +115,37 @@ module ConfigureTotpScreen = {
     }
 
     let skipTotpSetup = async () => {
-      try {
-        open LogicUtils
-        open TotpUtils
-        setButtonState(_ => Button.Loading)
-        let body = [("totp", JSON.Encode.null)]->getJsonFromArrayOfJson
-        let response = await verifyTotpLogic(body)
-        setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(response))))
-        setButtonState(_ => Button.Normal)
-      } catch {
-      | _ => {
-          setButtonState(_ => Button.Normal)
-          showToast(~message="Something went wrong!", ~toastType=ToastError, ())
-        }
-      }
+      terminateTwoFactorAuth(~skip_2fa=true)->ignore
     }
 
-    let handleTotpSubmitClick = () => {
-      verifyTOTP()->ignore
-    }
+    let buttonText = twoFaStatus === TWO_FA_SET ? "Verify OTP" : "Enable 2FA"
+    let modalHeaderText =
+      twoFaStatus === TWO_FA_SET ? "Enter TOTP Code" : "Enable Two Factor Authentication"
 
-    let buttonText = showQR ? "Enable 2FA" : "Verify OTP"
-    let modalHeaderText = showQR ? "Enable Two Factor Authentication" : "Enter TOTP Code"
-
-    <div className={`bg-white ${showQR ? "h-40-rem" : "h-20-rem"} w-200 rounded-2xl flex flex-col`}>
+    <div
+      className={`bg-white ${twoFaStatus === TWO_FA_SET
+          ? "h-20-rem"
+          : "h-40-rem"} w-200 rounded-2xl flex flex-col`}>
       <div className="p-6 border-b-2 flex justify-between items-center">
         <p className={`${h2TextStyle} text-grey-900`}> {modalHeaderText->React.string} </p>
       </div>
       <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
-        <UIUtils.RenderIf condition={showQR}>
+        <UIUtils.RenderIf condition={twoFaStatus === TWO_FA_NOT_SET}>
           <TwoFaElements.TotpScanQR totpUrl isQrVisible />
         </UIUtils.RenderIf>
-        <TwoFaElements.TotpInput otp setOtp />
+        <div className="flex flex-col justify-center items-center gap-4">
+          <TwoFaElements.TotpInput otp setOtp />
+          <UIUtils.RenderIf condition={twoFaStatus === TWO_FA_SET}>
+            <p className={`${p2Regular} text-jp-gray-700`}>
+              {"Didn't get a code? "->React.string}
+              <span
+                className="cursor-pointer underline underline-offset-2 text-blue-600"
+                onClick={_ => setTwoFaPageState(_ => TOTP_INPUT_RECOVERY_CODE)}>
+                {"Use access-code"->React.string}
+              </span>
+            </p>
+          </UIUtils.RenderIf>
+        </div>
         <div className="flex justify-end gap-4">
           <Button
             text="Skip now"
@@ -159,7 +159,7 @@ module ConfigureTotpScreen = {
             buttonSize=Small
             customButtonStyle="group"
             buttonState={otp->String.length === 6 ? buttonState : Disabled}
-            onClick={_ => handleTotpSubmitClick()}
+            onClick={_ => verifyTOTP()->ignore}
             rightIcon={CustomIcon(
               <Icon
                 name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
@@ -175,15 +175,18 @@ module ConfigureTotpScreen = {
 @react.component
 let make = () => {
   open HSwitchUtils
+  open TotpTypes
 
   let getURL = APIUtils.useGetURL()
+  let showToast = ToastState.useShowToast()
   let fetchDetails = APIUtils.useGetMethod()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (isQrVisible, setIsQrVisible) = React.useState(_ => false)
   let (totpUrl, setTotpUrl) = React.useState(_ => "")
-  let (showQR, setShowQR) = React.useState(_ => true)
-  let (totpStatus, setTotpStatus) = React.useState(_ => TotpTypes.TOTP_SHOW_QR)
+  let (twoFaStatus, setTwoFaStatus) = React.useState(_ => TWO_FA_NOT_SET)
+  let (twoFaPageState, setTwoFaPageState) = React.useState(_ => TotpTypes.TOTP_SHOW_QR)
+  let (showNewQR, setShowNewQR) = React.useState(_ => false)
 
   let delayTimer = () => {
     let timeoutId = {
@@ -199,6 +202,40 @@ let make = () => {
     )
   }
 
+  let terminateTwoFactorAuth = async (~skip_2fa) => {
+    open LogicUtils
+    try {
+      open TotpUtils
+
+      let url = `${getURL(
+          ~entityName=USERS,
+          ~userType=#TERMINATE_TWO_FACTOR_AUTH,
+          ~methodType=Get,
+          (),
+        )}?skip_two_factor_auth=${skip_2fa->getStringFromBool}`
+
+      let response = await fetchDetails(url)
+      setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(response))))
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+
+        if (
+          errorCode->CommonAuthUtils.errorSubCodeMapper === UR_40 ||
+            errorCode->CommonAuthUtils.errorSubCodeMapper === UR_41
+        ) {
+          setTwoFaPageState(_ => TotpTypes.TOTP_SHOW_QR)
+          showToast(~message="Failed to complete 2fa!", ~toastType=ToastError, ())
+          setShowNewQR(prev => !prev)
+        } else {
+          showToast(~message="Something went wrong", ~toastType=ToastError, ())
+          setScreenState(_ => PageLoaderWrapper.Error(err))
+        }
+      }
+    }
+  }
+
   let getTOTPString = async () => {
     open LogicUtils
     try {
@@ -209,15 +246,11 @@ let make = () => {
       switch responseDict->JSON.Classify.classify {
       | Object(objectValue) => {
           let otpUrl = objectValue->getString("totp_url", "")
-          // let recoveryCodes = objectValue->getStrArray("recovery_codes")
           setTotpUrl(_ => otpUrl)
-          // setRecoveryCodes(_ => recoveryCodes)
         }
-      | _ => setShowQR(_ => false)
+      | _ => setTwoFaStatus(_ => TWO_FA_SET)
       }
-
       setScreenState(_ => PageLoaderWrapper.Success)
-
       // NOTE : added delay to show the QR code after loading animation
       delayTimer()->ignore
     } catch {
@@ -228,17 +261,25 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect1(() => {
     getTOTPString()->ignore
     None
-  })
+  }, [showNewQR])
 
   <PageLoaderWrapper screenState>
     <BackgroundImageWrapper>
       <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
-        {switch totpStatus {
-        | TOTP_SHOW_QR => <ConfigureTotpScreen isQrVisible totpUrl showQR setTotpStatus />
-        | TOTP_SHOW_RC => <TotpRecoveryCodes setTotpStatus onClickDownload={_ => ()} />
+        {switch twoFaPageState {
+        | TOTP_SHOW_QR =>
+          <ConfigureTotpScreen
+            isQrVisible totpUrl twoFaStatus setTwoFaPageState terminateTwoFactorAuth
+          />
+        | TOTP_SHOW_RC =>
+          <TotpRecoveryCodes
+            setTwoFaPageState onClickDownload={terminateTwoFactorAuth} setShowNewQR
+          />
+        | TOTP_INPUT_RECOVERY_CODE =>
+          <EnterAccessCode setTwoFaPageState onClickVerifyAccessCode={terminateTwoFactorAuth} />
         }}
         <div className="text-grey-200 flex gap-2">
           {"Log in with a different account?"->React.string}

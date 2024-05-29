@@ -112,9 +112,7 @@ module HyperSwitchEntryComponent = {
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle
-      let title = featureFlagDetails.isLiveMode
-        ? `${page} - Dashboard`
-        : `${page} - Dashboard [Test]`
+      let title = `${page} - Dashboard`
       DOMUtils.document.title = title
       GoogleAnalytics.send({hitType: "pageview", page})
     }
@@ -125,8 +123,12 @@ module HyperSwitchEntryComponent = {
       | list{"user", "set_password"} => "set_password"->setPageName
       | list{"user", "login"} => "magic_link_verify"->setPageName
       | _ =>
-        switch List.head(url.path) {
-        | Some(pageTitle) => pageTitle->setPageName
+        switch url.path->List.drop(1) {
+        | Some(val) =>
+          switch List.head(val) {
+          | Some(pageTitle) => pageTitle->setPageName
+          | _ => ()
+          }
         | _ => ()
         }
       }

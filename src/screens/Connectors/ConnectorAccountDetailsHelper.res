@@ -1,4 +1,4 @@
-let metaDataInputKeysToIgnore = ["google_pay", "apple_pay", "zen_apple_pay"]
+let metaDataInputKeysToIgnore = ["google_pay", "apple_pay", "zen_apple_pay", "paypal_sdk"]
 
 let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorTypes> = [
   Processors(ADYEN),

@@ -291,8 +291,7 @@ let make = () => {
               text="Create New"
               access=userPermissionJson.workflowsManage
               buttonType=Primary
-              customButtonStyle="!w-1/6"
-              leftIcon=FontAwesome("plus")
+              customButtonStyle="!w-1/6 "
               onClick={_ => handleCreateNew()}
             />
           </div>

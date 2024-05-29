@@ -82,7 +82,7 @@ let make = () => {
             />}
           />
         </div>
-        <UIUtils.RenderIf condition={generateReport}>
+        <UIUtils.RenderIf condition={generateReport && refundData->Array.length > 0}>
           <GenerateReport entityName={REFUND_REPORT} />
         </UIUtils.RenderIf>
         <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />
