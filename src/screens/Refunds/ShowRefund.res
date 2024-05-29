@@ -178,22 +178,10 @@ let make = (~id) => {
         overriddingStylesTitle={`text-3xl font-semibold`}
       />}>
       <RefundInfo orderDict={refundData->LogicUtils.getDictFromJsonObject} />
-      <UIUtils.RenderIf condition={userPermissionJson.operationsView !== NoAccess}>
-        <LoadedTable
-          title="Payment"
-          actualData=orderData
-          entity={OrderEntity.orderEntity}
-          resultsPerPage=1
-          showSerialNumber=true
-          totalResults=1
-          offset
-          setOffset
-          currrentFetchCount=1
-        />
-      </UIUtils.RenderIf>
       <div className="mt-5" />
       <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
         <OrderUIUtils.RenderAccordian
+          initialExpandedArray=[0]
           accordion={[
             {
               title: "Events and logs",
@@ -205,6 +193,19 @@ let make = (~id) => {
               renderContentOnTop: None,
             },
           ]}
+        />
+      </UIUtils.RenderIf>
+      <UIUtils.RenderIf condition={userPermissionJson.operationsView !== NoAccess}>
+        <LoadedTable
+          title="Payment"
+          actualData=orderData
+          entity={OrderEntity.orderEntity}
+          resultsPerPage=1
+          showSerialNumber=true
+          totalResults=1
+          offset
+          setOffset
+          currrentFetchCount=1
         />
       </UIUtils.RenderIf>
     </PageLoaderWrapper>

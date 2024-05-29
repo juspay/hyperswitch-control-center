@@ -34,6 +34,7 @@ let useSetInitialFilters = (
   ~startTimeFilterKey,
   ~endTimeFilterKey,
   ~range=7,
+  ~origin,
   (),
 ) => {
   let {filterValueJson} = FilterContext.filterContext->React.useContext
@@ -44,10 +45,11 @@ let useSetInitialFilters = (
     let defaultDate = getDateFilteredObject(~range, ())
 
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
-      [
-        (startTimeFilterKey, defaultDate.start_time),
-        (endTimeFilterKey, defaultDate.end_time),
-      ]->Array.forEach(item => {
+      let timeRange =
+        origin !== "analytics"
+          ? [(startTimeFilterKey, defaultDate.start_time)]
+          : [(startTimeFilterKey, defaultDate.start_time), (endTimeFilterKey, defaultDate.end_time)]
+      timeRange->Array.forEach(item => {
         let (key, defaultValue) = item
         switch inititalSearchParam->Dict.get(key) {
         | Some(_) => ()
@@ -167,6 +169,7 @@ module RemoteTableFilters = {
       ~startTimeFilterKey,
       ~endTimeFilterKey,
       ~range=30,
+      ~origin="orders",
       (),
     )
 
