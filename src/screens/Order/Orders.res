@@ -42,7 +42,6 @@ let make = (~previewOnly=false) => {
           let (key, value) = item
           filters->Dict.set(key, value)
         })
-
         filters
         ->getOrdersList(
           ~updateDetails,
