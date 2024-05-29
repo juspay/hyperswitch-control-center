@@ -260,9 +260,6 @@ module Attempts = {
   open OrderEntity
   @react.component
   let make = (~order) => {
-    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ConfigContext.configContext,
-    )
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
@@ -647,7 +644,7 @@ let make = (~id) => {
         ~entityName=ORDERS,
         ~methodType=Get,
         ~id=Some(id),
-        ~queryParamerters=Some("force_sync=true"),
+        ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
         (),
       )
       let _ = await fetchOrderDetails(getRefreshStatusUrl)
@@ -703,6 +700,7 @@ let make = (~id) => {
         />
         <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
           <RenderAccordian
+            initialExpandedArray=[0]
             accordion={[
               {
                 title: "Events and logs",
