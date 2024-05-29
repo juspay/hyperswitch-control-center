@@ -98,7 +98,6 @@ module AddEntryBtn = {
           access={userPermissionJson.merchantDetailsManage}
           buttonSize=Small
           buttonType={Primary}
-          rightIcon={FontAwesome("plus")}
           onClick={_ => {
             setModalState(_ => Edit)
             setShowModal(_ => true)
