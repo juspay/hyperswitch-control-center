@@ -221,7 +221,10 @@ let make = () => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
 
-        if errorCode === "UR_40" || errorCode === "UR_41" {
+        if (
+          errorCode->CommonAuthUtils.errorSubCodeMapper === UR_40 ||
+            errorCode->CommonAuthUtils.errorSubCodeMapper === UR_41
+        ) {
           setTwoFaPageState(_ => TotpTypes.TOTP_SHOW_QR)
           showToast(~message="Failed to complete 2fa!", ~toastType=ToastError, ())
           setShowNewQR(prev => !prev)

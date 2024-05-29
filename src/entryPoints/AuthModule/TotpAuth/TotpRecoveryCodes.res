@@ -22,7 +22,7 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
 
-        if errorCode === "UR_38" {
+        if errorCode->CommonAuthUtils.errorSubCodeMapper === UR_38 {
           setTwoFaPageState(_ => TotpTypes.TOTP_SHOW_QR)
           setShowNewQR(prev => !prev)
         } else {
