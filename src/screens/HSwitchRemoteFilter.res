@@ -22,8 +22,6 @@ let getDateFilteredObject = (~range=7, ()) => {
     ->Js.Date.setDate((currentDate->Js.Date.getDate->Float.toInt - range)->Int.toFloat)
     ->Js.Date.fromFloat
     ->formateDateString
-  Js.log2(currentDate->Js.Date.getDate->Float.toInt, "endTime")
-  Js.log2(range, "endTime")
 
   {
     start_time,
