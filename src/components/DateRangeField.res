@@ -502,7 +502,7 @@ module Base = {
           )
         : buttonText->isNonEmptyString
         ? ""
-        : ""
+        : "[To-Date]"
     let startTimeStr =
       startDateVal->isNonEmptyString
         ? startDateVal->getTimeStringForValue(isoStringToCustomTimeZone)
