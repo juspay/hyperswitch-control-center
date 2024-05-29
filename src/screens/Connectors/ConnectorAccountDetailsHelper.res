@@ -119,13 +119,9 @@ module RenderConnectorInputFields = {
     open ConnectorUtils
     open LogicUtils
     let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))
-    // Js.log2(keys, "keys")
-    // Js.log2(details, "details")
-    // Js.log2(details->Dict.keysToArray, "keys")
 
     keys
     ->Array.mapWithIndex((field, i) => {
-      Js.log2(field, "field")
       let label = switch field {
       | "pull_mechanism_for_external_3ds_enabled" => "Pull Mechanism Enabled"
       | _ => details->getString(field, "")
