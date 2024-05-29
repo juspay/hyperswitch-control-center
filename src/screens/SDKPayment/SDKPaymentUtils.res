@@ -49,11 +49,11 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
       order_details: {
         product_name: "Apple iphone 15",
         quantity: 1,
-        amount: 100.00,
+        amount: 10000.00,
       },
     },
     capture_method: "automatic",
-    amount_to_capture: Nullable.make(100.00),
+    amount_to_capture: Nullable.make(10000.00),
     return_url: `${Window.Location.origin}${Window.Location.pathName}`,
     country_currency: "US-USD",
   }
@@ -70,7 +70,7 @@ let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
   let billingPhone = getDictFormDictOfValues("shipping")->getDictfromDict("phone")
   let billingEmail = getDictFormDictOfValues("billing")->getString("email", "")
   let metaData = getDictFormDictOfValues("metadata")->getDictfromDict("order_details")
-  let amount = dictOfValues->getFloat("amount", 100.00)
+  let amount = dictOfValues->getFloat("amount", 10000.00)
   let countryCurrency = dictOfValues->getString("country_currency", "US-USD")->String.split("-")
 
   let mandateData: SDKPaymentTypes.mandateData = {

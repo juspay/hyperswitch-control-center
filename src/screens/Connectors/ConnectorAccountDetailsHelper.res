@@ -1,4 +1,4 @@
-let metaDataInputKeysToIgnore = ["google_pay", "apple_pay", "zen_apple_pay"]
+let metaDataInputKeysToIgnore = ["google_pay", "apple_pay", "zen_apple_pay", "paypal_sdk"]
 
 let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorTypes> = [
   Processors(ADYEN),
@@ -119,8 +119,13 @@ module RenderConnectorInputFields = {
     open ConnectorUtils
     open LogicUtils
     let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))
+    // Js.log2(keys, "keys")
+    // Js.log2(details, "details")
+    // Js.log2(details->Dict.keysToArray, "keys")
+
     keys
     ->Array.mapWithIndex((field, i) => {
+      Js.log2(field, "field")
       let label = switch field {
       | "pull_mechanism_for_external_3ds_enabled" => "Pull Mechanism Enabled"
       | _ => details->getString(field, "")
@@ -305,6 +310,7 @@ module ConnectorConfigurationFields = {
     ~isUpdateFlow=false,
     ~connectorLabelDetailField,
   ) => {
+    Js.log2(connectorMetaDataFields, "connectorMetaDataFields")
     <div className="flex flex-col">
       {switch connector {
       | Processors(CASHTOCODE) =>
