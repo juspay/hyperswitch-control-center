@@ -701,6 +701,21 @@ let make = (~id) => {
           openRefundModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
+        <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
+          <RenderAccordian
+            accordion={[
+              {
+                title: "Events and logs",
+                renderContent: () => {
+                  <LogsWrapper wrapperFor={#PAYMENT}>
+                    <PaymentLogs paymentId={id} createdAt={orderData.created} />
+                  </LogsWrapper>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </UIUtils.RenderIf>
         <div className="overflow-scroll">
           <Attempts order={orderData} />
         </div>
@@ -751,21 +766,6 @@ let make = (~id) => {
             ]}
           />
         </div>
-        <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
-          <RenderAccordian
-            accordion={[
-              {
-                title: "Events and logs",
-                renderContent: () => {
-                  <LogsWrapper wrapperFor={#PAYMENT}>
-                    <PaymentLogs paymentId={id} createdAt={orderData.created} />
-                  </LogsWrapper>
-                },
-                renderContentOnTop: None,
-              },
-            ]}
-          />
-        </UIUtils.RenderIf>
         <UIUtils.RenderIf
           condition={orderData.payment_method === "card" &&
             orderData.payment_method_data->Option.isSome}>
