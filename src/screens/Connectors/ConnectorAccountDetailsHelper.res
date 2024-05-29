@@ -306,7 +306,6 @@ module ConnectorConfigurationFields = {
     ~isUpdateFlow=false,
     ~connectorLabelDetailField,
   ) => {
-    Js.log2(connectorMetaDataFields, "connectorMetaDataFields")
     <div className="flex flex-col">
       {switch connector {
       | Processors(CASHTOCODE) =>
