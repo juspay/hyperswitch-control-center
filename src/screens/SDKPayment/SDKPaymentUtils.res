@@ -70,7 +70,7 @@ let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
   let billingPhone = getDictFormDictOfValues("shipping")->getDictfromDict("phone")
   let billingEmail = getDictFormDictOfValues("billing")->getString("email", "")
   let metaData = getDictFormDictOfValues("metadata")->getDictfromDict("order_details")
-  let amount = dictOfValues->getFloat("amount", 100.00)
+  let amount = dictOfValues->getFloat("amount", 10000.00)
   let countryCurrency = dictOfValues->getString("country_currency", "US-USD")->String.split("-")
 
   let mandateData: SDKPaymentTypes.mandateData = {
