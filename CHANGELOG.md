@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.29.0
+
+### Bug Fixes
+
+- Production access form fields addition ([#731](https://github.com/juspay/hyperswitch-control-center/pull/731)) ([`7ec5828`](https://github.com/juspay/hyperswitch-control-center/commit/7ec5828b4a501ed16935d9a6ab5d65add171954b))
+- Dummy connector warnings ([#734](https://github.com/juspay/hyperswitch-control-center/pull/734)) ([`69bf502`](https://github.com/juspay/hyperswitch-control-center/commit/69bf5025742805135fc54e23319c23132f2cd564))
+
+**Full Changelog:** [`2024.05.28.0...2024.05.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.28.0...2024.05.29.0)
+
+- - -
+
 ## 2024.05.28.0
 
 ### Features
