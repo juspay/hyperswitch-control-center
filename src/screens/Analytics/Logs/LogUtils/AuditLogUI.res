@@ -10,41 +10,48 @@ module LogDetailsSection = {
       }
     }
 
-    <div className="border-b-2 border-border-light-grey pb-3 px-5 py-3">
-      {logDetails.data
-      ->Dict.toArray
-      ->Array.filter(item => {
-        let (key, value) = item
-        !(LogUtils.detailsSectionFilterKeys->Array.includes(key)) && value->isValidNonEmptyValue
-      })
-      ->Array.map(item => {
-        let (key, value) = item
-        <div className="text-sm font-medium text-gray-700 flex">
-          <span className="w-2/5"> {key->snakeToTitle->React.string} </span>
-          <span
-            className="w-3/5 overflow-scroll cursor-pointer relative hover:bg-gray-50 p-1 rounded">
-            <ReactSyntaxHighlighter.SyntaxHighlighter
-              wrapLines={true}
-              wrapLongLines=true
-              style={ReactSyntaxHighlighter.lightfair}
-              language="json"
-              showLineNumbers={false}
-              lineNumberContainerStyle={{
-                paddingLeft: "0px",
-                backgroundColor: "red",
-                padding: "0px",
-              }}
-              customStyle={{
-                backgroundColor: "transparent",
-                fontSize: "0.875rem",
-                padding: "0px",
-              }}>
-              {value->JSON.stringify}
-            </ReactSyntaxHighlighter.SyntaxHighlighter>
-          </span>
-        </div>
-      })
-      ->React.array}
+    <div>
+      <div className="px-5 flex justify-between items-center">
+        <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
+          {"Log Details"->React.string}
+        </p>
+      </div>
+      <div className="border-b-2 border-border-light-grey pb-3 px-5 py-3">
+        {logDetails.data
+        ->Dict.toArray
+        ->Array.filter(item => {
+          let (key, value) = item
+          !(LogUtils.detailsSectionFilterKeys->Array.includes(key)) && value->isValidNonEmptyValue
+        })
+        ->Array.map(item => {
+          let (key, value) = item
+          <div className="text-sm font-medium text-gray-700 flex">
+            <span className="w-2/5"> {key->snakeToTitle->React.string} </span>
+            <span
+              className="w-3/5 overflow-scroll cursor-pointer relative hover:bg-gray-50 p-1 rounded">
+              <ReactSyntaxHighlighter.SyntaxHighlighter
+                wrapLines={true}
+                wrapLongLines=true
+                style={ReactSyntaxHighlighter.lightfair}
+                language="json"
+                showLineNumbers={false}
+                lineNumberContainerStyle={{
+                  paddingLeft: "0px",
+                  backgroundColor: "red",
+                  padding: "0px",
+                }}
+                customStyle={{
+                  backgroundColor: "transparent",
+                  fontSize: "0.875rem",
+                  padding: "0px",
+                }}>
+                {value->JSON.stringify}
+              </ReactSyntaxHighlighter.SyntaxHighlighter>
+            </span>
+          </div>
+        })
+        ->React.array}
+      </div>
     </div>
   }
 }
@@ -177,11 +184,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
           <UIUtils.RenderIf
             condition={logDetails.request->isNonEmptyString &&
               selectedOption.optionType !== WEBHOOKS}>
-            <PrettyPrintJson
-              jsonToDisplay=logDetails.request
-              headerText={requestHeader->Some}
-              maxHeightClass={logDetails.response->String.length > 0 ? "max-h-25-rem" : ""}
-            />
+            <PrettyPrintJson jsonToDisplay=logDetails.request headerText={requestHeader->Some} />
           </UIUtils.RenderIf>
           <UIUtils.RenderIf condition={logDetails.response->isNonEmptyString}>
             <PrettyPrintJson jsonToDisplay={logDetails.response} headerText />
