@@ -238,7 +238,7 @@ module ConnectorSummaryGrid = {
               <a
                 onClick={_ =>
                   RescriptReactRouter.push(
-                    HSwitchGlobalVars.appendDashboardPath(~url="/configure-pmt"),
+                    HSwitchGlobalVars.appendDashboardPath(~url="/configure-pmts"),
                   )}
                 target="_blank"
                 className="text-blue-500 underline cursor-pointer">
