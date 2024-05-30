@@ -332,25 +332,8 @@ let getColumns: bool => array<DynamicSingleStat.columns<colT>> = connector_succe
   {
     sectionName: "",
     columns: connector_success_rate
-      ? [
-          SuccessRate,
-          Count,
-          SuccessCount,
-          ProcessedAmount,
-          AvgTicketSize,
-          RetriesCount,
-          RetriesAmountProcessed,
-          ConnectorSuccessRate,
-        ]
-      : [
-          SuccessRate,
-          Count,
-          SuccessCount,
-          ProcessedAmount,
-          AvgTicketSize,
-          RetriesCount,
-          RetriesAmountProcessed,
-        ],
+      ? [SuccessRate, Count, SuccessCount, AvgTicketSize, RetriesCount, ConnectorSuccessRate]
+      : [SuccessRate, Count, SuccessCount, AvgTicketSize, RetriesCount],
   },
 ]
 
