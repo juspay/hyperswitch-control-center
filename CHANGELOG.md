@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.29.4
+
+### Miscellaneous Tasks
+
+- UI fix audit ([#753](https://github.com/juspay/hyperswitch-control-center/pull/753)) ([`778839a`](https://github.com/juspay/hyperswitch-control-center/commit/778839a6de1a53fccd71fcc94b5c38288d7d91cf))
+
+**Full Changelog:** [`2024.05.29.3...2024.05.29.4`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.29.3...2024.05.29.4)
+
+- - -
+
 ## 2024.05.29.3
 
 ### Bug Fixes
