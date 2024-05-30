@@ -37,7 +37,7 @@ module CheckoutForm = {
     let (error, setError) = React.useState(_ => None)
     let (btnState, setBtnState) = React.useState(_ => Button.Normal)
     let hyper = useHyper()
-    let elements = useElements()
+    let elements = useWidgets()
     let (appearanceElem, setAppearanceElem) = React.useState(() => JSON.Encode.null)
     let (paymentElem, setPaymentElem) = React.useState(() => JSON.Encode.null)
 
@@ -161,28 +161,31 @@ module CheckoutForm = {
     let handleSubmit = async () => {
       open LogicUtils
       try {
-        let confirmParams =
-          [
-            (
-              "confirmParams",
-              [
-                ("return_url", returnUrl->JSON.Encode.string),
-                ("redirect", "always"->JSON.Encode.string),
-              ]
-              ->Dict.fromArray
-              ->JSON.Encode.object,
-            ),
-          ]->getJsonFromArrayOfJson
-        let res = await hyper.confirmPayment(confirmParams)
-        let status = res->getDictFromJsonObject->getOptionString("status")
-        switch status {
-        | Some(str) =>
-          switch str {
-          | "failed" => setPaymentStatus(_ => FAILED("Failed"))
-          | "succeeded" => setPaymentStatus(_ => SUCCESS)
-          | _ => setPaymentStatus(_ => CUSTOMSTATE)
+        let confirmParamsToPass = {
+          "elements": elements,
+          "confirmParams": [
+            ("return_url", returnUrl->JSON.Encode.string),
+            ("redirect", "always"->JSON.Encode.string),
+          ]
+          ->Dict.fromArray
+          ->JSON.Encode.object,
+        }
+        let res = await hyper.confirmPayment(confirmParamsToPass->Identity.genericTypeToJson)
+        let responseDict = res->getDictFromJsonObject
+        let errorDict = responseDict->getDictfromDict("error")
+        if errorDict->getOptionString("type") !== Some("validation_error") {
+          let status = responseDict->getOptionString("status")
+          switch status {
+          | Some(str) =>
+            switch str {
+            | "failed" => setPaymentStatus(_ => FAILED("Failed"))
+            | "succeeded" => setPaymentStatus(_ => SUCCESS)
+            | _ => setPaymentStatus(_ => CUSTOMSTATE)
+            }
+          | None =>
+            setPaymentStatus(_ => CUSTOMSTATE)
+            setClientSecret(_ => None)
           }
-        | None => setPaymentStatus(_ => CUSTOMSTATE)
         }
       } catch {
       | Exn.Error(e) => {
@@ -197,7 +200,6 @@ module CheckoutForm = {
           }
         }
       }
-      setClientSecret(_ => None)
       setBtnState(_ => Button.Normal)
     }
 
