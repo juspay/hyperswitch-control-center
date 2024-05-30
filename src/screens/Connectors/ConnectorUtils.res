@@ -1049,7 +1049,7 @@ let validateConnectorRequiredFields = (
   newDict->JSON.Encode.object
 }
 
-let getPlaceHolder = (connector: connectorTypes, fieldName, label) => {
+let getPlaceHolder = label => {
   `Enter ${label->LogicUtils.snakeToTitle}`
 }
 
