@@ -38,6 +38,37 @@ let currencyField = (
     (),
   )
 
+let dropDownfield = (
+  ~name,
+  ~label,
+  ~buttonText="Select",
+  ~disableSelect=false,
+  ~toolTipText="",
+  ~options=[],
+  (),
+) => {
+  FormRenderer.makeFieldInfo(
+    ~label,
+    ~isRequired=true,
+    ~name,
+    ~description=toolTipText,
+    ~customInput=InputFields.selectInput(
+      ~deselectDisable=true,
+      ~disableSelect,
+      ~customStyle="max-h-48",
+      ~options=options->Array.map((item): SelectBox.dropdownOption => {
+        {
+          label: item,
+          value: item,
+        }
+      }),
+      ~buttonText,
+      (),
+    ),
+    (),
+  )
+}
+
 let toggleField = (~name) => {
   FormRenderer.makeFieldInfo(
     ~name,
@@ -119,10 +150,12 @@ module RenderConnectorInputFields = {
     open ConnectorUtils
     open LogicUtils
     let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))
+
     keys
     ->Array.mapWithIndex((field, i) => {
       let label = switch field {
       | "pull_mechanism_for_external_3ds_enabled" => "Pull Mechanism Enabled"
+      | "klarna_region" => "Region of your Klarna Merchant Account"
       | _ => details->getString(field, "")
       }
 
@@ -138,7 +171,14 @@ module RenderConnectorInputFields = {
 
               | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") =>
                 toggleField(~name=formName)
-
+              | (Processors(KLARNA), "klarna_region") =>
+                dropDownfield(
+                  ~name=formName,
+                  ~label,
+                  ~buttonText="Select Region",
+                  ~options=details->getStrArrayFromDict(field, []),
+                  (),
+                )
               | _ =>
                 inputField(
                   ~name=formName,
