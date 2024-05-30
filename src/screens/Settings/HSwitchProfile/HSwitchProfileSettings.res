@@ -118,7 +118,17 @@ module TwoFactorAuthenticationDetails = {
               {"Reset TOTP to regain access if you've changed or lost your device."->React.string}
             </span>
           </p>
-          <Button text="Edit" buttonSize={XSmall} />
+          <Button
+            text="Edit"
+            buttonSize={XSmall}
+            onClick={_ => {
+              RescriptReactRouter.push(
+                HSwitchGlobalVars.appendDashboardPath(
+                  ~url=`/account-settings/profile/2fa?type=reset_totp`,
+                ),
+              )
+            }}
+          />
         </div>
         <hr />
         <div className="flex gap-10 items-center justify-between">
@@ -128,7 +138,17 @@ module TwoFactorAuthenticationDetails = {
               {"Regenerate your access code to ensure continued access and security for your account."->React.string}
             </span>
           </p>
-          <Button text="Edit" buttonSize={XSmall} />
+          <Button
+            text="Edit"
+            buttonSize={XSmall}
+            onClick={_ => {
+              RescriptReactRouter.push(
+                HSwitchGlobalVars.appendDashboardPath(
+                  ~url=`/account-settings/profile/2fa?type=regenerate_recovery_code`,
+                ),
+              )
+            }}
+          />
         </div>
       </div>
     </div>

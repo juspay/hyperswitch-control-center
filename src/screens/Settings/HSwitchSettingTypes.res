@@ -148,3 +148,7 @@ type profileEntity = {
   webhook_details: webhookDetails,
   authentication_connector_details: authConnectorDetailsType,
 }
+
+type twoSettingsTypes = ResetTotp | RegenerateRecoveryCodes
+
+type profileSettingsTypes = ACCOUNT_SETTINGS | TWO_FA_SETTINGS(twoSettingsTypes)
