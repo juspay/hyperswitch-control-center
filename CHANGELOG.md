@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.05.30.1
+
+### Miscellaneous Tasks
+
+- Update placeholder klarna ([#765](https://github.com/juspay/hyperswitch-control-center/pull/765)) ([`6afc98d`](https://github.com/juspay/hyperswitch-control-center/commit/6afc98d206ef90c125758ea9d789dba3916a10ba))
+
+**Full Changelog:** [`2024.05.30.0...2024.05.30.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.30.0...2024.05.30.1)
+
+- - -
+
 ## 2024.05.30.0
 
 ### Miscellaneous Tasks
