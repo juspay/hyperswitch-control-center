@@ -166,9 +166,7 @@ module CheckoutForm = {
           "confirmParams": [
             ("return_url", returnUrl->JSON.Encode.string),
             ("redirect", "always"->JSON.Encode.string),
-          ]
-          ->Dict.fromArray
-          ->JSON.Encode.object,
+          ]->getJsonFromArrayOfJson,
         }
         let res = await hyper.confirmPayment(confirmParamsToPass->Identity.genericTypeToJson)
         let responseDict = res->getDictFromJsonObject
