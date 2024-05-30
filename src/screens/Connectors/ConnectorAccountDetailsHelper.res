@@ -38,7 +38,7 @@ let currencyField = (
     (),
   )
 
-let dropDownfiled = (
+let dropDownfield = (
   ~name,
   ~label,
   ~buttonText="Select",
@@ -172,7 +172,7 @@ module RenderConnectorInputFields = {
               | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") =>
                 toggleField(~name=formName)
               | (Processors(KLARNA), "klarna_region") =>
-                dropDownfiled(
+                dropDownfield(
                   ~name=formName,
                   ~label,
                   ~buttonText="Select Region",
