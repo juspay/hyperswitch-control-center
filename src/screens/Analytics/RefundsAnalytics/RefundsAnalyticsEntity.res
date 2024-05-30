@@ -181,7 +181,7 @@ type colT =
 let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: [SuccessRate, Count, SuccessCount, ProcessedAmount],
+    columns: [SuccessRate, Count, SuccessCount],
   },
 ]
 
