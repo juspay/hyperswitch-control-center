@@ -97,7 +97,7 @@ let inputField = (
     ~toolTipPosition,
     ~customInput=InputFields.textInput(~isDisabled=disabled, ()),
     ~placeholder=switch getPlaceholder {
-    | Some(fun) => fun(connector, field, label)
+    | Some(fun) => fun(label)
     | None => `Enter ${label->LogicUtils.snakeToTitle}`
     },
     ~isRequired=switch checkRequiredFields {
