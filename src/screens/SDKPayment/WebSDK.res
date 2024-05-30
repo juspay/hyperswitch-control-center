@@ -182,10 +182,9 @@ module CheckoutForm = {
             | "succeeded" => setPaymentStatus(_ => SUCCESS)
             | _ => setPaymentStatus(_ => CUSTOMSTATE)
             }
-          | None =>
-            setPaymentStatus(_ => CUSTOMSTATE)
-            setClientSecret(_ => None)
+          | None => setPaymentStatus(_ => CUSTOMSTATE)
           }
+          setClientSecret(_ => None)
         }
       } catch {
       | Exn.Error(e) => {
@@ -198,6 +197,7 @@ module CheckoutForm = {
             setPaymentStatus(_ => FAILED(err))
             setError(_ => Some(err))
           }
+          setClientSecret(_ => None)
         }
       }
       setBtnState(_ => Button.Normal)
