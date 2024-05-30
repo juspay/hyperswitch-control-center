@@ -1050,10 +1050,7 @@ let validateConnectorRequiredFields = (
 }
 
 let getPlaceHolder = (connector: connectorTypes, fieldName, label) => {
-  switch (connector, fieldName) {
-  | (Processors(KLARNA), "api_key") => "Enter as:-Basic{API Key}"
-  | _ => `Enter ${label->LogicUtils.snakeToTitle}`
-  }
+  `Enter ${label->LogicUtils.snakeToTitle}`
 }
 
 let getConnectorDetailsValue = (connectorInfo: connectorPayload, str) => {
