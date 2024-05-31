@@ -211,12 +211,6 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     None
   })
 
-  let headerText = switch selectedOption.optionType {
-  | API_EVENTS | CONNECTOR => "Response body"
-  | WEBHOOKS => "Request body"
-  | SDK => "Metadata"
-  }->Some
-
   let timeLine =
     <div className="flex flex-col w-2/5 overflow-y-scroll pt-7 pl-5">
       <div className="flex flex-col">
