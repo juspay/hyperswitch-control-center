@@ -7,7 +7,6 @@ let make = (
   ~overrideBackgroundColor="bg-hyperswitch_background",
 ) => {
   let showToast = ToastState.useShowToast()
-  let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
   let (parsedJson, setParsedJson) = React.useState(_ => "")
   let parseJsonValue = () => {
     try {
@@ -43,10 +42,7 @@ let make = (
             {copyParsedJson}
           </div>
         </UIUtils.RenderIf>
-        <div
-          className={isTextVisible
-            ? "overflow-visible "
-            : `overflow-clip  h-fit ${maxHeightClass}`}>
+        <div className="overflow-auto">
           <ReactSyntaxHighlighter.SyntaxHighlighter
             style={ReactSyntaxHighlighter.lightfair}
             language="json"
@@ -65,11 +61,6 @@ let make = (
             {parsedJson}
           </ReactSyntaxHighlighter.SyntaxHighlighter>
         </div>
-        <Button
-          text={isTextVisible ? "Hide" : "See more"}
-          customButtonStyle="h-6 w-8 flex flex-1 justify-center m-1"
-          onClick={_ => setIsTextVisible(_ => !isTextVisible)}
-        />
       </>}
     </UIUtils.RenderIf>
     <UIUtils.RenderIf condition={parsedJson->isEmptyString}>
