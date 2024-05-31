@@ -193,6 +193,9 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   open OrderUtils
   <PageLoaderWrapper
     screenState
+    customLoader={<p className=" text-center text-sm text-jp-gray-900">
+      {"Crunching the latest data…"->React.string}
+    </p>}
     customUI={<NoDataFound
       message={`No logs available for this ${(logType :> string)->String.toLowerCase}`}
     />}>

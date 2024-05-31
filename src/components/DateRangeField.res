@@ -528,7 +528,7 @@ module Base = {
         : showTime
         ? `${startDateStr} ${startTimeStr} - ${endDateStr} ${endTimeStr}`
         : endDateVal->isEmptyString
-        ? `${startDateStr}`
+        ? `${startDateStr} - Now`
         : `${startDateStr} ${startDateStr === buttonText ? "" : "-"} ${endDateStr}`
     }
 
