@@ -170,12 +170,9 @@ let make = () => {
             onClickUrl={`/connectors`}
           />
         } else {
-          <HelperComponents.BluredTableComponent
-            infoText={"Connect to a payment processor to make your first payment"}
-            buttonText={"Connect a connector"}
-            moduleName=""
-            onClickUrl={`/connectors`}
-          />
+          <div className="bg-sidebar-blue flex items-center justify-center h-full">
+            <img src={`/assets/BlurrySDK.svg`} />
+          </div>
         }}
       </div>
     </div>
