@@ -3,6 +3,37 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.02.0
+
+### Bug Fixes
+
+- Pay now button validations ([#754](https://github.com/juspay/hyperswitch-control-center/pull/754)) ([`bf32df5`](https://github.com/juspay/hyperswitch-control-center/commit/bf32df5494eb84bdfea63728cf4b3f7879f099d9))
+
+**Full Changelog:** [`2024.05.30.1...2024.06.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.30.1...2024.06.02.0)
+
+- - -
+
+## 2024.05.30.1
+
+### Miscellaneous Tasks
+
+- Update placeholder klarna ([#765](https://github.com/juspay/hyperswitch-control-center/pull/765)) ([`6afc98d`](https://github.com/juspay/hyperswitch-control-center/commit/6afc98d206ef90c125758ea9d789dba3916a10ba))
+
+**Full Changelog:** [`2024.05.30.0...2024.05.30.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.30.0...2024.05.30.1)
+
+- - -
+
+## 2024.05.30.0
+
+### Miscellaneous Tasks
+
+- Update klaran metadata ([#762](https://github.com/juspay/hyperswitch-control-center/pull/762)) ([`41622fc`](https://github.com/juspay/hyperswitch-control-center/commit/41622fc20526d1cd81e0f9726a4ccfc2d0c2237d))
+- Remove currency metrics ([#761](https://github.com/juspay/hyperswitch-control-center/pull/761)) ([`6f251e1`](https://github.com/juspay/hyperswitch-control-center/commit/6f251e1b28f96f9912613e7dbea7f811c616f816))
+
+**Full Changelog:** [`2024.05.29.4...2024.05.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.29.4...2024.05.30.0)
+
+- - -
+
 ## 2024.05.29.4
 
 ### Miscellaneous Tasks
