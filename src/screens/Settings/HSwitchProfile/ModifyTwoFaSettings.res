@@ -2,19 +2,71 @@ let h2TextStyle = HSwitchUtils.getTextClass((H2, Optional))
 let p2Regular = HSwitchUtils.getTextClass((P2, Regular))
 let p3Regular = HSwitchUtils.getTextClass((P3, Regular))
 
+module Verify2FAModalComponent = {
+  @react.component
+  let make = (
+    ~twoFaState,
+    ~setTwoFaState,
+    ~otp="",
+    ~setOtp=_ => (),
+    ~recoveryCode="",
+    ~setRecoveryCode=_ => (),
+  ) => {
+    open HSwitchSettingTypes
+    <div className="flex flex-col items-center gap-2 ">
+      {switch twoFaState {
+      | Totp =>
+        <>
+          <TwoFaElements.TotpInput otp setOtp />
+          <p className={`${p2Regular} text-jp-gray-700`}>
+            {"Didn't get a code? "->React.string}
+            <span
+              className="cursor-pointer underline underline-offset-2 text-blue-600"
+              onClick={_ => {
+                setOtp(_ => "")
+                setTwoFaState(_ => RecoveryCode)
+              }}>
+              {"Use recovery-code"->React.string}
+            </span>
+          </p>
+        </>
+
+      | RecoveryCode =>
+        <>
+          <TwoFaElements.RecoveryCodesInput recoveryCode setRecoveryCode />
+          <p className={`${p2Regular} text-jp-gray-700`}>
+            {"Didn't get a code? "->React.string}
+            <span
+              className="cursor-pointer underline underline-offset-2 text-blue-600"
+              onClick={_ => {
+                setRecoveryCode(_ => "")
+                setTwoFaState(_ => Totp)
+              }}>
+              {"Use totp instead"->React.string}
+            </span>
+          </p>
+        </>
+      }}
+    </div>
+  }
+}
+
 module ResetTotp = {
   @react.component
   let make = (~checkStatusResponse) => {
     open LogicUtils
-
+    open HSwitchSettingTypes
     let showToast = ToastState.useShowToast()
     // let fetchDetails = APIUtils.useGetMethod()
+    let verifyRecoveryCodeLogic = TotpHooks.useVerifyRecoveryCode()
     // let verifyTotpLogic = TotpHooks.useVerifyTotp()
     let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
     let (otpInModal, setOtpInModal) = React.useState(_ => "")
     let (otp, setOtp) = React.useState(_ => "")
+    let (recoveryCode, setRecoveryCode) = React.useState(_ => "")
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
     let (totpUrl, setTotpUrl) = React.useState(_ => "")
+    let (twoFaState, setTwoFaState) = React.useState(_ => Totp)
 
     let generateNewSecret = async () => {
       try {
@@ -70,11 +122,34 @@ module ResetTotp = {
       }
     }
 
+    let verifyRecoveryCode = async () => {
+      try {
+        setButtonState(_ => Button.Loading)
+
+        if recoveryCode->String.length > 0 {
+          let body = [("recovery_code", recoveryCode->JSON.Encode.string)]->getJsonFromArrayOfJson
+          let _ = await verifyRecoveryCodeLogic(body)
+        } else {
+          showToast(~message="Recovery code cannot be empty!", ~toastType=ToastError, ())
+        }
+        setButtonState(_ => Button.Normal)
+      } catch {
+      | _ => {
+          setRecoveryCode(_ => "")
+          setButtonState(_ => Button.Normal)
+        }
+      }
+    }
+
+    let handle2FaVerify = () => {
+      switch twoFaState {
+      | Totp => verifyTOTP(~fromModal=false, ~methodType=Fetch.Put)
+      | RecoveryCode => verifyRecoveryCode()
+      }
+    }
+
     React.useEffect0(() => {
-      if (
-        checkStatusResponse->getBool("totp", false) ||
-          checkStatusResponse->getBool("recovery_code", false)
-      ) {
+      if checkStatusResponse.totp || checkStatusResponse.recovery_code {
         generateNewSecret()->ignore
       } else {
         setShowVerifyModal(_ => true)
@@ -89,14 +164,23 @@ module ResetTotp = {
         setShowModal=setShowVerifyModal
         modalClass="w-fit m-auto">
         <div className="flex flex-col gap-12">
-          <TwoFaElements.TotpInput otp={otpInModal} setOtp={setOtpInModal} />
+          <Verify2FAModalComponent
+            twoFaState
+            setTwoFaState
+            otp={otpInModal}
+            setOtp={setOtpInModal}
+            recoveryCode
+            setRecoveryCode
+          />
           <div className="flex flex-1 justify-end">
             <Button
-              text="Verify OTP"
+              text={twoFaState === Totp ? "Verify OTP" : "Verify recovery code"}
               buttonType=Primary
               buttonSize=Small
-              buttonState={buttonState}
-              onClick={_ => verifyTOTP(~fromModal=true, ~methodType=Fetch.Post)->ignore}
+              buttonState={otpInModal->String.length === 0 && recoveryCode->String.length === 0
+                ? Disabled
+                : buttonState}
+              onClick={_ => handle2FaVerify()->ignore}
               rightIcon={CustomIcon(
                 <Icon
                   name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
@@ -139,13 +223,16 @@ module ResetTotp = {
 @react.component
 let make = () => {
   open APIUtils
+  open HSwitchProfileUtils
 
   let url = RescriptReactRouter.useUrl()
   let twofactorAuthType = url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("type")
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
-  let (checkStatusResponse, setCheckStatusResponse) = React.useState(_ => Dict.make())
+  let (checkStatusResponse, setCheckStatusResponse) = React.useState(_ =>
+    Dict.make()->typedValueForCheckStatus
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
   let checkTwoFaStatus = async () => {
@@ -159,7 +246,7 @@ let make = () => {
         (),
       )
       let res = await fetchDetails(url)
-      setCheckStatusResponse(_ => res->getDictFromJsonObject)
+      setCheckStatusResponse(_ => res->getDictFromJsonObject->typedValueForCheckStatus)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => ()
@@ -182,7 +269,7 @@ let make = () => {
     </div>
     {switch twofactorAuthType->HSwitchProfileUtils.getTwoFaEnumFromString {
     | ResetTotp => <ResetTotp checkStatusResponse />
-    | RegenerateRecoveryCodes => React.null
+    | RegenerateRecoveryCode => React.null
     }}
   </PageLoaderWrapper>
 }

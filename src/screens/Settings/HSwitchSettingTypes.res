@@ -149,6 +149,13 @@ type profileEntity = {
   authentication_connector_details: authConnectorDetailsType,
 }
 
-type twoSettingsTypes = ResetTotp | RegenerateRecoveryCodes
+type twoFaType = RecoveryCode | Totp
+
+type twoSettingsTypes = ResetTotp | RegenerateRecoveryCode
 
 type profileSettingsTypes = ACCOUNT_SETTINGS | TWO_FA_SETTINGS(twoSettingsTypes)
+
+type checkStatusType = {
+  totp: bool,
+  recovery_code: bool,
+}

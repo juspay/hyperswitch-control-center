@@ -465,7 +465,10 @@ let make = () => {
                             entityName="ConfigurePMTs"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
-                            renderShow={value => <ModifyTwoFaSettings />}
+                            renderShow={value =>
+                              <UIUtils.RenderIf condition={featureFlagDetails.totp}>
+                                <ModifyTwoFaSettings />
+                              </UIUtils.RenderIf>}
                           />
 
                         | list{"business-details"} =>
