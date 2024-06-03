@@ -460,7 +460,16 @@ let make = () => {
                             permission=userPermissionJson.merchantDetailsManage>
                             <HSwitchSettings />
                           </AccessControl>
-                        | list{"account-settings", "profile"} => <HSwitchProfileSettings />
+                        | list{"account-settings", "profile", ...remainingPath} =>
+                          <EntityScaffold
+                            entityName="ConfigurePMTs"
+                            remainingPath
+                            renderList={() => <HSwitchProfileSettings />}
+                            renderShow={value =>
+                              <UIUtils.RenderIf condition={featureFlagDetails.totp}>
+                                <ModifyTwoFaSettings />
+                              </UIUtils.RenderIf>}
+                          />
 
                         | list{"business-details"} =>
                           <AccessControl isEnabled=featureFlagDetails.default permission={Access}>
