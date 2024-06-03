@@ -92,7 +92,7 @@ module ResetTotp = {
       | Exn.Error(e) => {
           let err = Exn.message(e)->Option.getOr("Verification Failed")
           let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
-          if errorCode === "UR_40" {
+          if errorCode->CommonAuthUtils.errorSubCodeMapper === UR_40 {
             setShowVerifyModal(_ => true)
           }
           setOtp(_ => "")
@@ -126,7 +126,7 @@ module ResetTotp = {
           let err = Exn.message(e)->Option.getOr("Verification Failed")
           let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
           let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
-          if errorCode === "UR_42" {
+          if errorCode->CommonAuthUtils.errorSubCodeMapper === UR_42 {
             setShowRegenSecret(_ => true)
           }
           setOtpInModal(_ => "")
