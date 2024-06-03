@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          token: ${{ secrets.AUTO_RELEASE_PAT }}
+          token: ${{ secrets.HYPERSWITCH_BOT_APP_ID }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
