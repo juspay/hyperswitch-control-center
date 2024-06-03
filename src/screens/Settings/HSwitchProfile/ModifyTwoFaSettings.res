@@ -56,10 +56,13 @@ module ResetTotp = {
   let make = (~checkStatusResponse) => {
     open LogicUtils
     open HSwitchSettingTypes
+    open APIUtils
+
+    let getURL = useGetURL()
     let showToast = ToastState.useShowToast()
-    // let fetchDetails = APIUtils.useGetMethod()
+    let fetchDetails = APIUtils.useGetMethod()
+    let verifyTotpLogic = TotpHooks.useVerifyTotp()
     let verifyRecoveryCodeLogic = TotpHooks.useVerifyRecoveryCode()
-    // let verifyTotpLogic = TotpHooks.useVerifyTotp()
     let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
     let (otpInModal, setOtpInModal) = React.useState(_ => "")
     let (otp, setOtp) = React.useState(_ => "")
@@ -70,18 +73,8 @@ module ResetTotp = {
 
     let generateNewSecret = async () => {
       try {
-        // TODO: add generate new secret api
-        // let url = getURL(~entityName=USERS, ~userType=#RESET_TOTP, ~methodType=Get, ())
-        // let res =fetchDetails(url)
-        let secretObj =
-          [
-            ("secret", "aerf"->JSON.Encode.string),
-            ("totp_url", "otpauth:wefrq3"->JSON.Encode.string),
-          ]
-          ->Dict.fromArray
-          ->JSON.Encode.object
-        let res = [("secret", secretObj)]->Dict.fromArray->JSON.Encode.object
-
+        let url = getURL(~entityName=USERS, ~userType=#RESET_TOTP, ~methodType=Get, ())
+        let res = await fetchDetails(url)
         setTotpUrl(_ =>
           res->getDictFromJsonObject->getDictfromDict("secret")->getString("totp_url", "")
         )
@@ -93,13 +86,13 @@ module ResetTotp = {
       }
     }
 
-    let verifyTOTP = async (~fromModal, ~methodType) => {
+    let verifyTOTP = async (~fromModal, ~methodType, ~otp) => {
       try {
         setButtonState(_ => Button.Loading)
         if otpInModal->String.length > 0 || otp->String.length > 0 {
-          // let body = [("totp", otp->JSON.Encode.string)]->getJsonFromArrayOfJson
+          let body = [("totp", otp->JSON.Encode.string)]->getJsonFromArrayOfJson
 
-          // let _ = await verifyTotpLogic(body, methodType)
+          let _ = await verifyTotpLogic(body, methodType)
           if fromModal {
             setShowVerifyModal(_ => false)
             generateNewSecret()->ignore
@@ -143,7 +136,7 @@ module ResetTotp = {
 
     let handle2FaVerify = () => {
       switch twoFaState {
-      | Totp => verifyTOTP(~fromModal=false, ~methodType=Fetch.Put)
+      | Totp => verifyTOTP(~fromModal=false, ~methodType=Fetch.Put, ~otp={otpInModal})
       | RecoveryCode => verifyRecoveryCode()
       }
     }
@@ -206,7 +199,7 @@ module ResetTotp = {
               buttonSize=Small
               customButtonStyle="group"
               buttonState={otp->String.length === 6 ? buttonState : Disabled}
-              onClick={_ => verifyTOTP(~fromModal=false, ~methodType=Fetch.Put)->ignore}
+              onClick={_ => verifyTOTP(~fromModal=false, ~methodType=Fetch.Put, ~otp)->ignore}
               rightIcon={CustomIcon(
                 <Icon
                   name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
