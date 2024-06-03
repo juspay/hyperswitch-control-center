@@ -190,7 +190,6 @@ module RenderConnectorInputFields = {
     open LogicUtils
     let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))
 
-    Js.log2(keys, "keys")
     keys
     ->Array.mapWithIndex((field, i) => {
       let label = switch field {
