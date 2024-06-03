@@ -86,13 +86,13 @@ let make = (~previewOnly=false) => {
 
   let customUI = <NoData isConfigureConnector paymentModal setPaymentModal />
 
-  let filterUrlV2 = React.useMemo1(() => {
+  let filterUrl = React.useMemo1(() => {
     `${Window.env.apiBaseUrl}/payments/v2/filter`
   }, [Window.env.apiBaseUrl])
 
   let filtersUI = React.useMemo0(() => {
     <RemoteTableFilters
-      filterUrlV2
+      filterUrl
       setFilters
       endTimeFilterKey
       startTimeFilterKey
