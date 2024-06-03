@@ -159,3 +159,5 @@ type checkStatusType = {
   totp: bool,
   recovery_code: bool,
 }
+
+type regenerateRecoveryCode = RegenerateQR | ShowNewTotp(string)

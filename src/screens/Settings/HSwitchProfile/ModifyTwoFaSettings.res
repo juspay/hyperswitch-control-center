@@ -75,19 +75,20 @@ module ResetTotp = {
     let (otp, setOtp) = React.useState(_ => "")
     let (recoveryCode, setRecoveryCode) = React.useState(_ => "")
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
-    let (totpUrl, setTotpUrl) = React.useState(_ => "")
+    let (totpSecret, setTotpSecret) = React.useState(_ => RegenerateQR)
     let (twoFaState, setTwoFaState) = React.useState(_ => Totp)
     let (errorMessage, setErrorMessage) = React.useState(_ => "")
-    let (showRegenSecret, setShowRegenSecret) = React.useState(_ => false)
 
     let generateNewSecret = async () => {
       try {
+        setButtonState(_ => Button.Loading)
         let url = getURL(~entityName=USERS, ~userType=#RESET_TOTP, ~methodType=Get, ())
         let res = await fetchDetails(url)
-        setTotpUrl(_ =>
-          res->getDictFromJsonObject->getDictfromDict("secret")->getString("totp_url", "")
-        )
-        setShowRegenSecret(_ => false)
+        setTotpSecret(_ => ShowNewTotp(
+          res->getDictFromJsonObject->getDictfromDict("secret")->getString("totp_url", ""),
+        ))
+        setOtp(_ => "")
+        setButtonState(_ => Button.Normal)
       } catch {
       | Exn.Error(e) => {
           let err = Exn.message(e)->Option.getOr("Verification Failed")
@@ -127,7 +128,7 @@ module ResetTotp = {
           let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
           let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
           if errorCode->CommonAuthUtils.errorSubCodeMapper === UR_42 {
-            setShowRegenSecret(_ => true)
+            setTotpSecret(_ => RegenerateQR)
           }
           setOtpInModal(_ => "")
           setOtp(_ => "")
@@ -222,41 +223,48 @@ module ResetTotp = {
           <p className={`${h2TextStyle} text-grey-900`}> {"Enable new 2FA"->React.string} </p>
         </div>
         <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
-          <TwoFaElements.TotpScanQR totpUrl isQrVisible=true />
-          <div className="flex flex-col justify-center items-center gap-4">
-            <TwoFaElements.TotpInput otp setOtp />
-          </div>
+          {switch totpSecret {
+          | ShowNewTotp(totpUrl) =>
+            <>
+              <TwoFaElements.TotpScanQR totpUrl isQrVisible=true />
+              <div className="flex flex-col justify-center items-center gap-4">
+                <TwoFaElements.TotpInput otp setOtp />
+              </div>
+            </>
+          | RegenerateQR => <TwoFaElements.TotpScanQR totpUrl="" isQrVisible=true />
+          }}
           <div className="flex justify-end gap-4">
-            {showRegenSecret
-              ? <Button
-                  text="Regenerate QR"
-                  buttonType=Primary
-                  buttonSize=Small
-                  customButtonStyle="group"
-                  onClick={_ => generateNewSecret()->ignore}
-                  rightIcon={CustomIcon(
-                    <Icon
-                      name="thin-right-arrow"
-                      size=20
-                      className="group-hover:scale-125 cursor-pointer"
-                    />,
-                  )}
-                />
-              : <Button
-                  text="Verify new OTP"
-                  buttonType=Primary
-                  buttonSize=Small
-                  customButtonStyle="group"
-                  buttonState={otp->String.length === 6 ? buttonState : Disabled}
-                  onClick={_ => verifyTOTP(~fromModal=false, ~methodType=Fetch.Put, ~otp)->ignore}
-                  rightIcon={CustomIcon(
-                    <Icon
-                      name="thin-right-arrow"
-                      size=20
-                      className="group-hover:scale-125 cursor-pointer"
-                    />,
-                  )}
-                />}
+            {switch totpSecret {
+            | RegenerateQR =>
+              <Button
+                text="Regenerate QR"
+                buttonType=Primary
+                buttonSize=Small
+                customButtonStyle="group"
+                buttonState
+                onClick={_ => generateNewSecret()->ignore}
+                rightIcon={CustomIcon(
+                  <Icon
+                    name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
+                  />,
+                )}
+              />
+
+            | _ =>
+              <Button
+                text="Verify new OTP"
+                buttonType=Primary
+                buttonSize=Small
+                customButtonStyle="group"
+                buttonState={otp->String.length === 6 ? buttonState : Disabled}
+                onClick={_ => verifyTOTP(~fromModal=false, ~methodType=Fetch.Put, ~otp)->ignore}
+                rightIcon={CustomIcon(
+                  <Icon
+                    name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
+                  />,
+                )}
+              />
+            }}
           </div>
         </div>
       </div>
