@@ -7,6 +7,8 @@ module Verify2FAModalComponent = {
   let make = (
     ~twoFaState,
     ~setTwoFaState,
+    ~errorMessage,
+    ~setErrorMessage,
     ~otp="",
     ~setOtp=_ => (),
     ~recoveryCode="",
@@ -24,6 +26,7 @@ module Verify2FAModalComponent = {
               className="cursor-pointer underline underline-offset-2 text-blue-600"
               onClick={_ => {
                 setOtp(_ => "")
+                setErrorMessage(_ => "")
                 setTwoFaState(_ => RecoveryCode)
               }}>
               {"Use recovery-code"->React.string}
@@ -40,6 +43,7 @@ module Verify2FAModalComponent = {
               className="cursor-pointer underline underline-offset-2 text-blue-600"
               onClick={_ => {
                 setRecoveryCode(_ => "")
+                setErrorMessage(_ => "")
                 setTwoFaState(_ => Totp)
               }}>
               {"Use totp instead"->React.string}
@@ -47,6 +51,9 @@ module Verify2FAModalComponent = {
           </p>
         </>
       }}
+      <UIUtils.RenderIf condition={errorMessage->String.length > 0}>
+        <div className="text-sm text-red-600"> {`Error: ${errorMessage}`->React.string} </div>
+      </UIUtils.RenderIf>
     </div>
   }
 }
@@ -70,6 +77,8 @@ module ResetTotp = {
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
     let (totpUrl, setTotpUrl) = React.useState(_ => "")
     let (twoFaState, setTwoFaState) = React.useState(_ => Totp)
+    let (errorMessage, setErrorMessage) = React.useState(_ => "")
+    let (showRegenSecret, setShowRegenSecret) = React.useState(_ => false)
 
     let generateNewSecret = async () => {
       try {
@@ -78,8 +87,14 @@ module ResetTotp = {
         setTotpUrl(_ =>
           res->getDictFromJsonObject->getDictfromDict("secret")->getString("totp_url", "")
         )
+        setShowRegenSecret(_ => false)
       } catch {
-      | _ => {
+      | Exn.Error(e) => {
+          let err = Exn.message(e)->Option.getOr("Verification Failed")
+          let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+          if errorCode === "UR_40" {
+            setShowVerifyModal(_ => true)
+          }
           setOtp(_ => "")
           setButtonState(_ => Button.Normal)
         }
@@ -107,9 +122,16 @@ module ResetTotp = {
         }
         setButtonState(_ => Button.Normal)
       } catch {
-      | _ => {
+      | Exn.Error(e) => {
+          let err = Exn.message(e)->Option.getOr("Verification Failed")
+          let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
+          let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+          if errorCode === "UR_42" {
+            setShowRegenSecret(_ => true)
+          }
           setOtpInModal(_ => "")
           setOtp(_ => "")
+          setErrorMessage(_ => errorMessage)
           setButtonState(_ => Button.Normal)
         }
       }
@@ -118,7 +140,6 @@ module ResetTotp = {
     let verifyRecoveryCode = async () => {
       try {
         setButtonState(_ => Button.Loading)
-
         if recoveryCode->String.length > 0 {
           let body = [("recovery_code", recoveryCode->JSON.Encode.string)]->getJsonFromArrayOfJson
           let _ = await verifyRecoveryCodeLogic(body)
@@ -128,8 +149,11 @@ module ResetTotp = {
         }
         setButtonState(_ => Button.Normal)
       } catch {
-      | _ => {
+      | Exn.Error(e) => {
+          let err = Exn.message(e)->Option.getOr("Verification Failed")
+          let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
           setRecoveryCode(_ => "")
+          setErrorMessage(_ => errorMessage)
           setButtonState(_ => Button.Normal)
         }
       }
@@ -137,7 +161,7 @@ module ResetTotp = {
 
     let handle2FaVerify = () => {
       switch twoFaState {
-      | Totp => verifyTOTP(~fromModal=false, ~methodType=Fetch.Put, ~otp={otpInModal})
+      | Totp => verifyTOTP(~fromModal=true, ~methodType=Fetch.Post, ~otp={otpInModal})
       | RecoveryCode => verifyRecoveryCode()
       }
     }
@@ -151,11 +175,18 @@ module ResetTotp = {
       None
     })
 
+    let handleModalClose = () => {
+      RescriptReactRouter.push(
+        HSwitchGlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
+      )
+    }
+
     <div>
       <Modal
         modalHeading="Verify OTP"
         showModal=showVerifyModal
         setShowModal=setShowVerifyModal
+        onCloseClickCustomFun={handleModalClose}
         modalClass="w-fit m-auto">
         <div className="flex flex-col gap-12">
           <Verify2FAModalComponent
@@ -165,6 +196,8 @@ module ResetTotp = {
             setOtp={setOtpInModal}
             recoveryCode
             setRecoveryCode
+            errorMessage
+            setErrorMessage
           />
           <div className="flex flex-1 justify-end">
             <Button
@@ -194,19 +227,36 @@ module ResetTotp = {
             <TwoFaElements.TotpInput otp setOtp />
           </div>
           <div className="flex justify-end gap-4">
-            <Button
-              text="Verify new OTP"
-              buttonType=Primary
-              buttonSize=Small
-              customButtonStyle="group"
-              buttonState={otp->String.length === 6 ? buttonState : Disabled}
-              onClick={_ => verifyTOTP(~fromModal=false, ~methodType=Fetch.Put, ~otp)->ignore}
-              rightIcon={CustomIcon(
-                <Icon
-                  name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
-                />,
-              )}
-            />
+            {showRegenSecret
+              ? <Button
+                  text="Regenerate QR"
+                  buttonType=Primary
+                  buttonSize=Small
+                  customButtonStyle="group"
+                  onClick={_ => generateNewSecret()->ignore}
+                  rightIcon={CustomIcon(
+                    <Icon
+                      name="thin-right-arrow"
+                      size=20
+                      className="group-hover:scale-125 cursor-pointer"
+                    />,
+                  )}
+                />
+              : <Button
+                  text="Verify new OTP"
+                  buttonType=Primary
+                  buttonSize=Small
+                  customButtonStyle="group"
+                  buttonState={otp->String.length === 6 ? buttonState : Disabled}
+                  onClick={_ => verifyTOTP(~fromModal=false, ~methodType=Fetch.Put, ~otp)->ignore}
+                  rightIcon={CustomIcon(
+                    <Icon
+                      name="thin-right-arrow"
+                      size=20
+                      className="group-hover:scale-125 cursor-pointer"
+                    />,
+                  )}
+                />}
           </div>
         </div>
       </div>
@@ -219,6 +269,7 @@ let make = () => {
   open APIUtils
   open HSwitchProfileUtils
 
+  let showToast = ToastState.useShowToast()
   let url = RescriptReactRouter.useUrl()
   let twofactorAuthType = url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("type")
   let getURL = useGetURL()
@@ -243,7 +294,12 @@ let make = () => {
       setCheckStatusResponse(_ => res->getDictFromJsonObject->typedValueForCheckStatus)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => ()
+    | _ => {
+        showToast(~message="Failed to fetch 2FA status!", ~toastType=ToastError, ())
+        RescriptReactRouter.push(
+          HSwitchGlobalVars.appendDashboardPath(~url="/account-settings/profile"),
+        )
+      }
     }
   }
 
