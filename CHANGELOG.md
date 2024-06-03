@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.02.0
+
+### Bug Fixes
+
+- Pay now button validations ([#754](https://github.com/juspay/hyperswitch-control-center/pull/754)) ([`bf32df5`](https://github.com/juspay/hyperswitch-control-center/commit/bf32df5494eb84bdfea63728cf4b3f7879f099d9))
+
+**Full Changelog:** [`2024.05.30.1...2024.06.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.30.1...2024.06.02.0)
+
+- - -
+
 ## 2024.05.30.1
 
 ### Miscellaneous Tasks
