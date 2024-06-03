@@ -122,6 +122,7 @@ module ResetTotp = {
         if recoveryCode->String.length > 0 {
           let body = [("recovery_code", recoveryCode->JSON.Encode.string)]->getJsonFromArrayOfJson
           let _ = await verifyRecoveryCodeLogic(body)
+          setShowVerifyModal(_ => false)
         } else {
           showToast(~message="Recovery code cannot be empty!", ~toastType=ToastError, ())
         }
