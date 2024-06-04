@@ -320,7 +320,9 @@ let make = () => {
                           </AccessControl>
 
                         | list{"payouts", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.payOut}
+                            permission=userPermissionJson.operationsView>
                             <FilterContext key="payouts" index="payouts">
                               <EntityScaffold
                                 entityName="Payouts"

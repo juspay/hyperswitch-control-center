@@ -53,9 +53,7 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let filterUrl = React.useMemo1(() => {
-    `${Window.env.apiBaseUrl}/payouts/filter`
-  }, [Window.env.apiBaseUrl])
+  let filterUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some("filter"), ())
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
