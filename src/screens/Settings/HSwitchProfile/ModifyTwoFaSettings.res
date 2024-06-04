@@ -353,13 +353,6 @@ module RegenerateRecoveryCodes = {
       None
     })
 
-    let downloadRecoveryCodes = () => {
-      DownloadUtils.downloadOld(
-        ~fileName="recoveryCodes.txt",
-        ~content=JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3),
-      )
-    }
-
     let copyRecoveryCodes = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       Clipboard.writeText(JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3))
@@ -430,7 +423,7 @@ module RegenerateRecoveryCodes = {
                 buttonType={Primary}
                 buttonSize={Small}
                 onClick={_ => {
-                  downloadRecoveryCodes()
+                  TotpUtils.downloadRecoveryCodes(~recoveryCodes)
                   showToast(
                     ~message="Successfully regenerated new recovery codes !",
                     ~toastType=ToastSuccess,
