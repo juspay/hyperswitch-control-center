@@ -161,8 +161,8 @@ module RemoteTableFilters = {
               [
                 (startTimeFilterKey, start_time->JSON.Encode.string),
                 (endTimeFilterKey, end_time->JSON.Encode.string),
-              ]->Dict.fromArray
-            await updateDetails(filterUrl, body->JSON.Encode.object, Fetch.Post, ())
+              ]->getJsonFromArrayOfJson
+            await updateDetails(filterUrl, body, Fetch.Post, ())
           }
         | _ => await fetchDetails(filterUrl)
         }

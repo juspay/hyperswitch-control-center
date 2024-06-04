@@ -19,9 +19,7 @@ let make = () => {
   let fetchPayouts = () => {
     switch filters {
     | Some(dict) =>
-      let filters = Dict.make()
-
-      filters->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
+      let filters = [("offset", offset->Int.toFloat->JSON.Encode.float)]->Dict.fromArray
       if !(searchText->isEmptyString) {
         filters->Dict.set("payout_id", searchText->String.trim->JSON.Encode.string)
       }
