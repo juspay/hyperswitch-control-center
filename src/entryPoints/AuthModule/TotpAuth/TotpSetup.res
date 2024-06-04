@@ -141,7 +141,7 @@ module ConfigureTotpScreen = {
               <span
                 className="cursor-pointer underline underline-offset-2 text-blue-600"
                 onClick={_ => setTwoFaPageState(_ => TOTP_INPUT_RECOVERY_CODE)}>
-                {"Use access-code"->React.string}
+                {"Use recovery-code"->React.string}
               </span>
             </p>
           </UIUtils.RenderIf>

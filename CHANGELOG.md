@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.04.0
+
+### Features
+
+- Reset-totp inside control-center ([#759](https://github.com/juspay/hyperswitch-control-center/pull/759)) ([`b3280ef`](https://github.com/juspay/hyperswitch-control-center/commit/b3280ef69b59fa48866306cf9c8587052c929f64))
+
+### Bug Fixes
+
+- Disable sdk show preview ([#768](https://github.com/juspay/hyperswitch-control-center/pull/768)) ([`639ca09`](https://github.com/juspay/hyperswitch-control-center/commit/639ca09a9e59e630414cb4bcd716314df467e4d5))
+- Github workflows ([#773](https://github.com/juspay/hyperswitch-control-center/pull/773)) ([`e24fa1e`](https://github.com/juspay/hyperswitch-control-center/commit/e24fa1eec06aefc756687f0effccccee3a8de17c))
+
+### Miscellaneous Tasks
+
+- Update paypal metadata ([#770](https://github.com/juspay/hyperswitch-control-center/pull/770)) ([`98b0b00`](https://github.com/juspay/hyperswitch-control-center/commit/98b0b003679e4309bf0291fac345e0e5fbcaf14a))
+
+**Full Changelog:** [`2024.06.02.0...2024.06.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.02.0...2024.06.04.0)
+
+- - -
+
 ## 2024.06.02.0
 
 ### Bug Fixes

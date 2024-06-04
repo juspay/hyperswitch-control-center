@@ -116,6 +116,7 @@ let errorSubCodeMapper = (subCode: string) => {
   | "UR_38" => UR_38
   | "UR_40" => UR_40
   | "UR_41" => UR_41
+  | "UR_42" => UR_42
   | _ => UR_00
   }
 }
