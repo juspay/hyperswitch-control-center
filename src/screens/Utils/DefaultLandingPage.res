@@ -42,7 +42,10 @@ let make = (
         />
         <UIUtils.RenderIf condition={showLogoutButton}>
           <Button
-            text={"Logout"} buttonSize={Large} onClick={_ => onLogoutHandle()} buttonType={Primary}
+            text={"Logout"}
+            buttonSize={Large}
+            onClick={_ => onLogoutHandle()}
+            buttonType={Secondary}
           />
         </UIUtils.RenderIf>
       </div>
