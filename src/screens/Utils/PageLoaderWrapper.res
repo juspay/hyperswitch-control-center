@@ -31,6 +31,7 @@ let make = (
   ~sectionHeight="h-80-vh",
   ~customStyleForDefaultLandingPage="",
   ~customLoader=?,
+  ~showLogoutButton=false,
 ) => {
   switch screenState {
   | Loading =>
@@ -48,6 +49,7 @@ let make = (
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ => Window.Location.hardReload(true)}
       isButton=true
+      showLogoutButton
     />
   | Success =>
     switch children {
