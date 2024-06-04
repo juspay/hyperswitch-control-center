@@ -86,11 +86,11 @@ let make = (~previewOnly=false) => {
 
   let customUI = <NoData isConfigureConnector paymentModal setPaymentModal />
 
-  let filterUrlV2 = getURL(~entityName=ORDERS, ~methodType=Get, ~id=Some("v2/filter"), ())
+  let filterUrl = getURL(~entityName=ORDERS, ~methodType=Get, ~id=Some("v2/filter"), ())
 
   let filtersUI = React.useMemo0(() => {
     <RemoteTableFilters
-      filterUrlV2
+      filterUrl
       setFilters
       endTimeFilterKey
       startTimeFilterKey

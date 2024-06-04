@@ -3,28 +3,25 @@ let make = () => {
   open APIUtils
   open HSwitchRemoteFilter
   open LogicUtils
-  open RefundUtils
+  open PayoutsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (refundData, setRefundsData) = React.useState(_ => [])
+  let (payoutData, setPayoutsData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-  let pageDetail = pageDetailDict->Dict.get("Refunds")->Option.getOr(defaultValue)
+  let pageDetail = pageDetailDict->Dict.get("Payouts")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
 
-  let fetchRefunds = () => {
+  let fetchPayouts = () => {
     switch filters {
     | Some(dict) =>
-      let filters = Dict.make()
-
-      filters->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
+      let filters = [("offset", offset->Int.toFloat->JSON.Encode.float)]->Dict.fromArray
       if !(searchText->isEmptyString) {
-        filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
-        filters->Dict.set("refund_id", searchText->String.trim->JSON.Encode.string)
+        filters->Dict.set("payout_id", searchText->String.trim->JSON.Encode.string)
       }
 
       dict
@@ -35,9 +32,9 @@ let make = () => {
       })
 
       filters
-      ->getRefundsList(
+      ->getPayoutsList(
         ~updateDetails,
-        ~setRefundsData,
+        ~setPayoutsData,
         ~setScreenState,
         ~offset,
         ~setOffset,
@@ -51,21 +48,20 @@ let make = () => {
 
   React.useEffect3(() => {
     if filters->OrderUIUtils.isNonEmptyValue {
-      fetchRefunds()
+      fetchPayouts()
     }
     None
   }, (offset, filters, searchText))
 
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
-  let filterUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some("v2/filter"), ())
+  let filterUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some("filter"), ())
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
-      <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
+      <PageUtils.PageHeading title="Payouts" subTitle="View and manage all payouts" />
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
+            apiType=Fetch.Post
             filterUrl
             setFilters
             endTimeFilterKey
@@ -74,31 +70,26 @@ let make = () => {
             initialFixedFilter
             setOffset
             customLeftView={<SearchBarFilter
-              placeholder="Search payment id or refund id"
-              setSearchVal=setSearchText
-              searchVal=searchText
+              placeholder="Search payout id" setSearchVal=setSearchText searchVal=searchText
             />}
           />
         </div>
-        <UIUtils.RenderIf condition={generateReport && refundData->Array.length > 0}>
-          <GenerateReport entityName={REFUND_REPORT} />
-        </UIUtils.RenderIf>
-        <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />
+        <PortalCapture key={`PayoutsCustomizeColumn`} name={`PayoutsCustomizeColumn`} />
       </div>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
           hideTitle=true
-          title="Refunds"
-          actualData=refundData
-          entity={RefundEntity.refundEntity}
+          title="Payouts"
+          actualData=payoutData
+          entity={PayoutsEntity.payoutEntity}
           resultsPerPage=10
           showSerialNumber=true
           totalResults={totalCount}
           offset
           setOffset
-          currrentFetchCount={refundData->Array.length}
-          defaultColumns={RefundEntity.defaultColumns}
-          customColumnMapper=TableAtoms.refundsMapDefaultCols
+          currrentFetchCount={payoutData->Array.length}
+          defaultColumns={PayoutsEntity.defaultColumns}
+          customColumnMapper=TableAtoms.payoutsMapDefaultCols
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
           showResultsPerPageSelector=false
