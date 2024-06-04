@@ -238,14 +238,16 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       condition={logDetails.response->isNonEmptyString || logDetails.request->isNonEmptyString}>
       <div
         className="flex flex-col gap-4 border-l-2 border-border-light-grey show-scrollbar scroll-smooth overflow-scroll  w-3/5">
-        <DynamicTabs
-          tabs=tabValues
-          maxSelection=1
-          setActiveTab
-          initalTab=tabKeys
-          tabContainerClass="px-2"
-          updateCollapsableTabs=collapseTab
-        />
+        <div className="sticky top-0 bg-white">
+          <DynamicTabs
+            tabs=tabValues
+            maxSelection=1
+            setActiveTab
+            initalTab=tabKeys
+            tabContainerClass="px-2"
+            updateCollapsableTabs=collapseTab
+          />
+        </div>
         <TabDetails activeTab logDetails selectedOption />
       </div>
     </UIUtils.RenderIf>
