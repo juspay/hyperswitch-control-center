@@ -58,8 +58,9 @@ let getPayoutsList = async (
 
 let customUI =
   <HelperComponents.BluredTableComponent
-    infoText="No payout records as of now. Try initiating a payout for a successful payment."
+    infoText="No payout records as of now. Try initiating a payout."
     moduleName=""
+    showRedirectCTA=false
   />
 
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")

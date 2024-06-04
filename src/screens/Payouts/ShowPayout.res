@@ -1,3 +1,71 @@
+module Attempts = {
+  open PayoutsEntity
+  @react.component
+  let make = (~order) => {
+    let expand = -1
+    let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
+
+    React.useEffect1(() => {
+      if expand != -1 {
+        setExpandedRowIndexArray(_ => [expand])
+      }
+      None
+    }, [expand])
+
+    let onExpandClick = idx => {
+      setExpandedRowIndexArray(_ => {
+        [idx]
+      })
+    }
+
+    let collapseClick = idx => {
+      let indexOfRemovalItem = expandedRowIndexArray->Array.findIndex(item => item === idx)
+      setExpandedRowIndexArray(_ => {
+        let array = expandedRowIndexArray->Array.map(item => item)
+        array->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
+
+        array
+      })
+    }
+
+    let onExpandIconClick = (isCurrentRowExpanded, rowIndex) => {
+      if isCurrentRowExpanded {
+        collapseClick(rowIndex)
+      } else {
+        onExpandClick(rowIndex)
+      }
+    }
+
+    let attemptsData = order.attempts
+
+    let heading = attemptsColumns->Array.map(getAttemptHeading)
+
+    let rows = attemptsData->Array.map(item => {
+      attemptsColumns->Array.map(colType => getAttemptCell(item, colType))
+    })
+
+    let getRowDetails = rowIndex => {
+      switch attemptsData[rowIndex] {
+      | Some(data) => <AttemptsSection data />
+      | None => React.null
+      }
+    }
+
+    <div className="flex flex-col gap-4">
+      <p className="font-bold text-fs-16 text-jp-gray-900"> {"Payment Attempts"->React.string} </p>
+      <CustomExpandableTable
+        title="Attempts"
+        heading
+        rows
+        onExpandIconClick
+        expandedRowIndexArray
+        getRowDetails
+        showSerial=true
+      />
+    </div>
+  }
+}
+
 module PayoutInfo = {
   open PayoutsEntity
   module Details = {
@@ -88,7 +156,7 @@ let make = (~id) => {
           <div>
             <PageUtils.PageHeading title="Payouts" />
             <BreadCrumbNavigation
-              path=[{title: "payouts", link: "/payouts"}]
+              path=[{title: "Payouts", link: "/payouts"}]
               currentPageTitle=id
               cursorStyle="cursor-pointer"
             />

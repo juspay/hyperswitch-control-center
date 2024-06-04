@@ -45,6 +45,20 @@ type payouts = {
   attempts: array<payoutAttempts>,
 }
 
+type payoutsAttemptColType = attempt_id
+status
+amount
+currency
+connector
+error_code
+error_message
+payment_method
+payout_method_type
+connector_transaction_id
+cancellation_reason
+unified_code
+unified_message
+
 type payoutsColType =
   | PayoutId
   | MerchantId
