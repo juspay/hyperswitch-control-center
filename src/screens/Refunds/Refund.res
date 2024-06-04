@@ -58,9 +58,7 @@ let make = () => {
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let filterUrlV2 = React.useMemo1(() => {
-    `${Window.env.apiBaseUrl}/payments/v2/filter`
-  }, [Window.env.apiBaseUrl])
+  let filterUrlV2 = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some("v2/filter"), ())
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
@@ -82,7 +80,7 @@ let make = () => {
             />}
           />
         </div>
-        <UIUtils.RenderIf condition={generateReport}>
+        <UIUtils.RenderIf condition={generateReport && refundData->Array.length > 0}>
           <GenerateReport entityName={REFUND_REPORT} />
         </UIUtils.RenderIf>
         <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />

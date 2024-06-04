@@ -65,7 +65,7 @@ external loadHyper: string => hyperPromise = "loadHyper"
 @module("@juspay-tech/react-hyper-js")
 external useHyper: unit => hyperType = "useHyper"
 @module("@juspay-tech/react-hyper-js")
-external useElements: unit => hyperType = "useElements"
+external useWidgets: unit => hyperType = "useWidgets"
 
 module Elements = {
   @module("@juspay-tech/react-hyper-js") @react.component

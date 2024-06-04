@@ -934,6 +934,7 @@ let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) =
   | (Processors(CHECKOUT), "acquirer_bin") | (Processors(NMI), "acquirer_bin") => false
   | (Processors(CHECKOUT), "acquirer_merchant_id")
   | (Processors(NMI), "acquirer_merchant_id") => false
+  | (Processors(PAYPAL), "paypal_sdk") => false
   | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") => false
   | _ => true
   }
@@ -1048,11 +1049,8 @@ let validateConnectorRequiredFields = (
   newDict->JSON.Encode.object
 }
 
-let getPlaceHolder = (connector: connectorTypes, fieldName, label) => {
-  switch (connector, fieldName) {
-  | (Processors(KLARNA), "api_key") => "Enter as:-Basic{API Key}"
-  | _ => `Enter ${label->LogicUtils.snakeToTitle}`
-  }
+let getPlaceHolder = label => {
+  `Enter ${label->LogicUtils.snakeToTitle}`
 }
 
 let getConnectorDetailsValue = (connectorInfo: connectorPayload, str) => {
