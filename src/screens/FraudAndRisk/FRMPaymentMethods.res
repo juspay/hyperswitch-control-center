@@ -3,24 +3,15 @@ module RadioSection = {
   open FRMTypes
   open FRMInfo
   @react.component
-  let make = (~option, ~frmConfigs, ~paymentMethodTypeInfo, ~sectionType, ~setConfigJson) => {
+  let make = (~option, ~frmConfigs, ~paymentMethodInfo, ~sectionType, ~setConfigJson) => {
     let isOptionSelected =
       switch sectionType {
-      | FlowType => paymentMethodTypeInfo.flow
-      | ActionType => paymentMethodTypeInfo.action
+      | FlowType => paymentMethodInfo.flow
       } === option
 
     let handleOnClick = () => {
       switch sectionType {
-      | FlowType =>
-        if paymentMethodTypeInfo.flow !== option {
-          switch option->getFlowTypeVariantFromString {
-          | PreAuth => paymentMethodTypeInfo.action = CancelTxn->getActionTypeNameString
-          | PostAuth => paymentMethodTypeInfo.action = ManualReview->getActionTypeNameString
-          }
-          paymentMethodTypeInfo.flow = option
-        }
-      | ActionType => paymentMethodTypeInfo.action = option
+      | FlowType => paymentMethodInfo.flow = option
       }
       setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
     }
@@ -32,7 +23,6 @@ module RadioSection = {
         </div>
         {switch sectionType {
         | FlowType => option->getFlowTypeLabel->React.string
-        | ActionType => option->getActionTypeLabel->LogicUtils.snakeToTitle->React.string
         }}
       </div>
     </div>
@@ -68,14 +58,12 @@ module ToggleSwitch = {
 }
 
 module FormField = {
-  open ConnectorTypes
-  open FRMInfo
   open FRMTypes
   @react.component
   let make = (
     ~options,
     ~label,
-    ~paymentMethodTypeInfo,
+    ~paymentMethodInfo,
     ~frmConfigs,
     ~sectionType,
     ~setConfigJson,
@@ -96,21 +84,11 @@ module FormField = {
         </div>
       </div>
       <div className={`grid grid-cols-2 md:grid-cols-4 gap-4`}>
-        <UIUtils.RenderIf condition={sectionType == ActionType}>
-          <div className="flex items-center gap-2 break-all">
-            {paymentMethodTypeInfo.action->getActionTypeLabel->Jsx.string}
-          </div>
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={sectionType != ActionType}>
+        <UIUtils.RenderIf condition={sectionType == FlowType}>
           {options
           ->Array.mapWithIndex((option, i) => {
             <RadioSection
-              key={i->Int.toString}
-              option
-              paymentMethodTypeInfo
-              frmConfigs
-              sectionType
-              setConfigJson
+              key={i->Int.toString} option paymentMethodInfo frmConfigs sectionType setConfigJson
             />
           })
           ->React.array}
@@ -227,51 +205,35 @@ module CheckBoxRenderer = {
         </div>
       </div>
       {frmConfigInfo.payment_methods
-      ->Array.mapWithIndex((paymentMethodInfo, index) => {
-        <UIUtils.RenderIf condition={isOpen} key={index->Int.toString}>
-          {paymentMethodInfo.payment_method_types
-          ->Array.mapWithIndex((paymentMethodTypeInfo, i) => {
-            <Accordion
-              key={i->Int.toString}
-              initialExpandedArray=[0]
-              accordion={[
-                {
-                  title: paymentMethodTypeInfo.payment_method_type->LogicUtils.snakeToTitle,
-                  renderContent: () => {
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                      <FormField
-                        options={flowTypeAllOptions}
-                        label="Choose one of the flows"
-                        paymentMethodTypeInfo
-                        frmConfigs
-                        sectionType={FlowType}
-                        setConfigJson
-                        description="i. \"PreAuth\" - facilitate transaction verification prior to payment authorization.
-                        ii. \"PostAuth\" - facilitate transaction validation post-authorization, before amount capture."
-                      />
-                      <FormField
-                        options={paymentMethodTypeInfo.flow->getActionTypeAllOptions}
-                        label="Preferred Action"
-                        paymentMethodTypeInfo
-                        frmConfigs
-                        sectionType={ActionType}
-                        setConfigJson
-                        description={paymentMethodTypeInfo.flow
-                        ->getFlowTypeVariantFromString
-                        ->actionDescriptionForFlow}
-                      />
-                    </div>
-                  },
-                  renderContentOnTop: None,
+      ->Array.mapWithIndex((paymentMethodInfo, i) => {
+        <UIUtils.RenderIf condition={isOpen} key={i->Int.toString}>
+          <Accordion
+            initialExpandedArray=[0]
+            accordion={[
+              {
+                title: paymentMethodInfo.payment_method->LogicUtils.snakeToTitle,
+                renderContent: () => {
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    <FormField
+                      options={flowTypeAllOptions}
+                      label="Choose one of the flows"
+                      paymentMethodInfo
+                      frmConfigs
+                      sectionType={FlowType}
+                      setConfigJson
+                      description="i. \"PreAuth\" - facilitate transaction verification prior to payment authorization.
+                      ii. \"PostAuth\" - facilitate transaction validation post-authorization, before amount capture."
+                    />
+                  </div>
                 },
-              ]}
-              accordianTopContainerCss="border"
-              accordianBottomContainerCss="p-5"
-              contentExpandCss="px-10 pb-6 pt-3 !border-t-0"
-              titleStyle="font-semibold text-bold text-md"
-            />
-          })
-          ->React.array}
+                renderContentOnTop: None,
+              },
+            ]}
+            accordianTopContainerCss="border"
+            accordianBottomContainerCss="p-5"
+            contentExpandCss="px-10 pb-6 pt-3 !border-t-0"
+            titleStyle="font-semibold text-bold text-md"
+          />
         </UIUtils.RenderIf>
       })
       ->React.array}

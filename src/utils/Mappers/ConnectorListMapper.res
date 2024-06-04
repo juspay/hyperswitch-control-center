@@ -9,7 +9,7 @@ let parsePaymentMethodType = paymentMethodType => {
     action: paymentMethodTypeDict->getString("action", ""),
   }
 }
-let parsePaymentMethod = paymentMethod => {
+let parsePaymentMethodResponse = paymentMethod => {
   open LogicUtils
 
   let paymentMethodDict = paymentMethod->getDictFromJsonObject
@@ -18,10 +18,39 @@ let parsePaymentMethod = paymentMethod => {
     ->getArrayFromDict("payment_method_types", [])
     ->Array.map(parsePaymentMethodType)
 
+  let flow = paymentMethodDict->getString("flow", "")
+
   {
     payment_method: paymentMethodDict->getString("payment_method", ""),
     payment_method_types,
+    flow,
   }
+}
+
+let parsePaymentMethod = paymentMethod => {
+  open LogicUtils
+
+  let paymentMethodDict = paymentMethod->getDictFromJsonObject
+
+  {
+    payment_method: paymentMethodDict->getString("payment_method", ""),
+    flow: "pre",
+  }
+}
+
+let convertFRMConfigJsonToObjResponse = json => {
+  open LogicUtils
+
+  json->Array.map(config => {
+    let configDict = config->getDictFromJsonObject
+    let payment_methods =
+      configDict->getArrayFromDict("payment_methods", [])->Array.map(parsePaymentMethodResponse)
+
+    {
+      gateway: configDict->getString("gateway", ""),
+      payment_methods,
+    }
+  })
 }
 
 let convertFRMConfigJsonToObj = json => {
@@ -93,7 +122,7 @@ let getProcessorPayloadType = dict => {
     ->getArrayDataFromJson(getPaymentMethodsEnabled),
     profile_id: dict->getString("profile_id", ""),
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
-    frm_configs: dict->getArrayFromDict("frm_configs", [])->convertFRMConfigJsonToObj,
+    frm_configs: dict->getArrayFromDict("frm_configs", [])->convertFRMConfigJsonToObjResponse,
     status: dict->getString("status", "inactive"),
   }
 }

@@ -206,7 +206,8 @@ type frm_payment_method_type = {
 
 type frm_payment_method = {
   payment_method: string,
-  payment_method_types: array<frm_payment_method_type>,
+  payment_method_types?: array<frm_payment_method_type>,
+  mutable flow: string,
 }
 
 type frm_config = {
