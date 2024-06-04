@@ -143,3 +143,11 @@ let validateTotpForm = (values: JSON.t, keys: array<string>) => {
 
   errors->JSON.Encode.object
 }
+
+let downloadRecoveryCodes = (~recoveryCodes) => {
+  open LogicUtils
+  DownloadUtils.downloadOld(
+    ~fileName="recoveryCodes.txt",
+    ~content=JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3),
+  )
+}
