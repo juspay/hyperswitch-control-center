@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.04.2
+
+### Features
+
+- Payouts ([#774](https://github.com/juspay/hyperswitch-control-center/pull/774)) ([`f47a0b6`](https://github.com/juspay/hyperswitch-control-center/commit/f47a0b68126be2a7f60606ad4658af3e7d7fbc1f))
+
+**Full Changelog:** [`2024.06.04.1...2024.06.04.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.04.1...2024.06.04.2)
+
+- - -
+
 ## 2024.06.04.1
 
 ### Features
