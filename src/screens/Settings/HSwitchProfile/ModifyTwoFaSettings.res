@@ -13,6 +13,7 @@ module Verify2FAModalComponent = {
     ~setOtp=_ => (),
     ~recoveryCode="",
     ~setRecoveryCode=_ => (),
+    ~showOnlyTotp=false,
   ) => {
     open HSwitchSettingTypes
     <div className="flex flex-col items-center gap-2 ">
@@ -20,18 +21,20 @@ module Verify2FAModalComponent = {
       | Totp =>
         <>
           <TwoFaElements.TotpInput otp setOtp />
-          <p className={`${p2Regular} text-jp-gray-700`}>
-            {"Didn't get a code? "->React.string}
-            <span
-              className="cursor-pointer underline underline-offset-2 text-blue-600"
-              onClick={_ => {
-                setOtp(_ => "")
-                setErrorMessage(_ => "")
-                setTwoFaState(_ => RecoveryCode)
-              }}>
-              {"Use recovery-code"->React.string}
-            </span>
-          </p>
+          <UIUtils.RenderIf condition={!showOnlyTotp}>
+            <p className={`${p2Regular} text-jp-gray-700`}>
+              {"Didn't get a code? "->React.string}
+              <span
+                className="cursor-pointer underline underline-offset-2 text-blue-600"
+                onClick={_ => {
+                  setOtp(_ => "")
+                  setErrorMessage(_ => "")
+                  setTwoFaState(_ => RecoveryCode)
+                }}>
+                {"Use recovery-code"->React.string}
+              </span>
+            </p>
+          </UIUtils.RenderIf>
         </>
 
       | RecoveryCode =>
@@ -98,6 +101,9 @@ module ResetTotp = {
           }
           setOtp(_ => "")
           setButtonState(_ => Button.Normal)
+          RescriptReactRouter.push(
+            HSwitchGlobalVars.appendDashboardPath(~url="/account-settings/profile"),
+          )
         }
       }
     }
@@ -184,7 +190,7 @@ module ResetTotp = {
 
     <div>
       <Modal
-        modalHeading="Verify OTP"
+        modalHeading={twoFaState === Totp ? "Verify OTP" : "Verify recovery code"}
         showModal=showVerifyModal
         setShowModal=setShowVerifyModal
         onCloseClickCustomFun={handleModalClose}
@@ -272,6 +278,170 @@ module ResetTotp = {
   }
 }
 
+module RegenerateRecoveryCodes = {
+  @react.component
+  let make = (~checkStatusResponse: HSwitchSettingTypes.checkStatusType) => {
+    open LogicUtils
+    open APIUtils
+
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod()
+    let showToast = ToastState.useShowToast()
+    let verifyTotpLogic = TotpHooks.useVerifyTotp()
+    let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
+    let (otpInModal, setOtpInModal) = React.useState(_ => "")
+    let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
+    let (recoveryCodes, setRecoveryCodes) = React.useState(_ => [])
+    let (errorMessage, setErrorMessage) = React.useState(_ => "")
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+
+    let generateRecoveryCodes = async () => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let url = getURL(~entityName=USERS, ~userType=#GENERATE_RECOVERY_CODES, ~methodType=Get, ())
+        let response = await fetchDetails(url)
+        let recoveryCodesValue = response->getDictFromJsonObject->getStrArray("recovery_codes")
+        setRecoveryCodes(_ => recoveryCodesValue)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => {
+          setButtonState(_ => Button.Normal)
+          showToast(~message="Failed to generate recovery codes!", ~toastType=ToastError, ())
+          RescriptReactRouter.push(
+            HSwitchGlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
+          )
+          setScreenState(_ => PageLoaderWrapper.Success)
+        }
+      }
+    }
+
+    let handleModalClose = () => {
+      RescriptReactRouter.push(
+        HSwitchGlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
+      )
+    }
+
+    let verifyTOTP = async () => {
+      try {
+        setButtonState(_ => Button.Loading)
+        if otpInModal->String.length > 0 {
+          let body = [("totp", otpInModal->JSON.Encode.string)]->getJsonFromArrayOfJson
+          let _ = await verifyTotpLogic(body, Fetch.Post)
+          setShowVerifyModal(_ => false)
+          generateRecoveryCodes()->ignore
+        } else {
+          showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
+        }
+        setButtonState(_ => Button.Normal)
+      } catch {
+      | Exn.Error(e) => {
+          let err = Exn.message(e)->Option.getOr("Verification Failed")
+          let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
+          setOtpInModal(_ => "")
+          setErrorMessage(_ => errorMessage)
+          setButtonState(_ => Button.Normal)
+        }
+      }
+    }
+
+    React.useEffect0(() => {
+      if checkStatusResponse.totp {
+        generateRecoveryCodes()->ignore
+      } else {
+        setShowVerifyModal(_ => true)
+      }
+      None
+    })
+
+    let copyRecoveryCodes = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      Clipboard.writeText(JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3))
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+    }
+
+    <PageLoaderWrapper screenState>
+      <div>
+        <Modal
+          modalHeading="Verify OTP"
+          showModal=showVerifyModal
+          setShowModal=setShowVerifyModal
+          onCloseClickCustomFun={handleModalClose}
+          modalClass="w-fit m-auto">
+          <div className="flex flex-col gap-12">
+            <Verify2FAModalComponent
+              twoFaState=Totp
+              setTwoFaState={_ => ()}
+              otp={otpInModal}
+              setOtp={setOtpInModal}
+              errorMessage
+              setErrorMessage
+              showOnlyTotp=true
+            />
+            <div className="flex flex-1 justify-end">
+              <Button
+                text={"Verify OTP"}
+                buttonType=Primary
+                buttonSize=Small
+                buttonState={otpInModal->String.length === 0 ? Disabled : buttonState}
+                onClick={_ => verifyTOTP()->ignore}
+                rightIcon={CustomIcon(
+                  <Icon
+                    name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
+                  />,
+                )}
+              />
+            </div>
+          </div>
+        </Modal>
+        <div className={`bg-white border h-40-rem w-133 rounded-2xl flex flex-col`}>
+          <div className="p-6 border-b-2 flex justify-between items-center">
+            <p className={`${h2TextStyle} text-grey-900`}>
+              {"Two factor recovery codes"->React.string}
+            </p>
+          </div>
+          <div className="px-8 py-8 flex flex-col flex-1 justify-between">
+            <div className="flex flex-col  gap-6">
+              <p className="text-jp-gray-700">
+                {"Recovery codes provide a way to access your account if you lose your device and can't receive two-factor authentication codes."->React.string}
+              </p>
+              <HSwitchUtils.WarningArea
+                warningText="These codes are the last resort for accessing your account in case you lose your password and second factors. If you cannot find these codes, you will lose access to your account."
+              />
+              <TwoFaElements.ShowRecoveryCodes recoveryCodes />
+            </div>
+            <div className="flex gap-4 justify-end">
+              <Button
+                leftIcon={CustomIcon(<img src={`/assets/CopyToClipboard.svg`} />)}
+                text={"Copy"}
+                buttonType={Secondary}
+                buttonSize={Small}
+                onClick={copyRecoveryCodes}
+              />
+              <Button
+                leftIcon={FontAwesome("download-api-key")}
+                text={"Download"}
+                buttonType={Primary}
+                buttonSize={Small}
+                onClick={_ => {
+                  TotpUtils.downloadRecoveryCodes(~recoveryCodes)
+                  showToast(
+                    ~message="Successfully regenerated new recovery codes !",
+                    ~toastType=ToastSuccess,
+                    (),
+                  )
+                  RescriptReactRouter.push(
+                    HSwitchGlobalVars.appendDashboardPath(~url="/account-settings/profile"),
+                  )
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </PageLoaderWrapper>
+  }
+}
+
 @react.component
 let make = () => {
   open APIUtils
@@ -316,18 +486,23 @@ let make = () => {
     None
   })
 
+  let pageTitle = switch twofactorAuthType->HSwitchProfileUtils.getTwoFaEnumFromString {
+  | ResetTotp => "Reset totp"
+  | RegenerateRecoveryCode => "Regenerate recovery codes"
+  }
+
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-2">
-      <PageUtils.PageHeading title="Reset totp" />
+      <PageUtils.PageHeading title=pageTitle />
       <BreadCrumbNavigation
         path=[{title: "Profile", link: "/account-settings/profile"}]
-        currentPageTitle="Reset totp"
+        currentPageTitle=pageTitle
         cursorStyle="cursor-pointer"
       />
     </div>
     {switch twofactorAuthType->HSwitchProfileUtils.getTwoFaEnumFromString {
     | ResetTotp => <ResetTotp checkStatusResponse />
-    | RegenerateRecoveryCode => React.null
+    | RegenerateRecoveryCode => <RegenerateRecoveryCodes checkStatusResponse />
     }}
   </PageLoaderWrapper>
 }
