@@ -196,8 +196,7 @@ let make = () => {
     React.null
   }
   <>
-    <PageLoaderWrapper
-      screenState={PageLoaderWrapper.Error("")} sectionHeight="!h-screen" showLogoutButton=true>
+    <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
       <div>
         {switch dashboardPageState {
         | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
