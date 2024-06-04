@@ -493,17 +493,17 @@ let make = () => {
     None
   })
 
-  let getHeaderName = switch twofactorAuthType->HSwitchProfileUtils.getTwoFaEnumFromString {
+  let pageTitle = switch twofactorAuthType->HSwitchProfileUtils.getTwoFaEnumFromString {
   | ResetTotp => "Reset totp"
   | RegenerateRecoveryCode => "Regenerate recovery codes"
   }
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-2">
-      <PageUtils.PageHeading title=getHeaderName />
+      <PageUtils.PageHeading title=pageTitle />
       <BreadCrumbNavigation
         path=[{title: "Profile", link: "/account-settings/profile"}]
-        currentPageTitle=getHeaderName
+        currentPageTitle=pageTitle
         cursorStyle="cursor-pointer"
       />
     </div>
