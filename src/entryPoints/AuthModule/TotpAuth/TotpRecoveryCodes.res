@@ -33,14 +33,6 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
     }
   }
 
-  let downloadRecoveryCodes = () => {
-    open LogicUtils
-    DownloadUtils.downloadOld(
-      ~fileName="recoveryCodes.txt",
-      ~content=JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3),
-    )
-  }
-
   let copyRecoveryCodes = ev => {
     open LogicUtils
     ev->ReactEvent.Mouse.stopPropagation
@@ -84,7 +76,7 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
             buttonType={Primary}
             buttonSize={Small}
             onClick={_ => {
-              downloadRecoveryCodes()
+              TotpUtils.downloadRecoveryCodes(~recoveryCodes)
               onClickDownload(~skip_2fa=false)->ignore
             }}
           />
