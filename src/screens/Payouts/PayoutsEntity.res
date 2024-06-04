@@ -45,19 +45,132 @@ type payouts = {
   attempts: array<payoutAttempts>,
 }
 
-type payoutsAttemptColType = attempt_id
-status
-amount
-currency
-connector
-error_code
-error_message
-payment_method
-payout_method_type
-connector_transaction_id
-cancellation_reason
-unified_code
-unified_message
+type payoutsAttemptColType =
+  | AttemptId
+  | Status
+  | Amount
+  | Currency
+  | Connector
+  | ErrorCode
+  | Error_message
+  | PaymentMethod
+  | PayoutMethodType
+  | ConnectorTransactionId
+  | CancellationReason
+  | UnifiedCode
+  | UnifiedMessage
+
+let attemptsColumns = [
+  AttemptId,
+  Status,
+  Amount,
+  Currency,
+  Connector,
+  ErrorCode,
+  Error_message,
+  PaymentMethod,
+  PayoutMethodType,
+  ConnectorTransactionId,
+  CancellationReason,
+  UnifiedCode,
+  UnifiedMessage,
+]
+
+type status =
+  | Succeeded
+  | Failed
+  | Cancelled
+  | Processing
+  | RequiresCustomerAction
+  | RequiresPaymentMethod
+  | RequiresConfirmation
+  | PartiallyCaptured
+  | None
+
+let statusVariantMapper: string => status = statusLabel =>
+  switch statusLabel {
+  | "failed" => Failed
+  | "pending" => Processing
+  | "success" => Succeeded
+  | "requires_fulfillment"
+  | "requires_creation"
+  | _ =>
+    None
+  }
+
+let getAttemptHeading = colType => {
+  switch colType {
+  | AttemptId => Table.makeHeaderInfo(~key="AttemptId", ~title="Attempt Id", ~showSort=false, ())
+  | Status => Table.makeHeaderInfo(~key="Status", ~title="Status", ~showSort=false, ())
+  | Amount => Table.makeHeaderInfo(~key="Amount", ~title="Amount", ~showSort=false, ())
+  | Currency => Table.makeHeaderInfo(~key="Currency", ~title="Currency", ~showSort=false, ())
+  | Connector => Table.makeHeaderInfo(~key="Connector", ~title="Connector", ~showSort=false, ())
+  | ErrorCode => Table.makeHeaderInfo(~key="ErrorCode", ~title="Error Code", ~showSort=false, ())
+  | Error_message =>
+    Table.makeHeaderInfo(~key="Error_message", ~title="Error Message", ~showSort=false, ())
+  | PaymentMethod =>
+    Table.makeHeaderInfo(~key="PaymentMethod", ~title="Payment Method", ~showSort=false, ())
+  | PayoutMethodType =>
+    Table.makeHeaderInfo(~key="PayoutMethodType", ~title="Payout Method Type", ~showSort=false, ())
+  | ConnectorTransactionId =>
+    Table.makeHeaderInfo(
+      ~key="ConnectorTransactionId",
+      ~title="Connector Transaction Id",
+      ~showSort=false,
+      (),
+    )
+  | CancellationReason =>
+    Table.makeHeaderInfo(
+      ~key="CancellationReason",
+      ~title="Cancellation Reason",
+      ~showSort=false,
+      (),
+    )
+  | UnifiedCode =>
+    Table.makeHeaderInfo(~key="UnifiedCode", ~title="Unified Code", ~showSort=false, ())
+  | UnifiedMessage =>
+    Table.makeHeaderInfo(~key="UnifiedMessage", ~title="UnifiedM essage", ~showSort=false, ())
+  }
+}
+
+let getAttemptCell = (attemptData, colType): Table.cell => {
+  switch colType {
+  | AttemptId => DisplayCopyCell(attemptData.attempt_id)
+  | Status =>
+    Label({
+      title: attemptData.status->String.toUpperCase,
+      color: switch attemptData.status->statusVariantMapper {
+      | Succeeded => LabelGreen
+      | Failed => LabelRed
+      | Processing => LabelOrange
+      | Cancelled => LabelRed
+      | RequiresCustomerAction
+      | RequiresConfirmation
+      | RequiresPaymentMethod =>
+        LabelWhite
+      | _ => LabelLightBlue
+      },
+    })
+  | Amount =>
+    CustomCell(
+      <OrderEntity.CurrencyCell
+        amount={(attemptData.amount /. 100.0)->Float.toString} currency={attemptData.currency}
+      />,
+      "",
+    )
+  | Currency => Text(attemptData.currency)
+  | Connector =>
+    CustomCell(<HelperComponents.ConnectorCustomCell connectorName=attemptData.connector />, "")
+  | ErrorCode => Text(attemptData.error_code)
+  | Error_message => Text(attemptData.error_message)
+  | PaymentMethod => Text(attemptData.payment_method)
+  | PayoutMethodType => Text(attemptData.payout_method_type)
+  | ConnectorTransactionId => DisplayCopyCell(attemptData.connector_transaction_id)
+  | CancellationReason => Text(attemptData.cancellation_reason)
+  | UnifiedCode => Text(attemptData.unified_code)
+  | UnifiedMessage => Text(attemptData.unified_message)
+  }
+}
 
 type payoutsColType =
   | PayoutId
@@ -114,28 +227,6 @@ let allColumns = [
   ProfileId,
   Created,
 ]
-
-type status =
-  | Succeeded
-  | Failed
-  | Cancelled
-  | Processing
-  | RequiresCustomerAction
-  | RequiresPaymentMethod
-  | RequiresConfirmation
-  | PartiallyCaptured
-  | None
-
-let statusVariantMapper: string => status = statusLabel =>
-  switch statusLabel {
-  | "failed" => Failed
-  | "pending" => Processing
-  | "success" => Succeeded
-  | "requires_fulfillment"
-  | "requires_creation"
-  | _ =>
-    None
-  }
 
 let useGetStatus = order => {
   let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)

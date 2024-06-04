@@ -9,12 +9,12 @@ type contentType = Headers(string) | Unknown
 @val external sessionStorage: sessionStorage = "sessionStorage"
 
 let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ~token, ()) => {
-  let isPayout = uri->String.includes("payouts")
+  let isMixpanel = uri->String.includes("mixpanel")
 
-  let headerObj = if isPayout {
+  let headerObj = if isMixpanel {
     [
-      ("api-key", `snd_evhAaTN1eoxAFGwHAE9AHmql88c5w3yQu0PQZg7EDFOp0Ma8jwr4zaHORGaEsydP`),
-      ("Content-Type", "application/json"),
+      ("Content-Type", "application/x-www-form-urlencoded"),
+      ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
     let res = switch token {
