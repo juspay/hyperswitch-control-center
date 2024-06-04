@@ -373,7 +373,7 @@ let defaultValueForBusinessProfile = {
     authentication_connectors: None,
     three_ds_requestor_url: None,
   },
-  collect_shipping_details_from_wallet_connector: false,
+  collect_shipping_details_from_wallet_connector: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {
