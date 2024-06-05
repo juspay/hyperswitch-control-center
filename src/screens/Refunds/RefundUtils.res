@@ -18,7 +18,7 @@ let getFilterTypeFromString = filterType => {
   | "connector" => #connector
   | "currency" => #currency
   | "connector_label" => #connector_label
-  | "status" => #status
+  | "refund_status" => #status
   | _ => #unknown
   }
 }
@@ -182,7 +182,7 @@ let itemToObjMapper = dict => {
   {
     connector: dict->getDictfromDict("connector")->Dict.keysToArray,
     currency: dict->getArrayFromDict("currency", [])->getStrArrayFromJsonArray,
-    status: dict->getArrayFromDict("status", [])->getStrArrayFromJsonArray,
+    status: dict->getArrayFromDict("refund_status", [])->getStrArrayFromJsonArray,
     connector_label: [],
   }
 }
