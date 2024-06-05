@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.05.2
+
+### Miscellaneous Tasks
+
+- Chore: enable klarna for live ([#719](https://github.com/juspay/hyperswitch-control-center/pull/719)) ([`b3b2e08`](https://github.com/juspay/hyperswitch-control-center/commit/b3b2e0875a904bcc8d5ace892a5b7bdf571af03f))
+
+**Full Changelog:** [`2024.06.05.1...2024.06.05.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.05.1...2024.06.05.2)
+
+- - -
+
 ## 2024.06.05.1
 
 ### Bug Fixes
