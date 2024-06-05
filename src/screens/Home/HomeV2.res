@@ -421,7 +421,7 @@ let make = () => {
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
 
   <div className="w-full flex flex-col gap-6">
-    // <AcceptInviteHome />
+    <AcceptInviteHome />
     <div className="w-full flex flex-col gap-7">
       <QuickStartModule />
       <div>
