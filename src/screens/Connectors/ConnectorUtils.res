@@ -127,6 +127,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "debit" => Debit
   | "google_pay" => GooglePay
   | "apple_pay" => ApplePay
+  | "paypal" => PayPal
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
@@ -142,7 +143,17 @@ let dummyConnectorList = isTestProcessorsEnabled =>
     : []
 
 let checkIsDummyConnector = (connectorName, isTestProcessorsEnabled) =>
-  isTestProcessorsEnabled->dummyConnectorList->Array.includes(connectorName)
+  if isTestProcessorsEnabled {
+    switch connectorName {
+    | Processors(STRIPE_TEST)
+    | Processors(PAYPAL_TEST)
+    | Processors(FAUXPAY)
+    | Processors(PRETENDPAY) => true
+    | _ => false
+    }
+  } else {
+    false
+  }
 
 let stripeInfo = {
   description: "Versatile processor supporting credit cards, digital wallets, and bank transfers.",
@@ -691,7 +702,7 @@ let itemProviderMapper = dict => {
     maximum_amount: dict->getOptionInt("maximum_amount"),
     recurring_enabled: dict->getOptionBool("recurring_enabled"),
     installment_payment_enabled: dict->getOptionBool("installment_payment_enabled"),
-    payment_experience: dict->getOptionString("payment_method_type"),
+    payment_experience: dict->getOptionString("payment_experience"),
     card_networks: dict->getStrArrayFromDict("card_networks", []),
   }
 }
@@ -815,10 +826,36 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
   pmts
 }
 
-let removeMethod = (paymentMethodsEnabled, paymentMethod, method: paymentMethodConfigType) => {
+let removeMethod = (
+  paymentMethodsEnabled,
+  paymentMethod,
+  method: paymentMethodConfigType,
+  connector,
+) => {
   let pmts = paymentMethodsEnabled->Array.copy
-  switch paymentMethod->getPaymentMethodFromString {
-  | Card =>
+  switch (
+    method.payment_method_type->getPaymentMethodTypeFromString,
+    paymentMethod->getPaymentMethodFromString,
+    connector->getConnectorNameTypeFromString(),
+  ) {
+  | (PayPal, Wallet, Processors(PAYPAL)) =>
+    pmts->Array.forEach((val: paymentMethodEnabled) => {
+      if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
+        let indexOfRemovalItem =
+          val.provider
+          ->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
+          ->Array.map(ele => ele.payment_experience)
+          ->Array.indexOf(method.payment_experience)
+        val.provider
+        ->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
+        ->Array.splice(
+          ~start=indexOfRemovalItem,
+          ~remove=1,
+          ~insert=[]->JSON.Encode.array->getPaymentMethodMapper,
+        )
+      }
+    })
+  | (_, Card, _) =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
         let indexOfRemovalItem =
@@ -845,7 +882,6 @@ let removeMethod = (paymentMethodsEnabled, paymentMethod, method: paymentMethodC
           ->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
           ->Array.map(ele => ele.payment_method_type)
           ->Array.indexOf(method.payment_method_type)
-
         val.provider
         ->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
         ->Array.splice(
@@ -925,6 +961,7 @@ let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) =
   | (Processors(CHECKOUT), "acquirer_bin") | (Processors(NMI), "acquirer_bin") => false
   | (Processors(CHECKOUT), "acquirer_merchant_id")
   | (Processors(NMI), "acquirer_merchant_id") => false
+  | (Processors(PAYPAL), "paypal_sdk") => false
   | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") => false
   | _ => true
   }
@@ -1039,11 +1076,8 @@ let validateConnectorRequiredFields = (
   newDict->JSON.Encode.object
 }
 
-let getPlaceHolder = (connector: connectorTypes, fieldName, label) => {
-  switch (connector, fieldName) {
-  | (Processors(KLARNA), "api_key") => "Enter as:-Basic{API Key}"
-  | _ => `Enter ${label->LogicUtils.snakeToTitle}`
-  }
+let getPlaceHolder = label => {
+  `Enter ${label->LogicUtils.snakeToTitle}`
 }
 
 let getConnectorDetailsValue = (connectorInfo: connectorPayload, str) => {

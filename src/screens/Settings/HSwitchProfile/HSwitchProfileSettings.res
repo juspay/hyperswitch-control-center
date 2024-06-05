@@ -1,10 +1,15 @@
+let titleClass = "text-hyperswitch_black text-base w-1/5"
+let subTitleClass = "text-hyperswitch_black opacity-50 text-base font-semibold break-all"
+let sectionHeadingClass = "font-semibold text-fs-18"
+let p1Leading1TextClass = HSwitchUtils.getTextClass((P1, Regular))
+let p3RegularTextClass = `${HSwitchUtils.getTextClass((P3, Regular))} text-gray-700 opacity-50`
+
 module MerchantDetailsSection = {
   @react.component
   let make = () => {
     open HSwitchProfileSettingsEntity
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (offset, setOffset) = React.useState(_ => 0)
-    let sectionHeadingClass = "font-semibold text-fs-18"
 
     let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
     let switchMerchantListValue = Recoil.useRecoilValueFromAtom(
@@ -97,13 +102,63 @@ module ResetPassword = {
   }
 }
 
+module TwoFactorAuthenticationDetails = {
+  @react.component
+  let make = () => {
+    <div>
+      <div className="border bg-gray-50 rounded-t-lg w-full px-10 py-6">
+        <p className=sectionHeadingClass> {"Two factor authentication"->React.string} </p>
+      </div>
+      <div
+        className="flex flex-col gap-5 bg-white border border-t-0 rounded-b-lg w-full px-10 pt-6 pb-10">
+        <div className="flex gap-10 items-center justify-between">
+          <p className={`${p1Leading1TextClass} flex flex-col gap-1`}>
+            {"Change app / device"->React.string}
+            <span className=p3RegularTextClass>
+              {"Reset TOTP to regain access if you've changed or lost your device."->React.string}
+            </span>
+          </p>
+          <Button
+            text="Edit"
+            buttonSize={XSmall}
+            onClick={_ => {
+              RescriptReactRouter.push(
+                HSwitchGlobalVars.appendDashboardPath(
+                  ~url=`/account-settings/profile/2fa?type=reset_totp`,
+                ),
+              )
+            }}
+          />
+        </div>
+        <hr />
+        <div className="flex gap-10 items-center justify-between">
+          <p className={`${p1Leading1TextClass} flex flex-col gap-1`}>
+            {"Regenerate recovery codes"->React.string}
+            <span className=p3RegularTextClass>
+              {"Regenerate your access code to ensure continued access and security for your account."->React.string}
+            </span>
+          </p>
+          <Button
+            text="Edit"
+            buttonSize={XSmall}
+            onClick={_ => {
+              RescriptReactRouter.push(
+                HSwitchGlobalVars.appendDashboardPath(
+                  ~url=`/account-settings/profile/2fa?type=regenerate_recovery_code`,
+                ),
+              )
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  }
+}
+
 module BasicDetailsSection = {
   @react.component
   let make = () => {
     open CommonAuthHooks
-    let titleClass = "text-hyperswitch_black text-base  w-1/5"
-    let subTitleClass = "text-hyperswitch_black opacity-50 text-base font-semibold break-all"
-    let sectionHeadingClass = "font-semibold text-fs-18"
     let {name: userName, email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let userTitle = LogicUtils.userNameToTitle(userName)
 
@@ -137,11 +192,27 @@ module BasicDetailsSection = {
 }
 @react.component
 let make = () => {
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+
+  let showTwoFaSettings = switch authStatus {
+  | LoggedIn(info) =>
+    switch info {
+    | TotpAuth(totpAuthInfo) => totpAuthInfo.is_two_factor_auth_setup->Option.getOr(false)
+    | _ => false
+    }
+  | _ => false
+  }
+
   <div className="flex flex-col overflow-scroll gap-8">
     <PageUtils.PageHeading title="Profile" subTitle="Manage your profile settings here" />
     <div className="flex flex-col flex-wrap  gap-12">
       <BasicDetailsSection />
       <MerchantDetailsSection />
+      <UIUtils.RenderIf condition={featureFlagDetails.totp && showTwoFaSettings}>
+        <TwoFactorAuthenticationDetails />
+      </UIUtils.RenderIf>
     </div>
   </div>
 }

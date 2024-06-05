@@ -104,18 +104,34 @@ let customers = permissionJson => {
   })
 }
 
-let operations = (isOperationsEnabled, ~permissionJson) => {
+let payouts = permissionJson => {
+  SubLevelLink({
+    name: "Payouts",
+    link: `/payouts`,
+    access: permissionJson.operationsView,
+    searchOptions: [("View payouts operations", "")],
+  })
+}
+
+let operations = (isOperationsEnabled, ~permissionJson, ~isPayoutsEnabled) => {
   let payments = payments(permissionJson)
   let refunds = refunds(permissionJson)
   let disputes = disputes(permissionJson)
   let customers = customers(permissionJson)
+  let payouts = payouts(permissionJson)
+
+  let links = [payments, refunds, disputes, customers]
+
+  if isPayoutsEnabled {
+    links->Array.push(payouts)->ignore
+  }
 
   isOperationsEnabled
     ? Section({
         name: "Operations",
         icon: "hswitch-operations",
         showSection: true,
-        links: [payments, refunds, disputes, customers],
+        links,
       })
     : emptyComponent
 }
@@ -486,7 +502,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   let sidebar = [
     productionAccessComponent(quickStart),
     default->home,
-    default->operations(~permissionJson),
+    default->operations(~permissionJson, ~isPayoutsEnabled=payOut),
     default->connectors(
       ~isLiveMode,
       ~isFrmEnabled=frm,

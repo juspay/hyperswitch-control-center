@@ -196,7 +196,7 @@ let make = () => {
     React.null
   }
   <>
-    <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen">
+    <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
       <div>
         {switch dashboardPageState {
         | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
@@ -315,6 +315,21 @@ let make = () => {
                                 access=Access
                                 renderList={() => <Orders />}
                                 renderShow={id => <ShowOrder id />}
+                              />
+                            </FilterContext>
+                          </AccessControl>
+
+                        | list{"payouts", ...remainingPath} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.payOut}
+                            permission=userPermissionJson.operationsView>
+                            <FilterContext key="payouts" index="payouts">
+                              <EntityScaffold
+                                entityName="Payouts"
+                                remainingPath
+                                access=Access
+                                renderList={() => <PayoutsList />}
+                                renderShow={id => <ShowPayout id />}
                               />
                             </FilterContext>
                           </AccessControl>
@@ -460,7 +475,16 @@ let make = () => {
                             permission=userPermissionJson.merchantDetailsManage>
                             <HSwitchSettings />
                           </AccessControl>
-                        | list{"account-settings", "profile"} => <HSwitchProfileSettings />
+                        | list{"account-settings", "profile", ...remainingPath} =>
+                          <EntityScaffold
+                            entityName="ConfigurePMTs"
+                            remainingPath
+                            renderList={() => <HSwitchProfileSettings />}
+                            renderShow={value =>
+                              <UIUtils.RenderIf condition={featureFlagDetails.totp}>
+                                <ModifyTwoFaSettings />
+                              </UIUtils.RenderIf>}
+                          />
 
                         | list{"business-details"} =>
                           <AccessControl isEnabled=featureFlagDetails.default permission={Access}>

@@ -34,6 +34,7 @@ let useSetInitialFilters = (
   ~startTimeFilterKey,
   ~endTimeFilterKey,
   ~range=7,
+  ~origin,
   (),
 ) => {
   let {filterValueJson} = FilterContext.filterContext->React.useContext
@@ -44,10 +45,11 @@ let useSetInitialFilters = (
     let defaultDate = getDateFilteredObject(~range, ())
 
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
-      [
-        (startTimeFilterKey, defaultDate.start_time),
-        (endTimeFilterKey, defaultDate.end_time),
-      ]->Array.forEach(item => {
+      let timeRange =
+        origin !== "analytics"
+          ? [(startTimeFilterKey, defaultDate.start_time)]
+          : [(startTimeFilterKey, defaultDate.start_time), (endTimeFilterKey, defaultDate.end_time)]
+      timeRange->Array.forEach(item => {
         let (key, defaultValue) = item
         switch inititalSearchParam->Dict.get(key) {
         | Some(_) => ()
@@ -116,7 +118,8 @@ module SearchBarFilter = {
 module RemoteTableFilters = {
   @react.component
   let make = (
-    ~filterUrlV2,
+    ~apiType=Fetch.Get,
+    ~filterUrl,
     ~setFilters,
     ~endTimeFilterKey,
     ~startTimeFilterKey,
@@ -126,6 +129,7 @@ module RemoteTableFilters = {
     ~customLeftView,
     (),
   ) => {
+    open LogicUtils
     let {filterValue, updateExistingKeys, filterValueJson, reset} =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
@@ -142,13 +146,26 @@ module RemoteTableFilters = {
     open APIUtils
 
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
-
+    let updateDetails = useUpdateMethod()
+    let defaultDate = getDateFilteredObject(~range=30, ())
+    let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
+    let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
     let fetchDetails = useGetMethod()
 
     let fetchAllFilters = async () => {
       try {
         setFilterDataJson(_ => None)
-        let response = await fetchDetails(filterUrlV2)
+        let response = switch apiType {
+        | Post => {
+            let body =
+              [
+                (startTimeFilterKey, start_time->JSON.Encode.string),
+                (endTimeFilterKey, end_time->JSON.Encode.string),
+              ]->getJsonFromArrayOfJson
+            await updateDetails(filterUrl, body, Fetch.Post, ())
+          }
+        | _ => await fetchDetails(filterUrl)
+        }
         setFilterDataJson(_ => response->Some)
       } catch {
       | _ => showToast(~message="Failed to load filters", ~toastType=ToastError, ())
@@ -167,6 +184,7 @@ module RemoteTableFilters = {
       ~startTimeFilterKey,
       ~endTimeFilterKey,
       ~range=30,
+      ~origin="orders",
       (),
     )
 

@@ -1,7 +1,7 @@
 let h2TextStyle = HSwitchUtils.getTextClass((H2, Optional))
 
 @react.component
-let make = (~setTotpStatus, ~onClickDownload) => {
+let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
   let showToast = ToastState.useShowToast()
   let getURL = APIUtils.useGetURL()
   let fetchDetails = APIUtils.useGetMethod()
@@ -9,9 +9,8 @@ let make = (~setTotpStatus, ~onClickDownload) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
   let generateRecoveryCodes = async () => {
-    open TotpTypes
+    open LogicUtils
     try {
-      open LogicUtils
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=USERS, ~userType=#GENERATE_RECOVERY_CODES, ~methodType=Get, ())
       let response = await fetchDetails(url)
@@ -19,16 +18,19 @@ let make = (~setTotpStatus, ~onClickDownload) => {
       setRecoveryCodes(_ => recoveryCodesValue)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setTotpStatus(_ => TOTP_SHOW_QR)
-    }
-  }
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
 
-  let downloadRecoveryCodes = () => {
-    open LogicUtils
-    DownloadUtils.downloadOld(
-      ~fileName="recoveryCodes.txt",
-      ~content=JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3),
-    )
+        if errorCode->CommonAuthUtils.errorSubCodeMapper === UR_38 {
+          setTwoFaPageState(_ => TotpTypes.TOTP_SHOW_QR)
+          setShowNewQR(prev => !prev)
+        } else {
+          showToast(~message="Something went wrong", ~toastType=ToastError, ())
+          setScreenState(_ => PageLoaderWrapper.Error(err))
+        }
+      }
+    }
   }
 
   let copyRecoveryCodes = ev => {
@@ -74,8 +76,8 @@ let make = (~setTotpStatus, ~onClickDownload) => {
             buttonType={Primary}
             buttonSize={Small}
             onClick={_ => {
-              downloadRecoveryCodes()
-              onClickDownload(false)->ignore
+              TotpUtils.downloadRecoveryCodes(~recoveryCodes)
+              onClickDownload(~skip_2fa=false)->ignore
             }}
           />
         </div>

@@ -67,6 +67,8 @@ let getTotpAuthInfo = (~email_token=None, json) => {
     role_id: getOptionString(dict, "role_id"),
     token_type: dict->getOptionString("token_type"),
     email_token: email_token->getEmailTokenValue,
+    is_two_factor_auth_setup: getOptionBool(dict, "is_two_factor_auth_setup"),
+    recovery_codes_left: getOptionInt(dict, "recovery_codes_left"),
   }
   switch email_token {
   | Some(emailTk) => emailTk->storeEmailTokenTmp
@@ -142,4 +144,12 @@ let validateTotpForm = (values: JSON.t, keys: array<string>) => {
   })
 
   errors->JSON.Encode.object
+}
+
+let downloadRecoveryCodes = (~recoveryCodes) => {
+  open LogicUtils
+  DownloadUtils.downloadOld(
+    ~fileName="recoveryCodes.txt",
+    ~content=JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3),
+  )
 }
