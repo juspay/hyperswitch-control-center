@@ -3,6 +3,60 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.04.2
+
+### Features
+
+- Payouts ([#774](https://github.com/juspay/hyperswitch-control-center/pull/774)) ([`f47a0b6`](https://github.com/juspay/hyperswitch-control-center/commit/f47a0b68126be2a7f60606ad4658af3e7d7fbc1f))
+
+**Full Changelog:** [`2024.06.04.1...2024.06.04.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.04.1...2024.06.04.2)
+
+- - -
+
+## 2024.06.04.1
+
+### Features
+
+- Regenerate recovery codes ([#776](https://github.com/juspay/hyperswitch-control-center/pull/776)) ([`d34f858`](https://github.com/juspay/hyperswitch-control-center/commit/d34f858a4f69bdcd1bee199e732aa87a2540d8f0))
+
+### Bug Fixes
+
+- Refunds filters url fix ([#779](https://github.com/juspay/hyperswitch-control-center/pull/779)) ([`7e06ef7`](https://github.com/juspay/hyperswitch-control-center/commit/7e06ef789963d03762ae77a9cf53f89cfd2c1f12))
+- Pageloader wrapper error case logout button addition ([#780](https://github.com/juspay/hyperswitch-control-center/pull/780)) ([`4347f8d`](https://github.com/juspay/hyperswitch-control-center/commit/4347f8d5e7f9bd8a19860a576a5998f03b894845))
+
+**Full Changelog:** [`2024.06.04.0...2024.06.04.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.04.0...2024.06.04.1)
+
+- - -
+
+## 2024.06.04.0
+
+### Features
+
+- Reset-totp inside control-center ([#759](https://github.com/juspay/hyperswitch-control-center/pull/759)) ([`b3280ef`](https://github.com/juspay/hyperswitch-control-center/commit/b3280ef69b59fa48866306cf9c8587052c929f64))
+
+### Bug Fixes
+
+- Disable sdk show preview ([#768](https://github.com/juspay/hyperswitch-control-center/pull/768)) ([`639ca09`](https://github.com/juspay/hyperswitch-control-center/commit/639ca09a9e59e630414cb4bcd716314df467e4d5))
+- Github workflows ([#773](https://github.com/juspay/hyperswitch-control-center/pull/773)) ([`e24fa1e`](https://github.com/juspay/hyperswitch-control-center/commit/e24fa1eec06aefc756687f0effccccee3a8de17c))
+
+### Miscellaneous Tasks
+
+- Update paypal metadata ([#770](https://github.com/juspay/hyperswitch-control-center/pull/770)) ([`98b0b00`](https://github.com/juspay/hyperswitch-control-center/commit/98b0b003679e4309bf0291fac345e0e5fbcaf14a))
+
+**Full Changelog:** [`2024.06.02.0...2024.06.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.02.0...2024.06.04.0)
+
+- - -
+
+## 2024.06.02.0
+
+### Bug Fixes
+
+- Pay now button validations ([#754](https://github.com/juspay/hyperswitch-control-center/pull/754)) ([`bf32df5`](https://github.com/juspay/hyperswitch-control-center/commit/bf32df5494eb84bdfea63728cf4b3f7879f099d9))
+
+**Full Changelog:** [`2024.05.30.1...2024.06.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.05.30.1...2024.06.02.0)
+
+- - -
+
 ## 2024.05.30.1
 
 ### Miscellaneous Tasks

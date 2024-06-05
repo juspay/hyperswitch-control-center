@@ -151,6 +151,16 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | PAYOUTS =>
+      switch methodType {
+      | Get =>
+        switch id {
+        | Some(payout_id) => `payouts/${payout_id}`
+        | None => `payouts/list?limit=100`
+        }
+      | Post => `payouts/list`
+      | _ => ""
+      }
     | GLOBAL_SEARCH =>
       switch methodType {
       | Post =>
@@ -241,6 +251,8 @@ let useGetURL = () => {
       | #INVITE_MULTIPLE_TOKEN_ONLY => `${userUrl}/user/invite_multiple?token_only=true`
       | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
       | #TERMINATE_TWO_FACTOR_AUTH => `${userUrl}/2fa/terminate`
+      | #CHECK_TWO_FACTOR_AUTH_STATUS => `${userUrl}/2fa`
+      | #RESET_TOTP => `${userUrl}/2fa/totp/reset`
       | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
         `${userUrl}/accept_invite_from_email?token_only=true`
       | #USER_INFO => userUrl

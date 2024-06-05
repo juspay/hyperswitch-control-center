@@ -1,4 +1,4 @@
-let metaDataInputKeysToIgnore = ["google_pay", "apple_pay", "zen_apple_pay", "paypal_sdk"]
+let metaDataInputKeysToIgnore = ["google_pay", "apple_pay", "zen_apple_pay"]
 
 let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorTypes> = [
   Processors(ADYEN),
@@ -6,6 +6,45 @@ let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorTypes> = [
   Processors(STRIPE),
   Processors(PAYPAL),
 ]
+
+module MultiConfigInp = {
+  @react.component
+  let make = (~label, ~fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+    let enabledList = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
+    let valueField = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
+
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      name: "string",
+      onBlur: _ev => (),
+      onChange: ev => {
+        let value = ev->Identity.formReactEventToArrayOfString
+        valueField.onChange(value->Identity.anyTypeToReactEvent)
+        enabledList.onChange(value->Identity.anyTypeToReactEvent)
+      },
+      onFocus: _ev => (),
+      value: enabledList.value,
+      checked: true,
+    }
+    <TextInput input placeholder={`Enter ${label->LogicUtils.snakeToTitle}`} />
+  }
+}
+
+let renderValueInp = (~label, fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+  <MultiConfigInp fieldsArray label />
+}
+
+let multiValueInput = (~label, ~fieldName1, ~fieldName2) => {
+  open FormRenderer
+  makeMultiInputFieldInfoOld(
+    ~label,
+    ~comboCustomInput=renderValueInp(~label),
+    ~inputFields=[
+      makeInputFieldInfo(~name=`${fieldName1}`, ()),
+      makeInputFieldInfo(~name=`${fieldName2}`, ()),
+    ],
+    (),
+  )
+}
 
 let getCurrencyOption: CurrencyUtils.currencyCode => SelectBox.dropdownOption = currencyType => {
   open CurrencyUtils
@@ -156,6 +195,7 @@ module RenderConnectorInputFields = {
       let label = switch field {
       | "pull_mechanism_for_external_3ds_enabled" => "Pull Mechanism Enabled"
       | "klarna_region" => "Region of your Klarna Merchant Account"
+
       | _ => details->getString(field, "")
       }
 
@@ -178,6 +218,12 @@ module RenderConnectorInputFields = {
                   ~buttonText="Select Region",
                   ~options=details->getStrArrayFromDict(field, []),
                   (),
+                )
+              | (Processors(PAYPAL), "key1") =>
+                multiValueInput(
+                  ~label,
+                  ~fieldName1="connector_account_details.key1",
+                  ~fieldName2="metadata.paypal_sdk.client_id",
                 )
               | _ =>
                 inputField(
