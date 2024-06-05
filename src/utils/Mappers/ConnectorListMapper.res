@@ -31,10 +31,11 @@ let parsePaymentMethod = paymentMethod => {
   open LogicUtils
 
   let paymentMethodDict = paymentMethod->getDictFromJsonObject
+  let flow = paymentMethodDict->getString("flow", "")
 
   {
     payment_method: paymentMethodDict->getString("payment_method", ""),
-    flow: "pre",
+    flow,
   }
 }
 

@@ -1,34 +1,3 @@
-module RadioSection = {
-  open ConnectorTypes
-  open FRMTypes
-  open FRMInfo
-  @react.component
-  let make = (~option, ~frmConfigs, ~paymentMethodInfo, ~sectionType, ~setConfigJson) => {
-    let isOptionSelected =
-      switch sectionType {
-      | FlowType => paymentMethodInfo.flow
-      } === option
-
-    let handleOnClick = () => {
-      switch sectionType {
-      | FlowType => paymentMethodInfo.flow = option
-      }
-      setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
-    }
-
-    <div>
-      <div className="flex items-center gap-2 break-all">
-        <div onClick={_ => handleOnClick()}>
-          <RadioIcon isSelected={isOptionSelected} />
-        </div>
-        {switch sectionType {
-        | FlowType => option->getFlowTypeLabel->React.string
-        }}
-      </div>
-    </div>
-  }
-}
-
 module ToggleSwitch = {
   open FRMUtils
   @react.component
@@ -59,8 +28,13 @@ module ToggleSwitch = {
 
 module FormField = {
   open FRMTypes
+  open FRMInfo
+  open LogicUtils
+  open FRMUtils
   @react.component
   let make = (
+    ~fromConfigIndex,
+    ~paymentMethodIndex,
     ~options,
     ~label,
     ~paymentMethodInfo,
@@ -85,13 +59,25 @@ module FormField = {
       </div>
       <div className={`grid grid-cols-2 md:grid-cols-4 gap-4`}>
         <UIUtils.RenderIf condition={sectionType == FlowType}>
-          {options
-          ->Array.mapWithIndex((option, i) => {
-            <RadioSection
-              key={i->Int.toString} option paymentMethodInfo frmConfigs sectionType setConfigJson
-            />
-          })
-          ->React.array}
+          <FormRenderer.FieldRenderer
+            field={FormRenderer.makeFieldInfo(
+              ~label="",
+              ~name=`frm_configs[${fromConfigIndex}].payment_methods[${paymentMethodIndex}].flow`,
+              ~customInput=InputFields.radioInput(
+                ~options=options->Array.map((item): SelectBox.dropdownOption => {
+                  {
+                    label: item->getFlowTypeLabel,
+                    value: item,
+                  }
+                }),
+                ~buttonText="options",
+                ~baseComponentCustomStyle="flex",
+                ~customStyle="flex gap-2 !overflow-visible",
+                (),
+              ),
+              (),
+            )}
+          />
         </UIUtils.RenderIf>
       </div>
     </div>
@@ -104,6 +90,7 @@ module CheckBoxRenderer = {
   open FRMTypes
   @react.component
   let make = (
+    ~fromConfigIndex,
     ~frmConfigInfo: ConnectorTypes.frm_config,
     ~frmConfigs,
     ~connectorPaymentMethods,
@@ -205,9 +192,10 @@ module CheckBoxRenderer = {
         </div>
       </div>
       {frmConfigInfo.payment_methods
-      ->Array.mapWithIndex((paymentMethodInfo, i) => {
-        <UIUtils.RenderIf condition={isOpen} key={i->Int.toString}>
+      ->Array.mapWithIndex((paymentMethodInfo, index) => {
+        <UIUtils.RenderIf condition={isOpen} key={index->Int.toString}>
           <Accordion
+            key={index->Int.toString}
             initialExpandedArray=[0]
             accordion={[
               {
@@ -218,11 +206,13 @@ module CheckBoxRenderer = {
                       options={flowTypeAllOptions}
                       label="Choose one of the flows"
                       paymentMethodInfo
+                      fromConfigIndex
+                      paymentMethodIndex={index->Int.toString}
                       frmConfigs
                       sectionType={FlowType}
                       setConfigJson
                       description="i. \"PreAuth\" - facilitate transaction verification prior to payment authorization.
-                      ii. \"PostAuth\" - facilitate transaction validation post-authorization, before amount capture."
+                        ii. \"PostAuth\" - facilitate transaction validation post-authorization, before amount capture."
                     />
                   </div>
                 },
@@ -297,6 +287,7 @@ module PaymentMethodsRenderer = {
             frmConfigs
             connectorPaymentMethods={connectorConfig->Dict.get(configInfo.gateway)}
             isUpdateFlow
+            fromConfigIndex={i->Int.toString}
           />
         })
         ->React.array}
