@@ -49,7 +49,12 @@ module EnterAccessCode = {
           </p>
         </div>
         <div className="flex justify-end gap-4">
-          <Button text="Skip now" buttonType={Secondary} buttonSize=Small />
+          <Button
+            text="Skip now"
+            buttonType={Secondary}
+            buttonSize=Small
+            onClick={_ => onClickVerifyAccessCode(~skip_2fa=true)->ignore}
+          />
           <Button
             text="Verify recovery code"
             buttonType=Primary

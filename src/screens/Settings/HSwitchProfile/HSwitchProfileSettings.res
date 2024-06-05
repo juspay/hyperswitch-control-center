@@ -193,12 +193,24 @@ module BasicDetailsSection = {
 @react.component
 let make = () => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+
+  let showTwoFaSettings = switch authStatus {
+  | LoggedIn(info) =>
+    switch info {
+    | TotpAuth(totpAuthInfo) => totpAuthInfo.is_two_factor_auth_setup->Option.getOr(false)
+    | _ => false
+    }
+  | _ => false
+  }
+
   <div className="flex flex-col overflow-scroll gap-8">
     <PageUtils.PageHeading title="Profile" subTitle="Manage your profile settings here" />
     <div className="flex flex-col flex-wrap  gap-12">
       <BasicDetailsSection />
       <MerchantDetailsSection />
-      <UIUtils.RenderIf condition={featureFlagDetails.totp}>
+      <UIUtils.RenderIf condition={featureFlagDetails.totp && showTwoFaSettings}>
         <TwoFactorAuthenticationDetails />
       </UIUtils.RenderIf>
     </div>

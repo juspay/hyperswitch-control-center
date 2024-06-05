@@ -18,6 +18,8 @@ type totpAuthInfo = {
   email: option<string>,
   role_id: option<string>,
   email_token: option<string>,
+  is_two_factor_auth_setup: option<bool>,
+  recovery_codes_left: option<int>,
 }
 
 type twoFaPageState = TOTP_SHOW_QR | TOTP_SHOW_RC | TOTP_INPUT_RECOVERY_CODE
