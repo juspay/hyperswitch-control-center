@@ -85,7 +85,6 @@ let make = (
         let err = Exn.message(e)->Option.getOr("Something went wrong")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
-        Js.log(err)
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError, ())
           setCurrentStep(_ => ConnectorTypes.IntegFields)
