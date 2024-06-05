@@ -387,13 +387,17 @@ let getCell = (payoutData, colType): Table.cell => {
   | ErrorCode => Text(payoutData.error_code)
   | ConnectorTransactionId => DisplayCopyCell(payoutData.connector_transaction_id)
   | SendPriority =>
-    Label({
-      title: payoutData.priority->String.toUpperCase,
-      color: switch payoutData.priority->priorityVariantMapper {
-      | Instant => LabelBlue
-      | _ => LabelOrange
-      },
-    })
+    switch payoutData.priority->priorityVariantMapper {
+    | None => Text(payoutData.priority)
+    | priorityVariants =>
+      Label({
+        title: payoutData.priority->String.toUpperCase,
+        color: switch priorityVariants {
+        | Instant => LabelBlue
+        | _ => LabelOrange
+        },
+      })
+    }
   }
 }
 
