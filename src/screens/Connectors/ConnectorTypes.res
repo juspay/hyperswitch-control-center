@@ -111,6 +111,7 @@ type paymentMethodTypes =
   | Debit
   | GooglePay
   | ApplePay
+  | PayPal
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
