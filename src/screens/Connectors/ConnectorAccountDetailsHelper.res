@@ -504,7 +504,7 @@ module BusinessProfileRender = {
           </span>
         </div>
       </UIUtils.RenderIf>
-      <BusinessProfile isFromSettings=false showModalFromOtherScreen setShowModalFromOtherScreen />
+      // <BusinessProfile isFromSettings=false showModalFromOtherScreen setShowModalFromOtherScreen />
     </>
   }
 }
