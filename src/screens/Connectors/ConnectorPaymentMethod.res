@@ -64,6 +64,7 @@ let make = (
         payment_methods_enabled: paymentMethodsEnabled,
         metadata: metaData,
       }
+
       let body =
         constructConnectorRequestBody(obj, initialValues)->ignoreFields(
           connectorID->Option.getOr(""),
@@ -84,7 +85,6 @@ let make = (
         let err = Exn.message(e)->Option.getOr("Something went wrong")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
-
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError, ())
           setCurrentStep(_ => ConnectorTypes.IntegFields)
