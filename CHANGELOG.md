@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.05.1
+
+### Bug Fixes
+
+- Totp bug fixes with accept invite in home ([#788](https://github.com/juspay/hyperswitch-control-center/pull/788)) ([`8add1ee`](https://github.com/juspay/hyperswitch-control-center/commit/8add1eec77c47712b3823317b2a01dd1ddf3f835))
+
+### Miscellaneous Tasks
+
+- Fix refund filters ([#790](https://github.com/juspay/hyperswitch-control-center/pull/790)) ([`1ad6650`](https://github.com/juspay/hyperswitch-control-center/commit/1ad6650b54edb09844dc84596476988ca064c3ac))
+
+**Full Changelog:** [`2024.06.05.0...2024.06.05.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.05.0...2024.06.05.1)
+
+- - -
+
 ## 2024.06.05.0
 
 ### Miscellaneous Tasks
