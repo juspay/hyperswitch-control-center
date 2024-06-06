@@ -256,7 +256,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   | LoggedIn(info) =>
     switch info {
     | BasicAuth(basicInfo) => basicInfo.merchant_id->Option.getOr("")
-    | TotpAuth(totpInfo) => totpInfo.merchant_id->Option.getOr("")
+    | TotpAuth(totpInfo) => totpInfo.merchant_id
     }
   | _ => ""
   }

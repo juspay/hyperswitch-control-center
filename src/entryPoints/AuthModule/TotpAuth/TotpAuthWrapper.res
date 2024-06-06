@@ -9,11 +9,6 @@ let make = (~children) => {
   let authLogic = () => {
     open TotpUtils
     let authInfo = getTotputhInfoFromStrorage()
-
-    // switch authInfo.token {
-    // | Some(_) => setAuthStatus(PreLogin(TotpUtils.getPreLoginInfo(authInfo)))
-    // | None => setAuthStatus(LoggedOut)
-    // }
     if authInfo.token->String.length > 0 {
       setAuthStatus(PreLogin(authInfo))
     } else {

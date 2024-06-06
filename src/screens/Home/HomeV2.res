@@ -420,24 +420,18 @@ let make = () => {
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let authValues =
+    CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
 
-  let recovery_codes_left = switch authStatus {
-  | LoggedIn(info) =>
-    switch info {
-    | TotpAuth(totpAuthInfo) => totpAuthInfo.recovery_codes_left
-    | _ => None
-    }
-  | _ => None
+  let recovery_codes_left = switch authValues.recovery_codes_left {
+  | Some(codesLeft) => codesLeft
+  | None => 8
   }
 
   <div className="w-full flex flex-col gap-6">
     <div className="flex flex-col gap-4">
-      <UIUtils.RenderIf
-        condition={featureFlagDetails.totp &&
-        recovery_codes_left->Option.isSome &&
-        recovery_codes_left->Option.getOr(8) < 3}>
-        <LowRecoveryCodeBanner recovery_codes_left={recovery_codes_left->Option.getOr(8)} />
+      <UIUtils.RenderIf condition={featureFlagDetails.totp && recovery_codes_left < 3}>
+        <LowRecoveryCodeBanner recovery_codes_left />
       </UIUtils.RenderIf>
       <AcceptInviteHome />
     </div>

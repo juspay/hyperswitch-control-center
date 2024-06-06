@@ -199,7 +199,7 @@ let make = () => {
   let showTwoFaSettings = switch authStatus {
   | LoggedIn(info) =>
     switch info {
-    | TotpAuth(totpAuthInfo) => totpAuthInfo.is_two_factor_auth_setup->Option.getOr(false)
+    | TotpAuth(totpAuthInfo) => totpAuthInfo.is_two_factor_auth_setup
     | _ => false
     }
   | _ => false

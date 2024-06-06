@@ -49,7 +49,7 @@ let useApiFetcher = () => {
     | LoggedIn(info) =>
       switch info {
       | BasicAuth(basicInfo) => basicInfo.token
-      | TotpAuth(totpInfo) => totpInfo.token
+      | TotpAuth(totpInfo) => Some(totpInfo.token)
       }
     | _ => None
     }

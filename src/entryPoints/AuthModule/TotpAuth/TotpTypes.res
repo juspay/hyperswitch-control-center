@@ -11,15 +11,13 @@ type totpFlowType =
   | ERROR
 
 type totpAuthInfo = {
-  token: option<string>,
-  merchant_id: option<string>,
-  name: option<string>,
-  token_type: option<string>,
-  email: option<string>,
-  role_id: option<string>,
-  email_token: option<string>,
-  is_two_factor_auth_setup: option<bool>,
-  recovery_codes_left: option<int>,
+  token: string,
+  merchant_id: string,
+  name: string,
+  email: string,
+  role_id: string,
+  is_two_factor_auth_setup: bool,
+  recovery_codes_left: int,
 }
 
 type twoFaPageState = TOTP_SHOW_QR | TOTP_SHOW_RC | TOTP_INPUT_RECOVERY_CODE

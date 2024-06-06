@@ -79,15 +79,13 @@ let getTotpAuthInfo = (~email_token=None, json) => {
   open LogicUtils
   let dict = json->JsonFlattenUtils.flattenObject(false)
   let totpInfo = {
-    email: getOptionString(dict, "email"),
-    merchant_id: getOptionString(dict, "merchant_id"),
-    name: getOptionString(dict, "name"),
-    token: getOptionString(dict, "token"),
-    role_id: getOptionString(dict, "role_id"),
-    token_type: dict->getOptionString("token_type"),
-    email_token: email_token->getEmailTokenValue,
-    is_two_factor_auth_setup: getOptionBool(dict, "is_two_factor_auth_setup"),
-    recovery_codes_left: getOptionInt(dict, "recovery_codes_left"),
+    email: getString(dict, "email", ""),
+    merchant_id: getString(dict, "merchant_id", ""),
+    name: getString(dict, "name", ""),
+    token: getString(dict, "token", ""),
+    role_id: getString(dict, "role_id", ""),
+    is_two_factor_auth_setup: getBool(dict, "is_two_factor_auth_setup", false),
+    recovery_codes_left: getInt(dict, "recovery_codes_left", 8),
   }
   switch email_token {
   | Some(emailTk) => emailTk->storeEmailTokenTmp
