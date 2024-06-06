@@ -1489,3 +1489,23 @@ let existsInArray = (element, connectorList) => {
     }
   )
 }
+
+// Need to refactor
+
+let updateMetaData = (~metaData) => {
+  open LogicUtils
+  let apple_pay_combined = metaData->getDictFromJsonObject->getDictfromDict("apple_pay_combined")
+  let manual = apple_pay_combined->getDictfromDict("manual")
+  switch manual->Dict.keysToArray->Array.length > 0 {
+  | true => {
+      let applepay =
+        manual
+        ->getDictfromDict("session_token_data")
+        ->JSON.Encode.object
+        ->Identity.jsonToAnyType
+        ->convertMapObjectToDict
+      manual->Dict.set("session_token_data", applepay->JSON.Encode.object)
+    }
+  | false => ()
+  }
+}

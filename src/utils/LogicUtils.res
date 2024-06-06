@@ -67,11 +67,15 @@ let getDictFromJsonObject = json => {
 }
 
 let convertMapObjectToDict = genericTypeMapVal => {
-  open MapTypes
-  let map = create(genericTypeMapVal)
-  let mapIterator = map.entries(.)
-  let dict = object.fromEntries(. mapIterator)->getDictFromJsonObject
-  dict
+  try {
+    open MapTypes
+    let map = create(genericTypeMapVal)
+    let mapIterator = map.entries(.)
+    let dict = object.fromEntries(. mapIterator)->getDictFromJsonObject
+    dict
+  } catch {
+  | _ => genericTypeMapVal
+  }
 }
 
 let removeDuplicate = (arr: array<string>) => {
