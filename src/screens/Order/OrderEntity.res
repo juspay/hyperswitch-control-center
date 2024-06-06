@@ -382,6 +382,9 @@ let defaultColumns: array<colType> = [
   ConnectorTransactionID,
   Amount,
   Status,
+  Description,
+  CardNetwork,
+  Metadata,
   PaymentMethod,
   PaymentMethodType,
   Created,
@@ -407,10 +410,15 @@ let allColumns = [
   PaymentMethodType,
   SetupFutureUsage,
   Status,
+  Metadata,
+  CardNetwork,
 ]
 
 let getHeading = (colType: colType) => {
   switch colType {
+  | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata", ~showSort=false, ())
+  | CardNetwork =>
+    Table.makeHeaderInfo(~key="card_network", ~title="Card Network", ~showSort=false, ())
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID", ~showSort=false, ())
   | MerchantId =>
     Table.makeHeaderInfo(~key="merchant_id", ~title="Merchant ID", ~showSort=false, ())
@@ -767,6 +775,15 @@ let getCell = (order, colType: colType): Table.cell => {
   open HelperComponents
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
+  | Metadata =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        displayValue={order.metadata->JSON.Encode.object->JSON.stringify}
+        customTextCss="text-nowrap"
+      />,
+      "",
+    )
+  | CardNetwork => Text("card network")
   | PaymentId => Text(order.payment_id)
   | MerchantId => Text(order.merchant_id)
   | Connector => CustomCell(<ConnectorCustomCell connectorName={order.connector} />, "")
@@ -910,6 +927,7 @@ let itemToObjMapper = dict => {
       | _ => None
       }
     },
+    card_network: "cardnetwork",
     external_authentication_details: {
       let externalAuthenticationDetails =
         dict->getJsonObjectFromDict("external_authentication_details")
