@@ -221,6 +221,8 @@ module Manual = {
     open LogicUtils
     open ApplePayWalletIntegrationUtils
     open FormRenderer
+    // Need to refactor
+    let _ = ConnectorUtils.updateMetaData(~metaData)
     let configurationFields =
       metadataInputs
       ->getDictfromDict("apple_pay")
