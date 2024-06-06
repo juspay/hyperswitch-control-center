@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.06.1
+
+### Bug Fixes
+
+- Apple pay metadata ([#800](https://github.com/juspay/hyperswitch-control-center/pull/800)) ([`f093c61`](https://github.com/juspay/hyperswitch-control-center/commit/f093c6196e5d45519a5856d857b1eba24b142242))
+
+**Full Changelog:** [`2024.06.06.0...2024.06.06.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.06.0...2024.06.06.1)
+
+- - -
+
 ## 2024.06.06.0
 
 ### Features
