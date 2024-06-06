@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
+export function parse(a: number, b: number, c: number): void;
 export function setForexData(a: number, b: number): void;
 export function convertCurrency(a: number, b: number, c: number, d: number): void;
 export function seedKnowledgeGraph(a: number, b: number): void;
@@ -12,6 +13,7 @@ export function getAllKeys(a: number): void;
 export function getKeyType(a: number, b: number, c: number): void;
 export function getThreeDsKeys(a: number): void;
 export function getSurchargeKeys(a: number): void;
+export function parseToString(a: number, b: number, c: number): void;
 export function getVariantValues(a: number, b: number, c: number): void;
 export function addTwo(a: number, b: number): number;
 export function getDescriptionCategory(a: number): void;
@@ -24,8 +26,6 @@ export function getAllPayoutKeys(a: number): void;
 export function getPayoutVariantValues(a: number, b: number, c: number): void;
 export function getPayoutDescriptionCategory(a: number): void;
 export function ring_core_0_17_8_bn_mul_mont(a: number, b: number, c: number, d: number, e: number, f: number): void;
-export function parse(a: number, b: number, c: number): void;
-export function parseToString(a: number, b: number, c: number): void;
 export function __wbindgen_export_0(a: number, b: number): number;
 export function __wbindgen_export_1(a: number, b: number, c: number, d: number): number;
 export function __wbindgen_add_to_stack_pointer(a: number): number;
