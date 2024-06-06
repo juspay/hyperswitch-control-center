@@ -394,3 +394,29 @@ let getValueMappedForProd = (value, key) => {
   | #SetupProcessor => value->getJsonObjectFromDict(key)
   }
 }
+
+module LowRecoveryCodeBanner = {
+  @react.component
+  let make = (~recovery_codes_left) => {
+    <div className="w-full bg-orange-200 bg-opacity-40 px-6 py-3 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <Icon name="warning-outlined" size=25 />
+        <div className="flex gap-2">
+          {`You are low on recovery-codes. Only`->React.string}
+          <span className="font-bold">
+            {`${recovery_codes_left->Int.toString} left`->React.string}
+          </span>
+        </div>
+      </div>
+      <Button
+        text="Regenerate recovery-codes"
+        buttonType={Secondary}
+        customButtonStyle="!p-2"
+        onClick={_ =>
+          RescriptReactRouter.push(
+            HSwitchGlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
+          )}
+      />
+    </div>
+  }
+}
