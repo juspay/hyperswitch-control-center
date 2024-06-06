@@ -7,12 +7,9 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {setAuthStatus, authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+
   let token = switch authStatus {
-  | LoggedIn(info) =>
-    switch info {
-    | TotpAuth(totpInfo) => totpInfo.token
-    | _ => None
-    }
+  | PreLogin(preLoginInfo) => Some(preLoginInfo.token)
   | _ => None
   }
   let userInfo = async () => {

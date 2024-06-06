@@ -56,6 +56,10 @@ let make = (~children) => {
           }
         }
       }
+    | PreLogin(preLoginInfo) => {
+        setAuth(_ => newAuthStatus)
+        TotpUtils.setTotpAuthResToStorage(preLoginInfo)
+      }
 
     | LoggedOut => {
         setAuth(_ => LoggedOut)

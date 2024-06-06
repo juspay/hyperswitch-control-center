@@ -9,9 +9,15 @@ let make = (~children) => {
   let authLogic = () => {
     open TotpUtils
     let authInfo = getTotputhInfoFromStrorage()
-    switch authInfo.token {
-    | Some(_) => setAuthStatus(LoggedIn(TotpAuth(authInfo)))
-    | None => setAuthStatus(LoggedOut)
+
+    // switch authInfo.token {
+    // | Some(_) => setAuthStatus(PreLogin(TotpUtils.getPreLoginInfo(authInfo)))
+    // | None => setAuthStatus(LoggedOut)
+    // }
+    if authInfo.token->String.length > 0 {
+      setAuthStatus(PreLogin(authInfo))
+    } else {
+      setAuthStatus(LoggedOut)
     }
   }
 
@@ -24,14 +30,12 @@ let make = (~children) => {
       switch tokenFromUrl {
       | Some(token) => {
           let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post, ())
-          setAuthStatus(
-            LoggedIn(TotpAuth(TotpUtils.getTotpAuthInfo(response, ~email_token=Some(token)))),
-          )
+          setAuthStatus(PreLogin(TotpUtils.getPreLoginInfo(response, ~email_token=Some(token))))
         }
       | None => setAuthStatus(LoggedOut)
       }
     } catch {
-    | _ => setAuthStatus(LoggedOut)
+    | _ => ()
     }
   }
 
@@ -53,6 +57,7 @@ let make = (~children) => {
   <div className="font-inter-style">
     {switch authStatus {
     | LoggedOut => <TotpAuthScreen setAuthStatus />
+    | PreLogin(_) => <TotpDecisionScreen />
     | LoggedIn(_token) => children
     | CheckingAuthStatus => <PageLoaderWrapper.ScreenLoader />
     }}

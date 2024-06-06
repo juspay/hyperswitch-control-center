@@ -3,11 +3,7 @@ let make = () => {
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let flowType = switch authStatus {
-  | LoggedIn(info) =>
-    switch info {
-    | TotpAuth(totpInfo) => totpInfo.token_type->TotpUtils.flowTypeStrToVariantMapper
-    | _ => ERROR
-    }
+  | PreLogin(info) => info.token_type->TotpUtils.flowTypeStrToVariantMapperForNewFlow
   | _ => ERROR
   }
 
