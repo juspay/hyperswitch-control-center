@@ -259,9 +259,10 @@ let make = () => {
       // NOTE : added delay to show the QR code after loading animation
       delayTimer()->ignore
     } catch {
-    | _ => ()
-      // setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch!"))
-      // setAuthStatus(LoggedOut)
+    | _ => {
+        setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch!"))
+        setAuthStatus(LoggedOut)
+      }
     }
   }
 
