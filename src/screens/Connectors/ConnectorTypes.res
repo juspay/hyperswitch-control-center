@@ -83,6 +83,7 @@ type processorTypes =
   | HELCIM
   | PLACETOPAY
   | ZSL
+  | MIFINITY
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
