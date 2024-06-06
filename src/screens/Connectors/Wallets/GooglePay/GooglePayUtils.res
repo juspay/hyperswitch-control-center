@@ -6,32 +6,53 @@ let allowedPaymentMethodparameters = {
   allowed_auth_methods: allowedAuthMethod,
   allowed_card_networks: allowedCardNetworks,
 }
-let test = dict => {
-  switch dict->getOptionString("stripe_version") {
-  | Some(_) => {gateway: "STRIPE", stripe_version: dict->getString("stripe_version", "")}
-  | _ => {gateway: "STRIPE"}
+
+let tokenizationSpecificationParameters = (dict, connector) => {
+  open ConnectorUtils
+  open ConnectorTypes
+  Js.log(dict)
+  switch connector->getConnectorNameTypeFromString() {
+  | Processors(STRIPE) => {
+      gateway: connector,
+      stripe_version: dict->getString("stripe_version", ""),
+      stripe_publishableKey: dict->getString("stripe_publishableKey", ""),
+    }
+  | _ => {
+      gateway: connector,
+      gateway_merchant_id: dict->getString("stripe_version", ""),
+    }
   }
-}
-let tokenizationSpecificationParameters = dict => {
-  let d = dict->test
-  d
 }
 let merchantInfo = dict => {
   merchant_id: dict->getOptionString("merchant_id"),
   merchant_name: dict->getOptionString("merchant_name"),
 }
-let tokenizationSpecification = dict => {
+let tokenizationSpecification = (dict, connector) => {
   \"type": "PAYMENT_GATEWAY",
-  parameters: dict->tokenizationSpecificationParameters,
+  parameters: dict->tokenizationSpecificationParameters(connector),
 }
 
-let allowedPaymentMethod = dict => {
+let allowedPaymentMethod = (dict, connector) => {
   \"type": "CARD",
   parameters: allowedPaymentMethodparameters,
-  tokenization_specification: dict->tokenizationSpecification,
+  tokenization_specification: dict->tokenizationSpecification(connector),
 }
 
-let googlePay = dict => {
+let googlePay = (dict, connector: string) => {
   merchant_info: dict->merchantInfo,
-  allowed_payment_methods: [dict->allowedPaymentMethod],
+  allowed_payment_methods: [dict->allowedPaymentMethod(connector)],
+}
+
+let googlePayNameMapper = name => {
+  switch name {
+  | "merchant_id" => `metadata.google_pay.merchant_info.${name}`
+  | "merchant_name" => `metadata.google_pay.merchant_info.${name}`
+  | "gateway" =>
+    `metadata.google_pay.allowed_payment_methods[0].tokenization_specification.parameters.${name}`
+  | "stripe_version" =>
+    `metadata.google_pay.allowed_payment_methods[0].tokenization_specification.parameters.${name}`
+  | "stripe_publishableKey" =>
+    `metadata.google_pay.allowed_payment_methods[0].tokenization_specification.parameters.${name}`
+  | _ => ""
+  }
 }
