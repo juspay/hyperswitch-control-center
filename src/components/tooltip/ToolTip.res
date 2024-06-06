@@ -626,7 +626,7 @@ let make = (
   ~justifyClass="justify-center",
   ~flexClass="flex-col",
   ~height="h-full",
-  ~textStyle="text-fs-11",
+  ~textStyle="text-xs leading-5",
   ~hoverOnToolTip=false,
   ~tooltipArrowSize=5,
   ~visibleOnClick=false,
@@ -666,7 +666,7 @@ let make = (
   let componentWidth = componentRef->getBoundingRectInfo(val => val.width)
   let componentHeight = componentRef->getBoundingRectInfo(val => val.height)
 
-  let tooltipBgClass = "dark:bg-jp-gray-tooltip_bg_dark bg-jp-gray-tooltip_bg_light dark:text-jp-gray-lightgray_background dark:text-opacity-75 text-jp-gray-text_darktheme text-opacity-75"
+  let tooltipBgClass = "bg-white rounded-lg text-opacity-60 shadow-lg ring-1 ring-black ring-opacity-5"
 
   let bgColor = bgColor->LogicUtils.isEmptyString ? tooltipBgClass : bgColor
 
