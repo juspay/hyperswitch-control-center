@@ -74,7 +74,6 @@ type order = {
   payment_method: string,
   payment_method_type: string,
   payment_method_data: option<JSON.t>,
-  card_network: string,
   external_authentication_details: option<JSON.t>,
   payment_token: string,
   shipping: string,
@@ -198,7 +197,6 @@ type colType =
   | CancellationReason
   | ErrorCode
   | ErrorMessage
-  | CardNetwork
   | Metadata
 
 type summaryColType =
