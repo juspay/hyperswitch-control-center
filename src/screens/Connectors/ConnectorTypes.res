@@ -28,6 +28,7 @@ type cashToCodeMthd = [#Classic | #Evoucher]
 
 type processorTypes =
   | ADYEN
+  | ADYENPLATFORM
   | CHECKOUT
   | BRAINTREE
   | BANKOFAMERICA

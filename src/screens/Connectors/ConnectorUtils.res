@@ -20,6 +20,7 @@ let getStepName = step => {
 
 let payoutConnectorList: array<connectorTypes> = [
   Processors(ADYEN),
+  Processors(ADYENPLATFORM),
   Processors(CYBERSOURCE),
   Processors(EBANX),
   Processors(PAYPAL),
@@ -174,6 +175,10 @@ let goCardLessInfo = {
 
 let adyenInfo = {
   description: "Global processor accepting major credit cards, e-wallets, and local payment methods.",
+}
+
+let adyenPlatformInfo = {
+  description: "Send payout to third parties with Adyen's Balance Platform!",
 }
 
 let checkoutInfo = {
@@ -448,6 +453,7 @@ let riskifyedInfo = {
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
+  | ADYENPLATFORM => "adyenplatform"
   | CHECKOUT => "checkout"
   | BRAINTREE => "braintree"
   | AUTHORIZEDOTNET => "authorizedotnet"
@@ -532,6 +538,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | Processor =>
     switch connector {
     | "adyen" => Processors(ADYEN)
+    | "adyenplatform" => Processors(ADYENPLATFORM)
     | "checkout" => Processors(CHECKOUT)
     | "braintree" => Processors(BRAINTREE)
     | "authorizedotnet" => Processors(AUTHORIZEDOTNET)
@@ -608,6 +615,7 @@ let getProcessorInfo = connector => {
   switch connector {
   | STRIPE => stripeInfo
   | ADYEN => adyenInfo
+  | ADYENPLATFORM => adyenPlatformInfo
   | GOCARDLESS => goCardLessInfo
   | CHECKOUT => checkoutInfo
   | BRAINTREE => braintreeInfo
@@ -1367,6 +1375,7 @@ let getProcessorsListFromJson = (
 let getDisplayNameForProcessor = connector =>
   switch connector {
   | ADYEN => "Adyen"
+  | ADYENPLATFORM => "Adyen Platform"
   | CHECKOUT => "Checkout"
   | BRAINTREE => "Braintree"
   | BILLWERK => "Billwerk"

@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.06.0
+
+### Features
+
+- Adyenplatform integ ([#787](https://github.com/juspay/hyperswitch-control-center/pull/787)) ([`336be2e`](https://github.com/juspay/hyperswitch-control-center/commit/336be2e824835a7341610e2c29b51b1b672d85cd))
+
+**Full Changelog:** [`2024.06.05.2...2024.06.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.05.2...2024.06.06.0)
+
+- - -
+
 ## 2024.06.05.2
 
 ### Miscellaneous Tasks
