@@ -298,10 +298,6 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       // TODO: When BE changes the response of this api re-evaluate the below conditions
       if featureFlagDetails.totp {
         let responseDict = res->getDictFromJsonObject
-        responseDict->Dict.set(
-          "token_type",
-          DASHBOARD_ENTRY->TotpUtils.variantToStringFlowMapper->JSON.Encode.string,
-        )
         setAuthStatus(
           LoggedIn(TotpAuth(TotpUtils.getTotpAuthInfo(responseDict->JSON.Encode.object))),
         )

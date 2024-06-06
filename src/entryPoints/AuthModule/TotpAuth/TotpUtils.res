@@ -4,7 +4,6 @@ let flowTypeStrToVariantMapper = val => {
   switch val {
   // old types
   | Some("merchant_select") => MERCHANT_SELECT
-  | Some("dashboard_entry") => DASHBOARD_ENTRY
 
   | Some("totp") => TOTP
 
@@ -29,7 +28,6 @@ let flowTypeStrToVariantMapperForNewFlow = val => {
   switch val {
   // old types
   | "merchant_select" => MERCHANT_SELECT
-  | "dashboard_entry" => DASHBOARD_ENTRY
   | "totp" => TOTP
   // rotate password
   | "force_set_password" => FORCE_SET_PASSWORD
@@ -46,7 +44,6 @@ let flowTypeStrToVariantMapperForNewFlow = val => {
 
 let variantToStringFlowMapper = val => {
   switch val {
-  | DASHBOARD_ENTRY => "dashboard_entry"
   | MERCHANT_SELECT => "merchant_select"
   | TOTP => "totp"
   | FORCE_SET_PASSWORD => "force_set_password"
@@ -113,10 +110,16 @@ let setTotpAuthResToStorage = json => {
   LocalStorage.setItem("USER_INFO", json->JSON.stringifyAny->Option.getOr(""))
 }
 
-let getTotputhInfoFromStrorage = () => {
+let getTotpPreLoginInfoFromStorage = () => {
   open LogicUtils
   let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
   json->getPreLoginInfo
+}
+
+let getTotpAuthInfoFromStrorage = () => {
+  open LogicUtils
+  let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
+  json->getTotpAuthInfo
 }
 
 let getEmailToken = (authStatus: AuthProviderTypes.authStatus) => {

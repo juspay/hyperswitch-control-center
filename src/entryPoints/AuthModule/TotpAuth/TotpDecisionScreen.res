@@ -22,7 +22,6 @@ let make = () => {
   | ACCEPT_INVITATION_FROM_EMAIL => <TotpAcceptInviteScreen />
   | VERIFY_EMAIL => <TotpEmailVerifyScreen />
   | USER_INFO => <TotpUserInfoScreen />
-  | DASHBOARD_ENTRY => <HyperSwitchApp />
   | ERROR => <CommonAuthError onClick=onClickErrorPageButton />
   }
 }

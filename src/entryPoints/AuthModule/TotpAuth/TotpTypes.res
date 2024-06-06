@@ -1,6 +1,5 @@
 type totpFlowType =
   | MERCHANT_SELECT
-  | DASHBOARD_ENTRY
   | TOTP
   | FORCE_SET_PASSWORD
   | ACCEPT_INVITE

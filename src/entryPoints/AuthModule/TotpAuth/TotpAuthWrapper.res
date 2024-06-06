@@ -8,9 +8,18 @@ let make = (~children) => {
 
   let authLogic = () => {
     open TotpUtils
-    let authInfo = getTotputhInfoFromStrorage()
-    if authInfo.token->String.length > 0 {
-      setAuthStatus(PreLogin(authInfo))
+    open LogicUtils
+    let preLoginInfo = getTotpPreLoginInfoFromStorage()
+    let loggedInInfo = getTotpAuthInfoFromStrorage()
+
+    if (
+      loggedInInfo.token->isNonEmptyString &&
+      loggedInInfo.merchant_id->isNonEmptyString &&
+      loggedInInfo.email->isNonEmptyString
+    ) {
+      setAuthStatus(LoggedIn(TotpAuth(loggedInInfo)))
+    } else if preLoginInfo.token->isNonEmptyString && preLoginInfo.token_type->isNonEmptyString {
+      setAuthStatus(PreLogin(preLoginInfo))
     } else {
       setAuthStatus(LoggedOut)
     }

@@ -14,14 +14,12 @@ let make = () => {
   }
   let userInfo = async () => {
     open LogicUtils
-    open TotpTypes
-    open TotpUtils
+
     try {
       let url = getURL(~entityName=USERS, ~userType=#USER_INFO, ~methodType=Get, ())
       let response = await fetchDetails(url)
       let dict = response->getDictFromJsonObject
       dict->setOptionString("token", token)
-      dict->Dict.set("token_type", DASHBOARD_ENTRY->variantToStringFlowMapper->JSON.Encode.string)
       let info = TotpUtils.getTotpAuthInfo(dict->JSON.Encode.object)
       setAuthStatus(LoggedIn(TotpAuth(info)))
       setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
