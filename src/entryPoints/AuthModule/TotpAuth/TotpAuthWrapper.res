@@ -39,7 +39,7 @@ let make = (~children) => {
       | None => setAuthStatus(LoggedOut)
       }
     } catch {
-    | _ => ()
+    | _ => setAuthStatus(LoggedOut)
     }
   }
 
