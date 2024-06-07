@@ -3,6 +3,46 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.07.0
+
+### Features
+
+- Mifinity connector addition ([#798](https://github.com/juspay/hyperswitch-control-center/pull/798)) ([`230f2a1`](https://github.com/juspay/hyperswitch-control-center/commit/230f2a16d55d2b378d6d45358e5f82313d532eeb))
+
+**Full Changelog:** [`2024.06.06.2...2024.06.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.06.2...2024.06.07.0)
+
+- - -
+
+## 2024.06.06.2
+
+### Bug Fixes
+
+- Apple pay map type ([#801](https://github.com/juspay/hyperswitch-control-center/pull/801)) ([`7da9f5b`](https://github.com/juspay/hyperswitch-control-center/commit/7da9f5b0fd8ac248f32ba105d9d729c1db004ac8))
+
+**Full Changelog:** [`2024.06.06.1...2024.06.06.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.06.1...2024.06.06.2)
+
+- - -
+
+## 2024.06.06.1
+
+### Bug Fixes
+
+- Apple pay metadata ([#800](https://github.com/juspay/hyperswitch-control-center/pull/800)) ([`f093c61`](https://github.com/juspay/hyperswitch-control-center/commit/f093c6196e5d45519a5856d857b1eba24b142242))
+
+**Full Changelog:** [`2024.06.06.0...2024.06.06.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.06.0...2024.06.06.1)
+
+- - -
+
+## 2024.06.06.0
+
+### Features
+
+- Adyenplatform integ ([#787](https://github.com/juspay/hyperswitch-control-center/pull/787)) ([`336be2e`](https://github.com/juspay/hyperswitch-control-center/commit/336be2e824835a7341610e2c29b51b1b672d85cd))
+
+**Full Changelog:** [`2024.06.05.2...2024.06.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.05.2...2024.06.06.0)
+
+- - -
+
 ## 2024.06.05.2
 
 ### Miscellaneous Tasks
