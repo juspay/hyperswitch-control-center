@@ -391,8 +391,9 @@ let make = (
     None
   }, [initialIndex])
 
-  let _ = React.useMemo1(_ => {
+  React.useEffect1(_ => {
     setCollapsibleTabs(_ => updatedCollapsableTabs)
+    None
   }, [updatedCollapsableTabs])
 
   // this will update the current available tabs to the userpreference

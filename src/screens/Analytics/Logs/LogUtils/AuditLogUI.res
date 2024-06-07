@@ -10,7 +10,7 @@ module LogDetailsSection = {
       }
     }
 
-    <div className="border-border-light-grey pb-3 px-5 py-3">
+    <div className="pb-3 px-5 py-3">
       {logDetails.data
       ->Dict.toArray
       ->Array.filter(item => {
@@ -146,8 +146,9 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     }
   }, [setActiveTab])
 
-  let _ = React.useMemo1(_ => {
+  React.useEffect1(_ => {
     setCollapseTab(prev => !prev)
+    None
   }, [logDetails])
 
   let getDetails = async () => {
