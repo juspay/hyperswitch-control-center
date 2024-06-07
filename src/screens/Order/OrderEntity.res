@@ -772,13 +772,7 @@ let getCell = (order, colType: colType): Table.cell => {
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
   | Metadata =>
-    CustomCell(
-      <HelperComponents.CopyTextCustomComp
-        displayValue={order.metadata->JSON.Encode.object->JSON.stringify}
-        customTextCss="text-nowrap"
-      />,
-      "",
-    )
+    CustomCell(<Metadata displayValue={order.metadata->JSON.Encode.object->JSON.stringify} />, "")
   | PaymentId => Text(order.payment_id)
   | MerchantId => Text(order.merchant_id)
   | Connector => CustomCell(<ConnectorCustomCell connectorName={order.connector} />, "")
