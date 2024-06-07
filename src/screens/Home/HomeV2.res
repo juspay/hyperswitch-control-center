@@ -420,12 +420,11 @@ let make = () => {
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let authValues =
-    CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
+  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  let recovery_codes_left = switch authValues.recovery_codes_left {
-  | Some(codesLeft) => codesLeft
-  | None => 8
+  let recovery_codes_left = switch authStatus {
+  | LoggedIn(TotpAuth(totpInfo)) => totpInfo.recovery_codes_left
+  | _ => HSwitchGlobalVars.maximumRecoveryCodes
   }
 
   <div className="w-full flex flex-col gap-6">

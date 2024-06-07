@@ -4,8 +4,6 @@ type commonAuthInfo = {
   name: string,
   email: string,
   user_role: string,
-  is_two_factor_auth_setup?: bool,
-  recovery_codes_left?: int,
 }
 
 type authorization = NoAccess | Access

@@ -5,11 +5,11 @@ let make = () => {
   let greeting = getGreeting()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let authValues =
-    CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
-  let recovery_codes_left = switch authValues.recovery_codes_left {
-  | Some(codesLeft) => codesLeft
-  | None => 8
+  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+
+  let recovery_codes_left = switch authStatus {
+  | LoggedIn(TotpAuth(totpInfo)) => totpInfo.recovery_codes_left
+  | _ => HSwitchGlobalVars.maximumRecoveryCodes
   }
 
   <div className="w-full gap-8 flex flex-col">

@@ -82,7 +82,11 @@ let getTotpAuthInfo = (~email_token=None, json) => {
     token: getString(dict, "token", ""),
     role_id: getString(dict, "role_id", ""),
     is_two_factor_auth_setup: getBool(dict, "is_two_factor_auth_setup", false),
-    recovery_codes_left: getInt(dict, "recovery_codes_left", 8),
+    recovery_codes_left: getInt(
+      dict,
+      "recovery_codes_left",
+      HSwitchGlobalVars.maximumRecoveryCodes,
+    ),
   }
   switch email_token {
   | Some(emailTk) => emailTk->storeEmailTokenTmp
