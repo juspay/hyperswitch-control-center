@@ -220,7 +220,7 @@ let make = () => {
         )}?skip_two_factor_auth=${skip_2fa->getStringFromBool}`
 
       let response = await fetchDetails(url)
-      setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(response))))
+      setAuthStatus(PreLogin(getPreLoginInfo(response)))
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")

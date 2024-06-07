@@ -50,3 +50,5 @@ let urlToDownloadApplePayCertificate = switch hostType {
 }
 
 let agreementVersion = "2.0.0"
+
+let maximumRecoveryCodes = 8

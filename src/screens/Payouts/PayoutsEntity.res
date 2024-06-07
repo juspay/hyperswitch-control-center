@@ -42,6 +42,8 @@ type payouts = {
   error_code: string,
   profile_id: string,
   created: string,
+  connector_transaction_id: string,
+  priority: string,
   attempts: array<payoutAttempts>,
 }
 
@@ -96,6 +98,26 @@ let statusVariantMapper: string => status = statusLabel =>
   | "requires_creation"
   | _ =>
     None
+  }
+
+type priority =
+  | Instant
+  | Fast
+  | Regular
+  | Wire
+  | CrossBorder
+  | Internal
+  | None
+
+let priorityVariantMapper: string => priority = priorityLabel =>
+  switch priorityLabel {
+  | "instant" => Instant
+  | "fast" => Fast
+  | "regular" => Regular
+  | "wire" => Wire
+  | "crossBorder" => CrossBorder
+  | "internal" => Internal
+  | _ => None
   }
 
 let getAttemptHeading = colType => {
@@ -198,8 +220,10 @@ type payoutsColType =
   | ErrorCode
   | ProfileId
   | Created
+  | ConnectorTransactionId
+  | SendPriority
 
-let defaultColumns = [PayoutId, Connector, Amount, Status, CustomerId, Created]
+let defaultColumns = [PayoutId, Connector, Amount, Status, ConnectorTransactionId, Created]
 let allColumns = [
   PayoutId,
   MerchantId,
@@ -207,6 +231,7 @@ let allColumns = [
   Currency,
   Connector,
   PayoutType,
+  SendPriority,
   Billing,
   CustomerId,
   AutoFulfill,
@@ -226,6 +251,7 @@ let allColumns = [
   ErrorCode,
   ProfileId,
   Created,
+  ConnectorTransactionId,
 ]
 
 let useGetStatus = order => {
@@ -298,6 +324,16 @@ let getHeading = colType => {
     Table.makeHeaderInfo(~key="Entity_type", ~title="Entity Type", ~showSort=false, ())
   | Recurring => Table.makeHeaderInfo(~key="Recurring", ~title="Recurring", ~showSort=false, ())
   | ErrorCode => Table.makeHeaderInfo(~key="ErrorCode", ~title="ErrorCode", ~showSort=false, ())
+  | ConnectorTransactionId =>
+    Table.makeHeaderInfo(
+      ~key="ConnectorTransactionId",
+      ~title="Connector Transaction ID",
+      ~showSort=false,
+      (),
+    )
+
+  | SendPriority =>
+    Table.makeHeaderInfo(~key="SendPriority", ~title="Send Priority", ~showSort=false, ())
   }
 }
 
@@ -334,7 +370,7 @@ let getCell = (payoutData, colType): Table.cell => {
       | _ => LabelLightBlue
       },
     })
-  | CustomerId => Text(payoutData.customer_id)
+  | CustomerId => DisplayCopyCell(payoutData.customer_id)
   | Created => Date(payoutData.created)
   | PayoutType => Text(payoutData.payout_type)
   | Billing => Text(payoutData.billing)
@@ -349,6 +385,19 @@ let getCell = (payoutData, colType): Table.cell => {
   | Entity_type => Text(payoutData.entity_type)
   | Recurring => Text(payoutData.recurring->getStringFromBool)
   | ErrorCode => Text(payoutData.error_code)
+  | ConnectorTransactionId => DisplayCopyCell(payoutData.connector_transaction_id)
+  | SendPriority =>
+    switch payoutData.priority->priorityVariantMapper {
+    | None => Text(payoutData.priority)
+    | priorityVariants =>
+      Label({
+        title: payoutData.priority->String.toUpperCase,
+        color: switch priorityVariants {
+        | Instant => LabelBlue
+        | _ => LabelOrange
+        },
+      })
+    }
   }
 }
 
@@ -398,6 +447,8 @@ let itemToObjMapper = dict => {
     error_code: getString(dict, "error_code", ""),
     profile_id: getString(dict, "profile_id", ""),
     created: getString(dict, "created", ""),
+    connector_transaction_id: getString(dict, "connector_transaction_id", ""),
+    priority: getString(dict, "priority", ""),
     attempts: dict->getArrayFromDict("attempts", [])->Array.map(itemToObjMapperAttempts),
   }
 }

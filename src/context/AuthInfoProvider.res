@@ -40,21 +40,21 @@ let make = (~children) => {
           }
         }
       | TotpAuth(totpInfo) =>
-        switch totpInfo.token {
-        | Some(token) =>
-          if !(token->LogicUtils.isEmptyString) {
-            setAuth(_ => newAuthStatus)
-            TotpUtils.setTotpAuthResToStorage(totpInfo)
-          } else {
-            setAuth(_ => LoggedOut)
-            CommonAuthUtils.clearLocalStorage()
-          }
-
-        | None => {
-            setAuth(_ => LoggedOut)
-            CommonAuthUtils.clearLocalStorage()
-          }
+        if !(totpInfo.token->LogicUtils.isEmptyString) {
+          setAuth(_ => newAuthStatus)
+          TotpUtils.setTotpAuthResToStorage(totpInfo)
+        } else {
+          setAuth(_ => LoggedOut)
+          CommonAuthUtils.clearLocalStorage()
         }
+      }
+    | PreLogin(preLoginInfo) =>
+      if !(preLoginInfo.token->LogicUtils.isEmptyString) {
+        setAuth(_ => newAuthStatus)
+        TotpUtils.setTotpAuthResToStorage(preLoginInfo)
+      } else {
+        setAuth(_ => LoggedOut)
+        CommonAuthUtils.clearLocalStorage()
       }
 
     | LoggedOut => {

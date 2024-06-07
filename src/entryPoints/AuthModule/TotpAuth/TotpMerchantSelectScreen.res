@@ -37,7 +37,7 @@ let make = () => {
       })
       let body = [("merchant_ids", acceptedMerchantIds->JSON.Encode.array)]->getJsonFromArrayOfJson
       let res = await updateDetails(url, body, Post, ())
-      setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(res))))
+      setAuthStatus(PreLogin(getPreLoginInfo(res)))
     } catch {
     | _ => ()
     }

@@ -423,21 +423,14 @@ let make = () => {
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let recovery_codes_left = switch authStatus {
-  | LoggedIn(info) =>
-    switch info {
-    | TotpAuth(totpAuthInfo) => totpAuthInfo.recovery_codes_left
-    | _ => None
-    }
-  | _ => None
+  | LoggedIn(TotpAuth(totpInfo)) => totpInfo.recovery_codes_left
+  | _ => HSwitchGlobalVars.maximumRecoveryCodes
   }
 
   <div className="w-full flex flex-col gap-6">
     <div className="flex flex-col gap-4">
-      <UIUtils.RenderIf
-        condition={featureFlagDetails.totp &&
-        recovery_codes_left->Option.isSome &&
-        recovery_codes_left->Option.getOr(8) < 3}>
-        <LowRecoveryCodeBanner recovery_codes_left={recovery_codes_left->Option.getOr(8)} />
+      <UIUtils.RenderIf condition={featureFlagDetails.totp && recovery_codes_left < 3}>
+        <LowRecoveryCodeBanner recovery_codes_left />
       </UIUtils.RenderIf>
       <AcceptInviteHome />
     </div>
