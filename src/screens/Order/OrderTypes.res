@@ -197,6 +197,7 @@ type colType =
   | CancellationReason
   | ErrorCode
   | ErrorMessage
+  | Metadata
 
 type summaryColType =
   | Created

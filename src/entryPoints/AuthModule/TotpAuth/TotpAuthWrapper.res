@@ -8,10 +8,20 @@ let make = (~children) => {
 
   let authLogic = () => {
     open TotpUtils
-    let authInfo = getTotputhInfoFromStrorage()
-    switch authInfo.token {
-    | Some(_) => setAuthStatus(LoggedIn(TotpAuth(authInfo)))
-    | None => setAuthStatus(LoggedOut)
+    open LogicUtils
+    let preLoginInfo = getTotpPreLoginInfoFromStorage()
+    let loggedInInfo = getTotpAuthInfoFromStrorage()
+
+    if (
+      loggedInInfo.token->isNonEmptyString &&
+      loggedInInfo.merchant_id->isNonEmptyString &&
+      loggedInInfo.email->isNonEmptyString
+    ) {
+      setAuthStatus(LoggedIn(TotpAuth(loggedInInfo)))
+    } else if preLoginInfo.token->isNonEmptyString && preLoginInfo.token_type->isNonEmptyString {
+      setAuthStatus(PreLogin(preLoginInfo))
+    } else {
+      setAuthStatus(LoggedOut)
     }
   }
 
@@ -24,9 +34,7 @@ let make = (~children) => {
       switch tokenFromUrl {
       | Some(token) => {
           let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post, ())
-          setAuthStatus(
-            LoggedIn(TotpAuth(TotpUtils.getTotpAuthInfo(response, ~email_token=Some(token)))),
-          )
+          setAuthStatus(PreLogin(TotpUtils.getPreLoginInfo(response, ~email_token=Some(token))))
         }
       | None => setAuthStatus(LoggedOut)
       }
@@ -53,6 +61,7 @@ let make = (~children) => {
   <div className="font-inter-style">
     {switch authStatus {
     | LoggedOut => <TotpAuthScreen setAuthStatus />
+    | PreLogin(_) => <TotpDecisionScreen />
     | LoggedIn(_token) => children
     | CheckingAuthStatus => <PageLoaderWrapper.ScreenLoader />
     }}

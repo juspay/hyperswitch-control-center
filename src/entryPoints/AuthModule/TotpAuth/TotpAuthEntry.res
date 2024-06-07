@@ -3,7 +3,7 @@ let make = () => {
   <AuthInfoProvider>
     <TotpAuthWrapper>
       <GlobalProvider>
-        <TotpDecisionScreen />
+        <HyperSwitchApp />
       </GlobalProvider>
     </TotpAuthWrapper>
   </AuthInfoProvider>

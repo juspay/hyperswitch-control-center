@@ -749,6 +749,56 @@ let make = (~id) => {
             />
           </div>
         </UIUtils.RenderIf>
+        <RenderAccordian
+          accordion={[
+            {
+              title: "More Payment Details",
+              renderContent: () => {
+                <div className="mb-10">
+                  <ShowOrderDetails
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[
+                      FirstName,
+                      LastName,
+                      Phone,
+                      Email,
+                      CustomerId,
+                      Description,
+                      Shipping,
+                      Billing,
+                      BillingEmail,
+                      AmountCapturable,
+                      ErrorCode,
+                      MandateData,
+                      MerchantId,
+                      ReturnUrl,
+                      OffSession,
+                      CaptureOn,
+                      NextAction,
+                      SetupFutureUsage,
+                      CancellationReason,
+                      StatementDescriptorName,
+                      StatementDescriptorSuffix,
+                      PaymentExperience,
+                      FRMName,
+                      FRMTransactionType,
+                      FRMStatus,
+                    ]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                </div>
+              },
+              renderContentOnTop: None,
+            },
+          ]}
+        />
         <div className="overflow-scroll">
           <RenderAccordian
             accordion={[
@@ -819,56 +869,6 @@ let make = (~id) => {
             ]}
           />
         </UIUtils.RenderIf>
-        <RenderAccordian
-          accordion={[
-            {
-              title: "More Payment Details",
-              renderContent: () => {
-                <div className="mb-10">
-                  <ShowOrderDetails
-                    data=orderData
-                    getHeading=OrderEntity.getHeadingForOtherDetails
-                    getCell=OrderEntity.getCellForOtherDetails
-                    detailsFields=[
-                      FirstName,
-                      LastName,
-                      Phone,
-                      Email,
-                      CustomerId,
-                      Description,
-                      Shipping,
-                      Billing,
-                      BillingEmail,
-                      AmountCapturable,
-                      ErrorCode,
-                      MandateData,
-                      MerchantId,
-                      ReturnUrl,
-                      OffSession,
-                      CaptureOn,
-                      NextAction,
-                      SetupFutureUsage,
-                      CancellationReason,
-                      StatementDescriptorName,
-                      StatementDescriptorSuffix,
-                      PaymentExperience,
-                      FRMName,
-                      FRMTransactionType,
-                      FRMStatus,
-                    ]
-                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
-                    paymentStatus={orderData.status}
-                    openRefundModal={() => ()}
-                    widthClass="md:w-1/4 w-full"
-                    paymentId={orderData.payment_id}
-                    border=""
-                  />
-                </div>
-              },
-              renderContentOnTop: None,
-            },
-          ]}
-        />
       </div>
     </PageLoaderWrapper>
   </div>
