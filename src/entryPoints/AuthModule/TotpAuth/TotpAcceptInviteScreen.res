@@ -19,7 +19,7 @@ let make = () => {
         (),
       )
       let res = await updateDetails(url, body, Post, ())
-      setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(res))))
+      setAuthStatus(PreLogin(getPreLoginInfo(res)))
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Verification Failed")

@@ -45,10 +45,11 @@ let useApiFetcher = () => {
 
   let token = React.useMemo1(() => {
     switch authStatus {
+    | PreLogin(info) => Some(info.token)
     | LoggedIn(info) =>
       switch info {
       | BasicAuth(basicInfo) => basicInfo.token
-      | TotpAuth(totpInfo) => totpInfo.token
+      | TotpAuth(totpInfo) => Some(totpInfo.token)
       }
     | _ => None
     }
