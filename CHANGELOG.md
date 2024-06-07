@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.07.1
+
+### Bug Fixes
+
+- Removed required fields for metadata cybersource ([#803](https://github.com/juspay/hyperswitch-control-center/pull/803)) ([`7a145c9`](https://github.com/juspay/hyperswitch-control-center/commit/7a145c9a3808543e976a499c019b64ca27971b48))
+
+### Refactors
+
+- Auth refactor ([#791](https://github.com/juspay/hyperswitch-control-center/pull/791)) ([`931d8f0`](https://github.com/juspay/hyperswitch-control-center/commit/931d8f0018db963c7c93902d37151f339cf62653))
+
+### Miscellaneous Tasks
+
+- Date range change ([#796](https://github.com/juspay/hyperswitch-control-center/pull/796)) ([`b738629`](https://github.com/juspay/hyperswitch-control-center/commit/b7386297d2bbebcc1417aa4ede1591247bc54d43))
+
+**Full Changelog:** [`2024.06.07.0...2024.06.07.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.07.0...2024.06.07.1)
+
+- - -
+
 ## 2024.06.07.0
 
 ### Features
