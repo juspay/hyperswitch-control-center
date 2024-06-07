@@ -29,18 +29,13 @@ module ToggleSwitch = {
 module FormField = {
   open FRMTypes
   open FRMInfo
-  open LogicUtils
-  open FRMUtils
   @react.component
   let make = (
     ~fromConfigIndex,
     ~paymentMethodIndex,
     ~options,
     ~label,
-    ~paymentMethodInfo,
-    ~frmConfigs,
     ~sectionType,
-    ~setConfigJson,
     ~description,
   ) => {
     <div className="w-max">
@@ -205,12 +200,9 @@ module CheckBoxRenderer = {
                     <FormField
                       options={flowTypeAllOptions}
                       label="Choose one of the flows"
-                      paymentMethodInfo
                       fromConfigIndex
                       paymentMethodIndex={index->Int.toString}
-                      frmConfigs
                       sectionType={FlowType}
-                      setConfigJson
                       description="i. \"PreAuth\" - facilitate transaction verification prior to payment authorization.
                         ii. \"PostAuth\" - facilitate transaction validation post-authorization, before amount capture."
                     />
