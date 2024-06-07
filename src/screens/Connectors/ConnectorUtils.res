@@ -973,10 +973,14 @@ let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) =>
 let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(BLUESNAP), "merchant_id") => false
-  | (Processors(CHECKOUT), "acquirer_bin") | (Processors(NMI), "acquirer_bin") => false
+  | (Processors(CHECKOUT), "acquirer_bin")
+  | (Processors(NMI), "acquirer_bin")
+  | (Processors(CYBERSOURCE), "acquirer_bin") => false
   | (Processors(CHECKOUT), "acquirer_merchant_id")
-  | (Processors(NMI), "acquirer_merchant_id") => false
+  | (Processors(NMI), "acquirer_merchant_id")
+  | (Processors(CYBERSOURCE), "acquirer_merchant_id") => false
   | (Processors(PAYPAL), "paypal_sdk") => false
+  | (Processors(CYBERSOURCE), "acquirer_country_code") => false
   | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") => false
   | _ => true
   }
