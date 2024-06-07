@@ -7,22 +7,12 @@ module PmtConfigInp = {
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ev => (),
-      // onChange: ev => {
-      //   let value = ev->Identity.formReactEventToArrayOfString
-      //   Js.log2(value, "value")
-      //   // valueField.onChange(default->Identity.anyTypeToReactEvent)
-      // enabledList.onChange(value->Identity.anyTypeToReactEvent)
-      // },
-      onChange: ev => {
-        let value = ev->Identity.formReactEventToString
-        Js.log(value)
+      onChange: (ev: ReactEvent.Form.t) => {
+        let value = {ev->ReactEvent.Form.target}["value"]
         enabledList.onChange(value->Identity.anyTypeToReactEvent)
-        Js.log(enabledList.value)
-        // let dict = [("stripe_version", enabledList.value)]->Dict.fromArray
-        // let updated = GooglePayUtils.googlePay(dict, "stripe")
-        // Js.log2(updated, "updated")
-        // valueField.onChange(updated->Identity.anyTypeToReactEvent)
-        // Js.log(value)
+        let dict = [("stripe_publishableKey", value)]->Dict.fromArray
+        let updated = GooglePayUtils.googlePay(dict, "stripe")
+        valueField.onChange(updated->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
       value: enabledList.value,
@@ -49,18 +39,6 @@ let valueInput = () => {
     (),
   )
 }
-
-// let test = () => {
-//   let apiName = FormRenderer.makeFieldInfo(
-//     ~label="Name",
-//     ~name="name",
-//     ~placeholder="Name",
-//     ~customInput=InputFields.textInput(),
-//     ~isRequired=true,
-//     (),
-//   )
-//   apiName
-// }
 
 @react.component
 let make = () => {
