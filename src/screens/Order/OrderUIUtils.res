@@ -279,7 +279,7 @@ let initialFixedFilter = () => [
           ~predefinedDays=[Today, Yesterday, Day(2.0), Day(7.0), Day(30.0), ThisMonth, LastMonth],
           ~numMonths=2,
           ~disableApply=false,
-          ~dateRangeLimit=60,
+          ~dateRangeLimit=180,
           (),
         ),
         ~inputFields=[],

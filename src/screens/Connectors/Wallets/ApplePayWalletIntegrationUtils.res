@@ -72,11 +72,43 @@ let constructVerifyApplePayReq = (values, connectorID) => {
   (body, domainName)
 }
 
-type customApplePayFields = [#merchant_business_country | #other]
+type customApplePayFields = [#merchant_business_country | #payment_processing_details_at | #other]
+type paymentProcessingState = [#Connector | #Hyperswitch]
 
 let customApplePlayFields = field => {
   switch field {
   | "merchant_business_country" => #merchant_business_country
+  | "payment_processing_details_at" => #payment_processing_details_at
   | _ => #other
   }
+}
+
+let paymentProcessingMapper = state => {
+  switch state->String.toLowerCase {
+  | "connector" => #Connector
+  | "hyperswitch" => #Hyperswitch
+  | _ => #Connector
+  }
+}
+
+let paymentProcessingAtField = (~name, ~label, ~options, ~setProcessingAt) => {
+  FormRenderer.makeFieldInfo(
+    ~name,
+    ~label,
+    ~customInput=(~input) =>
+      InputFields.radioInput(
+        ~input={
+          ...input,
+          onChange: event => {
+            setProcessingAt(_ => event->Identity.formReactEventToString->paymentProcessingMapper)
+            input.onChange(event)
+          },
+        },
+        ~options=options->SelectBox.makeOptions,
+        ~buttonText="",
+        ~isHorizontal=true,
+        (),
+      ),
+    (),
+  )
 }

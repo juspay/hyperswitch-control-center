@@ -221,8 +221,17 @@ module Manual = {
     open LogicUtils
     open ApplePayWalletIntegrationUtils
     open FormRenderer
+    // Need to refactor
+    let _ = ConnectorUtils.updateMetaData(~metaData)
+    //
+    let (processingAt, setProcessingAt) = React.useState(_ => #Connector)
     let configurationFields =
-      metadataInputs->getDictfromDict("apple_pay")->getDictfromDict("session_token_data")
+      metadataInputs
+      ->getDictfromDict("apple_pay")
+      ->getDictfromDict("session_token_data")
+      ->JSON.Encode.object
+      ->Identity.jsonToAnyType
+      ->convertMapObjectToDict
     let namePrefix = `apple_pay_combined.manual.session_token_data`
     let fields = {
       configurationFields
@@ -230,10 +239,55 @@ module Manual = {
       ->Array.mapWithIndex((field, index) => {
         switch field->customApplePlayFields {
         | #merchant_business_country =>
-          <FieldRenderer
-            labelClass="font-semibold !text-hyperswitch_black"
-            field={countryInput(~id={`${namePrefix}.${field}`}, ~options=merchantBusinessCountry)}
-          />
+          <div key={index->Int.toString}>
+            <FieldRenderer
+              labelClass="font-semibold !text-hyperswitch_black"
+              field={countryInput(~id={`${namePrefix}.${field}`}, ~options=merchantBusinessCountry)}
+            />
+          </div>
+        | #payment_processing_details_at =>
+          <div>
+            <FormRenderer.FieldRenderer
+              labelClass="font-semibold !text-hyperswitch_black"
+              field={paymentProcessingAtField(
+                ~name=`${namePrefix}.payment_processing_details_at`,
+                ~label="Processing Details At",
+                ~options=[
+                  (#Connector: paymentProcessingState :> string),
+                  (#Hyperswitch: paymentProcessingState :> string),
+                ],
+                ~setProcessingAt,
+              )}
+            />
+            {switch processingAt {
+            | #Hyperswitch =>
+              <div>
+                <FormRenderer.FieldRenderer
+                  labelClass="font-semibold !text-hyperswitch_black"
+                  field={FormRenderer.makeFieldInfo(
+                    ~label="Payment Processing Certificate",
+                    ~name={`${namePrefix}.payment_processing_certificate`},
+                    ~placeholder={`Enter Processing Certificate`},
+                    ~customInput=InputFields.textInput(),
+                    ~isRequired=true,
+                    (),
+                  )}
+                />
+                <FormRenderer.FieldRenderer
+                  labelClass="font-semibold !text-hyperswitch_black"
+                  field={FormRenderer.makeFieldInfo(
+                    ~label="Payment Processing Key",
+                    ~name={`${namePrefix}.payment_processing_certificate_key`},
+                    ~placeholder={`Enter Processing Key`},
+                    ~customInput=InputFields.textInput(),
+                    ~isRequired=true,
+                    (),
+                  )}
+                />
+              </div>
+            | _ => React.null
+            }}
+          </div>
         | _ => {
             let label = configurationFields->getString(field, "")
             <div key={index->Int.toString}>

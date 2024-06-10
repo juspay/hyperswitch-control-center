@@ -27,7 +27,8 @@ let make = (~children) => {
   <div className="font-inter-style">
     {switch authStatus {
     | LoggedOut => <BasicAuthScreen />
-    | LoggedIn(_token) => children
+    | PreLogin(_)
+    | LoggedIn(_) => children
     | CheckingAuthStatus => <Loader />
     }}
   </div>
