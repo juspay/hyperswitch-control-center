@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.10.0
+
+### Miscellaneous Tasks
+
+- Add processed amount ([#809](https://github.com/juspay/hyperswitch-control-center/pull/809)) ([`d75d4b1`](https://github.com/juspay/hyperswitch-control-center/commit/d75d4b17b65e398b24fb87f6e4b37095eb427b55))
+
+**Full Changelog:** [`2024.06.09.0...2024.06.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.09.0...2024.06.10.0)
+
+- - -
+
 ## 2024.06.09.0
 
 ### Miscellaneous Tasks
