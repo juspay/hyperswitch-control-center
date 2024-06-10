@@ -1,5 +1,6 @@
 @react.component
 let make = (~displayValue) => {
+  open UIUtils
   let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
 
   let handleClick = ev => {
@@ -8,18 +9,18 @@ let make = (~displayValue) => {
   }
 
   <div>
-    <UIUtils.RenderIf condition={isTextVisible == true}>
+    <RenderIf condition={isTextVisible}>
       <div>
         <HelperComponents.CopyTextCustomComp displayValue customTextCss="text-nowrap" />
       </div>
-    </UIUtils.RenderIf>
-    <UIUtils.RenderIf condition={isTextVisible == false}>
+    </RenderIf>
+    <RenderIf condition={!isTextVisible && displayValue->LogicUtils.isNonEmptyString}>
       <div className="flex text-nowrap gap-1">
         <p className=""> {`${displayValue->String.slice(~start=0, ~end=17)}`->React.string} </p>
         <span className="flex text-blue-811 text-sm font-extrabold" onClick={ev => handleClick(ev)}>
           {"..."->React.string}
         </span>
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   </div>
 }
