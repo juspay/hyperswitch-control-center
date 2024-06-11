@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.11.1
+
+### Miscellaneous Tasks
+
+- Add three more fields in apple pay ios certificate flow ([#811](https://github.com/juspay/hyperswitch-control-center/pull/811)) ([`724200b`](https://github.com/juspay/hyperswitch-control-center/commit/724200b46c60c2b5a92eb7eb6f3ee8413dc50277))
+
+**Full Changelog:** [`2024.06.11.0...2024.06.11.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.11.0...2024.06.11.1)
+
+- - -
+
 ## 2024.06.11.0
 
 ### Refactors
