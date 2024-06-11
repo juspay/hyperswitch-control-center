@@ -136,19 +136,19 @@ module Wallets = {
         />
 
       | GooglePay =>
-        <UIUtils.RenderIf condition={configurationFields->Dict.keysToArray->Array.length > 0}>
-          // <Form initialValues={metaData} onSubmit validate>
-          //   {fields}
-          //   <FormRenderer.SubmitButton
-          //     text="Proceed"
-          //     showToolTip=true
-          //     buttonSize=Button.Large
-          //     customSumbitButtonStyle="w-full"
-          //   />
-          //   <FormValuesSpy />
-          // </Form>
-          <GooglePayIntegration />
-        </UIUtils.RenderIf>
+        // <UIUtils.RenderIf condition={configurationFields->Dict.keysToArray->Array.length > 0}>
+        // <Form initialValues={metaData} onSubmit validate>
+        //   {fields}
+        //   <FormRenderer.SubmitButton
+        //     text="Proceed"
+        //     showToolTip=true
+        //     buttonSize=Button.Large
+        //     customSumbitButtonStyle="w-full"
+        //   />
+        //   <FormValuesSpy />
+        // </Form>
+        <GooglePayIntegration connector />
+      // </UIUtils.RenderIf>
       | _ => React.null
       }}
     </div>

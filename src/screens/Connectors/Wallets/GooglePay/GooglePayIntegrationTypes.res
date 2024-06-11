@@ -23,3 +23,14 @@ type allowedMethod = {
 }
 type allowedPaymentMethods = array<allowedMethod>
 type googlePay = {merchant_info: merchantInfo, allowed_payment_methods: allowedPaymentMethods}
+
+type inputType = Text | Toggle | Select
+
+type inputField = {
+  name: string,
+  label: string,
+  placeholder: string,
+  required: bool,
+  options: array<string>,
+  \"type": inputType,
+}
