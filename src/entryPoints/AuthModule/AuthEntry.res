@@ -1,10 +1,10 @@
 @react.component
 let make = () => {
   <AuthInfoProvider>
-    <TotpAuthWrapper>
+    <AuthWrapper>
       <GlobalProvider>
         <HyperSwitchApp />
       </GlobalProvider>
-    </TotpAuthWrapper>
+    </AuthWrapper>
   </AuthInfoProvider>
 }
