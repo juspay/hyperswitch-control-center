@@ -206,6 +206,108 @@ module Simplified = {
     </Form>
   }
 }
+module Fields = {
+  @react.component
+  let make = (~configurationFields, ~merchantBusinessCountry, ~metaData) => {
+    open FormRenderer
+    open LogicUtils
+    let form = ReactFinalForm.useForm()
+
+    let processingAt =
+      metaData
+      ->getDictFromJsonObject
+      ->getDictfromDict("apple_pay_combined")
+      ->getDictfromDict("manual")
+      ->getDictfromDict("session_token_data")
+      ->getString("payment_processing_details_at", "")
+      ->ApplePayWalletIntegrationUtils.paymentProcessingMapper
+
+    let namePrefix = `apple_pay_combined.manual.session_token_data`
+    let (processingAt, setProcessingAt) = React.useState(_ => processingAt)
+    let fields = {
+      configurationFields
+      ->Dict.keysToArray
+      ->Array.mapWithIndex((field, index) => {
+        <div key={index->Int.toString}>
+          {switch field->ApplePayWalletIntegrationUtils.customApplePlayFields {
+          | #merchant_business_country =>
+            <div>
+              <FieldRenderer
+                labelClass="font-semibold !text-hyperswitch_black"
+                field={countryInput(
+                  ~id={`${namePrefix}.${field}`},
+                  ~options=merchantBusinessCountry,
+                )}
+              />
+            </div>
+          | #payment_processing_details_at =>
+            <div>
+              <FormRenderer.FieldRenderer
+                labelClass="font-semibold !text-hyperswitch_black"
+                field={ApplePayWalletIntegrationUtils.paymentProcessingAtField(
+                  ~name=`${namePrefix}.payment_processing_details_at`,
+                  ~label="Processing At",
+                  ~options=[
+                    (#Connector: ApplePayWalletIntegrationUtils.paymentProcessingState :> string),
+                    (#Hyperswitch: ApplePayWalletIntegrationUtils.paymentProcessingState :> string),
+                  ],
+                  ~setProcessingAt,
+                  ~form,
+                )}
+              />
+              {switch processingAt {
+              | #Hyperswitch =>
+                <div>
+                  <FormRenderer.FieldRenderer
+                    labelClass="font-semibold !text-hyperswitch_black"
+                    field={FormRenderer.makeFieldInfo(
+                      ~label="Payment Processing Certificate",
+                      ~name={`${namePrefix}.payment_processing_certificate`},
+                      ~placeholder={`Enter Processing Certificate`},
+                      ~customInput=InputFields.textInput(),
+                      ~isRequired=true,
+                      (),
+                    )}
+                  />
+                  <FormRenderer.FieldRenderer
+                    labelClass="font-semibold !text-hyperswitch_black"
+                    field={FormRenderer.makeFieldInfo(
+                      ~label="Payment Processing Key",
+                      ~name={`${namePrefix}.payment_processing_certificate_key`},
+                      ~placeholder={`Enter Processing Key`},
+                      ~customInput=InputFields.textInput(),
+                      ~isRequired=true,
+                      (),
+                    )}
+                  />
+                </div>
+              | _ => React.null
+              }}
+            </div>
+          | _ => {
+              let label = configurationFields->getString(field, "")
+              <div key={index->Int.toString}>
+                <FormRenderer.FieldRenderer
+                  labelClass="font-semibold !text-hyperswitch_black"
+                  field={FormRenderer.makeFieldInfo(
+                    ~label,
+                    ~name={`${namePrefix}.${field}`},
+                    ~placeholder={`Enter ${label->snakeToTitle}`},
+                    ~customInput=InputFields.textInput(),
+                    ~isRequired=true,
+                    (),
+                  )}
+                />
+              </div>
+            }
+          }}
+        </div>
+      })
+      ->React.array
+    }
+    <> {fields} </>
+  }
+}
 
 module Manual = {
   @react.component
@@ -220,9 +322,11 @@ module Manual = {
     open WalletHelper
     open LogicUtils
     open ApplePayWalletIntegrationUtils
-    open FormRenderer
+
     // Need to refactor
     let _ = ConnectorUtils.updateMetaData(~metaData)
+    //
+
     let configurationFields =
       metadataInputs
       ->getDictfromDict("apple_pay")
@@ -230,39 +334,6 @@ module Manual = {
       ->JSON.Encode.object
       ->Identity.jsonToAnyType
       ->convertMapObjectToDict
-    let namePrefix = `apple_pay_combined.manual.session_token_data`
-    let fields = {
-      configurationFields
-      ->Dict.keysToArray
-      ->Array.mapWithIndex((field, index) => {
-        switch field->customApplePlayFields {
-        | #merchant_business_country =>
-          <div key={index->Int.toString}>
-            <FieldRenderer
-              labelClass="font-semibold !text-hyperswitch_black"
-              field={countryInput(~id={`${namePrefix}.${field}`}, ~options=merchantBusinessCountry)}
-            />
-          </div>
-        | _ => {
-            let label = configurationFields->getString(field, "")
-            <div key={index->Int.toString}>
-              <FormRenderer.FieldRenderer
-                labelClass="font-semibold !text-hyperswitch_black"
-                field={FormRenderer.makeFieldInfo(
-                  ~label,
-                  ~name={`${namePrefix}.${field}`},
-                  ~placeholder={`Enter ${label->snakeToTitle}`},
-                  ~customInput=InputFields.textInput(),
-                  ~isRequired=true,
-                  (),
-                )}
-              />
-            </div>
-          }
-        }
-      })
-      ->React.array
-    }
 
     let onSubmit = (values, _) => {
       let domainName = values->getSessionTokenDict(#manual)->getString("initiative_context", "")
@@ -291,7 +362,7 @@ module Manual = {
           validate(values, configurationFields->Dict.keysToArray->getUniqueArray, #manual)}
         onSubmit
         initialValues={metaData}>
-        {fields}
+        <Fields configurationFields merchantBusinessCountry metaData />
         <div className="flex gap-2 justify-end mt-4">
           <Button
             text="Go Back"
