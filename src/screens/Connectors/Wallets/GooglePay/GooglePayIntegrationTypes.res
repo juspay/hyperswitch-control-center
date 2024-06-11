@@ -9,8 +9,8 @@ type allowedPaymentMethodsParameters = {
 type tokenizationSpecificationParameters = {
   gateway: string,
   gateway_merchant_id?: string,
-  stripe_version?: string,
-  stripe_publishableKey?: string,
+  \"stripe:version"?: string,
+  \"stripe:publishableKey"?: string,
 }
 type tokenSpecification = {
   \"type": string,
@@ -22,7 +22,12 @@ type allowedMethod = {
   tokenization_specification: tokenSpecification,
 }
 type allowedPaymentMethods = array<allowedMethod>
+type zenGooglepay = {
+  terminal_uuid: string,
+  pay_wall_secret: string,
+}
 type googlePay = {merchant_info: merchantInfo, allowed_payment_methods: allowedPaymentMethods}
+type googlePayConfig = Zen(zenGooglepay) | Standard(googlePay)
 
 type inputType = Text | Toggle | Select
 

@@ -64,12 +64,13 @@ let make = (
         payment_methods_enabled: paymentMethodsEnabled,
         metadata: metaData,
       }
-
+      Js.log2(obj, "obj")
       let body =
         constructConnectorRequestBody(obj, initialValues)->ignoreFields(
           connectorID->Option.getOr(""),
           connectorIgnoredField,
         )
+      Js.log(body)
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
       let response = await updateAPIHook(connectorUrl, body, Post, ())
       setInitialValues(_ => response)

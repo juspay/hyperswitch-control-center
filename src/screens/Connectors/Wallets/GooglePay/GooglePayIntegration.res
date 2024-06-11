@@ -41,7 +41,7 @@ let googlePayValueInput = (~googlePayField: GooglePayIntegrationTypes.inputField
 }
 
 @react.component
-let make = (~connector) => {
+let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
   open LogicUtils
   open GooglePayUtils
   let googlePayFields = React.useMemo1(() => {
@@ -67,19 +67,33 @@ let make = (~connector) => {
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
+
   let form = ReactFinalForm.useForm()
   React.useEffect1(() => {
-    let initialGooglePayDict =
-      formState.values
-      ->getDictFromJsonObject
-      ->getDictfromDict("metadata")
-      ->getDictfromDict("google_pay")
+    if connector->isNonEmptyString {
+      let initialGooglePayDict =
+        formState.values
+        ->getDictFromJsonObject
+        ->getDictfromDict("metadata")
+        ->getDictfromDict("google_pay")
 
-    let updated = googlePay(initialGooglePayDict, connector)
-
-    form.change("metadata.google_pay", updated->Identity.genericTypeToJson)
+      let value = googlePay(initialGooglePayDict, connector)
+      Js.log(value)
+      switch value {
+      | Zen(data) => form.change("metadata.google_pay", data->Identity.genericTypeToJson)
+      | Standard(data) => form.change("metadata.google_pay", data->Identity.genericTypeToJson)
+      }
+    }
     None
   }, [connector])
+  let onSubmit = () => {
+    let metadata =
+      formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
+    Js.log(metadata)
+    setShowWalletConfigurationModal(_ => false)
+    let _ = update(metadata)
+    Nullable.null->Promise.resolve
+  }
   <>
     {googlePayFields
     ->Array.mapWithIndex((field, index) => {
@@ -92,5 +106,9 @@ let make = (~connector) => {
       </div>
     })
     ->React.array}
+    // <FormRenderer.SubmitButton
+    //   text="Proceed" showToolTip=true buttonSize=Button.Large customSumbitButtonStyle="w-full"
+    // />
+    <Button text="Proceed" buttonType={Primary} onClick={_ => onSubmit()->ignore} />
   </>
 }
