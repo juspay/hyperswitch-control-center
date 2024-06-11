@@ -208,12 +208,23 @@ module Simplified = {
 }
 module Fields = {
   @react.component
-  let make = (~configurationFields, ~merchantBusinessCountry) => {
+  let make = (~configurationFields, ~merchantBusinessCountry, ~metaData) => {
     open FormRenderer
     open LogicUtils
     let form = ReactFinalForm.useForm()
+    // let processingAt=
+
+    let processingAt =
+      metaData
+      ->getDictFromJsonObject
+      ->getDictfromDict("apple_pay_combined")
+      ->getDictfromDict("manual")
+      ->getDictfromDict("session_token_data")
+      ->getString("payment_processing_details_at", "")
+      ->ApplePayWalletIntegrationUtils.paymentProcessingMapper
+
     let namePrefix = `apple_pay_combined.manual.session_token_data`
-    let (processingAt, setProcessingAt) = React.useState(_ => #Connector)
+    let (processingAt, setProcessingAt) = React.useState(_ => processingAt)
     let fields = {
       configurationFields
       ->Dict.keysToArray
@@ -352,7 +363,7 @@ module Manual = {
           validate(values, configurationFields->Dict.keysToArray->getUniqueArray, #manual)}
         onSubmit
         initialValues={metaData}>
-        <Fields configurationFields merchantBusinessCountry />
+        <Fields configurationFields merchantBusinessCountry metaData />
         <div className="flex gap-2 justify-end mt-4">
           <Button
             text="Go Back"
