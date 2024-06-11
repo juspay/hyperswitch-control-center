@@ -60,6 +60,7 @@ let connectorList: array<connectorTypes> = [
   Processors(HELCIM),
   Processors(IATAPAY),
   Processors(KLARNA),
+  Processors(MIFINITY),
   Processors(MOLLIE),
   Processors(MULTISAFEPAY),
   Processors(NEXINETS),
@@ -412,6 +413,9 @@ let placetopayInfo = {
 let billwerkInfo = {
   description: "Billwerk+ Pay is an acquirer independent payment gateway that helps you get the best acquirer rates, select a wide variety of payment methods.",
 }
+let mifinityInfo = {
+  description: "Empowering you to pay online, receive funds, and send money globally, the MiFinity eWallet supports super-low fees, offering infinite possibilities to do more of the things you love.",
+}
 
 let zslInfo = {
   description: "It is a payment processor that enables businesses to accept payments securely through local bank transfers.",
@@ -507,6 +511,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | HELCIM => "helcim"
   | PLACETOPAY => "placetopay"
   | BILLWERK => "billwerk"
+  | MIFINITY => "mifinity"
   | ZSL => "zsl"
   }
 
@@ -592,6 +597,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "helcim" => Processors(HELCIM)
     | "placetopay" => Processors(PLACETOPAY)
     | "billwerk" => Processors(BILLWERK)
+    | "mifinity" => Processors(MIFINITY)
     | "zsl" => Processors(ZSL)
     | _ => UnknownConnector("Not known")
     }
@@ -668,6 +674,7 @@ let getProcessorInfo = connector => {
   | HELCIM => helcimInfo
   | PLACETOPAY => placetopayInfo
   | BILLWERK => billwerkInfo
+  | MIFINITY => mifinityInfo
   | ZSL => zslInfo
   }
 }
@@ -966,10 +973,14 @@ let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) =>
 let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(BLUESNAP), "merchant_id") => false
-  | (Processors(CHECKOUT), "acquirer_bin") | (Processors(NMI), "acquirer_bin") => false
+  | (Processors(CHECKOUT), "acquirer_bin")
+  | (Processors(NMI), "acquirer_bin")
+  | (Processors(CYBERSOURCE), "acquirer_bin") => false
   | (Processors(CHECKOUT), "acquirer_merchant_id")
-  | (Processors(NMI), "acquirer_merchant_id") => false
+  | (Processors(NMI), "acquirer_merchant_id")
+  | (Processors(CYBERSOURCE), "acquirer_merchant_id") => false
   | (Processors(PAYPAL), "paypal_sdk") => false
+  | (Processors(CYBERSOURCE), "acquirer_country_code") => false
   | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") => false
   | _ => true
   }
@@ -1429,6 +1440,7 @@ let getDisplayNameForProcessor = connector =>
   | BANKOFAMERICA => "Bank of America"
   | HELCIM => "Helcim"
   | PLACETOPAY => "Placetopay"
+  | MIFINITY => "MiFinity"
   | ZSL => "ZSL"
   }
 
@@ -1488,4 +1500,24 @@ let existsInArray = (element, connectorList) => {
     | (_, _) => false
     }
   )
+}
+
+// Need to refactor
+
+let updateMetaData = (~metaData) => {
+  open LogicUtils
+  let apple_pay_combined = metaData->getDictFromJsonObject->getDictfromDict("apple_pay_combined")
+  let manual = apple_pay_combined->getDictfromDict("manual")
+  switch manual->Dict.keysToArray->Array.length > 0 {
+  | true => {
+      let applepay =
+        manual
+        ->getDictfromDict("session_token_data")
+        ->JSON.Encode.object
+        ->Identity.jsonToAnyType
+        ->convertMapObjectToDict
+      manual->Dict.set("session_token_data", applepay->JSON.Encode.object)
+    }
+  | false => ()
+  }
 }

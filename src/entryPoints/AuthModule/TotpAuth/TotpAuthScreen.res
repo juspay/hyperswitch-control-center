@@ -1,53 +1,4 @@
 open CommonAuthUtils
-module TotpAuthPage = {
-  open FramerMotion.Motion
-  open CommonAuthTypes
-  @react.component
-  let make = (~authType, ~setAuthType, ~setAuthStatus, ~mode, ~setMode) => {
-    let {testLiveToggle, branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
-    let (logoVariant, iconUrl) = switch (Window.env.logoUrl, branding) {
-    | (Some(url), true) => (IconWithURL, Some(url))
-    | (Some(url), false) => (IconWithURL, Some(url))
-    | _ => (IconWithText, None)
-    }
-    let screen =
-      <div
-        className="h-full flex flex-col items-center justify-between overflow-scoll text-grey-0 w-full mobile:w-30-rem">
-        <div className="flex flex-col items-center gap-6 flex-1 mt-4 mobile:my-20">
-          <UIUtils.RenderIf condition={testLiveToggle}>
-            <ToggleLiveTestMode authType mode setMode setAuthType />
-          </UIUtils.RenderIf>
-          <Div layoutId="form" className="bg-white w-full text-black mobile:border rounded-lg">
-            <div className="px-7 py-6">
-              <Div layoutId="logo">
-                <HyperSwitchLogo logoHeight="h-8" theme={Dark} logoVariant iconUrl />
-              </Div>
-            </div>
-            <Div layoutId="border" className="border-b w-full" />
-            <div className="p-7">
-              <TotpAuth setAuthStatus authType setAuthType />
-            </div>
-          </Div>
-          <UIUtils.RenderIf condition={!branding}>
-            <Div
-              layoutId="footer-links"
-              className="justify-center text-sm mobile:text-base flex flex-col mobile:flex-row mobile:gap-3 items-center w-full max-w-xl text-center">
-              <CommonAuth.TermsAndCondition />
-            </Div>
-          </UIUtils.RenderIf>
-        </div>
-        <UIUtils.RenderIf condition={!branding}>
-          <CommonAuth.PageFooterSection />
-        </UIUtils.RenderIf>
-      </div>
-
-    <HSwitchUtils.BackgroundImageWrapper
-      customPageCss="flex flex-col items-center justify-center overflow-scroll">
-      {screen}
-    </HSwitchUtils.BackgroundImageWrapper>
-  }
-}
 
 @react.component
 let make = (~setAuthStatus) => {
@@ -124,5 +75,5 @@ let make = (~setAuthStatus) => {
     None
   }, [authType])
 
-  <TotpAuthPage authType setAuthType setAuthStatus mode setMode />
+  <TotpAuth setAuthStatus authType setAuthType />
 }

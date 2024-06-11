@@ -221,8 +221,15 @@ module Manual = {
     open LogicUtils
     open ApplePayWalletIntegrationUtils
     open FormRenderer
+    // Need to refactor
+    let _ = ConnectorUtils.updateMetaData(~metaData)
     let configurationFields =
-      metadataInputs->getDictfromDict("apple_pay")->getDictfromDict("session_token_data")
+      metadataInputs
+      ->getDictfromDict("apple_pay")
+      ->getDictfromDict("session_token_data")
+      ->JSON.Encode.object
+      ->Identity.jsonToAnyType
+      ->convertMapObjectToDict
     let namePrefix = `apple_pay_combined.manual.session_token_data`
     let fields = {
       configurationFields
@@ -230,10 +237,12 @@ module Manual = {
       ->Array.mapWithIndex((field, index) => {
         switch field->customApplePlayFields {
         | #merchant_business_country =>
-          <FieldRenderer
-            labelClass="font-semibold !text-hyperswitch_black"
-            field={countryInput(~id={`${namePrefix}.${field}`}, ~options=merchantBusinessCountry)}
-          />
+          <div key={index->Int.toString}>
+            <FieldRenderer
+              labelClass="font-semibold !text-hyperswitch_black"
+              field={countryInput(~id={`${namePrefix}.${field}`}, ~options=merchantBusinessCountry)}
+            />
+          </div>
         | _ => {
             let label = configurationFields->getString(field, "")
             <div key={index->Int.toString}>

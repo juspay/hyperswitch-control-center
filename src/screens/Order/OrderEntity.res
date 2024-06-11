@@ -384,6 +384,8 @@ let defaultColumns: array<colType> = [
   Status,
   PaymentMethod,
   PaymentMethodType,
+  Description,
+  Metadata,
   Created,
 ]
 
@@ -407,10 +409,12 @@ let allColumns = [
   PaymentMethodType,
   SetupFutureUsage,
   Status,
+  Metadata,
 ]
 
 let getHeading = (colType: colType) => {
   switch colType {
+  | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata", ~showSort=false, ())
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID", ~showSort=false, ())
   | MerchantId =>
     Table.makeHeaderInfo(~key="merchant_id", ~title="Merchant ID", ~showSort=false, ())
@@ -767,6 +771,8 @@ let getCell = (order, colType: colType): Table.cell => {
   open HelperComponents
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
+  | Metadata =>
+    CustomCell(<Metadata displayValue={order.metadata->JSON.Encode.object->JSON.stringify} />, "")
   | PaymentId => Text(order.payment_id)
   | MerchantId => Text(order.merchant_id)
   | Connector => CustomCell(<ConnectorCustomCell connectorName={order.connector} />, "")
@@ -800,7 +806,8 @@ let getCell = (order, colType: colType): Table.cell => {
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
   | CustomerEmail => Text(order.email)
-  | Description => Text(order.description)
+  | Description =>
+    CustomCell(<Metadata displayValue={order.metadata->JSON.Encode.object->JSON.stringify} />, "")
   | MandateId => Text(order.mandate_id)
   | MandateData => Text(order.mandate_data)
   | SetupFutureUsage => Text(order.setup_future_usage)
