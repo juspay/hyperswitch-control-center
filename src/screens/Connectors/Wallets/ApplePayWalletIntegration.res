@@ -212,7 +212,6 @@ module Fields = {
     open FormRenderer
     open LogicUtils
     let form = ReactFinalForm.useForm()
-    // let processingAt=
 
     let processingAt =
       metaData
