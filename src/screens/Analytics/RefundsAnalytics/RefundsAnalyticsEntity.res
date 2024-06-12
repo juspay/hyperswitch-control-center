@@ -25,10 +25,10 @@ let tableItemToObjMapper: 'a => refundTableType = dict => {
     refund_count: dict->getFloat(Count->colMapper, 0.0),
     refund_success_count: dict->getFloat(SuccessCount->colMapper, 0.0),
     refund_processed_amount: dict->getFloat(ProcessedAmount->colMapper, 0.0),
-    connector: dict->getString(Connector->colMapper, "NA")->LogicUtils.getFirstLetterCaps(),
-    refund_method: dict->getString(RefundMethod->colMapper, "NA")->LogicUtils.getFirstLetterCaps(),
-    currency: dict->getString(Currency->colMapper, "NA")->String.toUpperCase,
-    refund_status: dict->getString(Status->colMapper, "NA")->String.toUpperCase,
+    connector: dict->getString(Connector->colMapper, "NA")->snakeToTitle,
+    refund_method: dict->getString(RefundMethod->colMapper, "NA")->snakeToTitle,
+    currency: dict->getString(Currency->colMapper, "NA")->snakeToTitle,
+    refund_status: dict->getString(Status->colMapper, "NA")->snakeToTitle,
   }
 }
 

@@ -95,18 +95,14 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentTableType = dict => {
     payment_success_count: dict->getFloat(SuccessCount->colMapper, 0.0),
     payment_processed_amount: dict->getFloat(ProcessedAmount->colMapper, 0.0),
     avg_ticket_size: dict->getFloat(AvgTicketSize->colMapper, 0.0),
-    connector: dict->getString(Connector->colMapper, "NA")->LogicUtils.getFirstLetterCaps(),
-    payment_method: dict
-    ->getString(PaymentMethod->colMapper, "NA")
-    ->LogicUtils.getFirstLetterCaps(),
-    payment_method_type: dict
-    ->getString(PaymentMethodType->colMapper, "NA")
-    ->LogicUtils.getFirstLetterCaps(),
-    currency: dict->getString(Currency->colMapper, "NA")->String.toUpperCase,
-    authentication_type: dict->getString(AuthType->colMapper, "NA")->String.toUpperCase,
-    refund_status: dict->getString(Status->colMapper, "NA")->String.toUpperCase,
-    client_source: dict->getString(ClientSource->colMapper, "NA")->String.toUpperCase,
-    client_version: dict->getString(ClientVersion->colMapper, "NA")->String.toUpperCase,
+    connector: dict->getString(Connector->colMapper, "NA")->snakeToTitle,
+    payment_method: dict->getString(PaymentMethod->colMapper, "NA")->snakeToTitle,
+    payment_method_type: dict->getString(PaymentMethodType->colMapper, "NA")->snakeToTitle,
+    currency: dict->getString(Currency->colMapper, "NA")->snakeToTitle,
+    authentication_type: dict->getString(AuthType->colMapper, "NA")->snakeToTitle,
+    refund_status: dict->getString(Status->colMapper, "NA")->snakeToTitle,
+    client_source: dict->getString(ClientSource->colMapper, "NA")->snakeToTitle,
+    client_version: dict->getString(ClientVersion->colMapper, "NA")->snakeToTitle,
     weekly_payment_success_rate: dict->getWeeklySR->String.toUpperCase,
     payment_error_message: dict->parseErrorReasons,
   }
