@@ -113,8 +113,8 @@ let paymentProcessingAtField = (
   ~options,
   ~setProcessingAt,
   ~form: ReactFinalForm.formApi,
+  ~textColor,
 ) => {
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   FormRenderer.makeFieldInfo(
     ~name,
     ~label,
@@ -142,7 +142,7 @@ let paymentProcessingAtField = (
         ~buttonText="",
         ~isHorizontal=true,
         ~customStyle="cursor-pointer gap-2",
-        ~fill={`${textColor.primaryNormal}`},
+        ~fill={`${textColor}`},
         (),
       ),
     (),
