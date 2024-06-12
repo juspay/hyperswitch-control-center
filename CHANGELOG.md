@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.12.0
+
+### Miscellaneous Tasks
+
+- Add multiline inputbox for accepting private key ([#818](https://github.com/juspay/hyperswitch-control-center/pull/818)) ([`a567dd5`](https://github.com/juspay/hyperswitch-control-center/commit/a567dd53d66f6abe429452dab8f92bbd1343100e))
+
+**Full Changelog:** [`2024.06.11.1...2024.06.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.11.1...2024.06.12.0)
+
+- - -
+
 ## 2024.06.11.1
 
 ### Miscellaneous Tasks
