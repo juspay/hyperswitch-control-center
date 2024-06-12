@@ -3,6 +3,46 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.11.1
+
+### Miscellaneous Tasks
+
+- Add three more fields in apple pay ios certificate flow ([#811](https://github.com/juspay/hyperswitch-control-center/pull/811)) ([`724200b`](https://github.com/juspay/hyperswitch-control-center/commit/724200b46c60c2b5a92eb7eb6f3ee8413dc50277))
+
+**Full Changelog:** [`2024.06.11.0...2024.06.11.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.11.0...2024.06.11.1)
+
+- - -
+
+## 2024.06.11.0
+
+### Refactors
+
+- Auth header as a separate component ([#810](https://github.com/juspay/hyperswitch-control-center/pull/810)) ([`fe123c0`](https://github.com/juspay/hyperswitch-control-center/commit/fe123c0816d0c26af86da81b796fa779093f10c9))
+
+**Full Changelog:** [`2024.06.10.1...2024.06.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.10.1...2024.06.11.0)
+
+- - -
+
+## 2024.06.10.1
+
+### Miscellaneous Tasks
+
+- Chore: Metadata ui change in payment ops table ([#807](https://github.com/juspay/hyperswitch-control-center/pull/807)) ([`9ba0a27`](https://github.com/juspay/hyperswitch-control-center/commit/9ba0a278770dff437fe8430eaa2cf3550a838ff4))
+
+**Full Changelog:** [`2024.06.10.0...2024.06.10.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.10.0...2024.06.10.1)
+
+- - -
+
+## 2024.06.10.0
+
+### Miscellaneous Tasks
+
+- Add processed amount ([#809](https://github.com/juspay/hyperswitch-control-center/pull/809)) ([`d75d4b1`](https://github.com/juspay/hyperswitch-control-center/commit/d75d4b17b65e398b24fb87f6e4b37095eb427b55))
+
+**Full Changelog:** [`2024.06.09.0...2024.06.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.09.0...2024.06.10.0)
+
+- - -
+
 ## 2024.06.09.0
 
 ### Miscellaneous Tasks

@@ -32,6 +32,29 @@ module EnterAccessCode = {
       }
     }
 
+    let handleKeyUp = ev => {
+      open ReactEvent.Keyboard
+      let key = ev->key
+      let keyCode = ev->keyCode
+
+      if key === "Enter" || keyCode === 13 {
+        verifyAccessCode()->ignore
+      }
+    }
+    React.useEffect1(() => {
+      if recoveryCode->String.length == 9 {
+        Window.addEventListener("keyup", handleKeyUp)
+      } else {
+        Window.removeEventListener("keyup", handleKeyUp)
+      }
+
+      Some(
+        () => {
+          Window.removeEventListener("keyup", handleKeyUp)
+        },
+      )
+    }, [recoveryCode])
+
     <div className={`bg-white h-20-rem w-200 rounded-2xl flex flex-col`}>
       <div className="p-6 border-b-2 flex justify-between items-center">
         <p className={`${h2TextStyle} text-grey-900`}> {"Enter access code"->React.string} </p>
@@ -126,6 +149,29 @@ module ConfigureTotpScreen = {
     let buttonText = twoFaStatus === TWO_FA_SET ? "Verify OTP" : "Enable 2FA"
     let modalHeaderText =
       twoFaStatus === TWO_FA_SET ? "Enter TOTP Code" : "Enable Two Factor Authentication"
+
+    let handleKeyUp = ev => {
+      open ReactEvent.Keyboard
+      let key = ev->key
+      let keyCode = ev->keyCode
+
+      if key === "Enter" || keyCode === 13 {
+        verifyTOTP()->ignore
+      }
+    }
+    React.useEffect1(() => {
+      if otp->String.length == 6 {
+        Window.addEventListener("keyup", handleKeyUp)
+      } else {
+        Window.removeEventListener("keyup", handleKeyUp)
+      }
+
+      Some(
+        () => {
+          Window.removeEventListener("keyup", handleKeyUp)
+        },
+      )
+    }, [otp])
 
     <div
       className={`bg-white ${twoFaStatus === TWO_FA_SET
