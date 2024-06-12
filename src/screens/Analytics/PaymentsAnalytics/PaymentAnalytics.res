@@ -52,10 +52,18 @@ let make = () => {
   let tabKeys = getStringListFromArrayDict(dimensions)
 
   let tabValues = tabKeys->Array.mapWithIndex((key, index) => {
-    let a: DynamicTabs.tab = {
-      title: key->LogicUtils.snakeToTitle,
-      value: key,
-      isRemovable: index > 2,
+    let a: DynamicTabs.tab = if key === "payment_method_type" {
+      {
+        title: "Payment Method + Payment Method Type",
+        value: "payment_method,payment_method_type",
+        isRemovable: index > 2,
+      }
+    } else {
+      {
+        title: key->LogicUtils.snakeToTitle,
+        value: key,
+        isRemovable: index > 2,
+      }
     }
     a
   })
