@@ -212,7 +212,7 @@ module Fields = {
     open FormRenderer
     open LogicUtils
     let form = ReactFinalForm.useForm()
-
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let processingAt =
       metaData
       ->getDictFromJsonObject
@@ -253,6 +253,7 @@ module Fields = {
                   ],
                   ~setProcessingAt,
                   ~form,
+                  ~textColor={textColor.primaryNormal},
                 )}
               />
               {switch processingAt {
