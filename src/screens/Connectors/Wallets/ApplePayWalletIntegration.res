@@ -275,7 +275,15 @@ module Fields = {
                       ~label="Payment Processing Key",
                       ~name={`${namePrefix}.payment_processing_certificate_key`},
                       ~placeholder={`Enter Processing Key`},
-                      ~customInput=InputFields.textInput(),
+                      ~customInput=InputFields.multiLineTextInput(
+                        ~rows=Some(10),
+                        ~cols=Some(100),
+                        ~isDisabled=false,
+                        ~customClass="",
+                        ~leftIcon=React.null,
+                        ~maxLength=10000,
+                        (),
+                      ),
                       ~isRequired=true,
                       (),
                     )}
