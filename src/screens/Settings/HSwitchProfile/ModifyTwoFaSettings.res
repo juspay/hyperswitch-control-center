@@ -238,7 +238,7 @@ module ResetTotp = {
               text={twoFaState === Totp ? "Verify OTP" : "Verify recovery code"}
               buttonType=Primary
               buttonSize=Small
-              buttonState={otpInModal->String.length === 0 && recoveryCode->String.length === 0
+              buttonState={otpInModal->String.length < 6 && recoveryCode->String.length < 9
                 ? Disabled
                 : buttonState}
               onClick={_ => handle2FaVerify()->ignore}
@@ -434,7 +434,7 @@ module RegenerateRecoveryCodes = {
                 text={"Verify OTP"}
                 buttonType=Primary
                 buttonSize=Small
-                buttonState={otpInModal->String.length === 0 ? Disabled : buttonState}
+                buttonState={otpInModal->String.length < 6 ? Disabled : buttonState}
                 onClick={_ => verifyTOTP()->ignore}
                 rightIcon={CustomIcon(
                   <Icon
