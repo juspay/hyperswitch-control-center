@@ -189,8 +189,8 @@ let make = (~authType, ~setAuthType) => {
   let validateKeys = switch authType {
   | ForgetPassword
   | ResendVerifyEmail
-  | SignUP => ["password", "email"]
   | LoginWithEmail => ["email"]
+  | SignUP => ["email", "password"]
   | LoginWithPassword => ["email", "password"]
   | ResetPassword => ["create_password", "comfirm_password"]
   | _ => []
