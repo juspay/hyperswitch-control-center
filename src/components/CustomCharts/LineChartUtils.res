@@ -265,6 +265,7 @@ let timeSeriesDataMaker = (
   ~xAxis,
   ~metricsConfig: metricsConfig,
   ~commonColors: option<array<chartData<'a>>>=?,
+  ~selectedTab: option<array<string>>=?,
   (),
 ) => {
   let colors = switch commonColors {
@@ -279,11 +280,23 @@ let timeSeriesDataMaker = (
   let _ = data->Array.map(item => {
     let dict = item->getDictFromJsonObject
 
-    let groupByName =
+    let groupByName = switch selectedTab {
+    | Some(keys) =>
+      keys
+      ->Array.map(key =>
+        dict->getString(
+          key,
+          Dict.get(dict, key)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
+        )
+      )
+      ->Array.joinWith("_")
+    | None =>
       dict->getString(
         groupKey,
         Dict.get(dict, groupKey)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
       )
+    }
+
     let xAxisDataPoint = dict->getString(xAxis, "")->String.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
     let yAxisDataPoint = dict->getFloat(yAxis, 0.)
 
@@ -340,7 +353,7 @@ let timeSeriesDataMaker = (
     }
     let value: timeSeriesDictWithSecondryMetrics<float> = {
       color: Some(color),
-      name: key,
+      name: key->LogicUtils.snakeToTitle,
       data: sortedValBasedOnTime,
       legendIndex: legendIndexFunc(key),
       fillColor,
