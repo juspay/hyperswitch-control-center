@@ -655,7 +655,7 @@ let make = (
               ->Option.getOr(""->JSON.Encode.string)
               ->JSON.Decode.string
               ->Option.getOr("")
-            let label = metric->isEmptyString ? "other" : metric
+            let label = metric->isEmptyString ? "NA" : metric
 
             Dict.set(dict, tabName, label->JSON.Encode.string)
 

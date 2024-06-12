@@ -771,7 +771,7 @@ let chartDataMaker = (~filterNull=false, rawData, groupKey, metric) => {
   ->Array.filter(dataPoint => {
     !filterNull || {
       let dataPointDict = dataPoint->getDictFromJsonObject
-      dataPointDict->getString(groupKey, "") !== "other"
+      dataPointDict->getString(groupKey, "") !== "NA"
     }
   })
   ->Array.map(dataPoint => {
