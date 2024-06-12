@@ -123,6 +123,8 @@ let make = (
   // </div>
 
   | LoggedOut => React.null
-  | CheckingAuthStatus => React.string("...")
+  | PreLogin(_)
+  | CheckingAuthStatus =>
+    React.string("...")
   }
 }

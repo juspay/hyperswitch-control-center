@@ -1,5 +1,12 @@
 open ApplePayWalletIntegrationTypes
-
+type paymentProcessingState = [#Connector | #Hyperswitch]
+let paymentProcessingMapper = state => {
+  switch state->String.toLowerCase {
+  | "connector" => #Connector
+  | "hyperswitch" => #Hyperswitch
+  | _ => #Connector
+  }
+}
 let getSessionTokenDict = (values: JSON.t, applePayIntegrationType: applePayIntegrationType) => {
   open LogicUtils
   values
@@ -23,6 +30,24 @@ let validate = (
       errorDict->Dict.set(key, `${key} cannot be empty!`->JSON.Encode.string)
     }
   })
+  let processingAt = dict->getString("payment_processing_details_at", "")->paymentProcessingMapper
+  if processingAt === #Hyperswitch {
+    let processingCertificate = dict->getString("payment_processing_certificate", "")
+    let processingCertificateKey = dict->getString("payment_processing_certificate_key", "")
+    if processingCertificate->isEmptyString {
+      errorDict->Dict.set(
+        "payment_processing_certificate",
+        `Processing Certificate cannot be empty!`->JSON.Encode.string,
+      )
+    }
+    if processingCertificateKey->isEmptyString {
+      errorDict->Dict.set(
+        "payment_processing_certificate_key",
+        `Processing Certificate Key cannot be empty!`->JSON.Encode.string,
+      )
+    }
+  }
+
   errorDict->JSON.Encode.object
 }
 
@@ -72,11 +97,54 @@ let constructVerifyApplePayReq = (values, connectorID) => {
   (body, domainName)
 }
 
-type customApplePayFields = [#merchant_business_country | #other]
+type customApplePayFields = [#merchant_business_country | #payment_processing_details_at | #other]
 
 let customApplePlayFields = field => {
   switch field {
   | "merchant_business_country" => #merchant_business_country
+  | "payment_processing_details_at" => #payment_processing_details_at
   | _ => #other
   }
+}
+
+let paymentProcessingAtField = (
+  ~name,
+  ~label,
+  ~options,
+  ~setProcessingAt,
+  ~form: ReactFinalForm.formApi,
+) => {
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+  FormRenderer.makeFieldInfo(
+    ~name,
+    ~label,
+    ~customInput=(~input) =>
+      InputFields.radioInput(
+        ~input={
+          ...input,
+          onChange: event => {
+            let value = event->Identity.formReactEventToString->paymentProcessingMapper
+            setProcessingAt(_ => value)
+            if value === #Connector {
+              form.change(
+                "apple_pay_combined.manual.session_token_data.payment_processing_certificate",
+                JSON.Encode.null,
+              )
+              form.change(
+                "apple_pay_combined.manual.session_token_data.payment_processing_certificate_key",
+                JSON.Encode.null,
+              )
+            }
+            input.onChange(event)
+          },
+        },
+        ~options=options->SelectBox.makeOptions,
+        ~buttonText="",
+        ~isHorizontal=true,
+        ~customStyle="cursor-pointer gap-2",
+        ~fill={`${textColor.primaryNormal}`},
+        (),
+      ),
+    (),
+  )
 }

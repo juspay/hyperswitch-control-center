@@ -79,11 +79,11 @@ let useCommonAuthInfo = () => {
       })
     | TotpAuth({token, merchant_id, name, email, role_id}) =>
       Some({
-        token: token->Option.getOr(""),
-        merchant_id: merchant_id->Option.getOr(""),
-        name: name->Option.getOr(""),
-        email: email->Option.getOr(""),
-        user_role: role_id->Option.getOr(""),
+        token,
+        merchant_id,
+        name,
+        email,
+        user_role: role_id,
       })
     }
   | _ => None

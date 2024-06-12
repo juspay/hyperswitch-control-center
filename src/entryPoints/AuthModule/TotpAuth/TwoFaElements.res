@@ -104,7 +104,7 @@ module RecoveryCodesInput = {
         input=recoveryCodeInput
         placeholder="XXXX-XXXX"
         customWidth="w-96"
-        customStyle="h-16 text-xl justify-center"
+        customStyle="h-16 text-xl justify-center text-center"
         maxLength=9
       />
     </div>
