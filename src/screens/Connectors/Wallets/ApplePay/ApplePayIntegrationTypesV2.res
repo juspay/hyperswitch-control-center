@@ -1,21 +1,16 @@
 type sessionTokenData = {
-  initiative: string,
-  certificate: string,
-  display_name: string,
-  certificate_keys: string,
-  initiative_context: string,
-  merchant_identifier: string,
-  merchant_business_country: string,
+  initiative: option<string>,
+  certificate: option<string>,
+  display_name: option<string>,
+  certificate_keys: option<string>,
+  initiative_context: option<string>,
+  merchant_identifier: option<string>,
+  merchant_business_country: option<string>,
 }
 
 type sessionTokenSimplified = {
-  initiative: string,
-  certificate: string,
-  display_name: string,
-  certificate_keys: string,
-  initiative_context: string,
-  merchant_identifier: string,
-  merchant_business_country: string,
+  initiative_context: option<string>,
+  merchant_business_country: option<string>,
 }
 
 type paymentRequestData = {
