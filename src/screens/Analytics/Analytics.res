@@ -354,7 +354,6 @@ module TableWrapper = {
 
     showTable
       ? <>
-         
           <div className="h-full -mx-4 overflow-scroll">
             <Form>
               <BaseTableComponent
@@ -372,7 +371,7 @@ module TableWrapper = {
               />
             </Form>
           </div>
-           <UIUtils.RenderIf condition={tableData->Array.length > 0}>
+          <UIUtils.RenderIf condition={tableData->Array.length > 0}>
             <div
               className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
               <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
@@ -845,7 +844,7 @@ let make = (
               <div className="flex flex-col h-full overflow-scroll w-full">
                 <DynamicTabs
                   tabs=filteredTabVales
-                  maxSelection=1
+                  maxSelection=3
                   tabId=moduleName
                   setActiveTab
                   updateUrlDict={dict => {

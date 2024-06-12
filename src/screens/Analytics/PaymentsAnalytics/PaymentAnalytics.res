@@ -51,22 +51,31 @@ let make = () => {
 
   let tabKeys = getStringListFromArrayDict(dimensions)
 
-  let tabValues = tabKeys->Array.mapWithIndex((key, index) => {
-    let a: DynamicTabs.tab = if key === "payment_method_type" {
-      {
-        title: "Payment Method + Payment Method Type",
-        value: "payment_method,payment_method_type",
-        isRemovable: index > 2,
+  let tabValues =
+    tabKeys
+    ->Array.mapWithIndex((key, index) => {
+      let a: DynamicTabs.tab = if key === "payment_method_type" {
+        {
+          title: "Payment Method + Payment Method Type",
+          value: "payment_method,payment_method_type",
+          isRemovable: index > 2,
+        }
+      } else {
+        {
+          title: key->LogicUtils.snakeToTitle,
+          value: key,
+          isRemovable: index > 2,
+        }
       }
-    } else {
+      a
+    })
+    ->Array.concat([
       {
-        title: key->LogicUtils.snakeToTitle,
-        value: key,
-        isRemovable: index > 2,
-      }
-    }
-    a
-  })
+        title: "Payment Method Type",
+        value: "payment_method_type",
+        isRemovable: true,
+      },
+    ])
 
   let title = "Payments Analytics"
   let subTitle = "Gain Insights, monitor performance and make Informed Decisions with Payment Analytics."
