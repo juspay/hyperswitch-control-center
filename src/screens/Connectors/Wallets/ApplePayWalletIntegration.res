@@ -212,7 +212,7 @@ module Fields = {
     open FormRenderer
     open LogicUtils
     let form = ReactFinalForm.useForm()
-
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let processingAt =
       metaData
       ->getDictFromJsonObject
@@ -253,6 +253,7 @@ module Fields = {
                   ],
                   ~setProcessingAt,
                   ~form,
+                  ~textColor={textColor.primaryNormal},
                 )}
               />
               {switch processingAt {
@@ -275,7 +276,15 @@ module Fields = {
                       ~label="Payment Processing Key",
                       ~name={`${namePrefix}.payment_processing_certificate_key`},
                       ~placeholder={`Enter Processing Key`},
-                      ~customInput=InputFields.textInput(),
+                      ~customInput=InputFields.multiLineTextInput(
+                        ~rows=Some(10),
+                        ~cols=Some(100),
+                        ~isDisabled=false,
+                        ~customClass="",
+                        ~leftIcon=React.null,
+                        ~maxLength=10000,
+                        (),
+                      ),
                       ~isRequired=true,
                       (),
                     )}
