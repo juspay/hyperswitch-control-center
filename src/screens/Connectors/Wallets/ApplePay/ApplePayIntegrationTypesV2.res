@@ -29,5 +29,17 @@ type simple = {
   payment_request_data: paymentRequestData,
 }
 
-type applePayCombined = Simple(simple) | Manual(manual)
-type applePay = {apple_pay_combined: applePayCombined}
+type applePayCombined = {
+  manual: option<manual>,
+  simple: option<simple>,
+}
+type applePay = {apple_pay_combined: Js.Json.t}
+type applePayIntegrationType = [#manual | #simplified]
+type applePayConfig = [#manual(manual) | #simplified(simple)]
+type applePayIntegrationSteps = Landing | Configure | Verify
+type simplifiedApplePayIntegartionTypes = EnterUrl | DownloadFile | HostUrl
+
+type verifyApplePay = {
+  domain_names: array<string>,
+  merchant_connector_account_id: string,
+}

@@ -39,3 +39,20 @@ let simple = (dict): simple => {
     payment_request_data: paymentRequest,
   }
 }
+
+let applePay = (dict, applePayIntegrationType: applePayIntegrationType) => {
+  let data: applePayConfig = switch applePayIntegrationType {
+  | #manual => #manual(dict->manual)
+  | #simplified => #simplified(dict->simple)
+  }
+  let dict = Dict.make()
+  let _ = switch data {
+  | #manual(data) => dict->Dict.set("manual", data->Identity.genericTypeToJson)
+  | #simplified(data) => dict->Dict.set("simple", data->Identity.genericTypeToJson)
+  }
+
+  let applePay = {
+    apple_pay_combined: dict->JSON.Encode.object,
+  }
+  applePay
+}

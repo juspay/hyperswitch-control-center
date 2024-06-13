@@ -126,14 +126,15 @@ module Wallets = {
     <div>
       {switch method.payment_method_type->getPaymentMethodTypeFromString {
       | ApplePay =>
-        <ApplePayWalletIntegration
-          metadataInputs
-          update
-          metaData
-          setShowWalletConfigurationModal
-          connector
-          onCloseClickCustomFun
-        />
+        // <ApplePayWalletIntegration
+        //   metadataInputs
+        //   update
+        //   metaData
+        //   setShowWalletConfigurationModal
+        //   connector
+        //   onCloseClickCustomFun
+        // />
+        <ApplePayIntegrationV2 connector setShowWalletConfigurationModal />
 
       | GooglePay =>
         // <UIUtils.RenderIf condition={configurationFields->Dict.keysToArray->Array.length > 0}>
