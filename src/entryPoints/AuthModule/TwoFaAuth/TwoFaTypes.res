@@ -1,4 +1,4 @@
-type totpFlowType =
+type twoFaFlowType =
   | MERCHANT_SELECT
   | TOTP
   | FORCE_SET_PASSWORD
@@ -9,7 +9,7 @@ type totpFlowType =
   | USER_INFO
   | ERROR
 
-type totpAuthInfo = {
+type twoFaAuthInfo = {
   token: string,
   merchant_id: string,
   name: string,

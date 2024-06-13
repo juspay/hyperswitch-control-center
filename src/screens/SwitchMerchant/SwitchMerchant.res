@@ -299,7 +299,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       if featureFlagDetails.totp {
         let responseDict = res->getDictFromJsonObject
         setAuthStatus(
-          LoggedIn(TotpAuth(TotpUtils.getTotpAuthInfo(responseDict->JSON.Encode.object))),
+          LoggedIn(TotpAuth(TwoFaUtils.getTotpAuthInfo(responseDict->JSON.Encode.object))),
         )
       } else {
         setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))

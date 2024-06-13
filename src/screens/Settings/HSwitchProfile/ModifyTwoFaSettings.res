@@ -475,7 +475,7 @@ module RegenerateRecoveryCodes = {
                 buttonType={Primary}
                 buttonSize={Small}
                 onClick={_ => {
-                  TotpUtils.downloadRecoveryCodes(~recoveryCodes)
+                  TwoFaUtils.downloadRecoveryCodes(~recoveryCodes)
                   showToast(
                     ~message="Successfully regenerated new recovery codes !",
                     ~toastType=ToastSuccess,

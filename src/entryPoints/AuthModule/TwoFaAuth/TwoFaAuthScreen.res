@@ -73,5 +73,5 @@ let make = (~setAuthStatus) => {
     None
   }, [authType])
 
-  <TotpAuth setAuthStatus authType setAuthType />
+  <TwoFaAuth setAuthStatus authType setAuthType />
 }

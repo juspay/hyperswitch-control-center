@@ -1,4 +1,4 @@
-open TotpTypes
+open TwoFaTypes
 
 let flowTypeStrToVariantMapper = val => {
   switch val {
