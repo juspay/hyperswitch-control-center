@@ -500,9 +500,7 @@ let make = (
   React.useEffect1(() => {
     let options =
       tabs
-      ->Array.filter(tab =>
-        !(collapsibleTabs->Array.map(item => item.value)->Array.includes(tab.value))
-      )
+      ->Array.filter(tab => !(tab.value->String.split(",")->Array.length > 1))
       ->Array.map((x): SelectBox.dropdownOption => {
         switch x.description {
         | Some(description) => {
@@ -618,6 +616,7 @@ let make = (
       </div>
       <SelectModal
         modalHeading="Add Segment"
+        modalHeadingDescription={`U can select up to ${maxSelection->Int.toString} options`}
         ?headerTextClass
         showModal
         setShowModal
