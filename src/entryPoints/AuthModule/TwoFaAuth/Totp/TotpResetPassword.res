@@ -57,8 +57,8 @@ let make = (~flowType) => {
   }
 
   let confirmButtonAction = async password => {
-    open TotpTypes
-    open TotpUtils
+    open TwoFaTypes
+    open TwoFaUtils
     try {
       switch flowType {
       | FORCE_SET_PASSWORD => await rotatePassword(password)
@@ -131,7 +131,7 @@ let make = (~flowType) => {
               key="auth"
               initialValues
               validate={values =>
-                TotpUtils.validateTotpForm(values, ["create_password", "comfirm_password"])}
+                TwoFaUtils.validateTotpForm(values, ["create_password", "comfirm_password"])}
               onSubmit>
               <div className="flex flex-col gap-6">
                 <h1 id="card-header" className="font-semibold text-xl md:text-2xl">

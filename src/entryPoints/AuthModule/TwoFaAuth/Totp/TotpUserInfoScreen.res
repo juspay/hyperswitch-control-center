@@ -20,7 +20,7 @@ let make = () => {
       let response = await fetchDetails(url)
       let dict = response->getDictFromJsonObject
       dict->setOptionString("token", token)
-      let info = TotpUtils.getTotpAuthInfo(dict->JSON.Encode.object)
+      let info = TwoFaUtils.getTotpAuthInfo(dict->JSON.Encode.object)
       setAuthStatus(LoggedIn(TotpAuth(info)))
       setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
       setScreenState(_ => PageLoaderWrapper.Success)

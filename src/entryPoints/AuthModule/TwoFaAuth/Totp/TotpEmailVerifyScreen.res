@@ -2,20 +2,20 @@
 let make = () => {
   open AuthProviderTypes
   open APIUtils
+
   let getURL = useGetURL()
 
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  let acceptInviteFromEmailWithSPT = async body => {
+  let verifyEmailWithSPT = async body => {
     try {
-      open TotpUtils
-
+      open TwoFaUtils
       let url = getURL(
         ~entityName=USERS,
         ~methodType=Post,
-        ~userType={#ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY},
+        ~userType={#VERIFY_EMAILV2_TOKEN_ONLY},
         (),
       )
       let res = await updateDetails(url, body, Post, ())
@@ -31,13 +31,14 @@ let make = () => {
 
   React.useEffect0(() => {
     open CommonAuthUtils
-    open TotpUtils
+    open TwoFaUtils
     open HSwitchGlobalVars
+
     RescriptReactRouter.replace(appendDashboardPath(~url="/accept_invite_from_email"))
     let emailToken = authStatus->getEmailToken
 
     switch emailToken {
-    | Some(token) => token->generateBodyForEmailRedirection->acceptInviteFromEmailWithSPT->ignore
+    | Some(token) => token->generateBodyForEmailRedirection->verifyEmailWithSPT->ignore
     | None => setErrorMessage(_ => "Token not received")
     }
 
@@ -48,8 +49,6 @@ let make = () => {
   }
 
   <EmailVerifyScreen
-    errorMessage
-    onClick
-    trasitionMessage="Accepting invite... You will be redirecting to the Dashboard.."
+    errorMessage onClick trasitionMessage="Verifying... You will be redirecting.."
   />
 }

@@ -50,7 +50,7 @@ let make = (~children) => {
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let authLogic = () => {
-    open TotpUtils
+    open TwoFaUtils
     open LogicUtils
     let preLoginInfo = getTotpPreLoginInfoFromStorage()
     let loggedInInfo = getTotpAuthInfoFromStrorage()
@@ -77,7 +77,7 @@ let make = (~children) => {
       switch tokenFromUrl {
       | Some(token) => {
           let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post, ())
-          setAuthStatus(PreLogin(TotpUtils.getPreLoginInfo(response, ~email_token=Some(token))))
+          setAuthStatus(PreLogin(TwoFaUtils.getPreLoginInfo(response, ~email_token=Some(token))))
         }
       | None => setAuthStatus(LoggedOut)
       }
@@ -105,9 +105,9 @@ let make = (~children) => {
     {switch authStatus {
     | LoggedOut =>
       <AuthHeaderWrapper>
-        <TotpAuthScreen setAuthStatus />
+        <TwoFaAuthScreen setAuthStatus />
       </AuthHeaderWrapper>
-    | PreLogin(_) => <TotpDecisionScreen />
+    | PreLogin(_) => <TwoFaDecisionScreen />
     | LoggedIn(_token) => children
     | CheckingAuthStatus => <PageLoaderWrapper.ScreenLoader />
     }}

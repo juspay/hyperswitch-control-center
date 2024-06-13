@@ -66,7 +66,7 @@ module EnterAccessCode = {
             {"Didn't get a code? "->React.string}
             <span
               className="cursor-pointer underline underline-offset-2 text-blue-600"
-              onClick={_ => setTwoFaPageState(_ => TotpTypes.TOTP_SHOW_QR)}>
+              onClick={_ => setTwoFaPageState(_ => TwoFaTypes.TOTP_SHOW_QR)}>
               {"Use totp instead"->React.string}
             </span>
           </p>
@@ -106,7 +106,7 @@ module ConfigureTotpScreen = {
     ~setTwoFaPageState,
     ~terminateTwoFactorAuth,
   ) => {
-    open TotpTypes
+    open TwoFaTypes
 
     let verifyTotpLogic = TotpHooks.useVerifyTotp()
 
@@ -128,7 +128,7 @@ module ConfigureTotpScreen = {
           if twoFaStatus === TWO_FA_SET {
             terminateTwoFactorAuth(~skip_2fa=false)->ignore
           } else {
-            setTwoFaPageState(_ => TotpTypes.TOTP_SHOW_RC)
+            setTwoFaPageState(_ => TwoFaTypes.TOTP_SHOW_RC)
           }
         } else {
           showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
@@ -226,7 +226,7 @@ module ConfigureTotpScreen = {
 @react.component
 let make = () => {
   open HSwitchUtils
-  open TotpTypes
+  open TwoFaTypes
 
   let getURL = APIUtils.useGetURL()
   let showToast = ToastState.useShowToast()
@@ -236,7 +236,7 @@ let make = () => {
   let (isQrVisible, setIsQrVisible) = React.useState(_ => false)
   let (totpUrl, setTotpUrl) = React.useState(_ => "")
   let (twoFaStatus, setTwoFaStatus) = React.useState(_ => TWO_FA_NOT_SET)
-  let (twoFaPageState, setTwoFaPageState) = React.useState(_ => TotpTypes.TOTP_SHOW_QR)
+  let (twoFaPageState, setTwoFaPageState) = React.useState(_ => TOTP_SHOW_QR)
   let (showNewQR, setShowNewQR) = React.useState(_ => false)
 
   let delayTimer = () => {
@@ -256,7 +256,7 @@ let make = () => {
   let terminateTwoFactorAuth = async (~skip_2fa) => {
     open LogicUtils
     try {
-      open TotpUtils
+      open TwoFaUtils
 
       let url = `${getURL(
           ~entityName=USERS,
@@ -276,7 +276,7 @@ let make = () => {
           errorCode->CommonAuthUtils.errorSubCodeMapper === UR_40 ||
             errorCode->CommonAuthUtils.errorSubCodeMapper === UR_41
         ) {
-          setTwoFaPageState(_ => TotpTypes.TOTP_SHOW_QR)
+          setTwoFaPageState(_ => TOTP_SHOW_QR)
           showToast(~message="Failed to complete 2fa!", ~toastType=ToastError, ())
           setShowNewQR(prev => !prev)
         } else {
