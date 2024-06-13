@@ -80,6 +80,27 @@ let make = () => {
   let title = "Payments Analytics"
   let subTitle = "Gain Insights, monitor performance and make Informed Decisions with Payment Analytics."
 
+  let formatData = (data: array<RescriptCore.Nullable.t<AnalyticsTypes.paymentTableType>>) => {
+    let actualdata =
+      data
+      ->Array.map(Nullable.toOption)
+      ->Array.reduce([], (arr, value) => {
+        switch value {
+        | Some(val) => arr->Array.concat([val])
+        | _ => arr
+        }
+      })
+
+    actualdata->Array.sort((a, b) => {
+      let success_count_a = a.payment_success_count
+      let success_count_b = b.payment_success_count
+
+      success_count_a <= success_count_b ? 1. : -1.
+    })
+
+    actualdata->Array.map(Nullable.make)
+  }
+
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
     <Analytics
       pageTitle=title
@@ -107,6 +128,7 @@ let make = () => {
       weeklyTableMetricsCols
       distributionArray={[distribution]->Some}
       generateReportType={PAYMENT_REPORT}
+      formatData={formatData->Some}
     />
   </PageLoaderWrapper>
 }

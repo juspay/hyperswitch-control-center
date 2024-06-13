@@ -289,7 +289,8 @@ let timeSeriesDataMaker = (
           Dict.get(dict, key)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
         )
       )
-      ->Array.joinWith("_")
+      ->Array.map(LogicUtils.snakeToTitle)
+      ->Array.joinWith(" : ")
     | None =>
       dict->getString(
         groupKey,
@@ -353,7 +354,7 @@ let timeSeriesDataMaker = (
     }
     let value: timeSeriesDictWithSecondryMetrics<float> = {
       color: Some(color),
-      name: key->LogicUtils.snakeToTitle,
+      name: key,
       data: sortedValBasedOnTime,
       legendIndex: legendIndexFunc(key),
       fillColor,
@@ -601,7 +602,7 @@ let getTooltipHTML = (metrics, data, onCursorName) => {
   let highlight = onCursorName == name ? "font-weight:900;font-size:13px;" : ""
   `<tr>
       <td><span style='color:${color}; ${highlight}'></span></td>
-      <td><span style=${highlight}>${name} : </span></td>
+      <td><span style=${highlight}>${name}  </span></td>
       <td><span style=${highlight}>${formatStatsAccToMetrix(metric_type, y_axis)}</span></td>
       <td><span style=${highlight}>${secondry_metrix_val}</span></td>
   </tr>`

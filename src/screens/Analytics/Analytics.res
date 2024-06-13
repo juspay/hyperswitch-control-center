@@ -96,6 +96,7 @@ module TableWrapper = {
     ~moduleName,
     ~weeklyTableMetricsCols,
     ~distributionArray=None,
+    ~formatData=None,
   ) => {
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
       ConfigContext.configContext,
@@ -352,13 +353,20 @@ module TableWrapper = {
 
     setDefaultFilter(._ => dict->JSON.Encode.object->JSON.stringify)
 
+    let modifyData = data => {
+      switch formatData {
+      | Some(fun) => data->fun
+      | None => data
+      }
+    }
+
     showTable
       ? <>
           <div className="h-full -mx-4 overflow-scroll">
             <Form>
               <BaseTableComponent
                 filters=(startTimeFromUrl, endTimeFromUrl)
-                tableData
+                tableData={tableData->modifyData}
                 tableDataLoading
                 transactionTableDefaultCols
                 defaultSort
@@ -401,6 +409,7 @@ module TabDetails = {
     ~moduleName,
     ~updateUrl: Dict.t<string> => unit,
     ~weeklyTableMetricsCols,
+    ~formatData=None,
   ) => {
     open AnalyticsTypes
     let analyticsType = moduleName->getAnalyticsType
@@ -466,6 +475,7 @@ module TabDetails = {
             moduleName
             weeklyTableMetricsCols
             distributionArray
+            formatData
           />
         | None => React.null
         }}
@@ -507,6 +517,7 @@ let make = (
   ~weeklyTableMetricsCols=?,
   ~distributionArray=None,
   ~generateReportType: option<APIUtilsTypes.entityName>=?,
+  ~formatData=None,
 ) => {
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
@@ -872,6 +883,7 @@ let make = (
                     updateUrlWithPrefix(dict)
                   }}
                   weeklyTableMetricsCols
+                  formatData
                 />
               </div>
             }}
