@@ -82,7 +82,7 @@ module EnterAccessCode = {
             text="Verify recovery code"
             buttonType=Primary
             buttonSize=Small
-            buttonState
+            buttonState={recoveryCode->String.length < 9 ? Disabled : buttonState}
             customButtonStyle="group"
             rightIcon={CustomIcon(
               <Icon

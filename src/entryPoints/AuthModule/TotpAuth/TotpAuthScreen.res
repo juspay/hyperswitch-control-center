@@ -1,10 +1,8 @@
-open CommonAuthUtils
-
 @react.component
 let make = (~setAuthStatus) => {
   open CommonAuthTypes
   let url = RescriptReactRouter.useUrl()
-  let (mode, setMode) = React.useState(_ => TestButtonMode)
+  let (_mode, setMode) = React.useState(_ => TestButtonMode)
   let {isLiveMode, email: isMagicLinkEnabled} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
