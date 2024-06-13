@@ -60,7 +60,7 @@ let make = (~children) => {
       loggedInInfo.merchant_id->isNonEmptyString &&
       loggedInInfo.email->isNonEmptyString
     ) {
-      setAuthStatus(LoggedIn(TotpAuth(loggedInInfo)))
+      setAuthStatus(LoggedIn(Auth(loggedInInfo)))
     } else if preLoginInfo.token->isNonEmptyString && preLoginInfo.token_type->isNonEmptyString {
       setAuthStatus(PreLogin(preLoginInfo))
     } else {
@@ -107,6 +107,7 @@ let make = (~children) => {
       <AuthHeaderWrapper>
         <TwoFaAuthScreen setAuthStatus />
       </AuthHeaderWrapper>
+    | SSOPreLogin(_) => <SSODecisionScreen />
     | PreLogin(_) => <TwoFaDecisionScreen />
     | LoggedIn(_token) => children
     | CheckingAuthStatus => <PageLoaderWrapper.ScreenLoader />
