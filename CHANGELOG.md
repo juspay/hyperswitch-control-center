@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.13.0
+
+### Bug Fixes
+
+- Recovery code button state fix ([#813](https://github.com/juspay/hyperswitch-control-center/pull/813)) ([`9bf73d6`](https://github.com/juspay/hyperswitch-control-center/commit/9bf73d68a68b36b5169f8a843bbe26efe37ee426))
+
+### Refactors
+
+- Totp flow file rename ([#822](https://github.com/juspay/hyperswitch-control-center/pull/822)) ([`a762c91`](https://github.com/juspay/hyperswitch-control-center/commit/a762c918698f7d26d68158d3744cc90444c64e65))
+
+### Miscellaneous Tasks
+
+- Pmt type changes ([#819](https://github.com/juspay/hyperswitch-control-center/pull/819)) ([`b2f520d`](https://github.com/juspay/hyperswitch-control-center/commit/b2f520d620bda3de490fea7e7f60fee54a91546b))
+
+**Full Changelog:** [`2024.06.12.0...2024.06.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.12.0...2024.06.13.0)
+
+- - -
+
 ## 2024.06.12.0
 
 ### Miscellaneous Tasks
