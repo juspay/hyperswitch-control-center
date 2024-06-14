@@ -21,7 +21,7 @@ let make = () => {
     <TotpResetPassword flowType />
   | ACCEPT_INVITATION_FROM_EMAIL => <TotpAcceptInviteScreen />
   | VERIFY_EMAIL => <TotpEmailVerifyScreen />
-  | USER_INFO => <TotpUserInfoScreen />
+  | USER_INFO => <UserInfoScreen />
   | ERROR => <CommonAuthError onClick=onClickErrorPageButton />
   }
 }

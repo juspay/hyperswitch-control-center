@@ -77,7 +77,7 @@ let useCommonAuthInfo = () => {
         email: email->Option.getOr(""),
         user_role: user_role->Option.getOr(""),
       })
-    | TotpAuth({token, merchant_id, name, email, role_id}) =>
+    | Auth({token, merchant_id, name, email, role_id}) =>
       Some({
         token,
         merchant_id,
