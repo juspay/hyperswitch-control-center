@@ -239,7 +239,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       condition={logDetails.response->isNonEmptyString || logDetails.request->isNonEmptyString}>
       <div
         className="flex flex-col gap-4 border-l-2 border-border-light-grey show-scrollbar scroll-smooth overflow-scroll  w-3/5">
-        <div className="sticky top-0 bg-white">
+        <div className="sticky top-0 bg-white z-10">
           <DynamicTabs
             tabs=tabValues
             maxSelection=1
