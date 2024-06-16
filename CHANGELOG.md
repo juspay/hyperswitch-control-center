@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.16.0
+
+### Miscellaneous Tasks
+
+- Sso new enum addition ([#825](https://github.com/juspay/hyperswitch-control-center/pull/825)) ([`6390602`](https://github.com/juspay/hyperswitch-control-center/commit/6390602c9da68c2b830e882f7e36ef9f5a57fc8d))
+
+**Full Changelog:** [`2024.06.13.0...2024.06.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.13.0...2024.06.16.0)
+
+- - -
+
 ## 2024.06.13.0
 
 ### Bug Fixes
