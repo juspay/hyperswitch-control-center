@@ -71,6 +71,10 @@ let make = (
           connectorIgnoredField,
         )
       Js.log(body)
+      // Need to refactor
+      let metaData = body->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
+      let _ = ConnectorUtils.updateMetaData(~metaData)
+      //
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
       let response = await updateAPIHook(connectorUrl, body, Post, ())
       setInitialValues(_ => response)

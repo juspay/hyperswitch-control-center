@@ -1,10 +1,9 @@
-open TotpTypes
+open TwoFaTypes
 
 let flowTypeStrToVariantMapper = val => {
   switch val {
   // old types
   | Some("merchant_select") => MERCHANT_SELECT
-  | Some("dashboard_entry") => DASHBOARD_ENTRY
 
   | Some("totp") => TOTP
 
@@ -25,9 +24,26 @@ let flowTypeStrToVariantMapper = val => {
   }
 }
 
+let flowTypeStrToVariantMapperForNewFlow = val => {
+  switch val {
+  // old types
+  | "merchant_select" => MERCHANT_SELECT
+  | "totp" => TOTP
+  // rotate password
+  | "force_set_password" => FORCE_SET_PASSWORD
+  // merchant select
+  | "accept_invite" => ACCEPT_INVITE
+  | "accept_invitation_from_email" => ACCEPT_INVITATION_FROM_EMAIL
+  | "verify_email" => VERIFY_EMAIL
+  | "reset_password" => RESET_PASSWORD
+  // home call
+  | "user_info" => USER_INFO
+  | _ => ERROR
+  }
+}
+
 let variantToStringFlowMapper = val => {
   switch val {
-  | DASHBOARD_ENTRY => "dashboard_entry"
   | MERCHANT_SELECT => "merchant_select"
   | TOTP => "totp"
   | FORCE_SET_PASSWORD => "force_set_password"
@@ -44,10 +60,6 @@ let getEmailTmpToken = () => {
   LocalStorage.getItem("email_token")->Nullable.toOption
 }
 
-let storeEmailTokenTmp = emailToken => {
-  LocalStorage.setItem("email_token", emailToken)
-}
-
 let getEmailTokenValue = email_token => {
   let tmpEmailToken = getEmailTmpToken()
   switch email_token {
@@ -56,42 +68,40 @@ let getEmailTokenValue = email_token => {
   }
 }
 
-let getTotpAuthInfo = (~email_token=None, json) => {
+let getPreLoginInfo = (~email_token=None, json) => {
   open LogicUtils
   let dict = json->JsonFlattenUtils.flattenObject(false)
-  let totpInfo = {
-    email: getOptionString(dict, "email"),
-    merchant_id: getOptionString(dict, "merchant_id"),
-    name: getOptionString(dict, "name"),
-    token: getOptionString(dict, "token"),
-    role_id: getOptionString(dict, "role_id"),
-    token_type: dict->getOptionString("token_type"),
+  let preLoginInfo: AuthProviderTypes.preLoginType = {
+    token: getString(dict, "token", ""),
+    token_type: dict->getString("token_type", ""),
     email_token: email_token->getEmailTokenValue,
   }
   switch email_token {
-  | Some(emailTk) => emailTk->storeEmailTokenTmp
+  | Some(emailTk) => emailTk->AuthUtils.storeEmailTokenTmp
   | None => ()
   }
-  totpInfo
+  preLoginInfo
 }
 
 let setTotpAuthResToStorage = json => {
   LocalStorage.setItem("USER_INFO", json->JSON.stringifyAny->Option.getOr(""))
 }
 
-let getTotputhInfoFromStrorage = () => {
+let getTotpPreLoginInfoFromStorage = () => {
   open LogicUtils
   let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
-  json->getTotpAuthInfo
+  json->getPreLoginInfo
+}
+
+let getTotpAuthInfoFromStrorage = () => {
+  open LogicUtils
+  let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
+  json->AuthUtils.getAuthInfo
 }
 
 let getEmailToken = (authStatus: AuthProviderTypes.authStatus) => {
   switch authStatus {
-  | LoggedIn(info) =>
-    switch info {
-    | TotpAuth(totpInfo) => totpInfo.email_token
-    | _ => None
-    }
+  | PreLogin(preLoginValue) => preLoginValue.email_token
   | _ => None
   }
 }

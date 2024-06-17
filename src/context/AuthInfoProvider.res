@@ -39,22 +39,30 @@ let make = (~children) => {
             CommonAuthUtils.clearLocalStorage()
           }
         }
-      | TotpAuth(totpInfo) =>
-        switch totpInfo.token {
-        | Some(token) =>
-          if !(token->LogicUtils.isEmptyString) {
-            setAuth(_ => newAuthStatus)
-            TotpUtils.setTotpAuthResToStorage(totpInfo)
-          } else {
-            setAuth(_ => LoggedOut)
-            CommonAuthUtils.clearLocalStorage()
-          }
-
-        | None => {
-            setAuth(_ => LoggedOut)
-            CommonAuthUtils.clearLocalStorage()
-          }
+      | Auth(totpInfo) =>
+        if !(totpInfo.token->LogicUtils.isEmptyString) {
+          setAuth(_ => newAuthStatus)
+          TwoFaUtils.setTotpAuthResToStorage(totpInfo)
+        } else {
+          setAuth(_ => LoggedOut)
+          CommonAuthUtils.clearLocalStorage()
         }
+      }
+    | PreLogin(preLoginInfo) =>
+      if !(preLoginInfo.token->LogicUtils.isEmptyString) {
+        setAuth(_ => newAuthStatus)
+        TwoFaUtils.setTotpAuthResToStorage(preLoginInfo)
+      } else {
+        setAuth(_ => LoggedOut)
+        CommonAuthUtils.clearLocalStorage()
+      }
+    | SSOPreLogin(ssoPreloginInfo) =>
+      if !(ssoPreloginInfo.token->LogicUtils.isEmptyString) {
+        setAuth(_ => newAuthStatus)
+        TwoFaUtils.setTotpAuthResToStorage(ssoPreloginInfo)
+      } else {
+        setAuth(_ => LoggedOut)
+        CommonAuthUtils.clearLocalStorage()
       }
 
     | LoggedOut => {

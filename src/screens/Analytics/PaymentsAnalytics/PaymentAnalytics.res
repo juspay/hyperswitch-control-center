@@ -51,17 +51,55 @@ let make = () => {
 
   let tabKeys = getStringListFromArrayDict(dimensions)
 
-  let tabValues = tabKeys->Array.mapWithIndex((key, index) => {
-    let a: DynamicTabs.tab = {
-      title: key->LogicUtils.snakeToTitle,
-      value: key,
-      isRemovable: index > 2,
-    }
-    a
-  })
+  let tabValues =
+    tabKeys
+    ->Array.mapWithIndex((key, index) => {
+      let a: DynamicTabs.tab = if key === "payment_method_type" {
+        {
+          title: "Payment Method + Payment Method Type",
+          value: "payment_method,payment_method_type",
+          isRemovable: index > 2,
+        }
+      } else {
+        {
+          title: key->LogicUtils.snakeToTitle,
+          value: key,
+          isRemovable: index > 2,
+        }
+      }
+      a
+    })
+    ->Array.concat([
+      {
+        title: "Payment Method Type",
+        value: "payment_method_type",
+        isRemovable: true,
+      },
+    ])
 
   let title = "Payments Analytics"
   let subTitle = "Gain Insights, monitor performance and make Informed Decisions with Payment Analytics."
+
+  let formatData = (data: array<RescriptCore.Nullable.t<AnalyticsTypes.paymentTableType>>) => {
+    let actualdata =
+      data
+      ->Array.map(Nullable.toOption)
+      ->Array.reduce([], (arr, value) => {
+        switch value {
+        | Some(val) => arr->Array.concat([val])
+        | _ => arr
+        }
+      })
+
+    actualdata->Array.sort((a, b) => {
+      let success_count_a = a.payment_success_count
+      let success_count_b = b.payment_success_count
+
+      success_count_a <= success_count_b ? 1. : -1.
+    })
+
+    actualdata->Array.map(Nullable.make)
+  }
 
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
     <Analytics
@@ -90,6 +128,7 @@ let make = () => {
       weeklyTableMetricsCols
       distributionArray={[distribution]->Some}
       generateReportType={PAYMENT_REPORT}
+      formatData={formatData->Some}
     />
   </PageLoaderWrapper>
 }
