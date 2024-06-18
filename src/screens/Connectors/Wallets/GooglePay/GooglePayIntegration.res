@@ -1,4 +1,4 @@
-let textInput = (~googlePayField: GooglePayIntegrationTypes.inputField) => {
+let textInput = (~googlePayField: CommonWalletTypes.inputField) => {
   let {placeholder, label, name, required} = googlePayField
   FormRenderer.makeFieldInfo(
     ~label,
@@ -10,7 +10,7 @@ let textInput = (~googlePayField: GooglePayIntegrationTypes.inputField) => {
   )
 }
 
-let selectInput = (~googlePayField: GooglePayIntegrationTypes.inputField) => {
+let selectInput = (~googlePayField: CommonWalletTypes.inputField) => {
   let {label, name, required, options} = googlePayField
   FormRenderer.makeFieldInfo(
     ~label,
@@ -28,7 +28,7 @@ let selectInput = (~googlePayField: GooglePayIntegrationTypes.inputField) => {
     (),
   )
 }
-let googlePayValueInput = (~googlePayField: GooglePayIntegrationTypes.inputField) => {
+let googlePayValueInput = (~googlePayField: CommonWalletTypes.inputField) => {
   let {\"type"} = googlePayField
 
   {
@@ -97,7 +97,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
   <>
     {googlePayFields
     ->Array.mapWithIndex((field, index) => {
-      let googlePayField = field->convertMapObjectToDict->inputFieldMapper
+      let googlePayField = field->convertMapObjectToDict->CommonWalletUtils.inputFieldMapper
       <div key={index->Int.toString}>
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-hyperswitch_black"

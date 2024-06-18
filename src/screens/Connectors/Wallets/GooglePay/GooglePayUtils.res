@@ -95,22 +95,3 @@ let googlePayNameMapper = name => {
     `metadata.google_pay.allowed_payment_methods[0].tokenization_specification.parameters.${name}`
   }
 }
-let inputTypeMapperr = ipType => {
-  switch ipType {
-  | "Text" => Text
-  | "Toggle" => Toggle
-  | "Select" => Select
-  | _ => Text
-  }
-}
-
-let inputFieldMapper = dict => {
-  {
-    name: dict->getString("name", ""),
-    label: dict->getString("label", ""),
-    placeholder: dict->getString("placeholder", ""),
-    required: dict->getBool("required", true),
-    options: dict->getStrArray("options"),
-    \"type": dict->getString("type", "")->inputTypeMapperr,
-  }
-}

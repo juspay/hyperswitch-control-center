@@ -16,6 +16,15 @@ let sessionToken = (dict): sessionTokenData => {
     initiative_context: sessionTokenDict->getOptionString("initiative_context"),
     merchant_identifier: sessionTokenDict->getOptionString("merchant_identifier"),
     merchant_business_country: sessionTokenDict->getOptionString("merchant_business_country"),
+    payment_processing_details_at: sessionTokenDict->getOptionString(
+      "payment_processing_details_at",
+    ),
+    payment_processing_certificate: sessionTokenDict->getOptionString(
+      "payment_processing_certificate",
+    ),
+    payment_processing_certificate_key: sessionTokenDict->getOptionString(
+      "payment_processing_certificate_key",
+    ),
   }
 }
 
@@ -55,4 +64,19 @@ let applePay = (dict, applePayIntegrationType: applePayIntegrationType) => {
     apple_pay_combined: dict->JSON.Encode.object,
   }
   applePay
+}
+
+let applePayNameMapper = (~name, ~integrationType: applePayIntegrationType) => {
+  switch name {
+  | _ =>
+    `metadata.apple_pay.apple_pay_combined.${(integrationType: applePayIntegrationType :> string)}.session_token_data.${name}`
+  }
+}
+
+let paymentProcessingMapper = state => {
+  switch state->String.toLowerCase {
+  | "connector" => #Connector
+  | "hyperswitch" => #Hyperswitch
+  | _ => #Connector
+  }
 }
