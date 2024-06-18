@@ -665,12 +665,9 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID", ~showSort=true, ())
   | Description =>
     Table.makeHeaderInfo(~key="description", ~title="Description", ~showSort=true, ())
-  | ShippingAddress =>
-    Table.makeHeaderInfo(~key="shipping", ~title="Address", ~showSort=true, ())
-  | ShippingEmail =>
-    Table.makeHeaderInfo(~key="shipping", ~title="Email", ~showSort=true, ())
-  | ShippingPhone =>
-    Table.makeHeaderInfo(~key="shipping", ~title="Phone", ~showSort=true, ())
+  | ShippingAddress => Table.makeHeaderInfo(~key="shipping", ~title="Address", ~showSort=true, ())
+  | ShippingEmail => Table.makeHeaderInfo(~key="shipping", ~title="Email", ~showSort=true, ())
+  | ShippingPhone => Table.makeHeaderInfo(~key="shipping", ~title="Phone", ~showSort=true, ())
   | BillingAddress => Table.makeHeaderInfo(~key="billing", ~title="Address", ~showSort=true, ())
   | BillingPhone => Table.makeHeaderInfo(~key="BillingPhone", ~title="Phone", ~showSort=true, ())
   | AmountCapturable =>
