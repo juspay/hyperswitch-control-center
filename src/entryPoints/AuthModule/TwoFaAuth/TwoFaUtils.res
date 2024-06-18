@@ -1,29 +1,5 @@
 open TwoFaTypes
 
-let flowTypeStrToVariantMapper = val => {
-  switch val {
-  // old types
-  | Some("merchant_select") => MERCHANT_SELECT
-
-  | Some("totp") => TOTP
-
-  // rotate password
-  | Some("force_set_password") => FORCE_SET_PASSWORD
-
-  // merchant select
-  | Some("accept_invite") => ACCEPT_INVITE
-
-  | Some("accept_invitation_from_email") => ACCEPT_INVITATION_FROM_EMAIL
-  | Some("verify_email") => VERIFY_EMAIL
-  | Some("reset_password") => RESET_PASSWORD
-
-  // home call
-  | Some("user_info") => USER_INFO
-  | Some(_) => ERROR
-  | None => ERROR
-  }
-}
-
 let flowTypeStrToVariantMapperForNewFlow = val => {
   switch val {
   // old types

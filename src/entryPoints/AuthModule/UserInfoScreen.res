@@ -10,8 +10,10 @@ let make = () => {
 
   let token = switch authStatus {
   | PreLogin(preLoginInfo) => Some(preLoginInfo.token)
+  | SSOPreLogin(ssoPreLoginInfo) => Some(ssoPreLoginInfo.token)
   | _ => None
   }
+
   let userInfo = async () => {
     open LogicUtils
 

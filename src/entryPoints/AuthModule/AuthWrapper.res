@@ -1,6 +1,6 @@
 module AuthHeaderWrapper = {
   @react.component
-  let make = (~children) => {
+  let make = (~children, ~childrenStyle) => {
     open FramerMotion.Motion
     open CommonAuthTypes
 
@@ -23,7 +23,7 @@ module AuthHeaderWrapper = {
               </Div>
             </div>
             <Div layoutId="border" className="border-b w-full" />
-            <div className="p-7"> {children} </div>
+            <div className={`p-7 ${childrenStyle}`}> {children} </div>
           </Div>
           <UIUtils.RenderIf condition={!branding}>
             <Div
@@ -44,10 +44,13 @@ module AuthHeaderWrapper = {
 @react.component
 let make = (~children) => {
   open APIUtils
+  open AuthProviderTypes
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
+  let fetchApi = AuthHooks.useApiFetcher()
   let updateDetails = useUpdateMethod()
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let (authMethods, setAuthMethods) = React.useState(_ => [#Email_Password, #Okta])
 
   let authLogic = () => {
     open TwoFaUtils
@@ -61,6 +64,12 @@ let make = (~children) => {
       loggedInInfo.email->isNonEmptyString
     ) {
       setAuthStatus(LoggedIn(Auth(loggedInInfo)))
+    } else if (
+      preLoginInfo.token->isNonEmptyString &&
+      preLoginInfo.token_type->isNonEmptyString &&
+      preLoginInfo.token_type == "sso"
+    ) {
+      setAuthStatus(SSOPreLogin(preLoginInfo))
     } else if preLoginInfo.token->isNonEmptyString && preLoginInfo.token_type->isNonEmptyString {
       setAuthStatus(PreLogin(preLoginInfo))
     } else {
@@ -77,13 +86,32 @@ let make = (~children) => {
       switch tokenFromUrl {
       | Some(token) => {
           let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post, ())
-          setAuthStatus(PreLogin(TwoFaUtils.getPreLoginInfo(response, ~email_token=Some(token))))
+
+          // TODO: rethink this condition
+          let tokenType = "sso"
+          // response->getDictFromJsonObject->getString("token_type", "sso")
+          switch tokenType {
+          | "sso" =>
+            setAuthStatus(
+              SSOPreLogin(TwoFaUtils.getPreLoginInfo(response, ~email_token=Some(token))),
+            )
+          | _ =>
+            setAuthStatus(PreLogin(TwoFaUtils.getPreLoginInfo(response, ~email_token=Some(token))))
+          }
         }
       | None => setAuthStatus(LoggedOut)
       }
     } catch {
     | _ => setAuthStatus(LoggedOut)
     }
+  }
+
+  let handlePreLogin = () => {
+    Js.log("inside handle redirect")
+    //api
+    // code url
+    // backend
+    // details from okta
   }
 
   React.useEffect0(() => {
@@ -95,17 +123,72 @@ let make = (~children) => {
     | list{"user", "set_password"}
     | list{"user", "accept_invite_from_email"} =>
       fetchDetails()->ignore
+    | list{"user", "redirect_from_sso"} => handlePreLogin()
     | _ => authLogic()
     }
-
     None
   })
+
+  let getAuthMethods = async () => {
+    try {
+      // TODO : api to get the auth methods
+      // let url = getURL(~entityName=USERS, ~userType=#FROM_EMAIL, ~methodType=Post, ())
+      // setAuthMethods(_=>[])
+      ()
+    } catch {
+    | _ => ()
+    }
+  }
+
+  let handleLoginWithSso = async () => {
+    open Promise
+    // let url = "http:://localhost:8082/generate"
+    // let res = await fetchApi(url, ~method_=Get, ())
+
+    Fetch.fetchWithInit(
+      `http://localhost:8082/generate`,
+      Fetch.RequestInit.make(~method_=Fetch.Get, ()),
+    )
+    ->then(res => res->Fetch.Response.json)
+    ->thenResolve(json => {
+      Js.log("came isnide here")
+    })
+    ->catch(_err => {
+      resolve()
+    })
+    ->ignore
+  }
+
+  React.useEffect1(() => {
+    if authStatus === LoggedOut {
+      getAuthMethods()->ignore
+    }
+    None
+  }, [authStatus])
+
+  let renderComponentForAuthTypes = (method: AuthProviderTypes.authMethodTypes) =>
+    switch method {
+    | #Email_Password => <TwoFaAuthScreen setAuthStatus />
+    | #Okta | #Google | #Github =>
+      <Button
+        text={`Login with ${(method :> string)}`}
+        buttonType={PrimaryOutline}
+        onClick={_ => handleLoginWithSso()->ignore}
+      />
+    }
 
   <div className="font-inter-style">
     {switch authStatus {
     | LoggedOut =>
-      <AuthHeaderWrapper>
-        <TwoFaAuthScreen setAuthStatus />
+      <AuthHeaderWrapper childrenStyle="flex flex-col gap-4">
+        {authMethods
+        ->Array.mapWithIndex((authMethod, index) => <>
+          {authMethod->renderComponentForAuthTypes}
+          <UIUtils.RenderIf condition={index === 0 && authMethods->Array.length !== 1}>
+            {AuthUtils.divider}
+          </UIUtils.RenderIf>
+        </>)
+        ->React.array}
       </AuthHeaderWrapper>
     | SSOPreLogin(_) => <SSODecisionScreen />
     | PreLogin(_) => <TwoFaDecisionScreen />

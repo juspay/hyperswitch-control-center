@@ -25,3 +25,10 @@ let getAuthInfo = (~email_token=None, json) => {
   }
   totpInfo
 }
+
+let divider =
+  <div className="flex gap-2 items-center ">
+    <hr className="w-full" />
+    <p className=" text-gray-400"> {"OR"->React.string} </p>
+    <hr className="w-full" />
+  </div>

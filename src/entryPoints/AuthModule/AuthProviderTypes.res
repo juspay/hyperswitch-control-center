@@ -22,3 +22,5 @@ type authStatus =
   | PreLogin(preLoginType)
   | LoggedIn(authType)
   | CheckingAuthStatus
+
+type authMethodTypes = [#Email_Password | #Okta | #Google | #Github]
