@@ -16,7 +16,7 @@ let make = () => {
   let pageDetail = pageDetailDict->Dict.get("Refunds")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
 
-  React.useEffect3(() => {
+  let fetchRefunds = () => {
     switch filters {
     | Some(dict) =>
       let filters = Dict.make()
@@ -47,14 +47,18 @@ let make = () => {
       ->ignore
     | _ => ()
     }
+  }
+
+  React.useEffect3(() => {
+    if filters->OrderUIUtils.isNonEmptyValue {
+      fetchRefunds()
+    }
     None
   }, (offset, filters, searchText))
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let filterUrlV2 = React.useMemo1(() => {
-    `${Window.env.apiBaseUrl}/payments/v2/filter`
-  }, [Window.env.apiBaseUrl])
+  let filterUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some("v2/filter"), ())
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
@@ -62,7 +66,7 @@ let make = () => {
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
-            filterUrlV2
+            filterUrl
             setFilters
             endTimeFilterKey
             startTimeFilterKey
@@ -76,7 +80,7 @@ let make = () => {
             />}
           />
         </div>
-        <UIUtils.RenderIf condition={generateReport}>
+        <UIUtils.RenderIf condition={generateReport && refundData->Array.length > 0}>
           <GenerateReport entityName={REFUND_REPORT} />
         </UIUtils.RenderIf>
         <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />

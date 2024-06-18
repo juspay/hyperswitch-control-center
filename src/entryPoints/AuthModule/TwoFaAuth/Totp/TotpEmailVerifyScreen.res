@@ -11,7 +11,7 @@ let make = () => {
 
   let verifyEmailWithSPT = async body => {
     try {
-      open TotpUtils
+      open TwoFaUtils
       let url = getURL(
         ~entityName=USERS,
         ~methodType=Post,
@@ -19,7 +19,7 @@ let make = () => {
         (),
       )
       let res = await updateDetails(url, body, Post, ())
-      setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(res))))
+      setAuthStatus(PreLogin(getPreLoginInfo(res)))
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Verification Failed")
@@ -31,7 +31,7 @@ let make = () => {
 
   React.useEffect0(() => {
     open CommonAuthUtils
-    open TotpUtils
+    open TwoFaUtils
     open HSwitchGlobalVars
 
     RescriptReactRouter.replace(appendDashboardPath(~url="/accept_invite_from_email"))
@@ -49,6 +49,6 @@ let make = () => {
   }
 
   <EmailVerifyScreen
-    errorMessage onClick trasitionMessage="Verifing... You will be redirecting.."
+    errorMessage onClick trasitionMessage="Verifying... You will be redirecting.."
   />
 }

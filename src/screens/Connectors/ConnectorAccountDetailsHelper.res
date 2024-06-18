@@ -7,6 +7,45 @@ let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorTypes> = [
   Processors(PAYPAL),
 ]
 
+module MultiConfigInp = {
+  @react.component
+  let make = (~label, ~fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+    let enabledList = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
+    let valueField = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
+
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      name: "string",
+      onBlur: _ev => (),
+      onChange: ev => {
+        let value = ev->Identity.formReactEventToArrayOfString
+        valueField.onChange(value->Identity.anyTypeToReactEvent)
+        enabledList.onChange(value->Identity.anyTypeToReactEvent)
+      },
+      onFocus: _ev => (),
+      value: enabledList.value,
+      checked: true,
+    }
+    <TextInput input placeholder={`Enter ${label->LogicUtils.snakeToTitle}`} />
+  }
+}
+
+let renderValueInp = (~label, fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+  <MultiConfigInp fieldsArray label />
+}
+
+let multiValueInput = (~label, ~fieldName1, ~fieldName2) => {
+  open FormRenderer
+  makeMultiInputFieldInfoOld(
+    ~label,
+    ~comboCustomInput=renderValueInp(~label),
+    ~inputFields=[
+      makeInputFieldInfo(~name=`${fieldName1}`, ()),
+      makeInputFieldInfo(~name=`${fieldName2}`, ()),
+    ],
+    (),
+  )
+}
+
 let getCurrencyOption: CurrencyUtils.currencyCode => SelectBox.dropdownOption = currencyType => {
   open CurrencyUtils
   {
@@ -38,6 +77,37 @@ let currencyField = (
     (),
   )
 
+let dropDownfield = (
+  ~name,
+  ~label,
+  ~buttonText="Select",
+  ~disableSelect=false,
+  ~toolTipText="",
+  ~options=[],
+  (),
+) => {
+  FormRenderer.makeFieldInfo(
+    ~label,
+    ~isRequired=true,
+    ~name,
+    ~description=toolTipText,
+    ~customInput=InputFields.selectInput(
+      ~deselectDisable=true,
+      ~disableSelect,
+      ~customStyle="max-h-48",
+      ~options=options->Array.map((item): SelectBox.dropdownOption => {
+        {
+          label: item,
+          value: item,
+        }
+      }),
+      ~buttonText,
+      (),
+    ),
+    (),
+  )
+}
+
 let toggleField = (~name) => {
   FormRenderer.makeFieldInfo(
     ~name,
@@ -66,7 +136,7 @@ let inputField = (
     ~toolTipPosition,
     ~customInput=InputFields.textInput(~isDisabled=disabled, ()),
     ~placeholder=switch getPlaceholder {
-    | Some(fun) => fun(connector, field, label)
+    | Some(fun) => fun(label)
     | None => `Enter ${label->LogicUtils.snakeToTitle}`
     },
     ~isRequired=switch checkRequiredFields {
@@ -119,10 +189,13 @@ module RenderConnectorInputFields = {
     open ConnectorUtils
     open LogicUtils
     let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))
+
     keys
     ->Array.mapWithIndex((field, i) => {
       let label = switch field {
       | "pull_mechanism_for_external_3ds_enabled" => "Pull Mechanism Enabled"
+      | "klarna_region" => "Region of your Klarna Merchant Account"
+
       | _ => details->getString(field, "")
       }
 
@@ -138,7 +211,20 @@ module RenderConnectorInputFields = {
 
               | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") =>
                 toggleField(~name=formName)
-
+              | (Processors(KLARNA), "klarna_region") =>
+                dropDownfield(
+                  ~name=formName,
+                  ~label,
+                  ~buttonText="Select Region",
+                  ~options=details->getStrArrayFromDict(field, []),
+                  (),
+                )
+              | (Processors(PAYPAL), "key1") =>
+                multiValueInput(
+                  ~label,
+                  ~fieldName1="connector_account_details.key1",
+                  ~fieldName2="metadata.paypal_sdk.client_id",
+                )
               | _ =>
                 inputField(
                   ~name=formName,

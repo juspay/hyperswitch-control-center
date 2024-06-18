@@ -42,7 +42,6 @@ let make = (~previewOnly=false) => {
           let (key, value) = item
           filters->Dict.set(key, value)
         })
-
         filters
         ->getOrdersList(
           ~updateDetails,
@@ -77,7 +76,9 @@ let make = (~previewOnly=false) => {
   }
 
   React.useEffect3(() => {
-    fetchOrders()
+    if filters->isNonEmptyValue {
+      fetchOrders()
+    }
     None
   }, (offset, filters, searchText))
 
@@ -85,13 +86,11 @@ let make = (~previewOnly=false) => {
 
   let customUI = <NoData isConfigureConnector paymentModal setPaymentModal />
 
-  let filterUrlV2 = React.useMemo1(() => {
-    `${Window.env.apiBaseUrl}/payments/v2/filter`
-  }, [Window.env.apiBaseUrl])
+  let filterUrl = getURL(~entityName=ORDERS, ~methodType=Get, ~id=Some("v2/filter"), ())
 
   let filtersUI = React.useMemo0(() => {
     <RemoteTableFilters
-      filterUrlV2
+      filterUrl
       setFilters
       endTimeFilterKey
       startTimeFilterKey
@@ -114,7 +113,7 @@ let make = (~previewOnly=false) => {
           <div className="flex-1"> {filtersUI} </div>
         </UIUtils.RenderIf>
         <div className="flex justify-end gap-3">
-          <UIUtils.RenderIf condition={generateReport}>
+          <UIUtils.RenderIf condition={generateReport && orderData->Array.length > 0}>
             <GenerateReport entityName={PAYMENT_REPORT} />
           </UIUtils.RenderIf>
           <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />

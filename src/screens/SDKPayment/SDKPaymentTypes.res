@@ -75,4 +75,5 @@ type paymentType = {
   payment_type?: Nullable.t<string>,
   setup_future_usage?: Nullable.t<string>,
   mandate_data?: Nullable.t<mandateData>,
+  country_currency: string,
 }

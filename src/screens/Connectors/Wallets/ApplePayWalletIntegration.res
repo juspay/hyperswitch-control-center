@@ -206,6 +206,117 @@ module Simplified = {
     </Form>
   }
 }
+module Fields = {
+  @react.component
+  let make = (~configurationFields, ~merchantBusinessCountry, ~metaData) => {
+    open FormRenderer
+    open LogicUtils
+    let form = ReactFinalForm.useForm()
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let processingAt =
+      metaData
+      ->getDictFromJsonObject
+      ->getDictfromDict("apple_pay_combined")
+      ->getDictfromDict("manual")
+      ->getDictfromDict("session_token_data")
+      ->getString("payment_processing_details_at", "")
+      ->ApplePayWalletIntegrationUtils.paymentProcessingMapper
+
+    let namePrefix = `apple_pay_combined.manual.session_token_data`
+    let (processingAt, setProcessingAt) = React.useState(_ => processingAt)
+    let fields = {
+      configurationFields
+      ->Dict.keysToArray
+      ->Array.mapWithIndex((field, index) => {
+        <div key={index->Int.toString}>
+          {switch field->ApplePayWalletIntegrationUtils.customApplePlayFields {
+          | #merchant_business_country =>
+            <div>
+              <FieldRenderer
+                labelClass="font-semibold !text-hyperswitch_black"
+                field={countryInput(
+                  ~id={`${namePrefix}.${field}`},
+                  ~options=merchantBusinessCountry,
+                )}
+              />
+            </div>
+          | #payment_processing_details_at =>
+            <div>
+              <FormRenderer.FieldRenderer
+                labelClass="font-semibold !text-hyperswitch_black"
+                field={ApplePayWalletIntegrationUtils.paymentProcessingAtField(
+                  ~name=`${namePrefix}.payment_processing_details_at`,
+                  ~label="Processing At",
+                  ~options=[
+                    (#Connector: ApplePayWalletIntegrationUtils.paymentProcessingState :> string),
+                    (#Hyperswitch: ApplePayWalletIntegrationUtils.paymentProcessingState :> string),
+                  ],
+                  ~setProcessingAt,
+                  ~form,
+                  ~textColor={textColor.primaryNormal},
+                )}
+              />
+              {switch processingAt {
+              | #Hyperswitch =>
+                <div>
+                  <FormRenderer.FieldRenderer
+                    labelClass="font-semibold !text-hyperswitch_black"
+                    field={FormRenderer.makeFieldInfo(
+                      ~label="Payment Processing Certificate",
+                      ~name={`${namePrefix}.payment_processing_certificate`},
+                      ~placeholder={`Enter Processing Certificate`},
+                      ~customInput=InputFields.textInput(),
+                      ~isRequired=true,
+                      (),
+                    )}
+                  />
+                  <FormRenderer.FieldRenderer
+                    labelClass="font-semibold !text-hyperswitch_black"
+                    field={FormRenderer.makeFieldInfo(
+                      ~label="Payment Processing Key",
+                      ~name={`${namePrefix}.payment_processing_certificate_key`},
+                      ~placeholder={`Enter Processing Key`},
+                      ~customInput=InputFields.multiLineTextInput(
+                        ~rows=Some(10),
+                        ~cols=Some(100),
+                        ~isDisabled=false,
+                        ~customClass="",
+                        ~leftIcon=React.null,
+                        ~maxLength=10000,
+                        (),
+                      ),
+                      ~isRequired=true,
+                      (),
+                    )}
+                  />
+                </div>
+              | _ => React.null
+              }}
+            </div>
+          | _ => {
+              let label = configurationFields->getString(field, "")
+              <div key={index->Int.toString}>
+                <FormRenderer.FieldRenderer
+                  labelClass="font-semibold !text-hyperswitch_black"
+                  field={FormRenderer.makeFieldInfo(
+                    ~label,
+                    ~name={`${namePrefix}.${field}`},
+                    ~placeholder={`Enter ${label->snakeToTitle}`},
+                    ~customInput=InputFields.textInput(),
+                    ~isRequired=true,
+                    (),
+                  )}
+                />
+              </div>
+            }
+          }}
+        </div>
+      })
+      ->React.array
+    }
+    <> {fields} </>
+  }
+}
 
 module Manual = {
   @react.component
@@ -220,40 +331,18 @@ module Manual = {
     open WalletHelper
     open LogicUtils
     open ApplePayWalletIntegrationUtils
-    open FormRenderer
+
+    // Need to refactor
+    let _ = ConnectorUtils.updateMetaData(~metaData)
+    //
+
     let configurationFields =
-      metadataInputs->getDictfromDict("apple_pay")->getDictfromDict("session_token_data")
-    let namePrefix = `apple_pay_combined.manual.session_token_data`
-    let fields = {
-      configurationFields
-      ->Dict.keysToArray
-      ->Array.mapWithIndex((field, index) => {
-        switch field->customApplePlayFields {
-        | #merchant_business_country =>
-          <FieldRenderer
-            labelClass="font-semibold !text-hyperswitch_black"
-            field={countryInput(~id={`${namePrefix}.${field}`}, ~options=merchantBusinessCountry)}
-          />
-        | _ => {
-            let label = configurationFields->getString(field, "")
-            <div key={index->Int.toString}>
-              <FormRenderer.FieldRenderer
-                labelClass="font-semibold !text-hyperswitch_black"
-                field={FormRenderer.makeFieldInfo(
-                  ~label,
-                  ~name={`${namePrefix}.${field}`},
-                  ~placeholder={`Enter ${label->snakeToTitle}`},
-                  ~customInput=InputFields.textInput(),
-                  ~isRequired=true,
-                  (),
-                )}
-              />
-            </div>
-          }
-        }
-      })
-      ->React.array
-    }
+      metadataInputs
+      ->getDictfromDict("apple_pay")
+      ->getDictfromDict("session_token_data")
+      ->JSON.Encode.object
+      ->Identity.jsonToAnyType
+      ->convertMapObjectToDict
 
     let onSubmit = (values, _) => {
       let domainName = values->getSessionTokenDict(#manual)->getString("initiative_context", "")
@@ -282,7 +371,7 @@ module Manual = {
           validate(values, configurationFields->Dict.keysToArray->getUniqueArray, #manual)}
         onSubmit
         initialValues={metaData}>
-        {fields}
+        <Fields configurationFields merchantBusinessCountry metaData />
         <div className="flex gap-2 justify-end mt-4">
           <Button
             text="Go Back"
@@ -303,6 +392,7 @@ module Landing = {
   open WalletHelper
   @react.component
   let make = (
+    ~connector,
     ~setApplePayIntegrationType,
     ~appleIntegrationType,
     ~setShowWalletConfigurationModal,
@@ -310,19 +400,25 @@ module Landing = {
   ) => {
     open ApplePayWalletIntegrationTypes
     <>
-      <div
-        className="p-6 m-2 cursor-pointer"
-        onClick={_e => setApplePayIntegrationType(_ => #simplified)}>
-        <Card heading="Web Domain" isSelected={appleIntegrationType === #simplified}>
-          <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-            {"Get Apple Pay enabled on your web domains by hosting a verification file, that’s it."->React.string}
-          </div>
-          <div className="flex gap-2 mt-4">
-            <CustomTag tagText="Faster Configuration" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-            <CustomTag tagText="Recommended" tagSize=4 tagLeftIcon=Some("ellipse-green") />
-          </div>
-        </Card>
-      </div>
+      {switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+      | Processors(STRIPE) | Processors(BANKOFAMERICA) | Processors(CYBERSOURCE) =>
+        <div
+          className="p-6 m-2 cursor-pointer"
+          onClick={_e => setApplePayIntegrationType(_ => #simplified)}>
+          <Card heading="Web Domain" isSelected={appleIntegrationType === #simplified}>
+            <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
+              {"Get Apple Pay enabled on your web domains by hosting a verification file, that’s it."->React.string}
+            </div>
+            <div className="flex gap-2 mt-4">
+              <CustomTag
+                tagText="Faster Configuration" tagSize=4 tagLeftIcon=Some("ellipse-green")
+              />
+              <CustomTag tagText="Recommended" tagSize=4 tagLeftIcon=Some("ellipse-green") />
+            </div>
+          </Card>
+        </div>
+      | _ => React.null
+      }}
       <div
         className="p-6 m-2 cursor-pointer" onClick={_e => setApplePayIntegrationType(_ => #manual)}>
         <Card heading="iOS Certificate" isSelected={appleIntegrationType === #manual}>
@@ -363,6 +459,7 @@ module Verified = {
     ~appleIntegrationType,
     ~setApplePayIntegrationSteps,
     ~setShowWalletConfigurationModal,
+    ~onCloseClickCustomFun,
   ) => {
     open WalletHelper
     open ApplePayWalletIntegrationTypes
@@ -413,6 +510,7 @@ module Verified = {
           <Button
             onClick={_ev => {
               setShowWalletConfigurationModal(_ => false)
+              onCloseClickCustomFun()
             }}
             text="Proceed"
             buttonType={Primary}
@@ -424,12 +522,19 @@ module Verified = {
 }
 
 @react.component
-let make = (~metadataInputs, ~update, ~metaData, ~setShowWalletConfigurationModal, ~connector) => {
+let make = (
+  ~metadataInputs,
+  ~update,
+  ~metaData,
+  ~setShowWalletConfigurationModal,
+  ~connector,
+  ~onCloseClickCustomFun,
+) => {
   open ApplePayWalletIntegrationTypes
   open APIUtils
   open WalletHelper
   let getURL = useGetURL()
-  let (appleIntegrationType, setApplePayIntegrationType) = React.useState(_ => #simplified)
+  let (appleIntegrationType, setApplePayIntegrationType) = React.useState(_ => #manual)
   let (applePayIntegrationStep, setApplePayIntegrationSteps) = React.useState(_ => Landing)
   let (verifiedDomainList, setVefifiedDomainList) = React.useState(_ => [])
   let (merchantBusinessCountry, setMerchantBusinessCountry) = React.useState(_ => [])
@@ -463,10 +568,23 @@ let make = (~metadataInputs, ~update, ~metaData, ~setShowWalletConfigurationModa
     }
   }
 
-  React.useEffect0(() => {
-    getProcessorDetails()->ignore
+  React.useEffect1(() => {
+    // Need to refactor
+    if connector->String.length > 0 {
+      {
+        switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+        | Processors(STRIPE)
+        | Processors(BANKOFAMERICA)
+        | Processors(CYBERSOURCE) =>
+          setApplePayIntegrationType(_ => #simplified)
+        | _ => setApplePayIntegrationType(_ => #manual)
+        }
+      }
+
+      getProcessorDetails()->ignore
+    }
     None
-  })
+  }, [connector])
   <PageLoaderWrapper
     screenState={screenState}
     customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
@@ -480,6 +598,7 @@ let make = (~metadataInputs, ~update, ~metaData, ~setShowWalletConfigurationModa
       {switch applePayIntegrationStep {
       | Landing =>
         <Landing
+          connector
           setApplePayIntegrationType
           setShowWalletConfigurationModal
           setApplePayIntegrationSteps
@@ -513,6 +632,7 @@ let make = (~metadataInputs, ~update, ~metaData, ~setShowWalletConfigurationModa
           setShowWalletConfigurationModal
           setApplePayIntegrationSteps
           appleIntegrationType
+          onCloseClickCustomFun
         />
       }}
     </div>

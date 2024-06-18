@@ -256,7 +256,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   | LoggedIn(info) =>
     switch info {
     | BasicAuth(basicInfo) => basicInfo.merchant_id->Option.getOr("")
-    | TotpAuth(totpInfo) => totpInfo.merchant_id->Option.getOr("")
+    | Auth(totpInfo) => totpInfo.merchant_id
     }
   | _ => ""
   }
@@ -298,13 +298,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       // TODO: When BE changes the response of this api re-evaluate the below conditions
       if featureFlagDetails.totp {
         let responseDict = res->getDictFromJsonObject
-        responseDict->Dict.set(
-          "token_type",
-          DASHBOARD_ENTRY->TotpUtils.variantToStringFlowMapper->JSON.Encode.string,
-        )
-        setAuthStatus(
-          LoggedIn(TotpAuth(TotpUtils.getTotpAuthInfo(responseDict->JSON.Encode.object))),
-        )
+        setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict->JSON.Encode.object))))
       } else {
         setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
       }
