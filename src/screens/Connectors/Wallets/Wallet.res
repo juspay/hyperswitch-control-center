@@ -134,7 +134,9 @@ module Wallets = {
         //   connector
         //   onCloseClickCustomFun
         // />
-        <ApplePayIntegrationV2 connector setShowWalletConfigurationModal />
+        <ApplePayIntegrationV2
+          connector setShowWalletConfigurationModal onCloseClickCustomFun update
+        />
 
       | GooglePay =>
         // <UIUtils.RenderIf condition={configurationFields->Dict.keysToArray->Array.length > 0}>

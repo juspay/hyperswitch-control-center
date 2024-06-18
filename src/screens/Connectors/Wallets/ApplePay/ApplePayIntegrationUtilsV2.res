@@ -7,7 +7,10 @@ let paymentRequest = {
 }
 
 let sessionToken = (dict): sessionTokenData => {
-  let sessionTokenDict = dict->getDictfromDict("manual")->getDictfromDict("session_token_data")
+  let sessionTokenDict =
+    dict
+    ->getDictfromDict((#manual: applePayIntegrationType :> string))
+    ->getDictfromDict("session_token_data")
   {
     initiative: sessionTokenDict->getOptionString("initiative"),
     certificate: sessionTokenDict->getOptionString("certificate"),
@@ -29,7 +32,10 @@ let sessionToken = (dict): sessionTokenData => {
 }
 
 let sessionTokenSimplified = (dict): sessionTokenSimplified => {
-  let sessionTokenDict = dict->getDictfromDict("simple")->getDictfromDict("session_token_data")
+  let sessionTokenDict =
+    dict
+    ->getDictfromDict((#simplified: applePayIntegrationType :> string))
+    ->getDictfromDict("session_token_data")
   {
     initiative_context: sessionTokenDict->getOptionString("initiative_context"),
     merchant_business_country: sessionTokenDict->getOptionString("merchant_business_country"),
@@ -42,7 +48,7 @@ let manual = (dict): manual => {
   }
 }
 
-let simple = (dict): simple => {
+let simplified = (dict): simplified => {
   {
     session_token_data: dict->sessionTokenSimplified,
     payment_request_data: paymentRequest,
@@ -52,24 +58,27 @@ let simple = (dict): simple => {
 let applePay = (dict, applePayIntegrationType: applePayIntegrationType) => {
   let data: applePayConfig = switch applePayIntegrationType {
   | #manual => #manual(dict->manual)
-  | #simplified => #simplified(dict->simple)
-  }
-  let dict = Dict.make()
-  let _ = switch data {
-  | #manual(data) => dict->Dict.set("manual", data->Identity.genericTypeToJson)
-  | #simplified(data) => dict->Dict.set("simple", data->Identity.genericTypeToJson)
+  | #simplified => #simplified(dict->simplified)
   }
 
-  let applePay = {
-    apple_pay_combined: dict->JSON.Encode.object,
+  let dict = Dict.make()
+  let _ = switch data {
+  | #manual(data) =>
+    dict->Dict.set((#manual: applePayIntegrationType :> string), data->Identity.genericTypeToJson)
+  | #simplified(data) =>
+    dict->Dict.set(
+      (#simplified: applePayIntegrationType :> string),
+      data->Identity.genericTypeToJson,
+    )
   }
-  applePay
+
+  dict->JSON.Encode.object
 }
 
 let applePayNameMapper = (~name, ~integrationType: applePayIntegrationType) => {
   switch name {
   | _ =>
-    `metadata.apple_pay.apple_pay_combined.${(integrationType: applePayIntegrationType :> string)}.session_token_data.${name}`
+    `metadata.apple_pay_combined.${(integrationType: applePayIntegrationType :> string)}.session_token_data.${name}`
   }
 }
 
@@ -79,4 +88,65 @@ let paymentProcessingMapper = state => {
   | "hyperswitch" => #Hyperswitch
   | _ => #Connector
   }
+}
+
+let applePayIntegrationTypeMapper = state => {
+  switch state->String.toLowerCase {
+  | "manual" => #manual
+  | "simplified" => #simplified
+  | _ => #manual
+  }
+}
+
+let ignoreFieldsonSimplified = [
+  "certificate",
+  "certificate_keys",
+  "merchant_identifier",
+  "display_name",
+  "initiative",
+  "payment_processing_details_at",
+]
+
+let validateManualFlow = values => {
+  let data =
+    values
+    ->getDictFromJsonObject
+    ->getDictfromDict("metadata")
+    ->getDictfromDict("apple_pay_combined")
+    ->sessionToken
+  data.initiative_context->Option.isSome && data.merchant_business_country->Option.isSome
+    ? Button.Normal
+    : Button.Disabled
+}
+
+let validateSimplifedFlow = values => {
+  let data =
+    values
+    ->getDictFromJsonObject
+    ->getDictfromDict("metadata")
+    ->getDictfromDict("apple_pay_combined")
+    ->sessionTokenSimplified
+  data.initiative_context->Option.isSome && data.merchant_business_country->Option.isSome
+    ? Button.Normal
+    : Button.Disabled
+}
+
+let constructVerifyApplePayReq = (values, connectorID) => {
+  let context =
+    values
+    ->getDictFromJsonObject
+    ->getDictfromDict("metadata")
+    ->getDictfromDict("apple_pay_combined")
+    ->sessionTokenSimplified
+  let domainName = context.initiative_context->Option.getOr("")
+  let data = {
+    domain_names: [domainName],
+    merchant_connector_account_id: connectorID,
+  }->JSON.stringifyAny
+
+  let body = switch data {
+  | Some(val) => val->LogicUtils.safeParse
+  | None => Dict.make()->JSON.Encode.object
+  }
+  (body, domainName)
 }

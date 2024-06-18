@@ -27,18 +27,18 @@ type manual = {
   payment_request_data: paymentRequestData,
 }
 
-type simple = {
+type simplified = {
   session_token_data: sessionTokenSimplified,
   payment_request_data: paymentRequestData,
 }
 
-type applePayCombined = {
-  manual: option<manual>,
-  simple: option<simple>,
-}
-type applePay = {apple_pay_combined: Js.Json.t}
+// type applePayCombined = {
+//   manual?: option<manual>,
+//   simplified?: option<simplified>,
+// }
+type applePayCombined = {apple_pay_combined: Js.Json.t}
 type applePayIntegrationType = [#manual | #simplified]
-type applePayConfig = [#manual(manual) | #simplified(simple)]
+type applePayConfig = [#manual(manual) | #simplified(simplified)]
 type applePayIntegrationSteps = Landing | Configure | Verify
 type simplifiedApplePayIntegartionTypes = EnterUrl | DownloadFile | HostUrl
 

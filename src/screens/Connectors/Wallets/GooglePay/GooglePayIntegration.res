@@ -89,7 +89,6 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
   let onSubmit = () => {
     let metadata =
       formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
-    Js.log(metadata)
     setShowWalletConfigurationModal(_ => false)
     let _ = update(metadata)
     Nullable.null->Promise.resolve
