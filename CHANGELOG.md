@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.18.0
+
+### Miscellaneous Tasks
+
+- Dynamic tabs ([#769](https://github.com/juspay/hyperswitch-control-center/pull/769)) ([`d6e16ad`](https://github.com/juspay/hyperswitch-control-center/commit/d6e16adb4dc87656eee1484f9f05b834f6131ad1))
+- Showing error message on payment failure ([#806](https://github.com/juspay/hyperswitch-control-center/pull/806)) ([`99db9c1`](https://github.com/juspay/hyperswitch-control-center/commit/99db9c182617047d90534754a5b1e8e353ca3744))
+
+**Full Changelog:** [`2024.06.16.0...2024.06.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.16.0...2024.06.18.0)
+
+- - -
+
 ## 2024.06.16.0
 
 ### Miscellaneous Tasks
