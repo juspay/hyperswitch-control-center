@@ -806,8 +806,7 @@ let getCell = (order, colType: colType): Table.cell => {
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
   | CustomerEmail => Text(order.email)
-  | Description =>
-    CustomCell(<Metadata displayValue={order.metadata->JSON.Encode.object->JSON.stringify} />, "")
+  | Description => Text(order.description)
   | MandateId => Text(order.mandate_id)
   | MandateData => Text(order.mandate_data)
   | SetupFutureUsage => Text(order.setup_future_usage)
