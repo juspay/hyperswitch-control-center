@@ -1,4 +1,4 @@
-type totpFlowType =
+type twoFaFlowType =
   | MERCHANT_SELECT
   | TOTP
   | FORCE_SET_PASSWORD
@@ -8,16 +8,6 @@ type totpFlowType =
   | RESET_PASSWORD
   | USER_INFO
   | ERROR
-
-type totpAuthInfo = {
-  token: string,
-  merchant_id: string,
-  name: string,
-  email: string,
-  role_id: string,
-  is_two_factor_auth_setup: bool,
-  recovery_codes_left: int,
-}
 
 type twoFaPageState = TOTP_SHOW_QR | TOTP_SHOW_RC | TOTP_INPUT_RECOVERY_CODE
 

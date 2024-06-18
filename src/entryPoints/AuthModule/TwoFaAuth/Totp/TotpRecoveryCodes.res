@@ -23,7 +23,7 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
 
         if errorCode->CommonAuthUtils.errorSubCodeMapper === UR_38 {
-          setTwoFaPageState(_ => TotpTypes.TOTP_SHOW_QR)
+          setTwoFaPageState(_ => TwoFaTypes.TOTP_SHOW_QR)
           setShowNewQR(prev => !prev)
         } else {
           showToast(~message="Something went wrong", ~toastType=ToastError, ())
@@ -76,7 +76,7 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
             buttonType={Primary}
             buttonSize={Small}
             onClick={_ => {
-              TotpUtils.downloadRecoveryCodes(~recoveryCodes)
+              TwoFaUtils.downloadRecoveryCodes(~recoveryCodes)
               onClickDownload(~skip_2fa=false)->ignore
             }}
           />

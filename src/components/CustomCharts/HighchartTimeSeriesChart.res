@@ -57,6 +57,8 @@ module LineChart1D = {
     ~isPartners=false,
     ~showIndicator=false,
     ~showMarkers=false,
+    ~comparitionWidget=false,
+    ~selectedTab: option<array<string>>=?,
   ) => {
     let (theme, _setTheme) = React.useContext(ThemeProvider.themeContext)
     let (_, setLegendState) = React.useState(_ => [])
@@ -95,6 +97,7 @@ module LineChart1D = {
         ~xAxis,
         ~metricsConfig=selectedMetrics,
         ~commonColors=commonColorsArr,
+        ~selectedTab=selectedTab->Option.getOr([]),
         (),
       )->Belt.Array.keepMap(item => {
         if (

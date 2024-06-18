@@ -1,4 +1,4 @@
-open TotpTypes
+open TwoFaTypes
 
 let flowTypeStrToVariantMapper = val => {
   switch val {
@@ -60,39 +60,12 @@ let getEmailTmpToken = () => {
   LocalStorage.getItem("email_token")->Nullable.toOption
 }
 
-let storeEmailTokenTmp = emailToken => {
-  LocalStorage.setItem("email_token", emailToken)
-}
-
 let getEmailTokenValue = email_token => {
   let tmpEmailToken = getEmailTmpToken()
   switch email_token {
   | Some(email_token) => Some(email_token)
   | None => tmpEmailToken
   }
-}
-
-let getTotpAuthInfo = (~email_token=None, json) => {
-  open LogicUtils
-  let dict = json->JsonFlattenUtils.flattenObject(false)
-  let totpInfo = {
-    email: getString(dict, "email", ""),
-    merchant_id: getString(dict, "merchant_id", ""),
-    name: getString(dict, "name", ""),
-    token: getString(dict, "token", ""),
-    role_id: getString(dict, "role_id", ""),
-    is_two_factor_auth_setup: getBool(dict, "is_two_factor_auth_setup", false),
-    recovery_codes_left: getInt(
-      dict,
-      "recovery_codes_left",
-      HSwitchGlobalVars.maximumRecoveryCodes,
-    ),
-  }
-  switch email_token {
-  | Some(emailTk) => emailTk->storeEmailTokenTmp
-  | None => ()
-  }
-  totpInfo
 }
 
 let getPreLoginInfo = (~email_token=None, json) => {
@@ -104,7 +77,7 @@ let getPreLoginInfo = (~email_token=None, json) => {
     email_token: email_token->getEmailTokenValue,
   }
   switch email_token {
-  | Some(emailTk) => emailTk->storeEmailTokenTmp
+  | Some(emailTk) => emailTk->AuthUtils.storeEmailTokenTmp
   | None => ()
   }
   preLoginInfo
@@ -123,7 +96,7 @@ let getTotpPreLoginInfoFromStorage = () => {
 let getTotpAuthInfoFromStrorage = () => {
   open LogicUtils
   let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
-  json->getTotpAuthInfo
+  json->AuthUtils.getAuthInfo
 }
 
 let getEmailToken = (authStatus: AuthProviderTypes.authStatus) => {
