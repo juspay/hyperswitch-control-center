@@ -56,14 +56,6 @@ let make = (~children) => {
         setAuth(_ => LoggedOut)
         CommonAuthUtils.clearLocalStorage()
       }
-    | SSOPreLogin(ssoPreloginInfo) =>
-      if !(ssoPreloginInfo.token->LogicUtils.isEmptyString) {
-        setAuth(_ => newAuthStatus)
-        TwoFaUtils.setTotpAuthResToStorage(ssoPreloginInfo)
-      } else {
-        setAuth(_ => LoggedOut)
-        CommonAuthUtils.clearLocalStorage()
-      }
 
     | LoggedOut => {
         setAuth(_ => LoggedOut)

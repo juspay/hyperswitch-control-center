@@ -3,7 +3,7 @@ let make = () => {
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let flowType = switch authStatus {
-  | PreLogin(info) => info.token_type->TwoFaUtils.flowTypeStrToVariantMapperForNewFlow
+  | PreLogin(info) => info.token_type->PreLoginUtils.flowTypeStrToVariantMapperForNewFlow
   | _ => ERROR
   }
 
@@ -14,13 +14,13 @@ let make = () => {
   switch flowType {
   | MERCHANT_SELECT
   | ACCEPT_INVITE =>
-    <TotpMerchantSelectScreen />
+    <MerchantSelectScreen />
   | TOTP => <TotpSetup />
   | FORCE_SET_PASSWORD
   | RESET_PASSWORD =>
-    <TotpResetPassword flowType />
-  | ACCEPT_INVITATION_FROM_EMAIL => <TotpAcceptInviteScreen />
-  | VERIFY_EMAIL => <TotpEmailVerifyScreen />
+    <ResetPassword flowType />
+  | ACCEPT_INVITATION_FROM_EMAIL => <AcceptInviteScreen />
+  | VERIFY_EMAIL => <VerifyUserFromEmail />
   | USER_INFO => <UserInfoScreen />
   | ERROR => <CommonAuthError onClick=onClickErrorPageButton />
   }

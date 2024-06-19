@@ -107,8 +107,7 @@ let make = (~children) => {
       <AuthHeaderWrapper>
         <TwoFaAuthScreen setAuthStatus />
       </AuthHeaderWrapper>
-    | SSOPreLogin(_) => <SSODecisionScreen />
-    | PreLogin(_) => <TwoFaDecisionScreen />
+    | PreLogin(_) => <DecisionScreen />
     | LoggedIn(_token) => children
     | CheckingAuthStatus => <PageLoaderWrapper.ScreenLoader />
     }}
