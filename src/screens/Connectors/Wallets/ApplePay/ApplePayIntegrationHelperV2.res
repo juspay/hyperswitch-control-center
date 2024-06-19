@@ -56,7 +56,7 @@ module HostURL = {
 
 let textInput = (
   ~applePayField: CommonWalletTypes.inputField,
-  ~integrationType: applePayIntegrationType,
+  ~integrationType: option<applePayIntegrationType>,
 ) => {
   let {placeholder, label, name, required} = applePayField
   FormRenderer.makeFieldInfo(
@@ -72,7 +72,7 @@ let textInput = (
 let selectStringInput = (
   ~applePayField: CommonWalletTypes.inputField,
   ~options,
-  ~integrationType: applePayIntegrationType,
+  ~integrationType: option<applePayIntegrationType>,
 ) => {
   let {label, name, required} = applePayField
   FormRenderer.makeFieldInfo(
@@ -98,7 +98,7 @@ let selectStringInput = (
 
 let selectArrayInput = (
   ~applePayField: CommonWalletTypes.inputField,
-  ~integrationType: applePayIntegrationType,
+  ~integrationType: option<applePayIntegrationType>,
 ) => {
   let {label, name, required, options} = applePayField
   FormRenderer.makeFieldInfo(

@@ -36,12 +36,18 @@ type simplified = {
 //   manual?: option<manual>,
 //   simplified?: option<simplified>,
 // }
-type applePayCombined = {apple_pay_combined: Js.Json.t}
 type applePayIntegrationType = [#manual | #simplified]
 type applePayConfig = [#manual(manual) | #simplified(simplified)]
 type applePayIntegrationSteps = Landing | Configure | Verify
 type simplifiedApplePayIntegartionTypes = EnterUrl | DownloadFile | HostUrl
 
+type applePayCombined = {apple_pay_combined: Js.Json.t}
+type zenConfig = {
+  terminal_uuid: option<string>,
+  pay_wall_secret: option<string>,
+}
+
+type applePay = ApplePayCombined(applePayCombined) | Zen(zenConfig)
 type verifyApplePay = {
   domain_names: array<string>,
   merchant_connector_account_id: string,

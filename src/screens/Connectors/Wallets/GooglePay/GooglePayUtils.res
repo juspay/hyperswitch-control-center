@@ -58,7 +58,6 @@ let allowedPaymentMethod = (dict, connector) => {
 }
 
 let zenGooglePayConfig = dict => {
-  Js.log2(dict, "dict")
   {
     terminal_uuid: dict->getString("terminal_uuid", ""),
     pay_wall_secret: dict->getString("pay_wall_secret", ""),

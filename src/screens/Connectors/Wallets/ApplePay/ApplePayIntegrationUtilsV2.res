@@ -55,7 +55,20 @@ let simplified = (dict): simplified => {
   }
 }
 
-let applePay = (dict, applePayIntegrationType: applePayIntegrationType) => {
+let zenApplePayConfig = dict => {
+  {
+    terminal_uuid: dict->getOptionString("terminal_uuid"),
+    pay_wall_secret: dict->getOptionString("pay_wall_secret"),
+  }
+}
+
+let applePay = (
+  dict,
+  applePayIntegrationType: applePayIntegrationType,
+  connector: string,
+): applePay => {
+  open ConnectorUtils
+  open ConnectorTypes
   let data: applePayConfig = switch applePayIntegrationType {
   | #manual => #manual(dict->manual)
   | #simplified => #simplified(dict->simplified)
@@ -72,13 +85,24 @@ let applePay = (dict, applePayIntegrationType: applePayIntegrationType) => {
     )
   }
 
-  dict->JSON.Encode.object
+  let applePayCombined = {
+    apple_pay_combined: dict->JSON.Encode.object,
+  }
+
+  switch connector->getConnectorNameTypeFromString() {
+  | Processors(ZEN) => Zen(dict->zenApplePayConfig)
+  | _ => ApplePayCombined(applePayCombined)
+  }
 }
 
-let applePayNameMapper = (~name, ~integrationType: applePayIntegrationType) => {
+let applePayNameMapper = (~name, ~integrationType: option<applePayIntegrationType>) => {
   switch name {
+  | `terminal_uuid` => `metadata.apple_pay.${name}`
+  | `pay_wall_secret` => `metadata.apple_pay.${name}`
   | _ =>
-    `metadata.apple_pay_combined.${(integrationType: applePayIntegrationType :> string)}.session_token_data.${name}`
+    `metadata.apple_pay_combined.${(integrationType->Option.getOr(
+        #manual,
+      ): applePayIntegrationType :> string)}.session_token_data.${name}`
   }
 }
 
@@ -107,16 +131,34 @@ let ignoreFieldsonSimplified = [
   "payment_processing_details_at",
 ]
 
-let validateManualFlow = values => {
-  let data =
-    values
-    ->getDictFromJsonObject
-    ->getDictfromDict("metadata")
-    ->getDictfromDict("apple_pay_combined")
-    ->sessionToken
-  data.initiative_context->Option.isSome && data.merchant_business_country->Option.isSome
-    ? Button.Normal
-    : Button.Disabled
+let validateManualFlow = (values, connector) => {
+  open ConnectorUtils
+  open ConnectorTypes
+  switch connector->getConnectorNameTypeFromString() {
+  | Processors(ZEN) => {
+      let data =
+        values
+        ->getDictFromJsonObject
+        ->getDictfromDict("metadata")
+        ->getDictfromDict("apple_pay")
+        ->zenApplePayConfig
+      Js.log(data)
+      data.terminal_uuid->Option.isSome && data.pay_wall_secret->Option.isSome
+        ? Button.Normal
+        : Button.Disabled
+    }
+  | _ => {
+      let data =
+        values
+        ->getDictFromJsonObject
+        ->getDictfromDict("metadata")
+        ->getDictfromDict("apple_pay_combined")
+        ->sessionToken
+      data.initiative_context->Option.isSome && data.merchant_business_country->Option.isSome
+        ? Button.Normal
+        : Button.Disabled
+    }
+  }
 }
 
 let validateSimplifedFlow = values => {

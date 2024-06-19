@@ -982,7 +982,7 @@ let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) =
   | (Processors(PAYPAL), "paypal_sdk") => false
   | (Processors(CYBERSOURCE), "acquirer_country_code") => false
   | (Processors(ADYEN), "apple_pay_v2") => false
-
+  | (Processors(ZEN), "apple_pay_v2") => false
   | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") => false
 
   | _ => true
