@@ -25,3 +25,29 @@ let getAuthInfo = (~email_token=None, json) => {
   }
   totpInfo
 }
+
+let getEmailTmpToken = () => {
+  LocalStorage.getItem("email_token")->Nullable.toOption
+}
+
+let getEmailTokenValue = email_token => {
+  let tmpEmailToken = getEmailTmpToken()
+  switch email_token {
+  | Some(email_token) => {
+      email_token->storeEmailTokenTmp
+      Some(email_token)
+    }
+  | None => tmpEmailToken
+  }
+}
+
+let getPreLoginInfo = (~email_token=None, json) => {
+  open LogicUtils
+  let dict = json->JsonFlattenUtils.flattenObject(false)
+  let preLoginInfo: AuthProviderTypes.preLoginType = {
+    token: getString(dict, "token", ""),
+    token_type: dict->getString("token_type", ""),
+    email_token: email_token->getEmailTokenValue,
+  }
+  preLoginInfo
+}

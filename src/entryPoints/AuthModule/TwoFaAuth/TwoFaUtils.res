@@ -1,30 +1,3 @@
-let getEmailTmpToken = () => {
-  LocalStorage.getItem("email_token")->Nullable.toOption
-}
-
-let getEmailTokenValue = email_token => {
-  let tmpEmailToken = getEmailTmpToken()
-  switch email_token {
-  | Some(email_token) => Some(email_token)
-  | None => tmpEmailToken
-  }
-}
-
-let getPreLoginInfo = (~email_token=None, json) => {
-  open LogicUtils
-  let dict = json->JsonFlattenUtils.flattenObject(false)
-  let preLoginInfo: AuthProviderTypes.preLoginType = {
-    token: getString(dict, "token", ""),
-    token_type: dict->getString("token_type", ""),
-    email_token: email_token->getEmailTokenValue,
-  }
-  switch email_token {
-  | Some(emailTk) => emailTk->AuthUtils.storeEmailTokenTmp
-  | None => ()
-  }
-  preLoginInfo
-}
-
 let setTotpAuthResToStorage = json => {
   LocalStorage.setItem("USER_INFO", json->JSON.stringifyAny->Option.getOr(""))
 }
@@ -32,7 +5,7 @@ let setTotpAuthResToStorage = json => {
 let getTotpPreLoginInfoFromStorage = () => {
   open LogicUtils
   let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
-  json->getPreLoginInfo
+  json->AuthUtils.getPreLoginInfo
 }
 
 let getTotpAuthInfoFromStrorage = () => {

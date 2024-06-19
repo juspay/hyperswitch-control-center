@@ -1,4 +1,5 @@
 type twoFaFlowType =
+  | SSO
   | MERCHANT_SELECT
   | TOTP
   | FORCE_SET_PASSWORD
