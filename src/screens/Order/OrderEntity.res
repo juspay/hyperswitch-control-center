@@ -934,7 +934,7 @@ let itemToObjMapper = dict => {
   ]
 
   let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code", ()) => {
-    `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "")}`
+    `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
   }
 
   {

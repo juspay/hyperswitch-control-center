@@ -877,21 +877,6 @@ let make = (~id) => {
             },
           ]}
         />
-        <div className="overflow-scroll">
-          <RenderAccordian
-            accordion={[
-              {
-                title: "FRM Details",
-                renderContent: () => {
-                  <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
-                    <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
-                  </div>
-                },
-                renderContentOnTop: None,
-              },
-            ]}
-          />
-        </div>
         <UIUtils.RenderIf
           condition={orderData.payment_method === "card" &&
             orderData.payment_method_data->Option.isSome}>
@@ -947,6 +932,21 @@ let make = (~id) => {
             ]}
           />
         </UIUtils.RenderIf>
+        <div className="overflow-scroll">
+          <RenderAccordian
+            accordion={[
+              {
+                title: "FRM Details",
+                renderContent: () => {
+                  <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
+                    <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
+                  </div>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </div>
       </div>
     </PageLoaderWrapper>
   </div>
