@@ -123,7 +123,6 @@ let make = (
   // </div>
 
   | LoggedOut => React.null
-  | SSOPreLogin(_)
   | PreLogin(_)
   | CheckingAuthStatus =>
     React.string("...")
