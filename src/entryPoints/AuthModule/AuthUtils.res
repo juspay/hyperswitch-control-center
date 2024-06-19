@@ -27,7 +27,7 @@ let getAuthInfo = (~email_token=None, json) => {
 }
 
 let getEmailTmpToken = () => {
-  LocalStorage.getItem("email_token")->Nullable.toOption
+  HSLocalStorage.getInfoFromLocalStorage(~lStorageKey="user")->LogicUtils.getOptionString("email")
 }
 
 let getEmailTokenValue = email_token => {
