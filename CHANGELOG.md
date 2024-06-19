@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.19.1
+
+### Miscellaneous Tasks
+
+- Switch merchant quick fix ([#845](https://github.com/juspay/hyperswitch-control-center/pull/845)) ([`22093f6`](https://github.com/juspay/hyperswitch-control-center/commit/22093f6fe6f5281d519559df8e4a4473b8d0f958))
+
+**Full Changelog:** [`2024.06.19.0...2024.06.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.19.0...2024.06.19.1)
+
+- - -
+
 ## 2024.06.19.0
 
 ### Bug Fixes
