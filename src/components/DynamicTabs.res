@@ -225,6 +225,7 @@ let make = (
   ~defaultTabs: option<array<tab>>=?,
   ~enableDescriptionHeader: bool=false,
   ~toolTipDescription="Add more tabs",
+  ~updateCollapsableTabs=false,
 ) => {
   open LogicUtils
   let eulerBgClass = "bg-jp-gray-100 dark:bg-jp-gray-darkgray_background"
@@ -260,7 +261,9 @@ let make = (
 
   let (tabsDetails, setTabDetails) = React.useState(_ => tabs->Array.copy)
 
-  let (initialIndex, updatedCollapsableTabs) = React.useMemo0(() => {
+  let (selectedIndex, setSelectedIndex) = React.useState(_ => 0)
+
+  let (initialIndex, updatedCollapsableTabs) = React.useMemo1(() => {
     let defautTabValues = defaultTabs->Array.map(item => item.value)
     let collapsibleTabs = switch getConfig(availableTabUserPrefKey) {
     | Some(jsonVal) => {
@@ -375,11 +378,24 @@ let make = (
       updateTabNameWith(
         Dict.fromArray([("tabName", `[${getValueFromArrayTab(collapsibleTabs, 0)}]`)]),
       )
+      setSelectedIndex(_ => 0)
       (0, collapsibleTabs)
     }
-  })
+  }, [updateCollapsableTabs])
+
   let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
   let (formattedOptions, setFormattedOptions) = React.useState(_ => [])
+
+  React.useEffect1(_ => {
+    setSelectedIndex(_ => initialIndex)
+    None
+  }, [initialIndex])
+
+  React.useEffect1(_ => {
+    setCollapsibleTabs(_ => updatedCollapsableTabs)
+    None
+  }, [updatedCollapsableTabs])
+
   // this will update the current available tabs to the userpreference
   React.useEffect1(() => {
     let collapsibleTabsValues =
@@ -397,8 +413,6 @@ let make = (
     getValueFromArrayTab(updatedCollapsableTabs, 0),
     getValueFromArrayTab(updatedCollapsableTabs, initialIndex),
   ])
-
-  let (selectedIndex, setSelectedIndex) = React.useState(_ => initialIndex)
 
   let (isLeftArrowVisible, setIsLeftArrowVisible) = React.useState(() => false)
   let (isRightArrowVisible, setIsRightArrowVisible) = React.useState(() => true)
