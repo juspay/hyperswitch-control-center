@@ -3,6 +3,42 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.19.1
+
+### Miscellaneous Tasks
+
+- Switch merchant quick fix ([#845](https://github.com/juspay/hyperswitch-control-center/pull/845)) ([`22093f6`](https://github.com/juspay/hyperswitch-control-center/commit/22093f6fe6f5281d519559df8e4a4473b8d0f958))
+
+**Full Changelog:** [`2024.06.19.0...2024.06.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.19.0...2024.06.19.1)
+
+- - -
+
+## 2024.06.19.0
+
+### Bug Fixes
+
+- Payments table description column fix ([#834](https://github.com/juspay/hyperswitch-control-center/pull/834)) ([`5e8290e`](https://github.com/juspay/hyperswitch-control-center/commit/5e8290e9b8c8956f5d6e4c5a78adc772ae999fae))
+- Switch merchant dialog box ui issue ([#839](https://github.com/juspay/hyperswitch-control-center/pull/839)) ([`51baf8e`](https://github.com/juspay/hyperswitch-control-center/commit/51baf8ee05421736986337776e995c2a7803f4e0))
+
+### Refactors
+
+- Auth module folder restructuring ([#831](https://github.com/juspay/hyperswitch-control-center/pull/831)) ([`f37237d`](https://github.com/juspay/hyperswitch-control-center/commit/f37237dcb756cc5f5b7be86e2154a555e6b08996))
+
+**Full Changelog:** [`2024.06.18.0...2024.06.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.18.0...2024.06.19.0)
+
+- - -
+
+## 2024.06.18.0
+
+### Miscellaneous Tasks
+
+- Dynamic tabs ([#769](https://github.com/juspay/hyperswitch-control-center/pull/769)) ([`d6e16ad`](https://github.com/juspay/hyperswitch-control-center/commit/d6e16adb4dc87656eee1484f9f05b834f6131ad1))
+- Showing error message on payment failure ([#806](https://github.com/juspay/hyperswitch-control-center/pull/806)) ([`99db9c1`](https://github.com/juspay/hyperswitch-control-center/commit/99db9c182617047d90534754a5b1e8e353ca3744))
+
+**Full Changelog:** [`2024.06.16.0...2024.06.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.16.0...2024.06.18.0)
+
+- - -
+
 ## 2024.06.16.0
 
 ### Miscellaneous Tasks
