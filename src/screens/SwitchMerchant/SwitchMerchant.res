@@ -298,6 +298,12 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       // TODO: When BE changes the response of this api re-evaluate the below conditions
       if featureFlagDetails.totp {
         let responseDict = res->getDictFromJsonObject
+
+        // Need to revert back once backend does the changes
+        let role_id = responseDict->getString("user_role", "")
+        responseDict->Dict.set("role_id", role_id->JSON.Encode.string)
+        //
+
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict->JSON.Encode.object))))
       } else {
         setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
@@ -305,7 +311,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
 
       setSuccessModal(_ => true)
       await HyperSwitchUtils.delay(2000)
-      Window.Location.reload()
+      // Window.Location.reload()
       setSuccessModal(_ => false)
     } catch {
     | _ => setValue(_ => "")
