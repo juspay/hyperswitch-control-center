@@ -197,7 +197,7 @@ let make = () => {
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let showTwoFaSettings = switch authStatus {
-  | LoggedIn(TotpAuth(totpAuthInfo)) => totpAuthInfo.is_two_factor_auth_setup
+  | LoggedIn(Auth(authInfo)) => authInfo.is_two_factor_auth_setup
   | _ => false
   }
 

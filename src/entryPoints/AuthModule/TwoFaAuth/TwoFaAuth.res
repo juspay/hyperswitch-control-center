@@ -4,7 +4,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   open CommonAuthForm
   open HSwitchGlobalVars
   open LogicUtils
-  open TotpUtils
+  open TwoFaUtils
   open AuthProviderTypes
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()

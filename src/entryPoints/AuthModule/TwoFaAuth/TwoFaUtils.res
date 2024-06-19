@@ -1,67 +1,5 @@
-open TotpTypes
-
-let flowTypeStrToVariantMapper = val => {
-  switch val {
-  // old types
-  | Some("merchant_select") => MERCHANT_SELECT
-
-  | Some("totp") => TOTP
-
-  // rotate password
-  | Some("force_set_password") => FORCE_SET_PASSWORD
-
-  // merchant select
-  | Some("accept_invite") => ACCEPT_INVITE
-
-  | Some("accept_invitation_from_email") => ACCEPT_INVITATION_FROM_EMAIL
-  | Some("verify_email") => VERIFY_EMAIL
-  | Some("reset_password") => RESET_PASSWORD
-
-  // home call
-  | Some("user_info") => USER_INFO
-  | Some(_) => ERROR
-  | None => ERROR
-  }
-}
-
-let flowTypeStrToVariantMapperForNewFlow = val => {
-  switch val {
-  // old types
-  | "merchant_select" => MERCHANT_SELECT
-  | "totp" => TOTP
-  // rotate password
-  | "force_set_password" => FORCE_SET_PASSWORD
-  // merchant select
-  | "accept_invite" => ACCEPT_INVITE
-  | "accept_invitation_from_email" => ACCEPT_INVITATION_FROM_EMAIL
-  | "verify_email" => VERIFY_EMAIL
-  | "reset_password" => RESET_PASSWORD
-  // home call
-  | "user_info" => USER_INFO
-  | _ => ERROR
-  }
-}
-
-let variantToStringFlowMapper = val => {
-  switch val {
-  | MERCHANT_SELECT => "merchant_select"
-  | TOTP => "totp"
-  | FORCE_SET_PASSWORD => "force_set_password"
-  | ACCEPT_INVITE => "accept_invite"
-  | VERIFY_EMAIL => "verify_email"
-  | ACCEPT_INVITATION_FROM_EMAIL => "accept_invitation_from_email"
-  | RESET_PASSWORD => "reset_password"
-  | USER_INFO => "user_info"
-  | ERROR => ""
-  }
-}
-
 let getEmailTmpToken = () => {
   LocalStorage.getItem("email_token")->Nullable.toOption
-}
-
-let storeEmailTokenTmp = emailToken => {
-  LocalStorage.setItem("email_token", emailToken)
 }
 
 let getEmailTokenValue = email_token => {
@@ -70,29 +8,6 @@ let getEmailTokenValue = email_token => {
   | Some(email_token) => Some(email_token)
   | None => tmpEmailToken
   }
-}
-
-let getTotpAuthInfo = (~email_token=None, json) => {
-  open LogicUtils
-  let dict = json->JsonFlattenUtils.flattenObject(false)
-  let totpInfo = {
-    email: getString(dict, "email", ""),
-    merchant_id: getString(dict, "merchant_id", ""),
-    name: getString(dict, "name", ""),
-    token: getString(dict, "token", ""),
-    role_id: getString(dict, "role_id", ""),
-    is_two_factor_auth_setup: getBool(dict, "is_two_factor_auth_setup", false),
-    recovery_codes_left: getInt(
-      dict,
-      "recovery_codes_left",
-      HSwitchGlobalVars.maximumRecoveryCodes,
-    ),
-  }
-  switch email_token {
-  | Some(emailTk) => emailTk->storeEmailTokenTmp
-  | None => ()
-  }
-  totpInfo
 }
 
 let getPreLoginInfo = (~email_token=None, json) => {
@@ -104,7 +19,7 @@ let getPreLoginInfo = (~email_token=None, json) => {
     email_token: email_token->getEmailTokenValue,
   }
   switch email_token {
-  | Some(emailTk) => emailTk->storeEmailTokenTmp
+  | Some(emailTk) => emailTk->AuthUtils.storeEmailTokenTmp
   | None => ()
   }
   preLoginInfo
@@ -123,7 +38,7 @@ let getTotpPreLoginInfoFromStorage = () => {
 let getTotpAuthInfoFromStrorage = () => {
   open LogicUtils
   let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
-  json->getTotpAuthInfo
+  json->AuthUtils.getAuthInfo
 }
 
 let getEmailToken = (authStatus: AuthProviderTypes.authStatus) => {
