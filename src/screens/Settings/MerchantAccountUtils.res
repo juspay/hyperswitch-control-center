@@ -257,10 +257,18 @@ let checkValueChange = (~initialDict, ~valuesDict) => {
     initialDict
     ->Dict.keysToArray
     ->Array.find(key => {
-      let initialValue = initialDict->LogicUtils.getString(key, "")
-      let updatedValue = valuesDict->LogicUtils.getString(key, "")
-
-      initialValue !== updatedValue
+      switch key {
+      | "collect_shipping_details_from_wallet_connector" => {
+          let initialValue = initialDict->LogicUtils.getBool(key, false)
+          let updatedValue = valuesDict->LogicUtils.getBool(key, false)
+          initialValue !== updatedValue
+        }
+      | _ => {
+          let initialValue = initialDict->LogicUtils.getString(key, "")
+          let updatedValue = valuesDict->LogicUtils.getString(key, "")
+          initialValue !== updatedValue
+        }
+      }
     })
   key->Option.isSome || updatedKeys > initialKeys
 }
@@ -347,10 +355,14 @@ let validateMerchantAccountForm = (
   })
 
   setIsDisabled->Option.mapOr((), disableBtn => {
+    Js.log2(initialDict, "initialDict")
+    Js.log2(valuesDict, "valuesDict")
+
     let isValueChanged = checkValueChange(~initialDict, ~valuesDict)
+    Js.log2(isValueChanged, "isValueChanged")
     disableBtn(_ => !isValueChanged)
   })
-
+  Js.log(errors)
   errors->JSON.Encode.object
 }
 
