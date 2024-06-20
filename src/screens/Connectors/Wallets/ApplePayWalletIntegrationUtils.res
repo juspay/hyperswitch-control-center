@@ -67,8 +67,8 @@ let constructApplePayMetadata = (
         ->getDictFromJsonObject
         ->getDictfromDict("apple_pay_combined")
         ->getDictfromDict((#manual: applePayIntegrationType :> string))
-        ->getDictfromDict("payment_request_data")
-        ->getString("label", "apple")
+        ->getDictfromDict("session_token_data")
+        ->getString("display_name", "apple")
       paymentRequestData->Dict.set("label", label->JSON.Encode.string)
     }
 
