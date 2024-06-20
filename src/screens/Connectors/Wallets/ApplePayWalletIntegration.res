@@ -152,9 +152,10 @@ module Simplified = {
       try {
         let (body, domainName) = values->constructVerifyApplePayReq(connectorID)
         let verifyAppleUrl = getURL(~entityName=VERIFY_APPLE_PAY, ~methodType=Post, ())
-        let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post, ())
+        // let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post, ())
 
         let updatedValue = values->constructApplePayMetadata(metadataInputs, #simplified)
+        Js.log(updatedValue)
         update(updatedValue)
         setVefifiedDomainList(_ => [domainName])
         setApplePayIntegrationSteps(_ => ApplePayWalletIntegrationTypes.Verify)
@@ -314,7 +315,22 @@ module Fields = {
       })
       ->React.array
     }
-    <> {fields} </>
+    <>
+      {fields}
+      <div>
+        <FormRenderer.FieldRenderer
+          labelClass="font-semibold !text-hyperswitch_black"
+          field={FormRenderer.makeFieldInfo(
+            ~label="Label",
+            ~name={`apple_pay_combined.manual.payment_request_data.label`},
+            ~placeholder={`Enter Label`},
+            ~customInput=InputFields.textInput(),
+            ~isRequired=true,
+            (),
+          )}
+        />
+      </div>
+    </>
   }
 }
 
@@ -335,7 +351,7 @@ module Manual = {
     // Need to refactor
     let _ = ConnectorUtils.updateMetaData(~metaData)
     //
-
+    Js.log(metaData)
     let configurationFields =
       metadataInputs
       ->getDictfromDict("apple_pay")
@@ -345,6 +361,7 @@ module Manual = {
       ->convertMapObjectToDict
 
     let onSubmit = (values, _) => {
+      Js.log2(values, "values")
       let domainName = values->getSessionTokenDict(#manual)->getString("initiative_context", "")
       let updatedValue = values->constructApplePayMetadata(metadataInputs, #manual)
       update(updatedValue)
