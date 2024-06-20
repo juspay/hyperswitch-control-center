@@ -118,8 +118,15 @@ let paymentProcessingAtField = (
   FormRenderer.makeFieldInfo(
     ~name,
     ~label,
-    ~customInput=(~input) =>
+    ~customInput=(~input, ~placeholder) =>
       InputFields.radioInput(
+        ~options=options->SelectBox.makeOptions,
+        ~buttonText="",
+        ~isHorizontal=true,
+        ~customStyle="cursor-pointer gap-2",
+        ~fill={`${textColor}`},
+        (),
+      )(
         ~input={
           ...input,
           onChange: event => {
@@ -138,12 +145,7 @@ let paymentProcessingAtField = (
             input.onChange(event)
           },
         },
-        ~options=options->SelectBox.makeOptions,
-        ~buttonText="",
-        ~isHorizontal=true,
-        ~customStyle="cursor-pointer gap-2",
-        ~fill={`${textColor}`},
-        (),
+        ~placeholder,
       ),
     (),
   )

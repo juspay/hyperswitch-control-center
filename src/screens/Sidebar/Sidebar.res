@@ -221,9 +221,9 @@ module NestedSidebarItem = {
                     <RenderIf condition={iconTag->Belt.Option.isSome && isSideBarExpanded}>
                       <div className=linkTagPadding>
                         <Icon
-                          size={iconSize->Belt.Option.getWithDefault(26)}
-                          name={iconTag->Belt.Option.getWithDefault("")}
-                          className={iconStyles->Belt.Option.getWithDefault("w-26 h-26")}
+                          size={iconSize->Belt.Option.getOr(26)}
+                          name={iconTag->Belt.Option.getOr("")}
+                          className={iconStyles->Belt.Option.getOr("w-26 h-26")}
                         />
                       </div>
                     </RenderIf>
@@ -571,8 +571,7 @@ let make = (
         ~setAuthStateToLogout,
         ~setIsSidebarExpanded,
         ~clearRecoilValue,
-        ~getURL,
-      )
+      )(~getURL)
     } catch {
     | Exn.Error(e) => Js.log(e)
     }

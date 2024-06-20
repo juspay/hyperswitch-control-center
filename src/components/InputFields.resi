@@ -4,11 +4,8 @@ type customInputFn = (
 ) => React.element
 type comboCustomInputFn = array<ReactFinalForm.fieldRenderProps> => React.element
 type comboCustomInputRecord = {fn: comboCustomInputFn, names: array<string>}
-
 let selectInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
-  ~placeholder: 'a,
   ~buttonText: string,
   ~deselectDisable: bool=?,
   ~isHorizontal: bool=?,
@@ -31,14 +28,14 @@ let selectInput: (
   ~buttonType: Button.buttonType=?,
   ~dropdownCustomWidth: string=?,
   ~allowButtonTextMinWidth: bool=?,
-  ~setExtSearchString: ('b => string) => unit=?,
+  ~setExtSearchString: ('a => string) => unit=?,
   ~textStyleClass: string=?,
   ~ellipsisOnly: bool=?,
   ~showBtnTextToolTip: bool=?,
   ~dropdownClassName: string=?,
   ~descriptionOnHover: bool=?,
   unit,
-) => React.element
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'b) => React.element
 let infraSelectInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
@@ -96,7 +93,7 @@ let filterMultiSelectInput: (
   ~leftIcon: Button.iconType=?,
   ~customBackColor: string=?,
   ~customSelectAllStyle: string=?,
-  ~onItemSelect: (JsxEvent.Mouse.t, Js_string.t) => unit=?,
+  ~onItemSelect: (JsxEventU.Mouse.t, string) => unit=?,
   ~wrapBasis: string=?,
   ~dropdownClassName: string=?,
   ~baseComponentMethod: bool => React.element=?,
@@ -148,7 +145,7 @@ let multiSelectInput: (
   ~leftIcon: Button.iconType=?,
   ~customBackColor: string=?,
   ~customSelectAllStyle: string=?,
-  ~onItemSelect: (JsxEvent.Mouse.t, Js_string.t) => unit=?,
+  ~onItemSelect: (JsxEventU.Mouse.t, string) => unit=?,
   ~wrapBasis: string=?,
   ~dropdownClassName: string=?,
   ~baseComponentMethod: bool => React.element=?,
@@ -156,9 +153,7 @@ let multiSelectInput: (
   unit,
 ) => React.element
 let radioInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
-  ~placeholder: 'a,
   ~buttonText: string,
   ~disableSelect: bool=?,
   ~optionSize: CheckBoxIcon.size=?,
@@ -170,10 +165,8 @@ let radioInput: (
   ~fill: string=?,
   ~maxHeight: string=?,
   unit,
-) => React.element
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
 let textInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: string,
   ~description: string=?,
   ~isDisabled: bool=?,
   ~autoFocus: bool=?,
@@ -184,7 +177,7 @@ let textInput: (
   ~maxLength: int=?,
   ~leftIcon: React.element=?,
   ~rightIcon: React.element=?,
-  ~rightIconOnClick: JsxEvent.Mouse.t => unit=?,
+  ~rightIconOnClick: JsxEventU.Mouse.t => unit=?,
   ~inputStyle: string=?,
   ~customStyle: string=?,
   ~customWidth: string=?,
@@ -200,7 +193,7 @@ let textInput: (
   ~phoneInput: bool=?,
   ~widthMatchwithPlaceholderLength: option<int>=?,
   unit,
-) => React.element
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: string) => React.element
 let textTagInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: string,
@@ -213,8 +206,6 @@ let textTagInput: (
   unit,
 ) => React.element
 let numericTextInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: string,
   ~isDisabled: bool=?,
   ~customStyle: string=?,
   ~inputMode: string=?,
@@ -227,7 +218,7 @@ let numericTextInput: (
   ~rightIconCustomStyle: string=?,
   ~leftIconCustomStyle: string=?,
   unit,
-) => React.element
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: string) => React.element
 let singleDatePickerInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: 'a,
@@ -258,7 +249,7 @@ let filterDateRangeField: (
   ~numMonths: int=?,
   ~dateRangeLimit: int=?,
   ~removeFilterOption: bool=?,
-  ~optFieldKey: string=?,
+  ~optFieldKey: 'a=?,
   ~showSeconds: bool=?,
   ~hideDate: bool=?,
   ~selectStandardTime: bool=?,
@@ -277,7 +268,7 @@ let dateRangeField: (
   ~numMonths: int=?,
   ~dateRangeLimit: int=?,
   ~removeFilterOption: bool=?,
-  ~optFieldKey: string=?,
+  ~optFieldKey: 'a=?,
   ~showSeconds: bool=?,
   ~hideDate: bool=?,
   ~selectStandardTime: bool=?,
@@ -286,8 +277,6 @@ let dateRangeField: (
   unit,
 ) => comboCustomInputRecord
 let multiLineTextInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: string,
   ~isDisabled: bool,
   ~rows: option<int>,
   ~cols: option<int>,
@@ -295,7 +284,7 @@ let multiLineTextInput: (
   ~leftIcon: React.element=?,
   ~maxLength: int=?,
   unit,
-) => React.element
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: string) => React.element
 let iconFieldWithMessageDes: (
   (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element,
   ~input: ReactFinalForm.fieldRenderPropsInput,
@@ -303,13 +292,10 @@ let iconFieldWithMessageDes: (
   ~description: string=?,
   unit,
 ) => React.element
-let passwordMatchField: (
+let passwordMatchField: (~leftIcon: React.element=?, unit) => (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: string,
-  ~leftIcon: React.element=?,
-  unit,
 ) => React.element
-
 let checkboxInput: (
   ~isHorizontal: bool=?,
   ~options: array<SelectBox.dropdownOption>,
@@ -328,10 +314,7 @@ let checkboxInput: (
   ~checkboxDimension: string=?,
   ~wrapBasis: string=?,
   unit,
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-) => React.element
-
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
 let boolInput: (
   ~isDisabled: bool,
   ~isCheckBox: bool=?,

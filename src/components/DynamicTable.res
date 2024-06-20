@@ -117,7 +117,7 @@ let make = (
   } = entity
   let tableName =
     prefixAddition->Option.getOr(false)
-      ? title->String.replaceRegExp(_, %re("/ /g"), "-")->String.toLowerCase->Some
+      ? title->(String.replaceRegExp(_, %re("/ /g"), "-"))->String.toLowerCase->Some
       : None
   let (defaultFilters, setDefaultFilters) = React.useState(() => entity.defaultFilters)
   let defaultSummary: EntityType.summary = {totalCount: 0, count: 0}
@@ -210,9 +210,9 @@ let make = (
             ->Dict.get(val)
             ->Option.getOr(searchValueDict->Dict.get(val)->Option.getOr(""))
           if requireDateFormatting && (val == "startTime" || val == "endTime") {
-            (x->DayJs.getDayJsForString).format(. "YYYY-MM-DD+HH:mm:ss")
+            (x->DayJs.getDayJsForString).format("YYYY-MM-DD+HH:mm:ss")
           } else if requireDateFormatting && (val == "start_date" || val == "end_date") {
-            (x->DayJs.getDayJsForString).format(. "YYYY-MM-DD HH:mm:ss")
+            (x->DayJs.getDayJsForString).format("YYYY-MM-DD HH:mm:ss")
           } else {
             x
           }
@@ -222,7 +222,7 @@ let make = (
         urii
       })
       let uri =
-        uri ++ "?" ++ uriList->Array.filter(val => val->isNonEmptyString)->Array.joinWith("&")
+        uri ++ "?" ++ uriList->Array.filter(val => val->isNonEmptyString)->Array.joinWithUnsafe("&")
       uri
     }
 
@@ -244,7 +244,7 @@ let make = (
         setTableDataLoading(_ => false)
       }
 
-      Fetch.Response.json(resp)
+      res => res->Fetch.Response.json(resp)
     })
     ->then(json => {
       switch json->JSON.Classify.classify {

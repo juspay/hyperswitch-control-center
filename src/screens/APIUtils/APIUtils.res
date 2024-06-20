@@ -296,7 +296,7 @@ let useGetURL = () => {
 
 let sessionExpired = ref(false)
 
-let handleLogout = async (
+let handleLogout = (
   ~fetchApi: (
     string,
     ~bodyStr: string=?,
@@ -310,6 +310,7 @@ let handleLogout = async (
   ~setAuthStateToLogout,
   ~setIsSidebarExpanded,
   ~clearRecoilValue,
+) => async (
   ~getURL: (
     ~entityName: APIUtilsTypes.entityName,
     ~methodType: Fetch.requestMethod,
@@ -339,13 +340,13 @@ let responseHandler = async (
   ~res,
   ~showToast: ToastState.showToastFn,
   ~showErrorToast: bool,
-  ~showPopUp: React.callback<PopUpState.popUpProps, unit>,
+  ~showPopUp: PopUpState.popUpProps => unit,
   ~isPlayground,
   ~popUpCallBack,
   ~setAuthStatus,
 ) => {
   let json = try {
-    await res->Fetch.Response.json
+    await res->(res => res->Fetch.Response.json)
   } catch {
   | _ => JSON.Encode.null
   }
@@ -449,8 +450,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
               ~setAuthStateToLogout,
               ~setIsSidebarExpanded,
               ~clearRecoilValue,
-              ~getURL,
-            )
+            )(~getURL)
           }
         },
       },

@@ -66,7 +66,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let (activeTab, activeTabStr) = React.useMemo1(() => {
     let activeTabOptionalArr =
       getAllFilter->getOptionStrArrayFromDict(`${chartEntity.moduleName}.tabName`)
-    (activeTabOptionalArr, activeTabOptionalArr->Option.getOr([])->Array.joinWith(","))
+    (activeTabOptionalArr, activeTabOptionalArr->Option.getOr([])->Array.joinWithUnsafe(","))
   }, [getAllFilter])
 
   let parentToken = AuthWrapperUtils.useTokenParent(Original)
@@ -149,7 +149,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
           None
         }
       })
-      ->Array.joinWith("&")
+      ->Array.joinWithUnsafe("&")
 
     (filterSearchParam, getTopLevelChartFilter->getString(customFilterKey, ""))
   }, [getTopLevelChartFilter])
@@ -248,7 +248,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     None
   }, (
     parentToken,
-    current_granularity->Array.joinWith("-") ++
+    current_granularity->Array.joinWithUnsafe("-") ++
     granularity->Option.getOr("") ++
     cardinalityFromUrl ++
     chartTopMetricFromUrl ++
@@ -279,7 +279,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     None
   }, (
     parentToken,
-    current_granularity->Array.joinWith("-") ++
+    current_granularity->Array.joinWithUnsafe("-") ++
     granularity->Option.getOr("") ++
     chartBottomMetricFromUrl ++
     startTimeFromUrl ++
@@ -652,7 +652,7 @@ module SDKAnalyticsChartContext = {
             None
           }
         })
-        ->Array.joinWith("&")
+        ->Array.joinWithUnsafe("&")
 
       (filterSearchParam, getTopLevelChartFilter->getString(customFilterKey, ""))
     }, [getTopLevelChartFilter])
@@ -752,16 +752,18 @@ module SDKAnalyticsChartContext = {
       None
     }, (
       parentToken,
-      current_granularity->Array.joinWith("-") ++
+      current_granularity->Array.joinWithUnsafe("-") ++
       granularity->Option.getOr("") ++
       cardinalityFromUrl ++
-      selectedTrends->Array.joinWith(",") ++
+      selectedTrends->Array.joinWithUnsafe(",") ++
       customFilter ++
       startTimeFromUrl ++
-      segmentValue->Option.getOr([])->Array.joinWith(",") ++
+      segmentValue->Option.getOr([])->Array.joinWithUnsafe(",") ++
       endTimeFromUrl,
       filterValueFromUrl,
-      differentTimeValues->Array.map(item => `${item.fromTime}${item.toTime}`)->Array.joinWith(","),
+      differentTimeValues
+      ->Array.map(item => `${item.fromTime}${item.toTime}`)
+      ->Array.joinWithUnsafe(","),
     ))
 
     React.useEffect2(() => {
@@ -826,7 +828,7 @@ module SDKAnalyticsChartContext = {
                             : None
                         },
                       )
-                      ->Array.joinWith("-dimension-")
+                      ->Array.joinWithUnsafe("-dimension-")
                     },
                   )
 
@@ -873,7 +875,7 @@ module SDKAnalyticsChartContext = {
                                           : None
                                       },
                                     )
-                                    ->Array.joinWith("-dimension-")
+                                    ->Array.joinWithUnsafe("-dimension-")
 
                                   groupedArr->Array.includes(origDictArr)
                                     ? Some(

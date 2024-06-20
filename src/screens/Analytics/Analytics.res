@@ -108,7 +108,7 @@ module TableWrapper = {
     let (_, setDefaultFilter) = Recoil.useRecoilState(AnalyticsHooks.defaultFilter)
     let (showTable, setShowTable) = React.useState(_ => false)
     let {getHeading, allColumns, defaultColumns} = tableEntity
-    let activeTabStr = activeTab->Option.getOr([])->Array.joinWith("-")
+    let activeTabStr = activeTab->Option.getOr([])->Array.joinWithUnsafe("-")
     let (startTimeFilterKey, endTimeFilterKey) = dateKeys
     let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
     let (tableData, setTableData) = React.useState(_ => []->Array.map(Nullable.make))
@@ -149,7 +149,7 @@ module TableWrapper = {
             None
           }
         })
-        ->Array.joinWith("&")
+        ->Array.joinWithUnsafe("&")
 
       filterSearchParam
     }, [getTopLevelFilter])
@@ -325,7 +325,7 @@ module TableWrapper = {
     }, [activeTabStr])
 
     let transactionTableDefaultCols = React.useMemo2(() => {
-      Recoil.atom(. `${moduleName}DefaultCols${activeTabStr}`, newDefaultCols)
+      Recoil.atom(`${moduleName}DefaultCols${activeTabStr}`, newDefaultCols)
     }, (newDefaultCols, `${moduleName}DefaultCols${activeTabStr}`))
 
     let timeRange =
@@ -351,7 +351,7 @@ module TableWrapper = {
         ("filter", defaultFilters->JSON.Encode.object),
       ]->Dict.fromArray
 
-    setDefaultFilter(._ => dict->JSON.Encode.object->JSON.stringify)
+    setDefaultFilter(_ => dict->JSON.Encode.object->JSON.stringify)
 
     let modifyData = data => {
       switch formatData {
@@ -605,7 +605,7 @@ let make = (
       source: "BATCH",
     }
     AnalyticsUtils.filterBody(filterBodyEntity)
-  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
+  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWithUnsafe(",")))
 
   open APIUtils
   open Promise

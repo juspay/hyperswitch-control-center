@@ -10,9 +10,7 @@ type comboCustomInputRecord = {
 }
 
 let selectInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
-  ~placeholder as _,
   ~buttonText,
   ~deselectDisable=false,
   ~isHorizontal=true,
@@ -42,7 +40,7 @@ let selectInput = (
   ~dropdownClassName="",
   ~descriptionOnHover=false,
   (),
-) => {
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <SelectBox
     input
     options
@@ -313,9 +311,7 @@ let multiSelectInput = (
 }
 
 let radioInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
-  ~placeholder as _,
   ~buttonText,
   ~disableSelect=true,
   ~optionSize: CheckBoxIcon.size=Small,
@@ -327,7 +323,7 @@ let radioInput = (
   ~fill=?,
   ~maxHeight=?,
   (),
-) => {
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <SelectBox
     input
     disableSelect
@@ -347,8 +343,6 @@ let radioInput = (
 }
 
 let textInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder,
   ~description="",
   ~isDisabled=false,
   ~autoFocus=false,
@@ -375,7 +369,7 @@ let textInput = (
   ~phoneInput=false,
   ~widthMatchwithPlaceholderLength=None,
   (),
-) => {
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
   <TextInput
     input
     placeholder
@@ -424,8 +418,6 @@ let textTagInput = (
 }
 
 let numericTextInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder,
   ~isDisabled=false,
   ~customStyle="",
   ~inputMode=?,
@@ -438,7 +430,7 @@ let numericTextInput = (
   ~rightIconCustomStyle=?,
   ~leftIconCustomStyle=?,
   (),
-) => {
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
   <NumericTextInput
     customStyle
     input
@@ -581,8 +573,6 @@ let dateRangeField = (
 }
 
 let multiLineTextInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder,
   ~isDisabled,
   ~rows,
   ~cols,
@@ -590,7 +580,7 @@ let multiLineTextInput = (
   ~leftIcon=?,
   ~maxLength=?,
   (),
-) => {
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
   <MultiLineTextInput ?maxLength input placeholder isDisabled ?rows ?cols customClass ?leftIcon />
 }
 
@@ -616,11 +606,9 @@ let iconFieldWithMessageDes = (
   </div>
 }
 
-let passwordMatchField = (
+let passwordMatchField = (~leftIcon=?, ()) => (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder,
-  ~leftIcon=?,
-  (),
 ) => {
   <PasswordStrengthInput input placeholder displayStatus=false ?leftIcon />
 }
@@ -643,9 +631,7 @@ let checkboxInput = (
   ~checkboxDimension="",
   ~wrapBasis="",
   (),
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder as _,
-) => {
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <SelectBox
     input
     options

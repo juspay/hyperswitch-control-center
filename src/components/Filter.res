@@ -43,7 +43,7 @@ module ClearFilters = {
             | false => None
             }
           })
-          ->Array.joinWith("&")
+          ->Array.joinWithUnsafe("&")
 
         searchStr->FilterUtils.parseFilterString->updateExistingKeys
       }

@@ -260,7 +260,7 @@ module ConnectorSummaryGrid = {
                   }
                   acc
                 })
-                ->Array.joinWith(", "),
+                ->Array.joinWithUnsafe(", "),
               )}
             />
           })

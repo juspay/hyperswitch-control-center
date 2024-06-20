@@ -31,11 +31,11 @@ let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
       `/${pageTitle}/${type_}`
     }
 
-  | _ => `/${url.path->List.toArray->Array.joinWith("/")}`
+  | _ => `/${url.path->List.toArray->Array.joinWithUnsafe("/")}`
   }
 }
 
 let delay = ms =>
   Promise.make((resolve, _) => {
-    let _ = setTimeout(() => resolve(. ()), ms)
+    let _ = setTimeout(() => resolve(), ms)
   })

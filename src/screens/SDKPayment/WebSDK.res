@@ -62,7 +62,7 @@ module CheckoutForm = {
           ~method_=Fetch.Post,
           (),
         )
-        ->then(Fetch.Response.json)
+        ->then(res => res->Fetch.Response.json)
         ->then(json => {
           json->resolve
         })
