@@ -123,6 +123,7 @@ module BasicAccountSetupSuccessfulPage = {
     ~statusText,
     ~buttonText,
     ~buttonOnClick,
+    ~errorMessage="",
     ~customWidth="w-full",
     ~bgColor="bg-green-success_page_bg",
     ~buttonState=Button.Normal,
@@ -132,6 +133,9 @@ module BasicAccountSetupSuccessfulPage = {
       <div className={`p-4 h-5/6 ${bgColor} flex flex-col justify-center items-center gap-8`}>
         <Icon name=iconName size=120 />
         <p className=headerTextStyle> {statusText->React.string} </p>
+        <UIUtils.RenderIf condition={statusText == "Payment Failed"}>
+          <p className="text-center"> {errorMessage->React.string} </p>
+        </UIUtils.RenderIf>
       </div>
       <UIUtils.RenderIf condition={isButtonVisible}>
         <Button

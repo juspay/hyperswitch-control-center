@@ -318,6 +318,21 @@ let make = () => {
                               />
                             </FilterContext>
                           </AccessControl>
+
+                        | list{"payouts", ...remainingPath} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.payOut}
+                            permission=userPermissionJson.operationsView>
+                            <FilterContext key="payouts" index="payouts">
+                              <EntityScaffold
+                                entityName="Payouts"
+                                remainingPath
+                                access=Access
+                                renderList={() => <PayoutsList />}
+                                renderShow={id => <ShowPayout id />}
+                              />
+                            </FilterContext>
+                          </AccessControl>
                         | list{"refunds", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.operationsView>
                             <FilterContext key="refunds" index="refunds">

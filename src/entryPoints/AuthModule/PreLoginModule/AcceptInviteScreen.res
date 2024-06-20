@@ -10,7 +10,7 @@ let make = () => {
 
   let acceptInviteFromEmailWithSPT = async body => {
     try {
-      open TotpUtils
+      open AuthUtils
 
       let url = getURL(
         ~entityName=USERS,
@@ -19,7 +19,7 @@ let make = () => {
         (),
       )
       let res = await updateDetails(url, body, Post, ())
-      setAuthStatus(LoggedIn(TotpAuth(getTotpAuthInfo(res))))
+      setAuthStatus(PreLogin(getPreLoginInfo(res)))
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Verification Failed")
@@ -31,7 +31,7 @@ let make = () => {
 
   React.useEffect0(() => {
     open CommonAuthUtils
-    open TotpUtils
+    open TwoFaUtils
     open HSwitchGlobalVars
     RescriptReactRouter.replace(appendDashboardPath(~url="/accept_invite_from_email"))
     let emailToken = authStatus->getEmailToken

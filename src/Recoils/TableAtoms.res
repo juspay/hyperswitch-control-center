@@ -5,6 +5,8 @@ let historyDefaultCols = Recoil.atom(.
 
 let refundsMapDefaultCols = Recoil.atom(. "refundsMapDefaultCols", RefundEntity.defaultColumns)
 
+let payoutsMapDefaultCols = Recoil.atom(. "payoutsMapDefaultCols", PayoutsEntity.defaultColumns)
+
 let ordersMapDefaultCols = Recoil.atom(. "ordersMapDefaultCols", OrderEntity.defaultColumns)
 
 let disputesMapDefaultCols = Recoil.atom(. "disputesMapDefaultCols", DisputesEntity.defaultColumns)

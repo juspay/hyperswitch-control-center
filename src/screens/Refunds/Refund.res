@@ -58,7 +58,7 @@ let make = () => {
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let filterUrlV2 = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some("v2/filter"), ())
+  let filterUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some("v2/filter"), ())
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
@@ -66,7 +66,7 @@ let make = () => {
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
-            filterUrlV2
+            filterUrl
             setFilters
             endTimeFilterKey
             startTimeFilterKey

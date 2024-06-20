@@ -265,6 +265,7 @@ let timeSeriesDataMaker = (
   ~xAxis,
   ~metricsConfig: metricsConfig,
   ~commonColors: option<array<chartData<'a>>>=?,
+  ~selectedTab: option<array<string>>=?,
   (),
 ) => {
   let colors = switch commonColors {
@@ -279,11 +280,24 @@ let timeSeriesDataMaker = (
   let _ = data->Array.map(item => {
     let dict = item->getDictFromJsonObject
 
-    let groupByName =
+    let groupByName = switch selectedTab {
+    | Some(keys) =>
+      keys
+      ->Array.map(key =>
+        dict->getString(
+          key,
+          Dict.get(dict, key)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
+        )
+      )
+      ->Array.map(LogicUtils.snakeToTitle)
+      ->Array.joinWith(" : ")
+    | None =>
       dict->getString(
         groupKey,
         Dict.get(dict, groupKey)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
       )
+    }
+
     let xAxisDataPoint = dict->getString(xAxis, "")->String.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
     let yAxisDataPoint = dict->getFloat(yAxis, 0.)
 
@@ -588,7 +602,7 @@ let getTooltipHTML = (metrics, data, onCursorName) => {
   let highlight = onCursorName == name ? "font-weight:900;font-size:13px;" : ""
   `<tr>
       <td><span style='color:${color}; ${highlight}'></span></td>
-      <td><span style=${highlight}>${name} : </span></td>
+      <td><span style=${highlight}>${name}  </span></td>
       <td><span style=${highlight}>${formatStatsAccToMetrix(metric_type, y_axis)}</span></td>
       <td><span style=${highlight}>${secondry_metrix_val}</span></td>
   </tr>`
@@ -771,7 +785,7 @@ let chartDataMaker = (~filterNull=false, rawData, groupKey, metric) => {
   ->Array.filter(dataPoint => {
     !filterNull || {
       let dataPointDict = dataPoint->getDictFromJsonObject
-      dataPointDict->getString(groupKey, "") !== "other"
+      dataPointDict->getString(groupKey, "") !== "NA"
     }
   })
   ->Array.map(dataPoint => {

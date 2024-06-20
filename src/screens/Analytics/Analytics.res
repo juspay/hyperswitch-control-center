@@ -96,6 +96,7 @@ module TableWrapper = {
     ~moduleName,
     ~weeklyTableMetricsCols,
     ~distributionArray=None,
+    ~formatData=None,
   ) => {
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
       ConfigContext.configContext,
@@ -352,20 +353,20 @@ module TableWrapper = {
 
     setDefaultFilter(._ => dict->JSON.Encode.object->JSON.stringify)
 
+    let modifyData = data => {
+      switch formatData {
+      | Some(fun) => data->fun
+      | None => data
+      }
+    }
+
     showTable
       ? <>
-          <UIUtils.RenderIf condition={tableData->Array.length > 0}>
-            <div
-              className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3 mt-7`}>
-              <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
-              {"'Other' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
-            </div>
-          </UIUtils.RenderIf>
           <div className="h-full -mx-4 overflow-scroll">
             <Form>
               <BaseTableComponent
                 filters=(startTimeFromUrl, endTimeFromUrl)
-                tableData
+                tableData={tableData->modifyData}
                 tableDataLoading
                 transactionTableDefaultCols
                 defaultSort
@@ -378,6 +379,13 @@ module TableWrapper = {
               />
             </Form>
           </div>
+          <UIUtils.RenderIf condition={tableData->Array.length > 0}>
+            <div
+              className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
+              <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
+              {"'NA' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
+            </div>
+          </UIUtils.RenderIf>
         </>
       : <Loader />
   }
@@ -401,6 +409,7 @@ module TabDetails = {
     ~moduleName,
     ~updateUrl: Dict.t<string> => unit,
     ~weeklyTableMetricsCols,
+    ~formatData=None,
   ) => {
     open AnalyticsTypes
     let analyticsType = moduleName->getAnalyticsType
@@ -466,6 +475,7 @@ module TabDetails = {
             moduleName
             weeklyTableMetricsCols
             distributionArray
+            formatData
           />
         | None => React.null
         }}
@@ -507,6 +517,7 @@ let make = (
   ~weeklyTableMetricsCols=?,
   ~distributionArray=None,
   ~generateReportType: option<APIUtilsTypes.entityName>=?,
+  ~formatData=None,
 ) => {
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
@@ -529,10 +540,7 @@ let make = (
   let filterValueDict = filterValueJson
 
   let (activeTav, setActiveTab) = React.useState(_ =>
-    filterValueDict->getStrArrayFromDict(
-      `${moduleName}.tabName`,
-      [filteredTabKeys->Array.get(0)->Option.getOr("")],
-    )
+    filterValueDict->getStrArrayFromDict(`${moduleName}.tabName`, filteredTabKeys)
   )
   let setActiveTab = React.useMemo1(() => {
     (str: string) => {
@@ -847,7 +855,7 @@ let make = (
               <div className="flex flex-col h-full overflow-scroll w-full">
                 <DynamicTabs
                   tabs=filteredTabVales
-                  maxSelection=1
+                  maxSelection=3
                   tabId=moduleName
                   setActiveTab
                   updateUrlDict={dict => {
@@ -875,6 +883,7 @@ let make = (
                     updateUrlWithPrefix(dict)
                   }}
                   weeklyTableMetricsCols
+                  formatData
                 />
               </div>
             }}

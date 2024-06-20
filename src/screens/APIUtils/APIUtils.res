@@ -151,6 +151,16 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | PAYOUTS =>
+      switch methodType {
+      | Get =>
+        switch id {
+        | Some(payout_id) => `payouts/${payout_id}`
+        | None => `payouts/list?limit=100`
+        }
+      | Post => `payouts/list`
+      | _ => ""
+      }
     | GLOBAL_SEARCH =>
       switch methodType {
       | Post =>
