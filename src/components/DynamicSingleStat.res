@@ -115,7 +115,6 @@ let make = (
   ~startTimeFilterKey,
   ~endTimeFilterKey,
   ~moduleName="",
-  ~setTotalVolume,
   ~showPercentage=true,
   ~chartAlignment=#column,
   ~isHomePage=false,
@@ -301,35 +300,7 @@ let make = (
         let data = dataArr->Array.map(
           item => {
             let (sectionName, json) = item
-            switch entity.totalVolumeCol {
-            | Some(val) => {
-                let totalVolumeKeyVal =
-                  json
-                  ->getDictFromJsonObject
-                  ->getJsonObjectFromDict("queryData")
-                  ->getArrayFromJson([])
-                  ->Array.get(0)
-                  ->Option.getOr(JSON.Encode.object(Dict.make()))
-                  ->getDictFromJsonObject
-                  ->Dict.toArray
-                  ->Array.find(
-                    item => {
-                      let (key, _) = item
-                      key === val
-                    },
-                  )
-                switch totalVolumeKeyVal {
-                | Some(data) => {
-                    let (_key, value) = data
-                    setTotalVolume(_ => value->JSON.Decode.float->Option.getOr(0.)->Float.toInt)
-                  }
 
-                | None => ()
-                }
-              }
-
-            | None => ()
-            }
             let data = entity.getObjects(json)
             let deltaTime = deltaItemToObjMapper(json)
 

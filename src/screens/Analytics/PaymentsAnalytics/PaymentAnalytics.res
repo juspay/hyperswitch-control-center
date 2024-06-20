@@ -77,9 +77,6 @@ let make = () => {
       },
     ])
 
-  let title = "Payments Analytics"
-  let subTitle = "Gain Insights, monitor performance and make Informed Decisions with Payment Analytics."
-
   let formatData = (data: array<RescriptCore.Nullable.t<AnalyticsTypes.paymentTableType>>) => {
     let actualdata =
       data
@@ -101,34 +98,47 @@ let make = () => {
     actualdata->Array.map(Nullable.make)
   }
 
+  let title = "Payments Analytics"
+  let subTitle = "Gain Insights, monitor performance and make Informed Decisions with Payment Analytics."
+
+  open AnalyticsNew
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
-    <Analytics
-      pageTitle=title
-      pageSubTitle=subTitle
-      filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
-      key="PaymentsAnalytics"
-      moduleName="Payments"
-      deltaMetrics={getStringListFromArrayDict(metrics)}
-      chartEntity={default: chartEntity(tabKeys)}
-      tabKeys
-      tabValues
-      options
+    <PageUtils.PageHeading title subTitle />
+    <MetricsState
       singleStatEntity={getSingleStatEntity(metrics, !isLiveMode)}
-      getTable={getPaymentTable}
-      colMapper
-      tableEntity={paymentTableEntity()}
-      defaultSort="total_volume"
-      deltaArray=[]
-      tableUpdatedHeading=getUpdatedHeading
-      tableGlobalFilter=filterByData
+      filterKeys=tabKeys
       startTimeFilterKey
       endTimeFilterKey
-      initialFilters=initialFilterFields
-      initialFixedFilters=initialFixedFilterFields
-      weeklyTableMetricsCols
-      distributionArray={[distribution]->Some}
-      generateReportType={PAYMENT_REPORT}
-      formatData={formatData->Some}
+      moduleName="general_metrics"
     />
   </PageLoaderWrapper>
 }
+
+// <Analytics
+//   pageTitle=title
+//   pageSubTitle=subTitle
+//   filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
+//   key="PaymentsAnalytics"
+//   moduleName="Payments"
+//   deltaMetrics={getStringListFromArrayDict(metrics)}
+//   chartEntity={default: chartEntity(tabKeys)}
+//   tabKeys
+//   tabValues
+//   options
+//   singleStatEntity={getSingleStatEntity(metrics, !isLiveMode)}
+//   getTable={getPaymentTable}
+//   colMapper
+//   tableEntity={paymentTableEntity()}
+//   defaultSort="total_volume"
+//   deltaArray=[]
+//   tableUpdatedHeading=getUpdatedHeading
+//   tableGlobalFilter=filterByData
+//   startTimeFilterKey
+//   endTimeFilterKey
+//   initialFilters=initialFilterFields
+//   initialFixedFilters=initialFixedFilterFields
+//   weeklyTableMetricsCols
+//   distributionArray={[distribution]->Some}
+//   generateReportType={PAYMENT_REPORT}
+//   formatData={formatData->Some}
+// />

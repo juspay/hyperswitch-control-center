@@ -525,7 +525,6 @@ let make = (
     FilterContext.filterContext,
   )
 
-  let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)
   let chartEntity1 = chartEntity.default // User Journey - SemiDonut (Payment Metrics), Others - Default Chart Entity
@@ -724,7 +723,6 @@ let make = (
               endTimeFilterKey
               filterKeys=chartEntity.allFilterDimension
               moduleName
-              setTotalVolume
               showPercentage=false
               statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
             />
