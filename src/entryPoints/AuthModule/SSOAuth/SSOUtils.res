@@ -9,7 +9,13 @@ let authMethodsToVariantMapper = value => {
 }
 
 let getAuthVariants = auth_methods => {
+  open LogicUtils
   auth_methods->Array.map(item => {
-    item->authMethodsToVariantMapper
+    let dictFromJson = item->getDictFromJsonObject
+    let val: SSOTypes.authMethodResponseType = {
+      name: dictFromJson->getString("name", "")->authMethodsToVariantMapper,
+      id: dictFromJson->getString("id", ""),
+    }
+    val
   })
 }

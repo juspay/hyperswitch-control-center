@@ -237,6 +237,7 @@ let useGetURL = () => {
       | #CREATE_MERCHANT
       | #PERMISSION_INFO
       | #ACCEPT_INVITE_FROM_EMAIL
+      | #GET_AUTH_LIST
       | #ROTATE_PASSWORD =>
         `${userUrl}/${(userType :> string)->String.toLowerCase}`
       | #SIGNINV2_TOKEN_ONLY => `${userUrl}/v2/signin?token_only=true`
