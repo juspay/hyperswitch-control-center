@@ -292,10 +292,10 @@ let iconFieldWithMessageDes: (
   ~description: string=?,
   unit,
 ) => React.element
-let passwordMatchField: (~leftIcon: React.element=?, unit) => (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: string,
-) => React.element
+let passwordMatchField: (
+  ~leftIcon: React.element=?,
+  unit,
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: string) => React.element
 let checkboxInput: (
   ~isHorizontal: bool=?,
   ~options: array<SelectBox.dropdownOption>,

@@ -157,7 +157,7 @@ let make = (~authType, ~setAuthType) => {
             let body = email->getEmailBody()
 
             setForgetPassword(body)
-          | _ => Promise.make((resolve, _) => resolve(. Nullable.null))
+          | _ => Promise.make((resolve, _) => resolve(Nullable.null))
           }
         }
       )

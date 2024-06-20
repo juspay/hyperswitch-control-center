@@ -282,14 +282,11 @@ let getFilterRequestBody = (
 let filterBody = (filterBodyEntity: filterBodyEntity) => {
   let (startTime, endTime) = try {
     (
-      (filterBodyEntity.startTime->DayJs.getDayJsForString).subtract(.
+      (filterBodyEntity.startTime->DayJs.getDayJsForString).subtract(
         1,
         "day",
-      ).toDate(.)->Date.toISOString,
-      (filterBodyEntity.endTime->DayJs.getDayJsForString).add(.
-        1,
-        "day",
-      ).toDate(.)->Date.toISOString,
+      ).toDate()->Date.toISOString,
+      (filterBodyEntity.endTime->DayJs.getDayJsForString).add(1, "day").toDate()->Date.toISOString,
     )
   } catch {
   | _ => (filterBodyEntity.startTime, filterBodyEntity.endTime)
@@ -309,12 +306,12 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
   let nowtime = Date.make()->Date.toString->DayJs.getDayJsForString
   let dateTimeFormat = "YYYY-MM-DDTHH:mm:ss[Z]"
   if typeTime == "last7" {
-    let last7FromTime = (fromTime->DayJs.getDayJsForString).subtract(. 7, "day")
-    let last7ToTime = (fromTime->DayJs.getDayJsForString).subtract(. 1, "day")
+    let last7FromTime = (fromTime->DayJs.getDayJsForString).subtract(7, "day")
+    let last7ToTime = (fromTime->DayJs.getDayJsForString).subtract(1, "day")
 
     let timeArray = Dict.fromArray([
-      ("fromTime", last7FromTime.format(. dateTimeFormat)),
-      ("toTime", last7ToTime.format(. dateTimeFormat)),
+      ("fromTime", last7FromTime.format(dateTimeFormat)),
+      ("toTime", last7ToTime.format(dateTimeFormat)),
     ])
 
     [timeArray]
@@ -322,7 +319,7 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
     let yesterdayFromTime =
       Js.Date.fromFloat(
         Js.Date.setHoursMS(
-          nowtime.subtract(. 1, "day").toDate(.),
+          nowtime.subtract(1, "day").toDate(),
           ~hours=0.0,
           ~minutes=0.0,
           ~seconds=0.0,
@@ -332,7 +329,7 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
     let yesterdayToTime =
       Js.Date.fromFloat(
         Js.Date.setHoursMS(
-          nowtime.subtract(. 1, "day").toDate(.),
+          nowtime.subtract(1, "day").toDate(),
           ~hours=23.0,
           ~minutes=59.0,
           ~seconds=59.0,
@@ -341,8 +338,8 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
       )->DayJs.getDayJsForJsDate
 
     let timeArray = Dict.fromArray([
-      ("fromTime", yesterdayFromTime.format(. dateTimeFormat)),
-      ("toTime", yesterdayToTime.format(. dateTimeFormat)),
+      ("fromTime", yesterdayFromTime.format(dateTimeFormat)),
+      ("toTime", yesterdayToTime.format(dateTimeFormat)),
     ])
 
     [timeArray]
@@ -356,8 +353,8 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
       ->DayJs.getDayJsForString
     let currentMonthToTime = nowtime
     let timeArray = Dict.fromArray([
-      ("fromTime", currentMonthFromTime.format(. dateTimeFormat)),
-      ("toTime", currentMonthToTime.format(. dateTimeFormat)),
+      ("fromTime", currentMonthFromTime.format(dateTimeFormat)),
+      ("toTime", currentMonthToTime.format(dateTimeFormat)),
     ])
 
     [timeArray]
@@ -366,8 +363,8 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
     let currentWeekToTime = Date.make()->DayJs.getDayJsForJsDate
 
     let timeArray = Dict.fromArray([
-      ("fromTime", currentWeekFromTime.format(. dateTimeFormat)),
-      ("toTime", currentWeekToTime.format(. dateTimeFormat)),
+      ("fromTime", currentWeekFromTime.format(dateTimeFormat)),
+      ("toTime", currentWeekToTime.format(dateTimeFormat)),
     ])
 
     [timeArray]

@@ -733,38 +733,41 @@ module SDKAnalyticsChartContext = {
       setTopChartFetchWithCurrentDependecyChange,
     ) = React.useState(_ => false)
 
-    React.useEffect4(() => {
-      let chartType =
-        getChartCompFilters->getString(
-          "chartType",
-          chartEntity.chartTypes->Array.get(0)->Option.getOr(Line)->DynamicChart.chartMapper,
-        )
-      if (
-        startTimeFromUrl->isNonEmptyString &&
-        endTimeFromUrl->isNonEmptyString &&
-        parentToken->Option.isSome &&
-        (granularity->Option.isSome || chartType !== "Line Chart") &&
-        current_granularity->Array.includes(granularity->Option.getOr(""))
-      ) {
-        setTopChartFetchWithCurrentDependecyChange(_ => false)
-      }
+    React.useEffect4(
+      () => {
+        let chartType =
+          getChartCompFilters->getString(
+            "chartType",
+            chartEntity.chartTypes->Array.get(0)->Option.getOr(Line)->DynamicChart.chartMapper,
+          )
+        if (
+          startTimeFromUrl->isNonEmptyString &&
+          endTimeFromUrl->isNonEmptyString &&
+          parentToken->Option.isSome &&
+          (granularity->Option.isSome || chartType !== "Line Chart") &&
+          current_granularity->Array.includes(granularity->Option.getOr(""))
+        ) {
+          setTopChartFetchWithCurrentDependecyChange(_ => false)
+        }
 
-      None
-    }, (
-      parentToken,
-      current_granularity->Array.joinWithUnsafe("-") ++
-      granularity->Option.getOr("") ++
-      cardinalityFromUrl ++
-      selectedTrends->Array.joinWithUnsafe(",") ++
-      customFilter ++
-      startTimeFromUrl ++
-      segmentValue->Option.getOr([])->Array.joinWithUnsafe(",") ++
-      endTimeFromUrl,
-      filterValueFromUrl,
-      differentTimeValues
-      ->Array.map(item => `${item.fromTime}${item.toTime}`)
-      ->Array.joinWithUnsafe(","),
-    ))
+        None
+      },
+      (
+        parentToken,
+        current_granularity->Array.joinWithUnsafe("-") ++
+        granularity->Option.getOr("") ++
+        cardinalityFromUrl ++
+        selectedTrends->Array.joinWithUnsafe(",") ++
+        customFilter ++
+        startTimeFromUrl ++
+        segmentValue->Option.getOr([])->Array.joinWithUnsafe(",") ++
+        endTimeFromUrl,
+        filterValueFromUrl,
+        differentTimeValues
+        ->Array.map(item => `${item.fromTime}${item.toTime}`)
+        ->Array.joinWithUnsafe(","),
+      ),
+    )
 
     React.useEffect2(() => {
       if !topChartFetchWithCurrentDependecyChange && topChartVisible {

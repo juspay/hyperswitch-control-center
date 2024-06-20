@@ -1,19 +1,13 @@
-let historyDefaultCols = Recoil.atom(.
-  "hyperSwitchHistoryDefaultCols",
-  HistoryEntity.defaultColumns,
-)
+let historyDefaultCols = Recoil.atom("hyperSwitchHistoryDefaultCols", HistoryEntity.defaultColumns)
 
-let refundsMapDefaultCols = Recoil.atom(. "refundsMapDefaultCols", RefundEntity.defaultColumns)
+let refundsMapDefaultCols = Recoil.atom("refundsMapDefaultCols", RefundEntity.defaultColumns)
 
-let payoutsMapDefaultCols = Recoil.atom(. "payoutsMapDefaultCols", PayoutsEntity.defaultColumns)
+let payoutsMapDefaultCols = Recoil.atom("payoutsMapDefaultCols", PayoutsEntity.defaultColumns)
 
-let ordersMapDefaultCols = Recoil.atom(. "ordersMapDefaultCols", OrderEntity.defaultColumns)
+let ordersMapDefaultCols = Recoil.atom("ordersMapDefaultCols", OrderEntity.defaultColumns)
 
-let disputesMapDefaultCols = Recoil.atom(. "disputesMapDefaultCols", DisputesEntity.defaultColumns)
+let disputesMapDefaultCols = Recoil.atom("disputesMapDefaultCols", DisputesEntity.defaultColumns)
 
-let apiDefaultCols = Recoil.atom(. "hyperSwitchApiDefaultCols", DeveloperUtils.defaultColumns)
+let apiDefaultCols = Recoil.atom("hyperSwitchApiDefaultCols", DeveloperUtils.defaultColumns)
 
-let customersMapDefaultCols = Recoil.atom(.
-  "customersMapDefaultCols",
-  CustomersEntity.defaultColumns,
-)
+let customersMapDefaultCols = Recoil.atom("customersMapDefaultCols", CustomersEntity.defaultColumns)

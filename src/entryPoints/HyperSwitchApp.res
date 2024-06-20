@@ -115,7 +115,7 @@ let make = () => {
         response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
       let permissionJson =
         permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
-      setuserPermissionJson(._ => permissionJson)
+      setuserPermissionJson(_ => permissionJson)
       permissionJson
     } catch {
     | Exn.Error(e) => {

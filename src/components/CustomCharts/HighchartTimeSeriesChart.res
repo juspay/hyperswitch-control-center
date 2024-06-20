@@ -475,13 +475,13 @@ module LineChart1D = {
                     | Some(ele) =>
                       Highcharts.objectEach(ele.ticks, tick => {
                         if Some(tick.pos) === thresholdVal {
-                          tick.gridLine.attr(.
+                          tick.gridLine.attr(
                             {
                               "stroke-width": "0",
                             }->genericObjectOrRecordToJson,
                           )
                         } else {
-                          tick.gridLine.attr(.
+                          tick.gridLine.attr(
                             {
                               "stroke": strokeColor,
                             }->genericObjectOrRecordToJson,

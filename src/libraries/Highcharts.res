@@ -51,7 +51,7 @@ external makeSomethingSeries: (~\"type": string, ~something: (float, int, string
 let x = makeAreaSeries(~\"type"="hello", ~something=false)
 let y = makeSomethingSeries(~\"type"="hello", ~something=(2., 1, "heloo"))
 
-type gridLine = {attr: (. JSON.t) => unit}
+type gridLine = {attr: JSON.t => unit}
 type pos
 type tick = {
   gridLine: gridLine,
