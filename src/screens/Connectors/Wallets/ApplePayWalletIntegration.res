@@ -314,7 +314,22 @@ module Fields = {
       })
       ->React.array
     }
-    <> {fields} </>
+    <>
+      {fields}
+      <div>
+        <FormRenderer.FieldRenderer
+          labelClass="font-semibold !text-hyperswitch_black"
+          field={FormRenderer.makeFieldInfo(
+            ~label="Label",
+            ~name={`apple_pay_combined.manual.payment_request_data.label`},
+            ~placeholder={`Enter Label`},
+            ~customInput=InputFields.textInput(),
+            ~isRequired=true,
+            (),
+          )}
+        />
+      </div>
+    </>
   }
 }
 
@@ -335,7 +350,6 @@ module Manual = {
     // Need to refactor
     let _ = ConnectorUtils.updateMetaData(~metaData)
     //
-
     let configurationFields =
       metadataInputs
       ->getDictfromDict("apple_pay")

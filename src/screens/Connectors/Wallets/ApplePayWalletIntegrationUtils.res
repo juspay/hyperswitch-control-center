@@ -59,6 +59,21 @@ let constructApplePayMetadata = (
   open LogicUtils
   let paymentRequestData =
     metadataInputs->getDictfromDict("apple_pay")->getDictfromDict("payment_request_data")
+  // Need to refactor
+  switch integrationType {
+  | #manual => {
+      let label =
+        values
+        ->getDictFromJsonObject
+        ->getDictfromDict("apple_pay_combined")
+        ->getDictfromDict((#manual: applePayIntegrationType :> string))
+        ->getDictfromDict("payment_request_data")
+        ->getString("label", "apple")
+      paymentRequestData->Dict.set("label", label->JSON.Encode.string)
+    }
+
+  | _ => ()
+  }
 
   let dict = values->getDictFromJsonObject
   let applePayDict =
