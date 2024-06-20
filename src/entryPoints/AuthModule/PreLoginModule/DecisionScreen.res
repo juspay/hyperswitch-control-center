@@ -12,6 +12,7 @@ let make = () => {
   }
 
   switch flowType {
+  | SSO => <SSODecisionScreen />
   | MERCHANT_SELECT
   | ACCEPT_INVITE =>
     <MerchantSelectScreen />
