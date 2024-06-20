@@ -45,7 +45,7 @@ module MerchantBussinessCountry = {
   }
 }
 
-let renderCountryInp = (options, fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+let renderCountryInp = options => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   <MerchantBussinessCountry fieldsArray options />
 }
 
@@ -114,7 +114,7 @@ module Simplified = {
     let downloadApplePayCert = () => {
       open Promise
       fetchApi(HSwitchGlobalVars.urlToDownloadApplePayCertificate, ~method_=Get, ())
-      ->then(Fetch.Response.blob)
+      ->then(res => res->Fetch.Response.blob)
       ->then(content => {
         DownloadUtils.download(
           ~fileName=`apple-developer-merchantid-domain-association`,

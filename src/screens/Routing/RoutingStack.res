@@ -18,7 +18,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
   }, [previewOnly])
 
-  let tabs: array<Tabs.tab> = React.useMemo(() => {
+  let tabs: array<Tabs.tab> = React.useMemo0(() => {
     open Tabs
     [
       {

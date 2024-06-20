@@ -244,7 +244,7 @@ let make = (
         setTableDataLoading(_ => false)
       }
 
-      res => res->Fetch.Response.json(resp)
+      Fetch.Response.json(resp)
     })
     ->then(json => {
       switch json->JSON.Classify.classify {

@@ -512,7 +512,7 @@ module ReactWindowTableComponent = {
           <ReactWindow.VariableSizeList
             ref={el => {
               open ReactWindow.ListComponent
-              fn.current = el->resetAfterIndex
+              fn.current = (index, val) => el->resetAfterIndex(index, val)
             }}
             itemSize={index => getHeight(index)}
             height=tableHeight

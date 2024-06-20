@@ -77,9 +77,7 @@ let selectInput = (
 }
 
 let infraSelectInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
-  ~placeholder as _,
   ~deselectDisable=false,
   ~borderRadius="rounded-full",
   ~selectedClass="border-jp-gray-900 dark:border-jp-gray-300 text-jp-gray-900 dark:text-jp-gray-300 font-semibold",
@@ -87,7 +85,7 @@ let infraSelectInput = (
   ~showTickMark=true,
   ~allowMultiSelect=true,
   (),
-) => {
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <SelectBox.InfraSelectBox
     input
     options
@@ -101,10 +99,8 @@ let infraSelectInput = (
 }
 
 let filterMultiSelectInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<FilterSelectBox.dropdownOption>,
   ~optionSize: CheckBoxIcon.size=Small,
-  ~placeholder as _,
   ~buttonText,
   ~buttonSize=?,
   ~hideMultiSelectButtons=false,
@@ -151,7 +147,7 @@ let filterMultiSelectInput = (
   ~baseComponentMethod=?,
   ~disableSelect=false,
   (),
-) => {
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <FilterSelectBox
     input
     options
@@ -206,10 +202,8 @@ let filterMultiSelectInput = (
 }
 
 let multiSelectInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
   ~optionSize: CheckBoxIcon.size=Small,
-  ~placeholder as _,
   ~buttonText,
   ~buttonSize=?,
   ~hideMultiSelectButtons=false,
@@ -256,7 +250,7 @@ let multiSelectInput = (
   ~baseComponentMethod=?,
   ~disableSelect=false,
   (),
-) => {
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <SelectBox
     input
     options
@@ -449,8 +443,6 @@ let numericTextInput = (
 }
 
 let singleDatePickerInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder as _,
   ~disablePastDates=true,
   ~disableFutureDates=false,
   ~customDisabledFutureDays=0.0,
@@ -465,7 +457,7 @@ let singleDatePickerInput = (
   ~showTime=?,
   ~fullLength=?,
   (),
-) => {
+) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <DatePicker
     input
     disablePastDates
@@ -584,12 +576,9 @@ let multiLineTextInput = (
   <MultiLineTextInput ?maxLength input placeholder isDisabled ?rows ?cols customClass ?leftIcon />
 }
 
-let iconFieldWithMessageDes = (
-  mainInputField,
+let iconFieldWithMessageDes = (mainInputField, ~description="", ()) => (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder,
-  ~description="",
-  (),
 ) => {
   <div>
     <div> {mainInputField(~input, ~placeholder)} </div>
@@ -656,13 +645,9 @@ let checkboxInput = (
   />
 }
 
-let boolInput = (
-  ~isDisabled,
-  ~isCheckBox=false,
-  ~boolCustomClass="",
+let boolInput = (~isDisabled, ~isCheckBox=false, ~boolCustomClass="", ()) => (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder as _,
-  (),
 ) => {
   <BoolInput input isDisabled isCheckBox boolCustomClass />
 }

@@ -1148,7 +1148,7 @@ let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
   newDict->JSON.Encode.object
 }
 
-let validate = (values, ~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => {
+let validate = (~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => values => {
   let errors = Dict.make()
   let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
   let labelArr = dict->Dict.valuesToArray
