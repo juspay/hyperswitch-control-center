@@ -604,8 +604,8 @@ let getTooltipHTML = (metrics, data, onCursorName, index, length) => {
   let highlight = onCursorName == name ? "font-weight:900;font-size:13px;" : "opacity:60%;"
 
   `<tr>
-      <td><span style='color:${color}; ${highlight}'></span></td>
-      <td><span style=${highlight}>${name}  </span></td>
+      <td><span style='height:10px; width:10px;margin-top:5px;display:inline-block; background-color:${color};border-radius:3px;margin-right:3px;'/></td>
+      <td><span style='${highlight};padding-right: 10px;'>${name->LogicUtils.snakeToTitle}</span></td>
       <td><span style=${highlight}>${formatStatsAccToMetrix(metric_type, y_axis)}</span></td>
       <td><span style=${highlight}>${secondry_metrix_val}</span></td>
   </tr>
