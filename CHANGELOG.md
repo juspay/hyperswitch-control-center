@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.20.1
+
+### Miscellaneous Tasks
+
+- Map the display name to label ([#853](https://github.com/juspay/hyperswitch-control-center/pull/853)) ([`72e6927`](https://github.com/juspay/hyperswitch-control-center/commit/72e69271f7e3847bbc37466d755f636333718266))
+
+**Full Changelog:** [`2024.06.20.0...2024.06.20.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.20.0...2024.06.20.1)
+
+- - -
+
 ## 2024.06.20.0
 
 ### Features
