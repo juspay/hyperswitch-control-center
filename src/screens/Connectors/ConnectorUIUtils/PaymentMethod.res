@@ -248,7 +248,8 @@ module CardRenderer = {
             paddingClass=""
             revealFrom=Reveal.Right
             modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
-            childClass={""}>
+            childClass={""}
+            showCloseIcon=false>
             <Wallets
               method={selectedWallet}
               metaData
