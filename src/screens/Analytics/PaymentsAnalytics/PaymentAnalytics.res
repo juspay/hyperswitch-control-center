@@ -9,7 +9,6 @@ let make = () => {
   let (metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])
   let fetchDetails = useGetMethod()
-  let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let loadInfo = async () => {
@@ -104,53 +103,88 @@ let make = () => {
 
   open AnalyticsNew
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between ">
       <PageUtils.PageHeading title subTitle />
       <UIUtils.RenderIf condition={generateReport}>
         <GenerateReport entityName={PAYMENT_REPORT} />
       </UIUtils.RenderIf>
     </div>
-    <FilterContext
-      key="payments_analytics_general_metrics" index="payments_analytics_general_metrics">
-      <MetricsState
-        singleStatEntity={getSingleStatEntity(metrics, !isLiveMode)}
-        filterKeys=tabKeys
-        startTimeFilterKey
-        endTimeFilterKey
-        moduleName="general_metrics"
-        initialFilters=initialFilterFields
-        options
-        initialFixedFilters=initialFixedFilterFields
-        tabKeys
-        filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
-      />
-    </FilterContext>
-    <FilterContext
-      key="payments_analytics_overall_summary" index="payments_analytics_overall_summary">
-      <OverallSummary
-        filteredTabVales=tabValues
-        moduleName="overall_summary"
-        filteredTabKeys={tabKeys}
-        chartEntity={chartEntity(tabKeys)}
-        defaultSort="total_volume"
-        getTable={getPaymentTable}
-        colMapper
-        distributionArray={[distribution]->Some}
-        tableEntity={paymentTableEntity()->Some}
-        deltaMetrics={getStringListFromArrayDict(metrics)}
-        deltaArray=[]
-        tableUpdatedHeading=getUpdatedHeading
-        tableGlobalFilter=filterByData
-        weeklyTableMetricsCols
-        formatData={formatData->Some}
-        initialFilters=initialFilterFields
-        options
-        initialFixedFilters=initialFixedFilterFields
-        tabKeys
-        filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
-        startTimeFilterKey
-        endTimeFilterKey
-      />
-    </FilterContext>
+    <div className="flex flex-col gap-14">
+      <FilterContext
+        key="payments_analytics_general_metrics" index="payments_analytics_general_metrics">
+        <MetricsState
+          heading="General Metrics"
+          singleStatEntity={getSingleStatEntity(metrics, generalMetricsColumns)}
+          filterKeys=tabKeys
+          startTimeFilterKey
+          endTimeFilterKey
+          moduleName="general_metrics"
+          initialFilters=initialFilterFields
+          options
+          initialFixedFilters=initialFixedFilterFields
+          tabKeys
+          filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
+        />
+      </FilterContext>
+      <FilterContext key="payments_analytics_amount" index="payments_analytics_amount">
+        <MetricsState
+          heading="Amount"
+          singleStatEntity={getSingleStatEntity(metrics, amountMetricsColumns)}
+          filterKeys=tabKeys
+          startTimeFilterKey
+          endTimeFilterKey
+          moduleName="payments_analytics_amount"
+          initialFilters=initialFilterFields
+          options
+          initialFixedFilters=initialFixedFilterFields
+          tabKeys
+          filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
+        />
+      </FilterContext>
+      <FilterContext
+        key="payments_analytics_smart_retries" index="payments_analytics_smart_retries">
+        <MetricsState
+          heading="Smart Retries"
+          singleStatEntity={getSingleStatEntity(metrics, smartRetrivesColumns)}
+          filterKeys=tabKeys
+          startTimeFilterKey
+          endTimeFilterKey
+          moduleName="smart_retries"
+          initialFilters={_ => []}
+          options
+          initialFixedFilters=initialFixedFilterFields
+          tabKeys
+          filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
+        />
+      </FilterContext>
+      <FilterContext
+        key="payments_analytics_overall_summary" index="payments_analytics_overall_summary">
+        <OverallSummary
+          filteredTabVales=tabValues
+          moduleName="overall_summary"
+          filteredTabKeys={tabKeys}
+          chartEntity={chartEntity(tabKeys)}
+          defaultSort="total_volume"
+          getTable={getPaymentTable}
+          colMapper
+          distributionArray={[distribution]->Some}
+          tableEntity={paymentTableEntity()->Some}
+          deltaMetrics={getStringListFromArrayDict(metrics)}
+          deltaArray=[]
+          tableUpdatedHeading=getUpdatedHeading
+          tableGlobalFilter=filterByData
+          weeklyTableMetricsCols
+          formatData={formatData->Some}
+          initialFilters=initialFilterFields
+          options
+          initialFixedFilters=initialFixedFilterFields
+          tabKeys
+          filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
+          startTimeFilterKey
+          endTimeFilterKey
+          heading="Overall Summary"
+        />
+      </FilterContext>
+    </div>
   </PageLoaderWrapper>
 }

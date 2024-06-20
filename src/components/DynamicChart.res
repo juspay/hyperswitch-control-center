@@ -427,15 +427,8 @@ let make = (
   let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
   let (granularity, setGranularity) = React.useState(_ => None)
   let (rawChartData, setRawChartData) = React.useState(_ => None)
-  let (shimmerType, setShimmerType) = React.useState(_ => AnalyticsUtils.Shimmer)
+  let shimmerType = AnalyticsUtils.Shimmer
   let (groupKey, setGroupKey) = React.useState(_ => "")
-
-  React.useEffect1(() => {
-    if rawChartData !== None {
-      setShimmerType(_ => SideLoader)
-    }
-    None
-  }, [rawChartData])
 
   let (startTimeFilterKey, endTimeFilterKey) = dateFilterKeys
 

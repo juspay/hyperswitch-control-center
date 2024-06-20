@@ -13,6 +13,7 @@ module MetricsState = {
     ~initialFixedFilters,
     ~tabKeys,
     ~filterUri,
+    ~heading,
   ) => {
     let updateDetails = APIUtils.useUpdateMethod()
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
@@ -101,7 +102,10 @@ module MetricsState = {
     }
 
     <div>
-      <div className="mt-2 -ml-1"> topFilterUi </div>
+      <h2 className="font-bold text-xl text-black text-opacity-80 mb-4">
+        {heading->React.string}
+      </h2>
+      <div className="-ml-1"> topFilterUi </div>
       <DynamicSingleStat
         entity=singleStatEntity
         startTimeFilterKey
@@ -451,11 +455,6 @@ module TabDetails = {
     ~weeklyTableMetricsCols,
     ~formatData=None,
   ) => {
-    let id =
-      activeTab
-      ->Option.getOr(["tab"])
-      ->Array.reduce("", (acc, tabName) => {acc->String.concat(tabName)})
-
     let wrapperClass = "bg-white border rounded-lg p-8 mt-3 mb-7"
 
     let tabTitleMapper = Dict.make()
@@ -497,7 +496,7 @@ module TabDetails = {
         }}
       </div>
 
-    <FramerMotion.TransitionComponent id={id}> {tab} </FramerMotion.TransitionComponent>
+    {tab}
   }
 }
 
@@ -530,12 +529,14 @@ module OverallSummary = {
     ~filterUri,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
+    ~heading,
   ) => {
     let updateDetails = APIUtils.useUpdateMethod()
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
     let {filterValue, filterValueJson, updateExistingKeys} = React.useContext(
       FilterContext.filterContext,
     )
+
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
     let (activeTav, setActiveTab) = React.useState(_ =>
       filterValueJson->getStrArrayFromDict(`${moduleName}.tabName`, filteredTabKeys)
@@ -670,7 +671,10 @@ module OverallSummary = {
     }
 
     <div>
-      <div className="mt-2 -ml-1"> topFilterUi </div>
+      <h2 className="font-bold text-xl text-black text-opacity-80 mb-4">
+        {heading->React.string}
+      </h2>
+      <div className="-ml-1"> topFilterUi </div>
       <DynamicTabs
         tabs=filteredTabVales
         maxSelection=3

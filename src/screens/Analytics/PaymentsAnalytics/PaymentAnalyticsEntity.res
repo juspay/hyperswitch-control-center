@@ -324,29 +324,24 @@ type colT =
   | RetriesAmountProcessed
   | ConnectorSuccessRate
 
-let getColumns: bool => array<DynamicSingleStat.columns<colT>> = connector_success_rate => [
+let generalMetricsColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: connector_success_rate
-      ? [
-          SuccessRate,
-          Count,
-          SuccessCount,
-          ProcessedAmount,
-          AvgTicketSize,
-          RetriesCount,
-          RetriesAmountProcessed,
-          ConnectorSuccessRate,
-        ]
-      : [
-          SuccessRate,
-          Count,
-          SuccessCount,
-          ProcessedAmount,
-          AvgTicketSize,
-          RetriesCount,
-          RetriesAmountProcessed,
-        ],
+    columns: [SuccessRate, ConnectorSuccessRate, Count, SuccessCount],
+  },
+]
+
+let amountMetricsColumns: array<DynamicSingleStat.columns<colT>> = [
+  {
+    sectionName: "",
+    columns: [ProcessedAmount, AvgTicketSize],
+  },
+]
+
+let smartRetrivesColumns: array<DynamicSingleStat.columns<colT>> = [
+  {
+    sectionName: "",
+    columns: [RetriesCount, RetriesAmountProcessed],
   },
 ]
 
@@ -425,7 +420,7 @@ let getStatData = (
 ) => {
   switch colType {
   | SuccessRate => {
-      title: "Overall Conversion Rate",
+      title: "Overall Success Rate",
       tooltipText: "Total successful payments processed out of total payments created (This includes user dropouts at shopping cart and checkout page)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.payment_success_rate,
@@ -538,7 +533,7 @@ let getStatData = (
       showDelta: false,
     }
   | ConnectorSuccessRate => {
-      title: "Payment Success Rate",
+      title: "Confirmed Success Rate",
       tooltipText: "Total successful payments processed out of all user confirmed payments",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.connector_success_rate,
@@ -555,7 +550,7 @@ let getStatData = (
   }
 }
 
-let getSingleStatEntity = (metrics, connector_success_rate) => {
+let getSingleStatEntity = (metrics, defaultColumns) => {
   urlConfig: [
     {
       uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
@@ -564,7 +559,7 @@ let getSingleStatEntity = (metrics, connector_success_rate) => {
   ],
   getObjects: itemToObjMapper,
   getTimeSeriesObject: timeSeriesObjMapper,
-  defaultColumns: getColumns(connector_success_rate),
+  defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
   matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
@@ -609,5 +604,6 @@ let chartEntity = tabKeys =>
       },
     ],
     ~moduleName="Payment Analytics",
+    ~enableLoaders=true,
     (),
   )
