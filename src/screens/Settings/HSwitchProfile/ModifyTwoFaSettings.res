@@ -124,6 +124,8 @@ module ResetTotp = {
               HSwitchGlobalVars.appendDashboardPath(~url="/account-settings/profile"),
             )
           }
+          setOtp(_ => "")
+          setOtpInModal(_ => "")
         } else {
           showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
         }
@@ -154,6 +156,7 @@ module ResetTotp = {
         } else {
           showToast(~message="Recovery code cannot be empty!", ~toastType=ToastError, ())
         }
+        setRecoveryCode(_ => "")
         setButtonState(_ => Button.Normal)
       } catch {
       | Exn.Error(e) => {
@@ -181,6 +184,30 @@ module ResetTotp = {
       }
       None
     })
+
+    let handleKeyUp = ev => {
+      open ReactEvent.Keyboard
+      let key = ev->key
+      let keyCode = ev->keyCode
+
+      if key === "Enter" || keyCode === 13 {
+        handle2FaVerify()->ignore
+      }
+    }
+
+    React.useEffect1(() => {
+      if otpInModal->String.length == 6 || recoveryCode->String.length == 9 {
+        Window.addEventListener("keyup", handleKeyUp)
+      } else {
+        Window.removeEventListener("keyup", handleKeyUp)
+      }
+
+      Some(
+        () => {
+          Window.removeEventListener("keyup", handleKeyUp)
+        },
+      )
+    }, [otpInModal, recoveryCode])
 
     let handleModalClose = () => {
       RescriptReactRouter.push(
@@ -211,7 +238,7 @@ module ResetTotp = {
               text={twoFaState === Totp ? "Verify OTP" : "Verify recovery code"}
               buttonType=Primary
               buttonSize=Small
-              buttonState={otpInModal->String.length === 0 && recoveryCode->String.length === 0
+              buttonState={otpInModal->String.length < 6 && recoveryCode->String.length < 9
                 ? Disabled
                 : buttonState}
               onClick={_ => handle2FaVerify()->ignore}
@@ -332,6 +359,7 @@ module RegenerateRecoveryCodes = {
         } else {
           showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
         }
+        setOtpInModal(_ => "")
         setButtonState(_ => Button.Normal)
       } catch {
       | Exn.Error(e) => {
@@ -352,6 +380,30 @@ module RegenerateRecoveryCodes = {
       }
       None
     })
+
+    let handleKeyUp = ev => {
+      open ReactEvent.Keyboard
+      let key = ev->key
+      let keyCode = ev->keyCode
+
+      if key === "Enter" || keyCode === 13 {
+        verifyTOTP()->ignore
+      }
+    }
+
+    React.useEffect1(() => {
+      if otpInModal->String.length == 6 {
+        Window.addEventListener("keyup", handleKeyUp)
+      } else {
+        Window.removeEventListener("keyup", handleKeyUp)
+      }
+
+      Some(
+        () => {
+          Window.removeEventListener("keyup", handleKeyUp)
+        },
+      )
+    }, [otpInModal])
 
     let copyRecoveryCodes = ev => {
       ev->ReactEvent.Mouse.stopPropagation
@@ -382,7 +434,7 @@ module RegenerateRecoveryCodes = {
                 text={"Verify OTP"}
                 buttonType=Primary
                 buttonSize=Small
-                buttonState={otpInModal->String.length === 0 ? Disabled : buttonState}
+                buttonState={otpInModal->String.length < 6 ? Disabled : buttonState}
                 onClick={_ => verifyTOTP()->ignore}
                 rightIcon={CustomIcon(
                   <Icon
@@ -423,7 +475,7 @@ module RegenerateRecoveryCodes = {
                 buttonType={Primary}
                 buttonSize={Small}
                 onClick={_ => {
-                  TotpUtils.downloadRecoveryCodes(~recoveryCodes)
+                  TwoFaUtils.downloadRecoveryCodes(~recoveryCodes)
                   showToast(
                     ~message="Successfully regenerated new recovery codes !",
                     ~toastType=ToastSuccess,

@@ -140,7 +140,7 @@ module HyperSwitchEntryComponent = {
       customUI={<NoDataFound message="Oops! Missing config" renderType=NotFound />}>
       <div className="text-black">
         {if featureFlagDetails.totp {
-          <TotpAuthEntry />
+          <AuthEntry />
         } else {
           <BasicAuthEntry />
         }}
