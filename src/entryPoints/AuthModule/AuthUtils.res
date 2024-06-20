@@ -1,8 +1,4 @@
-let storeEmailTokenTmp = emailToken => {
-  LocalStorage.setItem("email_token", emailToken)
-}
-
-let getAuthInfo = (~email_token=None, json) => {
+let getAuthInfo = json => {
   open LogicUtils
   open AuthProviderTypes
   let dict = json->JsonFlattenUtils.flattenObject(false)
@@ -19,9 +15,24 @@ let getAuthInfo = (~email_token=None, json) => {
       HSwitchGlobalVars.maximumRecoveryCodes,
     ),
   }
-  switch email_token {
-  | Some(emailTk) => emailTk->storeEmailTokenTmp
-  | None => ()
-  }
   totpInfo
+}
+
+let getEmailTokenValue = (email_token, dict) => {
+  open LogicUtils
+  switch email_token {
+  | Some(_) => email_token
+  | None => dict->getOptionString("email_token")
+  }
+}
+
+let getPreLoginInfo = (~email_token=None, json) => {
+  open LogicUtils
+  let dict = json->JsonFlattenUtils.flattenObject(false)
+  let preLoginInfo: AuthProviderTypes.preLoginType = {
+    token: getString(dict, "token", ""),
+    token_type: dict->getString("token_type", ""),
+    email_token: getEmailTokenValue(email_token, dict),
+  }
+  preLoginInfo
 }

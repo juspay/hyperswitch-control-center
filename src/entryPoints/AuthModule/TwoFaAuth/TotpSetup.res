@@ -256,7 +256,7 @@ let make = () => {
   let terminateTwoFactorAuth = async (~skip_2fa) => {
     open LogicUtils
     try {
-      open TwoFaUtils
+      open AuthUtils
 
       let url = `${getURL(
           ~entityName=USERS,

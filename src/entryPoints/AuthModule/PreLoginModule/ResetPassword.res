@@ -57,7 +57,7 @@ let make = (~flowType) => {
   }
 
   let confirmButtonAction = async password => {
-    open TwoFaTypes
+    open PreLoginTypes
     open TwoFaUtils
     try {
       switch flowType {

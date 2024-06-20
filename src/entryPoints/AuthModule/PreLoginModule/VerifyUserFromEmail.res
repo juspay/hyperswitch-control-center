@@ -11,7 +11,7 @@ let make = () => {
 
   let verifyEmailWithSPT = async body => {
     try {
-      open TwoFaUtils
+      open AuthUtils
       let url = getURL(
         ~entityName=USERS,
         ~methodType=Post,

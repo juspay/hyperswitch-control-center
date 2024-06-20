@@ -18,7 +18,6 @@ type authType = BasicAuth(BasicAuthTypes.basicAuthInfo) | Auth(authInfo)
 
 type authStatus =
   | LoggedOut
-  | SSOPreLogin(preLoginType)
   | PreLogin(preLoginType)
   | LoggedIn(authType)
   | CheckingAuthStatus
