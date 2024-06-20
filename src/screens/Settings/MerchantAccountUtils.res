@@ -355,14 +355,9 @@ let validateMerchantAccountForm = (
   })
 
   setIsDisabled->Option.mapOr((), disableBtn => {
-    Js.log2(initialDict, "initialDict")
-    Js.log2(valuesDict, "valuesDict")
-
     let isValueChanged = checkValueChange(~initialDict, ~valuesDict)
-    Js.log2(isValueChanged, "isValueChanged")
     disableBtn(_ => !isValueChanged)
   })
-  Js.log(errors)
   errors->JSON.Encode.object
 }
 
