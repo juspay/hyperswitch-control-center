@@ -422,7 +422,7 @@ let make = (
 
   entity.defaultColumns
   ->Array.mapWithIndex((urlConfig, index) => {
-    let {sectionName, columns} = urlConfig
+    let {columns} = urlConfig
 
     let singleStateArr = columns->Array.mapWithIndex((col, singleStatArrIndex) => {
       let uri = col->entity.matrixUriMapper
@@ -472,7 +472,6 @@ let make = (
                 filterNullVals
                 ?statSentiment
                 ?statThreshold
-                isHomePage
               />
             }
 
@@ -491,7 +490,6 @@ let make = (
               filterNullVals
               ?statSentiment
               ?statThreshold
-              isHomePage
             />
           }
         }
@@ -510,58 +508,36 @@ let make = (
           statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
           filterNullVals
           ?statSentiment
-          isHomePage
         />
       }
     })
 
     <AddDataAttributes
       attributes=[("data-dynamic-single-stats", "dynamic stats")] key={index->Int.toString}>
-      <div>
-        <RenderIf condition={sectionName->isNonEmptyString}>
-          <div
-            className="mb-5 block pl-5 pt-5 not-italic font-bold text-fs-18 text-black dark:text-white">
-            {sectionName->React.string}
-          </div>
-        </RenderIf>
-        {switch urlConfig.sectionInfo {
-        | Some(info) =>
-          <div
-            className="mb-5 block p-2 not-italic font-normal text-fs-12 text-black dark:text-white bg-blue-info dark:bg-blue-info dark:bg-opacity-20 ml-6"
-            style={ReactDOMStyle.make(
-              ~borderLeft="6px solid #2196F3",
-              ~maxWidth="max-content",
-              (),
-            )}>
-            {info->React.string}
-          </div>
-        | None => React.null
-        }}
-        <div className=wrapperClass>
-          {if isMobileView && !isHomePage {
-            <div className="flex flex-col gap-2 items-center">
-              <div className="flex flex-wrap w-full">
-                {singleStateArr
-                ->Array.mapWithIndex((element, index) => {
-                  <RenderIf condition={index < 4 || showStats} key={index->Int.toString}>
-                    <div className="w-full md:w-1/2"> element </div>
-                  </RenderIf>
-                })
-                ->React.array}
-              </div>
-              <div className="w-full px-2">
-                <Button
-                  text={showStats ? "Hide All Stats" : "View All Stats"}
-                  onClick={_ => setShowStats(prev => !prev)}
-                  buttonType={Pagination}
-                  customButtonStyle="w-full"
-                />
-              </div>
+      <div className=wrapperClass>
+        {if isMobileView {
+          <div className="flex flex-col gap-2 items-center">
+            <div className="flex flex-wrap w-full">
+              {singleStateArr
+              ->Array.mapWithIndex((element, index) => {
+                <RenderIf condition={index < 4 || showStats} key={index->Int.toString}>
+                  <div className="w-full md:w-1/2"> element </div>
+                </RenderIf>
+              })
+              ->React.array}
             </div>
-          } else {
-            singleStateArr->React.array
-          }}
-        </div>
+            <div className="w-full px-2">
+              <Button
+                text={showStats ? "Hide All Stats" : "View All Stats"}
+                onClick={_ => setShowStats(prev => !prev)}
+                buttonType={Pagination}
+                customButtonStyle="w-full"
+              />
+            </div>
+          </div>
+        } else {
+          singleStateArr->React.array
+        }}
       </div>
     </AddDataAttributes>
   })
