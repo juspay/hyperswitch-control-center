@@ -448,7 +448,7 @@ module LineChart1D = {
       | Points =>
         {
           "enabled": !isMultiDimensional,
-          "itemStyle": legendItemStyle(theme, "IBM Plex Sans", "12px"),
+          "itemStyle": legendItemStyle(theme, "Inter", "12px"),
           "itemHiddenStyle": legendHiddenStyle(theme),
           "itemHoverStyle": legendItemStyle(theme),
           "symbolRadius": 4,

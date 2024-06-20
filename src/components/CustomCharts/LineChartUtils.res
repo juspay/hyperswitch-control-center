@@ -604,7 +604,7 @@ let getTooltipHTML = (metrics, data, onCursorName, index, length) => {
   let highlight = onCursorName == name ? "font-weight:900;font-size:13px;" : "opacity:60%;"
 
   `<tr>
-      <td><span style='height:10px; width:10px;margin-top:5px;display:inline-block; background-color:${color};border-radius:3px;margin-right:3px;'/></td>
+      <td><span style='height:10px; width:10px;margin-top:5px;display:inline-block; background-color:${color};border-radius:3px;margin-right:3px;fontFamily:"Inter"'/></td>
       <td><span style='${highlight};padding-right: 10px;'>${name->LogicUtils.snakeToTitle}</span></td>
       <td><span style=${highlight}>${formatStatsAccToMetrix(metric_type, y_axis)}</span></td>
       <td><span style=${highlight}>${secondry_metrix_val}</span></td>
@@ -640,7 +640,7 @@ let tooltipFormatter = (
     `<table>${htmlStr}</table>`
   }
 
-let legendItemStyle = (theme: ThemeProvider.theme, legendFontFamilyClass, legendFontSizeClass) => {
+let legendItemStyle = (theme: ThemeProvider.theme, _legendFontFamilyClass, legendFontSizeClass) => {
   switch theme {
   | Dark =>
     {
@@ -648,7 +648,7 @@ let legendItemStyle = (theme: ThemeProvider.theme, legendFontFamilyClass, legend
       "cursor": "pointer",
       "fontSize": legendFontSizeClass,
       "fontWeight": "500",
-      "fontFamily": legendFontFamilyClass,
+      "fontFamily": "Inter",
       "fontStyle": "normal",
     }->genericObjectOrRecordToJson
   | Light =>
@@ -657,7 +657,7 @@ let legendItemStyle = (theme: ThemeProvider.theme, legendFontFamilyClass, legend
       "cursor": "pointer",
       "fontSize": legendFontSizeClass,
       "fontWeight": "500",
-      "fontFamily": legendFontFamilyClass,
+      "fontFamily": "Inter",
       "fontStyle": "normal",
     }->genericObjectOrRecordToJson
   }

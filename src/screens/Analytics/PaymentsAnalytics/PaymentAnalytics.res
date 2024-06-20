@@ -10,6 +10,7 @@ let make = () => {
   let (dimensions, setDimensions) = React.useState(_ => [])
   let fetchDetails = useGetMethod()
   let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let loadInfo = async () => {
     open LogicUtils
@@ -103,42 +104,53 @@ let make = () => {
 
   open AnalyticsNew
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
-    <PageUtils.PageHeading title subTitle />
-    <MetricsState
-      singleStatEntity={getSingleStatEntity(metrics, !isLiveMode)}
-      filterKeys=tabKeys
-      startTimeFilterKey
-      endTimeFilterKey
-      moduleName="general_metrics"
-    />
+    <div className="flex items-center justify-between">
+      <PageUtils.PageHeading title subTitle />
+      <UIUtils.RenderIf condition={generateReport}>
+        <GenerateReport entityName={PAYMENT_REPORT} />
+      </UIUtils.RenderIf>
+    </div>
+    <FilterContext
+      key="payments_analytics_general_metrics" index="payments_analytics_general_metrics">
+      <MetricsState
+        singleStatEntity={getSingleStatEntity(metrics, !isLiveMode)}
+        filterKeys=tabKeys
+        startTimeFilterKey
+        endTimeFilterKey
+        moduleName="general_metrics"
+        initialFilters=initialFilterFields
+        options
+        initialFixedFilters=initialFixedFilterFields
+        tabKeys
+        filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
+      />
+    </FilterContext>
+    <FilterContext
+      key="payments_analytics_overall_summary" index="payments_analytics_overall_summary">
+      <OverallSummary
+        filteredTabVales=tabValues
+        moduleName="overall_summary"
+        filteredTabKeys={tabKeys}
+        chartEntity={chartEntity(tabKeys)}
+        defaultSort="total_volume"
+        getTable={getPaymentTable}
+        colMapper
+        distributionArray={[distribution]->Some}
+        tableEntity={paymentTableEntity()->Some}
+        deltaMetrics={getStringListFromArrayDict(metrics)}
+        deltaArray=[]
+        tableUpdatedHeading=getUpdatedHeading
+        tableGlobalFilter=filterByData
+        weeklyTableMetricsCols
+        formatData={formatData->Some}
+        initialFilters=initialFilterFields
+        options
+        initialFixedFilters=initialFixedFilterFields
+        tabKeys
+        filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
+        startTimeFilterKey
+        endTimeFilterKey
+      />
+    </FilterContext>
   </PageLoaderWrapper>
 }
-
-// <Analytics
-//   pageTitle=title
-//   pageSubTitle=subTitle
-//   filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
-//   key="PaymentsAnalytics"
-//   moduleName="Payments"
-//   deltaMetrics={getStringListFromArrayDict(metrics)}
-//   chartEntity={default: chartEntity(tabKeys)}
-//   tabKeys
-//   tabValues
-//   options
-//   singleStatEntity={getSingleStatEntity(metrics, !isLiveMode)}
-//   getTable={getPaymentTable}
-//   colMapper
-//   tableEntity={paymentTableEntity()}
-//   defaultSort="total_volume"
-//   deltaArray=[]
-//   tableUpdatedHeading=getUpdatedHeading
-//   tableGlobalFilter=filterByData
-//   startTimeFilterKey
-//   endTimeFilterKey
-//   initialFilters=initialFilterFields
-//   initialFixedFilters=initialFixedFilterFields
-//   weeklyTableMetricsCols
-//   distributionArray={[distribution]->Some}
-//   generateReportType={PAYMENT_REPORT}
-//   formatData={formatData->Some}
-// />

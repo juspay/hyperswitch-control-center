@@ -666,7 +666,7 @@ let make = (
   let componentWidth = componentRef->getBoundingRectInfo(val => val.width)
   let componentHeight = componentRef->getBoundingRectInfo(val => val.height)
 
-  let tooltipBgClass = "bg-white rounded-lg text-opacity-60 shadow-lg ring-1 ring-black ring-opacity-5"
+  let tooltipBgClass = "bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 text-jp-gray-800"
 
   let bgColor = bgColor->LogicUtils.isEmptyString ? tooltipBgClass : bgColor
 
