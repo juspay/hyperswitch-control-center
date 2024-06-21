@@ -410,6 +410,7 @@ let allColumns = [
   SetupFutureUsage,
   Status,
   Metadata,
+  CardNetwork,
 ]
 
 let getHeading = (colType: colType) => {
@@ -525,6 +526,8 @@ let getHeading = (colType: colType) => {
     Table.makeHeaderInfo(~key="error_message", ~title="Error Message", ~showSort=false, ())
   | Refunds => Table.makeHeaderInfo(~key="refunds", ~title="Refunds", ~showSort=false, ())
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false, ())
+  | CardNetwork =>
+    Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Network", ~showSort=false, ())
   }
 }
 
@@ -616,6 +619,8 @@ let getHeadingForAboutPayment = aboutPaymentColType => {
 
   | CaptureMethod =>
     Table.makeHeaderInfo(~key="capture_method", ~title="Capture Method", ~showSort=true, ())
+  | CardNetwork =>
+    Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Network", ~showSort=true, ())
   }
 }
 
@@ -660,24 +665,42 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID", ~showSort=true, ())
   | Description =>
     Table.makeHeaderInfo(~key="description", ~title="Description", ~showSort=true, ())
-  | Shipping => Table.makeHeaderInfo(~key="shipping", ~title="Shipping Address", ~showSort=true, ())
-  | Billing => Table.makeHeaderInfo(~key="billing", ~title="Billing Address", ~showSort=true, ())
+  | ShippingAddress => Table.makeHeaderInfo(~key="shipping", ~title="Address", ~showSort=true, ())
+  | ShippingEmail => Table.makeHeaderInfo(~key="shipping", ~title="Email", ~showSort=true, ())
+  | ShippingPhone => Table.makeHeaderInfo(~key="shipping", ~title="Phone", ~showSort=true, ())
+  | BillingAddress => Table.makeHeaderInfo(~key="billing", ~title="Address", ~showSort=true, ())
+  | BillingPhone => Table.makeHeaderInfo(~key="BillingPhone", ~title="Phone", ~showSort=true, ())
   | AmountCapturable =>
     Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable", ~showSort=true, ())
   | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code", ~showSort=true, ())
   | MandateData =>
     Table.makeHeaderInfo(~key="mandate_data", ~title="Mandate Data", ~showSort=true, ())
-  | FRMName => Table.makeHeaderInfo(~key="frm_name", ~title="FRM Tag", ~showSort=true, ())
+  | FRMName => Table.makeHeaderInfo(~key="frm_name", ~title="Tag", ~showSort=true, ())
   | FRMTransactionType =>
+    Table.makeHeaderInfo(~key="frm_transaction_type", ~title="Transaction Flow", ~showSort=true, ())
+  | FRMStatus => Table.makeHeaderInfo(~key="frm_status", ~title="Message", ~showSort=true, ())
+  | BillingEmail => Table.makeHeaderInfo(~key="billing_email", ~title="Email", ~showSort=true, ())
+  | PMBillingAddress =>
     Table.makeHeaderInfo(
-      ~key="frm_transaction_type",
-      ~title="FRM Transaction Flow",
+      ~key="payment_method_billing_address",
+      ~title="Billing Address",
       ~showSort=true,
       (),
     )
-  | FRMStatus => Table.makeHeaderInfo(~key="frm_status", ~title="FRM Message", ~showSort=true, ())
-  | BillingEmail =>
-    Table.makeHeaderInfo(~key="billing_email", ~title="Billing Email", ~showSort=true, ())
+  | PMBillingPhone =>
+    Table.makeHeaderInfo(
+      ~key="payment_method_billing_phone",
+      ~title="Billing Phone",
+      ~showSort=true,
+      (),
+    )
+  | PMBillingEmail =>
+    Table.makeHeaderInfo(
+      ~key="payment_method_billing_email",
+      ~title="Billing Email",
+      ~showSort=true,
+      (),
+    )
   }
 }
 
@@ -732,6 +755,14 @@ let getCellForAboutPayment = (
   | ProfileId => Text(order.profile_id)
   | ProfileName => Table.CustomCell(<BusinessProfileComponent profile_id={order.profile_id} />, "")
   | CaptureMethod => Text(order.capture_method)
+  | CardNetwork => {
+      let dict = switch order.payment_method_data {
+      | Some(val) => val->getDictFromJsonObject
+      | _ => Dict.make()
+      }
+
+      Text(dict->getString("card_network", ""))
+    }
   }
 }
 
@@ -755,8 +786,10 @@ let getCellForOtherDetails = (order, aboutPaymentColType, _): Table.cell => {
   | Email => Text(order.email)
   | CustomerId => Text(order.customer_id)
   | Description => Text(order.description)
-  | Shipping => Text(order.shipping)
-  | Billing => Text(order.billing)
+  | ShippingAddress => Text(order.shipping)
+  | ShippingPhone => Text(order.shippingPhone)
+  | ShippingEmail => Text(order.shippingEmail)
+  | BillingAddress => Text(order.billing)
   | AmountCapturable => Currency(order.amount_capturable /. 100.0, order.currency)
   | ErrorCode => Text(order.error_code)
   | MandateData => Text(order.mandate_data)
@@ -764,6 +797,10 @@ let getCellForOtherDetails = (order, aboutPaymentColType, _): Table.cell => {
   | FRMTransactionType => Text(order.frm_message.frm_transaction_type)
   | FRMStatus => Text(order.frm_message.frm_status)
   | BillingEmail => Text(order.billingEmail)
+  | PMBillingAddress => Text(order.payment_method_billing_address)
+  | PMBillingPhone => Text(order.payment_method_billing_email)
+  | PMBillingEmail => Text(order.payment_method_billing_phone)
+  | BillingPhone => Text(`${order.billingPhone}`)
   }
 }
 
@@ -806,8 +843,7 @@ let getCell = (order, colType: colType): Table.cell => {
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
   | CustomerEmail => Text(order.email)
-  | Description =>
-    CustomCell(<Metadata displayValue={order.metadata->JSON.Encode.object->JSON.stringify} />, "")
+  | Description => CustomCell(<Metadata displayValue={order.description} endValue={5} />, "")
   | MandateId => Text(order.mandate_id)
   | MandateData => Text(order.mandate_data)
   | SetupFutureUsage => Text(order.setup_future_usage)
@@ -840,6 +876,14 @@ let getCell = (order, colType: colType): Table.cell => {
       | Some(v) => v
       },
     )
+  | CardNetwork => {
+      let dict = switch order.payment_method_data {
+      | Some(val) => val->getDictFromJsonObject
+      | _ => Dict.make()
+      }
+
+      Text(dict->getString("card_network", ""))
+    }
   }
 }
 
@@ -887,6 +931,11 @@ let itemToObjMapper = dict => {
     "country",
     "zip",
   ]
+
+  let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code", ()) => {
+    `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
+  }
+
   {
     payment_id: dict->getString("payment_id", ""),
     merchant_id: dict->getString("merchant_id", ""),
@@ -930,15 +979,39 @@ let itemToObjMapper = dict => {
     ->getDictfromDict("shipping")
     ->getDictfromDict("address")
     ->concatValueOfGivenKeysOfDict(addressKeys),
+    shippingEmail: dict->getDictfromDict("shipping")->getString("email", ""),
+    shippingPhone: dict
+    ->getDictfromDict("shipping")
+    ->getDictfromDict("phone")
+    ->getPhoneNumberString(),
     billing: dict
     ->getDictfromDict("billing")
     ->getDictfromDict("address")
     ->concatValueOfGivenKeysOfDict(addressKeys),
+    payment_method_billing_address: dict
+    ->getDictfromDict("payment_method_data")
+    ->getDictfromDict("billing")
+    ->getDictfromDict("address")
+    ->concatValueOfGivenKeysOfDict(addressKeys),
+    payment_method_billing_phone: dict
+    ->getDictfromDict("payment_method_data")
+    ->getDictfromDict("billing")
+    ->getString("email", ""),
+    payment_method_billing_email: dict
+    ->getDictfromDict("payment_method_data")
+    ->getDictfromDict("billing")
+    ->getString("", ""),
     billingEmail: dict->getDictfromDict("billing")->getString("email", ""),
+    billingPhone: dict
+    ->getDictfromDict("billing")
+    ->getDictfromDict("phone")
+    ->getPhoneNumberString(),
     metadata: dict->getJsonObjectFromDict("metadata")->getDictFromJsonObject,
     email: dict->getString("email", ""),
     name: dict->getString("name", ""),
-    phone: dict->getString("phone", ""),
+    phone: dict
+    ->getDictfromDict("customer")
+    ->getPhoneNumberString(~phoneKey="phone", ~codeKey="phone_country_code", ()),
     return_url: dict->getString("return_url", ""),
     authentication_type: dict->getString("authentication_type", ""),
     statement_descriptor_name: dict->getString("statement_descriptor_name", ""),

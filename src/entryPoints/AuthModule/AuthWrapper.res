@@ -77,7 +77,7 @@ let make = (~children) => {
       switch tokenFromUrl {
       | Some(token) => {
           let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post, ())
-          setAuthStatus(PreLogin(TwoFaUtils.getPreLoginInfo(response, ~email_token=Some(token))))
+          setAuthStatus(PreLogin(AuthUtils.getPreLoginInfo(response, ~email_token=Some(token))))
         }
       | None => setAuthStatus(LoggedOut)
       }
@@ -107,8 +107,7 @@ let make = (~children) => {
       <AuthHeaderWrapper>
         <TwoFaAuthScreen setAuthStatus />
       </AuthHeaderWrapper>
-    | SSOPreLogin(_) => <SSODecisionScreen />
-    | PreLogin(_) => <TwoFaDecisionScreen />
+    | PreLogin(_) => <DecisionScreen />
     | LoggedIn(_token) => children
     | CheckingAuthStatus => <PageLoaderWrapper.ScreenLoader />
     }}

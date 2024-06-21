@@ -55,7 +55,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     try {
       let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post, ())
-      setAuthStatus(PreLogin(getPreLoginInfo(res)))
+      setAuthStatus(PreLogin(AuthUtils.getPreLoginInfo(res)))
     } catch {
     | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
     }
