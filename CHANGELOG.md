@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.21.0
+
+### Bug Fixes
+
+- Verify email flow ([#855](https://github.com/juspay/hyperswitch-control-center/pull/855)) ([`1fbfbd3`](https://github.com/juspay/hyperswitch-control-center/commit/1fbfbd3ed4a9ca550d231f22d5e3ef3273e3066b))
+
+**Full Changelog:** [`2024.06.20.1...2024.06.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.20.1...2024.06.21.0)
+
+- - -
+
 ## 2024.06.20.1
 
 ### Miscellaneous Tasks
