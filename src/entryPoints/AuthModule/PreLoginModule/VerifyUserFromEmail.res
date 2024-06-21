@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~onClick) => {
   open AuthProviderTypes
   open APIUtils
 
@@ -9,9 +9,11 @@ let make = () => {
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  let verifyEmailWithSPT = async body => {
+  let verifyEmailWithSPT = async token => {
     try {
+      open CommonAuthUtils
       open AuthUtils
+      let body = token->generateBodyForEmailRedirection
       let url = getURL(
         ~entityName=USERS,
         ~methodType=Post,
@@ -30,23 +32,18 @@ let make = () => {
   }
 
   React.useEffect0(() => {
-    open CommonAuthUtils
     open TwoFaUtils
     open HSwitchGlobalVars
 
     RescriptReactRouter.replace(appendDashboardPath(~url="/accept_invite_from_email"))
-    let emailToken = authStatus->getEmailToken
 
-    switch emailToken {
-    | Some(token) => token->generateBodyForEmailRedirection->verifyEmailWithSPT->ignore
+    switch authStatus->getEmailToken {
+    | Some(token) => token->verifyEmailWithSPT->ignore
     | None => setErrorMessage(_ => "Token not received")
     }
 
     None
   })
-  let onClick = () => {
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-  }
 
   <EmailVerifyScreen
     errorMessage onClick trasitionMessage="Verifying... You will be redirecting.."
