@@ -636,7 +636,10 @@ let tooltipFormatter = (
   `<table>${htmlStr}</table>`
 }
 
-let legendItemStyle = (theme: ThemeProvider.theme, legendFontFamilyClass, legendFontSizeClass) => {
+let legendItemStyle = (theme: ThemeProvider.theme) => (
+  legendFontFamilyClass,
+  legendFontSizeClass,
+) => {
   switch theme {
   | Dark =>
     {
@@ -659,8 +662,7 @@ let legendItemStyle = (theme: ThemeProvider.theme, legendFontFamilyClass, legend
   }
 }
 
-let legendHiddenStyle = (
-  theme: ThemeProvider.theme,
+let legendHiddenStyle = (theme: ThemeProvider.theme) => (
   legendFontFamilyClass,
   legendFontSizeClass,
 ) => {

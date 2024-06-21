@@ -447,7 +447,7 @@ let make = () => {
                             entityName="PaymentSettings"
                             remainingPath
                             renderList={() => <PaymentSettingsList />}
-                            renderShow={profileId =>
+                            renderShow={_profileId =>
                               <PaymentSettings webhookOnly=false showFormOnly=false />}
                           />
                         | list{"recon"} =>
@@ -480,7 +480,7 @@ let make = () => {
                             entityName="ConfigurePMTs"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
-                            renderShow={value =>
+                            renderShow={_value =>
                               <UIUtils.RenderIf condition={featureFlagDetails.totp}>
                                 <ModifyTwoFaSettings />
                               </UIUtils.RenderIf>}
@@ -504,7 +504,7 @@ let make = () => {
                                 entityName="ConfigurePMTs"
                                 remainingPath
                                 renderList={() => <PaymentMethodList />}
-                                renderShow={profileId =>
+                                renderShow={_profileId =>
                                   <PaymentSettings webhookOnly=false showFormOnly=false />}
                               />
                             </FilterContext>

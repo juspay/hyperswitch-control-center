@@ -90,7 +90,7 @@ module TableWrapper = {
     ~deltaMetrics: array<string>,
     ~deltaArray: array<string>,
     ~tableUpdatedHeading as _: option<
-      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
+      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>) => 'colType => Table.header,
     >,
     ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
     ~moduleName,
@@ -403,7 +403,7 @@ module TabDetails = {
     ~deltaMetrics: array<string>,
     ~deltaArray: array<string>,
     ~tableUpdatedHeading: option<
-      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
+      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>) => 'colType => Table.header,
     >,
     ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
     ~moduleName,
@@ -510,7 +510,7 @@ let make = (
   ~singleStatEntity: DynamicSingleStat.entityType<'singleStatColType, 'b, 'b2>,
   ~filterUri: option<string>,
   ~tableUpdatedHeading: option<
-    (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
+    (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>) => 'colType => Table.header,
   >=?,
   ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>=?,
   ~moduleName: string,

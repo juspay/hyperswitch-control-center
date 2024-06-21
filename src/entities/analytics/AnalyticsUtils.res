@@ -584,7 +584,7 @@ let generateTablePayload = (
   tableBody
 }
 
-let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statType: string) => {
+let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges) => (statType: string) => {
   let timeText = if timeRanges.fromTime->isNonEmptyString && timeRanges.toTime->isNonEmptyString {
     `${"\n"} ${timeRanges.fromTime
       ->Date.fromString

@@ -14,15 +14,15 @@ let valueFormatter = {
   }
 }
 
-let formatter: Js_OO.Callback.arity1<yAxisRecord => string> = {
-  @this
-  param => {
-    `<div class="font-semibold text-black dark:text-white">` ++
-    param.point.name ++
-    `</div><br><div class="font-medium text-black dark:text-white">` ++
-    param.point.percentage->Float.toFixedWithPrecision(~digits=2) ++ `%</div>`
-  }
-}
+let formatter: yAxisRecord => string =
+  (
+    @this
+    param =>
+      `<div class="font-semibold text-black dark:text-white">` ++
+      param.point.name ++
+      `</div><br><div class="font-medium text-black dark:text-white">` ++
+      param.point.percentage->Float.toFixedWithPrecision(~digits=2) ++ `%</div>`
+  )->asDataLabelFormatter
 
 @react.component
 let make = (
