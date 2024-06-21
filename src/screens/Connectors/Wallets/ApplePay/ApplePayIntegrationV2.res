@@ -1,152 +1,3 @@
-open ApplePayIntegrationTypesV2
-
-let paymentProcessingAtField = (
-  ~name,
-  ~label,
-  ~options,
-  ~setProcessingAt,
-  ~form: ReactFinalForm.formApi,
-  ~textColor,
-  ~integrationType,
-) => {
-  FormRenderer.makeFieldInfo(
-    ~name,
-    ~label,
-    ~customInput=(~input) =>
-      InputFields.radioInput(
-        ~input={
-          ...input,
-          onChange: event => {
-            let value =
-              event
-              ->Identity.formReactEventToString
-              ->ApplePayIntegrationUtilsV2.paymentProcessingMapper
-            setProcessingAt(_ => value)
-            if value === #Connector {
-              form.change(
-                `${ApplePayIntegrationUtilsV2.applePayNameMapper(
-                    ~name="payment_processing_certificate",
-                    ~integrationType,
-                  )}`,
-                JSON.Encode.null,
-              )
-              form.change(
-                `${ApplePayIntegrationUtilsV2.applePayNameMapper(
-                    ~name="payment_processing_certificate_key",
-                    ~integrationType,
-                  )}`,
-                JSON.Encode.null,
-              )
-            }
-            input.onChange(event)
-          },
-        },
-        ~options=options->SelectBox.makeOptions,
-        ~buttonText="",
-        ~isHorizontal=true,
-        ~customStyle="cursor-pointer gap-2",
-        ~fill={`${textColor}`},
-        (),
-      ),
-    (),
-  )
-}
-
-module PaymentProcessingDetailsAt = {
-  @react.component
-  let make = (~integrationType) => {
-    let form = ReactFinalForm.useForm()
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
-    let (processingAt, setProcessingAt) = React.useState(_ => #Connector)
-    <>
-      <FormRenderer.FieldRenderer
-        labelClass="font-semibold !text-hyperswitch_black"
-        field={paymentProcessingAtField(
-          ~name=`${ApplePayIntegrationUtilsV2.applePayNameMapper(
-              ~name="payment_processing_details_at",
-              ~integrationType,
-            )}`,
-          ~label="Processing At",
-          ~options=[
-            (#Connector: paymentProcessingState :> string),
-            (#Hyperswitch: paymentProcessingState :> string),
-          ],
-          ~textColor={textColor.primaryNormal},
-          ~setProcessingAt,
-          ~form,
-          ~integrationType,
-        )}
-      />
-      {switch processingAt {
-      | #Hyperswitch =>
-        <div>
-          <FormRenderer.FieldRenderer
-            labelClass="font-semibold !text-hyperswitch_black"
-            field={FormRenderer.makeFieldInfo(
-              ~label="Payment Processing Certificate",
-              ~name={
-                `${ApplePayIntegrationUtilsV2.applePayNameMapper(
-                    ~name="payment_processing_certificate",
-                    ~integrationType,
-                  )}`
-              },
-              ~placeholder={`Enter Processing Certificate`},
-              ~customInput=InputFields.textInput(),
-              ~isRequired=true,
-              (),
-            )}
-          />
-          <FormRenderer.FieldRenderer
-            labelClass="font-semibold !text-hyperswitch_black"
-            field={FormRenderer.makeFieldInfo(
-              ~label="Payment Processing Key",
-              ~name={
-                `${ApplePayIntegrationUtilsV2.applePayNameMapper(
-                    ~name="payment_processing_certificate_key",
-                    ~integrationType,
-                  )}`
-              },
-              ~placeholder={`Enter Processing Key`},
-              ~customInput=InputFields.multiLineTextInput(
-                ~rows=Some(10),
-                ~cols=Some(100),
-                ~isDisabled=false,
-                ~customClass="",
-                ~leftIcon=React.null,
-                ~maxLength=10000,
-                (),
-              ),
-              ~isRequired=true,
-              (),
-            )}
-          />
-        </div>
-      | _ => React.null
-      }}
-    </>
-  }
-}
-
-let applePayValueInput = (
-  ~applePayField: CommonWalletTypes.inputField,
-  ~integrationType: option<applePayIntegrationType>=None,
-  ~merchantBusinessCountry: array<SelectBox.dropdownOption>=[],
-  (),
-) => {
-  open ApplePayIntegrationHelperV2
-  let {\"type", name} = applePayField
-
-  {
-    switch (\"type", name) {
-    | (Text, _) => textInput(~applePayField, ~integrationType)
-    | (Select, "merchant_business_country") =>
-      selectStringInput(~applePayField, ~options={merchantBusinessCountry}, ~integrationType)
-    | (Select, _) => selectArrayInput(~applePayField, ~integrationType)
-    | _ => textInput(~applePayField, ~integrationType)
-    }
-  }
-}
-
 module Verified = {
   @react.component
   let make = (
@@ -219,11 +70,12 @@ module Landing = {
   @react.component
   let make = (
     ~connector,
-    ~changeIntegrationType,
     ~appleIntegrationType,
     ~setShowWalletConfigurationModal,
     ~setApplePayIntegrationSteps,
+    ~setApplePayIntegrationType,
   ) => {
+    open ApplePayIntegrationTypesV2
     open WalletHelper
     <>
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
@@ -233,7 +85,7 @@ module Landing = {
       | Processors(ADYEN) =>
         <div
           className="p-6 m-2 cursor-pointer"
-          onClick={_e => changeIntegrationType(Some(#simplified))}>
+          onClick={_e => setApplePayIntegrationType(_ => #simplified)}>
           <Card heading="Web Domain" isSelected={appleIntegrationType === #simplified}>
             <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
               {"Get Apple Pay enabled on your web domains by hosting a verification file, that’s it."->React.string}
@@ -248,7 +100,8 @@ module Landing = {
         </div>
       | _ => React.null
       }}
-      <div className="p-6 m-2 cursor-pointer" onClick={_e => changeIntegrationType(Some(#manual))}>
+      <div
+        className="p-6 m-2 cursor-pointer" onClick={_e => setApplePayIntegrationType(_ => #manual)}>
         <Card heading="iOS Certificate" isSelected={appleIntegrationType === #manual}>
           <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
             <CustomSubText />
@@ -267,7 +120,6 @@ module Landing = {
           buttonType={Secondary}
           onClick={_ev => {
             setShowWalletConfigurationModal(_ => false)
-            changeIntegrationType(None)
           }}
         />
         <Button
@@ -280,348 +132,13 @@ module Landing = {
   }
 }
 
-module Manual = {
-  @react.component
-  let make = (
-    ~applePayFields,
-    ~merchantBusinessCountry,
-    ~setApplePayIntegrationSteps,
-    ~setVefifiedDomainList,
-    ~update,
-  ) => {
-    open LogicUtils
-    open ApplePayIntegrationUtilsV2
-    let form = ReactFinalForm.useForm()
-    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-    )
-    let initalFormValue =
-      formState.values
-      ->getDictFromJsonObject
-      ->getDictfromDict("metadata")
-      ->getDictfromDict("apple_pay_combined")
-    let setFormData = () => {
-      let value = applePayCombined(initalFormValue, #manual)
-      form.change("metadata", value->Identity.genericTypeToJson)
-    }
-
-    React.useEffect0(() => {
-      let _ = setFormData()
-      None
-    })
-    let onSubmit = () => {
-      form.change("metadata.apple_pay_combined.simplified", JSON.Encode.null)
-      let data =
-        formState.values
-        ->getDictFromJsonObject
-        ->getDictfromDict("metadata")
-        ->getDictfromDict("apple_pay_combined")
-        ->manual
-      let domainName = data.session_token_data.initiative_context->Option.getOr("")
-
-      let metadata =
-        formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
-
-      setVefifiedDomainList(_ => [domainName])
-      let _ = update(metadata)
-      setApplePayIntegrationSteps(_ => ApplePayIntegrationTypesV2.Verify)
-      Nullable.null->Promise.resolve
-    }
-    let applePayManualFields =
-      applePayFields
-      ->Array.mapWithIndex((field, index) => {
-        let applePayField = field->convertMapObjectToDict->CommonWalletUtils.inputFieldMapper
-        let {name} = applePayField
-        <div key={index->Int.toString}>
-          {switch name {
-          | "payment_processing_details_at" =>
-            <PaymentProcessingDetailsAt integrationType={Some(#manual)} />
-          | _ =>
-            <FormRenderer.FieldRenderer
-              labelClass="font-semibold !text-hyperswitch_black"
-              field={applePayValueInput(
-                ~applePayField,
-                ~integrationType=Some(#manual),
-                ~merchantBusinessCountry,
-                (),
-              )}
-            />
-          }}
-        </div>
-      })
-      ->React.array
-    <>
-      {applePayManualFields}
-      <div className="w-full flex gap-2 justify-end p-6">
-        <Button
-          text="Go Back"
-          buttonType={Secondary}
-          onClick={_ev => {
-            setApplePayIntegrationSteps(_ => Landing)
-          }}
-        />
-        <Button
-          text="Verify & Enable"
-          buttonType={Primary}
-          onClick={_ev => {
-            onSubmit()->ignore
-          }}
-          buttonState={formState.values->validateManualFlow}
-        />
-      </div>
-    </>
-  }
-}
-module ZenApplePay = {
-  @react.component
-  let make = (~applePayFields, ~update, ~setShowWalletConfigurationModal) => {
-    open LogicUtils
-    open ApplePayIntegrationUtilsV2
-    let form = ReactFinalForm.useForm()
-
-    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-    )
-    let initalFormValue =
-      formState.values
-      ->getDictFromJsonObject
-      ->getDictfromDict("metadata")
-      ->getDictfromDict("apple_pay")
-
-    let setFormData = () => {
-      let value = zenApplePayConfig(initalFormValue)
-      form.change("metadata.apple_pay", value->Identity.genericTypeToJson)
-    }
-
-    React.useEffect0(() => {
-      let _ = setFormData()
-      None
-    })
-
-    let onSubmit = () => {
-      let metadata =
-        formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
-      let _ = update(metadata)
-      setShowWalletConfigurationModal(_ => false)
-      Nullable.null->Promise.resolve
-    }
-    let applePayManualFields =
-      applePayFields
-      ->Array.mapWithIndex((field, index) => {
-        let applePayField = field->convertMapObjectToDict->CommonWalletUtils.inputFieldMapper
-        <div key={index->Int.toString}>
-          <FormRenderer.FieldRenderer
-            labelClass="font-semibold !text-hyperswitch_black"
-            field={applePayValueInput(~applePayField, ())}
-          />
-        </div>
-      })
-      ->React.array
-    <>
-      {applePayManualFields}
-      <div className="w-full flex gap-2 justify-end p-6">
-        <Button
-          text="Go Back"
-          buttonType={Secondary}
-          onClick={_ev => {
-            setShowWalletConfigurationModal(_ => false)
-          }}
-        />
-        <Button
-          text="Verify & Enable"
-          buttonType={Primary}
-          onClick={_ev => {
-            onSubmit()->ignore
-          }}
-          buttonState={formState.values->validateZenFlow}
-        />
-      </div>
-    </>
-  }
-}
-module Simplified = {
-  @react.component
-  let make = (
-    ~applePayFields,
-    ~merchantBusinessCountry,
-    ~setApplePayIntegrationSteps,
-    ~setVefifiedDomainList,
-    ~update,
-  ) => {
-    open LogicUtils
-    open APIUtils
-    open ApplePayIntegrationHelperV2
-    open ApplePayIntegrationUtilsV2
-    let getURL = useGetURL()
-    let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
-    let fetchApi = AuthHooks.useApiFetcher()
-    let showToast = ToastState.useShowToast()
-
-    let url = RescriptReactRouter.useUrl()
-    let form = ReactFinalForm.useForm()
-    let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
-    let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
-    let merchantId = merchantDetailsValue.merchant_id
-    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-    )
-    let initalFormValue =
-      formState.values
-      ->getDictFromJsonObject
-      ->getDictfromDict("metadata")
-      ->getDictfromDict("apple_pay_combined")
-    let setFormData = () => {
-      let value = applePayCombined(initalFormValue, #simplified)
-      form.change("metadata", value->Identity.genericTypeToJson)
-    }
-
-    React.useEffect0(() => {
-      let _ = setFormData()
-      None
-    })
-    let onSubmit = async () => {
-      try {
-        let (body, domainName) = formState.values->constructVerifyApplePayReq(connectorID)
-        let verifyAppleUrl = getURL(~entityName=VERIFY_APPLE_PAY, ~methodType=Post, ())
-        // let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post, ())
-
-        form.change("metadata.apple_pay_combined.manual", JSON.Encode.null)
-        let data =
-          formState.values
-          ->getDictFromJsonObject
-          ->getDictfromDict("metadata")
-          ->getDictfromDict("apple_pay_combined")
-          ->simplified
-        let domainName = data.session_token_data.initiative_context->Option.getOr("")
-
-        let metadata =
-          formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
-
-        let _ = update(metadata)
-        setVefifiedDomainList(_ => [domainName])
-        setApplePayIntegrationSteps(_ => ApplePayIntegrationTypesV2.Verify)
-      } catch {
-      | _ => showToast(~message="Failed to Verify", ~toastType=ToastState.ToastError, ())
-      }
-      Nullable.null
-    }
-
-    let downloadApplePayCert = () => {
-      open Promise
-      fetchApi(HSwitchGlobalVars.urlToDownloadApplePayCertificate, ~method_=Get, ())
-      ->then(Fetch.Response.blob)
-      ->then(content => {
-        DownloadUtils.download(
-          ~fileName=`apple-developer-merchantid-domain-association`,
-          ~content,
-          ~fileType="text/plain",
-        )
-        showToast(~toastType=ToastSuccess, ~message="File download complete", ())
-
-        resolve()
-      })
-      ->catch(_ => {
-        showToast(
-          ~toastType=ToastError,
-          ~message="Oops, something went wrong with the download. Please try again.",
-          (),
-        )
-        resolve()
-      })
-      ->ignore
-    }
-
-    let downloadAPIKey =
-      <div className="mt-4">
-        <Button
-          text={"Download File"}
-          buttonType={Primary}
-          buttonSize={Small}
-          customButtonStyle="!px-2 rounded-lg"
-          onClick={_ => downloadApplePayCert()}
-          buttonState={Normal}
-        />
-      </div>
-
-    let applePaySimplifiedFields =
-      applePayFields
-      ->Array.filter(field => {
-        let typedData = field->convertMapObjectToDict->CommonWalletUtils.inputFieldMapper
-        !(ignoreFieldsonSimplified->Array.includes(typedData.name))
-      })
-      ->Array.mapWithIndex((field, index) => {
-        let applePayField = field->convertMapObjectToDict->CommonWalletUtils.inputFieldMapper
-        <div key={index->Int.toString}>
-          <FormRenderer.FieldRenderer
-            labelClass="font-semibold !text-hyperswitch_black"
-            field={applePayValueInput(
-              ~applePayField,
-              ~merchantBusinessCountry,
-              ~integrationType={Some(#simplified)},
-              (),
-            )}
-          />
-        </div>
-      })
-      ->React.array
-    <>
-      <SimplifiedHelper
-        customElement={Some(applePaySimplifiedFields)}
-        heading="Provide your sandbox domain where the verification file will be hosted"
-        subText=Some(
-          "Input the top-level domain (example.com) or sub-domain (checkout.example.com) where you wish to enable Apple Pay",
-        )
-        stepNumber="1"
-      />
-      <hr className="w-full" />
-      <SimplifiedHelper
-        heading="Download domain verification file"
-        stepNumber="2"
-        customElement=Some(downloadAPIKey)
-      />
-      <hr className="w-full" />
-      <SimplifiedHelper
-        heading="Host sandbox domain association file"
-        subText=Some(
-          "Host the downloaded verification file at your sandbox domain in the following location :-",
-        )
-        stepNumber="3"
-        customElement=Some(
-          <HostURL
-            prefix={`${ApplePayIntegrationUtilsV2.applePayNameMapper(
-                ~name="initiative_context",
-                ~integrationType=Some(#simplified),
-              )}`}
-          />,
-        )
-      />
-      <div className="w-full flex gap-2 justify-end p-6">
-        <Button
-          text="Go Back"
-          buttonType={Secondary}
-          onClick={_ev => {
-            setApplePayIntegrationSteps(_ => Landing)
-          }}
-        />
-        <Button
-          text="Verify & Enable"
-          buttonType={Primary}
-          onClick={_ev => {
-            onSubmit()->ignore
-          }}
-          buttonState={formState.values->validateSimplifedFlow}
-        />
-      </div>
-    </>
-  }
-}
-
 @react.component
 let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
-  open LogicUtils
-  open ApplePayIntegrationUtilsV2
-  open WalletHelper
   open APIUtils
+  open LogicUtils
+  open WalletHelper
+  open ApplePayIntegrationUtilsV2
+  open ApplePayIntegrationTypesV2
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -688,13 +205,22 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
     }
   }
 
-  let setFormData = (~applePayIntegrationType=None, ()) => {
+  let setFormData = () => {
     open ConnectorUtils
     open ConnectorTypes
 
     let value = switch connector->getConnectorNameTypeFromString() {
     | Processors(ZEN) => applePay(initalData, connector, ())
-    | _ => applePay(initalData, connector, ~applePayIntegrationType, ())
+    | _ => {
+        let applePayIntegrationType = Some(
+          initalData
+          ->Dict.keysToArray
+          ->Array.at(0)
+          ->Option.getOr((#manual: applePayIntegrationType :> string))
+          ->applePayIntegrationTypeMapper,
+        )
+        applePay(initalData, connector, ~applePayIntegrationType, ())
+      }
     }
     switch value {
     | Zen(data) => form.change("metadata.apple_pay", data->Identity.genericTypeToJson)
@@ -703,6 +229,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
   }
 
   let changeIntegrationType = intType => {
+    let _ = setFormData()
     let _ = setApplePayIntegrationType(_ => intType->Option.getOr(#manual))
   }
 
@@ -734,21 +261,21 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
     <div>
       <Heading />
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
-      | Processors(ZEN) => <ZenApplePay applePayFields update setShowWalletConfigurationModal />
+      | Processors(ZEN) => <ApplePayZen applePayFields update setShowWalletConfigurationModal />
       | _ =>
         switch applePayIntegrationStep {
         | Landing =>
           <Landing
             connector
-            changeIntegrationType
             setShowWalletConfigurationModal
             setApplePayIntegrationSteps
             appleIntegrationType
+            setApplePayIntegrationType
           />
         | Configure =>
           switch appleIntegrationType {
           | #simplified =>
-            <Simplified
+            <ApplePaySimplifiedFlow
               applePayFields
               merchantBusinessCountry
               setApplePayIntegrationSteps
@@ -756,7 +283,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
               update
             />
           | #manual =>
-            <Manual
+            <ApplePayManualFlow
               applePayFields
               merchantBusinessCountry
               setApplePayIntegrationSteps

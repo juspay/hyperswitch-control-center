@@ -147,3 +147,22 @@ module InfoCard = {
     </div>
   }
 }
+
+let applePayValueInput = (
+  ~applePayField: CommonWalletTypes.inputField,
+  ~integrationType: option<applePayIntegrationType>=None,
+  ~merchantBusinessCountry: array<SelectBox.dropdownOption>=[],
+  (),
+) => {
+  let {\"type", name} = applePayField
+
+  {
+    switch (\"type", name) {
+    | (Text, _) => textInput(~applePayField, ~integrationType)
+    | (Select, "merchant_business_country") =>
+      selectStringInput(~applePayField, ~options={merchantBusinessCountry}, ~integrationType)
+    | (Select, _) => selectArrayInput(~applePayField, ~integrationType)
+    | _ => textInput(~applePayField, ~integrationType)
+    }
+  }
+}
