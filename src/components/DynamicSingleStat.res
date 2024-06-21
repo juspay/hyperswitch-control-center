@@ -24,6 +24,7 @@ type singleStatBodyEntity = {
   granularity?: string,
   mode?: string,
   customFilter?: string,
+  groupByNames?: array<string>,
   source?: string,
   prefix?: string,
 }
@@ -31,8 +32,6 @@ type singleStatBodyEntity = {
 type urlConfig = {
   uri: string,
   metrics: array<string>,
-  singleStatBody?: singleStatBodyEntity => string,
-  singleStatTimeSeriesBody?: singleStatBodyEntity => string,
   prefix?: string,
 }
 type deltaRange = {currentSr: AnalyticsUtils.timeRanges}
@@ -124,6 +123,7 @@ let make = (
   ~statSentiment=?,
   ~statThreshold=?,
   ~wrapperClass=?,
+  ~formaPayload: option<singleStatBodyEntity => string>=?,
 ) => {
   open UIUtils
   open LogicUtils
@@ -281,9 +281,13 @@ let make = (
           source,
           prefix: ?urlConfig.prefix,
         }
-        let singleStatBodyMakerFn = urlConfig.singleStatBody->Option.getOr(singleStatBodyMake)
 
-        let singleStatBody = singleStatBodyMakerFn(singleStatBodyEntity)
+        let singleStatBodyMakerFn = switch formaPayload {
+        | Some(fun) => fun
+        | _ => singleStatBodyMake
+        }
+
+        let singleStatBody = singleStatBodyEntity->singleStatBodyMakerFn
         fetchApi(
           uri,
           ~method_=Post,
@@ -352,8 +356,12 @@ let make = (
           source,
           prefix: ?urlConfig.prefix,
         }
-        let singleStatBodyMakerFn =
-          urlConfig.singleStatTimeSeriesBody->Option.getOr(singleStatBodyMake)
+
+        let singleStatBodyMakerFn = switch formaPayload {
+        | Some(fun) => fun
+        | _ => singleStatBodyMake
+        }
+
         fetchApi(
           uri,
           ~method_=Post,

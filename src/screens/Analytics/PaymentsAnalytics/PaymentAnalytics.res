@@ -44,6 +44,27 @@ let make = () => {
     }
   }
 
+  let generalMetrics = [
+    "payment_success_rate",
+    "payment_count",
+    "payment_success_count",
+    "connector_success_rate",
+  ]
+  let analyticsAmountMetrics = [
+    "payment_success_rate",
+    "avg_ticket_size",
+    "payment_processed_amount",
+  ]
+  let smartRetrieMetrics = ["retries_count"]
+
+  let formatMetrics = arrMetrics => {
+    arrMetrics->Array.map(metric => {
+      [("name", metric->JSON.Encode.string), ("desc", ""->JSON.Encode.string)]
+      ->Dict.fromArray
+      ->JSON.Encode.object
+    })
+  }
+
   React.useEffect0(() => {
     getPaymetsDetails()->ignore
     None
@@ -101,6 +122,29 @@ let make = () => {
   let title = "Payments Analytics"
   let subTitle = "Gain Insights, monitor performance and make Informed Decisions with Payment Analytics."
 
+  let formaPayload = (singleStatBodyEntity: DynamicSingleStat.singleStatBodyEntity) => {
+    [
+      AnalyticsUtils.getFilterRequestBody(
+        ~filter=singleStatBodyEntity.filter,
+        ~metrics=singleStatBodyEntity.metrics,
+        ~delta=?singleStatBodyEntity.delta,
+        ~startDateTime=singleStatBodyEntity.startDateTime,
+        ~endDateTime=singleStatBodyEntity.endDateTime,
+        ~mode=singleStatBodyEntity.mode,
+        ~groupByNames=["currency"]->Some,
+        ~customFilter=?singleStatBodyEntity.customFilter,
+        ~source=?singleStatBodyEntity.source,
+        ~granularity=singleStatBodyEntity.granularity,
+        ~prefix=singleStatBodyEntity.prefix,
+        (),
+      )->JSON.Encode.object,
+    ]
+    ->JSON.Encode.array
+    ->JSON.stringify
+  }
+
+  Js.log2(">>", generalMetrics->formatMetrics)
+
   open AnalyticsNew
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
     <div className="flex items-center justify-between ">
@@ -114,7 +158,10 @@ let make = () => {
         key="payments_analytics_general_metrics" index="payments_analytics_general_metrics">
         <MetricsState
           heading="General Metrics"
-          singleStatEntity={getSingleStatEntity(metrics, generalMetricsColumns)}
+          singleStatEntity={getSingleStatEntity(
+            generalMetrics->formatMetrics,
+            generalMetricsColumns,
+          )}
           filterKeys=tabKeys
           startTimeFilterKey
           endTimeFilterKey
@@ -129,7 +176,10 @@ let make = () => {
       <FilterContext key="payments_analytics_amount" index="payments_analytics_amount">
         <MetricsState
           heading="Amount"
-          singleStatEntity={getSingleStatEntity(metrics, amountMetricsColumns)}
+          singleStatEntity={getSingleStatEntity(
+            analyticsAmountMetrics->formatMetrics,
+            amountMetricsColumns,
+          )}
           filterKeys=tabKeys
           startTimeFilterKey
           endTimeFilterKey
@@ -139,13 +189,17 @@ let make = () => {
           initialFixedFilters=initialFixedFilterFields
           tabKeys
           filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
+          formaPayload
         />
       </FilterContext>
       <FilterContext
         key="payments_analytics_smart_retries" index="payments_analytics_smart_retries">
         <MetricsState
           heading="Smart Retries"
-          singleStatEntity={getSingleStatEntity(metrics, smartRetrivesColumns)}
+          singleStatEntity={getSingleStatEntity(
+            smartRetrieMetrics->formatMetrics,
+            smartRetrivesColumns,
+          )}
           filterKeys=tabKeys
           startTimeFilterKey
           endTimeFilterKey
@@ -155,6 +209,7 @@ let make = () => {
           initialFixedFilters=initialFixedFilterFields
           tabKeys
           filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
+          formaPayload
         />
       </FilterContext>
       <FilterContext

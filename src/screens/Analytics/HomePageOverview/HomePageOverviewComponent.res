@@ -105,7 +105,7 @@ module SystemMetricsInsights = {
       },
     ]
 
-    let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity) => {
+    let _singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity) => {
       let filters =
         [
           ("api_name", ["PaymentsConfirm"->JSON.Encode.string]->JSON.Encode.array),
@@ -137,8 +137,6 @@ module SystemMetricsInsights = {
         {
           uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
           metrics: metrics->getStringListFromArrayDict,
-          singleStatBody: singleStatBodyMake,
-          singleStatTimeSeriesBody: singleStatBodyMake,
         },
       ],
       getObjects: itemToObjMapper,

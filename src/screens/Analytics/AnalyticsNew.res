@@ -14,6 +14,7 @@ module MetricsState = {
     ~tabKeys,
     ~filterUri,
     ~heading,
+    ~formaPayload: option<DynamicSingleStat.singleStatBodyEntity => string>=?,
   ) => {
     let updateDetails = APIUtils.useUpdateMethod()
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
@@ -114,6 +115,7 @@ module MetricsState = {
         moduleName
         showPercentage=false
         statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
+        ?formaPayload
       />
     </div>
   }
