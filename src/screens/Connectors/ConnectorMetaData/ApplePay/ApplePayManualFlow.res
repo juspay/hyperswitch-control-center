@@ -1,79 +1,62 @@
 open ApplePayIntegrationTypesV2
-let paymentProcessingAtField = (
-  ~name,
-  ~label,
-  ~options,
-  ~setProcessingAt,
-  ~form: ReactFinalForm.formApi,
-  ~textColor,
-  ~integrationType,
-) => {
-  FormRenderer.makeFieldInfo(
-    ~name,
-    ~label,
-    ~customInput=(~input) =>
-      InputFields.radioInput(
-        ~input={
-          ...input,
-          onChange: event => {
-            let value =
-              event
-              ->Identity.formReactEventToString
-              ->ApplePayIntegrationUtilsV2.paymentProcessingMapper
-            setProcessingAt(_ => value)
-            if value === #Connector {
-              form.change(
-                `${ApplePayIntegrationUtilsV2.applePayNameMapper(
-                    ~name="payment_processing_certificate",
-                    ~integrationType,
-                  )}`,
-                JSON.Encode.null,
-              )
-              form.change(
-                `${ApplePayIntegrationUtilsV2.applePayNameMapper(
-                    ~name="payment_processing_certificate_key",
-                    ~integrationType,
-                  )}`,
-                JSON.Encode.null,
-              )
-            }
-            input.onChange(event)
-          },
-        },
-        ~options=options->SelectBox.makeOptions,
-        ~buttonText="",
-        ~isHorizontal=true,
-        ~customStyle="cursor-pointer gap-2",
-        ~fill={`${textColor}`},
-        (),
-      ),
-    (),
-  )
-}
 
 module PaymentProcessingDetailsAt = {
   @react.component
-  let make = (~integrationType) => {
+  let make = (~applePayField) => {
+    open LogicUtils
+    open ApplePayIntegrationUtilsV2
     let form = ReactFinalForm.useForm()
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let initalFormValue =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("metadata")
+      ->getDictfromDict("apple_pay_combined")
+      ->manual
+
+    let initalProcessingAt =
+      initalFormValue.session_token_data.payment_processing_details_at
+      ->Option.getOr((#Connector: paymentProcessingState :> string))
+      ->paymentProcessingMapper
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
-    let (processingAt, setProcessingAt) = React.useState(_ => #Connector)
+    let (processingAt, setProcessingAt) = React.useState(_ => initalProcessingAt)
+
+    let onChangeItem = (event: ReactEvent.Form.t) => {
+      let value =
+        event->Identity.formReactEventToString->ApplePayIntegrationUtilsV2.paymentProcessingMapper
+      setProcessingAt(_ => value)
+      if value === #Connector {
+        form.change(
+          `${ApplePayIntegrationUtilsV2.applePayNameMapper(
+              ~name="payment_processing_certificate",
+              ~integrationType=Some(#manual),
+            )}`,
+          JSON.Encode.null,
+        )
+        form.change(
+          `${ApplePayIntegrationUtilsV2.applePayNameMapper(
+              ~name="payment_processing_certificate_key",
+              ~integrationType=Some(#manual),
+            )}`,
+          JSON.Encode.null,
+        )
+      }
+    }
+
     <>
       <FormRenderer.FieldRenderer
         labelClass="font-semibold !text-hyperswitch_black"
-        field={paymentProcessingAtField(
-          ~name=`${ApplePayIntegrationUtilsV2.applePayNameMapper(
-              ~name="payment_processing_details_at",
-              ~integrationType,
+        field={CommonMetaDataHelper.radioInput(
+          ~field=applePayField,
+          ~formName=`${ApplePayIntegrationUtilsV2.applePayNameMapper(
+              ~name=applePayField.name,
+              ~integrationType=Some(#manual),
             )}`,
-          ~label="Processing At",
-          ~options=[
-            (#Connector: paymentProcessingState :> string),
-            (#Hyperswitch: paymentProcessingState :> string),
-          ],
-          ~textColor={textColor.primaryNormal},
-          ~setProcessingAt,
-          ~form,
-          ~integrationType,
+          ~fill=textColor.primaryNormal,
+          ~onItemChange=onChangeItem,
+          (),
         )}
       />
       {switch processingAt {
@@ -86,7 +69,7 @@ module PaymentProcessingDetailsAt = {
               ~name={
                 `${ApplePayIntegrationUtilsV2.applePayNameMapper(
                     ~name="payment_processing_certificate",
-                    ~integrationType,
+                    ~integrationType=Some(#manual),
                   )}`
               },
               ~placeholder={`Enter Processing Certificate`},
@@ -102,7 +85,7 @@ module PaymentProcessingDetailsAt = {
               ~name={
                 `${ApplePayIntegrationUtilsV2.applePayNameMapper(
                     ~name="payment_processing_certificate_key",
-                    ~integrationType,
+                    ~integrationType=Some(#manual),
                   )}`
               },
               ~placeholder={`Enter Processing Key`},
@@ -174,8 +157,7 @@ let make = (
       let {name} = applePayField
       <div key={index->Int.toString}>
         {switch name {
-        | "payment_processing_details_at" =>
-          <PaymentProcessingDetailsAt integrationType={Some(#manual)} />
+        | "payment_processing_details_at" => <PaymentProcessingDetailsAt applePayField />
         | _ =>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"

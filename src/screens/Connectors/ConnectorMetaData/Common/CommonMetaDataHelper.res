@@ -61,3 +61,39 @@ let toggleInput = (~field: CommonMetaDataTypes.inputField, ~formName) => {
     (),
   )
 }
+
+let radioInput = (
+  ~field: CommonMetaDataTypes.inputField,
+  ~formName,
+  ~onItemChange: option<ReactEvent.Form.t => unit>=?,
+  ~fill="",
+  (),
+) => {
+  let {label, required, options} = field
+  FormRenderer.makeFieldInfo(
+    ~label,
+    ~isRequired=required,
+    ~name={formName},
+    ~customInput=(~input) =>
+      InputFields.radioInput(
+        ~input={
+          ...input,
+          onChange: event => {
+            // onItemChange(event)
+            let _ = switch onItemChange {
+            | Some(func) => func(event)
+            | _ => ()
+            }
+            input.onChange(event)
+          },
+        },
+        ~options=options->SelectBox.makeOptions,
+        ~buttonText="",
+        ~isHorizontal=true,
+        ~customStyle="cursor-pointer gap-2",
+        ~fill,
+        (),
+      ),
+    (),
+  )
+}
