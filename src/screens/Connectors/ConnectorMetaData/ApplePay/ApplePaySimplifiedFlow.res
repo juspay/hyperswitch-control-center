@@ -5,7 +5,6 @@ let make = (
   ~merchantBusinessCountry,
   ~setApplePayIntegrationSteps,
   ~setVefifiedDomainList,
-  ~update,
 ) => {
   open LogicUtils
   open APIUtils
@@ -31,7 +30,7 @@ let make = (
     ->getDictfromDict("apple_pay_combined")
   let setFormData = () => {
     let value = applePayCombined(initalFormValue, #simplified)
-    form.change("metadata", value->Identity.genericTypeToJson)
+    form.change("metadata.apple_pay_combined", value->Identity.genericTypeToJson)
   }
 
   React.useEffect0(() => {
@@ -40,11 +39,10 @@ let make = (
   })
   let onSubmit = async () => {
     try {
-      let (body, domainName) = formState.values->constructVerifyApplePayReq(connectorID)
+      let body = formState.values->constructVerifyApplePayReq(connectorID)
       let verifyAppleUrl = getURL(~entityName=VERIFY_APPLE_PAY, ~methodType=Post, ())
-      // let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post, ())
+      let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post, ())
 
-      form.change("metadata.apple_pay_combined.manual", JSON.Encode.null)
       let data =
         formState.values
         ->getDictFromJsonObject
@@ -53,10 +51,6 @@ let make = (
         ->simplified
       let domainName = data.session_token_data.initiative_context->Option.getOr("")
 
-      let metadata =
-        formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
-
-      let _ = update(metadata)
       setVefifiedDomainList(_ => [domainName])
       setApplePayIntegrationSteps(_ => ApplePayIntegrationTypesV2.Verify)
     } catch {
@@ -105,11 +99,11 @@ let make = (
   let applePaySimplifiedFields =
     applePayFields
     ->Array.filter(field => {
-      let typedData = field->convertMapObjectToDict->CommonWalletUtils.inputFieldMapper
+      let typedData = field->convertMapObjectToDict->CommonMetaDataUtils.inputFieldMapper
       !(ignoreFieldsonSimplified->Array.includes(typedData.name))
     })
     ->Array.mapWithIndex((field, index) => {
-      let applePayField = field->convertMapObjectToDict->CommonWalletUtils.inputFieldMapper
+      let applePayField = field->convertMapObjectToDict->CommonMetaDataUtils.inputFieldMapper
       <div key={index->Int.toString}>
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-hyperswitch_black"

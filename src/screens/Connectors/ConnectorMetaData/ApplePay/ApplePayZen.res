@@ -1,5 +1,5 @@
 @react.component
-let make = (~applePayFields, ~update, ~setShowWalletConfigurationModal) => {
+let make = (~applePayFields, ~update, ~closeModal, ~setShowWalletConfigurationModal) => {
   open LogicUtils
   open ApplePayIntegrationUtilsV2
   open ApplePayIntegrationHelperV2
@@ -34,7 +34,7 @@ let make = (~applePayFields, ~update, ~setShowWalletConfigurationModal) => {
   let applePayManualFields =
     applePayFields
     ->Array.mapWithIndex((field, index) => {
-      let applePayField = field->convertMapObjectToDict->CommonWalletUtils.inputFieldMapper
+      let applePayField = field->convertMapObjectToDict->CommonMetaDataUtils.inputFieldMapper
       <div key={index->Int.toString}>
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-hyperswitch_black"
@@ -50,7 +50,8 @@ let make = (~applePayFields, ~update, ~setShowWalletConfigurationModal) => {
         text="Go Back"
         buttonType={Secondary}
         onClick={_ev => {
-          setShowWalletConfigurationModal(_ => false)
+          // setShowWalletConfigurationModal(_ => false)
+          closeModal()
         }}
       />
       <Button

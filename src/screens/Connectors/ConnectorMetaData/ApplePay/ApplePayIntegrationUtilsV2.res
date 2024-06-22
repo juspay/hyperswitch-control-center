@@ -79,14 +79,12 @@ let applePayCombined = (dict, applePayIntegrationType) => {
     )
   }
 
-  {
-    apple_pay_combined: dict->JSON.Encode.object,
-  }
+  dict
 }
 
 let applePay = (
   dict,
-  connector: string,
+  ~connector: string="",
   ~applePayIntegrationType: option<applePayIntegrationType>=None,
   (),
 ): applePay => {
@@ -96,7 +94,10 @@ let applePay = (
   | Processors(ZEN) => Zen(dict->zenApplePayConfig)
   | _ => {
       let integrationType = applePayIntegrationType->Option.getOr(#manual)
-      ApplePayCombined(applePayCombined(dict, integrationType))
+      let data = {
+        apple_pay_combined: applePayCombined(dict, integrationType)->JSON.Encode.object,
+      }
+      ApplePayCombined(data)
     }
   }
 }
@@ -190,5 +191,5 @@ let constructVerifyApplePayReq = (values, connectorID) => {
   | Some(val) => val->LogicUtils.safeParse
   | None => Dict.make()->JSON.Encode.object
   }
-  (body, domainName)
+  body
 }

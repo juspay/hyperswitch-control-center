@@ -415,14 +415,15 @@ module ConnectorConfigurationFields = {
         isLabelNested=false
         description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
       />
-      <RenderConnectorInputFields
-        details={connectorMetaDataFields}
-        name={"metadata"}
-        keysToIgnore=metaDataInputKeysToIgnore
-        checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
-        connector
-        selectedConnector
-      />
+      // <RenderConnectorInputFields
+      //   details={connectorMetaDataFields}
+      //   name={"metadata"}
+      //   keysToIgnore=metaDataInputKeysToIgnore
+      //   checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
+      //   connector
+      //   selectedConnector
+      // />
+      <ConnectorMetaData connectorMetaDataFields />
       <RenderConnectorInputFields
         details={connectorWebHookDetails}
         name={"connector_webhook_details"}

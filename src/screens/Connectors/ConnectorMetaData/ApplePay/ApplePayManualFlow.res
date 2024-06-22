@@ -132,7 +132,6 @@ let make = (
   ~merchantBusinessCountry,
   ~setApplePayIntegrationSteps,
   ~setVefifiedDomainList,
-  ~update,
 ) => {
   open LogicUtils
   open ApplePayIntegrationUtilsV2
@@ -148,7 +147,7 @@ let make = (
     ->getDictfromDict("apple_pay_combined")
   let setFormData = () => {
     let value = applePayCombined(initalFormValue, #manual)
-    form.change("metadata", value->Identity.genericTypeToJson)
+    form.change("metadata.apple_pay_combined", value->Identity.genericTypeToJson)
   }
 
   React.useEffect0(() => {
@@ -156,7 +155,6 @@ let make = (
     None
   })
   let onSubmit = () => {
-    form.change("metadata.apple_pay_combined.simplified", JSON.Encode.null)
     let data =
       formState.values
       ->getDictFromJsonObject
@@ -165,18 +163,14 @@ let make = (
       ->manual
     let domainName = data.session_token_data.initiative_context->Option.getOr("")
 
-    let metadata =
-      formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
-
     setVefifiedDomainList(_ => [domainName])
-    let _ = update(metadata)
     setApplePayIntegrationSteps(_ => ApplePayIntegrationTypesV2.Verify)
     Nullable.null->Promise.resolve
   }
   let applePayManualFields =
     applePayFields
     ->Array.mapWithIndex((field, index) => {
-      let applePayField = field->convertMapObjectToDict->CommonWalletUtils.inputFieldMapper
+      let applePayField = field->convertMapObjectToDict->CommonMetaDataUtils.inputFieldMapper
       let {name} = applePayField
       <div key={index->Int.toString}>
         {switch name {

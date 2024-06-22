@@ -28,6 +28,8 @@ module Wallets = {
     ~onCloseClickCustomFun,
   ) => {
     open LogicUtils
+    open HyperswitchAtom
+    let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
     let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
     let metadataInputs = React.useMemo1(() => {
       try {
@@ -124,33 +126,29 @@ module Wallets = {
       ->React.array
     }
     <div>
-      {switch method.payment_method_type->getPaymentMethodTypeFromString {
-      | ApplePay =>
-        // <ApplePayWalletIntegration
-        //   metadataInputs
-        //   update
-        //   metaData
-        //   setShowWalletConfigurationModal
-        //   connector
-        //   onCloseClickCustomFun
-        // />
-        <ApplePayIntegrationV2 connector setShowWalletConfigurationModal update />
+      {if featureFlagDetails.connectorMetadatav2 {
+        switch method.payment_method_type->getPaymentMethodTypeFromString {
+        | ApplePay => <ApplePayIntegrationV2 connector setShowWalletConfigurationModal update />
 
-      | GooglePay =>
-        // <UIUtils.RenderIf condition={configurationFields->Dict.keysToArray->Array.length > 0}>
-        // <Form initialValues={metaData} onSubmit validate>
-        //   {fields}
-        // <FormRenderer.SubmitButton
-        //   text="Proceed"
-        //   showToolTip=true
-        //   buttonSize=Button.Large
-        //   customSumbitButtonStyle="w-full"
-        // />
-        //   <FormValuesSpy />
-        // </Form>
-        <GooglePayIntegration connector setShowWalletConfigurationModal update />
-      // </UIUtils.RenderIf>
-      | _ => React.null
+        | _ => React.null
+        }
+      } else {
+        {
+          switch method.payment_method_type->getPaymentMethodTypeFromString {
+          | ApplePay =>
+            <ApplePayWalletIntegration
+              metadataInputs
+              update
+              metaData
+              setShowWalletConfigurationModal
+              connector
+              onCloseClickCustomFun
+            />
+
+          | GooglePay => <GooglePayIntegration connector setShowWalletConfigurationModal update />
+          | _ => React.null
+          }
+        }
       }}
     </div>
   }

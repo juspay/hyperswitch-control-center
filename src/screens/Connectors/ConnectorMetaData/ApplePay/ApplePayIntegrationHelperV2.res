@@ -54,70 +54,6 @@ module HostURL = {
   }
 }
 
-let textInput = (
-  ~applePayField: CommonWalletTypes.inputField,
-  ~integrationType: option<applePayIntegrationType>,
-) => {
-  let {placeholder, label, name, required} = applePayField
-  FormRenderer.makeFieldInfo(
-    ~label,
-    ~name=`${ApplePayIntegrationUtilsV2.applePayNameMapper(~name, ~integrationType)}`,
-    ~placeholder,
-    ~customInput=InputFields.textInput(),
-    ~isRequired=required,
-    (),
-  )
-}
-
-let selectStringInput = (
-  ~applePayField: CommonWalletTypes.inputField,
-  ~options,
-  ~integrationType: option<applePayIntegrationType>,
-) => {
-  let {label, name, required} = applePayField
-  FormRenderer.makeFieldInfo(
-    ~label,
-    ~isRequired=required,
-    ~name=`${ApplePayIntegrationUtilsV2.applePayNameMapper(~name, ~integrationType)}`,
-    ~customInput=(~input) =>
-      InputFields.selectInput(
-        ~input={
-          ...input,
-          onChange: event => {
-            let value = event->Identity.formReactEventToString
-            input.onChange(value->Identity.anyTypeToReactEvent)
-          },
-        },
-        ~options={options},
-        ~buttonText="Select Value",
-        (),
-      ),
-    (),
-  )
-}
-
-let selectArrayInput = (
-  ~applePayField: CommonWalletTypes.inputField,
-  ~integrationType: option<applePayIntegrationType>,
-) => {
-  let {label, name, required, options} = applePayField
-  FormRenderer.makeFieldInfo(
-    ~label,
-    ~isRequired=required,
-    ~name=`${ApplePayIntegrationUtilsV2.applePayNameMapper(~name, ~integrationType)}`,
-    ~customInput=InputFields.selectInput(
-      ~deselectDisable=true,
-      ~fullLength=true,
-      ~customStyle="max-h-48",
-      ~customButtonStyle="pr-3",
-      ~options={options->SelectBox.makeOptions},
-      ~buttonText="Select Value",
-      (),
-    ),
-    (),
-  )
-}
-
 module CustomTag = {
   @react.component
   let make = (~tagText="", ~tagSize=5, ~tagLeftIcon=None, ~tagCustomStyle="") => {
@@ -149,20 +85,21 @@ module InfoCard = {
 }
 
 let applePayValueInput = (
-  ~applePayField: CommonWalletTypes.inputField,
+  ~applePayField: CommonMetaDataTypes.inputField,
   ~integrationType: option<applePayIntegrationType>=None,
   ~merchantBusinessCountry: array<SelectBox.dropdownOption>=[],
   (),
 ) => {
+  open CommonMetaDataHelper
   let {\"type", name} = applePayField
+  let formName = ApplePayIntegrationUtilsV2.applePayNameMapper(~name, ~integrationType)
 
   {
-    switch (\"type", name) {
-    | (Text, _) => textInput(~applePayField, ~integrationType)
-    | (Select, "merchant_business_country") =>
-      selectStringInput(~applePayField, ~options={merchantBusinessCountry}, ~integrationType)
-    | (Select, _) => selectArrayInput(~applePayField, ~integrationType)
-    | _ => textInput(~applePayField, ~integrationType)
+    switch \"type" {
+    | Text => textInput(~field={applePayField}, ~formName)
+    | Select => selectInput(~field={applePayField}, ~options={merchantBusinessCountry}, ~formName)
+    | MultiSelect => multiSelectInput(~field={applePayField}, ~formName)
+    | _ => textInput(~field={applePayField}, ~formName)
     }
   }
 }

@@ -94,3 +94,19 @@ let googlePayNameMapper = name => {
     `metadata.google_pay.allowed_payment_methods[0].tokenization_specification.parameters.${name}`
   }
 }
+
+let googlePayValueInput = (~googlePayField: CommonMetaDataTypes.inputField) => {
+  open CommonMetaDataHelper
+  let {\"type", name, options} = googlePayField
+  let formName = googlePayNameMapper(name)
+
+  {
+    switch \"type" {
+    | Text => textInput(~field={googlePayField}, ~formName)
+    | Select =>
+      selectInput(~field={googlePayField}, ~options={options->SelectBox.makeOptions}, ~formName)
+    | MultiSelect => multiSelectInput(~field={googlePayField}, ~formName)
+    | _ => textInput(~field={googlePayField}, ~formName)
+    }
+  }
+}

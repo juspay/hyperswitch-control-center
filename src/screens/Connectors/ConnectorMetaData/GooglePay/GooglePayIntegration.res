@@ -1,45 +1,3 @@
-let textInput = (~googlePayField: CommonWalletTypes.inputField) => {
-  let {placeholder, label, name, required} = googlePayField
-  FormRenderer.makeFieldInfo(
-    ~label,
-    ~name=`${GooglePayUtils.googlePayNameMapper(name)}`,
-    ~placeholder,
-    ~customInput=InputFields.textInput(),
-    ~isRequired=required,
-    (),
-  )
-}
-
-let selectInput = (~googlePayField: CommonWalletTypes.inputField) => {
-  let {label, name, required, options} = googlePayField
-  FormRenderer.makeFieldInfo(
-    ~label,
-    ~isRequired=required,
-    ~name,
-    ~customInput=InputFields.selectInput(
-      ~deselectDisable=true,
-      ~fullLength=true,
-      ~customStyle="max-h-48",
-      ~customButtonStyle="pr-3",
-      ~options={options->SelectBox.makeOptions},
-      ~buttonText="Select Value",
-      (),
-    ),
-    (),
-  )
-}
-let googlePayValueInput = (~googlePayField: CommonWalletTypes.inputField) => {
-  let {\"type"} = googlePayField
-
-  {
-    switch \"type" {
-    | Text => textInput(~googlePayField)
-    | Select => selectInput(~googlePayField)
-    | _ => textInput(~googlePayField)
-    }
-  }
-}
-
 @react.component
 let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
   open LogicUtils
@@ -67,18 +25,12 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
+  let initialGooglePayDict = formState.values->getDictFromJsonObject->getDictfromDict("metadata")
 
   let form = ReactFinalForm.useForm()
   React.useEffect1(() => {
     if connector->isNonEmptyString {
-      let initialGooglePayDict =
-        formState.values
-        ->getDictFromJsonObject
-        ->getDictfromDict("metadata")
-        ->getDictfromDict("google_pay")
-
-      let value = googlePay(initialGooglePayDict, connector)
-      Js.log(value)
+      let value = googlePay(initialGooglePayDict->getDictfromDict("google_pay"), connector)
       switch value {
       | Zen(data) => form.change("metadata.google_pay", data->Identity.genericTypeToJson)
       | Standard(data) => form.change("metadata.google_pay", data->Identity.genericTypeToJson)
@@ -93,10 +45,18 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
     let _ = update(metadata)
     Nullable.null->Promise.resolve
   }
+  let setFormData = () => {
+    form.change("metadata", initialGooglePayDict->Identity.genericTypeToJson)
+  }
+
+  let closeModal = () => {
+    setFormData()
+    setShowWalletConfigurationModal(_ => false)
+  }
   <>
     {googlePayFields
     ->Array.mapWithIndex((field, index) => {
-      let googlePayField = field->convertMapObjectToDict->CommonWalletUtils.inputFieldMapper
+      let googlePayField = field->convertMapObjectToDict->CommonMetaDataUtils.inputFieldMapper
       <div key={index->Int.toString}>
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-hyperswitch_black"
@@ -105,9 +65,21 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
       </div>
     })
     ->React.array}
-    // <FormRenderer.SubmitButton
-    //   text="Proceed" showToolTip=true buttonSize=Button.Large customSumbitButtonStyle="w-full"
-    // />
-    <Button text="Proceed" buttonType={Primary} onClick={_ => onSubmit()->ignore} />
+    <div className={`flex gap-2 justify-end mt-4`}>
+      <Button
+        text="Cancel"
+        buttonType={Secondary}
+        onClick={_ev => {
+          closeModal()->ignore
+        }}
+      />
+      <Button
+        onClick={_ev => {
+          onSubmit()->ignore
+        }}
+        text="Proceed"
+        buttonType={Primary}
+      />
+    </div>
   </>
 }

@@ -1,4 +1,4 @@
-open CommonWalletTypes
+open CommonMetaDataTypes
 let inputTypeMapperr = ipType => {
   switch ipType {
   | "Text" => Text

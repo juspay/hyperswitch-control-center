@@ -1,4 +1,4 @@
-type inputType = Text | Toggle | Select
+type inputType = Text | Toggle | Radio | Select | MultiSelect
 
 type inputField = {
   name: string,
