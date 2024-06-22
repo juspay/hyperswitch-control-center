@@ -79,7 +79,6 @@ let radioInput = (
         ~input={
           ...input,
           onChange: event => {
-            // onItemChange(event)
             let _ = switch onItemChange {
             | Some(func) => func(event)
             | _ => ()
