@@ -96,3 +96,34 @@ let radioInput = (
     (),
   )
 }
+
+let getCurrencyOption: CurrencyUtils.currencyCode => SelectBox.dropdownOption = currencyType => {
+  open CurrencyUtils
+  {
+    label: currencyType->getCurrencyCodeStringFromVariant,
+    value: currencyType->getCurrencyCodeStringFromVariant,
+  }
+}
+
+let currencyField = (
+  ~name,
+  ~options=CurrencyUtils.currencyList,
+  ~disableSelect=false,
+  ~toolTipText="",
+  (),
+) =>
+  FormRenderer.makeFieldInfo(
+    ~label="Currency",
+    ~isRequired=true,
+    ~name,
+    ~description=toolTipText,
+    ~customInput=InputFields.selectInput(
+      ~deselectDisable=true,
+      ~disableSelect,
+      ~customStyle="max-h-48",
+      ~options=options->Array.map(getCurrencyOption),
+      ~buttonText="Select Currency",
+      (),
+    ),
+    (),
+  )

@@ -471,8 +471,6 @@ let make = (
                     <ConnectorAccountDetailsHelper.RenderConnectorInputFields
                       details={ConnectorUtils.connectorLabelDetailField}
                       name={"connector_label"}
-                      keysToIgnore=ConnectorAccountDetailsHelper.metaDataInputKeysToIgnore
-                      checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
                       connector={connector->ConnectorUtils.getConnectorNameTypeFromString()}
                       selectedConnector
                       isLabelNested=false

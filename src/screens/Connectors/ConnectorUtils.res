@@ -970,25 +970,6 @@ let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) =>
   }
 }
 
-let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) => {
-  switch (connector, fieldName) {
-  | (Processors(BLUESNAP), "merchant_id") => false
-  | (Processors(CHECKOUT), "acquirer_bin")
-  | (Processors(NMI), "acquirer_bin")
-  | (Processors(CYBERSOURCE), "acquirer_bin") => false
-  | (Processors(CHECKOUT), "acquirer_merchant_id")
-  | (Processors(NMI), "acquirer_merchant_id")
-  | (Processors(CYBERSOURCE), "acquirer_merchant_id") => false
-  | (Processors(PAYPAL), "paypal_sdk") => false
-  | (Processors(CYBERSOURCE), "acquirer_country_code") => false
-  | (Processors(ADYEN), "apple_pay_v2") => false
-  | (Processors(ZEN), "apple_pay_v2") => false
-  | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") => false
-
-  | _ => true
-  }
-}
-
 let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
   open LogicUtils
   let authKeyMap =
@@ -1062,19 +1043,30 @@ let validateConnectorRequiredFields = (
       }
     })
   }
-  connectorMetaDataFields
-  ->Dict.keysToArray
-  ->Array.forEach(fieldName => {
-    let walletType = fieldName->getPaymentMethodTypeFromString
-    if walletType !== GooglePay && walletType !== ApplePay {
-      let key = `metadata.${fieldName}`
-      let errorKey = connectorMetaDataFields->getString(fieldName, "")
-      let value = valuesFlattenJson->getString(`metadata.${fieldName}`, "")
-      if value->String.length === 0 && connector->getMetaDataRequiredFields(fieldName) {
-        Dict.set(newDict, key, `Please enter ${errorKey}`->JSON.Encode.string)
+  let keys =
+    connectorMetaDataFields
+    ->Dict.keysToArray
+    ->Array.filter(ele => !Array.includes(ConnectorMetaDataUtils.metaDataInputKeysToIgnore, ele))
+
+  {
+    keys->Array.forEach(field => {
+      let {\"type", name, required, label} =
+        connectorMetaDataFields
+        ->getDictfromDict(field)
+        ->JSON.Encode.object
+        ->convertMapObjectToDict
+        ->CommonMetaDataUtils.inputFieldMapper
+      let key = `metadata.${name}`
+      let value = switch \"type" {
+      | Text | Select => valuesFlattenJson->getString(`${key}`, "")
+      | Toggle => valuesFlattenJson->getBool(`${key}`, false)->getStringFromBool
+      | _ => ""
       }
-    }
-  })
+      if value->String.length === 0 && required {
+        Dict.set(newDict, key, `Please enter ${label}`->JSON.Encode.string)
+      }
+    })
+  }
 
   connectorWebHookDetails
   ->Dict.keysToArray

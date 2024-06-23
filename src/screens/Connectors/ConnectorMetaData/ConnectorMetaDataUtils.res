@@ -11,16 +11,17 @@ let connectorMetaDataValueInput = (~connectorMetaDataFields: CommonMetaDataTypes
   let formName = connectorMetaDataNameMapper(name)
 
   {
-    switch \"type" {
-    | Text => textInput(~field={connectorMetaDataFields}, ~formName)
-    | Select =>
+    switch (\"type", name) {
+    | (Select, "merchant_config_currency") => currencyField(~name=formName, ())
+    | (Text, _) => textInput(~field={connectorMetaDataFields}, ~formName)
+    | (Select, _) =>
       selectInput(
         ~field={connectorMetaDataFields},
         ~options={options->SelectBox.makeOptions},
         ~formName,
       )
-    | Toggle => toggleInput(~field={connectorMetaDataFields}, ~formName)
-    | MultiSelect => multiSelectInput(~field={connectorMetaDataFields}, ~formName)
+    | (Toggle, _) => toggleInput(~field={connectorMetaDataFields}, ~formName)
+    | (MultiSelect, _) => multiSelectInput(~field={connectorMetaDataFields}, ~formName)
     | _ => textInput(~field={connectorMetaDataFields}, ~formName)
     }
   }

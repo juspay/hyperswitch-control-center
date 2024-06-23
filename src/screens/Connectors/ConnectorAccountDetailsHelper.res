@@ -1,5 +1,3 @@
-let metaDataInputKeysToIgnore = ["google_pay", "apple_pay", "zen_apple_pay", "apple_pay_v2"]
-
 let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorTypes> = [
   Processors(ADYEN),
   Processors(CHECKOUT),
@@ -42,77 +40,6 @@ let multiValueInput = (~label, ~fieldName1, ~fieldName2) => {
       makeInputFieldInfo(~name=`${fieldName1}`, ()),
       makeInputFieldInfo(~name=`${fieldName2}`, ()),
     ],
-    (),
-  )
-}
-
-let getCurrencyOption: CurrencyUtils.currencyCode => SelectBox.dropdownOption = currencyType => {
-  open CurrencyUtils
-  {
-    label: currencyType->getCurrencyCodeStringFromVariant,
-    value: currencyType->getCurrencyCodeStringFromVariant,
-  }
-}
-
-let currencyField = (
-  ~name,
-  ~options=CurrencyUtils.currencyList,
-  ~disableSelect=false,
-  ~toolTipText="",
-  (),
-) =>
-  FormRenderer.makeFieldInfo(
-    ~label="Currency",
-    ~isRequired=true,
-    ~name,
-    ~description=toolTipText,
-    ~customInput=InputFields.selectInput(
-      ~deselectDisable=true,
-      ~disableSelect,
-      ~customStyle="max-h-48",
-      ~options=options->Array.map(getCurrencyOption),
-      ~buttonText="Select Currency",
-      (),
-    ),
-    (),
-  )
-
-let dropDownfield = (
-  ~name,
-  ~label,
-  ~buttonText="Select",
-  ~disableSelect=false,
-  ~toolTipText="",
-  ~options=[],
-  (),
-) => {
-  FormRenderer.makeFieldInfo(
-    ~label,
-    ~isRequired=true,
-    ~name,
-    ~description=toolTipText,
-    ~customInput=InputFields.selectInput(
-      ~deselectDisable=true,
-      ~disableSelect,
-      ~customStyle="max-h-48",
-      ~options=options->Array.map((item): SelectBox.dropdownOption => {
-        {
-          label: item,
-          value: item,
-        }
-      }),
-      ~buttonText,
-      (),
-    ),
-    (),
-  )
-}
-
-let toggleField = (~name) => {
-  FormRenderer.makeFieldInfo(
-    ~name,
-    ~label="Pull Mechanism Enabled",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg", ()),
     (),
   )
 }
@@ -192,12 +119,7 @@ module RenderConnectorInputFields = {
 
     keys
     ->Array.mapWithIndex((field, i) => {
-      let label = switch field {
-      | "pull_mechanism_for_external_3ds_enabled" => "Pull Mechanism Enabled"
-      | "klarna_region" => "Region of your Klarna Merchant Account"
-
-      | _ => details->getString(field, "")
-      }
+      let label = details->getString(field, "")
 
       let formName = isLabelNested ? `${name}.${field}` : name
       <UIUtils.RenderIf condition={label->isNonEmptyString} key={i->Int.toString}>
@@ -206,19 +128,6 @@ module RenderConnectorInputFields = {
             <FormRenderer.FieldRenderer
               labelClass="font-semibold !text-hyperswitch_black"
               field={switch (connector, field) {
-              | (Processors(BRAINTREE), "merchant_config_currency") =>
-                currencyField(~name=formName, ())
-
-              | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") =>
-                toggleField(~name=formName)
-              | (Processors(KLARNA), "klarna_region") =>
-                dropDownfield(
-                  ~name=formName,
-                  ~label,
-                  ~buttonText="Select Region",
-                  ~options=details->getStrArrayFromDict(field, []),
-                  (),
-                )
               | (Processors(PAYPAL), "key1") =>
                 multiValueInput(
                   ~label,
@@ -408,21 +317,11 @@ module ConnectorConfigurationFields = {
       <RenderConnectorInputFields
         details={connectorLabelDetailField}
         name={"connector_label"}
-        keysToIgnore=metaDataInputKeysToIgnore
-        checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
         connector
         selectedConnector
         isLabelNested=false
         description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
       />
-      // <RenderConnectorInputFields
-      //   details={connectorMetaDataFields}
-      //   name={"metadata"}
-      //   keysToIgnore=metaDataInputKeysToIgnore
-      //   checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
-      //   connector
-      //   selectedConnector
-      // />
       <ConnectorMetaData connectorMetaDataFields />
       <RenderConnectorInputFields
         details={connectorWebHookDetails}
