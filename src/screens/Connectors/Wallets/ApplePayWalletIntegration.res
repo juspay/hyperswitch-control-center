@@ -335,7 +335,6 @@ module Manual = {
     // Need to refactor
     let _ = ConnectorUtils.updateMetaData(~metaData)
     //
-
     let configurationFields =
       metadataInputs
       ->getDictfromDict("apple_pay")
