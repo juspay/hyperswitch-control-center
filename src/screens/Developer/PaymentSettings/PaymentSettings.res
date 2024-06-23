@@ -178,6 +178,22 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   </FormRenderer.DesktopRow>
                 </UIUtils.RenderIf>
                 <FormRenderer.DesktopRow>
+                  <FormRenderer.FieldRenderer
+                    labelClass="!text-base !text-grey-700 font-semibold"
+                    fieldWrapperClass="max-w-xl"
+                    field={FormRenderer.makeFieldInfo(
+                      ~name="collect_shipping_details_from_wallet_connector",
+                      ~label="Collect Shipping Details",
+                      ~customInput=InputFields.boolInput(
+                        ~isDisabled=false,
+                        ~boolCustomClass="rounded-lg",
+                        (),
+                      ),
+                      (),
+                    )}
+                  />
+                </FormRenderer.DesktopRow>
+                <FormRenderer.DesktopRow>
                   <div className="flex justify-start w-full">
                     <FormRenderer.SubmitButton
                       customSumbitButtonStyle="justify-start"

@@ -21,7 +21,7 @@ let make = () => {
   | RESET_PASSWORD =>
     <ResetPassword flowType />
   | ACCEPT_INVITATION_FROM_EMAIL => <AcceptInviteScreen />
-  | VERIFY_EMAIL => <VerifyUserFromEmail />
+  | VERIFY_EMAIL => <VerifyUserFromEmail onClick=onClickErrorPageButton />
   | USER_INFO => <UserInfoScreen />
   | ERROR => <CommonAuthError onClick=onClickErrorPageButton />
   }
