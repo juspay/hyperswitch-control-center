@@ -140,12 +140,14 @@ let make = (~children) => {
     | LoggedOut =>
       <AuthHeaderWrapper childrenStyle="flex flex-col gap-4">
         {authMethods
-        ->Array.mapWithIndex((authMethod, index) => <>
-          {authMethod.name->renderComponentForAuthTypes}
-          <UIUtils.RenderIf condition={index === 0 && authMethods->Array.length !== 1}>
-            {PreLoginUtils.divider}
-          </UIUtils.RenderIf>
-        </>)
+        ->Array.mapWithIndex((authMethod, index) =>
+          <React.Fragment key={index->Int.toString}>
+            {authMethod.name->renderComponentForAuthTypes}
+            <UIUtils.RenderIf condition={index === 0 && authMethods->Array.length !== 1}>
+              {PreLoginUtils.divider}
+            </UIUtils.RenderIf>
+          </React.Fragment>
+        )
         ->React.array}
       </AuthHeaderWrapper>
     | PreLogin(_) => <DecisionScreen />
