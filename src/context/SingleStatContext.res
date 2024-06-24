@@ -56,7 +56,7 @@ let make = (
   let parentToken = AuthWrapperUtils.useTokenParent(Original)
   let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetchNew()
   let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
-  let fetchApi = AuthHooks.useApiFetcher(~betaEndpointConfig=?betaEndPointConfig, ())
+  let fetchApi = AuthHooks.useApiFetcher()
 
   let getTopLevelSingleStatFilter = React.useMemo1(() => {
     getAllFilter
@@ -260,6 +260,7 @@ let make = (
               (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStatHistoric")]->Dict.fromArray,
+            ~betaEndpointConfig=?betaEndPointConfig,
             (),
           )
           ->addLogsAroundFetch(
@@ -311,6 +312,7 @@ let make = (
               (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
+            ~betaEndpointConfig=?betaEndPointConfig,
             (),
           )
           ->addLogsAroundFetch(~logTitle=`SingleStat data for metrics ${metrics->metrixMapper}`)
@@ -361,6 +363,7 @@ let make = (
               (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStat Time Series")]->Dict.fromArray,
+            ~betaEndpointConfig=?betaEndPointConfig,
             (),
           )
           ->addLogsAroundFetch(

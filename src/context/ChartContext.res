@@ -72,7 +72,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let parentToken = AuthWrapperUtils.useTokenParent(Original)
   let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetchNew()
   let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
-  let fetchApi = AuthHooks.useApiFetcher(~betaEndpointConfig=?betaEndPointConfig, ())
+  let fetchApi = AuthHooks.useApiFetcher()
   let jsonTransFormer = switch chartEntity {
   | {jsonTransformer} => jsonTransformer
   | _ => (_val, arr) => arr
@@ -342,6 +342,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 (),
               )->JSON.stringify,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
+              ~betaEndpointConfig=?betaEndPointConfig,
               (),
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch`)
@@ -401,6 +402,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               (),
             )->JSON.stringify,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
+            ~betaEndpointConfig=?betaEndPointConfig,
             (),
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
@@ -469,6 +471,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 (),
               )->JSON.stringify,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
+              ~betaEndpointConfig=?betaEndPointConfig,
               (),
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch bottomChart`)
@@ -525,6 +528,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               (),
             )->JSON.stringify,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
+            ~betaEndpointConfig=?betaEndPointConfig,
             (),
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
@@ -586,7 +590,7 @@ module SDKAnalyticsChartContext = {
     let parentToken = AuthWrapperUtils.useTokenParent(Original)
     let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetchNew()
     let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
-    let fetchApi = AuthHooks.useApiFetcher(~betaEndpointConfig=?betaEndPointConfig, ())
+    let fetchApi = AuthHooks.useApiFetcher()
     let jsonTransFormer = switch chartEntity {
     | {jsonTransformer} => jsonTransformer
     | _ => (_val, arr) => arr
@@ -814,6 +818,7 @@ module SDKAnalyticsChartContext = {
                     (),
                   )->JSON.stringify,
                   ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
+                  ~betaEndpointConfig=?betaEndPointConfig,
                   (),
                 )
                 ->addLogsAroundFetch(~logTitle=`Chart fetch`)
@@ -854,6 +859,7 @@ module SDKAnalyticsChartContext = {
                           (),
                         )->JSON.stringify,
                         ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
+                        ~betaEndpointConfig=?betaEndPointConfig,
                         (),
                       )
                       ->addLogsAroundFetch(~logTitle=`Chart fetch`)
@@ -984,6 +990,7 @@ module SDKAnalyticsChartContext = {
     //                   (),
     //                 )->JSON.stringify,
     //                 ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
+    // ~betaEndpointConfig=?betaEndPointConfig,
     //                 (),
     //               )
     //               ->addLogsAroundFetch(~logTitle=`Chart fetch`)
