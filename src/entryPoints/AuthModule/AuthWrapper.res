@@ -128,12 +128,17 @@ let make = (~children) => {
     None
   }, [authStatus])
 
-  let renderComponentForAuthTypes = (method: SSOTypes.authMethodTypes) =>
-    switch method {
-    | #Email_Password => <TwoFaAuthScreen setAuthStatus />
-    | #Okta | #Google | #Github =>
-      <Button text={`Login with ${(method :> string)}`} buttonType={PrimaryOutline} />
+  let renderComponentForAuthTypes = (method: SSOTypes.authMethodResponseType) => {
+    let authMethodType = method.auth_method.\"type"
+    let authMethodName = method.auth_method.name
+
+    switch (authMethodType, authMethodName) {
+    | (PASSWORD, #Email_Password) => <TwoFaAuthScreen setAuthStatus />
+    | (OPEN_ID_CONNECT, #Okta) | (OPEN_ID_CONNECT, #Google) | (OPEN_ID_CONNECT, #Github) =>
+      <Button text={`Login with ${(authMethodName :> string)}`} buttonType={PrimaryOutline} />
+    | (_, _) => React.null
     }
+  }
 
   <div className="font-inter-style">
     {switch authStatus {
@@ -142,7 +147,7 @@ let make = (~children) => {
         {authMethods
         ->Array.mapWithIndex((authMethod, index) =>
           <React.Fragment key={index->Int.toString}>
-            {authMethod.name->renderComponentForAuthTypes}
+            {authMethod->renderComponentForAuthTypes}
             <UIUtils.RenderIf condition={index === 0 && authMethods->Array.length !== 1}>
               {PreLoginUtils.divider}
             </UIUtils.RenderIf>
