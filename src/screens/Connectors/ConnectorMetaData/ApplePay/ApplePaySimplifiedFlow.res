@@ -163,5 +163,6 @@ let make = (
         buttonState={formState.values->validateSimplifedFlow}
       />
     </div>
+    <FormValuesSpy />
   </>
 }

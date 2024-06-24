@@ -58,7 +58,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     configurePmts: dict->getBool("configure_pmts", false),
     branding: dict->getBool("branding", false),
     totp: dict->getBool("totp", false),
-    connectorMetadatav2: dict->getBool("connector_metadataV2", false),
+    connectorMetadatav2: dict->getBool("connector_metadataV2", true),
   }
   typedFeatureFlag
 }

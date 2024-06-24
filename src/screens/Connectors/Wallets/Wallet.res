@@ -32,7 +32,10 @@ module Wallets = {
     <div>
       {if featureFlagDetails.connectorMetadatav2 {
         switch method.payment_method_type->getPaymentMethodTypeFromString {
-        | ApplePay => <ApplePayIntegrationV2 connector setShowWalletConfigurationModal update />
+        | ApplePay =>
+          <ApplePayIntegrationV2
+            connector setShowWalletConfigurationModal update onCloseClickCustomFun
+          />
 
         | _ => React.null
         }
@@ -49,7 +52,10 @@ module Wallets = {
               onCloseClickCustomFun
             />
 
-          | GooglePay => <GooglePayIntegration connector setShowWalletConfigurationModal update />
+          | GooglePay =>
+            <GooglePayIntegration
+              connector setShowWalletConfigurationModal update onCloseClickCustomFun
+            />
           | _ => React.null
           }
         }

@@ -1,5 +1,5 @@
 @react.component
-let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
+let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClickCustomFun) => {
   open LogicUtils
   open GooglePayUtils
   let googlePayFields = React.useMemo1(() => {
@@ -25,7 +25,9 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
-  let initialGooglePayDict = formState.values->getDictFromJsonObject->getDictfromDict("metadata")
+  let initialGooglePayDict = React.useMemo0(() => {
+    formState.values->getDictFromJsonObject->getDictfromDict("metadata")
+  })
 
   let form = ReactFinalForm.useForm()
   React.useEffect1(() => {
@@ -45,12 +47,9 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
     let _ = update(metadata)
     Nullable.null->Promise.resolve
   }
-  let setFormData = () => {
-    form.change("metadata", initialGooglePayDict->Identity.genericTypeToJson)
-  }
 
   let closeModal = () => {
-    setFormData()
+    onCloseClickCustomFun()
     setShowWalletConfigurationModal(_ => false)
   }
   <>

@@ -165,7 +165,7 @@ module Landing = {
 }
 
 @react.component
-let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
+let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClickCustomFun) => {
   open APIUtils
   open LogicUtils
   open WalletHelper
@@ -173,17 +173,11 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-    ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-  )
-  let form = ReactFinalForm.useForm()
   let (appleIntegrationType, setApplePayIntegrationType) = React.useState(_ => #manual)
   let (applePayIntegrationStep, setApplePayIntegrationSteps) = React.useState(_ => Landing)
   let (merchantBusinessCountry, setMerchantBusinessCountry) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (verifiedDomainList, setVefifiedDomainList) = React.useState(_ => [])
-  let initalFormValue = formState.values->getDictFromJsonObject->getDictfromDict("metadata")
-  let (initalData, _setInitalData) = React.useState(_ => initalFormValue)
   let applePayFields = React.useMemo1(() => {
     try {
       if connector->isNonEmptyString {
@@ -232,12 +226,8 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
     }
   }
 
-  let setFormData = () => {
-    form.change("metadata", initalData->Identity.genericTypeToJson)
-  }
-
   let closeModal = () => {
-    setFormData()
+    onCloseClickCustomFun()
     setShowWalletConfigurationModal(_ => false)
   }
 
