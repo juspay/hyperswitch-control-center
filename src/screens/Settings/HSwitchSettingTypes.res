@@ -147,6 +147,7 @@ type profileEntity = {
   payment_response_hash_key: option<string>,
   webhook_details: webhookDetails,
   authentication_connector_details: authConnectorDetailsType,
+  collect_shipping_details_from_wallet_connector: option<bool>,
 }
 
 type twoFaType = RecoveryCode | Totp

@@ -24,7 +24,7 @@ let make = () => {
   })
 
   let onClickLoginToDashboard = async () => {
-    open TwoFaUtils
+    open AuthUtils
     try {
       let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITE_TOKEN_ONLY, ~methodType=Post, ())
 
