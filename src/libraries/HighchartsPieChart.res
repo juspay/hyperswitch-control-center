@@ -3,6 +3,7 @@ type point = {name: string, percentage: float}
 type yAxisRecord = {point: point}
 type tooltipRecord = {name: string, y: int}
 type style = {color: string, opacity: string}
+external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => tooltipRecord => string = "%identity"
 type tooltip = {
   pointFormatter: tooltipRecord => string,
   useHTML: bool,

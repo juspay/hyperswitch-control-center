@@ -1,6 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/rescript-lang/rescript-compiler/master/docs/docson/build-schema.json",
   "name": "editor-ui",
+  "uncurried": true,
   "jsx": {
     "version": 4,
     "mode": "classic"

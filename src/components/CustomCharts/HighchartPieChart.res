@@ -7,12 +7,12 @@ module RawPieChart = {
 }
 open HighchartsPieChart
 
-let valueFormatter = {
+let valueFormatter = (
   @this
   (this: tooltipRecord) => {
     `<div class='text-white'>${this.name} count: <b>${this.y->Int.toString}</b></div>`
   }
-}
+)->asTooltipPointFormatter
 
 let formatter: yAxisRecord => string =
   (

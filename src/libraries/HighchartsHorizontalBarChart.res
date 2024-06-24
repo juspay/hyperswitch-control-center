@@ -1,5 +1,6 @@
 type title = {text: string, align?: string, useHTML?: bool}
 type tooltipRecord = {category: string, y: int}
+external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => tooltipRecord => string = "%identity"
 type tooltip = {
   pointFormatter: tooltipRecord => string,
   useHTML: bool,

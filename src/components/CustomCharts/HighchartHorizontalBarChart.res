@@ -8,12 +8,12 @@ module RawHBarChart = {
 }
 open HighchartsHorizontalBarChart
 
-let valueFormatter = {
+let valueFormatter = (
   @this
   (this: tooltipRecord) => {
     `<div class='text-white'>${this.category} count: <b>${this.y->Int.toString}</b></div>`
   }
-}
+)->asTooltipPointFormatter
 
 let dataLabelFormatter: yAxisRecord => string = (
   @this

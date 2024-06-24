@@ -1,5 +1,5 @@
 let fetchRequestIdFromAPI = res => {
-  Fetch.Headers.get("x-request-id")(res->Fetch.Response.headers)->Option.getOr("")
+  res->Fetch.Response.headers->Fetch.Headers.get("x-request-id")->Option.getOr("")
 }
 
 let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
