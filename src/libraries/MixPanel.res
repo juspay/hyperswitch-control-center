@@ -8,8 +8,8 @@ external mixpanel: mixpanel = "default"
 @send external distinctIdWrapper: (mixpanel, unit) => string = "get_distinct_id"
 let getDistinctId = distinctIdWrapper(mixpanel, _)
 
-@send external identifyWrapper: mixpanel => string => unit = "identify"
-let identify = identifyWrapper(mixpanel)
+@send external identifyWrapper: (mixpanel, string) => unit = "identify"
+let identify = identifyWrapper(mixpanel, ...)
 
 let wasInitialied = ref(false)
 
