@@ -23,6 +23,8 @@ let make = () => {
       let info = AuthUtils.getAuthInfo(dict->JSON.Encode.object)
       setAuthStatus(LoggedIn(Auth(info)))
       setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
+      LocalStorage.removeItem("PRE_LOGIN_INFO")
+      LocalStorage.removeItem("email_token")
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) => {
