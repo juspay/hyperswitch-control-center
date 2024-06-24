@@ -1,88 +1,3 @@
-open TwoFaTypes
-
-let flowTypeStrToVariantMapper = val => {
-  switch val {
-  // old types
-  | Some("merchant_select") => MERCHANT_SELECT
-
-  | Some("totp") => TOTP
-
-  // rotate password
-  | Some("force_set_password") => FORCE_SET_PASSWORD
-
-  // merchant select
-  | Some("accept_invite") => ACCEPT_INVITE
-
-  | Some("accept_invitation_from_email") => ACCEPT_INVITATION_FROM_EMAIL
-  | Some("verify_email") => VERIFY_EMAIL
-  | Some("reset_password") => RESET_PASSWORD
-
-  // home call
-  | Some("user_info") => USER_INFO
-  | Some(_) => ERROR
-  | None => ERROR
-  }
-}
-
-let flowTypeStrToVariantMapperForNewFlow = val => {
-  switch val {
-  // old types
-  | "merchant_select" => MERCHANT_SELECT
-  | "totp" => TOTP
-  // rotate password
-  | "force_set_password" => FORCE_SET_PASSWORD
-  // merchant select
-  | "accept_invite" => ACCEPT_INVITE
-  | "accept_invitation_from_email" => ACCEPT_INVITATION_FROM_EMAIL
-  | "verify_email" => VERIFY_EMAIL
-  | "reset_password" => RESET_PASSWORD
-  // home call
-  | "user_info" => USER_INFO
-  | _ => ERROR
-  }
-}
-
-let variantToStringFlowMapper = val => {
-  switch val {
-  | MERCHANT_SELECT => "merchant_select"
-  | TOTP => "totp"
-  | FORCE_SET_PASSWORD => "force_set_password"
-  | ACCEPT_INVITE => "accept_invite"
-  | VERIFY_EMAIL => "verify_email"
-  | ACCEPT_INVITATION_FROM_EMAIL => "accept_invitation_from_email"
-  | RESET_PASSWORD => "reset_password"
-  | USER_INFO => "user_info"
-  | ERROR => ""
-  }
-}
-
-let getEmailTmpToken = () => {
-  LocalStorage.getItem("email_token")->Nullable.toOption
-}
-
-let getEmailTokenValue = email_token => {
-  let tmpEmailToken = getEmailTmpToken()
-  switch email_token {
-  | Some(email_token) => Some(email_token)
-  | None => tmpEmailToken
-  }
-}
-
-let getPreLoginInfo = (~email_token=None, json) => {
-  open LogicUtils
-  let dict = json->JsonFlattenUtils.flattenObject(false)
-  let preLoginInfo: AuthProviderTypes.preLoginType = {
-    token: getString(dict, "token", ""),
-    token_type: dict->getString("token_type", ""),
-    email_token: email_token->getEmailTokenValue,
-  }
-  switch email_token {
-  | Some(emailTk) => emailTk->AuthUtils.storeEmailTokenTmp
-  | None => ()
-  }
-  preLoginInfo
-}
-
 let setTotpAuthResToStorage = json => {
   LocalStorage.setItem("USER_INFO", json->JSON.stringifyAny->Option.getOr(""))
 }
@@ -90,7 +5,7 @@ let setTotpAuthResToStorage = json => {
 let getTotpPreLoginInfoFromStorage = () => {
   open LogicUtils
   let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
-  json->getPreLoginInfo
+  json->AuthUtils.getPreLoginInfo
 }
 
 let getTotpAuthInfoFromStrorage = () => {

@@ -2,6 +2,8 @@ type logType = SDK | API_EVENTS | WEBHOOKS | CONNECTOR
 
 type pageType = [#PAYMENT | #REFUND | #DISPUTE]
 
+type eventLogs = Logdetails | Request | Response | Event | Metadata | Unknown
+
 type logDetails = {
   response: string,
   request: string,
@@ -12,6 +14,8 @@ type selectedObj = {
   value: int,
   optionType: logType,
 }
+
+let tabkeys: array<eventLogs> = [Logdetails, Request, Response]
 
 let getLogType = dict => {
   if dict->Dict.get("connector_name")->Option.isSome {
@@ -31,6 +35,36 @@ let getTagName = tag => {
   | API_EVENTS => "API"
   | WEBHOOKS => "WEBHOOKS"
   | CONNECTOR => "CONNECTOR"
+  }
+}
+
+let getTabKeyName = (key: eventLogs, option: logType) => {
+  switch option {
+  | SDK =>
+    switch key {
+    | Logdetails => "Log Details"
+    | Request => "Event"
+    | Response => "Metadata"
+    | _ => ""
+    }
+  | _ =>
+    switch key {
+    | Logdetails => "Log Details"
+    | Request => "Request"
+    | Response => "Response"
+    | _ => ""
+    }
+  }
+}
+
+let getLogTypefromString = log => {
+  switch log {
+  | "Log Details" => Logdetails
+  | "Request" => Request
+  | "Response" => Response
+  | "Event" => Event
+  | "Metadata" => Metadata
+  | _ => Unknown
   }
 }
 

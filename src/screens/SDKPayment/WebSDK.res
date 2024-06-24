@@ -19,6 +19,7 @@ module CheckoutForm = {
     ~paymentStatus,
     ~currency,
     ~setPaymentStatus,
+    ~setErrorMessage,
     ~paymentElementOptions,
     ~theme="",
     ~primaryColor="",
@@ -163,13 +164,17 @@ module CheckoutForm = {
       try {
         let confirmParamsToPass = {
           "elements": elements,
-          "confirmParams": [
-            ("return_url", returnUrl->JSON.Encode.string),
-            ("redirect", "always"->JSON.Encode.string),
-          ]->getJsonFromArrayOfJson,
+          "confirmParams": [("return_url", returnUrl->JSON.Encode.string)]->getJsonFromArrayOfJson,
         }
         let res = await hyper.confirmPayment(confirmParamsToPass->Identity.genericTypeToJson)
         let responseDict = res->getDictFromJsonObject
+
+        let unifiedErrorMessage = responseDict->getString("unified_message", "")
+        let errorMessage = responseDict->getString("error_message", "")
+        let uiErrorMessage =
+          unifiedErrorMessage->isNonEmptyString ? unifiedErrorMessage : errorMessage
+        setErrorMessage(_ => uiErrorMessage)
+
         let errorDict = responseDict->getDictfromDict("error")
         if errorDict->getOptionString("type") !== Some("validation_error") {
           let status = responseDict->getOptionString("status")
@@ -260,6 +265,7 @@ let make = (
   ~paymentStatus,
   ~currency,
   ~setPaymentStatus,
+  ~setErrorMessage,
   ~elementOptions,
   ~theme="",
   ~primaryColor="",
@@ -318,6 +324,7 @@ let make = (
             paymentStatus
             currency
             setPaymentStatus
+            setErrorMessage
             paymentElementOptions
             theme
             primaryColor

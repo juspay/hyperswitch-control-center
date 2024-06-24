@@ -111,7 +111,7 @@ module AddNewMerchantButton = {
               } else {
                 "group flex rounded-md items-center px-2 py-2 text-sm"
               }
-              `${activeClasses} ${textColor.primaryNormal} flex gap-2 font-medium w-56`
+              `${activeClasses} ${textColor.primaryNormal} flex gap-2 font-medium w-56 `
             }>
             <Icon name="plus-circle" size=15 />
             {"Add a new merchant"->React.string}
@@ -211,7 +211,7 @@ module ExternalUser = {
                                   } else {
                                     "group flex rounded-md items-center w-full px-2 py-2 text-sm"
                                   }
-                                  `${activeClasses} font-medium`
+                                  `${activeClasses} font-medium text-start`
                                 }>
                                 <div className="mr-5"> {option.merchant_name->React.string} </div>
                               </button>
@@ -298,6 +298,12 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       // TODO: When BE changes the response of this api re-evaluate the below conditions
       if featureFlagDetails.totp {
         let responseDict = res->getDictFromJsonObject
+
+        // Need to revert back once backend does the changes
+        let role_id = responseDict->getString("user_role", "")
+        responseDict->Dict.set("role_id", role_id->JSON.Encode.string)
+        //
+
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict->JSON.Encode.object))))
       } else {
         setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
