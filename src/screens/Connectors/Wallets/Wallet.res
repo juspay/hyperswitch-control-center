@@ -36,7 +36,10 @@ module Wallets = {
           <ApplePayIntegrationV2
             connector setShowWalletConfigurationModal update onCloseClickCustomFun
           />
-
+        | GooglePay =>
+          <GooglePayIntegration
+            connector setShowWalletConfigurationModal update onCloseClickCustomFun
+          />
         | _ => React.null
         }
       } else {
