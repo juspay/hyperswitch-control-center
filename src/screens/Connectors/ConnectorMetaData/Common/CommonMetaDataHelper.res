@@ -39,9 +39,8 @@ let multiSelectInput = (~field: CommonMetaDataTypes.inputField, ~formName) => {
     ~label,
     ~isRequired=required,
     ~name={formName},
-    ~customInput=InputFields.selectInput(
-      ~deselectDisable=true,
-      ~fullLength=true,
+    ~customInput=InputFields.multiSelectInput(
+      ~showSelectionAsChips=false,
       ~customStyle="max-h-48",
       ~customButtonStyle="pr-3",
       ~options={options->SelectBox.makeOptions},

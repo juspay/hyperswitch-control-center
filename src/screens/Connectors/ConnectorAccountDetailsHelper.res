@@ -209,8 +209,8 @@ module CashToCodeSelectBox = {
 
     <div>
       {opts
-      ->Array.map(country => {
-        <div className="flex items-center gap-2 break-words p-2">
+      ->Array.mapWithIndex((country, index) => {
+        <div key={index->Int.toString} className="flex items-center gap-2 break-words p-2">
           <div onClick={_e => selectedCountry(country)}>
             <CheckBoxIcon isSelected={country->isSelected} />
           </div>

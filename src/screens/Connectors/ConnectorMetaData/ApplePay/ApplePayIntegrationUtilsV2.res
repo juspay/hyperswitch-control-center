@@ -1,9 +1,25 @@
 open ApplePayIntegrationTypesV2
 open LogicUtils
-let paymentRequest = {
-  label: "apple",
-  supported_networks: ["visa", "masterCard", "amex", "discover"],
-  merchant_capabilities: ["supports3DS"],
+let paymentRequest = (dict, integrationType) => {
+  let paymentRequestDict =
+    dict
+    ->getDictfromDict((integrationType: applePayIntegrationType :> string))
+    ->getDictfromDict("payment_request_data")
+  let sessionTokenDict =
+    dict
+    ->getDictfromDict((integrationType: applePayIntegrationType :> string))
+    ->getDictfromDict("session_token_data")
+  {
+    label: sessionTokenDict->getString("display_name", "apple"),
+    supported_networks: paymentRequestDict->getStrArrayFromDict(
+      "supported_networks",
+      ["visa", "masterCard", "amex", "discover"],
+    ),
+    merchant_capabilities: paymentRequestDict->getStrArrayFromDict(
+      "merchant_capabilities",
+      ["supports3DS"],
+    ),
+  }
 }
 
 let sessionToken = (dict): sessionTokenData => {
@@ -44,14 +60,14 @@ let sessionTokenSimplified = (dict): sessionTokenSimplified => {
 let manual = (dict): manual => {
   {
     session_token_data: dict->sessionToken,
-    payment_request_data: paymentRequest,
+    payment_request_data: dict->paymentRequest(#manual),
   }
 }
 
 let simplified = (dict): simplified => {
   {
     session_token_data: dict->sessionTokenSimplified,
-    payment_request_data: paymentRequest,
+    payment_request_data: dict->paymentRequest(#simplified),
   }
 }
 
@@ -193,3 +209,11 @@ let constructVerifyApplePayReq = (values, connectorID) => {
   }
   body
 }
+
+/*
+
+   | `supported_networks` =>
+    `metadata.apple_pay_combined.${(integrationType->Option.getOr(
+        #manual,
+      ): applePayIntegrationType :> string)}.payment_request_data.${name}`
+ */

@@ -114,8 +114,7 @@ module Landing = {
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
       | Processors(STRIPE)
       | Processors(BANKOFAMERICA)
-      | Processors(CYBERSOURCE)
-      | Processors(ADYEN) =>
+      | Processors(CYBERSOURCE) =>
         <div
           className="p-6 m-2 cursor-pointer"
           onClick={_e => setApplePayIntegrationType(_ => #simplified)}>
@@ -247,8 +246,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
       switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
       | Processors(STRIPE)
       | Processors(BANKOFAMERICA)
-      | Processors(CYBERSOURCE)
-      | Processors(ADYEN) =>
+      | Processors(CYBERSOURCE) =>
         setApplePayIntegrationType(_ => #simplified)
 
       | _ => setApplePayIntegrationType(_ => #manual)
@@ -311,5 +309,6 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update) => {
         }
       }}
     </div>
+    <FormValuesSpy />
   </PageLoaderWrapper>
 }
