@@ -138,6 +138,10 @@ let itemToObjMapper = dict => {
     authentication_connector_details: dict
     ->getObj("webhook_details", Dict.make())
     ->BusinessProfileMapper.constructAuthConnectorObject,
+    collect_shipping_details_from_wallet_connector: getOptionBool(
+      dict,
+      "collect_shipping_details_from_wallet_connector",
+    ),
   }
 }
 

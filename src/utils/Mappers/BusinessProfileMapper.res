@@ -37,6 +37,9 @@ let businessProfileTypeMapper = values => {
     payment_response_hash_key: jsonDict->getOptionString("payment_response_hash_key"),
     webhook_details: webhookDetailsDict->constructWebhookDetailsObject,
     authentication_connector_details: authenticationConnectorDetails->constructAuthConnectorObject,
+    collect_shipping_details_from_wallet_connector: jsonDict->getOptionBool(
+      "collect_shipping_details_from_wallet_connector",
+    ),
   }
   businessProfile
 }

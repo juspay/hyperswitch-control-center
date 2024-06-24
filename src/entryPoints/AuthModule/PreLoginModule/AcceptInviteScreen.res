@@ -10,7 +10,7 @@ let make = () => {
 
   let acceptInviteFromEmailWithSPT = async body => {
     try {
-      open TwoFaUtils
+      open AuthUtils
 
       let url = getURL(
         ~entityName=USERS,
