@@ -147,4 +147,18 @@ type profileEntity = {
   payment_response_hash_key: option<string>,
   webhook_details: webhookDetails,
   authentication_connector_details: authConnectorDetailsType,
+  collect_shipping_details_from_wallet_connector: option<bool>,
 }
+
+type twoFaType = RecoveryCode | Totp
+
+type twoSettingsTypes = ResetTotp | RegenerateRecoveryCode
+
+type profileSettingsTypes = ACCOUNT_SETTINGS | TWO_FA_SETTINGS(twoSettingsTypes)
+
+type checkStatusType = {
+  totp: bool,
+  recovery_code: bool,
+}
+
+type regenerateRecoveryCode = RegenerateQR | ShowNewTotp(string)

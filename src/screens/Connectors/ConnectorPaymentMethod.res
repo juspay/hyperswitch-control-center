@@ -64,11 +64,16 @@ let make = (
         payment_methods_enabled: paymentMethodsEnabled,
         metadata: metaData,
       }
+
       let body =
         constructConnectorRequestBody(obj, initialValues)->ignoreFields(
           connectorID->Option.getOr(""),
           connectorIgnoredField,
         )
+      // Need to refactor
+      let metaData = body->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
+      let _ = ConnectorUtils.updateMetaData(~metaData)
+      //
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
       let response = await updateAPIHook(connectorUrl, body, Post, ())
       setInitialValues(_ => response)
@@ -84,7 +89,6 @@ let make = (
         let err = Exn.message(e)->Option.getOr("Something went wrong")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
-
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError, ())
           setCurrentStep(_ => ConnectorTypes.IntegFields)

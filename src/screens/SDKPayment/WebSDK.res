@@ -19,6 +19,7 @@ module CheckoutForm = {
     ~paymentStatus,
     ~currency,
     ~setPaymentStatus,
+    ~setErrorMessage,
     ~paymentElementOptions,
     ~theme="",
     ~primaryColor="",
@@ -37,7 +38,7 @@ module CheckoutForm = {
     let (error, setError) = React.useState(_ => None)
     let (btnState, setBtnState) = React.useState(_ => Button.Normal)
     let hyper = useHyper()
-    let elements = useElements()
+    let elements = useWidgets()
     let (appearanceElem, setAppearanceElem) = React.useState(() => JSON.Encode.null)
     let (paymentElem, setPaymentElem) = React.useState(() => JSON.Encode.null)
 
@@ -158,54 +159,53 @@ module CheckoutForm = {
       None
     }, (layout, elements, methodsOrder))
 
-    let handleSubmit = () => {
-      let confirmParams =
-        [
-          (
-            "confirmParams",
-            [
-              ("return_url", returnUrl->JSON.Encode.string),
-              ("redirect", "always"->JSON.Encode.string),
-            ]
-            ->Dict.fromArray
-            ->JSON.Encode.object,
-          ),
-        ]->LogicUtils.getJsonFromArrayOfJson
-      hyper.confirmPayment(confirmParams)
-      ->then(val => {
-        let resDict = val->JSON.Decode.object->Option.getOr(Dict.make())
-        let errorDict =
-          resDict->Dict.get("error")->Option.flatMap(JSON.Decode.object)->Option.getOr(Dict.make())
-
-        let errorMsg = errorDict->Dict.get("message")
-
-        switch errorMsg {
-        | Some(val) => {
-            let str =
-              val
-              ->LogicUtils.getStringFromJson("")
-              ->String.replace("\"", "")
-              ->String.replace("\"", "")
-            if str == "Something went wrong" {
-              setPaymentStatus(_ => CUSTOMSTATE)
-              setError(_ => None)
-            } else {
-              setPaymentStatus(_ => FAILED(val->LogicUtils.getStringFromJson("")))
-              setError(_ => errorMsg)
-            }
-          }
-
-        | _ => ()
+    let handleSubmit = async () => {
+      open LogicUtils
+      try {
+        let confirmParamsToPass = {
+          "elements": elements,
+          "confirmParams": [("return_url", returnUrl->JSON.Encode.string)]->getJsonFromArrayOfJson,
         }
-        setClientSecret(_ => None)
+        let res = await hyper.confirmPayment(confirmParamsToPass->Identity.genericTypeToJson)
+        let responseDict = res->getDictFromJsonObject
 
-        setError(_ => errorMsg)
-        setBtnState(_ => Button.Normal)
+        let unifiedErrorMessage = responseDict->getString("unified_message", "")
+        let errorMessage = responseDict->getString("error_message", "")
+        let uiErrorMessage =
+          unifiedErrorMessage->isNonEmptyString ? unifiedErrorMessage : errorMessage
+        setErrorMessage(_ => uiErrorMessage)
 
-        resolve()
-      })
-      ->ignore
+        let errorDict = responseDict->getDictfromDict("error")
+        if errorDict->getOptionString("type") !== Some("validation_error") {
+          let status = responseDict->getOptionString("status")
+          switch status {
+          | Some(str) =>
+            switch str {
+            | "failed" => setPaymentStatus(_ => FAILED("Failed"))
+            | "succeeded" => setPaymentStatus(_ => SUCCESS)
+            | _ => setPaymentStatus(_ => CUSTOMSTATE)
+            }
+          | None => setPaymentStatus(_ => CUSTOMSTATE)
+          }
+          setClientSecret(_ => None)
+        }
+      } catch {
+      | Exn.Error(e) => {
+          let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+          let str = err->String.replace("\"", "")->String.replace("\"", "")
+          if str == "Something went wrong" {
+            setPaymentStatus(_ => CUSTOMSTATE)
+            setError(_ => None)
+          } else {
+            setPaymentStatus(_ => FAILED(err))
+            setError(_ => Some(err))
+          }
+          setClientSecret(_ => None)
+        }
+      }
+      setBtnState(_ => Button.Normal)
     }
+
     React.useEffect1(() => {
       hyper.retrievePaymentIntent(clientSecret)
       ->then(_ => {
@@ -234,7 +234,7 @@ module CheckoutForm = {
               customButtonStyle={`p-1 mt-2 w-full rounded-md ${primaryColor}`}
               onClick={_ => {
                 setBtnState(_ => Button.Loading)
-                handleSubmit()
+                handleSubmit()->ignore
               }}
             />
           </div>
@@ -265,6 +265,7 @@ let make = (
   ~paymentStatus,
   ~currency,
   ~setPaymentStatus,
+  ~setErrorMessage,
   ~elementOptions,
   ~theme="",
   ~primaryColor="",
@@ -323,6 +324,7 @@ let make = (
             paymentStatus
             currency
             setPaymentStatus
+            setErrorMessage
             paymentElementOptions
             theme
             primaryColor

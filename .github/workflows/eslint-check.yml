@@ -9,11 +9,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Generate GitHub app token
+        id: generate_app_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.HYPERSWITCH_BOT_APP_ID }}
+          private-key: ${{ secrets.HYPERSWITCH_BOT_APP_PRIVATE_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.AUTO_RELEASE_PAT }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3

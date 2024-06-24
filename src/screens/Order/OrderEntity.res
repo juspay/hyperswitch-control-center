@@ -85,6 +85,8 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   | ConnectorMetadata => Text(attempt.connector_metadata)
   | PaymentExperience => Text(attempt.payment_experience)
   | ReferenceID => Text(attempt.reference_id)
+  | ClientSource => Text(attempt.client_source)
+  | ClientVersion => Text(attempt.client_version)
   }
 }
 
@@ -104,6 +106,23 @@ let getFrmCell = (orderDetais: order, frmColType: frmColType): Table.cell => {
   | FRMConnector => Text(orderDetais.frm_message.frm_name)
   | FRMMessage => Text(orderDetais.frm_message.frm_reason)
   | MerchantDecision => Text(orderDetais.merchant_decision)
+  }
+}
+
+let getAuthenticationCell = (orderDetais: order, colType: authenticationColType): Table.cell => {
+  let authenticationDetails =
+    orderDetais.external_authentication_details
+    ->Option.getOr(JSON.Encode.null)
+    ->getDictFromJsonObject
+  switch colType {
+  | AuthenticationFlow => Text(authenticationDetails->getString("authentication_flow", ""))
+  | DsTransactionId => Text(authenticationDetails->getString("ds_transaction_id", ""))
+  | ElectronicCommerceIndicator =>
+    Text(authenticationDetails->getString("electronic_commerce_indicator", ""))
+  | ErrorCode => Text(authenticationDetails->getString("error_code", ""))
+  | ErrorMessage => Text(authenticationDetails->getString("error_message", ""))
+  | Status => Text(authenticationDetails->getString("status", ""))
+  | Version => Text(authenticationDetails->getString("version", ""))
   }
 }
 
@@ -127,6 +146,16 @@ let frmColumns: array<frmColType> = [
   FRMConnector,
   FRMMessage,
   MerchantDecision,
+]
+
+let authenticationColumns: array<authenticationColType> = [
+  AuthenticationFlow,
+  DsTransactionId,
+  ElectronicCommerceIndicator,
+  ErrorCode,
+  ErrorMessage,
+  Status,
+  Version,
 ]
 
 let refundDetailsFields = [
@@ -158,6 +187,8 @@ let attemptDetailsField = [
   ConnectorMetadata,
   PaymentExperience,
   ReferenceID,
+  ClientSource,
+  ClientVersion,
 ]
 
 let getRefundHeading = (refundsColType: refundsColType) => {
@@ -178,7 +209,14 @@ let getRefundHeading = (refundsColType: refundsColType) => {
 
 let getAttemptHeading = (attemptColType: attemptColType) => {
   switch attemptColType {
-  | AttemptId => Table.makeHeaderInfo(~key="attempt_id", ~title="Attempt ID", ~showSort=true, ())
+  | AttemptId =>
+    Table.makeHeaderInfo(
+      ~key="attempt_id",
+      ~title="Attempt ID",
+      ~showSort=true,
+      ~description="You can validate the information shown here by cross checking the payment attempt identifier (Attempt ID) in your payment processor portal.",
+      (),
+    )
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~showSort=true, ())
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true, ())
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=true, ())
@@ -227,6 +265,10 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
     Table.makeHeaderInfo(~key="payment_experience", ~title="Payment Experience", ~showSort=true, ())
   | ReferenceID =>
     Table.makeHeaderInfo(~key="reference_id", ~title="Reference ID", ~showSort=true, ())
+  | ClientSource =>
+    Table.makeHeaderInfo(~key="client_source", ~title="Client Source", ~showSort=true, ())
+  | ClientVersion =>
+    Table.makeHeaderInfo(~key="client_version", ~title="Client Version", ~showSort=true, ())
   }
 }
 
@@ -249,6 +291,32 @@ let getFrmHeading = (frmDetailsColType: frmColType) => {
   | FRMMessage => Table.makeHeaderInfo(~key="frm_message", ~title="FRM Message", ~showSort=true, ())
   | MerchantDecision =>
     Table.makeHeaderInfo(~key="merchant_decision", ~title="Merchant Decision", ~showSort=true, ())
+  }
+}
+
+let getAuthenticationHeading = (authenticationDetailsColType: authenticationColType) => {
+  switch authenticationDetailsColType {
+  | AuthenticationFlow =>
+    Table.makeHeaderInfo(
+      ~key="authentication_flow",
+      ~title="Authentication Flow",
+      ~showSort=true,
+      (),
+    )
+  | DsTransactionId =>
+    Table.makeHeaderInfo(~key="ds_transaction_id", ~title="Ds Transaction Id", ~showSort=true, ())
+  | ElectronicCommerceIndicator =>
+    Table.makeHeaderInfo(
+      ~key="electronic_commerce_indicator",
+      ~title="Electronic Commerce Indicator",
+      ~showSort=true,
+      (),
+    )
+  | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code", ~showSort=true, ())
+  | ErrorMessage =>
+    Table.makeHeaderInfo(~key="error_message", ~title="Error Message", ~showSort=true, ())
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~showSort=true, ())
+  | Version => Table.makeHeaderInfo(~key="version", ~title="Version", ~showSort=true, ())
   }
 }
 
@@ -296,6 +364,8 @@ let attemptsItemToObjMapper = dict => {
   payment_experience: dict->getString("payment_experience", ""),
   payment_method_type: dict->getString("payment_method_type", ""),
   reference_id: dict->getString("reference_id", ""),
+  client_source: dict->getString("client_source", ""),
+  client_version: dict->getString("client_version", ""),
 }
 
 let getRefunds: JSON.t => array<refunds> = json => {
@@ -314,6 +384,8 @@ let defaultColumns: array<colType> = [
   Status,
   PaymentMethod,
   PaymentMethodType,
+  Description,
+  Metadata,
   Created,
 ]
 
@@ -337,10 +409,13 @@ let allColumns = [
   PaymentMethodType,
   SetupFutureUsage,
   Status,
+  Metadata,
+  CardNetwork,
 ]
 
 let getHeading = (colType: colType) => {
   switch colType {
+  | Metadata => Table.makeHeaderInfo(~key="metadata", ~title="Metadata", ~showSort=false, ())
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID", ~showSort=false, ())
   | MerchantId =>
     Table.makeHeaderInfo(~key="merchant_id", ~title="Merchant ID", ~showSort=false, ())
@@ -451,6 +526,8 @@ let getHeading = (colType: colType) => {
     Table.makeHeaderInfo(~key="error_message", ~title="Error Message", ~showSort=false, ())
   | Refunds => Table.makeHeaderInfo(~key="refunds", ~title="Refunds", ~showSort=false, ())
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false, ())
+  | CardNetwork =>
+    Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Network", ~showSort=false, ())
   }
 }
 
@@ -542,6 +619,8 @@ let getHeadingForAboutPayment = aboutPaymentColType => {
 
   | CaptureMethod =>
     Table.makeHeaderInfo(~key="capture_method", ~title="Capture Method", ~showSort=true, ())
+  | CardNetwork =>
+    Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Network", ~showSort=true, ())
   }
 }
 
@@ -586,24 +665,42 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID", ~showSort=true, ())
   | Description =>
     Table.makeHeaderInfo(~key="description", ~title="Description", ~showSort=true, ())
-  | Shipping => Table.makeHeaderInfo(~key="shipping", ~title="Shipping Address", ~showSort=true, ())
-  | Billing => Table.makeHeaderInfo(~key="billing", ~title="Billing Address", ~showSort=true, ())
+  | ShippingAddress => Table.makeHeaderInfo(~key="shipping", ~title="Address", ~showSort=true, ())
+  | ShippingEmail => Table.makeHeaderInfo(~key="shipping", ~title="Email", ~showSort=true, ())
+  | ShippingPhone => Table.makeHeaderInfo(~key="shipping", ~title="Phone", ~showSort=true, ())
+  | BillingAddress => Table.makeHeaderInfo(~key="billing", ~title="Address", ~showSort=true, ())
+  | BillingPhone => Table.makeHeaderInfo(~key="BillingPhone", ~title="Phone", ~showSort=true, ())
   | AmountCapturable =>
     Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable", ~showSort=true, ())
   | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code", ~showSort=true, ())
   | MandateData =>
     Table.makeHeaderInfo(~key="mandate_data", ~title="Mandate Data", ~showSort=true, ())
-  | FRMName => Table.makeHeaderInfo(~key="frm_name", ~title="FRM Tag", ~showSort=true, ())
+  | FRMName => Table.makeHeaderInfo(~key="frm_name", ~title="Tag", ~showSort=true, ())
   | FRMTransactionType =>
+    Table.makeHeaderInfo(~key="frm_transaction_type", ~title="Transaction Flow", ~showSort=true, ())
+  | FRMStatus => Table.makeHeaderInfo(~key="frm_status", ~title="Message", ~showSort=true, ())
+  | BillingEmail => Table.makeHeaderInfo(~key="billing_email", ~title="Email", ~showSort=true, ())
+  | PMBillingAddress =>
     Table.makeHeaderInfo(
-      ~key="frm_transaction_type",
-      ~title="FRM Transaction Flow",
+      ~key="payment_method_billing_address",
+      ~title="Billing Address",
       ~showSort=true,
       (),
     )
-  | FRMStatus => Table.makeHeaderInfo(~key="frm_status", ~title="FRM Message", ~showSort=true, ())
-  | BillingEmail =>
-    Table.makeHeaderInfo(~key="billing_email", ~title="Billing Email", ~showSort=true, ())
+  | PMBillingPhone =>
+    Table.makeHeaderInfo(
+      ~key="payment_method_billing_phone",
+      ~title="Billing Phone",
+      ~showSort=true,
+      (),
+    )
+  | PMBillingEmail =>
+    Table.makeHeaderInfo(
+      ~key="payment_method_billing_email",
+      ~title="Billing Email",
+      ~showSort=true,
+      (),
+    )
   }
 }
 
@@ -658,6 +755,14 @@ let getCellForAboutPayment = (
   | ProfileId => Text(order.profile_id)
   | ProfileName => Table.CustomCell(<BusinessProfileComponent profile_id={order.profile_id} />, "")
   | CaptureMethod => Text(order.capture_method)
+  | CardNetwork => {
+      let dict = switch order.payment_method_data {
+      | Some(val) => val->getDictFromJsonObject
+      | _ => Dict.make()
+      }
+
+      Text(dict->getString("card_network", ""))
+    }
   }
 }
 
@@ -681,8 +786,10 @@ let getCellForOtherDetails = (order, aboutPaymentColType, _): Table.cell => {
   | Email => Text(order.email)
   | CustomerId => Text(order.customer_id)
   | Description => Text(order.description)
-  | Shipping => Text(order.shipping)
-  | Billing => Text(order.billing)
+  | ShippingAddress => Text(order.shipping)
+  | ShippingPhone => Text(order.shippingPhone)
+  | ShippingEmail => Text(order.shippingEmail)
+  | BillingAddress => Text(order.billing)
   | AmountCapturable => Currency(order.amount_capturable /. 100.0, order.currency)
   | ErrorCode => Text(order.error_code)
   | MandateData => Text(order.mandate_data)
@@ -690,6 +797,10 @@ let getCellForOtherDetails = (order, aboutPaymentColType, _): Table.cell => {
   | FRMTransactionType => Text(order.frm_message.frm_transaction_type)
   | FRMStatus => Text(order.frm_message.frm_status)
   | BillingEmail => Text(order.billingEmail)
+  | PMBillingAddress => Text(order.payment_method_billing_address)
+  | PMBillingPhone => Text(order.payment_method_billing_email)
+  | PMBillingEmail => Text(order.payment_method_billing_phone)
+  | BillingPhone => Text(`${order.billingPhone}`)
   }
 }
 
@@ -697,6 +808,8 @@ let getCell = (order, colType: colType): Table.cell => {
   open HelperComponents
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
+  | Metadata =>
+    CustomCell(<Metadata displayValue={order.metadata->JSON.Encode.object->JSON.stringify} />, "")
   | PaymentId => Text(order.payment_id)
   | MerchantId => Text(order.merchant_id)
   | Connector => CustomCell(<ConnectorCustomCell connectorName={order.connector} />, "")
@@ -730,7 +843,7 @@ let getCell = (order, colType: colType): Table.cell => {
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
   | CustomerEmail => Text(order.email)
-  | Description => Text(order.description)
+  | Description => CustomCell(<Metadata displayValue={order.description} endValue={5} />, "")
   | MandateId => Text(order.mandate_id)
   | MandateData => Text(order.mandate_data)
   | SetupFutureUsage => Text(order.setup_future_usage)
@@ -763,6 +876,14 @@ let getCell = (order, colType: colType): Table.cell => {
       | Some(v) => v
       },
     )
+  | CardNetwork => {
+      let dict = switch order.payment_method_data {
+      | Some(val) => val->getDictFromJsonObject
+      | _ => Dict.make()
+      }
+
+      Text(dict->getString("card_network", ""))
+    }
   }
 }
 
@@ -810,6 +931,11 @@ let itemToObjMapper = dict => {
     "country",
     "zip",
   ]
+
+  let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code", ()) => {
+    `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
+  }
+
   {
     payment_id: dict->getString("payment_id", ""),
     merchant_id: dict->getString("merchant_id", ""),
@@ -840,20 +966,52 @@ let itemToObjMapper = dict => {
       | _ => None
       }
     },
+    external_authentication_details: {
+      let externalAuthenticationDetails =
+        dict->getJsonObjectFromDict("external_authentication_details")
+      switch externalAuthenticationDetails->JSON.Classify.classify {
+      | Object(_) => Some(externalAuthenticationDetails)
+      | _ => None
+      }
+    },
     payment_token: dict->getString("payment_token", ""),
     shipping: dict
     ->getDictfromDict("shipping")
     ->getDictfromDict("address")
     ->concatValueOfGivenKeysOfDict(addressKeys),
+    shippingEmail: dict->getDictfromDict("shipping")->getString("email", ""),
+    shippingPhone: dict
+    ->getDictfromDict("shipping")
+    ->getDictfromDict("phone")
+    ->getPhoneNumberString(),
     billing: dict
     ->getDictfromDict("billing")
     ->getDictfromDict("address")
     ->concatValueOfGivenKeysOfDict(addressKeys),
+    payment_method_billing_address: dict
+    ->getDictfromDict("payment_method_data")
+    ->getDictfromDict("billing")
+    ->getDictfromDict("address")
+    ->concatValueOfGivenKeysOfDict(addressKeys),
+    payment_method_billing_phone: dict
+    ->getDictfromDict("payment_method_data")
+    ->getDictfromDict("billing")
+    ->getString("email", ""),
+    payment_method_billing_email: dict
+    ->getDictfromDict("payment_method_data")
+    ->getDictfromDict("billing")
+    ->getString("", ""),
     billingEmail: dict->getDictfromDict("billing")->getString("email", ""),
+    billingPhone: dict
+    ->getDictfromDict("billing")
+    ->getDictfromDict("phone")
+    ->getPhoneNumberString(),
     metadata: dict->getJsonObjectFromDict("metadata")->getDictFromJsonObject,
     email: dict->getString("email", ""),
     name: dict->getString("name", ""),
-    phone: dict->getString("phone", ""),
+    phone: dict
+    ->getDictfromDict("customer")
+    ->getPhoneNumberString(~phoneKey="phone", ~codeKey="phone_country_code", ()),
     return_url: dict->getString("return_url", ""),
     authentication_type: dict->getString("authentication_type", ""),
     statement_descriptor_name: dict->getString("statement_descriptor_name", ""),
@@ -875,6 +1033,8 @@ let itemToObjMapper = dict => {
     frm_message: dict->getFRMDetails,
     merchant_decision: dict->getString("merchant_decision", ""),
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
+    disputes: dict->getArrayFromDict("disputes", [])->JSON.Encode.array->DisputesEntity.getDisputes,
+    attempts: dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts,
   }
 }
 

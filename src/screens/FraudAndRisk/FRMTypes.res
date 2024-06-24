@@ -1,24 +1,3 @@
-type frmName =
-  | Signifyd
-  | Riskifyed
-  | UnknownFRM(string)
-
-type frmIntegrationField = {
-  placeholder: string,
-  label: string,
-  name: string,
-  inputType: InputFields.customInputFn,
-  isRequired: bool,
-  encodeToBase64: bool,
-  description?: string,
-}
-
-type frmInfo = {
-  name: frmName,
-  description: string,
-  connectorFields: array<frmIntegrationField>,
-}
-
 type filterType = Connector | FRMPlayer | ThreedsAuthenticator
 
 type frmPaymentMethodsSectionType = FlowType | ActionType

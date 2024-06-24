@@ -96,6 +96,7 @@ module TableWrapper = {
     ~moduleName,
     ~weeklyTableMetricsCols,
     ~distributionArray=None,
+    ~formatData=None,
   ) => {
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
       ConfigContext.configContext,
@@ -352,20 +353,20 @@ module TableWrapper = {
 
     setDefaultFilter(._ => dict->JSON.Encode.object->JSON.stringify)
 
+    let modifyData = data => {
+      switch formatData {
+      | Some(fun) => data->fun
+      | None => data
+      }
+    }
+
     showTable
       ? <>
-          <UIUtils.RenderIf condition={tableData->Array.length > 0}>
-            <div
-              className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3 mt-7`}>
-              <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
-              {"'Other' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
-            </div>
-          </UIUtils.RenderIf>
           <div className="h-full -mx-4 overflow-scroll">
             <Form>
               <BaseTableComponent
                 filters=(startTimeFromUrl, endTimeFromUrl)
-                tableData
+                tableData={tableData->modifyData}
                 tableDataLoading
                 transactionTableDefaultCols
                 defaultSort
@@ -378,6 +379,13 @@ module TableWrapper = {
               />
             </Form>
           </div>
+          <UIUtils.RenderIf condition={tableData->Array.length > 0}>
+            <div
+              className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
+              <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
+              {"'NA' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
+            </div>
+          </UIUtils.RenderIf>
         </>
       : <Loader />
   }
@@ -401,6 +409,7 @@ module TabDetails = {
     ~moduleName,
     ~updateUrl: Dict.t<string> => unit,
     ~weeklyTableMetricsCols,
+    ~formatData=None,
   ) => {
     open AnalyticsTypes
     let analyticsType = moduleName->getAnalyticsType
@@ -414,19 +423,25 @@ module TabDetails = {
 
     let wrapperClass = React.useMemo1(() =>
       switch analyticsType {
-      | USER_JOURNEY => `h-auto basis-full mt-4 ${isMobileView ? "w-full" : "w-1/2"}`
+      | AUTHENTICATION | USER_JOURNEY =>
+        `h-auto basis-full mt-4 ${isMobileView ? "w-full" : "w-1/2"}`
       | _ => "bg-white border rounded p-8 mt-5 mb-7"
       }
     , [isMobileView])
 
     let tabTitleMapper = switch analyticsType {
-    | USER_JOURNEY =>
+    | AUTHENTICATION | USER_JOURNEY =>
       [
         ("browser_name", "browser"),
         ("component", "checkout_platform"),
         ("platform", "customer_device"),
       ]->Dict.fromArray
     | _ => Dict.make()
+    }
+
+    let comparitionWidget = switch analyticsType {
+    | AUTHENTICATION | USER_JOURNEY => false
+    | _ => true
     }
 
     let tab =
@@ -441,6 +456,7 @@ module TabDetails = {
           showTableLegend=false
           showMarkers=true
           legendType=HighchartTimeSeriesChart.Points
+          comparitionWidget
         />
         {switch tableEntity {
         | Some(tableEntity) =>
@@ -459,13 +475,14 @@ module TabDetails = {
             moduleName
             weeklyTableMetricsCols
             distributionArray
+            formatData
           />
         | None => React.null
         }}
       </div>
 
     switch analyticsType {
-    | USER_JOURNEY => tab
+    | AUTHENTICATION | USER_JOURNEY => tab
     | _ => <FramerMotion.TransitionComponent id={id}> {tab} </FramerMotion.TransitionComponent>
     }
   }
@@ -491,7 +508,7 @@ let make = (
   ~deltaMetrics: array<string>,
   ~deltaArray: array<string>,
   ~singleStatEntity: DynamicSingleStat.entityType<'singleStatColType, 'b, 'b2>,
-  ~filterUri,
+  ~filterUri: option<string>,
   ~tableUpdatedHeading: option<
     (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
   >=?,
@@ -500,6 +517,7 @@ let make = (
   ~weeklyTableMetricsCols=?,
   ~distributionArray=None,
   ~generateReportType: option<APIUtilsTypes.entityName>=?,
+  ~formatData=None,
 ) => {
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
@@ -522,10 +540,7 @@ let make = (
   let filterValueDict = filterValueJson
 
   let (activeTav, setActiveTab) = React.useState(_ =>
-    filterValueDict->getStrArrayFromDict(
-      `${moduleName}.tabName`,
-      [filteredTabKeys->Array.get(0)->Option.getOr("")],
-    )
+    filterValueDict->getStrArrayFromDict(`${moduleName}.tabName`, filteredTabKeys)
   )
   let setActiveTab = React.useMemo1(() => {
     (str: string) => {
@@ -573,6 +588,8 @@ let make = (
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
+    ~origin="analytics",
+    (),
   )
 
   React.useEffect0(() => {
@@ -601,10 +618,14 @@ let make = (
     setFilterDataJson(_ => None)
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       try {
-        updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
-        ->thenResolve(json => setFilterDataJson(_ => json->Some))
-        ->catch(_ => resolve())
-        ->ignore
+        switch filterUri {
+        | Some(filterUri) =>
+          updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
+          ->thenResolve(json => setFilterDataJson(_ => json->Some))
+          ->catch(_ => resolve())
+          ->ignore
+        | None => ()
+        }
       } catch {
       | _ => ()
       }
@@ -630,6 +651,7 @@ let make = (
   let topFilterUi = switch filterDataJson {
   | Some(filterData) => {
       let filterData = switch analyticsType {
+      | AUTHENTICATION
       | USER_JOURNEY => {
           let filteredDims = ["payment_method", "payment_experience", "source"]
           let queryData =
@@ -709,13 +731,13 @@ let make = (
           </div>
           <div className="flex flex-row">
             {switch analyticsType {
-            | USER_JOURNEY =>
-              switch (pieChartEntity, barChartEntity, funnelChartEntity) {
-              | (Some(pieChartEntity), Some(barChartEntity), Some(funnelChartEntity)) =>
-                <div className="flex flex-col bg-transparent w-full h-max">
+            | AUTHENTICATION | USER_JOURNEY =>
+              <div className="flex flex-col bg-transparent w-full h-max">
+                {switch funnelChartEntity {
+                | Some(funnelChartEntity) =>
                   <div className={tabDetailsClass}>
                     <TabDetails
-                      chartEntity={{...funnelChartEntity, moduleName: "UserJourneyFunnel"}}
+                      chartEntity={{...funnelChartEntity, moduleName: `${moduleName}Funnel`}}
                       activeTab={None}
                       defaultSort
                       getTable
@@ -726,7 +748,7 @@ let make = (
                       deltaArray
                       tableUpdatedHeading
                       tableGlobalFilter
-                      moduleName={"UserJourneyFunnel"}
+                      moduleName={`${moduleName}Funnel`}
                       updateUrl={dict => {
                         let updateUrlWithPrefix = updateUrlWithPrefix("Funnel")
                         updateUrlWithPrefix(dict)
@@ -734,7 +756,11 @@ let make = (
                       weeklyTableMetricsCols
                     />
                   </div>
-                  <div className={tabDetailsClass}>
+                | None => React.null
+                }}
+                <div className={tabDetailsClass}>
+                  {switch analyticsType {
+                  | USER_JOURNEY =>
                     <TabDetails
                       chartEntity={chartEntity}
                       activeTab={Some(["payment_method"])}
@@ -754,8 +780,12 @@ let make = (
                       }}
                       weeklyTableMetricsCols
                     />
+                  | _ => React.null
+                  }}
+                  {switch barChartEntity {
+                  | Some(barChartEntity) =>
                     <TabDetails
-                      chartEntity={{...barChartEntity, moduleName: "UserJourneyBar"}}
+                      chartEntity={{...barChartEntity, moduleName: `${moduleName}Bar`}}
                       activeTab={Some(["browser_name"])}
                       defaultSort
                       getTable
@@ -766,14 +796,18 @@ let make = (
                       deltaArray
                       tableUpdatedHeading
                       tableGlobalFilter
-                      moduleName={"UserJourneyBar"}
+                      moduleName={`${moduleName}Bar`}
                       updateUrl={dict => {
                         let updateUrlWithPrefix = updateUrlWithPrefix("Bar")
                         updateUrlWithPrefix(dict)
                       }}
                       weeklyTableMetricsCols
                     />
-                  </div>
+                  | None => React.null
+                  }}
+                </div>
+                {switch pieChartEntity {
+                | Some(pieChartEntity) =>
                   <div className={tabDetailsClass}>
                     <TabDetails
                       chartEntity={pieChartEntity}
@@ -814,14 +848,14 @@ let make = (
                       weeklyTableMetricsCols
                     />
                   </div>
-                </div>
-              | _ => React.null
-              }
+                | None => React.null
+                }}
+              </div>
             | _ =>
               <div className="flex flex-col h-full overflow-scroll w-full">
                 <DynamicTabs
                   tabs=filteredTabVales
-                  maxSelection=1
+                  maxSelection=3
                   tabId=moduleName
                   setActiveTab
                   updateUrlDict={dict => {
@@ -849,6 +883,7 @@ let make = (
                     updateUrlWithPrefix(dict)
                   }}
                   weeklyTableMetricsCols
+                  formatData
                 />
               </div>
             }}

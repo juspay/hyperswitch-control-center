@@ -260,7 +260,6 @@ let useChartFetch = (~setStatusDict) => {
     ->Promise.all
     ->thenResolve(dataArr => {
       let data = dataArr->Belt.Array.keepMap(item => item)
-
       setState(data)
     })
     ->catch(_err => resolve())
@@ -290,6 +289,7 @@ let make = (
   ~showTableLegend=true,
   ~showMarkers=false,
   ~legendType: HighchartTimeSeriesChart.legendType=Table,
+  ~comparitionWidget=false,
 ) => {
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let updateChartCompFilters = switch updateUrl {
@@ -603,7 +603,7 @@ let make = (
     })
   }, [updatedChartConfigArr])
 
-  let (groupKeyFromTab, _titleKey) = React.useMemo1(() => {
+  let (groupKeyFromTab, titleKey) = React.useMemo1(() => {
     switch (tabTitleMapper, selectedTab) {
     | (Some(dict), Some(arr)) => {
         let groupKey = arr->Array.get(0)->Option.getOr("")
@@ -655,7 +655,7 @@ let make = (
               ->Option.getOr(""->JSON.Encode.string)
               ->JSON.Decode.string
               ->Option.getOr("")
-            let label = metric->isEmptyString ? "other" : metric
+            let label = metric->isEmptyString ? "NA" : metric
 
             Dict.set(dict, tabName, label->JSON.Encode.string)
 
@@ -705,6 +705,9 @@ let make = (
     setChartLoading(_ => false)
   }
 
+  let chartTypeFromUrl = getChartCompFilters->getString("chartType", "Line chart")
+  let chartTopMetricFromUrl = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
+
   React.useEffect1(() => {
     let chartType =
       getChartCompFilters->getString(
@@ -737,7 +740,7 @@ let make = (
                 className="border rounded bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart pt-7">
                 {if chartLoading && shimmerType === Shimmer {
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
-                } else {
+                } else if comparitionWidget {
                   <div>
                     {entityAllMetrics
                     ->Array.map(selectedMetrics => {
@@ -767,6 +770,8 @@ let make = (
                             showTableLegend
                             showMarkers
                             legendType
+                            comparitionWidget
+                            selectedTab={selectedTab->Option.getOr([])}
                           />
                         }
                       | _ => React.null
@@ -774,6 +779,71 @@ let make = (
                     })
                     ->React.array}
                   </div>
+                } else {
+                  switch entityAllMetrics
+                  ->Array.filter(item => item.metric_label === chartTopMetricFromUrl)
+                  ->Array.get(0) {
+                  | Some(selectedMetrics) =>
+                    let metricsUri = uriConfig->Array.find(uriMetrics => {
+                      uriMetrics.metrics
+                      ->Array.map(item => {item.metric_label})
+                      ->Array.includes(selectedMetrics.metric_label)
+                    })
+                    let (data, legendData, timeCol) = switch metricsUri {
+                    | Some(val) =>
+                      switch rawChartData
+                      ->Option.getOr([])
+                      ->Array.find(item => item.metricsUrl === val.uri) {
+                      | Some(dataVal) => (dataVal.rawData, dataVal.legendData, val.timeCol)
+                      | None => ([], [], "")
+                      }
+                    | None => ([], [], "")
+                    }
+                    switch chartTypeFromUrl->chartReverseMappers {
+                    | Line =>
+                      <HighchartTimeSeriesChart.LineChart1D
+                        class="flex overflow-scroll"
+                        rawChartData=data
+                        selectedMetrics
+                        chartPlace="top_"
+                        xAxis=timeCol
+                        groupKey
+                        chartTitle=false
+                        key={"0"}
+                        legendData
+                        showTableLegend
+                        showMarkers
+                        legendType
+                      />
+
+                    | Bar =>
+                      <div className="">
+                        <HighchartBarChart.HighBarChart1D
+                          rawData=data groupKey selectedMetrics key={"0"}
+                        />
+                      </div>
+                    | SemiDonut =>
+                      <div className="m-4">
+                        <HighchartPieChart
+                          rawData=data groupKey titleKey selectedMetrics key={"0"}
+                        />
+                      </div>
+                    | HorizontalBar =>
+                      <div className="m-4">
+                        <HighchartHorizontalBarChart
+                          rawData=data groupKey titleKey selectedMetrics key={"0"}
+                        />
+                      </div>
+                    | Funnel =>
+                      <FunnelChart
+                        data
+                        metrics={entityAllMetrics}
+                        moduleName={entity.moduleName}
+                        description={entity.chartDescription}
+                      />
+                    }
+                  | None => React.null
+                  }
                 }}
               </div>
             </AddDataAttributes>

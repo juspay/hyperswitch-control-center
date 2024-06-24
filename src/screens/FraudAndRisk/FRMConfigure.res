@@ -23,17 +23,18 @@ let make = () => {
 
   let (currentStep, setCurrentStep) = React.useState(_ => isUpdateFlow ? Preview : initStep)
 
-  let selectedFRMInfo = React.useMemo1(() => {
-    let frmInfo = frmName->getFRMNameTypeFromString->getFRMInfo
+  let selectedFRMName: ConnectorTypes.connectorTypes = React.useMemo1(() => {
+    let frmName =
+      frmName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer, ())
     setInitialValues(_ => {
       generateInitialValuesDict(
-        ~selectedFRMInfo=frmInfo,
+        ~selectedFRMName=frmName,
         ~isLiveMode=featureFlagDetails.isLiveMode,
         (),
       )
     })
     setCurrentStep(_ => isUpdateFlow ? Preview : initStep)
-    frmInfo
+    frmName
   }, [frmName])
 
   let getFRMDetails = async url => {
@@ -64,10 +65,10 @@ let make = () => {
     ->Array.push({
       title: {"Fraud Risk Management"},
       link: "/fraud-risk-management",
-      warning: `You have not yet completed configuring your ${selectedFRMInfo.name
-        ->getFRMNameString
+      warning: `You have not yet completed configuring your ${selectedFRMName
+        ->ConnectorUtils.getConnectorNameString
         ->snakeToTitle} player. Are you sure you want to go back?`,
-      mixPanelCustomString: ` ${selectedFRMInfo.name->getFRMNameString}`,
+      mixPanelCustomString: ` ${selectedFRMName->ConnectorUtils.getConnectorNameString}`,
     })
     ->ignore
   } else {
@@ -78,7 +79,6 @@ let make = () => {
     })
     ->ignore
   }
-
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-8 h-full">
       <BreadCrumbNavigation
@@ -92,7 +92,7 @@ let make = () => {
         | IntegFields =>
           <FRMIntegrationFields
             setCurrentStep
-            selectedFRMInfo
+            selectedFRMName
             setInitialValues
             retrivedValues=Some(initialValues)
             isUpdateFlow

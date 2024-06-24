@@ -9,6 +9,7 @@ type connectorIntegrationField = {
   testValidationRegex?: string,
   liveExpectedFormat?: string,
   testExpectedFormat?: string,
+  description?: string,
 }
 
 type metadataFields = {
@@ -27,6 +28,7 @@ type cashToCodeMthd = [#Classic | #Evoucher]
 
 type processorTypes =
   | ADYEN
+  | ADYENPLATFORM
   | CHECKOUT
   | BRAINTREE
   | BANKOFAMERICA
@@ -81,12 +83,18 @@ type processorTypes =
   | HELCIM
   | PLACETOPAY
   | ZSL
+  | MIFINITY
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
+
+type frmTypes =
+  | Signifyd
+  | Riskifyed
 
 type connectorTypes =
   | Processors(processorTypes)
   | ThreeDsAuthenticator(threeDsAuthenticatorTypes)
+  | FRM(frmTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -104,6 +112,7 @@ type paymentMethodTypes =
   | Debit
   | GooglePay
   | ApplePay
+  | PayPal
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {

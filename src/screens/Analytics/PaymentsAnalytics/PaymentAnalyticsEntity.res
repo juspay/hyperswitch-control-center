@@ -23,6 +23,8 @@ let colMapper = (col: paymentColType) => {
   | Currency => "currency"
   | AuthType => "authentication_type"
   | Status => "status"
+  | ClientSource => "client_source"
+  | ClientVersion => "client_version"
   | WeeklySuccessRate => "weekly_payment_success_rate"
   | NoCol => ""
   }
@@ -93,16 +95,14 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentTableType = dict => {
     payment_success_count: dict->getFloat(SuccessCount->colMapper, 0.0),
     payment_processed_amount: dict->getFloat(ProcessedAmount->colMapper, 0.0),
     avg_ticket_size: dict->getFloat(AvgTicketSize->colMapper, 0.0),
-    connector: dict->getString(Connector->colMapper, "OTHER")->LogicUtils.getFirstLetterCaps(),
-    payment_method: dict
-    ->getString(PaymentMethod->colMapper, "OTHER")
-    ->LogicUtils.getFirstLetterCaps(),
-    payment_method_type: dict
-    ->getString(PaymentMethodType->colMapper, "OTHER")
-    ->LogicUtils.getFirstLetterCaps(),
-    currency: dict->getString(Currency->colMapper, "OTHER")->String.toUpperCase,
-    authentication_type: dict->getString(AuthType->colMapper, "OTHER")->String.toUpperCase,
-    refund_status: dict->getString(Status->colMapper, "OTHER")->String.toUpperCase,
+    connector: dict->getString(Connector->colMapper, "NA")->snakeToTitle,
+    payment_method: dict->getString(PaymentMethod->colMapper, "NA")->snakeToTitle,
+    payment_method_type: dict->getString(PaymentMethodType->colMapper, "NA")->snakeToTitle,
+    currency: dict->getString(Currency->colMapper, "NA")->snakeToTitle,
+    authentication_type: dict->getString(AuthType->colMapper, "NA")->snakeToTitle,
+    refund_status: dict->getString(Status->colMapper, "NA")->snakeToTitle,
+    client_source: dict->getString(ClientSource->colMapper, "NA")->snakeToTitle,
+    client_version: dict->getString(ClientVersion->colMapper, "NA")->snakeToTitle,
     weekly_payment_success_rate: dict->getWeeklySR->String.toUpperCase,
     payment_error_message: dict->parseErrorReasons,
   }
@@ -182,6 +182,10 @@ let getUpdatedHeading = (
         (),
       )
     | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown, ~showSort=false, ())
+    | ClientSource =>
+      Table.makeHeaderInfo(~key, ~title="Client Source", ~dataType=DropDown, ~showSort=false, ())
+    | ClientVersion =>
+      Table.makeHeaderInfo(~key, ~title="Client Version", ~dataType=DropDown, ~showSort=false, ())
 
     | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false, ())
     }
@@ -207,6 +211,8 @@ let getCell = (paymentTable, colType): Table.cell => {
   | Currency => Text(paymentTable.currency)
   | AuthType => Text(paymentTable.authentication_type)
   | Status => Text(paymentTable.refund_status)
+  | ClientSource => Text(paymentTable.client_source)
+  | ClientVersion => Text(paymentTable.client_version)
   | WeeklySuccessRate => Text(paymentTable.weekly_payment_success_rate)
   | PaymentErrorMessage =>
     Table.CustomCell(<ErrorReasons errors={paymentTable.payment_error_message} />, "NA")

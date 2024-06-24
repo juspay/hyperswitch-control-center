@@ -58,21 +58,21 @@ let make = () => {
   })
 
   let title = "Know your users"
-  let subTitle = "User analytics is a level deeper into payment analytics and aims at providing you a wholesome understanding of the end users and their usage patterns."
+  let subTitle = "User Journey analytics is a level deeper into payment analytics and aims at providing you a wholesome understanding of the end users and their usage patterns."
 
   <div>
     <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
       <Analytics
         pageTitle=title
         pageSubTitle=subTitle
-        filterUri={`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`}
+        filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
         key="UserJourneyAnalytics"
         moduleName="UserJourney"
         deltaMetrics={getStringListFromArrayDict(metrics)}
         chartEntity={
-          default: paymentChartEntity(tabKeys),
-          userPieChart: userChartEntity(tabKeys),
-          userBarChart: userBarChartEntity(tabKeys),
+          default: commonUserJourneyChartEntity(tabKeys),
+          userPieChart: userJourneyChartEntity(tabKeys),
+          userBarChart: userJourneyBarChartEntity(tabKeys),
           userFunnelChart: userJourneyFunnelChartEntity(tabKeys),
         }
         tabKeys

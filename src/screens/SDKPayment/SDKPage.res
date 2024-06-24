@@ -6,11 +6,11 @@ module SDKConfiguarationFields = {
   let make = (~initialValues: SDKPaymentTypes.paymentType) => {
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
     let disableSelectionForProfile = businessProfiles->HomeUtils.isDefaultBusinessProfile
-
+    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
     let dropDownOptions = HomeUtils.countries->Array.map((item): SelectBox.dropdownOption => {
       {
         label: `${item.countryName} (${item.currency})`,
-        value: `${item.countryName}-${item.currency}`,
+        value: `${item.isoAlpha2}-${item.currency}`,
       }
     })
 
@@ -30,7 +30,7 @@ module SDKConfiguarationFields = {
     )
     let selectCurrencyField = FormRenderer.makeFieldInfo(
       ~label="Currency",
-      ~name="currency",
+      ~name="country_currency",
       ~placeholder="",
       ~customInput=InputFields.selectInput(
         ~options=dropDownOptions,
@@ -74,7 +74,8 @@ module SDKConfiguarationFields = {
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
       <FormRenderer.SubmitButton
         text="Show preview"
-        disabledParamter={!(initialValues.profile_id->LogicUtils.isNonEmptyString)}
+        disabledParamter={initialValues.profile_id->LogicUtils.isEmptyString ||
+          connectorList->Array.length <= 0}
         customSumbitButtonStyle="!mt-5"
       />
     </div>
@@ -93,7 +94,7 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ =>
     defaultBusinessProfile->SDKPaymentUtils.initialValueForForm
   )
-
+  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   React.useEffect1(() => {
     let paymentIntentOptional = filtersFromUrl->Dict.get("payment_intent_client_secret")
     if paymentIntentOptional->Option.isSome {
@@ -161,6 +162,13 @@ let make = () => {
               initialValues
             />
           </div>
+        } else if connectorList->Array.length <= 0 {
+          <HelperComponents.BluredTableComponent
+            infoText={"Connect to a payment processor to make your first payment"}
+            buttonText={"Connect a connector"}
+            moduleName=""
+            onClickUrl={`/connectors`}
+          />
         } else {
           <div className="bg-sidebar-blue flex items-center justify-center h-full">
             <img src={`/assets/BlurrySDK.svg`} />

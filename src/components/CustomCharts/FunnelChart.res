@@ -15,20 +15,29 @@ let make = (
   }, [isMobileView])
   let funnelData =
     data->Array.get(0)->Option.getOr(JSON.Encode.null)->LogicUtils.getDictFromJsonObject
+  let metrics = metrics->Array.filter(metric => {
+    !(metric.disabled->Option.getOr(false))
+  })
   let (hoverIndex, setHoverIndex) = React.useState(_ => -1.)
   let (selectedMetric, setSelectedMetric) = React.useState(_ => Volume)
   let length = metrics->Array.length->Float.fromInt
-  let widths = metrics->Array.mapWithIndex((metric, i) => {
-    let previousMetric = metrics->Array.get(i - 1)
-    let previousMetric = switch previousMetric {
-    | Some(prevMetric) => prevMetric.metric_name_db
-    | None => ""
-    }
-    let currentVol = funnelData->LogicUtils.getInt(metric.metric_name_db, 0)->Float.fromInt
-    let previousVol =
-      funnelData->LogicUtils.getInt(previousMetric, currentVol->Float.toInt)->Float.fromInt
-    Math.log10(currentVol *. 100. /. previousVol) /. 2.0
-  })
+  let widths = React.useMemo1(() => {
+    metrics->Array.mapWithIndex((metric, i) => {
+      let previousMetric = metrics->Array.get(i - 1)
+      let previousMetric = switch previousMetric {
+      | Some(prevMetric) => prevMetric.metric_name_db
+      | None => ""
+      }
+      let funnelData = switch metric.data_transformation_func {
+      | Some(func) => func(funnelData)
+      | None => funnelData
+      }
+      let currentVol = funnelData->LogicUtils.getInt(metric.metric_name_db, 0)->Float.fromInt
+      let previousVol =
+        funnelData->LogicUtils.getInt(previousMetric, currentVol->Float.toInt)->Float.fromInt
+      Math.log10(currentVol *. 100. /. previousVol) /. 2.0
+    })
+  }, [funnelData])
 
   let fixedWidth = ref(size *. 70.)
   let prevMetricVol = ref(None)
@@ -140,7 +149,9 @@ let make = (
                     className={`flex flex-row gap-4 h-full items-center w-max`}
                     style={ReactDOMStyle.make(~marginBottom, ~paddingTop, ())}>
                     <div
-                      className="flex font-semibold text-xl text-black dark:text-white w-max items-start">
+                      className={`flex font-semibold text-xl ${metricVal <= 0.
+                          ? "text-red-400"
+                          : "text-black dark:text-white"} w-max items-start`}>
                       {switch selectedMetric {
                       | Volume =>
                         shortNum(~labelValue=metricVal, ~numberFormat=getDefaultNumberFormat(), ())

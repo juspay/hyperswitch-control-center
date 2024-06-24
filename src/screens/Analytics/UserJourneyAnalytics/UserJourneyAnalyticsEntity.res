@@ -5,16 +5,13 @@ open HSAnalyticsUtils
 open AnalyticsTypes
 let domain = "sdk_events"
 
-// edited
-//// single stat
-
-let singleStateInitialValue = {
+let singleStatInitialValue = {
   payment_attempts: 0,
   sdk_rendered_count: 0,
   average_payment_time: 0.0,
 }
 
-let singleStateSeriesInitialValue = {
+let singleStatSeriesInitialValue = {
   payment_attempts: 0,
   time_series: "",
   sdk_rendered_count: 0,
@@ -30,11 +27,11 @@ let singleStatItemToObjMapper = json => {
     average_payment_time: dict->getFloat("average_payment_time", 0.0) /. 1000.,
   })
   ->Option.getOr({
-    singleStateInitialValue
+    singleStatInitialValue
   })
 }
 
-let singleStateSeriesItemToObjMapper = json => {
+let singleStatSeriesItemToObjMapper = json => {
   json
   ->JSON.Decode.object
   ->Option.map(dict => {
@@ -44,7 +41,7 @@ let singleStateSeriesItemToObjMapper = json => {
     average_payment_time: dict->getFloat("average_payment_time", 0.0)->setPrecision() /. 1000.,
   })
   ->Option.getOr({
-    singleStateSeriesInitialValue
+    singleStatSeriesInitialValue
   })
 }
 
@@ -52,12 +49,12 @@ let itemToObjMapper = json => {
   let data = json->getQueryData->Array.map(singleStatItemToObjMapper)
   switch data[0] {
   | Some(ele) => ele
-  | None => singleStateInitialValue
+  | None => singleStatInitialValue
   }
 }
 
 let timeSeriesObjMapper = json =>
-  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
+  json->getQueryData->Array.map(json => singleStatSeriesItemToObjMapper(json))
 
 type colT =
   | SdkRenderedCount
@@ -274,7 +271,7 @@ let paymentMetricsConfig: array<LineChartUtils.metricsConfig> = [
   },
 ]
 
-let userMetricsConfig: array<LineChartUtils.metricsConfig> = [
+let userJourneyMetricsConfig: array<LineChartUtils.metricsConfig> = [
   {
     metric_name_db: "sdk_rendered_count",
     metric_label: "Volume",
@@ -285,7 +282,7 @@ let userMetricsConfig: array<LineChartUtils.metricsConfig> = [
   },
 ]
 
-let userJourneyMetricsConfig: array<LineChartUtils.metricsConfig> = [
+let userJourneyFunnelMetricsConfig: array<LineChartUtils.metricsConfig> = [
   {
     metric_name_db: "sdk_rendered_count",
     metric_label: "Checkout Page Rendered",
@@ -328,7 +325,7 @@ let userJourneyMetricsConfig: array<LineChartUtils.metricsConfig> = [
   },
 ]
 
-let paymentChartEntity = tabKeys =>
+let commonUserJourneyChartEntity = tabKeys =>
   DynamicChart.makeEntity(
     ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`),
     ~filterKeys=tabKeys,
@@ -356,29 +353,29 @@ let paymentChartEntity = tabKeys =>
     (),
   )
 
-let userChartEntity = tabKeys => {
-  ...paymentChartEntity(tabKeys),
+let userJourneyChartEntity = tabKeys => {
+  ...commonUserJourneyChartEntity(tabKeys),
   uriConfig: [
     {
       uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
       timeSeriesBody: DynamicChart.getTimeSeriesChart,
       legendBody: DynamicChart.getLegendBody,
-      metrics: userMetricsConfig,
+      metrics: userJourneyMetricsConfig,
       timeCol: "time_bucket",
       filterKeys: tabKeys,
     },
   ],
 }
 
-let userBarChartEntity = tabKeys => {
-  ...paymentChartEntity(tabKeys),
+let userJourneyBarChartEntity = tabKeys => {
+  ...commonUserJourneyChartEntity(tabKeys),
   chartTypes: [HorizontalBar],
   uriConfig: [
     {
       uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
       timeSeriesBody: DynamicChart.getTimeSeriesChart,
       legendBody: DynamicChart.getLegendBody,
-      metrics: userMetricsConfig,
+      metrics: userJourneyMetricsConfig,
       timeCol: "time_bucket",
       filterKeys: tabKeys,
     },
@@ -386,14 +383,14 @@ let userBarChartEntity = tabKeys => {
 }
 
 let userJourneyFunnelChartEntity = tabKeys => {
-  ...paymentChartEntity(tabKeys),
+  ...commonUserJourneyChartEntity(tabKeys),
   chartTypes: [Funnel],
   uriConfig: [
     {
       uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
       timeSeriesBody: DynamicChart.getTimeSeriesChart,
       legendBody: DynamicChart.getLegendBody,
-      metrics: userJourneyMetricsConfig,
+      metrics: userJourneyFunnelMetricsConfig,
       timeCol: "time_bucket",
       filterKeys: tabKeys,
     },

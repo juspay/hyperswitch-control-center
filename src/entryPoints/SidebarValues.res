@@ -104,18 +104,34 @@ let customers = permissionJson => {
   })
 }
 
-let operations = (isOperationsEnabled, ~permissionJson) => {
+let payouts = permissionJson => {
+  SubLevelLink({
+    name: "Payouts",
+    link: `/payouts`,
+    access: permissionJson.operationsView,
+    searchOptions: [("View payouts operations", "")],
+  })
+}
+
+let operations = (isOperationsEnabled, ~permissionJson, ~isPayoutsEnabled) => {
   let payments = payments(permissionJson)
   let refunds = refunds(permissionJson)
   let disputes = disputes(permissionJson)
   let customers = customers(permissionJson)
+  let payouts = payouts(permissionJson)
+
+  let links = [payments, refunds, disputes, customers]
+
+  if isPayoutsEnabled {
+    links->Array.push(payouts)->ignore
+  }
 
   isOperationsEnabled
     ? Section({
         name: "Operations",
         icon: "hswitch-operations",
         showSection: true,
-        links: [payments, refunds, disputes, customers],
+        links,
       })
     : emptyComponent
 }
@@ -227,9 +243,18 @@ let userJourneyAnalytics = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
+let authenticationAnalytics = SubLevelLink({
+  name: "Authentication",
+  link: `/analytics-authentication`,
+  access: Access,
+  iconTag: "betaTag",
+  searchOptions: [("View analytics", "")],
+})
+
 let analytics = (
   isAnalyticsEnabled,
   userJourneyAnalyticsFlag,
+  authenticationAnalyticsFlag,
   disputeAnalyticsFlag,
   ~permissionJson,
 ) => {
@@ -237,6 +262,10 @@ let analytics = (
 
   if userJourneyAnalyticsFlag {
     links->Array.push(userJourneyAnalytics)
+  }
+
+  if authenticationAnalyticsFlag {
+    links->Array.push(authenticationAnalytics)
   }
 
   if disputeAnalyticsFlag {
@@ -461,6 +490,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     sampleData,
     systemMetrics,
     userJourneyAnalytics: userJourneyAnalyticsFlag,
+    authenticationAnalytics: authenticationAnalyticsFlag,
     surcharge: isSurchargeEnabled,
     isLiveMode,
     threedsAuthenticator,
@@ -472,7 +502,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   let sidebar = [
     productionAccessComponent(quickStart),
     default->home,
-    default->operations(~permissionJson),
+    default->operations(~permissionJson, ~isPayoutsEnabled=payOut),
     default->connectors(
       ~isLiveMode,
       ~isFrmEnabled=frm,
@@ -480,7 +510,12 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~isThreedsConnectorEnabled=threedsAuthenticator,
       ~permissionJson,
     ),
-    default->analytics(userJourneyAnalyticsFlag, disputeAnalytics, ~permissionJson),
+    default->analytics(
+      userJourneyAnalyticsFlag,
+      authenticationAnalyticsFlag,
+      disputeAnalytics,
+      ~permissionJson,
+    ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
     recon->reconTag(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),

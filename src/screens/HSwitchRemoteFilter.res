@@ -7,7 +7,7 @@ let formateDateString = date => {
   date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]")
 }
 
-let getDateFilteredObject = () => {
+let getDateFilteredObject = (~range=7, ()) => {
   let currentDate = Date.make()
 
   let end_time = currentDate->formateDateString
@@ -19,7 +19,7 @@ let getDateFilteredObject = () => {
       ~date=currentDate->Js.Date.getDate,
       (),
     )
-    ->Js.Date.setDate((currentDate->Js.Date.getDate->Float.toInt - 7)->Int.toFloat)
+    ->Js.Date.setDate((currentDate->Js.Date.getDate->Float.toInt - range)->Int.toFloat)
     ->Js.Date.fromFloat
     ->formateDateString
 
@@ -29,19 +29,27 @@ let getDateFilteredObject = () => {
   }
 }
 
-let useSetInitialFilters = (~updateExistingKeys, ~startTimeFilterKey, ~endTimeFilterKey) => {
+let useSetInitialFilters = (
+  ~updateExistingKeys,
+  ~startTimeFilterKey,
+  ~endTimeFilterKey,
+  ~range=7,
+  ~origin,
+  (),
+) => {
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
     let inititalSearchParam = Dict.make()
 
-    let defaultDate = getDateFilteredObject()
+    let defaultDate = getDateFilteredObject(~range, ())
 
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
-      [
-        (startTimeFilterKey, defaultDate.start_time),
-        (endTimeFilterKey, defaultDate.end_time),
-      ]->Array.forEach(item => {
+      let timeRange =
+        origin !== "analytics"
+          ? [(startTimeFilterKey, defaultDate.start_time)]
+          : [(startTimeFilterKey, defaultDate.start_time), (endTimeFilterKey, defaultDate.end_time)]
+      timeRange->Array.forEach(item => {
         let (key, defaultValue) = item
         switch inititalSearchParam->Dict.get(key) {
         | Some(_) => ()
@@ -108,9 +116,9 @@ module SearchBarFilter = {
 }
 
 module RemoteTableFilters = {
-  open LogicUtils
   @react.component
   let make = (
+    ~apiType=Fetch.Get,
     ~filterUrl,
     ~setFilters,
     ~endTimeFilterKey,
@@ -121,9 +129,11 @@ module RemoteTableFilters = {
     ~customLeftView,
     (),
   ) => {
+    open LogicUtils
     let {filterValue, updateExistingKeys, filterValueJson, reset} =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
+    let showToast = ToastState.useShowToast()
 
     React.useEffect0(() => {
       if filterValueJson->Dict.keysToArray->Array.length === 0 {
@@ -133,41 +143,57 @@ module RemoteTableFilters = {
       None
     })
 
-    let endTimeVal = filterValueJson->getString(endTimeFilterKey, "")
-    let startTimeVal = filterValueJson->getString(startTimeFilterKey, "")
-
-    let filterBody = React.useMemo3(() => {
-      [
-        (startTimeFilterKey, startTimeVal->JSON.Encode.string),
-        (endTimeFilterKey, endTimeVal->JSON.Encode.string),
-      ]->Dict.fromArray
-    }, (startTimeVal, endTimeVal, filterValue))
-
     open APIUtils
 
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
     let updateDetails = useUpdateMethod()
-    let {filterValueJson} = FilterContext.filterContext->React.useContext
-    let startTimeVal = filterValueJson->getString("start_time", "")
-    let endTimeVal = filterValueJson->getString("end_time", "")
+    let defaultDate = getDateFilteredObject(~range=30, ())
+    let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
+    let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
+    let fetchDetails = useGetMethod()
 
-    let getFilters = async () => {
-      let json = await updateDetails(filterUrl, filterBody->JSON.Encode.object, Post, ())
-      setFilterDataJson(_ => json->Some)
+    let fetchAllFilters = async () => {
+      try {
+        setFilterDataJson(_ => None)
+        let response = switch apiType {
+        | Post => {
+            let body =
+              [
+                (startTimeFilterKey, start_time->JSON.Encode.string),
+                (endTimeFilterKey, end_time->JSON.Encode.string),
+              ]->getJsonFromArrayOfJson
+            await updateDetails(filterUrl, body, Fetch.Post, ())
+          }
+        | _ => await fetchDetails(filterUrl)
+        }
+        setFilterDataJson(_ => response->Some)
+      } catch {
+      | _ => showToast(~message="Failed to load filters", ~toastType=ToastError, ())
+      }
     }
 
-    React.useEffect3(() => {
-      setFilterDataJson(_ => None)
-      if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-        try {
-          getFilters()->ignore
-        } catch {
-        | _ => ()
-        }
+    React.useEffect0(() => {
+      fetchAllFilters()->ignore
+      None
+    })
+
+    let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
+
+    let setInitialFilters = useSetInitialFilters(
+      ~updateExistingKeys,
+      ~startTimeFilterKey,
+      ~endTimeFilterKey,
+      ~range=30,
+      ~origin="orders",
+      (),
+    )
+
+    React.useEffect1(() => {
+      if filterValueJson->Dict.keysToArray->Array.length < 1 {
+        setInitialFilters()
       }
       None
-    }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
-    let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
+    }, [filterValueJson])
 
     React.useEffect1(() => {
       if filterValueJson->Dict.keysToArray->Array.length != 0 {
@@ -180,7 +206,19 @@ module RemoteTableFilters = {
       None
     }, [filterValue])
 
-    let remoteFilters = filterData->initialFilters
+    let getAllFilter =
+      filterValue
+      ->Dict.toArray
+      ->Array.map(item => {
+        let (key, value) = item
+        (key, value->UrlFetchUtils.getFilterValue)
+      })
+      ->Dict.fromArray
+
+    let remoteFilters = React.useMemo1(() => {
+      filterData->initialFilters(getAllFilter)
+    }, [getAllFilter])
+
     let initialDisplayFilters =
       remoteFilters->Array.filter((item: EntityType.initialFilters<'t>) =>
         item.localFilter->Option.isSome
