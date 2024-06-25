@@ -53,7 +53,7 @@ let setDetailsToLocalStorage = (json, key) => {
 
 let getPreLoginDetailsFromLocalStorage = () => {
   open LogicUtils
-  let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
+  let json = LocalStorage.getItem("PRE_LOGIN_INFO")->getValFromNullableValue("")->safeParse
   json->getPreLoginInfo
 }
 
