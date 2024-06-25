@@ -1,5 +1,3 @@
-// @val external sessionStorage: sessionStorage = "sessionStorage"
-
 type filterUpdater = {
   query: string,
   filterValue: Dict.t<string>,
