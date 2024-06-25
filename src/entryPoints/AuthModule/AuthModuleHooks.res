@@ -5,7 +5,7 @@ let useAuthMethods = () => {
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   async () => {
     try {
-      let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
+      let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
       let authListUrl = getURL(
         ~entityName=USERS,
         ~userType=#GET_AUTH_LIST,
