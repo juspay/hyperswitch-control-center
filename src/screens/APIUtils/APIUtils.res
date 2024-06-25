@@ -237,7 +237,6 @@ let useGetURL = () => {
       | #CREATE_MERCHANT
       | #PERMISSION_INFO
       | #ACCEPT_INVITE_FROM_EMAIL
-      | #GET_AUTH_LIST
       | #ROTATE_PASSWORD =>
         `${userUrl}/${(userType :> string)->String.toLowerCase}`
       | #SIGNINV2_TOKEN_ONLY => `${userUrl}/v2/signin?token_only=true`
@@ -254,6 +253,7 @@ let useGetURL = () => {
       | #TERMINATE_TWO_FACTOR_AUTH => `${userUrl}/2fa/terminate`
       | #CHECK_TWO_FACTOR_AUTH_STATUS => `${userUrl}/2fa`
       | #RESET_TOTP => `${userUrl}/2fa/totp/reset`
+      | #GET_AUTH_LIST => `${userUrl}/auth/list`
       | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
         `${userUrl}/accept_invite_from_email?token_only=true`
       | #USER_INFO => userUrl

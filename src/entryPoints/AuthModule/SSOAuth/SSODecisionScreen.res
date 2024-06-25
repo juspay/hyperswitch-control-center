@@ -4,7 +4,10 @@ module SSOFromEmail = {
     open FramerMotion.Motion
     open CommonAuthTypes
     open AuthProviderTypes
+    open APIUtils
 
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod(~showErrorToast=false, ())
     let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
     let (logoVariant, iconUrl) = switch Window.env.logoUrl {
     | Some(url) => (IconWithURL, Some(url))
@@ -15,11 +18,18 @@ module SSOFromEmail = {
 
     let getAuthMethods = async () => {
       try {
-        // TODO : add get auth details API
-        // setAuthMethods(_ => [#Email_Password, #Okta])
-        ()
+        open LogicUtils
+        // TODO : add query_param for auth_id in the below API
+        let authListUrl = getURL(~entityName=USERS, ~userType=#GET_AUTH_LIST, ~methodType=Get, ())
+        let listOfAuthMethods = await fetchDetails(authListUrl)
+        let arrayFromJson = listOfAuthMethods->getArrayFromJson([])
+        if arrayFromJson->Array.length === 0 {
+          setAuthMethods(_ => AuthUtils.defaultListOfAuth)
+        } else {
+          setAuthMethods(_ => arrayFromJson->SSOUtils.getAuthVariants)
+        }
       } catch {
-      | _ => ()
+      | _ => setAuthMethods(_ => AuthUtils.defaultListOfAuth)
       }
     }
 

@@ -107,7 +107,7 @@ let make = (~children) => {
   let getAuthMethods = async () => {
     try {
       open LogicUtils
-
+      // TODO : add query_param for auth_id in the below API
       let authListUrl = getURL(~entityName=USERS, ~userType=#GET_AUTH_LIST, ~methodType=Get, ())
       let listOfAuthMethods = await fetchDetails(authListUrl)
       let arrayFromJson = listOfAuthMethods->getArrayFromJson([])
@@ -122,6 +122,7 @@ let make = (~children) => {
   }
 
   React.useEffect1(() => {
+    // TODO: call this method only when auth_id is present in the URL
     if authStatus === LoggedOut {
       getAuthMethods()->ignore
     }
