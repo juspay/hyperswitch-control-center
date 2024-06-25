@@ -3,6 +3,52 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.24.0
+
+### Miscellaneous Tasks
+
+- Showing all payment method types in filters ([#841](https://github.com/juspay/hyperswitch-control-center/pull/841)) ([`d5a93aa`](https://github.com/juspay/hyperswitch-control-center/commit/d5a93aacd0c52f0237f9a0a2a3aafe9d1c5992ba))
+
+**Full Changelog:** [`2024.06.21.0...2024.06.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.21.0...2024.06.24.0)
+
+- - -
+
+## 2024.06.21.0
+
+### Bug Fixes
+
+- Verify email flow ([#855](https://github.com/juspay/hyperswitch-control-center/pull/855)) ([`1fbfbd3`](https://github.com/juspay/hyperswitch-control-center/commit/1fbfbd3ed4a9ca550d231f22d5e3ef3273e3066b))
+
+**Full Changelog:** [`2024.06.20.1...2024.06.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.20.1...2024.06.21.0)
+
+- - -
+
+## 2024.06.20.1
+
+### Miscellaneous Tasks
+
+- Map the display name to label ([#853](https://github.com/juspay/hyperswitch-control-center/pull/853)) ([`72e6927`](https://github.com/juspay/hyperswitch-control-center/commit/72e69271f7e3847bbc37466d755f636333718266))
+
+**Full Changelog:** [`2024.06.20.0...2024.06.20.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.20.0...2024.06.20.1)
+
+- - -
+
+## 2024.06.20.0
+
+### Features
+
+- Add boolean field to collect shipping details ([#783](https://github.com/juspay/hyperswitch-control-center/pull/783)) ([`5e7c3c7`](https://github.com/juspay/hyperswitch-control-center/commit/5e7c3c792700c41bbb0b1cec207c300aae6b85d6))
+
+### Miscellaneous Tasks
+
+- Card network changes and customer details card ([#837](https://github.com/juspay/hyperswitch-control-center/pull/837)) ([`4df01b5`](https://github.com/juspay/hyperswitch-control-center/commit/4df01b524fe67ee5a6e5244e5669cc8dec644bfe))
+- Sso decision screen addition ([#836](https://github.com/juspay/hyperswitch-control-center/pull/836)) ([`cdd769c`](https://github.com/juspay/hyperswitch-control-center/commit/cdd769c46fb1b856930a2b184a5a1df400b2f5d2))
+- Allow user to enter apple pay label ([#852](https://github.com/juspay/hyperswitch-control-center/pull/852)) ([`282c746`](https://github.com/juspay/hyperswitch-control-center/commit/282c7466b0e54d233722c6ab7676ce9edebe99d6))
+
+**Full Changelog:** [`2024.06.19.2...2024.06.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.19.2...2024.06.20.0)
+
+- - -
+
 ## 2024.06.19.2
 
 ### Miscellaneous Tasks

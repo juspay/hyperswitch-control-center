@@ -1,8 +1,4 @@
-let storeEmailTokenTmp = emailToken => {
-  LocalStorage.setItem("email_token", emailToken)
-}
-
-let getAuthInfo = (~email_token=None, json) => {
+let getAuthInfo = json => {
   open LogicUtils
   open AuthProviderTypes
   let dict = json->JsonFlattenUtils.flattenObject(false)
@@ -19,9 +15,62 @@ let getAuthInfo = (~email_token=None, json) => {
       HSwitchGlobalVars.maximumRecoveryCodes,
     ),
   }
-  switch email_token {
-  | Some(emailTk) => emailTk->storeEmailTokenTmp
-  | None => ()
-  }
   totpInfo
 }
+// Need to clear this clear this token after successful login
+let storeEmailTokenTmp = emailToken => {
+  LocalStorage.setItem("email_token", emailToken)
+}
+
+let getEmailTmpToken = () => {
+  LocalStorage.getItem("email_token")->Nullable.toOption
+}
+
+let getEmailTokenValue = email_token => {
+  switch email_token {
+  | Some(str) => {
+      str->storeEmailTokenTmp
+      email_token
+    }
+  | None => getEmailTmpToken()
+  }
+}
+
+let getPreLoginInfo = (~email_token=None, json) => {
+  open LogicUtils
+  let dict = json->JsonFlattenUtils.flattenObject(false)
+  let preLoginInfo: AuthProviderTypes.preLoginType = {
+    token: getString(dict, "token", ""),
+    token_type: dict->getString("token_type", ""),
+    email_token: getEmailTokenValue(email_token),
+  }
+  preLoginInfo
+}
+
+let setDetailsToLocalStorage = (json, key) => {
+  LocalStorage.setItem(key, json->JSON.stringifyAny->Option.getOr(""))
+}
+
+let getPreLoginDetailsFromLocalStorage = () => {
+  open LogicUtils
+  let json = LocalStorage.getItem("PRE_LOGIN_INFO")->getValFromNullableValue("")->safeParse
+  json->getPreLoginInfo
+}
+
+let getUserInfoDetailsFromLocalStorage = () => {
+  open LogicUtils
+  let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
+  json->getAuthInfo
+}
+
+let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
+  {
+    id: "dummyId",
+    auth_id: "dummyAuthId",
+    auth_method: {
+      \"type": PASSWORD,
+      name: #Email_Password,
+    },
+    allow_signup: true,
+  },
+]
