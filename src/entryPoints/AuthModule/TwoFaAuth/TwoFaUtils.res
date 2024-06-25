@@ -1,19 +1,3 @@
-let setTotpAuthResToStorage = (json, key) => {
-  LocalStorage.setItem(key, json->JSON.stringifyAny->Option.getOr(""))
-}
-
-let getTotpPreLoginInfoFromStorage = () => {
-  open LogicUtils
-  let json = LocalStorage.getItem("PRE_LOGIN_INFO")->getValFromNullableValue("")->safeParse
-  json->AuthUtils.getPreLoginInfo
-}
-
-let getTotpAuthInfoFromStrorage = () => {
-  open LogicUtils
-  let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
-  json->AuthUtils.getAuthInfo
-}
-
 let getEmailToken = (authStatus: AuthProviderTypes.authStatus) => {
   switch authStatus {
   | PreLogin(preLoginValue) => preLoginValue.email_token

@@ -46,3 +46,19 @@ let getPreLoginInfo = (~email_token=None, json) => {
   }
   preLoginInfo
 }
+
+let setDetailsToLocalStorage = (json, key) => {
+  LocalStorage.setItem(key, json->JSON.stringifyAny->Option.getOr(""))
+}
+
+let getPreLoginDetailsFromLocalStorage = () => {
+  open LogicUtils
+  let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
+  json->getPreLoginInfo
+}
+
+let getUserInfoDetailsFromLocalStorage = () => {
+  open LogicUtils
+  let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
+  json->getAuthInfo
+}

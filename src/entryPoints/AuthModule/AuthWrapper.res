@@ -50,10 +50,10 @@ let make = (~children) => {
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let authLogic = () => {
-    open TwoFaUtils
+    open AuthUtils
     open LogicUtils
-    let preLoginInfo = getTotpPreLoginInfoFromStorage()
-    let loggedInInfo = getTotpAuthInfoFromStrorage()
+    let preLoginInfo = getPreLoginDetailsFromLocalStorage()
+    let loggedInInfo = getUserInfoDetailsFromLocalStorage()
 
     if (
       loggedInInfo.token->isNonEmptyString &&
