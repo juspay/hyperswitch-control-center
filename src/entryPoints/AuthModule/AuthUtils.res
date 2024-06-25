@@ -62,3 +62,15 @@ let getUserInfoDetailsFromLocalStorage = () => {
   let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
   json->getAuthInfo
 }
+
+let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
+  {
+    id: "dummyId",
+    auth_id: "dummyAuthId",
+    auth_method: {
+      \"type": PASSWORD,
+      name: #Email_Password,
+    },
+    allow_signup: true,
+  },
+]

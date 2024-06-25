@@ -4,22 +4,32 @@ module SSOFromEmail = {
     open FramerMotion.Motion
     open CommonAuthTypes
     open AuthProviderTypes
+    open APIUtils
 
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod(~showErrorToast=false, ())
     let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
     let (logoVariant, iconUrl) = switch Window.env.logoUrl {
     | Some(url) => (IconWithURL, Some(url))
     | _ => (IconWithText, None)
     }
 
-    let (authMethods, setAuthMethods) = React.useState(_ => [#Email_Password])
+    let (authMethods, setAuthMethods) = React.useState(_ => AuthUtils.defaultListOfAuth)
 
     let getAuthMethods = async () => {
       try {
-        // TODO : add get auth details API
-        // setAuthMethods(_ => [#Email_Password, #Okta])
-        ()
+        open LogicUtils
+        // TODO : add query_param for auth_id in the below API
+        let authListUrl = getURL(~entityName=USERS, ~userType=#GET_AUTH_LIST, ~methodType=Get, ())
+        let listOfAuthMethods = await fetchDetails(authListUrl)
+        let arrayFromJson = listOfAuthMethods->getArrayFromJson([])
+        if arrayFromJson->Array.length === 0 {
+          setAuthMethods(_ => AuthUtils.defaultListOfAuth)
+        } else {
+          setAuthMethods(_ => arrayFromJson->SSOUtils.getAuthVariants)
+        }
       } catch {
-      | _ => ()
+      | _ => setAuthMethods(_ => AuthUtils.defaultListOfAuth)
       }
     }
 
@@ -38,18 +48,27 @@ module SSOFromEmail = {
       None
     })
 
-    let renderComponentForAuthTypes = (method: SSOTypes.authMethodTypes) =>
-      switch method {
-      | #Email_Password =>
+    let renderComponentForAuthTypes = (method: SSOTypes.authMethodResponseType) => {
+      let authMethodType = method.auth_method.\"type"
+      let authMethodName = method.auth_method.name
+
+      switch (authMethodType, authMethodName) {
+      | (PASSWORD, #Email_Password) =>
         <Button
           text="Continue with Hyperswitch"
           buttonType={Primary}
           buttonSize={Large}
           onClick={_ => handleContinueWithHs()->ignore}
         />
-      | #Okta | #Google | #Github =>
-        <Button text={`Login with ${(method :> string)}`} buttonType={PrimaryOutline} />
+      | (OPEN_ID_CONNECT, #Okta) | (OPEN_ID_CONNECT, #Google) | (OPEN_ID_CONNECT, #Github) =>
+        <Button
+          text={`Login with ${(authMethodName :> string)}`}
+          buttonType={PrimaryOutline}
+          onClick={_ => handleContinueWithHs()->ignore}
+        />
+      | (_, _) => React.null
       }
+    }
 
     <HSwitchUtils.BackgroundImageWrapper
       customPageCss="flex flex-col items-center  overflow-scroll ">
@@ -106,7 +125,7 @@ let make = () => {
 
   let url = RescriptReactRouter.useUrl()
   let path = url.path->List.toArray->Array.joinWith("/")
-  let (localSSOState, setLocalSSOState) = React.useState(_ => SSO_FROM_EMAIL)
+  let (localSSOState, setLocalSSOState) = React.useState(_ => LOADING)
 
   React.useEffect1(() => {
     if path->String.includes("redirect_from_sso") {
@@ -118,5 +137,6 @@ let make = () => {
   switch localSSOState {
   | SSO_FROM_REDIRECT => <SSOFromRedirect />
   | SSO_FROM_EMAIL => <SSOFromEmail />
+  | LOADING => <PageLoaderWrapper.ScreenLoader />
   }
 }
