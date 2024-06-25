@@ -237,7 +237,7 @@ let make = () => {
     RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
   }
 
-  let useHandleNavigation = async (~forward: bool) => {
+  let handleNavigation = async (~forward: bool) => {
     let enums = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
     let isAnyConnectorConfigured =
       enums.firstProcessorConnected.processorID->LogicUtils.isNonEmptyString
@@ -309,10 +309,9 @@ let make = () => {
     />
     <div className="flex-1 flex flex-col items-center justify-center ml-12">
       {switch stepInView {
-      | PLUGIN_INSTALL => <InstallPlugin handleNavigation=useHandleNavigation title description />
-      | PLUGIN_CONFIGURE =>
-        <ConfigurePlugin handleNavigation=useHandleNavigation title description />
-      | WEBHOOK_SETUP => <ConfigureWebHook handleNavigation=useHandleNavigation title description />
+      | PLUGIN_INSTALL => <InstallPlugin handleNavigation title description />
+      | PLUGIN_CONFIGURE => <ConfigurePlugin handleNavigation title description />
+      | WEBHOOK_SETUP => <ConfigureWebHook handleNavigation title description />
       | PROCESSOR_SETUP =>
         switch connectorConfigureState {
         | Select_processor =>
@@ -342,7 +341,7 @@ let make = () => {
             backButton={<Button
               text="Back"
               buttonType={PrimaryOutline}
-              onClick={_ => useHandleNavigation(~forward={false})->ignore}
+              onClick={_ => handleNavigation(~forward={false})->ignore}
             />}
             nextButton={<Button
               text="Continue & Proceed"
@@ -350,7 +349,7 @@ let make = () => {
               buttonState
               customButtonStyle="rounded-md"
               buttonType={Primary}
-              onClick={_ => useHandleNavigation(~forward={true})->ignore}
+              onClick={_ => handleNavigation(~forward={true})->ignore}
             />}>
             <ConnectorPreview.ConnectorSummaryGrid
               connectorInfo={initialValues
