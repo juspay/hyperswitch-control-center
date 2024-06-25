@@ -1,11 +1,3 @@
-type sessionStorage = {
-  getItem: (. string) => Nullable.t<string>,
-  setItem: (. string, string) => unit,
-  removeItem: (. string) => unit,
-}
-
-@val external sessionStorage: sessionStorage = "sessionStorage"
-
 type filterUpdater = {
   query: string,
   filterValue: Dict.t<string>,
@@ -38,6 +30,7 @@ module Provider = {
 let make = (~index: string, ~children) => {
   open FilterUtils
   open LogicUtils
+  open SessionStorage
   let query = React.useMemo0(() => {ref("")})
   let (filterKeys, setfilterKeys) = React.useState(_ => [])
   let searcParamsToDict = query.contents->parseFilterString

@@ -65,7 +65,8 @@ module HyperSwitchEntryComponent = {
     }
     // Need to modify based on the usedcase
     let getDomain = () => {
-      SessionStorage.getItemFromSession("domain")->LogicUtils.getValFromNullableValue("default")
+      open SessionStorage
+      sessionStorage.getItem(. "domain")->LogicUtils.getValFromNullableValue("default")
     }
 
     let fetchConfig = async () => {
@@ -86,6 +87,7 @@ module HyperSwitchEntryComponent = {
     }
 
     React.useEffect0(() => {
+      let _ = HyperSwitchEntryUtils.setSessionData(~key="auth_id", ~searchParams=url.search)
       let _ = fetchConfig()->ignore
       None
     })

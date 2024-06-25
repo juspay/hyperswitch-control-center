@@ -1,12 +1,4 @@
-open Promise
-type sessionStorage = {
-  getItem: (. string) => Nullable.t<string>,
-  setItem: (. string, string) => unit,
-  removeItem: (. string) => unit,
-}
 type contentType = Headers(string) | Unknown
-
-@val external sessionStorage: sessionStorage = "sessionStorage"
 
 let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ~token, ()) => {
   let isMixpanel = uri->String.includes("mixpanel")
@@ -41,6 +33,7 @@ type betaEndpoint = {
 }
 
 let useApiFetcher = () => {
+  open Promise
   let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let token = React.useMemo1(() => {
