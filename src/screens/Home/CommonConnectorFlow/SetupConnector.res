@@ -183,7 +183,7 @@ module SelectPaymentMethods = {
     let getURL = APIUtils.useGetURL()
     let showToast = ToastState.useShowToast()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
+    let postEnumDetails = EnumVariantHook.usePostEnumDetails()
     let connectorName = selectedConnector->getConnectorNameString
 
     let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
@@ -203,7 +203,7 @@ module SelectPaymentMethods = {
           processorName: connectorResponse->getString("connector_name", ""),
         }
         let enumVariant = quickStartPageState->variantToEnumMapper
-        let _ = await ProcesorType(processorVal)->usePostEnumDetails(enumVariant)
+        let _ = await ProcesorType(processorVal)->postEnumDetails(enumVariant)
       } catch {
       | _ => setButtonState(_ => Button.Normal)
       }
