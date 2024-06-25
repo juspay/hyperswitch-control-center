@@ -666,8 +666,7 @@ let make = (
             </AddDataAttributes>
 
           if showBtnTextToolTip {
-            <div
-              className={`${ellipsisParentClass} !opacity-100 !text-opacity-100 !bg-opacity-100`}>
+            <div className=ellipsisParentClass>
               <ToolTip
                 description={tooltipText->Option.getOr("")}
                 toolTipFor=btnContent
