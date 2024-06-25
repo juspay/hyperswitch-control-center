@@ -50,7 +50,7 @@ module BaseTableComponent = {
           <div className="relative">
             <div
               className="absolute font-bold text-xl bg-white w-full text-black text-opacity-75 dark:bg-jp-gray-950 dark:text-white dark:text-opacity-75">
-              {React.string("Summary Table")}
+              {React.string("Payments Summary")}
             </div>
             <LoadedTable
               visibleColumns

@@ -155,7 +155,7 @@ let make = () => {
       <FilterContext
         key="payments_analytics_general_metrics" index="payments_analytics_general_metrics">
         <MetricsState
-          heading="General Metrics"
+          heading="Payments Overview"
           singleStatEntity={getSingleStatEntity(
             generalMetrics->formatMetrics,
             generalMetricsColumns,
@@ -173,7 +173,7 @@ let make = () => {
       </FilterContext>
       <FilterContext key="payments_analytics_amount" index="payments_analytics_amount">
         <MetricsState
-          heading="Amount"
+          heading="Amount Metrics"
           singleStatEntity={getSingleStatEntity(
             analyticsAmountMetrics->formatMetrics,
             amountMetricsColumns,
@@ -235,7 +235,7 @@ let make = () => {
           filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
           startTimeFilterKey
           endTimeFilterKey
-          heading="Overall Summary"
+          heading="Payments Trends"
         />
       </FilterContext>
     </div>
