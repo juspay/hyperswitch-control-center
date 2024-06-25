@@ -21,6 +21,9 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
       if !Js.Re.test_(%re("/^(?=.*[!@#$%^&*_])/"), value) {
         mustHave->Array.push("special")
       }
+      if Js.Re.test_(%re("/\s/"), value) {
+        Dict.set(errors, key, `Password should not contain whitespaces.`->JSON.Encode.string)
+      }
       if mustHave->Array.length > 0 {
         Dict.set(
           errors,
