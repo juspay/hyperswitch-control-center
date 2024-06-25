@@ -38,8 +38,6 @@ let make = (~auth_id) => {
   let path = url.path->List.toArray->Array.joinWith("/")
   let (localSSOState, setLocalSSOState) = React.useState(_ => LOADING)
 
-  Js.log2("sso decision screen", auth_id)
-
   React.useEffect1(() => {
     if path->String.includes("user/redirect") {
       setLocalSSOState(_ => SSO_FROM_REDIRECT)
