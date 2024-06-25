@@ -14,6 +14,7 @@ let make = () => {
   }
   let userInfo = async () => {
     open LogicUtils
+    open HSLocalStorage
 
     try {
       let url = getURL(~entityName=USERS, ~userType=#USER_INFO, ~methodType=Get, ())
@@ -23,6 +24,8 @@ let make = () => {
       let info = AuthUtils.getAuthInfo(dict->JSON.Encode.object)
       setAuthStatus(LoggedIn(Auth(info)))
       setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
+      removeItemFromLocalStorage(~key="PRE_LOGIN_INFO")
+      removeItemFromLocalStorage(~key="email_token")
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) => {

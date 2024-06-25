@@ -92,5 +92,6 @@ type userType = [
   | #TERMINATE_TWO_FACTOR_AUTH
   | #CHECK_TWO_FACTOR_AUTH_STATUS
   | #RESET_TOTP
+  | #GET_AUTH_LIST
   | #NONE
 ]
