@@ -1,6 +1,6 @@
 open SessionStorage
+open LogicUtils
 let setSessionData = (~key, ~searchParams) => {
-  open LogicUtils
   let result = searchParams->getDictFromUrlSearchParams->Dict.get(key)
   switch result {
   | Some(data) => sessionStorage.setItem(. key, data)
@@ -8,6 +8,10 @@ let setSessionData = (~key, ~searchParams) => {
   }
 }
 
-let getSessionData = (~key) => {
-  sessionStorage.getItem(. key)->Nullable.toOption->Option.getOr("")
+let getSessionData = (~key, ~defaultValue="", ()) => {
+  let result = sessionStorage.getItem(. key)->Nullable.toOption->Option.getOr("")->getNonEmptyString
+  switch result {
+  | Some(data) => data
+  | None => defaultValue
+  }
 }
