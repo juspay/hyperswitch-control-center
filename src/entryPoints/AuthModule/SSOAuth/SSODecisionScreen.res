@@ -4,10 +4,7 @@ module SSOFromEmail = {
     open FramerMotion.Motion
     open CommonAuthTypes
     open AuthProviderTypes
-    open APIUtils
-
-    let getURL = useGetURL()
-    let fetchDetails = useGetMethod(~showErrorToast=false, ())
+    let fetchAuthMethods = AuthModuleHooks.useAuthMethods()
     let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
     let (logoVariant, iconUrl) = switch Window.env.logoUrl {
     | Some(url) => (IconWithURL, Some(url))
@@ -18,11 +15,7 @@ module SSOFromEmail = {
 
     let getAuthMethods = async () => {
       try {
-        open LogicUtils
-        // TODO : add query_param for auth_id in the below API
-        let authListUrl = getURL(~entityName=USERS, ~userType=#GET_AUTH_LIST, ~methodType=Get, ())
-        let listOfAuthMethods = await fetchDetails(authListUrl)
-        let arrayFromJson = listOfAuthMethods->getArrayFromJson([])
+        let arrayFromJson = await fetchAuthMethods()
         if arrayFromJson->Array.length === 0 {
           setAuthMethods(_ => AuthUtils.defaultListOfAuth)
         } else {
@@ -36,7 +29,7 @@ module SSOFromEmail = {
     let handleContinueWithHs = async () => {
       try {
         // TODO : add API to get the  next flow
-        let preLoginInfo = TwoFaUtils.getTotpPreLoginInfoFromStorage()
+        let preLoginInfo = AuthUtils.getPreLoginDetailsFromLocalStorage()
         setAuthStatus(PreLogin(preLoginInfo))
       } catch {
       | _ => ()

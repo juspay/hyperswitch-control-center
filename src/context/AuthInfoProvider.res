@@ -42,7 +42,7 @@ let make = (~children) => {
       | Auth(totpInfo) =>
         if !(totpInfo.token->LogicUtils.isEmptyString) {
           setAuth(_ => newAuthStatus)
-          TwoFaUtils.setTotpAuthResToStorage(totpInfo)
+          AuthUtils.setDetailsToLocalStorage(totpInfo, "USER_INFO")
         } else {
           setAuth(_ => LoggedOut)
           CommonAuthUtils.clearLocalStorage()
@@ -51,7 +51,7 @@ let make = (~children) => {
     | PreLogin(preLoginInfo) =>
       if !(preLoginInfo.token->LogicUtils.isEmptyString) {
         setAuth(_ => newAuthStatus)
-        TwoFaUtils.setTotpAuthResToStorage(preLoginInfo)
+        AuthUtils.setDetailsToLocalStorage(preLoginInfo, "PRE_LOGIN_INFO")
       } else {
         setAuth(_ => LoggedOut)
         CommonAuthUtils.clearLocalStorage()
