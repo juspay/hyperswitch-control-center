@@ -17,7 +17,6 @@ let getAuthInfo = json => {
   }
   totpInfo
 }
-// Need to clear this clear this token after successful login
 let storeEmailTokenTmp = emailToken => {
   LocalStorage.setItem("email_token", emailToken)
 }
@@ -26,23 +25,42 @@ let getEmailTmpToken = () => {
   LocalStorage.getItem("email_token")->Nullable.toOption
 }
 
+let storeCodeValue = emailToken => {
+  LocalStorage.setItem("code", emailToken)
+}
+
+let getCodeValueFromStorage = () => {
+  LocalStorage.getItem("code")->Nullable.toOption
+}
+
 let getEmailTokenValue = email_token => {
   switch email_token {
   | Some(str) => {
-      str->storeEmailTokenTmp
+      str->storeCodeValue
       email_token
     }
   | None => getEmailTmpToken()
   }
 }
 
-let getPreLoginInfo = (~email_token=None, json) => {
+let getCodeValue = code => {
+  switch code {
+  | Some(str) => {
+      str->storeCodeValue
+      code
+    }
+  | None => getCodeValueFromStorage()
+  }
+}
+
+let getPreLoginInfo = (~email_token=None, ~code=None, json) => {
   open LogicUtils
   let dict = json->JsonFlattenUtils.flattenObject(false)
   let preLoginInfo: AuthProviderTypes.preLoginType = {
     token: getString(dict, "token", ""),
     token_type: dict->getString("token_type", ""),
     email_token: getEmailTokenValue(email_token),
+    code: getCodeValue(code),
   }
   preLoginInfo
 }

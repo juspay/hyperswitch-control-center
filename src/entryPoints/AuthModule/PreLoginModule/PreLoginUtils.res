@@ -15,12 +15,14 @@ let flowTypeStrToVariantMapperForNewFlow = val => {
   // home call
   | "user_info" => USER_INFO
   | "sso" => SSO
+  | "auth_select" => AUTH_SELECT
   | _ => ERROR
   }
 }
 
 let variantToStringFlowMapper = val => {
   switch val {
+  | AUTH_SELECT => "auth_select"
   | MERCHANT_SELECT => "merchant_select"
   | TOTP => "totp"
   | FORCE_SET_PASSWORD => "force_set_password"

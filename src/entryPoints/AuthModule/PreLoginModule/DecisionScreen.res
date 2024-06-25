@@ -1,5 +1,6 @@
 @react.component
 let make = () => {
+  let (selectedAuthId, setSelectedAuthId) = React.useState(_ => "")
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let flowType = switch authStatus {
@@ -12,7 +13,8 @@ let make = () => {
   }
 
   switch flowType {
-  | SSO => <SSODecisionScreen />
+  | AUTH_SELECT => <AuthSelect setSelectedAuthId />
+  | SSO => <SSODecisionScreen auth_id=selectedAuthId />
   | MERCHANT_SELECT
   | ACCEPT_INVITE =>
     <MerchantSelectScreen />

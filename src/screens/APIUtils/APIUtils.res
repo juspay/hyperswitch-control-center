@@ -258,6 +258,8 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/auth/list?${params}`
         | None => `${userUrl}/auth/list`
         }
+      | #AUTH_SELECT => `${userUrl}/auth/select`
+      | #SIGN_IN_WITH_SSO => `${userUrl}/auth/signin_with_sso`
       | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
         `${userUrl}/accept_invite_from_email?token_only=true`
       | #USER_INFO => userUrl

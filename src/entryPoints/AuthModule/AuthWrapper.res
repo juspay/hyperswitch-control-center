@@ -89,6 +89,27 @@ let make = (~children) => {
     }
   }
 
+  let handleRedirectFromSSO = () => {
+    open LogicUtils
+
+    open AuthUtils
+    open SSOUtils
+    let preLoginInfo = getPreLoginDetailsFromLocalStorage()
+    let code = url.search->getDictFromUrlSearchParams->Dict.get("code")->Option.getOr("")
+
+    if preLoginInfo.token->isEmptyString {
+      ssoDefaultValue.code = Some(code)
+      setAuthStatus(PreLogin(ssoDefaultValue))
+    } else {
+      preLoginInfo.code = Some(code)
+      setAuthStatus(PreLogin(preLoginInfo))
+    }
+  }
+
+  let handleLoginWithSso = auth_id => {
+    Window.Location.replace(`http://localhost:8082/get_url?id=${auth_id}`)
+  }
+
   React.useEffect0(() => {
     switch url.path {
     | list{"user", "login"}
@@ -98,6 +119,7 @@ let make = (~children) => {
     | list{"user", "set_password"}
     | list{"user", "accept_invite_from_email"} =>
       getDetailsFromEmail()->ignore
+    | list{"user", "redirect"} => handleRedirectFromSSO()
     | _ => getAuthDetails()
     }
 
@@ -133,7 +155,11 @@ let make = (~children) => {
     switch (authMethodType, authMethodName) {
     | (PASSWORD, #Email_Password) => <TwoFaAuthScreen setAuthStatus />
     | (OPEN_ID_CONNECT, #Okta) | (OPEN_ID_CONNECT, #Google) | (OPEN_ID_CONNECT, #Github) =>
-      <Button text={`Login with ${(authMethodName :> string)}`} buttonType={PrimaryOutline} />
+      <Button
+        text={`Login with ${(authMethodName :> string)}`}
+        buttonType={PrimaryOutline}
+        onClick={_ => handleLoginWithSso(method.id)}
+      />
     | (_, _) => React.null
     }
   }

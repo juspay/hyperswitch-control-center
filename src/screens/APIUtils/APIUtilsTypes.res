@@ -93,5 +93,7 @@ type userType = [
   | #CHECK_TWO_FACTOR_AUTH_STATUS
   | #RESET_TOTP
   | #GET_AUTH_LIST
+  | #AUTH_SELECT
+  | #SIGN_IN_WITH_SSO
   | #NONE
 ]

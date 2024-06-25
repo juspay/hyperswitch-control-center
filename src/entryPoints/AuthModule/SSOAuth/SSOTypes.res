@@ -1,4 +1,4 @@
-type ssoflowType = SSO_FROM_REDIRECT | SSO_FROM_EMAIL | LOADING
+type ssoflowType = SSO_FROM_REDIRECT | LOADING
 
 type authMethodTypes = PASSWORD | OPEN_ID_CONNECT
 

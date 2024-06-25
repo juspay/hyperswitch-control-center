@@ -26,6 +26,7 @@ let make = () => {
       setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
       removeItemFromLocalStorage(~key="PRE_LOGIN_INFO")
       removeItemFromLocalStorage(~key="email_token")
+      removeItemFromLocalStorage(~key="code")
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) => {

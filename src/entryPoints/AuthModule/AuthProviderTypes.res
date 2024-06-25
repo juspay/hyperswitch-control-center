@@ -2,6 +2,7 @@ type preLoginType = {
   token: string,
   token_type: string,
   email_token: option<string>,
+  mutable code: option<string>,
 }
 
 type authInfo = {
