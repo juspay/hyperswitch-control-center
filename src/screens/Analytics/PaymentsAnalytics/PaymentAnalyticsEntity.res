@@ -249,6 +249,7 @@ let singleStateInitialValue = {
   retries_count: 0,
   retries_amount_processe: 0.0,
   payment_success_count: 0,
+  currency: "NA",
   connector_success_rate: 0.0,
   payment_processed_amount: 0.0,
   payment_avg_ticket_size: 0.0,
@@ -274,6 +275,7 @@ let singleStateItemToObjMapper = json => {
     payment_count: dict->getInt("payment_count", 0),
     payment_success_count: dict->getInt("payment_success_count", 0),
     payment_processed_amount: dict->getFloat("payment_processed_amount", 0.0),
+    currency: dict->getString("currency", "NA"),
     payment_avg_ticket_size: dict->getFloat("avg_ticket_size", 0.0),
     retries_count: dict->getInt("retries_count", 0),
     retries_amount_processe: dict->getFloat("retries_amount_processed", 0.0),
@@ -304,11 +306,7 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  let data = json->getQueryData->Array.map(singleStateItemToObjMapper)
-  switch data[0] {
-  | Some(ele) => ele
-  | None => singleStateInitialValue
-  }
+  json->getQueryData->Array.map(singleStateItemToObjMapper)
 }
 
 let timeSeriesObjMapper = json =>
@@ -350,9 +348,11 @@ let amountMetricsColumns: array<DynamicSingleStat.columns<colT>> = [
     columns: [
       {
         colType: ProcessedAmount,
+        chartType: Table,
       },
       {
         colType: AvgTicketSize,
+        chartType: Table,
       },
     ],
   },
@@ -509,6 +509,7 @@ let getStatData = (
       data: constructData("payment_processed_amount", timeSeriesData),
       statType: "Amount",
       showDelta: false,
+      label: singleStatData.currency,
     }
   | AvgTicketSize => {
       title: `Avg Ticket Size`,
@@ -526,6 +527,7 @@ let getStatData = (
       data: constructData("payment_avg_ticket_size", timeSeriesData),
       statType: "Volume",
       showDelta: false,
+      label: singleStatData.currency,
     }
   | RetriesCount => {
       title: "Smart Retries made",

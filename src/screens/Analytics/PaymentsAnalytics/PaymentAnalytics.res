@@ -143,8 +143,6 @@ let make = () => {
     ->JSON.stringify
   }
 
-  Js.log2(">>", generalMetrics->formatMetrics)
-
   open AnalyticsNew
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
     <div className="flex items-center justify-between ">

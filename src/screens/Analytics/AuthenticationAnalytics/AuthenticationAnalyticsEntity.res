@@ -66,11 +66,7 @@ let singleStatSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  let data = json->getQueryData->Array.map(singleStatItemToObjMapper)
-  switch data[0] {
-  | Some(ele) => ele
-  | None => singleStatInitialValue
-  }
+  json->getQueryData->Array.map(singleStatItemToObjMapper)
 }
 
 let timeSeriesObjMapper = json =>

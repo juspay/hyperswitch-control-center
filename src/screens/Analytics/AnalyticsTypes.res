@@ -190,6 +190,7 @@ type paymentsSingleState = {
   payment_count: int,
   payment_success_count: int,
   retries_count: int,
+  currency: string,
   retries_amount_processe: float,
   connector_success_rate: float,
   payment_processed_amount: float,

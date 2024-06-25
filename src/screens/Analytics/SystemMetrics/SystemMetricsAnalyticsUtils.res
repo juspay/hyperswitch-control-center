@@ -45,9 +45,7 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  let data = json->getQueryData->Array.map(singleStateItemToObjMapper)
-
-  data->Array.get(0)->Option.getOr(singleStateInitialValue)
+  json->getQueryData->Array.map(singleStateItemToObjMapper)
 }
 
 let timeSeriesObjMapper = json =>
@@ -60,13 +58,12 @@ let defaultColumns: array<
     sectionName: "",
     columns: [
       {
-        colType:  Latency,
+        colType: Latency,
       },
       {
         colType: ApiCount,
       },
-      
-     ],
+    ],
   },
 ]
 

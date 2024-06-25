@@ -9,6 +9,7 @@ type singleStatData = {
   data: array<(float, float)>,
   statType: string,
   showDelta: bool,
+  label?: string,
 }
 
 type columnsType<'colType> = {
@@ -45,7 +46,7 @@ type deltaRange = {currentSr: AnalyticsUtils.timeRanges}
 
 type entityType<'colType, 't, 't2> = {
   urlConfig: array<urlConfig>,
-  getObjects: JSON.t => 't,
+  getObjects: JSON.t => array<'t>,
   getTimeSeriesObject: JSON.t => array<'t2>,
   defaultColumns: array<columns<'colType>>, // (sectionName, defaultColumns)
   getData: ('t, array<'t2>, deltaRange, 'colType, string) => singleStatData,
@@ -62,7 +63,7 @@ type timeType = {startTime: string, endTime: string}
 
 type singleStatDataObj<'t> = {
   sectionUrl: string,
-  singleStatData: 't,
+  singleStatData: array<'t>,
   deltaTime: deltaRange,
 }
 
@@ -423,37 +424,78 @@ let make = (
         )
       let timeSeriesData = []->Array.concatMany(timeSeriesData)
 
-      switch singlestatDataCombined.singleStatData {
-      | Some(sdata) => {
-          let sectiondata =
-            sdata
-            ->Array.filter(
-              item => {
-                item.sectionUrl === uri
-              },
-            )
-            ->Array.get(0)
+      switch col.chartType->Option.getOr(Default) {
+      | Table =>
+        switch singlestatDataCombined.singleStatData {
+        | Some(sdata) => {
+            let sectiondata =
+              sdata
+              ->Array.filter(
+                item => {
+                  item.sectionUrl === uri
+                },
+              )
+              ->Array.get(0)
 
-          switch sectiondata {
-          | Some(data) => {
-              let info = entity.getData(
-                data.singleStatData,
-                timeSeriesData,
-                data.deltaTime,
-                col.colType,
-                mode->Option.getOr("ORDER"),
+            switch sectiondata {
+            | Some(data) =>
+              let info = data.singleStatData->Array.map(
+                infoData => {
+                  entity.getData(
+                    infoData,
+                    timeSeriesData,
+                    data.deltaTime,
+                    col.colType,
+                    mode->Option.getOr("ORDER"),
+                  )
+                },
               )
 
-              <HSwitchSingleStatWidget
+              let (title, tooltipText, statType) = switch info->Array.get(0) {
+              | Some(val) => (val.title, val.tooltipText, val.statType)
+              | _ => ("", "", "")
+              }
+
+              let modifiedData = info->Array.map(
+                item => {
+                  let val: HSwitchSingleStatTableWidget.tableRowType = {
+                    rowLabel: item.label->Option.getOr("NA"),
+                    rowValue: item.value,
+                  }
+                  val
+                },
+              )
+
+              modifiedData->Array.sort(
+                (a, b) => {
+                  let rowValue_a = a.rowValue
+                  let rowValue_b = b.rowValue
+
+                  rowValue_a <= rowValue_b ? 1. : -1.
+                },
+              )
+
+              <HSwitchSingleStatTableWidget
                 key={singleStatArrIndex->Int.toString}
-                title=info.title
-                tooltipText=info.tooltipText
-                deltaTooltipComponent={info.deltaTooltipComponent(info.statType)}
-                value=info.value
-                data=info.data
-                statType=info.statType
                 singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
-                showPercentage=info.showDelta
+                title
+                tooltipText
+                loaderType=shimmerType
+                value=modifiedData
+                statType
+                statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
+                filterNullVals
+                ?statSentiment
+                ?statThreshold
+              />
+
+            | None =>
+              <HSwitchSingleStatTableWidget
+                key={singleStatArrIndex->Int.toString}
+                deltaTooltipComponent=React.null
+                value=[]
+                statType=""
+                singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
                 loaderType=shimmerType
                 statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
                 filterNullVals
@@ -461,41 +503,119 @@ let make = (
                 ?statThreshold
               />
             }
-
-          | None =>
-            <HSwitchSingleStatWidget
-              key={singleStatArrIndex->Int.toString}
-              title=""
-              tooltipText=""
-              deltaTooltipComponent=React.null
-              value=0.
-              data=[]
-              statType=""
-              singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
-              loaderType=shimmerType
-              statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
-              filterNullVals
-              ?statSentiment
-              ?statThreshold
-            />
           }
-        }
 
-      | None =>
-        <HSwitchSingleStatWidget
-          key={singleStatArrIndex->Int.toString}
-          title=""
-          tooltipText=""
-          deltaTooltipComponent=React.null
-          value=0.
-          data=[]
-          statType=""
-          singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
-          loaderType=shimmerType
-          statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
-          filterNullVals
-          ?statSentiment
-        />
+        | None =>
+          <HSwitchSingleStatTableWidget
+            key={singleStatArrIndex->Int.toString}
+            deltaTooltipComponent=React.null
+            value=[]
+            statType=""
+            singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
+            loaderType=shimmerType
+            statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
+            filterNullVals
+            ?statSentiment
+          />
+        }
+      | _ =>
+        switch singlestatDataCombined.singleStatData {
+        | Some(sdata) => {
+            let sectiondata =
+              sdata
+              ->Array.filter(
+                item => {
+                  item.sectionUrl === uri
+                },
+              )
+              ->Array.get(0)
+
+            switch sectiondata {
+            | Some(data) => {
+                let info = data.singleStatData->Array.map(
+                  infoData => {
+                    entity.getData(
+                      infoData,
+                      timeSeriesData,
+                      data.deltaTime,
+                      col.colType,
+                      mode->Option.getOr("ORDER"),
+                    )
+                  },
+                )
+
+                switch info->Array.get(0) {
+                | Some(stateData) =>
+                  <HSwitchSingleStatWidget
+                    key={singleStatArrIndex->Int.toString}
+                    title=stateData.title
+                    tooltipText=stateData.tooltipText
+                    deltaTooltipComponent={stateData.deltaTooltipComponent(stateData.statType)}
+                    value=stateData.value
+                    data=stateData.data
+                    statType=stateData.statType
+                    singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
+                    showPercentage=stateData.showDelta
+                    loaderType=shimmerType
+                    statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
+                    filterNullVals
+                    ?statSentiment
+                    ?statThreshold
+                  />
+                | _ =>
+                  <HSwitchSingleStatWidget
+                    key={singleStatArrIndex->Int.toString}
+                    title=""
+                    tooltipText=""
+                    deltaTooltipComponent=React.null
+                    value=0.
+                    data=[]
+                    statType=""
+                    singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
+                    loaderType=shimmerType
+                    statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
+                    filterNullVals
+                    ?statSentiment
+                    ?statThreshold
+                  />
+                }
+              }
+
+            | None =>
+              <HSwitchSingleStatWidget
+                key={singleStatArrIndex->Int.toString}
+                title=""
+                tooltipText=""
+                deltaTooltipComponent=React.null
+                value=0.
+                data=[]
+                statType=""
+                singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
+                loaderType=shimmerType
+                statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
+                filterNullVals
+                ?statSentiment
+                ?statThreshold
+              />
+            }
+          }
+
+        | None =>
+          <HSwitchSingleStatWidget
+            key={singleStatArrIndex->Int.toString}
+            title=""
+            tooltipText=""
+            deltaTooltipComponent=React.null
+            value=0.
+            data=[]
+            statType=""
+            singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
+            loaderType=shimmerType
+            statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
+            filterNullVals
+            ?statSentiment
+          />
+        }
       }
     })
 
