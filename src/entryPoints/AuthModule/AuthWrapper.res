@@ -48,7 +48,7 @@ let make = (~children) => {
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
-  let fetchDetails = useGetMethod(~showErrorToast=false, ())
+  let fetchAuthMethods = AuthModuleHooks.useAuthMethods()
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let (authMethods, setAuthMethods) = React.useState(_ => AuthUtils.defaultListOfAuth)
 
@@ -106,11 +106,7 @@ let make = (~children) => {
 
   let getAuthMethods = async () => {
     try {
-      open LogicUtils
-      // TODO : add query_param for auth_id in the below API
-      let authListUrl = getURL(~entityName=USERS, ~userType=#GET_AUTH_LIST, ~methodType=Get, ())
-      let listOfAuthMethods = await fetchDetails(authListUrl)
-      let arrayFromJson = listOfAuthMethods->getArrayFromJson([])
+      let arrayFromJson = await fetchAuthMethods()
       if arrayFromJson->Array.length === 0 {
         setAuthMethods(_ => AuthUtils.defaultListOfAuth)
       } else {
@@ -123,6 +119,7 @@ let make = (~children) => {
 
   React.useEffect1(() => {
     // TODO: call this method only when auth_id is present in the URL
+
     if authStatus === LoggedOut {
       getAuthMethods()->ignore
     }
