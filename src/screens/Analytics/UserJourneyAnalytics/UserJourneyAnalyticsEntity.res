@@ -66,7 +66,23 @@ type colT =
 let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: [SdkRenderedCount, Count, ConversionRate, DropOutRate, AvgPaymentTime],
+    columns: [
+      {
+        colType: SdkRenderedCount,
+      },
+      {
+        colType: Count,
+      },
+      {
+        colType: ConversionRate,
+      },
+      {
+        colType: DropOutRate,
+      },
+      {
+        colType: AvgPaymentTime,
+      },
+    ],
   },
 ]
 

@@ -58,7 +58,15 @@ let defaultColumns: array<
 > = [
   {
     sectionName: "",
-    columns: [Latency, ApiCount],
+    columns: [
+      {
+        colType:  Latency,
+      },
+      {
+        colType: ApiCount,
+      },
+      
+     ],
   },
 ]
 

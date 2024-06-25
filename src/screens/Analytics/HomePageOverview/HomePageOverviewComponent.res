@@ -101,7 +101,7 @@ module SystemMetricsInsights = {
     let defaultColumns: array<DynamicSingleStat.columns<systemMetricsSingleStateMetrics>> = [
       {
         sectionName: "",
-        columns: [Latency],
+        columns: [{colType: Latency}],
       },
     ]
 

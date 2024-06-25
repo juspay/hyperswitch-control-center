@@ -1,3 +1,5 @@
+type chartType = Default | Table
+
 type singleStatData = {
   title: string,
   tooltipText: string,
@@ -9,9 +11,14 @@ type singleStatData = {
   showDelta: bool,
 }
 
+type columnsType<'colType> = {
+  colType: 'colType,
+  chartType?: chartType,
+}
+
 type columns<'colType> = {
   sectionName: string,
-  columns: array<'colType>,
+  columns: array<columnsType<'colType>>,
   sectionInfo?: string,
 }
 
@@ -404,7 +411,7 @@ let make = (
     let {columns} = urlConfig
 
     let singleStateArr = columns->Array.mapWithIndex((col, singleStatArrIndex) => {
-      let uri = col->entity.matrixUriMapper
+      let uri = col.colType->entity.matrixUriMapper
       let timeSeriesData =
         singlestatDataCombined.singleStatTimeData
         ->Option.getOr([("--", [])])
@@ -415,6 +422,7 @@ let make = (
           },
         )
       let timeSeriesData = []->Array.concatMany(timeSeriesData)
+
       switch singlestatDataCombined.singleStatData {
       | Some(sdata) => {
           let sectiondata =
@@ -432,7 +440,7 @@ let make = (
                 data.singleStatData,
                 timeSeriesData,
                 data.deltaTime,
-                col,
+                col.colType,
                 mode->Option.getOr("ORDER"),
               )
 

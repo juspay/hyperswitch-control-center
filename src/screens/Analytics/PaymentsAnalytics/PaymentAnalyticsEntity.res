@@ -327,21 +327,48 @@ type colT =
 let generalMetricsColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: [SuccessRate, ConnectorSuccessRate, Count, SuccessCount],
+    columns: [
+      {
+        colType: SuccessRate,
+      },
+      {
+        colType: ConnectorSuccessRate,
+      },
+      {
+        colType: Count,
+      },
+      {
+        colType: SuccessCount,
+      },
+    ],
   },
 ]
 
 let amountMetricsColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: [ProcessedAmount, AvgTicketSize],
+    columns: [
+      {
+        colType: ProcessedAmount,
+      },
+      {
+        colType: AvgTicketSize,
+      },
+    ],
   },
 ]
 
 let smartRetrivesColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: [RetriesCount, RetriesAmountProcessed],
+    columns: [
+      {
+        colType: RetriesCount,
+      },
+      {
+        colType: RetriesAmountProcessed,
+      },
+    ],
   },
 ]
 
