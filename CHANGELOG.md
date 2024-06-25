@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.24.0
+
+### Miscellaneous Tasks
+
+- Showing all payment method types in filters ([#841](https://github.com/juspay/hyperswitch-control-center/pull/841)) ([`d5a93aa`](https://github.com/juspay/hyperswitch-control-center/commit/d5a93aacd0c52f0237f9a0a2a3aafe9d1c5992ba))
+
+**Full Changelog:** [`2024.06.21.0...2024.06.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.21.0...2024.06.24.0)
+
+- - -
+
 ## 2024.06.21.0
 
 ### Bug Fixes

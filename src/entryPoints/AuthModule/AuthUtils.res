@@ -46,3 +46,31 @@ let getPreLoginInfo = (~email_token=None, json) => {
   }
   preLoginInfo
 }
+
+let setDetailsToLocalStorage = (json, key) => {
+  LocalStorage.setItem(key, json->JSON.stringifyAny->Option.getOr(""))
+}
+
+let getPreLoginDetailsFromLocalStorage = () => {
+  open LogicUtils
+  let json = LocalStorage.getItem("PRE_LOGIN_INFO")->getValFromNullableValue("")->safeParse
+  json->getPreLoginInfo
+}
+
+let getUserInfoDetailsFromLocalStorage = () => {
+  open LogicUtils
+  let json = LocalStorage.getItem("USER_INFO")->getValFromNullableValue("")->safeParse
+  json->getAuthInfo
+}
+
+let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
+  {
+    id: "dummyId",
+    auth_id: "dummyAuthId",
+    auth_method: {
+      \"type": PASSWORD,
+      name: #Email_Password,
+    },
+    allow_signup: true,
+  },
+]
