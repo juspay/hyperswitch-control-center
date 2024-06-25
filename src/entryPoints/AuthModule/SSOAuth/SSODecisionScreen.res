@@ -41,7 +41,7 @@ let make = (~auth_id) => {
   Js.log2("sso decision screen", auth_id)
 
   React.useEffect1(() => {
-    if path->String.includes("redirect_from_sso") {
+    if path->String.includes("user/redirect") {
       setLocalSSOState(_ => SSO_FROM_REDIRECT)
     } else {
       Window.Location.replace(`http://localhost:8082/get_url?id=${auth_id}`)
