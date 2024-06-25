@@ -184,6 +184,22 @@ let getOptionsForOrderFilters = (dict, filterValues) => {
   newArr
 }
 
+let getAllPaymentMethodType = dict => {
+  open LogicUtils
+  let paymentMethods = dict->getDictfromDict("payment_method")->Dict.keysToArray
+  paymentMethods->Array.reduce([], (acc, item) => {
+    Array.concat(
+      acc,
+      {
+        dict
+        ->getDictfromDict("payment_method")
+        ->getArrayFromDict(item, [])
+        ->getStrArrayFromJsonArray
+      },
+    )
+  })
+}
+
 let itemToObjMapper = dict => {
   open LogicUtils
   {
@@ -194,7 +210,7 @@ let itemToObjMapper = dict => {
     ->getStrArrayFromJsonArray,
     status: dict->getArrayFromDict("status", [])->getStrArrayFromJsonArray,
     payment_method: dict->getDictfromDict("payment_method")->Dict.keysToArray,
-    payment_method_type: [],
+    payment_method_type: getAllPaymentMethodType(dict),
     connector_label: [],
   }
 }
@@ -204,9 +220,6 @@ let initialFilters = (json, filtervalues) => {
 
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
 
-  let paymentMethodFilter =
-    filtervalues->getArrayFromDict("payment_method", [])->getStrArrayFromJsonArray
-
   let filterDict = json->getDictFromJsonObject
   let filterArr = filterDict->itemToObjMapper
   let arr = filterDict->Dict.keysToArray
@@ -214,9 +227,7 @@ let initialFilters = (json, filtervalues) => {
   if connectorFilter->Array.length !== 0 {
     arr->Array.push("connector_label")
   }
-  if paymentMethodFilter->Array.length !== 0 {
-    arr->Array.push("payment_method_type")
-  }
+  arr->Array.push("payment_method_type")
 
   arr->Array.map((key): EntityType.initialFilters<'t> => {
     let values = switch key->getFilterTypeFromString {
@@ -225,7 +236,10 @@ let initialFilters = (json, filtervalues) => {
     | #currency => filterArr.currency
     | #authentication_type => filterArr.authentication_type
     | #status => filterArr.status
-    | #payment_method_type => getConditionalFilter(key, filterDict, filtervalues)
+    | #payment_method_type =>
+      getConditionalFilter(key, filterDict, filtervalues)->Array.length > 0
+        ? getConditionalFilter(key, filterDict, filtervalues)
+        : filterArr.payment_method_type
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
     | _ => []
     }
