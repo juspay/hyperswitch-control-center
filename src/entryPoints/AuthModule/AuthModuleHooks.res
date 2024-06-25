@@ -6,8 +6,14 @@ let useAuthMethods = () => {
   async () => {
     try {
       let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
-      let authListUrl = getURL(~entityName=USERS, ~userType=#GET_AUTH_LIST, ~methodType=Get, ())
-      let listOfAuthMethods = await fetchDetails(`${authListUrl}?auth_id=${authId}`)
+      let authListUrl = getURL(
+        ~entityName=USERS,
+        ~userType=#GET_AUTH_LIST,
+        ~methodType=Get,
+        ~queryParamerters=Some(`auth_id=${authId}`),
+        (),
+      )
+      let listOfAuthMethods = await fetchDetails(`${authListUrl}`)
       let arrayFromJson = listOfAuthMethods->getArrayFromJson([])
       arrayFromJson
     } catch {
