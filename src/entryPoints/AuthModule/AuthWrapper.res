@@ -1,6 +1,6 @@
 module AuthHeaderWrapper = {
   @react.component
-  let make = (~children) => {
+  let make = (~children, ~childrenStyle="") => {
     open FramerMotion.Motion
     open CommonAuthTypes
 
@@ -23,7 +23,7 @@ module AuthHeaderWrapper = {
               </Div>
             </div>
             <Div layoutId="border" className="border-b w-full" />
-            <div className="p-7"> {children} </div>
+            <div className={`p-7 ${childrenStyle}`}> {children} </div>
           </Div>
           <UIUtils.RenderIf condition={!branding}>
             <Div
@@ -44,12 +44,15 @@ module AuthHeaderWrapper = {
 @react.component
 let make = (~children) => {
   open APIUtils
+
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
+  let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let (authMethods, setAuthMethods) = React.useState(_ => AuthUtils.defaultListOfAuth)
 
-  let authLogic = () => {
+  let getAuthDetails = () => {
     open TwoFaUtils
     open LogicUtils
     let preLoginInfo = getTotpPreLoginInfoFromStorage()
@@ -68,7 +71,7 @@ let make = (~children) => {
     }
   }
 
-  let fetchDetails = async () => {
+  let getDetailsFromEmail = async () => {
     open CommonAuthUtils
     open LogicUtils
     try {
@@ -94,18 +97,64 @@ let make = (~children) => {
     | list{"user", "verify_email"}
     | list{"user", "set_password"}
     | list{"user", "accept_invite_from_email"} =>
-      fetchDetails()->ignore
-    | _ => authLogic()
+      getDetailsFromEmail()->ignore
+    | _ => getAuthDetails()
     }
 
     None
   })
 
+  let getAuthMethods = async () => {
+    try {
+      open LogicUtils
+      // TODO : add query_param for auth_id in the below API
+      let authListUrl = getURL(~entityName=USERS, ~userType=#GET_AUTH_LIST, ~methodType=Get, ())
+      let listOfAuthMethods = await fetchDetails(authListUrl)
+      let arrayFromJson = listOfAuthMethods->getArrayFromJson([])
+      if arrayFromJson->Array.length === 0 {
+        setAuthMethods(_ => AuthUtils.defaultListOfAuth)
+      } else {
+        setAuthMethods(_ => arrayFromJson->SSOUtils.getAuthVariants)
+      }
+    } catch {
+    | _ => setAuthMethods(_ => AuthUtils.defaultListOfAuth)
+    }
+  }
+
+  React.useEffect1(() => {
+    // TODO: call this method only when auth_id is present in the URL
+    if authStatus === LoggedOut {
+      getAuthMethods()->ignore
+    }
+    None
+  }, [authStatus])
+
+  let renderComponentForAuthTypes = (method: SSOTypes.authMethodResponseType) => {
+    let authMethodType = method.auth_method.\"type"
+    let authMethodName = method.auth_method.name
+
+    switch (authMethodType, authMethodName) {
+    | (PASSWORD, #Email_Password) => <TwoFaAuthScreen setAuthStatus />
+    | (OPEN_ID_CONNECT, #Okta) | (OPEN_ID_CONNECT, #Google) | (OPEN_ID_CONNECT, #Github) =>
+      <Button text={`Login with ${(authMethodName :> string)}`} buttonType={PrimaryOutline} />
+    | (_, _) => React.null
+    }
+  }
+
   <div className="font-inter-style">
     {switch authStatus {
     | LoggedOut =>
-      <AuthHeaderWrapper>
-        <TwoFaAuthScreen setAuthStatus />
+      <AuthHeaderWrapper childrenStyle="flex flex-col gap-4">
+        {authMethods
+        ->Array.mapWithIndex((authMethod, index) =>
+          <React.Fragment key={index->Int.toString}>
+            {authMethod->renderComponentForAuthTypes}
+            <UIUtils.RenderIf condition={index === 0 && authMethods->Array.length !== 1}>
+              {PreLoginUtils.divider}
+            </UIUtils.RenderIf>
+          </React.Fragment>
+        )
+        ->React.array}
       </AuthHeaderWrapper>
     | PreLogin(_) => <DecisionScreen />
     | LoggedIn(_token) => children

@@ -46,3 +46,15 @@ let getPreLoginInfo = (~email_token=None, json) => {
   }
   preLoginInfo
 }
+
+let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
+  {
+    id: "dummyId",
+    auth_id: "dummyAuthId",
+    auth_method: {
+      \"type": PASSWORD,
+      name: #Email_Password,
+    },
+    allow_signup: true,
+  },
+]
