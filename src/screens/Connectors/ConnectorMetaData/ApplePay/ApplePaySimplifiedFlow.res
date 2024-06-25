@@ -61,7 +61,8 @@ let make = (
 
   let downloadApplePayCert = () => {
     open Promise
-    fetchApi(HSwitchGlobalVars.urlToDownloadApplePayCertificate, ~method_=Get, ())
+    let downloadURL = Window.env.applePayCertificateUrl->Option.getOr("")
+    fetchApi(downloadURL, ~method_=Get, ())
     ->then(Fetch.Response.blob)
     ->then(content => {
       DownloadUtils.download(
