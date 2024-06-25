@@ -386,6 +386,8 @@ module DisputesInfoBarComponent = {
 let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) => {
   open APIUtils
   open DisputesUtils
+  open ConnectorUtils
+
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showPopUp = PopUpState.useShowPopUp()
@@ -413,8 +415,9 @@ let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) =>
 
   <div className="flex gap-2">
     <UIUtils.RenderIf
-      condition={connectorsSupportAcceptDispute->Array.includes(
-        connector->ConnectorUtils.getConnectorNameTypeFromString(),
+      condition={existsInArray(
+        connector->getConnectorNameTypeFromString(),
+        connectorsSupportAcceptDispute,
       )}>
       <Button
         buttonType={Secondary}
