@@ -36,7 +36,7 @@ module SSOFromEmail = {
     let handleContinueWithHs = async () => {
       try {
         // TODO : add API to get the  next flow
-        let preLoginInfo = TwoFaUtils.getTotpPreLoginInfoFromStorage()
+        let preLoginInfo = AuthUtils.getPreLoginDetailsFromLocalStorage()
         setAuthStatus(PreLogin(preLoginInfo))
       } catch {
       | _ => ()

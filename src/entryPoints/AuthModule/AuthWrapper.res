@@ -53,10 +53,10 @@ let make = (~children) => {
   let (authMethods, setAuthMethods) = React.useState(_ => AuthUtils.defaultListOfAuth)
 
   let getAuthDetails = () => {
-    open TwoFaUtils
+    open AuthUtils
     open LogicUtils
-    let preLoginInfo = getTotpPreLoginInfoFromStorage()
-    let loggedInInfo = getTotpAuthInfoFromStrorage()
+    let preLoginInfo = getPreLoginDetailsFromLocalStorage()
+    let loggedInInfo = getUserInfoDetailsFromLocalStorage()
 
     if (
       loggedInInfo.token->isNonEmptyString &&
