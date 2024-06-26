@@ -51,6 +51,11 @@ module HyperSwitchEntryComponent = {
           faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
           logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
+          agreementUrl: dict->getString("agreement_url", "")->getNonEmptyString,
+          applePayCertificateUrl: dict
+          ->getString("apple_pay_certificate_url", "")
+          ->getNonEmptyString,
+          agreementVersion: dict->getString("agreement_version", "")->getNonEmptyString,
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.faviconUrl)->ignore
@@ -59,14 +64,14 @@ module HyperSwitchEntryComponent = {
       }
     }
     // Need to modify based on the usedcase
-    let getDomain = () => {
-      open SessionStorage
-      sessionStorage.getItem(. "domain")->LogicUtils.getValFromNullableValue("default")
-    }
 
     let fetchConfig = async () => {
       try {
-        let domain = getDomain()
+        let domain = HyperSwitchEntryUtils.getSessionData(
+          ~key="domain",
+          ~defaultValue="default",
+          (),
+        )
         let apiURL = `${HSwitchGlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
@@ -83,6 +88,8 @@ module HyperSwitchEntryComponent = {
 
     React.useEffect0(() => {
       let _ = HyperSwitchEntryUtils.setSessionData(~key="auth_id", ~searchParams=url.search)
+      let _ = HyperSwitchEntryUtils.setSessionData(~key="domain", ~searchParams=url.search)
+
       let _ = fetchConfig()->ignore
       None
     })

@@ -3,6 +3,27 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.25.0
+
+### Bug Fixes
+
+- Disputes accept dispute button condition change ([#868](https://github.com/juspay/hyperswitch-control-center/pull/868)) ([`48cd4b8`](https://github.com/juspay/hyperswitch-control-center/commit/48cd4b8ebb664ab060862734866c4a96d5cfb3bd))
+
+### Refactors
+
+- Local storage key name change ([#858](https://github.com/juspay/hyperswitch-control-center/pull/858)) ([`3309371`](https://github.com/juspay/hyperswitch-control-center/commit/3309371dcc2eeb2f9ab9d342b8341a91b0adaded))
+
+### Miscellaneous Tasks
+
+- Auth list API integration ([#849](https://github.com/juspay/hyperswitch-control-center/pull/849)) ([`b31a58c`](https://github.com/juspay/hyperswitch-control-center/commit/b31a58c60ef22ac412c246d0db71a5ddd2d5f581))
+- Store authid in sessionstorage ([#862](https://github.com/juspay/hyperswitch-control-center/pull/862)) ([`7dfbf1f`](https://github.com/juspay/hyperswitch-control-center/commit/7dfbf1fd9901317e1a80bb9b3fab59f51db43dd0))
+- Move prod agreement url env ([#866](https://github.com/juspay/hyperswitch-control-center/pull/866)) ([`ce3d682`](https://github.com/juspay/hyperswitch-control-center/commit/ce3d682f1b3bb33146c26b2a5cc2a8f38fc34448))
+- Update sessiontoken ([`a7c8390`](https://github.com/juspay/hyperswitch-control-center/commit/a7c8390b1fd17259bd06b0e475d2080322ca0706))
+
+**Full Changelog:** [`2024.06.24.0...2024.06.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.24.0...2024.06.25.0)
+
+- - -
+
 ## 2024.06.24.0
 
 ### Miscellaneous Tasks

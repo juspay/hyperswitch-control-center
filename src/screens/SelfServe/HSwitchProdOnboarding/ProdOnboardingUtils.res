@@ -151,15 +151,15 @@ let getProdApiBody = (
       ),
     ]->LogicUtils.getJsonFromArrayOfJson
 
-  | #ProductionAgreement =>
-    [
-      (
-        (parentVariant :> string),
-        [
-          ("version", HSwitchGlobalVars.agreementVersion->JSON.Encode.string),
-        ]->LogicUtils.getJsonFromArrayOfJson,
-      ),
-    ]->LogicUtils.getJsonFromArrayOfJson
+  | #ProductionAgreement => {
+      let agreementVersion = Window.env.agreementVersion->Option.getOr("")
+      [
+        (
+          (parentVariant :> string),
+          [("version", agreementVersion->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson,
+        ),
+      ]->LogicUtils.getJsonFromArrayOfJson
+    }
   | _ => (parentVariant :> string)->JSON.Encode.string
   }
 }
