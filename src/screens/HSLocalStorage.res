@@ -21,3 +21,7 @@ let getIsPlaygroundFromLocalStorage = () => {
 let setIsPlaygroundInLocalStorage = (val: bool) => {
   LocalStorage.setItem("isPlayground", val->JSON.Encode.bool->JSON.stringify)
 }
+
+let removeItemFromLocalStorage = (~key) => {
+  LocalStorage.removeItem(key)
+}
