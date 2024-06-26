@@ -1,16 +1,21 @@
 module SSOFromRedirect = {
   @react.component
-  let make = () => {
+  let make = (~localSSOState) => {
+    open SSOTypes
     open APIUtils
-    let fetchDetails = useGetMethod()
+    let updateDetails = useUpdateMethod()
     let getURL = useGetURL()
     let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
     let signInWithSSO = async () => {
       open AuthUtils
       try {
-        let ssoUrl = getURL(~entityName=USERS, ~userType=#AUTH_SELECT, ~methodType=Get, ())
-        let response = await fetchDetails(ssoUrl)
+        let body = switch localSSOState {
+        | SSO_FROM_REDIRECT(#Okta(data)) => data->Identity.genericTypeToJson
+        | _ => Dict.make()->JSON.Encode.object
+        }
+        let ssoUrl = getURL(~entityName=USERS, ~userType=#SIGN_IN_WITH_SSO, ~methodType=Post, ())
+        let response = await updateDetails(ssoUrl, body, Post, ())
         setAuthStatus(PreLogin(getPreLoginInfo(response)))
       } catch {
       | _ => setAuthStatus(LoggedOut)
@@ -38,17 +43,28 @@ let make = (~auth_id) => {
   let path = url.path->List.toArray->Array.joinWith("/")
   let (localSSOState, setLocalSSOState) = React.useState(_ => LOADING)
 
+  let oktaMethod = () => {
+    open LogicUtils
+    let dict = url.search->getDictFromUrlSearchParams
+    let okta = {
+      code: dict->Dict.get("code"),
+      state: dict->Dict.get("state"),
+    }
+    setLocalSSOState(_ => SSO_FROM_REDIRECT(#Okta(okta)))
+  }
+
   React.useEffect1(() => {
-    if path->String.includes("user/redirect") {
-      setLocalSSOState(_ => SSO_FROM_REDIRECT)
-    } else {
-      Window.Location.replace(`http://localhost:8082/get_url?id=${auth_id}`)
+    switch url.path {
+    | list{"user", "redirect", "oidc", "okta"} => oktaMethod()
+    | _ =>
+      ()
+      Window.Location.replace(`http://localhost:8082/user/auth/url?id=${auth_id}`)
     }
     None
   }, [path])
 
   switch localSSOState {
-  | SSO_FROM_REDIRECT => <SSOFromRedirect />
+  | SSO_FROM_REDIRECT(_) => <SSOFromRedirect localSSOState />
   | LOADING => <PageLoaderWrapper.ScreenLoader />
   }
 }
