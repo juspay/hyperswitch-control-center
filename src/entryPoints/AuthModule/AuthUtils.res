@@ -36,7 +36,7 @@ let getCodeValueFromStorage = () => {
 let getEmailTokenValue = email_token => {
   switch email_token {
   | Some(str) => {
-      str->storeCodeValue
+      str->storeEmailTokenTmp
       email_token
     }
   | None => getEmailTmpToken()
