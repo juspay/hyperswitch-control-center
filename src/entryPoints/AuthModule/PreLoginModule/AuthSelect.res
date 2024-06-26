@@ -7,7 +7,8 @@ let make = (~setSelectedAuthId) => {
 
   let getURL = useGetURL()
   let fetchAuthMethods = AuthModuleHooks.useAuthMethods()
-  let fetchDetails = useGetMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod()
+
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let (logoVariant, iconUrl) = switch Window.env.logoUrl {
   | Some(url) => (IconWithURL, Some(url))
@@ -27,8 +28,9 @@ let make = (~setSelectedAuthId) => {
   let handleTerminateSSO = async method_id => {
     open AuthUtils
     try {
-      let terminateURL = getURL(~entityName=USERS, ~userType=#AUTH_SELECT, ~methodType=Get, ())
-      let response = await fetchDetails(terminateURL)
+      let body = [("id", method_id->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
+      let terminateURL = getURL(~entityName=USERS, ~userType=#AUTH_SELECT, ~methodType=Post, ())
+      let response = await updateDetails(terminateURL, body, Post, ())
       setSelectedAuthId(_ => Some(method_id))
       setAuthStatus(PreLogin(getPreLoginInfo(response)))
     } catch {
