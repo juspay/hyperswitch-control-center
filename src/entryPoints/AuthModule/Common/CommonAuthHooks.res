@@ -57,7 +57,7 @@ let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
 }
 
 let defaultAuthInfo: CommonAuthTypes.commonAuthInfo = {
-  token: "",
+  token: None,
   merchant_id: "",
   name: "",
   email: "",
@@ -71,7 +71,7 @@ let useCommonAuthInfo = () => {
     switch info {
     | BasicAuth({token, merchant_id, name, email, user_role}) =>
       Some({
-        token: token->Option.getOr(""),
+        token: token->Option.getOr("")->LogicUtils.getNonEmptyString,
         merchant_id: merchant_id->Option.getOr(""),
         name: name->Option.getOr(""),
         email: email->Option.getOr(""),

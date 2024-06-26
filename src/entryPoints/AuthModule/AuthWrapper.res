@@ -59,12 +59,12 @@ let make = (~children) => {
     let loggedInInfo = getUserInfoDetailsFromLocalStorage()
 
     if (
-      loggedInInfo.token->isNonEmptyString &&
+      loggedInInfo.token->Option.isSome &&
       loggedInInfo.merchant_id->isNonEmptyString &&
       loggedInInfo.email->isNonEmptyString
     ) {
       setAuthStatus(LoggedIn(Auth(loggedInInfo)))
-    } else if preLoginInfo.token->isNonEmptyString && preLoginInfo.token_type->isNonEmptyString {
+    } else if preLoginInfo.token->Option.isSome && preLoginInfo.token_type->isNonEmptyString {
       setAuthStatus(PreLogin(preLoginInfo))
     } else {
       setAuthStatus(LoggedOut)
@@ -108,7 +108,7 @@ let make = (~children) => {
     | list{"user", "set_password"}
     | list{"user", "accept_invite_from_email"} =>
       getDetailsFromEmail()->ignore
-    | list{"redirect", "oidc", "okta"} => handleRedirectFromSSO()
+    | list{"redirect", "oidc", ..._} => handleRedirectFromSSO()
     | _ => getAuthDetails()
     }
 

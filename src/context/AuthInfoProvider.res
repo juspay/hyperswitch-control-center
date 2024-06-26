@@ -40,7 +40,7 @@ let make = (~children) => {
           }
         }
       | Auth(totpInfo) =>
-        if !(totpInfo.token->LogicUtils.isEmptyString) {
+        if totpInfo.token->Option.isSome {
           setAuth(_ => newAuthStatus)
           AuthUtils.setDetailsToLocalStorage(totpInfo, "USER_INFO")
         } else {

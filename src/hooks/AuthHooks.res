@@ -2,14 +2,14 @@ type contentType = Headers(string) | Unknown
 
 let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ~token, ()) => {
   let isMixpanel = uri->String.includes("mixpanel")
-  let tk = token->Option.getOr("")->LogicUtils.getNonEmptyString
+
   let headerObj = if isMixpanel {
     [
       ("Content-Type", "application/x-www-form-urlencoded"),
       ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
-    let res = switch tk {
+    let res = switch token {
     | Some(str) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
@@ -38,11 +38,11 @@ let useApiFetcher = () => {
 
   let token = React.useMemo1(() => {
     switch authStatus {
-    | PreLogin(info) => Some(info.token)
+    | PreLogin(info) => info.token
     | LoggedIn(info) =>
       switch info {
       | BasicAuth(basicInfo) => basicInfo.token
-      | Auth(info) => Some(info.token)
+      | Auth(info) => info.token
       }
     | _ => None
     }

@@ -6,7 +6,7 @@ let getAuthInfo = json => {
     email: getString(dict, "email", ""),
     merchant_id: getString(dict, "merchant_id", ""),
     name: getString(dict, "name", ""),
-    token: getString(dict, "token", ""),
+    token: getString(dict, "token", "")->getNonEmptyString,
     role_id: getString(dict, "role_id", ""),
     is_two_factor_auth_setup: getBool(dict, "is_two_factor_auth_setup", false),
     recovery_codes_left: getInt(
@@ -57,7 +57,7 @@ let getPreLoginInfo = (~email_token=None, json) => {
   open LogicUtils
   let dict = json->JsonFlattenUtils.flattenObject(false)
   let preLoginInfo: AuthProviderTypes.preLoginType = {
-    token: getString(dict, "token", ""),
+    token: dict->getString("token", "")->getNonEmptyString,
     token_type: dict->getString("token_type", ""),
     email_token: getEmailTokenValue(email_token),
   }
