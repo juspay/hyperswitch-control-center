@@ -2,16 +2,16 @@ type contentType = Headers(string) | Unknown
 
 let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ~token, ()) => {
   let isMixpanel = uri->String.includes("mixpanel")
-
+  let tk = token->Option.getOr("")->LogicUtils.getNonEmptyString
   let headerObj = if isMixpanel {
     [
       ("Content-Type", "application/x-www-form-urlencoded"),
       ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
-    let res = switch token {
-    | Some(token) => {
-        headers->Dict.set("authorization", `Bearer ${token}`)
+    let res = switch tk {
+    | Some(str) => {
+        headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
         headers
       }
