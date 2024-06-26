@@ -37,18 +37,4 @@ let isHyperSwitchDashboard = GlobalVars.dashboardAppName === #hyperswitch
 let playgroundUserEmail = "dummyuser@dummymerchant.com"
 let playgroundUserPassword = "Dummy@1234"
 
-let urlFordownloadingAgreementMapper = switch hostType {
-| Sandbox => "https://app.hyperswitch.io/agreement/tc-hyperswitch-aug-23.pdf"
-| Live => "https://live.hyperswitch.io/agreement/tc-hyperswitch-apr-24.pdf"
-| _ => "https://app.hyperswitch.io/agreement/tc-hyperswitch-aug-23.pdf"
-}
-
-let urlToDownloadApplePayCertificate = switch hostType {
-| Sandbox => "https://app.hyperswitch.io/applepay-domain/apple-developer-merchantid-domain-association"
-| Live => "https://live.hyperswitch.io/applepay-domain/apple-developer-merchantid-domain-association"
-| _ => "/apple-developer-merchantid-domain-association"
-}
-
-let agreementVersion = "2.0.0"
-
 let maximumRecoveryCodes = 8

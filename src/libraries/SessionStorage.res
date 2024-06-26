@@ -1,8 +1,7 @@
-@val @scope("sessionStorage")
-external setItemInSession: (string, string) => unit = "setItem"
+type sessionStorage = {
+  getItem: (. string) => Nullable.t<string>,
+  setItem: (. string, string) => unit,
+  removeItem: (. string) => unit,
+}
 
-@val @scope("sessionStorage")
-external getItemFromSession: string => Nullable.t<string> = "getItem"
-
-@val @scope("sessionStorage")
-external clearSession: unit => unit = "clear"
+@val external sessionStorage: sessionStorage = "sessionStorage"

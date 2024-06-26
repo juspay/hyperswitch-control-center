@@ -253,7 +253,11 @@ let useGetURL = () => {
       | #TERMINATE_TWO_FACTOR_AUTH => `${userUrl}/2fa/terminate`
       | #CHECK_TWO_FACTOR_AUTH_STATUS => `${userUrl}/2fa`
       | #RESET_TOTP => `${userUrl}/2fa/totp/reset`
-      | #GET_AUTH_LIST => `${userUrl}/auth/list`
+      | #GET_AUTH_LIST =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/auth/list?${params}`
+        | None => `${userUrl}/auth/list`
+        }
       | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
         `${userUrl}/accept_invite_from_email?token_only=true`
       | #USER_INFO => userUrl

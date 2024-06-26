@@ -7,6 +7,9 @@ api_url="http://localhost:8080"
 sdk_url=""
 logo_url=""
 favicon_url=""
+agreement_url=""
+agreement_version=""
+apple_pay_certificate_url=""
 mixpanel_token=""
 [default.features]
 test_live_toggle=false
