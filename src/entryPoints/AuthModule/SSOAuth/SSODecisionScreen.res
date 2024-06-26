@@ -18,9 +18,7 @@ module SSOFromRedirect = {
         let response = await updateDetails(ssoUrl, body, Post, ())
         setAuthStatus(PreLogin(getPreLoginInfo(response)))
       } catch {
-      | _ =>
-        ()
-        setAuthStatus(LoggedOut)
+      | _ => setAuthStatus(LoggedOut)
       }
     }
 
