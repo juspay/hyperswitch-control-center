@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.26.0
+
+### Miscellaneous Tasks
+
+- Filters ui in newline ([#869](https://github.com/juspay/hyperswitch-control-center/pull/869)) ([`014b800`](https://github.com/juspay/hyperswitch-control-center/commit/014b80052193465928deaec9fd3f23c2d1ae4b5a))
+- Add zsl in prod ([#873](https://github.com/juspay/hyperswitch-control-center/pull/873)) ([`41fb23e`](https://github.com/juspay/hyperswitch-control-center/commit/41fb23e83ed2b64770da907576c4289bedf4267b))
+
+**Full Changelog:** [`2024.06.25.0...2024.06.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.25.0...2024.06.26.0)
+
+- - -
+
 ## 2024.06.25.0
 
 ### Bug Fixes
