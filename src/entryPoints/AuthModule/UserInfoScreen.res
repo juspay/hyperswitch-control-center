@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~onClick) => {
   open APIUtils
   let getURL = useGetURL()
   let fetchDetails = APIUtils.useGetMethod()
@@ -41,9 +41,6 @@ let make = () => {
     userInfo()->ignore
     None
   })
-  let onClick = () => {
-    setAuthStatus(LoggedOut)
-  }
 
   <PageLoaderWrapper screenState>
     <EmailVerifyScreen
