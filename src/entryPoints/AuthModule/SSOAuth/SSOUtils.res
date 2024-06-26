@@ -45,11 +45,10 @@ let getAuthVariants = auth_methods => {
   })
 }
 
-let ssoDefaultValue: AuthProviderTypes.preLoginType = {
+let ssoDefaultValue = (values: AuthProviderTypes.preLoginType): AuthProviderTypes.preLoginType => {
   {
-    token: "",
+    token: values.token,
     token_type: "sso",
-    email_token: None,
-    code: None,
+    email_token: values.email_token,
   }
 }

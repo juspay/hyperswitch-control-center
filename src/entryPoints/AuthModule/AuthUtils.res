@@ -53,14 +53,13 @@ let getCodeValue = code => {
   }
 }
 
-let getPreLoginInfo = (~email_token=None, ~code=None, json) => {
+let getPreLoginInfo = (~email_token=None, json) => {
   open LogicUtils
   let dict = json->JsonFlattenUtils.flattenObject(false)
   let preLoginInfo: AuthProviderTypes.preLoginType = {
     token: getString(dict, "token", ""),
     token_type: dict->getString("token_type", ""),
     email_token: getEmailTokenValue(email_token),
-    code: getCodeValue(code),
   }
   preLoginInfo
 }

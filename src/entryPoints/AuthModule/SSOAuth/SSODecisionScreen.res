@@ -18,7 +18,9 @@ module SSOFromRedirect = {
         let response = await updateDetails(ssoUrl, body, Post, ())
         setAuthStatus(PreLogin(getPreLoginInfo(response)))
       } catch {
-      | _ => setAuthStatus(LoggedOut)
+      | _ =>
+        ()
+        setAuthStatus(LoggedOut)
       }
     }
 
@@ -36,9 +38,8 @@ module SSOFromRedirect = {
 }
 
 @react.component
-let make = (~auth_id) => {
+let make = (~auth_id: option<string>) => {
   open SSOTypes
-
   let url = RescriptReactRouter.useUrl()
   let path = url.path->List.toArray->Array.joinWith("/")
   let (localSSOState, setLocalSSOState) = React.useState(_ => LOADING)
@@ -54,11 +55,10 @@ let make = (~auth_id) => {
   }
 
   React.useEffect1(() => {
-    switch url.path {
-    | list{"redirect", "oidc", "okta"} => oktaMethod()
-    | _ =>
-      ()
-      Window.Location.replace(`http://localhost:8080/user/auth/url?id=${auth_id}`)
+    switch (url.path, auth_id) {
+    | (list{"redirect", "oidc", "okta"}, _) => oktaMethod()
+    | (_, Some(str)) => Window.Location.replace(`${Window.env.apiBaseUrl}/user/auth/url?id=${str}`)
+    | _ => ()
     }
     None
   }, [path])

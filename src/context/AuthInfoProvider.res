@@ -49,13 +49,8 @@ let make = (~children) => {
         }
       }
     | PreLogin(preLoginInfo) =>
-      if !(preLoginInfo.token->LogicUtils.isEmptyString) {
-        setAuth(_ => newAuthStatus)
-        AuthUtils.setDetailsToLocalStorage(preLoginInfo, "PRE_LOGIN_INFO")
-      } else {
-        setAuth(_ => LoggedOut)
-        CommonAuthUtils.clearLocalStorage()
-      }
+      setAuth(_ => newAuthStatus)
+      AuthUtils.setDetailsToLocalStorage(preLoginInfo, "PRE_LOGIN_INFO")
 
     | LoggedOut => {
         setAuth(_ => LoggedOut)

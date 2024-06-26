@@ -14,7 +14,7 @@ mixpanel_token=""
 [default.features]
 test_live_toggle=false
 is_live_mode=false
-email=false
+email=true
 quick_start=false
 audit_trail=false
 system_metrics=false
@@ -36,4 +36,4 @@ global_search=false
 dispute_analytics=false
 configure_pmts=false
 branding=false
-totp=false
+totp=true

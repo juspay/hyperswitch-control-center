@@ -29,7 +29,7 @@ let make = (~setSelectedAuthId) => {
     try {
       let terminateURL = getURL(~entityName=USERS, ~userType=#AUTH_SELECT, ~methodType=Get, ())
       let response = await fetchDetails(terminateURL)
-      setSelectedAuthId(_ => method_id)
+      setSelectedAuthId(_ => Some(method_id))
       setAuthStatus(PreLogin(getPreLoginInfo(response)))
     } catch {
     | _ => setAuthStatus(LoggedOut)

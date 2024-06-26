@@ -1,6 +1,6 @@
 @react.component
 let make = () => {
-  let (selectedAuthId, setSelectedAuthId) = React.useState(_ => "")
+  let (selectedAuthId, setSelectedAuthId) = React.useState(_ => None)
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let flowType = switch authStatus {

@@ -90,24 +90,13 @@ let make = (~children) => {
   }
 
   let handleRedirectFromSSO = () => {
-    open LogicUtils
-
     open AuthUtils
-    open SSOUtils
-    let preLoginInfo = getPreLoginDetailsFromLocalStorage()
-    let code = url.search->getDictFromUrlSearchParams->Dict.get("code")->Option.getOr("")
-
-    if preLoginInfo.token->isEmptyString {
-      ssoDefaultValue.code = Some(code)
-      setAuthStatus(PreLogin(ssoDefaultValue))
-    } else {
-      preLoginInfo.code = Some(code)
-      setAuthStatus(PreLogin(preLoginInfo))
-    }
+    let info = getPreLoginDetailsFromLocalStorage()->SSOUtils.ssoDefaultValue
+    setAuthStatus(PreLogin(info))
   }
 
   let handleLoginWithSso = auth_id => {
-    Window.Location.replace(`http://localhost:8080/user/auth/url?id=${auth_id}`)
+    Window.Location.replace(`${Window.env.apiBaseUrl}/user/auth/url?id=${auth_id}`)
   }
 
   React.useEffect0(() => {
