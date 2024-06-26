@@ -25,14 +25,6 @@ let getEmailTmpToken = () => {
   LocalStorage.getItem("email_token")->Nullable.toOption
 }
 
-let storeCodeValue = emailToken => {
-  LocalStorage.setItem("code", emailToken)
-}
-
-let getCodeValueFromStorage = () => {
-  LocalStorage.getItem("code")->Nullable.toOption
-}
-
 let getEmailTokenValue = email_token => {
   switch email_token {
   | Some(str) => {
@@ -40,16 +32,6 @@ let getEmailTokenValue = email_token => {
       email_token
     }
   | None => getEmailTmpToken()
-  }
-}
-
-let getCodeValue = code => {
-  switch code {
-  | Some(str) => {
-      str->storeCodeValue
-      code
-    }
-  | None => getCodeValueFromStorage()
   }
 }
 
