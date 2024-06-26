@@ -107,7 +107,7 @@ let make = (~children) => {
   }
 
   let handleLoginWithSso = auth_id => {
-    Window.Location.replace(`http://localhost:8082/user/auth/url?id=${auth_id}`)
+    Window.Location.replace(`http://localhost:8080/user/auth/url?id=${auth_id}`)
   }
 
   React.useEffect0(() => {
@@ -119,7 +119,7 @@ let make = (~children) => {
     | list{"user", "set_password"}
     | list{"user", "accept_invite_from_email"} =>
       getDetailsFromEmail()->ignore
-    // | list{"user", "redirect"} => handleRedirectFromSSO()
+    | list{"redirect", "oidc", "okta"} => handleRedirectFromSSO()
     | _ => getAuthDetails()
     }
 

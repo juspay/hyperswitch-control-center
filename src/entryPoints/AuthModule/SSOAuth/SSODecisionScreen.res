@@ -55,10 +55,10 @@ let make = (~auth_id) => {
 
   React.useEffect1(() => {
     switch url.path {
-    | list{"user", "redirect", "oidc", "okta"} => oktaMethod()
+    | list{"redirect", "oidc", "okta"} => oktaMethod()
     | _ =>
       ()
-      Window.Location.replace(`http://localhost:8082/user/auth/url?id=${auth_id}`)
+      Window.Location.replace(`http://localhost:8080/user/auth/url?id=${auth_id}`)
     }
     None
   }, [path])
