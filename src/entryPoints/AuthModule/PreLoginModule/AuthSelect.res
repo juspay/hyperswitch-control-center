@@ -60,7 +60,7 @@ let make = (~setSelectedAuthId) => {
     switch (authMethodType, authMethodName) {
     | (PASSWORD, #Email_Password) =>
       <Button
-        text="Continue with Hyperswitch"
+        text="Continue with Password"
         buttonType={Primary}
         buttonSize={Large}
         onClick={_ => handleTerminateSSO(method.id)->ignore}
