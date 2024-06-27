@@ -25,9 +25,7 @@ let make = () => {
             ]->LogicUtils.getJsonFromArrayOfJson,
           ),
           ("metrics", ["active_payments"->JSON.Encode.string]->JSON.Encode.array),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object,
+        ]->LogicUtils.getJsonFromArrayOfJson,
       ]->JSON.Encode.array
     let _ = async () => {
       try {
@@ -74,9 +72,7 @@ let make = () => {
             ->JSON.Encode.object,
           ),
           ("metrics", ["sdk_rendered_count"->JSON.Encode.string]->JSON.Encode.array),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object,
+        ]->LogicUtils.getJsonFromArrayOfJson,
       ]->JSON.Encode.array
     let _ = async () => {
       try {
