@@ -22,8 +22,7 @@ let make = () => {
               ),
               ("endTime", Date.make()->Date.toISOString->JSON.Encode.string),
             ]
-            ->Dict.fromArray
-            ->JSON.Encode.object,
+           ->LogicUtils.getJsonFromArrayOfJson
           ),
           ("metrics", ["active_payments"->JSON.Encode.string]->JSON.Encode.array),
         ]
