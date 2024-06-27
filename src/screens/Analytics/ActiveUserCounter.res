@@ -47,8 +47,7 @@ let make = () => {
         dict
         ->getJsonObjectFromDict("queryData")
         ->getArrayFromJson([])
-        ->Array.get(0)
-        ->Option.getOr(JSON.Encode.null)
+        ->LogicUtils.getValueFromArray(0,JSON.Encode.null)
         ->getDictFromJsonObject
         ->getInt("active_payments", 0)
       setActiveUserCount(_ => newActiveUserCount)
