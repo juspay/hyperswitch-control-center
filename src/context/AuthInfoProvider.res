@@ -40,7 +40,7 @@ let make = (~children) => {
           }
         }
       | Auth(totpInfo) =>
-        if !(totpInfo.token->LogicUtils.isEmptyString) {
+        if totpInfo.token->Option.isSome {
           setAuth(_ => newAuthStatus)
           AuthUtils.setDetailsToLocalStorage(totpInfo, "USER_INFO")
         } else {
@@ -49,18 +49,13 @@ let make = (~children) => {
         }
       }
     | PreLogin(preLoginInfo) =>
-      if !(preLoginInfo.token->LogicUtils.isEmptyString) {
-        setAuth(_ => newAuthStatus)
-        AuthUtils.setDetailsToLocalStorage(preLoginInfo, "PRE_LOGIN_INFO")
-      } else {
-        setAuth(_ => LoggedOut)
-        CommonAuthUtils.clearLocalStorage()
-      }
+      setAuth(_ => newAuthStatus)
+      AuthUtils.setDetailsToLocalStorage(preLoginInfo, "PRE_LOGIN_INFO")
 
     | LoggedOut => {
         setAuth(_ => LoggedOut)
         CommonAuthUtils.clearLocalStorage()
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+        AuthUtils.redirectToLogin()
       }
     | CheckingAuthStatus => setAuth(_ => CheckingAuthStatus)
     }

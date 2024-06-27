@@ -59,12 +59,12 @@ let make = (~children) => {
     let loggedInInfo = getUserInfoDetailsFromLocalStorage()
 
     if (
-      loggedInInfo.token->isNonEmptyString &&
+      loggedInInfo.token->Option.isSome &&
       loggedInInfo.merchant_id->isNonEmptyString &&
       loggedInInfo.email->isNonEmptyString
     ) {
       setAuthStatus(LoggedIn(Auth(loggedInInfo)))
-    } else if preLoginInfo.token->isNonEmptyString && preLoginInfo.token_type->isNonEmptyString {
+    } else if preLoginInfo.token->Option.isSome && preLoginInfo.token_type->isNonEmptyString {
       setAuthStatus(PreLogin(preLoginInfo))
     } else {
       setAuthStatus(LoggedOut)
@@ -89,6 +89,16 @@ let make = (~children) => {
     }
   }
 
+  let handleRedirectFromSSO = () => {
+    open AuthUtils
+    let info = getPreLoginDetailsFromLocalStorage()->SSOUtils.ssoDefaultValue
+    setAuthStatus(PreLogin(info))
+  }
+
+  let handleLoginWithSso = auth_id => {
+    Window.Location.replace(`${Window.env.apiBaseUrl}/user/auth/url?id=${auth_id}`)
+  }
+
   React.useEffect0(() => {
     switch url.path {
     | list{"user", "login"}
@@ -98,6 +108,7 @@ let make = (~children) => {
     | list{"user", "set_password"}
     | list{"user", "accept_invite_from_email"} =>
       getDetailsFromEmail()->ignore
+    | list{"redirect", "oidc", ..._} => handleRedirectFromSSO()
     | _ => getAuthDetails()
     }
 
@@ -110,7 +121,17 @@ let make = (~children) => {
       if arrayFromJson->Array.length === 0 {
         setAuthMethods(_ => AuthUtils.defaultListOfAuth)
       } else {
-        setAuthMethods(_ => arrayFromJson->SSOUtils.getAuthVariants)
+        let typedvalue = arrayFromJson->SSOUtils.getAuthVariants
+        typedvalue->Array.sort((item1, item2) => {
+          if item1.auth_method.\"type" == PASSWORD {
+            -1.
+          } else if item2.auth_method.\"type" == PASSWORD {
+            1.
+          } else {
+            0.
+          }
+        })
+        setAuthMethods(_ => typedvalue)
       }
     } catch {
     | _ => setAuthMethods(_ => AuthUtils.defaultListOfAuth)
@@ -118,8 +139,6 @@ let make = (~children) => {
   }
 
   React.useEffect1(() => {
-    // TODO: call this method only when auth_id is present in the URL
-
     if authStatus === LoggedOut {
       getAuthMethods()->ignore
     }
@@ -133,7 +152,11 @@ let make = (~children) => {
     switch (authMethodType, authMethodName) {
     | (PASSWORD, #Email_Password) => <TwoFaAuthScreen setAuthStatus />
     | (OPEN_ID_CONNECT, #Okta) | (OPEN_ID_CONNECT, #Google) | (OPEN_ID_CONNECT, #Github) =>
-      <Button text={`Login with ${(authMethodName :> string)}`} buttonType={PrimaryOutline} />
+      <Button
+        text={`Login with ${(authMethodName :> string)}`}
+        buttonType={PrimaryOutline}
+        onClick={_ => handleLoginWithSso(method.id)}
+      />
     | (_, _) => React.null
     }
   }

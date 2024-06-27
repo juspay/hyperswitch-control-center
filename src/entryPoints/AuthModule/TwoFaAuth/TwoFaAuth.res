@@ -17,6 +17,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (email, setEmail) = React.useState(_ => "")
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
 
   let handleAuthError = e => {
     open CommonAuthUtils
@@ -35,7 +36,13 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
 
   let getUserWithEmail = async body => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#CONNECT_ACCOUNT, ~methodType=Post, ())
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#CONNECT_ACCOUNT,
+        ~methodType=Post,
+        ~queryParamerters=Some(`auth_id=${authId}`),
+        (),
+      )
       let res = await updateDetails(url, body, Post, ())
       let valuesDict = res->getDictFromJsonObject
       let magicLinkSent = valuesDict->LogicUtils.getBool("is_email_sent", false)
@@ -86,7 +93,13 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let setForgetPassword = async body => {
     try {
       // Need to check this
-      let url = getURL(~entityName=USERS, ~userType=#FORGOT_PASSWORD, ~methodType=Post, ())
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#FORGOT_PASSWORD,
+        ~methodType=Post,
+        ~queryParamerters=Some(`auth_id=${authId}`),
+        (),
+      )
       let _ = await updateDetails(url, body, Post, ())
       setAuthType(_ => ForgetPasswordEmailSent)
       showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
@@ -99,7 +112,13 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let resendVerifyEmail = async body => {
     try {
       // Need to check this
-      let url = getURL(~entityName=USERS, ~userType=#VERIFY_EMAIL_REQUEST, ~methodType=Post, ())
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#VERIFY_EMAIL_REQUEST,
+        ~methodType=Post,
+        ~queryParamerters=Some(`auth_id=${authId}`),
+        (),
+      )
       let _ = await updateDetails(url, body, Post, ())
       setAuthType(_ => ResendVerifyEmailSent)
       showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
