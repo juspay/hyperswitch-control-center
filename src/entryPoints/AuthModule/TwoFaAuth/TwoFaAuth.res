@@ -249,9 +249,6 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
             </UIUtils.RenderIf>
           | ResendVerifyEmail
           | SignUP =>
-            // if signUpAllowed && signupMethod==SSOTypes.MAGIC_LINK{
-            //   <EmailForm />
-            // }
             <>
               <UIUtils.RenderIf condition={signUpAllowed && signupMethod === SSOTypes.MAGIC_LINK}>
                 <EmailForm />
