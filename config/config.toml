@@ -3,7 +3,7 @@ primary_color="#006DF9"
 primary_hover_color="#005ED6"
 sidebar_color="#242F48"
 [default.endpoints]
-api_url="https://sandbox.hyperswitch.io"
+api_url="http://localhost:8080"
 sdk_url=""
 logo_url=""
 favicon_url=""
@@ -14,7 +14,7 @@ mixpanel_token=""
 [default.features]
 test_live_toggle=false
 is_live_mode=false
-email=true
+email=false
 quick_start=false
 audit_trail=false
 system_metrics=false
@@ -36,4 +36,4 @@ global_search=false
 dispute_analytics=false
 configure_pmts=false
 branding=false
-totp=true
+totp=false
