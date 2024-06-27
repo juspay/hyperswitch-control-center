@@ -73,3 +73,8 @@ let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
     allow_signup: true,
   },
 ]
+
+let redirectToLogin = () => {
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+  RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=`/login?auth_id=${authId}`))
+}

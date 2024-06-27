@@ -2,6 +2,8 @@ let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
   open UIUtils
   open CommonAuthTypes
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+
   let getFooterLinkComponent = (~btnText, ~authType, ~path) => {
     <div
       onClick={_ => {
@@ -19,14 +21,14 @@ let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
       getFooterLinkComponent(
         ~btnText="or sign in using password",
         ~authType=LoginWithPassword,
-        ~path="/login",
+        ~path=`/login?auth_id${authId}`,
       )
     | LoginWithPassword =>
       <RenderIf condition={isMagicLinkEnabled}>
         {getFooterLinkComponent(
           ~btnText="or sign in with an email",
           ~authType=LoginWithEmail,
-          ~path="/login",
+          ~path=`/login?auth_id${authId}`,
         )}
       </RenderIf>
     | SignUP =>

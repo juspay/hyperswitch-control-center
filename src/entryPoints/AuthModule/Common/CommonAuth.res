@@ -43,6 +43,8 @@ module Header = {
     let form = ReactFinalForm.useForm()
     let {email: isMagicLinkEnabled, isLiveMode} =
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+
     let headerStyle = switch authType {
     | MagicLinkEmailSent
     | ForgetPasswordEmailSent
@@ -127,7 +129,7 @@ module Header = {
         getHeaderLink(
           ~prefix="Already using Hyperswitch?",
           ~authType=isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword,
-          ~path="/login",
+          ~path=`/login?auth_id=${authId}`,
           ~sufix="Sign in",
         )
       | ForgetPassword =>

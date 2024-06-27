@@ -333,7 +333,7 @@ let handleLogout = async (
     setAuthStateToLogout()
     setIsSidebarExpanded(_ => false)
     clearRecoilValue()
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+    AuthUtils.redirectToLogin()
     let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
     let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
     LocalStorage.clear()
@@ -377,7 +377,7 @@ let responseHandler = async (
           if !sessionExpired.contents {
             showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false, ())
             setAuthStatus(AuthProviderTypes.LoggedOut)
-            RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+            AuthUtils.redirectToLogin()
             sessionExpired := true
           }
 

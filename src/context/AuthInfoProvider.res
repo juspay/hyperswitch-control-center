@@ -55,7 +55,7 @@ let make = (~children) => {
     | LoggedOut => {
         setAuth(_ => LoggedOut)
         CommonAuthUtils.clearLocalStorage()
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+        AuthUtils.redirectToLogin()
       }
     | CheckingAuthStatus => setAuth(_ => CheckingAuthStatus)
     }

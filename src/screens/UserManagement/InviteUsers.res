@@ -100,6 +100,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   let (loaderForInviteUsers, setLoaderForInviteUsers) = React.useState(_ => false)
   let paddingClass = isInviteUserFlow ? "p-10" : ""
   let marginClass = isInviteUserFlow ? "mt-5" : ""
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
 
   let initialValues = React.useMemo0(() => {
     [("roleType", [defaultRole->JSON.Encode.string]->JSON.Encode.array)]->getJsonFromArrayOfJson
@@ -114,7 +115,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   }
 
   let inviteListOfUsersWithInviteMultiple = async values => {
-    let url = getURLForInviteMultipleUser
+    let url = `${getURLForInviteMultipleUser}?auth_id=${authId}`
     if !email {
       setLoaderForInviteUsers(_ => true)
     }

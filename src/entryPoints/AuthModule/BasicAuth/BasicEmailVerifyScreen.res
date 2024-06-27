@@ -36,7 +36,7 @@ let make = (~setAuthType) => {
     None
   })
   let onClick = () => {
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+    AuthUtils.redirectToLogin()
     setAuthType(_ => CommonAuthTypes.LoginWithEmail)
   }
 
