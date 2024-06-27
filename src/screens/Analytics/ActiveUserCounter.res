@@ -19,7 +19,7 @@ let make = () => {
             [
               (
                 "startTime",
-                (Date.now() -. 300000.0)->Date.fromTime->Date.toISOString->JSON.Encode.string,
+                (Date.now() -. 60000.0)->Date.fromTime->Date.toISOString->JSON.Encode.string,
               ),
               ("endTime", Date.make()->Date.toISOString->JSON.Encode.string),
             ]->getJsonFromArrayOfJson,
