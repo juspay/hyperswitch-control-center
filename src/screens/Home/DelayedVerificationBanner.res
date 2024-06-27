@@ -8,6 +8,8 @@ let make = (~merchantId="", ~verificationDays) => {
   let showPopUp = PopUpState.useShowPopUp()
   let getURL = useGetURL()
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+
   let verificationMessage = `${verificationDays->Int.toString} ${verificationDays === 1
       ? "day"
       : "days"} to go!`
@@ -29,7 +31,13 @@ let make = (~merchantId="", ~verificationDays) => {
   let rec resendEmailVerify = async () => {
     let body = email->CommonAuthUtils.getEmailBody()
     try {
-      let url = getURL(~entityName=USERS, ~userType=#VERIFY_EMAIL_REQUEST, ~methodType=Post, ())
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#VERIFY_EMAIL_REQUEST,
+        ~methodType=Post,
+        ~queryParamerters=Some(`auth_id=${authId}`),
+        (),
+      )
       let _ = await updateDetails(url, body, Post, ())
       showToast(~message=`Email Send Successfully!`, ~toastType=ToastSuccess, ())
     } catch {

@@ -105,11 +105,18 @@ module UserHeading = {
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
     let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
     let userPermissionJson = HyperswitchAtom.userPermissionAtom->Recoil.useRecoilValueFromAtom
+    let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
 
     let resendInvite = async () => {
       try {
         setButtonState(_ => Button.Loading)
-        let url = getURL(~entityName=USERS, ~userType=#RESEND_INVITE, ~methodType=Post, ())
+        let url = getURL(
+          ~entityName=USERS,
+          ~userType=#RESEND_INVITE,
+          ~methodType=Post,
+          ~queryParamerters=Some(`auth_id=${authId}`),
+          (),
+        )
         let body =
           [("email", infoValue.email->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
         let _ = await updateDetails(url, body, Post, ())
