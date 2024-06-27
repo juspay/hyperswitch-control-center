@@ -95,8 +95,6 @@ module SSOFromEmail = {
 module SSOFromRedirect = {
   @react.component
   let make = () => {
-    let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-
     React.useEffect0(() => {
       // Todo api call to get the next flow
       // SIGN in SSO FLOW

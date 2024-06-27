@@ -67,9 +67,7 @@ let make = () => {
                 ->JSON.Encode.string,
               ),
               ("endTime", Date.make()->Date.toISOString->JSON.Encode.string),
-            ]
-            ->Dict.fromArray
-            ->JSON.Encode.object,
+            ]->getJsonFromArrayOfJson,
           ),
           ("metrics", ["sdk_rendered_count"->JSON.Encode.string]->JSON.Encode.array),
         ]->getJsonFromArrayOfJson,
