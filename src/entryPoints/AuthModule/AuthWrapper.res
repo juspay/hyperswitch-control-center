@@ -129,8 +129,6 @@ let make = (~children) => {
   }
 
   React.useEffect1(() => {
-    // TODO: call this method only when auth_id is present in the URL
-
     if authStatus === LoggedOut {
       getAuthMethods()->ignore
     }

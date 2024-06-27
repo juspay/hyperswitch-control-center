@@ -27,9 +27,7 @@ let make = (~setAuthStatus) => {
     | list{"forget-password"} => setActualAuthType(_ => ForgetPassword)
     | list{"register"} =>
       // In Live mode users are not allowed to singup directly
-      !isLiveMode
-        ? setActualAuthType(_ => SignUP)
-        : HSwitchGlobalVars.appendDashboardPath(~url="/login")->RescriptReactRouter.push
+      !isLiveMode ? setActualAuthType(_ => SignUP) : AuthUtils.redirectToLogin()
     | _ => ()
     }
 
@@ -53,8 +51,7 @@ let make = (~setAuthStatus) => {
         | list{"user", "set_password"}
         | list{"register", ..._},
       ) => () // to prevent duplicate push
-    | (LoginWithPassword | LoginWithEmail, _) =>
-      HSwitchGlobalVars.appendDashboardPath(~url="/login")->RescriptReactRouter.replace
+    | (LoginWithPassword | LoginWithEmail, _) => AuthUtils.redirectToLogin()
 
     | (SignUP, list{"register", ..._}) => () // to prevent duplicate push
     | (SignUP, _) =>
