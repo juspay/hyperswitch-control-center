@@ -1,7 +1,7 @@
 open SSOTypes
 
 let authMethodsNameToVariantMapper = value => {
-  switch value {
+  switch value->String.toLowerCase {
   | "password" => #Password
   | "magic_link" => #Magic_Link
   | "okta" => #Okta
@@ -11,7 +11,7 @@ let authMethodsNameToVariantMapper = value => {
   }
 }
 let authMethodsTypeToVariantMapper = value => {
-  switch value {
+  switch value->String.toLowerCase {
   | "password" => PASSWORD
   | "magic_link" => MAGIC_LINK
   | "open_id_connect" => OPEN_ID_CONNECT

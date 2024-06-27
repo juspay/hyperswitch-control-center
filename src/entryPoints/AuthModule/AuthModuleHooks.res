@@ -33,37 +33,36 @@ let useAuthMethods = (): authMethodProps => {
         ~queryParamerters=Some(`auth_id=${authId}`),
         (),
       )
-      // let json = await fetchDetails(`${authListUrl}`)
-      let json = [
-        // {
-        //   "id": "49d39174-7847-41f6-b5b2-f3b1e5e5b877",
-        //   "auth_id": "0710fa00-6dd0-44de-ad85-a7928347d294",
-        //   "auth_method": {
-        //     "type": "password",
-        //     "name": "",
-        //   },
-        //   "allow_signup": false,
-        // },
-
-        // {
-        //   "id": "e47075b1-17e4-4bcd-b351-3e4c2d4a30d2",
-        //   "auth_id": "0710fa00-6dd0-44de-ad85-a7928347d294",
-        //   "auth_method": {
-        //     "type": "open_id_connect",
-        //     "name": "okta",
-        //   },
-        //   "allow_signup": true,
-        // },
-        {
-          "id": "49d39174-7847-41f6-b5b2-f3b1e5e5b877",
-          "auth_id": "0710fa00-6dd0-44de-ad85-a7928347d294",
-          "auth_method": {
-            "type": "magic_link",
-            "name": "",
-          },
-          "allow_signup": true,
-        },
-      ]->Identity.genericTypeToJson
+      let json = await fetchDetails(`${authListUrl}`)
+      // let json = [
+      //   {
+      //     "id": "49d39174-7847-41f6-b5b2-f3b1e5e5b877",
+      //     "auth_id": "0710fa00-6dd0-44de-ad85-a7928347d294",
+      //     "auth_method": {
+      //       "type": "password",
+      //       "name": "",
+      //     },
+      //     "allow_signup": false,
+      //   },
+      //   {
+      //     "id": "e47075b1-17e4-4bcd-b351-3e4c2d4a30d2",
+      //     "auth_id": "0710fa00-6dd0-44de-ad85-a7928347d294",
+      //     "auth_method": {
+      //       "type": "open_id_connect",
+      //       "name": "okta",
+      //     },
+      //     "allow_signup": true,
+      //   },
+      //   {
+      //     "id": "49d39174-7847-41f6-b5b2-f3b1e5e5b877",
+      //     "auth_id": "0710fa00-6dd0-44de-ad85-a7928347d294",
+      //     "auth_method": {
+      //       "type": "magic_link",
+      //       "name": "",
+      //     },
+      //     "allow_signup": true,
+      //   },
+      // ]->Identity.genericTypeToJson
       let arrayFromJson = json->getArrayFromJson([])
       let methods = if arrayFromJson->Array.length === 0 {
         AuthUtils.defaultListOfAuth

@@ -92,5 +92,3 @@ let redirectToLogin = () => {
     RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=`/login`))
   }
 }
-
-// let getAuthMethod = authType => {}

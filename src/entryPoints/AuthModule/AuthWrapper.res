@@ -52,6 +52,7 @@ let make = (~children) => {
   let {authStatus, setAuthStatus, authMethods} = React.useContext(
     AuthInfoProvider.authStatusContext,
   )
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let getAuthDetails = () => {
     open AuthUtils
     open LogicUtils
@@ -117,9 +118,11 @@ let make = (~children) => {
 
   let getAuthMethods = async () => {
     try {
+      setScreenState(_ => Loading)
       let _ = await fetchAuthMethods()
+      setScreenState(_ => Success)
     } catch {
-    | _ => ()
+    | _ => setScreenState(_ => Success)
     }
   }
 
@@ -133,12 +136,10 @@ let make = (~children) => {
   let renderComponentForAuthTypes = (method: SSOTypes.authMethodResponseType) => {
     let authMethodType = method.auth_method.\"type"
     let authMethodName = method.auth_method.name
-
     switch (authMethodType, authMethodName) {
-    // | (PASSWORD, #Email_Password) => <TwoFaAuthScreen setAuthStatus />
     | (OPEN_ID_CONNECT, #Okta) | (OPEN_ID_CONNECT, #Google) | (OPEN_ID_CONNECT, #Github) =>
       <Button
-        text={`Login with ${(authMethodName :> string)}`}
+        text={`Continue with ${(authMethodName :> string)}`}
         buttonType={PrimaryOutline}
         onClick={_ => handleLoginWithSso(method.id)}
       />
@@ -149,21 +150,23 @@ let make = (~children) => {
   <div className="font-inter-style">
     {switch authStatus {
     | LoggedOut =>
-      <AuthHeaderWrapper childrenStyle="flex flex-col gap-4">
-        <UIUtils.RenderIf condition={checkAuthMethodExists([PASSWORD, MAGIC_LINK])}>
-          <TwoFaAuthScreen setAuthStatus />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={checkAuthMethodExists([OPEN_ID_CONNECT])}>
-          {PreLoginUtils.divider}
-        </UIUtils.RenderIf>
-        {authMethods
-        ->Array.mapWithIndex((authMethod, index) =>
-          <React.Fragment key={index->Int.toString}>
-            {authMethod->renderComponentForAuthTypes}
-          </React.Fragment>
-        )
-        ->React.array}
-      </AuthHeaderWrapper>
+      <PageLoaderWrapper screenState>
+        <AuthHeaderWrapper childrenStyle="flex flex-col gap-4">
+          <UIUtils.RenderIf condition={checkAuthMethodExists([PASSWORD, MAGIC_LINK])}>
+            <TwoFaAuthScreen setAuthStatus />
+          </UIUtils.RenderIf>
+          <UIUtils.RenderIf condition={checkAuthMethodExists([OPEN_ID_CONNECT])}>
+            {PreLoginUtils.divider}
+          </UIUtils.RenderIf>
+          {authMethods
+          ->Array.mapWithIndex((authMethod, index) =>
+            <React.Fragment key={index->Int.toString}>
+              {authMethod->renderComponentForAuthTypes}
+            </React.Fragment>
+          )
+          ->React.array}
+        </AuthHeaderWrapper>
+      </PageLoaderWrapper>
     | PreLogin(_) => <DecisionScreen />
     | LoggedIn(_token) => children
     | CheckingAuthStatus => <PageLoaderWrapper.ScreenLoader />
