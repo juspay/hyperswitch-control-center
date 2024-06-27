@@ -238,7 +238,12 @@ let useGetURL = () => {
       | #PERMISSION_INFO
       | #ACCEPT_INVITE_FROM_EMAIL
       | #ROTATE_PASSWORD =>
-        `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+
+        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        }
+
       | #SIGNINV2_TOKEN_ONLY => `${userUrl}/v2/signin?token_only=true`
       | #VERIFY_EMAILV2_TOKEN_ONLY => `${userUrl}/v2/verify_email?token_only=true`
       | #SIGNUPV2 => `${userUrl}/signup`
@@ -248,7 +253,12 @@ let useGetURL = () => {
       | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
       | #VERIFY_TOTP => `${userUrl}/2fa/totp/verify`
       | #VERIFY_RECOVERY_CODE => `${userUrl}/2fa/recovery_code/verify`
-      | #INVITE_MULTIPLE_TOKEN_ONLY => `${userUrl}/user/invite_multiple?token_only=true`
+      | #INVITE_MULTIPLE_TOKEN_ONLY =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/user/invite_multiple?${params}&token_only=true`
+
+        | None => `${userUrl}/user/invite_multiple?token_only=true`
+        }
       | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
       | #TERMINATE_TWO_FACTOR_AUTH => `${userUrl}/2fa/terminate`
       | #CHECK_TWO_FACTOR_AUTH_STATUS => `${userUrl}/2fa`
