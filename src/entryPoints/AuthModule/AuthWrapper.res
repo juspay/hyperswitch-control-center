@@ -121,7 +121,17 @@ let make = (~children) => {
       if arrayFromJson->Array.length === 0 {
         setAuthMethods(_ => AuthUtils.defaultListOfAuth)
       } else {
-        setAuthMethods(_ => arrayFromJson->SSOUtils.getAuthVariants)
+        let typedvalue = arrayFromJson->SSOUtils.getAuthVariants
+        typedvalue->Array.sort((item1, item2) => {
+          if item1.auth_method.\"type" == PASSWORD {
+            -1.
+          } else if item2.auth_method.\"type" == PASSWORD {
+            1.
+          } else {
+            0.
+          }
+        })
+        setAuthMethods(_ => typedvalue)
       }
     } catch {
     | _ => setAuthMethods(_ => AuthUtils.defaultListOfAuth)
