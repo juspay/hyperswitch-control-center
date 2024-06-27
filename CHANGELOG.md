@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.27.0
+
+### Features
+
+- SSO integration in dashboard ([#870](https://github.com/juspay/hyperswitch-control-center/pull/870)) ([`3c348e1`](https://github.com/juspay/hyperswitch-control-center/commit/3c348e147a6e7b428c4be4ff91adb491c6469d00))
+
+**Full Changelog:** [`2024.06.26.0...2024.06.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.26.0...2024.06.27.0)
+
+- - -
+
 ## 2024.06.26.0
 
 ### Miscellaneous Tasks
