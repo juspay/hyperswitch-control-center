@@ -1,5 +1,5 @@
 type commonAuthInfo = {
-  token: string,
+  token: option<string>,
   merchant_id: string,
   name: string,
   email: string,

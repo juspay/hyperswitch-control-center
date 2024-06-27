@@ -44,3 +44,11 @@ let getAuthVariants = auth_methods => {
     dictFromJson->getTypedValueFromResponse
   })
 }
+
+let ssoDefaultValue = (values: AuthProviderTypes.preLoginType): AuthProviderTypes.preLoginType => {
+  {
+    token: values.token,
+    token_type: "sso",
+    email_token: values.email_token,
+  }
+}
