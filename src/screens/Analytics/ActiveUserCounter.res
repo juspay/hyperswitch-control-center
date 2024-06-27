@@ -1,16 +1,17 @@
 @react.component
 let make = () => {
   open LogicUtils
+  open APIUtils
   let (activeUserCount, setActiveUserCount) = React.useState(_ => 0)
   let (todayVisits, setTodayVisits) = React.useState(_ => 0)
   let (healthCheck, setHealthCheck) = React.useState(_ => true)
-  let fetchApi = AuthHooks.useApiFetcher()
+  let updateDetails = useUpdateMethod()
   let (timestamp, setTimestamp) = React.useState(_ => Date.now())
 
   React.useEffect1(() => {
     let domain = "active_payments"
     let url = `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`
-    let bodyStr =
+    let body =
       [
         [
           (
@@ -21,42 +22,29 @@ let make = () => {
                 (Date.now() -. 300000.0)->Date.fromTime->Date.toISOString->JSON.Encode.string,
               ),
               ("endTime", Date.make()->Date.toISOString->JSON.Encode.string),
-            ]
-           ->LogicUtils.getJsonFromArrayOfJson
+            ]->LogicUtils.getJsonFromArrayOfJson,
           ),
           ("metrics", ["active_payments"->JSON.Encode.string]->JSON.Encode.array),
         ]
         ->Dict.fromArray
         ->JSON.Encode.object,
-      ]
-      ->JSON.Encode.array
-      ->JSON.stringify
-    open Promise
-    fetchApi(url, ~method_=Fetch.Post, ~bodyStr, ())
-    ->then(resp => {
-      let responseCode = resp->Fetch.Response.status
-      if responseCode > 200 {
-        setHealthCheck(_ => false)
+      ]->JSON.Encode.array
+    let _ = async () => {
+      try {
+        let json = await updateDetails(url, body, Fetch.Post, ())
+        let dict = json->getDictFromJsonObject
+        let newActiveUserCount =
+          dict
+          ->getJsonObjectFromDict("queryData")
+          ->getArrayFromJson([])
+          ->LogicUtils.getValueFromArray(0, JSON.Encode.null)
+          ->getDictFromJsonObject
+          ->getInt("active_payments", 0)
+        setActiveUserCount(_ => newActiveUserCount)
+      } catch {
+      | Exn.Error(_) => setHealthCheck(_ => false)
       }
-      resp->Fetch.Response.json
-    })
-    ->then(json => {
-      let dict = json->getDictFromJsonObject
-      let newActiveUserCount =
-        dict
-        ->getJsonObjectFromDict("queryData")
-        ->getArrayFromJson([])
-        ->LogicUtils.getValueFromArray(0,JSON.Encode.null)
-        ->getDictFromJsonObject
-        ->getInt("active_payments", 0)
-      setActiveUserCount(_ => newActiveUserCount)
-      resolve()
-    })
-    ->catch(_err => {
-      setHealthCheck(_ => false)
-      resolve()
-    })
-    ->ignore
+    }
     None
   }, [timestamp])
 
@@ -64,7 +52,7 @@ let make = () => {
     let domain = "sdk_events"
     let url = `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`
     let today = Date.make()
-    let bodyStr =
+    let body =
       [
         [
           (
@@ -89,29 +77,23 @@ let make = () => {
         ]
         ->Dict.fromArray
         ->JSON.Encode.object,
-      ]
-      ->JSON.Encode.array
-      ->JSON.stringify
-    open Promise
-    fetchApi(url, ~method_=Fetch.Post, ~bodyStr, ())
-    ->then(Fetch.Response.json)
-    ->then(json => {
-      let dict = json->getDictFromJsonObject
-      let newActiveUserCount =
-        dict
-        ->getJsonObjectFromDict("queryData")
-        ->getArrayFromJson([])
-        ->Array.get(0)
-        ->Option.getOr(JSON.Encode.null)
-        ->getDictFromJsonObject
-        ->getInt("sdk_rendered_count", 0)
-      setTodayVisits(_ => newActiveUserCount)
-      resolve()
-    })
-    ->catch(_err => {
-      resolve()
-    })
-    ->ignore
+      ]->JSON.Encode.array
+    let _ = async () => {
+      try {
+        let json = await updateDetails(url, body, Fetch.Post, ())
+        let dict = json->getDictFromJsonObject
+        let todayVisitsCount =
+          dict
+          ->getJsonObjectFromDict("queryData")
+          ->getArrayFromJson([])
+          ->LogicUtils.getValueFromArray(0, JSON.Encode.null)
+          ->getDictFromJsonObject
+          ->getInt("sdk_rendered_count", 0)
+        setTodayVisits(_ => todayVisitsCount)
+      } catch {
+      | Exn.Error(_) => setHealthCheck(_ => false)
+      }
+    }
     None
   }, [timestamp])
 
