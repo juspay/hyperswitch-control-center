@@ -31,12 +31,13 @@ let make = (~merchantId="", ~verificationDays) => {
   let rec resendEmailVerify = async () => {
     let body = email->CommonAuthUtils.getEmailBody()
     try {
-      let url = `${getURL(
-          ~entityName=USERS,
-          ~userType=#VERIFY_EMAIL_REQUEST,
-          ~methodType=Post,
-          (),
-        )}?auth_id=${authId}`
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#VERIFY_EMAIL_REQUEST,
+        ~methodType=Post,
+        ~queryParamerters=Some(`auth_id=${authId}`),
+        (),
+      )
       let _ = await updateDetails(url, body, Post, ())
       showToast(~message=`Email Send Successfully!`, ~toastType=ToastSuccess, ())
     } catch {

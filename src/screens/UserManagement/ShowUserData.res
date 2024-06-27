@@ -110,12 +110,13 @@ module UserHeading = {
     let resendInvite = async () => {
       try {
         setButtonState(_ => Button.Loading)
-        let url = `${getURL(
-            ~entityName=USERS,
-            ~userType=#RESEND_INVITE,
-            ~methodType=Post,
-            (),
-          )}?auth_id=${authId}`
+        let url = getURL(
+          ~entityName=USERS,
+          ~userType=#RESEND_INVITE,
+          ~methodType=Post,
+          ~queryParamerters=Some(`auth_id=${authId}`),
+          (),
+        )
         let body =
           [("email", infoValue.email->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
         let _ = await updateDetails(url, body, Post, ())

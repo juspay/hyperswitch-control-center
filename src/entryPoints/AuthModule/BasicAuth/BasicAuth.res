@@ -35,12 +35,13 @@ let make = (~authType, ~setAuthType) => {
 
   let getUserWithEmail = async body => {
     try {
-      let url = `${getURL(
-          ~entityName=USERS,
-          ~userType=#CONNECT_ACCOUNT,
-          ~methodType=Post,
-          (),
-        )}?auth_id=${authId}`
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#CONNECT_ACCOUNT,
+        ~methodType=Post,
+        ~queryParamerters=Some(`auth_id=${authId}`),
+        (),
+      )
       let res = await updateDetails(url, body, Post, ())
       let valuesDict = res->getDictFromJsonObject
       let magicLinkSent = valuesDict->LogicUtils.getBool("is_email_sent", false)
@@ -89,12 +90,13 @@ let make = (~authType, ~setAuthType) => {
 
   let setForgetPassword = async body => {
     try {
-      let url = `${getURL(
-          ~entityName=USERS,
-          ~userType=#FORGOT_PASSWORD,
-          ~methodType=Post,
-          (),
-        )}?auth_id=${authId}`
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#FORGOT_PASSWORD,
+        ~methodType=Post,
+        ~queryParamerters=Some(`auth_id=${authId}`),
+        (),
+      )
       let _ = await updateDetails(url, body, Post, ())
       setAuthType(_ => ForgetPasswordEmailSent)
       showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
@@ -106,12 +108,13 @@ let make = (~authType, ~setAuthType) => {
 
   let resendVerifyEmail = async body => {
     try {
-      let url = `${getURL(
-          ~entityName=USERS,
-          ~userType=#VERIFY_EMAIL_REQUEST,
-          ~methodType=Post,
-          (),
-        )}?auth_id=${authId}`
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#VERIFY_EMAIL_REQUEST,
+        ~methodType=Post,
+        ~queryParamerters=Some(`auth_id=${authId}`),
+        (),
+      )
       let _ = await updateDetails(url, body, Post, ())
       setAuthType(_ => ResendVerifyEmailSent)
       showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())

@@ -108,14 +108,26 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
 
   let getURLForInviteMultipleUser = {
     if totp {
-      getURL(~entityName=USERS, ~userType=#INVITE_MULTIPLE_TOKEN_ONLY, ~methodType=Post, ())
+      getURL(
+        ~entityName=USERS,
+        ~userType=#INVITE_MULTIPLE_TOKEN_ONLY,
+        ~methodType=Post,
+        ~queryParamerters=Some(`auth_id=${authId}`),
+        (),
+      )
     } else {
-      getURL(~entityName=USERS, ~userType=#INVITE_MULTIPLE, ~methodType=Post, ())
+      getURL(
+        ~entityName=USERS,
+        ~userType=#INVITE_MULTIPLE,
+        ~methodType=Post,
+        ~queryParamerters=Some(`auth_id=${authId}`),
+        (),
+      )
     }
   }
 
   let inviteListOfUsersWithInviteMultiple = async values => {
-    let url = `${getURLForInviteMultipleUser}?auth_id=${authId}`
+    let url = getURLForInviteMultipleUser
     if !email {
       setLoaderForInviteUsers(_ => true)
     }

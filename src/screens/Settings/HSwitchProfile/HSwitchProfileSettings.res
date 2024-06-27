@@ -64,12 +64,13 @@ module ResetPassword = {
     let resetPassword = async body => {
       setIsLoading(_ => true)
       try {
-        let url = `${getURL(
-            ~entityName=USERS,
-            ~userType=#FORGOT_PASSWORD,
-            ~methodType=Post,
-            (),
-          )}?auth_id=${authId}`
+        let url = getURL(
+          ~entityName=USERS,
+          ~userType=#FORGOT_PASSWORD,
+          ~methodType=Post,
+          ~queryParamerters=Some(`auth_id=${authId}`),
+          (),
+        )
         let _ = await updateDetails(url, body, Post, ())
         showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
         setIsLoading(_ => false)
