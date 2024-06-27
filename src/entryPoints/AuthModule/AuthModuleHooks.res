@@ -35,15 +35,15 @@ let useAuthMethods = (): authMethodProps => {
       )
       let json = await fetchDetails(`${authListUrl}`)
       // let json = [
-      //   {
-      //     "id": "49d39174-7847-41f6-b5b2-f3b1e5e5b877",
-      //     "auth_id": "0710fa00-6dd0-44de-ad85-a7928347d294",
-      //     "auth_method": {
-      //       "type": "password",
-      //       "name": "",
-      //     },
-      //     "allow_signup": false,
+      // {
+      //   "id": "49d39174-7847-41f6-b5b2-f3b1e5e5b877",
+      //   "auth_id": "0710fa00-6dd0-44de-ad85-a7928347d294",
+      //   "auth_method": {
+      //     "type": "password",
+      //     "name": "",
       //   },
+      //   "allow_signup": true,
+      // },
       //   {
       //     "id": "e47075b1-17e4-4bcd-b351-3e4c2d4a30d2",
       //     "auth_id": "0710fa00-6dd0-44de-ad85-a7928347d294",
@@ -175,7 +175,7 @@ let useNote = (authType, setAuthType, ()) => {
   <div className="w-96">
     {switch authType {
     | LoginWithEmail =>
-      <RenderIf condition={isPasswordEnabled()}>
+      <RenderIf condition={isPasswordEnabled() && isMagicLinkEnabled()}>
         {getFooterLinkComponent(
           ~btnText="sign in using password",
           ~authType=LoginWithPassword,
