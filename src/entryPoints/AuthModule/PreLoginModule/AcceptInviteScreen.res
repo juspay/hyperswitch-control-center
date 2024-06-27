@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~onClick) => {
   open AuthProviderTypes
   open APIUtils
   let getURL = useGetURL()
@@ -43,9 +43,6 @@ let make = () => {
 
     None
   })
-  let onClick = () => {
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-  }
 
   <EmailVerifyScreen
     errorMessage

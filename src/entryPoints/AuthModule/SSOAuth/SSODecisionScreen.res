@@ -1,106 +1,29 @@
-module SSOFromEmail = {
-  @react.component
-  let make = () => {
-    open FramerMotion.Motion
-    open CommonAuthTypes
-    open AuthProviderTypes
-    let fetchAuthMethods = AuthModuleHooks.useAuthMethods()
-    let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-    let (logoVariant, iconUrl) = switch Window.env.logoUrl {
-    | Some(url) => (IconWithURL, Some(url))
-    | _ => (IconWithText, None)
-    }
-
-    let (authMethods, setAuthMethods) = React.useState(_ => AuthUtils.defaultListOfAuth)
-
-    let getAuthMethods = async () => {
-      try {
-        let arrayFromJson = await fetchAuthMethods()
-        if arrayFromJson->Array.length === 0 {
-          setAuthMethods(_ => AuthUtils.defaultListOfAuth)
-        } else {
-          setAuthMethods(_ => arrayFromJson->SSOUtils.getAuthVariants)
-        }
-      } catch {
-      | _ => setAuthMethods(_ => AuthUtils.defaultListOfAuth)
-      }
-    }
-
-    let handleContinueWithHs = async () => {
-      try {
-        // TODO : add API to get the  next flow
-        let preLoginInfo = AuthUtils.getPreLoginDetailsFromLocalStorage()
-        setAuthStatus(PreLogin(preLoginInfo))
-      } catch {
-      | _ => ()
-      }
-    }
-
-    React.useEffect0(() => {
-      getAuthMethods()->ignore
-      None
-    })
-
-    let renderComponentForAuthTypes = (method: SSOTypes.authMethodResponseType) => {
-      let authMethodType = method.auth_method.\"type"
-      let authMethodName = method.auth_method.name
-
-      switch (authMethodType, authMethodName) {
-      | (PASSWORD, #Email_Password) =>
-        <Button
-          text="Continue with Hyperswitch"
-          buttonType={Primary}
-          buttonSize={Large}
-          onClick={_ => handleContinueWithHs()->ignore}
-        />
-      | (OPEN_ID_CONNECT, #Okta) | (OPEN_ID_CONNECT, #Google) | (OPEN_ID_CONNECT, #Github) =>
-        <Button
-          text={`Login with ${(authMethodName :> string)}`}
-          buttonType={PrimaryOutline}
-          onClick={_ => handleContinueWithHs()->ignore}
-        />
-      | (_, _) => React.null
-      }
-    }
-
-    <HSwitchUtils.BackgroundImageWrapper
-      customPageCss="flex flex-col items-center  overflow-scroll ">
-      <div
-        className="h-full flex flex-col items-center justify-between overflow-scoll text-grey-0 w-full mobile:w-30-rem">
-        <div className="flex flex-col items-center gap-6 flex-1 mt-32 w-30-rem">
-          <Div layoutId="form" className="bg-white w-full text-black mobile:border rounded-lg">
-            <div className="px-7 py-6">
-              <Div layoutId="logo">
-                <HyperSwitchLogo logoHeight="h-8" theme={Dark} logoVariant iconUrl />
-              </Div>
-            </div>
-            <Div layoutId="border" className="border-b w-full" />
-            <div className="flex flex-col gap-4 p-7">
-              {authMethods
-              ->Array.mapWithIndex((authMethod, index) => <>
-                {authMethod->renderComponentForAuthTypes}
-                <UIUtils.RenderIf condition={index === 0 && authMethods->Array.length !== 1}>
-                  {PreLoginUtils.divider}
-                </UIUtils.RenderIf>
-              </>)
-              ->React.array}
-            </div>
-          </Div>
-        </div>
-      </div>
-    </HSwitchUtils.BackgroundImageWrapper>
-  }
-}
-
 module SSOFromRedirect = {
   @react.component
-  let make = () => {
+  let make = (~localSSOState) => {
+    open SSOTypes
+    open APIUtils
+    let updateDetails = useUpdateMethod()
+    let getURL = useGetURL()
     let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
+    let signInWithSSO = async () => {
+      open AuthUtils
+      try {
+        let body = switch localSSOState {
+        | SSO_FROM_REDIRECT(#Okta(data)) => data->Identity.genericTypeToJson
+        | _ => Dict.make()->JSON.Encode.object
+        }
+        let ssoUrl = getURL(~entityName=USERS, ~userType=#SIGN_IN_WITH_SSO, ~methodType=Post, ())
+        let response = await updateDetails(ssoUrl, body, Post, ())
+        setAuthStatus(PreLogin(getPreLoginInfo(response)))
+      } catch {
+      | _ => setAuthStatus(LoggedOut)
+      }
+    }
+
     React.useEffect0(() => {
-      // Todo api call to get the next flow
-      // SIGN in SSO FLOW
-      ()
+      signInWithSSO()->ignore
       None
     })
 
@@ -113,23 +36,33 @@ module SSOFromRedirect = {
 }
 
 @react.component
-let make = () => {
+let make = (~auth_id: option<string>) => {
   open SSOTypes
-
   let url = RescriptReactRouter.useUrl()
   let path = url.path->List.toArray->Array.joinWith("/")
   let (localSSOState, setLocalSSOState) = React.useState(_ => LOADING)
 
+  let oktaMethod = () => {
+    open LogicUtils
+    let dict = url.search->getDictFromUrlSearchParams
+    let okta = {
+      code: dict->Dict.get("code"),
+      state: dict->Dict.get("state"),
+    }
+    setLocalSSOState(_ => SSO_FROM_REDIRECT(#Okta(okta)))
+  }
+
   React.useEffect1(() => {
-    if path->String.includes("redirect_from_sso") {
-      setLocalSSOState(_ => SSO_FROM_REDIRECT)
+    switch (url.path, auth_id) {
+    | (list{"redirect", "oidc", "okta"}, _) => oktaMethod()
+    | (_, Some(str)) => Window.Location.replace(`${Window.env.apiBaseUrl}/user/auth/url?id=${str}`)
+    | _ => ()
     }
     None
   }, [path])
 
   switch localSSOState {
-  | SSO_FROM_REDIRECT => <SSOFromRedirect />
-  | SSO_FROM_EMAIL => <SSOFromEmail />
+  | SSO_FROM_REDIRECT(_) => <SSOFromRedirect localSSOState />
   | LOADING => <PageLoaderWrapper.ScreenLoader />
   }
 }

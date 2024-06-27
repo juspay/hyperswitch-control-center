@@ -210,10 +210,17 @@ let useGetURL = () => {
       | #NONE => ""
       | #USER_DATA => `${userUrl}/data`
       | #MERCHANT_DATA => `${userUrl}/data`
-      | #INVITE_MULTIPLE
-      | #RESEND_INVITE =>
-        `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
-      | #CONNECT_ACCOUNT => `${userUrl}/connect_account`
+      | #RESEND_INVITE
+      | #INVITE_MULTIPLE =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
+        | None => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
+        }
+      | #CONNECT_ACCOUNT =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/connect_account?${params}`
+        | None => `${userUrl}/connect_account`
+        }
       | #SWITCH_MERCHANT =>
         switch methodType {
         | Get => `${userUrl}/switch/list`
@@ -238,7 +245,10 @@ let useGetURL = () => {
       | #PERMISSION_INFO
       | #ACCEPT_INVITE_FROM_EMAIL
       | #ROTATE_PASSWORD =>
-        `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        }
       | #SIGNINV2_TOKEN_ONLY => `${userUrl}/v2/signin?token_only=true`
       | #VERIFY_EMAILV2_TOKEN_ONLY => `${userUrl}/v2/verify_email?token_only=true`
       | #SIGNUPV2 => `${userUrl}/signup`
@@ -248,7 +258,11 @@ let useGetURL = () => {
       | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
       | #VERIFY_TOTP => `${userUrl}/2fa/totp/verify`
       | #VERIFY_RECOVERY_CODE => `${userUrl}/2fa/recovery_code/verify`
-      | #INVITE_MULTIPLE_TOKEN_ONLY => `${userUrl}/user/invite_multiple?token_only=true`
+      | #INVITE_MULTIPLE_TOKEN_ONLY =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/user/invite_multiple?${params}&token_only=true`
+        | None => `${userUrl}/user/invite_multiple?token_only=true`
+        }
       | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
       | #TERMINATE_TWO_FACTOR_AUTH => `${userUrl}/2fa/terminate`
       | #CHECK_TWO_FACTOR_AUTH_STATUS => `${userUrl}/2fa`
@@ -258,6 +272,8 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/auth/list?${params}`
         | None => `${userUrl}/auth/list`
         }
+      | #AUTH_SELECT => `${userUrl}/auth/select`
+      | #SIGN_IN_WITH_SSO => `${userUrl}/oidc`
       | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
         `${userUrl}/accept_invite_from_email?token_only=true`
       | #USER_INFO => userUrl
@@ -331,7 +347,7 @@ let handleLogout = async (
     setAuthStateToLogout()
     setIsSidebarExpanded(_ => false)
     clearRecoilValue()
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+    AuthUtils.redirectToLogin()
     let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
     let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
     LocalStorage.clear()
@@ -375,7 +391,7 @@ let responseHandler = async (
           if !sessionExpired.contents {
             showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false, ())
             setAuthStatus(AuthProviderTypes.LoggedOut)
-            RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+            AuthUtils.redirectToLogin()
             sessionExpired := true
           }
 
