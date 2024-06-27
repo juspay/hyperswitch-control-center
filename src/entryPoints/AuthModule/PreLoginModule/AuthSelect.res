@@ -6,7 +6,8 @@ let make = (~setSelectedAuthId) => {
   open APIUtils
 
   let getURL = useGetURL()
-  let fetchAuthMethods = AuthModuleHooks.useAuthMethods()
+
+  // let (fetchAuthMethods, _, _, _) = AuthModuleHooks.useAuthMethods()
   let updateDetails = useUpdateMethod()
 
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
@@ -17,22 +18,8 @@ let make = (~setSelectedAuthId) => {
   let (authMethods, setAuthMethods) = React.useState(_ => AuthUtils.defaultListOfAuth)
 
   let getAuthMethods = async () => {
-    let arrayFromJson = await fetchAuthMethods()
-    if arrayFromJson->Array.length === 0 {
-      setAuthMethods(_ => AuthUtils.defaultListOfAuth)
-    } else {
-      let typedvalue = arrayFromJson->SSOUtils.getAuthVariants
-      typedvalue->Array.sort((item1, item2) => {
-        if item1.auth_method.\"type" == PASSWORD {
-          -1.
-        } else if item2.auth_method.\"type" == PASSWORD {
-          1.
-        } else {
-          0.
-        }
-      })
-      setAuthMethods(_ => typedvalue)
-    }
+    // let methods = await fetchAuthMethods()
+    setAuthMethods(_ => [])
   }
 
   let handleTerminateSSO = async method_id => {
@@ -58,7 +45,7 @@ let make = (~setSelectedAuthId) => {
     let authMethodName = method.auth_method.name
 
     switch (authMethodType, authMethodName) {
-    | (PASSWORD, #Email_Password) =>
+    | (PASSWORD, #Password) =>
       <Button
         text="Continue with Password"
         buttonType={Primary}

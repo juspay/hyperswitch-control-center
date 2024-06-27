@@ -3,10 +3,10 @@ let make = (~setAuthStatus) => {
   open CommonAuthTypes
   let url = RescriptReactRouter.useUrl()
   let (_mode, setMode) = React.useState(_ => TestButtonMode)
-  let {isLiveMode, email: isMagicLinkEnabled} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {isMagicLinkEnabled} = AuthModuleHooks.useAuthMethods()
+  let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let authInitState = isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword
+  let authInitState = isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword
   let (authType, setAuthType) = React.useState(_ => authInitState)
 
   let (actualAuthType, setActualAuthType) = React.useState(_ => authInitState)
@@ -21,7 +21,7 @@ let make = (~setAuthStatus) => {
     switch url.path {
     | list{"user", "verify_email"} => setActualAuthType(_ => EmailVerify)
     | list{"login"} =>
-      setActualAuthType(_ => isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword)
+      setActualAuthType(_ => isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword)
     | list{"user", "set_password"} => setActualAuthType(_ => ResetPassword)
     | list{"user", "accept_invite_from_email"} => setActualAuthType(_ => ActivateFromEmail)
     | list{"forget-password"} => setActualAuthType(_ => ForgetPassword)

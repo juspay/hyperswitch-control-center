@@ -2,16 +2,18 @@ open SSOTypes
 
 let authMethodsNameToVariantMapper = value => {
   switch value {
-  | "password" => #Email_Password
+  | "password" => #Password
+  | "magic_link" => #Magic_Link
   | "okta" => #Okta
   | "google" => #Google
   | "github" => #Github
-  | _ => #Email_Password
+  | _ => #Password
   }
 }
 let authMethodsTypeToVariantMapper = value => {
   switch value {
   | "password" => PASSWORD
+  | "magic_link" => MAGIC_LINK
   | "open_id_connect" => OPEN_ID_CONNECT
   | _ => PASSWORD
   }

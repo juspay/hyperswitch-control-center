@@ -64,11 +64,20 @@ let getUserInfoDetailsFromLocalStorage = () => {
 
 let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
   {
-    id: "dummyId",
-    auth_id: "dummyAuthId",
+    id: "defaultpasswordId",
+    auth_id: "defaulpasswordAuthId",
     auth_method: {
       \"type": PASSWORD,
-      name: #Email_Password,
+      name: #Password,
+    },
+    allow_signup: true,
+  },
+  {
+    id: "defaultmagicLinkId",
+    auth_id: "defaulmagicLinkId",
+    auth_method: {
+      \"type": MAGIC_LINK,
+      name: #Magic_Link,
     },
     allow_signup: true,
   },
@@ -83,3 +92,5 @@ let redirectToLogin = () => {
     RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=`/login`))
   }
 }
+
+// let getAuthMethod = authType => {}

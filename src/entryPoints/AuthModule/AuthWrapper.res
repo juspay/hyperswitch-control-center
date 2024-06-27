@@ -48,10 +48,10 @@ let make = (~children) => {
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
-  let fetchAuthMethods = AuthModuleHooks.useAuthMethods()
-  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let (authMethods, setAuthMethods) = React.useState(_ => AuthUtils.defaultListOfAuth)
-
+  let {fetchAuthMethods, checkAuthMethodExists} = AuthModuleHooks.useAuthMethods()
+  let {authStatus, setAuthStatus, authMethods} = React.useContext(
+    AuthInfoProvider.authStatusContext,
+  )
   let getAuthDetails = () => {
     open AuthUtils
     open LogicUtils
@@ -117,24 +117,9 @@ let make = (~children) => {
 
   let getAuthMethods = async () => {
     try {
-      let arrayFromJson = await fetchAuthMethods()
-      if arrayFromJson->Array.length === 0 {
-        setAuthMethods(_ => AuthUtils.defaultListOfAuth)
-      } else {
-        let typedvalue = arrayFromJson->SSOUtils.getAuthVariants
-        typedvalue->Array.sort((item1, item2) => {
-          if item1.auth_method.\"type" == PASSWORD {
-            -1.
-          } else if item2.auth_method.\"type" == PASSWORD {
-            1.
-          } else {
-            0.
-          }
-        })
-        setAuthMethods(_ => typedvalue)
-      }
+      let _ = await fetchAuthMethods()
     } catch {
-    | _ => setAuthMethods(_ => AuthUtils.defaultListOfAuth)
+    | _ => ()
     }
   }
 
@@ -150,7 +135,7 @@ let make = (~children) => {
     let authMethodName = method.auth_method.name
 
     switch (authMethodType, authMethodName) {
-    | (PASSWORD, #Email_Password) => <TwoFaAuthScreen setAuthStatus />
+    // | (PASSWORD, #Email_Password) => <TwoFaAuthScreen setAuthStatus />
     | (OPEN_ID_CONNECT, #Okta) | (OPEN_ID_CONNECT, #Google) | (OPEN_ID_CONNECT, #Github) =>
       <Button
         text={`Login with ${(authMethodName :> string)}`}
@@ -165,13 +150,16 @@ let make = (~children) => {
     {switch authStatus {
     | LoggedOut =>
       <AuthHeaderWrapper childrenStyle="flex flex-col gap-4">
+        <UIUtils.RenderIf condition={checkAuthMethodExists([PASSWORD, MAGIC_LINK])}>
+          <TwoFaAuthScreen setAuthStatus />
+        </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={checkAuthMethodExists([OPEN_ID_CONNECT])}>
+          {PreLoginUtils.divider}
+        </UIUtils.RenderIf>
         {authMethods
         ->Array.mapWithIndex((authMethod, index) =>
           <React.Fragment key={index->Int.toString}>
             {authMethod->renderComponentForAuthTypes}
-            <UIUtils.RenderIf condition={index === 0 && authMethods->Array.length !== 1}>
-              {PreLoginUtils.divider}
-            </UIUtils.RenderIf>
           </React.Fragment>
         )
         ->React.array}
