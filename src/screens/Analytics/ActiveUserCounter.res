@@ -22,10 +22,10 @@ let make = () => {
                 (Date.now() -. 300000.0)->Date.fromTime->Date.toISOString->JSON.Encode.string,
               ),
               ("endTime", Date.make()->Date.toISOString->JSON.Encode.string),
-            ]->LogicUtils.getJsonFromArrayOfJson,
+            ]->getJsonFromArrayOfJson,
           ),
           ("metrics", ["active_payments"->JSON.Encode.string]->JSON.Encode.array),
-        ]->LogicUtils.getJsonFromArrayOfJson,
+        ]->getJsonFromArrayOfJson,
       ]->JSON.Encode.array
     let _ = async () => {
       try {
@@ -35,7 +35,7 @@ let make = () => {
           dict
           ->getJsonObjectFromDict("queryData")
           ->getArrayFromJson([])
-          ->LogicUtils.getValueFromArray(0, JSON.Encode.null)
+          ->getValueFromArray(0, JSON.Encode.null)
           ->getDictFromJsonObject
           ->getInt("active_payments", 0)
         setActiveUserCount(_ => newActiveUserCount)
@@ -72,7 +72,7 @@ let make = () => {
             ->JSON.Encode.object,
           ),
           ("metrics", ["sdk_rendered_count"->JSON.Encode.string]->JSON.Encode.array),
-        ]->LogicUtils.getJsonFromArrayOfJson,
+        ]->getJsonFromArrayOfJson,
       ]->JSON.Encode.array
     let _ = async () => {
       try {
@@ -82,7 +82,7 @@ let make = () => {
           dict
           ->getJsonObjectFromDict("queryData")
           ->getArrayFromJson([])
-          ->LogicUtils.getValueFromArray(0, JSON.Encode.null)
+          ->getValueFromArray(0, JSON.Encode.null)
           ->getDictFromJsonObject
           ->getInt("sdk_rendered_count", 0)
         setTodayVisits(_ => todayVisitsCount)
