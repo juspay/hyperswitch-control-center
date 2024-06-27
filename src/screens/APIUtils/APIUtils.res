@@ -210,10 +210,17 @@ let useGetURL = () => {
       | #NONE => ""
       | #USER_DATA => `${userUrl}/data`
       | #MERCHANT_DATA => `${userUrl}/data`
-      | #INVITE_MULTIPLE
-      | #RESEND_INVITE =>
-        `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
-      | #CONNECT_ACCOUNT => `${userUrl}/connect_account`
+      | #RESEND_INVITE
+      | #INVITE_MULTIPLE =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
+        | None => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
+        }
+      | #CONNECT_ACCOUNT =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/connect_account?${params}`
+        | None => `${userUrl}/connect_account`
+        }
       | #SWITCH_MERCHANT =>
         switch methodType {
         | Get => `${userUrl}/switch/list`
@@ -240,10 +247,8 @@ let useGetURL = () => {
       | #ROTATE_PASSWORD =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
-
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
-
       | #SIGNINV2_TOKEN_ONLY => `${userUrl}/v2/signin?token_only=true`
       | #VERIFY_EMAILV2_TOKEN_ONLY => `${userUrl}/v2/verify_email?token_only=true`
       | #SIGNUPV2 => `${userUrl}/signup`
@@ -256,7 +261,6 @@ let useGetURL = () => {
       | #INVITE_MULTIPLE_TOKEN_ONLY =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/user/invite_multiple?${params}&token_only=true`
-
         | None => `${userUrl}/user/invite_multiple?token_only=true`
         }
       | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
