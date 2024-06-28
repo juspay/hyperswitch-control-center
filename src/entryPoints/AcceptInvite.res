@@ -54,7 +54,8 @@ let make = () => {
       let typedInfo = res->BasicAuthUtils.getBasicAuthInfo
       if typedInfo.token->Option.isSome {
         open AuthProviderTypes
-        LocalStorage.removeItem("accept_invite_data")
+        open HSLocalStorage
+        removeItemFromLocalStorage(~key="accept_invite_data")
         setAuthStatus(LoggedIn(BasicAuth(typedInfo)))
         setDashboardPageState(_ => #HOME)
       } else {

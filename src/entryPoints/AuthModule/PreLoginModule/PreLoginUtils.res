@@ -14,12 +14,15 @@ let flowTypeStrToVariantMapperForNewFlow = val => {
   | "reset_password" => RESET_PASSWORD
   // home call
   | "user_info" => USER_INFO
+  | "sso" => SSO
+  | "auth_select" => AUTH_SELECT
   | _ => ERROR
   }
 }
 
 let variantToStringFlowMapper = val => {
   switch val {
+  | AUTH_SELECT => "auth_select"
   | MERCHANT_SELECT => "merchant_select"
   | TOTP => "totp"
   | FORCE_SET_PASSWORD => "force_set_password"
@@ -28,6 +31,14 @@ let variantToStringFlowMapper = val => {
   | ACCEPT_INVITATION_FROM_EMAIL => "accept_invitation_from_email"
   | RESET_PASSWORD => "reset_password"
   | USER_INFO => "user_info"
+  | SSO => "sso"
   | ERROR => ""
   }
 }
+
+let divider =
+  <div className="flex gap-2 items-center ">
+    <hr className="w-full" />
+    <p className=" text-gray-400"> {"OR"->React.string} </p>
+    <hr className="w-full" />
+  </div>

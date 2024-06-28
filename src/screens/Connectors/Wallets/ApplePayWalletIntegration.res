@@ -113,7 +113,8 @@ module Simplified = {
       ]->React.array
     let downloadApplePayCert = () => {
       open Promise
-      fetchApi(HSwitchGlobalVars.urlToDownloadApplePayCertificate, ~method_=Get, ())
+      let downloadURL = Window.env.applePayCertificateUrl->Option.getOr("")
+      fetchApi(downloadURL, ~method_=Get, ())
       ->then(Fetch.Response.blob)
       ->then(content => {
         DownloadUtils.download(
@@ -335,7 +336,6 @@ module Manual = {
     // Need to refactor
     let _ = ConnectorUtils.updateMetaData(~metaData)
     //
-
     let configurationFields =
       metadataInputs
       ->getDictfromDict("apple_pay")

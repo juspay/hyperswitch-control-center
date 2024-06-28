@@ -1,4 +1,6 @@
-type twoFaFlowType =
+type preLoginTypes =
+  | AUTH_SELECT
+  | SSO
   | MERCHANT_SELECT
   | TOTP
   | FORCE_SET_PASSWORD

@@ -23,11 +23,19 @@ module ShowOrderDetails = {
     ~paymentId,
     ~connectorList=?,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
+    ~sectionTitle=?,
   ) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let typedPaymentStatus = paymentStatus->statusVariantMapper
     let statusUI = useGetStatus(data)
-    <Section customCssClass={`${border} ${bgColor} rounded-md p-5 h-full`}>
+    <Section customCssClass={`${border} ${bgColor} rounded-md px-5 pt-5 h-full`}>
+      {switch sectionTitle {
+      | Some(title) =>
+        <div className="font-bold text-base ml-4 mb-3 opacity-70 underline underline-offset-4">
+          {title->React.string}
+        </div>
+      | _ => React.null
+      }}
       <UIUtils.RenderIf condition=isButtonEnabled>
         <div className="flex items-center flex-wrap gap-3 m-3">
           <div className="flex items-start">
@@ -124,6 +132,7 @@ module OrderInfo = {
               PaymentMethodType,
               PaymentMethod,
               AuthenticationType,
+              CardNetwork,
             ]
             isNonRefundConnector
             paymentStatus
@@ -752,6 +761,87 @@ let make = (~id) => {
         <RenderAccordian
           accordion={[
             {
+              title: "Customer Details",
+              renderContent: () => {
+                <div>
+                  <ShowOrderDetails
+                    sectionTitle="Customer"
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[FirstName, LastName, Phone, Email, CustomerId, Description]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                  <div className="border-b-2 border-border-light-grey mx-5" />
+                  <ShowOrderDetails
+                    sectionTitle="Billing"
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[BillingEmail, BillingPhone, BillingAddress]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                  <div className="border-b-2 border-border-light-grey mx-5" />
+                  <ShowOrderDetails
+                    sectionTitle="Shipping"
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[ShippingEmail, ShippingPhone, ShippingAddress]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                  <div className="border-b-2 border-border-light-grey mx-5" />
+                  <ShowOrderDetails
+                    sectionTitle="Payment Method"
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[PMBillingEmail, PMBillingPhone, PMBillingAddress]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                  <div className="border-b-2 border-border-light-grey mx-5" />
+                  <ShowOrderDetails
+                    sectionTitle="Fraud & risk management (FRM)"
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[FRMName, FRMTransactionType, FRMStatus]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                </div>
+              },
+              renderContentOnTop: None,
+            },
+          ]}
+        />
+        <RenderAccordian
+          accordion={[
+            {
               title: "More Payment Details",
               renderContent: () => {
                 <div className="mb-10">
@@ -760,15 +850,6 @@ let make = (~id) => {
                     getHeading=OrderEntity.getHeadingForOtherDetails
                     getCell=OrderEntity.getCellForOtherDetails
                     detailsFields=[
-                      FirstName,
-                      LastName,
-                      Phone,
-                      Email,
-                      CustomerId,
-                      Description,
-                      Shipping,
-                      Billing,
-                      BillingEmail,
                       AmountCapturable,
                       ErrorCode,
                       MandateData,
@@ -782,9 +863,6 @@ let make = (~id) => {
                       StatementDescriptorName,
                       StatementDescriptorSuffix,
                       PaymentExperience,
-                      FRMName,
-                      FRMTransactionType,
-                      FRMStatus,
                     ]
                     isNonRefundConnector={isNonRefundConnector(orderData.connector)}
                     paymentStatus={orderData.status}
@@ -799,21 +877,6 @@ let make = (~id) => {
             },
           ]}
         />
-        <div className="overflow-scroll">
-          <RenderAccordian
-            accordion={[
-              {
-                title: "FRM Details",
-                renderContent: () => {
-                  <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
-                    <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
-                  </div>
-                },
-                renderContentOnTop: None,
-              },
-            ]}
-          />
-        </div>
         <UIUtils.RenderIf
           condition={orderData.payment_method === "card" &&
             orderData.payment_method_data->Option.isSome}>
@@ -869,6 +932,21 @@ let make = (~id) => {
             ]}
           />
         </UIUtils.RenderIf>
+        <div className="overflow-scroll">
+          <RenderAccordian
+            accordion={[
+              {
+                title: "FRM Details",
+                renderContent: () => {
+                  <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
+                    <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
+                  </div>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </div>
       </div>
     </PageLoaderWrapper>
   </div>

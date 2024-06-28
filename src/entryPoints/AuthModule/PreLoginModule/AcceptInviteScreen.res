@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~onClick) => {
   open AuthProviderTypes
   open APIUtils
   let getURL = useGetURL()
@@ -10,7 +10,7 @@ let make = () => {
 
   let acceptInviteFromEmailWithSPT = async body => {
     try {
-      open TwoFaUtils
+      open AuthUtils
 
       let url = getURL(
         ~entityName=USERS,
@@ -43,9 +43,6 @@ let make = () => {
 
     None
   })
-  let onClick = () => {
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-  }
 
   <EmailVerifyScreen
     errorMessage
