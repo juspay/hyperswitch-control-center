@@ -157,14 +157,14 @@ let make = (~children) => {
           </UIUtils.RenderIf>
           <UIUtils.RenderIf condition={checkAuthMethodExists([OPEN_ID_CONNECT])}>
             {PreLoginUtils.divider}
+            {authMethods
+            ->Array.mapWithIndex((authMethod, index) =>
+              <React.Fragment key={index->Int.toString}>
+                {authMethod->renderComponentForAuthTypes}
+              </React.Fragment>
+            )
+            ->React.array}
           </UIUtils.RenderIf>
-          {authMethods
-          ->Array.mapWithIndex((authMethod, index) =>
-            <React.Fragment key={index->Int.toString}>
-              {authMethod->renderComponentForAuthTypes}
-            </React.Fragment>
-          )
-          ->React.array}
         </AuthHeaderWrapper>
       </PageLoaderWrapper>
     | PreLogin(_) => <DecisionScreen />

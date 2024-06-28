@@ -14,7 +14,7 @@ let defaultContextValue = {
   setAuthStatus: _ => (),
   setAuthStateToLogout: _ => (),
   setAuthMethods: _ => (),
-  authMethods: [],
+  authMethods: AuthUtils.defaultListOfAuth,
 }
 
 let authStatusContext = React.createContext(defaultContextValue)

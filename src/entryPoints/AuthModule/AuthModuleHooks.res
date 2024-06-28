@@ -86,11 +86,11 @@ let useAuthMethods = (): authMethodProps => {
     let magicLinkmethod = getAuthMethod(MAGIC_LINK)
     let passwordmethod = getAuthMethod(PASSWORD)
 
-    let isSingUpAllowdinMagicLink = switch magicLinkmethod {
+    let isSingUpAllowedinMagicLink = switch magicLinkmethod {
     | Some(magicLinkData) => magicLinkData->Array.some(v => v.allow_signup)
     | None => false
     }
-    let isSingUpAllowdinPassword = switch passwordmethod {
+    let isSingUpAllowedinPassword = switch passwordmethod {
     | Some(passwordData) => passwordData->Array.some(v => v.allow_signup)
     | None => false
     }
@@ -100,14 +100,19 @@ let useAuthMethods = (): authMethodProps => {
     let isLiveMode = featureFlagValues.isLiveMode
 
     if isLiveMode {
+      // Singup not allowed in Prod
       (false, INVALID)
-    } else if isSingUpAllowdinMagicLink && emailFeatureFlagEnable {
+    } else if isSingUpAllowedinMagicLink && emailFeatureFlagEnable {
+      // Singup is allowed if email feature flag and allow_signup in the magicLink method is true
       (true, MAGIC_LINK)
-    } else if isSingUpAllowdinPassword {
+    } else if isSingUpAllowedinPassword {
+      // Singup is allowed if email feature flag and allow_signup in the passowrd method is true
       (true, PASSWORD)
     } else if !isTotpFeatureDisable && emailFeatureFlagEnable {
+      // Singup is allowed if totp feature  is disable and email feature is enabled
       (true, MAGIC_LINK)
     } else if !isTotpFeatureDisable {
+      // Singup is allowed if totp feature  is disable
       (true, PASSWORD)
     } else {
       (false, INVALID)
