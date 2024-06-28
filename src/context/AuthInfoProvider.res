@@ -4,11 +4,17 @@ type defaultProviderTypes = {
   authStatus: authStatus,
   setAuthStatus: authStatus => unit,
   setAuthStateToLogout: unit => unit,
+  setAuthMethods: (
+    array<SSOTypes.authMethodResponseType> => array<SSOTypes.authMethodResponseType>
+  ) => unit,
+  authMethods: array<SSOTypes.authMethodResponseType>,
 }
 let defaultContextValue = {
   authStatus: CheckingAuthStatus,
   setAuthStatus: _ => (),
   setAuthStateToLogout: _ => (),
+  setAuthMethods: _ => (),
+  authMethods: AuthUtils.defaultListOfAuth,
 }
 
 let authStatusContext = React.createContext(defaultContextValue)
@@ -20,6 +26,7 @@ module Provider = {
 @react.component
 let make = (~children) => {
   let (authStatus, setAuth) = React.useState(_ => CheckingAuthStatus)
+  let (authMethods, setAuthMethods) = React.useState(_ => [])
   let setAuthStatus = React.useCallback1((newAuthStatus: authStatus) => {
     switch newAuthStatus {
     | LoggedIn(info) =>
@@ -66,5 +73,14 @@ let make = (~children) => {
     CommonAuthUtils.clearLocalStorage()
   })
 
-  <Provider value={authStatus, setAuthStatus, setAuthStateToLogout}> children </Provider>
+  <Provider
+    value={
+      authStatus,
+      setAuthStatus,
+      setAuthStateToLogout,
+      setAuthMethods,
+      authMethods,
+    }>
+    children
+  </Provider>
 }
