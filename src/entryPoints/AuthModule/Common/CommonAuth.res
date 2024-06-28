@@ -40,9 +40,11 @@ module Header = {
   let make = (~authType, ~setAuthType, ~email) => {
     open CommonAuthTypes
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {isSignUpAllowed} = AuthModuleHooks.useAuthMethods()
     let form = ReactFinalForm.useForm()
-    let {email: isMagicLinkEnabled, isLiveMode} =
-      HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {email: isMagicLinkEnabled} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+
     let headerStyle = switch authType {
     | MagicLinkEmailSent
     | ForgetPasswordEmailSent
@@ -97,7 +99,7 @@ module Header = {
     | ResendVerifyEmail => true
     | _ => false
     }
-
+    let (signUpAllowed, _) = isSignUpAllowed()
     <div className={`${headerStyle} gap-2 h-fit mb-7 w-96`}>
       <UIUtils.RenderIf condition={showInfoIcon}>
         <div className="flex justify-center my-5">
@@ -114,20 +116,20 @@ module Header = {
       </h1>
       {switch authType {
       | LoginWithPassword | LoginWithEmail =>
-        !isLiveMode
-          ? getHeaderLink(
-              ~prefix="New to Hyperswitch?",
-              ~authType=SignUP,
-              ~path="/register",
-              ~sufix="Sign up",
-            )
-          : React.null
+        <UIUtils.RenderIf condition={signUpAllowed}>
+          {getHeaderLink(
+            ~prefix="New to Hyperswitch?",
+            ~authType=SignUP,
+            ~path="/register",
+            ~sufix="Sign up",
+          )}
+        </UIUtils.RenderIf>
 
       | SignUP =>
         getHeaderLink(
           ~prefix="Already using Hyperswitch?",
           ~authType=isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword,
-          ~path="/login",
+          ~path=`/login?auth_id=${authId}`,
           ~sufix="Sign in",
         )
       | ForgetPassword =>

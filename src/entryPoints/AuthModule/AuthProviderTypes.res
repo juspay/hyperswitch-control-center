@@ -1,11 +1,11 @@
 type preLoginType = {
-  token: string,
+  token: option<string>,
   token_type: string,
   email_token: option<string>,
 }
 
 type authInfo = {
-  token: string,
+  token: option<string>,
   merchant_id: string,
   name: string,
   email: string,
