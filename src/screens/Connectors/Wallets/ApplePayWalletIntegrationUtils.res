@@ -1,6 +1,6 @@
 open ApplePayWalletIntegrationTypes
 type paymentProcessingState = [#Connector | #Hyperswitch]
-type initiative = [#iOS | #web | #invalid]
+type initiative = [#ios | #web | #invalid]
 
 let paymentProcessingMapper = state => {
   switch state->String.toLowerCase {
@@ -11,7 +11,7 @@ let paymentProcessingMapper = state => {
 }
 let initiativeMapper = state => {
   switch state->String.toLowerCase {
-  | "ios" => #iOS
+  | "ios" => #ios
   | "web" => #web
   | _ => #invalid
   }
@@ -203,7 +203,7 @@ let initiativeField = (~name, ~label, ~options, ~setInitiative, ~form: ReactFina
           onChange: event => {
             let value = event->Identity.formReactEventToString->initiativeMapper
             setInitiative(_ => value)
-            if value === #iOS {
+            if value === #ios {
               form.change(
                 "apple_pay_combined.manual.session_token_data.initiative_context",
                 JSON.Encode.null,

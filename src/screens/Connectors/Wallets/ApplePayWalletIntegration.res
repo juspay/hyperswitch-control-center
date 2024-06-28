@@ -228,7 +228,7 @@ module Fields = {
       [("label", "IOS/WEB"->JSON.Encode.string), ("value", "web"->JSON.Encode.string)]
       ->Dict.fromArray
       ->JSON.Encode.object,
-      [("label", "IOS"->JSON.Encode.string), ("value", "iOS"->JSON.Encode.string)]
+      [("label", "IOS"->JSON.Encode.string), ("value", "ios"->JSON.Encode.string)]
       ->Dict.fromArray
       ->JSON.Encode.object,
     ]
