@@ -1,6 +1,6 @@
-type authMethodTypes = PASSWORD | OPEN_ID_CONNECT
+type authMethodTypes = PASSWORD | MAGIC_LINK | OPEN_ID_CONNECT | INVALID
 
-type authNameTypes = [#Email_Password | #Okta | #Google | #Github]
+type authNameTypes = [#Magic_Link | #Password | #Okta | #Google | #Github]
 
 type okta = {
   code: option<string>,

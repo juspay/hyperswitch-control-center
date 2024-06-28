@@ -225,7 +225,10 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     }
     None
   })
-  let note = CommonAuthHooks.useNote(authType, setAuthType, featureFlagValues.email)
+
+  let {isMagicLinkEnabled, isSignUpAllowed} = AuthModuleHooks.useAuthMethods()
+  let (signUpAllowed, signupMethod) = isSignUpAllowed()
+  let note = AuthModuleHooks.useNote(authType, setAuthType, ())
   <ReactFinalForm.Form
     key="auth"
     initialValues
@@ -244,10 +247,19 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
             <UIUtils.RenderIf condition={featureFlagValues.email}>
               <EmailForm />
             </UIUtils.RenderIf>
-          | LoginWithEmail
           | ResendVerifyEmail
           | SignUP =>
-            featureFlagValues.email ? <EmailForm /> : <EmailPasswordForm setAuthType />
+            <>
+              <UIUtils.RenderIf condition={signUpAllowed && signupMethod === SSOTypes.MAGIC_LINK}>
+                <EmailForm />
+              </UIUtils.RenderIf>
+              <UIUtils.RenderIf condition={signUpAllowed && signupMethod == SSOTypes.PASSWORD}>
+                <EmailPasswordForm setAuthType />
+              </UIUtils.RenderIf>
+            </>
+
+          | LoginWithEmail =>
+            isMagicLinkEnabled() ? <EmailForm /> : <EmailPasswordForm setAuthType />
           | ResetPassword => <ResetPasswordForm />
           | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
             <ResendBtn callBackFun={resendEmail} />
