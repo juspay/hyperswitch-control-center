@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.06.28.0
+
+### Miscellaneous Tasks
+
+- Allow singup based on auth methods ([#878](https://github.com/juspay/hyperswitch-control-center/pull/878)) ([`48904da`](https://github.com/juspay/hyperswitch-control-center/commit/48904da42b0839209a47be59db651a4f102f84ff))
+- Add field domain name as optional field ([#880](https://github.com/juspay/hyperswitch-control-center/pull/880)) ([`ee6d0bd`](https://github.com/juspay/hyperswitch-control-center/commit/ee6d0bdc8700f4c4af9bd2e035c75b957fdfe5dd))
+
+**Full Changelog:** [`2024.06.27.0...2024.06.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.27.0...2024.06.28.0)
+
+- - -
+
 ## 2024.06.27.0
 
 ### Features
