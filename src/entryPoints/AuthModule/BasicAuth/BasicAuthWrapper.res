@@ -4,6 +4,7 @@ let make = (~children) => {
   let {authStatus, setAuthStatus, setAuthStateToLogout} = React.useContext(
     AuthInfoProvider.authStatusContext,
   )
+  let handleLogout = APIUtils.useHandleLogout()
 
   React.useEffect0(() => {
     switch url.path {
@@ -17,7 +18,7 @@ let make = (~children) => {
         let authInfo = BasicAuthUtils.getBasicAuthInfoFromStrorage()
         switch authInfo.token {
         | Some(_) => setAuthStatus(LoggedIn(BasicAuth(authInfo)))
-        | None => setAuthStatus(LoggedOut)
+        | None => handleLogout()->ignore
         }
       }
     }

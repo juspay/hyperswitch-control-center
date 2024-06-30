@@ -3,7 +3,7 @@ let make = (~onClick) => {
   open AuthProviderTypes
   open APIUtils
   let getURL = useGetURL()
-
+  let handleLogout = useHandleLogout()
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
@@ -24,7 +24,7 @@ let make = (~onClick) => {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Verification Failed")
         setErrorMessage(_ => err)
-        setAuthStatus(LoggedOut)
+        handleLogout()->ignore
       }
     }
   }
