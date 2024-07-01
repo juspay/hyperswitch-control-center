@@ -3,7 +3,7 @@ let make = () => {
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()
-  let handleLogout = useHandleLogout()
+
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
@@ -15,7 +15,7 @@ let make = () => {
       let listOfMerchants = await fetchDetails(url)
       setMerchantData(_ => listOfMerchants->getArrayFromJson([]))
     } catch {
-    | _ => handleLogout()->ignore
+    | _ => setAuthStatus(LoggedOut)
     }
   }
 
