@@ -46,7 +46,7 @@ let make = (~children) => {
   open APIUtils
 
   let getURL = useGetURL()
-  let handleLogout = useHandleLogout()
+
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let {fetchAuthMethods, checkAuthMethodExists} = AuthModuleHooks.useAuthMethods()
@@ -69,7 +69,7 @@ let make = (~children) => {
     } else if preLoginInfo.token->Option.isSome && preLoginInfo.token_type->isNonEmptyString {
       setAuthStatus(PreLogin(preLoginInfo))
     } else {
-      setAuthStateToLogout()
+      setAuthStatus(LoggedOut)
     }
   }
 
@@ -84,11 +84,11 @@ let make = (~children) => {
           let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post, ())
           setAuthStatus(PreLogin(AuthUtils.getPreLoginInfo(response, ~email_token=Some(token))))
         }
-      | None => handleLogout()->ignore
+      | None => setAuthStatus(LoggedOut)
       }
     } catch {
     | _ => {
-        handleLogout()->ignore
+        setAuthStatus(LoggedOut)
         setScreenState(_ => Success)
       }
     }
