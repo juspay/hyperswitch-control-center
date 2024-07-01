@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.01.0
+
+### Refactors
+
+- Handle logout hook changes ([#881](https://github.com/juspay/hyperswitch-control-center/pull/881)) ([`e2a81ba`](https://github.com/juspay/hyperswitch-control-center/commit/e2a81ba700f081d030d5521e44e5345a0d8f8569))
+
+**Full Changelog:** [`2024.06.28.0...2024.07.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.06.28.0...2024.07.01.0)
+
+- - -
+
 ## 2024.06.28.0
 
 ### Miscellaneous Tasks
