@@ -13,13 +13,12 @@ let make = (
   ~showLogoutButton=false,
 ) => {
   open UIUtils
+  let handleLogout = APIUtils.useHandleLogout()
   let appliedWidth = width === "98%" ? "98%" : width
   let appliedHeight = height === "100%" ? "100%" : height
 
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-
   let onLogoutHandle = () => {
-    setAuthStatus(LoggedOut)
+    handleLogout()->ignore
   }
 
   <div

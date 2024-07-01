@@ -140,13 +140,10 @@ module MerchantAuthInfo = {
 module CheckoutCard = {
   @react.component
   let make = () => {
-    let fetchApi = AuthHooks.useApiFetcher()
     let showPopUp = PopUpState.useShowPopUp()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
-    let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
+    let handleLogout = APIUtils.useHandleLogout()
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-    let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
     let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
@@ -163,14 +160,7 @@ module CheckoutCard = {
           handleConfirm: {
             text: "Sign up Now",
             onClick: {
-              _ => {
-                let _ = APIUtils.handleLogout(
-                  ~fetchApi,
-                  ~setAuthStateToLogout,
-                  ~setIsSidebarExpanded,
-                  ~clearRecoilValue,
-                )
-              }
+              _ => handleLogout()->ignore
             },
           },
         })

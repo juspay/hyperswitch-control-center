@@ -46,10 +46,11 @@ let make = (~children) => {
   open APIUtils
 
   let getURL = useGetURL()
+  let handleLogout = useHandleLogout()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let {fetchAuthMethods, checkAuthMethodExists} = AuthModuleHooks.useAuthMethods()
-  let {authStatus, setAuthStatus, authMethods} = React.useContext(
+  let {authStatus, setAuthStatus, authMethods, setAuthStateToLogout} = React.useContext(
     AuthInfoProvider.authStatusContext,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -68,7 +69,7 @@ let make = (~children) => {
     } else if preLoginInfo.token->Option.isSome && preLoginInfo.token_type->isNonEmptyString {
       setAuthStatus(PreLogin(preLoginInfo))
     } else {
-      setAuthStatus(LoggedOut)
+      setAuthStateToLogout()
     }
   }
 
@@ -83,10 +84,13 @@ let make = (~children) => {
           let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post, ())
           setAuthStatus(PreLogin(AuthUtils.getPreLoginInfo(response, ~email_token=Some(token))))
         }
-      | None => setAuthStatus(LoggedOut)
+      | None => handleLogout()->ignore
       }
     } catch {
-    | _ => setAuthStatus(LoggedOut)
+    | _ => {
+        handleLogout()->ignore
+        setScreenState(_ => Success)
+      }
     }
   }
 
@@ -104,7 +108,7 @@ let make = (~children) => {
     switch url.path {
     | list{"user", "login"}
     | list{"register"} =>
-      setAuthStatus(LoggedOut)
+      setAuthStateToLogout()
     | list{"user", "verify_email"}
     | list{"user", "set_password"}
     | list{"user", "accept_invite_from_email"} =>
