@@ -5,6 +5,7 @@ module SSOFromRedirect = {
     open APIUtils
     let updateDetails = useUpdateMethod()
     let getURL = useGetURL()
+    let handleLogout = useHandleLogout()
     let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
     let signInWithSSO = async () => {
@@ -18,7 +19,7 @@ module SSOFromRedirect = {
         let response = await updateDetails(ssoUrl, body, Post, ())
         setAuthStatus(PreLogin(getPreLoginInfo(response)))
       } catch {
-      | _ => setAuthStatus(LoggedOut)
+      | _ => handleLogout()->ignore
       }
     }
 

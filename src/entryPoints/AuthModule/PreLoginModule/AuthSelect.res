@@ -6,7 +6,7 @@ let make = (~setSelectedAuthId) => {
   open APIUtils
 
   let getURL = useGetURL()
-
+  let handleLogout = useHandleLogout()
   let {setAuthStatus, authMethods} = React.useContext(AuthInfoProvider.authStatusContext)
   let {fetchAuthMethods} = AuthModuleHooks.useAuthMethods()
   let updateDetails = useUpdateMethod()
@@ -35,7 +35,7 @@ let make = (~setSelectedAuthId) => {
       setSelectedAuthId(_ => Some(method_id))
       setAuthStatus(PreLogin(getPreLoginInfo(response)))
     } catch {
-    | _ => setAuthStatus(LoggedOut)
+    | _ => handleLogout()->ignore
     }
   }
 

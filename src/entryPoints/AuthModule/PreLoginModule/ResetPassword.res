@@ -8,11 +8,11 @@ let make = (~flowType) => {
   open CommonAuthForm
 
   let getURL = useGetURL()
-
+  let handleLogout = useHandleLogout()
   let initialValues = Dict.make()->JSON.Encode.object
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let setResetPassword = async body => {
     try {
@@ -24,7 +24,7 @@ let make = (~flowType) => {
       )
       let _ = await updateDetails(url, body, Post, ())
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
-      setAuthStatus(LoggedOut)
+      handleLogout()->ignore
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to update!")
@@ -39,7 +39,7 @@ let make = (~flowType) => {
       let body = [("password", password->JSON.Encode.string)]->getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
-      setAuthStatus(LoggedOut)
+      handleLogout()->ignore
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to update!")
@@ -96,7 +96,7 @@ let make = (~flowType) => {
           showToast(~message=errorMessage, ~toastType=ToastError, ())
         } else {
           showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())
-          setAuthStatus(LoggedOut)
+          handleLogout()->ignore
         }
       }
     }
