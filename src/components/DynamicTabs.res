@@ -226,6 +226,7 @@ let make = (
   ~enableDescriptionHeader: bool=false,
   ~toolTipDescription="Add more tabs",
   ~updateCollapsableTabs=false,
+  ~showAddMoreTabs=true,
 ) => {
   open LogicUtils
   let eulerBgClass = "bg-jp-gray-100 dark:bg-jp-gray-darkgray_background"
@@ -607,7 +608,7 @@ let make = (
               isVisible=isRightArrowVisible
             />
           </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={formattedOptions->Array.length > 0}>
+          <UIUtils.RenderIf condition={showAddMoreTabs && formattedOptions->Array.length > 0}>
             <div
               className="flex flex-row"
               style={ReactDOMStyle.make(~marginTop="20px", ~marginLeft="7px", ())}>
@@ -630,7 +631,7 @@ let make = (
       </div>
       <SelectModal
         modalHeading="Add Segment"
-        modalHeadingDescription={`U can select up to ${maxSelection->Int.toString} options`}
+        modalHeadingDescription={`You can select up to ${maxSelection->Int.toString} options`}
         ?headerTextClass
         showModal
         setShowModal

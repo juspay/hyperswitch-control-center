@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.01.1
+
+### Miscellaneous Tasks
+
+- Singout api call falling using spt ([#885](https://github.com/juspay/hyperswitch-control-center/pull/885)) ([`0e28321`](https://github.com/juspay/hyperswitch-control-center/commit/0e283213d660f9d4994a074c62b5c306fda4eec4))
+- Payment logs ui changes ([#883](https://github.com/juspay/hyperswitch-control-center/pull/883)) ([`e977daf`](https://github.com/juspay/hyperswitch-control-center/commit/e977dafd85c15745279fc378e669c3c293531852))
+
+**Full Changelog:** [`2024.07.01.0...2024.07.01.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.01.0...2024.07.01.1)
+
+- - -
+
 ## 2024.07.01.0
 
 ### Refactors

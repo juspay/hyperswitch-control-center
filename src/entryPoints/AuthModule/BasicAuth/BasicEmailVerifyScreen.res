@@ -5,7 +5,7 @@ let make = (~setAuthType) => {
   open LogicUtils
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let getURL = useGetURL()
-  let handleLogout = useHandleLogout()
+
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
@@ -21,7 +21,7 @@ let make = (~setAuthType) => {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Verification Failed")
         setErrorMessage(_ => err)
-        handleLogout()->ignore
+        setAuthStatus(LoggedOut)
       }
     }
   }
