@@ -231,6 +231,7 @@ let make = () => {
   let getURL = APIUtils.useGetURL()
   let showToast = ToastState.useShowToast()
   let fetchDetails = APIUtils.useGetMethod()
+  let handleLogout = APIUtils.useHandleLogout()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (isQrVisible, setIsQrVisible) = React.useState(_ => false)
@@ -307,7 +308,7 @@ let make = () => {
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch!"))
-        setAuthStatus(LoggedOut)
+        handleLogout()->ignore
       }
     }
   }
@@ -336,7 +337,7 @@ let make = () => {
           {"Log in with a different account?"->React.string}
           <p
             className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
-            onClick={_ => setAuthStatus(LoggedOut)}>
+            onClick={_ => handleLogout()->ignore}>
             {"Click here to log out."->React.string}
           </p>
         </div>
