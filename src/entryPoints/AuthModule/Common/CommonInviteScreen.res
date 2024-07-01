@@ -3,9 +3,9 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
   open HSwitchUtils
   open LogicUtils
 
+  let handleLogout = APIUtils.useHandleLogout()
   let textHeadingClass = getTextClass((H2, Optional))
   let textSubHeadingClass = getTextClass((P1, Regular))
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let isAtleastOneAccept = React.useMemo1(() => {
     merchantData
@@ -82,7 +82,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
         {"Log in with a different account?"->React.string}
         <p
           className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
-          onClick={_ => setAuthStatus(LoggedOut)}>
+          onClick={_ => handleLogout()->ignore}>
           {"Click here to log out."->React.string}
         </p>
       </div>
