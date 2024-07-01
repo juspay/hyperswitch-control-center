@@ -9,7 +9,8 @@ let make = () => {
   let (todayVisits, setTodayVisits) = React.useState(_ => 0)
   let (healthCheck, setHealthCheck) = React.useState(_ => true)
   let updateDetails = useUpdateMethod()
-  let (timestamp, setTimestamp) = React.useState(_ => Date.now())
+  let (todayVisitsTimestamp, setTodayVisitsTimestamp) = React.useState(_ => Date.now())
+  let (activeUserCountTimestamp, setActiveUserCountTimestamp) = React.useState(_ => Date.now())
   let getURL = useGetURL()
 
   let fetchMetrics = (domain, setData) => {
@@ -66,25 +67,45 @@ let make = () => {
 
   React.useEffect1(() => {
     fetchMetrics(ActivePayments, setActiveUserCount)
-    fetchMetrics(SdkEvents, setTodayVisits)
     None
-  }, [timestamp])
+  }, [activeUserCountTimestamp])
 
   React.useEffect1(() => {
-    let interval = setInterval(() => {
+    fetchMetrics(SdkEvents, setTodayVisits)
+    None
+  }, [todayVisitsTimestamp])
+
+  React.useEffect1(() => {
+    let todayVisitsInterval = setInterval(() => {
       setTimeout(
         () => {
           if healthCheck {
-            setTimestamp(_ => Date.now())
+            setTodayVisitsTimestamp(_ => Date.now())
+          }
+        },
+        60000,
+      )->ignore
+    }, 60000)
+    let activeUserCountInterval = setInterval(() => {
+      setTimeout(
+        () => {
+          if healthCheck {
+            setActiveUserCountTimestamp(_ => Date.now())
           }
         },
         5000,
       )->ignore
     }, 5000)
     if !healthCheck {
-      clearInterval(interval)
+      clearInterval(todayVisitsInterval)
+      clearInterval(activeUserCountInterval)
     }
-    Some(_ => clearInterval(interval))
+    Some(
+      _ => {
+        clearInterval(todayVisitsInterval)
+        clearInterval(activeUserCountInterval)
+      },
+    )
   }, [healthCheck])
   open HeadlessUI
   <Transition
