@@ -50,7 +50,7 @@ let make = (~children) => {
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let {fetchAuthMethods, checkAuthMethodExists} = AuthModuleHooks.useAuthMethods()
-  let {authStatus, setAuthStatus, authMethods} = React.useContext(
+  let {authStatus, setAuthStatus, authMethods, setAuthStateToLogout} = React.useContext(
     AuthInfoProvider.authStatusContext,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -69,7 +69,7 @@ let make = (~children) => {
     } else if preLoginInfo.token->Option.isSome && preLoginInfo.token_type->isNonEmptyString {
       setAuthStatus(PreLogin(preLoginInfo))
     } else {
-      handleLogout()->ignore
+      setAuthStateToLogout()
     }
   }
 
@@ -87,7 +87,10 @@ let make = (~children) => {
       | None => handleLogout()->ignore
       }
     } catch {
-    | _ => handleLogout()->ignore
+    | _ => {
+        handleLogout()->ignore
+        setScreenState(_ => Success)
+      }
     }
   }
 
@@ -105,7 +108,7 @@ let make = (~children) => {
     switch url.path {
     | list{"user", "login"}
     | list{"register"} =>
-      handleLogout()->ignore
+      setAuthStateToLogout()
     | list{"user", "verify_email"}
     | list{"user", "set_password"}
     | list{"user", "accept_invite_from_email"} =>

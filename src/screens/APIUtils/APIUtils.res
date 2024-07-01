@@ -321,10 +321,19 @@ let useHandleLogout = () => {
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
 
-  _ => {
+  () => {
     try {
       let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
-      let _ = fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+      open Promise
+      let _ =
+        fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+        ->then(Fetch.Response.json)
+        ->then(json => {
+          json->resolve
+        })
+        ->catch(_err => {
+          JSON.Encode.null->resolve
+        })
       setAuthStateToLogout()
       setIsSidebarExpanded(_ => false)
       clearRecoilValue()
