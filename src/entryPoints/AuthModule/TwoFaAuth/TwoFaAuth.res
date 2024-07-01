@@ -167,7 +167,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
             getUserWithEmail(body)
           }
 
-        | (_, _, false, LoginWithPassword) => {
+        | (_, _, _, LoginWithPassword) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
             getUserWithEmailPassword(body, #SIGNINV2_TOKEN_ONLY)
