@@ -13,7 +13,7 @@ let make = () => {
   let (activeUserCountTimestamp, setActiveUserCountTimestamp) = React.useState(_ => Date.now())
   let getURL = useGetURL()
 
-  let fetchMetrics = (domain, setData) => {
+  let fetchMetrics = async (domain, setData) => {
     let entityName = switch domain {
     | ActivePayments => ANALYTICS_ACTIVE_PAYMENTS
     | SdkEvents => ANALYTICS_USER_JOURNEY
@@ -47,31 +47,29 @@ let make = () => {
           ("metrics", [metric->JSON.Encode.string]->JSON.Encode.array),
         ]->getJsonFromArrayOfJson,
       ]->JSON.Encode.array
-    let _ = async () => {
-      try {
-        let json = await updateDetails(url, body, Fetch.Post, ())
-        let dict = json->getDictFromJsonObject
-        let newCount =
-          dict
-          ->getJsonObjectFromDict("queryData")
-          ->getArrayFromJson([])
-          ->getValueFromArray(0, JSON.Encode.null)
-          ->getDictFromJsonObject
-          ->getInt(metric, 0)
-        setData(_ => newCount)
-      } catch {
-      | Exn.Error(_) => setHealthCheck(_ => false)
-      }
+    try {
+      let json = await updateDetails(url, body, Fetch.Post, ())
+      let dict = json->getDictFromJsonObject
+      let newCount =
+        dict
+        ->getJsonObjectFromDict("queryData")
+        ->getArrayFromJson([])
+        ->getValueFromArray(0, JSON.Encode.null)
+        ->getDictFromJsonObject
+        ->getInt(metric, 0)
+      setData(_ => newCount)
+    } catch {
+    | Exn.Error(_) => setHealthCheck(_ => false)
     }
   }
 
   React.useEffect1(() => {
-    fetchMetrics(ActivePayments, setActiveUserCount)
+    fetchMetrics(ActivePayments, setActiveUserCount)->ignore
     None
   }, [activeUserCountTimestamp])
 
   React.useEffect1(() => {
-    fetchMetrics(SdkEvents, setTodayVisits)
+    fetchMetrics(SdkEvents, setTodayVisits)->ignore
     None
   }, [todayVisitsTimestamp])
 

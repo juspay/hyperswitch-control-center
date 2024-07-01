@@ -185,7 +185,7 @@ let useGetURL = () => {
         }
       | Post =>
         switch id {
-        | Some(domain) => `analytics/v1/${domain}/metrics`
+        | Some(domain) => `analytics/v1/metrics/${domain}`
         | _ => ""
         }
       | _ => ""
