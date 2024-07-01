@@ -1,8 +1,7 @@
 @react.component
 let make = () => {
-  let handleLogout = APIUtils.useHandleLogout()
   let (selectedAuthId, setSelectedAuthId) = React.useState(_ => None)
-  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let flowType = switch authStatus {
   | PreLogin(info) => info.token_type->PreLoginUtils.flowTypeStrToVariantMapperForNewFlow
@@ -10,7 +9,7 @@ let make = () => {
   }
 
   let onClickErrorPageButton = () => {
-    handleLogout()->ignore
+    setAuthStatus(LoggedOut)
   }
 
   switch flowType {

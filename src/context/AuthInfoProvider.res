@@ -63,11 +63,6 @@ let make = (~children) => {
         setAuth(_ => LoggedOut)
         CommonAuthUtils.clearLocalStorage()
         AuthUtils.redirectToLogin()
-        CookieStorage.deleteCookie(
-          ~cookieName="login_token",
-          ~domain=HSwitchGlobalVars.hostName,
-          (),
-        )
       }
     | CheckingAuthStatus => setAuth(_ => CheckingAuthStatus)
     }

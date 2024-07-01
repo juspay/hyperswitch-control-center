@@ -1,7 +1,6 @@
 @react.component
 let make = () => {
-  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let handleLogout = APIUtils.useHandleLogout()
+  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let flowType = switch authStatus {
   | LoggedIn(info) =>
@@ -13,7 +12,7 @@ let make = () => {
   }
 
   let onClickErrorPageButton = () => {
-    handleLogout()->ignore
+    setAuthStatus(LoggedOut)
   }
   switch flowType {
   | MERCHANT_SELECT => <AcceptInvite />
