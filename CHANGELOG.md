@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.01.2
+
+### Features
+
+- Feat: realtime user analytics ([#872](https://github.com/juspay/hyperswitch-control-center/pull/872)) ([`b6d6036`](https://github.com/juspay/hyperswitch-control-center/commit/b6d603621541fa46fbe53f5e43c4bac4a33e58ab))
+
+### Bug Fixes
+
+- Signup auth methods ([#887](https://github.com/juspay/hyperswitch-control-center/pull/887)) ([`6e6f469`](https://github.com/juspay/hyperswitch-control-center/commit/6e6f4697f1c0da63463693341f5a29079d494155))
+
+**Full Changelog:** [`2024.07.01.1...2024.07.01.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.01.1...2024.07.01.2)
+
+- - -
+
 ## 2024.07.01.1
 
 ### Miscellaneous Tasks
