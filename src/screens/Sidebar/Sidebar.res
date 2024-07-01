@@ -501,21 +501,18 @@ let make = (
     ConfigContext.configContext,
   )
 
-  let fetchApi = AuthHooks.useApiFetcher()
-  let getURL = APIUtils.useGetURL()
-
+  let handleLogout = APIUtils.useHandleLogout()
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let (openItem, setOpenItem) = React.useState(_ => "")
-  let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let {getFromSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
 
   let minWidthForPinnedState = MatchMedia.useMatchMedia("(min-width: 1280px)")
-  let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
+  // let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
   React.useEffect1(() => {
     if minWidthForPinnedState {
@@ -563,20 +560,6 @@ let make = (
   let sidebarContainerClassWidth = isMobileView ? "0px" : isHSSidebarPinned ? "270px" : "50px"
 
   let transformClass = "transform md:translate-x-0 transition"
-
-  let handleLogout = _ => {
-    try {
-      let _ = APIUtils.handleLogout(
-        ~fetchApi,
-        ~setAuthStateToLogout,
-        ~setIsSidebarExpanded,
-        ~clearRecoilValue,
-        ~getURL,
-      )
-    } catch {
-    | Exn.Error(e) => Js.log(e)
-    }
-  }
 
   <div
     className={`${backgroundColor.primaryNormal} flex group border-r border-jp-gray-500 relative`}>
@@ -715,7 +698,7 @@ let make = (
                           }}
                           text="Profile"
                         />
-                        <MenuOption onClick={handleLogout} text="Sign out" />
+                        <MenuOption onClick={_ => handleLogout()->ignore} text="Sign out" />
                       </div>
                     }}
                   </Popover.Panel>
