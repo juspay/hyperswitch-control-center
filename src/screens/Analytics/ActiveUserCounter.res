@@ -1,93 +1,72 @@
+type domain = ActivePayments | SdkEvents
+
 @react.component
 let make = () => {
   open LogicUtils
   open APIUtils
+  open APIUtilsTypes
   let (activeUserCount, setActiveUserCount) = React.useState(_ => 0)
   let (todayVisits, setTodayVisits) = React.useState(_ => 0)
   let (healthCheck, setHealthCheck) = React.useState(_ => true)
   let updateDetails = useUpdateMethod()
   let (timestamp, setTimestamp) = React.useState(_ => Date.now())
+  let getURL = useGetURL()
 
-  React.useEffect1(() => {
-    let domain = "active_payments"
-    let url = `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`
+  let fetchMetrics = (domain, setData) => {
+    let entityName = switch domain {
+    | ActivePayments => ANALYTICS_ACTIVE_PAYMENTS
+    | SdkEvents => ANALYTICS_USER_JOURNEY
+    }
+    let (domainUrl, metric) = switch domain {
+    | ActivePayments => ("active_payments", "active_payments")
+    | SdkEvents => ("sdk_events", "sdk_rendered_count")
+    }
+    let url = getURL(~entityName, ~methodType=Post, ~id=Some(domainUrl), ())
+    let startTime = switch domain {
+    | ActivePayments => (Date.now() -. 60000.0)->Date.fromTime
+    | SdkEvents => {
+        let today = Date.make()
+        Date.makeWithYMD(
+          ~year=today->Date.getFullYear,
+          ~month=today->Date.getMonth,
+          ~date=today->Date.getDate,
+        )
+      }
+    }
     let body =
       [
         [
           (
             "timeRange",
             [
-              (
-                "startTime",
-                (Date.now() -. 60000.0)->Date.fromTime->Date.toISOString->JSON.Encode.string,
-              ),
+              ("startTime", startTime->Date.toISOString->JSON.Encode.string),
               ("endTime", Date.make()->Date.toISOString->JSON.Encode.string),
             ]->getJsonFromArrayOfJson,
           ),
-          ("metrics", ["active_payments"->JSON.Encode.string]->JSON.Encode.array),
+          ("metrics", [metric->JSON.Encode.string]->JSON.Encode.array),
         ]->getJsonFromArrayOfJson,
       ]->JSON.Encode.array
     let _ = async () => {
       try {
         let json = await updateDetails(url, body, Fetch.Post, ())
         let dict = json->getDictFromJsonObject
-        let newActiveUserCount =
+        let newCount =
           dict
           ->getJsonObjectFromDict("queryData")
           ->getArrayFromJson([])
           ->getValueFromArray(0, JSON.Encode.null)
           ->getDictFromJsonObject
-          ->getInt("active_payments", 0)
-        setActiveUserCount(_ => newActiveUserCount)
+          ->getInt(metric, 0)
+        setData(_ => newCount)
       } catch {
       | Exn.Error(_) => setHealthCheck(_ => false)
       }
     }
-    None
-  }, [timestamp])
+  }
 
   React.useEffect1(() => {
-    let domain = "sdk_events"
-    let url = `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`
-    let today = Date.make()
-    let body =
-      [
-        [
-          (
-            "timeRange",
-            [
-              (
-                "startTime",
-                Date.makeWithYMD(
-                  ~year=today->Date.getFullYear,
-                  ~month=today->Date.getMonth,
-                  ~date=today->Date.getDate,
-                )
-                ->Date.toISOString
-                ->JSON.Encode.string,
-              ),
-              ("endTime", Date.make()->Date.toISOString->JSON.Encode.string),
-            ]->getJsonFromArrayOfJson,
-          ),
-          ("metrics", ["sdk_rendered_count"->JSON.Encode.string]->JSON.Encode.array),
-        ]->getJsonFromArrayOfJson,
-      ]->JSON.Encode.array
-    let _ = async () => {
-      try {
-        let json = await updateDetails(url, body, Fetch.Post, ())
-        let dict = json->getDictFromJsonObject
-        let todayVisitsCount =
-          dict
-          ->getJsonObjectFromDict("queryData")
-          ->getArrayFromJson([])
-          ->getValueFromArray(0, JSON.Encode.null)
-          ->getDictFromJsonObject
-          ->getInt("sdk_rendered_count", 0)
-        setTodayVisits(_ => todayVisitsCount)
-      } catch {
-      | Exn.Error(_) => setHealthCheck(_ => false)
-      }
-    }
+    fetchMetrics(ActivePayments, setActiveUserCount)
+    fetchMetrics(SdkEvents, setTodayVisits)
     None
   }, [timestamp])
 
