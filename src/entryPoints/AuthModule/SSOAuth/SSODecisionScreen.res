@@ -5,6 +5,7 @@ module SSOFromRedirect = {
     open APIUtils
     let updateDetails = useUpdateMethod()
     let getURL = useGetURL()
+
     let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
     let signInWithSSO = async () => {

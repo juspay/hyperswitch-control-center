@@ -33,6 +33,7 @@ let useAuthMethods = (): authMethodProps => {
         ~queryParamerters=Some(`auth_id=${authId}`),
         (),
       )
+
       let json = await fetchDetails(`${authListUrl}`)
       let arrayFromJson = json->getArrayFromJson([])
       let methods = if arrayFromJson->Array.length === 0 {

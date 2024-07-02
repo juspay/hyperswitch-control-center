@@ -175,11 +175,17 @@ let useGetURL = () => {
     | ANALYTICS_USER_JOURNEY
     | ANALYTICS_AUTHENTICATION
     | ANALYTICS_SYSTEM_METRICS
-    | ANALYTICS_DISPUTES =>
+    | ANALYTICS_DISPUTES
+    | ANALYTICS_ACTIVE_PAYMENTS =>
       switch methodType {
       | Get =>
         switch id {
         | Some(domain) => `analytics/v1/${domain}/info`
+        | _ => ""
+        }
+      | Post =>
+        switch id {
+        | Some(domain) => `analytics/v1/metrics/${domain}`
         | _ => ""
         }
       | _ => ""
@@ -314,48 +320,38 @@ let useGetURL = () => {
   }
   getUrl
 }
+let useHandleLogout = () => {
+  let getURL = useGetURL()
+  let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
+  let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
+  let fetchApi = AuthHooks.useApiFetcher()
 
-let sessionExpired = ref(false)
-
-let handleLogout = (
-  ~fetchApi: (
-    string,
-    ~bodyStr: string=?,
-    ~bodyFormData: option<Fetch.formData>=?,
-    ~headers: Dict.t<string>=?,
-    ~method_: Fetch.requestMethod,
-    ~betaEndpointConfig: AuthHooks.betaEndpoint=?,
-    ~contentType: AuthHooks.contentType=?,
-    unit,
-  ) => Promise.t<Fetch.Response.t>,
-  ~setAuthStateToLogout,
-  ~setIsSidebarExpanded,
-  ~clearRecoilValue,
-) => async (
-  ~getURL: (
-    ~entityName: APIUtilsTypes.entityName,
-    ~methodType: Fetch.requestMethod,
-    ~id: option<string>=?,
-    ~connector: option<'a>=?,
-    ~userType: APIUtilsTypes.userType=?,
-    ~userRoleTypes: APIUtilsTypes.userRoleTypes=?,
-    ~reconType: APIUtilsTypes.reconType=?,
-    ~queryParamerters: option<string>=?,
-    unit,
-  ) => string,
-) => {
-  try {
-    setAuthStateToLogout()
-    setIsSidebarExpanded(_ => false)
-    clearRecoilValue()
-    AuthUtils.redirectToLogin()
-    let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
-    let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
-    LocalStorage.clear()
-  } catch {
-  | _ => LocalStorage.clear()
+  () => {
+    try {
+      let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
+      open Promise
+      let _ =
+        fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+        ->then(Fetch.Response.json)
+        ->then(json => {
+          json->resolve
+        })
+        ->catch(_err => {
+          JSON.Encode.null->resolve
+        })
+      setAuthStateToLogout()
+      setIsSidebarExpanded(_ => false)
+      clearRecoilValue()
+      AuthUtils.redirectToLogin()
+      LocalStorage.clear()
+    } catch {
+    | _ => LocalStorage.clear()
+    }
   }
 }
+
+let sessionExpired = ref(false)
 
 let responseHandler = async (
   ~res,
@@ -364,7 +360,7 @@ let responseHandler = async (
   ~showPopUp: PopUpState.popUpProps => unit,
   ~isPlayground,
   ~popUpCallBack,
-  ~setAuthStatus,
+  ~handleLogout,
 ) => {
   let json = try {
     await res->(res => res->Fetch.Response.json)
@@ -391,7 +387,7 @@ let responseHandler = async (
         | 401 =>
           if !sessionExpired.contents {
             showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false, ())
-            setAuthStatus(AuthProviderTypes.LoggedOut)
+            handleLogout()->ignore
             AuthUtils.redirectToLogin()
             sessionExpired := true
           }
@@ -446,15 +442,11 @@ let catchHandler = (
 }
 
 let useGetMethod = (~showErrorToast=true, ()) => {
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
+  let handleLogout = useHandleLogout()
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-  let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
-  let getURL = useGetURL()
   let popUpCallBack = () =>
     showPopUp({
       popUpType: (Warning, WithIcon),
@@ -465,14 +457,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
       handleConfirm: {
         text: "Sign up Now",
         onClick: {
-          _ => {
-            let _ = handleLogout(
-              ~fetchApi,
-              ~setAuthStateToLogout,
-              ~setIsSidebarExpanded,
-              ~clearRecoilValue,
-            )(~getURL)
-          }
+          _ => handleLogout()->ignore
         },
       },
     })
@@ -487,7 +472,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
         ~showPopUp,
         ~isPlayground,
         ~popUpCallBack,
-        ~setAuthStatus,
+        ~handleLogout,
       )
     } catch {
     | Exn.Error(e) =>
@@ -498,14 +483,11 @@ let useGetMethod = (~showErrorToast=true, ()) => {
 }
 
 let useUpdateMethod = (~showErrorToast=true, ()) => {
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
+  let handleLogout = useHandleLogout()
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
-  let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
   let popUpCallBack = () =>
     showPopUp({
@@ -517,14 +499,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
       handleConfirm: {
         text: "Sign up Now",
         onClick: {
-          _ => {
-            let _ = handleLogout(
-              ~fetchApi,
-              ~setAuthStateToLogout,
-              ~setIsSidebarExpanded,
-              ~clearRecoilValue,
-            )
-          }
+          _ => handleLogout()->ignore
         },
       },
     })
@@ -555,7 +530,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
         ~isPlayground,
         ~showPopUp,
         ~popUpCallBack,
-        ~setAuthStatus,
+        ~handleLogout,
       )
     } catch {
     | Exn.Error(e) =>
