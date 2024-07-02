@@ -38,9 +38,9 @@ let make = (
   <div className="text-left">
     <AddDataAttributes attributes=[("data-testid", "profile")]>
       <Menu \"as"="div" className="relative inline-block text-left">
-        {menuProps =>
+        {_menuProps =>
           <div>
-            <Menu.Button className> {buttonProps => children} </Menu.Button>
+            <Menu.Button className> {_buttonProps => children} </Menu.Button>
             <Transition
               \"as"="span"
               enter="transition ease-out duration-100"
@@ -53,7 +53,7 @@ let make = (
                 <BottomModal headerText="Select Action" onCloseClick=closeClick>
                   <Menu.Items
                     className={`w-full p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
-                    {props =>
+                    {_props =>
                       options
                       ->Array.mapWithIndex((option, index) => {
                         let selected = switch value {
@@ -82,7 +82,7 @@ let make = (
                                 {switch option.leftIcon {
                                 | FontAwesome(iconName) =>
                                   <Icon
-                                    className={`align-middle ${option.customIconStyle->Belt.Option.getWithDefault(
+                                    className={`align-middle ${option.customIconStyle->Option.getOr(
                                         "",
                                       )}`}
                                     size=14
@@ -95,10 +95,7 @@ let make = (
                                 | _ => React.null
                                 }}
                                 <AddDataAttributes attributes=[("data-options", option.label)]>
-                                  <div
-                                    className={option.customTextStyle->Belt.Option.getWithDefault(
-                                      "",
-                                    )}>
+                                  <div className={option.customTextStyle->Option.getOr("")}>
                                     <span
                                       className={selected
                                         ? `${textColor.primaryNormal} font-semibold`
@@ -110,7 +107,7 @@ let make = (
                                 {switch option.rightIcon {
                                 | FontAwesome(iconName) =>
                                   <Icon
-                                    className={`align-middle ${option.customIconStyle->Belt.Option.getWithDefault(
+                                    className={`align-middle ${option.customIconStyle->Option.getOr(
                                         "",
                                       )}`}
                                     size=12
@@ -140,7 +137,7 @@ let make = (
               } else {
                 <Menu.Items
                   className={`absolute z-10 ${dropdownPositionClass} mt-2 p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${dropDownClass}`}>
-                  {props =>
+                  {_props =>
                     options
                     ->Array.mapWithIndex((option, index) => {
                       let selected = switch value {

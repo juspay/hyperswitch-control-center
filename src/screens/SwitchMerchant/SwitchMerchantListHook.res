@@ -9,7 +9,7 @@ let useFetchSwitchMerchantList = () => {
     try {
       let res = await fetchDetails(url)
       let typedValueOfResponse = res->SwitchMerchantUtils.convertListResponseToTypedResponse
-      setSwitchMerchantListAtom(._ => typedValueOfResponse)
+      setSwitchMerchantListAtom(_ => typedValueOfResponse)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")

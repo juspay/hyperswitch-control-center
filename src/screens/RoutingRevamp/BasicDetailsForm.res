@@ -36,7 +36,7 @@ module BusinessProfileInp = {
         ~isRequired=true,
         ~name="profile_id",
         ~customInput=(~input, ~placeholder as _) =>
-          InputFields.selectInput(
+          InputFields.selectInput(~deselectDisable=true, ~options, ~buttonText="", ())(
             ~input={
               ...input,
               value: profile->JSON.Encode.string,
@@ -53,11 +53,7 @@ module BusinessProfileInp = {
                 }
               },
             },
-            ~deselectDisable=true,
-            ~options,
-            ~buttonText="",
             ~placeholder="",
-            (),
           ),
         (),
       )}

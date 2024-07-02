@@ -157,7 +157,7 @@ module RedirectionToPayPalFlow = {
     open HSwitchGlobalVars
     let getURL = useGetURL()
     let url = RescriptReactRouter.useUrl()
-    let path = url.path->List.toArray->Array.joinWith("/")
+    let path = url.path->List.toArray->Array.joinWithUnsafe("/")
     let connectorId = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -344,7 +344,7 @@ let make = (
       let _ = await updateConnectorDetails(values)
 
       switch configuartionType {
-      | Automatic => setSetupAccountStatus(._ => Redirecting_to_paypal)
+      | Automatic => setSetupAccountStatus(_ => Redirecting_to_paypal)
       | Manual | _ => setCurrentStep(_ => ConnectorTypes.IntegFields)
       }
       setScreenState(_ => Success)
@@ -364,7 +364,7 @@ let make = (
         switch configuartionType {
         | Automatic => {
             await updateConnectorDetails(values)
-            setSetupAccountStatus(._ => Redirecting_to_paypal)
+            setSetupAccountStatus(_ => Redirecting_to_paypal)
           }
 
         | Manual | _ => {
@@ -412,7 +412,7 @@ let make = (
             )
 
             setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
-            setSetupAccountStatus(._ => Connect_paypal_landing)
+            setSetupAccountStatus(_ => Connect_paypal_landing)
             setScreenState(_ => Success)
           } else {
             showToast(
@@ -440,7 +440,7 @@ let make = (
     <Button
       text="Change configuration"
       buttonType={Primary}
-      onClick={_ => setSetupAccountStatus(._ => Connect_paypal_landing)}
+      onClick={_ => setSetupAccountStatus(_ => Connect_paypal_landing)}
     />
   | _ =>
     <FormRenderer.SubmitButton

@@ -357,13 +357,13 @@ let responseHandler = async (
   ~res,
   ~showToast: ToastState.showToastFn,
   ~showErrorToast: bool,
-  ~showPopUp: React.callback<PopUpState.popUpProps, unit>,
+  ~showPopUp: PopUpState.popUpProps => unit,
   ~isPlayground,
   ~popUpCallBack,
   ~handleLogout,
 ) => {
   let json = try {
-    await res->Fetch.Response.json
+    await res->(res => res->Fetch.Response.json)
   } catch {
   | _ => JSON.Encode.null
   }
@@ -476,15 +476,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
       )
     } catch {
     | Exn.Error(e) =>
-      catchHandler(
-        ~err={e},
-        ~requestMethod={Fetch.Get},
-        ~showErrorToast,
-        ~showToast,
-        ~showPopUp,
-        ~isPlayground,
-        ~popUpCallBack,
-      )
+      catchHandler(~err={e}, ~showErrorToast, ~showToast, ~isPlayground, ~popUpCallBack)
     | _ => Exn.raiseError("Something went wrong")
     }
   }
@@ -542,14 +534,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
       )
     } catch {
     | Exn.Error(e) =>
-      catchHandler(
-        ~err={e},
-        ~requestMethod={method},
-        ~showErrorToast,
-        ~showToast,
-        ~isPlayground,
-        ~popUpCallBack,
-      )
+      catchHandler(~err={e}, ~showErrorToast, ~showToast, ~isPlayground, ~popUpCallBack)
     | _ => Exn.raiseError("Something went wrong")
     }
   }

@@ -126,7 +126,7 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~headings, ~fields) =>
     setKeyValue(_ => a)
   }
 
-  let onClick = (elemIndex, isLast, _) => {
+  let onClick = (elemIndex, isLast) => _ev => {
     let value = if isLast {
       Array.concat(initialState, dummyInitialState)
     } else {

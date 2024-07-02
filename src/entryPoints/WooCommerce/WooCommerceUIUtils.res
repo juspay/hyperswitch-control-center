@@ -9,7 +9,7 @@ module SelectProcessor = {
   ) => {
     let url = RescriptReactRouter.useUrl()
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
-    let basePath = url.path->List.toArray->Array.joinWith("/")
+    let basePath = url.path->List.toArray->Array.joinWithUnsafe("/")
 
     <QuickStartUIUtils.BaseComponent
       headerText="Select Processor"

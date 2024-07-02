@@ -29,13 +29,12 @@ module CheckListSection = {
         ? "bg-pdf_background rounded-md"
         : ""
     let handleOnClick = clickedVariant => {
-      let currentViewindex =
-        updatedCheckList->Array.indexOf(
-          updatedCheckList
-          ->Array.filter(ele => ele.itemsVariants->Array.includes(pageView))
-          ->Array.get(0)
-          ->Option.getOr(defaultValueOfCheckList),
-        )
+      let currentViewindex = updatedCheckList->Array.indexOf(
+        updatedCheckList
+        ->Array.filter(ele => ele.itemsVariants->Array.includes(pageView))
+        ->Array.get(0)
+        ->Option.getOr(defaultValueOfCheckList),
+      )
 
       switch (currentViewindex, clickedVariant) {
       | (1, #SetupProcessor)
@@ -174,7 +173,7 @@ let make = () => {
   let getSetupCompleteEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
     if prodEnums.setupComplete {
       setDashboardPageState(_ => #HOME)
-      let baseUrlPath = `${getHostUrl}/${routerUrl.path->List.toArray->Array.joinWith("/")}`
+      let baseUrlPath = `${getHostUrl}/${routerUrl.path->List.toArray->Array.joinWithUnsafe("/")}`
       routerUrl.search->isNonEmptyString
         ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
         : RescriptReactRouter.push(`${baseUrlPath}`)

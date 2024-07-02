@@ -39,12 +39,10 @@ let make = (
         initialValues={""->JSON.Encode.string}
         render={_handleSubmit => {
           InputFields.textInput(
-            ~input=inputSearch,
-            ~placeholder,
             ~leftIcon=<Icon name="search" size=16 />,
             ~customStyle=`!h-10 ${customInputBoxWidth}`,
             (),
-          )
+          )(~input=inputSearch, ~placeholder)
         }}
       />
     </div>

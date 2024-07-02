@@ -51,7 +51,7 @@ external makeSomethingSeries: (~\"type": string, ~something: (float, int, string
 let x = makeAreaSeries(~\"type"="hello", ~something=false)
 let y = makeSomethingSeries(~\"type"="hello", ~something=(2., 1, "heloo"))
 
-type gridLine = {attr: (. JSON.t) => unit}
+type gridLine = {attr: JSON.t => unit}
 type pos
 type tick = {
   gridLine: gridLine,
@@ -59,7 +59,8 @@ type tick = {
 }
 type eventYaxis = {ticks: Dict.t<gridLine>}
 type chartEventOnload = {yAxis: array<eventYaxis>}
-type chartEvent = {render: option<Js_OO.Callback.arity1<chartEventOnload => unit>>}
+@val external thisChartEventOnLoad: chartEventOnload = "this"
+type chartEvent = {render: unit => unit}
 type chart = {
   "type": string,
   "zoomType": string,

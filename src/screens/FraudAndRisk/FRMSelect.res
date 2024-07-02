@@ -4,15 +4,13 @@ module NewProcessorCards = {
   let make = (~configuredFRMs: array<ConnectorTypes.connectorTypes>) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let frmAvailableForIntegration = frmList
-    let unConfiguredFRMs =
-      frmAvailableForIntegration->Array.filter(total =>
-        configuredFRMs
-        ->Array.find(item =>
-          item->ConnectorUtils.getConnectorNameString ===
-            total->ConnectorUtils.getConnectorNameString
-        )
-        ->Option.isNone
+    let unConfiguredFRMs = frmAvailableForIntegration->Array.filter(total =>
+      configuredFRMs
+      ->Array.find(item =>
+        item->ConnectorUtils.getConnectorNameString === total->ConnectorUtils.getConnectorNameString
       )
+      ->Option.isNone
+    )
 
     let handleClick = frmName => {
       RescriptReactRouter.push(
@@ -118,16 +116,15 @@ let make = () => {
         let previousData = frmList->Array.map(ConnectorListMapper.getProcessorPayloadType)
         setFilteredFRMData(_ => previousData->Array.map(Nullable.make))
         setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
-        let arr: array<ConnectorTypes.connectorTypes> =
-          frmList->Array.map(
-            paymentMethod =>
-              paymentMethod
-              ->getString("connector_name", "")
-              ->ConnectorUtils.getConnectorNameTypeFromString(
-                ~connectorType=ConnectorTypes.FRMPlayer,
-                (),
-              ),
-          )
+        let arr: array<ConnectorTypes.connectorTypes> = frmList->Array.map(
+          paymentMethod =>
+            paymentMethod
+            ->getString("connector_name", "")
+            ->ConnectorUtils.getConnectorNameTypeFromString(
+              ~connectorType=ConnectorTypes.FRMPlayer,
+              (),
+            ),
+        )
         setConfiguredFRMs(_ => arr)
         setScreenState(_ => Success)
       } else {

@@ -100,8 +100,8 @@ module MenuOption = {
     let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Enable" : "Disable"
 
     <Popover \"as"="div" className="relative inline-block text-left">
-      {popoverProps => <>
-        <Popover.Button> {buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
+      {_popoverProps => <>
+        <Popover.Button> {_buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
         <Popover.Panel className="absolute z-20 right-5 top-4">
           {panelProps => {
             <div
@@ -260,7 +260,7 @@ module ConnectorSummaryGrid = {
                   }
                   acc
                 })
-                ->Array.joinWith(", "),
+                ->Array.joinWithUnsafe(", "),
               )}
             />
           })

@@ -1,5 +1,5 @@
-type csvjson = {csv2json: (. string) => JSON.t}
-type jsoncsv = {json2csv: (. JSON.t) => string}
+type csvjson = {csv2json: string => JSON.t}
+type jsoncsv = {json2csv: JSON.t => string}
 
 @module @val external csvtojson: csvjson = "csvjson-csv2json"
 

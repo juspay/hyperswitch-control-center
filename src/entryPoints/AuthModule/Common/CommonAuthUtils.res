@@ -25,7 +25,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
         Dict.set(
           errors,
           key,
-          `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWith(
+          `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWithUnsafe(
               ",",
             )} character`->JSON.Encode.string,
         )
@@ -38,11 +38,7 @@ let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, err
   if (
     key === confirmKey &&
     value->LogicUtils.isNonEmptyString &&
-    !Js.Option.equal(
-      (. a, b) => a == b,
-      Dict.get(valuesDict, passwordKey),
-      Dict.get(valuesDict, key),
-    )
+    !Option.equal(Dict.get(valuesDict, passwordKey), Dict.get(valuesDict, key), (a, b) => a == b)
   ) {
     Dict.set(errors, key, "The New password does not match!"->JSON.Encode.string)
   }

@@ -83,7 +83,7 @@ let make = () => {
                 customButtonStyle="w-2/3 rounded-sm !bg-jp-blue-button_blue border border-jp-blue-border_blue mt-4"
                 buttonSize={Small}
                 buttonState={Normal}
-                onClick={v => {
+                onClick={_v => {
                   openReconTab()->ignore
                 }}
               />
@@ -112,7 +112,7 @@ let make = () => {
                   customButtonStyle="w-2/3 rounded-sm !bg-jp-blue-button_blue border border-jp-blue-border_blue mt-4"
                   buttonSize={Small}
                   buttonState={Normal}
-                  onClick={v => {
+                  onClick={_v => {
                     onClickForReconRequest()->ignore
                   }}
                 />

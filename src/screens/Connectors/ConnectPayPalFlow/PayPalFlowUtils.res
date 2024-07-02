@@ -228,7 +228,7 @@ let payPalPageState = async (
       ->Option.getOr("false")
       ->getBoolFromString(false)
 
-    setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
+    setSetupAccountStatus(_ => PayPalFlowTypes.Connect_paypal_landing)
     if isRedirectedFromPaypalModal {
       await getPayPalStatus()
     } else if isUpdateFlow && !(isSimplifiedPayPalFlow && isRedirectedFromPaypalModal) {

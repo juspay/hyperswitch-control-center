@@ -4,16 +4,16 @@ open FRMTypes
 @val external btoa: string => string = "btoa"
 @val external atob: string => string = "atob"
 
-let leadingSpaceStrParser = (. ~value, ~name as _) => {
+let leadingSpaceStrParser = (~value, ~name as _) => {
   let str = value->JSON.Decode.string->Option.getOr("")
   str->String.replaceRegExp(%re("/^[\s]+/"), "")->JSON.Encode.string
 }
 
-let base64Parse = (. ~value, ~name as _) => {
+let base64Parse = (~value, ~name as _) => {
   value->JSON.Decode.string->Option.getOr("")->btoa->JSON.Encode.string
 }
 
-let base64Format = (. ~value, ~name as _) => {
+let base64Format = (~value, ~name as _) => {
   value->JSON.Decode.string->Option.getOr("")->atob->JSON.Encode.string
 }
 

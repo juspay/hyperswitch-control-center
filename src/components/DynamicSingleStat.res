@@ -195,7 +195,7 @@ let make = (
           None
         }
       })
-      ->Array.joinWith("&")
+      ->Array.joinWithUnsafe("&")
 
     (filterSearchParam, getTopLevelFilter->getString(customFilterKey, ""))
   }, [getTopLevelFilter])
@@ -263,10 +263,7 @@ let make = (
         let {uri, metrics} = urlConfig
         let domain = String.split("/", uri)->Array.get(4)->Option.getOr("")
         let startTime = if domain === "mandate" {
-          (endTimeFromUrl->DayJs.getDayJsForString).subtract(.
-            1,
-            "hour",
-          ).toDate(.)->Date.toISOString
+          (endTimeFromUrl->DayJs.getDayJsForString).subtract(1, "hour").toDate()->Date.toISOString
         } else {
           startTimeFromUrl
         }
@@ -360,10 +357,7 @@ let make = (
         let {uri, metrics} = urlConfig
         let domain = String.split("/", uri)->Array.get(4)->Option.getOr("")
         let startTime = if domain === "mandate" {
-          (endTimeFromUrl->DayJs.getDayJsForString).subtract(.
-            1,
-            "hour",
-          ).toDate(.)->Date.toISOString
+          (endTimeFromUrl->DayJs.getDayJsForString).subtract(1, "hour").toDate()->Date.toISOString
         } else {
           startTimeFromUrl
         }

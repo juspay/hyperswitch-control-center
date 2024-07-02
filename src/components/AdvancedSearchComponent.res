@@ -28,7 +28,7 @@ let make = (
     open Promise
 
     fetchApi(url, ~bodyStr=JSON.stringify(values), ~method_=Fetch.Post, ())
-    ->then(Fetch.Response.json)
+    ->then(res => res->Fetch.Response.json)
     ->then(json => {
       let jsonData = json->JSON.Decode.object->Option.flatMap(dict => dict->Dict.get("rows"))
       let newData = switch jsonData {

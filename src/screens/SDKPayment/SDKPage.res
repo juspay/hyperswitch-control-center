@@ -45,7 +45,7 @@ module SDKConfiguarationFields = {
       ~label="Enter amount",
       ~name="amount",
       ~customInput=(~input, ~placeholder as _) =>
-        InputFields.numericTextInput(
+        InputFields.numericTextInput(~isDisabled=false, ~customStyle="w-full", ~precision=2, ())(
           ~input={
             ...input,
             value: (initialValues.amount /. 100.00)->Float.toString->JSON.Encode.string,
@@ -59,11 +59,7 @@ module SDKConfiguarationFields = {
               }
             },
           },
-          ~isDisabled=false,
-          ~customStyle="w-full",
           ~placeholder="Enter amount",
-          ~precision=2,
-          (),
         ),
       (),
     )

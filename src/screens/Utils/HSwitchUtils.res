@@ -91,7 +91,7 @@ let getBrowswerDetails = () => {
   open Window.Navigator
   open Window.Screen
   open UtilsTypes
-  let clientTimeZone = dateTimeFormat(.).resolvedOptions(.).timeZone
+  let clientTimeZone = dateTimeFormat().resolvedOptions().timeZone
   let clientCountry = clientTimeZone->getClientCountry
   {
     userAgent,

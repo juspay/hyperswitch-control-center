@@ -261,7 +261,7 @@ module SystemMetricsAnalytics = {
         source: "BATCH",
       }
       AnalyticsUtils.filterBody(filterBodyEntity)
-    }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
+    }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWithUnsafe(",")))
 
     open APIUtils
     open Promise

@@ -54,7 +54,7 @@ external execSync: (string, encodeType) => string = "execSync"
 let currentCommitHash = nullableGitCommitStr->Option.getOr("no-commit-hash")
 
 let serverHandler: Http.serverHandler = (request, response) => {
-  let arr = request.url.toString(.)->String.split("?")
+  let arr = request.url.toString()->String.split("?")
   let domain =
     arr
     ->Array.get(1)
@@ -74,22 +74,22 @@ let serverHandler: Http.serverHandler = (request, response) => {
     let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/config.toml")
     Promise.make((resolve, _reject) => {
       configHandler(request, response, true, domain, path)
-      ()->resolve(. _)
+      ()->(resolve(_))
     })
   } else if path === "/health" && request.method === "GET" {
     Promise.make((resolve, _reject) => {
       healthHandler(request, response)
-      ()->resolve(. _)
+      ()->(resolve(_))
     })
   } else if path === "/health/ready" && request.method === "GET" {
     Promise.make((resolve, _reject) => {
       healthReadinessHandler(request, response)
-      ()->resolve(. _)
+      ()->(resolve(_))
     })
   } else {
     open ServerHandler
 
-    let cache = if request.url.toString(.)->String.endsWith(".svg") {
+    let cache = if request.url.toString()->String.endsWith(".svg") {
       "max-age=3600, must-revalidate"
     } else {
       "no-cache"
@@ -142,10 +142,11 @@ let serverHandler: Http.serverHandler = (request, response) => {
 let serverHandlerWrapper = (req, res) => {
   try {serverHandler(req, res)} catch {
   | err => {
-      let err = err->Exn.asJsExn->Option.flatMap(Exn.message)->Option.getOr("Error Found")
-      res.writeHead(. 200, Http.makeHeader({"Content-Type": "text/plain"}))
-      `Error : ${err}`->res.write(. _)
-      res.end(.)
+      let err =
+        err->Exn.asJsExn->Option.flatMap(msg => msg->Exn.message)->Option.getOr("Error Found")
+      res.writeHead(200, Http.makeHeader({"Content-Type": "text/plain"}))
+      `Error : ${err}`->(res.write(_))
+      res.end()
       Promise.resolve()
     }
   }

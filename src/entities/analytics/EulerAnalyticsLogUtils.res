@@ -32,7 +32,7 @@ let useAddLogsAroundFetch = () => {
         resolve(resp)
       }
     })
-    ->then(Fetch.Response.json)
+    ->then(res => res->(res => res->Fetch.Response.json))
     ->thenResolve(json => {
       json
     })
@@ -76,7 +76,7 @@ let useAddLogsAroundFetchNew = () => {
         resolve(resp)
       }
     })
-    ->then(Fetch.Response.text)
+    ->then(res => res->Fetch.Response.text)
     ->thenResolve(text => {
       // will add the check for n line saperated is the length is 0 then no data
       // if (

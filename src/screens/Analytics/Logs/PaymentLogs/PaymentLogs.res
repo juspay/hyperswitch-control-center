@@ -9,16 +9,15 @@ let make = (~paymentId, ~createdAt) => {
   let startTime = startTime->Js.Date.fromFloat->Date.toISOString
   let endTime = createdAt->Date.fromString->Date.getTime +. 1000. *. 60. *. 60. *. 3.
   let endTime = endTime->Js.Date.fromFloat->Date.toISOString
-  let sdkPostBody =
-    [
-      ("paymentId", paymentId->JSON.Encode.string),
-      (
-        "timeRange",
-        [("startTime", startTime->JSON.Encode.string), ("endTime", endTime->JSON.Encode.string)]
-        ->Dict.fromArray
-        ->JSON.Encode.object,
-      ),
-    ]->LogicUtils.getJsonFromArrayOfJson
+  let sdkPostBody = [
+    ("paymentId", paymentId->JSON.Encode.string),
+    (
+      "timeRange",
+      [("startTime", startTime->JSON.Encode.string), ("endTime", endTime->JSON.Encode.string)]
+      ->Dict.fromArray
+      ->JSON.Encode.object,
+    ),
+  ]->LogicUtils.getJsonFromArrayOfJson
   let webhookLogsUrl = getURL(
     ~entityName=WEBHOOKS_EVENT_LOGS,
     ~methodType=Get,

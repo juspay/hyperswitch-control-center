@@ -8,7 +8,7 @@ let useFetchBusinessProfiles = () => {
     try {
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Get, ())
       let res = await fetchDetails(url)
-      setBusinessProfiles(._ => res->BusinessProfileMapper.getArrayOfBusinessProfile)
+      setBusinessProfiles(_ => res->BusinessProfileMapper.getArrayOfBusinessProfile)
       Nullable.make(res->BusinessProfileMapper.getArrayOfBusinessProfile)
     } catch {
     | Exn.Error(e) => {

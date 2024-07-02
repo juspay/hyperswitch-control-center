@@ -58,7 +58,7 @@ module ToggleSwitch = {
     }
 
     <HeadlessUI.Switch checked={isOpen} onChange={_ => handleOnChange()} className={enabledClasses}>
-      {checked => {
+      {_checked => {
         <>
           <div ariaHidden=true className={enabledSpanClasses} />
         </>

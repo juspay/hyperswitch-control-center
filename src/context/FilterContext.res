@@ -37,8 +37,8 @@ let make = (~index: string, ~children) => {
   let (filterDict, setfilterDict) = React.useState(_ => searcParamsToDict)
 
   let clearSessionStorage = () => {
-    sessionStorage.removeItem(. index)
-    sessionStorage.removeItem(. `${index}-list`)
+    sessionStorage.removeItem(index)
+    sessionStorage.removeItem(`${index}-list`)
     setfilterKeys(_ => [])
   }
 
@@ -118,12 +118,12 @@ let make = (~index: string, ~children) => {
   }, (filterDict, setfilterDict, filterKeys))
 
   React.useEffect0(() => {
-    switch sessionStorage.getItem(. index)->Nullable.toOption {
+    switch sessionStorage.getItem(index)->Nullable.toOption {
     | Some(value) => value->FilterUtils.parseFilterString->updateFilter.updateExistingKeys
     | None => ()
     }
     let keys = []
-    switch sessionStorage.getItem(. `${index}-list`)->Nullable.toOption {
+    switch sessionStorage.getItem(`${index}-list`)->Nullable.toOption {
     | Some(value) =>
       switch value->JSON.parseExn->JSON.Decode.array {
       | Some(arr) =>
@@ -144,10 +144,10 @@ let make = (~index: string, ~children) => {
 
   React.useEffect2(() => {
     if !(query.contents->String.length < 1) {
-      sessionStorage.setItem(. index, query.contents)
+      sessionStorage.setItem(index, query.contents)
     }
 
-    sessionStorage.setItem(.
+    sessionStorage.setItem(
       `${index}-list`,
       filterKeys->Array.map(item => item->JSON.Encode.string)->JSON.Encode.array->JSON.stringify,
     )

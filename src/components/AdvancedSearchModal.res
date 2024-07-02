@@ -35,21 +35,22 @@ module AdvanceSearch = {
             None
           }
         })
-        ->Array.joinWith("&")
+        ->Array.joinWithUnsafe("&")
       | _ => ""
       }
       let finalUrl = otherQueries->isNonEmptyString ? `${url}?${otherQueries}` : url
 
       open Promise
       fetchApi(finalUrl, ~bodyStr=JSON.stringify(initialValueJson), ~method_=Fetch.Get, ())
-      ->then(Fetch.Response.json)
+      ->then(res => res->Fetch.Response.json)
       ->then(json => {
         switch JSON.Classify.classify(json) {
         | Object(jsonDict) => {
             let statusStr = getString(jsonDict, "status", "FAILURE")
 
             if statusStr === "SUCCESS" {
-              let payloadDict = jsonDict->Dict.get(detailsKey)->Option.flatMap(JSON.Decode.object)
+              let payloadDict =
+                jsonDict->Dict.get(detailsKey)->Option.flatMap(obj => obj->JSON.Decode.object)
 
               switch payloadDict {
               | Some(dict) => {
@@ -100,7 +101,7 @@ module AdvanceSearch = {
       if !isSubmitEnabled {
         Dict.set(
           errors,
-          optionalSearchFieldsList->Array.joinWith(","),
+          optionalSearchFieldsList->Array.joinWithUnsafe(","),
           "Atleast One of Optional fields is Required"->JSON.Encode.string,
         )
       }

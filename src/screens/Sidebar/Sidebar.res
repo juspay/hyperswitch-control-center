@@ -221,9 +221,9 @@ module NestedSidebarItem = {
                     <RenderIf condition={iconTag->Belt.Option.isSome && isSideBarExpanded}>
                       <div className=linkTagPadding>
                         <Icon
-                          size={iconSize->Belt.Option.getWithDefault(26)}
-                          name={iconTag->Belt.Option.getWithDefault("")}
-                          className={iconStyles->Belt.Option.getWithDefault("w-26 h-26")}
+                          size={iconSize->Option.getOr(26)}
+                          name={iconTag->Option.getOr("")}
+                          className={iconStyles->Option.getOr("w-26 h-26")}
                         />
                       </div>
                     </RenderIf>
@@ -650,7 +650,7 @@ let make = (
                     }
                     `${openClasses} border-none`
                   }>
-                  {buttonProps => <>
+                  {_buttonProps => <>
                     <div className="flex items-center">
                       <div
                         className="inline-block text-offset_white bg-profile-sidebar-blue text-center w-10 h-10 leading-10 rounded-full mr-4">

@@ -8,4 +8,4 @@ type props = {
   initialSegment?: array<int>,
 }
 
-let make: props => React.element = reactLazy(.() => import_("lottie-react"))
+let make: props => React.element = reactLazy(() => import_("lottie-react"))

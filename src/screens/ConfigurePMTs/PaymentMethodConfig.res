@@ -43,8 +43,7 @@ module PmtConfigInp = {
   }
 }
 
-let renderValueInp = (
-  options: array<SelectBox.dropdownOption>,
+let renderValueInp = (options: array<SelectBox.dropdownOption>) => (
   fieldsArray: array<ReactFinalForm.fieldRenderProps>,
 ) => {
   <PmtConfigInp options fieldsArray />

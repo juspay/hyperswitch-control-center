@@ -42,7 +42,7 @@ module UserUtilsPopover = {
               }
               `${openClasses} border-none`
             }>
-            {buttonProps => <Icon name="menu-option" size=28 />}
+            {_buttonProps => <Icon name="menu-option" size=28 />}
           </Popover.Button>
           <Transition
             \"as"="span"

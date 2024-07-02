@@ -122,7 +122,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
 
       switch paypalDict->JSON.Classify.classify {
       | String(str) => {
-          setSetupAccountStatus(._ => str->stringToVariantMapper)
+          setSetupAccountStatus(_ => str->stringToVariantMapper)
           setCurrentStep(_ => AutomaticFlow)
         }
       | Object(dict) =>

@@ -1,4 +1,4 @@
-let getFloat = strJson => strJson->JSON.Decode.string->Option.flatMap(Float.fromString)
+let getFloat = strJson => strJson->JSON.Decode.string->Option.flatMap(val => val->Float.fromString)
 
 @react.component
 let make = (
@@ -63,9 +63,9 @@ let make = (
             str[0] = str[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
             str[0] =
               str[0]->Option.getOr("")->LogicUtils.isEmptyString ? "0" : str[0]->Option.getOr("")
-            str->Array.joinWith(".")
+            str->Array.joinWithUnsafe(".")
           } else {
-            str->Array.joinWith(".")
+            str->Array.joinWithUnsafe(".")
           }
           result
         | None => ""
