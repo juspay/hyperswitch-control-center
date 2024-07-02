@@ -342,6 +342,7 @@ module Combobox = {
       ~placeholder: string=?,
       ~displayValue: _ => string=?,
       ~onChange: 't => unit=?,
+      ~onSubmit: 't => unit=?,
     ) => React.element = "Input"
   }
 

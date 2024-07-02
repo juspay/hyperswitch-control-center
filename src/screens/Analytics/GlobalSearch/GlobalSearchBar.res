@@ -87,7 +87,7 @@ module OptionWrapper = {
 
     <Combobox.Option
       className="flex flex-row cursor-pointer truncate"
-      onClick={_ => value->redirectOnSelect}
+      onClick={_ => redirectOnSelect()}
       key={index->Int.toString}
       value>
       {props => {
@@ -203,11 +203,16 @@ let make = () => {
   let loader = LottieFiles.useLottieJson("loader-circle.json")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-  let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
+  let isShowRemoteResults = true // globalSearch && permissionJson.operationsView === Access
+  let (element, setElement) = React.useState(_ => None)
 
-  let redirectOnSelect = element => {
-    let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
-    if redirectLink->isNonEmptyString {
+  let redirectOnSelect = () => {
+    let redirectLink = switch element {
+    | Some(ele) => ele.redirect_link->JSON.Decode.string->Option.getOr("/search")
+    | _ => `/search?query=${searchText}`
+    }
+
+    if searchText->isNonEmptyString && redirectLink->isNonEmptyString {
       setShowModal(_ => false)
       HSwitchGlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
     }
@@ -297,7 +302,16 @@ let make = () => {
       let keyPressed = event->ReactEvent.Keyboard.key
       let ctrlKey = event->ReactEvent.Keyboard.ctrlKey
 
-      if Window.Navigator.platform->String.includes("Mac") && metaKey && keyPressed == "k" {
+      let keyDownEvent = new React.Dom.KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      keyCode: 13, // or any other key code you want to simulate
+      key: "Enter", // or any other key you want to simulate
+    })
+
+      if keyPressed == "Enter" {
+        redirectOnSelect()
+      } else if Window.Navigator.platform->String.includes("Mac") && metaKey && keyPressed == "k" {
         event->ReactEvent.Keyboard.preventDefault
         setShowModal(_ => true)
       } else if ctrlKey && keyPressed == "k" {
@@ -342,8 +356,10 @@ let make = () => {
           autoFocus=true
           placeholder="Search"
           autoComplete="off"
+          onSubmit={_ => Js.log2(">>", "here")}
           onChange={event => {
             setGlobalSearchText(event["target"]["value"])
+            Js.log2(">>", event["target"]["value"])
           }}
         />
         <div
@@ -364,7 +380,8 @@ let make = () => {
         <Combobox
           className="w-full"
           onChange={element => {
-            element->redirectOnSelect
+            setElement(_ => element)
+            redirectOnSelect()
           }}>
           {_ => {
             <>
