@@ -224,16 +224,16 @@ module.exports = {
     plugin(function ({ addUtilities }) {
       const newUtilities = {
         "*::-webkit-scrollbar": {
-          display: "none", // chrome and other
+          display: "block", // chrome and other
         },
         "*": {
-          scrollbarWidth: "none", // firefox
+          scrollbarWidth: "block", // firefox
         },
         ".show-scrollbar::-webkit-scrollbar": {
           display: "block",
           overflow: "scroll",
           height: "4px",
-          width: "8px",
+          width: "6px",
         },
         ".show-scrollbar::-webkit-scrollbar-thumb": {
           display: "block",
