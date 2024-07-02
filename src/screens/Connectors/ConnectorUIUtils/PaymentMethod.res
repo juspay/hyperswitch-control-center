@@ -31,6 +31,13 @@ module CardRenderer = {
     ~setMetaData,
     ~connector,
   ) => {
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let form = ReactFinalForm.useForm()
+    let initalFormValue = React.useMemo0(() => {
+      formState.values->getDictFromJsonObject->getDictfromDict("metadata")
+    })
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
@@ -147,6 +154,7 @@ module CardRenderer = {
     let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
 
     let removeSelectedWallet = () => {
+      form.change("metadata", initalFormValue->Identity.genericTypeToJson)
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
     }
 

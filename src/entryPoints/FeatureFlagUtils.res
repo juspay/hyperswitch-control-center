@@ -25,6 +25,7 @@ type featureFlag = {
   configurePmts: bool,
   branding: bool,
   totp: bool,
+  connectorMetadatav2: bool,
   liveUsersCounter: bool,
 }
 
@@ -58,6 +59,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     configurePmts: dict->getBool("configure_pmts", false),
     branding: dict->getBool("branding", false),
     totp: dict->getBool("totp", false),
+    connectorMetadatav2: dict->getBool("connector_metadataV2", true),
     liveUsersCounter: dict->getBool("live_users_counter", false),
   }
   typedFeatureFlag
