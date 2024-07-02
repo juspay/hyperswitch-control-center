@@ -3,7 +3,7 @@ let make = (~setAuthStatus) => {
   open CommonAuthTypes
   let url = RescriptReactRouter.useUrl()
   let (_mode, setMode) = React.useState(_ => TestButtonMode)
-  let {isMagicLinkEnabled} = AuthModuleHooks.useAuthMethods()
+  let {isMagicLinkEnabled, checkAuthMethodExists} = AuthModuleHooks.useAuthMethods()
   let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let authInitState = isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword
@@ -22,9 +22,11 @@ let make = (~setAuthStatus) => {
     | list{"user", "verify_email"} => setActualAuthType(_ => EmailVerify)
     | list{"login"} =>
       setActualAuthType(_ => isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword)
-    | list{"user", "set_password"} => setActualAuthType(_ => ResetPassword)
+    | list{"user", "set_password"} =>
+      checkAuthMethodExists([PASSWORD]) ? setActualAuthType(_ => ResetPassword) : ()
     | list{"user", "accept_invite_from_email"} => setActualAuthType(_ => ActivateFromEmail)
-    | list{"forget-password"} => setActualAuthType(_ => ForgetPassword)
+    | list{"forget-password"} =>
+      checkAuthMethodExists([PASSWORD]) ? setActualAuthType(_ => ForgetPassword) : ()
     | list{"register"} =>
       // In Live mode users are not allowed to singup directly
       !isLiveMode ? setActualAuthType(_ => SignUP) : AuthUtils.redirectToLogin()

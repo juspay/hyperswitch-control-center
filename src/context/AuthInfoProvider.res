@@ -71,6 +71,7 @@ let make = (~children) => {
   let setAuthStateToLogout = React.useCallback0(() => {
     setAuth(_ => LoggedOut)
     CommonAuthUtils.clearLocalStorage()
+    CookieStorage.deleteCookie(~cookieName="login_token", ~domain=HSwitchGlobalVars.hostName, ())
   })
 
   <Provider

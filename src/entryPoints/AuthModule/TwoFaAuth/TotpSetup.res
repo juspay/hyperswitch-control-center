@@ -231,6 +231,7 @@ let make = () => {
   let getURL = APIUtils.useGetURL()
   let showToast = ToastState.useShowToast()
   let fetchDetails = APIUtils.useGetMethod()
+
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (isQrVisible, setIsQrVisible) = React.useState(_ => false)
