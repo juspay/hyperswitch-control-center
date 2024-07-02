@@ -53,7 +53,7 @@ module TabInfo = {
 
     let defaultThemeBasedClass = `${fontClass} px-6`
 
-    let defaultClasses = `font-semibold ${defaultThemeBasedClass} w-max flex flex-auto flex-row items-center justify-center text-body`
+    let defaultClasses = `font-semibold ${defaultThemeBasedClass} w-max flex flex-auto flex-row items-center justify-center text-body mb-1`
     let selectionClasses = if isSelected {
       "font-semibold text-black"
     } else {
@@ -75,7 +75,7 @@ module TabInfo = {
     let bottomBorderColor = ""
     let borderClass = ""
 
-    let tabHeight = "47px"
+    let tabHeight = "50px"
 
     let lineStyle = "bg-black w-full h-0.5 rounded-full"
 
@@ -156,7 +156,7 @@ module TabInfo = {
         {if isSelected {
           <FramerMotion.Motion.Div className=lineStyle layoutId="underline" />
         } else {
-          <div className="h-0.5" />
+          <div className="w-full h-0.5 rounded-full" />
         }}
       </div>
 
