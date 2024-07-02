@@ -1,8 +1,14 @@
-type ssoflowType = SSO_FROM_REDIRECT | SSO_FROM_EMAIL | LOADING
+type authMethodTypes = PASSWORD | MAGIC_LINK | OPEN_ID_CONNECT | INVALID
 
-type authMethodTypes = PASSWORD | OPEN_ID_CONNECT
+type authNameTypes = [#Magic_Link | #Password | #Okta | #Google | #Github]
 
-type authNameTypes = [#Email_Password | #Okta | #Google | #Github]
+type okta = {
+  code: option<string>,
+  state: option<string>,
+}
+
+type redirectmethods = [#Okta(okta) | #Google | #Github]
+type ssoflowType = SSO_FROM_REDIRECT(redirectmethods) | LOADING
 
 type authMethodType = {
   \"type": authMethodTypes,

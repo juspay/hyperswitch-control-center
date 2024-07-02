@@ -6,7 +6,7 @@ let getAuthInfo = json => {
     email: getString(dict, "email", ""),
     merchant_id: getString(dict, "merchant_id", ""),
     name: getString(dict, "name", ""),
-    token: getString(dict, "token", ""),
+    token: getString(dict, "token", "")->getNonEmptyString,
     role_id: getString(dict, "role_id", ""),
     is_two_factor_auth_setup: getBool(dict, "is_two_factor_auth_setup", false),
     recovery_codes_left: getInt(
@@ -17,7 +17,6 @@ let getAuthInfo = json => {
   }
   totpInfo
 }
-// Need to clear this clear this token after successful login
 let storeEmailTokenTmp = emailToken => {
   LocalStorage.setItem("email_token", emailToken)
 }
@@ -40,7 +39,7 @@ let getPreLoginInfo = (~email_token=None, json) => {
   open LogicUtils
   let dict = json->JsonFlattenUtils.flattenObject(false)
   let preLoginInfo: AuthProviderTypes.preLoginType = {
-    token: getString(dict, "token", ""),
+    token: dict->getString("token", "")->getNonEmptyString,
     token_type: dict->getString("token_type", ""),
     email_token: getEmailTokenValue(email_token),
   }
@@ -65,12 +64,31 @@ let getUserInfoDetailsFromLocalStorage = () => {
 
 let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
   {
-    id: "dummyId",
-    auth_id: "dummyAuthId",
+    id: "defaultpasswordId",
+    auth_id: "defaultpasswordAuthId",
     auth_method: {
       \"type": PASSWORD,
-      name: #Email_Password,
+      name: #Password,
+    },
+    allow_signup: true,
+  },
+  {
+    id: "defaultmagicLinkId",
+    auth_id: "defaultmagicLinkId",
+    auth_method: {
+      \"type": MAGIC_LINK,
+      name: #Magic_Link,
     },
     allow_signup: true,
   },
 ]
+
+let redirectToLogin = () => {
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+
+  if authId->LogicUtils.isNonEmptyString {
+    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=`/login?auth_id=${authId}`))
+  } else {
+    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=`/login`))
+  }
+}

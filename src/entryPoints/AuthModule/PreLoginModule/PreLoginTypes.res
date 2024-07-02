@@ -1,4 +1,5 @@
 type preLoginTypes =
+  | AUTH_SELECT
   | SSO
   | MERCHANT_SELECT
   | TOTP

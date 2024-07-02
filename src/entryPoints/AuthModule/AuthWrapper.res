@@ -46,12 +46,14 @@ let make = (~children) => {
   open APIUtils
 
   let getURL = useGetURL()
+
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
-  let fetchAuthMethods = AuthModuleHooks.useAuthMethods()
-  let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let (authMethods, setAuthMethods) = React.useState(_ => AuthUtils.defaultListOfAuth)
-
+  let {fetchAuthMethods, checkAuthMethodExists} = AuthModuleHooks.useAuthMethods()
+  let {authStatus, setAuthStatus, authMethods, setAuthStateToLogout} = React.useContext(
+    AuthInfoProvider.authStatusContext,
+  )
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let getAuthDetails = () => {
     open AuthUtils
     open LogicUtils
@@ -59,12 +61,12 @@ let make = (~children) => {
     let loggedInInfo = getUserInfoDetailsFromLocalStorage()
 
     if (
-      loggedInInfo.token->isNonEmptyString &&
+      loggedInInfo.token->Option.isSome &&
       loggedInInfo.merchant_id->isNonEmptyString &&
       loggedInInfo.email->isNonEmptyString
     ) {
       setAuthStatus(LoggedIn(Auth(loggedInInfo)))
-    } else if preLoginInfo.token->isNonEmptyString && preLoginInfo.token_type->isNonEmptyString {
+    } else if preLoginInfo.token->Option.isSome && preLoginInfo.token_type->isNonEmptyString {
       setAuthStatus(PreLogin(preLoginInfo))
     } else {
       setAuthStatus(LoggedOut)
@@ -85,19 +87,33 @@ let make = (~children) => {
       | None => setAuthStatus(LoggedOut)
       }
     } catch {
-    | _ => setAuthStatus(LoggedOut)
+    | _ => {
+        setAuthStatus(LoggedOut)
+        setScreenState(_ => Success)
+      }
     }
+  }
+
+  let handleRedirectFromSSO = () => {
+    open AuthUtils
+    let info = getPreLoginDetailsFromLocalStorage()->SSOUtils.ssoDefaultValue
+    setAuthStatus(PreLogin(info))
+  }
+
+  let handleLoginWithSso = auth_id => {
+    Window.Location.replace(`${Window.env.apiBaseUrl}/user/auth/url?id=${auth_id}`)
   }
 
   React.useEffect0(() => {
     switch url.path {
     | list{"user", "login"}
     | list{"register"} =>
-      setAuthStatus(LoggedOut)
+      setAuthStateToLogout()
     | list{"user", "verify_email"}
     | list{"user", "set_password"}
     | list{"user", "accept_invite_from_email"} =>
       getDetailsFromEmail()->ignore
+    | list{"redirect", "oidc", ..._} => handleRedirectFromSSO()
     | _ => getAuthDetails()
     }
 
@@ -106,20 +122,15 @@ let make = (~children) => {
 
   let getAuthMethods = async () => {
     try {
-      let arrayFromJson = await fetchAuthMethods()
-      if arrayFromJson->Array.length === 0 {
-        setAuthMethods(_ => AuthUtils.defaultListOfAuth)
-      } else {
-        setAuthMethods(_ => arrayFromJson->SSOUtils.getAuthVariants)
-      }
+      setScreenState(_ => Loading)
+      let _ = await fetchAuthMethods()
+      setScreenState(_ => Success)
     } catch {
-    | _ => setAuthMethods(_ => AuthUtils.defaultListOfAuth)
+    | _ => setScreenState(_ => Success)
     }
   }
 
   React.useEffect1(() => {
-    // TODO: call this method only when auth_id is present in the URL
-
     if authStatus === LoggedOut {
       getAuthMethods()->ignore
     }
@@ -129,11 +140,13 @@ let make = (~children) => {
   let renderComponentForAuthTypes = (method: SSOTypes.authMethodResponseType) => {
     let authMethodType = method.auth_method.\"type"
     let authMethodName = method.auth_method.name
-
     switch (authMethodType, authMethodName) {
-    | (PASSWORD, #Email_Password) => <TwoFaAuthScreen setAuthStatus />
     | (OPEN_ID_CONNECT, #Okta) | (OPEN_ID_CONNECT, #Google) | (OPEN_ID_CONNECT, #Github) =>
-      <Button text={`Login with ${(authMethodName :> string)}`} buttonType={PrimaryOutline} />
+      <Button
+        text={`Continue with ${(authMethodName :> string)}`}
+        buttonType={PrimaryOutline}
+        onClick={_ => handleLoginWithSso(method.id)}
+      />
     | (_, _) => React.null
     }
   }
@@ -141,18 +154,25 @@ let make = (~children) => {
   <div className="font-inter-style">
     {switch authStatus {
     | LoggedOut =>
-      <AuthHeaderWrapper childrenStyle="flex flex-col gap-4">
-        {authMethods
-        ->Array.mapWithIndex((authMethod, index) =>
-          <React.Fragment key={index->Int.toString}>
-            {authMethod->renderComponentForAuthTypes}
-            <UIUtils.RenderIf condition={index === 0 && authMethods->Array.length !== 1}>
+      <PageLoaderWrapper screenState>
+        <AuthHeaderWrapper childrenStyle="flex flex-col gap-4">
+          <UIUtils.RenderIf condition={checkAuthMethodExists([PASSWORD, MAGIC_LINK])}>
+            <TwoFaAuthScreen setAuthStatus />
+          </UIUtils.RenderIf>
+          <UIUtils.RenderIf condition={checkAuthMethodExists([OPEN_ID_CONNECT])}>
+            <UIUtils.RenderIf condition={checkAuthMethodExists([PASSWORD, MAGIC_LINK])}>
               {PreLoginUtils.divider}
             </UIUtils.RenderIf>
-          </React.Fragment>
-        )
-        ->React.array}
-      </AuthHeaderWrapper>
+            {authMethods
+            ->Array.mapWithIndex((authMethod, index) =>
+              <React.Fragment key={index->Int.toString}>
+                {authMethod->renderComponentForAuthTypes}
+              </React.Fragment>
+            )
+            ->React.array}
+          </UIUtils.RenderIf>
+        </AuthHeaderWrapper>
+      </PageLoaderWrapper>
     | PreLogin(_) => <DecisionScreen />
     | LoggedIn(_token) => children
     | CheckingAuthStatus => <PageLoaderWrapper.ScreenLoader />
