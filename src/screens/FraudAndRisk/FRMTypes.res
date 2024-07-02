@@ -1,6 +1,6 @@
 type filterType = Connector | FRMPlayer | ThreedsAuthenticator
 
-type frmPaymentMethodsSectionType = FlowType | ActionType
+type frmPaymentMethodsSectionType = FlowType
 
 type flowType = PreAuth | PostAuth
 

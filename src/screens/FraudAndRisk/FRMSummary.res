@@ -1,18 +1,13 @@
 module InfoField = {
   open LogicUtils
-  open FRMInfo
   @react.component
-  let make = (~label, ~flowTypeValue, ~actionTypeValue) => {
+  let make = (~label, ~flowTypeValue) => {
     <div className="flex flex-col gap-2 mb-7">
       <h4 className="text-lg font-semibold underline"> {label->snakeToTitle->React.string} </h4>
       <div className="flex flex-col gap-1">
         <h3 className="break-all">
           <span className="font-semibold mr-3"> {"Flow :"->React.string} </span>
-          {flowTypeValue->getFlowTypeLabel->React.string}
-        </h3>
-        <h3 className="break-all">
-          <span className="font-semibold mr-3"> {"Action :"->React.string} </span>
-          {actionTypeValue->getActionTypeLabel->React.string}
+          {flowTypeValue->React.string}
         </h3>
       </div>
     </div>
@@ -22,6 +17,7 @@ module InfoField = {
 module ConfigInfo = {
   open LogicUtils
   open ConnectorTypes
+  open FRMInfo
   @react.component
   let make = (~frmConfigs) => {
     frmConfigs
@@ -31,20 +27,30 @@ module ConfigInfo = {
         <div>
           {config.payment_methods
           ->Array.mapWithIndex((paymentMethod, ind) => {
-            <div key={ind->Int.toString}>
-              {paymentMethod.payment_method_types
+            if paymentMethod.payment_method_types->Option.getOr([])->Array.length == 0 {
+              <InfoField
+                key={ind->Int.toString}
+                label={paymentMethod.payment_method}
+                flowTypeValue={paymentMethod.flow->getFlowTypeLabel}
+              />
+            } else {
+              paymentMethod.payment_method_types
+              ->Option.getOr([])
               ->Array.mapWithIndex(
                 (paymentMethodType, index) => {
-                  <InfoField
-                    key={index->Int.toString}
-                    label={paymentMethodType.payment_method_type}
-                    flowTypeValue={paymentMethodType.flow}
-                    actionTypeValue={paymentMethodType.action}
-                  />
+                  if index == 0 {
+                    <InfoField
+                      key={index->Int.toString}
+                      label={paymentMethod.payment_method}
+                      flowTypeValue={paymentMethodType.flow->getFlowTypeLabel}
+                    />
+                  } else {
+                    React.null
+                  }
                 },
               )
-              ->React.array}
-            </div>
+              ->React.array
+            }
           })
           ->React.array}
         </div>
