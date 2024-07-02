@@ -384,6 +384,7 @@ let defaultColumns: array<colType> = [
   Status,
   PaymentMethod,
   PaymentMethodType,
+  CardNetwork,
   Description,
   Metadata,
   Created,
@@ -410,7 +411,6 @@ let allColumns = [
   SetupFutureUsage,
   Status,
   Metadata,
-  CardNetwork,
 ]
 
 let getHeading = (colType: colType) => {
