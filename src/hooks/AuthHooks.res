@@ -10,8 +10,8 @@ let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ~tok
     ]->Dict.fromArray
   } else {
     let res = switch token {
-    | Some(token) => {
-        headers->Dict.set("authorization", `Bearer ${token}`)
+    | Some(str) => {
+        headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
         headers
       }
@@ -38,11 +38,11 @@ let useApiFetcher = () => {
 
   let token = React.useMemo1(() => {
     switch authStatus {
-    | PreLogin(info) => Some(info.token)
+    | PreLogin(info) => info.token
     | LoggedIn(info) =>
       switch info {
       | BasicAuth(basicInfo) => basicInfo.token
-      | Auth(info) => Some(info.token)
+      | Auth(info) => info.token
       }
     | _ => None
     }
@@ -100,7 +100,7 @@ let useApiFetcher = () => {
               | LoggedIn(_) =>
                 LocalStorage.clear()
                 setAuthStateToLogout()
-                RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+                AuthUtils.redirectToLogin()
                 resolve(resp)
 
               | _ => resolve(resp)

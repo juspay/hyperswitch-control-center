@@ -40,6 +40,7 @@ let make = () => {
     : "bg-orange-600/80 border-orange-500 text-grey-700"
 
   let isReconEnabled = merchantDetailsTypedValue.recon_status === Active
+  let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
 
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
 
@@ -236,6 +237,9 @@ let make = () => {
                         }}
                       />
                     </div>
+                    <RenderIf condition=isLiveUsersCounterEnabled>
+                      <ActiveUserCounter />
+                    </RenderIf>
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">

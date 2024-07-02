@@ -71,22 +71,36 @@ module TabDetails = {
             <UIUtils.RenderIf
               condition={logDetails.request->isNonEmptyString &&
                 selectedOption.optionType !== WEBHOOKS}>
+              <div className="flex justify-end">
+                <HelperComponents.CopyTextCustomComp
+                  displayValue=" " copyValue={logDetails.request->Some} customTextCss="text-nowrap"
+                />
+              </div>
               <PrettyPrintJson jsonToDisplay=logDetails.request />
             </UIUtils.RenderIf>
             <UIUtils.RenderIf
               condition={logDetails.request->isEmptyString &&
                 selectedOption.optionType !== WEBHOOKS}>
-              <p className="text-jp-gray-700"> {"No data found"->React.string} </p>
+              <NoDataFound
+                customCssClass={"my-6"} message="No Data Available" renderType=Painting
+              />
             </UIUtils.RenderIf>
           </div>
         | Metadata
         | Response =>
           <div className="px-5 py-3">
             <UIUtils.RenderIf condition={logDetails.response->isNonEmptyString}>
+              <div className="flex justify-end">
+                <HelperComponents.CopyTextCustomComp
+                  displayValue=" " copyValue={logDetails.response->Some} customTextCss="text-nowrap"
+                />
+              </div>
               <PrettyPrintJson jsonToDisplay={logDetails.response} />
             </UIUtils.RenderIf>
             <UIUtils.RenderIf condition={logDetails.response->isEmptyString}>
-              <p className="text-jp-gray-700"> {"No data found"->React.string} </p>
+              <NoDataFound
+                customCssClass={"my-6"} message="No Data Available" renderType=Painting
+              />
             </UIUtils.RenderIf>
           </div>
         | _ => React.null
@@ -178,8 +192,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
           | Some(dict) =>
             switch dict->getDictFromJsonObject->getLogType {
             | SDK => logs->Array.pushMany(arr->parseSdkResponse)->ignore
-            | CONNECTOR | API_EVENTS => logs->Array.pushMany(arr)->ignore
-            | WEBHOOKS => logs->Array.pushMany([dict])->ignore
+            | CONNECTOR | API_EVENTS | WEBHOOKS => logs->Array.pushMany(arr)->ignore
             }
           | _ => ()
           }
@@ -213,7 +226,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   })
 
   let timeLine =
-    <div className="flex flex-col w-2/5 overflow-y-scroll pt-7 pl-5">
+    <div className="flex flex-col w-2/5 overflow-y-scroll no-scrollbar pt-7 pl-5">
       <div className="flex flex-col">
         {data
         ->Array.mapWithIndex((detailsValue, index) => {
@@ -247,6 +260,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
             initalTab=tabKeys
             tabContainerClass="px-2"
             updateCollapsableTabs=collapseTab
+            showAddMoreTabs=false
           />
         </div>
         <TabDetails activeTab logDetails selectedOption />
