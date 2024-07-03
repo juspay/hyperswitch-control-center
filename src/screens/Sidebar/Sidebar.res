@@ -565,6 +565,7 @@ let make = (
   @supports (-webkit-appearance: none){
     .sidebar-scrollbar {
         scrollbar-width: auto;
+        scrollbar-color: #8a8c8f;
       }
       
       .sidebar-scrollbar::-webkit-scrollbar {
