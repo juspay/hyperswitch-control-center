@@ -511,7 +511,7 @@ module BaseSelect = {
       None
     }, [searchString])
 
-    let onItemClick = (itemDataValue, isDisabled, e) => {
+    let onItemClick = (itemDataValue, isDisabled) => e => {
       if !isDisabled {
         let data = if Array.includes(saneValue, itemDataValue) {
           let values =
@@ -536,7 +536,7 @@ module BaseSelect = {
       setSearchString(_ => str)
     }
 
-    let selectAll = (select, _ev) => {
+    let selectAll = select => _ev => {
       let newValues = if select {
         let newVal =
           filteredOptions
@@ -636,7 +636,7 @@ module BaseSelect = {
     }, (noOfSelected, options))
     let toggleSelectAll = val => {
       if !disableSelect {
-        selectAll(val, "")
+        selectAll(val)("")
 
         setChooseAllToggleSelected(_ => val)
       }
@@ -937,7 +937,7 @@ module BaseSelectButton = {
     let (itemdata, setItemData) = React.useState(() => "")
     let (assignButtonState, setAssignButtonState) = React.useState(_ => false)
     let searchRef = React.useRef(Nullable.null)
-    let onItemClick = (itemData, _ev) => {
+    let onItemClick = itemData => _ev => {
       if !disableSelect {
         let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
 
@@ -1249,7 +1249,7 @@ module BaseRadio = {
       },
       (),
     )
-    let onItemClick = (itemData, isDisabled, _ev) => {
+    let onItemClick = (itemData, isDisabled) => _ev => {
       if !isDisabled {
         let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
 
@@ -1594,7 +1594,7 @@ module BaseDropdown = {
       }
     }
 
-    let removeOption = (text, _ev) => {
+    let removeOption = text => _ev => {
       let actualValue = switch Array.find(transformedOptions, option => option.value == text) {
       | Some(str) => str.value
       | None => ""
@@ -1677,7 +1677,7 @@ module BaseDropdown = {
       ->Belt.Array.keepMap(str => {
         transformedOptions->Array.find(x => x.value == str)->Option.map(x => x.label)
       })
-      ->Array.joinWith(", ")
+      ->Array.joinWithUnsafe(", ")
       ->LogicUtils.getNonEmptyString
       ->Option.getOr(buttonText)
     }, (transformedOptions, newInputSelect.value))
@@ -1878,7 +1878,7 @@ module BaseDropdown = {
                         ? `Select ${LogicUtils.snakeToTitle(newInputSelect.name)}`
                         : newInputSelect.value
                           ->LogicUtils.getStrArryFromJson
-                          ->Array.joinWith(",\n")}
+                          ->Array.joinWithUnsafe(",\n")}
                       toolTipFor=selectButton
                       toolTipPosition=Bottom
                       tooltipWidthClass=""

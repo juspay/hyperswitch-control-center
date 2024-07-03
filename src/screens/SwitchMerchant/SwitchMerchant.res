@@ -163,11 +163,11 @@ module ExternalUser = {
     open HeadlessUI
     <>
       <Menu \"as"="div" className="relative inline-block text-left">
-        {menuProps =>
+        {_menuProps =>
           <div>
             <Menu.Button
               className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-md hover:bg-opacity-80 bg-white border">
-              {buttonProps => {
+              {_buttonProps => {
                 <>
                   {selectedMerchantObject.merchant_name->React.string}
                   <Icon

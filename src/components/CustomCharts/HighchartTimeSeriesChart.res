@@ -448,7 +448,7 @@ module LineChart1D = {
       | Points =>
         {
           "enabled": !isMultiDimensional,
-          "itemStyle": legendItemStyle(theme, "IBM Plex Sans", "12px"),
+          "itemStyle": legendItemStyle(theme)("IBM Plex Sans", "12px"),
           "itemHiddenStyle": legendHiddenStyle(theme),
           "itemHoverStyle": legendItemStyle(theme),
         }->genericObjectOrRecordToJson
@@ -464,34 +464,32 @@ module LineChart1D = {
               "backgroundColor": Nullable.null,
               "height": Some(chartHeight),
               "events": {
-                render: (
-                  @this
-                  (this: chartEventOnload) => {
-                    let strokeColor = switch theme {
-                    | Dark => "#2e2f39"
-                    | Light => "#e6e6e6"
-                    }
-                    switch this.yAxis[0] {
-                    | Some(ele) =>
-                      Highcharts.objectEach(ele.ticks, tick => {
-                        if Some(tick.pos) === thresholdVal {
-                          tick.gridLine.attr(.
-                            {
-                              "stroke-width": "0",
-                            }->genericObjectOrRecordToJson,
-                          )
-                        } else {
-                          tick.gridLine.attr(.
-                            {
-                              "stroke": strokeColor,
-                            }->genericObjectOrRecordToJson,
-                          )
-                        }
-                      })
-                    | None => ()
-                    }
+                render: () => {
+                  let this = thisChartEventOnLoad
+                  let strokeColor = switch theme {
+                  | Dark => "#2e2f39"
+                  | Light => "#e6e6e6"
                   }
-                )->Some,
+                  switch this.yAxis[0] {
+                  | Some(ele) =>
+                    Highcharts.objectEach(ele.ticks, tick => {
+                      if Some(tick.pos) === thresholdVal {
+                        tick.gridLine.attr(
+                          {
+                            "stroke-width": "0",
+                          }->genericObjectOrRecordToJson,
+                        )
+                      } else {
+                        tick.gridLine.attr(
+                          {
+                            "stroke": strokeColor,
+                          }->genericObjectOrRecordToJson,
+                        )
+                      }
+                    })
+                  | None => ()
+                  }
+                },
               }->Some,
             }->genericObjectOrRecordToJson,
           )
@@ -719,7 +717,7 @@ module LineChart1D = {
                 onEntityClick={val => {
                   setClickedRowNames(val)
                 }}
-                onEntityDoubleClick={val => {
+                onEntityDoubleClick={_val => {
                   setClickedRowNamesOrig(_ => [])
                   clickedRowNames->Array.length > 0 ? setHoverOnRows(_ => None) : ()
                 }}
@@ -728,7 +726,7 @@ module LineChart1D = {
                     ? setHoverOnRows(_ => Some(val.groupByName))
                     : ()
                 }}
-                onMouseLeave={val => {
+                onMouseLeave={_val => {
                   clickedRowNames->Array.length === 0 ? setHoverOnRows(_ => None) : ()
                 }}
                 isHighchartLegend=true

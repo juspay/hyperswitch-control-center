@@ -180,7 +180,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
               let body = email->getEmailBody()
               resendVerifyEmail(body)
             } else {
-              Promise.make((resolve, _) => resolve(. Nullable.null))
+              Promise.make((resolve, _) => resolve(Nullable.null))
             }
           }
 
@@ -191,7 +191,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
 
               setForgetPassword(body)
             } else {
-              Promise.make((resolve, _) => resolve(. Nullable.null))
+              Promise.make((resolve, _) => resolve(Nullable.null))
             }
           }
 
@@ -202,7 +202,14 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
             let body = getResetpasswordBodyJson(password, password_reset_token)
             setResetPassword(body)
           }
-        | _ => Promise.make((resolve, _) => resolve(. Nullable.null))
+        | _ =>
+          switch (featureFlagValues.email, authType) {
+          | (true, ForgetPassword) =>
+            let body = email->getEmailBody()
+
+            setForgetPassword(body)
+          | _ => Promise.make((resolve, _) => resolve(Nullable.null))
+          }
         }
       )
     } catch {

@@ -8,21 +8,21 @@ module RawHBarChart = {
 }
 open HighchartsHorizontalBarChart
 
-let valueFormatter = {
+let valueFormatter = (
   @this
   (this: tooltipRecord) => {
     `<div class='text-white'>${this.category} count: <b>${this.y->Int.toString}</b></div>`
   }
-}
+)->asTooltipPointFormatter
 
-let dataLabelFormatter: Js_OO.Callback.arity1<yAxisRecord => string> = {
+let dataLabelFormatter: yAxisRecord => string = (
   @this
   _param => {
     ""
   }
-}
+)->asDataLabelFormatter
 
-let xLabelFormatter: Js_OO.Callback.arity1<xAxisRecord => string> = {
+let xLabelFormatter: xAxisRecord => string = (
   @this
   param => {
     let axis = param.axis
@@ -55,7 +55,7 @@ let xLabelFormatter: Js_OO.Callback.arity1<xAxisRecord => string> = {
     (y->Float.fromInt *. 100. /. seriesSum->Float.fromInt)
       ->Float.toFixedWithPrecision(~digits=2) ++ `%</div></div>`
   }
-}
+)->asXLabelFormatter
 
 @react.component
 let make = (

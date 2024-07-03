@@ -91,17 +91,17 @@ let make = (
 ) => {
   let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
   let todayDateTime = DayJs.getDayJs()
-  let time = todayDateTime.format(. "hh:mm:ss a")
+  let time = todayDateTime.format("hh:mm:ss a")
 
   let defaultStartTime =
-    endDate == todayDateTime.format(. "YYYY-MM-DD")
+    endDate == todayDateTime.format("YYYY-MM-DD")
       ? time->String.toUpperCase
-      : (`${endDate} ${endTimeStr}`->DayJs.getDayJsForString).format(.
+      : (`${endDate} ${endTimeStr}`->DayJs.getDayJsForString).format(
           "hh:mm:ss a",
         )->String.toUpperCase
 
   let (fromTime, setFromTime) = React.useState(_ =>
-    (`${startDate} ${startTimeStr}`->DayJs.getDayJsForString).format(.
+    (`${startDate} ${startTimeStr}`->DayJs.getDayJsForString).format(
       "hh:mm:ss a",
     )->String.toUpperCase
   )
@@ -155,8 +155,8 @@ let make = (
     let endTime = localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)
     let startDateTime = `${startDate} ${fromTime}`->DayJs.getDayJsForString
 
-    if startDateTime.isValid(.) {
-      let startTimeVal = startDateTime.format(. "HH:mm:ss")
+    if startDateTime.isValid() {
+      let startTimeVal = startDateTime.format("HH:mm:ss")
 
       if localStartDate->LogicUtils.isNonEmptyString {
         if disableFutureDates && startDate == todayDate && startTimeVal > todayTime {
@@ -175,8 +175,8 @@ let make = (
     let startTime = localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)
     let endDateTime = `${endDate} ${toTime}`->DayJs.getDayJsForString
 
-    if endDateTime.isValid(.) {
-      let endTimeVal = endDateTime.format(. "HH:mm:ss")
+    if endDateTime.isValid() {
+      let endTimeVal = endDateTime.format("HH:mm:ss")
       if localEndDate->LogicUtils.isNonEmptyString {
         if disableFutureDates && endDate == todayDate && endTimeVal > todayTime {
           setEndDate(~date=startDate, ~time=todayTime)
@@ -191,17 +191,17 @@ let make = (
     None
   }, [toTime])
 
-  let updatedFromDate = fromDateJs.isValid(.)
+  let updatedFromDate = fromDateJs.isValid()
     ? try {
-        fromDateJs.format(. "dddd, MMMM DD, YYYY")
+        fromDateJs.format("dddd, MMMM DD, YYYY")
       } catch {
       | _error => ""
       }
     : ""
 
-  let updatedToDate = toDateJs.isValid(.)
+  let updatedToDate = toDateJs.isValid()
     ? try {
-        toDateJs.format(. "dddd, MMMM DD, YYYY")
+        toDateJs.format("dddd, MMMM DD, YYYY")
       } catch {
       | _error => ""
       }

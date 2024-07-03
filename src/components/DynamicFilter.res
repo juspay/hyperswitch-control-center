@@ -90,7 +90,7 @@ module CustomFilters = {
       switch completionDisposable {
       | Some(_val) => ()
       | None =>
-        setCompletionDisposable(._ =>
+        setCompletionDisposable(_ =>
           Monaco.Language.registerCompletionItemProvider(
             monaco.languages,
             "sql",

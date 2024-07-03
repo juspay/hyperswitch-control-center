@@ -194,7 +194,7 @@ module MetadataInp = {
         let arrStr = valSplit->Array.map(item => {
           String.trim(item)
         })
-        let finalVal = Array.joinWith(arrStr, ",")->JSON.Encode.string
+        let finalVal = Array.joinWithUnsafe(arrStr, ",")->JSON.Encode.string
 
         valueField.onChange(finalVal->Identity.anyTypeToReactEvent)
       },
@@ -213,18 +213,16 @@ module MetadataInp = {
   }
 }
 
-let renderOperatorInp = (keyType, fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+let renderOperatorInp = keyType => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   <OperatorInp fieldsArray keyType />
 }
-let renderValueInp = (
-  keyType: string,
-  variantValues,
+let renderValueInp = (keyType: string, variantValues) => (
   fieldsArray: array<ReactFinalForm.fieldRenderProps>,
 ) => {
   <ValueInp fieldsArray variantValues keyType />
 }
 
-let renderMetaInput = (keyType, fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+let renderMetaInput = keyType => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   <MetadataInp fieldsArray keyType />
 }
 
