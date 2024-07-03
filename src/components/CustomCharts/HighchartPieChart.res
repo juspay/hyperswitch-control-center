@@ -51,7 +51,7 @@ let make = (
       pieSeriesData->Array.mapWithIndex((_data, i) => {
         let i = i->Int.toFloat
         let opacity = (length -. i +. 1.) /. (length +. 1.)
-        `rgb(0,109,249,${opacity->Float.toString})`
+        `rgb(var(--color-primary),${opacity->Float.toString})`
       })
     }
     let defaultOptions: HighchartsPieChart.options = {
