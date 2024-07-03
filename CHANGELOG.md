@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.02.0
+
+### Miscellaneous Tasks
+
+- Removed avg ticket size and refunds propcessed amount ([#892](https://github.com/juspay/hyperswitch-control-center/pull/892)) ([`e0ac19e`](https://github.com/juspay/hyperswitch-control-center/commit/e0ac19e0af32388ee5b4789e033cef25f149560a))
+- Webhooks multi request support ([#890](https://github.com/juspay/hyperswitch-control-center/pull/890)) ([`ca489e5`](https://github.com/juspay/hyperswitch-control-center/commit/ca489e5f625ca1b987c731abda5bdb2fb0ec7bcb))
+
+**Full Changelog:** [`2024.07.01.2...2024.07.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.01.2...2024.07.02.0)
+
+- - -
+
 ## 2024.07.01.2
 
 ### Features
