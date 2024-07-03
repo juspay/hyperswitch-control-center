@@ -60,7 +60,7 @@ module LineChart1D = {
     ~comparitionWidget=false,
     ~selectedTab: option<array<string>>=?,
   ) => {
-    let (theme, _setTheme) = React.useContext(ThemeProvider.themeContext)
+    let {theme} = React.useContext(ThemeProvider.themeContext)
     let (_, setLegendState) = React.useState(_ => [])
     let isMobileView = MatchMedia.useMobileChecker()
     let (hideLegend, setHideLegend) = React.useState(_ => isMobileView)

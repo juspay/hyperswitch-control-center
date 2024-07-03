@@ -9,23 +9,7 @@ module HyperSwitchEntryComponent = {
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let defaultGlobalConfig: HyperSwitchConfigTypes.customStyle = {
-      primaryColor: "#006DF9",
-      primaryHover: "#005ED6",
-      sidebar: "#242F48",
-    }
-
-    let configTheme = (uiConfg: JSON.t) => {
-      open LogicUtils
-      let dict = uiConfg->getDictFromJsonObject->getDictfromDict("theme")
-      let {primaryColor, primaryHover, sidebar} = defaultGlobalConfig
-      let value: HyperSwitchConfigTypes.customStyle = {
-        primaryColor: dict->getString("primary_color", primaryColor),
-        primaryHover: dict->getString("primary_hover_color", primaryHover),
-        sidebar: dict->getString("sidebar_color", sidebar),
-      }
-      Window.appendStyle(value)
-    }
+    let {configCustomDomainTheme} = React.useContext(ThemeProvider.themeContext)
 
     let configureFavIcon = (faviconUrl: option<string>) => {
       try {
@@ -76,7 +60,7 @@ module HyperSwitchEntryComponent = {
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(._ => featureFlags)
-        let _ = res->configTheme
+        let _ = res->configCustomDomainTheme
         let _ = res->configURL
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)

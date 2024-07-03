@@ -31,7 +31,7 @@ let make = (
   ~titleKey=?,
   ~selectedMetrics: LineChartUtils.metricsConfig,
 ) => {
-  let (theme, _setTheme) = React.useContext(ThemeProvider.themeContext)
+  let {theme} = React.useContext(ThemeProvider.themeContext)
   let pieSeriesData = React.useMemo3(() => {
     LineChartUtils.chartDataMaker(
       ~filterNull=true,

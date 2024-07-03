@@ -16,7 +16,7 @@ module CheckListSection = {
     ~setPreviewState,
   ) => {
     let {globalUIConfig: {font: {textColor}, backgroundColor}} = React.useContext(
-      ConfigContext.configContext,
+      ThemeProvider.themeContext,
     )
 
     let stepColor =
@@ -88,7 +88,7 @@ module CheckListSection = {
 module ProgressBar = {
   @react.component
   let make = (~progressState) => {
-    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
     <div className={`${backgroundColor} bg-opacity-20 h-1.5 w-full`}>
       <div
         className={`h-full ${backgroundColor}`}

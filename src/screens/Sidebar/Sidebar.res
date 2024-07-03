@@ -498,7 +498,7 @@ let make = (
   open UIUtils
   open CommonAuthHooks
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
-    ConfigContext.configContext,
+    ThemeProvider.themeContext,
   )
 
   let handleLogout = APIUtils.useHandleLogout()
