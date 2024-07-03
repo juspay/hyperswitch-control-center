@@ -91,7 +91,7 @@ type refundColType =
   | NoCol
 
 let defaultRefundColumns = [Connector, RefundMethod, Currency, Status]
-let allRefundColumns = [SuccessRate, Count, SuccessCount, ProcessedAmount]
+let allRefundColumns = [SuccessRate, Count, SuccessCount]
 
 type refundTableType = {
   refund_success_rate: float,
@@ -177,14 +177,7 @@ let defaultPaymentColumns = [
   ClientVersion,
 ]
 
-let allPaymentColumns = [
-  SuccessRate,
-  WeeklySuccessRate,
-  Count,
-  SuccessCount,
-  PaymentErrorMessage,
-  AvgTicketSize,
-]
+let allPaymentColumns = [SuccessRate, WeeklySuccessRate, Count, SuccessCount, PaymentErrorMessage]
 type paymentsSingleState = {
   payment_success_rate: float,
   payment_count: int,
