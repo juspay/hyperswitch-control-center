@@ -244,7 +244,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         />
       </UIUtils.RenderIf>
       <div
-        className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
+        className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple hide-scrollbar">
         {switch currentStep {
         | AutomaticFlow =>
           switch connectorTypeFromName {

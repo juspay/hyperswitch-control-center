@@ -67,7 +67,7 @@ let make = (
     backButton
     nextButton
     headerText={getCurrentStandardIntegrationStepHeading(currentStep)}
-    customCss="show-scrollbar">
+    customCss="hide-scrollbar">
     {switch currentStep {
     | DownloadTestAPIKey =>
       <UserOnboardingUIUtils.DownloadAPIKey currentRoute currentTabName="downloadApiKey" />

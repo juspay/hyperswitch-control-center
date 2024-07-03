@@ -13,7 +13,7 @@ module SelectProcessor = {
 
     <QuickStartUIUtils.BaseComponent
       headerText="Select Processor"
-      customCss="show-scrollbar"
+      customCss="hide-scrollbar"
       nextButton={<Button
         buttonType=Primary
         text="Proceed"
@@ -150,7 +150,7 @@ module SelectPaymentMethods = {
       customIcon={<GatewayIcon
         gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
       />}
-      customCss="show-scrollbar"
+      customCss="hide-scrollbar"
       nextButton={<Button
         text="Proceed"
         buttonSize=Small

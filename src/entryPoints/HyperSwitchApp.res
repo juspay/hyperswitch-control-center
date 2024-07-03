@@ -211,7 +211,7 @@ let make = () => {
               <div className="flex relative overflow-auto h-screen ">
                 <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
                 <div
-                  className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
+                  className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll hide-scrollbar md:overflow-x-hidden">
                   // <RenderIf condition={verificationDays > 0}>
                   //   <DelayedVerificationBanner verificationDays={verificationDays} />
                   // </RenderIf>
@@ -238,7 +238,7 @@ let make = () => {
                     </div>
                   </div>
                   <div
-                    className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
+                    className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll hide-scrollbar">
                     <div
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>

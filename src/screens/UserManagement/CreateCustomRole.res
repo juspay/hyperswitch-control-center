@@ -157,7 +157,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
           onSubmit
           formClass="flex flex-col gap-8">
           <NewCustomRoleInputFields />
-          <div className="flex flex-col justify-between gap-12 show-scrollbar overflow-scroll">
+          <div className="flex flex-col justify-between gap-12 hide-scrollbar overflow-scroll">
             {permissionInfo
             ->Array.mapWithIndex((ele, index) => {
               <RenderCustomRoles

@@ -814,7 +814,7 @@ module BaseSelect = {
         React.null
       }}
       <div
-        className={`overflow-auto ${listPadding} ${isHorizontal
+        className={`overflow-auto hide-scrollbar ${listPadding} ${isHorizontal
             ? "flex flex-row grow"
             : ""}  ${showToggle ? "ml-3" : maxHeight}` ++ {
           wrapBasis->LogicUtils.isEmptyString ? "" : " flex flex-wrap justify-between"

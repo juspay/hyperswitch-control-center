@@ -128,7 +128,7 @@ let make = () => {
           />
         </div>
         <div
-          className="h-full w-full overflow-auto show-scrollbar bg-pdf_background p-5 md:p-10"
+          className="h-full w-full overflow-auto hide-scrollbar bg-pdf_background p-5 md:p-10"
           onScroll={ev => {
             let reachedBottom =
               {ev->ReactEvent.UI.target}["scrollHeight"] - 250 <

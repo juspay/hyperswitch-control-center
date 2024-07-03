@@ -356,7 +356,7 @@ let make = () => {
           newRoleSelected
         />
         <RenderIf condition={!isUpdateRoleSelected}>
-          <div className="flex flex-col justify-between gap-12 show-scrollbar overflow-scroll">
+          <div className="flex flex-col justify-between gap-12 hide-scrollbar overflow-scroll">
             {permissionInfo
             ->Array.mapWithIndex((ele, index) => {
               <RolePermissionValueRenderer

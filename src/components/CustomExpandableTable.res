@@ -33,7 +33,7 @@ let make = (
   })
 
   let scrollBarClass = if showScrollBar {
-    "show-scrollbar"
+    "hide-scrollbar"
   } else {
     ""
   }

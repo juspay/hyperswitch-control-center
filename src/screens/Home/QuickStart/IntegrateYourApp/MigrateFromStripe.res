@@ -66,7 +66,7 @@ let make = (
     backButton
     nextButton
     headerText={getCurrentMigrateFromStripeStepHeading(currentStep)}
-    customCss="show-scrollbar">
+    customCss="hide-scrollbar">
     {switch currentStep {
     | DownloadAPIKey =>
       <UserOnboardingUIUtils.DownloadAPIKey currentRoute currentTabName="downloadApiKey" />

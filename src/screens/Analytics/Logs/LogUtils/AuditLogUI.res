@@ -213,7 +213,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   })
 
   let timeLine =
-    <div className="flex flex-col w-2/5 overflow-y-scroll pt-7 pl-5">
+    <div className="flex flex-col w-2/5 overflow-y-scroll hide-scrollbar pt-7 pl-5">
       <div className="flex flex-col">
         {data
         ->Array.mapWithIndex((detailsValue, index) => {
@@ -238,7 +238,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     <UIUtils.RenderIf
       condition={logDetails.response->isNonEmptyString || logDetails.request->isNonEmptyString}>
       <div
-        className="flex flex-col gap-4 border-l-2 border-border-light-grey show-scrollbar scroll-smooth overflow-scroll  w-3/5">
+        className="flex flex-col gap-4 border-l-2 border-border-light-grey hide-scrollbar scroll-smooth overflow-scroll w-3/5">
         <div className="sticky top-0 bg-white z-10">
           <DynamicTabs
             tabs=tabValues

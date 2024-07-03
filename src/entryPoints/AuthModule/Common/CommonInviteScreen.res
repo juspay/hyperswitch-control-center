@@ -32,7 +32,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
             {"Please accept the your pending invitations"->React.string}
           </p>
         </div>
-        <div className="h-[50%] overflow-auto show-scrollbar">
+        <div className="h-[50%] overflow-auto hide-scrollbar">
           {merchantData
           ->Array.mapWithIndex((ele, index) => {
             let merchantId = ele->getDictFromJsonObject->getString("merchant_id", "")

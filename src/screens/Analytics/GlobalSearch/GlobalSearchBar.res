@@ -112,7 +112,7 @@ module ModalWrapper = {
         key="search"
         initial={{borderRadius: ["15px", "15px", "15px", "15px"], scale: 0.9}}
         animate={{borderRadius: ["15px", "15px", "15px", "15px"], scale: 1.0}}
-        className={"flex flex-col bg-white gap-2 overflow-hidden py-2 !show-scrollbar"}>
+        className={"flex flex-col bg-white gap-2 overflow-hidden py-2 show-scrollbar"}>
         {children}
       </FramerMotion.Motion.Div>
     </Modal>

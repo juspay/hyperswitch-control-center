@@ -280,7 +280,7 @@ module ReactWindowTableComponent = {
       ""
     }
     let scrollBarClass = if showScrollBar {
-      "show-scrollbar"
+      "hide-scrollbar"
     } else {
       "no-scrollbar"
     }

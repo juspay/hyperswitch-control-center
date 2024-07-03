@@ -337,7 +337,7 @@ let make = () => {
             customIcon={<GatewayIcon
               gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
             />}
-            customCss="show-scrollbar"
+            customCss="hide-scrollbar"
             backButton={<Button
               text="Back"
               buttonType={PrimaryOutline}

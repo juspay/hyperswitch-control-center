@@ -683,7 +683,7 @@ let make = (
   }
   let stickCol = {"sticky left-0 z-10"}
   let scrollBarClass = if showScrollBar {
-    "show-scrollbar"
+    "hide-scrollbar"
   } else {
     ""
   }
@@ -893,7 +893,7 @@ let make = (
       ? ""
       : isMinHeightRequired
       ? ""
-      : "overflow-scroll"
+      : "overflow-scroll hide-scrollbar"
   let parentBorderRadius = !isHighchartLegend ? "rounded-t-lg" : ""
   let parentBorderClass = !isHighchartLegend ? "border border-jp-2-light-gray-300" : ""
   <div

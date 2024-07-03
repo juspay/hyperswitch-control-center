@@ -61,7 +61,7 @@ module APITableInfo = {
           <div className="mb-3">
             {"API endpoints subject to performance metrics monitoring."->React.string}
           </div>
-          <div className="h-96 overflow-scroll show-scrollbar">
+          <div className="h-96 overflow-scroll hide-scrollbar">
             {apis
             ->Array.map(path =>
               <div className="bg-gray-100 p-2 mb-1 rounded mr-2"> {`/${path}`->React.string} </div>

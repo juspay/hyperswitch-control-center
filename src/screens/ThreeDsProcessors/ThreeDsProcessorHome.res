@@ -226,7 +226,7 @@ let make = () => {
         cursorStyle="cursor-pointer"
       />
       <div
-        className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
+        className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple hide-scrollbar">
         {switch currentStep {
         | ConfigurationFields =>
           <Form initialValues={initialValues} onSubmit validate={validateMandatoryField}>

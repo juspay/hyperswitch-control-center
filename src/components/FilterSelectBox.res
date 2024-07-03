@@ -674,7 +674,7 @@ module BaseSelect = {
     let outerClass = if isModalView {
       "h-full"
     } else if isDropDown {
-      "overflow-auto"
+      "overflow-auto hide-scrollbar"
     } else {
       ""
     }
@@ -1867,7 +1867,8 @@ module BaseDropdown = {
                       className={`${textStyle->Option.getOr(
                           "",
                         )} flex justify-center items-center whitespace-pre leading-5  text-sm  font-medium hover:bg-opacity-80  cursor-pointer mr-2 border-r-2 pr-1`}>
-                      <div className="text-ellipsis overflow-hidden w-full max-w-sm h-fit">
+                      <div
+                        className="text-ellipsis overflow-hidden hide-scrollbar w-full max-w-sm h-fit">
                         {selectButtonText->React.string}
                       </div>
                       {buttonIcon}
