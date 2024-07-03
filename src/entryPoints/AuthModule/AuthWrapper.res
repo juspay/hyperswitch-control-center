@@ -160,7 +160,9 @@ let make = (~children) => {
             <TwoFaAuthScreen setAuthStatus />
           </UIUtils.RenderIf>
           <UIUtils.RenderIf condition={checkAuthMethodExists([OPEN_ID_CONNECT])}>
-            {PreLoginUtils.divider}
+            <UIUtils.RenderIf condition={checkAuthMethodExists([PASSWORD, MAGIC_LINK])}>
+              {PreLoginUtils.divider}
+            </UIUtils.RenderIf>
             {authMethods
             ->Array.mapWithIndex((authMethod, index) =>
               <React.Fragment key={index->Int.toString}>

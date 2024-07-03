@@ -18,7 +18,12 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let (email, setEmail) = React.useState(_ => "")
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
-
+  let {
+    isMagicLinkEnabled,
+    isSignUpAllowed,
+    checkAuthMethodExists,
+  } = AuthModuleHooks.useAuthMethods()
+  let (signUpAllowed, signupMethod) = isSignUpAllowed()
   let handleAuthError = e => {
     open CommonAuthUtils
     let error = e->parseErrorMessage
@@ -145,43 +150,57 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
       let email = valuesDict->getString("email", "")
       setEmail(_ => email)
       logMixpanelEvents(email)
-
       let _ = await (
-        switch (featureFlagValues.email, authType) {
-        | (true, SignUP) | (true, LoginWithEmail) => {
+        switch (signupMethod, signUpAllowed, isMagicLinkEnabled(), authType) {
+        | (MAGIC_LINK, true, true, SignUP) => {
             let body = getEmailBody(email, ~country, ())
             getUserWithEmail(body)
           }
-
-        | (true, ResendVerifyEmail) =>
-          let body = email->getEmailBody()
-          resendVerifyEmail(body)
-
-        | (false, SignUP) => {
+        | (PASSWORD, true, _, SignUP) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
             getUserWithEmailPassword(body, #SIGNUP_TOKEN_ONLY)
           }
-        | (_, LoginWithPassword) => {
+
+        | (_, _, true, LoginWithEmail) => {
+            let body = getEmailBody(email, ~country, ())
+            getUserWithEmail(body)
+          }
+
+        | (_, _, _, LoginWithPassword) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
             getUserWithEmailPassword(body, #SIGNINV2_TOKEN_ONLY)
           }
-        | (_, ResetPassword) => {
+        | (_, _, _, ResendVerifyEmail) => {
+            let exists = checkAuthMethodExists([PASSWORD])
+            if exists {
+              let body = email->getEmailBody()
+              resendVerifyEmail(body)
+            } else {
+              Promise.make((resolve, _) => resolve(. Nullable.null))
+            }
+          }
+
+        | (_, _, _, ForgetPassword) => {
+            let exists = checkAuthMethodExists([PASSWORD])
+            if exists {
+              let body = email->getEmailBody()
+
+              setForgetPassword(body)
+            } else {
+              Promise.make((resolve, _) => resolve(. Nullable.null))
+            }
+          }
+
+        | (_, _, _, ResetPassword) => {
             let queryDict = url.search->getDictFromUrlSearchParams
             let password_reset_token = queryDict->Dict.get("token")->Option.getOr("")
             let password = getString(valuesDict, "create_password", "")
             let body = getResetpasswordBodyJson(password, password_reset_token)
             setResetPassword(body)
           }
-        | _ =>
-          switch (featureFlagValues.email, authType) {
-          | (true, ForgetPassword) =>
-            let body = email->getEmailBody()
-
-            setForgetPassword(body)
-          | _ => Promise.make((resolve, _) => resolve(. Nullable.null))
-          }
+        | _ => Promise.make((resolve, _) => resolve(. Nullable.null))
         }
       )
     } catch {
@@ -226,8 +245,6 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     None
   })
 
-  let {isMagicLinkEnabled, isSignUpAllowed} = AuthModuleHooks.useAuthMethods()
-  let (signUpAllowed, signupMethod) = isSignUpAllowed()
   let note = AuthModuleHooks.useNote(authType, setAuthType, ())
   <ReactFinalForm.Form
     key="auth"
@@ -244,7 +261,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
           {switch authType {
           | LoginWithPassword => <EmailPasswordForm setAuthType />
           | ForgetPassword =>
-            <UIUtils.RenderIf condition={featureFlagValues.email}>
+            <UIUtils.RenderIf
+              condition={featureFlagValues.email && checkAuthMethodExists([PASSWORD])}>
               <EmailForm />
             </UIUtils.RenderIf>
           | ResendVerifyEmail
