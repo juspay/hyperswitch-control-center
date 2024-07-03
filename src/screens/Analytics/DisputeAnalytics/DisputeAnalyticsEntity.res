@@ -170,14 +170,7 @@ type colT =
 let getColumns: unit => array<DynamicSingleStat.columns<colT>> = () => [
   {
     sectionName: "",
-    columns: [
-      {
-        colType: TotalAmountDisputed,
-      },
-      {
-        colType: TotalDisputeLostAmount,
-      },
-    ],
+    columns: [TotalAmountDisputed, TotalDisputeLostAmount]->generateDefaultStateColumns,
   },
 ]
 

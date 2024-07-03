@@ -325,20 +325,7 @@ type colT =
 let generalMetricsColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: [
-      {
-        colType: SuccessRate,
-      },
-      {
-        colType: ConnectorSuccessRate,
-      },
-      {
-        colType: Count,
-      },
-      {
-        colType: SuccessCount,
-      },
-    ],
+    columns: [SuccessRate, ConnectorSuccessRate, Count, SuccessCount]->generateDefaultStateColumns,
   },
 ]
 
@@ -361,14 +348,7 @@ let amountMetricsColumns: array<DynamicSingleStat.columns<colT>> = [
 let smartRetrivesColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: [
-      {
-        colType: RetriesCount,
-      },
-      {
-        colType: RetriesAmountProcessed,
-      },
-    ],
+    columns: [RetriesCount, RetriesAmountProcessed]->generateDefaultStateColumns,
   },
 ]
 

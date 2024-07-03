@@ -17,6 +17,14 @@ type columnsType<'colType> = {
   chartType?: chartType,
 }
 
+let generateDefaultStateColumns: array<'colType> => array<columnsType<'colType>> = arr => {
+  arr->Array.map(col => {
+    {
+      colType: col,
+    }
+  })
+}
+
 type columns<'colType> = {
   sectionName: string,
   columns: array<columnsType<'colType>>,

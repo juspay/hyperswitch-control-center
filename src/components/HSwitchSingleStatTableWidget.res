@@ -123,7 +123,7 @@ module ShowMore = {
           hideTitle=true
           actualData={tableData}
           entity=tableEntity
-          resultsPerPage=5
+          resultsPerPage=10
           totalResults={tableData->Array.length}
           offset
           setOffset
@@ -131,6 +131,7 @@ module ShowMore = {
           currrentFetchCount={tableData->Array.length}
           tableLocalFilter=false
           tableheadingClass=tableBorderClass
+          showResultsPerPageSelector=false
           tableBorderClass
           ignoreHeaderBg=true
           tableDataBorderClass=tableBorderClass

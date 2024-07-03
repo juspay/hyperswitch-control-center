@@ -63,22 +63,12 @@ let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
     columns: [
-      {
-        colType: SdkRenderedCount,
-      },
-      {
-        colType: Count,
-      },
-      {
-        colType: ConversionRate,
-      },
-      {
-        colType: DropOutRate,
-      },
-      {
-        colType: AvgPaymentTime,
-      },
-    ],
+      SdkRenderedCount,
+      Count,
+      ConversionRate,
+      DropOutRate,
+      AvgPaymentTime,
+    ]->generateDefaultStateColumns,
   },
 ]
 

@@ -85,28 +85,14 @@ let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
     columns: [
-      {
-        colType: ThreeDsCount,
-      },
-      {
-        colType: AuthenticationSuccessRate,
-      },
-      {
-        colType: ChallengeFlowRate,
-      },
-      {
-        colType: FrictionlessFlowRate,
-      },
-      {
-        colType: ChallengeAttemptRate,
-      },
-      {
-        colType: ChallengeSuccessRate,
-      },
-      {
-        colType: FrictionlessSuccessRate,
-      },
-    ],
+      ThreeDsCount,
+      AuthenticationSuccessRate,
+      ChallengeFlowRate,
+      FrictionlessFlowRate,
+      ChallengeAttemptRate,
+      ChallengeSuccessRate,
+      FrictionlessSuccessRate,
+    ]->generateDefaultStateColumns,
   },
 ]
 

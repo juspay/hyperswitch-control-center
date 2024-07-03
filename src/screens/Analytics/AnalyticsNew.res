@@ -266,7 +266,7 @@ module TableWrapper = {
     }
 
     open Promise
-    let getWeeklyData = async (data, cols) => {
+    let getWeeklyData = (data, cols) => {
       let weeklyDateRange = HSwitchRemoteFilter.getDateFilteredObject()
 
       let weeklyTableReqBody = AnalyticsUtils.generateTablePayload(
@@ -299,6 +299,20 @@ module TableWrapper = {
       ->ignore
     }
 
+    let updateTableData = json => {
+      switch weeklyTableMetricsCols {
+      | Some(cols) => getWeeklyData(json, cols)->ignore
+      | None => {
+          let data = json->getDictFromJsonObject
+          let value = data->getJsonObjectFromDict("queryData")->getTable->Array.map(Nullable.make)
+
+          setTableData(_ => value)
+          setTableDataLoading(_ => false)
+          setShowTable(_ => true)
+        }
+      }
+    }
+
     React.useEffect3(() => {
       setShowTable(_ => false)
       if (
@@ -322,20 +336,7 @@ module TableWrapper = {
         )
 
         fetchDetails(tableEntity.uri, tableReqBody, Post, ())
-        ->thenResolve(json => {
-          switch weeklyTableMetricsCols {
-          | Some(cols) => getWeeklyData(json, cols)->ignore
-          | _ => {
-              let data = json->getDictFromJsonObject
-              let value =
-                data->getJsonObjectFromDict("queryData")->getTable->Array.map(Nullable.make)
-
-              setTableData(_ => value)
-              setTableDataLoading(_ => false)
-              setShowTable(_ => true)
-            }
-          }
-        })
+        ->thenResolve(json => json->updateTableData)
         ->catch(_ => {
           setTableDataLoading(_ => false)
           resolve()
@@ -571,8 +572,7 @@ module OverallSummary = {
       AnalyticsUtils.filterBody(filterBodyEntity)
     }, (startTimeVal, endTimeVal, tabKeys->Array.joinWith(",")))
 
-    React.useEffect3(() => {
-      setFilterDataJson(_ => None)
+    let getFilterData = () => {
       if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
         try {
           switch filterUri {
@@ -587,6 +587,11 @@ module OverallSummary = {
         | _ => ()
         }
       }
+    }
+
+    React.useEffect3(() => {
+      setFilterDataJson(_ => None)
+      getFilterData()
       None
     }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
 
