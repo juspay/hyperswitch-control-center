@@ -164,7 +164,7 @@ let make = (
   | WEBHOOKS =>
     switch statusCode {
     | "200" => "border border-green-700"
-    | "500" | _ => "border border-gray-700 opacity-50"
+    | "500" | _ => "border border-gray-700 opacity-80"
     }
   | API_EVENTS | CONNECTOR =>
     switch statusCode {
@@ -201,9 +201,9 @@ let make = (
         })
       }}>
       <div className="flex flex-col gap-1">
-        <div className=" flex gap-3">
+        <div className="flex gap-3">
           <div className={`bg-${statusCodeBg} h-fit w-fit px-2 py-1 rounded-md`}>
-            <p className={`text-${statusCodeTextColor} text-sm opacity-100  font-bold `}>
+            <p className={`text-${statusCodeTextColor} text-sm font-bold `}>
               {statusCode->React.string}
             </p>
           </div>

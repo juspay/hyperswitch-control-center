@@ -3,6 +3,42 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.02.0
+
+### Miscellaneous Tasks
+
+- Removed avg ticket size and refunds propcessed amount ([#892](https://github.com/juspay/hyperswitch-control-center/pull/892)) ([`e0ac19e`](https://github.com/juspay/hyperswitch-control-center/commit/e0ac19e0af32388ee5b4789e033cef25f149560a))
+- Webhooks multi request support ([#890](https://github.com/juspay/hyperswitch-control-center/pull/890)) ([`ca489e5`](https://github.com/juspay/hyperswitch-control-center/commit/ca489e5f625ca1b987c731abda5bdb2fb0ec7bcb))
+
+**Full Changelog:** [`2024.07.01.2...2024.07.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.01.2...2024.07.02.0)
+
+- - -
+
+## 2024.07.01.2
+
+### Features
+
+- Feat: realtime user analytics ([#872](https://github.com/juspay/hyperswitch-control-center/pull/872)) ([`b6d6036`](https://github.com/juspay/hyperswitch-control-center/commit/b6d603621541fa46fbe53f5e43c4bac4a33e58ab))
+
+### Bug Fixes
+
+- Signup auth methods ([#887](https://github.com/juspay/hyperswitch-control-center/pull/887)) ([`6e6f469`](https://github.com/juspay/hyperswitch-control-center/commit/6e6f4697f1c0da63463693341f5a29079d494155))
+
+**Full Changelog:** [`2024.07.01.1...2024.07.01.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.01.1...2024.07.01.2)
+
+- - -
+
+## 2024.07.01.1
+
+### Miscellaneous Tasks
+
+- Singout api call falling using spt ([#885](https://github.com/juspay/hyperswitch-control-center/pull/885)) ([`0e28321`](https://github.com/juspay/hyperswitch-control-center/commit/0e283213d660f9d4994a074c62b5c306fda4eec4))
+- Payment logs ui changes ([#883](https://github.com/juspay/hyperswitch-control-center/pull/883)) ([`e977daf`](https://github.com/juspay/hyperswitch-control-center/commit/e977dafd85c15745279fc378e669c3c293531852))
+
+**Full Changelog:** [`2024.07.01.0...2024.07.01.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.01.0...2024.07.01.1)
+
+- - -
+
 ## 2024.07.01.0
 
 ### Refactors

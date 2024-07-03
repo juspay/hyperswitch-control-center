@@ -6506,6 +6506,13 @@ License)
       </clipPath>
     </defs>
   </symbol>
+  <symbol id="liveTag" viewBox="0 0 40 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg>
+      <rect y="0.5" width="40" height="16" rx="3" fill="#E55454"/>
+      <circle cx="7" cy="8.5" r="3" fill="white"/>
+      <path d="M14.7173 12.5V5.22727H16.0348V11.3956H19.2379V12.5H14.7173ZM21.6989 5.22727V12.5H20.3814V5.22727H21.6989ZM24.0985 5.22727L25.9913 10.9517H26.0659L27.9551 5.22727H29.4039L26.84 12.5H25.2136L22.6532 5.22727H24.0985ZM30.3619 12.5V5.22727H35.092V6.33168H31.6793V8.30611H34.8469V9.41051H31.6793V11.3956H35.1204V12.5H30.3619Z" fill="white"/>
+    </svg>
+  </symbol>
 
   <symbol id="bigcommerce" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g clip-path="url(#clip0_8143_9324)">

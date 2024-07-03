@@ -175,11 +175,17 @@ let useGetURL = () => {
     | ANALYTICS_USER_JOURNEY
     | ANALYTICS_AUTHENTICATION
     | ANALYTICS_SYSTEM_METRICS
-    | ANALYTICS_DISPUTES =>
+    | ANALYTICS_DISPUTES
+    | ANALYTICS_ACTIVE_PAYMENTS =>
       switch methodType {
       | Get =>
         switch id {
         | Some(domain) => `analytics/v1/${domain}/info`
+        | _ => ""
+        }
+      | Post =>
+        switch id {
+        | Some(domain) => `analytics/v1/metrics/${domain}`
         | _ => ""
         }
       | _ => ""
