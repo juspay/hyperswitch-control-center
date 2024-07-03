@@ -62,7 +62,7 @@ let make = (
       await deleteTrackingDetails(connectorInfo.merchant_connector_id, connectorInfo.connector_name)
       await updateConnectorAuthType(connectorInfoDict->JSON.Encode.object)
       setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
-      setSetupAccountStatus(._ => PayPalFlowTypes.Redirecting_to_paypal)
+      setSetupAccountStatus(_ => PayPalFlowTypes.Redirecting_to_paypal)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong!")
@@ -87,8 +87,8 @@ let make = (
   }
 
   <Popover \"as"="div" className="relative inline-block text-left">
-    {popoverProps => <>
-      <Popover.Button> {buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
+    {_popoverProps => <>
+      <Popover.Button> {_buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
       <Popover.Panel className="absolute z-20 right-0 top-10">
         {panelProps => {
           <div
@@ -110,7 +110,7 @@ let make = (
                 text="Change configurations"
                 onClick={_ => {
                   setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
-                  setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
+                  setSetupAccountStatus(_ => PayPalFlowTypes.Connect_paypal_landing)
                 }}
               />
               <RenderIf
@@ -120,7 +120,7 @@ let make = (
                   text="Update"
                   onClick={_ => {
                     setCurrentStep(_ => ConnectorTypes.IntegFields)
-                    setSetupAccountStatus(._ => PayPalFlowTypes.Manual_setup_flow)
+                    setSetupAccountStatus(_ => PayPalFlowTypes.Manual_setup_flow)
                   }}
                 />
               </RenderIf>

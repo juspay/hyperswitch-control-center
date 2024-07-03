@@ -229,7 +229,7 @@ let make = () => {
 
       let remote_results = response->parseResponse
 
-      setGLobalSearchResults(._ => {
+      setGLobalSearchResults(_ => {
         local_results,
         remote_results,
         searchText,

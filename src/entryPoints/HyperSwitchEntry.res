@@ -75,7 +75,7 @@ module HyperSwitchEntryComponent = {
         let apiURL = `${HSwitchGlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
-        setFeatureFlag(._ => featureFlags)
+        setFeatureFlag(_ => featureFlags)
         let _ = res->configTheme
         let _ = res->configURL
         // Delay added on Expecting feature flag recoil gets updated
@@ -112,7 +112,7 @@ module HyperSwitchEntryComponent = {
             let userId = MixPanel.getDistinctId()
             LocalStorage.setItem("deviceid", userId)
             MixPanel.identify(userId)
-            MixPanel.mixpanel.people.set(. mixpanelUserInfo)
+            MixPanel.mixpanel.people.set(mixpanelUserInfo)
           },
         },
       )

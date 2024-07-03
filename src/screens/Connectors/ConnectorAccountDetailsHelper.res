@@ -29,7 +29,7 @@ module MultiConfigInp = {
   }
 }
 
-let renderValueInp = (~label, fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+let renderValueInp = (~label) => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   <MultiConfigInp fieldsArray label />
 }
 
@@ -458,6 +458,15 @@ module BusinessProfileRender = {
           ~name="profile_id",
           ~customInput=(~input, ~placeholder as _) =>
             InputFields.selectInput(
+              ~deselectDisable=true,
+              ~disableSelect=isUpdateFlow,
+              ~customStyle="max-h-48",
+              ~options={
+                businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption
+              },
+              ~buttonText="Select Profile",
+              (),
+            )(
               ~input={
                 ...input,
                 onChange: {
@@ -476,15 +485,7 @@ module BusinessProfileRender = {
                   }
                 },
               },
-              ~deselectDisable=true,
-              ~disableSelect=isUpdateFlow,
-              ~customStyle="max-h-48",
-              ~options={
-                businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption
-              },
-              ~buttonText="Select Profile",
               ~placeholder="",
-              (),
             ),
           (),
         )}

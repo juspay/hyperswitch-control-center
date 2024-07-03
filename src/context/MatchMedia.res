@@ -12,9 +12,9 @@ let useMatchMedia = mediaQuery => {
       let matched = ev.matches
       setIsMatched(_prev => matched)
     }
-    mediaQueryList.addListener(. screenTest)
+    mediaQueryList.addListener(screenTest)
 
-    Some(() => mediaQueryList.removeListener(. screenTest))
+    Some(() => mediaQueryList.removeListener(screenTest))
   }, [mediaQueryList])
   isMatched
 }

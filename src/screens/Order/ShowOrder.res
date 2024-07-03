@@ -575,7 +575,7 @@ module FraudRiskBanner = {
           refElement.current
           ->Nullable.toOption
           ->Option.forEach(input =>
-            input->scrollIntoView(_, {behavior: "smooth", block: "start", inline: "nearest"})
+            input->(scrollIntoView(_, {behavior: "smooth", block: "start", inline: "nearest"}))
           )
         }}>
         {"Review details"->React.string}

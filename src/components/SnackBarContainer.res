@@ -66,7 +66,7 @@ let make = (~children) => {
   let (openSnackbar, setOpenSnackbar) = Recoil.useRecoilState(SnackBarState.openSnackbar)
 
   let hideSnackbar = React.useCallback1(key => {
-    setOpenSnackbar(.prevArr => {
+    setOpenSnackbar(prevArr => {
       Array.filter(
         prevArr,
         (snackbarProps: SnackBarState.snackbarProps) => {
