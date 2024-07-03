@@ -192,8 +192,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
           | Some(dict) =>
             switch dict->getDictFromJsonObject->getLogType {
             | SDK => logs->Array.pushMany(arr->parseSdkResponse)->ignore
-            | CONNECTOR | API_EVENTS => logs->Array.pushMany(arr)->ignore
-            | WEBHOOKS => logs->Array.pushMany([dict])->ignore
+            | CONNECTOR | API_EVENTS | WEBHOOKS => logs->Array.pushMany(arr)->ignore
             }
           | _ => ()
           }
@@ -227,7 +226,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   })
 
   let timeLine =
-    <div className="flex flex-col w-2/5 overflow-y-scroll pt-7 pl-5">
+    <div className="flex flex-col w-2/5 overflow-y-scroll no-scrollbar pt-7 pl-5">
       <div className="flex flex-col">
         {data
         ->Array.mapWithIndex((detailsValue, index) => {
