@@ -557,7 +557,7 @@ module AuthenticationDetails = {
 module FraudRiskBanner = {
   @react.component
   let make = (~frmMessage: frmMessage, ~refElement: React.ref<Js.nullable<Dom.element>>) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <div
       className="flex justify-between items-center w-full  p-4 rounded-md bg-white border border-[#C04141]/50 ">
       <div className="flex gap-2">

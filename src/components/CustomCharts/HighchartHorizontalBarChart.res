@@ -64,7 +64,7 @@ let make = (
   ~titleKey=?,
   ~selectedMetrics: LineChartUtils.metricsConfig,
 ) => {
-  let (theme, _setTheme) = React.useContext(ThemeProvider.themeContext)
+  let {theme} = React.useContext(ThemeProvider.themeContext)
 
   let barChartData = React.useMemo3(() => {
     LineChartUtils.chartDataMaker(

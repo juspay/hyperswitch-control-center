@@ -99,7 +99,7 @@ module TableWrapper = {
     ~formatData=None,
   ) => {
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ConfigContext.configContext,
+      ThemeProvider.themeContext,
     )
     let customFilter = Recoil.useRecoilValueFromAtom(AnalyticsAtoms.customFilterAtom)
     let {filterValueJson} = React.useContext(FilterContext.filterContext)

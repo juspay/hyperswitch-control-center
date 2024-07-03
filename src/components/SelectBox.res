@@ -62,7 +62,7 @@ module ListItem = {
     ~textEllipsisForDropDownOptions=false,
     ~textColorClass="",
   ) => {
-    let {globalUIConfig: {font}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font}} = React.useContext(ThemeProvider.themeContext)
     let labelText = switch labelValue->String.length {
     | 0 => text
     | _ => labelValue
@@ -461,7 +461,7 @@ module BaseSelect = {
     ~wrapBasis="",
     ~preservedAppliedOptions=[],
   ) => {
-    let {globalUIConfig: {font}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font}} = React.useContext(ThemeProvider.themeContext)
     let (searchString, setSearchString) = React.useState(() => "")
     let maxHeight = if maxHeight->String.includes("72") {
       "md:max-h-66.5"

@@ -116,7 +116,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
   open APIUtils
   open ProdOnboardingTypes
   let getURL = useGetURL()
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let merchantDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantDetailsValueAtom)

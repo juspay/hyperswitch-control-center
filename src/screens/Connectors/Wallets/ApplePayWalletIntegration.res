@@ -213,7 +213,7 @@ module Fields = {
     open FormRenderer
     open LogicUtils
     let form = ReactFinalForm.useForm()
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let processingAt =
       metaData
       ->getDictFromJsonObject

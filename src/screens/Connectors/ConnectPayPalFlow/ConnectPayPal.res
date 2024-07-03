@@ -12,7 +12,7 @@ let preRequisiteList = [
 module PayPalCreateNewAccountModal = {
   @react.component
   let make = (~butttonDisplayText, ~actionUrl, ~setScreenState) => {
-    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
     let initializePayPalWindow = () => {
       try {
         Window.payPalCreateAccountWindow()
@@ -69,7 +69,7 @@ module LandingScreen = {
   let make = (~configuartionType, ~setConfigurationType) => {
     let {
       globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
-    } = React.useContext(ConfigContext.configContext)
+    } = React.useContext(ThemeProvider.themeContext)
     let getBlockColor = value =>
       configuartionType === value
         ? `${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10 `
