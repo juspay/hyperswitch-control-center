@@ -248,7 +248,7 @@ module TooltipWrapper = {
 
     <div className={`${tooltipOpacity} ${pointerEvents}`}>
       <div
-        className={`${toolTipPositionString} ${tooltipWidthClass} z-30 h-auto break-words`}
+        className={`${toolTipPositionString} ${tooltipWidthClass} z-50 h-auto break-words`}
         style={ReactDOMStyle.combine(tooltipPositionStyle, ReactDOMStyle.make(~hyphens="auto", ()))}
         ref={toolTipRef->ReactDOM.Ref.domRef}>
         <div
@@ -553,7 +553,7 @@ module Arrow = {
     <div
       style=tooltipArrowPosition
       ref={toolTipArrowRef->ReactDOM.Ref.domRef}
-      className={`${arrowCustomStyle} ${toolTipPositionString} border-solid z-30 w-auto`}
+      className={`${arrowCustomStyle} ${toolTipPositionString} border-solid z-50 w-auto`}
     />
   }
 }
