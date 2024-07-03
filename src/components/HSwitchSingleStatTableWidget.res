@@ -49,21 +49,32 @@ let getHeading = colType => {
 let percentFormat = value => {
   `${Float.toFixedWithPrecision(value, ~digits=2)}%`
 }
+
+type statType = Amount | Rate | NegativeRate | Volume | Latency | LatencyMs | Default
+
+let stringToVarient = statType => {
+  switch statType {
+  | "Amount" => Amount
+  | "Rate" => Rate
+  | "NegativeRate" => NegativeRate
+  | "Volume" => Volume
+  | "Latency" => Latency
+  | "LatencyMs" => LatencyMs
+  | _ => Default
+  }
+}
+
 // if day > then only date else time
 let statValue = (val, statType) => {
+  let statType = statType->stringToVarient
   open LogicUtils
-  if statType === "Amount" {
-    val->indianShortNum
-  } else if statType === "Rate" || statType === "NegativeRate" {
-    val->Js.Float.isNaN ? "-" : val->percentFormat
-  } else if statType === "Volume" {
-    val->indianShortNum
-  } else if statType === "Latency" {
-    latencyShortNum(~labelValue=val, ())
-  } else if statType === "LatencyMs" {
-    latencyShortNum(~labelValue=val, ~includeMilliseconds=true, ())
-  } else {
-    val->Float.toString
+  switch statType {
+  | Amount => val->indianShortNum
+  | Rate | NegativeRate => val->Js.Float.isNaN ? "-" : val->percentFormat
+  | Volume => val->indianShortNum
+  | Latency => latencyShortNum(~labelValue=val, ())
+  | LatencyMs => latencyShortNum(~labelValue=val, ~includeMilliseconds=true, ())
+  | Default => val->Float.toString
   }
 }
 

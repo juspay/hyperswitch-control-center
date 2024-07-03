@@ -59,9 +59,10 @@ let make = () => {
 
   let formatMetrics = arrMetrics => {
     arrMetrics->Array.map(metric => {
-      [("name", metric->JSON.Encode.string), ("desc", ""->JSON.Encode.string)]
-      ->Dict.fromArray
-      ->JSON.Encode.object
+      [
+        ("name", metric->JSON.Encode.string),
+        ("desc", ""->JSON.Encode.string),
+      ]->LogicUtils.getJsonFromArrayOfJson
     })
   }
 

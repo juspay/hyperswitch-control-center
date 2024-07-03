@@ -75,10 +75,8 @@ module TabInfo = {
     let bottomBorderColor = ""
     let borderClass = ""
 
-    let tabHeight = "50px"
-
     let lineStyle = "bg-black w-full h-0.5 rounded-full"
-
+    open UIUtils
     let crossIcon = switch isRemovable {
     | true =>
       <svg
@@ -153,16 +151,16 @@ module TabInfo = {
           crossIcon
         </div>
         <div />
-        {if isSelected {
+        <RenderIf condition={isSelected}>
           <FramerMotion.Motion.Div className=lineStyle layoutId="underline" />
-        } else {
+        </RenderIf>
+        <RenderIf condition={!isSelected}>
           <div className="w-full h-0.5 rounded-full" />
-        }}
+        </RenderIf>
       </div>
 
     <div
-      className={`flex flex-row cursor-pointer pt-0.5 pb-0 ${borderClass} ${bottomBorderColor} items-center`}
-      style={ReactDOMStyle.make(~height=tabHeight, ())}>
+      className={`flex flex-row cursor-pointer pt-0.5 pb-0 ${borderClass} ${bottomBorderColor} items-center h-14`}>
       {tab}
     </div>
   }
