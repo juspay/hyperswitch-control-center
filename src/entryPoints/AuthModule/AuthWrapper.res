@@ -101,7 +101,10 @@ let make = (~children) => {
   }
 
   let handleLoginWithSso = auth_id => {
-    Window.Location.replace(`${Window.env.apiBaseUrl}/user/auth/url?id=${auth_id}`)
+    switch auth_id {
+    | Some(id) => Window.Location.replace(`${Window.env.apiBaseUrl}/user/auth/url?id=${id}`)
+    | _ => ()
+    }
   }
 
   React.useEffect0(() => {

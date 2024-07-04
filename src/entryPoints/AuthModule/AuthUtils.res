@@ -64,7 +64,7 @@ let getUserInfoDetailsFromLocalStorage = () => {
 
 let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
   {
-    id: "defaultpasswordId",
+    id: None,
     auth_id: "defaultpasswordAuthId",
     auth_method: {
       \"type": PASSWORD,
@@ -73,7 +73,7 @@ let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
     allow_signup: true,
   },
   {
-    id: "defaultmagicLinkId",
+    id: None,
     auth_id: "defaultmagicLinkId",
     auth_method: {
       \"type": MAGIC_LINK,
