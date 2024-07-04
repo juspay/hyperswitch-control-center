@@ -110,7 +110,7 @@ module TableRow = {
                 | true =>
                   switch onDateClick {
                   | Some(fn) =>
-                    fn((Date.toISOString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"))
+                    fn((Date.toISOString(date)->DayJs.getDayJsForString).format("YYYY-MM-DD"))
 
                   | None => ()
                   }
@@ -118,7 +118,7 @@ module TableRow = {
                 }
               }
               let hSelf = highlight(
-                (Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"),
+                (Date.toString(date)->DayJs.getDayJsForString).format("YYYY-MM-DD"),
               )
 
               let dayClass = if (
@@ -142,15 +142,13 @@ module TableRow = {
                 )
                 datevalue
               }
-              let today = (Date.make()->Date.toString->DayJs.getDayJsForString).format(.
-                "YYYY-MM-DD",
-              )
+              let today = (Date.make()->Date.toString->DayJs.getDayJsForString).format("YYYY-MM-DD")
 
               let renderingDate = (
                 getDate([Float.toString(year), Float.toString(month +. 1.0), obj])
                 ->Date.toString
                 ->DayJs.getDayJsForString
-              ).format(. "YYYY-MM-DD")
+              ).format("YYYY-MM-DD")
               let isTodayHighlight =
                 today == renderingDate && startDate != today && endDate != today
               let textColor = isTodayHighlight
@@ -284,7 +282,7 @@ module TableRow = {
                 )
               }
               let handleHover = () => {
-                let date = (Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD")
+                let date = (Date.toString(date)->DayJs.getDayJsForString).format("YYYY-MM-DD")
                 let parsedDate = getDate(String.split(date, "-"))
                 setHoverdDate(_ => parsedDate->Date.toString)
                 switch setShowMsg {
@@ -310,7 +308,7 @@ module TableRow = {
                 className={`${classN} ${highlightBgClass} text-sm font-normal`}
                 onClick
                 onMouseOver={_ => handleHover()}
-                onMouseOut={evt => setHoverdDate(_ => "")}>
+                onMouseOut={_evt => setHoverdDate(_ => "")}>
                 <AddDataAttributes
                   attributes=[
                     (
@@ -334,9 +332,7 @@ module TableRow = {
                     {cellRenderer(
                       obj->isEmptyString
                         ? None
-                        : Some(
-                            (Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-D"),
-                          ),
+                        : Some((Date.toString(date)->DayJs.getDayJsForString).format("YYYY-MM-D")),
                     )}
                     {isTodayHighlight
                       ? <div className="bg-blue-500 h-1.5 w-1.5 rounded-full" />
@@ -418,9 +414,9 @@ let make = (
 
     if startDate != lastStartDate {
       let startYear =
-        startDate->isNonEmptyString ? (startDate->DayJs.getDayJsForString).format(. "YYYY") : ""
+        startDate->isNonEmptyString ? (startDate->DayJs.getDayJsForString).format("YYYY") : ""
       let startMonth =
-        (startDate->isNonEmptyString ? (startDate->DayJs.getDayJsForString).format(. "MM") : "")
+        (startDate->isNonEmptyString ? (startDate->DayJs.getDayJsForString).format("MM") : "")
         ->Int.fromString
         ->Option.getOr(currentMonth)
       let startYearDiff = year - startYear->Int.fromString->Option.getOr(2022)
@@ -433,9 +429,9 @@ let make = (
       setLastStartDate(_ => startDate)
     } else {
       let endYear =
-        endDate->isNonEmptyString ? (endDate->DayJs.getDayJsForString).format(. "YYYY") : ""
+        endDate->isNonEmptyString ? (endDate->DayJs.getDayJsForString).format("YYYY") : ""
       let endMonth =
-        (endDate->isNonEmptyString ? (endDate->DayJs.getDayJsForString).format(. "MM") : "")
+        (endDate->isNonEmptyString ? (endDate->DayJs.getDayJsForString).format("MM") : "")
         ->Int.fromString
         ->Option.getOr(currentMonth)
       let endYearDiff = year - endYear->Int.fromString->Option.getOr(2022)
@@ -451,8 +447,8 @@ let make = (
 
   let rows = index => {
     let windowIndex = totalMonths - index->getInt("index", 0) - 1
-    let newMonth = DayJs.getDayJs().subtract(. windowIndex, "month").month(.)
-    let newYear = DayJs.getDayJs().subtract(. windowIndex, "month").year(.)
+    let newMonth = DayJs.getDayJs().subtract(windowIndex, "month").month()
+    let newYear = DayJs.getDayJs().subtract(windowIndex, "month").year()
     let updatedMonth = months->Array.get(newMonth)->Option.getOr(Jan)
     // get first day
 
@@ -553,7 +549,7 @@ let make = (
     <ReactWindow.VariableSizeList
       ref={el => {
         open ReactWindow.ListComponent
-        fn.current = el->scrollToItem
+        fn.current = (index, string) => el->scrollToItem(index, string)
       }}
       width=300
       itemSize={_ => 290}

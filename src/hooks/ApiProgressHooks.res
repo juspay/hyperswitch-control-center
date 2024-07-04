@@ -1,1 +1,1 @@
-let pendingRequestCount = Recoil.atom(. "pendingRequestCount", 0)
+let pendingRequestCount = Recoil.atom("pendingRequestCount", 0)

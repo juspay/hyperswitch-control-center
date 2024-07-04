@@ -532,7 +532,7 @@ let getHeading = (colType: colType) => {
 }
 
 let useGetStatus = order => {
-  let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = order.status->String.toUpperCase
   let fixedStatusCss = "text-sm text-white font-bold px-3 py-2 rounded-md"
   switch order.status->HSwitchOrderUtils.statusVariantMapper {

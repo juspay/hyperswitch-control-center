@@ -19,7 +19,7 @@ module SimpleRoutingView = {
     ~baseUrlForRedirection,
   ) => {
     let getURL = useGetURL()
-    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
     let nameFromForm = ReactFinalForm.useField(`name`).input.value
     let descriptionFromForm = ReactFinalForm.useField(`description`).input.value
     let modalObj = RoutingUtils.getModalObj(PRIORITY, "priority")

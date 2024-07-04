@@ -4,7 +4,7 @@ module ConnectorOverview = {
   @react.component
   let make = () => {
     open ConnectorUtils
-    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let connectorsList =
       HyperswitchAtom.connectorListAtom
@@ -180,7 +180,7 @@ module OverviewInfo = {
   @react.component
   let make = () => {
     let getURL = useGetURL()
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()

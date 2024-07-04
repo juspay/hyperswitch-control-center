@@ -6,8 +6,8 @@ let useConstructQueryOnBasisOfOpt = () => {
   let isoStringToCustomTimezoneInFloat = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
   let todayDayJsObj = Date.make()->Date.toString->getDayJsForString
 
-  let todayDate = todayDayJsObj.format(. "YYYY-MM-DD")
-  let todayTime = todayDayJsObj.format(. "HH:mm:ss")
+  let todayDate = todayDayJsObj.format("YYYY-MM-DD")
+  let todayTime = todayDayJsObj.format("HH:mm:ss")
   (~queryString, ~disableFutureDates, ~disablePastDates, ~startKey, ~endKey, ~optKey) => {
     if queryString->String.includes(optKey) {
       try {
@@ -68,7 +68,7 @@ let useConstructQueryOnBasisOfOpt = () => {
             x
           }
         )
-        updatedArr->Array.joinWith("&")
+        updatedArr->Array.joinWithUnsafe("&")
       } catch {
       | _error => queryString
       }

@@ -16,7 +16,7 @@ type sidebarOption = {
 let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let {globalUIConfig: {font: {textColor}, backgroundColor}} = React.useContext(
-    ConfigContext.configContext,
+    ThemeProvider.themeContext,
   )
   let handleBackButton = _ => {
     setDashboardPageState(_ => #HOME)
