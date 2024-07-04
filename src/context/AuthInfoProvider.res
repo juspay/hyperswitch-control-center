@@ -4,11 +4,17 @@ type defaultProviderTypes = {
   authStatus: authStatus,
   setAuthStatus: authStatus => unit,
   setAuthStateToLogout: unit => unit,
+  setAuthMethods: (
+    array<SSOTypes.authMethodResponseType> => array<SSOTypes.authMethodResponseType>
+  ) => unit,
+  authMethods: array<SSOTypes.authMethodResponseType>,
 }
 let defaultContextValue = {
   authStatus: CheckingAuthStatus,
   setAuthStatus: _ => (),
   setAuthStateToLogout: _ => (),
+  setAuthMethods: _ => (),
+  authMethods: AuthUtils.defaultListOfAuth,
 }
 
 let authStatusContext = React.createContext(defaultContextValue)
@@ -20,6 +26,7 @@ module Provider = {
 @react.component
 let make = (~children) => {
   let (authStatus, setAuth) = React.useState(_ => CheckingAuthStatus)
+  let (authMethods, setAuthMethods) = React.useState(_ => [])
   let setAuthStatus = React.useCallback1((newAuthStatus: authStatus) => {
     switch newAuthStatus {
     | LoggedIn(info) =>
@@ -39,28 +46,23 @@ let make = (~children) => {
             CommonAuthUtils.clearLocalStorage()
           }
         }
-      | TotpAuth(totpInfo) =>
-        if !(totpInfo.token->LogicUtils.isEmptyString) {
+      | Auth(totpInfo) =>
+        if totpInfo.token->Option.isSome {
           setAuth(_ => newAuthStatus)
-          TotpUtils.setTotpAuthResToStorage(totpInfo)
+          AuthUtils.setDetailsToLocalStorage(totpInfo, "USER_INFO")
         } else {
           setAuth(_ => LoggedOut)
           CommonAuthUtils.clearLocalStorage()
         }
       }
     | PreLogin(preLoginInfo) =>
-      if !(preLoginInfo.token->LogicUtils.isEmptyString) {
-        setAuth(_ => newAuthStatus)
-        TotpUtils.setTotpAuthResToStorage(preLoginInfo)
-      } else {
-        setAuth(_ => LoggedOut)
-        CommonAuthUtils.clearLocalStorage()
-      }
+      setAuth(_ => newAuthStatus)
+      AuthUtils.setDetailsToLocalStorage(preLoginInfo, "PRE_LOGIN_INFO")
 
     | LoggedOut => {
         setAuth(_ => LoggedOut)
         CommonAuthUtils.clearLocalStorage()
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+        AuthUtils.redirectToLogin()
       }
     | CheckingAuthStatus => setAuth(_ => CheckingAuthStatus)
     }
@@ -69,7 +71,17 @@ let make = (~children) => {
   let setAuthStateToLogout = React.useCallback0(() => {
     setAuth(_ => LoggedOut)
     CommonAuthUtils.clearLocalStorage()
+    CookieStorage.deleteCookie(~cookieName="login_token", ~domain=HSwitchGlobalVars.hostName, ())
   })
 
-  <Provider value={authStatus, setAuthStatus, setAuthStateToLogout}> children </Provider>
+  <Provider
+    value={
+      authStatus,
+      setAuthStatus,
+      setAuthStateToLogout,
+      setAuthMethods,
+      authMethods,
+    }>
+    children
+  </Provider>
 }

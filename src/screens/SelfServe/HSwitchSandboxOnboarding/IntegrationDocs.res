@@ -108,7 +108,7 @@ let make = (
 ) => {
   open UserOnboardingUtils
   open UserOnboardingTypes
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let (frontEndLang, setFrontEndLang) = React.useState(_ =>
     currentRoute === SampleProjects ? #ChooseLanguage : #ReactJs

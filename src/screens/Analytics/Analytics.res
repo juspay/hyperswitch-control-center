@@ -90,15 +90,16 @@ module TableWrapper = {
     ~deltaMetrics: array<string>,
     ~deltaArray: array<string>,
     ~tableUpdatedHeading as _: option<
-      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
+      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>) => 'colType => Table.header,
     >,
     ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
     ~moduleName,
     ~weeklyTableMetricsCols,
     ~distributionArray=None,
+    ~formatData=None,
   ) => {
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ConfigContext.configContext,
+      ThemeProvider.themeContext,
     )
     let customFilter = Recoil.useRecoilValueFromAtom(AnalyticsAtoms.customFilterAtom)
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -107,7 +108,7 @@ module TableWrapper = {
     let (_, setDefaultFilter) = Recoil.useRecoilState(AnalyticsHooks.defaultFilter)
     let (showTable, setShowTable) = React.useState(_ => false)
     let {getHeading, allColumns, defaultColumns} = tableEntity
-    let activeTabStr = activeTab->Option.getOr([])->Array.joinWith("-")
+    let activeTabStr = activeTab->Option.getOr([])->Array.joinWithUnsafe("-")
     let (startTimeFilterKey, endTimeFilterKey) = dateKeys
     let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
     let (tableData, setTableData) = React.useState(_ => []->Array.map(Nullable.make))
@@ -148,7 +149,7 @@ module TableWrapper = {
             None
           }
         })
-        ->Array.joinWith("&")
+        ->Array.joinWithUnsafe("&")
 
       filterSearchParam
     }, [getTopLevelFilter])
@@ -324,7 +325,7 @@ module TableWrapper = {
     }, [activeTabStr])
 
     let transactionTableDefaultCols = React.useMemo2(() => {
-      Recoil.atom(. `${moduleName}DefaultCols${activeTabStr}`, newDefaultCols)
+      Recoil.atom(`${moduleName}DefaultCols${activeTabStr}`, newDefaultCols)
     }, (newDefaultCols, `${moduleName}DefaultCols${activeTabStr}`))
 
     let timeRange =
@@ -350,22 +351,22 @@ module TableWrapper = {
         ("filter", defaultFilters->JSON.Encode.object),
       ]->Dict.fromArray
 
-    setDefaultFilter(._ => dict->JSON.Encode.object->JSON.stringify)
+    setDefaultFilter(_ => dict->JSON.Encode.object->JSON.stringify)
+
+    let modifyData = data => {
+      switch formatData {
+      | Some(fun) => data->fun
+      | None => data
+      }
+    }
 
     showTable
       ? <>
-          <UIUtils.RenderIf condition={tableData->Array.length > 0}>
-            <div
-              className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3 mt-7`}>
-              <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
-              {"'Other' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
-            </div>
-          </UIUtils.RenderIf>
           <div className="h-full -mx-4 overflow-scroll">
             <Form>
               <BaseTableComponent
                 filters=(startTimeFromUrl, endTimeFromUrl)
-                tableData
+                tableData={tableData->modifyData}
                 tableDataLoading
                 transactionTableDefaultCols
                 defaultSort
@@ -378,6 +379,13 @@ module TableWrapper = {
               />
             </Form>
           </div>
+          <UIUtils.RenderIf condition={tableData->Array.length > 0}>
+            <div
+              className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
+              <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
+              {"'NA' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
+            </div>
+          </UIUtils.RenderIf>
         </>
       : <Loader />
   }
@@ -395,12 +403,13 @@ module TabDetails = {
     ~deltaMetrics: array<string>,
     ~deltaArray: array<string>,
     ~tableUpdatedHeading: option<
-      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
+      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>) => 'colType => Table.header,
     >,
     ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
     ~moduleName,
     ~updateUrl: Dict.t<string> => unit,
     ~weeklyTableMetricsCols,
+    ~formatData=None,
   ) => {
     open AnalyticsTypes
     let analyticsType = moduleName->getAnalyticsType
@@ -466,6 +475,7 @@ module TabDetails = {
             moduleName
             weeklyTableMetricsCols
             distributionArray
+            formatData
           />
         | None => React.null
         }}
@@ -500,13 +510,14 @@ let make = (
   ~singleStatEntity: DynamicSingleStat.entityType<'singleStatColType, 'b, 'b2>,
   ~filterUri: option<string>,
   ~tableUpdatedHeading: option<
-    (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
+    (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>) => 'colType => Table.header,
   >=?,
   ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>=?,
   ~moduleName: string,
   ~weeklyTableMetricsCols=?,
   ~distributionArray=None,
   ~generateReportType: option<APIUtilsTypes.entityName>=?,
+  ~formatData=None,
 ) => {
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
@@ -529,10 +540,7 @@ let make = (
   let filterValueDict = filterValueJson
 
   let (activeTav, setActiveTab) = React.useState(_ =>
-    filterValueDict->getStrArrayFromDict(
-      `${moduleName}.tabName`,
-      [filteredTabKeys->Array.get(0)->Option.getOr("")],
-    )
+    filterValueDict->getStrArrayFromDict(`${moduleName}.tabName`, filteredTabKeys)
   )
   let setActiveTab = React.useMemo1(() => {
     (str: string) => {
@@ -597,7 +605,7 @@ let make = (
       source: "BATCH",
     }
     AnalyticsUtils.filterBody(filterBodyEntity)
-  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
+  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWithUnsafe(",")))
 
   open APIUtils
   open Promise
@@ -847,7 +855,7 @@ let make = (
               <div className="flex flex-col h-full overflow-scroll w-full">
                 <DynamicTabs
                   tabs=filteredTabVales
-                  maxSelection=1
+                  maxSelection=3
                   tabId=moduleName
                   setActiveTab
                   updateUrlDict={dict => {
@@ -875,6 +883,7 @@ let make = (
                     updateUrlWithPrefix(dict)
                   }}
                   weeklyTableMetricsCols
+                  formatData
                 />
               </div>
             }}

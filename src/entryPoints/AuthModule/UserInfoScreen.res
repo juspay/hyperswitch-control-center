@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~onClick) => {
   open APIUtils
   let getURL = useGetURL()
   let fetchDetails = APIUtils.useGetMethod()
@@ -9,20 +9,24 @@ let make = () => {
   let {setAuthStatus, authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let token = switch authStatus {
-  | PreLogin(preLoginInfo) => Some(preLoginInfo.token)
+  | PreLogin(preLoginInfo) => preLoginInfo.token
   | _ => None
   }
   let userInfo = async () => {
     open LogicUtils
+    open HSLocalStorage
 
     try {
       let url = getURL(~entityName=USERS, ~userType=#USER_INFO, ~methodType=Get, ())
       let response = await fetchDetails(url)
       let dict = response->getDictFromJsonObject
-      dict->setOptionString("token", token)
-      let info = TotpUtils.getTotpAuthInfo(dict->JSON.Encode.object)
-      setAuthStatus(LoggedIn(TotpAuth(info)))
+      dict->Dict.set("token", token->Option.getOr("")->JSON.Encode.string)
+      let info = AuthUtils.getAuthInfo(dict->JSON.Encode.object)
+      setAuthStatus(LoggedIn(Auth(info)))
       setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
+      removeItemFromLocalStorage(~key="PRE_LOGIN_INFO")
+      removeItemFromLocalStorage(~key="email_token")
+      removeItemFromLocalStorage(~key="code")
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) => {
@@ -37,9 +41,6 @@ let make = () => {
     userInfo()->ignore
     None
   })
-  let onClick = () => {
-    setAuthStatus(LoggedOut)
-  }
 
   <PageLoaderWrapper screenState>
     <EmailVerifyScreen

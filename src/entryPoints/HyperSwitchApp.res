@@ -40,6 +40,7 @@ let make = () => {
     : "bg-orange-600/80 border-orange-500 text-grey-700"
 
   let isReconEnabled = merchantDetailsTypedValue.recon_status === Active
+  let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
 
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
 
@@ -115,7 +116,7 @@ let make = () => {
         response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
       let permissionJson =
         permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
-      setuserPermissionJson(._ => permissionJson)
+      setuserPermissionJson(_ => permissionJson)
       permissionJson
     } catch {
     | Exn.Error(e) => {
@@ -236,6 +237,9 @@ let make = () => {
                         }}
                       />
                     </div>
+                    <RenderIf condition=isLiveUsersCounterEnabled>
+                      <ActiveUserCounter />
+                    </RenderIf>
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
@@ -447,7 +451,7 @@ let make = () => {
                             entityName="PaymentSettings"
                             remainingPath
                             renderList={() => <PaymentSettingsList />}
-                            renderShow={profileId =>
+                            renderShow={_profileId =>
                               <PaymentSettings webhookOnly=false showFormOnly=false />}
                           />
                         | list{"recon"} =>
@@ -480,7 +484,7 @@ let make = () => {
                             entityName="ConfigurePMTs"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
-                            renderShow={value =>
+                            renderShow={_value =>
                               <UIUtils.RenderIf condition={featureFlagDetails.totp}>
                                 <ModifyTwoFaSettings />
                               </UIUtils.RenderIf>}
@@ -504,7 +508,7 @@ let make = () => {
                                 entityName="ConfigurePMTs"
                                 remainingPath
                                 renderList={() => <PaymentMethodList />}
-                                renderShow={profileId =>
+                                renderShow={_profileId =>
                                   <PaymentSettings webhookOnly=false showFormOnly=false />}
                               />
                             </FilterContext>

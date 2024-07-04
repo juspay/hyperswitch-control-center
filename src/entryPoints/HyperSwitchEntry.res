@@ -9,23 +9,7 @@ module HyperSwitchEntryComponent = {
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let defaultGlobalConfig: HyperSwitchConfigTypes.customStyle = {
-      primaryColor: "#006DF9",
-      primaryHover: "#005ED6",
-      sidebar: "#242F48",
-    }
-
-    let configTheme = (uiConfg: JSON.t) => {
-      open LogicUtils
-      let dict = uiConfg->getDictFromJsonObject->getDictfromDict("theme")
-      let {primaryColor, primaryHover, sidebar} = defaultGlobalConfig
-      let value: HyperSwitchConfigTypes.customStyle = {
-        primaryColor: dict->getString("primary_color", primaryColor),
-        primaryHover: dict->getString("primary_hover_color", primaryHover),
-        sidebar: dict->getString("sidebar_color", sidebar),
-      }
-      Window.appendStyle(value)
-    }
+    let {configCustomDomainTheme} = React.useContext(ThemeProvider.themeContext)
 
     let configureFavIcon = (faviconUrl: option<string>) => {
       try {
@@ -51,6 +35,11 @@ module HyperSwitchEntryComponent = {
           faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
           logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
+          agreementUrl: dict->getString("agreement_url", "")->getNonEmptyString,
+          applePayCertificateUrl: dict
+          ->getString("apple_pay_certificate_url", "")
+          ->getNonEmptyString,
+          agreementVersion: dict->getString("agreement_version", "")->getNonEmptyString,
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.faviconUrl)->ignore
@@ -59,18 +48,19 @@ module HyperSwitchEntryComponent = {
       }
     }
     // Need to modify based on the usedcase
-    let getDomain = () => {
-      SessionStorage.getItemFromSession("domain")->LogicUtils.getValFromNullableValue("default")
-    }
 
     let fetchConfig = async () => {
       try {
-        let domain = getDomain()
+        let domain = HyperSwitchEntryUtils.getSessionData(
+          ~key="domain",
+          ~defaultValue="default",
+          (),
+        )
         let apiURL = `${HSwitchGlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
-        setFeatureFlag(._ => featureFlags)
-        let _ = res->configTheme
+        setFeatureFlag(_ => featureFlags)
+        let _ = res->configCustomDomainTheme
         let _ = res->configURL
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
@@ -81,6 +71,9 @@ module HyperSwitchEntryComponent = {
     }
 
     React.useEffect0(() => {
+      let _ = HyperSwitchEntryUtils.setSessionData(~key="auth_id", ~searchParams=url.search)
+      let _ = HyperSwitchEntryUtils.setSessionData(~key="domain", ~searchParams=url.search)
+
       let _ = fetchConfig()->ignore
       None
     })
@@ -103,7 +96,7 @@ module HyperSwitchEntryComponent = {
             let userId = MixPanel.getDistinctId()
             LocalStorage.setItem("deviceid", userId)
             MixPanel.identify(userId)
-            MixPanel.mixpanel.people.set(. mixpanelUserInfo)
+            MixPanel.mixpanel.people.set(mixpanelUserInfo)
           },
         },
       )
@@ -140,7 +133,7 @@ module HyperSwitchEntryComponent = {
       customUI={<NoDataFound message="Oops! Missing config" renderType=NotFound />}>
       <div className="text-black">
         {if featureFlagDetails.totp {
-          <TotpAuthEntry />
+          <AuthEntry />
         } else {
           <BasicAuthEntry />
         }}

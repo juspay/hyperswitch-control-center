@@ -45,7 +45,7 @@ module MerchantBussinessCountry = {
   }
 }
 
-let renderCountryInp = (options, fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+let renderCountryInp = options => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   <MerchantBussinessCountry fieldsArray options />
 }
 
@@ -113,8 +113,9 @@ module Simplified = {
       ]->React.array
     let downloadApplePayCert = () => {
       open Promise
-      fetchApi(HSwitchGlobalVars.urlToDownloadApplePayCertificate, ~method_=Get, ())
-      ->then(Fetch.Response.blob)
+      let downloadURL = Window.env.applePayCertificateUrl->Option.getOr("")
+      fetchApi(downloadURL, ~method_=Get, ())
+      ->then(res => res->Fetch.Response.blob)
       ->then(content => {
         DownloadUtils.download(
           ~fileName=`apple-developer-merchantid-domain-association`,
@@ -212,7 +213,7 @@ module Fields = {
     open FormRenderer
     open LogicUtils
     let form = ReactFinalForm.useForm()
-
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let processingAt =
       metaData
       ->getDictFromJsonObject
@@ -223,7 +224,33 @@ module Fields = {
       ->ApplePayWalletIntegrationUtils.paymentProcessingMapper
 
     let namePrefix = `apple_pay_combined.manual.session_token_data`
+    let domainValues = [
+      [("label", "IOS/WEB"->JSON.Encode.string), ("value", "web"->JSON.Encode.string)]
+      ->Dict.fromArray
+      ->JSON.Encode.object,
+      [("label", "IOS"->JSON.Encode.string), ("value", "ios"->JSON.Encode.string)]
+      ->Dict.fromArray
+      ->JSON.Encode.object,
+    ]
+    let initiativeOptions = domainValues->Array.map(item => {
+      let dict = item->getDictFromJsonObject
+      let a: SelectBox.dropdownOption = {
+        label: dict->getString("label", ""),
+        value: dict->getString("value", ""),
+      }
+      a
+    })
+    let initiative =
+      metaData
+      ->getDictFromJsonObject
+      ->getDictfromDict("apple_pay_combined")
+      ->getDictfromDict("manual")
+      ->getDictfromDict("session_token_data")
+      ->getString("initiative", "")
+      ->ApplePayWalletIntegrationUtils.initiativeMapper
     let (processingAt, setProcessingAt) = React.useState(_ => processingAt)
+    let (initiative, setInitiative) = React.useState(_ => initiative)
+
     let fields = {
       configurationFields
       ->Dict.keysToArray
@@ -240,6 +267,35 @@ module Fields = {
                 )}
               />
             </div>
+          | #initiative =>
+            <div>
+              <FormRenderer.FieldRenderer
+                labelClass="font-semibold !text-hyperswitch_black"
+                field={ApplePayWalletIntegrationUtils.initiativeField(
+                  ~name=`${namePrefix}.initiative`,
+                  ~label="Domain",
+                  ~options=initiativeOptions,
+                  ~setInitiative,
+                  ~form,
+                )}
+              />
+              {switch initiative {
+              | #web =>
+                <FormRenderer.FieldRenderer
+                  labelClass="font-semibold !text-hyperswitch_black"
+                  field={FormRenderer.makeFieldInfo(
+                    ~label="Domain Name",
+                    ~name={`${namePrefix}.initiative_context`},
+                    ~placeholder={`Enter Domain Name`},
+                    ~customInput=InputFields.textInput(),
+                    ~isRequired=true,
+                    (),
+                  )}
+                />
+              | _ => React.null
+              }}
+            </div>
+          | #initiative_context => React.null
           | #payment_processing_details_at =>
             <div>
               <FormRenderer.FieldRenderer
@@ -253,6 +309,7 @@ module Fields = {
                   ],
                   ~setProcessingAt,
                   ~form,
+                  ~textColor={textColor.primaryNormal},
                 )}
               />
               {switch processingAt {
@@ -275,7 +332,15 @@ module Fields = {
                       ~label="Payment Processing Key",
                       ~name={`${namePrefix}.payment_processing_certificate_key`},
                       ~placeholder={`Enter Processing Key`},
-                      ~customInput=InputFields.textInput(),
+                      ~customInput=InputFields.multiLineTextInput(
+                        ~rows=Some(10),
+                        ~cols=Some(100),
+                        ~isDisabled=false,
+                        ~customClass="",
+                        ~leftIcon=React.null,
+                        ~maxLength=10000,
+                        (),
+                      ),
                       ~isRequired=true,
                       (),
                     )}
@@ -326,7 +391,6 @@ module Manual = {
     // Need to refactor
     let _ = ConnectorUtils.updateMetaData(~metaData)
     //
-
     let configurationFields =
       metadataInputs
       ->getDictfromDict("apple_pay")
@@ -359,7 +423,14 @@ module Manual = {
       </InfoCard>
       <Form
         validate={values =>
-          validate(values, configurationFields->Dict.keysToArray->getUniqueArray, #manual)}
+          validate(
+            values,
+            configurationFields
+            ->Dict.keysToArray
+            ->getUniqueArray
+            ->Array.filter(ele => !Array.includes(["initiative_context"], ele)),
+            #manual,
+          )}
         onSubmit
         initialValues={metaData}>
         <Fields configurationFields merchantBusinessCountry metaData />
@@ -466,7 +537,7 @@ module Verified = {
             <div className={`relative w-full  p-6 rounded flex flex-col justify-between border `}>
               <div className="flex justify-between">
                 <div className={`font-medium text-base text-hyperswitch_black `}>
-                  {domainUrl->React.string}
+                  {domainUrl->String.length > 0 ? domainUrl->React.string : "Default"->React.string}
                 </div>
                 <div>
                   {switch appleIntegrationType {

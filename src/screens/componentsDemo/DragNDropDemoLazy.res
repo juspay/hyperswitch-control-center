@@ -6,4 +6,4 @@ type props = {
   listItems: array<JSON.t>,
   setListItems: (array<JSON.t> => array<JSON.t>) => unit,
 }
-let make: props => React.element = reactLazy(.() => import_("./DragNDropDemo.bs.js"))
+let make: props => React.element = reactLazy(() => import_("./DragNDropDemo.bs.js"))

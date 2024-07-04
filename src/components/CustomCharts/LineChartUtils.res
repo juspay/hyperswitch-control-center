@@ -265,6 +265,7 @@ let timeSeriesDataMaker = (
   ~xAxis,
   ~metricsConfig: metricsConfig,
   ~commonColors: option<array<chartData<'a>>>=?,
+  ~selectedTab: option<array<string>>=?,
   (),
 ) => {
   let colors = switch commonColors {
@@ -279,12 +280,26 @@ let timeSeriesDataMaker = (
   let _ = data->Array.map(item => {
     let dict = item->getDictFromJsonObject
 
-    let groupByName =
+    let groupByName = switch selectedTab {
+    | Some(keys) =>
+      keys
+      ->Array.map(key =>
+        dict->getString(
+          key,
+          Dict.get(dict, key)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
+        )
+      )
+      ->Array.map(LogicUtils.snakeToTitle)
+      ->Array.joinWithUnsafe(" : ")
+    | None =>
       dict->getString(
         groupKey,
         Dict.get(dict, groupKey)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
       )
-    let xAxisDataPoint = dict->getString(xAxis, "")->String.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
+    }
+
+    let xAxisDataPoint =
+      dict->getString(xAxis, "")->String.split(" ")->Array.joinWithUnsafe("T") ++ "Z" // right now it is time string
     let yAxisDataPoint = dict->getFloat(yAxis, 0.)
 
     let secondryAxisPoint = switch secondryMetrics {
@@ -588,7 +603,7 @@ let getTooltipHTML = (metrics, data, onCursorName) => {
   let highlight = onCursorName == name ? "font-weight:900;font-size:13px;" : ""
   `<tr>
       <td><span style='color:${color}; ${highlight}'></span></td>
-      <td><span style=${highlight}>${name} : </span></td>
+      <td><span style=${highlight}>${name}  </span></td>
       <td><span style=${highlight}>${formatStatsAccToMetrix(metric_type, y_axis)}</span></td>
       <td><span style=${highlight}>${secondry_metrix_val}</span></td>
   </tr>`
@@ -598,31 +613,33 @@ let tooltipFormatter = (
   metrics: metricsConfig,
   xAxisMapInfo: Dict.t<array<(Js_string.t, string, float, option<float>)>>,
   groupKey: string,
-) =>
-  @this
-  (points: JSON.t) => {
-    let points = points->getDictFromJsonObject
-    let series = points->getJsonObjectFromDict("series")->getDictFromJsonObject
+) => @this
+(points: JSON.t) => {
+  let points = points->getDictFromJsonObject
+  let series = points->getJsonObjectFromDict("series")->getDictFromJsonObject
 
-    let dataArr = if ["run_date", "run_month", "run_week"]->Array.includes(groupKey) {
-      let x = points->getString("name", "")
-      xAxisMapInfo->Dict.get(x)->Option.getOr([])
-    } else {
-      let x = points->getFloat("x", 0.)
-      xAxisMapInfo->Dict.get(x->Float.toString)->Option.getOr([])
-    }
-
-    let onCursorName = series->getString("name", "")
-    let htmlStr =
-      dataArr
-      ->Array.map(data => {
-        getTooltipHTML(metrics, data, onCursorName)
-      })
-      ->Array.joinWith("")
-    `<table>${htmlStr}</table>`
+  let dataArr = if ["run_date", "run_month", "run_week"]->Array.includes(groupKey) {
+    let x = points->getString("name", "")
+    xAxisMapInfo->Dict.get(x)->Option.getOr([])
+  } else {
+    let x = points->getFloat("x", 0.)
+    xAxisMapInfo->Dict.get(x->Float.toString)->Option.getOr([])
   }
 
-let legendItemStyle = (theme: ThemeProvider.theme, legendFontFamilyClass, legendFontSizeClass) => {
+  let onCursorName = series->getString("name", "")
+  let htmlStr =
+    dataArr
+    ->Array.map(data => {
+      getTooltipHTML(metrics, data, onCursorName)
+    })
+    ->Array.joinWithUnsafe("")
+  `<table>${htmlStr}</table>`
+}
+
+let legendItemStyle = (theme: ThemeProvider.theme) => (
+  legendFontFamilyClass,
+  legendFontSizeClass,
+) => {
   switch theme {
   | Dark =>
     {
@@ -645,8 +662,7 @@ let legendItemStyle = (theme: ThemeProvider.theme, legendFontFamilyClass, legend
   }
 }
 
-let legendHiddenStyle = (
-  theme: ThemeProvider.theme,
+let legendHiddenStyle = (theme: ThemeProvider.theme) => (
   legendFontFamilyClass,
   legendFontSizeClass,
 ) => {
@@ -771,7 +787,7 @@ let chartDataMaker = (~filterNull=false, rawData, groupKey, metric) => {
   ->Array.filter(dataPoint => {
     !filterNull || {
       let dataPointDict = dataPoint->getDictFromJsonObject
-      dataPointDict->getString(groupKey, "") !== "other"
+      dataPointDict->getString(groupKey, "") !== "NA"
     }
   })
   ->Array.map(dataPoint => {

@@ -6,7 +6,7 @@ module InviteEmailForm = {
     open APIUtils
     open UIUtils
     let getURL = useGetURL()
-    let {globalUIConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
     let fetchDetails = useGetMethod()
     let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (roleListData, setRoleListData) = React.useState(_ => [])
@@ -100,6 +100,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   let (loaderForInviteUsers, setLoaderForInviteUsers) = React.useState(_ => false)
   let paddingClass = isInviteUserFlow ? "p-10" : ""
   let marginClass = isInviteUserFlow ? "mt-5" : ""
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
 
   let initialValues = React.useMemo0(() => {
     [("roleType", [defaultRole->JSON.Encode.string]->JSON.Encode.array)]->getJsonFromArrayOfJson
@@ -107,9 +108,21 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
 
   let getURLForInviteMultipleUser = {
     if totp {
-      getURL(~entityName=USERS, ~userType=#INVITE_MULTIPLE_TOKEN_ONLY, ~methodType=Post, ())
+      getURL(
+        ~entityName=USERS,
+        ~userType=#INVITE_MULTIPLE_TOKEN_ONLY,
+        ~methodType=Post,
+        ~queryParamerters=Some(`auth_id=${authId}`),
+        (),
+      )
     } else {
-      getURL(~entityName=USERS, ~userType=#INVITE_MULTIPLE, ~methodType=Post, ())
+      getURL(
+        ~entityName=USERS,
+        ~userType=#INVITE_MULTIPLE,
+        ~methodType=Post,
+        ~queryParamerters=Some(`auth_id=${authId}`),
+        (),
+      )
     }
   }
 

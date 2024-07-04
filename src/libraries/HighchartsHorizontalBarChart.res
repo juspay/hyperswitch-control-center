@@ -1,7 +1,8 @@
 type title = {text: string, align?: string, useHTML?: bool}
 type tooltipRecord = {category: string, y: int}
+external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => tooltipRecord => string = "%identity"
 type tooltip = {
-  pointFormatter: Js_OO.Callback.arity1<tooltipRecord => string>,
+  pointFormatter: tooltipRecord => string,
   useHTML: bool,
   backgroundColor: string,
   borderColor: string,
@@ -16,9 +17,11 @@ type series = {
   \"type": string,
 }
 type yAxisRecord = {series: series, x: string, y: int}
+external asDataLabelFormatter: Js_OO.Callback.arity1<'a> => yAxisRecord => string = "%identity"
+
 type dataLabels = {
   enabled: bool,
-  formatter?: Js_OO.Callback.arity1<yAxisRecord => string>,
+  formatter?: yAxisRecord => string,
   useHTML: bool,
 }
 
@@ -35,9 +38,10 @@ type credits = {enabled: bool}
 type chart = {\"type": string, backgroundColor: string}
 type axis = {series: array<series>, categories: array<string>}
 type xAxisRecord = {axis: axis, value: string}
+external asXLabelFormatter: Js_OO.Callback.arity1<'a> => xAxisRecord => string = "%identity"
 type labels = {
   enabled: bool,
-  formatter?: Js_OO.Callback.arity1<xAxisRecord => string>,
+  formatter?: xAxisRecord => string,
   useHTML?: bool,
 }
 type xAxis = {categories: array<string>, lineWidth: int, opposite: bool, labels: labels}

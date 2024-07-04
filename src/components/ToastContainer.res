@@ -86,7 +86,7 @@ let make = (~children) => {
   let (openToasts, setOpenToasts) = Recoil.useRecoilState(ToastState.openToasts)
 
   let hideToast = React.useCallback1(key => {
-    setOpenToasts(.prevArr => {
+    setOpenToasts(prevArr => {
       Array.filter(
         prevArr,
         (toastProps: ToastState.toastProps) => {

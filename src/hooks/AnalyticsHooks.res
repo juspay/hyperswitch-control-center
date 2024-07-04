@@ -1,1 +1,1 @@
-let defaultFilter = Recoil.atom(. "defaultFilter", "")
+let defaultFilter = Recoil.atom("defaultFilter", "")

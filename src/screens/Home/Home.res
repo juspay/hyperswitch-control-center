@@ -8,7 +8,7 @@ let make = () => {
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let recovery_codes_left = switch authStatus {
-  | LoggedIn(TotpAuth(totpInfo)) => totpInfo.recovery_codes_left
+  | LoggedIn(Auth(totpInfo)) => totpInfo.recovery_codes_left
   | _ => HSwitchGlobalVars.maximumRecoveryCodes
   }
 

@@ -1,14 +1,12 @@
-open CommonAuthUtils
-
 @react.component
 let make = (~setAuthStatus) => {
   open CommonAuthTypes
   let url = RescriptReactRouter.useUrl()
-  let (mode, setMode) = React.useState(_ => TestButtonMode)
-  let {isLiveMode, email: isMagicLinkEnabled} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let (_mode, setMode) = React.useState(_ => TestButtonMode)
+  let {isMagicLinkEnabled, checkAuthMethodExists} = AuthModuleHooks.useAuthMethods()
+  let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let authInitState = isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword
+  let authInitState = isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword
   let (authType, setAuthType) = React.useState(_ => authInitState)
 
   let (actualAuthType, setActualAuthType) = React.useState(_ => authInitState)
@@ -23,15 +21,15 @@ let make = (~setAuthStatus) => {
     switch url.path {
     | list{"user", "verify_email"} => setActualAuthType(_ => EmailVerify)
     | list{"login"} =>
-      setActualAuthType(_ => isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword)
-    | list{"user", "set_password"} => setActualAuthType(_ => ResetPassword)
+      setActualAuthType(_ => isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword)
+    | list{"user", "set_password"} =>
+      checkAuthMethodExists([PASSWORD]) ? setActualAuthType(_ => ResetPassword) : ()
     | list{"user", "accept_invite_from_email"} => setActualAuthType(_ => ActivateFromEmail)
-    | list{"forget-password"} => setActualAuthType(_ => ForgetPassword)
+    | list{"forget-password"} =>
+      checkAuthMethodExists([PASSWORD]) ? setActualAuthType(_ => ForgetPassword) : ()
     | list{"register"} =>
       // In Live mode users are not allowed to singup directly
-      !isLiveMode
-        ? setActualAuthType(_ => SignUP)
-        : HSwitchGlobalVars.appendDashboardPath(~url="/login")->RescriptReactRouter.push
+      !isLiveMode ? setActualAuthType(_ => SignUP) : AuthUtils.redirectToLogin()
     | _ => ()
     }
 
@@ -55,8 +53,7 @@ let make = (~setAuthStatus) => {
         | list{"user", "set_password"}
         | list{"register", ..._},
       ) => () // to prevent duplicate push
-    | (LoginWithPassword | LoginWithEmail, _) =>
-      HSwitchGlobalVars.appendDashboardPath(~url="/login")->RescriptReactRouter.replace
+    | (LoginWithPassword | LoginWithEmail, _) => AuthUtils.redirectToLogin()
 
     | (SignUP, list{"register", ..._}) => () // to prevent duplicate push
     | (SignUP, _) =>
@@ -75,5 +72,5 @@ let make = (~setAuthStatus) => {
     None
   }, [authType])
 
-  <TotpAuth setAuthStatus authType setAuthType />
+  <TwoFaAuth setAuthStatus authType setAuthType />
 }

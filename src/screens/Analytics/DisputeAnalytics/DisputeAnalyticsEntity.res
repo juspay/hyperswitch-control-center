@@ -41,8 +41,8 @@ let distribution =
 
 let tableItemToObjMapper: Dict.t<JSON.t> => disputeTableType = dict => {
   {
-    connector: dict->getString(Connector->colMapper, "Other"),
-    dispute_stage: dict->getString(DisputeStage->colMapper, "Other"),
+    connector: dict->getString(Connector->colMapper, "NA"),
+    dispute_stage: dict->getString(DisputeStage->colMapper, "NA"),
     total_amount_disputed: dict->getFloat(TotalAmountDisputed->colMapper, 0.0),
     total_dispute_lost_amount: dict->getFloat(TotalDisputeLostAmount->colMapper, 0.0),
   }

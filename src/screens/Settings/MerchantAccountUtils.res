@@ -13,6 +13,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     return_url,
     payment_response_hash_key,
     authentication_connector_details,
+    collect_shipping_details_from_wallet_connector,
   } = profileRecord
   let profileInfo =
     [
@@ -21,6 +22,11 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
       ("profile_name", profile_name->JSON.Encode.string),
     ]->Dict.fromArray
   profileInfo->setOptionString("return_url", return_url)
+  profileInfo->setOptionBool(
+    "collect_shipping_details_from_wallet_connector",
+    collect_shipping_details_from_wallet_connector,
+  )
+
   profileInfo->setOptionString("webhook_version", webhook_details.webhook_version)
   profileInfo->setOptionString("webhook_username", webhook_details.webhook_username)
   profileInfo->setOptionString("webhook_password", webhook_details.webhook_password)
@@ -125,6 +131,11 @@ let getBusinessProfilePayload = (values: JSON.t) => {
 
   let profileDetailsDict = Dict.make()
   profileDetailsDict->setOptionString("return_url", valuesDict->getOptionString("return_url"))
+  profileDetailsDict->setOptionBool(
+    "collect_shipping_details_from_wallet_connector",
+    valuesDict->getOptionBool("collect_shipping_details_from_wallet_connector"),
+  )
+
   profileDetailsDict->setOptionDict(
     "webhook_details",
     !(webhookSettingsValue->isEmptyDict) ? Some(webhookSettingsValue) : None,
@@ -246,10 +257,18 @@ let checkValueChange = (~initialDict, ~valuesDict) => {
     initialDict
     ->Dict.keysToArray
     ->Array.find(key => {
-      let initialValue = initialDict->LogicUtils.getString(key, "")
-      let updatedValue = valuesDict->LogicUtils.getString(key, "")
-
-      initialValue !== updatedValue
+      switch key {
+      | "collect_shipping_details_from_wallet_connector" => {
+          let initialValue = initialDict->LogicUtils.getBool(key, false)
+          let updatedValue = valuesDict->LogicUtils.getBool(key, false)
+          initialValue !== updatedValue
+        }
+      | _ => {
+          let initialValue = initialDict->LogicUtils.getString(key, "")
+          let updatedValue = valuesDict->LogicUtils.getString(key, "")
+          initialValue !== updatedValue
+        }
+      }
     })
   key->Option.isSome || updatedKeys > initialKeys
 }
@@ -339,7 +358,6 @@ let validateMerchantAccountForm = (
     let isValueChanged = checkValueChange(~initialDict, ~valuesDict)
     disableBtn(_ => !isValueChanged)
   })
-
   errors->JSON.Encode.object
 }
 
@@ -362,6 +380,7 @@ let defaultValueForBusinessProfile = {
     authentication_connectors: None,
     three_ds_requestor_url: None,
   },
+  collect_shipping_details_from_wallet_connector: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

@@ -148,7 +148,7 @@ module TabInfo = {
             ->String.split("+")
             ->Array.map(String.trim)
             ->Array.map(LogicUtils.snakeToTitle)
-            ->Array.joinWith(" + "),
+            ->Array.joinWithUnsafe(" + "),
           )}
           crossIcon
         </div>
@@ -178,7 +178,7 @@ module IndicationArrow = {
         refElement.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"})
+          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"}))
         )
     }
     let roundness = side == "left" ? "rounded-tr-md ml-2" : "rounded-tl-md"
@@ -225,6 +225,8 @@ let make = (
   ~defaultTabs: option<array<tab>>=?,
   ~enableDescriptionHeader: bool=false,
   ~toolTipDescription="Add more tabs",
+  ~updateCollapsableTabs=false,
+  ~showAddMoreTabs=true,
 ) => {
   open LogicUtils
   let eulerBgClass = "bg-jp-gray-100 dark:bg-jp-gray-darkgray_background"
@@ -260,7 +262,9 @@ let make = (
 
   let (tabsDetails, setTabDetails) = React.useState(_ => tabs->Array.copy)
 
-  let (initialIndex, updatedCollapsableTabs) = React.useMemo0(() => {
+  let (selectedIndex, setSelectedIndex) = React.useState(_ => 0)
+
+  let (initialIndex, updatedCollapsableTabs) = React.useMemo1(() => {
     let defautTabValues = defaultTabs->Array.map(item => item.value)
     let collapsibleTabs = switch getConfig(availableTabUserPrefKey) {
     | Some(jsonVal) => {
@@ -285,14 +289,14 @@ let make = (
             )
             ->Array.length === 0
 
-          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
+          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
           if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
             let newTab = {
               title: concatinatedTabNames,
-              value: tabName->Array.joinWith(","),
+              value: tabName->Array.joinWithUnsafe(","),
               description: switch tabs->Array.find(
                 item => {
-                  item.value === tabName->Array.joinWith(",")
+                  item.value === tabName->Array.joinWithUnsafe(",")
                 },
               ) {
               | Some(tabValue) =>
@@ -301,7 +305,7 @@ let make = (
               },
               isRemovable: switch tabs->Array.find(
                 item => {
-                  item.value === tabName->Array.joinWith(",")
+                  item.value === tabName->Array.joinWithUnsafe(",")
                 },
               ) {
               | Some(tabValue) => tabValue.isRemovable
@@ -332,7 +336,7 @@ let make = (
       })
       ->Array.length === 0
 
-    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
+    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
 
     if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
       let concatinatedTabIndex =
@@ -342,7 +346,7 @@ let make = (
         let newTab = [
           {
             title: concatinatedTabNames,
-            value: tabName->Array.joinWith(","),
+            value: tabName->Array.joinWithUnsafe(","),
             isRemovable: true,
           },
         ]
@@ -375,11 +379,24 @@ let make = (
       updateTabNameWith(
         Dict.fromArray([("tabName", `[${getValueFromArrayTab(collapsibleTabs, 0)}]`)]),
       )
+      setSelectedIndex(_ => 0)
       (0, collapsibleTabs)
     }
-  })
+  }, [updateCollapsableTabs])
+
   let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
   let (formattedOptions, setFormattedOptions) = React.useState(_ => [])
+
+  React.useEffect1(_ => {
+    setSelectedIndex(_ => initialIndex)
+    None
+  }, [initialIndex])
+
+  React.useEffect1(_ => {
+    setCollapsibleTabs(_ => updatedCollapsableTabs)
+    None
+  }, [updatedCollapsableTabs])
+
   // this will update the current available tabs to the userpreference
   React.useEffect1(() => {
     let collapsibleTabsValues =
@@ -397,8 +414,6 @@ let make = (
     getValueFromArrayTab(updatedCollapsableTabs, 0),
     getValueFromArrayTab(updatedCollapsableTabs, initialIndex),
   ])
-
-  let (selectedIndex, setSelectedIndex) = React.useState(_ => initialIndex)
 
   let (isLeftArrowVisible, setIsLeftArrowVisible) = React.useState(() => false)
   let (isRightArrowVisible, setIsRightArrowVisible) = React.useState(() => true)
@@ -463,8 +478,8 @@ let make = (
   }
 
   let onSubmit = values => {
-    let tabName = values->Array.map(getTitle)->Array.joinWith(" + ")
-    let tabValue = values->Array.joinWith(",")
+    let tabName = values->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
+    let tabValue = values->Array.joinWithUnsafe(",")
     if !Array.includes(collapsibleTabs->Array.map(item => item.title), tabName) {
       let newTab = [
         {
@@ -486,13 +501,13 @@ let make = (
         lastTabRef.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"})
+          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"}))
         )
       }, 200)->ignore
     } else {
       setSelectedIndex(_ => Array.indexOf(collapsibleTabs->Array.map(item => item.value), tabValue))
-      updateTabNameWith(Dict.fromArray([("tabName", `[${values->Array.joinWith(",")}]`)]))
-      setActiveTab(values->Array.joinWith(","))
+      updateTabNameWith(Dict.fromArray([("tabName", `[${values->Array.joinWithUnsafe(",")}]`)]))
+      setActiveTab(values->Array.joinWithUnsafe(","))
     }
     setShowModal(_ => false)
   }
@@ -500,9 +515,7 @@ let make = (
   React.useEffect1(() => {
     let options =
       tabs
-      ->Array.filter(tab =>
-        !(collapsibleTabs->Array.map(item => item.value)->Array.includes(tab.value))
-      )
+      ->Array.filter(tab => !(tab.value->String.split(",")->Array.length > 1))
       ->Array.map((x): SelectBox.dropdownOption => {
         switch x.description {
         | Some(description) => {
@@ -595,7 +608,7 @@ let make = (
               isVisible=isRightArrowVisible
             />
           </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={formattedOptions->Array.length > 0}>
+          <UIUtils.RenderIf condition={showAddMoreTabs && formattedOptions->Array.length > 0}>
             <div
               className="flex flex-row"
               style={ReactDOMStyle.make(~marginTop="20px", ~marginLeft="7px", ())}>
@@ -618,6 +631,7 @@ let make = (
       </div>
       <SelectModal
         modalHeading="Add Segment"
+        modalHeadingDescription={`You can select up to ${maxSelection->Int.toString} options`}
         ?headerTextClass
         showModal
         setShowModal

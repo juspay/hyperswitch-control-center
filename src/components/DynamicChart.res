@@ -463,7 +463,7 @@ let make = (
           None
         }
       })
-      ->Array.joinWith("&")
+      ->Array.joinWithUnsafe("&")
 
     (filterSearchParam, getTopLevelFilter->getString(customFilterKey, ""))
   }, [getTopLevelFilter])
@@ -502,7 +502,7 @@ let make = (
         | _ => None
         }
       })
-      ->Array.joinWith("&")
+      ->Array.joinWithUnsafe("&")
 
     filterSearchParam
   }, [topFiltersToSearchParam])
@@ -523,7 +523,7 @@ let make = (
     })
     None
   }, (startTimeFromUrl, endTimeFromUrl))
-  let selectedTabStr = selectedTab->Option.getOr([])->Array.joinWith("")
+  let selectedTabStr = selectedTab->Option.getOr([])->Array.joinWithUnsafe("")
 
   let updatedChartConfigArr = React.useMemo7(() => {
     uriConfig->Array.map(item => {
@@ -603,7 +603,7 @@ let make = (
     })
   }, [updatedChartConfigArr])
 
-  let (groupKeyFromTab, _titleKey) = React.useMemo1(() => {
+  let (groupKeyFromTab, titleKey) = React.useMemo1(() => {
     switch (tabTitleMapper, selectedTab) {
     | (Some(dict), Some(arr)) => {
         let groupKey = arr->Array.get(0)->Option.getOr("")
@@ -655,7 +655,7 @@ let make = (
               ->Option.getOr(""->JSON.Encode.string)
               ->JSON.Decode.string
               ->Option.getOr("")
-            let label = metric->isEmptyString ? "other" : metric
+            let label = metric->isEmptyString ? "NA" : metric
 
             Dict.set(dict, tabName, label->JSON.Encode.string)
 
@@ -704,20 +704,6 @@ let make = (
     setRawChartData(_ => Some(chartData))
     setChartLoading(_ => false)
   }
-
-  let (_groupKeyFromTab, titleKey) = React.useMemo1(() => {
-    switch (tabTitleMapper, selectedTab) {
-    | (Some(dict), Some(arr)) => {
-        let groupKey = arr->Array.get(0)->Option.getOr("")
-        (groupKey, dict->Dict.get(groupKey)->Option.getOr(groupKey))
-      }
-    | (None, Some(arr)) => (
-        arr->Array.get(0)->Option.getOr(""),
-        arr->Array.get(0)->Option.getOr(""),
-      )
-    | _ => ("", "")
-    }
-  }, [selectedTab])
 
   let chartTypeFromUrl = getChartCompFilters->getString("chartType", "Line chart")
   let chartTopMetricFromUrl = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
@@ -784,6 +770,8 @@ let make = (
                             showTableLegend
                             showMarkers
                             legendType
+                            comparitionWidget
+                            selectedTab={selectedTab->Option.getOr([])}
                           />
                         }
                       | _ => React.null

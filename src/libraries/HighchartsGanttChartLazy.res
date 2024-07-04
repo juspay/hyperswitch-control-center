@@ -7,4 +7,4 @@ type props = {
   constructorType: string,
 }
 
-let make: props => React.element = reactLazy(.() => import_("highcharts-react-official"))
+let make: props => React.element = reactLazy(() => import_("highcharts-react-official"))

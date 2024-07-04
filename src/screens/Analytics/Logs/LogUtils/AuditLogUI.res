@@ -10,7 +10,7 @@ module LogDetailsSection = {
       }
     }
 
-    <div className="border-b-2 border-border-light-grey pb-3 px-5 py-3">
+    <div className="pb-3 px-5 py-3">
       {logDetails.data
       ->Dict.toArray
       ->Array.filter(item => {
@@ -49,6 +49,68 @@ module LogDetailsSection = {
   }
 }
 
+module TabDetails = {
+  open LogTypes
+  @react.component
+  let make = (~activeTab, ~moduleName="", ~logDetails, ~selectedOption) => {
+    open LogicUtils
+    let id =
+      activeTab
+      ->Option.getOr(["tab"])
+      ->Array.reduce("", (acc, tabName) => {acc->String.concat(tabName)})
+
+    let currTab = activeTab->Option.getOr([])->Array.get(0)->Option.getOr("")
+
+    let tab =
+      <div>
+        {switch currTab->getLogTypefromString {
+        | Logdetails => <LogDetailsSection logDetails />
+        | Event
+        | Request =>
+          <div className="px-5 py-3">
+            <UIUtils.RenderIf
+              condition={logDetails.request->isNonEmptyString &&
+                selectedOption.optionType !== WEBHOOKS}>
+              <div className="flex justify-end">
+                <HelperComponents.CopyTextCustomComp
+                  displayValue=" " copyValue={logDetails.request->Some} customTextCss="text-nowrap"
+                />
+              </div>
+              <PrettyPrintJson jsonToDisplay=logDetails.request />
+            </UIUtils.RenderIf>
+            <UIUtils.RenderIf
+              condition={logDetails.request->isEmptyString &&
+                selectedOption.optionType !== WEBHOOKS}>
+              <NoDataFound
+                customCssClass={"my-6"} message="No Data Available" renderType=Painting
+              />
+            </UIUtils.RenderIf>
+          </div>
+        | Metadata
+        | Response =>
+          <div className="px-5 py-3">
+            <UIUtils.RenderIf condition={logDetails.response->isNonEmptyString}>
+              <div className="flex justify-end">
+                <HelperComponents.CopyTextCustomComp
+                  displayValue=" " copyValue={logDetails.response->Some} customTextCss="text-nowrap"
+                />
+              </div>
+              <PrettyPrintJson jsonToDisplay={logDetails.response} />
+            </UIUtils.RenderIf>
+            <UIUtils.RenderIf condition={logDetails.response->isEmptyString}>
+              <NoDataFound
+                customCssClass={"my-6"} message="No Data Available" renderType=Painting
+              />
+            </UIUtils.RenderIf>
+          </div>
+        | _ => React.null
+        }}
+      </div>
+
+    <FramerMotion.TransitionComponent id={id}> {tab} </FramerMotion.TransitionComponent>
+  }
+}
+
 @react.component
 let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   open LogicUtils
@@ -71,6 +133,37 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     optionType: API_EVENTS,
   })
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+
+  let (collapseTab, setCollapseTab) = React.useState(_ => false)
+  let (activeTab, setActiveTab) = React.useState(_ => [])
+
+  let tabKeys = tabkeys->Array.map(item => {
+    item->getTabKeyName(selectedOption.optionType)
+  })
+
+  let tabValues = tabKeys->Array.map(key => {
+    let a: DynamicTabs.tab = {
+      title: key,
+      value: key,
+      isRemovable: false,
+    }
+    a
+  })
+
+  let activeTab = React.useMemo1(() => {
+    Some(activeTab)
+  }, [activeTab])
+
+  let setActiveTab = React.useMemo1(() => {
+    (str: string) => {
+      setActiveTab(_ => str->String.split(","))
+    }
+  }, [setActiveTab])
+
+  React.useEffect1(_ => {
+    setCollapseTab(prev => !prev)
+    None
+  }, [logDetails])
 
   let getDetails = async () => {
     let logs = []
@@ -99,8 +192,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
           | Some(dict) =>
             switch dict->getDictFromJsonObject->getLogType {
             | SDK => logs->Array.pushMany(arr->parseSdkResponse)->ignore
-            | CONNECTOR | API_EVENTS => logs->Array.pushMany(arr)->ignore
-            | WEBHOOKS => logs->Array.pushMany([dict])->ignore
+            | CONNECTOR | API_EVENTS | WEBHOOKS => logs->Array.pushMany(arr)->ignore
             }
           | _ => ()
           }
@@ -133,14 +225,8 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     None
   })
 
-  let headerText = switch selectedOption.optionType {
-  | API_EVENTS | CONNECTOR => "Response body"
-  | WEBHOOKS => "Request body"
-  | SDK => "Metadata"
-  }->Some
-
   let timeLine =
-    <div className="flex flex-col w-2/5 overflow-y-scroll pt-7 pl-5">
+    <div className="flex flex-col w-2/5 overflow-y-scroll no-scrollbar pt-7 pl-5">
       <div className="flex flex-col">
         {data
         ->Array.mapWithIndex((detailsValue, index) => {
@@ -161,32 +247,23 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       </div>
     </div>
 
-  let requestHeader = switch selectedOption.optionType {
-  | API_EVENTS | CONNECTOR => "Request body"
-  | SDK => "Event"
-  | WEBHOOKS => ""
-  }
-
   let codeBlock =
     <UIUtils.RenderIf
       condition={logDetails.response->isNonEmptyString || logDetails.request->isNonEmptyString}>
       <div
         className="flex flex-col gap-4 border-l-2 border-border-light-grey show-scrollbar scroll-smooth overflow-scroll  w-3/5">
-        <LogDetailsSection logDetails />
-        <div className="px-5 py-3">
-          <UIUtils.RenderIf
-            condition={logDetails.request->isNonEmptyString &&
-              selectedOption.optionType !== WEBHOOKS}>
-            <PrettyPrintJson
-              jsonToDisplay=logDetails.request
-              headerText={requestHeader->Some}
-              maxHeightClass={logDetails.response->String.length > 0 ? "max-h-25-rem" : ""}
-            />
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={logDetails.response->isNonEmptyString}>
-            <PrettyPrintJson jsonToDisplay={logDetails.response} headerText />
-          </UIUtils.RenderIf>
+        <div className="sticky top-0 bg-white z-10">
+          <DynamicTabs
+            tabs=tabValues
+            maxSelection=1
+            setActiveTab
+            initalTab=tabKeys
+            tabContainerClass="px-2"
+            updateCollapsableTabs=collapseTab
+            showAddMoreTabs=false
+          />
         </div>
+        <TabDetails activeTab logDetails selectedOption />
       </div>
     </UIUtils.RenderIf>
 

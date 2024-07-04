@@ -5,7 +5,7 @@ module HomePageHorizontalStepper = {
   @react.component
   let make = (~stepperItemsArray: array<string>, ~className="") => {
     let {globalUIConfig: {backgroundColor, border: {borderColor}}} = React.useContext(
-      ConfigContext.configContext,
+      ThemeProvider.themeContext,
     )
     let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
     let typedValueOfEnum = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
@@ -75,7 +75,7 @@ module QuickStart = {
     let {setDashboardPageState, setQuickStartPageState} = React.useContext(
       GlobalProvider.defaultContext,
     )
-    let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
+    let postEnumDetails = EnumVariantHook.usePostEnumDetails()
     let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let (configureButtonState, setConfigureButtonState) = React.useState(_ => Button.Normal)
@@ -117,14 +117,12 @@ module QuickStart = {
             let _connectorChoiceSetup =
               await StringEnumType(
                 #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,
-              )->usePostEnumDetails(#ConfigurationType)
+              )->postEnumDetails(#ConfigurationType)
 
             let _firstEnumSetupValues =
-              await ProcesorType(bodyOfFirstConnector)->usePostEnumDetails(#FirstProcessorConnected)
+              await ProcesorType(bodyOfFirstConnector)->postEnumDetails(#FirstProcessorConnected)
             let _ =
-              await ProcesorType(bodyOfSecondConnector)->usePostEnumDetails(
-                #SecondProcessorConnected,
-              )
+              await ProcesorType(bodyOfSecondConnector)->postEnumDetails(#SecondProcessorConnected)
             let _ = updateEnumInRecoil([
               (
                 StringEnumType(#MultipleProcessorWithSmartRouting->connectorChoiceVariantToString),
@@ -148,9 +146,9 @@ module QuickStart = {
             let _connectorChoiceSetup =
               await StringEnumType(
                 #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,
-              )->usePostEnumDetails(#ConfigurationType)
+              )->postEnumDetails(#ConfigurationType)
             let _firstEnumSetupValues =
-              await ProcesorType(bodyOfFirstConnector)->usePostEnumDetails(#FirstProcessorConnected)
+              await ProcesorType(bodyOfFirstConnector)->postEnumDetails(#FirstProcessorConnected)
             let _ = updateEnumInRecoil([
               (
                 StringEnumType(#MultipleProcessorWithSmartRouting->connectorChoiceVariantToString),
@@ -423,7 +421,7 @@ let make = () => {
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let recovery_codes_left = switch authStatus {
-  | LoggedIn(TotpAuth(totpInfo)) => totpInfo.recovery_codes_left
+  | LoggedIn(Auth(info)) => info.recovery_codes_left
   | _ => HSwitchGlobalVars.maximumRecoveryCodes
   }
 

@@ -10,6 +10,7 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let (merchantData, setMerchantData) = React.useState(_ => [])
   let getURL = useGetURL()
+  let handleLogout = useHandleLogout()
 
   React.useEffect0(() => {
     let acceptInvitedata = switch authStatus {
@@ -27,9 +28,9 @@ let make = () => {
         setMerchantData(_ => arr)
         RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/accept-invite"))
       } else {
-        setAuthStatus(LoggedOut)
+        handleLogout()->ignore
       }
-    | None => setAuthStatus(LoggedOut)
+    | None => handleLogout()->ignore
     }
 
     None
@@ -54,12 +55,13 @@ let make = () => {
       let typedInfo = res->BasicAuthUtils.getBasicAuthInfo
       if typedInfo.token->Option.isSome {
         open AuthProviderTypes
-        LocalStorage.removeItem("accept_invite_data")
+        open HSLocalStorage
+        removeItemFromLocalStorage(~key="accept_invite_data")
         setAuthStatus(LoggedIn(BasicAuth(typedInfo)))
         setDashboardPageState(_ => #HOME)
       } else {
         showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
-        setAuthStatus(LoggedOut)
+        handleLogout()->ignore
       }
     } catch {
     | _ => ()

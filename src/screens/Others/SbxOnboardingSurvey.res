@@ -99,9 +99,7 @@ let make = (~showModal, ~setShowModal) => {
         ]->getJsonFromArrayOfJson
       let merchantDetails = await updateDetails(accountUrl, body, Post, ())
       let _ = fetchSwitchMerchantList()
-      setMerchantDetailsValue(._ =>
-        merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails
-      )
+      setMerchantDetailsValue(_ => merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails)
     } catch {
     | _ => {
         showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError, ())

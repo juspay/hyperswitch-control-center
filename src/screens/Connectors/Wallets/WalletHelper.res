@@ -61,7 +61,7 @@ module Card = {
   @react.component
   let make = (~heading="", ~isSelected=false, ~children: React.element) => {
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ConfigContext.configContext,
+      ThemeProvider.themeContext,
     )
     <>
       <div
@@ -108,7 +108,7 @@ module SimplifiedHelper = {
     ~subText=None,
   ) => {
     let {globalUIConfig: {backgroundColor, font: {textColor}}} = React.useContext(
-      ConfigContext.configContext,
+      ThemeProvider.themeContext,
     )
     let bgColor = "bg-white"
     let stepColor = `${backgroundColor} text-white py-px px-2`

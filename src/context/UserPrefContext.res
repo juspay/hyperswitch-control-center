@@ -45,13 +45,16 @@ let make = (~children) => {
   | LoggedIn(authType) =>
     switch authType {
     | BasicAuth(basicAuthInfo) => basicAuthInfo.name->Option.getOr("")
-    | TotpAuth(totpAuthInfo) => totpAuthInfo.name
+    | Auth(totpAuthInfo) => totpAuthInfo.name
     }
   | _ => ""
   }
   let (userPref, setUserPref) = React.useState(_ => userPrefInitialVal)
   let url = RescriptReactRouter.useUrl()
-  let urlPathConcationation = `/${url.path->LogicUtils.stripV4->List.toArray->Array.joinWith("/")}`
+  let urlPathConcationation = `/${url.path
+    ->LogicUtils.stripV4
+    ->List.toArray
+    ->Array.joinWithUnsafe("/")}`
   // UPDATE THE LAST VISITED TAB
   React.useEffect2(() => {
     if urlPathConcationation !== "/" {
@@ -104,7 +107,7 @@ let make = (~children) => {
             `${key}=${value}`
           },
         )
-        ->Array.joinWith("&")
+        ->Array.joinWithUnsafe("&")
       let isMarketplaceApp = urlPathConcationation == "/marketplace"
       moduleWisePref->Dict.set(
         urlPathConcationation,

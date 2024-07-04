@@ -175,11 +175,17 @@ let useGetURL = () => {
     | ANALYTICS_USER_JOURNEY
     | ANALYTICS_AUTHENTICATION
     | ANALYTICS_SYSTEM_METRICS
-    | ANALYTICS_DISPUTES =>
+    | ANALYTICS_DISPUTES
+    | ANALYTICS_ACTIVE_PAYMENTS =>
       switch methodType {
       | Get =>
         switch id {
         | Some(domain) => `analytics/v1/${domain}/info`
+        | _ => ""
+        }
+      | Post =>
+        switch id {
+        | Some(domain) => `analytics/v1/metrics/${domain}`
         | _ => ""
         }
       | _ => ""
@@ -210,10 +216,17 @@ let useGetURL = () => {
       | #NONE => ""
       | #USER_DATA => `${userUrl}/data`
       | #MERCHANT_DATA => `${userUrl}/data`
-      | #INVITE_MULTIPLE
-      | #RESEND_INVITE =>
-        `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
-      | #CONNECT_ACCOUNT => `${userUrl}/connect_account`
+      | #RESEND_INVITE
+      | #INVITE_MULTIPLE =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
+        | None => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
+        }
+      | #CONNECT_ACCOUNT =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/connect_account?${params}`
+        | None => `${userUrl}/connect_account`
+        }
       | #SWITCH_MERCHANT =>
         switch methodType {
         | Get => `${userUrl}/switch/list`
@@ -238,7 +251,10 @@ let useGetURL = () => {
       | #PERMISSION_INFO
       | #ACCEPT_INVITE_FROM_EMAIL
       | #ROTATE_PASSWORD =>
-        `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        }
       | #SIGNINV2_TOKEN_ONLY => `${userUrl}/v2/signin?token_only=true`
       | #VERIFY_EMAILV2_TOKEN_ONLY => `${userUrl}/v2/verify_email?token_only=true`
       | #SIGNUPV2 => `${userUrl}/signup`
@@ -248,11 +264,22 @@ let useGetURL = () => {
       | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
       | #VERIFY_TOTP => `${userUrl}/2fa/totp/verify`
       | #VERIFY_RECOVERY_CODE => `${userUrl}/2fa/recovery_code/verify`
-      | #INVITE_MULTIPLE_TOKEN_ONLY => `${userUrl}/user/invite_multiple?token_only=true`
+      | #INVITE_MULTIPLE_TOKEN_ONLY =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/user/invite_multiple?${params}&token_only=true`
+        | None => `${userUrl}/user/invite_multiple?token_only=true`
+        }
       | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
       | #TERMINATE_TWO_FACTOR_AUTH => `${userUrl}/2fa/terminate`
       | #CHECK_TWO_FACTOR_AUTH_STATUS => `${userUrl}/2fa`
       | #RESET_TOTP => `${userUrl}/2fa/totp/reset`
+      | #GET_AUTH_LIST =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/auth/list?${params}`
+        | None => `${userUrl}/auth/list`
+        }
+      | #AUTH_SELECT => `${userUrl}/auth/select`
+      | #SIGN_IN_WITH_SSO => `${userUrl}/oidc`
       | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
         `${userUrl}/accept_invite_from_email?token_only=true`
       | #USER_INFO => userUrl
@@ -293,59 +320,50 @@ let useGetURL = () => {
   }
   getUrl
 }
+let useHandleLogout = () => {
+  let getURL = useGetURL()
+  let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
+  let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
+  let fetchApi = AuthHooks.useApiFetcher()
 
-let sessionExpired = ref(false)
-
-let handleLogout = async (
-  ~fetchApi: (
-    string,
-    ~bodyStr: string=?,
-    ~bodyFormData: option<Fetch.formData>=?,
-    ~headers: Dict.t<string>=?,
-    ~method_: Fetch.requestMethod,
-    ~betaEndpointConfig: AuthHooks.betaEndpoint=?,
-    ~contentType: AuthHooks.contentType=?,
-    unit,
-  ) => Promise.t<Fetch.Response.t>,
-  ~setAuthStateToLogout,
-  ~setIsSidebarExpanded,
-  ~clearRecoilValue,
-  ~getURL: (
-    ~entityName: APIUtilsTypes.entityName,
-    ~methodType: Fetch.requestMethod,
-    ~id: option<string>=?,
-    ~connector: option<'a>=?,
-    ~userType: APIUtilsTypes.userType=?,
-    ~userRoleTypes: APIUtilsTypes.userRoleTypes=?,
-    ~reconType: APIUtilsTypes.reconType=?,
-    ~queryParamerters: option<string>=?,
-    unit,
-  ) => string,
-) => {
-  try {
-    setAuthStateToLogout()
-    setIsSidebarExpanded(_ => false)
-    clearRecoilValue()
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
-    let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
-    let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
-    LocalStorage.clear()
-  } catch {
-  | _ => LocalStorage.clear()
+  () => {
+    try {
+      let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
+      open Promise
+      let _ =
+        fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+        ->then(Fetch.Response.json)
+        ->then(json => {
+          json->resolve
+        })
+        ->catch(_err => {
+          JSON.Encode.null->resolve
+        })
+      setAuthStateToLogout()
+      setIsSidebarExpanded(_ => false)
+      clearRecoilValue()
+      AuthUtils.redirectToLogin()
+      LocalStorage.clear()
+    } catch {
+    | _ => LocalStorage.clear()
+    }
   }
 }
+
+let sessionExpired = ref(false)
 
 let responseHandler = async (
   ~res,
   ~showToast: ToastState.showToastFn,
   ~showErrorToast: bool,
-  ~showPopUp: React.callback<PopUpState.popUpProps, unit>,
+  ~showPopUp: PopUpState.popUpProps => unit,
   ~isPlayground,
   ~popUpCallBack,
-  ~setAuthStatus,
+  ~handleLogout,
 ) => {
   let json = try {
-    await res->Fetch.Response.json
+    await res->(res => res->Fetch.Response.json)
   } catch {
   | _ => JSON.Encode.null
   }
@@ -369,8 +387,8 @@ let responseHandler = async (
         | 401 =>
           if !sessionExpired.contents {
             showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false, ())
-            setAuthStatus(AuthProviderTypes.LoggedOut)
-            RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+            handleLogout()->ignore
+            AuthUtils.redirectToLogin()
             sessionExpired := true
           }
 
@@ -424,15 +442,11 @@ let catchHandler = (
 }
 
 let useGetMethod = (~showErrorToast=true, ()) => {
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
+  let handleLogout = useHandleLogout()
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-  let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
-  let getURL = useGetURL()
   let popUpCallBack = () =>
     showPopUp({
       popUpType: (Warning, WithIcon),
@@ -443,15 +457,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
       handleConfirm: {
         text: "Sign up Now",
         onClick: {
-          _ => {
-            let _ = handleLogout(
-              ~fetchApi,
-              ~setAuthStateToLogout,
-              ~setIsSidebarExpanded,
-              ~clearRecoilValue,
-              ~getURL,
-            )
-          }
+          _ => handleLogout()->ignore
         },
       },
     })
@@ -466,33 +472,22 @@ let useGetMethod = (~showErrorToast=true, ()) => {
         ~showPopUp,
         ~isPlayground,
         ~popUpCallBack,
-        ~setAuthStatus,
+        ~handleLogout,
       )
     } catch {
     | Exn.Error(e) =>
-      catchHandler(
-        ~err={e},
-        ~requestMethod={Fetch.Get},
-        ~showErrorToast,
-        ~showToast,
-        ~showPopUp,
-        ~isPlayground,
-        ~popUpCallBack,
-      )
+      catchHandler(~err={e}, ~showErrorToast, ~showToast, ~isPlayground, ~popUpCallBack)
     | _ => Exn.raiseError("Something went wrong")
     }
   }
 }
 
 let useUpdateMethod = (~showErrorToast=true, ()) => {
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
+  let handleLogout = useHandleLogout()
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
-  let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
   let popUpCallBack = () =>
     showPopUp({
@@ -504,14 +499,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
       handleConfirm: {
         text: "Sign up Now",
         onClick: {
-          _ => {
-            let _ = handleLogout(
-              ~fetchApi,
-              ~setAuthStateToLogout,
-              ~setIsSidebarExpanded,
-              ~clearRecoilValue,
-            )
-          }
+          _ => handleLogout()->ignore
         },
       },
     })
@@ -542,18 +530,11 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
         ~isPlayground,
         ~showPopUp,
         ~popUpCallBack,
-        ~setAuthStatus,
+        ~handleLogout,
       )
     } catch {
     | Exn.Error(e) =>
-      catchHandler(
-        ~err={e},
-        ~requestMethod={method},
-        ~showErrorToast,
-        ~showToast,
-        ~isPlayground,
-        ~popUpCallBack,
-      )
+      catchHandler(~err={e}, ~showErrorToast, ~showToast, ~isPlayground, ~popUpCallBack)
     | _ => Exn.raiseError("Something went wrong")
     }
   }

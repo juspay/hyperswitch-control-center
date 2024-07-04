@@ -3,6 +3,7 @@ let make = () => {
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()
+
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
@@ -24,7 +25,7 @@ let make = () => {
   })
 
   let onClickLoginToDashboard = async () => {
-    open TotpUtils
+    open AuthUtils
     try {
       let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITE_TOKEN_ONLY, ~methodType=Post, ())
 
