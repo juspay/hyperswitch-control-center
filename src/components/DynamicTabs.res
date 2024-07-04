@@ -146,7 +146,7 @@ module TabInfo = {
             ->String.split("+")
             ->Array.map(String.trim)
             ->Array.map(LogicUtils.snakeToTitle)
-            ->Array.joinWith(" + "),
+            ->Array.joinWithUnsafe(" + "),
           )}
           crossIcon
         </div>
@@ -176,7 +176,7 @@ module IndicationArrow = {
         refElement.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"})
+          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"}))
         )
     }
     let roundness = side == "left" ? "rounded-tr-md ml-2" : "rounded-tl-md"
@@ -287,14 +287,14 @@ let make = (
             )
             ->Array.length === 0
 
-          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
+          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
           if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
             let newTab = {
               title: concatinatedTabNames,
-              value: tabName->Array.joinWith(","),
+              value: tabName->Array.joinWithUnsafe(","),
               description: switch tabs->Array.find(
                 item => {
-                  item.value === tabName->Array.joinWith(",")
+                  item.value === tabName->Array.joinWithUnsafe(",")
                 },
               ) {
               | Some(tabValue) =>
@@ -303,7 +303,7 @@ let make = (
               },
               isRemovable: switch tabs->Array.find(
                 item => {
-                  item.value === tabName->Array.joinWith(",")
+                  item.value === tabName->Array.joinWithUnsafe(",")
                 },
               ) {
               | Some(tabValue) => tabValue.isRemovable
@@ -334,7 +334,7 @@ let make = (
       })
       ->Array.length === 0
 
-    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
+    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
 
     if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
       let concatinatedTabIndex =
@@ -344,7 +344,7 @@ let make = (
         let newTab = [
           {
             title: concatinatedTabNames,
-            value: tabName->Array.joinWith(","),
+            value: tabName->Array.joinWithUnsafe(","),
             isRemovable: true,
           },
         ]
@@ -476,8 +476,8 @@ let make = (
   }
 
   let onSubmit = values => {
-    let tabName = values->Array.map(getTitle)->Array.joinWith(" + ")
-    let tabValue = values->Array.joinWith(",")
+    let tabName = values->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
+    let tabValue = values->Array.joinWithUnsafe(",")
     if !Array.includes(collapsibleTabs->Array.map(item => item.title), tabName) {
       let newTab = [
         {
@@ -499,13 +499,13 @@ let make = (
         lastTabRef.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"})
+          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"}))
         )
       }, 200)->ignore
     } else {
       setSelectedIndex(_ => Array.indexOf(collapsibleTabs->Array.map(item => item.value), tabValue))
-      updateTabNameWith(Dict.fromArray([("tabName", `[${values->Array.joinWith(",")}]`)]))
-      setActiveTab(values->Array.joinWith(","))
+      updateTabNameWith(Dict.fromArray([("tabName", `[${values->Array.joinWithUnsafe(",")}]`)]))
+      setActiveTab(values->Array.joinWithUnsafe(","))
     }
     setShowModal(_ => false)
   }

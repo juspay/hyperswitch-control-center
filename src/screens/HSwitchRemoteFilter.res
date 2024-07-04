@@ -101,8 +101,6 @@ module SearchBarFilter = {
 
     <div className="w-64">
       {InputFields.textInput(
-        ~input=inputSearch,
-        ~placeholder,
         ~customStyle="rounded-lg placeholder:opacity-90",
         ~customPaddingClass="px-0",
         ~leftIcon=<Icon size=14 name="search" />,
@@ -110,7 +108,7 @@ module SearchBarFilter = {
         ~leftIconCustomStyle="pl-4",
         ~inputStyle="!placeholder:opacity-90",
         (),
-      )}
+      )(~input=inputSearch, ~placeholder)}
     </div>
   }
 }

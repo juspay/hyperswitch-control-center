@@ -5,7 +5,7 @@ module SurveyComponent = {
   let make = (~currentStep, ~setCurrentStep, ~currentQuestionDict, ~setCarouselDirection) => {
     let {
       globalUIConfig: {backgroundColor, border: {borderColor}, font: {textColor}},
-    } = React.useContext(ConfigContext.configContext)
+    } = React.useContext(ThemeProvider.themeContext)
     let currentQuestionValue =
       ReactFinalForm.useField(currentQuestionDict.key).input.value->LogicUtils.getStringFromJson("")
     let isNextButtonEnabled = currentQuestionValue->LogicUtils.isNonEmptyString

@@ -225,7 +225,6 @@ let make = () => {
           tableEntity={paymentTableEntity()->Some}
           deltaMetrics={getStringListFromArrayDict(metrics)}
           deltaArray=[]
-          tableUpdatedHeading=getUpdatedHeading
           tableGlobalFilter=filterByData
           weeklyTableMetricsCols
           formatData={formatData->Some}

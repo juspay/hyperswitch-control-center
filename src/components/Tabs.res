@@ -79,7 +79,7 @@ module TabInfo = {
         tabRef.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"})
+          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"}))
         )
       }
       None
@@ -110,7 +110,7 @@ module IndicationArrow = {
         refElement.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"})
+          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"}))
         )
     }
     let roundness = side == "left" ? "rounded-tr-md" : "rounded-tl-md"

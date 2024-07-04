@@ -75,7 +75,7 @@ module TableRow = {
                 switch onDateClick {
                 | Some(fn) =>
                   if obj->isNonEmptyString {
-                    fn((Date.toISOString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"))
+                    fn((Date.toISOString(date)->DayJs.getDayJsForString).format("YYYY-MM-DD"))
                   }
                 | None => ()
                 }
@@ -83,7 +83,7 @@ module TableRow = {
               }
             }
             let hSelf = highlight(
-              (Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"),
+              (Date.toString(date)->DayJs.getDayJsForString).format("YYYY-MM-DD"),
             )
 
             let dayClass = if (
@@ -160,7 +160,7 @@ module TableRow = {
                   {cellRenderer(
                     obj->isEmptyString
                       ? None
-                      : Some((Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD")),
+                      : Some((Date.toString(date)->DayJs.getDayJsForString).format("YYYY-MM-DD")),
                   )}
                 </span>
               </span>

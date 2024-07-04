@@ -143,9 +143,6 @@ module TableWrapper = {
     ~distributionArray=None,
     ~formatData=None,
   ) => {
-    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ConfigContext.configContext,
-    )
     let customFilter = Recoil.useRecoilValueFromAtom(AnalyticsAtoms.customFilterAtom)
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let filterValueDict = filterValueJson
@@ -371,7 +368,7 @@ module TableWrapper = {
     }, [activeTabStr])
 
     let transactionTableDefaultCols = React.useMemo2(() => {
-      Recoil.atom(. `${moduleName}DefaultCols${activeTabStr}`, newDefaultCols)
+      Recoil.atom(`${moduleName}DefaultCols${activeTabStr}`, newDefaultCols)
     }, (newDefaultCols, `${moduleName}DefaultCols${activeTabStr}`))
 
     let timeRange =
@@ -397,7 +394,7 @@ module TableWrapper = {
         ("filter", defaultFilters->JSON.Encode.object),
       ]->Dict.fromArray
 
-    setDefaultFilter(._ => dict->JSON.Encode.object->JSON.stringify)
+    setDefaultFilter(_ => dict->JSON.Encode.object->JSON.stringify)
 
     let modifyData = data => {
       switch formatData {
@@ -426,9 +423,8 @@ module TableWrapper = {
             </Form>
           </div>
           <UIUtils.RenderIf condition={tableData->Array.length > 0}>
-            <div
-              className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
-              <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
+            <div className={`flex items-start text-sm rounded-md gap-2 px-4 py-3`}>
+              <Icon name="info-vacent" className={`mt-1`} size=18 />
               {"'NA' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
             </div>
           </UIUtils.RenderIf>

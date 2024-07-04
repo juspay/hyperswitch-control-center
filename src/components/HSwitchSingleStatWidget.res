@@ -1,4 +1,5 @@
 type statChartColor = [#blue | #grey]
+open ApexCharts
 @react.component
 let make = (
   ~title,
@@ -39,7 +40,6 @@ let make = (
 
   let isMobileWidth = MatchMedia.useMatchMedia("(max-width: 700px)")
 
-  open ApexCharts
   let sortedData1 = React.useMemo1(() => {
     data
     ->Array.toSorted((item1, item2) => {
