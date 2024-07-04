@@ -84,11 +84,18 @@ let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
 ]
 
 let redirectToLogin = () => {
-  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+  open HyperSwitchEntryUtils
+  open HSwitchGlobalVars
+  open LogicUtils
 
-  if authId->LogicUtils.isNonEmptyString {
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=`/login?auth_id=${authId}`))
-  } else {
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=`/login`))
+  let authId = getSessionData(~key="auth_id", ())
+  let domain = getSessionData(~key="domain", ())
+
+  let urlToRedirect = switch (authId->isNonEmptyString, domain->isNonEmptyString) {
+  | (true, true) => `/login?auth_id=${authId}&domain=${domain}`
+  | (true, false) => `/login?auth_id=${authId}`
+  | (false, true) => `/login?domain=${domain}`
+  | (_, _) => `/login`
   }
+  RescriptReactRouter.push(appendDashboardPath(~url=urlToRedirect))
 }
