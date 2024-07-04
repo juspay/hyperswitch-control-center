@@ -29,7 +29,7 @@ module MultiConfigInp = {
   }
 }
 
-let renderValueInp = (~label, fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+let renderValueInp = (~label) => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   <MultiConfigInp fieldsArray label />
 }
 
@@ -267,7 +267,7 @@ module CashToCodeSelectBox = {
     ~selectedConnector,
   ) => {
     open LogicUtils
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (country, setSelectedCountry) = React.useState(_ => "")
@@ -437,7 +437,7 @@ module ConnectorConfigurationFields = {
 module BusinessProfileRender = {
   @react.component
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
     let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
@@ -458,6 +458,15 @@ module BusinessProfileRender = {
           ~name="profile_id",
           ~customInput=(~input, ~placeholder as _) =>
             InputFields.selectInput(
+              ~deselectDisable=true,
+              ~disableSelect=isUpdateFlow,
+              ~customStyle="max-h-48",
+              ~options={
+                businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption
+              },
+              ~buttonText="Select Profile",
+              (),
+            )(
               ~input={
                 ...input,
                 onChange: {
@@ -476,15 +485,7 @@ module BusinessProfileRender = {
                   }
                 },
               },
-              ~deselectDisable=true,
-              ~disableSelect=isUpdateFlow,
-              ~customStyle="max-h-48",
-              ~options={
-                businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption
-              },
-              ~buttonText="Select Profile",
               ~placeholder="",
-              (),
             ),
           (),
         )}
@@ -591,7 +592,7 @@ module ConnectorHeaderWrapper = {
     ~connectorType=ConnectorTypes.Processor,
   ) => {
     open ConnectorUtils
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let connectorNameFromType = connector->getConnectorNameTypeFromString()
     let setShowModalFunction = switch handleShowModal {
     | Some(func) => func

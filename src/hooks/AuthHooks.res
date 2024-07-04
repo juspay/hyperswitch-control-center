@@ -75,7 +75,7 @@ let useApiFetcher = () => {
       }
 
       body->then(body => {
-        setReqProgress(. p => p + 1)
+        setReqProgress(p => p + 1)
         Fetch.fetchWithInit(
           uri,
           Fetch.RequestInit.make(
@@ -88,13 +88,13 @@ let useApiFetcher = () => {
         )
         ->catch(
           err => {
-            setReqProgress(. p => p - 1)
+            setReqProgress(p => p - 1)
             reject(err)
           },
         )
         ->then(
           resp => {
-            setReqProgress(. p => p - 1)
+            setReqProgress(p => p - 1)
             if resp->Fetch.Response.status === 401 {
               switch authStatus {
               | LoggedIn(_) =>
