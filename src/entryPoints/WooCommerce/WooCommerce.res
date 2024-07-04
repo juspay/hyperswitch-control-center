@@ -218,7 +218,7 @@ module ConfigureWebHook = {
 
 @react.component
 let make = () => {
-  let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
+  let postEnumDetails = EnumVariantHook.usePostEnumDetails()
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let (selectedConnector, setSelectedConnector) = React.useState(_ => UnknownConnector(""))
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
@@ -245,7 +245,7 @@ let make = () => {
     try {
       if forward && !(stepInView->enumToValueMapper(enums)) {
         let currentStepVariant = stepInView->variantToEnumMapper
-        let _ = await Boolean(true)->usePostEnumDetails(currentStepVariant)
+        let _ = await Boolean(true)->postEnumDetails(currentStepVariant)
         setStepInView(prev => {
           switch prev {
           | PLUGIN_INSTALL => forward ? PLUGIN_CONFIGURE : PLUGIN_INSTALL

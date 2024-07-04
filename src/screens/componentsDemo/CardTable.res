@@ -43,7 +43,7 @@ module CardDetails = {
     ~isBorderEnabled=true,
     ~isAnalyticsModule,
   ) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let onCardClick = _ev => {
       switch onRowClick {
       | Some(fn) => fn(rowIndex + offset)

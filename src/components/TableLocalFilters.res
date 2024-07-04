@@ -117,7 +117,7 @@ module FilterDropDown = {
           <div onClick={e => e->ReactEvent.Mouse.stopPropagation}>
             <span
               className={`flex items-center `}
-              onClick={e => {
+              onClick={_e => {
                 setLclFltrState(val, [])
               }}>
               <Icon className="align-middle" name="cross" />

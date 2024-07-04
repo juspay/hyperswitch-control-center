@@ -1042,7 +1042,7 @@ let validateConnectorRequiredFields = (
         vector->Js.Vector.set(index, res)
       })
 
-      let _ = Js.Vector.filterInPlace((. val) => val == true, vector)
+      let _ = Js.Vector.filterInPlace(val => val == true, vector)
 
       if vector->Js.Vector.length === 0 {
         Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
@@ -1149,7 +1149,7 @@ let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
   newDict->JSON.Encode.object
 }
 
-let validate = (values, ~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => {
+let validate = (~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => values => {
   let errors = Dict.make()
   let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
   let labelArr = dict->Dict.valuesToArray

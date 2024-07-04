@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.03.0
+
+### Miscellaneous Tasks
+
+- More date filter options ([#896](https://github.com/juspay/hyperswitch-control-center/pull/896)) ([`f6df0c3`](https://github.com/juspay/hyperswitch-control-center/commit/f6df0c370207ff1e77b11cf184043e4c6761d104))
+- Upgrade to latest rescript version ([#847](https://github.com/juspay/hyperswitch-control-center/pull/847)) ([`8ca1fe4`](https://github.com/juspay/hyperswitch-control-center/commit/8ca1fe4c5f1caf32fb388b6bb1c56bc696683a0e))
+- Refactor theme ([#912](https://github.com/juspay/hyperswitch-control-center/pull/912)) ([`f757d00`](https://github.com/juspay/hyperswitch-control-center/commit/f757d0064066b3ff857fcae559f9ac6125b2534c))
+
+**Full Changelog:** [`2024.07.02.0...2024.07.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.02.0...2024.07.03.0)
+
+- - -
+
 ## 2024.07.02.0
 
 ### Miscellaneous Tasks

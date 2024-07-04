@@ -287,7 +287,7 @@ let make = (
         Some("Need atleast 1 Gateway")
       } else {
         let distributionPercentages = gateways->Belt.Array.keepMap(json => {
-          json->JSON.Decode.object->Option.flatMap(getOptionFloat(_, "split"))
+          json->JSON.Decode.object->Option.flatMap(val => val->(getOptionFloat(_, "split")))
         })
         let distributionPercentageSum =
           distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)

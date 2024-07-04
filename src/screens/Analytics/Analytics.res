@@ -90,7 +90,7 @@ module TableWrapper = {
     ~deltaMetrics: array<string>,
     ~deltaArray: array<string>,
     ~tableUpdatedHeading as _: option<
-      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
+      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>) => 'colType => Table.header,
     >,
     ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
     ~moduleName,
@@ -99,7 +99,7 @@ module TableWrapper = {
     ~formatData=None,
   ) => {
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ConfigContext.configContext,
+      ThemeProvider.themeContext,
     )
     let customFilter = Recoil.useRecoilValueFromAtom(AnalyticsAtoms.customFilterAtom)
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -108,7 +108,7 @@ module TableWrapper = {
     let (_, setDefaultFilter) = Recoil.useRecoilState(AnalyticsHooks.defaultFilter)
     let (showTable, setShowTable) = React.useState(_ => false)
     let {getHeading, allColumns, defaultColumns} = tableEntity
-    let activeTabStr = activeTab->Option.getOr([])->Array.joinWith("-")
+    let activeTabStr = activeTab->Option.getOr([])->Array.joinWithUnsafe("-")
     let (startTimeFilterKey, endTimeFilterKey) = dateKeys
     let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
     let (tableData, setTableData) = React.useState(_ => []->Array.map(Nullable.make))
@@ -149,7 +149,7 @@ module TableWrapper = {
             None
           }
         })
-        ->Array.joinWith("&")
+        ->Array.joinWithUnsafe("&")
 
       filterSearchParam
     }, [getTopLevelFilter])
@@ -325,7 +325,7 @@ module TableWrapper = {
     }, [activeTabStr])
 
     let transactionTableDefaultCols = React.useMemo2(() => {
-      Recoil.atom(. `${moduleName}DefaultCols${activeTabStr}`, newDefaultCols)
+      Recoil.atom(`${moduleName}DefaultCols${activeTabStr}`, newDefaultCols)
     }, (newDefaultCols, `${moduleName}DefaultCols${activeTabStr}`))
 
     let timeRange =
@@ -351,7 +351,7 @@ module TableWrapper = {
         ("filter", defaultFilters->JSON.Encode.object),
       ]->Dict.fromArray
 
-    setDefaultFilter(._ => dict->JSON.Encode.object->JSON.stringify)
+    setDefaultFilter(_ => dict->JSON.Encode.object->JSON.stringify)
 
     let modifyData = data => {
       switch formatData {
@@ -403,7 +403,7 @@ module TabDetails = {
     ~deltaMetrics: array<string>,
     ~deltaArray: array<string>,
     ~tableUpdatedHeading: option<
-      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
+      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>) => 'colType => Table.header,
     >,
     ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
     ~moduleName,
@@ -510,7 +510,7 @@ let make = (
   ~singleStatEntity: DynamicSingleStat.entityType<'singleStatColType, 'b, 'b2>,
   ~filterUri: option<string>,
   ~tableUpdatedHeading: option<
-    (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
+    (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>) => 'colType => Table.header,
   >=?,
   ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>=?,
   ~moduleName: string,
@@ -605,7 +605,7 @@ let make = (
       source: "BATCH",
     }
     AnalyticsUtils.filterBody(filterBodyEntity)
-  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
+  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWithUnsafe(",")))
 
   open APIUtils
   open Promise

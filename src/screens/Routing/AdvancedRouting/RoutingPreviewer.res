@@ -3,7 +3,7 @@ open RoutingTypes
 module SimplePreview = {
   @react.component
   let make = (~gateways) => {
-    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
     <UIUtils.RenderIf condition={gateways->Array.length > 0}>
       <div
         className="w-full mb-6 p-4 px-6 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
@@ -31,7 +31,7 @@ module SimplePreview = {
 module GatewayView = {
   @react.component
   let make = (~gateways, ~connectorList=?) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let getGatewayName = name => {
       switch connectorList {
       | Some(list) =>
