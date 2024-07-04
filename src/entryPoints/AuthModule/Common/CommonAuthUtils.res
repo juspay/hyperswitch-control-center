@@ -18,7 +18,12 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
       if !Js.Re.test_(%re("/^(?=.*[0-9])/"), value) {
         mustHave->Array.push("numeric")
       }
-      if !Js.Re.test_(%re("/^(?=.*[!@#$%^&*_])/"), value) {
+      if (
+        !Js.Re.test_(
+          Js.Re.fromString("^(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?`~])"),
+          value,
+        )
+      ) {
         mustHave->Array.push("special")
       }
       if Js.Re.test_(%re("/\s/"), value) {
@@ -35,6 +40,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
       }
     }
   }
+  Js.log2("errorserrors", errors)
 }
 
 let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, errors) => {
