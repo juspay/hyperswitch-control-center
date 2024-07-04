@@ -361,7 +361,7 @@ let make = (
         } else {
           startTimeFromUrl
         }
-        let granularity = LineChartUtils.getGranularity(~startTime, ~endTime=endTimeFromUrl)
+        let granularity = DynamicChart.getGranularity(~startTime, ~endTime=endTimeFromUrl)
 
         let singleStatBodyEntity = {
           filter: ?filterValueFromUrl,
