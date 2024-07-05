@@ -321,7 +321,6 @@ let chartTypeArr = [
 module GranularitySelectBox = {
   @react.component
   let make = (~selectedGranularity, ~setSelectedGranularity, ~startTime, ~endTime) => {
-    let (arrow, setArrow) = React.useState(_ => false)
     let options = getGranularity(~startTime, ~endTime)
 
     open HeadlessUI
@@ -331,7 +330,8 @@ module GranularitySelectBox = {
           <div>
             <Menu.Button
               className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-3 py-1 font-medium rounded-md hover:bg-opacity-80 bg-white border">
-              {_buttonProps => {
+              {props => {
+                let arrow = props["open"]
                 <>
                   {selectedGranularity->getGranularityFormattedText->React.string}
                   <Icon
@@ -354,12 +354,7 @@ module GranularitySelectBox = {
               leaveTo="transform opacity-0 scale-95">
               {<Menu.Items
                 className="absolute right-0 z-50 w-36 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                {props => {
-                  if props["open"] {
-                    setArrow(_ => true)
-                  } else {
-                    setArrow(_ => false)
-                  }
+                {_props => {
                   <>
                     <div className="px-1 py-1 ">
                       {options
