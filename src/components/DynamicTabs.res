@@ -350,33 +350,17 @@ let make = (
         ]
         let updatedColllapsableTab = Array.concat(collapsibleTabs, newTab)
 
-        //setTabDetails(_ => Array.concat(tabsDetails, newTab))
+        setTabDetails(_ => Array.concat(tabsDetails, newTab))
 
-        updateTabNameWith(
-          Dict.fromArray([
-            (
-              "tabName",
-              `[${getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs))}]`,
-            ),
-          ]),
-        )
         (Array.length(collapsibleTabs), updatedColllapsableTab)
       } else {
-        updateTabNameWith(
-          Dict.fromArray([
-            ("tabName", `[${getValueFromArrayTab(collapsibleTabs, concatinatedTabIndex)}]`),
-          ]),
-        )
         (concatinatedTabIndex, collapsibleTabs)
       }
     } else {
-      updateTabNameWith(
-        Dict.fromArray([("tabName", `[${getValueFromArrayTab(collapsibleTabs, 0)}]`)]),
-      )
-      //setSelectedIndex(_ => 0)
+      setSelectedIndex(_ => 0)
       (0, collapsibleTabs)
     }
-  }, [updateCollapsableTabs])
+  }, [])
 
   let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
   let (formattedOptions, setFormattedOptions) = React.useState(_ => [])
