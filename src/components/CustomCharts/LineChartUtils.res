@@ -708,26 +708,6 @@ let chartTitleStyle = (theme: ThemeProvider.theme) => {
   }
 }
 
-let getGranularity = (~startTime, ~endTime) => {
-  let diff =
-    (endTime->DateTimeUtils.parseAsFloat -. startTime->DateTimeUtils.parseAsFloat) /. (1000. *. 60.) // in minutes
-
-  // startTime
-  if diff < 60. *. 6. {
-    // Smaller than 6 hour
-
-    ["G_FIFTEENMIN", "G_FIVEMIN"]
-  } else if diff < 60. *. 24. {
-    // Smaller than 1 day
-
-    ["G_ONEHOUR", "G_THIRTYMIN", "G_FIFTEENMIN"]
-  } else if diff < 60. *. 24. *. 7. {
-    ["G_ONEDAY", "G_ONEHOUR"]
-  } else {
-    ["G_ONEDAY"]
-  }
-}
-
 let getGranularityNew = (~startTime, ~endTime) => {
   let diff =
     (endTime->DateTimeUtils.parseAsFloat -. startTime->DateTimeUtils.parseAsFloat) /. (1000. *. 60.) // in minutes
