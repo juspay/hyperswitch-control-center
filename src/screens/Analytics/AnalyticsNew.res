@@ -541,8 +541,12 @@ module OverallSummary = {
     )
 
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
+    let initTab = switch filteredTabKeys->Array.get(0) {
+    | Some(val) => [val]
+    | None => filteredTabKeys
+    }
     let (activeTav, setActiveTab) = React.useState(_ =>
-      filterValueJson->getStrArrayFromDict(`${moduleName}.tabName`, filteredTabKeys)
+      filterValueJson->getStrArrayFromDict(`${moduleName}.tabName`, initTab)
     )
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
