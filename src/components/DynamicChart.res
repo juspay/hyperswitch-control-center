@@ -22,14 +22,25 @@ let getGranularityString = granularity => {
   }
 }
 
+let getGranularityFormattedText = granularity => {
+  switch granularity {
+  | G_THIRTYSEC => "THIRTY SEC"
+  | G_ONEMIN => "ONE MIN"
+  | G_FIVEMIN => "FIVE MIN"
+  | G_FIFTEENMIN => "FIFTEEN MIN"
+  | G_THIRTYMIN => "THIRTY MIN"
+  | G_ONEHOUR => "ONE HOUR"
+  | G_ONEDAY => "ONE DAY"
+  }
+}
+
 let getGranularity = (~startTime, ~endTime) => {
   let diff =
     (endTime->DateTimeUtils.parseAsFloat -. startTime->DateTimeUtils.parseAsFloat) /. (1000. *. 60.) // in minutes
 
   // startTime
-  let options = if diff < 60. *. 6. {
+  if diff < 60. *. 6. {
     // Smaller than 6 hour
-
     [G_FIFTEENMIN, G_FIVEMIN]
   } else if diff < 60. *. 24. {
     // Smaller than 1 day
@@ -37,8 +48,6 @@ let getGranularity = (~startTime, ~endTime) => {
   } else {
     [G_ONEDAY, G_ONEHOUR, G_THIRTYMIN, G_FIFTEENMIN, G_FIVEMIN]
   }
-
-  options->Array.map(item => item->getGranularityString)
 }
 
 type chartEntity = {
@@ -324,7 +333,7 @@ module GranularitySelectBox = {
               className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-3 py-1 font-medium rounded-md hover:bg-opacity-80 bg-white border">
               {_buttonProps => {
                 <>
-                  {selectedGranularity->React.string}
+                  {selectedGranularity->getGranularityFormattedText->React.string}
                   <Icon
                     className={arrow
                       ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
@@ -344,7 +353,7 @@ module GranularitySelectBox = {
               leaveFrom="transform opacity-100 scale-100"
               leaveTo="transform opacity-0 scale-95">
               {<Menu.Items
-                className="absolute right-0 z-50 w-fit mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                className="absolute right-0 z-50 w-36 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 {props => {
                   if props["open"] {
                     setArrow(_ => true)
@@ -368,7 +377,9 @@ module GranularitySelectBox = {
                                   }
                                   `${activeClasses} font-medium text-start`
                                 }>
-                                <div className="mr-5"> {option->React.string} </div>
+                                <div className="mr-5">
+                                  {option->getGranularityFormattedText->React.string}
+                                </div>
                               </button>
                             </div>}
                         </Menu.Item>
@@ -467,7 +478,6 @@ let make = (
   }
 
   let {allFilterDimension, dateFilterKeys, currentMetrics, uriConfig, source} = entity
-
   let enableLoaders = entity.enableLoaders->Option.getOr(true)
 
   let entityAllMetrics = uriConfig->Array.reduce([], (acc, item) =>
@@ -528,16 +538,7 @@ let make = (
 
   let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
   let (rawChartData, setRawChartData) = React.useState(_ => None)
-  let (_shimmerType, setShimmerType) = React.useState(_ => AnalyticsUtils.Shimmer)
   let (groupKey, setGroupKey) = React.useState(_ => "")
-
-  React.useEffect1(() => {
-    if rawChartData !== None {
-      setShimmerType(_ => SideLoader)
-    }
-    None
-  }, [rawChartData])
-
   let (startTimeFilterKey, endTimeFilterKey) = dateFilterKeys
 
   let defaultFilters = switch modeKey {
@@ -589,7 +590,7 @@ let make = (
     ~endTime={endTimeFromUrl},
   )->Array.get(0) {
   | Some(val) => val
-  | _ => G_FIVEMIN->getGranularityString
+  | _ => G_FIVEMIN
   }
 
   let (selectedGranularity, setSelectedGranularity) = React.useState(_ => defaultGranularity)
@@ -640,7 +641,7 @@ let make = (
         start_time: startTimeFromUrl,
         end_time: endTimeFromUrl,
         filters: Some(JSON.Encode.object(filterValue)),
-        granularityOpts: selectedGranularity->Some,
+        granularityOpts: selectedGranularity->getGranularityString->Some,
         delta: false,
         startDateTime: startTimeFromUrl,
         cardinality: Some(cardinalityFromUrl),
