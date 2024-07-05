@@ -591,7 +591,7 @@ let formatLabels = (metric: metricsConfig, value: float) => {
   }
 }
 
-let getTooltipHTML = (metrics, data, onCursorName) => {
+let getTooltipHTML = (metrics, data, onCursorName, index, length) => {
   let metric_type = metrics.metric_type
   let (name, color, y_axis, secondry_metrix) = data
   let secondry_metrix_val = switch metrics.secondryMetrics {
@@ -600,13 +600,17 @@ let getTooltipHTML = (metrics, data, onCursorName) => {
   | None => ""
   }
 
-  let highlight = onCursorName == name ? "font-weight:900;font-size:13px;" : ""
+  let spacing = index !== length - 1 ? "<tr style='height: 10px;'></tr>" : ""
+
+  let highlight = onCursorName == name ? "font-weight:900;font-size:13px;" : "opacity:60%;"
+
   `<tr>
-      <td><span style='color:${color}; ${highlight}'></span></td>
-      <td><span style=${highlight}>${name}  </span></td>
+      <td><span style='height:10px; width:10px;margin-top:5px;display:inline-block; background-color:${color};border-radius:3px;margin-right:3px;fontFamily:"Inter"'/></td>
+      <td><span style='${highlight};padding-right: 10px;'>${name->LogicUtils.snakeToTitle}</span></td>
       <td><span style=${highlight}>${formatStatsAccToMetrix(metric_type, y_axis)}</span></td>
       <td><span style=${highlight}>${secondry_metrix_val}</span></td>
-  </tr>`
+  </tr>
+  ${spacing}`
 }
 
 let tooltipFormatter = (
@@ -629,17 +633,14 @@ let tooltipFormatter = (
   let onCursorName = series->getString("name", "")
   let htmlStr =
     dataArr
-    ->Array.map(data => {
-      getTooltipHTML(metrics, data, onCursorName)
+    ->Array.mapWithIndex((data, i) => {
+      getTooltipHTML(metrics, data, onCursorName, i, dataArr->Array.length)
     })
-    ->Array.joinWithUnsafe("")
+    ->Array.joinWith("")
   `<table>${htmlStr}</table>`
 }
 
-let legendItemStyle = (theme: ThemeProvider.theme) => (
-  legendFontFamilyClass,
-  legendFontSizeClass,
-) => {
+let legendItemStyle = (theme: ThemeProvider.theme, legendFontSizeClass) => {
   switch theme {
   | Dark =>
     {
@@ -647,7 +648,7 @@ let legendItemStyle = (theme: ThemeProvider.theme) => (
       "cursor": "pointer",
       "fontSize": legendFontSizeClass,
       "fontWeight": "500",
-      "fontFamily": legendFontFamilyClass,
+      "fontFamily": "Inter",
       "fontStyle": "normal",
     }->genericObjectOrRecordToJson
   | Light =>
@@ -656,7 +657,7 @@ let legendItemStyle = (theme: ThemeProvider.theme) => (
       "cursor": "pointer",
       "fontSize": legendFontSizeClass,
       "fontWeight": "500",
-      "fontFamily": legendFontFamilyClass,
+      "fontFamily": "Inter",
       "fontStyle": "normal",
     }->genericObjectOrRecordToJson
   }
@@ -695,7 +696,6 @@ let chartTitleStyle = (theme: ThemeProvider.theme) => {
       "color": "#f6f8f9",
       "fontSize": "13px",
       "fontWeight": "500",
-      "fontFamily": "IBM Plex Sans",
       "fontStyle": "normal",
     }->genericObjectOrRecordToJson
   | Light =>
@@ -703,7 +703,6 @@ let chartTitleStyle = (theme: ThemeProvider.theme) => {
       "color": "#474D59",
       "fontSize": "16px",
       "fontWeight": "500",
-      "fontFamily": "IBM Plex Sans",
       "fontStyle": "normal",
     }->genericObjectOrRecordToJson
   }

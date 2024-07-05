@@ -160,11 +160,7 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  let data = json->getQueryData->Array.map(json => singleStateItemToObjMapper(json))
-  switch data[0] {
-  | Some(ele) => ele
-  | None => singleStateInitialValue
-  }
+  json->getQueryData->Array.map(json => singleStateItemToObjMapper(json))
 }
 
 let timeSeriesObjMapper = json =>
@@ -179,7 +175,7 @@ type colT =
 let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: [SuccessRate, Count, SuccessCount, ProcessedAmount],
+    columns: [SuccessRate, Count, SuccessCount, ProcessedAmount]->generateDefaultStateColumns,
   },
 ]
 

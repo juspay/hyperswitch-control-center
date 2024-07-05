@@ -40,9 +40,9 @@ module BaseTableComponent = {
       }
     }, (tableEntity, newDefaultCols, newAllCols))
 
-    let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 rounded-sm border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30 mt-7"
+    let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 rounded-md border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30 mt-7"
 
-    <div className="flex flex-1 flex-col m-4">
+    <div className="flex flex-1 flex-col m-5">
       <RefetchContextProvider value=refetch>
         {if tableDataLoading {
           <DynamicTableUtils.TableDataLoadingIndicator showWithData={true} />
@@ -50,7 +50,7 @@ module BaseTableComponent = {
           <div className="relative">
             <div
               className="absolute font-bold text-xl bg-white w-full text-black text-opacity-75 dark:bg-jp-gray-950 dark:text-white dark:text-opacity-75">
-              {React.string("Summary Table")}
+              {React.string("Payments Summary")}
             </div>
             <LoadedTable
               visibleColumns
@@ -400,7 +400,7 @@ module TabDetails = {
       switch analyticsType {
       | AUTHENTICATION | USER_JOURNEY =>
         `h-auto basis-full mt-4 ${isMobileView ? "w-full" : "w-1/2"}`
-      | _ => "bg-white border rounded p-8 mt-5 mb-7"
+      | _ => "bg-white border rounded-lg p-8 mt-3 mb-7"
       }
     , [isMobileView])
 
@@ -500,7 +500,6 @@ let make = (
     FilterContext.filterContext,
   )
 
-  let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)
   let chartEntity1 = chartEntity.default // User Journey - SemiDonut (Payment Metrics), Others - Default Chart Entity
@@ -699,7 +698,6 @@ let make = (
               endTimeFilterKey
               filterKeys=chartEntity.allFilterDimension
               moduleName
-              setTotalVolume
               showPercentage=false
               statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
             />
@@ -827,7 +825,7 @@ let make = (
                 }}
               </div>
             | _ =>
-              <div className="flex flex-col h-full overflow-scroll w-full">
+              <div className="flex flex-col h-full overflow-scroll w-full mt-5">
                 <DynamicTabs
                   tabs=filteredTabVales
                   maxSelection=3

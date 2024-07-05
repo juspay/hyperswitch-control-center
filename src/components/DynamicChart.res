@@ -427,15 +427,7 @@ let make = (
   let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
   let (granularity, setGranularity) = React.useState(_ => None)
   let (rawChartData, setRawChartData) = React.useState(_ => None)
-  let (shimmerType, setShimmerType) = React.useState(_ => AnalyticsUtils.Shimmer)
   let (groupKey, setGroupKey) = React.useState(_ => "")
-
-  React.useEffect1(() => {
-    if rawChartData !== None {
-      setShimmerType(_ => SideLoader)
-    }
-    None
-  }, [rawChartData])
 
   let (startTimeFilterKey, endTimeFilterKey) = dateFilterKeys
 
@@ -737,8 +729,8 @@ let make = (
           <form onSubmit={handleSubmit}>
             <AddDataAttributes attributes=[("data-chart-segment", "Chart-1")]>
               <div
-                className="border rounded bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart pt-7">
-                {if chartLoading && shimmerType === Shimmer {
+                className="border rounded-lg bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart pt-7">
+                {if chartLoading {
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else if comparitionWidget {
                   <div>

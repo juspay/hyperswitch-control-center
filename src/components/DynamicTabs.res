@@ -53,7 +53,7 @@ module TabInfo = {
 
     let defaultThemeBasedClass = `${fontClass} px-6`
 
-    let defaultClasses = `font-semibold ${defaultThemeBasedClass} w-max flex flex-auto flex-row items-center justify-center text-body`
+    let defaultClasses = `font-semibold ${defaultThemeBasedClass} w-max flex flex-auto flex-row items-center justify-center text-body mb-1`
     let selectionClasses = if isSelected {
       "font-semibold text-black"
     } else {
@@ -75,10 +75,8 @@ module TabInfo = {
     let bottomBorderColor = ""
     let borderClass = ""
 
-    let tabHeight = "47px"
-
     let lineStyle = "bg-black w-full h-0.5 rounded-full"
-
+    open UIUtils
     let crossIcon = switch isRemovable {
     | true =>
       <svg
@@ -153,16 +151,16 @@ module TabInfo = {
           crossIcon
         </div>
         <div />
-        {if isSelected {
+        <RenderIf condition={isSelected}>
           <FramerMotion.Motion.Div className=lineStyle layoutId="underline" />
-        } else {
-          <div className="h-0.5" />
-        }}
+        </RenderIf>
+        <RenderIf condition={!isSelected}>
+          <div className="w-full h-0.5 rounded-full" />
+        </RenderIf>
       </div>
 
     <div
-      className={`flex flex-row cursor-pointer pt-0.5 pb-0 ${borderClass} ${bottomBorderColor} items-center`}
-      style={ReactDOMStyle.make(~height=tabHeight, ())}>
+      className={`flex flex-row cursor-pointer pt-0.5 pb-0 ${borderClass} ${bottomBorderColor} items-center h-14`}>
       {tab}
     </div>
   }
@@ -354,31 +352,15 @@ let make = (
 
         setTabDetails(_ => Array.concat(tabsDetails, newTab))
 
-        updateTabNameWith(
-          Dict.fromArray([
-            (
-              "tabName",
-              `[${getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs))}]`,
-            ),
-          ]),
-        )
         (Array.length(collapsibleTabs), updatedColllapsableTab)
       } else {
-        updateTabNameWith(
-          Dict.fromArray([
-            ("tabName", `[${getValueFromArrayTab(collapsibleTabs, concatinatedTabIndex)}]`),
-          ]),
-        )
         (concatinatedTabIndex, collapsibleTabs)
       }
     } else {
-      updateTabNameWith(
-        Dict.fromArray([("tabName", `[${getValueFromArrayTab(collapsibleTabs, 0)}]`)]),
-      )
       setSelectedIndex(_ => 0)
       (0, collapsibleTabs)
     }
-  }, [updateCollapsableTabs])
+  }, [])
 
   let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
   let (formattedOptions, setFormattedOptions) = React.useState(_ => [])
