@@ -735,7 +735,7 @@ let make = (
                 } else if comparitionWidget {
                   <div>
                     {entityAllMetrics
-                    ->Array.map(selectedMetrics => {
+                    ->Array.mapWithIndex((selectedMetrics, index) => {
                       switch uriConfig->Array.get(0) {
                       | Some(metricsUri) => {
                           let (data, legendData, timeCol) = switch rawChartData
@@ -750,6 +750,7 @@ let make = (
                           }
 
                           <HighchartTimeSeriesChart.LineChart1D
+                            key={index->Int.toString}
                             class="flex overflow-scroll"
                             rawChartData=data
                             selectedMetrics
