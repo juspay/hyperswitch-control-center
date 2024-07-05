@@ -50,8 +50,15 @@ let make = (
   }
 
   let (text, setText) = React.useState(_ => "")
+  let (makeChip, setMakeChip) = React.useState(_ => false)
+  let (shiftPressed, setShiftPressed) = React.useState(_ => false)
+
   let customStyleClass = customStyle->Option.getOr("gap-2 w-full px-1 py-1")
   let onTagRemove = text => {
+    if makeChip {
+      setText(_ => "")
+      setMakeChip(_ => false)
+    }
     setTags(currentTags->Array.filter(tag => tag !== text))
   }
   let keyDownCondition = React.useMemo0(() => {
@@ -66,6 +73,13 @@ let make = (
   })
   let handleKeyDown = e => {
     open ReactEvent.Keyboard
+
+    if e->key === "Shift" {
+      setShiftPressed(_ => true)
+    } else if e->key != "2" {
+      setShiftPressed(_ => false)
+    }
+
     let isEmpty = text->LogicUtils.isEmptyString
 
     if isEmpty && (e->key === "Backspace" || e->keyCode === 8) && currentTags->Array.length > 0 {
@@ -106,7 +120,15 @@ let make = (
         } else if !(currentTags->Array.includes(text->String.trim)) {
           setTags(currentTags->Array.concat([text->String.trim]))
         }
+        setMakeChip(_ => false)
         setText(_ => "")
+      } else if e->keyCode === 50 {
+        if shiftPressed === true && e->key === "2" {
+          setMakeChip(_ => true)
+          setShiftPressed(_ => false)
+        } else if e->key === "@" {
+          setMakeChip(_ => true)
+        }
       }
     }
   }
@@ -154,7 +176,14 @@ let make = (
       ?autoComplete
       onKeyUp=handleKeyDown
       isDisabled=disabled
-      customStyle="dark:bg-jp-gray-970 border-none"
+      customStyle={makeChip
+        ? "dark:bg-jp-gray-970 border rounded-full"
+        : "dark:bg-jp-gray-970 border-none"}
+      customWidth={makeChip ? "w-min" : "w-full"}
+      rightIcon={makeChip
+        ? <Icon name="close" size=10 className="mr-1" onClick={_ => onTagRemove(text)} />
+        : React.null}
+      rightIconOnClick={makeChip ? _ => onTagRemove(text) : _ => ()}
     />
   </div>
 }
