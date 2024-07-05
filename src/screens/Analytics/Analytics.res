@@ -677,8 +677,6 @@ let make = (
     </div>
   }
 
-  Js.log2(">>", activeTab)
-
   <UIUtils.RenderIf condition={filterValueDict->Dict.toArray->Array.length > 0}>
     {switch chartEntity1 {
     | Some(chartEntity) =>
