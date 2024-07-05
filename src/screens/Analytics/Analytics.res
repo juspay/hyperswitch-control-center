@@ -350,7 +350,6 @@ module TableWrapper = {
         ),
         ("filter", defaultFilters->JSON.Encode.object),
       ]->Dict.fromArray
-
     // setDefaultFilter(_ => dict->JSON.Encode.object->JSON.stringify)
 
     let modifyData = data => {

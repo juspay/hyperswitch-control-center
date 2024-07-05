@@ -353,10 +353,6 @@ let make = (
         let updatedColllapsableTab = Array.concat(collapsibleTabs, newTab)
 
         setTabDetails(_ => Array.concat(tabsDetails, newTab))
-        Js.log2(
-          getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs)),
-          "getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs))",
-        )
         // setActiveTab(getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs)))
         updateTabNameWith(
           Dict.fromArray([
