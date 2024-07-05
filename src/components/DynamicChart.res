@@ -540,13 +540,6 @@ let make = (
   let (rawChartData, setRawChartData) = React.useState(_ => None)
   let (groupKey, setGroupKey) = React.useState(_ => "")
 
-  React.useEffect1(() => {
-    if rawChartData !== None {
-      setShimmerType(_ => SideLoader)
-    }
-    None
-  }, [rawChartData])
-
   let (startTimeFilterKey, endTimeFilterKey) = dateFilterKeys
 
   let defaultFilters = switch modeKey {
@@ -820,7 +813,7 @@ let make = (
             <AddDataAttributes attributes=[("data-chart-segment", "Chart-1")]>
               <div
                 className="border rounded bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart pt-7">
-                {if chartLoading && shimmerType === Shimmer {
+                {if chartLoading {
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else if comparitionWidget {
                   <div>
