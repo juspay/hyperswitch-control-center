@@ -528,7 +528,7 @@ let make = (
 
   let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
   let (rawChartData, setRawChartData) = React.useState(_ => None)
-  let (shimmerType, setShimmerType) = React.useState(_ => AnalyticsUtils.Shimmer)
+  let (_shimmerType, setShimmerType) = React.useState(_ => AnalyticsUtils.Shimmer)
   let (groupKey, setGroupKey) = React.useState(_ => "")
 
   React.useEffect1(() => {
@@ -611,14 +611,6 @@ let make = (
 
     filterSearchParam
   }, [topFiltersToSearchParam])
-
-  let current_granularity = if (
-    startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString
-  ) {
-    getGranularity(~startTime=startTimeFromUrl, ~endTime=endTimeFromUrl)
-  } else {
-    []
-  }
 
   React.useEffect2(() => {
     setSelectedGranularity(_ => defaultGranularity)
