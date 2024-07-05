@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.05.0
+
+### Bug Fixes
+
+- Accept invite flow breaking for non-auth users ([#919](https://github.com/juspay/hyperswitch-control-center/pull/919)) ([`03cc8c9`](https://github.com/juspay/hyperswitch-control-center/commit/03cc8c90009560628f590032abf0813c9717c14b))
+
+**Full Changelog:** [`2024.07.04.0...2024.07.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.04.0...2024.07.05.0)
+
+- - -
+
 ## 2024.07.04.0
 
 ### Bug Fixes
