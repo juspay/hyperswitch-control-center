@@ -4,7 +4,11 @@ open HSAnalyticsUtils
 let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: [SuccessRate],
+    columns: [
+      {
+        colType: SuccessRate,
+      },
+    ],
   },
 ]
 

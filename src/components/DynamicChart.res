@@ -539,6 +539,14 @@ let make = (
   let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
   let (rawChartData, setRawChartData) = React.useState(_ => None)
   let (groupKey, setGroupKey) = React.useState(_ => "")
+
+  React.useEffect1(() => {
+    if rawChartData !== None {
+      setShimmerType(_ => SideLoader)
+    }
+    None
+  }, [rawChartData])
+
   let (startTimeFilterKey, endTimeFilterKey) = dateFilterKeys
 
   let defaultFilters = switch modeKey {
@@ -811,8 +819,8 @@ let make = (
           <form onSubmit={handleSubmit}>
             <AddDataAttributes attributes=[("data-chart-segment", "Chart-1")]>
               <div
-                className="border rounded bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart">
-                {if chartLoading {
+                className="border rounded bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart pt-7">
+                {if chartLoading && shimmerType === Shimmer {
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else if comparitionWidget {
                   <div>
@@ -825,7 +833,7 @@ let make = (
                       />
                     </div>
                     {entityAllMetrics
-                    ->Array.map(selectedMetrics => {
+                    ->Array.mapWithIndex((selectedMetrics, index) => {
                       switch uriConfig->Array.get(0) {
                       | Some(metricsUri) => {
                           let (data, legendData, timeCol) = switch rawChartData
@@ -840,6 +848,7 @@ let make = (
                           }
 
                           <HighchartTimeSeriesChart.LineChart1D
+                            key={index->Int.toString}
                             class="flex overflow-scroll"
                             rawChartData=data
                             selectedMetrics
