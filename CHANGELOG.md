@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.05.1
+
+### Features
+
+- Analytics more granularity to the graphs ([#924](https://github.com/juspay/hyperswitch-control-center/pull/924)) ([`58fbd32`](https://github.com/juspay/hyperswitch-control-center/commit/58fbd3226a6f063232f7f4a5ac730faf8ff73316))
+
+### Bug Fixes
+
+- Analytics warnings ([#925](https://github.com/juspay/hyperswitch-control-center/pull/925)) ([`67d85a8`](https://github.com/juspay/hyperswitch-control-center/commit/67d85a8f1f906a1712afd385b23831032f276f97))
+
+### Miscellaneous Tasks
+
+- Analytics filters separation ([#863](https://github.com/juspay/hyperswitch-control-center/pull/863)) ([`dfa33ef`](https://github.com/juspay/hyperswitch-control-center/commit/dfa33ef6ab50786ca61e18b8597a10b486b03430))
+
+**Full Changelog:** [`2024.07.05.0...2024.07.05.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.05.0...2024.07.05.1)
+
+- - -
+
 ## 2024.07.05.0
 
 ### Bug Fixes
