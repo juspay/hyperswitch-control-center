@@ -205,8 +205,10 @@ let make = (
               <>
                 {value
                 ->Array.filterWithIndex((_val, index) => index < 5)
-                ->Array.map(item => {
-                  <div className="flex justify-between w-full text-sm opacity-70">
+                ->Array.mapWithIndex((item, index) => {
+                  <div
+                    key={index->Int.toString}
+                    className="flex justify-between w-full text-sm opacity-70">
                     <div> {item.rowLabel->React.string} </div>
                     <div> {item.rowValue->statValue(statType)->React.string} </div>
                   </div>

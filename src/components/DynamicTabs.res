@@ -350,7 +350,7 @@ let make = (
         ]
         let updatedColllapsableTab = Array.concat(collapsibleTabs, newTab)
 
-        setTabDetails(_ => Array.concat(tabsDetails, newTab))
+        //setTabDetails(_ => Array.concat(tabsDetails, newTab))
 
         updateTabNameWith(
           Dict.fromArray([
@@ -373,7 +373,7 @@ let make = (
       updateTabNameWith(
         Dict.fromArray([("tabName", `[${getValueFromArrayTab(collapsibleTabs, 0)}]`)]),
       )
-      setSelectedIndex(_ => 0)
+      //setSelectedIndex(_ => 0)
       (0, collapsibleTabs)
     }
   }, [updateCollapsableTabs])
