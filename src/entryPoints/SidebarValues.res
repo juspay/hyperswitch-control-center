@@ -466,15 +466,75 @@ let developers = (isDevelopersEnabled, userRole, systemMetrics, ~permissionJson)
     : emptyComponent
 }
 
-let reconTag = (recon, isReconEnabled) =>
-  recon
-    ? Link({
-        name: "Reconcilation",
-        icon: isReconEnabled ? "recon" : "recon-lock",
-        link: `/recon`,
-        access: Access,
-      })
-    : emptyComponent
+let uploadReconFiles = permissionJson => {
+  SubLevelLink({
+    name: "Upload Recon Files",
+    link: `/upload-recon-files`,
+    access: permissionJson.analyticsView,
+    searchOptions: [("Upload recon files", "")],
+  })
+}
+
+let runRecon = permissionJson => {
+  SubLevelLink({
+    name: "Run Recon",
+    link: `/run-recon`,
+    access: permissionJson.analyticsView,
+    searchOptions: [("Run recon", "")],
+  })
+}
+
+let reconAnalytics = permissionJson => {
+  SubLevelLink({
+    name: "Analytics",
+    link: `/analytics-recon-and-settlement`,
+    access: permissionJson.analyticsView,
+    searchOptions: [("Recon analytics", "")],
+  })
+}
+let reconReports = permissionJson => {
+  SubLevelLink({
+    name: "Reports",
+    link: `/recon/reports/reconciliation`,
+    access: permissionJson.analyticsView,
+    searchOptions: [("Recon reports", "")],
+  })
+}
+
+let reconTag = (recon, isReconEnabled, ~permissionJson) => {
+  let uploadReconFiles = uploadReconFiles(permissionJson)
+  let runRecon = runRecon(permissionJson)
+  let reconAnalytics = reconAnalytics(permissionJson)
+  let reconReports = reconReports(permissionJson)
+
+  switch (recon, isReconEnabled) {
+  | (true, true) =>
+    Section({
+      name: "Recon And Settlement",
+      icon: "recon",
+      showSection: true,
+      links: [uploadReconFiles, runRecon, reconAnalytics, reconReports],
+    })
+  | (true, false) =>
+    Link({
+      name: "Reconcilation",
+      icon: "recon",
+      link: `/recon`,
+      access: Access,
+    })
+  | (_, _) => emptyComponent
+  }
+}
+// recon
+//   ?
+
+//   Link({
+//       name: "Reconcilation",
+//       icon: isReconEnabled ? "recon" : "recon-lock",
+//       link: `/recon`,
+//       access: Access,
+//     })
+//   : emptyComponent
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
   let {user_role: userRole} =
@@ -517,7 +577,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~permissionJson,
     ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
-    recon->reconTag(isReconEnabled),
+    recon->reconTag(isReconEnabled, ~permissionJson),
     default->developers(userRole, systemMetrics, ~permissionJson),
     settings(
       ~isSampleDataEnabled=sampleData,

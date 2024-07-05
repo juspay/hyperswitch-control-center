@@ -458,6 +458,13 @@ let make = () => {
                           <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
                             <Recon />
                           </AccessControl>
+                        | list{"upload-recon-files"}
+                        | list{"run-recon"}
+                        | list{"analytics-recon-and-settlement"}
+                        | list{"recon", "reports", "reconciliation"} =>
+                          <ReconModule
+                            url={url.path->urlPath->List.toArray->Array.joinWithUnsafe("/")}
+                          />
                         | list{"sdk"} =>
                           <AccessControl
                             isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
