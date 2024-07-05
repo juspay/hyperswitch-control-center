@@ -353,7 +353,11 @@ let make = (
         let updatedColllapsableTab = Array.concat(collapsibleTabs, newTab)
 
         setTabDetails(_ => Array.concat(tabsDetails, newTab))
-        setActiveTab(getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs)))
+        Js.log2(
+          getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs)),
+          "getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs))",
+        )
+        // setActiveTab(getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs)))
         updateTabNameWith(
           Dict.fromArray([
             (
@@ -364,7 +368,7 @@ let make = (
         )
         (Array.length(collapsibleTabs), updatedColllapsableTab)
       } else {
-        setActiveTab(getValueFromArrayTab(collapsibleTabs, concatinatedTabIndex))
+        // setActiveTab(getValueFromArrayTab(collapsibleTabs, concatinatedTabIndex))
 
         updateTabNameWith(
           Dict.fromArray([
@@ -374,7 +378,7 @@ let make = (
         (concatinatedTabIndex, collapsibleTabs)
       }
     } else {
-      setActiveTab(getValueFromArrayTab(collapsibleTabs, 0))
+      // setActiveTab(getValueFromArrayTab(collapsibleTabs, 0))
 
       updateTabNameWith(
         Dict.fromArray([("tabName", `[${getValueFromArrayTab(collapsibleTabs, 0)}]`)]),
