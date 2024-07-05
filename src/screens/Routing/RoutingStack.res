@@ -18,7 +18,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
   }, [previewOnly])
 
-  let tabs: array<Tabs.tab> = React.useMemo0(() => {
+  let tabs: array<Tabs.tab> = React.useMemo1(() => {
     open Tabs
     [
       {
@@ -39,7 +39,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         renderContent: () => <ActiveRouting routingType />,
       },
     ]
-  })
+  }, [routingType])
 
   let fetchRoutingRecords = async activeIds => {
     try {
