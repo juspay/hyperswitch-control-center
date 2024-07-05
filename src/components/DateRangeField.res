@@ -205,10 +205,10 @@ module Base = {
       Date.make()->Date.toString->DayJs.getDayJsForString
     }, [isDropdownExpanded])
 
-    let currentTime = todayDayJsObj.format(. "HH:mm")
-    let todayDate = todayDayJsObj.format(. "YYYY-MM-DD")
+    let currentTime = todayDayJsObj.format("HH:mm")
+    let todayDate = todayDayJsObj.format("YYYY-MM-DD")
     let todayTime = React.useMemo1(() => {
-      todayDayJsObj.format(. "HH:mm:ss")
+      todayDayJsObj.format("HH:mm:ss")
     }, [currentTime])
 
     let initialStartTime = disableFutureDates || selectStandardTime ? "00:00:00" : "23:59:59"
@@ -560,7 +560,7 @@ module Base = {
         DateRangeUtils.datetext(value, disableFutureDates)
         ->String.toLowerCase
         ->String.split(" ")
-        ->Array.joinWith("_")
+        ->Array.joinWithUnsafe("_")
       )
       changeStartDate(stDate, false, Some(stTime))
       changeEndDate(enDate, false, Some(enTime))

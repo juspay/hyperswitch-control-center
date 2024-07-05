@@ -4,7 +4,7 @@ module DisputesNoteComponent = {
   @react.component
   let make = (~disputesData: DisputeTypes.disputes) => {
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ConfigContext.configContext,
+      ThemeProvider.themeContext,
     )
     let connectorTypeFromName = disputesData.connector->getConnectorNameTypeFromString()
     let dashboardLink = {

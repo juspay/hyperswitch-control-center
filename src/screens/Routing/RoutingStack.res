@@ -4,7 +4,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
-  let pathVar = url.path->List.toArray->Array.joinWith("/")
+  let pathVar = url.path->List.toArray->Array.joinWithUnsafe("/")
 
   let (records, setRecords) = React.useState(_ => [])
   let (activeRoutingIds, setActiveRoutingIds) = React.useState(_ => [])
@@ -18,7 +18,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
   }, [previewOnly])
 
-  let tabs: array<Tabs.tab> = React.useMemo(() => {
+  let tabs: array<Tabs.tab> = React.useMemo1(() => {
     open Tabs
     [
       {
@@ -39,7 +39,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         renderContent: () => <ActiveRouting routingType />,
       },
     ]
-  })
+  }, [routingType])
 
   let fetchRoutingRecords = async activeIds => {
     try {
@@ -142,7 +142,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
                 defaultClasses="!w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
                 onTitleClick={indx => {
                   setTabIndex(_ => indx)
-                  setCurrentTabName(._ => getTabName(indx))
+                  setCurrentTabName(_ => getTabName(indx))
                 }}
               />}
           />

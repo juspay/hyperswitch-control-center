@@ -8,7 +8,7 @@ let make = (
   ~isSeparate=false,
   ~buttonSize=?,
 ) => {
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let onChange = str => input.onChange(str->Identity.stringToFormReactEvent)
   let buttonState = {isDisabled ? Button.Disabled : Button.Normal}
 

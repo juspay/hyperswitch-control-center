@@ -39,7 +39,7 @@ let make = (
   ~removeValidationCheck=false,
 ) => {
   let {globalUIConfig: {shadow: {shadowColor}, border: {borderColor}}} = React.useContext(
-    ConfigContext.configContext,
+    ThemeProvider.themeContext,
   )
   let showPopUp = PopUpState.useShowPopUp()
   let isInValid = try {

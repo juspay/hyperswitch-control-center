@@ -45,7 +45,7 @@ module MerchantBussinessCountry = {
   }
 }
 
-let renderCountryInp = (options, fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+let renderCountryInp = options => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   <MerchantBussinessCountry fieldsArray options />
 }
 
@@ -115,7 +115,7 @@ module Simplified = {
       open Promise
       let downloadURL = Window.env.applePayCertificateUrl->Option.getOr("")
       fetchApi(downloadURL, ~method_=Get, ())
-      ->then(Fetch.Response.blob)
+      ->then(res => res->Fetch.Response.blob)
       ->then(content => {
         DownloadUtils.download(
           ~fileName=`apple-developer-merchantid-domain-association`,
@@ -213,7 +213,7 @@ module Fields = {
     open FormRenderer
     open LogicUtils
     let form = ReactFinalForm.useForm()
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let processingAt =
       metaData
       ->getDictFromJsonObject

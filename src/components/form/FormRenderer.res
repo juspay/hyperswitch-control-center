@@ -2,8 +2,8 @@ open InputFields
 type inputFieldType = {
   name: string,
   placeholder: string,
-  format: option<(. ~value: JSON.t, ~name: string) => JSON.t>,
-  parse: option<(. ~value: JSON.t, ~name: string) => JSON.t>,
+  format: option<(~value: JSON.t, ~name: string) => JSON.t>,
+  parse: option<(~value: JSON.t, ~name: string) => JSON.t>,
   disabled: bool,
   isRequired: bool,
   @as("type") type_: string,
@@ -265,7 +265,7 @@ module FieldWrapper = {
           }}
         </>}
         children
-        {switch subText->Option.flatMap(LogicUtils.getNonEmptyString) {
+        {switch subText->Option.flatMap(val => val->LogicUtils.getNonEmptyString) {
         | Some(subText) => <div className=subTextClass> {React.string(subText)} </div>
         | None => React.null
         }}
@@ -468,7 +468,7 @@ module FieldRenderer = {
     let isVisible = true
 
     if isVisible {
-      let names = field.inputNames->Array.joinWith("-")
+      let names = field.inputNames->Array.joinWithUnsafe("-")
 
       <Portal to=portalKey>
         <AddDataAttributes attributes=[("data-component", "fieldRenderer")]>
@@ -706,7 +706,7 @@ module SubmitButton = {
 
           `${key->LogicUtils.snakeToTitle}: ${value}`
         })
-        ->Array.joinWith("\n")
+        ->Array.joinWithUnsafe("\n")
 
       if showToolTip && !avoidDisable {
         <ToolTip

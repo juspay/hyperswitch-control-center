@@ -12,7 +12,7 @@ let make = (
   ~nameToURLMapper,
   ~filteredKeys=[],
 ) => {
-  let {globalUIConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
   let headerStyle = "text-sm font-medium text-gray-700 break-all"
   let logType = dataDict->getLogType
   let apiName = switch logType {

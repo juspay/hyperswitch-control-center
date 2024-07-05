@@ -221,9 +221,9 @@ module NestedSidebarItem = {
                     <RenderIf condition={iconTag->Belt.Option.isSome && isSideBarExpanded}>
                       <div className=linkTagPadding>
                         <Icon
-                          size={iconSize->Belt.Option.getWithDefault(26)}
-                          name={iconTag->Belt.Option.getWithDefault("")}
-                          className={iconStyles->Belt.Option.getWithDefault("w-26 h-26")}
+                          size={iconSize->Option.getOr(26)}
+                          name={iconTag->Option.getOr("")}
+                          className={iconStyles->Option.getOr("w-26 h-26")}
                         />
                       </div>
                     </RenderIf>
@@ -498,7 +498,7 @@ let make = (
   open UIUtils
   open CommonAuthHooks
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
-    ConfigContext.configContext,
+    ThemeProvider.themeContext,
   )
 
   let handleLogout = APIUtils.useHandleLogout()
@@ -561,6 +561,31 @@ let make = (
 
   let transformClass = "transform md:translate-x-0 transition"
 
+  let sidebarScrollbarCss = `
+  @supports (-webkit-appearance: none){
+    .sidebar-scrollbar {
+        scrollbar-width: auto;
+        scrollbar-color: #8a8c8f;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar {
+        display: block;
+        overflow: scroll;
+        height: 4px;
+        width: 5px;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #8a8c8f;
+        border-radius: 3px;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar-track {
+        display: none;
+      }
+}
+  `
+
   <div
     className={`${backgroundColor.primaryNormal} flex group border-r border-jp-gray-500 relative`}>
     <div
@@ -588,8 +613,9 @@ let make = (
           <PinIconComponentStates isHSSidebarPinned setIsSidebarExpanded isSidebarExpanded />
         </div>
         <div
-          className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden show-scrollbar"
+          className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar"
           style={ReactDOMStyle.make(~height=`calc(100vh - ${verticalOffset})`, ())}>
+          <style> {React.string(sidebarScrollbarCss)} </style>
           {sidebars
           ->Array.mapWithIndex((tabInfo, index) => {
             switch tabInfo {
@@ -650,7 +676,7 @@ let make = (
                     }
                     `${openClasses} border-none`
                   }>
-                  {buttonProps => <>
+                  {_buttonProps => <>
                     <div className="flex items-center">
                       <div
                         className="inline-block text-offset_white bg-profile-sidebar-blue text-center w-10 h-10 leading-10 rounded-full mr-4">
