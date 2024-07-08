@@ -137,6 +137,14 @@ let paymentProcessingMapper = state => {
   }
 }
 
+let initiativeMapper = state => {
+  switch state->String.toLowerCase {
+  | "ios" => #ios
+  | "web" => #web
+  | _ => #web
+  }
+}
+
 let applePayIntegrationTypeMapper = state => {
   switch state->String.toLowerCase {
   | "manual" => #manual
@@ -166,6 +174,24 @@ let validateZenFlow = values => {
     : Button.Disabled
 }
 
+let validateInitiative = data => {
+  switch data.initiative {
+  | Some(value) => value->initiativeMapper == #web ? data.initiative_context->Option.isSome : true
+  | None => false
+  }
+}
+
+let validatePaymentProcessingDetailsAt = data => {
+  switch data.payment_processing_details_at {
+  | Some(value) =>
+    value->paymentProcessingMapper == #Hyperswitch
+      ? data.payment_processing_certificate->Option.isSome &&
+          data.payment_processing_certificate_key->Option.isSome
+      : true
+  | None => false
+  }
+}
+
 let validateManualFlow = values => {
   let data =
     values
@@ -173,7 +199,11 @@ let validateManualFlow = values => {
     ->getDictfromDict("metadata")
     ->getDictfromDict("apple_pay_combined")
     ->sessionToken
-  data.initiative_context->Option.isSome && data.merchant_business_country->Option.isSome
+  data->validateInitiative &&
+  data.certificate->Option.isSome &&
+  data.display_name->Option.isSome &&
+  data.merchant_identifier->Option.isSome &&
+  data->validatePaymentProcessingDetailsAt
     ? Button.Normal
     : Button.Disabled
 }
@@ -209,11 +239,3 @@ let constructVerifyApplePayReq = (values, connectorID) => {
   }
   body
 }
-
-/*
-
-   | `supported_networks` =>
-    `metadata.apple_pay_combined.${(integrationType->Option.getOr(
-        #manual,
-      ): applePayIntegrationType :> string)}.payment_request_data.${name}`
- */

@@ -109,6 +109,93 @@ module PaymentProcessingDetailsAt = {
   }
 }
 
+module Initiative = {
+  @react.component
+  let make = (~applePayField) => {
+    open LogicUtils
+    open ApplePayIntegrationUtilsV2
+    let form = ReactFinalForm.useForm()
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let initalFormValue =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("metadata")
+      ->getDictfromDict("apple_pay_combined")
+      ->manual
+
+    let initalInitiative =
+      initalFormValue.session_token_data.initiative
+      ->Option.getOr((#web: initiativeState :> string))
+      ->initiativeMapper
+    let (initiative, setInitiative) = React.useState(_ => initalInitiative)
+
+    let onChangeItem = (event: ReactEvent.Form.t) => {
+      let value = event->Identity.formReactEventToString->initiativeMapper
+      setInitiative(_ => value)
+      if value === #ios {
+        form.change(
+          `${ApplePayIntegrationUtilsV2.applePayNameMapper(
+              ~name="initiative_context",
+              ~integrationType=Some(#manual),
+            )}`,
+          JSON.Encode.null,
+        )
+      }
+    }
+    let domainValues = [
+      [("label", "IOS/WEB"->JSON.Encode.string), ("value", "web"->JSON.Encode.string)]
+      ->Dict.fromArray
+      ->JSON.Encode.object,
+      [("label", "IOS"->JSON.Encode.string), ("value", "ios"->JSON.Encode.string)]
+      ->Dict.fromArray
+      ->JSON.Encode.object,
+    ]
+    let initiativeOptions = domainValues->Array.map(item => {
+      let dict = item->getDictFromJsonObject
+      let a: SelectBox.dropdownOption = {
+        label: dict->getString("label", ""),
+        value: dict->getString("value", ""),
+      }
+      a
+    })
+    <>
+      <FormRenderer.FieldRenderer
+        labelClass="font-semibold !text-hyperswitch_black"
+        field={CommonMetaDataHelper.selectInput(
+          ~field={applePayField},
+          ~formName={
+            ApplePayIntegrationUtilsV2.applePayNameMapper(
+              ~name="initiative",
+              ~integrationType=Some(#manual),
+            )
+          },
+          ~onItemChange=onChangeItem,
+          ~opt=Some(initiativeOptions),
+          (),
+        )}
+      />
+      {switch initiative {
+      | #web =>
+        <FormRenderer.FieldRenderer
+          labelClass="font-semibold !text-hyperswitch_black"
+          field={CommonMetaDataHelper.textInput(
+            ~field={applePayField},
+            ~formName={
+              ApplePayIntegrationUtilsV2.applePayNameMapper(
+                ~name="initiative_context",
+                ~integrationType=Some(#manual),
+              )
+            },
+          )}
+        />
+      | _ => React.null
+      }}
+    </>
+  }
+}
+
 @react.component
 let make = (
   ~applePayFields,
@@ -158,6 +245,8 @@ let make = (
       <div key={index->Int.toString}>
         {switch name {
         | "payment_processing_details_at" => <PaymentProcessingDetailsAt applePayField />
+        | "initiative" => <Initiative applePayField />
+        | "initiative_context" => React.null
         | "merchant_business_country" =>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"

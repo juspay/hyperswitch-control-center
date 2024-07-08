@@ -10,7 +10,13 @@ let textInput = (~field: CommonMetaDataTypes.inputField, ~formName) => {
   )
 }
 
-let selectInput = (~field: CommonMetaDataTypes.inputField, ~formName, ~opt=None, ()) => {
+let selectInput = (
+  ~field: CommonMetaDataTypes.inputField,
+  ~formName,
+  ~opt=None,
+  ~onItemChange: option<ReactEvent.Form.t => unit>=?,
+  (),
+) => {
   let {label, required} = field
   let options = switch opt {
   | Some(value) => value
@@ -30,9 +36,16 @@ let selectInput = (~field: CommonMetaDataTypes.inputField, ~formName, ~opt=None,
       )(
         ~input={
           ...input,
+          // onChange: event => {
+          //   let value = event->Identity.formReactEventToString
+          //   input.onChange(value->Identity.anyTypeToReactEvent)
+          // },
           onChange: event => {
-            let value = event->Identity.formReactEventToString
-            input.onChange(value->Identity.anyTypeToReactEvent)
+            let _ = switch onItemChange {
+            | Some(func) => func(event)
+            | _ => ()
+            }
+            input.onChange(event)
           },
         },
         ~placeholder="",

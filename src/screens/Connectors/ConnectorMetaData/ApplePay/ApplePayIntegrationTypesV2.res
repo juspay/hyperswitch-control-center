@@ -54,6 +54,7 @@ type verifyApplePay = {
 }
 
 type paymentProcessingState = [#Connector | #Hyperswitch]
+type initiativeState = [#web | #ios]
 
 type inputType = Text | Toggle | Select
 
