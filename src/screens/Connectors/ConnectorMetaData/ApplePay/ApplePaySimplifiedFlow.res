@@ -106,15 +106,28 @@ let make = (
     ->Array.mapWithIndex((field, index) => {
       let applePayField = field->convertMapObjectToDict->CommonMetaDataUtils.inputFieldMapper
       <div key={index->Int.toString}>
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-hyperswitch_black"
-          field={applePayValueInput(
-            ~applePayField,
-            ~merchantBusinessCountry,
-            ~integrationType={Some(#simplified)},
-            (),
-          )}
-        />
+        {switch applePayField.name {
+        | "merchant_business_country" =>
+          <FormRenderer.FieldRenderer
+            labelClass="font-semibold !text-hyperswitch_black"
+            field={CommonMetaDataHelper.selectInput(
+              ~field={applePayField},
+              ~opt={Some(merchantBusinessCountry)},
+              ~formName={
+                ApplePayIntegrationUtilsV2.applePayNameMapper(
+                  ~name="merchant_business_country",
+                  ~integrationType=Some(#simplified),
+                )
+              },
+              (),
+            )}
+          />
+        | _ =>
+          <FormRenderer.FieldRenderer
+            labelClass="font-semibold !text-hyperswitch_black"
+            field={applePayValueInput(~applePayField, ~integrationType={Some(#simplified)}, ())}
+          />
+        }}
       </div>
     })
     ->React.array

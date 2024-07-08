@@ -512,7 +512,7 @@ module ReactWindowTableComponent = {
           <ReactWindow.VariableSizeList
             ref={el => {
               open ReactWindow.ListComponent
-              fn.current = el->resetAfterIndex
+              fn.current = (index, val) => el->resetAfterIndex(index, val)
             }}
             itemSize={index => getHeight(index)}
             height=tableHeight
@@ -533,7 +533,7 @@ type sortOb = {
   sortType: sortTyp,
 }
 
-let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Dict.make())
+let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>> = Recoil.atom("sortAtom", Dict.make())
 
 let useSortedObj = (title: string, defaultSort) => {
   let (dict, setDict) = Recoil.useRecoilState(sortAtom)
@@ -569,7 +569,7 @@ let useSortedObj = (title: string, defaultSort) => {
         },
       }
 
-      setDict(.dict => {
+      setDict(dict => {
         let nDict = Dict.fromArray(Dict.toArray(dict))
         Dict.set(nDict, title, sortOb)
         nDict

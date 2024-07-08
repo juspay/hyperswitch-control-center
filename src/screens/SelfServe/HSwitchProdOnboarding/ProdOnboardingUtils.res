@@ -86,7 +86,7 @@ let getCheckboxText = connectorName => {
 let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let useGetWarningBlockForConnector = connectorName => {
   open ConnectorTypes
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let hightlightedText = `text-base font-normal ${textColor.primaryNormal} underline`
   switch connectorName {
   | Processors(STRIPE) =>

@@ -4,7 +4,7 @@ module EmailPasswordForm = {
   @react.component
   let make = (~setAuthType) => {
     open CommonInputFields
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     <div className="flex flex-col gap-3">

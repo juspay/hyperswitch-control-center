@@ -4,7 +4,7 @@ let emailField = FormRenderer.makeFieldInfo(
   ~placeholder="Enter your Email",
   ~isRequired=false,
   ~customInput=(~input, ~placeholder as _) =>
-    InputFields.textInput(
+    InputFields.textInput(~autoComplete="off", ())(
       ~input={
         ...input,
         onChange: event =>
@@ -14,8 +14,6 @@ let emailField = FormRenderer.makeFieldInfo(
           ->input.onChange,
       },
       ~placeholder="Enter your Email",
-      ~autoComplete="off",
-      (),
     ),
   (),
 )

@@ -20,7 +20,7 @@ module PaymentProcessingDetailsAt = {
       initalFormValue.session_token_data.payment_processing_details_at
       ->Option.getOr((#Connector: paymentProcessingState :> string))
       ->paymentProcessingMapper
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let (processingAt, setProcessingAt) = React.useState(_ => initalProcessingAt)
 
     let onChangeItem = (event: ReactEvent.Form.t) => {
@@ -158,15 +158,25 @@ let make = (
       <div key={index->Int.toString}>
         {switch name {
         | "payment_processing_details_at" => <PaymentProcessingDetailsAt applePayField />
+        | "merchant_business_country" =>
+          <FormRenderer.FieldRenderer
+            labelClass="font-semibold !text-hyperswitch_black"
+            field={CommonMetaDataHelper.selectInput(
+              ~field={applePayField},
+              ~opt={Some(merchantBusinessCountry)},
+              ~formName={
+                ApplePayIntegrationUtilsV2.applePayNameMapper(
+                  ~name="merchant_business_country",
+                  ~integrationType=Some(#manual),
+                )
+              },
+              (),
+            )}
+          />
         | _ =>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={applePayValueInput(
-              ~applePayField,
-              ~integrationType=Some(#manual),
-              ~merchantBusinessCountry,
-              (),
-            )}
+            field={applePayValueInput(~applePayField, ~integrationType=Some(#manual), ())}
           />
         }}
       </div>

@@ -10,14 +10,24 @@ let textInput = (~field: CommonMetaDataTypes.inputField, ~formName) => {
   )
 }
 
-let selectInput = (~field: CommonMetaDataTypes.inputField, ~options, ~formName) => {
+let selectInput = (~field: CommonMetaDataTypes.inputField, ~formName, ~opt=None, ()) => {
   let {label, required} = field
+  let options = switch opt {
+  | Some(value) => value
+  | None => field.options->SelectBox.makeOptions
+  }
+
   FormRenderer.makeFieldInfo(
-    ~label,
+    ~label={label},
     ~isRequired=required,
     ~name={formName},
-    ~customInput=(~input) =>
+    ~customInput=(~input, ~placeholder as _) =>
       InputFields.selectInput(
+        ~customStyle="max-h-48",
+        ~options={options},
+        ~buttonText="Select Value",
+        (),
+      )(
         ~input={
           ...input,
           onChange: event => {
@@ -25,9 +35,7 @@ let selectInput = (~field: CommonMetaDataTypes.inputField, ~options, ~formName) 
             input.onChange(value->Identity.anyTypeToReactEvent)
           },
         },
-        ~options={options},
-        ~buttonText="Select Value",
-        (),
+        ~placeholder="",
       ),
     (),
   )
@@ -69,12 +77,20 @@ let radioInput = (
   (),
 ) => {
   let {label, required, options} = field
+
   FormRenderer.makeFieldInfo(
-    ~label,
+    ~label={label},
     ~isRequired=required,
     ~name={formName},
-    ~customInput=(~input) =>
+    ~customInput=(~input, ~placeholder as _) =>
       InputFields.radioInput(
+        ~customStyle="cursor-pointer gap-2",
+        ~isHorizontal=true,
+        ~options=options->SelectBox.makeOptions,
+        ~buttonText="",
+        ~fill,
+        (),
+      )(
         ~input={
           ...input,
           onChange: event => {
@@ -85,12 +101,7 @@ let radioInput = (
             input.onChange(event)
           },
         },
-        ~options=options->SelectBox.makeOptions,
-        ~buttonText="",
-        ~isHorizontal=true,
-        ~customStyle="cursor-pointer gap-2",
-        ~fill,
-        (),
+        ~placeholder="",
       ),
     (),
   )

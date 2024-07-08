@@ -6,7 +6,7 @@ module InviteEmailForm = {
     open APIUtils
     open UIUtils
     let getURL = useGetURL()
-    let {globalUIConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
     let fetchDetails = useGetMethod()
     let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (roleListData, setRoleListData) = React.useState(_ => [])
@@ -66,12 +66,22 @@ module InviteEmailForm = {
           </div>
         </div>
       </RenderIf>
-      <FormRenderer.FieldRenderer
-        fieldWrapperClass={`w-full ${isEmailTextInputVisible ? "mt-5" : ""}`}
-        field={roleType(roleListData, borderColor.primaryNormal)}
-        errorClass
-        labelClass="!text-black !font-semibold"
-      />
+      <div className="flex flex-col gap-4">
+        <FormRenderer.FieldRenderer
+          fieldWrapperClass={`w-full ${isEmailTextInputVisible ? "mt-5" : ""}`}
+          field={roleType(roleListData, borderColor.primaryNormal)}
+          errorClass
+          labelClass="!text-black !font-semibold"
+        />
+        <p
+          className="ml-2 text-sm underline text-blue-400 cursor-pointer underline-offset-2"
+          onClick={_ =>
+            RescriptReactRouter.replace(
+              HSwitchGlobalVars.appendDashboardPath(~url="/users/create-custom-role"),
+            )}>
+          {"or create a custom role"->React.string}
+        </p>
+      </div>
     </>
   }
 }

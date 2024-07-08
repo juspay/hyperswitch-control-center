@@ -8,7 +8,7 @@ module SimplifiedHelper = {
     ~subText=None,
   ) => {
     let {globalUIConfig: {backgroundColor, font: {textColor}}} = React.useContext(
-      ConfigContext.configContext,
+      ThemeProvider.themeContext,
     )
     let bgColor = "bg-white"
     let stepColor = `${backgroundColor} text-white py-px px-2`
@@ -87,7 +87,6 @@ module InfoCard = {
 let applePayValueInput = (
   ~applePayField: CommonMetaDataTypes.inputField,
   ~integrationType: option<applePayIntegrationType>=None,
-  ~merchantBusinessCountry: array<SelectBox.dropdownOption>=[],
   (),
 ) => {
   open CommonMetaDataHelper
@@ -97,7 +96,7 @@ let applePayValueInput = (
   {
     switch \"type" {
     | Text => textInput(~field={applePayField}, ~formName)
-    | Select => selectInput(~field={applePayField}, ~options={merchantBusinessCountry}, ~formName)
+    | Select => selectInput(~field={applePayField}, ~formName, ())
     | MultiSelect => multiSelectInput(~field={applePayField}, ~formName)
     | _ => textInput(~field={applePayField}, ~formName)
     }
