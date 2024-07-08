@@ -457,7 +457,7 @@ let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
     } else {
       ""
     }
-    let sec_disp = if seconds > 0 {
+    let sec_disp = if seconds > 0 || millisec_disp != "" {
       `${String.make(seconds)}${millisec_disp}S `
     } else {
       ""
