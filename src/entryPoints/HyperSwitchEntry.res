@@ -86,6 +86,7 @@ module HyperSwitchEntryComponent = {
       MixPanel.init(
         Window.env.mixpanelToken,
         {
+          "track_pageview": true,
           "batch_requests": true,
           "loaded": () => {
             let mixpanelUserInfo =
