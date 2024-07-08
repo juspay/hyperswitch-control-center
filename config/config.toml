@@ -3,14 +3,14 @@ primary_color="#006DF9"
 primary_hover_color="#005ED6"
 sidebar_color="#242F48"
 [default.endpoints]
-api_url="http://localhost:8080"
+api_url="https://sandbox.hyperswitch.io"
 sdk_url=""
 logo_url=""
 favicon_url=""
 agreement_url=""
 agreement_version=""
 apple_pay_certificate_url=""
-mixpanel_token=""
+mixpanel_token="773ae99db494f9e23d86ab7a160bc21b"
 [default.features]
 test_live_toggle=false
 is_live_mode=false
@@ -24,7 +24,7 @@ payout=true
 recon=false
 test_processors=true
 feedback=false
-mixpanel=false
+mixpanel=true
 generate_report=false
 user_journey_analytics=false
 authentication_analytics=false
