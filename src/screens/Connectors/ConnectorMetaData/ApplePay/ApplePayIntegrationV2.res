@@ -185,7 +185,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
           Window.getConnectorConfig(connector)
           ->getDictFromJsonObject
           ->getDictfromDict("metadata")
-          ->getArrayFromDict("apple_pay_v2", [])
+          ->getArrayFromDict("apple_pay", [])
 
         dict
       } else {
