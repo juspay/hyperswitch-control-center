@@ -411,6 +411,7 @@ let allColumns = [
   SetupFutureUsage,
   Status,
   Metadata,
+  MerchantOrderReferenceId,
 ]
 
 let getHeading = (colType: colType) => {
@@ -528,6 +529,13 @@ let getHeading = (colType: colType) => {
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false, ())
   | CardNetwork =>
     Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Network", ~showSort=false, ())
+  | MerchantOrderReferenceId =>
+    Table.makeHeaderInfo(
+      ~key="merchant_order_reference_id",
+      ~title="MerchantOrderReferenceId",
+      ~showSort=false,
+      (),
+    )
   }
 }
 
@@ -701,6 +709,13 @@ let getHeadingForOtherDetails = otherDetailsColType => {
       ~showSort=true,
       (),
     )
+  | MerchantOrderReferenceId =>
+    Table.makeHeaderInfo(
+      ~key="merchant_order_reference_id",
+      ~title="Merchant Order Reference Id",
+      ~showSort=false,
+      (),
+    )
   }
 }
 
@@ -801,6 +816,7 @@ let getCellForOtherDetails = (order, aboutPaymentColType, _): Table.cell => {
   | PMBillingPhone => Text(order.payment_method_billing_email)
   | PMBillingEmail => Text(order.payment_method_billing_phone)
   | BillingPhone => Text(`${order.billingPhone}`)
+  | MerchantOrderReferenceId => Text(order.merchant_order_reference_id)
   }
 }
 
@@ -884,6 +900,7 @@ let getCell = (order, colType: colType): Table.cell => {
 
       Text(dict->getString("card_network", ""))
     }
+  | MerchantOrderReferenceId => Text(order.merchant_order_reference_id)
   }
 }
 
@@ -1035,6 +1052,7 @@ let itemToObjMapper = dict => {
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
     disputes: dict->getArrayFromDict("disputes", [])->JSON.Encode.array->DisputesEntity.getDisputes,
     attempts: dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts,
+    merchant_order_reference_id: dict->getString("merchant_order_reference_id", ""),
   }
 }
 
