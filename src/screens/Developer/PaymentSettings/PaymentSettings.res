@@ -60,9 +60,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let fieldsToValidate = () => {
     let defaultFieldsToValidate =
       [WebhookUrl, ReturnUrl]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
-    if isBusinessProfileHasThreeds {
-      defaultFieldsToValidate->Array.pushMany(threedsFields)
-    }
     defaultFieldsToValidate
   }
 
