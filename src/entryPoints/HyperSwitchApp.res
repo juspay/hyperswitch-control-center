@@ -397,9 +397,7 @@ let make = () => {
                           </AccessControl>
                         | list{"analytics-payments"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
-                            <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
-                              <PaymentAnalytics />
-                            </FilterContext>
+                            <PaymentAnalytics />
                           </AccessControl>
                         | list{"analytics-refunds"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
