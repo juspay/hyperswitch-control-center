@@ -20,6 +20,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let downloadReport = async body => {
     try {
@@ -45,6 +46,14 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
 
     let gte = dateCreatedDict->getJsonObjectFromDict("gte")
     let lte = dateCreatedDict->getJsonObjectFromDict("lte")
+
+    let dateRange = Dict.make()
+    dateRange->Dict.set("startTime", gte)
+    dateRange->Dict.set("endTime", lte)
+
+    let metadata = Dict.make()
+    metadata->Dict.set("date-range", dateRange)
+    mixpanelEvent(~eventName="generate_reports_download", ~metadata, ())
 
     let body = {
       timeRange: {

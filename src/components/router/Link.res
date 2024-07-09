@@ -18,7 +18,7 @@ let make = (
 
     if sendMixpanelEvents {
       let eventName = to_->String.replaceRegExp(%re("/^\//"), "")
-      mixpanelEvent(~eventName=`${eventName}`, ())
+      mixpanelEvent(~eventName=`${eventName}`, ~section=`${eventName}`, ())
     }
     RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=to_))
   }, [to_])

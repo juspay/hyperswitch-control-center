@@ -34,9 +34,21 @@ let useSendEvent = () => {
 
   let mixpanelToken = Window.env.mixpanelToken
 
-  let trackApi = async (~email, ~merchantId, ~description, ~event) => {
+  let url = RescriptReactRouter.useUrl()
+  let endpoint = url.path->List.toArray->Array.get(1)->Option.getOr("")
+
+  let trackApi = async (
+    ~email,
+    ~merchantId,
+    ~description,
+    ~event,
+    ~section,
+    ~metadata=Dict.make(),
+  ) => {
     let body = {
+      "section": section,
       "event": event,
+      "metadata": metadata,
       "properties": {
         "token": mixpanelToken,
         "distinct_id": deviceId,
@@ -69,7 +81,8 @@ let useSendEvent = () => {
     }
   }
 
-  (~eventName, ~email="", ~description=None, ()) => {
+  (~eventName, ~email="", ~description=None, ~section="", ~metadata=Dict.make(), ()) => {
+    let section = section->LogicUtils.isNonEmptyString ? section : endpoint
     let eventName = eventName->String.toLowerCase
 
     if featureFlagDetails.mixpanel {
@@ -78,6 +91,8 @@ let useSendEvent = () => {
         ~merchantId=merchant_id,
         ~description,
         ~event={eventName},
+        ~section,
+        ~metadata,
       )->ignore
     }
   }
