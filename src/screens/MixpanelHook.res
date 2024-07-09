@@ -32,13 +32,13 @@ let useSendEvent = () => {
   | Local => "localhost"
   }
 
-  let mixpanelToken = Window.env.mixpanelToken
+  let mixpanel_token = Window.env.mixpanel_token
 
   let trackApi = async (~email, ~merchantId, ~description, ~event) => {
     let body = {
       "event": event,
       "properties": {
-        "token": mixpanelToken,
+        "token": mixpanel_token,
         "distinct_id": deviceId,
         "$device_id": deviceId->String.split(":")->Array.get(1),
         "$screen_height": Screen.screenHeight,

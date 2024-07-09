@@ -10,7 +10,7 @@ favicon_url=""
 agreement_url=""
 agreement_version=""
 apple_pay_certificate_url=""
-mixpanelToken=""
+mixpanel_token=""
 [default.features]
 test_live_toggle=false
 is_live_mode=false
