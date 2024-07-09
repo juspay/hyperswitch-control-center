@@ -157,7 +157,6 @@ module ConfigureProcessor = {
           checkboxText=""
         />
       </QuickStartUIUtils.BaseComponent>
-      <FormValuesSpy />
     </Form>
   }
 }
@@ -212,12 +211,17 @@ module SelectPaymentMethods = {
     let onSubmitMain = async () => {
       setButtonState(_ => Loading)
       try {
+        open LogicUtils
         let obj: ConnectorTypes.wasmRequest = {
           connector: connectorName,
           payment_methods_enabled: paymentMethodsEnabled,
           metadata: metaData,
         }
         let body = constructConnectorRequestBody(obj, initialValues)
+        // Need to refactor
+        let metaData = body->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
+        let _ = ConnectorUtils.updateMetaData(~metaData)
+        //
         let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
 
         let response = await updateAPIHook(connectorUrl, body, Post, ())
@@ -274,14 +278,17 @@ module SelectPaymentMethods = {
         onClick={_ => setConnectorConfigureState(_ => Configure_keys)}
         buttonSize=Small
       />}>
-      <PaymentMethod.PaymentMethodsRender
-        _showAdvancedConfiguration=false
-        connector={connectorName}
-        paymentMethodsEnabled
-        updateDetails
-        setMetaData
-        isPayoutFlow=false
-      />
+      <Form initialValues={initialValues}>
+        <PaymentMethod.PaymentMethodsRender
+          _showAdvancedConfiguration=false
+          connector={connectorName}
+          paymentMethodsEnabled
+          updateDetails
+          setMetaData
+          isPayoutFlow=false
+        />
+        <FormValuesSpy />
+      </Form>
     </QuickStartUIUtils.BaseComponent>
   }
 }

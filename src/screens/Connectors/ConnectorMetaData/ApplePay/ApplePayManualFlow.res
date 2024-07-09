@@ -127,7 +127,7 @@ module Initiative = {
 
     let initalInitiative =
       initalFormValue.session_token_data.initiative
-      ->Option.getOr((#web: initiativeState :> string))
+      ->Option.getOr((#ios: initiativeState :> string))
       ->initiativeMapper
     let (initiative, setInitiative) = React.useState(_ => initalInitiative)
 
