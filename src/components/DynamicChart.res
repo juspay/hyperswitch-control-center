@@ -324,8 +324,14 @@ let chartTypeArr = [
 
 module GranularitySelectBox = {
   @react.component
-  let make = (~selectedGranularity, ~setSelectedGranularity, ~startTime, ~endTime) => {
-    let options = getGranularity(~startTime, ~endTime)
+  let make = (
+    ~selectedGranularity,
+    ~setSelectedGranularity,
+    ~startTime,
+    ~endTime,
+    ~getGranularityOptions,
+  ) => {
+    let options = getGranularityOptions(~startTime, ~endTime)
 
     let granularity = switch selectedGranularity {
     | Some(val) => val
@@ -413,7 +419,6 @@ let make = (
   ~comparitionWidget=false,
 ) => {
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let updateChartCompFilters = switch updateUrl {
   | Some(fn) => fn
   | None => _ => ()
@@ -426,7 +431,7 @@ let make = (
   | _ => ""
   }
 
-  let getGranularity = switch entity {
+  let getGranularityOptions = switch entity {
   | {getGranularity} => getGranularity
   | _ => getGranularity
   }
@@ -594,14 +599,6 @@ let make = (
     getTopLevelFilter->getString(endTimeFilterKey, "")
   }, [topFiltersToSearchParam])
 
-  let defaultGranularity = switch getGranularity(
-    ~startTime={startTimeFromUrl},
-    ~endTime={endTimeFromUrl},
-  )->Array.get(0) {
-  | Some(val) => val
-  | _ => "G_ONEHOUR"
-  }
-
   let (granularity, setGranularity) = React.useState(_ => None)
 
   let topFiltersToSearchParam = React.useMemo1(() => {
@@ -624,7 +621,7 @@ let make = (
 
   let current_granularity = {
     if startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString {
-      getGranularity(~startTime=startTimeFromUrl, ~endTime=endTimeFromUrl)
+      getGranularityOptions(~startTime=startTimeFromUrl, ~endTime=endTimeFromUrl)
     } else {
       []
     }
@@ -632,9 +629,7 @@ let make = (
 
   React.useEffect2(() => {
     setGranularity(prev => {
-      if featureFlagDetails.granularity && entity.getGranularity->Option.isNone {
-        defaultGranularity->Some
-      } else if current_granularity->Array.includes(prev->Option.getOr("")) {
+      if current_granularity->Array.includes(prev->Option.getOr("")) {
         prev
       } else {
         current_granularity->Array.get(0)
@@ -854,16 +849,6 @@ let make = (
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else if comparitionWidget {
                   <div>
-                    <UIUtils.RenderIf condition={featureFlagDetails.granularity}>
-                      <div className="w-full flex justify-end p-2">
-                        <GranularitySelectBox
-                          selectedGranularity={granularity}
-                          setSelectedGranularity={setGranularity}
-                          startTime={startTimeFromUrl}
-                          endTime={endTimeFromUrl}
-                        />
-                      </div>
-                    </UIUtils.RenderIf>
                     {entityAllMetrics
                     ->Array.mapWithIndex((selectedMetrics, index) => {
                       switch uriConfig->Array.get(0) {
