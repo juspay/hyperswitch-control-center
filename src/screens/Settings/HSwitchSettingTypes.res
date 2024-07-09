@@ -101,7 +101,7 @@ type validationFields =
   | Website
   | WebhookUrl
   | ReturnUrl
-  | AuthetnticationConnectors
+  | AuthetnticationConnectors(array<JSON.t>)
   | ThreeDsRequestorUrl
   | UnknownValidateFields(string)
 
