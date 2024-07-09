@@ -31,7 +31,7 @@ let make = (
   ~titleKey=?,
   ~selectedMetrics: LineChartUtils.metricsConfig,
 ) => {
-  let {theme} = React.useContext(ThemeProvider.themeContext)
+  let {globalUIConfig: {primaryColor}, theme} = React.useContext(ThemeProvider.themeContext)
   let pieSeriesData = React.useMemo3(() => {
     LineChartUtils.chartDataMaker(
       ~filterNull=true,
@@ -51,7 +51,7 @@ let make = (
       pieSeriesData->Array.mapWithIndex((_data, i) => {
         let i = i->Int.toFloat
         let opacity = (length -. i +. 1.) /. (length +. 1.)
-        `rgb(var(--color-primary),${opacity->Float.toString})`
+        `${primaryColor},${opacity->Float.toString})`
       })
     }
     let defaultOptions: HighchartsPieChart.options = {
@@ -97,8 +97,8 @@ let make = (
       tooltip: {
         pointFormatter: valueFormatter,
         useHTML: true,
-        backgroundColor: "rgba(25, 26, 26, 1)",
-        borderColor: "rgba(25, 26, 26, 1)",
+        backgroundColor: "#ffffff",
+        borderColor: "#E5E5E5",
         headerFormat: "",
       },
       chart: {
