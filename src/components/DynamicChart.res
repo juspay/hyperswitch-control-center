@@ -329,7 +329,7 @@ module GranularitySelectBox = {
 
     let granularity = switch selectedGranularity {
     | Some(val) => val
-    | _ => "G_FIVEMIN"
+    | _ => "G_ONEHOUR"
     }
 
     open HeadlessUI
