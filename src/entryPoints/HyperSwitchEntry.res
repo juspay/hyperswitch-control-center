@@ -31,7 +31,7 @@ module HyperSwitchEntryComponent = {
         let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
         let value: urlConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
-          mixpanel_token: dict->getString("mixpanel_token", ""),
+          mixpanelToken: dict->getString("mixpanel_token", ""),
           faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
           logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
@@ -85,7 +85,7 @@ module HyperSwitchEntryComponent = {
     React.useEffect3(() => {
       if featureFlagDetails.mixpanel {
         MixPanel.init(
-          Window.env.mixpanel_token,
+          Window.env.mixpanelToken,
           {
             "track_pageview": true,
             "batch_requests": true,
@@ -105,7 +105,7 @@ module HyperSwitchEntryComponent = {
       }
 
       None
-    }, (name, email, Window.env.mixpanel_token))
+    }, (name, email, Window.env.mixpanelToken))
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle

@@ -32,7 +32,7 @@ let useSendEvent = () => {
   | Local => "localhost"
   }
 
-  let mixpanel_token = Window.env.mixpanel_token
+  let mixpanel_token = Window.env.mixpanelToken
 
   let trackApi = async (~email, ~merchantId, ~description, ~event) => {
     let body = {
