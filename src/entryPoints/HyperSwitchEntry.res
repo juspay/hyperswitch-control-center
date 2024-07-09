@@ -83,24 +83,27 @@ module HyperSwitchEntryComponent = {
     })
 
     React.useEffect3(() => {
-      MixPanel.init(
-        Window.env.mixpanelToken,
-        {
-          "track_pageview": true,
-          "batch_requests": true,
-          "loaded": () => {
-            let mixpanelUserInfo =
-              [("name", email->JSON.Encode.string), ("merchantName", name->JSON.Encode.string)]
-              ->Dict.fromArray
-              ->JSON.Encode.object
+      if featureFlagDetails.mixpanel {
+        MixPanel.init(
+          Window.env.mixpanelToken,
+          {
+            "track_pageview": true,
+            "batch_requests": true,
+            "loaded": () => {
+              let mixpanelUserInfo =
+                [("name", email->JSON.Encode.string), ("merchantName", name->JSON.Encode.string)]
+                ->Dict.fromArray
+                ->JSON.Encode.object
 
-            let userId = MixPanel.getDistinctId()
-            LocalStorage.setItem("deviceid", userId)
-            MixPanel.identify(userId)
-            MixPanel.mixpanel.people.set(mixpanelUserInfo)
+              let userId = MixPanel.getDistinctId()
+              LocalStorage.setItem("deviceid", userId)
+              MixPanel.identify(userId)
+              MixPanel.mixpanel.people.set(mixpanelUserInfo)
+            },
           },
-        },
-      )
+        )
+      }
+
       None
     }, (name, email, Window.env.mixpanelToken))
 
