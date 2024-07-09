@@ -469,7 +469,7 @@ let developers = (isDevelopersEnabled, userRole, systemMetrics, ~permissionJson)
 let uploadReconFiles = permissionJson => {
   SubLevelLink({
     name: "Upload Recon Files",
-    link: `/upload-recon-files`,
+    link: `/upload-files`,
     access: permissionJson.analyticsView,
     searchOptions: [("Upload recon files", "")],
   })
@@ -487,7 +487,7 @@ let runRecon = permissionJson => {
 let reconAnalytics = permissionJson => {
   SubLevelLink({
     name: "Analytics",
-    link: `/analytics-recon-and-settlement`,
+    link: `/recon-analytics`,
     access: permissionJson.analyticsView,
     searchOptions: [("Recon analytics", "")],
   })
@@ -495,7 +495,7 @@ let reconAnalytics = permissionJson => {
 let reconReports = permissionJson => {
   SubLevelLink({
     name: "Reports",
-    link: `/recon/reports/reconciliation`,
+    link: `reports`,
     access: permissionJson.analyticsView,
     searchOptions: [("Recon reports", "")],
   })

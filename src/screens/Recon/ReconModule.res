@@ -1,5 +1,5 @@
 @react.component
-let make = (~url) => {
+let make = (~urlList) => {
   open APIUtils
   open LogicUtils
 
@@ -37,6 +37,15 @@ let make = (~url) => {
     None
   }, [iframeLoaded])
 
+  let redirectUrl = switch urlList {
+  | list{"upload-files"}
+  | list{"run-recon"}
+  | list{"reports"} =>
+    urlList->List.toArray->Array.joinWithUnsafe("/")
+  | list{"recon-analytics"} => "analytics"
+  | _ => ""
+  }
+
   <PageLoaderWrapper screenState>
     {if redirectToken->isNonEmptyString {
       <div className="h-85-vh overflow-scroll">
@@ -46,7 +55,7 @@ let make = (~url) => {
           }}
           id="recon-module"
           className="h-full w-full"
-          src={`http://localhost:9011/${url}`}
+          src={`http://localhost:9011/${redirectUrl}`}
           height="100%"
           width="100%"
         />
