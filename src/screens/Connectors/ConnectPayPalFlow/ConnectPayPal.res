@@ -154,7 +154,7 @@ module RedirectionToPayPalFlow = {
   let make = (~getPayPalStatus, ~profileId) => {
     open APIUtils
     open PayPalFlowTypes
-    open HSwitchGlobalVars
+    open GlobalVars
     let getURL = useGetURL()
     let url = RescriptReactRouter.useUrl()
     let path = url.path->List.toArray->Array.joinWithUnsafe("/")
@@ -312,7 +312,7 @@ let make = (
       setConnectorId(_ => connectorId)
       setScreenState(_ => Success)
       RescriptReactRouter.replace(
-        HSwitchGlobalVars.appendDashboardPath(~url=`/connectors/${connectorId}?name=paypal`),
+        GlobalVars.appendDashboardPath(~url=`/connectors/${connectorId}?name=paypal`),
       )
     } catch {
     | Exn.Error(e) =>

@@ -233,7 +233,7 @@ let makeEntity = (
 
 let useChartFetch = (~setStatusDict) => {
   let fetchApi = AuthHooks.useApiFetcher()
-  let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetch()
+  let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
   let fetchChartData = (updatedChartBody: array<fetchDataConfig>, setState) => {
     open Promise
 

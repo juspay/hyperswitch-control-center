@@ -142,7 +142,7 @@ let useNote = (authType, setAuthType, ()) => {
     <div
       onClick={_ => {
         setAuthType(_ => authType)
-        HSwitchGlobalVars.appendDashboardPath(~url=path)->RescriptReactRouter.push
+        GlobalVars.appendDashboardPath(~url=path)->RescriptReactRouter.push
       }}
       className={`text-sm text-center ${textColor.primaryNormal} cursor-pointer hover:underline underline-offset-2`}>
       {btnText->React.string}

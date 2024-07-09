@@ -9,7 +9,7 @@ let make = () => {
 
   let recovery_codes_left = switch authStatus {
   | LoggedIn(Auth(totpInfo)) => totpInfo.recovery_codes_left
-  | _ => HSwitchGlobalVars.maximumRecoveryCodes
+  | _ => GlobalVars.maximumRecoveryCodes
   }
 
   <div className="w-full gap-8 flex flex-col">

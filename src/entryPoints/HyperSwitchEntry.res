@@ -56,7 +56,7 @@ module HyperSwitchEntryComponent = {
           ~defaultValue="default",
           (),
         )
-        let apiURL = `${HSwitchGlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
+        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
@@ -78,7 +78,7 @@ module HyperSwitchEntryComponent = {
       None
     })
     React.useEffect0(() => {
-      HSiwtchTimeZoneUtils.getUserTimeZone()->setZone
+      HSwitchTimeZoneUtils.getUserTimeZone()->setZone
       None
     })
 

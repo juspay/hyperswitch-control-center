@@ -117,7 +117,7 @@ let make = () => {
       buttonType=Primary
       onClick={_ => {
         mixpanelEvent(~eventName="invite_users", ())
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/users/invite-users"))
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users/invite-users"))
       }}
       customButtonStyle="w-48"
     />
@@ -128,9 +128,7 @@ let make = () => {
       buttonType=Primary
       onClick={_ => {
         mixpanelEvent(~eventName="invite_users", ())
-        RescriptReactRouter.push(
-          HSwitchGlobalVars.appendDashboardPath(~url="/users/create-custom-role"),
-        )
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users/create-custom-role"))
       }}
       customButtonStyle="w-48"
     />

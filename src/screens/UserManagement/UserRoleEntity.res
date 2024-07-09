@@ -136,6 +136,6 @@ let userEntity = EntityType.makeEntity(
   ~getCell=getCellForUser,
   ~dataKey="",
   ~getShowLink=userId =>
-    HSwitchGlobalVars.appendDashboardPath(~url=`/users/details?email=${userId.email}`),
+    GlobalVars.appendDashboardPath(~url=`/users/details?email=${userId.email}`),
   (),
 )

@@ -89,9 +89,7 @@ let make = () => {
 
   React.useEffect1(() => {
     if !isPostLoginQuestionnairePending {
-      RescriptReactRouter.push(
-        HSwitchGlobalVars.appendDashboardPath(~url="/post-login-questionare"),
-      )
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/post-login-questionare"))
     }
     None
   }, [isPostLoginQuestionnairePending])

@@ -103,7 +103,7 @@ let make = (~goLive) => {
         buttonType={Secondary}
         onClick={_ => {
           setDashboardPageState(_ => #HOME)
-          RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
+          RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
         }}
       />
     </div>
@@ -137,7 +137,7 @@ let make = (~goLive) => {
               text="Exit to Homepage"
               onClick={_ => {
                 setDashboardPageState(_ => #HOME)
-                RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
+                RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
               }}
               buttonSize=Small
             />}>

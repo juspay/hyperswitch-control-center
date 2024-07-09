@@ -107,16 +107,15 @@ let make = () => {
     | (LoginWithPassword | LoginWithEmail, _) => AuthUtils.redirectToLogin()
 
     | (SignUP, list{"register", ..._}) => () // to prevent duplicate push
-    | (SignUP, _) =>
-      HSwitchGlobalVars.appendDashboardPath(~url="/register")->RescriptReactRouter.push
+    | (SignUP, _) => GlobalVars.appendDashboardPath(~url="/register")->RescriptReactRouter.push
 
     | (ForgetPassword | ForgetPasswordEmailSent, list{"forget-password", ..._}) => () // to prevent duplicate push
     | (ForgetPassword | ForgetPasswordEmailSent, _) =>
-      HSwitchGlobalVars.appendDashboardPath(~url="/forget-password")->RescriptReactRouter.push
+      GlobalVars.appendDashboardPath(~url="/forget-password")->RescriptReactRouter.push
 
     | (ResendVerifyEmail | ResendVerifyEmailSent, list{"resend-mail", ..._}) => () // to prevent duplicate push
     | (ResendVerifyEmail | ResendVerifyEmailSent, _) =>
-      HSwitchGlobalVars.appendDashboardPath(~url="/resend-mail")->RescriptReactRouter.push
+      GlobalVars.appendDashboardPath(~url="/resend-mail")->RescriptReactRouter.push
 
     | _ => ()
     }

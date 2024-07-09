@@ -144,7 +144,7 @@ module SidebarChecklist = {
 @react.component
 let make = () => {
   open ProdOnboardingTypes
-  open HSwitchGlobalVars
+  open GlobalVars
   open ConnectorTypes
   open LogicUtils
   open APIUtils

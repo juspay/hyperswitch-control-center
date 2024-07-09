@@ -201,7 +201,7 @@ let make = () => {
       text="Done"
       buttonType=Primary
       onClick={_ =>
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/3ds-authenticators"))}
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/3ds-authenticators"))}
     />
   }
 
