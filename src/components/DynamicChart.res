@@ -41,7 +41,6 @@ let getGranularity = (~startTime, ~endTime) => {
   // startTime
   let options = if diff < 60. *. 6. {
     // Smaller than 6 hour
-
     [G_FIFTEENMIN, G_FIVEMIN]
   } else if diff < 60. *. 24. {
     // Smaller than 1 day
@@ -600,7 +599,7 @@ let make = (
     ~endTime={endTimeFromUrl},
   )->Array.get(0) {
   | Some(val) => val
-  | _ => "G_FIVEMIN"
+  | _ => "G_ONEHOUR"
   }
 
   let (granularity, setGranularity) = React.useState(_ => None)
@@ -633,7 +632,7 @@ let make = (
 
   React.useEffect2(() => {
     setGranularity(prev => {
-      if featureFlagDetails.granularity {
+      if featureFlagDetails.granularity && entity.getGranularity->Option.isNone {
         defaultGranularity->Some
       } else if current_granularity->Array.includes(prev->Option.getOr("")) {
         prev
