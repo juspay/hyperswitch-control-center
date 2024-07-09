@@ -128,7 +128,6 @@ let make = (
               connector
               paymentMethodsEnabled
               updateDetails
-              metaData
               setMetaData
               isPayoutFlow
             />

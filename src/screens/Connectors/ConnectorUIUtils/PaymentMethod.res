@@ -27,7 +27,6 @@ module CardRenderer = {
     ~paymentMethod,
     ~provider: array<paymentMethodConfigType>,
     ~_showAdvancedConfiguration,
-    ~metaData,
     ~setMetaData,
     ~connector,
   ) => {
@@ -259,7 +258,6 @@ module CardRenderer = {
             childClass={""}>
             <Wallets
               method={selectedWallet}
-              metaData
               setMetaData
               setShowWalletConfigurationModal
               updateDetails
@@ -284,7 +282,6 @@ module PaymentMethodsRender = {
     ~connector,
     ~paymentMethodsEnabled: array<paymentMethodEnabled>,
     ~updateDetails,
-    ~metaData,
     ~setMetaData,
     ~isPayoutFlow,
   ) => {
@@ -311,7 +308,6 @@ module PaymentMethodsRender = {
               provider
               paymentMethod={value}
               _showAdvancedConfiguration=false
-              metaData
               setMetaData
               connector
             />
@@ -324,7 +320,6 @@ module PaymentMethodsRender = {
               paymentMethod={value}
               provider
               _showAdvancedConfiguration=false
-              metaData
               setMetaData
               connector
             />
