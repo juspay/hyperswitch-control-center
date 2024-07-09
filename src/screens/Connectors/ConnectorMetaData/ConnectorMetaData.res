@@ -1,18 +1,3 @@
-// module MetaDataFields = () => {
-//   @react.component
-//   let make = (~fields: CommonMetaDataTypes.inputField) => {
-//     open CommonMetaDataHelper
-//     let {name} = fields
-//     <>
-//     // {
-//     //   switch name{
-//     //     | "merchant_config_currency"=>currencyField(~name)
-//     //   }
-//     // }
-//     </>
-//   }
-// }
-
 @react.component
 let make = (~connectorMetaDataFields) => {
   open LogicUtils
