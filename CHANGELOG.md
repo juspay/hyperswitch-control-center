@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.09.0
+
+### Bug Fixes
+
+- Return url validation ([#934](https://github.com/juspay/hyperswitch-control-center/pull/934)) ([`8db4272`](https://github.com/juspay/hyperswitch-control-center/commit/8db4272bea32c5ae2a3d6fe0d1713a9f85831018))
+
+**Full Changelog:** [`2024.07.05.2...2024.07.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.05.2...2024.07.09.0)
+
+- - -
+
 ## 2024.07.05.2
 
 ### Miscellaneous Tasks
