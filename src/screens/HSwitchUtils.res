@@ -1,7 +1,6 @@
 open LogicUtils
 open HSLocalStorage
 open HyperswitchAtom
-// open UtilsTypes
 
 module TextFieldRow = {
   @react.component
@@ -90,7 +89,7 @@ let getBrowswerDetails = () => {
   open Window
   open Window.Navigator
   open Window.Screen
-  open UtilsTypes
+  open HSwitchUtilsTypes
   let clientTimeZone = dateTimeFormat().resolvedOptions().timeZone
   let clientCountry = clientTimeZone->getClientCountry
   {
@@ -215,7 +214,7 @@ let constructOnboardingBody = (
 }
 
 let getTextClass = variantType => {
-  open UtilsTypes
+  open HSwitchUtilsTypes
   switch variantType {
   | (H1, Optional) => "text-fs-28 font-semibold leading-10"
   | (H2, Optional) => "text-2xl font-semibold leading-8"

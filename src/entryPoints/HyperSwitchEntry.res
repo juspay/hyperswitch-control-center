@@ -78,7 +78,7 @@ module HyperSwitchEntryComponent = {
       None
     })
     React.useEffect0(() => {
-      HSwitchTimeZoneUtils.getUserTimeZone()->setZone
+      TimeZoneUtils.getUserTimeZone()->setZone
       None
     })
 
