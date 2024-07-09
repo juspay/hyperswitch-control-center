@@ -173,13 +173,13 @@ module Field = {
     ~component: string=?,
     ~data: bool=?,
     ~defaultValue: bool=?,
-    ~format: (. ~value: JSON.t, ~name: string) => JSON.t=?,
+    ~format: (~value: JSON.t, ~name: string) => JSON.t=?,
     ~formatOnBlur: bool=?,
     ~initialValue: bool=?,
     ~isEqual: bool=?,
     ~multiple: bool=?,
     ~name: string,
-    ~parse: (. ~value: JSON.t, ~name: string) => JSON.t=?,
+    ~parse: (~value: JSON.t, ~name: string) => JSON.t=?,
     ~ref: bool=?,
     ~render: fieldRenderProps => React.element=?,
     ~subscription: bool=?,
@@ -226,8 +226,8 @@ type useFieldOption
 
 @obj
 external makeUseFieldOption: (
-  ~format: (. ~value: JSON.t, ~name: string) => JSON.t=?,
-  ~parse: (. ~value: JSON.t, ~name: string) => JSON.t=?,
+  ~format: (~value: JSON.t, ~name: string) => JSON.t=?,
+  ~parse: (~value: JSON.t, ~name: string) => JSON.t=?,
   unit,
 ) => useFieldOption = ""
 

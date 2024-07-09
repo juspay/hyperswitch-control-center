@@ -231,7 +231,7 @@ module SystemMetricsAnalytics = {
     let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
     let endTimeVal = getModuleFilters->getString(endTimeFilterKey, "")
     let {updateExistingKeys} = FilterContext.filterContext->React.useContext
-    let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
+
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
     let chartEntity1 = chartEntity.default
@@ -261,7 +261,7 @@ module SystemMetricsAnalytics = {
         source: "BATCH",
       }
       AnalyticsUtils.filterBody(filterBodyEntity)
-    }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
+    }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWithUnsafe(",")))
 
     open APIUtils
     open Promise
@@ -314,7 +314,6 @@ module SystemMetricsAnalytics = {
             endTimeFilterKey
             filterKeys=chartEntity.allFilterDimension
             moduleName
-            setTotalVolume
             showPercentage=false
             statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
           />

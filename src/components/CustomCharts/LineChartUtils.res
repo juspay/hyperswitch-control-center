@@ -290,7 +290,7 @@ let timeSeriesDataMaker = (
         )
       )
       ->Array.map(LogicUtils.snakeToTitle)
-      ->Array.joinWith(" : ")
+      ->Array.joinWithUnsafe(" : ")
     | None =>
       dict->getString(
         groupKey,
@@ -298,7 +298,8 @@ let timeSeriesDataMaker = (
       )
     }
 
-    let xAxisDataPoint = dict->getString(xAxis, "")->String.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
+    let xAxisDataPoint =
+      dict->getString(xAxis, "")->String.split(" ")->Array.joinWithUnsafe("T") ++ "Z" // right now it is time string
     let yAxisDataPoint = dict->getFloat(yAxis, 0.)
 
     let secondryAxisPoint = switch secondryMetrics {
@@ -590,7 +591,7 @@ let formatLabels = (metric: metricsConfig, value: float) => {
   }
 }
 
-let getTooltipHTML = (metrics, data, onCursorName) => {
+let getTooltipHTML = (metrics, data, onCursorName, index, length) => {
   let metric_type = metrics.metric_type
   let (name, color, y_axis, secondry_metrix) = data
   let secondry_metrix_val = switch metrics.secondryMetrics {
@@ -599,44 +600,47 @@ let getTooltipHTML = (metrics, data, onCursorName) => {
   | None => ""
   }
 
-  let highlight = onCursorName == name ? "font-weight:900;font-size:13px;" : ""
+  let spacing = index !== length - 1 ? "<tr style='height: 10px;'></tr>" : ""
+
+  let highlight = onCursorName == name ? "font-weight:900;font-size:13px;" : "opacity:60%;"
+
   `<tr>
-      <td><span style='color:${color}; ${highlight}'></span></td>
-      <td><span style=${highlight}>${name}  </span></td>
+      <td><span style='height:10px; width:10px;margin-top:5px;display:inline-block; background-color:${color};border-radius:3px;margin-right:3px;fontFamily:"Inter"'/></td>
+      <td><span style='${highlight};padding-right: 10px;'>${name->LogicUtils.snakeToTitle}</span></td>
       <td><span style=${highlight}>${formatStatsAccToMetrix(metric_type, y_axis)}</span></td>
       <td><span style=${highlight}>${secondry_metrix_val}</span></td>
-  </tr>`
+  </tr>
+  ${spacing}`
 }
 
 let tooltipFormatter = (
   metrics: metricsConfig,
   xAxisMapInfo: Dict.t<array<(Js_string.t, string, float, option<float>)>>,
   groupKey: string,
-) =>
-  @this
-  (points: JSON.t) => {
-    let points = points->getDictFromJsonObject
-    let series = points->getJsonObjectFromDict("series")->getDictFromJsonObject
+) => @this
+(points: JSON.t) => {
+  let points = points->getDictFromJsonObject
+  let series = points->getJsonObjectFromDict("series")->getDictFromJsonObject
 
-    let dataArr = if ["run_date", "run_month", "run_week"]->Array.includes(groupKey) {
-      let x = points->getString("name", "")
-      xAxisMapInfo->Dict.get(x)->Option.getOr([])
-    } else {
-      let x = points->getFloat("x", 0.)
-      xAxisMapInfo->Dict.get(x->Float.toString)->Option.getOr([])
-    }
-
-    let onCursorName = series->getString("name", "")
-    let htmlStr =
-      dataArr
-      ->Array.map(data => {
-        getTooltipHTML(metrics, data, onCursorName)
-      })
-      ->Array.joinWith("")
-    `<table>${htmlStr}</table>`
+  let dataArr = if ["run_date", "run_month", "run_week"]->Array.includes(groupKey) {
+    let x = points->getString("name", "")
+    xAxisMapInfo->Dict.get(x)->Option.getOr([])
+  } else {
+    let x = points->getFloat("x", 0.)
+    xAxisMapInfo->Dict.get(x->Float.toString)->Option.getOr([])
   }
 
-let legendItemStyle = (theme: ThemeProvider.theme, legendFontFamilyClass, legendFontSizeClass) => {
+  let onCursorName = series->getString("name", "")
+  let htmlStr =
+    dataArr
+    ->Array.mapWithIndex((data, i) => {
+      getTooltipHTML(metrics, data, onCursorName, i, dataArr->Array.length)
+    })
+    ->Array.joinWith("")
+  `<table>${htmlStr}</table>`
+}
+
+let legendItemStyle = (theme: ThemeProvider.theme, legendFontSizeClass) => {
   switch theme {
   | Dark =>
     {
@@ -644,7 +648,7 @@ let legendItemStyle = (theme: ThemeProvider.theme, legendFontFamilyClass, legend
       "cursor": "pointer",
       "fontSize": legendFontSizeClass,
       "fontWeight": "500",
-      "fontFamily": legendFontFamilyClass,
+      "fontFamily": "Inter",
       "fontStyle": "normal",
     }->genericObjectOrRecordToJson
   | Light =>
@@ -653,14 +657,13 @@ let legendItemStyle = (theme: ThemeProvider.theme, legendFontFamilyClass, legend
       "cursor": "pointer",
       "fontSize": legendFontSizeClass,
       "fontWeight": "500",
-      "fontFamily": legendFontFamilyClass,
+      "fontFamily": "Inter",
       "fontStyle": "normal",
     }->genericObjectOrRecordToJson
   }
 }
 
-let legendHiddenStyle = (
-  theme: ThemeProvider.theme,
+let legendHiddenStyle = (theme: ThemeProvider.theme) => (
   legendFontFamilyClass,
   legendFontSizeClass,
 ) => {
@@ -693,7 +696,6 @@ let chartTitleStyle = (theme: ThemeProvider.theme) => {
       "color": "#f6f8f9",
       "fontSize": "13px",
       "fontWeight": "500",
-      "fontFamily": "IBM Plex Sans",
       "fontStyle": "normal",
     }->genericObjectOrRecordToJson
   | Light =>
@@ -701,29 +703,8 @@ let chartTitleStyle = (theme: ThemeProvider.theme) => {
       "color": "#474D59",
       "fontSize": "16px",
       "fontWeight": "500",
-      "fontFamily": "IBM Plex Sans",
       "fontStyle": "normal",
     }->genericObjectOrRecordToJson
-  }
-}
-
-let getGranularity = (~startTime, ~endTime) => {
-  let diff =
-    (endTime->DateTimeUtils.parseAsFloat -. startTime->DateTimeUtils.parseAsFloat) /. (1000. *. 60.) // in minutes
-
-  // startTime
-  if diff < 60. *. 6. {
-    // Smaller than 6 hour
-
-    ["G_FIFTEENMIN", "G_FIVEMIN"]
-  } else if diff < 60. *. 24. {
-    // Smaller than 1 day
-
-    ["G_ONEHOUR", "G_THIRTYMIN", "G_FIFTEENMIN"]
-  } else if diff < 60. *. 24. *. 7. {
-    ["G_ONEDAY", "G_ONEHOUR"]
-  } else {
-    ["G_ONEDAY"]
   }
 }
 

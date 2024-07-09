@@ -13,7 +13,7 @@ module HighBarChart1D = {
     ~isHrizonatalBar: bool=true,
     ~selectedMetrics: LineChartUtils.metricsConfig,
   ) => {
-    let (theme, _setTheme) = React.useContext(ThemeProvider.themeContext)
+    let {theme} = React.useContext(ThemeProvider.themeContext)
     let gridLineColor = switch theme {
     | Light => "#2e2f39"
     | Dark => "#e6e6e6"

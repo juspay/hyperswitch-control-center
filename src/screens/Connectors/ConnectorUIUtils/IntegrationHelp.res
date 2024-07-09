@@ -1,7 +1,7 @@
 module Render = {
   @react.component
   let make = (~connector, ~showModal, ~setShowModal) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let integrationSteps = switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
     | Processors(STRIPE) =>
       <div className="">
