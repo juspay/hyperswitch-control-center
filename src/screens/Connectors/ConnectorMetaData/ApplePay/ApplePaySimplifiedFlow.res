@@ -1,4 +1,4 @@
-open ApplePayIntegrationTypesV2
+open ApplePayIntegrationTypes
 @react.component
 let make = (
   ~applePayFields,
@@ -8,8 +8,8 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
-  open ApplePayIntegrationHelperV2
-  open ApplePayIntegrationUtilsV2
+  open ApplePayIntegrationHelper
+  open ApplePayIntegrationUtils
   let getURL = useGetURL()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
   let fetchApi = AuthHooks.useApiFetcher()
@@ -52,7 +52,7 @@ let make = (
       let domainName = data.session_token_data.initiative_context->Option.getOr("")
 
       setVefifiedDomainList(_ => [domainName])
-      setApplePayIntegrationSteps(_ => ApplePayIntegrationTypesV2.Verify)
+      setApplePayIntegrationSteps(_ => ApplePayIntegrationTypes.Verify)
     } catch {
     | _ => showToast(~message="Failed to Verify", ~toastType=ToastState.ToastError, ())
     }
@@ -114,7 +114,7 @@ let make = (
               ~field={applePayField},
               ~opt={Some(merchantBusinessCountry)},
               ~formName={
-                ApplePayIntegrationUtilsV2.applePayNameMapper(
+                ApplePayIntegrationUtils.applePayNameMapper(
                   ~name="merchant_business_country",
                   ~integrationType=Some(#simplified),
                 )
@@ -153,7 +153,7 @@ let make = (
       stepNumber="3"
       customElement=Some(
         <HostURL
-          prefix={`${ApplePayIntegrationUtilsV2.applePayNameMapper(
+          prefix={`${ApplePayIntegrationUtils.applePayNameMapper(
               ~name="initiative_context",
               ~integrationType=Some(#simplified),
             )}`}

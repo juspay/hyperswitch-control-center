@@ -8,8 +8,8 @@ module Verified = {
     ~setShowWalletConfigurationModal,
     ~update,
   ) => {
-    open ApplePayIntegrationHelperV2
-    open ApplePayIntegrationTypesV2
+    open ApplePayIntegrationHelper
+    open ApplePayIntegrationTypes
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
@@ -22,7 +22,7 @@ module Verified = {
         ->getDictFromJsonObject
         ->getDictfromDict("metadata")
         ->getDictfromDict("apple_pay_combined")
-      let applePayData = ApplePayIntegrationUtilsV2.applePay(
+      let applePayData = ApplePayIntegrationUtils.applePay(
         data,
         ~applePayIntegrationType=Some(appleIntegrationType),
         (),
@@ -54,7 +54,7 @@ module Verified = {
             <div className={`relative w-full  p-6 rounded flex flex-col justify-between border `}>
               <div className="flex justify-between">
                 <div className={`font-medium text-base text-hyperswitch_black `}>
-                  {domainUrl->React.string}
+                  {domainUrl->String.length > 0 ? domainUrl->React.string : "Default"->React.string}
                 </div>
                 <div>
                   {switch appleIntegrationType {
@@ -108,7 +108,7 @@ module Landing = {
     ~setApplePayIntegrationSteps,
     ~setApplePayIntegrationType,
   ) => {
-    open ApplePayIntegrationTypesV2
+    open ApplePayIntegrationTypes
     open WalletHelper
     <>
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
@@ -169,7 +169,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   open APIUtils
   open LogicUtils
   open WalletHelper
-  open ApplePayIntegrationTypesV2
+  open ApplePayIntegrationTypes
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()

@@ -1,4 +1,4 @@
-open ApplePayIntegrationTypesV2
+open ApplePayIntegrationTypes
 module SimplifiedHelper = {
   @react.component
   let make = (
@@ -91,7 +91,7 @@ let applePayValueInput = (
 ) => {
   open CommonMetaDataHelper
   let {\"type", name} = applePayField
-  let formName = ApplePayIntegrationUtilsV2.applePayNameMapper(~name, ~integrationType)
+  let formName = ApplePayIntegrationUtils.applePayNameMapper(~name, ~integrationType)
 
   {
     switch \"type" {

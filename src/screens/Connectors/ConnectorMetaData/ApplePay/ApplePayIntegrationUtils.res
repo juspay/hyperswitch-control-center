@@ -1,4 +1,4 @@
-open ApplePayIntegrationTypesV2
+open ApplePayIntegrationTypes
 open LogicUtils
 let paymentRequest = (dict, integrationType) => {
   let paymentRequestDict =

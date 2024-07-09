@@ -1,8 +1,8 @@
 @react.component
 let make = (~applePayFields, ~update, ~closeModal, ~setShowWalletConfigurationModal) => {
   open LogicUtils
-  open ApplePayIntegrationUtilsV2
-  open ApplePayIntegrationHelperV2
+  open ApplePayIntegrationUtils
+  open ApplePayIntegrationHelper
   let form = ReactFinalForm.useForm()
 
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(

@@ -23,7 +23,7 @@ module Wallets = {
     <div>
       {switch method.payment_method_type->getPaymentMethodTypeFromString {
       | ApplePay =>
-        <ApplePayIntegrationV2
+        <ApplePayIntegration
           connector setShowWalletConfigurationModal update onCloseClickCustomFun
         />
       | GooglePay =>
