@@ -23,7 +23,7 @@ let getTypedValueFromResponse: Dict.t<JSON.t> => SSOTypes.authMethodResponseType
   open LogicUtils
   let authMethodsDict = dict->getDictfromDict("auth_method")
   {
-    id: dict->getString("id", ""),
+    id: dict->getOptionString("id"),
     auth_id: dict->getString("auth_id", ""),
     auth_method: {
       \"type": authMethodsDict->getString("type", "")->authMethodsTypeToVariantMapper,
