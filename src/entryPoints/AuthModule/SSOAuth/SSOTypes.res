@@ -16,7 +16,7 @@ type authMethodType = {
 }
 
 type authMethodResponseType = {
-  id: string,
+  id: option<string>,
   auth_id: string,
   auth_method: authMethodType,
   allow_signup: bool,

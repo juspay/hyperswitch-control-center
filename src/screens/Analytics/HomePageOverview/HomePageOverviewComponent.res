@@ -72,8 +72,6 @@ module SystemMetricsInsights = {
   open AnalyticsTypes
   @react.component
   let make = () => {
-    let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
-
     let getStatData = (
       singleStatData: systemMetricsObjectType,
       timeSeriesData: array<systemMetricsSingleStateSeries>,
@@ -103,44 +101,15 @@ module SystemMetricsInsights = {
     let defaultColumns: array<DynamicSingleStat.columns<systemMetricsSingleStateMetrics>> = [
       {
         sectionName: "",
-        columns: [Latency],
+        columns: [{colType: Latency}],
       },
     ]
-
-    let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity) => {
-      let filters =
-        [
-          ("api_name", ["PaymentsConfirm"->JSON.Encode.string]->JSON.Encode.array),
-          ("status_code", [200.0->JSON.Encode.float]->JSON.Encode.array),
-          ("flow_type", ["Payment"->JSON.Encode.string]->JSON.Encode.array),
-        ]->LogicUtils.getJsonFromArrayOfJson
-
-      [
-        AnalyticsUtils.getFilterRequestBody(
-          ~filter=filters->Some,
-          ~metrics=singleStatBodyEntity.metrics,
-          ~delta=?singleStatBodyEntity.delta,
-          ~startDateTime=singleStatBodyEntity.startDateTime,
-          ~endDateTime=singleStatBodyEntity.endDateTime,
-          ~mode=singleStatBodyEntity.mode,
-          ~customFilter=?singleStatBodyEntity.customFilter,
-          ~source=?singleStatBodyEntity.source,
-          ~granularity=singleStatBodyEntity.granularity,
-          ~prefix=singleStatBodyEntity.prefix,
-          (),
-        )->JSON.Encode.object,
-      ]
-      ->JSON.Encode.array
-      ->JSON.stringify
-    }
 
     let getStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
       urlConfig: [
         {
           uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
           metrics: metrics->getStringListFromArrayDict,
-          singleStatBody: singleStatBodyMake,
-          singleStatTimeSeriesBody: singleStatBodyMake,
         },
       ],
       getObjects: itemToObjMapper,
@@ -166,7 +135,6 @@ module SystemMetricsInsights = {
       moduleName="SystemMetrics"
       defaultStartDate={dateDict.start_time}
       defaultEndDate={dateDict.end_time}
-      setTotalVolume
       showPercentage=false
       isHomePage=true
       wrapperClass="flex flex-wrap w-full h-full"
