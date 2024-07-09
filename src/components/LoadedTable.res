@@ -243,8 +243,7 @@ let make = (
     }
     None
   })
-  let resultsPerPage =
-    resultsPerPage > 10 ? defaultResultsPerPage ? 10 : resultsPerPage : resultsPerPage
+
   let customizeColumnNewTheme = None
   let defaultValue: pageDetails = {offset, resultsPerPage}
   let (firstRender, setFirstRender) = React.useState(_ => true)

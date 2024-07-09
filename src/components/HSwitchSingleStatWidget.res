@@ -1,4 +1,5 @@
 type statChartColor = [#blue | #grey]
+open ApexCharts
 @react.component
 let make = (
   ~title,
@@ -7,7 +8,7 @@ let make = (
   ~value: float,
   ~data,
   ~statType="",
-  ~borderRounded="rounded",
+  ~borderRounded="rounded-lg",
   ~singleStatLoading=false,
   ~showPercentage=true,
   ~loaderType: AnalyticsUtils.loaderType=Shimmer,
@@ -15,42 +16,7 @@ let make = (
   ~filterNullVals: bool=false,
   ~statSentiment: Dict.t<AnalyticsUtils.statSentiment>=Dict.make(),
   ~statThreshold: Dict.t<float>=Dict.make(),
-  ~isHomePage=false,
 ) => {
-  open Identity
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-  let (updateKey, setUpdateKey) = React.useState(_ => false)
-
-  let sortedData = React.useMemo1(() => {
-    data
-    ->Array.toSorted((item1, item2) => {
-      let (x1, _y1) = item1
-      let (x2, _y2) = item2
-      if x1 > x2 {
-        -1.
-      } else if x1 == x2 {
-        0.
-      } else {
-        1.
-      }
-    })
-    ->Array.map(item => {
-      let (x, y) = item
-      if y === 0. && filterNullVals {
-        (x, Nullable.null)
-      } else {
-        (x, y->Nullable.make)
-      }
-    })
-  }, [data])
-
-  React.useEffect1(() => {
-    if !singleStatLoading {
-      setUpdateKey(prev => !prev)
-    }
-    None
-  }, [singleStatLoading])
-
   let percentFormat = value => {
     `${Float.toFixedWithPrecision(value, ~digits=2)}%`
   }
@@ -72,153 +38,102 @@ let make = (
     }
   }
 
-  let strokeColor = textColor.primaryNormal
-
-  let options = React.useMemo2((): Highcharts.options<float> => {
-    {
-      chart: Some(
-        {
-          "type": "area",
-          "zoomType": "x",
-          "margin": Some([0, 0, 0, 0]),
-          "marginLeft": isHomePage ? Some(-5) : None,
-          "marginRight": isHomePage ? Some(-5) : None,
-          "backgroundColor": Nullable.null,
-          "height": (isHomePage ? "80" : "50")->Some,
-          "width": isHomePage ? None : Some("105"),
-          "events": None,
-        }->genericObjectOrRecordToJson,
-      ),
-      title: {
-        "text": "",
-        "style": JSON.Encode.object(Dict.make()),
-      }->genericObjectOrRecordToJson,
-      credits: {
-        "enabled": false,
-      },
-      legend: {
-        "enabled": false,
-      }->genericObjectOrRecordToJson,
-      tooltip: {
-        "enabled": false,
-      }->genericObjectOrRecordToJson,
-      plotOptions: Some(
-        {
-          "area": {
-            "inverted": true,
-            "backgroundColor": "transparent",
-            "spacing": (0, 0, 0, 0),
-            "styledMode": true,
-            "pointStart": None,
-            "states": {
-              "hover": {
-                "lineWidth": 3,
-              },
-            },
-            "lineWidth": 3,
-          }->genericObjectOrRecordToJson,
-          "boxplot": {
-            "visible": false,
-          },
-          "series": {
-            "marker": {
-              "enabled": false->Some,
-              "radius": None,
-              "symbol": None,
-            },
-            "states": None,
-            "events": Some({
-              "legendItemClick": None,
-              "mouseOver": Some(""),
-            }),
-          }->genericObjectOrRecordToJson,
-        }->genericObjectOrRecordToJson,
-      ),
-      xAxis: {
-        "type": "datetime",
-        "zoomEnabled": false,
-      }->genericObjectOrRecordToJson,
-      yAxis: {
-        "tickPositioner": None,
-        "plotLines": None,
-        "visible": false,
-        "title": {
-          "text": "",
-          "style": JSON.Encode.object(Dict.make()),
-        }->genericObjectOrRecordToJson,
-        "labels": {"formatter": None, "enabled": false, "useHTML": false}->Some,
-        "zoomEnabled": false,
-      }->genericObjectOrRecordToJson,
-      series: [
-        {
-          color: Some(strokeColor),
-          fillOpacity: isHomePage ? 0.3 : 0.0,
-          name: "Sample",
-          data: sortedData,
-          legendIndex: 0,
-          connectNulls: false,
-          className: `fill-current ${strokeColor}`,
-        },
-      ],
-    }
-  }, (sortedData, statType))
   let isMobileWidth = MatchMedia.useMatchMedia("(max-width: 700px)")
 
+  let sortedData1 = React.useMemo1(() => {
+    data
+    ->Array.toSorted((item1, item2) => {
+      let (x1, _y1) = item1
+      let (x2, _y2) = item2
+      if x1 > x2 {
+        -1.
+      } else if x1 == x2 {
+        0.
+      } else {
+        1.
+      }
+    })
+    ->Array.map(item => {
+      let (x, y) = item
+      {
+        x,
+        y,
+      }
+    })
+  }, [data])
+
+  let options1 = {
+    chart: {
+      height: 10,
+      toolbar: {
+        show: false,
+      },
+    },
+    legend: {show: false},
+    stroke: {curve: "smooth"},
+    dataLabels: {enabled: false},
+    grid: {show: false},
+    xaxis: {
+      labels: {
+        show: false, // Hide x-axis labels
+      },
+      axisBorder: {
+        show: false, // Hide x-axis border
+      },
+      axisTicks: {
+        show: false, // Hide x-axis ticks
+      },
+    },
+    yaxis: {
+      labels: {
+        show: false, // Hide x-axis labels
+      },
+      axisBorder: {
+        show: false, // Hide x-axis border
+      },
+      axisTicks: {
+        show: false, // Hide x-axis ticks
+      },
+    },
+    tooltip: {
+      enabled: false,
+    },
+    colors: ["#006DF9"],
+  }
+
+  let series = [
+    {
+      \"type": "area",
+      data: sortedData1,
+    },
+  ]
+
   if singleStatLoading && loaderType === Shimmer {
-    if isHomePage {
-      <Shimmer styleClass="w-full h-full" />
-    } else {
-      <div
-        className={`p-4`} style={ReactDOMStyle.make(~width=isMobileWidth ? "100%" : "33.33%", ())}>
-        <Shimmer styleClass="w-full h-28" />
-      </div>
-    }
-  } else if isHomePage {
-    <div className="relative w-full h-full">
-      <div
-        className={`h-full w-full flex flex-col border ${borderRounded} dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden p-10 mb-7`}>
-        <div className="h-full flex flex-col gap-1">
-          <div className="font-bold text-[2.3rem]">
-            {statValue(statType)->String.toLowerCase->React.string}
-          </div>
-          <div className={"flex gap-2 items-centertext-jp-gray-700 font-bold"}>
-            <div className={`${HSwitchUtils.getTextClass((H3, Leading_2))} text-grey-700`}>
-              {title->React.string}
-            </div>
-            <ToolTip
-              description=tooltipText
-              toolTipFor={<div className="cursor-pointer">
-                <Icon name="info-vacent" size=13 />
-              </div>}
-              toolTipPosition=ToolTip.Top
-            />
-          </div>
-        </div>
-      </div>
-      <div className="absolute bottom-0 w-full h-1/3 overflow-hidden rounded">
-        <Highcharts.HighchartsReact
-          highcharts={Highcharts.highchartsModule} options key={updateKey ? "0" : "1"}
-        />
-      </div>
+    <div className={`p-4`} style={ReactDOMStyle.make(~width=isMobileWidth ? "100%" : "33.33%", ())}>
+      <Shimmer styleClass="w-full h-28" />
     </div>
   } else {
     <div
       className={`mt-4`} style={ReactDOMStyle.make(~width=isMobileWidth ? "100%" : "33.33%", ())}>
       <div
-        className={`h-full flex flex-col border ${borderRounded} dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox p-4 md:mr-4`}>
+        className={`h-full flex flex-col border ${borderRounded} dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox p-2 md:mr-4`}>
         <div className="p-4 flex flex-col justify-between h-full gap-auto">
           <UIUtils.RenderIf condition={singleStatLoading && loaderType === SideLoader}>
             <div className="animate-spin self-end absolute">
               <Icon name="spinner" size=16 />
             </div>
           </UIUtils.RenderIf>
-          <div className="flex flex-row h-1/2 items-end">
-            <div className="font-bold text-3xl">
+          <div className="flex justify-between w-full h-1/2 items-end">
+            <div className="font-bold text-3xl w-1/3">
               {statValue(statType)->String.toLowerCase->React.string}
             </div>
-            <div className="flex px-4 h-full items-center">
-              <Highcharts.HighchartsReact
-                highcharts={Highcharts.highchartsModule} options key={updateKey ? "0" : "1"}
+            <div className="h-16 w-2/3 scale-[0.4]">
+              <ApexCharts.ReactApexChart
+                \"type"="area"
+                options={options1}
+                series={series->objToJson}
+                height={"170"}
+                width="380"
               />
             </div>
           </div>
@@ -233,6 +148,7 @@ let make = (
                 <Icon name="info-vacent" size=13 />
               </div>}
               toolTipPosition=ToolTip.Top
+              newDesign=true
             />
           </div>
         </div>

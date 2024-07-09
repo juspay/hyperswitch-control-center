@@ -448,9 +448,12 @@ module LineChart1D = {
       | Points =>
         {
           "enabled": !isMultiDimensional,
-          "itemStyle": legendItemStyle(theme)("IBM Plex Sans", "12px"),
+          "itemStyle": legendItemStyle(theme, "12px"),
           "itemHiddenStyle": legendHiddenStyle(theme),
-          "itemHoverStyle": legendItemStyle(theme),
+          "itemHoverStyle": legendItemStyle(theme, "12px"),
+          "symbolRadius": 4,
+          "symbolPaddingTop": 5,
+          "itemMarginBottom": 10,
         }->genericObjectOrRecordToJson
       }
 
@@ -508,13 +511,19 @@ module LineChart1D = {
           "useHTML": true,
           "formatter": tooltipFormatter(selectedMetrics, xAxisMapInfo, groupKey)->Some,
           "hideDelay": 0,
-          "outside": false,
-          "shape": "square",
-          "backgroundColor": theme === Light ? "rgba(25, 26, 26, 1)" : "rgba(247, 247, 250, 1)",
-          "borderColor": theme === Light ? "rgba(25, 26, 26, 1)" : "rgba(247, 247, 250, 1)",
-          "boxShadow": "",
+          "outside": true,
+          "borderRadius": 20,
+          "backgroundColor": "#ffffff",
+          "borderColor": "#E5E5E5",
+          "shadow": {
+            "color": "rgba(0, 0, 0, 0.15)",
+            "offsetX": 0,
+            "offsetY": 0,
+            "opacity": 0.07,
+            "width": 10,
+          },
           "style": {
-            "color": theme === Light ? "rgba(246, 248, 249, 1)" : "rgba(25, 26, 26, 1)",
+            "color": "#333333",
           },
         }->genericObjectOrRecordToJson,
         plotOptions: Some(
