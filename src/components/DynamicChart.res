@@ -39,15 +39,20 @@ let getGranularity = (~startTime, ~endTime) => {
     (endTime->DateTimeUtils.parseAsFloat -. startTime->DateTimeUtils.parseAsFloat) /. (1000. *. 60.) // in minutes
 
   // startTime
-  if diff < 60. *. 6. {
+  let options = if diff < 60. *. 6. {
     // Smaller than 6 hour
+
     [G_FIFTEENMIN, G_FIVEMIN]
   } else if diff < 60. *. 24. {
     // Smaller than 1 day
-    [G_ONEHOUR, G_THIRTYMIN, G_FIFTEENMIN, G_FIVEMIN]
+    [G_ONEHOUR, G_THIRTYMIN, G_FIFTEENMIN]
+  } else if diff < 60. *. 24. *. 7. {
+    [G_ONEDAY, G_ONEHOUR]
   } else {
-    [G_ONEDAY, G_ONEHOUR, G_THIRTYMIN, G_FIFTEENMIN, G_FIVEMIN]
+    [G_ONEDAY]
   }
+
+  options->Array.map(getGranularityString)
 }
 
 type chartEntity = {
@@ -323,6 +328,11 @@ module GranularitySelectBox = {
   let make = (~selectedGranularity, ~setSelectedGranularity, ~startTime, ~endTime) => {
     let options = getGranularity(~startTime, ~endTime)
 
+    let granularity = switch selectedGranularity {
+    | Some(val) => val
+    | _ => "G_FIVEMIN"
+    }
+
     open HeadlessUI
     <>
       <Menu \"as"="div" className="relative inline-block text-left">
@@ -333,7 +343,7 @@ module GranularitySelectBox = {
               {props => {
                 let arrow = props["open"]
                 <>
-                  {selectedGranularity->getGranularityFormattedText->React.string}
+                  {granularity->React.string}
                   <Icon
                     className={arrow
                       ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
@@ -363,7 +373,7 @@ module GranularitySelectBox = {
                           {props =>
                             <div className="relative">
                               <button
-                                onClick={_ => setSelectedGranularity(_ => option)}
+                                onClick={_ => setSelectedGranularity(_ => option->Some)}
                                 className={
                                   let activeClasses = if props["active"] {
                                     "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
@@ -372,9 +382,7 @@ module GranularitySelectBox = {
                                   }
                                   `${activeClasses} font-medium text-start`
                                 }>
-                                <div className="mr-5">
-                                  {option->getGranularityFormattedText->React.string}
-                                </div>
+                                <div className="mr-5"> {option->React.string} </div>
                               </button>
                             </div>}
                         </Menu.Item>
@@ -406,6 +414,7 @@ let make = (
   ~comparitionWidget=false,
 ) => {
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let updateChartCompFilters = switch updateUrl {
   | Some(fn) => fn
   | None => _ => ()
@@ -416,6 +425,11 @@ let make = (
   let customFilterKey = switch entity {
   | {customFilterKey} => customFilterKey
   | _ => ""
+  }
+
+  let getGranularity = switch entity {
+  | {getGranularity} => getGranularity
+  | _ => getGranularity
   }
 
   let getAllFilter =
@@ -586,10 +600,10 @@ let make = (
     ~endTime={endTimeFromUrl},
   )->Array.get(0) {
   | Some(val) => val
-  | _ => G_FIVEMIN
+  | _ => "G_FIVEMIN"
   }
 
-  let (selectedGranularity, setSelectedGranularity) = React.useState(_ => defaultGranularity)
+  let (granularity, setGranularity) = React.useState(_ => None)
 
   let topFiltersToSearchParam = React.useMemo1(() => {
     let filterSearchParam =
@@ -609,10 +623,27 @@ let make = (
     filterSearchParam
   }, [topFiltersToSearchParam])
 
+  let current_granularity = {
+    if startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString {
+      getGranularity(~startTime=startTimeFromUrl, ~endTime=endTimeFromUrl)
+    } else {
+      []
+    }
+  }
+
   React.useEffect2(() => {
-    setSelectedGranularity(_ => defaultGranularity)
+    setGranularity(prev => {
+      if featureFlagDetails.granularity {
+        defaultGranularity->Some
+      } else if current_granularity->Array.includes(prev->Option.getOr("")) {
+        prev
+      } else {
+        current_granularity->Array.get(0)
+      }
+    })
     None
   }, (startTimeFromUrl, endTimeFromUrl))
+
   let selectedTabStr = selectedTab->Option.getOr([])->Array.joinWithUnsafe("")
 
   let updatedChartConfigArr = React.useMemo7(() => {
@@ -630,6 +661,18 @@ let make = (
         )
         ->Dict.fromArray
 
+      let activeTab = selectedTab->Option.getOr([])->Array.get(0)->Option.getOr("")
+
+      let granularity = if activeTab === "run_date" {
+        "G_ONEHOUR"->Some
+      } else if activeTab === "run_week" {
+        "G_ONEDAY"->Some
+      } else if activeTab === "run_month" {
+        Some("G_ONEDAY")
+      } else {
+        granularity
+      }
+
       {
         uri: item.uri,
         metrics: item.metrics,
@@ -637,7 +680,7 @@ let make = (
         start_time: startTimeFromUrl,
         end_time: endTimeFromUrl,
         filters: Some(JSON.Encode.object(filterValue)),
-        granularityOpts: selectedGranularity->getGranularityString->Some,
+        granularityOpts: granularity,
         delta: false,
         startDateTime: startTimeFromUrl,
         cardinality: Some(cardinalityFromUrl),
@@ -654,7 +697,7 @@ let make = (
     topFiltersToSearchParam,
     cardinalityFromUrl,
     selectedTabStr,
-    selectedGranularity,
+    granularity,
   ))
 
   let updatedChartBody = React.useMemo1(() => {
@@ -812,14 +855,16 @@ let make = (
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else if comparitionWidget {
                   <div>
-                    <div className="w-full flex justify-end p-2">
-                      <GranularitySelectBox
-                        selectedGranularity
-                        setSelectedGranularity
-                        startTime={startTimeFromUrl}
-                        endTime={endTimeFromUrl}
-                      />
-                    </div>
+                    <UIUtils.RenderIf condition={featureFlagDetails.granularity}>
+                      <div className="w-full flex justify-end p-2">
+                        <GranularitySelectBox
+                          selectedGranularity={granularity}
+                          setSelectedGranularity={setGranularity}
+                          startTime={startTimeFromUrl}
+                          endTime={endTimeFromUrl}
+                        />
+                      </div>
+                    </UIUtils.RenderIf>
                     {entityAllMetrics
                     ->Array.mapWithIndex((selectedMetrics, index) => {
                       switch uriConfig->Array.get(0) {
