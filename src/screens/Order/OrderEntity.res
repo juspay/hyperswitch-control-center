@@ -532,7 +532,7 @@ let getHeading = (colType: colType) => {
   | MerchantOrderReferenceId =>
     Table.makeHeaderInfo(
       ~key="merchant_order_reference_id",
-      ~title="MerchantOrderReferenceId",
+      ~title="Merchant Order Reference Id",
       ~showSort=false,
       (),
     )
