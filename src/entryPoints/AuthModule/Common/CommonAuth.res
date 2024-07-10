@@ -82,7 +82,7 @@ module Header = {
             form.resetFieldState("email")
             form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
             setAuthType(_ => authType)
-            HSwitchGlobalVars.appendDashboardPath(~url=path)->RescriptReactRouter.push
+            GlobalVars.appendDashboardPath(~url=path)->RescriptReactRouter.push
           }}
           id="card-subtitle"
           className={`font-semibold ${textColor.primaryNormal} cursor-pointer`}>
