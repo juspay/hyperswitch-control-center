@@ -62,7 +62,7 @@ let make = (~urlList) => {
               }}
               id="recon-module"
               className="h-full w-full"
-              src={`http://localhost:9031/v4/${redirectUrl}`}
+              src={`${Window.env.reconIframeUrl->Option.getOr("")}/${redirectUrl}`}
               height="100%"
               width="100%"
               ref={iframeRef->ReactDOM.Ref.domRef}
