@@ -525,6 +525,7 @@ let reconTag = (recon, isReconEnabled) => {
   let reconReports = reconReports()
   let reconConfigurator = reconConfigurator()
   let reconFileProcessor = reconFileProcessor()
+  // TODO: change later for everyone
   let reconUrlPresent = Window.env.reconIframeUrl->Option.getOr("")->LogicUtils.isNonEmptyString
 
   switch (recon, isReconEnabled, reconUrlPresent) {
