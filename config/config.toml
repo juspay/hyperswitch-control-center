@@ -11,7 +11,7 @@ agreement_url=""
 agreement_version=""
 apple_pay_certificate_url=""
 mixpanel_token=""
-recon_iframe_url="http://localhost:9031/v4"
+recon_iframe_url=""
 [default.features]
 test_live_toggle=false
 is_live_mode=false
@@ -22,7 +22,7 @@ system_metrics=false
 sample_data=false
 frm=false
 payout=true
-recon=true
+recon=false
 test_processors=true
 feedback=false
 mixpanel=false
