@@ -65,12 +65,6 @@ let getSearchOptionsForProcessors = (~processorList, ~getNameFromString) => {
   searchOptionsForProcessors
 }
 
-let isValidEmail = value =>
-  !Js.Re.test_(
-    %re(`/^(([^<>()[\]\.,;:\s@"]+(\.[^<>()[\]\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
-    value,
-  )
-
 // TODO : Remove once user-management flow introduces
 let setUserDetails = (key, value) => {
   let localStorageData = getInfoFromLocalStorage(~lStorageKey="user")

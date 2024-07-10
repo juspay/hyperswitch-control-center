@@ -126,7 +126,7 @@ let formFieldsForQuickStart = [BusinessName, Country, Website, POCName, POCemail
 let validateCustom = (key, errors, value) => {
   switch key {
   | POCemail =>
-    if value->HSwitchUtils.isValidEmail {
+    if value->LogicUtils.isValidEmail {
       Dict.set(errors, key->getStringFromVariant, "Please enter valid email id"->JSON.Encode.string)
     }
   | Website =>

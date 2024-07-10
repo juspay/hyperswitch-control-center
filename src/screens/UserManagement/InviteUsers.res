@@ -59,7 +59,7 @@ module InviteEmailForm = {
               labelClass="!text-black !text-base !-ml-[0.5px]"
             />
           </div>
-          <div className="absolute top-10 right-5">
+          <div className="absolute top-20 right-20">
             <FormRenderer.SubmitButton
               text={email ? "Send Invite" : "Add User"} loadingText="Loading..."
             />

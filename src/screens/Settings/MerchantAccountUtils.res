@@ -298,7 +298,7 @@ let validateEmptyArray = (key, errors, arrayValue) => {
 let validateCustom = (key, errors, value, isLiveMode) => {
   switch key {
   | PrimaryEmail | SecondaryEmail =>
-    if value->HSwitchUtils.isValidEmail {
+    if value->LogicUtils.isValidEmail {
       Dict.set(
         errors,
         key->validationFieldsMapper,

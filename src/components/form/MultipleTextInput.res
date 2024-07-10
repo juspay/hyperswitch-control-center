@@ -52,6 +52,14 @@ let make = (
   let (text, setText) = React.useState(_ => "")
   let (makeChip, setMakeChip) = React.useState(_ => false)
   let (shiftPressed, setShiftPressed) = React.useState(_ => false)
+  let (invalidEmail, setInvalidEmail) = React.useState(_ => false)
+
+  React.useEffect1(() => {
+    if text->LogicUtils.isEmptyString {
+      setInvalidEmail(_ => false)
+    }
+    None
+  }, [text])
 
   let customStyleClass = customStyle->Option.getOr("gap-2 w-full px-1 py-1")
   let onTagRemove = text => {
@@ -102,6 +110,8 @@ let make = (
           })
 
           setTags(currentTags->Array.concat(newArr))
+          setMakeChip(_ => false)
+          setText(_ => "")
         } else if seperateBySpace {
           let arr = text->String.split(" ")
           let newArr = []
@@ -117,11 +127,18 @@ let make = (
           })
 
           setTags(currentTags->Array.concat(newArr))
+          setMakeChip(_ => false)
+          setText(_ => "")
         } else if !(currentTags->Array.includes(text->String.trim)) {
-          setTags(currentTags->Array.concat([text->String.trim]))
+          let a = text->String.trim->LogicUtils.isValidEmail
+          if a {
+            setInvalidEmail(_ => true)
+          } else {
+            setTags(currentTags->Array.concat([text->String.trim]))
+            setMakeChip(_ => false)
+            setText(_ => "")
+          }
         }
-        setMakeChip(_ => false)
-        setText(_ => "")
       } else if e->keyCode === 50 {
         if shiftPressed === true && e->key === "2" {
           setMakeChip(_ => true)
@@ -158,32 +175,43 @@ let make = (
   let className = `flex flex-wrap items-center  ${customStyleClass} bg-transparent
                   text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 text-sm font-semibold 
                   placeholder-jp-gray-900 placeholder-opacity-25 dark:placeholder-jp-gray-text_darktheme dark:placeholder-opacity-25
-                  border rounded border-opacity-75 border-jp-gray-lightmode_steelgray hover:border-jp-gray-600 dark:border-jp-gray-960 dark:hover:border-jp-gray-900`
-  <div className>
-    {currentTags
-    ->Array.map(tag => {
-      if tag->LogicUtils.isNonEmptyString && tag !== "<script>" && tag !== "</script>" {
-        <Tag key=tag text=tag remove=onTagRemove disabled ?customButtonStyle />
-      } else {
-        React.null
-      }
-    })
-    ->React.array}
-    <TextInput
-      input=input1
-      focusOnKeyPress={keyDownCondition}
-      placeholder
-      ?autoComplete
-      onKeyUp=handleKeyDown
-      isDisabled=disabled
-      customStyle={makeChip
-        ? "dark:bg-jp-gray-970 border rounded-full"
-        : "dark:bg-jp-gray-970 border-none"}
-      customWidth={makeChip ? "w-min" : "w-full"}
-      rightIcon={makeChip
-        ? <Icon name="close" size=10 className="mr-1" onClick={_ => onTagRemove(text)} />
-        : React.null}
-      rightIconOnClick={makeChip ? _ => onTagRemove(text) : _ => ()}
-    />
+                  border rounded border-opacity-75  dark:border-jp-gray-960 ${invalidEmail
+      ? " border-red-900 hover:border-red-600 dark:hover:border-red-900"
+      : " border-jp-gray-lightmode_steelgray hover:border-jp-gray-600 dark:hover:border-jp-gray-900"}`
+
+  <div>
+    <div className>
+      {currentTags
+      ->Array.map(tag => {
+        if tag->LogicUtils.isNonEmptyString && tag !== "<script>" && tag !== "</script>" {
+          <Tag key=tag text=tag remove=onTagRemove disabled ?customButtonStyle />
+        } else {
+          React.null
+        }
+      })
+      ->React.array}
+      <TextInput
+        input=input1
+        focusOnKeyPress={keyDownCondition}
+        placeholder
+        ?autoComplete
+        onKeyUp=handleKeyDown
+        isDisabled=disabled
+        customStyle={makeChip
+          ? "dark:bg-jp-gray-970 border rounded-full"
+          : "dark:bg-jp-gray-970 border-none"}
+        customWidth={makeChip ? "w-min" : "w-full"}
+        rightIcon={makeChip
+          ? <Icon name="close" size=10 className="mr-1" onClick={_ => onTagRemove(text)} />
+          : React.null}
+        rightIconOnClick={makeChip ? _ => onTagRemove(text) : _ => ()}
+      />
+    </div>
+    <UIUtils.RenderIf condition={invalidEmail}>
+      <div
+        className="text-red-900 text-opacity-75 dark:text-red-900 dark:text-opacity-75 text-sm font-semibold mt-0.5">
+        {"Please enter a valid email address"->React.string}
+      </div>
+    </UIUtils.RenderIf>
   </div>
 }
