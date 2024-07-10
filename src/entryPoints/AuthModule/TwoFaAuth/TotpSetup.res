@@ -259,12 +259,13 @@ let make = () => {
     try {
       open AuthUtils
 
-      let url = `${getURL(
-          ~entityName=USERS,
-          ~userType=#TERMINATE_TWO_FACTOR_AUTH,
-          ~methodType=Get,
-          (),
-        )}?skip_two_factor_auth=${skip_2fa->getStringFromBool}`
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#TERMINATE_TWO_FACTOR_AUTH,
+        ~methodType=Get,
+        ~queryParamerters=Some(`skip_two_factor_auth=${skip_2fa->getStringFromBool}`),
+        (),
+      )
 
       let response = await fetchDetails(url)
       setAuthStatus(PreLogin(getPreLoginInfo(response)))

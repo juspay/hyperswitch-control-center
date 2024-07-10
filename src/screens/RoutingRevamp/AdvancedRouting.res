@@ -657,6 +657,7 @@ let make = (
   let handleDeactivateConfiguration = async _ => {
     try {
       setScreenState(_ => Loading)
+
       let deactivateRoutingURL = `${getURL(
           ~entityName=urlEntityName,
           ~methodType=Post,

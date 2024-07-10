@@ -173,8 +173,7 @@ module RedirectionToPayPalFlow = {
           ~returnUrl=Some(returnURL),
           (),
         )
-        let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/action_url`
-
+        let url = getURL(~entityName=ACTION_URL, ~methodType=Post, ())
         let response = await updateDetails(url, body, Post, ())
         let actionURL =
           response->getDictFromJsonObject->getDictfromDict("paypal")->getString("action_url", "")
