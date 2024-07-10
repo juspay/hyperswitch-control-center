@@ -204,8 +204,10 @@ let make = () => {
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let redirectOnSelect = element => {
+    mixpanelEvent(~eventName="global_search_redirect", ())
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
