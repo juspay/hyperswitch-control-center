@@ -30,7 +30,7 @@ let useGetURL = () => {
       | _ => ""
       }
 
-    /* MERCHANT ACCOUNT DETAILS */
+    /* MERCHANT ACCOUNT DETAILS (Get and Post) */
     | MERCHANT_ACCOUNT => `accounts/${merchantId}`
 
     /* CUSTOMERS DETAILS */
@@ -130,7 +130,7 @@ let useGetURL = () => {
     | DEFAULT_FALLBACK => `routing/default`
     | ROUTING =>
       switch methodType {
-      | Get | Put =>
+      | Get =>
         switch id {
         | Some(routingId) => `routing/${routingId}`
         | _ => `routing`
@@ -142,6 +142,7 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | ACTIVE_ROUTING => `routing/active`
 
     /* ANALYTICS */
     | ANALYTICS_REFUNDS
@@ -176,7 +177,7 @@ let useGetURL = () => {
       | _ => ""
       }
 
-    /* PAYOUT ROUTING */
+    /* PAYOUTS ROUTING */
     | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
     | PAYOUT_ROUTING =>
       switch methodType {
@@ -192,6 +193,7 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | ACTIVE_PAYOUT_ROUTING => `routing/payouts/active`
 
     /* THREE DS ROUTING */
     | THREE_DS => `routing/decision`
@@ -225,10 +227,17 @@ let useGetURL = () => {
     | GENERATE_SAMPLE_DATA => `user/sample_data`
 
     /* VERIFY APPLE PAY */
-    | VERIFY_APPLE_PAY => `verify/apple_pay`
+    | VERIFY_APPLE_PAY =>
+      switch id {
+      | Some(merchant_id) => `verify/apple_pay/${merchant_id}`
+      | None => `verify/apple_pay`
+      }
 
     /* PAYPAL ONBOARDING */
     | PAYPAL_ONBOARDING => `connector_onboarding`
+    | PAYPAL_ONBOARDING_SYNC => `connector_onboarding/sync`
+    | ACTION_URL => `connector_onboarding/action_url`
+    | RESET_TRACKING_ID => `connector_onboarding/reset_tracking_id`
 
     /* BUSINESS PROFILE */
     | BUSINESS_PROFILE =>
@@ -315,12 +324,20 @@ let useGetURL = () => {
         }
 
       // USER DATA
-      | #USER_DATA => `${userUrl}/data`
+      | #USER_DATA =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/data?${params}`
+        | None => `${userUrl}/data`
+        }
       | #MERCHANT_DATA => `${userUrl}/data`
       | #USER_INFO => userUrl
 
       // USER PERMISSIONS
-      | #GET_PERMISSIONS => `${userUrl}/role`
+      | #GET_PERMISSIONS =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/role?${params}`
+        | None => `${userUrl}/role`
+        }
       | #PERMISSION_INFO =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
@@ -379,7 +396,12 @@ let useGetURL = () => {
       | #VERIFY_TOTP => `${userUrl}/2fa/totp/verify`
       | #VERIFY_RECOVERY_CODE => `${userUrl}/2fa/recovery_code/verify`
       | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
-      | #TERMINATE_TWO_FACTOR_AUTH => `${userUrl}/2fa/terminate`
+      | #TERMINATE_TWO_FACTOR_AUTH =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/2fa/terminate?${params}`
+        | None => `${userUrl}/2fa/terminate`
+        }
+
       | #CHECK_TWO_FACTOR_AUTH_STATUS => `${userUrl}/2fa`
       | #RESET_TOTP => `${userUrl}/2fa/totp/reset`
 

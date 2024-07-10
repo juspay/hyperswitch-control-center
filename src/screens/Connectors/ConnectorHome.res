@@ -116,7 +116,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         ~profileId=Some(profileId),
         (),
       )
-      let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
+      let url = getURL(~entityName=PAYPAL_ONBOARDING_SYNC, ~methodType=Post, ())
       let responseValue = await updateDetails(url, paypalBody, Fetch.Post, ())
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
 

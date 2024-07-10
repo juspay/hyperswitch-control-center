@@ -67,6 +67,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
 
   let handleChangeOrder = async () => {
     try {
+      // TODO : change
       setScreenState(_ => PageLoaderWrapper.Loading)
       let defaultPayload = gateways
       let defaultFallbackUpdateUrl = `${getURL(
