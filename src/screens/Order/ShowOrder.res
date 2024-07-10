@@ -863,6 +863,7 @@ let make = (~id) => {
                       StatementDescriptorName,
                       StatementDescriptorSuffix,
                       PaymentExperience,
+                      MerchantOrderReferenceId,
                     ]
                     isNonRefundConnector={isNonRefundConnector(orderData.connector)}
                     paymentStatus={orderData.status}

@@ -31,7 +31,7 @@ module HyperSwitchEntryComponent = {
         let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
         let value: urlConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
-          mixpanelToken: dict->getString("mixpanelToken", ""),
+          mixpanelToken: dict->getString("mixpanel_token", ""),
           faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
           logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
@@ -57,7 +57,7 @@ module HyperSwitchEntryComponent = {
           ~defaultValue="default",
           (),
         )
-        let apiURL = `${HSwitchGlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
+        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
@@ -79,28 +79,32 @@ module HyperSwitchEntryComponent = {
       None
     })
     React.useEffect0(() => {
-      HSiwtchTimeZoneUtils.getUserTimeZone()->setZone
+      TimeZoneUtils.getUserTimeZone()->setZone
       None
     })
 
     React.useEffect3(() => {
-      MixPanel.init(
-        Window.env.mixpanelToken,
-        {
-          "batch_requests": true,
-          "loaded": () => {
-            let mixpanelUserInfo =
-              [("name", email->JSON.Encode.string), ("merchantName", name->JSON.Encode.string)]
-              ->Dict.fromArray
-              ->JSON.Encode.object
+      if featureFlagDetails.mixpanel {
+        MixPanel.init(
+          Window.env.mixpanelToken,
+          {
+            "track_pageview": true,
+            "batch_requests": true,
+            "loaded": () => {
+              let mixpanelUserInfo =
+                [("name", email->JSON.Encode.string), ("merchantName", name->JSON.Encode.string)]
+                ->Dict.fromArray
+                ->JSON.Encode.object
 
-            let userId = MixPanel.getDistinctId()
-            LocalStorage.setItem("deviceid", userId)
-            MixPanel.identify(userId)
-            MixPanel.mixpanel.people.set(mixpanelUserInfo)
+              let userId = MixPanel.getDistinctId()
+              LocalStorage.setItem("deviceid", userId)
+              MixPanel.identify(userId)
+              MixPanel.mixpanel.people.set(mixpanelUserInfo)
+            },
           },
-        },
-      )
+        )
+      }
+
       None
     }, (name, email, Window.env.mixpanelToken))
 

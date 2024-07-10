@@ -9,11 +9,7 @@ let getAuthInfo = json => {
     token: getString(dict, "token", "")->getNonEmptyString,
     role_id: getString(dict, "role_id", ""),
     is_two_factor_auth_setup: getBool(dict, "is_two_factor_auth_setup", false),
-    recovery_codes_left: getInt(
-      dict,
-      "recovery_codes_left",
-      HSwitchGlobalVars.maximumRecoveryCodes,
-    ),
+    recovery_codes_left: getInt(dict, "recovery_codes_left", GlobalVars.maximumRecoveryCodes),
   }
   totpInfo
 }
@@ -85,7 +81,7 @@ let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
 
 let redirectToLogin = () => {
   open HyperSwitchEntryUtils
-  open HSwitchGlobalVars
+  open GlobalVars
   open LogicUtils
 
   let authId = getSessionData(~key="auth_id", ())

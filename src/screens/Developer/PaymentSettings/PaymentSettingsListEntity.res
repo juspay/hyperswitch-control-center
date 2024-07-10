@@ -66,9 +66,7 @@ let webhookProfileTableEntity = (~permission: CommonAuthTypes.authorization) =>
     ~getShowLink={
       profile =>
         PermissionUtils.linkForGetShowLinkViaAccess(
-          ~url=HSwitchGlobalVars.appendDashboardPath(
-            ~url=`/payment-settings/${profile.profile_id}`,
-          ),
+          ~url=GlobalVars.appendDashboardPath(~url=`/payment-settings/${profile.profile_id}`),
           ~permission,
         )
     },

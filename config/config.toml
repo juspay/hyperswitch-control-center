@@ -39,3 +39,4 @@ configure_pmts=false
 branding=false
 totp=false
 live_users_counter=false
+granularity=false

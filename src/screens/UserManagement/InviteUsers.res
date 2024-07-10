@@ -77,7 +77,7 @@ module InviteEmailForm = {
           className="ml-2 text-sm underline text-blue-400 cursor-pointer underline-offset-2"
           onClick={_ =>
             RescriptReactRouter.replace(
-              HSwitchGlobalVars.appendDashboardPath(~url="/users/create-custom-role"),
+              GlobalVars.appendDashboardPath(~url="/users/create-custom-role"),
             )}>
           {"or create a custom role"->React.string}
         </p>
@@ -219,7 +219,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
 
     showToast(~message, ~toastType, ())
 
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/users"))
+    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users"))
     Nullable.null
   }
 
@@ -275,8 +275,14 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
 
   let getPermissionInfo = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#PERMISSION_INFO, ~methodType=Get, ())
-      let res = await fetchDetails(`${url}?groups=true`)
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#PERMISSION_INFO,
+        ~methodType=Get,
+        ~queryParamerters=Some(`groups=true`),
+        (),
+      )
+      let res = await fetchDetails(url)
       let permissionInfoValue = res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
 
       setPermissionInfo(_ => permissionInfoValue)

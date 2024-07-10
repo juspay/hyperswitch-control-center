@@ -192,7 +192,7 @@ module TestPayment = {
       />}>
       <TestPayment
         initialValues={defaultBusinessProfile->SDKPaymentUtils.initialValueForForm}
-        returnUrl={`${HSwitchGlobalVars.getHostUrlWithBasePath}/stripe-plus-paypal`}
+        returnUrl={`${GlobalVars.getHostUrlWithBasePath}/stripe-plus-paypal`}
         onProceed={sptestPaymentProceed}
         keyValue={key}
         sdkWidth="w-full"
