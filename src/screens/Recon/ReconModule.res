@@ -5,7 +5,7 @@ let make = (~urlList) => {
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let (redirectToken, setRedirecToken) = React.useState(_ => "")
+  let (redirectToken, setRedirectToken) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (iframeLoaded, setIframeLoaded) = React.useState(_ => false)
   let iframeRef = React.useRef(Js.Nullable.null)
@@ -15,7 +15,7 @@ let make = (~urlList) => {
       let url = getURL(~entityName=RECON, ~reconType=#TOKEN, ~methodType=Get, ())
       let res = await fetchDetails(url)
       let token = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("token", "")
-      setRedirecToken(_ => token)
+      setRedirectToken(_ => token)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))

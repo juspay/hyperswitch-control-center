@@ -466,7 +466,7 @@ let developers = (isDevelopersEnabled, userRole, systemMetrics, ~permissionJson)
     : emptyComponent
 }
 
-let uploadReconFiles = () => {
+let uploadReconFiles = {
   SubLevelLink({
     name: "Upload Recon Files",
     link: `/upload-files`,
@@ -475,7 +475,7 @@ let uploadReconFiles = () => {
   })
 }
 
-let runRecon = () => {
+let runRecon = {
   SubLevelLink({
     name: "Run Recon",
     link: `/run-recon`,
@@ -484,7 +484,7 @@ let runRecon = () => {
   })
 }
 
-let reconAnalytics = () => {
+let reconAnalytics = {
   SubLevelLink({
     name: "Analytics",
     link: `/recon-analytics`,
@@ -492,7 +492,7 @@ let reconAnalytics = () => {
     searchOptions: [("Recon analytics", "")],
   })
 }
-let reconReports = () => {
+let reconReports = {
   SubLevelLink({
     name: "Reports",
     link: `reports`,
@@ -501,7 +501,7 @@ let reconReports = () => {
   })
 }
 
-let reconConfigurator = () => {
+let reconConfigurator = {
   SubLevelLink({
     name: "Configurator",
     link: `config-settings`,
@@ -509,7 +509,7 @@ let reconConfigurator = () => {
     searchOptions: [("Recon configurator", "")],
   })
 }
-let reconFileProcessor = () => {
+let reconFileProcessor = {
   SubLevelLink({
     name: "File Processor",
     link: `file-processor`,
@@ -519,39 +519,32 @@ let reconFileProcessor = () => {
 }
 
 let reconTag = (recon, isReconEnabled) => {
-  let uploadReconFiles = uploadReconFiles()
-  let runRecon = runRecon()
-  let reconAnalytics = reconAnalytics()
-  let reconReports = reconReports()
-  let reconConfigurator = reconConfigurator()
-  let reconFileProcessor = reconFileProcessor()
-  // TODO: change later for everyone
-  let reconUrlPresent = Window.env.reconIframeUrl->Option.getOr("")->LogicUtils.isNonEmptyString
+  recon
+    ? Link({
+        name: "Reconcilation",
+        icon: isReconEnabled ? "recon" : "recon-lock",
+        link: `/recon`,
+        access: Access,
+      })
+    : emptyComponent
+}
 
-  switch (recon, isReconEnabled, reconUrlPresent) {
-  | (true, true, true) =>
-    Section({
-      name: "Recon And Settlement",
-      icon: "recon",
-      showSection: true,
-      links: [
-        uploadReconFiles,
-        runRecon,
-        reconAnalytics,
-        reconReports,
-        reconConfigurator,
-        reconFileProcessor,
-      ],
-    })
-  | (true, _, _) =>
-    Link({
-      name: "Reconcilation",
-      icon: isReconEnabled ? "recon" : "recon-lock",
-      link: `/recon`,
-      access: Access,
-    })
-  | (_, _, _) => emptyComponent
-  }
+let reconAndSettlement = (recon_v2, isReconEnabled) => {
+  recon_v2 && isReconEnabled
+    ? Section({
+        name: "Recon And Settlement",
+        icon: "recon",
+        showSection: true,
+        links: [
+          uploadReconFiles,
+          runRecon,
+          reconAnalytics,
+          reconReports,
+          reconConfigurator,
+          reconFileProcessor,
+        ],
+      })
+    : emptyComponent
 }
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
@@ -575,6 +568,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     quickStart,
     disputeAnalytics,
     configurePmts,
+    reconV2,
   } = featureFlagDetails
 
   let sidebar = [
@@ -596,6 +590,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
     recon->reconTag(isReconEnabled),
+    reconV2->reconAndSettlement(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
     settings(
       ~isSampleDataEnabled=sampleData,
