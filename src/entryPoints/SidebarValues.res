@@ -525,9 +525,10 @@ let reconTag = (recon, isReconEnabled) => {
   let reconReports = reconReports()
   let reconConfigurator = reconConfigurator()
   let reconFileProcessor = reconFileProcessor()
+  let reconUrlPresent = Window.env.reconIframeUrl->Option.getOr("")->LogicUtils.isNonEmptyString
 
-  switch (recon, isReconEnabled) {
-  | (true, true) =>
+  switch (recon, isReconEnabled, reconUrlPresent) {
+  | (true, true, true) =>
     Section({
       name: "Recon And Settlement",
       icon: "recon",
@@ -541,14 +542,14 @@ let reconTag = (recon, isReconEnabled) => {
         reconFileProcessor,
       ],
     })
-  | (true, false) =>
+  | (true, false, false) =>
     Link({
       name: "Reconcilation",
       icon: "recon",
       link: `/recon`,
       access: Access,
     })
-  | (_, _) => emptyComponent
+  | (_, _, _) => emptyComponent
   }
 }
 
