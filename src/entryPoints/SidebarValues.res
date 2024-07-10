@@ -543,10 +543,10 @@ let reconTag = (recon, isReconEnabled) => {
         reconFileProcessor,
       ],
     })
-  | (true, false, false) =>
+  | (true, _, _) =>
     Link({
       name: "Reconcilation",
-      icon: "recon",
+      icon: isReconEnabled ? "recon" : "recon-lock",
       link: `/recon`,
       access: Access,
     })
