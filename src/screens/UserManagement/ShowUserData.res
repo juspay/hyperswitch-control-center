@@ -265,8 +265,14 @@ let make = () => {
 
   let getPermissionInfo = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#PERMISSION_INFO, ~methodType=Get, ())
-      let res = await fetchDetails(`${url}?groups=true`)
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#PERMISSION_INFO,
+        ~methodType=Get,
+        ~queryParamerters=Some(`groups=true`),
+        (),
+      )
+      let res = await fetchDetails(url)
       let permissionInfoValue =
         res->LogicUtils.getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
 

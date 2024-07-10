@@ -178,7 +178,13 @@ let getProdOnboardingUrl = (
     unit,
   ) => string,
 ) => {
-  `${getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Get, ())}?keys=${(enum :> string)}`
+  getURL(
+    ~entityName=USERS,
+    ~userType=#USER_DATA,
+    ~methodType=Get,
+    ~queryParamerters=Some(`keys=${(enum :> string)}`),
+    (),
+  )
 }
 
 let prodOnboardingEnumIntialArray: array<ProdOnboardingTypes.sectionHeadingVariant> = [
