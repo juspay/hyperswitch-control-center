@@ -70,7 +70,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   }, [getAllFilter])
 
   let parentToken = AuthWrapperUtils.useTokenParent(Original)
-  let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetchNew()
+  let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
   let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
   let fetchApi = AuthHooks.useApiFetcher()
   let jsonTransFormer = switch chartEntity {
@@ -588,7 +588,7 @@ module SDKAnalyticsChartContext = {
     ~differentTimeValues: option<array<AnalyticsUtils.timeRanges>>=?,
   ) => {
     let parentToken = AuthWrapperUtils.useTokenParent(Original)
-    let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetchNew()
+    let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
     let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
     let fetchApi = AuthHooks.useApiFetcher()
     let jsonTransFormer = switch chartEntity {

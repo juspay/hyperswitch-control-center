@@ -27,6 +27,7 @@ type featureFlag = {
   branding: bool,
   totp: bool,
   liveUsersCounter: bool,
+  granularity: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -61,6 +62,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     branding: dict->getBool("branding", false),
     totp: dict->getBool("totp", false),
     liveUsersCounter: dict->getBool("live_users_counter", false),
+    granularity: dict->getBool("granularity", false),
   }
   typedFeatureFlag
 }

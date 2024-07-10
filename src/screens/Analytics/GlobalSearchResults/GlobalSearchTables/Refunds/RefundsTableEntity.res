@@ -267,7 +267,7 @@ let tableEntity = EntityType.makeEntity(
   ~getCell,
   ~getHeading,
   ~getShowLink={
-    refund => HSwitchGlobalVars.appendDashboardPath(~url=`/refunds/${refund.refund_id}`)
+    refund => GlobalVars.appendDashboardPath(~url=`/refunds/${refund.refund_id}`)
   },
   (),
 )

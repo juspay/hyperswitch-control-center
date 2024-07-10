@@ -165,7 +165,7 @@ module QuickStart = {
         }
         setConfigureButtonState(_ => Button.Normal)
         setDashboardPageState(_ => #QUICK_START)
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/quick-start"))
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/quick-start"))
       } catch {
       | _ => setConfigureButtonState(_ => Button.Normal)
       }
@@ -248,9 +248,7 @@ module RecipesAndPlugins = {
           className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
           onClick={_ => {
             mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
-            RescriptReactRouter.push(
-              HSwitchGlobalVars.appendDashboardPath(~url="/stripe-plus-paypal"),
-            )
+            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/stripe-plus-paypal"))
           }}>
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle> {"Use PayPal with Stripe"->React.string} </p>
@@ -278,7 +276,7 @@ module RecipesAndPlugins = {
           className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
           onClick={_ => {
             mixpanelEvent(~eventName=`woocommerce`, ())
-            RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/woocommerce"))
+            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/woocommerce"))
           }}>
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle> {"WooCommerce plugin"->React.string} </p>
@@ -346,7 +344,7 @@ module Resources = {
         "https://hyperswitch.io/docs"->Window._open
       } else if item.id === "tryTheDemo" {
         mixpanelEvent(~eventName=`test_payment`, ())
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/sdk"))
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/sdk"))
       }
     }
 
@@ -422,7 +420,7 @@ let make = () => {
 
   let recovery_codes_left = switch authStatus {
   | LoggedIn(Auth(info)) => info.recovery_codes_left
-  | _ => HSwitchGlobalVars.maximumRecoveryCodes
+  | _ => GlobalVars.maximumRecoveryCodes
   }
 
   <div className="w-full flex flex-col gap-6">

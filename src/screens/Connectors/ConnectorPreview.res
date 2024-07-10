@@ -43,7 +43,7 @@ module DeleteConnectorMenu = {
         let connectorID = connectorInfo.merchant_connector_id
         let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
         let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete, ())
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/connectors"))
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
       } catch {
       | _ => ()
       }
@@ -237,9 +237,7 @@ module ConnectorSummaryGrid = {
               {"Improve conversion rate by conditionally managing PMTs visibility on checkout . Visit Settings >"->React.string}
               <a
                 onClick={_ =>
-                  RescriptReactRouter.push(
-                    HSwitchGlobalVars.appendDashboardPath(~url="/configure-pmts"),
-                  )}
+                  RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/configure-pmts"))}
                 target="_blank"
                 className="text-blue-500 underline cursor-pointer">
                 {"Configure PMTs at Checkout"->React.string}
@@ -320,7 +318,7 @@ let make = (
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
       let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post, ())
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
-      RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/connectors"))
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
     } catch {
     | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
     }
@@ -386,7 +384,7 @@ let make = (
                 if isFeedbackModalToBeOpen {
                   setShowFeedbackModal(_ => true)
                 }
-                RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=redirectPath))
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=redirectPath))
               }}
               text="Done"
               buttonType={Primary}

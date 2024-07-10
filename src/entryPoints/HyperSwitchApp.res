@@ -2,7 +2,7 @@
 let make = () => {
   open UIUtils
   open HSwitchUtils
-  open HSwitchGlobalVars
+  open GlobalVars
   open APIUtils
   open PermissionUtils
   open LogicUtils

@@ -101,9 +101,7 @@ module ResetTotp = {
           }
           setOtp(_ => "")
           setButtonState(_ => Button.Normal)
-          RescriptReactRouter.push(
-            HSwitchGlobalVars.appendDashboardPath(~url="/account-settings/profile"),
-          )
+          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/account-settings/profile"))
         }
       }
     }
@@ -121,7 +119,7 @@ module ResetTotp = {
           } else {
             showToast(~message="Successfully reset the totp !", ~toastType=ToastSuccess, ())
             RescriptReactRouter.push(
-              HSwitchGlobalVars.appendDashboardPath(~url="/account-settings/profile"),
+              GlobalVars.appendDashboardPath(~url="/account-settings/profile"),
             )
           }
           setOtp(_ => "")
@@ -210,9 +208,7 @@ module ResetTotp = {
     }, [otpInModal, recoveryCode])
 
     let handleModalClose = () => {
-      RescriptReactRouter.push(
-        HSwitchGlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
-      )
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=`/account-settings/profile`))
     }
 
     <div>
@@ -334,18 +330,14 @@ module RegenerateRecoveryCodes = {
       | _ => {
           setButtonState(_ => Button.Normal)
           showToast(~message="Failed to generate recovery codes!", ~toastType=ToastError, ())
-          RescriptReactRouter.push(
-            HSwitchGlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
-          )
+          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=`/account-settings/profile`))
           setScreenState(_ => PageLoaderWrapper.Success)
         }
       }
     }
 
     let handleModalClose = () => {
-      RescriptReactRouter.push(
-        HSwitchGlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
-      )
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=`/account-settings/profile`))
     }
 
     let verifyTOTP = async () => {
@@ -482,7 +474,7 @@ module RegenerateRecoveryCodes = {
                     (),
                   )
                   RescriptReactRouter.push(
-                    HSwitchGlobalVars.appendDashboardPath(~url="/account-settings/profile"),
+                    GlobalVars.appendDashboardPath(~url="/account-settings/profile"),
                   )
                 }}
               />
@@ -526,9 +518,7 @@ let make = () => {
     } catch {
     | _ => {
         showToast(~message="Failed to fetch 2FA status!", ~toastType=ToastError, ())
-        RescriptReactRouter.push(
-          HSwitchGlobalVars.appendDashboardPath(~url="/account-settings/profile"),
-        )
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/account-settings/profile"))
       }
     }
   }

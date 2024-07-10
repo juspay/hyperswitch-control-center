@@ -401,14 +401,12 @@ module LandingPageTileForIntegrateDocs = {
     let redirect = () => {
       if customRedirection->Option.isSome {
         RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(
+          GlobalVars.appendDashboardPath(
             ~url=`/${customRedirection->Option.getOr("")}?type=${url}`,
           ),
         )
       } else {
-        RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(~url=`/onboarding?type=${url}`),
-        )
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/onboarding?type=${url}`))
       }
     }
     let skipAndContinue = async () => {
