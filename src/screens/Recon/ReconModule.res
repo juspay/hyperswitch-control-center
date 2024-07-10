@@ -25,7 +25,9 @@ let make = (~urlList) => {
   let redirectUrl = switch urlList {
   | list{"upload-files"}
   | list{"run-recon"}
-  | list{"reports"} =>
+  | list{"reports"}
+  | list{"config-settings"}
+  | list{"file-processor"} =>
     urlList->List.toArray->Array.joinWithUnsafe("/")
   | list{"recon-analytics"} => "analytics"
   | _ => ""
