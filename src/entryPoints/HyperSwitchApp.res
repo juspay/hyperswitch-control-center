@@ -459,7 +459,9 @@ let make = () => {
                         | list{"upload-files"}
                         | list{"run-recon"}
                         | list{"recon-analytics"}
-                        | list{"reports"} =>
+                        | list{"reports"}
+                        | list{"config-settings"}
+                        | list{"file-processor"} =>
                           <ReconModule urlList={url.path->urlPath} />
                         | list{"sdk"} =>
                           <AccessControl

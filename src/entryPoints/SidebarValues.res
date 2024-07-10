@@ -501,11 +501,29 @@ let reconReports = permissionJson => {
   })
 }
 
+let reconConfigurator = permissionJson => {
+  SubLevelLink({
+    name: "Configurator",
+    link: `config-settings`,
+    access: permissionJson.analyticsView,
+    searchOptions: [("Recon configurator", "")],
+  })
+}
+let reconFileProcessor = permissionJson => {
+  SubLevelLink({
+    name: "File Processor",
+    link: `file-processor`,
+    access: permissionJson.analyticsView,
+    searchOptions: [("Recon file processor", "")],
+  })
+}
 let reconTag = (recon, isReconEnabled, ~permissionJson) => {
   let uploadReconFiles = uploadReconFiles(permissionJson)
   let runRecon = runRecon(permissionJson)
   let reconAnalytics = reconAnalytics(permissionJson)
   let reconReports = reconReports(permissionJson)
+  let reconConfigurator = reconConfigurator(permissionJson)
+  let reconFileProcessor = reconFileProcessor(permissionJson)
 
   switch (recon, isReconEnabled) {
   | (true, true) =>
@@ -513,7 +531,14 @@ let reconTag = (recon, isReconEnabled, ~permissionJson) => {
       name: "Recon And Settlement",
       icon: "recon",
       showSection: true,
-      links: [uploadReconFiles, runRecon, reconAnalytics, reconReports],
+      links: [
+        uploadReconFiles,
+        runRecon,
+        reconAnalytics,
+        reconReports,
+        reconConfigurator,
+        reconFileProcessor,
+      ],
     })
   | (true, false) =>
     Link({
@@ -525,16 +550,6 @@ let reconTag = (recon, isReconEnabled, ~permissionJson) => {
   | (_, _) => emptyComponent
   }
 }
-// recon
-//   ?
-
-//   Link({
-//       name: "Reconcilation",
-//       icon: isReconEnabled ? "recon" : "recon-lock",
-//       link: `/recon`,
-//       access: Access,
-//     })
-//   : emptyComponent
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
   let {user_role: userRole} =
