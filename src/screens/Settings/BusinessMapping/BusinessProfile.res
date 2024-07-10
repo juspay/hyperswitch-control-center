@@ -21,6 +21,7 @@ module AddEntryBtn = {
   ) => {
     open HSwitchUtils
     open BusinessMappingUtils
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let initialValues =
       [
         ("profile_name", `default${list->Array.length->Int.toString}`->JSON.Encode.string),
@@ -72,6 +73,7 @@ module AddEntryBtn = {
               buttonType=Primary
               onClick={_ => {
                 if updatedProfileId->LogicUtils.isNonEmptyString {
+                  mixpanelEvent(~eventName="business_profiles_configure_payment_settings", ())
                   RescriptReactRouter.replace(
                     HSwitchGlobalVars.appendDashboardPath(
                       ~url=`/payment-settings/${updatedProfileId}`,
@@ -128,6 +130,7 @@ let make = (
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (offset, setOffset) = React.useState(_ => 0)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (modalState, setModalState) = React.useState(_ => Edit)
@@ -162,6 +165,7 @@ let make = (
   }
 
   let onSubmit = async (values, _) => {
+    mixpanelEvent(~eventName="business_profiles_add", ())
     updateMerchantDetails(values)->ignore
     Nullable.null
   }
