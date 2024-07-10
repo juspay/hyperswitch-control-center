@@ -96,7 +96,7 @@ module BluredTableComponent = {
             buttonType={Primary}
             onClick={_ => {
               onClickUrl->LogicUtils.isNonEmptyString
-                ? RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=onClickUrl))
+                ? RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=onClickUrl))
                 : setPaymentModal(_ => true)
             }}
           />

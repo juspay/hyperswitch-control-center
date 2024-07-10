@@ -39,7 +39,7 @@ module OtherfieldRender = {
 let make = (~showModal, ~setShowModal) => {
   open APIUtils
   open LogicUtils
-  open OnboardingSurveyModalUtils
+  open SbxOnboardingSurveyUtils
   open CommonAuthHooks
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()

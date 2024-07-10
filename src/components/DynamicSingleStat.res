@@ -259,7 +259,7 @@ let make = (
     }
     None
   }, (singleStatLoadingTimeSeries, singleStatLoading, singleStatTimeData, singleStatData))
-  let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetch()
+  let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
 
   React.useEffect2(() => {
     if singleStatData !== None && singleStatTimeData !== None {

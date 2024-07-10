@@ -56,9 +56,7 @@ module SimpleRoutingView = {
           ~toastType=ToastState.ToastSuccess,
           (),
         )
-        RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
-        )
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
         setScreenState(_ => Success)
       } catch {
       | Exn.Error(e) =>
@@ -76,9 +74,7 @@ module SimpleRoutingView = {
           ~toastType=ToastState.ToastSuccess,
           (),
         )
-        RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
-        )
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
         setScreenState(_ => Success)
       } catch {
       | Exn.Error(e) =>

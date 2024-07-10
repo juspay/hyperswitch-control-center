@@ -466,7 +466,7 @@ let payoutEntity = EntityType.makeEntity(
   ~getCell,
   ~dataKey="",
   ~getShowLink={
-    payoutData => HSwitchGlobalVars.appendDashboardPath(~url=`/payouts/${payoutData.payout_id}`)
+    payoutData => GlobalVars.appendDashboardPath(~url=`/payouts/${payoutData.payout_id}`)
   },
   (),
 )

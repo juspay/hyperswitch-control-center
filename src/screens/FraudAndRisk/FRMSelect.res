@@ -14,7 +14,7 @@ module NewProcessorCards = {
 
     let handleClick = frmName => {
       RescriptReactRouter.push(
-        HSwitchGlobalVars.appendDashboardPath(~url=`/fraud-risk-management/new?name=${frmName}`),
+        GlobalVars.appendDashboardPath(~url=`/fraud-risk-management/new?name=${frmName}`),
       )
     }
     let unConfiguredFRMCount = unConfiguredFRMs->Array.length

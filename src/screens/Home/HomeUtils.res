@@ -166,7 +166,7 @@ module CheckoutCard = {
         })
       } else {
         mixpanelEvent(~eventName=`try_test_payment`, ())
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/sdk"))
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/sdk"))
       }
     }
 
@@ -220,7 +220,7 @@ module ControlCenter = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/connectors"))
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
               }}
             />
           </CardFooter>
@@ -239,9 +239,7 @@ module ControlCenter = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                RescriptReactRouter.push(
-                  HSwitchGlobalVars.appendDashboardPath(~url="/developer-api-keys"),
-                )
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/developer-api-keys"))
               }}
             />
           </CardFooter>
@@ -404,7 +402,7 @@ module LowRecoveryCodeBanner = {
         customButtonStyle="!p-2"
         onClick={_ =>
           RescriptReactRouter.push(
-            HSwitchGlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
+            GlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
           )}
       />
     </div>

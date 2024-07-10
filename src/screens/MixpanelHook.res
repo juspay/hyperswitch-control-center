@@ -6,7 +6,7 @@ type functionType = (
 ) => unit
 
 let useSendEvent = () => {
-  open HSwitchGlobalVars
+  open GlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
   let {email: authInfoEmail, merchant_id, name} =
@@ -25,7 +25,7 @@ let useSendEvent = () => {
   let {clientCountry} = HSwitchUtils.getBrowswerDetails()
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
 
-  let environment = switch HSwitchGlobalVars.hostType {
+  let environment = switch GlobalVars.hostType {
   | Live => "production"
   | Sandbox => "sandbox"
   | Netlify => "netlify"
