@@ -83,6 +83,7 @@ let connectorList: array<connectorTypes> = [
   Processors(ZEN),
   Processors(ZSL),
   Processors(PLACETOPAY),
+  Processors(RAZORPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -422,6 +423,10 @@ let zslInfo = {
   description: "It is a payment processor that enables businesses to accept payments securely through local bank transfers.",
 }
 
+let razorpayInfo = {
+  description: "Razorpay helps you accept online payments from customers across Desktop, Mobile web, Android & iOS. Additionally by using Razorpay Payment Links, you can collect payments across multiple channels like SMS, Email, Whatsapp, Chatbots & Messenger.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -514,6 +519,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | BILLWERK => "billwerk"
   | MIFINITY => "mifinity"
   | ZSL => "zsl"
+  | RAZORPAY => "razorpay"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -600,6 +606,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "billwerk" => Processors(BILLWERK)
     | "mifinity" => Processors(MIFINITY)
     | "zsl" => Processors(ZSL)
+    | "razorpay" => Processors(RAZORPAY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -677,6 +684,7 @@ let getProcessorInfo = connector => {
   | BILLWERK => billwerkInfo
   | MIFINITY => mifinityInfo
   | ZSL => zslInfo
+  | RAZORPAY => razorpayInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -1443,6 +1451,7 @@ let getDisplayNameForProcessor = connector =>
   | PLACETOPAY => "Placetopay"
   | MIFINITY => "MiFinity"
   | ZSL => "ZSL"
+  | RAZORPAY => "Razorpay"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

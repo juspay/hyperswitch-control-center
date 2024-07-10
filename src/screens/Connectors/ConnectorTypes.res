@@ -84,6 +84,7 @@ type processorTypes =
   | PLACETOPAY
   | ZSL
   | MIFINITY
+  | RAZORPAY
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
