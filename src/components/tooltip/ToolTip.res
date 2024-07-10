@@ -626,13 +626,14 @@ let make = (
   ~justifyClass="justify-center",
   ~flexClass="flex-col",
   ~height="h-full",
-  ~textStyle="text-fs-11",
+  ~textStyle="text-xs leading-5",
   ~hoverOnToolTip=false,
   ~tooltipArrowSize=5,
   ~visibleOnClick=false,
   ~descriptionComponentClass="flex flex-row-reverse",
   ~isRelative=true,
   ~dismissable=false,
+  ~newDesign=false,
   (),
 ) => {
   let (isToolTipVisible, setIsToolTipVisible) = React.useState(_ => false)
@@ -666,7 +667,9 @@ let make = (
   let componentWidth = componentRef->getBoundingRectInfo(val => val.width)
   let componentHeight = componentRef->getBoundingRectInfo(val => val.height)
 
-  let tooltipBgClass = "dark:bg-jp-gray-tooltip_bg_dark bg-jp-gray-tooltip_bg_light dark:text-jp-gray-lightgray_background dark:text-opacity-75 text-jp-gray-text_darktheme text-opacity-75"
+  let tooltipBgClass = newDesign
+    ? "bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 text-jp-gray-800"
+    : "dark:bg-jp-gray-tooltip_bg_dark bg-jp-gray-tooltip_bg_light dark:text-jp-gray-lightgray_background dark:text-opacity-75 text-jp-gray-text_darktheme text-opacity-75"
 
   let bgColor = bgColor->LogicUtils.isEmptyString ? tooltipBgClass : bgColor
 
