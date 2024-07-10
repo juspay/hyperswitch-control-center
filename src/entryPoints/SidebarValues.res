@@ -466,64 +466,65 @@ let developers = (isDevelopersEnabled, userRole, systemMetrics, ~permissionJson)
     : emptyComponent
 }
 
-let uploadReconFiles = permissionJson => {
+let uploadReconFiles = () => {
   SubLevelLink({
     name: "Upload Recon Files",
     link: `/upload-files`,
-    access: permissionJson.analyticsView,
+    access: Access,
     searchOptions: [("Upload recon files", "")],
   })
 }
 
-let runRecon = permissionJson => {
+let runRecon = () => {
   SubLevelLink({
     name: "Run Recon",
     link: `/run-recon`,
-    access: permissionJson.analyticsView,
+    access: Access,
     searchOptions: [("Run recon", "")],
   })
 }
 
-let reconAnalytics = permissionJson => {
+let reconAnalytics = () => {
   SubLevelLink({
     name: "Analytics",
     link: `/recon-analytics`,
-    access: permissionJson.analyticsView,
+    access: Access,
     searchOptions: [("Recon analytics", "")],
   })
 }
-let reconReports = permissionJson => {
+let reconReports = () => {
   SubLevelLink({
     name: "Reports",
     link: `reports`,
-    access: permissionJson.analyticsView,
+    access: Access,
     searchOptions: [("Recon reports", "")],
   })
 }
 
-let reconConfigurator = permissionJson => {
+let reconConfigurator = () => {
   SubLevelLink({
     name: "Configurator",
     link: `config-settings`,
-    access: permissionJson.analyticsView,
+    access: Access,
     searchOptions: [("Recon configurator", "")],
   })
 }
-let reconFileProcessor = permissionJson => {
+let reconFileProcessor = () => {
   SubLevelLink({
     name: "File Processor",
     link: `file-processor`,
-    access: permissionJson.analyticsView,
+    access: Access,
     searchOptions: [("Recon file processor", "")],
   })
 }
-let reconTag = (recon, isReconEnabled, ~permissionJson) => {
-  let uploadReconFiles = uploadReconFiles(permissionJson)
-  let runRecon = runRecon(permissionJson)
-  let reconAnalytics = reconAnalytics(permissionJson)
-  let reconReports = reconReports(permissionJson)
-  let reconConfigurator = reconConfigurator(permissionJson)
-  let reconFileProcessor = reconFileProcessor(permissionJson)
+
+let reconTag = (recon, isReconEnabled) => {
+  let uploadReconFiles = uploadReconFiles()
+  let runRecon = runRecon()
+  let reconAnalytics = reconAnalytics()
+  let reconReports = reconReports()
+  let reconConfigurator = reconConfigurator()
+  let reconFileProcessor = reconFileProcessor()
 
   switch (recon, isReconEnabled) {
   | (true, true) =>
@@ -592,7 +593,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~permissionJson,
     ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
-    recon->reconTag(isReconEnabled, ~permissionJson),
+    recon->reconTag(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
     settings(
       ~isSampleDataEnabled=sampleData,
