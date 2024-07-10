@@ -1,9 +1,15 @@
-open PaymentAnalyticsEntity
-open APIUtils
-open HSAnalyticsUtils
-
 @react.component
 let make = () => {
+  open LogicUtils
+  open Promise
+  open PaymentAnalyticsEntity
+  open APIUtils
+  open HSAnalyticsUtils
+  let updateDetails = useUpdateMethod()
+  let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
+  let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
+  let {updateExistingKeys, filterValueJson} = React.useContext(FilterContext.filterContext)
+  let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
   let getURL = useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (metrics, setMetrics) = React.useState(_ => [])
@@ -12,7 +18,6 @@ let make = () => {
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let loadInfo = async () => {
-    open LogicUtils
     try {
       let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain), ())
       let infoDetails = await fetchDetails(infoUrl)
@@ -26,7 +31,6 @@ let make = () => {
     }
   }
   let getPaymetsDetails = async () => {
-    open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let paymentUrl = getURL(~entityName=ORDERS, ~methodType=Get, ())
@@ -144,17 +148,95 @@ let make = () => {
     ->JSON.stringify
   }
 
+  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
+    ~updateExistingKeys,
+    ~startTimeFilterKey,
+    ~endTimeFilterKey,
+    ~origin="analytics",
+    (),
+  )
+
+  React.useEffect0(() => {
+    setInitialFilters()
+    None
+  })
+
+  let startTimeVal = filterValueJson->getString("startTime", "")
+  let endTimeVal = filterValueJson->getString("endTime", "")
+
+  let filterUri = `${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`
+
+  let filterBody = React.useMemo3(() => {
+    let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
+      startTime: startTimeVal,
+      endTime: endTimeVal,
+      groupByNames: tabKeys,
+      source: "BATCH",
+    }
+    AnalyticsUtils.filterBody(filterBodyEntity)
+  }, (startTimeVal, endTimeVal, tabKeys->Array.joinWith(",")))
+
+  React.useEffect3(() => {
+    setFilterDataJson(_ => None)
+    if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
+      try {
+        updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
+        ->thenResolve(json => setFilterDataJson(_ => json->Some))
+        ->catch(_ => resolve())
+        ->ignore
+      } catch {
+      | _ => ()
+      }
+    }
+    None
+  }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
+
+  let topFilterUi = switch filterDataJson {
+  | Some(filterData) =>
+    <div className="flex flex-row">
+      <DynamicFilter
+        initialFilters={initialFilterFields(filterData)}
+        options=[]
+        popupFilterFields={options(filterData)}
+        initialFixedFilters={initialFixedFilterFields(filterData)}
+        defaultFilterKeys=defaultFilters
+        tabNames=tabKeys
+        updateUrlWith=updateExistingKeys
+        key="0"
+        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+        showCustomFilter=false
+        refreshFilters=false
+      />
+    </div>
+  | None =>
+    <div className="flex flex-row">
+      <DynamicFilter
+        initialFilters=[]
+        options=[]
+        popupFilterFields=[]
+        initialFixedFilters={initialFixedFilterFields(filterData)}
+        defaultFilterKeys=defaultFilters
+        tabNames=tabKeys
+        updateUrlWith=updateExistingKeys //
+        key="1"
+        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+        showCustomFilter=false
+        refreshFilters=false
+      />
+    </div>
+  }
+
   open AnalyticsNew
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
-    <div className="flex items-center justify-between ">
-      <PageUtils.PageHeading title subTitle />
-      <UIUtils.RenderIf condition={generateReport}>
-        <GenerateReport entityName={PAYMENT_REPORT} />
-      </UIUtils.RenderIf>
-    </div>
-    <div className="flex flex-col gap-14">
-      <FilterContext
-        key="payments_analytics_general_metrics" index="payments_analytics_general_metrics">
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between ">
+        <PageUtils.PageHeading title subTitle />
+        <UIUtils.RenderIf condition={generateReport}>
+          <GenerateReport entityName={PAYMENT_REPORT} />
+        </UIUtils.RenderIf>
+      </div>
+      <div className="-ml-1"> topFilterUi </div>
+      <div className="flex flex-col gap-14">
         <MetricsState
           heading="Payments Overview"
           singleStatEntity={getSingleStatEntity(
@@ -165,14 +247,7 @@ let make = () => {
           startTimeFilterKey
           endTimeFilterKey
           moduleName="general_metrics"
-          initialFilters=initialFilterFields
-          options
-          initialFixedFilters=initialFixedFilterFields
-          tabKeys
-          filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
         />
-      </FilterContext>
-      <FilterContext key="payments_analytics_amount" index="payments_analytics_amount">
         <MetricsState
           heading="Amount Metrics"
           singleStatEntity={getSingleStatEntity(
@@ -183,16 +258,8 @@ let make = () => {
           startTimeFilterKey
           endTimeFilterKey
           moduleName="payments_analytics_amount"
-          initialFilters=initialFilterFields
-          options
-          initialFixedFilters=initialFixedFilterFields
-          tabKeys
-          filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
           formaPayload
         />
-      </FilterContext>
-      <FilterContext
-        key="payments_analytics_smart_retries" index="payments_analytics_smart_retries">
         <MetricsState
           heading="Smart Retries"
           singleStatEntity={getSingleStatEntity(
@@ -203,16 +270,8 @@ let make = () => {
           startTimeFilterKey
           endTimeFilterKey
           moduleName="smart_retries"
-          initialFilters={_ => []}
-          options
-          initialFixedFilters=initialFixedFilterFields
-          tabKeys
-          filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
           formaPayload
         />
-      </FilterContext>
-      <FilterContext
-        key="payments_analytics_overall_summary" index="payments_analytics_overall_summary">
         <OverallSummary
           filteredTabVales=tabValues
           moduleName="overall_summary"
@@ -228,16 +287,11 @@ let make = () => {
           tableGlobalFilter=filterByData
           weeklyTableMetricsCols
           formatData={formatData->Some}
-          initialFilters=initialFilterFields
-          options
-          initialFixedFilters=initialFixedFilterFields
-          tabKeys
-          filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
           startTimeFilterKey
           endTimeFilterKey
           heading="Payments Trends"
         />
-      </FilterContext>
+      </div>
     </div>
   </PageLoaderWrapper>
 }

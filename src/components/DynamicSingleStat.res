@@ -236,7 +236,7 @@ let make = (
   let homePageCss = isHomePage || chartAlignment === #row ? "flex-col" : "flex-row"
   let wrapperClass =
     wrapperClass->Option.getOr(
-      `flex mt-5 flex-col md:${homePageCss} flex-wrap justify-start items-stretch relative`,
+      `flex flex-col md:${homePageCss} flex-wrap justify-start items-stretch relative`,
     )
 
   let (singleStatData, setSingleStatData) = React.useState(() => None)
