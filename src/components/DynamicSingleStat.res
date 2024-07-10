@@ -236,7 +236,7 @@ let make = (
   let homePageCss = isHomePage || chartAlignment === #row ? "flex-col" : "flex-row"
   let wrapperClass =
     wrapperClass->Option.getOr(
-      `flex flex-col md:${homePageCss} flex-wrap justify-start items-stretch relative`,
+      `flex flex-col md:${homePageCss} flex-wrap justify-start items-stretch relative h-full`,
     )
 
   let (singleStatData, setSingleStatData) = React.useState(() => None)
@@ -492,6 +492,7 @@ let make = (
                 filterNullVals
                 ?statSentiment
                 ?statThreshold
+                fullWidth={columns->Array.length == 1}
               />
 
             | None =>
@@ -628,8 +629,8 @@ let make = (
       attributes=[("data-dynamic-single-stats", "dynamic stats")] key={index->Int.toString}>
       <div className=wrapperClass>
         {if isMobileView {
-          <div className="flex flex-col gap-2 items-center">
-            <div className="flex flex-wrap w-full">
+          <div className="flex flex-col gap-2 items-center h-full">
+            <div className="flex flex-wrap w-full h-full">
               {singleStateArr
               ->Array.mapWithIndex((element, index) => {
                 <RenderIf condition={index < 4 || showStats} key={index->Int.toString}>

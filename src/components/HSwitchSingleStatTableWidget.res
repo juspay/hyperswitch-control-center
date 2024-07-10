@@ -157,6 +157,7 @@ let make = (
   ~filterNullVals: bool=false,
   ~statSentiment: Dict.t<AnalyticsUtils.statSentiment>=Dict.make(),
   ~statThreshold: Dict.t<float>=Dict.make(),
+  ~fullWidth=false,
 ) => {
   let isMobileWidth = MatchMedia.useMatchMedia("(max-width: 700px)")
 
@@ -172,16 +173,19 @@ let make = (
     (),
   )
 
+  let modifiedData = value->Array.filter(val => val.rowValue > 0.0)
+
   if singleStatLoading && loaderType === Shimmer {
     <div className={`p-4`} style={ReactDOMStyle.make(~width=isMobileWidth ? "100%" : "33.33%", ())}>
       <Shimmer styleClass="w-full h-28" />
     </div>
   } else {
     <div
-      className={`mt-4`} style={ReactDOMStyle.make(~width=isMobileWidth ? "100%" : "33.33%", ())}>
+      className={`mt-4`}
+      style={ReactDOMStyle.make(~width=fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%", ())}>
       <div
         className={`h-full flex flex-col border ${borderRounded} dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox p-2 md:mr-4`}>
-        <div className="p-4 flex flex-col justify-between h-full gap-2">
+        <div className="p-4 flex flex-col justify-start h-full gap-2">
           <UIUtils.RenderIf condition={singleStatLoading && loaderType === SideLoader}>
             <div className="animate-spin self-end absolute">
               <Icon name="spinner" size=16 />
@@ -201,10 +205,10 @@ let make = (
             />
           </div>
           <div className="flex gap-1 flex-col w-full mt-1">
-            {if value->Array.length > 0 {
+            {if modifiedData->Array.length > 0 {
               <>
-                {value
-                ->Array.filterWithIndex((_val, index) => index < 5)
+                {modifiedData
+                ->Array.filterWithIndex((_val, index) => index < 3)
                 ->Array.mapWithIndex((item, index) => {
                   <div
                     key={index->Int.toString}
@@ -214,8 +218,8 @@ let make = (
                   </div>
                 })
                 ->React.array}
-                <UIUtils.RenderIf condition={value->Array.length > 5}>
-                  <ShowMore value title tableEntity />
+                <UIUtils.RenderIf condition={modifiedData->Array.length > 5}>
+                  <ShowMore value=modifiedData title tableEntity />
                 </UIUtils.RenderIf>
               </>
             } else {

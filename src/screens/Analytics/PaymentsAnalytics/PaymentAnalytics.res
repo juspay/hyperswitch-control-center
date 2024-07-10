@@ -59,7 +59,6 @@ let make = () => {
     "avg_ticket_size",
     "payment_processed_amount",
   ]
-  let smartRetrieMetrics = ["retries_count"]
 
   let formatMetrics = arrMetrics => {
     arrMetrics->Array.map(metric => {
@@ -260,18 +259,7 @@ let make = () => {
           moduleName="payments_analytics_amount"
           formaPayload
         />
-        <MetricsState
-          heading="Smart Retries"
-          singleStatEntity={getSingleStatEntity(
-            smartRetrieMetrics->formatMetrics,
-            smartRetrivesColumns,
-          )}
-          filterKeys=tabKeys
-          startTimeFilterKey
-          endTimeFilterKey
-          moduleName="smart_retries"
-          formaPayload
-        />
+        <SmartRetryAnalytics filterKeys=tabKeys moduleName="payments_smart_retries" />
         <OverallSummary
           filteredTabVales=tabValues
           moduleName="overall_summary"
