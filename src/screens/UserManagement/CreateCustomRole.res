@@ -97,7 +97,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
       body->getDictFromJsonObject->Dict.set("role_name", roleNameValue->JSON.Encode.string)
       let _ = await updateDetails(url, body, Post, ())
       setScreenState(_ => PageLoaderWrapper.Success)
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/users"))
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -118,8 +118,14 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   let getPermissionInfo = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=USERS, ~userType=#PERMISSION_INFO, ~methodType=Get, ())
-      let res = await fetchDetails(`${url}?groups=true`)
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#PERMISSION_INFO,
+        ~methodType=Get,
+        ~queryParamerters=Some(`groups=true`),
+        (),
+      )
+      let res = await fetchDetails(url)
       let permissionInfoValue = res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
       setPermissionInfo(_ => permissionInfoValue)
       setScreenState(_ => PageLoaderWrapper.Success)

@@ -87,7 +87,7 @@ let make = () => {
         startTimeFilterKey
         endTimeFilterKey
         initialFilters=initialFilterFields
-        initialFixedFilters=initialFixedFilterFields
+        initialFixedFilters=fixedFilterFields
       />
     </PageLoaderWrapper>
   </div>

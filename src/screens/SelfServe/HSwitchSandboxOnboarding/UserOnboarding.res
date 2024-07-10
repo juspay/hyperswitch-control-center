@@ -84,7 +84,7 @@ let make = () => {
 
   React.useEffect1(() => {
     if dashboardPageState !== #HOME {
-      RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/onboarding"))
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/onboarding"))
     }
     None
   }, [dashboardPageState])

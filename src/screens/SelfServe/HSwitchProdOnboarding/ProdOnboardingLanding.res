@@ -144,7 +144,7 @@ module SidebarChecklist = {
 @react.component
 let make = () => {
   open ProdOnboardingTypes
-  open HSwitchGlobalVars
+  open GlobalVars
   open ConnectorTypes
   open LogicUtils
   open APIUtils
@@ -225,12 +225,13 @@ let make = () => {
     open ProdOnboardingUtils
     open HomeUtils
     try {
-      let url = `${getURL(
-          ~entityName=USERS,
-          ~userType=#USER_DATA,
-          ~methodType=Get,
-          (),
-        )}?keys=${prodOnboardingEnumIntialArray->Array.joinWithUnsafe(",")}`
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#USER_DATA,
+        ~methodType=Get,
+        ~queryParamerters=Some(`keys=${prodOnboardingEnumIntialArray->Array.joinWithUnsafe(",")}`),
+        (),
+      )
       let response = await fetchDetails(url)
       let prodEnums = response->responseDataMapper(getValueMappedForProd)->getTypedValue
       getSetupProcessorEnum(prodEnums)

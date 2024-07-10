@@ -209,7 +209,7 @@ let make = () => {
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
-      HSwitchGlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
+      GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
     }
   }
 

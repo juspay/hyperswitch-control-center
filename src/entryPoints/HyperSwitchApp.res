@@ -2,7 +2,7 @@
 let make = () => {
   open UIUtils
   open HSwitchUtils
-  open HSwitchGlobalVars
+  open GlobalVars
   open APIUtils
   open PermissionUtils
   open LogicUtils
@@ -110,8 +110,14 @@ let make = () => {
   // }
   let fetchPermissions = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#GET_PERMISSIONS, ~methodType=Get, ())
-      let response = await fetchDetails(`${url}?groups=true`)
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#GET_PERMISSIONS,
+        ~methodType=Get,
+        ~queryParamerters=Some(`groups=true`),
+        (),
+      )
+      let response = await fetchDetails(url)
       let permissionsValue =
         response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
       let permissionJson =
