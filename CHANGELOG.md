@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.10.0
+
+### Miscellaneous Tasks
+
+- Added razorpay in payment connectors ([#951](https://github.com/juspay/hyperswitch-control-center/pull/951)) ([`e426c95`](https://github.com/juspay/hyperswitch-control-center/commit/e426c95f9e052cb05770ee7f82c6fa7fae1e4942))
+
+**Full Changelog:** [`2024.07.09.1...2024.07.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.09.1...2024.07.10.0)
+
+- - -
+
 ## 2024.07.09.1
 
 ### Features
