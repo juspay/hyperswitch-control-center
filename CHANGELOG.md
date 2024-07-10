@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.10.1
+
+### Features
+
+- Added feature flag for the granularity ([#961](https://github.com/juspay/hyperswitch-control-center/pull/961)) ([`6e52d4e`](https://github.com/juspay/hyperswitch-control-center/commit/6e52d4e71d2a52c6fd43f33cacd140ada2426b55))
+
+### Bug Fixes
+
+- Heading for new table column merchant ref id ([#959](https://github.com/juspay/hyperswitch-control-center/pull/959)) ([`6fff367`](https://github.com/juspay/hyperswitch-control-center/commit/6fff367c6423e1ac387f8d1bb5931c48369d4898))
+
+### Miscellaneous Tasks
+
+- Url refactoring ([#957](https://github.com/juspay/hyperswitch-control-center/pull/957)) ([`cca1cb9`](https://github.com/juspay/hyperswitch-control-center/commit/cca1cb9fea4d47e2b9b3bf5d8dfbb367a7d758db))
+- File restructure and rearrangement ([#944](https://github.com/juspay/hyperswitch-control-center/pull/944)) ([`8ac8f7a`](https://github.com/juspay/hyperswitch-control-center/commit/8ac8f7a823e17d3b4d6a2d3d13e4e483f2af4df3))
+
+**Full Changelog:** [`2024.07.10.0...2024.07.10.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.10.0...2024.07.10.1)
+
+- - -
+
 ## 2024.07.10.0
 
 ### Miscellaneous Tasks
