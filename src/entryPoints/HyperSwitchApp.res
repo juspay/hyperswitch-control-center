@@ -468,7 +468,10 @@ let make = () => {
                         | list{"reports"}
                         | list{"config-settings"}
                         | list{"file-processor"} =>
-                          <ReconModule urlList={url.path->urlPath} />
+                          <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
+                            <ReconModule urlList={url.path->urlPath} />
+                          </AccessControl>
+
                         | list{"sdk"} =>
                           <AccessControl
                             isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
