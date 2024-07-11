@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.11.0
+
+### Features
+
+- Recon module changes ([#926](https://github.com/juspay/hyperswitch-control-center/pull/926)) ([`f5669fa`](https://github.com/juspay/hyperswitch-control-center/commit/f5669fa4877c87d8478b3f481973e65e48470da7))
+
+**Full Changelog:** [`2024.07.10.1...2024.07.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.10.1...2024.07.11.0)
+
+- - -
+
 ## 2024.07.10.1
 
 ### Features

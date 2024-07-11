@@ -2,6 +2,8 @@ type t
 
 type listener<'ev> = 'ev => unit
 
+type event = {data: string}
+
 @val @scope("window")
 external parent: 't = "parent"
 
