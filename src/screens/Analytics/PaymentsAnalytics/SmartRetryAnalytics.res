@@ -107,7 +107,7 @@ let getStatData = (
   switch colType {
   | TotalSmartRetries => {
       title: "Smart Retries made",
-      tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supoorted currently)",
+      tooltipText: "Total number of retries that were attempted after a failed payment attempt.",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.total_smart_retries->Int.toFloat,
         deltaTimestampData.currentSr,
@@ -122,7 +122,7 @@ let getStatData = (
     }
   | SuccessfulSmartRetries => {
       title: "Successful Smart Retries",
-      tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supoorted currently)",
+      tooltipText: "Total number of retries that succeeded out of all the retry attempts.",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.successful_smart_retries->Int.toFloat,
         deltaTimestampData.currentSr,
@@ -137,7 +137,7 @@ let getStatData = (
     }
   | SmartRetriedAmount => {
       title: `Smart Retries Savings`,
-      tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor (Note: Only date range filters are supoorted currently)",
+      tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor.",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.smart_retried_amount /. 100.00,
         deltaTimestampData.currentSr,
@@ -264,6 +264,9 @@ let make = (~filterKeys, ~moduleName) => {
     <h2 className="font-bold text-xl text-black text-opacity-80">
       {"Smart Retries"->React.string}
     </h2>
+    <div className={`flex items-start text-sm rounded-md gap-2 py-2`}>
+      {"Note: Only date range filters are supported currently for Smart Retry metrics"->React.string}
+    </div>
     <div className="relative">
       <div>
         <DynamicSingleStat
