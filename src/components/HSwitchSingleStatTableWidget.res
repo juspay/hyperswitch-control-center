@@ -176,7 +176,9 @@ let make = (
   let modifiedData = value->Array.filter(val => val.rowValue > 0.0)
 
   if singleStatLoading && loaderType === Shimmer {
-    <div className={`p-4`} style={ReactDOMStyle.make(~width=isMobileWidth ? "100%" : "33.33%", ())}>
+    <div
+      className={`p-4`}
+      style={ReactDOMStyle.make(~width=fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%", ())}>
       <Shimmer styleClass="w-full h-28" />
     </div>
   } else {

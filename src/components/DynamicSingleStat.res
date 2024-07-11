@@ -507,6 +507,7 @@ let make = (
                 filterNullVals
                 ?statSentiment
                 ?statThreshold
+                fullWidth={columns->Array.length == 1}
               />
             }
           }
@@ -522,6 +523,7 @@ let make = (
             statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
             filterNullVals
             ?statSentiment
+            fullWidth={columns->Array.length == 1}
           />
         }
       | _ =>

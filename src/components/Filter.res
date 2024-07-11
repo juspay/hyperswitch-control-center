@@ -294,7 +294,7 @@ let make = (
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
       <div>
-        <div className={`flex gap-3 items-center flex-wrap ${verticalGap} mb-3`}>
+        <div className={`flex gap-3 items-center flex-wrap ${verticalGap}`}>
           {customLeftView}
           <UIUtils.RenderIf condition={fixedFilters->Array.length > 0}>
             <FormRenderer.FieldsRenderer
@@ -374,7 +374,7 @@ let make = (
             </Menu>
           </UIUtils.RenderIf>
         </div>
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex gap-3 flex-wrap mt-3">
           <FormRenderer.FieldsRenderer
             fields={filterList} labelClass="hidden" fieldWrapperClass="p-0"
           />

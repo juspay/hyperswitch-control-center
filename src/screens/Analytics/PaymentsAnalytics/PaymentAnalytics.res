@@ -234,7 +234,10 @@ let make = () => {
           <GenerateReport entityName={PAYMENT_REPORT} />
         </UIUtils.RenderIf>
       </div>
-      <div className="-ml-1"> topFilterUi </div>
+      <div
+        className="-ml-1 sticky top-3 z-50 rounded-lg p-1 backdrop-opacity-90 bg-hyperswitch_background/90 py-3 -mt-3">
+        topFilterUi
+      </div>
       <div className="flex flex-col gap-14">
         <MetricsState
           heading="Payments Overview"
