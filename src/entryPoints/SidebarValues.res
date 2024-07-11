@@ -495,7 +495,7 @@ let reconAnalytics = {
 let reconReports = {
   SubLevelLink({
     name: "Reports",
-    link: `reports`,
+    link: `/reports`,
     access: Access,
     searchOptions: [("Recon reports", "")],
   })
@@ -504,7 +504,7 @@ let reconReports = {
 let reconConfigurator = {
   SubLevelLink({
     name: "Configurator",
-    link: `config-settings`,
+    link: `/config-settings`,
     access: Access,
     searchOptions: [("Recon configurator", "")],
   })
@@ -512,7 +512,7 @@ let reconConfigurator = {
 let reconFileProcessor = {
   SubLevelLink({
     name: "File Processor",
-    link: `file-processor`,
+    link: `/file-processor`,
     access: Access,
     searchOptions: [("Recon file processor", "")],
   })
@@ -530,7 +530,9 @@ let reconTag = (recon, isReconEnabled) => {
 }
 
 let reconAndSettlement = (recon_v2, isReconEnabled) => {
-  recon_v2 && isReconEnabled
+  Js.log2("Feature flag:reconV2", recon_v2)
+  Js.log2("Is recon feature enabled:", isReconEnabled)
+  recon_v2
     ? Section({
         name: "Recon And Settlement",
         icon: "recon",
@@ -571,6 +573,8 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     reconV2,
   } = featureFlagDetails
 
+  Console.log2("FeatureFlagDetails sidebar", featureFlagDetails)
+
   let sidebar = [
     productionAccessComponent(quickStart),
     default->home,
@@ -598,5 +602,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~permissionJson,
     ),
   ]
+
   sidebar
 }
