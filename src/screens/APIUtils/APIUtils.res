@@ -80,7 +80,7 @@ let useGetURL = () => {
           | None => `payments/list?limit=100`
           }
         }
-      | Post => `payments/list?limit=20`
+      | Post => `payments/list`
       | _ => ""
       }
     | REFUNDS =>
@@ -101,7 +101,7 @@ let useGetURL = () => {
         }
       | Post =>
         switch id {
-        | Some(_keyid) => `refunds/list?limit=20`
+        | Some(_keyid) => `refunds/list`
         | None => `refunds`
         }
       | _ => ""
