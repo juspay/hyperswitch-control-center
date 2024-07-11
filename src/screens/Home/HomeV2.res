@@ -318,14 +318,6 @@ module Resources = {
         access: userPermissionJson.operationsManage,
       },
       {
-        id: "openSource",
-        icon: "blogs.svg",
-        headerText: "Contribute in open source",
-        subText: "We welcome all your suggestions, feedbacks, and queries. Hop on to the Open source rail!",
-        redirectLink: "",
-        access: Access,
-      },
-      {
         id: "developerdocs",
         icon: "connector.svg",
         headerText: "Developer docs",

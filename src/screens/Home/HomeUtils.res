@@ -282,24 +282,6 @@ module DevResources = {
         </CardLayout>
         <CardLayout width="w-full">
           <CardHeader
-            heading="Contribute in open source"
-            subHeading="We welcome all your suggestions, feedbacks, and queries. Hop on to the Open source rail!."
-            leftIcon=Some("contribution")
-          />
-          <CardFooter customFooterStyle="mt-5">
-            <Button
-              text="Contribute"
-              buttonType={Secondary}
-              buttonSize={Small}
-              onClick={_ => {
-                mixpanelEvent(~eventName=`contribute_in_open_source`, ())
-                "https://github.com/juspay/hyperswitch"->Window._open
-              }}
-            />
-          </CardFooter>
-        </CardLayout>
-        <CardLayout width="w-full">
-          <CardHeader
             heading="Product and tech blog"
             subHeading="Learn about payments, payment orchestration and all the tech behind it."
             leftIcon=Some("blogs")
