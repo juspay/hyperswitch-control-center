@@ -85,6 +85,7 @@ type processorTypes =
   | ZSL
   | MIFINITY
   | RAZORPAY
+  | BAMBORA_APAC
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
