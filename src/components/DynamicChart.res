@@ -162,6 +162,7 @@ type entity = {
   chartDescription?: string,
   sortingColumnLegend?: string,
   jsonTransformer?: (string, array<JSON.t>) => array<JSON.t>,
+  disableGranularity?: bool,
 }
 
 let chartMapper = str => {
@@ -205,6 +206,7 @@ let makeEntity = (
   ~chartDescription: option<string>=?,
   ~sortingColumnLegend: option<string>=?,
   ~jsonTransformer: option<(string, array<JSON.t>) => array<JSON.t>>=?,
+  ~disableGranularity=?,
   (),
 ) => {
   let granularity = granularity->Array.length === 0 ? [G_ONEDAY] : granularity
@@ -228,6 +230,7 @@ let makeEntity = (
     ?chartDescription,
     ?sortingColumnLegend,
     ?jsonTransformer,
+    ?disableGranularity,
   }
 }
 
@@ -631,6 +634,11 @@ let make = (
         )
         ->Dict.fromArray
 
+      let granularityOpts =
+        entity.disableGranularity->Option.getOr(false)
+          ? None
+          : selectedGranularity->getGranularityString->Some
+
       {
         uri: item.uri,
         metrics: item.metrics,
@@ -638,7 +646,7 @@ let make = (
         start_time: startTimeFromUrl,
         end_time: endTimeFromUrl,
         filters: Some(JSON.Encode.object(filterValue)),
-        granularityOpts: selectedGranularity->getGranularityString->Some,
+        granularityOpts,
         delta: false,
         startDateTime: startTimeFromUrl,
         cardinality: Some(cardinalityFromUrl),

@@ -352,6 +352,7 @@ let commonUserJourneyChartEntity = tabKeys =>
         [""]
       }
     },
+    ~disableGranularity=true,
     (),
   )
 
