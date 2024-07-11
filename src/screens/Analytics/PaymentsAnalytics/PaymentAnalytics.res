@@ -175,11 +175,13 @@ let make = () => {
     AnalyticsUtils.filterBody(filterBodyEntity)
   }, (startTimeVal, endTimeVal, tabKeys->Array.joinWith(",")))
 
+  let body = filterBody->JSON.Encode.object
+
   React.useEffect3(() => {
     setFilterDataJson(_ => None)
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       try {
-        updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
+        updateDetails(filterUri, body, Post, ())
         ->thenResolve(json => setFilterDataJson(_ => json->Some))
         ->catch(_ => resolve())
         ->ignore
@@ -188,7 +190,7 @@ let make = () => {
       }
     }
     None
-  }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
+  }, (startTimeVal, endTimeVal, body->JSON.stringify))
 
   let topFilterUi = switch filterDataJson {
   | Some(filterData) =>
