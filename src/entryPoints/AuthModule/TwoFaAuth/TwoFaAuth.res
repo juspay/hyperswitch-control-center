@@ -2,7 +2,7 @@
 let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   open APIUtils
   open CommonAuthForm
-  open HSwitchGlobalVars
+  open GlobalVars
   open LogicUtils
   open TwoFaUtils
   open AuthProviderTypes

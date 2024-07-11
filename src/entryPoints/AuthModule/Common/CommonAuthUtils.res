@@ -131,7 +131,7 @@ let clearLocalStorage = () => {
 }
 
 module ToggleLiveTestMode = {
-  open HSwitchGlobalVars
+  open GlobalVars
   open CommonAuthTypes
   @react.component
   let make = (~authType, ~mode, ~setMode, ~setAuthType, ~customClass="") => {

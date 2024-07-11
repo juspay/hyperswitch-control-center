@@ -23,7 +23,7 @@ let make = () => {
 
   React.useEffect1(() => {
     if dashboardPageState !== #HOME {
-      RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/setup-account"))
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/setup-account"))
     }
     None
   }, [dashboardPageState])

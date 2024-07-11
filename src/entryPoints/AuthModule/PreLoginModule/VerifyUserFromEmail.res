@@ -33,7 +33,7 @@ let make = (~onClick) => {
 
   React.useEffect0(() => {
     open TwoFaUtils
-    open HSwitchGlobalVars
+    open GlobalVars
 
     RescriptReactRouter.replace(appendDashboardPath(~url="/accept_invite_from_email"))
 

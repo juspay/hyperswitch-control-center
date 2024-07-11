@@ -3,7 +3,7 @@ let make = (~authType, ~setAuthType) => {
   open BasicAuthUtils
   open APIUtils
   open CommonAuthForm
-  open HSwitchGlobalVars
+  open GlobalVars
   open LogicUtils
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let getURL = useGetURL()

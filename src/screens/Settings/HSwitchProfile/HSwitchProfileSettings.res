@@ -129,7 +129,7 @@ module TwoFactorAuthenticationDetails = {
             buttonSize={XSmall}
             onClick={_ => {
               RescriptReactRouter.push(
-                HSwitchGlobalVars.appendDashboardPath(
+                GlobalVars.appendDashboardPath(
                   ~url=`/account-settings/profile/2fa?type=reset_totp`,
                 ),
               )
@@ -149,7 +149,7 @@ module TwoFactorAuthenticationDetails = {
             buttonSize={XSmall}
             onClick={_ => {
               RescriptReactRouter.push(
-                HSwitchGlobalVars.appendDashboardPath(
+                GlobalVars.appendDashboardPath(
                   ~url=`/account-settings/profile/2fa?type=regenerate_recovery_code`,
                 ),
               )
