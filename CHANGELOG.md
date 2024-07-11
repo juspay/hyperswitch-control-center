@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.11.2
+
+### Features
+
+- Global search customer email search support ([#964](https://github.com/juspay/hyperswitch-control-center/pull/964)) ([`ba411d1`](https://github.com/juspay/hyperswitch-control-center/commit/ba411d179aa89891fbf60e42dd07c5b9a43766b1))
+
+### Miscellaneous Tasks
+
+- Orders and refunds more table items ([#970](https://github.com/juspay/hyperswitch-control-center/pull/970)) ([`088f0d1`](https://github.com/juspay/hyperswitch-control-center/commit/088f0d1339ce2a2c7b4b19572c016eeae7ea8667))
+- New connector added bambora apac ([#973](https://github.com/juspay/hyperswitch-control-center/pull/973)) ([`2658d8a`](https://github.com/juspay/hyperswitch-control-center/commit/2658d8a960405c0a5a5ecb185121062f021a4b0d))
+
+**Full Changelog:** [`2024.07.11.1...2024.07.11.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.11.1...2024.07.11.2)
+
+- - -
+
 ## 2024.07.11.1
 
 ### Bug Fixes
