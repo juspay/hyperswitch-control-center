@@ -40,6 +40,7 @@ module HyperSwitchEntryComponent = {
           ->getString("apple_pay_certificate_url", "")
           ->getNonEmptyString,
           agreementVersion: dict->getString("agreement_version", "")->getNonEmptyString,
+          reconIframeUrl: dict->getString("recon_iframe_url", "")->getNonEmptyString,
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.faviconUrl)->ignore
