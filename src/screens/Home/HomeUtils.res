@@ -11,7 +11,7 @@ let boxCssHover = (~ishoverStyleRequired, ()) =>
   `flex flex-col  bg-white border rounded-md pt-10 pl-10 gap-2 h-12.5-rem ${ishoverStyleRequired
       ? hoverStyle
       : ""}`
-let boxCss = "flex flex-col bg-white border rounded-md gap-4 p-10"
+let boxCss = "flex flex-col bg-white border rounded-md gap-4 p-7"
 let imageTransitionCss = "opacity-50 group-hover:opacity-100 transition ease-in-out duration-300"
 let cardHeaderTextStyle = `${cardHeaderText} text-grey-700`
 
