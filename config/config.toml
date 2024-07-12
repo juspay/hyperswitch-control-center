@@ -15,7 +15,7 @@ recon_iframe_url=""
 [default.features]
 test_live_toggle=false
 is_live_mode=false
-email=true
+email=false
 quick_start=false
 audit_trail=false
 system_metrics=false
