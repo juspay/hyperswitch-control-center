@@ -237,7 +237,7 @@ let make = () => {
         </UIUtils.RenderIf>
       </div>
       <div
-        className="-ml-1 sticky top-3 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
+        className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
         topFilterUi
       </div>
       <div className="flex flex-col gap-14">
