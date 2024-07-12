@@ -162,6 +162,7 @@ type entity = {
   chartDescription?: string,
   sortingColumnLegend?: string,
   jsonTransformer?: (string, array<JSON.t>) => array<JSON.t>,
+  disableGranularity?: bool,
 }
 
 let chartMapper = str => {
@@ -205,6 +206,7 @@ let makeEntity = (
   ~chartDescription: option<string>=?,
   ~sortingColumnLegend: option<string>=?,
   ~jsonTransformer: option<(string, array<JSON.t>) => array<JSON.t>>=?,
+  ~disableGranularity=?,
   (),
 ) => {
   let granularity = granularity->Array.length === 0 ? [G_ONEDAY] : granularity
@@ -228,12 +230,13 @@ let makeEntity = (
     ?chartDescription,
     ?sortingColumnLegend,
     ?jsonTransformer,
+    ?disableGranularity,
   }
 }
 
 let useChartFetch = (~setStatusDict) => {
   let fetchApi = AuthHooks.useApiFetcher()
-  let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetch()
+  let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
   let fetchChartData = (updatedChartBody: array<fetchDataConfig>, setState) => {
     open Promise
 
@@ -405,6 +408,7 @@ let make = (
   ~legendType: HighchartTimeSeriesChart.legendType=Table,
   ~comparitionWidget=false,
 ) => {
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let updateChartCompFilters = switch updateUrl {
   | Some(fn) => fn
@@ -630,6 +634,11 @@ let make = (
         )
         ->Dict.fromArray
 
+      let granularityOpts =
+        entity.disableGranularity->Option.getOr(false)
+          ? None
+          : selectedGranularity->getGranularityString->Some
+
       {
         uri: item.uri,
         metrics: item.metrics,
@@ -637,7 +646,7 @@ let make = (
         start_time: startTimeFromUrl,
         end_time: endTimeFromUrl,
         filters: Some(JSON.Encode.object(filterValue)),
-        granularityOpts: selectedGranularity->getGranularityString->Some,
+        granularityOpts,
         delta: false,
         startDateTime: startTimeFromUrl,
         cardinality: Some(cardinalityFromUrl),
@@ -812,14 +821,16 @@ let make = (
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else if comparitionWidget {
                   <div>
-                    <div className="w-full flex justify-end p-2">
-                      <GranularitySelectBox
-                        selectedGranularity
-                        setSelectedGranularity
-                        startTime={startTimeFromUrl}
-                        endTime={endTimeFromUrl}
-                      />
-                    </div>
+                    <UIUtils.RenderIf condition={featureFlagDetails.granularity}>
+                      <div className="w-full flex justify-end p-2">
+                        <GranularitySelectBox
+                          selectedGranularity
+                          setSelectedGranularity
+                          startTime={startTimeFromUrl}
+                          endTime={endTimeFromUrl}
+                        />
+                      </div>
+                    </UIUtils.RenderIf>
                     {entityAllMetrics
                     ->Array.mapWithIndex((selectedMetrics, index) => {
                       switch uriConfig->Array.get(0) {

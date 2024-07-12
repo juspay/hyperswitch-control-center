@@ -2,7 +2,7 @@
 let make = () => {
   open UIUtils
   open HSwitchUtils
-  open HSwitchGlobalVars
+  open GlobalVars
   open APIUtils
   open PermissionUtils
   open LogicUtils
@@ -110,8 +110,14 @@ let make = () => {
   // }
   let fetchPermissions = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#GET_PERMISSIONS, ~methodType=Get, ())
-      let response = await fetchDetails(`${url}?groups=true`)
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#GET_PERMISSIONS,
+        ~methodType=Get,
+        ~queryParamerters=Some(`groups=true`),
+        (),
+      )
+      let response = await fetchDetails(url)
       let permissionsValue =
         response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
       let permissionJson =
@@ -397,7 +403,9 @@ let make = () => {
                           </AccessControl>
                         | list{"analytics-payments"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
-                            <PaymentAnalytics />
+                            <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
+                              <PaymentAnalytics />
+                            </FilterContext>
                           </AccessControl>
                         | list{"analytics-refunds"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
@@ -456,6 +464,16 @@ let make = () => {
                           <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
                             <Recon />
                           </AccessControl>
+                        | list{"upload-files"}
+                        | list{"run-recon"}
+                        | list{"recon-analytics"}
+                        | list{"reports"}
+                        | list{"config-settings"}
+                        | list{"file-processor"} =>
+                          <AccessControl isEnabled=featureFlagDetails.reconV2 permission=Access>
+                            <ReconModule urlList={url.path->urlPath} />
+                          </AccessControl>
+
                         | list{"sdk"} =>
                           <AccessControl
                             isEnabled={!featureFlagDetails.isLiveMode} permission=Access>

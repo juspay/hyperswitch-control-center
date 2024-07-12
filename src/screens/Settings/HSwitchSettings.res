@@ -21,6 +21,7 @@ module TileComponent = {
     ~cardName,
   ) => {
     open APIUtils
+    open GlobalVars
     let getURL = useGetURL()
     let showPopUp = PopUpState.useShowPopUp()
     let showToast = ToastState.useShowToast()
@@ -72,16 +73,12 @@ module TileComponent = {
         }
       } else {
         switch redirectUrl {
-        | Some(url) =>
-          RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=`/${url}`))
+        | Some(url) => RescriptReactRouter.push(appendDashboardPath(~url=`/${url}`))
         | None =>
           switch redirect {
           | Some(redirect) =>
-            RescriptReactRouter.push(
-              HSwitchGlobalVars.appendDashboardPath(~url=`/settings?type=${redirect}`),
-            )
-          | None =>
-            RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/settings"))
+            RescriptReactRouter.push(appendDashboardPath(~url=`/settings?type=${redirect}`))
+          | None => RescriptReactRouter.push(appendDashboardPath(~url="/settings"))
           }
         }
       }

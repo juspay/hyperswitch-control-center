@@ -81,7 +81,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
       let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ~id=Some(frmID), ())
       let _ = await updateDetails(url, disableFRMPayload->JSON.Encode.object, Post, ())
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
-      RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/fraud-risk-management"))
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/fraud-risk-management"))
     } catch {
     | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
     }
@@ -115,9 +115,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
         <Button
           onClick={_ => {
             mixpanelEvent(~eventName="frm_step3", ())
-            RescriptReactRouter.push(
-              HSwitchGlobalVars.appendDashboardPath(~url="/fraud-risk-management"),
-            )
+            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/fraud-risk-management"))
           }}
           text="Done"
           buttonType={Primary}

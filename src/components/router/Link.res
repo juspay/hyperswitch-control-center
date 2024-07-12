@@ -20,7 +20,7 @@ let make = (
       let eventName = to_->String.replaceRegExp(%re("/^\//"), "")
       mixpanelEvent(~eventName=`${eventName}`, ~section=`${eventName}`, ())
     }
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=to_))
+    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=to_))
   }, [to_])
   if openInNewTab {
     if to_->String.trim->LogicUtils.isEmptyString {

@@ -16,7 +16,7 @@ module NewProcessorCards = {
     let handleClick = frmName => {
       mixpanelEvent(~eventName=`connect_frm_${frmName}`, ())
       RescriptReactRouter.push(
-        HSwitchGlobalVars.appendDashboardPath(~url=`/fraud-risk-management/new?name=${frmName}`),
+        GlobalVars.appendDashboardPath(~url=`/fraud-risk-management/new?name=${frmName}`),
       )
     }
     let unConfiguredFRMCount = unConfiguredFRMs->Array.length

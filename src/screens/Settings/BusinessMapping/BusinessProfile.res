@@ -75,9 +75,7 @@ module AddEntryBtn = {
                 if updatedProfileId->LogicUtils.isNonEmptyString {
                   mixpanelEvent(~eventName="business_profiles_configure_payment_settings", ())
                   RescriptReactRouter.replace(
-                    HSwitchGlobalVars.appendDashboardPath(
-                      ~url=`/payment-settings/${updatedProfileId}`,
-                    ),
+                    GlobalVars.appendDashboardPath(~url=`/payment-settings/${updatedProfileId}`),
                   )
                   setModalState(_ => Edit)
                 }

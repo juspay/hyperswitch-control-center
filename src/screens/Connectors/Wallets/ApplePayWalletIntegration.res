@@ -152,8 +152,13 @@ module Simplified = {
     let onSubmit = async (values, _) => {
       try {
         let (body, domainName) = values->constructVerifyApplePayReq(connectorID)
-        let verifyAppleUrl = getURL(~entityName=VERIFY_APPLE_PAY, ~methodType=Post, ())
-        let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post, ())
+        let verifyAppleUrl = getURL(
+          ~entityName=VERIFY_APPLE_PAY,
+          ~methodType=Post,
+          ~id=Some(merchantId),
+          (),
+        )
+        let _ = await updateAPIHook(verifyAppleUrl, body, Post, ())
 
         let updatedValue = values->constructApplePayMetadata(metadataInputs, #simplified)
         update(updatedValue)
