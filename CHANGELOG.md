@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.12.0
+
+### Bug Fixes
+
+- Dynamic charts and filter ui fix ([#982](https://github.com/juspay/hyperswitch-control-center/pull/982)) ([`31e5637`](https://github.com/juspay/hyperswitch-control-center/commit/31e563754d875b9ef906e59b59eb79136ff6a545))
+
+### Miscellaneous Tasks
+
+- Removed console logs for testing ([#976](https://github.com/juspay/hyperswitch-control-center/pull/976)) ([`a0c323a`](https://github.com/juspay/hyperswitch-control-center/commit/a0c323a365c69514563651d84958d0ececaa482f))
+- Refactor connector metadata ([#854](https://github.com/juspay/hyperswitch-control-center/pull/854)) ([`604b028`](https://github.com/juspay/hyperswitch-control-center/commit/604b02849dda2e9caa9f403823715dd2a96a4f7c))
+- Update latest wasm ([#985](https://github.com/juspay/hyperswitch-control-center/pull/985)) ([`a4e216c`](https://github.com/juspay/hyperswitch-control-center/commit/a4e216c94c774f7e6f6d4d3b9f26e418337cb115))
+
+**Full Changelog:** [`2024.07.11.3...2024.07.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.11.3...2024.07.12.0)
+
+- - -
+
 ## 2024.07.11.3
 
 ### Bug Fixes
