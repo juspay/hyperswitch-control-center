@@ -343,7 +343,7 @@ module Resources = {
     <>
       <div className="flex flex-col gap-4">
         <p className=headingStyle> {"Resources"->React.string} </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="flex flex-row gap-4">
           {elements
           ->Array.mapWithIndex((item, index) => {
             let cursorStyles = PermissionUtils.cursorStyles(item.access)
