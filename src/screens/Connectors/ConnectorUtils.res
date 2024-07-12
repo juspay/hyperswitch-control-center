@@ -83,6 +83,8 @@ let connectorList: array<connectorTypes> = [
   Processors(ZEN),
   Processors(ZSL),
   Processors(PLACETOPAY),
+  Processors(RAZORPAY),
+  Processors(BAMBORA_APAC),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -422,6 +424,14 @@ let zslInfo = {
   description: "It is a payment processor that enables businesses to accept payments securely through local bank transfers.",
 }
 
+let razorpayInfo = {
+  description: "Razorpay helps you accept online payments from customers across Desktop, Mobile web, Android & iOS. Additionally by using Razorpay Payment Links, you can collect payments across multiple channels like SMS, Email, Whatsapp, Chatbots & Messenger.",
+}
+
+let bamboraApacInfo = {
+  description: "Bambora offers the ability to securely and efficiently process online, real-time transactions via an API, our user-friendly interface. The API web service accepts and processes SOAP requests from a remote location over TCP/IP. Transaction results are returned in real-time via the API.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -514,6 +524,8 @@ let getConnectorNameString = (connector: processorTypes) =>
   | BILLWERK => "billwerk"
   | MIFINITY => "mifinity"
   | ZSL => "zsl"
+  | RAZORPAY => "razorpay"
+  | BAMBORA_APAC => "bamboraapac"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -600,6 +612,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "billwerk" => Processors(BILLWERK)
     | "mifinity" => Processors(MIFINITY)
     | "zsl" => Processors(ZSL)
+    | "razorpay" => Processors(RAZORPAY)
+    | "bamboraapac" => Processors(BAMBORA_APAC)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -677,6 +691,8 @@ let getProcessorInfo = connector => {
   | BILLWERK => billwerkInfo
   | MIFINITY => mifinityInfo
   | ZSL => zslInfo
+  | RAZORPAY => razorpayInfo
+  | BAMBORA_APAC => bamboraApacInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -1438,6 +1454,8 @@ let getDisplayNameForProcessor = connector =>
   | PLACETOPAY => "Placetopay"
   | MIFINITY => "MiFinity"
   | ZSL => "ZSL"
+  | RAZORPAY => "Razorpay"
+  | BAMBORA_APAC => "Bambora Apac"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

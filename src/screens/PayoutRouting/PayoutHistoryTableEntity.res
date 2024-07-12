@@ -98,7 +98,7 @@ let payoutHistoryEntity = (
     ~getShowLink={
       value => {
         PermissionUtils.linkForGetShowLinkViaAccess(
-          ~url=HSwitchGlobalVars.appendDashboardPath(
+          ~url=GlobalVars.appendDashboardPath(
             ~url=`/payoutrouting/${value.kind
               ->routingTypeMapper
               ->routingTypeName}?id=${value.id}${activeRoutingIds->Array.includes(value.id)

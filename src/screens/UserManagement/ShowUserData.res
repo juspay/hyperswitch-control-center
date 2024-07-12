@@ -24,7 +24,7 @@ module UserUtilsPopover = {
           [("email", infoValue.email->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Delete, ())
         showToast(~message=`User has been successfully deleted.`, ~toastType=ToastSuccess, ())
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/users"))
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
       } catch {
       | _ => ()
       }
@@ -147,7 +147,7 @@ module UserHeading = {
         setPermissionInfo(_ => updatedPermissionListForGivenRole)
         setIsUpdateRoleSelected(_ => false)
       } catch {
-      | _ => RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/users"))
+      | _ => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
       }
     }
 
@@ -161,7 +161,7 @@ module UserHeading = {
           ]->LogicUtils.getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post, ())
         showToast(~message=`Role successfully updated!`, ~toastType=ToastSuccess, ())
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/users"))
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
       } catch {
       | _ => ()
       }
@@ -265,8 +265,14 @@ let make = () => {
 
   let getPermissionInfo = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#PERMISSION_INFO, ~methodType=Get, ())
-      let res = await fetchDetails(`${url}?groups=true`)
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#PERMISSION_INFO,
+        ~methodType=Get,
+        ~queryParamerters=Some(`groups=true`),
+        (),
+      )
+      let res = await fetchDetails(url)
       let permissionInfoValue =
         res->LogicUtils.getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
 
@@ -339,7 +345,7 @@ let make = () => {
       overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ =>
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/users"))}
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))}
       isButton=true
     />
 

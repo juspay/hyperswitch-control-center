@@ -1,6 +1,4 @@
 module MetricsState = {
-  open LogicUtils
-  open Promise
   @react.component
   let make = (
     ~singleStatEntity,
@@ -8,105 +6,11 @@ module MetricsState = {
     ~startTimeFilterKey,
     ~endTimeFilterKey,
     ~moduleName,
-    ~initialFilters,
-    ~options,
-    ~initialFixedFilters,
-    ~tabKeys,
-    ~filterUri,
     ~heading,
     ~formaPayload: option<DynamicSingleStat.singleStatBodyEntity => string>=?,
   ) => {
-    let updateDetails = APIUtils.useUpdateMethod()
-    let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
-    let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
-    let {updateExistingKeys, filterValueJson} = React.useContext(FilterContext.filterContext)
-    let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
-
-    let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-      ~updateExistingKeys,
-      ~startTimeFilterKey,
-      ~endTimeFilterKey,
-      ~origin="analytics",
-      (),
-    )
-
-    React.useEffect0(() => {
-      setInitialFilters()
-      None
-    })
-
-    let startTimeVal = filterValueJson->getString("startTime", "")
-    let endTimeVal = filterValueJson->getString("endTime", "")
-
-    let filterBody = React.useMemo3(() => {
-      let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
-        startTime: startTimeVal,
-        endTime: endTimeVal,
-        groupByNames: tabKeys,
-        source: "BATCH",
-      }
-      AnalyticsUtils.filterBody(filterBodyEntity)
-    }, (startTimeVal, endTimeVal, tabKeys->Array.joinWith(",")))
-
-    React.useEffect3(() => {
-      setFilterDataJson(_ => None)
-      if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
-        try {
-          switch filterUri {
-          | Some(filterUri) =>
-            updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
-            ->thenResolve(json => setFilterDataJson(_ => json->Some))
-            ->catch(_ => resolve())
-            ->ignore
-          | None => ()
-          }
-        } catch {
-        | _ => ()
-        }
-      }
-      None
-    }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
-
-    let topFilterUi = switch filterDataJson {
-    | Some(filterData) =>
-      <div className="flex flex-row">
-        <DynamicFilter
-          initialFilters={initialFilters(filterData)}
-          options=[]
-          popupFilterFields={options(filterData)}
-          initialFixedFilters={initialFixedFilters(filterData)}
-          defaultFilterKeys=defaultFilters
-          tabNames=tabKeys
-          updateUrlWith=updateExistingKeys
-          key="0"
-          filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-          showCustomFilter=false
-          refreshFilters=false
-        />
-      </div>
-    | None =>
-      <div className="flex flex-row">
-        <DynamicFilter
-          initialFilters=[]
-          options=[]
-          popupFilterFields=[]
-          initialFixedFilters={initialFixedFilters(filterData)}
-          defaultFilterKeys=defaultFilters
-          tabNames=tabKeys
-          updateUrlWith=updateExistingKeys //
-          key="1"
-          filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-          showCustomFilter=false
-          refreshFilters=false
-        />
-      </div>
-    }
-
     <div>
-      <h2 className="font-bold text-xl text-black text-opacity-80 mb-4">
-        {heading->React.string}
-      </h2>
-      <div className="-ml-1"> topFilterUi </div>
+      <h2 className="font-bold text-xl text-black text-opacity-80"> {heading->React.string} </h2>
       <DynamicSingleStat
         entity=singleStatEntity
         startTimeFilterKey
@@ -479,7 +383,6 @@ module TabDetails = {
 
 module OverallSummary = {
   open LogicUtils
-  open Promise
   @react.component
   let make = (
     ~filteredTabVales,
@@ -499,22 +402,14 @@ module OverallSummary = {
     ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>=?,
     ~weeklyTableMetricsCols=?,
     ~formatData=None,
-    ~initialFilters,
-    ~options,
-    ~initialFixedFilters,
-    ~tabKeys,
-    ~filterUri,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
     ~heading,
   ) => {
-    let updateDetails = APIUtils.useUpdateMethod()
-    let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
     let {filterValue, filterValueJson, updateExistingKeys} = React.useContext(
       FilterContext.filterContext,
     )
 
-    let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
     let initTab = switch filteredTabKeys->Array.get(0) {
     | Some(val) => [val]
     | None => filteredTabKeys
@@ -522,7 +417,6 @@ module OverallSummary = {
     let (activeTav, setActiveTab) = React.useState(_ =>
       filterValueJson->getStrArrayFromDict(`${moduleName}.tabName`, initTab)
     )
-    let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
     let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
       ~updateExistingKeys,
@@ -536,42 +430,6 @@ module OverallSummary = {
       setInitialFilters()
       None
     })
-
-    let startTimeVal = filterValueJson->getString("startTime", "")
-    let endTimeVal = filterValueJson->getString("endTime", "")
-
-    let filterBody = React.useMemo3(() => {
-      let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
-        startTime: startTimeVal,
-        endTime: endTimeVal,
-        groupByNames: tabKeys,
-        source: "BATCH",
-      }
-      AnalyticsUtils.filterBody(filterBodyEntity)
-    }, (startTimeVal, endTimeVal, tabKeys->Array.joinWith(",")))
-
-    let getFilterData = () => {
-      if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
-        try {
-          switch filterUri {
-          | Some(filterUri) =>
-            updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
-            ->thenResolve(json => setFilterDataJson(_ => json->Some))
-            ->catch(_ => resolve())
-            ->ignore
-          | None => ()
-          }
-        } catch {
-        | _ => ()
-        }
-      }
-    }
-
-    React.useEffect3(() => {
-      setFilterDataJson(_ => None)
-      getFilterData()
-      None
-    }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
 
     let activeTab = React.useMemo1(() => {
       Some(
@@ -620,46 +478,8 @@ module OverallSummary = {
       }
     }, [updateExistingKeys])
 
-    let topFilterUi = switch filterDataJson {
-    | Some(filterData) =>
-      <div className="flex flex-row">
-        <DynamicFilter
-          initialFilters={initialFilters(filterData)}
-          options=[]
-          popupFilterFields={options(filterData)}
-          initialFixedFilters={initialFixedFilters(filterData)}
-          defaultFilterKeys=defaultFilters
-          tabNames=tabKeys
-          updateUrlWith=updateExistingKeys
-          key="0"
-          filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-          showCustomFilter=false
-          refreshFilters=false
-        />
-      </div>
-    | None =>
-      <div className="flex flex-row">
-        <DynamicFilter
-          initialFilters=[]
-          options=[]
-          popupFilterFields=[]
-          initialFixedFilters={initialFixedFilters(filterData)}
-          defaultFilterKeys=defaultFilters
-          tabNames=tabKeys
-          updateUrlWith=updateExistingKeys //
-          key="1"
-          filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-          showCustomFilter=false
-          refreshFilters=false
-        />
-      </div>
-    }
-
     <div>
-      <h2 className="font-bold text-xl text-black text-opacity-80 mb-4">
-        {heading->React.string}
-      </h2>
-      <div className="-ml-1"> topFilterUi </div>
+      <h2 className="font-bold text-xl text-black text-opacity-80"> {heading->React.string} </h2>
       <DynamicTabs
         tabs=filteredTabVales
         maxSelection=3

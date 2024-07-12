@@ -82,7 +82,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let activeRoutingUrl = `${getURL(~entityName=PAYOUT_ROUTING, ~methodType=Get, ())}/active`
+
+      let activeRoutingUrl = getURL(~entityName=ACTIVE_PAYOUT_ROUTING, ~methodType=Get, ())
       let routingJson = await fetchDetails(activeRoutingUrl)
 
       let routingArr = routingJson->getArrayFromJson([])

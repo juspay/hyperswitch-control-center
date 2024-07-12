@@ -24,7 +24,7 @@ let make = () => {
 
   let naviagteToHome = _ => {
     setDashboardPageState(_ => #HOME)
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
   }
 
   let handleNavigation = async (~forward: bool) => {

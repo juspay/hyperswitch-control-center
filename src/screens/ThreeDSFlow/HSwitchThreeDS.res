@@ -238,7 +238,7 @@ let make = () => {
       )
       fetchDetails()->ignore
       setShowWarning(_ => true)
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/3ds"))
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds"))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
     } catch {
@@ -282,7 +282,7 @@ let make = () => {
   }
   let redirectToNewRule = () => {
     setPageView(_ => NEW)
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/3ds?type=new"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds?type=new"))
   }
   let handleCreateNew = () => {
     mixpanelEvent(~eventName="create_new_3ds_rule", ())
@@ -325,7 +325,7 @@ let make = () => {
                 buttonType=Secondary
                 onClick={_ => {
                   setPageView(_ => LANDING)
-                  RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/3ds"))
+                  RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds"))
                 }}
               />
               <FormRenderer.SubmitButton
