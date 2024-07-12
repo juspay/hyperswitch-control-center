@@ -66,7 +66,7 @@ let getDictFromJsonObject = json => {
   }
 }
 
-let convertMapObjectToDict = genericTypeMapVal => {
+let convertMapObjectToDict = (genericTypeMapVal: JSON.t) => {
   try {
     open MapTypes
     let map = create(genericTypeMapVal)
@@ -74,7 +74,7 @@ let convertMapObjectToDict = genericTypeMapVal => {
     let dict = object.fromEntries(mapIterator)->getDictFromJsonObject
     dict
   } catch {
-  | _ => genericTypeMapVal
+  | _ => Dict.make()
   }
 }
 
