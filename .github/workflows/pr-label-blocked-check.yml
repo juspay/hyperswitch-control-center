@@ -1,0 +1,20 @@
+name: CI Check - Block Label
+
+on:
+  pull_request:
+
+jobs:
+  check-label:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check for "blocked" label
+        uses: gr2m/issue-label-checker@v2
+        with:
+          issue-number: ${{ github.event.number }}
+          label: S-blocked
+          fail_on_match: true
+
+  
