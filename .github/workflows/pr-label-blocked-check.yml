@@ -9,9 +9,9 @@ jobs:
     
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Check for "blocked" label
-        if: github.event.label.name == 'S-blocked'
+        if: ${{github.event.label.name == 'S-blocked'}} 
         shell: bash
         run: echo "Checking for blocked label"
 
