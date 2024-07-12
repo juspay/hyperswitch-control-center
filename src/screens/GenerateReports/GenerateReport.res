@@ -4,13 +4,10 @@ let make = (~entityName) => {
   let (reportModal, setReportModal) = React.useState(_ => false)
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
-  let accessForGenerateReports = switch (
+  let accessForGenerateReports = PermissionUtils.hasAnyPermission(
     userPermissionJson.operationsView,
     userPermissionJson.analyticsView,
-  ) {
-  | (NoAccess, NoAccess) => userPermissionJson.operationsView
-  | (_, _) => Access
-  }
+  )
 
   <>
     <ACLButton
