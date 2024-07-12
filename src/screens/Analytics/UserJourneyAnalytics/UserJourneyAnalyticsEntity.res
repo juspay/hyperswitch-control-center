@@ -352,6 +352,7 @@ let commonUserJourneyChartEntity = tabKeys =>
         [""]
       }
     },
+    ~disableGranularity=true,
     (),
   )
 
@@ -398,4 +399,36 @@ let userJourneyFunnelChartEntity = tabKeys => {
     },
   ],
   chartDescription: "Breakdown of users based on journey checkpoints",
+}
+
+let fixedFilterFields = _json => {
+  let newArr = [
+    (
+      {
+        localFilter: None,
+        field: FormRenderer.makeMultiInputFieldInfo(
+          ~label="",
+          ~comboCustomInput=InputFields.filterDateRangeField(
+            ~startKey=startTimeFilterKey,
+            ~endKey=endTimeFilterKey,
+            ~format="YYYY-MM-DDTHH:mm:ss[Z]",
+            ~showTime=true,
+            ~disablePastDates={false},
+            ~disableFutureDates={true},
+            ~predefinedDays=[Today, Yesterday, Day(2.0), Day(7.0), Day(30.0), ThisMonth, LastMonth],
+            ~numMonths=2,
+            ~disableApply=false,
+            ~dateRangeLimit=180,
+            ~optFieldKey=optFilterKey,
+            (),
+          ),
+          ~inputFields=[],
+          ~isRequired=false,
+          (),
+        ),
+      }: EntityType.initialFilters<'t>
+    ),
+  ]
+
+  newArr
 }

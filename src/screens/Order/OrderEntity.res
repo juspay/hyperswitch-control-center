@@ -532,7 +532,7 @@ let getHeading = (colType: colType) => {
   | MerchantOrderReferenceId =>
     Table.makeHeaderInfo(
       ~key="merchant_order_reference_id",
-      ~title="MerchantOrderReferenceId",
+      ~title="Merchant Order Reference Id",
       ~showSort=false,
       (),
     )
@@ -1069,7 +1069,7 @@ let orderEntity = EntityType.makeEntity(
   ~getCell,
   ~dataKey="",
   ~getShowLink={
-    order => HSwitchGlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}`)
+    order => GlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}`)
   },
   (),
 )

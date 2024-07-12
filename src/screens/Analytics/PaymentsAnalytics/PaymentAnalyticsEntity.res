@@ -318,8 +318,9 @@ type colT =
   | SuccessCount
   | ProcessedAmount
   | AvgTicketSize
-  | RetriesCount
-  | RetriesAmountProcessed
+  | SuccessfulSmartRetries
+  | TotalSmartRetries
+  | SmartRetriedAmount
   | ConnectorSuccessRate
 
 let generalMetricsColumns: array<DynamicSingleStat.columns<colT>> = [
@@ -342,13 +343,6 @@ let amountMetricsColumns: array<DynamicSingleStat.columns<colT>> = [
         chartType: Table,
       },
     ],
-  },
-]
-
-let smartRetrivesColumns: array<DynamicSingleStat.columns<colT>> = [
-  {
-    sectionName: "",
-    columns: [RetriesCount, RetriesAmountProcessed]->generateDefaultStateColumns,
   },
 ]
 
@@ -509,7 +503,7 @@ let getStatData = (
       showDelta: false,
       label: singleStatData.currency,
     }
-  | RetriesCount => {
+  | TotalSmartRetries => {
       title: "Smart Retries made",
       tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supoorted currently)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
@@ -524,7 +518,22 @@ let getStatData = (
       statType: "Volume",
       showDelta: false,
     }
-  | RetriesAmountProcessed => {
+  | SuccessfulSmartRetries => {
+      title: "Successful Smart Retries",
+      tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supoorted currently)",
+      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+        singleStatData.retries_count->Int.toFloat,
+        deltaTimestampData.currentSr,
+      ),
+      value: singleStatData.retries_count->Int.toFloat,
+      delta: {
+        singleStatData.retries_count->Int.toFloat
+      },
+      data: constructData("retries_count", timeSeriesData),
+      statType: "Volume",
+      showDelta: false,
+    }
+  | SmartRetriedAmount => {
       title: `Smart Retries Savings`,
       tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor (Note: Only date range filters are supoorted currently)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(

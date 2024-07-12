@@ -109,7 +109,7 @@ let make = (~flowType) => {
   }
 
   React.useEffect0(_ => {
-    open HSwitchGlobalVars
+    open GlobalVars
     RescriptReactRouter.replace(appendDashboardPath(~url="/reset_password"))
     None
   })

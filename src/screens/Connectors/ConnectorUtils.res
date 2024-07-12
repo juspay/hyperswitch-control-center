@@ -83,6 +83,8 @@ let connectorList: array<connectorTypes> = [
   Processors(ZEN),
   Processors(ZSL),
   Processors(PLACETOPAY),
+  Processors(RAZORPAY),
+  Processors(BAMBORA_APAC),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -422,6 +424,14 @@ let zslInfo = {
   description: "It is a payment processor that enables businesses to accept payments securely through local bank transfers.",
 }
 
+let razorpayInfo = {
+  description: "Razorpay helps you accept online payments from customers across Desktop, Mobile web, Android & iOS. Additionally by using Razorpay Payment Links, you can collect payments across multiple channels like SMS, Email, Whatsapp, Chatbots & Messenger.",
+}
+
+let bamboraApacInfo = {
+  description: "Bambora offers the ability to securely and efficiently process online, real-time transactions via an API, our user-friendly interface. The API web service accepts and processes SOAP requests from a remote location over TCP/IP. Transaction results are returned in real-time via the API.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -514,6 +524,8 @@ let getConnectorNameString = (connector: processorTypes) =>
   | BILLWERK => "billwerk"
   | MIFINITY => "mifinity"
   | ZSL => "zsl"
+  | RAZORPAY => "razorpay"
+  | BAMBORA_APAC => "bamboraapac"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -600,6 +612,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "billwerk" => Processors(BILLWERK)
     | "mifinity" => Processors(MIFINITY)
     | "zsl" => Processors(ZSL)
+    | "razorpay" => Processors(RAZORPAY)
+    | "bamboraapac" => Processors(BAMBORA_APAC)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -677,6 +691,8 @@ let getProcessorInfo = connector => {
   | BILLWERK => billwerkInfo
   | MIFINITY => mifinityInfo
   | ZSL => zslInfo
+  | RAZORPAY => razorpayInfo
+  | BAMBORA_APAC => bamboraApacInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -971,22 +987,6 @@ let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) =>
   }
 }
 
-let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) => {
-  switch (connector, fieldName) {
-  | (Processors(BLUESNAP), "merchant_id") => false
-  | (Processors(CHECKOUT), "acquirer_bin")
-  | (Processors(NMI), "acquirer_bin")
-  | (Processors(CYBERSOURCE), "acquirer_bin") => false
-  | (Processors(CHECKOUT), "acquirer_merchant_id")
-  | (Processors(NMI), "acquirer_merchant_id")
-  | (Processors(CYBERSOURCE), "acquirer_merchant_id") => false
-  | (Processors(PAYPAL), "paypal_sdk") => false
-  | (Processors(CYBERSOURCE), "acquirer_country_code") => false
-  | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") => false
-  | _ => true
-  }
-}
-
 let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
   open LogicUtils
   let authKeyMap =
@@ -1060,19 +1060,30 @@ let validateConnectorRequiredFields = (
       }
     })
   }
-  connectorMetaDataFields
-  ->Dict.keysToArray
-  ->Array.forEach(fieldName => {
-    let walletType = fieldName->getPaymentMethodTypeFromString
-    if walletType !== GooglePay && walletType !== ApplePay {
-      let key = `metadata.${fieldName}`
-      let errorKey = connectorMetaDataFields->getString(fieldName, "")
-      let value = valuesFlattenJson->getString(`metadata.${fieldName}`, "")
-      if value->String.length === 0 && connector->getMetaDataRequiredFields(fieldName) {
-        Dict.set(newDict, key, `Please enter ${errorKey}`->JSON.Encode.string)
+  let keys =
+    connectorMetaDataFields
+    ->Dict.keysToArray
+    ->Array.filter(ele => !Array.includes(ConnectorMetaDataUtils.metaDataInputKeysToIgnore, ele))
+
+  {
+    keys->Array.forEach(field => {
+      let {\"type", name, required, label} =
+        connectorMetaDataFields
+        ->getDictfromDict(field)
+        ->JSON.Encode.object
+        ->convertMapObjectToDict
+        ->CommonMetaDataUtils.inputFieldMapper
+      let key = `metadata.${name}`
+      let value = switch \"type" {
+      | Text | Select => valuesFlattenJson->getString(`${key}`, "")
+      | Toggle => valuesFlattenJson->getBool(`${key}`, false)->getStringFromBool
+      | _ => ""
       }
-    }
-  })
+      if value->String.length === 0 && required {
+        Dict.set(newDict, key, `Please enter ${label}`->JSON.Encode.string)
+      }
+    })
+  }
 
   connectorWebHookDetails
   ->Dict.keysToArray
@@ -1443,6 +1454,8 @@ let getDisplayNameForProcessor = connector =>
   | PLACETOPAY => "Placetopay"
   | MIFINITY => "MiFinity"
   | ZSL => "ZSL"
+  | RAZORPAY => "Razorpay"
+  | BAMBORA_APAC => "Bambora Apac"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

@@ -22,8 +22,7 @@ let make = () => {
     defaultStartDate={dateDict.start_time}
     defaultEndDate={dateDict.end_time}
     showPercentage=false
-    isHomePage=true
     statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
-    wrapperClass="flex flex-wrap w-full h-full"
+    wrapperClass="w-full h-full -mt-4"
   />
 }

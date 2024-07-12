@@ -47,6 +47,7 @@ module.exports = {
         "50-rem": "50rem",
         "93-per": "93%",
         "80-vh": "80vh",
+        "85-vh": "85vh",
         "30-vh": "30vh",
         "40-vh": "40vh",
         "75-vh": "75vh",

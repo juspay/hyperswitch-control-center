@@ -236,7 +236,7 @@ let make = (
   let homePageCss = isHomePage || chartAlignment === #row ? "flex-col" : "flex-row"
   let wrapperClass =
     wrapperClass->Option.getOr(
-      `flex mt-5 flex-col md:${homePageCss} flex-wrap justify-start items-stretch relative`,
+      `flex flex-col md:${homePageCss} flex-wrap justify-start items-stretch relative h-full`,
     )
 
   let (singleStatData, setSingleStatData) = React.useState(() => None)
@@ -259,7 +259,7 @@ let make = (
     }
     None
   }, (singleStatLoadingTimeSeries, singleStatLoading, singleStatTimeData, singleStatData))
-  let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetch()
+  let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
 
   React.useEffect2(() => {
     if singleStatData !== None && singleStatTimeData !== None {
@@ -415,6 +415,7 @@ let make = (
   entity.defaultColumns
   ->Array.mapWithIndex((urlConfig, index) => {
     let {columns} = urlConfig
+    let fullWidth = {columns->Array.length == 1}
 
     let singleStateArr = columns->Array.mapWithIndex((col, singleStatArrIndex) => {
       let uri = col.colType->entity.matrixUriMapper
@@ -442,6 +443,31 @@ let make = (
               )
               ->Array.get(0)
 
+            let dict =
+              [("queryData", [Dict.make()->JSON.Encode.object]->JSON.Encode.array)]->Dict.fromArray
+            let (title, tooltipText, statType) = switch dict
+            ->JSON.Encode.object
+            ->entity.getObjects
+            ->Array.get(0) {
+            | Some(item) =>
+              let date = {
+                currentSr: {
+                  fromTime: "",
+                  toTime: "",
+                },
+              }
+              let info = entity.getData(
+                item,
+                timeSeriesData,
+                date,
+                col.colType,
+                mode->Option.getOr("ORDER"),
+              )
+
+              (info.title, info.tooltipText, info.statType)
+            | None => ("", "", "")
+            }
+
             switch sectiondata {
             | Some(data) =>
               let info = data.singleStatData->Array.map(
@@ -455,11 +481,6 @@ let make = (
                   )
                 },
               )
-
-              let (title, tooltipText, statType) = switch info->Array.get(0) {
-              | Some(val) => (val.title, val.tooltipText, val.statType)
-              | _ => ("", "", "")
-              }
 
               let modifiedData = info->Array.map(
                 item => {
@@ -492,6 +513,7 @@ let make = (
                 filterNullVals
                 ?statSentiment
                 ?statThreshold
+                fullWidth
               />
 
             | None =>
@@ -506,6 +528,7 @@ let make = (
                 filterNullVals
                 ?statSentiment
                 ?statThreshold
+                fullWidth
               />
             }
           }
@@ -521,6 +544,7 @@ let make = (
             statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
             filterNullVals
             ?statSentiment
+            fullWidth
           />
         }
       | _ =>
@@ -565,6 +589,7 @@ let make = (
                     statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
                     filterNullVals
                     ?statSentiment
+                    fullWidth
                     ?statThreshold
                   />
                 | _ =>
@@ -582,6 +607,7 @@ let make = (
                     filterNullVals
                     ?statSentiment
                     ?statThreshold
+                    fullWidth
                   />
                 }
               }
@@ -601,6 +627,7 @@ let make = (
                 filterNullVals
                 ?statSentiment
                 ?statThreshold
+                fullWidth
               />
             }
           }
@@ -619,6 +646,7 @@ let make = (
             statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
             filterNullVals
             ?statSentiment
+            fullWidth
           />
         }
       }
@@ -628,8 +656,8 @@ let make = (
       attributes=[("data-dynamic-single-stats", "dynamic stats")] key={index->Int.toString}>
       <div className=wrapperClass>
         {if isMobileView {
-          <div className="flex flex-col gap-2 items-center">
-            <div className="flex flex-wrap w-full">
+          <div className="flex flex-col gap-2 items-center h-full">
+            <div className="flex flex-wrap w-full h-full">
               {singleStateArr
               ->Array.mapWithIndex((element, index) => {
                 <RenderIf condition={index < 4 || showStats} key={index->Int.toString}>

@@ -22,7 +22,7 @@ let make = () => {
       let filters = Dict.make()
 
       filters->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
-      filters->Dict.set("limit", 20->Int.toFloat->JSON.Encode.float)
+      filters->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
       if !(searchText->isEmptyString) {
         filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
         filters->Dict.set("refund_id", searchText->String.trim->JSON.Encode.string)
@@ -102,7 +102,6 @@ let make = () => {
           customColumnMapper=TableAtoms.refundsMapDefaultCols
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
-          showResultsPerPageSelector=false
         />
       </PageLoaderWrapper>
     </div>
