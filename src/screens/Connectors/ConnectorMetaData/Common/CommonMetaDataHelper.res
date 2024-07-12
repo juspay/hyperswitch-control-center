@@ -36,10 +36,6 @@ let selectInput = (
       )(
         ~input={
           ...input,
-          // onChange: event => {
-          //   let value = event->Identity.formReactEventToString
-          //   input.onChange(value->Identity.anyTypeToReactEvent)
-          // },
           onChange: event => {
             let _ = switch onItemChange {
             | Some(func) => func(event)

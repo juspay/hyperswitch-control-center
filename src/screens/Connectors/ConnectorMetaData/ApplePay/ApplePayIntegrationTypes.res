@@ -32,10 +32,6 @@ type simplified = {
   payment_request_data: paymentRequestData,
 }
 
-// type applePayCombined = {
-//   manual?: option<manual>,
-//   simplified?: option<simplified>,
-// }
 type applePayIntegrationType = [#manual | #simplified]
 type applePayConfig = [#manual(manual) | #simplified(simplified)]
 type applePayIntegrationSteps = Landing | Configure | Verify
