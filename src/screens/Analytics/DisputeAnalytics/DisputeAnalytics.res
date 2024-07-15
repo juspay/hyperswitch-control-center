@@ -45,30 +45,42 @@ let make = () => {
   let title = "Disputes Analytics"
   let subTitle = "Gain Insights, monitor performance and make Informed Decisions with Dispute Analytics."
 
+  open AnalyticsNew
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
-    <Analytics
-      pageTitle=title
-      pageSubTitle=subTitle
-      filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
-      key="DisputesAnalytics"
-      moduleName="Disputes"
-      deltaMetrics={getStringListFromArrayDict(metrics)}
-      chartEntity={default: chartEntity(tabKeys)}
-      tabKeys
-      tabValues
-      options
-      singleStatEntity={getSingleStatEntity(metrics, ())}
-      getTable={getDisputeTable}
-      colMapper
-      tableEntity={disputeTableEntity()}
-      defaultSort="total_volume"
-      deltaArray=[]
-      tableUpdatedHeading=getUpdatedHeading
-      tableGlobalFilter=filterByData
-      startTimeFilterKey
-      endTimeFilterKey
-      initialFilters=initialFilterFields
-      initialFixedFilters=initialFixedFilterFields
-    />
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between ">
+        <PageUtils.PageHeading title subTitle />
+      </div>
+      <div
+        className="-ml-1 sticky top-2 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
+        <FilterComponent startTimeFilterKey endTimeFilterKey domain tabKeys />
+      </div>
+      <div className="flex flex-col gap-14">
+        <MetricsState
+          heading="Disputes Overview"
+          singleStatEntity={getSingleStatEntity(metrics, ())}
+          filterKeys=tabKeys
+          startTimeFilterKey
+          endTimeFilterKey
+          moduleName="general_metrics"
+        />
+        <OverallSummary
+          filteredTabVales=tabValues
+          moduleName="overall_summary"
+          filteredTabKeys={tabKeys}
+          chartEntity={chartEntity(tabKeys)}
+          defaultSort="total_volume"
+          getTable={getDisputeTable}
+          colMapper
+          tableEntity={disputeTableEntity()->Some}
+          deltaMetrics={getStringListFromArrayDict(metrics)}
+          deltaArray=[]
+          tableGlobalFilter=filterByData
+          startTimeFilterKey
+          endTimeFilterKey
+          heading="Disputes Trends"
+        />
+      </div>
+    </div>
   </PageLoaderWrapper>
 }
