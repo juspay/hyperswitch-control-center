@@ -5,6 +5,7 @@ open HSAnalyticsUtils
 @react.component
 let make = () => {
   let getURL = useGetURL()
+  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])
@@ -67,31 +68,45 @@ let make = () => {
   let title = "Refunds Analytics"
   let subTitle = "Uncover patterns and drive business performance through data-driven insights with refund analytics"
 
+  open AnalyticsNew
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
-    <Analytics
-      pageTitle=title
-      pageSubTitle=subTitle
-      filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
-      key="RefundsAnalytics"
-      moduleName="Refunds"
-      deltaMetrics={getStringListFromArrayDict(metrics)}
-      chartEntity={default: chartEntity(tabKeys)}
-      tabKeys
-      tabValues
-      options={options}
-      singleStatEntity={getSingleStatEntity(metrics)}
-      getTable={getRefundTable}
-      colMapper
-      tableEntity={refundTableEntity()}
-      defaultSort="total_volume"
-      deltaArray=[]
-      tableUpdatedHeading=getUpdatedHeading
-      tableGlobalFilter={filterByData}
-      startTimeFilterKey={startTimeFilterKey}
-      endTimeFilterKey={endTimeFilterKey}
-      initialFilters={initialFilterFields}
-      initialFixedFilters={initialFixedFilterFields}
-      generateReportType={REFUND_REPORT}
-    />
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between ">
+        <PageUtils.PageHeading title subTitle />
+        <UIUtils.RenderIf condition={generateReport}>
+          <GenerateReport entityName={REFUND_REPORT} />
+        </UIUtils.RenderIf>
+      </div>
+      <div
+        className="-ml-1 sticky top-2 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
+        <FilterComponent startTimeFilterKey endTimeFilterKey domain tabKeys />
+      </div>
+      <div className="flex flex-col gap-14">
+        <MetricsState
+          heading="Refunds Overview"
+          singleStatEntity={metrics->getSingleStatEntity}
+          filterKeys=tabKeys
+          startTimeFilterKey
+          endTimeFilterKey
+          moduleName="general_metrics"
+        />
+        <OverallSummary
+          filteredTabVales=tabValues
+          moduleName="overall_summary"
+          filteredTabKeys={tabKeys}
+          chartEntity={chartEntity(tabKeys)}
+          defaultSort="total_volume"
+          getTable={getRefundTable}
+          colMapper
+          tableEntity={refundTableEntity()->Some}
+          deltaMetrics={getStringListFromArrayDict(metrics)}
+          deltaArray=[]
+          tableGlobalFilter=filterByData
+          startTimeFilterKey
+          endTimeFilterKey
+          heading="Refunds Trends"
+        />
+      </div>
+    </div>
   </PageLoaderWrapper>
 }
