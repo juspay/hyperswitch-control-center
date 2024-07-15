@@ -415,6 +415,7 @@ let make = (
   entity.defaultColumns
   ->Array.mapWithIndex((urlConfig, index) => {
     let {columns} = urlConfig
+    let fullWidth = {columns->Array.length == 1}
 
     let singleStateArr = columns->Array.mapWithIndex((col, singleStatArrIndex) => {
       let uri = col.colType->entity.matrixUriMapper
@@ -442,6 +443,31 @@ let make = (
               )
               ->Array.get(0)
 
+            let dict =
+              [("queryData", [Dict.make()->JSON.Encode.object]->JSON.Encode.array)]->Dict.fromArray
+            let (title, tooltipText, statType) = switch dict
+            ->JSON.Encode.object
+            ->entity.getObjects
+            ->Array.get(0) {
+            | Some(item) =>
+              let date = {
+                currentSr: {
+                  fromTime: "",
+                  toTime: "",
+                },
+              }
+              let info = entity.getData(
+                item,
+                timeSeriesData,
+                date,
+                col.colType,
+                mode->Option.getOr("ORDER"),
+              )
+
+              (info.title, info.tooltipText, info.statType)
+            | None => ("", "", "")
+            }
+
             switch sectiondata {
             | Some(data) =>
               let info = data.singleStatData->Array.map(
@@ -455,11 +481,6 @@ let make = (
                   )
                 },
               )
-
-              let (title, tooltipText, statType) = switch info->Array.get(0) {
-              | Some(val) => (val.title, val.tooltipText, val.statType)
-              | _ => ("", "", "")
-              }
 
               let modifiedData = info->Array.map(
                 item => {
@@ -492,7 +513,7 @@ let make = (
                 filterNullVals
                 ?statSentiment
                 ?statThreshold
-                fullWidth={columns->Array.length == 1}
+                fullWidth
               />
 
             | None =>
@@ -507,7 +528,7 @@ let make = (
                 filterNullVals
                 ?statSentiment
                 ?statThreshold
-                fullWidth={columns->Array.length == 1}
+                fullWidth
               />
             }
           }
@@ -523,7 +544,7 @@ let make = (
             statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
             filterNullVals
             ?statSentiment
-            fullWidth={columns->Array.length == 1}
+            fullWidth
           />
         }
       | _ =>
@@ -568,6 +589,7 @@ let make = (
                     statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
                     filterNullVals
                     ?statSentiment
+                    fullWidth
                     ?statThreshold
                   />
                 | _ =>
@@ -585,6 +607,7 @@ let make = (
                     filterNullVals
                     ?statSentiment
                     ?statThreshold
+                    fullWidth
                   />
                 }
               }
@@ -604,6 +627,7 @@ let make = (
                 filterNullVals
                 ?statSentiment
                 ?statThreshold
+                fullWidth
               />
             }
           }
@@ -622,6 +646,7 @@ let make = (
             statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
             filterNullVals
             ?statSentiment
+            fullWidth
           />
         }
       }

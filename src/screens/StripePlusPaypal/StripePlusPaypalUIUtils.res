@@ -147,7 +147,6 @@ module SelectPaymentMethods = {
         paymentMethodsEnabled
         updateDetails
         setMetaData
-        metaData
         isPayoutFlow=false
       />
     </QuickStartUIUtils.BaseComponent>
