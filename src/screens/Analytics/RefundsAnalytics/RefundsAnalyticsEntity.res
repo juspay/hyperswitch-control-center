@@ -32,10 +32,7 @@ let tableItemToObjMapper: 'a => refundTableType = dict => {
   }
 }
 
-let getUpdatedHeading = (
-  ~item as _: option<refundTableType>,
-  ~dateObj as _: option<AnalyticsUtils.prevDates>,
-) => {
+let getUpdatedHeading = (~item as _: option<refundTableType>, ~dateObj as _: option<prevDates>) => {
   let getHeading = colType => {
     let key = colType->colMapper
     switch colType {
@@ -160,11 +157,11 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  json->AnalyticsUtils.getQueryData->Array.map(json => singleStateItemToObjMapper(json))
+  json->getQueryData->Array.map(json => singleStateItemToObjMapper(json))
 }
 
 let timeSeriesObjMapper = json =>
-  json->AnalyticsUtils.getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
+  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
 type colT =
   | SuccessRate
@@ -252,7 +249,7 @@ let getStatData = (
   | SuccessRate => {
       title: `${domain->LogicUtils.getFirstLetterCaps()} Success Rate`,
       tooltipText: "Successful refund over total refund initiated",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.refund_success_rate,
         deltaTimestampData.currentSr,
       ),
@@ -269,7 +266,7 @@ let getStatData = (
   | Count => {
       title: "Overall Refunds",
       tooltipText: "Total refund initiated",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.refund_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
@@ -286,7 +283,7 @@ let getStatData = (
   | SuccessCount => {
       title: "Success Refunds",
       tooltipText: "Total successful refunds",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.refund_success_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
@@ -303,7 +300,7 @@ let getStatData = (
   | ProcessedAmount => {
       title: `Processed Amount`,
       tooltipText: `Total amount processed successfully`,
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.refund_processed_amount /. 100.00,
         deltaTimestampData.currentSr,
       ),
@@ -321,7 +318,6 @@ let getStatData = (
 }
 
 let getStatSentiment = {
-  open AnalyticsUtils
   [
     ("Success Refunds", Negative),
     ("Overall Refunds", Negative),

@@ -46,11 +46,11 @@ let singleStatSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  json->AnalyticsUtils.getQueryData->Array.map(singleStatItemToObjMapper)
+  json->getQueryData->Array.map(singleStatItemToObjMapper)
 }
 
 let timeSeriesObjMapper = json =>
-  json->AnalyticsUtils.getQueryData->Array.map(json => singleStatSeriesItemToObjMapper(json))
+  json->getQueryData->Array.map(json => singleStatSeriesItemToObjMapper(json))
 
 type colT =
   | SdkRenderedCount
@@ -130,7 +130,7 @@ let getStatData = (
   | SdkRenderedCount => {
       title: "Checkout Page Renders",
       tooltipText: "Total SDK Renders",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.sdk_rendered_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
@@ -147,7 +147,7 @@ let getStatData = (
   | Count => {
       title: "Total Payments",
       tooltipText: "Sessions where users attempted a payment",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.payment_attempts->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
@@ -162,7 +162,7 @@ let getStatData = (
   | ConversionRate => {
       title: "Converted User Sessions",
       tooltipText: "Percentage of sessions where users attempted a payment",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.payment_attempts->Int.toFloat *.
         100. /.
         singleStatData.sdk_rendered_count->Int.toFloat,
@@ -188,7 +188,7 @@ let getStatData = (
   | DropOutRate => {
       title: "Dropped Out User Sessions",
       tooltipText: "Sessions where users did not attempt a payment",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         100. -.
         singleStatData.payment_attempts->Int.toFloat *.
         100. /.
@@ -211,7 +211,7 @@ let getStatData = (
   | AvgPaymentTime => {
       title: "Average Payment Time",
       tooltipText: "Time taken to attempt payment",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.average_payment_time,
         deltaTimestampData.currentSr,
       ),
@@ -231,7 +231,6 @@ let getStatData = (
 }
 
 let getStatSentiment = {
-  open AnalyticsUtils
   [
     ("Checkout Page Impressions", Positive),
     ("Total Payments", Positive),

@@ -54,7 +54,7 @@ let make = () => {
     None
   })
 
-  let tabKeys = AnalyticsUtils.getStringListFromArrayDict(dimensions)
+  let tabKeys = getStringListFromArrayDict(dimensions)
 
   let tabValues = tabKeys->Array.mapWithIndex((key, index) => {
     let a: DynamicTabs.tab = {

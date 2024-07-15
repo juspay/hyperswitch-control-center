@@ -9,7 +9,7 @@ type singleStatComponent = {
   singleStatData: option<Dict.t<dataState<JSON.t>>>,
   singleStatTimeSeries: option<Dict.t<dataState<JSON.t>>>,
   singleStatDelta: option<Dict.t<dataState<JSON.t>>>,
-  singleStatLoader: Dict.t<AnalyticsUtils.loaderType>,
+  singleStatLoader: Dict.t<loaderType>,
   singleStatIsVisible: (bool => bool) => unit,
 }
 
@@ -137,7 +137,7 @@ let make = (
     ->Array.map(item => {
       let {metrics} = item
       let updatedMetrics = metrics->metrixMapper
-      (updatedMetrics, AnalyticsUtils.Shimmer)
+      (updatedMetrics, Shimmer)
     })
     ->Dict.fromArray
   let (singleStatStateData, setSingleStatStateData) = React.useState(_ => initialValue)
@@ -180,7 +180,7 @@ let make = (
         granularity: ?granularity->Array.get(0),
       }
 
-      let (hStartTime, hEndTime) = AnalyticsUtils.calculateHistoricTime(
+      let (hStartTime, hEndTime) = calculateHistoricTime(
         ~startTime=startTimeFromUrl,
         ~endTime=endTimeFromUrl,
         (),
@@ -428,7 +428,7 @@ let make = (
               prev => {
                 let prevDict = prev->copyOfDict
                 if isLoaded(ssH) && isLoaded(ssT) && isLoaded(ssD) {
-                  Dict.set(prevDict, updatedMetrics, AnalyticsUtils.SideLoader)
+                  Dict.set(prevDict, updatedMetrics, SideLoader)
                 }
                 prevDict
               },

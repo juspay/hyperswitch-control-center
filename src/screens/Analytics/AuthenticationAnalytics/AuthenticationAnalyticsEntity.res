@@ -66,11 +66,11 @@ let singleStatSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  json->AnalyticsUtils.getQueryData->Array.map(singleStatItemToObjMapper)
+  json->getQueryData->Array.map(singleStatItemToObjMapper)
 }
 
 let timeSeriesObjMapper = json =>
-  json->AnalyticsUtils.getQueryData->Array.map(json => singleStatSeriesItemToObjMapper(json))
+  json->getQueryData->Array.map(json => singleStatSeriesItemToObjMapper(json))
 
 type colT =
   | ThreeDsCount

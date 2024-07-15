@@ -63,11 +63,11 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  json->AnalyticsUtils.getQueryData->Array.map(singleStateItemToObjMapper)
+  json->getQueryData->Array.map(singleStateItemToObjMapper)
 }
 
 let timeSeriesObjMapper = json =>
-  json->AnalyticsUtils.getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
+  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
 type colT =
   | SuccessfulSmartRetries
@@ -108,7 +108,7 @@ let getStatData = (
   | TotalSmartRetries => {
       title: "Smart Retries made",
       tooltipText: "Total number of retries that were attempted after a failed payment attempt.",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.total_smart_retries->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
@@ -123,7 +123,7 @@ let getStatData = (
   | SuccessfulSmartRetries => {
       title: "Successful Smart Retries",
       tooltipText: "Total number of retries that succeeded out of all the retry attempts.",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.successful_smart_retries->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
@@ -138,7 +138,7 @@ let getStatData = (
   | SmartRetriedAmount => {
       title: `Smart Retries Savings`,
       tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor.",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.smart_retried_amount /. 100.00,
         deltaTimestampData.currentSr,
       ),
@@ -241,7 +241,7 @@ let make = (~filterKeys, ~moduleName) => {
 
   let formaPayload = (singleStatBodyEntity: DynamicSingleStat.singleStatBodyEntity) => {
     [
-      AnalyticsUtils.getFilterRequestBody(
+      getFilterRequestBody(
         ~filter=singleStatBodyEntity.filter,
         ~metrics=singleStatBodyEntity.metrics,
         ~delta=?singleStatBodyEntity.delta,

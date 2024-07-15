@@ -50,7 +50,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => disputeTableType = dict => {
 
 let getUpdatedHeading = (
   ~item as _: option<disputeTableType>,
-  ~dateObj as _: option<AnalyticsUtils.prevDates>,
+  ~dateObj as _: option<prevDates>,
 ) => {
   let getHeading = colType => {
     let key = colType->colMapper
@@ -157,11 +157,11 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  json->AnalyticsUtils.getQueryData->Array.map(singleStateItemToObjMapper)
+  json->getQueryData->Array.map(singleStateItemToObjMapper)
 }
 
 let timeSeriesObjMapper = json =>
-  json->AnalyticsUtils.getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
+  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
 type colT =
   | TotalAmountDisputed
@@ -216,7 +216,7 @@ let getStatData = (
   | TotalAmountDisputed => {
       title: `Total Amount Disputed`,
       tooltipText: "Total amount that is disputed",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.total_amount_disputed /. 100.00,
         deltaTimestampData.currentSr,
       ),
@@ -233,7 +233,7 @@ let getStatData = (
   | TotalDisputeLostAmount => {
       title: `Total Dispute Lost Amount`,
       tooltipText: "Total amount lost due to a dispute",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.total_dispute_lost_amount /. 100.00,
         deltaTimestampData.currentSr,
       ),
