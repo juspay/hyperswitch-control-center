@@ -530,9 +530,7 @@ let reconTag = (recon, isReconEnabled) => {
 }
 
 let reconAndSettlement = (recon_v2, isReconEnabled) => {
-  Js.log2("Feature flag:reconV2", recon_v2)
-  Js.log2("Is recon feature enabled:", isReconEnabled)
-  recon_v2
+  recon_v2 && isReconEnabled
     ? Section({
         name: "Recon And Settlement",
         icon: "recon",
@@ -572,8 +570,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     configurePmts,
     reconV2,
   } = featureFlagDetails
-
-  Console.log2("FeatureFlagDetails sidebar", featureFlagDetails)
 
   let sidebar = [
     productionAccessComponent(quickStart),
