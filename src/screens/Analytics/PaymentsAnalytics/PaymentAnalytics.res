@@ -3,7 +3,7 @@ let make = () => {
   open LogicUtils
   open PaymentAnalyticsEntity
   open APIUtils
-  open HSAnalyticsUtils
+  open AnalyticsUtils
   let getURL = useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (metrics, setMetrics) = React.useState(_ => [])

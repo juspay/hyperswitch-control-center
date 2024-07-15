@@ -1,6 +1,6 @@
 open RefundsAnalyticsEntity
 open APIUtils
-open HSAnalyticsUtils
+open AnalyticsUtils
 
 @react.component
 let make = () => {
@@ -54,7 +54,7 @@ let make = () => {
     None
   })
 
-  let tabKeys = HSAnalyticsUtils.getStringListFromArrayDict(dimensions)
+  let tabKeys = AnalyticsUtils.getStringListFromArrayDict(dimensions)
 
   let tabValues = tabKeys->Array.mapWithIndex((key, index) => {
     let a: DynamicTabs.tab = {

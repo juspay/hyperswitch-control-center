@@ -221,7 +221,7 @@ module TableWrapper = {
       if (
         startTimeFromUrl->LogicUtils.isNonEmptyString && endTimeFromUrl->LogicUtils.isNonEmptyString
       ) {
-        let tableReqBody = HSAnalyticsUtils.generateTablePayload(
+        let tableReqBody = AnalyticsUtils.generateWeeklyTablePayload(
           ~startTimeFromUrl,
           ~endTimeFromUrl,
           ~filterValueFromUrl,
@@ -520,7 +520,7 @@ module FilterComponent = {
   open LogicUtils
   open Promise
   open APIUtils
-  open HSAnalyticsUtils
+  open AnalyticsUtils
   @react.component
   let make = (~startTimeFilterKey, ~endTimeFilterKey, ~domain, ~tabKeys) => {
     let updateDetails = useUpdateMethod()
@@ -587,7 +587,7 @@ module FilterComponent = {
           tabNames=tabKeys
           updateUrlWith=updateExistingKeys
           key="0"
-          filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+          filterFieldsPortalName={AnalyticsUtils.filterFieldsPortalName}
           showCustomFilter=false
           refreshFilters=false
         />
@@ -603,7 +603,7 @@ module FilterComponent = {
           tabNames=tabKeys
           updateUrlWith=updateExistingKeys //
           key="1"
-          filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+          filterFieldsPortalName={AnalyticsUtils.filterFieldsPortalName}
           showCustomFilter=false
           refreshFilters=false
         />

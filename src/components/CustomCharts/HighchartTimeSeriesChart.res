@@ -305,7 +305,7 @@ module LineChart1D = {
         ->Option.getOr(`${colorOrig}`)
 
       let transformValue = num => {
-        num->HSAnalyticsUtils.setPrecision()
+        num->AnalyticsUtils.setPrecision()
       }
       let (nonSelectedClass, backgroundColor) =
         clickedRowNames->Array.length === 0 ||

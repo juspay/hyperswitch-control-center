@@ -1,7 +1,7 @@
 open LogicUtils
 open DynamicSingleStat
 
-open HSAnalyticsUtils
+open AnalyticsUtils
 open AnalyticsTypes
 let domain = "auth_events"
 
@@ -66,11 +66,11 @@ let singleStatSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  json->getQueryData->Array.map(singleStatItemToObjMapper)
+  json->AnalyticsUtils.getQueryData->Array.map(singleStatItemToObjMapper)
 }
 
 let timeSeriesObjMapper = json =>
-  json->getQueryData->Array.map(json => singleStatSeriesItemToObjMapper(json))
+  json->AnalyticsUtils.getQueryData->Array.map(json => singleStatSeriesItemToObjMapper(json))
 
 type colT =
   | ThreeDsCount

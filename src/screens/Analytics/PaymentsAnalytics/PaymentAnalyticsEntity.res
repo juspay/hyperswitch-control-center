@@ -3,7 +3,7 @@ type pageStateType = Loading | Failed | Success | NoData
 open LogicUtils
 open DynamicSingleStat
 
-open HSAnalyticsUtils
+open AnalyticsUtils
 open AnalyticsTypes
 let domain = "payments"
 let makeMultiInputFieldInfo = FormRenderer.makeMultiInputFieldInfo
@@ -290,7 +290,9 @@ let singleStateSeriesItemToObjMapper = json => {
   json
   ->JSON.Decode.object
   ->Option.map(dict => {
-    payment_success_rate: dict->getFloat("payment_success_rate", 0.0)->setPrecision(),
+    payment_success_rate: dict
+    ->getFloat("payment_success_rate", 0.0)
+    ->setPrecision(),
     payment_count: dict->getInt("payment_count", 0),
     payment_success_count: dict->getInt("payment_success_count", 0),
     time_series: dict->getString("time_bucket", ""),
@@ -306,11 +308,11 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  json->getQueryData->Array.map(singleStateItemToObjMapper)
+  json->AnalyticsUtils.getQueryData->Array.map(singleStateItemToObjMapper)
 }
 
 let timeSeriesObjMapper = json =>
-  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
+  json->AnalyticsUtils.getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
 type colT =
   | SuccessRate

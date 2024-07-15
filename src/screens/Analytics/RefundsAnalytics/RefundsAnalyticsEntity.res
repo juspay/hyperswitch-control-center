@@ -2,7 +2,7 @@ open LogicUtils
 open DynamicSingleStat
 
 open AnalyticsTypes
-open HSAnalyticsUtils
+open AnalyticsUtils
 let domain = "refunds"
 
 let colMapper = (col: refundColType) => {
@@ -160,11 +160,11 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  json->getQueryData->Array.map(json => singleStateItemToObjMapper(json))
+  json->AnalyticsUtils.getQueryData->Array.map(json => singleStateItemToObjMapper(json))
 }
 
 let timeSeriesObjMapper = json =>
-  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
+  json->AnalyticsUtils.getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
 type colT =
   | SuccessRate

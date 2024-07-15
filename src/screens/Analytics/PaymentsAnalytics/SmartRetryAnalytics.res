@@ -1,6 +1,6 @@
 open DynamicSingleStat
 let domain = "payments"
-open HSAnalyticsUtils
+open AnalyticsUtils
 open LogicUtils
 
 type paymentsSingleState = {
@@ -63,11 +63,11 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  json->getQueryData->Array.map(singleStateItemToObjMapper)
+  json->AnalyticsUtils.getQueryData->Array.map(singleStateItemToObjMapper)
 }
 
 let timeSeriesObjMapper = json =>
-  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
+  json->AnalyticsUtils.getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
 type colT =
   | SuccessfulSmartRetries

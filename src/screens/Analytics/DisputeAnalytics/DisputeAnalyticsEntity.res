@@ -3,7 +3,7 @@ type pageStateType = Loading | Failed | Success | NoData
 open LogicUtils
 open DynamicSingleStat
 
-open HSAnalyticsUtils
+open AnalyticsUtils
 open AnalyticsTypes
 let domain = "disputes"
 let makeMultiInputFieldInfo = FormRenderer.makeMultiInputFieldInfo
@@ -157,11 +157,11 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  json->getQueryData->Array.map(singleStateItemToObjMapper)
+  json->AnalyticsUtils.getQueryData->Array.map(singleStateItemToObjMapper)
 }
 
 let timeSeriesObjMapper = json =>
-  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
+  json->AnalyticsUtils.getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
 type colT =
   | TotalAmountDisputed

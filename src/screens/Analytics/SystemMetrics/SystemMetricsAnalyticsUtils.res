@@ -1,6 +1,6 @@
 open LogicUtils
 open DynamicSingleStat
-open HSAnalyticsUtils
+open AnalyticsUtils
 open AnalyticsTypes
 let domain = "api_events"
 
@@ -45,11 +45,11 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  json->getQueryData->Array.map(singleStateItemToObjMapper)
+  json->AnalyticsUtils.getQueryData->Array.map(singleStateItemToObjMapper)
 }
 
 let timeSeriesObjMapper = json =>
-  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
+  json->AnalyticsUtils.getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
 let defaultColumns: array<
   DynamicSingleStat.columns<AnalyticsTypes.systemMetricsSingleStateMetrics>,
