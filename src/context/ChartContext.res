@@ -92,7 +92,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
 
   let {allFilterDimension} = chartEntity
 
-  let sortingParams = React.useMemo1((): option<AnalyticsNewUtils.sortedBasedOn> => {
+  let sortingParams = React.useMemo1((): option<AnalyticsUtils.sortedBasedOn> => {
     switch chartEntity {
     | {sortingColumnLegend} =>
       Some({
@@ -328,7 +328,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             fetchApi(
               `${value.uri}?api-type=Chart-timeseries&metrics=${metric}`,
               ~method_=Post,
-              ~bodyStr=AnalyticsNewUtils.apiBodyMaker(
+              ~bodyStr=AnalyticsUtils.apiBodyMaker(
                 ~timeObj,
                 ~groupBy=?activeTab,
                 ~metric,
@@ -390,7 +390,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
           fetchApi(
             `${value.uri}?api-type=Chart-legend&metrics=${metric}`,
             ~method_=Post,
-            ~bodyStr=AnalyticsNewUtils.apiBodyMaker(
+            ~bodyStr=AnalyticsUtils.apiBodyMaker(
               ~timeObj,
               ~groupBy=?activeTab,
               ~metric,
@@ -457,7 +457,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             fetchApi(
               `${value.uri}?api-type=Chart-timeseries&metrics=${metric}`,
               ~method_=Post,
-              ~bodyStr=AnalyticsNewUtils.apiBodyMaker(
+              ~bodyStr=AnalyticsUtils.apiBodyMaker(
                 ~timeObj,
                 ~groupBy=?activeTab,
                 ~metric,
@@ -516,7 +516,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
           fetchApi(
             `${value.uri}?api-type=Chart-legend&metrics=${metric}`,
             ~method_=Post,
-            ~bodyStr=AnalyticsNewUtils.apiBodyMaker(
+            ~bodyStr=AnalyticsUtils.apiBodyMaker(
               ~timeObj,
               ~groupBy=?activeTab,
               ~metric,
@@ -806,7 +806,7 @@ module SDKAnalyticsChartContext = {
                 fetchApi(
                   `${value.uri}?api-type=Chart-timeseries&metrics=${metric}&top5`,
                   ~method_=Post,
-                  ~bodyStr=AnalyticsNewUtils.apiBodyMaker(
+                  ~bodyStr=AnalyticsUtils.apiBodyMaker(
                     ~timeObj,
                     ~groupBy=?segmentValue,
                     ~metric,
@@ -846,7 +846,7 @@ module SDKAnalyticsChartContext = {
                       fetchApi(
                         `${value.uri}?api-type=Chart-timeseries&metrics=${metric}&trend=${item}`,
                         ~method_=Post,
-                        ~bodyStr=AnalyticsNewUtils.apiBodyMaker(
+                        ~bodyStr=AnalyticsUtils.apiBodyMaker(
                           ~timeObj,
                           ~groupBy=?segmentValue,
                           ~metric,
@@ -943,94 +943,6 @@ module SDKAnalyticsChartContext = {
       }
       None
     }, (topChartFetchWithCurrentDependecyChange, topChartVisible))
-
-    // React.useEffect2(() => {
-    //   if !bottomChartFetchWithCurrentDependecyChange && bottomChartVisible {
-    //     setBottomChartFetchWithCurrentDependecyChange(_ => true)
-    //     let metricsSDK = "total_volume"
-    //     switch chartEntity.uriConfig->Array.find(item => {
-    //       let metrics = switch item.metrics->Array.get(0) {
-    //       | Some(metrics) => metrics.metric_name_db
-    //       | None => ""
-    //       }
-    //       metrics === metricsSDK
-    //     }) {
-    //     | Some(value) => {
-    //         setBottomChartDataLegendData(_ => Loading)
-    //         setBottomChartData(_ => Loading)
-    //         let cardinality = cardinalityMapperToNumber(Some(cardinalityFromUrl))
-    //         let metric = switch value.metrics->Array.get(0) {
-    //         | Some(metrics) => metrics.metric_name_db
-    //         | None => ""
-    //         }
-
-    //         let granularityConfig =
-    //           granularity->Option.getOr("")->getGranularityMapper
-
-    //         differentTimeValues
-    //         ->Array.map(timeObjOrig => {
-    //           let timeObj = Dict.fromArray([
-    //             ("start", timeObjOrig.fromTime->JSON.Encode.string),
-    //             ("end", timeObjOrig.toTime->JSON.Encode.string),
-    //           ])
-    //           selectedTrends->Array.map(
-    //             item => {
-    //               fetchApi(
-    //                 `${value.uri}?api-type=Chart-timeseries&metrics=${metric}&trend=${item}`,
-    //                 ~method_=Post,
-    //                 ~bodyStr=AnalyticsNewUtils.apiBodyMaker(
-    //                   ~timeObj,
-    //                   ~groupBy=?segmentValue,
-    //                   ~metric,
-    //                   ~filterValueFromUrl?,
-    //                   ~cardinality,
-    //                   ~customFilterValue=customFilter,
-    //                   ~jsonFormattedFilter=item->filterMapper,
-    //                   ~domain=value.domain->Option.getOr(""),
-    //                   (),
-    //                 )->JSON.stringify,
-    //                 ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
-    // ~betaEndpointConfig=?betaEndPointConfig,
-    //                 (),
-    //               )
-    //               ->addLogsAroundFetch(~logTitle=`Chart fetch`)
-    //               ->then(
-    //                 text =>
-    //                   resolve((
-    //                     item,
-    //                     `${timeObjOrig.fromTime} to ${timeObjOrig.toTime}`,
-    //                     convertNewLineSaperatedDataToArrayOfJson(text)->JSON.Encode.array,
-    //                   )),
-    //               )
-    //               ->catch(_err => resolve((item, "", []->JSON.Encode.array)))
-    //             },
-    //           )
-    //         })
-    //         ->Array.concatMany
-    //         ->Promise.all
-    //         ->Promise.thenResolve(dataArr => {
-    //           setBottomChartData(
-    //             _ => Loaded(
-    //               dataMergerAndTransformer(
-    //                 ~selectedTrends,
-    //                 ~data=dataArr,
-    //                 ~segments=?segmentValue,
-    //                 ~startTime=startTimeFromUrl,
-    //                 ~endTime=endTimeFromUrl,
-    //                 ~granularityConfig,
-    //                 (),
-    //               ),
-    //             ),
-    //           )
-    //         })
-    //         ->ignore
-    //       }
-
-    //     | None => ()
-    //     }
-    //   }
-    //   None
-    // }, (bottomChartFetchWithCurrentDependecyChange, bottomChartVisible))
 
     let chartData = React.useMemo4(() => {
       (topChartData, topChartDataLegendData, bottomChartData, bottomChartDataLegendData)

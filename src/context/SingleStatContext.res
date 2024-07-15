@@ -3,7 +3,7 @@ open SingleStatEntity
 open DictionaryUtils
 open Promise
 open LogicUtils
-open AnalyticsNewUtils
+open AnalyticsUtils
 
 type singleStatComponent = {
   singleStatData: option<Dict.t<dataState<JSON.t>>>,
@@ -180,7 +180,7 @@ let make = (
         granularity: ?granularity->Array.get(0),
       }
 
-      let (hStartTime, hEndTime) = AnalyticsNewUtils.calculateHistoricTime(
+      let (hStartTime, hEndTime) = AnalyticsUtils.calculateHistoricTime(
         ~startTime=startTimeFromUrl,
         ~endTime=endTimeFromUrl,
         (),
