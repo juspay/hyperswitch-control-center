@@ -37,8 +37,8 @@ module ToastHeading = {
     let onClickButtonText = () => {
       RescriptReactRouter.push(
         switch toastProps.helpLink {
-        | Some(str) => HSwitchGlobalVars.appendDashboardPath(~url=str)
-        | None => HSwitchGlobalVars.appendDashboardPath(~url="")
+        | Some(str) => GlobalVars.appendDashboardPath(~url=str)
+        | None => GlobalVars.appendDashboardPath(~url="")
         },
       )
     }
@@ -86,7 +86,7 @@ let make = (~children) => {
   let (openToasts, setOpenToasts) = Recoil.useRecoilState(ToastState.openToasts)
 
   let hideToast = React.useCallback1(key => {
-    setOpenToasts(.prevArr => {
+    setOpenToasts(prevArr => {
       Array.filter(
         prevArr,
         (toastProps: ToastState.toastProps) => {

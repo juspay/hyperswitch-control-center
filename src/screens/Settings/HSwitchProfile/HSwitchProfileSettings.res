@@ -57,14 +57,20 @@ module ResetPassword = {
     let (isLoading, setIsLoading) = React.useState(_ => false)
     let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-
+    let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
 
     let resetPassword = async body => {
       setIsLoading(_ => true)
       try {
-        let url = getURL(~entityName=USERS, ~userType=#FORGOT_PASSWORD, ~methodType=Post, ())
+        let url = getURL(
+          ~entityName=USERS,
+          ~userType=#FORGOT_PASSWORD,
+          ~methodType=Post,
+          ~queryParamerters=Some(`auth_id=${authId}`),
+          (),
+        )
         let _ = await updateDetails(url, body, Post, ())
         showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
         setIsLoading(_ => false)
@@ -118,7 +124,17 @@ module TwoFactorAuthenticationDetails = {
               {"Reset TOTP to regain access if you've changed or lost your device."->React.string}
             </span>
           </p>
-          <Button text="Edit" buttonSize={XSmall} />
+          <Button
+            text="Edit"
+            buttonSize={XSmall}
+            onClick={_ => {
+              RescriptReactRouter.push(
+                GlobalVars.appendDashboardPath(
+                  ~url=`/account-settings/profile/2fa?type=reset_totp`,
+                ),
+              )
+            }}
+          />
         </div>
         <hr />
         <div className="flex gap-10 items-center justify-between">
@@ -128,7 +144,17 @@ module TwoFactorAuthenticationDetails = {
               {"Regenerate your access code to ensure continued access and security for your account."->React.string}
             </span>
           </p>
-          <Button text="Edit" buttonSize={XSmall} />
+          <Button
+            text="Edit"
+            buttonSize={XSmall}
+            onClick={_ => {
+              RescriptReactRouter.push(
+                GlobalVars.appendDashboardPath(
+                  ~url=`/account-settings/profile/2fa?type=regenerate_recovery_code`,
+                ),
+              )
+            }}
+          />
         </div>
       </div>
     </div>
@@ -173,12 +199,20 @@ module BasicDetailsSection = {
 @react.component
 let make = () => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+
+  let showTwoFaSettings = switch authStatus {
+  | LoggedIn(Auth(authInfo)) => authInfo.is_two_factor_auth_setup
+  | _ => false
+  }
+
   <div className="flex flex-col overflow-scroll gap-8">
     <PageUtils.PageHeading title="Profile" subTitle="Manage your profile settings here" />
     <div className="flex flex-col flex-wrap  gap-12">
       <BasicDetailsSection />
       <MerchantDetailsSection />
-      <UIUtils.RenderIf condition={featureFlagDetails.totp}>
+      <UIUtils.RenderIf condition={featureFlagDetails.totp && showTwoFaSettings}>
         <TwoFactorAuthenticationDetails />
       </UIUtils.RenderIf>
     </div>

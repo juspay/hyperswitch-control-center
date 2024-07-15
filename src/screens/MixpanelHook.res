@@ -6,7 +6,7 @@ type functionType = (
 ) => unit
 
 let useSendEvent = () => {
-  open HSwitchGlobalVars
+  open GlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
   let {email: authInfoEmail, merchant_id, name} =
@@ -25,20 +25,20 @@ let useSendEvent = () => {
   let {clientCountry} = HSwitchUtils.getBrowswerDetails()
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
 
-  let environment = switch HSwitchGlobalVars.hostType {
+  let environment = switch GlobalVars.hostType {
   | Live => "production"
   | Sandbox => "sandbox"
   | Netlify => "netlify"
   | Local => "localhost"
   }
 
-  let mixpanelToken = Window.env.mixpanelToken
+  let mixpanel_token = Window.env.mixpanelToken
 
   let trackApi = async (~email, ~merchantId, ~description, ~event) => {
     let body = {
       "event": event,
       "properties": {
-        "token": mixpanelToken,
+        "token": mixpanel_token,
         "distinct_id": deviceId,
         "$device_id": deviceId->String.split(":")->Array.get(1),
         "$screen_height": Screen.screenHeight,

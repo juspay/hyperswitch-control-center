@@ -66,12 +66,16 @@ let getDictFromJsonObject = json => {
   }
 }
 
-let convertMapObjectToDict = genericTypeMapVal => {
-  open MapTypes
-  let map = create(genericTypeMapVal)
-  let mapIterator = map.entries(.)
-  let dict = object.fromEntries(. mapIterator)->getDictFromJsonObject
-  dict
+let convertMapObjectToDict = (genericTypeMapVal: JSON.t) => {
+  try {
+    open MapTypes
+    let map = create(genericTypeMapVal)
+    let mapIterator = map.entries()
+    let dict = object.fromEntries(mapIterator)->getDictFromJsonObject
+    dict
+  } catch {
+  | _ => Dict.make()
+  }
 }
 
 let removeDuplicate = (arr: array<string>) => {
@@ -98,7 +102,7 @@ let toCamelCase = str => {
     }
     item->Js.String2.unsafeReplaceBy3(%re("/(?:^\w|[A-Z]|\b\w)/g"), matchFn)
   })
-  ->Array.joinWith("")
+  ->Array.joinWithUnsafe("")
 }
 let getNameFromEmail = email => {
   email
@@ -113,11 +117,11 @@ let getNameFromEmail = email => {
       name->String.get(0)->Option.getOr("")->String.toUpperCase ++ name->String.sliceToEnd(~start=1)
     }
   })
-  ->Array.joinWith(" ")
+  ->Array.joinWithUnsafe(" ")
 }
 
 let getOptionString = (dict, key) => {
-  dict->Dict.get(key)->Option.flatMap(JSON.Decode.string)
+  dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.string)
 }
 
 let getString = (dict, key, default) => {
@@ -137,7 +141,7 @@ let getArrayFromJson = (json: JSON.t, default) => {
 }
 
 let getOptionalArrayFromDict = (dict, key) => {
-  dict->Dict.get(key)->Option.flatMap(JSON.Decode.array)
+  dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.array)
 }
 
 let getArrayFromDict = (dict, key, default) => {
@@ -171,11 +175,11 @@ let getOptionStrArrayFromJson = json => {
 }
 
 let getStrArrayFromDict = (dict, key, default) => {
-  dict->Dict.get(key)->Option.flatMap(getOptionStrArrayFromJson)->Option.getOr(default)
+  dict->Dict.get(key)->Option.flatMap(val => val->getOptionStrArrayFromJson)->Option.getOr(default)
 }
 
 let getOptionStrArrayFromDict = (dict, key) => {
-  dict->Dict.get(key)->Option.flatMap(getOptionStrArrayFromJson)
+  dict->Dict.get(key)->Option.flatMap(val => val->getOptionStrArrayFromJson)
 }
 
 let getNonEmptyString = str => {
@@ -195,7 +199,7 @@ let getNonEmptyArray = arr => {
 }
 
 let getOptionBool = (dict, key) => {
-  dict->Dict.get(key)->Option.flatMap(JSON.Decode.bool)
+  dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.bool)
 }
 
 let getBool = (dict, key, default) => {
@@ -295,7 +299,7 @@ let getFloat = (dict, key, default) => {
 }
 
 let getObj = (dict, key, default) => {
-  dict->Dict.get(key)->Option.flatMap(JSON.Decode.object)->Option.getOr(default)
+  dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.object)->Option.getOr(default)
 }
 
 let getDictFromUrlSearchParams = searchParams => {
@@ -332,7 +336,7 @@ let snakeToCamel = str => {
   str
   ->String.split("_")
   ->Array.mapWithIndex((x, i) => i == 0 ? x : capitalizeString(x))
-  ->Array.joinWith("")
+  ->Array.joinWithUnsafe("")
 }
 
 let camelToSnake = str => {
@@ -343,7 +347,7 @@ let camelToSnake = str => {
 }
 
 let userNameToTitle = str =>
-  str->String.split(".")->Array.map(capitalizeString)->Array.joinWith(" ")
+  str->String.split(".")->Array.map(capitalizeString)->Array.joinWithUnsafe(" ")
 
 let camelCaseToTitle = str => {
   str->capitalizeString->String.replaceRegExp(%re("/([a-z0-9A-Z])([A-Z])/g"), "$1 $2")
@@ -361,11 +365,11 @@ let snakeToTitle = str => {
     let second = x->Js.String2.substringToEnd(~from=1)
     first ++ second
   })
-  ->Array.joinWith(" ")
+  ->Array.joinWithUnsafe(" ")
 }
 
 let titleToSnake = str => {
-  str->String.split(" ")->Array.map(String.toLowerCase)->Array.joinWith("_")
+  str->String.split(" ")->Array.map(String.toLowerCase)->Array.joinWithUnsafe("_")
 }
 
 let getIntFromString = (str, default) => {
@@ -488,7 +492,7 @@ let isEmptyDict = dict => {
 }
 
 let stringReplaceAll = (str, old, new) => {
-  str->String.split(old)->Array.joinWith(new)
+  str->String.split(old)->Array.joinWithUnsafe(new)
 }
 
 let getUniqueArray = (arr: array<'t>) => {
@@ -496,7 +500,11 @@ let getUniqueArray = (arr: array<'t>) => {
 }
 
 let getFirstLetterCaps = (str, ~splitBy="-", ()) => {
-  str->String.toLowerCase->String.split(splitBy)->Array.map(capitalizeString)->Array.joinWith(" ")
+  str
+  ->String.toLowerCase
+  ->String.split(splitBy)
+  ->Array.map(capitalizeString)
+  ->Array.joinWithUnsafe(" ")
 }
 
 let getDictfromDict = (dict, key) => {
@@ -555,7 +563,7 @@ let dataMerge = (~dataArr: array<array<JSON.t>>, ~dictKey: array<string>) => {
             dict->getString(ele, "")
           },
         )
-        ->Array.joinWith("-")
+        ->Array.joinWithUnsafe("-")
       let existingData = finalData->getObj(dictKey, Dict.make())->Dict.toArray
       let data = dict->Dict.toArray
 
@@ -592,7 +600,11 @@ let compareLogic = (firstValue, secondValue) => {
 let getJsonFromArrayOfJson = arr => arr->Dict.fromArray->JSON.Encode.object
 
 let getTitle = name => {
-  name->String.toLowerCase->String.split("_")->Array.map(capitalizeString)->Array.joinWith(" ")
+  name
+  ->String.toLowerCase
+  ->String.split("_")
+  ->Array.map(capitalizeString)
+  ->Array.joinWithUnsafe(" ")
 }
 
 // Regex to check if a string contains a substring
@@ -663,4 +675,4 @@ let getValFromNullableValue = (val, default) => {
   val->getOptionalFromNullable->Option.getOr(default)
 }
 
-let dateFormat = (timestamp, format) => (timestamp->DayJs.getDayJsForString).format(. format)
+let dateFormat = (timestamp, format) => (timestamp->DayJs.getDayJsForString).format(format)

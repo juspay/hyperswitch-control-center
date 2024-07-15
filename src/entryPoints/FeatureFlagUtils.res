@@ -14,6 +14,7 @@ type featureFlag = {
   feedback: bool,
   generateReport: bool,
   mixpanel: bool,
+  mixpanelToken: string,
   userJourneyAnalytics: bool,
   authenticationAnalytics: bool,
   surcharge: bool,
@@ -25,6 +26,9 @@ type featureFlag = {
   configurePmts: bool,
   branding: bool,
   totp: bool,
+  liveUsersCounter: bool,
+  granularity: bool,
+  reconV2: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -46,6 +50,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     feedback: dict->getBool("feedback", false),
     generateReport: dict->getBool("generate_report", false),
     mixpanel: dict->getBool("mixpanel", false),
+    mixpanelToken: dict->getString("mixpanel_token", ""),
     userJourneyAnalytics: dict->getBool("user_journey_analytics", false),
     authenticationAnalytics: dict->getBool("authentication_analytics", false),
     surcharge: dict->getBool("surcharge", false),
@@ -57,6 +62,9 @@ let featureFlagType = (featureFlags: JSON.t) => {
     configurePmts: dict->getBool("configure_pmts", false),
     branding: dict->getBool("branding", false),
     totp: dict->getBool("totp", false),
+    liveUsersCounter: dict->getBool("live_users_counter", false),
+    granularity: dict->getBool("granularity", false),
+    reconV2: dict->getBool("recon_v2", false),
   }
   typedFeatureFlag
 }

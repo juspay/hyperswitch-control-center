@@ -25,7 +25,7 @@ let allColumns = [
 
 let useGetStatus = dispute => {
   open DisputesUtils
-  let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = dispute.dispute_status->String.toUpperCase
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch dispute.dispute_status->disputeStatusVariantMapper {
@@ -202,8 +202,7 @@ let disputesEntity = EntityType.makeEntity(
   ~getCell,
   ~dataKey="",
   ~getShowLink={
-    disputesData =>
-      HSwitchGlobalVars.appendDashboardPath(~url=`/disputes/${disputesData.dispute_id}`)
+    disputesData => GlobalVars.appendDashboardPath(~url=`/disputes/${disputesData.dispute_id}`)
   },
   (),
 )

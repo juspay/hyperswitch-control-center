@@ -13,6 +13,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     return_url,
     payment_response_hash_key,
     authentication_connector_details,
+    collect_shipping_details_from_wallet_connector,
   } = profileRecord
   let profileInfo =
     [
@@ -21,6 +22,11 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
       ("profile_name", profile_name->JSON.Encode.string),
     ]->Dict.fromArray
   profileInfo->setOptionString("return_url", return_url)
+  profileInfo->setOptionBool(
+    "collect_shipping_details_from_wallet_connector",
+    collect_shipping_details_from_wallet_connector,
+  )
+
   profileInfo->setOptionString("webhook_version", webhook_details.webhook_version)
   profileInfo->setOptionString("webhook_username", webhook_details.webhook_username)
   profileInfo->setOptionString("webhook_password", webhook_details.webhook_password)
@@ -99,7 +105,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "webhook_password",
     valuesDict->getOptionString("webhook_password"),
   )
-  webhookSettingsValue->setOptionString("webhook_url", valuesDict->getOptionString("webhook_url"))
+  webhookSettingsValue->setOptionString(
+    "webhook_url",
+    valuesDict->getString("webhook_url", "")->getNonEmptyString,
+  )
   webhookSettingsValue->setOptionBool(
     "payment_created_enabled",
     valuesDict->getOptionBool("payment_created_enabled"),
@@ -116,15 +125,23 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   let authenticationConnectorDetails = Dict.make()
   authenticationConnectorDetails->setOptionArray(
     "authentication_connectors",
-    valuesDict->getOptionalArrayFromDict("authentication_connectors"),
+    valuesDict->getArrayFromDict("authentication_connectors", [])->getNonEmptyArray,
   )
   authenticationConnectorDetails->setOptionString(
     "three_ds_requestor_url",
-    valuesDict->getOptionString("three_ds_requestor_url"),
+    valuesDict->getString("three_ds_requestor_url", "")->getNonEmptyString,
   )
 
   let profileDetailsDict = Dict.make()
-  profileDetailsDict->setOptionString("return_url", valuesDict->getOptionString("return_url"))
+  profileDetailsDict->setOptionString(
+    "return_url",
+    valuesDict->getString("return_url", "")->getNonEmptyString,
+  )
+  profileDetailsDict->setOptionBool(
+    "collect_shipping_details_from_wallet_connector",
+    valuesDict->getOptionBool("collect_shipping_details_from_wallet_connector"),
+  )
+
   profileDetailsDict->setOptionDict(
     "webhook_details",
     !(webhookSettingsValue->isEmptyDict) ? Some(webhookSettingsValue) : None,
@@ -233,7 +250,7 @@ let validationFieldsMapper = key => {
   | Website => "website"
   | WebhookUrl => "webhook_url"
   | ReturnUrl => "return_url"
-  | AuthetnticationConnectors => "authentication_connectors"
+  | AuthetnticationConnectors(_) => "authentication_connectors"
   | ThreeDsRequestorUrl => "three_ds_requestor_url"
   | UnknownValidateFields(key) => key
   }
@@ -246,10 +263,18 @@ let checkValueChange = (~initialDict, ~valuesDict) => {
     initialDict
     ->Dict.keysToArray
     ->Array.find(key => {
-      let initialValue = initialDict->LogicUtils.getString(key, "")
-      let updatedValue = valuesDict->LogicUtils.getString(key, "")
-
-      initialValue !== updatedValue
+      switch key {
+      | "collect_shipping_details_from_wallet_connector" => {
+          let initialValue = initialDict->LogicUtils.getBool(key, false)
+          let updatedValue = valuesDict->LogicUtils.getBool(key, false)
+          initialValue !== updatedValue
+        }
+      | _ => {
+          let initialValue = initialDict->LogicUtils.getString(key, "")
+          let updatedValue = valuesDict->LogicUtils.getString(key, "")
+          initialValue !== updatedValue
+        }
+      }
     })
   key->Option.isSome || updatedKeys > initialKeys
 }
@@ -264,7 +289,7 @@ let validateEmptyValue = (key, errors) => {
 
 let validateEmptyArray = (key, errors, arrayValue) => {
   switch key {
-  | AuthetnticationConnectors =>
+  | AuthetnticationConnectors(_) =>
     if arrayValue->Array.length === 0 {
       Dict.set(
         errors,
@@ -308,8 +333,6 @@ let validateCustom = (key, errors, value, isLiveMode) => {
   }
 }
 
-let threedsFields = [AuthetnticationConnectors, ThreeDsRequestorUrl]
-
 let validateMerchantAccountForm = (
   ~values: JSON.t,
   ~fieldsToValidate: array<validationFields>,
@@ -317,29 +340,41 @@ let validateMerchantAccountForm = (
   ~initialData,
   ~isLiveMode,
 ) => {
+  // Need to refactor
+  open LogicUtils
   let errors = Dict.make()
-  let initialDict = initialData->LogicUtils.getDictFromJsonObject
-  let valuesDict = values->LogicUtils.getDictFromJsonObject
-
+  let initialDict = initialData->getDictFromJsonObject
+  let valuesDict = values->getDictFromJsonObject
   fieldsToValidate->Array.forEach(key => {
-    if threedsFields->Array.includes(key) {
-      let threedsArray = LogicUtils.getArrayFromDict(valuesDict, key->validationFieldsMapper, [])
-      let threedsUrl = LogicUtils.getString(valuesDict, key->validationFieldsMapper, "")
-      key->validateCustom(errors, threedsUrl, isLiveMode)
-      key->validateEmptyArray(errors, threedsArray)
-    } else {
-      let value = LogicUtils.getString(valuesDict, key->validationFieldsMapper, "")
-      value->String.length <= 0
-        ? key->validateEmptyValue(errors)
-        : key->validateCustom(errors, value, isLiveMode)
+    let value = getString(valuesDict, key->validationFieldsMapper, "")->getNonEmptyString
+    switch value {
+    | Some(str) => key->validateCustom(errors, str, isLiveMode)
+    | _ => ()
     }
   })
 
+  let threedsArray = getArrayFromDict(valuesDict, "authentication_connectors", [])->getNonEmptyArray
+  let threedsUrl = getString(valuesDict, "three_ds_requestor_url", "")->getNonEmptyString
+  switch threedsArray {
+  | Some(valArr) => {
+      let url = getString(valuesDict, "three_ds_requestor_url", "")
+      AuthetnticationConnectors(valArr)->validateEmptyArray(errors, valArr)
+      ThreeDsRequestorUrl->validateCustom(errors, url, isLiveMode)
+    }
+  | _ => ()
+  }
+  switch threedsUrl {
+  | Some(str) => {
+      let arr = getArrayFromDict(valuesDict, "authentication_connectors", [])
+      AuthetnticationConnectors(arr)->validateEmptyArray(errors, arr)
+      ThreeDsRequestorUrl->validateCustom(errors, str, isLiveMode)
+    }
+  | _ => ()
+  }
   setIsDisabled->Option.mapOr((), disableBtn => {
     let isValueChanged = checkValueChange(~initialDict, ~valuesDict)
     disableBtn(_ => !isValueChanged)
   })
-
   errors->JSON.Encode.object
 }
 
@@ -362,6 +397,7 @@ let defaultValueForBusinessProfile = {
     authentication_connectors: None,
     three_ds_requestor_url: None,
   },
+  collect_shipping_details_from_wallet_connector: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

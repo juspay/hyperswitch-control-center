@@ -16,7 +16,7 @@ module CheckListSection = {
     ~setPreviewState,
   ) => {
     let {globalUIConfig: {font: {textColor}, backgroundColor}} = React.useContext(
-      ConfigContext.configContext,
+      ThemeProvider.themeContext,
     )
 
     let stepColor =
@@ -29,13 +29,12 @@ module CheckListSection = {
         ? "bg-pdf_background rounded-md"
         : ""
     let handleOnClick = clickedVariant => {
-      let currentViewindex =
-        updatedCheckList->Array.indexOf(
-          updatedCheckList
-          ->Array.filter(ele => ele.itemsVariants->Array.includes(pageView))
-          ->Array.get(0)
-          ->Option.getOr(defaultValueOfCheckList),
-        )
+      let currentViewindex = updatedCheckList->Array.indexOf(
+        updatedCheckList
+        ->Array.filter(ele => ele.itemsVariants->Array.includes(pageView))
+        ->Array.get(0)
+        ->Option.getOr(defaultValueOfCheckList),
+      )
 
       switch (currentViewindex, clickedVariant) {
       | (1, #SetupProcessor)
@@ -88,7 +87,7 @@ module CheckListSection = {
 module ProgressBar = {
   @react.component
   let make = (~progressState) => {
-    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
     <div className={`${backgroundColor} bg-opacity-20 h-1.5 w-full`}>
       <div
         className={`h-full ${backgroundColor}`}
@@ -145,7 +144,7 @@ module SidebarChecklist = {
 @react.component
 let make = () => {
   open ProdOnboardingTypes
-  open HSwitchGlobalVars
+  open GlobalVars
   open ConnectorTypes
   open LogicUtils
   open APIUtils
@@ -174,7 +173,7 @@ let make = () => {
   let getSetupCompleteEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
     if prodEnums.setupComplete {
       setDashboardPageState(_ => #HOME)
-      let baseUrlPath = `${getHostUrl}/${routerUrl.path->List.toArray->Array.joinWith("/")}`
+      let baseUrlPath = `${getHostUrl}/${routerUrl.path->List.toArray->Array.joinWithUnsafe("/")}`
       routerUrl.search->isNonEmptyString
         ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
         : RescriptReactRouter.push(`${baseUrlPath}`)
@@ -226,12 +225,13 @@ let make = () => {
     open ProdOnboardingUtils
     open HomeUtils
     try {
-      let url = `${getURL(
-          ~entityName=USERS,
-          ~userType=#USER_DATA,
-          ~methodType=Get,
-          (),
-        )}?keys=${prodOnboardingEnumIntialArray->Array.joinWithUnsafe(",")}`
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#USER_DATA,
+        ~methodType=Get,
+        ~queryParamerters=Some(`keys=${prodOnboardingEnumIntialArray->Array.joinWithUnsafe(",")}`),
+        (),
+      )
       let response = await fetchDetails(url)
       let prodEnums = response->responseDataMapper(getValueMappedForProd)->getTypedValue
       getSetupProcessorEnum(prodEnums)

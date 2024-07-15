@@ -5,7 +5,7 @@ module HomePageHorizontalStepper = {
   @react.component
   let make = (~stepperItemsArray: array<string>, ~className="") => {
     let {globalUIConfig: {backgroundColor, border: {borderColor}}} = React.useContext(
-      ConfigContext.configContext,
+      ThemeProvider.themeContext,
     )
     let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
     let typedValueOfEnum = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
@@ -75,7 +75,7 @@ module QuickStart = {
     let {setDashboardPageState, setQuickStartPageState} = React.useContext(
       GlobalProvider.defaultContext,
     )
-    let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
+    let postEnumDetails = EnumVariantHook.usePostEnumDetails()
     let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let (configureButtonState, setConfigureButtonState) = React.useState(_ => Button.Normal)
@@ -117,14 +117,12 @@ module QuickStart = {
             let _connectorChoiceSetup =
               await StringEnumType(
                 #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,
-              )->usePostEnumDetails(#ConfigurationType)
+              )->postEnumDetails(#ConfigurationType)
 
             let _firstEnumSetupValues =
-              await ProcesorType(bodyOfFirstConnector)->usePostEnumDetails(#FirstProcessorConnected)
+              await ProcesorType(bodyOfFirstConnector)->postEnumDetails(#FirstProcessorConnected)
             let _ =
-              await ProcesorType(bodyOfSecondConnector)->usePostEnumDetails(
-                #SecondProcessorConnected,
-              )
+              await ProcesorType(bodyOfSecondConnector)->postEnumDetails(#SecondProcessorConnected)
             let _ = updateEnumInRecoil([
               (
                 StringEnumType(#MultipleProcessorWithSmartRouting->connectorChoiceVariantToString),
@@ -148,9 +146,9 @@ module QuickStart = {
             let _connectorChoiceSetup =
               await StringEnumType(
                 #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,
-              )->usePostEnumDetails(#ConfigurationType)
+              )->postEnumDetails(#ConfigurationType)
             let _firstEnumSetupValues =
-              await ProcesorType(bodyOfFirstConnector)->usePostEnumDetails(#FirstProcessorConnected)
+              await ProcesorType(bodyOfFirstConnector)->postEnumDetails(#FirstProcessorConnected)
             let _ = updateEnumInRecoil([
               (
                 StringEnumType(#MultipleProcessorWithSmartRouting->connectorChoiceVariantToString),
@@ -167,7 +165,7 @@ module QuickStart = {
         }
         setConfigureButtonState(_ => Button.Normal)
         setDashboardPageState(_ => #QUICK_START)
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/quick-start"))
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/quick-start"))
       } catch {
       | _ => setConfigureButtonState(_ => Button.Normal)
       }
@@ -250,9 +248,7 @@ module RecipesAndPlugins = {
           className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
           onClick={_ => {
             mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
-            RescriptReactRouter.push(
-              HSwitchGlobalVars.appendDashboardPath(~url="/stripe-plus-paypal"),
-            )
+            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/stripe-plus-paypal"))
           }}>
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle> {"Use PayPal with Stripe"->React.string} </p>
@@ -280,7 +276,7 @@ module RecipesAndPlugins = {
           className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
           onClick={_ => {
             mixpanelEvent(~eventName=`woocommerce`, ())
-            RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/woocommerce"))
+            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/woocommerce"))
           }}>
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle> {"WooCommerce plugin"->React.string} </p>
@@ -348,7 +344,7 @@ module Resources = {
         "https://hyperswitch.io/docs"->Window._open
       } else if item.id === "tryTheDemo" {
         mixpanelEvent(~eventName=`test_payment`, ())
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/sdk"))
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/sdk"))
       }
     }
 
@@ -419,9 +415,21 @@ let make = () => {
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+
+  let recovery_codes_left = switch authStatus {
+  | LoggedIn(Auth(info)) => info.recovery_codes_left
+  | _ => GlobalVars.maximumRecoveryCodes
+  }
 
   <div className="w-full flex flex-col gap-6">
-    // <AcceptInviteHome />
+    <div className="flex flex-col gap-4">
+      <UIUtils.RenderIf condition={featureFlagDetails.totp && recovery_codes_left < 3}>
+        <LowRecoveryCodeBanner recovery_codes_left />
+      </UIUtils.RenderIf>
+      <AcceptInviteHome />
+    </div>
     <div className="w-full flex flex-col gap-7">
       <QuickStartModule />
       <div>

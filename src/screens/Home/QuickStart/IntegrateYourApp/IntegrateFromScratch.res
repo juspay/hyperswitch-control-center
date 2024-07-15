@@ -12,7 +12,7 @@ let make = (
   ~setPlatform,
   ~markAsDone,
 ) => {
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let (currentStep, setCurrentStep) = React.useState(_ => DownloadTestAPIKey)
   let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
   let isLastStep = currentStep === DisplayPaymentConfirmation

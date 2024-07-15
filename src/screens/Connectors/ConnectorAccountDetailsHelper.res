@@ -1,5 +1,3 @@
-let metaDataInputKeysToIgnore = ["google_pay", "apple_pay", "zen_apple_pay"]
-
 let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorTypes> = [
   Processors(ADYEN),
   Processors(CHECKOUT),
@@ -7,42 +5,41 @@ let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorTypes> = [
   Processors(PAYPAL),
 ]
 
-let getCurrencyOption: CurrencyUtils.currencyCode => SelectBox.dropdownOption = currencyType => {
-  open CurrencyUtils
-  {
-    label: currencyType->getCurrencyCodeStringFromVariant,
-    value: currencyType->getCurrencyCodeStringFromVariant,
+module MultiConfigInp = {
+  @react.component
+  let make = (~label, ~fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+    let enabledList = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
+    let valueField = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
+
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      name: "string",
+      onBlur: _ev => (),
+      onChange: ev => {
+        let value = ev->Identity.formReactEventToArrayOfString
+        valueField.onChange(value->Identity.anyTypeToReactEvent)
+        enabledList.onChange(value->Identity.anyTypeToReactEvent)
+      },
+      onFocus: _ev => (),
+      value: enabledList.value,
+      checked: true,
+    }
+    <TextInput input placeholder={`Enter ${label->LogicUtils.snakeToTitle}`} />
   }
 }
 
-let currencyField = (
-  ~name,
-  ~options=CurrencyUtils.currencyList,
-  ~disableSelect=false,
-  ~toolTipText="",
-  (),
-) =>
-  FormRenderer.makeFieldInfo(
-    ~label="Currency",
-    ~isRequired=true,
-    ~name,
-    ~description=toolTipText,
-    ~customInput=InputFields.selectInput(
-      ~deselectDisable=true,
-      ~disableSelect,
-      ~customStyle="max-h-48",
-      ~options=options->Array.map(getCurrencyOption),
-      ~buttonText="Select Currency",
-      (),
-    ),
-    (),
-  )
+let renderValueInp = (~label) => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+  <MultiConfigInp fieldsArray label />
+}
 
-let toggleField = (~name) => {
-  FormRenderer.makeFieldInfo(
-    ~name,
-    ~label="Pull Mechanism Enabled",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg", ()),
+let multiValueInput = (~label, ~fieldName1, ~fieldName2) => {
+  open FormRenderer
+  makeMultiInputFieldInfoOld(
+    ~label,
+    ~comboCustomInput=renderValueInp(~label),
+    ~inputFields=[
+      makeInputFieldInfo(~name=`${fieldName1}`, ()),
+      makeInputFieldInfo(~name=`${fieldName2}`, ()),
+    ],
     (),
   )
 }
@@ -66,7 +63,7 @@ let inputField = (
     ~toolTipPosition,
     ~customInput=InputFields.textInput(~isDisabled=disabled, ()),
     ~placeholder=switch getPlaceholder {
-    | Some(fun) => fun(connector, field, label)
+    | Some(fun) => fun(label)
     | None => `Enter ${label->LogicUtils.snakeToTitle}`
     },
     ~isRequired=switch checkRequiredFields {
@@ -119,12 +116,10 @@ module RenderConnectorInputFields = {
     open ConnectorUtils
     open LogicUtils
     let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))
+
     keys
     ->Array.mapWithIndex((field, i) => {
-      let label = switch field {
-      | "pull_mechanism_for_external_3ds_enabled" => "Pull Mechanism Enabled"
-      | _ => details->getString(field, "")
-      }
+      let label = details->getString(field, "")
 
       let formName = isLabelNested ? `${name}.${field}` : name
       <UIUtils.RenderIf condition={label->isNonEmptyString} key={i->Int.toString}>
@@ -133,12 +128,12 @@ module RenderConnectorInputFields = {
             <FormRenderer.FieldRenderer
               labelClass="font-semibold !text-hyperswitch_black"
               field={switch (connector, field) {
-              | (Processors(BRAINTREE), "merchant_config_currency") =>
-                currencyField(~name=formName, ())
-
-              | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") =>
-                toggleField(~name=formName)
-
+              | (Processors(PAYPAL), "key1") =>
+                multiValueInput(
+                  ~label,
+                  ~fieldName1="connector_account_details.key1",
+                  ~fieldName2="metadata.paypal_sdk.client_id",
+                )
               | _ =>
                 inputField(
                   ~name=formName,
@@ -181,7 +176,7 @@ module CashToCodeSelectBox = {
     ~selectedConnector,
   ) => {
     open LogicUtils
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (country, setSelectedCountry) = React.useState(_ => "")
@@ -214,8 +209,8 @@ module CashToCodeSelectBox = {
 
     <div>
       {opts
-      ->Array.map(country => {
-        <div className="flex items-center gap-2 break-words p-2">
+      ->Array.mapWithIndex((country, index) => {
+        <div key={index->Int.toString} className="flex items-center gap-2 break-words p-2">
           <div onClick={_e => selectedCountry(country)}>
             <CheckBoxIcon isSelected={country->isSelected} />
           </div>
@@ -322,21 +317,12 @@ module ConnectorConfigurationFields = {
       <RenderConnectorInputFields
         details={connectorLabelDetailField}
         name={"connector_label"}
-        keysToIgnore=metaDataInputKeysToIgnore
-        checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
         connector
         selectedConnector
         isLabelNested=false
         description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
       />
-      <RenderConnectorInputFields
-        details={connectorMetaDataFields}
-        name={"metadata"}
-        keysToIgnore=metaDataInputKeysToIgnore
-        checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
-        connector
-        selectedConnector
-      />
+      <ConnectorMetaData connectorMetaDataFields />
       <RenderConnectorInputFields
         details={connectorWebHookDetails}
         name={"connector_webhook_details"}
@@ -351,7 +337,7 @@ module ConnectorConfigurationFields = {
 module BusinessProfileRender = {
   @react.component
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
     let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
@@ -372,6 +358,15 @@ module BusinessProfileRender = {
           ~name="profile_id",
           ~customInput=(~input, ~placeholder as _) =>
             InputFields.selectInput(
+              ~deselectDisable=true,
+              ~disableSelect=isUpdateFlow,
+              ~customStyle="max-h-48",
+              ~options={
+                businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption
+              },
+              ~buttonText="Select Profile",
+              (),
+            )(
               ~input={
                 ...input,
                 onChange: {
@@ -390,15 +385,7 @@ module BusinessProfileRender = {
                   }
                 },
               },
-              ~deselectDisable=true,
-              ~disableSelect=isUpdateFlow,
-              ~customStyle="max-h-48",
-              ~options={
-                businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption
-              },
-              ~buttonText="Select Profile",
               ~placeholder="",
-              (),
             ),
           (),
         )}
@@ -410,9 +397,7 @@ module BusinessProfileRender = {
             className={`ml-1 ${hereTextStyle}`}
             onClick={_ => {
               setDashboardPageState(_ => #HOME)
-              RescriptReactRouter.push(
-                HSwitchGlobalVars.appendDashboardPath(~url="/business-profiles"),
-              )
+              RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/business-profiles"))
             }}>
             {React.string("here.")}
           </span>
@@ -505,7 +490,7 @@ module ConnectorHeaderWrapper = {
     ~connectorType=ConnectorTypes.Processor,
   ) => {
     open ConnectorUtils
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let connectorNameFromType = connector->getConnectorNameTypeFromString()
     let setShowModalFunction = switch handleShowModal {
     | Some(func) => func

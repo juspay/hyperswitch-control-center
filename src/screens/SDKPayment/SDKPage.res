@@ -6,7 +6,7 @@ module SDKConfiguarationFields = {
   let make = (~initialValues: SDKPaymentTypes.paymentType) => {
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
     let disableSelectionForProfile = businessProfiles->HomeUtils.isDefaultBusinessProfile
-
+    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
     let dropDownOptions = HomeUtils.countries->Array.map((item): SelectBox.dropdownOption => {
       {
         label: `${item.countryName} (${item.currency})`,
@@ -45,7 +45,7 @@ module SDKConfiguarationFields = {
       ~label="Enter amount",
       ~name="amount",
       ~customInput=(~input, ~placeholder as _) =>
-        InputFields.numericTextInput(
+        InputFields.numericTextInput(~isDisabled=false, ~customStyle="w-full", ~precision=2, ())(
           ~input={
             ...input,
             value: (initialValues.amount /. 100.00)->Float.toString->JSON.Encode.string,
@@ -59,11 +59,7 @@ module SDKConfiguarationFields = {
               }
             },
           },
-          ~isDisabled=false,
-          ~customStyle="w-full",
           ~placeholder="Enter amount",
-          ~precision=2,
-          (),
         ),
       (),
     )
@@ -74,7 +70,8 @@ module SDKConfiguarationFields = {
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
       <FormRenderer.SubmitButton
         text="Show preview"
-        disabledParamter={!(initialValues.profile_id->LogicUtils.isNonEmptyString)}
+        disabledParamter={initialValues.profile_id->LogicUtils.isEmptyString ||
+          connectorList->Array.length <= 0}
         customSumbitButtonStyle="!mt-5"
       />
     </div>
@@ -93,7 +90,7 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ =>
     defaultBusinessProfile->SDKPaymentUtils.initialValueForForm
   )
-
+  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   React.useEffect1(() => {
     let paymentIntentOptional = filtersFromUrl->Dict.get("payment_intent_client_secret")
     if paymentIntentOptional->Option.isSome {
@@ -110,7 +107,7 @@ let make = () => {
   let onProceed = async (~paymentId) => {
     switch paymentId {
     | Some(val) =>
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url=`/payments/${val}`))
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/payments/${val}`))
     | None => ()
     }
   }
@@ -119,7 +116,7 @@ let make = () => {
     setKey(_ => Date.now()->Float.toString)
     setInitialValues(_ => values->SDKPaymentUtils.getTypedValueForPayment)
     setIsSDKOpen(_ => true)
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/sdk"))
+    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
     Nullable.null->Promise.resolve
   }
 
@@ -150,7 +147,7 @@ let make = () => {
           <div className="p-7 h-full bg-sidebar-blue">
             <TestPayment
               key
-              returnUrl={`${HSwitchGlobalVars.getHostUrlWithBasePath}/sdk`}
+              returnUrl={`${GlobalVars.getHostUrlWithBasePath}/sdk`}
               onProceed
               sdkWidth="!w-[100%]"
               isTestCredsNeeded=false
@@ -161,6 +158,13 @@ let make = () => {
               initialValues
             />
           </div>
+        } else if connectorList->Array.length <= 0 {
+          <HelperComponents.BluredTableComponent
+            infoText={"Connect to a payment processor to make your first payment"}
+            buttonText={"Connect a connector"}
+            moduleName=""
+            onClickUrl={`/connectors`}
+          />
         } else {
           <div className="bg-sidebar-blue flex items-center justify-center h-full">
             <img src={`/assets/BlurrySDK.svg`} />

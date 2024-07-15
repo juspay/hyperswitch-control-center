@@ -7,4 +7,4 @@ type modalProps = {
 
 let defaultOpenModals: array<modalProps> = []
 
-let openModals = Recoil.atom(. "openModals", defaultOpenModals)
+let openModals = Recoil.atom("openModals", defaultOpenModals)

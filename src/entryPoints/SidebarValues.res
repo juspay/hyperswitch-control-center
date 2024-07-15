@@ -104,18 +104,34 @@ let customers = permissionJson => {
   })
 }
 
-let operations = (isOperationsEnabled, ~permissionJson) => {
+let payouts = permissionJson => {
+  SubLevelLink({
+    name: "Payouts",
+    link: `/payouts`,
+    access: permissionJson.operationsView,
+    searchOptions: [("View payouts operations", "")],
+  })
+}
+
+let operations = (isOperationsEnabled, ~permissionJson, ~isPayoutsEnabled) => {
   let payments = payments(permissionJson)
   let refunds = refunds(permissionJson)
   let disputes = disputes(permissionJson)
   let customers = customers(permissionJson)
+  let payouts = payouts(permissionJson)
+
+  let links = [payments, refunds, disputes, customers]
+
+  if isPayoutsEnabled {
+    links->Array.push(payouts)->ignore
+  }
 
   isOperationsEnabled
     ? Section({
         name: "Operations",
         icon: "hswitch-operations",
         showSection: true,
-        links: [payments, refunds, disputes, customers],
+        links,
       })
     : emptyComponent
 }
@@ -450,7 +466,59 @@ let developers = (isDevelopersEnabled, userRole, systemMetrics, ~permissionJson)
     : emptyComponent
 }
 
-let reconTag = (recon, isReconEnabled) =>
+let uploadReconFiles = {
+  SubLevelLink({
+    name: "Upload Recon Files",
+    link: `/upload-files`,
+    access: Access,
+    searchOptions: [("Upload recon files", "")],
+  })
+}
+
+let runRecon = {
+  SubLevelLink({
+    name: "Run Recon",
+    link: `/run-recon`,
+    access: Access,
+    searchOptions: [("Run recon", "")],
+  })
+}
+
+let reconAnalytics = {
+  SubLevelLink({
+    name: "Analytics",
+    link: `/recon-analytics`,
+    access: Access,
+    searchOptions: [("Recon analytics", "")],
+  })
+}
+let reconReports = {
+  SubLevelLink({
+    name: "Reports",
+    link: `/reports`,
+    access: Access,
+    searchOptions: [("Recon reports", "")],
+  })
+}
+
+let reconConfigurator = {
+  SubLevelLink({
+    name: "Configurator",
+    link: `/config-settings`,
+    access: Access,
+    searchOptions: [("Recon configurator", "")],
+  })
+}
+let reconFileProcessor = {
+  SubLevelLink({
+    name: "File Processor",
+    link: `/file-processor`,
+    access: Access,
+    searchOptions: [("Recon file processor", "")],
+  })
+}
+
+let reconTag = (recon, isReconEnabled) => {
   recon
     ? Link({
         name: "Reconcilation",
@@ -459,6 +527,25 @@ let reconTag = (recon, isReconEnabled) =>
         access: Access,
       })
     : emptyComponent
+}
+
+let reconAndSettlement = (recon_v2, isReconEnabled) => {
+  recon_v2 && isReconEnabled
+    ? Section({
+        name: "Recon And Settlement",
+        icon: "recon",
+        showSection: true,
+        links: [
+          uploadReconFiles,
+          runRecon,
+          reconAnalytics,
+          reconReports,
+          reconConfigurator,
+          reconFileProcessor,
+        ],
+      })
+    : emptyComponent
+}
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
   let {user_role: userRole} =
@@ -481,12 +568,13 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     quickStart,
     disputeAnalytics,
     configurePmts,
+    reconV2,
   } = featureFlagDetails
 
   let sidebar = [
     productionAccessComponent(quickStart),
     default->home,
-    default->operations(~permissionJson),
+    default->operations(~permissionJson, ~isPayoutsEnabled=payOut),
     default->connectors(
       ~isLiveMode,
       ~isFrmEnabled=frm,
@@ -502,6 +590,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
     recon->reconTag(isReconEnabled),
+    reconV2->reconAndSettlement(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
     settings(
       ~isSampleDataEnabled=sampleData,
@@ -509,5 +598,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~permissionJson,
     ),
   ]
+
   sidebar
 }

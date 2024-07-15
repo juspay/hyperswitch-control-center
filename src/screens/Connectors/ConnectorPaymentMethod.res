@@ -69,6 +69,10 @@ let make = (
           connectorID->Option.getOr(""),
           connectorIgnoredField,
         )
+      // Need to refactor
+      let metaData = body->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
+      let _ = ConnectorUtils.updateMetaData(~metaData)
+      //
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
       let response = await updateAPIHook(connectorUrl, body, Post, ())
       setInitialValues(_ => response)
@@ -84,7 +88,6 @@ let make = (
         let err = Exn.message(e)->Option.getOr("Something went wrong")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
-
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError, ())
           setCurrentStep(_ => ConnectorTypes.IntegFields)
@@ -97,37 +100,39 @@ let make = (
   }
 
   <PageLoaderWrapper screenState>
-    <div className="flex flex-col">
-      <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
-        <div className="flex gap-2 items-center">
-          <GatewayIcon gateway={connector->String.toUpperCase} />
-          <h2 className="text-xl font-semibold">
-            {connector->getDisplayNameForConnector->React.string}
-          </h2>
+    <Form initialValues={initialValues}>
+      <div className="flex flex-col">
+        <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
+          <div className="flex gap-2 items-center">
+            <GatewayIcon gateway={connector->String.toUpperCase} />
+            <h2 className="text-xl font-semibold">
+              {connector->getDisplayNameForConnector->React.string}
+            </h2>
+          </div>
+          <div className="self-center">
+            <Button text="Proceed" buttonType={Primary} onClick={_ => onSubmit()->ignore} />
+          </div>
         </div>
-        <div className="self-center">
-          <Button text="Proceed" buttonType={Primary} onClick={_ => onSubmit()->ignore} />
+        <div className="grid grid-cols-4 flex-1 p-2 md:p-10">
+          <div className="flex flex-col gap-6 col-span-3">
+            <h1 className="text-orange-950 bg-orange-100 border w-full p-2 rounded-md ">
+              <span className="text-orange-950 font-bold text-fs-14 mx-2">
+                {"NOTE:"->React.string}
+              </span>
+              {"Please verify if the payment methods are turned on at the processor end as well."->React.string}
+            </h1>
+            <PaymentMethod.PaymentMethodsRender
+              _showAdvancedConfiguration
+              connector
+              paymentMethodsEnabled
+              updateDetails
+              setMetaData
+              isPayoutFlow
+            />
+          </div>
         </div>
       </div>
-      <div className="grid grid-cols-4 flex-1 p-2 md:p-10">
-        <div className="flex flex-col gap-6 col-span-3">
-          <h1 className="text-orange-950 bg-orange-100 border w-full p-2 rounded-md ">
-            <span className="text-orange-950 font-bold text-fs-14 mx-2">
-              {"NOTE:"->React.string}
-            </span>
-            {"Please verify if the payment methods are turned on at the processor end as well."->React.string}
-          </h1>
-          <PaymentMethod.PaymentMethodsRender
-            _showAdvancedConfiguration
-            connector
-            paymentMethodsEnabled
-            updateDetails
-            metaData
-            setMetaData
-            isPayoutFlow
-          />
-        </div>
-      </div>
-    </div>
+      <FormValuesSpy />
+    </Form>
   </PageLoaderWrapper>
 }

@@ -23,11 +23,19 @@ module ShowOrderDetails = {
     ~paymentId,
     ~connectorList=?,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
+    ~sectionTitle=?,
   ) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let typedPaymentStatus = paymentStatus->statusVariantMapper
     let statusUI = useGetStatus(data)
-    <Section customCssClass={`${border} ${bgColor} rounded-md p-5 h-full`}>
+    <Section customCssClass={`${border} ${bgColor} rounded-md px-5 pt-5 h-full`}>
+      {switch sectionTitle {
+      | Some(title) =>
+        <div className="font-bold text-base ml-4 mb-3 opacity-70 underline underline-offset-4">
+          {title->React.string}
+        </div>
+      | _ => React.null
+      }}
       <UIUtils.RenderIf condition=isButtonEnabled>
         <div className="flex items-center flex-wrap gap-3 m-3">
           <div className="flex items-start">
@@ -124,6 +132,7 @@ module OrderInfo = {
               PaymentMethodType,
               PaymentMethod,
               AuthenticationType,
+              CardNetwork,
             ]
             isNonRefundConnector
             paymentStatus
@@ -260,9 +269,6 @@ module Attempts = {
   open OrderEntity
   @react.component
   let make = (~order) => {
-    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ConfigContext.configContext,
-    )
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
@@ -313,13 +319,6 @@ module Attempts = {
     }
 
     <div className="flex flex-col gap-4">
-      <div
-        className={`flex  items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
-        <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
-        <span>
-          {`You can validate the information shown here by cross checking the payment attempt identifier (Attempt ID) in your payment processor portal.`->React.string}
-        </span>
-      </div>
       <p className="font-bold text-fs-16 text-jp-gray-900"> {"Payment Attempts"->React.string} </p>
       <CustomExpandableTable
         title="Attempts"
@@ -558,7 +557,7 @@ module AuthenticationDetails = {
 module FraudRiskBanner = {
   @react.component
   let make = (~frmMessage: frmMessage, ~refElement: React.ref<Js.nullable<Dom.element>>) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <div
       className="flex justify-between items-center w-full  p-4 rounded-md bg-white border border-[#C04141]/50 ">
       <div className="flex gap-2">
@@ -576,7 +575,7 @@ module FraudRiskBanner = {
           refElement.current
           ->Nullable.toOption
           ->Option.forEach(input =>
-            input->scrollIntoView(_, {behavior: "smooth", block: "start", inline: "nearest"})
+            input->(scrollIntoView(_, {behavior: "smooth", block: "start", inline: "nearest"}))
           )
         }}>
         {"Review details"->React.string}
@@ -654,7 +653,7 @@ let make = (~id) => {
         ~entityName=ORDERS,
         ~methodType=Get,
         ~id=Some(id),
-        ~queryParamerters=Some("force_sync=true"),
+        ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
         (),
       )
       let _ = await fetchOrderDetails(getRefreshStatusUrl)
@@ -708,6 +707,22 @@ let make = (~id) => {
           openRefundModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
+        <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
+          <RenderAccordian
+            initialExpandedArray=[0]
+            accordion={[
+              {
+                title: "Events and logs",
+                renderContent: () => {
+                  <LogsWrapper wrapperFor={#PAYMENT}>
+                    <PaymentLogs paymentId={id} createdAt={orderData.created} />
+                  </LogsWrapper>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </UIUtils.RenderIf>
         <div className="overflow-scroll">
           <Attempts order={orderData} />
         </div>
@@ -743,36 +758,126 @@ let make = (~id) => {
             />
           </div>
         </UIUtils.RenderIf>
-        <div className="overflow-scroll">
-          <RenderAccordian
-            accordion={[
-              {
-                title: "FRM Details",
-                renderContent: () => {
-                  <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
-                    <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
-                  </div>
-                },
-                renderContentOnTop: None,
+        <RenderAccordian
+          accordion={[
+            {
+              title: "Customer Details",
+              renderContent: () => {
+                <div>
+                  <ShowOrderDetails
+                    sectionTitle="Customer"
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[FirstName, LastName, Phone, Email, CustomerId, Description]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                  <div className="border-b-2 border-border-light-grey mx-5" />
+                  <ShowOrderDetails
+                    sectionTitle="Billing"
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[BillingEmail, BillingPhone, BillingAddress]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                  <div className="border-b-2 border-border-light-grey mx-5" />
+                  <ShowOrderDetails
+                    sectionTitle="Shipping"
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[ShippingEmail, ShippingPhone, ShippingAddress]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                  <div className="border-b-2 border-border-light-grey mx-5" />
+                  <ShowOrderDetails
+                    sectionTitle="Payment Method"
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[PMBillingEmail, PMBillingPhone, PMBillingAddress]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                  <div className="border-b-2 border-border-light-grey mx-5" />
+                  <ShowOrderDetails
+                    sectionTitle="Fraud & risk management (FRM)"
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[FRMName, FRMTransactionType, FRMStatus]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                </div>
               },
-            ]}
-          />
-        </div>
-        <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
-          <RenderAccordian
-            accordion={[
-              {
-                title: "Events and logs",
-                renderContent: () => {
-                  <LogsWrapper wrapperFor={#PAYMENT}>
-                    <PaymentLogs paymentId={id} createdAt={orderData.created} />
-                  </LogsWrapper>
-                },
-                renderContentOnTop: None,
+              renderContentOnTop: None,
+            },
+          ]}
+        />
+        <RenderAccordian
+          accordion={[
+            {
+              title: "More Payment Details",
+              renderContent: () => {
+                <div className="mb-10">
+                  <ShowOrderDetails
+                    data=orderData
+                    getHeading=OrderEntity.getHeadingForOtherDetails
+                    getCell=OrderEntity.getCellForOtherDetails
+                    detailsFields=[
+                      AmountCapturable,
+                      ErrorCode,
+                      MandateData,
+                      MerchantId,
+                      ReturnUrl,
+                      OffSession,
+                      CaptureOn,
+                      NextAction,
+                      SetupFutureUsage,
+                      CancellationReason,
+                      StatementDescriptorName,
+                      StatementDescriptorSuffix,
+                      PaymentExperience,
+                      MerchantOrderReferenceId,
+                    ]
+                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+                    paymentStatus={orderData.status}
+                    openRefundModal={() => ()}
+                    widthClass="md:w-1/4 w-full"
+                    paymentId={orderData.payment_id}
+                    border=""
+                  />
+                </div>
               },
-            ]}
-          />
-        </UIUtils.RenderIf>
+              renderContentOnTop: None,
+            },
+          ]}
+        />
         <UIUtils.RenderIf
           condition={orderData.payment_method === "card" &&
             orderData.payment_method_data->Option.isSome}>
@@ -828,56 +933,21 @@ let make = (~id) => {
             ]}
           />
         </UIUtils.RenderIf>
-        <RenderAccordian
-          accordion={[
-            {
-              title: "More Payment Details",
-              renderContent: () => {
-                <div className="mb-10">
-                  <ShowOrderDetails
-                    data=orderData
-                    getHeading=OrderEntity.getHeadingForOtherDetails
-                    getCell=OrderEntity.getCellForOtherDetails
-                    detailsFields=[
-                      FirstName,
-                      LastName,
-                      Phone,
-                      Email,
-                      CustomerId,
-                      Description,
-                      Shipping,
-                      Billing,
-                      BillingEmail,
-                      AmountCapturable,
-                      ErrorCode,
-                      MandateData,
-                      MerchantId,
-                      ReturnUrl,
-                      OffSession,
-                      CaptureOn,
-                      NextAction,
-                      SetupFutureUsage,
-                      CancellationReason,
-                      StatementDescriptorName,
-                      StatementDescriptorSuffix,
-                      PaymentExperience,
-                      FRMName,
-                      FRMTransactionType,
-                      FRMStatus,
-                    ]
-                    isNonRefundConnector={isNonRefundConnector(orderData.connector)}
-                    paymentStatus={orderData.status}
-                    openRefundModal={() => ()}
-                    widthClass="md:w-1/4 w-full"
-                    paymentId={orderData.payment_id}
-                    border=""
-                  />
-                </div>
+        <div className="overflow-scroll">
+          <RenderAccordian
+            accordion={[
+              {
+                title: "FRM Details",
+                renderContent: () => {
+                  <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
+                    <FraudRiskBannerDetails order={orderData} refetch={refreshStatus} />
+                  </div>
+                },
+                renderContentOnTop: None,
               },
-              renderContentOnTop: None,
-            },
-          ]}
-        />
+            ]}
+          />
+        </div>
       </div>
     </PageLoaderWrapper>
   </div>

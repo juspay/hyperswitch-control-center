@@ -28,6 +28,7 @@ type cashToCodeMthd = [#Classic | #Evoucher]
 
 type processorTypes =
   | ADYEN
+  | ADYENPLATFORM
   | CHECKOUT
   | BRAINTREE
   | BANKOFAMERICA
@@ -82,6 +83,9 @@ type processorTypes =
   | HELCIM
   | PLACETOPAY
   | ZSL
+  | MIFINITY
+  | RAZORPAY
+  | BAMBORA_APAC
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
@@ -110,6 +114,7 @@ type paymentMethodTypes =
   | Debit
   | GooglePay
   | ApplePay
+  | PayPal
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {

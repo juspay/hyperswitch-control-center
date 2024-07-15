@@ -90,7 +90,7 @@ module CustomFilters = {
       switch completionDisposable {
       | Some(_val) => ()
       | None =>
-        setCompletionDisposable(._ =>
+        setCompletionDisposable(_ =>
           Monaco.Language.registerCompletionItemProvider(
             monaco.languages,
             "sql",
@@ -165,7 +165,7 @@ let make = (
   ~refreshFilters=true,
 ) => {
   open LogicUtils
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let localFilters = initialFilters->Array.filter(item => item.localFilter->Option.isSome)
   let remoteOptions = options->Array.filter(item => item.localFilter->Option.isNone)
   let defaultFilters = ""->JSON.Encode.string

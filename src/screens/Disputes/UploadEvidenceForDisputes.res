@@ -11,7 +11,7 @@ module EvidenceUploadForm = {
   @react.component
   let make = (~uploadEvidenceType, ~index, ~fileUploadedDict, ~setFileUploadedDict) => {
     open LogicUtils
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let handleBrowseChange = (event, uploadEvidenceType) => {
       let target = ReactEvent.Form.target(event)
       let fileDict =
@@ -211,7 +211,7 @@ module DisputesInfoBarComponent = {
     open PageLoaderWrapper
     let getURL = useGetURL()
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ConfigContext.configContext,
+      ThemeProvider.themeContext,
     )
     let fetchDetails = useGetMethod()
     let updateDetails = useUpdateMethod()
@@ -386,6 +386,8 @@ module DisputesInfoBarComponent = {
 let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) => {
   open APIUtils
   open DisputesUtils
+  open ConnectorUtils
+
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showPopUp = PopUpState.useShowPopUp()
@@ -413,8 +415,9 @@ let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) =>
 
   <div className="flex gap-2">
     <UIUtils.RenderIf
-      condition={connectorsSupportAcceptDispute->Array.includes(
-        connector->ConnectorUtils.getConnectorNameTypeFromString(),
+      condition={existsInArray(
+        connector->getConnectorNameTypeFromString(),
+        connectorsSupportAcceptDispute,
       )}>
       <Button
         buttonType={Secondary}

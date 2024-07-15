@@ -11,7 +11,7 @@ let boxCssHover = (~ishoverStyleRequired, ()) =>
   `flex flex-col  bg-white border rounded-md pt-10 pl-10 gap-2 h-12.5-rem ${ishoverStyleRequired
       ? hoverStyle
       : ""}`
-let boxCss = "flex flex-col bg-white border rounded-md gap-4 p-10"
+let boxCss = "flex flex-col bg-white border rounded-md gap-4 p-7"
 let imageTransitionCss = "opacity-50 group-hover:opacity-100 transition ease-in-out duration-300"
 let cardHeaderTextStyle = `${cardHeaderText} text-grey-700`
 
@@ -140,13 +140,10 @@ module MerchantAuthInfo = {
 module CheckoutCard = {
   @react.component
   let make = () => {
-    let fetchApi = AuthHooks.useApiFetcher()
     let showPopUp = PopUpState.useShowPopUp()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
-    let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
+    let handleLogout = APIUtils.useHandleLogout()
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-    let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
     let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
@@ -163,20 +160,13 @@ module CheckoutCard = {
           handleConfirm: {
             text: "Sign up Now",
             onClick: {
-              _ => {
-                let _ = APIUtils.handleLogout(
-                  ~fetchApi,
-                  ~setAuthStateToLogout,
-                  ~setIsSidebarExpanded,
-                  ~clearRecoilValue,
-                )
-              }
+              _ => handleLogout()->ignore
             },
           },
         })
       } else {
         mixpanelEvent(~eventName=`try_test_payment`, ())
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/sdk"))
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/sdk"))
       }
     }
 
@@ -230,7 +220,7 @@ module ControlCenter = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/connectors"))
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
               }}
             />
           </CardFooter>
@@ -249,9 +239,7 @@ module ControlCenter = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                RescriptReactRouter.push(
-                  HSwitchGlobalVars.appendDashboardPath(~url="/developer-api-keys"),
-                )
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/developer-api-keys"))
               }}
             />
           </CardFooter>
@@ -392,5 +380,31 @@ let getValueMappedForProd = (value, key) => {
   | #SetupComplete =>
     value->getBool(key, false)->JSON.Encode.bool
   | #SetupProcessor => value->getJsonObjectFromDict(key)
+  }
+}
+
+module LowRecoveryCodeBanner = {
+  @react.component
+  let make = (~recovery_codes_left) => {
+    <div className="w-full bg-orange-200 bg-opacity-40 px-6 py-3 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <Icon name="warning-outlined" size=25 />
+        <div className="flex gap-2">
+          {`You are low on recovery-codes. Only`->React.string}
+          <span className="font-bold">
+            {`${recovery_codes_left->Int.toString} left`->React.string}
+          </span>
+        </div>
+      </div>
+      <Button
+        text="Regenerate recovery-codes"
+        buttonType={Secondary}
+        customButtonStyle="!p-2"
+        onClick={_ =>
+          RescriptReactRouter.push(
+            GlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
+          )}
+      />
+    </div>
   }
 }

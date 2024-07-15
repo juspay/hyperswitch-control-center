@@ -57,8 +57,10 @@ module LineChart1D = {
     ~isPartners=false,
     ~showIndicator=false,
     ~showMarkers=false,
+    ~comparitionWidget=false,
+    ~selectedTab: option<array<string>>=?,
   ) => {
-    let (theme, _setTheme) = React.useContext(ThemeProvider.themeContext)
+    let {theme} = React.useContext(ThemeProvider.themeContext)
     let (_, setLegendState) = React.useState(_ => [])
     let isMobileView = MatchMedia.useMobileChecker()
     let (hideLegend, setHideLegend) = React.useState(_ => isMobileView)
@@ -95,6 +97,7 @@ module LineChart1D = {
         ~xAxis,
         ~metricsConfig=selectedMetrics,
         ~commonColors=commonColorsArr,
+        ~selectedTab=selectedTab->Option.getOr([]),
         (),
       )->Belt.Array.keepMap(item => {
         if (
@@ -445,9 +448,12 @@ module LineChart1D = {
       | Points =>
         {
           "enabled": !isMultiDimensional,
-          "itemStyle": legendItemStyle(theme, "IBM Plex Sans", "12px"),
+          "itemStyle": legendItemStyle(theme, "12px"),
           "itemHiddenStyle": legendHiddenStyle(theme),
-          "itemHoverStyle": legendItemStyle(theme),
+          "itemHoverStyle": legendItemStyle(theme, "12px"),
+          "symbolRadius": 4,
+          "symbolPaddingTop": 5,
+          "itemMarginBottom": 10,
         }->genericObjectOrRecordToJson
       }
 
@@ -461,34 +467,32 @@ module LineChart1D = {
               "backgroundColor": Nullable.null,
               "height": Some(chartHeight),
               "events": {
-                render: (
-                  @this
-                  (this: chartEventOnload) => {
-                    let strokeColor = switch theme {
-                    | Dark => "#2e2f39"
-                    | Light => "#e6e6e6"
-                    }
-                    switch this.yAxis[0] {
-                    | Some(ele) =>
-                      Highcharts.objectEach(ele.ticks, tick => {
-                        if Some(tick.pos) === thresholdVal {
-                          tick.gridLine.attr(.
-                            {
-                              "stroke-width": "0",
-                            }->genericObjectOrRecordToJson,
-                          )
-                        } else {
-                          tick.gridLine.attr(.
-                            {
-                              "stroke": strokeColor,
-                            }->genericObjectOrRecordToJson,
-                          )
-                        }
-                      })
-                    | None => ()
-                    }
+                render: () => {
+                  let this = thisChartEventOnLoad
+                  let strokeColor = switch theme {
+                  | Dark => "#2e2f39"
+                  | Light => "#e6e6e6"
                   }
-                )->Some,
+                  switch this.yAxis[0] {
+                  | Some(ele) =>
+                    Highcharts.objectEach(ele.ticks, tick => {
+                      if Some(tick.pos) === thresholdVal {
+                        tick.gridLine.attr(
+                          {
+                            "stroke-width": "0",
+                          }->genericObjectOrRecordToJson,
+                        )
+                      } else {
+                        tick.gridLine.attr(
+                          {
+                            "stroke": strokeColor,
+                          }->genericObjectOrRecordToJson,
+                        )
+                      }
+                    })
+                  | None => ()
+                  }
+                },
               }->Some,
             }->genericObjectOrRecordToJson,
           )
@@ -507,13 +511,19 @@ module LineChart1D = {
           "useHTML": true,
           "formatter": tooltipFormatter(selectedMetrics, xAxisMapInfo, groupKey)->Some,
           "hideDelay": 0,
-          "outside": false,
-          "shape": "square",
-          "backgroundColor": theme === Light ? "rgba(25, 26, 26, 1)" : "rgba(247, 247, 250, 1)",
-          "borderColor": theme === Light ? "rgba(25, 26, 26, 1)" : "rgba(247, 247, 250, 1)",
-          "boxShadow": "",
+          "outside": true,
+          "borderRadius": 20,
+          "backgroundColor": "#ffffff",
+          "borderColor": "#E5E5E5",
+          "shadow": {
+            "color": "rgba(0, 0, 0, 0.15)",
+            "offsetX": 0,
+            "offsetY": 0,
+            "opacity": 0.07,
+            "width": 10,
+          },
           "style": {
-            "color": theme === Light ? "rgba(246, 248, 249, 1)" : "rgba(25, 26, 26, 1)",
+            "color": "#333333",
           },
         }->genericObjectOrRecordToJson,
         plotOptions: Some(
@@ -716,7 +726,7 @@ module LineChart1D = {
                 onEntityClick={val => {
                   setClickedRowNames(val)
                 }}
-                onEntityDoubleClick={val => {
+                onEntityDoubleClick={_val => {
                   setClickedRowNamesOrig(_ => [])
                   clickedRowNames->Array.length > 0 ? setHoverOnRows(_ => None) : ()
                 }}
@@ -725,7 +735,7 @@ module LineChart1D = {
                     ? setHoverOnRows(_ => Some(val.groupByName))
                     : ()
                 }}
-                onMouseLeave={val => {
+                onMouseLeave={_val => {
                   clickedRowNames->Array.length === 0 ? setHoverOnRows(_ => None) : ()
                 }}
                 isHighchartLegend=true

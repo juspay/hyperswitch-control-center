@@ -50,7 +50,7 @@ module TableRow = {
     ~allowedDateRange: option<dateObj>=?,
   ) => {
     open LogicUtils
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let customTimezoneToISOString = TimeZoneHook.useCustomTimeZoneToIsoString()
     let highlight = cellHighlighter
 
@@ -126,7 +126,7 @@ module TableRow = {
               | true =>
                 switch onDateClick {
                 | Some(fn) =>
-                  fn((Date.toISOString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"))
+                  fn((Date.toISOString(date)->DayJs.getDayJsForString).format("YYYY-MM-DD"))
 
                 | None => ()
                 }
@@ -134,7 +134,7 @@ module TableRow = {
               }
             }
             let hSelf = highlight(
-              (Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"),
+              (Date.toString(date)->DayJs.getDayJsForString).format("YYYY-MM-DD"),
             )
 
             let dayClass = if (
@@ -159,13 +159,13 @@ module TableRow = {
               )
               datevalue
             }
-            let today = (Date.make()->Date.toString->DayJs.getDayJsForString).format(. "YYYY-MM-DD")
+            let today = (Date.make()->Date.toString->DayJs.getDayJsForString).format("YYYY-MM-DD")
 
             let renderingDate = (
               getDate([Float.toString(year), Float.toString(month +. 1.0), obj])
               ->Date.toString
               ->DayJs.getDayJsForString
-            ).format(. "YYYY-MM-DD")
+            ).format("YYYY-MM-DD")
 
             let textColor =
               today == renderingDate
@@ -227,7 +227,7 @@ module TableRow = {
               )
             }
             let handleHover = () => {
-              let date = (Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD")
+              let date = (Date.toString(date)->DayJs.getDayJsForString).format("YYYY-MM-DD")
               let parsedDate = getDate(String.split(date, "-"))
               setHoverdDate(_ => parsedDate->Date.toString)
               switch setShowMsg {
@@ -252,7 +252,7 @@ module TableRow = {
               className={classN}
               onClick
               onMouseOver={_ => handleHover()}
-              onMouseOut={evt => setHoverdDate(_ => "")}>
+              onMouseOut={_evt => setHoverdDate(_ => "")}>
               <AddDataAttributes
                 attributes=[
                   (
@@ -274,7 +274,7 @@ module TableRow = {
                   {cellRenderer(
                     obj->isEmptyString
                       ? None
-                      : Some((Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD")),
+                      : Some((Date.toString(date)->DayJs.getDayJsForString).format("YYYY-MM-DD")),
                   )}
                 </span>
               </AddDataAttributes>

@@ -94,7 +94,7 @@ module AddNewMerchantButton = {
     open HeadlessUI
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <ACLDiv
       permission={userPermissionJson.merchantDetailsManage}
       onClick={_ => setShowModal(_ => true)}
@@ -111,7 +111,7 @@ module AddNewMerchantButton = {
               } else {
                 "group flex rounded-md items-center px-2 py-2 text-sm"
               }
-              `${activeClasses} ${textColor.primaryNormal} flex gap-2 font-medium w-56`
+              `${activeClasses} ${textColor.primaryNormal} flex gap-2 font-medium w-56 `
             }>
             <Icon name="plus-circle" size=15 />
             {"Add a new merchant"->React.string}
@@ -127,7 +127,7 @@ module ExternalUser = {
     open UIUtils
     let {merchant_id: defaultMerchantId} =
       CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let switchMerchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.switchMerchantListAtom)
     let merchantDetailsTypedValue = HSwitchUtils.useMerchantDetailsValue()
     let defaultSelectedMerchantType = {
@@ -163,11 +163,11 @@ module ExternalUser = {
     open HeadlessUI
     <>
       <Menu \"as"="div" className="relative inline-block text-left">
-        {menuProps =>
+        {_menuProps =>
           <div>
             <Menu.Button
               className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-md hover:bg-opacity-80 bg-white border">
-              {buttonProps => {
+              {_buttonProps => {
                 <>
                   {selectedMerchantObject.merchant_name->React.string}
                   <Icon
@@ -211,7 +211,7 @@ module ExternalUser = {
                                   } else {
                                     "group flex rounded-md items-center w-full px-2 py-2 text-sm"
                                   }
-                                  `${activeClasses} font-medium`
+                                  `${activeClasses} font-medium text-start`
                                 }>
                                 <div className="mr-5"> {option.merchant_name->React.string} </div>
                               </button>
@@ -256,7 +256,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   | LoggedIn(info) =>
     switch info {
     | BasicAuth(basicInfo) => basicInfo.merchant_id->Option.getOr("")
-    | TotpAuth(totpInfo) => totpInfo.merchant_id->Option.getOr("")
+    | Auth(totpInfo) => totpInfo.merchant_id
     }
   | _ => ""
   }
@@ -298,13 +298,13 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       // TODO: When BE changes the response of this api re-evaluate the below conditions
       if featureFlagDetails.totp {
         let responseDict = res->getDictFromJsonObject
-        responseDict->Dict.set(
-          "token_type",
-          DASHBOARD_ENTRY->TotpUtils.variantToStringFlowMapper->JSON.Encode.string,
-        )
-        setAuthStatus(
-          LoggedIn(TotpAuth(TotpUtils.getTotpAuthInfo(responseDict->JSON.Encode.object))),
-        )
+
+        // Need to revert back once backend does the changes
+        let role_id = responseDict->getString("user_role", "")
+        responseDict->Dict.set("role_id", role_id->JSON.Encode.string)
+        //
+
+        setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict->JSON.Encode.object))))
       } else {
         setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
       }

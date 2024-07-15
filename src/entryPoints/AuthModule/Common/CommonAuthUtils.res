@@ -25,7 +25,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
         Dict.set(
           errors,
           key,
-          `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWith(
+          `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWithUnsafe(
               ",",
             )} character`->JSON.Encode.string,
         )
@@ -38,11 +38,7 @@ let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, err
   if (
     key === confirmKey &&
     value->LogicUtils.isNonEmptyString &&
-    !Js.Option.equal(
-      (. a, b) => a == b,
-      Dict.get(valuesDict, passwordKey),
-      Dict.get(valuesDict, key),
-    )
+    !Option.equal(Dict.get(valuesDict, passwordKey), Dict.get(valuesDict, key), (a, b) => a == b)
   ) {
     Dict.set(errors, key, "The New password does not match!"->JSON.Encode.string)
   }
@@ -113,6 +109,10 @@ let errorSubCodeMapper = (subCode: string) => {
   | "UR_05" => UR_05
   | "UR_16" => UR_16
   | "UR_29" => UR_29
+  | "UR_38" => UR_38
+  | "UR_40" => UR_40
+  | "UR_41" => UR_41
+  | "UR_42" => UR_42
   | _ => UR_00
   }
 }
@@ -122,7 +122,7 @@ let clearLocalStorage = () => {
 }
 
 module ToggleLiveTestMode = {
-  open HSwitchGlobalVars
+  open GlobalVars
   open CommonAuthTypes
   @react.component
   let make = (~authType, ~mode, ~setMode, ~setAuthType, ~customClass="") => {

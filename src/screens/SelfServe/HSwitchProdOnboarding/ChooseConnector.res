@@ -6,7 +6,7 @@ let subheaderText = "text-base font-semibold text-grey-700"
 let make = (~selectedConnector, ~setSelectedConnector, ~pageView, ~setPageView) => {
   let {
     globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
-  } = React.useContext(ConfigContext.configContext)
+  } = React.useContext(ThemeProvider.themeContext)
   let getBlockColor = connector => {
     open ConnectorTypes
     switch (selectedConnector, connector) {

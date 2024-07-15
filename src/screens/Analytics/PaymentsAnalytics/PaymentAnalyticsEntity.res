@@ -95,18 +95,14 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentTableType = dict => {
     payment_success_count: dict->getFloat(SuccessCount->colMapper, 0.0),
     payment_processed_amount: dict->getFloat(ProcessedAmount->colMapper, 0.0),
     avg_ticket_size: dict->getFloat(AvgTicketSize->colMapper, 0.0),
-    connector: dict->getString(Connector->colMapper, "OTHER")->LogicUtils.getFirstLetterCaps(),
-    payment_method: dict
-    ->getString(PaymentMethod->colMapper, "OTHER")
-    ->LogicUtils.getFirstLetterCaps(),
-    payment_method_type: dict
-    ->getString(PaymentMethodType->colMapper, "OTHER")
-    ->LogicUtils.getFirstLetterCaps(),
-    currency: dict->getString(Currency->colMapper, "OTHER")->String.toUpperCase,
-    authentication_type: dict->getString(AuthType->colMapper, "OTHER")->String.toUpperCase,
-    refund_status: dict->getString(Status->colMapper, "OTHER")->String.toUpperCase,
-    client_source: dict->getString(ClientSource->colMapper, "OTHER")->String.toUpperCase,
-    client_version: dict->getString(ClientVersion->colMapper, "OTHER")->String.toUpperCase,
+    connector: dict->getString(Connector->colMapper, "NA")->snakeToTitle,
+    payment_method: dict->getString(PaymentMethod->colMapper, "NA")->snakeToTitle,
+    payment_method_type: dict->getString(PaymentMethodType->colMapper, "NA")->snakeToTitle,
+    currency: dict->getString(Currency->colMapper, "NA")->snakeToTitle,
+    authentication_type: dict->getString(AuthType->colMapper, "NA")->snakeToTitle,
+    refund_status: dict->getString(Status->colMapper, "NA")->snakeToTitle,
+    client_source: dict->getString(ClientSource->colMapper, "NA")->snakeToTitle,
+    client_version: dict->getString(ClientVersion->colMapper, "NA")->snakeToTitle,
     weekly_payment_success_rate: dict->getWeeklySR->String.toUpperCase,
     payment_error_message: dict->parseErrorReasons,
   }
@@ -253,6 +249,7 @@ let singleStateInitialValue = {
   retries_count: 0,
   retries_amount_processe: 0.0,
   payment_success_count: 0,
+  currency: "NA",
   connector_success_rate: 0.0,
   payment_processed_amount: 0.0,
   payment_avg_ticket_size: 0.0,
@@ -278,6 +275,7 @@ let singleStateItemToObjMapper = json => {
     payment_count: dict->getInt("payment_count", 0),
     payment_success_count: dict->getInt("payment_success_count", 0),
     payment_processed_amount: dict->getFloat("payment_processed_amount", 0.0),
+    currency: dict->getString("currency", "NA"),
     payment_avg_ticket_size: dict->getFloat("avg_ticket_size", 0.0),
     retries_count: dict->getInt("retries_count", 0),
     retries_amount_processe: dict->getFloat("retries_amount_processed", 0.0),
@@ -308,11 +306,7 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  let data = json->getQueryData->Array.map(singleStateItemToObjMapper)
-  switch data[0] {
-  | Some(ele) => ele
-  | None => singleStateInitialValue
-  }
+  json->getQueryData->Array.map(singleStateItemToObjMapper)
 }
 
 let timeSeriesObjMapper = json =>
@@ -324,33 +318,31 @@ type colT =
   | SuccessCount
   | ProcessedAmount
   | AvgTicketSize
-  | RetriesCount
-  | RetriesAmountProcessed
+  | SuccessfulSmartRetries
+  | TotalSmartRetries
+  | SmartRetriedAmount
   | ConnectorSuccessRate
 
-let getColumns: bool => array<DynamicSingleStat.columns<colT>> = connector_success_rate => [
+let generalMetricsColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: connector_success_rate
-      ? [
-          SuccessRate,
-          Count,
-          SuccessCount,
-          ProcessedAmount,
-          AvgTicketSize,
-          RetriesCount,
-          RetriesAmountProcessed,
-          ConnectorSuccessRate,
-        ]
-      : [
-          SuccessRate,
-          Count,
-          SuccessCount,
-          ProcessedAmount,
-          AvgTicketSize,
-          RetriesCount,
-          RetriesAmountProcessed,
-        ],
+    columns: [SuccessRate, ConnectorSuccessRate, Count, SuccessCount]->generateDefaultStateColumns,
+  },
+]
+
+let amountMetricsColumns: array<DynamicSingleStat.columns<colT>> = [
+  {
+    sectionName: "",
+    columns: [
+      {
+        colType: ProcessedAmount,
+        chartType: Table,
+      },
+      {
+        colType: AvgTicketSize,
+        chartType: Table,
+      },
+    ],
   },
 ]
 
@@ -429,7 +421,7 @@ let getStatData = (
 ) => {
   switch colType {
   | SuccessRate => {
-      title: "Overall Conversion Rate",
+      title: "Overall Success Rate",
       tooltipText: "Total successful payments processed out of total payments created (This includes user dropouts at shopping cart and checkout page)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.payment_success_rate,
@@ -491,6 +483,7 @@ let getStatData = (
       data: constructData("payment_processed_amount", timeSeriesData),
       statType: "Amount",
       showDelta: false,
+      label: singleStatData.currency,
     }
   | AvgTicketSize => {
       title: `Avg Ticket Size`,
@@ -508,8 +501,9 @@ let getStatData = (
       data: constructData("payment_avg_ticket_size", timeSeriesData),
       statType: "Volume",
       showDelta: false,
+      label: singleStatData.currency,
     }
-  | RetriesCount => {
+  | TotalSmartRetries => {
       title: "Smart Retries made",
       tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supoorted currently)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
@@ -524,7 +518,22 @@ let getStatData = (
       statType: "Volume",
       showDelta: false,
     }
-  | RetriesAmountProcessed => {
+  | SuccessfulSmartRetries => {
+      title: "Successful Smart Retries",
+      tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supoorted currently)",
+      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+        singleStatData.retries_count->Int.toFloat,
+        deltaTimestampData.currentSr,
+      ),
+      value: singleStatData.retries_count->Int.toFloat,
+      delta: {
+        singleStatData.retries_count->Int.toFloat
+      },
+      data: constructData("retries_count", timeSeriesData),
+      statType: "Volume",
+      showDelta: false,
+    }
+  | SmartRetriedAmount => {
       title: `Smart Retries Savings`,
       tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor (Note: Only date range filters are supoorted currently)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
@@ -542,7 +551,7 @@ let getStatData = (
       showDelta: false,
     }
   | ConnectorSuccessRate => {
-      title: "Payment Success Rate",
+      title: "Confirmed Success Rate",
       tooltipText: "Total successful payments processed out of all user confirmed payments",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.connector_success_rate,
@@ -559,7 +568,7 @@ let getStatData = (
   }
 }
 
-let getSingleStatEntity = (metrics, connector_success_rate) => {
+let getSingleStatEntity = (metrics, defaultColumns) => {
   urlConfig: [
     {
       uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
@@ -568,7 +577,7 @@ let getSingleStatEntity = (metrics, connector_success_rate) => {
   ],
   getObjects: itemToObjMapper,
   getTimeSeriesObject: timeSeriesObjMapper,
-  defaultColumns: getColumns(connector_success_rate),
+  defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
   matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
@@ -613,5 +622,6 @@ let chartEntity = tabKeys =>
       },
     ],
     ~moduleName="Payment Analytics",
+    ~enableLoaders=true,
     (),
   )

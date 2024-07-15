@@ -125,6 +125,22 @@ module SearchResultsComponent = {
   open UIUtils
   @react.component
   let make = (~searchResults, ~searchText, ~redirectOnSelect, ~setShowModal) => {
+    React.useEffect0(() => {
+      let onKeyPress = event => {
+        let keyPressed = event->ReactEvent.Keyboard.key
+
+        if keyPressed == "Enter" {
+          let redirectLink = `/search?query=${searchText}`
+          if redirectLink->isNonEmptyString {
+            setShowModal(_ => false)
+            GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
+          }
+        }
+      }
+      Window.addEventListener("keydown", onKeyPress)
+      Some(() => Window.removeEventListener("keydown", onKeyPress))
+    })
+
     <OptionsWrapper>
       {searchResults
       ->Array.mapWithIndex((section: resultType, index) => {
@@ -209,14 +225,21 @@ let make = () => {
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
-      HSwitchGlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
+      GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
     }
   }
 
   let getSearchResults = async results => {
     try {
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
-      let body = [("query", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+
+      let body = if !(searchText->CommonAuthUtils.isValidEmail) {
+        let filters = [("email", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+        [("query", ""->JSON.Encode.string), ("filters", filters)]->LogicUtils.getJsonFromArrayOfJson
+      } else {
+        [("query", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+      }
+
       let response = await fetchDetails(url, body, Post, ())
 
       let local_results = []
@@ -229,7 +252,7 @@ let make = () => {
 
       let remote_results = response->parseResponse
 
-      setGLobalSearchResults(._ => {
+      setGLobalSearchResults(_ => {
         local_results,
         remote_results,
         searchText,

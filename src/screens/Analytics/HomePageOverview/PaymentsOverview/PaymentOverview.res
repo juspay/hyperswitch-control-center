@@ -1,7 +1,6 @@
 @react.component
 let make = () => {
   open HSAnalyticsUtils
-  let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
 
   let metrics = [
     "payment_success_rate",
@@ -22,10 +21,8 @@ let make = () => {
     moduleName="Payments"
     defaultStartDate={dateDict.start_time}
     defaultEndDate={dateDict.end_time}
-    setTotalVolume
     showPercentage=false
-    isHomePage=true
     statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
-    wrapperClass="flex flex-wrap w-full h-full"
+    wrapperClass="w-full h-full -mt-4"
   />
 }

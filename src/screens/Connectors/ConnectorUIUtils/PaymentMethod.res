@@ -27,11 +27,17 @@ module CardRenderer = {
     ~paymentMethod,
     ~provider: array<paymentMethodConfigType>,
     ~_showAdvancedConfiguration,
-    ~metaData,
     ~setMetaData,
     ~connector,
   ) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let form = ReactFinalForm.useForm()
+    let initalFormValue = React.useMemo0(() => {
+      formState.values->getDictFromJsonObject->getDictfromDict("metadata")
+    })
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
     let selectedAll = isSelectedAll(paymentMethodsEnabled, provider, paymentMethod)
@@ -47,17 +53,35 @@ module CardRenderer = {
       selectedMethod: paymentMethodConfigType,
     ) => obj.payment_method_type == selectedMethod.payment_method_type
 
+    let checkPaymentMethodTypeAndExperience = (
+      obj: paymentMethodConfigType,
+      selectedMethod: paymentMethodConfigType,
+    ) => {
+      obj.payment_method_type == selectedMethod.payment_method_type &&
+        obj.payment_experience == selectedMethod.payment_experience
+    }
+
     let removeOrAddMethods = (method: paymentMethodConfigType) => {
-      switch paymentMethod->getPaymentMethodFromString {
-      | Card =>
+      switch (
+        method.payment_method_type->getPaymentMethodTypeFromString,
+        paymentMethod->getPaymentMethodFromString,
+        connector->getConnectorNameTypeFromString(),
+      ) {
+      | (PayPal, Wallet, Processors(PAYPAL)) =>
+        if standardProviders->Array.some(obj => checkPaymentMethodTypeAndExperience(obj, method)) {
+          paymentMethodsEnabled->removeMethod(paymentMethod, method, connector)->updateDetails
+        } else {
+          paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
+        }
+      | (_, Card, _) =>
         if cardProviders->Array.some(obj => checkPaymentMethodType(obj, method)) {
-          paymentMethodsEnabled->removeMethod(paymentMethod, method)->updateDetails
+          paymentMethodsEnabled->removeMethod(paymentMethod, method, connector)->updateDetails
         } else {
           paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
         }
       | _ =>
         if standardProviders->Array.some(obj => checkPaymentMethodType(obj, method)) {
-          paymentMethodsEnabled->removeMethod(paymentMethod, method)->updateDetails
+          paymentMethodsEnabled->removeMethod(paymentMethod, method, connector)->updateDetails
         } else {
           let methodVariant = method.payment_method_type->getPaymentMethodTypeFromString
           if (
@@ -105,8 +129,19 @@ module CardRenderer = {
     }
 
     let isSelected = selectedMethod => {
-      standardProviders->Array.some(obj => checkPaymentMethodType(obj, selectedMethod)) ||
-        cardProviders->Array.some(obj => checkPaymentMethodType(obj, selectedMethod))
+      switch (
+        paymentMethod->getPaymentMethodFromString,
+        connector->getConnectorNameTypeFromString(),
+      ) {
+      | (Wallet, Processors(PAYPAL)) =>
+        standardProviders->Array.some(obj =>
+          checkPaymentMethodTypeAndExperience(obj, selectedMethod)
+        )
+
+      | _ =>
+        standardProviders->Array.some(obj => checkPaymentMethodType(obj, selectedMethod)) ||
+          cardProviders->Array.some(obj => checkPaymentMethodType(obj, selectedMethod))
+      }
     }
 
     let isNotVerifiablePaymentMethod = paymentMethodVariant => {
@@ -118,6 +153,7 @@ module CardRenderer = {
     let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
 
     let removeSelectedWallet = () => {
+      form.change("metadata", initalFormValue->Identity.genericTypeToJson)
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
     }
 
@@ -180,11 +216,26 @@ module CardRenderer = {
                   <div onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
                     <CheckBoxIcon isSelected={isSelected(value)} />
                   </div>
-                  <p
-                    className={`${p2RegularTextStyle} cursor-pointer`}
-                    onClick={_ => removeOrAddMethods(value)}>
-                    {React.string(value.payment_method_type->snakeToTitle)}
-                  </p>
+                  {switch (
+                    value.payment_method_type->getPaymentMethodTypeFromString,
+                    paymentMethod->getPaymentMethodFromString,
+                    connector->getConnectorNameTypeFromString(),
+                  ) {
+                  | (PayPal, Wallet, Processors(PAYPAL)) =>
+                    <p
+                      className={`${p2RegularTextStyle} cursor-pointer`}
+                      onClick={_ => removeOrAddMethods(value)}>
+                      {value.payment_experience->Option.getOr("") === "redirect_to_url"
+                        ? "PayPal Redirect"->React.string
+                        : "PayPal SDK"->React.string}
+                    </p>
+                  | _ =>
+                    <p
+                      className={`${p2RegularTextStyle} cursor-pointer`}
+                      onClick={_ => removeOrAddMethods(value)}>
+                      {React.string(value.payment_method_type->snakeToTitle)}
+                    </p>
+                  }}
                 </div>
               </AddDataAttributes>
             </div>
@@ -207,7 +258,6 @@ module CardRenderer = {
             childClass={""}>
             <Wallets
               method={selectedWallet}
-              metaData
               setMetaData
               setShowWalletConfigurationModal
               updateDetails
@@ -232,7 +282,6 @@ module PaymentMethodsRender = {
     ~connector,
     ~paymentMethodsEnabled: array<paymentMethodEnabled>,
     ~updateDetails,
-    ~metaData,
     ~setMetaData,
     ~isPayoutFlow,
   ) => {
@@ -259,7 +308,6 @@ module PaymentMethodsRender = {
               provider
               paymentMethod={value}
               _showAdvancedConfiguration=false
-              metaData
               setMetaData
               connector
             />
@@ -272,7 +320,6 @@ module PaymentMethodsRender = {
               paymentMethod={value}
               provider
               _showAdvancedConfiguration=false
-              metaData
               setMetaData
               connector
             />

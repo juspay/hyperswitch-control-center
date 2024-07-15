@@ -238,7 +238,7 @@ let make = () => {
       )
       fetchDetails()->ignore
       setShowWarning(_ => true)
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/3ds"))
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds"))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
     } catch {
@@ -256,7 +256,7 @@ let make = () => {
 
     AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
 
-    switch dict->Dict.get("algorithm")->Option.flatMap(JSON.Decode.object) {
+    switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {
     | Some(jsonDict) => {
         let index = 1
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
@@ -282,7 +282,7 @@ let make = () => {
   }
   let redirectToNewRule = () => {
     setPageView(_ => NEW)
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/3ds?type=new"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds?type=new"))
   }
   let handleCreateNew = () => {
     mixpanelEvent(~eventName="create_new_3ds_rule", ())
@@ -325,7 +325,7 @@ let make = () => {
                 buttonType=Secondary
                 onClick={_ => {
                   setPageView(_ => LANDING)
-                  RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/3ds"))
+                  RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds"))
                 }}
               />
               <FormRenderer.SubmitButton
@@ -351,7 +351,6 @@ let make = () => {
               access=userPermissionJson.workflowsManage
               buttonType=Primary
               customButtonStyle="!w-1/6"
-              leftIcon=FontAwesome("plus")
               onClick={_ => handleCreateNew()}
             />
           </div>

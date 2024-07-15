@@ -116,13 +116,13 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         ~profileId=Some(profileId),
         (),
       )
-      let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
+      let url = getURL(~entityName=PAYPAL_ONBOARDING_SYNC, ~methodType=Post, ())
       let responseValue = await updateDetails(url, paypalBody, Fetch.Post, ())
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
 
       switch paypalDict->JSON.Classify.classify {
       | String(str) => {
-          setSetupAccountStatus(._ => str->stringToVariantMapper)
+          setSetupAccountStatus(_ => str->stringToVariantMapper)
           setCurrentStep(_ => AutomaticFlow)
         }
       | Object(dict) =>
@@ -208,7 +208,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ => {
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/connectors"))
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
         setScreenState(_ => PageLoaderWrapper.Success)
       }}
       isButton=true
@@ -236,6 +236,12 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       </UIUtils.RenderIf>
       <UIUtils.RenderIf condition={currentStep !== Preview && showStepIndicator}>
         <ConnectorCurrentStepIndicator currentStep stepsArr borderWidth />
+      </UIUtils.RenderIf>
+      <UIUtils.RenderIf
+        condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
+        <HSwitchUtils.WarningArea
+          warningText="This is a test connector and will not be reflected on your payment processor dashboard."
+        />
       </UIUtils.RenderIf>
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">

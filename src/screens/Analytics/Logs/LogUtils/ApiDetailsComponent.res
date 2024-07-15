@@ -12,7 +12,7 @@ let make = (
   ~nameToURLMapper,
   ~filteredKeys=[],
 ) => {
-  let {globalUIConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
   let headerStyle = "text-sm font-medium text-gray-700 break-all"
   let logType = dataDict->getLogType
   let apiName = switch logType {
@@ -153,9 +153,29 @@ let make = (
       }
     : "gray-200"
 
-  let borderClass = isSelected
-    ? `${borderColor.primaryNormal} rounded-md`
-    : "border border-transparent"
+  let statusCodeBorderColor = switch logType {
+  | SDK =>
+    switch statusCode {
+    | "INFO" => `${borderColor.primaryNormal}`
+    | "ERROR" => "border border-red-400"
+    | "WARNING" => "border border-yellow-800"
+    | _ => "border border-gray-700 opacity-50"
+    }
+  | WEBHOOKS =>
+    switch statusCode {
+    | "200" => "border border-green-700"
+    | "500" | _ => "border border-gray-700 opacity-80"
+    }
+  | API_EVENTS | CONNECTOR =>
+    switch statusCode {
+    | "200" => "border border-green-700"
+    | "500" => "border border-gray-700 opacity-50"
+    | "400" => "border border-yellow-800"
+    | _ => "border border-gray-700 opacity-50"
+    }
+  }
+
+  let borderClass = isSelected ? `${statusCodeBorderColor} rounded-md` : "border border-transparent"
 
   <div className="flex items-start gap-4">
     <div className="flex flex-col items-center h-full">
@@ -181,9 +201,9 @@ let make = (
         })
       }}>
       <div className="flex flex-col gap-1">
-        <div className=" flex gap-3">
+        <div className="flex gap-3">
           <div className={`bg-${statusCodeBg} h-fit w-fit px-2 py-1 rounded-md`}>
-            <p className={`text-${statusCodeTextColor} text-sm opacity-100  font-bold `}>
+            <p className={`text-${statusCodeTextColor} text-sm font-bold `}>
               {statusCode->React.string}
             </p>
           </div>

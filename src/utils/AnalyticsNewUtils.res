@@ -19,12 +19,12 @@ let calculateHistoricTime = (
     let endDateTime = endTime->DateTimeUtils.parseAsFloat->Js.Date.fromFloat->toUtc
 
     let endDateTimeJs = endDateTime->DayJs.getDayJsForJsDate
-    let timediff = endDateTimeJs.diff(. Date.toString(startDateTime), "hours")
+    let timediff = endDateTimeJs.diff(Date.toString(startDateTime), "hours")
 
     if timediff < 24 {
       (
-        startTimeDayJs.subtract(. 24, "hours").format(. format),
-        endDateTimeJs.subtract(. 24, "hours").format(. format),
+        startTimeDayJs.subtract(24, "hours").format(format),
+        endDateTimeJs.subtract(24, "hours").format(format),
       )
     } else {
       let fromTime = startDateTime->Js.Date.valueOf
@@ -34,7 +34,7 @@ let calculateHistoricTime = (
         (fromTime -. 1.)->Js.Date.fromFloat->DayJs.getDayJsForJsDate,
       )
 
-      (startTime.format(. format), endTime.format(. format))
+      (startTime.format(format), endTime.format(format))
     }
   } else {
     ("", "")

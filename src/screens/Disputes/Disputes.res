@@ -4,7 +4,7 @@ open PageLoaderWrapper
 let make = () => {
   let getURL = useGetURL()
   let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-    ConfigContext.configContext,
+    ThemeProvider.themeContext,
   )
   let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => Loading)
@@ -67,7 +67,7 @@ let make = () => {
   <div>
     <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />
     <div className="flex w-full justify-end pb-3 gap-3">
-      <UIUtils.RenderIf condition={generateReport}>
+      <UIUtils.RenderIf condition={generateReport && disputesData->Array.length > 0}>
         <GenerateReport entityName={DISPUTE_REPORT} />
       </UIUtils.RenderIf>
     </div>

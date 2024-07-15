@@ -1,5 +1,5 @@
 type commonAuthInfo = {
-  token: string,
+  token: option<string>,
   merchant_id: string,
   name: string,
   email: string,
@@ -30,5 +30,9 @@ type subCode =
   | UR_05
   | UR_16
   | UR_29
+  | UR_38
+  | UR_40
+  | UR_41
+  | UR_42
 
 type modeType = TestButtonMode | LiveButtonMode

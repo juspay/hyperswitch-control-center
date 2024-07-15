@@ -5,7 +5,7 @@ module SurveyComponent = {
   let make = (~currentStep, ~setCurrentStep, ~currentQuestionDict, ~setCarouselDirection) => {
     let {
       globalUIConfig: {backgroundColor, border: {borderColor}, font: {textColor}},
-    } = React.useContext(ConfigContext.configContext)
+    } = React.useContext(ThemeProvider.themeContext)
     let currentQuestionValue =
       ReactFinalForm.useField(currentQuestionDict.key).input.value->LogicUtils.getStringFromJson("")
     let isNextButtonEnabled = currentQuestionValue->LogicUtils.isNonEmptyString
@@ -78,10 +78,10 @@ let make = () => {
   open CommonAuthHooks
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
+  let handleLogout = APIUtils.useHandleLogout()
   let {name: userName} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let (currentStep, setCurrentStep) = React.useState(_ => 0)
   let (carouselDirection, setCarouselDirection) = React.useState(_ => RIGHT)
-  let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let isPostLoginQuestionnairePending =
@@ -89,9 +89,7 @@ let make = () => {
 
   React.useEffect1(() => {
     if !isPostLoginQuestionnairePending {
-      RescriptReactRouter.push(
-        HSwitchGlobalVars.appendDashboardPath(~url="/post-login-questionare"),
-      )
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/post-login-questionare"))
     }
     None
   }, [isPostLoginQuestionnairePending])
@@ -118,7 +116,7 @@ let make = () => {
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       if err->String.includes("UR_19") {
         showToast(~toastType=ToastWarning, ~message="Please login again!", ~autoClose=false, ())
-        setAuthStatus(LoggedOut)
+        handleLogout()->ignore
       }
     }
     Nullable.null

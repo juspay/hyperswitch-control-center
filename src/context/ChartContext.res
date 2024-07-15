@@ -66,13 +66,13 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let (activeTab, activeTabStr) = React.useMemo1(() => {
     let activeTabOptionalArr =
       getAllFilter->getOptionStrArrayFromDict(`${chartEntity.moduleName}.tabName`)
-    (activeTabOptionalArr, activeTabOptionalArr->Option.getOr([])->Array.joinWith(","))
+    (activeTabOptionalArr, activeTabOptionalArr->Option.getOr([])->Array.joinWithUnsafe(","))
   }, [getAllFilter])
 
   let parentToken = AuthWrapperUtils.useTokenParent(Original)
-  let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetchNew()
+  let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
   let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
-  let fetchApi = AuthHooks.useApiFetcher(~betaEndpointConfig=?betaEndPointConfig, ())
+  let fetchApi = AuthHooks.useApiFetcher()
   let jsonTransFormer = switch chartEntity {
   | {jsonTransformer} => jsonTransformer
   | _ => (_val, arr) => arr
@@ -149,7 +149,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
           None
         }
       })
-      ->Array.joinWith("&")
+      ->Array.joinWithUnsafe("&")
 
     (filterSearchParam, getTopLevelChartFilter->getString(customFilterKey, ""))
   }, [getTopLevelChartFilter])
@@ -248,7 +248,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     None
   }, (
     parentToken,
-    current_granularity->Array.joinWith("-") ++
+    current_granularity->Array.joinWithUnsafe("-") ++
     granularity->Option.getOr("") ++
     cardinalityFromUrl ++
     chartTopMetricFromUrl ++
@@ -279,7 +279,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     None
   }, (
     parentToken,
-    current_granularity->Array.joinWith("-") ++
+    current_granularity->Array.joinWithUnsafe("-") ++
     granularity->Option.getOr("") ++
     chartBottomMetricFromUrl ++
     startTimeFromUrl ++
@@ -342,6 +342,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 (),
               )->JSON.stringify,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
+              ~betaEndpointConfig=?betaEndPointConfig,
               (),
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch`)
@@ -401,6 +402,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               (),
             )->JSON.stringify,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
+            ~betaEndpointConfig=?betaEndPointConfig,
             (),
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
@@ -469,6 +471,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 (),
               )->JSON.stringify,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
+              ~betaEndpointConfig=?betaEndPointConfig,
               (),
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch bottomChart`)
@@ -525,6 +528,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               (),
             )->JSON.stringify,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
+            ~betaEndpointConfig=?betaEndPointConfig,
             (),
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
@@ -584,9 +588,9 @@ module SDKAnalyticsChartContext = {
     ~differentTimeValues: option<array<AnalyticsUtils.timeRanges>>=?,
   ) => {
     let parentToken = AuthWrapperUtils.useTokenParent(Original)
-    let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetchNew()
+    let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
     let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
-    let fetchApi = AuthHooks.useApiFetcher(~betaEndpointConfig=?betaEndPointConfig, ())
+    let fetchApi = AuthHooks.useApiFetcher()
     let jsonTransFormer = switch chartEntity {
     | {jsonTransformer} => jsonTransformer
     | _ => (_val, arr) => arr
@@ -652,7 +656,7 @@ module SDKAnalyticsChartContext = {
             None
           }
         })
-        ->Array.joinWith("&")
+        ->Array.joinWithUnsafe("&")
 
       (filterSearchParam, getTopLevelChartFilter->getString(customFilterKey, ""))
     }, [getTopLevelChartFilter])
@@ -733,36 +737,41 @@ module SDKAnalyticsChartContext = {
       setTopChartFetchWithCurrentDependecyChange,
     ) = React.useState(_ => false)
 
-    React.useEffect4(() => {
-      let chartType =
-        getChartCompFilters->getString(
-          "chartType",
-          chartEntity.chartTypes->Array.get(0)->Option.getOr(Line)->DynamicChart.chartMapper,
-        )
-      if (
-        startTimeFromUrl->isNonEmptyString &&
-        endTimeFromUrl->isNonEmptyString &&
-        parentToken->Option.isSome &&
-        (granularity->Option.isSome || chartType !== "Line Chart") &&
-        current_granularity->Array.includes(granularity->Option.getOr(""))
-      ) {
-        setTopChartFetchWithCurrentDependecyChange(_ => false)
-      }
+    React.useEffect4(
+      () => {
+        let chartType =
+          getChartCompFilters->getString(
+            "chartType",
+            chartEntity.chartTypes->Array.get(0)->Option.getOr(Line)->DynamicChart.chartMapper,
+          )
+        if (
+          startTimeFromUrl->isNonEmptyString &&
+          endTimeFromUrl->isNonEmptyString &&
+          parentToken->Option.isSome &&
+          (granularity->Option.isSome || chartType !== "Line Chart") &&
+          current_granularity->Array.includes(granularity->Option.getOr(""))
+        ) {
+          setTopChartFetchWithCurrentDependecyChange(_ => false)
+        }
 
-      None
-    }, (
-      parentToken,
-      current_granularity->Array.joinWith("-") ++
-      granularity->Option.getOr("") ++
-      cardinalityFromUrl ++
-      selectedTrends->Array.joinWith(",") ++
-      customFilter ++
-      startTimeFromUrl ++
-      segmentValue->Option.getOr([])->Array.joinWith(",") ++
-      endTimeFromUrl,
-      filterValueFromUrl,
-      differentTimeValues->Array.map(item => `${item.fromTime}${item.toTime}`)->Array.joinWith(","),
-    ))
+        None
+      },
+      (
+        parentToken,
+        current_granularity->Array.joinWithUnsafe("-") ++
+        granularity->Option.getOr("") ++
+        cardinalityFromUrl ++
+        selectedTrends->Array.joinWithUnsafe(",") ++
+        customFilter ++
+        startTimeFromUrl ++
+        segmentValue->Option.getOr([])->Array.joinWithUnsafe(",") ++
+        endTimeFromUrl,
+        filterValueFromUrl,
+        differentTimeValues
+        ->Array.map(item => `${item.fromTime}${item.toTime}`)
+        ->Array.joinWithUnsafe(","),
+      ),
+    )
 
     React.useEffect2(() => {
       if !topChartFetchWithCurrentDependecyChange && topChartVisible {
@@ -809,6 +818,7 @@ module SDKAnalyticsChartContext = {
                     (),
                   )->JSON.stringify,
                   ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
+                  ~betaEndpointConfig=?betaEndPointConfig,
                   (),
                 )
                 ->addLogsAroundFetch(~logTitle=`Chart fetch`)
@@ -826,7 +836,7 @@ module SDKAnalyticsChartContext = {
                             : None
                         },
                       )
-                      ->Array.joinWith("-dimension-")
+                      ->Array.joinWithUnsafe("-dimension-")
                     },
                   )
 
@@ -849,6 +859,7 @@ module SDKAnalyticsChartContext = {
                           (),
                         )->JSON.stringify,
                         ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
+                        ~betaEndpointConfig=?betaEndPointConfig,
                         (),
                       )
                       ->addLogsAroundFetch(~logTitle=`Chart fetch`)
@@ -873,7 +884,7 @@ module SDKAnalyticsChartContext = {
                                           : None
                                       },
                                     )
-                                    ->Array.joinWith("-dimension-")
+                                    ->Array.joinWithUnsafe("-dimension-")
 
                                   groupedArr->Array.includes(origDictArr)
                                     ? Some(
@@ -979,6 +990,7 @@ module SDKAnalyticsChartContext = {
     //                   (),
     //                 )->JSON.stringify,
     //                 ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
+    // ~betaEndpointConfig=?betaEndPointConfig,
     //                 (),
     //               )
     //               ->addLogsAroundFetch(~logTitle=`Chart fetch`)

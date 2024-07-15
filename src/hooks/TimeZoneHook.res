@@ -51,7 +51,7 @@ let dateTimeStringToDateTimeFloat = (dateTime: dateTimeString) => {
 }
 
 let formattedDateTimeFloat = (dateTime: dateTimeFloat, format: string) => {
-  (dateTime->dateTimeObjectToDate->Date.toString->DayJs.getDayJsForString).format(. format)
+  (dateTime->dateTimeObjectToDate->Date.toString->DayJs.getDayJsForString).format(format)
 }
 
 let formattedDateTimeString = (dateTime: dateTimeString, format: string) => {

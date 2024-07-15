@@ -25,12 +25,10 @@ let tableItemToObjMapper: 'a => refundTableType = dict => {
     refund_count: dict->getFloat(Count->colMapper, 0.0),
     refund_success_count: dict->getFloat(SuccessCount->colMapper, 0.0),
     refund_processed_amount: dict->getFloat(ProcessedAmount->colMapper, 0.0),
-    connector: dict->getString(Connector->colMapper, "OTHER")->LogicUtils.getFirstLetterCaps(),
-    refund_method: dict
-    ->getString(RefundMethod->colMapper, "OTHER")
-    ->LogicUtils.getFirstLetterCaps(),
-    currency: dict->getString(Currency->colMapper, "OTHER")->String.toUpperCase,
-    refund_status: dict->getString(Status->colMapper, "OTHER")->String.toUpperCase,
+    connector: dict->getString(Connector->colMapper, "NA")->snakeToTitle,
+    refund_method: dict->getString(RefundMethod->colMapper, "NA")->snakeToTitle,
+    currency: dict->getString(Currency->colMapper, "NA")->snakeToTitle,
+    refund_status: dict->getString(Status->colMapper, "NA")->snakeToTitle,
   }
 }
 
@@ -162,11 +160,7 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  let data = json->getQueryData->Array.map(json => singleStateItemToObjMapper(json))
-  switch data[0] {
-  | Some(ele) => ele
-  | None => singleStateInitialValue
-  }
+  json->getQueryData->Array.map(json => singleStateItemToObjMapper(json))
 }
 
 let timeSeriesObjMapper = json =>
@@ -181,7 +175,7 @@ type colT =
 let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: [SuccessRate, Count, SuccessCount, ProcessedAmount],
+    columns: [SuccessRate, Count, SuccessCount, ProcessedAmount]->generateDefaultStateColumns,
   },
 ]
 

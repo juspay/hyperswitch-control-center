@@ -73,9 +73,7 @@ module AddEntryBtn = {
               onClick={_ => {
                 if updatedProfileId->LogicUtils.isNonEmptyString {
                   RescriptReactRouter.replace(
-                    HSwitchGlobalVars.appendDashboardPath(
-                      ~url=`/payment-settings/${updatedProfileId}`,
-                    ),
+                    GlobalVars.appendDashboardPath(~url=`/payment-settings/${updatedProfileId}`),
                   )
                   setModalState(_ => Edit)
                 }
@@ -98,7 +96,6 @@ module AddEntryBtn = {
           access={userPermissionJson.merchantDetailsManage}
           buttonSize=Small
           buttonType={Primary}
-          rightIcon={FontAwesome("plus")}
           onClick={_ => {
             setModalState(_ => Edit)
             setShowModal(_ => true)

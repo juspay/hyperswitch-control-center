@@ -5,6 +5,7 @@ let make = (~setAuthType) => {
   open AuthProviderTypes
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let getURL = useGetURL()
+
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")

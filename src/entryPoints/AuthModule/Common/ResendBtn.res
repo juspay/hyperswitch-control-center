@@ -1,6 +1,6 @@
 @react.component
 let make = (~callBackFun) => {
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let (seconds, setSeconds) = React.useState(_ => 30)
 
   let isDisabled = seconds > 0

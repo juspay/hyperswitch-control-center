@@ -181,7 +181,7 @@ let make = () => {
       )
       fetchDetails()->ignore
       setShowWarning(_ => true)
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/surcharge"))
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/surcharge"))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
     } catch {
@@ -199,7 +199,7 @@ let make = () => {
 
     AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
 
-    switch dict->Dict.get("algorithm")->Option.flatMap(JSON.Decode.object) {
+    switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {
     | Some(jsonDict) => {
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
         if rules->Array.length === 0 {
@@ -266,9 +266,7 @@ let make = () => {
                 buttonType=Secondary
                 onClick={_ => {
                   setPageView(_ => LANDING)
-                  RescriptReactRouter.replace(
-                    HSwitchGlobalVars.appendDashboardPath(~url="/surcharge"),
-                  )
+                  RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/surcharge"))
                 }}
               />
               <FormRenderer.SubmitButton
@@ -291,8 +289,7 @@ let make = () => {
               text="Create New"
               access=userPermissionJson.workflowsManage
               buttonType=Primary
-              customButtonStyle="!w-1/6"
-              leftIcon=FontAwesome("plus")
+              customButtonStyle="!w-1/6 "
               onClick={_ => handleCreateNew()}
             />
           </div>

@@ -18,7 +18,7 @@ let checkBoxPropDefaultVal: checkBoxProps = {
   setSelectedData: _ => (),
 }
 
-let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Dict.make())
+let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>> = Recoil.atom("sortAtom", Dict.make())
 
 let backgroundClass = "bg-gray-50 dark:bg-jp-gray-darkgray_background"
 
@@ -56,7 +56,7 @@ let useSortedObj = (title: string, defaultSort) => {
         },
       }
 
-      setDict(.dict => {
+      setDict(dict => {
         let nDict = Dict.fromArray(Dict.toArray(dict))
         Dict.set(nDict, title, sortOb)
         nDict
@@ -128,7 +128,7 @@ type pageDetails = {
   resultsPerPage: int,
 }
 
-let table_pageDetails: Recoil.recoilAtom<Dict.t<pageDetails>> = Recoil.atom(.
+let table_pageDetails: Recoil.recoilAtom<Dict.t<pageDetails>> = Recoil.atom(
   "table_pageDetails",
   Dict.make(),
 )
@@ -243,8 +243,7 @@ let make = (
     }
     None
   })
-  let resultsPerPage =
-    resultsPerPage > 10 ? defaultResultsPerPage ? 10 : resultsPerPage : resultsPerPage
+
   let customizeColumnNewTheme = None
   let defaultValue: pageDetails = {offset, resultsPerPage}
   let (firstRender, setFirstRender) = React.useState(_ => true)
@@ -268,7 +267,7 @@ let make = (
 
     newDict->Dict.set(title, value)
     setOffset(_ => offsetVal(0))
-    setPageDetails(._ => newDict)
+    setPageDetails(_ => newDict)
   }
   let url = RescriptReactRouter.useUrl()
 
@@ -276,7 +275,7 @@ let make = (
     setFirstRender(_ => false)
     setOffset(_ => pageDetail.offset)
     None
-  }, [url.path->List.toArray->Array.joinWith("/")])
+  }, [url.path->List.toArray->Array.joinWithUnsafe("/")])
 
   React.useEffect1(_ => {
     if pageDetail.offset !== offset && !firstRender {
@@ -287,7 +286,7 @@ let make = (
 
       let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
       newDict->Dict.set(title, value)
-      setPageDetails(._ => newDict)
+      setPageDetails(_ => newDict)
     }
     None
   }, [offset])
@@ -305,7 +304,7 @@ let make = (
     let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
 
     newDict->Dict.set(title, value)
-    setPageDetails(._ => newDict)
+    setPageDetails(_ => newDict)
   }
 
   let (columnFilter, setColumnFilterOrig) = React.useState(_ => Dict.make())
