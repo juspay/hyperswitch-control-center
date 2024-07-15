@@ -46,30 +46,31 @@ let make = () => {
 
   sessionExpired := false
 
-  let getAgreementEnum = async () => {
-    try {
-      let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl(getURL)
-      let response = await fetchDetails(url)
+  // NOTE: Commented as of now as the agreement gets frequently changed
+  // let getAgreementEnum = async () => {
+  //   try {
+  //     let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl(getURL)
+  //     let response = await fetchDetails(url)
 
-      let productionAgreementResponse =
-        response
-        ->getArrayFromJson([])
-        ->Array.find(ele => {
-          ele->getDictFromJsonObject->getBool("ProductionAgreement", false)
-        })
-        ->Option.getOr(JSON.Encode.null)
+  //     let productionAgreementResponse =
+  //       response
+  //       ->getArrayFromJson([])
+  //       ->Array.find(ele => {
+  //         ele->getDictFromJsonObject->getBool("ProductionAgreement", false)
+  //       })
+  //       ->Option.getOr(JSON.Encode.null)
 
-      if productionAgreementResponse->getDictFromJsonObject->getBool("ProductionAgreement", false) {
-        setDashboardPageState(_ => #PROD_ONBOARDING)
-      } else {
-        setDashboardPageState(_ => #AGREEMENT_SIGNATURE)
-      }
-    } catch {
-    | _ =>
-      setDashboardPageState(_ => #HOME)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    }
-  }
+  //     if productionAgreementResponse->getDictFromJsonObject->getBool("ProductionAgreement", false) {
+  //       setDashboardPageState(_ => #PROD_ONBOARDING)
+  //     } else {
+  //       setDashboardPageState(_ => #AGREEMENT_SIGNATURE)
+  //     }
+  //   } catch {
+  //   | _ =>
+  //     setDashboardPageState(_ => #HOME)
+  //     setScreenState(_ => PageLoaderWrapper.Success)
+  //   }
+  // }
 
   let fetchInitialEnums = async () => {
     try {
@@ -159,7 +160,7 @@ let make = () => {
       }
 
       if featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
-        getAgreementEnum()->ignore
+        setDashboardPageState(_ => #PROD_ONBOARDING)
       } else {
         setDashboardPageState(_ => #HOME)
       }
@@ -209,7 +210,7 @@ let make = () => {
         | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
         | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
         | #INTEGRATION_DOC => <UserOnboarding />
-        | #AGREEMENT_SIGNATURE => <HSwitchAgreementScreen />
+        // | #AGREEMENT_SIGNATURE => <HSwitchAgreementScreen />
         | #PROD_ONBOARDING => <ProdOnboardingLanding />
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
