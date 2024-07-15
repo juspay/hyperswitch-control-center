@@ -1,15 +1,9 @@
 @react.component
 let make = () => {
   open LogicUtils
-  open Promise
   open PaymentAnalyticsEntity
   open APIUtils
   open HSAnalyticsUtils
-  let updateDetails = useUpdateMethod()
-  let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
-  let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
-  let {updateExistingKeys, filterValueJson} = React.useContext(FilterContext.filterContext)
-  let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
   let getURL = useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (metrics, setMetrics) = React.useState(_ => [])
@@ -147,86 +141,6 @@ let make = () => {
     ->JSON.stringify
   }
 
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~origin="analytics",
-    (),
-  )
-
-  React.useEffect0(() => {
-    setInitialFilters()
-    None
-  })
-
-  let startTimeVal = filterValueJson->getString("startTime", "")
-  let endTimeVal = filterValueJson->getString("endTime", "")
-
-  let filterUri = `${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`
-
-  let filterBody = React.useMemo3(() => {
-    let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
-      startTime: startTimeVal,
-      endTime: endTimeVal,
-      groupByNames: tabKeys,
-      source: "BATCH",
-    }
-    AnalyticsUtils.filterBody(filterBodyEntity)
-  }, (startTimeVal, endTimeVal, tabKeys->Array.joinWith(",")))
-
-  let body = filterBody->JSON.Encode.object
-
-  React.useEffect3(() => {
-    setFilterDataJson(_ => None)
-    if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
-      try {
-        updateDetails(filterUri, body, Post, ())
-        ->thenResolve(json => setFilterDataJson(_ => json->Some))
-        ->catch(_ => resolve())
-        ->ignore
-      } catch {
-      | _ => ()
-      }
-    }
-    None
-  }, (startTimeVal, endTimeVal, body->JSON.stringify))
-
-  let topFilterUi = switch filterDataJson {
-  | Some(filterData) =>
-    <div className="flex flex-row">
-      <DynamicFilter
-        initialFilters={initialFilterFields(filterData)}
-        options=[]
-        popupFilterFields={options(filterData)}
-        initialFixedFilters={initialFixedFilterFields(filterData)}
-        defaultFilterKeys=defaultFilters
-        tabNames=tabKeys
-        updateUrlWith=updateExistingKeys
-        key="0"
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-        showCustomFilter=false
-        refreshFilters=false
-      />
-    </div>
-  | None =>
-    <div className="flex flex-row">
-      <DynamicFilter
-        initialFilters=[]
-        options=[]
-        popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(filterData)}
-        defaultFilterKeys=defaultFilters
-        tabNames=tabKeys
-        updateUrlWith=updateExistingKeys //
-        key="1"
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-        showCustomFilter=false
-        refreshFilters=false
-      />
-    </div>
-  }
-
   open AnalyticsNew
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
     <div className="flex flex-col gap-5">
@@ -238,7 +152,7 @@ let make = () => {
       </div>
       <div
         className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
-        topFilterUi
+        <FilterComponent startTimeFilterKey endTimeFilterKey domain tabKeys />
       </div>
       <div className="flex flex-col gap-14">
         <MetricsState
