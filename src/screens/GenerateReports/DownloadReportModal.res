@@ -12,7 +12,7 @@ type startAndEndTime = {
   endTime: JSON.t,
 }
 
-type timeRange = {timeRange: startAndEndTime, dimensions: array<string>}
+type timeRange = {timeRange: startAndEndTime}
 
 @react.component
 let make = (~reportModal, ~setReportModal, ~entityName) => {
@@ -47,22 +47,15 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
     let gte = dateCreatedDict->getJsonObjectFromDict("gte")
     let lte = dateCreatedDict->getJsonObjectFromDict("lte")
 
-    let dateRange = Dict.make()
-    dateRange->Dict.set("startTime", gte)
-    dateRange->Dict.set("endTime", lte)
-
-    let metadata = Dict.make()
-    metadata->Dict.set("date-range", dateRange)
-    mixpanelEvent(~eventName="generate_reports_download", ~metadata, ())
-
     let body = {
       timeRange: {
         startTime: gte,
         endTime: lte,
       },
-      dimensions: [],
-    }->Identity.genericTypeToJson
-    downloadReport(body)
+    }
+    let metadata = body->Identity.genericTypeToDictOfJson
+    mixpanelEvent(~eventName="generate_reports_download", ~metadata, ())
+    downloadReport(body->Identity.genericTypeToJson)
   }
 
   let getPreviousDate = () => {

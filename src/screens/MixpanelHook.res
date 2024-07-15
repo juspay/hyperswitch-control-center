@@ -34,8 +34,13 @@ let useSendEvent = () => {
 
   let mixpanel_token = Window.env.mixpanelToken
 
-  let url = RescriptReactRouter.useUrl()
-  let endpoint = url.path->List.toArray->Array.get(1)->Option.getOr("")
+  let getUrlEndpoint = () => {
+    let url = RescriptReactRouter.useUrl()
+    switch GlobalVars.dashboardBasePath {
+    | Some(_) => url.path->List.toArray->Array.get(1)->Option.getOr("")
+    | _ => url.path->List.toArray->Array.get(0)->Option.getOr("")
+    }
+  }
 
   let trackApi = async (
     ~email,
@@ -82,7 +87,7 @@ let useSendEvent = () => {
   }
 
   (~eventName, ~email="", ~description=None, ~section="", ~metadata=Dict.make(), ()) => {
-    let section = section->LogicUtils.isNonEmptyString ? section : endpoint
+    let section = section->LogicUtils.isNonEmptyString ? section : getUrlEndpoint()
     let eventName = eventName->String.toLowerCase
 
     if featureFlagDetails.mixpanel {
