@@ -34,8 +34,9 @@ let useSendEvent = () => {
 
   let mixpanel_token = Window.env.mixpanelToken
 
+  let url = RescriptReactRouter.useUrl()
+
   let getUrlEndpoint = () => {
-    let url = RescriptReactRouter.useUrl()
     switch GlobalVars.dashboardBasePath {
     | Some(_) => url.path->List.toArray->Array.get(1)->Option.getOr("")
     | _ => url.path->List.toArray->Array.get(0)->Option.getOr("")
