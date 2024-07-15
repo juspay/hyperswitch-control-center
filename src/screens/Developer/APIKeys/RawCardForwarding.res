@@ -43,7 +43,7 @@ let pkKey = FormRenderer.makeFieldInfo(
   ~label="Public Key",
   ~name="public_key",
   ~placeholder="Public Key",
-  ~customInput=InputFields.multiLineTextInput(~isDisabled=false, ~rows=Some(1), ~cols=Some(85), ()),
+  ~customInput=InputFields.textInput(),
   ~isRequired=true,
   (),
 )
@@ -82,11 +82,12 @@ let make = () => {
       form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
       form.resetFieldState("public_key")
       form.resetFieldState("raw_card_ttl")
-      showToast(~message="Successful", ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message="Card forwarding successful", ~toastType=ToastState.ToastSuccess, ())
     } catch {
     | Exn.Error(e) =>
       switch Exn.message(e) {
-      | Some(_error) => showToast(~message="Failed", ~toastType=ToastState.ToastError, ())
+      | Some(_error) =>
+        showToast(~message="Raw card forwarding failed", ~toastType=ToastState.ToastError, ())
       | None => ()
       }
     }
@@ -112,9 +113,9 @@ let make = () => {
             <FormRenderer.FieldRenderer
               fieldWrapperClass="w-80" field=keyExpiryCustomDate errorClass
             />
-            <div className="mt-9 self-start">
+            <div className="self-start">
               <FormRenderer.SubmitButton
-                text="Submit" buttonSize={Small} loadingText="Sending..." customHeightClass="h-10"
+                text="Submit" buttonSize={Small} loadingText="Sending..." customHeightClass=""
               />
             </div>
           </div>
