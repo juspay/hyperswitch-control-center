@@ -4,6 +4,11 @@ let make = (~entityName) => {
   let (reportModal, setReportModal) = React.useState(_ => false)
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
+  let accessForGenerateReports = PermissionUtils.hasAnyPermission(
+    userPermissionJson.operationsView,
+    userPermissionJson.analyticsView,
+  )
+
   <>
     <ACLButton
       text="Generate Reports"
@@ -13,7 +18,7 @@ let make = (~entityName) => {
         setReportModal(_ => true)
         mixpanelEvent(~eventName="generate_reports", ())
       }}
-      access={userPermissionJson.operationsManage}
+      access={accessForGenerateReports}
       toolTipPosition={Left}
     />
     <UIUtils.RenderIf condition={reportModal}>
