@@ -135,7 +135,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let (collapseTab, setCollapseTab) = React.useState(_ => false)
-  let (activeTab, setActiveTab) = React.useState(_ => [])
+  let (activeTab, setActiveTab) = React.useState(_ => ["Log Details"])
 
   let tabKeys = tabkeys->Array.map(item => {
     item->getTabKeyName(selectedOption.optionType)
