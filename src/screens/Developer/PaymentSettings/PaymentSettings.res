@@ -67,21 +67,21 @@ module AuthorizationInput = {
       checked: true,
     }
 
-    <>
-      <FormRenderer.DesktopRow>
+    <div className="flex gap-4">
+      <FormRenderer.DesktopRow wrapperClass="flex-1">
         <div className="mt-5">
           <TextInput input={keyInput} placeholder={""} />
         </div>
         <div className="mt-5">
           <TextInput input={valueInput} placeholder={""} />
         </div>
-        <UIUtils.RenderIf condition={index > 0}>
-          <div className="mt-6">
-            <ModalCloseIcon onClick={_ev => removeAuthHeaders(index, key)} />
-          </div>
-        </UIUtils.RenderIf>
       </FormRenderer.DesktopRow>
-    </>
+      <UIUtils.RenderIf condition={index > 0}>
+        <div className="mt-6 flex gap-4">
+          <ModalCloseIcon onClick={_ev => removeAuthHeaders(index, key)} />
+        </div>
+      </UIUtils.RenderIf>
+    </div>
   }
 }
 module WebHookAuthorizationHeaders = {
@@ -123,20 +123,28 @@ module WebHookAuthorizationHeaders = {
       }
     }
 
-    <>
-      <div className="">
-        {authHeaders
-        ->Array.mapWithIndex((_, index) => {
-          <React.Fragment key={index->Int.toString}>
+    <div className="flex-1">
+      {authHeaders
+      ->Array.mapWithIndex((_, index) => {
+        <div className="grid grid-cols-5 flex gap-4">
+          <div key={index->Int.toString} className=" col-span-4">
             <AuthorizationInput removeAuthHeaders index />
-          </React.Fragment>
-        })
-        ->React.array}
-        <div onClick={_ev => addAuthHeaders()}>
-          <Icon name="plus" size=48 />
+          </div>
+          <UIUtils.RenderIf condition={index === authHeaders->Array.length - 1}>
+            <div className="flex justify-start items-center mt-4">
+              <Icon
+                name="plus-circle"
+                size=27
+                customIconColor="text-gray-400"
+                className="flex items-center justify-center w-fit h-fit"
+                onClick={_ev => addAuthHeaders()}
+              />
+            </div>
+          </UIUtils.RenderIf>
         </div>
-      </div>
-    </>
+      })
+      ->React.array}
+    </div>
   }
 }
 module WebHook = {
@@ -157,7 +165,7 @@ module WebHook = {
           fieldWrapperClass="max-w-xl"
         />
       </FormRenderer.DesktopRow>
-      <FormRenderer.DesktopRow>
+      <FormRenderer.DesktopRow wrapperClass="items-center">
         <p
           className={`pt-2 pb-2 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 !text-base !text-grey-700 font-semibold ml-1`}>
           {"Authorization"->React.string}
