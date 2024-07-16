@@ -323,8 +323,7 @@ let make = () => {
                 <div>
                   <div className="font-bold"> {React.string("Rule Based Configuration")} </div>
                   <div className="w-full text-jp-gray-700 dark:text-jp-gray-700 text-justify">
-                    {"Rule-Based Configuration allows for detailed smart routing logic based on multiple dimensions of a payment. You can create any number of conditions using various dimensions and logical operators. For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% to Adyen. Ensure to enter the payment amount in the smallest currency unit (e.g., cents for USD, yen for JPY). 
-            For instance, pass 100 to charge $1.00 (USD) and ¥100 (JPY) since ¥ is a zero-decimal currency."->React.string}
+                    {"Rule-Based Configuration allows for detailed smart routing logic based on multiple dimensions of a payment. You can create any number of conditions using various dimensions and logical operators. For example: If amount is > 100 and currency is USD, enforce 3DS authentication .Enter the payment amount in the smallest currency unit (e.g., cents for USD, yen for JPY). For instance, pass 100 to charge $1.00 (USD) or ¥100 (JPY)."->React.string}
                   </div>
                 </div>
               </div>
