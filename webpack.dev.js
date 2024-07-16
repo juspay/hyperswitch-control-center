@@ -39,8 +39,9 @@ let devServer = {
     rewrites: [{ from: /^\/dashboard/, to: "/index.html" }],
   },
   proxy: proxy,
-  onBeforeSetupMiddleware: (devServer) => {
+  setupMiddlewares: (middlewares, devServer) => {
     devServer.app.use(configMiddleware);
+    return middlewares;
   },
 };
 
