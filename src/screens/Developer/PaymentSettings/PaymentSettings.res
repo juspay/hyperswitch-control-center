@@ -26,6 +26,156 @@ module InfoViewForWebhooks = {
   }
 }
 
+module AuthorizationInput = {
+  @react.component
+  let make = (~removeAuthHeaders, ~index) => {
+    let (key, setKey) = React.useState(_ => "")
+    let (metaValue, setValue) = React.useState(_ => "")
+    let form = ReactFinalForm.useForm()
+    let name = `outgoing_webhook_custom_http_headers.${key}`
+    let keyInput: ReactFinalForm.fieldRenderPropsInput = {
+      name: "string",
+      onBlur: _ev => {
+        if key->Js.String.length > 0 {
+          form.change(name, metaValue->JSON.Encode.string)
+        }
+      },
+      onChange: ev => {
+        let value = ReactEvent.Form.target(ev)["value"]
+        setKey(_ => value)
+      },
+      onFocus: _ev => {
+        if key->Js.String.length > 0 {
+          form.change(name, JSON.Encode.null)
+        }
+      },
+      value: key->JSON.Encode.string,
+      checked: true,
+    }
+
+    let valueInput: ReactFinalForm.fieldRenderPropsInput = {
+      name: "string",
+      onBlur: _ev => {
+        form.change(name, metaValue->JSON.Encode.string)
+      },
+      onChange: ev => {
+        let value = ReactEvent.Form.target(ev)["value"]
+        setValue(_ => value)
+      },
+      onFocus: _ev => (),
+      value: metaValue->JSON.Encode.string,
+      checked: true,
+    }
+
+    <>
+      <FormRenderer.DesktopRow>
+        <div className="mt-5">
+          <TextInput input={keyInput} placeholder={""} />
+        </div>
+        <div className="mt-5">
+          <TextInput input={valueInput} placeholder={""} />
+        </div>
+        <UIUtils.RenderIf condition={index > 0}>
+          <div className="mt-6">
+            <ModalCloseIcon onClick={_ev => removeAuthHeaders(index, key)} />
+          </div>
+        </UIUtils.RenderIf>
+      </FormRenderer.DesktopRow>
+    </>
+  }
+}
+module WebHookAuthorizationHeaders = {
+  @react.component
+  let make = () => {
+    open LogicUtils
+    let form = ReactFinalForm.useForm()
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let (authHeaders, setAuthHeaders) = React.useState(_ => [0])
+    let formValuesRef = React.useRef(formState.values)
+
+    React.useEffect1(() => {
+      // Update the ref whenever formState.values changes
+      formValuesRef.current = formState.values
+      None
+    }, [formState.values])
+
+    let removeAuthHeaders = (removeIndex, name) => {
+      let outGoingWebhookDict =
+        formValuesRef.current
+        ->getDictFromJsonObject
+        ->getDictfromDict("outgoing_webhook_custom_http_headers")
+
+      let _ = outGoingWebhookDict->Dict.delete(name)
+      let modified = outGoingWebhookDict->Dict.copy->Identity.genericTypeToJson
+      form.change(`outgoing_webhook_custom_http_headers`, modified)
+
+      setAuthHeaders(prevAuthHeaders =>
+        prevAuthHeaders->Array.filterWithIndex((_, index) => index != removeIndex)
+      )
+    }
+
+    let addAuthHeaders = () => {
+      if authHeaders->Array.length < 4 {
+        let update = authHeaders->Array.concat([authHeaders->Array.length])
+        setAuthHeaders(_ => update)
+      }
+    }
+
+    <>
+      <div className="">
+        {authHeaders
+        ->Array.mapWithIndex((_, index) => {
+          <React.Fragment key={index->Int.toString}>
+            <AuthorizationInput removeAuthHeaders index />
+          </React.Fragment>
+        })
+        ->React.array}
+        <div onClick={_ev => addAuthHeaders()}>
+          <Icon name="plus" size=48 />
+        </div>
+      </div>
+    </>
+  }
+}
+module WebHook = {
+  @react.component
+  let make = () => {
+    let (addAuthHeaders, setAuthHeaders) = React.useState(_ => false)
+
+    let h2RegularTextStyle = `${HSwitchUtils.getTextClass((H3, Leading_1))}`
+
+    <>
+      <div className="ml-5">
+        <p className=h2RegularTextStyle> {"Webhook Setup"->React.string} </p>
+      </div>
+      <FormRenderer.DesktopRow>
+        <FormRenderer.FieldRenderer
+          field={DeveloperUtils.webhookUrl}
+          labelClass="!text-base !text-grey-700 font-semibold"
+          fieldWrapperClass="max-w-xl"
+        />
+      </FormRenderer.DesktopRow>
+      <FormRenderer.DesktopRow>
+        <p
+          className={`pt-2 pb-2 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 !text-base !text-grey-700 font-semibold ml-1`}>
+          {"Authorization"->React.string}
+        </p>
+        <BoolInput.BaseComponent
+          isSelected={addAuthHeaders}
+          setIsSelected={_ => setAuthHeaders(_ => !addAuthHeaders)}
+          isDisabled=false
+          boolCustomClass="rounded-lg"
+        />
+      </FormRenderer.DesktopRow>
+      <UIUtils.RenderIf condition=addAuthHeaders>
+        <WebHookAuthorizationHeaders />
+      </UIUtils.RenderIf>
+    </>
+  }
+}
+
 @react.component
 let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open DeveloperUtils
@@ -143,18 +293,27 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   />
                 </div>
                 <FormRenderer.DesktopRow>
-                  {[webhookUrl, returnUrl]
-                  ->Array.filter(urlField => urlField.label === "Webhook URL" || !webhookOnly)
-                  ->Array.mapWithIndex((field, index) =>
-                    <FormRenderer.FieldRenderer
-                      key={index->Int.toString}
-                      field
-                      errorClass
-                      labelClass="!text-base !text-grey-700 font-semibold"
-                      fieldWrapperClass="max-w-xl"
-                    />
-                  )
-                  ->React.array}
+                  <FormRenderer.FieldRenderer
+                    field={returnUrl}
+                    errorClass
+                    labelClass="!text-base !text-grey-700 font-semibold"
+                    fieldWrapperClass="max-w-xl"
+                  />
+                  <FormRenderer.FieldRenderer
+                    labelClass="!text-base !text-grey-700 font-semibold"
+                    fieldWrapperClass="max-w-xl"
+                    field={FormRenderer.makeFieldInfo(
+                      ~name="collect_shipping_details_from_wallet_connector",
+                      ~label="Collect Shipping Details",
+                      ~customInput=InputFields.boolInput(
+                        ~isDisabled=false,
+                        ~boolCustomClass="rounded-lg",
+                        ~size=Large,
+                        (),
+                      ),
+                      (),
+                    )}
+                  />
                 </FormRenderer.DesktopRow>
                 <UIUtils.RenderIf condition={isBusinessProfileHasThreeds}>
                   <FormRenderer.DesktopRow>
@@ -174,22 +333,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </FormRenderer.DesktopRow>
                 </UIUtils.RenderIf>
-                <FormRenderer.DesktopRow>
-                  <FormRenderer.FieldRenderer
-                    labelClass="!text-base !text-grey-700 font-semibold"
-                    fieldWrapperClass="max-w-xl"
-                    field={FormRenderer.makeFieldInfo(
-                      ~name="collect_shipping_details_from_wallet_connector",
-                      ~label="Collect Shipping Details",
-                      ~customInput=InputFields.boolInput(
-                        ~isDisabled=false,
-                        ~boolCustomClass="rounded-lg",
-                        (),
-                      ),
-                      (),
-                    )}
-                  />
-                </FormRenderer.DesktopRow>
+                <WebHook />
                 <FormRenderer.DesktopRow>
                   <div className="flex justify-start w-full">
                     <FormRenderer.SubmitButton

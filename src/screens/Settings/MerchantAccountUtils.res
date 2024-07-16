@@ -150,7 +150,7 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "authentication_connector_details",
     !(authenticationConnectorDetails->isEmptyDict) ? Some(authenticationConnectorDetails) : None,
   )
-
+  Js.log2(profileDetailsDict, "dict")
   profileDetailsDict
 }
 
