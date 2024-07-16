@@ -107,6 +107,7 @@ let make = () => {
   let showPopUp = PopUpState.useShowPopUp()
   let (showWarning, setShowWarning) = React.useState(_ => true)
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let getWasm = async () => {
     try {
@@ -171,6 +172,7 @@ let make = () => {
 
   let onSubmit = async (values, _) => {
     try {
+      mixpanelEvent(~eventName="surcharge_save", ())
       let surchargePayload = values->buildSurchargePayloadBody
       let getActivateUrl = getURL(~entityName=SURCHARGE, ~methodType=Put, ())
       let _ = await updateDetails(
@@ -228,6 +230,7 @@ let make = () => {
   }
 
   let handleCreateNew = () => {
+    mixpanelEvent(~eventName="create_new_surcharge", ())
     if showWarning {
       showPopUp({
         popUpType: (Warning, WithIcon),
