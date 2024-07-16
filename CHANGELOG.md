@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.15.0
+
+### Bug Fixes
+
+- Generate reports access change ([#980](https://github.com/juspay/hyperswitch-control-center/pull/980)) ([`d5bc21f`](https://github.com/juspay/hyperswitch-control-center/commit/d5bc21f9bc777349e2a3428300f1d080643192c2))
+
+**Full Changelog:** [`2024.07.12.0...2024.07.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.12.0...2024.07.15.0)
+
+- - -
+
 ## 2024.07.12.0
 
 ### Bug Fixes

@@ -83,3 +83,10 @@ let linkForGetShowLinkViaAccess = (~permission, ~url) => {
 }
 
 let cursorStyles = permission => permission === Access ? "cursor-pointer" : "cursor-not-allowed"
+
+let hasAnyPermission = (permission1, permission2) => {
+  switch (permission1, permission2) {
+  | (NoAccess, NoAccess) => NoAccess
+  | (_, _) => Access
+  }
+}
