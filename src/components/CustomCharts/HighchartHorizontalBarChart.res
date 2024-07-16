@@ -81,7 +81,7 @@ let make = (
       barChartData->Array.mapWithIndex((_data, i) => {
         let i = i->Int.toFloat
         let opacity = (length -. i +. 1.) /. (length +. 1.)
-        `${primaryColor},${opacity->Float.toString})`
+        `rgb(var(--color-${primaryColor}),${opacity->Float.toString})`
       })
     }
     let defaultOptions: HighchartsHorizontalBarChart.options = {

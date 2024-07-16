@@ -89,7 +89,7 @@ let make = (
               let i = i->Float.fromInt
               let opacity = (i +. 1.) /. length
               let borderTop = `${(size *. 14.)
-                  ->Float.toString}rem solid ${primaryColor},${opacity->Float.toString})`
+                  ->Float.toString}rem solid rgb(var(--color-${primaryColor}),${opacity->Float.toString})`
 
               let currentWidthRatio = switch widths->Array.get(i->Float.toInt) {
               | Some(width) => width

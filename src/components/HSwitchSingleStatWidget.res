@@ -17,6 +17,11 @@ let make = (
   ~statSentiment: Dict.t<AnalyticsUtils.statSentiment>=Dict.make(),
   ~statThreshold: Dict.t<float>=Dict.make(),
 ) => {
+  let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
+  // open DOMUtils
+  // let styles = document.body->getComputedStyle()
+  // let primaryRgb = styles->getPropertyValue(`--color-${primaryColor}`)
+  // Console.log(("styles", primaryRgb))
   let percentFormat = value => {
     `${Float.toFixedWithPrecision(value, ~digits=2)}%`
   }
@@ -98,7 +103,7 @@ let make = (
     tooltip: {
       enabled: false,
     },
-    colors: ["#006DF9"],
+    colors: [primaryColor],
   }
 
   let series = [
