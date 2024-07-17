@@ -41,6 +41,7 @@ let businessProfileTypeMapper = values => {
     collect_shipping_details_from_wallet_connector: jsonDict->getOptionBool(
       "collect_shipping_details_from_wallet_connector",
     ),
+    is_connector_agnostic_mit_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
     outgoing_webhook_custom_http_headers: !(outgoingWebhookHeades->isEmptyDict)
       ? Some(outgoingWebhookHeades)
       : None,

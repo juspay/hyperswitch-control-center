@@ -148,6 +148,7 @@ type profileEntity = {
   webhook_details: webhookDetails,
   authentication_connector_details: authConnectorDetailsType,
   collect_shipping_details_from_wallet_connector: option<bool>,
+  is_connector_agnostic_mit_enabled: option<bool>,
   outgoing_webhook_custom_http_headers: option<Dict.t<JSON.t>>,
 }
 
