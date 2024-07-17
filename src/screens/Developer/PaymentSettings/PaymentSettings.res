@@ -30,6 +30,7 @@ module AuthenticationInput = {
   @react.component
   let make = (~removeAuthHeaders, ~authHeaders, ~index) => {
     open LogicUtils
+    open FormRenderer
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
@@ -80,14 +81,14 @@ module AuthenticationInput = {
     }
 
     <div className="flex gap-4">
-      <FormRenderer.DesktopRow wrapperClass="flex-1">
+      <DesktopRow wrapperClass="flex-1">
         <div className="mt-5">
           <TextInput input={keyInput} placeholder={"Enter key"} />
         </div>
         <div className="mt-5">
           <TextInput input={valueInput} placeholder={"Enter value"} />
         </div>
-      </FormRenderer.DesktopRow>
+      </DesktopRow>
       <UIUtils.RenderIf condition={authHeaders->Array.length > 1}>
         <div className="mt-6 flex gap-4">
           <ModalCloseIcon onClick={_ev => removeAuthHeaders(index, key)} />
@@ -200,15 +201,16 @@ module WebHook = {
 module ReturnUrl = {
   @react.component
   let make = () => {
+    open FormRenderer
     <>
-      <FormRenderer.DesktopRow>
-        <FormRenderer.FieldRenderer
+      <DesktopRow>
+        <FieldRenderer
           field={DeveloperUtils.returnUrl}
           errorClass={HSwitchUtils.errorClass}
           labelClass="!text-base !text-grey-700 font-semibold"
           fieldWrapperClass="max-w-xl"
         />
-      </FormRenderer.DesktopRow>
+      </DesktopRow>
     </>
   }
 }
@@ -220,6 +222,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open HSwitchUtils
   open MerchantAccountUtils
   open HSwitchSettingTypes
+  open FormRenderer
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let id = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, profileId)
@@ -323,11 +326,11 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     isCopy=true
                   />
                 </div>
-                <FormRenderer.DesktopRow>
-                  <FormRenderer.FieldRenderer
+                <DesktopRow>
+                  <FieldRenderer
                     labelClass="!text-base !text-grey-700 font-semibold"
                     fieldWrapperClass="max-w-xl"
-                    field={FormRenderer.makeFieldInfo(
+                    field={makeFieldInfo(
                       ~name="collect_shipping_details_from_wallet_connector",
                       ~label="Collect Shipping Details",
                       ~customInput=InputFields.boolInput(
@@ -338,10 +341,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       (),
                     )}
                   />
-                  <FormRenderer.FieldRenderer
+                  <FieldRenderer
                     labelClass="!text-base !text-grey-700 font-semibold"
                     fieldWrapperClass="max-w-xl"
-                    field={FormRenderer.makeFieldInfo(
+                    field={makeFieldInfo(
                       ~name="is_connector_agnostic_mit_enabled",
                       ~label="Connector Agnostic",
                       ~customInput=InputFields.boolInput(
@@ -352,10 +355,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       (),
                     )}
                   />
-                </FormRenderer.DesktopRow>
+                </DesktopRow>
                 <UIUtils.RenderIf condition={isBusinessProfileHasThreeds}>
-                  <FormRenderer.DesktopRow>
-                    <FormRenderer.FieldRenderer
+                  <DesktopRow>
+                    <FieldRenderer
                       field={threedsConnectorList
                       ->Array.map(item => item.connector_name)
                       ->authenticationConnectors}
@@ -363,26 +366,26 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       labelClass="!text-base !text-grey-700 font-semibold"
                       fieldWrapperClass="max-w-xl"
                     />
-                    <FormRenderer.FieldRenderer
+                    <FieldRenderer
                       field={threeDsRequestorUrl}
                       errorClass
                       labelClass="!text-base !text-grey-700 font-semibold"
                       fieldWrapperClass="max-w-xl"
                     />
-                  </FormRenderer.DesktopRow>
+                  </DesktopRow>
                 </UIUtils.RenderIf>
                 <ReturnUrl />
                 <WebHook />
-                <FormRenderer.DesktopRow>
+                <DesktopRow>
                   <div className="flex justify-start w-full">
-                    <FormRenderer.SubmitButton
+                    <SubmitButton
                       customSumbitButtonStyle="justify-start"
                       text="Update"
                       buttonType=Button.Primary
                       buttonSize=Button.Small
                     />
                   </div>
-                </FormRenderer.DesktopRow>
+                </DesktopRow>
                 <FormValuesSpy />
               </form>
             }}
