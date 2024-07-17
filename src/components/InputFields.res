@@ -645,12 +645,9 @@ let checkboxInput = (
   />
 }
 
-let boolInput = (
-  ~isDisabled,
-  ~isCheckBox=false,
-  ~boolCustomClass="",
-  ~size: CheckBoxIcon.size=Small,
-  (),
-) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-  <BoolInput input isDisabled isCheckBox boolCustomClass size />
+let boolInput = (~isDisabled, ~isCheckBox=false, ~boolCustomClass="", ()) => (
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder as _,
+) => {
+  <BoolInput input isDisabled isCheckBox boolCustomClass />
 }

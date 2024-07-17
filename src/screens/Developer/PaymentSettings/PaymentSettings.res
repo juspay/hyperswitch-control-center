@@ -336,7 +336,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       ~customInput=InputFields.boolInput(
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg",
-                        ~size=Large,
                         (),
                       ),
                       (),
@@ -351,7 +350,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       ~customInput=InputFields.boolInput(
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg",
-                        ~size=Large,
                         (),
                       ),
                       (),
