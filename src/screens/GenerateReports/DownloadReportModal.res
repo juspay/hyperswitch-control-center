@@ -12,7 +12,7 @@ type startAndEndTime = {
   endTime: JSON.t,
 }
 
-type timeRange = {timeRange: startAndEndTime, dimensions: array<string>}
+type timeRange = {timeRange: startAndEndTime}
 
 @react.component
 let make = (~reportModal, ~setReportModal, ~entityName) => {
@@ -20,6 +20,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let downloadReport = async body => {
     try {
@@ -51,9 +52,10 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
         startTime: gte,
         endTime: lte,
       },
-      dimensions: [],
-    }->Identity.genericTypeToJson
-    downloadReport(body)
+    }
+    let metadata = body->Identity.genericTypeToDictOfJson
+    mixpanelEvent(~eventName="generate_reports_download", ~metadata, ())
+    downloadReport(body->Identity.genericTypeToJson)
   }
 
   let getPreviousDate = () => {
