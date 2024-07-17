@@ -65,6 +65,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
   let url = RescriptReactRouter.useUrl()
 
   let showToast = ToastState.useShowToast()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let frmInfo = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
   let isfrmDisabled = initialValues->getDictFromJsonObject->getBool("disabled", false)
 
@@ -113,6 +114,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
       | _ =>
         <Button
           onClick={_ => {
+            mixpanelEvent(~eventName="frm_step3", ())
             RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/fraud-risk-management"))
           }}
           text="Done"
