@@ -1,7 +1,7 @@
 let validateAPIKeyForm = (values: JSON.t, ~setIsDisabled=_ => (), keys: array<string>, ()) => {
   open LogicUtils
   let errors = Dict.make()
-  let valuesDict = values->getDictFromJsonObject
+  let valuesDict = values->getDictFromJsonObject->getDictfromDict("extended_card_info_config")
 
   keys->Array.forEach(key => {
     let value = getString(valuesDict, key, "")
@@ -41,7 +41,7 @@ let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
 
 let pkKey = FormRenderer.makeFieldInfo(
   ~label="Public Key",
-  ~name="public_key",
+  ~name="extended_card_info_config.public_key",
   ~placeholder="Public Key",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
@@ -50,7 +50,7 @@ let pkKey = FormRenderer.makeFieldInfo(
 
 let keyExpiryCustomDate = FormRenderer.makeFieldInfo(
   ~label="Time Span (min:900s max:3600s)",
-  ~name="raw_card_ttl",
+  ~name="extended_card_info_config.raw_card_ttl",
   ~placeholder="in seconds",
   ~isRequired=true,
   ~customInput=InputFields.numericTextInput(~maxLength=4, ()),
@@ -68,9 +68,6 @@ let make = () => {
 
   let onSubmit = async (values, form: ReactFinalForm.formApi) => {
     try {
-      let body = Dict.make()
-      body->Dict.set("extended_card_info_config", values)
-
       let url = getURL(
         ~entityName=BUSINESS_PROFILE,
         ~methodType=Post,
@@ -78,10 +75,10 @@ let make = () => {
         (),
       )
 
-      let _ = await updateDetails(url, body->JSON.Encode.object, Post, ())
+      let _ = await updateDetails(url, values, Post, ())
       form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
-      form.resetFieldState("public_key")
-      form.resetFieldState("raw_card_ttl")
+      form.resetFieldState("extended_card_info_config.public_key")
+      form.resetFieldState("extended_card_info_config.raw_card_ttl")
       showToast(~message="Card forwarding successful", ~toastType=ToastState.ToastSuccess, ())
     } catch {
     | Exn.Error(e) =>
