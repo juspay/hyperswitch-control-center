@@ -70,15 +70,20 @@ module AuthorizationInput = {
     <div className="flex gap-4">
       <FormRenderer.DesktopRow wrapperClass="flex-1">
         <div className="mt-5">
-          <TextInput input={keyInput} placeholder={""} />
+          <TextInput input={keyInput} placeholder={"Enter key"} />
         </div>
         <div className="mt-5">
-          <TextInput input={valueInput} placeholder={""} />
+          <TextInput input={valueInput} placeholder={"Enter value"} />
         </div>
       </FormRenderer.DesktopRow>
       <UIUtils.RenderIf condition={index > 0}>
         <div className="mt-6 flex gap-4">
           <ModalCloseIcon onClick={_ev => removeAuthHeaders(index, key)} />
+        </div>
+      </UIUtils.RenderIf>
+      <UIUtils.RenderIf condition={index == 0}>
+        <div className="flex bg-transparent text-white items-center mt-4">
+          <p> {"text"->React.string} </p>
         </div>
       </UIUtils.RenderIf>
     </div>
@@ -130,7 +135,7 @@ module WebHookAuthorizationHeaders = {
           <div key={index->Int.toString} className=" col-span-4">
             <AuthorizationInput removeAuthHeaders index />
           </div>
-          <UIUtils.RenderIf condition={index === authHeaders->Array.length - 1}>
+          <UIUtils.RenderIf condition={index === authHeaders->Array.length - 1 && index != 3}>
             <div className="flex justify-start items-center mt-4">
               <Icon
                 name="plus-circle"
@@ -181,6 +186,26 @@ module WebHook = {
       <UIUtils.RenderIf condition=addAuthHeaders>
         <WebHookAuthorizationHeaders />
       </UIUtils.RenderIf>
+    </>
+  }
+}
+
+module ReturnUrl = {
+  @react.component
+  let make = () => {
+    let h2RegularTextStyle = `${HSwitchUtils.getTextClass((H3, Leading_1))}`
+    <>
+      <div className="ml-5">
+        <p className=h2RegularTextStyle> {"Return URL Setup"->React.string} </p>
+      </div>
+      <FormRenderer.DesktopRow>
+        <FormRenderer.FieldRenderer
+          field={DeveloperUtils.returnUrl}
+          errorClass={HSwitchUtils.errorClass}
+          labelClass="!text-base !text-grey-700 font-semibold"
+          fieldWrapperClass="max-w-xl"
+        />
+      </FormRenderer.DesktopRow>
     </>
   }
 }
@@ -351,6 +376,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </FormRenderer.DesktopRow>
                 </UIUtils.RenderIf>
+                <ReturnUrl />
                 <WebHook />
                 <FormRenderer.DesktopRow>
                   <div className="flex justify-start w-full">
