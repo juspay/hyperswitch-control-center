@@ -132,6 +132,21 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     valuesDict->getString("three_ds_requestor_url", "")->getNonEmptyString,
   )
 
+  let outGoingWebHookCustomHttpHeaders = Dict.make()
+  let formValues = valuesDict->getDictfromDict("outgoing_webhook_custom_http_headers")
+
+  let _ =
+    valuesDict
+    ->getDictfromDict("outgoing_webhook_custom_http_headers")
+    ->Dict.keysToArray
+    ->Array.forEach(val => {
+      Js.log2(val, "val")
+      outGoingWebHookCustomHttpHeaders->setOptionString(
+        val,
+        formValues->getString(val, "")->getNonEmptyString,
+      )
+    })
+
   let profileDetailsDict = Dict.make()
   profileDetailsDict->setOptionString(
     "return_url",
@@ -150,7 +165,12 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "authentication_connector_details",
     !(authenticationConnectorDetails->isEmptyDict) ? Some(authenticationConnectorDetails) : None,
   )
-  Js.log2(profileDetailsDict, "dict")
+  profileDetailsDict->setOptionDict(
+    "outgoing_webhook_custom_http_headers",
+    !(outGoingWebHookCustomHttpHeaders->isEmptyDict)
+      ? Some(outGoingWebHookCustomHttpHeaders)
+      : None,
+  )
   profileDetailsDict
 }
 
@@ -398,6 +418,7 @@ let defaultValueForBusinessProfile = {
     three_ds_requestor_url: None,
   },
   collect_shipping_details_from_wallet_connector: None,
+  outgoing_webhook_custom_http_headers: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

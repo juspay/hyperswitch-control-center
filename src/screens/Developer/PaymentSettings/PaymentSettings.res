@@ -139,6 +139,7 @@ module WebHookAuthorizationHeaders = {
     </>
   }
 }
+
 module WebHook = {
   @react.component
   let make = () => {
@@ -294,17 +295,26 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 </div>
                 <FormRenderer.DesktopRow>
                   <FormRenderer.FieldRenderer
-                    field={returnUrl}
-                    errorClass
-                    labelClass="!text-base !text-grey-700 font-semibold"
-                    fieldWrapperClass="max-w-xl"
-                  />
-                  <FormRenderer.FieldRenderer
                     labelClass="!text-base !text-grey-700 font-semibold"
                     fieldWrapperClass="max-w-xl"
                     field={FormRenderer.makeFieldInfo(
                       ~name="collect_shipping_details_from_wallet_connector",
                       ~label="Collect Shipping Details",
+                      ~customInput=InputFields.boolInput(
+                        ~isDisabled=false,
+                        ~boolCustomClass="rounded-lg",
+                        ~size=Large,
+                        (),
+                      ),
+                      (),
+                    )}
+                  />
+                  <FormRenderer.FieldRenderer
+                    labelClass="!text-base !text-grey-700 font-semibold"
+                    fieldWrapperClass="max-w-xl"
+                    field={FormRenderer.makeFieldInfo(
+                      ~name="is_connector_agnostic_mit_enabled",
+                      ~label="Connector Agnostic",
                       ~customInput=InputFields.boolInput(
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg",

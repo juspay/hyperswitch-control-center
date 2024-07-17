@@ -142,6 +142,7 @@ let itemToObjMapper = dict => {
       dict,
       "collect_shipping_details_from_wallet_connector",
     ),
+    outgoing_webhook_custom_http_headers: None,
   }
 }
 
