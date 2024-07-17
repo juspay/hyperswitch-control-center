@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.16.0
+
+### Features
+
+- Feat: load time metric - user journey analytics ([#931](https://github.com/juspay/hyperswitch-control-center/pull/931)) ([`0df6ad4`](https://github.com/juspay/hyperswitch-control-center/commit/0df6ad455678b83a4d018508de06e70cf990a123))
+
+### Bug Fixes
+
+- Audit trail empty log details on load ([#988](https://github.com/juspay/hyperswitch-control-center/pull/988)) ([`1f5428b`](https://github.com/juspay/hyperswitch-control-center/commit/1f5428b4d0384209c41233bc40d778f8624cca99))
+
+### Miscellaneous Tasks
+
+- Mixpanel changes ([#946](https://github.com/juspay/hyperswitch-control-center/pull/946)) ([`9dca413`](https://github.com/juspay/hyperswitch-control-center/commit/9dca4139c3546467bbc908fce7bceed45836d7b0))
+- Inform users about currency denomination in rule based routing ([#997](https://github.com/juspay/hyperswitch-control-center/pull/997)) ([`66c90b6`](https://github.com/juspay/hyperswitch-control-center/commit/66c90b694ec9997c483897b25bde03d288014876))
+- Removed open source tile from Home ([#979](https://github.com/juspay/hyperswitch-control-center/pull/979)) ([`5f6e7ed`](https://github.com/juspay/hyperswitch-control-center/commit/5f6e7ed68a006323b8a4c8d841def3ae5a1f904e))
+
+**Full Changelog:** [`2024.07.15.0...2024.07.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.15.0...2024.07.16.0)
+
+- - -
+
 ## 2024.07.15.0
 
 ### Bug Fixes
