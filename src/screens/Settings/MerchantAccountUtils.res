@@ -140,7 +140,6 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     ->getDictfromDict("outgoing_webhook_custom_http_headers")
     ->Dict.keysToArray
     ->Array.forEach(val => {
-      Js.log2(val, "val")
       outGoingWebHookCustomHttpHeaders->setOptionString(
         val,
         formValues->getString(val, "")->getNonEmptyString,
