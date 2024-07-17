@@ -1,13 +1,5 @@
 @react.component
-let make = (
-  ~to_,
-  ~children,
-  ~openInNewTab=false,
-  ~className=?,
-  ~onClick=?,
-  ~sendMixpanelEvents=false,
-) => {
-  let mixpanelEvent = MixpanelHook.useSendEvent()
+let make = (~to_, ~children, ~openInNewTab=false, ~className=?, ~onClick=?) => {
   let handleClick = React.useCallback1(ev => {
     ReactEvent.Mouse.stopPropagation(ev)
     ReactEvent.Mouse.preventDefault(ev)
@@ -16,11 +8,7 @@ let make = (
     | None => ()
     }
 
-    if sendMixpanelEvents {
-      let eventName = to_->String.replaceRegExp(%re("/^\//"), "")
-      mixpanelEvent(~eventName=`${eventName}`, ())
-    }
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=to_))
+    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=to_))
   }, [to_])
   if openInNewTab {
     if to_->String.trim->LogicUtils.isEmptyString {

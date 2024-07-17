@@ -159,7 +159,7 @@ module Wrapper = {
     ~isFrom3ds=false,
     ~isFromSurcharge=false,
   ) => {
-    let {globalUIConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
     let showToast = ToastState.useShowToast()
     let isMobileView = MatchMedia.useMobileChecker()
     let (isExpanded, setIsExpanded) = React.useState(_ => true)
@@ -352,7 +352,7 @@ module RuleBasedUI = {
     ~setCurrentRouting,
     ~baseUrlForRedirection,
   ) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let rulesJsonPath = `algorithm.data.rules`
     let ruleInput = ReactFinalForm.useField(rulesJsonPath).input
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
@@ -383,9 +383,23 @@ module RuleBasedUI = {
         `}>
         <div>
           <div className="font-bold"> {React.string("Rule Based Configuration")} </div>
-          <div className="w-full text-jp-gray-700 dark:text-jp-gray-700 text-justify">
-            {"Rule Based Configuration is useful when you prefer more granular definition of smart routing logic, based on multiple dimensions involved in a payment. Any number of conditions could be constructed with dimensions and logical operators.
-For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% to Adyen."->React.string}
+          <div className="flex flex-col gap-4">
+            <span className="w-full text-jp-gray-700 dark:text-jp-gray-700 text-justify">
+              {"Rule-Based Configuration allows for detailed smart routing logic based on multiple dimensions of a payment. You can create any number of conditions using various dimensions and logical operators."->React.string}
+            </span>
+            <span className="flex flex-col text-jp-gray-700">
+              {"For example:"->React.string}
+              <p className="flex gap-2 items-center">
+                <div className="p-1 h-fit rounded-full bg-jp-gray-700 ml-2" />
+                {"If card_type = credit && amount > 100, route 60% to Stripe and 40% to Adyen."->React.string}
+              </p>
+            </span>
+            <span className="text-jp-gray-700 text-sm">
+              <i>
+                {"Ensure to enter the payment amount in the smallest currency unit (e.g., cents for USD, yen for JPY). 
+            For instance, pass 100 to charge $1.00 (USD) and ¥100 (JPY) since ¥ is a zero-decimal currency."->React.string}
+              </i>
+            </span>
           </div>
         </div>
       </div>
@@ -442,7 +456,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
           onClick={_ => {
             setCurrentRouting(_ => RoutingTypes.DEFAULTFALLBACK)
             RescriptReactRouter.replace(
-              HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}/default`),
+              GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}/default`),
             )
           }}>
           {"here"->React.string}
@@ -628,9 +642,7 @@ let make = (
       )
       let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
       showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
-      RescriptReactRouter.replace(
-        HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
-      )
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -638,9 +650,7 @@ let make = (
       | Some(message) =>
         if message->String.includes("IR_16") {
           showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
-          RescriptReactRouter.replace(
-            HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
-          )
+          RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
           setScreenState(_ => Success)
         } else {
           showToast(
@@ -657,6 +667,7 @@ let make = (
   let handleDeactivateConfiguration = async _ => {
     try {
       setScreenState(_ => Loading)
+
       let deactivateRoutingURL = `${getURL(
           ~entityName=urlEntityName,
           ~methodType=Post,
@@ -665,9 +676,7 @@ let make = (
       let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
       let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
       showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
-      RescriptReactRouter.replace(
-        HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
-      )
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -740,9 +749,7 @@ let make = (
       setScreenState(_ => Success)
       setShowModal(_ => false)
       if isSaveRule {
-        RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
-        )
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
       }
       Nullable.make(response)
     } catch {

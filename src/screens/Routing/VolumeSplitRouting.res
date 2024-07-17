@@ -45,7 +45,7 @@ module VolumeRoutingView = {
         let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
         showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
+          GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
         )
         setScreenState(_ => Success)
       } catch {
@@ -54,9 +54,7 @@ module VolumeRoutingView = {
         | Some(message) =>
           if message->String.includes("IR_16") {
             showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
-            RescriptReactRouter.replace(
-              HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
-            )
+            RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
             setScreenState(_ => Success)
           } else {
             showToast(
@@ -83,7 +81,7 @@ module VolumeRoutingView = {
         let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
         showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
+          GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
         )
         setScreenState(_ => Success)
       } catch {
@@ -287,7 +285,7 @@ let make = (
         Some("Need atleast 1 Gateway")
       } else {
         let distributionPercentages = gateways->Belt.Array.keepMap(json => {
-          json->JSON.Decode.object->Option.flatMap(getOptionFloat(_, "split"))
+          json->JSON.Decode.object->Option.flatMap(val => val->(getOptionFloat(_, "split")))
         })
         let distributionPercentageSum =
           distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)
@@ -326,7 +324,7 @@ let make = (
       )
       setScreenState(_ => Success)
       if isSaveRule {
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/routing"))
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
       }
       Nullable.make(res)
     } catch {

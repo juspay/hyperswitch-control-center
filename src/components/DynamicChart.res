@@ -9,6 +9,47 @@ type granularity =
   | G_THIRTYMIN
   | G_ONEHOUR
   | G_ONEDAY
+
+let getGranularityString = granularity => {
+  switch granularity {
+  | G_THIRTYSEC => "G_THIRTYSEC"
+  | G_ONEMIN => "G_ONEMIN"
+  | G_FIVEMIN => "G_FIVEMIN"
+  | G_FIFTEENMIN => "G_FIFTEENMIN"
+  | G_THIRTYMIN => "G_THIRTYMIN"
+  | G_ONEHOUR => "G_ONEHOUR"
+  | G_ONEDAY => "G_ONEDAY"
+  }
+}
+
+let getGranularityFormattedText = granularity => {
+  switch granularity {
+  | G_THIRTYSEC => "THIRTY SEC"
+  | G_ONEMIN => "ONE MIN"
+  | G_FIVEMIN => "FIVE MIN"
+  | G_FIFTEENMIN => "FIFTEEN MIN"
+  | G_THIRTYMIN => "THIRTY MIN"
+  | G_ONEHOUR => "ONE HOUR"
+  | G_ONEDAY => "ONE DAY"
+  }
+}
+
+let getGranularity = (~startTime, ~endTime) => {
+  let diff =
+    (endTime->DateTimeUtils.parseAsFloat -. startTime->DateTimeUtils.parseAsFloat) /. (1000. *. 60.) // in minutes
+
+  // startTime
+  if diff < 60. *. 6. {
+    // Smaller than 6 hour
+    [G_FIFTEENMIN, G_FIVEMIN]
+  } else if diff < 60. *. 24. {
+    // Smaller than 1 day
+    [G_ONEHOUR, G_THIRTYMIN, G_FIFTEENMIN, G_FIVEMIN]
+  } else {
+    [G_ONEDAY, G_ONEHOUR, G_THIRTYMIN, G_FIFTEENMIN, G_FIVEMIN]
+  }
+}
+
 type chartEntity = {
   uri: string,
   metrics: array<LineChartUtils.metricsConfig>,
@@ -121,6 +162,7 @@ type entity = {
   chartDescription?: string,
   sortingColumnLegend?: string,
   jsonTransformer?: (string, array<JSON.t>) => array<JSON.t>,
+  disableGranularity?: bool,
 }
 
 let chartMapper = str => {
@@ -164,6 +206,7 @@ let makeEntity = (
   ~chartDescription: option<string>=?,
   ~sortingColumnLegend: option<string>=?,
   ~jsonTransformer: option<(string, array<JSON.t>) => array<JSON.t>>=?,
+  ~disableGranularity=?,
   (),
 ) => {
   let granularity = granularity->Array.length === 0 ? [G_ONEDAY] : granularity
@@ -187,12 +230,13 @@ let makeEntity = (
     ?chartDescription,
     ?sortingColumnLegend,
     ?jsonTransformer,
+    ?disableGranularity,
   }
 }
 
 let useChartFetch = (~setStatusDict) => {
   let fetchApi = AuthHooks.useApiFetcher()
-  let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetch()
+  let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
   let fetchChartData = (updatedChartBody: array<fetchDataConfig>, setState) => {
     open Promise
 
@@ -277,6 +321,79 @@ let chartTypeArr = [
   "Funnel Chart",
 ]
 
+module GranularitySelectBox = {
+  @react.component
+  let make = (~selectedGranularity, ~setSelectedGranularity, ~startTime, ~endTime) => {
+    let options = getGranularity(~startTime, ~endTime)
+
+    open HeadlessUI
+    <>
+      <Menu \"as"="div" className="relative inline-block text-left">
+        {_menuProps =>
+          <div>
+            <Menu.Button
+              className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-3 py-1 font-medium rounded-md hover:bg-opacity-80 bg-white border">
+              {props => {
+                let arrow = props["open"]
+                <>
+                  {selectedGranularity->getGranularityFormattedText->React.string}
+                  <Icon
+                    className={arrow
+                      ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
+                      : `rotate-180 transition duration-[250ms] ml-1 mt-1 opacity-60`}
+                    name="arrow-without-tail"
+                    size=15
+                  />
+                </>
+              }}
+            </Menu.Button>
+            <Transition
+              \"as"="span"
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95">
+              {<Menu.Items
+                className="absolute right-0 z-50 w-36 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                {_props => {
+                  <>
+                    <div className="px-1 py-1 ">
+                      {options
+                      ->Array.mapWithIndex((option, i) =>
+                        <Menu.Item key={i->Int.toString}>
+                          {props =>
+                            <div className="relative">
+                              <button
+                                onClick={_ => setSelectedGranularity(_ => option)}
+                                className={
+                                  let activeClasses = if props["active"] {
+                                    "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                                  } else {
+                                    "group flex rounded-md items-center w-full px-2 py-2 text-sm"
+                                  }
+                                  `${activeClasses} font-medium text-start`
+                                }>
+                                <div className="mr-5">
+                                  {option->getGranularityFormattedText->React.string}
+                                </div>
+                              </button>
+                            </div>}
+                        </Menu.Item>
+                      )
+                      ->React.array}
+                    </div>
+                  </>
+                }}
+              </Menu.Items>}
+            </Transition>
+          </div>}
+      </Menu>
+    </>
+  }
+}
+
 @react.component
 let make = (
   ~entity,
@@ -291,6 +408,7 @@ let make = (
   ~legendType: HighchartTimeSeriesChart.legendType=Table,
   ~comparitionWidget=false,
 ) => {
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let updateChartCompFilters = switch updateUrl {
   | Some(fn) => fn
@@ -298,16 +416,10 @@ let make = (
   }
 
   let {filterValue} = React.useContext(FilterContext.filterContext)
-  let (_switchToMobileView, setSwitchToMobileView) = React.useState(_ => false)
 
   let customFilterKey = switch entity {
   | {customFilterKey} => customFilterKey
   | _ => ""
-  }
-
-  let getGranularity = switch entity {
-  | {getGranularity} => getGranularity
-  | _ => LineChartUtils.getGranularity
   }
 
   let getAllFilter =
@@ -365,7 +477,6 @@ let make = (
   }
 
   let {allFilterDimension, dateFilterKeys, currentMetrics, uriConfig, source} = entity
-
   let enableLoaders = entity.enableLoaders->Option.getOr(true)
 
   let entityAllMetrics = uriConfig->Array.reduce([], (acc, item) =>
@@ -425,17 +536,8 @@ let make = (
   })
 
   let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
-  let (granularity, setGranularity) = React.useState(_ => None)
   let (rawChartData, setRawChartData) = React.useState(_ => None)
-  let (shimmerType, setShimmerType) = React.useState(_ => AnalyticsUtils.Shimmer)
   let (groupKey, setGroupKey) = React.useState(_ => "")
-
-  React.useEffect1(() => {
-    if rawChartData !== None {
-      setShimmerType(_ => SideLoader)
-    }
-    None
-  }, [rawChartData])
 
   let (startTimeFilterKey, endTimeFilterKey) = dateFilterKeys
 
@@ -463,7 +565,7 @@ let make = (
           None
         }
       })
-      ->Array.joinWith("&")
+      ->Array.joinWithUnsafe("&")
 
     (filterSearchParam, getTopLevelFilter->getString(customFilterKey, ""))
   }, [getTopLevelFilter])
@@ -473,12 +575,6 @@ let make = (
   let (chartLoading, setChartLoading) = React.useState(_ => true)
   // By default, total_volume metric will always be there
 
-  let isMobileView = MatchMedia.useMobileChecker()
-
-  React.useEffect1(() => {
-    setSwitchToMobileView(prev => prev || isMobileView)
-    None
-  }, [isMobileView])
   let (statusDict, setStatusDict) = React.useState(_ => Dict.make())
   let fetchChartData = useChartFetch(~setStatusDict)
 
@@ -488,6 +584,16 @@ let make = (
   let endTimeFromUrl = React.useMemo1(() => {
     getTopLevelFilter->getString(endTimeFilterKey, "")
   }, [topFiltersToSearchParam])
+
+  let defaultGranularity = switch getGranularity(
+    ~startTime={startTimeFromUrl},
+    ~endTime={endTimeFromUrl},
+  )->Array.get(0) {
+  | Some(val) => val
+  | _ => G_FIVEMIN
+  }
+
+  let (selectedGranularity, setSelectedGranularity) = React.useState(_ => defaultGranularity)
 
   let topFiltersToSearchParam = React.useMemo1(() => {
     let filterSearchParam =
@@ -502,28 +608,16 @@ let make = (
         | _ => None
         }
       })
-      ->Array.joinWith("&")
+      ->Array.joinWithUnsafe("&")
 
     filterSearchParam
   }, [topFiltersToSearchParam])
 
-  let current_granularity = if (
-    startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString
-  ) {
-    getGranularity(~startTime=startTimeFromUrl, ~endTime=endTimeFromUrl)
-  } else {
-    []
-  }
-
   React.useEffect2(() => {
-    setGranularity(prev => {
-      current_granularity->Array.includes(prev->Option.getOr(""))
-        ? prev
-        : current_granularity->Array.get(0)
-    })
+    setSelectedGranularity(_ => defaultGranularity)
     None
   }, (startTimeFromUrl, endTimeFromUrl))
-  let selectedTabStr = selectedTab->Option.getOr([])->Array.joinWith("")
+  let selectedTabStr = selectedTab->Option.getOr([])->Array.joinWithUnsafe("")
 
   let updatedChartConfigArr = React.useMemo7(() => {
     uriConfig->Array.map(item => {
@@ -539,16 +633,11 @@ let make = (
           },
         )
         ->Dict.fromArray
-      let activeTab = selectedTab->Option.getOr([])->Array.get(0)->Option.getOr("")
-      let granularity = if activeTab === "run_date" {
-        "G_ONEHOUR"->Some
-      } else if activeTab === "run_week" {
-        "G_ONEDAY"->Some
-      } else if activeTab === "run_month" {
-        Some("G_ONEDAY")
-      } else {
-        granularity
-      }
+
+      let granularityOpts =
+        entity.disableGranularity->Option.getOr(false)
+          ? None
+          : selectedGranularity->getGranularityString->Some
 
       {
         uri: item.uri,
@@ -557,7 +646,7 @@ let make = (
         start_time: startTimeFromUrl,
         end_time: endTimeFromUrl,
         filters: Some(JSON.Encode.object(filterValue)),
-        granularityOpts: granularity,
+        granularityOpts,
         delta: false,
         startDateTime: startTimeFromUrl,
         cardinality: Some(cardinalityFromUrl),
@@ -574,7 +663,7 @@ let make = (
     topFiltersToSearchParam,
     cardinalityFromUrl,
     selectedTabStr,
-    granularity,
+    selectedGranularity,
   ))
 
   let updatedChartBody = React.useMemo1(() => {
@@ -709,17 +798,7 @@ let make = (
   let chartTopMetricFromUrl = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
 
   React.useEffect1(() => {
-    let chartType =
-      getChartCompFilters->getString(
-        "chartType",
-        entity.chartTypes->Array.get(0)->Option.getOr(Line)->chartMapper,
-      )
-    if (
-      startTimeFromUrl->isNonEmptyString &&
-      endTimeFilterKey->isNonEmptyString &&
-      (granularity->Option.isSome || chartType !== "Line Chart") &&
-      current_granularity->Array.includes(granularity->Option.getOr(""))
-    ) {
+    if startTimeFromUrl->isNonEmptyString && endTimeFilterKey->isNonEmptyString {
       setChartLoading(_ => enableLoaders)
       fetchChartData(updatedChartBody, setRawChartData)
     }
@@ -737,13 +816,23 @@ let make = (
           <form onSubmit={handleSubmit}>
             <AddDataAttributes attributes=[("data-chart-segment", "Chart-1")]>
               <div
-                className="border rounded bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart pt-7">
-                {if chartLoading && shimmerType === Shimmer {
+                className="border rounded bg-white border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950 dynamicChart">
+                {if chartLoading {
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else if comparitionWidget {
                   <div>
+                    <UIUtils.RenderIf condition={featureFlagDetails.granularity}>
+                      <div className="w-full flex justify-end p-2">
+                        <GranularitySelectBox
+                          selectedGranularity
+                          setSelectedGranularity
+                          startTime={startTimeFromUrl}
+                          endTime={endTimeFromUrl}
+                        />
+                      </div>
+                    </UIUtils.RenderIf>
                     {entityAllMetrics
-                    ->Array.map(selectedMetrics => {
+                    ->Array.mapWithIndex((selectedMetrics, index) => {
                       switch uriConfig->Array.get(0) {
                       | Some(metricsUri) => {
                           let (data, legendData, timeCol) = switch rawChartData
@@ -758,6 +847,7 @@ let make = (
                           }
 
                           <HighchartTimeSeriesChart.LineChart1D
+                            key={index->Int.toString}
                             class="flex overflow-scroll"
                             rawChartData=data
                             selectedMetrics

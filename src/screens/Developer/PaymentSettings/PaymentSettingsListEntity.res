@@ -43,6 +43,10 @@ let itemToObjMapper = dict => {
     authentication_connector_details: dict
     ->getObj("webhook_details", Dict.make())
     ->BusinessProfileMapper.constructAuthConnectorObject,
+    collect_shipping_details_from_wallet_connector: getOptionBool(
+      dict,
+      "collect_shipping_details_from_wallet_connector",
+    ),
   }
 }
 
@@ -62,9 +66,7 @@ let webhookProfileTableEntity = (~permission: CommonAuthTypes.authorization) =>
     ~getShowLink={
       profile =>
         PermissionUtils.linkForGetShowLinkViaAccess(
-          ~url=HSwitchGlobalVars.appendDashboardPath(
-            ~url=`/payment-settings/${profile.profile_id}`,
-          ),
+          ~url=GlobalVars.appendDashboardPath(~url=`/payment-settings/${profile.profile_id}`),
           ~permission,
         )
     },

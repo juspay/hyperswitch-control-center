@@ -238,7 +238,7 @@ let make = () => {
       )
       fetchDetails()->ignore
       setShowWarning(_ => true)
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/3ds"))
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds"))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
     } catch {
@@ -256,7 +256,7 @@ let make = () => {
 
     AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
 
-    switch dict->Dict.get("algorithm")->Option.flatMap(JSON.Decode.object) {
+    switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {
     | Some(jsonDict) => {
         let index = 1
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
@@ -282,7 +282,7 @@ let make = () => {
   }
   let redirectToNewRule = () => {
     setPageView(_ => NEW)
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/3ds?type=new"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds?type=new"))
   }
   let handleCreateNew = () => {
     mixpanelEvent(~eventName="create_new_3ds_rule", ())
@@ -317,7 +317,33 @@ let make = () => {
         <div className="w-full border p-8 bg-white rounded-md ">
           <Form initialValues validate formClass="flex flex-col gap-6 justify-between" onSubmit>
             <BasicDetailsForm isThreeDs=true />
-            <Configure3DSRule wasm />
+            <div>
+              <div
+                className={`flex flex-wrap items-center justify-between p-4 py-8 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850`}>
+                <div>
+                  <div className="font-bold"> {React.string("Rule Based Configuration")} </div>
+                  <div className="flex flex-col gap-4">
+                    <span className="w-full text-jp-gray-700 dark:text-jp-gray-700 text-justify">
+                      {"Rule-Based Configuration allows for detailed smart routing logic based on multiple dimensions of a payment. You can create any number of conditions using various dimensions and logical operators."->React.string}
+                    </span>
+                    <span className="flex flex-col text-jp-gray-700">
+                      {"For example:"->React.string}
+                      <p className="flex gap-2 items-center">
+                        <div className="p-1 h-fit rounded-full bg-jp-gray-700 ml-2" />
+                        {"If amount is > 100 and currency is USD, enforce 3DS authentication ."->React.string}
+                      </p>
+                    </span>
+                    <span className="text-jp-gray-700 text-sm">
+                      <i>
+                        {"Ensure to enter the payment amount in the smallest currency unit (e.g., cents for USD, yen for JPY). 
+            For instance, pass 100 to charge $1.00 (USD) and ¥100 (JPY) since ¥ is a zero-decimal currency."->React.string}
+                      </i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <Configure3DSRule wasm />
+            </div>
             <FormValuesSpy />
             <div className="flex gap-4">
               <Button
@@ -325,7 +351,7 @@ let make = () => {
                 buttonType=Secondary
                 onClick={_ => {
                   setPageView(_ => LANDING)
-                  RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/3ds"))
+                  RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds"))
                 }}
               />
               <FormRenderer.SubmitButton

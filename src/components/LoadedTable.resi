@@ -61,7 +61,7 @@ let make: (
   ~setSummary: ('f => EntityType.summary) => unit=?,
   ~customGetObjects: JSON.t => array<'g>=?,
   ~dataNotFoundComponent: React.element=?,
-  ~renderCard: (~index: int, ~item: 'b, ~onRowClick: React.callback<int, unit>) => React.element=?,
+  ~renderCard: (~index: int, ~item: 'b, ~onRowClick: int => unit) => React.element=?,
   ~tableLocalFilter: bool=?,
   ~tableheadingClass: string=?,
   ~tableBorderClass: string=?,

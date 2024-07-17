@@ -1,12 +1,13 @@
 let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
   open UIUtils
   open CommonAuthTypes
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
   let getFooterLinkComponent = (~btnText, ~authType, ~path) => {
     <div
       onClick={_ => {
         setAuthType(_ => authType)
-        HSwitchGlobalVars.appendDashboardPath(~url=path)->RescriptReactRouter.push
+        GlobalVars.appendDashboardPath(~url=path)->RescriptReactRouter.push
       }}
       className={`text-sm text-center ${textColor.primaryNormal} cursor-pointer hover:underline underline-offset-2`}>
       {btnText->React.string}
@@ -19,14 +20,14 @@ let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
       getFooterLinkComponent(
         ~btnText="or sign in using password",
         ~authType=LoginWithPassword,
-        ~path="/login",
+        ~path=`/login?auth_id${authId}`,
       )
     | LoginWithPassword =>
       <RenderIf condition={isMagicLinkEnabled}>
         {getFooterLinkComponent(
           ~btnText="or sign in with an email",
           ~authType=LoginWithEmail,
-          ~path="/login",
+          ~path=`/login?auth_id${authId}`,
         )}
       </RenderIf>
     | SignUP =>
@@ -57,7 +58,7 @@ let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
 }
 
 let defaultAuthInfo: CommonAuthTypes.commonAuthInfo = {
-  token: "",
+  token: None,
   merchant_id: "",
   name: "",
   email: "",
@@ -71,7 +72,7 @@ let useCommonAuthInfo = () => {
     switch info {
     | BasicAuth({token, merchant_id, name, email, user_role}) =>
       Some({
-        token: token->Option.getOr(""),
+        token: token->Option.getOr("")->LogicUtils.getNonEmptyString,
         merchant_id: merchant_id->Option.getOr(""),
         name: name->Option.getOr(""),
         email: email->Option.getOr(""),

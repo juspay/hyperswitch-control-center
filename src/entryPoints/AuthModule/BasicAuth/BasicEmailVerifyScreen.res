@@ -5,6 +5,7 @@ let make = (~setAuthType) => {
   open LogicUtils
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let getURL = useGetURL()
+
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
@@ -36,7 +37,7 @@ let make = (~setAuthType) => {
     None
   })
   let onClick = () => {
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/login"))
+    AuthUtils.redirectToLogin()
     setAuthType(_ => CommonAuthTypes.LoginWithEmail)
   }
 

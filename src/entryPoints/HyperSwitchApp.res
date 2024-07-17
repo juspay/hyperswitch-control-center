@@ -2,7 +2,7 @@
 let make = () => {
   open UIUtils
   open HSwitchUtils
-  open HSwitchGlobalVars
+  open GlobalVars
   open APIUtils
   open PermissionUtils
   open LogicUtils
@@ -40,6 +40,7 @@ let make = () => {
     : "bg-orange-600/80 border-orange-500 text-grey-700"
 
   let isReconEnabled = merchantDetailsTypedValue.recon_status === Active
+  let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
 
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
 
@@ -109,13 +110,19 @@ let make = () => {
   // }
   let fetchPermissions = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#GET_PERMISSIONS, ~methodType=Get, ())
-      let response = await fetchDetails(`${url}?groups=true`)
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#GET_PERMISSIONS,
+        ~methodType=Get,
+        ~queryParamerters=Some(`groups=true`),
+        (),
+      )
+      let response = await fetchDetails(url)
       let permissionsValue =
         response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
       let permissionJson =
         permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
-      setuserPermissionJson(._ => permissionJson)
+      setuserPermissionJson(_ => permissionJson)
       permissionJson
     } catch {
     | Exn.Error(e) => {
@@ -236,6 +243,9 @@ let make = () => {
                         }}
                       />
                     </div>
+                    <RenderIf condition=isLiveUsersCounterEnabled>
+                      <ActiveUserCounter />
+                    </RenderIf>
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
@@ -447,13 +457,23 @@ let make = () => {
                             entityName="PaymentSettings"
                             remainingPath
                             renderList={() => <PaymentSettingsList />}
-                            renderShow={profileId =>
+                            renderShow={_profileId =>
                               <PaymentSettings webhookOnly=false showFormOnly=false />}
                           />
                         | list{"recon"} =>
                           <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
                             <Recon />
                           </AccessControl>
+                        | list{"upload-files"}
+                        | list{"run-recon"}
+                        | list{"recon-analytics"}
+                        | list{"reports"}
+                        | list{"config-settings"}
+                        | list{"file-processor"} =>
+                          <AccessControl isEnabled=featureFlagDetails.reconV2 permission=Access>
+                            <ReconModule urlList={url.path->urlPath} />
+                          </AccessControl>
+
                         | list{"sdk"} =>
                           <AccessControl
                             isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
@@ -480,7 +500,7 @@ let make = () => {
                             entityName="ConfigurePMTs"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
-                            renderShow={value =>
+                            renderShow={_value =>
                               <UIUtils.RenderIf condition={featureFlagDetails.totp}>
                                 <ModifyTwoFaSettings />
                               </UIUtils.RenderIf>}
@@ -504,7 +524,7 @@ let make = () => {
                                 entityName="ConfigurePMTs"
                                 remainingPath
                                 renderList={() => <PaymentMethodList />}
-                                renderShow={profileId =>
+                                renderShow={_profileId =>
                                   <PaymentSettings webhookOnly=false showFormOnly=false />}
                               />
                             </FilterContext>

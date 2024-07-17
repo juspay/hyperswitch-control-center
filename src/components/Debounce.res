@@ -35,7 +35,7 @@ let makeControlled = (~wait=100, fn: 'a => unit): debounced<'a> => {
     if time->shouldCall {
       call()
     } else {
-      timerId := Some(time->remainingWait->setTimeout(timerExpired, _))
+      timerId := Some(time->remainingWait->(setTimeout(timerExpired, _)))
     }
   }
   and call = () => {
@@ -53,7 +53,7 @@ let makeControlled = (~wait=100, fn: 'a => unit): debounced<'a> => {
     let time = Date.now()->Int.fromFloat
     lastArg := Some(x)
     lastCallTime := Some(time)
-    timerId := Some(wait->setTimeout(timerExpired, _))
+    timerId := Some(wait->(setTimeout(timerExpired, _)))
   }
 
   let scheduled = () =>

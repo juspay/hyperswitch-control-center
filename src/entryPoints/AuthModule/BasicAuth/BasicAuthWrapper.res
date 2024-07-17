@@ -17,7 +17,7 @@ let make = (~children) => {
         let authInfo = BasicAuthUtils.getBasicAuthInfoFromStrorage()
         switch authInfo.token {
         | Some(_) => setAuthStatus(LoggedIn(BasicAuth(authInfo)))
-        | None => setAuthStatus(LoggedOut)
+        | None => setAuthStateToLogout()
         }
       }
     }
@@ -27,7 +27,6 @@ let make = (~children) => {
   <div className="font-inter-style">
     {switch authStatus {
     | LoggedOut => <BasicAuthScreen />
-    | SSOPreLogin(_)
     | PreLogin(_)
     | LoggedIn(_) => children
     | CheckingAuthStatus => <Loader />

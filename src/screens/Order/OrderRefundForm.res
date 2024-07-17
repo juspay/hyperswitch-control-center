@@ -85,7 +85,7 @@ let make = (
     })
     let amountValue = Dict.get(valuesDict, "amount")
 
-    switch amountValue->Option.flatMap(JSON.Decode.float) {
+    switch amountValue->Option.flatMap(obj => obj->JSON.Decode.float) {
     | Some(floatVal) =>
       if floatVal > amoutAvailableToRefund {
         let amountSplitArr =

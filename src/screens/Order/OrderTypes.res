@@ -77,8 +77,14 @@ type order = {
   external_authentication_details: option<JSON.t>,
   payment_token: string,
   shipping: string,
+  shippingEmail: string,
+  shippingPhone: string,
   billing: string,
   billingEmail: string,
+  billingPhone: string,
+  payment_method_billing_address: string,
+  payment_method_billing_phone: string,
+  payment_method_billing_email: string,
   metadata: Dict.t<JSON.t>,
   email: string,
   name: string,
@@ -103,6 +109,7 @@ type order = {
   profile_id: string,
   disputes: array<DisputeTypes.disputes>,
   attempts: array<attempts>,
+  merchant_order_reference_id: string,
 }
 
 type refundsColType =
@@ -198,6 +205,8 @@ type colType =
   | ErrorCode
   | ErrorMessage
   | Metadata
+  | CardNetwork
+  | MerchantOrderReferenceId
 
 type summaryColType =
   | Created
@@ -223,13 +232,21 @@ type aboutPaymentColType =
   | Refunds
   | AuthenticationType
   | CaptureMethod
+  | CardNetwork
 
 type otherDetailsColType =
   | MandateData
   | AmountCapturable
   | ErrorCode
-  | Shipping
-  | Billing
+  | ShippingAddress
+  | ShippingEmail
+  | ShippingPhone
+  | BillingAddress
+  | BillingEmail
+  | BillingPhone
+  | PMBillingAddress
+  | PMBillingPhone
+  | PMBillingEmail
   | Email
   | FirstName
   | LastName
@@ -250,7 +267,7 @@ type otherDetailsColType =
   | FRMName
   | FRMTransactionType
   | FRMStatus
-  | BillingEmail
+  | MerchantOrderReferenceId
 
 type optionObj = {
   urlKey: string,

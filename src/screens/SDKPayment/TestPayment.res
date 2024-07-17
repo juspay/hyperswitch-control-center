@@ -18,6 +18,7 @@ let make = (
   let (clientSecret, setClientSecret) = React.useState(_ => None)
   let (paymentStatus, setPaymentStatus) = React.useState(_ => INCOMPLETE)
   let (paymentId, setPaymentId) = React.useState(_ => None)
+  let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let publishableKey = merchantDetailsValue.publishable_key
   let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(returnUrl)
@@ -99,6 +100,7 @@ let make = (
         statusText="Payment Failed"
         buttonText=successButtonText
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
+        errorMessage
         customWidth
         bgColor="bg-red-failed_page_bg"
         isButtonVisible={paymentId->Option.isSome}
@@ -136,6 +138,7 @@ let make = (
               publishableKey
               sdkType=ELEMENT
               paymentStatus
+              setErrorMessage
               currency={initialValues.currency}
               setPaymentStatus
               elementOptions
@@ -153,6 +156,7 @@ let make = (
           publishableKey
           sdkType=ELEMENT
           paymentStatus
+          setErrorMessage
           currency={initialValues.currency}
           setPaymentStatus
           elementOptions

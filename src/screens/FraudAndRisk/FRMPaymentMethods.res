@@ -17,7 +17,7 @@ module ToggleSwitch = {
     }
 
     <HeadlessUI.Switch checked={isOpen} onChange={_ => handleOnChange()} className={enabledClasses}>
-      {checked => {
+      {_checked => {
         <>
           <div ariaHidden=true className={enabledSpanClasses} />
         </>
@@ -293,10 +293,12 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
   open FRMInfo
   open FRMUtils
   open LogicUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let initialValues = retrivedValues->Option.getOr(Dict.make()->JSON.Encode.object)
 
   let onSubmit = (values, _) => {
     open Promise
+    mixpanelEvent(~eventName="frm_step1", ())
     let valuesDict = values->getDictFromJsonObject
 
     // filter connector frm config having no payment method config

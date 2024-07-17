@@ -9,6 +9,7 @@ let make = () => {
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let isReconEnabled = merchentDetails.recon_status === Active
 
   let onClickForReconRequest = async () => {
@@ -83,7 +84,7 @@ let make = () => {
                 customButtonStyle="w-2/3 rounded-sm !bg-jp-blue-button_blue border border-jp-blue-border_blue mt-4"
                 buttonSize={Small}
                 buttonState={Normal}
-                onClick={v => {
+                onClick={_v => {
                   openReconTab()->ignore
                 }}
               />
@@ -112,7 +113,8 @@ let make = () => {
                   customButtonStyle="w-2/3 rounded-sm !bg-jp-blue-button_blue border border-jp-blue-border_blue mt-4"
                   buttonSize={Small}
                   buttonState={Normal}
-                  onClick={v => {
+                  onClick={_v => {
+                    mixpanelEvent(~eventName="recon_send_an_email", ())
                     onClickForReconRequest()->ignore
                   }}
                 />

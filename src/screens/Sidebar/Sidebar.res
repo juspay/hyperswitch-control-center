@@ -107,7 +107,7 @@ module SidebarItem = {
         }
 
         <RenderIf condition={access !== NoAccess}>
-          <Link to_=redirectionLink sendMixpanelEvents=true>
+          <Link to_=redirectionLink>
             <AddDataAttributes
               attributes=[
                 ("data-testid", name->String.replaceRegExp(%re("/\s/g"), "")->String.toLowerCase),
@@ -147,7 +147,7 @@ module SidebarItem = {
         let {name, icon, iconTag, link, access, ?iconStyles, ?iconSize} = tabOption
 
         <RenderIf condition={access !== NoAccess}>
-          <Link to_={`${link}${getSearchParamByLink(link)}`} sendMixpanelEvents=true>
+          <Link to_={`${link}${getSearchParamByLink(link)}`}>
             <div
               onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
               className={`${textColor} flex flex-row items-center cursor-pointer transition duration-300 ${selectedClass} p-3 ${isExpanded
@@ -208,7 +208,7 @@ module NestedSidebarItem = {
           let linkTagPadding = "pl-2"
 
           <RenderIf condition={access !== NoAccess}>
-            <Link to_={`${link}${getSearchParamByLink(link)}`} sendMixpanelEvents=true>
+            <Link to_={`${link}${getSearchParamByLink(link)}`}>
               <AddDataAttributes
                 attributes=[
                   ("data-testid", name->String.replaceRegExp(%re("/\s/g"), "")->String.toLowerCase),
@@ -221,9 +221,9 @@ module NestedSidebarItem = {
                     <RenderIf condition={iconTag->Belt.Option.isSome && isSideBarExpanded}>
                       <div className=linkTagPadding>
                         <Icon
-                          size={iconSize->Belt.Option.getWithDefault(26)}
-                          name={iconTag->Belt.Option.getWithDefault("")}
-                          className={iconStyles->Belt.Option.getWithDefault("w-26 h-26")}
+                          size={iconSize->Option.getOr(26)}
+                          name={iconTag->Option.getOr("")}
+                          className={iconStyles->Option.getOr("w-26 h-26")}
                         />
                       </div>
                     </RenderIf>
@@ -498,24 +498,21 @@ let make = (
   open UIUtils
   open CommonAuthHooks
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
-    ConfigContext.configContext,
+    ThemeProvider.themeContext,
   )
 
-  let fetchApi = AuthHooks.useApiFetcher()
-  let getURL = APIUtils.useGetURL()
-
+  let handleLogout = APIUtils.useHandleLogout()
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let (openItem, setOpenItem) = React.useState(_ => "")
-  let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let {getFromSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
 
   let minWidthForPinnedState = MatchMedia.useMatchMedia("(min-width: 1280px)")
-  let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
+  // let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
   React.useEffect1(() => {
     if minWidthForPinnedState {
@@ -564,19 +561,30 @@ let make = (
 
   let transformClass = "transform md:translate-x-0 transition"
 
-  let handleLogout = _ => {
-    try {
-      let _ = APIUtils.handleLogout(
-        ~fetchApi,
-        ~setAuthStateToLogout,
-        ~setIsSidebarExpanded,
-        ~clearRecoilValue,
-        ~getURL,
-      )
-    } catch {
-    | Exn.Error(e) => Js.log(e)
-    }
-  }
+  let sidebarScrollbarCss = `
+  @supports (-webkit-appearance: none){
+    .sidebar-scrollbar {
+        scrollbar-width: auto;
+        scrollbar-color: #8a8c8f;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar {
+        display: block;
+        overflow: scroll;
+        height: 4px;
+        width: 5px;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #8a8c8f;
+        border-radius: 3px;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar-track {
+        display: none;
+      }
+}
+  `
 
   <div
     className={`${backgroundColor.primaryNormal} flex group border-r border-jp-gray-500 relative`}>
@@ -605,8 +613,9 @@ let make = (
           <PinIconComponentStates isHSSidebarPinned setIsSidebarExpanded isSidebarExpanded />
         </div>
         <div
-          className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden show-scrollbar"
+          className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar"
           style={ReactDOMStyle.make(~height=`calc(100vh - ${verticalOffset})`, ())}>
+          <style> {React.string(sidebarScrollbarCss)} </style>
           {sidebars
           ->Array.mapWithIndex((tabInfo, index) => {
             switch tabInfo {
@@ -667,7 +676,7 @@ let make = (
                     }
                     `${openClasses} border-none`
                   }>
-                  {buttonProps => <>
+                  {_buttonProps => <>
                     <div className="flex items-center">
                       <div
                         className="inline-block text-offset_white bg-profile-sidebar-blue text-center w-10 h-10 leading-10 rounded-full mr-4">
@@ -708,14 +717,12 @@ let make = (
                           onClick={_ => {
                             panelProps["close"]()
                             RescriptReactRouter.replace(
-                              HSwitchGlobalVars.appendDashboardPath(
-                                ~url="/account-settings/profile",
-                              ),
+                              GlobalVars.appendDashboardPath(~url="/account-settings/profile"),
                             )
                           }}
                           text="Profile"
                         />
-                        <MenuOption onClick={handleLogout} text="Sign out" />
+                        <MenuOption onClick={_ => handleLogout()->ignore} text="Sign out" />
                       </div>
                     }}
                   </Popover.Panel>

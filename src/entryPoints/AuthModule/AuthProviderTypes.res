@@ -1,11 +1,11 @@
 type preLoginType = {
-  token: string,
+  token: option<string>,
   token_type: string,
   email_token: option<string>,
 }
 
 type authInfo = {
-  token: string,
+  token: option<string>,
   merchant_id: string,
   name: string,
   email: string,
@@ -18,7 +18,6 @@ type authType = BasicAuth(BasicAuthTypes.basicAuthInfo) | Auth(authInfo)
 
 type authStatus =
   | LoggedOut
-  | SSOPreLogin(preLoginType)
   | PreLogin(preLoginType)
   | LoggedIn(authType)
   | CheckingAuthStatus

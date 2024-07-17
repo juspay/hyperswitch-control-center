@@ -86,7 +86,7 @@ let getCheckboxText = connectorName => {
 let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let useGetWarningBlockForConnector = connectorName => {
   open ConnectorTypes
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let hightlightedText = `text-base font-normal ${textColor.primaryNormal} underline`
   switch connectorName {
   | Processors(STRIPE) =>
@@ -151,15 +151,15 @@ let getProdApiBody = (
       ),
     ]->LogicUtils.getJsonFromArrayOfJson
 
-  | #ProductionAgreement =>
-    [
-      (
-        (parentVariant :> string),
-        [
-          ("version", HSwitchGlobalVars.agreementVersion->JSON.Encode.string),
-        ]->LogicUtils.getJsonFromArrayOfJson,
-      ),
-    ]->LogicUtils.getJsonFromArrayOfJson
+  | #ProductionAgreement => {
+      let agreementVersion = Window.env.agreementVersion->Option.getOr("")
+      [
+        (
+          (parentVariant :> string),
+          [("version", agreementVersion->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson,
+        ),
+      ]->LogicUtils.getJsonFromArrayOfJson
+    }
   | _ => (parentVariant :> string)->JSON.Encode.string
   }
 }
@@ -178,7 +178,13 @@ let getProdOnboardingUrl = (
     unit,
   ) => string,
 ) => {
-  `${getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Get, ())}?keys=${(enum :> string)}`
+  getURL(
+    ~entityName=USERS,
+    ~userType=#USER_DATA,
+    ~methodType=Get,
+    ~queryParamerters=Some(`keys=${(enum :> string)}`),
+    (),
+  )
 }
 
 let prodOnboardingEnumIntialArray: array<ProdOnboardingTypes.sectionHeadingVariant> = [

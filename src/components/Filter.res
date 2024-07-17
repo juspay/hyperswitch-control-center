@@ -43,7 +43,7 @@ module ClearFilters = {
             | false => None
             }
           })
-          ->Array.joinWith("&")
+          ->Array.joinWithUnsafe("&")
 
         searchStr->FilterUtils.parseFilterString->updateExistingKeys
       }
@@ -70,7 +70,7 @@ module ClearFilters = {
     <UIUtils.RenderIf condition={hasExtraFilters || outsidefilter}>
       <Button
         text
-        customButtonStyle="bg-white rounded-lg !p-2 !h-10 !border"
+        customButtonStyle="bg-white rounded-lg !p-2 !h-10 !border mt-3"
         showBorder=false
         textStyle
         leftIcon
@@ -305,11 +305,11 @@ let make = (
           </UIUtils.RenderIf>
           <UIUtils.RenderIf condition={allFilters->Array.length > 0}>
             <Menu \"as"="div" className="relative inline-block text-left">
-              {menuProps =>
+              {_menuProps =>
                 <div>
                   <Menu.Button
                     className="flex items-center whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg h-10 hover:bg-opacity-80 bg-white border">
-                    {buttonProps => {
+                    {_buttonProps => {
                       <>
                         <Icon className={"mr-2"} name="plus" size=15 />
                         {"Add Filters"->React.string}
@@ -326,7 +326,7 @@ let make = (
                     leaveTo="transform opacity-0 scale-95">
                     {<Menu.Items
                       className="absolute left-0 w-fit z-50 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                      {props => {
+                      {_props => {
                         <>
                           <div className="px-1 py-1">
                             {allFilters
@@ -373,8 +373,10 @@ let make = (
                 </div>}
             </Menu>
           </UIUtils.RenderIf>
+        </div>
+        <div className="flex gap-3 flex-wrap">
           <FormRenderer.FieldsRenderer
-            fields={filterList} labelClass="hidden" fieldWrapperClass="p-0"
+            fields={filterList} labelClass="hidden" fieldWrapperClass="p-0 mt-3"
           />
           <UIUtils.RenderIf condition={count > 0}>
             <ClearFilters defaultFilterKeys ?clearFilters outsidefilter={initalCount > 0} />

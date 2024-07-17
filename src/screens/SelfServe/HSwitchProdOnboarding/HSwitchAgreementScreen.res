@@ -12,7 +12,7 @@ let make = () => {
   let {user_role: userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   React.useEffect1(() => {
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/agreement-signature"))
+    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/agreement-signature"))
     None
   }, [dashboardPageState])
 
@@ -28,6 +28,7 @@ let make = () => {
     }
   }
 
+  let downloadURL = Window.env.agreementUrl->Option.getOr("")
   let downloadPDF = () => {
     let currentDate =
       Date.now()
@@ -36,9 +37,9 @@ let make = () => {
       ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")
 
     //? - For localtesting this condn added
-    if HSwitchGlobalVars.urlFordownloadingAgreementMapper->LogicUtils.isNonEmptyString {
+    if downloadURL->LogicUtils.isNonEmptyString {
       open Promise
-      fetchApi(HSwitchGlobalVars.urlFordownloadingAgreementMapper, ~method_=Get, ())
+      fetchApi(downloadURL, ~method_=Get, ())
       ->then(resp => {
         Fetch.Response.blob(resp)
       })
@@ -137,11 +138,7 @@ let make = () => {
             }
           }}>
           <ReactSuspenseWrapper>
-            <ReactPDFViewerSinglePageLazy
-              url=HSwitchGlobalVars.urlFordownloadingAgreementMapper
-              error=errorState
-              loading={loadingState}
-            />
+            <ReactPDFViewerSinglePageLazy url=downloadURL error=errorState loading={loadingState} />
           </ReactSuspenseWrapper>
         </div>
         <div className="flex items-center gap-2">

@@ -2,6 +2,8 @@ type t
 
 type listener<'ev> = 'ev => unit
 
+type event = {data: string}
+
 @val @scope("window")
 external parent: 't = "parent"
 
@@ -106,8 +108,8 @@ module MatchMedia = {
 
   type queryResponse = {
     matches: bool,
-    addListener: (. matchEvent => unit) => unit,
-    removeListener: (. matchEvent => unit) => unit,
+    addListener: (matchEvent => unit) => unit,
+    removeListener: (matchEvent => unit) => unit,
   }
 }
 
@@ -173,16 +175,16 @@ module Screen = {
   external screenWidth: string = "width"
 }
 
-type date = {getTimezoneOffset: (. unit) => float}
+type date = {getTimezoneOffset: unit => float}
 
 @new external date: unit => date = "Date"
 let date = date()
-let timeZoneOffset = date.getTimezoneOffset(.)->Float.toString
+let timeZoneOffset = date.getTimezoneOffset()->Float.toString
 
 type options = {timeZone: string}
-type dateTimeFormat = {resolvedOptions: (. unit) => options}
+type dateTimeFormat = {resolvedOptions: unit => options}
 @val @scope("Intl")
-external dateTimeFormat: (. unit) => dateTimeFormat = "DateTimeFormat"
+external dateTimeFormat: unit => dateTimeFormat = "DateTimeFormat"
 
 module History = {
   @val @scope(("window", "history"))

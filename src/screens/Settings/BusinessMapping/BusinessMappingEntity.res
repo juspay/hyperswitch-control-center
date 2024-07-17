@@ -23,7 +23,7 @@ module ProfileActions = {
           ->Array.filter(businessProfile => businessProfile.profile_id !== profileId)
           ->Array.concat([res->BusinessProfileMapper.businessProfileTypeMapper])
 
-        setBusinessProfiles(._ => filteredProfileList)
+        setBusinessProfiles(_ => filteredProfileList)
         showToast(~message="Updated profile name!", ~toastType=ToastSuccess, ())
       } catch {
       | _ => showToast(~message="Failed to update profile name!", ~toastType=ToastError, ())
@@ -138,6 +138,10 @@ let itemToObjMapper = dict => {
     authentication_connector_details: dict
     ->getObj("webhook_details", Dict.make())
     ->BusinessProfileMapper.constructAuthConnectorObject,
+    collect_shipping_details_from_wallet_connector: getOptionBool(
+      dict,
+      "collect_shipping_details_from_wallet_connector",
+    ),
   }
 }
 

@@ -54,9 +54,9 @@ let make = (
   let getAllFilter = filterValueJson
   let (isSingleStatVisible, setSingleStatIsVisible) = React.useState(_ => false)
   let parentToken = AuthWrapperUtils.useTokenParent(Original)
-  let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetchNew()
+  let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
   let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
-  let fetchApi = AuthHooks.useApiFetcher(~betaEndpointConfig=?betaEndPointConfig, ())
+  let fetchApi = AuthHooks.useApiFetcher()
 
   let getTopLevelSingleStatFilter = React.useMemo1(() => {
     getAllFilter
@@ -96,7 +96,7 @@ let make = (
           None
         }
       })
-      ->Array.joinWith("&")
+      ->Array.joinWithUnsafe("&")
 
     (
       filterSearchParam,
@@ -260,6 +260,7 @@ let make = (
               (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStatHistoric")]->Dict.fromArray,
+            ~betaEndpointConfig=?betaEndPointConfig,
             (),
           )
           ->addLogsAroundFetch(
@@ -311,6 +312,7 @@ let make = (
               (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
+            ~betaEndpointConfig=?betaEndPointConfig,
             (),
           )
           ->addLogsAroundFetch(~logTitle=`SingleStat data for metrics ${metrics->metrixMapper}`)
@@ -361,6 +363,7 @@ let make = (
               (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStat Time Series")]->Dict.fromArray,
+            ~betaEndpointConfig=?betaEndPointConfig,
             (),
           )
           ->addLogsAroundFetch(
