@@ -26,7 +26,7 @@ module InfoViewForWebhooks = {
   }
 }
 
-module AuthorizationInput = {
+module AuthenticationInput = {
   @react.component
   let make = (~removeAuthHeaders, ~index) => {
     let (key, setKey) = React.useState(_ => "")
@@ -89,7 +89,7 @@ module AuthorizationInput = {
     </div>
   }
 }
-module WebHookAuthorizationHeaders = {
+module WebHookAuthenticationHeaders = {
   @react.component
   let make = () => {
     open LogicUtils
@@ -133,7 +133,7 @@ module WebHookAuthorizationHeaders = {
       ->Array.mapWithIndex((_, index) => {
         <div className="grid grid-cols-5 flex gap-4">
           <div key={index->Int.toString} className=" col-span-4">
-            <AuthorizationInput removeAuthHeaders index />
+            <AuthenticationInput removeAuthHeaders index />
           </div>
           <UIUtils.RenderIf condition={index === authHeaders->Array.length - 1 && index != 3}>
             <div className="flex justify-start items-center mt-4">
@@ -184,7 +184,7 @@ module WebHook = {
         />
       </FormRenderer.DesktopRow>
       <UIUtils.RenderIf condition=addAuthHeaders>
-        <WebHookAuthorizationHeaders />
+        <WebHookAuthenticationHeaders />
       </UIUtils.RenderIf>
     </>
   }
