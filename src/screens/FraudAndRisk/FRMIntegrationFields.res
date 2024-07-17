@@ -191,6 +191,7 @@ let make = (
   let fetchApi = useUpdateMethod()
   let frmName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let (pageState, setPageState) = React.useState(_ => PageLoaderWrapper.Success)
 
@@ -282,6 +283,7 @@ let make = (
   }
 
   let onSubmit = (values, _) => {
+    mixpanelEvent(~eventName="frm_step2", ())
     setPageState(_ => Loading)
     let body = isUpdateFlow ? values->ignoreFields : values
     setFRMValues(body)->ignore
