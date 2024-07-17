@@ -46,31 +46,6 @@ let make = () => {
 
   sessionExpired := false
 
-  let getAgreementEnum = async () => {
-    try {
-      let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl(getURL)
-      let response = await fetchDetails(url)
-
-      let productionAgreementResponse =
-        response
-        ->getArrayFromJson([])
-        ->Array.find(ele => {
-          ele->getDictFromJsonObject->getBool("ProductionAgreement", false)
-        })
-        ->Option.getOr(JSON.Encode.null)
-
-      if productionAgreementResponse->getDictFromJsonObject->getBool("ProductionAgreement", false) {
-        setDashboardPageState(_ => #PROD_ONBOARDING)
-      } else {
-        setDashboardPageState(_ => #AGREEMENT_SIGNATURE)
-      }
-    } catch {
-    | _ =>
-      setDashboardPageState(_ => #HOME)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    }
-  }
-
   let fetchInitialEnums = async () => {
     try {
       let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
@@ -86,28 +61,6 @@ let make = () => {
     }
   }
 
-  // TODO: Move this to prod onboarding form
-  // let fetchOnboardingSurveyDetails = async () => {
-  //   try {
-  //     let url = `${getURL(
-  //         ~entityName=USERS,
-  //         ~userType=#USER_DATA,
-  //         ~methodType=Get,
-  //         (),
-  //       )}?keys=OnboardingSurvey`
-  //     let res = await fetchDetails(url)
-  //     let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
-  //     let onboardingDetailsFilled =
-  //       firstValueFromArray->getDictFromJsonObject->getDictfromDict("OnboardingSurvey")
-  //     let val = onboardingDetailsFilled->Dict.keysToArray->Array.length === 0
-  //     setSurveyModal(_ => val)
-  //   } catch {
-  //   | Exn.Error(e) => {
-  //       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-  //       Exn.raiseError(err)
-  //     }
-  //   }
-  // }
   let fetchPermissions = async () => {
     try {
       let url = getURL(
@@ -139,9 +92,7 @@ let make = () => {
       let permissionJson = await fetchPermissions()
 
       // TODO: Move this to prod onboarding form
-      // if !featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
-      //   let _ = await fetchOnboardingSurveyDetails()
-      // }
+
       if merchantId->isNonEmptyString {
         if (
           permissionJson.connectorsView === Access ||
@@ -159,7 +110,7 @@ let make = () => {
       }
 
       if featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
-        getAgreementEnum()->ignore
+        setDashboardPageState(_ => #PROD_ONBOARDING)
       } else {
         setDashboardPageState(_ => #HOME)
       }
@@ -209,7 +160,6 @@ let make = () => {
         | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
         | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
         | #INTEGRATION_DOC => <UserOnboarding />
-        | #AGREEMENT_SIGNATURE => <HSwitchAgreementScreen />
         | #PROD_ONBOARDING => <ProdOnboardingLanding />
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
