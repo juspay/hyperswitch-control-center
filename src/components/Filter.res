@@ -70,7 +70,7 @@ module ClearFilters = {
     <UIUtils.RenderIf condition={hasExtraFilters || outsidefilter}>
       <Button
         text
-        customButtonStyle="bg-white rounded-lg !p-2 !h-10 !border"
+        customButtonStyle="bg-white rounded-lg !p-2 !h-10 !border mt-3"
         showBorder=false
         textStyle
         leftIcon
@@ -294,7 +294,7 @@ let make = (
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
       <div>
-        <div className={`flex gap-3 items-center flex-wrap ${verticalGap} mb-3`}>
+        <div className={`flex gap-3 items-center flex-wrap ${verticalGap}`}>
           {customLeftView}
           <UIUtils.RenderIf condition={fixedFilters->Array.length > 0}>
             <FormRenderer.FieldsRenderer
@@ -376,7 +376,7 @@ let make = (
         </div>
         <div className="flex gap-3 flex-wrap">
           <FormRenderer.FieldsRenderer
-            fields={filterList} labelClass="hidden" fieldWrapperClass="p-0"
+            fields={filterList} labelClass="hidden" fieldWrapperClass="p-0 mt-3"
           />
           <UIUtils.RenderIf condition={count > 0}>
             <ClearFilters defaultFilterKeys ?clearFilters outsidefilter={initalCount > 0} />

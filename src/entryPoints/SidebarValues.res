@@ -495,7 +495,7 @@ let reconAnalytics = {
 let reconReports = {
   SubLevelLink({
     name: "Reports",
-    link: `reports`,
+    link: `/reports`,
     access: Access,
     searchOptions: [("Recon reports", "")],
   })
@@ -504,7 +504,7 @@ let reconReports = {
 let reconConfigurator = {
   SubLevelLink({
     name: "Configurator",
-    link: `config-settings`,
+    link: `/config-settings`,
     access: Access,
     searchOptions: [("Recon configurator", "")],
   })
@@ -512,7 +512,7 @@ let reconConfigurator = {
 let reconFileProcessor = {
   SubLevelLink({
     name: "File Processor",
-    link: `file-processor`,
+    link: `/file-processor`,
     access: Access,
     searchOptions: [("Recon file processor", "")],
   })
@@ -598,5 +598,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~permissionJson,
     ),
   ]
+
   sidebar
 }
