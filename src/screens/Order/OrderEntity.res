@@ -412,6 +412,7 @@ let allColumns = [
   Status,
   Metadata,
   MerchantOrderReferenceId,
+  AttemptCount,
 ]
 
 let getHeading = (colType: colType) => {
@@ -536,6 +537,8 @@ let getHeading = (colType: colType) => {
       ~showSort=false,
       (),
     )
+  | AttemptCount =>
+    Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt count", ~showSort=false, ())
   }
 }
 
@@ -901,6 +904,7 @@ let getCell = (order, colType: colType): Table.cell => {
       Text(dict->getString("card_network", ""))
     }
   | MerchantOrderReferenceId => Text(order.merchant_order_reference_id)
+  | AttemptCount => Text(order.attempt_count->Int.toString)
   }
 }
 
@@ -1053,6 +1057,7 @@ let itemToObjMapper = dict => {
     disputes: dict->getArrayFromDict("disputes", [])->JSON.Encode.array->DisputesEntity.getDisputes,
     attempts: dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts,
     merchant_order_reference_id: dict->getString("merchant_order_reference_id", ""),
+    attempt_count: dict->getInt("attempt_count", 0),
   }
 }
 
