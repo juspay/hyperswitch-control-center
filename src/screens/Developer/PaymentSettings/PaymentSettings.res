@@ -34,6 +34,14 @@ module AuthenticationInput = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
+    let outGoingWebhookRef = React.useRef(formState.values)
+
+    React.useEffect1(() => {
+      // Update the ref whenever formState.values changes
+      outGoingWebhookRef.current = formState.values
+      None
+    }, [formState.values])
+
     let outGoingWebhookDict =
       formState.values
       ->getDictFromJsonObject
@@ -105,14 +113,16 @@ module WebHookAuthenticationHeaders = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let outGoingWebhookLength =
+    let outGoingWebhookArr =
       formState.values
       ->getDictFromJsonObject
       ->getDictfromDict("outgoing_webhook_custom_http_headers")
       ->Dict.keysToArray
       ->Array.mapWithIndex((_, index) => index)
 
-    let (authHeaders, setAuthHeaders) = React.useState(_ => outGoingWebhookLength)
+    let (authHeaders, setAuthHeaders) = React.useState(_ =>
+      outGoingWebhookArr->Array.length > 0 ? outGoingWebhookArr : [0]
+    )
     let formValuesRef = React.useRef(formState.values)
 
     React.useEffect1(() => {
@@ -127,13 +137,11 @@ module WebHookAuthenticationHeaders = {
         ->getDictFromJsonObject
         ->getDictfromDict("outgoing_webhook_custom_http_headers")
         ->Dict.copy
-
-      let _ = outGoingWebhookDict->Dict.set(name, JSON.Encode.null)
+      outGoingWebhookDict->Dict.set(name, JSON.Encode.null)
       form.change(
         `outgoing_webhook_custom_http_headers`,
         outGoingWebhookDict->Identity.genericTypeToJson,
       )
-
       setAuthHeaders(prevAuthHeaders =>
         prevAuthHeaders->Array.filterWithIndex((_, index) => index != removeIndex)
       )
@@ -231,6 +239,8 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
 
+  let (busiProfieDetails, setBusiProfie) = React.useState(_ => businessProfileDetails)
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
@@ -256,7 +266,8 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id), ())
       let body = values->getBusinessProfilePayload->JSON.Encode.object
-      let _ = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post, ())
+      setBusiProfie(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
       setScreenState(_ => PageLoaderWrapper.Success)
       fetchBusinessProfiles()->ignore
@@ -279,7 +290,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
               link: "/payment-settings",
             },
           ]
-          currentPageTitle={businessProfileDetails.profile_name}
+          currentPageTitle={busiProfieDetails.profile_name}
           cursorStyle="cursor-pointer"
         />
       </UIUtils.RenderIf>
@@ -290,7 +301,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
               : "border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass} `}>
           <ReactFinalForm.Form
             key="merchantAccount"
-            initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
+            initialValues={busiProfieDetails->parseBussinessProfileJson->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
               MerchantAccountUtils.validateMerchantAccountForm(
@@ -308,21 +319,19 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     : "px-2 py-4"} flex flex-col gap-7 overflow-hidden`}>
                 <div className="flex items-center">
                   <InfoViewForWebhooks
-                    heading="Profile ID" subHeading=businessProfileDetails.profile_id isCopy=true
+                    heading="Profile ID" subHeading=busiProfieDetails.profile_id isCopy=true
                   />
                   <InfoViewForWebhooks
-                    heading="Profile Name" subHeading=businessProfileDetails.profile_name
+                    heading="Profile Name" subHeading=busiProfieDetails.profile_name
                   />
                 </div>
                 <div className="flex items-center">
                   <InfoViewForWebhooks
-                    heading="Merchant ID" subHeading={businessProfileDetails.merchant_id}
+                    heading="Merchant ID" subHeading={busiProfieDetails.merchant_id}
                   />
                   <InfoViewForWebhooks
                     heading="Payment Response Hash Key"
-                    subHeading={businessProfileDetails.payment_response_hash_key->Option.getOr(
-                      "NA",
-                    )}
+                    subHeading={busiProfieDetails.payment_response_hash_key->Option.getOr("NA")}
                     isCopy=true
                   />
                 </div>
