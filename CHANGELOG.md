@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.18.0
+
+### Features
+
+- Add support for outgoing webhook custom http headers ([#1001](https://github.com/juspay/hyperswitch-control-center/pull/1001)) ([`f693f41`](https://github.com/juspay/hyperswitch-control-center/commit/f693f410b855fa0eeb039b69cd5674503482d6c0))
+
+### Bug Fixes
+
+- Added attempts count column in payment list table ([#1002](https://github.com/juspay/hyperswitch-control-center/pull/1002)) ([`8ab36fa`](https://github.com/juspay/hyperswitch-control-center/commit/8ab36fa39e6c52ab0cfd06d7aaa8c240857f9cee))
+
+**Full Changelog:** [`2024.07.17.0...2024.07.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.17.0...2024.07.18.0)
+
+- - -
+
 ## 2024.07.17.0
 
 ### Bug Fixes
