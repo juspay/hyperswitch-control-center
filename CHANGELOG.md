@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.17.0
+
+### Bug Fixes
+
+- Removed agreement screen ([#991](https://github.com/juspay/hyperswitch-control-center/pull/991)) ([`ac658fd`](https://github.com/juspay/hyperswitch-control-center/commit/ac658fdfe75243761fb74b88a6409d4c29282f1c))
+
+**Full Changelog:** [`2024.07.16.0...2024.07.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.16.0...2024.07.17.0)
+
+- - -
+
 ## 2024.07.16.0
 
 ### Features
