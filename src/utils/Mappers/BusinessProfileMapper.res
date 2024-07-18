@@ -29,6 +29,7 @@ let businessProfileTypeMapper = values => {
   let jsonDict = values->getDictFromJsonObject
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
   let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
+  let outgoingWebhookHeades = jsonDict->getDictfromDict("outgoing_webhook_custom_http_headers")
   let businessProfile = {
     merchant_id: jsonDict->getString("merchant_id", ""),
     profile_id: jsonDict->getString("profile_id", ""),
@@ -40,6 +41,10 @@ let businessProfileTypeMapper = values => {
     collect_shipping_details_from_wallet_connector: jsonDict->getOptionBool(
       "collect_shipping_details_from_wallet_connector",
     ),
+    is_connector_agnostic_mit_enabled: jsonDict->getOptionBool("is_connector_agnostic_mit_enabled"),
+    outgoing_webhook_custom_http_headers: !(outgoingWebhookHeades->isEmptyDict)
+      ? Some(outgoingWebhookHeades)
+      : None,
   }
   businessProfile
 }

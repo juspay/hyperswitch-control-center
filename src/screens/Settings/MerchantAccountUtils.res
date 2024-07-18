@@ -14,6 +14,8 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     payment_response_hash_key,
     authentication_connector_details,
     collect_shipping_details_from_wallet_connector,
+    outgoing_webhook_custom_http_headers,
+    is_connector_agnostic_mit_enabled,
   } = profileRecord
   let profileInfo =
     [
@@ -42,6 +44,11 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   profileInfo->setOptionString(
     "three_ds_requestor_url",
     authentication_connector_details.three_ds_requestor_url,
+  )
+  profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
+  profileInfo->setOptionDict(
+    "outgoing_webhook_custom_http_headers",
+    outgoing_webhook_custom_http_headers,
   )
 
   profileInfo
@@ -132,6 +139,20 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     valuesDict->getString("three_ds_requestor_url", "")->getNonEmptyString,
   )
 
+  let outGoingWebHookCustomHttpHeaders = Dict.make()
+  let formValues = valuesDict->getDictfromDict("outgoing_webhook_custom_http_headers")
+
+  let _ =
+    valuesDict
+    ->getDictfromDict("outgoing_webhook_custom_http_headers")
+    ->Dict.keysToArray
+    ->Array.forEach(val => {
+      outGoingWebHookCustomHttpHeaders->setOptionString(
+        val,
+        formValues->getString(val, "")->getNonEmptyString,
+      )
+    })
+
   let profileDetailsDict = Dict.make()
   profileDetailsDict->setOptionString(
     "return_url",
@@ -140,6 +161,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   profileDetailsDict->setOptionBool(
     "collect_shipping_details_from_wallet_connector",
     valuesDict->getOptionBool("collect_shipping_details_from_wallet_connector"),
+  )
+  profileDetailsDict->setOptionBool(
+    "is_connector_agnostic_mit_enabled",
+    valuesDict->getOptionBool("is_connector_agnostic_mit_enabled"),
   )
 
   profileDetailsDict->setOptionDict(
@@ -150,7 +175,12 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "authentication_connector_details",
     !(authenticationConnectorDetails->isEmptyDict) ? Some(authenticationConnectorDetails) : None,
   )
-
+  profileDetailsDict->setOptionDict(
+    "outgoing_webhook_custom_http_headers",
+    !(outGoingWebHookCustomHttpHeaders->isEmptyDict)
+      ? Some(outGoingWebHookCustomHttpHeaders)
+      : None,
+  )
   profileDetailsDict
 }
 
@@ -269,6 +299,17 @@ let checkValueChange = (~initialDict, ~valuesDict) => {
           let updatedValue = valuesDict->LogicUtils.getBool(key, false)
           initialValue !== updatedValue
         }
+      | "outgoing_webhook_custom_http_headers" => {
+          let initialDictLength =
+            initialDict
+            ->LogicUtils.getDictfromDict("outgoing_webhook_custom_http_headers")
+            ->Dict.keysToArray
+          let updatedDictLength =
+            valuesDict
+            ->LogicUtils.getDictfromDict("outgoing_webhook_custom_http_headers")
+            ->Dict.keysToArray
+          initialDictLength != updatedDictLength
+        }
       | _ => {
           let initialValue = initialDict->LogicUtils.getString(key, "")
           let updatedValue = valuesDict->LogicUtils.getString(key, "")
@@ -336,14 +377,12 @@ let validateCustom = (key, errors, value, isLiveMode) => {
 let validateMerchantAccountForm = (
   ~values: JSON.t,
   ~fieldsToValidate: array<validationFields>,
-  ~setIsDisabled,
-  ~initialData,
   ~isLiveMode,
 ) => {
   // Need to refactor
   open LogicUtils
   let errors = Dict.make()
-  let initialDict = initialData->getDictFromJsonObject
+
   let valuesDict = values->getDictFromJsonObject
   fieldsToValidate->Array.forEach(key => {
     let value = getString(valuesDict, key->validationFieldsMapper, "")->getNonEmptyString
@@ -371,10 +410,7 @@ let validateMerchantAccountForm = (
     }
   | _ => ()
   }
-  setIsDisabled->Option.mapOr((), disableBtn => {
-    let isValueChanged = checkValueChange(~initialDict, ~valuesDict)
-    disableBtn(_ => !isValueChanged)
-  })
+
   errors->JSON.Encode.object
 }
 
@@ -398,6 +434,8 @@ let defaultValueForBusinessProfile = {
     three_ds_requestor_url: None,
   },
   collect_shipping_details_from_wallet_connector: None,
+  outgoing_webhook_custom_http_headers: None,
+  is_connector_agnostic_mit_enabled: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {
