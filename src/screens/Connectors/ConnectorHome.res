@@ -97,7 +97,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let profileID =
     initialValues->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("profile_id")
 
-  let getPayPalStatus = React.useCallback4(async () => {
+  let getPayPalStatus = React.useCallback(async () => {
     open PayPalFlowUtils
     open LogicUtils
     try {

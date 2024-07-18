@@ -63,7 +63,7 @@ module Provider = {
 let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultFilter=?) => {
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let getAllFilter = filterValueJson
-  let (activeTab, activeTabStr) = React.useMemo1(() => {
+  let (activeTab, activeTabStr) = React.useMemo(() => {
     let activeTabOptionalArr =
       getAllFilter->getOptionStrArrayFromDict(`${chartEntity.moduleName}.tabName`)
     (activeTabOptionalArr, activeTabOptionalArr->Option.getOr([])->Array.joinWithUnsafe(","))
@@ -92,7 +92,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
 
   let {allFilterDimension} = chartEntity
 
-  let sortingParams = React.useMemo1((): option<AnalyticsNewUtils.sortedBasedOn> => {
+  let sortingParams = React.useMemo((): option<AnalyticsNewUtils.sortedBasedOn> => {
     switch chartEntity {
     | {sortingColumnLegend} =>
       Some({
@@ -116,7 +116,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
       (key, value->UrlFetchUtils.getFilterValue)
     })
     ->Dict.fromArray
-  let getTopLevelChartFilter = React.useMemo1(() => {
+  let getTopLevelChartFilter = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
@@ -132,7 +132,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     ->Dict.fromArray
   }, [getAllFilter])
 
-  let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
+  let (topFiltersToSearchParam, customFilter) = React.useMemo(() => {
     let filterSearchParam =
       getTopLevelChartFilter
       ->Dict.toArray
@@ -159,7 +159,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   | _ => customFilter
   }
 
-  let getChartCompFilters = React.useMemo1(() => {
+  let getChartCompFilters = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
@@ -180,7 +180,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     ->Dict.fromArray
   }, [getAllFilter])
 
-  let (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl) = React.useMemo1(() => {
+  let (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl) = React.useMemo(() => {
     let startTimeFromUrl = getTopLevelChartFilter->getString(startTimeFilterKey, "")
     let endTimeFromUrl = getTopLevelChartFilter->getString(endTimeFilterKey, "")
     let filterValueFromUrl =
@@ -548,11 +548,11 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     None
   }, (bottomChartFetchWithCurrentDependecyChange, bottomChartVisible))
 
-  let chartData = React.useMemo4(() => {
+  let chartData = React.useMemo(() => {
     (topChartData, topChartDataLegendData, bottomChartData, bottomChartDataLegendData)
   }, (topChartData, topChartDataLegendData, bottomChartData, bottomChartDataLegendData))
 
-  let value = React.useMemo5(() => {
+  let value = React.useMemo(() => {
     let (
       topChartData,
       topChartDataLegendData,
@@ -623,7 +623,7 @@ module SDKAnalyticsChartContext = {
         (key, value->UrlFetchUtils.getFilterValue)
       })
       ->Dict.fromArray
-    let getTopLevelChartFilter = React.useMemo1(() => {
+    let getTopLevelChartFilter = React.useMemo(() => {
       getAllFilter
       ->Dict.toArray
       ->Belt.Array.keepMap(item => {
@@ -639,7 +639,7 @@ module SDKAnalyticsChartContext = {
       ->Dict.fromArray
     }, [getAllFilter])
 
-    let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
+    let (topFiltersToSearchParam, customFilter) = React.useMemo(() => {
       let filterSearchParam =
         getTopLevelChartFilter
         ->Dict.toArray
@@ -666,7 +666,7 @@ module SDKAnalyticsChartContext = {
     | _ => customFilter
     }
 
-    let getChartCompFilters = React.useMemo1(() => {
+    let getChartCompFilters = React.useMemo(() => {
       getAllFilter
       ->Dict.toArray
       ->Belt.Array.keepMap(item => {
@@ -687,7 +687,7 @@ module SDKAnalyticsChartContext = {
       ->Dict.fromArray
     }, [getAllFilter])
 
-    let (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl) = React.useMemo1(() => {
+    let (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl) = React.useMemo(() => {
       let startTimeFromUrl = getTopLevelChartFilter->getString(startTimeFilterKey, "")
       let endTimeFromUrl = getTopLevelChartFilter->getString(endTimeFilterKey, "")
       let filterValueFromUrl =
@@ -1032,11 +1032,11 @@ module SDKAnalyticsChartContext = {
     //   None
     // }, (bottomChartFetchWithCurrentDependecyChange, bottomChartVisible))
 
-    let chartData = React.useMemo4(() => {
+    let chartData = React.useMemo(() => {
       (topChartData, topChartDataLegendData, bottomChartData, bottomChartDataLegendData)
     }, (topChartData, topChartDataLegendData, bottomChartData, bottomChartDataLegendData))
 
-    let value = React.useMemo5(() => {
+    let value = React.useMemo(() => {
       let (
         topChartData,
         topChartDataLegendData,

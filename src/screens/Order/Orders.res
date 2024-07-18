@@ -15,7 +15,7 @@ let make = (~previewOnly=false) => {
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let isConfigureConnector = connectorList->Array.length > 0
 
-  let (widthClass, heightClass) = React.useMemo1(() => {
+  let (widthClass, heightClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "max-h-96") : ("w-full", "")
   }, [previewOnly])
 
@@ -89,7 +89,7 @@ let make = (~previewOnly=false) => {
 
   let filterUrl = getURL(~entityName=ORDERS, ~methodType=Get, ~id=Some("v2/filter"), ())
 
-  let filtersUI = React.useMemo0(() => {
+  let filtersUI = React.useMemo(() => {
     <RemoteTableFilters
       filterUrl
       setFilters
@@ -102,7 +102,7 @@ let make = (~previewOnly=false) => {
         placeholder="Search payment id" setSearchVal=setSearchText searchVal=searchText
       />}
     />
-  })
+  }, [])
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>

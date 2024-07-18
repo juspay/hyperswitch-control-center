@@ -373,7 +373,7 @@ module SidebarNestedSection = {
       None
     }, (isSideBarExpanded, isAnySubItemSelected))
 
-    let toggleSectionExpansion = React.useCallback4(_ev => {
+    let toggleSectionExpansion = React.useCallback(_ev => {
       if !isSideBarExpanded {
         setIsSidebarExpanded(_ => true)
         setTimeout(() => {
@@ -455,9 +455,9 @@ module PinIconComponentStates = {
     let isMobileView = MatchMedia.useMobileChecker()
     let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
 
-    let toggleExpand = React.useCallback0(_ => {
+    let toggleExpand = React.useCallback(_ => {
       setIsSidebarExpanded(x => !x)
-    })
+    }, [])
 
     let onClick = ev => {
       ev->ReactEvent.Mouse.preventDefault

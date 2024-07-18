@@ -88,7 +88,7 @@ let make = () => {
     }
   }
 
-  let connectorDetails = React.useMemo1(() => {
+  let connectorDetails = React.useMemo(() => {
     try {
       if connectorName->LogicUtils.isNonEmptyString {
         let dict = Window.getAuthenticationConnectorConfig(connectorName)

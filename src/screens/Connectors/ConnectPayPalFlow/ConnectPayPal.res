@@ -261,7 +261,7 @@ let make = (
   let activeBusinessProfile =
     defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
-  let updatedInitialVal = React.useMemo1(() => {
+  let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
     if !isUpdateFlow {
       initialValuesToDict->Dict.set(

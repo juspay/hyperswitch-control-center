@@ -3,7 +3,7 @@ let useRemoteFilter = (~searchParams, ~remoteFilters, ~remoteOptions, ~mandatory
     JSON.Encode.object(Dict.make())
   )
 
-  let remoteFiltersFromUrlTemp = React.useMemo1(() => {
+  let remoteFiltersFromUrlTemp = React.useMemo(() => {
     RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
       ~initialFilters=remoteFilters,
@@ -288,7 +288,7 @@ let make = (
     None
   }, [refetchCounter])
 
-  let refetch = React.useCallback1(() => {
+  let refetch = React.useCallback(() => {
     setRefetchCounter(p => p + 1)
   }, [setRefetchCounter])
 

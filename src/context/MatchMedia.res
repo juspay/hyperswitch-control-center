@@ -1,5 +1,5 @@
 let useMatchMedia = mediaQuery => {
-  let mediaQueryList = React.useMemo1(() => {
+  let mediaQueryList = React.useMemo(() => {
     Window.matchMedia(mediaQuery)
   }, [mediaQuery])
 
