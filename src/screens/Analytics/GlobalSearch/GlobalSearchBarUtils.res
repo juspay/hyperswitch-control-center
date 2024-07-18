@@ -269,3 +269,18 @@ let parseResponse = response => {
     }
   })
 }
+
+let generateSearchBody = (~searchText, ~merchant_id) => {
+  if !(searchText->CommonAuthUtils.isValidEmail) {
+    let filters =
+      [
+        ("customer_email", [searchText->JSON.Encode.string]->JSON.Encode.array),
+      ]->LogicUtils.getJsonFromArrayOfJson
+    [
+      ("query", merchant_id->JSON.Encode.string),
+      ("filters", filters),
+    ]->LogicUtils.getJsonFromArrayOfJson
+  } else {
+    [("query", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+  }
+}

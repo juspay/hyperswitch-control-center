@@ -92,11 +92,13 @@ let make = () => {
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
+
   let getSearchResults = async results => {
     try {
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
-      let body = [("query", query->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+      let body = generateSearchBody(~searchText, ~merchant_id={merchantDetailsValue.merchant_id})
       let response = await fetchDetails(url, body, Post, ())
 
       let local_results = []
