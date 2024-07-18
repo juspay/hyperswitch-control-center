@@ -68,7 +68,6 @@ let make = () => {
   let (merchantInfo, setMerchantInfo) = React.useState(() => Dict.make())
   let (formState, setFormState) = React.useState(_ => Preview)
   let (fetchState, setFetchState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (isDisabled, setIsDisabled) = React.useState(_ => false)
   let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let onSubmit = async (values, _) => {
     try {
@@ -139,8 +138,8 @@ let make = () => {
           MerchantAccountUtils.validateMerchantAccountForm(
             ~values,
             ~fieldsToValidate=[PrimaryPhone, PrimaryEmail, Website, SecondaryEmail, SecondaryPhone],
-            ~setIsDisabled=Some(setIsDisabled),
-            ~initialData={merchantInfo->JSON.Encode.object},
+            // ~setIsDisabled=Some(setIsDisabled),
+            // ~initialData={merchantInfo->JSON.Encode.object},
             ~isLiveMode=featureFlagDetails.isLiveMode,
           )
         }}>
@@ -177,7 +176,6 @@ let make = () => {
                   text=buttonText
                   buttonType=Primary
                   buttonSize={Small}
-                  disabledParamter={isDisabled}
                   customSumbitButtonStyle="rounded-sm"
                 />
               </div>
