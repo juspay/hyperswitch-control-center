@@ -419,7 +419,8 @@ let make = () => {
                         | list{"recon-analytics"}
                         | list{"reports"}
                         | list{"config-settings"}
-                        | list{"file-processor"} =>
+                        | list{"file-processor"}
+                        | list{"auth-center"} =>
                           <AccessControl isEnabled=featureFlagDetails.reconV2 permission=Access>
                             <ReconModule urlList={url.path->urlPath} />
                           </AccessControl>

@@ -27,7 +27,8 @@ let make = (~urlList) => {
   | list{"run-recon"}
   | list{"reports"}
   | list{"config-settings"}
-  | list{"file-processor"} =>
+  | list{"file-processor"}
+  | list{"auth-center"} =>
     urlList->List.toArray->Array.joinWithUnsafe("/")
   | list{"recon-analytics"} => "analytics"
   | _ => ""

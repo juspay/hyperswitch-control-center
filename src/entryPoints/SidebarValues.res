@@ -517,6 +517,14 @@ let reconFileProcessor = {
     searchOptions: [("Recon file processor", "")],
   })
 }
+let reconKeyGenerator = {
+  SubLevelLink({
+    name: "Key Generator",
+    link: `/auth-center`,
+    access: Access,
+    searchOptions: [("Recon key generator", "")],
+  })
+}
 
 let reconTag = (recon, isReconEnabled) => {
   recon
@@ -542,6 +550,7 @@ let reconAndSettlement = (recon_v2, isReconEnabled) => {
           reconReports,
           reconConfigurator,
           reconFileProcessor,
+          reconKeyGenerator,
         ],
       })
     : emptyComponent
