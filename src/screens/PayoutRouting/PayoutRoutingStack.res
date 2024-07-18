@@ -39,7 +39,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         renderContent: () => <PayoutCurrentActiveRouting routingType />,
       },
     ]
-  }, [])
+  }, [routingType])
 
   let fetchRoutingRecords = async activeIds => {
     try {
