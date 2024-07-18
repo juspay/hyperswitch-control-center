@@ -14,7 +14,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
 
-  let (widthClass, marginClass) = React.useMemo1(() => {
+  let (widthClass, marginClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
   }, [previewOnly])
 

@@ -36,7 +36,7 @@ let useApiFetcher = () => {
   open Promise
   let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  let token = React.useMemo1(() => {
+  let token = React.useMemo(() => {
     switch authStatus {
     | PreLogin(info) => info.token
     | LoggedIn(info) =>
@@ -49,7 +49,7 @@ let useApiFetcher = () => {
   }, [authStatus])
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
 
-  React.useCallback1(
+  React.useCallback(
     (
       uri,
       ~bodyStr: string="",

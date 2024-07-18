@@ -73,7 +73,7 @@ module ConfigureProcessor = {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let connectorName = selectedConnector->getConnectorNameString
 
-    let connectorDetails = React.useMemo1(() => {
+    let connectorDetails = React.useMemo(() => {
       try {
         if connectorName->LogicUtils.isNonEmptyString {
           Window.getConnectorConfig(connectorName)

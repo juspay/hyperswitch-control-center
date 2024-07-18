@@ -165,7 +165,7 @@ let make = () => {
 
   let filterUri = `${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`
 
-  let filterBody = React.useMemo3(() => {
+  let filterBody = React.useMemo(() => {
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
       startTime: startTimeVal,
       endTime: endTimeVal,

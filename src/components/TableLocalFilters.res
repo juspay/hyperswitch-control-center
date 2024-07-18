@@ -182,7 +182,7 @@ module TextFilterCell = {
       ->Option.getOr([])
       ->Array.get(0)
       ->Option.getOr(""->JSON.Encode.string)
-    let localInput = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
+    let localInput = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
         onBlur: _ev => (),
@@ -241,7 +241,7 @@ module RangeFilterCell = {
         maxVal->JSON.Encode.float,
       ])
 
-    let minSlide = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
+    let minSlide = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
         onBlur: _ev => (),
@@ -261,7 +261,7 @@ module RangeFilterCell = {
       }
     }, [selectedValueStr])
 
-    let maxSlide = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
+    let maxSlide = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
         onBlur: _ev => (),

@@ -393,7 +393,7 @@ let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOpt
 }
 
 let useTransformed = options => {
-  React.useMemo1(() => {
+  React.useMemo(() => {
     options->Array.map(makeNonOptional)
   }, [options])
 }
@@ -469,16 +469,16 @@ module BaseSelect = {
       maxHeight
     }
 
-    let saneValue = React.useMemo1(() =>
+    let saneValue = React.useMemo(() =>
       switch values->JSON.Decode.array {
       | Some(jsonArr) => jsonArr->LogicUtils.getStrArrayFromJsonArray
       | _ => []
       }
     , [values])
 
-    let initialSelectedOptions = React.useMemo0(() => {
+    let initialSelectedOptions = React.useMemo(() => {
       options->Array.filter(item => saneValue->Array.includes(item.value))
-    })
+    }, [])
 
     options->Array.sort((item1, item2) => {
       let item1Index = initialSelectedOptions->Array.findIndex(item => item.label === item1.label)
@@ -1224,7 +1224,7 @@ module BaseRadio = {
     ~showToolTipOptions=false,
     ~textEllipsisForDropDownOptions=false,
   ) => {
-    let options = React.useMemo1(() => {
+    let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
     }, [options])
 
@@ -1319,7 +1319,7 @@ module BaseRadio = {
       }
     }
 
-    let newOptions = React.useMemo3(() => {
+    let newOptions = React.useMemo(() => {
       let options = if selectedString->LogicUtils.isNonEmptyString {
         options->Array.concat([selectedString]->makeOptions->Array.map(makeNonOptional))
       } else {
@@ -1622,7 +1622,7 @@ module BaseDropdown = {
         | None => (buttonText, defaultLeftIcon, "")
         }
 
-    let dropDirection = React.useMemo1(() => {
+    let dropDirection = React.useMemo(() => {
       switch fixedDropDownDirection {
       | Some(dropDownDirection) => dropDownDirection
       | None =>
@@ -1669,7 +1669,7 @@ module BaseDropdown = {
       addButton ? setShowDropDown(_ => true) : setShowDropDown(_ => false)
     }
 
-    let allSellectedOptions = React.useMemo2(() => {
+    let allSellectedOptions = React.useMemo(() => {
       newInputSelect.value
       ->JSON.Decode.array
       ->Option.getOr([])
@@ -1684,7 +1684,7 @@ module BaseDropdown = {
 
     let title = showAllSelectedOptions ? allSellectedOptions : buttonText
 
-    let badgeForSelect = React.useMemo1((): Button.badge => {
+    let badgeForSelect = React.useMemo((): Button.badge => {
       let count = newInputSelect.value->JSON.Decode.array->Option.getOr([])->Array.length
       let condition = count > 1
 
@@ -1985,7 +1985,7 @@ module InfraSelectBox = {
 
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
-    let saneValue = React.useMemo1(() =>
+    let saneValue = React.useMemo(() =>
       switch values->JSON.Decode.array {
       | Some(jsonArr) => jsonArr->LogicUtils.getStrArrayFromJsonArray
       | _ => []
@@ -2054,7 +2054,7 @@ module ChipFilterSelectBox = {
     let passedClassName = "flex items-center m-2 bg-blue-400 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
-    let saneValue = React.useMemo1(() => {
+    let saneValue = React.useMemo(() => {
       values->LogicUtils.getArrayFromJson([])->LogicUtils.getStrArrayFromJsonArray
     }, [values])
 

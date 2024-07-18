@@ -303,7 +303,7 @@ let make = (
     loadDOM()->ignore
     None
   }, [])
-  let hyperPromise = React.useCallback1(async () => {
+  let hyperPromise = React.useCallback(async () => {
     Window.loadHyper(publishableKey)
   }, [publishableKey])
   <PageLoaderWrapper

@@ -31,7 +31,7 @@ let make = (~index: string, ~children) => {
   open FilterUtils
   open LogicUtils
   open SessionStorage
-  let query = React.useMemo0(() => {ref("")})
+  let query = React.useMemo(() => {ref("")}, [])
   let (filterKeys, setfilterKeys) = React.useState(_ => [])
   let searcParamsToDict = query.contents->parseFilterString
   let (filterDict, setfilterDict) = React.useState(_ => searcParamsToDict)
@@ -42,7 +42,7 @@ let make = (~index: string, ~children) => {
     setfilterKeys(_ => [])
   }
 
-  let updateFilter = React.useMemo3(() => {
+  let updateFilter = React.useMemo(() => {
     let updateFilter = (dict: Dict.t<string>) => {
       setfilterDict(prev => {
         let prevDictArr =

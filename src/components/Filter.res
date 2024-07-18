@@ -49,7 +49,7 @@ module ClearFilters = {
       }
     }
 
-    let hasExtraFilters = React.useMemo2(() => {
+    let hasExtraFilters = React.useMemo(() => {
       formState.initialValues
       ->JSON.Decode.object
       ->Option.getOr(Dict.make())

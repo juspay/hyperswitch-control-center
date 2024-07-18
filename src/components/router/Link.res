@@ -1,6 +1,6 @@
 @react.component
 let make = (~to_, ~children, ~openInNewTab=false, ~className=?, ~onClick=?) => {
-  let handleClick = React.useCallback1(ev => {
+  let handleClick = React.useCallback(ev => {
     ReactEvent.Mouse.stopPropagation(ev)
     ReactEvent.Mouse.preventDefault(ev)
     switch onClick {

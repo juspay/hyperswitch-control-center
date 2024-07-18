@@ -112,9 +112,9 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   let marginClass = isInviteUserFlow ? "mt-5" : ""
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
 
-  let initialValues = React.useMemo0(() => {
+  let initialValues = React.useMemo(() => {
     [("roleType", [defaultRole->JSON.Encode.string]->JSON.Encode.array)]->getJsonFromArrayOfJson
-  })
+  }, [])
 
   let getURLForInviteMultipleUser = {
     if totp {
