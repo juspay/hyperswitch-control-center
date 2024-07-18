@@ -221,7 +221,7 @@ let make = () => {
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
   let mixpanelEvent = MixpanelHook.useSendEvent()
-
+  let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let redirectOnSelect = element => {
     mixpanelEvent(~eventName="global_search_redirect", ())
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
@@ -235,12 +235,7 @@ let make = () => {
     try {
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
 
-      let body = if !(searchText->CommonAuthUtils.isValidEmail) {
-        let filters = [("email", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
-        [("query", ""->JSON.Encode.string), ("filters", filters)]->LogicUtils.getJsonFromArrayOfJson
-      } else {
-        [("query", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
-      }
+      let body = generateSearchBody(~searchText, ~merchant_id={merchantDetailsValue.merchant_id})
 
       let response = await fetchDetails(url, body, Post, ())
 
