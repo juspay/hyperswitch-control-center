@@ -254,7 +254,7 @@ module TableWrapper = {
       ->ignore
     }
 
-    React.useEffect3(() => {
+    React.useEffect(() => {
       setShowTable(_ => false)
       if (
         startTimeFromUrl->LogicUtils.isNonEmptyString && endTimeFromUrl->LogicUtils.isNonEmptyString
@@ -566,10 +566,10 @@ let make = (
     (),
   )
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     setInitialFilters()
     None
-  })
+  }, [])
 
   let filterBody = React.useMemo3(() => {
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
@@ -588,7 +588,7 @@ let make = (
   let {filterValueJson} = FilterContext.filterContext->React.useContext
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
-  React.useEffect3(() => {
+  React.useEffect(() => {
     setFilterDataJson(_ => None)
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       try {

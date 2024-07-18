@@ -114,11 +114,11 @@ let make = () => {
     None
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     fetchMerchantInfo()->ignore
     setFormState(_ => Preview)
     None
-  })
+  }, [])
   let buttonText = switch formState {
   | Preview => "Edit"
   | Edit => "Save"

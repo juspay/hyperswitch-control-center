@@ -155,7 +155,7 @@ module ExternalUser = {
       setSelectedMerchantObject(_ => extractMerchantObject)
     }
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       fetchMerchantIDs()
       None
     }, (merchantDetailsTypedValue.merchant_name, switchMerchantList))

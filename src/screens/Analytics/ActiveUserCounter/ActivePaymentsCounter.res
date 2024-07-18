@@ -47,12 +47,12 @@ let make = () => {
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     fetchMetrics(setActivePaymentsCount)->ignore
     None
   }, [timestamp])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let activePaymentsCountInterval = setInterval(() => {
       if healthCheck {
         setTimestamp(_ => Date.now())

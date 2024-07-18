@@ -112,7 +112,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if showPopUp {
       Window.addEventListener("keyup", handleKeyUp)
     } else {

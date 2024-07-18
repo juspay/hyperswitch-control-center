@@ -66,7 +66,7 @@ let make = (~children) => {
     setThemeBase(_ => value)
   }, [setThemeBase])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setTheme(initialTheme)
     None
   }, [isCurrentlyDark])
@@ -96,7 +96,7 @@ let make = (~children) => {
     }
   }, (theme, setTheme))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if theme === Dark {
       setTheme(Light)
     }

@@ -27,7 +27,7 @@ let useSortedObj = (title: string, defaultSort) => {
   let filters = Dict.get(dict, title)
 
   let (sortedObj, setSortedObj) = React.useState(_ => defaultSort)
-  React.useEffect0(() => {
+  React.useEffect(() => {
     switch filters {
     | Some(filt) =>
       let sortObj: Table.sortedObject = {
@@ -42,10 +42,10 @@ let useSortedObj = (title: string, defaultSort) => {
     }
 
     None
-  })
+  }, [])
 
   // Adding new
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch sortedObj {
     | Some(obj: Table.sortedObject) =>
       let sortOb = {
@@ -232,7 +232,7 @@ let make = (
 ) => {
   open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
-  React.useEffect0(_ => {
+  React.useEffect(_ => {
     if title->isEmptyString && GlobalVars.isLocalhost {
       showPopUp({
         popUpType: (Denied, WithIcon),
@@ -242,7 +242,7 @@ let make = (
       })
     }
     None
-  })
+  }, [])
 
   let customizeColumnNewTheme = None
   let defaultValue: pageDetails = {offset, resultsPerPage}
@@ -271,13 +271,13 @@ let make = (
   }
   let url = RescriptReactRouter.useUrl()
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setFirstRender(_ => false)
     setOffset(_ => pageDetail.offset)
     None
   }, [url.path->List.toArray->Array.joinWithUnsafe("/")])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     if pageDetail.offset !== offset && !firstRender {
       let value = switch pageDetailDict->Dict.get(title) {
       | Some(val) => {offset, resultsPerPage: val.resultsPerPage}
@@ -345,7 +345,7 @@ let make = (
     }
   }, [setColumnFilterOrig])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     if columnFilter != Dict.make() {
       newSetOffset(_ => 0)
     }
@@ -403,7 +403,7 @@ let make = (
   let {getShowLink, searchFields, searchUrl, getObjects} = entity
   let (sortedObj, setSortedObj) = useSortedObj(title, defaultSort)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setDataView(_prev => isMobileView && !showTableOnMobileView ? Card : Table)
     None
   }, [isMobileView])
@@ -413,7 +413,7 @@ let make = (
   let offsetVal = offset < totalResults ? offset : defaultOffset
   let offsetVal = ignoreUrlUpdate ? offset : offsetVal
 
-  React.useEffect4(() => {
+  React.useEffect(() => {
     if offset > currrentFetchCount && offset <= totalResults && !tableDataLoading {
       switch handleRefetch {
       | Some(fun) => fun()
@@ -511,7 +511,7 @@ let make = (
   let filteredDataLength =
     columnFilter->Dict.keysToArray->Array.length !== 0 ? actualData->Array.length : totalResults
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch setExtFilteredDataLength {
     | Some(fn) => fn(_ => filteredDataLength)
     | _ => ()
@@ -526,7 +526,7 @@ let make = (
     }
   }, (sortedObj, customGetObjects, actualData, getObjects))
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     let selectedRowDataLength = checkBoxProps.selectedData->Array.length
     let isCompleteDataSelected = selectedRowDataLength === filteredData->Array.length
     if isCompleteDataSelected {
@@ -540,7 +540,7 @@ let make = (
     None
   }, (checkBoxProps.selectedData, filteredData))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if selectAllCheckBox === Some(ALL) {
       checkBoxProps.setSelectedData(_ => {
         filteredData->Array.map(

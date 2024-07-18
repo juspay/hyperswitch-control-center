@@ -490,7 +490,7 @@ let make = (
 
   let (currentTopMatrix, currentBottomMetrix) = currentMetrics
   // if we won't see anything in the url then we will update the url
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let cardinality = getChartCompFilters->getString("cardinality", "TOP_5")
     let chartType =
       getChartCompFilters->getString(
@@ -533,7 +533,7 @@ let make = (
 
     updateChartCompFilters(dict)
     None
-  })
+  }, [])
 
   let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
   let (rawChartData, setRawChartData) = React.useState(_ => None)
@@ -613,7 +613,7 @@ let make = (
     filterSearchParam
   }, [topFiltersToSearchParam])
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     setSelectedGranularity(_ => defaultGranularity)
     None
   }, (startTimeFromUrl, endTimeFromUrl))
@@ -797,7 +797,7 @@ let make = (
   let chartTypeFromUrl = getChartCompFilters->getString("chartType", "Line chart")
   let chartTopMetricFromUrl = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if startTimeFromUrl->isNonEmptyString && endTimeFilterKey->isNonEmptyString {
       setChartLoading(_ => enableLoaders)
       fetchChartData(updatedChartBody, setRawChartData)

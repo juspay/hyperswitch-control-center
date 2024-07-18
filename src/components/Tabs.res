@@ -74,7 +74,7 @@ module TabInfo = {
 
     let lineStyle = showBottomBorder ? "bg-black w-full h-0.5 rounded-full" : ""
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       if isSelected && isScrollIntoViewRequired {
         tabRef.current
         ->Nullable.toOption
@@ -173,7 +173,7 @@ let make = (
 
   let renderedTabClassName = renderedTabClassName
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setSelectedIndex(_ => initialIndex)
     None
   }, [initialIndex])

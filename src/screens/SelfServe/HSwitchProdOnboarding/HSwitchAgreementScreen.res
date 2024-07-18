@@ -11,7 +11,7 @@ let make = () => {
   let (isSelected, setIsSelected) = React.useState(_ => false)
   let {user_role: userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/agreement-signature"))
     None
   }, [dashboardPageState])

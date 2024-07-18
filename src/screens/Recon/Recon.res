@@ -50,14 +50,14 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if isReconEnabled {
       let _ = openReconTab()->ignore
     } else {
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  })
+  }, [])
 
   let subTitleText = isReconEnabled
     ? "Streamline your reconciliation and settlement operations"

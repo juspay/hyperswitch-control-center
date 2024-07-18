@@ -36,7 +36,7 @@ module AuthenticationInput = {
     )
     let outGoingWebhookRef = React.useRef(formState.values)
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       // Update the ref whenever formState.values changes
       outGoingWebhookRef.current = formState.values
       None
@@ -125,7 +125,7 @@ module WebHookAuthenticationHeaders = {
     )
     let formValuesRef = React.useRef(formState.values)
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       // Update the ref whenever formState.values changes
       formValuesRef.current = formState.values
       None

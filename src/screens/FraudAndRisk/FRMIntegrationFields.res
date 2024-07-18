@@ -21,7 +21,7 @@ module AdvanceSettings = {
         HyperswitchAtom.businessProfilesAtom,
       )->MerchantAccountUtils.getValueFromBusinessProfile
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if !isUpdateFlow {
         form.change("profile_id", businessProfileValue.profile_id->JSON.Encode.string)
       }

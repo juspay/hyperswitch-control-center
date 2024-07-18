@@ -27,7 +27,7 @@ let make = (
 
   let toNum = resultsPerPage + start > totalResults ? totalResults : resultsPerPage + start - 1
   let shouldRefetch = toNum > currrentFetchCount && toNum <= totalResults && !tableDataLoading
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if shouldRefetch {
       switch handleRefetch {
       | Some(fun) => fun()

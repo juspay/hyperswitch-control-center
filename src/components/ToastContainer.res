@@ -1,7 +1,7 @@
 module ToastHeading = {
   @react.component
   let make = (~toastProps: ToastState.toastProps, ~hideToast, ~toastDuration=0) => {
-    React.useEffect2(() => {
+    React.useEffect(() => {
       let duration = if toastDuration == 0 {
         3000
       } else {

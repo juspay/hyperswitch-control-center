@@ -38,7 +38,7 @@ let setItem = (key, val) => {
 let useStorageValue = key => {
   let (value, setValue) = React.useState(() => getItem(key))
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let oldValue = ref(getItem(key))
     let handleStorage = _ => {
       let newValue = getItem(key)
@@ -58,7 +58,7 @@ let useStorageValue = key => {
         Window.removeEventListener("storage", handleStorage)
       },
     )
-  })
+  }, [])
 
   React.useMemo2(() => {
     /* LocalStorage. */ getItem(key)->Nullable.toOption

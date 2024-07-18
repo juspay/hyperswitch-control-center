@@ -126,7 +126,7 @@ let make = () => {
     }
   }
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     let (results, text) = globalSearchResult->getSearchresults
 
     if text->isNonEmptyString {

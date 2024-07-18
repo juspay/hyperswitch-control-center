@@ -102,7 +102,7 @@ module SidebarChecklist = {
   let make = (~pageView, ~getConnectorDetails, ~setPreviewState) => {
     let (progressState, setProgressState) = React.useState(_ => 0)
 
-    React.useEffect1(_ => {
+    React.useEffect(_ => {
       let currentIndex = pageView->ProdOnboardingUtils.getIndexFromVariant
       // Need to change to 14 after enabling the TEST_LIVE_PAYMENT
       let progress = 2 + 16 * currentIndex
@@ -253,11 +253,11 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     // getSetupProcessorEnum()->ignore
     getStatus()->ignore
     None
-  })
+  }, [])
 
   <PageLoaderWrapper screenState sectionHeight="h-screen">
     <div className="flex h-screen w-screen">

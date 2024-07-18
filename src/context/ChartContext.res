@@ -210,7 +210,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     []
   }
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     setGranularity(prev => {
       current_granularity->Array.includes(prev->Option.getOr(""))
         ? prev
@@ -229,7 +229,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     setBottomChartFetchWithCurrentDependecyChange,
   ) = React.useState(_ => false)
 
-  React.useEffect5(() => {
+  React.useEffect(() => {
     let chartType =
       getChartCompFilters->getString(
         "chartType",
@@ -260,7 +260,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     sortingParams,
   ))
 
-  React.useEffect5(() => {
+  React.useEffect(() => {
     let chartType =
       getChartCompFilters->getString(
         "chartType",
@@ -291,7 +291,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     sortingParams,
   ))
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if !topChartFetchWithCurrentDependecyChange && topChartVisible {
       setTopChartFetchWithCurrentDependecyChange(_ => true)
 
@@ -422,7 +422,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     None
   }, (topChartFetchWithCurrentDependecyChange, topChartVisible))
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if !bottomChartFetchWithCurrentDependecyChange && bottomChartVisible {
       setBottomChartFetchWithCurrentDependecyChange(_ => true)
       switch chartEntity.uriConfig->Array.find(item => {
@@ -723,7 +723,7 @@ module SDKAnalyticsChartContext = {
       []
     }
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       setGranularity(prev => {
         current_granularity->Array.includes(prev->Option.getOr(""))
           ? prev
@@ -737,7 +737,7 @@ module SDKAnalyticsChartContext = {
       setTopChartFetchWithCurrentDependecyChange,
     ) = React.useState(_ => false)
 
-    React.useEffect4(
+    React.useEffect(
       () => {
         let chartType =
           getChartCompFilters->getString(
@@ -773,7 +773,7 @@ module SDKAnalyticsChartContext = {
       ),
     )
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       if !topChartFetchWithCurrentDependecyChange && topChartVisible {
         setTopChartFetchWithCurrentDependecyChange(_ => true)
         let metricsSDK = "total_volume"
@@ -944,7 +944,7 @@ module SDKAnalyticsChartContext = {
       None
     }, (topChartFetchWithCurrentDependecyChange, topChartVisible))
 
-    // React.useEffect2(() => {
+    // React.useEffect(() => {
     //   if !bottomChartFetchWithCurrentDependecyChange && bottomChartVisible {
     //     setBottomChartFetchWithCurrentDependecyChange(_ => true)
     //     let metricsSDK = "total_volume"

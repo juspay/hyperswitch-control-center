@@ -250,7 +250,7 @@ let make = (
     singleStatData,
   })
 
-  React.useEffect4(() => {
+  React.useEffect(() => {
     if !(singleStatLoading || singleStatLoadingTimeSeries) {
       setSingleStatCombinedData(_ => {
         singleStatTimeData,
@@ -261,14 +261,14 @@ let make = (
   }, (singleStatLoadingTimeSeries, singleStatLoading, singleStatTimeData, singleStatData))
   let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if singleStatData !== None && singleStatTimeData !== None {
       setShimmerType(_ => SideLoader)
     }
     None
   }, (singleStatData, singleStatTimeData))
 
-  React.useEffect5(() => {
+  React.useEffect(() => {
     if startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString {
       open Promise
       setSingleStatLoading(_ => enableLoaders)
@@ -338,7 +338,7 @@ let make = (
     None
   }, (endTimeFromUrl, startTimeFromUrl, filterValueFromUrl, customFilter, mode))
 
-  React.useEffect5(() => {
+  React.useEffect(() => {
     if startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString {
       setSingleStatLoadingTimeSeries(_ => enableLoaders)
 

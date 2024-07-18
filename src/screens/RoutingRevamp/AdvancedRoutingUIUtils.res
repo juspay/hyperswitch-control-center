@@ -8,12 +8,12 @@ module LogicalOps = {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let logicalOpsInput = ReactFinalForm.useField(`${id}.logical`).input
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       if logicalOpsInput.value->LogicUtils.getStringFromJson("")->String.length === 0 {
         logicalOpsInput.onChange("AND"->Identity.stringToFormReactEvent)
       }
       None
-    })
+    }, [])
     let onChange = str => logicalOpsInput.onChange(str->Identity.stringToFormReactEvent)
 
     <ButtonGroup wrapperClass="flex flex-row mr-2 ml-1">
@@ -58,7 +58,7 @@ module OperatorInp = {
       value: operator.value,
       checked: true,
     }
-    React.useEffect2(() => {
+    React.useEffect(() => {
       let operatorVals = switch keyType->variantTypeMapper {
       | Enum_variant => ["IS", "CONTAINS", "IS_NOT", "NOT_CONTAINS"]
       | Number => ["EQUAL TO", "GREATER THAN", "LESS THAN"]
@@ -114,7 +114,7 @@ module ValueInp = {
     let opField = (fieldsArray[2]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let typeField = (fieldsArray[3]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       typeField.onChange(
         if keyType->variantTypeMapper === Metadata_value {
           "metadata_variant"

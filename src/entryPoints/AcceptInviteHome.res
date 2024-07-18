@@ -15,7 +15,7 @@ let make = () => {
   let merchantValueatZeroIndex =
     merchantListValue->Array.get(0)->Option.getOr(SwitchMerchantUtils.defaultValue)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let filteredSwitchMerchantList = switchMerchantListValue->Array.filter(ele => !ele.is_active)
     setMerchantListValue(_ => filteredSwitchMerchantList)
     setAcceptedMerchantId(_ => Array.make(~length=filteredSwitchMerchantList->Array.length, false))
