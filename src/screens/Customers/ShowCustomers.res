@@ -55,6 +55,56 @@ module CustomerInfo = {
   }
 }
 
+module CustomerDetails = {
+  open GlobalSearchBarUtils
+  open GlobalSearchTypes
+  open APIUtils
+  @react.component
+  let make = (~id) => {
+    let getURL = useGetURL()
+    let fetchData = APIUtils.useUpdateMethod()
+    let (searchResults, setSearchResults) = React.useState(_ => [])
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+
+    let getSearchResults = async () => {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      try {
+        let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
+
+        let body = [("query", id->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+
+        let response = await fetchData(url, body, Post, ())
+
+        let remote_results = response->parseResponse
+
+        let data = {
+          local_results: [],
+          remote_results,
+          searchText: id,
+        }
+
+        let (results, _) = data->SearchResultsPageUtils.getSearchresults
+
+        setSearchResults(_ => results)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Success)
+      }
+    }
+
+    React.useEffect(() => {
+      getSearchResults()->ignore
+      None
+    }, [])
+
+    <PageLoaderWrapper screenState>
+      <div className="mt-5">
+        <SearchResultsPage.SearchResultsComponent searchResults searchText={id} />
+      </div>
+    </PageLoaderWrapper>
+  }
+}
+
 @react.component
 let make = (~id) => {
   open APIUtils
@@ -97,6 +147,7 @@ let make = (~id) => {
         </div>
       </div>
       <CustomerInfo dict={customersData->LogicUtils.getDictFromJsonObject} />
+      <CustomerDetails id />
     </div>
   </PageLoaderWrapper>
 }
