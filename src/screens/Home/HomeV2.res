@@ -318,14 +318,6 @@ module Resources = {
         access: userPermissionJson.operationsManage,
       },
       {
-        id: "openSource",
-        icon: "blogs.svg",
-        headerText: "Contribute in open source",
-        subText: "We welcome all your suggestions, feedbacks, and queries. Hop on to the Open source rail!",
-        redirectLink: "",
-        access: Access,
-      },
-      {
         id: "developerdocs",
         icon: "connector.svg",
         headerText: "Developer docs",
@@ -351,7 +343,7 @@ module Resources = {
     <>
       <div className="flex flex-col gap-4">
         <p className=headingStyle> {"Resources"->React.string} </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
           {elements
           ->Array.mapWithIndex((item, index) => {
             let cursorStyles = PermissionUtils.cursorStyles(item.access)
