@@ -429,7 +429,7 @@ module LineChart1D = {
     )
     let {isSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setTimeout(_ => {
         DOMUtils.window->DOMUtils.dispatchEvent(DOMUtils.event("resize"))
       }, 150)->ignore

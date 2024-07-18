@@ -17,7 +17,7 @@ module InviteEmailForm = {
       ->getValueFromArray(0, ""->JSON.Encode.string)
       ->getStringFromJson("")
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setNewRoleSelected(_ => role)
       None
     }, [role])
@@ -39,12 +39,12 @@ module InviteEmailForm = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       getRolesList()->ignore
       None
-    })
+    }, [])
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setRoleTypeValue(_ => role)
       None
     }, [role])
@@ -292,7 +292,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
     } else {

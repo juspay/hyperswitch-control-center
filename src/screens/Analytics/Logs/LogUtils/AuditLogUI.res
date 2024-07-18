@@ -160,7 +160,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     }
   }, [setActiveTab])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setCollapseTab(prev => !prev)
     None
   }, [logDetails])
@@ -220,10 +220,10 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getDetails()->ignore
     None
-  })
+  }, [])
 
   let timeLine =
     <div className="flex flex-col w-2/5 overflow-y-scroll no-scrollbar pt-7 pl-5">

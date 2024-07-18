@@ -7,7 +7,7 @@ let useMatchMedia = mediaQuery => {
     mediaQueryList.matches
   })
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let screenTest = (ev: Window.MatchMedia.matchEvent) => {
       let matched = ev.matches
       setIsMatched(_prev => matched)

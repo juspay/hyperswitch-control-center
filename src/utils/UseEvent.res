@@ -1,6 +1,6 @@
 let useEvent0 = callback => {
   let callbackRef = React.useRef(callback)
-  React.useEffect1(() => {
+  React.useEffect(() => {
     callbackRef.current = callback
 
     None

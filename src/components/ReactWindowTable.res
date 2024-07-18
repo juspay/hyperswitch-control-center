@@ -266,7 +266,7 @@ module ReactWindowTableComponent = {
     let (expandedIndexArr, setExpandedIndexArr) = React.useState(_ => [])
     let handleExpand = (index, bool) => fn.current(index, bool)
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setExpandedIndexArr(_ => [])
       handleExpand(0, true)
       None
@@ -540,7 +540,7 @@ let useSortedObj = (title: string, defaultSort) => {
   let filters = Dict.get(dict, title)
 
   let (sortedObj, setSortedObj) = React.useState(_ => defaultSort)
-  React.useEffect0(() => {
+  React.useEffect(() => {
     switch filters {
     | Some(filt) =>
       let sortObj: Table.sortedObject = {
@@ -555,10 +555,10 @@ let useSortedObj = (title: string, defaultSort) => {
     }
 
     None
-  })
+  }, [])
 
   // Adding new
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch sortedObj {
     | Some(obj: Table.sortedObject) =>
       let sortOb = {
@@ -911,7 +911,7 @@ let make = (
     [selectAllCheckBox],
   )
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if selectAllCheckBox === Some(ALL) {
       checkBoxProps.setSelectedData(_ => {
         filteredData->Array.map(Identity.nullableOfAnyTypeToJsonType)

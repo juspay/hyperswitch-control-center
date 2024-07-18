@@ -641,7 +641,7 @@ let make = (
   let componentRef = React.useRef(Nullable.null)
   let toolTipArrowRef = React.useRef(Nullable.null)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if isToolTipVisible {
       let handleScroll = (_e: Webapi.Dom.Event.t) => {
         setIsToolTipVisible(_ => false)

@@ -27,7 +27,7 @@ let make = (
 ) => {
   let (localStrValue, setLocalStrValue) = React.useState(() => input.value)
   let inputRef = React.useRef(Nullable.null)
-  React.useEffect2(() => {
+  React.useEffect(() => {
     switch widthMatchwithPlaceholderLength {
     | Some(length) =>
       switch inputRef.current->Nullable.toOption {
@@ -96,7 +96,7 @@ let make = (
     }
   }, (localStrValue, input))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setLocalStrValue(prevLocalStr => {
       let numericPrevLocalValue =
         prevLocalStr

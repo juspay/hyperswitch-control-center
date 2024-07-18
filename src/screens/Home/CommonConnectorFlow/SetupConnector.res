@@ -243,7 +243,7 @@ module SelectPaymentMethods = {
       }
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       initialValues
       ->getConnectorPaymentMethodDetails(
         setPaymentMethods,

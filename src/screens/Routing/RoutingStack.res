@@ -109,7 +109,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
     }
   }
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     fetchActiveRouting()->ignore
     None
   }, (pathVar, url.search))

@@ -162,7 +162,7 @@ let make = (~showModal, ~setShowModal) => {
     errors->JSON.Encode.object
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if merchantDetailsTypedValue.merchant_name->Option.isNone {
       setShowModal(_ => true)
     } else {

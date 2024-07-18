@@ -123,10 +123,10 @@ let make = (~id) => {
       }
     }
   }
-  React.useEffect0(() => {
+  React.useEffect(() => {
     fetchRefundData()->ignore
     None
-  })
+  }, [])
 
   let showSyncButton = React.useCallback1(_ => {
     let refundDict = refundData->getDictFromJsonObject

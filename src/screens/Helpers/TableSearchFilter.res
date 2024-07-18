@@ -10,7 +10,7 @@ let make = (
 ) => {
   let filterData = React.useCallback0(filterLogic)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     filterData((searchVal, data))
     None
   }, [searchVal])

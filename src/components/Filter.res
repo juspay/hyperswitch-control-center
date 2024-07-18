@@ -90,7 +90,7 @@ module AutoSubmitter = {
 
     let values = formState.values
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if formState.dirty {
         let defaultFieldsHaveChanged = defaultFilterKeys->Array.some(key => {
           formState.dirtyFields->Dict.get(key)->Option.getOr(false)
@@ -158,7 +158,7 @@ let make = (
   let searchParams = query->decodeURI
   let verticalGap = !isMobileView ? "gap-y-3" : ""
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     let updatedAllFilters = remoteFilters->Array.map(item => item.field)
     setAllFilters(_ => updatedAllFilters)
     None
@@ -181,7 +181,7 @@ let make = (
     ->Dict.keysToArray
     ->Array.length
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     let initialValues = RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
       ~initialFilters={Array.concat(remoteFilters, fixedFilters)},

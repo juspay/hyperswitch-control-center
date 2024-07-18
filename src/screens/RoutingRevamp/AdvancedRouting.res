@@ -70,7 +70,7 @@ module AddSurchargeCondition = {
       `${id}.connectorSelection.surcharge_details.surcharge.type`,
     ).input
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       let valueType = switch surchargeTypeInput.value->LogicUtils.getStringFromJson("") {
       | "rate" => "percentage"
       | "fixed" => "amount"
@@ -228,7 +228,7 @@ module Wrapper = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       name.onChange(heading->String.toLowerCase->titleToSnake->Identity.stringToFormReactEvent)
 
       let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Array.length > 0
@@ -237,7 +237,7 @@ module Wrapper = {
         setIsExpanded(p => !p)
       }
       None
-    })
+    }, [])
 
     let border = isDragging ? "border-dashed" : "border-solid"
     let flex = isExpanded ? "flex-col" : "flex-wrap items-center gap-4"
@@ -357,7 +357,7 @@ module RuleBasedUI = {
     let ruleInput = ReactFinalForm.useField(rulesJsonPath).input
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       ruleInput.onChange(rules->Identity.arrayOfGenericTypeToFormReactEvent)
       None
     }, [rules])
@@ -529,7 +529,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let fetchDetails = async () => {
       try {
         setScreenState(_ => Loading)

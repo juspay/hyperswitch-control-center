@@ -247,12 +247,12 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   | _ => []
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if url.hash === "playground" {
       openPlayground()
     }
     None
-  })
+  }, [])
 
   let note = AuthModuleHooks.useNote(authType, setAuthType, ())
   <ReactFinalForm.Form

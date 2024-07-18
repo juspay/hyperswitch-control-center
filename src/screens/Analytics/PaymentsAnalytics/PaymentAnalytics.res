@@ -69,10 +69,10 @@ let make = () => {
     })
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getPaymetsDetails()->ignore
     None
-  })
+  }, [])
 
   let tabKeys = getStringListFromArrayDict(dimensions)
 
@@ -155,10 +155,10 @@ let make = () => {
     (),
   )
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     setInitialFilters()
     None
-  })
+  }, [])
 
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
@@ -177,7 +177,7 @@ let make = () => {
 
   let body = filterBody->JSON.Encode.object
 
-  React.useEffect3(() => {
+  React.useEffect(() => {
     setFilterDataJson(_ => None)
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       try {

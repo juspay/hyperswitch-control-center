@@ -76,7 +76,7 @@ let make = (~previewOnly=false) => {
     }
   }
 
-  React.useEffect3(() => {
+  React.useEffect(() => {
     if filters->isNonEmptyValue {
       fetchOrders()
     }
