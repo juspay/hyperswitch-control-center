@@ -88,9 +88,7 @@ module CustomerDetails = {
         setSearchResults(_ => results)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | Exn.Error(e) =>
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch Customer Details")
-        setScreenState(_ => PageLoaderWrapper.Error(err))
+      | _ => setScreenState(_ => PageLoaderWrapper.Success)
       }
     }
 
