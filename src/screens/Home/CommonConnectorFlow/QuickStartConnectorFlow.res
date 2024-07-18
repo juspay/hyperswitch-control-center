@@ -115,7 +115,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if choiceStateForTestConnector === #NotSelected {
       setButtonState(_ => Button.Disabled)
     } else {
@@ -124,7 +124,7 @@ let make = (
     None
   }, [choiceStateForTestConnector])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let defaultJsonOnNewConnector =
       [("profile_id", activeBusinessProfile.profile_id->JSON.Encode.string)]
       ->Dict.fromArray

@@ -216,7 +216,7 @@ module TableWrapper = {
       }
     }
 
-    React.useEffect3(() => {
+    React.useEffect(() => {
       setShowTable(_ => false)
       if (
         startTimeFromUrl->LogicUtils.isNonEmptyString && endTimeFromUrl->LogicUtils.isNonEmptyString
@@ -426,10 +426,10 @@ module OverallSummary = {
       (),
     )
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       setInitialFilters()
       None
-    })
+    }, [])
 
     let activeTab = React.useMemo1(() => {
       Some(

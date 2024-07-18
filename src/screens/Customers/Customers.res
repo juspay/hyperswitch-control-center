@@ -22,10 +22,10 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getCustomersList()->ignore
     None
-  })
+  }, [])
 
   <PageLoaderWrapper screenState>
     <PageUtils.PageHeading title="Customers" subTitle="View all customers" />

@@ -123,10 +123,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  })
+  }, [])
 
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal

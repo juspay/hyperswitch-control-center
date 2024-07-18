@@ -117,7 +117,7 @@ let make = (~index: string, ~children) => {
     }
   }, (filterDict, setfilterDict, filterKeys))
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     switch sessionStorage.getItem(index)->Nullable.toOption {
     | Some(value) => value->FilterUtils.parseFilterString->updateFilter.updateExistingKeys
     | None => ()
@@ -140,9 +140,9 @@ let make = (~index: string, ~children) => {
     }
 
     Some(() => clearSessionStorage())
-  })
+  }, [])
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if !(query.contents->String.length < 1) {
       sessionStorage.setItem(index, query.contents)
     }

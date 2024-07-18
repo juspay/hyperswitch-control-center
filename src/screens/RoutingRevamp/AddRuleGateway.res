@@ -18,7 +18,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
     ->Recoil.useRecoilValueFromAtom
     ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let typeString = if isDistribute {
       "volume_split"
     } else {

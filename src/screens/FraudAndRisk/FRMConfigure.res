@@ -48,7 +48,7 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if frmID !== "new" {
       setScreenState(_ => Loading)
       let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ~id=Some(frmID), ())
@@ -57,7 +57,7 @@ let make = () => {
       setScreenState(_ => Success)
     }
     None
-  })
+  }, [])
 
   let path: array<BreadCrumbNavigation.breadcrumb> = []
   if frmID === "new" {

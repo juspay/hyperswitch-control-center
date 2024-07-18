@@ -48,7 +48,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setPaymentMethodDetails()->ignore
     None
   }, [connector])

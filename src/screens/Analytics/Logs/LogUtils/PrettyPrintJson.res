@@ -16,7 +16,7 @@ let make = (
     | _ => setParsedJson(_ => jsonToDisplay)
     }
   }
-  React.useEffect1(() => {
+  React.useEffect(() => {
     parseJsonValue()->ignore
     None
   }, [jsonToDisplay])

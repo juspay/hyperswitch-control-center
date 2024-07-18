@@ -231,7 +231,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     setShowWalletConfigurationModal(_ => false)
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if connector->String.length > 0 {
       switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
       | Processors(STRIPE)

@@ -17,7 +17,7 @@ let useLottieJson = lottieFileName => {
   let showToast = ToastState.useShowToast()
   let prefix = `${Window.Location.origin}${uriPrefix}`
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch lottieDict->Dict.get(lottieFileName) {
     | Some(val) =>
       switch val {

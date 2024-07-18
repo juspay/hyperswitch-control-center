@@ -279,7 +279,7 @@ let make = (
     setScreenState(_ => Success)
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch routingRuleId {
     | Some(_id) => {
         activeRoutingDetails()->ignore

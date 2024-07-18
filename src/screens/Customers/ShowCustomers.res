@@ -77,10 +77,10 @@ let make = (~id) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     fetchCustomersData()->ignore
     None
-  })
+  }, [])
   <PageLoaderWrapper screenState>
     <div className="flex flex-col overflow-scroll">
       <div className="mb-4 flex justify-between">

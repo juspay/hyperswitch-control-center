@@ -2,33 +2,29 @@ const path = require("path");
 const webpack = require("webpack");
 const { merge } = require("webpack-merge");
 const common = require("./webpack.common.js");
-const config = import("./src/server/config.mjs");
 
-const appName = process.env.appName;
-const integ = process.env.integ;
+const appName = process.env.appName || "defaultAppName";
 
 let port = 9000;
 let proxy = {};
 
-let configMiddleware = (req, res, next) => {
-  if (req.path.includes("/config/merchant-config") && req.method == "GET") {
-    let { domain = "default" } = req.query;
-    config
-      .then((result) => {
-        result.configHandler(req, res, false, domain);
-      })
-      .catch((error) => {
-        console.log(error, "error");
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Internal Server Error");
-      });
+const configMiddleware = async (req, res, next) => {
+  if (req.path.includes("/config/merchant-config") && req.method === "GET") {
+    try {
+      const { configHandler } = await import("./src/server/config.mjs");
+      const { domain = "default" } = req.query;
+      configHandler(req, res, false, domain);
+    } catch (error) {
+      console.error("Error loading config.mjs:", error);
+      res.writeHead(500, { "Content-Type": "text/plain" });
+      res.end("Internal Server Error");
+    }
     return;
   }
-
   next();
 };
 
-let devServer = {
+const devServer = {
   static: {
     directory: path.resolve(__dirname, "dist", appName),
   },
@@ -39,12 +35,14 @@ let devServer = {
     rewrites: [{ from: /^\/dashboard/, to: "/index.html" }],
   },
   proxy: proxy,
-  onBeforeSetupMiddleware: (devServer) => {
+  setupMiddlewares: (middlewares, devServer) => {
     devServer.app.use(configMiddleware);
+    return middlewares;
   },
 };
 
 console.log(devServer);
+
 module.exports = merge([
   common(appName),
   {

@@ -63,17 +63,17 @@ let make = () => {
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     fetchMetrics(ActivePayments, setActiveUserCount)->ignore
     None
   }, [activeUserCountTimestamp])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     fetchMetrics(SdkEvents, setTodayVisits)->ignore
     None
   }, [todayVisitsTimestamp])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let todayVisitsInterval = setInterval(() => {
       setTimeout(
         () => {

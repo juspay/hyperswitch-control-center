@@ -128,7 +128,7 @@ module ListItem = {
         setToggleSelect(_ => val)
       }
     }
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setToggleSelect(_ => isSelected)
       None
     }, [isSelected])
@@ -490,11 +490,11 @@ module BaseSelect = {
     let transformedOptions = useTransformed(options)
 
     let (filteredOptions, setFilteredOptions) = React.useState(() => transformedOptions)
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setFilteredOptions(_ => transformedOptions)
       None
     }, [transformedOptions])
-    React.useEffect1(() => {
+    React.useEffect(() => {
       let shouldDisplay = (option: dropdownOption) => {
         switch Js.String2.match_(option.label, regex("\\b", searchString)) {
         | Some(_) => true
@@ -619,14 +619,14 @@ module BaseSelect = {
       }
     }
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       searchRef.current->Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
 
     let listPadding = ""
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       if noOfSelected === options->Array.length {
         setChooseAllToggleSelected(_ => true)
       } else {
@@ -957,7 +957,7 @@ module BaseSelectButton = {
       }
     }
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       searchRef.current->Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
@@ -1236,7 +1236,7 @@ module BaseRadio = {
     let (optgroupKeys, setOptgroupKeys) = React.useState(_ => getSortedKeys(hashMappedOptions))
 
     let (searchString, setSearchString) = React.useState(() => "")
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setExtSearchString(_ => searchString)
       None
     }, [searchString])
@@ -1299,7 +1299,7 @@ module BaseRadio = {
 
     let textIconPresent = options->Array.some(op => op.icon !== NoIcon)
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       searchRef.current->Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
@@ -1560,7 +1560,7 @@ module BaseDropdown = {
         selectBtnRef.current = element
       }
     }
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setShowDropDown(_ => false)
       None
     }, [dropDownCustomBtnClick])

@@ -336,7 +336,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     getDetails()->ignore
     None
   }, [routingRuleId])

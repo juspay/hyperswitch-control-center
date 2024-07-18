@@ -50,7 +50,7 @@ let make = () => {
     }
   }
 
-  React.useEffect3(() => {
+  React.useEffect(() => {
     if filters->OrderUIUtils.isNonEmptyValue {
       fetchRefunds()
     }

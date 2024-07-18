@@ -19,10 +19,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getListOfMerchantIds()->ignore
     None
-  })
+  }, [])
 
   let onClickLoginToDashboard = async () => {
     open AuthUtils

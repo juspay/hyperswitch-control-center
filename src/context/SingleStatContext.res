@@ -152,7 +152,7 @@ let make = (
     setIsSingleStatFetchedWithCurrentDependency,
   ) = React.useState(_ => false)
 
-  React.useEffect6(() => {
+  React.useEffect(() => {
     if (
       startTimeFromUrl->LogicUtils.isNonEmptyString &&
       endTimeFromUrl->LogicUtils.isNonEmptyString &&
@@ -163,7 +163,7 @@ let make = (
     None
   }, (endTimeFromUrl, startTimeFromUrl, filterValueFromUrl, parentToken, customFilter, modeValue))
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if !singleStatFetchedWithCurrentDependency && isSingleStatVisible {
       setIsSingleStatFetchedWithCurrentDependency(_ => true)
       let granularity = LineChartUtils.getGranularityNew(

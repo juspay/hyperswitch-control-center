@@ -353,7 +353,7 @@ module SidebarNestedSection = {
 
     let isAnySubItemSelected = section.links->Array.find(isSubLevelItemSelected)->Option.isSome
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       if isSectionExpanded {
         setIsElementShown(_ => true)
       } else if isElementShown {
@@ -364,7 +364,7 @@ module SidebarNestedSection = {
       None
     }, (isSectionExpanded, isSideBarExpanded))
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       if isSideBarExpanded {
         setIsSectionExpanded(_ => isAnySubItemSelected)
       } else {
@@ -514,7 +514,7 @@ let make = (
   let minWidthForPinnedState = MatchMedia.useMatchMedia("(min-width: 1280px)")
   // let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if minWidthForPinnedState {
       setIsSidebarDetails("isPinned", true->JSON.Encode.bool)
       setIsSidebarExpanded(_ => true)

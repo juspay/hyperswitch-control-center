@@ -365,18 +365,18 @@ let make = (
   let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
   let (formattedOptions, setFormattedOptions) = React.useState(_ => [])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setSelectedIndex(_ => initialIndex)
     None
   }, [initialIndex])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setCollapsibleTabs(_ => updatedCollapsableTabs)
     None
   }, [updatedCollapsableTabs])
 
   // this will update the current available tabs to the userpreference
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let collapsibleTabsValues =
       collapsibleTabs
       ->Array.map(item => {
@@ -490,7 +490,7 @@ let make = (
     setShowModal(_ => false)
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let options =
       tabs
       ->Array.filter(tab => !(tab.value->String.split(",")->Array.length > 1))

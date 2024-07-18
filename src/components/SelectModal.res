@@ -50,7 +50,7 @@ let make = (
   let buttonText =
     submitButtonText->Option.getOr(len > 0 ? `${len->Int.toString} ${title} Selected` : "Select")
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if !showModal {
       setValues(_ => initialValues)
     }

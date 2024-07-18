@@ -45,7 +45,7 @@ let make = (
   let (fileTypes, setFileTypes) = React.useState(_ => defaultFileNames)
   let showToast = ToastState.useShowToast()
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     fileNamesInput.onChange(fileNames->Identity.anyTypeToReactEvent)
     fileTypeInput.onChange(fileTypes->Identity.anyTypeToReactEvent)
     None

@@ -56,7 +56,7 @@ let make = (~children) => {
     ->List.toArray
     ->Array.joinWithUnsafe("/")}`
   // UPDATE THE LAST VISITED TAB
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if urlPathConcationation !== "/" {
       setUserPref(prev => {
         let currentConfig = prev->Dict.get(username)->Option.getOr({})
@@ -78,7 +78,7 @@ let make = (~children) => {
   }, (urlPathConcationation, username))
 
   // UPDATE THE searchParams IN LAST VISITED TAB
-  React.useEffect2(() => {
+  React.useEffect(() => {
     setUserPref(prev => {
       let currentConfig = prev->Dict.get(username)->Option.getOr({})
       let updatedPrev = currentConfig
@@ -128,7 +128,7 @@ let make = (~children) => {
     None
   }, (url.search, username))
   // UPDATE THE CURRENT PREF TO THE DATA SOURCE
-  React.useEffect1(() => {
+  React.useEffect(() => {
     UserPrefUtils.saveUserPref(userPref)
     None
   }, [userPref])

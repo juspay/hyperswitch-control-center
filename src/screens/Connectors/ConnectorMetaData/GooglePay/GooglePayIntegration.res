@@ -30,7 +30,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   })
 
   let form = ReactFinalForm.useForm()
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if connector->isNonEmptyString {
       let value = googlePay(initialGooglePayDict->getDictfromDict("google_pay"), connector)
       switch value {

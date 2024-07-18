@@ -71,7 +71,7 @@ module SearchBarFilter = {
       setBaseValue(_ => value)
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       let onKeyPress = event => {
         let keyPressed = event->ReactEvent.Keyboard.key
 
@@ -83,7 +83,7 @@ module SearchBarFilter = {
       Some(() => Window.removeEventListener("keydown", onKeyPress))
     }, [baseValue])
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if baseValue->String.length === 0 && searchVal->LogicUtils.isNonEmptyString {
         setSearchVal(_ => baseValue)
       }
@@ -133,13 +133,13 @@ module RemoteTableFilters = {
     let defaultFilters = {""->JSON.Encode.string}
     let showToast = ToastState.useShowToast()
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length === 0 {
         setFilters(_ => Dict.make()->Some)
         setOffset(_ => 0)
       }
       None
-    })
+    }, [])
 
     open APIUtils
 
@@ -170,10 +170,10 @@ module RemoteTableFilters = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       fetchAllFilters()->ignore
       None
-    })
+    }, [])
 
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
@@ -186,14 +186,14 @@ module RemoteTableFilters = {
       (),
     )
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length < 1 {
         setInitialFilters()
       }
       None
     }, [filterValueJson])
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length != 0 {
         setFilters(_ => filterValueJson->Some)
         setOffset(_ => 0)

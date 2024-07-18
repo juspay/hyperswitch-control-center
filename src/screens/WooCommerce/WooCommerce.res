@@ -268,7 +268,7 @@ let make = () => {
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let enums = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
     let currentPending = steps->Array.find(step => {
       step->enumToValueMapper(enums) === false
@@ -293,7 +293,7 @@ let make = () => {
     )
   | PROCESSOR_SETUP | COMPLETED_WOOCOMMERCE => ("", "")
   }
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let defaultJsonOnNewConnector =
       [("profile_id", activeBusinessProfile.profile_id->JSON.Encode.string)]
       ->Dict.fromArray

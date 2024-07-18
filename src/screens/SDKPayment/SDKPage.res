@@ -91,7 +91,7 @@ let make = () => {
     defaultBusinessProfile->SDKPaymentUtils.initialValueForForm
   )
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let paymentIntentOptional = filtersFromUrl->Dict.get("payment_intent_client_secret")
     if paymentIntentOptional->Option.isSome {
       setIsSDKOpen(_ => true)
@@ -99,7 +99,7 @@ let make = () => {
     None
   }, [filtersFromUrl])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setInitialValues(_ => defaultBusinessProfile->SDKPaymentUtils.initialValueForForm)
     None
   }, [defaultBusinessProfile.profile_id->String.length])

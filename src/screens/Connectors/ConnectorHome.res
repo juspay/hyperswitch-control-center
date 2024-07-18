@@ -183,7 +183,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if connector->LogicUtils.isNonEmptyString {
       getDetails()->ignore
     } else {
