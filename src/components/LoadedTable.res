@@ -82,7 +82,7 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
     }
   }
   let sortedArrayByOrder = {
-    let _ = originalData->Array.toSorted((i1, i2) => {
+    originalData->Array.toSorted((i1, i2) => {
       let item1 = i1->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       let item2 = i2->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       // flatten items and get data
@@ -119,7 +119,6 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
         1.
       }
     })
-    originalData
   }
   sortedArrayByOrder
 }
