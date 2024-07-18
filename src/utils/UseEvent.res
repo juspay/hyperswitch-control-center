@@ -6,7 +6,7 @@ let useEvent0 = callback => {
     None
   }, [callback])
 
-  React.useCallback0(() => {
+  React.useCallback(() => {
     callbackRef.current()
-  })
+  }, [])
 }

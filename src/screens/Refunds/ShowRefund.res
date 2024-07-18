@@ -128,7 +128,7 @@ let make = (~id) => {
     None
   }, [])
 
-  let showSyncButton = React.useCallback1(_ => {
+  let showSyncButton = React.useCallback(_ => {
     let refundDict = refundData->getDictFromJsonObject
     let status = refundDict->getString("status", "")->statusVariantMapper
 

@@ -23,7 +23,7 @@ let make = () => {
 
   let (currentStep, setCurrentStep) = React.useState(_ => isUpdateFlow ? Preview : initStep)
 
-  let selectedFRMName: ConnectorTypes.connectorTypes = React.useMemo1(() => {
+  let selectedFRMName: ConnectorTypes.connectorTypes = React.useMemo(() => {
     let frmName =
       frmName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer, ())
     setInitialValues(_ => {

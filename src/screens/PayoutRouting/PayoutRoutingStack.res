@@ -14,11 +14,11 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
 
-  let (widthClass, marginClass) = React.useMemo1(() => {
+  let (widthClass, marginClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
   }, [previewOnly])
 
-  let tabs: array<Tabs.tab> = React.useMemo0(() => {
+  let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
     [
       {
@@ -39,7 +39,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         renderContent: () => <PayoutCurrentActiveRouting routingType />,
       },
     ]
-  })
+  }, [])
 
   let fetchRoutingRecords = async activeIds => {
     try {

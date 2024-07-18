@@ -122,7 +122,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let fetchPostDetils = useUpdateMethod()
   let (data, setData) = React.useState(_ => [])
-  let isError = React.useMemo0(() => {ref(false)})
+  let isError = React.useMemo(() => {ref(false)}, [])
   let (logDetails, setLogDetails) = React.useState(_ => {
     response: "",
     request: "",
@@ -150,11 +150,11 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     a
   })
 
-  let activeTab = React.useMemo1(() => {
+  let activeTab = React.useMemo(() => {
     Some(activeTab)
   }, [activeTab])
 
-  let setActiveTab = React.useMemo1(() => {
+  let setActiveTab = React.useMemo(() => {
     (str: string) => {
       setActiveTab(_ => str->String.split(","))
     }

@@ -767,7 +767,7 @@ let make = (
   | _ => RoutingTypes.PaymentConnector
   }
 
-  let connectorOptions = React.useMemo2(() => {
+  let connectorOptions = React.useMemo(() => {
     connectors
     ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
     ->Array.filter(item => item.profile_id === profile)

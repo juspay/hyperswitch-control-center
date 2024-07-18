@@ -32,7 +32,7 @@ let make = (
   ~selectedMetrics: LineChartUtils.metricsConfig,
 ) => {
   let {theme} = React.useContext(ThemeProvider.themeContext)
-  let pieSeriesData = React.useMemo3(() => {
+  let pieSeriesData = React.useMemo(() => {
     LineChartUtils.chartDataMaker(
       ~filterNull=true,
       rawData,
@@ -45,7 +45,7 @@ let make = (
   let opacity = theme === Dark ? "0.5" : "1"
   let titleKey = titleKey->Option.getOr(groupKey)
 
-  let barOption: JSON.t = React.useMemo2(() => {
+  let barOption: JSON.t = React.useMemo(() => {
     let colors = {
       let length = pieSeriesData->Array.length->Int.toFloat
       pieSeriesData->Array.mapWithIndex((_data, i) => {

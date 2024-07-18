@@ -46,7 +46,7 @@ let make = (
     }
     None
   }, (inputRef.current, input.name))
-  let modifiedInput = React.useMemo2(() => {
+  let modifiedInput = React.useMemo(() => {
     {
       ...input,
       value: localStrValue,

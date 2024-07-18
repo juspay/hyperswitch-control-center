@@ -203,13 +203,13 @@ module Base = {
 
     let dropdownPosition = isFilterSection && !isMobileView && isCustomSelected ? "right-0" : ""
 
-    let todayDayJsObj = React.useMemo1(() => {
+    let todayDayJsObj = React.useMemo(() => {
       Date.make()->Date.toString->DayJs.getDayJsForString
     }, [isDropdownExpanded])
 
     let currentTime = todayDayJsObj.format("HH:mm")
     let todayDate = todayDayJsObj.format("YYYY-MM-DD")
-    let todayTime = React.useMemo1(() => {
+    let todayTime = React.useMemo(() => {
       todayDayJsObj.format("HH:mm:ss")
     }, [currentTime])
 
@@ -880,7 +880,7 @@ module Base = {
 }
 
 let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
-  React.useMemo1(() => {
+  React.useMemo(() => {
     let val = input.value->JSON.Decode.string->Option.getOr("")
     let onChange = fn => {
       let newVal = fn(val)

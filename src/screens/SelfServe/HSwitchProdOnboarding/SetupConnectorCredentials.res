@@ -26,7 +26,7 @@ module ConnectorDetailsForm = {
     ) = getConnectorFields(connectorDetails)
     let connectorVariant = connectorName->getConnectorNameTypeFromString()
 
-    let selectedConnector = React.useMemo1(() => {
+    let selectedConnector = React.useMemo(() => {
       connectorVariant->getConnectorInfo
     }, [connectorName])
 

@@ -6,7 +6,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
   let textHeadingClass = getTextClass((H2, Optional))
   let textSubHeadingClass = getTextClass((P1, Regular))
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let isAtleastOneAccept = React.useMemo1(() => {
+  let isAtleastOneAccept = React.useMemo(() => {
     merchantData
     ->Array.find(ele => {
       let merchantDataDict = ele->getDictFromJsonObject

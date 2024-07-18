@@ -28,7 +28,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
     None
   }, [isDistributeInput.value])
 
-  let selectedOptions = React.useMemo1(() => {
+  let selectedOptions = React.useMemo(() => {
     gateWaysInput.value
     ->JSON.Decode.array
     ->Option.getOr([])

@@ -155,7 +155,7 @@ module ConnectorSummaryGrid = {
       ~connectorName={connectorInfo.merchant_connector_id},
       ~merchantId,
     )
-    let connectorDetails = React.useMemo1(() => {
+    let connectorDetails = React.useMemo(() => {
       try {
         if connector->LogicUtils.isNonEmptyString {
           let dict = isPayoutFlow

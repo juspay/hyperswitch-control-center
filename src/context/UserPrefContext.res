@@ -185,7 +185,7 @@ let make = (~children) => {
     ->LogicUtils.getJsonFromArrayOfJson
     ->JSON.stringify
 
-  let value = React.useMemo4(() => {
+  let value = React.useMemo(() => {
     let currentConfig = userPref->Dict.get(username)->Option.getOr({})
     let updatedPrev = currentConfig
     let lastVisitedTab = switch updatedPrev {

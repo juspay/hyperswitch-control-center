@@ -27,7 +27,7 @@ module Snackbar = {
       React.null
     }
 
-    let handleClick = React.useCallback1(_ev => {
+    let handleClick = React.useCallback(_ev => {
       switch snackbarProps.onClose {
       | Some(fn) => fn()
       | _ => ()
@@ -65,7 +65,7 @@ module Snackbar = {
 let make = (~children) => {
   let (openSnackbar, setOpenSnackbar) = Recoil.useRecoilState(SnackBarState.openSnackbar)
 
-  let hideSnackbar = React.useCallback1(key => {
+  let hideSnackbar = React.useCallback(key => {
     setOpenSnackbar(prevArr => {
       Array.filter(
         prevArr,

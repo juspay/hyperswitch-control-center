@@ -178,7 +178,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   let (merchantBusinessCountry, setMerchantBusinessCountry) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (verifiedDomainList, setVefifiedDomainList) = React.useState(_ => [])
-  let applePayFields = React.useMemo1(() => {
+  let applePayFields = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
         let dict =

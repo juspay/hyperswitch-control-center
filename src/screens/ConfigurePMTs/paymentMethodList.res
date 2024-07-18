@@ -16,7 +16,7 @@ let make = (~isPayoutFlow=false) => {
   )
   let {updateExistingKeys, reset, filterValueJson} = FilterContext.filterContext->React.useContext
   let (offset, setOffset) = React.useState(_ => 0)
-  let allFilters: PaymentMethodConfigTypes.paymentMethodConfigFilters = React.useMemo1(() => {
+  let allFilters: PaymentMethodConfigTypes.paymentMethodConfigFilters = React.useMemo(() => {
     filterValueJson->pmtConfigFilter
   }, [filterValueJson])
   let getConnectorListAndUpdateState = async () => {

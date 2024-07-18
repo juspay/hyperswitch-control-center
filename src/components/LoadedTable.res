@@ -317,7 +317,7 @@ let make = (
 
   let localResultsPerPage = pageDetail.resultsPerPage
 
-  let setColumnFilter = React.useMemo1(() => {
+  let setColumnFilter = React.useMemo(() => {
     (filterKey, filterValue: array<JSON.t>) => {
       setColumnFilterOrig(oldFitlers => {
         let newObj = oldFitlers->Dict.toArray->Dict.fromArray
@@ -352,12 +352,12 @@ let make = (
     None
   }, [columnFilter])
 
-  let filterValue = React.useMemo2(() => {
+  let filterValue = React.useMemo(() => {
     (columnFilter, setColumnFilter)
   }, (columnFilter, setColumnFilter))
 
   let (isFilterOpen, setIsFilterOpenOrig) = React.useState(_ => Dict.make())
-  let setIsFilterOpen = React.useMemo1(() => {
+  let setIsFilterOpen = React.useMemo(() => {
     (filterKey, value: bool) => {
       setIsFilterOpenOrig(oldFitlers => {
         let newObj = oldFitlers->DictionaryUtils.copyOfDict
@@ -366,7 +366,7 @@ let make = (
       })
     }
   }, [setColumnFilterOrig])
-  let filterOpenValue = React.useMemo2(() => {
+  let filterOpenValue = React.useMemo(() => {
     (isFilterOpen, setIsFilterOpen)
   }, (isFilterOpen, setIsFilterOpen))
 
@@ -389,7 +389,7 @@ let make = (
     ->ignore
   }
 
-  let setLocalResultsPerPage = React.useCallback1(fn => {
+  let setLocalResultsPerPage = React.useCallback(fn => {
     setLocalResultsPerPageOrig(prev => {
       let newVal = prev->fn
       if newVal == 0 {
@@ -424,7 +424,7 @@ let make = (
   }, (offset, currrentFetchCount, totalResults, tableDataLoading))
 
   let originalActualData = actualData
-  let actualData = React.useMemo5(() => {
+  let actualData = React.useMemo(() => {
     if tableLocalFilter {
       filteredData(actualData, columnFilter, visibleColumns, entity, dateFormatConvertor)
     } else {
@@ -432,7 +432,7 @@ let make = (
     }
   }, (actualData, columnFilter, visibleColumns, entity, dateFormatConvertor))
 
-  let columnFilterRow = React.useMemo4(() => {
+  let columnFilterRow = React.useMemo(() => {
     if tableLocalFilter {
       let columnFilterRow =
         visibleColumns
@@ -519,7 +519,7 @@ let make = (
     None
   }, [filteredDataLength])
 
-  let filteredData = React.useMemo4(() => {
+  let filteredData = React.useMemo(() => {
     switch sortedObj {
     | Some(obj: Table.sortedObject) => sortArray(actualData, obj.key, obj.order)
     | None => actualData
@@ -659,7 +659,7 @@ let make = (
     filteredData->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})
   let rows = rows->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})
 
-  let handleRowClick = React.useCallback4(index => {
+  let handleRowClick = React.useCallback(index => {
     let actualVal = switch filteredData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
@@ -683,7 +683,7 @@ let make = (
     }
   }, (filteredData, getShowLink, onEntityClick, url.search))
 
-  let onRowDoubleClick = React.useCallback4(index => {
+  let onRowDoubleClick = React.useCallback(index => {
     let actualVal = switch filteredData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
@@ -707,7 +707,7 @@ let make = (
     }
   }, (filteredData, getShowLink, onEntityDoubleClick, url.search))
 
-  let handleMouseEnter = React.useCallback4(index => {
+  let handleMouseEnter = React.useCallback(index => {
     let actualVal = switch filteredData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
@@ -722,7 +722,7 @@ let make = (
     }
   }, (filteredData, getShowLink, onMouseEnter, url.search))
 
-  let handleMouseLeaeve = React.useCallback4(index => {
+  let handleMouseLeaeve = React.useCallback(index => {
     let actualVal = switch filteredData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None

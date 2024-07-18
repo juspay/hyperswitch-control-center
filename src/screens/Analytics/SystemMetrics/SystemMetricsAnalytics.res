@@ -253,7 +253,7 @@ module SystemMetricsAnalytics = {
       None
     }, [])
 
-    let filterBody = React.useMemo3(() => {
+    let filterBody = React.useMemo(() => {
       let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
         startTime: startTimeVal,
         endTime: endTimeVal,

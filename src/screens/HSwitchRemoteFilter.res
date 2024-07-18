@@ -213,7 +213,7 @@ module RemoteTableFilters = {
       })
       ->Dict.fromArray
 
-    let remoteFilters = React.useMemo1(() => {
+    let remoteFilters = React.useMemo(() => {
       filterData->initialFilters(getAllFilter)
     }, [getAllFilter])
 

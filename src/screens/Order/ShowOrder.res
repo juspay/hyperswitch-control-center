@@ -641,7 +641,7 @@ let make = (~id) => {
     setShowModal(_ => true)
   }
 
-  let showSyncButton = React.useCallback1(_ => {
+  let showSyncButton = React.useCallback(_ => {
     let status = orderData.status->statusVariantMapper
 
     !(id->isTestData) && status !== Succeeded && status !== Failed

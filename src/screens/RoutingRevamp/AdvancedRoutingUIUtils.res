@@ -277,15 +277,15 @@ module FieldInp = {
     let op = ReactFinalForm.useField(`${prefix}.comparison`).input
     let val = ReactFinalForm.useField(`${prefix}.value.value`).input
 
-    let convertedValue = React.useMemo0(() => {
+    let convertedValue = React.useMemo(() => {
       let keyDescriptionMapper = switch url->RoutingUtils.urlToVariantMapper {
       | PayoutRouting => Window.getPayoutDescriptionCategory()->Identity.jsonToAnyType
       | _ => Window.getDescriptionCategory()->Identity.jsonToAnyType
       }
       keyDescriptionMapper->LogicUtils.convertMapObjectToDict
-    })
+    }, [])
 
-    let options = React.useMemo0(() =>
+    let options = React.useMemo(() =>
       convertedValue
       ->Dict.keysToArray
       ->Array.reduce([], (acc, ele) => {
@@ -309,7 +309,7 @@ module FieldInp = {
         )
         acc
       })
-    )
+    , [])
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
@@ -358,7 +358,7 @@ module RuleFieldBase = {
       setKeyTypeAndVariants(wasm, value)
     }
 
-    let methodKeys = React.useMemo0(() => {
+    let methodKeys = React.useMemo(() => {
       let value = field.value->LogicUtils.getStringFromJson("")
       if value->LogicUtils.isNonEmptyString {
         setKeyTypeAndVariants(wasm, value)
@@ -373,7 +373,7 @@ module RuleFieldBase = {
         | _ => Window.getAllKeys()
         }
       }
-    })
+    }, [])
 
     <UIUtils.RenderIf condition={methodKeys->Array.length > 0}>
       {if isExpanded {

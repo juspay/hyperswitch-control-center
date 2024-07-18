@@ -40,18 +40,18 @@ let make = (
       : minSlide.value,
   }
 
-  let diff = React.useMemo2(() => {
+  let diff = React.useMemo(() => {
     Math.max(max -. min, 1.)
   }, (max, min))
 
-  let maxsliderVal = React.useMemo1(() => {
+  let maxsliderVal = React.useMemo(() => {
     switch maxSlide.value->JSON.Decode.float {
     | Some(num) => Math.ceil(num)->Float.toString
     | None => "0"
     }
   }, [maxSlide.value])
 
-  let minsliderVal = React.useMemo1(() => {
+  let minsliderVal = React.useMemo(() => {
     switch minSlide.value->JSON.Decode.float {
     | Some(num) => Math.floor(num)->Float.toString
     | None => "0"

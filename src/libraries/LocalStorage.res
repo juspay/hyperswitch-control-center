@@ -60,7 +60,7 @@ let useStorageValue = key => {
     )
   }, [])
 
-  React.useMemo2(() => {
+  React.useMemo(() => {
     /* LocalStorage. */ getItem(key)->Nullable.toOption
   }, (key, value))
 }
