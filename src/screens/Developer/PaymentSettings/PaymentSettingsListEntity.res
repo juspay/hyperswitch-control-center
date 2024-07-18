@@ -47,6 +47,8 @@ let itemToObjMapper = dict => {
       dict,
       "collect_shipping_details_from_wallet_connector",
     ),
+    outgoing_webhook_custom_http_headers: None,
+    is_connector_agnostic_mit_enabled: None,
   }
 }
 
@@ -66,9 +68,7 @@ let webhookProfileTableEntity = (~permission: CommonAuthTypes.authorization) =>
     ~getShowLink={
       profile =>
         PermissionUtils.linkForGetShowLinkViaAccess(
-          ~url=HSwitchGlobalVars.appendDashboardPath(
-            ~url=`/payment-settings/${profile.profile_id}`,
-          ),
+          ~url=GlobalVars.appendDashboardPath(~url=`/payment-settings/${profile.profile_id}`),
           ~permission,
         )
     },

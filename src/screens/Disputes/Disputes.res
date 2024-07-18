@@ -4,7 +4,7 @@ open PageLoaderWrapper
 let make = () => {
   let getURL = useGetURL()
   let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-    ConfigContext.configContext,
+    ThemeProvider.themeContext,
   )
   let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => Loading)
@@ -34,10 +34,10 @@ let make = () => {
       }
     }
   }
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getDisputesList()->ignore
     None
-  })
+  }, [])
 
   let customUI =
     <>

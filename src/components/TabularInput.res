@@ -82,7 +82,7 @@ module TableStructure = {
 @react.component
 let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~headings, ~fields) => {
   let tableInput = input->ffInputToTableInput
-  let currentValue = React.useMemo1(() => {
+  let currentValue = React.useMemo(() => {
     switch tableInput.value->JSON.Decode.array {
     | Some(str) =>
       str->Array.map(item => {
@@ -126,7 +126,7 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~headings, ~fields) =>
     setKeyValue(_ => a)
   }
 
-  let onClick = (elemIndex, isLast, _) => {
+  let onClick = (elemIndex, isLast) => _ev => {
     let value = if isLast {
       Array.concat(initialState, dummyInitialState)
     } else {

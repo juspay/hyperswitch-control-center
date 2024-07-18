@@ -69,7 +69,7 @@ module VerticalChoiceTile = {
   ) => {
     let {
       globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
-    } = React.useContext(ConfigContext.configContext)
+    } = React.useContext(ThemeProvider.themeContext)
     let getBlockColor = value =>
       choiceState === value
         ? `${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10 `
@@ -137,7 +137,7 @@ module HorizontalChoiceTile = {
   ) => {
     let {
       globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
-    } = React.useContext(ConfigContext.configContext)
+    } = React.useContext(ThemeProvider.themeContext)
     let getBlockColor = value =>
       choiceState === value
         ? `${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10 `
@@ -195,10 +195,10 @@ module LandingPageChoice = {
     ~isVerticalTile=false,
     ~customLayoutCss="",
   ) => {
-    React.useEffect0(() => {
+    React.useEffect(() => {
       setChoiceState(_ => #NotSelected)
       None
-    })
+    }, [])
 
     <BaseComponent
       headerText
@@ -222,7 +222,7 @@ module SelectConnectorGrid = {
 
     let {
       globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
-    } = React.useContext(ConfigContext.configContext)
+    } = React.useContext(ThemeProvider.themeContext)
     let typedConnectedConnectorList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom

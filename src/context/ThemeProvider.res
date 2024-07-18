@@ -2,18 +2,43 @@ type theme = Light | Dark
 
 let defaultSetter = (_: theme) => ()
 
-let themeContext = React.createContext((Light, defaultSetter))
-
 type themeType = LightTheme
 
 type x = {theme: string}
 
+type customStyle = {
+  primaryColor: string,
+  primaryHover: string,
+  sidebar: string,
+}
+
+type customUIConfig = {
+  globalUIConfig: UIConfig.t,
+  theme: theme,
+  themeSetter: theme => unit,
+  configCustomDomainTheme: JSON.t => unit,
+}
+
+let defaultGlobalConfig: customStyle = {
+  primaryColor: "#006DF9",
+  primaryHover: "#005ED6",
+  sidebar: "#242F48",
+}
+
+let themeContext = {
+  globalUIConfig: UIConfig.defaultUIConfig,
+  theme: Light,
+  themeSetter: defaultSetter,
+  configCustomDomainTheme: (_: JSON.t) => (),
+}
+
+let themeContext = React.createContext(themeContext)
+
 module Parent = {
   let make = React.Context.provider(themeContext)
 }
-
 let useTheme = () => {
-  let (theme, _) = React.useContext(themeContext)
+  let {theme} = React.useContext(themeContext)
   theme
 }
 
@@ -37,11 +62,11 @@ let make = (~children) => {
     }
   }
 
-  let setTheme = React.useCallback1(value => {
+  let setTheme = React.useCallback(value => {
     setThemeBase(_ => value)
   }, [setThemeBase])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setTheme(initialTheme)
     None
   }, [isCurrentlyDark])
@@ -50,12 +75,28 @@ let make = (~children) => {
   | Dark => "dark"
   | Light => ""
   }
+  let configCustomDomainTheme = React.useCallback((uiConfg: JSON.t) => {
+    open LogicUtils
+    let dict = uiConfg->getDictFromJsonObject->getDictfromDict("theme")
+    let {primaryColor, primaryHover, sidebar} = defaultGlobalConfig
+    let value: HyperSwitchConfigTypes.customStyle = {
+      primaryColor: dict->getString("primary_color", primaryColor),
+      primaryHover: dict->getString("primary_hover_color", primaryHover),
+      sidebar: dict->getString("sidebar_color", sidebar),
+    }
+    Window.appendStyle(value)
+  }, [])
 
-  let value = React.useMemo2(() => {
-    (theme, setTheme)
+  let value = React.useMemo(() => {
+    {
+      globalUIConfig: UIConfig.defaultUIConfig,
+      theme,
+      themeSetter: setTheme,
+      configCustomDomainTheme,
+    }
   }, (theme, setTheme))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if theme === Dark {
       setTheme(Light)
     }

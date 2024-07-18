@@ -26,7 +26,7 @@ let make = (~setAuthType) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     open CommonAuthUtils
     let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
 
@@ -36,7 +36,7 @@ let make = (~setAuthType) => {
     }
 
     None
-  })
+  }, [])
   let onClick = () => {
     setAuthType(_ => CommonAuthTypes.LoginWithEmail)
     setAuthStatus(LoggedOut)

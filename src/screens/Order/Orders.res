@@ -15,11 +15,11 @@ let make = (~previewOnly=false) => {
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let isConfigureConnector = connectorList->Array.length > 0
 
-  let (widthClass, heightClass) = React.useMemo1(() => {
+  let (widthClass, heightClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "max-h-96") : ("w-full", "")
   }, [previewOnly])
 
-  let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
+  let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
@@ -32,6 +32,7 @@ let make = (~previewOnly=false) => {
         let filters = Dict.make()
 
         filters->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
+        filters->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         if !(searchText->isEmptyString) {
           filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
         }
@@ -75,7 +76,7 @@ let make = (~previewOnly=false) => {
     }
   }
 
-  React.useEffect3(() => {
+  React.useEffect(() => {
     if filters->isNonEmptyValue {
       fetchOrders()
     }
@@ -88,7 +89,7 @@ let make = (~previewOnly=false) => {
 
   let filterUrl = getURL(~entityName=ORDERS, ~methodType=Get, ~id=Some("v2/filter"), ())
 
-  let filtersUI = React.useMemo0(() => {
+  let filtersUI = React.useMemo(() => {
     <RemoteTableFilters
       filterUrl
       setFilters
@@ -101,7 +102,7 @@ let make = (~previewOnly=false) => {
         placeholder="Search payment id" setSearchVal=setSearchText searchVal=searchText
       />}
     />
-  })
+  }, [])
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
@@ -125,7 +126,7 @@ let make = (~previewOnly=false) => {
           title="Orders"
           actualData=orderData
           entity={OrderEntity.orderEntity}
-          resultsPerPage=10
+          resultsPerPage=20
           showSerialNumber=true
           totalResults={previewOnly ? orderData->Array.length : totalCount}
           offset
@@ -137,7 +138,6 @@ let make = (~previewOnly=false) => {
           sortingBasedOnDisabled=false
           hideTitle=true
           previewOnly
-          showResultsPerPageSelector=false
         />
       </PageLoaderWrapper>
     </div>

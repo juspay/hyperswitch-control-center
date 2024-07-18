@@ -41,7 +41,7 @@ module EnterAccessCode = {
         verifyAccessCode()->ignore
       }
     }
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if recoveryCode->String.length == 9 {
         Window.addEventListener("keyup", handleKeyUp)
       } else {
@@ -159,7 +159,7 @@ module ConfigureTotpScreen = {
         verifyTOTP()->ignore
       }
     }
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if otp->String.length == 6 {
         Window.addEventListener("keyup", handleKeyUp)
       } else {
@@ -259,12 +259,13 @@ let make = () => {
     try {
       open AuthUtils
 
-      let url = `${getURL(
-          ~entityName=USERS,
-          ~userType=#TERMINATE_TWO_FACTOR_AUTH,
-          ~methodType=Get,
-          (),
-        )}?skip_two_factor_auth=${skip_2fa->getStringFromBool}`
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#TERMINATE_TWO_FACTOR_AUTH,
+        ~methodType=Get,
+        ~queryParamerters=Some(`skip_two_factor_auth=${skip_2fa->getStringFromBool}`),
+        (),
+      )
 
       let response = await fetchDetails(url)
       setAuthStatus(PreLogin(getPreLoginInfo(response)))
@@ -313,7 +314,7 @@ let make = () => {
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     getTOTPString()->ignore
     None
   }, [showNewQR])

@@ -94,7 +94,7 @@ module AddNewMerchantButton = {
     open HeadlessUI
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <ACLDiv
       permission={userPermissionJson.merchantDetailsManage}
       onClick={_ => setShowModal(_ => true)}
@@ -127,7 +127,7 @@ module ExternalUser = {
     open UIUtils
     let {merchant_id: defaultMerchantId} =
       CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let switchMerchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.switchMerchantListAtom)
     let merchantDetailsTypedValue = HSwitchUtils.useMerchantDetailsValue()
     let defaultSelectedMerchantType = {
@@ -155,7 +155,7 @@ module ExternalUser = {
       setSelectedMerchantObject(_ => extractMerchantObject)
     }
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       fetchMerchantIDs()
       None
     }, (merchantDetailsTypedValue.merchant_name, switchMerchantList))
@@ -163,11 +163,11 @@ module ExternalUser = {
     open HeadlessUI
     <>
       <Menu \"as"="div" className="relative inline-block text-left">
-        {menuProps =>
+        {_menuProps =>
           <div>
             <Menu.Button
               className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-md hover:bg-opacity-80 bg-white border">
-              {buttonProps => {
+              {_buttonProps => {
                 <>
                   {selectedMerchantObject.merchant_name->React.string}
                   <Icon
@@ -264,7 +264,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   let showPopUp = PopUpState.useShowPopUp()
   let isInternalUser = userRole->String.includes("internal_")
   let (successModal, setSuccessModal) = React.useState(_ => false)
-  let input = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
+  let input = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
     {
       name: "-",
       onBlur: _ev => (),

@@ -1,5 +1,5 @@
 let useMatchMedia = mediaQuery => {
-  let mediaQueryList = React.useMemo1(() => {
+  let mediaQueryList = React.useMemo(() => {
     Window.matchMedia(mediaQuery)
   }, [mediaQuery])
 
@@ -7,14 +7,14 @@ let useMatchMedia = mediaQuery => {
     mediaQueryList.matches
   })
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let screenTest = (ev: Window.MatchMedia.matchEvent) => {
       let matched = ev.matches
       setIsMatched(_prev => matched)
     }
-    mediaQueryList.addListener(. screenTest)
+    mediaQueryList.addListener(screenTest)
 
-    Some(() => mediaQueryList.removeListener(. screenTest))
+    Some(() => mediaQueryList.removeListener(screenTest))
   }, [mediaQueryList])
   isMatched
 }

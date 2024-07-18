@@ -287,8 +287,8 @@ module ChooseColumns = {
   ) => {
     let (visibleColumns, setVisibleColumns) = Recoil.useRecoilState(activeColumnsAtom)
     let {getHeading} = entity
-    let setColumns = React.useCallback1(fn => {
-      setVisibleColumns(. fn)
+    let setColumns = React.useCallback(fn => {
+      setVisibleColumns(fn)
       setShowColumnSelector(_ => false)
     }, [setVisibleColumns])
     if entity.allColumns->Option.isSome && totalResults > 0 {

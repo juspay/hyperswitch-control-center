@@ -2,8 +2,8 @@ open InputFields
 type inputFieldType = {
   name: string,
   placeholder: string,
-  format: option<(. ~value: JSON.t, ~name: string) => JSON.t>,
-  parse: option<(. ~value: JSON.t, ~name: string) => JSON.t>,
+  format: option<(~value: JSON.t, ~name: string) => JSON.t>,
+  parse: option<(~value: JSON.t, ~name: string) => JSON.t>,
   disabled: bool,
   isRequired: bool,
   @as("type") type_: string,
@@ -265,7 +265,7 @@ module FieldWrapper = {
           }}
         </>}
         children
-        {switch subText->Option.flatMap(LogicUtils.getNonEmptyString) {
+        {switch subText->Option.flatMap(val => val->LogicUtils.getNonEmptyString) {
         | Some(subText) => <div className=subTextClass> {React.string(subText)} </div>
         | None => React.null
         }}
@@ -468,7 +468,7 @@ module FieldRenderer = {
     let isVisible = true
 
     if isVisible {
-      let names = field.inputNames->Array.joinWith("-")
+      let names = field.inputNames->Array.joinWithUnsafe("-")
 
       <Portal to=portalKey>
         <AddDataAttributes attributes=[("data-component", "fieldRenderer")]>
@@ -526,7 +526,7 @@ module FormError = {
       JSON.Encode.object(subscriptionDict)
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       let unsubscribe = form.subscribe(formState => {
         setSubmitErrors(_ => formState.submitErrors->Nullable.toOption)
 
@@ -534,7 +534,7 @@ module FormError = {
       }, subscriptionJson)
 
       Some(unsubscribe)
-    })
+    }, [])
     switch submitErrors {
     | Some(errorsJson) =>
       switch errorsJson->JSON.Decode.object {
@@ -617,7 +617,7 @@ module SubmitButton = {
 
     let showPopUp = PopUpState.useShowPopUp()
     let (avoidDisable, setAvoidDisable) = React.useState(_ => userInteractionRequired)
-    React.useEffect0(() => {
+    React.useEffect(() => {
       let onClick = {
         _ev => {
           setAvoidDisable(_ => false)
@@ -629,7 +629,7 @@ module SubmitButton = {
           Window.removeEventListener("click", onClick)
         },
       )
-    })
+    }, [])
     let form = ReactFinalForm.useForm()
     let openPopUp = (confirmType, confirmText, buttonText, cancelButtonText, popUpType) => {
       showPopUp({
@@ -706,7 +706,7 @@ module SubmitButton = {
 
           `${key->LogicUtils.snakeToTitle}: ${value}`
         })
-        ->Array.joinWith("\n")
+        ->Array.joinWithUnsafe("\n")
 
       if showToolTip && !avoidDisable {
         <ToolTip

@@ -28,21 +28,23 @@ let make = (~setSelectedAuthId) => {
 
   let handleTerminateSSO = async method_id => {
     open AuthUtils
+    open LogicUtils
     try {
-      let body = [("id", method_id->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
+      let body = Dict.make()
+      body->setOptionString("id", method_id)
       let terminateURL = getURL(~entityName=USERS, ~userType=#AUTH_SELECT, ~methodType=Post, ())
-      let response = await updateDetails(terminateURL, body, Post, ())
-      setSelectedAuthId(_ => Some(method_id))
+      let response = await updateDetails(terminateURL, body->JSON.Encode.object, Post, ())
+      setSelectedAuthId(_ => method_id)
       setAuthStatus(PreLogin(getPreLoginInfo(response)))
     } catch {
     | _ => setAuthStatus(LoggedOut)
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getAuthMethods()->ignore
     None
-  })
+  }, [])
 
   let renderComponentForAuthTypes = (method: SSOTypes.authMethodResponseType) => {
     let authMethodType = method.auth_method.\"type"
@@ -65,6 +67,7 @@ let make = (~setSelectedAuthId) => {
     | (_, _) => React.null
     }
   }
+
   <PageLoaderWrapper screenState>
     <HSwitchUtils.BackgroundImageWrapper
       customPageCss="flex flex-col items-center  overflow-scroll ">
@@ -83,7 +86,7 @@ let make = (~setSelectedAuthId) => {
               ->Array.mapWithIndex((authMethod, index) =>
                 <React.Fragment key={index->Int.toString}>
                   {authMethod->renderComponentForAuthTypes}
-                  <UIUtils.RenderIf condition={index === 0 && authMethods->Array.length !== 1}>
+                  <UIUtils.RenderIf condition={index === 0 && authMethods->Array.length !== 2}>
                     {PreLoginUtils.divider}
                   </UIUtils.RenderIf>
                 </React.Fragment>

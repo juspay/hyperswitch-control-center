@@ -74,12 +74,12 @@ module TabInfo = {
 
     let lineStyle = showBottomBorder ? "bg-black w-full h-0.5 rounded-full" : ""
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       if isSelected && isScrollIntoViewRequired {
         tabRef.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"})
+          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"}))
         )
       }
       None
@@ -110,7 +110,7 @@ module IndicationArrow = {
         refElement.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"})
+          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"}))
         )
     }
     let roundness = side == "left" ? "rounded-tr-md" : "rounded-tl-md"
@@ -173,7 +173,7 @@ let make = (
 
   let renderedTabClassName = renderedTabClassName
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setSelectedIndex(_ => initialIndex)
     None
   }, [initialIndex])

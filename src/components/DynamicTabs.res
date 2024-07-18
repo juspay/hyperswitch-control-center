@@ -53,13 +53,13 @@ module TabInfo = {
 
     let defaultThemeBasedClass = `${fontClass} px-6`
 
-    let defaultClasses = `font-semibold ${defaultThemeBasedClass} w-max flex flex-auto flex-row items-center justify-center text-body`
+    let defaultClasses = `font-semibold ${defaultThemeBasedClass} w-max flex flex-auto flex-row items-center justify-center text-body mb-1`
     let selectionClasses = if isSelected {
       "font-semibold text-black"
     } else {
       "text-jp-gray-700 dark:text-jp-gray-tabset_gray dark:text-opacity-75  hover:text-jp-gray-800 dark:hover:text-opacity-100 font-medium"
     }
-    let handleClick = React.useCallback2(_ev => {
+    let handleClick = React.useCallback(_ev => {
       handleSelectedTab(
         ~tabValue={
           switch tabNames->Array.get(index) {
@@ -75,10 +75,8 @@ module TabInfo = {
     let bottomBorderColor = ""
     let borderClass = ""
 
-    let tabHeight = "47px"
-
     let lineStyle = "bg-black w-full h-0.5 rounded-full"
-
+    open UIUtils
     let crossIcon = switch isRemovable {
     | true =>
       <svg
@@ -148,21 +146,21 @@ module TabInfo = {
             ->String.split("+")
             ->Array.map(String.trim)
             ->Array.map(LogicUtils.snakeToTitle)
-            ->Array.joinWith(" + "),
+            ->Array.joinWithUnsafe(" + "),
           )}
           crossIcon
         </div>
         <div />
-        {if isSelected {
+        <RenderIf condition={isSelected}>
           <FramerMotion.Motion.Div className=lineStyle layoutId="underline" />
-        } else {
-          <div className="h-0.5" />
-        }}
+        </RenderIf>
+        <RenderIf condition={!isSelected}>
+          <div className="w-full h-0.5 rounded-full" />
+        </RenderIf>
       </div>
 
     <div
-      className={`flex flex-row cursor-pointer pt-0.5 pb-0 ${borderClass} ${bottomBorderColor} items-center`}
-      style={ReactDOMStyle.make(~height=tabHeight, ())}>
+      className={`flex flex-row cursor-pointer pt-0.5 pb-0 ${borderClass} ${bottomBorderColor} items-center h-14`}>
       {tab}
     </div>
   }
@@ -178,7 +176,7 @@ module IndicationArrow = {
         refElement.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"})
+          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"}))
         )
     }
     let roundness = side == "left" ? "rounded-tr-md ml-2" : "rounded-tl-md"
@@ -264,7 +262,7 @@ let make = (
 
   let (selectedIndex, setSelectedIndex) = React.useState(_ => 0)
 
-  let (initialIndex, updatedCollapsableTabs) = React.useMemo1(() => {
+  let (initialIndex, updatedCollapsableTabs) = React.useMemo(() => {
     let defautTabValues = defaultTabs->Array.map(item => item.value)
     let collapsibleTabs = switch getConfig(availableTabUserPrefKey) {
     | Some(jsonVal) => {
@@ -289,14 +287,14 @@ let make = (
             )
             ->Array.length === 0
 
-          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
+          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
           if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
             let newTab = {
               title: concatinatedTabNames,
-              value: tabName->Array.joinWith(","),
+              value: tabName->Array.joinWithUnsafe(","),
               description: switch tabs->Array.find(
                 item => {
-                  item.value === tabName->Array.joinWith(",")
+                  item.value === tabName->Array.joinWithUnsafe(",")
                 },
               ) {
               | Some(tabValue) =>
@@ -305,7 +303,7 @@ let make = (
               },
               isRemovable: switch tabs->Array.find(
                 item => {
-                  item.value === tabName->Array.joinWith(",")
+                  item.value === tabName->Array.joinWithUnsafe(",")
                 },
               ) {
               | Some(tabValue) => tabValue.isRemovable
@@ -336,7 +334,7 @@ let make = (
       })
       ->Array.length === 0
 
-    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
+    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
 
     if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
       let concatinatedTabIndex =
@@ -346,59 +344,39 @@ let make = (
         let newTab = [
           {
             title: concatinatedTabNames,
-            value: tabName->Array.joinWith(","),
+            value: tabName->Array.joinWithUnsafe(","),
             isRemovable: true,
           },
         ]
         let updatedColllapsableTab = Array.concat(collapsibleTabs, newTab)
 
         setTabDetails(_ => Array.concat(tabsDetails, newTab))
-        setActiveTab(getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs)))
-        updateTabNameWith(
-          Dict.fromArray([
-            (
-              "tabName",
-              `[${getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs))}]`,
-            ),
-          ]),
-        )
+
         (Array.length(collapsibleTabs), updatedColllapsableTab)
       } else {
-        setActiveTab(getValueFromArrayTab(collapsibleTabs, concatinatedTabIndex))
-
-        updateTabNameWith(
-          Dict.fromArray([
-            ("tabName", `[${getValueFromArrayTab(collapsibleTabs, concatinatedTabIndex)}]`),
-          ]),
-        )
         (concatinatedTabIndex, collapsibleTabs)
       }
     } else {
-      setActiveTab(getValueFromArrayTab(collapsibleTabs, 0))
-
-      updateTabNameWith(
-        Dict.fromArray([("tabName", `[${getValueFromArrayTab(collapsibleTabs, 0)}]`)]),
-      )
       setSelectedIndex(_ => 0)
       (0, collapsibleTabs)
     }
-  }, [updateCollapsableTabs])
+  }, [])
 
   let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
   let (formattedOptions, setFormattedOptions) = React.useState(_ => [])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setSelectedIndex(_ => initialIndex)
     None
   }, [initialIndex])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setCollapsibleTabs(_ => updatedCollapsableTabs)
     None
   }, [updatedCollapsableTabs])
 
   // this will update the current available tabs to the userpreference
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let collapsibleTabsValues =
       collapsibleTabs
       ->Array.map(item => {
@@ -478,8 +456,8 @@ let make = (
   }
 
   let onSubmit = values => {
-    let tabName = values->Array.map(getTitle)->Array.joinWith(" + ")
-    let tabValue = values->Array.joinWith(",")
+    let tabName = values->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
+    let tabValue = values->Array.joinWithUnsafe(",")
     if !Array.includes(collapsibleTabs->Array.map(item => item.title), tabName) {
       let newTab = [
         {
@@ -501,18 +479,18 @@ let make = (
         lastTabRef.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"})
+          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"}))
         )
       }, 200)->ignore
     } else {
       setSelectedIndex(_ => Array.indexOf(collapsibleTabs->Array.map(item => item.value), tabValue))
-      updateTabNameWith(Dict.fromArray([("tabName", `[${values->Array.joinWith(",")}]`)]))
-      setActiveTab(values->Array.joinWith(","))
+      updateTabNameWith(Dict.fromArray([("tabName", `[${values->Array.joinWithUnsafe(",")}]`)]))
+      setActiveTab(values->Array.joinWithUnsafe(","))
     }
     setShowModal(_ => false)
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let options =
       tabs
       ->Array.filter(tab => !(tab.value->String.split(",")->Array.length > 1))

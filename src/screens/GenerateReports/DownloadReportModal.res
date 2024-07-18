@@ -1,0 +1,120 @@
+type lteGte = {
+  gte: JSON.t,
+  lte: JSON.t,
+}
+
+type dateCreated = {dateCreated: lteGte}
+
+type filters = {filters: dateCreated}
+
+type startAndEndTime = {
+  startTime: JSON.t,
+  endTime: JSON.t,
+}
+
+type timeRange = {timeRange: startAndEndTime}
+
+@react.component
+let make = (~reportModal, ~setReportModal, ~entityName) => {
+  open APIUtils
+  let getURL = useGetURL()
+  let showToast = ToastState.useShowToast()
+  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+
+  let downloadReport = async body => {
+    try {
+      let url = getURL(~entityName, ~methodType=Post, ())
+      let _ = await updateDetails(url, body, Post, ())
+      setReportModal(_ => false)
+      showToast(~message="Email Sent", ~toastType=ToastSuccess, ())
+    } catch {
+    | _ => showToast(~message="Something went wrong. Please try again.", ~toastType=ToastError, ())
+    }
+    Nullable.null
+  }
+
+  let onSubmit = (values, _) => {
+    open LogicUtils
+    let dateCreatedDict =
+      values
+      ->getDictFromJsonObject
+      ->getJsonObjectFromDict("filters")
+      ->getDictFromJsonObject
+      ->getJsonObjectFromDict("dateCreated")
+      ->getDictFromJsonObject
+
+    let gte = dateCreatedDict->getJsonObjectFromDict("gte")
+    let lte = dateCreatedDict->getJsonObjectFromDict("lte")
+
+    let body = {
+      timeRange: {
+        startTime: gte,
+        endTime: lte,
+      },
+    }
+    let metadata = body->Identity.genericTypeToDictOfJson
+    mixpanelEvent(~eventName="generate_reports_download", ~metadata, ())
+    downloadReport(body->Identity.genericTypeToJson)
+  }
+
+  let getPreviousDate = () => {
+    let currentDate = Date.getTime(Date.make())
+    let previousDateMilliseconds = currentDate -. 86400000.0
+    let previousDate = Js.Date.fromFloat(previousDateMilliseconds)->Date.toISOString
+    previousDate->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")
+  }
+
+  let initialValues = {
+    filters: {
+      dateCreated: {
+        gte: getPreviousDate()->JSON.Encode.string,
+        lte: Date.now()->Js.Date.fromFloat->Date.toISOString->JSON.Encode.string,
+      },
+    },
+  }->Identity.genericTypeToJson
+
+  let category = switch entityName {
+  | PAYMENT_REPORT => "Payment"
+  | REFUND_REPORT => "Refund"
+  | DISPUTE_REPORT => "Dispute"
+  | _ => ""
+  }
+
+  <Modal
+    modalHeading={`Generate ${category} Reports`}
+    showModal=reportModal
+    modalHeadingDescriptionElement={<div
+      className="text-md font-medium leading-7 opacity-50 mt-1 w-full">
+      {"The generated reports will be emailed to you."->React.string}
+    </div>}
+    setShowModal=setReportModal
+    modalClass="w-1/4 m-auto">
+    <Form onSubmit initialValues>
+      <FormRenderer.FieldRenderer
+        field={FormRenderer.makeMultiInputFieldInfo(
+          ~label="Date Range",
+          ~comboCustomInput=InputFields.dateRangeField(
+            ~startKey="filters.dateCreated.gte",
+            ~endKey="filters.dateCreated.lte",
+            ~format="YYYY-MM-DDTHH:mm:ss[Z]",
+            ~showTime=false,
+            ~disablePastDates={false},
+            ~disableFutureDates={true},
+            ~predefinedDays=[Today, Yesterday, ThisMonth, LastMonth],
+            ~numMonths=2,
+            ~dateRangeLimit=400,
+            ~disableApply=false,
+            ~optFieldKey="filters.dateCreated.opt",
+            ~isTooltipVisible=false,
+            (),
+          ),
+          ~inputFields=[],
+          ~isRequired=true,
+          (),
+        )}
+      />
+      <FormRenderer.SubmitButton text="Generate" customSumbitButtonStyle="mt-10 ml-3" />
+    </Form>
+  </Modal>
+}

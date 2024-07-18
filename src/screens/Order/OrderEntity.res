@@ -384,6 +384,7 @@ let defaultColumns: array<colType> = [
   Status,
   PaymentMethod,
   PaymentMethodType,
+  CardNetwork,
   Description,
   Metadata,
   Created,
@@ -410,7 +411,8 @@ let allColumns = [
   SetupFutureUsage,
   Status,
   Metadata,
-  CardNetwork,
+  MerchantOrderReferenceId,
+  AttemptCount,
 ]
 
 let getHeading = (colType: colType) => {
@@ -528,11 +530,20 @@ let getHeading = (colType: colType) => {
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false, ())
   | CardNetwork =>
     Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Network", ~showSort=false, ())
+  | MerchantOrderReferenceId =>
+    Table.makeHeaderInfo(
+      ~key="merchant_order_reference_id",
+      ~title="Merchant Order Reference Id",
+      ~showSort=false,
+      (),
+    )
+  | AttemptCount =>
+    Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt count", ~showSort=false, ())
   }
 }
 
 let useGetStatus = order => {
-  let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = order.status->String.toUpperCase
   let fixedStatusCss = "text-sm text-white font-bold px-3 py-2 rounded-md"
   switch order.status->HSwitchOrderUtils.statusVariantMapper {
@@ -701,6 +712,13 @@ let getHeadingForOtherDetails = otherDetailsColType => {
       ~showSort=true,
       (),
     )
+  | MerchantOrderReferenceId =>
+    Table.makeHeaderInfo(
+      ~key="merchant_order_reference_id",
+      ~title="Merchant Order Reference Id",
+      ~showSort=false,
+      (),
+    )
   }
 }
 
@@ -801,6 +819,7 @@ let getCellForOtherDetails = (order, aboutPaymentColType, _): Table.cell => {
   | PMBillingPhone => Text(order.payment_method_billing_email)
   | PMBillingEmail => Text(order.payment_method_billing_phone)
   | BillingPhone => Text(`${order.billingPhone}`)
+  | MerchantOrderReferenceId => Text(order.merchant_order_reference_id)
   }
 }
 
@@ -884,6 +903,8 @@ let getCell = (order, colType: colType): Table.cell => {
 
       Text(dict->getString("card_network", ""))
     }
+  | MerchantOrderReferenceId => Text(order.merchant_order_reference_id)
+  | AttemptCount => Text(order.attempt_count->Int.toString)
   }
 }
 
@@ -1035,6 +1056,8 @@ let itemToObjMapper = dict => {
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
     disputes: dict->getArrayFromDict("disputes", [])->JSON.Encode.array->DisputesEntity.getDisputes,
     attempts: dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts,
+    merchant_order_reference_id: dict->getString("merchant_order_reference_id", ""),
+    attempt_count: dict->getInt("attempt_count", 0),
   }
 }
 
@@ -1051,7 +1074,7 @@ let orderEntity = EntityType.makeEntity(
   ~getCell,
   ~dataKey="",
   ~getShowLink={
-    order => HSwitchGlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}`)
+    order => GlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}`)
   },
   (),
 )

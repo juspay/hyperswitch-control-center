@@ -2,7 +2,7 @@
 let make = () => {
   open UIUtils
   open HSwitchUtils
-  open HSwitchGlobalVars
+  open GlobalVars
   open APIUtils
   open PermissionUtils
   open LogicUtils
@@ -46,31 +46,6 @@ let make = () => {
 
   sessionExpired := false
 
-  let getAgreementEnum = async () => {
-    try {
-      let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl(getURL)
-      let response = await fetchDetails(url)
-
-      let productionAgreementResponse =
-        response
-        ->getArrayFromJson([])
-        ->Array.find(ele => {
-          ele->getDictFromJsonObject->getBool("ProductionAgreement", false)
-        })
-        ->Option.getOr(JSON.Encode.null)
-
-      if productionAgreementResponse->getDictFromJsonObject->getBool("ProductionAgreement", false) {
-        setDashboardPageState(_ => #PROD_ONBOARDING)
-      } else {
-        setDashboardPageState(_ => #AGREEMENT_SIGNATURE)
-      }
-    } catch {
-    | _ =>
-      setDashboardPageState(_ => #HOME)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    }
-  }
-
   let fetchInitialEnums = async () => {
     try {
       let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
@@ -86,37 +61,21 @@ let make = () => {
     }
   }
 
-  // TODO: Move this to prod onboarding form
-  // let fetchOnboardingSurveyDetails = async () => {
-  //   try {
-  //     let url = `${getURL(
-  //         ~entityName=USERS,
-  //         ~userType=#USER_DATA,
-  //         ~methodType=Get,
-  //         (),
-  //       )}?keys=OnboardingSurvey`
-  //     let res = await fetchDetails(url)
-  //     let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
-  //     let onboardingDetailsFilled =
-  //       firstValueFromArray->getDictFromJsonObject->getDictfromDict("OnboardingSurvey")
-  //     let val = onboardingDetailsFilled->Dict.keysToArray->Array.length === 0
-  //     setSurveyModal(_ => val)
-  //   } catch {
-  //   | Exn.Error(e) => {
-  //       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-  //       Exn.raiseError(err)
-  //     }
-  //   }
-  // }
   let fetchPermissions = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#GET_PERMISSIONS, ~methodType=Get, ())
-      let response = await fetchDetails(`${url}?groups=true`)
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#GET_PERMISSIONS,
+        ~methodType=Get,
+        ~queryParamerters=Some(`groups=true`),
+        (),
+      )
+      let response = await fetchDetails(url)
       let permissionsValue =
         response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
       let permissionJson =
         permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
-      setuserPermissionJson(._ => permissionJson)
+      setuserPermissionJson(_ => permissionJson)
       permissionJson
     } catch {
     | Exn.Error(e) => {
@@ -133,9 +92,7 @@ let make = () => {
       let permissionJson = await fetchPermissions()
 
       // TODO: Move this to prod onboarding form
-      // if !featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
-      //   let _ = await fetchOnboardingSurveyDetails()
-      // }
+
       if merchantId->isNonEmptyString {
         if (
           permissionJson.connectorsView === Access ||
@@ -153,7 +110,7 @@ let make = () => {
       }
 
       if featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
-        getAgreementEnum()->ignore
+        setDashboardPageState(_ => #PROD_ONBOARDING)
       } else {
         setDashboardPageState(_ => #HOME)
       }
@@ -166,10 +123,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  })
+  }, [])
 
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal
@@ -203,7 +160,6 @@ let make = () => {
         | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
         | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
         | #INTEGRATION_DOC => <UserOnboarding />
-        | #AGREEMENT_SIGNATURE => <HSwitchAgreementScreen />
         | #PROD_ONBOARDING => <ProdOnboardingLanding />
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
@@ -237,9 +193,13 @@ let make = () => {
                         }}
                       />
                     </div>
-                    <RenderIf condition=isLiveUsersCounterEnabled>
-                      <ActiveUserCounter />
-                    </RenderIf>
+                    {switch url.path->urlPath {
+                    | list{"home"} =>
+                      <RenderIf condition=isLiveUsersCounterEnabled>
+                        <ActivePaymentsCounter />
+                      </RenderIf>
+                    | _ => React.null
+                    }}
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
@@ -451,13 +411,23 @@ let make = () => {
                             entityName="PaymentSettings"
                             remainingPath
                             renderList={() => <PaymentSettingsList />}
-                            renderShow={profileId =>
+                            renderShow={_profileId =>
                               <PaymentSettings webhookOnly=false showFormOnly=false />}
                           />
                         | list{"recon"} =>
                           <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
                             <Recon />
                           </AccessControl>
+                        | list{"upload-files"}
+                        | list{"run-recon"}
+                        | list{"recon-analytics"}
+                        | list{"reports"}
+                        | list{"config-settings"}
+                        | list{"file-processor"} =>
+                          <AccessControl isEnabled=featureFlagDetails.reconV2 permission=Access>
+                            <ReconModule urlList={url.path->urlPath} />
+                          </AccessControl>
+
                         | list{"sdk"} =>
                           <AccessControl
                             isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
@@ -484,7 +454,7 @@ let make = () => {
                             entityName="ConfigurePMTs"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
-                            renderShow={value =>
+                            renderShow={_value =>
                               <UIUtils.RenderIf condition={featureFlagDetails.totp}>
                                 <ModifyTwoFaSettings />
                               </UIUtils.RenderIf>}
@@ -508,7 +478,7 @@ let make = () => {
                                 entityName="ConfigurePMTs"
                                 remainingPath
                                 renderList={() => <PaymentMethodList />}
-                                renderShow={profileId =>
+                                renderShow={_profileId =>
                                   <PaymentSettings webhookOnly=false showFormOnly=false />}
                               />
                             </FilterContext>

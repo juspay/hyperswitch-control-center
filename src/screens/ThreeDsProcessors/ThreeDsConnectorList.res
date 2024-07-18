@@ -26,10 +26,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getConnectorList()->ignore
     None
-  })
+  }, [])
   <div>
     <PageUtils.PageHeading
       title={"3DS Authentication Manager"}

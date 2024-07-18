@@ -4,7 +4,7 @@ module DisputesNoteComponent = {
   @react.component
   let make = (~disputesData: DisputeTypes.disputes) => {
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ConfigContext.configContext,
+      ThemeProvider.themeContext,
     )
     let connectorTypeFromName = disputesData.connector->getConnectorNameTypeFromString()
     let dashboardLink = {
@@ -191,10 +191,10 @@ let make = (~id) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     fetchDisputesData()->ignore
     None
-  })
+  }, [])
 
   let data = disputeData->LogicUtils.getDictFromJsonObject
   let paymentId = data->LogicUtils.getString("payment_id", "")

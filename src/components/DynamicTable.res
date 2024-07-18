@@ -3,7 +3,7 @@ let useRemoteFilter = (~searchParams, ~remoteFilters, ~remoteOptions, ~mandatory
     JSON.Encode.object(Dict.make())
   )
 
-  let remoteFiltersFromUrlTemp = React.useMemo1(() => {
+  let remoteFiltersFromUrlTemp = React.useMemo(() => {
     RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
       ~initialFilters=remoteFilters,
@@ -117,7 +117,7 @@ let make = (
   } = entity
   let tableName =
     prefixAddition->Option.getOr(false)
-      ? title->String.replaceRegExp(_, %re("/ /g"), "-")->String.toLowerCase->Some
+      ? title->(String.replaceRegExp(_, %re("/ /g"), "-"))->String.toLowerCase->Some
       : None
   let (defaultFilters, setDefaultFilters) = React.useState(() => entity.defaultFilters)
   let defaultSummary: EntityType.summary = {totalCount: 0, count: 0}
@@ -151,11 +151,11 @@ let make = (
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
 
   let (finalData, setFinalData) = React.useState(_ => None)
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setDefaultFilters(_ => entity.defaultFilters)
     None
   }, [entity.defaultFilters])
-  React.useEffect5(() => {
+  React.useEffect(() => {
     let remoteFilterDict = RemoteFiltersUtils.getFinalDict(
       ~filterJson=defaultFilters,
       ~filtersFromUrl=remoteFiltersFromUrl,
@@ -210,9 +210,9 @@ let make = (
             ->Dict.get(val)
             ->Option.getOr(searchValueDict->Dict.get(val)->Option.getOr(""))
           if requireDateFormatting && (val == "startTime" || val == "endTime") {
-            (x->DayJs.getDayJsForString).format(. "YYYY-MM-DD+HH:mm:ss")
+            (x->DayJs.getDayJsForString).format("YYYY-MM-DD+HH:mm:ss")
           } else if requireDateFormatting && (val == "start_date" || val == "end_date") {
-            (x->DayJs.getDayJsForString).format(. "YYYY-MM-DD HH:mm:ss")
+            (x->DayJs.getDayJsForString).format("YYYY-MM-DD HH:mm:ss")
           } else {
             x
           }
@@ -222,7 +222,7 @@ let make = (
         urii
       })
       let uri =
-        uri ++ "?" ++ uriList->Array.filter(val => val->isNonEmptyString)->Array.joinWith("&")
+        uri ++ "?" ++ uriList->Array.filter(val => val->isNonEmptyString)->Array.joinWithUnsafe("&")
       uri
     }
 
@@ -281,14 +281,14 @@ let make = (
     None
   }, (remoteFiltersFromUrl, defaultFilters, fetchApi, refreshData, uri))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if refetchCounter > 0 {
       Window.Location.reload()
     }
     None
   }, [refetchCounter])
 
-  let refetch = React.useCallback1(() => {
+  let refetch = React.useCallback(() => {
     setRefetchCounter(p => p + 1)
   }, [setRefetchCounter])
 
@@ -371,7 +371,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let temp = switch filterObj {
     | Some(obj) =>
       switch filterCols {
@@ -391,7 +391,7 @@ let make = (
     None
   }, [data])
   let checkLength = ref(true)
-  React.useEffect2(() => {
+  React.useEffect(() => {
     let findVal = (accumulator, item: TableUtils.filterObject) =>
       Array.concat(accumulator, item.selected)
     let keys = switch filterObj {

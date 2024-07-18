@@ -19,22 +19,21 @@ let useGetURL = () => {
     let connectorBaseURL = `account/${merchantId}/connectors`
 
     let endpoint = switch entityName {
-    | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
-    | DEFAULT_FALLBACK => `routing/default`
-    | CHANGE_PASSWORD => `user/change_password`
+    /* GLOBAL SEARCH */
+    | GLOBAL_SEARCH =>
+      switch methodType {
+      | Post =>
+        switch id {
+        | Some(topic) => `analytics/v1/search/${topic}`
+        | None => `analytics/v1/search`
+        }
+      | _ => ""
+      }
+
+    /* MERCHANT ACCOUNT DETAILS (Get and Post) */
     | MERCHANT_ACCOUNT => `accounts/${merchantId}`
-    | ONBOARDING => `onboarding`
-    | PAYMENT_REPORT => `analytics/v1/report/payments`
-    | REFUND_REPORT => `analytics/v1/report/refunds`
-    | DISPUTE_REPORT => `analytics/v1/report/dispute`
-    | SDK_EVENT_LOGS => `analytics/v1/sdk_event_logs`
-    | GENERATE_SAMPLE_DATA => `user/sample_data`
-    | TEST_LIVE_PAYMENT => `test_payment`
-    | THREE_DS => `routing/decision`
-    | VERIFY_APPLE_PAY => `verify/apple_pay`
-    | PAYPAL_ONBOARDING => `connector_onboarding`
-    | SURCHARGE => `routing/decision/surcharge`
-    | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
+
+    /* CUSTOMERS DETAILS */
     | CUSTOMERS =>
       switch methodType {
       | Get =>
@@ -44,6 +43,8 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+
+    /* CONNECTORS & FRAUD AND RISK MANAGEMENT */
     | FRAUD_RISK_MANAGEMENT | CONNECTOR =>
       switch methodType {
       | Get =>
@@ -62,45 +63,8 @@ let useGetURL = () => {
         }
       | _ => ""
       }
-    | ROUTING =>
-      switch methodType {
-      | Get | Put =>
-        switch id {
-        | Some(routingId) => `routing/${routingId}`
-        | _ => `routing`
-        }
-      | Post =>
-        switch id {
-        | Some(routing_id) => `routing/${routing_id}/activate`
-        | _ => `routing`
-        }
-      | _ => ""
-      }
-    | PAYOUT_ROUTING =>
-      switch methodType {
-      | Get | Put =>
-        switch id {
-        | Some(routingId) => `routing/${routingId}`
-        | _ => `routing/payouts`
-        }
-      | Post =>
-        switch id {
-        | Some(routing_id) => `routing/payouts/${routing_id}/activate`
-        | _ => `routing/payouts`
-        }
-      | _ => ""
-      }
-    | API_KEYS =>
-      switch methodType {
-      | Get => `api_keys/${merchantId}/list`
-      | Post =>
-        switch id {
-        | Some(key_id) => `api_keys/${merchantId}/${key_id}`
-        | None => `api_keys/${merchantId}`
-        }
-      | Delete => `api_keys/${merchantId}/${id->Option.getOr("")}`
-      | _ => ""
-      }
+
+    /* OPERATIONS */
     | ORDERS =>
       switch methodType {
       | Get =>
@@ -161,15 +125,26 @@ let useGetURL = () => {
       | Post => `payouts/list`
       | _ => ""
       }
-    | GLOBAL_SEARCH =>
+
+    /* ROUTING */
+    | DEFAULT_FALLBACK => `routing/default`
+    | ROUTING =>
       switch methodType {
+      | Get =>
+        switch id {
+        | Some(routingId) => `routing/${routingId}`
+        | _ => `routing`
+        }
       | Post =>
         switch id {
-        | Some(topic) => `analytics/v1/search/${topic}`
-        | None => `analytics/v1/search`
+        | Some(routing_id) => `routing/${routing_id}/activate`
+        | _ => `routing`
         }
       | _ => ""
       }
+    | ACTIVE_ROUTING => `routing/active`
+
+    /* ANALYTICS */
     | ANALYTICS_REFUNDS
     | ANALYTICS_PAYMENTS
     | ANALYTICS_USER_JOURNEY
@@ -190,6 +165,8 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+
+    /* PAYMENT LOGS (AUDIT TRAIL) */
     | PAYMENT_LOGS =>
       switch methodType {
       | Get =>
@@ -199,6 +176,41 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+
+    /* PAYOUTS ROUTING */
+    | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
+    | PAYOUT_ROUTING =>
+      switch methodType {
+      | Get | Put =>
+        switch id {
+        | Some(routingId) => `routing/${routingId}`
+        | _ => `routing/payouts`
+        }
+      | Post =>
+        switch id {
+        | Some(routing_id) => `routing/payouts/${routing_id}/activate`
+        | _ => `routing/payouts`
+        }
+      | _ => ""
+      }
+    | ACTIVE_PAYOUT_ROUTING => `routing/payouts/active`
+
+    /* THREE DS ROUTING */
+    | THREE_DS => `routing/decision`
+
+    /* SURCHARGE ROUTING */
+    | SURCHARGE => `routing/decision/surcharge`
+
+    /* RECONCILIATION */
+    | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
+
+    /* REPORTS */
+    | PAYMENT_REPORT => `analytics/v1/report/payments`
+    | REFUND_REPORT => `analytics/v1/report/refunds`
+    | DISPUTE_REPORT => `analytics/v1/report/dispute`
+
+    /* EVENT LOGS */
+    | SDK_EVENT_LOGS => `analytics/v1/sdk_event_logs`
     | WEBHOOKS_EVENT_LOGS =>
       switch id {
       | Some(payment_id) => `analytics/v1/outgoing_webhook_event_logs?payment_id=${payment_id}`
@@ -210,81 +222,59 @@ let useGetURL = () => {
         `analytics/v1/connector_event_logs?type=Payment&payment_id=${payment_id}`
       | None => ""
       }
-    | USERS =>
-      let userUrl = `user`
-      switch userType {
-      | #NONE => ""
-      | #USER_DATA => `${userUrl}/data`
-      | #MERCHANT_DATA => `${userUrl}/data`
-      | #RESEND_INVITE
-      | #INVITE_MULTIPLE =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
-        | None => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
-        }
-      | #CONNECT_ACCOUNT =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/connect_account?${params}`
-        | None => `${userUrl}/connect_account`
-        }
-      | #SWITCH_MERCHANT =>
-        switch methodType {
-        | Get => `${userUrl}/switch/list`
-        | _ => `${userUrl}/${(userType :> string)->String.toLowerCase}`
-        }
-      | #GET_PERMISSIONS | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
-      | #SIGNINV2 => `${userUrl}/v2/signin`
-      | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
-      | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
-      | #ACCEPT_INVITE_TOKEN_ONLY => `${userUrl}/user/invite/accept?token_only=true`
-      | #USER_DELETE => `${userUrl}/user/delete`
-      | #USER_UPDATE => `${userUrl}/update`
-      | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
-      | #MERCHANTS_SELECT => `${userUrl}/merchants_select/list`
-      | #SIGNUP
-      | #SIGNOUT
-      | #RESET_PASSWORD
-      | #SET_METADATA
-      | #VERIFY_EMAIL_REQUEST
-      | #FORGOT_PASSWORD
-      | #CREATE_MERCHANT
-      | #PERMISSION_INFO
-      | #ACCEPT_INVITE_FROM_EMAIL
-      | #ROTATE_PASSWORD =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
-        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
-        }
-      | #SIGNINV2_TOKEN_ONLY => `${userUrl}/v2/signin?token_only=true`
-      | #VERIFY_EMAILV2_TOKEN_ONLY => `${userUrl}/v2/verify_email?token_only=true`
-      | #SIGNUPV2 => `${userUrl}/signup`
-      | #SIGNUP_TOKEN_ONLY => `${userUrl}/signup?token_only=true`
-      | #RESET_PASSWORD_TOKEN_ONLY => `${userUrl}/reset_password?token_only=true`
-      | #FROM_EMAIL => `${userUrl}/from_email`
-      | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
-      | #VERIFY_TOTP => `${userUrl}/2fa/totp/verify`
-      | #VERIFY_RECOVERY_CODE => `${userUrl}/2fa/recovery_code/verify`
-      | #INVITE_MULTIPLE_TOKEN_ONLY =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/user/invite_multiple?${params}&token_only=true`
-        | None => `${userUrl}/user/invite_multiple?token_only=true`
-        }
-      | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
-      | #TERMINATE_TWO_FACTOR_AUTH => `${userUrl}/2fa/terminate`
-      | #CHECK_TWO_FACTOR_AUTH_STATUS => `${userUrl}/2fa`
-      | #RESET_TOTP => `${userUrl}/2fa/totp/reset`
-      | #GET_AUTH_LIST =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/auth/list?${params}`
-        | None => `${userUrl}/auth/list`
-        }
-      | #AUTH_SELECT => `${userUrl}/auth/select`
-      | #SIGN_IN_WITH_SSO => `${userUrl}/oidc`
-      | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
-        `${userUrl}/accept_invite_from_email?token_only=true`
-      | #USER_INFO => userUrl
+
+    /* SAMPLE DATA */
+    | GENERATE_SAMPLE_DATA => `user/sample_data`
+
+    /* VERIFY APPLE PAY */
+    | VERIFY_APPLE_PAY =>
+      switch id {
+      | Some(merchant_id) => `verify/apple_pay/${merchant_id}`
+      | None => `verify/apple_pay`
       }
-    | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
+
+    /* PAYPAL ONBOARDING */
+    | PAYPAL_ONBOARDING => `connector_onboarding`
+    | PAYPAL_ONBOARDING_SYNC => `connector_onboarding/sync`
+    | ACTION_URL => `connector_onboarding/action_url`
+    | RESET_TRACKING_ID => `connector_onboarding/reset_tracking_id`
+
+    /* BUSINESS PROFILE */
+    | BUSINESS_PROFILE =>
+      switch id {
+      | Some(id) => `account/${merchantId}/business_profile/${id}`
+      | None => `account/${merchantId}/business_profile`
+      }
+
+    /* API KEYS */
+    | API_KEYS =>
+      switch methodType {
+      | Get => `api_keys/${merchantId}/list`
+      | Post =>
+        switch id {
+        | Some(key_id) => `api_keys/${merchantId}/${key_id}`
+        | None => `api_keys/${merchantId}`
+        }
+      | Delete => `api_keys/${merchantId}/${id->Option.getOr("")}`
+      | _ => ""
+      }
+
+    /* DISPUTES EVIDENCE */
+    | ACCEPT_DISPUTE =>
+      switch id {
+      | Some(id) => `disputes/accept/${id}`
+      | None => `disputes`
+      }
+    | DISPUTES_ATTACH_EVIDENCE =>
+      switch id {
+      | Some(id) => `disputes/evidence/${id}`
+      | _ => `disputes/evidence`
+      }
+
+    /* PMTS COUNTRY-CURRENCY DETAILS */
+    | PAYMENT_METHOD_CONFIG => `payment_methods/filter`
+
+    /* USER MANAGEMENT */
     | USER_MANAGEMENT => {
         let userUrl = `user`
         switch userRoleTypes {
@@ -298,23 +288,142 @@ let useGetURL = () => {
         | NONE => ""
         }
       }
-    | BUSINESS_PROFILE =>
-      switch id {
-      | Some(id) => `account/${merchantId}/business_profile/${id}`
-      | None => `account/${merchantId}/business_profile`
+
+    /* USERS */
+    | USERS =>
+      let userUrl = `user`
+
+      switch userType {
+      // DASHBOARD LOGIN / SIGNUP
+      | #CONNECT_ACCOUNT =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/connect_account?${params}`
+        | None => `${userUrl}/connect_account`
+        }
+      | #SIGNINV2 => `${userUrl}/v2/signin`
+      | #SIGNINV2_TOKEN_ONLY => `${userUrl}/v2/signin?token_only=true`
+      | #CHANGE_PASSWORD => `${userUrl}/change_password`
+      | #SIGNUP
+      | #SIGNOUT
+      | #RESET_PASSWORD
+      | #VERIFY_EMAIL_REQUEST
+      | #FORGOT_PASSWORD
+      | #ROTATE_PASSWORD =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        }
+      | #SIGNUP_TOKEN_ONLY => `${userUrl}/signup?token_only=true`
+      | #RESET_PASSWORD_TOKEN_ONLY => `${userUrl}/reset_password?token_only=true`
+
+      // POST LOGIN QUESTIONARE
+      | #SET_METADATA =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        }
+
+      // USER DATA
+      | #USER_DATA =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/data?${params}`
+        | None => `${userUrl}/data`
+        }
+      | #MERCHANT_DATA => `${userUrl}/data`
+      | #USER_INFO => userUrl
+
+      // USER PERMISSIONS
+      | #GET_PERMISSIONS =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/role?${params}`
+        | None => `${userUrl}/role`
+        }
+      | #PERMISSION_INFO =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        }
+
+      // USER ACTIONS
+      | #USER_DELETE => `${userUrl}/user/delete`
+      | #USER_UPDATE => `${userUrl}/update`
+      | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
+
+      // INVITATION INSIDE DASHBOARD
+      | #RESEND_INVITE
+      | #INVITE_MULTIPLE =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
+        | None => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
+        }
+      | #INVITE_MULTIPLE_TOKEN_ONLY =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/user/invite_multiple?${params}&token_only=true`
+        | None => `${userUrl}/user/invite_multiple?token_only=true`
+        }
+
+      // SWITCH & CREATE MERCHANT
+      | #SWITCH_MERCHANT =>
+        switch methodType {
+        | Get => `${userUrl}/switch/list`
+        | _ => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        }
+      | #CREATE_MERCHANT =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        }
+
+      // CREATE ROLES
+      | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
+      | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
+
+      // EMAIL FLOWS
+      | #FROM_EMAIL => `${userUrl}/from_email`
+      | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
+      | #ACCEPT_INVITE_FROM_EMAIL =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
+        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        }
+
+      // SPT FLOWS (Merchant select)
+      | #ACCEPT_INVITE_TOKEN_ONLY => `${userUrl}/user/invite/accept?token_only=true`
+      | #MERCHANTS_SELECT => `${userUrl}/merchants_select/list`
+
+      // SPT FLOWS (Totp)
+      | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
+      | #VERIFY_TOTP => `${userUrl}/2fa/totp/verify`
+      | #VERIFY_RECOVERY_CODE => `${userUrl}/2fa/recovery_code/verify`
+      | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
+      | #TERMINATE_TWO_FACTOR_AUTH =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/2fa/terminate?${params}`
+        | None => `${userUrl}/2fa/terminate`
+        }
+
+      | #CHECK_TWO_FACTOR_AUTH_STATUS => `${userUrl}/2fa`
+      | #RESET_TOTP => `${userUrl}/2fa/totp/reset`
+
+      // SPT FLOWS (SSO)
+      | #GET_AUTH_LIST =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/auth/list?${params}`
+        | None => `${userUrl}/auth/list`
+        }
+      | #SIGN_IN_WITH_SSO => `${userUrl}/oidc`
+      | #AUTH_SELECT => `${userUrl}/auth/select`
+
+      // SPT EMAIL FLOWS
+      | #VERIFY_EMAILV2_TOKEN_ONLY => `${userUrl}/v2/verify_email?token_only=true`
+      | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
+        `${userUrl}/accept_invite_from_email?token_only=true`
+
+      | #NONE => ""
       }
-    | ACCEPT_DISPUTE =>
-      switch id {
-      | Some(id) => `disputes/accept/${id}`
-      | None => `disputes`
-      }
-    | DISPUTES_ATTACH_EVIDENCE =>
-      switch id {
-      | Some(id) => `disputes/evidence/${id}`
-      | _ => `disputes/evidence`
-      }
-    | PAYMENT | SETTINGS => ""
-    | PAYMENT_METHOD_CONFIG => `payment_methods/filter`
+
+    /* TO BE CHECKED */
+    | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
     }
     `${Window.env.apiBaseUrl}/${endpoint}`
   }
@@ -357,13 +466,13 @@ let responseHandler = async (
   ~res,
   ~showToast: ToastState.showToastFn,
   ~showErrorToast: bool,
-  ~showPopUp: React.callback<PopUpState.popUpProps, unit>,
+  ~showPopUp: PopUpState.popUpProps => unit,
   ~isPlayground,
   ~popUpCallBack,
   ~handleLogout,
 ) => {
   let json = try {
-    await res->Fetch.Response.json
+    await res->(res => res->Fetch.Response.json)
   } catch {
   | _ => JSON.Encode.null
   }
@@ -476,15 +585,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
       )
     } catch {
     | Exn.Error(e) =>
-      catchHandler(
-        ~err={e},
-        ~requestMethod={Fetch.Get},
-        ~showErrorToast,
-        ~showToast,
-        ~showPopUp,
-        ~isPlayground,
-        ~popUpCallBack,
-      )
+      catchHandler(~err={e}, ~showErrorToast, ~showToast, ~isPlayground, ~popUpCallBack)
     | _ => Exn.raiseError("Something went wrong")
     }
   }
@@ -542,14 +643,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
       )
     } catch {
     | Exn.Error(e) =>
-      catchHandler(
-        ~err={e},
-        ~requestMethod={method},
-        ~showErrorToast,
-        ~showToast,
-        ~isPlayground,
-        ~popUpCallBack,
-      )
+      catchHandler(~err={e}, ~showErrorToast, ~showToast, ~isPlayground, ~popUpCallBack)
     | _ => Exn.raiseError("Something went wrong")
     }
   }

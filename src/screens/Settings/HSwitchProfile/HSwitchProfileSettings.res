@@ -16,7 +16,7 @@ module MerchantDetailsSection = {
       HyperswitchAtom.switchMerchantListAtom,
     )
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       try {
         let _ = fetchSwitchMerchantList()
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -24,7 +24,7 @@ module MerchantDetailsSection = {
       | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Custom)
       }
       None
-    })
+    }, [])
 
     <PageLoaderWrapper screenState sectionHeight="h-40-vh">
       <div>
@@ -129,7 +129,7 @@ module TwoFactorAuthenticationDetails = {
             buttonSize={XSmall}
             onClick={_ => {
               RescriptReactRouter.push(
-                HSwitchGlobalVars.appendDashboardPath(
+                GlobalVars.appendDashboardPath(
                   ~url=`/account-settings/profile/2fa?type=reset_totp`,
                 ),
               )
@@ -149,7 +149,7 @@ module TwoFactorAuthenticationDetails = {
             buttonSize={XSmall}
             onClick={_ => {
               RescriptReactRouter.push(
-                HSwitchGlobalVars.appendDashboardPath(
+                GlobalVars.appendDashboardPath(
                   ~url=`/account-settings/profile/2fa?type=regenerate_recovery_code`,
                 ),
               )

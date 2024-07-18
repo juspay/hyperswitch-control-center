@@ -5,7 +5,7 @@ open LogicUtils
 module ProgressBar = {
   @react.component
   let make = (~tabs, ~tabIndex) => {
-    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
     let defaultStyle = currentIndex => {
       currentIndex < tabIndex + 1
         ? `${backgroundColor} h-1.5 w-full`
@@ -401,14 +401,12 @@ module LandingPageTileForIntegrateDocs = {
     let redirect = () => {
       if customRedirection->Option.isSome {
         RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(
+          GlobalVars.appendDashboardPath(
             ~url=`/${customRedirection->Option.getOr("")}?type=${url}`,
           ),
         )
       } else {
-        RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(~url=`/onboarding?type=${url}`),
-        )
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/onboarding?type=${url}`))
       }
     }
     let skipAndContinue = async () => {
@@ -565,7 +563,7 @@ module Section = {
 module CreatePayment = {
   @react.component
   let make = (~currentRoute, ~tabIndex, ~defaultEditorStyle, ~backEndLang, ~theme) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <TabsContentWrapper
       currentRoute
       tabIndex

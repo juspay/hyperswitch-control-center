@@ -48,7 +48,7 @@ let allColumns = [
 ]
 
 let useGetStatus = order => {
-  let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = order.status->String.toUpperCase
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch order.status->statusVariantMapper {
@@ -175,7 +175,7 @@ let refundEntity = EntityType.makeEntity(
   ~getCell,
   ~dataKey="",
   ~getShowLink={
-    refundData => HSwitchGlobalVars.appendDashboardPath(~url=`/refunds/${refundData.refund_id}`)
+    refundData => GlobalVars.appendDashboardPath(~url=`/refunds/${refundData.refund_id}`)
   },
   (),
 )

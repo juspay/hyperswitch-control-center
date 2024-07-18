@@ -6,7 +6,7 @@ let make = (~integrateAppValue: integrateApp) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedValueOfEnum = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
-  let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
+  let postEnumDetails = EnumVariantHook.usePostEnumDetails()
   let {quickStartPageState, setQuickStartPageState, setDashboardPageState} = React.useContext(
     GlobalProvider.defaultContext,
   )
@@ -34,7 +34,7 @@ let make = (~integrateAppValue: integrateApp) => {
         buttonType={Secondary}
         onClick={_ => {
           setDashboardPageState(_ => #HOME)
-          RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
+          RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
         }}
       />
     </div>
@@ -47,7 +47,7 @@ let make = (~integrateAppValue: integrateApp) => {
         integration_type: (choiceState: QuickStartTypes.choiceStateTypes :> string),
       }
       let enumVariant = quickStartPageState->variantToEnumMapper
-      let _ = await IntegrationMethod(integartionValue)->usePostEnumDetails(enumVariant)
+      let _ = await IntegrationMethod(integartionValue)->postEnumDetails(enumVariant)
       let _ = fetchConnectorListResponse()->ignore
       setQuickStartPageState(_ => IntegrateApp(CUSTOM_INTEGRATION))
       setButtonState(_ => Normal)
@@ -59,14 +59,14 @@ let make = (~integrateAppValue: integrateApp) => {
   let handleMarkAsDone = async () => {
     try {
       let enumVariant = quickStartPageState->variantToEnumMapper
-      let _ = await Boolean(true)->usePostEnumDetails(enumVariant)
+      let _ = await Boolean(true)->postEnumDetails(enumVariant)
     } catch {
     | _ => ()
     }
     setQuickStartPageState(_ => GoLive(LANDING))
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if choiceState === #NotSelected {
       setButtonState(_ => Button.Disabled)
     } else {

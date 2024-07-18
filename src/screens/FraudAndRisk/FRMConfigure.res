@@ -23,7 +23,7 @@ let make = () => {
 
   let (currentStep, setCurrentStep) = React.useState(_ => isUpdateFlow ? Preview : initStep)
 
-  let selectedFRMName: ConnectorTypes.connectorTypes = React.useMemo1(() => {
+  let selectedFRMName: ConnectorTypes.connectorTypes = React.useMemo(() => {
     let frmName =
       frmName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer, ())
     setInitialValues(_ => {
@@ -48,16 +48,16 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if frmID !== "new" {
       setScreenState(_ => Loading)
-      let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ()) ++ "/" ++ frmID
+      let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ~id=Some(frmID), ())
       getFRMDetails(url)->ignore
     } else {
       setScreenState(_ => Success)
     }
     None
-  })
+  }, [])
 
   let path: array<BreadCrumbNavigation.breadcrumb> = []
   if frmID === "new" {

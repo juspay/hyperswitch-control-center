@@ -71,7 +71,7 @@ module SearchBarFilter = {
       setBaseValue(_ => value)
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       let onKeyPress = event => {
         let keyPressed = event->ReactEvent.Keyboard.key
 
@@ -83,7 +83,7 @@ module SearchBarFilter = {
       Some(() => Window.removeEventListener("keydown", onKeyPress))
     }, [baseValue])
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if baseValue->String.length === 0 && searchVal->LogicUtils.isNonEmptyString {
         setSearchVal(_ => baseValue)
       }
@@ -101,8 +101,6 @@ module SearchBarFilter = {
 
     <div className="w-64">
       {InputFields.textInput(
-        ~input=inputSearch,
-        ~placeholder,
         ~customStyle="rounded-lg placeholder:opacity-90",
         ~customPaddingClass="px-0",
         ~leftIcon=<Icon size=14 name="search" />,
@@ -110,7 +108,7 @@ module SearchBarFilter = {
         ~leftIconCustomStyle="pl-4",
         ~inputStyle="!placeholder:opacity-90",
         (),
-      )}
+      )(~input=inputSearch, ~placeholder)}
     </div>
   }
 }
@@ -135,13 +133,13 @@ module RemoteTableFilters = {
     let defaultFilters = {""->JSON.Encode.string}
     let showToast = ToastState.useShowToast()
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length === 0 {
         setFilters(_ => Dict.make()->Some)
         setOffset(_ => 0)
       }
       None
-    })
+    }, [])
 
     open APIUtils
 
@@ -172,10 +170,10 @@ module RemoteTableFilters = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       fetchAllFilters()->ignore
       None
-    })
+    }, [])
 
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
@@ -188,14 +186,14 @@ module RemoteTableFilters = {
       (),
     )
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length < 1 {
         setInitialFilters()
       }
       None
     }, [filterValueJson])
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length != 0 {
         setFilters(_ => filterValueJson->Some)
         setOffset(_ => 0)
@@ -215,7 +213,7 @@ module RemoteTableFilters = {
       })
       ->Dict.fromArray
 
-    let remoteFilters = React.useMemo1(() => {
+    let remoteFilters = React.useMemo(() => {
       filterData->initialFilters(getAllFilter)
     }, [getAllFilter])
 

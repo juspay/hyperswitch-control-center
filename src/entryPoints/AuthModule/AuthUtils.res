@@ -9,11 +9,7 @@ let getAuthInfo = json => {
     token: getString(dict, "token", "")->getNonEmptyString,
     role_id: getString(dict, "role_id", ""),
     is_two_factor_auth_setup: getBool(dict, "is_two_factor_auth_setup", false),
-    recovery_codes_left: getInt(
-      dict,
-      "recovery_codes_left",
-      HSwitchGlobalVars.maximumRecoveryCodes,
-    ),
+    recovery_codes_left: getInt(dict, "recovery_codes_left", GlobalVars.maximumRecoveryCodes),
   }
   totpInfo
 }
@@ -64,7 +60,7 @@ let getUserInfoDetailsFromLocalStorage = () => {
 
 let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
   {
-    id: "defaultpasswordId",
+    id: None,
     auth_id: "defaultpasswordAuthId",
     auth_method: {
       \"type": PASSWORD,
@@ -73,7 +69,7 @@ let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
     allow_signup: true,
   },
   {
-    id: "defaultmagicLinkId",
+    id: None,
     auth_id: "defaultmagicLinkId",
     auth_method: {
       \"type": MAGIC_LINK,
@@ -84,11 +80,18 @@ let defaultListOfAuth: array<SSOTypes.authMethodResponseType> = [
 ]
 
 let redirectToLogin = () => {
-  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+  open HyperSwitchEntryUtils
+  open GlobalVars
+  open LogicUtils
 
-  if authId->LogicUtils.isNonEmptyString {
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=`/login?auth_id=${authId}`))
-  } else {
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=`/login`))
+  let authId = getSessionData(~key="auth_id", ())
+  let domain = getSessionData(~key="domain", ())
+
+  let urlToRedirect = switch (authId->isNonEmptyString, domain->isNonEmptyString) {
+  | (true, true) => `/login?auth_id=${authId}&domain=${domain}`
+  | (true, false) => `/login?auth_id=${authId}`
+  | (false, true) => `/login?domain=${domain}`
+  | (_, _) => `/login`
   }
+  RescriptReactRouter.push(appendDashboardPath(~url=urlToRedirect))
 }

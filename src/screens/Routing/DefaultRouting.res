@@ -16,7 +16,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
   let typedConnectorValue = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-  let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
   let settingUpConnectorsState = routingRespArray => {
     let profileList =
       routingRespArray->Array.filter(value =>
@@ -53,12 +53,12 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getConnectorsList()->ignore
     None
-  })
+  }, [])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if defaultRoutingResponse->Array.length > 0 {
       settingUpConnectorsState(defaultRoutingResponse)
     }
@@ -67,6 +67,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
 
   let handleChangeOrder = async () => {
     try {
+      // TODO : change
       setScreenState(_ => PageLoaderWrapper.Loading)
       let defaultPayload = gateways
       let defaultFallbackUpdateUrl = `${getURL(
@@ -79,7 +80,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
         await updateDetails(defaultFallbackUpdateUrl, defaultPayload->JSON.Encode.array, Post, ())
       )->ignore
       RescriptReactRouter.replace(
-        HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}/default`),
+        GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}/default`),
       )
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

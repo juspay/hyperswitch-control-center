@@ -43,7 +43,7 @@ module CheckoutForm = {
     let (paymentElem, setPaymentElem) = React.useState(() => JSON.Encode.null)
 
     let fetchApi = AuthHooks.useApiFetcher()
-    React.useEffect2(() => {
+    React.useEffect(() => {
       let val = {
         publishableKey,
         config: {
@@ -63,7 +63,7 @@ module CheckoutForm = {
           ~method_=Fetch.Post,
           (),
         )
-        ->then(Fetch.Response.json)
+        ->then(res => res->Fetch.Response.json)
         ->then(json => {
           json->resolve
         })
@@ -76,7 +76,7 @@ module CheckoutForm = {
       None
     }, (saveViewToSdk, clientSecret))
 
-    React.useEffect6(() => {
+    React.useEffect(() => {
       let appearanceVal = {
         appearance: {
           variables: {
@@ -139,7 +139,7 @@ module CheckoutForm = {
       None
     }, (elements, theme, primaryColor, bgColor, fontFamily, fontSizeBase))
 
-    React.useEffect3(() => {
+    React.useEffect(() => {
       let paymentElement = elements.getElement("payment")
       switch paymentElement->Nullable.toOption {
       | Some(ele) =>
@@ -206,7 +206,7 @@ module CheckoutForm = {
       setBtnState(_ => Button.Normal)
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       hyper.retrievePaymentIntent(clientSecret)
       ->then(_ => {
         resolve()
@@ -299,11 +299,11 @@ let make = (
     | _ => setScreenState(_ => Error(""))
     }
   }
-  React.useEffect0(() => {
+  React.useEffect(() => {
     loadDOM()->ignore
     None
-  })
-  let hyperPromise = React.useCallback1(async () => {
+  }, [])
+  let hyperPromise = React.useCallback(async () => {
     Window.loadHyper(publishableKey)
   }, [publishableKey])
   <PageLoaderWrapper

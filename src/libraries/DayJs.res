@@ -10,23 +10,23 @@ external isToday: relativeTime = "default"
 external customParseFormat: relativeTime = "default"
 
 type rec dayJs = {
-  isValid: (. unit) => bool,
-  toString: (. unit) => string,
-  toDate: (. unit) => Date.t,
-  add: (. int, string) => dayJs,
-  isSame: (. string, string) => bool,
-  subtract: (. int, string) => dayJs,
-  diff: (. string, string) => int,
-  year: (. unit) => int,
-  date: (. int) => dayJs,
-  endOf: (. string) => dayJs,
-  format: (. string) => string,
-  fromNow: (. unit) => string,
-  month: (. unit) => int,
-  isToday: (. unit) => bool,
+  isValid: unit => bool,
+  toString: unit => string,
+  toDate: unit => Date.t,
+  add: (int, string) => dayJs,
+  isSame: (string, string) => bool,
+  subtract: (int, string) => dayJs,
+  diff: (string, string) => int,
+  year: unit => int,
+  date: int => dayJs,
+  endOf: string => dayJs,
+  format: string => string,
+  fromNow: unit => string,
+  month: unit => int,
+  isToday: unit => bool,
 }
 
-type extendable = {extend: (. relativeTime) => unit}
+type extendable = {extend: relativeTime => unit}
 
 @module("dayjs")
 external dayJs: extendable = "default"

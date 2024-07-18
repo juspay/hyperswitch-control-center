@@ -7,15 +7,16 @@ let useFetchEnumDetails = () => {
 
   async (enumArray: array<QuickStartTypes.sectionHeadingVariant>) => {
     try {
-      let url = `${getURL(
-          ~entityName=USERS,
-          ~userType=#USER_DATA,
-          ~methodType=Get,
-          (),
-        )}?keys=${enumArray->Array.joinWithUnsafe(",")}`
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#USER_DATA,
+        ~methodType=Get,
+        ~queryParamerters=Some(`keys=${enumArray->Array.joinWithUnsafe(",")}`),
+        (),
+      )
       let res = await fetchDetails(url)
       let responseDict = res->responseDataMapper(getValueMapped)
-      setEnumVariantValues(._ => responseDict->JSON.Encode.object->JSON.stringify)
+      setEnumVariantValues(_ => responseDict->JSON.Encode.object->JSON.stringify)
       Nullable.make(responseDict)
     } catch {
     | Exn.Error(e) => {
@@ -58,7 +59,7 @@ let useUpdateEnumInRecoil = () => {
     })
 
     let updatedRecoilValueDict = DictionaryUtils.mergeDicts(enumDictsArray)
-    setEnumVariantValues(._ => updatedRecoilValueDict->JSON.Encode.object->JSON.stringify)
+    setEnumVariantValues(_ => updatedRecoilValueDict->JSON.Encode.object->JSON.stringify)
     updatedRecoilValueDict
   }
 }

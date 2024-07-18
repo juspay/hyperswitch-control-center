@@ -24,7 +24,7 @@ let make = () => {
 
   let naviagteToHome = _ => {
     setDashboardPageState(_ => #HOME)
-    RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
   }
 
   let handleNavigation = async (~forward: bool) => {
@@ -76,12 +76,12 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     setPageState()->ignore
     None
-  })
+  }, [])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let defaultJsonOnNewConnector =
       [("profile_id", activeBusinessProfile.profile_id->JSON.Encode.string)]
       ->Dict.fromArray

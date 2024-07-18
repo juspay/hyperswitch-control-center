@@ -82,14 +82,14 @@ let make = () => {
     setDashboardPageState,
   } = React.useContext(GlobalProvider.defaultContext)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if dashboardPageState !== #HOME {
-      RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/onboarding"))
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/onboarding"))
     }
     None
   }, [dashboardPageState])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let routeType = switch filtersFromUrl {
     | "migrate-from-stripe" => MigrateFromStripe
     | "integrate-from-scratch" => IntegrateFromScratch

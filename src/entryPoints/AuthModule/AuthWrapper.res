@@ -100,11 +100,15 @@ let make = (~children) => {
     setAuthStatus(PreLogin(info))
   }
 
-  let handleLoginWithSso = auth_id => {
-    Window.Location.replace(`${Window.env.apiBaseUrl}/user/auth/url?id=${auth_id}`)
+  let handleLoginWithSso = id => {
+    switch id {
+    | Some(method_id) =>
+      Window.Location.replace(`${Window.env.apiBaseUrl}/user/auth/url?id=${method_id}`)
+    | _ => ()
+    }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     switch url.path {
     | list{"user", "login"}
     | list{"register"} =>
@@ -118,7 +122,7 @@ let make = (~children) => {
     }
 
     None
-  })
+  }, [])
 
   let getAuthMethods = async () => {
     try {
@@ -130,7 +134,7 @@ let make = (~children) => {
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if authStatus === LoggedOut {
       getAuthMethods()->ignore
     }

@@ -19,12 +19,12 @@ type popUpProps = {
 
 let defaultOpenPopUp: array<popUpProps> = []
 
-let openPopUp = Recoil.atom(. "openPopUp", defaultOpenPopUp)
+let openPopUp = Recoil.atom("openPopUp", defaultOpenPopUp)
 
 let useShowPopUp = () => {
   let setOpenPopUp = Recoil.useSetRecoilState(openPopUp)
 
-  React.useCallback1((popUpProps: popUpProps) => {
-    setOpenPopUp(.prevArr => prevArr->Array.concat([popUpProps]))
+  React.useCallback((popUpProps: popUpProps) => {
+    setOpenPopUp(prevArr => prevArr->Array.concat([popUpProps]))
   }, [setOpenPopUp])
 }

@@ -28,7 +28,7 @@ module Attempts = {
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if expand != -1 {
         setExpandedRowIndexArray(_ => [expand])
       }
@@ -166,10 +166,10 @@ let make = (~id) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     fetchPayoutsData()->ignore
     None
-  })
+  }, [])
   <PageLoaderWrapper screenState>
     <div className="flex flex-col overflow-scroll">
       <div className="mb-4 flex justify-between">

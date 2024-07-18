@@ -14,12 +14,13 @@ let make = (~isFromMilestoneCard=false) => {
   let getProdVerifyDetails = async () => {
     open LogicUtils
     try {
-      let url = `${getURL(
-          ~entityName=USERS,
-          ~userType=#USER_DATA,
-          ~methodType=Get,
-          (),
-        )}?keys=ProdIntent`
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#USER_DATA,
+        ~methodType=Get,
+        ~queryParamerters=Some(`keys=ProdIntent`),
+        (),
+      )
       let res = await fetchDetails(url)
       let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
       let valueForProdIntent =
@@ -35,10 +36,10 @@ let make = (~isFromMilestoneCard=false) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getProdVerifyDetails()->ignore
     None
-  })
+  }, [])
 
   <ProdVerifyModal
     showModal={showProdIntentForm}

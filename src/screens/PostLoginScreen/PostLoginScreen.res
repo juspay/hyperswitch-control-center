@@ -5,7 +5,7 @@ module SurveyComponent = {
   let make = (~currentStep, ~setCurrentStep, ~currentQuestionDict, ~setCarouselDirection) => {
     let {
       globalUIConfig: {backgroundColor, border: {borderColor}, font: {textColor}},
-    } = React.useContext(ConfigContext.configContext)
+    } = React.useContext(ThemeProvider.themeContext)
     let currentQuestionValue =
       ReactFinalForm.useField(currentQuestionDict.key).input.value->LogicUtils.getStringFromJson("")
     let isNextButtonEnabled = currentQuestionValue->LogicUtils.isNonEmptyString
@@ -87,11 +87,9 @@ let make = () => {
   let isPostLoginQuestionnairePending =
     HSLocalStorage.getFromUserDetails("is_metadata_filled")->LogicUtils.getBoolFromString(true)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if !isPostLoginQuestionnairePending {
-      RescriptReactRouter.push(
-        HSwitchGlobalVars.appendDashboardPath(~url="/post-login-questionare"),
-      )
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/post-login-questionare"))
     }
     None
   }, [isPostLoginQuestionnairePending])

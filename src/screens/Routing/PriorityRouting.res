@@ -19,7 +19,7 @@ module SimpleRoutingView = {
     ~baseUrlForRedirection,
   ) => {
     let getURL = useGetURL()
-    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
     let nameFromForm = ReactFinalForm.useField(`name`).input.value
     let descriptionFromForm = ReactFinalForm.useField(`description`).input.value
     let modalObj = RoutingUtils.getModalObj(PRIORITY, "priority")
@@ -56,9 +56,7 @@ module SimpleRoutingView = {
           ~toastType=ToastState.ToastSuccess,
           (),
         )
-        RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
-        )
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
         setScreenState(_ => Success)
       } catch {
       | Exn.Error(e) =>
@@ -76,9 +74,7 @@ module SimpleRoutingView = {
           ~toastType=ToastState.ToastSuccess,
           (),
         )
-        RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
-        )
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
         setScreenState(_ => Success)
       } catch {
       | Exn.Error(e) =>
@@ -283,7 +279,7 @@ let make = (
     setScreenState(_ => Success)
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch routingRuleId {
     | Some(_id) => {
         activeRoutingDetails()->ignore

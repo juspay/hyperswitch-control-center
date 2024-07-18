@@ -2,7 +2,7 @@
 let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   open APIUtils
   open CommonAuthForm
-  open HSwitchGlobalVars
+  open GlobalVars
   open LogicUtils
   open TwoFaUtils
   open AuthProviderTypes
@@ -18,6 +18,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let (email, setEmail) = React.useState(_ => "")
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+  let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ())
+
   let {
     isMagicLinkEnabled,
     isSignUpAllowed,
@@ -38,14 +40,14 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     | _ => "Register failed, Try again"
     }
   }
-
+  Js.log2(domain, "domain")
   let getUserWithEmail = async body => {
     try {
       let url = getURL(
         ~entityName=USERS,
         ~userType=#CONNECT_ACCOUNT,
         ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}`),
+        ~queryParamerters=Some(`auth_id=${authId}&domain=${domain}`),
         (),
       )
       let res = await updateDetails(url, body, Post, ())
@@ -178,7 +180,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
               let body = email->getEmailBody()
               resendVerifyEmail(body)
             } else {
-              Promise.make((resolve, _) => resolve(. Nullable.null))
+              Promise.make((resolve, _) => resolve(Nullable.null))
             }
           }
 
@@ -189,7 +191,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
 
               setForgetPassword(body)
             } else {
-              Promise.make((resolve, _) => resolve(. Nullable.null))
+              Promise.make((resolve, _) => resolve(Nullable.null))
             }
           }
 
@@ -200,7 +202,14 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
             let body = getResetpasswordBodyJson(password, password_reset_token)
             setResetPassword(body)
           }
-        | _ => Promise.make((resolve, _) => resolve(. Nullable.null))
+        | _ =>
+          switch (featureFlagValues.email, authType) {
+          | (true, ForgetPassword) =>
+            let body = email->getEmailBody()
+
+            setForgetPassword(body)
+          | _ => Promise.make((resolve, _) => resolve(Nullable.null))
+          }
         }
       )
     } catch {
@@ -238,12 +247,12 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   | _ => []
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if url.hash === "playground" {
       openPlayground()
     }
     None
-  })
+  }, [])
 
   let note = AuthModuleHooks.useNote(authType, setAuthType, ())
   <ReactFinalForm.Form

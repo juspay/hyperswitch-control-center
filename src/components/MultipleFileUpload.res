@@ -45,7 +45,7 @@ let make = (
   let (fileTypes, setFileTypes) = React.useState(_ => defaultFileNames)
   let showToast = ToastState.useShowToast()
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     fileNamesInput.onChange(fileNames->Identity.anyTypeToReactEvent)
     fileTypeInput.onChange(fileTypes->Identity.anyTypeToReactEvent)
     None
@@ -111,11 +111,11 @@ let make = (
               fileTypeArr->Array.includes(fileFormat) || fileTypeArr->Array.includes("*")
             let fileReader = FileReader.reader
             let _file = if filename->String.includes("p12") {
-              fileReader.readAsBinaryString(. value)
+              fileReader.readAsBinaryString(value)
             } else if shouldEncodeBase64 {
-              fileReader.readAsDataURL(. value)
+              fileReader.readAsDataURL(value)
             } else {
-              fileReader.readAsText(. value)
+              fileReader.readAsText(value)
             }
 
             fileReader.onload = e => {

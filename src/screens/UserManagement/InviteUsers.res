@@ -6,7 +6,7 @@ module InviteEmailForm = {
     open APIUtils
     open UIUtils
     let getURL = useGetURL()
-    let {globalUIConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
     let fetchDetails = useGetMethod()
     let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (roleListData, setRoleListData) = React.useState(_ => [])
@@ -17,7 +17,7 @@ module InviteEmailForm = {
       ->getValueFromArray(0, ""->JSON.Encode.string)
       ->getStringFromJson("")
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setNewRoleSelected(_ => role)
       None
     }, [role])
@@ -39,12 +39,12 @@ module InviteEmailForm = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       getRolesList()->ignore
       None
-    })
+    }, [])
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setRoleTypeValue(_ => role)
       None
     }, [role])
@@ -66,12 +66,22 @@ module InviteEmailForm = {
           </div>
         </div>
       </RenderIf>
-      <FormRenderer.FieldRenderer
-        fieldWrapperClass={`w-full ${isEmailTextInputVisible ? "mt-5" : ""}`}
-        field={roleType(roleListData, borderColor.primaryNormal)}
-        errorClass
-        labelClass="!text-black !font-semibold"
-      />
+      <div className="flex flex-col gap-4">
+        <FormRenderer.FieldRenderer
+          fieldWrapperClass={`w-full ${isEmailTextInputVisible ? "mt-5" : ""}`}
+          field={roleType(roleListData, borderColor.primaryNormal)}
+          errorClass
+          labelClass="!text-black !font-semibold"
+        />
+        <p
+          className="ml-2 text-sm underline text-blue-400 cursor-pointer underline-offset-2"
+          onClick={_ =>
+            RescriptReactRouter.replace(
+              GlobalVars.appendDashboardPath(~url="/users/create-custom-role"),
+            )}>
+          {"or create a custom role"->React.string}
+        </p>
+      </div>
     </>
   }
 }
@@ -102,9 +112,9 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   let marginClass = isInviteUserFlow ? "mt-5" : ""
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
 
-  let initialValues = React.useMemo0(() => {
+  let initialValues = React.useMemo(() => {
     [("roleType", [defaultRole->JSON.Encode.string]->JSON.Encode.array)]->getJsonFromArrayOfJson
-  })
+  }, [])
 
   let getURLForInviteMultipleUser = {
     if totp {
@@ -209,7 +219,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
 
     showToast(~message, ~toastType, ())
 
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/users"))
+    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users"))
     Nullable.null
   }
 
@@ -265,8 +275,14 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
 
   let getPermissionInfo = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#PERMISSION_INFO, ~methodType=Get, ())
-      let res = await fetchDetails(`${url}?groups=true`)
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#PERMISSION_INFO,
+        ~methodType=Get,
+        ~queryParamerters=Some(`groups=true`),
+        (),
+      )
+      let res = await fetchDetails(url)
       let permissionInfoValue = res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
 
       setPermissionInfo(_ => permissionInfoValue)
@@ -276,7 +292,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
     } else {

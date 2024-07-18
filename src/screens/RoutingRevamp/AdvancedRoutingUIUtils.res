@@ -5,15 +5,15 @@ open FormRenderer
 module LogicalOps = {
   @react.component
   let make = (~id) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let logicalOpsInput = ReactFinalForm.useField(`${id}.logical`).input
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       if logicalOpsInput.value->LogicUtils.getStringFromJson("")->String.length === 0 {
         logicalOpsInput.onChange("AND"->Identity.stringToFormReactEvent)
       }
       None
-    })
+    }, [])
     let onChange = str => logicalOpsInput.onChange(str->Identity.stringToFormReactEvent)
 
     <ButtonGroup wrapperClass="flex flex-row mr-2 ml-1">
@@ -58,7 +58,7 @@ module OperatorInp = {
       value: operator.value,
       checked: true,
     }
-    React.useEffect2(() => {
+    React.useEffect(() => {
       let operatorVals = switch keyType->variantTypeMapper {
       | Enum_variant => ["IS", "CONTAINS", "IS_NOT", "NOT_CONTAINS"]
       | Number => ["EQUAL TO", "GREATER THAN", "LESS THAN"]
@@ -114,7 +114,7 @@ module ValueInp = {
     let opField = (fieldsArray[2]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let typeField = (fieldsArray[3]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       typeField.onChange(
         if keyType->variantTypeMapper === Metadata_value {
           "metadata_variant"
@@ -194,7 +194,7 @@ module MetadataInp = {
         let arrStr = valSplit->Array.map(item => {
           String.trim(item)
         })
-        let finalVal = Array.joinWith(arrStr, ",")->JSON.Encode.string
+        let finalVal = Array.joinWithUnsafe(arrStr, ",")->JSON.Encode.string
 
         valueField.onChange(finalVal->Identity.anyTypeToReactEvent)
       },
@@ -213,18 +213,16 @@ module MetadataInp = {
   }
 }
 
-let renderOperatorInp = (keyType, fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+let renderOperatorInp = keyType => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   <OperatorInp fieldsArray keyType />
 }
-let renderValueInp = (
-  keyType: string,
-  variantValues,
+let renderValueInp = (keyType: string, variantValues) => (
   fieldsArray: array<ReactFinalForm.fieldRenderProps>,
 ) => {
   <ValueInp fieldsArray variantValues keyType />
 }
 
-let renderMetaInput = (keyType, fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+let renderMetaInput = keyType => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
   <MetadataInp fieldsArray keyType />
 }
 
@@ -279,15 +277,15 @@ module FieldInp = {
     let op = ReactFinalForm.useField(`${prefix}.comparison`).input
     let val = ReactFinalForm.useField(`${prefix}.value.value`).input
 
-    let convertedValue = React.useMemo0(() => {
+    let convertedValue = React.useMemo(() => {
       let keyDescriptionMapper = switch url->RoutingUtils.urlToVariantMapper {
       | PayoutRouting => Window.getPayoutDescriptionCategory()->Identity.jsonToAnyType
       | _ => Window.getDescriptionCategory()->Identity.jsonToAnyType
       }
       keyDescriptionMapper->LogicUtils.convertMapObjectToDict
-    })
+    }, [])
 
-    let options = React.useMemo0(() =>
+    let options = React.useMemo(() =>
       convertedValue
       ->Dict.keysToArray
       ->Array.reduce([], (acc, ele) => {
@@ -311,7 +309,7 @@ module FieldInp = {
         )
         acc
       })
-    )
+    , [])
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
@@ -360,7 +358,7 @@ module RuleFieldBase = {
       setKeyTypeAndVariants(wasm, value)
     }
 
-    let methodKeys = React.useMemo0(() => {
+    let methodKeys = React.useMemo(() => {
       let value = field.value->LogicUtils.getStringFromJson("")
       if value->LogicUtils.isNonEmptyString {
         setKeyTypeAndVariants(wasm, value)
@@ -375,7 +373,7 @@ module RuleFieldBase = {
         | _ => Window.getAllKeys()
         }
       }
-    })
+    }, [])
 
     <UIUtils.RenderIf condition={methodKeys->Array.length > 0}>
       {if isExpanded {

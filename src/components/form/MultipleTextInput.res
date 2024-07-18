@@ -41,7 +41,7 @@ let make = (
   ~customButtonStyle=?,
 ) => {
   let showPopUp = PopUpState.useShowPopUp()
-  let currentTags = React.useMemo1(() => {
+  let currentTags = React.useMemo(() => {
     input.value->JSON.Decode.array->Option.getOr([])->Belt.Array.keepMap(JSON.Decode.string)
   }, [input.value])
 
@@ -54,7 +54,7 @@ let make = (
   let onTagRemove = text => {
     setTags(currentTags->Array.filter(tag => tag !== text))
   }
-  let keyDownCondition = React.useMemo0(() => {
+  let keyDownCondition = React.useMemo(() => {
     open ReactEvent.Keyboard
     ev => {
       if ev->keyCode === 13 {
@@ -63,7 +63,7 @@ let make = (
       }
       ev->keyCode === 9
     }
-  })
+  }, [])
   let handleKeyDown = e => {
     open ReactEvent.Keyboard
     let isEmpty = text->LogicUtils.isEmptyString

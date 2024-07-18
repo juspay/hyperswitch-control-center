@@ -54,7 +54,7 @@ module YearItem = {
     let isSelected = year->Int.toFloat === tempYear
     let yearRef = React.useRef(Nullable.null)
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if isSelected {
         switch yearRef.current->Nullable.toOption {
         | Some(element) => element->scrollIntoView
@@ -98,7 +98,7 @@ module MonthItem = {
     let isSelected = index->Int.toFloat === tempMonth
     let monthRef = React.useRef(Nullable.null)
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if isSelected {
         switch monthRef.current->Nullable.toOption {
         | Some(element) => element->scrollIntoView

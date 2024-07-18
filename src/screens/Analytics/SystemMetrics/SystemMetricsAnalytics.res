@@ -156,19 +156,19 @@ module HSiwtchPaymentConfirmLatency = {
       ->ignore
     }
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       let value = overallLatency - connectorLatency
       setLatency(_ => value)
 
       None
     }, (overallLatency, connectorLatency))
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       getOverallLatency()->ignore
       getConnectorLatency()->ignore
 
       None
-    })
+    }, [])
 
     if isLoading {
       <div className={`p-4 w-full`}>
@@ -231,7 +231,7 @@ module SystemMetricsAnalytics = {
     let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
     let endTimeVal = getModuleFilters->getString(endTimeFilterKey, "")
     let {updateExistingKeys} = FilterContext.filterContext->React.useContext
-    let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
+
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
     let chartEntity1 = chartEntity.default
@@ -248,12 +248,12 @@ module SystemMetricsAnalytics = {
       (),
     )
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       setInitialFilters()
       None
-    })
+    }, [])
 
-    let filterBody = React.useMemo3(() => {
+    let filterBody = React.useMemo(() => {
       let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
         startTime: startTimeVal,
         endTime: endTimeVal,
@@ -261,7 +261,7 @@ module SystemMetricsAnalytics = {
         source: "BATCH",
       }
       AnalyticsUtils.filterBody(filterBodyEntity)
-    }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
+    }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWithUnsafe(",")))
 
     open APIUtils
     open Promise
@@ -270,7 +270,7 @@ module SystemMetricsAnalytics = {
     let {filterValueJson} = FilterContext.filterContext->React.useContext
     let startTimeVal = filterValueJson->getString("startTime", "")
     let endTimeVal = filterValueJson->getString("endTime", "")
-    React.useEffect3(() => {
+    React.useEffect(() => {
       setFilterDataJson(_ => None)
       if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
         try {
@@ -314,7 +314,6 @@ module SystemMetricsAnalytics = {
             endTimeFilterKey
             filterKeys=chartEntity.allFilterDimension
             moduleName
-            setTotalVolume
             showPercentage=false
             statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
           />
@@ -351,10 +350,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     loadInfo()->ignore
     None
-  })
+  }, [])
 
   let tabKeys = getStringListFromArrayDict(dimensions)
   let title = "System Metrics"

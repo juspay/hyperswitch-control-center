@@ -3,8 +3,8 @@ module MenuOption = {
   @react.component
   let make = (~updateStepValue, ~setCurrentStep) => {
     <Popover \"as"="div" className="relative inline-block text-left">
-      {popoverProps => <>
-        <Popover.Button> {buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
+      {_popoverProps => <>
+        <Popover.Button> {_buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
         <Popover.Panel className="absolute z-20 right-5 top-4">
           {panelProps => {
             <div
@@ -88,7 +88,7 @@ let make = () => {
     }
   }
 
-  let connectorDetails = React.useMemo1(() => {
+  let connectorDetails = React.useMemo(() => {
     try {
       if connectorName->LogicUtils.isNonEmptyString {
         let dict = Window.getAuthenticationConnectorConfig(connectorName)
@@ -115,7 +115,7 @@ let make = () => {
     connectorLabelDetailField,
   ) = getConnectorFields(connectorDetails)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
 
     if !isUpdateFlow {
@@ -131,7 +131,7 @@ let make = () => {
     None
   }, [connectorName, activeBusinessProfile.profile_id])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if connectorName->LogicUtils.isNonEmptyString {
       getDetails()->ignore
     } else {
@@ -201,7 +201,7 @@ let make = () => {
       text="Done"
       buttonType=Primary
       onClick={_ =>
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/3ds-authenticators"))}
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/3ds-authenticators"))}
     />
   }
 

@@ -1,6 +1,6 @@
 @react.component
 let make = (~callBackFun) => {
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let (seconds, setSeconds) = React.useState(_ => 30)
 
   let isDisabled = seconds > 0
@@ -11,13 +11,13 @@ let make = (~callBackFun) => {
   }
   let disabledColor = isDisabled ? "text-jp-gray-700" : textColor.primaryNormal
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let intervalId = setInterval(() => setSeconds(p => p > 0 ? p - 1 : p), 1000)
     let cleanup = () => {
       clearInterval(intervalId)
     }
     Some(cleanup)
-  })
+  }, [])
 
   <div className="flex w-full justify-center text-sm font-medium">
     <div className="text-dark_black opacity-80 mr-1">

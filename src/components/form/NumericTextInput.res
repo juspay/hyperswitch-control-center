@@ -1,4 +1,4 @@
-let getFloat = strJson => strJson->JSON.Decode.string->Option.flatMap(Float.fromString)
+let getFloat = strJson => strJson->JSON.Decode.string->Option.flatMap(val => val->Float.fromString)
 
 @react.component
 let make = (
@@ -27,7 +27,7 @@ let make = (
 ) => {
   let (localStrValue, setLocalStrValue) = React.useState(() => input.value)
   let inputRef = React.useRef(Nullable.null)
-  React.useEffect2(() => {
+  React.useEffect(() => {
     switch widthMatchwithPlaceholderLength {
     | Some(length) =>
       switch inputRef.current->Nullable.toOption {
@@ -46,7 +46,7 @@ let make = (
     }
     None
   }, (inputRef.current, input.name))
-  let modifiedInput = React.useMemo2(() => {
+  let modifiedInput = React.useMemo(() => {
     {
       ...input,
       value: localStrValue,
@@ -63,9 +63,9 @@ let make = (
             str[0] = str[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
             str[0] =
               str[0]->Option.getOr("")->LogicUtils.isEmptyString ? "0" : str[0]->Option.getOr("")
-            str->Array.joinWith(".")
+            str->Array.joinWithUnsafe(".")
           } else {
-            str->Array.joinWith(".")
+            str->Array.joinWithUnsafe(".")
           }
           result
         | None => ""
@@ -96,7 +96,7 @@ let make = (
     }
   }, (localStrValue, input))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setLocalStrValue(prevLocalStr => {
       let numericPrevLocalValue =
         prevLocalStr

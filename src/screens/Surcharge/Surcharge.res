@@ -34,7 +34,7 @@ module ConfigureSurchargeRule = {
   let make = (~wasm) => {
     let ruleInput = ReactFinalForm.useField("algorithm.rules").input
     let (rules, setRules) = React.useState(_ => ruleInput.value->LogicUtils.getArrayFromJson([]))
-    React.useEffect1(() => {
+    React.useEffect(() => {
       ruleInput.onChange(rules->Identity.arrayOfGenericTypeToFormReactEvent)
       None
     }, [rules])
@@ -107,6 +107,7 @@ let make = () => {
   let showPopUp = PopUpState.useShowPopUp()
   let (showWarning, setShowWarning) = React.useState(_ => true)
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let getWasm = async () => {
     try {
@@ -164,13 +165,14 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     fetchDetails()->ignore
     None
-  })
+  }, [])
 
   let onSubmit = async (values, _) => {
     try {
+      mixpanelEvent(~eventName="surcharge_save", ())
       let surchargePayload = values->buildSurchargePayloadBody
       let getActivateUrl = getURL(~entityName=SURCHARGE, ~methodType=Put, ())
       let _ = await updateDetails(
@@ -181,7 +183,7 @@ let make = () => {
       )
       fetchDetails()->ignore
       setShowWarning(_ => true)
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/surcharge"))
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/surcharge"))
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
     } catch {
@@ -199,7 +201,7 @@ let make = () => {
 
     AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
 
-    switch dict->Dict.get("algorithm")->Option.flatMap(JSON.Decode.object) {
+    switch dict->Dict.get("algorithm")->Option.flatMap(obj => obj->JSON.Decode.object) {
     | Some(jsonDict) => {
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
         if rules->Array.length === 0 {
@@ -228,6 +230,7 @@ let make = () => {
   }
 
   let handleCreateNew = () => {
+    mixpanelEvent(~eventName="create_new_surcharge", ())
     if showWarning {
       showPopUp({
         popUpType: (Warning, WithIcon),
@@ -266,9 +269,7 @@ let make = () => {
                 buttonType=Secondary
                 onClick={_ => {
                   setPageView(_ => LANDING)
-                  RescriptReactRouter.replace(
-                    HSwitchGlobalVars.appendDashboardPath(~url="/surcharge"),
-                  )
+                  RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/surcharge"))
                 }}
               />
               <FormRenderer.SubmitButton

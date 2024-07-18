@@ -20,7 +20,7 @@ let make = (
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
-  let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
+  let postEnumDetails = EnumVariantHook.usePostEnumDetails()
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedEnumValue = enumDetails->LogicUtils.safeParse->getTypedValueFromDict
 
@@ -65,7 +65,7 @@ let make = (
         processorName: connectorResponse->getString("connector_name", ""),
       }
       let enumVariant = quickStartPageState->variantToEnumMapper
-      let _ = await ProcesorType(processorVal)->usePostEnumDetails(enumVariant)
+      let _ = await ProcesorType(processorVal)->postEnumDetails(enumVariant)
       setButtonState(_ => Normal)
     } catch {
     | _ =>
@@ -115,7 +115,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if choiceStateForTestConnector === #NotSelected {
       setButtonState(_ => Button.Disabled)
     } else {
@@ -124,7 +124,7 @@ let make = (
     None
   }, [choiceStateForTestConnector])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let defaultJsonOnNewConnector =
       [("profile_id", activeBusinessProfile.profile_id->JSON.Encode.string)]
       ->Dict.fromArray

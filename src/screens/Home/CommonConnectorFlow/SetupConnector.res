@@ -9,7 +9,7 @@ module SelectProcessor = {
   ) => {
     open ConnectorUtils
     let url = RescriptReactRouter.useUrl()
-    let basePath = url.path->List.toArray->Array.joinWith("/")
+    let basePath = url.path->List.toArray->Array.joinWithUnsafe("/")
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let connectorName = selectedConnector->getConnectorNameString
     let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
@@ -73,7 +73,7 @@ module ConfigureProcessor = {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let connectorName = selectedConnector->getConnectorNameString
 
-    let connectorDetails = React.useMemo1(() => {
+    let connectorDetails = React.useMemo(() => {
       try {
         if connectorName->LogicUtils.isNonEmptyString {
           Window.getConnectorConfig(connectorName)
@@ -157,7 +157,6 @@ module ConfigureProcessor = {
           checkboxText=""
         />
       </QuickStartUIUtils.BaseComponent>
-      <FormValuesSpy />
     </Form>
   }
 }
@@ -183,7 +182,7 @@ module SelectPaymentMethods = {
     let getURL = APIUtils.useGetURL()
     let showToast = ToastState.useShowToast()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
+    let postEnumDetails = EnumVariantHook.usePostEnumDetails()
     let connectorName = selectedConnector->getConnectorNameString
 
     let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
@@ -203,7 +202,7 @@ module SelectPaymentMethods = {
           processorName: connectorResponse->getString("connector_name", ""),
         }
         let enumVariant = quickStartPageState->variantToEnumMapper
-        let _ = await ProcesorType(processorVal)->usePostEnumDetails(enumVariant)
+        let _ = await ProcesorType(processorVal)->postEnumDetails(enumVariant)
       } catch {
       | _ => setButtonState(_ => Button.Normal)
       }
@@ -212,12 +211,17 @@ module SelectPaymentMethods = {
     let onSubmitMain = async () => {
       setButtonState(_ => Loading)
       try {
+        open LogicUtils
         let obj: ConnectorTypes.wasmRequest = {
           connector: connectorName,
           payment_methods_enabled: paymentMethodsEnabled,
           metadata: metaData,
         }
         let body = constructConnectorRequestBody(obj, initialValues)
+        // Need to refactor
+        let metaData = body->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
+        let _ = ConnectorUtils.updateMetaData(~metaData)
+        //
         let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
 
         let response = await updateAPIHook(connectorUrl, body, Post, ())
@@ -239,7 +243,7 @@ module SelectPaymentMethods = {
       }
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       initialValues
       ->getConnectorPaymentMethodDetails(
         setPaymentMethods,
@@ -274,15 +278,17 @@ module SelectPaymentMethods = {
         onClick={_ => setConnectorConfigureState(_ => Configure_keys)}
         buttonSize=Small
       />}>
-      <PaymentMethod.PaymentMethodsRender
-        _showAdvancedConfiguration=false
-        connector={connectorName}
-        paymentMethodsEnabled
-        updateDetails
-        setMetaData
-        metaData
-        isPayoutFlow=false
-      />
+      <Form initialValues={initialValues}>
+        <PaymentMethod.PaymentMethodsRender
+          _showAdvancedConfiguration=false
+          connector={connectorName}
+          paymentMethodsEnabled
+          updateDetails
+          setMetaData
+          isPayoutFlow=false
+        />
+        <FormValuesSpy />
+      </Form>
     </QuickStartUIUtils.BaseComponent>
   }
 }

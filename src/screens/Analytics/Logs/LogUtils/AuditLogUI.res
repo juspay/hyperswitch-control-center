@@ -122,7 +122,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let fetchPostDetils = useUpdateMethod()
   let (data, setData) = React.useState(_ => [])
-  let isError = React.useMemo0(() => {ref(false)})
+  let isError = React.useMemo(() => {ref(false)}, [])
   let (logDetails, setLogDetails) = React.useState(_ => {
     response: "",
     request: "",
@@ -135,7 +135,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let (collapseTab, setCollapseTab) = React.useState(_ => false)
-  let (activeTab, setActiveTab) = React.useState(_ => [])
+  let (activeTab, setActiveTab) = React.useState(_ => ["Log Details"])
 
   let tabKeys = tabkeys->Array.map(item => {
     item->getTabKeyName(selectedOption.optionType)
@@ -150,17 +150,17 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     a
   })
 
-  let activeTab = React.useMemo1(() => {
+  let activeTab = React.useMemo(() => {
     Some(activeTab)
   }, [activeTab])
 
-  let setActiveTab = React.useMemo1(() => {
+  let setActiveTab = React.useMemo(() => {
     (str: string) => {
       setActiveTab(_ => str->String.split(","))
     }
   }, [setActiveTab])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setCollapseTab(prev => !prev)
     None
   }, [logDetails])
@@ -192,8 +192,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
           | Some(dict) =>
             switch dict->getDictFromJsonObject->getLogType {
             | SDK => logs->Array.pushMany(arr->parseSdkResponse)->ignore
-            | CONNECTOR | API_EVENTS => logs->Array.pushMany(arr)->ignore
-            | WEBHOOKS => logs->Array.pushMany([dict])->ignore
+            | CONNECTOR | API_EVENTS | WEBHOOKS => logs->Array.pushMany(arr)->ignore
             }
           | _ => ()
           }
@@ -221,13 +220,13 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getDetails()->ignore
     None
-  })
+  }, [])
 
   let timeLine =
-    <div className="flex flex-col w-2/5 overflow-y-scroll pt-7 pl-5">
+    <div className="flex flex-col w-2/5 overflow-y-scroll no-scrollbar pt-7 pl-5">
       <div className="flex flex-col">
         {data
         ->Array.mapWithIndex((detailsValue, index) => {

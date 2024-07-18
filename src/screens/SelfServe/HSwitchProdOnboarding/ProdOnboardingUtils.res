@@ -86,7 +86,7 @@ let getCheckboxText = connectorName => {
 let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let useGetWarningBlockForConnector = connectorName => {
   open ConnectorTypes
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let hightlightedText = `text-base font-normal ${textColor.primaryNormal} underline`
   switch connectorName {
   | Processors(STRIPE) =>
@@ -178,7 +178,13 @@ let getProdOnboardingUrl = (
     unit,
   ) => string,
 ) => {
-  `${getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Get, ())}?keys=${(enum :> string)}`
+  getURL(
+    ~entityName=USERS,
+    ~userType=#USER_DATA,
+    ~methodType=Get,
+    ~queryParamerters=Some(`keys=${(enum :> string)}`),
+    (),
+  )
 }
 
 let prodOnboardingEnumIntialArray: array<ProdOnboardingTypes.sectionHeadingVariant> = [

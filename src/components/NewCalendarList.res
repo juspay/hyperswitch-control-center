@@ -39,17 +39,17 @@ let make = (
   | Some(y) => Int.toFloat(y)
   | None => Js.Date.getFullYear(Date.make())
   }
-  React.useEffect2(() => {
+  React.useEffect(() => {
     let fromDateJs = fromDate->DayJs.getDayJsForString
     let toDateJs = toDate->DayJs.getDayJsForString
     let permittedMaxYears = startYear->Float.toInt + 10
     let updatedFromDate =
       fromDate->isNonEmptyString &&
       fromDate->String.length >= 5 &&
-      fromDateJs.isValid(.) &&
-      fromDateJs.year(.) <= permittedMaxYears
+      fromDateJs.isValid() &&
+      fromDateJs.year() <= permittedMaxYears
         ? try {
-            fromDateJs.format(. "YYYY-MM-DD")
+            fromDateJs.format("YYYY-MM-DD")
           } catch {
           | _error => ""
           }
@@ -57,10 +57,10 @@ let make = (
     let updatedToDate =
       toDate->isNonEmptyString &&
       toDate->String.length >= 5 &&
-      toDateJs.isValid(.) &&
-      toDateJs.year(.) <= permittedMaxYears
+      toDateJs.isValid() &&
+      toDateJs.year() <= permittedMaxYears
         ? try {
-            toDateJs.format(. "YYYY-MM-DD")
+            toDateJs.format("YYYY-MM-DD")
           } catch {
           | _error => ""
           }
@@ -88,25 +88,25 @@ let make = (
     None
   }, (fromDate, toDate))
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if startDate->isNonEmptyString && !fromDateOnFocus {
-      setFromDate(_ => (startDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
+      setFromDate(_ => (startDate->DayJs.getDayJsForString).format("MMM DD, YYYY"))
     }
     if endDate->isNonEmptyString && !toDateOnFocus {
-      setToDate(_ => (endDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
+      setToDate(_ => (endDate->DayJs.getDayJsForString).format("MMM DD, YYYY"))
     } else {
       setToDate(_ => "")
     }
     None
   }, (fromDateOnFocus, toDateOnFocus))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if isDateClicked {
       if startDate->isNonEmptyString && !fromDateOnFocus {
-        setFromDate(_ => (startDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
+        setFromDate(_ => (startDate->DayJs.getDayJsForString).format("MMM DD, YYYY"))
       }
       if endDate->isNonEmptyString && !toDateOnFocus {
-        setToDate(_ => (endDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
+        setToDate(_ => (endDate->DayJs.getDayJsForString).format("MMM DD, YYYY"))
       } else {
         setToDate(_ => "")
       }
@@ -150,7 +150,7 @@ let make = (
         Int.toFloat(Float.toInt(Js.Date.getMonth(currDateTemp)) + i),
       )
       let tempMonth = if disableFutureDates {
-        (Js.Date.fromFloat(tempDate)->DayJs.getDayJsForJsDate).toString(.)
+        (Js.Date.fromFloat(tempDate)->DayJs.getDayJsForJsDate).toString()
         ->Date.fromString
         ->Js.Date.getMonth
       } else {

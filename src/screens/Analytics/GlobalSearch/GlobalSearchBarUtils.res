@@ -25,7 +25,7 @@ module ShowMoreLink = {
               | Disputes => `dispute-global?query=${searchText}`
               | Local | Others | Default => ""
               }
-              HSwitchGlobalVars.appendDashboardPath(~url=link)->RescriptReactRouter.push
+              GlobalVars.appendDashboardPath(~url=link)->RescriptReactRouter.push
               cleanUpFunction()
             }}
             className={`font-medium cursor-pointer underline underline-offset-2 ${textStyleClass}`}>
@@ -268,4 +268,17 @@ let parseResponse = response => {
       index: item->getString("index", ""),
     }
   })
+}
+
+let generateSearchBody = (~searchText, ~merchant_id) => {
+  open LogicUtils
+  if !(searchText->CommonAuthUtils.isValidEmail) {
+    let filters =
+      [
+        ("customer_email", [searchText->JSON.Encode.string]->JSON.Encode.array),
+      ]->getJsonFromArrayOfJson
+    [("query", merchant_id->JSON.Encode.string), ("filters", filters)]->getJsonFromArrayOfJson
+  } else {
+    [("query", searchText->JSON.Encode.string)]->getJsonFromArrayOfJson
+  }
 }

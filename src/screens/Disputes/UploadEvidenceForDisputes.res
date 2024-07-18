@@ -11,7 +11,7 @@ module EvidenceUploadForm = {
   @react.component
   let make = (~uploadEvidenceType, ~index, ~fileUploadedDict, ~setFileUploadedDict) => {
     open LogicUtils
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let handleBrowseChange = (event, uploadEvidenceType) => {
       let target = ReactEvent.Form.target(event)
       let fileDict =
@@ -211,7 +211,7 @@ module DisputesInfoBarComponent = {
     open PageLoaderWrapper
     let getURL = useGetURL()
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-      ConfigContext.configContext,
+      ThemeProvider.themeContext,
     )
     let fetchDetails = useGetMethod()
     let updateDetails = useUpdateMethod()
@@ -259,10 +259,10 @@ module DisputesInfoBarComponent = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       retrieveEvidence()->ignore
       None
-    })
+    }, [])
 
     <PageLoaderWrapper screenState>
       <div

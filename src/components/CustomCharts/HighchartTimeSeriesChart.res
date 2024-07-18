@@ -60,7 +60,7 @@ module LineChart1D = {
     ~comparitionWidget=false,
     ~selectedTab: option<array<string>>=?,
   ) => {
-    let (theme, _setTheme) = React.useContext(ThemeProvider.themeContext)
+    let {theme} = React.useContext(ThemeProvider.themeContext)
     let (_, setLegendState) = React.useState(_ => [])
     let isMobileView = MatchMedia.useMobileChecker()
     let (hideLegend, setHideLegend) = React.useState(_ => isMobileView)
@@ -78,7 +78,7 @@ module LineChart1D = {
 
     let chartHeight = isMobileView ? 250 : 400
 
-    let setClickedRowNames = React.useMemo1(() => {
+    let setClickedRowNames = React.useMemo(() => {
       (legendData: LineChartUtils.legendTableData) => {
         setClickedRowNamesOrig(prev => {
           prev->Array.includes(legendData.groupByName)
@@ -88,7 +88,7 @@ module LineChart1D = {
       }
     }, [setClickedRowNamesOrig])
 
-    let (chartData, xAxisMapInfo, chartDataOrig) = React.useMemo7(() => {
+    let (chartData, xAxisMapInfo, chartDataOrig) = React.useMemo(() => {
       let chartdata: array<
         LineChartUtils.timeSeriesDictWithSecondryMetrics<JSON.t>,
       > = LineChartUtils.timeSeriesDataMaker(
@@ -251,7 +251,7 @@ module LineChart1D = {
       chartData
     }
 
-    let legendData = React.useMemo5(() => {
+    let legendData = React.useMemo(() => {
       let data = LineChartUtils.getLegendDataForCurrentMetrix(
         ~yAxis=selectedMetrics.metric_name_db,
         ~xAxis,
@@ -429,13 +429,13 @@ module LineChart1D = {
     )
     let {isSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setTimeout(_ => {
         DOMUtils.window->DOMUtils.dispatchEvent(DOMUtils.event("resize"))
       }, 150)->ignore
       None
     }, [isSidebarExpanded])
-    let options = React.useMemo4(() => {
+    let options = React.useMemo(() => {
       let chartTitleStyle = chartTitleStyle(theme)
       let thresholdVal = selectedMetrics.thresholdVal
       let stepUpFromThreshold = selectedMetrics.step_up_threshold
@@ -448,9 +448,12 @@ module LineChart1D = {
       | Points =>
         {
           "enabled": !isMultiDimensional,
-          "itemStyle": legendItemStyle(theme, "IBM Plex Sans", "12px"),
+          "itemStyle": legendItemStyle(theme, "12px"),
           "itemHiddenStyle": legendHiddenStyle(theme),
-          "itemHoverStyle": legendItemStyle(theme),
+          "itemHoverStyle": legendItemStyle(theme, "12px"),
+          "symbolRadius": 4,
+          "symbolPaddingTop": 5,
+          "itemMarginBottom": 10,
         }->genericObjectOrRecordToJson
       }
 
@@ -464,34 +467,32 @@ module LineChart1D = {
               "backgroundColor": Nullable.null,
               "height": Some(chartHeight),
               "events": {
-                render: (
-                  @this
-                  (this: chartEventOnload) => {
-                    let strokeColor = switch theme {
-                    | Dark => "#2e2f39"
-                    | Light => "#e6e6e6"
-                    }
-                    switch this.yAxis[0] {
-                    | Some(ele) =>
-                      Highcharts.objectEach(ele.ticks, tick => {
-                        if Some(tick.pos) === thresholdVal {
-                          tick.gridLine.attr(.
-                            {
-                              "stroke-width": "0",
-                            }->genericObjectOrRecordToJson,
-                          )
-                        } else {
-                          tick.gridLine.attr(.
-                            {
-                              "stroke": strokeColor,
-                            }->genericObjectOrRecordToJson,
-                          )
-                        }
-                      })
-                    | None => ()
-                    }
+                render: () => {
+                  let this = thisChartEventOnLoad
+                  let strokeColor = switch theme {
+                  | Dark => "#2e2f39"
+                  | Light => "#e6e6e6"
                   }
-                )->Some,
+                  switch this.yAxis[0] {
+                  | Some(ele) =>
+                    Highcharts.objectEach(ele.ticks, tick => {
+                      if Some(tick.pos) === thresholdVal {
+                        tick.gridLine.attr(
+                          {
+                            "stroke-width": "0",
+                          }->genericObjectOrRecordToJson,
+                        )
+                      } else {
+                        tick.gridLine.attr(
+                          {
+                            "stroke": strokeColor,
+                          }->genericObjectOrRecordToJson,
+                        )
+                      }
+                    })
+                  | None => ()
+                  }
+                },
               }->Some,
             }->genericObjectOrRecordToJson,
           )
@@ -510,13 +511,19 @@ module LineChart1D = {
           "useHTML": true,
           "formatter": tooltipFormatter(selectedMetrics, xAxisMapInfo, groupKey)->Some,
           "hideDelay": 0,
-          "outside": false,
-          "shape": "square",
-          "backgroundColor": theme === Light ? "rgba(25, 26, 26, 1)" : "rgba(247, 247, 250, 1)",
-          "borderColor": theme === Light ? "rgba(25, 26, 26, 1)" : "rgba(247, 247, 250, 1)",
-          "boxShadow": "",
+          "outside": true,
+          "borderRadius": 20,
+          "backgroundColor": "#ffffff",
+          "borderColor": "#E5E5E5",
+          "shadow": {
+            "color": "rgba(0, 0, 0, 0.15)",
+            "offsetX": 0,
+            "offsetY": 0,
+            "opacity": 0.07,
+            "width": 10,
+          },
           "style": {
-            "color": theme === Light ? "rgba(246, 248, 249, 1)" : "rgba(25, 26, 26, 1)",
+            "color": "#333333",
           },
         }->genericObjectOrRecordToJson,
         plotOptions: Some(
@@ -719,7 +726,7 @@ module LineChart1D = {
                 onEntityClick={val => {
                   setClickedRowNames(val)
                 }}
-                onEntityDoubleClick={val => {
+                onEntityDoubleClick={_val => {
                   setClickedRowNamesOrig(_ => [])
                   clickedRowNames->Array.length > 0 ? setHoverOnRows(_ => None) : ()
                 }}
@@ -728,7 +735,7 @@ module LineChart1D = {
                     ? setHoverOnRows(_ => Some(val.groupByName))
                     : ()
                 }}
-                onMouseLeave={val => {
+                onMouseLeave={_val => {
                   clickedRowNames->Array.length === 0 ? setHoverOnRows(_ => None) : ()
                 }}
                 isHighchartLegend=true

@@ -7,22 +7,22 @@ module RawPieChart = {
 }
 open HighchartsPieChart
 
-let valueFormatter = {
+let valueFormatter = (
   @this
   (this: tooltipRecord) => {
     `<div class='text-white'>${this.name} count: <b>${this.y->Int.toString}</b></div>`
   }
-}
+)->asTooltipPointFormatter
 
-let formatter: Js_OO.Callback.arity1<yAxisRecord => string> = {
-  @this
-  param => {
-    `<div class="font-semibold text-black dark:text-white">` ++
-    param.point.name ++
-    `</div><br><div class="font-medium text-black dark:text-white">` ++
-    param.point.percentage->Float.toFixedWithPrecision(~digits=2) ++ `%</div>`
-  }
-}
+let formatter: yAxisRecord => string =
+  (
+    @this
+    param =>
+      `<div class="font-semibold text-black dark:text-white">` ++
+      param.point.name ++
+      `</div><br><div class="font-medium text-black dark:text-white">` ++
+      param.point.percentage->Float.toFixedWithPrecision(~digits=2) ++ `%</div>`
+  )->asDataLabelFormatter
 
 @react.component
 let make = (
@@ -31,8 +31,8 @@ let make = (
   ~titleKey=?,
   ~selectedMetrics: LineChartUtils.metricsConfig,
 ) => {
-  let (theme, _setTheme) = React.useContext(ThemeProvider.themeContext)
-  let pieSeriesData = React.useMemo3(() => {
+  let {theme} = React.useContext(ThemeProvider.themeContext)
+  let pieSeriesData = React.useMemo(() => {
     LineChartUtils.chartDataMaker(
       ~filterNull=true,
       rawData,
@@ -45,7 +45,7 @@ let make = (
   let opacity = theme === Dark ? "0.5" : "1"
   let titleKey = titleKey->Option.getOr(groupKey)
 
-  let barOption: JSON.t = React.useMemo2(() => {
+  let barOption: JSON.t = React.useMemo(() => {
     let colors = {
       let length = pieSeriesData->Array.length->Int.toFloat
       pieSeriesData->Array.mapWithIndex((_data, i) => {

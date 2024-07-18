@@ -101,9 +101,7 @@ module ResetTotp = {
           }
           setOtp(_ => "")
           setButtonState(_ => Button.Normal)
-          RescriptReactRouter.push(
-            HSwitchGlobalVars.appendDashboardPath(~url="/account-settings/profile"),
-          )
+          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/account-settings/profile"))
         }
       }
     }
@@ -121,7 +119,7 @@ module ResetTotp = {
           } else {
             showToast(~message="Successfully reset the totp !", ~toastType=ToastSuccess, ())
             RescriptReactRouter.push(
-              HSwitchGlobalVars.appendDashboardPath(~url="/account-settings/profile"),
+              GlobalVars.appendDashboardPath(~url="/account-settings/profile"),
             )
           }
           setOtp(_ => "")
@@ -176,14 +174,14 @@ module ResetTotp = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       if checkStatusResponse.totp || checkStatusResponse.recovery_code {
         generateNewSecret()->ignore
       } else {
         setShowVerifyModal(_ => true)
       }
       None
-    })
+    }, [])
 
     let handleKeyUp = ev => {
       open ReactEvent.Keyboard
@@ -195,7 +193,7 @@ module ResetTotp = {
       }
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if otpInModal->String.length == 6 || recoveryCode->String.length == 9 {
         Window.addEventListener("keyup", handleKeyUp)
       } else {
@@ -210,9 +208,7 @@ module ResetTotp = {
     }, [otpInModal, recoveryCode])
 
     let handleModalClose = () => {
-      RescriptReactRouter.push(
-        HSwitchGlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
-      )
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=`/account-settings/profile`))
     }
 
     <div>
@@ -334,18 +330,14 @@ module RegenerateRecoveryCodes = {
       | _ => {
           setButtonState(_ => Button.Normal)
           showToast(~message="Failed to generate recovery codes!", ~toastType=ToastError, ())
-          RescriptReactRouter.push(
-            HSwitchGlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
-          )
+          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=`/account-settings/profile`))
           setScreenState(_ => PageLoaderWrapper.Success)
         }
       }
     }
 
     let handleModalClose = () => {
-      RescriptReactRouter.push(
-        HSwitchGlobalVars.appendDashboardPath(~url=`/account-settings/profile`),
-      )
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=`/account-settings/profile`))
     }
 
     let verifyTOTP = async () => {
@@ -372,14 +364,14 @@ module RegenerateRecoveryCodes = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       if checkStatusResponse.totp {
         generateRecoveryCodes()->ignore
       } else {
         setShowVerifyModal(_ => true)
       }
       None
-    })
+    }, [])
 
     let handleKeyUp = ev => {
       open ReactEvent.Keyboard
@@ -391,7 +383,7 @@ module RegenerateRecoveryCodes = {
       }
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if otpInModal->String.length == 6 {
         Window.addEventListener("keyup", handleKeyUp)
       } else {
@@ -482,7 +474,7 @@ module RegenerateRecoveryCodes = {
                     (),
                   )
                   RescriptReactRouter.push(
-                    HSwitchGlobalVars.appendDashboardPath(~url="/account-settings/profile"),
+                    GlobalVars.appendDashboardPath(~url="/account-settings/profile"),
                   )
                 }}
               />
@@ -526,17 +518,15 @@ let make = () => {
     } catch {
     | _ => {
         showToast(~message="Failed to fetch 2FA status!", ~toastType=ToastError, ())
-        RescriptReactRouter.push(
-          HSwitchGlobalVars.appendDashboardPath(~url="/account-settings/profile"),
-        )
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/account-settings/profile"))
       }
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     checkTwoFaStatus()->ignore
     None
-  })
+  }, [])
 
   let pageTitle = switch twofactorAuthType->HSwitchProfileUtils.getTwoFaEnumFromString {
   | ResetTotp => "Reset totp"

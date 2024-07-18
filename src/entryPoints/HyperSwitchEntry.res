@@ -9,23 +9,7 @@ module HyperSwitchEntryComponent = {
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let defaultGlobalConfig: HyperSwitchConfigTypes.customStyle = {
-      primaryColor: "#006DF9",
-      primaryHover: "#005ED6",
-      sidebar: "#242F48",
-    }
-
-    let configTheme = (uiConfg: JSON.t) => {
-      open LogicUtils
-      let dict = uiConfg->getDictFromJsonObject->getDictfromDict("theme")
-      let {primaryColor, primaryHover, sidebar} = defaultGlobalConfig
-      let value: HyperSwitchConfigTypes.customStyle = {
-        primaryColor: dict->getString("primary_color", primaryColor),
-        primaryHover: dict->getString("primary_hover_color", primaryHover),
-        sidebar: dict->getString("sidebar_color", sidebar),
-      }
-      Window.appendStyle(value)
-    }
+    let {configCustomDomainTheme} = React.useContext(ThemeProvider.themeContext)
 
     let configureFavIcon = (faviconUrl: option<string>) => {
       try {
@@ -47,7 +31,7 @@ module HyperSwitchEntryComponent = {
         let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
         let value: urlConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
-          mixpanelToken: dict->getString("mixpanelToken", ""),
+          mixpanelToken: dict->getString("mixpanel_token", ""),
           faviconUrl: dict->getString("favicon_url", "")->getNonEmptyString,
           logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
@@ -56,6 +40,7 @@ module HyperSwitchEntryComponent = {
           ->getString("apple_pay_certificate_url", "")
           ->getNonEmptyString,
           agreementVersion: dict->getString("agreement_version", "")->getNonEmptyString,
+          reconIframeUrl: dict->getString("recon_iframe_url", "")->getNonEmptyString,
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.faviconUrl)->ignore
@@ -72,11 +57,11 @@ module HyperSwitchEntryComponent = {
           ~defaultValue="default",
           (),
         )
-        let apiURL = `${HSwitchGlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
+        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
-        setFeatureFlag(._ => featureFlags)
-        let _ = res->configTheme
+        setFeatureFlag(_ => featureFlags)
+        let _ = res->configCustomDomainTheme
         let _ = res->configURL
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
@@ -86,36 +71,40 @@ module HyperSwitchEntryComponent = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       let _ = HyperSwitchEntryUtils.setSessionData(~key="auth_id", ~searchParams=url.search)
       let _ = HyperSwitchEntryUtils.setSessionData(~key="domain", ~searchParams=url.search)
 
       let _ = fetchConfig()->ignore
       None
-    })
-    React.useEffect0(() => {
-      HSiwtchTimeZoneUtils.getUserTimeZone()->setZone
+    }, [])
+    React.useEffect(() => {
+      TimeZoneUtils.getUserTimeZone()->setZone
       None
-    })
+    }, [])
 
-    React.useEffect3(() => {
-      MixPanel.init(
-        Window.env.mixpanelToken,
-        {
-          "batch_requests": true,
-          "loaded": () => {
-            let mixpanelUserInfo =
-              [("name", email->JSON.Encode.string), ("merchantName", name->JSON.Encode.string)]
-              ->Dict.fromArray
-              ->JSON.Encode.object
+    React.useEffect(() => {
+      if featureFlagDetails.mixpanel {
+        MixPanel.init(
+          Window.env.mixpanelToken,
+          {
+            "track_pageview": true,
+            "batch_requests": true,
+            "loaded": () => {
+              let mixpanelUserInfo =
+                [("name", email->JSON.Encode.string), ("merchantName", name->JSON.Encode.string)]
+                ->Dict.fromArray
+                ->JSON.Encode.object
 
-            let userId = MixPanel.getDistinctId()
-            LocalStorage.setItem("deviceid", userId)
-            MixPanel.identify(userId)
-            MixPanel.mixpanel.people.set(. mixpanelUserInfo)
+              let userId = MixPanel.getDistinctId()
+              LocalStorage.setItem("deviceid", userId)
+              MixPanel.identify(userId)
+              MixPanel.mixpanel.people.set(mixpanelUserInfo)
+            },
           },
-        },
-      )
+        )
+      }
+
       None
     }, (name, email, Window.env.mixpanelToken))
 
@@ -126,7 +115,7 @@ module HyperSwitchEntryComponent = {
       GoogleAnalytics.send({hitType: "pageview", page})
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       switch url.path {
       | list{"user", "verify_email"} => "verify_email"->setPageName
       | list{"user", "set_password"} => "set_password"->setPageName

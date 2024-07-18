@@ -40,21 +40,30 @@ let make = (
   | None => ""
   }
   let arr = value->String.split(":")
-  let hourVal = arr->Array.get(0)->Option.flatMap(Belt.Int.fromString)->Option.getOr(0)
-  let minuteVal = arr->Array.get(1)->Option.flatMap(Belt.Int.fromString)->Option.getOr(0)
-  let secondsVal = arr->Array.get(2)->Option.flatMap(Belt.Int.fromString)->Option.getOr(0)
+  let hourVal = arr->Array.get(0)->Option.flatMap(val => val->Belt.Int.fromString)->Option.getOr(0)
+  let minuteVal =
+    arr->Array.get(1)->Option.flatMap(val => val->Belt.Int.fromString)->Option.getOr(0)
+  let secondsVal =
+    arr->Array.get(2)->Option.flatMap(val => val->Belt.Int.fromString)->Option.getOr(0)
 
-  let changeVal = React.useCallback4((index, ev: ReactEvent.Form.t) => {
-    let newVal = {ev->ReactEvent.Form.target}["value"]->Int.fromString->Option.getOr(0)
+  let changeVal = React.useCallback(index => {
+    (ev: ReactEvent.Form.t) => {
+      let newVal = {ev->ReactEvent.Form.target}["value"]->Int.fromString->Option.getOr(0)
 
-    let arr = [hourVal, minuteVal, secondsVal]
-    arr[index] = newVal
+      let arr = [hourVal, minuteVal, secondsVal]
+      arr[index] = newVal
 
-    arr->Array.map(padNum)->Array.joinWith(":")->Identity.anyTypeToReactEvent->input.onChange
+      arr
+      ->Array.map(padNum)
+      ->Array.joinWithUnsafe(":")
+      ->Identity.anyTypeToReactEvent
+      ->input.onChange
+    }
   }, (hourVal, minuteVal, secondsVal, input.onChange))
-  let onHourChange = React.useCallback1(changeVal(0), [changeVal])
-  let onMinuteChange = React.useCallback1(changeVal(1), [changeVal])
-  let onSecondsChange = React.useCallback1(changeVal(2), [changeVal])
+
+  let onHourChange = React.useCallback(changeVal(0), [changeVal])
+  let onMinuteChange = React.useCallback(changeVal(1), [changeVal])
+  let onSecondsChange = React.useCallback(changeVal(2), [changeVal])
 
   <div className="h-8 max-w-min flex flex-row gap-1 text-sm">
     {switch label {

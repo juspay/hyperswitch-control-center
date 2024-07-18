@@ -21,9 +21,9 @@ let make = () => {
     setIntegrationDetails,
   } = React.useContext(GlobalProvider.defaultContext)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if dashboardPageState !== #HOME {
-      RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/setup-account"))
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/setup-account"))
     }
     None
   }, [dashboardPageState])
@@ -113,10 +113,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getDetails()->ignore
     None
-  })
+  }, [])
 
   if indexOfStepCounterVal <= 3 {
     <div className="flex flex-col gap-5 items-center justify-center h-screen w-screen">

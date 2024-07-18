@@ -36,7 +36,7 @@ module BusinessProfileInp = {
         ~isRequired=true,
         ~name="profile_id",
         ~customInput=(~input, ~placeholder as _) =>
-          InputFields.selectInput(
+          InputFields.selectInput(~deselectDisable=true, ~options, ~buttonText="", ())(
             ~input={
               ...input,
               value: profile->JSON.Encode.string,
@@ -53,11 +53,7 @@ module BusinessProfileInp = {
                 }
               },
             },
-            ~deselectDisable=true,
-            ~options,
-            ~buttonText="",
             ~placeholder="",
-            (),
           ),
         (),
       )}
@@ -85,13 +81,13 @@ let make = (
 
   //Need to check if necessary
   let form = ReactFinalForm.useForm()
-  React.useEffect0(() => {
+  React.useEffect(() => {
     form.change(
       "profile_id",
       profile->Option.getOr(defaultBusinessProfile.profile_id)->JSON.Encode.string,
     )
     None
-  })
+  }, [])
 
   <div
     className={` mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850`}>

@@ -7,7 +7,7 @@ let defaultCellHighlighter = (_): Calendar.highlighter => {
 }
 
 let useErroryValueResetter = (value: string, setValue: (string => string) => unit) => {
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let isErroryTimeValue = _ => {
       try {
         false
@@ -20,7 +20,7 @@ let useErroryValueResetter = (value: string, setValue: (string => string) => uni
     }
 
     None
-  })
+  }, [])
 }
 
 let getDateStringForValue = (
@@ -201,19 +201,19 @@ module Base = {
 
     let dropdownPosition = isFilterSection && !isMobileView && isCustomSelected ? "right-0" : ""
 
-    let todayDayJsObj = React.useMemo1(() => {
+    let todayDayJsObj = React.useMemo(() => {
       Date.make()->Date.toString->DayJs.getDayJsForString
     }, [isDropdownExpanded])
 
-    let currentTime = todayDayJsObj.format(. "HH:mm")
-    let todayDate = todayDayJsObj.format(. "YYYY-MM-DD")
-    let todayTime = React.useMemo1(() => {
-      todayDayJsObj.format(. "HH:mm:ss")
+    let currentTime = todayDayJsObj.format("HH:mm")
+    let todayDate = todayDayJsObj.format("YYYY-MM-DD")
+    let todayTime = React.useMemo(() => {
+      todayDayJsObj.format("HH:mm:ss")
     }, [currentTime])
 
     let initialStartTime = disableFutureDates || selectStandardTime ? "00:00:00" : "23:59:59"
     let initialEndTime = disableFutureDates || selectStandardTime ? "23:59:59" : "00:00:00"
-    React.useEffect2(() => {
+    React.useEffect(() => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
       setLocalOpt(_ => "")
@@ -226,7 +226,7 @@ module Base = {
       setLocalOpt(_ => "")
     }
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       switch dateRangeLimit {
       | Some(maxLen) => {
           let diff = getStartEndDiff(localStartDate, localEndDate)
@@ -522,7 +522,8 @@ module Base = {
       let startTimeTxt = `${timeArr[0]->Option.getOr("00")}:${timeArr[1]->Option.getOr("00")}`
       showSeconds ? `${startTimeTxt}:${timeArr[2]->Option.getOr("00")}` : startTimeTxt
     }
-    let buttonText = {
+
+    let tooltipText = {
       startDateVal->isEmptyString && endDateVal->isEmptyString
         ? `Select Date ${showTime ? "and Time" : ""}`
         : showTime
@@ -559,7 +560,7 @@ module Base = {
         DateRangeUtils.datetext(value, disableFutureDates)
         ->String.toLowerCase
         ->String.split(" ")
-        ->Array.joinWith("_")
+        ->Array.joinWithUnsafe("_")
       )
       changeStartDate(stDate, false, Some(stTime))
       changeEndDate(enDate, false, Some(enTime))
@@ -583,7 +584,7 @@ module Base = {
       }
     }
 
-    React.useEffect4(() => {
+    React.useEffect(() => {
       if startDate->isNonEmptyString && endDate->isNonEmptyString {
         if (
           localStartDate->isNonEmptyString &&
@@ -645,6 +646,16 @@ module Base = {
       let difference = getStartEndDiff(startDate, endDate)
       getDiffForPredefined(item) === difference
     })
+
+    let buttonText = switch predefinedOptionSelected {
+    | Some(value) => DateRangeUtils.datetext(value, disableFutureDates)
+    | None =>
+      startDateVal->isEmptyString && endDateVal->isEmptyString
+        ? `Select Date`
+        : endDateVal->isEmptyString
+        ? `${startDateStr} - Now`
+        : `${startDateStr} ${startDateStr === buttonText ? "" : "-"} ${endDateStr}`
+    }
 
     let filteredPredefinedDays = {
       switch dateRangeLimit {
@@ -790,18 +801,23 @@ module Base = {
             ("data-date-picker-end-date", `${endDateStr} ${endTimeStr}`),
           ]>
           <div ref={dateRangeRef->ReactDOM.Ref.domRef}>
-            <Button
-              text={isMobileView && textHideInMobileView ? "" : buttonText}
-              leftIcon={CustomIcon(<Icon name="calendar-filter" size=22 />)}
-              rightIcon={CustomIcon(iconElement)}
-              buttonSize=XSmall
-              isDropdownOpen=isDropdownExpandedActual
-              onClick={_ => handleDropdownClick()}
-              iconBorderColor={customborderCSS}
-              customButtonStyle={customStyleForBtn}
-              buttonState={disable ? Disabled : Normal}
-              ?buttonType
-              ?textStyle
+            <ToolTip
+              description={tooltipText}
+              toolTipFor={<Button
+                text={isMobileView && textHideInMobileView ? "" : buttonText}
+                leftIcon={CustomIcon(<Icon name="calendar-filter" size=22 />)}
+                rightIcon={CustomIcon(iconElement)}
+                buttonSize=XSmall
+                isDropdownOpen=isDropdownExpandedActual
+                onClick={_ => handleDropdownClick()}
+                iconBorderColor={customborderCSS}
+                customButtonStyle={customStyleForBtn}
+                buttonState={disable ? Disabled : Normal}
+                ?buttonType
+                ?textStyle
+              />}
+              justifyClass="justify-end"
+              toolTipPosition={Top}
             />
           </div>
         </AddDataAttributes>
@@ -836,7 +852,7 @@ module Base = {
 }
 
 let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
-  React.useMemo1(() => {
+  React.useMemo(() => {
     let val = input.value->JSON.Decode.string->Option.getOr("")
     let onChange = fn => {
       let newVal = fn(val)

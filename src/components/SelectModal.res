@@ -39,7 +39,7 @@ let make = (
   let (values, setValues) = React.useState(_ => initialValues)
   let onClick = _ => values->onSubmit
 
-  let disableSelectBtn = React.useMemo2(
+  let disableSelectBtn = React.useMemo(
     () =>
       (initialValues->Array.toString === values->Array.toString && !enableSelect) ||
         values->Array.length === 0,
@@ -50,7 +50,7 @@ let make = (
   let buttonText =
     submitButtonText->Option.getOr(len > 0 ? `${len->Int.toString} ${title} Selected` : "Select")
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if !showModal {
       setValues(_ => initialValues)
     }

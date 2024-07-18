@@ -97,7 +97,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let profileID =
     initialValues->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("profile_id")
 
-  let getPayPalStatus = React.useCallback4(async () => {
+  let getPayPalStatus = React.useCallback(async () => {
     open PayPalFlowUtils
     open LogicUtils
     try {
@@ -116,13 +116,13 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         ~profileId=Some(profileId),
         (),
       )
-      let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
+      let url = getURL(~entityName=PAYPAL_ONBOARDING_SYNC, ~methodType=Post, ())
       let responseValue = await updateDetails(url, paypalBody, Fetch.Post, ())
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
 
       switch paypalDict->JSON.Classify.classify {
       | String(str) => {
-          setSetupAccountStatus(._ => str->stringToVariantMapper)
+          setSetupAccountStatus(_ => str->stringToVariantMapper)
           setCurrentStep(_ => AutomaticFlow)
         }
       | Object(dict) =>
@@ -183,7 +183,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if connector->LogicUtils.isNonEmptyString {
       getDetails()->ignore
     } else {
@@ -208,7 +208,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ => {
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/connectors"))
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
         setScreenState(_ => PageLoaderWrapper.Success)
       }}
       isButton=true
