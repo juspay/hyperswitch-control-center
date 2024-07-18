@@ -92,10 +92,10 @@ module CustomerDetails = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       getSearchResults()->ignore
       None
-    })
+    }, [])
 
     <PageLoaderWrapper screenState>
       <div className="mt-5">
