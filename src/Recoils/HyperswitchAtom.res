@@ -32,6 +32,15 @@ let switchMerchantListAtom: Recoil.recoilAtom<
   array<SwitchMerchantUtils.switchMerchantListResponse>,
 > = Recoil.atom("switchMerchantListAtom", [SwitchMerchantUtils.defaultValue])
 
+let merchantListAtom: Recoil.recoilAtom<
+  array<MerchantListUtils.merchantListResponse>,
+> = Recoil.atom("merchantListAtom", [MerchantListUtils.defaultValue])
+
+let orgListAtom: Recoil.recoilAtom<array<OrgListUtils.orgListResponse>> = Recoil.atom(
+  "orgListAtom",
+  [OrgListUtils.defaultValue],
+)
+
 let currentTabNameRecoilAtom = Recoil.atom("currentTabName", "ActiveTab")
 
 let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Recoil.atom(

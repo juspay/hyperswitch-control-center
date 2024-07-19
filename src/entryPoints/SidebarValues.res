@@ -2,7 +2,195 @@ open SidebarTypes
 open UserManagementTypes
 
 // * Custom Component
+module OrgMerchantSelectBox = {
+  @react.component
+  let make = (
+    ~title: string,
+    ~user: string,
+    ~leftIcon: Button.iconType,
+    ~customIconStyle="",
+    ~children: React.element,
+  ) => {
+    open HeadlessUI
 
+    let (arrow, setArrow) = React.useState(_ => false)
+    let icon = switch leftIcon {
+    | FontAwesome(iconName) =>
+      <Icon className={`align-middle ${customIconStyle}`} size=14 name=iconName />
+    | CustomIcon(element) => element
+    | Euler(iconName) => <Icon className="align-middle" size=12 name=iconName />
+    | _ => React.null
+    }
+
+    <>
+      <div className="flex flex-col items-end gap-2 ">
+        <Menu \"as"="div" className=" relative inline-block text-left w-full rounded">
+          {_menuProps =>
+            <div>
+              <Menu.Button
+                className="flex items-center justify-between whitespace-pre text-sm  text-center font-medium rounded hover:bg-opacity-80 bg-popover-background text-white w-full ring-1  ring-blue-800 ring-opacity-15">
+                {_buttonProps => {
+                  <>
+                    {icon}
+                    <div className="flex flex-col items-start px-2 py-2 ">
+                      <p className="text-xs text-gray-400"> {title->React.string} </p>
+                      <p className="fs-10"> {user->React.string} </p>
+                    </div>
+                    <div className="px-2 py-2">
+                      <Icon
+                        className={arrow
+                          ? `-rotate-180 transition duration-[250ms] opacity-70`
+                          : `rotate-0 transition duration-[250ms] opacity-70`}
+                        name="arrow-without-tail-new"
+                        size=15
+                      />
+                    </div>
+                  </>
+                }}
+              </Menu.Button>
+              <Transition
+                \"as"="span"
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95">
+                {<Menu.Items
+                  className="absolute right-0 z-50 w-full mt-2 origin-top-right bg-popover-background text-white dark:bg-jp-gray-950 rounded-md shadow-lg focus:outline-none ring-1  ring-blue-800 ring-opacity-15">
+                  {props => {
+                    if props["open"] {
+                      setArrow(_ => true)
+                    } else {
+                      setArrow(_ => false)
+                    }
+                    {children}
+                  }}
+                </Menu.Items>}
+              </Transition>
+            </div>}
+        </Menu>
+      </div>
+    </>
+  }
+}
+
+module OrgViewComponent = {
+  @react.component
+  let make = () => {
+    open HeadlessUI
+    open UIUtils
+    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
+    let {merchant_id: defaultMerchantId} =
+      CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
+    let (org, setOrg) = React.useState(_ => [])
+    let (merchant, setMerchants) = React.useState(_ => [])
+
+    React.useEffect1(() => {
+      setMerchants(_ => merchantList)
+      None
+    }, [merchantList])
+
+    React.useEffect1(() => {
+      setOrg(_ => orgList)
+      None
+    }, [orgList])
+
+    let headingClass = "text-blue-700 text-sm px-4 py-2"
+
+    let icon = {
+      <>
+        <img
+          src=""
+          alt={defaultMerchantId->String.slice(~start=0, ~end=1)->String.toUpperCase}
+          className="px-2"
+        />
+      </>
+    }
+
+    <>
+      <div className="flex flex-col items-end gap-2 mx-4 my-2 mb-4">
+        <OrgMerchantSelectBox title="Org" user=defaultMerchantId leftIcon=CustomIcon(icon)>
+          <div className="px-1 py-1">
+            <p className=headingClass> {"Organisations"->React.string} </p>
+            {org
+            ->Array.mapWithIndex((option, i) =>
+              <Menu.Item key={i->Int.toString}>
+                {props =>
+                  <div className="relative">
+                    <button
+                      className={
+                        let activeClasses = if props["active"] {
+                          "group flex rounded-md items-center w-full px-4 py-2 text-sm bg-gray-100 dark:bg-black hover:bg-[#495d8a]"
+                        } else {
+                          "group flex rounded-md items-center w-full px-4 py-2 text-sm"
+                        }
+                        `${activeClasses} font-medium text-start`
+                      }>
+                      <div className="mr-5"> {option.org_name->React.string} </div>
+                    </button>
+                    <RenderIf condition={option.org_id === "defaultOrgId"}>
+                      <Icon className={`absolute top-2 right-2 text-white`} name="check" size=15 />
+                    </RenderIf>
+                  </div>}
+              </Menu.Item>
+            )
+            ->React.array}
+          </div>
+        </OrgMerchantSelectBox>
+        <OrgMerchantSelectBox title="Merchants" user=defaultMerchantId leftIcon={NoIcon}>
+          {<>
+            <div className="px-1 py-1 ">
+              <p className=headingClass> {"Merchants"->React.string} </p>
+              {merchant
+              ->Array.mapWithIndex((option, i) =>
+                <Menu.Item key={i->Int.toString}>
+                  {props =>
+                    <div className="relative">
+                      <button
+                        className={
+                          let activeClasses = if props["active"] {
+                            "group flex rounded-md items-center w-full px-4 py-2 text-sm dark:bg-black hover:bg-[#495d8a]"
+                          } else {
+                            "group flex rounded-md items-center w-full px-4 py-2 text-sm"
+                          }
+                          `${activeClasses} font-medium text-start`
+                        }>
+                        <div className="mr-5"> {option.merchant_name->React.string} </div>
+                      </button>
+                      <RenderIf condition={option.merchant_id === defaultMerchantId}>
+                        <Icon
+                          className={`absolute top-2 right-2 text-white`} name="check" size=15
+                        />
+                      </RenderIf>
+                    </div>}
+                </Menu.Item>
+              )
+              ->React.array}
+            </div>
+          </>}
+        </OrgMerchantSelectBox>
+      </div>
+    </>
+  }
+}
+
+module OrgViewComponentCollapsed = {
+  @react.component
+  let make = () => {
+    let {merchant_id: defaultMerchantId} =
+      CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
+    let className = "h-10 p-2 mx-auto my-0.5 ring-1 ring-blue-800 ring-opacity-15 rounded text-white font-semibold fs-20"
+    <div className="flex flex-col gap-2">
+      <img src="" alt="O" className />
+      <div
+        className="py-2 px-3 mx-auto my-0.5  text-white font-semibold fs-20 ring-1 ring-blue-800 ring-opacity-15 rounded uppercase">
+        {defaultMerchantId->String.slice(~start=0, ~end=2)->React.string}
+      </div>
+    </div>
+  }
+}
 module GetProductionAccess = {
   @react.component
   let make = () => {
@@ -48,6 +236,14 @@ module GetProductionAccess = {
 let emptyComponent = CustomComponent({
   component: React.null,
 })
+
+let orgViewComponent = isOrgView =>
+  isOrgView
+    ? CustomComponent({
+        component: <OrgViewComponent />,
+        collapsedComponent: <OrgViewComponentCollapsed />,
+      })
+    : emptyComponent
 
 let productionAccessComponent = isProductionAccessEnabled =>
   isProductionAccessEnabled
@@ -569,9 +765,11 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     disputeAnalytics,
     configurePmts,
     reconV2,
+    orgView,
   } = featureFlagDetails
 
   let sidebar = [
+    orgViewComponent(orgView),
     productionAccessComponent(quickStart),
     default->home,
     default->operations(~permissionJson, ~isPayoutsEnabled=payOut),

@@ -44,7 +44,7 @@ type headingType = {
   iconSize?: int,
 }
 
-type customComponentType = {component: React.element}
+type customComponentType = {component: React.element, collapsedComponent?: React.element}
 
 type topLevelItem =
   | CustomComponent(customComponentType)
