@@ -78,7 +78,7 @@ let make = () => {
         </UIUtils.RenderIf>
       </div>
       <div
-        className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
+        className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 border border-l-0 border-r-0">
         <FilterComponent startTimeFilterKey endTimeFilterKey domain tabKeys />
       </div>
       <div className="flex flex-col gap-14">
