@@ -168,10 +168,9 @@ module WebHookAuthenticationHeaders = {
           <UIUtils.RenderIf condition={index === authHeaders->Array.length - 1 && index != 3}>
             <div className="flex justify-start items-center mt-4">
               <Icon
-                name="plus-circle"
-                size=27
-                customIconColor="text-gray-400"
-                className="flex items-center justify-center w-fit h-fit"
+                name="plus"
+                size=16
+                className="flex items-center justify-center w-fit h-fit p-1 border-2 rounded-full bg-gray-100"
                 onClick={_ => addAuthHeaders()}
               />
             </div>
