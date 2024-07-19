@@ -1,3 +1,5 @@
+let domain = "payment_attempts"
+
 type paymentAttemptObject = {
   payment_id: string,
   merchant_id: string,
