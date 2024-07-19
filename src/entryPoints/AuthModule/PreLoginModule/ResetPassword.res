@@ -108,11 +108,11 @@ let make = (~flowType) => {
   | _ => "Reset password"
   }
 
-  React.useEffect0(_ => {
+  React.useEffect(_ => {
     open GlobalVars
     RescriptReactRouter.replace(appendDashboardPath(~url="/reset_password"))
     None
-  })
+  }, [])
 
   <HSwitchUtils.BackgroundImageWrapper
     customPageCss="flex flex-col items-center justify-center overflow-scroll ">

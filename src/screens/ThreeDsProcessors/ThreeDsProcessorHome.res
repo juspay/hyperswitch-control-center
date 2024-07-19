@@ -88,7 +88,7 @@ let make = () => {
     }
   }
 
-  let connectorDetails = React.useMemo1(() => {
+  let connectorDetails = React.useMemo(() => {
     try {
       if connectorName->LogicUtils.isNonEmptyString {
         let dict = Window.getAuthenticationConnectorConfig(connectorName)
@@ -115,7 +115,7 @@ let make = () => {
     connectorLabelDetailField,
   ) = getConnectorFields(connectorDetails)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
 
     if !isUpdateFlow {
@@ -131,7 +131,7 @@ let make = () => {
     None
   }, [connectorName, activeBusinessProfile.profile_id])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if connectorName->LogicUtils.isNonEmptyString {
       getDetails()->ignore
     } else {

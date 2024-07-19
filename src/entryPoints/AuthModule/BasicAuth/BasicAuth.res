@@ -215,12 +215,12 @@ let make = (~authType, ~setAuthType) => {
   | _ => []
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if url.hash === "playground" {
       openPlayground()
     }
     None
-  })
+  }, [])
   let note = CommonAuthHooks.useNote(authType, setAuthType, featureFlagValues.email)
   <ReactFinalForm.Form
     key="auth"

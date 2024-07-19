@@ -71,19 +71,19 @@ module HyperSwitchEntryComponent = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       let _ = HyperSwitchEntryUtils.setSessionData(~key="auth_id", ~searchParams=url.search)
       let _ = HyperSwitchEntryUtils.setSessionData(~key="domain", ~searchParams=url.search)
 
       let _ = fetchConfig()->ignore
       None
-    })
-    React.useEffect0(() => {
+    }, [])
+    React.useEffect(() => {
       TimeZoneUtils.getUserTimeZone()->setZone
       None
-    })
+    }, [])
 
-    React.useEffect3(() => {
+    React.useEffect(() => {
       if featureFlagDetails.mixpanel {
         MixPanel.init(
           Window.env.mixpanelToken,
@@ -115,7 +115,7 @@ module HyperSwitchEntryComponent = {
       GoogleAnalytics.send({hitType: "pageview", page})
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       switch url.path {
       | list{"user", "verify_email"} => "verify_email"->setPageName
       | list{"user", "set_password"} => "set_password"->setPageName

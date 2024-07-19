@@ -100,7 +100,7 @@ module VolumeRoutingView = {
       }
     }
 
-    let connectorOptions = React.useMemo1(() => {
+    let connectorOptions = React.useMemo(() => {
       connectors
       ->Array.filter(item => item.profile_id === profile)
       ->Array.map((item): SelectBox.dropdownOption => {
@@ -336,7 +336,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     getDetails()->ignore
     None
   }, [routingRuleId])

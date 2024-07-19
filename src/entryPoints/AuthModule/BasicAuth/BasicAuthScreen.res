@@ -64,7 +64,7 @@ let make = () => {
 
   let (actualAuthType, setActualAuthType) = React.useState(_ => authInitState)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if isLiveMode {
       setMode(_ => LiveButtonMode)
     } else {
@@ -87,14 +87,14 @@ let make = () => {
     None
   }, [url.path])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if authType != actualAuthType {
       setAuthType(_ => actualAuthType)
     }
     None
   }, [actualAuthType])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch (authType, url.path) {
     | (
         LoginWithEmail | LoginWithPassword,

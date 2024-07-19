@@ -151,7 +151,7 @@ let make = (
     settoTime(_ => toTime->String.toUpperCase)
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let endTime = localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)
     let startDateTime = `${startDate} ${fromTime}`->DayJs.getDayJsForString
 
@@ -171,7 +171,7 @@ let make = (
     None
   }, [fromTime])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let startTime = localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)
     let endDateTime = `${endDate} ${toTime}`->DayJs.getDayJsForString
 

@@ -53,12 +53,12 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getConnectorsList()->ignore
     None
-  })
+  }, [])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if defaultRoutingResponse->Array.length > 0 {
       settingUpConnectorsState(defaultRoutingResponse)
     }

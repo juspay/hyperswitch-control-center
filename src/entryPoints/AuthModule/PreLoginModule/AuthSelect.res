@@ -41,10 +41,10 @@ let make = (~setSelectedAuthId) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getAuthMethods()->ignore
     None
-  })
+  }, [])
 
   let renderComponentForAuthTypes = (method: SSOTypes.authMethodResponseType) => {
     let authMethodType = method.auth_method.\"type"

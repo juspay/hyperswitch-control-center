@@ -25,10 +25,10 @@ module PayPalCreateNewAccountModal = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       initializePayPalWindow()
       None
-    })
+    }, [])
 
     <AddDataAttributes attributes=[("data-paypal-button", "true")]>
       <a
@@ -185,10 +185,10 @@ module RedirectionToPayPalFlow = {
     }
     let setupAccountStatus = Recoil.useRecoilValueFromAtom(HyperswitchAtom.paypalAccountStatusAtom)
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       getRedirectPaypalWindowUrl()->ignore
       None
-    })
+    }, [])
     <PageLoaderWrapper screenState>
       {switch setupAccountStatus {
       | Redirecting_to_paypal =>
@@ -261,7 +261,7 @@ let make = (
   let activeBusinessProfile =
     defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
-  let updatedInitialVal = React.useMemo1(() => {
+  let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
     if !isUpdateFlow {
       initialValuesToDict->Dict.set(
