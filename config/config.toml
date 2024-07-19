@@ -12,7 +12,7 @@ agreement_version=""
 apple_pay_certificate_url=""
 mixpanel_token=""
 recon_iframe_url=""
-dss_certificate_url="https:integ.hyperswitch.io/certificates/PCI_DSS_v4-0_AOC_Juspay_2024.pdf"
+dss_certificate_url=""
 [default.features]
 test_live_toggle=false
 is_live_mode=false
