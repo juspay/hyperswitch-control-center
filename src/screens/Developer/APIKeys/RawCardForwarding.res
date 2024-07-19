@@ -103,15 +103,15 @@ let make = () => {
           onSubmit
           validate={values => validateAPIKeyForm(values, ["public_key", "raw_card_ttl"], ())}
           initialValues={initialValueJson}>
-          <div className="flex flex-wrap gap-7">
+          <div className="flex flex-wrap justify-between gap-5">
             <FormRenderer.FieldRenderer
-              fieldWrapperClass="w-full max-w-2xl" field=pkKey errorClass
+              fieldWrapperClass="w-full max-w-3xl" field=pkKey errorClass
             />
             <FormRenderer.FieldRenderer
-              fieldWrapperClass="w-96" field=keyExpiryCustomDate errorClass
+              fieldWrapperClass="w-80" field=keyExpiryCustomDate errorClass
             />
           </div>
-          <div className="w-full flex justify-start mt-3">
+          <div className="w-full flex justify-end mt-5">
             <FormRenderer.SubmitButton
               text="Submit" buttonSize={Small} loadingText="Sending..." customHeightClass=""
             />
