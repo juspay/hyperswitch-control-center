@@ -401,6 +401,16 @@ let configurePMTs = permissionJson => {
     searchOptions: [("Configure payment methods", "Configure country currency")],
   })
 }
+
+let complianceCertificate = {
+  SubLevelLink({
+    name: "Compliance ",
+    link: `/compliance`,
+    access: Access,
+    searchOptions: [("PCI certificate", "")],
+  })
+}
+
 let settings = (~isSampleDataEnabled, ~isConfigurePmtsEnabled, ~permissionJson) => {
   let settingsLinkArray = [businessDetails(), businessProfiles()]
 
@@ -410,6 +420,9 @@ let settings = (~isSampleDataEnabled, ~isConfigurePmtsEnabled, ~permissionJson) 
   if isConfigurePmtsEnabled {
     settingsLinkArray->Array.push(configurePMTs(permissionJson))->ignore
   }
+
+  settingsLinkArray->Array.push(complianceCertificate)->ignore
+
   settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
 
   Section({

@@ -8,6 +8,7 @@ type urlConfig = {
   agreementVersion: option<string>,
   applePayCertificateUrl: option<string>,
   reconIframeUrl: option<string>,
+  dssCertificateUrl: option<string>,
 }
 
 type customStyle = {

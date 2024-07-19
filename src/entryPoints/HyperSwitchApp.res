@@ -427,6 +427,7 @@ let make = () => {
                           <AccessControl isEnabled=featureFlagDetails.reconV2 permission=Access>
                             <ReconModule urlList={url.path->urlPath} />
                           </AccessControl>
+                        | list{"compliance"} => <Compliance />
 
                         | list{"sdk"} =>
                           <AccessControl
@@ -468,7 +469,6 @@ let make = () => {
                           <AccessControl permission=Access>
                             <BusinessProfile />
                           </AccessControl>
-
                         | list{"configure-pmts", ...remainingPath} =>
                           <AccessControl
                             permission=userPermissionJson.connectorsView
