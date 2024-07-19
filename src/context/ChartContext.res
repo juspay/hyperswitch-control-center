@@ -92,7 +92,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
 
   let {allFilterDimension} = chartEntity
 
-  let sortingParams = React.useMemo1((): option<AnalyticsUtils.sortedBasedOn> => {
+  let sortingParams = React.useMemo((): option<AnalyticsUtils.sortedBasedOn> => {
     switch chartEntity {
     | {sortingColumnLegend} =>
       Some({
