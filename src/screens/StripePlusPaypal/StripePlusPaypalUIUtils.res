@@ -106,7 +106,7 @@ module SelectPaymentMethods = {
       }
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       initialValues
       ->ConnectorUtils.getConnectorPaymentMethodDetails(
         setPaymentMethods,
@@ -173,10 +173,10 @@ module TestPayment = {
     let sptestPaymentProceed = async (~paymentId as _) => {
       updateTestPaymentEnum()->ignore
     }
-    React.useEffect0(() => {
+    React.useEffect(() => {
       setKey(_ => Date.now()->Float.toString)
       None
-    })
+    }, [])
 
     <QuickStartUIUtils.BaseComponent
       headerText="Preview Checkout page"

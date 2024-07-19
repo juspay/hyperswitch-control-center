@@ -404,12 +404,12 @@ let make = (
 
   let handleExpand = (index, string) => fn.current(index, string)
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     handleExpand(totalMonths - 1, "center")
     None
-  })
+  }, [])
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     let currentMonth = getMonthInFloat(month)->Float.toInt + 1
 
     if startDate != lastStartDate {

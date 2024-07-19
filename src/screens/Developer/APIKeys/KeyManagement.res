@@ -21,7 +21,7 @@ module ApiEditModal = {
       setShowCustomDate(_ => val)
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setShowCustomDate(false)
       setModalState(_ => action)
       None
@@ -311,10 +311,10 @@ module ApiKeysTable = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       getAPIKeyDetails()->ignore
       None
-    })
+    }, [])
 
     let getCell = (item: apiKey, colType): Table.cell => {
       let appendString = str => str->String.concat(String.repeat("*", 10))

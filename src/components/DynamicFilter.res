@@ -30,7 +30,7 @@ module CustomFilters = {
       }
       setLocalData(_ => str)
     }
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setErrMessage(_ => "")
       if String.includes(localData, `"`) {
         setErrMessage(str => `${str} Please use ' instead of ".`)

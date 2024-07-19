@@ -18,7 +18,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
     ->Recoil.useRecoilValueFromAtom
     ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let typeString = if isDistribute {
       "volume_split"
     } else {
@@ -28,7 +28,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
     None
   }, [isDistributeInput.value])
 
-  let selectedOptions = React.useMemo1(() => {
+  let selectedOptions = React.useMemo(() => {
     gateWaysInput.value
     ->JSON.Decode.array
     ->Option.getOr([])
@@ -171,6 +171,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
               fixedDropDownDirection=SelectBox.TopRight
               searchable=true
               defaultLeftIcon={FontAwesome("plus")}
+              maxHeight="max-h-full sm:max-h-64"
             />
             <span className="text-lg text-red-500 ml-1"> {React.string("*")} </span>
           </div>
@@ -180,7 +181,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
             <div key className="flex flex-row">
               <div
                 className="w-min flex flex-row items-center justify-around gap-2 h-10 rounded-md  border border-jp-gray-500 dark:border-jp-gray-960
-               text-jp-gray-900 text-opacity-75 hover:text-opacity-100 dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme
+                 hover:text-opacity-100 dark:hover:text-jp-gray-text_darktheme
                dark:hover:text-opacity-75 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 bg-gradient-to-b
                from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 dark:text-jp-gray-text_darktheme
                dark:text-opacity-50 focus:outline-none px-1 ">

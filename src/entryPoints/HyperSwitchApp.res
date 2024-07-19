@@ -123,10 +123,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  })
+  }, [])
 
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal
@@ -193,9 +193,13 @@ let make = () => {
                         }}
                       />
                     </div>
-                    <RenderIf condition=isLiveUsersCounterEnabled>
-                      <ActiveUserCounter />
-                    </RenderIf>
+                    {switch url.path->urlPath {
+                    | list{"home"} =>
+                      <RenderIf condition=isLiveUsersCounterEnabled>
+                        <ActivePaymentsCounter />
+                      </RenderIf>
+                    | _ => React.null
+                    }}
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">

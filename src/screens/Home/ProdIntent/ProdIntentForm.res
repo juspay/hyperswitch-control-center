@@ -36,10 +36,10 @@ let make = (~isFromMilestoneCard=false) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getProdVerifyDetails()->ignore
     None
-  })
+  }, [])
 
   <ProdVerifyModal
     showModal={showProdIntentForm}

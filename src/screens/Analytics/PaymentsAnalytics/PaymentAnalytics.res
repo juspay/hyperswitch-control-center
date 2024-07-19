@@ -69,10 +69,10 @@ let make = () => {
     })
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getPaymetsDetails()->ignore
     None
-  })
+  }, [])
 
   let tabKeys = getStringListFromArrayDict(dimensions)
 
@@ -155,17 +155,17 @@ let make = () => {
     (),
   )
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     setInitialFilters()
     None
-  })
+  }, [])
 
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
 
   let filterUri = `${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`
 
-  let filterBody = React.useMemo3(() => {
+  let filterBody = React.useMemo(() => {
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
       startTime: startTimeVal,
       endTime: endTimeVal,
@@ -177,7 +177,7 @@ let make = () => {
 
   let body = filterBody->JSON.Encode.object
 
-  React.useEffect3(() => {
+  React.useEffect(() => {
     setFilterDataJson(_ => None)
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       try {

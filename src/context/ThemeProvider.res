@@ -62,11 +62,11 @@ let make = (~children) => {
     }
   }
 
-  let setTheme = React.useCallback1(value => {
+  let setTheme = React.useCallback(value => {
     setThemeBase(_ => value)
   }, [setThemeBase])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setTheme(initialTheme)
     None
   }, [isCurrentlyDark])
@@ -75,7 +75,7 @@ let make = (~children) => {
   | Dark => "dark"
   | Light => ""
   }
-  let configCustomDomainTheme = React.useCallback0((uiConfg: JSON.t) => {
+  let configCustomDomainTheme = React.useCallback((uiConfg: JSON.t) => {
     open LogicUtils
     let dict = uiConfg->getDictFromJsonObject->getDictfromDict("theme")
     let {primaryColor, primaryHover, sidebar} = defaultGlobalConfig
@@ -85,9 +85,9 @@ let make = (~children) => {
       sidebar: dict->getString("sidebar_color", sidebar),
     }
     Window.appendStyle(value)
-  })
+  }, [])
 
-  let value = React.useMemo2(() => {
+  let value = React.useMemo(() => {
     {
       globalUIConfig: UIConfig.defaultUIConfig,
       theme,
@@ -96,7 +96,7 @@ let make = (~children) => {
     }
   }, (theme, setTheme))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if theme === Dark {
       setTheme(Light)
     }

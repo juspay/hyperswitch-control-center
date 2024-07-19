@@ -134,14 +134,14 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
     } else {
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  })
+  }, [])
 
   <div className="flex flex-col overflow-y-scroll h-full">
     <RenderIf condition={isInviteUserFlow}>
