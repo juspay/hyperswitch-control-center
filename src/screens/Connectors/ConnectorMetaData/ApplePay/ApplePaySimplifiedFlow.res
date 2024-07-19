@@ -33,10 +33,10 @@ let make = (
     form.change("metadata.apple_pay_combined", value->Identity.genericTypeToJson)
   }
 
-  React.useEffect0(() => {
-    let _ = setFormData()
+  React.useEffect(() => {
+    setFormData()
     None
-  })
+  }, [])
   let onSubmit = async () => {
     try {
       let body = formState.values->constructVerifyApplePayReq(connectorID)

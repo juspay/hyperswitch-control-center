@@ -195,7 +195,7 @@ module CheckBoxRenderer = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       if isOpen && !isUpdateFlow {
         switch connectorPaymentMethods {
         | Some(paymentMethods) => {
@@ -206,7 +206,7 @@ module CheckBoxRenderer = {
         }
       }
       None
-    })
+    }, [])
 
     <div>
       <div
@@ -320,10 +320,10 @@ module PaymentMethodsRenderer = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       getConfiguredConnectorDetails()->ignore
       None
-    })
+    }, [])
 
     <PageLoaderWrapper screenState={pageState}>
       <div className="flex flex-col gap-4">
@@ -348,10 +348,12 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
   open FRMInfo
   open FRMUtils
   open LogicUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let initialValues = retrivedValues->Option.getOr(Dict.make()->JSON.Encode.object)
 
   let onSubmit = (values, _) => {
     open Promise
+    mixpanelEvent(~eventName="frm_step1", ())
     let valuesDict = values->getDictFromJsonObject
 
     // filter connector frm config having no payment method config

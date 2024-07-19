@@ -16,7 +16,7 @@ let make = (~routingType) => {
 
   let baseUrlForRedirection = "/payoutrouting"
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let searchParams = url.search
     let filtersFromUrl = getDictFromUrlSearchParams(searchParams)->Dict.get("id")
     setId(_ => filtersFromUrl)

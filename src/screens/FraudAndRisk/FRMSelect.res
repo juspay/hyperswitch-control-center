@@ -3,6 +3,7 @@ module NewProcessorCards = {
   @react.component
   let make = (~configuredFRMs: array<ConnectorTypes.connectorTypes>) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let frmAvailableForIntegration = frmList
     let unConfiguredFRMs = frmAvailableForIntegration->Array.filter(total =>
       configuredFRMs
@@ -13,6 +14,7 @@ module NewProcessorCards = {
     )
 
     let handleClick = frmName => {
+      mixpanelEvent(~eventName=`connect_frm_${frmName}`, ())
       RescriptReactRouter.push(
         GlobalVars.appendDashboardPath(~url=`/fraud-risk-management/new?name=${frmName}`),
       )
@@ -101,7 +103,7 @@ let make = () => {
       moduleSubtitle="Connect and configure processors to screen transactions and mitigate fraud"
     />
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     open Promise
     open LogicUtils
     fetchDetails(getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ()))
@@ -137,7 +139,7 @@ let make = () => {
     })
     ->ignore
     None
-  })
+  }, [])
   // TODO: Convert it to remote filter
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils

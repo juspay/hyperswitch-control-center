@@ -70,7 +70,7 @@ module AddSurchargeCondition = {
       `${id}.connectorSelection.surcharge_details.surcharge.type`,
     ).input
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       let valueType = switch surchargeTypeInput.value->LogicUtils.getStringFromJson("") {
       | "rate" => "percentage"
       | "fixed" => "amount"
@@ -228,7 +228,7 @@ module Wrapper = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       name.onChange(heading->String.toLowerCase->titleToSnake->Identity.stringToFormReactEvent)
 
       let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Array.length > 0
@@ -237,7 +237,7 @@ module Wrapper = {
         setIsExpanded(p => !p)
       }
       None
-    })
+    }, [])
 
     let border = isDragging ? "border-dashed" : "border-solid"
     let flex = isExpanded ? "flex-col" : "flex-wrap items-center gap-4"
@@ -357,7 +357,7 @@ module RuleBasedUI = {
     let ruleInput = ReactFinalForm.useField(rulesJsonPath).input
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       ruleInput.onChange(rules->Identity.arrayOfGenericTypeToFormReactEvent)
       None
     }, [rules])
@@ -383,9 +383,23 @@ module RuleBasedUI = {
         `}>
         <div>
           <div className="font-bold"> {React.string("Rule Based Configuration")} </div>
-          <div className="w-full text-jp-gray-700 dark:text-jp-gray-700 text-justify">
-            {"Rule Based Configuration is useful when you prefer more granular definition of smart routing logic, based on multiple dimensions involved in a payment. Any number of conditions could be constructed with dimensions and logical operators.
-For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% to Adyen."->React.string}
+          <div className="flex flex-col gap-4">
+            <span className="w-full text-jp-gray-700 dark:text-jp-gray-700 text-justify">
+              {"Rule-Based Configuration allows for detailed smart routing logic based on multiple dimensions of a payment. You can create any number of conditions using various dimensions and logical operators."->React.string}
+            </span>
+            <span className="flex flex-col text-jp-gray-700">
+              {"For example:"->React.string}
+              <p className="flex gap-2 items-center">
+                <div className="p-1 h-fit rounded-full bg-jp-gray-700 ml-2" />
+                {"If card_type = credit && amount > 100, route 60% to Stripe and 40% to Adyen."->React.string}
+              </p>
+            </span>
+            <span className="text-jp-gray-700 text-sm">
+              <i>
+                {"Ensure to enter the payment amount in the smallest currency unit (e.g., cents for USD, yen for JPY). 
+            For instance, pass 100 to charge $1.00 (USD) and ¥100 (JPY) since ¥ is a zero-decimal currency."->React.string}
+              </i>
+            </span>
           </div>
         </div>
       </div>
@@ -515,7 +529,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let fetchDetails = async () => {
       try {
         setScreenState(_ => Loading)
@@ -753,7 +767,7 @@ let make = (
   | _ => RoutingTypes.PaymentConnector
   }
 
-  let connectorOptions = React.useMemo2(() => {
+  let connectorOptions = React.useMemo(() => {
     connectors
     ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
     ->Array.filter(item => item.profile_id === profile)

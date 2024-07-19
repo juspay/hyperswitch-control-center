@@ -7,7 +7,7 @@ let defaultCellHighlighter = (_): Calendar.highlighter => {
 }
 
 let useErroryValueResetter = (value: string, setValue: (string => string) => unit) => {
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let isErroryTimeValue = _ => {
       try {
         false
@@ -20,7 +20,7 @@ let useErroryValueResetter = (value: string, setValue: (string => string) => uni
     }
 
     None
-  })
+  }, [])
 }
 
 let getDateStringForValue = (
@@ -203,19 +203,19 @@ module Base = {
 
     let dropdownPosition = isFilterSection && !isMobileView && isCustomSelected ? "right-0" : ""
 
-    let todayDayJsObj = React.useMemo1(() => {
+    let todayDayJsObj = React.useMemo(() => {
       Date.make()->Date.toString->DayJs.getDayJsForString
     }, [isDropdownExpanded])
 
     let currentTime = todayDayJsObj.format("HH:mm")
     let todayDate = todayDayJsObj.format("YYYY-MM-DD")
-    let todayTime = React.useMemo1(() => {
+    let todayTime = React.useMemo(() => {
       todayDayJsObj.format("HH:mm:ss")
     }, [currentTime])
 
     let initialStartTime = disableFutureDates || selectStandardTime ? "00:00:00" : "23:59:59"
     let initialEndTime = disableFutureDates || selectStandardTime ? "23:59:59" : "00:00:00"
-    React.useEffect2(() => {
+    React.useEffect(() => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
       setLocalOpt(_ => "")
@@ -228,7 +228,7 @@ module Base = {
       setLocalOpt(_ => "")
     }
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       switch dateRangeLimit {
       | Some(maxLen) => {
           let diff = getStartEndDiff(localStartDate, localEndDate)
@@ -608,7 +608,7 @@ module Base = {
       displayEndDate
     }
 
-    React.useEffect4(() => {
+    React.useEffect(() => {
       if startDate->isNonEmptyString && endDate->isNonEmptyString {
         if (
           localStartDate->isNonEmptyString &&
@@ -880,7 +880,7 @@ module Base = {
 }
 
 let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
-  React.useMemo1(() => {
+  React.useMemo(() => {
     let val = input.value->JSON.Decode.string->Option.getOr("")
     let onChange = fn => {
       let newVal = fn(val)

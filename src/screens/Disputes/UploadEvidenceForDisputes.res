@@ -259,10 +259,10 @@ module DisputesInfoBarComponent = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       retrieveEvidence()->ignore
       None
-    })
+    }, [])
 
     <PageLoaderWrapper screenState>
       <div

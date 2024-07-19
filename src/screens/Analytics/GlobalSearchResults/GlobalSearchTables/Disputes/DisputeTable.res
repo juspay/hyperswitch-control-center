@@ -92,7 +92,7 @@ let make = () => {
     }
   }
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if searchText->String.length > 0 {
       getData()->ignore
     } else {

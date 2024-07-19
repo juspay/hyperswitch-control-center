@@ -27,7 +27,7 @@ let make = (
 
   let toNum = resultsPerPage + start > totalResults ? totalResults : resultsPerPage + start - 1
   let shouldRefetch = toNum > currrentFetchCount && toNum <= totalResults && !tableDataLoading
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if shouldRefetch {
       switch handleRefetch {
       | Some(fun) => fun()
@@ -55,7 +55,7 @@ let make = (
     value: resultsPerPage->Int.toString->JSON.Encode.string,
     checked: true,
   }
-  let paginate = React.useCallback5(pageNumber => {
+  let paginate = React.useCallback(pageNumber => {
     let total = Math.ceil(Int.toFloat(totalResults) /. Int.toFloat(resultsPerPage))->Float.toInt
     // for handling page count
     let defaultPageNumber = Math.Int.min(total, pageNumber)

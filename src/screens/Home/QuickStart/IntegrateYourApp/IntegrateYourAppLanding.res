@@ -66,7 +66,7 @@ let make = (~integrateAppValue: integrateApp) => {
     setQuickStartPageState(_ => GoLive(LANDING))
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if choiceState === #NotSelected {
       setButtonState(_ => Button.Disabled)
     } else {

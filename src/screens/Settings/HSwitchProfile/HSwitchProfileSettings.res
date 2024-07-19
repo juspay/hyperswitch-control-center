@@ -16,7 +16,7 @@ module MerchantDetailsSection = {
       HyperswitchAtom.switchMerchantListAtom,
     )
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       try {
         let _ = fetchSwitchMerchantList()
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -24,7 +24,7 @@ module MerchantDetailsSection = {
       | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Custom)
       }
       None
-    })
+    }, [])
 
     <PageLoaderWrapper screenState sectionHeight="h-40-vh">
       <div>

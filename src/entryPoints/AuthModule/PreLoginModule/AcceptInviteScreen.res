@@ -29,7 +29,7 @@ let make = (~onClick) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     open CommonAuthUtils
     open TwoFaUtils
     open GlobalVars
@@ -42,7 +42,7 @@ let make = (~onClick) => {
     }
 
     None
-  })
+  }, [])
 
   <EmailVerifyScreen
     errorMessage

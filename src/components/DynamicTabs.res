@@ -59,7 +59,7 @@ module TabInfo = {
     } else {
       "text-jp-gray-700 dark:text-jp-gray-tabset_gray dark:text-opacity-75  hover:text-jp-gray-800 dark:hover:text-opacity-100 font-medium"
     }
-    let handleClick = React.useCallback2(_ev => {
+    let handleClick = React.useCallback(_ev => {
       handleSelectedTab(
         ~tabValue={
           switch tabNames->Array.get(index) {
@@ -262,7 +262,7 @@ let make = (
 
   let (selectedIndex, setSelectedIndex) = React.useState(_ => 0)
 
-  let (initialIndex, updatedCollapsableTabs) = React.useMemo1(() => {
+  let (initialIndex, updatedCollapsableTabs) = React.useMemo(() => {
     let defautTabValues = defaultTabs->Array.map(item => item.value)
     let collapsibleTabs = switch getConfig(availableTabUserPrefKey) {
     | Some(jsonVal) => {
@@ -365,18 +365,18 @@ let make = (
   let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
   let (formattedOptions, setFormattedOptions) = React.useState(_ => [])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setSelectedIndex(_ => initialIndex)
     None
   }, [initialIndex])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setCollapsibleTabs(_ => updatedCollapsableTabs)
     None
   }, [updatedCollapsableTabs])
 
   // this will update the current available tabs to the userpreference
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let collapsibleTabsValues =
       collapsibleTabs
       ->Array.map(item => {
@@ -490,7 +490,7 @@ let make = (
     setShowModal(_ => false)
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let options =
       tabs
       ->Array.filter(tab => !(tab.value->String.split(",")->Array.length > 1))

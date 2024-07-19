@@ -12,7 +12,7 @@ let make = () => {
   let getURL = useGetURL()
   let handleLogout = useHandleLogout()
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let acceptInvitedata = switch authStatus {
     | LoggedIn(info) =>
       switch info {
@@ -34,7 +34,7 @@ let make = () => {
     }
 
     None
-  })
+  }, [])
 
   let onClickLoginToDashboard = async () => {
     try {

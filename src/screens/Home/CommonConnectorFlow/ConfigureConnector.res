@@ -49,7 +49,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if choiceState === #NotSelected {
       setButtonState(_ => Button.Disabled)
     } else {
@@ -58,7 +58,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
     None
   }, [choiceState])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if smartRoutingChoiceState === #NotSelected {
       setButtonState(_ => Button.Disabled)
     } else {
@@ -67,7 +67,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
     None
   }, [smartRoutingChoiceState])
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     setInitialValues(prevJson => {
       let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
       prevJsonDict->Dict.set(
@@ -188,10 +188,10 @@ let make = (~connectProcessorValue: connectProcessor) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     setKey(_ => Date.now()->Float.toString)
     None
-  })
+  }, [])
 
   <>
     {switch connectProcessorValue {

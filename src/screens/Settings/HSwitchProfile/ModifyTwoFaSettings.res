@@ -174,14 +174,14 @@ module ResetTotp = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       if checkStatusResponse.totp || checkStatusResponse.recovery_code {
         generateNewSecret()->ignore
       } else {
         setShowVerifyModal(_ => true)
       }
       None
-    })
+    }, [])
 
     let handleKeyUp = ev => {
       open ReactEvent.Keyboard
@@ -193,7 +193,7 @@ module ResetTotp = {
       }
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if otpInModal->String.length == 6 || recoveryCode->String.length == 9 {
         Window.addEventListener("keyup", handleKeyUp)
       } else {
@@ -364,14 +364,14 @@ module RegenerateRecoveryCodes = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       if checkStatusResponse.totp {
         generateRecoveryCodes()->ignore
       } else {
         setShowVerifyModal(_ => true)
       }
       None
-    })
+    }, [])
 
     let handleKeyUp = ev => {
       open ReactEvent.Keyboard
@@ -383,7 +383,7 @@ module RegenerateRecoveryCodes = {
       }
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if otpInModal->String.length == 6 {
         Window.addEventListener("keyup", handleKeyUp)
       } else {
@@ -523,10 +523,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     checkTwoFaStatus()->ignore
     None
-  })
+  }, [])
 
   let pageTitle = switch twofactorAuthType->HSwitchProfileUtils.getTwoFaEnumFromString {
   | ResetTotp => "Reset totp"

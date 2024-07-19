@@ -150,7 +150,7 @@ let make = (
   let (showStats, setShowStats) = React.useState(_ => false)
 
   // without prefix only table related Filters
-  let getTopLevelFilter = React.useMemo1(() => {
+  let getTopLevelFilter = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
@@ -193,7 +193,7 @@ let make = (
     metaData
   }
 
-  let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
+  let (topFiltersToSearchParam, customFilter) = React.useMemo(() => {
     let filterSearchParam =
       getTopLevelFilter
       ->Dict.toArray
@@ -215,7 +215,7 @@ let make = (
     (filterSearchParam, getTopLevelFilter->getString(customFilterKey, ""))
   }, [getTopLevelFilter])
 
-  let filterValueFromUrl = React.useMemo1(() => {
+  let filterValueFromUrl = React.useMemo(() => {
     getTopLevelFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(entries => {
@@ -226,10 +226,10 @@ let make = (
     ->Some
   }, [topFiltersToSearchParam])
 
-  let startTimeFromUrl = React.useMemo1(() => {
+  let startTimeFromUrl = React.useMemo(() => {
     getTopLevelFilter->getString(startTimeFilterKey, defaultStartDate)
   }, [topFiltersToSearchParam])
-  let endTimeFromUrl = React.useMemo1(() => {
+  let endTimeFromUrl = React.useMemo(() => {
     getTopLevelFilter->getString(endTimeFilterKey, defaultEndDate)
   }, [topFiltersToSearchParam])
 
@@ -250,7 +250,7 @@ let make = (
     singleStatData,
   })
 
-  React.useEffect4(() => {
+  React.useEffect(() => {
     if !(singleStatLoading || singleStatLoadingTimeSeries) {
       setSingleStatCombinedData(_ => {
         singleStatTimeData,
@@ -261,14 +261,14 @@ let make = (
   }, (singleStatLoadingTimeSeries, singleStatLoading, singleStatTimeData, singleStatData))
   let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if singleStatData !== None && singleStatTimeData !== None {
       setShimmerType(_ => SideLoader)
     }
     None
   }, (singleStatData, singleStatTimeData))
 
-  React.useEffect5(() => {
+  React.useEffect(() => {
     if startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString {
       open Promise
       setSingleStatLoading(_ => enableLoaders)
@@ -338,7 +338,7 @@ let make = (
     None
   }, (endTimeFromUrl, startTimeFromUrl, filterValueFromUrl, customFilter, mode))
 
-  React.useEffect5(() => {
+  React.useEffect(() => {
     if startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString {
       setSingleStatLoadingTimeSeries(_ => enableLoaders)
 

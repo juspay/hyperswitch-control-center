@@ -51,14 +51,14 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
     } else {
       getUserData()->ignore
     }
     None
-  })
+  }, [])
 
   let filterLogicForUsers = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob

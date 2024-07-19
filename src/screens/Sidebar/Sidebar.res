@@ -107,7 +107,7 @@ module SidebarItem = {
         }
 
         <RenderIf condition={access !== NoAccess}>
-          <Link to_=redirectionLink sendMixpanelEvents=true>
+          <Link to_=redirectionLink>
             <AddDataAttributes
               attributes=[
                 ("data-testid", name->String.replaceRegExp(%re("/\s/g"), "")->String.toLowerCase),
@@ -147,7 +147,7 @@ module SidebarItem = {
         let {name, icon, iconTag, link, access, ?iconStyles, ?iconSize} = tabOption
 
         <RenderIf condition={access !== NoAccess}>
-          <Link to_={`${link}${getSearchParamByLink(link)}`} sendMixpanelEvents=true>
+          <Link to_={`${link}${getSearchParamByLink(link)}`}>
             <div
               onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
               className={`${textColor} flex flex-row items-center cursor-pointer transition duration-300 ${selectedClass} p-3 ${isExpanded
@@ -208,7 +208,7 @@ module NestedSidebarItem = {
           let linkTagPadding = "pl-2"
 
           <RenderIf condition={access !== NoAccess}>
-            <Link to_={`${link}${getSearchParamByLink(link)}`} sendMixpanelEvents=true>
+            <Link to_={`${link}${getSearchParamByLink(link)}`}>
               <AddDataAttributes
                 attributes=[
                   ("data-testid", name->String.replaceRegExp(%re("/\s/g"), "")->String.toLowerCase),
@@ -353,7 +353,7 @@ module SidebarNestedSection = {
 
     let isAnySubItemSelected = section.links->Array.find(isSubLevelItemSelected)->Option.isSome
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       if isSectionExpanded {
         setIsElementShown(_ => true)
       } else if isElementShown {
@@ -364,7 +364,7 @@ module SidebarNestedSection = {
       None
     }, (isSectionExpanded, isSideBarExpanded))
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       if isSideBarExpanded {
         setIsSectionExpanded(_ => isAnySubItemSelected)
       } else {
@@ -373,7 +373,7 @@ module SidebarNestedSection = {
       None
     }, (isSideBarExpanded, isAnySubItemSelected))
 
-    let toggleSectionExpansion = React.useCallback4(_ev => {
+    let toggleSectionExpansion = React.useCallback(_ev => {
       if !isSideBarExpanded {
         setIsSidebarExpanded(_ => true)
         setTimeout(() => {
@@ -455,9 +455,9 @@ module PinIconComponentStates = {
     let isMobileView = MatchMedia.useMobileChecker()
     let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
 
-    let toggleExpand = React.useCallback0(_ => {
+    let toggleExpand = React.useCallback(_ => {
       setIsSidebarExpanded(x => !x)
-    })
+    }, [])
 
     let onClick = ev => {
       ev->ReactEvent.Mouse.preventDefault
@@ -514,7 +514,7 @@ let make = (
   let minWidthForPinnedState = MatchMedia.useMatchMedia("(min-width: 1280px)")
   // let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if minWidthForPinnedState {
       setIsSidebarDetails("isPinned", true->JSON.Encode.bool)
       setIsSidebarExpanded(_ => true)

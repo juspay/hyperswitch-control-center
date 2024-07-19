@@ -195,10 +195,10 @@ module LandingPageChoice = {
     ~isVerticalTile=false,
     ~customLayoutCss="",
   ) => {
-    React.useEffect0(() => {
+    React.useEffect(() => {
       setChoiceState(_ => #NotSelected)
       None
-    })
+    }, [])
 
     <BaseComponent
       headerText

@@ -212,7 +212,7 @@ module Refunds = {
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
     let heading = refundColumns->Array.map(getRefundHeading)
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if expand != -1 {
         setExpandedRowIndexArray(_ => [expand])
       }
@@ -272,7 +272,7 @@ module Attempts = {
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if expand != -1 {
         setExpandedRowIndexArray(_ => [expand])
       }
@@ -339,7 +339,7 @@ module Disputes = {
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
     let heading = columnsInPaymentPage->Array.map(getHeading)
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if expand != -1 {
         setExpandedRowIndexArray(_ => [expand])
       }
@@ -407,7 +407,7 @@ module OrderActions = {
         amountRefunded := amountRefunded.contents +. ele.amount
       }
     })
-    React.useEffect1(_ => {
+    React.useEffect(_ => {
       setAmoutAvailableToRefund(_ =>
         orderData.amount /. 100.0 -.
         amountRefunded.contents /. 100.0 -.
@@ -621,7 +621,7 @@ let make = (~id) => {
       }
     }
   }
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let accountUrl = getURL(
       ~entityName=ORDERS,
       ~methodType=Get,
@@ -631,7 +631,7 @@ let make = (~id) => {
     )
     fetchOrderDetails(accountUrl)->ignore
     None
-  })
+  }, [])
 
   let isRefundDataAvailable = orderData.refunds->Array.length !== 0
 
@@ -641,7 +641,7 @@ let make = (~id) => {
     setShowModal(_ => true)
   }
 
-  let showSyncButton = React.useCallback1(_ => {
+  let showSyncButton = React.useCallback(_ => {
     let status = orderData.status->statusVariantMapper
 
     !(id->isTestData) && status !== Succeeded && status !== Failed

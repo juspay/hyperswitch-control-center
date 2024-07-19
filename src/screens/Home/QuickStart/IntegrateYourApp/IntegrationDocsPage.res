@@ -36,7 +36,7 @@ module RequestPage = {
       }
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setIsSubmitButtonEnabled(_ => true)
       None
     }, [requestedValue])
