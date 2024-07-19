@@ -39,7 +39,7 @@ let make = (~isPayoutFlow=false) => {
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     getConnectorListAndUpdateState()->ignore
     None
   }, [isPayoutFlow])

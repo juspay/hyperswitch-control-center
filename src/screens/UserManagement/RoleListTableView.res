@@ -26,7 +26,7 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if rolesAvailableData->Array.length == 0 {
       getRolesAvailable()->ignore
     } else {
@@ -34,7 +34,7 @@ let make = () => {
     }
 
     None
-  })
+  }, [])
 
   <div className="mt-5">
     <PageLoaderWrapper screenState={screenStateRoles}>

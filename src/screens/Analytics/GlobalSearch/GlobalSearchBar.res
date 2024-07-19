@@ -125,7 +125,7 @@ module SearchResultsComponent = {
   open UIUtils
   @react.component
   let make = (~searchResults, ~searchText, ~redirectOnSelect, ~setShowModal) => {
-    React.useEffect0(() => {
+    React.useEffect(() => {
       let onKeyPress = event => {
         let keyPressed = event->ReactEvent.Keyboard.key
 
@@ -139,7 +139,7 @@ module SearchResultsComponent = {
       }
       Window.addEventListener("keydown", onKeyPress)
       Some(() => Window.removeEventListener("keydown", onKeyPress))
-    })
+    }, [])
 
     <OptionsWrapper>
       {searchResults
@@ -221,7 +221,7 @@ let make = () => {
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
   let mixpanelEvent = MixpanelHook.useSendEvent()
-
+  let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let redirectOnSelect = element => {
     mixpanelEvent(~eventName="global_search_redirect", ())
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
@@ -235,12 +235,7 @@ let make = () => {
     try {
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
 
-      let body = if !(searchText->CommonAuthUtils.isValidEmail) {
-        let filters = [("email", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
-        [("query", ""->JSON.Encode.string), ("filters", filters)]->LogicUtils.getJsonFromArrayOfJson
-      } else {
-        [("query", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
-      }
+      let body = generateSearchBody(~searchText, ~merchant_id={merchantDetailsValue.merchant_id})
 
       let response = await fetchDetails(url, body, Post, ())
 
@@ -278,7 +273,7 @@ let make = () => {
     }
   }
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     let results = []
 
     if searchText->String.length > 0 {
@@ -311,12 +306,12 @@ let make = () => {
     None
   }, [searchText])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setSearchText(_ => "")
     None
   }, [showModal])
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let onKeyPress = event => {
       let metaKey = event->ReactEvent.Keyboard.metaKey
       let keyPressed = event->ReactEvent.Keyboard.key
@@ -332,7 +327,7 @@ let make = () => {
     }
     Window.addEventListener("keydown", onKeyPress)
     Some(() => Window.removeEventListener("keydown", onKeyPress))
-  })
+  }, [])
 
   let openModalOnClickHandler = _ => {
     setShowModal(_ => true)

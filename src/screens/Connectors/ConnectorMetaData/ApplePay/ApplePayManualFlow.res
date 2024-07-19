@@ -220,10 +220,10 @@ let make = (
     form.change("metadata.apple_pay_combined", value->Identity.genericTypeToJson)
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let _ = setFormData()
     None
-  })
+  }, [])
   let onSubmit = () => {
     let data =
       formState.values

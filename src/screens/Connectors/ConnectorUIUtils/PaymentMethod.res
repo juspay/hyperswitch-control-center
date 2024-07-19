@@ -34,9 +34,9 @@ module CardRenderer = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let form = ReactFinalForm.useForm()
-    let initalFormValue = React.useMemo0(() => {
+    let initalFormValue = React.useMemo(() => {
       formState.values->getDictFromJsonObject->getDictfromDict("metadata")
-    })
+    }, [])
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
@@ -285,7 +285,7 @@ module PaymentMethodsRender = {
     ~setMetaData,
     ~isPayoutFlow,
   ) => {
-    let pmts = React.useMemo1(() => {
+    let pmts = React.useMemo(() => {
       (
         isPayoutFlow
           ? Window.getPayoutConnectorConfig(connector)

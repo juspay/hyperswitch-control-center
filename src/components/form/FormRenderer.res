@@ -526,7 +526,7 @@ module FormError = {
       JSON.Encode.object(subscriptionDict)
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       let unsubscribe = form.subscribe(formState => {
         setSubmitErrors(_ => formState.submitErrors->Nullable.toOption)
 
@@ -534,7 +534,7 @@ module FormError = {
       }, subscriptionJson)
 
       Some(unsubscribe)
-    })
+    }, [])
     switch submitErrors {
     | Some(errorsJson) =>
       switch errorsJson->JSON.Decode.object {
@@ -617,7 +617,7 @@ module SubmitButton = {
 
     let showPopUp = PopUpState.useShowPopUp()
     let (avoidDisable, setAvoidDisable) = React.useState(_ => userInteractionRequired)
-    React.useEffect0(() => {
+    React.useEffect(() => {
       let onClick = {
         _ev => {
           setAvoidDisable(_ => false)
@@ -629,7 +629,7 @@ module SubmitButton = {
           Window.removeEventListener("click", onClick)
         },
       )
-    })
+    }, [])
     let form = ReactFinalForm.useForm()
     let openPopUp = (confirmType, confirmText, buttonText, cancelButtonText, popUpType) => {
       showPopUp({

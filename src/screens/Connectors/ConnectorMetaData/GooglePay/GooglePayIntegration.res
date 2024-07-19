@@ -2,7 +2,7 @@
 let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClickCustomFun) => {
   open LogicUtils
   open GooglePayUtils
-  let googlePayFields = React.useMemo1(() => {
+  let googlePayFields = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
         let dict =
@@ -25,12 +25,12 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
-  let initialGooglePayDict = React.useMemo0(() => {
+  let initialGooglePayDict = React.useMemo(() => {
     formState.values->getDictFromJsonObject->getDictfromDict("metadata")
-  })
+  }, [])
 
   let form = ReactFinalForm.useForm()
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if connector->isNonEmptyString {
       let value = googlePay(initialGooglePayDict->getDictfromDict("google_pay"), connector)
       switch value {

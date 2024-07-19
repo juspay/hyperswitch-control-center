@@ -49,10 +49,10 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getRefundDetails()->ignore
     None
-  })
+  }, [])
 
   let tabKeys = getStringListFromArrayDict(dimensions)
 

@@ -33,7 +33,7 @@ let make = (~urlList) => {
   | _ => ""
   }
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     getReconToken()->ignore
     None
   }, (iframeLoaded, redirectUrl))

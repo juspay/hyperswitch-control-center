@@ -87,7 +87,7 @@ module TableRow = {
     let (isCurrentRowExpanded, setIsCurrentRowExpanded) = React.useState(_ => false)
     let (expandedData, setExpandedData) = React.useState(_ => React.null)
     let actualIndex = offset + rowIndex
-    let onClick = React.useCallback2(_ev => {
+    let onClick = React.useCallback(_ev => {
       let isRangeSelected = getSelection().\"type" == "Range"
       switch (onRowClick, isRangeSelected) {
       | (Some(fn), false) => fn(actualIndex)
@@ -95,21 +95,21 @@ module TableRow = {
       }
     }, (onRowClick, actualIndex))
 
-    let onDoubleClick = React.useCallback2(_ev => {
+    let onDoubleClick = React.useCallback(_ev => {
       switch onRowDoubleClick {
       | Some(fn) => fn(actualIndex)
       | _ => ()
       }
     }, (onRowDoubleClick, actualIndex))
 
-    let onMouseEnter = React.useCallback2(_ev => {
+    let onMouseEnter = React.useCallback(_ev => {
       switch onMouseEnter {
       | Some(fn) => fn(actualIndex)
       | _ => ()
       }
     }, (onMouseEnter, actualIndex))
 
-    let onMouseLeave = React.useCallback2(_ev => {
+    let onMouseLeave = React.useCallback(_ev => {
       switch onMouseLeave {
       | Some(fn) => fn(actualIndex)
       | _ => ()

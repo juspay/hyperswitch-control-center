@@ -155,7 +155,7 @@ module ExternalUser = {
       setSelectedMerchantObject(_ => extractMerchantObject)
     }
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       fetchMerchantIDs()
       None
     }, (merchantDetailsTypedValue.merchant_name, switchMerchantList))
@@ -264,7 +264,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   let showPopUp = PopUpState.useShowPopUp()
   let isInternalUser = userRole->String.includes("internal_")
   let (successModal, setSuccessModal) = React.useState(_ => false)
-  let input = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
+  let input = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
     {
       name: "-",
       onBlur: _ev => (),

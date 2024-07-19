@@ -258,7 +258,7 @@ let make = (
     }
   }
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if showModal {
       Window.addEventListener("keyup", handleKeyUp)
     } else {

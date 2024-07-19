@@ -63,10 +63,10 @@ let make = () => {
     })
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getPaymetsDetails()->ignore
     None
-  })
+  }, [])
 
   let tabKeys = getStringListFromArrayDict(dimensions)
 

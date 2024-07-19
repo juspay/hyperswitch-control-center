@@ -20,7 +20,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
   let connectorTypeFromName = connector->getConnectorNameTypeFromString()
 
-  let selectedConnector = React.useMemo1(() => {
+  let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->getConnectorInfo
   }, [connector])
 
@@ -29,7 +29,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let activeBusinessProfile =
     defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
-  let connectorDetails = React.useMemo1(() => {
+  let connectorDetails = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
         let dict = isPayoutFlow
@@ -61,7 +61,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
 
   let (showModal, setShowModal) = React.useState(_ => false)
 
-  let updatedInitialVal = React.useMemo1(() => {
+  let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
 
     // TODO: Refactor for generic case

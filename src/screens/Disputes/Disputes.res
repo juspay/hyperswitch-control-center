@@ -34,10 +34,10 @@ let make = () => {
       }
     }
   }
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getDisputesList()->ignore
     None
-  })
+  }, [])
 
   let customUI =
     <>

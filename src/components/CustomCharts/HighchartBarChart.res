@@ -19,7 +19,7 @@ module HighBarChart1D = {
     | Dark => "#e6e6e6"
     }
 
-    let (categories, barSeries) = React.useMemo3(() => {
+    let (categories, barSeries) = React.useMemo(() => {
       LineChartUtils.barChartDataMaker(
         ~rawData,
         ~activeTab=groupKey,
@@ -27,7 +27,7 @@ module HighBarChart1D = {
       )
     }, (rawData, groupKey, selectedMetrics.metric_name_db))
 
-    let barOption: JSON.t = React.useMemo2(() => {
+    let barOption: JSON.t = React.useMemo(() => {
       let barOption: JSON.t = {
         "chart": Highcharts.makebarChart(
           ~chartType={isHrizonatalBar ? "bar" : "column"},

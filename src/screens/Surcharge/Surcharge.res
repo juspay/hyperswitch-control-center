@@ -34,7 +34,7 @@ module ConfigureSurchargeRule = {
   let make = (~wasm) => {
     let ruleInput = ReactFinalForm.useField("algorithm.rules").input
     let (rules, setRules) = React.useState(_ => ruleInput.value->LogicUtils.getArrayFromJson([]))
-    React.useEffect1(() => {
+    React.useEffect(() => {
       ruleInput.onChange(rules->Identity.arrayOfGenericTypeToFormReactEvent)
       None
     }, [rules])
@@ -165,10 +165,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     fetchDetails()->ignore
     None
-  })
+  }, [])
 
   let onSubmit = async (values, _) => {
     try {

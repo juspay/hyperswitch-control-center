@@ -63,7 +63,7 @@ let make = (~value, ~setValue) => {
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let indexToFocus = Math.Int.min(5, value->String.length)
 
     let elementToFocus = (inputRefArray[indexToFocus]->Option.getOr(input1Ref)).current

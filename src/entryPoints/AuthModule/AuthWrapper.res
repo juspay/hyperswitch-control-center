@@ -108,7 +108,7 @@ let make = (~children) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     switch url.path {
     | list{"user", "login"}
     | list{"register"} =>
@@ -122,7 +122,7 @@ let make = (~children) => {
     }
 
     None
-  })
+  }, [])
 
   let getAuthMethods = async () => {
     try {
@@ -134,7 +134,7 @@ let make = (~children) => {
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if authStatus === LoggedOut {
       getAuthMethods()->ignore
     }

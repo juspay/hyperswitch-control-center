@@ -21,10 +21,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getMerchantDetails()->ignore
     None
-  })
+  }, [])
 
   let paymentResponsHashKey = merchantInfo.payment_response_hash_key->Option.getOr("")
 

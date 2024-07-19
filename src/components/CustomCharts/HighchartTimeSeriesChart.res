@@ -78,7 +78,7 @@ module LineChart1D = {
 
     let chartHeight = isMobileView ? 250 : 400
 
-    let setClickedRowNames = React.useMemo1(() => {
+    let setClickedRowNames = React.useMemo(() => {
       (legendData: LineChartUtils.legendTableData) => {
         setClickedRowNamesOrig(prev => {
           prev->Array.includes(legendData.groupByName)
@@ -88,7 +88,7 @@ module LineChart1D = {
       }
     }, [setClickedRowNamesOrig])
 
-    let (chartData, xAxisMapInfo, chartDataOrig) = React.useMemo7(() => {
+    let (chartData, xAxisMapInfo, chartDataOrig) = React.useMemo(() => {
       let chartdata: array<
         LineChartUtils.timeSeriesDictWithSecondryMetrics<JSON.t>,
       > = LineChartUtils.timeSeriesDataMaker(
@@ -251,7 +251,7 @@ module LineChart1D = {
       chartData
     }
 
-    let legendData = React.useMemo5(() => {
+    let legendData = React.useMemo(() => {
       let data = LineChartUtils.getLegendDataForCurrentMetrix(
         ~yAxis=selectedMetrics.metric_name_db,
         ~xAxis,
@@ -429,13 +429,13 @@ module LineChart1D = {
     )
     let {isSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setTimeout(_ => {
         DOMUtils.window->DOMUtils.dispatchEvent(DOMUtils.event("resize"))
       }, 150)->ignore
       None
     }, [isSidebarExpanded])
-    let options = React.useMemo4(() => {
+    let options = React.useMemo(() => {
       let chartTitleStyle = chartTitleStyle(theme)
       let thresholdVal = selectedMetrics.thresholdVal
       let stepUpFromThreshold = selectedMetrics.step_up_threshold
