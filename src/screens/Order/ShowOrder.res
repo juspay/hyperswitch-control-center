@@ -36,7 +36,7 @@ module ShowOrderDetails = {
         </div>
       | _ => React.null
       }}
-      <UIUtils.RenderIf condition=isButtonEnabled>
+      <RenderIf condition=isButtonEnabled>
         <div className="flex items-center flex-wrap gap-3 m-3">
           <div className="flex items-start">
             <div className="md:text-5xl font-bold">
@@ -64,7 +64,7 @@ module ShowOrderDetails = {
               : Disabled}
           />
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
       <FormRenderer.DesktopRow>
         <div
           className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
@@ -502,7 +502,7 @@ module FraudRiskBannerDetails = {
         })
         ->React.array}
       </div>
-      <UIUtils.RenderIf
+      <RenderIf
         condition={order.merchant_decision->String.length === 0 &&
         order.frm_message.frm_status === "fraud" &&
         order.status->HSwitchOrderUtils.statusVariantMapper === Succeeded}>
@@ -522,7 +522,7 @@ module FraudRiskBannerDetails = {
             onClick={_ => openPopUp(~decision=#APPROVE)}
           />
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }
@@ -674,7 +674,7 @@ let make = (~id) => {
             cursorStyle="cursor-pointer"
           />
         </div>
-        <UIUtils.RenderIf condition={showSyncButton()}>
+        <RenderIf condition={showSyncButton()}>
           <ACLButton
             access={userPermissionJson.operationsView}
             text="Sync"
@@ -687,14 +687,14 @@ let make = (~id) => {
             buttonType={Primary}
             onClick={_ => refreshStatus()->ignore}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div />
       </div>
       <OrderActions orderData={orderData} refetch={refreshStatus} showModal setShowModal />
     </div>
-    <UIUtils.RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
+    <RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
       <FraudRiskBanner frmMessage={orderData.frm_message} refElement=frmDetailsRef />
-    </UIUtils.RenderIf>
+    </RenderIf>
     <PageLoaderWrapper
       screenState
       customUI={<NoDataFound
@@ -707,7 +707,7 @@ let make = (~id) => {
           openRefundModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
-        <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
+        <RenderIf condition={featureFlagDetails.auditTrail}>
           <RenderAccordian
             initialExpandedArray=[0]
             accordion={[
@@ -722,11 +722,11 @@ let make = (~id) => {
               },
             ]}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div className="overflow-scroll">
           <Attempts order={orderData} />
         </div>
-        <UIUtils.RenderIf condition={isRefundDataAvailable}>
+        <RenderIf condition={isRefundDataAvailable}>
           <div className="overflow-scroll">
             <RenderAccordian
               initialExpandedArray={isRefundDataAvailable ? [0] : []}
@@ -741,8 +741,8 @@ let make = (~id) => {
               ]}
             />
           </div>
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={isDisputeDataVisible}>
+        </RenderIf>
+        <RenderIf condition={isDisputeDataVisible}>
           <div className="overflow-scroll">
             <RenderAccordian
               initialExpandedArray={isDisputeDataVisible ? [0] : []}
@@ -757,7 +757,7 @@ let make = (~id) => {
               ]}
             />
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         <RenderAccordian
           accordion={[
             {
@@ -878,7 +878,7 @@ let make = (~id) => {
             },
           ]}
         />
-        <UIUtils.RenderIf
+        <RenderIf
           condition={orderData.payment_method === "card" &&
             orderData.payment_method_data->Option.isSome}>
           <RenderAccordian
@@ -899,8 +899,8 @@ let make = (~id) => {
               },
             ]}
           />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={orderData.external_authentication_details->Option.isSome}>
+        </RenderIf>
+        <RenderIf condition={orderData.external_authentication_details->Option.isSome}>
           <RenderAccordian
             accordion={[
               {
@@ -914,8 +914,8 @@ let make = (~id) => {
               },
             ]}
           />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!(orderData.metadata->LogicUtils.isEmptyDict)}>
+        </RenderIf>
+        <RenderIf condition={!(orderData.metadata->LogicUtils.isEmptyDict)}>
           <RenderAccordian
             accordion={[
               {
@@ -932,7 +932,7 @@ let make = (~id) => {
               },
             ]}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div className="overflow-scroll">
           <RenderAccordian
             accordion={[

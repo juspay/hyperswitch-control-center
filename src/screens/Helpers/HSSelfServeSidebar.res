@@ -89,8 +89,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
           </div>
           <Icon name=icon size=20 />
         </div>
-        <UIUtils.RenderIf
-          condition={sidebarOption.status === ONGOING && subOptionsArray->Array.length > 0}>
+        <RenderIf condition={sidebarOption.status === ONGOING && subOptionsArray->Array.length > 0}>
           <div className="my-4">
             {subOptionsArray
             ->Array.mapWithIndex((subOption, i) => {
@@ -109,7 +108,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
             })
             ->React.array}
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     })
     ->React.array}

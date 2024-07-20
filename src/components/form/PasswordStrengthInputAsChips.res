@@ -25,9 +25,9 @@ module PasswordChip = {
     let textClass = isCheckPassed ? "text-green-700 font-medium" : "font-base dark:text-gray-100"
 
     <p className={isCheckPassed ? passedClassName : initalClassName}>
-      <UIUtils.RenderIf condition=isCheckPassed>
+      <RenderIf condition=isCheckPassed>
         <Icon name="check" size=9 />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <span className={`${textClass} ${customTextStyle}`}> {React.string(checkName)} </span>
     </p>
   }

@@ -245,9 +245,9 @@ module ControlCenter = {
           </CardFooter>
         </CardLayout>
       </div>
-      <UIUtils.RenderIf condition={!isLiveMode}>
+      <RenderIf condition={!isLiveMode}>
         <CheckoutCard />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }

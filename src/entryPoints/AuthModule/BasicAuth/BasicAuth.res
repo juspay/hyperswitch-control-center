@@ -237,9 +237,9 @@ let make = (~authType, ~setAuthType) => {
           {switch authType {
           | LoginWithPassword => <EmailPasswordForm setAuthType />
           | ForgetPassword =>
-            <UIUtils.RenderIf condition={featureFlagValues.email}>
+            <RenderIf condition={featureFlagValues.email}>
               <EmailForm />
-            </UIUtils.RenderIf>
+            </RenderIf>
           | LoginWithEmail
           | ResendVerifyEmail
           | SignUP =>

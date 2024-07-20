@@ -131,7 +131,6 @@ let useAuthMethods = (): authMethodProps => {
 }
 
 let useNote = (authType, setAuthType, ()) => {
-  open UIUtils
   open CommonAuthTypes
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())

@@ -1,6 +1,5 @@
 @react.component
 let make = (~values=[], ~showButton=false, ~onButtonClick=_ => (), ~converterFn=str => str) => {
-  open UIUtils
   <RenderIf condition={values->Array.length !== 0}>
     <div className="flex flex-wrap flex-row">
       {values

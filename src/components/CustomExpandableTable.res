@@ -17,7 +17,6 @@ let make = (
   ~getRowDetails,
   ~showSerial=false,
 ) => {
-  open UIUtils
   if showSerial {
     heading->Array.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No", ()))->ignore
   }

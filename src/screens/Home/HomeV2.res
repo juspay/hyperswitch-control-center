@@ -44,21 +44,21 @@ module HomePageHorizontalStepper = {
           <div className="flex items-center gap-2">
             <span
               className={`h-6 w-7 flex items-center justify-center rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>
-              <UIUtils.RenderIf condition={index < step}>
+              <RenderIf condition={index < step}>
                 <Icon name="check" size=12 className="text-blue-500" />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={index >= step}>
+              </RenderIf>
+              <RenderIf condition={index >= step}>
                 {(index + 1)->Int.toString->React.string}
-              </UIUtils.RenderIf>
+              </RenderIf>
             </span>
-            <UIUtils.RenderIf condition={index <= stepperItemsArray->Array.length - 1}>
+            <RenderIf condition={index <= stepperItemsArray->Array.length - 1}>
               <div className="relative w-full">
                 <div className={`absolute h-1 rounded-full z-1 ${index->getProgressBarStyle}`} />
-                <UIUtils.RenderIf condition={index != stepperItemsArray->Array.length - 1}>
+                <RenderIf condition={index != stepperItemsArray->Array.length - 1}>
                   <div className="w-full h-1 rounded-full bg-grey-700 bg-opacity-10" />
-                </UIUtils.RenderIf>
+                </RenderIf>
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
           <p> {value->React.string} </p>
         </div>
@@ -211,11 +211,11 @@ module QuickStart = {
           }}
         />
       </div>
-      <UIUtils.RenderIf condition={!isMobileView}>
+      <RenderIf condition={!isMobileView}>
         <div className="h-30 md:w-[43rem] flex justify-end">
           <img src="/assets/QuickStartImage.svg" />
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }
@@ -257,11 +257,11 @@ module RecipesAndPlugins = {
               size=12
               className="group-hover:scale-125 transition duration-200 ease-in-out"
             />
-            <UIUtils.RenderIf condition={isStripePlusPayPalCompleted}>
+            <RenderIf condition={isStripePlusPayPalCompleted}>
               <div className="flex ">
                 <Icon name="success-tag" size=22 className="!w-32" />
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
           <div className="flex gap-2 h-full">
             <p className=paragraphTextVariant>
@@ -285,11 +285,11 @@ module RecipesAndPlugins = {
               size=12
               className="group-hover:scale-125 transition duration-200 ease-in-out"
             />
-            <UIUtils.RenderIf condition={isWooCommercePalCompleted}>
+            <RenderIf condition={isWooCommercePalCompleted}>
               <div className="flex ">
                 <Icon name="success-tag" size=22 className="!w-32" />
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
           <div className="flex gap-2 h-full">
             <p className=paragraphTextVariant>
@@ -417,9 +417,9 @@ let make = () => {
 
   <div className="w-full flex flex-col gap-6">
     <div className="flex flex-col gap-4">
-      <UIUtils.RenderIf condition={featureFlagDetails.totp && recovery_codes_left < 3}>
+      <RenderIf condition={featureFlagDetails.totp && recovery_codes_left < 3}>
         <LowRecoveryCodeBanner recovery_codes_left />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <AcceptInviteHome />
     </div>
     <div className="w-full flex flex-col gap-7">
@@ -430,9 +430,9 @@ let make = () => {
             let showRecipesAndPlugins =
               [typedEnumValue.integrationCompleted, prodIntent]->Array.includes(false)
 
-            <UIUtils.RenderIf condition={!showRecipesAndPlugins}>
+            <RenderIf condition={!showRecipesAndPlugins}>
               <RecipesAndPlugins />
-            </UIUtils.RenderIf>
+            </RenderIf>
           }
         | None => React.null
         }}

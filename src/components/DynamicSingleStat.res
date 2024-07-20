@@ -141,7 +141,6 @@ let make = (
   ~wrapperClass=?,
   ~formaPayload: option<singleStatBodyEntity => string>=?,
 ) => {
-  open UIUtils
   open LogicUtils
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let fetchApi = AuthHooks.useApiFetcher()
