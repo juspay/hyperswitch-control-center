@@ -76,7 +76,7 @@ module TabInfo = {
     let borderClass = ""
 
     let lineStyle = "bg-black w-full h-0.5 rounded-full"
-    open UIUtils
+
     let crossIcon = switch isRemovable {
     | true =>
       <svg
@@ -169,7 +169,6 @@ module TabInfo = {
 module IndicationArrow = {
   @react.component
   let make = (~iconName, ~side, ~refElement: React.ref<Js.nullable<Dom.element>>, ~isVisible) => {
-    open UIUtils
     let isMobileView = MatchMedia.useMobileChecker()
     let onClick = {
       _ev =>
@@ -526,11 +525,11 @@ let make = (
   <div className={isMobileView ? `sticky top-0 z-15 ${bgClass}` : ""}>
     <ErrorBoundary>
       <div className="py-0 flex flex-row">
-        <UIUtils.RenderIf condition={!isMobileView}>
+        <RenderIf condition={!isMobileView}>
           <IndicationArrow
             iconName="caret-left" side="left" refElement=firstTabRef isVisible=isLeftArrowVisible
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div
           className={`overflow-x-auto no-scrollbar overflow-y-hidden ${outerAllignmentClass}`}
           ref={scrollRef->ReactDOM.Ref.domRef}
@@ -578,15 +577,15 @@ let make = (
           </div>
         </div>
         <div className="flex flex-row">
-          <UIUtils.RenderIf condition={!isMobileView}>
+          <RenderIf condition={!isMobileView}>
             <IndicationArrow
               iconName="caret-right"
               side="right"
               refElement=lastTabRef
               isVisible=isRightArrowVisible
             />
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={showAddMoreTabs && formattedOptions->Array.length > 0}>
+          </RenderIf>
+          <RenderIf condition={showAddMoreTabs && formattedOptions->Array.length > 0}>
             <div
               className="flex flex-row"
               style={ReactDOMStyle.make(~marginTop="20px", ~marginLeft="7px", ())}>
@@ -604,7 +603,7 @@ let make = (
                 tooltipWidthClass="w-fit"
               />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       </div>
       <SelectModal

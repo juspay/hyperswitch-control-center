@@ -12,7 +12,7 @@ module InfoViewForWebhooks = {
       <p className="font-semibold text-fs-15"> {heading->React.string} </p>
       <div className="flex gap-2 break-all w-full items-start">
         <p className="font-medium text-fs-14 text-black opacity-50"> {subHeading->React.string} </p>
-        <UIUtils.RenderIf condition={isCopy}>
+        <RenderIf condition={isCopy}>
           <img
             src={`/assets/CopyToClipboard.svg`}
             className="cursor-pointer"
@@ -20,7 +20,7 @@ module InfoViewForWebhooks = {
               onCopyClick(ev)
             }}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -103,11 +103,11 @@ module AuthenticationInput = {
           <TextInput input={valueInput} placeholder={"Enter value"} />
         </div>
       </DesktopRow>
-      <UIUtils.RenderIf condition={authHeaders->Array.length > 1}>
+      <RenderIf condition={authHeaders->Array.length > 1}>
         <div className="mt-6 flex gap-4">
           <ModalCloseIcon onClick={_ev => removeAuthHeaders(index, key)} />
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }
@@ -179,7 +179,7 @@ module WebHookAuthenticationHeaders = {
           <div className=" col-span-4">
             <AuthenticationInput removeAuthHeaders authHeaders index />
           </div>
-          <UIUtils.RenderIf condition={index === authHeaders->Array.length - 1 && index != 3}>
+          <RenderIf condition={index === authHeaders->Array.length - 1 && index != 3}>
             <div className="flex justify-start items-center mt-4">
               <Icon
                 name="plus"
@@ -188,7 +188,7 @@ module WebHookAuthenticationHeaders = {
                 onClick={_ => addAuthHeaders()}
               />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       })
       ->React.array}
@@ -343,7 +343,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   <PageLoaderWrapper screenState>
     <div className={`${showFormOnly ? "" : "py-4 md:py-10"} h-full flex flex-col`}>
-      <UIUtils.RenderIf condition={!showFormOnly}>
+      <RenderIf condition={!showFormOnly}>
         <BreadCrumbNavigation
           path=[
             {
@@ -354,7 +354,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
           currentPageTitle={busiProfieDetails.profile_name}
           cursorStyle="cursor-pointer"
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div className={`${showFormOnly ? "" : "mt-4"}`}>
         <div
           className={`w-full ${showFormOnly
@@ -426,7 +426,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     )}
                   />
                 </DesktopRow>
-                <UIUtils.RenderIf condition={isBusinessProfileHasThreeds}>
+                <RenderIf condition={isBusinessProfileHasThreeds}>
                   <DesktopRow>
                     <FieldRenderer
                       field={threedsConnectorList
@@ -443,7 +443,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       fieldWrapperClass="max-w-xl"
                     />
                   </DesktopRow>
-                </UIUtils.RenderIf>
+                </RenderIf>
                 <ReturnUrl />
                 <WebHook />
                 <DesktopRow>

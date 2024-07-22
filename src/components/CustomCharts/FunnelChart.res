@@ -61,7 +61,7 @@ let make = (
       </div>
     | None => React.null
     }}
-    <UIUtils.RenderIf condition={someData}>
+    <RenderIf condition={someData}>
       <div className="flex flex-col">
         <div className="flex gap-6 justify-end">
           <div className={`flex flex-col ${widthClass}`} />
@@ -188,6 +188,6 @@ let make = (
           </div>
         </div>
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   </div>
 }

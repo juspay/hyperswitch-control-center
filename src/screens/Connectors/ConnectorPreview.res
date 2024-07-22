@@ -3,12 +3,12 @@ module InfoField = {
   let make = (~render, ~label) => {
     let str = render->Option.getOr("")
 
-    <UIUtils.RenderIf condition={str->LogicUtils.isNonEmptyString}>
+    <RenderIf condition={str->LogicUtils.isNonEmptyString}>
       <div>
         <h2 className="text-lg font-semibold"> {label->React.string} </h2>
         <h3 className=" break-words"> {str->React.string} </h3>
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -358,7 +358,7 @@ let make = (
                 className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
                 {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
               </div>
-              <UIUtils.RenderIf condition={showMenuOption}>
+              <RenderIf condition={showMenuOption}>
                 {switch (connector->getConnectorNameTypeFromString(), paypalAutomaticFlow) {
                 | (Processors(PAYPAL), true) =>
                   <MenuOptionForPayPal
@@ -374,7 +374,7 @@ let make = (
                 | (_, _) =>
                   <MenuOption setCurrentStep disableConnector isConnectorDisabled connector />
                 }}
-              </UIUtils.RenderIf>
+              </RenderIf>
             </div>
 
           | _ =>

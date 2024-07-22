@@ -90,7 +90,7 @@ module BluredTableComponent = {
         <p className="text-center text-grey-700 font-medium opacity-50">
           {infoText->React.string}
         </p>
-        <UIUtils.RenderIf condition={showRedirectCTA}>
+        <RenderIf condition={showRedirectCTA}>
           <Button
             text=buttonText
             buttonType={Primary}
@@ -100,9 +100,9 @@ module BluredTableComponent = {
                 : setPaymentModal(_ => true)
             }}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
-      <UIUtils.RenderIf condition={paymentModal}> {onClickElement} </UIUtils.RenderIf>
+      <RenderIf condition={paymentModal}> {onClickElement} </RenderIf>
     </div>
   }
 }

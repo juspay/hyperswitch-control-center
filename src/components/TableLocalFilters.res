@@ -69,7 +69,7 @@ module RangeSliderLocalFilter = {
           onClick={_ => setShowDropDown(prev => !prev)}>
           {rightIcon}
         </div>
-        <UIUtils.RenderIf condition={min !== max && showDropDown}>
+        <RenderIf condition={min !== max && showDropDown}>
           <div
             ref={dropdownRef->ReactDOM.Ref.domRef}
             className=" top-3.5 px-4 pt-4 pb-2 bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded shadow-generic_shadow dark:shadow-generic_shadow_dark mt-8 absolute border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded shadow-generic_shadow dark:shadow-generic_shadow_dark z-20 ">
@@ -77,7 +77,7 @@ module RangeSliderLocalFilter = {
               <RangeSlider min max maxSlide minSlide />
             </div>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }

@@ -12,7 +12,6 @@ let make = (
   ~overriddingStylesSubtitle="",
   ~showLogoutButton=false,
 ) => {
-  open UIUtils
   let handleLogout = APIUtils.useHandleLogout()
   let appliedWidth = width === "98%" ? "98%" : width
   let appliedHeight = height === "100%" ? "100%" : height
@@ -39,14 +38,14 @@ let make = (
         <Button
           text={buttonText} buttonSize={Large} onClick={_ => onClickHandler()} buttonType={Primary}
         />
-        <UIUtils.RenderIf condition={showLogoutButton}>
+        <RenderIf condition={showLogoutButton}>
           <Button
             text={"Logout"}
             buttonSize={Large}
             onClick={_ => onLogoutHandle()}
             buttonType={Secondary}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </RenderIf>
   </div>

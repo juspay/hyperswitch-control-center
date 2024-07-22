@@ -11,7 +11,7 @@ let make = (
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showTestProcessor = featureFlagDetails.testProcessors
 
-  <UIUtils.RenderIf condition={processorModal}>
+  <RenderIf condition={processorModal}>
     <Modal
       modalHeading="Connect a Dummy Processor"
       showModal=processorModal
@@ -27,5 +27,5 @@ let make = (
         connectorType=ConnectorTypes.Processor
       />
     </Modal>
-  </UIUtils.RenderIf>
+  </RenderIf>
 }
