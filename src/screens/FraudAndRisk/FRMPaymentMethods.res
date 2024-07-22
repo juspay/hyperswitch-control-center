@@ -155,7 +155,7 @@ module CheckBoxRenderer = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       if isOpen && !isUpdateFlow {
         switch connectorPaymentMethods {
         | Some(paymentMethods) => {
@@ -166,7 +166,7 @@ module CheckBoxRenderer = {
         }
       }
       None
-    })
+    }, [])
 
     <div>
       <div
@@ -264,10 +264,10 @@ module PaymentMethodsRenderer = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       getConfiguredConnectorDetails()->ignore
       None
-    })
+    }, [])
 
     <PageLoaderWrapper screenState={pageState}>
       <div className="flex flex-col gap-4">

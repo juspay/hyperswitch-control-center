@@ -191,10 +191,10 @@ let make = (~id) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     fetchDisputesData()->ignore
     None
-  })
+  }, [])
 
   let data = disputeData->LogicUtils.getDictFromJsonObject
   let paymentId = data->LogicUtils.getString("payment_id", "")

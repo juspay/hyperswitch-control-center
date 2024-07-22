@@ -21,7 +21,7 @@ module AdvanceSettings = {
         HyperswitchAtom.businessProfilesAtom,
       )->MerchantAccountUtils.getValueFromBusinessProfile
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if !isUpdateFlow {
         form.change("profile_id", businessProfileValue.profile_id->JSON.Encode.string)
       }
@@ -197,7 +197,7 @@ let make = (
 
   let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
-  let initialValues = React.useMemo1(() => {
+  let initialValues = React.useMemo(() => {
     open LogicUtils
     switch retrivedValues {
     | Some(json) => {

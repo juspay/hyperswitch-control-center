@@ -41,7 +41,7 @@ module EnterAccessCode = {
         verifyAccessCode()->ignore
       }
     }
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if recoveryCode->String.length == 9 {
         Window.addEventListener("keyup", handleKeyUp)
       } else {
@@ -159,7 +159,7 @@ module ConfigureTotpScreen = {
         verifyTOTP()->ignore
       }
     }
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if otp->String.length == 6 {
         Window.addEventListener("keyup", handleKeyUp)
       } else {
@@ -314,7 +314,7 @@ let make = () => {
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     getTOTPString()->ignore
     None
   }, [showNewQR])

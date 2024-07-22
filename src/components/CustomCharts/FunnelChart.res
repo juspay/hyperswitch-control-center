@@ -10,7 +10,7 @@ let make = (
 ) => {
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let isMobileView = MatchMedia.useMobileChecker()
-  let (size, widthClass, flexDirectionClass) = React.useMemo1(() => {
+  let (size, widthClass, flexDirectionClass) = React.useMemo(() => {
     isMobileView ? (0.16, "w-full", "flex-col") : (size, "w-1/2", "flex-row")
   }, [isMobileView])
   let funnelData =
@@ -21,7 +21,7 @@ let make = (
   let (hoverIndex, setHoverIndex) = React.useState(_ => -1.)
   let (selectedMetric, setSelectedMetric) = React.useState(_ => Volume)
   let length = metrics->Array.length->Float.fromInt
-  let widths = React.useMemo1(() => {
+  let widths = React.useMemo(() => {
     metrics->Array.mapWithIndex((metric, i) => {
       let previousMetric = metrics->Array.get(i - 1)
       let previousMetric = switch previousMetric {

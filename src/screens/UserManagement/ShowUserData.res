@@ -316,15 +316,15 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getUserData()->ignore
     if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
     }
     None
-  })
+  }, [])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let defaultList = defaultPresentInInfoList(permissionInfo)
     setPermissionInfo(_ => defaultList)
     let updatedPermissionListForGivenRole = updatePresentInInfoList(

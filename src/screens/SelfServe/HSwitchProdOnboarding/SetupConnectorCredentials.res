@@ -26,7 +26,7 @@ module ConnectorDetailsForm = {
     ) = getConnectorFields(connectorDetails)
     let connectorVariant = connectorName->getConnectorNameTypeFromString()
 
-    let selectedConnector = React.useMemo1(() => {
+    let selectedConnector = React.useMemo(() => {
       connectorVariant->getConnectorInfo
     }, [connectorName])
 
@@ -129,7 +129,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     ~connector={connectorName},
   )
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setInitialValues(prevJson => {
       let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
       prevJsonDict->Dict.set(
@@ -287,10 +287,10 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getDetails()->ignore
     None
-  })
+  }, [])
   let getHeaderTextofPage = () =>
     switch pageView {
     | SETUP_CREDS => `Setup ${connectorName->ConnectorUtils.getDisplayNameForConnector} credentials`

@@ -19,10 +19,10 @@ let make = (~applePayFields, ~update, ~closeModal, ~setShowWalletConfigurationMo
     form.change("metadata.apple_pay", value->Identity.genericTypeToJson)
   }
 
-  React.useEffect0(() => {
-    let _ = setFormData()
+  React.useEffect(() => {
+    setFormData()
     None
-  })
+  }, [])
 
   let onSubmit = () => {
     let metadata =

@@ -37,10 +37,10 @@ let make = (~onClick) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     userInfo()->ignore
     None
-  })
+  }, [])
 
   <PageLoaderWrapper screenState>
     <EmailVerifyScreen

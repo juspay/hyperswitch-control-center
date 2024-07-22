@@ -41,7 +41,7 @@ let make = (
 
   let isMobileWidth = MatchMedia.useMatchMedia("(max-width: 700px)")
 
-  let sortedData1 = React.useMemo1(() => {
+  let sortedData1 = React.useMemo(() => {
     data
     ->Array.toSorted((item1, item2) => {
       let (x1, _y1) = item1
