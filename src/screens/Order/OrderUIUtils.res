@@ -133,10 +133,10 @@ module GenerateSampleDataButton = {
         <ACLDiv
           height="h-fit"
           permission={userPermissionJson.operationsManage}
-          className="bg-jp-gray-button_gray text-jp-gray-900 text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  focus:outline-none items-center border border-border_gray cursor-pointer p-2 overflow-hidden text-jp-gray-950 hover:text-black
+          className="bg-jp-gray-button_gray text-jp-gray-900 text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  focus:outline-none items-center border border-border_gray cursor-pointer p-2.5 overflow-hidden text-jp-gray-950 hover:text-black
           border flex items-center justify-center rounded-r-md"
           onClick={ev => rightIconClick(ev)}>
-          <Icon name="delete" size=20 />
+          <Icon name="delete" size=16 customWidth="14" className="scale-125" />
         </ACLDiv>
       </div>
     </RenderIf>
