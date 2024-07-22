@@ -286,7 +286,7 @@ module SystemMetricsAnalytics = {
     }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
-    <UIUtils.RenderIf condition={getModuleFilters->Dict.toArray->Array.length > 0}>
+    <RenderIf condition={getModuleFilters->Dict.toArray->Array.length > 0}>
       {switch chartEntity1 {
       | Some(chartEntity) =>
         <div className="h-75-vh">
@@ -320,7 +320,7 @@ module SystemMetricsAnalytics = {
         </div>
       | _ => React.null
       }}
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 

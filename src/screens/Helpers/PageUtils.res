@@ -11,7 +11,6 @@ module PageHeading = {
     ~customTagStyle="bg-extra-light-grey border-light-grey",
     ~leftIcon=None,
   ) => {
-    open UIUtils
     let headerTextStyle = HSwitchUtils.getTextClass((H1, Optional))
     <div className={`${customHeadingStyle}`}>
       {switch leftIcon {

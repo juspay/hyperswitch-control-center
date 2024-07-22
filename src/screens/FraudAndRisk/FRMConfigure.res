@@ -84,9 +84,9 @@ let make = () => {
       <BreadCrumbNavigation
         path currentPageTitle={frmName->capitalizeString} cursorStyle="cursor-pointer"
       />
-      <UIUtils.RenderIf condition={currentStep !== Preview}>
+      <RenderIf condition={currentStep !== Preview}>
         <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div className="bg-white rounded border h-3/4 p-2 md:p-6 overflow-scroll">
         {switch currentStep {
         | IntegFields =>

@@ -20,9 +20,9 @@ let make = (~wrapperFor, ~children) => {
   let isSmallDevice = MatchMedia.useMatchMedia("(max-width: 700px)")
 
   <div className="overflow-x-scroll">
-    <UIUtils.RenderIf condition={isSmallDevice}>
+    <RenderIf condition={isSmallDevice}>
       <EventLogMobileView wrapperFor />
-    </UIUtils.RenderIf>
-    <UIUtils.RenderIf condition={!isSmallDevice && auditTrail}> {children} </UIUtils.RenderIf>
+    </RenderIf>
+    <RenderIf condition={!isSmallDevice && auditTrail}> {children} </RenderIf>
   </div>
 }

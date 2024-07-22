@@ -1,5 +1,4 @@
 open UserManagementUtils
-open UIUtils
 
 external typeConversion: array<Nullable.t<UserRoleEntity.userTableTypes>> => array<
   UserRoleEntity.userTableTypes,

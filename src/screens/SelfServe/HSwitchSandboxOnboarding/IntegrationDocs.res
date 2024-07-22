@@ -172,7 +172,7 @@ let make = (
     <div className="flex flex-col w-full h-full p-6 gap-4 ">
       <div
         className={`flex ${languageSelection ? "justify-between" : "justify-end"} flex-wrap gap-2`}>
-        <UIUtils.RenderIf condition=languageSelection>
+        <RenderIf condition=languageSelection>
           <UserOnboardingUIUtils.BackendFrontendPlatformLangDropDown
             frontEndLang
             setFrontEndLang
@@ -182,8 +182,8 @@ let make = (
             platform
             setPlatform
           />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!isFromOnboardingChecklist}>
+        </RenderIf>
+        <RenderIf condition={!isFromOnboardingChecklist}>
           <Button
             text={"Mark as done"}
             customButtonStyle=buttonStyle
@@ -192,7 +192,7 @@ let make = (
             buttonState={tabIndex === tabs->Array.length - 1 ? Normal : Disabled}
             onClick={_ => handleMarkAsDone()}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
       {if requestedPlatform->Option.isSome {
         <RequestPage requestedPlatform currentRoute />
@@ -214,7 +214,7 @@ let make = (
               setTabIndex(_ => indx)
             }}
           />
-          <UIUtils.RenderIf condition={tabIndex !== tabs->Array.length - 1}>
+          <RenderIf condition={tabIndex !== tabs->Array.length - 1}>
             <div className="flex my-4 w-full justify-end">
               <Button
                 text={"Next Step"}
@@ -233,7 +233,7 @@ let make = (
                 }}
               />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div className="flex gap-1 flex-wrap pb-5 justify-between ">
             <div className="flex gap-2">
               <p className="text-base font-normal text-grey-700">

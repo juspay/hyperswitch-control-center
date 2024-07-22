@@ -111,7 +111,6 @@ module LandingScreen = {
 module ErrorPage = {
   @react.component
   let make = (~setupAccountStatus, ~actionUrl, ~getPayPalStatus, ~setScreenState) => {
-    open UIUtils
     let errorPageDetails = setupAccountStatus->PayPalFlowUtils.getPageDetailsForAutomatic
 
     <div className="flex flex-col gap-6">

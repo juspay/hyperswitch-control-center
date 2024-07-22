@@ -696,11 +696,11 @@ let make = (
       }}
       {switch buttonRightText {
       | Some(text) =>
-        <UIUtils.RenderIf condition={!(text->LogicUtils.isEmptyString)}>
+        <RenderIf condition={!(text->LogicUtils.isEmptyString)}>
           <span className="text-jp-2-light-primary-600 font-semibold text-fs-14">
             {React.string(text)}
           </span>
-        </UIUtils.RenderIf>
+        </RenderIf>
       | None => React.null
       }}
       {switch rightIcon {

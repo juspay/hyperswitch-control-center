@@ -7,7 +7,7 @@ module ShowMoreLink = {
     ~textStyleClass="",
     ~searchText,
   ) => {
-    <UIUtils.RenderIf condition={section.total_results > 10}>
+    <RenderIf condition={section.total_results > 10}>
       {
         let linkText = `View ${section.total_results->Int.toString} result${section.total_results > 1
             ? "s"
@@ -33,7 +33,7 @@ module ShowMoreLink = {
           </div>
         }
       }
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 

@@ -700,7 +700,7 @@ module BaseSelect = {
         {if showSelectAll && isDropDown {
           if !isMobileView {
             let clearAllCondition = noOfSelected > 0
-            <UIUtils.RenderIf
+            <RenderIf
               condition={filteredOptions->Array.length > 1 &&
                 filteredOptions->Array.find(item => item.value === "Loading...")->Option.isNone}>
               <div
@@ -713,7 +713,7 @@ module BaseSelect = {
                 />
                 {{clearAllCondition ? "Clear All" : "Select All"}->React.string}
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           } else {
             <div
               onClick={selectAll(noOfSelected !== options->Array.length)}
@@ -1101,14 +1101,14 @@ module RenderListItemInBaseRadio = {
         | Some(str) =>
           <div key={i->Int.toString} className="flex flex-row">
             listItemComponent
-            <UIUtils.RenderIf condition={!isHorizontal}>
+            <RenderIf condition={!isHorizontal}>
               <ToolTip
                 description={str}
                 toolTipFor={<div className="py-4 px-4">
                   <Icon size=12 name="info-circle" />
                 </div>}
               />
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         | None => listItemComponent
         }
@@ -1331,11 +1331,11 @@ module BaseRadio = {
           ? "animate-textTransition transition duration-400"
           : "animate-textTransitionOff transition duration-400"}`}>
       {switch searchable {
-      | Some(val) => <UIUtils.RenderIf condition={val}> searchInputUI </UIUtils.RenderIf>
+      | Some(val) => <RenderIf condition={val}> searchInputUI </RenderIf>
       | None =>
-        <UIUtils.RenderIf condition={isDropDown && (options->Array.length > 5 || addDynamicValue)}>
+        <RenderIf condition={isDropDown && (options->Array.length > 5 || addDynamicValue)}>
           searchInputUI
-        </UIUtils.RenderIf>
+        </RenderIf>
       }}
       <div
         className={`${maxHeight} ${listPadding} ${overflowClass} text-jp-2-gray-300 text-fs-14 font-medium"
@@ -1871,12 +1871,12 @@ module BaseDropdown = {
                         {selectButtonText->React.string}
                       </div>
                       {buttonIcon}
-                      <UIUtils.RenderIf condition={badgeForSelect.color === BadgeBlue}>
+                      <RenderIf condition={badgeForSelect.color === BadgeBlue}>
                         <div
                           className="px-2 py-0.5 bg-blue-500 rounded-lg text-white text-sm font-medium leading-5 mx-1 h-fit">
                           {badgeForSelect.value->React.string}
                         </div>
-                      </UIUtils.RenderIf>
+                      </RenderIf>
                     </div>
 
                   <div

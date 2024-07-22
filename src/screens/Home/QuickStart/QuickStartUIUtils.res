@@ -16,21 +16,21 @@ module BaseComponent = {
       className="w-standardPageWidth h-45-rem bg-white rounded-md flex flex-col gap-6 shadow-boxShadowMultiple overflow-scroll ">
       <div className="flex justify-between items-center px-10 pt-6">
         <div className="flex gap-2 items-center">
-          <UIUtils.RenderIf
+          <RenderIf
             condition={customIcon->Option.isNone && headerLeftIcon->LogicUtils.isNonEmptyString}>
             <Icon name=headerLeftIcon size=25 />
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={customIcon->Option.isSome}>
+          </RenderIf>
+          <RenderIf condition={customIcon->Option.isSome}>
             {customIcon->Option.getOr(React.null)}
-          </UIUtils.RenderIf>
+          </RenderIf>
           <p className=headerStyle> {headerText->React.string} </p>
         </div>
-        <UIUtils.RenderIf condition={showRightButtons}>
+        <RenderIf condition={showRightButtons}>
           <div className="flex gap-4 items-center">
             {backButton}
             {nextButton}
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
       <div className="h-px w-full border" />
       <div className={`h-full px-10 pb-6 overflow-y-scroll ${customCss} overflow-x-hidden`}>
@@ -89,13 +89,13 @@ module VerticalChoiceTile = {
             className={`p-6 flex flex-col gap-8 rounded-md cursor-pointer ${items.variantType->getBlockColor} rounded-md justify-between`}
             onClick={_ => setChoiceState(_ => items.variantType)}>
             <div className="flex justify-between items-center">
-              <UIUtils.RenderIf condition={items.leftIcon->Option.isSome}>
+              <RenderIf condition={items.leftIcon->Option.isSome}>
                 <Icon
                   name={items.leftIcon->Option.getOr("hyperswitch-short")}
                   size=40
                   className="cursor-pointer"
                 />
-              </UIUtils.RenderIf>
+              </RenderIf>
               <Icon
                 name={choiceState === items.variantType ? "selected" : "nonselected"}
                 size=20
@@ -106,7 +106,7 @@ module VerticalChoiceTile = {
               <p className=headerTextStyle> {items.displayText->React.string} </p>
               <p className=descriptionStyle> {items.description->React.string} </p>
             </div>
-            <UIUtils.RenderIf condition={items.footerTags->Option.isSome}>
+            <RenderIf condition={items.footerTags->Option.isSome}>
               <div className="flex gap-2 mt-6">
                 {items.footerTags
                 ->Option.getOr([])
@@ -118,7 +118,7 @@ module VerticalChoiceTile = {
                 )
                 ->React.array}
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         </AddDataAttributes>
       })
@@ -166,10 +166,9 @@ module HorizontalChoiceTile = {
                 className={`cursor-pointer !${textColor.primaryNormal}`}
               />
             </div>
-            <UIUtils.RenderIf
-              condition={items.imageLink->Option.getOr("")->LogicUtils.isNonEmptyString}>
+            <RenderIf condition={items.imageLink->Option.getOr("")->LogicUtils.isNonEmptyString}>
               <img alt="" src={items.imageLink->Option.getOr("")} />
-            </UIUtils.RenderIf>
+            </RenderIf>
             <div className="flex gap-2 items-center ">
               <p className=descriptionStyle> {items.description->React.string} </p>
             </div>
@@ -272,7 +271,7 @@ module SelectConnectorGrid = {
     }
 
     <div className="flex flex-col gap-12">
-      <UIUtils.RenderIf condition={popularConnectorList->Array.length > 0}>
+      <RenderIf condition={popularConnectorList->Array.length > 0}>
         <div className="flex flex-col gap-4">
           <p className=headerClass> {"Popular Processors"->React.string} </p>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-5 ">
@@ -303,7 +302,7 @@ module SelectConnectorGrid = {
             ->React.array}
           </div>
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div className="flex flex-col gap-4">
         <p className=headerClass> {"More Processors"->React.string} </p>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-8">

@@ -19,7 +19,7 @@ module RenderCustomRoles = {
       setCheckboxSelected(prev => !prev)
     }
 
-    <UIUtils.RenderIf
+    <RenderIf
       condition={groupName->PermissionUtils.mapStringToPermissionType !== OrganizationManage}>
       <div className="flex gap-6 items-start cursor-pointer" onClick={_ => onClickGroup(groupName)}>
         <div className="mt-1">
@@ -32,7 +32,7 @@ module RenderCustomRoles = {
           </div>
         </div>
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -66,7 +66,7 @@ module NewCustomRoleInputFields = {
 let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   open APIUtils
   open LogicUtils
-  open UIUtils
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()

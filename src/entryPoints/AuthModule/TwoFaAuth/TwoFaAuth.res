@@ -270,19 +270,18 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
           {switch authType {
           | LoginWithPassword => <EmailPasswordForm setAuthType />
           | ForgetPassword =>
-            <UIUtils.RenderIf
-              condition={featureFlagValues.email && checkAuthMethodExists([PASSWORD])}>
+            <RenderIf condition={featureFlagValues.email && checkAuthMethodExists([PASSWORD])}>
               <EmailForm />
-            </UIUtils.RenderIf>
+            </RenderIf>
           | ResendVerifyEmail
           | SignUP =>
             <>
-              <UIUtils.RenderIf condition={signUpAllowed && signupMethod === SSOTypes.MAGIC_LINK}>
+              <RenderIf condition={signUpAllowed && signupMethod === SSOTypes.MAGIC_LINK}>
                 <EmailForm />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={signUpAllowed && signupMethod == SSOTypes.PASSWORD}>
+              </RenderIf>
+              <RenderIf condition={signUpAllowed && signupMethod == SSOTypes.PASSWORD}>
                 <EmailPasswordForm setAuthType />
-              </UIUtils.RenderIf>
+              </RenderIf>
             </>
 
           | LoginWithEmail =>

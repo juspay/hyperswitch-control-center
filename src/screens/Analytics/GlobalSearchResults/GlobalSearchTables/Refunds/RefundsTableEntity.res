@@ -1,3 +1,5 @@
+let domain = "refunds"
+
 type refundsObject = {
   internal_reference_id: string,
   refund_id: string,
