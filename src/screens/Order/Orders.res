@@ -113,7 +113,8 @@ let make = (~previewOnly=false) => {
         <RenderIf condition={!previewOnly}>
           <div className="flex-1"> {filtersUI} </div>
         </RenderIf>
-        <div className="flex flex-col items-start 2xl:flex-row 2xl:justify-end gap-3">
+        <div
+          className="flex flex-col items-center 2xl:flex-row 2xl:justify-end 2xl:items-start gap-3">
           <RenderIf condition={generateReport && orderData->Array.length > 0}>
             <GenerateReport entityName={PAYMENT_REPORT} />
           </RenderIf>
