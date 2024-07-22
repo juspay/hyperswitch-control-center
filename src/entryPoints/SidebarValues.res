@@ -139,38 +139,41 @@ module OrgViewComponent = {
             ->React.array}
           </div>
         </OrgMerchantSelectBox>
-        <OrgMerchantSelectBox title="Merchants" user=defaultMerchantId leftIcon={NoIcon}>
-          {<>
-            <div className="px-1 py-1 ">
-              <p className=headingClass> {"Merchants"->React.string} </p>
-              {merchant
-              ->Array.mapWithIndex((option, i) =>
-                <Menu.Item key={i->Int.toString}>
-                  {props =>
-                    <div className="relative">
-                      <button
-                        className={
-                          let activeClasses = if props["active"] {
-                            "group flex rounded-md items-center w-full px-4 py-2 text-sm dark:bg-black hover:bg-[#495d8a]"
-                          } else {
-                            "group flex rounded-md items-center w-full px-4 py-2 text-sm"
-                          }
-                          `${activeClasses} font-medium text-start`
-                        }>
-                        <div className="mr-5"> {option.merchant_name->React.string} </div>
-                      </button>
-                      <RenderIf condition={option.merchant_id === defaultMerchantId}>
-                        <Icon
-                          className={`absolute top-2 right-2 text-white`} name="check" size=15
-                        />
-                      </RenderIf>
-                    </div>}
-                </Menu.Item>
-              )
-              ->React.array}
-            </div>
-          </>}
-        </OrgMerchantSelectBox>
+        <div className="flex">
+          <div className="w-8 h-10 border-jp-gray-400 ml-10 border-dashed border-b border-l" />
+          <OrgMerchantSelectBox title="Merchants" user=defaultMerchantId leftIcon={NoIcon}>
+            {<>
+              <div className="px-1 py-1 ">
+                <p className=headingClass> {"Merchants"->React.string} </p>
+                {merchant
+                ->Array.mapWithIndex((option, i) =>
+                  <Menu.Item key={i->Int.toString}>
+                    {props =>
+                      <div className="relative">
+                        <button
+                          className={
+                            let activeClasses = if props["active"] {
+                              "group flex rounded-md items-center w-full px-4 py-2 text-sm dark:bg-black hover:bg-[#495d8a]"
+                            } else {
+                              "group flex rounded-md items-center w-full px-4 py-2 text-sm"
+                            }
+                            `${activeClasses} font-medium text-start`
+                          }>
+                          <div className="mr-5"> {option.merchant_name->React.string} </div>
+                        </button>
+                        <RenderIf condition={option.merchant_id === defaultMerchantId}>
+                          <Icon
+                            className={`absolute top-2 right-2 text-white`} name="check" size=15
+                          />
+                        </RenderIf>
+                      </div>}
+                  </Menu.Item>
+                )
+                ->React.array}
+              </div>
+            </>}
+          </OrgMerchantSelectBox>
+        </div>
       </div>
     </>
   }
