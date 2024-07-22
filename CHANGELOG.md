@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.21.0
+
+### Bug Fixes
+
+- Add icon fix for safari ([#1028](https://github.com/juspay/hyperswitch-control-center/pull/1028)) ([`75a778b`](https://github.com/juspay/hyperswitch-control-center/commit/75a778bcc3ad1d507e7a97a8c4e0e77a62136d49))
+
+**Full Changelog:** [`2024.07.18.1...2024.07.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.18.1...2024.07.21.0)
+
+- - -
+
 ## 2024.07.18.1
 
 ### Features
