@@ -57,7 +57,7 @@ let make = (
             },
           })
       }
-      <UIUtils.RenderIf key={Int.toString(index)} condition=showCrumb>
+      <RenderIf key={Int.toString(index)} condition=showCrumb>
         <div className={`flex ${flexDirection} ${childGapClass} items-center`}>
           {if collapse {
             <div
@@ -87,7 +87,7 @@ let make = (
           }}
           divider
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     })
     ->React.array}
     <AddDataAttributes attributes=[("data-breadcrumb", currentPageTitle)]>

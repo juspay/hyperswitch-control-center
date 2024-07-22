@@ -13,11 +13,11 @@ module GatewayView = {
                             ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200
                             dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1`}>
           {React.string(ruleGateway.connector.connector)}
-          <UIUtils.RenderIf condition={ruleGateway.split !== 0}>
+          <RenderIf condition={ruleGateway.split !== 0}>
             <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
               {React.string(ruleGateway.split->Int.toString ++ "%")}
             </span>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       })
       ->React.array}
@@ -137,9 +137,9 @@ let make = (
 
   if isExpanded {
     <div className="flex flex-row ml-2">
-      <UIUtils.RenderIf condition={!isFirst}>
+      <RenderIf condition={!isFirst}>
         <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
         <div className="flex flex-wrap gap-4">
           <div className="flex">
@@ -181,7 +181,7 @@ let make = (
                       removeItem(i)
                     }}
                   />
-                  <UIUtils.RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
+                  <RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
                     {<>
                       <input
                         className="w-10 text-right outline-none bg-white dark:bg-jp-gray-970 px-1 border border-jp-gray-300 dark:border-jp-gray-850 rounded-md"
@@ -196,7 +196,7 @@ let make = (
                       />
                       <div> {React.string("%")} </div>
                     </>}
-                  </UIUtils.RenderIf>
+                  </RenderIf>
                 </div>
               </div>
             }

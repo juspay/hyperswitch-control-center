@@ -9,7 +9,7 @@ module ActiveRulePreview = {
 
     let ruleInfo = rule->getDictfromDict("algorithm")->SurchargeUtils.ruleInfoTypeMapper
 
-    <UIUtils.RenderIf condition={initialRule->Option.isSome}>
+    <RenderIf condition={initialRule->Option.isSome}>
       <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
         <div
           className="absolute top-0 right-0 bg-green-700 text-white py-2 px-4 rounded-bl font-semibold">
@@ -25,7 +25,7 @@ module ActiveRulePreview = {
         </div>
         <RulePreviewer ruleInfo isFromSurcharge=true />
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 

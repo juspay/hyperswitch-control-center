@@ -154,9 +154,9 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
   }
   if isExpanded {
     <div className="flex flex-row ml-2">
-      <UIUtils.RenderIf condition={!isFirst}>
+      <RenderIf condition={!isFirst}>
         <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
         <div className="flex flex-wrap gap-4">
           <div className="flex">
@@ -206,7 +206,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
                     removeItem(i)
                   }}
                 />
-                <UIUtils.RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
+                <RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
                   {<>
                     <input
                       className="w-10 text-right outline-none bg-white dark:bg-jp-gray-970 px-1 border border-jp-gray-300 dark:border-jp-gray-850 rounded-md"
@@ -223,13 +223,13 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
                     />
                     <div> {React.string("%")} </div>
                   </>}
-                </UIUtils.RenderIf>
+                </RenderIf>
               </div>
             </div>
           })
           ->React.array}
         </div>
-        <UIUtils.RenderIf condition={selectedOptions->Array.length > 0}>
+        <RenderIf condition={selectedOptions->Array.length > 0}>
           <div
             className="flex flex-col md:flex-row md:items-center gap-4 md:gap-3 lg:gap-4 lg:ml-6">
             <div className={`flex flex-row items-center gap-4 md:gap-1 lg:gap-2`}>
@@ -244,7 +244,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
               <div> {React.string("Distribute")} </div>
             </div>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   } else {

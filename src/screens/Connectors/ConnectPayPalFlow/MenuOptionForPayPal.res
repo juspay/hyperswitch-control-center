@@ -11,7 +11,7 @@ let make = (
   ~setInitialValues,
 ) => {
   open HeadlessUI
-  open UIUtils
+
   let showPopUp = PopUpState.useShowPopUp()
   let showToast = ToastState.useShowToast()
   let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()

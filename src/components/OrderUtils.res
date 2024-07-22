@@ -53,11 +53,11 @@ module DisplayKeyValueParams = {
             <div className={`${overiddingHeadingStyles}`}>
               {React.string(showTitle ? heading.title : "")}
             </div>
-            <UIUtils.RenderIf condition={description->LogicUtils.isNonEmptyString}>
+            <RenderIf condition={description->LogicUtils.isNonEmptyString}>
               <div className="text-sm text-gray-500 mx-2 -mt-1">
                 <ToolTip description={description} toolTipPosition={ToolTip.Top} />
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
           <div className={`${fontClass} font-semibold text-left  mr-5 ${textColor} ${breakWords}`}>
             <Table.TableCell
@@ -137,10 +137,10 @@ module Details = {
         customCssClass={`${borderRequired
             ? "border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960"
             : ""} ${bgColor} rounded-md `}>
-        <UIUtils.RenderIf condition=isHeadingRequired>
+        <RenderIf condition=isHeadingRequired>
           <Heading topic=heading headingCss> {headRightElement} </Heading>
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition=showDetails>
+        </RenderIf>
+        <RenderIf condition=showDetails>
           <FormRenderer.DesktopRow>
             <div
               className={`${flexClass} ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
@@ -187,7 +187,7 @@ module Details = {
               }}
             </div>
           </FormRenderer.DesktopRow>
-        </UIUtils.RenderIf>
+        </RenderIf>
         {switch children {
         | Some(ele) => ele
         | None => React.null

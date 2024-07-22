@@ -87,7 +87,7 @@ let make = (
     </div>
 
   let customizeColumn =
-    <UIUtils.RenderIf condition={!hideRightTitleElement}>
+    <RenderIf condition={!hideRightTitleElement}>
       <Portal to={`${title}CustomizeColumn`}>
         <Button
           leftIcon=Button.CustomIcon(<Icon name="edit" size=16 />)
@@ -98,7 +98,7 @@ let make = (
           customButtonStyle="!rounded-lg !bg-white !h-10 !text-black"
         />
       </Portal>
-    </UIUtils.RenderIf>
+    </RenderIf>
 
   let rightTitleElement = !previewOnly ? customizeColumn : React.null
 
