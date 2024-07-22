@@ -427,8 +427,11 @@ let make = () => {
                           <AccessControl isEnabled=featureFlagDetails.reconV2 permission=Access>
                             <ReconModule urlList={url.path->urlPath} />
                           </AccessControl>
-                        | list{"compliance"} => <Compliance />
-
+                        | list{"compliance"} =>
+                          <AccessControl
+                            isEnabled=featureFlagDetails.complianceCertificate permission=Access>
+                            <Compliance />
+                          </AccessControl>
                         | list{"sdk"} =>
                           <AccessControl
                             isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
