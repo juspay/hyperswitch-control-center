@@ -18,8 +18,21 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
       if !Js.Re.test_(%re("/^(?=.*[0-9])/"), value) {
         mustHave->Array.push("numeric")
       }
-      if !Js.Re.test_(%re("/^(?=.*[!@#$%^&*_])/"), value) {
+
+      /*
+       Checks if the password contains one of the below special character: 
+       ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '-', '=', '[', ']', '{', '}', ';', "'", ':', '"', '\\', '|', ',', '.', '<', '>', '/', '?', '', '~'] 
+ */
+      if (
+        !Js.Re.test_(
+          Js.Re.fromString("^(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?`~])"),
+          value,
+        )
+      ) {
         mustHave->Array.push("special")
+      }
+      if Js.Re.test_(%re("/\s/"), value) {
+        Dict.set(errors, key, `Password should not contain whitespaces.`->JSON.Encode.string)
       }
       if mustHave->Array.length > 0 {
         Dict.set(
