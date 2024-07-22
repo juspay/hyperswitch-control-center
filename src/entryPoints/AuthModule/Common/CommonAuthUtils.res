@@ -40,7 +40,6 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
       }
     }
   }
-  Js.log2("errorserrors", errors)
 }
 
 let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, errors) => {
