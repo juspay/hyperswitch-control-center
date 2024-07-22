@@ -260,9 +260,9 @@ module WebHook = {
           </div>
         </div>
       </div>
-      <UIUtils.RenderIf condition=enableCustomHttpHeaders>
+      <RenderIf condition=enableCustomHttpHeaders>
         <WebHookAuthenticationHeaders />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </>
   }
 }
