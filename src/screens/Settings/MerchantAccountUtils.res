@@ -179,7 +179,6 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "outgoing_webhook_custom_http_headers",
     Some(outGoingWebHookCustomHttpHeaders),
   )
-  Js.log("og")
   profileDetailsDict
 }
 
