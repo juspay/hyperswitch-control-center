@@ -47,7 +47,7 @@ module AuthenticationInput = {
         formState.values
         ->getDictFromJsonObject
         ->getDictfromDict("outgoing_webhook_custom_http_headers")
-      let key = outGoingWebhookDict->Dict.keysToArray->Array.at(index)->Option.getOr("")
+      let key = outGoingWebhookDict->Dict.keysToArray->LogicUtils.getValueFromArray(index, "")
       let outGoingWebHookVal = outGoingWebhookDict->getOptionString(key)
       switch outGoingWebHookVal {
       | Some(value) => (key, value)
@@ -129,8 +129,8 @@ module WebHookAuthenticationHeaders = {
       ->getDictFromJsonObject
       ->getDictfromDict("outgoing_webhook_custom_http_headers")
       ->Dict.keysToArray
-      ->Array.filterWithIndex((val, _) => {
-        outGoingWebhookDict->getOptionString(val)->Option.isSome ? true : false
+      ->Array.filter(val => {
+        outGoingWebhookDict->getOptionString(val)->Option.isSome
       })
       ->Array.mapWithIndex((_, index) => index)
 
@@ -209,8 +209,7 @@ module WebHook = {
     let webHookURL =
       formState.values
       ->getDictFromJsonObject
-      ->getString("webhook_url", "")
-      ->getNonEmptyString
+      ->getOptionString("webhook_url")
       ->Option.isSome
     let outGoingHeaders =
       formState.values
@@ -246,7 +245,7 @@ module WebHook = {
         <div className="ml-4">
           <div className={"mt-4 flex items-center text-jp-gray-700 font-bold self-start"}>
             <div className="font-semibold text-base text-black dark:text-white">
-              {"Enbale Custom HTTP Headers"->React.string}
+              {"Enable Custom HTTP Headers"->React.string}
             </div>
             <ToolTip description="Enter Webhook url to enable" toolTipPosition=ToolTip.Right />
           </div>
