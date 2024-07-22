@@ -122,11 +122,11 @@ let make = (
       <div
         className={`h-full flex flex-col border ${borderRounded} dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox p-2 md:mr-4`}>
         <div className="p-4 flex flex-col justify-between h-full gap-auto">
-          <UIUtils.RenderIf condition={singleStatLoading && loaderType === SideLoader}>
+          <RenderIf condition={singleStatLoading && loaderType === SideLoader}>
             <div className="animate-spin self-end absolute">
               <Icon name="spinner" size=16 />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div className="flex justify-between w-full h-1/2 items-end">
             <div className="font-bold text-3xl w-1/3">
               {statValue(statType)->String.toLowerCase->React.string}

@@ -25,17 +25,17 @@ module AuthHeaderWrapper = {
             <Div layoutId="border" className="border-b w-full" />
             <div className={`p-7 ${childrenStyle}`}> {children} </div>
           </Div>
-          <UIUtils.RenderIf condition={!branding}>
+          <RenderIf condition={!branding}>
             <Div
               layoutId="footer-links"
               className="justify-center text-sm mobile:text-base flex flex-col mobile:flex-row mobile:gap-3 items-center w-full max-w-xl text-center">
               <CommonAuth.TermsAndCondition />
             </Div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
-        <UIUtils.RenderIf condition={!branding}>
+        <RenderIf condition={!branding}>
           <CommonAuth.PageFooterSection />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </HSwitchUtils.BackgroundImageWrapper>
   }
@@ -160,13 +160,13 @@ let make = (~children) => {
     | LoggedOut =>
       <PageLoaderWrapper screenState>
         <AuthHeaderWrapper childrenStyle="flex flex-col gap-4">
-          <UIUtils.RenderIf condition={checkAuthMethodExists([PASSWORD, MAGIC_LINK])}>
+          <RenderIf condition={checkAuthMethodExists([PASSWORD, MAGIC_LINK])}>
             <TwoFaAuthScreen setAuthStatus />
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={checkAuthMethodExists([OPEN_ID_CONNECT])}>
-            <UIUtils.RenderIf condition={checkAuthMethodExists([PASSWORD, MAGIC_LINK])}>
+          </RenderIf>
+          <RenderIf condition={checkAuthMethodExists([OPEN_ID_CONNECT])}>
+            <RenderIf condition={checkAuthMethodExists([PASSWORD, MAGIC_LINK])}>
               {PreLoginUtils.divider}
-            </UIUtils.RenderIf>
+            </RenderIf>
             {authMethods
             ->Array.mapWithIndex((authMethod, index) =>
               <React.Fragment key={index->Int.toString}>
@@ -174,7 +174,7 @@ let make = (~children) => {
               </React.Fragment>
             )
             ->React.array}
-          </UIUtils.RenderIf>
+          </RenderIf>
         </AuthHeaderWrapper>
       </PageLoaderWrapper>
     | PreLogin(_) => <DecisionScreen />

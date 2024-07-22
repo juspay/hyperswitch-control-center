@@ -52,7 +52,6 @@ module Details = {
     open DisputeTypes
     open DisputesUtils
     open LogicUtils
-    open UIUtils
 
     let connectorTypeFromName = data.connector->ConnectorUtils.getConnectorNameTypeFromString()
     let {disputeEvidenceUpload} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -161,9 +160,9 @@ module DisputesInfo = {
         {"Summary"->React.string}
       </div>
       <Details data=disputesData getHeading getCell detailsFields=allColumns setDisputeData />
-      <UIUtils.RenderIf condition={!showNoteComponentCondition}>
+      <RenderIf condition={!showNoteComponentCondition}>
         <DisputesNoteComponent disputesData />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </>
   }
 }
@@ -216,7 +215,7 @@ let make = (~id) => {
       </div>
       <DisputesInfo orderDict={data} setDisputeData />
       <div className="mt-5" />
-      <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
+      <RenderIf condition={featureFlagDetails.auditTrail}>
         <OrderUIUtils.RenderAccordian
           accordion={[
             {
@@ -230,7 +229,7 @@ let make = (~id) => {
             },
           ]}
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   </PageLoaderWrapper>
 }

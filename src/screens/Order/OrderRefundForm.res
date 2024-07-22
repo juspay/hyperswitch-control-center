@@ -184,11 +184,11 @@ let make = (
             <FormRenderer.DesktopRow>
               <FormRenderer.FieldRenderer field=amountField labelClass="text-fs-11" />
             </FormRenderer.DesktopRow>
-            <UIUtils.RenderIf condition={showRefundReason}>
+            <RenderIf condition={showRefundReason}>
               <FormRenderer.DesktopRow>
                 <FormRenderer.FieldRenderer field=reasonField labelClass="text-fs-11" />
               </FormRenderer.DesktopRow>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         </div>
         <div className="flex justify-end gap-4 pr-5 pb-2 mb-3 mt-14">

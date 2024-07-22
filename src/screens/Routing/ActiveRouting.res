@@ -101,7 +101,7 @@ module ActiveSection = {
             </p>
             <Icon name="primary-tag" size=25 className="w-20" />
           </div>
-          <UIUtils.RenderIf condition={profileId->isNonEmptyString}>
+          <RenderIf condition={profileId->isNonEmptyString}>
             <div className="flex gap-2">
               <HelperComponents.BusinessProfileComponent
                 profile_id={profileId} className="text-lightgray_background  opacity-50 text-sm"
@@ -110,7 +110,7 @@ module ActiveSection = {
                 {`: ${profileId}`->React.string}
               </p>
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
         <div className="text-lightgray_background font-medium text-base opacity-50 text-fs-14 ">
           {`${getContent(activeRoutingType).heading} : ${getContent(

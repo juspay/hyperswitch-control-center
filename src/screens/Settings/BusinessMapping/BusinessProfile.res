@@ -92,7 +92,7 @@ module AddEntryBtn = {
     }
 
     <div>
-      <UIUtils.RenderIf condition=isFromSettings>
+      <RenderIf condition=isFromSettings>
         <ACLButton
           text="Add"
           access={userPermissionJson.merchantDetailsManage}
@@ -103,7 +103,7 @@ module AddEntryBtn = {
             setShowModal(_ => true)
           }}
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <Modal
         showModal
         modalHeading=modalHeaderText
@@ -169,18 +169,18 @@ let make = (
   }
 
   <PageLoaderWrapper screenState>
-    <UIUtils.RenderIf condition=isFromSettings>
+    <RenderIf condition=isFromSettings>
       <div className="relative h-full">
         <div className="flex flex-col-reverse md:flex-col gap-2">
           <PageUtils.PageHeading
             title="Business Profiles"
             subTitle="Add and manage profiles to represent different businesses across countries."
           />
-          <UIUtils.RenderIf condition={businessProfileValues->Array.length > 1}>
+          <RenderIf condition={businessProfileValues->Array.length > 1}>
             <HSwitchUtils.WarningArea
               warningText="Warning! Now that you've configured more than one profile, you must mandatorily pass 'profile_id' in payments API request every time"
             />
-          </UIUtils.RenderIf>
+          </RenderIf>
           <LoadedTable
             title="Business profiles"
             hideTitle=true
@@ -207,8 +207,8 @@ let make = (
           </div>
         </div>
       </div>
-    </UIUtils.RenderIf>
-    <UIUtils.RenderIf condition={!isFromSettings}>
+    </RenderIf>
+    <RenderIf condition={!isFromSettings}>
       <AddEntryBtn
         isFromSettings
         onSubmit
@@ -219,6 +219,6 @@ let make = (
         updatedProfileId
         setModalState
       />
-    </UIUtils.RenderIf>
+    </RenderIf>
   </PageLoaderWrapper>
 }

@@ -81,9 +81,9 @@ let make = () => {
             />}
           />
         </div>
-        <UIUtils.RenderIf condition={generateReport && refundData->Array.length > 0}>
+        <RenderIf condition={generateReport && refundData->Array.length > 0}>
           <GenerateReport entityName={REFUND_REPORT} />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />
       </div>
       <PageLoaderWrapper screenState customUI>

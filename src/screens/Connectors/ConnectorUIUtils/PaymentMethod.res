@@ -19,7 +19,7 @@ module CardRenderer = {
   open ConnectorTypes
   open ConnectorUtils
   open Wallet
-  open UIUtils
+
   @react.component
   let make = (
     ~updateDetails,

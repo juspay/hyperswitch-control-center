@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
   open APIUtils
-  open UIUtils
+
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()

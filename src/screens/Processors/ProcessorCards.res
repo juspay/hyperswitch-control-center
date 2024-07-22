@@ -1,10 +1,9 @@
-open UIUtils
 let p1MediumTextStyle = HSwitchUtils.getTextClass((P1, Medium))
 
 module RequestConnector = {
   @react.component
   let make = (~connectorList, ~setShowModal) => {
-    <UIUtils.RenderIf condition={connectorList->Array.length === 0}>
+    <RenderIf condition={connectorList->Array.length === 0}>
       <div
         className="flex flex-col gap-6 items-center justify-center w-full bg-white rounded-lg border p-8">
         <div className="mb-8 mt-4 max-w-full h-auto">
@@ -17,7 +16,7 @@ module RequestConnector = {
           text={"Request a processor"} buttonType=Primary onClick={_ => setShowModal(_ => true)}
         />
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -26,7 +25,7 @@ module CantFindProcessor = {
   let make = (~showRequestConnectorBtn, ~setShowModal) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
-    <UIUtils.RenderIf condition={showRequestConnectorBtn}>
+    <RenderIf condition={showRequestConnectorBtn}>
       <ACLButton
         access={userPermissionJson.merchantDetailsManage}
         text="Request a Processor"
@@ -42,7 +41,7 @@ module CantFindProcessor = {
           />,
         )}
       />
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 

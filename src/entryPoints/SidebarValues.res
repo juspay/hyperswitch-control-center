@@ -33,9 +33,9 @@ module GetProductionAccess = {
         <div className={`text-white ${textStyles} !font-semibold`}>
           {productionAccessString->React.string}
         </div>
-        <UIUtils.RenderIf condition={!isProdIntent}>
+        <RenderIf condition={!isProdIntent}>
           <Icon name="thin-right-arrow" customIconColor="text-white" size=20 />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     | None =>
       <Shimmer

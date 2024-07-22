@@ -128,14 +128,14 @@ module ConfigureProcessor = {
       )
     }
     let backButton =
-      <UIUtils.RenderIf condition={isBackButtonVisible}>
+      <RenderIf condition={isBackButtonVisible}>
         <Button
           buttonType={PrimaryOutline}
           text="Back"
           onClick={_ => setConnectorConfigureState(_ => Select_configuration_type)}
           buttonSize=Small
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
 
     <Form initialValues onSubmit validate={validateMandatoryField}>
       <QuickStartUIUtils.BaseComponent
