@@ -67,7 +67,9 @@ let make = () => {
   }
 
   <div className="flex flex-col gap-12">
-    <PageUtils.PageHeading title="Compliance" />
+    <PageUtils.PageHeading
+      title="Compliance" subTitle="Achieve and Maintain Industry Compliance Standards"
+    />
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
       <DownloadCertificateTile
         header="Hyperswitch's PCI Attestation of Compliance" onClick={_ => downloadPDF()}
