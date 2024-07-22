@@ -9,9 +9,9 @@ module TextFieldRow = {
       <div
         className={`mt-2 ${labelWidth} text-gray-900/50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 font-semibold text-fs-14`}>
         {label->React.string}
-        <UIUtils.RenderIf condition={isRequired}>
+        <RenderIf condition={isRequired}>
           <span className="text-red-500"> {"*"->React.string} </span>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
       children
     </div>
@@ -37,7 +37,7 @@ module BackgroundImageWrapper = {
     ~isBackgroundFullScreen=true,
   ) => {
     let heightWidthCss = isBackgroundFullScreen ? "h-screen w-screen" : "h-full w-full"
-    <UIUtils.RenderIf condition={children->Option.isSome}>
+    <RenderIf condition={children->Option.isSome}>
       <div
         className={`bg-no-repeat bg-center bg-hyperswitch_dark_bg bg-fixed ${customPageCss} ${heightWidthCss}`}
         style={ReactDOMStyle.make(
@@ -47,7 +47,7 @@ module BackgroundImageWrapper = {
         )}>
         {children->Option.getOr(React.null)}
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 

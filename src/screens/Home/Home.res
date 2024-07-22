@@ -14,9 +14,9 @@ let make = () => {
 
   <div className="w-full gap-8 flex flex-col">
     <div className="flex flex-col gap-4">
-      <UIUtils.RenderIf condition={featureFlagDetails.totp && recovery_codes_left < 3}>
+      <RenderIf condition={featureFlagDetails.totp && recovery_codes_left < 3}>
         <HomeUtils.LowRecoveryCodeBanner recovery_codes_left />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <AcceptInviteHome />
     </div>
     <PageHeading

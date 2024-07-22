@@ -188,11 +188,11 @@ let make = (
       <div
         className={`h-full flex flex-col border ${borderRounded} dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox p-2 md:mr-4`}>
         <div className="p-4 flex flex-col justify-start h-full gap-2">
-          <UIUtils.RenderIf condition={singleStatLoading && loaderType === SideLoader}>
+          <RenderIf condition={singleStatLoading && loaderType === SideLoader}>
             <div className="animate-spin self-end absolute">
               <Icon name="spinner" size=16 />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div className={"flex gap-2 items-center text-jp-gray-700 font-bold self-start"}>
             <div className="font-semibold text-base text-black dark:text-white">
               {title->React.string}
@@ -220,9 +220,9 @@ let make = (
                   </div>
                 })
                 ->React.array}
-                <UIUtils.RenderIf condition={modifiedData->Array.length > 5}>
+                <RenderIf condition={modifiedData->Array.length > 5}>
                   <ShowMore value=modifiedData title tableEntity />
-                </UIUtils.RenderIf>
+                </RenderIf>
               </>
             } else {
               <div

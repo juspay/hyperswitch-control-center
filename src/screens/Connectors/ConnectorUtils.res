@@ -85,6 +85,7 @@ let connectorList: array<connectorTypes> = [
   Processors(PLACETOPAY),
   Processors(RAZORPAY),
   Processors(BAMBORA_APAC),
+  Processors(ITAUBANK),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -433,6 +434,10 @@ let bamboraApacInfo = {
   description: "Bambora offers the ability to securely and efficiently process online, real-time transactions via an API, our user-friendly interface. The API web service accepts and processes SOAP requests from a remote location over TCP/IP. Transaction results are returned in real-time via the API.",
 }
 
+let itauBankInfo = {
+  description: "The Banking as a Service (BaaS) solution allows non-financial companies to offer services with the ecosystem that banking institutions have. Itaú as a Service (IaaS) is the ideal tool for your company to improve your customers' experience, offering a whole new portfolio of products, with Itaú's technology and security.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -527,6 +532,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | ZSL => "zsl"
   | RAZORPAY => "razorpay"
   | BAMBORA_APAC => "bamboraapac"
+  | ITAUBANK => "itaubank"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -615,6 +621,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "zsl" => Processors(ZSL)
     | "razorpay" => Processors(RAZORPAY)
     | "bamboraapac" => Processors(BAMBORA_APAC)
+    | "itaubank" => Processors(ITAUBANK)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -694,6 +701,7 @@ let getProcessorInfo = connector => {
   | ZSL => zslInfo
   | RAZORPAY => razorpayInfo
   | BAMBORA_APAC => bamboraApacInfo
+  | ITAUBANK => itauBankInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -1457,6 +1465,7 @@ let getDisplayNameForProcessor = connector =>
   | ZSL => "ZSL"
   | RAZORPAY => "Razorpay"
   | BAMBORA_APAC => "Bambora Apac"
+  | ITAUBANK => "Itaubank"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

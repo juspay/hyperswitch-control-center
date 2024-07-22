@@ -645,13 +645,13 @@ module DeltaColumn = {
             {React.string(Float.toFixedWithPrecision(value, ~digits=2) ++ "%")}
           </p>
         </div>
-        <UIUtils.RenderIf condition={delta !== value}>
+        <RenderIf condition={delta !== value}>
           <div className=paraparentCss>
             <p className={`px-2 py-0.5 fira-code text-fs-10  ${textColor}`}>
               {React.string(detlaStr)}
             </p>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }

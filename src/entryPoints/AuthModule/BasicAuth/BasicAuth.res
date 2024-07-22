@@ -208,8 +208,8 @@ let make = (~authType, ~setAuthType) => {
   let validateKeys = switch authType {
   | ForgetPassword
   | ResendVerifyEmail
-  | SignUP
   | LoginWithEmail => ["email"]
+  | SignUP => ["email", "password"]
   | LoginWithPassword => ["email", "password"]
   | ResetPassword => ["create_password", "comfirm_password"]
   | _ => []
@@ -237,9 +237,9 @@ let make = (~authType, ~setAuthType) => {
           {switch authType {
           | LoginWithPassword => <EmailPasswordForm setAuthType />
           | ForgetPassword =>
-            <UIUtils.RenderIf condition={featureFlagValues.email}>
+            <RenderIf condition={featureFlagValues.email}>
               <EmailForm />
-            </UIUtils.RenderIf>
+            </RenderIf>
           | LoginWithEmail
           | ResendVerifyEmail
           | SignUP =>

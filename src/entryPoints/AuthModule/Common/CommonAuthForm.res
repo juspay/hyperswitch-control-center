@@ -11,7 +11,7 @@ module EmailPasswordForm = {
       <FormRenderer.FieldRenderer field=emailField labelClass fieldWrapperClass />
       <div className="flex flex-col gap-3">
         <FormRenderer.FieldRenderer field=passwordField labelClass fieldWrapperClass />
-        <UIUtils.RenderIf condition={email}>
+        <RenderIf condition={email}>
           <AddDataAttributes attributes=[("data-testid", "forgot-password")]>
             <label
               className={`not-italic text-[12px] font-semibold font-ibm-plex ${textColor.primaryNormal} cursor-pointer`}
@@ -19,7 +19,7 @@ module EmailPasswordForm = {
               {"Forgot Password?"->React.string}
             </label>
           </AddDataAttributes>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }

@@ -55,9 +55,9 @@ module CheckListSection = {
           </p>
           <p className=unselectedSubHeading> {headerText->React.string} </p>
         </div>
-        <UIUtils.RenderIf condition={!(checkListItems->Array.includes(pageView))}>
+        <RenderIf condition={!(checkListItems->Array.includes(pageView))}>
           <Icon name="lock-outlined" size=20 />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
       {checkListItems
       ->Array.mapWithIndex((value, index) => {

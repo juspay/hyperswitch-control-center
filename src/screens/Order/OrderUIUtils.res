@@ -54,6 +54,7 @@ module GenerateSampleDataButton = {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let showPopUp = PopUpState.useShowPopUp()
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
@@ -74,16 +75,71 @@ module GenerateSampleDataButton = {
       }
     }
 
-    <UIUtils.RenderIf condition={sampleData && !previewOnly}>
-      <ACLButton
-        access={userPermissionJson.operationsManage}
-        buttonType={Secondary}
-        buttonSize={XSmall}
-        text="Generate Sample Data"
-        onClick={_ => generateSampleData()->ignore}
-        leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
-      />
-    </UIUtils.RenderIf>
+    let deleteSampleData = async () => {
+      try {
+        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Delete, ())
+        let _ = await updateDetails(
+          generateSampleDataUrl,
+          Dict.make()->JSON.Encode.object,
+          Delete,
+          (),
+        )
+        showToast(~message="Sample data deleted successfully", ~toastType=ToastSuccess, ())
+        getOrdersList()->ignore
+      } catch {
+      | _ => ()
+      }
+    }
+
+    let openPopUpModal = _ =>
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Are you sure?",
+        description: {
+          "This action cannot be undone. This will permanently delete all the sample payments and refunds data. To confirm, click the 'Delete All' button below."->React.string
+        },
+        handleConfirm: {
+          text: "Delete All",
+          onClick: {
+            _ => {
+              deleteSampleData()->ignore
+            }
+          },
+        },
+        handleCancel: {
+          text: "Cancel",
+          onClick: {
+            _ => ()
+          },
+        },
+      })
+
+    let rightIconClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      openPopUpModal()
+    }
+
+    <RenderIf condition={sampleData && !previewOnly}>
+      <div className="flex items-start">
+        <ACLButton
+          access={userPermissionJson.operationsManage}
+          buttonType={Secondary}
+          buttonSize={XSmall}
+          text="Generate Sample Data"
+          customButtonStyle="!rounded-l-md !rounded-none"
+          onClick={_ => generateSampleData()->ignore}
+          leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
+        />
+        <ACLDiv
+          height="h-fit"
+          permission={userPermissionJson.operationsManage}
+          className="bg-jp-gray-button_gray text-jp-gray-900 text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  focus:outline-none items-center border border-border_gray cursor-pointer p-2.5 overflow-hidden text-jp-gray-950 hover:text-black
+          border flex items-center justify-center rounded-r-md"
+          onClick={ev => rightIconClick(ev)}>
+          <Icon name="delete" size=16 customWidth="14" className="scale-125" />
+        </ACLDiv>
+      </div>
+    </RenderIf>
   }
 }
 

@@ -1,6 +1,5 @@
 @react.component
 let make = () => {
-  open UIUtils
   open HSwitchUtils
   open GlobalVars
   open APIUtils
@@ -455,9 +454,9 @@ let make = () => {
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
                             renderShow={_value =>
-                              <UIUtils.RenderIf condition={featureFlagDetails.totp}>
+                              <RenderIf condition={featureFlagDetails.totp}>
                                 <ModifyTwoFaSettings />
-                              </UIUtils.RenderIf>}
+                              </RenderIf>}
                           />
 
                         | list{"business-details"} =>
