@@ -42,14 +42,20 @@ module AuthenticationInput = {
       None
     }, [formState.values])
 
-    let outGoingWebhookDict =
-      formState.values
-      ->getDictFromJsonObject
-      ->getDictfromDict("outgoing_webhook_custom_http_headers")
+    let getOutGoingWebhook = () => {
+      let outGoingWebhookDict =
+        formState.values
+        ->getDictFromJsonObject
+        ->getDictfromDict("outgoing_webhook_custom_http_headers")
+      let key = outGoingWebhookDict->Dict.keysToArray->LogicUtils.getValueFromArray(index, "")
+      let outGoingWebHookVal = outGoingWebhookDict->getOptionString(key)
+      switch outGoingWebHookVal {
+      | Some(value) => (key, value)
+      | _ => ("", "")
+      }
+    }
 
-    let outGoingWebhookKey =
-      outGoingWebhookDict->Dict.keysToArray->Array.at(index)->Option.getOr("")
-    let outGoingWebHookValue = outGoingWebhookDict->getString(outGoingWebhookKey, "")
+    let (outGoingWebhookKey, outGoingWebHookValue) = getOutGoingWebhook()
     let (key, setKey) = React.useState(_ => outGoingWebhookKey)
     let (metaValue, setValue) = React.useState(_ => outGoingWebHookValue)
     let form = ReactFinalForm.useForm()
@@ -113,11 +119,19 @@ module WebHookAuthenticationHeaders = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
+
+    let outGoingWebhookDict =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("outgoing_webhook_custom_http_headers")
     let outGoingWebhookArr =
       formState.values
       ->getDictFromJsonObject
       ->getDictfromDict("outgoing_webhook_custom_http_headers")
       ->Dict.keysToArray
+      ->Array.filter(val => {
+        outGoingWebhookDict->getOptionString(val)->Option.isSome
+      })
       ->Array.mapWithIndex((_, index) => index)
 
     let (authHeaders, setAuthHeaders) = React.useState(_ =>
@@ -157,7 +171,7 @@ module WebHookAuthenticationHeaders = {
     <div className="flex-1">
       <p
         className={`ml-4 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 !text-base !text-grey-700 font-semibold ml-1`}>
-        {"Authorization"->React.string}
+        {"Custom HTTP Headers"->React.string}
       </p>
       {authHeaders
       ->Array.mapWithIndex((_, index) => {
@@ -185,22 +199,70 @@ module WebHookAuthenticationHeaders = {
 module WebHook = {
   @react.component
   let make = () => {
+    open FormRenderer
+    open LogicUtils
+    let form = ReactFinalForm.useForm()
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
     let h2RegularTextStyle = `${HSwitchUtils.getTextClass((H3, Leading_1))}`
-
+    let webHookURL =
+      formState.values
+      ->getDictFromJsonObject
+      ->getOptionString("webhook_url")
+      ->Option.isSome
+    let outGoingHeaders =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("outgoing_webhook_custom_http_headers")
+      ->isEmptyDict
+    let (enableCustomHttpHeaders, setCustomHttpHeaders) = React.useState(_ => false)
+    React.useEffect(() => {
+      if !webHookURL {
+        setCustomHttpHeaders(_ => false)
+        form.change("outgoing_webhook_custom_http_headers", JSON.Encode.null)
+      }
+      None
+    }, [webHookURL])
+    React.useEffect(() => {
+      if webHookURL && !outGoingHeaders {
+        setCustomHttpHeaders(_ => true)
+      }
+      None
+    }, [])
     <>
       <div>
         <div className="ml-4">
           <p className=h2RegularTextStyle> {"Webhook Setup"->React.string} </p>
         </div>
         <div className="ml-4 mt-4">
-          <FormRenderer.FieldRenderer
+          <FieldRenderer
             field={DeveloperUtils.webhookUrl}
             labelClass="!text-base !text-grey-700 font-semibold"
             fieldWrapperClass="max-w-xl"
           />
         </div>
+        <div className="ml-4">
+          <div className={"mt-4 flex items-center text-jp-gray-700 font-bold self-start"}>
+            <div className="font-semibold text-base text-black dark:text-white">
+              {"Enable Custom HTTP Headers"->React.string}
+            </div>
+            <ToolTip description="Enter Webhook url to enable" toolTipPosition=ToolTip.Right />
+          </div>
+          <div className="mt-4">
+            <BoolInput.BaseComponent
+              boolCustomClass="rounded-lg"
+              isSelected=enableCustomHttpHeaders
+              size={Large}
+              setIsSelected={_ =>
+                webHookURL ? setCustomHttpHeaders(_ => !enableCustomHttpHeaders) : ()}
+            />
+          </div>
+        </div>
       </div>
-      <WebHookAuthenticationHeaders />
+      <RenderIf condition=enableCustomHttpHeaders>
+        <WebHookAuthenticationHeaders />
+      </RenderIf>
     </>
   }
 }
