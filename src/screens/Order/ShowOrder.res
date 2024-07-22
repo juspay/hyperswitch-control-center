@@ -303,7 +303,12 @@ module Attempts = {
       }
     }
 
-    let attemptsData = order.attempts
+    let attemptsData = order.attempts->Array.toSorted((a, b) => {
+      let rowValue_a = a.attempt_id
+      let rowValue_b = b.attempt_id
+
+      rowValue_a <= rowValue_b ? 1. : -1.
+    })
 
     let heading = attemptsColumns->Array.map(getAttemptHeading)
 

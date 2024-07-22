@@ -213,62 +213,72 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
     Table.makeHeaderInfo(
       ~key="attempt_id",
       ~title="Attempt ID",
-      ~showSort=true,
+      ~showSort=false,
       ~description="You can validate the information shown here by cross checking the payment attempt identifier (Attempt ID) in your payment processor portal.",
       (),
     )
-  | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~showSort=true, ())
-  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true, ())
-  | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=true, ())
-  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector", ~showSort=true, ())
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~showSort=false, ())
+  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=false, ())
+  | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=false, ())
+  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector", ~showSort=false, ())
   | PaymentMethod =>
-    Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method", ~showSort=false, ())
   | PaymentMethodType =>
     Table.makeHeaderInfo(
       ~key="payment_method_type",
       ~title="Payment Method Type",
-      ~showSort=true,
+      ~showSort=false,
       (),
     )
   | ErrorMessage =>
-    Table.makeHeaderInfo(~key="error_message", ~title="Error Message", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="error_message", ~title="Error Message", ~showSort=false, ())
   | ConnectorTransactionID =>
     Table.makeHeaderInfo(
       ~key="connector_transaction_id",
       ~title="Connector Transaction ID",
-      ~showSort=true,
+      ~showSort=false,
       (),
     )
   | CaptureMethod =>
-    Table.makeHeaderInfo(~key="capture_method", ~title="Capture Method", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="capture_method", ~title="Capture Method", ~showSort=false, ())
   | AuthenticationType =>
     Table.makeHeaderInfo(
       ~key="authentication_type",
       ~title="Authentication Type",
-      ~showSort=true,
+      ~showSort=false,
       (),
     )
   | CancellationReason =>
     Table.makeHeaderInfo(
       ~key="cancellation_reason",
       ~title="Cancellation Reason",
-      ~showSort=true,
+      ~showSort=false,
       (),
     )
-  | MandateID => Table.makeHeaderInfo(~key="mandate_id", ~title="Mandate ID", ~showSort=true, ())
-  | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code", ~showSort=true, ())
+  | MandateID => Table.makeHeaderInfo(~key="mandate_id", ~title="Mandate ID", ~showSort=false, ())
+  | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code", ~showSort=false, ())
   | PaymentToken =>
-    Table.makeHeaderInfo(~key="payment_token", ~title="Payment Token", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="payment_token", ~title="Payment Token", ~showSort=false, ())
   | ConnectorMetadata =>
-    Table.makeHeaderInfo(~key="connector_metadata", ~title="Connector Metadata", ~showSort=true, ())
+    Table.makeHeaderInfo(
+      ~key="connector_metadata",
+      ~title="Connector Metadata",
+      ~showSort=false,
+      (),
+    )
   | PaymentExperience =>
-    Table.makeHeaderInfo(~key="payment_experience", ~title="Payment Experience", ~showSort=true, ())
+    Table.makeHeaderInfo(
+      ~key="payment_experience",
+      ~title="Payment Experience",
+      ~showSort=false,
+      (),
+    )
   | ReferenceID =>
-    Table.makeHeaderInfo(~key="reference_id", ~title="Reference ID", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="reference_id", ~title="Reference ID", ~showSort=false, ())
   | ClientSource =>
-    Table.makeHeaderInfo(~key="client_source", ~title="Client Source", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="client_source", ~title="Client Source", ~showSort=false, ())
   | ClientVersion =>
-    Table.makeHeaderInfo(~key="client_version", ~title="Client Version", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="client_version", ~title="Client Version", ~showSort=false, ())
   }
 }
 
