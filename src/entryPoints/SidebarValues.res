@@ -360,21 +360,6 @@ let userManagement = permissionJson => {
   })
 }
 
-let accountSettings = permissionJson => {
-  // Because it has delete sample data
-
-  SubLevelLink({
-    name: "Account Settings",
-    link: `/account-settings`,
-    access: permissionJson.merchantDetailsManage,
-    searchOptions: [
-      ("View profile", "/profile"),
-      ("Change password", "/profile"),
-      ("Manage your personal profile and preferences", "/profile"),
-    ],
-  })
-}
-
 let businessDetails = () => {
   SubLevelLink({
     name: "Business Details",
@@ -402,7 +387,7 @@ let configurePMTs = permissionJson => {
   })
 }
 
-let complianceCertificate = {
+let complianceCertificateSection = {
   SubLevelLink({
     name: "Compliance ",
     link: `/compliance`,
@@ -411,17 +396,16 @@ let complianceCertificate = {
   })
 }
 
-let settings = (~isSampleDataEnabled, ~isConfigurePmtsEnabled, ~permissionJson) => {
+let settings = (~isConfigurePmtsEnabled, ~permissionJson, ~complianceCertificate) => {
   let settingsLinkArray = [businessDetails(), businessProfiles()]
 
-  if isSampleDataEnabled {
-    settingsLinkArray->Array.push(accountSettings(permissionJson))->ignore
-  }
   if isConfigurePmtsEnabled {
     settingsLinkArray->Array.push(configurePMTs(permissionJson))->ignore
   }
 
-  settingsLinkArray->Array.push(complianceCertificate)->ignore
+  if complianceCertificate {
+    settingsLinkArray->Array.push(complianceCertificateSection)->ignore
+  }
 
   settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
 
@@ -571,7 +555,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     payOut,
     recon,
     default,
-    sampleData,
     systemMetrics,
     userJourneyAnalytics: userJourneyAnalyticsFlag,
     authenticationAnalytics: authenticationAnalyticsFlag,
@@ -582,6 +565,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     disputeAnalytics,
     configurePmts,
     reconV2,
+    complianceCertificate,
   } = featureFlagDetails
 
   let sidebar = [
@@ -605,11 +589,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     recon->reconTag(isReconEnabled),
     reconV2->reconAndSettlement(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
-    settings(
-      ~isSampleDataEnabled=sampleData,
-      ~isConfigurePmtsEnabled=configurePmts,
-      ~permissionJson,
-    ),
+    settings(~isConfigurePmtsEnabled=configurePmts, ~permissionJson, ~complianceCertificate),
   ]
 
   sidebar

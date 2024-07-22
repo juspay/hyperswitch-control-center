@@ -22,13 +22,14 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let fetchApi = AuthHooks.useApiFetcher()
 
-  let downloadURL = Window.env.dssCertificateUrl->Option.getOr("")
   let downloadPDF = () => {
     let currentDate =
       Date.now()
       ->Js.Date.fromFloat
       ->Date.toISOString
       ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")
+
+    let downloadURL = Window.env.dssCertificateUrl->Option.getOr("")
 
     //? - For localtesting this condn added
     if downloadURL->LogicUtils.isNonEmptyString {
@@ -66,10 +67,7 @@ let make = () => {
   }
 
   <div className="flex flex-col gap-12">
-    <PageUtils.PageHeading
-      title="Compliance"
-      subTitle="Add and manage profiles to represent different businesses across countries."
-    />
+    <PageUtils.PageHeading title="Compliance" />
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
       <DownloadCertificateTile
         header="Hyperswitch's PCI Attestation of Compliance" onClick={_ => downloadPDF()}
