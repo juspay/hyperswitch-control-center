@@ -20,7 +20,7 @@ module CustomerInfo = {
             className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
-              <UIUtils.RenderIf
+              <RenderIf
                 condition={!(excludeColKeys->Array.includes(colType))} key={Int.toString(i)}>
                 <div className={`flex ${widthClass} items-center`}>
                   <OrderUtils.DisplayKeyValueParams
@@ -32,14 +32,14 @@ module CustomerInfo = {
                     textColor="!font-normal !text-jp-gray-700"
                   />
                 </div>
-              </UIUtils.RenderIf>
+              </RenderIf>
             })
             ->React.array}
           </div>
         </FormRenderer.DesktopRow>
-        <UIUtils.RenderIf condition={children->Option.isSome}>
+        <RenderIf condition={children->Option.isSome}>
           {children->Option.getOr(React.null)}
-        </UIUtils.RenderIf>
+        </RenderIf>
       </OrderUtils.Section>
     }
   }

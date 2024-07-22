@@ -2,5 +2,5 @@
 let make = (~children) => {
   let isMobileView = MatchMedia.useMobileChecker()
 
-  <UIUtils.RenderIf condition={!isMobileView}> children </UIUtils.RenderIf>
+  <RenderIf condition={!isMobileView}> children </RenderIf>
 }

@@ -119,7 +119,7 @@ module GenerateSampleDataButton = {
       openPopUpModal()
     }
 
-    <UIUtils.RenderIf condition={sampleData && !previewOnly}>
+    <RenderIf condition={sampleData && !previewOnly}>
       <div className="flex items-center">
         <ACLButton
           access={userPermissionJson.operationsManage}
@@ -138,7 +138,7 @@ module GenerateSampleDataButton = {
           <Icon name="delete" size=20 />
         </ACLDiv>
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 

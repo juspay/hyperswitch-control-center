@@ -68,7 +68,7 @@ module TabDetails = {
         | Event
         | Request =>
           <div className="px-5 py-3">
-            <UIUtils.RenderIf
+            <RenderIf
               condition={logDetails.request->isNonEmptyString &&
                 selectedOption.optionType !== WEBHOOKS}>
               <div className="flex justify-end">
@@ -77,31 +77,31 @@ module TabDetails = {
                 />
               </div>
               <PrettyPrintJson jsonToDisplay=logDetails.request />
-            </UIUtils.RenderIf>
-            <UIUtils.RenderIf
+            </RenderIf>
+            <RenderIf
               condition={logDetails.request->isEmptyString &&
                 selectedOption.optionType !== WEBHOOKS}>
               <NoDataFound
                 customCssClass={"my-6"} message="No Data Available" renderType=Painting
               />
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         | Metadata
         | Response =>
           <div className="px-5 py-3">
-            <UIUtils.RenderIf condition={logDetails.response->isNonEmptyString}>
+            <RenderIf condition={logDetails.response->isNonEmptyString}>
               <div className="flex justify-end">
                 <HelperComponents.CopyTextCustomComp
                   displayValue=" " copyValue={logDetails.response->Some} customTextCss="text-nowrap"
                 />
               </div>
               <PrettyPrintJson jsonToDisplay={logDetails.response} />
-            </UIUtils.RenderIf>
-            <UIUtils.RenderIf condition={logDetails.response->isEmptyString}>
+            </RenderIf>
+            <RenderIf condition={logDetails.response->isEmptyString}>
               <NoDataFound
                 customCssClass={"my-6"} message="No Data Available" renderType=Painting
               />
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         | _ => React.null
         }}
@@ -248,7 +248,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     </div>
 
   let codeBlock =
-    <UIUtils.RenderIf
+    <RenderIf
       condition={logDetails.response->isNonEmptyString || logDetails.request->isNonEmptyString}>
       <div
         className="flex flex-col gap-4 border-l-2 border-border-light-grey show-scrollbar scroll-smooth overflow-scroll  w-3/5">
@@ -265,7 +265,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
         </div>
         <TabDetails activeTab logDetails selectedOption />
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
 
   open OrderUtils
   <PageLoaderWrapper
@@ -277,7 +277,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       message={`No logs available for this ${(logType :> string)->String.toLowerCase}`}
     />}>
     {<>
-      <UIUtils.RenderIf condition={id->HSwitchOrderUtils.isTestData || data->Array.length === 0}>
+      <RenderIf condition={id->HSwitchOrderUtils.isTestData || data->Array.length === 0}>
         <div
           className="flex items-center gap-2 bg-white w-full border-2 p-3 !opacity-100 rounded-lg text-md font-medium">
           <Icon name="info-circle-unfilled" size=16 />
@@ -285,14 +285,14 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
             {`No logs available for this ${(logType :> string)->String.toLowerCase}`->React.string}
           </div>
         </div>
-      </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={!(id->HSwitchOrderUtils.isTestData || data->Array.length === 0)}>
+      </RenderIf>
+      <RenderIf condition={!(id->HSwitchOrderUtils.isTestData || data->Array.length === 0)}>
         <Section
           customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 flex gap-7 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] max-w-[72rem] overflow-scroll`}>
           {timeLine}
           {codeBlock}
         </Section>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </>}
   </PageLoaderWrapper>
 }

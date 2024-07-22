@@ -120,13 +120,13 @@ let make = (
                                 | _ => React.null
                                 }}
                               </div>
-                              <UIUtils.RenderIf condition=selected>
+                              <RenderIf condition=selected>
                                 {if isCloseIcon {
                                   <Icon name="close" size=10 className="text-red-500 mr-1" />
                                 } else {
                                   <Tick isSelected=selected />
                                 }}
-                              </UIUtils.RenderIf>
+                              </RenderIf>
                             </div>
                           }}
                         </Menu.Item>

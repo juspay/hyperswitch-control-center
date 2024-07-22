@@ -31,7 +31,7 @@ module ReplaceAPIKey = {
         rightTag={<Icon name="client-tag" size=30 customWidth="50" />}
       />
       <div className={`${dividerColor} px-2`} />
-      <UIUtils.RenderIf
+      <RenderIf
         condition={previewVariant->Option.isSome && webhookEndpoint->LogicUtils.isNonEmptyString}>
         <ProdOnboardingUIUtils.SetupWebhookProcessor
           headerSectionText="Merchant Webhook Endpoint"
@@ -41,7 +41,7 @@ module ReplaceAPIKey = {
           />}
         />
         <div className={`${dividerColor} px-2`} />
-        <UIUtils.RenderIf condition={paymentResponseHashKey->LogicUtils.isNonEmptyString}>
+        <RenderIf condition={paymentResponseHashKey->LogicUtils.isNonEmptyString}>
           <ProdOnboardingUIUtils.SetupWebhookProcessor
             headerSectionText="Payment Response Hash Key"
             subtextSectionText="Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more"
@@ -50,9 +50,9 @@ module ReplaceAPIKey = {
               shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-full"
             />}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div className={`${dividerColor} px-2`} />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <ProdOnboardingUIUtils.SetupWebhookProcessor
         headerSectionText="API Key"
         subtextSectionText="Use this key to authenticate all API requests from your application's server to Hyperswitch server"
@@ -97,7 +97,7 @@ module SetupWebhookUser = {
           <TextInput input=webhookEndpoint placeholder="Enter your webhook endpoint here " />
         </FormRenderer.FieldWrapper>}
       />
-      <UIUtils.RenderIf condition={paymentResponseHashKey->LogicUtils.isNonEmptyString}>
+      <RenderIf condition={paymentResponseHashKey->LogicUtils.isNonEmptyString}>
         <ProdOnboardingUIUtils.SetupWebhookProcessor
           headerSectionText="Payment Response Hash Key"
           subtextSectionText="Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more"
@@ -106,7 +106,7 @@ module SetupWebhookUser = {
             shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-full"
           />}
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }
@@ -201,9 +201,9 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
         <p className=headerTextStyle> {headerText->React.string} </p>
         <p className=subTextStyle> {subHeaderText->React.string} </p>
       </div>
-      <UIUtils.RenderIf condition={previewState->Option.isNone}>
+      <RenderIf condition={previewState->Option.isNone}>
         <div className="flex gap-4">
-          <UIUtils.RenderIf condition={backButtonEnabled}>
+          <RenderIf condition={backButtonEnabled}>
             <Button
               text="Back"
               buttonSize={Small}
@@ -213,7 +213,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
                 setPageView(_ => pageView->ProdOnboardingUtils.getBackPageView)
               }}
             />
-          </UIUtils.RenderIf>
+          </RenderIf>
           <Button
             text={"Connect and Proceed"}
             buttonSize={Small}
@@ -223,7 +223,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
             onClick={_ => handleSubmit()}
           />
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
     <ProdOnboardingUIUtils.WarningBlock
       customComponent={Some(<>

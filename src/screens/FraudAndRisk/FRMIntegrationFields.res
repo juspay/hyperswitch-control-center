@@ -34,11 +34,11 @@ module AdvanceSettings = {
           {"Show advanced settings"->React.string}
         </p>
       </div>
-      <UIUtils.RenderIf condition={renderCountrySelector && isFRMSettings}>
+      <RenderIf condition={renderCountrySelector && isFRMSettings}>
         <ConnectorAccountDetailsHelper.BusinessProfileRender
           isUpdateFlow selectedConnector={frmName}
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </>
   }
 }

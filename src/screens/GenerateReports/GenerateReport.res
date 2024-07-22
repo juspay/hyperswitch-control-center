@@ -21,8 +21,8 @@ let make = (~entityName) => {
       access={accessForGenerateReports}
       toolTipPosition={Left}
     />
-    <UIUtils.RenderIf condition={reportModal}>
+    <RenderIf condition={reportModal}>
       <DownloadReportModal reportModal setReportModal entityName />
-    </UIUtils.RenderIf>
+    </RenderIf>
   </>
 }

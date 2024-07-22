@@ -96,12 +96,12 @@ module FormField = {
         </div>
       </div>
       <div className={`grid grid-cols-2 md:grid-cols-4 gap-4`}>
-        <UIUtils.RenderIf condition={sectionType == ActionType}>
+        <RenderIf condition={sectionType == ActionType}>
           <div className="flex items-center gap-2 break-all">
             {paymentMethodTypeInfo.action->getActionTypeLabel->Jsx.string}
           </div>
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={sectionType != ActionType}>
+        </RenderIf>
+        <RenderIf condition={sectionType != ActionType}>
           {options
           ->Array.mapWithIndex((option, i) => {
             <RadioSection
@@ -114,7 +114,7 @@ module FormField = {
             />
           })
           ->React.array}
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -228,7 +228,7 @@ module CheckBoxRenderer = {
       </div>
       {frmConfigInfo.payment_methods
       ->Array.mapWithIndex((paymentMethodInfo, index) => {
-        <UIUtils.RenderIf condition={isOpen} key={index->Int.toString}>
+        <RenderIf condition={isOpen} key={index->Int.toString}>
           {paymentMethodInfo.payment_method_types
           ->Array.mapWithIndex((paymentMethodTypeInfo, i) => {
             <Accordion
@@ -272,7 +272,7 @@ module CheckBoxRenderer = {
             />
           })
           ->React.array}
-        </UIUtils.RenderIf>
+        </RenderIf>
       })
       ->React.array}
     </div>
