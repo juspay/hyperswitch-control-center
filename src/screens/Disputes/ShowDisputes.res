@@ -170,6 +170,7 @@ module DisputesInfo = {
 @react.component
 let make = (~id) => {
   open APIUtils
+  let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -193,7 +194,7 @@ let make = (~id) => {
   React.useEffect(() => {
     fetchDisputesData()->ignore
     None
-  }, [])
+  }, [url])
 
   let data = disputeData->LogicUtils.getDictFromJsonObject
   let paymentId = data->LogicUtils.getString("payment_id", "")
