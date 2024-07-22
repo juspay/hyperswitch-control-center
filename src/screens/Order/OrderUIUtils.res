@@ -74,7 +74,7 @@ module GenerateSampleDataButton = {
       }
     }
 
-    <UIUtils.RenderIf condition={sampleData && !previewOnly}>
+    <RenderIf condition={sampleData && !previewOnly}>
       <ACLButton
         access={userPermissionJson.operationsManage}
         buttonType={Secondary}
@@ -83,7 +83,7 @@ module GenerateSampleDataButton = {
         onClick={_ => generateSampleData()->ignore}
         leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
       />
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 

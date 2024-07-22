@@ -4,7 +4,7 @@ module InviteEmailForm = {
   let make = (~setRoleTypeValue, ~isEmailTextInputVisible, ~setNewRoleSelected) => {
     open LogicUtils
     open APIUtils
-    open UIUtils
+
     let getURL = useGetURL()
     let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
     let fetchDetails = useGetMethod()
@@ -91,7 +91,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   open UserManagementUtils
   open APIUtils
   open LogicUtils
-  open UIUtils
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()

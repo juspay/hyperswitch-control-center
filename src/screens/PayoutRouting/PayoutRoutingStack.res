@@ -128,7 +128,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
           types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK] onRedirectBaseUrl="payoutrouting"
         />
       </div>
-      <UIUtils.RenderIf condition={!previewOnly}>
+      <RenderIf condition={!previewOnly}>
         <div className="flex flex-col gap-12">
           <EntityScaffold
             entityName="HyperSwitch Priority Logic"
@@ -148,7 +148,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
               />}
           />
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   </PageLoaderWrapper>
 }

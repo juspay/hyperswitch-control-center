@@ -7,7 +7,7 @@ module ScreenLoader = {
     let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     <div className={`${sectionHeight} w-scrren flex flex-col justify-center items-center`}>
-      <UIUtils.RenderIf condition={!branding}>
+      <RenderIf condition={!branding}>
         <div className="w-20 h-16">
           <ReactSuspenseWrapper>
             <div className="scale-400 pt-px">
@@ -15,10 +15,10 @@ module ScreenLoader = {
             </div>
           </ReactSuspenseWrapper>
         </div>
-      </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={branding}>
+      </RenderIf>
+      <RenderIf condition={branding}>
         <Loader />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }

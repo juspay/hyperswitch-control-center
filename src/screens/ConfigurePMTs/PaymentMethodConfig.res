@@ -154,7 +154,7 @@ let make = (
   let id = `payment_methods_enabled[${payment_method_index->Int.toString}].payment_method_types[${payment_method_types_index->Int.toString}]`
 
   <>
-    <UIUtils.RenderIf condition={showPaymentMthdConfigModal}>
+    <RenderIf condition={showPaymentMthdConfigModal}>
       <Modal
         childClass="p-0"
         showModal={showPaymentMthdConfigModal}
@@ -194,7 +194,7 @@ let make = (
           </Form>
         </PageLoaderWrapper>
       </Modal>
-    </UIUtils.RenderIf>
+    </RenderIf>
     <ACLDiv
       permission=permissionJson.connectorsManage
       className="cursor-pointer w-150"

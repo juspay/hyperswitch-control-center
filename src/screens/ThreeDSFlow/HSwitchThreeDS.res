@@ -362,9 +362,9 @@ let make = () => {
         </div>
       | LANDING =>
         <div className="flex flex-col gap-6">
-          <UIUtils.RenderIf condition={initialRule->Option.isSome}>
+          <RenderIf condition={initialRule->Option.isSome}>
             <ActiveRulePreview initialRule setInitialRule />
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
             <p className="text-base font-semibold text-grey-700">
               {"Configure 3DS Rule"->React.string}
