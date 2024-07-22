@@ -303,8 +303,10 @@ let make = (
               fieldWrapperClass="p-0"
             />
           </UIUtils.RenderIf>
+        </div>
+        <div className="flex gap-3 flex-wrap">
           <UIUtils.RenderIf condition={allFilters->Array.length > 0}>
-            <Menu \"as"="div" className="relative inline-block text-left">
+            <Menu \"as"="div" className="relative inline-block text-left mt-3">
               {_menuProps =>
                 <div>
                   <Menu.Button
@@ -373,8 +375,6 @@ let make = (
                 </div>}
             </Menu>
           </UIUtils.RenderIf>
-        </div>
-        <div className="flex gap-3 flex-wrap">
           <FormRenderer.FieldsRenderer
             fields={filterList} labelClass="hidden" fieldWrapperClass="p-0 mt-3"
           />
