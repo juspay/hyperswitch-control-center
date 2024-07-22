@@ -42,12 +42,11 @@ module AuthenticationInput = {
       None
     }, [formState.values])
 
-    let outGoingWebhookDict =
-      formState.values
-      ->getDictFromJsonObject
-      ->getDictfromDict("outgoing_webhook_custom_http_headers")
-
-    let getoutGoingWebhook = () => {
+    let getOutGoingWebhook = () => {
+      let outGoingWebhookDict =
+        formState.values
+        ->getDictFromJsonObject
+        ->getDictfromDict("outgoing_webhook_custom_http_headers")
       let key = outGoingWebhookDict->Dict.keysToArray->Array.at(index)->Option.getOr("")
       let outGoingWebHookVal = outGoingWebhookDict->getOptionString(key)
       switch outGoingWebHookVal {
@@ -56,7 +55,7 @@ module AuthenticationInput = {
       }
     }
 
-    let (outGoingWebhookKey, outGoingWebHookValue) = getoutGoingWebhook()
+    let (outGoingWebhookKey, outGoingWebHookValue) = getOutGoingWebhook()
     let (key, setKey) = React.useState(_ => outGoingWebhookKey)
     let (metaValue, setValue) = React.useState(_ => outGoingWebHookValue)
     let form = ReactFinalForm.useForm()
