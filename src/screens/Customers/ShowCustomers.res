@@ -20,7 +20,7 @@ module CustomerInfo = {
             className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
-              <UIUtils.RenderIf
+              <RenderIf
                 condition={!(excludeColKeys->Array.includes(colType))} key={Int.toString(i)}>
                 <div className={`flex ${widthClass} items-center`}>
                   <OrderUtils.DisplayKeyValueParams
@@ -32,14 +32,14 @@ module CustomerInfo = {
                     textColor="!font-normal !text-jp-gray-700"
                   />
                 </div>
-              </UIUtils.RenderIf>
+              </RenderIf>
             })
             ->React.array}
           </div>
         </FormRenderer.DesktopRow>
-        <UIUtils.RenderIf condition={children->Option.isSome}>
+        <RenderIf condition={children->Option.isSome}>
           {children->Option.getOr(React.null)}
-        </UIUtils.RenderIf>
+        </RenderIf>
       </OrderUtils.Section>
     }
   }
@@ -52,6 +52,56 @@ module CustomerInfo = {
       </div>
       <Details data=customerData getHeading getCell detailsFields=allColumns />
     </>
+  }
+}
+
+module CustomerDetails = {
+  open GlobalSearchBarUtils
+  open GlobalSearchTypes
+  open APIUtils
+  @react.component
+  let make = (~id) => {
+    let getURL = useGetURL()
+    let fetchData = APIUtils.useUpdateMethod()
+    let (searchResults, setSearchResults) = React.useState(_ => [])
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+
+    let getSearchResults = async () => {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      try {
+        let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
+
+        let body = [("query", id->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+
+        let response = await fetchData(url, body, Post, ())
+
+        let remote_results = response->parseResponse
+
+        let data = {
+          local_results: [],
+          remote_results,
+          searchText: id,
+        }
+
+        let (results, _) = data->SearchResultsPageUtils.getSearchresults
+
+        setSearchResults(_ => results)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Success)
+      }
+    }
+
+    React.useEffect(() => {
+      getSearchResults()->ignore
+      None
+    }, [])
+
+    <PageLoaderWrapper screenState>
+      <div className="mt-5">
+        <SearchResultsPage.SearchResultsComponent searchResults searchText={id} />
+      </div>
+    </PageLoaderWrapper>
   }
 }
 
@@ -97,6 +147,7 @@ let make = (~id) => {
         </div>
       </div>
       <CustomerInfo dict={customersData->LogicUtils.getDictFromJsonObject} />
+      <CustomerDetails id />
     </div>
   </PageLoaderWrapper>
 }

@@ -12,7 +12,7 @@ module InfoViewForWebhooks = {
       <p className="font-semibold text-fs-15"> {heading->React.string} </p>
       <div className="flex gap-2 break-all w-full items-start">
         <p className="font-medium text-fs-14 text-black opacity-50"> {subHeading->React.string} </p>
-        <UIUtils.RenderIf condition={isCopy}>
+        <RenderIf condition={isCopy}>
           <img
             src={`/assets/CopyToClipboard.svg`}
             className="cursor-pointer"
@@ -20,7 +20,7 @@ module InfoViewForWebhooks = {
               onCopyClick(ev)
             }}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -42,14 +42,20 @@ module AuthenticationInput = {
       None
     }, [formState.values])
 
-    let outGoingWebhookDict =
-      formState.values
-      ->getDictFromJsonObject
-      ->getDictfromDict("outgoing_webhook_custom_http_headers")
+    let getOutGoingWebhook = () => {
+      let outGoingWebhookDict =
+        formState.values
+        ->getDictFromJsonObject
+        ->getDictfromDict("outgoing_webhook_custom_http_headers")
+      let key = outGoingWebhookDict->Dict.keysToArray->LogicUtils.getValueFromArray(index, "")
+      let outGoingWebHookVal = outGoingWebhookDict->getOptionString(key)
+      switch outGoingWebHookVal {
+      | Some(value) => (key, value)
+      | _ => ("", "")
+      }
+    }
 
-    let outGoingWebhookKey =
-      outGoingWebhookDict->Dict.keysToArray->Array.at(index)->Option.getOr("")
-    let outGoingWebHookValue = outGoingWebhookDict->getString(outGoingWebhookKey, "")
+    let (outGoingWebhookKey, outGoingWebHookValue) = getOutGoingWebhook()
     let (key, setKey) = React.useState(_ => outGoingWebhookKey)
     let (metaValue, setValue) = React.useState(_ => outGoingWebHookValue)
     let form = ReactFinalForm.useForm()
@@ -97,11 +103,11 @@ module AuthenticationInput = {
           <TextInput input={valueInput} placeholder={"Enter value"} />
         </div>
       </DesktopRow>
-      <UIUtils.RenderIf condition={authHeaders->Array.length > 1}>
+      <RenderIf condition={authHeaders->Array.length > 1}>
         <div className="mt-6 flex gap-4">
           <ModalCloseIcon onClick={_ev => removeAuthHeaders(index, key)} />
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }
@@ -113,11 +119,19 @@ module WebHookAuthenticationHeaders = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
+
+    let outGoingWebhookDict =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("outgoing_webhook_custom_http_headers")
     let outGoingWebhookArr =
       formState.values
       ->getDictFromJsonObject
       ->getDictfromDict("outgoing_webhook_custom_http_headers")
       ->Dict.keysToArray
+      ->Array.filter(val => {
+        outGoingWebhookDict->getOptionString(val)->Option.isSome
+      })
       ->Array.mapWithIndex((_, index) => index)
 
     let (authHeaders, setAuthHeaders) = React.useState(_ =>
@@ -157,7 +171,7 @@ module WebHookAuthenticationHeaders = {
     <div className="flex-1">
       <p
         className={`ml-4 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 !text-base !text-grey-700 font-semibold ml-1`}>
-        {"Authorization"->React.string}
+        {"Custom HTTP Headers"->React.string}
       </p>
       {authHeaders
       ->Array.mapWithIndex((_, index) => {
@@ -165,17 +179,16 @@ module WebHookAuthenticationHeaders = {
           <div className=" col-span-4">
             <AuthenticationInput removeAuthHeaders authHeaders index />
           </div>
-          <UIUtils.RenderIf condition={index === authHeaders->Array.length - 1 && index != 3}>
+          <RenderIf condition={index === authHeaders->Array.length - 1 && index != 3}>
             <div className="flex justify-start items-center mt-4">
               <Icon
-                name="plus-circle"
-                size=27
-                customIconColor="text-gray-400"
-                className="flex items-center justify-center w-fit h-fit"
+                name="plus"
+                size=16
+                className="flex items-center justify-center w-fit h-fit p-1 border-2 rounded-full bg-gray-100"
                 onClick={_ => addAuthHeaders()}
               />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       })
       ->React.array}
@@ -186,22 +199,70 @@ module WebHookAuthenticationHeaders = {
 module WebHook = {
   @react.component
   let make = () => {
+    open FormRenderer
+    open LogicUtils
+    let form = ReactFinalForm.useForm()
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
     let h2RegularTextStyle = `${HSwitchUtils.getTextClass((H3, Leading_1))}`
-
+    let webHookURL =
+      formState.values
+      ->getDictFromJsonObject
+      ->getOptionString("webhook_url")
+      ->Option.isSome
+    let outGoingHeaders =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("outgoing_webhook_custom_http_headers")
+      ->isEmptyDict
+    let (enableCustomHttpHeaders, setCustomHttpHeaders) = React.useState(_ => false)
+    React.useEffect(() => {
+      if !webHookURL {
+        setCustomHttpHeaders(_ => false)
+        form.change("outgoing_webhook_custom_http_headers", JSON.Encode.null)
+      }
+      None
+    }, [webHookURL])
+    React.useEffect(() => {
+      if webHookURL && !outGoingHeaders {
+        setCustomHttpHeaders(_ => true)
+      }
+      None
+    }, [])
     <>
       <div>
         <div className="ml-4">
           <p className=h2RegularTextStyle> {"Webhook Setup"->React.string} </p>
         </div>
         <div className="ml-4 mt-4">
-          <FormRenderer.FieldRenderer
+          <FieldRenderer
             field={DeveloperUtils.webhookUrl}
             labelClass="!text-base !text-grey-700 font-semibold"
             fieldWrapperClass="max-w-xl"
           />
         </div>
+        <div className="ml-4">
+          <div className={"mt-4 flex items-center text-jp-gray-700 font-bold self-start"}>
+            <div className="font-semibold text-base text-black dark:text-white">
+              {"Enable Custom HTTP Headers"->React.string}
+            </div>
+            <ToolTip description="Enter Webhook url to enable" toolTipPosition=ToolTip.Right />
+          </div>
+          <div className="mt-4">
+            <BoolInput.BaseComponent
+              boolCustomClass="rounded-lg"
+              isSelected=enableCustomHttpHeaders
+              size={Large}
+              setIsSelected={_ =>
+                webHookURL ? setCustomHttpHeaders(_ => !enableCustomHttpHeaders) : ()}
+            />
+          </div>
+        </div>
       </div>
-      <WebHookAuthenticationHeaders />
+      <RenderIf condition=enableCustomHttpHeaders>
+        <WebHookAuthenticationHeaders />
+      </RenderIf>
     </>
   }
 }
@@ -282,7 +343,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   <PageLoaderWrapper screenState>
     <div className={`${showFormOnly ? "" : "py-4 md:py-10"} h-full flex flex-col`}>
-      <UIUtils.RenderIf condition={!showFormOnly}>
+      <RenderIf condition={!showFormOnly}>
         <BreadCrumbNavigation
           path=[
             {
@@ -293,7 +354,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
           currentPageTitle={busiProfieDetails.profile_name}
           cursorStyle="cursor-pointer"
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div className={`${showFormOnly ? "" : "mt-4"}`}>
         <div
           className={`w-full ${showFormOnly
@@ -365,7 +426,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     )}
                   />
                 </DesktopRow>
-                <UIUtils.RenderIf condition={isBusinessProfileHasThreeds}>
+                <RenderIf condition={isBusinessProfileHasThreeds}>
                   <DesktopRow>
                     <FieldRenderer
                       field={threedsConnectorList
@@ -382,7 +443,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       fieldWrapperClass="max-w-xl"
                     />
                   </DesktopRow>
-                </UIUtils.RenderIf>
+                </RenderIf>
                 <ReturnUrl />
                 <WebHook />
                 <DesktopRow>

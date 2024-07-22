@@ -58,7 +58,7 @@ module ConnectorDetailsForm = {
         suggestedAction
         setVerifyDone
       />
-      <UIUtils.RenderIf condition={checkboxText->LogicUtils.isNonEmptyString}>
+      <RenderIf condition={checkboxText->LogicUtils.isNonEmptyString}>
         <div className="flex gap-2 items-center">
           <CheckBoxIcon
             isSelected=isCheckboxSelected
@@ -68,7 +68,7 @@ module ConnectorDetailsForm = {
             {connectorVariant->ProdOnboardingUtils.getCheckboxText->React.string}
           </p>
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }
@@ -311,9 +311,9 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     switch pageView {
     | SETUP_CREDS =>
       <>
-        <UIUtils.RenderIf condition={warningBlock->Option.isSome}>
+        <RenderIf condition={warningBlock->Option.isSome}>
           <ProdOnboardingUIUtils.WarningBlock customComponent={warningBlock} />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <ConnectorDetailsForm
           connectorName
           connectorDetails

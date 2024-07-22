@@ -17,9 +17,9 @@ module Add3DSCondition = {
 
     if isExpanded {
       <div className="flex flex-row ml-2">
-        <UIUtils.RenderIf condition={!isFirst}>
+        <RenderIf condition={!isFirst}>
           <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
           <div className="flex flex-wrap gap-4 -mt-2">
             <div className=classStyle> {"Auth type"->React.string} </div>
@@ -83,9 +83,9 @@ module AddSurchargeCondition = {
     {
       if isExpanded {
         <div className="flex flex-row ml-2">
-          <UIUtils.RenderIf condition={!isFirst}>
+          <RenderIf condition={!isFirst}>
             <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
             <div className="flex flex-wrap gap-4">
               <div className=classStyle> {"Surcharge is"->React.string} </div>
@@ -246,7 +246,7 @@ module Wrapper = {
       <div
         className={`flex flex-row gap-3 md:gap-10 items-center justify-end
         ${isMobileView ? "" : "w-1/3 mr-6"}`}>
-        <UIUtils.RenderIf condition={notFirstRule}>
+        <RenderIf condition={notFirstRule}>
           <div
             onMouseEnter={_ => setDragBtnHover(_ => !isMobileView)}
             onMouseLeave={_ => setDragBtnHover(_ => false)}
@@ -254,11 +254,11 @@ module Wrapper = {
                 ? "py-1"
                 : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
             <Icon name="grip-vertical" className="text-jp-gray-700" size=14 />
-            <UIUtils.RenderIf condition={dragBtnHover}>
+            <RenderIf condition={dragBtnHover}>
               <div className="text-sm "> {React.string("Drag Rule")} </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div
           onClick=onClickAdd
           onMouseEnter={_ => setAddBtnHover(_ => !isMobileView)}
@@ -267,9 +267,9 @@ module Wrapper = {
               ? "py-1"
               : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
           <Icon name="plus" className="text-jp-gray-700" size=12 />
-          <UIUtils.RenderIf condition={addBtnHover}>
+          <RenderIf condition={addBtnHover}>
             <div className="text-sm "> {React.string("Add New Rule")} </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
         {switch onClickCopy {
         | Some(onClick) =>
@@ -281,13 +281,13 @@ module Wrapper = {
                 ? "py-1"
                 : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
             <Icon name="copy" className="text-jp-gray-700" size=12 />
-            <UIUtils.RenderIf condition={copyBtnHover}>
+            <RenderIf condition={copyBtnHover}>
               <div className="text-sm "> {React.string("Copy Rule")} </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         | None => React.null
         }}
-        <UIUtils.RenderIf condition={notFirstRule}>
+        <RenderIf condition={notFirstRule}>
           <div
             onClick=onClickRemove
             onMouseEnter={_ => setDeleteBtnHover(_ => !isMobileView)}
@@ -296,18 +296,18 @@ module Wrapper = {
                 ? "py-1"
                 : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
             <Icon name="trash" className="text-jp-gray-700" size=12 />
-            <UIUtils.RenderIf condition={deleteBtnHover}>
+            <RenderIf condition={deleteBtnHover}>
               <div className="text-sm "> {React.string("Delete Rule")} </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
 
     <div className="flex flex-col">
       <div className={`flex flex-row tems-center justify-between z-10 -mt-6 mx-2`}>
-        <UIUtils.RenderIf condition={!isMobileView}>
+        <RenderIf condition={!isMobileView}>
           <div className="hidden lg:flex w-1/3" />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div
           onClick={handleClickExpand}
           className={`cursor-pointer flex flex-row gap-2 items-center justify-between p-2 bg-blue-100 dark:bg-jp-gray-970 rounded-full border ${borderColor.primaryNormal} dark:${borderColor.primaryNormal}`}>
@@ -323,20 +323,20 @@ module Wrapper = {
             p-4 py-6 bg-gray-50 dark:bg-jp-gray-lightgray_background rounded-md border 
             ${border} 
             ${borderColor.primaryNormal}`}>
-        <UIUtils.RenderIf condition={!isFirst}>
+        <RenderIf condition={!isFirst}>
           <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds isFromSurcharge />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!isFrom3ds && !isFromSurcharge}>
+        </RenderIf>
+        <RenderIf condition={!isFrom3ds && !isFromSurcharge}>
           <AddRuleGateway id gatewayOptions isExpanded isFirst />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={isFrom3ds}>
+        </RenderIf>
+        <RenderIf condition={isFrom3ds}>
           <Add3DSCondition isFirst id isExpanded threeDsType />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={isFromSurcharge}>
+        </RenderIf>
+        <RenderIf condition={isFromSurcharge}>
           <AddSurchargeCondition
             isFirst id isExpanded surchargeType surchargeTypeValue surchargePercentage
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -792,7 +792,7 @@ let make = (
                   profile
                   setProfile
                 />
-                <UIUtils.RenderIf condition={formState != CreateConfig}>
+                <RenderIf condition={formState != CreateConfig}>
                   <div className="mb-5">
                     <RuleBasedUI
                       gatewayOptions=connectorOptions
@@ -805,7 +805,7 @@ let make = (
                     {switch pageState {
                     | Preview =>
                       <div className="flex flex-col md:flex-row gap-4 my-5">
-                        <UIUtils.RenderIf condition={!isActive}>
+                        <RenderIf condition={!isActive}>
                           <Button
                             text={"Activate Configuration"}
                             buttonType={Primary}
@@ -815,8 +815,8 @@ let make = (
                             customButtonStyle="w-1/5 rounded-sm"
                             buttonState=Normal
                           />
-                        </UIUtils.RenderIf>
-                        <UIUtils.RenderIf condition={isActive}>
+                        </RenderIf>
+                        <RenderIf condition={isActive}>
                           <Button
                             text={"Deactivate Configuration"}
                             buttonType={Primary}
@@ -826,13 +826,13 @@ let make = (
                             customButtonStyle="w-1/5 rounded-sm"
                             buttonState=Normal
                           />
-                        </UIUtils.RenderIf>
+                        </RenderIf>
                       </div>
                     | Create => <RoutingUtils.ConfigureRuleButton setShowModal />
                     | _ => React.null
                     }}
                   </div>
-                </UIUtils.RenderIf>
+                </RenderIf>
                 <CustomModal.RoutingCustomModal
                   showModal
                   setShowModal

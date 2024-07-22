@@ -124,7 +124,6 @@ module AddNewMerchantButton = {
 module ExternalUser = {
   @react.component
   let make = (~switchMerchant, ~isAddMerchantEnabled) => {
-    open UIUtils
     let {merchant_id: defaultMerchantId} =
       CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)

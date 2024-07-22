@@ -93,7 +93,7 @@ module ResetPassword = {
         <p className="text-hyperswitch_black opacity-50 text-base font-semibold break-all">
           {"********"->React.string}
         </p>
-        <UIUtils.RenderIf condition={!isPlayground}>
+        <RenderIf condition={!isPlayground}>
           <Button
             text={"Reset Password"}
             loadingText="Sending mail..."
@@ -102,7 +102,7 @@ module ResetPassword = {
             buttonSize={Small}
             onClick={_ => setPassword()}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -189,9 +189,9 @@ module BasicDetailsSection = {
           <p className=subTitleClass> {email->React.string} </p>
         </div>
         <hr />
-        <UIUtils.RenderIf condition={!isPlayground && featureFlagDetails.email}>
+        <RenderIf condition={!isPlayground && featureFlagDetails.email}>
           <ResetPassword />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -212,9 +212,9 @@ let make = () => {
     <div className="flex flex-col flex-wrap  gap-12">
       <BasicDetailsSection />
       <MerchantDetailsSection />
-      <UIUtils.RenderIf condition={featureFlagDetails.totp && showTwoFaSettings}>
+      <RenderIf condition={featureFlagDetails.totp && showTwoFaSettings}>
         <TwoFactorAuthenticationDetails />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   </div>
 }

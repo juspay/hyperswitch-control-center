@@ -181,12 +181,12 @@ module ConfigureTotpScreen = {
         <p className={`${h2TextStyle} text-grey-900`}> {modalHeaderText->React.string} </p>
       </div>
       <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
-        <UIUtils.RenderIf condition={twoFaStatus === TWO_FA_NOT_SET}>
+        <RenderIf condition={twoFaStatus === TWO_FA_NOT_SET}>
           <TwoFaElements.TotpScanQR totpUrl isQrVisible />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div className="flex flex-col justify-center items-center gap-4">
           <TwoFaElements.TotpInput otp setOtp />
-          <UIUtils.RenderIf condition={twoFaStatus === TWO_FA_SET}>
+          <RenderIf condition={twoFaStatus === TWO_FA_SET}>
             <p className={`${p2Regular} text-jp-gray-700`}>
               {"Didn't get a code? "->React.string}
               <span
@@ -195,7 +195,7 @@ module ConfigureTotpScreen = {
                 {"Use recovery-code"->React.string}
               </span>
             </p>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
         <div className="flex justify-end gap-4">
           <Button

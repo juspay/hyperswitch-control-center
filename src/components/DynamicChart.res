@@ -821,7 +821,7 @@ let make = (
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else if comparitionWidget {
                   <div>
-                    <UIUtils.RenderIf condition={featureFlagDetails.granularity}>
+                    <RenderIf condition={featureFlagDetails.granularity}>
                       <div className="w-full flex justify-end p-2">
                         <GranularitySelectBox
                           selectedGranularity
@@ -830,7 +830,7 @@ let make = (
                           endTime={endTimeFromUrl}
                         />
                       </div>
-                    </UIUtils.RenderIf>
+                    </RenderIf>
                     {entityAllMetrics
                     ->Array.mapWithIndex((selectedMetrics, index) => {
                       switch uriConfig->Array.get(0) {

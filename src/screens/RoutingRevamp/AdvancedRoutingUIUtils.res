@@ -207,9 +207,9 @@ module MetadataInp = {
       value: valueField.value,
       checked: true,
     }
-    <UIUtils.RenderIf condition={keyType->variantTypeMapper === Metadata_value}>
+    <RenderIf condition={keyType->variantTypeMapper === Metadata_value}>
       <TextInput placeholder={"Enter Key"} input=textInput />
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -375,15 +375,15 @@ module RuleFieldBase = {
       }
     }, [])
 
-    <UIUtils.RenderIf condition={methodKeys->Array.length > 0}>
+    <RenderIf condition={methodKeys->Array.length > 0}>
       {if isExpanded {
         <div
           className={`flex flex-wrap items-center px-1 ${hover
               ? "rounded-md bg-white dark:bg-black shadow"
               : ""}`}>
-          <UIUtils.RenderIf condition={!isFirst}>
+          <RenderIf condition={!isFirst}>
             <LogicalOps id />
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div className="-mt-5 p-1">
             <FieldWrapper label="">
               <FieldInp methodKeys prefix=id onChangeMethod />
@@ -398,7 +398,7 @@ module RuleFieldBase = {
           <div className="-mt-5">
             <FieldRenderer field={valueInput(id, variantValues, keyType)} />
           </div>
-          <UIUtils.RenderIf condition={!isFirst}>
+          <RenderIf condition={!isFirst}>
             <div
               onClick
               onMouseEnter={_ => setHover(_ => true)}
@@ -406,12 +406,12 @@ module RuleFieldBase = {
               className="flex items-center cursor-pointer rounded-full  border border-jp-gray-500 dark:border-jp-gray-960 bg-red-400 hover:shadow focus:outline-none p-2">
               <Icon size=10 className="text-gray-50 font-semibold" name="close" />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       } else {
         <MakeRuleFieldComponent.CompressedView isFirst id />
       }}
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 

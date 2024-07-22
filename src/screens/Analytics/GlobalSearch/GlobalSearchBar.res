@@ -122,7 +122,7 @@ module ModalWrapper = {
 module SearchResultsComponent = {
   open GlobalSearchTypes
   open LogicUtils
-  open UIUtils
+
   @react.component
   let make = (~searchResults, ~searchText, ~redirectOnSelect, ~setShowModal) => {
     React.useEffect(() => {
@@ -203,7 +203,7 @@ let make = () => {
   open GlobalSearchBarUtils
   open HeadlessUI
   open LogicUtils
-  open UIUtils
+
   let getURL = APIUtils.useGetURL()
   let prefix = useUrlPrefix()
   let setGLobalSearchResults = HyperswitchAtom.globalSeacrchAtom->Recoil.useSetRecoilState

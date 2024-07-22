@@ -1,3 +1,5 @@
+let domain = "payment_intents"
+
 type paymentIntentObject = {
   payment_id: string,
   merchant_id: string,
