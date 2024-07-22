@@ -18,6 +18,11 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
       if !Js.Re.test_(%re("/^(?=.*[0-9])/"), value) {
         mustHave->Array.push("numeric")
       }
+
+      /*
+       Checks if the password contains one of the below special character: 
+       ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '-', '=', '[', ']', '{', '}', ';', "'", ':', '"', '\\', '|', ',', '.', '<', '>', '/', '?', '', '~'] 
+ */
       if (
         !Js.Re.test_(
           Js.Re.fromString("^(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?`~])"),
