@@ -3,6 +3,27 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.23.0
+
+### Miscellaneous Tasks
+
+- Itaubank icon update ([#1045](https://github.com/juspay/hyperswitch-control-center/pull/1045)) ([`beb72b7`](https://github.com/juspay/hyperswitch-control-center/commit/beb72b7627edc807a45faf5b4608479d341ef2b5))
+
+**Full Changelog:** [`2024.07.22.1...2024.07.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.22.1...2024.07.23.0)
+
+- - -
+
+## 2024.07.22.1
+
+### Bug Fixes
+
+- Password validation ([#817](https://github.com/juspay/hyperswitch-control-center/pull/817)) ([`de53095`](https://github.com/juspay/hyperswitch-control-center/commit/de53095b646b17f452cadeaba455d08b7095f16a))
+- Webhook custom headers ([#1044](https://github.com/juspay/hyperswitch-control-center/pull/1044)) ([`27be1d9`](https://github.com/juspay/hyperswitch-control-center/commit/27be1d9575ddf0e3ba18837a1671953f57d8a009))
+
+**Full Changelog:** [`2024.07.22.0...2024.07.22.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.22.0...2024.07.22.1)
+
+- - -
+
 ## 2024.07.22.0
 
 ### Features
