@@ -127,6 +127,7 @@ module WebHook = {
   let make = (~setCustomHttpHeaders, ~enableCustomHttpHeaders) => {
     open FormRenderer
     open LogicUtils
+    let {customWebhookHeaders} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let form = ReactFinalForm.useForm()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -172,24 +173,26 @@ module WebHook = {
             fieldWrapperClass="max-w-xl"
           />
         </div>
-        <div className="ml-4">
-          <div className={"mt-4 flex items-center text-jp-gray-700 font-bold self-start"}>
-            <div className="font-semibold text-base text-black dark:text-white">
-              {"Enable Custom HTTP Headers"->React.string}
+        <RenderIf condition={customWebhookHeaders}>
+          <div className="ml-4">
+            <div className={"mt-4 flex items-center text-jp-gray-700 font-bold self-start"}>
+              <div className="font-semibold text-base text-black dark:text-white">
+                {"Enable Custom HTTP Headers"->React.string}
+              </div>
+              <ToolTip description="Enter Webhook url to enable" toolTipPosition=ToolTip.Right />
             </div>
-            <ToolTip description="Enter Webhook url to enable" toolTipPosition=ToolTip.Right />
+            <div className="mt-4">
+              <BoolInput.BaseComponent
+                boolCustomClass="rounded-lg"
+                isSelected=enableCustomHttpHeaders
+                size={Large}
+                setIsSelected={_ => webHookURL ? updateCustomHttpHeaders() : ()}
+              />
+            </div>
           </div>
-          <div className="mt-4">
-            <BoolInput.BaseComponent
-              boolCustomClass="rounded-lg"
-              isSelected=enableCustomHttpHeaders
-              size={Large}
-              setIsSelected={_ => webHookURL ? updateCustomHttpHeaders() : ()}
-            />
-          </div>
-        </div>
+        </RenderIf>
       </div>
-      <RenderIf condition=enableCustomHttpHeaders>
+      <RenderIf condition={enableCustomHttpHeaders && customWebhookHeaders}>
         <WebHookAuthenticationHeaders />
       </RenderIf>
     </>
