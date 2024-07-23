@@ -1,5 +1,5 @@
 let regex = searchString => {
-  Js.Re.fromStringWithFlags(`` ++ searchString ++ ``, ~flags="gi")
+  RegExp.fromStringWithFlags(`` ++ searchString ++ ``, ~flags="gi")
 }
 let highlightedText = (str, searchedText) => {
   let shouldHighlight =

@@ -622,7 +622,7 @@ let regex = (positionToCheckFrom, searchString) => {
     ->String.replaceRegExp(%re("/\(/g"), "\\(")
     ->String.replaceRegExp(%re("/\+/g"), "\\+")
     ->String.replaceRegExp(%re("/\)/g"), "\\)")
-  Js.Re.fromStringWithFlags(
+  RegExp.fromStringWithFlags(
     "(.*)(" ++ positionToCheckFrom ++ "" ++ searchStringNew ++ ")(.*)",
     ~flags="i",
   )

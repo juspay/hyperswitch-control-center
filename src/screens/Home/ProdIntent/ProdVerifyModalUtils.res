@@ -130,7 +130,7 @@ let validateCustom = (key, errors, value) => {
       Dict.set(errors, key->getStringFromVariant, "Please enter valid email id"->JSON.Encode.string)
     }
   | Website =>
-    if !Js.Re.test_(%re("/^https:\/\//i"), value) || value->String.includes("localhost") {
+    if !RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost") {
       Dict.set(errors, key->getStringFromVariant, "Please Enter Valid URL"->JSON.Encode.string)
     }
   | _ => ()
