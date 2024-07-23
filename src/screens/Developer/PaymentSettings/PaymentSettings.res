@@ -224,6 +224,13 @@ module WebHook = {
       }
       None
     }, [webHookURL])
+
+    let updateCustomHttpHeaders = () => {
+      if enableCustomHttpHeaders {
+        form.change("outgoing_webhook_custom_http_headers", JSON.Encode.null)
+      }
+      setCustomHttpHeaders(_ => !enableCustomHttpHeaders)
+    }
     React.useEffect(() => {
       if webHookURL && !outGoingHeaders {
         setCustomHttpHeaders(_ => true)
@@ -254,8 +261,7 @@ module WebHook = {
               boolCustomClass="rounded-lg"
               isSelected=enableCustomHttpHeaders
               size={Large}
-              setIsSelected={_ =>
-                webHookURL ? setCustomHttpHeaders(_ => !enableCustomHttpHeaders) : ()}
+              setIsSelected={_ => webHookURL ? updateCustomHttpHeaders() : ()}
             />
           </div>
         </div>

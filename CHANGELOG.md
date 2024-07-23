@@ -3,6 +3,42 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.22.1
+
+### Bug Fixes
+
+- Password validation ([#817](https://github.com/juspay/hyperswitch-control-center/pull/817)) ([`de53095`](https://github.com/juspay/hyperswitch-control-center/commit/de53095b646b17f452cadeaba455d08b7095f16a))
+- Webhook custom headers ([#1044](https://github.com/juspay/hyperswitch-control-center/pull/1044)) ([`27be1d9`](https://github.com/juspay/hyperswitch-control-center/commit/27be1d9575ddf0e3ba18837a1671953f57d8a009))
+
+**Full Changelog:** [`2024.07.22.0...2024.07.22.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.22.0...2024.07.22.1)
+
+- - -
+
+## 2024.07.22.0
+
+### Features
+
+- Itaubank connector addition ([#1042](https://github.com/juspay/hyperswitch-control-center/pull/1042)) ([`2880ab1`](https://github.com/juspay/hyperswitch-control-center/commit/2880ab1dc482ce9904f23959870e2e49d94d0150))
+
+### Bug Fixes
+
+- Global search empty table fix ([#1030](https://github.com/juspay/hyperswitch-control-center/pull/1030)) ([`fb29fb4`](https://github.com/juspay/hyperswitch-control-center/commit/fb29fb499f89111e6d9998b355a6b46f9fa5e2cb))
+- Custom webhook headers ([#1036](https://github.com/juspay/hyperswitch-control-center/pull/1036)) ([`66e8885`](https://github.com/juspay/hyperswitch-control-center/commit/66e8885593286dcfaeca472a5af7660562dca5c8))
+- Moved delete all sample data from account settings ([#1034](https://github.com/juspay/hyperswitch-control-center/pull/1034)) ([`be4b048`](https://github.com/juspay/hyperswitch-control-center/commit/be4b04817ce107aec49c873a67ec9f2fa0ac2dfb))
+- Global search minor bugs ([#1040](https://github.com/juspay/hyperswitch-control-center/pull/1040)) ([`f74cdfc`](https://github.com/juspay/hyperswitch-control-center/commit/f74cdfc70aeaaa500a894cc39b692bfb5f457e50))
+
+### Refactors
+
+- Uiutils unnecessary component and module can be removed ([#1032](https://github.com/juspay/hyperswitch-control-center/pull/1032)) ([`c40b0d5`](https://github.com/juspay/hyperswitch-control-center/commit/c40b0d5bb21ddd0b14c9aac493590d3a968c1f4d))
+
+### Miscellaneous Tasks
+
+- Payment attempt table sorting ([#1031](https://github.com/juspay/hyperswitch-control-center/pull/1031)) ([`b32d712`](https://github.com/juspay/hyperswitch-control-center/commit/b32d71226f3102f639723ff978e059e556585257))
+
+**Full Changelog:** [`2024.07.21.0...2024.07.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.21.0...2024.07.22.0)
+
+- - -
+
 ## 2024.07.21.0
 
 ### Bug Fixes
