@@ -75,6 +75,7 @@ module RefundInfo = {
 let make = (~id) => {
   open LogicUtils
   open HSwitchOrderUtils
+  let url = RescriptReactRouter.useUrl()
   let getURL = APIUtils.useGetURL()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -126,7 +127,7 @@ let make = (~id) => {
   React.useEffect(() => {
     fetchRefundData()->ignore
     None
-  }, [])
+  }, [url])
 
   let showSyncButton = React.useCallback(_ => {
     let refundDict = refundData->getDictFromJsonObject
