@@ -105,10 +105,9 @@ let allColumns = [ProfileId, ProfileName, Action]
 
 let getHeading = colType => {
   switch colType {
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=true, ())
-  | ProfileName =>
-    Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=true, ())
-  | Action => Table.makeHeaderInfo(~key="action", ~title="Action", ~showSort=false, ())
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ())
+  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ())
+  | Action => Table.makeHeaderInfo(~key="action", ~title="Action", ())
   }
 }
 

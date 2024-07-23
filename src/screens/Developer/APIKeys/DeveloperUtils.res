@@ -92,11 +92,11 @@ let itemToObjMapper = dict => {
 
 let getHeading = colType => {
   switch colType {
-  | Name => Table.makeHeaderInfo(~key="name", ~title="Name", ~showSort=true, ())
+  | Name => Table.makeHeaderInfo(~key="name", ~title="Name", ())
   | Description => Table.makeHeaderInfo(~key="description", ~title="Description", ())
   | Prefix => Table.makeHeaderInfo(~key="key", ~title="API Key Prefix", ())
-  | Created => Table.makeHeaderInfo(~key="created", ~title="Created", ~showSort=true, ())
-  | Expiration => Table.makeHeaderInfo(~key="expiration", ~title="Expiration", ~showSort=true, ())
+  | Created => Table.makeHeaderInfo(~key="created", ~title="Created", ())
+  | Expiration => Table.makeHeaderInfo(~key="expiration", ~title="Expiration", ())
   | CustomCell => Table.makeHeaderInfo(~key="", ~title="", ())
   }
 }

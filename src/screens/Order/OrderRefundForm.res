@@ -121,7 +121,7 @@ let make = (
           className="flex border-b-2 px-2 h-24 items-center border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75">
           <FormRenderer.DesktopRow wrapperClass="ml-2">
             <DisplayKeyValueParams
-              heading={Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true, ())}
+              heading={Table.makeHeaderInfo(~key="amount", ~title="Amount", ())}
               value={getCell(order, Amount)}
               isInHeader=true
             />
@@ -159,12 +159,7 @@ let make = (
             </FormRenderer.DesktopRow>
             <FormRenderer.DesktopRow>
               <DisplayKeyValueParams
-                heading={Table.makeHeaderInfo(
-                  ~key="amount",
-                  ~title="Amount Refunded",
-                  ~showSort=true,
-                  (),
-                )}
+                heading={Table.makeHeaderInfo(~key="amount", ~title="Amount Refunded", ())}
                 value={Currency(amountRefunded.contents /. 100.0, order.currency)}
               />
             </FormRenderer.DesktopRow>
@@ -172,12 +167,7 @@ let make = (
           <div className="flex flex-col w-1/2 gap-2">
             <FormRenderer.DesktopRow>
               <DisplayKeyValueParams
-                heading={Table.makeHeaderInfo(
-                  ~key="amount",
-                  ~title="Pending Requested Amount",
-                  ~showSort=true,
-                  (),
-                )}
+                heading={Table.makeHeaderInfo(~key="amount", ~title="Pending Requested Amount", ())}
                 value={Currency(requestedRefundAmount.contents /. 100.0, order.currency)}
               />
             </FormRenderer.DesktopRow>

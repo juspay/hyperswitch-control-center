@@ -40,11 +40,9 @@ let getObjects: JSON.t => array<errorObject> = json => {
 let getHeading = colType => {
   let key = colType->colMapper
   switch colType {
-  | ErrorReason =>
-    Table.makeHeaderInfo(~key, ~title="Error Reason", ~dataType=TextType, ~showSort=false, ())
-  | Count => Table.makeHeaderInfo(~key, ~title="Count", ~dataType=TextType, ~showSort=false, ())
-  | Percentage =>
-    Table.makeHeaderInfo(~key, ~title="Percentage", ~dataType=TextType, ~showSort=false, ())
+  | ErrorReason => Table.makeHeaderInfo(~key, ~title="Error Reason", ~dataType=TextType, ())
+  | Count => Table.makeHeaderInfo(~key, ~title="Count", ~dataType=TextType, ())
+  | Percentage => Table.makeHeaderInfo(~key, ~title="Percentage", ~dataType=TextType, ())
   }
 }
 

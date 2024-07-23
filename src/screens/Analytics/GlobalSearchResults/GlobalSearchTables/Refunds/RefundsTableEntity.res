@@ -128,83 +128,35 @@ let getHeading = colType => {
   let key = colType->colMapper
   switch colType {
   | InternalReferenceId =>
-    Table.makeHeaderInfo(
-      ~key,
-      ~title="Internal Reference Id ",
-      ~dataType=TextType,
-      ~showSort=false,
-      (),
-    )
-  | RefundId =>
-    Table.makeHeaderInfo(~key, ~title="Refund Id", ~dataType=TextType, ~showSort=false, ())
-  | PaymentId =>
-    Table.makeHeaderInfo(~key, ~title="Payment Id", ~dataType=TextType, ~showSort=false, ())
-  | MerchantId =>
-    Table.makeHeaderInfo(~key, ~title="Merchant Id", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Internal Reference Id ", ~dataType=TextType, ())
+  | RefundId => Table.makeHeaderInfo(~key, ~title="Refund Id", ~dataType=TextType, ())
+  | PaymentId => Table.makeHeaderInfo(~key, ~title="Payment Id", ~dataType=TextType, ())
+  | MerchantId => Table.makeHeaderInfo(~key, ~title="Merchant Id", ~dataType=TextType, ())
   | ConnectorTransactionId =>
-    Table.makeHeaderInfo(
-      ~key,
-      ~title="Connector Transaction Id",
-      ~dataType=TextType,
-      ~showSort=false,
-      (),
-    )
-  | Connector =>
-    Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Connector Transaction Id", ~dataType=TextType, ())
+  | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType, ())
   | ConnectorRefundId =>
-    Table.makeHeaderInfo(
-      ~key,
-      ~title="Connector Refund Id",
-      ~dataType=TextType,
-      ~showSort=false,
-      (),
-    )
+    Table.makeHeaderInfo(~key, ~title="Connector Refund Id", ~dataType=TextType, ())
   | ExternalReferenceId =>
-    Table.makeHeaderInfo(
-      ~key,
-      ~title="External Reference Id",
-      ~dataType=TextType,
-      ~showSort=false,
-      (),
-    )
-  | RefundType =>
-    Table.makeHeaderInfo(~key, ~title="Refund Type", ~dataType=TextType, ~showSort=false, ())
-  | TotalAmount =>
-    Table.makeHeaderInfo(~key, ~title="Total Amount", ~dataType=TextType, ~showSort=false, ())
-  | Currency =>
-    Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType, ~showSort=false, ())
-  | RefundAmount =>
-    Table.makeHeaderInfo(~key, ~title="Refund Amount", ~dataType=TextType, ~showSort=false, ())
-  | Refundstatus =>
-    Table.makeHeaderInfo(~key, ~title="Refund Status", ~dataType=TextType, ~showSort=false, ())
-  | SentToGateway =>
-    Table.makeHeaderInfo(~key, ~title="Sent To Gateway", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="External Reference Id", ~dataType=TextType, ())
+  | RefundType => Table.makeHeaderInfo(~key, ~title="Refund Type", ~dataType=TextType, ())
+  | TotalAmount => Table.makeHeaderInfo(~key, ~title="Total Amount", ~dataType=TextType, ())
+  | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType, ())
+  | RefundAmount => Table.makeHeaderInfo(~key, ~title="Refund Amount", ~dataType=TextType, ())
+  | Refundstatus => Table.makeHeaderInfo(~key, ~title="Refund Status", ~dataType=TextType, ())
+  | SentToGateway => Table.makeHeaderInfo(~key, ~title="Sent To Gateway", ~dataType=TextType, ())
   | RefundErrorMessage =>
-    Table.makeHeaderInfo(
-      ~key,
-      ~title="Refund Error Message",
-      ~dataType=TextType,
-      ~showSort=false,
-      (),
-    )
-  | RefundArn =>
-    Table.makeHeaderInfo(~key, ~title="Refund Arn", ~dataType=TextType, ~showSort=false, ())
-  | CreatedAt =>
-    Table.makeHeaderInfo(~key, ~title="Created At", ~dataType=TextType, ~showSort=false, ())
-  | ModifiedAt =>
-    Table.makeHeaderInfo(~key, ~title="Modified At", ~dataType=TextType, ~showSort=false, ())
-  | Description =>
-    Table.makeHeaderInfo(~key, ~title="Description", ~dataType=TextType, ~showSort=false, ())
-  | AttemptId =>
-    Table.makeHeaderInfo(~key, ~title="Attempt Id", ~dataType=TextType, ~showSort=false, ())
-  | RefundReason =>
-    Table.makeHeaderInfo(~key, ~title="Refund Reason", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Refund Error Message", ~dataType=TextType, ())
+  | RefundArn => Table.makeHeaderInfo(~key, ~title="Refund Arn", ~dataType=TextType, ())
+  | CreatedAt => Table.makeHeaderInfo(~key, ~title="Created At", ~dataType=TextType, ())
+  | ModifiedAt => Table.makeHeaderInfo(~key, ~title="Modified At", ~dataType=TextType, ())
+  | Description => Table.makeHeaderInfo(~key, ~title="Description", ~dataType=TextType, ())
+  | AttemptId => Table.makeHeaderInfo(~key, ~title="Attempt Id", ~dataType=TextType, ())
+  | RefundReason => Table.makeHeaderInfo(~key, ~title="Refund Reason", ~dataType=TextType, ())
   | RefundErrorCode =>
-    Table.makeHeaderInfo(~key, ~title="Refund Error Code", ~dataType=TextType, ~showSort=false, ())
-  | SignFlag =>
-    Table.makeHeaderInfo(~key, ~title="Sign Flag", ~dataType=TextType, ~showSort=false, ())
-  | Timestamp =>
-    Table.makeHeaderInfo(~key, ~title="Timestamp", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Refund Error Code", ~dataType=TextType, ())
+  | SignFlag => Table.makeHeaderInfo(~key, ~title="Sign Flag", ~dataType=TextType, ())
+  | Timestamp => Table.makeHeaderInfo(~key, ~title="Timestamp", ~dataType=TextType, ())
   }
 }
 

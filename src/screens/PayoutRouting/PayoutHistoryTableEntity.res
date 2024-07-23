@@ -36,17 +36,14 @@ let defaultColumns: array<historyColType> = [
 
 let getHeading: historyColType => Table.header = colType => {
   switch colType {
-  | Name => Table.makeHeaderInfo(~key="name", ~title="Name of Control", ~showSort=true, ())
-  | Type => Table.makeHeaderInfo(~key="kind", ~title="Type of Control", ~showSort=true, ())
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile ID", ~showSort=true, ())
-  | ProfileName =>
-    Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=true, ())
-  | Description =>
-    Table.makeHeaderInfo(~key="description", ~title="Description", ~showSort=true, ())
+  | Name => Table.makeHeaderInfo(~key="name", ~title="Name of Control", ())
+  | Type => Table.makeHeaderInfo(~key="kind", ~title="Type of Control", ())
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile ID", ())
+  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ())
+  | Description => Table.makeHeaderInfo(~key="description", ~title="Description", ())
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~dataType=DropDown, ())
-  | Created => Table.makeHeaderInfo(~key="created_at", ~title="Created", ~showSort=true, ())
-  | LastUpdated =>
-    Table.makeHeaderInfo(~key="modified_at", ~title="Last Updated", ~showSort=true, ())
+  | Created => Table.makeHeaderInfo(~key="created_at", ~title="Created", ())
+  | LastUpdated => Table.makeHeaderInfo(~key="modified_at", ~title="Last Updated", ())
   }
 }
 let getTableCell = activeRoutingIds => {

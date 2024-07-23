@@ -267,7 +267,7 @@ module SortAction = {
     ~isLastCol=false,
     ~filterRow: option<filterRow>,
   ) => {
-    if item.showSort || filterRow->Option.isSome {
+    let _ = if item.showSort || filterRow->Option.isSome {
       let order: sortOrder = switch sortedObj {
       | Some(obj: sortedObject) => obj.key === item.key ? obj.order : NONE
       | None => NONE
@@ -291,6 +291,7 @@ module SortAction = {
     } else {
       React.null
     }
+    React.null
   }
 }
 
