@@ -104,10 +104,14 @@ module SampleEmail = {
       </span>
       <div className="border border-gray-400 rounded-md flex flex-row gap-8 p-4 mt-4 bg-gray-200">
         <div className="flex flex-col gap-4 ">
-          <span className="flex gap-1">
-            {"Stripe Account id: <Enter your account id:you can find it"->React.string}
-            <p className="underline text-blue-400 underline-offset-1"> {"here"->React.string} </p>
-            <p> {">"->React.string} </p>
+          <span>
+            {"Stripe Account id: <Enter your account id:you can find it "->React.string}
+            <a
+              className="underline text-blue-400 underline-offset-1"
+              href="https://dashboard.stripe.com/settings/user">
+              {"here"->React.string}
+            </a>
+            <span> {">"->React.string} </span>
           </span>
           <span>
             <p> {"A detailed business description:"->React.string} </p>
