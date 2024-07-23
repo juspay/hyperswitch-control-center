@@ -65,7 +65,7 @@ let make = (
   ~selectedMetrics: LineChartUtils.metricsConfig,
 ) => {
   let {globalUIConfig: {primaryColor}, theme} = React.useContext(ThemeProvider.themeContext)
-  let barChartData = React.useMemo3(() => {
+  let barChartData = React.useMemo(() => {
     LineChartUtils.chartDataMaker(
       ~filterNull=true,
       rawData,
@@ -75,7 +75,7 @@ let make = (
   }, (rawData, groupKey, selectedMetrics.metric_name_db))
   let titleKey = titleKey->Option.getOr(groupKey)
 
-  let barOption: JSON.t = React.useMemo2(() => {
+  let barOption: JSON.t = React.useMemo(() => {
     let colors = {
       let length = barChartData->Array.length->Int.toFloat
       barChartData->Array.mapWithIndex((_data, i) => {

@@ -43,7 +43,7 @@ module ActionButtons = {
         customButtonStyle={` !${borderColor.primaryNormal} bg-white ${textColor.primaryNormal}`}
         onClick={_ => {
           RescriptReactRouter.push(
-            HSwitchGlobalVars.appendDashboardPath(
+            GlobalVars.appendDashboardPath(
               ~url=`/${onRedirectBaseUrl}/${routingTypeName(routeType)}`,
             ),
           )
@@ -59,7 +59,7 @@ module ActionButtons = {
         buttonSize={Small}
         onClick={_ => {
           RescriptReactRouter.push(
-            HSwitchGlobalVars.appendDashboardPath(
+            GlobalVars.appendDashboardPath(
               ~url=`/${onRedirectBaseUrl}/${routingTypeName(routeType)}`,
             ),
           )
@@ -101,7 +101,7 @@ module ActiveSection = {
             </p>
             <Icon name="primary-tag" size=25 className="w-20" />
           </div>
-          <UIUtils.RenderIf condition={profileId->isNonEmptyString}>
+          <RenderIf condition={profileId->isNonEmptyString}>
             <div className="flex gap-2">
               <HelperComponents.BusinessProfileComponent
                 profile_id={profileId} className="text-lightgray_background  opacity-50 text-sm"
@@ -110,7 +110,7 @@ module ActiveSection = {
                 {`: ${profileId}`->React.string}
               </p>
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
         <div className="text-lightgray_background font-medium text-base opacity-50 text-fs-14 ">
           {`${getContent(activeRoutingType).heading} : ${getContent(
@@ -128,13 +128,13 @@ module ActiveSection = {
               switch activeRoutingType {
               | DEFAULTFALLBACK =>
                 RescriptReactRouter.push(
-                  HSwitchGlobalVars.appendDashboardPath(
+                  GlobalVars.appendDashboardPath(
                     ~url=`/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
                   ),
                 )
               | _ =>
                 RescriptReactRouter.push(
-                  HSwitchGlobalVars.appendDashboardPath(
+                  GlobalVars.appendDashboardPath(
                     ~url=`/${onRedirectBaseUrl}/${routingTypeName(
                         activeRoutingType,
                       )}?id=${activeRoutingId}&isActive=true`,

@@ -27,7 +27,7 @@ module Provider = {
 let make = (~children) => {
   let (authStatus, setAuth) = React.useState(_ => CheckingAuthStatus)
   let (authMethods, setAuthMethods) = React.useState(_ => [])
-  let setAuthStatus = React.useCallback1((newAuthStatus: authStatus) => {
+  let setAuthStatus = React.useCallback((newAuthStatus: authStatus) => {
     switch newAuthStatus {
     | LoggedIn(info) =>
       switch info {
@@ -68,11 +68,11 @@ let make = (~children) => {
     }
   }, [setAuth])
 
-  let setAuthStateToLogout = React.useCallback0(() => {
+  let setAuthStateToLogout = React.useCallback(() => {
     setAuth(_ => LoggedOut)
     CommonAuthUtils.clearLocalStorage()
-    CookieStorage.deleteCookie(~cookieName="login_token", ~domain=HSwitchGlobalVars.hostName, ())
-  })
+    CookieStorage.deleteCookie(~cookieName="login_token", ~domain=GlobalVars.hostName, ())
+  }, [])
 
   <Provider
     value={

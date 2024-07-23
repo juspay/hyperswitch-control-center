@@ -18,7 +18,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
     ->Recoil.useRecoilValueFromAtom
     ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let typeString = if isDistribute {
       "volume_split"
     } else {
@@ -28,7 +28,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
     None
   }, [isDistributeInput.value])
 
-  let selectedOptions = React.useMemo1(() => {
+  let selectedOptions = React.useMemo(() => {
     gateWaysInput.value
     ->JSON.Decode.array
     ->Option.getOr([])
@@ -154,9 +154,9 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
   }
   if isExpanded {
     <div className="flex flex-row ml-2">
-      <UIUtils.RenderIf condition={!isFirst}>
+      <RenderIf condition={!isFirst}>
         <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
         <div className="flex flex-wrap gap-4">
           <div className="flex">
@@ -171,6 +171,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
               fixedDropDownDirection=SelectBox.TopRight
               searchable=true
               defaultLeftIcon={FontAwesome("plus")}
+              maxHeight="max-h-full sm:max-h-64"
             />
             <span className="text-lg text-red-500 ml-1"> {React.string("*")} </span>
           </div>
@@ -180,7 +181,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
             <div key className="flex flex-row">
               <div
                 className="w-min flex flex-row items-center justify-around gap-2 h-10 rounded-md  border border-jp-gray-500 dark:border-jp-gray-960
-               text-jp-gray-900 text-opacity-75 hover:text-opacity-100 dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme
+                 hover:text-opacity-100 dark:hover:text-jp-gray-text_darktheme
                dark:hover:text-opacity-75 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 bg-gradient-to-b
                from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 dark:text-jp-gray-text_darktheme
                dark:text-opacity-50 focus:outline-none px-1 ">
@@ -205,7 +206,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
                     removeItem(i)
                   }}
                 />
-                <UIUtils.RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
+                <RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
                   {<>
                     <input
                       className="w-10 text-right outline-none bg-white dark:bg-jp-gray-970 px-1 border border-jp-gray-300 dark:border-jp-gray-850 rounded-md"
@@ -222,13 +223,13 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
                     />
                     <div> {React.string("%")} </div>
                   </>}
-                </UIUtils.RenderIf>
+                </RenderIf>
               </div>
             </div>
           })
           ->React.array}
         </div>
-        <UIUtils.RenderIf condition={selectedOptions->Array.length > 0}>
+        <RenderIf condition={selectedOptions->Array.length > 0}>
           <div
             className="flex flex-col md:flex-row md:items-center gap-4 md:gap-3 lg:gap-4 lg:ml-6">
             <div className={`flex flex-row items-center gap-4 md:gap-1 lg:gap-2`}>
@@ -243,7 +244,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
               <div> {React.string("Distribute")} </div>
             </div>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   } else {

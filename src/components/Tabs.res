@@ -74,7 +74,7 @@ module TabInfo = {
 
     let lineStyle = showBottomBorder ? "bg-black w-full h-0.5 rounded-full" : ""
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       if isSelected && isScrollIntoViewRequired {
         tabRef.current
         ->Nullable.toOption
@@ -173,7 +173,7 @@ let make = (
 
   let renderedTabClassName = renderedTabClassName
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setSelectedIndex(_ => initialIndex)
     None
   }, [initialIndex])
@@ -260,9 +260,9 @@ let make = (
           </div>
         </div>
       </div>
-      <UIUtils.RenderIf condition={!showStickyHeader && showBorder}>
+      <RenderIf condition={!showStickyHeader && showBorder}>
         <div className=bottomBorderClass />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div className=renderedTabClassName>
         <ErrorBoundary key={Int.toString(selectedIndex)}>
           {switch tabs->Array.get(selectedIndex) {

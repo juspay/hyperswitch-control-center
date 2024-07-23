@@ -106,7 +106,7 @@ module SelectPaymentMethods = {
       }
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       initialValues
       ->ConnectorUtils.getConnectorPaymentMethodDetails(
         setPaymentMethods,
@@ -147,7 +147,6 @@ module SelectPaymentMethods = {
         paymentMethodsEnabled
         updateDetails
         setMetaData
-        metaData
         isPayoutFlow=false
       />
     </QuickStartUIUtils.BaseComponent>
@@ -174,10 +173,10 @@ module TestPayment = {
     let sptestPaymentProceed = async (~paymentId as _) => {
       updateTestPaymentEnum()->ignore
     }
-    React.useEffect0(() => {
+    React.useEffect(() => {
       setKey(_ => Date.now()->Float.toString)
       None
-    })
+    }, [])
 
     <QuickStartUIUtils.BaseComponent
       headerText="Preview Checkout page"
@@ -192,7 +191,7 @@ module TestPayment = {
       />}>
       <TestPayment
         initialValues={defaultBusinessProfile->SDKPaymentUtils.initialValueForForm}
-        returnUrl={`${HSwitchGlobalVars.getHostUrlWithBasePath}/stripe-plus-paypal`}
+        returnUrl={`${GlobalVars.getHostUrlWithBasePath}/stripe-plus-paypal`}
         onProceed={sptestPaymentProceed}
         keyValue={key}
         sdkWidth="w-full"

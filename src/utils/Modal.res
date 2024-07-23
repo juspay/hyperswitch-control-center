@@ -40,7 +40,7 @@ module ModalHeading = {
     ~customIcon,
     ~modalHeaderIconSize,
   ) => {
-    let isHyperSwitchDashboard = HSwitchGlobalVars.isHyperSwitchDashboard
+    let isHyperSwitchDashboard = GlobalVars.isHyperSwitchDashboard
     let borderClass = showBorderBottom
       ? "border-b border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75"
       : ""
@@ -154,7 +154,7 @@ module ModalOverlay = {
     let isMobileView = MatchMedia.useMatchMedia("(max-width: 700px)")
     let mobileClass = isMobileView ? "flex flex-col " : ""
     let displayClass = showModal ? "block" : "hidden"
-    let overlayBgStyle = HSwitchGlobalVars.isHyperSwitchDashboard
+    let overlayBgStyle = GlobalVars.isHyperSwitchDashboard
       ? isBackdropBlurReq ? `bg-grey-700 bg-opacity-50` : ""
       : overlayBG
     let backgroundDropStyles = isBackdropBlurReq ? "backdrop-blur-sm" : ""
@@ -258,7 +258,7 @@ let make = (
     }
   }
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if showModal {
       Window.addEventListener("keyup", handleKeyUp)
     } else {

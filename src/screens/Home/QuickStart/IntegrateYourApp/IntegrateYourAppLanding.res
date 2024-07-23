@@ -34,7 +34,7 @@ let make = (~integrateAppValue: integrateApp) => {
         buttonType={Secondary}
         onClick={_ => {
           setDashboardPageState(_ => #HOME)
-          RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
+          RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
         }}
       />
     </div>
@@ -66,7 +66,7 @@ let make = (~integrateAppValue: integrateApp) => {
     setQuickStartPageState(_ => GoLive(LANDING))
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if choiceState === #NotSelected {
       setButtonState(_ => Button.Disabled)
     } else {

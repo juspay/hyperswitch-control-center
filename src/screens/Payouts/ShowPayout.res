@@ -28,7 +28,7 @@ module Attempts = {
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if expand != -1 {
         setExpandedRowIndexArray(_ => [expand])
       }
@@ -109,7 +109,7 @@ module PayoutInfo = {
             className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
-              <UIUtils.RenderIf
+              <RenderIf
                 condition={!(excludeColKeys->Array.includes(colType))} key={Int.toString(i)}>
                 <div className={`flex ${widthClass} items-center`}>
                   <OrderUtils.DisplayKeyValueParams
@@ -121,14 +121,14 @@ module PayoutInfo = {
                     textColor="!font-normal !text-jp-gray-700"
                   />
                 </div>
-              </UIUtils.RenderIf>
+              </RenderIf>
             })
             ->React.array}
           </div>
         </FormRenderer.DesktopRow>
-        <UIUtils.RenderIf condition={children->Option.isSome}>
+        <RenderIf condition={children->Option.isSome}>
           {children->Option.getOr(React.null)}
-        </UIUtils.RenderIf>
+        </RenderIf>
       </OrderUtils.Section>
     }
   }
@@ -166,10 +166,10 @@ let make = (~id) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     fetchPayoutsData()->ignore
     None
-  })
+  }, [])
   <PageLoaderWrapper screenState>
     <div className="flex flex-col overflow-scroll">
       <div className="mb-4 flex justify-between">

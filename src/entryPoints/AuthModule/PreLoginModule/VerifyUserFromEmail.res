@@ -31,9 +31,9 @@ let make = (~onClick) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     open TwoFaUtils
-    open HSwitchGlobalVars
+    open GlobalVars
 
     RescriptReactRouter.replace(appendDashboardPath(~url="/accept_invite_from_email"))
 
@@ -43,7 +43,7 @@ let make = (~onClick) => {
     }
 
     None
-  })
+  }, [])
 
   <EmailVerifyScreen
     errorMessage onClick trasitionMessage="Verifying... You will be redirecting.."

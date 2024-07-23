@@ -45,7 +45,7 @@ module VolumeRoutingView = {
         let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
         showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
+          GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
         )
         setScreenState(_ => Success)
       } catch {
@@ -54,9 +54,7 @@ module VolumeRoutingView = {
         | Some(message) =>
           if message->String.includes("IR_16") {
             showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
-            RescriptReactRouter.replace(
-              HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
-            )
+            RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
             setScreenState(_ => Success)
           } else {
             showToast(
@@ -83,7 +81,7 @@ module VolumeRoutingView = {
         let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
         showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
+          GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
         )
         setScreenState(_ => Success)
       } catch {
@@ -102,7 +100,7 @@ module VolumeRoutingView = {
       }
     }
 
-    let connectorOptions = React.useMemo1(() => {
+    let connectorOptions = React.useMemo(() => {
       connectors
       ->Array.filter(item => item.profile_id === profile)
       ->Array.map((item): SelectBox.dropdownOption => {
@@ -179,7 +177,7 @@ module VolumeRoutingView = {
                 }}
                 customButtonStyle="w-1/5 rounded-sm"
               />
-              <UIUtils.RenderIf condition={!isActive}>
+              <RenderIf condition={!isActive}>
                 <Button
                   text={"Activate Configuration"}
                   buttonType={Primary}
@@ -189,8 +187,8 @@ module VolumeRoutingView = {
                   customButtonStyle="w-1/5 rounded-sm"
                   buttonState={Normal}
                 />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={isActive}>
+              </RenderIf>
+              <RenderIf condition={isActive}>
                 <Button
                   text={"Deactivate Configuration"}
                   buttonType={Primary}
@@ -200,7 +198,7 @@ module VolumeRoutingView = {
                   customButtonStyle="w-1/5 rounded-sm"
                   buttonState=Normal
                 />
-              </UIUtils.RenderIf>
+              </RenderIf>
             </div>
           </div>
         | _ => React.null
@@ -326,7 +324,7 @@ let make = (
       )
       setScreenState(_ => Success)
       if isSaveRule {
-        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/routing"))
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
       }
       Nullable.make(res)
     } catch {
@@ -338,7 +336,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     getDetails()->ignore
     None
   }, [routingRuleId])
@@ -356,7 +354,7 @@ let make = (
             />
           </div>
         </div>
-        <UIUtils.RenderIf condition={formState != CreateConfig}>
+        <RenderIf condition={formState != CreateConfig}>
           <VolumeRoutingView
             setScreenState
             pageState
@@ -372,7 +370,7 @@ let make = (
             connectorList
             baseUrlForRedirection
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <FormValuesSpy />
       </Form>
     </PageLoaderWrapper>

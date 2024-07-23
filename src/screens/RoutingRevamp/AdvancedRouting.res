@@ -17,9 +17,9 @@ module Add3DSCondition = {
 
     if isExpanded {
       <div className="flex flex-row ml-2">
-        <UIUtils.RenderIf condition={!isFirst}>
+        <RenderIf condition={!isFirst}>
           <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
           <div className="flex flex-wrap gap-4 -mt-2">
             <div className=classStyle> {"Auth type"->React.string} </div>
@@ -70,7 +70,7 @@ module AddSurchargeCondition = {
       `${id}.connectorSelection.surcharge_details.surcharge.type`,
     ).input
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       let valueType = switch surchargeTypeInput.value->LogicUtils.getStringFromJson("") {
       | "rate" => "percentage"
       | "fixed" => "amount"
@@ -83,9 +83,9 @@ module AddSurchargeCondition = {
     {
       if isExpanded {
         <div className="flex flex-row ml-2">
-          <UIUtils.RenderIf condition={!isFirst}>
+          <RenderIf condition={!isFirst}>
             <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
             <div className="flex flex-wrap gap-4">
               <div className=classStyle> {"Surcharge is"->React.string} </div>
@@ -228,7 +228,7 @@ module Wrapper = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       name.onChange(heading->String.toLowerCase->titleToSnake->Identity.stringToFormReactEvent)
 
       let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Array.length > 0
@@ -237,7 +237,7 @@ module Wrapper = {
         setIsExpanded(p => !p)
       }
       None
-    })
+    }, [])
 
     let border = isDragging ? "border-dashed" : "border-solid"
     let flex = isExpanded ? "flex-col" : "flex-wrap items-center gap-4"
@@ -246,7 +246,7 @@ module Wrapper = {
       <div
         className={`flex flex-row gap-3 md:gap-10 items-center justify-end
         ${isMobileView ? "" : "w-1/3 mr-6"}`}>
-        <UIUtils.RenderIf condition={notFirstRule}>
+        <RenderIf condition={notFirstRule}>
           <div
             onMouseEnter={_ => setDragBtnHover(_ => !isMobileView)}
             onMouseLeave={_ => setDragBtnHover(_ => false)}
@@ -254,11 +254,11 @@ module Wrapper = {
                 ? "py-1"
                 : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
             <Icon name="grip-vertical" className="text-jp-gray-700" size=14 />
-            <UIUtils.RenderIf condition={dragBtnHover}>
+            <RenderIf condition={dragBtnHover}>
               <div className="text-sm "> {React.string("Drag Rule")} </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div
           onClick=onClickAdd
           onMouseEnter={_ => setAddBtnHover(_ => !isMobileView)}
@@ -267,9 +267,9 @@ module Wrapper = {
               ? "py-1"
               : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
           <Icon name="plus" className="text-jp-gray-700" size=12 />
-          <UIUtils.RenderIf condition={addBtnHover}>
+          <RenderIf condition={addBtnHover}>
             <div className="text-sm "> {React.string("Add New Rule")} </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
         {switch onClickCopy {
         | Some(onClick) =>
@@ -281,13 +281,13 @@ module Wrapper = {
                 ? "py-1"
                 : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
             <Icon name="copy" className="text-jp-gray-700" size=12 />
-            <UIUtils.RenderIf condition={copyBtnHover}>
+            <RenderIf condition={copyBtnHover}>
               <div className="text-sm "> {React.string("Copy Rule")} </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         | None => React.null
         }}
-        <UIUtils.RenderIf condition={notFirstRule}>
+        <RenderIf condition={notFirstRule}>
           <div
             onClick=onClickRemove
             onMouseEnter={_ => setDeleteBtnHover(_ => !isMobileView)}
@@ -296,18 +296,18 @@ module Wrapper = {
                 ? "py-1"
                 : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
             <Icon name="trash" className="text-jp-gray-700" size=12 />
-            <UIUtils.RenderIf condition={deleteBtnHover}>
+            <RenderIf condition={deleteBtnHover}>
               <div className="text-sm "> {React.string("Delete Rule")} </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
 
     <div className="flex flex-col">
       <div className={`flex flex-row tems-center justify-between z-10 -mt-6 mx-2`}>
-        <UIUtils.RenderIf condition={!isMobileView}>
+        <RenderIf condition={!isMobileView}>
           <div className="hidden lg:flex w-1/3" />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div
           onClick={handleClickExpand}
           className={`cursor-pointer flex flex-row gap-2 items-center justify-between p-2 bg-blue-100 dark:bg-jp-gray-970 rounded-full border ${borderColor.primaryNormal} dark:${borderColor.primaryNormal}`}>
@@ -323,20 +323,20 @@ module Wrapper = {
             p-4 py-6 bg-gray-50 dark:bg-jp-gray-lightgray_background rounded-md border 
             ${border} 
             ${borderColor.primaryNormal}`}>
-        <UIUtils.RenderIf condition={!isFirst}>
+        <RenderIf condition={!isFirst}>
           <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds isFromSurcharge />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!isFrom3ds && !isFromSurcharge}>
+        </RenderIf>
+        <RenderIf condition={!isFrom3ds && !isFromSurcharge}>
           <AddRuleGateway id gatewayOptions isExpanded isFirst />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={isFrom3ds}>
+        </RenderIf>
+        <RenderIf condition={isFrom3ds}>
           <Add3DSCondition isFirst id isExpanded threeDsType />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={isFromSurcharge}>
+        </RenderIf>
+        <RenderIf condition={isFromSurcharge}>
           <AddSurchargeCondition
             isFirst id isExpanded surchargeType surchargeTypeValue surchargePercentage
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -357,7 +357,7 @@ module RuleBasedUI = {
     let ruleInput = ReactFinalForm.useField(rulesJsonPath).input
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       ruleInput.onChange(rules->Identity.arrayOfGenericTypeToFormReactEvent)
       None
     }, [rules])
@@ -383,9 +383,23 @@ module RuleBasedUI = {
         `}>
         <div>
           <div className="font-bold"> {React.string("Rule Based Configuration")} </div>
-          <div className="w-full text-jp-gray-700 dark:text-jp-gray-700 text-justify">
-            {"Rule Based Configuration is useful when you prefer more granular definition of smart routing logic, based on multiple dimensions involved in a payment. Any number of conditions could be constructed with dimensions and logical operators.
-For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% to Adyen."->React.string}
+          <div className="flex flex-col gap-4">
+            <span className="w-full text-jp-gray-700 dark:text-jp-gray-700 text-justify">
+              {"Rule-Based Configuration allows for detailed smart routing logic based on multiple dimensions of a payment. You can create any number of conditions using various dimensions and logical operators."->React.string}
+            </span>
+            <span className="flex flex-col text-jp-gray-700">
+              {"For example:"->React.string}
+              <p className="flex gap-2 items-center">
+                <div className="p-1 h-fit rounded-full bg-jp-gray-700 ml-2" />
+                {"If card_type = credit && amount > 100, route 60% to Stripe and 40% to Adyen."->React.string}
+              </p>
+            </span>
+            <span className="text-jp-gray-700 text-sm">
+              <i>
+                {"Ensure to enter the payment amount in the smallest currency unit (e.g., cents for USD, yen for JPY). 
+            For instance, pass 100 to charge $1.00 (USD) and ¥100 (JPY) since ¥ is a zero-decimal currency."->React.string}
+              </i>
+            </span>
           </div>
         </div>
       </div>
@@ -442,7 +456,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
           onClick={_ => {
             setCurrentRouting(_ => RoutingTypes.DEFAULTFALLBACK)
             RescriptReactRouter.replace(
-              HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}/default`),
+              GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}/default`),
             )
           }}>
           {"here"->React.string}
@@ -515,7 +529,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let fetchDetails = async () => {
       try {
         setScreenState(_ => Loading)
@@ -628,9 +642,7 @@ let make = (
       )
       let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
       showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
-      RescriptReactRouter.replace(
-        HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
-      )
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -638,9 +650,7 @@ let make = (
       | Some(message) =>
         if message->String.includes("IR_16") {
           showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
-          RescriptReactRouter.replace(
-            HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
-          )
+          RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
           setScreenState(_ => Success)
         } else {
           showToast(
@@ -657,6 +667,7 @@ let make = (
   let handleDeactivateConfiguration = async _ => {
     try {
       setScreenState(_ => Loading)
+
       let deactivateRoutingURL = `${getURL(
           ~entityName=urlEntityName,
           ~methodType=Post,
@@ -665,9 +676,7 @@ let make = (
       let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
       let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
       showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
-      RescriptReactRouter.replace(
-        HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
-      )
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -740,9 +749,7 @@ let make = (
       setScreenState(_ => Success)
       setShowModal(_ => false)
       if isSaveRule {
-        RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
-        )
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
       }
       Nullable.make(response)
     } catch {
@@ -760,7 +767,7 @@ let make = (
   | _ => RoutingTypes.PaymentConnector
   }
 
-  let connectorOptions = React.useMemo2(() => {
+  let connectorOptions = React.useMemo(() => {
     connectors
     ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
     ->Array.filter(item => item.profile_id === profile)
@@ -785,7 +792,7 @@ let make = (
                   profile
                   setProfile
                 />
-                <UIUtils.RenderIf condition={formState != CreateConfig}>
+                <RenderIf condition={formState != CreateConfig}>
                   <div className="mb-5">
                     <RuleBasedUI
                       gatewayOptions=connectorOptions
@@ -798,7 +805,7 @@ let make = (
                     {switch pageState {
                     | Preview =>
                       <div className="flex flex-col md:flex-row gap-4 my-5">
-                        <UIUtils.RenderIf condition={!isActive}>
+                        <RenderIf condition={!isActive}>
                           <Button
                             text={"Activate Configuration"}
                             buttonType={Primary}
@@ -808,8 +815,8 @@ let make = (
                             customButtonStyle="w-1/5 rounded-sm"
                             buttonState=Normal
                           />
-                        </UIUtils.RenderIf>
-                        <UIUtils.RenderIf condition={isActive}>
+                        </RenderIf>
+                        <RenderIf condition={isActive}>
                           <Button
                             text={"Deactivate Configuration"}
                             buttonType={Primary}
@@ -819,13 +826,13 @@ let make = (
                             customButtonStyle="w-1/5 rounded-sm"
                             buttonState=Normal
                           />
-                        </UIUtils.RenderIf>
+                        </RenderIf>
                       </div>
                     | Create => <RoutingUtils.ConfigureRuleButton setShowModal />
                     | _ => React.null
                     }}
                   </div>
-                </UIUtils.RenderIf>
+                </RenderIf>
                 <CustomModal.RoutingCustomModal
                   showModal
                   setShowModal

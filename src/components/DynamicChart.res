@@ -162,6 +162,7 @@ type entity = {
   chartDescription?: string,
   sortingColumnLegend?: string,
   jsonTransformer?: (string, array<JSON.t>) => array<JSON.t>,
+  disableGranularity?: bool,
 }
 
 let chartMapper = str => {
@@ -205,6 +206,7 @@ let makeEntity = (
   ~chartDescription: option<string>=?,
   ~sortingColumnLegend: option<string>=?,
   ~jsonTransformer: option<(string, array<JSON.t>) => array<JSON.t>>=?,
+  ~disableGranularity=?,
   (),
 ) => {
   let granularity = granularity->Array.length === 0 ? [G_ONEDAY] : granularity
@@ -228,12 +230,13 @@ let makeEntity = (
     ?chartDescription,
     ?sortingColumnLegend,
     ?jsonTransformer,
+    ?disableGranularity,
   }
 }
 
 let useChartFetch = (~setStatusDict) => {
   let fetchApi = AuthHooks.useApiFetcher()
-  let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetch()
+  let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
   let fetchChartData = (updatedChartBody: array<fetchDataConfig>, setState) => {
     open Promise
 
@@ -405,6 +408,7 @@ let make = (
   ~legendType: HighchartTimeSeriesChart.legendType=Table,
   ~comparitionWidget=false,
 ) => {
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let updateChartCompFilters = switch updateUrl {
   | Some(fn) => fn
@@ -428,7 +432,7 @@ let make = (
     ->Dict.fromArray
 
   // with prefix only for charts
-  let getChartCompFilters = React.useMemo1(() => {
+  let getChartCompFilters = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
@@ -450,7 +454,7 @@ let make = (
   }, [getAllFilter])
 
   // without prefix only for charts
-  let getTopLevelFilter = React.useMemo1(() => {
+  let getTopLevelFilter = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
@@ -486,7 +490,7 @@ let make = (
 
   let (currentTopMatrix, currentBottomMetrix) = currentMetrics
   // if we won't see anything in the url then we will update the url
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let cardinality = getChartCompFilters->getString("cardinality", "TOP_5")
     let chartType =
       getChartCompFilters->getString(
@@ -529,7 +533,7 @@ let make = (
 
     updateChartCompFilters(dict)
     None
-  })
+  }, [])
 
   let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
   let (rawChartData, setRawChartData) = React.useState(_ => None)
@@ -544,7 +548,7 @@ let make = (
 
   let allFilterKeys = Array.concat(defaultFilters, allFilterDimension)
 
-  let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
+  let (topFiltersToSearchParam, customFilter) = React.useMemo(() => {
     let filterSearchParam =
       getTopLevelFilter
       ->Dict.toArray
@@ -574,10 +578,10 @@ let make = (
   let (statusDict, setStatusDict) = React.useState(_ => Dict.make())
   let fetchChartData = useChartFetch(~setStatusDict)
 
-  let startTimeFromUrl = React.useMemo1(() => {
+  let startTimeFromUrl = React.useMemo(() => {
     getTopLevelFilter->getString(startTimeFilterKey, "")
   }, [topFiltersToSearchParam])
-  let endTimeFromUrl = React.useMemo1(() => {
+  let endTimeFromUrl = React.useMemo(() => {
     getTopLevelFilter->getString(endTimeFilterKey, "")
   }, [topFiltersToSearchParam])
 
@@ -591,7 +595,7 @@ let make = (
 
   let (selectedGranularity, setSelectedGranularity) = React.useState(_ => defaultGranularity)
 
-  let topFiltersToSearchParam = React.useMemo1(() => {
+  let topFiltersToSearchParam = React.useMemo(() => {
     let filterSearchParam =
       getTopLevelFilter
       ->Dict.toArray
@@ -609,13 +613,13 @@ let make = (
     filterSearchParam
   }, [topFiltersToSearchParam])
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     setSelectedGranularity(_ => defaultGranularity)
     None
   }, (startTimeFromUrl, endTimeFromUrl))
   let selectedTabStr = selectedTab->Option.getOr([])->Array.joinWithUnsafe("")
 
-  let updatedChartConfigArr = React.useMemo7(() => {
+  let updatedChartConfigArr = React.useMemo(() => {
     uriConfig->Array.map(item => {
       let filterKeys =
         item.filterKeys->Array.filter(item => allFilterDimension->Array.includes(item))
@@ -630,6 +634,11 @@ let make = (
         )
         ->Dict.fromArray
 
+      let granularityOpts =
+        entity.disableGranularity->Option.getOr(false)
+          ? None
+          : selectedGranularity->getGranularityString->Some
+
       {
         uri: item.uri,
         metrics: item.metrics,
@@ -637,7 +646,7 @@ let make = (
         start_time: startTimeFromUrl,
         end_time: endTimeFromUrl,
         filters: Some(JSON.Encode.object(filterValue)),
-        granularityOpts: selectedGranularity->getGranularityString->Some,
+        granularityOpts,
         delta: false,
         startDateTime: startTimeFromUrl,
         cardinality: Some(cardinalityFromUrl),
@@ -657,7 +666,7 @@ let make = (
     selectedGranularity,
   ))
 
-  let updatedChartBody = React.useMemo1(() => {
+  let updatedChartBody = React.useMemo(() => {
     uriConfig->Belt.Array.keepMap(item => {
       switch updatedChartConfigArr->Array.find(config => config.uri === item.uri) {
       | Some(chartconfig) => {
@@ -683,7 +692,7 @@ let make = (
     })
   }, [updatedChartConfigArr])
 
-  let (groupKeyFromTab, titleKey) = React.useMemo1(() => {
+  let (groupKeyFromTab, titleKey) = React.useMemo(() => {
     switch (tabTitleMapper, selectedTab) {
     | (Some(dict), Some(arr)) => {
         let groupKey = arr->Array.get(0)->Option.getOr("")
@@ -788,7 +797,7 @@ let make = (
   let chartTypeFromUrl = getChartCompFilters->getString("chartType", "Line chart")
   let chartTopMetricFromUrl = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if startTimeFromUrl->isNonEmptyString && endTimeFilterKey->isNonEmptyString {
       setChartLoading(_ => enableLoaders)
       fetchChartData(updatedChartBody, setRawChartData)
@@ -812,14 +821,16 @@ let make = (
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else if comparitionWidget {
                   <div>
-                    <div className="w-full flex justify-end p-2">
-                      <GranularitySelectBox
-                        selectedGranularity
-                        setSelectedGranularity
-                        startTime={startTimeFromUrl}
-                        endTime={endTimeFromUrl}
-                      />
-                    </div>
+                    <RenderIf condition={featureFlagDetails.granularity}>
+                      <div className="w-full flex justify-end p-2">
+                        <GranularitySelectBox
+                          selectedGranularity
+                          setSelectedGranularity
+                          startTime={startTimeFromUrl}
+                          endTime={endTimeFromUrl}
+                        />
+                      </div>
+                    </RenderIf>
                     {entityAllMetrics
                     ->Array.mapWithIndex((selectedMetrics, index) => {
                       switch uriConfig->Array.get(0) {

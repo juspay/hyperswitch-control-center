@@ -3,7 +3,7 @@ let make = (~authType, ~setAuthType) => {
   open BasicAuthUtils
   open APIUtils
   open CommonAuthForm
-  open HSwitchGlobalVars
+  open GlobalVars
   open LogicUtils
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let getURL = useGetURL()
@@ -208,19 +208,19 @@ let make = (~authType, ~setAuthType) => {
   let validateKeys = switch authType {
   | ForgetPassword
   | ResendVerifyEmail
-  | SignUP
   | LoginWithEmail => ["email"]
+  | SignUP => ["email", "password"]
   | LoginWithPassword => ["email", "password"]
   | ResetPassword => ["create_password", "comfirm_password"]
   | _ => []
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if url.hash === "playground" {
       openPlayground()
     }
     None
-  })
+  }, [])
   let note = CommonAuthHooks.useNote(authType, setAuthType, featureFlagValues.email)
   <ReactFinalForm.Form
     key="auth"
@@ -237,9 +237,9 @@ let make = (~authType, ~setAuthType) => {
           {switch authType {
           | LoginWithPassword => <EmailPasswordForm setAuthType />
           | ForgetPassword =>
-            <UIUtils.RenderIf condition={featureFlagValues.email}>
+            <RenderIf condition={featureFlagValues.email}>
               <EmailForm />
-            </UIUtils.RenderIf>
+            </RenderIf>
           | LoginWithEmail
           | ResendVerifyEmail
           | SignUP =>

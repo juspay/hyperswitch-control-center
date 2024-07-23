@@ -217,23 +217,23 @@ module FieldWrapper = {
       <div className={fieldWrapperClass}>
         {<>
           <div className="flex items-center">
-            <UIUtils.RenderIf condition=showLabel>
+            <RenderIf condition=showLabel>
               <AddDataAttributes attributes=[("data-form-label", label)]>
                 <label className={`${labelPadding} ${labelTextClass} ${labelClass}`}>
                   {React.string(label)}
-                  <UIUtils.RenderIf condition=isRequired>
+                  <RenderIf condition=isRequired>
                     <span className="text-red-950"> {React.string(" *")} </span>
-                  </UIUtils.RenderIf>
+                  </RenderIf>
                 </label>
               </AddDataAttributes>
-            </UIUtils.RenderIf>
+            </RenderIf>
             {switch description {
             | Some(description) =>
-              <UIUtils.RenderIf condition={description->LogicUtils.isNonEmptyString}>
+              <RenderIf condition={description->LogicUtils.isNonEmptyString}>
                 <div className="text-sm text-gray-500 mx-2">
                   <ToolTip description toolTipPosition />
                 </div>
-              </UIUtils.RenderIf>
+              </RenderIf>
             | None => React.null
             }}
             {switch descriptionComponent {
@@ -526,7 +526,7 @@ module FormError = {
       JSON.Encode.object(subscriptionDict)
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       let unsubscribe = form.subscribe(formState => {
         setSubmitErrors(_ => formState.submitErrors->Nullable.toOption)
 
@@ -534,7 +534,7 @@ module FormError = {
       }, subscriptionJson)
 
       Some(unsubscribe)
-    })
+    }, [])
     switch submitErrors {
     | Some(errorsJson) =>
       switch errorsJson->JSON.Decode.object {
@@ -617,7 +617,7 @@ module SubmitButton = {
 
     let showPopUp = PopUpState.useShowPopUp()
     let (avoidDisable, setAvoidDisable) = React.useState(_ => userInteractionRequired)
-    React.useEffect0(() => {
+    React.useEffect(() => {
       let onClick = {
         _ev => {
           setAvoidDisable(_ => false)
@@ -629,7 +629,7 @@ module SubmitButton = {
           Window.removeEventListener("click", onClick)
         },
       )
-    })
+    }, [])
     let form = ReactFinalForm.useForm()
     let openPopUp = (confirmType, confirmText, buttonText, cancelButtonText, popUpType) => {
       showPopUp({

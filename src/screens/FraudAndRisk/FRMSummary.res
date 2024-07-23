@@ -65,6 +65,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
   let url = RescriptReactRouter.useUrl()
 
   let showToast = ToastState.useShowToast()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let frmInfo = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
   let isfrmDisabled = initialValues->getDictFromJsonObject->getBool("disabled", false)
 
@@ -80,7 +81,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
       let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ~id=Some(frmID), ())
       let _ = await updateDetails(url, disableFRMPayload->JSON.Encode.object, Post, ())
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
-      RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/fraud-risk-management"))
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/fraud-risk-management"))
     } catch {
     | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
     }
@@ -113,9 +114,8 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
       | _ =>
         <Button
           onClick={_ => {
-            RescriptReactRouter.push(
-              HSwitchGlobalVars.appendDashboardPath(~url="/fraud-risk-management"),
-            )
+            mixpanelEvent(~eventName="frm_step3", ())
+            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/fraud-risk-management"))
           }}
           text="Done"
           buttonType={Primary}
@@ -127,9 +127,9 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
         <h4 className="text-lg font-semibold"> {"Profile id"->React.string} </h4>
         <div> {frmInfo.profile_id->React.string} </div>
       </div>
-      <UIUtils.RenderIf condition={frmConfigs->Array.length > 0}>
+      <RenderIf condition={frmConfigs->Array.length > 0}>
         <ConfigInfo frmConfigs />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   </div>
 }

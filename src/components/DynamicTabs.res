@@ -59,7 +59,7 @@ module TabInfo = {
     } else {
       "text-jp-gray-700 dark:text-jp-gray-tabset_gray dark:text-opacity-75  hover:text-jp-gray-800 dark:hover:text-opacity-100 font-medium"
     }
-    let handleClick = React.useCallback2(_ev => {
+    let handleClick = React.useCallback(_ev => {
       handleSelectedTab(
         ~tabValue={
           switch tabNames->Array.get(index) {
@@ -76,7 +76,7 @@ module TabInfo = {
     let borderClass = ""
 
     let lineStyle = "bg-black w-full h-0.5 rounded-full"
-    open UIUtils
+
     let crossIcon = switch isRemovable {
     | true =>
       <svg
@@ -169,7 +169,6 @@ module TabInfo = {
 module IndicationArrow = {
   @react.component
   let make = (~iconName, ~side, ~refElement: React.ref<Js.nullable<Dom.element>>, ~isVisible) => {
-    open UIUtils
     let isMobileView = MatchMedia.useMobileChecker()
     let onClick = {
       _ev =>
@@ -262,7 +261,7 @@ let make = (
 
   let (selectedIndex, setSelectedIndex) = React.useState(_ => 0)
 
-  let (initialIndex, updatedCollapsableTabs) = React.useMemo1(() => {
+  let (initialIndex, updatedCollapsableTabs) = React.useMemo(() => {
     let defautTabValues = defaultTabs->Array.map(item => item.value)
     let collapsibleTabs = switch getConfig(availableTabUserPrefKey) {
     | Some(jsonVal) => {
@@ -365,18 +364,18 @@ let make = (
   let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
   let (formattedOptions, setFormattedOptions) = React.useState(_ => [])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setSelectedIndex(_ => initialIndex)
     None
   }, [initialIndex])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setCollapsibleTabs(_ => updatedCollapsableTabs)
     None
   }, [updatedCollapsableTabs])
 
   // this will update the current available tabs to the userpreference
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let collapsibleTabsValues =
       collapsibleTabs
       ->Array.map(item => {
@@ -490,7 +489,7 @@ let make = (
     setShowModal(_ => false)
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let options =
       tabs
       ->Array.filter(tab => !(tab.value->String.split(",")->Array.length > 1))
@@ -526,11 +525,11 @@ let make = (
   <div className={isMobileView ? `sticky top-0 z-15 ${bgClass}` : ""}>
     <ErrorBoundary>
       <div className="py-0 flex flex-row">
-        <UIUtils.RenderIf condition={!isMobileView}>
+        <RenderIf condition={!isMobileView}>
           <IndicationArrow
             iconName="caret-left" side="left" refElement=firstTabRef isVisible=isLeftArrowVisible
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div
           className={`overflow-x-auto no-scrollbar overflow-y-hidden ${outerAllignmentClass}`}
           ref={scrollRef->ReactDOM.Ref.domRef}
@@ -578,15 +577,15 @@ let make = (
           </div>
         </div>
         <div className="flex flex-row">
-          <UIUtils.RenderIf condition={!isMobileView}>
+          <RenderIf condition={!isMobileView}>
             <IndicationArrow
               iconName="caret-right"
               side="right"
               refElement=lastTabRef
               isVisible=isRightArrowVisible
             />
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={showAddMoreTabs && formattedOptions->Array.length > 0}>
+          </RenderIf>
+          <RenderIf condition={showAddMoreTabs && formattedOptions->Array.length > 0}>
             <div
               className="flex flex-row"
               style={ReactDOMStyle.make(~marginTop="20px", ~marginLeft="7px", ())}>
@@ -604,7 +603,7 @@ let make = (
                 tooltipWidthClass="w-fit"
               />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       </div>
       <SelectModal

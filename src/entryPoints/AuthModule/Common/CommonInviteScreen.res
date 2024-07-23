@@ -6,7 +6,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
   let textHeadingClass = getTextClass((H2, Optional))
   let textSubHeadingClass = getTextClass((P1, Regular))
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let isAtleastOneAccept = React.useMemo1(() => {
+  let isAtleastOneAccept = React.useMemo(() => {
     merchantData
     ->Array.find(ele => {
       let merchantDataDict = ele->getDictFromJsonObject
@@ -50,20 +50,20 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
                   </span>
                 </div>
               </div>
-              <UIUtils.RenderIf condition={!isActive}>
+              <RenderIf condition={!isActive}>
                 <Button
                   text="Accept"
                   buttonType={PrimaryOutline}
                   customButtonStyle="!p-2"
                   onClick={_ => acceptInviteOnClick(index)}
                 />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={isActive}>
+              </RenderIf>
+              <RenderIf condition={isActive}>
                 <div className="flex items-center gap-1 text-green-accepted_green_800">
                   <Icon name="green-tick-without-background" />
                   {"Accepted"->React.string}
                 </div>
-              </UIUtils.RenderIf>
+              </RenderIf>
             </div>
           })
           ->React.array}

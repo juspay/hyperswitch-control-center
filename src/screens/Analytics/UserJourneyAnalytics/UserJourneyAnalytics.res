@@ -41,10 +41,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getUserJourneysData()->ignore
     None
-  })
+  }, [])
 
   let tabKeys = getStringListFromArrayDict(dimensions)
 
@@ -87,7 +87,7 @@ let make = () => {
         startTimeFilterKey
         endTimeFilterKey
         initialFilters=initialFilterFields
-        initialFixedFilters=initialFixedFilterFields
+        initialFixedFilters=fixedFilterFields
       />
     </PageLoaderWrapper>
   </div>

@@ -16,7 +16,7 @@ let make = (~isPayoutFlow=false) => {
   )
   let {updateExistingKeys, reset, filterValueJson} = FilterContext.filterContext->React.useContext
   let (offset, setOffset) = React.useState(_ => 0)
-  let allFilters: PaymentMethodConfigTypes.paymentMethodConfigFilters = React.useMemo1(() => {
+  let allFilters: PaymentMethodConfigTypes.paymentMethodConfigFilters = React.useMemo(() => {
     filterValueJson->pmtConfigFilter
   }, [filterValueJson])
   let getConnectorListAndUpdateState = async () => {
@@ -34,7 +34,7 @@ let make = (~isPayoutFlow=false) => {
     }
   }
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     getConnectorListAndUpdateState()->ignore
     None
   }, (isPayoutFlow, filterValueJson))
@@ -44,7 +44,7 @@ let make = (~isPayoutFlow=false) => {
     setFiltersConnectors(_ => res)
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let {connectorId, profileId, paymentMethod, paymentMethodType} = allFilters
     if (
       connectorId->Option.isSome ||

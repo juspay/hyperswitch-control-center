@@ -109,6 +109,8 @@ type order = {
   profile_id: string,
   disputes: array<DisputeTypes.disputes>,
   attempts: array<attempts>,
+  merchant_order_reference_id: string,
+  attempt_count: int,
 }
 
 type refundsColType =
@@ -205,6 +207,8 @@ type colType =
   | ErrorMessage
   | Metadata
   | CardNetwork
+  | MerchantOrderReferenceId
+  | AttemptCount
 
 type summaryColType =
   | Created
@@ -265,6 +269,7 @@ type otherDetailsColType =
   | FRMName
   | FRMTransactionType
   | FRMStatus
+  | MerchantOrderReferenceId
 
 type optionObj = {
   urlKey: string,

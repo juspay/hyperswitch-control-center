@@ -91,7 +91,7 @@ let make = () => {
     defaultBusinessProfile->SDKPaymentUtils.initialValueForForm
   )
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let paymentIntentOptional = filtersFromUrl->Dict.get("payment_intent_client_secret")
     if paymentIntentOptional->Option.isSome {
       setIsSDKOpen(_ => true)
@@ -99,7 +99,7 @@ let make = () => {
     None
   }, [filtersFromUrl])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setInitialValues(_ => defaultBusinessProfile->SDKPaymentUtils.initialValueForForm)
     None
   }, [defaultBusinessProfile.profile_id->String.length])
@@ -107,7 +107,7 @@ let make = () => {
   let onProceed = async (~paymentId) => {
     switch paymentId {
     | Some(val) =>
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url=`/payments/${val}`))
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/payments/${val}`))
     | None => ()
     }
   }
@@ -116,7 +116,7 @@ let make = () => {
     setKey(_ => Date.now()->Float.toString)
     setInitialValues(_ => values->SDKPaymentUtils.getTypedValueForPayment)
     setIsSDKOpen(_ => true)
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/sdk"))
+    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/sdk"))
     Nullable.null->Promise.resolve
   }
 
@@ -147,7 +147,7 @@ let make = () => {
           <div className="p-7 h-full bg-sidebar-blue">
             <TestPayment
               key
-              returnUrl={`${HSwitchGlobalVars.getHostUrlWithBasePath}/sdk`}
+              returnUrl={`${GlobalVars.getHostUrlWithBasePath}/sdk`}
               onProceed
               sdkWidth="!w-[100%]"
               isTestCredsNeeded=false

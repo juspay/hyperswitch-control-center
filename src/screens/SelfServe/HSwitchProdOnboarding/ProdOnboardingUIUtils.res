@@ -71,7 +71,7 @@ module SetupWebhookProcessor = {
 
     <div className="flex flex-col gap-8">
       // TODO To pick up when Product Team will give all the Docs
-      // <UIUtils.RenderIf condition={connectorName->isNonEmptyString}>
+      // <RenderIf condition={connectorName->isNonEmptyString}>
       //   <p
       //     className={`${highlightedText} underline`}
       //     onClick={_ => {
@@ -79,7 +79,7 @@ module SetupWebhookProcessor = {
       //     }}>
       //     {`View Steps to Setup Webhooks on ${connectorName}`->React.string}
       //   </p>
-      // </UIUtils.RenderIf>
+      // </RenderIf>
       <div
         className="grid grid-cols-1 lg:grid-cols-2 bg-jp-gray-light_gray_bg p-10 items-center gap-6">
         <div className="flex flex-col gap-2 col-span-1">
@@ -133,11 +133,11 @@ module BasicAccountSetupSuccessfulPage = {
       <div className={`p-4 h-5/6 ${bgColor} flex flex-col justify-center items-center gap-8`}>
         <Icon name=iconName size=120 />
         <p className=headerTextStyle> {statusText->React.string} </p>
-        <UIUtils.RenderIf condition={statusText == "Payment Failed"}>
+        <RenderIf condition={statusText == "Payment Failed"}>
           <p className="text-center"> {errorMessage->React.string} </p>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
-      <UIUtils.RenderIf condition={isButtonVisible}>
+      <RenderIf condition={isButtonVisible}>
         <Button
           text=buttonText
           buttonSize={Small}
@@ -146,7 +146,7 @@ module BasicAccountSetupSuccessfulPage = {
           onClick={_ => buttonOnClick()}
           buttonState
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }

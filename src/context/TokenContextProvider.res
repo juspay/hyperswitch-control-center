@@ -29,7 +29,7 @@ let make = (~children) => {
   let (token, setToken) = React.useState(_ => currentToken)
   let (tokenDetailsDict, setTokenDetailsDict) = React.useState(_ => Dict.make())
 
-  let tokenContextObjext = React.useMemo4(() => {
+  let tokenContextObjext = React.useMemo(() => {
     let parentAuthInfo = Some(
       BasicAuthUtils.getBasicAuthInfo(
         tokenDetailsDict->LogicUtils.getJsonObjectFromDict("tokenDict"),

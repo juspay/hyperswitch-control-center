@@ -259,10 +259,10 @@ module DisputesInfoBarComponent = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       retrieveEvidence()->ignore
       None
-    })
+    }, [])
 
     <PageLoaderWrapper screenState>
       <div
@@ -414,7 +414,7 @@ let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) =>
   }
 
   <div className="flex gap-2">
-    <UIUtils.RenderIf
+    <RenderIf
       condition={existsInArray(
         connector->getConnectorNameTypeFromString(),
         connectorsSupportAcceptDispute,
@@ -426,7 +426,7 @@ let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) =>
         customButtonStyle="!py-3 !px-2.5"
         onClick={_ => handlePopupOpen()}
       />
-    </UIUtils.RenderIf>
+    </RenderIf>
     <Button
       buttonType={Primary}
       text="Counter Dispute"

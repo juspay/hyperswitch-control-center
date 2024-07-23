@@ -6,7 +6,7 @@ type functionType = (
 ) => unit
 
 let useSendEvent = () => {
-  open HSwitchGlobalVars
+  open GlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
   let {email: authInfoEmail, merchant_id, name} =
@@ -25,20 +25,38 @@ let useSendEvent = () => {
   let {clientCountry} = HSwitchUtils.getBrowswerDetails()
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
 
-  let environment = switch HSwitchGlobalVars.hostType {
+  let environment = switch GlobalVars.hostType {
   | Live => "production"
   | Sandbox => "sandbox"
   | Netlify => "netlify"
   | Local => "localhost"
   }
 
-  let mixpanelToken = Window.env.mixpanelToken
+  let mixpanel_token = Window.env.mixpanelToken
 
-  let trackApi = async (~email, ~merchantId, ~description, ~event) => {
+  let url = RescriptReactRouter.useUrl()
+
+  let getUrlEndpoint = () => {
+    switch GlobalVars.dashboardBasePath {
+    | Some(_) => url.path->List.toArray->Array.get(1)->Option.getOr("")
+    | _ => url.path->List.toArray->Array.get(0)->Option.getOr("")
+    }
+  }
+
+  let trackApi = async (
+    ~email,
+    ~merchantId,
+    ~description,
+    ~event,
+    ~section,
+    ~metadata=Dict.make(),
+  ) => {
     let body = {
+      "section": section,
       "event": event,
+      "metadata": metadata,
       "properties": {
-        "token": mixpanelToken,
+        "token": mixpanel_token,
         "distinct_id": deviceId,
         "$device_id": deviceId->String.split(":")->Array.get(1),
         "$screen_height": Screen.screenHeight,
@@ -69,7 +87,8 @@ let useSendEvent = () => {
     }
   }
 
-  (~eventName, ~email="", ~description=None, ()) => {
+  (~eventName, ~email="", ~description=None, ~section="", ~metadata=Dict.make(), ()) => {
+    let section = section->LogicUtils.isNonEmptyString ? section : getUrlEndpoint()
     let eventName = eventName->String.toLowerCase
 
     if featureFlagDetails.mixpanel {
@@ -78,6 +97,8 @@ let useSendEvent = () => {
         ~merchantId=merchant_id,
         ~description,
         ~event={eventName},
+        ~section,
+        ~metadata,
       )->ignore
     }
   }

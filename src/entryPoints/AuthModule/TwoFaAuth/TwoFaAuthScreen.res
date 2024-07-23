@@ -11,7 +11,7 @@ let make = (~setAuthStatus) => {
 
   let (actualAuthType, setActualAuthType) = React.useState(_ => authInitState)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if isLiveMode {
       setMode(_ => LiveButtonMode)
     } else {
@@ -36,14 +36,14 @@ let make = (~setAuthStatus) => {
     None
   }, [url.path])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if authType != actualAuthType {
       setAuthType(_ => actualAuthType)
     }
     None
   }, [actualAuthType])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch (authType, url.path) {
     | (
         LoginWithEmail | LoginWithPassword,
@@ -56,16 +56,15 @@ let make = (~setAuthStatus) => {
     | (LoginWithPassword | LoginWithEmail, _) => AuthUtils.redirectToLogin()
 
     | (SignUP, list{"register", ..._}) => () // to prevent duplicate push
-    | (SignUP, _) =>
-      HSwitchGlobalVars.appendDashboardPath(~url="/register")->RescriptReactRouter.push
+    | (SignUP, _) => GlobalVars.appendDashboardPath(~url="/register")->RescriptReactRouter.push
 
     | (ForgetPassword | ForgetPasswordEmailSent, list{"forget-password", ..._}) => () // to prevent duplicate push
     | (ForgetPassword | ForgetPasswordEmailSent, _) =>
-      HSwitchGlobalVars.appendDashboardPath(~url="/forget-password")->RescriptReactRouter.push
+      GlobalVars.appendDashboardPath(~url="/forget-password")->RescriptReactRouter.push
 
     | (ResendVerifyEmail | ResendVerifyEmailSent, list{"resend-mail", ..._}) => () // to prevent duplicate push
     | (ResendVerifyEmail | ResendVerifyEmailSent, _) =>
-      HSwitchGlobalVars.appendDashboardPath(~url="/resend-mail")->RescriptReactRouter.push
+      GlobalVars.appendDashboardPath(~url="/resend-mail")->RescriptReactRouter.push
 
     | _ => ()
     }

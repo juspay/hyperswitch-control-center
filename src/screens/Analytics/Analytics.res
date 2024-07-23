@@ -21,7 +21,7 @@ module BaseTableComponent = {
 
     let (offset, setOffset) = React.useState(_ => 0)
     let (_, setCounter) = React.useState(_ => 1)
-    let refetch = React.useCallback1(_ => {
+    let refetch = React.useCallback(_ => {
       setCounter(p => p + 1)
     }, [setCounter])
 
@@ -32,7 +32,7 @@ module BaseTableComponent = {
       order: Table.INC,
     }
 
-    let modifiedTableEntity = React.useMemo3(() => {
+    let modifiedTableEntity = React.useMemo(() => {
       {
         ...tableEntity,
         defaultColumns: newDefaultCols,
@@ -113,7 +113,7 @@ module TableWrapper = {
     let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
     let (tableData, setTableData) = React.useState(_ => []->Array.map(Nullable.make))
 
-    let getTopLevelFilter = React.useMemo1(() => {
+    let getTopLevelFilter = React.useMemo(() => {
       filterValueDict
       ->Dict.toArray
       ->Belt.Array.keepMap(item => {
@@ -132,7 +132,7 @@ module TableWrapper = {
     let allColumns = allColumns->Option.getOr([])
     let allFilterKeys = Array.concat([startTimeFilterKey, endTimeFilterKey], filterKeys)
 
-    let topFiltersToSearchParam = React.useMemo1(() => {
+    let topFiltersToSearchParam = React.useMemo(() => {
       let filterSearchParam =
         getTopLevelFilter
         ->Dict.toArray
@@ -154,7 +154,7 @@ module TableWrapper = {
       filterSearchParam
     }, [getTopLevelFilter])
 
-    let filterValueFromUrl = React.useMemo1(() => {
+    let filterValueFromUrl = React.useMemo(() => {
       getTopLevelFilter
       ->Dict.toArray
       ->Belt.Array.keepMap(entries => {
@@ -166,10 +166,10 @@ module TableWrapper = {
       ->Some
     }, [topFiltersToSearchParam])
 
-    let startTimeFromUrl = React.useMemo1(() => {
+    let startTimeFromUrl = React.useMemo(() => {
       getTopLevelFilter->getString(startTimeFilterKey, "")
     }, [topFiltersToSearchParam])
-    let endTimeFromUrl = React.useMemo1(() => {
+    let endTimeFromUrl = React.useMemo(() => {
       getTopLevelFilter->getString(endTimeFilterKey, "")
     }, [topFiltersToSearchParam])
 
@@ -254,7 +254,7 @@ module TableWrapper = {
       ->ignore
     }
 
-    React.useEffect3(() => {
+    React.useEffect(() => {
       setShowTable(_ => false)
       if (
         startTimeFromUrl->LogicUtils.isNonEmptyString && endTimeFromUrl->LogicUtils.isNonEmptyString
@@ -299,7 +299,7 @@ module TableWrapper = {
       }
       None
     }, (topFiltersToSearchParam, activeTabStr, customFilter))
-    let newDefaultCols = React.useMemo1(() => {
+    let newDefaultCols = React.useMemo(() => {
       activeTab
       ->Option.getOr([])
       ->Belt.Array.keepMap(item => {
@@ -315,7 +315,7 @@ module TableWrapper = {
       ->Array.concat(allColumns)
     }, [activeTabStr])
 
-    let newAllCols = React.useMemo1(() => {
+    let newAllCols = React.useMemo(() => {
       defaultColumns
       ->Belt.Array.keepMap(item => {
         let val = item->getHeading
@@ -324,7 +324,7 @@ module TableWrapper = {
       ->Array.concat(allColumns)
     }, [activeTabStr])
 
-    let transactionTableDefaultCols = React.useMemo2(() => {
+    let transactionTableDefaultCols = React.useMemo(() => {
       Recoil.atom(`${moduleName}DefaultCols${activeTabStr}`, newDefaultCols)
     }, (newDefaultCols, `${moduleName}DefaultCols${activeTabStr}`))
 
@@ -354,13 +354,13 @@ module TableWrapper = {
               />
             </Form>
           </div>
-          <UIUtils.RenderIf condition={tableData->Array.length > 0}>
+          <RenderIf condition={tableData->Array.length > 0}>
             <div
               className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
               <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
               {"'NA' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </>
       : <Loader />
   }
@@ -396,7 +396,7 @@ module TabDetails = {
 
     let isMobileView = MatchMedia.useMobileChecker()
 
-    let wrapperClass = React.useMemo1(() =>
+    let wrapperClass = React.useMemo(() =>
       switch analyticsType {
       | AUTHENTICATION | USER_JOURNEY =>
         `h-auto basis-full mt-4 ${isMobileView ? "w-full" : "w-1/2"}`
@@ -516,7 +516,7 @@ let make = (
   let (activeTav, setActiveTab) = React.useState(_ =>
     filterValueDict->getStrArrayFromDict(`${moduleName}.tabName`, filteredTabKeys)
   )
-  let setActiveTab = React.useMemo1(() => {
+  let setActiveTab = React.useMemo(() => {
     (str: string) => {
       setActiveTab(_ => str->String.split(","))
     }
@@ -525,7 +525,7 @@ let make = (
   let startTimeVal = filterValueDict->getString(startTimeFilterKey, "")
   let endTimeVal = filterValueDict->getString(endTimeFilterKey, "")
 
-  let updateUrlWithPrefix = React.useMemo1(() => {
+  let updateUrlWithPrefix = React.useMemo(() => {
     (chartType: string) => {
       (dict: Dict.t<string>) => {
         let prev = filterValue
@@ -566,12 +566,12 @@ let make = (
     (),
   )
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     setInitialFilters()
     None
-  })
+  }, [])
 
-  let filterBody = React.useMemo3(() => {
+  let filterBody = React.useMemo(() => {
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
       startTime: startTimeVal,
       endTime: endTimeVal,
@@ -588,7 +588,7 @@ let make = (
   let {filterValueJson} = FilterContext.filterContext->React.useContext
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
-  React.useEffect3(() => {
+  React.useEffect(() => {
     setFilterDataJson(_ => None)
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       try {
@@ -608,7 +608,7 @@ let make = (
   }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
   let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
-  let activeTab = React.useMemo1(() => {
+  let activeTab = React.useMemo(() => {
     Some(
       filterValueDict
       ->getStrArrayFromDict(`${moduleName}.tabName`, activeTav)
@@ -618,7 +618,7 @@ let make = (
 
   let isMobileView = MatchMedia.useMobileChecker()
 
-  let tabDetailsClass = React.useMemo1(() => {
+  let tabDetailsClass = React.useMemo(() => {
     isMobileView ? "flex flex-col gap-4 my-4" : "flex flex-row gap-4 my-4"
   }, [isMobileView])
 
@@ -676,18 +676,18 @@ let make = (
     </div>
   }
 
-  <UIUtils.RenderIf condition={filterValueDict->Dict.toArray->Array.length > 0}>
+  <RenderIf condition={filterValueDict->Dict.toArray->Array.length > 0}>
     {switch chartEntity1 {
     | Some(chartEntity) =>
       <div>
         <div className="flex items-center justify-between">
           <PageUtils.PageHeading title=pageTitle subTitle=pageSubTitle />
-          <UIUtils.RenderIf condition={generateReport}>
+          <RenderIf condition={generateReport}>
             {switch generateReportType {
             | Some(entityName) => <GenerateReport entityName />
             | None => React.null
             }}
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
         <div className="mt-2 -ml-1"> topFilterUi </div>
         <div>
@@ -865,5 +865,5 @@ let make = (
       </div>
     | _ => React.null
     }}
-  </UIUtils.RenderIf>
+  </RenderIf>
 }

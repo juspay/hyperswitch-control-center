@@ -26,7 +26,7 @@ module ConnectorDetailsForm = {
     ) = getConnectorFields(connectorDetails)
     let connectorVariant = connectorName->getConnectorNameTypeFromString()
 
-    let selectedConnector = React.useMemo1(() => {
+    let selectedConnector = React.useMemo(() => {
       connectorVariant->getConnectorInfo
     }, [connectorName])
 
@@ -58,7 +58,7 @@ module ConnectorDetailsForm = {
         suggestedAction
         setVerifyDone
       />
-      <UIUtils.RenderIf condition={checkboxText->LogicUtils.isNonEmptyString}>
+      <RenderIf condition={checkboxText->LogicUtils.isNonEmptyString}>
         <div className="flex gap-2 items-center">
           <CheckBoxIcon
             isSelected=isCheckboxSelected
@@ -68,7 +68,7 @@ module ConnectorDetailsForm = {
             {connectorVariant->ProdOnboardingUtils.getCheckboxText->React.string}
           </p>
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }
@@ -129,7 +129,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     ~connector={connectorName},
   )
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setInitialValues(prevJson => {
       let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
       prevJsonDict->Dict.set(
@@ -287,10 +287,10 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getDetails()->ignore
     None
-  })
+  }, [])
   let getHeaderTextofPage = () =>
     switch pageView {
     | SETUP_CREDS => `Setup ${connectorName->ConnectorUtils.getDisplayNameForConnector} credentials`
@@ -311,9 +311,9 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     switch pageView {
     | SETUP_CREDS =>
       <>
-        <UIUtils.RenderIf condition={warningBlock->Option.isSome}>
+        <RenderIf condition={warningBlock->Option.isSome}>
           <ProdOnboardingUIUtils.WarningBlock customComponent={warningBlock} />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <ConnectorDetailsForm
           connectorName
           connectorDetails

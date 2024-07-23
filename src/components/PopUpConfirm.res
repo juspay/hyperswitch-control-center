@@ -112,7 +112,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if showPopUp {
       Window.addEventListener("keyup", handleKeyUp)
     } else {
@@ -136,7 +136,7 @@ let make = (
         <div className={`h-2 w-12/12 p-0 mt-0 ${popUpHeadingColor} ${rounded_top_border}`} />
         <div className={`flex flex-row ${popupMargin} justify-between`}>
           <div className="flex flex-row gap-5 pt-4 items-center w-full">
-            <UIUtils.RenderIf condition=showIcon>
+            <RenderIf condition=showIcon>
               {switch popUpType {
               | Warning =>
                 <img className=imageStyle src={`${appPrefix}/icons/warning.svg`} alt="warning" />
@@ -147,7 +147,7 @@ let make = (
               | Secondary => <Icon className=iconStyle size=40 name="info-circle" />
               | Denied => <Icon name="denied" size=50 className=iconStyle />
               }}
-            </UIUtils.RenderIf>
+            </RenderIf>
             <div className="w-full">
               <AddDataAttributes attributes=[("data-header-text", confirmType)]>
                 <div className=headerStyle> {confirmType->React.string} </div>
@@ -158,9 +158,9 @@ let make = (
             </div>
           </div>
           <div className="flex justify-end ">
-            <UIUtils.RenderIf condition=showCloseIcon>
+            <RenderIf condition=showCloseIcon>
               <Close onClick=handlePopUp />
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         </div>
         <div className={`flex justify-between items-center flex-row ${paddingCss} py-4 mt-4`}>

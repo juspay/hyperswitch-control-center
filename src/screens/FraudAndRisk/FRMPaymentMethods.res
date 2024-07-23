@@ -96,12 +96,12 @@ module FormField = {
         </div>
       </div>
       <div className={`grid grid-cols-2 md:grid-cols-4 gap-4`}>
-        <UIUtils.RenderIf condition={sectionType == ActionType}>
+        <RenderIf condition={sectionType == ActionType}>
           <div className="flex items-center gap-2 break-all">
             {paymentMethodTypeInfo.action->getActionTypeLabel->Jsx.string}
           </div>
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={sectionType != ActionType}>
+        </RenderIf>
+        <RenderIf condition={sectionType != ActionType}>
           {options
           ->Array.mapWithIndex((option, i) => {
             <RadioSection
@@ -114,7 +114,7 @@ module FormField = {
             />
           })
           ->React.array}
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -195,7 +195,7 @@ module CheckBoxRenderer = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       if isOpen && !isUpdateFlow {
         switch connectorPaymentMethods {
         | Some(paymentMethods) => {
@@ -206,7 +206,7 @@ module CheckBoxRenderer = {
         }
       }
       None
-    })
+    }, [])
 
     <div>
       <div
@@ -228,7 +228,7 @@ module CheckBoxRenderer = {
       </div>
       {frmConfigInfo.payment_methods
       ->Array.mapWithIndex((paymentMethodInfo, index) => {
-        <UIUtils.RenderIf condition={isOpen} key={index->Int.toString}>
+        <RenderIf condition={isOpen} key={index->Int.toString}>
           {paymentMethodInfo.payment_method_types
           ->Array.mapWithIndex((paymentMethodTypeInfo, i) => {
             <Accordion
@@ -272,7 +272,7 @@ module CheckBoxRenderer = {
             />
           })
           ->React.array}
-        </UIUtils.RenderIf>
+        </RenderIf>
       })
       ->React.array}
     </div>
@@ -320,10 +320,10 @@ module PaymentMethodsRenderer = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       getConfiguredConnectorDetails()->ignore
       None
-    })
+    }, [])
 
     <PageLoaderWrapper screenState={pageState}>
       <div className="flex flex-col gap-4">
@@ -348,10 +348,12 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
   open FRMInfo
   open FRMUtils
   open LogicUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let initialValues = retrivedValues->Option.getOr(Dict.make()->JSON.Encode.object)
 
   let onSubmit = (values, _) => {
     open Promise
+    mixpanelEvent(~eventName="frm_step1", ())
     let valuesDict = values->getDictFromJsonObject
 
     // filter connector frm config having no payment method config

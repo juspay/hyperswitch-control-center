@@ -193,13 +193,13 @@ module Field = {
 
 type formSubscription = JSON.t
 let useFormSubscription = (keys): formSubscription => {
-  React.useMemo0(() => {
+  React.useMemo(() => {
     let dict = Dict.make()
     keys->Array.forEach(key => {
       Dict.set(dict, key, JSON.Encode.bool(true))
     })
     dict->JSON.Encode.object
-  })
+  }, [])
 }
 
 module FormSpy = {

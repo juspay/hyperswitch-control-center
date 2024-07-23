@@ -16,7 +16,7 @@ module MerchantDetailsSection = {
       HyperswitchAtom.switchMerchantListAtom,
     )
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       try {
         let _ = fetchSwitchMerchantList()
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -24,7 +24,7 @@ module MerchantDetailsSection = {
       | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Custom)
       }
       None
-    })
+    }, [])
 
     <PageLoaderWrapper screenState sectionHeight="h-40-vh">
       <div>
@@ -93,7 +93,7 @@ module ResetPassword = {
         <p className="text-hyperswitch_black opacity-50 text-base font-semibold break-all">
           {"********"->React.string}
         </p>
-        <UIUtils.RenderIf condition={!isPlayground}>
+        <RenderIf condition={!isPlayground}>
           <Button
             text={"Reset Password"}
             loadingText="Sending mail..."
@@ -102,7 +102,7 @@ module ResetPassword = {
             buttonSize={Small}
             onClick={_ => setPassword()}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -129,7 +129,7 @@ module TwoFactorAuthenticationDetails = {
             buttonSize={XSmall}
             onClick={_ => {
               RescriptReactRouter.push(
-                HSwitchGlobalVars.appendDashboardPath(
+                GlobalVars.appendDashboardPath(
                   ~url=`/account-settings/profile/2fa?type=reset_totp`,
                 ),
               )
@@ -149,7 +149,7 @@ module TwoFactorAuthenticationDetails = {
             buttonSize={XSmall}
             onClick={_ => {
               RescriptReactRouter.push(
-                HSwitchGlobalVars.appendDashboardPath(
+                GlobalVars.appendDashboardPath(
                   ~url=`/account-settings/profile/2fa?type=regenerate_recovery_code`,
                 ),
               )
@@ -189,9 +189,9 @@ module BasicDetailsSection = {
           <p className=subTitleClass> {email->React.string} </p>
         </div>
         <hr />
-        <UIUtils.RenderIf condition={!isPlayground && featureFlagDetails.email}>
+        <RenderIf condition={!isPlayground && featureFlagDetails.email}>
           <ResetPassword />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -212,9 +212,9 @@ let make = () => {
     <div className="flex flex-col flex-wrap  gap-12">
       <BasicDetailsSection />
       <MerchantDetailsSection />
-      <UIUtils.RenderIf condition={featureFlagDetails.totp && showTwoFaSettings}>
+      <RenderIf condition={featureFlagDetails.totp && showTwoFaSettings}>
         <TwoFactorAuthenticationDetails />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   </div>
 }

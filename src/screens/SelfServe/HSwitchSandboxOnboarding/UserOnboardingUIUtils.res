@@ -98,9 +98,9 @@ module DownloadAPIKeyButton = {
             }
           }}
         />
-        <UIUtils.RenderIf condition=showCopyToClipboard>
+        <RenderIf condition=showCopyToClipboard>
           <div className="text-green-700 text-lg"> {"Copied to clipboard"->React.string} </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     switch currentRoute {
     | WooCommercePlugin =>
@@ -282,7 +282,7 @@ module BackendFrontendPlatformLangDropDown = {
 
     <Form initialValues={Dict.make()->JSON.Encode.object}>
       <div className="flex flex-row gap-4 flex-wrap">
-        <UIUtils.RenderIf condition={!isFromLanding && currentRoute !== SampleProjects}>
+        <RenderIf condition={!isFromLanding && currentRoute !== SampleProjects}>
           <SelectBox.BaseDropdown
             allowMultiSelect=false
             buttonText="Select Platform"
@@ -303,8 +303,8 @@ module BackendFrontendPlatformLangDropDown = {
               customButtonStyle="!bg-white !border !rounded-md"
             />}
           />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!(requestOnlyPlatforms->Array.includes(platform))}>
+        </RenderIf>
+        <RenderIf condition={!(requestOnlyPlatforms->Array.includes(platform))}>
           <SelectBox.BaseDropdown
             allowMultiSelect=false
             buttonText="Select Frontend"
@@ -349,7 +349,7 @@ module BackendFrontendPlatformLangDropDown = {
               customButtonStyle="!bg-white !border !rounded-md"
             />}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </Form>
   }
@@ -358,12 +358,12 @@ module BackendFrontendPlatformLangDropDown = {
 module LanguageTag = {
   @react.component
   let make = (~frontendLang="", ~backendLang="") => {
-    <UIUtils.RenderIf condition={frontendLang->isNonEmptyString && backendLang->isNonEmptyString}>
+    <RenderIf condition={frontendLang->isNonEmptyString && backendLang->isNonEmptyString}>
       <div className="flex gap-2 items-center">
         <Icon name={`${frontendLang}`} size=25 />
         <Icon name={`${backendLang}`} size=25 />
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -401,14 +401,12 @@ module LandingPageTileForIntegrateDocs = {
     let redirect = () => {
       if customRedirection->Option.isSome {
         RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(
+          GlobalVars.appendDashboardPath(
             ~url=`/${customRedirection->Option.getOr("")}?type=${url}`,
           ),
         )
       } else {
-        RescriptReactRouter.replace(
-          HSwitchGlobalVars.appendDashboardPath(~url=`/onboarding?type=${url}`),
-        )
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/onboarding?type=${url}`))
       }
     }
     let skipAndContinue = async () => {
@@ -429,7 +427,7 @@ module LandingPageTileForIntegrateDocs = {
       }
       setDashboardPageState(_ => #HOME)
     }
-    <UIUtils.RenderIf condition={!isFromOnboardingChecklist || isTileVisible}>
+    <RenderIf condition={!isFromOnboardingChecklist || isTileVisible}>
       <div
         className="p-8 border rounded-md flex flex-col gap-7 justify-between bg-white w-full md:w-1/3">
         <div className="flex justify-between flex-wrap">
@@ -440,18 +438,18 @@ module LandingPageTileForIntegrateDocs = {
           } else {
             <Icon size=35 name=headerIcon className=customIconCss />
           }}
-          <UIUtils.RenderIf condition={rightIcon->Option.isSome}>
+          <RenderIf condition={rightIcon->Option.isSome}>
             {rightIcon->Option.getOr(React.null)}
-          </UIUtils.RenderIf>
+          </RenderIf>
           {leftSection}
         </div>
         <div className="flex flex-col gap-2">
           <p className=headerTextCss> {headerText->React.string} </p>
-          <UIUtils.RenderIf condition={subText->Option.isSome}>
+          <RenderIf condition={subText->Option.isSome}>
             <p className=subTextCss> {subText->Option.getOr("")->React.string} </p>
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div>
-            <UIUtils.RenderIf condition={subTextCustomValues->Option.isSome}>
+            <RenderIf condition={subTextCustomValues->Option.isSome}>
               <div className={`flex flex-col gap-3 mt-4`}>
                 {subTextCustomValues
                 ->Option.getOr([])
@@ -460,7 +458,7 @@ module LandingPageTileForIntegrateDocs = {
                 })
                 ->React.array}
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         </div>
         <Button
@@ -469,7 +467,7 @@ module LandingPageTileForIntegrateDocs = {
           onClick={_ => isSkipButton ? skipAndContinue()->ignore : redirect()}
         />
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -581,7 +579,7 @@ module CreatePayment = {
         </p>
       </p>}>
       <div className=defaultEditorStyle>
-        <UIUtils.RenderIf condition={backEndLang->getInstallDependencies->isNonEmptyString}>
+        <RenderIf condition={backEndLang->getInstallDependencies->isNonEmptyString}>
           <ShowCodeEditor
             value={backEndLang->getInstallDependencies}
             theme
@@ -589,7 +587,7 @@ module CreatePayment = {
             langauge=backEndLang
           />
           <div className="w-full h-px bg-jp-gray-700" />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <ShowCodeEditor
           value={backEndLang->getCreateAPayment}
           theme
@@ -682,7 +680,7 @@ let getTabsForIntegration = (
         renderContent: () =>
           <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea />}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf condition={frontEndLang->getInstallDependencies->isNonEmptyString}>
+              <RenderIf condition={frontEndLang->getInstallDependencies->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getInstallDependencies}
                   theme
@@ -690,20 +688,20 @@ let getTabsForIntegration = (
                   langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getInstallDependencies->isNonEmptyString}>
+              </RenderIf>
+              <RenderIf condition={frontEndLang->getInstallDependencies->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getImports} theme headerText="Imports" langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getLoad->isNonEmptyString}>
+              </RenderIf>
+              <RenderIf condition={frontEndLang->getLoad->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getLoad} theme headerText="Load" langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getInitialize->isNonEmptyString}>
+              </RenderIf>
+              <RenderIf condition={frontEndLang->getInitialize->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getInitialize}
                   theme
@@ -711,8 +709,8 @@ let getTabsForIntegration = (
                   langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf
+              </RenderIf>
+              <RenderIf
                 condition={frontEndLang->getCheckoutFormForDisplayCheckoutPage->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getCheckoutFormForDisplayCheckoutPage}
@@ -720,7 +718,7 @@ let getTabsForIntegration = (
                   headerText="Checkout Form"
                   langauge=frontEndLang
                 />
-              </UIUtils.RenderIf>
+              </RenderIf>
             </div>
           </TabsContentWrapper>,
       },
@@ -729,7 +727,7 @@ let getTabsForIntegration = (
         renderContent: () =>
           <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea />}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf condition={frontEndLang->getHandleEvents->isNonEmptyString}>
+              <RenderIf condition={frontEndLang->getHandleEvents->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getHandleEvents}
                   theme
@@ -738,8 +736,8 @@ let getTabsForIntegration = (
                   langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getDisplayConformation->isNonEmptyString}>
+              </RenderIf>
+              <RenderIf condition={frontEndLang->getDisplayConformation->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getDisplayConformation}
                   theme
@@ -747,7 +745,7 @@ let getTabsForIntegration = (
                   customHeight="20vh"
                   langauge=frontEndLang
                 />
-              </UIUtils.RenderIf>
+              </RenderIf>
             </div>
           </TabsContentWrapper>,
       },

@@ -14,11 +14,11 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
 
-  let (widthClass, marginClass) = React.useMemo1(() => {
+  let (widthClass, marginClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
   }, [previewOnly])
 
-  let tabs: array<Tabs.tab> = React.useMemo0(() => {
+  let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
     [
       {
@@ -39,7 +39,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         renderContent: () => <PayoutCurrentActiveRouting routingType />,
       },
     ]
-  })
+  }, [routingType])
 
   let fetchRoutingRecords = async activeIds => {
     try {
@@ -82,7 +82,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let activeRoutingUrl = `${getURL(~entityName=PAYOUT_ROUTING, ~methodType=Get, ())}/active`
+
+      let activeRoutingUrl = getURL(~entityName=ACTIVE_PAYOUT_ROUTING, ~methodType=Get, ())
       let routingJson = await fetchDetails(activeRoutingUrl)
 
       let routingArr = routingJson->getArrayFromJson([])
@@ -109,7 +110,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
     }
   }
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     fetchActiveRouting()->ignore
     None
   }, (pathVar, url.search))
@@ -127,7 +128,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
           types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK] onRedirectBaseUrl="payoutrouting"
         />
       </div>
-      <UIUtils.RenderIf condition={!previewOnly}>
+      <RenderIf condition={!previewOnly}>
         <div className="flex flex-col gap-12">
           <EntityScaffold
             entityName="HyperSwitch Priority Logic"
@@ -147,7 +148,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
               />}
           />
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   </PageLoaderWrapper>
 }

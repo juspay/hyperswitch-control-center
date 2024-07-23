@@ -122,9 +122,25 @@ module ModalWrapper = {
 module SearchResultsComponent = {
   open GlobalSearchTypes
   open LogicUtils
-  open UIUtils
+
   @react.component
   let make = (~searchResults, ~searchText, ~redirectOnSelect, ~setShowModal) => {
+    React.useEffect(() => {
+      let onKeyPress = event => {
+        let keyPressed = event->ReactEvent.Keyboard.key
+
+        if keyPressed == "Enter" {
+          let redirectLink = `/search?query=${searchText}`
+          if redirectLink->isNonEmptyString {
+            setShowModal(_ => false)
+            GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
+          }
+        }
+      }
+      Window.addEventListener("keydown", onKeyPress)
+      Some(() => Window.removeEventListener("keydown", onKeyPress))
+    }, [])
+
     <OptionsWrapper>
       {searchResults
       ->Array.mapWithIndex((section: resultType, index) => {
@@ -187,7 +203,7 @@ let make = () => {
   open GlobalSearchBarUtils
   open HeadlessUI
   open LogicUtils
-  open UIUtils
+
   let getURL = APIUtils.useGetURL()
   let prefix = useUrlPrefix()
   let setGLobalSearchResults = HyperswitchAtom.globalSeacrchAtom->Recoil.useSetRecoilState
@@ -204,19 +220,23 @@ let make = () => {
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
-
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+  let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let redirectOnSelect = element => {
+    mixpanelEvent(~eventName="global_search_redirect", ())
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
-      HSwitchGlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
+      GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
     }
   }
 
   let getSearchResults = async results => {
     try {
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
-      let body = [("query", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+
+      let body = generateSearchBody(~searchText, ~merchant_id={merchantDetailsValue.merchant_id})
+
       let response = await fetchDetails(url, body, Post, ())
 
       let local_results = []
@@ -253,7 +273,7 @@ let make = () => {
     }
   }
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     let results = []
 
     if searchText->String.length > 0 {
@@ -286,12 +306,12 @@ let make = () => {
     None
   }, [searchText])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setSearchText(_ => "")
     None
   }, [showModal])
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let onKeyPress = event => {
       let metaKey = event->ReactEvent.Keyboard.metaKey
       let keyPressed = event->ReactEvent.Keyboard.key
@@ -307,7 +327,7 @@ let make = () => {
     }
     Window.addEventListener("keydown", onKeyPress)
     Some(() => Window.removeEventListener("keydown", onKeyPress))
-  })
+  }, [])
 
   let openModalOnClickHandler = _ => {
     setShowModal(_ => true)

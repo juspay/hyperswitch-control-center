@@ -11,6 +11,7 @@ agreement_url=""
 agreement_version=""
 apple_pay_certificate_url=""
 mixpanel_token=""
+recon_iframe_url=""
 [default.features]
 test_live_toggle=false
 is_live_mode=false
@@ -38,3 +39,5 @@ configure_pmts=false
 branding=false
 totp=false
 live_users_counter=true
+granularity=false
+recon_v2=false

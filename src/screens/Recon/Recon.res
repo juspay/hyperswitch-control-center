@@ -9,6 +9,7 @@ let make = () => {
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let isReconEnabled = merchentDetails.recon_status === Active
 
   let onClickForReconRequest = async () => {
@@ -49,14 +50,14 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if isReconEnabled {
       let _ = openReconTab()->ignore
     } else {
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  })
+  }, [])
 
   let subTitleText = isReconEnabled
     ? "Streamline your reconciliation and settlement operations"
@@ -113,6 +114,7 @@ let make = () => {
                   buttonSize={Small}
                   buttonState={Normal}
                   onClick={_v => {
+                    mixpanelEvent(~eventName="recon_send_an_email", ())
                     onClickForReconRequest()->ignore
                   }}
                 />
