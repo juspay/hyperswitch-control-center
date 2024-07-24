@@ -87,7 +87,23 @@ let make = () => {
     }
   }
 
+  let onUserLogin = (name, email) => {
+    if name->LogicUtils.isNonEmptyString && email->LogicUtils.isNonEmptyString {
+      let mixpanelUserInfo =
+        [
+          ("name", email->JSON.Encode.string),
+          ("email", email->JSON.Encode.string),
+          ("merchantName", name->JSON.Encode.string),
+        ]
+        ->Dict.fromArray
+        ->JSON.Encode.object
+
+      MixPanel.mixpanel.people.set(mixpanelUserInfo)
+    }
+  }
+
   let setUpDashboard = async () => {
+    onUserLogin(name, email)
     try {
       Window.connectorWasmInit()->ignore
       let _ = await fetchSwitchMerchantList()
@@ -125,23 +141,7 @@ let make = () => {
     }
   }
 
-  let onUserLogin = (name, email) => {
-    if name->LogicUtils.isNonEmptyString && email->LogicUtils.isNonEmptyString {
-      let mixpanelUserInfo =
-        [
-          ("name", email->JSON.Encode.string),
-          ("email", email->JSON.Encode.string),
-          ("merchantName", name->JSON.Encode.string),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
-
-      MixPanel.mixpanel.people.set(mixpanelUserInfo)
-    }
-  }
-
   React.useEffect(() => {
-    onUserLogin(name, email)
     setUpDashboard()->ignore
     None
   }, [])
