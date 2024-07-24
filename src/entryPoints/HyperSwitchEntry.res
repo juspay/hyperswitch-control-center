@@ -91,6 +91,7 @@ module HyperSwitchEntryComponent = {
             "loaded": () => {
               let userId = MixPanel.getDistinctId()
               LocalStorage.setItem("deviceid", userId)
+              MixPanel.identify(userId)
             },
           },
         )
