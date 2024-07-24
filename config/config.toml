@@ -12,6 +12,7 @@ agreement_version=""
 apple_pay_certificate_url=""
 mixpanel_token=""
 recon_iframe_url=""
+dss_certificate_url=""
 [default.features]
 test_live_toggle=false
 is_live_mode=false
@@ -41,3 +42,4 @@ totp=false
 live_users_counter=false
 granularity=false
 custom_webhook_headers=false
+compliance_certificate=false
