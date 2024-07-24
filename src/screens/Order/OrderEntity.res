@@ -458,9 +458,6 @@ let getHeading = (colType: colType) => {
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=false, ())
   | CustomerId =>
     Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID", ~showSort=false, ())
-  | CustomerEmail =>
-    Table.makeHeaderInfo(~key="email", ~title="Customer Email", ~showSort=false, ())
-
   | Description =>
     Table.makeHeaderInfo(~key="description", ~title="Description", ~showSort=false, ())
 
@@ -499,7 +496,7 @@ let getHeading = (colType: colType) => {
     Table.makeHeaderInfo(~key="payment_token", ~title="Payment Token", ~showSort=false, ())
   | Shipping => Table.makeHeaderInfo(~key="shipping", ~title="Shipping", ~showSort=false, ())
   | Billing => Table.makeHeaderInfo(~key="billing", ~title="Billing", ~showSort=false, ())
-  | Email => Table.makeHeaderInfo(~key="email", ~title="Email", ~showSort=false, ())
+  | Email => Table.makeHeaderInfo(~key="email", ~title="Customer Email", ~showSort=false, ())
   | Name => Table.makeHeaderInfo(~key="name", ~title="Name", ~showSort=false, ())
   | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone", ~showSort=false, ())
   | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="ReturnUrl", ~showSort=false, ())
@@ -871,7 +868,6 @@ let getCell = (order, colType: colType): Table.cell => {
   | Created => Date(order.created)
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
-  | CustomerEmail => Text(order.email)
   | Description => CustomCell(<Metadata displayValue={order.description} endValue={5} />, "")
   | MandateId => Text(order.mandate_id)
   | MandateData => Text(order.mandate_data)
