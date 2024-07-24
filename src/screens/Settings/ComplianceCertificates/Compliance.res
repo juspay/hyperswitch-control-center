@@ -31,7 +31,7 @@ let make = () => {
 
     let downloadURL = Window.env.dssCertificateUrl->Option.getOr("")
 
-    //? - For localtesting this condn added
+    // For local testing this condition is added
     if downloadURL->LogicUtils.isNonEmptyString {
       open Promise
       fetchApi(downloadURL, ~method_=Get, ())
