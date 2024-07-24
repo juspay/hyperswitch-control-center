@@ -8,7 +8,7 @@ external ffInputToSelectInput: ReactFinalForm.fieldRenderPropsInput => ReactFina
 external ffInputToRadioInput: ReactFinalForm.fieldRenderPropsInput => ReactFinalForm.fieldRenderPropsCustomInput<
   string,
 > = "%identity"
-let regex: (string, string) => Js.Re.t
+let regex: (string, string) => RegExp.t
 module ListItem: {
   @react.component
   let make: (

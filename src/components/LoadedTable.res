@@ -890,9 +890,9 @@ let make = (
       | Some(x) =>
         <AdvancedSearchComponent entity ?setData ?setSummary> {x} </AdvancedSearchComponent>
       | None =>
-        <UIUtils.RenderIf condition={searchFields->Array.length > 0}>
+        <RenderIf condition={searchFields->Array.length > 0}>
           <AdvancedSearchModal searchFields url=searchUrl entity />
-        </UIUtils.RenderIf>
+        </RenderIf>
       }}
       <DesktopView>
         {switch tableActions {
@@ -934,21 +934,20 @@ let make = (
             hideTitle ? "" : ` mt-4 mb-2`
           )}>
           <div className="w-full">
-            <UIUtils.RenderIf condition={!hideTitle}>
+            <RenderIf condition={!hideTitle}>
               <NewThemeHeading
                 heading=title
                 headingSize=titleSize
                 outerMargin=""
                 ?description
-                rightActions={<UIUtils.RenderIf
-                  condition={!isMobileView && !isTableActionBesideFilters}>
+                rightActions={<RenderIf condition={!isMobileView && !isTableActionBesideFilters}>
                   {tableActionElements}
-                </UIUtils.RenderIf>}
+                </RenderIf>}
               />
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         </div>
-        <UIUtils.RenderIf condition={!hideFilterTopPortals}>
+        <RenderIf condition={!hideFilterTopPortals}>
           <div className="flex justify-between items-center">
             <PortalCapture
               key={`tableFilterTopLeft-${title}`}
@@ -961,7 +960,7 @@ let make = (
               customStyle="flex flex-row-reverse items-center gap-x-2"
             />
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div
           className={`flex flex-row mobile:flex-wrap items-center ${tableActionBorder} ${filtersOuterMargin}`}>
           <TableFilterSectionContext isFilterSection=true>
@@ -981,9 +980,9 @@ let make = (
               <PortalCapture key={`extraFilters-${title}`} name={`extraFilters-${title}`} />
             </div>
           </TableFilterSectionContext>
-          <UIUtils.RenderIf condition={isTableActionBesideFilters || isMobileView || hideTitle}>
+          <RenderIf condition={isTableActionBesideFilters || isMobileView || hideTitle}>
             {tableActionElements}
-          </UIUtils.RenderIf>
+          </RenderIf>
           customizeColumsButtons
         </div>
       </div>
@@ -992,9 +991,9 @@ let make = (
       } else {
         loadedTableUI
       }}
-      <UIUtils.RenderIf condition={tableDataLoading && !dataLoading}>
+      <RenderIf condition={tableDataLoading && !dataLoading}>
         <TableDataLoadingIndicator showWithData={rows->Array.length !== 0} />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div
         className={`${tableActions->Option.isSome && isMobileView
             ? `flex flex-row-reverse justify-between mb-10 ${tableDataBackgroundClass}`

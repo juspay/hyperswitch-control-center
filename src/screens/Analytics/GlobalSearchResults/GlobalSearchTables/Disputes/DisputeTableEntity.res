@@ -1,3 +1,5 @@
+let domain = "disputes"
+
 type disputesObject = {
   dispute_id: string,
   dispute_amount: float,

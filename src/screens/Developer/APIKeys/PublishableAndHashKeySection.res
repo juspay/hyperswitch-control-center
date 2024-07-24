@@ -63,7 +63,7 @@ let make = () => {
               customParentClass="flex items-center gap-5"
             />
           </div>
-          <UIUtils.RenderIf condition={paymentResponsHashKey->String.length !== 0}>
+          <RenderIf condition={paymentResponsHashKey->String.length !== 0}>
             <div className="flex flex-col gap-4">
               <div className="break-all text-md text-base text-grey-700 font-semibold">
                 {"Payment Response Hash Key"->React.string}
@@ -74,7 +74,7 @@ let make = () => {
                 customParentClass="flex items-center gap-5"
               />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </FormRenderer.DesktopRow>
       </div>
     </div>

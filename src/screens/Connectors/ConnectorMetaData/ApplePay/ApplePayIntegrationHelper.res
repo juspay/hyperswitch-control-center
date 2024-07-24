@@ -1,12 +1,7 @@
 open ApplePayIntegrationTypes
 module SimplifiedHelper = {
   @react.component
-  let make = (
-    ~customElement: option<React.element>,
-    ~heading="",
-    ~stepNumber="1",
-    ~subText=None,
-  ) => {
+  let make = (~customElement=?, ~heading="", ~stepNumber="1", ~subText=None) => {
     let {globalUIConfig: {backgroundColor, font: {textColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
@@ -23,11 +18,11 @@ module SimplifiedHelper = {
             <p className={`font-medium text-base ${textColor.primaryNormal}`}>
               {heading->React.string}
             </p>
-            <UIUtils.RenderIf condition={subText->Option.isSome}>
+            <RenderIf condition={subText->Option.isSome}>
               <p className={`mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
                 {subText->Option.getOr("")->React.string}
               </p>
-            </UIUtils.RenderIf>
+            </RenderIf>
             {switch customElement {
             | Some(element) => element
             | _ => React.null

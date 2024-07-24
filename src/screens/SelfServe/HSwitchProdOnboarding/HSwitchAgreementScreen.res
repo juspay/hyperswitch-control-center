@@ -36,7 +36,7 @@ let make = () => {
       ->Date.toISOString
       ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")
 
-    //? - For localtesting this condn added
+    // For local testing this condition is added
     if downloadURL->LogicUtils.isNonEmptyString {
       open Promise
       fetchApi(downloadURL, ~method_=Get, ())

@@ -133,7 +133,7 @@ let make = (
     ->React.array
   <>
     <SimplifiedHelper
-      customElement={Some(applePaySimplifiedFields)}
+      customElement={applePaySimplifiedFields}
       heading="Provide your sandbox domain where the verification file will be hosted"
       subText=Some(
         "Input the top-level domain (example.com) or sub-domain (checkout.example.com) where you wish to enable Apple Pay",
@@ -142,7 +142,7 @@ let make = (
     />
     <hr className="w-full" />
     <SimplifiedHelper
-      heading="Download domain verification file" stepNumber="2" customElement=Some(downloadAPIKey)
+      heading="Download domain verification file" stepNumber="2" customElement=downloadAPIKey
     />
     <hr className="w-full" />
     <SimplifiedHelper
@@ -151,14 +151,12 @@ let make = (
         "Host the downloaded verification file at your sandbox domain in the following location :-",
       )
       stepNumber="3"
-      customElement=Some(
-        <HostURL
-          prefix={`${ApplePayIntegrationUtils.applePayNameMapper(
-              ~name="initiative_context",
-              ~integrationType=Some(#simplified),
-            )}`}
-        />,
-      )
+      customElement={<HostURL
+        prefix={`${ApplePayIntegrationUtils.applePayNameMapper(
+            ~name="initiative_context",
+            ~integrationType=Some(#simplified),
+          )}`}
+      />}
     />
     <div className="w-full flex gap-2 justify-end p-6">
       <Button

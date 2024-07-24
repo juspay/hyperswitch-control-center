@@ -365,16 +365,16 @@ module ReactWindowTableComponent = {
                 <div className="">
                   <div className="flex flex-row">
                     <div className="font-bold text-fs-13"> {React.string(item.title)} </div>
-                    <UIUtils.RenderIf condition={item.description->Option.isSome}>
+                    <RenderIf condition={item.description->Option.isSome}>
                       <div className="text-sm text-gray-500 mx-2">
                         <ToolTip
                           description={item.description->Option.getOr("")}
                           toolTipPosition={ToolTip.Bottom}
                         />
                       </div>
-                    </UIUtils.RenderIf>
+                    </RenderIf>
                   </div>
-                  <UIUtils.RenderIf condition={item.showMultiSelectCheckBox->Option.getOr(false)}>
+                  <RenderIf condition={item.showMultiSelectCheckBox->Option.getOr(false)}>
                     <div className=" mt-1 mr-2">
                       <CheckBoxIcon
                         isSelected={isAllSelected}
@@ -383,13 +383,13 @@ module ReactWindowTableComponent = {
                         checkboxDimension
                       />
                     </div>
-                  </UIUtils.RenderIf>
-                  <UIUtils.RenderIf condition={item.data->Option.isSome}>
+                  </RenderIf>
+                  <RenderIf condition={item.data->Option.isSome}>
                     <div
                       className="flex justify-start font-bold text-fs-10 whitespace-pre text-ellipsis overflow-x-hidden">
                       {React.string(item.data->Option.getOr(""))}
                     </div>
-                  </UIUtils.RenderIf>
+                  </RenderIf>
                 </div>
                 {if item.showFilter || item.showSort {
                   <div className={`flex flex-row items-center`}>

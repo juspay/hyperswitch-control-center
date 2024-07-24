@@ -144,7 +144,7 @@ let make = (
       <>
         <div className="flex">
           <div className="w-full md:w-1/2 lg:w-1/3">
-            <UIUtils.RenderIf condition={!isThreeDs}>
+            <RenderIf condition={!isThreeDs}>
               <BusinessProfileInp
                 setProfile={setProfile->Option.getOr(_ => ())}
                 profile={profile->Option.getOr(defaultBusinessProfile.profile_id)}
@@ -152,7 +152,7 @@ let make = (
                 label="Profile"
                 routingType
               />
-            </UIUtils.RenderIf>
+            </RenderIf>
             <FieldRenderer field=configurationNameInput />
             <FieldRenderer field=descriptionInput />
           </div>
