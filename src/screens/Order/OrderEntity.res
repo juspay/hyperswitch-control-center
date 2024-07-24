@@ -395,6 +395,8 @@ let defaultColumns: array<colType> = [
   PaymentMethod,
   PaymentMethodType,
   CardNetwork,
+  Email,
+  MerchantOrderReferenceId,
   Description,
   Metadata,
   Created,
@@ -963,6 +965,14 @@ let itemToObjMapper = dict => {
     `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
   }
 
+  let getEmail = dict => {
+    let defaultEmail = dict->getString("email", "")
+
+    dict
+    ->getDictfromDict("customer")
+    ->getString("email", defaultEmail)
+  }
+
   {
     payment_id: dict->getString("payment_id", ""),
     merchant_id: dict->getString("merchant_id", ""),
@@ -1034,7 +1044,7 @@ let itemToObjMapper = dict => {
     ->getDictfromDict("phone")
     ->getPhoneNumberString(),
     metadata: dict->getJsonObjectFromDict("metadata")->getDictFromJsonObject,
-    email: dict->getString("email", ""),
+    email: dict->getEmail,
     name: dict->getString("name", ""),
     phone: dict
     ->getDictfromDict("customer")
