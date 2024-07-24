@@ -125,11 +125,6 @@ let make = () => {
     }
   }
 
-  React.useEffect(() => {
-    setUpDashboard()->ignore
-    None
-  }, [])
-
   let onUserLogin = (name, email) => {
     if name->LogicUtils.isNonEmptyString && email->LogicUtils.isNonEmptyString {
       let mixpanelUserInfo =
@@ -144,10 +139,12 @@ let make = () => {
       MixPanel.mixpanel.people.set(mixpanelUserInfo)
     }
   }
+
   React.useEffect(() => {
     onUserLogin(name, email)
+    setUpDashboard()->ignore
     None
-  }, (name, email))
+  }, [])
 
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal
