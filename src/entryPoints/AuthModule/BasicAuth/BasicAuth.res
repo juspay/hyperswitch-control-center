@@ -210,7 +210,7 @@ let make = (~authType, ~setAuthType) => {
   | ForgetPassword
   | ResendVerifyEmail
   | LoginWithEmail => ["email"]
-  | SignUP => ["email", "password"]
+  | SignUP => featureFlagValues.email ? ["email"] : ["email", "password"]
   | LoginWithPassword => ["email", "password"]
   | ResetPassword => ["create_password", "comfirm_password"]
   | _ => []

@@ -1184,7 +1184,7 @@ let validate = (~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => values =>
       ->LogicUtils.getStringFromJson("")
     let regexToUse = isLiveMode ? field.liveValidationRegex : field.testValidationRegex
     let validationResult = switch regexToUse {
-    | Some(regex) => regex->Js.Re.fromString->Js.Re.test_(value)
+    | Some(regex) => regex->RegExp.fromString->RegExp.test(value)
     | None => true
     }
     if field.isRequired->Option.getOr(true) && value->String.length === 0 {

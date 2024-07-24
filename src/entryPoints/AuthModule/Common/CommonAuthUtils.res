@@ -9,13 +9,13 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
         "Your password is not strong enough. Password size must be more than 8"->JSON.Encode.string,
       )
     } else {
-      if !Js.Re.test_(%re("/^(?=.*[A-Z])/"), value) {
+      if !RegExp.test(%re("/^(?=.*[A-Z])/"), value) {
         mustHave->Array.push("uppercase")
       }
-      if !Js.Re.test_(%re("/^(?=.*[a-z])/"), value) {
+      if !RegExp.test(%re("/^(?=.*[a-z])/"), value) {
         mustHave->Array.push("lowercase")
       }
-      if !Js.Re.test_(%re("/^(?=.*[0-9])/"), value) {
+      if !RegExp.test(%re("/^(?=.*[0-9])/"), value) {
         mustHave->Array.push("numeric")
       }
 
@@ -24,14 +24,14 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
        ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '-', '=', '[', ']', '{', '}', ';', "'", ':', '"', '\\', '|', ',', '.', '<', '>', '/', '?', '', '~'] 
  */
       if (
-        !Js.Re.test_(
-          Js.Re.fromString("^(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?`~])"),
+        !RegExp.test(
+          RegExp.fromString("^(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?`~])"),
           value,
         )
       ) {
         mustHave->Array.push("special")
       }
-      if Js.Re.test_(%re("/\s/"), value) {
+      if RegExp.test(%re("/\s/"), value) {
         Dict.set(errors, key, `Password should not contain whitespaces.`->JSON.Encode.string)
       }
       if mustHave->Array.length > 0 {
@@ -58,7 +58,7 @@ let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, err
 }
 
 let isValidEmail = value =>
-  !Js.Re.test_(
+  !RegExp.test(
     %re(`/^(([^<>()[\]\.,;:\s@"]+(\.[^<>()[\]\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
     value,
   )

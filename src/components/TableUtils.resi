@@ -1,4 +1,4 @@
-let regex: string => Js.Re.t
+let regex: string => RegExp.t
 let highlightedText: (Js.String.t, string) => React.element
 type labelColor =
   | LabelGreen

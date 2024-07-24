@@ -424,10 +424,14 @@ let make = () => {
                         | list{"reports"}
                         | list{"config-settings"}
                         | list{"file-processor"} =>
-                          <AccessControl isEnabled=featureFlagDetails.reconV2 permission=Access>
+                          <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
                             <ReconModule urlList={url.path->urlPath} />
                           </AccessControl>
-
+                        | list{"compliance"} =>
+                          <AccessControl
+                            isEnabled=featureFlagDetails.complianceCertificate permission=Access>
+                            <Compliance />
+                          </AccessControl>
                         | list{"sdk"} =>
                           <AccessControl
                             isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
@@ -468,7 +472,6 @@ let make = () => {
                           <AccessControl permission=Access>
                             <BusinessProfile />
                           </AccessControl>
-
                         | list{"configure-pmts", ...remainingPath} =>
                           <AccessControl
                             permission=userPermissionJson.connectorsView

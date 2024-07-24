@@ -72,25 +72,25 @@ let make = (
         minEightChars: true,
       })
     }
-    if Js.Re.test_(%re("/^(?=.*[A-Z])/"), strVal) {
+    if RegExp.test(%re("/^(?=.*[A-Z])/"), strVal) {
       setPasswordChecks(prev => {
         ...prev,
         uppercase: true,
       })
     }
-    if Js.Re.test_(%re("/^(?=.*[a-z])/"), strVal) {
+    if RegExp.test(%re("/^(?=.*[a-z])/"), strVal) {
       setPasswordChecks(prev => {
         ...prev,
         lowercase: true,
       })
     }
-    if Js.Re.test_(%re("/^(?=.*[0-9])/"), strVal) {
+    if RegExp.test(%re("/^(?=.*[0-9])/"), strVal) {
       setPasswordChecks(prev => {
         ...prev,
         number: true,
       })
     }
-    let specialCharCheck = Js.Re.test_(%re("/^(?=.*[!@#$%^&*_])/"), strVal)
+    let specialCharCheck = RegExp.test(%re("/^(?=.*[!@#$%^&*_])/"), strVal)
     if specialCharCheck {
       setPasswordChecks(prev => {
         ...prev,
