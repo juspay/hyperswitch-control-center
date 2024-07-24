@@ -19,8 +19,6 @@ let make = () => {
     isProdIntentCompleted,
   } = React.useContext(GlobalProvider.defaultContext)
 
-  let {email, name} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
@@ -87,23 +85,7 @@ let make = () => {
     }
   }
 
-  let onUserLogin = (name, email) => {
-    if name->LogicUtils.isNonEmptyString && email->LogicUtils.isNonEmptyString {
-      let mixpanelUserInfo =
-        [
-          ("name", email->JSON.Encode.string),
-          ("email", email->JSON.Encode.string),
-          ("merchantName", name->JSON.Encode.string),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
-
-      MixPanel.mixpanel.people.set(mixpanelUserInfo)
-    }
-  }
-
   let setUpDashboard = async () => {
-    onUserLogin(name, email)
     try {
       Window.connectorWasmInit()->ignore
       let _ = await fetchSwitchMerchantList()

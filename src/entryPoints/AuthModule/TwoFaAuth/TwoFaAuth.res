@@ -212,6 +212,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
           }
         }
       )
+      CommonAuthUtils.onUserLogin(email)
     } catch {
     | _ => showToast(~message="Something went wrong, Try again", ~toastType=ToastError, ())
     }
