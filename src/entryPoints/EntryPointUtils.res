@@ -18,9 +18,7 @@ module ContextWrapper = {
                     <TokenContextProvider>
                       <UserTimeZoneProvider>
                         <SidebarProvider>
-                          <UserDetailsProvider>
-                            <ModalContainer> children </ModalContainer>
-                          </UserDetailsProvider>
+                          <ModalContainer> children </ModalContainer>
                         </SidebarProvider>
                       </UserTimeZoneProvider>
                     </TokenContextProvider>

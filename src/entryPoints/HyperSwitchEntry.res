@@ -9,8 +9,6 @@ module HyperSwitchEntryComponent = {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {configCustomDomainTheme} = React.useContext(ThemeProvider.themeContext)
 
-    let {name, email} = React.useContext(UserDetailsProvider.userDetailsContext)
-
     let configureFavIcon = (faviconUrl: option<string>) => {
       try {
         open DOMUtils
@@ -91,50 +89,15 @@ module HyperSwitchEntryComponent = {
             "track_pageview": true,
             "batch_requests": true,
             "loaded": () => {
-              let mixpanelUserInfo =
-                [
-                  ("name", email->JSON.Encode.string),
-                  ("email", email->JSON.Encode.string),
-                  ("merchantName", name->JSON.Encode.string),
-                ]
-                ->Dict.fromArray
-                ->JSON.Encode.object
-
               let userId = MixPanel.getDistinctId()
               LocalStorage.setItem("deviceid", userId)
-              MixPanel.identify(userId)
-              MixPanel.mixpanel.people.set(mixpanelUserInfo)
             },
           },
         )
       }
 
       None
-    }, (name, email, Window.env.mixpanelToken))
-
-    let onUserLogin = (name, email) => {
-      if name->LogicUtils.isNonEmptyString && email->LogicUtils.isNonEmptyString {
-        let mixpanelUserInfo =
-          [
-            ("name", name->JSON.Encode.string),
-            ("email", email->JSON.Encode.string),
-            ("merchantName", name->JSON.Encode.string),
-          ]
-          ->Dict.fromArray
-          ->JSON.Encode.object
-
-        let deviceId = switch LocalStorage.getItem("deviceid")->Nullable.toOption {
-        | Some(id) => id
-        | None => email
-        }
-        MixPanel.identify(deviceId)
-        MixPanel.mixpanel.people.set(mixpanelUserInfo)
-      }
-    }
-    React.useEffect(() => {
-      onUserLogin(name, email)
-      None
-    }, (name, email))
+    }, Window.env.mixpanelToken)
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle

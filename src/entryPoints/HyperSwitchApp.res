@@ -19,9 +19,7 @@ let make = () => {
     isProdIntentCompleted,
   } = React.useContext(GlobalProvider.defaultContext)
 
-  let {setName, setEmail} = React.useContext(UserDetailsProvider.userDetailsContext)
-
-  let {email: userEmail, name: userName} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {email, name} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
@@ -47,9 +45,6 @@ let make = () => {
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
 
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
-
-  setName(_ => userName)
-  setEmail(_ => userEmail)
 
   sessionExpired := false
 
@@ -134,6 +129,30 @@ let make = () => {
     setUpDashboard()->ignore
     None
   }, [])
+
+  let onUserLogin = (name, email) => {
+    if name->LogicUtils.isNonEmptyString && email->LogicUtils.isNonEmptyString {
+      let mixpanelUserInfo =
+        [
+          ("name", email->JSON.Encode.string),
+          ("email", email->JSON.Encode.string),
+          ("merchantName", name->JSON.Encode.string),
+        ]
+        ->Dict.fromArray
+        ->JSON.Encode.object
+
+      let deviceId = switch LocalStorage.getItem("deviceid")->Nullable.toOption {
+      | Some(id) => id
+      | None => email
+      }
+      MixPanel.identify(deviceId)
+      MixPanel.mixpanel.people.set(mixpanelUserInfo)
+    }
+  }
+  React.useEffect(() => {
+    onUserLogin(name, email)
+    None
+  }, (name, email))
 
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal
