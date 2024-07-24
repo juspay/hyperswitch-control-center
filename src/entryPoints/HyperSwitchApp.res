@@ -423,7 +423,7 @@ let make = () => {
                         | list{"reports"}
                         | list{"config-settings"}
                         | list{"file-processor"} =>
-                          <AccessControl isEnabled=featureFlagDetails.reconV2 permission=Access>
+                          <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
                             <ReconModule urlList={url.path->urlPath} />
                           </AccessControl>
                         | list{"compliance"} =>

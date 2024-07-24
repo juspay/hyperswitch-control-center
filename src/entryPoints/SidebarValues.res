@@ -515,33 +515,32 @@ let reconFileProcessor = {
   })
 }
 
-let reconTag = (recon, isReconEnabled) => {
-  recon
-    ? Link({
-        name: "Reconcilation",
-        icon: isReconEnabled ? "recon" : "recon-lock",
-        link: `/recon`,
-        access: Access,
-      })
-    : emptyComponent
-}
+let reconAndSettlement = (recon, isReconEnabled) => {
+  switch (recon, isReconEnabled) {
+  | (true, true) =>
+    Section({
+      name: "Recon And Settlement",
+      icon: "recon",
+      showSection: true,
+      links: [
+        uploadReconFiles,
+        runRecon,
+        reconAnalytics,
+        reconReports,
+        reconConfigurator,
+        reconFileProcessor,
+      ],
+    })
+  | (true, false) =>
+    Link({
+      name: "Reconcilation",
+      icon: isReconEnabled ? "recon" : "recon-lock",
+      link: `/recon`,
+      access: Access,
+    })
 
-let reconAndSettlement = (recon_v2, isReconEnabled) => {
-  recon_v2 && isReconEnabled
-    ? Section({
-        name: "Recon And Settlement",
-        icon: "recon",
-        showSection: true,
-        links: [
-          uploadReconFiles,
-          runRecon,
-          reconAnalytics,
-          reconReports,
-          reconConfigurator,
-          reconFileProcessor,
-        ],
-      })
-    : emptyComponent
+  | (_, _) => emptyComponent
+  }
 }
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
@@ -564,7 +563,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     quickStart,
     disputeAnalytics,
     configurePmts,
-    reconV2,
     complianceCertificate,
   } = featureFlagDetails
 
@@ -586,8 +584,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~permissionJson,
     ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
-    recon->reconTag(isReconEnabled),
-    reconV2->reconAndSettlement(isReconEnabled),
+    recon->reconAndSettlement(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
     settings(~isConfigurePmtsEnabled=configurePmts, ~permissionJson, ~complianceCertificate),
   ]
