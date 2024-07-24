@@ -141,11 +141,6 @@ let make = () => {
         ->Dict.fromArray
         ->JSON.Encode.object
 
-      let deviceId = switch LocalStorage.getItem("deviceid")->Nullable.toOption {
-      | Some(id) => id
-      | None => email
-      }
-      MixPanel.identify(deviceId)
       MixPanel.mixpanel.people.set(mixpanelUserInfo)
     }
   }
