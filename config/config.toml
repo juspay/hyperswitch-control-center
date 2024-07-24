@@ -43,3 +43,4 @@ live_users_counter=false
 granularity=false
 recon_v2=false
 compliance_certificate=false
+custom_webhook_headers=false

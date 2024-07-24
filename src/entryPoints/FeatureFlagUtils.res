@@ -30,6 +30,7 @@ type featureFlag = {
   granularity: bool,
   reconV2: bool,
   complianceCertificate: bool,
+  customWebhookHeaders: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -67,6 +68,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     granularity: dict->getBool("granularity", false),
     reconV2: dict->getBool("recon_v2", false),
     complianceCertificate: dict->getBool("compliance_certificate", false),
+    customWebhookHeaders: dict->getBool("custom_webhook_headers", false),
   }
   typedFeatureFlag
 }
