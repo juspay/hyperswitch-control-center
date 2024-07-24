@@ -28,7 +28,7 @@ type featureFlag = {
   totp: bool,
   liveUsersCounter: bool,
   granularity: bool,
-  reconV2: bool,
+  customWebhookHeaders: bool,
   complianceCertificate: bool,
 }
 
@@ -65,7 +65,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     totp: dict->getBool("totp", false),
     liveUsersCounter: dict->getBool("live_users_counter", false),
     granularity: dict->getBool("granularity", false),
-    reconV2: dict->getBool("recon_v2", false),
+    customWebhookHeaders: dict->getBool("custom_webhook_headers", false),
     complianceCertificate: dict->getBool("compliance_certificate", false),
   }
   typedFeatureFlag
