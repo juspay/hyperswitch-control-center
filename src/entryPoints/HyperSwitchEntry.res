@@ -1,15 +1,15 @@
 module HyperSwitchEntryComponent = {
   @react.component
   let make = () => {
-    open CommonAuthHooks
     let fetchDetails = APIUtils.useGetMethod()
-    let {email, name} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {configCustomDomainTheme} = React.useContext(ThemeProvider.themeContext)
+
+    let {name, email} = React.useContext(UserDetailsProvider.userDetailsContext)
 
     let configureFavIcon = (faviconUrl: option<string>) => {
       try {
@@ -92,7 +92,11 @@ module HyperSwitchEntryComponent = {
             "batch_requests": true,
             "loaded": () => {
               let mixpanelUserInfo =
-                [("name", email->JSON.Encode.string), ("merchantName", name->JSON.Encode.string)]
+                [
+                  ("name", email->JSON.Encode.string),
+                  ("email", email->JSON.Encode.string),
+                  ("merchantName", name->JSON.Encode.string),
+                ]
                 ->Dict.fromArray
                 ->JSON.Encode.object
 
@@ -107,6 +111,30 @@ module HyperSwitchEntryComponent = {
 
       None
     }, (name, email, Window.env.mixpanelToken))
+
+    let onUserLogin = (name, email) => {
+      if name->LogicUtils.isNonEmptyString && email->LogicUtils.isNonEmptyString {
+        let mixpanelUserInfo =
+          [
+            ("name", name->JSON.Encode.string),
+            ("email", email->JSON.Encode.string),
+            ("merchantName", name->JSON.Encode.string),
+          ]
+          ->Dict.fromArray
+          ->JSON.Encode.object
+
+        let deviceId = switch LocalStorage.getItem("deviceid")->Nullable.toOption {
+        | Some(id) => id
+        | None => email
+        }
+        MixPanel.identify(deviceId)
+        MixPanel.mixpanel.people.set(mixpanelUserInfo)
+      }
+    }
+    React.useEffect(() => {
+      onUserLogin(name, email)
+      None
+    }, (name, email))
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle

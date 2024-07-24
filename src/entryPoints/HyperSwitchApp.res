@@ -18,6 +18,11 @@ let make = () => {
     setQuickStartPageState,
     isProdIntentCompleted,
   } = React.useContext(GlobalProvider.defaultContext)
+
+  let {setName, setEmail} = React.useContext(UserDetailsProvider.userDetailsContext)
+
+  let {email: userEmail, name: userName} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
@@ -42,6 +47,9 @@ let make = () => {
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
 
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
+
+  setName(_ => userName)
+  setEmail(_ => userEmail)
 
   sessionExpired := false
 
