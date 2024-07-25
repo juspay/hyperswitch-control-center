@@ -113,12 +113,12 @@ let make = (~previewOnly=false) => {
         <RenderIf condition={!previewOnly}>
           <div className="flex-1"> {filtersUI} </div>
         </RenderIf>
-        <div className="flex justify-end gap-3 items-start">
+        <div className="flex flex-col items-end 2xl:flex-row 2xl:justify-end 2xl:items-start gap-3">
           <RenderIf condition={generateReport && orderData->Array.length > 0}>
             <GenerateReport entityName={PAYMENT_REPORT} />
           </RenderIf>
-          <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
           <PortalCapture key={`OrdersCustomizeColumn`} name={`OrdersCustomizeColumn`} />
+          <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
         </div>
       </div>
       <PageLoaderWrapper screenState customUI>

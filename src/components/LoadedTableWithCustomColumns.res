@@ -93,7 +93,7 @@ let make = (
           leftIcon=Button.CustomIcon(<Icon name="edit" size=16 />)
           text="Customize Columns"
           buttonType=SecondaryFilled
-          buttonSize=XSmall
+          buttonSize={Small}
           onClick={_ => setShowColumnSelector(_ => true)}
           customButtonStyle="!rounded-lg !bg-white !h-10 !text-black"
         />
