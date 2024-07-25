@@ -180,7 +180,7 @@ module HeaderComponentView = {
             Clipboard.writeText(value)
             showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
           }}>
-          <img src={`/assets/CopyToClipboard.svg`} />
+          <img alt="image" src={`/assets/CopyToClipboard.svg`} />
           <p> {"Copy"->React.string} </p>
         </div>
       </div>
@@ -433,7 +433,7 @@ module LandingPageTileForIntegrateDocs = {
         <div className="flex justify-between flex-wrap">
           {if isIconImg {
             <div className="w-30 h-8">
-              <img src=imagePath />
+              <img alt="image" src=imagePath />
             </div>
           } else {
             <Icon size=35 name=headerIcon className=customIconCss />
@@ -807,6 +807,7 @@ let getTabsForIntegration = (
               <div
                 className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
                 <img
+                  alt="image"
                   style={ReactDOMStyle.make(
                     ~height="400px",
                     ~width="100%",
@@ -831,6 +832,7 @@ let getTabsForIntegration = (
               <div
                 className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
                 <img
+                  alt="image"
                   style={ReactDOMStyle.make(
                     ~height="120px",
                     ~width="100%",
@@ -847,6 +849,7 @@ let getTabsForIntegration = (
               <div
                 className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
                 <img
+                  alt="image"
                   style={ReactDOMStyle.make(
                     ~height="120px",
                     ~width="100%",

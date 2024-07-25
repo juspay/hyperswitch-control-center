@@ -14,6 +14,7 @@ module Render = {
             {React.string(" section")}
             <a href={`/icons/stripe_apikey.png`} target="_blank">
               <img
+                alt="image"
                 className="m-4 border rounded-lg border-gray-200"
                 style={ReactDOMStyle.make(~maxWidth="94%", ())}
                 src={`/icons/stripe_apikey.png`}
@@ -57,6 +58,7 @@ module Render = {
         </div>
         <a href={`/icons/stripe_helper.png`} target="_blank">
           <img
+            alt="image"
             className="m-4 border rounded-lg border-gray-200"
             style={ReactDOMStyle.make(~maxWidth="94%", ())}
             src={`/icons/stripe_helper.png`}
@@ -72,7 +74,9 @@ module Render = {
             {React.string(" tab and navigate to API credentials.")}
             <a href={`/icons/adyen_apikey.png`} target="_blank">
               <img
-                className="m-4 border rounded-lg border-gray-200" src={`/icons/adyen_apikey.png`}
+                alt="image"
+                className="m-4 border rounded-lg border-gray-200"
+                src={`/icons/adyen_apikey.png`}
               />
             </a>
           </li>
@@ -89,6 +93,7 @@ module Render = {
         </div>
         <a href={`/icons/adyen_merchantID.png`} target="_blank">
           <img
+            alt="image"
             className="m-8 border rounded-lg border-gray-200 w-3/4"
             src={`/icons/adyen_merchantID.png`}
           />
@@ -147,6 +152,7 @@ module Render = {
             )}
             <a href={`/icons/paypal_apikey.png`} target="_blank">
               <img
+                alt="image"
                 className="m-4 border rounded-lg border-gray-200"
                 style={ReactDOMStyle.make(~maxWidth="94%", ())}
                 src={`/icons/paypal_apikey.png`}

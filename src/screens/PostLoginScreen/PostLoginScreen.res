@@ -139,7 +139,11 @@ let make = () => {
             <p className="text-fs-20 font-medium">
               {`Hey ${userName->LogicUtils.capitalizeString}`->React.string}
             </p>
-            <img className="h-8 w-8 mx-3" src={`/images/hyperswitchImages/WavingHandImage.svg`} />
+            <img
+              alt="image"
+              className="h-8 w-8 mx-3"
+              src={`/images/hyperswitchImages/WavingHandImage.svg`}
+            />
           </div>
           <p className="text-fs-20 font-medium "> {`Welcome to Hyperswitch`->React.string} </p>
         </div>

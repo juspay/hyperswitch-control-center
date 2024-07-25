@@ -28,7 +28,7 @@ module PageFooterSection = {
       <div id="footer" className="flex items-center gap-2">
         {"An open-source initiative by "->React.string}
         <a href="https://juspay.in/" target="__blank">
-          <img src={`/icons/juspay-logo-dark.svg`} className="h-3" />
+          <img alt="image" src={`/icons/juspay-logo-dark.svg`} className="h-3" />
         </a>
       </div>
     </div>
@@ -105,8 +105,8 @@ module Header = {
         <div className="flex justify-center my-5">
           {switch authType {
           | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
-            <img className="w-48" src={`/assets/mail.svg`} />
-          | ForgetPassword => <img className="w-24" src={`/assets/key-password.svg`} />
+            <img alt="image" className="w-48" src={`/assets/mail.svg`} />
+          | ForgetPassword => <img alt="image" className="w-24" src={`/assets/key-password.svg`} />
           | _ => React.null
           }}
         </div>

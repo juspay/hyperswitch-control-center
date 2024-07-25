@@ -58,7 +58,7 @@ let make = (
         | Painting =>
           <div className=containerClass>
             <div className=" mb-8 mt-8 max-w-full h-auto">
-              <img src={`/icons/Illustration.svg`} />
+              <img alt="image" src={`/icons/Illustration.svg`} />
             </div>
             <div className={`${msgCss}`}> {React.string(message)} </div>
             <div>
@@ -71,14 +71,14 @@ let make = (
         | NotFound =>
           <div className=containerClass>
             <div className="mb-8 mt-4 max-w-full h-auto">
-              <img src={`${prefix}/notfound.svg`} />
+              <img alt="image" src={`${prefix}/notfound.svg`} />
             </div>
             <div className="px-3 text-base mt-2"> {React.string(message)} </div>
           </div>
         | Locked =>
           <div className=containerClass>
             <div className="mb-8 mt-8 max-w-full h-auto">
-              <img src={`/icons/Locked.svg`} />
+              <img alt="image" src={`/icons/Locked.svg`} />
             </div>
             <div className="px-3 text-base"> {React.string(message)} </div>
             <div>
@@ -91,7 +91,7 @@ let make = (
         | LoadError =>
           <div className=containerClass>
             <div className="mb-8 mt-8 max-w-full h-auto">
-              <img src={`/icons/LoadError.svg`} />
+              <img alt="image" src={`/icons/LoadError.svg`} />
             </div>
             <div className="px-3 text-base"> {React.string(message)} </div>
             <div>

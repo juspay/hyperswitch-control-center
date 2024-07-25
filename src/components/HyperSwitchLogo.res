@@ -29,6 +29,6 @@ let make = (
   }
 
   <div className={`${logoClass}`} onClick={handleClickEvent}>
-    <img src=iconImagePath className=logoHeight />
+    <img alt="image" src=iconImagePath className=logoHeight />
   </div>
 }

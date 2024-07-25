@@ -64,7 +64,7 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
         </div>
         <div className="flex gap-4 justify-end">
           <Button
-            leftIcon={CustomIcon(<img src={`/assets/CopyToClipboard.svg`} />)}
+            leftIcon={CustomIcon(<img alt="image" src={`/assets/CopyToClipboard.svg`} />)}
             text={"Copy"}
             buttonType={Secondary}
             buttonSize={Small}

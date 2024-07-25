@@ -21,7 +21,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
     <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
       <div className="bg-white h-35-rem w-200 rounded-2xl">
         <div className="p-6 border-b-2">
-          <img src={`assets/Dark/hyperswitchLogoIconWithText.svg`} />
+          <img alt="image" src={`assets/Dark/hyperswitchLogoIconWithText.svg`} />
         </div>
         <div className="p-6 flex flex-col gap-2">
           <p className={`${textHeadingClass} text-grey-900`}>
