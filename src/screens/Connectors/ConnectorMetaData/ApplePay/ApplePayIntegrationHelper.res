@@ -52,7 +52,6 @@ module HostURL = {
 module SampleEmail = {
   @react.component
   let make = () => {
-    open GlobalVars
     let showToast = ToastState.useShowToast()
 
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
@@ -87,12 +86,12 @@ module SampleEmail = {
         <span className="text-hyperswitch_black opacity-50">
           {"Since the Apple Pay Web Domain flow involves decryption at Hyperswitch, you would need to write to Stripe support (support@stripe.com) to get this feature enabled for your Stripe account. You can use the following text in the email, attach our"->React.string}
         </span>
-        <a
-          rel="noopener noreferrer"
-          className="text-blue-600 underline underline-offset-2 px-2 !opacity-100"
-          href={`${appendDashboardPath(~url="/compliance")}`}>
+        <Link
+          to_={`/compliance`}
+          openInNewTab=false
+          className="text-blue-600 underline underline-offset-2 px-2 !opacity-100">
           {"PCI DSS AoC certificate"->React.string}
-        </a>
+        </Link>
         <span className="text-hyperswitch_black opacity-50">
           {"and copy our Support team (biz@hyperswitch.io):"->React.string}
         </span>
