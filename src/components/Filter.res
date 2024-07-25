@@ -303,8 +303,10 @@ let make = (
               fieldWrapperClass="p-0"
             />
           </RenderIf>
+        </div>
+        <div className="flex gap-3 flex-wrap">
           <RenderIf condition={allFilters->Array.length > 0}>
-            <Menu \"as"="div" className="relative inline-block text-left">
+            <Menu \"as"="div" className="relative inline-block text-left mt-3">
               {_menuProps =>
                 <div>
                   <Menu.Button
