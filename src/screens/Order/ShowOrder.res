@@ -593,6 +593,7 @@ module FraudRiskBanner = {
 let make = (~id) => {
   open APIUtils
   open OrderUIUtils
+  let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -626,6 +627,7 @@ let make = (~id) => {
       }
     }
   }
+
   React.useEffect(() => {
     let accountUrl = getURL(
       ~entityName=ORDERS,
@@ -636,7 +638,7 @@ let make = (~id) => {
     )
     fetchOrderDetails(accountUrl)->ignore
     None
-  }, [])
+  }, [url])
 
   let isRefundDataAvailable = orderData.refunds->Array.length !== 0
 
