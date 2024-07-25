@@ -89,7 +89,7 @@ let make = (~goLive) => {
 
   let landingButtonGroup = {
     <div className="flex flex-col gap-4 w-full">
-      <UIUtils.RenderIf condition={!(isProdIntentCompleted->Option.getOr(false))}>
+      <RenderIf condition={!(isProdIntentCompleted->Option.getOr(false))}>
         <Button
           text="Get Production Access"
           buttonType={Primary}
@@ -98,7 +98,7 @@ let make = (~goLive) => {
             setQuickStartPageState(_ => GoLive(GO_LIVE))
           }}
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <Button
         text="Go to Home"
         buttonType={Secondary}

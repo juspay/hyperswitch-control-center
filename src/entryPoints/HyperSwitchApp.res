@@ -1,6 +1,5 @@
 @react.component
 let make = () => {
-  open UIUtils
   open HSwitchUtils
   open GlobalVars
   open APIUtils
@@ -424,10 +423,14 @@ let make = () => {
                         | list{"reports"}
                         | list{"config-settings"}
                         | list{"file-processor"} =>
-                          <AccessControl isEnabled=featureFlagDetails.reconV2 permission=Access>
+                          <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
                             <ReconModule urlList={url.path->urlPath} />
                           </AccessControl>
-
+                        | list{"compliance"} =>
+                          <AccessControl
+                            isEnabled=featureFlagDetails.complianceCertificate permission=Access>
+                            <Compliance />
+                          </AccessControl>
                         | list{"sdk"} =>
                           <AccessControl
                             isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
@@ -455,9 +458,9 @@ let make = () => {
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
                             renderShow={_value =>
-                              <UIUtils.RenderIf condition={featureFlagDetails.totp}>
+                              <RenderIf condition={featureFlagDetails.totp}>
                                 <ModifyTwoFaSettings />
-                              </UIUtils.RenderIf>}
+                              </RenderIf>}
                           />
 
                         | list{"business-details"} =>
@@ -468,7 +471,6 @@ let make = () => {
                           <AccessControl permission=Access>
                             <BusinessProfile />
                           </AccessControl>
-
                         | list{"configure-pmts", ...remainingPath} =>
                           <AccessControl
                             permission=userPermissionJson.connectorsView

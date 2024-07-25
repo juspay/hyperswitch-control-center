@@ -227,9 +227,9 @@ module TableLoadingErrorIndicator = {
     }
 
     <div className={`flex flex-col w-full`}>
-      <UIUtils.RenderIf condition={!hideTitle}>
+      <RenderIf condition={!hideTitle}>
         <TableHeading title />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <TableFilterSectionContext isFilterSection=true>
         <div className=filtersBorder> {filters} </div>
       </TableFilterSectionContext>

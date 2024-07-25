@@ -217,23 +217,23 @@ module FieldWrapper = {
       <div className={fieldWrapperClass}>
         {<>
           <div className="flex items-center">
-            <UIUtils.RenderIf condition=showLabel>
+            <RenderIf condition=showLabel>
               <AddDataAttributes attributes=[("data-form-label", label)]>
                 <label className={`${labelPadding} ${labelTextClass} ${labelClass}`}>
                   {React.string(label)}
-                  <UIUtils.RenderIf condition=isRequired>
+                  <RenderIf condition=isRequired>
                     <span className="text-red-950"> {React.string(" *")} </span>
-                  </UIUtils.RenderIf>
+                  </RenderIf>
                 </label>
               </AddDataAttributes>
-            </UIUtils.RenderIf>
+            </RenderIf>
             {switch description {
             | Some(description) =>
-              <UIUtils.RenderIf condition={description->LogicUtils.isNonEmptyString}>
+              <RenderIf condition={description->LogicUtils.isNonEmptyString}>
                 <div className="text-sm text-gray-500 mx-2">
                   <ToolTip description toolTipPosition />
                 </div>
-              </UIUtils.RenderIf>
+              </RenderIf>
             | None => React.null
             }}
             {switch descriptionComponent {

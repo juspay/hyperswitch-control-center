@@ -79,17 +79,14 @@ module OptionsWrapper = {
 module OptionWrapper = {
   open HeadlessUI
   @react.component
-  let make = (~index, ~value, ~redirectOnSelect, ~children) => {
+  let make = (~index, ~value, ~children) => {
     let activeClasses = isActive => {
       let borderClass = isActive ? "bg-gray-100 dark:bg-jp-gray-960" : ""
       `group flex items-center w-full p-2 text-sm rounded-lg ${borderClass}`
     }
 
     <Combobox.Option
-      className="flex flex-row cursor-pointer truncate"
-      onClick={_ => value->redirectOnSelect}
-      key={index->Int.toString}
-      value>
+      className="flex flex-row cursor-pointer truncate" key={index->Int.toString} value>
       {props => {
         <div className={props["active"]->activeClasses}> {children} </div>
       }}
@@ -122,9 +119,9 @@ module ModalWrapper = {
 module SearchResultsComponent = {
   open GlobalSearchTypes
   open LogicUtils
-  open UIUtils
+
   @react.component
-  let make = (~searchResults, ~searchText, ~redirectOnSelect, ~setShowModal) => {
+  let make = (~searchResults, ~searchText, ~setShowModal) => {
     React.useEffect(() => {
       let onKeyPress = event => {
         let keyPressed = event->ReactEvent.Keyboard.key
@@ -171,7 +168,7 @@ module SearchResultsComponent = {
           ->Array.mapWithIndex((item, i) => {
             let elementsArray = item.texts
 
-            <OptionWrapper key={Int.toString(i)} index={i} value={item} redirectOnSelect>
+            <OptionWrapper key={Int.toString(i)} index={i} value={item}>
               {elementsArray
               ->Array.mapWithIndex(
                 (item, index) => {
@@ -203,7 +200,7 @@ let make = () => {
   open GlobalSearchBarUtils
   open HeadlessUI
   open LogicUtils
-  open UIUtils
+
   let getURL = APIUtils.useGetURL()
   let prefix = useUrlPrefix()
   let setGLobalSearchResults = HyperswitchAtom.globalSeacrchAtom->Recoil.useSetRecoilState
@@ -398,7 +395,7 @@ let make = () => {
                 if searchText->isNonEmptyString && searchResults->Array.length === 0 {
                   <EmptyResult prefix searchText />
                 } else {
-                  <SearchResultsComponent searchResults searchText redirectOnSelect setShowModal />
+                  <SearchResultsComponent searchResults searchText setShowModal />
                 }
               }}
             </>

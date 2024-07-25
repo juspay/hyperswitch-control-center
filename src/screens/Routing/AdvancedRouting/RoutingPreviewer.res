@@ -4,7 +4,7 @@ module SimplePreview = {
   @react.component
   let make = (~gateways) => {
     let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
-    <UIUtils.RenderIf condition={gateways->Array.length > 0}>
+    <RenderIf condition={gateways->Array.length > 0}>
       <div
         className="w-full mb-6 p-4 px-6 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
         <div
@@ -24,7 +24,7 @@ module SimplePreview = {
           ->React.array}
         </div>
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 

@@ -86,6 +86,7 @@ type processorTypes =
   | MIFINITY
   | RAZORPAY
   | BAMBORA_APAC
+  | ITAUBANK
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 

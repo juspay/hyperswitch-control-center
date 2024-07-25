@@ -316,6 +316,13 @@ let getDictFromUrlSearchParams = searchParams => {
   })
   ->Dict.fromArray
 }
+
+let setDictNull = (dict, key, optionStr) => {
+  switch optionStr {
+  | Some(str) => dict->Dict.set(key, str->JSON.Encode.string)
+  | None => dict->Dict.set(key, JSON.Encode.null)
+  }
+}
 let setOptionString = (dict, key, optionStr) =>
   optionStr->Option.mapOr((), str => dict->Dict.set(key, str->JSON.Encode.string))
 
@@ -615,7 +622,7 @@ let regex = (positionToCheckFrom, searchString) => {
     ->String.replaceRegExp(%re("/\(/g"), "\\(")
     ->String.replaceRegExp(%re("/\+/g"), "\\+")
     ->String.replaceRegExp(%re("/\)/g"), "\\)")
-  Js.Re.fromStringWithFlags(
+  RegExp.fromStringWithFlags(
     "(.*)(" ++ positionToCheckFrom ++ "" ++ searchStringNew ++ ")(.*)",
     ~flags="i",
   )

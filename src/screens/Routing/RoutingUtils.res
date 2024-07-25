@@ -254,7 +254,7 @@ let getRecordsObject = json => {
 let filter = (connector_type, ~retainInList) => {
   let paymentRegex = %re("/(payout_processor|payment_vas)/ig")
   switch retainInList {
-  | PaymentConnector => Js.Re.exec_(paymentRegex, connector_type)->Option.isNone
+  | PaymentConnector => RegExp.exec(paymentRegex, connector_type)->Option.isNone
   | FRMPlayer => connector_type === "payment_vas"
   | PayoutConnector => connector_type === "payout_processor"
   }

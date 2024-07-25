@@ -338,7 +338,7 @@ let make = (
           } else {
             React.null
           }}
-          <UIUtils.RenderIf condition=showRemoteFilter>
+          <RenderIf condition=showRemoteFilter>
             <LabelVisibilityContext showLabel=false>
               <Filter
                 defaultFilters=entity.defaultFilters
@@ -359,7 +359,7 @@ let make = (
                 showSelectFiltersSearch=showFiltersSearch
               />
             </LabelVisibilityContext>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       if isFiltersInPortal {
         <Portal to=portalKey> {children} </Portal>

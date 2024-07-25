@@ -16,9 +16,9 @@ module BasicAuthPage = {
       <div
         className="h-full flex flex-col items-center justify-between overflow-scoll text-grey-0 w-full mobile:w-30-rem">
         <div className="flex flex-col items-center gap-6 flex-1 mt-4 mobile:my-20">
-          <UIUtils.RenderIf condition={testLiveToggle}>
+          <RenderIf condition={testLiveToggle}>
             <ToggleLiveTestMode authType mode setMode setAuthType />
-          </UIUtils.RenderIf>
+          </RenderIf>
           <Div layoutId="form" className="bg-white w-full text-black mobile:border rounded-lg">
             <div className="px-7 py-6">
               <Div layoutId="logo">
@@ -30,17 +30,17 @@ module BasicAuthPage = {
               <BasicAuth authType setAuthType />
             </div>
           </Div>
-          <UIUtils.RenderIf condition={!branding}>
+          <RenderIf condition={!branding}>
             <Div
               layoutId="footer-links"
               className="justify-center text-sm mobile:text-base flex flex-col mobile:flex-row mobile:gap-3 items-center w-full max-w-xl text-center">
               <CommonAuth.TermsAndCondition />
             </Div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
-        <UIUtils.RenderIf condition={!branding}>
+        <RenderIf condition={!branding}>
           <CommonAuth.PageFooterSection />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
 
     <HSwitchUtils.BackgroundImageWrapper

@@ -75,6 +75,7 @@ module RefundInfo = {
 let make = (~id) => {
   open LogicUtils
   open HSwitchOrderUtils
+  let url = RescriptReactRouter.useUrl()
   let getURL = APIUtils.useGetURL()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -126,7 +127,7 @@ let make = (~id) => {
   React.useEffect(() => {
     fetchRefundData()->ignore
     None
-  }, [])
+  }, [url])
 
   let showSyncButton = React.useCallback(_ => {
     let refundDict = refundData->getDictFromJsonObject
@@ -154,7 +155,7 @@ let make = (~id) => {
             cursorStyle="cursor-pointer"
           />
         </div>
-        <UIUtils.RenderIf condition={showSyncButton()}>
+        <RenderIf condition={showSyncButton()}>
           <ACLButton
             access={userPermissionJson.operationsView}
             text="Sync"
@@ -167,7 +168,7 @@ let make = (~id) => {
             buttonType={Primary}
             onClick={_ => syncData()}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
     <PageLoaderWrapper
@@ -179,7 +180,7 @@ let make = (~id) => {
       />}>
       <RefundInfo orderDict={refundData->LogicUtils.getDictFromJsonObject} />
       <div className="mt-5" />
-      <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
+      <RenderIf condition={featureFlagDetails.auditTrail}>
         <OrderUIUtils.RenderAccordian
           initialExpandedArray=[0]
           accordion={[
@@ -194,8 +195,8 @@ let make = (~id) => {
             },
           ]}
         />
-      </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={userPermissionJson.operationsView !== NoAccess}>
+      </RenderIf>
+      <RenderIf condition={userPermissionJson.operationsView !== NoAccess}>
         <LoadedTable
           title="Payment"
           actualData=orderData
@@ -207,7 +208,7 @@ let make = (~id) => {
           setOffset
           currrentFetchCount=1
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </PageLoaderWrapper>
   </div>
 }

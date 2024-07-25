@@ -101,7 +101,7 @@ module Header = {
     }
     let (signUpAllowed, _) = isSignUpAllowed()
     <div className={`${headerStyle} gap-2 h-fit mb-7 w-96`}>
-      <UIUtils.RenderIf condition={showInfoIcon}>
+      <RenderIf condition={showInfoIcon}>
         <div className="flex justify-center my-5">
           {switch authType {
           | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
@@ -110,20 +110,20 @@ module Header = {
           | _ => React.null
           }}
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
       <h1 id="card-header" className="font-semibold text-xl md:text-2xl">
         {cardHeaderText->React.string}
       </h1>
       {switch authType {
       | LoginWithPassword | LoginWithEmail =>
-        <UIUtils.RenderIf condition={signUpAllowed}>
+        <RenderIf condition={signUpAllowed}>
           {getHeaderLink(
             ~prefix="New to Hyperswitch?",
             ~authType=SignUP,
             ~path="/register",
             ~sufix="Sign up",
           )}
-        </UIUtils.RenderIf>
+        </RenderIf>
 
       | SignUP =>
         getHeaderLink(

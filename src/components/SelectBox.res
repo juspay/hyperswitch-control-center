@@ -20,7 +20,7 @@ let regex = (a, searchString) => {
     ->String.replaceRegExp(%re("/\+/g"), "\\+")
     ->String.replaceRegExp(%re("/\)/g"), "\\)")
     ->String.replaceRegExp(%re("/\./g"), "")
-  Js.Re.fromStringWithFlags("(.*)(" ++ a ++ "" ++ searchStringNew ++ ")(.*)", ~flags="i")
+  RegExp.fromStringWithFlags("(.*)(" ++ a ++ "" ++ searchStringNew ++ ")(.*)", ~flags="i")
 }
 
 module ListItem = {
@@ -731,7 +731,7 @@ module BaseSelect = {
           </div>
         } else if !isMobileView {
           let clearAllCondition = noOfSelected > 0
-          <UIUtils.RenderIf
+          <RenderIf
             condition={filteredOptions->Array.length > 1 &&
               filteredOptions->Array.find(item => item.value === "Loading...")->Option.isNone}>
             <div
@@ -744,7 +744,7 @@ module BaseSelect = {
               />
               {{clearAllCondition ? "Clear All" : "Select All"}->React.string}
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         } else {
           <div
             onClick={selectAll(noOfSelected !== options->Array.length)}
@@ -895,7 +895,7 @@ module BaseSelect = {
           onClick
         />
       } else {
-        <UIUtils.RenderIf condition={isDropDown && noOfSelected > 0 && showSelectCountButton}>
+        <RenderIf condition={isDropDown && noOfSelected > 0 && showSelectCountButton}>
           <Button
             buttonType=Primary
             text={`Select ${noOfSelected->Int.toString}`}
@@ -903,7 +903,7 @@ module BaseSelect = {
             customButtonStyle="w-full items-center"
             onClick
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       }}
     </div>
   }
@@ -1140,14 +1140,14 @@ module RenderListItemInBaseRadio = {
         | Some(str) =>
           <div key={i->Int.toString} className="flex flex-row">
             listItemComponent
-            <UIUtils.RenderIf condition={!isHorizontal}>
+            <RenderIf condition={!isHorizontal}>
               <ToolTip
                 description={str}
                 toolTipFor={<div className="py-4 px-4">
                   <Icon size=12 name="info-circle" />
                 </div>}
               />
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         | None => listItemComponent
         }
@@ -1370,11 +1370,11 @@ module BaseRadio = {
           ? "animate-textTransition transition duration-400"
           : "animate-textTransitionOff transition duration-400"}`}>
       {switch searchable {
-      | Some(val) => <UIUtils.RenderIf condition={val}> searchInputUI </UIUtils.RenderIf>
+      | Some(val) => <RenderIf condition={val}> searchInputUI </RenderIf>
       | None =>
-        <UIUtils.RenderIf condition={isDropDown && (options->Array.length > 5 || addDynamicValue)}>
+        <RenderIf condition={isDropDown && (options->Array.length > 5 || addDynamicValue)}>
           searchInputUI
-        </UIUtils.RenderIf>
+        </RenderIf>
       }}
       <div
         className={`${maxHeight} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
