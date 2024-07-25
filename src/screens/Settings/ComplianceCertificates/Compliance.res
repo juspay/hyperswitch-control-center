@@ -24,7 +24,7 @@ let make = () => {
   let fetchApi = AuthHooks.useApiFetcher()
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
 
-  let downloadPDF = () => {
+  let downloadPDF = _ => {
     setButtonState(_ => Button.Loading)
     let currentDate =
       Date.now()
@@ -77,9 +77,7 @@ let make = () => {
     />
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
       <DownloadCertificateTile
-        header="Hyperswitch's PCI Attestation of Compliance"
-        onClick={_ => downloadPDF()}
-        buttonState
+        header="Hyperswitch's PCI Attestation of Compliance" onClick=downloadPDF buttonState
       />
     </div>
   </div>
