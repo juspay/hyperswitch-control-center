@@ -78,7 +78,7 @@ let make = () => {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
       <DownloadCertificateTile
         header="Hyperswitch's PCI Attestation of Compliance"
-        onClick=downloadPDF
+        onClick={_ => downloadPDF()}
         buttonState
       />
     </div>
