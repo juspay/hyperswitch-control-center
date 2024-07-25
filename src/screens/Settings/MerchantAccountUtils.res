@@ -14,23 +14,26 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     payment_response_hash_key,
     authentication_connector_details,
     collect_shipping_details_from_wallet_connector,
+    outgoing_webhook_custom_http_headers,
+    is_connector_agnostic_mit_enabled,
   } = profileRecord
+
   let profileInfo =
     [
       ("merchant_id", merchant_id->JSON.Encode.string),
       ("profile_id", profile_id->JSON.Encode.string),
       ("profile_name", profile_name->JSON.Encode.string),
     ]->Dict.fromArray
-  profileInfo->setOptionString("return_url", return_url)
+  profileInfo->setDictNull("return_url", return_url)
   profileInfo->setOptionBool(
     "collect_shipping_details_from_wallet_connector",
     collect_shipping_details_from_wallet_connector,
   )
 
+  profileInfo->setDictNull("webhook_url", webhook_details.webhook_url)
   profileInfo->setOptionString("webhook_version", webhook_details.webhook_version)
   profileInfo->setOptionString("webhook_username", webhook_details.webhook_username)
   profileInfo->setOptionString("webhook_password", webhook_details.webhook_password)
-  profileInfo->setOptionString("webhook_url", webhook_details.webhook_url)
   profileInfo->setOptionBool("payment_created_enabled", webhook_details.payment_created_enabled)
   profileInfo->setOptionBool("payment_succeeded_enabled", webhook_details.payment_succeeded_enabled)
   profileInfo->setOptionBool("payment_failed_enabled", webhook_details.payment_failed_enabled)
@@ -43,7 +46,11 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     "three_ds_requestor_url",
     authentication_connector_details.three_ds_requestor_url,
   )
-
+  profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
+  profileInfo->setOptionDict(
+    "outgoing_webhook_custom_http_headers",
+    outgoing_webhook_custom_http_headers,
+  )
   profileInfo
 }
 
@@ -105,7 +112,7 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "webhook_password",
     valuesDict->getOptionString("webhook_password"),
   )
-  webhookSettingsValue->setOptionString(
+  webhookSettingsValue->setDictNull(
     "webhook_url",
     valuesDict->getString("webhook_url", "")->getNonEmptyString,
   )
@@ -132,14 +139,32 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     valuesDict->getString("three_ds_requestor_url", "")->getNonEmptyString,
   )
 
+  let outGoingWebHookCustomHttpHeaders = Dict.make()
+  let formValues = valuesDict->getDictfromDict("outgoing_webhook_custom_http_headers")
+
+  let _ =
+    valuesDict
+    ->getDictfromDict("outgoing_webhook_custom_http_headers")
+    ->Dict.keysToArray
+    ->Array.forEach(val => {
+      outGoingWebHookCustomHttpHeaders->setOptionString(
+        val,
+        formValues->getString(val, "")->getNonEmptyString,
+      )
+    })
+
   let profileDetailsDict = Dict.make()
-  profileDetailsDict->setOptionString(
+  profileDetailsDict->setDictNull(
     "return_url",
     valuesDict->getString("return_url", "")->getNonEmptyString,
   )
   profileDetailsDict->setOptionBool(
     "collect_shipping_details_from_wallet_connector",
     valuesDict->getOptionBool("collect_shipping_details_from_wallet_connector"),
+  )
+  profileDetailsDict->setOptionBool(
+    "is_connector_agnostic_mit_enabled",
+    valuesDict->getOptionBool("is_connector_agnostic_mit_enabled"),
   )
 
   profileDetailsDict->setOptionDict(
@@ -150,7 +175,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "authentication_connector_details",
     !(authenticationConnectorDetails->isEmptyDict) ? Some(authenticationConnectorDetails) : None,
   )
-
+  profileDetailsDict->setOptionDict(
+    "outgoing_webhook_custom_http_headers",
+    Some(outGoingWebHookCustomHttpHeaders),
+  )
   profileDetailsDict
 }
 
@@ -269,6 +297,17 @@ let checkValueChange = (~initialDict, ~valuesDict) => {
           let updatedValue = valuesDict->LogicUtils.getBool(key, false)
           initialValue !== updatedValue
         }
+      | "outgoing_webhook_custom_http_headers" => {
+          let initialDictLength =
+            initialDict
+            ->LogicUtils.getDictfromDict("outgoing_webhook_custom_http_headers")
+            ->Dict.keysToArray
+          let updatedDictLength =
+            valuesDict
+            ->LogicUtils.getDictfromDict("outgoing_webhook_custom_http_headers")
+            ->Dict.keysToArray
+          initialDictLength != updatedDictLength
+        }
       | _ => {
           let initialValue = initialDict->LogicUtils.getString(key, "")
           let updatedValue = valuesDict->LogicUtils.getString(key, "")
@@ -312,7 +351,7 @@ let validateCustom = (key, errors, value, isLiveMode) => {
       )
     }
   | PrimaryPhone | SecondaryPhone =>
-    if !Js.Re.test_(%re("/^(?:\+\d{1,15}?[.-])??\d{3}?[.-]?\d{3}[.-]?\d{3,9}$/"), value) {
+    if !RegExp.test(%re("/^(?:\+\d{1,15}?[.-])??\d{3}?[.-]?\d{3}[.-]?\d{3,9}$/"), value) {
       Dict.set(
         errors,
         key->validationFieldsMapper,
@@ -321,8 +360,8 @@ let validateCustom = (key, errors, value, isLiveMode) => {
     }
   | Website | WebhookUrl | ReturnUrl | ThreeDsRequestorUrl => {
       let regexUrl = isLiveMode
-        ? Js.Re.test_(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
-        : Js.Re.test_(%re("/^(http|https):\/\//i"), value)
+        ? RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
+        : RegExp.test(%re("/^(http|https):\/\//i"), value)
 
       if !regexUrl {
         Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->JSON.Encode.string)
@@ -336,14 +375,12 @@ let validateCustom = (key, errors, value, isLiveMode) => {
 let validateMerchantAccountForm = (
   ~values: JSON.t,
   ~fieldsToValidate: array<validationFields>,
-  ~setIsDisabled,
-  ~initialData,
   ~isLiveMode,
 ) => {
   // Need to refactor
   open LogicUtils
   let errors = Dict.make()
-  let initialDict = initialData->getDictFromJsonObject
+
   let valuesDict = values->getDictFromJsonObject
   fieldsToValidate->Array.forEach(key => {
     let value = getString(valuesDict, key->validationFieldsMapper, "")->getNonEmptyString
@@ -371,10 +408,7 @@ let validateMerchantAccountForm = (
     }
   | _ => ()
   }
-  setIsDisabled->Option.mapOr((), disableBtn => {
-    let isValueChanged = checkValueChange(~initialDict, ~valuesDict)
-    disableBtn(_ => !isValueChanged)
-  })
+
   errors->JSON.Encode.object
 }
 
@@ -398,6 +432,8 @@ let defaultValueForBusinessProfile = {
     three_ds_requestor_url: None,
   },
   collect_shipping_details_from_wallet_connector: None,
+  outgoing_webhook_custom_http_headers: None,
+  is_connector_agnostic_mit_enabled: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

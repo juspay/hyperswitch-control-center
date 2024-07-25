@@ -1,7 +1,7 @@
 let useThemeFromEvent = () => {
   let (eventTheme, setEventTheme) = React.useState(_ => None)
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let setEventThemeVal = (eventName, dict) => {
       if eventName === "AuthenticationDetails" {
         let payloadDict = dict->Dict.get("payload")->Option.flatMap(obj => obj->JSON.Decode.object)
@@ -34,7 +34,7 @@ let useThemeFromEvent = () => {
 
     Window.addEventListener("message", handleEventMessage)
     Some(() => Window.removeEventListener("message", handleEventMessage))
-  })
+  }, [])
 
   eventTheme
 }

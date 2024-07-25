@@ -65,7 +65,7 @@ let make = (
   let (showPassword, setShowPassword) = React.useState(_ => false)
   let inputRef = React.useRef(Nullable.null)
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     switch widthMatchwithPlaceholderLength {
     | Some(length) =>
       switch inputRef.current->Nullable.toOption {
@@ -85,7 +85,7 @@ let make = (
     None
   }, (inputRef.current, input.name))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let val = input.value->JSON.Decode.string->Option.getOr("")
 
     if val->String.includes("<script>") || val->String.includes("</script>") {
@@ -106,7 +106,7 @@ let make = (
     None
   }, [input.value])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch focusOnKeyPress {
     | Some(func) => {
         let keyDownFn = ev => {

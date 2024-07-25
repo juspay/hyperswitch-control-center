@@ -3,12 +3,12 @@ module InfoField = {
   let make = (~render, ~label) => {
     let str = render->Option.getOr("")
 
-    <UIUtils.RenderIf condition={str->LogicUtils.isNonEmptyString}>
+    <RenderIf condition={str->LogicUtils.isNonEmptyString}>
       <div>
         <h2 className="text-lg font-semibold"> {label->React.string} </h2>
         <h3 className=" break-words"> {str->React.string} </h3>
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -43,7 +43,7 @@ module DeleteConnectorMenu = {
         let connectorID = connectorInfo.merchant_connector_id
         let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
         let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete, ())
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/connectors"))
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
       } catch {
       | _ => ()
       }
@@ -155,7 +155,7 @@ module ConnectorSummaryGrid = {
       ~connectorName={connectorInfo.merchant_connector_id},
       ~merchantId,
     )
-    let connectorDetails = React.useMemo1(() => {
+    let connectorDetails = React.useMemo(() => {
       try {
         if connector->LogicUtils.isNonEmptyString {
           let dict = isPayoutFlow
@@ -237,9 +237,7 @@ module ConnectorSummaryGrid = {
               {"Improve conversion rate by conditionally managing PMTs visibility on checkout . Visit Settings >"->React.string}
               <a
                 onClick={_ =>
-                  RescriptReactRouter.push(
-                    HSwitchGlobalVars.appendDashboardPath(~url="/configure-pmts"),
-                  )}
+                  RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/configure-pmts"))}
                 target="_blank"
                 className="text-blue-500 underline cursor-pointer">
                 {"Configure PMTs at Checkout"->React.string}
@@ -320,7 +318,7 @@ let make = (
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
       let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post, ())
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
-      RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/connectors"))
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=redirectPath))
     } catch {
     | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
     }
@@ -360,7 +358,7 @@ let make = (
                 className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
                 {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
               </div>
-              <UIUtils.RenderIf condition={showMenuOption}>
+              <RenderIf condition={showMenuOption}>
                 {switch (connector->getConnectorNameTypeFromString(), paypalAutomaticFlow) {
                 | (Processors(PAYPAL), true) =>
                   <MenuOptionForPayPal
@@ -376,7 +374,7 @@ let make = (
                 | (_, _) =>
                   <MenuOption setCurrentStep disableConnector isConnectorDisabled connector />
                 }}
-              </UIUtils.RenderIf>
+              </RenderIf>
             </div>
 
           | _ =>
@@ -386,7 +384,7 @@ let make = (
                 if isFeedbackModalToBeOpen {
                   setShowFeedbackModal(_ => true)
                 }
-                RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=redirectPath))
+                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=redirectPath))
               }}
               text="Done"
               buttonType={Primary}

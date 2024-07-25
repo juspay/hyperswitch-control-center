@@ -281,7 +281,7 @@ module DescriptionSection = {
       })
       ->React.array}
       <div className=descriptionComponentClass>
-        <UIUtils.RenderIf condition=dismissable>
+        <RenderIf condition=dismissable>
           <Icon
             name="popUpClose"
             className="stroke-jp-2-dark-gray-2000 cursor-pointer"
@@ -289,7 +289,7 @@ module DescriptionSection = {
             size=20
             onClick={_ => setIsToolTipVisible(prev => !prev)}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         {descriptionComponent}
       </div>
     </div>
@@ -641,7 +641,7 @@ let make = (
   let componentRef = React.useRef(Nullable.null)
   let toolTipArrowRef = React.useRef(Nullable.null)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if isToolTipVisible {
       let handleScroll = (_e: Webapi.Dom.Event.t) => {
         setIsToolTipVisible(_ => false)

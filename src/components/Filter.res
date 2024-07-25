@@ -49,7 +49,7 @@ module ClearFilters = {
       }
     }
 
-    let hasExtraFilters = React.useMemo2(() => {
+    let hasExtraFilters = React.useMemo(() => {
       formState.initialValues
       ->JSON.Decode.object
       ->Option.getOr(Dict.make())
@@ -67,17 +67,17 @@ module ClearFilters = {
       ->Array.length > 0
     }, (formState.initialValues, defaultFilterKeys))
     let text = "Clear All"
-    <UIUtils.RenderIf condition={hasExtraFilters || outsidefilter}>
+    <RenderIf condition={hasExtraFilters || outsidefilter}>
       <Button
         text
-        customButtonStyle="bg-white rounded-lg !p-2 !h-10 !border"
+        customButtonStyle="bg-white rounded-lg !p-2 !h-10 !border mt-3"
         showBorder=false
         textStyle
         leftIcon
         onClick=handleClearFilter
         buttonType={Secondary}
       />
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -90,7 +90,7 @@ module AutoSubmitter = {
 
     let values = formState.values
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if formState.dirty {
         let defaultFieldsHaveChanged = defaultFilterKeys->Array.some(key => {
           formState.dirtyFields->Dict.get(key)->Option.getOr(false)
@@ -158,7 +158,7 @@ let make = (
   let searchParams = query->decodeURI
   let verticalGap = !isMobileView ? "gap-y-3" : ""
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     let updatedAllFilters = remoteFilters->Array.map(item => item.field)
     setAllFilters(_ => updatedAllFilters)
     None
@@ -181,7 +181,7 @@ let make = (
     ->Dict.keysToArray
     ->Array.length
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     let initialValues = RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
       ~initialFilters={Array.concat(remoteFilters, fixedFilters)},
@@ -294,17 +294,19 @@ let make = (
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
       <div>
-        <div className={`flex gap-3 items-center flex-wrap ${verticalGap} mb-3`}>
+        <div className={`flex gap-3 items-center flex-wrap ${verticalGap}`}>
           {customLeftView}
-          <UIUtils.RenderIf condition={fixedFilters->Array.length > 0}>
+          <RenderIf condition={fixedFilters->Array.length > 0}>
             <FormRenderer.FieldsRenderer
               fields={fixedFilters->Array.map(item => item.field)}
               labelClass="hidden"
               fieldWrapperClass="p-0"
             />
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={allFilters->Array.length > 0}>
-            <Menu \"as"="div" className="relative inline-block text-left">
+          </RenderIf>
+        </div>
+        <div className="flex gap-3 flex-wrap">
+          <RenderIf condition={allFilters->Array.length > 0}>
+            <Menu \"as"="div" className="relative inline-block text-left mt-3">
               {_menuProps =>
                 <div>
                   <Menu.Button
@@ -344,14 +346,13 @@ let make = (
                                         }
                                         `${activeClasses} font-medium`
                                       }>
-                                      <UIUtils.RenderIf
+                                      <RenderIf
                                         condition={option.label->LogicUtils.isNonEmptyString}>
                                         <div className="mr-5">
                                           {option.label->LogicUtils.snakeToTitle->React.string}
                                         </div>
-                                      </UIUtils.RenderIf>
-                                      <UIUtils.RenderIf
-                                        condition={option.label->LogicUtils.isEmptyString}>
+                                      </RenderIf>
+                                      <RenderIf condition={option.label->LogicUtils.isEmptyString}>
                                         <div className="mr-5">
                                           {option.inputNames
                                           ->Array.get(0)
@@ -359,7 +360,7 @@ let make = (
                                           ->LogicUtils.snakeToTitle
                                           ->React.string}
                                         </div>
-                                      </UIUtils.RenderIf>
+                                      </RenderIf>
                                     </button>
                                   </div>}
                               </Menu.Item>
@@ -372,15 +373,15 @@ let make = (
                   </Transition>
                 </div>}
             </Menu>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
         <div className="flex gap-3 flex-wrap">
           <FormRenderer.FieldsRenderer
-            fields={filterList} labelClass="hidden" fieldWrapperClass="p-0"
+            fields={filterList} labelClass="hidden" fieldWrapperClass="p-0 mt-3"
           />
-          <UIUtils.RenderIf condition={count > 0}>
+          <RenderIf condition={count > 0}>
             <ClearFilters defaultFilterKeys ?clearFilters outsidefilter={initalCount > 0} />
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       </div>
     </AddDataAttributes>}

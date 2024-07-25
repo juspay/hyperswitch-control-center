@@ -37,9 +37,9 @@ module ConnectorCurrentStepIndicator = {
                   <p className=textColor> {(i + 1)->Int.toString->React.string} </p>
                 }}
               </div>
-              <UIUtils.RenderIf condition={i !== stepsArr->Array.length - 1}>
+              <RenderIf condition={i !== stepsArr->Array.length - 1}>
                 <div className={`h-0.5 ${stepLineIndicator} ml-2 flex-1`} />
-              </UIUtils.RenderIf>
+              </RenderIf>
             </div>
             <div className={stepNameIndicator}>
               {step->ConnectorUtils.getStepName->React.string}
@@ -97,7 +97,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let profileID =
     initialValues->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("profile_id")
 
-  let getPayPalStatus = React.useCallback4(async () => {
+  let getPayPalStatus = React.useCallback(async () => {
     open PayPalFlowUtils
     open LogicUtils
     try {
@@ -116,7 +116,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         ~profileId=Some(profileId),
         (),
       )
-      let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
+      let url = getURL(~entityName=PAYPAL_ONBOARDING_SYNC, ~methodType=Post, ())
       let responseValue = await updateDetails(url, paypalBody, Fetch.Post, ())
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
 
@@ -183,7 +183,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if connector->LogicUtils.isNonEmptyString {
       getDetails()->ignore
     } else {
@@ -208,7 +208,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ => {
-        RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/connectors"))
+        RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
         setScreenState(_ => PageLoaderWrapper.Success)
       }}
       isButton=true
@@ -216,7 +216,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
 
   <PageLoaderWrapper screenState customUI={customUiForPaypal}>
     <div className="flex flex-col gap-10 overflow-scroll h-full w-full">
-      <UIUtils.RenderIf condition={showBreadCrumb}>
+      <RenderIf condition={showBreadCrumb}>
         <BreadCrumbNavigation
           path=[
             connectorID === "new"
@@ -233,16 +233,16 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
           currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector}
           cursorStyle="cursor-pointer"
         />
-      </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={currentStep !== Preview && showStepIndicator}>
+      </RenderIf>
+      <RenderIf condition={currentStep !== Preview && showStepIndicator}>
         <ConnectorCurrentStepIndicator currentStep stepsArr borderWidth />
-      </UIUtils.RenderIf>
-      <UIUtils.RenderIf
+      </RenderIf>
+      <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
         <HSwitchUtils.WarningArea
           warningText="This is a test connector and will not be reflected on your payment processor dashboard."
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
         {switch currentStep {

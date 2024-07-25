@@ -40,10 +40,10 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
     showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     generateRecoveryCodes()->ignore
     None
-  })
+  }, [])
 
   <PageLoaderWrapper screenState>
     <div className={`bg-white h-40-rem w-133 rounded-2xl flex flex-col`}>

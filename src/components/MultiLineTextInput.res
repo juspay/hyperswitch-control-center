@@ -18,7 +18,7 @@ let make = (
     ""
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let val = input.value->JSON.Decode.string->Option.getOr("")
     if val->String.includes("<script>") || val->String.includes("</script>") {
       showPopUp({

@@ -87,7 +87,7 @@ module TableRow = {
     let (isCurrentRowExpanded, setIsCurrentRowExpanded) = React.useState(_ => false)
     let (expandedData, setExpandedData) = React.useState(_ => React.null)
     let actualIndex = offset + rowIndex
-    let onClick = React.useCallback2(_ev => {
+    let onClick = React.useCallback(_ev => {
       let isRangeSelected = getSelection().\"type" == "Range"
       switch (onRowClick, isRangeSelected) {
       | (Some(fn), false) => fn(actualIndex)
@@ -95,21 +95,21 @@ module TableRow = {
       }
     }, (onRowClick, actualIndex))
 
-    let onDoubleClick = React.useCallback2(_ev => {
+    let onDoubleClick = React.useCallback(_ev => {
       switch onRowDoubleClick {
       | Some(fn) => fn(actualIndex)
       | _ => ()
       }
     }, (onRowDoubleClick, actualIndex))
 
-    let onMouseEnter = React.useCallback2(_ev => {
+    let onMouseEnter = React.useCallback(_ev => {
       switch onMouseEnter {
       | Some(fn) => fn(actualIndex)
       | _ => ()
       }
     }, (onMouseEnter, actualIndex))
 
-    let onMouseLeave = React.useCallback2(_ev => {
+    let onMouseLeave = React.useCallback(_ev => {
       switch onMouseLeave {
       | Some(fn) => fn(actualIndex)
       | _ => ()
@@ -418,7 +418,7 @@ module TableHeadingCell = {
                 : justifyClass}`}>
             <div className="">
               <div className={"flex flex-row"}>
-                <UIUtils.RenderIf condition={item.showMultiSelectCheckBox->Option.getOr(false)}>
+                <RenderIf condition={item.showMultiSelectCheckBox->Option.getOr(false)}>
                   <div className=" mt-1 mr-2">
                     <CheckBoxIcon
                       isSelected={isAllSelected}
@@ -427,13 +427,13 @@ module TableHeadingCell = {
                       checkboxDimension
                     />
                   </div>
-                </UIUtils.RenderIf>
+                </RenderIf>
                 <div className="flex justify-between items-center">
                   {switch item.headerElement {
                   | Some(headerElement) => headerElement
                   | _ => <div className=tableHeadingTextClass> {React.string(item.title)} </div>
                   }}
-                  <UIUtils.RenderIf condition={item.data->Option.isSome}>
+                  <RenderIf condition={item.data->Option.isSome}>
                     <AddDataAttributes
                       attributes=[("data-heading-value", item.data->Option.getOr(""))]>
                       <div
@@ -441,7 +441,7 @@ module TableHeadingCell = {
                         {React.string(` (${item.data->Option.getOr("")})`)}
                       </div>
                     </AddDataAttributes>
-                  </UIUtils.RenderIf>
+                  </RenderIf>
                   {if item.showFilter || item.showSort || filterRow->Option.isSome {
                     let selfClass = "self-end"
                     <div className={`flex flex-row ${selfClass} items-center`}>
@@ -507,10 +507,10 @@ module TableHeadingCell = {
                     React.null
                   }}
                 </div>
-                <UIUtils.RenderIf condition={item.isMandatory->Option.getOr(false)}>
+                <RenderIf condition={item.isMandatory->Option.getOr(false)}>
                   <div className="text-red-400 text-sm ml-1"> {React.string("*")} </div>
-                </UIUtils.RenderIf>
-                <UIUtils.RenderIf
+                </RenderIf>
+                <RenderIf
                   condition={item.description->Option.getOr("")->LogicUtils.isNonEmptyString}>
                   <div className="text-sm text-gray-500 mx-2">
                     <ToolTip
@@ -518,7 +518,7 @@ module TableHeadingCell = {
                       toolTipPosition={ToolTip.Bottom}
                     />
                   </div>
-                </UIUtils.RenderIf>
+                </RenderIf>
               </div>
             </div>
           </div>
@@ -837,9 +837,9 @@ let make = (
   let frozenTable = {
     <table
       className={`table-auto ${frozenTableWidthClass} ${parentBoderColor} rounded-lg ${tableBorderClass} ${stickCol}`}>
-      <UIUtils.RenderIf condition=showHeading>
+      <RenderIf condition=showHeading>
         {renderTableHeadingRow(frozenHeading, true, false, lastHeadingClass)}
-      </UIUtils.RenderIf>
+      </RenderIf>
       <tbody>
         {tableFilterRow(~isFrozen=true)}
         {tableRows(frozenRow, false)}
@@ -851,14 +851,14 @@ let make = (
 
   let customizeColumn = {
     <table className={`table-auto rounded-lg sticky right-0 !px-0 !py-0 z-10`}>
-      <UIUtils.RenderIf condition=showHeading>
+      <RenderIf condition=showHeading>
         {renderTableHeadingRow(
           frozenCustomiseColumnHeading,
           true,
           true,
           `${lastHeadingClass} rounded-tl-none rounded-tr-lg`,
         )}
-      </UIUtils.RenderIf>
+      </RenderIf>
       <tbody>
         {tableRows(
           Array.fromInitializer(~length=totalLength, i => i + 1)->Array.map(_ => [Text("")]),
@@ -877,9 +877,9 @@ let make = (
 
   let nonFrozenTable = {
     <table id="table" className=tableBorderClass>
-      <UIUtils.RenderIf condition=showHeading>
+      <RenderIf condition=showHeading>
         {renderTableHeadingRow(remainingHeading, false, false, `${lastHeadingClass}`)}
-      </UIUtils.RenderIf>
+      </RenderIf>
       <tbody>
         {tableFilterRow(~isFrozen=false)}
         {tableRows(remaingRow, false)}
@@ -912,15 +912,15 @@ let make = (
       (),
     )} //replaced "overflow-auto" -> to be tested with master
   >
-    <UIUtils.RenderIf condition={frozenUpto > 0}> {frozenTable} </UIUtils.RenderIf>
+    <RenderIf condition={frozenUpto > 0}> {frozenTable} </RenderIf>
     <div className={`flex-1 ${overflowClass} no-scrollbar ${childMinWidthClass}`}>
       nonFrozenTable
     </div>
     {switch customizeColumnNewTheme {
     | Some(customizeColumnObj) =>
-      <UIUtils.RenderIf condition={customizeColumnObj.customizeColumnUi !== React.null}>
+      <RenderIf condition={customizeColumnObj.customizeColumnUi !== React.null}>
         {customizeColumn}
-      </UIUtils.RenderIf>
+      </RenderIf>
     | None => React.null
     }}
   </div>

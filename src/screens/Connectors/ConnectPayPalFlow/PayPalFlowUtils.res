@@ -142,7 +142,7 @@ let useDeleteTrackingDetails = () => {
   let getURL = useGetURL()
   async (connectorId, connector) => {
     try {
-      let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/reset_tracking_id`
+      let url = getURL(~entityName=RESET_TRACKING_ID, ~methodType=Post, ())
       let body =
         [
           ("connector_id", connectorId->JSON.Encode.string),

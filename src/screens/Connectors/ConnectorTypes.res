@@ -84,6 +84,9 @@ type processorTypes =
   | PLACETOPAY
   | ZSL
   | MIFINITY
+  | RAZORPAY
+  | BAMBORA_APAC
+  | ITAUBANK
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 

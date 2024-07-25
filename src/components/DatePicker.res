@@ -90,7 +90,7 @@ let make = (
     setDate(_ => currentDateTimeCheck)
     input.onChange(currentDateTimeCheck->Identity.stringToFormReactEvent)
   }
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if input.value == ""->JSON.Encode.string {
       setSelectedDate(_ => "")
     }

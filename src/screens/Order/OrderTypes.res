@@ -110,6 +110,7 @@ type order = {
   disputes: array<DisputeTypes.disputes>,
   attempts: array<attempts>,
   merchant_order_reference_id: string,
+  attempt_count: int,
 }
 
 type refundsColType =
@@ -178,7 +179,6 @@ type colType =
   | Created
   | Currency
   | CustomerId
-  | CustomerEmail
   | Description
   | Refunds
   | MandateId
@@ -207,6 +207,7 @@ type colType =
   | Metadata
   | CardNetwork
   | MerchantOrderReferenceId
+  | AttemptCount
 
 type summaryColType =
   | Created

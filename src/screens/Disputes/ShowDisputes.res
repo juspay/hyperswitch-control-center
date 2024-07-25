@@ -52,7 +52,6 @@ module Details = {
     open DisputeTypes
     open DisputesUtils
     open LogicUtils
-    open UIUtils
 
     let connectorTypeFromName = data.connector->ConnectorUtils.getConnectorNameTypeFromString()
     let {disputeEvidenceUpload} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -161,9 +160,9 @@ module DisputesInfo = {
         {"Summary"->React.string}
       </div>
       <Details data=disputesData getHeading getCell detailsFields=allColumns setDisputeData />
-      <UIUtils.RenderIf condition={!showNoteComponentCondition}>
+      <RenderIf condition={!showNoteComponentCondition}>
         <DisputesNoteComponent disputesData />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </>
   }
 }
@@ -171,6 +170,7 @@ module DisputesInfo = {
 @react.component
 let make = (~id) => {
   open APIUtils
+  let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -191,10 +191,10 @@ let make = (~id) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     fetchDisputesData()->ignore
     None
-  })
+  }, [url])
 
   let data = disputeData->LogicUtils.getDictFromJsonObject
   let paymentId = data->LogicUtils.getString("payment_id", "")
@@ -216,7 +216,7 @@ let make = (~id) => {
       </div>
       <DisputesInfo orderDict={data} setDisputeData />
       <div className="mt-5" />
-      <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
+      <RenderIf condition={featureFlagDetails.auditTrail}>
         <OrderUIUtils.RenderAccordian
           accordion={[
             {
@@ -230,7 +230,7 @@ let make = (~id) => {
             },
           ]}
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   </PageLoaderWrapper>
 }

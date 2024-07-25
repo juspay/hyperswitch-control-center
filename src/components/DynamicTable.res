@@ -3,7 +3,7 @@ let useRemoteFilter = (~searchParams, ~remoteFilters, ~remoteOptions, ~mandatory
     JSON.Encode.object(Dict.make())
   )
 
-  let remoteFiltersFromUrlTemp = React.useMemo1(() => {
+  let remoteFiltersFromUrlTemp = React.useMemo(() => {
     RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
       ~initialFilters=remoteFilters,
@@ -151,11 +151,11 @@ let make = (
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
 
   let (finalData, setFinalData) = React.useState(_ => None)
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setDefaultFilters(_ => entity.defaultFilters)
     None
   }, [entity.defaultFilters])
-  React.useEffect5(() => {
+  React.useEffect(() => {
     let remoteFilterDict = RemoteFiltersUtils.getFinalDict(
       ~filterJson=defaultFilters,
       ~filtersFromUrl=remoteFiltersFromUrl,
@@ -281,14 +281,14 @@ let make = (
     None
   }, (remoteFiltersFromUrl, defaultFilters, fetchApi, refreshData, uri))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if refetchCounter > 0 {
       Window.Location.reload()
     }
     None
   }, [refetchCounter])
 
-  let refetch = React.useCallback1(() => {
+  let refetch = React.useCallback(() => {
     setRefetchCounter(p => p + 1)
   }, [setRefetchCounter])
 
@@ -338,7 +338,7 @@ let make = (
           } else {
             React.null
           }}
-          <UIUtils.RenderIf condition=showRemoteFilter>
+          <RenderIf condition=showRemoteFilter>
             <LabelVisibilityContext showLabel=false>
               <Filter
                 defaultFilters=entity.defaultFilters
@@ -359,7 +359,7 @@ let make = (
                 showSelectFiltersSearch=showFiltersSearch
               />
             </LabelVisibilityContext>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       if isFiltersInPortal {
         <Portal to=portalKey> {children} </Portal>
@@ -371,7 +371,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let temp = switch filterObj {
     | Some(obj) =>
       switch filterCols {
@@ -391,7 +391,7 @@ let make = (
     None
   }, [data])
   let checkLength = ref(true)
-  React.useEffect2(() => {
+  React.useEffect(() => {
     let findVal = (accumulator, item: TableUtils.filterObject) =>
       Array.concat(accumulator, item.selected)
     let keys = switch filterObj {

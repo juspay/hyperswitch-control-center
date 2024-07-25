@@ -49,7 +49,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if choiceState === #NotSelected {
       setButtonState(_ => Button.Disabled)
     } else {
@@ -58,7 +58,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
     None
   }, [choiceState])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if smartRoutingChoiceState === #NotSelected {
       setButtonState(_ => Button.Disabled)
     } else {
@@ -67,7 +67,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
     None
   }, [smartRoutingChoiceState])
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     setInitialValues(prevJson => {
       let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
       prevJsonDict->Dict.set(
@@ -177,7 +177,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
       }
       let _ = await PaymentType(paymentBody)->postEnumDetails(#TestPayment)
       setQuickStartPageState(_ => IntegrateApp(LANDING))
-      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/quick-start"))
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/quick-start"))
       if paymentId->Option.isSome {
         mixpanelEvent(~eventName=`quickstart_checkout_pay`, ())
       } else {
@@ -188,10 +188,10 @@ let make = (~connectProcessorValue: connectProcessor) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     setKey(_ => Date.now()->Float.toString)
     None
-  })
+  }, [])
 
   <>
     {switch connectProcessorValue {
@@ -219,7 +219,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
             text="Exit to Homepage"
             onClick={_ => {
               setDashboardPageState(_ => #HOME)
-              RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
+              RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
             }}
             buttonSize=Small
           />}
@@ -308,7 +308,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
             />}>
             <TestPayment
               initialValues={activeBusinessProfile->SDKPaymentUtils.initialValueForForm}
-              returnUrl={`${HSwitchGlobalVars.getHostUrlWithBasePath}/quick-start`}
+              returnUrl={`${GlobalVars.getHostUrlWithBasePath}/quick-start`}
               onProceed={updateTestPaymentEnum}
               keyValue=key
               sdkWidth="w-full"

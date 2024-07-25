@@ -15,7 +15,7 @@ let make = (~previewOnly=false) => {
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let isConfigureConnector = connectorList->Array.length > 0
 
-  let (widthClass, heightClass) = React.useMemo1(() => {
+  let (widthClass, heightClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "max-h-96") : ("w-full", "")
   }, [previewOnly])
 
@@ -32,7 +32,7 @@ let make = (~previewOnly=false) => {
         let filters = Dict.make()
 
         filters->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
-        filters->Dict.set("limit", 20->Int.toFloat->JSON.Encode.float)
+        filters->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         if !(searchText->isEmptyString) {
           filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
         }
@@ -76,7 +76,7 @@ let make = (~previewOnly=false) => {
     }
   }
 
-  React.useEffect3(() => {
+  React.useEffect(() => {
     if filters->isNonEmptyValue {
       fetchOrders()
     }
@@ -89,7 +89,7 @@ let make = (~previewOnly=false) => {
 
   let filterUrl = getURL(~entityName=ORDERS, ~methodType=Get, ~id=Some("v2/filter"), ())
 
-  let filtersUI = React.useMemo0(() => {
+  let filtersUI = React.useMemo(() => {
     <RemoteTableFilters
       filterUrl
       setFilters
@@ -102,7 +102,7 @@ let make = (~previewOnly=false) => {
         placeholder="Search payment id" setSearchVal=setSearchText searchVal=searchText
       />}
     />
-  })
+  }, [])
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
@@ -110,15 +110,15 @@ let make = (~previewOnly=false) => {
         title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
       />
       <div className="flex">
-        <UIUtils.RenderIf condition={!previewOnly}>
+        <RenderIf condition={!previewOnly}>
           <div className="flex-1"> {filtersUI} </div>
-        </UIUtils.RenderIf>
-        <div className="flex justify-end gap-3">
-          <UIUtils.RenderIf condition={generateReport && orderData->Array.length > 0}>
+        </RenderIf>
+        <div className="flex flex-col items-end 2xl:flex-row 2xl:justify-end 2xl:items-start gap-3">
+          <RenderIf condition={generateReport && orderData->Array.length > 0}>
             <GenerateReport entityName={PAYMENT_REPORT} />
-          </UIUtils.RenderIf>
-          <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
+          </RenderIf>
           <PortalCapture key={`OrdersCustomizeColumn`} name={`OrdersCustomizeColumn`} />
+          <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
         </div>
       </div>
       <PageLoaderWrapper screenState customUI>
@@ -138,7 +138,6 @@ let make = (~previewOnly=false) => {
           sortingBasedOnDisabled=false
           hideTitle=true
           previewOnly
-          showResultsPerPageSelector=false
         />
       </PageLoaderWrapper>
     </div>

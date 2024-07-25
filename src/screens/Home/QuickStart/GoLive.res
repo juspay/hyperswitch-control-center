@@ -44,12 +44,13 @@ let make = (~goLive) => {
   let getProdVerifyDetails = async () => {
     open LogicUtils
     try {
-      let url = `${getURL(
-          ~entityName=USERS,
-          ~userType=#USER_DATA,
-          ~methodType=Get,
-          (),
-        )}?keys=ProdIntent`
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#USER_DATA,
+        ~methodType=Get,
+        ~queryParamerters=Some(`keys=ProdIntent`),
+        (),
+      )
       let res = await fetchDetails(url)
 
       let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
@@ -88,7 +89,7 @@ let make = (~goLive) => {
 
   let landingButtonGroup = {
     <div className="flex flex-col gap-4 w-full">
-      <UIUtils.RenderIf condition={!(isProdIntentCompleted->Option.getOr(false))}>
+      <RenderIf condition={!(isProdIntentCompleted->Option.getOr(false))}>
         <Button
           text="Get Production Access"
           buttonType={Primary}
@@ -97,13 +98,13 @@ let make = (~goLive) => {
             setQuickStartPageState(_ => GoLive(GO_LIVE))
           }}
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <Button
         text="Go to Home"
         buttonType={Secondary}
         onClick={_ => {
           setDashboardPageState(_ => #HOME)
-          RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
+          RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
         }}
       />
     </div>
@@ -137,7 +138,7 @@ let make = (~goLive) => {
               text="Exit to Homepage"
               onClick={_ => {
                 setDashboardPageState(_ => #HOME)
-                RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
+                RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
               }}
               buttonSize=Small
             />}>

@@ -16,6 +16,7 @@ let make = (
   ~filterNullVals: bool=false,
   ~statSentiment: Dict.t<AnalyticsUtils.statSentiment>=Dict.make(),
   ~statThreshold: Dict.t<float>=Dict.make(),
+  ~fullWidth=false,
 ) => {
   let percentFormat = value => {
     `${Float.toFixedWithPrecision(value, ~digits=2)}%`
@@ -40,7 +41,7 @@ let make = (
 
   let isMobileWidth = MatchMedia.useMatchMedia("(max-width: 700px)")
 
-  let sortedData1 = React.useMemo1(() => {
+  let sortedData1 = React.useMemo(() => {
     data
     ->Array.toSorted((item1, item2) => {
       let (x1, _y1) = item1
@@ -109,20 +110,23 @@ let make = (
   ]
 
   if singleStatLoading && loaderType === Shimmer {
-    <div className={`p-4`} style={ReactDOMStyle.make(~width=isMobileWidth ? "100%" : "33.33%", ())}>
+    <div
+      className={`p-4`}
+      style={ReactDOMStyle.make(~width=fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%", ())}>
       <Shimmer styleClass="w-full h-28" />
     </div>
   } else {
     <div
-      className={`mt-4`} style={ReactDOMStyle.make(~width=isMobileWidth ? "100%" : "33.33%", ())}>
+      className="h-full mt-4"
+      style={ReactDOMStyle.make(~width=fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%", ())}>
       <div
         className={`h-full flex flex-col border ${borderRounded} dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox p-2 md:mr-4`}>
         <div className="p-4 flex flex-col justify-between h-full gap-auto">
-          <UIUtils.RenderIf condition={singleStatLoading && loaderType === SideLoader}>
+          <RenderIf condition={singleStatLoading && loaderType === SideLoader}>
             <div className="animate-spin self-end absolute">
               <Icon name="spinner" size=16 />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div className="flex justify-between w-full h-1/2 items-end">
             <div className="font-bold text-3xl w-1/3">
               {statValue(statType)->String.toLowerCase->React.string}

@@ -11,8 +11,8 @@ let make = () => {
   let (isSelected, setIsSelected) = React.useState(_ => false)
   let {user_role: userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
-  React.useEffect1(() => {
-    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/agreement-signature"))
+  React.useEffect(() => {
+    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/agreement-signature"))
     None
   }, [dashboardPageState])
 
@@ -36,7 +36,7 @@ let make = () => {
       ->Date.toISOString
       ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")
 
-    //? - For localtesting this condn added
+    // For local testing this condition is added
     if downloadURL->LogicUtils.isNonEmptyString {
       open Promise
       fetchApi(downloadURL, ~method_=Get, ())

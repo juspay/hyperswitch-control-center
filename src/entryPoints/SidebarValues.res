@@ -33,9 +33,9 @@ module GetProductionAccess = {
         <div className={`text-white ${textStyles} !font-semibold`}>
           {productionAccessString->React.string}
         </div>
-        <UIUtils.RenderIf condition={!isProdIntent}>
+        <RenderIf condition={!isProdIntent}>
           <Icon name="thin-right-arrow" customIconColor="text-white" size=20 />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     | None =>
       <Shimmer
@@ -360,21 +360,6 @@ let userManagement = permissionJson => {
   })
 }
 
-let accountSettings = permissionJson => {
-  // Because it has delete sample data
-
-  SubLevelLink({
-    name: "Account Settings",
-    link: `/account-settings`,
-    access: permissionJson.merchantDetailsManage,
-    searchOptions: [
-      ("View profile", "/profile"),
-      ("Change password", "/profile"),
-      ("Manage your personal profile and preferences", "/profile"),
-    ],
-  })
-}
-
 let businessDetails = () => {
   SubLevelLink({
     name: "Business Details",
@@ -401,15 +386,27 @@ let configurePMTs = permissionJson => {
     searchOptions: [("Configure payment methods", "Configure country currency")],
   })
 }
-let settings = (~isSampleDataEnabled, ~isConfigurePmtsEnabled, ~permissionJson) => {
+
+let complianceCertificateSection = {
+  SubLevelLink({
+    name: "Compliance ",
+    link: `/compliance`,
+    access: Access,
+    searchOptions: [("PCI certificate", "")],
+  })
+}
+
+let settings = (~isConfigurePmtsEnabled, ~permissionJson, ~complianceCertificate) => {
   let settingsLinkArray = [businessDetails(), businessProfiles()]
 
-  if isSampleDataEnabled {
-    settingsLinkArray->Array.push(accountSettings(permissionJson))->ignore
-  }
   if isConfigurePmtsEnabled {
     settingsLinkArray->Array.push(configurePMTs(permissionJson))->ignore
   }
+
+  if complianceCertificate {
+    settingsLinkArray->Array.push(complianceCertificateSection)->ignore
+  }
+
   settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
 
   Section({
@@ -466,15 +463,85 @@ let developers = (isDevelopersEnabled, userRole, systemMetrics, ~permissionJson)
     : emptyComponent
 }
 
-let reconTag = (recon, isReconEnabled) =>
-  recon
-    ? Link({
-        name: "Reconcilation",
-        icon: isReconEnabled ? "recon" : "recon-lock",
-        link: `/recon`,
-        access: Access,
-      })
-    : emptyComponent
+let uploadReconFiles = {
+  SubLevelLink({
+    name: "Upload Recon Files",
+    link: `/upload-files`,
+    access: Access,
+    searchOptions: [("Upload recon files", "")],
+  })
+}
+
+let runRecon = {
+  SubLevelLink({
+    name: "Run Recon",
+    link: `/run-recon`,
+    access: Access,
+    searchOptions: [("Run recon", "")],
+  })
+}
+
+let reconAnalytics = {
+  SubLevelLink({
+    name: "Analytics",
+    link: `/recon-analytics`,
+    access: Access,
+    searchOptions: [("Recon analytics", "")],
+  })
+}
+let reconReports = {
+  SubLevelLink({
+    name: "Reports",
+    link: `/reports`,
+    access: Access,
+    searchOptions: [("Recon reports", "")],
+  })
+}
+
+let reconConfigurator = {
+  SubLevelLink({
+    name: "Configurator",
+    link: `/config-settings`,
+    access: Access,
+    searchOptions: [("Recon configurator", "")],
+  })
+}
+let reconFileProcessor = {
+  SubLevelLink({
+    name: "File Processor",
+    link: `/file-processor`,
+    access: Access,
+    searchOptions: [("Recon file processor", "")],
+  })
+}
+
+let reconAndSettlement = (recon, isReconEnabled) => {
+  switch (recon, isReconEnabled) {
+  | (true, true) =>
+    Section({
+      name: "Recon And Settlement",
+      icon: "recon",
+      showSection: true,
+      links: [
+        uploadReconFiles,
+        runRecon,
+        reconAnalytics,
+        reconReports,
+        reconConfigurator,
+        reconFileProcessor,
+      ],
+    })
+  | (true, false) =>
+    Link({
+      name: "Reconcilation",
+      icon: isReconEnabled ? "recon" : "recon-lock",
+      link: `/recon`,
+      access: Access,
+    })
+
+  | (_, _) => emptyComponent
+  }
+}
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
   let {user_role: userRole} =
@@ -487,7 +554,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     payOut,
     recon,
     default,
-    sampleData,
     systemMetrics,
     userJourneyAnalytics: userJourneyAnalyticsFlag,
     authenticationAnalytics: authenticationAnalyticsFlag,
@@ -497,6 +563,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     quickStart,
     disputeAnalytics,
     configurePmts,
+    complianceCertificate,
   } = featureFlagDetails
 
   let sidebar = [
@@ -517,13 +584,10 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~permissionJson,
     ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
-    recon->reconTag(isReconEnabled),
+    recon->reconAndSettlement(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
-    settings(
-      ~isSampleDataEnabled=sampleData,
-      ~isConfigurePmtsEnabled=configurePmts,
-      ~permissionJson,
-    ),
+    settings(~isConfigurePmtsEnabled=configurePmts, ~permissionJson, ~complianceCertificate),
   ]
+
   sidebar
 }

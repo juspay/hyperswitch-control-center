@@ -58,7 +58,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let status = filtersFromUrl->Dict.get("status")->Option.getOr("")->String.toLowerCase
     let paymentIdFromPaymemtIntentClientSecret = getClientSecretFromPaymentId(
       ~paymentIntentClientSecret=url.search

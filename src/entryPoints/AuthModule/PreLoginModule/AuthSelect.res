@@ -41,10 +41,10 @@ let make = (~setSelectedAuthId) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getAuthMethods()->ignore
     None
-  })
+  }, [])
 
   let renderComponentForAuthTypes = (method: SSOTypes.authMethodResponseType) => {
     let authMethodType = method.auth_method.\"type"
@@ -86,9 +86,9 @@ let make = (~setSelectedAuthId) => {
               ->Array.mapWithIndex((authMethod, index) =>
                 <React.Fragment key={index->Int.toString}>
                   {authMethod->renderComponentForAuthTypes}
-                  <UIUtils.RenderIf condition={index === 0 && authMethods->Array.length !== 2}>
+                  <RenderIf condition={index === 0 && authMethods->Array.length !== 2}>
                     {PreLoginUtils.divider}
-                  </UIUtils.RenderIf>
+                  </RenderIf>
                 </React.Fragment>
               )
               ->React.array}

@@ -81,13 +81,13 @@ let make = (
 
   //Need to check if necessary
   let form = ReactFinalForm.useForm()
-  React.useEffect0(() => {
+  React.useEffect(() => {
     form.change(
       "profile_id",
       profile->Option.getOr(defaultBusinessProfile.profile_id)->JSON.Encode.string,
     )
     None
-  })
+  }, [])
 
   <div
     className={` mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850`}>
@@ -144,7 +144,7 @@ let make = (
       <>
         <div className="flex">
           <div className="w-full md:w-1/2 lg:w-1/3">
-            <UIUtils.RenderIf condition={!isThreeDs}>
+            <RenderIf condition={!isThreeDs}>
               <BusinessProfileInp
                 setProfile={setProfile->Option.getOr(_ => ())}
                 profile={profile->Option.getOr(defaultBusinessProfile.profile_id)}
@@ -152,7 +152,7 @@ let make = (
                 label="Profile"
                 routingType
               />
-            </UIUtils.RenderIf>
+            </RenderIf>
             <FieldRenderer field=configurationNameInput />
             <FieldRenderer field=descriptionInput />
           </div>

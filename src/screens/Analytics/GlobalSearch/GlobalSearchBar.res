@@ -79,17 +79,14 @@ module OptionsWrapper = {
 module OptionWrapper = {
   open HeadlessUI
   @react.component
-  let make = (~index, ~value, ~redirectOnSelect, ~children) => {
+  let make = (~index, ~value, ~children) => {
     let activeClasses = isActive => {
       let borderClass = isActive ? "bg-gray-100 dark:bg-jp-gray-960" : ""
       `group flex items-center w-full p-2 text-sm rounded-lg ${borderClass}`
     }
 
     <Combobox.Option
-      className="flex flex-row cursor-pointer truncate"
-      onClick={_ => value->redirectOnSelect}
-      key={index->Int.toString}
-      value>
+      className="flex flex-row cursor-pointer truncate" key={index->Int.toString} value>
       {props => {
         <div className={props["active"]->activeClasses}> {children} </div>
       }}
@@ -122,9 +119,25 @@ module ModalWrapper = {
 module SearchResultsComponent = {
   open GlobalSearchTypes
   open LogicUtils
-  open UIUtils
+
   @react.component
-  let make = (~searchResults, ~searchText, ~redirectOnSelect, ~setShowModal) => {
+  let make = (~searchResults, ~searchText, ~setShowModal) => {
+    React.useEffect(() => {
+      let onKeyPress = event => {
+        let keyPressed = event->ReactEvent.Keyboard.key
+
+        if keyPressed == "Enter" {
+          let redirectLink = `/search?query=${searchText}`
+          if redirectLink->isNonEmptyString {
+            setShowModal(_ => false)
+            GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
+          }
+        }
+      }
+      Window.addEventListener("keydown", onKeyPress)
+      Some(() => Window.removeEventListener("keydown", onKeyPress))
+    }, [])
+
     <OptionsWrapper>
       {searchResults
       ->Array.mapWithIndex((section: resultType, index) => {
@@ -155,7 +168,7 @@ module SearchResultsComponent = {
           ->Array.mapWithIndex((item, i) => {
             let elementsArray = item.texts
 
-            <OptionWrapper key={Int.toString(i)} index={i} value={item} redirectOnSelect>
+            <OptionWrapper key={Int.toString(i)} index={i} value={item}>
               {elementsArray
               ->Array.mapWithIndex(
                 (item, index) => {
@@ -187,7 +200,7 @@ let make = () => {
   open GlobalSearchBarUtils
   open HeadlessUI
   open LogicUtils
-  open UIUtils
+
   let getURL = APIUtils.useGetURL()
   let prefix = useUrlPrefix()
   let setGLobalSearchResults = HyperswitchAtom.globalSeacrchAtom->Recoil.useSetRecoilState
@@ -204,19 +217,23 @@ let make = () => {
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
-
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+  let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let redirectOnSelect = element => {
+    mixpanelEvent(~eventName="global_search_redirect", ())
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
-      HSwitchGlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
+      GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
     }
   }
 
   let getSearchResults = async results => {
     try {
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
-      let body = [("query", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+
+      let body = generateSearchBody(~searchText, ~merchant_id={merchantDetailsValue.merchant_id})
+
       let response = await fetchDetails(url, body, Post, ())
 
       let local_results = []
@@ -253,7 +270,7 @@ let make = () => {
     }
   }
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     let results = []
 
     if searchText->String.length > 0 {
@@ -286,12 +303,12 @@ let make = () => {
     None
   }, [searchText])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setSearchText(_ => "")
     None
   }, [showModal])
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let onKeyPress = event => {
       let metaKey = event->ReactEvent.Keyboard.metaKey
       let keyPressed = event->ReactEvent.Keyboard.key
@@ -307,7 +324,7 @@ let make = () => {
     }
     Window.addEventListener("keydown", onKeyPress)
     Some(() => Window.removeEventListener("keydown", onKeyPress))
-  })
+  }, [])
 
   let openModalOnClickHandler = _ => {
     setShowModal(_ => true)
@@ -378,7 +395,7 @@ let make = () => {
                 if searchText->isNonEmptyString && searchResults->Array.length === 0 {
                   <EmptyResult prefix searchText />
                 } else {
-                  <SearchResultsComponent searchResults searchText redirectOnSelect setShowModal />
+                  <SearchResultsComponent searchResults searchText setShowModal />
                 }
               }}
             </>

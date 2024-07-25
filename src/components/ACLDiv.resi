@@ -12,4 +12,5 @@ let make: (
   ~justifyClass: string=?,
   ~tooltipForWidthClass: string=?,
   ~dataAttrStr: string=?,
+  ~height: string=?,
 ) => React.element

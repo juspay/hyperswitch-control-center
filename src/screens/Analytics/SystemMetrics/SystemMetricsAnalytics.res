@@ -156,19 +156,19 @@ module HSiwtchPaymentConfirmLatency = {
       ->ignore
     }
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       let value = overallLatency - connectorLatency
       setLatency(_ => value)
 
       None
     }, (overallLatency, connectorLatency))
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       getOverallLatency()->ignore
       getConnectorLatency()->ignore
 
       None
-    })
+    }, [])
 
     if isLoading {
       <div className={`p-4 w-full`}>
@@ -248,12 +248,12 @@ module SystemMetricsAnalytics = {
       (),
     )
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       setInitialFilters()
       None
-    })
+    }, [])
 
-    let filterBody = React.useMemo3(() => {
+    let filterBody = React.useMemo(() => {
       let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
         startTime: startTimeVal,
         endTime: endTimeVal,
@@ -270,7 +270,7 @@ module SystemMetricsAnalytics = {
     let {filterValueJson} = FilterContext.filterContext->React.useContext
     let startTimeVal = filterValueJson->getString("startTime", "")
     let endTimeVal = filterValueJson->getString("endTime", "")
-    React.useEffect3(() => {
+    React.useEffect(() => {
       setFilterDataJson(_ => None)
       if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
         try {
@@ -286,7 +286,7 @@ module SystemMetricsAnalytics = {
     }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
-    <UIUtils.RenderIf condition={getModuleFilters->Dict.toArray->Array.length > 0}>
+    <RenderIf condition={getModuleFilters->Dict.toArray->Array.length > 0}>
       {switch chartEntity1 {
       | Some(chartEntity) =>
         <div className="h-75-vh">
@@ -320,7 +320,7 @@ module SystemMetricsAnalytics = {
         </div>
       | _ => React.null
       }}
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -350,10 +350,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     loadInfo()->ignore
     None
-  })
+  }, [])
 
   let tabKeys = getStringListFromArrayDict(dimensions)
   let title = "System Metrics"

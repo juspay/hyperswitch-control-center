@@ -5,7 +5,7 @@ let make = (~children) => {
     AuthInfoProvider.authStatusContext,
   )
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     switch url.path {
     | list{"user", "verify_email"}
     | list{"user", "set_password"}
@@ -22,7 +22,7 @@ let make = (~children) => {
       }
     }
     None
-  })
+  }, [])
 
   <div className="font-inter-style">
     {switch authStatus {

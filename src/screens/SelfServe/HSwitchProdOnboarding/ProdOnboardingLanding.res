@@ -55,9 +55,9 @@ module CheckListSection = {
           </p>
           <p className=unselectedSubHeading> {headerText->React.string} </p>
         </div>
-        <UIUtils.RenderIf condition={!(checkListItems->Array.includes(pageView))}>
+        <RenderIf condition={!(checkListItems->Array.includes(pageView))}>
           <Icon name="lock-outlined" size=20 />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
       {checkListItems
       ->Array.mapWithIndex((value, index) => {
@@ -102,7 +102,7 @@ module SidebarChecklist = {
   let make = (~pageView, ~getConnectorDetails, ~setPreviewState) => {
     let (progressState, setProgressState) = React.useState(_ => 0)
 
-    React.useEffect1(_ => {
+    React.useEffect(_ => {
       let currentIndex = pageView->ProdOnboardingUtils.getIndexFromVariant
       // Need to change to 14 after enabling the TEST_LIVE_PAYMENT
       let progress = 2 + 16 * currentIndex
@@ -144,7 +144,7 @@ module SidebarChecklist = {
 @react.component
 let make = () => {
   open ProdOnboardingTypes
-  open HSwitchGlobalVars
+  open GlobalVars
   open ConnectorTypes
   open LogicUtils
   open APIUtils
@@ -225,12 +225,13 @@ let make = () => {
     open ProdOnboardingUtils
     open HomeUtils
     try {
-      let url = `${getURL(
-          ~entityName=USERS,
-          ~userType=#USER_DATA,
-          ~methodType=Get,
-          (),
-        )}?keys=${prodOnboardingEnumIntialArray->Array.joinWithUnsafe(",")}`
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#USER_DATA,
+        ~methodType=Get,
+        ~queryParamerters=Some(`keys=${prodOnboardingEnumIntialArray->Array.joinWithUnsafe(",")}`),
+        (),
+      )
       let response = await fetchDetails(url)
       let prodEnums = response->responseDataMapper(getValueMappedForProd)->getTypedValue
       getSetupProcessorEnum(prodEnums)
@@ -252,11 +253,11 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     // getSetupProcessorEnum()->ignore
     getStatus()->ignore
     None
-  })
+  }, [])
 
   <PageLoaderWrapper screenState sectionHeight="h-screen">
     <div className="flex h-screen w-screen">

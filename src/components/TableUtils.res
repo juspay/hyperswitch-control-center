@@ -1,5 +1,5 @@
 let regex = searchString => {
-  Js.Re.fromStringWithFlags(`` ++ searchString ++ ``, ~flags="gi")
+  RegExp.fromStringWithFlags(`` ++ searchString ++ ``, ~flags="gi")
 }
 let highlightedText = (str, searchedText) => {
   let shouldHighlight =
@@ -208,7 +208,7 @@ module BaseComponentMethod = {
   @react.component
   let make = (~showDropDown, ~filterKey) => {
     let (_, setLclFilterOpen) = React.useContext(DataTableFilterOpenContext.filterOpenContext)
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setLclFilterOpen(filterKey, showDropDown)
       None
     }, [showDropDown])
@@ -645,13 +645,13 @@ module DeltaColumn = {
             {React.string(Float.toFixedWithPrecision(value, ~digits=2) ++ "%")}
           </p>
         </div>
-        <UIUtils.RenderIf condition={delta !== value}>
+        <RenderIf condition={delta !== value}>
           <div className=paraparentCss>
             <p className={`px-2 py-0.5 fira-code text-fs-10  ${textColor}`}>
               {React.string(detlaStr)}
             </p>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }

@@ -1,7 +1,7 @@
 module ModalHeading = {
   @react.component
   let make = (~title, ~hideModal) => {
-    let handleClick = React.useCallback1(_ev => {
+    let handleClick = React.useCallback(_ev => {
       hideModal()
     }, [hideModal])
     <div className="bg-purple-300 p-4 text-lg flex flex-row justify-between">
@@ -18,19 +18,19 @@ module Modal = {
 
   @react.component
   let make = (~modalProps: ModalsState.modalProps, ~hideModalAtIndex, ~index) => {
-    let hideModal = React.useCallback2(() => {
+    let hideModal = React.useCallback(() => {
       hideModalAtIndex(index)
     }, (hideModalAtIndex, index))
 
-    let handleOutsideClick = React.useCallback2(_ev => {
+    let handleOutsideClick = React.useCallback(_ev => {
       if modalProps.closeOnClickOutside {
         hideModal()
       }
     }, (modalProps.closeOnClickOutside, hideModal))
 
-    let stopPropagation = React.useCallback0(ev => {
+    let stopPropagation = React.useCallback(ev => {
       ev->convertToWebapiEvent->Webapi.Dom.Event.stopPropagation
-    })
+    }, [])
     <div
       className="absolute inset-0 overflow-scroll bg-gray-500 bg-opacity-50 flex flex-col items-center"
       onClick=handleOutsideClick>
@@ -45,7 +45,7 @@ module Modal = {
 @react.component
 let make = (~children) => {
   let (openModals, setOpenModals) = Recoil.useRecoilState(ModalsState.openModals)
-  let hideModalAtIndex = React.useCallback1(index => {
+  let hideModalAtIndex = React.useCallback(index => {
     setOpenModals(prevArr => {
       Array.filterWithIndex(
         prevArr,

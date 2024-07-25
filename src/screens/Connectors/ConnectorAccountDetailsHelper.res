@@ -1,5 +1,3 @@
-let metaDataInputKeysToIgnore = ["google_pay", "apple_pay", "zen_apple_pay"]
-
 let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorTypes> = [
   Processors(ADYEN),
   Processors(CHECKOUT),
@@ -46,77 +44,6 @@ let multiValueInput = (~label, ~fieldName1, ~fieldName2) => {
   )
 }
 
-let getCurrencyOption: CurrencyUtils.currencyCode => SelectBox.dropdownOption = currencyType => {
-  open CurrencyUtils
-  {
-    label: currencyType->getCurrencyCodeStringFromVariant,
-    value: currencyType->getCurrencyCodeStringFromVariant,
-  }
-}
-
-let currencyField = (
-  ~name,
-  ~options=CurrencyUtils.currencyList,
-  ~disableSelect=false,
-  ~toolTipText="",
-  (),
-) =>
-  FormRenderer.makeFieldInfo(
-    ~label="Currency",
-    ~isRequired=true,
-    ~name,
-    ~description=toolTipText,
-    ~customInput=InputFields.selectInput(
-      ~deselectDisable=true,
-      ~disableSelect,
-      ~customStyle="max-h-48",
-      ~options=options->Array.map(getCurrencyOption),
-      ~buttonText="Select Currency",
-      (),
-    ),
-    (),
-  )
-
-let dropDownfield = (
-  ~name,
-  ~label,
-  ~buttonText="Select",
-  ~disableSelect=false,
-  ~toolTipText="",
-  ~options=[],
-  (),
-) => {
-  FormRenderer.makeFieldInfo(
-    ~label,
-    ~isRequired=true,
-    ~name,
-    ~description=toolTipText,
-    ~customInput=InputFields.selectInput(
-      ~deselectDisable=true,
-      ~disableSelect,
-      ~customStyle="max-h-48",
-      ~options=options->Array.map((item): SelectBox.dropdownOption => {
-        {
-          label: item,
-          value: item,
-        }
-      }),
-      ~buttonText,
-      (),
-    ),
-    (),
-  )
-}
-
-let toggleField = (~name) => {
-  FormRenderer.makeFieldInfo(
-    ~name,
-    ~label="Pull Mechanism Enabled",
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg", ()),
-    (),
-  )
-}
-
 let inputField = (
   ~name,
   ~field,
@@ -158,7 +85,7 @@ module ErrorValidation = {
     let errorDict = formState.values->validate->getDictFromJsonObject
     let {touched} = ReactFinalForm.useField(fieldName).meta
     let err = touched ? errorDict->Dict.get(fieldName) : None
-    <UIUtils.RenderIf condition={err->Option.isSome}>
+    <RenderIf condition={err->Option.isSome}>
       <div
         className={`flex flex-row items-center text-orange-950 dark:text-orange-400 pt-2 text-base font-medium text-start ml-1`}>
         <div className="flex mr-2">
@@ -166,7 +93,7 @@ module ErrorValidation = {
         </div>
         {React.string(err->Option.getOr(""->JSON.Encode.string)->getStringFromJson(""))}
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -192,33 +119,15 @@ module RenderConnectorInputFields = {
 
     keys
     ->Array.mapWithIndex((field, i) => {
-      let label = switch field {
-      | "pull_mechanism_for_external_3ds_enabled" => "Pull Mechanism Enabled"
-      | "klarna_region" => "Region of your Klarna Merchant Account"
-
-      | _ => details->getString(field, "")
-      }
+      let label = details->getString(field, "")
 
       let formName = isLabelNested ? `${name}.${field}` : name
-      <UIUtils.RenderIf condition={label->isNonEmptyString} key={i->Int.toString}>
+      <RenderIf condition={label->isNonEmptyString} key={i->Int.toString}>
         <AddDataAttributes attributes=[("data-testid", label->titleToSnake->String.toLowerCase)]>
           <div key={label}>
             <FormRenderer.FieldRenderer
               labelClass="font-semibold !text-hyperswitch_black"
               field={switch (connector, field) {
-              | (Processors(BRAINTREE), "merchant_config_currency") =>
-                currencyField(~name=formName, ())
-
-              | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") =>
-                toggleField(~name=formName)
-              | (Processors(KLARNA), "klarna_region") =>
-                dropDownfield(
-                  ~name=formName,
-                  ~label,
-                  ~buttonText="Select Region",
-                  ~options=details->getStrArrayFromDict(field, []),
-                  (),
-                )
               | (Processors(PAYPAL), "key1") =>
                 multiValueInput(
                   ~label,
@@ -250,7 +159,7 @@ module RenderConnectorInputFields = {
             />
           </div>
         </AddDataAttributes>
-      </UIUtils.RenderIf>
+      </RenderIf>
     })
     ->React.array
   }
@@ -300,8 +209,8 @@ module CashToCodeSelectBox = {
 
     <div>
       {opts
-      ->Array.map(country => {
-        <div className="flex items-center gap-2 break-words p-2">
+      ->Array.mapWithIndex((country, index) => {
+        <div key={index->Int.toString} className="flex items-center gap-2 break-words p-2">
           <div onClick={_e => selectedCountry(country)}>
             <CheckBoxIcon isSelected={country->isSelected} />
           </div>
@@ -408,21 +317,12 @@ module ConnectorConfigurationFields = {
       <RenderConnectorInputFields
         details={connectorLabelDetailField}
         name={"connector_label"}
-        keysToIgnore=metaDataInputKeysToIgnore
-        checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
         connector
         selectedConnector
         isLabelNested=false
         description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
       />
-      <RenderConnectorInputFields
-        details={connectorMetaDataFields}
-        name={"metadata"}
-        keysToIgnore=metaDataInputKeysToIgnore
-        checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
-        connector
-        selectedConnector
-      />
+      <ConnectorMetaData connectorMetaDataFields />
       <RenderConnectorInputFields
         details={connectorWebHookDetails}
         name={"connector_webhook_details"}
@@ -490,21 +390,19 @@ module BusinessProfileRender = {
           (),
         )}
       />
-      <UIUtils.RenderIf condition={!isUpdateFlow}>
+      <RenderIf condition={!isUpdateFlow}>
         <div className="text-gray-400 text-sm mt-3">
           <span> {"Manage your list of profiles."->React.string} </span>
           <span
             className={`ml-1 ${hereTextStyle}`}
             onClick={_ => {
               setDashboardPageState(_ => #HOME)
-              RescriptReactRouter.push(
-                HSwitchGlobalVars.appendDashboardPath(~url="/business-profiles"),
-              )
+              RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/business-profiles"))
             }}>
             {React.string("here.")}
           </span>
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
       <BusinessProfile isFromSettings=false showModalFromOtherScreen setShowModalFromOtherScreen />
     </>
   }
@@ -555,9 +453,7 @@ module VerifyConnectorModal = {
                 className="whitespace-pre-line break-all flex flex-col gap-1 p-4 ml-6 text-base dark:text-jp-gray-text_darktheme dark:text-opacity-50 bg-red-100 rounded-md font-semibold">
                 {`${verifyErrorMessage->Option.getOr("")}`->React.string}
               </div>
-              <UIUtils.RenderIf condition={suggestedActionExists}>
-                {suggestedAction}
-              </UIUtils.RenderIf>
+              <RenderIf condition={suggestedActionExists}> {suggestedAction} </RenderIf>
             </div>
           </div>
           <div className="flex flex-row justify-end gap-5 mt-4 mb-2 p-3">
@@ -607,7 +503,7 @@ module ConnectorHeaderWrapper = {
           </h2>
         </div>
         <div className="flex flex-row mt-6 md:mt-0 md:justify-self-end h-min">
-          <UIUtils.RenderIf
+          <RenderIf
             condition={connectorsWithIntegrationSteps->Array.includes(connectorNameFromType) &&
               conditionForIntegrationSteps}>
             <a
@@ -617,11 +513,11 @@ module ConnectorHeaderWrapper = {
               {React.string("View integration steps")}
               <Icon name="external-link-alt" size=14 className="ml-2" />
             </a>
-          </UIUtils.RenderIf>
+          </RenderIf>
           {headerButton}
         </div>
       </div>
-      <UIUtils.RenderIf
+      <RenderIf
         condition={switch connectorNameFromType {
         | Processors(BRAINTREE) => true
         | _ => false
@@ -638,7 +534,7 @@ module ConnectorHeaderWrapper = {
             </div>
           </h1>
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
       {children}
     </>
   }

@@ -8,12 +8,12 @@ module LogicalOps = {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let logicalOpsInput = ReactFinalForm.useField(`${id}.logical`).input
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       if logicalOpsInput.value->LogicUtils.getStringFromJson("")->String.length === 0 {
         logicalOpsInput.onChange("AND"->Identity.stringToFormReactEvent)
       }
       None
-    })
+    }, [])
     let onChange = str => logicalOpsInput.onChange(str->Identity.stringToFormReactEvent)
 
     <ButtonGroup wrapperClass="flex flex-row mr-2 ml-1">
@@ -58,7 +58,7 @@ module OperatorInp = {
       value: operator.value,
       checked: true,
     }
-    React.useEffect2(() => {
+    React.useEffect(() => {
       let operatorVals = switch keyType->variantTypeMapper {
       | Enum_variant => ["IS", "CONTAINS", "IS_NOT", "NOT_CONTAINS"]
       | Number => ["EQUAL TO", "GREATER THAN", "LESS THAN"]
@@ -114,7 +114,7 @@ module ValueInp = {
     let opField = (fieldsArray[2]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
     let typeField = (fieldsArray[3]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       typeField.onChange(
         if keyType->variantTypeMapper === Metadata_value {
           "metadata_variant"
@@ -207,9 +207,9 @@ module MetadataInp = {
       value: valueField.value,
       checked: true,
     }
-    <UIUtils.RenderIf condition={keyType->variantTypeMapper === Metadata_value}>
+    <RenderIf condition={keyType->variantTypeMapper === Metadata_value}>
       <TextInput placeholder={"Enter Key"} input=textInput />
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -277,15 +277,15 @@ module FieldInp = {
     let op = ReactFinalForm.useField(`${prefix}.comparison`).input
     let val = ReactFinalForm.useField(`${prefix}.value.value`).input
 
-    let convertedValue = React.useMemo0(() => {
+    let convertedValue = React.useMemo(() => {
       let keyDescriptionMapper = switch url->RoutingUtils.urlToVariantMapper {
       | PayoutRouting => Window.getPayoutDescriptionCategory()->Identity.jsonToAnyType
       | _ => Window.getDescriptionCategory()->Identity.jsonToAnyType
       }
       keyDescriptionMapper->LogicUtils.convertMapObjectToDict
-    })
+    }, [])
 
-    let options = React.useMemo0(() =>
+    let options = React.useMemo(() =>
       convertedValue
       ->Dict.keysToArray
       ->Array.reduce([], (acc, ele) => {
@@ -309,7 +309,7 @@ module FieldInp = {
         )
         acc
       })
-    )
+    , [])
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
@@ -358,7 +358,7 @@ module RuleFieldBase = {
       setKeyTypeAndVariants(wasm, value)
     }
 
-    let methodKeys = React.useMemo0(() => {
+    let methodKeys = React.useMemo(() => {
       let value = field.value->LogicUtils.getStringFromJson("")
       if value->LogicUtils.isNonEmptyString {
         setKeyTypeAndVariants(wasm, value)
@@ -373,17 +373,17 @@ module RuleFieldBase = {
         | _ => Window.getAllKeys()
         }
       }
-    })
+    }, [])
 
-    <UIUtils.RenderIf condition={methodKeys->Array.length > 0}>
+    <RenderIf condition={methodKeys->Array.length > 0}>
       {if isExpanded {
         <div
           className={`flex flex-wrap items-center px-1 ${hover
               ? "rounded-md bg-white dark:bg-black shadow"
               : ""}`}>
-          <UIUtils.RenderIf condition={!isFirst}>
+          <RenderIf condition={!isFirst}>
             <LogicalOps id />
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div className="-mt-5 p-1">
             <FieldWrapper label="">
               <FieldInp methodKeys prefix=id onChangeMethod />
@@ -398,7 +398,7 @@ module RuleFieldBase = {
           <div className="-mt-5">
             <FieldRenderer field={valueInput(id, variantValues, keyType)} />
           </div>
-          <UIUtils.RenderIf condition={!isFirst}>
+          <RenderIf condition={!isFirst}>
             <div
               onClick
               onMouseEnter={_ => setHover(_ => true)}
@@ -406,12 +406,12 @@ module RuleFieldBase = {
               className="flex items-center cursor-pointer rounded-full  border border-jp-gray-500 dark:border-jp-gray-960 bg-red-400 hover:shadow focus:outline-none p-2">
               <Icon size=10 className="text-gray-50 font-semibold" name="close" />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       } else {
         <MakeRuleFieldComponent.CompressedView isFirst id />
       }}
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 

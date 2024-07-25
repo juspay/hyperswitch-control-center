@@ -1,6 +1,5 @@
 @react.component
 let make = (~displayValue, ~endValue=17) => {
-  open UIUtils
   let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
 
   let handleClick = ev => {
