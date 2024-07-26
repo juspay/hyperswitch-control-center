@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.26.0
+
+### Miscellaneous Tasks
+
+- Added frm_metadata in payments api sdk ([#1075](https://github.com/juspay/hyperswitch-control-center/pull/1075)) ([`267722c`](https://github.com/juspay/hyperswitch-control-center/commit/267722c659b491f934552f1d822a473d9a6a401e))
+
+**Full Changelog:** [`2024.07.25.0...2024.07.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.25.0...2024.07.26.0)
+
+- - -
+
 ## 2024.07.25.0
 
 ### Bug Fixes
