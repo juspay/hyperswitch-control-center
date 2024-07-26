@@ -30,7 +30,15 @@ let getHeading = colType => {
 
 let getCell = (customersData, colType): Table.cell => {
   switch colType {
-  | CustomerId => Text(customersData.customer_id)
+  | CustomerId =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/customers/${customersData.customer_id}`}
+        displayValue={customersData.customer_id}
+        copyValue={customersData.customer_id->Some}
+      />,
+      "",
+    )
   | Name => Text(customersData.name)
   | Email => Text(customersData.email)
   | Phone => Text(customersData.phone)

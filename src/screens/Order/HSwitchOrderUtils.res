@@ -117,3 +117,75 @@ let nonRefundConnectors = ["braintree", "klarna", "airwallex"]
 let isNonRefundConnector = connector => {
   nonRefundConnectors->Array.includes(connector)
 }
+
+module CopyLinkTableCell = {
+  @react.component
+  let make = (
+    ~displayValue: string,
+    ~url,
+    ~copyValue,
+    ~customParentClass="flex items-center gap-2",
+    ~customOnCopyClick=() => (),
+    ~customTextCss="",
+    ~endValue=30,
+  ) => {
+    let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
+    let showToast = ToastState.useShowToast()
+    let handleClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      setIsTextVisible(_ => true)
+    }
+
+    let copyVal = switch copyValue {
+    | Some(val) => val
+    | None => displayValue
+    }
+    let onCopyClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      Clipboard.writeText(copyVal)
+      customOnCopyClick()
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+    }
+
+    <div className="flex items-center">
+      {if displayValue->LogicUtils.isNonEmptyString {
+        <div className=customParentClass>
+          <RenderIf condition={isTextVisible || displayValue->String.length <= endValue}>
+            <div className=customTextCss> {displayValue->React.string} </div>
+          </RenderIf>
+          <RenderIf
+            condition={!isTextVisible &&
+            displayValue->LogicUtils.isNonEmptyString &&
+            displayValue->String.length > endValue}>
+            <div className="flex text-nowrap gap-1">
+              <p className="">
+                {`${displayValue->String.slice(~start=0, ~end=endValue)}`->React.string}
+              </p>
+              <span
+                className="flex text-blue-811 text-sm font-extrabold"
+                onClick={ev => handleClick(ev)}>
+                {"..."->React.string}
+              </span>
+            </div>
+          </RenderIf>
+          <img
+            src={`/assets/CopyToClipboard.svg`}
+            className="cursor-pointer opacity-70 hover:opacity-100 py-1"
+            onClick={ev => {
+              onCopyClick(ev)
+            }}
+          />
+          <a
+            className="opacity-70 hover:opacity-100 py-1"
+            href={GlobalVars.appendDashboardPath(~url)}
+            onClick={ev => ev->ReactEvent.Mouse.stopPropagation}
+            target="_blank">
+            <Icon size={14} name="external-link-alt" />
+          </a>
+        </div>
+      } else {
+        "NA"->React.string
+      }}
+    </div>
+  }
+}

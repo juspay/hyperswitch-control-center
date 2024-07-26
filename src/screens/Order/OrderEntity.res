@@ -838,7 +838,15 @@ let getCell = (order, colType: colType): Table.cell => {
   switch colType {
   | Metadata =>
     CustomCell(<Metadata displayValue={order.metadata->JSON.Encode.object->JSON.stringify} />, "")
-  | PaymentId => Text(order.payment_id)
+  | PaymentId =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/payments/${order.payment_id}`}
+        displayValue={order.payment_id}
+        copyValue={order.payment_id->Some}
+      />,
+      "",
+    )
   | MerchantId => Text(order.merchant_id)
   | Connector => CustomCell(<ConnectorCustomCell connectorName={order.connector} />, "")
   | Status =>

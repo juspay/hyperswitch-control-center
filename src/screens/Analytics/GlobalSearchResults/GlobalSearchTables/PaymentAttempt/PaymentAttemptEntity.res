@@ -402,7 +402,15 @@ let getHeading = colType => {
 
 let getCell = (paymentObj, colType): Table.cell => {
   switch colType {
-  | PaymentId => Text(paymentObj.payment_id)
+  | PaymentId =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/payments/${paymentObj.payment_id}`}
+        displayValue={paymentObj.payment_id}
+        copyValue={paymentObj.payment_id->Some}
+      />,
+      "",
+    )
   | MerchantId => Text(paymentObj.merchant_id)
   | Status =>
     let orderStatus = paymentObj.status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper

@@ -122,7 +122,15 @@ let getCell = (refundData, colType): Table.cell => {
   | ErrorMessage => Text(refundData.error_message)
   | PaymentId => DisplayCopyCell(refundData.payment_id)
   | RefundReason => Text(refundData.reason)
-  | RefundId => DisplayCopyCell(refundData.refund_id)
+  | RefundId =>
+    CustomCell(
+      <CopyLinkTableCell
+        url={`/refunds/${refundData.refund_id}`}
+        displayValue={refundData.refund_id}
+        copyValue={refundData.refund_id->Some}
+      />,
+      "",
+    )
   | RefundStatus =>
     Label({
       title: refundData.status->String.toUpperCase,
