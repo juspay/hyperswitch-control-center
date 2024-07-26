@@ -7,7 +7,7 @@ module InputFieldForOtp = {
 
     let onChange = ev => {
       let currValue = {ev->ReactEvent.Form.target}["value"]
-      if %re("/^[0-9]+$/")->Js.Re.test_(currValue) || currValue === "" {
+      if %re("/^[0-9]+$/")->RegExp.test(currValue) || currValue === "" {
         let newValue =
           value->String.slice(~start=0, ~end=index) ++
           currValue ++
