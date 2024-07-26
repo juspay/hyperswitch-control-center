@@ -23,6 +23,7 @@ let make = (
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let initalFormValue =
     formState.values
     ->getDictFromJsonObject
@@ -158,6 +159,15 @@ let make = (
           )}`}
       />}
     />
+    <RenderIf condition={featureFlagDetails.isLiveMode && featureFlagDetails.complianceCertificate}>
+      <hr className="w-full" />
+      <SimplifiedHelper
+        heading="Get feature enabled from stripe"
+        subText=None
+        stepNumber="4"
+        customElement={<SampleEmail />}
+      />
+    </RenderIf>
     <div className="w-full flex gap-2 justify-end p-6">
       <Button
         text="Go Back"
