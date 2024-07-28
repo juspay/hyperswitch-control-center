@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.28.0
+
+### Bug Fixes
+
+- Rename single stat titles and tooltip texts ([#1081](https://github.com/juspay/hyperswitch-control-center/pull/1081)) ([`503f922`](https://github.com/juspay/hyperswitch-control-center/commit/503f92257c43dc471cc4add96e42650ffcbb5110))
+
+**Full Changelog:** [`2024.07.26.0...2024.07.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.26.0...2024.07.28.0)
+
+- - -
+
 ## 2024.07.26.0
 
 ### Miscellaneous Tasks
