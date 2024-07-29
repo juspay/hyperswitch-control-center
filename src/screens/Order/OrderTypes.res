@@ -179,7 +179,6 @@ type colType =
   | Created
   | Currency
   | CustomerId
-  | CustomerEmail
   | Description
   | Refunds
   | MandateId
