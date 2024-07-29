@@ -213,7 +213,7 @@ module QuickStart = {
       </div>
       <RenderIf condition={!isMobileView}>
         <div className="h-30 md:w-[43rem] flex justify-end">
-          <img alt="image" src="/assets/QuickStartImage.svg" />
+          <img alt="quick-start-image" src="/assets/QuickStartImage.svg" />
         </div>
       </RenderIf>
     </div>
@@ -267,7 +267,9 @@ module RecipesAndPlugins = {
             <p className=paragraphTextVariant>
               {"Get the best of Stripe's developer experience and Paypal's user base"->React.string}
             </p>
-            <img alt="image" src="/assets/StripePlusPaypal.svg" className=imageTransitionCss />
+            <img
+              alt="stripe-paypal" src="/assets/StripePlusPaypal.svg" className=imageTransitionCss
+            />
           </div>
         </ACLDiv>
         <ACLDiv
@@ -295,7 +297,7 @@ module RecipesAndPlugins = {
             <p className=paragraphTextVariant>
               {"Give your shoppers a lightweight and embedded payment experience with our plugin"->React.string}
             </p>
-            <img alt="image" src="/assets/Woocommerce.svg" className=imageTransitionCss />
+            <img alt="woocommerce" src="/assets/Woocommerce.svg" className=imageTransitionCss />
           </div>
         </ACLDiv>
       </div>

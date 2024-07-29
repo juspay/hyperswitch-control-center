@@ -43,13 +43,13 @@ let make = () => {
             )
           }}>
           {"Test creds for other connectors here"->React.string}
-          <img alt="image" src={`/icons/open-new-tab.svg`} />
+          <img alt="open-new-tab" src={`/icons/open-new-tab.svg`} />
         </div>
       </div>
     </div>
     <div className="flex items-center gap-4">
       <p className="text-sm font-semibold"> {"For Testing Apple Pay"->React.string} </p>
-      <img alt="image" src={`/Gateway/APPLE_PAY.svg`} className="w-10 h-10" />
+      <img alt="apple-pay" src={`/Gateway/APPLE_PAY.svg`} className="w-10 h-10" />
     </div>
     <div className="flex flex-row w-full mb-4 text-sm">
       <p className="text-grey-700 opacity-50 leading-5">

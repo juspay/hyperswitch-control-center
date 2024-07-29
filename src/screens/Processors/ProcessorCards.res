@@ -7,7 +7,7 @@ module RequestConnector = {
       <div
         className="flex flex-col gap-6 items-center justify-center w-full bg-white rounded-lg border p-8">
         <div className="mb-8 mt-4 max-w-full h-auto">
-          <img alt="image" src={`${LogicUtils.useUrlPrefix()}/notfound.svg`} />
+          <img alt="notfound" src={`${LogicUtils.useUrlPrefix()}/notfound.svg`} />
         </div>
         <p className="jp-grey-700 opacity-50">
           {"Uh-oh! Looks like we couldn't find the processor you were searching for."->React.string}

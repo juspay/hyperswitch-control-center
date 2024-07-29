@@ -189,7 +189,7 @@ let make = () => {
       </RenderIf>
       <NewProcessorCards configuredFRMs />
       <RenderIf condition={!isMobileView}>
-        <img alt="image" className="w-full max-w-[1400px] mb-10" src="/assets/frmBanner.svg" />
+        <img alt="frm-banner" className="w-full max-w-[1400px] mb-10" src="/assets/frmBanner.svg" />
       </RenderIf>
     </div>
   </PageLoaderWrapper>

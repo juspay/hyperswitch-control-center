@@ -24,7 +24,7 @@ module CopyTextCustomComp = {
       <div className=customParentClass>
         <div className=customTextCss> {displayValue->React.string} </div>
         <img
-          alt="image"
+          alt="cursor"
           src={`/assets/CopyToClipboard.svg`}
           className="cursor-pointer"
           onClick={ev => {

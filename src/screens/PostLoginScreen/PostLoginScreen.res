@@ -140,7 +140,7 @@ let make = () => {
               {`Hey ${userName->LogicUtils.capitalizeString}`->React.string}
             </p>
             <img
-              alt="image"
+              alt="wavinghand"
               className="h-8 w-8 mx-3"
               src={`/images/hyperswitchImages/WavingHandImage.svg`}
             />

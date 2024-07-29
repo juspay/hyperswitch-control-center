@@ -23,7 +23,7 @@ let make = (
   <div
     style={ReactDOMStyle.make(~width=appliedWidth, ~height=appliedHeight, ())}
     className={`m-5 bg-white dark:bg-jp-gray-lightgray_background dark:border-jp-gray-850 flex flex-col p-5 items-center justify-center ${customStyle}`}>
-    <img alt="image" src={`/assets/WorkInProgress.svg`} />
+    <img alt="work-in-progress" src={`/assets/WorkInProgress.svg`} />
     <RenderIf condition={title->String.length !== 0}>
       <div className={`font-bold mt-5 ${overriddingStylesTitle}`}> {title->React.string} </div>
     </RenderIf>
