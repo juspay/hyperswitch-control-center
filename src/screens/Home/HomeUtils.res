@@ -182,7 +182,7 @@ module CheckoutCard = {
 
     <CardLayout width="w-full md:w-1/2">
       <CardHeader heading=title subHeading=description leftIcon=Some("checkout") />
-      <img className="w-10/12 -mt-7 hidden md:block" src="/assets/sdk.svg" />
+      <img alt="sdk" className="w-10/12 -mt-7 hidden md:block" src="/assets/sdk.svg" />
       <CardFooter customFooterStyle="!m-1 !mt-2">
         <Button
           text="Try it out" buttonType={Secondary} buttonSize={Small} onClick={handleOnClick}
@@ -211,6 +211,7 @@ module ControlCenter = {
             leftIcon=Some("connector")
           />
           <img
+            alt="connector-list"
             className="inline-block absolute right-5 bottom-5  lg:block"
             src="/assets/connectorsList.svg"
           />

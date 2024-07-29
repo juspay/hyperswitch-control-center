@@ -167,7 +167,7 @@ let make = () => {
           />
         } else {
           <div className="bg-sidebar-blue flex items-center justify-center h-full">
-            <img src={`/assets/BlurrySDK.svg`} />
+            <img alt="blurry-sdk" src={`/assets/BlurrySDK.svg`} />
           </div>
         }}
       </div>

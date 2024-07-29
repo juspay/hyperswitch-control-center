@@ -566,7 +566,7 @@ module FraudRiskBanner = {
     <div
       className="flex justify-between items-center w-full  p-4 rounded-md bg-white border border-[#C04141]/50 ">
       <div className="flex gap-2">
-        <img src={`/icons/redFlag.svg`} />
+        <img alt="image" src={`/icons/redFlag.svg`} />
         <p className="text-lightgray_background font-medium text-fs-16">
           {`This payment is marked fraudulent by ${frmMessage.frm_name}.`->React.string}
         </p>
