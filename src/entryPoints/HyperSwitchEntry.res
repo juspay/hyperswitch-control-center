@@ -89,11 +89,6 @@ module HyperSwitchEntryComponent = {
           {
             "track_pageview": true,
             "batch_requests": true,
-            "loaded": () => {
-              let userId = MixPanel.getDistinctId()
-              LocalStorage.setItem("deviceid", userId)
-              MixPanel.identify(userId)
-            },
           },
         )
       }

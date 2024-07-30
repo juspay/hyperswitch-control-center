@@ -190,7 +190,9 @@ let onUserLogin = email => {
       [("email", email->JSON.Encode.string)]
       ->Dict.fromArray
       ->JSON.Encode.object
-
+    let userId = email
+    LocalStorage.setItem("deviceid", userId)
+    MixPanel.identify(userId)
     MixPanel.mixpanel.people.set(mixpanelUserInfo)
   }
 }
