@@ -13,8 +13,15 @@ let make = () => {
   let (filters, setFilters) = React.useState(_ => None)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+  let setPageDetails = Recoil.useSetRecoilState(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Payouts")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
+
+  let clearPageDetails = () => {
+    let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
+    newDict->Dict.set("Payouts", defaultValue)
+    setPageDetails(_ => newDict)
+  }
 
   let fetchPayouts = () => {
     switch filters {
@@ -50,7 +57,7 @@ let make = () => {
     if filters->OrderUIUtils.isNonEmptyValue {
       fetchPayouts()
     }
-    None
+    Some(() => clearPageDetails())
   }, (offset, filters, searchText))
 
   let filterUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some("filter"), ())

@@ -22,8 +22,15 @@ let make = (~previewOnly=false) => {
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
+  let setPageDetails = Recoil.useSetRecoilState(LoadedTable.table_pageDetails)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+  let clearPageDetails = () => {
+    let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
+    newDict->Dict.set("Orders", defaultValue)
+    setPageDetails(_ => newDict)
+  }
 
   let fetchOrders = () => {
     if !previewOnly {
@@ -80,7 +87,7 @@ let make = (~previewOnly=false) => {
     if filters->isNonEmptyValue {
       fetchOrders()
     }
-    None
+    Some(() => clearPageDetails())
   }, (offset, filters, searchText))
 
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
