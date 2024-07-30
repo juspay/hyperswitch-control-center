@@ -176,7 +176,7 @@ let make = () => {
             searchVal=searchText
             setSearchVal=setSearchText
           />}
-          resultsPerPage=20
+          resultsPerPage=25
           offset
           setOffset
           entity={FRMTableUtils.connectorEntity(

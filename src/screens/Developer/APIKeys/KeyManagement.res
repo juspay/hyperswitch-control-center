@@ -356,7 +356,7 @@ module ApiKeysTable = {
         </h2>
         <LoadedTable
           title=" "
-          resultsPerPage=7
+          resultsPerPage=10
           visibleColumns
           entity=apiKeysTableEntity
           showSerialNumber=true

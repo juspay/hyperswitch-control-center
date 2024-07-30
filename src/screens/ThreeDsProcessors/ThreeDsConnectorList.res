@@ -48,7 +48,7 @@ let make = () => {
             title="Connected Processors"
             actualData={configuredConnectors->Array.map(Nullable.make)}
             totalResults={configuredConnectors->Array.map(Nullable.make)->Array.length}
-            resultsPerPage=20
+            resultsPerPage=25
             entity={ThreeDsTableEntity.threeDsAuthenticatorEntity(
               `3ds-authenticators`,
               ~permission=userPermissionJson.connectorsManage,

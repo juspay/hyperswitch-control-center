@@ -138,7 +138,7 @@ let make = (~isPayoutFlow=false) => {
               searchVal=searchText
               setSearchVal=setSearchText
             />}
-            resultsPerPage=20
+            resultsPerPage=25
             offset
             setOffset
             entity={ConnectorTableUtils.connectorEntity(

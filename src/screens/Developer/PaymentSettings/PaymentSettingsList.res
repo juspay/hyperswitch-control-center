@@ -20,7 +20,7 @@ let make = (
         <LoadedTable
           title=" "
           hideTitle=true
-          resultsPerPage=7
+          resultsPerPage=10
           visibleColumns
           entity={webhookProfileTableEntity(~permission=userPermissionJson.merchantDetailsManage)}
           showSerialNumber=true

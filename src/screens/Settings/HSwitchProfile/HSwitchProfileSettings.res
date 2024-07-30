@@ -34,7 +34,7 @@ module MerchantDetailsSection = {
         <LoadedTable
           title="Merchant Info"
           hideTitle=true
-          resultsPerPage=7
+          resultsPerPage=10
           visibleColumns
           entity={merchantTableEntity}
           actualData={switchMerchantListValue->Array.map(Nullable.make)}

@@ -126,7 +126,7 @@ let make = (~previewOnly=false) => {
           title="Orders"
           actualData=orderData
           entity={OrderEntity.orderEntity}
-          resultsPerPage=20
+          resultsPerPage=25
           showSerialNumber=true
           totalResults={previewOnly ? orderData->Array.length : totalCount}
           offset

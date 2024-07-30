@@ -92,7 +92,7 @@ let make = () => {
           title="Refunds"
           actualData=refundData
           entity={RefundEntity.refundEntity}
-          resultsPerPage=20
+          resultsPerPage=25
           showSerialNumber=true
           totalResults={totalCount}
           offset
