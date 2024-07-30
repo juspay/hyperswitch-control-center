@@ -115,10 +115,6 @@ let make = (
 ) => {
   let (arrow, setArrow) = React.useState(_ => false)
   let currentPage = offset / resultsPerPage + 1
-  let start = offset + 1
-
-  let pageResultsCount =
-    resultsPerPage + start > totalResults ? totalResults : resultsPerPage + start - 1
 
   let selectInputOption = {
     [5, 10, 15, 25, 50]
@@ -146,7 +142,7 @@ let make = (
               className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border hover:bg-gray-100">
               {_buttonProps => {
                 <>
-                  {`${pageResultsCount->Int.toString} per page`->React.string}
+                  {`${resultsPerPage->Int.toString} per page`->React.string}
                   <Icon
                     className={arrow
                       ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
