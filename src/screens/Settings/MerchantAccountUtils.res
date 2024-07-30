@@ -351,7 +351,7 @@ let validateCustom = (key, errors, value, isLiveMode) => {
       )
     }
   | PrimaryPhone | SecondaryPhone =>
-    if !Js.Re.test_(%re("/^(?:\+\d{1,15}?[.-])??\d{3}?[.-]?\d{3}[.-]?\d{3,9}$/"), value) {
+    if !RegExp.test(%re("/^(?:\+\d{1,15}?[.-])??\d{3}?[.-]?\d{3}[.-]?\d{3,9}$/"), value) {
       Dict.set(
         errors,
         key->validationFieldsMapper,
@@ -360,8 +360,8 @@ let validateCustom = (key, errors, value, isLiveMode) => {
     }
   | Website | WebhookUrl | ReturnUrl | ThreeDsRequestorUrl => {
       let regexUrl = isLiveMode
-        ? Js.Re.test_(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
-        : Js.Re.test_(%re("/^(http|https):\/\//i"), value)
+        ? RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
+        : RegExp.test(%re("/^(http|https):\/\//i"), value)
 
       if !regexUrl {
         Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->JSON.Encode.string)

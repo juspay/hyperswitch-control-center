@@ -14,6 +14,7 @@ module InfoViewForWebhooks = {
         <p className="font-medium text-fs-14 text-black opacity-50"> {subHeading->React.string} </p>
         <RenderIf condition={isCopy}>
           <img
+            alt="copy-clipboard"
             src={`/assets/CopyToClipboard.svg`}
             className="cursor-pointer"
             onClick={ev => {
@@ -28,20 +29,14 @@ module InfoViewForWebhooks = {
 
 module AuthenticationInput = {
   @react.component
-  let make = (~removeAuthHeaders, ~authHeaders, ~index) => {
+  let make = (~index) => {
     open LogicUtils
     open FormRenderer
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let outGoingWebhookRef = React.useRef(formState.values)
-
-    React.useEffect(() => {
-      // Update the ref whenever formState.values changes
-      outGoingWebhookRef.current = formState.values
-      None
-    }, [formState.values])
-
+    let (key, setKey) = React.useState(_ => "")
+    let (metaValue, setValue) = React.useState(_ => "")
     let getOutGoingWebhook = () => {
       let outGoingWebhookDict =
         formState.values
@@ -54,36 +49,39 @@ module AuthenticationInput = {
       | _ => ("", "")
       }
     }
+    React.useEffect(() => {
+      let (outGoingWebhookKey, outGoingWebHookValue) = getOutGoingWebhook()
+      setValue(_ => outGoingWebHookValue)
+      setKey(_ => outGoingWebhookKey)
 
-    let (outGoingWebhookKey, outGoingWebHookValue) = getOutGoingWebhook()
-    let (key, setKey) = React.useState(_ => outGoingWebhookKey)
-    let (metaValue, setValue) = React.useState(_ => outGoingWebHookValue)
+      None
+    }, [])
     let form = ReactFinalForm.useForm()
-    let name = `outgoing_webhook_custom_http_headers.${key}`
     let keyInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ => {
-        if key->String.length > 0 {
-          form.change(name, metaValue->JSON.Encode.string)
-        }
-      },
+      onBlur: _ => (),
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
-        setKey(_ => value)
-      },
-      onFocus: _ => {
-        if key->String.length > 0 {
+        if value->String.length <= 0 {
+          let name = `outgoing_webhook_custom_http_headers.${key}`
           form.change(name, JSON.Encode.null)
         }
+        switch value->getOptionIntFromString->Option.isNone {
+        | true => setKey(_ => value)
+        | _ => ()
+        }
       },
+      onFocus: _ => (),
       value: key->JSON.Encode.string,
       checked: true,
     }
-
     let valueInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => {
-        form.change(name, metaValue->JSON.Encode.string)
+        if key->String.length > 0 {
+          let name = `outgoing_webhook_custom_http_headers.${key}`
+          form.change(name, metaValue->JSON.Encode.string)
+        }
       },
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
@@ -94,113 +92,43 @@ module AuthenticationInput = {
       checked: true,
     }
 
-    <div className="flex gap-4">
-      <DesktopRow wrapperClass="flex-1">
-        <div className="mt-5">
-          <TextInput input={keyInput} placeholder={"Enter key"} />
-        </div>
-        <div className="mt-5">
-          <TextInput input={valueInput} placeholder={"Enter value"} />
-        </div>
-      </DesktopRow>
-      <RenderIf condition={authHeaders->Array.length > 1}>
-        <div className="mt-6 flex gap-4">
-          <ModalCloseIcon onClick={_ev => removeAuthHeaders(index, key)} />
-        </div>
-      </RenderIf>
-    </div>
+    <DesktopRow wrapperClass="flex-1">
+      <div className="mt-5">
+        <TextInput input={keyInput} placeholder={"Enter key"} />
+      </div>
+      <div className="mt-5">
+        <TextInput input={valueInput} placeholder={"Enter value"} />
+      </div>
+    </DesktopRow>
   }
 }
 module WebHookAuthenticationHeaders = {
   @react.component
   let make = () => {
-    open LogicUtils
-    let form = ReactFinalForm.useForm()
-    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-    )
-
-    let outGoingWebhookDict =
-      formState.values
-      ->getDictFromJsonObject
-      ->getDictfromDict("outgoing_webhook_custom_http_headers")
-    let outGoingWebhookArr =
-      formState.values
-      ->getDictFromJsonObject
-      ->getDictfromDict("outgoing_webhook_custom_http_headers")
-      ->Dict.keysToArray
-      ->Array.filter(val => {
-        outGoingWebhookDict->getOptionString(val)->Option.isSome
-      })
-      ->Array.mapWithIndex((_, index) => index)
-
-    let (authHeaders, setAuthHeaders) = React.useState(_ =>
-      outGoingWebhookArr->Array.length > 0 ? outGoingWebhookArr : [0]
-    )
-    let formValuesRef = React.useRef(formState.values)
-
-    React.useEffect(() => {
-      // Update the ref whenever formState.values changes
-      formValuesRef.current = formState.values
-      None
-    }, [formState.values])
-
-    let removeAuthHeaders = (removeIndex, name) => {
-      let outGoingWebhookDict =
-        formValuesRef.current
-        ->getDictFromJsonObject
-        ->getDictfromDict("outgoing_webhook_custom_http_headers")
-        ->Dict.copy
-      outGoingWebhookDict->Dict.set(name, JSON.Encode.null)
-      form.change(
-        `outgoing_webhook_custom_http_headers`,
-        outGoingWebhookDict->Identity.genericTypeToJson,
-      )
-      setAuthHeaders(prevAuthHeaders =>
-        prevAuthHeaders->Array.filterWithIndex((_, index) => index != removeIndex)
-      )
-    }
-
-    let addAuthHeaders = () => {
-      if authHeaders->Array.length < 4 {
-        let update = authHeaders->Array.concat([authHeaders->Array.length])
-        setAuthHeaders(_ => update)
-      }
-    }
-
     <div className="flex-1">
       <p
         className={`ml-4 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 !text-base !text-grey-700 font-semibold ml-1`}>
         {"Custom HTTP Headers"->React.string}
       </p>
-      {authHeaders
-      ->Array.mapWithIndex((_, index) => {
-        <div key={index->Int.toString} className="grid grid-cols-5 flex gap-4">
-          <div className=" col-span-4">
-            <AuthenticationInput removeAuthHeaders authHeaders index />
+      <div className="grid grid-cols-5 flex gap-2">
+        {Array.fromInitializer(~length=4, i => i)
+        ->Array.mapWithIndex((_, index) =>
+          <div key={index->Int.toString} className="col-span-4">
+            <AuthenticationInput index={index} />
           </div>
-          <RenderIf condition={index === authHeaders->Array.length - 1 && index != 3}>
-            <div className="flex justify-start items-center mt-4">
-              <Icon
-                name="plus"
-                size=16
-                className="flex items-center justify-center w-fit h-fit p-1 border-2 rounded-full bg-gray-100"
-                onClick={_ => addAuthHeaders()}
-              />
-            </div>
-          </RenderIf>
-        </div>
-      })
-      ->React.array}
+        )
+        ->React.array}
+      </div>
     </div>
   }
 }
 
 module WebHook = {
   @react.component
-  let make = () => {
+  let make = (~setCustomHttpHeaders, ~enableCustomHttpHeaders) => {
     open FormRenderer
     open LogicUtils
+    let {customWebhookHeaders} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let form = ReactFinalForm.useForm()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -216,7 +144,7 @@ module WebHook = {
       ->getDictFromJsonObject
       ->getDictfromDict("outgoing_webhook_custom_http_headers")
       ->isEmptyDict
-    let (enableCustomHttpHeaders, setCustomHttpHeaders) = React.useState(_ => false)
+
     React.useEffect(() => {
       if !webHookURL {
         setCustomHttpHeaders(_ => false)
@@ -226,9 +154,6 @@ module WebHook = {
     }, [webHookURL])
 
     let updateCustomHttpHeaders = () => {
-      if enableCustomHttpHeaders {
-        form.change("outgoing_webhook_custom_http_headers", JSON.Encode.null)
-      }
       setCustomHttpHeaders(_ => !enableCustomHttpHeaders)
     }
     React.useEffect(() => {
@@ -249,24 +174,26 @@ module WebHook = {
             fieldWrapperClass="max-w-xl"
           />
         </div>
-        <div className="ml-4">
-          <div className={"mt-4 flex items-center text-jp-gray-700 font-bold self-start"}>
-            <div className="font-semibold text-base text-black dark:text-white">
-              {"Enable Custom HTTP Headers"->React.string}
+        <RenderIf condition={customWebhookHeaders}>
+          <div className="ml-4">
+            <div className={"mt-4 flex items-center text-jp-gray-700 font-bold self-start"}>
+              <div className="font-semibold text-base text-black dark:text-white">
+                {"Enable Custom HTTP Headers"->React.string}
+              </div>
+              <ToolTip description="Enter Webhook url to enable" toolTipPosition=ToolTip.Right />
             </div>
-            <ToolTip description="Enter Webhook url to enable" toolTipPosition=ToolTip.Right />
+            <div className="mt-4">
+              <BoolInput.BaseComponent
+                boolCustomClass="rounded-lg"
+                isSelected=enableCustomHttpHeaders
+                size={Large}
+                setIsSelected={_ => webHookURL ? updateCustomHttpHeaders() : ()}
+              />
+            </div>
           </div>
-          <div className="mt-4">
-            <BoolInput.BaseComponent
-              boolCustomClass="rounded-lg"
-              isSelected=enableCustomHttpHeaders
-              size={Large}
-              setIsSelected={_ => webHookURL ? updateCustomHttpHeaders() : ()}
-            />
-          </div>
-        </div>
+        </RenderIf>
       </div>
-      <RenderIf condition=enableCustomHttpHeaders>
+      <RenderIf condition={enableCustomHttpHeaders && customWebhookHeaders}>
         <WebHookAuthenticationHeaders />
       </RenderIf>
     </>
@@ -309,6 +236,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let (busiProfieDetails, setBusiProfie) = React.useState(_ => businessProfileDetails)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (enableCustomHttpHeaders, setCustomHttpHeaders) = React.useState(_ => false)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
 
@@ -330,9 +258,14 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let onSubmit = async (values, _) => {
     try {
+      open LogicUtils
       setScreenState(_ => PageLoaderWrapper.Loading)
+      let valuesDict = values->getDictFromJsonObject
+      if !enableCustomHttpHeaders {
+        valuesDict->Dict.set("outgoing_webhook_custom_http_headers", JSON.Encode.null)
+      }
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id), ())
-      let body = values->getBusinessProfilePayload->JSON.Encode.object
+      let body = valuesDict->JSON.Encode.object->getBusinessProfilePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post, ())
       setBusiProfie(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
@@ -451,7 +384,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   </DesktopRow>
                 </RenderIf>
                 <ReturnUrl />
-                <WebHook />
+                <WebHook enableCustomHttpHeaders setCustomHttpHeaders />
                 <DesktopRow>
                   <div className="flex justify-start w-full">
                     <SubmitButton

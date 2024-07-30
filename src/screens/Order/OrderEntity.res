@@ -341,6 +341,8 @@ let defaultColumns: array<colType> = [
   PaymentMethod,
   PaymentMethodType,
   CardNetwork,
+  Email,
+  MerchantOrderReferenceId,
   Description,
   Metadata,
   Created,
@@ -388,8 +390,6 @@ let getHeading = (colType: colType) => {
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created", ())
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ())
   | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID", ())
-  | CustomerEmail => Table.makeHeaderInfo(~key="email", ~title="Customer Email", ())
-
   | Description => Table.makeHeaderInfo(~key="description", ~title="Description", ())
 
   | MandateId => Table.makeHeaderInfo(~key="mandate_id", ~title="Mandate ID", ())
@@ -407,7 +407,7 @@ let getHeading = (colType: colType) => {
   | PaymentToken => Table.makeHeaderInfo(~key="payment_token", ~title="Payment Token", ())
   | Shipping => Table.makeHeaderInfo(~key="shipping", ~title="Shipping", ())
   | Billing => Table.makeHeaderInfo(~key="billing", ~title="Billing", ())
-  | Email => Table.makeHeaderInfo(~key="email", ~title="Email", ())
+  | Email => Table.makeHeaderInfo(~key="email", ~title="Customer Email", ())
   | Name => Table.makeHeaderInfo(~key="name", ~title="Name", ())
   | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone", ())
   | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="ReturnUrl", ())
@@ -705,7 +705,6 @@ let getCell = (order, colType: colType): Table.cell => {
   | Created => Date(order.created)
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
-  | CustomerEmail => Text(order.email)
   | Description => CustomCell(<Metadata displayValue={order.description} endValue={5} />, "")
   | MandateId => Text(order.mandate_id)
   | MandateData => Text(order.mandate_data)
@@ -785,20 +784,18 @@ let concatValueOfGivenKeysOfDict = (dict, keys) => {
 }
 
 let itemToObjMapper = dict => {
-  let addressKeys = [
-    "first_name",
-    "last_name",
-    "line1",
-    "line2",
-    "line3",
-    "city",
-    "state",
-    "country",
-    "zip",
-  ]
+  let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
 
   let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code", ()) => {
     `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
+  }
+
+  let getEmail = dict => {
+    let defaultEmail = dict->getString("email", "")
+
+    dict
+    ->getDictfromDict("customer")
+    ->getString("email", defaultEmail)
   }
 
   {
@@ -872,7 +869,7 @@ let itemToObjMapper = dict => {
     ->getDictfromDict("phone")
     ->getPhoneNumberString(),
     metadata: dict->getJsonObjectFromDict("metadata")->getDictFromJsonObject,
-    email: dict->getString("email", ""),
+    email: dict->getEmail,
     name: dict->getString("name", ""),
     phone: dict
     ->getDictfromDict("customer")

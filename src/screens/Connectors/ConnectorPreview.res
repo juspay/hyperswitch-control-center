@@ -26,7 +26,7 @@ module KeyAndCopyArea = {
           Clipboard.writeText(copyValue)
           showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
         }}>
-        <img src={`/assets/CopyToClipboard.svg`} />
+        <img alt="copy-clipboard" src={`/assets/CopyToClipboard.svg`} />
       </div>
     </div>
   }
@@ -318,7 +318,7 @@ let make = (
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
       let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post, ())
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
-      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=redirectPath))
     } catch {
     | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
     }

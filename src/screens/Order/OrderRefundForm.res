@@ -153,9 +153,7 @@ let make = (
               />
             </FormRenderer.DesktopRow>
             <FormRenderer.DesktopRow>
-              <DisplayKeyValueParams
-                heading={getHeading(CustomerEmail)} value={getCell(order, CustomerEmail)}
-              />
+              <DisplayKeyValueParams heading={getHeading(Email)} value={getCell(order, Email)} />
             </FormRenderer.DesktopRow>
             <FormRenderer.DesktopRow>
               <DisplayKeyValueParams
