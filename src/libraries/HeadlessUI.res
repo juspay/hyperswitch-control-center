@@ -407,6 +407,7 @@ module Menu = {
     external make: (
       ~\"as": string=?,
       ~static: bool=?,
+      ~anchor: string=?,
       ~unmount: bool=?,
       ~className: string=?,
       ~children: itemsRenderArgs => React.element=?,

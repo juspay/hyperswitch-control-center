@@ -18,13 +18,6 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let currentPage = offset / resultsPerPage + 1
   let start = offset + 1
-  let isMobileView = MatchMedia.useMobileChecker()
-  let isTabView = MatchMedia.useMatchMedia("(max-width: 800px)") && !isMobileView
-  let mobileFlexDirection = isMobileView ? "flex-row" : "flex-col md:flex-row"
-  let (flexDirection, btnCount, justify) = switch downloadCsv {
-  | Some(_) => (mobileFlexDirection, isTabView ? 2 : 4, "items-center justify-between")
-  | None => ("flex-row", isMobileView ? 2 : 4, "justify-start")
-  }
 
   let toNum = resultsPerPage + start > totalResults ? totalResults : resultsPerPage + start - 1
   let shouldRefetch = toNum > currrentFetchCount && toNum <= totalResults && !tableDataLoading
@@ -43,18 +36,7 @@ let make = (
     ->Array.filter(val => val <= totalResults)
     ->Array.map(Int.toString)
   }
-  let selectInput: ReactFinalForm.fieldRenderPropsInput = {
-    name: "dummy-name",
-    onBlur: _ev => (),
-    onChange: ev => {
-      setResultsPerPage(_ => {
-        ev->Identity.formReactEventToString->Int.fromString->Option.getOr(15)
-      })
-    },
-    onFocus: _ev => (),
-    value: resultsPerPage->Int.toString->JSON.Encode.string,
-    checked: true,
-  }
+
   let paginate = React.useCallback(pageNumber => {
     let total = Math.ceil(Int.toFloat(totalResults) /. Int.toFloat(resultsPerPage))->Float.toInt
     // for handling page count
@@ -64,8 +46,6 @@ let make = (
     let newOffset = (page - 1) * resultsPerPage
     setOffset(_ => newOffset)
   }, (setOffset, resultsPerPage, currrentFetchCount, url.search, totalResults))
-
-  let marginClass = "mt-4 md:mr-0"
 
   // if totalResults >= resultsPerPage {
   //   <div className={`flex ${flexDirection} justify-between ${marginClass} ${paginationClass} `}>
@@ -121,7 +101,8 @@ let make = (
   // }
 
   open HeadlessUI
-  <>
+
+  <div className="w-full mt-3 flex justify-end">
     <Menu \"as"="div" className="relative inline-block text-left">
       {_menuProps =>
         <div>
@@ -129,7 +110,7 @@ let make = (
             className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-md hover:bg-opacity-80 bg-white border">
             {_buttonProps => {
               <>
-                {"20 per page"->React.string}
+                {`${toNum->Int.toString} per page`->React.string}
                 <Icon
                   className={arrow
                     ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
@@ -149,7 +130,7 @@ let make = (
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95">
             {<Menu.Items
-              className="absolute right-0 z-50 w-fit mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+              className="absolute bottom-0 z-50 w-fit mb-11 bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-md ring-1 ring-black ring-opacity-5 focus:outline-none">
               {props => {
                 if props["open"] {
                   setArrow(_ => true)
@@ -158,48 +139,32 @@ let make = (
                 }
                 <>
                   <div className="px-1 py-1 ">
-                    {options
+                    {selectInputOption
                     ->Array.mapWithIndex((option, i) =>
                       <Menu.Item key={i->Int.toString}>
                         {props =>
                           <div className="relative">
                             <button
-                              onClick={_ => option.merchant_id->switchMerchant->ignore}
+                              onClick={_ =>
+                                setResultsPerPage(_ => option->Int.fromString->Option.getOr(20))}
                               className={
-                                let activeClasses = if props["active"] {
-                                  "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
-                                } else {
-                                  "group flex rounded-md items-center w-full px-2 py-2 text-sm"
-                                }
-                                `${activeClasses} font-medium text-start`
+                                let activeClasses = props["active"]
+                                  ? "bg-gray-100 dark:bg-black"
+                                  : ""
+                                `group flex rounded-md items-center w-full px-3 py-2 text-sm ${activeClasses} font-medium text-start`
                               }>
-                              <div className="mr-5"> {option.merchant_name->React.string} </div>
+                              <div className=""> {option->React.string} </div>
                             </button>
-                            <RenderIf
-                              condition={selectedMerchantObject.merchant_name ===
-                                option.merchant_name}>
-                              <Icon
-                                className={`absolute top-2 right-2 ${textColor.primaryNormal}`}
-                                name="check"
-                                size=15
-                              />
-                            </RenderIf>
                           </div>}
                       </Menu.Item>
                     )
                     ->React.array}
                   </div>
-                  <RenderIf condition={isAddMerchantEnabled}>
-                    <AddNewMerchantButton setShowModal />
-                  </RenderIf>
                 </>
               }}
             </Menu.Items>}
           </Transition>
         </div>}
     </Menu>
-    <RenderIf condition={showModal}>
-      <NewAccountCreationModal setShowModal showModal />
-    </RenderIf>
-  </>
+  </div>
 }
