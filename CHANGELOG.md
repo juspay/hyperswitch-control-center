@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.30.0
+
+### Miscellaneous Tasks
+
+- Update pull request template ([`d17044b`](https://github.com/juspay/hyperswitch-control-center/commit/d17044b9d8214f9c6e00b00661852f78f634fdda))
+
+**Full Changelog:** [`2024.07.29.0...2024.07.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.29.0...2024.07.30.0)
+
+- - -
+
 ## 2024.07.29.0
 
 ### Features
