@@ -213,7 +213,7 @@ module QuickStart = {
       </div>
       <RenderIf condition={!isMobileView}>
         <div className="h-30 md:w-[43rem] flex justify-end">
-          <img src="/assets/QuickStartImage.svg" />
+          <img alt="quick-start-image" src="/assets/QuickStartImage.svg" />
         </div>
       </RenderIf>
     </div>
@@ -267,7 +267,9 @@ module RecipesAndPlugins = {
             <p className=paragraphTextVariant>
               {"Get the best of Stripe's developer experience and Paypal's user base"->React.string}
             </p>
-            <img src="/assets/StripePlusPaypal.svg" className=imageTransitionCss />
+            <img
+              alt="stripe-paypal" src="/assets/StripePlusPaypal.svg" className=imageTransitionCss
+            />
           </div>
         </ACLDiv>
         <ACLDiv
@@ -295,7 +297,7 @@ module RecipesAndPlugins = {
             <p className=paragraphTextVariant>
               {"Give your shoppers a lightweight and embedded payment experience with our plugin"->React.string}
             </p>
-            <img src="/assets/Woocommerce.svg" className=imageTransitionCss />
+            <img alt="woocommerce" src="/assets/Woocommerce.svg" className=imageTransitionCss />
           </div>
         </ACLDiv>
       </div>
@@ -356,7 +358,7 @@ module Resources = {
               justifyClass=""
               className={`!h-full group bg-white border rounded-md p-10 flex flex-col gap-4 group-hover:shadow hover:shadow-homePageBoxShadow ${cursorStyles}`}
               onClick={_ => onClickHandler(item)}>
-              <img src={`/icons/${item.icon}`} className="h-6 w-6" />
+              <img alt="image" src={`/icons/${item.icon}`} className="h-6 w-6" />
               <div className="flex items-center gap-2">
                 <p className=cardHeaderText> {item.headerText->React.string} </p>
                 <Icon

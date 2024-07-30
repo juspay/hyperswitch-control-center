@@ -3,6 +3,44 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.30.0
+
+### Miscellaneous Tasks
+
+- Update pull request template ([`d17044b`](https://github.com/juspay/hyperswitch-control-center/commit/d17044b9d8214f9c6e00b00661852f78f634fdda))
+
+**Full Changelog:** [`2024.07.29.0...2024.07.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.29.0...2024.07.30.0)
+
+- - -
+
+## 2024.07.29.0
+
+### Features
+
+- Datatrans new connector addition ([#1091](https://github.com/juspay/hyperswitch-control-center/pull/1091)) ([`257b929`](https://github.com/juspay/hyperswitch-control-center/commit/257b9295d670591d4a22680ccdce4070eeded1e6))
+
+### Bug Fixes
+
+- Remove name from address fields ([#1089](https://github.com/juspay/hyperswitch-control-center/pull/1089)) ([`b4e1c1a`](https://github.com/juspay/hyperswitch-control-center/commit/b4e1c1a6f1c68b1a0b1924fe594e77f8b80c1972))
+
+### Miscellaneous Tasks
+
+- Improve lighthouse performance ([#1088](https://github.com/juspay/hyperswitch-control-center/pull/1088)) ([`ca411a5`](https://github.com/juspay/hyperswitch-control-center/commit/ca411a5f206f5c6b012defcabf3e6c6d568f27c5))
+
+**Full Changelog:** [`2024.07.28.0...2024.07.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.28.0...2024.07.29.0)
+
+- - -
+
+## 2024.07.28.0
+
+### Bug Fixes
+
+- Rename single stat titles and tooltip texts ([#1081](https://github.com/juspay/hyperswitch-control-center/pull/1081)) ([`503f922`](https://github.com/juspay/hyperswitch-control-center/commit/503f92257c43dc471cc4add96e42650ffcbb5110))
+
+**Full Changelog:** [`2024.07.26.0...2024.07.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.26.0...2024.07.28.0)
+
+- - -
+
 ## 2024.07.26.0
 
 ### Miscellaneous Tasks

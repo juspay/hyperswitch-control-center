@@ -14,6 +14,7 @@ module InfoViewForWebhooks = {
         <p className="font-medium text-fs-14 text-black opacity-50"> {subHeading->React.string} </p>
         <RenderIf condition={isCopy}>
           <img
+            alt="copy-clipboard"
             src={`/assets/CopyToClipboard.svg`}
             className="cursor-pointer"
             onClick={ev => {

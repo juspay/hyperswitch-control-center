@@ -53,7 +53,7 @@ module EmptyResult = {
     <FramerMotion.Motion.Div
       layoutId="empty" initial={{scale: 0.9, opacity: 0.0}} animate={{scale: 1.0, opacity: 1.0}}>
       <div className="flex flex-col w-full h-fit p-7 justify-center items-center gap-6">
-        <img className="w-1/9" src={`${prefix}/icons/globalSearchNoResult.svg`} />
+        <img alt="no-result" className="w-1/9" src={`${prefix}/icons/globalSearchNoResult.svg`} />
         <div className="w-3/5 text-wrap text-center break-all">
           {`No Results for " ${searchText} "`->React.string}
         </div>
