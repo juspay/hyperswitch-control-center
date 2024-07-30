@@ -26,7 +26,7 @@ module KeyAndCopyArea = {
           Clipboard.writeText(copyValue)
           showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
         }}>
-        <img src={`/assets/CopyToClipboard.svg`} />
+        <img alt="copy-clipboard" src={`/assets/CopyToClipboard.svg`} />
       </div>
     </div>
   }

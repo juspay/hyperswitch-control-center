@@ -94,7 +94,7 @@ module HyperSwitchEntryComponent = {
       }
 
       None
-    }, Window.env.mixpanelToken)
+    }, [featureFlagDetails.mixpanel])
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle

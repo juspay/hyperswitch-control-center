@@ -188,7 +188,7 @@ let make = () => {
                           </div>
                         </div>}
                         headerLeftActions={switch Window.env.logoUrl {
-                        | Some(url) => <img src={`${url}`} />
+                        | Some(url) => <img alt="image" src={`${url}`} />
                         | None => React.null
                         }}
                       />

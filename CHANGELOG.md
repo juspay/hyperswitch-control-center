@@ -3,6 +3,59 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.07.29.0
+
+### Features
+
+- Datatrans new connector addition ([#1091](https://github.com/juspay/hyperswitch-control-center/pull/1091)) ([`257b929`](https://github.com/juspay/hyperswitch-control-center/commit/257b9295d670591d4a22680ccdce4070eeded1e6))
+
+### Bug Fixes
+
+- Remove name from address fields ([#1089](https://github.com/juspay/hyperswitch-control-center/pull/1089)) ([`b4e1c1a`](https://github.com/juspay/hyperswitch-control-center/commit/b4e1c1a6f1c68b1a0b1924fe594e77f8b80c1972))
+
+### Miscellaneous Tasks
+
+- Improve lighthouse performance ([#1088](https://github.com/juspay/hyperswitch-control-center/pull/1088)) ([`ca411a5`](https://github.com/juspay/hyperswitch-control-center/commit/ca411a5f206f5c6b012defcabf3e6c6d568f27c5))
+
+**Full Changelog:** [`2024.07.28.0...2024.07.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.28.0...2024.07.29.0)
+
+- - -
+
+## 2024.07.28.0
+
+### Bug Fixes
+
+- Rename single stat titles and tooltip texts ([#1081](https://github.com/juspay/hyperswitch-control-center/pull/1081)) ([`503f922`](https://github.com/juspay/hyperswitch-control-center/commit/503f92257c43dc471cc4add96e42650ffcbb5110))
+
+**Full Changelog:** [`2024.07.26.0...2024.07.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.26.0...2024.07.28.0)
+
+- - -
+
+## 2024.07.26.0
+
+### Miscellaneous Tasks
+
+- Added frm_metadata in payments api sdk ([#1075](https://github.com/juspay/hyperswitch-control-center/pull/1075)) ([`267722c`](https://github.com/juspay/hyperswitch-control-center/commit/267722c659b491f934552f1d822a473d9a6a401e))
+
+**Full Changelog:** [`2024.07.25.0...2024.07.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.25.0...2024.07.26.0)
+
+- - -
+
+## 2024.07.25.0
+
+### Bug Fixes
+
+- Enhance filters ui ([#1038](https://github.com/juspay/hyperswitch-control-center/pull/1038)) ([`7343036`](https://github.com/juspay/hyperswitch-control-center/commit/7343036f22ad713d6e50744ecfc4e0d51a385a53))
+- Order customer email fix ([#1071](https://github.com/juspay/hyperswitch-control-center/pull/1071)) ([`a0862fd`](https://github.com/juspay/hyperswitch-control-center/commit/a0862fd25a780363e4247680dc082107ca1b37a3))
+
+### Miscellaneous Tasks
+
+- Apple pay extra step addition ([#1047](https://github.com/juspay/hyperswitch-control-center/pull/1047)) ([`5896b0c`](https://github.com/juspay/hyperswitch-control-center/commit/5896b0cd53eefadfbd4c449a52bf2cc5ad401ceb))
+
+**Full Changelog:** [`2024.07.24.1...2024.07.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.24.1...2024.07.25.0)
+
+- - -
+
 ## 2024.07.24.1
 
 ### Features

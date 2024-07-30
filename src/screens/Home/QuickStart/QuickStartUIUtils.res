@@ -167,7 +167,7 @@ module HorizontalChoiceTile = {
               />
             </div>
             <RenderIf condition={items.imageLink->Option.getOr("")->LogicUtils.isNonEmptyString}>
-              <img alt="" src={items.imageLink->Option.getOr("")} />
+              <img alt="image" src={items.imageLink->Option.getOr("")} />
             </RenderIf>
             <div className="flex gap-2 items-center ">
               <p className=descriptionStyle> {items.description->React.string} </p>
