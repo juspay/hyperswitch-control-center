@@ -78,7 +78,7 @@ let make = (~value, ~setValue) => {
   <div className="flex justify-center relative ">
     {inputRefArray
     ->Array.mapWithIndex((ref, index) =>
-      <div className="w-16 h-16">
+      <div className="w-16 h-16" key={index->Int.toString}>
         <InputFieldForOtp inputRef={ref} value handleChange index handleFocus />
       </div>
     )

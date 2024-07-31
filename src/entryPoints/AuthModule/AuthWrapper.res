@@ -60,14 +60,14 @@ let make = (~children) => {
     let preLoginInfo = getPreLoginDetailsFromLocalStorage()
     let loggedInInfo = getUserInfoDetailsFromLocalStorage()
 
-    if (
-      loggedInInfo.token->Option.isSome &&
-      loggedInInfo.merchant_id->isNonEmptyString &&
-      loggedInInfo.email->isNonEmptyString
+    if preLoginInfo.token->Option.isSome && preLoginInfo.token_type->isNonEmptyString {
+      setAuthStatus(PreLogin(preLoginInfo))
+    } else if (
+      loggedInInfo.token->Option.isSome
+      // loggedInInfo.merchant_id->isNonEmptyString &&
+      // loggedInInfo.email->isNonEmptyString
     ) {
       setAuthStatus(LoggedIn(Auth(loggedInInfo)))
-    } else if preLoginInfo.token->Option.isSome && preLoginInfo.token_type->isNonEmptyString {
-      setAuthStatus(PreLogin(preLoginInfo))
     } else {
       setAuthStatus(LoggedOut)
     }

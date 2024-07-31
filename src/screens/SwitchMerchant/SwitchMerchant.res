@@ -250,12 +250,13 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {setAuthStatus, authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {merchant_id} = React.useContext(UserInfoProvider.defaultContext)
   let (value, setValue) = React.useState(() => "")
   let merchantId = switch authStatus {
   | LoggedIn(info) =>
     switch info {
     | BasicAuth(basicInfo) => basicInfo.merchant_id->Option.getOr("")
-    | Auth(totpInfo) => totpInfo.merchant_id
+    | Auth(_) => merchant_id
     }
   | _ => ""
   }

@@ -66,6 +66,7 @@ let defaultAuthInfo: CommonAuthTypes.commonAuthInfo = {
 
 let useCommonAuthInfo = () => {
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {merchant_id, role_id, name, email} = React.useContext(UserInfoProvider.defaultContext)
   let authInfo: option<CommonAuthTypes.commonAuthInfo> = switch authStatus {
   | LoggedIn(info) =>
     switch info {
@@ -77,7 +78,7 @@ let useCommonAuthInfo = () => {
         email: email->Option.getOr(""),
         user_role: user_role->Option.getOr(""),
       })
-    | Auth({token, merchant_id, name, email, role_id}) =>
+    | Auth({token}) =>
       Some({
         token,
         merchant_id,
