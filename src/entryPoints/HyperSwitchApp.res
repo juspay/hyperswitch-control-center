@@ -18,7 +18,6 @@ let make = () => {
     setQuickStartPageState,
     isProdIntentCompleted,
   } = React.useContext(GlobalProvider.defaultContext)
-
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
