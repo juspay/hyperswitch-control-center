@@ -62,11 +62,7 @@ let make = (~children) => {
 
     if preLoginInfo.token->Option.isSome && preLoginInfo.token_type->isNonEmptyString {
       setAuthStatus(PreLogin(preLoginInfo))
-    } else if (
-      loggedInInfo.token->Option.isSome
-      // loggedInInfo.merchant_id->isNonEmptyString &&
-      // loggedInInfo.email->isNonEmptyString
-    ) {
+    } else if loggedInInfo.token->Option.isSome {
       setAuthStatus(LoggedIn(Auth(loggedInInfo)))
     } else {
       setAuthStatus(LoggedOut)
