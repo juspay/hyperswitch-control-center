@@ -410,17 +410,17 @@ let make = () => {
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  let recovery_codes_left = switch authStatus {
-  | LoggedIn(Auth(info)) => info.recovery_codes_left
-  | _ => GlobalVars.maximumRecoveryCodes
-  }
+  let {recovery_codes_left} = React.useContext(UserInfoProvider.defaultContext)
+  let recoveryCode = recovery_codes_left->Option.getOr(0)
 
   <div className="w-full flex flex-col gap-6">
     <div className="flex flex-col gap-4">
-      <RenderIf condition={featureFlagDetails.totp && recovery_codes_left < 3}>
-        <LowRecoveryCodeBanner recovery_codes_left />
+      <RenderIf
+        condition={featureFlagDetails.totp &&
+        recovery_codes_left->Option.isSome &&
+        recoveryCode < 3}>
+        <LowRecoveryCodeBanner recoveryCode />
       </RenderIf>
       <AcceptInviteHome />
     </div>
