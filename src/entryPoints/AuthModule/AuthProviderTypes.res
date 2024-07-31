@@ -4,15 +4,7 @@ type preLoginType = {
   email_token: option<string>,
 }
 
-type authInfo = {
-  token: option<string>,
-  // merchant_id: string,
-  // name: string,
-  // email: string,
-  // role_id: string,
-  // is_two_factor_auth_setup: bool,
-  // recovery_codes_left: int,
-}
+type authInfo = {token: option<string>}
 
 type authType = BasicAuth(BasicAuthTypes.basicAuthInfo) | Auth(authInfo)
 
