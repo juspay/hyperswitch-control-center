@@ -208,22 +208,22 @@ module Wrapper = {
         if threeDsType->String.length > 0 {
           setIsExpanded(p => !p)
         } else {
-          showToast(~toastType=ToastWarning, ~message="Auth type not selected", ~autoClose=true, ())
+          showToast(~toastType=ToastWarning, ~message="Auth type not selected", ~autoClose=true)
         }
       } else if isFromSurcharge {
         if surchargeTypeValue > 0.0 {
           setIsExpanded(p => !p)
         } else {
-          showToast(~toastType=ToastWarning, ~message="Invalid condition", ~autoClose=true, ())
+          showToast(~toastType=ToastWarning, ~message="Invalid condition", ~autoClose=true)
         }
       } else {
         let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Array.length > 0
         if gatewayArrPresent && areValidConditions {
           setIsExpanded(p => !p)
         } else if gatewayArrPresent {
-          showToast(~toastType=ToastWarning, ~message="Invalid Conditions", ~autoClose=true, ())
+          showToast(~toastType=ToastWarning, ~message="Invalid Conditions", ~autoClose=true)
         } else {
-          showToast(~toastType=ToastWarning, ~message="No Gateway Selected", ~autoClose=true, ())
+          showToast(~toastType=ToastWarning, ~message="No Gateway Selected", ~autoClose=true)
         }
       }
     }
@@ -641,7 +641,7 @@ let make = (
         (),
       )
       let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
-      showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {
@@ -649,14 +649,13 @@ let make = (
       switch Exn.message(e) {
       | Some(message) =>
         if message->String.includes("IR_16") {
-          showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
+          showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess)
           RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
           setScreenState(_ => Success)
         } else {
           showToast(
             ~message="Failed to Activate the Configuration!",
             ~toastType=ToastState.ToastError,
-            (),
           )
           setScreenState(_ => Error(message))
         }
@@ -675,7 +674,7 @@ let make = (
         )}/deactivate`
       let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
       let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
-      showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {
@@ -685,7 +684,6 @@ let make = (
           showToast(
             ~message="Failed to Deactivate the Configuration!",
             ~toastType=ToastState.ToastError,
-            (),
           )
           setScreenState(_ => Error(message))
         }
@@ -744,7 +742,6 @@ let make = (
       showToast(
         ~message="Successfully Created a new Configuration !",
         ~toastType=ToastState.ToastSuccess,
-        (),
       )
       setScreenState(_ => Success)
       setShowModal(_ => false)
@@ -755,7 +752,7 @@ let make = (
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      showToast(~message="Failed to Save the Configuration!", ~toastType=ToastState.ToastError, ())
+      showToast(~message="Failed to Save the Configuration!", ~toastType=ToastState.ToastError)
       setShowModal(_ => false)
       setScreenState(_ => PageLoaderWrapper.Error(err))
       Exn.raiseError(err)

@@ -68,7 +68,7 @@ module GenerateSampleDataButton = {
           Post,
           (),
         )
-        showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess, ())
+        showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess)
         getOrdersList()->ignore
       } catch {
       | _ => ()
@@ -84,7 +84,7 @@ module GenerateSampleDataButton = {
           Delete,
           (),
         )
-        showToast(~message="Sample data deleted successfully", ~toastType=ToastSuccess, ())
+        showToast(~message="Sample data deleted successfully", ~toastType=ToastSuccess)
         getOrdersList()->ignore
       } catch {
       | _ => ()

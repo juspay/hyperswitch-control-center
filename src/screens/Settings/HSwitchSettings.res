@@ -37,7 +37,7 @@ module TileComponent = {
           Delete,
           (),
         )
-        showToast(~message="Sample data deleted successfully", ~toastType=ToastSuccess, ())
+        showToast(~message="Sample data deleted successfully", ~toastType=ToastSuccess)
       } catch {
       | _ => ()
       }

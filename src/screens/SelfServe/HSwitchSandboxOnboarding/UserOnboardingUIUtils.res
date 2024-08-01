@@ -69,19 +69,18 @@ module DownloadAPIKeyButton = {
         showToast(
           ~message="Api Key has been generated & Copied to clipboard",
           ~toastType=ToastState.ToastSuccess,
-          (),
         )
         setShowCopyToClipboard(_ => true)
         await HyperSwitchUtils.delay(2000)
         setShowCopyToClipboard(_ => false)
       } catch {
-      | _ => showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError, ())
+      | _ => showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError)
       }
     }
 
     let downloadZip = async () => {
       await HyperSwitchUtils.delay(1500)
-      showToast(~message="Plugin file has been downloaded!", ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message="Plugin file has been downloaded!", ~toastType=ToastState.ToastSuccess)
     }
     let button =
       <div className="flex items-center gap-5">
@@ -178,7 +177,7 @@ module HeaderComponentView = {
           className="py-1 px-4 border rounded-md flex gap-2 items-center cursor-pointer"
           onClick={_ => {
             Clipboard.writeText(value)
-            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
           }}>
           <img alt="copy-to-clipboard" src={`/assets/CopyToClipboard.svg`} />
           <p> {"Copy"->React.string} </p>

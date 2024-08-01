@@ -24,15 +24,10 @@ module ActiveRulePreview = {
       try {
         let url = getURL(~entityName=THREE_DS, ~methodType=Delete, ())
         let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete, ())
-        showToast(
-          ~message="Successfully deleted current active 3ds rule",
-          ~toastType=ToastSuccess,
-          (),
-        )
+        showToast(~message="Successfully deleted current active 3ds rule", ~toastType=ToastSuccess)
         setInitialRule(_ => None)
       } catch {
-      | _ =>
-        showToast(~message="Failed to delete current active 3ds rule.", ~toastType=ToastError, ())
+      | _ => showToast(~message="Failed to delete current active 3ds rule.", ~toastType=ToastError)
       }
     }
 

@@ -162,7 +162,7 @@ module OverviewInfo = {
           Post,
           (),
         )
-        showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess, ())
+        showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess)
         Window.Location.reload()
       } catch {
       | _ => ()

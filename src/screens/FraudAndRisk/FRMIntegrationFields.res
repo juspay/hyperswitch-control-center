@@ -271,7 +271,7 @@ let make = (
       setCurrentStep(prev => prev->getNextStep)
       let _ = updateMerchantDetails()
       setInitialValues(_ => res)
-      showToast(~message=submitText, ~toastType=ToastSuccess, ())
+      showToast(~message=submitText, ~toastType=ToastSuccess)
       setPageState(_ => Success)
     })
     ->catch(_ => {

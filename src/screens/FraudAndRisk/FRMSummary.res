@@ -80,10 +80,10 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
       let disableFRMPayload = initialValues->FRMTypes.getDisableConnectorPayload(isFRMDisabled)
       let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ~id=Some(frmID), ())
       let _ = await updateDetails(url, disableFRMPayload->JSON.Encode.object, Post, ())
-      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
+      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/fraud-risk-management"))
     } catch {
-    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
+    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
     }
   }
 

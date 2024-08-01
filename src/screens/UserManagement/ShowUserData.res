@@ -22,7 +22,7 @@ module UserUtilsPopover = {
         let body =
           [("email", infoValue.email->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Delete, ())
-        showToast(~message=`User has been successfully deleted.`, ~toastType=ToastSuccess, ())
+        showToast(~message=`User has been successfully deleted.`, ~toastType=ToastSuccess)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
       } catch {
       | _ => ()
@@ -119,7 +119,7 @@ module UserHeading = {
         let body =
           [("email", infoValue.email->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
         let _ = await updateDetails(url, body, Post, ())
-        showToast(~message=`Invite resend. Please check your email.`, ~toastType=ToastSuccess, ())
+        showToast(~message=`Invite resend. Please check your email.`, ~toastType=ToastSuccess)
         setButtonState(_ => Button.Normal)
       } catch {
       | _ => setButtonState(_ => Button.Normal)
@@ -159,7 +159,7 @@ module UserHeading = {
             ("role_id", newRoleSelected->JSON.Encode.string),
           ]->LogicUtils.getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post, ())
-        showToast(~message=`Role successfully updated!`, ~toastType=ToastSuccess, ())
+        showToast(~message=`Role successfully updated!`, ~toastType=ToastSuccess)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
       } catch {
       | _ => ()

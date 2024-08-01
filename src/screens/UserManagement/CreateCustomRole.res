@@ -107,7 +107,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
           setInitialValues(_ => values->LogicUtils.getDictFromJsonObject)
           setScreenState(_ => PageLoaderWrapper.Success)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError, ())
+          showToast(~message=errorMessage, ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }

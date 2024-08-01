@@ -72,11 +72,11 @@ module ResetPassword = {
           (),
         )
         let _ = await updateDetails(url, body, Post, ())
-        showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
+        showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess)
         setIsLoading(_ => false)
       } catch {
       | _ => {
-          showToast(~message="Reset Password Failed, Try again", ~toastType=ToastError, ())
+          showToast(~message="Reset Password Failed, Try again", ~toastType=ToastError)
           setIsLoading(_ => false)
         }
       }

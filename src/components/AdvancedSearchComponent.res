@@ -55,7 +55,7 @@ let make = (
       json->Nullable.make->resolve
     })
     ->catch(_err => {
-      showToast(~message="Something went wrong. Please try again", ~toastType=ToastError, ())
+      showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
 
       Nullable.null->resolve
     })

@@ -134,7 +134,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
               showToast(
                 ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
                 ~toastType=ToastState.ToastError,
-                (),
               )
               setCurrentStep(_ => IntegFields)
               setScreenState(_ => Success)
@@ -142,7 +141,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
               showToast(
                 ~message="Failed to Save the Configuration!",
                 ~toastType=ToastState.ToastError,
-                (),
               )
               setScreenState(_ => Error(message))
             }

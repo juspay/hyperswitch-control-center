@@ -263,12 +263,7 @@ let make = (
         }
 
       | _ =>
-        showToast(
-          ~message="Response was not a JSON object",
-          ~toastType=ToastError,
-          ~autoClose=true,
-          (),
-        )
+        showToast(~message="Response was not a JSON object", ~toastType=ToastError, ~autoClose=true)
       }
       setTableDataLoading(_ => false)
       resolve()

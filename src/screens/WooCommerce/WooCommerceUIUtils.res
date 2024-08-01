@@ -122,7 +122,6 @@ module SelectPaymentMethods = {
         showToast(
           ~message=`${connectorName->LogicUtils.getFirstLetterCaps()} connected successfully!`,
           ~toastType=ToastSuccess,
-          (),
         )
         setButtonState(_ => Button.Normal)
       } catch {

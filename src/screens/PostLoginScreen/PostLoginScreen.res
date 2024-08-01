@@ -115,7 +115,7 @@ let make = () => {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       if err->String.includes("UR_19") {
-        showToast(~toastType=ToastWarning, ~message="Please login again!", ~autoClose=false, ())
+        showToast(~toastType=ToastWarning, ~message="Please login again!", ~autoClose=false)
         handleLogout()->ignore
       }
     }

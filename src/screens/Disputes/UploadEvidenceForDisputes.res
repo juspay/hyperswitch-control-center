@@ -226,8 +226,7 @@ module DisputesInfoBarComponent = {
         setDisputeData(_ => response)
         setDisputeEvidenceStatus(_ => EvidencePresent)
       } catch {
-      | _ =>
-        showToast(~message=`Failed to submit the evidence. Try again !`, ~toastType=ToastError, ())
+      | _ => showToast(~message=`Failed to submit the evidence. Try again !`, ~toastType=ToastError)
       }
     }
 
@@ -251,11 +250,7 @@ module DisputesInfoBarComponent = {
         setScreenState(_ => Success)
       } catch {
       | _ =>
-        showToast(
-          ~message="Failed to retrieve evidence for the dispute !",
-          ~toastType=ToastError,
-          (),
-        )
+        showToast(~message="Failed to retrieve evidence for the dispute !", ~toastType=ToastError)
       }
     }
 
@@ -399,7 +394,7 @@ let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) =>
       let response = await updateDetails(url, Dict.make()->JSON.Encode.object, Post, ())
       setDisputeData(_ => response)
     } catch {
-    | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError, ())
+    | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
     }
   }
 

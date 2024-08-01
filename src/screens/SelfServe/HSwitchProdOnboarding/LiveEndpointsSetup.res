@@ -156,7 +156,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
       let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#ConfigureEndpoint, ())
       let _ = await updateDetails(url, body, Post, ())
       setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
-      showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setButtonState(_ => Normal)
     } catch {
     | _ => setButtonState(_ => Normal)
@@ -180,7 +180,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
       let res = await updateDetails(url, body, Post, ())
 
       setBusinessProfiles(_ => res->BusinessProfileMapper.getArrayOfBusinessProfile)
-      showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       updateLiveEndpoint()->ignore
       setButtonState(_ => Normal)
     } catch {

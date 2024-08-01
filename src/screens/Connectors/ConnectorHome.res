@@ -136,7 +136,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       if err->String.includes("Profile") {
-        showToast(~message="Profile Id not found. Try Again", ~toastType=ToastError, ())
+        showToast(~message="Profile Id not found. Try Again", ~toastType=ToastError)
       }
       setScreenState(_ => PageLoaderWrapper.Custom)
     }

@@ -39,7 +39,7 @@ let make = (~merchantId="", ~verificationDays) => {
         (),
       )
       let _ = await updateDetails(url, body, Post, ())
-      showToast(~message=`Email Send Successfully!`, ~toastType=ToastSuccess, ())
+      showToast(~message=`Email Send Successfully!`, ~toastType=ToastSuccess)
     } catch {
     | _ =>
       openVerifiedPopUp(

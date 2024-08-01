@@ -27,9 +27,9 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
       let url = getURL(~entityName, ~methodType=Post, ())
       let _ = await updateDetails(url, body, Post, ())
       setReportModal(_ => false)
-      showToast(~message="Email Sent", ~toastType=ToastSuccess, ())
+      showToast(~message="Email Sent", ~toastType=ToastSuccess)
     } catch {
-    | _ => showToast(~message="Something went wrong. Please try again.", ~toastType=ToastError, ())
+    | _ => showToast(~message="Something went wrong. Please try again.", ~toastType=ToastError)
     }
     Nullable.null
   }

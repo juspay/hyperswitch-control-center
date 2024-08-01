@@ -81,7 +81,6 @@ let make = (
       showToast(
         ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
         ~toastType=ToastSuccess,
-        (),
       )
     } catch {
     | Exn.Error(e) => {
@@ -89,10 +88,10 @@ let make = (
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         if errorCode === "HE_01" {
-          showToast(~message="Connector label already exist!", ~toastType=ToastError, ())
+          showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConnectorTypes.IntegFields)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError, ())
+          showToast(~message=errorMessage, ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }

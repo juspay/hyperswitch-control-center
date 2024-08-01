@@ -34,7 +34,7 @@ let useLottieJson = lottieFileName => {
             json->resolve
           })
           ->catch(_err => {
-            showToast(~message="Error!", ~toastType=ToastError, ())
+            showToast(~message="Error!", ~toastType=ToastError)
             JSON.Encode.null->resolve
           })
 

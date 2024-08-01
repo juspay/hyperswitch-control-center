@@ -121,7 +121,7 @@ module SampleEmail = {
           className="cursor-pointer h-fit w-fit"
           onClick={_ => {
             Clipboard.writeText(emailContent)
-            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
           }}
         />
       </div>

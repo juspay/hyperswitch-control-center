@@ -54,7 +54,6 @@ module SimpleRoutingView = {
         showToast(
           ~message="Successfully Created a new Configuraion !",
           ~toastType=ToastState.ToastSuccess,
-          (),
         )
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
         setScreenState(_ => Success)
@@ -72,7 +71,6 @@ module SimpleRoutingView = {
         showToast(
           ~message="Successfully Activated Selected Configuration !",
           ~toastType=ToastState.ToastSuccess,
-          (),
         )
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
         setScreenState(_ => Success)

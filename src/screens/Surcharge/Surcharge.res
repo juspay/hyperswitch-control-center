@@ -189,7 +189,7 @@ let make = () => {
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      showToast(~message=err, ~toastType=ToastError, ())
+      showToast(~message=err, ~toastType=ToastError)
     }
     Nullable.null
   }

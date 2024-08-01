@@ -60,24 +60,19 @@ module AdvanceSearch = {
                 }
 
               | _ =>
-                showToast(
-                  ~message="Something went wrong. Please try again",
-                  ~toastType=ToastError,
-                  (),
-                )
+                showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
               }
             } else {
-              showToast(~message="Data Not Found", ~toastType=ToastWarning, ())
+              showToast(~message="Data Not Found", ~toastType=ToastWarning)
             }
           }
 
-        | _ =>
-          showToast(~message="Something went wrong. Please try again", ~toastType=ToastError, ())
+        | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
         }
         json->Nullable.make->resolve
       })
       ->catch(_err => {
-        showToast(~message="Something went wrong. Please try again", ~toastType=ToastError, ())
+        showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
 
         Nullable.null->resolve
       })

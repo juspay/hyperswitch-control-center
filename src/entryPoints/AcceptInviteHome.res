@@ -47,7 +47,7 @@ let make = () => {
         [("merchant_ids", merchantIds->JSON.Encode.array)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Put, ())
       let _ = await fetchSwitchMerchantList()
-      showToast(~toastType=ToastSuccess, ~message="Invite Accepted Successfully", ())
+      showToast(~toastType=ToastSuccess, ~message="Invite Accepted Successfully")
       setAcceptedMerchantId(_ => Array.make(~length=merchantListValue->Array.length, false))
     } catch {
     | _ => ()

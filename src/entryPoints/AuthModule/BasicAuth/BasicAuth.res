@@ -49,10 +49,10 @@ let make = (~authType, ~setAuthType) => {
       if magicLinkSent {
         setAuthType(_ => MagicLinkEmailSent)
       } else {
-        showToast(~message="Failed to send an email, Try again", ~toastType=ToastError, ())
+        showToast(~message="Failed to send an email, Try again", ~toastType=ToastError)
       }
     } catch {
-    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
+    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError)
     }
     Nullable.null
   }
@@ -63,7 +63,7 @@ let make = (~authType, ~setAuthType) => {
       let res = await updateDetails(url, body, Post, ())
       setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
     } catch {
-    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
+    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError)
     }
     Nullable.null
   }
@@ -80,10 +80,10 @@ let make = (~authType, ~setAuthType) => {
       let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD, ~methodType=Post, ())
       let _ = await updateDetails(url, body, Post, ())
       LocalStorage.clear()
-      showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
+      showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess)
       setAuthType(_ => LoginWithEmail)
     } catch {
-    | _ => showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())
+    | _ => showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError)
     }
     Nullable.null
   }
@@ -99,9 +99,9 @@ let make = (~authType, ~setAuthType) => {
       )
       let _ = await updateDetails(url, body, Post, ())
       setAuthType(_ => ForgetPasswordEmailSent)
-      showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
+      showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess)
     } catch {
-    | _ => showToast(~message="Forgot Password Failed, Try again", ~toastType=ToastError, ())
+    | _ => showToast(~message="Forgot Password Failed, Try again", ~toastType=ToastError)
     }
     Nullable.null
   }
@@ -117,9 +117,9 @@ let make = (~authType, ~setAuthType) => {
       )
       let _ = await updateDetails(url, body, Post, ())
       setAuthType(_ => ResendVerifyEmailSent)
-      showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
+      showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess)
     } catch {
-    | _ => showToast(~message="Resend mail failed, Try again", ~toastType=ToastError, ())
+    | _ => showToast(~message="Resend mail failed, Try again", ~toastType=ToastError)
     }
     Nullable.null
   }
@@ -181,7 +181,7 @@ let make = (~authType, ~setAuthType) => {
         }
       )
     } catch {
-    | _ => showToast(~message="Something went wrong, Try again", ~toastType=ToastError, ())
+    | _ => showToast(~message="Something went wrong, Try again", ~toastType=ToastError)
     }
     Nullable.null
   }

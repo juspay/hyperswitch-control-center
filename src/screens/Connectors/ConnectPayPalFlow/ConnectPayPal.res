@@ -406,7 +406,6 @@ let make = (
             showToast(
               ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
               ~toastType=ToastState.ToastError,
-              (),
             )
 
             setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
@@ -416,7 +415,6 @@ let make = (
             showToast(
               ~message="Failed to Save the Configuration!",
               ~toastType=ToastState.ToastError,
-              (),
             )
             setScreenState(_ => Error(message))
           }

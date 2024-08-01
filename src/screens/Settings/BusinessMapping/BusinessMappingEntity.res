@@ -24,9 +24,9 @@ module ProfileActions = {
           ->Array.concat([res->BusinessProfileMapper.businessProfileTypeMapper])
 
         setBusinessProfiles(_ => filteredProfileList)
-        showToast(~message="Updated profile name!", ~toastType=ToastSuccess, ())
+        showToast(~message="Updated profile name!", ~toastType=ToastSuccess)
       } catch {
-      | _ => showToast(~message="Failed to update profile name!", ~toastType=ToastError, ())
+      | _ => showToast(~message="Failed to update profile name!", ~toastType=ToastError)
       }
       setShowModal(_ => false)
       Nullable.null
@@ -61,7 +61,7 @@ module ProfileActions = {
           className="cursor-pointer"
           onClick={_ => {
             Clipboard.writeText(profileId)
-            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
           }}
         />}
         toolTipPosition=ToolTip.Top

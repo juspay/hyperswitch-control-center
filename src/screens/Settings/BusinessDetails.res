@@ -83,7 +83,7 @@ let make = () => {
       let merchantInfo =
         merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails->parseMerchantJson
       setMerchantInfo(_ => merchantInfo)
-      showToast(~message=`Successfully updated business details`, ~toastType=ToastSuccess, ())
+      showToast(~message=`Successfully updated business details`, ~toastType=ToastSuccess)
       setFetchState(_ => Success)
     } catch {
     | Exn.Error(e) =>

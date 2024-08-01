@@ -89,7 +89,7 @@ module ApiEditModal = {
       | Exn.Error(e) =>
         switch Exn.message(e) {
         | Some(_error) =>
-          showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError, ())
+          showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError)
         | None => ()
         }
         setModalState(_ => SettingApiModalError)
@@ -226,7 +226,7 @@ module TableActionsCell = {
       | Exn.Error(e) =>
         switch Exn.message(e) {
         | Some(_error) =>
-          showToast(~message="Failed to delete API key", ~toastType=ToastState.ToastError, ())
+          showToast(~message="Failed to delete API key", ~toastType=ToastState.ToastError)
         | None => ()
         }
       }

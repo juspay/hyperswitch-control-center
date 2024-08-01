@@ -21,7 +21,6 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
         ~toastType=ToastSuccess,
         ~message="Successfully sent for verification!",
         ~autoClose=true,
-        (),
       )
       setScreenState(_ => Success)
       getProdVerifyDetails()->ignore

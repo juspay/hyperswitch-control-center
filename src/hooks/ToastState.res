@@ -31,7 +31,6 @@ let makeToastProps = (
   ~buttonText=?,
   ~helpLink=?,
   ~toastElement=React.null,
-  (),
 ) => {
   let rString = randomString(32, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
@@ -59,7 +58,6 @@ type showToastFn = (
   ~buttonText: string=?,
   ~helpLink: string=?,
   ~toastElement: React.element=?,
-  unit,
 ) => unit
 
 let useShowToast = (): showToastFn => {
@@ -73,7 +71,6 @@ let useShowToast = (): showToastFn => {
       ~buttonText=?,
       ~helpLink=?,
       ~toastElement=React.null,
-      (),
     ) => {
       let toastProps = makeToastProps(
         ~message,
@@ -83,7 +80,6 @@ let useShowToast = (): showToastFn => {
         ~buttonText?,
         ~helpLink?,
         ~toastElement,
-        (),
       )
 
       setOpenToasts(prevArr => prevArr->Array.concat([toastProps]))

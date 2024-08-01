@@ -168,10 +168,10 @@ let make = () => {
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
 
         if errorCode === "HE_01" {
-          showToast(~message="Connector label already exist!", ~toastType=ToastError, ())
+          showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConfigurationFields)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError, ())
+          showToast(~message=errorMessage, ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }

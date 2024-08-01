@@ -63,7 +63,7 @@ let make = (~showModal, ~setShowModal) => {
   //     HSwitchUtils.setUserDetails("name", userName->JSON.Encode.string)
   //   } catch {
   //   | _ => {
-  //       showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError, ())
+  //       showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError)
   //       setShowModal(_ => true)
   //     }
   //   }
@@ -78,7 +78,7 @@ let make = (~showModal, ~setShowModal) => {
   //     let _ = await updateDetails(url, body, Post, ())
   //   } catch {
   //   | _ => {
-  //       showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError, ())
+  //       showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError)
   //       setShowModal(_ => true)
   //     }
   //   }
@@ -102,7 +102,7 @@ let make = (~showModal, ~setShowModal) => {
       setMerchantDetailsValue(_ => merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails)
     } catch {
     | _ => {
-        showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError, ())
+        showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError)
         setShowModal(_ => true)
       }
     }
@@ -115,11 +115,11 @@ let make = (~showModal, ~setShowModal) => {
       // TODO: Move this to prod onboarding form
       // let _ = values->updateOnboardingSurveyDetails
       // let _ = values->updateUserName
-      showToast(~message=`Successfully updated onboarding survey`, ~toastType=ToastSuccess, ())
+      showToast(~message=`Successfully updated onboarding survey`, ~toastType=ToastSuccess)
       setShowModal(_ => false)
     } catch {
     | _ => {
-        showToast(~message=`Please try again!`, ~toastType=ToastError, ())
+        showToast(~message=`Please try again!`, ~toastType=ToastError)
         setShowModal(_ => true)
       }
     }

@@ -28,7 +28,6 @@ module RequestPage = {
           ~toastType=ToastSuccess,
           ~message="Request submitted successfully!",
           ~autoClose=false,
-          (),
         )
         setIsSubmitButtonEnabled(_ => false)
       } catch {

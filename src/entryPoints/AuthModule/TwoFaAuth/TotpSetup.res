@@ -21,7 +21,7 @@ module EnterAccessCode = {
           let _ = await verifyRecoveryCodeLogic(body)
           onClickVerifyAccessCode(~skip_2fa=false)->ignore
         } else {
-          showToast(~message="Recovery code cannot be empty!", ~toastType=ToastError, ())
+          showToast(~message="Recovery code cannot be empty!", ~toastType=ToastError)
         }
         setButtonState(_ => Button.Normal)
       } catch {
@@ -131,7 +131,7 @@ module ConfigureTotpScreen = {
             setTwoFaPageState(_ => TwoFaTypes.TOTP_SHOW_RC)
           }
         } else {
-          showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
+          showToast(~message="OTP field cannot be empty!", ~toastType=ToastError)
         }
         setButtonState(_ => Button.Normal)
       } catch {
@@ -279,10 +279,10 @@ let make = () => {
             errorCode->CommonAuthUtils.errorSubCodeMapper === UR_41
         ) {
           setTwoFaPageState(_ => TOTP_SHOW_QR)
-          showToast(~message="Failed to complete 2fa!", ~toastType=ToastError, ())
+          showToast(~message="Failed to complete 2fa!", ~toastType=ToastError)
           setShowNewQR(prev => !prev)
         } else {
-          showToast(~message="Something went wrong", ~toastType=ToastError, ())
+          showToast(~message="Something went wrong", ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }

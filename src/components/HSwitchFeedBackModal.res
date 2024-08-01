@@ -27,7 +27,7 @@ let make = (
       | FeedBackModal => "Thanks for feedback"
       | RequestConnectorModal => "Request submitted succesfully"
       }
-      showToast(~toastType=ToastSuccess, ~message=successMessage, ~autoClose=false, ())
+      showToast(~toastType=ToastSuccess, ~message=successMessage, ~autoClose=false)
     } catch {
     | _ => ()
     }

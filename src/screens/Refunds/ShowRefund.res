@@ -116,7 +116,7 @@ let make = (~id) => {
         if message->String.includes("HE_02") {
           setScreenStateForRefund(_ => Custom)
         } else {
-          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError, ())
+          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError)
           setScreenStateForRefund(_ => Error("Failed to Fetch!"))
         }
 
@@ -141,7 +141,7 @@ let make = (~id) => {
 
   let syncData = () => {
     fetchRefundData()->ignore
-    showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
+    showToast(~message="Details Updated", ~toastType=ToastSuccess)
   }
 
   <div className="flex flex-col overflow-scroll">

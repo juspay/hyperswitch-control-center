@@ -24,7 +24,7 @@ let make = () => {
       setDashboardPageState(_ => #PROD_ONBOARDING)
     } catch {
     | _ =>
-      showToast(~toastType=ToastError, ~message="Oops, something went wrong. Please try again.", ())
+      showToast(~toastType=ToastError, ~message="Oops, something went wrong. Please try again.")
     }
   }
 
@@ -49,7 +49,7 @@ let make = () => {
           ~content,
           ~fileType="application/pdf",
         )
-        showToast(~toastType=ToastSuccess, ~message="Agreement download complete", ())
+        showToast(~toastType=ToastSuccess, ~message="Agreement download complete")
         agreementSignature()->ignore
         resolve()
       })
@@ -57,7 +57,6 @@ let make = () => {
         showToast(
           ~toastType=ToastError,
           ~message="Oops, something went wrong with the download. Please try again.",
-          (),
         )
         resolve()
       })
@@ -66,7 +65,6 @@ let make = () => {
       showToast(
         ~toastType=ToastError,
         ~message="Oops, something went wrong with the download - localhost",
-        (),
       )
       setDashboardPageState(_ => #PROD_ONBOARDING)
     }

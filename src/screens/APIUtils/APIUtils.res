@@ -495,7 +495,7 @@ let responseHandler = async (
         switch responseStatus {
         | 401 =>
           if !sessionExpired.contents {
-            showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false, ())
+            showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
             handleLogout()->ignore
             AuthUtils.redirectToLogin()
             sessionExpired := true
@@ -521,7 +521,6 @@ let responseHandler = async (
             ~toastType=ToastError,
             ~message=errorDict->getString("message", "Error Occured"),
             ~autoClose=false,
-            (),
           )
         }
       }
@@ -543,7 +542,7 @@ let catchHandler = (
       if isPlayground {
         popUpCallBack()
       } else if showErrorToast {
-        showToast(~toastType=ToastError, ~message="Something Went Wrong", ~autoClose=false, ())
+        showToast(~toastType=ToastError, ~message="Something Went Wrong", ~autoClose=false)
       }
       Exn.raiseError("Failed to Fetch")
     }

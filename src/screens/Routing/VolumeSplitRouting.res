@@ -43,7 +43,7 @@ module VolumeRoutingView = {
           (),
         )
         let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
-        showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
+        showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess)
         RescriptReactRouter.replace(
           GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
         )
@@ -53,14 +53,13 @@ module VolumeRoutingView = {
         switch Exn.message(e) {
         | Some(message) =>
           if message->String.includes("IR_16") {
-            showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
+            showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess)
             RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
             setScreenState(_ => Success)
           } else {
             showToast(
               ~message="Failed to Activate the Configuration!",
               ~toastType=ToastState.ToastError,
-              (),
             )
             setScreenState(_ => Error(message))
           }
@@ -79,7 +78,7 @@ module VolumeRoutingView = {
           )}/deactivate`
         let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
         let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
-        showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
+        showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess)
         RescriptReactRouter.replace(
           GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
         )
@@ -91,7 +90,6 @@ module VolumeRoutingView = {
             showToast(
               ~message="Failed to Deactivate the Configuration!",
               ~toastType=ToastState.ToastError,
-              (),
             )
             setScreenState(_ => Error(message))
           }
@@ -320,7 +318,6 @@ let make = (
       showToast(
         ~message="Successfully Created a new Configuration !",
         ~toastType=ToastState.ToastSuccess,
-        (),
       )
       setScreenState(_ => Success)
       if isSaveRule {
@@ -330,7 +327,7 @@ let make = (
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Something went wrong!")
-      showToast(~message="Failed to Save the Configuration !", ~toastType=ToastState.ToastError, ())
+      showToast(~message="Failed to Save the Configuration !", ~toastType=ToastState.ToastError)
       setScreenState(_ => PageLoaderWrapper.Error(err))
       Exn.raiseError(err)
     }

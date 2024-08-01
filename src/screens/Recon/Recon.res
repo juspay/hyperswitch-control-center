@@ -20,10 +20,9 @@ let make = () => {
       showToast(
         ~message=`Thank you for your interest in our reconciliation module. We are currently reviewing your request for access. We will follow up with you soon regarding next steps.`,
         ~toastType=ToastSuccess,
-        (),
       )
     } catch {
-    | _ => showToast(~message=`Something went wrong. Please try again.`, ~toastType=ToastError, ())
+    | _ => showToast(~message=`Something went wrong. Please try again.`, ~toastType=ToastError)
     }
   }
 

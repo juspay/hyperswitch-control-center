@@ -18,11 +18,9 @@ module NewAccountCreationModal = {
           ~toastType=ToastSuccess,
           ~message="Account Created Successfully!",
           ~autoClose=true,
-          (),
         )
       } catch {
-      | _ =>
-        showToast(~toastType=ToastError, ~message="Account Creation Failed", ~autoClose=true, ())
+      | _ => showToast(~toastType=ToastError, ~message="Account Creation Failed", ~autoClose=true)
       }
 
       setShowModal(_ => false)

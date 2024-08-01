@@ -148,7 +148,7 @@ let make = (
         response->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
       )
       fetchBusinessProfiles()->ignore
-      showToast(~message="Your Entry added successfully", ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message="Your Entry added successfully", ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))

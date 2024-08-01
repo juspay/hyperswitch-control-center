@@ -23,7 +23,7 @@ let make = (~flowType) => {
         (),
       )
       let _ = await updateDetails(url, body, Post, ())
-      showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
+      showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess)
       setAuthStatus(LoggedOut)
     } catch {
     | Exn.Error(e) => {
@@ -38,7 +38,7 @@ let make = (~flowType) => {
       let url = getURL(~entityName=USERS, ~userType=#ROTATE_PASSWORD, ~methodType=Post, ())
       let body = [("password", password->JSON.Encode.string)]->getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
-      showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
+      showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess)
       setAuthStatus(LoggedOut)
     } catch {
     | Exn.Error(e) => {
@@ -93,9 +93,9 @@ let make = (~flowType) => {
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
 
         if errorCode->errorSubCodeMapper === UR_29 {
-          showToast(~message=errorMessage, ~toastType=ToastError, ())
+          showToast(~message=errorMessage, ~toastType=ToastError)
         } else {
-          showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())
+          showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError)
           setAuthStatus(LoggedOut)
         }
       }

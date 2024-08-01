@@ -221,14 +221,12 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
             showToast(
               ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
               ~toastType=ToastState.ToastError,
-              (),
             )
             setScreenState(_ => Success)
           } else {
             showToast(
               ~message="Failed to Save the Configuration!",
               ~toastType=ToastState.ToastError,
-              (),
             )
             setScreenState(_ => Error(message))
           }

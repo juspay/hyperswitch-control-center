@@ -69,7 +69,7 @@ let make = (
       setButtonState(_ => Normal)
     } catch {
     | _ =>
-      showToast(~message="Step already set", ~toastType=ToastError, ())
+      showToast(~message="Step already set", ~toastType=ToastError)
       setButtonState(_ => Normal)
     }
   }
@@ -95,12 +95,11 @@ let make = (
       showToast(
         ~message=`${connectorName->LogicUtils.getFirstLetterCaps()} connected successfully!`,
         ~toastType=ToastSuccess,
-        (),
       )
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      showToast(~message=err, ~toastType=ToastError, ())
+      showToast(~message=err, ~toastType=ToastError)
       setButtonState(_ => Normal)
     }
   }

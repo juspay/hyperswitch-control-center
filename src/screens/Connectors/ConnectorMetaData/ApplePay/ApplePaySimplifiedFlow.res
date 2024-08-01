@@ -55,7 +55,7 @@ let make = (
       setVefifiedDomainList(_ => [domainName])
       setApplePayIntegrationSteps(_ => ApplePayIntegrationTypes.Verify)
     } catch {
-    | _ => showToast(~message="Failed to Verify", ~toastType=ToastState.ToastError, ())
+    | _ => showToast(~message="Failed to Verify", ~toastType=ToastState.ToastError)
     }
     Nullable.null
   }
@@ -71,7 +71,7 @@ let make = (
         ~content,
         ~fileType="text/plain",
       )
-      showToast(~toastType=ToastSuccess, ~message="File download complete", ())
+      showToast(~toastType=ToastSuccess, ~message="File download complete")
 
       resolve()
     })
@@ -79,7 +79,6 @@ let make = (
       showToast(
         ~toastType=ToastError,
         ~message="Oops, something went wrong with the download. Please try again.",
-        (),
       )
       resolve()
     })

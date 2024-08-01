@@ -60,7 +60,7 @@ let make = () => {
         setAuthStatus(LoggedIn(BasicAuth(typedInfo)))
         setDashboardPageState(_ => #HOME)
       } else {
-        showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
+        showToast(~message="Failed to sign in, Try again", ~toastType=ToastError)
         handleLogout()->ignore
       }
     } catch {

@@ -166,7 +166,7 @@ module RemoteTableFilters = {
         }
         setFilterDataJson(_ => response->Some)
       } catch {
-      | _ => showToast(~message="Failed to load filters", ~toastType=ToastError, ())
+      | _ => showToast(~message="Failed to load filters", ~toastType=ToastError)
       }
     }
 
