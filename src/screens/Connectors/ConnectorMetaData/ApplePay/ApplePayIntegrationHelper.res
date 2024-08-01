@@ -1,12 +1,7 @@
 open ApplePayIntegrationTypes
 module SimplifiedHelper = {
   @react.component
-  let make = (
-    ~customElement: option<React.element>,
-    ~heading="",
-    ~stepNumber="1",
-    ~subText=None,
-  ) => {
+  let make = (~customElement=?, ~heading="", ~stepNumber="1", ~subText=None) => {
     let {globalUIConfig: {backgroundColor, font: {textColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
@@ -23,11 +18,11 @@ module SimplifiedHelper = {
             <p className={`font-medium text-base ${textColor.primaryNormal}`}>
               {heading->React.string}
             </p>
-            <UIUtils.RenderIf condition={subText->Option.isSome}>
+            <RenderIf condition={subText->Option.isSome}>
               <p className={`mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
                 {subText->Option.getOr("")->React.string}
               </p>
-            </UIUtils.RenderIf>
+            </RenderIf>
             {switch customElement {
             | Some(element) => element
             | _ => React.null
@@ -51,6 +46,86 @@ module HostURL = {
     <p className="mt-2">
       {`${fieldInput}/.well-known/apple-developer-merchantid-domain-association`->React.string}
     </p>
+  }
+}
+
+module SampleEmail = {
+  @react.component
+  let make = () => {
+    let showToast = ToastState.useShowToast()
+
+    let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
+
+    let businessDescription = "<One sentence about your business>. The business operates across <XX> countries and has customers across the world."
+    let featureReqText = "We are using Hyperswitch, a Level 1 PCI DSS 3.2.1 compliant Payments Orchestrator, to manage payments on our website. In addition to Stripe, since we are using other processors as well to process payments across multiple geographies, we wanted to use Hyperswitch's Payment Processing certificate to decrypt Apple pay tokens and send the decrypted Apple pay tokens to Stripe. So, please enable processing decrypted Apple pay token feature on our Stripe account. We've attached Hyperswitch's PCI DSS AoC for reference."
+
+    let emailContent = `Stripe Account id: <Enter your account id>
+
+    A detailed business description: 
+    ${businessDescription}
+
+    Feature Request:
+    ${featureReqText}`
+
+    let truncatedText = isTextVisible
+      ? featureReqText
+      : featureReqText->String.slice(~start=0, ~end=50)
+
+    let truncatedTextElement =
+      <p className="flex gap-2">
+        {truncatedText->React.string}
+        <p
+          className="cursor-pointer text-blue-400 text-xl"
+          onClick={_ => setIsTextVisible(_ => true)}>
+          {"..."->React.string}
+        </p>
+      </p>
+
+    <div className="flex flex-col">
+      <span className="mt-2 text-base  font-normal">
+        <span className="text-hyperswitch_black opacity-50">
+          {"Since the Apple Pay Web Domain flow involves decryption at Hyperswitch, you would need to write to Stripe support (support@stripe.com) to get this feature enabled for your Stripe account. You can use the following text in the email, attach our"->React.string}
+        </span>
+        <Link
+          to_={`/compliance`}
+          openInNewTab=false
+          className="text-blue-600 underline underline-offset-2 px-2 !opacity-100">
+          {"PCI DSS AoC certificate"->React.string}
+        </Link>
+        <span className="text-hyperswitch_black opacity-50">
+          {"and copy our Support team (biz@hyperswitch.io):"->React.string}
+        </span>
+      </span>
+      <div className="border border-gray-400 rounded-md flex flex-row gap-8 p-4 mt-4 bg-gray-200">
+        <div className="flex flex-col gap-4 ">
+          <span>
+            {"Stripe Account id: <Enter your account id:you can find it "->React.string}
+            <a
+              className="underline text-blue-400 underline-offset-1"
+              href="https://dashboard.stripe.com/settings/user">
+              {"here"->React.string}
+            </a>
+            <span> {">"->React.string} </span>
+          </span>
+          <span>
+            <p> {"A detailed business description:"->React.string} </p>
+            {businessDescription->React.string}
+          </span>
+          <span>
+            <p> {"Feature Request:"->React.string} </p>
+            {isTextVisible ? truncatedText->React.string : truncatedTextElement}
+          </span>
+        </div>
+        <img
+          src={`/assets/CopyToClipboard.svg`}
+          className="cursor-pointer h-fit w-fit"
+          onClick={_ => {
+            Clipboard.writeText(emailContent)
+            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+          }}
+        />
+      </div>
+    </div>
   }
 }
 

@@ -110,15 +110,15 @@ let make = (~previewOnly=false) => {
         title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
       />
       <div className="flex">
-        <UIUtils.RenderIf condition={!previewOnly}>
+        <RenderIf condition={!previewOnly}>
           <div className="flex-1"> {filtersUI} </div>
-        </UIUtils.RenderIf>
-        <div className="flex justify-end gap-3">
-          <UIUtils.RenderIf condition={generateReport && orderData->Array.length > 0}>
+        </RenderIf>
+        <div className="flex flex-col items-end 2xl:flex-row 2xl:justify-end 2xl:items-start gap-3">
+          <RenderIf condition={generateReport && orderData->Array.length > 0}>
             <GenerateReport entityName={PAYMENT_REPORT} />
-          </UIUtils.RenderIf>
-          <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
+          </RenderIf>
           <PortalCapture key={`OrdersCustomizeColumn`} name={`OrdersCustomizeColumn`} />
+          <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
         </div>
       </div>
       <PageLoaderWrapper screenState customUI>

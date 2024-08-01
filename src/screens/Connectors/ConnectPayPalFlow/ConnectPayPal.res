@@ -111,7 +111,6 @@ module LandingScreen = {
 module ErrorPage = {
   @react.component
   let make = (~setupAccountStatus, ~actionUrl, ~getPayPalStatus, ~setScreenState) => {
-    open UIUtils
     let errorPageDetails = setupAccountStatus->PayPalFlowUtils.getPageDetailsForAutomatic
 
     <div className="flex flex-col gap-6">
@@ -500,7 +499,7 @@ let make = (
         </div>
       </Form>
       <div className="bg-jp-gray-light_gray_bg flex py-4 px-10 gap-2">
-        <img src="/assets/PayPalFullLogo.svg" />
+        <img alt="paypal" src="/assets/PayPalFullLogo.svg" />
         <p className=p2RedularTextClass>
           {"| Hyperswitch is PayPal's trusted partner, your credentials are secure & never stored with us."->React.string}
         </p>

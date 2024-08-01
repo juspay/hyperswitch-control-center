@@ -1,6 +1,5 @@
 @react.component
 let make = (~isPayoutFlow=false) => {
-  open UIUtils
   open ConnectorUtils
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -104,7 +103,7 @@ let make = (~isPayoutFlow=false) => {
           </div>
           <RenderIf condition={!isMobileView}>
             <div className="h-30 md:w-[37rem] flex justify-end hidden laptop:block">
-              <img src="/assets/DummyConnectorImage.svg" />
+              <img alt="dummy-connector" src="/assets/DummyConnectorImage.svg" />
             </div>
           </RenderIf>
         </div>

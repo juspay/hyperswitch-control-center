@@ -220,9 +220,9 @@ let getStatData = (
       showDelta: false,
     }
   | AvgPaymentTime => {
-      title: "TP-50 Payment Time",
-      tooltipText: "Time taken to attempt payment",
-      deltaTooltipComponent: singlestatDeltaTooltipFormat(
+      title: "Payment Time",
+      tooltipText: "The time spent on Checkout upto the moment the payment request is sent to the backend server.",
+      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.average_payment_time,
         deltaTimestampData.currentSr,
       ),
@@ -239,8 +239,8 @@ let getStatData = (
       showDelta: false,
     }
   | LoadTime => {
-      title: "TP-50 Load Time",
-      tooltipText: "Time taken to Start Render of Checkout from creation of Elements",
+      title: "Checkout Load Time",
+      tooltipText: "Time taken from Checkout creation to the start of its rendering",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.load_time,
         deltaTimestampData.currentSr,

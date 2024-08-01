@@ -1,7 +1,7 @@
 module RenderSearchResultBody = {
   open GlobalSearchTypes
   open LogicUtils
-  open UIUtils
+
   @react.component
   let make = (~section: resultType) => {
     let redirectOnSelect = element => {

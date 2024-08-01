@@ -24,6 +24,7 @@ module CopyTextCustomComp = {
       <div className=customParentClass>
         <div className=customTextCss> {displayValue->React.string} </div>
         <img
+          alt="cursor"
           src={`/assets/CopyToClipboard.svg`}
           className="cursor-pointer"
           onClick={ev => {
@@ -90,7 +91,7 @@ module BluredTableComponent = {
         <p className="text-center text-grey-700 font-medium opacity-50">
           {infoText->React.string}
         </p>
-        <UIUtils.RenderIf condition={showRedirectCTA}>
+        <RenderIf condition={showRedirectCTA}>
           <Button
             text=buttonText
             buttonType={Primary}
@@ -100,9 +101,9 @@ module BluredTableComponent = {
                 : setPaymentModal(_ => true)
             }}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
-      <UIUtils.RenderIf condition={paymentModal}> {onClickElement} </UIUtils.RenderIf>
+      <RenderIf condition={paymentModal}> {onClickElement} </RenderIf>
     </div>
   }
 }

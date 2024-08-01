@@ -127,9 +127,9 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
         <h4 className="text-lg font-semibold"> {"Profile id"->React.string} </h4>
         <div> {frmInfo.profile_id->React.string} </div>
       </div>
-      <UIUtils.RenderIf condition={frmConfigs->Array.length > 0}>
+      <RenderIf condition={frmConfigs->Array.length > 0}>
         <ConfigInfo frmConfigs />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   </div>
 }

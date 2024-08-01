@@ -36,7 +36,7 @@ let make = () => {
       ->Date.toISOString
       ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")
 
-    //? - For localtesting this condn added
+    // For local testing this condition is added
     if downloadURL->LogicUtils.isNonEmptyString {
       open Promise
       fetchApi(downloadURL, ~method_=Get, ())
@@ -102,7 +102,7 @@ let make = () => {
   <HSwitchUtils.BackgroundImageWrapper>
     <div className="w-full h-[90%] md:w-pageWidth11 mx-auto py-10">
       <div className="flex items-center justify-between px-20 bg-white pb-5 pt-10">
-        <img src={`assets/Dark/hyperswitchLogoIconWithText.svg`} />
+        <img alt="logo-icon-with-text" src={`assets/Dark/hyperswitchLogoIconWithText.svg`} />
         <SwitchMerchant userRole={userRole} />
       </div>
       <div className="flex flex-col gap-5 bg-white px-20 pb-10 w-full h-full overflow-hidden">

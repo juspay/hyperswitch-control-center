@@ -21,7 +21,7 @@ module Verify2FAModalComponent = {
       | Totp =>
         <>
           <TwoFaElements.TotpInput otp setOtp />
-          <UIUtils.RenderIf condition={!showOnlyTotp}>
+          <RenderIf condition={!showOnlyTotp}>
             <p className={`${p2Regular} text-jp-gray-700`}>
               {"Didn't get a code? "->React.string}
               <span
@@ -34,7 +34,7 @@ module Verify2FAModalComponent = {
                 {"Use recovery-code"->React.string}
               </span>
             </p>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </>
 
       | RecoveryCode =>
@@ -54,9 +54,9 @@ module Verify2FAModalComponent = {
           </p>
         </>
       }}
-      <UIUtils.RenderIf condition={errorMessage->String.length > 0}>
+      <RenderIf condition={errorMessage->String.length > 0}>
         <div className="text-sm text-red-600"> {`Error: ${errorMessage}`->React.string} </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }
@@ -455,7 +455,7 @@ module RegenerateRecoveryCodes = {
             </div>
             <div className="flex gap-4 justify-end">
               <Button
-                leftIcon={CustomIcon(<img src={`/assets/CopyToClipboard.svg`} />)}
+                leftIcon={CustomIcon(<img alt="image" src={`/assets/CopyToClipboard.svg`} />)}
                 text={"Copy"}
                 buttonType={Secondary}
                 buttonSize={Small}

@@ -19,7 +19,7 @@ module CardRenderer = {
   open ConnectorTypes
   open ConnectorUtils
   open Wallet
-  open UIUtils
+
   @react.component
   let make = (
     ~updateDetails,
@@ -249,6 +249,7 @@ module CardRenderer = {
           <Modal
             modalHeading={`Additional Details to enable ${selectedWallet.payment_method_type->LogicUtils.snakeToTitle}`}
             headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
+            headBgClass="sticky top-0 z-30 bg-white"
             showModal={showWalletConfigurationModal}
             setShowModal={setShowWalletConfigurationModal}
             onCloseClickCustomFun={removeSelectedWallet}

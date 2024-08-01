@@ -213,62 +213,72 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
     Table.makeHeaderInfo(
       ~key="attempt_id",
       ~title="Attempt ID",
-      ~showSort=true,
+      ~showSort=false,
       ~description="You can validate the information shown here by cross checking the payment attempt identifier (Attempt ID) in your payment processor portal.",
       (),
     )
-  | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~showSort=true, ())
-  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true, ())
-  | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=true, ())
-  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector", ~showSort=true, ())
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~showSort=false, ())
+  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=false, ())
+  | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=false, ())
+  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector", ~showSort=false, ())
   | PaymentMethod =>
-    Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method", ~showSort=false, ())
   | PaymentMethodType =>
     Table.makeHeaderInfo(
       ~key="payment_method_type",
       ~title="Payment Method Type",
-      ~showSort=true,
+      ~showSort=false,
       (),
     )
   | ErrorMessage =>
-    Table.makeHeaderInfo(~key="error_message", ~title="Error Message", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="error_message", ~title="Error Message", ~showSort=false, ())
   | ConnectorTransactionID =>
     Table.makeHeaderInfo(
       ~key="connector_transaction_id",
       ~title="Connector Transaction ID",
-      ~showSort=true,
+      ~showSort=false,
       (),
     )
   | CaptureMethod =>
-    Table.makeHeaderInfo(~key="capture_method", ~title="Capture Method", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="capture_method", ~title="Capture Method", ~showSort=false, ())
   | AuthenticationType =>
     Table.makeHeaderInfo(
       ~key="authentication_type",
       ~title="Authentication Type",
-      ~showSort=true,
+      ~showSort=false,
       (),
     )
   | CancellationReason =>
     Table.makeHeaderInfo(
       ~key="cancellation_reason",
       ~title="Cancellation Reason",
-      ~showSort=true,
+      ~showSort=false,
       (),
     )
-  | MandateID => Table.makeHeaderInfo(~key="mandate_id", ~title="Mandate ID", ~showSort=true, ())
-  | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code", ~showSort=true, ())
+  | MandateID => Table.makeHeaderInfo(~key="mandate_id", ~title="Mandate ID", ~showSort=false, ())
+  | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code", ~showSort=false, ())
   | PaymentToken =>
-    Table.makeHeaderInfo(~key="payment_token", ~title="Payment Token", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="payment_token", ~title="Payment Token", ~showSort=false, ())
   | ConnectorMetadata =>
-    Table.makeHeaderInfo(~key="connector_metadata", ~title="Connector Metadata", ~showSort=true, ())
+    Table.makeHeaderInfo(
+      ~key="connector_metadata",
+      ~title="Connector Metadata",
+      ~showSort=false,
+      (),
+    )
   | PaymentExperience =>
-    Table.makeHeaderInfo(~key="payment_experience", ~title="Payment Experience", ~showSort=true, ())
+    Table.makeHeaderInfo(
+      ~key="payment_experience",
+      ~title="Payment Experience",
+      ~showSort=false,
+      (),
+    )
   | ReferenceID =>
-    Table.makeHeaderInfo(~key="reference_id", ~title="Reference ID", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="reference_id", ~title="Reference ID", ~showSort=false, ())
   | ClientSource =>
-    Table.makeHeaderInfo(~key="client_source", ~title="Client Source", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="client_source", ~title="Client Source", ~showSort=false, ())
   | ClientVersion =>
-    Table.makeHeaderInfo(~key="client_version", ~title="Client Version", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="client_version", ~title="Client Version", ~showSort=false, ())
   }
 }
 
@@ -385,6 +395,8 @@ let defaultColumns: array<colType> = [
   PaymentMethod,
   PaymentMethodType,
   CardNetwork,
+  Email,
+  MerchantOrderReferenceId,
   Description,
   Metadata,
   Created,
@@ -448,9 +460,6 @@ let getHeading = (colType: colType) => {
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=false, ())
   | CustomerId =>
     Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID", ~showSort=false, ())
-  | CustomerEmail =>
-    Table.makeHeaderInfo(~key="email", ~title="Customer Email", ~showSort=false, ())
-
   | Description =>
     Table.makeHeaderInfo(~key="description", ~title="Description", ~showSort=false, ())
 
@@ -489,7 +498,7 @@ let getHeading = (colType: colType) => {
     Table.makeHeaderInfo(~key="payment_token", ~title="Payment Token", ~showSort=false, ())
   | Shipping => Table.makeHeaderInfo(~key="shipping", ~title="Shipping", ~showSort=false, ())
   | Billing => Table.makeHeaderInfo(~key="billing", ~title="Billing", ~showSort=false, ())
-  | Email => Table.makeHeaderInfo(~key="email", ~title="Email", ~showSort=false, ())
+  | Email => Table.makeHeaderInfo(~key="email", ~title="Customer Email", ~showSort=false, ())
   | Name => Table.makeHeaderInfo(~key="name", ~title="Name", ~showSort=false, ())
   | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone", ~showSort=false, ())
   | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="ReturnUrl", ~showSort=false, ())
@@ -861,7 +870,6 @@ let getCell = (order, colType: colType): Table.cell => {
   | Created => Date(order.created)
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
-  | CustomerEmail => Text(order.email)
   | Description => CustomCell(<Metadata displayValue={order.description} endValue={5} />, "")
   | MandateId => Text(order.mandate_id)
   | MandateData => Text(order.mandate_data)
@@ -941,20 +949,18 @@ let concatValueOfGivenKeysOfDict = (dict, keys) => {
 }
 
 let itemToObjMapper = dict => {
-  let addressKeys = [
-    "first_name",
-    "last_name",
-    "line1",
-    "line2",
-    "line3",
-    "city",
-    "state",
-    "country",
-    "zip",
-  ]
+  let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
 
   let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code", ()) => {
     `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
+  }
+
+  let getEmail = dict => {
+    let defaultEmail = dict->getString("email", "")
+
+    dict
+    ->getDictfromDict("customer")
+    ->getString("email", defaultEmail)
   }
 
   {
@@ -1028,7 +1034,7 @@ let itemToObjMapper = dict => {
     ->getDictfromDict("phone")
     ->getPhoneNumberString(),
     metadata: dict->getJsonObjectFromDict("metadata")->getDictFromJsonObject,
-    email: dict->getString("email", ""),
+    email: dict->getEmail,
     name: dict->getString("name", ""),
     phone: dict
     ->getDictfromDict("customer")

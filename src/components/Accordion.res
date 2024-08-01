@@ -27,9 +27,9 @@ module SectionAccordion = {
     <AddDataAttributes attributes=[("data-section", title)]>
       <div className={`border md:border-0 dark:border-jp-gray-950 ${headerBg}`}>
         <DesktopView>
-          <UIUtils.RenderIf condition={!hideHeaderWeb}>
+          <RenderIf condition={!hideHeaderWeb}>
             <h3 className={`text-base ${headingClass}`}> {title->React.string} </h3>
-          </UIUtils.RenderIf>
+          </RenderIf>
           <p
             className="text-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
             {subtext->React.string}

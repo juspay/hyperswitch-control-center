@@ -10,7 +10,6 @@ let make = (
   ~heading,
   ~title,
 ) => {
-  open UIUtils
   let isCurrentRowExpanded = expandedRowIndexArray->Array.includes(rowIndex)
   let headingArray = []
 

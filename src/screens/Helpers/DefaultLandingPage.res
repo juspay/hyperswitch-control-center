@@ -12,7 +12,6 @@ let make = (
   ~overriddingStylesSubtitle="",
   ~showLogoutButton=false,
 ) => {
-  open UIUtils
   let handleLogout = APIUtils.useHandleLogout()
   let appliedWidth = width === "98%" ? "98%" : width
   let appliedHeight = height === "100%" ? "100%" : height
@@ -24,7 +23,7 @@ let make = (
   <div
     style={ReactDOMStyle.make(~width=appliedWidth, ~height=appliedHeight, ())}
     className={`m-5 bg-white dark:bg-jp-gray-lightgray_background dark:border-jp-gray-850 flex flex-col p-5 items-center justify-center ${customStyle}`}>
-    <img src={`/assets/WorkInProgress.svg`} />
+    <img alt="work-in-progress" src={`/assets/WorkInProgress.svg`} />
     <RenderIf condition={title->String.length !== 0}>
       <div className={`font-bold mt-5 ${overriddingStylesTitle}`}> {title->React.string} </div>
     </RenderIf>
@@ -39,14 +38,14 @@ let make = (
         <Button
           text={buttonText} buttonSize={Large} onClick={_ => onClickHandler()} buttonType={Primary}
         />
-        <UIUtils.RenderIf condition={showLogoutButton}>
+        <RenderIf condition={showLogoutButton}>
           <Button
             text={"Logout"}
             buttonSize={Large}
             onClick={_ => onLogoutHandle()}
             buttonType={Secondary}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </RenderIf>
   </div>

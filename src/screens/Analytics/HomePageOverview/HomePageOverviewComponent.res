@@ -42,7 +42,7 @@ module ConnectorOverview = {
       <div className="flex"> {icons->React.array} </div>
     }
 
-    <UIUtils.RenderIf condition={configuredConnectors->Array.length > 0}>
+    <RenderIf condition={configuredConnectors->Array.length > 0}>
       <div className=boxCss>
         {getConnectorIconsList()}
         <div className="flex items-center gap-2">
@@ -61,7 +61,7 @@ module ConnectorOverview = {
           }}
         />
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -169,7 +169,7 @@ module OverviewInfo = {
       }
     }
 
-    <UIUtils.RenderIf condition={sampleData}>
+    <RenderIf condition={sampleData}>
       <div className="flex bg-white border rounded-md gap-2 px-9 py-3">
         <Icon name="info-vacent" className={`${textColor.primaryNormal}`} size=20 />
         <span>
@@ -182,7 +182,7 @@ module OverviewInfo = {
         </span>
         <span> {"sample data"->React.string} </span>
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -194,12 +194,12 @@ let make = () => {
     <p className=headingStyle> {"Overview"->React.string} </p>
     <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
       <ConnectorOverview />
-      <UIUtils.RenderIf condition={userPermissionJson.analyticsView === Access}>
+      <RenderIf condition={userPermissionJson.analyticsView === Access}>
         <PaymentOverview />
-      </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={systemMetrics}>
+      </RenderIf>
+      <RenderIf condition={systemMetrics}>
         <SystemMetricsInsights />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
     <OverviewInfo />
   </div>

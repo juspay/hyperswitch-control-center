@@ -354,13 +354,13 @@ module TableWrapper = {
               />
             </Form>
           </div>
-          <UIUtils.RenderIf condition={tableData->Array.length > 0}>
+          <RenderIf condition={tableData->Array.length > 0}>
             <div
               className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
               <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
               {"'NA' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </>
       : <Loader />
   }
@@ -676,18 +676,18 @@ let make = (
     </div>
   }
 
-  <UIUtils.RenderIf condition={filterValueDict->Dict.toArray->Array.length > 0}>
+  <RenderIf condition={filterValueDict->Dict.toArray->Array.length > 0}>
     {switch chartEntity1 {
     | Some(chartEntity) =>
       <div>
         <div className="flex items-center justify-between">
           <PageUtils.PageHeading title=pageTitle subTitle=pageSubTitle />
-          <UIUtils.RenderIf condition={generateReport}>
+          <RenderIf condition={generateReport}>
             {switch generateReportType {
             | Some(entityName) => <GenerateReport entityName />
             | None => React.null
             }}
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
         <div className="mt-2 -ml-1"> topFilterUi </div>
         <div>
@@ -865,5 +865,5 @@ let make = (
       </div>
     | _ => React.null
     }}
-  </UIUtils.RenderIf>
+  </RenderIf>
 }

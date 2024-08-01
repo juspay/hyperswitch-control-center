@@ -73,6 +73,7 @@ module ConfigurePlugin = {
             <div
               className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
               <img
+                alt="hyperswitch-settings"
                 style={ReactDOMStyle.make(
                   ~height="400px",
                   ~width="100%",
@@ -153,6 +154,7 @@ module ConfigureWebHook = {
             <div
               className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
               <img
+                alt="hyperswitch-settings"
                 style={ReactDOMStyle.make(
                   ~height="250px",
                   ~width="100%",
@@ -199,6 +201,7 @@ module ConfigureWebHook = {
             <div
               className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
               <img
+                alt="hyperswitch-settings"
                 style={ReactDOMStyle.make(
                   ~height="150px",
                   ~width="100%",

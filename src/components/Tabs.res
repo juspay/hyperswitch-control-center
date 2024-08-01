@@ -260,9 +260,9 @@ let make = (
           </div>
         </div>
       </div>
-      <UIUtils.RenderIf condition={!showStickyHeader && showBorder}>
+      <RenderIf condition={!showStickyHeader && showBorder}>
         <div className=bottomBorderClass />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div className=renderedTabClassName>
         <ErrorBoundary key={Int.toString(selectedIndex)}>
           {switch tabs->Array.get(selectedIndex) {

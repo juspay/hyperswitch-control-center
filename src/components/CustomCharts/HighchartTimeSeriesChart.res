@@ -695,7 +695,7 @@ module LineChart1D = {
               <HighchartsReact highcharts={highchartsModule} options key={chartKey} />
             </div>
           </AddDataAttributes>
-          <UIUtils.RenderIf condition={showTableLegend && isMobileView}>
+          <RenderIf condition={showTableLegend && isMobileView}>
             <div
               className="flex flex-row items-center gap-2 w-fit self-end cursor-pointer mr-5 mb-2"
               onClick={_ => {setHideLegend(prev => !prev)}}>
@@ -705,7 +705,7 @@ module LineChart1D = {
                 className="text-neutral-400"
               />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
           {if showTableLegend && !hideLegend {
             <div className={`${tableWidth}  pl-5 pt-0 min-w-max`}>
               <LoadedTable

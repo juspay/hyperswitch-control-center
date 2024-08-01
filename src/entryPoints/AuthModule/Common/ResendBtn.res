@@ -32,10 +32,10 @@ let make = (~callBackFun) => {
       }}>
       {"Send again."->React.string}
     </a>
-    <UIUtils.RenderIf condition={isDisabled}>
+    <RenderIf condition={isDisabled}>
       <div className={`${textColor.primaryNormal}`}>
         {`(${mod(seconds, 60)->Int.toString}sec)`->React.string}
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   </div>
 }

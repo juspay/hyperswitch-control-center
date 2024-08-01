@@ -68,17 +68,16 @@ module NewProcessorCards = {
 
     let headerText = "Connect a new fraud & risk management player"
 
-    <UIUtils.RenderIf condition={unConfiguredFRMCount > 0}>
+    <RenderIf condition={unConfiguredFRMCount > 0}>
       <div className="flex flex-col gap-4">
         {frmAvailableForIntegration->descriptedFRMs(headerText)}
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
 @react.component
 let make = () => {
-  open UIUtils
   let getURL = APIUtils.useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchDetails = APIUtils.useGetMethod()
@@ -190,7 +189,7 @@ let make = () => {
       </RenderIf>
       <NewProcessorCards configuredFRMs />
       <RenderIf condition={!isMobileView}>
-        <img className="w-full max-w-[1400px] mb-10" src="/assets/frmBanner.svg" />
+        <img alt="frm-banner" className="w-full max-w-[1400px] mb-10" src="/assets/frmBanner.svg" />
       </RenderIf>
     </div>
   </PageLoaderWrapper>

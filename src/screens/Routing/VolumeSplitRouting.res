@@ -177,7 +177,7 @@ module VolumeRoutingView = {
                 }}
                 customButtonStyle="w-1/5 rounded-sm"
               />
-              <UIUtils.RenderIf condition={!isActive}>
+              <RenderIf condition={!isActive}>
                 <Button
                   text={"Activate Configuration"}
                   buttonType={Primary}
@@ -187,8 +187,8 @@ module VolumeRoutingView = {
                   customButtonStyle="w-1/5 rounded-sm"
                   buttonState={Normal}
                 />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={isActive}>
+              </RenderIf>
+              <RenderIf condition={isActive}>
                 <Button
                   text={"Deactivate Configuration"}
                   buttonType={Primary}
@@ -198,7 +198,7 @@ module VolumeRoutingView = {
                   customButtonStyle="w-1/5 rounded-sm"
                   buttonState=Normal
                 />
-              </UIUtils.RenderIf>
+              </RenderIf>
             </div>
           </div>
         | _ => React.null
@@ -354,7 +354,7 @@ let make = (
             />
           </div>
         </div>
-        <UIUtils.RenderIf condition={formState != CreateConfig}>
+        <RenderIf condition={formState != CreateConfig}>
           <VolumeRoutingView
             setScreenState
             pageState
@@ -370,7 +370,7 @@ let make = (
             connectorList
             baseUrlForRedirection
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <FormValuesSpy />
       </Form>
     </PageLoaderWrapper>
