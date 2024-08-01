@@ -1,7 +1,7 @@
 open LogicUtils
 open DynamicSingleStat
 
-open HSAnalyticsUtils
+open AnalyticsUtils
 open AnalyticsTypes
 let domain = "auth_events"
 

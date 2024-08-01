@@ -1,7 +1,6 @@
 open AuthenticationAnalyticsEntity
-
+open AnalyticsUtils
 open APIUtils
-open HSAnalyticsUtils
 
 @react.component
 let make = () => {

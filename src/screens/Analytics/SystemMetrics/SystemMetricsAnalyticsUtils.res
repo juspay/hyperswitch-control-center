@@ -1,6 +1,6 @@
 open LogicUtils
 open DynamicSingleStat
-open HSAnalyticsUtils
+open AnalyticsUtils
 open AnalyticsTypes
 let domain = "api_events"
 
@@ -102,7 +102,7 @@ let getStatData = (
   | Latency => {
       title: "APIs latency",
       tooltipText: "API latency refers to the time it takes for a request to travel from the client to the server and back, and it also includes the connector-side latency if it is involved.",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.latency,
         deltaTimestampData.currentSr,
       ),
@@ -117,7 +117,7 @@ let getStatData = (
   | ApiCount => {
       title: "API Count",
       tooltipText: "API request count is the tally of requests made to the Hyperswitch APIs, reflecting the volume of interactions and usage during a defined timeframe.",
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+      deltaTooltipComponent: singlestatDeltaTooltipFormat(
         singleStatData.api_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),

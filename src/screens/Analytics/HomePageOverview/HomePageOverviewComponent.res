@@ -68,7 +68,7 @@ module ConnectorOverview = {
 module SystemMetricsInsights = {
   open DynamicSingleStat
   open SystemMetricsAnalyticsUtils
-  open HSAnalyticsUtils
+  open AnalyticsUtils
   open AnalyticsTypes
   @react.component
   let make = () => {

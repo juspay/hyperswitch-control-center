@@ -1,7 +1,6 @@
 open UserJourneyAnalyticsEntity
-
 open APIUtils
-open HSAnalyticsUtils
+open AnalyticsUtils
 
 @react.component
 let make = () => {

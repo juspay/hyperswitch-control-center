@@ -1,5 +1,5 @@
 open PaymentAnalyticsEntity
-open HSAnalyticsUtils
+open AnalyticsUtils
 
 let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
   {

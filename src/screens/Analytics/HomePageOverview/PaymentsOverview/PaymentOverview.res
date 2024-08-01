@@ -1,6 +1,6 @@
 @react.component
 let make = () => {
-  open HSAnalyticsUtils
+  open AnalyticsUtils
 
   let metrics = [
     "payment_success_rate",

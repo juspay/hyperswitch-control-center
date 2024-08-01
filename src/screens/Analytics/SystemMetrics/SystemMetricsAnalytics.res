@@ -301,7 +301,7 @@ module SystemMetricsAnalytics = {
               tabNames=filteredTabKeys
               updateUrlWith=updateExistingKeys //
               key="1"
-              filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+              filterFieldsPortalName={AnalyticsUtils.filterFieldsPortalName}
               filtersDisplayOption=false
               showCustomFilter=false
               refreshFilters=false
@@ -328,7 +328,7 @@ module SystemMetricsAnalytics = {
 let make = () => {
   open APIUtils
   open SystemMetricsAnalyticsUtils
-  open HSAnalyticsUtils
+  open AnalyticsUtils
   open LogicUtils
   let getURL = useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

@@ -774,7 +774,7 @@ module RedirectToOrderTableModal = {
     | Order_Status
 }
 
-module NoDataFound = {
+module NoDataFoundGaneral = {
   @react.component
   let make = () => {
     <div className="w-full flex flex-col items-center m-auto py-4">
@@ -790,4 +790,829 @@ type getFilters = {
   startTime: string,
   endTime: string,
   filterValueFromUrl?: JSON.t,
+}
+
+let filterFieldsPortalName = "analytics"
+
+let setPrecision = (num, ~digit=2, ()) => {
+  num->Float.toFixedWithPrecision(~digits=digit)->Js.Float.fromString
+}
+
+let getQueryData = json => {
+  json->getDictFromJsonObject->getArrayFromDict("queryData", [])
+}
+
+let options: JSON.t => array<EntityType.optionType<'t>> = json => {
+  json
+  ->getDictFromJsonObject
+  ->getOptionalArrayFromDict("queryData")
+  ->Option.flatMap(arr => {
+    arr
+    ->Array.map(dimensionObject => {
+      let dimensionObject = dimensionObject->getDictFromJsonObject
+      let dimension = getString(dimensionObject, "dimension", "")
+      let dimensionTitleCase = `Select ${snakeToTitle(dimension)}`
+      let value = getArrayFromDict(dimensionObject, "values", [])->getStrArrayFromJsonArray
+      let dropdownOptions: EntityType.optionType<'t> = {
+        urlKey: dimension,
+        field: {
+          FormRenderer.makeFieldInfo(
+            ~label="",
+            ~name=dimension,
+            ~customInput=InputFields.multiSelectInput(
+              ~options={
+                value
+                ->SelectBox.makeOptions
+                ->Array.map(
+                  item => {
+                    let value = {...item, label: item.value}
+                    value
+                  },
+                )
+              },
+              ~buttonText=dimensionTitleCase,
+              ~showSelectionAsChips=false,
+              ~searchable=true,
+              ~showToolTip=true,
+              ~showNameAsToolTip=true,
+              ~customButtonStyle="bg-none",
+              (),
+            ),
+            (),
+          )
+        },
+        parser: val => val,
+        localFilter: None,
+      }
+      dropdownOptions
+    })
+    ->Some
+  })
+  ->Option.getOr([])
+}
+
+let filterByData = (txnArr, value) => {
+  let searchText = LogicUtils.getStringFromJson(value, "")
+
+  txnArr
+  ->Belt.Array.keepMap(Nullable.toOption)
+  ->Belt.Array.keepMap((data: 't) => {
+    let valueArr =
+      data
+      ->Identity.genericTypeToDictOfJson
+      ->Dict.toArray
+      ->Array.map(item => {
+        let (_, value) = item
+
+        value->JSON.Decode.string->Option.getOr("")->String.toLowerCase->String.includes(searchText)
+      })
+      ->Array.reduce(false, (acc, item) => item || acc)
+    if valueArr {
+      data->Nullable.make->Some
+    } else {
+      None
+    }
+  })
+}
+
+let initialFilterFields = json => {
+  let dropdownValue =
+    json
+    ->getDictFromJsonObject
+    ->getOptionalArrayFromDict("queryData")
+    ->Option.flatMap(arr => {
+      arr
+      ->Belt.Array.keepMap(item => {
+        let dimensionObject = item->getDictFromJsonObject
+
+        let dimension = getString(dimensionObject, "dimension", "")
+        let dimensionTitleCase = `Select ${snakeToTitle(dimension)}`
+        let value = getArrayFromDict(dimensionObject, "values", [])->getStrArrayFromJsonArray
+
+        Some(
+          (
+            {
+              field: FormRenderer.makeFieldInfo(
+                ~label="",
+                ~name=dimension,
+                ~customInput=InputFields.filterMultiSelectInput(
+                  ~options=value->FilterSelectBox.makeOptions,
+                  ~buttonText=dimensionTitleCase,
+                  ~showSelectionAsChips=false,
+                  ~searchable=true,
+                  ~showToolTip=true,
+                  ~showNameAsToolTip=true,
+                  ~customButtonStyle="bg-none",
+                  (),
+                ),
+                (),
+              ),
+              localFilter: Some(filterByData),
+            }: EntityType.initialFilters<'t>
+          ),
+        )
+      })
+      ->Some
+    })
+    ->Option.getOr([])
+
+  dropdownValue
+}
+
+let initialFixedFilterFields = _json => {
+  let newArr = [
+    (
+      {
+        localFilter: None,
+        field: FormRenderer.makeMultiInputFieldInfo(
+          ~label="",
+          ~comboCustomInput=InputFields.filterDateRangeField(
+            ~startKey=startTimeFilterKey,
+            ~endKey=endTimeFilterKey,
+            ~format="YYYY-MM-DDTHH:mm:ss[Z]",
+            ~showTime=true,
+            ~disablePastDates={false},
+            ~disableFutureDates={true},
+            ~predefinedDays=[
+              Hour(0.5),
+              Hour(1.0),
+              Hour(2.0),
+              Today,
+              Yesterday,
+              Day(2.0),
+              Day(7.0),
+              Day(30.0),
+              ThisMonth,
+              LastMonth,
+            ],
+            ~numMonths=2,
+            ~disableApply=false,
+            ~dateRangeLimit=180,
+            ~optFieldKey=optFilterKey,
+            (),
+          ),
+          ~inputFields=[],
+          ~isRequired=false,
+          (),
+        ),
+      }: EntityType.initialFilters<'t>
+    ),
+  ]
+
+  newArr
+}
+
+let getStringListFromArrayDict = metrics => {
+  metrics->Array.map(item => item->getDictFromJsonObject->getString("name", ""))
+}
+
+module NoData = {
+  @react.component
+  let make = (~title, ~subTitle) => {
+    <div className="p-5">
+      <PageUtils.PageHeading title subTitle />
+      <NoDataFound message="No Data Available" renderType=Painting>
+        <Button
+          text={"Make a Payment"}
+          buttonSize={Small}
+          onClick={_ => RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/home"))}
+          buttonType={Primary}
+        />
+      </NoDataFound>
+    </div>
+  }
+}
+
+let generateWeeklyTablePayload = (
+  ~startTimeFromUrl: string,
+  ~endTimeFromUrl: string,
+  ~filterValueFromUrl: option<JSON.t>,
+  ~currenltySelectedTab: option<array<string>>,
+  ~tableMetrics: array<string>,
+  ~distributionArray: option<array<JSON.t>>,
+  ~deltaMetrics: array<string>,
+  ~deltaPrefixArr: array<string>,
+  ~isIndustry: bool,
+  ~mode: option<string>,
+  ~customFilter,
+  ~showDeltaMetrics,
+  ~moduleName as _: string,
+  ~source: string="BATCH",
+  (),
+) => {
+  let metrics = tableMetrics
+  let startTime = startTimeFromUrl
+  let endTime = endTimeFromUrl
+
+  let deltaDateArr =
+    {deltaMetrics->Array.length === 0}
+      ? []
+      : generateDateArray(~startTime, ~endTime, ~deltaPrefixArr)
+
+  let deltaPayload = generatedeltaTablePayload(
+    ~deltaDateArr,
+    ~metrics=deltaMetrics,
+    ~groupByNames=currenltySelectedTab,
+    ~source,
+    ~mode,
+    ~deltaPrefixArr,
+    ~filters=filterValueFromUrl,
+    ~customFilter,
+    ~showDeltaMetrics,
+  )
+
+  let tableBodyWithNonDeltaMetrix = if metrics->Array.length > 0 {
+    [
+      getFilterRequestBody(
+        ~groupByNames=currenltySelectedTab,
+        ~filter=filterValueFromUrl,
+        ~metrics=Some(metrics),
+        ~delta=showDeltaMetrics,
+        ~mode,
+        ~startDateTime=startTime,
+        ~endDateTime=endTime,
+        ~customFilter,
+        ~source,
+        (),
+      ),
+    ]
+  } else {
+    []
+  }
+
+  let tableBodyWithDeltaMetrix = if deltaMetrics->Array.length > 0 {
+    switch distributionArray {
+    | Some(distributionArray) =>
+      distributionArray->Array.map(arr =>
+        getFilterRequestBody(
+          ~groupByNames=currenltySelectedTab,
+          ~filter=filterValueFromUrl,
+          ~metrics=Some(deltaMetrics),
+          ~delta=showDeltaMetrics,
+          ~mode,
+          ~startDateTime=startTime,
+          ~distributionValues=Some(arr),
+          ~endDateTime=endTime,
+          ~customFilter,
+          ~source,
+          (),
+        )
+      )
+    | None => [
+        getFilterRequestBody(
+          ~groupByNames=currenltySelectedTab,
+          ~filter=filterValueFromUrl,
+          ~metrics=Some(deltaMetrics),
+          ~delta=showDeltaMetrics,
+          ~mode,
+          ~startDateTime=startTime,
+          ~endDateTime=endTime,
+          ~customFilter,
+          ~source,
+          (),
+        ),
+      ]
+    }
+  } else {
+    []
+  }
+
+  let tableIndustryPayload = if isIndustry {
+    [
+      getFilterRequestBody(
+        ~groupByNames=currenltySelectedTab,
+        ~filter=filterValueFromUrl,
+        ~metrics=Some(deltaMetrics),
+        ~delta=showDeltaMetrics,
+        ~mode,
+        ~prefix=Some("industry"),
+        ~startDateTime=startTime,
+        ~endDateTime=endTime,
+        ~customFilter,
+        ~source,
+        (),
+      ),
+    ]
+  } else {
+    []
+  }
+  let tableBodyValues =
+    tableBodyWithNonDeltaMetrix->Array.concatMany([tableBodyWithDeltaMetrix, tableIndustryPayload])
+
+  let tableBody =
+    tableBodyValues->Array.concat(deltaPayload)->Array.map(JSON.Encode.object)->JSON.Encode.array
+  tableBody
+}
+
+open DateTimeUtils
+type timeZone = UTC | IST
+let calculateHistoricTime = (
+  ~startTime: string,
+  ~endTime: string,
+  ~format: string="YYYY-MM-DDTHH:mm:ss[Z]",
+  ~timeZone: timeZone=UTC,
+  (),
+) => {
+  let toUtc = switch timeZone {
+  | UTC => toUtc
+  | IST => val => val
+  }
+  if startTime->LogicUtils.isNonEmptyString && endTime->LogicUtils.isNonEmptyString {
+    let startDateTime = startTime->DateTimeUtils.parseAsFloat->Js.Date.fromFloat->toUtc
+
+    let startTimeDayJs = startDateTime->DayJs.getDayJsForJsDate
+    let endDateTime = endTime->DateTimeUtils.parseAsFloat->Js.Date.fromFloat->toUtc
+
+    let endDateTimeJs = endDateTime->DayJs.getDayJsForJsDate
+    let timediff = endDateTimeJs.diff(Date.toString(startDateTime), "hours")
+
+    if timediff < 24 {
+      (
+        startTimeDayJs.subtract(24, "hours").format(format),
+        endDateTimeJs.subtract(24, "hours").format(format),
+      )
+    } else {
+      let fromTime = startDateTime->Js.Date.valueOf
+      let toTime = endDateTime->Js.Date.valueOf
+      let (startTime, endTime) = (
+        (fromTime -. (toTime -. fromTime) -. 1.)->Js.Date.fromFloat->DayJs.getDayJsForJsDate,
+        (fromTime -. 1.)->Js.Date.fromFloat->DayJs.getDayJsForJsDate,
+      )
+
+      (startTime.format(format), endTime.format(format))
+    }
+  } else {
+    ("", "")
+  }
+}
+
+let makeFilters = (~filters: JSON.t, ~cardinalityArr) => {
+  let decodeFilter = filters->getDictFromJsonObject
+
+  let expressionArr =
+    decodeFilter
+    ->Dict.toArray
+    ->Array.map(item => {
+      let (key, value) = item
+      Dict.fromArray([
+        ("field", key->JSON.Encode.string),
+        ("condition", "In"->JSON.Encode.string),
+        ("val", value),
+      ])
+    })
+  let expressionArr = Array.concat(cardinalityArr, expressionArr)
+  if expressionArr->Array.length === 1 {
+    expressionArr->Array.get(0)
+  } else if expressionArr->Array.length > 1 {
+    let leftInitial = Array.pop(expressionArr)->Option.getOr(Dict.make())->JSON.Encode.object
+    let rightInitial = Array.pop(expressionArr)->Option.getOr(Dict.make())->JSON.Encode.object
+
+    let complexFilterDict = Dict.fromArray([
+      ("and", Dict.fromArray([("left", leftInitial), ("right", rightInitial)])->JSON.Encode.object),
+    ])
+    expressionArr->Array.forEach(item => {
+      let complextFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Dict.fromArray
+      complexFilterDict->Dict.set(
+        "and",
+        Dict.fromArray([
+          ("left", complextFilterDictCopy->JSON.Encode.object),
+          ("right", item->JSON.Encode.object),
+        ])->JSON.Encode.object,
+      )
+    })
+    Some(complexFilterDict)
+  } else {
+    None
+  }
+}
+
+let getFilterBody = (
+  filterValueFromUrl,
+  customFilterValue,
+  jsonFormattedFilter,
+  cardinalityArrFilter,
+) => {
+  let customFilterBuild = switch customFilterValue {
+  | Some(customFilterValue) => {
+      let value =
+        String.replaceRegExp(customFilterValue, %re("/ AND /gi"), "@@")
+        ->String.replaceRegExp(%re("/ OR /gi"), "@@")
+        ->String.split("@@")
+      let strAr = ["or", "and"]
+
+      let andAndOr = String.split(customFilterValue, " ")->Array.filter(item => {
+        strAr->Array.includes(item->String.toLocaleLowerCase)
+      })
+
+      let filterValueArr =
+        value
+        ->Array.mapWithIndex((item, _index) => {
+          if item->String.match(%re("/ != /gi"))->Option.isSome {
+            let value =
+              String.replaceRegExp(item, %re("/ != /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
+            if value->Array.length >= 2 {
+              Some(
+                Dict.fromArray([
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "NotEquals"->JSON.Encode.string),
+                  (
+                    "val",
+                    value[1]
+                    ->Option.getOr("")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
+                    ->JSON.Encode.string,
+                  ),
+                ]),
+              )
+            } else {
+              None
+            }
+          } else if String.match(item, %re("/ > /gi"))->Option.isSome {
+            let value =
+              String.replaceRegExp(item, %re("/ > /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
+            if value->Array.length >= 2 {
+              Some(
+                Dict.fromArray([
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "Greater"->JSON.Encode.string),
+                  (
+                    "val",
+                    value[1]
+                    ->Option.getOr("")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
+                    ->JSON.Encode.string,
+                  ),
+                ]),
+              )
+            } else {
+              None
+            }
+          } else if item->String.match(%re("/ < /gi"))->Option.isSome {
+            let value =
+              String.replaceRegExp(item, %re("/ < /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
+            if value->Array.length >= 2 {
+              Some(
+                Dict.fromArray([
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "Less"->JSON.Encode.string),
+                  (
+                    "val",
+                    value[1]
+                    ->Option.getOr("")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
+                    ->JSON.Encode.string,
+                  ),
+                ]),
+              )
+            } else {
+              None
+            }
+          } else if item->String.match(%re("/ >= /gi"))->Option.isSome {
+            let value =
+              String.replaceRegExp(item, %re("/ >= /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
+            if value->Array.length >= 2 {
+              Some(
+                Dict.fromArray([
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "GreaterThanEquall"->JSON.Encode.string),
+                  (
+                    "val",
+                    value[1]
+                    ->Option.getOr("")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
+                    ->JSON.Encode.string,
+                  ),
+                ]),
+              )
+            } else {
+              None
+            }
+          } else if item->String.match(%re("/ <= /gi"))->Option.isSome {
+            let value =
+              String.replaceRegExp(item, %re("/ <= /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
+            if value->Array.length >= 2 {
+              Some(
+                Dict.fromArray([
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "LessThanEqual"->JSON.Encode.string),
+                  (
+                    "val",
+                    value[1]
+                    ->Option.getOr("")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
+                    ->JSON.Encode.string,
+                  ),
+                ]),
+              )
+            } else {
+              None
+            }
+          } else if item->String.match(%re("/ = /gi"))->Option.isSome {
+            let value =
+              String.replaceRegExp(item, %re("/ = /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
+            if value->Array.length >= 2 {
+              Some(
+                Dict.fromArray([
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "Equals"->JSON.Encode.string),
+                  (
+                    "val",
+                    value[1]
+                    ->Option.getOr("")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
+                    ->JSON.Encode.string,
+                  ),
+                ]),
+              )
+            } else {
+              None
+            }
+          } else if item->String.match(%re("/ IN /gi"))->Option.isSome {
+            let value =
+              String.replaceRegExp(item, %re("/ IN /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
+            if value->Array.length >= 2 {
+              Some(
+                Dict.fromArray([
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "In"->JSON.Encode.string),
+                  (
+                    "val",
+                    value[1]
+                    ->Option.getOr("")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
+                    ->String.replaceRegExp(%re("/\(/g"), "")
+                    ->String.replaceRegExp(%re("/\)/g"), "")
+                    ->String.split(",")
+                    ->Array.map(item => item->String.trim)
+                    ->LogicUtils.getJsonFromArrayOfString,
+                  ),
+                ]),
+              )
+            } else {
+              None
+            }
+          } else if item->String.match(%re("/ NOT IN /gi"))->Option.isSome {
+            let value =
+              String.replaceRegExp(item, %re("/ NOT IN /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
+            if value->Array.length >= 2 {
+              Some(
+                Dict.fromArray([
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "NotIn"->JSON.Encode.string),
+                  (
+                    "val",
+                    value[1]
+                    ->Option.getOr("")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
+                    ->String.replaceRegExp(%re("/\(/g"), "")
+                    ->String.replaceRegExp(%re("/\)/g"), "")
+                    ->String.split(",")
+                    ->Array.map(item => item->String.trim)
+                    ->LogicUtils.getJsonFromArrayOfString,
+                  ),
+                ]),
+              )
+            } else {
+              None
+            }
+          } else if item->String.match(%re("/ LIKE /gi"))->Option.isSome {
+            let value =
+              String.replaceRegExp(item, %re("/ LIKE /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
+            if value->Array.length >= 2 {
+              Some(
+                Dict.fromArray([
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "Like"->JSON.Encode.string),
+                  (
+                    "val",
+                    value[1]
+                    ->Option.getOr("")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
+                    ->JSON.Encode.string,
+                  ),
+                ]),
+              )
+            } else {
+              None
+            }
+          } else {
+            None
+          }
+        })
+        ->Belt.Array.keepMap(item => item)
+
+      if filterValueArr->Array.length === 1 {
+        filterValueArr->Array.get(0)
+      } else if filterValueArr->Array.length >= 2 {
+        let leftInitial = filterValueArr[0]->Option.getOr(Dict.make())
+        let rightInitial = filterValueArr[1]->Option.getOr(Dict.make())
+        let conditionInitital = andAndOr->Array.get(0)->Option.getOr("and")
+        let complexFilterDict = Dict.fromArray([
+          (
+            conditionInitital,
+            Dict.fromArray([
+              ("left", leftInitial->JSON.Encode.object),
+              ("right", rightInitial->JSON.Encode.object),
+            ])->JSON.Encode.object,
+          ),
+        ])
+        let filterValueArr = filterValueArr->Array.copy->Array.sliceToEnd(~start=2)
+        let andAndOr = andAndOr->Array.copy->Array.sliceToEnd(~start=1)
+
+        filterValueArr->Array.forEachWithIndex((item, index) => {
+          let complextFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Dict.fromArray
+          complexFilterDict->Dict.set(
+            andAndOr->Array.get(index)->Option.getOr("and"),
+            Dict.fromArray([
+              ("left", complextFilterDictCopy->JSON.Encode.object),
+              ("right", item->JSON.Encode.object),
+            ])->JSON.Encode.object,
+          )
+        })
+        Some(complexFilterDict)
+      } else {
+        None
+      }
+    }
+
+  | None => None
+  }
+  let filterValue = switch (filterValueFromUrl, customFilterBuild) {
+  | (Some(value), Some(customFilter)) =>
+    switch makeFilters(~filters=value, ~cardinalityArr=cardinalityArrFilter) {
+    | Some(formattedFilters) => {
+        let overallFilters = Dict.fromArray([
+          (
+            "and",
+            Dict.fromArray([
+              ("left", formattedFilters->JSON.Encode.object),
+              ("right", customFilter->JSON.Encode.object),
+            ])->JSON.Encode.object,
+          ),
+        ])
+        overallFilters
+      }
+
+    | None => customFilter
+    }
+
+  | (Some(value), None) =>
+    switch makeFilters(~filters=value, ~cardinalityArr=cardinalityArrFilter) {
+    | Some(formattedFilters) => formattedFilters
+    | None => Dict.make()
+    }
+
+  | (None, Some(customFilter)) => customFilter
+
+  | (None, None) => Dict.make()
+  }
+
+  switch jsonFormattedFilter {
+  | Some(jsonFormattedFilter) =>
+    switch filterValue->Dict.toArray->Array.length > 0 {
+    | true =>
+      Dict.fromArray([
+        (
+          "and",
+          Dict.fromArray([
+            ("left", filterValue->JSON.Encode.object),
+            ("right", jsonFormattedFilter),
+          ])->JSON.Encode.object,
+        ),
+      ])
+    | false => jsonFormattedFilter->JSON.Decode.object->Option.getOr(Dict.make())
+    }
+  | None => filterValue
+  }
+}
+
+type ordering = [#Desc | #Asc]
+type sortedBasedOn = {
+  sortDimension: string,
+  ordering: ordering,
+}
+
+let timeZoneMapper = timeZone => {
+  switch timeZone {
+  | IST => "Asia/Kolkata"
+  | UTC => "UTC"
+  }
+}
+
+let apiBodyMaker = (
+  ~timeObj,
+  ~metric,
+  ~groupBy=?,
+  ~granularityConfig=?,
+  ~cardinality=?,
+  ~filterValueFromUrl=?,
+  ~customFilterValue=?,
+  ~sortingParams: option<sortedBasedOn>=?,
+  ~jsonFormattedFilter: option<JSON.t>=?,
+  ~cardinalitySortDims="total_volume",
+  ~timeZone: timeZone=IST,
+  ~timeCol: string="txn_initiated",
+  ~domain: string,
+  ~dataLimit: option<float>=?,
+  (),
+) => {
+  let finalBody = Dict.make()
+
+  let cardinalityArrFilter = switch (cardinality, groupBy) {
+  | (Some(cardinality), Some(groupBy)) =>
+    groupBy->Array.map(item => {
+      Dict.fromArray([
+        ("field", item->JSON.Encode.string),
+        ("condition", "In"->JSON.Encode.string),
+        (
+          "val",
+          Dict.fromArray([
+            (
+              "sortedOn",
+              Dict.fromArray([
+                ("sortDimension", cardinalitySortDims->JSON.Encode.string),
+                ("ordering", "Desc"->JSON.Encode.string),
+              ])->JSON.Encode.object,
+            ),
+            ("limit", cardinality->JSON.Encode.float),
+          ])->JSON.Encode.object,
+        ),
+      ])
+    })
+  | _ => []
+  }
+
+  let activeTabArr = groupBy->Option.getOr([])->Array.map(JSON.Encode.string)
+  finalBody->Dict.set("metric", metric->JSON.Encode.string)
+  let filterVal = getFilterBody(
+    filterValueFromUrl,
+    customFilterValue,
+    jsonFormattedFilter,
+    cardinalityArrFilter,
+  )
+
+  if filterVal->Dict.toArray->Array.length !== 0 {
+    finalBody->Dict.set("filters", filterVal->JSON.Encode.object)
+  }
+
+  switch granularityConfig {
+  | Some(config) => {
+      let (granularityDuration, granularityUnit) = config
+      let granularityDimension = Dict.make()
+      let granularity = Dict.make()
+      Dict.set(granularityDimension, "timeZone", timeZone->timeZoneMapper->JSON.Encode.string)
+      Dict.set(granularityDimension, "intervalCol", timeCol->JSON.Encode.string)
+      Dict.set(granularity, "unit", granularityUnit->JSON.Encode.string)
+      Dict.set(granularity, "duration", granularityDuration->Int.toFloat->JSON.Encode.float)
+      Dict.set(granularityDimension, "granularity", granularity->JSON.Encode.object)
+
+      finalBody->Dict.set(
+        "dimensions",
+        Array.concat(activeTabArr, [granularityDimension->JSON.Encode.object])->JSON.Encode.array,
+      )
+    }
+
+  | None => finalBody->Dict.set("dimensions", activeTabArr->JSON.Encode.array)
+  }
+
+  switch sortingParams {
+  | Some(val) =>
+    finalBody->Dict.set(
+      "sortedOn",
+      Dict.fromArray([
+        ("sortDimension", val.sortDimension->JSON.Encode.string),
+        (
+          "ordering",
+          val.ordering === #Desc ? "Desc"->JSON.Encode.string : "Asc"->JSON.Encode.string,
+        ),
+      ])->JSON.Encode.object,
+    )
+  | None => ()
+  }
+  switch dataLimit {
+  | Some(dataLimit) => finalBody->Dict.set("limit", dataLimit->JSON.Encode.float)
+  | None => ()
+  }
+
+  finalBody->Dict.set("domain", domain->JSON.Encode.string)
+  finalBody->Dict.set("interval", timeObj->JSON.Encode.object)
+  finalBody->JSON.Encode.object
 }

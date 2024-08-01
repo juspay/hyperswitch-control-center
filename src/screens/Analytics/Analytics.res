@@ -259,7 +259,7 @@ module TableWrapper = {
       if (
         startTimeFromUrl->LogicUtils.isNonEmptyString && endTimeFromUrl->LogicUtils.isNonEmptyString
       ) {
-        let tableReqBody = HSAnalyticsUtils.generateTablePayload(
+        let tableReqBody = AnalyticsUtils.generateWeeklyTablePayload(
           ~startTimeFromUrl,
           ~endTimeFromUrl,
           ~filterValueFromUrl,
@@ -652,7 +652,7 @@ let make = (
           tabNames=tabKeys
           updateUrlWith=updateExistingKeys
           key="0"
-          filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+          filterFieldsPortalName={AnalyticsUtils.filterFieldsPortalName}
           showCustomFilter=false
           refreshFilters=false
         />
@@ -669,7 +669,7 @@ let make = (
         tabNames=tabKeys
         updateUrlWith=updateExistingKeys //
         key="1"
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+        filterFieldsPortalName={AnalyticsUtils.filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
       />
