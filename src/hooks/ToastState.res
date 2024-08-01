@@ -64,7 +64,7 @@ type showToastFn = (
 
 let useShowToast = (): showToastFn => {
   let setOpenToasts = Recoil.useSetRecoilState(openToasts)
-  React.useMemo(() => {
+  React.useMemo1(() => {
     (
       ~message,
       ~toastType: toastType,

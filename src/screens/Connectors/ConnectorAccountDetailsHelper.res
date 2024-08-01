@@ -489,7 +489,7 @@ module ConnectorHeaderWrapper = {
   ) => {
     open ConnectorUtils
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let connectorNameFromType = connector->getConnectorNameTypeFromString()
+    let connectorNameFromType = connector->getConnectorNameTypeFromString
     let setShowModalFunction = switch handleShowModal {
     | Some(func) => func
     | _ => _ => ()

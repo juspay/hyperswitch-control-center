@@ -118,7 +118,7 @@ module ConfigureProcessor = {
       }
 
       validateConnectorRequiredFields(
-        connectorName->getConnectorNameTypeFromString(),
+        connectorName->getConnectorNameTypeFromString,
         valuesFlattenJson,
         connectorAccountFields,
         connectorMetaDataFields,

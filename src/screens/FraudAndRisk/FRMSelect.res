@@ -123,7 +123,6 @@ let make = () => {
             ->getString("connector_name", "")
             ->ConnectorUtils.getConnectorNameTypeFromString(
               ~connectorType=ConnectorTypes.FRMPlayer,
-              (),
             ),
         )
         setConfiguredFRMs(_ => arr)

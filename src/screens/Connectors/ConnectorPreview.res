@@ -346,7 +346,7 @@ let make = (
         <div className="self-center">
           {switch (
             currentStep,
-            connector->getConnectorNameTypeFromString(),
+            connector->getConnectorNameTypeFromString,
             connectorInfo.status,
             paypalAutomaticFlow,
           ) {
@@ -359,7 +359,7 @@ let make = (
                 {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
               </div>
               <RenderIf condition={showMenuOption}>
-                {switch (connector->getConnectorNameTypeFromString(), paypalAutomaticFlow) {
+                {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
                 | (Processors(PAYPAL), true) =>
                   <MenuOptionForPayPal
                     setCurrentStep

@@ -416,7 +416,7 @@ let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) =>
   <div className="flex gap-2">
     <RenderIf
       condition={existsInArray(
-        connector->getConnectorNameTypeFromString(),
+        connector->getConnectorNameTypeFromString,
         connectorsSupportAcceptDispute,
       )}>
       <Button

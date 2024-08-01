@@ -24,7 +24,7 @@ module ConnectorDetailsForm = {
       connectorWebHookDetails,
       connectorLabelDetailField,
     ) = getConnectorFields(connectorDetails)
-    let connectorVariant = connectorName->getConnectorNameTypeFromString()
+    let connectorVariant = connectorName->getConnectorNameTypeFromString
 
     let selectedConnector = React.useMemo(() => {
       connectorVariant->getConnectorInfo
@@ -86,7 +86,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let connectorName = selectedConnector->getConnectorNameString
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (isCheckboxSelected, setIsCheckboxSelected) = React.useState(_ => false)
-  let connectorVariant = connectorName->getConnectorNameTypeFromString()
+  let connectorVariant = connectorName->getConnectorNameTypeFromString
   // TODO: Change the state to memo
   let (connectorDetails, setConnectorDetails) = React.useState(_ => JSON.Encode.null)
   let (isLoading, setIsLoading) = React.useState(_ => false)

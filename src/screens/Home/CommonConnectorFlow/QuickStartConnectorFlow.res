@@ -89,7 +89,7 @@ let make = (
       connectorArray->Array.push(connectorName)
       setConnectorArray(_ => connectorArray)
       setInitialValues(_ => res)
-      setSelectedConnector(_ => connectorName->ConnectorUtils.getConnectorNameTypeFromString())
+      setSelectedConnector(_ => connectorName->ConnectorUtils.getConnectorNameTypeFromString)
       setConnectorConfigureState(_ => Summary)
       updateEnumForTestConnector(res->LogicUtils.getDictFromJsonObject)->ignore
       showToast(

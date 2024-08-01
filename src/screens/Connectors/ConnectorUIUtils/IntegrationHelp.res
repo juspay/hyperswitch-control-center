@@ -2,7 +2,7 @@ module Render = {
   @react.component
   let make = (~connector, ~showModal, ~setShowModal) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let integrationSteps = switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+    let integrationSteps = switch connector->ConnectorUtils.getConnectorNameTypeFromString {
     | Processors(STRIPE) =>
       <div className="">
         <ol className="list-decimal pl-4">

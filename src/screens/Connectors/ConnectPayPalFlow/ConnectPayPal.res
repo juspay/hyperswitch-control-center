@@ -53,7 +53,7 @@ module ManualSetupScreen = {
   ) => {
     <div className="flex flex-col gap-8">
       <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
-        connector={connector->ConnectorUtils.getConnectorNameTypeFromString()}
+        connector={connector->ConnectorUtils.getConnectorNameTypeFromString}
         connectorAccountFields
         selectedConnector
         connectorMetaDataFields
@@ -254,7 +254,7 @@ let make = (
   let (configuartionType, setConfigurationType) = React.useState(_ => PayPalFlowTypes.NotSelected)
 
   let selectedConnector =
-    connector->ConnectorUtils.getConnectorNameTypeFromString()->ConnectorUtils.getConnectorInfo
+    connector->ConnectorUtils.getConnectorNameTypeFromString->ConnectorUtils.getConnectorInfo
   let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
   let activeBusinessProfile =
@@ -469,7 +469,7 @@ let make = (
                     <ConnectorAccountDetailsHelper.RenderConnectorInputFields
                       details={ConnectorUtils.connectorLabelDetailField}
                       name={"connector_label"}
-                      connector={connector->ConnectorUtils.getConnectorNameTypeFromString()}
+                      connector={connector->ConnectorUtils.getConnectorNameTypeFromString}
                       selectedConnector
                       isLabelNested=false
                       disabled={isUpdateFlow ? true : false}

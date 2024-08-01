@@ -111,7 +111,7 @@ module Landing = {
     open ApplePayIntegrationTypes
     open WalletHelper
     <>
-      {switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+      {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE)
       | Processors(BANKOFAMERICA)
       | Processors(CYBERSOURCE) =>
@@ -233,7 +233,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
 
   React.useEffect(() => {
     if connector->String.length > 0 {
-      switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+      switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE)
       | Processors(BANKOFAMERICA)
       | Processors(CYBERSOURCE) =>
@@ -257,7 +257,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     sectionHeight="!h-screen">
     <div>
       <Heading />
-      {switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+      {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(ZEN) =>
         <ApplePayZen applePayFields update closeModal setShowWalletConfigurationModal />
       | _ =>

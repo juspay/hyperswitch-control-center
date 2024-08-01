@@ -184,7 +184,7 @@ let make = () => {
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
 
     validateConnectorRequiredFields(
-      connectorName->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator, ()),
+      connectorName->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator),
       valuesFlattenJson,
       connectorAccountFields,
       connectorMetaDataFields,
@@ -246,11 +246,10 @@ let make = () => {
                 <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
                   connector={connectorName->getConnectorNameTypeFromString(
                     ~connectorType=ThreeDsAuthenticator,
-                    (),
                   )}
                   connectorAccountFields
                   selectedConnector={connectorName
-                  ->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator, ())
+                  ->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator)
                   ->getConnectorInfo}
                   connectorMetaDataFields
                   connectorWebHookDetails
