@@ -73,9 +73,9 @@ let make = () => {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between ">
         <PageUtils.PageHeading title subTitle />
-        <UIUtils.RenderIf condition={generateReport}>
+        <RenderIf condition={generateReport}>
           <GenerateReport entityName={REFUND_REPORT} />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
       <div
         className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 border border-l-0 border-r-0">
