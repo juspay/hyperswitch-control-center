@@ -5,6 +5,7 @@ let make = (
   ~merchantBusinessCountry,
   ~setApplePayIntegrationSteps,
   ~setVefifiedDomainList,
+  ~connector,
 ) => {
   open LogicUtils
   open APIUtils
@@ -160,13 +161,19 @@ let make = (
       />}
     />
     <RenderIf condition={featureFlagDetails.isLiveMode && featureFlagDetails.complianceCertificate}>
-      <hr className="w-full" />
-      <SimplifiedHelper
-        heading="Get feature enabled from stripe"
-        subText=None
-        stepNumber="4"
-        customElement={<SampleEmail />}
-      />
+      {switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+      | Processors(STRIPE) =>
+        <>
+          <hr className="w-full" />
+          <SimplifiedHelper
+            heading="Get feature enabled from stripe"
+            subText=None
+            stepNumber="4"
+            customElement={<SampleEmail />}
+          />
+        </>
+      | _ => React.null
+      }}
     </RenderIf>
     <div className="w-full flex gap-2 justify-end p-6">
       <Button
