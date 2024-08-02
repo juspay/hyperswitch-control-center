@@ -117,7 +117,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   open LogUtils
   open LogTypes
   open APIUtils
-  let {merchant_id: merchantId} =
+  let {merchantId} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let fetchPostDetils = useUpdateMethod()
