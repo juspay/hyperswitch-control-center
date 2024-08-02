@@ -71,9 +71,9 @@ let defaultDimesions = {
   values: [],
 }
 
-let getSpecificDimension = (dimensions: dimensions, dimension: dimension) => {
-  dimensions
-  ->Array.filter(ele => ele.dimension == dimension)
-  ->Array.at(0)
-  ->Option.getOr(defaultDimesions)
+let getPerformanceMonitorBody = (performanceType: performance, dimensions: dimensions) => {
+  switch performanceType {
+  | #ConnectorPerformance => PerformanceUtils.connectorPerformanceBody("", "", dimensions)
+  | _ => JSON.Encode.null
+  }
 }
