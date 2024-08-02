@@ -9,7 +9,7 @@ let make = () => {
   let {dashboardPageState, setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let (isAgreeEnable, setIsAgreeEnable) = React.useState(_ => false)
   let (isSelected, setIsSelected) = React.useState(_ => false)
-  let {user_role: userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   React.useEffect(() => {
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/agreement-signature"))

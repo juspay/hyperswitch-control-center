@@ -5,15 +5,13 @@ let make = () => {
   let greeting = getGreeting()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let {recovery_codes_left} = React.useContext(UserInfoProvider.defaultContext)
-  let recoveryCode = recovery_codes_left->Option.getOr(0)
+  let {recoveryCodesLeft} = React.useContext(UserInfoProvider.defaultContext)
+  let recoveryCode = recoveryCodesLeft->Option.getOr(0)
 
   <div className="w-full gap-8 flex flex-col">
     <div className="flex flex-col gap-4">
       <RenderIf
-        condition={featureFlagDetails.totp &&
-        recovery_codes_left->Option.isSome &&
-        recoveryCode < 3}>
+        condition={featureFlagDetails.totp && recoveryCodesLeft->Option.isSome && recoveryCode < 3}>
         <HomeUtils.LowRecoveryCodeBanner recoveryCode />
       </RenderIf>
       <AcceptInviteHome />

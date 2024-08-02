@@ -195,7 +195,7 @@ let make = (
 
   let (pageState, setPageState) = React.useState(_ => PageLoaderWrapper.Success)
 
-  let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let initialValues = React.useMemo(() => {
     open LogicUtils
