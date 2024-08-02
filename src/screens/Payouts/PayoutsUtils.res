@@ -13,7 +13,7 @@ let getPayoutsList = async (
   ~offset,
   ~setTotalCount,
   ~setOffset,
-  ~getURL: APIUtils.getUrlTypes,
+  ~getURL: APIUtilsTypes.getUrlTypes,
 ) => {
   open LogicUtils
 

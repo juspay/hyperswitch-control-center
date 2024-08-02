@@ -410,7 +410,7 @@ let getOrdersList = async (
     ~headers: Dict.t<'a>=?,
     ~contentType: AuthHooks.contentType=?,
   ) => promise<JSON.t>,
-  ~getURL: APIUtils.getUrlTypes,
+  ~getURL: APIUtilsTypes.getUrlTypes,
   ~setOrdersData,
   ~previewOnly,
   ~setScreenState,

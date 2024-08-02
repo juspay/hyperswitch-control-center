@@ -166,7 +166,7 @@ let getProdApiBody = (
 
 let getProdOnboardingUrl = (
   enum: ProdOnboardingTypes.sectionHeadingVariant,
-  getURL: APIUtils.getUrlTypes,
+  getURL: APIUtilsTypes.getUrlTypes,
 ) => {
   getURL(
     ~entityName=USERS,
