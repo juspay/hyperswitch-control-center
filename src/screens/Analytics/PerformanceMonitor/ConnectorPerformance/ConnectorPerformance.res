@@ -1,71 +1,23 @@
 @react.component
-let make = () => {
+let make = (~startTimeVal, ~endTimeVal) => {
   open APIUtils
   open LogicUtils
   open AnalyticsTypes
-  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-
   let (barSeries, setBarSeries) = React.useState(_ => ([], []))
   let barOption: JSON.t = React.useMemo(() => {
     let (categories, series) = barSeries
-    let barOption: JSON.t = {
-      "chart": {
-        "type": `column`,
-      },
-      "colors": ["red", "green"],
-      "title": {
-        "text": `Major trophies for some English teams`,
-        "align": "left",
-      },
-      "xAxis": {
-        "categories": categories,
-      },
-      "yAxis": {
-        "min": 0,
-        "title": {
-          "text": "Count trophies",
-        },
-        "stackLabels": {
-          "enabled": true,
-        },
-      },
-      "legend": {
-        "align": "left",
-        "x": 70,
-        "verticalAlign": "top",
-        "y": 70,
-        "floating": true,
-        "backgroundColor": "white",
-        "borderColor": "#CCC",
-        "borderWidth": 1,
-        "shadow": false,
-      },
-      "tooltip": {
-        "headerFormat": "<b>{point.x}</b><br/>",
-        "pointFormat": "{series.name}: {point.y}<br/>Total: {point.stackTotal}",
-      },
-      "plotOptions": {
-        "column": {
-          "stacking": "normal",
-          "dataLabels": {
-            "enabled": true,
-          },
-        },
-      },
-      "series": series,
-    }->Identity.genericObjectOrRecordToJson
-    barOption
+
+    PerformanceMonitorEntity.barOption(categories, series)
   }, [barSeries])
   let chartFetch = async () => {
     try {
-      // let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some("payments"), ())
       let url = "https://sandbox.hyperswitch.io/analytics/v1/metrics/payments"
       let body = [
         {
           "timeRange": {
-            "startTime": "2024-07-24T18:30:00Z",
-            "endTime": "2024-08-01T09:22:00Z",
+            "startTime": startTimeVal,
+            "endTime": endTimeVal,
           },
           "groupByNames": ["connector", "status"],
           "filters": {
@@ -150,9 +102,11 @@ let make = () => {
     }
   }
   React.useEffect(() => {
-    chartFetch()->ignore
+    if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
+      chartFetch()->ignore
+    }
     None
-  }, [])
+  }, (startTimeVal, endTimeVal))
   <>
     <HighchartBarChart.RawBarChart options={barOption} />
   </>

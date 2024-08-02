@@ -360,6 +360,12 @@ let make = () => {
                               <PaymentAnalytics />
                             </FilterContext>
                           </AccessControl>
+                        | list{"performance-monitor"} =>
+                          <AccessControl permission=userPermissionJson.analyticsView>
+                            <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
+                              <PerformanceMonitor />
+                            </FilterContext>
+                          </AccessControl>
                         | list{"analytics-refunds"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
                             <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">

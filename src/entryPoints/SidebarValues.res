@@ -221,6 +221,13 @@ let paymentAnalytcis = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
+let performanceMonitor = SubLevelLink({
+  name: "Performance Monitor",
+  link: `/performance-monitor`,
+  access: Access,
+  searchOptions: [("View Performance Monitor", "")],
+})
+
 let disputeAnalytics = SubLevelLink({
   name: "Disputes",
   link: `/analytics-disputes`,
@@ -258,7 +265,7 @@ let analytics = (
   disputeAnalyticsFlag,
   ~permissionJson,
 ) => {
-  let links = [paymentAnalytcis, refundAnalytics]
+  let links = [paymentAnalytcis, performanceMonitor, refundAnalytics]
 
   if userJourneyAnalyticsFlag {
     links->Array.push(userJourneyAnalytics)
