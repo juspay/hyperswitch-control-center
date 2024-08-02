@@ -83,7 +83,7 @@ let make = () => {
   let (currentStep, setCurrentStep) = React.useState(_ => 0)
   let (carouselDirection, setCarouselDirection) = React.useState(_ => RIGHT)
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let isPostLoginQuestionnairePending =
     HSLocalStorage.getFromUserDetails("is_metadata_filled")->LogicUtils.getBoolFromString(true)
 
@@ -96,18 +96,12 @@ let make = () => {
 
   let onSubmit = async (values, _) => {
     try {
-      let postLoginSurveyUrl = getURL(
-        ~entityName=USERS,
-        ~userType=#SET_METADATA,
-        ~methodType=Post,
-        (),
-      )
+      let postLoginSurveyUrl = getURL(~entityName=USERS, ~userType=#SET_METADATA, ~methodType=Post)
 
       let _ = await updateDetails(
         postLoginSurveyUrl,
         values->generateSurveyJson->JSON.Encode.object,
         Post,
-        (),
       )
       HSwitchUtils.setUserDetails("is_metadata_filled", "true"->JSON.Encode.string)
       setDashboardPageState(_ => #AUTO_CONNECTOR_INTEGRATION)

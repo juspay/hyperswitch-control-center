@@ -21,7 +21,7 @@ let make = (
   let showToast = ToastState.useShowToast()
   let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
   let (screenState, setScreenState) = React.useState(_ => Loading)
-  let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
+  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
 
   let updateDetails = value => {
     setPaymentMethods(_ => value->Array.copy)
@@ -73,8 +73,8 @@ let make = (
       let metaData = body->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
       let _ = ConnectorUtils.updateMetaData(~metaData)
       //
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
-      let response = await updateAPIHook(connectorUrl, body, Post, ())
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID)
+      let response = await updateAPIHook(connectorUrl, body, Post)
       setInitialValues(_ => response)
       setScreenState(_ => Success)
       setCurrentStep(_ => ConnectorTypes.SummaryAndTest)

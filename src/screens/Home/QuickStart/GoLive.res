@@ -49,7 +49,6 @@ let make = (~goLive) => {
         ~userType=#USER_DATA,
         ~methodType=Get,
         ~queryParamerters=Some(`keys=ProdIntent`),
-        (),
       )
       let res = await fetchDetails(url)
 
@@ -70,10 +69,10 @@ let make = (~goLive) => {
 
   let updateProdDetails = async values => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post)
       let bodyValues = values->getBody->JSON.Encode.object
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
 
       getProdVerifyDetails()->ignore
     } catch {

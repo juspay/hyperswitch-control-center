@@ -61,12 +61,11 @@ module GenerateSampleDataButton = {
     let generateSampleData = async () => {
       mixpanelEvent(~eventName="generate_sample_data", ())
       try {
-        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
+        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post)
         let _ = await updateDetails(
           generateSampleDataUrl,
           [("record", 50.0->JSON.Encode.float)]->Dict.fromArray->JSON.Encode.object,
           Post,
-          (),
         )
         showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess)
         getOrdersList()->ignore
@@ -77,13 +76,8 @@ module GenerateSampleDataButton = {
 
     let deleteSampleData = async () => {
       try {
-        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Delete, ())
-        let _ = await updateDetails(
-          generateSampleDataUrl,
-          Dict.make()->JSON.Encode.object,
-          Delete,
-          (),
-        )
+        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Delete)
+        let _ = await updateDetails(generateSampleDataUrl, Dict.make()->JSON.Encode.object, Delete)
         showToast(~message="Sample data deleted successfully", ~toastType=ToastSuccess)
         getOrdersList()->ignore
       } catch {
@@ -415,19 +409,8 @@ let getOrdersList = async (
     ~bodyFormData: Fetch.formData=?,
     ~headers: Dict.t<'a>=?,
     ~contentType: AuthHooks.contentType=?,
-    unit,
   ) => promise<JSON.t>,
-  ~getURL: (
-    ~entityName: APIUtilsTypes.entityName,
-    ~methodType: Fetch.requestMethod,
-    ~id: option<string>=?,
-    ~connector: option<'a>=?,
-    ~userType: APIUtilsTypes.userType=?,
-    ~userRoleTypes: APIUtilsTypes.userRoleTypes=?,
-    ~reconType: APIUtilsTypes.reconType=?,
-    ~queryParamerters: option<string>=?,
-    unit,
-  ) => string,
+  ~getURL: APIUtils.getUrlTypes,
   ~setOrdersData,
   ~previewOnly,
   ~setScreenState,
@@ -438,8 +421,8 @@ let getOrdersList = async (
   open LogicUtils
   setScreenState(_ => PageLoaderWrapper.Loading)
   try {
-    let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post, ())
-    let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Fetch.Post, ())
+    let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post)
+    let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Fetch.Post)
     let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
@@ -455,12 +438,7 @@ let getOrdersList = async (
         let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
         filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
 
-        let res = await updateDetails(
-          ordersUrl,
-          filterValueJson->JSON.Encode.object,
-          Fetch.Post,
-          (),
-        )
+        let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Fetch.Post)
         let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
         let total = res->getDictFromJsonObject->getInt("total_count", 0)
 

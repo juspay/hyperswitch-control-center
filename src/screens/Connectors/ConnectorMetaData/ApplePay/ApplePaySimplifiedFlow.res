@@ -11,7 +11,7 @@ let make = (
   open ApplePayIntegrationHelper
   open ApplePayIntegrationUtils
   let getURL = useGetURL()
-  let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
+  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
 
@@ -41,8 +41,8 @@ let make = (
   let onSubmit = async () => {
     try {
       let body = formState.values->constructVerifyApplePayReq(connectorID)
-      let verifyAppleUrl = getURL(~entityName=VERIFY_APPLE_PAY, ~methodType=Post, ())
-      let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post, ())
+      let verifyAppleUrl = getURL(~entityName=VERIFY_APPLE_PAY, ~methodType=Post)
+      let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post)
 
       let data =
         formState.values
@@ -63,7 +63,7 @@ let make = (
   let downloadApplePayCert = () => {
     open Promise
     let downloadURL = Window.env.applePayCertificateUrl->Option.getOr("")
-    fetchApi(downloadURL, ~method_=Get, ())
+    fetchApi(downloadURL, ~method_=Get)
     ->then(Fetch.Response.blob)
     ->then(content => {
       DownloadUtils.download(

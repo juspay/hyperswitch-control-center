@@ -7,31 +7,20 @@ let getPayoutsList = async (
     ~bodyFormData: Fetch.formData=?,
     ~headers: Dict.t<'a>=?,
     ~contentType: AuthHooks.contentType=?,
-    unit,
   ) => promise<JSON.t>,
   ~setPayoutsData,
   ~setScreenState,
   ~offset,
   ~setTotalCount,
   ~setOffset,
-  ~getURL: (
-    ~entityName: APIUtilsTypes.entityName,
-    ~methodType: Fetch.requestMethod,
-    ~id: option<string>=?,
-    ~connector: option<'a>=?,
-    ~userType: APIUtilsTypes.userType=?,
-    ~userRoleTypes: APIUtilsTypes.userRoleTypes=?,
-    ~reconType: APIUtilsTypes.reconType=?,
-    ~queryParamerters: option<string>=?,
-    unit,
-  ) => string,
+  ~getURL: APIUtils.getUrlTypes,
 ) => {
   open LogicUtils
 
   setScreenState(_ => PageLoaderWrapper.Loading)
   try {
-    let payoutsUrl = getURL(~entityName=PAYOUTS, ~methodType=Post, ())
-    let res = await updateDetails(payoutsUrl, filterValueJson->JSON.Encode.object, Fetch.Post, ())
+    let payoutsUrl = getURL(~entityName=PAYOUTS, ~methodType=Post)
+    let res = await updateDetails(payoutsUrl, filterValueJson->JSON.Encode.object, Fetch.Post)
     let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("size", 0)
 

@@ -50,7 +50,7 @@ let make = () => {
   React.useEffect(() => {
     if frmID !== "new" {
       setScreenState(_ => Loading)
-      let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ~id=Some(frmID), ())
+      let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ~id=Some(frmID))
       getFRMDetails(url)->ignore
     } else {
       setScreenState(_ => Success)

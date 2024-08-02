@@ -41,7 +41,7 @@ module AdvanceSearch = {
       let finalUrl = otherQueries->isNonEmptyString ? `${url}?${otherQueries}` : url
 
       open Promise
-      fetchApi(finalUrl, ~bodyStr=JSON.stringify(initialValueJson), ~method_=Fetch.Get, ())
+      fetchApi(finalUrl, ~bodyStr=JSON.stringify(initialValueJson), ~method_=Fetch.Get)
       ->then(res => res->Fetch.Response.json)
       ->then(json => {
         switch JSON.Classify.classify(json) {

@@ -19,13 +19,13 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   open APIUtils
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let downloadReport = async body => {
     try {
-      let url = getURL(~entityName, ~methodType=Post, ())
-      let _ = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName, ~methodType=Post)
+      let _ = await updateDetails(url, body, Post)
       setReportModal(_ => false)
       showToast(~message="Email Sent", ~toastType=ToastSuccess)
     } catch {

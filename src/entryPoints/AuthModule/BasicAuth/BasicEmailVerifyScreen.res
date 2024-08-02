@@ -12,8 +12,8 @@ let make = (~setAuthType) => {
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let emailVerifyUpdate = async body => {
     try {
-      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#VERIFY_EMAILV2}, ())
-      let res = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#VERIFY_EMAILV2})
+      let res = await updateDetails(url, body, Post)
       await HyperSwitchUtils.delay(1000)
       setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
       setIsSidebarDetails("isPinned", false->JSON.Encode.bool)

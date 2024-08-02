@@ -152,9 +152,9 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
 
   let updateLiveEndpoint = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post)
       let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#ConfigureEndpoint, ())
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
       setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setButtonState(_ => Normal)
@@ -170,14 +170,13 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
         ~entityName=BUSINESS_PROFILE,
         ~methodType=Post,
         ~id=Some(activeBusinessProfile.profile_id),
-        (),
       )
       let merchantUpdateBody =
         [("webhook_url", webhookEndpoint->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
 
       let body =
         merchantUpdateBody->MerchantAccountUtils.getBusinessProfilePayload->JSON.Encode.object
-      let res = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post)
 
       setBusinessProfiles(_ => res->BusinessProfileMapper.getArrayOfBusinessProfile)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)

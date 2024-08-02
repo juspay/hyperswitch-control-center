@@ -95,8 +95,8 @@ let make = () => {
   open SurchargeUtils
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
-  let fetchDetails = useGetMethod(~showErrorToast=false, ())
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let fetchDetails = useGetMethod(~showErrorToast=false)
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (wasm, setWasm) = React.useState(_ => None)
   let (initialValues, _setInitialValues) = React.useState(_ =>
     buildInitialSurchargeValue->Identity.genericTypeToJson
@@ -122,7 +122,7 @@ let make = () => {
   let activeRoutingDetails = async () => {
     open LogicUtils
     try {
-      let surchargeUrl = getURL(~entityName=SURCHARGE, ~methodType=Get, ())
+      let surchargeUrl = getURL(~entityName=SURCHARGE, ~methodType=Get)
       let surchargeRuleDetail = await fetchDetails(surchargeUrl)
       let responseDict = surchargeRuleDetail->getDictFromJsonObject
       let programValue = responseDict->getObj("algorithm", Dict.make())
@@ -174,13 +174,8 @@ let make = () => {
     try {
       mixpanelEvent(~eventName="surcharge_save", ())
       let surchargePayload = values->buildSurchargePayloadBody
-      let getActivateUrl = getURL(~entityName=SURCHARGE, ~methodType=Put, ())
-      let _ = await updateDetails(
-        getActivateUrl,
-        surchargePayload->Identity.genericTypeToJson,
-        Put,
-        (),
-      )
+      let getActivateUrl = getURL(~entityName=SURCHARGE, ~methodType=Put)
+      let _ = await updateDetails(getActivateUrl, surchargePayload->Identity.genericTypeToJson, Put)
       fetchDetails()->ignore
       setShowWarning(_ => true)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/surcharge"))

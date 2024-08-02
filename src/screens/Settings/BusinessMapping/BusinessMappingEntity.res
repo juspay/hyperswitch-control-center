@@ -16,8 +16,8 @@ module ProfileActions = {
 
     let onSubmit = async (values, _) => {
       try {
-        let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(profileId), ())
-        let res = await updateDetails(url, values, Post, ())
+        let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(profileId))
+        let res = await updateDetails(url, values, Post)
         let filteredProfileList =
           businessProfiles
           ->Array.filter(businessProfile => businessProfile.profile_id !== profileId)

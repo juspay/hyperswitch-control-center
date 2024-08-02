@@ -37,7 +37,7 @@ let make = () => {
     // For local testing this condition is added
     if downloadURL->LogicUtils.isNonEmptyString {
       open Promise
-      fetchApi(downloadURL, ~method_=Get, ())
+      fetchApi(downloadURL, ~method_=Get)
       ->then(resp => {
         Fetch.Response.blob(resp)
       })

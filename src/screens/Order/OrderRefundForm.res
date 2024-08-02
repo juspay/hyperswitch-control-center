@@ -26,8 +26,8 @@ let make = (
 
   let updateRefundDetails = async body => {
     try {
-      let refundsUrl = getURL(~entityName=REFUNDS, ~methodType=Post, ())
-      let res = await updateDetails(refundsUrl, body, Post, ())
+      let refundsUrl = getURL(~entityName=REFUNDS, ~methodType=Post)
+      let res = await updateDetails(refundsUrl, body, Post)
       let refundStatus = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("status", "")
       refetch()->ignore
       switch refundStatus->statusVariantMapper {

@@ -82,7 +82,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
 
   let getConnectorDetails = async () => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID), ())
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
@@ -116,8 +116,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         ~profileId=Some(profileId),
         (),
       )
-      let url = getURL(~entityName=PAYPAL_ONBOARDING_SYNC, ~methodType=Post, ())
-      let responseValue = await updateDetails(url, paypalBody, Fetch.Post, ())
+      let url = getURL(~entityName=PAYPAL_ONBOARDING_SYNC, ~methodType=Post)
+      let responseValue = await updateDetails(url, paypalBody, Fetch.Post)
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
 
       switch paypalDict->JSON.Classify.classify {

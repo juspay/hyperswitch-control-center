@@ -247,7 +247,6 @@ let useChartFetch = (~setStatusDict) => {
         ~method_=Fetch.Post,
         ~bodyStr=item.body,
         ~headers=[("QueryType", "Chart")]->Dict.fromArray,
-        (),
       )
       ->addLogsAroundFetch(~logTitle="Chart Data Api", ~setStatusDict)
       ->then(json => {
@@ -262,7 +261,6 @@ let useChartFetch = (~setStatusDict) => {
             ~method_=Fetch.Post,
             ~bodyStr=legendBody,
             ~headers=[("QueryType", "Chart")]->Dict.fromArray,
-            (),
           )
           ->addLogsAroundFetch(~logTitle="Chart Data Api", ~setStatusDict)
           ->then(

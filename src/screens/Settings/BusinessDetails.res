@@ -72,12 +72,11 @@ let make = () => {
   let onSubmit = async (values, _) => {
     try {
       setFetchState(_ => Loading)
-      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ~id=uid, ())
+      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ~id=uid)
       let merchantDetails = await updateDetails(
         accountUrl,
         values->getSettingsPayload(uid->Option.getOr("")),
         Post,
-        (),
       )
       setFormState(_ => Preview)
       let merchantInfo =
@@ -98,7 +97,7 @@ let make = () => {
     setUid(_ => Some(merchantId))
     try {
       setFetchState(_ => Loading)
-      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get, ())
+      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get)
       let merchantDetails = await fetchDetails(accountUrl)
       let merchantInfo =
         merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails->parseMerchantJson

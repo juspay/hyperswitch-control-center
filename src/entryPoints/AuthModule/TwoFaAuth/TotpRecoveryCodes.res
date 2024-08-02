@@ -12,7 +12,7 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=USERS, ~userType=#GENERATE_RECOVERY_CODES, ~methodType=Get, ())
+      let url = getURL(~entityName=USERS, ~userType=#GENERATE_RECOVERY_CODES, ~methodType=Get)
       let response = await fetchDetails(url)
       let recoveryCodesValue = response->getDictFromJsonObject->getStrArray("recovery_codes")
       setRecoveryCodes(_ => recoveryCodesValue)

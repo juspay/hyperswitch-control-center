@@ -222,9 +222,9 @@ module SelectPaymentMethods = {
         let metaData = body->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
         let _ = ConnectorUtils.updateMetaData(~metaData)
         //
-        let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
+        let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
 
-        let response = await updateAPIHook(connectorUrl, body, Post, ())
+        let response = await updateAPIHook(connectorUrl, body, Post)
 
         setInitialValues(_ => response)
         connectorArray->Array.push(connectorName)

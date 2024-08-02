@@ -180,7 +180,7 @@ let make = (~id) => {
   let fetchDisputesData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let disputesUrl = getURL(~entityName=DISPUTES, ~methodType=Get, ~id=Some(id), ())
+      let disputesUrl = getURL(~entityName=DISPUTES, ~methodType=Get, ~id=Some(id))
       let response = await fetchDetails(disputesUrl)
       setDisputeData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)

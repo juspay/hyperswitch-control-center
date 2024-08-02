@@ -264,9 +264,9 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       if !enableCustomHttpHeaders {
         valuesDict->Dict.set("outgoing_webhook_custom_http_headers", JSON.Encode.null)
       }
-      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id), ())
+      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id))
       let body = valuesDict->JSON.Encode.object->getBusinessProfilePayload->JSON.Encode.object
-      let res = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post)
       setBusiProfie(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)

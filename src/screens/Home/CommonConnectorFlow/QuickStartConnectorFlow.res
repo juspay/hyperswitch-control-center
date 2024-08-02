@@ -17,7 +17,7 @@ let make = (
   open QuickStartTypes
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let postEnumDetails = EnumVariantHook.usePostEnumDetails()
@@ -77,7 +77,7 @@ let make = (
   let handleTestConnector = async _ => {
     try {
       setButtonState(_ => Loading)
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ())
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post)
       let connectorName =
         selectedConnector->QuickStartUtils.getTestConnectorName(quickStartPageState)
       let testConnectorBody = HSwitchSetupAccountUtils.constructBody(
@@ -85,7 +85,7 @@ let make = (
         ~json=connectorName->Window.getConnectorConfig,
         ~profileId=activeBusinessProfile.profile_id,
       )
-      let res = await updateDetails(url, testConnectorBody, Post, ())
+      let res = await updateDetails(url, testConnectorBody, Post)
       connectorArray->Array.push(connectorName)
       setConnectorArray(_ => connectorArray)
       setInitialValues(_ => res)

@@ -36,7 +36,7 @@ let make = () => {
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let url = RescriptReactRouter.useUrl()
-  let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
+  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
@@ -56,7 +56,7 @@ let make = () => {
 
   let getConnectorDetails = async () => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID), ())
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
@@ -156,9 +156,8 @@ let make = () => {
         ~entityName=CONNECTOR,
         ~methodType=Post,
         ~id=isUpdateFlow ? Some(connectorID) : None,
-        (),
       )
-      let response = await updateAPIHook(connectorUrl, body, Post, ())
+      let response = await updateAPIHook(connectorUrl, body, Post)
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
     } catch {

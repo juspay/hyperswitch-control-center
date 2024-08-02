@@ -53,7 +53,7 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let filterUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some("filter"), ())
+  let filterUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some("filter"))
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">

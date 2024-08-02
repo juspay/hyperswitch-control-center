@@ -106,7 +106,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     }
   }
   let url = RescriptReactRouter.useUrl()
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
   let (verifyDone, setVerifyDone) = React.useState(_ => ConnectorTypes.NoAttempt)
@@ -150,13 +150,13 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
 
   let updateSetupConnectorCredentials = async connectorId => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post)
       let body = ProdOnboardingUtils.getProdApiBody(
         ~parentVariant=#SetupProcessor,
         ~connectorId,
         (),
       )
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
       setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
     } catch {
     | _ => ()
@@ -166,7 +166,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let onSubmitMain = async (values: JSON.t) => {
     try {
       setIsLoading(_ => true)
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ())
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post)
       let dict = Window.getConnectorConfig(connectorName)->getDictFromJsonObject
       let creditCardNetworkArray =
         dict->getArrayFromDict("credit", [])->JSON.Encode.array->getPaymentMethodMapper
@@ -204,7 +204,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
 
       let body = requestPayload->constructConnectorRequestBody(payload)
 
-      let res = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post)
       let connectorId = res->getDictFromJsonObject->getString("merchant_connector_id", "")
       setConnectorID(_ => connectorId)
       connectorId->updateSetupConnectorCredentials->ignore
@@ -264,8 +264,8 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           (),
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connectorName), ())
-      let _ = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connectorName))
+      let _ = await updateDetails(url, body, Post)
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore
       setIsLoading(_ => false)

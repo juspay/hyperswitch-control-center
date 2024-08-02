@@ -18,10 +18,10 @@ module UserUtilsPopover = {
 
     let deleteUser = async () => {
       try {
-        let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#USER_DELETE}, ())
+        let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#USER_DELETE})
         let body =
           [("email", infoValue.email->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
-        let _ = await updateDetails(url, body, Delete, ())
+        let _ = await updateDetails(url, body, Delete)
         showToast(~message=`User has been successfully deleted.`, ~toastType=ToastSuccess)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
       } catch {
@@ -114,11 +114,10 @@ module UserHeading = {
           ~userType=#RESEND_INVITE,
           ~methodType=Post,
           ~queryParamerters=Some(`auth_id=${authId}`),
-          (),
         )
         let body =
           [("email", infoValue.email->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
-        let _ = await updateDetails(url, body, Post, ())
+        let _ = await updateDetails(url, body, Post)
         showToast(~message=`Invite resend. Please check your email.`, ~toastType=ToastSuccess)
         setButtonState(_ => Button.Normal)
       } catch {
@@ -133,7 +132,6 @@ module UserHeading = {
           ~userRoleTypes=ROLE_ID,
           ~id=Some(infoValue.role_id),
           ~methodType=Get,
-          (),
         )
         let res = await fetchDetails(url)
 
@@ -152,13 +150,13 @@ module UserHeading = {
 
     let updateRole = async () => {
       try {
-        let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#UPDATE_ROLE}, ())
+        let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#UPDATE_ROLE})
         let body =
           [
             ("email", infoValue.email->JSON.Encode.string),
             ("role_id", newRoleSelected->JSON.Encode.string),
           ]->LogicUtils.getJsonFromArrayOfJson
-        let _ = await updateDetails(url, body, Post, ())
+        let _ = await updateDetails(url, body, Post)
         showToast(~message=`Role successfully updated!`, ~toastType=ToastSuccess)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
       } catch {
@@ -250,7 +248,6 @@ let make = () => {
           Some(role_id)
         },
         ~methodType=Get,
-        (),
       )
       let res = await fetchDetails(`${url}?groups=true`)
       setRoleData(_ => res)
@@ -269,7 +266,6 @@ let make = () => {
         ~userType=#PERMISSION_INFO,
         ~methodType=Get,
         ~queryParamerters=Some(`groups=true`),
-        (),
       )
       let res = await fetchDetails(url)
       let permissionInfoValue =
@@ -287,7 +283,6 @@ let make = () => {
         ~entityName=USER_MANAGEMENT,
         ~methodType=Get,
         ~userRoleTypes=USER_LIST,
-        (),
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->LogicUtils.getArrayDataFromJson(UserRoleEntity.itemToObjMapperForUser)

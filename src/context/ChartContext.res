@@ -343,7 +343,6 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               )->JSON.stringify,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
               ~betaEndpointConfig=?betaEndPointConfig,
-              (),
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch`)
             ->then(
@@ -403,7 +402,6 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             )->JSON.stringify,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
           ->then(text => {
@@ -472,7 +470,6 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               )->JSON.stringify,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
               ~betaEndpointConfig=?betaEndPointConfig,
-              (),
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch bottomChart`)
             ->then(
@@ -529,7 +526,6 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             )->JSON.stringify,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
           ->then(text => {
@@ -819,7 +815,6 @@ module SDKAnalyticsChartContext = {
                   )->JSON.stringify,
                   ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
                   ~betaEndpointConfig=?betaEndPointConfig,
-                  (),
                 )
                 ->addLogsAroundFetch(~logTitle=`Chart fetch`)
                 ->then(text => {
@@ -860,7 +855,6 @@ module SDKAnalyticsChartContext = {
                         )->JSON.stringify,
                         ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
                         ~betaEndpointConfig=?betaEndPointConfig,
-                        (),
                       )
                       ->addLogsAroundFetch(~logTitle=`Chart fetch`)
                       ->then(

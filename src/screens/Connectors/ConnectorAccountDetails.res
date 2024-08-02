@@ -13,7 +13,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
 
   let (verifyDone, setVerifyDone) = React.useState(_ => ConnectorTypes.NoAttempt)
   let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
@@ -164,8 +164,8 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
           (),
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connector), ())
-      let _ = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connector))
+      let _ = await updateDetails(url, body, Post)
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore
     } catch {

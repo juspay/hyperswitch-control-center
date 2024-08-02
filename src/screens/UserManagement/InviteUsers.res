@@ -28,7 +28,6 @@ module InviteEmailForm = {
           ~entityName=USER_MANAGEMENT,
           ~userRoleTypes=ROLE_LIST,
           ~methodType=Get,
-          (),
         )
         let response = await fetchDetails(`${roleListUrl}?groups=true`)
         let typedResponse: array<UserRoleEntity.roleListResponse> =
@@ -123,7 +122,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
         ~userType=#INVITE_MULTIPLE_TOKEN_ONLY,
         ~methodType=Post,
         ~queryParamerters=Some(`auth_id=${authId}`),
-        (),
       )
     } else {
       getURL(
@@ -131,7 +129,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
         ~userType=#INVITE_MULTIPLE,
         ~methodType=Post,
         ~queryParamerters=Some(`auth_id=${authId}`),
-        (),
       )
     }
   }
@@ -156,7 +153,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
       )
       ->JSON.Encode.array
 
-    let response = await updateDetails(url, body, Post, ())
+    let response = await updateDetails(url, body, Post)
     let decodedResponse = response->getArrayFromJson([])
 
     if !email {
@@ -246,7 +243,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
         ~userRoleTypes=ROLE_ID,
         ~id=Some(roleTypeValue),
         ~methodType=Get,
-        (),
       )
       let res = await fetchDetails(`${url}?groups=true`)
       setRoleDict(prevDict => {
@@ -280,7 +276,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
         ~userType=#PERMISSION_INFO,
         ~methodType=Get,
         ~queryParamerters=Some(`groups=true`),
-        (),
       )
       let res = await fetchDetails(url)
       let permissionInfoValue = res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)

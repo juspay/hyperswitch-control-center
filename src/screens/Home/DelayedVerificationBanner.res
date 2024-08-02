@@ -3,7 +3,7 @@ open APIUtils
 @react.component
 let make = (~merchantId="", ~verificationDays) => {
   open CommonAuthHooks
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let getURL = useGetURL()
@@ -36,9 +36,8 @@ let make = (~merchantId="", ~verificationDays) => {
         ~userType=#VERIFY_EMAIL_REQUEST,
         ~methodType=Post,
         ~queryParamerters=Some(`auth_id=${authId}`),
-        (),
       )
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
       showToast(~message=`Email Send Successfully!`, ~toastType=ToastSuccess)
     } catch {
     | _ =>

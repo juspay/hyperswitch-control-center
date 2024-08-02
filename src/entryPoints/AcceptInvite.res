@@ -38,7 +38,7 @@ let make = () => {
 
   let onClickLoginToDashboard = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITE, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITE, ~methodType=Post)
       let acceptedMerchantIds = merchantData->Array.reduce([], (acc, ele) => {
         let merchantDataDict = ele->getDictFromJsonObject
         if merchantDataDict->getBool("is_active", false) {
@@ -51,7 +51,7 @@ let make = () => {
           ("merchant_ids", acceptedMerchantIds->JSON.Encode.array),
           ("need_dashboard_entry_response", true->JSON.Encode.bool),
         ]->getJsonFromArrayOfJson
-      let res = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post)
       let typedInfo = res->BasicAuthUtils.getBasicAuthInfo
       if typedInfo.token->Option.isSome {
         open AuthProviderTypes

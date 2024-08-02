@@ -48,20 +48,20 @@ module DownloadAPIKeyButton = {
     ~buttonStyle="",
   ) => {
     let getURL = APIUtils.useGetURL()
-    let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
+    let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
     let showToast = ToastState.useShowToast()
     let (showCopyToClipboard, setShowCopyToClipboard) = React.useState(_ => false)
 
     let apiKeyGeneration = async () => {
       try {
-        let url = getURL(~entityName=API_KEYS, ~methodType=Post, ())
+        let url = getURL(~entityName=API_KEYS, ~methodType=Post)
         let body =
           [
             ("name", "DefaultAPIKey"->JSON.Encode.string),
             ("description", "Default Value of the API key"->JSON.Encode.string),
             ("expiration", "never"->JSON.Encode.string),
           ]->Dict.fromArray
-        let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
+        let res = await updateDetails(url, body->JSON.Encode.object, Post)
         let apiKey = res->getDictFromJsonObject->getString("api_key", "")
         DownloadUtils.downloadOld(~fileName=`apiKey.txt`, ~content=apiKey)
         Clipboard.writeText(apiKey)
@@ -390,7 +390,7 @@ module LandingPageTileForIntegrateDocs = {
   ) => {
     open APIUtils
     let getURL = useGetURL()
-    let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+    let updateDetails = useUpdateMethod(~showErrorToast=false)
     let {
       integrationDetails,
       setIntegrationDetails,
@@ -410,7 +410,7 @@ module LandingPageTileForIntegrateDocs = {
     }
     let skipAndContinue = async () => {
       try {
-        let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
+        let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post)
         let metaDataDict = Dict.fromArray([("is_skip", true->JSON.Encode.bool)])->JSON.Encode.object
         let body = HSwitchUtils.constructOnboardingBody(
           ~dashboardPageState,
@@ -419,7 +419,7 @@ module LandingPageTileForIntegrateDocs = {
           ~metadata=metaDataDict,
           (),
         )
-        let _ = await updateDetails(url, body, Post, ())
+        let _ = await updateDetails(url, body, Post)
         setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       } catch {
       | _ => ()
@@ -609,7 +609,7 @@ let getTabsForIntegration = (
 ) => {
   open Tabs
   let defaultEditorStyle = "flex flex-col gap-8 bg-white flex flex-col px-6 py-4 border !shadow-hyperswitch_box_shadow rounded-md"
-  // let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
+  // let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
   // let {integrationDetails, setIntegrationDetails, dashboardPageState} = React.useContext(
   //   GlobalProvider.defaultContext,
   // )

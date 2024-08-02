@@ -41,8 +41,8 @@ module DeleteConnectorMenu = {
     let deleteConnector = async () => {
       try {
         let connectorID = connectorInfo.merchant_connector_id
-        let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
-        let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete, ())
+        let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+        let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete)
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
       } catch {
       | _ => ()
@@ -315,8 +315,8 @@ let make = (
         connectorInfo.connector_type,
         isConnectorDisabled,
       )
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
-      let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post, ())
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+      let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=redirectPath))
     } catch {

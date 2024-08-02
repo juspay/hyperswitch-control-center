@@ -3,7 +3,7 @@ let make = () => {
   open HSwitchSetupAccountUtils
   open APIUtils
   open HyperSwitchUtils
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let finalTickLottieFile = LottieFiles.useLottieJson("FinalTick.json")
   let (stepCounter, setStepCounter) = React.useState(_ => #INITIALIZE)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
@@ -31,7 +31,7 @@ let make = () => {
   let apiCalls = async () => {
     try {
       open LogicUtils
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ())
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post)
       // * STRIPE && PAYPAL TEST
       let stripeTestBody = constructBody(
         ~connectorName="stripe_test",
@@ -39,7 +39,7 @@ let make = () => {
         ~profileId=activeBusinessProfile.profile_id,
       )
       let stripeTestRes =
-        (await updateDetails(url, stripeTestBody, Post, ()))
+        (await updateDetails(url, stripeTestBody, Post))
         ->getDictFromJsonObject
         ->ConnectorListMapper.getProcessorPayloadType
 
@@ -49,7 +49,7 @@ let make = () => {
         ~profileId=activeBusinessProfile.profile_id,
       )
       let payPalTestRes =
-        (await updateDetails(url, paypalTestBody, Post, ()))
+        (await updateDetails(url, paypalTestBody, Post))
         ->getDictFromJsonObject
         ->ConnectorListMapper.getProcessorPayloadType
       let _ = await fetchConnectorListResponse()
@@ -64,25 +64,24 @@ let make = () => {
         connector_name: "stripe_test",
         merchant_connector_id: stripeTestRes.merchant_connector_id,
       }
-      let routingUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
+      let routingUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None)
       let activatingId =
         (
           await updateDetails(
             routingUrl,
             activeBusinessProfile.profile_id->routingPayload(stripTestRouting, payPalTestRouting),
             Post,
-            (),
           )
         )
         ->getDictFromJsonObject
         ->getOptionString("id")
-      let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-      let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
+      let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post)
       setStepCounter(_ => #ROUTING_ENABLED)
 
       // *GENERATE_SAMPLE_DATA
-      let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
-      let _ = await updateDetails(generateSampleDataUrl, Dict.make()->JSON.Encode.object, Post, ())
+      let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post)
+      let _ = await updateDetails(generateSampleDataUrl, Dict.make()->JSON.Encode.object, Post)
       setStepCounter(_ => #GENERATE_SAMPLE_DATA)
       await delay(delayTime)
       setStepCounter(_ => #COMPLETED)
@@ -95,8 +94,8 @@ let make = () => {
         ~is_done=true,
         (),
       )
-      let integrationUrl = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-      let _ = await updateDetails(integrationUrl, body, Post, ())
+      let integrationUrl = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post)
+      let _ = await updateDetails(integrationUrl, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       setDashboardPageState(_ => #INTEGRATION_DOC)
     } catch {

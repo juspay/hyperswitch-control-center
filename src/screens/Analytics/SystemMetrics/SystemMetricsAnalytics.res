@@ -132,7 +132,7 @@ module HSiwtchPaymentConfirmLatency = {
     }
 
     let getOverallLatency = async () => {
-      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("Payment"), Fetch.Post, ())
+      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("Payment"), Fetch.Post)
       ->thenResolve(json => {
         setOverallrLatency(_ => json->parseJson)
       })
@@ -144,7 +144,7 @@ module HSiwtchPaymentConfirmLatency = {
     }
 
     let getConnectorLatency = () => {
-      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("OutgoingEvent"), Fetch.Post, ())
+      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("OutgoingEvent"), Fetch.Post)
       ->thenResolve(json => {
         setConnectorLatency(_ => json->parseJson)
         setIsLoading(_ => false)
@@ -274,7 +274,7 @@ module SystemMetricsAnalytics = {
       setFilterDataJson(_ => None)
       if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
         try {
-          updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
+          updateDetails(filterUri, filterBody->JSON.Encode.object, Post)
           ->thenResolve(json => setFilterDataJson(_ => json->Some))
           ->catch(_ => resolve())
           ->ignore
@@ -338,7 +338,7 @@ let make = () => {
 
   let loadInfo = async () => {
     try {
-      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain), ())
+      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))

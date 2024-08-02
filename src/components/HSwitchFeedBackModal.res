@@ -14,7 +14,7 @@ let make = (
   let getURL = useGetURL()
   let onSubmit = async (values, _) => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post)
       let body =
         [
           (
@@ -22,7 +22,7 @@ let make = (
             HSwitchUtils.getBodyForFeedBack(~email, ~values, ~modalType, ())->JSON.Encode.object,
           ),
         ]->LogicUtils.getJsonFromArrayOfJson
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
       let successMessage = switch modalType {
       | FeedBackModal => "Thanks for feedback"
       | RequestConnectorModal => "Request submitted succesfully"

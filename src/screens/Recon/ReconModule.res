@@ -12,7 +12,7 @@ let make = (~urlList) => {
 
   let getReconToken = async () => {
     try {
-      let url = getURL(~entityName=RECON, ~reconType=#TOKEN, ~methodType=Get, ())
+      let url = getURL(~entityName=RECON, ~reconType=#TOKEN, ~methodType=Get)
       let res = await fetchDetails(url)
       let token = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("token", "")
       setRedirectToken(_ => token)

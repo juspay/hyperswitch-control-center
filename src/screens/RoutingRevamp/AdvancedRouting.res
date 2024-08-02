@@ -486,7 +486,7 @@ let make = (
   let (initialRule, setInitialRule) = React.useState(() => None)
   let showToast = ToastState.useShowToast()
   let fetchDetails = useGetMethod()
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (wasm, setWasm) = React.useState(_ => None)
   let (formState, setFormState) = React.useState(_ => EditReplica)
@@ -503,7 +503,7 @@ let make = (
 
   let activeRoutingDetails = async () => {
     try {
-      let routingUrl = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId, ())
+      let routingUrl = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId)
       let routingJson = await fetchDetails(routingUrl)
       let schemaValue = routingJson->getDictFromJsonObject
       let rulesValue = schemaValue->getObj("algorithm", Dict.make())->getDictfromDict("data")
@@ -634,13 +634,8 @@ let make = (
   let handleActivateConfiguration = async activatingId => {
     try {
       setScreenState(_ => Loading)
-      let activateRuleURL = getURL(
-        ~entityName=urlEntityName,
-        ~methodType=Post,
-        ~id=activatingId,
-        (),
-      )
-      let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
+      let activateRuleURL = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=activatingId)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post)
       showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
@@ -667,13 +662,9 @@ let make = (
     try {
       setScreenState(_ => Loading)
 
-      let deactivateRoutingURL = `${getURL(
-          ~entityName=urlEntityName,
-          ~methodType=Post,
-          (),
-        )}/deactivate`
+      let deactivateRoutingURL = `${getURL(~entityName=urlEntityName, ~methodType=Post)}/deactivate`
       let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
-      let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
+      let _ = await updateDetails(deactivateRoutingURL, body, Post)
       showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
@@ -731,13 +722,8 @@ let make = (
         },
       }
 
-      let getActivateUrl = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=None, ())
-      let response = await updateDetails(
-        getActivateUrl,
-        payload->Identity.genericTypeToJson,
-        Post,
-        (),
-      )
+      let getActivateUrl = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=None)
+      let response = await updateDetails(getActivateUrl, payload->Identity.genericTypeToJson, Post)
 
       showToast(
         ~message="Successfully Created a new Configuration !",

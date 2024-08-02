@@ -85,13 +85,13 @@ module SelectPaymentMethods = {
           metadata: metaData,
         }
         let body = ConnectorUtils.constructConnectorRequestBody(obj, initialValues)
-        let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
+        let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
         if enums.configurationType->String.length === 0 && connectorName === "stripe" {
           let _ = await updateEnumForMultipleConfigurationType(
             #MultipleProcessorWithSmartRouting->QuickStartUtils.connectorChoiceVariantToString,
           )
         }
-        let response = await updateAPIHook(connectorUrl, body, Post, ())
+        let response = await updateAPIHook(connectorUrl, body, Post)
         setInitialValues(_ => response)
         response->LogicUtils.getDictFromJsonObject->updateEnumForConnector->ignore
         setConnectorConfigureState(_ => Summary)

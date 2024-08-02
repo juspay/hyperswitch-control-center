@@ -10,9 +10,9 @@ module NewAccountCreationModal = {
     let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
     let createNewAccount = async values => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Fetch.Post, ())
+        let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Fetch.Post)
         let body = values
-        let _ = await updateDetails(url, body, Post, ())
+        let _ = await updateDetails(url, body, Post)
         let _ = await fetchSwitchMerchantList()
         showToast(
           ~toastType=ToastSuccess,
@@ -287,10 +287,10 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   let switchMerchant = async value => {
     open LogicUtils
     try {
-      let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Post)
       let body = Dict.make()
       body->Dict.set("merchant_id", value->JSON.Encode.string)
-      let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
+      let res = await updateDetails(url, body->JSON.Encode.object, Post)
 
       // TODO: When BE changes the response of this api re-evaluate the below conditions
       if featureFlagDetails.totp {

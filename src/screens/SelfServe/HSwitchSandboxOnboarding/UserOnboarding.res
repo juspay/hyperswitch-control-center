@@ -104,11 +104,11 @@ let make = () => {
 
   open APIUtils
   let getURL = useGetURL()
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
 
   let skipAndContinue = async () => {
     try {
-      let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
+      let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post)
       let metaDataDict = Dict.fromArray([("is_skip", true->JSON.Encode.bool)])->JSON.Encode.object
       let body = HSwitchUtils.constructOnboardingBody(
         ~dashboardPageState,
@@ -117,7 +117,7 @@ let make = () => {
         ~metadata=metaDataDict,
         (),
       )
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
     } catch {
     | _ => ()
@@ -127,7 +127,7 @@ let make = () => {
 
   let markAsDone = async () => {
     try {
-      let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
+      let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post)
       let body = HSwitchUtils.constructOnboardingBody(
         ~dashboardPageState,
         ~integrationDetails,
@@ -141,7 +141,7 @@ let make = () => {
         ]->LogicUtils.getJsonFromArrayOfJson,
         (),
       )
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       setDashboardPageState(_ => #HOME)
     } catch {

@@ -85,7 +85,7 @@ module ResetTotp = {
     let generateNewSecret = async () => {
       try {
         setButtonState(_ => Button.Loading)
-        let url = getURL(~entityName=USERS, ~userType=#RESET_TOTP, ~methodType=Get, ())
+        let url = getURL(~entityName=USERS, ~userType=#RESET_TOTP, ~methodType=Get)
         let res = await fetchDetails(url)
         setTotpSecret(_ => ShowNewTotp(
           res->getDictFromJsonObject->getDictfromDict("secret")->getString("totp_url", ""),
@@ -321,7 +321,7 @@ module RegenerateRecoveryCodes = {
     let generateRecoveryCodes = async () => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let url = getURL(~entityName=USERS, ~userType=#GENERATE_RECOVERY_CODES, ~methodType=Get, ())
+        let url = getURL(~entityName=USERS, ~userType=#GENERATE_RECOVERY_CODES, ~methodType=Get)
         let response = await fetchDetails(url)
         let recoveryCodesValue = response->getDictFromJsonObject->getStrArray("recovery_codes")
         setRecoveryCodes(_ => recoveryCodesValue)
@@ -505,12 +505,7 @@ let make = () => {
     try {
       open LogicUtils
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=USERS,
-        ~userType=#CHECK_TWO_FACTOR_AUTH_STATUS,
-        ~methodType=Get,
-        (),
-      )
+      let url = getURL(~entityName=USERS, ~userType=#CHECK_TWO_FACTOR_AUTH_STATUS, ~methodType=Get)
       let res = await fetchDetails(url)
       setCheckStatusResponse(_ => res->getDictFromJsonObject->typedValueForCheckStatus)
       setScreenState(_ => PageLoaderWrapper.Success)

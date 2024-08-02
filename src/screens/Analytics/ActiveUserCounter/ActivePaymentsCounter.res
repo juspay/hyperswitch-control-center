@@ -11,12 +11,7 @@ let make = () => {
 
   let fetchMetrics = async setData => {
     let (domainUrl, metric) = ("active_payments", "active_payments")
-    let url = getURL(
-      ~entityName=ANALYTICS_ACTIVE_PAYMENTS,
-      ~methodType=Post,
-      ~id=Some(domainUrl),
-      (),
-    )
+    let url = getURL(~entityName=ANALYTICS_ACTIVE_PAYMENTS, ~methodType=Post, ~id=Some(domainUrl))
     let startTime = (Date.now() -. 60000.0)->Date.fromTime
     let body =
       [
@@ -32,7 +27,7 @@ let make = () => {
         ]->getJsonFromArrayOfJson,
       ]->JSON.Encode.array
     try {
-      let json = await updateDetails(url, body, Fetch.Post, ())
+      let json = await updateDetails(url, body, Fetch.Post)
       let dict = json->getDictFromJsonObject
       let newCount =
         dict

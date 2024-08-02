@@ -19,7 +19,7 @@ let useAuthMethods = (): authMethodProps => {
 
   let getURL = useGetURL()
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let fetchDetails = useGetMethod(~showErrorToast=false, ())
+  let fetchDetails = useGetMethod(~showErrorToast=false)
 
   let {authMethods, setAuthMethods} = React.useContext(AuthInfoProvider.authStatusContext)
 
@@ -31,7 +31,6 @@ let useAuthMethods = (): authMethodProps => {
         ~userType=#GET_AUTH_LIST,
         ~methodType=Get,
         ~queryParamerters=Some(`auth_id=${authId}`),
-        (),
       )
 
       let json = await fetchDetails(`${authListUrl}`)

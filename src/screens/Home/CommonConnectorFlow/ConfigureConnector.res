@@ -92,21 +92,16 @@ let make = (~connectProcessorValue: connectProcessor) => {
         connector_name: typedEnumValue.secondProcessorConnected.processorName,
         merchant_connector_id: typedEnumValue.secondProcessorConnected.processorID,
       }
-      let routingUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
+      let routingUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None)
       let body =
         activeBusinessProfile.profile_id->HSwitchSetupAccountUtils.routingPayload(
           firstProcessorRoutingPayload,
           secondProcessorRoutingPayload,
         )
-      let routingResponse = await updateDetails(routingUrl, body, Post, ())
+      let routingResponse = await updateDetails(routingUrl, body, Post)
       let activatingId = routingResponse->getDictFromJsonObject->getString("id", "")
-      let activateRuleURL = getURL(
-        ~entityName=ROUTING,
-        ~methodType=Post,
-        ~id=Some(activatingId),
-        (),
-      )
-      let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
+      let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=Some(activatingId))
+      let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post)
       let _ = await updateEnumForRouting(activatingId)
       setButtonState(_ => Normal)
     } catch {

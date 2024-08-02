@@ -105,7 +105,7 @@ let make = () => {
   React.useEffect(() => {
     open Promise
     open LogicUtils
-    fetchDetails(getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ()))
+    fetchDetails(getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get))
     ->thenResolve(json => {
       let processorsList = json->getArrayFromJson([])->Array.map(getDictFromJsonObject)
 

@@ -22,7 +22,6 @@ let make = () => {
         ~entityName=USER_MANAGEMENT,
         ~methodType=Get,
         ~userRoleTypes=USER_LIST,
-        (),
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->getArrayDataFromJson(itemToObjMapperForUser)
@@ -41,7 +40,6 @@ let make = () => {
         ~userType=#PERMISSION_INFO,
         ~methodType=Get,
         ~queryParamerters=Some(`groups=true`),
-        (),
       )
       let res = await fetchDetails(url)
       setPermissionInfo(_ => res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo))

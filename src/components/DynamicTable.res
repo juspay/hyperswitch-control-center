@@ -236,7 +236,7 @@ let make = (
     }
     let uri = uri ++ getNewUrl(defaultFilters)
     setTableDataLoading(_ => true)
-    fetchApi(uri, ~bodyStr=JSON.stringify(finalJson), ~headers, ~method_=method, ())
+    fetchApi(uri, ~bodyStr=JSON.stringify(finalJson), ~headers, ~method_=method)
     ->then(resp => {
       let status = resp->Fetch.Response.status
       if status >= 300 {

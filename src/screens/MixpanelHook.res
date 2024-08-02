@@ -80,7 +80,6 @@ let useSendEvent = () => {
         `${getHostUrl}/mixpanel/track`,
         ~method_=Fetch.Post,
         ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
-        (),
       )
     } catch {
     | _ => ()

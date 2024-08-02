@@ -14,8 +14,8 @@ let make = () => {
 
   let onClickForReconRequest = async () => {
     try {
-      let url = getURL(~entityName=RECON, ~reconType=#REQUEST, ~methodType=Get, ())
-      let _ = await updateDetails(url, JSON.Encode.null, Post, ())
+      let url = getURL(~entityName=RECON, ~reconType=#REQUEST, ~methodType=Get)
+      let _ = await updateDetails(url, JSON.Encode.null, Post)
       let _ = await fetchMerchantAccountDetails()
       showToast(
         ~message=`Thank you for your interest in our reconciliation module. We are currently reviewing your request for access. We will follow up with you soon regarding next steps.`,
@@ -30,7 +30,7 @@ let make = () => {
     try {
       if redirectToken->String.length === 0 {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let url = getURL(~entityName=RECON, ~reconType=#TOKEN, ~methodType=Get, ())
+        let url = getURL(~entityName=RECON, ~reconType=#TOKEN, ~methodType=Get)
         let res = await fetchDetails(url)
         let token = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("token", "")
         setRedirecToken(_ => token)

@@ -26,7 +26,7 @@ let useLottieJson = lottieFileName => {
       }
     | None => {
         let fetchLottie =
-          fetchApi(`${prefix}/lottie-files/${lottieFileName}`, ~method_=Get, ())
+          fetchApi(`${prefix}/lottie-files/${lottieFileName}`, ~method_=Get)
           ->then(res => res->Fetch.Response.json)
           ->then(json => {
             setlottieJson(_ => json)

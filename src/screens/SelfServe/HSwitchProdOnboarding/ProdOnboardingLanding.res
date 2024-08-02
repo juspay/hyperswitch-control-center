@@ -208,7 +208,7 @@ let make = () => {
 
   let getConnectorDetails = async headerVariant => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID), ())
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       let connectorName = json->getDictFromJsonObject->getString("connector_name", "")
       setInitialValues(_ => json)
@@ -230,7 +230,6 @@ let make = () => {
         ~userType=#USER_DATA,
         ~methodType=Get,
         ~queryParamerters=Some(`keys=${prodOnboardingEnumIntialArray->Array.joinWithUnsafe(",")}`),
-        (),
       )
       let response = await fetchDetails(url)
       let prodEnums = response->responseDataMapper(getValueMappedForProd)->getTypedValue
@@ -243,9 +242,9 @@ let make = () => {
   let updateSetupPageCompleted = async () => {
     try {
       setButtonState(_ => Loading)
-      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post)
       let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#SetupComplete, ())
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
       setButtonState(_ => Normal)
       setDashboardPageState(_ => #HOME)
     } catch {

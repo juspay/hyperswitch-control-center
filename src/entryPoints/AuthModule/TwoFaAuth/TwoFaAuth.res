@@ -14,7 +14,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let clientCountry = HSwitchUtils.getBrowswerDetails().clientCountry
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
   let showToast = ToastState.useShowToast()
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (email, setEmail) = React.useState(_ => "")
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
@@ -48,9 +48,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         ~userType=#CONNECT_ACCOUNT,
         ~methodType=Post,
         ~queryParamerters=Some(`auth_id=${authId}&domain=${domain}`),
-        (),
       )
-      let res = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post)
       let valuesDict = res->getDictFromJsonObject
       let magicLinkSent = valuesDict->LogicUtils.getBool("is_email_sent", false)
 
@@ -67,8 +66,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
 
   let getUserWithEmailPassword = async (body, userType) => {
     try {
-      let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
-      let res = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=USERS, ~userType, ~methodType=Post)
+      let res = await updateDetails(url, body, Post)
       setAuthStatus(PreLogin(AuthUtils.getPreLoginInfo(res)))
     } catch {
     | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError)
@@ -86,8 +85,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let setResetPassword = async body => {
     try {
       // Need to check this
-      let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD, ~methodType=Post, ())
-      let _ = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD, ~methodType=Post)
+      let _ = await updateDetails(url, body, Post)
       LocalStorage.clear()
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess)
       setAuthType(_ => LoginWithEmail)
@@ -105,9 +104,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         ~userType=#FORGOT_PASSWORD,
         ~methodType=Post,
         ~queryParamerters=Some(`auth_id=${authId}`),
-        (),
       )
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
       setAuthType(_ => ForgetPasswordEmailSent)
       showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess)
     } catch {
@@ -124,9 +122,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         ~userType=#VERIFY_EMAIL_REQUEST,
         ~methodType=Post,
         ~queryParamerters=Some(`auth_id=${authId}`),
-        (),
       )
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
       setAuthType(_ => ResendVerifyEmailSent)
       showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess)
     } catch {

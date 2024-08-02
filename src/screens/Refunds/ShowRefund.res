@@ -92,7 +92,7 @@ let make = (~id) => {
 
   let fetchRefundData = async () => {
     try {
-      let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id), ())
+      let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id))
       let refundData = await fetchDetails(refundUrl)
       let paymentId =
         refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
@@ -101,7 +101,6 @@ let make = (~id) => {
         ~methodType=Get,
         ~id=Some(paymentId),
         ~queryParamerters=Some("expand_attempts=true"),
-        (),
       )
       let orderData = await fetchDetails(orderUrl)
       let paymentArray =

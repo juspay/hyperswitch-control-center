@@ -158,7 +158,7 @@ module RedirectionToPayPalFlow = {
     let url = RescriptReactRouter.useUrl()
     let path = url.path->List.toArray->Array.joinWithUnsafe("/")
     let connectorId = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
-    let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+    let updateDetails = useUpdateMethod(~showErrorToast=false)
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (actionUrl, setActionUrl) = React.useState(_ => "")
 
@@ -172,8 +172,8 @@ module RedirectionToPayPalFlow = {
           ~returnUrl=Some(returnURL),
           (),
         )
-        let url = getURL(~entityName=ACTION_URL, ~methodType=Post, ())
-        let response = await updateDetails(url, body, Post, ())
+        let url = getURL(~entityName=ACTION_URL, ~methodType=Post)
+        let response = await updateDetails(url, body, Post)
         let actionURL =
           response->getDictFromJsonObject->getDictfromDict("paypal")->getString("action_url", "")
         setActionUrl(_ => actionURL)
