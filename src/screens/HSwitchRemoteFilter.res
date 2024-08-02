@@ -116,7 +116,7 @@ module SearchBarFilter = {
 module RemoteTableFilters = {
   @react.component
   let make = (
-    ~apiType=Fetch.Get,
+    ~apiType: Fetch.requestMethod=Get,
     ~filterUrl,
     ~setFilters,
     ~endTimeFilterKey,
@@ -160,7 +160,7 @@ module RemoteTableFilters = {
                 (startTimeFilterKey, start_time->JSON.Encode.string),
                 (endTimeFilterKey, end_time->JSON.Encode.string),
               ]->getJsonFromArrayOfJson
-            await updateDetails(filterUrl, body, Fetch.Post)
+            await updateDetails(filterUrl, body, Post)
           }
         | _ => await fetchDetails(filterUrl)
         }

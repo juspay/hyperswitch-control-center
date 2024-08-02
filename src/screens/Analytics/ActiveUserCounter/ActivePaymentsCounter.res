@@ -27,7 +27,7 @@ let make = () => {
         ]->getJsonFromArrayOfJson,
       ]->JSON.Encode.array
     try {
-      let json = await updateDetails(url, body, Fetch.Post)
+      let json = await updateDetails(url, body, Post)
       let dict = json->getDictFromJsonObject
       let newCount =
         dict

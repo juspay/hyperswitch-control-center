@@ -10,7 +10,7 @@ module NewAccountCreationModal = {
     let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
     let createNewAccount = async values => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Fetch.Post)
+        let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Post)
         let body = values
         let _ = await updateDetails(url, body, Post)
         let _ = await fetchSwitchMerchantList()

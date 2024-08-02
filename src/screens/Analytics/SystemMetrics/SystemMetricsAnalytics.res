@@ -132,7 +132,7 @@ module HSiwtchPaymentConfirmLatency = {
     }
 
     let getOverallLatency = async () => {
-      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("Payment"), Fetch.Post)
+      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("Payment"), Post)
       ->thenResolve(json => {
         setOverallrLatency(_ => json->parseJson)
       })
@@ -144,7 +144,7 @@ module HSiwtchPaymentConfirmLatency = {
     }
 
     let getConnectorLatency = () => {
-      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("OutgoingEvent"), Fetch.Post)
+      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("OutgoingEvent"), Post)
       ->thenResolve(json => {
         setConnectorLatency(_ => json->parseJson)
         setIsLoading(_ => false)

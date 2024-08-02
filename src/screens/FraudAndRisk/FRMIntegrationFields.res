@@ -266,7 +266,7 @@ let make = (
   }
 
   let setFRMValues = async body => {
-    fetchApi(frmUrl, body, Fetch.Post)
+    fetchApi(frmUrl, body, Post)
     ->thenResolve(res => {
       setCurrentStep(prev => prev->getNextStep)
       let _ = updateMerchantDetails()

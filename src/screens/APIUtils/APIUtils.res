@@ -440,7 +440,7 @@ let useHandleLogout = () => {
       let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
       let _ =
-        fetchApi(logoutUrl, ~method_=Fetch.Post)
+        fetchApi(logoutUrl, ~method_=Post)
         ->then(Fetch.Response.json)
         ->then(json => {
           json->resolve

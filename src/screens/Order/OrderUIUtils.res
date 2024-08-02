@@ -422,7 +422,7 @@ let getOrdersList = async (
   setScreenState(_ => PageLoaderWrapper.Loading)
   try {
     let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post)
-    let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Fetch.Post)
+    let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
     let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
@@ -438,7 +438,7 @@ let getOrdersList = async (
         let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
         filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
 
-        let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Fetch.Post)
+        let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
         let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
         let total = res->getDictFromJsonObject->getInt("total_count", 0)
 

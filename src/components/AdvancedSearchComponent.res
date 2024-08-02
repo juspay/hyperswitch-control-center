@@ -27,7 +27,7 @@ let make = (
   let onSubmit = (values, form: ReactFinalForm.formApi) => {
     open Promise
 
-    fetchApi(url, ~bodyStr=JSON.stringify(values), ~method_=Fetch.Post)
+    fetchApi(url, ~bodyStr=JSON.stringify(values), ~method_=Post)
     ->then(res => res->Fetch.Response.json)
     ->then(json => {
       let jsonData = json->JSON.Decode.object->Option.flatMap(dict => dict->Dict.get("rows"))

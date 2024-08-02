@@ -243,7 +243,7 @@ let useChartFetch = (~setStatusDict) => {
     ->Array.map(item => {
       fetchApi(
         item.url,
-        ~method_=Fetch.Post,
+        ~method_=Post,
         ~bodyStr=item.body,
         ~headers=[("QueryType", "Chart")]->Dict.fromArray,
       )
@@ -257,7 +257,7 @@ let useChartFetch = (~setStatusDict) => {
         | {legendBody} =>
           fetchApi(
             item.url,
-            ~method_=Fetch.Post,
+            ~method_=Post,
             ~bodyStr=legendBody,
             ~headers=[("QueryType", "Chart")]->Dict.fromArray,
           )

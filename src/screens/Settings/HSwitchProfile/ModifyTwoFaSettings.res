@@ -169,7 +169,7 @@ module ResetTotp = {
 
     let handle2FaVerify = () => {
       switch twoFaState {
-      | Totp => verifyTOTP(~fromModal=true, ~methodType=Fetch.Post, ~otp={otpInModal})
+      | Totp => verifyTOTP(~fromModal=true, ~methodType=Post, ~otp={otpInModal})
       | RecoveryCode => verifyRecoveryCode()
       }
     }
@@ -286,7 +286,7 @@ module ResetTotp = {
                 buttonSize=Small
                 customButtonStyle="group"
                 buttonState={otp->String.length === 6 ? buttonState : Disabled}
-                onClick={_ => verifyTOTP(~fromModal=false, ~methodType=Fetch.Put, ~otp)->ignore}
+                onClick={_ => verifyTOTP(~fromModal=false, ~methodType=Put, ~otp)->ignore}
                 rightIcon={CustomIcon(
                   <Icon
                     name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
@@ -345,7 +345,7 @@ module RegenerateRecoveryCodes = {
         setButtonState(_ => Button.Loading)
         if otpInModal->String.length > 0 {
           let body = [("totp", otpInModal->JSON.Encode.string)]->getJsonFromArrayOfJson
-          let _ = await verifyTotpLogic(body, Fetch.Post)
+          let _ = await verifyTotpLogic(body, Post)
           setShowVerifyModal(_ => false)
           generateRecoveryCodes()->ignore
         } else {

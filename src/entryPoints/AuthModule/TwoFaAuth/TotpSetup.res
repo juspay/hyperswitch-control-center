@@ -122,7 +122,7 @@ module ConfigureTotpScreen = {
 
         if otp->String.length > 0 {
           let body = [("totp", otp->JSON.Encode.string)]->getJsonFromArrayOfJson
-          let methodType = twoFaStatus === TWO_FA_SET ? Fetch.Post : Fetch.Put
+          let methodType: Fetch.requestMethod = twoFaStatus === TWO_FA_SET ? Post : Put
           let _ = await verifyTotpLogic(body, methodType)
 
           if twoFaStatus === TWO_FA_SET {
