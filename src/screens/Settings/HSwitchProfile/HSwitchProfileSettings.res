@@ -57,7 +57,7 @@ module ResetPassword = {
     let (isLoading, setIsLoading) = React.useState(_ => false)
     let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-    let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+    let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let showToast = ToastState.useShowToast()
 

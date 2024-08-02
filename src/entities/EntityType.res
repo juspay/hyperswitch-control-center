@@ -104,7 +104,6 @@ let makeEntity = (
   ~searchValueDict=?,
   ~filterCheck=(_, _) => false,
   ~filterForRow=(_, _): TableUtils.filterObject => {key: "", options: [], selected: []},
-  (),
 ) => {
   {
     uri,

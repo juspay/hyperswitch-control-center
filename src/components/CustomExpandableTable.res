@@ -18,7 +18,7 @@ let make = (
   ~showSerial=false,
 ) => {
   if showSerial {
-    heading->Array.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No", ()))->ignore
+    heading->Array.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No"))->ignore
   }
 
   let isMobileView = MatchMedia.useMobileChecker()

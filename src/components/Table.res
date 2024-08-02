@@ -815,7 +815,7 @@ let make = (
 
   let frozenHeading = heading->Array.slice(~start=0, ~end=frozenUpto)
   let frozenCustomiseColumnHeading = [
-    makeHeaderInfo(~key="", ~title="Customize Column", ~showMultiSelectCheckBox=true, ()),
+    makeHeaderInfo(~key="", ~title="Customize Column", ~showMultiSelectCheckBox=true),
   ]
   let frozenRow = rowInfo->Array.map(row => {
     row->Array.slice(~start=0, ~end=frozenUpto)

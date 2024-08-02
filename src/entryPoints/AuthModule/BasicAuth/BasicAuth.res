@@ -16,7 +16,7 @@ let make = (~authType, ~setAuthType) => {
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (email, setEmail) = React.useState(_ => "")
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
 
   let handleAuthError = e => {
     open CommonAuthUtils

@@ -399,7 +399,6 @@ module LineChart1D = {
           ~title=snakeToTitle(groupKey),
           ~dataType=LabelType,
           ~showSort={!isPartners},
-          (),
         )
 
       | val =>
@@ -408,7 +407,6 @@ module LineChart1D = {
           ~title=val->LineChartUtils.chartLegendTypeToStr,
           ~dataType=NumericType,
           ~showSort={!isPartners},
-          (),
         )
       }
     }
@@ -425,7 +423,6 @@ module LineChart1D = {
       ~getHeading,
       ~uri="",
       ~getObjects=_ => {[]},
-      (),
     )
     let {isSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 

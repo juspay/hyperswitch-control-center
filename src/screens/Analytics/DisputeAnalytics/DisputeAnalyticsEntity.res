@@ -56,16 +56,15 @@ let getUpdatedHeading = (
     let key = colType->colMapper
     switch colType {
     | Connector =>
-      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=NumericType, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=NumericType, ~showSort=false)
     | DisputeStage =>
-      Table.makeHeaderInfo(~key, ~title="Dispute Stage", ~dataType=NumericType, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Dispute Stage", ~dataType=NumericType, ~showSort=false)
     | TotalAmountDisputed =>
       Table.makeHeaderInfo(
         ~key,
         ~title="Total Amount Disputed",
         ~dataType=NumericType,
         ~showSort=false,
-        (),
       )
     | TotalDisputeLostAmount =>
       Table.makeHeaderInfo(
@@ -73,9 +72,8 @@ let getUpdatedHeading = (
         ~title="Total Dispute Lost Amount",
         ~dataType=NumericType,
         ~showSort=false,
-        (),
       )
-    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false, ())
+    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false)
     }
   }
   getHeading
@@ -117,7 +115,6 @@ let disputeTableEntity = () =>
     ~allColumns=allDisputeColumns,
     ~getCell,
     ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
-    (),
   )
 
 let singleStateInitialValue = {
@@ -304,5 +301,4 @@ let chartEntity = tabKeys =>
       },
     ],
     ~moduleName="Dispute Analytics",
-    (),
   )

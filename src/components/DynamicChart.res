@@ -207,7 +207,6 @@ let makeEntity = (
   ~sortingColumnLegend: option<string>=?,
   ~jsonTransformer: option<(string, array<JSON.t>) => array<JSON.t>>=?,
   ~disableGranularity=?,
-  (),
 ) => {
   let granularity = granularity->Array.length === 0 ? [G_ONEDAY] : granularity
   let chartTypes = chartTypes->Array.length === 0 ? [Line] : chartTypes

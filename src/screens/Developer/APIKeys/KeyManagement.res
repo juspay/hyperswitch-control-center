@@ -345,7 +345,6 @@ module ApiKeysTable = {
       ~getHeading,
       ~dataKey="data",
       ~getCell,
-      (),
     )
 
     <PageLoaderWrapper screenState>

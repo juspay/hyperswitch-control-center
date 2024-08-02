@@ -31,6 +31,5 @@ let connectorEntity = (path: string, ~permission: CommonAuthTypes.authorization)
           ~permission,
         )
     },
-    (),
   )
 }

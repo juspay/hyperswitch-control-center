@@ -40,16 +40,15 @@ let getUpdatedHeading = (
     let key = colType->colMapper
     switch colType {
     | SuccessRate =>
-      Table.makeHeaderInfo(~key, ~title="Success Rate", ~dataType=NumericType, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Success Rate", ~dataType=NumericType, ~showSort=false)
     | Count =>
-      Table.makeHeaderInfo(~key, ~title="Refund Count", ~dataType=NumericType, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Refund Count", ~dataType=NumericType, ~showSort=false)
     | SuccessCount =>
       Table.makeHeaderInfo(
         ~key,
         ~title="Refund Success Count",
         ~dataType=NumericType,
         ~showSort=false,
-        (),
       )
     | ProcessedAmount =>
       Table.makeHeaderInfo(
@@ -57,17 +56,15 @@ let getUpdatedHeading = (
         ~title="Refund Processed Amount",
         ~dataType=NumericType,
         ~showSort=false,
-        (),
       )
     | Connector =>
-      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=DropDown, ~showSort=false, ())
-    | Currency =>
-      Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=DropDown, ~showSort=false)
+    | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=DropDown, ~showSort=false)
     | RefundMethod =>
-      Table.makeHeaderInfo(~key, ~title="RefundMethod", ~dataType=DropDown, ~showSort=false, ())
-    | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="RefundMethod", ~dataType=DropDown, ~showSort=false)
+    | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown, ~showSort=false)
 
-    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false, ())
+    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false)
     }
   }
   getHeading
@@ -112,7 +109,6 @@ let refundTableEntity = () =>
     ~allColumns=allRefundColumns,
     ~getCell,
     ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
-    (),
   )
 
 let singleStateInitialValue = {
@@ -382,5 +378,4 @@ let chartEntity = tabKeys =>
       },
     ],
     ~moduleName="Refunds Analytics",
-    (),
   )

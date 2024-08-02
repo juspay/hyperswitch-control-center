@@ -163,7 +163,6 @@ let makeHeaderInfo = (
   ~showMultiSelectCheckBox=?,
   ~hideOnShrink=?,
   ~customWidth=?,
-  (),
 ) => {
   {
     key,

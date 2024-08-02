@@ -116,24 +116,17 @@ let getUpdatedHeading = (
     let key = colType->colMapper
     switch colType {
     | SuccessRate =>
-      Table.makeHeaderInfo(~key, ~title="Success Rate", ~dataType=NumericType, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Success Rate", ~dataType=NumericType, ~showSort=false)
     | WeeklySuccessRate =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Current Week S.R",
-        ~dataType=NumericType,
-        ~showSort=false,
-        (),
-      )
+      Table.makeHeaderInfo(~key, ~title="Current Week S.R", ~dataType=NumericType, ~showSort=false)
     | Count =>
-      Table.makeHeaderInfo(~key, ~title="Payment Count", ~dataType=NumericType, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Payment Count", ~dataType=NumericType, ~showSort=false)
     | SuccessCount =>
       Table.makeHeaderInfo(
         ~key,
         ~title="Payment Success Count",
         ~dataType=NumericType,
         ~showSort=false,
-        (),
       )
     | ProcessedAmount =>
       Table.makeHeaderInfo(
@@ -141,53 +134,27 @@ let getUpdatedHeading = (
         ~title="Payment Processed Amount",
         ~dataType=NumericType,
         ~showSort=false,
-        (),
       )
     | PaymentErrorMessage =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Top 5 Error Reasons",
-        ~dataType=TextType,
-        ~showSort=false,
-        (),
-      )
+      Table.makeHeaderInfo(~key, ~title="Top 5 Error Reasons", ~dataType=TextType, ~showSort=false)
     | AvgTicketSize =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Avg Ticket Size",
-        ~dataType=NumericType,
-        ~showSort=false,
-        (),
-      )
+      Table.makeHeaderInfo(~key, ~title="Avg Ticket Size", ~dataType=NumericType, ~showSort=false)
     | Connector =>
-      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=DropDown, ~showSort=false, ())
-    | Currency =>
-      Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=DropDown, ~showSort=false)
+    | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=DropDown, ~showSort=false)
     | PaymentMethod =>
-      Table.makeHeaderInfo(~key, ~title="Payment Method", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Payment Method", ~dataType=DropDown, ~showSort=false)
     | PaymentMethodType =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Payment Method Type",
-        ~dataType=DropDown,
-        ~showSort=false,
-        (),
-      )
+      Table.makeHeaderInfo(~key, ~title="Payment Method Type", ~dataType=DropDown, ~showSort=false)
     | AuthType =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Authentication Type",
-        ~dataType=DropDown,
-        ~showSort=false,
-        (),
-      )
-    | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Authentication Type", ~dataType=DropDown, ~showSort=false)
+    | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown, ~showSort=false)
     | ClientSource =>
-      Table.makeHeaderInfo(~key, ~title="Client Source", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Client Source", ~dataType=DropDown, ~showSort=false)
     | ClientVersion =>
-      Table.makeHeaderInfo(~key, ~title="Client Version", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Client Version", ~dataType=DropDown, ~showSort=false)
 
-    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false, ())
+    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false)
     }
   }
   getHeading
@@ -240,7 +207,6 @@ let paymentTableEntity = () =>
     ~allColumns=allPaymentColumns,
     ~getCell,
     ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
-    (),
   )
 
 let singleStateInitialValue = {
@@ -623,5 +589,4 @@ let chartEntity = tabKeys =>
     ],
     ~moduleName="Payment Analytics",
     ~enableLoaders=true,
-    (),
   )

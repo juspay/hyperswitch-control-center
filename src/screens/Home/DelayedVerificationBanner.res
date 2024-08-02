@@ -8,7 +8,7 @@ let make = (~merchantId="", ~verificationDays) => {
   let showPopUp = PopUpState.useShowPopUp()
   let getURL = useGetURL()
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
 
   let verificationMessage = `${verificationDays->Int.toString} ${verificationDays === 1
       ? "day"

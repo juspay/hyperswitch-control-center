@@ -17,8 +17,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (email, setEmail) = React.useState(_ => "")
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
-  let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ())
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
+  let domain = HyperSwitchEntryUtils.getSessionData(~key="domain")
 
   let {
     isMagicLinkEnabled,

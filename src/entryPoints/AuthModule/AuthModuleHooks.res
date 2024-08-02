@@ -25,7 +25,7 @@ let useAuthMethods = (): authMethodProps => {
 
   let fetchAuthMethods = React.useCallback(async () => {
     try {
-      let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+      let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
       let authListUrl = getURL(
         ~entityName=USERS,
         ~userType=#GET_AUTH_LIST,
@@ -132,7 +132,7 @@ let useAuthMethods = (): authMethodProps => {
 let useNote = (authType, setAuthType, ()) => {
   open CommonAuthTypes
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
 
   let {isMagicLinkEnabled, isPasswordEnabled} = useAuthMethods()
 

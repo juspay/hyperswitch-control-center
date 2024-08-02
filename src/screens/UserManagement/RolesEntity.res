@@ -25,9 +25,9 @@ let itemToObjMapperForRoles = dict => {
 
 let getHeadingForRoles = (colType: rolesColTypes) => {
   switch colType {
-  | RoleName => Table.makeHeaderInfo(~key="role_name", ~title="Role name", ~showSort=true, ())
-  | RoleScope => Table.makeHeaderInfo(~key="role_scope", ~title="Role scope", ~showSort=true, ())
-  | ModulePermissions => Table.makeHeaderInfo(~key="groups", ~title="Module permissions", ())
+  | RoleName => Table.makeHeaderInfo(~key="role_name", ~title="Role name", ~showSort=true)
+  | RoleScope => Table.makeHeaderInfo(~key="role_scope", ~title="Role scope", ~showSort=true)
+  | ModulePermissions => Table.makeHeaderInfo(~key="groups", ~title="Module permissions")
   }
 }
 
@@ -61,5 +61,4 @@ let rolesEntity = EntityType.makeEntity(
   ~getHeading=getHeadingForRoles,
   ~getCell=getCellForRoles,
   ~dataKey="",
-  (),
 )
