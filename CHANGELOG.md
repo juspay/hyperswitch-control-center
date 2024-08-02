@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.08.02.0
+
+### Bug Fixes
+
+- Apple pay extra step for stripe ([#1098](https://github.com/juspay/hyperswitch-control-center/pull/1098)) ([`b9d2ce7`](https://github.com/juspay/hyperswitch-control-center/commit/b9d2ce72589ee8359c8090f928e2f05c66d2a1d8))
+
+**Full Changelog:** [`2024.07.30.0...2024.08.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.07.30.0...2024.08.02.0)
+
+- - -
+
 ## 2024.07.30.0
 
 ### Miscellaneous Tasks
