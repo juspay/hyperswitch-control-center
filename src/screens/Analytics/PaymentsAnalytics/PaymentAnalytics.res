@@ -241,49 +241,50 @@ let make = () => {
         topFilterUi
       </div>
       <div className="flex flex-col gap-14">
-        <MetricsState
-          heading="Payments Overview"
-          singleStatEntity={getSingleStatEntity(
-            generalMetrics->formatMetrics,
-            generalMetricsColumns,
-          )}
-          filterKeys=tabKeys
-          startTimeFilterKey
-          endTimeFilterKey
-          moduleName="general_metrics"
-        />
-        <MetricsState
-          heading="Amount Metrics"
-          singleStatEntity={getSingleStatEntity(
-            analyticsAmountMetrics->formatMetrics,
-            amountMetricsColumns,
-          )}
-          filterKeys=tabKeys
-          startTimeFilterKey
-          endTimeFilterKey
-          moduleName="payments_analytics_amount"
-          formaPayload
-        />
-        <SmartRetryAnalytics filterKeys=tabKeys moduleName="payments_smart_retries" />
-        <OverallSummary
-          filteredTabVales=tabValues
-          moduleName="overall_summary"
-          filteredTabKeys={tabKeys}
-          chartEntity={chartEntity(tabKeys)}
-          defaultSort="total_volume"
-          getTable={getPaymentTable}
-          colMapper
-          distributionArray={[distribution]->Some}
-          tableEntity={paymentTableEntity()->Some}
-          deltaMetrics={getStringListFromArrayDict(metrics)}
-          deltaArray=[]
-          tableGlobalFilter=filterByData
-          weeklyTableMetricsCols
-          formatData={formatData->Some}
-          startTimeFilterKey
-          endTimeFilterKey
-          heading="Payments Trends"
-        />
+        // <MetricsState
+        //   heading="Payments Overview"
+        //   singleStatEntity={getSingleStatEntity(
+        //     generalMetrics->formatMetrics,
+        //     generalMetricsColumns,
+        //   )}
+        //   filterKeys=tabKeys
+        //   startTimeFilterKey
+        //   endTimeFilterKey
+        //   moduleName="general_metrics"
+        // />
+        // <MetricsState
+        //   heading="Amount Metrics"
+        //   singleStatEntity={getSingleStatEntity(
+        //     analyticsAmountMetrics->formatMetrics,
+        //     amountMetricsColumns,
+        //   )}
+        //   filterKeys=tabKeys
+        //   startTimeFilterKey
+        //   endTimeFilterKey
+        //   moduleName="payments_analytics_amount"
+        //   formaPayload
+        // />
+        // <SmartRetryAnalytics filterKeys=tabKeys moduleName="payments_smart_retries" />
+        // <OverallSummary
+        //   filteredTabVales=tabValues
+        //   moduleName="overall_summary"
+        //   filteredTabKeys={tabKeys}
+        //   chartEntity={chartEntity(tabKeys)}
+        //   defaultSort="total_volume"
+        //   getTable={getPaymentTable}
+        //   colMapper
+        //   distributionArray={[distribution]->Some}
+        //   tableEntity={paymentTableEntity()->Some}
+        //   deltaMetrics={getStringListFromArrayDict(metrics)}
+        //   deltaArray=[]
+        //   tableGlobalFilter=filterByData
+        //   weeklyTableMetricsCols
+        //   formatData={formatData->Some}
+        //   startTimeFilterKey
+        //   endTimeFilterKey
+        //   heading="Payments Trends"
+        // />
+        <PerformanceMonitor />
       </div>
     </div>
   </PageLoaderWrapper>

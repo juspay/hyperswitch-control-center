@@ -178,28 +178,24 @@ let defaultPaymentColumns = [
 ]
 
 let allPaymentColumns = [SuccessRate, WeeklySuccessRate, Count, SuccessCount, PaymentErrorMessage]
-type paymentsSingleState = {
+type commonMetrics = {
   payment_success_rate: float,
   payment_count: int,
   payment_success_count: int,
   retries_count: int,
-  currency: string,
   retries_amount_processe: float,
   connector_success_rate: float,
   payment_processed_amount: float,
   payment_avg_ticket_size: float,
 }
+type paymentsSingleState = {
+  ...commonMetrics,
+  currency: string,
+}
 
 type paymentsSingleStateSeries = {
-  payment_success_rate: float,
-  payment_count: int,
-  retries_count: int,
-  retries_amount_processe: float,
-  connector_success_rate: float,
-  payment_success_count: int,
+  ...commonMetrics,
   time_series: string,
-  payment_processed_amount: float,
-  payment_avg_ticket_size: float,
 }
 
 type error_message_type = {
@@ -269,4 +265,10 @@ type nestedEntityType = {
   userPieChart?: DynamicChart.entity,
   userBarChart?: DynamicChart.entity,
   userFunnelChart?: DynamicChart.entity,
+}
+type paymentStatus = [#failure | #charged]
+type paymentDistribution = {
+  payment_count: int,
+  status: string,
+  connector: string,
 }
