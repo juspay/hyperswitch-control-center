@@ -160,7 +160,7 @@ let make = (
       />}
     />
     <RenderIf condition={featureFlagDetails.isLiveMode && featureFlagDetails.complianceCertificate}>
-      {switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+      {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE) =>
         <>
           <hr className="w-full" />
