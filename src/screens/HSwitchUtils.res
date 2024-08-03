@@ -40,11 +40,10 @@ module BackgroundImageWrapper = {
     <RenderIf condition={children->Option.isSome}>
       <div
         className={`bg-no-repeat bg-center bg-hyperswitch_dark_bg bg-fixed ${customPageCss} ${heightWidthCss}`}
-        style={ReactDOMStyle.make(
-          ~backgroundImage=`url(${backgroundImageUrl})`,
-          ~backgroundSize=`cover`,
-          (),
-        )}>
+        style={
+          backgroundImage: `url(${backgroundImageUrl})`,
+          backgroundSize: `cover`,
+        }>
         {children->Option.getOr(React.null)}
       </div>
     </RenderIf>

@@ -13,6 +13,6 @@ let make = (~styleClass="w-96 h-96", ~shimmerType: shimmerType=Small) => {
 
   <div
     className={`${shimmerClass}  border border-solid border-[#ccd2e259] dark:border-[#2e2f3980] dark:bg-black bg-white ${styleClass}`}
-    style={ReactDOMStyle.make(~background, ())}
+    style={background: background}
   />
 }

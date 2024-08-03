@@ -807,13 +807,12 @@ let getTabsForIntegration = (
                 className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
                 <img
                   alt="wordpress"
-                  style={ReactDOMStyle.make(
-                    ~height="400px",
-                    ~width="100%",
-                    ~objectFit="cover",
-                    ~objectPosition="0% 12%",
-                    (),
-                  )}
+                  style={
+                    height: "400px",
+                    width: "100%",
+                    objectFit: "cover",
+                    objectPosition: "0% 12%",
+                  }
                   src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
                 />
               </div>
@@ -832,13 +831,12 @@ let getTabsForIntegration = (
                 className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
                 <img
                   alt="wordpress-settings"
-                  style={ReactDOMStyle.make(
-                    ~height="120px",
-                    ~width="100%",
-                    ~objectFit="cover",
-                    ~objectPosition="0% 52%",
-                    (),
-                  )}
+                  style={
+                    height: "120px",
+                    width: "100%",
+                    objectFit: "cover",
+                    objectPosition: "0% 52%",
+                  }
                   src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
                 />
               </div>
@@ -849,13 +847,12 @@ let getTabsForIntegration = (
                 className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
                 <img
                   alt="wordpress-settings"
-                  style={ReactDOMStyle.make(
-                    ~height="120px",
-                    ~width="100%",
-                    ~objectFit="cover",
-                    ~objectPosition="0% 100%",
-                    (),
-                  )}
+                  style={
+                    height: "120px",
+                    width: "100%",
+                    objectFit: "cover",
+                    objectPosition: "0% 100%",
+                  }
                   src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
                 />
               </div>

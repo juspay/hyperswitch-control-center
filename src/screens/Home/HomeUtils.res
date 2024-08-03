@@ -125,8 +125,7 @@ module MerchantAuthInfo = {
           <div className="font-semibold text-dark_black"> {"Publishable Key"->React.string} </div>
           <div className="flex items-center">
             <div
-              className="font-medium text-dark_black opacity-40"
-              style={ReactDOMStyle.make(~overflowWrap="anywhere", ())}>
+              className="font-medium text-dark_black opacity-40" style={overflowWrap: "anywhere"}>
               {merchantDetailsValue.publishable_key->React.string}
             </div>
             <CopyFieldValue fieldkey="publishable_key" />

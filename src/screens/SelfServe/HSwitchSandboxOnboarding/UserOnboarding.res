@@ -153,10 +153,9 @@ let make = () => {
 
   <div
     className="h-screen w-full bg-no-repeat bg-cover "
-    style={ReactDOMStyle.make(
-      ~backgroundImage=`url(/images/hyperswitchImages/PostLoginBackground.svg)`,
-      (),
-    )}>
+    style={
+      backgroundImage: `url(/images/hyperswitchImages/PostLoginBackground.svg)`,
+    }>
     <div
       className="h-screen w-screen  md:w-pageWidth11 md:mx-auto overflow-hidden grid grid-cols-1 md:grid-cols-[12rem,1fr,18rem] md:grid-rows-[4rem,1fr] py-10 px-4 gap-x-2 gap-y-8 grid-flow-row md:grid-flow-row">
       <div className="justify-self-center md:justify-self-start row-span-1">

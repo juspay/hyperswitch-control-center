@@ -317,7 +317,7 @@ module Wrapper = {
         {actions}
       </div>
       <div
-        style={ReactDOMStyle.make(~marginTop="-17px", ())}
+        style={marginTop: "-17px"}
         className={`flex 
         ${flex} 
             p-4 py-6 bg-gray-50 dark:bg-jp-gray-lightgray_background rounded-md border 

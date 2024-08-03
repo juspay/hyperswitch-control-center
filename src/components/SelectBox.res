@@ -804,7 +804,7 @@ module BaseSelect = {
           {if !hideBorder {
             <div
               className="my-2 bg-jp-gray-lightmode_steelgray dark:bg-jp-gray-960  "
-              style={ReactDOMStyle.make(~height="1px", ())}
+              style={height: "1px"}
             />
           } else {
             React.null

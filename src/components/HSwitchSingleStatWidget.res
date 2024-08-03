@@ -110,15 +110,12 @@ let make = (
   ]
 
   if singleStatLoading && loaderType === Shimmer {
-    <div
-      className={`p-4`}
-      style={ReactDOMStyle.make(~width=fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%", ())}>
+    <div className={`p-4`} style={width: fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%"}>
       <Shimmer styleClass="w-full h-28" />
     </div>
   } else {
     <div
-      className="h-full mt-4"
-      style={ReactDOMStyle.make(~width=fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%", ())}>
+      className="h-full mt-4" style={width: fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%"}>
       <div
         className={`h-full flex flex-col border ${borderRounded} dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox p-2 md:mr-4`}>
         <div className="p-4 flex flex-col justify-between h-full gap-auto">

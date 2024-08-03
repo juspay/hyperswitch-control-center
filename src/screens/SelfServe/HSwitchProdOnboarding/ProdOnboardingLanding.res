@@ -89,10 +89,7 @@ module ProgressBar = {
   let make = (~progressState) => {
     let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
     <div className={`${backgroundColor} bg-opacity-20 h-1.5 w-full`}>
-      <div
-        className={`h-full ${backgroundColor}`}
-        style={ReactDOMStyle.make(~width=`${progressState}%`, ())}
-      />
+      <div className={`h-full ${backgroundColor}`} style={width: `${progressState}%`} />
     </div>
   }
 }

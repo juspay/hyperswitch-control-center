@@ -82,7 +82,7 @@ let make = (
 
   <div
     className={`overflow ${scrollBarClass} ${tableClass}`} //replaced "overflow-auto" -> to be tested with master
-    style={ReactDOMStyle.make(~minHeight={filterPresent ? "30rem" : ""}, ())}>
+    style={minHeight: {filterPresent ? "30rem" : ""}}>
     <AddDataAttributes attributes=[("data-expandable-table", title)]>
       <table className={`table-auto ${widthClass} h-full ${borderClass}`} colSpan=0>
         <RenderIf condition={heading->Array.length !== 0 && !isMobileView}>

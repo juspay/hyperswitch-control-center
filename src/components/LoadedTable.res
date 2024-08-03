@@ -925,7 +925,7 @@ let make = (
   let dataId = title->String.split("-")->Array.get(0)->Option.getOr("")
   <AddDataAttributes attributes=[("data-loaded-table", dataId)]>
     <div className="w-full">
-      <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>
+      <div className=addDataAttributesClass style={zIndex: "2"}>
         //removed "sticky" -> to be tested with master
         <div
           className={`flex flex-row justify-between items-center` ++ (

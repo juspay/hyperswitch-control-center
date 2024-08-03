@@ -16,7 +16,7 @@ module Render = {
               <img
                 alt="stripe-api-key"
                 className="m-4 border rounded-lg border-gray-200"
-                style={ReactDOMStyle.make(~maxWidth="94%", ())}
+                style={maxWidth: "94%"}
                 src={`/icons/stripe_apikey.png`}
               />
             </a>
@@ -60,7 +60,7 @@ module Render = {
           <img
             alt="stripe-helper"
             className="m-4 border rounded-lg border-gray-200"
-            style={ReactDOMStyle.make(~maxWidth="94%", ())}
+            style={maxWidth: "94%"}
             src={`/icons/stripe_helper.png`}
           />
         </a>
@@ -154,7 +154,7 @@ module Render = {
               <img
                 alt="paypal-api-key"
                 className="m-4 border rounded-lg border-gray-200"
-                style={ReactDOMStyle.make(~maxWidth="94%", ())}
+                style={maxWidth: "94%"}
                 src={`/icons/paypal_apikey.png`}
               />
             </a>

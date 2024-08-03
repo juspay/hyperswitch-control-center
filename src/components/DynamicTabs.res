@@ -124,7 +124,7 @@ module TabInfo = {
             )
           }
         }}
-        style={ReactDOMStyle.make(~marginLeft="15px", ())}
+        style={marginLeft: "15px"}
         height="10"
         width="10"
         fill="none"
@@ -586,9 +586,7 @@ let make = (
             />
           </RenderIf>
           <RenderIf condition={showAddMoreTabs && formattedOptions->Array.length > 0}>
-            <div
-              className="flex flex-row"
-              style={ReactDOMStyle.make(~marginTop="20px", ~marginLeft="7px", ())}>
+            <div className="flex flex-row" style={marginTop: "20px", marginLeft: "7px"}>
               <ToolTip
                 description=toolTipDescription
                 toolTipFor={<Button

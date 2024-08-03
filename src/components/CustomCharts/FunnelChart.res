@@ -110,14 +110,13 @@ let make = (
                 <div
                   key={`${i->Float.toString}funnelStage`}
                   className="flex hover:cursor-pointer transition ease-in-out hover:scale-110 duration-300"
-                  style={ReactDOMStyle.make(
-                    ~borderTop,
-                    ~borderLeft=borderX,
-                    ~borderRight=borderX,
-                    ~width,
-                    ~marginBottom,
-                    (),
-                  )}
+                  style={
+                    borderTop,
+                    borderLeft: borderX,
+                    borderRight: borderX,
+                    width,
+                    marginBottom,
+                  }
                   onMouseOver={_ => setHoverIndex(_ => i)}
                   onMouseOut={_ => setHoverIndex(_ => -1.)}
                 />
@@ -147,7 +146,7 @@ let make = (
                   <div
                     key={`${i->Int.toString}funnelStageVol`}
                     className={`flex flex-row gap-4 h-full items-center w-max`}
-                    style={ReactDOMStyle.make(~marginBottom, ~paddingTop, ())}>
+                    style={marginBottom, paddingTop}>
                     <div
                       className={`flex font-semibold text-xl ${metricVal <= 0.
                           ? "text-red-400"
@@ -173,7 +172,7 @@ let make = (
                 <div
                   key={`${i->Int.toString}funnelStageDesc`}
                   className={`flex flex-row gap-4 h-full items-center w-max `}
-                  style={ReactDOMStyle.make(~marginBottom, ~paddingTop, ())}>
+                  style={marginBottom, paddingTop}>
                   <div
                     className={`transition ease-in-out duration-300 font-medium text-base ${hoverIndex ===
                         i->Float.fromInt
