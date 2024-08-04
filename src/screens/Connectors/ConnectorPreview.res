@@ -112,7 +112,7 @@ module MenuOption = {
                   text="Update"
                   onClick={_ => {
                     panelProps["close"]()
-                    mixpanelEvent(~eventName=`processor_update_${connector}`, ())
+                    mixpanelEvent(~eventName=`processor_update_${connector}`)
                     setCurrentStep(_ => updateStepValue)
                   }}
                 />
@@ -298,7 +298,7 @@ let make = (
   let connectorCount =
     HyperswitchAtom.connectorListAtom
     ->Recoil.useRecoilValueFromAtom
-    ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer, ())
+    ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
     ->Array.length
   let isFeedbackModalToBeOpen =
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
@@ -380,7 +380,7 @@ let make = (
           | _ =>
             <Button
               onClick={_ => {
-                mixpanelEvent(~eventName=mixpanelEventName, ())
+                mixpanelEvent(~eventName=mixpanelEventName)
                 if isFeedbackModalToBeOpen {
                   setShowFeedbackModal(_ => true)
                 }

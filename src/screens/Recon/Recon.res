@@ -113,7 +113,7 @@ let make = () => {
                   buttonSize={Small}
                   buttonState={Normal}
                   onClick={_v => {
-                    mixpanelEvent(~eventName="recon_send_an_email", ())
+                    mixpanelEvent(~eventName="recon_send_an_email")
                     onClickForReconRequest()->ignore
                   }}
                 />

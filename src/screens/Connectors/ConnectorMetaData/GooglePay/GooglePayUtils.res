@@ -103,7 +103,7 @@ let googlePayValueInput = (~googlePayField: CommonMetaDataTypes.inputField) => {
   {
     switch \"type" {
     | Text => textInput(~field={googlePayField}, ~formName)
-    | Select => selectInput(~field={googlePayField}, ~formName, ())
+    | Select => selectInput(~field={googlePayField}, ~formName)
     | MultiSelect => multiSelectInput(~field={googlePayField}, ~formName)
     | _ => textInput(~field={googlePayField}, ~formName)
     }

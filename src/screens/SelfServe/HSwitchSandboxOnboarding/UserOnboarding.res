@@ -115,7 +115,6 @@ let make = () => {
         ~integrationDetails,
         ~is_done=false,
         ~metadata=metaDataDict,
-        (),
       )
       let _ = await updateDetails(url, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
@@ -139,7 +138,6 @@ let make = () => {
             currentRoute->UserOnboardingUtils.variantToTextMapperForBuildHS->JSON.Encode.string,
           ),
         ]->LogicUtils.getJsonFromArrayOfJson,
-        (),
       )
       let _ = await updateDetails(url, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)

@@ -96,7 +96,7 @@ module SelectPaymentMethods = {
         response->LogicUtils.getDictFromJsonObject->updateEnumForConnector->ignore
         setConnectorConfigureState(_ => Summary)
         showToast(
-          ~message=`${connectorName->LogicUtils.getFirstLetterCaps()} connected successfully!`,
+          ~message=`${connectorName->LogicUtils.getFirstLetterCaps} connected successfully!`,
           ~toastType=ToastSuccess,
         )
         setButtonState(_ => Button.Normal)

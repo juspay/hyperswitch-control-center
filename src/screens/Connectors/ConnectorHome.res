@@ -111,11 +111,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         }
       }
 
-      let paypalBody = generatePayPalBody(
-        ~connectorId={connectorID},
-        ~profileId=Some(profileId),
-        (),
-      )
+      let paypalBody = generatePayPalBody(~connectorId={connectorID}, ~profileId=Some(profileId))
       let url = getURL(~entityName=PAYPAL_ONBOARDING_SYNC, ~methodType=Post)
       let responseValue = await updateDetails(url, paypalBody, Post)
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")

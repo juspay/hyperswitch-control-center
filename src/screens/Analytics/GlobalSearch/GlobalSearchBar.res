@@ -220,7 +220,7 @@ let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let redirectOnSelect = element => {
-    mixpanelEvent(~eventName="global_search_redirect", ())
+    mixpanelEvent(~eventName="global_search_redirect")
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)

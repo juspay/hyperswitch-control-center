@@ -14,7 +14,7 @@ module NewProcessorCards = {
     )
 
     let handleClick = frmName => {
-      mixpanelEvent(~eventName=`connect_frm_${frmName}`, ())
+      mixpanelEvent(~eventName=`connect_frm_${frmName}`)
       RescriptReactRouter.push(
         GlobalVars.appendDashboardPath(~url=`/fraud-risk-management/new?name=${frmName}`),
       )
@@ -110,10 +110,10 @@ let make = () => {
       let processorsList = json->getArrayFromJson([])->Array.map(getDictFromJsonObject)
 
       let connectorsCount =
-        processorsList->FRMUtils.filterList(~removeFromList=FRMPlayer, ())->Array.length
+        processorsList->FRMUtils.filterList(~removeFromList=FRMPlayer)->Array.length
 
       if connectorsCount > 0 {
-        let frmList = processorsList->FRMUtils.filterList(~removeFromList=Connector, ())
+        let frmList = processorsList->FRMUtils.filterList(~removeFromList=Connector)
         let previousData = frmList->Array.map(ConnectorListMapper.getProcessorPayloadType)
         setFilteredFRMData(_ => previousData->Array.map(Nullable.make))
         setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))

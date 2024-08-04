@@ -108,7 +108,7 @@ module ApiEditModal = {
             initialValues={initialValues->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToPristine
             validate={values =>
-              validateAPIKeyForm(values, ["name", "expiration"], ~setShowCustomDate, ())}
+              validateAPIKeyForm(values, ["name", "expiration"], ~setShowCustomDate)}
             onSubmit
             render={({handleSubmit}) => {
               <LabelVisibilityContext showLabel=false>
@@ -195,7 +195,7 @@ module ApiKeyAddBtn = {
         buttonType=Secondary
         buttonSize=Small
         onClick={_ => {
-          mixpanelEvent(~eventName="create_new_api_key", ())
+          mixpanelEvent(~eventName="create_new_api_key")
           setShowModal(_ => true)
         }}
       />
@@ -326,7 +326,7 @@ module ApiKeysTable = {
       | Created => Date(item.created)
       | Expiration =>
         if item.expiration == Never {
-          Text(item.expiration_date->LogicUtils.getFirstLetterCaps())
+          Text(item.expiration_date->LogicUtils.getFirstLetterCaps)
         } else {
           Date(item.expiration_date)
         }

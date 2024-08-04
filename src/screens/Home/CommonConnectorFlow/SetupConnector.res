@@ -34,7 +34,7 @@ module SelectProcessor = {
         text="Proceed"
         onClick={_ => {
           setConnectorConfigureState(_ => Select_configuration_type)
-          mixpanelEvent(~eventName=`quickstart_select_processor`, ())
+          mixpanelEvent(~eventName=`quickstart_select_processor`)
           RescriptReactRouter.replace(`/${basePath}?name=${connectorName}`)
         }}
         buttonSize=Small
@@ -101,10 +101,9 @@ module ConfigureProcessor = {
         ~bodyType,
         ~isPayoutFlow=false,
         ~isLiveMode={featureFlagDetails.isLiveMode},
-        (),
       )
       setInitialValues(_ => body)
-      mixpanelEvent(~eventName=`quickstart_connector_configuration`, ())
+      mixpanelEvent(~eventName=`quickstart_connector_configuration`)
       setConnectorConfigureState(_ => Setup_payment_methods)
       Nullable.null
     }
@@ -232,11 +231,11 @@ module SelectPaymentMethods = {
         response->LogicUtils.getDictFromJsonObject->updateEnumForConnector->ignore
         setConnectorConfigureState(_ => Summary)
         showToast(
-          ~message=`${connectorName->LogicUtils.getFirstLetterCaps()} connected successfully!`,
+          ~message=`${connectorName->LogicUtils.getFirstLetterCaps} connected successfully!`,
           ~toastType=ToastSuccess,
         )
         setButtonState(_ => Button.Normal)
-        mixpanelEvent(~eventName=`quickstart_connector_payment_methods`, ())
+        mixpanelEvent(~eventName=`quickstart_connector_payment_methods`)
       } catch {
       | _ => setButtonState(_ => Button.Normal)
       }

@@ -158,9 +158,9 @@ let make = (
                             if options->Array.length > 1 {
                               let filterInput: ReactFinalForm.fieldRenderPropsInput = {
                                 name: "filterInput",
-                                onBlur: _ev => (),
+                                onBlur: _ => (),
                                 onChange: ev => handleUpdateFilterObj(ev, i),
-                                onFocus: _ev => (),
+                                onFocus: _ => (),
                                 value: selected->Array.map(JSON.Encode.string)->JSON.Encode.array,
                                 checked: true,
                               }

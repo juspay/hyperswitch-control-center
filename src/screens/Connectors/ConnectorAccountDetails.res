@@ -117,7 +117,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         ~bodyType,
         ~isPayoutFlow,
         ~isLiveMode={featureFlagDetails.isLiveMode},
-        (),
       )
       setScreenState(_ => Loading)
       setCurrentStep(_ => PaymentMethods)
@@ -161,7 +160,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
           ~bodyType,
           ~isPayoutFlow,
           ~isLiveMode={featureFlagDetails.isLiveMode},
-          (),
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connector))
@@ -224,7 +222,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
     <Form
       initialValues={updatedInitialVal}
       onSubmit={(values, _) => {
-        mixpanelEvent(~eventName=mixpanelEventName, ())
+        mixpanelEvent(~eventName=mixpanelEventName)
         onSubmit(
           ~values,
           ~onSubmitVerify,

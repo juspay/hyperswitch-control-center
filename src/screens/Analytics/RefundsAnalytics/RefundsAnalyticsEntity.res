@@ -72,7 +72,7 @@ let getUpdatedHeading = (
 
 let getCell = (refundTable: refundTableType, colType: refundColType): Table.cell => {
   let usaNumberAbbreviation = labelValue => {
-    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat(), ())
+    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
   }
 
   let percentFormat = value => {
@@ -144,11 +144,11 @@ let singleStateSeriesItemToObjMapper = json => {
   json
   ->JSON.Decode.object
   ->Option.map(dict => {
-    refund_success_rate: dict->getFloat("refund_success_rate", 0.0)->setPrecision(),
+    refund_success_rate: dict->getFloat("refund_success_rate", 0.0)->setPrecision,
     refund_count: dict->getInt("refund_count", 0),
     refund_success_count: dict->getInt("refund_success_count", 0),
     time_series: dict->getString("time_bucket", ""),
-    refund_processed_amount: dict->getFloat("refund_processed_amount", 0.0)->setPrecision(),
+    refund_processed_amount: dict->getFloat("refund_processed_amount", 0.0)->setPrecision,
   })
   ->Option.getOr({
     singleStateSeriesInitialValue
@@ -246,7 +246,7 @@ let getStatData = (
 ) => {
   switch colType {
   | SuccessRate => {
-      title: `${domain->LogicUtils.getFirstLetterCaps()} Success Rate`,
+      title: `${domain->LogicUtils.getFirstLetterCaps} Success Rate`,
       tooltipText: "Successful refund over total refund initiated",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.refund_success_rate,

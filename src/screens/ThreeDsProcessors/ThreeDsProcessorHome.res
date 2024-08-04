@@ -150,7 +150,6 @@ let make = () => {
           ~isPayoutFlow=false,
           ~isLiveMode={false},
           ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
-          (),
         )->ignoreFields(connectorID, connectorIgnoredField)
       let connectorUrl = getURL(
         ~entityName=CONNECTOR,

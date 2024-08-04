@@ -151,11 +151,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let updateSetupConnectorCredentials = async connectorId => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post)
-      let body = ProdOnboardingUtils.getProdApiBody(
-        ~parentVariant=#SetupProcessor,
-        ~connectorId,
-        (),
-      )
+      let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#SetupProcessor, ~connectorId)
       let _ = await updateDetails(url, body, Post)
       setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
     } catch {
@@ -199,7 +195,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         ~connector=connectorName,
         ~bodyType,
         ~isLiveMode={featureFlagDetails.isLiveMode},
-        (),
       )
 
       let body = requestPayload->constructConnectorRequestBody(payload)
@@ -261,7 +256,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           ~bodyType,
           ~isPayoutFlow=false,
           ~isLiveMode={featureFlagDetails.isLiveMode},
-          (),
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connectorName))

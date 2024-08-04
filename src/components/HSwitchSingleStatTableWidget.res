@@ -72,8 +72,8 @@ let statValue = (val, statType) => {
   | Amount => val->indianShortNum
   | Rate | NegativeRate => val->Js.Float.isNaN ? "-" : val->percentFormat
   | Volume => val->indianShortNum
-  | Latency => latencyShortNum(~labelValue=val, ())
-  | LatencyMs => latencyShortNum(~labelValue=val, ~includeMilliseconds=true, ())
+  | Latency => latencyShortNum(~labelValue=val)
+  | LatencyMs => latencyShortNum(~labelValue=val, ~includeMilliseconds=true)
   | Default => val->Float.toString
   }
 }

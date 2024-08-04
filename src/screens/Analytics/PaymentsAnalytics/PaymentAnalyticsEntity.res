@@ -162,7 +162,7 @@ let getUpdatedHeading = (
 
 let getCell = (paymentTable, colType): Table.cell => {
   let usaNumberAbbreviation = labelValue => {
-    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat(), ())
+    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
   }
 
   switch colType {
@@ -256,12 +256,12 @@ let singleStateSeriesItemToObjMapper = json => {
   json
   ->JSON.Decode.object
   ->Option.map(dict => {
-    payment_success_rate: dict->getFloat("payment_success_rate", 0.0)->setPrecision(),
+    payment_success_rate: dict->getFloat("payment_success_rate", 0.0)->setPrecision,
     payment_count: dict->getInt("payment_count", 0),
     payment_success_count: dict->getInt("payment_success_count", 0),
     time_series: dict->getString("time_bucket", ""),
-    payment_processed_amount: dict->getFloat("payment_processed_amount", 0.0)->setPrecision(),
-    payment_avg_ticket_size: dict->getFloat("avg_ticket_size", 0.0)->setPrecision(),
+    payment_processed_amount: dict->getFloat("payment_processed_amount", 0.0)->setPrecision,
+    payment_avg_ticket_size: dict->getFloat("avg_ticket_size", 0.0)->setPrecision,
     retries_count: dict->getInt("retries_count", 0),
     retries_amount_processe: dict->getFloat("retries_amount_processed", 0.0),
     connector_success_rate: dict->getFloat("connector_success_rate", 0.0),

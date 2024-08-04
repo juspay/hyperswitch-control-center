@@ -42,7 +42,6 @@ module DetailsSection = {
                   ~name=field.name,
                   ~placeholder=field.placeholder,
                   ~customInput=field.inputType,
-                  (),
                 )}
               />
             }}

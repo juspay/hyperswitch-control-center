@@ -31,9 +31,9 @@ let make = (
     } else if statType === "Volume" {
       value->indianShortNum
     } else if statType === "Latency" {
-      latencyShortNum(~labelValue=value, ())
+      latencyShortNum(~labelValue=value)
     } else if statType === "LatencyMs" {
-      latencyShortNum(~labelValue=value, ~includeMilliseconds=true, ())
+      latencyShortNum(~labelValue=value, ~includeMilliseconds=true)
     } else {
       value->Float.toString
     }

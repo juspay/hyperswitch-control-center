@@ -345,9 +345,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       ~customInput=InputFields.boolInput(
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg",
-                        (),
                       ),
-                      (),
                     )}
                   />
                   <FieldRenderer
@@ -359,9 +357,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       ~customInput=InputFields.boolInput(
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg",
-                        (),
                       ),
-                      (),
                     )}
                   />
                 </DesktopRow>

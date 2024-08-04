@@ -135,9 +135,9 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let logMixpanelEvents = email => {
     open CommonAuthTypes
     switch authType {
-    | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ~email, ())
-    | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ~email, ())
-    | SignUP => mixpanelEvent(~eventName=`signup_using_magic_link`, ~email, ())
+    | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ~email)
+    | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ~email)
+    | SignUP => mixpanelEvent(~eventName=`signup_using_magic_link`, ~email)
     | _ => ()
     }
   }
@@ -152,7 +152,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
       let _ = await (
         switch (signupMethod, signUpAllowed, isMagicLinkEnabled(), authType) {
         | (MAGIC_LINK, true, true, SignUP) => {
-            let body = getEmailBody(email, ~country, ())
+            let body = getEmailBody(email, ~country)
             getUserWithEmail(body)
           }
         | (PASSWORD, true, _, SignUP) => {
@@ -162,7 +162,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
           }
 
         | (_, _, true, LoginWithEmail) => {
-            let body = getEmailBody(email, ~country, ())
+            let body = getEmailBody(email, ~country)
             getUserWithEmail(body)
           }
 
@@ -174,7 +174,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         | (_, _, _, ResendVerifyEmail) => {
             let exists = checkAuthMethodExists([PASSWORD])
             if exists {
-              let body = email->getEmailBody()
+              let body = email->getEmailBody
               resendVerifyEmail(body)
             } else {
               Promise.make((resolve, _) => resolve(Nullable.null))
@@ -184,7 +184,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         | (_, _, _, ForgetPassword) => {
             let exists = checkAuthMethodExists([PASSWORD])
             if exists {
-              let body = email->getEmailBody()
+              let body = email->getEmailBody
 
               setForgetPassword(body)
             } else {
@@ -202,7 +202,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         | _ =>
           switch (featureFlagValues.email, authType) {
           | (true, ForgetPassword) =>
-            let body = email->getEmailBody()
+            let body = email->getEmailBody
 
             setForgetPassword(body)
           | _ => Promise.make((resolve, _) => resolve(Nullable.null))
@@ -217,7 +217,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
 
   let resendEmail = () => {
     open CommonAuthUtils
-    let body = email->getEmailBody()
+    let body = email->getEmailBody
     switch authType {
     | MagicLinkEmailSent => getUserWithEmail(body)->ignore
     | ForgetPasswordEmailSent => setForgetPassword(body)->ignore
@@ -251,7 +251,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     None
   }, [])
 
-  let note = AuthModuleHooks.useNote(authType, setAuthType, ())
+  let note = AuthModuleHooks.useNote(authType, setAuthType)
   <ReactFinalForm.Form
     key="auth"
     initialValues

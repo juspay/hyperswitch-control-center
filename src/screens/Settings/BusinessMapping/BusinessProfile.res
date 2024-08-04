@@ -73,7 +73,7 @@ module AddEntryBtn = {
               buttonType=Primary
               onClick={_ => {
                 if updatedProfileId->LogicUtils.isNonEmptyString {
-                  mixpanelEvent(~eventName="business_profiles_configure_payment_settings", ())
+                  mixpanelEvent(~eventName="business_profiles_configure_payment_settings")
                   RescriptReactRouter.replace(
                     GlobalVars.appendDashboardPath(~url=`/payment-settings/${updatedProfileId}`),
                   )
@@ -120,7 +120,7 @@ module AddEntryBtn = {
 let make = (
   ~isFromSettings=true,
   ~showModalFromOtherScreen=false,
-  ~setShowModalFromOtherScreen=_bool => (),
+  ~setShowModalFromOtherScreen=_ => (),
 ) => {
   open APIUtils
   open BusinessMappingUtils
@@ -163,7 +163,7 @@ let make = (
   }
 
   let onSubmit = async (values, _) => {
-    mixpanelEvent(~eventName="business_profiles_add", ())
+    mixpanelEvent(~eventName="business_profiles_add")
     updateMerchantDetails(values)->ignore
     Nullable.null
   }

@@ -183,7 +183,6 @@ let make = (
       let (hStartTime, hEndTime) = AnalyticsNewUtils.calculateHistoricTime(
         ~startTime=startTimeFromUrl,
         ~endTime=endTimeFromUrl,
-        (),
       )
 
       let filterConfigHistoric = {
@@ -257,7 +256,6 @@ let make = (
               ~filterValueFromUrl=?filterConfigHistoric.filterValues,
               ~customFilterValue=filterConfigHistoric.customFilterValue,
               ~domain=urlConfig.domain,
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStatHistoric")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
@@ -308,7 +306,6 @@ let make = (
               ~filterValueFromUrl=?filterConfigCurrent.filterValues,
               ~customFilterValue=filterConfigCurrent.customFilterValue,
               ~domain=urlConfig.domain,
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
@@ -358,7 +355,6 @@ let make = (
               ~customFilterValue=filterConfigCurrent.customFilterValue,
               ~domain=urlConfig.domain,
               ~timeCol=urlConfig.timeColumn,
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStat Time Series")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,

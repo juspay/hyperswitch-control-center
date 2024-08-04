@@ -70,7 +70,7 @@ module SetupWebhookUser = {
     let showPopUp = PopUpState.useShowPopUp()
     let webhookEndpoint: ReactFinalForm.fieldRenderPropsInput = {
       name: "webhookEndpoint",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
         if value->String.includes("<script>") || value->String.includes("</script>") {
@@ -84,7 +84,7 @@ module SetupWebhookUser = {
         let val = value->String.replace("<script>", "")->String.replace("</script>", "")
         setWebhookEndpoint(_ => val)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: webhookEndpoint->JSON.Encode.string,
       checked: true,
     }
@@ -153,7 +153,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
   let updateLiveEndpoint = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post)
-      let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#ConfigureEndpoint, ())
+      let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#ConfigureEndpoint)
       let _ = await updateDetails(url, body, Post)
       setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)

@@ -88,7 +88,6 @@ let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity) => {
       ~source=?singleStatBodyEntity.source,
       ~granularity=singleStatBodyEntity.granularity,
       ~prefix=singleStatBodyEntity.prefix,
-      (),
     )->JSON.Encode.object,
   ]
   ->JSON.Encode.array

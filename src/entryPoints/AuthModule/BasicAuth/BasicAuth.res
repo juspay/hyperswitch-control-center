@@ -124,9 +124,9 @@ let make = (~authType, ~setAuthType) => {
   let logMixpanelEvents = email => {
     open CommonAuthTypes
     switch authType {
-    | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ~email, ())
-    | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ~email, ())
-    | SignUP => mixpanelEvent(~eventName=`signup_using_magic_link`, ~email, ())
+    | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ~email)
+    | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ~email)
+    | SignUP => mixpanelEvent(~eventName=`signup_using_magic_link`, ~email)
     | _ => ()
     }
   }
@@ -142,12 +142,12 @@ let make = (~authType, ~setAuthType) => {
       let _ = await (
         switch (featureFlagValues.email, authType) {
         | (true, SignUP) | (true, LoginWithEmail) => {
-            let body = getEmailBody(email, ~country, ())
+            let body = getEmailBody(email, ~country)
             getUserWithEmail(body)
           }
 
         | (true, ResendVerifyEmail) =>
-          let body = email->getEmailBody()
+          let body = email->getEmailBody
           resendVerifyEmail(body)
 
         | (false, SignUP) => {
@@ -170,7 +170,7 @@ let make = (~authType, ~setAuthType) => {
         | _ =>
           switch (featureFlagValues.email, authType) {
           | (true, ForgetPassword) =>
-            let body = email->getEmailBody()
+            let body = email->getEmailBody
 
             setForgetPassword(body)
           | _ => Promise.make((resolve, _) => resolve(Nullable.null))
@@ -185,7 +185,7 @@ let make = (~authType, ~setAuthType) => {
 
   let resendEmail = () => {
     open CommonAuthUtils
-    let body = email->getEmailBody()
+    let body = email->getEmailBody
     switch authType {
     | MagicLinkEmailSent => getUserWithEmail(body)->ignore
     | ForgetPasswordEmailSent => setForgetPassword(body)->ignore

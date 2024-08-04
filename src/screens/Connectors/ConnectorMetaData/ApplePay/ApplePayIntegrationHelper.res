@@ -162,7 +162,6 @@ module InfoCard = {
 let applePayValueInput = (
   ~applePayField: CommonMetaDataTypes.inputField,
   ~integrationType: option<applePayIntegrationType>=None,
-  (),
 ) => {
   open CommonMetaDataHelper
   let {\"type", name} = applePayField
@@ -171,7 +170,7 @@ let applePayValueInput = (
   {
     switch \"type" {
     | Text => textInput(~field={applePayField}, ~formName)
-    | Select => selectInput(~field={applePayField}, ~formName, ())
+    | Select => selectInput(~field={applePayField}, ~formName)
     | MultiSelect => multiSelectInput(~field={applePayField}, ~formName)
     | _ => textInput(~field={applePayField}, ~formName)
     }

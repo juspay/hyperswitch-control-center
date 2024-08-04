@@ -85,7 +85,6 @@ let getTimeSeriesChart = (chartEntity: chartEntity) => {
       ~customFilter=chartEntity.customFilter->Option.getOr(""),
       ~prefix=chartEntity.prefix,
       ~source=chartEntity.source,
-      (),
     )->JSON.Encode.object,
   ]
   ->JSON.Encode.array
@@ -109,7 +108,6 @@ let getLegendBody = (chartEntity: chartEntity) => {
       ~customFilter=chartEntity.customFilter->Option.getOr(""),
       ~prefix=chartEntity.prefix,
       ~source=chartEntity.source,
-      (),
     )->JSON.Encode.object,
   ]
   ->JSON.Encode.array

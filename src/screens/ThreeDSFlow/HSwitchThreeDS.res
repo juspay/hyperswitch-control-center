@@ -275,7 +275,7 @@ let make = () => {
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/3ds?type=new"))
   }
   let handleCreateNew = () => {
-    mixpanelEvent(~eventName="create_new_3ds_rule", ())
+    mixpanelEvent(~eventName="create_new_3ds_rule")
     if showWarning {
       showPopUp({
         popUpType: (Warning, WithIcon),

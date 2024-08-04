@@ -115,7 +115,6 @@ module HSiwtchPaymentConfirmLatency = {
           ~source=?singleStatBodyEntity.source,
           ~granularity=singleStatBodyEntity.granularity,
           ~prefix=singleStatBodyEntity.prefix,
-          (),
         )->JSON.Encode.object,
       ]->JSON.Encode.array
     }
@@ -184,7 +183,6 @@ module HSiwtchPaymentConfirmLatency = {
                 {latencyShortNum(
                   ~labelValue=latency->Int.toFloat /. 1000.0,
                   ~includeMilliseconds=true,
-                  (),
                 )
                 ->String.toLowerCase
                 ->React.string}

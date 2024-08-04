@@ -92,7 +92,6 @@ let make = () => {
         ~dashboardPageState,
         ~integrationDetails,
         ~is_done=true,
-        (),
       )
       let integrationUrl = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post)
       let _ = await updateDetails(integrationUrl, body, Post)

@@ -129,11 +129,9 @@ let initialFixedFilter = () => [
           ~numMonths=2,
           ~disableApply=false,
           ~dateRangeLimit=180,
-          (),
         ),
         ~inputFields=[],
         ~isRequired=false,
-        (),
       ),
     }: EntityType.initialFilters<'t>
   ),
@@ -236,7 +234,6 @@ let initialFilters = (json, filtervalues) => {
           ~customButtonStyle="bg-none",
           (),
         ),
-        (),
       ),
       localFilter: Some(filterByData),
     }

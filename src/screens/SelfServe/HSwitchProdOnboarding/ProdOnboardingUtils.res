@@ -139,8 +139,6 @@ let useGetWarningBlockForConnector = connectorName => {
 let getProdApiBody = (
   ~parentVariant: ProdOnboardingTypes.sectionHeadingVariant,
   ~connectorId="",
-  ~_paymentId: string="",
-  (),
 ) => {
   switch parentVariant {
   | #SetupProcessor =>

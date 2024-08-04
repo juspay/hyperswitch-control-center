@@ -38,7 +38,7 @@ let make = (~applePayFields, ~update, ~closeModal, ~setShowWalletConfigurationMo
       <div key={index->Int.toString}>
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-hyperswitch_black"
-          field={applePayValueInput(~applePayField, ())}
+          field={applePayValueInput(~applePayField)}
         />
       </div>
     })

@@ -11,13 +11,7 @@ let getSummary: JSON.t => EntityType.summary = json => {
 }
 
 @react.component
-let make = (
-  ~children,
-  ~setData=?,
-  ~entity: EntityType.entityType<'colType, 't>,
-  ~setSummary=?,
-  (),
-) => {
+let make = (~children, ~setData=?, ~entity: EntityType.entityType<'colType, 't>, ~setSummary=?) => {
   let {getObjects, searchUrl: url} = entity
   let fetchApi = AuthHooks.useApiFetcher()
   let initialValueJson = JSON.Encode.object(Dict.make())

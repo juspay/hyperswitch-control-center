@@ -5,7 +5,6 @@ let validateAPIKeyForm = (
   ~setIsDisabled=_ => (),
   keys: array<string>,
   ~setShowCustomDate,
-  (),
 ) => {
   let errors = Dict.make()
 
@@ -115,7 +114,6 @@ let apiName = FormRenderer.makeFieldInfo(
   ~placeholder="Name",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 let apiDescription = FormRenderer.makeFieldInfo(
@@ -124,7 +122,6 @@ let apiDescription = FormRenderer.makeFieldInfo(
   ~placeholder="Description",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 let makeOptions: array<string> => array<SelectBox.dropdownOption> = options => {
@@ -140,9 +137,7 @@ let keyExpiry = FormRenderer.makeFieldInfo(
   ~customInput=InputFields.selectInput(
     ~options=["never", "custom"]->makeOptions,
     ~buttonText="Select Option",
-    (),
   ),
-  (),
 )
 
 let keyExpiryCustomDate = FormRenderer.makeFieldInfo(
@@ -151,27 +146,23 @@ let keyExpiryCustomDate = FormRenderer.makeFieldInfo(
   ~customInput=InputFields.singleDatePickerInput(
     ~disablePastDates=true,
     ~format="YYYY-MM-DDTHH:mm:ss.SSS[Z]",
-    (),
   ),
-  (),
 )
 
 let webhookUrl = FormRenderer.makeFieldInfo(
   ~label="Webhook URL",
   ~name="webhook_url",
   ~placeholder="Enter Webhook URL",
-  ~customInput=InputFields.textInput(~autoComplete="off", ()),
+  ~customInput=InputFields.textInput(~autoComplete="off"),
   ~isRequired=false,
-  (),
 )
 
 let returnUrl = FormRenderer.makeFieldInfo(
   ~label="Return URL",
   ~name="return_url",
   ~placeholder="Enter Return URL",
-  ~customInput=InputFields.textInput(~autoComplete="off", ()),
+  ~customInput=InputFields.textInput(~autoComplete="off"),
   ~isRequired=false,
-  (),
 )
 
 let authenticationConnectors = connectorList =>
@@ -184,19 +175,16 @@ let authenticationConnectors = connectorList =>
       ~showSelectionAsChips=false,
       ~customButtonStyle=`!rounded-md`,
       ~fixedDropDownDirection=TopRight,
-      (),
     ),
     ~isRequired=false,
-    (),
   )
 
 let threeDsRequestorUrl = FormRenderer.makeFieldInfo(
   ~label="3DS Requestor URL",
   ~name="three_ds_requestor_url",
   ~placeholder="Enter 3DS Requestor URL",
-  ~customInput=InputFields.textInput(~autoComplete="off", ()),
+  ~customInput=InputFields.textInput(~autoComplete="off"),
   ~isRequired=false,
-  (),
 )
 
 module ErrorUI = {

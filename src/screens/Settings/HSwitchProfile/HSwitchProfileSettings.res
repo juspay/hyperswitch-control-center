@@ -82,7 +82,7 @@ module ResetPassword = {
     }
 
     let setPassword = () => {
-      let body = email->CommonAuthUtils.getEmailBody()
+      let body = email->CommonAuthUtils.getEmailBody
       body->resetPassword->ignore
     }
 

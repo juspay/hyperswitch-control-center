@@ -305,7 +305,7 @@ module LineChart1D = {
         ->Option.getOr(`${colorOrig}`)
 
       let transformValue = num => {
-        num->HSAnalyticsUtils.setPrecision()
+        num->HSAnalyticsUtils.setPrecision
       }
       let (nonSelectedClass, backgroundColor) =
         clickedRowNames->Array.length === 0 ||
@@ -319,7 +319,7 @@ module LineChart1D = {
           <div className="flex items-stretch justify-start select-none">
             <span
               className={`flex h-3 w-3 rounded-full self-center mr-2`}
-              style={ReactDOM.Style.make(~backgroundColor, ())}
+              style={backgroundColor: backgroundColor}
             />
             <span className={`flex justify-self-start ${nonSelectedClass}`}>
               <TooltipString text=transactionTable.groupByName showTableBelow />
@@ -780,8 +780,7 @@ module LegendItem = {
                 }
               })}>
             <div
-              className={`w-[0.9375rem] h-[0.9375rem] rounded`}
-              style={ReactDOM.Style.make(~background=legendItem.color, ())}
+              className={`w-[0.9375rem] h-[0.9375rem] rounded`} style={background: legendItem.color}
             />
             <div className="font-medium text-fs-14 text-[#3B424F]">
               {React.string(legendItem.name)}

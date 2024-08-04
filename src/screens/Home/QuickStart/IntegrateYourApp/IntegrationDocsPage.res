@@ -20,7 +20,7 @@ module RequestPage = {
             ("category", "Platform Request"->JSON.Encode.string),
             ("feedbacks", `Request for ${requestedValue}`->JSON.Encode.string),
           ]->LogicUtils.getJsonFromArrayOfJson
-        let requestedBody = HSwitchUtils.getBodyForFeedBack(~email, ~values, ())->JSON.Encode.object
+        let requestedBody = HSwitchUtils.getBodyForFeedBack(~email, ~values)->JSON.Encode.object
 
         let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post)

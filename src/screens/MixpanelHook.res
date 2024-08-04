@@ -1,9 +1,4 @@
-type functionType = (
-  ~eventName: string=?,
-  ~email: string=?,
-  ~description: option<string>=?,
-  unit,
-) => unit
+type functionType = (~eventName: string=?, ~email: string=?, ~description: option<string>=?) => unit
 
 let useSendEvent = () => {
   open GlobalVars
@@ -86,7 +81,7 @@ let useSendEvent = () => {
     }
   }
 
-  (~eventName, ~email="", ~description=None, ~section="", ~metadata=Dict.make(), ()) => {
+  (~eventName, ~email="", ~description=None, ~section="", ~metadata=Dict.make()) => {
     let section = section->LogicUtils.isNonEmptyString ? section : getUrlEndpoint()
     let eventName = eventName->String.toLowerCase
 

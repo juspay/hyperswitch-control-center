@@ -26,11 +26,7 @@ let make = () => {
   let selectedFRMName: ConnectorTypes.connectorTypes = React.useMemo(() => {
     let frmName = frmName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer)
     setInitialValues(_ => {
-      generateInitialValuesDict(
-        ~selectedFRMName=frmName,
-        ~isLiveMode=featureFlagDetails.isLiveMode,
-        (),
-      )
+      generateInitialValuesDict(~selectedFRMName=frmName, ~isLiveMode=featureFlagDetails.isLiveMode)
     })
     setCurrentStep(_ => isUpdateFlow ? Preview : initStep)
     frmName

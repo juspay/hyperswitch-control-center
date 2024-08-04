@@ -120,13 +120,12 @@ let make = (
                   ~integrationType=Some(#simplified),
                 )
               },
-              (),
             )}
           />
         | _ =>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={applePayValueInput(~applePayField, ~integrationType={Some(#simplified)}, ())}
+            field={applePayValueInput(~applePayField, ~integrationType={Some(#simplified)})}
           />
         }}
       </div>

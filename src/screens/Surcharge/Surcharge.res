@@ -172,7 +172,7 @@ let make = () => {
 
   let onSubmit = async (values, _) => {
     try {
-      mixpanelEvent(~eventName="surcharge_save", ())
+      mixpanelEvent(~eventName="surcharge_save")
       let surchargePayload = values->buildSurchargePayloadBody
       let getActivateUrl = getURL(~entityName=SURCHARGE, ~methodType=Put)
       let _ = await updateDetails(getActivateUrl, surchargePayload->Identity.genericTypeToJson, Put)
@@ -225,7 +225,7 @@ let make = () => {
   }
 
   let handleCreateNew = () => {
-    mixpanelEvent(~eventName="create_new_surcharge", ())
+    mixpanelEvent(~eventName="create_new_surcharge")
     if showWarning {
       showPopUp({
         popUpType: (Warning, WithIcon),

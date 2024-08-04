@@ -1,5 +1,3 @@
-let makeFieldInfo = FormRenderer.makeFieldInfo
-
 module ClearFilters = {
   @react.component
   let make = (

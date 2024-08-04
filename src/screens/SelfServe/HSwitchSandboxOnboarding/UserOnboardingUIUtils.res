@@ -236,12 +236,12 @@ module BackendFrontendPlatformLangDropDown = {
   ) => {
     let platfromInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "Platform Selecr",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let val = ev->Identity.formReactEventToString->getPlatform
         setPlatform(_ => val)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: (platform :> string)->JSON.Encode.string,
       checked: true,
     }
@@ -251,23 +251,23 @@ module BackendFrontendPlatformLangDropDown = {
 
     let backendLangInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "BackEnd",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let val = ev->Identity.formReactEventToString->getLangauge
         setBackEndLang(_ => val)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: (backEndLang :> string)->JSON.Encode.string,
       checked: true,
     }
     let frontendLangInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "FrontEnd",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let val = ev->Identity.formReactEventToString->getLangauge
         setFrontEndLang(_ => val)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: (frontEndLang :> string)->JSON.Encode.string,
       checked: true,
     }
@@ -417,7 +417,6 @@ module LandingPageTileForIntegrateDocs = {
           ~integrationDetails,
           ~is_done=false,
           ~metadata=metaDataDict,
-          (),
         )
         let _ = await updateDetails(url, body, Post)
         setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)

@@ -153,7 +153,7 @@ let make = (
                           : "text-black dark:text-white"} w-max items-start`}>
                       {switch selectedMetric {
                       | Volume =>
-                        shortNum(~labelValue=metricVal, ~numberFormat=getDefaultNumberFormat(), ())
+                        shortNum(~labelValue=metricVal, ~numberFormat=getDefaultNumberFormat())
                       | Percentage =>
                         (metricVal *. 100. /. prevMetricVolume)
                           ->Float.toFixedWithPrecision(~digits=2) ++ "%"

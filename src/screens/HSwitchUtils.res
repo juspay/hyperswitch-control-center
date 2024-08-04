@@ -104,12 +104,7 @@ let getBrowswerDetails = () => {
   }
 }
 
-let getBodyForFeedBack = (
-  ~email,
-  ~values,
-  ~modalType=HSwitchFeedBackModalUtils.FeedBackModal,
-  (),
-) => {
+let getBodyForFeedBack = (~email, ~values, ~modalType=HSwitchFeedBackModalUtils.FeedBackModal) => {
   open HSwitchFeedBackModalUtils
   let valueDict = values->getDictFromJsonObject
   let rating = valueDict->getInt("rating", 1)
@@ -162,7 +157,6 @@ let constructOnboardingBody = (
   ~integrationDetails: ProviderTypes.integrationDetailsType,
   ~is_done: bool,
   ~metadata: option<JSON.t>=?,
-  (),
 ) => {
   let copyOfIntegrationDetails = integrationDetails
   switch dashboardPageState {

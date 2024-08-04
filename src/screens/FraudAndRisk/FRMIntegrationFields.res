@@ -144,7 +144,6 @@ module IntegrationFieldsForm = {
                     ~isRequired=true,
                     ~parse,
                     ~format?,
-                    (),
                   )}
                 />
                 <ConnectorAccountDetailsHelper.ErrorValidation fieldName={field.name} validate />
@@ -219,7 +218,7 @@ let make = (
       }
 
     | None =>
-      generateInitialValuesDict(~selectedFRMName, ~isLiveMode={featureFlagDetails.isLiveMode}, ())
+      generateInitialValuesDict(~selectedFRMName, ~isLiveMode={featureFlagDetails.isLiveMode})
     }
   }, [retrivedValues])
 
@@ -283,7 +282,7 @@ let make = (
   }
 
   let onSubmit = (values, _) => {
-    mixpanelEvent(~eventName="frm_step2", ())
+    mixpanelEvent(~eventName="frm_step2")
     setPageState(_ => Loading)
     let body = isUpdateFlow ? values->ignoreFields : values
     setFRMValues(body)->ignore

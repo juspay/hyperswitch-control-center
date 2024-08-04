@@ -54,7 +54,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
       },
     }
     let metadata = body->Identity.genericTypeToDictOfJson
-    mixpanelEvent(~eventName="generate_reports_download", ~metadata, ())
+    mixpanelEvent(~eventName="generate_reports_download", ~metadata)
     downloadReport(body->Identity.genericTypeToJson)
   }
 
@@ -107,11 +107,9 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
             ~disableApply=false,
             ~optFieldKey="filters.dateCreated.opt",
             ~isTooltipVisible=false,
-            (),
           ),
           ~inputFields=[],
           ~isRequired=true,
-          (),
         )}
       />
       <FormRenderer.SubmitButton text="Generate" customSumbitButtonStyle="mt-10 ml-3" />

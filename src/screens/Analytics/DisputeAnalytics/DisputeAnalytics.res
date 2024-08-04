@@ -57,7 +57,7 @@ let make = () => {
       tabKeys
       tabValues
       options
-      singleStatEntity={getSingleStatEntity(metrics, ())}
+      singleStatEntity={getSingleStatEntity(metrics)}
       getTable={getDisputeTable}
       colMapper
       tableEntity={disputeTableEntity()}

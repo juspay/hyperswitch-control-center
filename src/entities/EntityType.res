@@ -10,7 +10,7 @@ type optionType<'t> = {
 }
 let getDefaultEntityOptionType = (): optionType<'t> => {
   urlKey: "",
-  field: FormRenderer.makeFieldInfo(~name="", ()),
+  field: FormRenderer.makeFieldInfo(~name=""),
   parser: json => json,
   localFilter: None,
 }

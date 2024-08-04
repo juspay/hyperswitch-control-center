@@ -7,7 +7,7 @@ let formateDateString = date => {
   date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]")
 }
 
-let getDateFilteredObject = (~range=7, ()) => {
+let getDateFilteredObject = (~range=7) => {
   let currentDate = Date.make()
 
   let end_time = currentDate->formateDateString
@@ -42,7 +42,7 @@ let useSetInitialFilters = (
   () => {
     let inititalSearchParam = Dict.make()
 
-    let defaultDate = getDateFilteredObject(~range, ())
+    let defaultDate = getDateFilteredObject(~range)
 
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       let timeRange =
@@ -107,7 +107,6 @@ module SearchBarFilter = {
         ~iconOpacity="opacity-100",
         ~leftIconCustomStyle="pl-4",
         ~inputStyle="!placeholder:opacity-90",
-        (),
       )(~input=inputSearch, ~placeholder)}
     </div>
   }
@@ -145,7 +144,7 @@ module RemoteTableFilters = {
 
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
     let updateDetails = useUpdateMethod()
-    let defaultDate = getDateFilteredObject(~range=30, ())
+    let defaultDate = getDateFilteredObject(~range=30)
     let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
     let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
     let fetchDetails = useGetMethod()

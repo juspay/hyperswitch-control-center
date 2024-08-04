@@ -59,7 +59,7 @@ module GenerateSampleDataButton = {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
     let generateSampleData = async () => {
-      mixpanelEvent(~eventName="generate_sample_data", ())
+      mixpanelEvent(~eventName="generate_sample_data")
       try {
         let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post)
         let _ = await updateDetails(
@@ -320,7 +320,6 @@ let initialFilters = (json, filtervalues) => {
           ~customButtonStyle="bg-none",
           (),
         ),
-        (),
       ),
       localFilter: Some(filterByData),
     }
@@ -355,11 +354,9 @@ let initialFixedFilter = () => [
           ~numMonths=2,
           ~disableApply=false,
           ~dateRangeLimit=180,
-          (),
         ),
         ~inputFields=[],
         ~isRequired=false,
-        (),
       ),
     }: EntityType.initialFilters<'t>
   ),

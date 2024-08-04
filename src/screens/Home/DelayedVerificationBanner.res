@@ -29,7 +29,7 @@ let make = (~merchantId="", ~verificationDays) => {
   }
 
   let rec resendEmailVerify = async () => {
-    let body = email->CommonAuthUtils.getEmailBody()
+    let body = email->CommonAuthUtils.getEmailBody
     try {
       let url = getURL(
         ~entityName=USERS,

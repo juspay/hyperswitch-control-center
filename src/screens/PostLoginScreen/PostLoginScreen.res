@@ -33,9 +33,7 @@ module SurveyComponent = {
             ~baseComponentCustomStyle="flex flex-col gap-4 md:!min-h-[30rem]",
             ~customSelectStyle=`${backgroundColor} bg-opacity-5 ${borderColor.primaryNormal}`,
             ~fill={`${textColor.primaryNormal}`},
-            (),
           ),
-          (),
         )}
       />
       <div className="flex gap-4 w-full mt-4">

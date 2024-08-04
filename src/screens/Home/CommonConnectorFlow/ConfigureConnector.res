@@ -174,9 +174,9 @@ let make = (~connectProcessorValue: connectProcessor) => {
       setQuickStartPageState(_ => IntegrateApp(LANDING))
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/quick-start"))
       if paymentId->Option.isSome {
-        mixpanelEvent(~eventName=`quickstart_checkout_pay`, ())
+        mixpanelEvent(~eventName=`quickstart_checkout_pay`)
       } else {
-        mixpanelEvent(~eventName=`quickstart_checkout_skip`, ())
+        mixpanelEvent(~eventName=`quickstart_checkout_skip`)
       }
     } catch {
     | _ => ()
@@ -203,7 +203,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
             tooltipText="Please select one of the choices"
             text="Proceed"
             onClick={_ => {
-              mixpanelEvent(~eventName=`quickstart_landing`, ())
+              mixpanelEvent(~eventName=`quickstart_landing`)
               handleConnectorChoiceClick()->ignore
             }}
             buttonSize=Small
@@ -269,7 +269,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
               tooltipText="Please select one of the choices"
               text="Proceed"
               onClick={_ => {
-                mixpanelEvent(~eventName=`quickstart_configure_smart_routing`, ())
+                mixpanelEvent(~eventName=`quickstart_configure_smart_routing`)
                 handleRouting()->ignore
               }}
               buttonSize=Small

@@ -37,7 +37,6 @@ module NewAccountCreationModal = {
       ~placeholder="Eg: HyperSwitch Pvt Ltd",
       ~customInput=InputFields.textInput(),
       ~isRequired=true,
-      (),
     )
 
     let modalBody = {
@@ -264,7 +263,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   let input = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
     {
       name: "-",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = {ev->ReactEvent.Form.target}["value"]
         if value->String.includes("<script>") || value->String.includes("</script>") {
@@ -278,7 +277,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
         let val = value->String.replace("<script>", "")->String.replace("</script>", "")
         setValue(_ => val)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: JSON.Encode.string(value),
       checked: false,
     }

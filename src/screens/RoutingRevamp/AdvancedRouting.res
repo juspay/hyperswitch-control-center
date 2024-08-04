@@ -33,9 +33,7 @@ module Add3DSCondition = {
                   ~buttonText="Select Field",
                   ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
                   ~deselectDisable=true,
-                  (),
                 ),
-                (),
               )}
             />
           </div>
@@ -98,21 +96,14 @@ module AddSurchargeCondition = {
                     ~buttonText="Select Surcharge Type",
                     ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
                     ~deselectDisable=true,
-                    (),
                   ),
-                  (),
                 )}
               />
               <FormRenderer.FieldRenderer
                 field={FormRenderer.makeFieldInfo(
                   ~label="",
                   ~name=`${id}.connectorSelection.surcharge_details.surcharge.value.${surchargeValueType}`,
-                  ~customInput=InputFields.numericTextInput(
-                    ~customStyle="!-mt-5",
-                    ~precision=2,
-                    (),
-                  ),
-                  (),
+                  ~customInput=InputFields.numericTextInput(~customStyle="!-mt-5", ~precision=2),
                 )}
               />
             </div>
@@ -127,9 +118,7 @@ module AddSurchargeCondition = {
                     ~customStyle="!-mt-5",
                     ~rightIcon=<Icon name="percent" size=16 />,
                     ~rightIconCustomStyle="-ml-7 -mt-5",
-                    (),
                   ),
-                  (),
                 )}
               />
             </div>

@@ -81,7 +81,7 @@ let getUpdatedHeading = (
 
 let getCell = (disputeTable: disputeTableType, colType): Table.cell => {
   let usaNumberAbbreviation = labelValue => {
-    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat(), ())
+    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
   }
 
   switch colType {
@@ -164,7 +164,7 @@ type colT =
   | TotalAmountDisputed
   | TotalDisputeLostAmount
 
-let getColumns: unit => array<DynamicSingleStat.columns<colT>> = () => [
+let getColumns = [
   {
     sectionName: "",
     columns: [TotalAmountDisputed, TotalDisputeLostAmount]->generateDefaultStateColumns,
@@ -247,7 +247,7 @@ let getStatData = (
   }
 }
 
-let getSingleStatEntity = (metrics, connector_success_rate) => {
+let getSingleStatEntity = metrics => {
   urlConfig: [
     {
       uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
@@ -256,7 +256,7 @@ let getSingleStatEntity = (metrics, connector_success_rate) => {
   ],
   getObjects: itemToObjMapper,
   getTimeSeriesObject: timeSeriesObjMapper,
-  defaultColumns: getColumns(connector_success_rate),
+  defaultColumns: getColumns,
   getData: getStatData,
   totalVolumeCol: None,
   matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,

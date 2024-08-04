@@ -82,7 +82,7 @@ let make = (~goLive) => {
   }
 
   let onSubmit = (values, _) => {
-    mixpanelEvent(~eventName="quickstart_get_production_access_completed", ())
+    mixpanelEvent(~eventName="quickstart_get_production_access_completed")
     updateProdDetails(values)
   }
 
@@ -93,7 +93,7 @@ let make = (~goLive) => {
           text="Get Production Access"
           buttonType={Primary}
           onClick={_ => {
-            mixpanelEvent(~eventName="quickstart_get_production_access_landing", ())
+            mixpanelEvent(~eventName="quickstart_get_production_access_landing")
             setQuickStartPageState(_ => GoLive(GO_LIVE))
           }}
         />

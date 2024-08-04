@@ -19,7 +19,7 @@ let make = (
         [
           (
             "Feedback",
-            HSwitchUtils.getBodyForFeedBack(~email, ~values, ~modalType, ())->JSON.Encode.object,
+            HSwitchUtils.getBodyForFeedBack(~email, ~values, ~modalType)->JSON.Encode.object,
           ),
         ]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)

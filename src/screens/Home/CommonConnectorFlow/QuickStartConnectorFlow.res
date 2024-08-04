@@ -37,7 +37,7 @@ let make = (
   let multipleConfigurationArrayLength = 2
 
   let handleSummaryProceed = () => {
-    mixpanelEvent(~eventName=`quickstart_connector_summary`, ())
+    mixpanelEvent(~eventName=`quickstart_connector_summary`)
     if (
       connectorArray->Array.length === multipleConfigurationArrayLength &&
         typedEnumValue.configurationType->connectorChoiceStringVariantMapper ===
@@ -93,7 +93,7 @@ let make = (
       setConnectorConfigureState(_ => Summary)
       updateEnumForTestConnector(res->LogicUtils.getDictFromJsonObject)->ignore
       showToast(
-        ~message=`${connectorName->LogicUtils.getFirstLetterCaps()} connected successfully!`,
+        ~message=`${connectorName->LogicUtils.getFirstLetterCaps} connected successfully!`,
         ~toastType=ToastSuccess,
       )
     } catch {
@@ -106,11 +106,11 @@ let make = (
 
   let handleConnectorSubmit = () => {
     if choiceStateForTestConnector === #TestApiKeys {
-      mixpanelEvent(~eventName=`quickstart_select_configuration_type_test`, ())
+      mixpanelEvent(~eventName=`quickstart_select_configuration_type_test`)
       handleTestConnector()->ignore
     } else {
       setConnectorConfigureState(_ => Configure_keys)
-      mixpanelEvent(~eventName=`quickstart_select_configuration_type_keys`, ())
+      mixpanelEvent(~eventName=`quickstart_select_configuration_type_keys`)
     }
   }
 

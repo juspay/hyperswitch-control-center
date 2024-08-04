@@ -191,7 +191,7 @@ module ProgressCell = {
     <div className="w-full bg-gray-200 rounded-full">
       <div
         className="bg-green-700 text font-medium text-blue-100 text-left pl-5 p-0.5 leading-none rounded-full"
-        style={ReactDOM.Style.make(~width=`${Int.toString(progressPercentage)}%`, ())}>
+        style={width: `${Int.toString(progressPercentage)}%`}>
         {React.string(Int.toString(progressPercentage) ++ "%")}
       </div>
     </div>

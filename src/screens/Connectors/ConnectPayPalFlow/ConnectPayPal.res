@@ -170,7 +170,6 @@ module RedirectionToPayPalFlow = {
         let body = PayPalFlowUtils.generatePayPalBody(
           ~connectorId={connectorId},
           ~returnUrl=Some(returnURL),
-          (),
         )
         let url = getURL(~entityName=ACTION_URL, ~methodType=Post)
         let response = await updateDetails(url, body, Post)

@@ -56,7 +56,7 @@ let make = (
   let mixpanelEventName = isUpdateFlow ? "processor_step2_onUpdate" : "processor_step2"
 
   let onSubmit = async () => {
-    mixpanelEvent(~eventName=mixpanelEventName, ())
+    mixpanelEvent(~eventName=mixpanelEventName)
     try {
       setScreenState(_ => Loading)
       let obj: ConnectorTypes.wasmRequest = {

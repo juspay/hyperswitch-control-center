@@ -38,7 +38,6 @@ module ProfileActions = {
       ~placeholder=`Eg: Hyperswitch`,
       ~customInput=InputFields.textInput(),
       ~isRequired=true,
-      (),
     )
 
     <div className="flex gap-4 items-center">

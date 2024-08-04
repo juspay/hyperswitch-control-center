@@ -115,7 +115,7 @@ let itemObjMapper = (dict, mappedArr) => {
     ->getArrayDataFromJson(getPaymentMethodsEnabled)
   if dict->getString("connector_type", "") === "payment_processor" {
     paymentMethod->Array.forEachWithIndex((_, pmIndex) => {
-      PaymentMethodConfigUtils.mapPaymentMethodValues(~connectorPayload, ~mappedArr, ~pmIndex, ())
+      PaymentMethodConfigUtils.mapPaymentMethodValues(~connectorPayload, ~mappedArr, ~pmIndex)
     })
   }
 }

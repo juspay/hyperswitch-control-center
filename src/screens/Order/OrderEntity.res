@@ -850,7 +850,7 @@ let concatValueOfGivenKeysOfDict = (dict, keys) => {
 let itemToObjMapper = dict => {
   let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
 
-  let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code", ()) => {
+  let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code") => {
     `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
   }
 
@@ -909,7 +909,7 @@ let itemToObjMapper = dict => {
     shippingPhone: dict
     ->getDictfromDict("shipping")
     ->getDictfromDict("phone")
-    ->getPhoneNumberString(),
+    ->getPhoneNumberString,
     billing: dict
     ->getDictfromDict("billing")
     ->getDictfromDict("address")
@@ -931,13 +931,13 @@ let itemToObjMapper = dict => {
     billingPhone: dict
     ->getDictfromDict("billing")
     ->getDictfromDict("phone")
-    ->getPhoneNumberString(),
+    ->getPhoneNumberString,
     metadata: dict->getJsonObjectFromDict("metadata")->getDictFromJsonObject,
     email: dict->getEmail,
     name: dict->getString("name", ""),
     phone: dict
     ->getDictfromDict("customer")
-    ->getPhoneNumberString(~phoneKey="phone", ~codeKey="phone_country_code", ()),
+    ->getPhoneNumberString(~phoneKey="phone", ~codeKey="phone_country_code"),
     return_url: dict->getString("return_url", ""),
     authentication_type: dict->getString("authentication_type", ""),
     statement_descriptor_name: dict->getString("statement_descriptor_name", ""),

@@ -55,9 +55,9 @@ let valueInput = (inputArg: PaymentMethodConfigTypes.valueInput) => {
     ~label=`${inputArg.label}`,
     ~comboCustomInput=renderValueInp(inputArg.options),
     ~inputFields=[
-      makeInputFieldInfo(~name=`${inputArg.name1}`, ()),
-      makeInputFieldInfo(~name=`${inputArg.name2}`, ()),
-      makeInputFieldInfo(~name=`${inputArg.name2}.type`, ()),
+      makeInputFieldInfo(~name=`${inputArg.name1}`),
+      makeInputFieldInfo(~name=`${inputArg.name2}`),
+      makeInputFieldInfo(~name=`${inputArg.name2}.type`),
     ],
     (),
   )
