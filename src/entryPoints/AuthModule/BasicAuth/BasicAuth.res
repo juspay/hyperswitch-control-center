@@ -180,7 +180,7 @@ let make = (~authType, ~setAuthType) => {
           }
         }
       )
-      CommonAuthUtils.onUserLogin(email)
+      CommonAuthUtils.setUserInMixpanel(email)
     } catch {
     | _ => showToast(~message="Something went wrong, Try again", ~toastType=ToastError, ())
     }

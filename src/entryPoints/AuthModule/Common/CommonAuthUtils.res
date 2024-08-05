@@ -184,7 +184,7 @@ module ToggleLiveTestMode = {
   }
 }
 
-let onUserLogin = email => {
+let setUserInMixpanel = email => {
   if email->LogicUtils.isNonEmptyString {
     let mixpanelUserInfo = [("email", email->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
     LocalStorage.setItem("deviceId", email)
