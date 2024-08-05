@@ -59,7 +59,7 @@ let make = () => {
   let {isLiveMode, email: isMagicLinkEnabled} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let authInitState = isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword
+  let authInitState = LoginWithPassword
   let (authType, setAuthType) = React.useState(_ => authInitState)
 
   let (actualAuthType, setActualAuthType) = React.useState(_ => authInitState)
