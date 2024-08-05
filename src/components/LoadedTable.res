@@ -228,6 +228,8 @@ let make = (
   ~customBorderClass=?,
   ~showborderColor=?,
   ~tableHeadingTextClass="",
+  ~nonFrozenTableParentClass="",
+  ~loadedTableParentClass="",
 ) => {
   open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
@@ -828,6 +830,7 @@ let make = (
                 ?customBorderClass
                 ?showborderColor
                 tableHeadingTextClass
+                nonFrozenTableParentClass
               />
             switch tableLocalFilter {
             | true =>
@@ -926,7 +929,7 @@ let make = (
   }
   let dataId = title->String.split("-")->Array.get(0)->Option.getOr("")
   <AddDataAttributes attributes=[("data-loaded-table", dataId)]>
-    <div className="w-full">
+    <div className={`w-full ${loadedTableParentClass}`}>
       <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>
         //removed "sticky" -> to be tested with master
         <div

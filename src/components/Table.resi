@@ -305,4 +305,5 @@ let make: (
   ~customBorderClass: string=?,
   ~showborderColor: bool=?,
   ~tableHeadingTextClass: string=?,
+  ~nonFrozenTableParentClass: string=?,
 ) => React.element
