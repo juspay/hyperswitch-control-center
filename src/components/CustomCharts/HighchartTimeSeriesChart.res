@@ -398,7 +398,6 @@ module LineChart1D = {
           ~key="groupByName",
           ~title=snakeToTitle(groupKey),
           ~dataType=LabelType,
-          ~showSort={!isPartners},
           (),
         )
 
@@ -407,7 +406,6 @@ module LineChart1D = {
           ~key=val->LineChartUtils.chartLegendTypeToStr->String.toLowerCase,
           ~title=val->LineChartUtils.chartLegendTypeToStr,
           ~dataType=NumericType,
-          ~showSort={!isPartners},
           (),
         )
       }

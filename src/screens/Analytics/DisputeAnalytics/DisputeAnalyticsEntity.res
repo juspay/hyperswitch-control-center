@@ -55,27 +55,13 @@ let getUpdatedHeading = (
   let getHeading = colType => {
     let key = colType->colMapper
     switch colType {
-    | Connector =>
-      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=NumericType, ~showSort=false, ())
-    | DisputeStage =>
-      Table.makeHeaderInfo(~key, ~title="Dispute Stage", ~dataType=NumericType, ~showSort=false, ())
+    | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=NumericType, ())
+    | DisputeStage => Table.makeHeaderInfo(~key, ~title="Dispute Stage", ~dataType=NumericType, ())
     | TotalAmountDisputed =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Total Amount Disputed",
-        ~dataType=NumericType,
-        ~showSort=false,
-        (),
-      )
+      Table.makeHeaderInfo(~key, ~title="Total Amount Disputed", ~dataType=NumericType, ())
     | TotalDisputeLostAmount =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Total Dispute Lost Amount",
-        ~dataType=NumericType,
-        ~showSort=false,
-        (),
-      )
-    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Total Dispute Lost Amount", ~dataType=NumericType, ())
+    | NoCol => Table.makeHeaderInfo(~key, ~title="", ())
     }
   }
   getHeading

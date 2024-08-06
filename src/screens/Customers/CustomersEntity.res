@@ -15,16 +15,15 @@ let allColumns = [CustomerId, Name, Email, Phone, PhoneCountryCode, Description,
 
 let getHeading = colType => {
   switch colType {
-  | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer Id", ~showSort=true, ())
-  | Name => Table.makeHeaderInfo(~key="name", ~title="Customer Name", ~showSort=true, ())
-  | Email => Table.makeHeaderInfo(~key="email", ~title="Email", ~showSort=true, ())
+  | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer Id", ())
+  | Name => Table.makeHeaderInfo(~key="name", ~title="Customer Name", ())
+  | Email => Table.makeHeaderInfo(~key="email", ~title="Email", ())
   | PhoneCountryCode =>
-    Table.makeHeaderInfo(~key="phone_country_code", ~title="Phone Country Code", ~showSort=true, ())
-  | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone", ~showSort=true, ())
-  | Description =>
-    Table.makeHeaderInfo(~key="description", ~title="Description", ~showSort=true, ())
-  | Address => Table.makeHeaderInfo(~key="address", ~title="Address", ~showSort=true, ())
-  | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="phone_country_code", ~title="Phone Country Code", ())
+  | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone", ())
+  | Description => Table.makeHeaderInfo(~key="description", ~title="Description", ())
+  | Address => Table.makeHeaderInfo(~key="address", ~title="Address", ())
+  | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created", ())
   }
 }
 

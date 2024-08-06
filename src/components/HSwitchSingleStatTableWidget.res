@@ -41,8 +41,8 @@ let getObjects: JSON.t => array<tableRowType> = json => {
 let getHeading = colType => {
   let key = colType->colMapper
   switch colType {
-  | Label => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType, ~showSort=false, ())
-  | Value => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType, ~showSort=false, ())
+  | Label => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType, ())
+  | Value => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType, ())
   }
 }
 

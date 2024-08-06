@@ -20,30 +20,17 @@ let defaultColumns = [
 
 let getHeading = colType => {
   switch colType {
-  | Profile => Table.makeHeaderInfo(~key="profile_id", ~title="Profile", ~showSort=false, ())
-  | Processor =>
-    Table.makeHeaderInfo(~key="connector_name", ~title="Processor", ~showSort=false, ())
-  | PaymentMethod =>
-    Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method", ~showSort=false, ())
+  | Profile => Table.makeHeaderInfo(~key="profile_id", ~title="Profile", ())
+  | Processor => Table.makeHeaderInfo(~key="connector_name", ~title="Processor", ())
+  | PaymentMethod => Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method", ())
   | PaymentMethodType =>
-    Table.makeHeaderInfo(
-      ~key="payment_method_type",
-      ~title="Payment Method Type",
-      ~showSort=false,
-      (),
-    )
+    Table.makeHeaderInfo(~key="payment_method_type", ~title="Payment Method Type", ())
 
   | CountriesAllowed =>
-    Table.makeHeaderInfo(~key="accepted_countries", ~title="Countries Allowed", ~showSort=false, ())
+    Table.makeHeaderInfo(~key="accepted_countries", ~title="Countries Allowed", ())
   | CurrenciesAllowed =>
-    Table.makeHeaderInfo(
-      ~key="accepted_currencies",
-      ~title="Currencies Allowed",
-      ~showSort=false,
-      (),
-    )
-  | CardNetwork =>
-    Table.makeHeaderInfo(~key="card_network", ~title="Card Network", ~showSort=false, ())
+    Table.makeHeaderInfo(~key="accepted_currencies", ~title="Currencies Allowed", ())
+  | CardNetwork => Table.makeHeaderInfo(~key="card_network", ~title="Card Network", ())
   }
 }
 let getCell = (~setReferesh) => {

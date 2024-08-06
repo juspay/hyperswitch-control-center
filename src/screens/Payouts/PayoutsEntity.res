@@ -122,36 +122,22 @@ let priorityVariantMapper: string => priority = priorityLabel =>
 
 let getAttemptHeading = colType => {
   switch colType {
-  | AttemptId => Table.makeHeaderInfo(~key="AttemptId", ~title="Attempt Id", ~showSort=false, ())
-  | Status => Table.makeHeaderInfo(~key="Status", ~title="Status", ~showSort=false, ())
-  | Amount => Table.makeHeaderInfo(~key="Amount", ~title="Amount", ~showSort=false, ())
-  | Currency => Table.makeHeaderInfo(~key="Currency", ~title="Currency", ~showSort=false, ())
-  | Connector => Table.makeHeaderInfo(~key="Connector", ~title="Connector", ~showSort=false, ())
-  | ErrorCode => Table.makeHeaderInfo(~key="ErrorCode", ~title="Error Code", ~showSort=false, ())
-  | Error_message =>
-    Table.makeHeaderInfo(~key="Error_message", ~title="Error Message", ~showSort=false, ())
-  | PaymentMethod =>
-    Table.makeHeaderInfo(~key="PaymentMethod", ~title="Payment Method", ~showSort=false, ())
+  | AttemptId => Table.makeHeaderInfo(~key="AttemptId", ~title="Attempt Id", ())
+  | Status => Table.makeHeaderInfo(~key="Status", ~title="Status", ())
+  | Amount => Table.makeHeaderInfo(~key="Amount", ~title="Amount", ())
+  | Currency => Table.makeHeaderInfo(~key="Currency", ~title="Currency", ())
+  | Connector => Table.makeHeaderInfo(~key="Connector", ~title="Connector", ())
+  | ErrorCode => Table.makeHeaderInfo(~key="ErrorCode", ~title="Error Code", ())
+  | Error_message => Table.makeHeaderInfo(~key="Error_message", ~title="Error Message", ())
+  | PaymentMethod => Table.makeHeaderInfo(~key="PaymentMethod", ~title="Payment Method", ())
   | PayoutMethodType =>
-    Table.makeHeaderInfo(~key="PayoutMethodType", ~title="Payout Method Type", ~showSort=false, ())
+    Table.makeHeaderInfo(~key="PayoutMethodType", ~title="Payout Method Type", ())
   | ConnectorTransactionId =>
-    Table.makeHeaderInfo(
-      ~key="ConnectorTransactionId",
-      ~title="Connector Transaction Id",
-      ~showSort=false,
-      (),
-    )
+    Table.makeHeaderInfo(~key="ConnectorTransactionId", ~title="Connector Transaction Id", ())
   | CancellationReason =>
-    Table.makeHeaderInfo(
-      ~key="CancellationReason",
-      ~title="Cancellation Reason",
-      ~showSort=false,
-      (),
-    )
-  | UnifiedCode =>
-    Table.makeHeaderInfo(~key="UnifiedCode", ~title="Unified Code", ~showSort=false, ())
-  | UnifiedMessage =>
-    Table.makeHeaderInfo(~key="UnifiedMessage", ~title="UnifiedM essage", ~showSort=false, ())
+    Table.makeHeaderInfo(~key="CancellationReason", ~title="Cancellation Reason", ())
+  | UnifiedCode => Table.makeHeaderInfo(~key="UnifiedCode", ~title="Unified Code", ())
+  | UnifiedMessage => Table.makeHeaderInfo(~key="UnifiedMessage", ~title="UnifiedM essage", ())
   }
 }
 
@@ -283,57 +269,37 @@ let useGetStatus = order => {
 
 let getHeading = colType => {
   switch colType {
-  | PayoutId => Table.makeHeaderInfo(~key="PayoutId", ~title="Payout Id", ~showSort=false, ())
-  | MerchantId => Table.makeHeaderInfo(~key="MerchantId", ~title="Merchant Id", ~showSort=false, ())
-  | Currency => Table.makeHeaderInfo(~key="Currency", ~title="Currency", ~showSort=false, ())
-  | Connector => Table.makeHeaderInfo(~key="Connector", ~title="Connector", ~showSort=false, ())
-  | Email => Table.makeHeaderInfo(~key="Email", ~title="Email", ~showSort=false, ())
-  | Amount => Table.makeHeaderInfo(~key="Amount", ~title="Amount", ~showSort=false, ())
-  | BusinessCountry =>
-    Table.makeHeaderInfo(~key="BusinessCountry", ~title="Business Country", ~showSort=false, ())
-  | ErrorMessage =>
-    Table.makeHeaderInfo(~key="ErrorMessage", ~title="Error Message", ~showSort=false, ())
-  | ProfileId => Table.makeHeaderInfo(~key="ProfileId", ~title="Profile Id", ~showSort=false, ())
-  | Status =>
-    Table.makeHeaderInfo(
-      ~key="status",
-      ~title="Payout Status",
-      ~dataType=DropDown,
-      ~showSort=false,
-      (),
-    )
-  | CustomerId => Table.makeHeaderInfo(~key="CustomerId", ~title="Customer Id", ~showSort=false, ())
-  | Created => Table.makeHeaderInfo(~key="Created", ~title="Created At", ~showSort=false, ())
+  | PayoutId => Table.makeHeaderInfo(~key="PayoutId", ~title="Payout Id", ())
+  | MerchantId => Table.makeHeaderInfo(~key="MerchantId", ~title="Merchant Id", ())
+  | Currency => Table.makeHeaderInfo(~key="Currency", ~title="Currency", ())
+  | Connector => Table.makeHeaderInfo(~key="Connector", ~title="Connector", ())
+  | Email => Table.makeHeaderInfo(~key="Email", ~title="Email", ())
+  | Amount => Table.makeHeaderInfo(~key="Amount", ~title="Amount", ())
+  | BusinessCountry => Table.makeHeaderInfo(~key="BusinessCountry", ~title="Business Country", ())
+  | ErrorMessage => Table.makeHeaderInfo(~key="ErrorMessage", ~title="Error Message", ())
+  | ProfileId => Table.makeHeaderInfo(~key="ProfileId", ~title="Profile Id", ())
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Payout Status", ~dataType=DropDown, ())
+  | CustomerId => Table.makeHeaderInfo(~key="CustomerId", ~title="Customer Id", ())
+  | Created => Table.makeHeaderInfo(~key="Created", ~title="Created At", ())
 
-  | PayoutType => Table.makeHeaderInfo(~key="PayoutType", ~title="Payout Type", ~showSort=false, ())
-  | Billing => Table.makeHeaderInfo(~key="Billing", ~title="Billing", ~showSort=false, ())
-  | AutoFulfill =>
-    Table.makeHeaderInfo(~key="AutoFulfill", ~title="Auto Full fill", ~showSort=false, ())
-  | Name => Table.makeHeaderInfo(~key="Name", ~title="Name", ~showSort=false, ())
-  | Phone => Table.makeHeaderInfo(~key="Phone", ~title="Phone", ~showSort=false, ())
+  | PayoutType => Table.makeHeaderInfo(~key="PayoutType", ~title="Payout Type", ())
+  | Billing => Table.makeHeaderInfo(~key="Billing", ~title="Billing", ())
+  | AutoFulfill => Table.makeHeaderInfo(~key="AutoFulfill", ~title="Auto Full fill", ())
+  | Name => Table.makeHeaderInfo(~key="Name", ~title="Name", ())
+  | Phone => Table.makeHeaderInfo(~key="Phone", ~title="Phone", ())
   | PhoneCountryCode =>
-    Table.makeHeaderInfo(~key="PhoneCountryCode", ~title="Phone Country Code", ~showSort=false, ())
-  | ClientSecret =>
-    Table.makeHeaderInfo(~key="ClientSecret", ~title="Client Secret", ~showSort=false, ())
-  | ReturnUrl => Table.makeHeaderInfo(~key="ReturnUrl", ~title="Return Url", ~showSort=false, ())
-  | BusinessLabel =>
-    Table.makeHeaderInfo(~key="BusinessLabel", ~title="Business Label", ~showSort=false, ())
-  | Description =>
-    Table.makeHeaderInfo(~key="Description", ~title="Description", ~showSort=false, ())
-  | Entity_type =>
-    Table.makeHeaderInfo(~key="Entity_type", ~title="Entity Type", ~showSort=false, ())
-  | Recurring => Table.makeHeaderInfo(~key="Recurring", ~title="Recurring", ~showSort=false, ())
-  | ErrorCode => Table.makeHeaderInfo(~key="ErrorCode", ~title="ErrorCode", ~showSort=false, ())
+    Table.makeHeaderInfo(~key="PhoneCountryCode", ~title="Phone Country Code", ())
+  | ClientSecret => Table.makeHeaderInfo(~key="ClientSecret", ~title="Client Secret", ())
+  | ReturnUrl => Table.makeHeaderInfo(~key="ReturnUrl", ~title="Return Url", ())
+  | BusinessLabel => Table.makeHeaderInfo(~key="BusinessLabel", ~title="Business Label", ())
+  | Description => Table.makeHeaderInfo(~key="Description", ~title="Description", ())
+  | Entity_type => Table.makeHeaderInfo(~key="Entity_type", ~title="Entity Type", ())
+  | Recurring => Table.makeHeaderInfo(~key="Recurring", ~title="Recurring", ())
+  | ErrorCode => Table.makeHeaderInfo(~key="ErrorCode", ~title="ErrorCode", ())
   | ConnectorTransactionId =>
-    Table.makeHeaderInfo(
-      ~key="ConnectorTransactionId",
-      ~title="Connector Transaction ID",
-      ~showSort=false,
-      (),
-    )
+    Table.makeHeaderInfo(~key="ConnectorTransactionId", ~title="Connector Transaction ID", ())
 
-  | SendPriority =>
-    Table.makeHeaderInfo(~key="SendPriority", ~title="Send Priority", ~showSort=false, ())
+  | SendPriority => Table.makeHeaderInfo(~key="SendPriority", ~title="Send Priority", ())
   }
 }
 

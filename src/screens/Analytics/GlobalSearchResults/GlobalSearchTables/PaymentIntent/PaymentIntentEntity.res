@@ -137,64 +137,34 @@ let getObjects: JSON.t => array<paymentIntentObject> = json => {
 let getHeading = colType => {
   let key = colType->colMapper
   switch colType {
-  | PaymentId =>
-    Table.makeHeaderInfo(~key, ~title="Payment Id", ~dataType=TextType, ~showSort=false, ())
-  | MerchantId =>
-    Table.makeHeaderInfo(~key, ~title="Merchant Id", ~dataType=TextType, ~showSort=false, ())
-  | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=TextType, ~showSort=false, ())
-  | Amount => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType, ~showSort=false, ())
-  | Currency =>
-    Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType, ~showSort=false, ())
-  | AmountCaptured =>
-    Table.makeHeaderInfo(~key, ~title="Amount Captured", ~dataType=TextType, ~showSort=false, ())
-  | CustomerId =>
-    Table.makeHeaderInfo(~key, ~title="Customer Id", ~dataType=TextType, ~showSort=false, ())
-  | Description =>
-    Table.makeHeaderInfo(~key, ~title="Description", ~dataType=TextType, ~showSort=false, ())
-  | ReturnUrl =>
-    Table.makeHeaderInfo(~key, ~title="Return Url", ~dataType=TextType, ~showSort=false, ())
-  | ConnectorId =>
-    Table.makeHeaderInfo(~key, ~title="Connector Id", ~dataType=TextType, ~showSort=false, ())
+  | PaymentId => Table.makeHeaderInfo(~key, ~title="Payment Id", ~dataType=TextType, ())
+  | MerchantId => Table.makeHeaderInfo(~key, ~title="Merchant Id", ~dataType=TextType, ())
+  | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=TextType, ())
+  | Amount => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType, ())
+  | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType, ())
+  | AmountCaptured => Table.makeHeaderInfo(~key, ~title="Amount Captured", ~dataType=TextType, ())
+  | CustomerId => Table.makeHeaderInfo(~key, ~title="Customer Id", ~dataType=TextType, ())
+  | Description => Table.makeHeaderInfo(~key, ~title="Description", ~dataType=TextType, ())
+  | ReturnUrl => Table.makeHeaderInfo(~key, ~title="Return Url", ~dataType=TextType, ())
+  | ConnectorId => Table.makeHeaderInfo(~key, ~title="Connector Id", ~dataType=TextType, ())
   | StatementDescriptorName =>
-    Table.makeHeaderInfo(
-      ~key,
-      ~title="Statement Descriptor Name",
-      ~dataType=TextType,
-      ~showSort=false,
-      (),
-    )
+    Table.makeHeaderInfo(~key, ~title="Statement Descriptor Name", ~dataType=TextType, ())
   | StatementDescriptorSuffix =>
-    Table.makeHeaderInfo(
-      ~key,
-      ~title="Statement Descriptor Suffix",
-      ~dataType=TextType,
-      ~showSort=false,
-      (),
-    )
-  | CreatedAt =>
-    Table.makeHeaderInfo(~key, ~title="Created At", ~dataType=TextType, ~showSort=false, ())
-  | ModifiedAt =>
-    Table.makeHeaderInfo(~key, ~title="Modified At", ~dataType=TextType, ~showSort=false, ())
-  | LastSynced =>
-    Table.makeHeaderInfo(~key, ~title="Last Synced", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Statement Descriptor Suffix", ~dataType=TextType, ())
+  | CreatedAt => Table.makeHeaderInfo(~key, ~title="Created At", ~dataType=TextType, ())
+  | ModifiedAt => Table.makeHeaderInfo(~key, ~title="Modified At", ~dataType=TextType, ())
+  | LastSynced => Table.makeHeaderInfo(~key, ~title="Last Synced", ~dataType=TextType, ())
   | SetupFutureUsage =>
-    Table.makeHeaderInfo(~key, ~title="Setup Future Usage", ~dataType=TextType, ~showSort=false, ())
-  | OffSession =>
-    Table.makeHeaderInfo(~key, ~title="Off Session", ~dataType=TextType, ~showSort=false, ())
-  | ClientSecret =>
-    Table.makeHeaderInfo(~key, ~title="Client Secret", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Setup Future Usage", ~dataType=TextType, ())
+  | OffSession => Table.makeHeaderInfo(~key, ~title="Off Session", ~dataType=TextType, ())
+  | ClientSecret => Table.makeHeaderInfo(~key, ~title="Client Secret", ~dataType=TextType, ())
   | ActiveAttemptId =>
-    Table.makeHeaderInfo(~key, ~title="Active Attempt Id", ~dataType=TextType, ~showSort=false, ())
-  | BusinessCountry =>
-    Table.makeHeaderInfo(~key, ~title="Business Country", ~dataType=TextType, ~showSort=false, ())
-  | BusinessLabel =>
-    Table.makeHeaderInfo(~key, ~title="Business Label", ~dataType=TextType, ~showSort=false, ())
-  | AttemptCount =>
-    Table.makeHeaderInfo(~key, ~title="Attempt Count", ~dataType=TextType, ~showSort=false, ())
-  | SignFlag =>
-    Table.makeHeaderInfo(~key, ~title="Sign Flag", ~dataType=TextType, ~showSort=false, ())
-  | Timestamp =>
-    Table.makeHeaderInfo(~key, ~title="Time Stamp", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Active Attempt Id", ~dataType=TextType, ())
+  | BusinessCountry => Table.makeHeaderInfo(~key, ~title="Business Country", ~dataType=TextType, ())
+  | BusinessLabel => Table.makeHeaderInfo(~key, ~title="Business Label", ~dataType=TextType, ())
+  | AttemptCount => Table.makeHeaderInfo(~key, ~title="Attempt Count", ~dataType=TextType, ())
+  | SignFlag => Table.makeHeaderInfo(~key, ~title="Sign Flag", ~dataType=TextType, ())
+  | Timestamp => Table.makeHeaderInfo(~key, ~title="Time Stamp", ~dataType=TextType, ())
   }
 }
 

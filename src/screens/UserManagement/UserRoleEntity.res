@@ -46,10 +46,10 @@ type roleListResponse = {
 
 let getHeadingForUser = (colType: userColTypes) => {
   switch colType {
-  | Name => Table.makeHeaderInfo(~key="name", ~title="Name", ~showSort=true, ())
-  | Email => Table.makeHeaderInfo(~key="email", ~title="Email", ~showSort=true, ())
-  | Role => Table.makeHeaderInfo(~key="role", ~title="Role", ~showSort=true, ())
-  | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~showSort=true, ())
+  | Name => Table.makeHeaderInfo(~key="name", ~title="Name", ())
+  | Email => Table.makeHeaderInfo(~key="email", ~title="Email", ())
+  | Role => Table.makeHeaderInfo(~key="role", ~title="Role", ())
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ())
   }
 }
 

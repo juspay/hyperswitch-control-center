@@ -267,7 +267,8 @@ module SortAction = {
     ~isLastCol=false,
     ~filterRow: option<filterRow>,
   ) => {
-    if item.showSort || filterRow->Option.isSome {
+    // TODO: enable it again once the BE sorting functionality is live
+    let _ = if item.showSort || filterRow->Option.isSome {
       let order: sortOrder = switch sortedObj {
       | Some(obj: sortedObject) => obj.key === item.key ? obj.order : NONE
       | None => NONE
@@ -291,6 +292,7 @@ module SortAction = {
     } else {
       React.null
     }
+    React.null
   }
 }
 

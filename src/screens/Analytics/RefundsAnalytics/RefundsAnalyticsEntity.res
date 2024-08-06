@@ -39,35 +39,18 @@ let getUpdatedHeading = (
   let getHeading = colType => {
     let key = colType->colMapper
     switch colType {
-    | SuccessRate =>
-      Table.makeHeaderInfo(~key, ~title="Success Rate", ~dataType=NumericType, ~showSort=false, ())
-    | Count =>
-      Table.makeHeaderInfo(~key, ~title="Refund Count", ~dataType=NumericType, ~showSort=false, ())
+    | SuccessRate => Table.makeHeaderInfo(~key, ~title="Success Rate", ~dataType=NumericType, ())
+    | Count => Table.makeHeaderInfo(~key, ~title="Refund Count", ~dataType=NumericType, ())
     | SuccessCount =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Refund Success Count",
-        ~dataType=NumericType,
-        ~showSort=false,
-        (),
-      )
+      Table.makeHeaderInfo(~key, ~title="Refund Success Count", ~dataType=NumericType, ())
     | ProcessedAmount =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Refund Processed Amount",
-        ~dataType=NumericType,
-        ~showSort=false,
-        (),
-      )
-    | Connector =>
-      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=DropDown, ~showSort=false, ())
-    | Currency =>
-      Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=DropDown, ~showSort=false, ())
-    | RefundMethod =>
-      Table.makeHeaderInfo(~key, ~title="RefundMethod", ~dataType=DropDown, ~showSort=false, ())
-    | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Refund Processed Amount", ~dataType=NumericType, ())
+    | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=DropDown, ())
+    | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=DropDown, ())
+    | RefundMethod => Table.makeHeaderInfo(~key, ~title="RefundMethod", ~dataType=DropDown, ())
+    | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown, ())
 
-    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false, ())
+    | NoCol => Table.makeHeaderInfo(~key, ~title="", ())
     }
   }
   getHeading
