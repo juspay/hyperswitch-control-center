@@ -284,6 +284,7 @@ type highcharts
 external objectEach: (Dict.t<gridLine>, tick => unit) => unit = "objectEach"
 
 @module("highcharts/modules/treemap") external treeMapModule: highcharts => unit = "default"
+@module("highcharts/modules/solid-gauge") external gaugeModule: highcharts => unit = "default"
 @module("highcharts/modules/sankey") external sankeyChartModule: highcharts => unit = "default"
 @module("highcharts/highcharts-more") external bubbleChartModule: highcharts => unit = "default"
 @module("highcharts/modules/sunburst") external sunburstChartModule: highcharts => unit = "default"
@@ -329,6 +330,11 @@ module Chart = {
 }
 
 module DonutChart = {
+  @module("highcharts-react-official") @react.component
+  external make: (~highcharts: highcharts, ~options: JSON.t=?) => React.element = "default"
+}
+
+module Gauge = {
   @module("highcharts-react-official") @react.component
   external make: (~highcharts: highcharts, ~options: JSON.t=?) => React.element = "default"
 }

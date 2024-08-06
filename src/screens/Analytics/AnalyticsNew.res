@@ -515,3 +515,172 @@ module OverallSummary = {
     </div>
   }
 }
+
+module PaymentsSuccessGauge = {
+  open LogicUtils
+  open Promise
+  open APIUtils
+  open Identity
+  open Highcharts
+  @react.component
+  let make = () => {
+    let _ = bubbleChartModule(highchartsModule)
+
+    let (value, setValue) = React.useState(_ => 0.0)
+    let updateDetails = useUpdateMethod()
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+
+    let startTimeVal = filterValueJson->getString("startTime", "")
+    let endTimeVal = filterValueJson->getString("endTime", "")
+
+    React.useEffect(() => {
+      if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+        let timeRange =
+          [
+            ("startTime", startTimeVal->JSON.Encode.string),
+            ("endTime", endTimeVal->JSON.Encode.string),
+          ]
+          ->Dict.fromArray
+          ->JSON.Encode.object
+        let body = [
+          [
+            ("metrics", ["payment_success_rate"->JSON.Encode.string]->JSON.Encode.array),
+            ("delta", true->JSON.Encode.bool),
+            ("timeRange", timeRange),
+          ]
+          ->Dict.fromArray
+          ->JSON.Encode.object,
+        ]->JSON.Encode.array
+
+        updateDetails(
+          "https://sandbox.hyperswitch.io/analytics/v1/metrics/payments",
+          body,
+          Post,
+          (),
+        )
+        ->thenResolve(json => {
+          let data = json->JSON.Decode.object->Option.getOr(Dict.make())
+          switch data->getArrayFromDict("queryData", [])->Array.get(0) {
+          | Some(val) => {
+              let rate =
+                val
+                ->JSON.Decode.object
+                ->Option.getOr(Dict.make())
+                ->Dict.get("payment_success_rate")
+                ->Option.getOr(0.0->JSON.Encode.float)
+                ->JSON.Decode.float
+                ->Option.getOr(0.0)
+
+              setValue(_ => rate)
+            }
+          | None => ()
+          }
+        })
+        ->catch(_ => resolve())
+        ->ignore
+      }
+      None
+    }, [endTimeVal, startTimeVal])
+
+    let options = {
+      "chart": {
+        "type": "gauge",
+        "plotBackgroundColor": null,
+        "plotBackgroundImage": null,
+        "plotBorderWidth": 0,
+        "plotShadow": false,
+        "height": "80%",
+      },
+      "title": {
+        "text": "",
+      },
+      "pane": {
+        "startAngle": -90,
+        "endAngle": 89.9,
+        "background": null,
+        "center": ["50%", "75%"],
+        "size": "110%",
+      },
+      "yAxis": {
+        "min": 0,
+        "max": 100,
+        "tickPixelInterval": 72,
+        "tickPosition": "inside",
+        "tickColor": "#FFFFFF",
+        "tickLength": 20,
+        "tickWidth": 2,
+        "minorTickInterval": null,
+        "labels": {
+          "distance": 20,
+          "style": {
+            "fontSize": "14px",
+          },
+        },
+        "lineWidth": 0,
+        "plotBands": [
+          {
+            "from": 0,
+            "to": 60,
+            "color": "#DF5353", // red
+            "thickness": 20,
+            "borderRadius": "50%",
+          },
+          {
+            "from": 60,
+            "to": 80,
+            "color": "#DDDF0D", // yellow
+            "thickness": 20,
+            "borderRadius": "50%",
+          },
+          {
+            "from": 80,
+            "to": 100,
+            "color": "#55BF3B", // green
+            "thickness": 20,
+            "borderRadius": "50%",
+          },
+        ],
+      },
+      "series": [
+        {
+          "name": "Speed",
+          "data": [value],
+          "tooltip": {
+            "valueSuffix": "km/h",
+          },
+          "dial": {
+            "radius": "80%",
+            "backgroundColor": "gray",
+            "baseWidth": 12,
+            "baseLength": "0%",
+            "rearLength": "0%",
+          },
+          "pivot": {
+            "backgroundColor": "gray",
+            "radius": 6,
+          },
+        },
+      ],
+    }->genericTypeToJson
+
+    <div
+      className={`h-full flex flex-col border rounded-lg dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox p-4 md:mr-4`}>
+      {"Payment Success Rate"->React.string}
+      <Gauge highcharts={highchartsModule} options />
+    </div>
+  }
+}
+
+module MetricsAnalytics = {
+  @react.component
+  let make = () => {
+    <div>
+      <h2 className="font-bold text-xl text-black text-opacity-80 mb-3">
+        {"Analytics"->React.string}
+      </h2>
+      <div className="grid grid-cols-3 gap-4">
+        <PaymentsSuccessGauge />
+      </div>
+    </div>
+  }
+}

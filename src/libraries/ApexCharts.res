@@ -14,11 +14,12 @@ type chart = {
   zoom?: zoom,
   toolbar?: display,
   padding?: padding,
+  offsetY?: float,
 }
 
 type dataLabels = {enabled?: bool}
 
-type stroke = {curve: string}
+type stroke = {curve?: string, dashArray?: int}
 type title = {
   text?: string,
   align?: string,
@@ -44,6 +45,8 @@ type options = {
   yaxis?: axis,
   tooltip?: tooltip,
   colors?: array<string>,
+  plotOptions?: JSON.t,
+  fill?: JSON.t,
 }
 
 type point = {
