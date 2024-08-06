@@ -1,8 +1,8 @@
 open LogicUtils
 open PerformanceMonitorTypes
 
-let getStackedBarData = (~array: array<JSON.t>, ~key: string, ~chatSeries: array<string>) => {
-  let grouped = PerformanceUtils.getGroupedData(array, key, chatSeries)
+let getStackedBarData = (~array: array<JSON.t>, ~key: string) => {
+  let grouped = PerformanceUtils.getGroupedData(array, key)
   let keys = grouped->Dict.keysToArray
   let finalResult = Dict.make()
   let categories = []

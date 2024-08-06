@@ -85,11 +85,7 @@ let make = (
         res
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-      let configData = entity.getChartData(
-        ~array=arr,
-        ~key=entity.dataConfig.key,
-        ~chatSeries=entity.dataConfig.chartSeries,
-      )
+      let configData = entity.getChartData(~array=arr, ~key=entity.dataConfig.key)
       let options = DontcharPerformanceUtils.getDontchartOptions(entity.chartConfig, configData)
       setBarOptions(_ => options)
     } catch {

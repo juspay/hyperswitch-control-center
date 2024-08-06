@@ -10,7 +10,7 @@ let getDontchartOptions = (config: chartConfig, series) => {
       "text": config.title.text,
     },
     "tooltip": {
-      "valueSuffix": `%`,
+      "valueSuffix": ``,
     },
     "subtitle": {
       "text": "",
@@ -29,7 +29,7 @@ let getDontchartOptions = (config: chartConfig, series) => {
     },
     "series": [
       {
-        "name": "Registrations",
+        "name": "failure",
         "colorByPoint": true,
         "innerSize": "75%",
         "data": series,
@@ -38,8 +38,8 @@ let getDontchartOptions = (config: chartConfig, series) => {
   }->Identity.genericTypeToJson
 }
 
-let getPieCharData = (~array: array<JSON.t>, ~key: string, ~chatSeries: array<string>) => {
-  let grouped = PerformanceUtils.getGroupedData(array, key, chatSeries)
+let getPieCharData = (~array: array<JSON.t>, ~key: string) => {
+  let grouped = PerformanceUtils.getGroupedData(array, key)
   let keys = grouped->Dict.keysToArray
   let series = keys->Array.map(val => {
     let dict = grouped->Dict.get(val)->Option.getOr(Dict.make())

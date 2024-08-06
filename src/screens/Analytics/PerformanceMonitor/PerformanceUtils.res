@@ -95,7 +95,7 @@ let requestBody = (
   body
 }
 
-let getGroupedData = (array, key, chatSeries) => {
+let getGroupedData = (array, key) => {
   let result = Dict.make()
   let _ = array->Array.forEach(entry => {
     let d = entry->getDictFromJsonObject->getString(key, "")
@@ -103,7 +103,6 @@ let getGroupedData = (array, key, chatSeries) => {
     switch connectorResult {
     | None => {
         let newConnectorResult = Js.Dict.empty()
-        chatSeries->Array.forEach(stat => Js.Dict.set(newConnectorResult, stat, 0))
         let st = entry->getDictFromJsonObject->getString("status", "")
         let pc = entry->getDictFromJsonObject->getInt("payment_count", 0)
         Js.Dict.set(result, d, newConnectorResult)
