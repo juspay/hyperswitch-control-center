@@ -38,8 +38,9 @@ let getDontchartOptions = (config: chartConfig, series) => {
   }->Identity.genericTypeToJson
 }
 
-let getPieCharData = (~array: array<JSON.t>, ~key: string) => {
-  let grouped = PerformanceUtils.getGroupedData(array, key)
+let getPieCharData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
+  let {groupByKeys} = config
+  let grouped = PerformanceUtils.getGroupByDataForStatusAndPaymentCount(array, groupByKeys)
   let keys = grouped->Dict.keysToArray
   let series = keys->Array.map(val => {
     let dict = grouped->Dict.get(val)->Option.getOr(Dict.make())

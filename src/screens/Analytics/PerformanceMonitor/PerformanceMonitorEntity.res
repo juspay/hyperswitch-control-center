@@ -36,8 +36,8 @@ let getStatusPerformanceEntity: entity<'t> = {
     applyFilterFor: None,
   },
   getBody: PerformanceUtils.requestBody,
-  dataConfig: {
-    key: "status",
+  configRequiredForChartData: {
+    groupByKeys: [#status],
   },
   chartConfig: {
     yAxis: {
@@ -63,8 +63,8 @@ let getConnectorPerformanceEntity: entity<'t> = {
     applyFilterFor: Some(["charged", "failure"]),
   },
   getBody: PerformanceUtils.requestBody,
-  dataConfig: {
-    key: "connector",
+  configRequiredForChartData: {
+    groupByKeys: [#connector],
   },
   chartConfig: {
     yAxis: {
@@ -90,8 +90,8 @@ let getPaymentMethodPerformanceEntity: entity<'t> = {
     applyFilterFor: Some(["charged", "failure"]),
   },
   getBody: PerformanceUtils.requestBody,
-  dataConfig: {
-    key: "payment_method",
+  configRequiredForChartData: {
+    groupByKeys: [#payment_method],
   },
   chartConfig: {
     yAxis: {
@@ -108,17 +108,17 @@ let getPaymentMethodPerformanceEntity: entity<'t> = {
 }
 
 let getConnectorFailureEntity: entity<'t> = {
-  getChartData: DontcharPerformanceUtils.getPieCharData,
+  getChartData: PieChartPerformanceUtils.getPieCharData,
   requestBodyConfig: {
     metrics: [#payment_count],
-    groupBy: [#connector, #payment_method, #status],
-    filters: [#connector, #payment_method, #status],
+    groupBy: [#connector, #status],
+    filters: [#connector, #status],
     customFilter: Some(#status),
     applyFilterFor: Some(["failure"]),
   },
   getBody: PerformanceUtils.requestBody,
-  dataConfig: {
-    key: "connector",
+  configRequiredForChartData: {
+    groupByKeys: [#connector],
   },
   chartConfig: {
     yAxis: {
@@ -135,7 +135,7 @@ let getConnectorFailureEntity: entity<'t> = {
 }
 
 let getPaymentMethodFailureEntity: entity<'t> = {
-  getChartData: DontcharPerformanceUtils.getPieCharData,
+  getChartData: PieChartPerformanceUtils.getPieCharData,
   requestBodyConfig: {
     metrics: [#payment_count],
     groupBy: [#payment_method, #status],
@@ -144,8 +144,8 @@ let getPaymentMethodFailureEntity: entity<'t> = {
     applyFilterFor: Some(["failure"]),
   },
   getBody: PerformanceUtils.requestBody,
-  dataConfig: {
-    key: "payment_method",
+  configRequiredForChartData: {
+    groupByKeys: [#payment_method],
   },
   chartConfig: {
     yAxis: {
@@ -156,6 +156,33 @@ let getPaymentMethodFailureEntity: entity<'t> = {
     },
     title: {
       text: "Method Wise Payment Failure",
+    },
+    colors: ["#c74050", "#619f5b"],
+  },
+}
+
+let getConnectorPaymentMethodFailureEntity: entity<'t> = {
+  getChartData: PieChartPerformanceUtils.getPieCharData,
+  requestBodyConfig: {
+    metrics: [#payment_count],
+    groupBy: [#connector, #payment_method, #status],
+    filters: [#connector, #payment_method, #status],
+    customFilter: Some(#status),
+    applyFilterFor: Some(["failure"]),
+  },
+  getBody: PerformanceUtils.requestBody,
+  configRequiredForChartData: {
+    groupByKeys: [#connector, #payment_method],
+  },
+  chartConfig: {
+    yAxis: {
+      text: "",
+    },
+    xAxis: {
+      text: "",
+    },
+    title: {
+      text: "Connector + Payment Method Wise Payment Failure",
     },
     colors: ["#c74050", "#619f5b"],
   },

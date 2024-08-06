@@ -125,7 +125,7 @@ let make = () => {
       </div>
       <div className="grid grid-cols-3 gap-4">
         <div className="">
-          <DonutchartPerformance
+          <PieChartPerformance
             startTimeVal
             endTimeVal
             dimensions
@@ -133,11 +133,19 @@ let make = () => {
           />
         </div>
         <div className="">
-          <DonutchartPerformance
+          <PieChartPerformance
             startTimeVal
             endTimeVal
             dimensions
             entity={PerformanceMonitorEntity.getPaymentMethodFailureEntity}
+          />
+        </div>
+        <div className="">
+          <PieChartPerformance
+            startTimeVal
+            endTimeVal
+            dimensions
+            entity={PerformanceMonitorEntity.getConnectorPaymentMethodFailureEntity}
           />
         </div>
       </div>

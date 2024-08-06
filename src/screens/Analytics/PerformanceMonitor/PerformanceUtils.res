@@ -95,17 +95,27 @@ let requestBody = (
   body
 }
 
-let getGroupedData = (array, key) => {
+let getGroupByKey = (dict, keys: array<dimension>) => {
+  let key =
+    keys
+    ->Array.map(key => {
+      dict->getDictFromJsonObject->getString((key: dimension :> string), "")
+    })
+    ->Array.joinWith("+")
+  key
+}
+
+let getGroupByDataForStatusAndPaymentCount = (array, keys: array<dimension>) => {
   let result = Dict.make()
   let _ = array->Array.forEach(entry => {
-    let d = entry->getDictFromJsonObject->getString(key, "")
-    let connectorResult = Js.Dict.get(result, d)
+    let key = getGroupByKey(entry, keys)
+    let connectorResult = Js.Dict.get(result, key)
     switch connectorResult {
     | None => {
         let newConnectorResult = Js.Dict.empty()
         let st = entry->getDictFromJsonObject->getString("status", "")
         let pc = entry->getDictFromJsonObject->getInt("payment_count", 0)
-        Js.Dict.set(result, d, newConnectorResult)
+        Js.Dict.set(result, key, newConnectorResult)
         Js.Dict.set(newConnectorResult, st, pc)
       }
     | Some(connectorResult) => {
@@ -116,5 +126,6 @@ let getGroupedData = (array, key) => {
       }
     }
   })
+  Js.log2(result, "result")
   result
 }

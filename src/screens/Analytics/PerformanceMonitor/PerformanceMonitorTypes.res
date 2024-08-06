@@ -40,7 +40,7 @@ type chartConfig = {
   title: title,
   colors: array<string>,
 }
-type chartDataConfig = {key: string}
+type chartDataConfig = {groupByKeys: array<dimension>}
 
 type requestBodyConfig = {
   metrics: array<metrics>,
@@ -62,7 +62,7 @@ type entity<'t> = {
     ~applyFilterFor: option<array<string>>,
   ) => RescriptCore.JSON.t,
   requestBodyConfig: requestBodyConfig,
-  getChartData: (~array: array<JSON.t>, ~key: string) => 't,
-  dataConfig: chartDataConfig,
+  getChartData: (~array: array<JSON.t>, ~config: chartDataConfig) => 't,
+  configRequiredForChartData: chartDataConfig,
   chartConfig: chartConfig,
 }
