@@ -112,10 +112,10 @@ let getCellForUser = (data: userTableTypes, colType: userColTypes): Table.cell =
   | Status =>
     CustomCell(
       <div
-        className={`font-semibold text-sm px-6 py-2 rounded-full w-max ${status->getCssMapperForStatus} align-center`}>
+        className={`font-medium text-sm px-6 py-1.5 rounded-full w-max ${status->getCssMapperForStatus} align-center`}>
         {switch status {
-        | InviteSent => "INVITE SENT"->String.toUpperCase->React.string
-        | _ => data.status->String.toUpperCase->React.string
+        | InviteSent => "Invite sent"->React.string
+        | _ => data.status->React.string
         }}
       </div>,
       "",

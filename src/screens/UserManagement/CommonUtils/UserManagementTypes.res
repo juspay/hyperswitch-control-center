@@ -36,3 +36,9 @@ type getInfoType = {
   description: string,
   mutable isPermissionAllowed: bool,
 }
+
+type hirearchyType = {
+  parentGroup: string,
+  description: string,
+  groups: array<string>,
+}
