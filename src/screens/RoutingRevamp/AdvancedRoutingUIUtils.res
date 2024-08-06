@@ -231,9 +231,9 @@ let operatorInput = (id, keyType) => {
     ~label="",
     ~comboCustomInput=renderOperatorInp(keyType),
     ~inputFields=[
-      makeInputFieldInfo(~name=`${id}.lhs`, ()),
-      makeInputFieldInfo(~name=`${id}.comparison`, ()),
-      makeInputFieldInfo(~name=`${id}.value.value`, ()),
+      makeInputFieldInfo(~name=`${id}.lhs`),
+      makeInputFieldInfo(~name=`${id}.comparison`),
+      makeInputFieldInfo(~name=`${id}.value.value`),
     ],
     (),
   )
@@ -249,10 +249,10 @@ let valueInput = (id, variantValues, keyType) => {
     ~label="",
     ~comboCustomInput=renderValueInp(keyType, variantValues),
     ~inputFields=[
-      makeInputFieldInfo(~name=`${id}.lhs`, ()),
-      makeInputFieldInfo(~name=`${id}.${valuePath}`, ()),
-      makeInputFieldInfo(~name=`${id}.comparison`, ()),
-      makeInputFieldInfo(~name=`${id}.value.type`, ()),
+      makeInputFieldInfo(~name=`${id}.lhs`),
+      makeInputFieldInfo(~name=`${id}.${valuePath}`),
+      makeInputFieldInfo(~name=`${id}.comparison`),
+      makeInputFieldInfo(~name=`${id}.value.type`),
     ],
     (),
   )
@@ -262,9 +262,9 @@ let metaInput = (id, keyType) =>
     ~label="",
     ~comboCustomInput=renderMetaInput(keyType),
     ~inputFields=[
-      makeInputFieldInfo(~name=`${id}.value`, ()),
-      makeInputFieldInfo(~name=`${id}.operator`, ()),
-      makeInputFieldInfo(~name=`${id}.value.value.key`, ()),
+      makeInputFieldInfo(~name=`${id}.value`),
+      makeInputFieldInfo(~name=`${id}.operator`),
+      makeInputFieldInfo(~name=`${id}.value.value.key`),
     ],
     (),
   )
@@ -480,8 +480,7 @@ let configurationNameInput = makeFieldInfo(
   ~name="name",
   ~isRequired=true,
   ~placeholder="Enter Configuration Name",
-  ~customInput=InputFields.textInput(~autoFocus=true, ()),
-  (),
+  ~customInput=InputFields.textInput(~autoFocus=true),
 )
 let descriptionInput = makeFieldInfo(
   ~label="Description",
@@ -493,9 +492,7 @@ let descriptionInput = makeFieldInfo(
     ~rows=Some(3),
     ~cols=None,
     ~customClass="text-sm",
-    (),
   ),
-  (),
 )
 
 module ConfigureRuleButton = {

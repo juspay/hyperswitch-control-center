@@ -48,20 +48,20 @@ module DownloadAPIKeyButton = {
     ~buttonStyle="",
   ) => {
     let getURL = APIUtils.useGetURL()
-    let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
+    let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
     let showToast = ToastState.useShowToast()
     let (showCopyToClipboard, setShowCopyToClipboard) = React.useState(_ => false)
 
     let apiKeyGeneration = async () => {
       try {
-        let url = getURL(~entityName=API_KEYS, ~methodType=Post, ())
+        let url = getURL(~entityName=API_KEYS, ~methodType=Post)
         let body =
           [
             ("name", "DefaultAPIKey"->JSON.Encode.string),
             ("description", "Default Value of the API key"->JSON.Encode.string),
             ("expiration", "never"->JSON.Encode.string),
           ]->Dict.fromArray
-        let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
+        let res = await updateDetails(url, body->JSON.Encode.object, Post)
         let apiKey = res->getDictFromJsonObject->getString("api_key", "")
         DownloadUtils.downloadOld(~fileName=`apiKey.txt`, ~content=apiKey)
         Clipboard.writeText(apiKey)
@@ -69,19 +69,18 @@ module DownloadAPIKeyButton = {
         showToast(
           ~message="Api Key has been generated & Copied to clipboard",
           ~toastType=ToastState.ToastSuccess,
-          (),
         )
         setShowCopyToClipboard(_ => true)
         await HyperSwitchUtils.delay(2000)
         setShowCopyToClipboard(_ => false)
       } catch {
-      | _ => showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError, ())
+      | _ => showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError)
       }
     }
 
     let downloadZip = async () => {
       await HyperSwitchUtils.delay(1500)
-      showToast(~message="Plugin file has been downloaded!", ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message="Plugin file has been downloaded!", ~toastType=ToastState.ToastSuccess)
     }
     let button =
       <div className="flex items-center gap-5">
@@ -178,7 +177,7 @@ module HeaderComponentView = {
           className="py-1 px-4 border rounded-md flex gap-2 items-center cursor-pointer"
           onClick={_ => {
             Clipboard.writeText(value)
-            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
           }}>
           <img alt="copy-to-clipboard" src={`/assets/CopyToClipboard.svg`} />
           <p> {"Copy"->React.string} </p>
@@ -237,12 +236,12 @@ module BackendFrontendPlatformLangDropDown = {
   ) => {
     let platfromInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "Platform Selecr",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let val = ev->Identity.formReactEventToString->getPlatform
         setPlatform(_ => val)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: (platform :> string)->JSON.Encode.string,
       checked: true,
     }
@@ -252,23 +251,23 @@ module BackendFrontendPlatformLangDropDown = {
 
     let backendLangInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "BackEnd",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let val = ev->Identity.formReactEventToString->getLangauge
         setBackEndLang(_ => val)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: (backEndLang :> string)->JSON.Encode.string,
       checked: true,
     }
     let frontendLangInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "FrontEnd",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let val = ev->Identity.formReactEventToString->getLangauge
         setFrontEndLang(_ => val)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: (frontEndLang :> string)->JSON.Encode.string,
       checked: true,
     }
@@ -391,7 +390,7 @@ module LandingPageTileForIntegrateDocs = {
   ) => {
     open APIUtils
     let getURL = useGetURL()
-    let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+    let updateDetails = useUpdateMethod(~showErrorToast=false)
     let {
       integrationDetails,
       setIntegrationDetails,
@@ -411,16 +410,15 @@ module LandingPageTileForIntegrateDocs = {
     }
     let skipAndContinue = async () => {
       try {
-        let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
+        let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post)
         let metaDataDict = Dict.fromArray([("is_skip", true->JSON.Encode.bool)])->JSON.Encode.object
         let body = HSwitchUtils.constructOnboardingBody(
           ~dashboardPageState,
           ~integrationDetails,
           ~is_done=false,
           ~metadata=metaDataDict,
-          (),
         )
-        let _ = await updateDetails(url, body, Post, ())
+        let _ = await updateDetails(url, body, Post)
         setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       } catch {
       | _ => ()
@@ -610,7 +608,7 @@ let getTabsForIntegration = (
 ) => {
   open Tabs
   let defaultEditorStyle = "flex flex-col gap-8 bg-white flex flex-col px-6 py-4 border !shadow-hyperswitch_box_shadow rounded-md"
-  // let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
+  // let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
   // let {integrationDetails, setIntegrationDetails, dashboardPageState} = React.useContext(
   //   GlobalProvider.defaultContext,
   // )
@@ -808,13 +806,12 @@ let getTabsForIntegration = (
                 className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
                 <img
                   alt="wordpress"
-                  style={ReactDOMStyle.make(
-                    ~height="400px",
-                    ~width="100%",
-                    ~objectFit="cover",
-                    ~objectPosition="0% 12%",
-                    (),
-                  )}
+                  style={
+                    height: "400px",
+                    width: "100%",
+                    objectFit: "cover",
+                    objectPosition: "0% 12%",
+                  }
                   src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
                 />
               </div>
@@ -833,13 +830,12 @@ let getTabsForIntegration = (
                 className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
                 <img
                   alt="wordpress-settings"
-                  style={ReactDOMStyle.make(
-                    ~height="120px",
-                    ~width="100%",
-                    ~objectFit="cover",
-                    ~objectPosition="0% 52%",
-                    (),
-                  )}
+                  style={
+                    height: "120px",
+                    width: "100%",
+                    objectFit: "cover",
+                    objectPosition: "0% 52%",
+                  }
                   src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
                 />
               </div>
@@ -850,13 +846,12 @@ let getTabsForIntegration = (
                 className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
                 <img
                   alt="wordpress-settings"
-                  style={ReactDOMStyle.make(
-                    ~height="120px",
-                    ~width="100%",
-                    ~objectFit="cover",
-                    ~objectPosition="0% 100%",
-                    (),
-                  )}
+                  style={
+                    height: "120px",
+                    width: "100%",
+                    objectFit: "cover",
+                    objectPosition: "0% 100%",
+                  }
                   src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
                 />
               </div>

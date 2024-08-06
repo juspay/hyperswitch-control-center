@@ -10,7 +10,7 @@ type optionType<'t> = {
 }
 let getDefaultEntityOptionType = (): optionType<'t> => {
   urlKey: "",
-  field: FormRenderer.makeFieldInfo(~name="", ()),
+  field: FormRenderer.makeFieldInfo(~name=""),
   parser: json => json,
   localFilter: None,
 }
@@ -104,7 +104,6 @@ let makeEntity = (
   ~searchValueDict=?,
   ~filterCheck=(_, _) => false,
   ~filterForRow=(_, _): TableUtils.filterObject => {key: "", options: [], selected: []},
-  (),
 ) => {
   {
     uri,

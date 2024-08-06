@@ -366,7 +366,6 @@ module RequestInit = {
     ~integrity: string="",
     ~keepalive: option<bool>=?,
     ~signal: option<signal>=?,
-    (),
   ) =>
     make(
       ~method=?map(encodeRequestMethod, method_),
