@@ -25,6 +25,34 @@ let defaultDimesions = {
 }
 
 let colors = ["#c74050", "#619f5b"]
+
+let getStatusPerformanceEntity: entity<'t> = {
+  getChartData: BarChartPerformanceUtils.getStackedBarData,
+  requestBodyConfig: {
+    metrics: [#payment_count],
+    groupBy: [#status],
+    filters: [#status],
+    customFilter: None,
+    applyFilterFor: None,
+  },
+  getBody: PerformanceUtils.requestBody,
+  dataConfig: {
+    key: "status",
+  },
+  chartConfig: {
+    yAxis: {
+      text: "",
+    },
+    xAxis: {
+      text: "",
+    },
+    title: {
+      text: "Payment Distribution By Connector",
+    },
+    colors: ["#c74050", "#619f5b", "#ca8a04", "#06b6d4"],
+  },
+}
+
 let getConnectorPerformanceEntity: entity<'t> = {
   getChartData: BarChartPerformanceUtils.getStackedBarData,
   requestBodyConfig: {

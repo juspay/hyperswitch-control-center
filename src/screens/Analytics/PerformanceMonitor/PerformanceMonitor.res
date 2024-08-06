@@ -101,6 +101,16 @@ let make = () => {
             startTimeVal
             endTimeVal
             dimensions
+            entity={PerformanceMonitorEntity.getStatusPerformanceEntity}
+          />
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <div className="flex-col">
+          <BarChartPerformance
+            startTimeVal
+            endTimeVal
+            dimensions
             entity={PerformanceMonitorEntity.getConnectorPerformanceEntity}
           />
         </div>
