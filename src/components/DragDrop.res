@@ -5,18 +5,7 @@ let defaultDraggableDest = {
   index: 0,
   droppableId: "",
 }
-let getItemStyle = (isDragging, _draggableStyle) => {
-  let b = ReactDOM.Style.make(
-    ~userSelect="none",
-    ~width="250px",
-    ~height="100px",
-    ~padding="100",
-    ~margin="0 0 5px 0",
-    ~color=isDragging ? "lightgreen" : "grey",
-    (),
-  )
-  b
-}
+
 @react.component
 let make = (
   ~isHorizontal=true,

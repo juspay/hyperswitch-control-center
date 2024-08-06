@@ -54,7 +54,6 @@ module RangeSliderLocalFilter = {
       ~callback=() => {
         setShowDropDown(_ => false)
       },
-      (),
     )
 
     let min = minVal->Float.toString
