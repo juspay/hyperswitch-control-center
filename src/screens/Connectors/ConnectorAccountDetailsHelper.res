@@ -37,8 +37,8 @@ let multiValueInput = (~label, ~fieldName1, ~fieldName2) => {
     ~label,
     ~comboCustomInput=renderValueInp(~label),
     ~inputFields=[
-      makeInputFieldInfo(~name=`${fieldName1}`, ()),
-      makeInputFieldInfo(~name=`${fieldName2}`, ()),
+      makeInputFieldInfo(~name=`${fieldName1}`),
+      makeInputFieldInfo(~name=`${fieldName2}`),
     ],
     (),
   )
@@ -61,7 +61,7 @@ let inputField = (
     ~name,
     ~description,
     ~toolTipPosition,
-    ~customInput=InputFields.textInput(~isDisabled=disabled, ()),
+    ~customInput=InputFields.textInput(~isDisabled=disabled),
     ~placeholder=switch getPlaceholder {
     | Some(fun) => fun(label)
     | None => `Enter ${label->LogicUtils.snakeToTitle}`
@@ -70,7 +70,6 @@ let inputField = (
     | Some(fun) => fun(connector, field)
     | None => true
     },
-    (),
   )
 
 module ErrorValidation = {
@@ -365,7 +364,6 @@ module BusinessProfileRender = {
                 businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption
               },
               ~buttonText="Select Profile",
-              (),
             )(
               ~input={
                 ...input,
@@ -387,7 +385,6 @@ module BusinessProfileRender = {
               },
               ~placeholder="",
             ),
-          (),
         )}
       />
       <RenderIf condition={!isUpdateFlow}>
@@ -489,7 +486,7 @@ module ConnectorHeaderWrapper = {
   ) => {
     open ConnectorUtils
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let connectorNameFromType = connector->getConnectorNameTypeFromString()
+    let connectorNameFromType = connector->getConnectorNameTypeFromString
     let setShowModalFunction = switch handleShowModal {
     | Some(func) => func
     | _ => _ => ()

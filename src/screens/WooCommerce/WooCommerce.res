@@ -74,13 +74,12 @@ module ConfigurePlugin = {
               className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
               <img
                 alt="hyperswitch-settings"
-                style={ReactDOMStyle.make(
-                  ~height="400px",
-                  ~width="100%",
-                  ~objectFit="cover",
-                  ~objectPosition="0% 12%",
-                  (),
-                )}
+                style={
+                  height: "400px",
+                  width: "100%",
+                  objectFit: "cover",
+                  objectPosition: "0% 12%",
+                }
                 src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
               />
             </div>
@@ -155,13 +154,12 @@ module ConfigureWebHook = {
               className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
               <img
                 alt="hyperswitch-settings"
-                style={ReactDOMStyle.make(
-                  ~height="250px",
-                  ~width="100%",
-                  ~objectFit="cover",
-                  ~objectPosition="0% 40%",
-                  (),
-                )}
+                style={{
+                  height: "250px",
+                  width: "100%",
+                  objectFit: "cover",
+                  objectPosition: "0% 40%",
+                }}
                 src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
               />
             </div>
@@ -202,13 +200,12 @@ module ConfigureWebHook = {
               className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
               <img
                 alt="hyperswitch-settings"
-                style={ReactDOMStyle.make(
-                  ~height="150px",
-                  ~width="100%",
-                  ~objectFit="cover",
-                  ~objectPosition="0% 100%",
-                  (),
-                )}
+                style={{
+                  height: "150px",
+                  width: "100%",
+                  objectFit: "cover",
+                  objectPosition: "0% 100%",
+                }}
                 src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
               />
             </div>

@@ -17,7 +17,6 @@ let make = () => {
         ~entityName=USER_MANAGEMENT,
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
-        (),
       )
       let res = await fetchDetails(`${userDataURL}?groups=true`)
       let rolesData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForRoles)
@@ -46,7 +45,7 @@ let make = () => {
           text={"Create custom roles"}
           buttonType=Primary
           onClick={_ => {
-            mixpanelEvent(~eventName="invite_users", ())
+            mixpanelEvent(~eventName="invite_users")
             RescriptReactRouter.push(
               GlobalVars.appendDashboardPath(~url="/users/create-custom-role"),
             )

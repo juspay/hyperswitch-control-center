@@ -11,20 +11,17 @@ let inviteEmail = FormRenderer.makeFieldInfo(
         ~placeholder=showPlaceHolder ? "Eg: mehak.sam@wise.com, deepak.ven@wise.com" : "",
         ~customButtonStyle="!rounded-full !px-4",
         ~seperateByComma=true,
-        (),
       )
     }
-  )->InputFields.iconFieldWithMessageDes(~description="Press Enter to add more", ()),
+  )->InputFields.iconFieldWithMessageDes(~description="Press Enter to add more"),
   ~isRequired=true,
-  (),
 )
 
 let createCustomRole = FormRenderer.makeFieldInfo(
   ~label="Enter custom role name",
   ~name="role_name",
-  ~customInput=InputFields.textInput(~autoComplete="off", ~autoFocus=false, ()),
+  ~customInput=InputFields.textInput(~autoComplete="off", ~autoFocus=false),
   ~isRequired=true,
-  (),
 )
 
 let roleScope = userRole => {
@@ -44,10 +41,8 @@ let roleScope = userRole => {
       ~buttonText="Select Option",
       ~deselectDisable=true,
       ~disableSelect=userRole === "org_admin" ? false : true,
-      (),
     ),
     ~isRequired=true,
-    (),
   )
 }
 
@@ -122,10 +117,8 @@ let roleType = (roleListData, boderColor) =>
       ~options=roleOptions(roleListData),
       ~allowMultiSelect=false,
       ~selectedClass={boderColor},
-      (),
     ),
     ~isRequired=true,
-    (),
   )
 
 let getArrayOfPermissionData = json => {

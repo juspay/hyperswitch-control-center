@@ -21,7 +21,6 @@ let make = () => {
         ~entityName=USER_MANAGEMENT,
         ~methodType=Get,
         ~userRoleTypes=USER_LIST,
-        (),
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->getArrayDataFromJson(itemToObjMapperForUser)
@@ -63,7 +62,7 @@ let make = () => {
           text={"Invite users"}
           buttonType=Primary
           onClick={_ => {
-            mixpanelEvent(~eventName="invite_users", ())
+            mixpanelEvent(~eventName="invite_users")
             RescriptReactRouter.push(
               GlobalVars.appendDashboardPath(~url="/users-revamp/invite-users"),
             )

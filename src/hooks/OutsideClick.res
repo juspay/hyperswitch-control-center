@@ -10,7 +10,6 @@ let useOutsideClick = (
   ~isActive,
   ~events=["click"],
   ~callback,
-  (),
 ) => {
   let eventCallback = UseEvent.useEvent0(callback)
   React.useEffect(() => {

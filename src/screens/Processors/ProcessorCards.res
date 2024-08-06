@@ -70,7 +70,7 @@ let make = (
   let searchRef = React.useRef(Nullable.null)
 
   let handleClick = connectorName => {
-    mixpanelEvent(~eventName=`connect_processor_${connectorName}`, ())
+    mixpanelEvent(~eventName=`connect_processor_${connectorName}`)
     RescriptReactRouter.push(
       GlobalVars.appendDashboardPath(~url=`/${urlPrefix}?name=${connectorName}`),
     )

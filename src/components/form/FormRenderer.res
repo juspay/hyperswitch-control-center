@@ -37,11 +37,10 @@ let makeInputFieldInfo = (
   ~type_="text",
   ~isRequired=false,
   ~validate: option<(option<string>, JSON.t) => Promise.t<Nullable.t<string>>>=?,
-  (),
 ) => {
   let label = label->Option.getOr(name)
 
-  let newCustomInput = customInput->Option.getOr(InputFields.textInput(~isDisabled=disabled, ()))
+  let newCustomInput = customInput->Option.getOr(InputFields.textInput(~isDisabled=disabled))
 
   {
     name,
@@ -99,7 +98,6 @@ let makeMultiInputFieldInfo = (
   ~comboCustomInput: option<comboCustomInputRecord>=?,
   ~fieldPortalKey: option<string>=?,
   ~inputFields,
-  (),
 ) => {
   let inputNames =
     comboCustomInput
@@ -141,11 +139,10 @@ let makeFieldInfo = (
   ~isRequired=false,
   ~fieldPortalKey: option<string>=?,
   ~validate: option<(option<string>, JSON.t) => Promise.t<Nullable.t<string>>>=?,
-  (),
 ) => {
   let label = label->Option.getOr(name)
 
-  let newCustomInput = customInput->Option.getOr(InputFields.textInput(~isDisabled=disabled, ()))
+  let newCustomInput = customInput->Option.getOr(InputFields.textInput(~isDisabled=disabled))
 
   makeMultiInputFieldInfo(
     ~label,
@@ -170,10 +167,8 @@ let makeFieldInfo = (
         ~type_,
         ~isRequired,
         ~validate?,
-        (),
       ),
     ],
-    (),
   )
 }
 
@@ -396,7 +391,7 @@ module ComboFieldsRenderer3 = {
       if inputFields->Array.length === 0 {
         renderInputs(fieldsState)
       } else {
-        let inputField = inputFields[0]->Option.getOr(makeInputFieldInfo(~name="", ()))
+        let inputField = inputFields[0]->Option.getOr(makeInputFieldInfo(~name=""))
 
         let restInputFields = inputFields->Array.sliceToEnd(~start=1)
 
@@ -491,7 +486,7 @@ module FieldRenderer = {
               subHeadingClass
               dataId=names>
               {if field.inputFields->Array.length === 1 {
-                let field = field.inputFields[0]->Option.getOr(makeInputFieldInfo(~name="", ()))
+                let field = field.inputFields[0]->Option.getOr(makeInputFieldInfo(~name=""))
 
                 <ErrorBoundary>
                   <FieldInputRenderer field errorClass showErrorOnChange />

@@ -5,7 +5,7 @@ module InfoViewForWebhooks = {
     let onCopyClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       Clipboard.writeText(subHeading)
-      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
     <div className={`flex flex-col gap-2 m-2 md:m-4 w-1/2`}>
@@ -264,17 +264,17 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       if !enableCustomHttpHeaders {
         valuesDict->Dict.set("outgoing_webhook_custom_http_headers", JSON.Encode.null)
       }
-      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id), ())
+      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id))
       let body = valuesDict->JSON.Encode.object->getBusinessProfilePayload->JSON.Encode.object
-      let res = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post)
       setBusiProfie(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
-      showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
       fetchBusinessProfiles()->ignore
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError, ())
+        showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
       }
     }
     Nullable.null
@@ -345,9 +345,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       ~customInput=InputFields.boolInput(
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg",
-                        (),
                       ),
-                      (),
                     )}
                   />
                   <FieldRenderer
@@ -359,9 +357,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                       ~customInput=InputFields.boolInput(
                         ~isDisabled=false,
                         ~boolCustomClass="rounded-lg",
-                        (),
                       ),
-                      (),
                     )}
                   />
                 </DesktopRow>
