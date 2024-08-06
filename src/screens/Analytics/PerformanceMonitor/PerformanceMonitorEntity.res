@@ -1,51 +1,3 @@
-let barOption = (categories, series) =>
-  {
-    "chart": {
-      "type": `column`,
-    },
-    "colors": ["#c74050", "#619f5b"],
-    "title": {
-      "text": `Major trophies for some English teams`,
-      "align": "left",
-    },
-    "xAxis": {
-      "categories": categories,
-    },
-    "yAxis": {
-      "min": 0,
-      "title": {
-        "text": "Count trophies",
-      },
-      "stackLabels": {
-        "enabled": true,
-      },
-    },
-    "legend": {
-      "align": "left",
-      "x": 70,
-      "verticalAlign": "top",
-      "y": 70,
-      "floating": true,
-      "backgroundColor": "white",
-      "borderColor": "#CCC",
-      "borderWidth": 1,
-      "shadow": false,
-    },
-    "tooltip": {
-      "headerFormat": "<b>{point.x}</b><br/>",
-      "pointFormat": "{series.name}: {point.y}<br/>Total: {point.stackTotal}",
-    },
-    "plotOptions": {
-      "column": {
-        "stacking": "normal",
-        "dataLabels": {
-          "enabled": true,
-        },
-      },
-    },
-    "series": series,
-  }->Identity.genericObjectOrRecordToJson
-
 open PerformanceMonitorTypes
 open LogicUtils
 
@@ -58,6 +10,7 @@ let getDimensionNameFromString = dimension => {
   | _ => #no_value
   }
 }
+
 let dimensionMapper = dict => {
   dimension: dict->getString("dimension", "")->getDimensionNameFromString,
   values: dict->getStrArray("values"),
@@ -71,9 +24,115 @@ let defaultDimesions = {
   values: [],
 }
 
-let getPerformanceMonitorBody = (performanceType: performance, dimensions: dimensions) => {
-  switch performanceType {
-  | #ConnectorPerformance => PerformanceUtils.connectorPerformanceBody("", "", dimensions)
-  | _ => JSON.Encode.null
-  }
+let colors = ["#c74050", "#619f5b"]
+let getConnectorPerformanceEntity: entity<'t> = {
+  getChartData: BarChartPerformanceUtils.getStackedBarData,
+  requestBodyConfig: {
+    metrics: [#payment_count],
+    groupBy: [#connector, #status],
+    filters: [#connector, #status],
+    customFilter: Some(#status),
+    applyFilterFor: Some(["charged", "failure"]),
+  },
+  getBody: PerformanceUtils.requestBody,
+  dataConfig: {
+    key: "connector",
+    chartSeries: ["failure", "charged"],
+  },
+  chartConfig: {
+    yAxis: {
+      text: "",
+    },
+    xAxis: {
+      text: "",
+    },
+    title: {
+      text: "Payment Distribution By Connector",
+    },
+    colors: ["#c74050", "#619f5b"],
+  },
+}
+
+let getPaymentMethodPerformanceEntity: entity<'t> = {
+  getChartData: BarChartPerformanceUtils.getStackedBarData,
+  requestBodyConfig: {
+    metrics: [#payment_count],
+    groupBy: [#payment_method, #status],
+    filters: [#payment_method, #status],
+    customFilter: Some(#status),
+    applyFilterFor: Some(["charged", "failure"]),
+  },
+  getBody: PerformanceUtils.requestBody,
+  dataConfig: {
+    key: "payment_method",
+    chartSeries: ["failure", "charged"],
+  },
+  chartConfig: {
+    yAxis: {
+      text: "",
+    },
+    xAxis: {
+      text: "",
+    },
+    title: {
+      text: "Payment Distribution By Payment Method",
+    },
+    colors: ["#c74050", "#619f5b"],
+  },
+}
+
+let getConnectorFailureEntity: entity<'t> = {
+  getChartData: DontcharPerformanceUtils.getPieCharData,
+  requestBodyConfig: {
+    metrics: [#payment_count],
+    groupBy: [#connector, #status],
+    filters: [#connector, #status],
+    customFilter: Some(#status),
+    applyFilterFor: Some(["failure"]),
+  },
+  getBody: PerformanceUtils.requestBody,
+  dataConfig: {
+    key: "connector",
+    chartSeries: ["failure"],
+  },
+  chartConfig: {
+    yAxis: {
+      text: "",
+    },
+    xAxis: {
+      text: "",
+    },
+    title: {
+      text: "Connector Wise Payment Failure",
+    },
+    colors: ["#c74050", "#619f5b"],
+  },
+}
+
+let getPaymentMethodFailureEntity: entity<'t> = {
+  getChartData: DontcharPerformanceUtils.getPieCharData,
+  requestBodyConfig: {
+    metrics: [#payment_count],
+    groupBy: [#payment_method, #status],
+    filters: [#payment_method, #status],
+    customFilter: Some(#status),
+    applyFilterFor: Some(["failure"]),
+  },
+  getBody: PerformanceUtils.requestBody,
+  dataConfig: {
+    key: "payment_method",
+    chartSeries: ["failure"],
+  },
+  chartConfig: {
+    yAxis: {
+      text: "",
+    },
+    xAxis: {
+      text: "",
+    },
+    title: {
+      text: "Method Wise Payment Failure",
+    },
+    colors: ["#c74050", "#619f5b"],
+  },
 }

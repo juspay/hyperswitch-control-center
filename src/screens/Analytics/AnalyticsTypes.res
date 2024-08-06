@@ -266,9 +266,3 @@ type nestedEntityType = {
   userBarChart?: DynamicChart.entity,
   userFunnelChart?: DynamicChart.entity,
 }
-type paymentStatus = [#failure | #charged]
-type paymentDistribution = {
-  payment_count: int,
-  status: string,
-  connector: string,
-}

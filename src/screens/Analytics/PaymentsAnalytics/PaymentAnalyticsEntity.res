@@ -267,12 +267,6 @@ let singleStateSeriesInitialValue = {
   payment_avg_ticket_size: 0.0,
 }
 
-let paymentDistributionInitialValue = {
-  payment_count: 0,
-  connector: "",
-  status: "",
-}
-
 let singleStateItemToObjMapper = json => {
   json
   ->JSON.Decode.object
@@ -317,20 +311,6 @@ let itemToObjMapper = json => {
 
 let timeSeriesObjMapper = json =>
   json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
-
-let distributionObjMapper = dict => {
-  {
-    payment_count: dict->getDictFromJsonObject->getInt("payment_count", 0),
-    connector: dict->getDictFromJsonObject->getString("connector", ""),
-    status: dict->getDictFromJsonObject->getString("status", ""),
-  }
-}
-let paymentDistributionObjMapper = json => {
-  json
-  ->getDictFromJsonObject
-  ->getArrayFromDict("queryData", [])
-  ->Array.map(dict => dict->distributionObjMapper)
-}
 
 type colT =
   | SuccessRate

@@ -1,4 +1,25 @@
 open PerformanceMonitorTypes
+open LogicUtils
+let paymentDistributionInitialValue = {
+  payment_count: 0,
+  status: "",
+  connector: "",
+  payment_method: "",
+}
+let distributionObjMapper = dict => {
+  {
+    payment_count: dict->getDictFromJsonObject->getInt("payment_count", 0),
+    status: dict->getDictFromJsonObject->getString("status", ""),
+    connector: dict->getDictFromJsonObject->getString("connector", ""),
+    payment_method: dict->getDictFromJsonObject->getString("payment_method", ""),
+  }
+}
+let paymentDistributionObjMapper = json => {
+  json
+  ->getDictFromJsonObject
+  ->getArrayFromDict("queryData", [])
+  ->Array.map(dict => dict->distributionObjMapper)
+}
 
 let defaultDimesions = {
   dimension: #no_value,
@@ -44,38 +65,57 @@ let getTimeRange = (startTime, endTime) => {
   ->JSON.Encode.object
 }
 
-let getGroupBy = performanceType => {
-  switch performanceType {
-  | #ConnectorPerformance => getGroupByForPerformance(~dimensions=[#connector, #status])
-  }
-}
-
-let getFilters = (performanceType, dimensions: dimensions) => {
-  switch performanceType {
-  | #ConnectorPerformance =>
-    getFilterForPerformance(
-      ~dimensions,
-      ~filters=[#connector, #status],
-      ~custom=Some(#status),
-      ~customValue=Some(["charged", "failure"]),
-    )
-  }
-}
-
-let getMetric = performanceType => {
-  switch performanceType {
-  | #ConnectorPerformance => getMetricForPerformance(~metrics=[#payment_count])
-  }
-}
-
-let connectorPerformanceBody = (startTime, endTime, dimensions: dimensions) => {
+let requestBody = (
+  ~dimensions: dimensions,
+  ~startTime: string,
+  ~endTime: string,
+  ~metrics: array<metrics>,
+  ~groupBy: array<dimension>,
+  ~filters: array<dimension>,
+  ~customFilter: option<dimension>,
+  ~applyFilterFor: option<array<string>>,
+) => {
+  let timeRange = getTimeRange(startTime, endTime)
+  let metrics = getMetricForPerformance(~metrics)
+  let filters = getFilterForPerformance(
+    ~dimensions,
+    ~filters,
+    ~custom=customFilter,
+    ~customValue=applyFilterFor,
+  )
+  let groupByNames = getGroupByForPerformance(~dimensions=groupBy)
   let body = [
     {
-      "timeRange": getTimeRange(startTime, endTime),
-      "groupByNames": getGroupBy(#ConnectorPerformance),
-      "filters": getFilters(#ConnectorPerformance, dimensions),
-      "metrics": getMetric(#ConnectorPerformance),
+      "timeRange": timeRange,
+      "groupByNames": groupByNames,
+      "filters": filters,
+      "metrics": metrics,
     },
   ]->Identity.genericTypeToJson
   body
+}
+
+let getGroupedData = (array, key, chatSeries) => {
+  let result = Dict.make()
+  let _ = array->Array.forEach(entry => {
+    let d = entry->getDictFromJsonObject->getString(key, "")
+    let connectorResult = Js.Dict.get(result, d)
+    switch connectorResult {
+    | None => {
+        let newConnectorResult = Js.Dict.empty()
+        chatSeries->Array.forEach(stat => Js.Dict.set(newConnectorResult, stat, 0))
+        let st = entry->getDictFromJsonObject->getString("status", "")
+        let pc = entry->getDictFromJsonObject->getInt("payment_count", 0)
+        Js.Dict.set(result, d, newConnectorResult)
+        Js.Dict.set(newConnectorResult, st, pc)
+      }
+    | Some(connectorResult) => {
+        let st = entry->getDictFromJsonObject->getString("status", "")
+        let pc = entry->getDictFromJsonObject->getInt("payment_count", 0)
+        let currentCount = Js.Dict.get(connectorResult, st)->Belt.Option.getWithDefault(0)
+        Js.Dict.set(connectorResult, st, currentCount + pc)
+      }
+    }
+  })
+  result
 }

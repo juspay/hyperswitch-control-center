@@ -5,6 +5,7 @@ let make = () => {
   open LogicUtils
 
   open HSAnalyticsUtils
+  open PerformanceMonitorEntity
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
@@ -13,6 +14,7 @@ let make = () => {
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (dimensions, setDimensions) = React.useState(_ => []->dimensionObjMapper)
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
     ~updateExistingKeys,
     ~startTimeFilterKey,
@@ -35,7 +37,13 @@ let make = () => {
       let groupBy = getStringListFromArrayDict(dimensions)
       let filterUri = `${Window.env.apiBaseUrl}/analytics/v1/filters/payments`
       let res = await updateDetails(filterUri, filterBody(~groupBy)->JSON.Encode.object, Post, ())
-      Js.log(res)
+      let dim =
+        res
+        ->getDictFromJsonObject
+        ->getJsonObjectFromDict("queryData")
+        ->getArrayFromJson([])
+        ->dimensionObjMapper
+      setDimensions(_ => dim)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => ()
@@ -43,6 +51,7 @@ let make = () => {
   }
   let loadInfo = async () => {
     try {
+      setScreenState(_ => Loading)
       let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain), ())
       let infoDetails = await fetchDetails(infoUrl)
       let dimensions = infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", [])
@@ -63,7 +72,6 @@ let make = () => {
     }
     None
   }, (startTimeVal, endTimeVal))
-
   let topFilterUi =
     <div className="flex flex-row">
       <DynamicFilter
@@ -82,12 +90,47 @@ let make = () => {
     </div>
 
   <>
-    <div
-      className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
-      topFilterUi
-    </div>
-    <div className="flex flex-col gap-14">
-      <ConnectorPerformance startTimeVal endTimeVal />
-    </div>
+    <PageLoaderWrapper screenState>
+      <div
+        className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
+        topFilterUi
+      </div>
+      <div className="flex gap-2">
+        <div className="flex-col">
+          <BarChartPerformance
+            startTimeVal
+            endTimeVal
+            dimensions
+            entity={PerformanceMonitorEntity.getConnectorPerformanceEntity}
+          />
+        </div>
+        <div className="flex-col">
+          <BarChartPerformance
+            startTimeVal
+            endTimeVal
+            dimensions
+            entity={PerformanceMonitorEntity.getPaymentMethodPerformanceEntity}
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="">
+          <DonutchartPerformance
+            startTimeVal
+            endTimeVal
+            dimensions
+            entity={PerformanceMonitorEntity.getConnectorFailureEntity}
+          />
+        </div>
+        <div className="">
+          <DonutchartPerformance
+            startTimeVal
+            endTimeVal
+            dimensions
+            entity={PerformanceMonitorEntity.getPaymentMethodFailureEntity}
+          />
+        </div>
+      </div>
+    </PageLoaderWrapper>
   </>
 }
