@@ -61,6 +61,7 @@ module ListItem = {
     ~showToolTipOptions=false,
     ~textEllipsisForDropDownOptions=false,
     ~textColorClass="",
+    ~customRowClass="",
   ) => {
     let {globalUIConfig: {font}} = React.useContext(ThemeProvider.themeContext)
     let labelText = switch labelValue->String.length {
@@ -196,7 +197,7 @@ module ListItem = {
         <div
           ref={parentRef->ReactDOM.Ref.domRef}
           onClick=onClickTemp
-          className={`flex  relative mx-2 md:mx-0 my-3 md:my-0 pr-2 md:pr-0 md:w-full items-center font-medium  ${overFlowTextCustomClass} ${itemRoundedClass} ${textColor} ${justifyClass} ${cursorClass} ${backgroundClass} ${selectedClass} ${customStyle}  ${customCss} `}>
+          className={`flex  relative mx-2 md:mx-0 my-3 md:my-0 pr-2 md:pr-0 md:w-full items-center font-medium  ${overFlowTextCustomClass} ${itemRoundedClass} ${textColor} ${justifyClass} ${cursorClass} ${backgroundClass} ${selectedClass} ${customStyle}  ${customCss} ${customRowClass}`}>
           {if !isDropDown {
             if showToggle {
               <div className={toggleClass ++ toggleProps} onClick>
@@ -367,6 +368,7 @@ type dropdownOptionWithoutOptional = {
   iconStroke: string,
   textColor: string,
   optGroup: string,
+  customRowClass: string,
 }
 type dropdownOption = {
   label: string,
@@ -377,6 +379,7 @@ type dropdownOption = {
   description?: string,
   iconStroke?: string,
   textColor?: string,
+  customRowClass?: string,
 }
 
 let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOptional => {
@@ -389,6 +392,7 @@ let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOpt
     iconStroke: dropdownOption.iconStroke->Option.getOr(""),
     textColor: dropdownOption.textColor->Option.getOr(""),
     optGroup: dropdownOption.optGroup->Option.getOr("-"),
+    customRowClass: dropdownOption.customRowClass->Option.getOr(""),
   }
 }
 
@@ -1047,6 +1051,7 @@ module BaseSelectButton = {
               isMobileView
               dataId=i
               iconStroke=option.iconStroke
+              customRowClass={option.customRowClass}
             />
           } else {
             React.null
@@ -1133,6 +1138,7 @@ module RenderListItemInBaseRadio = {
           textEllipsisForDropDownOptions
           textColorClass={option.textColor}
           customMarginStyle=customMarginStyleOfListItem
+          customRowClass={option.customRowClass}
         />
 
       if !descriptionOnHover {
