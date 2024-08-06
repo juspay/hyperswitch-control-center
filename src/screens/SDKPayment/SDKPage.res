@@ -24,9 +24,7 @@ module SDKConfiguarationFields = {
         ~buttonText="Select Profile",
         ~disableSelect=disableSelectionForProfile,
         ~fullLength=true,
-        (),
       ),
-      (),
     )
     let selectCurrencyField = FormRenderer.makeFieldInfo(
       ~label="Currency",
@@ -37,15 +35,13 @@ module SDKConfiguarationFields = {
         ~buttonText="Select Currency",
         ~deselectDisable=true,
         ~fullLength=true,
-        (),
       ),
-      (),
     )
     let enterAmountField = FormRenderer.makeFieldInfo(
       ~label="Enter amount",
       ~name="amount",
       ~customInput=(~input, ~placeholder as _) =>
-        InputFields.numericTextInput(~isDisabled=false, ~customStyle="w-full", ~precision=2, ())(
+        InputFields.numericTextInput(~isDisabled=false, ~customStyle="w-full", ~precision=2)(
           ~input={
             ...input,
             value: (initialValues.amount /. 100.00)->Float.toString->JSON.Encode.string,
@@ -61,7 +57,6 @@ module SDKConfiguarationFields = {
           },
           ~placeholder="Enter amount",
         ),
-      (),
     )
 
     <div className="w-full">

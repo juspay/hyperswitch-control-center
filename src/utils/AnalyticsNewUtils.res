@@ -6,7 +6,6 @@ let calculateHistoricTime = (
   ~endTime: string,
   ~format: string="YYYY-MM-DDTHH:mm:ss[Z]",
   ~timeZone: timeZone=UTC,
-  (),
 ) => {
   let toUtc = switch timeZone {
   | UTC => toUtc
@@ -427,7 +426,6 @@ let apiBodyMaker = (
   ~timeCol: string="txn_initiated",
   ~domain: string,
   ~dataLimit: option<float>=?,
-  (),
 ) => {
   let finalBody = Dict.make()
 

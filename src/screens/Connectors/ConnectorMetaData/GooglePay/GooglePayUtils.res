@@ -10,7 +10,7 @@ let allowedPaymentMethodparameters = {
 let getCustomGateWayName = connector => {
   open ConnectorUtils
   open ConnectorTypes
-  switch connector->getConnectorNameTypeFromString() {
+  switch connector->getConnectorNameTypeFromString {
   | Processors(CHECKOUT) => "checkoutltd"
   | Processors(NUVEI) => "nuveidigital"
   | Processors(AUTHORIZEDOTNET) => "authorizenet"
@@ -25,7 +25,7 @@ let tokenizationSpecificationParameters = (dict, connector) => {
   open ConnectorTypes
   let tokenizationSpecificationDict =
     dict->getDictfromDict("tokenization_specification")->getDictfromDict("parameters")
-  switch connector->getConnectorNameTypeFromString() {
+  switch connector->getConnectorNameTypeFromString {
   | Processors(STRIPE) => {
       gateway: connector,
       \"stripe:version": tokenizationSpecificationDict->getString("stripe:version", "2018-10-31"),
@@ -78,7 +78,7 @@ let googlePay = (dict, connector: string) => {
     merchant_info: merchantInfoDict->merchantInfo,
     allowed_payment_methods: [allowedPaymentMethodDict->allowedPaymentMethod(connector)],
   }
-  switch connector->getConnectorNameTypeFromString() {
+  switch connector->getConnectorNameTypeFromString {
   | Processors(ZEN) => Zen(dict->zenGooglePayConfig)
   | _ => Standard(standGooglePayConfig)
   }
@@ -103,7 +103,7 @@ let googlePayValueInput = (~googlePayField: CommonMetaDataTypes.inputField) => {
   {
     switch \"type" {
     | Text => textInput(~field={googlePayField}, ~formName)
-    | Select => selectInput(~field={googlePayField}, ~formName, ())
+    | Select => selectInput(~field={googlePayField}, ~formName)
     | MultiSelect => multiSelectInput(~field={googlePayField}, ~formName)
     | _ => textInput(~field={googlePayField}, ~formName)
     }

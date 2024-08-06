@@ -40,7 +40,6 @@ let useGetBgColor: (
   ~showBorder: bool,
   ~isDropdownOpen: bool=?,
   ~isPhoneDropdown: bool=?,
-  unit,
 ) => string
 
 let useGetTextColor: (
@@ -49,7 +48,6 @@ let useGetTextColor: (
   ~showBorder: bool,
   ~isDropdownOpen: bool=?,
   ~isPhoneDropdown: bool=?,
-  unit,
 ) => string
 @react.component
 let make: (

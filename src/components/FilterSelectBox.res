@@ -776,7 +776,7 @@ module BaseSelect = {
             {if !hideBorder {
               <div
                 className="my-2 bg-jp-gray-lightmode_steelgray dark:bg-jp-gray-960  "
-                style={ReactDOMStyle.make(~height="1px", ())}
+                style={height: "1px"}
               />
             } else {
               React.null
@@ -1211,7 +1211,6 @@ module BaseRadio = {
       ~callback=() => {
         setSearchString(_ => "")
       },
-      (),
     )
     let onItemClick = (itemData, isDisabled) => _ev => {
       if !isDisabled {
@@ -1596,15 +1595,10 @@ module BaseDropdown = {
     let refs = autoApply
       ? [selectBoxRef, dropdownRef]
       : [selectBoxRef, dropdownRef, selectBtnRef, clearBtnRef]
-    OutsideClick.useOutsideClick(
-      ~refs=ArrayOfRef(refs),
-      ~isActive=showDropDown,
-      ~callback=() => {
-        setShowDropDown(_ => false)
-        hasApplyButton ? newInputSelect.onChange(preservedAppliedOptions) : ()
-      },
-      (),
-    )
+    OutsideClick.useOutsideClick(~refs=ArrayOfRef(refs), ~isActive=showDropDown, ~callback=() => {
+      setShowDropDown(_ => false)
+      hasApplyButton ? newInputSelect.onChange(preservedAppliedOptions) : ()
+    })
     let onClick = _ => {
       switch buttonClickFn {
       | Some(fn) => fn(input.name)

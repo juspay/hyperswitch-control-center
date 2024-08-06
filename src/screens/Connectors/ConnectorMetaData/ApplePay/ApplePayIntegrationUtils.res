@@ -106,7 +106,7 @@ let applePay = (
 ): applePay => {
   open ConnectorUtils
   open ConnectorTypes
-  switch connector->getConnectorNameTypeFromString() {
+  switch connector->getConnectorNameTypeFromString {
   | Processors(ZEN) => Zen(dict->zenApplePayConfig)
   | _ => {
       let integrationType = applePayIntegrationType->Option.getOr(#manual)

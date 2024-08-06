@@ -570,10 +570,10 @@ let legendClickItem = (s: Highcharts.legendItem, e, setState) => {
 }
 let formatStatsAccToMetrix = (metric: dropDownMetricType, value: float) => {
   switch metric {
-  | Latency => latencyShortNum(~labelValue=value, ())
-  | Volume => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat(), ())
+  | Latency => latencyShortNum(~labelValue=value)
+  | Volume => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat())
   | Rate | Traffic => value->Float.toFixedWithPrecision(~digits=2)->removeTrailingZero ++ "%"
-  | Amount => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat(), ())
+  | Amount => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat())
   }
 }
 
