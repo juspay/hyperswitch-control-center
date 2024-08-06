@@ -663,6 +663,7 @@ let make = (
   ~customBorderClass=?,
   ~showborderColor=true,
   ~tableHeadingTextClass="",
+  ~nonFrozenTableParentClass="",
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
@@ -913,7 +914,8 @@ let make = (
     )} //replaced "overflow-auto" -> to be tested with master
   >
     <RenderIf condition={frozenUpto > 0}> {frozenTable} </RenderIf>
-    <div className={`flex-1 ${overflowClass} no-scrollbar ${childMinWidthClass}`}>
+    <div
+      className={`flex-1 ${overflowClass} no-scrollbar ${childMinWidthClass} ${nonFrozenTableParentClass}`}>
       nonFrozenTable
     </div>
     {switch customizeColumnNewTheme {
