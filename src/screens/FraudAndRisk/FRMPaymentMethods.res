@@ -298,8 +298,8 @@ module PaymentMethodsRenderer = {
           response
           ->getArrayFromJson([])
           ->Array.map(getDictFromJsonObject)
-          ->FRMUtils.filterList(~removeFromList=FRMPlayer, ())
-          ->FRMUtils.filterList(~removeFromList=ThreedsAuthenticator, ())
+          ->FRMUtils.filterList(~removeFromList=FRMPlayer)
+          ->FRMUtils.filterList(~removeFromList=ThreedsAuthenticator)
           ->getConnectorConfig
 
         let updateFRMConfig =
@@ -353,7 +353,7 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
 
   let onSubmit = (values, _) => {
     open Promise
-    mixpanelEvent(~eventName="frm_step1", ())
+    mixpanelEvent(~eventName="frm_step1")
     let valuesDict = values->getDictFromJsonObject
 
     // filter connector frm config having no payment method config

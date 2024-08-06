@@ -503,7 +503,7 @@ module ReactWindowTableComponent = {
 
     <div
       className={` overflow-x-scroll ${scrollBarClass}`}
-      style={ReactDOMStyle.make(~minHeight={filterPresent ? "30rem" : ""}, ())}>
+      style={minHeight: {filterPresent ? "30rem" : ""}}>
       <div
         className={`w-max	${widthClass} h-full border border-jp-gray-940 border-opacity-50 dark:border-jp-gray-960 rounded-lg ${tableBorderClass}`}
         colSpan=0>
@@ -752,15 +752,13 @@ let make = (
   if showSerialNumber {
     heading
     ->Array.unshift(
-      Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType, ()),
+      Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType),
     )
     ->ignore
   }
   if checkBoxProps.showCheckBox {
     heading
-    ->Array.unshift(
-      Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true, ()),
-    )
+    ->Array.unshift(Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true))
     ->ignore
   }
 
@@ -1090,7 +1088,7 @@ let make = (
     <div>
       <div
         className={` bg-gray-50 dark:bg-jp-gray-darkgray_background empty:hidden`}
-        style={ReactDOMStyle.make(~zIndex="2", ())}>
+        style={zIndex: "2"}>
         <div className="flex flex-row justify-between items-center mt-4 mb-2">
           {if hideTitle {
             React.null

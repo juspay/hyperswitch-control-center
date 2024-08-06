@@ -84,21 +84,19 @@ module BaseComponent = {
         ("data-bool-for", addAttributeId),
       ]>
       <div
-        style={ReactDOMStyle.make(
-          ~width=toggleWidth,
-          ~height=toggleHeight,
-          ~minWidth=toggleWidth,
-          (),
-        )}
+        style={
+          width: toggleWidth,
+          height: toggleHeight,
+          minWidth: toggleWidth,
+        }
         onClick=toggleSelect
         className={`flex items-center transition ${roundedClass} ${backgroundClass} ${borderClass} ${cursorClass} ${shadowClass}`}>
         <div
-          style={ReactDOMStyle.make(
-            ~width=innerCircleWidth,
-            ~height=innerCircleHeight,
-            ~transform=transformValue,
-            (),
-          )}
+          style={
+            width: innerCircleWidth,
+            height: innerCircleHeight,
+            transform: transformValue,
+          }
           className={`m-0.25 transition rounded-full ${circleColor} ${innerShadow}`}
         />
       </div>

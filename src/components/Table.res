@@ -204,7 +204,7 @@ module TableRow = {
             <td
               key={Int.toString(cellIndex)}
               className={`${tableRowBorderClass} ${customColorCell}`}
-              style={ReactDOMStyle.make(~width=fixedWidthClass, ())}
+              style={width: fixedWidthClass}
               onClick={_ => {
                 if collapseTableRow && cellIndex == 0 {
                   setIsCurrentRowExpanded(prev => !prev)
@@ -404,10 +404,7 @@ module TableHeadingCell = {
     let sortIconSize = isHighchartLegend ? 11 : 13
     let justifyClass = ""
     <AddDataAttributes attributes=[("data-table-heading", item.title)]>
-      <th
-        key={Int.toString(i)}
-        className=tableHeaderClass
-        style={ReactDOMStyle.make(~width=fixedWidthClass, ())}>
+      <th key={Int.toString(i)} className=tableHeaderClass style={width: fixedWidthClass}>
         {switch customizeColumnNewTheme {
         | Some(value) =>
           <div className="flex flex-row justify-center items-center"> value.customizeColumnUi </div>
@@ -815,7 +812,7 @@ let make = (
 
   let frozenHeading = heading->Array.slice(~start=0, ~end=frozenUpto)
   let frozenCustomiseColumnHeading = [
-    makeHeaderInfo(~key="", ~title="Customize Column", ~showMultiSelectCheckBox=true, ()),
+    makeHeaderInfo(~key="", ~title="Customize Column", ~showMultiSelectCheckBox=true),
   ]
   let frozenRow = rowInfo->Array.map(row => {
     row->Array.slice(~start=0, ~end=frozenUpto)
@@ -900,17 +897,16 @@ let make = (
     className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getOr(
         parentBorderClass ++ " " ++ parentBorderRadius,
       )}`}
-    style={ReactDOMStyle.make(
-      ~minHeight={
+    style={
+      minHeight: {
         minTableHeightClass->LogicUtils.isNonEmptyString
           ? minTableHeightClass
           : filterPresent || isMinHeightRequired
           ? "25rem"
           : ""
       },
-      ~maxHeight={maxTableHeight},
-      (),
-    )} //replaced "overflow-auto" -> to be tested with master
+      maxHeight: maxTableHeight,
+    } //replaced "overflow-auto" -> to be tested with master
   >
     <RenderIf condition={frozenUpto > 0}> {frozenTable} </RenderIf>
     <div className={`flex-1 ${overflowClass} no-scrollbar ${childMinWidthClass}`}>

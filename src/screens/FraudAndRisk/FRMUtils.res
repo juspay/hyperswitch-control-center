@@ -22,7 +22,7 @@ let toggleDefaultStyle = "mb-2 relative inline-flex flex-shrink-0 h-6 w-12 borde
 let accordionDefaultStyle = "border pointer-events-none inline-block h-3 w-3 rounded-full bg-white dark:bg-white shadow-lg transform ring-0 transition ease-in-out duration-200"
 let size = "w-14 h-14 rounded-full"
 
-let generateInitialValuesDict = (~selectedFRMName, ~isLiveMode, ()) => {
+let generateInitialValuesDict = (~selectedFRMName, ~isLiveMode) => {
   let frmAccountDetailsDict =
     [
       ("auth_type", selectedFRMName->getFRMAuthType->JSON.Encode.string),
@@ -110,7 +110,7 @@ let getConnectorConfig = connectors => {
   configDict
 }
 
-let filterList = (items, ~removeFromList, ()) => {
+let filterList = (items, ~removeFromList) => {
   open LogicUtils
   items->Array.filter(dict => {
     let isConnector = dict->getString("connector_type", "") !== "payment_vas"

@@ -78,10 +78,10 @@ let make = (~children) => {
     open LogicUtils
     try {
       let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
-      let url = getURL(~entityName=USERS, ~userType=#FROM_EMAIL, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#FROM_EMAIL, ~methodType=Post)
       switch tokenFromUrl {
       | Some(token) => {
-          let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post, ())
+          let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post)
           setAuthStatus(PreLogin(AuthUtils.getPreLoginInfo(response, ~email_token=Some(token))))
         }
       | None => setAuthStatus(LoggedOut)
