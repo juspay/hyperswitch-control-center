@@ -41,5 +41,6 @@ branding=false
 totp=false
 live_users_counter=false
 granularity=false
-custom_webhook_headers=false
+custom_webhook_headers=true
+dynamic_custom_webhook_headers=false
 compliance_certificate=false
