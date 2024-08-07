@@ -825,7 +825,6 @@ let configKeysToIgnore = [
   "is_verifiable",
   "metadata",
   "connector_webhook_details",
-  "pm_auth_config", ////verify
 ]
 
 let verifyConnectorIgnoreField = [
@@ -1312,14 +1311,6 @@ let itemToPMAuthMapper = dict => {
     mca_id: dict->getString("mca_id", ""),
   }
 }
-
-// let pmAuthConfig = dict => {
-//   open LogicUtils
-//   let values = {
-//     enabled_payment_methods: dict->getArrayDataFromJson(itemToPMAuthMapper),
-//   }
-//   values.enabled_payment_methods->Array.length > 0 ? Some(values) : None
-// }
 
 let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) => {
   open LogicUtils
