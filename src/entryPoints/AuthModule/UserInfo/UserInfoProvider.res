@@ -13,7 +13,7 @@ let make = (~children) => {
     open LogicUtils
     let url = `${Window.env.apiBaseUrl}/user`
     try {
-      let res = await fetchApi(`${url}`, ~method_=Get, ())
+      let res = await fetchApi(`${url}`, ~method_=Get)
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
       setUserInfo(_ => userInfo)
