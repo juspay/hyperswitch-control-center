@@ -17,27 +17,29 @@ module PmtConfigInp = {
       onBlur: _ev => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToString
-        let t = name => {
+        let getPaymentMethodsObject = connector => {
           open BankDebitTypes
-          let obj = {
+          {
             payment_method: paymentMethod,
             payment_method_type: paymentMethodType,
-            connector_name: name,
-            mca_id: getConnectorId(name),
+            connector_name: connector,
+            mca_id: getConnectorId(connector),
           }
-          obj
         }
         if value->LogicUtils.isNonEmptyString {
-          let obj = value->t
+          let paymentMethodsObject = value->getPaymentMethodsObject
           setCurrentSelection(_ => value)
-          let existingValues =
+
+          let existingPaymentMethodsArray =
             enabledList.value->getArrayDataFromJson(BankDebitUtils.itemToObjMapper)
 
-          let _existingValues =
-            existingValues->Array.filter(item => item.payment_method_type !== paymentMethodType)
+          let newPaymentMethodsArray =
+            existingPaymentMethodsArray->Array.filter(item =>
+              item.payment_method_type !== paymentMethodType
+            )
 
-          _existingValues->Array.push(obj)
-          enabledList.onChange(_existingValues->Identity.anyTypeToReactEvent)
+          newPaymentMethodsArray->Array.push(paymentMethodsObject)
+          enabledList.onChange(newPaymentMethodsArray->Identity.anyTypeToReactEvent)
         }
       },
       onFocus: _ev => (),
@@ -50,7 +52,7 @@ module PmtConfigInp = {
       input
       options
       hideMultiSelectButtons=false
-      showSelectionAsChips={true}
+      showSelectionAsChips=true
       customButtonStyle="w-full"
       fullLength=true
       dropdownClassName={`${options->PaymentMethodConfigUtils.dropdownClassName}`}
