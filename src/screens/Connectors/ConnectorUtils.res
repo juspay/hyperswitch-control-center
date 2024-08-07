@@ -87,6 +87,7 @@ let connectorList: array<connectorTypes> = [
   Processors(RAZORPAY),
   Processors(BAMBORA_APAC),
   Processors(ITAUBANK),
+  Processors(PLAID),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -442,6 +443,10 @@ let dataTransInfo = {
   description: "Datatrans is a Swiss payment service provider offering secure online, mobile, and in-store payment processing. Key features include support for multiple payment methods, fraud prevention, multi-currency transactions, and integration options for websites and apps.",
 }
 
+let plaidInfo = {
+  description: "Plaid Link makes it easy for users to connect their financial accounts securely and quickly, giving you the best growth for your business.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -538,6 +543,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | BAMBORA_APAC => "bamboraapac"
   | ITAUBANK => "itaubank"
   | DATATRANS => "datatrans"
+  | PLAID => "plaid"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -628,6 +634,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "bamboraapac" => Processors(BAMBORA_APAC)
     | "itaubank" => Processors(ITAUBANK)
     | "datatrans" => Processors(DATATRANS)
+    | "plaid" => Processors(PLAID)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -709,6 +716,7 @@ let getProcessorInfo = connector => {
   | BAMBORA_APAC => bamboraApacInfo
   | ITAUBANK => itauBankInfo
   | DATATRANS => dataTransInfo
+  | PLAID => plaidInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -1471,6 +1479,7 @@ let getDisplayNameForProcessor = connector =>
   | BAMBORA_APAC => "Bambora Apac"
   | ITAUBANK => "Itaubank"
   | DATATRANS => "Datatrans"
+  | PLAID => "Plaid"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
