@@ -459,11 +459,10 @@ module FraudRiskBannerDetails = {
             ~entityName=ORDERS,
             ~methodType=Get,
             ~id=Some(order.payment_id),
-            (),
           )}/${decision->String.toLowerCase}`
 
-        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->JSON.Encode.object, Post, ())
-        showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
+        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->JSON.Encode.object, Post)
+        showToast(~message="Details Updated", ~toastType=ToastSuccess)
         refetch()->ignore
       } catch {
       | _ => ()
@@ -619,7 +618,7 @@ let make = (~id) => {
         if message->String.includes("HE_02") {
           setScreenState(_ => Custom)
         } else {
-          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError, ())
+          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError)
           setScreenState(_ => Error("Failed to Fetch!"))
         }
 
@@ -634,7 +633,6 @@ let make = (~id) => {
       ~methodType=Get,
       ~id=Some(id),
       ~queryParamerters=Some("expand_attempts=true"),
-      (),
     )
     fetchOrderDetails(accountUrl)->ignore
     None
@@ -661,10 +659,9 @@ let make = (~id) => {
         ~methodType=Get,
         ~id=Some(id),
         ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
-        (),
       )
       let _ = await fetchOrderDetails(getRefreshStatusUrl)
-      showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
+      showToast(~message="Details Updated", ~toastType=ToastSuccess)
     } catch {
     | _ => ()
     }

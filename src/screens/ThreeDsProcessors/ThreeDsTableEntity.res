@@ -14,15 +14,14 @@ let defaultColumns = [Name, ProfileId, ProfileName, ConnectorLabel, Status, Disa
 
 let getHeading = colType => {
   switch colType {
-  | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor", ~showSort=false, ())
-  | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode", ~showSort=false, ())
-  | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status", ~showSort=false, ())
-  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled", ~showSort=false, ())
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false, ())
-  | ProfileName =>
-    Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=false, ())
+  | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor", ~showSort=false)
+  | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode", ~showSort=false)
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status", ~showSort=false)
+  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled", ~showSort=false)
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false)
+  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=false)
   | ConnectorLabel =>
-    Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label", ~showSort=false, ())
+    Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label", ~showSort=false)
   }
 }
 let connectorStatusStyle = connectorStatus =>
@@ -87,6 +86,5 @@ let threeDsAuthenticatorEntity = (path: string, ~permission: CommonAuthTypes.aut
           ~permission,
         )
     },
-    (),
   )
 }

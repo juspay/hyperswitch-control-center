@@ -67,7 +67,6 @@ let make = () => {
         ~userType=#GET_PERMISSIONS,
         ~methodType=Get,
         ~queryParamerters=Some(`groups=true`),
-        (),
       )
       let response = await fetchDetails(url)
       let permissionsValue =

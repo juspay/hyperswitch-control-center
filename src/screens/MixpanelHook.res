@@ -1,9 +1,4 @@
-type functionType = (
-  ~eventName: string=?,
-  ~email: string=?,
-  ~description: option<string>=?,
-  unit,
-) => unit
+type functionType = (~eventName: string=?, ~email: string=?, ~description: option<string>=?) => unit
 
 let useSendEvent = () => {
   open GlobalVars
@@ -78,16 +73,15 @@ let useSendEvent = () => {
     try {
       let _ = await fetchApi(
         `${getHostUrl}/mixpanel/track`,
-        ~method_=Fetch.Post,
+        ~method_=Post,
         ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
-        (),
       )
     } catch {
     | _ => ()
     }
   }
 
-  (~eventName, ~email="", ~description=None, ~section="", ~metadata=Dict.make(), ()) => {
+  (~eventName, ~email="", ~description=None, ~section="", ~metadata=Dict.make()) => {
     let section = section->LogicUtils.isNonEmptyString ? section : getUrlEndpoint()
     let eventName = eventName->String.toLowerCase
 

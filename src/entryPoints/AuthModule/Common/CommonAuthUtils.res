@@ -77,7 +77,7 @@ let getEmailPasswordBody = (email, password, country) =>
   ->Dict.fromArray
   ->JSON.Encode.object
 
-let getEmailBody = (email, ~country=?, ()) => {
+let getEmailBody = (email, ~country=?) => {
   let fields = [("email", email->JSON.Encode.string)]
 
   switch country {

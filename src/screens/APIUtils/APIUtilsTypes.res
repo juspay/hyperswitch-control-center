@@ -98,3 +98,14 @@ type userType = [
   | #CHANGE_PASSWORD
   | #NONE
 ]
+
+type getUrlTypes = (
+  ~entityName: entityName,
+  ~methodType: Fetch.requestMethod,
+  ~id: option<string>=?,
+  ~connector: option<string>=?,
+  ~userType: userType=?,
+  ~userRoleTypes: userRoleTypes=?,
+  ~reconType: reconType=?,
+  ~queryParamerters: option<string>=?,
+) => string
