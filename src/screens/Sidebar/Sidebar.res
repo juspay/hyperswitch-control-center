@@ -585,7 +585,7 @@ let make = (
     <div
       ref={sideBarRef->ReactDOM.Ref.domRef}
       className={`flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
-      style={ReactDOMStyle.make(~width=sidebarContainerClassWidth, ())}
+      style={width: sidebarContainerClassWidth}
     />
     <div
       className={`absolute z-40 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}
@@ -594,7 +594,7 @@ let make = (
       <div
         ref={sideBarRef->ReactDOM.Ref.domRef}
         className={`${backgroundColor.primaryNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
-        style={ReactDOMStyle.make(~width=sidebarWidth, ())}>
+        style={width: sidebarWidth}>
         <div className="flex items-center justify-between p-1 mr-2">
           <div
             className={`flex align-center mt-4 pl-3 mb-6 pr-4 ml-1 gap-5 cursor-default`}
@@ -608,7 +608,7 @@ let make = (
         </div>
         <div
           className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar"
-          style={ReactDOMStyle.make(~height=`calc(100vh - ${verticalOffset})`, ())}>
+          style={height: `calc(100vh - ${verticalOffset})`}>
           <style> {React.string(sidebarScrollbarCss)} </style>
           {sidebars
           ->Array.mapWithIndex((tabInfo, index) => {

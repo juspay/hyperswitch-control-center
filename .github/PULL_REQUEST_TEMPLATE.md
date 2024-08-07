@@ -33,10 +33,10 @@ Or did you test this change manually (provide relevant screenshots)?
 -->
 
 ## Where to test it?
+
 - [ ] INTEG
 - [ ] SANDBOX
 - [ ] PROD
-
 
 ## Checklist
 

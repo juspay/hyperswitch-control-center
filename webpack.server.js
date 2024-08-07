@@ -9,7 +9,7 @@ var currentCommitHash = execSync("git rev-parse HEAD", {
 module.exports = {
   mode: "development",
   entry: {
-    server: "./src/server/Server.bs.js",
+    server: "./src/server/Server.res.js",
   },
   output: {
     filename: `server.js`,

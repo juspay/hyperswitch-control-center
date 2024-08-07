@@ -396,7 +396,6 @@ let commonAuthenticationChartEntity = tabKeys =>
         [""]
       }
     },
-    (),
   )
 
 let authenticationFunnelChartEntity = tabKeys => {
