@@ -23,32 +23,7 @@ module HyperSwitchEntryComponent = {
       | _ => Exn.raiseError("Error on configuring favicon")
       }
     }
-    let initMixPanel = (token, isMixPanelEnable) => {
-      try {
-        if isMixPanelEnable {
-          MixPanel.init(
-            token,
-            {
-              "track_pageview": true,
-              "batch_requests": true,
-              "loaded": () => {
-                let mixpanelUserInfo =
-                  [("name", email->JSON.Encode.string), ("merchantName", name->JSON.Encode.string)]
-                  ->Dict.fromArray
-                  ->JSON.Encode.object
 
-                let userId = MixPanel.getDistinctId()
-                LocalStorage.setItem("deviceid", userId)
-                MixPanel.identify(userId)
-                MixPanel.mixpanel.people.set(mixpanelUserInfo)
-              },
-            },
-          )
-        }
-      } catch {
-      | _ => Exn.raiseError("Error on configuring Mixpanel")
-      }
-    }
     let configURL = (urlConfig: JSON.t) => {
       open LogicUtils
       open HyperSwitchConfigTypes
@@ -70,7 +45,6 @@ module HyperSwitchEntryComponent = {
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.faviconUrl)->ignore
-        value
       } catch {
       | _ => Exn.raiseError("Error on configuring endpoint")
       }
@@ -89,8 +63,8 @@ module HyperSwitchEntryComponent = {
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
         let _ = res->configCustomDomainTheme
-        let value = res->configURL
-        let _ = initMixPanel(value.mixpanelToken, featureFlags.mixpanel)
+        let _ = res->configURL
+
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -113,6 +87,31 @@ module HyperSwitchEntryComponent = {
       TimeZoneUtils.getUserTimeZone()->setZone
       None
     }, [])
+
+    React.useEffect(() => {
+      if featureFlagDetails.mixpanel && Window.env.mixpanelToken->LogicUtils.isNonEmptyString {
+        MixPanel.init(
+          Window.env.mixpanelToken,
+          {
+            "track_pageview": true,
+            "batch_requests": true,
+            "loaded": () => {
+              let mixpanelUserInfo =
+                [("name", email->JSON.Encode.string), ("merchantName", name->JSON.Encode.string)]
+                ->Dict.fromArray
+                ->JSON.Encode.object
+
+              let userId = MixPanel.getDistinctId()
+              LocalStorage.setItem("deviceid", userId)
+              MixPanel.identify(userId)
+              MixPanel.mixpanel.people.set(mixpanelUserInfo)
+            },
+          },
+        )
+      }
+
+      None
+    }, (featureFlagDetails.mixpanel, Window.env.mixpanelToken))
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle
