@@ -3,7 +3,7 @@ let useFetchOrgList = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let setOrgListAtom = HyperswitchAtom.orgListAtom->Recoil.useSetRecoilState
-  let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get, ())
+  let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get)
 
   async _ => {
     try {
