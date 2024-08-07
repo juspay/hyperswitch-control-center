@@ -6,7 +6,7 @@ module FormBody = {
   let make = (~children, ~formClass, ~handleSubmit, ~submitOnEnter) => {
     let form = ReactFinalForm.useForm()
     let formRef = React.useRef(Nullable.null)
-    React.useEffect0(() => {
+    React.useEffect(() => {
       let onKeyDown = (ev: 'a) => {
         let keyCode = ev->ReactEvent.Keyboard.keyCode
 
@@ -29,7 +29,7 @@ module FormBody = {
 
       Window.addEventListener("keydown", onKeyDown)
       Some(() => Window.removeEventListener("keydown", onKeyDown))
-    })
+    }, [])
     <form onSubmit={handleSubmit} className={formClass} ref={formRef->ReactDOM.Ref.domRef}>
       {children}
     </form>

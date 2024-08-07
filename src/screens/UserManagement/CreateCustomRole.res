@@ -19,7 +19,7 @@ module RenderCustomRoles = {
       setCheckboxSelected(prev => !prev)
     }
 
-    <UIUtils.RenderIf
+    <RenderIf
       condition={groupName->PermissionUtils.mapStringToPermissionType !== OrganizationManage}>
       <div className="flex gap-6 items-start cursor-pointer" onClick={_ => onClickGroup(groupName)}>
         <div className="mt-1">
@@ -32,7 +32,7 @@ module RenderCustomRoles = {
           </div>
         </div>
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -66,7 +66,7 @@ module NewCustomRoleInputFields = {
 let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   open APIUtils
   open LogicUtils
-  open UIUtils
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
@@ -89,13 +89,13 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
       // TODO -  Seperate RoleName & RoleId in Backend. role_name as free text and role_id as snake_text
       setScreenState(_ => PageLoaderWrapper.Loading)
       let copiedJson = JSON.parseExn(JSON.stringify(values))
-      let url = getURL(~entityName=USERS, ~userType=#CREATE_CUSTOM_ROLE, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#CREATE_CUSTOM_ROLE, ~methodType=Post)
 
       let body = copiedJson->getDictFromJsonObject->JSON.Encode.object
       let roleNameValue =
         body->getDictFromJsonObject->getString("role_name", "")->String.trim->titleToSnake
       body->getDictFromJsonObject->Dict.set("role_name", roleNameValue->JSON.Encode.string)
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
       setScreenState(_ => PageLoaderWrapper.Success)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
     } catch {
@@ -107,7 +107,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
           setInitialValues(_ => values->LogicUtils.getDictFromJsonObject)
           setScreenState(_ => PageLoaderWrapper.Success)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError, ())
+          showToast(~message=errorMessage, ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
@@ -123,7 +123,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
         ~userType=#PERMISSION_INFO,
         ~methodType=Get,
         ~queryParamerters=Some(`groups=true`),
-        (),
       )
       let res = await fetchDetails(url)
       let permissionInfoValue = res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
@@ -134,14 +133,14 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
     } else {
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  })
+  }, [])
 
   <div className="flex flex-col overflow-y-scroll h-full">
     <RenderIf condition={isInviteUserFlow}>

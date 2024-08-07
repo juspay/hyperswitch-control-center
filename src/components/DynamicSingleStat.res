@@ -88,7 +88,6 @@ let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity) => {
       ~source=?singleStatBodyEntity.source,
       ~granularity=singleStatBodyEntity.granularity,
       ~prefix=singleStatBodyEntity.prefix,
-      (),
     )->JSON.Encode.object,
   ]
   ->JSON.Encode.array
@@ -141,7 +140,6 @@ let make = (
   ~wrapperClass=?,
   ~formaPayload: option<singleStatBodyEntity => string>=?,
 ) => {
-  open UIUtils
   open LogicUtils
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let fetchApi = AuthHooks.useApiFetcher()
@@ -150,7 +148,7 @@ let make = (
   let (showStats, setShowStats) = React.useState(_ => false)
 
   // without prefix only table related Filters
-  let getTopLevelFilter = React.useMemo1(() => {
+  let getTopLevelFilter = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
@@ -193,7 +191,7 @@ let make = (
     metaData
   }
 
-  let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
+  let (topFiltersToSearchParam, customFilter) = React.useMemo(() => {
     let filterSearchParam =
       getTopLevelFilter
       ->Dict.toArray
@@ -215,7 +213,7 @@ let make = (
     (filterSearchParam, getTopLevelFilter->getString(customFilterKey, ""))
   }, [getTopLevelFilter])
 
-  let filterValueFromUrl = React.useMemo1(() => {
+  let filterValueFromUrl = React.useMemo(() => {
     getTopLevelFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(entries => {
@@ -226,10 +224,10 @@ let make = (
     ->Some
   }, [topFiltersToSearchParam])
 
-  let startTimeFromUrl = React.useMemo1(() => {
+  let startTimeFromUrl = React.useMemo(() => {
     getTopLevelFilter->getString(startTimeFilterKey, defaultStartDate)
   }, [topFiltersToSearchParam])
-  let endTimeFromUrl = React.useMemo1(() => {
+  let endTimeFromUrl = React.useMemo(() => {
     getTopLevelFilter->getString(endTimeFilterKey, defaultEndDate)
   }, [topFiltersToSearchParam])
 
@@ -250,7 +248,7 @@ let make = (
     singleStatData,
   })
 
-  React.useEffect4(() => {
+  React.useEffect(() => {
     if !(singleStatLoading || singleStatLoadingTimeSeries) {
       setSingleStatCombinedData(_ => {
         singleStatTimeData,
@@ -261,14 +259,14 @@ let make = (
   }, (singleStatLoadingTimeSeries, singleStatLoading, singleStatTimeData, singleStatData))
   let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if singleStatData !== None && singleStatTimeData !== None {
       setShimmerType(_ => SideLoader)
     }
     None
   }, (singleStatData, singleStatTimeData))
 
-  React.useEffect5(() => {
+  React.useEffect(() => {
     if startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString {
       open Promise
       setSingleStatLoading(_ => enableLoaders)
@@ -306,7 +304,6 @@ let make = (
           ~method_=Post,
           ~bodyStr=singleStatBody,
           ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
-          (),
         )
         ->addLogsAroundFetch(~logTitle="SingleStat Data Api")
         ->then(json => resolve((`${urlConfig.prefix->Option.getOr("")}${uri}`, json)))
@@ -338,7 +335,7 @@ let make = (
     None
   }, (endTimeFromUrl, startTimeFromUrl, filterValueFromUrl, customFilter, mode))
 
-  React.useEffect5(() => {
+  React.useEffect(() => {
     if startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString {
       setSingleStatLoadingTimeSeries(_ => enableLoaders)
 
@@ -380,7 +377,6 @@ let make = (
           ~method_=Post,
           ~bodyStr=singleStatBodyMakerFn(singleStatBodyEntity),
           ~headers=[("QueryType", "SingleStatTimeseries")]->Dict.fromArray,
-          (),
         )
         ->addLogsAroundFetch(~logTitle="SingleStatTimeseries Data Api")
         ->then(
@@ -415,6 +411,7 @@ let make = (
   entity.defaultColumns
   ->Array.mapWithIndex((urlConfig, index) => {
     let {columns} = urlConfig
+    let fullWidth = {columns->Array.length == 1}
 
     let singleStateArr = columns->Array.mapWithIndex((col, singleStatArrIndex) => {
       let uri = col.colType->entity.matrixUriMapper
@@ -442,6 +439,31 @@ let make = (
               )
               ->Array.get(0)
 
+            let dict =
+              [("queryData", [Dict.make()->JSON.Encode.object]->JSON.Encode.array)]->Dict.fromArray
+            let (title, tooltipText, statType) = switch dict
+            ->JSON.Encode.object
+            ->entity.getObjects
+            ->Array.get(0) {
+            | Some(item) =>
+              let date = {
+                currentSr: {
+                  fromTime: "",
+                  toTime: "",
+                },
+              }
+              let info = entity.getData(
+                item,
+                timeSeriesData,
+                date,
+                col.colType,
+                mode->Option.getOr("ORDER"),
+              )
+
+              (info.title, info.tooltipText, info.statType)
+            | None => ("", "", "")
+            }
+
             switch sectiondata {
             | Some(data) =>
               let info = data.singleStatData->Array.map(
@@ -455,11 +477,6 @@ let make = (
                   )
                 },
               )
-
-              let (title, tooltipText, statType) = switch info->Array.get(0) {
-              | Some(val) => (val.title, val.tooltipText, val.statType)
-              | _ => ("", "", "")
-              }
 
               let modifiedData = info->Array.map(
                 item => {
@@ -492,7 +509,7 @@ let make = (
                 filterNullVals
                 ?statSentiment
                 ?statThreshold
-                fullWidth={columns->Array.length == 1}
+                fullWidth
               />
 
             | None =>
@@ -507,7 +524,7 @@ let make = (
                 filterNullVals
                 ?statSentiment
                 ?statThreshold
-                fullWidth={columns->Array.length == 1}
+                fullWidth
               />
             }
           }
@@ -523,7 +540,7 @@ let make = (
             statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
             filterNullVals
             ?statSentiment
-            fullWidth={columns->Array.length == 1}
+            fullWidth
           />
         }
       | _ =>
@@ -568,6 +585,7 @@ let make = (
                     statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
                     filterNullVals
                     ?statSentiment
+                    fullWidth
                     ?statThreshold
                   />
                 | _ =>
@@ -585,6 +603,7 @@ let make = (
                     filterNullVals
                     ?statSentiment
                     ?statThreshold
+                    fullWidth
                   />
                 }
               }
@@ -604,6 +623,7 @@ let make = (
                 filterNullVals
                 ?statSentiment
                 ?statThreshold
+                fullWidth
               />
             }
           }
@@ -622,6 +642,7 @@ let make = (
             statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
             filterNullVals
             ?statSentiment
+            fullWidth
           />
         }
       }

@@ -8,9 +8,9 @@ let make = (
   ~customSearchBarWrapperWidth="w-1/4",
   ~customInputBoxWidth="w-72",
 ) => {
-  let filterData = React.useCallback0(filterLogic)
+  let filterData = React.useCallback(filterLogic, [])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     filterData((searchVal, data))
     None
   }, [searchVal])
@@ -41,7 +41,6 @@ let make = (
           InputFields.textInput(
             ~leftIcon=<Icon name="search" size=16 />,
             ~customStyle=`!h-10 ${customInputBoxWidth}`,
-            (),
           )(~input=inputSearch, ~placeholder)
         }}
       />

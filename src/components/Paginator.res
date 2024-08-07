@@ -27,7 +27,7 @@ let make = (
 
   let toNum = resultsPerPage + start > totalResults ? totalResults : resultsPerPage + start - 1
   let shouldRefetch = toNum > currrentFetchCount && toNum <= totalResults && !tableDataLoading
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if shouldRefetch {
       switch handleRefetch {
       | Some(fun) => fun()
@@ -55,7 +55,7 @@ let make = (
     value: resultsPerPage->Int.toString->JSON.Encode.string,
     checked: true,
   }
-  let paginate = React.useCallback5(pageNumber => {
+  let paginate = React.useCallback(pageNumber => {
     let total = Math.ceil(Int.toFloat(totalResults) /. Int.toFloat(resultsPerPage))->Float.toInt
     // for handling page count
     let defaultPageNumber = Math.Int.min(total, pageNumber)
@@ -70,7 +70,7 @@ let make = (
   if totalResults >= resultsPerPage {
     <div className={`flex ${flexDirection} justify-between ${marginClass} ${paginationClass} `}>
       <div className={`flex flex-row w-full ${justify}`}>
-        <UIUtils.RenderIf condition={!isMobileView && showResultsPerPageSelector}>
+        <RenderIf condition={!isMobileView && showResultsPerPageSelector}>
           <div
             className="flex self-center text-center text-gray-400 dark:text-gray-500 font-medium">
             {React.string(
@@ -88,7 +88,7 @@ let make = (
               baseComponent={<Icon className="pl-2" size=20 name="chevron-down" />}
             />
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         {switch downloadCsv {
         | Some(actionData) =>
           <div className="md:mr-2 lg:mr-5 mb-2">

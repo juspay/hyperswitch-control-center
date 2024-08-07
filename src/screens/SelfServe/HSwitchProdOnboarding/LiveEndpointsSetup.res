@@ -31,7 +31,7 @@ module ReplaceAPIKey = {
         rightTag={<Icon name="client-tag" size=30 customWidth="50" />}
       />
       <div className={`${dividerColor} px-2`} />
-      <UIUtils.RenderIf
+      <RenderIf
         condition={previewVariant->Option.isSome && webhookEndpoint->LogicUtils.isNonEmptyString}>
         <ProdOnboardingUIUtils.SetupWebhookProcessor
           headerSectionText="Merchant Webhook Endpoint"
@@ -41,7 +41,7 @@ module ReplaceAPIKey = {
           />}
         />
         <div className={`${dividerColor} px-2`} />
-        <UIUtils.RenderIf condition={paymentResponseHashKey->LogicUtils.isNonEmptyString}>
+        <RenderIf condition={paymentResponseHashKey->LogicUtils.isNonEmptyString}>
           <ProdOnboardingUIUtils.SetupWebhookProcessor
             headerSectionText="Payment Response Hash Key"
             subtextSectionText="Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more"
@@ -50,9 +50,9 @@ module ReplaceAPIKey = {
               shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-full"
             />}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div className={`${dividerColor} px-2`} />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <ProdOnboardingUIUtils.SetupWebhookProcessor
         headerSectionText="API Key"
         subtextSectionText="Use this key to authenticate all API requests from your application's server to Hyperswitch server"
@@ -70,7 +70,7 @@ module SetupWebhookUser = {
     let showPopUp = PopUpState.useShowPopUp()
     let webhookEndpoint: ReactFinalForm.fieldRenderPropsInput = {
       name: "webhookEndpoint",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
         if value->String.includes("<script>") || value->String.includes("</script>") {
@@ -84,7 +84,7 @@ module SetupWebhookUser = {
         let val = value->String.replace("<script>", "")->String.replace("</script>", "")
         setWebhookEndpoint(_ => val)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: webhookEndpoint->JSON.Encode.string,
       checked: true,
     }
@@ -97,7 +97,7 @@ module SetupWebhookUser = {
           <TextInput input=webhookEndpoint placeholder="Enter your webhook endpoint here " />
         </FormRenderer.FieldWrapper>}
       />
-      <UIUtils.RenderIf condition={paymentResponseHashKey->LogicUtils.isNonEmptyString}>
+      <RenderIf condition={paymentResponseHashKey->LogicUtils.isNonEmptyString}>
         <ProdOnboardingUIUtils.SetupWebhookProcessor
           headerSectionText="Payment Response Hash Key"
           subtextSectionText="Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more"
@@ -106,7 +106,7 @@ module SetupWebhookUser = {
             shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-full"
           />}
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }
@@ -152,11 +152,11 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
 
   let updateLiveEndpoint = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
-      let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#ConfigureEndpoint, ())
-      let _ = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post)
+      let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#ConfigureEndpoint)
+      let _ = await updateDetails(url, body, Post)
       setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
-      showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setButtonState(_ => Normal)
     } catch {
     | _ => setButtonState(_ => Normal)
@@ -170,17 +170,16 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
         ~entityName=BUSINESS_PROFILE,
         ~methodType=Post,
         ~id=Some(activeBusinessProfile.profile_id),
-        (),
       )
       let merchantUpdateBody =
         [("webhook_url", webhookEndpoint->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
 
       let body =
         merchantUpdateBody->MerchantAccountUtils.getBusinessProfilePayload->JSON.Encode.object
-      let res = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post)
 
       setBusinessProfiles(_ => res->BusinessProfileMapper.getArrayOfBusinessProfile)
-      showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       updateLiveEndpoint()->ignore
       setButtonState(_ => Normal)
     } catch {
@@ -201,9 +200,9 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
         <p className=headerTextStyle> {headerText->React.string} </p>
         <p className=subTextStyle> {subHeaderText->React.string} </p>
       </div>
-      <UIUtils.RenderIf condition={previewState->Option.isNone}>
+      <RenderIf condition={previewState->Option.isNone}>
         <div className="flex gap-4">
-          <UIUtils.RenderIf condition={backButtonEnabled}>
+          <RenderIf condition={backButtonEnabled}>
             <Button
               text="Back"
               buttonSize={Small}
@@ -213,7 +212,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
                 setPageView(_ => pageView->ProdOnboardingUtils.getBackPageView)
               }}
             />
-          </UIUtils.RenderIf>
+          </RenderIf>
           <Button
             text={"Connect and Proceed"}
             buttonSize={Small}
@@ -223,7 +222,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
             onClick={_ => handleSubmit()}
           />
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
     <ProdOnboardingUIUtils.WarningBlock
       customComponent={Some(<>

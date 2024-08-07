@@ -48,20 +48,20 @@ module DownloadAPIKeyButton = {
     ~buttonStyle="",
   ) => {
     let getURL = APIUtils.useGetURL()
-    let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
+    let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
     let showToast = ToastState.useShowToast()
     let (showCopyToClipboard, setShowCopyToClipboard) = React.useState(_ => false)
 
     let apiKeyGeneration = async () => {
       try {
-        let url = getURL(~entityName=API_KEYS, ~methodType=Post, ())
+        let url = getURL(~entityName=API_KEYS, ~methodType=Post)
         let body =
           [
             ("name", "DefaultAPIKey"->JSON.Encode.string),
             ("description", "Default Value of the API key"->JSON.Encode.string),
             ("expiration", "never"->JSON.Encode.string),
           ]->Dict.fromArray
-        let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
+        let res = await updateDetails(url, body->JSON.Encode.object, Post)
         let apiKey = res->getDictFromJsonObject->getString("api_key", "")
         DownloadUtils.downloadOld(~fileName=`apiKey.txt`, ~content=apiKey)
         Clipboard.writeText(apiKey)
@@ -69,19 +69,18 @@ module DownloadAPIKeyButton = {
         showToast(
           ~message="Api Key has been generated & Copied to clipboard",
           ~toastType=ToastState.ToastSuccess,
-          (),
         )
         setShowCopyToClipboard(_ => true)
         await HyperSwitchUtils.delay(2000)
         setShowCopyToClipboard(_ => false)
       } catch {
-      | _ => showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError, ())
+      | _ => showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError)
       }
     }
 
     let downloadZip = async () => {
       await HyperSwitchUtils.delay(1500)
-      showToast(~message="Plugin file has been downloaded!", ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message="Plugin file has been downloaded!", ~toastType=ToastState.ToastSuccess)
     }
     let button =
       <div className="flex items-center gap-5">
@@ -98,9 +97,9 @@ module DownloadAPIKeyButton = {
             }
           }}
         />
-        <UIUtils.RenderIf condition=showCopyToClipboard>
+        <RenderIf condition=showCopyToClipboard>
           <div className="text-green-700 text-lg"> {"Copied to clipboard"->React.string} </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     switch currentRoute {
     | WooCommercePlugin =>
@@ -178,9 +177,9 @@ module HeaderComponentView = {
           className="py-1 px-4 border rounded-md flex gap-2 items-center cursor-pointer"
           onClick={_ => {
             Clipboard.writeText(value)
-            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
           }}>
-          <img src={`/assets/CopyToClipboard.svg`} />
+          <img alt="copy-to-clipboard" src={`/assets/CopyToClipboard.svg`} />
           <p> {"Copy"->React.string} </p>
         </div>
       </div>
@@ -237,12 +236,12 @@ module BackendFrontendPlatformLangDropDown = {
   ) => {
     let platfromInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "Platform Selecr",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let val = ev->Identity.formReactEventToString->getPlatform
         setPlatform(_ => val)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: (platform :> string)->JSON.Encode.string,
       checked: true,
     }
@@ -252,23 +251,23 @@ module BackendFrontendPlatformLangDropDown = {
 
     let backendLangInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "BackEnd",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let val = ev->Identity.formReactEventToString->getLangauge
         setBackEndLang(_ => val)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: (backEndLang :> string)->JSON.Encode.string,
       checked: true,
     }
     let frontendLangInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "FrontEnd",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let val = ev->Identity.formReactEventToString->getLangauge
         setFrontEndLang(_ => val)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: (frontEndLang :> string)->JSON.Encode.string,
       checked: true,
     }
@@ -282,7 +281,7 @@ module BackendFrontendPlatformLangDropDown = {
 
     <Form initialValues={Dict.make()->JSON.Encode.object}>
       <div className="flex flex-row gap-4 flex-wrap">
-        <UIUtils.RenderIf condition={!isFromLanding && currentRoute !== SampleProjects}>
+        <RenderIf condition={!isFromLanding && currentRoute !== SampleProjects}>
           <SelectBox.BaseDropdown
             allowMultiSelect=false
             buttonText="Select Platform"
@@ -303,8 +302,8 @@ module BackendFrontendPlatformLangDropDown = {
               customButtonStyle="!bg-white !border !rounded-md"
             />}
           />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!(requestOnlyPlatforms->Array.includes(platform))}>
+        </RenderIf>
+        <RenderIf condition={!(requestOnlyPlatforms->Array.includes(platform))}>
           <SelectBox.BaseDropdown
             allowMultiSelect=false
             buttonText="Select Frontend"
@@ -349,7 +348,7 @@ module BackendFrontendPlatformLangDropDown = {
               customButtonStyle="!bg-white !border !rounded-md"
             />}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </Form>
   }
@@ -358,12 +357,12 @@ module BackendFrontendPlatformLangDropDown = {
 module LanguageTag = {
   @react.component
   let make = (~frontendLang="", ~backendLang="") => {
-    <UIUtils.RenderIf condition={frontendLang->isNonEmptyString && backendLang->isNonEmptyString}>
+    <RenderIf condition={frontendLang->isNonEmptyString && backendLang->isNonEmptyString}>
       <div className="flex gap-2 items-center">
         <Icon name={`${frontendLang}`} size=25 />
         <Icon name={`${backendLang}`} size=25 />
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -391,7 +390,7 @@ module LandingPageTileForIntegrateDocs = {
   ) => {
     open APIUtils
     let getURL = useGetURL()
-    let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+    let updateDetails = useUpdateMethod(~showErrorToast=false)
     let {
       integrationDetails,
       setIntegrationDetails,
@@ -411,45 +410,44 @@ module LandingPageTileForIntegrateDocs = {
     }
     let skipAndContinue = async () => {
       try {
-        let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
+        let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post)
         let metaDataDict = Dict.fromArray([("is_skip", true->JSON.Encode.bool)])->JSON.Encode.object
         let body = HSwitchUtils.constructOnboardingBody(
           ~dashboardPageState,
           ~integrationDetails,
           ~is_done=false,
           ~metadata=metaDataDict,
-          (),
         )
-        let _ = await updateDetails(url, body, Post, ())
+        let _ = await updateDetails(url, body, Post)
         setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       } catch {
       | _ => ()
       }
       setDashboardPageState(_ => #HOME)
     }
-    <UIUtils.RenderIf condition={!isFromOnboardingChecklist || isTileVisible}>
+    <RenderIf condition={!isFromOnboardingChecklist || isTileVisible}>
       <div
         className="p-8 border rounded-md flex flex-col gap-7 justify-between bg-white w-full md:w-1/3">
         <div className="flex justify-between flex-wrap">
           {if isIconImg {
             <div className="w-30 h-8">
-              <img src=imagePath />
+              <img alt="image" src=imagePath />
             </div>
           } else {
             <Icon size=35 name=headerIcon className=customIconCss />
           }}
-          <UIUtils.RenderIf condition={rightIcon->Option.isSome}>
+          <RenderIf condition={rightIcon->Option.isSome}>
             {rightIcon->Option.getOr(React.null)}
-          </UIUtils.RenderIf>
+          </RenderIf>
           {leftSection}
         </div>
         <div className="flex flex-col gap-2">
           <p className=headerTextCss> {headerText->React.string} </p>
-          <UIUtils.RenderIf condition={subText->Option.isSome}>
+          <RenderIf condition={subText->Option.isSome}>
             <p className=subTextCss> {subText->Option.getOr("")->React.string} </p>
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div>
-            <UIUtils.RenderIf condition={subTextCustomValues->Option.isSome}>
+            <RenderIf condition={subTextCustomValues->Option.isSome}>
               <div className={`flex flex-col gap-3 mt-4`}>
                 {subTextCustomValues
                 ->Option.getOr([])
@@ -458,7 +456,7 @@ module LandingPageTileForIntegrateDocs = {
                 })
                 ->React.array}
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         </div>
         <Button
@@ -467,7 +465,7 @@ module LandingPageTileForIntegrateDocs = {
           onClick={_ => isSkipButton ? skipAndContinue()->ignore : redirect()}
         />
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -579,7 +577,7 @@ module CreatePayment = {
         </p>
       </p>}>
       <div className=defaultEditorStyle>
-        <UIUtils.RenderIf condition={backEndLang->getInstallDependencies->isNonEmptyString}>
+        <RenderIf condition={backEndLang->getInstallDependencies->isNonEmptyString}>
           <ShowCodeEditor
             value={backEndLang->getInstallDependencies}
             theme
@@ -587,7 +585,7 @@ module CreatePayment = {
             langauge=backEndLang
           />
           <div className="w-full h-px bg-jp-gray-700" />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <ShowCodeEditor
           value={backEndLang->getCreateAPayment}
           theme
@@ -610,7 +608,7 @@ let getTabsForIntegration = (
 ) => {
   open Tabs
   let defaultEditorStyle = "flex flex-col gap-8 bg-white flex flex-col px-6 py-4 border !shadow-hyperswitch_box_shadow rounded-md"
-  // let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
+  // let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
   // let {integrationDetails, setIntegrationDetails, dashboardPageState} = React.useContext(
   //   GlobalProvider.defaultContext,
   // )
@@ -680,7 +678,7 @@ let getTabsForIntegration = (
         renderContent: () =>
           <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea />}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf condition={frontEndLang->getInstallDependencies->isNonEmptyString}>
+              <RenderIf condition={frontEndLang->getInstallDependencies->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getInstallDependencies}
                   theme
@@ -688,20 +686,20 @@ let getTabsForIntegration = (
                   langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getInstallDependencies->isNonEmptyString}>
+              </RenderIf>
+              <RenderIf condition={frontEndLang->getInstallDependencies->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getImports} theme headerText="Imports" langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getLoad->isNonEmptyString}>
+              </RenderIf>
+              <RenderIf condition={frontEndLang->getLoad->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getLoad} theme headerText="Load" langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getInitialize->isNonEmptyString}>
+              </RenderIf>
+              <RenderIf condition={frontEndLang->getInitialize->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getInitialize}
                   theme
@@ -709,8 +707,8 @@ let getTabsForIntegration = (
                   langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf
+              </RenderIf>
+              <RenderIf
                 condition={frontEndLang->getCheckoutFormForDisplayCheckoutPage->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getCheckoutFormForDisplayCheckoutPage}
@@ -718,7 +716,7 @@ let getTabsForIntegration = (
                   headerText="Checkout Form"
                   langauge=frontEndLang
                 />
-              </UIUtils.RenderIf>
+              </RenderIf>
             </div>
           </TabsContentWrapper>,
       },
@@ -727,7 +725,7 @@ let getTabsForIntegration = (
         renderContent: () =>
           <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea />}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf condition={frontEndLang->getHandleEvents->isNonEmptyString}>
+              <RenderIf condition={frontEndLang->getHandleEvents->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getHandleEvents}
                   theme
@@ -736,8 +734,8 @@ let getTabsForIntegration = (
                   langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getDisplayConformation->isNonEmptyString}>
+              </RenderIf>
+              <RenderIf condition={frontEndLang->getDisplayConformation->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getDisplayConformation}
                   theme
@@ -745,7 +743,7 @@ let getTabsForIntegration = (
                   customHeight="20vh"
                   langauge=frontEndLang
                 />
-              </UIUtils.RenderIf>
+              </RenderIf>
             </div>
           </TabsContentWrapper>,
       },
@@ -807,13 +805,13 @@ let getTabsForIntegration = (
               <div
                 className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
                 <img
-                  style={ReactDOMStyle.make(
-                    ~height="400px",
-                    ~width="100%",
-                    ~objectFit="cover",
-                    ~objectPosition="0% 12%",
-                    (),
-                  )}
+                  alt="wordpress"
+                  style={
+                    height: "400px",
+                    width: "100%",
+                    objectFit: "cover",
+                    objectPosition: "0% 12%",
+                  }
                   src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
                 />
               </div>
@@ -831,13 +829,13 @@ let getTabsForIntegration = (
               <div
                 className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
                 <img
-                  style={ReactDOMStyle.make(
-                    ~height="120px",
-                    ~width="100%",
-                    ~objectFit="cover",
-                    ~objectPosition="0% 52%",
-                    (),
-                  )}
+                  alt="wordpress-settings"
+                  style={
+                    height: "120px",
+                    width: "100%",
+                    objectFit: "cover",
+                    objectPosition: "0% 52%",
+                  }
                   src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
                 />
               </div>
@@ -847,13 +845,13 @@ let getTabsForIntegration = (
               <div
                 className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
                 <img
-                  style={ReactDOMStyle.make(
-                    ~height="120px",
-                    ~width="100%",
-                    ~objectFit="cover",
-                    ~objectPosition="0% 100%",
-                    (),
-                  )}
+                  alt="wordpress-settings"
+                  style={
+                    height: "120px",
+                    width: "100%",
+                    objectFit: "cover",
+                    objectPosition: "0% 100%",
+                  }
                   src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
                 />
               </div>

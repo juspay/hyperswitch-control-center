@@ -58,7 +58,7 @@ let make = (
   let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
   let fetchApi = AuthHooks.useApiFetcher()
 
-  let getTopLevelSingleStatFilter = React.useMemo1(() => {
+  let getTopLevelSingleStatFilter = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
@@ -74,7 +74,7 @@ let make = (
     ->Dict.fromArray
   }, [getAllFilter])
 
-  let (topFiltersToSearchParam, customFilter, modeValue) = React.useMemo1(() => {
+  let (topFiltersToSearchParam, customFilter, modeValue) = React.useMemo(() => {
     let modeValue = Some(getTopLevelSingleStatFilter->LogicUtils.getString(modeKey, ""))
     let allFilterKeys = Array.concat(
       [startTimeFilterKey, endTimeFilterKey, modeValue->Option.getOr("")],
@@ -105,7 +105,7 @@ let make = (
     )
   }, [getTopLevelSingleStatFilter])
 
-  let filterValueFromUrl = React.useMemo1(() => {
+  let filterValueFromUrl = React.useMemo(() => {
     getTopLevelSingleStatFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(entries => {
@@ -116,10 +116,10 @@ let make = (
     ->Some
   }, [topFiltersToSearchParam])
 
-  let startTimeFromUrl = React.useMemo1(() => {
+  let startTimeFromUrl = React.useMemo(() => {
     getTopLevelSingleStatFilter->LogicUtils.getString(startTimeFilterKey, "")
   }, [topFiltersToSearchParam])
-  let endTimeFromUrl = React.useMemo1(() => {
+  let endTimeFromUrl = React.useMemo(() => {
     getTopLevelSingleStatFilter->LogicUtils.getString(endTimeFilterKey, "")
   }, [topFiltersToSearchParam])
 
@@ -152,7 +152,7 @@ let make = (
     setIsSingleStatFetchedWithCurrentDependency,
   ) = React.useState(_ => false)
 
-  React.useEffect6(() => {
+  React.useEffect(() => {
     if (
       startTimeFromUrl->LogicUtils.isNonEmptyString &&
       endTimeFromUrl->LogicUtils.isNonEmptyString &&
@@ -163,7 +163,7 @@ let make = (
     None
   }, (endTimeFromUrl, startTimeFromUrl, filterValueFromUrl, parentToken, customFilter, modeValue))
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if !singleStatFetchedWithCurrentDependency && isSingleStatVisible {
       setIsSingleStatFetchedWithCurrentDependency(_ => true)
       let granularity = LineChartUtils.getGranularityNew(
@@ -183,7 +183,6 @@ let make = (
       let (hStartTime, hEndTime) = AnalyticsNewUtils.calculateHistoricTime(
         ~startTime=startTimeFromUrl,
         ~endTime=endTimeFromUrl,
-        (),
       )
 
       let filterConfigHistoric = {
@@ -257,11 +256,9 @@ let make = (
               ~filterValueFromUrl=?filterConfigHistoric.filterValues,
               ~customFilterValue=filterConfigHistoric.customFilterValue,
               ~domain=urlConfig.domain,
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStatHistoric")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
           )
           ->addLogsAroundFetch(
             ~logTitle=`SingleStat histotic data for metrics ${metrics->metrixMapper}`,
@@ -309,11 +306,9 @@ let make = (
               ~filterValueFromUrl=?filterConfigCurrent.filterValues,
               ~customFilterValue=filterConfigCurrent.customFilterValue,
               ~domain=urlConfig.domain,
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
           )
           ->addLogsAroundFetch(~logTitle=`SingleStat data for metrics ${metrics->metrixMapper}`)
           ->then(
@@ -360,11 +355,9 @@ let make = (
               ~customFilterValue=filterConfigCurrent.customFilterValue,
               ~domain=urlConfig.domain,
               ~timeCol=urlConfig.timeColumn,
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStat Time Series")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
           )
           ->addLogsAroundFetch(
             ~logTitle=`SingleStat Time Series data for metrics ${metrics->metrixMapper}`,
@@ -461,7 +454,7 @@ let make = (
 
     None
   }, (singleStatFetchedWithCurrentDependency, isSingleStatVisible))
-  let value = React.useMemo4(() => {
+  let value = React.useMemo(() => {
     {
       singleStatData: Some(singleStatStateData),
       singleStatTimeSeries: Some(singleStatTimeSeries),

@@ -1,6 +1,5 @@
 @react.component
 let make = () => {
-  open UIUtils
   open HSwitchUtils
   open GlobalVars
   open APIUtils
@@ -48,31 +47,6 @@ let make = () => {
 
   sessionExpired := false
 
-  let getAgreementEnum = async () => {
-    try {
-      let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl(getURL)
-      let response = await fetchDetails(url)
-
-      let productionAgreementResponse =
-        response
-        ->getArrayFromJson([])
-        ->Array.find(ele => {
-          ele->getDictFromJsonObject->getBool("ProductionAgreement", false)
-        })
-        ->Option.getOr(JSON.Encode.null)
-
-      if productionAgreementResponse->getDictFromJsonObject->getBool("ProductionAgreement", false) {
-        setDashboardPageState(_ => #PROD_ONBOARDING)
-      } else {
-        setDashboardPageState(_ => #AGREEMENT_SIGNATURE)
-      }
-    } catch {
-    | _ =>
-      setDashboardPageState(_ => #HOME)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    }
-  }
-
   let fetchInitialEnums = async () => {
     try {
       let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
@@ -88,28 +62,6 @@ let make = () => {
     }
   }
 
-  // TODO: Move this to prod onboarding form
-  // let fetchOnboardingSurveyDetails = async () => {
-  //   try {
-  //     let url = `${getURL(
-  //         ~entityName=USERS,
-  //         ~userType=#USER_DATA,
-  //         ~methodType=Get,
-  //         (),
-  //       )}?keys=OnboardingSurvey`
-  //     let res = await fetchDetails(url)
-  //     let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
-  //     let onboardingDetailsFilled =
-  //       firstValueFromArray->getDictFromJsonObject->getDictfromDict("OnboardingSurvey")
-  //     let val = onboardingDetailsFilled->Dict.keysToArray->Array.length === 0
-  //     setSurveyModal(_ => val)
-  //   } catch {
-  //   | Exn.Error(e) => {
-  //       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-  //       Exn.raiseError(err)
-  //     }
-  //   }
-  // }
   let fetchPermissions = async () => {
     try {
       let url = getURL(
@@ -117,7 +69,6 @@ let make = () => {
         ~userType=#GET_PERMISSIONS,
         ~methodType=Get,
         ~queryParamerters=Some(`groups=true`),
-        (),
       )
       let response = await fetchDetails(url)
       let permissionsValue =
@@ -143,9 +94,7 @@ let make = () => {
       let permissionJson = await fetchPermissions()
 
       // TODO: Move this to prod onboarding form
-      // if !featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
-      //   let _ = await fetchOnboardingSurveyDetails()
-      // }
+
       if merchantId->isNonEmptyString {
         if (
           permissionJson.connectorsView === Access ||
@@ -163,7 +112,7 @@ let make = () => {
       }
 
       if featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
-        getAgreementEnum()->ignore
+        setDashboardPageState(_ => #PROD_ONBOARDING)
       } else {
         setDashboardPageState(_ => #HOME)
       }
@@ -176,10 +125,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  })
+  }, [])
 
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal
@@ -213,7 +162,6 @@ let make = () => {
         | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
         | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
         | #INTEGRATION_DOC => <UserOnboarding />
-        | #AGREEMENT_SIGNATURE => <HSwitchAgreementScreen />
         | #PROD_ONBOARDING => <ProdOnboardingLanding />
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
@@ -242,14 +190,18 @@ let make = () => {
                           </div>
                         </div>}
                         headerLeftActions={switch Window.env.logoUrl {
-                        | Some(url) => <img src={`${url}`} />
+                        | Some(url) => <img alt="image" src={`${url}`} />
                         | None => React.null
                         }}
                       />
                     </div>
-                    <RenderIf condition=isLiveUsersCounterEnabled>
-                      <ActiveUserCounter />
-                    </RenderIf>
+                    {switch url.path->urlPath {
+                    | list{"home"} =>
+                      <RenderIf condition=isLiveUsersCounterEnabled>
+                        <ActivePaymentsCounter />
+                      </RenderIf>
+                    | _ => React.null
+                    }}
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
@@ -474,10 +426,14 @@ let make = () => {
                         | list{"reports"}
                         | list{"config-settings"}
                         | list{"file-processor"} =>
-                          <AccessControl isEnabled=featureFlagDetails.reconV2 permission=Access>
+                          <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
                             <ReconModule urlList={url.path->urlPath} />
                           </AccessControl>
-
+                        | list{"compliance"} =>
+                          <AccessControl
+                            isEnabled=featureFlagDetails.complianceCertificate permission=Access>
+                            <Compliance />
+                          </AccessControl>
                         | list{"sdk"} =>
                           <AccessControl
                             isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
@@ -505,9 +461,9 @@ let make = () => {
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
                             renderShow={_value =>
-                              <UIUtils.RenderIf condition={featureFlagDetails.totp}>
+                              <RenderIf condition={featureFlagDetails.totp}>
                                 <ModifyTwoFaSettings />
-                              </UIUtils.RenderIf>}
+                              </RenderIf>}
                           />
 
                         | list{"business-details"} =>
@@ -518,7 +474,6 @@ let make = () => {
                           <AccessControl permission=Access>
                             <BusinessProfile />
                           </AccessControl>
-
                         | list{"configure-pmts", ...remainingPath} =>
                           <AccessControl
                             permission=userPermissionJson.connectorsView

@@ -54,36 +54,86 @@ module GenerateSampleDataButton = {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let showPopUp = PopUpState.useShowPopUp()
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
     let generateSampleData = async () => {
-      mixpanelEvent(~eventName="generate_sample_data", ())
+      mixpanelEvent(~eventName="generate_sample_data")
       try {
-        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
+        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post)
         let _ = await updateDetails(
           generateSampleDataUrl,
           [("record", 50.0->JSON.Encode.float)]->Dict.fromArray->JSON.Encode.object,
           Post,
-          (),
         )
-        showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess, ())
+        showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess)
         getOrdersList()->ignore
       } catch {
       | _ => ()
       }
     }
 
-    <UIUtils.RenderIf condition={sampleData && !previewOnly}>
-      <ACLButton
-        access={userPermissionJson.operationsManage}
-        buttonType={Secondary}
-        buttonSize={XSmall}
-        text="Generate Sample Data"
-        onClick={_ => generateSampleData()->ignore}
-        leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
-      />
-    </UIUtils.RenderIf>
+    let deleteSampleData = async () => {
+      try {
+        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Delete)
+        let _ = await updateDetails(generateSampleDataUrl, Dict.make()->JSON.Encode.object, Delete)
+        showToast(~message="Sample data deleted successfully", ~toastType=ToastSuccess)
+        getOrdersList()->ignore
+      } catch {
+      | _ => ()
+      }
+    }
+
+    let openPopUpModal = _ =>
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Are you sure?",
+        description: {
+          "This action cannot be undone. This will permanently delete all the sample payments and refunds data. To confirm, click the 'Delete All' button below."->React.string
+        },
+        handleConfirm: {
+          text: "Delete All",
+          onClick: {
+            _ => {
+              deleteSampleData()->ignore
+            }
+          },
+        },
+        handleCancel: {
+          text: "Cancel",
+          onClick: {
+            _ => ()
+          },
+        },
+      })
+
+    let rightIconClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      openPopUpModal()
+    }
+
+    <RenderIf condition={sampleData && !previewOnly}>
+      <div className="flex items-start">
+        <ACLButton
+          access={userPermissionJson.operationsManage}
+          buttonType={Secondary}
+          buttonSize={XSmall}
+          text="Generate Sample Data"
+          customButtonStyle="!rounded-l-md !rounded-none"
+          onClick={_ => generateSampleData()->ignore}
+          leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
+        />
+        <ACLDiv
+          height="h-fit"
+          permission={userPermissionJson.operationsManage}
+          className="bg-jp-gray-button_gray text-jp-gray-900 text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  focus:outline-none items-center border border-border_gray cursor-pointer p-2.5 overflow-hidden text-jp-gray-950 hover:text-black
+          border flex items-center justify-center rounded-r-md"
+          onClick={ev => rightIconClick(ev)}>
+          <Icon name="delete" size=16 customWidth="14" className="scale-125" />
+        </ACLDiv>
+      </div>
+    </RenderIf>
   }
 }
 
@@ -270,7 +320,6 @@ let initialFilters = (json, filtervalues) => {
           ~customButtonStyle="bg-none",
           (),
         ),
-        (),
       ),
       localFilter: Some(filterByData),
     }
@@ -305,11 +354,9 @@ let initialFixedFilter = () => [
           ~numMonths=2,
           ~disableApply=false,
           ~dateRangeLimit=180,
-          (),
         ),
         ~inputFields=[],
         ~isRequired=false,
-        (),
       ),
     }: EntityType.initialFilters<'t>
   ),
@@ -359,19 +406,8 @@ let getOrdersList = async (
     ~bodyFormData: Fetch.formData=?,
     ~headers: Dict.t<'a>=?,
     ~contentType: AuthHooks.contentType=?,
-    unit,
   ) => promise<JSON.t>,
-  ~getURL: (
-    ~entityName: APIUtilsTypes.entityName,
-    ~methodType: Fetch.requestMethod,
-    ~id: option<string>=?,
-    ~connector: option<'a>=?,
-    ~userType: APIUtilsTypes.userType=?,
-    ~userRoleTypes: APIUtilsTypes.userRoleTypes=?,
-    ~reconType: APIUtilsTypes.reconType=?,
-    ~queryParamerters: option<string>=?,
-    unit,
-  ) => string,
+  ~getURL: APIUtilsTypes.getUrlTypes,
   ~setOrdersData,
   ~previewOnly,
   ~setScreenState,
@@ -382,8 +418,8 @@ let getOrdersList = async (
   open LogicUtils
   setScreenState(_ => PageLoaderWrapper.Loading)
   try {
-    let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post, ())
-    let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Fetch.Post, ())
+    let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post)
+    let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
     let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
@@ -395,16 +431,11 @@ let getOrdersList = async (
         ->JSON.Decode.string
         ->Option.getOr("")
 
-      if Js.Re.test_(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
+      if RegExp.test(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
         let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
         filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
 
-        let res = await updateDetails(
-          ordersUrl,
-          filterValueJson->JSON.Encode.object,
-          Fetch.Post,
-          (),
-        )
+        let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
         let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
         let total = res->getDictFromJsonObject->getInt("total_count", 0)
 

@@ -8,7 +8,7 @@ external ffInputToSelectInput: ReactFinalForm.fieldRenderPropsInput => ReactFina
 external ffInputToRadioInput: ReactFinalForm.fieldRenderPropsInput => ReactFinalForm.fieldRenderPropsCustomInput<
   string,
 > = "%identity"
-let regex: (string, string) => Js.Re.t
+let regex: (string, string) => RegExp.t
 module ListItem: {
   @react.component
   let make: (
@@ -47,6 +47,7 @@ module ListItem: {
     ~showToolTipOptions: bool=?,
     ~textEllipsisForDropDownOptions: bool=?,
     ~textColorClass: string=?,
+    ~customRowClass: string=?,
   ) => React.element
 }
 type dropdownOptionWithoutOptional = {
@@ -58,6 +59,7 @@ type dropdownOptionWithoutOptional = {
   iconStroke: string,
   textColor: string,
   optGroup: string,
+  customRowClass: string,
 }
 type dropdownOption = {
   label: string,
@@ -68,6 +70,7 @@ type dropdownOption = {
   description?: string,
   iconStroke?: string,
   textColor?: string,
+  customRowClass?: string,
 }
 let makeNonOptional: dropdownOption => dropdownOptionWithoutOptional
 let useTransformed: array<dropdownOption> => array<dropdownOptionWithoutOptional>

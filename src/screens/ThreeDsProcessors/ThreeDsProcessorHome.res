@@ -36,7 +36,7 @@ let make = () => {
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let url = RescriptReactRouter.useUrl()
-  let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
+  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
@@ -56,7 +56,7 @@ let make = () => {
 
   let getConnectorDetails = async () => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID), ())
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
@@ -88,7 +88,7 @@ let make = () => {
     }
   }
 
-  let connectorDetails = React.useMemo1(() => {
+  let connectorDetails = React.useMemo(() => {
     try {
       if connectorName->LogicUtils.isNonEmptyString {
         let dict = Window.getAuthenticationConnectorConfig(connectorName)
@@ -115,7 +115,7 @@ let make = () => {
     connectorLabelDetailField,
   ) = getConnectorFields(connectorDetails)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
 
     if !isUpdateFlow {
@@ -131,7 +131,7 @@ let make = () => {
     None
   }, [connectorName, activeBusinessProfile.profile_id])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if connectorName->LogicUtils.isNonEmptyString {
       getDetails()->ignore
     } else {
@@ -150,15 +150,13 @@ let make = () => {
           ~isPayoutFlow=false,
           ~isLiveMode={false},
           ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
-          (),
         )->ignoreFields(connectorID, connectorIgnoredField)
       let connectorUrl = getURL(
         ~entityName=CONNECTOR,
         ~methodType=Post,
         ~id=isUpdateFlow ? Some(connectorID) : None,
-        (),
       )
-      let response = await updateAPIHook(connectorUrl, body, Post, ())
+      let response = await updateAPIHook(connectorUrl, body, Post)
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
     } catch {
@@ -168,10 +166,10 @@ let make = () => {
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
 
         if errorCode === "HE_01" {
-          showToast(~message="Connector label already exist!", ~toastType=ToastError, ())
+          showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConfigurationFields)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError, ())
+          showToast(~message=errorMessage, ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
@@ -184,7 +182,7 @@ let make = () => {
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
 
     validateConnectorRequiredFields(
-      connectorName->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator, ()),
+      connectorName->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator),
       valuesFlattenJson,
       connectorAccountFields,
       connectorMetaDataFields,
@@ -246,11 +244,10 @@ let make = () => {
                 <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
                   connector={connectorName->getConnectorNameTypeFromString(
                     ~connectorType=ThreeDsAuthenticator,
-                    (),
                   )}
                   connectorAccountFields
                   selectedConnector={connectorName
-                  ->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator, ())
+                  ->getConnectorNameTypeFromString(~connectorType=ThreeDsAuthenticator)
                   ->getConnectorInfo}
                   connectorMetaDataFields
                   connectorWebHookDetails

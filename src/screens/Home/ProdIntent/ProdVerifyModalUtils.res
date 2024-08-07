@@ -27,7 +27,6 @@ let businessName = FormRenderer.makeFieldInfo(
   ~placeholder="Eg: HyperSwitch Pvt Ltd",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 let website = FormRenderer.makeFieldInfo(
@@ -36,7 +35,6 @@ let website = FormRenderer.makeFieldInfo(
   ~placeholder="Enter a website",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 let pocName = FormRenderer.makeFieldInfo(
@@ -45,7 +43,6 @@ let pocName = FormRenderer.makeFieldInfo(
   ~placeholder="Eg: Jack Ryan",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 let pocEmail = FormRenderer.makeFieldInfo(
@@ -54,7 +51,6 @@ let pocEmail = FormRenderer.makeFieldInfo(
   ~placeholder="Eg: jackryan@hyperswitch.io",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 let businessTAN = FormRenderer.makeFieldInfo(
@@ -63,7 +59,6 @@ let businessTAN = FormRenderer.makeFieldInfo(
   ~placeholder="Eg. Enter EIN No. for US, VAT No. for EU, etc",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 let countryField = FormRenderer.makeFieldInfo(
@@ -77,9 +72,7 @@ let countryField = FormRenderer.makeFieldInfo(
     ~customButtonStyle="pr-3",
     ~options=CountryUtils.countriesList->Array.map(CountryUtils.getCountryOption),
     ~buttonText="Select Country",
-    (),
   ),
-  (),
 )
 
 let validateEmptyValue = (key, errors) => {
@@ -130,7 +123,7 @@ let validateCustom = (key, errors, value) => {
       Dict.set(errors, key->getStringFromVariant, "Please enter valid email id"->JSON.Encode.string)
     }
   | Website =>
-    if !Js.Re.test_(%re("/^https:\/\//i"), value) || value->String.includes("localhost") {
+    if !RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost") {
       Dict.set(errors, key->getStringFromVariant, "Please Enter Valid URL"->JSON.Encode.string)
     }
   | _ => ()

@@ -15,18 +15,18 @@ module SSOFromRedirect = {
         | SSO_FROM_REDIRECT(#Okta(data)) => data->Identity.genericTypeToJson
         | _ => Dict.make()->JSON.Encode.object
         }
-        let ssoUrl = getURL(~entityName=USERS, ~userType=#SIGN_IN_WITH_SSO, ~methodType=Post, ())
-        let response = await updateDetails(ssoUrl, body, Post, ())
+        let ssoUrl = getURL(~entityName=USERS, ~userType=#SIGN_IN_WITH_SSO, ~methodType=Post)
+        let response = await updateDetails(ssoUrl, body, Post)
         setAuthStatus(PreLogin(getPreLoginInfo(response)))
       } catch {
       | _ => setAuthStatus(LoggedOut)
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       signInWithSSO()->ignore
       None
-    })
+    }, [])
 
     <HSwitchUtils.BackgroundImageWrapper customPageCss="font-semibold md:text-3xl p-16">
       <div className="h-full w-full flex justify-center items-center text-white opacity-90">
@@ -53,7 +53,7 @@ let make = (~auth_id: option<string>) => {
     setLocalSSOState(_ => SSO_FROM_REDIRECT(#Okta(okta)))
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch (url.path, auth_id) {
     | (list{"redirect", "oidc", "okta"}, _) => oktaMethod()
     | (_, Some(str)) => Window.Location.replace(`${Window.env.apiBaseUrl}/user/auth/url?id=${str}`)

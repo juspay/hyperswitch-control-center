@@ -33,9 +33,7 @@ module SurveyComponent = {
             ~baseComponentCustomStyle="flex flex-col gap-4 md:!min-h-[30rem]",
             ~customSelectStyle=`${backgroundColor} bg-opacity-5 ${borderColor.primaryNormal}`,
             ~fill={`${textColor.primaryNormal}`},
-            (),
           ),
-          (),
         )}
       />
       <div className="flex gap-4 w-full mt-4">
@@ -83,11 +81,11 @@ let make = () => {
   let (currentStep, setCurrentStep) = React.useState(_ => 0)
   let (carouselDirection, setCarouselDirection) = React.useState(_ => RIGHT)
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let isPostLoginQuestionnairePending =
     HSLocalStorage.getFromUserDetails("is_metadata_filled")->LogicUtils.getBoolFromString(true)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if !isPostLoginQuestionnairePending {
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/post-login-questionare"))
     }
@@ -96,18 +94,12 @@ let make = () => {
 
   let onSubmit = async (values, _) => {
     try {
-      let postLoginSurveyUrl = getURL(
-        ~entityName=USERS,
-        ~userType=#SET_METADATA,
-        ~methodType=Post,
-        (),
-      )
+      let postLoginSurveyUrl = getURL(~entityName=USERS, ~userType=#SET_METADATA, ~methodType=Post)
 
       let _ = await updateDetails(
         postLoginSurveyUrl,
         values->generateSurveyJson->JSON.Encode.object,
         Post,
-        (),
       )
       HSwitchUtils.setUserDetails("is_metadata_filled", "true"->JSON.Encode.string)
       setDashboardPageState(_ => #AUTO_CONNECTOR_INTEGRATION)
@@ -115,7 +107,7 @@ let make = () => {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       if err->String.includes("UR_19") {
-        showToast(~toastType=ToastWarning, ~message="Please login again!", ~autoClose=false, ())
+        showToast(~toastType=ToastWarning, ~message="Please login again!", ~autoClose=false)
         handleLogout()->ignore
       }
     }
@@ -139,7 +131,11 @@ let make = () => {
             <p className="text-fs-20 font-medium">
               {`Hey ${userName->LogicUtils.capitalizeString}`->React.string}
             </p>
-            <img className="h-8 w-8 mx-3" src={`/images/hyperswitchImages/WavingHandImage.svg`} />
+            <img
+              alt="wavinghand"
+              className="h-8 w-8 mx-3"
+              src={`/images/hyperswitchImages/WavingHandImage.svg`}
+            />
           </div>
           <p className="text-fs-20 font-medium "> {`Welcome to Hyperswitch`->React.string} </p>
         </div>

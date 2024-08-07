@@ -9,7 +9,7 @@ module ActiveRulePreview = {
 
     let ruleInfo = rule->getDictfromDict("algorithm")->SurchargeUtils.ruleInfoTypeMapper
 
-    <UIUtils.RenderIf condition={initialRule->Option.isSome}>
+    <RenderIf condition={initialRule->Option.isSome}>
       <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
         <div
           className="absolute top-0 right-0 bg-green-700 text-white py-2 px-4 rounded-bl font-semibold">
@@ -25,7 +25,7 @@ module ActiveRulePreview = {
         </div>
         <RulePreviewer ruleInfo isFromSurcharge=true />
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -34,7 +34,7 @@ module ConfigureSurchargeRule = {
   let make = (~wasm) => {
     let ruleInput = ReactFinalForm.useField("algorithm.rules").input
     let (rules, setRules) = React.useState(_ => ruleInput.value->LogicUtils.getArrayFromJson([]))
-    React.useEffect1(() => {
+    React.useEffect(() => {
       ruleInput.onChange(rules->Identity.arrayOfGenericTypeToFormReactEvent)
       None
     }, [rules])
@@ -95,8 +95,8 @@ let make = () => {
   open SurchargeUtils
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
-  let fetchDetails = useGetMethod(~showErrorToast=false, ())
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let fetchDetails = useGetMethod(~showErrorToast=false)
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (wasm, setWasm) = React.useState(_ => None)
   let (initialValues, _setInitialValues) = React.useState(_ =>
     buildInitialSurchargeValue->Identity.genericTypeToJson
@@ -107,6 +107,7 @@ let make = () => {
   let showPopUp = PopUpState.useShowPopUp()
   let (showWarning, setShowWarning) = React.useState(_ => true)
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let getWasm = async () => {
     try {
@@ -121,7 +122,7 @@ let make = () => {
   let activeRoutingDetails = async () => {
     open LogicUtils
     try {
-      let surchargeUrl = getURL(~entityName=SURCHARGE, ~methodType=Get, ())
+      let surchargeUrl = getURL(~entityName=SURCHARGE, ~methodType=Get)
       let surchargeRuleDetail = await fetchDetails(surchargeUrl)
       let responseDict = surchargeRuleDetail->getDictFromJsonObject
       let programValue = responseDict->getObj("algorithm", Dict.make())
@@ -164,21 +165,17 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     fetchDetails()->ignore
     None
-  })
+  }, [])
 
   let onSubmit = async (values, _) => {
     try {
+      mixpanelEvent(~eventName="surcharge_save")
       let surchargePayload = values->buildSurchargePayloadBody
-      let getActivateUrl = getURL(~entityName=SURCHARGE, ~methodType=Put, ())
-      let _ = await updateDetails(
-        getActivateUrl,
-        surchargePayload->Identity.genericTypeToJson,
-        Put,
-        (),
-      )
+      let getActivateUrl = getURL(~entityName=SURCHARGE, ~methodType=Put)
+      let _ = await updateDetails(getActivateUrl, surchargePayload->Identity.genericTypeToJson, Put)
       fetchDetails()->ignore
       setShowWarning(_ => true)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/surcharge"))
@@ -187,7 +184,7 @@ let make = () => {
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      showToast(~message=err, ~toastType=ToastError, ())
+      showToast(~message=err, ~toastType=ToastError)
     }
     Nullable.null
   }
@@ -228,6 +225,7 @@ let make = () => {
   }
 
   let handleCreateNew = () => {
+    mixpanelEvent(~eventName="create_new_surcharge")
     if showWarning {
       showPopUp({
         popUpType: (Warning, WithIcon),

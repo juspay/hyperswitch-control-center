@@ -7,11 +7,11 @@ let paragraphTextVariant = `${getTextClass((P2, Medium))} text-grey-700 opacity-
 let subtextStyle = `${getTextClass((P1, Regular))} text-grey-700 opacity-50`
 let cardHeaderText = getTextClass((H3, Leading_2))
 let hoverStyle = "cursor-pointer group-hover:shadow hover:shadow-homePageBoxShadow group"
-let boxCssHover = (~ishoverStyleRequired, ()) =>
+let boxCssHover = (~ishoverStyleRequired) =>
   `flex flex-col  bg-white border rounded-md pt-10 pl-10 gap-2 h-12.5-rem ${ishoverStyleRequired
       ? hoverStyle
       : ""}`
-let boxCss = "flex flex-col bg-white border rounded-md gap-4 p-10"
+let boxCss = "flex flex-col bg-white border rounded-md gap-4 p-7"
 let imageTransitionCss = "opacity-50 group-hover:opacity-100 transition ease-in-out duration-300"
 let cardHeaderTextStyle = `${cardHeaderText} text-grey-700`
 
@@ -125,8 +125,7 @@ module MerchantAuthInfo = {
           <div className="font-semibold text-dark_black"> {"Publishable Key"->React.string} </div>
           <div className="flex items-center">
             <div
-              className="font-medium text-dark_black opacity-40"
-              style={ReactDOMStyle.make(~overflowWrap="anywhere", ())}>
+              className="font-medium text-dark_black opacity-40" style={overflowWrap: "anywhere"}>
               {merchantDetailsValue.publishable_key->React.string}
             </div>
             <CopyFieldValue fieldkey="publishable_key" />
@@ -165,7 +164,7 @@ module CheckoutCard = {
           },
         })
       } else {
-        mixpanelEvent(~eventName=`try_test_payment`, ())
+        mixpanelEvent(~eventName=`try_test_payment`)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/sdk"))
       }
     }
@@ -182,7 +181,7 @@ module CheckoutCard = {
 
     <CardLayout width="w-full md:w-1/2">
       <CardHeader heading=title subHeading=description leftIcon=Some("checkout") />
-      <img className="w-10/12 -mt-7 hidden md:block" src="/assets/sdk.svg" />
+      <img alt="sdk" className="w-10/12 -mt-7 hidden md:block" src="/assets/sdk.svg" />
       <CardFooter customFooterStyle="!m-1 !mt-2">
         <Button
           text="Try it out" buttonType={Secondary} buttonSize={Small} onClick={handleOnClick}
@@ -211,6 +210,7 @@ module ControlCenter = {
             leftIcon=Some("connector")
           />
           <img
+            alt="connector-list"
             className="inline-block absolute right-5 bottom-5  lg:block"
             src="/assets/connectorsList.svg"
           />
@@ -245,9 +245,9 @@ module ControlCenter = {
           </CardFooter>
         </CardLayout>
       </div>
-      <UIUtils.RenderIf condition={!isLiveMode}>
+      <RenderIf condition={!isLiveMode}>
         <CheckoutCard />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }
@@ -274,26 +274,8 @@ module DevResources = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                mixpanelEvent(~eventName=`dev_docs`, ())
+                mixpanelEvent(~eventName=`dev_docs`)
                 "https://hyperswitch.io/docs"->Window._open
-              }}
-            />
-          </CardFooter>
-        </CardLayout>
-        <CardLayout width="w-full">
-          <CardHeader
-            heading="Contribute in open source"
-            subHeading="We welcome all your suggestions, feedbacks, and queries. Hop on to the Open source rail!."
-            leftIcon=Some("contribution")
-          />
-          <CardFooter customFooterStyle="mt-5">
-            <Button
-              text="Contribute"
-              buttonType={Secondary}
-              buttonSize={Small}
-              onClick={_ => {
-                mixpanelEvent(~eventName=`contribute_in_open_source`, ())
-                "https://github.com/juspay/hyperswitch"->Window._open
               }}
             />
           </CardFooter>

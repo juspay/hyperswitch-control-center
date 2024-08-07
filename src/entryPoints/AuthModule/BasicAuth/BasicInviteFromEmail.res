@@ -13,8 +13,8 @@ let make = (~setAuthType) => {
 
   let acceptInviteFormEmail = async body => {
     try {
-      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL, ())
-      let res = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL)
+      let res = await updateDetails(url, body, Post)
       setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
       setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
     } catch {
@@ -26,7 +26,7 @@ let make = (~setAuthType) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     open CommonAuthUtils
     let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
 
@@ -36,7 +36,7 @@ let make = (~setAuthType) => {
     }
 
     None
-  })
+  }, [])
   let onClick = () => {
     setAuthType(_ => CommonAuthTypes.LoginWithEmail)
     setAuthStatus(LoggedOut)

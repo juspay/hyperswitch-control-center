@@ -19,19 +19,18 @@ let useAuthMethods = (): authMethodProps => {
 
   let getURL = useGetURL()
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let fetchDetails = useGetMethod(~showErrorToast=false, ())
+  let fetchDetails = useGetMethod(~showErrorToast=false)
 
   let {authMethods, setAuthMethods} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  let fetchAuthMethods = React.useCallback0(async () => {
+  let fetchAuthMethods = React.useCallback(async () => {
     try {
-      let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+      let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
       let authListUrl = getURL(
         ~entityName=USERS,
         ~userType=#GET_AUTH_LIST,
         ~methodType=Get,
         ~queryParamerters=Some(`auth_id=${authId}`),
-        (),
       )
 
       let json = await fetchDetails(`${authListUrl}`)
@@ -55,16 +54,16 @@ let useAuthMethods = (): authMethodProps => {
     } catch {
     | Exn.Error(_e) => setAuthMethods(_ => AuthUtils.defaultListOfAuth)
     }
-  })
+  }, [])
 
-  let checkAuthMethodExists = React.useCallback1(methods => {
+  let checkAuthMethodExists = React.useCallback(methods => {
     authMethods->Array.some(v => {
       let authMethod = v.auth_method.\"type"
       methods->Array.includes(authMethod)
     })
   }, [authMethods])
 
-  let getAuthMethod = React.useCallback1(authMethod => {
+  let getAuthMethod = React.useCallback(authMethod => {
     let value = authMethods->Array.filter(v => {
       let method = v.auth_method.\"type"
       authMethod == method
@@ -72,17 +71,17 @@ let useAuthMethods = (): authMethodProps => {
     value->getNonEmptyArray
   }, [authMethods])
 
-  let isMagicLinkEnabled = React.useCallback1(() => {
+  let isMagicLinkEnabled = React.useCallback(() => {
     let method: SSOTypes.authMethodTypes = MAGIC_LINK
     featureFlagValues.email && getAuthMethod(method)->Option.isSome
   }, [authMethods])
 
-  let isPasswordEnabled = React.useCallback1(() => {
+  let isPasswordEnabled = React.useCallback(() => {
     let method: SSOTypes.authMethodTypes = PASSWORD
     featureFlagValues.email && getAuthMethod(method)->Option.isSome
   }, [authMethods])
 
-  let isSignUpAllowed = React.useCallback1(() => {
+  let isSignUpAllowed = React.useCallback(() => {
     open SSOTypes
     let magicLinkmethod = getAuthMethod(MAGIC_LINK)
     let passwordmethod = getAuthMethod(PASSWORD)
@@ -130,11 +129,10 @@ let useAuthMethods = (): authMethodProps => {
   }
 }
 
-let useNote = (authType, setAuthType, ()) => {
-  open UIUtils
+let useNote = (authType, setAuthType) => {
   open CommonAuthTypes
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
 
   let {isMagicLinkEnabled, isPasswordEnabled} = useAuthMethods()
 

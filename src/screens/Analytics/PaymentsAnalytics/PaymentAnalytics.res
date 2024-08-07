@@ -19,7 +19,7 @@ let make = () => {
 
   let loadInfo = async () => {
     try {
-      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain), ())
+      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
@@ -33,7 +33,7 @@ let make = () => {
   let getPaymetsDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let paymentUrl = getURL(~entityName=ORDERS, ~methodType=Get, ())
+      let paymentUrl = getURL(~entityName=ORDERS, ~methodType=Get)
       let paymentDetails = await fetchDetails(paymentUrl)
       let data = paymentDetails->getDictFromJsonObject->getArrayFromDict("data", [])
       if data->Array.length < 0 {
@@ -69,10 +69,10 @@ let make = () => {
     })
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getPaymetsDetails()->ignore
     None
-  })
+  }, [])
 
   let tabKeys = getStringListFromArrayDict(dimensions)
 
@@ -140,7 +140,6 @@ let make = () => {
         ~source=?singleStatBodyEntity.source,
         ~granularity=singleStatBodyEntity.granularity,
         ~prefix=singleStatBodyEntity.prefix,
-        (),
       )->JSON.Encode.object,
     ]
     ->JSON.Encode.array
@@ -155,17 +154,17 @@ let make = () => {
     (),
   )
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     setInitialFilters()
     None
-  })
+  }, [])
 
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
 
   let filterUri = `${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`
 
-  let filterBody = React.useMemo3(() => {
+  let filterBody = React.useMemo(() => {
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
       startTime: startTimeVal,
       endTime: endTimeVal,
@@ -177,11 +176,11 @@ let make = () => {
 
   let body = filterBody->JSON.Encode.object
 
-  React.useEffect3(() => {
+  React.useEffect(() => {
     setFilterDataJson(_ => None)
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       try {
-        updateDetails(filterUri, body, Post, ())
+        updateDetails(filterUri, body, Post)
         ->thenResolve(json => setFilterDataJson(_ => json->Some))
         ->catch(_ => resolve())
         ->ignore
@@ -232,12 +231,12 @@ let make = () => {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between ">
         <PageUtils.PageHeading title subTitle />
-        <UIUtils.RenderIf condition={generateReport}>
+        <RenderIf condition={generateReport}>
           <GenerateReport entityName={PAYMENT_REPORT} />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
       <div
-        className="-ml-1 sticky top-3 z-50 rounded-lg p-1 backdrop-opacity-90 bg-hyperswitch_background/90 py-3 -mt-3">
+        className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
         topFilterUi
       </div>
       <div className="flex flex-col gap-14">

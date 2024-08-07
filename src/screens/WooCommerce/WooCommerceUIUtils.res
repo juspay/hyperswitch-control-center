@@ -113,16 +113,15 @@ module SelectPaymentMethods = {
           metadata: metaData,
         }
         let body = ConnectorUtils.constructConnectorRequestBody(obj, initialValues)
-        let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
+        let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
 
-        let response = await updateAPIHook(connectorUrl, body, Post, ())
+        let response = await updateAPIHook(connectorUrl, body, Post)
         setInitialValues(_ => response)
         response->LogicUtils.getDictFromJsonObject->updateEnumForConnector->ignore
         setConnectorConfigureState(_ => Summary)
         showToast(
-          ~message=`${connectorName->LogicUtils.getFirstLetterCaps()} connected successfully!`,
+          ~message=`${connectorName->LogicUtils.getFirstLetterCaps} connected successfully!`,
           ~toastType=ToastSuccess,
-          (),
         )
         setButtonState(_ => Button.Normal)
       } catch {
@@ -130,7 +129,7 @@ module SelectPaymentMethods = {
       }
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       initialValues
       ->ConnectorUtils.getConnectorPaymentMethodDetails(
         setPaymentMethods,
@@ -171,7 +170,6 @@ module SelectPaymentMethods = {
         paymentMethodsEnabled
         updateDetails
         setMetaData
-        metaData
         isPayoutFlow=false
       />
     </QuickStartUIUtils.BaseComponent>

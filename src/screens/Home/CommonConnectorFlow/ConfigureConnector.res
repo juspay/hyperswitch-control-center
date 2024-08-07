@@ -49,7 +49,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if choiceState === #NotSelected {
       setButtonState(_ => Button.Disabled)
     } else {
@@ -58,7 +58,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
     None
   }, [choiceState])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if smartRoutingChoiceState === #NotSelected {
       setButtonState(_ => Button.Disabled)
     } else {
@@ -67,7 +67,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
     None
   }, [smartRoutingChoiceState])
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     setInitialValues(prevJson => {
       let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
       prevJsonDict->Dict.set(
@@ -92,21 +92,16 @@ let make = (~connectProcessorValue: connectProcessor) => {
         connector_name: typedEnumValue.secondProcessorConnected.processorName,
         merchant_connector_id: typedEnumValue.secondProcessorConnected.processorID,
       }
-      let routingUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
+      let routingUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None)
       let body =
         activeBusinessProfile.profile_id->HSwitchSetupAccountUtils.routingPayload(
           firstProcessorRoutingPayload,
           secondProcessorRoutingPayload,
         )
-      let routingResponse = await updateDetails(routingUrl, body, Post, ())
+      let routingResponse = await updateDetails(routingUrl, body, Post)
       let activatingId = routingResponse->getDictFromJsonObject->getString("id", "")
-      let activateRuleURL = getURL(
-        ~entityName=ROUTING,
-        ~methodType=Post,
-        ~id=Some(activatingId),
-        (),
-      )
-      let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
+      let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=Some(activatingId))
+      let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post)
       let _ = await updateEnumForRouting(activatingId)
       setButtonState(_ => Normal)
     } catch {
@@ -179,19 +174,19 @@ let make = (~connectProcessorValue: connectProcessor) => {
       setQuickStartPageState(_ => IntegrateApp(LANDING))
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/quick-start"))
       if paymentId->Option.isSome {
-        mixpanelEvent(~eventName=`quickstart_checkout_pay`, ())
+        mixpanelEvent(~eventName=`quickstart_checkout_pay`)
       } else {
-        mixpanelEvent(~eventName=`quickstart_checkout_skip`, ())
+        mixpanelEvent(~eventName=`quickstart_checkout_skip`)
       }
     } catch {
     | _ => ()
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     setKey(_ => Date.now()->Float.toString)
     None
-  })
+  }, [])
 
   <>
     {switch connectProcessorValue {
@@ -208,7 +203,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
             tooltipText="Please select one of the choices"
             text="Proceed"
             onClick={_ => {
-              mixpanelEvent(~eventName=`quickstart_landing`, ())
+              mixpanelEvent(~eventName=`quickstart_landing`)
               handleConnectorChoiceClick()->ignore
             }}
             buttonSize=Small
@@ -274,7 +269,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
               tooltipText="Please select one of the choices"
               text="Proceed"
               onClick={_ => {
-                mixpanelEvent(~eventName=`quickstart_configure_smart_routing`, ())
+                mixpanelEvent(~eventName=`quickstart_configure_smart_routing`)
                 handleRouting()->ignore
               }}
               buttonSize=Small

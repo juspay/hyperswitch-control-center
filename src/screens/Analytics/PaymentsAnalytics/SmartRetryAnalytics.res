@@ -253,7 +253,6 @@ let make = (~filterKeys, ~moduleName) => {
         ~source=?singleStatBodyEntity.source,
         ~granularity=singleStatBodyEntity.granularity,
         ~prefix=singleStatBodyEntity.prefix,
-        (),
       )->JSON.Encode.object,
     ]
     ->JSON.Encode.array
@@ -264,7 +263,7 @@ let make = (~filterKeys, ~moduleName) => {
     <h2 className="font-bold text-xl text-black text-opacity-80">
       {"Smart Retries"->React.string}
     </h2>
-    <div className={`flex items-start text-sm rounded-md gap-2 py-2`}>
+    <div className={`flex items-start text-sm rounded-md gap-2 py-2 opacity-60`}>
       {"Note: Only date range filters are supported currently for Smart Retry metrics"->React.string}
     </div>
     <div className="relative">

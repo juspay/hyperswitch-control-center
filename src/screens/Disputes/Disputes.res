@@ -15,7 +15,7 @@ let make = () => {
   let getDisputesList = async () => {
     try {
       setScreenState(_ => Loading)
-      let disputesUrl = getURL(~entityName=DISPUTES, ~methodType=Get, ())
+      let disputesUrl = getURL(~entityName=DISPUTES, ~methodType=Get)
       let response = await fetchDetails(disputesUrl)
       let disputesValue = response->LogicUtils.getArrayDataFromJson(DisputesEntity.itemToObjMapper)
       if disputesValue->Array.length > 0 {
@@ -34,14 +34,14 @@ let make = () => {
       }
     }
   }
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getDisputesList()->ignore
     None
-  })
+  }, [])
 
   let customUI =
     <>
-      <UIUtils.RenderIf condition={!branding}>
+      <RenderIf condition={!branding}>
         <div
           className={`${borderColor.primaryNormal} flex  items-start  text-sm rounded-md gap-2 px-4 py-3 mt-5`}>
           <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
@@ -56,7 +56,7 @@ let make = () => {
             {"for your processor."->React.string}
           </p>
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
       <HelperComponents.BluredTableComponent
         infoText="No disputes as of now." moduleName=" " showRedirectCTA=false
       />
@@ -67,9 +67,9 @@ let make = () => {
   <div>
     <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />
     <div className="flex w-full justify-end pb-3 gap-3">
-      <UIUtils.RenderIf condition={generateReport && disputesData->Array.length > 0}>
+      <RenderIf condition={generateReport && disputesData->Array.length > 0}>
         <GenerateReport entityName={DISPUTE_REPORT} />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
     <PageLoaderWrapper screenState customUI>
       <div className="flex flex-col gap-4">

@@ -16,14 +16,14 @@ let make = (
     | _ => setParsedJson(_ => jsonToDisplay)
     }
   }
-  React.useEffect1(() => {
+  React.useEffect(() => {
     parseJsonValue()->ignore
     None
   }, [jsonToDisplay])
 
   let handleOnClickCopy = (~parsedValue) => {
     Clipboard.writeText(parsedValue)
-    showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+    showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
   }
 
   let copyParsedJson =
@@ -32,16 +32,16 @@ let make = (
     </div>
 
   <div className="flex flex-col gap-2">
-    <UIUtils.RenderIf condition={parsedJson->isNonEmptyString}>
+    <RenderIf condition={parsedJson->isNonEmptyString}>
       {<>
-        <UIUtils.RenderIf condition={headerText->Option.isSome}>
+        <RenderIf condition={headerText->Option.isSome}>
           <div className="flex justify-between items-center">
             <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
               {headerText->Option.getOr("")->React.string}
             </p>
             {copyParsedJson}
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div className="overflow-auto">
           <ReactSyntaxHighlighter.SyntaxHighlighter
             style={ReactSyntaxHighlighter.lightfair}
@@ -62,8 +62,8 @@ let make = (
           </ReactSyntaxHighlighter.SyntaxHighlighter>
         </div>
       </>}
-    </UIUtils.RenderIf>
-    <UIUtils.RenderIf condition={parsedJson->isEmptyString}>
+    </RenderIf>
+    <RenderIf condition={parsedJson->isEmptyString}>
       <div className="flex flex-col justify-start items-start gap-2 h-25-rem">
         <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
           {headerText->Option.getOr("")->React.string}
@@ -72,6 +72,6 @@ let make = (
           {"Failed to load!"->React.string}
         </p>
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   </div>
 }

@@ -1,6 +1,6 @@
 type contentType = Headers(string) | Unknown
 
-let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ~token, ()) => {
+let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ~token) => {
   let isMixpanel = uri->String.includes("mixpanel")
 
   let headerObj = if isMixpanel {
@@ -36,7 +36,7 @@ let useApiFetcher = () => {
   open Promise
   let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  let token = React.useMemo1(() => {
+  let token = React.useMemo(() => {
     switch authStatus {
     | PreLogin(info) => info.token
     | LoggedIn(info) =>
@@ -49,7 +49,7 @@ let useApiFetcher = () => {
   }, [authStatus])
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
 
-  React.useCallback1(
+  React.useCallback(
     (
       uri,
       ~bodyStr: string="",
@@ -58,7 +58,6 @@ let useApiFetcher = () => {
       ~method_: Fetch.requestMethod,
       ~betaEndpointConfig=?,
       ~contentType=Headers("application/json"),
-      (),
     ) => {
       let uri = switch betaEndpointConfig {
       | Some(val) => String.replace(uri, val.replaceStr, val.originalApiStr)
@@ -82,8 +81,7 @@ let useApiFetcher = () => {
             ~method_,
             ~body?,
             ~credentials=SameOrigin,
-            ~headers=getHeaders(~headers, ~uri, ~contentType, ~token, ()),
-            (),
+            ~headers=getHeaders(~headers, ~uri, ~contentType, ~token),
           ),
         )
         ->catch(

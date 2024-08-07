@@ -6,8 +6,7 @@ let feedbackTextBox = makeFieldInfo(
   ~label="",
   ~name="feedbacks",
   ~placeholder="Tell us in words...",
-  ~customInput=InputFields.multiLineTextInput(~isDisabled=false, ~rows=Some(6), ~cols=Some(4), ()),
-  (),
+  ~customInput=InputFields.multiLineTextInput(~isDisabled=false, ~rows=Some(6), ~cols=Some(4)),
 )
 
 type feedbackType = Suggestion | Bugs | RequestConnector | Other
@@ -30,9 +29,7 @@ let selectFeedbackType = makeFieldInfo(
     ~options=feedbackTypeList->Array.map(getFeedBackStringFromVariant)->SelectBox.makeOptions,
     ~buttonText="options",
     ~isHorizontal=true,
-    (),
   ),
-  (),
 )
 
 let connectorNameField = makeFieldInfo(
@@ -40,15 +37,13 @@ let connectorNameField = makeFieldInfo(
   ~name="connector_name",
   ~placeholder="Enter a processor name",
   ~customInput=InputFields.textInput(),
-  (),
 )
 
 let connectorDescription = makeFieldInfo(
   ~label="Description",
   ~name="description",
   ~placeholder="Write here...",
-  ~customInput=InputFields.multiLineTextInput(~isDisabled=false, ~rows=Some(6), ~cols=Some(4), ()),
-  (),
+  ~customInput=InputFields.multiLineTextInput(~isDisabled=false, ~rows=Some(6), ~cols=Some(4)),
 )
 
 let validateFields = (values, ~modalType) => {

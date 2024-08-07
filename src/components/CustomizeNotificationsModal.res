@@ -89,57 +89,56 @@ let make = (
       : React.null}
     <div
       className="overflow-auto p-6 border-b border-solid  border-slate-300 dark:border-slate-500 relative"
-      style={ReactDOMStyle.make(~height=btnRequired ? "calc(100vh - 9.6rem)" : "100vh", ())}>
+      style={height: btnRequired ? "calc(100vh - 9.6rem)" : "100vh"}>
       element
-      {showLoderButton && notificationCount > 10
-        ? <div
-            className="flex fixed items-center justify-center"
-            style={ReactDOMStyle.make(~top="100px", ~right="100px", ())}>
-            <Button
-              text="Load Previous"
-              customButtonStyle="rounded-full "
-              rightIcon={FontAwesome("arrow-up")}
-              onClick={_ => {
-                switch setNotificationCount {
-                | Some(setNotificationCount) => setNotificationCount(_ => notificationCount - 10)
-                | _ => ()
-                }
-              }}
-            />
-          </div>
-        : React.null}
-      {totalNotifications - notificationCount > 0 && showLoderButton
-        ? <div className="sticky bottom-20 flex items-center justify-center">
-            <Button
-              text="Load More"
-              customButtonStyle="rounded-full bg-stone-800/50"
-              rightIcon={FontAwesome("arrow-down")}
-              onClick={_ => {
-                switch setNotificationCount {
-                | Some(setNotificationCount) => setNotificationCount(_ => notificationCount + 10)
-                | _ => ()
-                }
-              }}
-            />
-          </div>
-        : React.null}
-    </div>
-    {btnRequired
-      ? <div className="flex items-center justify-center my-5">
-          {if refreshOutages {
-            if refresh {
-              customButton
-            } else {
-              <ToolTip
-                description="kindly wait at least 1 minute to make a refresh"
-                toolTipFor=customButton
-                toolTipPosition=ToolTip.Top
-              />
-            }
-          } else {
-            customButton
-          }}
+      <RenderIf condition={showLoderButton && notificationCount > 10}>
+        <div
+          className="flex fixed items-center justify-center" style={top: "100px", right: "100px"}>
+          <Button
+            text="Load Previous"
+            customButtonStyle="rounded-full "
+            rightIcon={FontAwesome("arrow-up")}
+            onClick={_ => {
+              switch setNotificationCount {
+              | Some(setNotificationCount) => setNotificationCount(_ => notificationCount - 10)
+              | _ => ()
+              }
+            }}
+          />
         </div>
-      : React.null}
+      </RenderIf>
+      <RenderIf condition={totalNotifications - notificationCount > 0 && showLoderButton}>
+        <div className="sticky bottom-20 flex items-center justify-center">
+          <Button
+            text="Load More"
+            customButtonStyle="rounded-full bg-stone-800/50"
+            rightIcon={FontAwesome("arrow-down")}
+            onClick={_ => {
+              switch setNotificationCount {
+              | Some(setNotificationCount) => setNotificationCount(_ => notificationCount + 10)
+              | _ => ()
+              }
+            }}
+          />
+        </div>
+      </RenderIf>
+    </div>
+    <RenderIf condition={btnRequired}>
+      <div className="flex items-center justify-center my-5">
+        {if refreshOutages {
+          if refresh {
+            customButton
+          } else {
+            <ToolTip
+              description="kindly wait at least 1 minute to make a refresh"
+              toolTipFor=customButton
+              toolTipPosition=ToolTip.Top
+            />
+          }
+        } else {
+          customButton
+        }}
+      </div>
+    </RenderIf>
   </Modal>
 }

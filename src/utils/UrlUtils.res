@@ -2,7 +2,7 @@ let useGetFilterDictFromUrl = prefix => {
   let url = RescriptReactRouter.useUrl()
   let (searchParamsDict, setSearchParamDict) = React.useState(_ => Dict.make())
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if url.search->LogicUtils.isNonEmptyString {
       let searcParamsToDict =
         url.search

@@ -7,7 +7,7 @@ module InputFieldForOtp = {
 
     let onChange = ev => {
       let currValue = {ev->ReactEvent.Form.target}["value"]
-      if %re("/^[0-9]+$/")->Js.Re.test_(currValue) || currValue === "" {
+      if %re("/^[0-9]+$/")->RegExp.test(currValue) || currValue === "" {
         let newValue =
           value->String.slice(~start=0, ~end=index) ++
           currValue ++
@@ -63,7 +63,7 @@ let make = (~value, ~setValue) => {
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let indexToFocus = Math.Int.min(5, value->String.length)
 
     let elementToFocus = (inputRefArray[indexToFocus]->Option.getOr(input1Ref)).current

@@ -44,21 +44,21 @@ module HomePageHorizontalStepper = {
           <div className="flex items-center gap-2">
             <span
               className={`h-6 w-7 flex items-center justify-center rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>
-              <UIUtils.RenderIf condition={index < step}>
+              <RenderIf condition={index < step}>
                 <Icon name="check" size=12 className="text-blue-500" />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={index >= step}>
+              </RenderIf>
+              <RenderIf condition={index >= step}>
                 {(index + 1)->Int.toString->React.string}
-              </UIUtils.RenderIf>
+              </RenderIf>
             </span>
-            <UIUtils.RenderIf condition={index <= stepperItemsArray->Array.length - 1}>
+            <RenderIf condition={index <= stepperItemsArray->Array.length - 1}>
               <div className="relative w-full">
                 <div className={`absolute h-1 rounded-full z-1 ${index->getProgressBarStyle}`} />
-                <UIUtils.RenderIf condition={index != stepperItemsArray->Array.length - 1}>
+                <RenderIf condition={index != stepperItemsArray->Array.length - 1}>
                   <div className="w-full h-1 rounded-full bg-grey-700 bg-opacity-10" />
-                </UIUtils.RenderIf>
+                </RenderIf>
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
           <p> {value->React.string} </p>
         </div>
@@ -181,11 +181,11 @@ module QuickStart = {
 
     let mixpanelEventForQuickStart = () =>
       if !(typedValueOfEnum.testPayment.payment_id->LogicUtils.isNonEmptyString) {
-        mixpanelEvent(~eventName=`quickstart_configure_test_mode`, ())
+        mixpanelEvent(~eventName=`quickstart_configure_test_mode`)
       } else if !typedValueOfEnum.integrationCompleted {
-        mixpanelEvent(~eventName=`quickstart_start_integration_on_app`, ())
+        mixpanelEvent(~eventName=`quickstart_start_integration_on_app`)
       } else {
-        mixpanelEvent(~eventName=`quickstart_get_productuion_access`, ())
+        mixpanelEvent(~eventName=`quickstart_get_productuion_access`)
       }
 
     <div className="flex flex-col md:flex-row pt-10 border rounded-md bg-white gap-4">
@@ -211,11 +211,11 @@ module QuickStart = {
           }}
         />
       </div>
-      <UIUtils.RenderIf condition={!isMobileView}>
+      <RenderIf condition={!isMobileView}>
         <div className="h-30 md:w-[43rem] flex justify-end">
-          <img src="/assets/QuickStartImage.svg" />
+          <img alt="quick-start-image" src="/assets/QuickStartImage.svg" />
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }
@@ -245,9 +245,9 @@ module RecipesAndPlugins = {
         <ACLDiv
           permission=blockConditionAccessVal
           noAccessDescription=noAccessControlText
-          className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
+          className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted)}
           onClick={_ => {
-            mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
+            mixpanelEvent(~eventName=`stripe_plus_paypal`)
             RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/stripe-plus-paypal"))
           }}>
           <div className="flex items-center gap-2">
@@ -257,25 +257,27 @@ module RecipesAndPlugins = {
               size=12
               className="group-hover:scale-125 transition duration-200 ease-in-out"
             />
-            <UIUtils.RenderIf condition={isStripePlusPayPalCompleted}>
+            <RenderIf condition={isStripePlusPayPalCompleted}>
               <div className="flex ">
                 <Icon name="success-tag" size=22 className="!w-32" />
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
           <div className="flex gap-2 h-full">
             <p className=paragraphTextVariant>
               {"Get the best of Stripe's developer experience and Paypal's user base"->React.string}
             </p>
-            <img src="/assets/StripePlusPaypal.svg" className=imageTransitionCss />
+            <img
+              alt="stripe-paypal" src="/assets/StripePlusPaypal.svg" className=imageTransitionCss
+            />
           </div>
         </ACLDiv>
         <ACLDiv
           permission=blockConditionAccessVal
           noAccessDescription=noAccessControlText
-          className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
+          className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted)}
           onClick={_ => {
-            mixpanelEvent(~eventName=`woocommerce`, ())
+            mixpanelEvent(~eventName=`woocommerce`)
             RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/woocommerce"))
           }}>
           <div className="flex items-center gap-2">
@@ -285,17 +287,17 @@ module RecipesAndPlugins = {
               size=12
               className="group-hover:scale-125 transition duration-200 ease-in-out"
             />
-            <UIUtils.RenderIf condition={isWooCommercePalCompleted}>
+            <RenderIf condition={isWooCommercePalCompleted}>
               <div className="flex ">
                 <Icon name="success-tag" size=22 className="!w-32" />
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
           <div className="flex gap-2 h-full">
             <p className=paragraphTextVariant>
               {"Give your shoppers a lightweight and embedded payment experience with our plugin"->React.string}
             </p>
-            <img src="/assets/Woocommerce.svg" className=imageTransitionCss />
+            <img alt="woocommerce" src="/assets/Woocommerce.svg" className=imageTransitionCss />
           </div>
         </ACLDiv>
       </div>
@@ -318,14 +320,6 @@ module Resources = {
         access: userPermissionJson.operationsManage,
       },
       {
-        id: "openSource",
-        icon: "blogs.svg",
-        headerText: "Contribute in open source",
-        subText: "We welcome all your suggestions, feedbacks, and queries. Hop on to the Open source rail!",
-        redirectLink: "",
-        access: Access,
-      },
-      {
         id: "developerdocs",
         icon: "connector.svg",
         headerText: "Developer docs",
@@ -337,13 +331,13 @@ module Resources = {
 
     let onClickHandler = item => {
       if item.id === "openSource" {
-        mixpanelEvent(~eventName=`contribute_in_open_source`, ())
+        mixpanelEvent(~eventName=`contribute_in_open_source`)
         "https://github.com/juspay/hyperswitch"->Window._open
       } else if item.id === "developerdocs" {
-        mixpanelEvent(~eventName=`dev_docs`, ())
+        mixpanelEvent(~eventName=`dev_docs`)
         "https://hyperswitch.io/docs"->Window._open
       } else if item.id === "tryTheDemo" {
-        mixpanelEvent(~eventName=`test_payment`, ())
+        mixpanelEvent(~eventName=`test_payment`)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/sdk"))
       }
     }
@@ -351,7 +345,7 @@ module Resources = {
     <>
       <div className="flex flex-col gap-4">
         <p className=headingStyle> {"Resources"->React.string} </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
           {elements
           ->Array.mapWithIndex((item, index) => {
             let cursorStyles = PermissionUtils.cursorStyles(item.access)
@@ -364,7 +358,7 @@ module Resources = {
               justifyClass=""
               className={`!h-full group bg-white border rounded-md p-10 flex flex-col gap-4 group-hover:shadow hover:shadow-homePageBoxShadow ${cursorStyles}`}
               onClick={_ => onClickHandler(item)}>
-              <img src={`/icons/${item.icon}`} className="h-6 w-6" />
+              <img alt="image" src={`/icons/${item.icon}`} className="h-6 w-6" />
               <div className="flex items-center gap-2">
                 <p className=cardHeaderText> {item.headerText->React.string} </p>
                 <Icon
@@ -425,9 +419,9 @@ let make = () => {
 
   <div className="w-full flex flex-col gap-6">
     <div className="flex flex-col gap-4">
-      <UIUtils.RenderIf condition={featureFlagDetails.totp && recovery_codes_left < 3}>
+      <RenderIf condition={featureFlagDetails.totp && recovery_codes_left < 3}>
         <LowRecoveryCodeBanner recovery_codes_left />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <AcceptInviteHome />
     </div>
     <div className="w-full flex flex-col gap-7">
@@ -438,9 +432,9 @@ let make = () => {
             let showRecipesAndPlugins =
               [typedEnumValue.integrationCompleted, prodIntent]->Array.includes(false)
 
-            <UIUtils.RenderIf condition={!showRecipesAndPlugins}>
+            <RenderIf condition={!showRecipesAndPlugins}>
               <RecipesAndPlugins />
-            </UIUtils.RenderIf>
+            </RenderIf>
           }
         | None => React.null
         }}

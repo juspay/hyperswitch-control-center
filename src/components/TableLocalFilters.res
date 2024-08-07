@@ -54,7 +54,6 @@ module RangeSliderLocalFilter = {
       ~callback=() => {
         setShowDropDown(_ => false)
       },
-      (),
     )
 
     let min = minVal->Float.toString
@@ -69,7 +68,7 @@ module RangeSliderLocalFilter = {
           onClick={_ => setShowDropDown(prev => !prev)}>
           {rightIcon}
         </div>
-        <UIUtils.RenderIf condition={min !== max && showDropDown}>
+        <RenderIf condition={min !== max && showDropDown}>
           <div
             ref={dropdownRef->ReactDOM.Ref.domRef}
             className=" top-3.5 px-4 pt-4 pb-2 bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded shadow-generic_shadow dark:shadow-generic_shadow_dark mt-8 absolute border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded shadow-generic_shadow dark:shadow-generic_shadow_dark z-20 ">
@@ -77,7 +76,7 @@ module RangeSliderLocalFilter = {
               <RangeSlider min max maxSlide minSlide />
             </div>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -182,7 +181,7 @@ module TextFilterCell = {
       ->Option.getOr([])
       ->Array.get(0)
       ->Option.getOr(""->JSON.Encode.string)
-    let localInput = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
+    let localInput = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
         onBlur: _ev => (),
@@ -241,7 +240,7 @@ module RangeFilterCell = {
         maxVal->JSON.Encode.float,
       ])
 
-    let minSlide = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
+    let minSlide = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
         onBlur: _ev => (),
@@ -261,7 +260,7 @@ module RangeFilterCell = {
       }
     }, [selectedValueStr])
 
-    let maxSlide = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
+    let maxSlide = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
         onBlur: _ev => (),

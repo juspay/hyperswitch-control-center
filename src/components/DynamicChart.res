@@ -85,7 +85,6 @@ let getTimeSeriesChart = (chartEntity: chartEntity) => {
       ~customFilter=chartEntity.customFilter->Option.getOr(""),
       ~prefix=chartEntity.prefix,
       ~source=chartEntity.source,
-      (),
     )->JSON.Encode.object,
   ]
   ->JSON.Encode.array
@@ -109,7 +108,6 @@ let getLegendBody = (chartEntity: chartEntity) => {
       ~customFilter=chartEntity.customFilter->Option.getOr(""),
       ~prefix=chartEntity.prefix,
       ~source=chartEntity.source,
-      (),
     )->JSON.Encode.object,
   ]
   ->JSON.Encode.array
@@ -207,7 +205,6 @@ let makeEntity = (
   ~sortingColumnLegend: option<string>=?,
   ~jsonTransformer: option<(string, array<JSON.t>) => array<JSON.t>>=?,
   ~disableGranularity=?,
-  (),
 ) => {
   let granularity = granularity->Array.length === 0 ? [G_ONEDAY] : granularity
   let chartTypes = chartTypes->Array.length === 0 ? [Line] : chartTypes
@@ -244,10 +241,9 @@ let useChartFetch = (~setStatusDict) => {
     ->Array.map(item => {
       fetchApi(
         item.url,
-        ~method_=Fetch.Post,
+        ~method_=Post,
         ~bodyStr=item.body,
         ~headers=[("QueryType", "Chart")]->Dict.fromArray,
-        (),
       )
       ->addLogsAroundFetch(~logTitle="Chart Data Api", ~setStatusDict)
       ->then(json => {
@@ -259,10 +255,9 @@ let useChartFetch = (~setStatusDict) => {
         | {legendBody} =>
           fetchApi(
             item.url,
-            ~method_=Fetch.Post,
+            ~method_=Post,
             ~bodyStr=legendBody,
             ~headers=[("QueryType", "Chart")]->Dict.fromArray,
-            (),
           )
           ->addLogsAroundFetch(~logTitle="Chart Data Api", ~setStatusDict)
           ->then(
@@ -432,7 +427,7 @@ let make = (
     ->Dict.fromArray
 
   // with prefix only for charts
-  let getChartCompFilters = React.useMemo1(() => {
+  let getChartCompFilters = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
@@ -454,7 +449,7 @@ let make = (
   }, [getAllFilter])
 
   // without prefix only for charts
-  let getTopLevelFilter = React.useMemo1(() => {
+  let getTopLevelFilter = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
@@ -490,7 +485,7 @@ let make = (
 
   let (currentTopMatrix, currentBottomMetrix) = currentMetrics
   // if we won't see anything in the url then we will update the url
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let cardinality = getChartCompFilters->getString("cardinality", "TOP_5")
     let chartType =
       getChartCompFilters->getString(
@@ -533,7 +528,7 @@ let make = (
 
     updateChartCompFilters(dict)
     None
-  })
+  }, [])
 
   let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
   let (rawChartData, setRawChartData) = React.useState(_ => None)
@@ -548,7 +543,7 @@ let make = (
 
   let allFilterKeys = Array.concat(defaultFilters, allFilterDimension)
 
-  let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
+  let (topFiltersToSearchParam, customFilter) = React.useMemo(() => {
     let filterSearchParam =
       getTopLevelFilter
       ->Dict.toArray
@@ -578,10 +573,10 @@ let make = (
   let (statusDict, setStatusDict) = React.useState(_ => Dict.make())
   let fetchChartData = useChartFetch(~setStatusDict)
 
-  let startTimeFromUrl = React.useMemo1(() => {
+  let startTimeFromUrl = React.useMemo(() => {
     getTopLevelFilter->getString(startTimeFilterKey, "")
   }, [topFiltersToSearchParam])
-  let endTimeFromUrl = React.useMemo1(() => {
+  let endTimeFromUrl = React.useMemo(() => {
     getTopLevelFilter->getString(endTimeFilterKey, "")
   }, [topFiltersToSearchParam])
 
@@ -595,7 +590,7 @@ let make = (
 
   let (selectedGranularity, setSelectedGranularity) = React.useState(_ => defaultGranularity)
 
-  let topFiltersToSearchParam = React.useMemo1(() => {
+  let topFiltersToSearchParam = React.useMemo(() => {
     let filterSearchParam =
       getTopLevelFilter
       ->Dict.toArray
@@ -613,13 +608,13 @@ let make = (
     filterSearchParam
   }, [topFiltersToSearchParam])
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     setSelectedGranularity(_ => defaultGranularity)
     None
   }, (startTimeFromUrl, endTimeFromUrl))
   let selectedTabStr = selectedTab->Option.getOr([])->Array.joinWithUnsafe("")
 
-  let updatedChartConfigArr = React.useMemo7(() => {
+  let updatedChartConfigArr = React.useMemo(() => {
     uriConfig->Array.map(item => {
       let filterKeys =
         item.filterKeys->Array.filter(item => allFilterDimension->Array.includes(item))
@@ -666,7 +661,7 @@ let make = (
     selectedGranularity,
   ))
 
-  let updatedChartBody = React.useMemo1(() => {
+  let updatedChartBody = React.useMemo(() => {
     uriConfig->Belt.Array.keepMap(item => {
       switch updatedChartConfigArr->Array.find(config => config.uri === item.uri) {
       | Some(chartconfig) => {
@@ -692,7 +687,7 @@ let make = (
     })
   }, [updatedChartConfigArr])
 
-  let (groupKeyFromTab, titleKey) = React.useMemo1(() => {
+  let (groupKeyFromTab, titleKey) = React.useMemo(() => {
     switch (tabTitleMapper, selectedTab) {
     | (Some(dict), Some(arr)) => {
         let groupKey = arr->Array.get(0)->Option.getOr("")
@@ -797,7 +792,7 @@ let make = (
   let chartTypeFromUrl = getChartCompFilters->getString("chartType", "Line chart")
   let chartTopMetricFromUrl = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if startTimeFromUrl->isNonEmptyString && endTimeFilterKey->isNonEmptyString {
       setChartLoading(_ => enableLoaders)
       fetchChartData(updatedChartBody, setRawChartData)
@@ -821,7 +816,7 @@ let make = (
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else if comparitionWidget {
                   <div>
-                    <UIUtils.RenderIf condition={featureFlagDetails.granularity}>
+                    <RenderIf condition={featureFlagDetails.granularity}>
                       <div className="w-full flex justify-end p-2">
                         <GranularitySelectBox
                           selectedGranularity
@@ -830,7 +825,7 @@ let make = (
                           endTime={endTimeFromUrl}
                         />
                       </div>
-                    </UIUtils.RenderIf>
+                    </RenderIf>
                     {entityAllMetrics
                     ->Array.mapWithIndex((selectedMetrics, index) => {
                       switch uriConfig->Array.get(0) {

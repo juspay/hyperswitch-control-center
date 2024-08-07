@@ -46,7 +46,7 @@ let make = (
   let secondsVal =
     arr->Array.get(2)->Option.flatMap(val => val->Belt.Int.fromString)->Option.getOr(0)
 
-  let changeVal = React.useCallback4(index => {
+  let changeVal = React.useCallback(index => {
     (ev: ReactEvent.Form.t) => {
       let newVal = {ev->ReactEvent.Form.target}["value"]->Int.fromString->Option.getOr(0)
 
@@ -61,9 +61,9 @@ let make = (
     }
   }, (hourVal, minuteVal, secondsVal, input.onChange))
 
-  let onHourChange = React.useCallback1(changeVal(0), [changeVal])
-  let onMinuteChange = React.useCallback1(changeVal(1), [changeVal])
-  let onSecondsChange = React.useCallback1(changeVal(2), [changeVal])
+  let onHourChange = React.useCallback(changeVal(0), [changeVal])
+  let onMinuteChange = React.useCallback(changeVal(1), [changeVal])
+  let onSecondsChange = React.useCallback(changeVal(2), [changeVal])
 
   <div className="h-8 max-w-min flex flex-row gap-1 text-sm">
     {switch label {

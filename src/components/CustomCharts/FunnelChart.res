@@ -10,7 +10,7 @@ let make = (
 ) => {
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let isMobileView = MatchMedia.useMobileChecker()
-  let (size, widthClass, flexDirectionClass) = React.useMemo1(() => {
+  let (size, widthClass, flexDirectionClass) = React.useMemo(() => {
     isMobileView ? (0.16, "w-full", "flex-col") : (size, "w-1/2", "flex-row")
   }, [isMobileView])
   let funnelData =
@@ -21,7 +21,7 @@ let make = (
   let (hoverIndex, setHoverIndex) = React.useState(_ => -1.)
   let (selectedMetric, setSelectedMetric) = React.useState(_ => Volume)
   let length = metrics->Array.length->Float.fromInt
-  let widths = React.useMemo1(() => {
+  let widths = React.useMemo(() => {
     metrics->Array.mapWithIndex((metric, i) => {
       let previousMetric = metrics->Array.get(i - 1)
       let previousMetric = switch previousMetric {
@@ -61,7 +61,7 @@ let make = (
       </div>
     | None => React.null
     }}
-    <UIUtils.RenderIf condition={someData}>
+    <RenderIf condition={someData}>
       <div className="flex flex-col">
         <div className="flex gap-6 justify-end">
           <div className={`flex flex-col ${widthClass}`} />
@@ -110,14 +110,13 @@ let make = (
                 <div
                   key={`${i->Float.toString}funnelStage`}
                   className="flex hover:cursor-pointer transition ease-in-out hover:scale-110 duration-300"
-                  style={ReactDOMStyle.make(
-                    ~borderTop,
-                    ~borderLeft=borderX,
-                    ~borderRight=borderX,
-                    ~width,
-                    ~marginBottom,
-                    (),
-                  )}
+                  style={
+                    borderTop,
+                    borderLeft: borderX,
+                    borderRight: borderX,
+                    width,
+                    marginBottom,
+                  }
                   onMouseOver={_ => setHoverIndex(_ => i)}
                   onMouseOut={_ => setHoverIndex(_ => -1.)}
                 />
@@ -147,14 +146,14 @@ let make = (
                   <div
                     key={`${i->Int.toString}funnelStageVol`}
                     className={`flex flex-row gap-4 h-full items-center w-max`}
-                    style={ReactDOMStyle.make(~marginBottom, ~paddingTop, ())}>
+                    style={marginBottom, paddingTop}>
                     <div
                       className={`flex font-semibold text-xl ${metricVal <= 0.
                           ? "text-red-400"
                           : "text-black dark:text-white"} w-max items-start`}>
                       {switch selectedMetric {
                       | Volume =>
-                        shortNum(~labelValue=metricVal, ~numberFormat=getDefaultNumberFormat(), ())
+                        shortNum(~labelValue=metricVal, ~numberFormat=getDefaultNumberFormat())
                       | Percentage =>
                         (metricVal *. 100. /. prevMetricVolume)
                           ->Float.toFixedWithPrecision(~digits=2) ++ "%"
@@ -173,7 +172,7 @@ let make = (
                 <div
                   key={`${i->Int.toString}funnelStageDesc`}
                   className={`flex flex-row gap-4 h-full items-center w-max `}
-                  style={ReactDOMStyle.make(~marginBottom, ~paddingTop, ())}>
+                  style={marginBottom, paddingTop}>
                   <div
                     className={`transition ease-in-out duration-300 font-medium text-base ${hoverIndex ===
                         i->Float.fromInt
@@ -188,6 +187,6 @@ let make = (
           </div>
         </div>
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   </div>
 }

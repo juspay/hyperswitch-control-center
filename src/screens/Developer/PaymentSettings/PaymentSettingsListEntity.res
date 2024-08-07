@@ -14,10 +14,9 @@ let allColumns = [ProfileName, ReturnUrl, WebhookUrl]
 
 let getHeading = colType => {
   switch colType {
-  | ProfileName =>
-    Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=true, ())
-  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL", ~showSort=true, ())
-  | WebhookUrl => Table.makeHeaderInfo(~key="webhook_url", ~title="Webhook URL", ~showSort=true, ())
+  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=true)
+  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL", ~showSort=true)
+  | WebhookUrl => Table.makeHeaderInfo(~key="webhook_url", ~title="Webhook URL", ~showSort=true)
   }
 }
 
@@ -47,6 +46,8 @@ let itemToObjMapper = dict => {
       dict,
       "collect_shipping_details_from_wallet_connector",
     ),
+    outgoing_webhook_custom_http_headers: None,
+    is_connector_agnostic_mit_enabled: None,
   }
 }
 
@@ -70,5 +71,4 @@ let webhookProfileTableEntity = (~permission: CommonAuthTypes.authorization) =>
           ~permission,
         )
     },
-    (),
   )

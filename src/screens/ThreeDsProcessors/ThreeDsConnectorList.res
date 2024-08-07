@@ -1,7 +1,5 @@
 @react.component
 let make = () => {
-  open UIUtils
-
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
@@ -26,10 +24,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getConnectorList()->ignore
     None
-  })
+  }, [])
   <div>
     <PageUtils.PageHeading
       title={"3DS Authentication Manager"}

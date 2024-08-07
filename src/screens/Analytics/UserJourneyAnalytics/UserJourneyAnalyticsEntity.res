@@ -9,6 +9,7 @@ let singleStatInitialValue = {
   payment_attempts: 0,
   sdk_rendered_count: 0,
   average_payment_time: 0.0,
+  load_time: 0.0,
 }
 
 let singleStatSeriesInitialValue = {
@@ -16,6 +17,7 @@ let singleStatSeriesInitialValue = {
   time_series: "",
   sdk_rendered_count: 0,
   average_payment_time: 0.0,
+  load_time: 0.0,
 }
 
 let singleStatItemToObjMapper = json => {
@@ -25,6 +27,7 @@ let singleStatItemToObjMapper = json => {
     payment_attempts: dict->getInt("payment_attempts", 0),
     sdk_rendered_count: dict->getInt("sdk_rendered_count", 0),
     average_payment_time: dict->getFloat("average_payment_time", 0.0) /. 1000.,
+    load_time: dict->getFloat("load_time", 0.0) /. 1000.,
   })
   ->Option.getOr({
     singleStatInitialValue
@@ -38,7 +41,8 @@ let singleStatSeriesItemToObjMapper = json => {
     payment_attempts: dict->getInt("payment_attempts", 0),
     time_series: dict->getString("time_bucket", ""),
     sdk_rendered_count: dict->getInt("sdk_rendered_count", 0),
-    average_payment_time: dict->getFloat("average_payment_time", 0.0)->setPrecision() /. 1000.,
+    average_payment_time: dict->getFloat("average_payment_time", 0.0)->setPrecision /. 1000.,
+    load_time: dict->getFloat("load_time", 0.0) /. 1000.,
   })
   ->Option.getOr({
     singleStatSeriesInitialValue
@@ -58,6 +62,7 @@ type colT =
   | ConversionRate
   | DropOutRate
   | AvgPaymentTime
+  | LoadTime
 
 let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
   {
@@ -68,6 +73,7 @@ let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
       ConversionRate,
       DropOutRate,
       AvgPaymentTime,
+      LoadTime,
     ]->generateDefaultStateColumns,
   },
 ]
@@ -114,6 +120,11 @@ let constructData = (key, singlestatTimeseriesData) => {
     singlestatTimeseriesData->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.average_payment_time,
+    ))
+  | "load_time" =>
+    singlestatTimeseriesData->Array.map(ob => (
+      ob.time_series->DateTimeUtils.parseAsFloat,
+      ob.load_time,
     ))
   | _ => []
   }
@@ -209,8 +220,8 @@ let getStatData = (
       showDelta: false,
     }
   | AvgPaymentTime => {
-      title: "Average Payment Time",
-      tooltipText: "Time taken to attempt payment",
+      title: "Payment Time",
+      tooltipText: "The time spent on Checkout upto the moment the payment request is sent to the backend server.",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.average_payment_time,
         deltaTimestampData.currentSr,
@@ -227,6 +238,23 @@ let getStatData = (
       statType: "LatencyMs",
       showDelta: false,
     }
+  | LoadTime => {
+      title: "Checkout Load Time",
+      tooltipText: "Time taken from Checkout creation to the start of its rendering",
+      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+        singleStatData.load_time,
+        deltaTimestampData.currentSr,
+      ),
+      value: {
+        singleStatData.load_time
+      },
+      delta: {
+        Js.Float.fromString(Float.toFixedWithPrecision(singleStatData.load_time, ~digits=2))
+      },
+      data: constructData("load_time", timeSeriesData),
+      statType: "LatencyMs",
+      showDelta: false,
+    }
   }
 }
 
@@ -237,7 +265,8 @@ let getStatSentiment = {
     ("Total Payments", Positive),
     ("Converted User Sessions", Positive),
     ("Dropped Out User Sessions", Negative),
-    ("Average Payment Time", Negative),
+    ("TP-50 Payment Time", Negative),
+    ("TP-50 Load Time", Negative),
   ]->Dict.fromArray
 }
 
@@ -353,7 +382,6 @@ let commonUserJourneyChartEntity = tabKeys =>
       }
     },
     ~disableGranularity=true,
-    (),
   )
 
 let userJourneyChartEntity = tabKeys => {
@@ -420,11 +448,9 @@ let fixedFilterFields = _json => {
             ~disableApply=false,
             ~dateRangeLimit=180,
             ~optFieldKey=optFilterKey,
-            (),
           ),
           ~inputFields=[],
           ~isRequired=false,
-          (),
         ),
       }: EntityType.initialFilters<'t>
     ),

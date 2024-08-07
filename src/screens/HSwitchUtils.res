@@ -9,9 +9,9 @@ module TextFieldRow = {
       <div
         className={`mt-2 ${labelWidth} text-gray-900/50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 font-semibold text-fs-14`}>
         {label->React.string}
-        <UIUtils.RenderIf condition={isRequired}>
+        <RenderIf condition={isRequired}>
           <span className="text-red-500"> {"*"->React.string} </span>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
       children
     </div>
@@ -37,17 +37,16 @@ module BackgroundImageWrapper = {
     ~isBackgroundFullScreen=true,
   ) => {
     let heightWidthCss = isBackgroundFullScreen ? "h-screen w-screen" : "h-full w-full"
-    <UIUtils.RenderIf condition={children->Option.isSome}>
+    <RenderIf condition={children->Option.isSome}>
       <div
         className={`bg-no-repeat bg-center bg-hyperswitch_dark_bg bg-fixed ${customPageCss} ${heightWidthCss}`}
-        style={ReactDOMStyle.make(
-          ~backgroundImage=`url(${backgroundImageUrl})`,
-          ~backgroundSize=`cover`,
-          (),
-        )}>
+        style={
+          backgroundImage: `url(${backgroundImageUrl})`,
+          backgroundSize: `cover`,
+        }>
         {children->Option.getOr(React.null)}
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -65,7 +64,7 @@ let getSearchOptionsForProcessors = (~processorList, ~getNameFromString) => {
 }
 
 let isValidEmail = value =>
-  !Js.Re.test_(
+  !RegExp.test(
     %re(`/^(([^<>()[\]\.,;:\s@"]+(\.[^<>()[\]\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
     value,
   )
@@ -105,12 +104,7 @@ let getBrowswerDetails = () => {
   }
 }
 
-let getBodyForFeedBack = (
-  ~email,
-  ~values,
-  ~modalType=HSwitchFeedBackModalUtils.FeedBackModal,
-  (),
-) => {
+let getBodyForFeedBack = (~email, ~values, ~modalType=HSwitchFeedBackModalUtils.FeedBackModal) => {
   open HSwitchFeedBackModalUtils
   let valueDict = values->getDictFromJsonObject
   let rating = valueDict->getInt("rating", 1)
@@ -163,7 +157,6 @@ let constructOnboardingBody = (
   ~integrationDetails: ProviderTypes.integrationDetailsType,
   ~is_done: bool,
   ~metadata: option<JSON.t>=?,
-  (),
 ) => {
   let copyOfIntegrationDetails = integrationDetails
   switch dashboardPageState {

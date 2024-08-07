@@ -9,20 +9,20 @@ let make = () => {
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let isReconEnabled = merchentDetails.recon_status === Active
 
   let onClickForReconRequest = async () => {
     try {
-      let url = getURL(~entityName=RECON, ~reconType=#REQUEST, ~methodType=Get, ())
-      let _ = await updateDetails(url, JSON.Encode.null, Post, ())
+      let url = getURL(~entityName=RECON, ~reconType=#REQUEST, ~methodType=Get)
+      let _ = await updateDetails(url, JSON.Encode.null, Post)
       let _ = await fetchMerchantAccountDetails()
       showToast(
         ~message=`Thank you for your interest in our reconciliation module. We are currently reviewing your request for access. We will follow up with you soon regarding next steps.`,
         ~toastType=ToastSuccess,
-        (),
       )
     } catch {
-    | _ => showToast(~message=`Something went wrong. Please try again.`, ~toastType=ToastError, ())
+    | _ => showToast(~message=`Something went wrong. Please try again.`, ~toastType=ToastError)
     }
   }
 
@@ -30,7 +30,7 @@ let make = () => {
     try {
       if redirectToken->String.length === 0 {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let url = getURL(~entityName=RECON, ~reconType=#TOKEN, ~methodType=Get, ())
+        let url = getURL(~entityName=RECON, ~reconType=#TOKEN, ~methodType=Get)
         let res = await fetchDetails(url)
         let token = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("token", "")
         setRedirecToken(_ => token)
@@ -49,14 +49,14 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if isReconEnabled {
       let _ = openReconTab()->ignore
     } else {
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  })
+  }, [])
 
   let subTitleText = isReconEnabled
     ? "Streamline your reconciliation and settlement operations"
@@ -113,6 +113,7 @@ let make = () => {
                   buttonSize={Small}
                   buttonState={Normal}
                   onClick={_v => {
+                    mixpanelEvent(~eventName="recon_send_an_email")
                     onClickForReconRequest()->ignore
                   }}
                 />

@@ -7,8 +7,7 @@ let configurationNameInput = makeFieldInfo(
   ~name="name",
   ~isRequired=true,
   ~placeholder="Enter Configuration Name",
-  ~customInput=InputFields.textInput(~autoFocus=true, ()),
-  (),
+  ~customInput=InputFields.textInput(~autoFocus=true),
 )
 let descriptionInput = makeFieldInfo(
   ~label="Description",
@@ -20,9 +19,7 @@ let descriptionInput = makeFieldInfo(
     ~rows=Some(3),
     ~cols=None,
     ~customClass="text-sm",
-    (),
   ),
-  (),
 )
 
 module BusinessProfileInp = {
@@ -31,31 +28,29 @@ module BusinessProfileInp = {
     let selectedConnectorsInput = ReactFinalForm.useField("algorithm.data").input
 
     <FormRenderer.FieldRenderer
-      field={FormRenderer.makeFieldInfo(
-        ~label,
-        ~isRequired=true,
-        ~name="profile_id",
-        ~customInput=(~input, ~placeholder as _) =>
-          InputFields.selectInput(~deselectDisable=true, ~options, ~buttonText="", ())(
-            ~input={
-              ...input,
-              value: profile->JSON.Encode.string,
-              onChange: {
-                ev => {
-                  setProfile(_ => ev->Identity.formReactEventToString)
-                  input.onChange(ev)
-                  let defaultAlgorithm = if routingType == VOLUME_SPLIT {
-                    []->Identity.anyTypeToReactEvent
-                  } else {
-                    AdvancedRoutingUtils.defaultAlgorithmData->Identity.anyTypeToReactEvent
-                  }
-                  selectedConnectorsInput.onChange(defaultAlgorithm)
+      field={FormRenderer.makeFieldInfo(~label, ~isRequired=true, ~name="profile_id", ~customInput=(
+        ~input,
+        ~placeholder as _,
+      ) =>
+        InputFields.selectInput(~deselectDisable=true, ~options, ~buttonText="")(
+          ~input={
+            ...input,
+            value: profile->JSON.Encode.string,
+            onChange: {
+              ev => {
+                setProfile(_ => ev->Identity.formReactEventToString)
+                input.onChange(ev)
+                let defaultAlgorithm = if routingType == VOLUME_SPLIT {
+                  []->Identity.anyTypeToReactEvent
+                } else {
+                  AdvancedRoutingUtils.defaultAlgorithmData->Identity.anyTypeToReactEvent
                 }
-              },
+                selectedConnectorsInput.onChange(defaultAlgorithm)
+              }
             },
-            ~placeholder="",
-          ),
-        (),
+          },
+          ~placeholder="",
+        )
       )}
     />
   }
@@ -81,13 +76,13 @@ let make = (
 
   //Need to check if necessary
   let form = ReactFinalForm.useForm()
-  React.useEffect0(() => {
+  React.useEffect(() => {
     form.change(
       "profile_id",
       profile->Option.getOr(defaultBusinessProfile.profile_id)->JSON.Encode.string,
     )
     None
-  })
+  }, [])
 
   <div
     className={` mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850`}>
@@ -144,7 +139,7 @@ let make = (
       <>
         <div className="flex">
           <div className="w-full md:w-1/2 lg:w-1/3">
-            <UIUtils.RenderIf condition={!isThreeDs}>
+            <RenderIf condition={!isThreeDs}>
               <BusinessProfileInp
                 setProfile={setProfile->Option.getOr(_ => ())}
                 profile={profile->Option.getOr(defaultBusinessProfile.profile_id)}
@@ -152,7 +147,7 @@ let make = (
                 label="Profile"
                 routingType
               />
-            </UIUtils.RenderIf>
+            </RenderIf>
             <FieldRenderer field=configurationNameInput />
             <FieldRenderer field=descriptionInput />
           </div>

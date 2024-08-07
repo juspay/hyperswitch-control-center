@@ -6,7 +6,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
   let textHeadingClass = getTextClass((H2, Optional))
   let textSubHeadingClass = getTextClass((P1, Regular))
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let isAtleastOneAccept = React.useMemo1(() => {
+  let isAtleastOneAccept = React.useMemo(() => {
     merchantData
     ->Array.find(ele => {
       let merchantDataDict = ele->getDictFromJsonObject
@@ -21,7 +21,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
     <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
       <div className="bg-white h-35-rem w-200 rounded-2xl">
         <div className="p-6 border-b-2">
-          <img src={`assets/Dark/hyperswitchLogoIconWithText.svg`} />
+          <img alt="logo-with-text" src={`assets/Dark/hyperswitchLogoIconWithText.svg`} />
         </div>
         <div className="p-6 flex flex-col gap-2">
           <p className={`${textHeadingClass} text-grey-900`}>
@@ -50,20 +50,20 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
                   </span>
                 </div>
               </div>
-              <UIUtils.RenderIf condition={!isActive}>
+              <RenderIf condition={!isActive}>
                 <Button
                   text="Accept"
                   buttonType={PrimaryOutline}
                   customButtonStyle="!p-2"
                   onClick={_ => acceptInviteOnClick(index)}
                 />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={isActive}>
+              </RenderIf>
+              <RenderIf condition={isActive}>
                 <div className="flex items-center gap-1 text-green-accepted_green_800">
                   <Icon name="green-tick-without-background" />
                   {"Accepted"->React.string}
                 </div>
-              </UIUtils.RenderIf>
+              </RenderIf>
             </div>
           })
           ->React.array}

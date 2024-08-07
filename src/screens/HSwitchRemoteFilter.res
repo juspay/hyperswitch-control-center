@@ -7,7 +7,7 @@ let formateDateString = date => {
   date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]")
 }
 
-let getDateFilteredObject = (~range=7, ()) => {
+let getDateFilteredObject = (~range=7) => {
   let currentDate = Date.make()
 
   let end_time = currentDate->formateDateString
@@ -42,7 +42,7 @@ let useSetInitialFilters = (
   () => {
     let inititalSearchParam = Dict.make()
 
-    let defaultDate = getDateFilteredObject(~range, ())
+    let defaultDate = getDateFilteredObject(~range)
 
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       let timeRange =
@@ -71,7 +71,7 @@ module SearchBarFilter = {
       setBaseValue(_ => value)
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       let onKeyPress = event => {
         let keyPressed = event->ReactEvent.Keyboard.key
 
@@ -83,7 +83,7 @@ module SearchBarFilter = {
       Some(() => Window.removeEventListener("keydown", onKeyPress))
     }, [baseValue])
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if baseValue->String.length === 0 && searchVal->LogicUtils.isNonEmptyString {
         setSearchVal(_ => baseValue)
       }
@@ -107,7 +107,6 @@ module SearchBarFilter = {
         ~iconOpacity="opacity-100",
         ~leftIconCustomStyle="pl-4",
         ~inputStyle="!placeholder:opacity-90",
-        (),
       )(~input=inputSearch, ~placeholder)}
     </div>
   }
@@ -116,7 +115,7 @@ module SearchBarFilter = {
 module RemoteTableFilters = {
   @react.component
   let make = (
-    ~apiType=Fetch.Get,
+    ~apiType: Fetch.requestMethod=Get,
     ~filterUrl,
     ~setFilters,
     ~endTimeFilterKey,
@@ -133,19 +132,19 @@ module RemoteTableFilters = {
     let defaultFilters = {""->JSON.Encode.string}
     let showToast = ToastState.useShowToast()
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length === 0 {
         setFilters(_ => Dict.make()->Some)
         setOffset(_ => 0)
       }
       None
-    })
+    }, [])
 
     open APIUtils
 
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
     let updateDetails = useUpdateMethod()
-    let defaultDate = getDateFilteredObject(~range=30, ())
+    let defaultDate = getDateFilteredObject(~range=30)
     let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
     let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
     let fetchDetails = useGetMethod()
@@ -160,20 +159,20 @@ module RemoteTableFilters = {
                 (startTimeFilterKey, start_time->JSON.Encode.string),
                 (endTimeFilterKey, end_time->JSON.Encode.string),
               ]->getJsonFromArrayOfJson
-            await updateDetails(filterUrl, body, Fetch.Post, ())
+            await updateDetails(filterUrl, body, Post)
           }
         | _ => await fetchDetails(filterUrl)
         }
         setFilterDataJson(_ => response->Some)
       } catch {
-      | _ => showToast(~message="Failed to load filters", ~toastType=ToastError, ())
+      | _ => showToast(~message="Failed to load filters", ~toastType=ToastError)
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       fetchAllFilters()->ignore
       None
-    })
+    }, [])
 
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
@@ -186,14 +185,14 @@ module RemoteTableFilters = {
       (),
     )
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length < 1 {
         setInitialFilters()
       }
       None
     }, [filterValueJson])
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length != 0 {
         setFilters(_ => filterValueJson->Some)
         setOffset(_ => 0)
@@ -213,7 +212,7 @@ module RemoteTableFilters = {
       })
       ->Dict.fromArray
 
-    let remoteFilters = React.useMemo1(() => {
+    let remoteFilters = React.useMemo(() => {
       filterData->initialFilters(getAllFilter)
     }, [getAllFilter])
 

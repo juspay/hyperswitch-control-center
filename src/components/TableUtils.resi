@@ -1,4 +1,4 @@
-let regex: string => Js.Re.t
+let regex: string => RescriptCore.RegExp.t
 let highlightedText: (Js.String.t, string) => React.element
 type labelColor =
   | LabelGreen
@@ -88,7 +88,6 @@ let makeHeaderInfo: (
   ~showMultiSelectCheckBox: bool=?,
   ~hideOnShrink: bool=?,
   ~customWidth: string=?,
-  unit,
 ) => header
 let getCell: string => cell
 module ProgressCell: {

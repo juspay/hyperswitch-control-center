@@ -3,6 +3,7 @@ module NewProcessorCards = {
   @react.component
   let make = (~configuredFRMs: array<ConnectorTypes.connectorTypes>) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let frmAvailableForIntegration = frmList
     let unConfiguredFRMs = frmAvailableForIntegration->Array.filter(total =>
       configuredFRMs
@@ -13,6 +14,7 @@ module NewProcessorCards = {
     )
 
     let handleClick = frmName => {
+      mixpanelEvent(~eventName=`connect_frm_${frmName}`)
       RescriptReactRouter.push(
         GlobalVars.appendDashboardPath(~url=`/fraud-risk-management/new?name=${frmName}`),
       )
@@ -66,17 +68,16 @@ module NewProcessorCards = {
 
     let headerText = "Connect a new fraud & risk management player"
 
-    <UIUtils.RenderIf condition={unConfiguredFRMCount > 0}>
+    <RenderIf condition={unConfiguredFRMCount > 0}>
       <div className="flex flex-col gap-4">
         {frmAvailableForIntegration->descriptedFRMs(headerText)}
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
 @react.component
 let make = () => {
-  open UIUtils
   let getURL = APIUtils.useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchDetails = APIUtils.useGetMethod()
@@ -101,18 +102,18 @@ let make = () => {
       moduleSubtitle="Connect and configure processors to screen transactions and mitigate fraud"
     />
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     open Promise
     open LogicUtils
-    fetchDetails(getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ()))
+    fetchDetails(getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get))
     ->thenResolve(json => {
       let processorsList = json->getArrayFromJson([])->Array.map(getDictFromJsonObject)
 
       let connectorsCount =
-        processorsList->FRMUtils.filterList(~removeFromList=FRMPlayer, ())->Array.length
+        processorsList->FRMUtils.filterList(~removeFromList=FRMPlayer)->Array.length
 
       if connectorsCount > 0 {
-        let frmList = processorsList->FRMUtils.filterList(~removeFromList=Connector, ())
+        let frmList = processorsList->FRMUtils.filterList(~removeFromList=Connector)
         let previousData = frmList->Array.map(ConnectorListMapper.getProcessorPayloadType)
         setFilteredFRMData(_ => previousData->Array.map(Nullable.make))
         setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
@@ -122,7 +123,6 @@ let make = () => {
             ->getString("connector_name", "")
             ->ConnectorUtils.getConnectorNameTypeFromString(
               ~connectorType=ConnectorTypes.FRMPlayer,
-              (),
             ),
         )
         setConfiguredFRMs(_ => arr)
@@ -137,7 +137,7 @@ let make = () => {
     })
     ->ignore
     None
-  })
+  }, [])
   // TODO: Convert it to remote filter
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
@@ -188,7 +188,7 @@ let make = () => {
       </RenderIf>
       <NewProcessorCards configuredFRMs />
       <RenderIf condition={!isMobileView}>
-        <img className="w-full max-w-[1400px] mb-10" src="/assets/frmBanner.svg" />
+        <img alt="frm-banner" className="w-full max-w-[1400px] mb-10" src="/assets/frmBanner.svg" />
       </RenderIf>
     </div>
   </PageLoaderWrapper>

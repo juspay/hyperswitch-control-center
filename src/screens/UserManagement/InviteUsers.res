@@ -4,7 +4,7 @@ module InviteEmailForm = {
   let make = (~setRoleTypeValue, ~isEmailTextInputVisible, ~setNewRoleSelected) => {
     open LogicUtils
     open APIUtils
-    open UIUtils
+
     let getURL = useGetURL()
     let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
     let fetchDetails = useGetMethod()
@@ -17,7 +17,7 @@ module InviteEmailForm = {
       ->getValueFromArray(0, ""->JSON.Encode.string)
       ->getStringFromJson("")
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setNewRoleSelected(_ => role)
       None
     }, [role])
@@ -28,7 +28,6 @@ module InviteEmailForm = {
           ~entityName=USER_MANAGEMENT,
           ~userRoleTypes=ROLE_LIST,
           ~methodType=Get,
-          (),
         )
         let response = await fetchDetails(`${roleListUrl}?groups=true`)
         let typedResponse: array<UserRoleEntity.roleListResponse> =
@@ -39,12 +38,12 @@ module InviteEmailForm = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       getRolesList()->ignore
       None
-    })
+    }, [])
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setRoleTypeValue(_ => role)
       None
     }, [role])
@@ -91,7 +90,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   open UserManagementUtils
   open APIUtils
   open LogicUtils
-  open UIUtils
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
@@ -110,11 +109,11 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   let (loaderForInviteUsers, setLoaderForInviteUsers) = React.useState(_ => false)
   let paddingClass = isInviteUserFlow ? "p-10" : ""
   let marginClass = isInviteUserFlow ? "mt-5" : ""
-  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
 
-  let initialValues = React.useMemo0(() => {
+  let initialValues = React.useMemo(() => {
     [("roleType", [defaultRole->JSON.Encode.string]->JSON.Encode.array)]->getJsonFromArrayOfJson
-  })
+  }, [])
 
   let getURLForInviteMultipleUser = {
     if totp {
@@ -123,7 +122,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
         ~userType=#INVITE_MULTIPLE_TOKEN_ONLY,
         ~methodType=Post,
         ~queryParamerters=Some(`auth_id=${authId}`),
-        (),
       )
     } else {
       getURL(
@@ -131,7 +129,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
         ~userType=#INVITE_MULTIPLE,
         ~methodType=Post,
         ~queryParamerters=Some(`auth_id=${authId}`),
-        (),
       )
     }
   }
@@ -156,7 +153,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
       )
       ->JSON.Encode.array
 
-    let response = await updateDetails(url, body, Post, ())
+    let response = await updateDetails(url, body, Post)
     let decodedResponse = response->getArrayFromJson([])
 
     if !email {
@@ -217,7 +214,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
       )
     }
 
-    showToast(~message, ~toastType, ())
+    showToast(~message, ~toastType)
 
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users"))
     Nullable.null
@@ -246,7 +243,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
         ~userRoleTypes=ROLE_ID,
         ~id=Some(roleTypeValue),
         ~methodType=Get,
-        (),
       )
       let res = await fetchDetails(`${url}?groups=true`)
       setRoleDict(prevDict => {
@@ -280,7 +276,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
         ~userType=#PERMISSION_INFO,
         ~methodType=Get,
         ~queryParamerters=Some(`groups=true`),
-        (),
       )
       let res = await fetchDetails(url)
       let permissionInfoValue = res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
@@ -292,7 +287,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
     } else {

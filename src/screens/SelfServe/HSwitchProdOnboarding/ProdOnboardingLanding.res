@@ -55,9 +55,9 @@ module CheckListSection = {
           </p>
           <p className=unselectedSubHeading> {headerText->React.string} </p>
         </div>
-        <UIUtils.RenderIf condition={!(checkListItems->Array.includes(pageView))}>
+        <RenderIf condition={!(checkListItems->Array.includes(pageView))}>
           <Icon name="lock-outlined" size=20 />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
       {checkListItems
       ->Array.mapWithIndex((value, index) => {
@@ -89,10 +89,7 @@ module ProgressBar = {
   let make = (~progressState) => {
     let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
     <div className={`${backgroundColor} bg-opacity-20 h-1.5 w-full`}>
-      <div
-        className={`h-full ${backgroundColor}`}
-        style={ReactDOMStyle.make(~width=`${progressState}%`, ())}
-      />
+      <div className={`h-full ${backgroundColor}`} style={width: `${progressState}%`} />
     </div>
   }
 }
@@ -102,7 +99,7 @@ module SidebarChecklist = {
   let make = (~pageView, ~getConnectorDetails, ~setPreviewState) => {
     let (progressState, setProgressState) = React.useState(_ => 0)
 
-    React.useEffect1(_ => {
+    React.useEffect(_ => {
       let currentIndex = pageView->ProdOnboardingUtils.getIndexFromVariant
       // Need to change to 14 after enabling the TEST_LIVE_PAYMENT
       let progress = 2 + 16 * currentIndex
@@ -208,7 +205,7 @@ let make = () => {
 
   let getConnectorDetails = async headerVariant => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID), ())
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       let connectorName = json->getDictFromJsonObject->getString("connector_name", "")
       setInitialValues(_ => json)
@@ -230,7 +227,6 @@ let make = () => {
         ~userType=#USER_DATA,
         ~methodType=Get,
         ~queryParamerters=Some(`keys=${prodOnboardingEnumIntialArray->Array.joinWithUnsafe(",")}`),
-        (),
       )
       let response = await fetchDetails(url)
       let prodEnums = response->responseDataMapper(getValueMappedForProd)->getTypedValue
@@ -243,9 +239,9 @@ let make = () => {
   let updateSetupPageCompleted = async () => {
     try {
       setButtonState(_ => Loading)
-      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
-      let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#SetupComplete, ())
-      let _ = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post)
+      let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#SetupComplete)
+      let _ = await updateDetails(url, body, Post)
       setButtonState(_ => Normal)
       setDashboardPageState(_ => #HOME)
     } catch {
@@ -253,11 +249,11 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     // getSetupProcessorEnum()->ignore
     getStatus()->ignore
     None
-  })
+  }, [])
 
   <PageLoaderWrapper screenState sectionHeight="h-screen">
     <div className="flex h-screen w-screen">

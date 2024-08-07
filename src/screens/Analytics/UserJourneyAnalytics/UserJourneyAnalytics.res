@@ -14,12 +14,7 @@ let make = () => {
   let loadInfo = async () => {
     open LogicUtils
     try {
-      let infoUrl = getURL(
-        ~entityName=ANALYTICS_USER_JOURNEY,
-        ~methodType=Get,
-        ~id=Some(domain),
-        (),
-      )
+      let infoUrl = getURL(~entityName=ANALYTICS_USER_JOURNEY, ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
@@ -41,10 +36,10 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getUserJourneysData()->ignore
     None
-  })
+  }, [])
 
   let tabKeys = getStringListFromArrayDict(dimensions)
 

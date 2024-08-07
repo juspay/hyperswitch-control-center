@@ -227,9 +227,9 @@ module TableLoadingErrorIndicator = {
     }
 
     <div className={`flex flex-col w-full`}>
-      <UIUtils.RenderIf condition={!hideTitle}>
+      <RenderIf condition={!hideTitle}>
         <TableHeading title />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <TableFilterSectionContext isFilterSection=true>
         <div className=filtersBorder> {filters} </div>
       </TableFilterSectionContext>
@@ -287,7 +287,7 @@ module ChooseColumns = {
   ) => {
     let (visibleColumns, setVisibleColumns) = Recoil.useRecoilState(activeColumnsAtom)
     let {getHeading} = entity
-    let setColumns = React.useCallback1(fn => {
+    let setColumns = React.useCallback(fn => {
       setVisibleColumns(fn)
       setShowColumnSelector(_ => false)
     }, [setVisibleColumns])

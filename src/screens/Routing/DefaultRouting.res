@@ -41,7 +41,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
   let getConnectorsList = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let defaultFallbackUrl = `${getURL(~entityName=urlEntityName, ~methodType=Get, ())}/profile`
+      let defaultFallbackUrl = `${getURL(~entityName=urlEntityName, ~methodType=Get)}/profile`
       let response = await fetchDetails(defaultFallbackUrl)
       let routingRespArray = response->getArrayFromJson([])
       setDefaultRoutingResponse(_ => routingRespArray)
@@ -53,12 +53,12 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getConnectorsList()->ignore
     None
-  })
+  }, [])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if defaultRoutingResponse->Array.length > 0 {
       settingUpConnectorsState(defaultRoutingResponse)
     }
@@ -73,11 +73,10 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
       let defaultFallbackUpdateUrl = `${getURL(
           ~entityName=urlEntityName,
           ~methodType=Post,
-          (),
         )}/profile/${profile}`
 
       (
-        await updateDetails(defaultFallbackUpdateUrl, defaultPayload->JSON.Encode.array, Post, ())
+        await updateDetails(defaultFallbackUpdateUrl, defaultPayload->JSON.Encode.array, Post)
       )->ignore
       RescriptReactRouter.replace(
         GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}/default`),

@@ -41,8 +41,8 @@ let getObjects: JSON.t => array<tableRowType> = json => {
 let getHeading = colType => {
   let key = colType->colMapper
   switch colType {
-  | Label => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType, ~showSort=false, ())
-  | Value => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType, ~showSort=false, ())
+  | Label => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType, ~showSort=false)
+  | Value => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType, ~showSort=false)
   }
 }
 
@@ -72,8 +72,8 @@ let statValue = (val, statType) => {
   | Amount => val->indianShortNum
   | Rate | NegativeRate => val->Js.Float.isNaN ? "-" : val->percentFormat
   | Volume => val->indianShortNum
-  | Latency => latencyShortNum(~labelValue=val, ())
-  | LatencyMs => latencyShortNum(~labelValue=val, ~includeMilliseconds=true, ())
+  | Latency => latencyShortNum(~labelValue=val)
+  | LatencyMs => latencyShortNum(~labelValue=val, ~includeMilliseconds=true)
   | Default => val->Float.toString
   }
 }
@@ -170,29 +170,24 @@ let make = (
     ~allColumns=visibleColumns,
     ~getCell=(tableRowType, cols) => getCell(tableRowType, cols, statType),
     ~getHeading,
-    (),
   )
 
   let modifiedData = value->Array.filter(val => val.rowValue > 0.0)
 
   if singleStatLoading && loaderType === Shimmer {
-    <div
-      className={`p-4`}
-      style={ReactDOMStyle.make(~width=fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%", ())}>
+    <div className={`p-4`} style={width: fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%"}>
       <Shimmer styleClass="w-full h-28" />
     </div>
   } else {
-    <div
-      className={`mt-4`}
-      style={ReactDOMStyle.make(~width=fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%", ())}>
+    <div className={`mt-4`} style={width: fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%"}>
       <div
         className={`h-full flex flex-col border ${borderRounded} dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox p-2 md:mr-4`}>
         <div className="p-4 flex flex-col justify-start h-full gap-2">
-          <UIUtils.RenderIf condition={singleStatLoading && loaderType === SideLoader}>
+          <RenderIf condition={singleStatLoading && loaderType === SideLoader}>
             <div className="animate-spin self-end absolute">
               <Icon name="spinner" size=16 />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div className={"flex gap-2 items-center text-jp-gray-700 font-bold self-start"}>
             <div className="font-semibold text-base text-black dark:text-white">
               {title->React.string}
@@ -220,9 +215,9 @@ let make = (
                   </div>
                 })
                 ->React.array}
-                <UIUtils.RenderIf condition={modifiedData->Array.length > 5}>
+                <RenderIf condition={modifiedData->Array.length > 5}>
                   <ShowMore value=modifiedData title tableEntity />
-                </UIUtils.RenderIf>
+                </RenderIf>
               </>
             } else {
               <div

@@ -25,10 +25,10 @@ module PayPalCreateNewAccountModal = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       initializePayPalWindow()
       None
-    })
+    }, [])
 
     <AddDataAttributes attributes=[("data-paypal-button", "true")]>
       <a
@@ -53,7 +53,7 @@ module ManualSetupScreen = {
   ) => {
     <div className="flex flex-col gap-8">
       <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
-        connector={connector->ConnectorUtils.getConnectorNameTypeFromString()}
+        connector={connector->ConnectorUtils.getConnectorNameTypeFromString}
         connectorAccountFields
         selectedConnector
         connectorMetaDataFields
@@ -111,7 +111,6 @@ module LandingScreen = {
 module ErrorPage = {
   @react.component
   let make = (~setupAccountStatus, ~actionUrl, ~getPayPalStatus, ~setScreenState) => {
-    open UIUtils
     let errorPageDetails = setupAccountStatus->PayPalFlowUtils.getPageDetailsForAutomatic
 
     <div className="flex flex-col gap-6">
@@ -159,7 +158,7 @@ module RedirectionToPayPalFlow = {
     let url = RescriptReactRouter.useUrl()
     let path = url.path->List.toArray->Array.joinWithUnsafe("/")
     let connectorId = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
-    let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+    let updateDetails = useUpdateMethod(~showErrorToast=false)
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (actionUrl, setActionUrl) = React.useState(_ => "")
 
@@ -171,10 +170,9 @@ module RedirectionToPayPalFlow = {
         let body = PayPalFlowUtils.generatePayPalBody(
           ~connectorId={connectorId},
           ~returnUrl=Some(returnURL),
-          (),
         )
-        let url = getURL(~entityName=ACTION_URL, ~methodType=Post, ())
-        let response = await updateDetails(url, body, Post, ())
+        let url = getURL(~entityName=ACTION_URL, ~methodType=Post)
+        let response = await updateDetails(url, body, Post)
         let actionURL =
           response->getDictFromJsonObject->getDictfromDict("paypal")->getString("action_url", "")
         setActionUrl(_ => actionURL)
@@ -185,10 +183,10 @@ module RedirectionToPayPalFlow = {
     }
     let setupAccountStatus = Recoil.useRecoilValueFromAtom(HyperswitchAtom.paypalAccountStatusAtom)
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       getRedirectPaypalWindowUrl()->ignore
       None
-    })
+    }, [])
     <PageLoaderWrapper screenState>
       {switch setupAccountStatus {
       | Redirecting_to_paypal =>
@@ -255,13 +253,13 @@ let make = (
   let (configuartionType, setConfigurationType) = React.useState(_ => PayPalFlowTypes.NotSelected)
 
   let selectedConnector =
-    connector->ConnectorUtils.getConnectorNameTypeFromString()->ConnectorUtils.getConnectorInfo
+    connector->ConnectorUtils.getConnectorNameTypeFromString->ConnectorUtils.getConnectorInfo
   let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
   let activeBusinessProfile =
     defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
-  let updatedInitialVal = React.useMemo1(() => {
+  let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
     if !isUpdateFlow {
       initialValuesToDict->Dict.set(
@@ -407,7 +405,6 @@ let make = (
             showToast(
               ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
               ~toastType=ToastState.ToastError,
-              (),
             )
 
             setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
@@ -417,7 +414,6 @@ let make = (
             showToast(
               ~message="Failed to Save the Configuration!",
               ~toastType=ToastState.ToastError,
-              (),
             )
             setScreenState(_ => Error(message))
           }
@@ -470,9 +466,7 @@ let make = (
                     <ConnectorAccountDetailsHelper.RenderConnectorInputFields
                       details={ConnectorUtils.connectorLabelDetailField}
                       name={"connector_label"}
-                      keysToIgnore=ConnectorAccountDetailsHelper.metaDataInputKeysToIgnore
-                      checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
-                      connector={connector->ConnectorUtils.getConnectorNameTypeFromString()}
+                      connector={connector->ConnectorUtils.getConnectorNameTypeFromString}
                       selectedConnector
                       isLabelNested=false
                       disabled={isUpdateFlow ? true : false}
@@ -502,7 +496,7 @@ let make = (
         </div>
       </Form>
       <div className="bg-jp-gray-light_gray_bg flex py-4 px-10 gap-2">
-        <img src="/assets/PayPalFullLogo.svg" />
+        <img alt="paypal" src="/assets/PayPalFullLogo.svg" />
         <p className=p2RedularTextClass>
           {"| Hyperswitch is PayPal's trusted partner, your credentials are secure & never stored with us."->React.string}
         </p>

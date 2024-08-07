@@ -16,11 +16,11 @@ module GatewayView = {
           key={Int.toString(index)}
           className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 dark:border-jp-gray-960 font-medium ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1`}>
           {connectorStr->React.string}
-          <UIUtils.RenderIf condition={percent->Option.isSome}>
+          <RenderIf condition={percent->Option.isSome}>
             <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
               {(percent->Option.getOr(0)->Int.toString ++ "%")->React.string}
             </span>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       })
       ->React.array}
@@ -81,7 +81,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
             }
             <div key={Int.toString(index)} className="flex flex-col items-center w-full px-4 pb-6">
               <div
-                style={ReactDOMStyle.make(~marginTop="-1.2rem", ())}
+                style={marginTop: "-1.2rem"}
                 className="text-jp-gray-700 dark:text-jp-gray-700 text-base font-semibold p-1 px-3 bg-jp-gray-50 dark:bg-jp-gray-950 rounded-full border border-jp-gray-600 dark:border-jp-gray-850">
                 {headingText->React.string}
               </div>
@@ -115,20 +115,20 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
 
                     let metadataKey = metadataDict->getOptionString("key")
                     <div key={Int.toString(index)} className="flex flex-wrap items-center gap-2">
-                      <UIUtils.RenderIf condition={index !== 0}>
+                      <RenderIf condition={index !== 0}>
                         <MakeRuleFieldComponent.TextView
                           str=logical
                           fontColor={`${textColor.primaryNormal}`}
                           fontWeight="font-semibold"
                         />
-                      </UIUtils.RenderIf>
+                      </RenderIf>
                       <MakeRuleFieldComponent.TextView str=field />
-                      <UIUtils.RenderIf condition={typeString == "metadata_variant"}>
+                      <RenderIf condition={typeString == "metadata_variant"}>
                         <MakeRuleFieldComponent.TextView str=metadataKeyValue />
-                      </UIUtils.RenderIf>
-                      <UIUtils.RenderIf condition={metadataKey->Option.isSome}>
+                      </RenderIf>
+                      <RenderIf condition={metadataKey->Option.isSome}>
                         <MakeRuleFieldComponent.TextView str={metadataKey->Option.getOr("")} />
-                      </UIUtils.RenderIf>
+                      </RenderIf>
                       <MakeRuleFieldComponent.TextView
                         str=operator fontColor="text-red-500" fontWeight="font-semibold"
                       />
@@ -137,22 +137,22 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                   })
                   ->React.array}
                 </div>
-                <UIUtils.RenderIf condition={rule.statements->Array.length > 0}>
+                <RenderIf condition={rule.statements->Array.length > 0}>
                   <Icon size=14 name="arrow-right" className="mx-4 text-jp-gray-700" />
-                </UIUtils.RenderIf>
-                <UIUtils.RenderIf condition={isFrom3ds}>
+                </RenderIf>
+                <RenderIf condition={isFrom3ds}>
                   <ThreedsTypeView threeDsType />
-                </UIUtils.RenderIf>
-                <UIUtils.RenderIf condition={!isFrom3ds}>
+                </RenderIf>
+                <RenderIf condition={!isFrom3ds}>
                   <GatewayView gateways={rule.connectorSelection.data->Option.getOr([])} />
-                </UIUtils.RenderIf>
-                <UIUtils.RenderIf condition={isFromSurcharge}>
+                </RenderIf>
+                <RenderIf condition={isFromSurcharge}>
                   <SurchargeCompressedView
                     surchargeType={surchargeType.surcharge.\"type"}
                     surchargeTypeValue
                     surchargePercentage={surchargeType.tax_on_surcharge.percentage}
                   />
-                </UIUtils.RenderIf>
+                </RenderIf>
               </div>
             </div>
           })

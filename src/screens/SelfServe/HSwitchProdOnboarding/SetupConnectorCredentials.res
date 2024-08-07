@@ -24,9 +24,9 @@ module ConnectorDetailsForm = {
       connectorWebHookDetails,
       connectorLabelDetailField,
     ) = getConnectorFields(connectorDetails)
-    let connectorVariant = connectorName->getConnectorNameTypeFromString()
+    let connectorVariant = connectorName->getConnectorNameTypeFromString
 
-    let selectedConnector = React.useMemo1(() => {
+    let selectedConnector = React.useMemo(() => {
       connectorVariant->getConnectorInfo
     }, [connectorName])
 
@@ -58,7 +58,7 @@ module ConnectorDetailsForm = {
         suggestedAction
         setVerifyDone
       />
-      <UIUtils.RenderIf condition={checkboxText->LogicUtils.isNonEmptyString}>
+      <RenderIf condition={checkboxText->LogicUtils.isNonEmptyString}>
         <div className="flex gap-2 items-center">
           <CheckBoxIcon
             isSelected=isCheckboxSelected
@@ -68,7 +68,7 @@ module ConnectorDetailsForm = {
             {connectorVariant->ProdOnboardingUtils.getCheckboxText->React.string}
           </p>
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }
@@ -86,7 +86,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let connectorName = selectedConnector->getConnectorNameString
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (isCheckboxSelected, setIsCheckboxSelected) = React.useState(_ => false)
-  let connectorVariant = connectorName->getConnectorNameTypeFromString()
+  let connectorVariant = connectorName->getConnectorNameTypeFromString
   // TODO: Change the state to memo
   let (connectorDetails, setConnectorDetails) = React.useState(_ => JSON.Encode.null)
   let (isLoading, setIsLoading) = React.useState(_ => false)
@@ -106,7 +106,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     }
   }
   let url = RescriptReactRouter.useUrl()
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
   let (verifyDone, setVerifyDone) = React.useState(_ => ConnectorTypes.NoAttempt)
@@ -129,7 +129,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     ~connector={connectorName},
   )
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setInitialValues(prevJson => {
       let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
       prevJsonDict->Dict.set(
@@ -150,13 +150,9 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
 
   let updateSetupConnectorCredentials = async connectorId => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
-      let body = ProdOnboardingUtils.getProdApiBody(
-        ~parentVariant=#SetupProcessor,
-        ~connectorId,
-        (),
-      )
-      let _ = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post)
+      let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#SetupProcessor, ~connectorId)
+      let _ = await updateDetails(url, body, Post)
       setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
     } catch {
     | _ => ()
@@ -166,7 +162,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let onSubmitMain = async (values: JSON.t) => {
     try {
       setIsLoading(_ => true)
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ())
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post)
       let dict = Window.getConnectorConfig(connectorName)->getDictFromJsonObject
       let creditCardNetworkArray =
         dict->getArrayFromDict("credit", [])->JSON.Encode.array->getPaymentMethodMapper
@@ -199,12 +195,11 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         ~connector=connectorName,
         ~bodyType,
         ~isLiveMode={featureFlagDetails.isLiveMode},
-        (),
       )
 
       let body = requestPayload->constructConnectorRequestBody(payload)
 
-      let res = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post)
       let connectorId = res->getDictFromJsonObject->getString("merchant_connector_id", "")
       setConnectorID(_ => connectorId)
       connectorId->updateSetupConnectorCredentials->ignore
@@ -221,14 +216,12 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
             showToast(
               ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
               ~toastType=ToastState.ToastError,
-              (),
             )
             setScreenState(_ => Success)
           } else {
             showToast(
               ~message="Failed to Save the Configuration!",
               ~toastType=ToastState.ToastError,
-              (),
             )
             setScreenState(_ => Error(message))
           }
@@ -263,11 +256,10 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           ~bodyType,
           ~isPayoutFlow=false,
           ~isLiveMode={featureFlagDetails.isLiveMode},
-          (),
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connectorName), ())
-      let _ = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connectorName))
+      let _ = await updateDetails(url, body, Post)
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore
       setIsLoading(_ => false)
@@ -287,10 +279,10 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getDetails()->ignore
     None
-  })
+  }, [])
   let getHeaderTextofPage = () =>
     switch pageView {
     | SETUP_CREDS => `Setup ${connectorName->ConnectorUtils.getDisplayNameForConnector} credentials`
@@ -311,9 +303,9 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     switch pageView {
     | SETUP_CREDS =>
       <>
-        <UIUtils.RenderIf condition={warningBlock->Option.isSome}>
+        <RenderIf condition={warningBlock->Option.isSome}>
           <ProdOnboardingUIUtils.WarningBlock customComponent={warningBlock} />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <ConnectorDetailsForm
           connectorName
           connectorDetails

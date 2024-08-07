@@ -1,8 +1,7 @@
 let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
-  open UIUtils
   open CommonAuthTypes
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
   let getFooterLinkComponent = (~btnText, ~authType, ~path) => {
     <div
       onClick={_ => {

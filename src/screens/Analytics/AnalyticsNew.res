@@ -61,7 +61,7 @@ module TableWrapper = {
     let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
     let (tableData, setTableData) = React.useState(_ => []->Array.map(Nullable.make))
 
-    let getTopLevelFilter = React.useMemo1(() => {
+    let getTopLevelFilter = React.useMemo(() => {
       filterValueDict
       ->Dict.toArray
       ->Belt.Array.keepMap(item => {
@@ -80,7 +80,7 @@ module TableWrapper = {
     let allColumns = allColumns->Option.getOr([])
     let allFilterKeys = Array.concat([startTimeFilterKey, endTimeFilterKey], filterKeys)
 
-    let topFiltersToSearchParam = React.useMemo1(() => {
+    let topFiltersToSearchParam = React.useMemo(() => {
       let filterSearchParam =
         getTopLevelFilter
         ->Dict.toArray
@@ -102,7 +102,7 @@ module TableWrapper = {
       filterSearchParam
     }, [getTopLevelFilter])
 
-    let filterValueFromUrl = React.useMemo1(() => {
+    let filterValueFromUrl = React.useMemo(() => {
       getTopLevelFilter
       ->Dict.toArray
       ->Belt.Array.keepMap(entries => {
@@ -114,10 +114,10 @@ module TableWrapper = {
       ->Some
     }, [topFiltersToSearchParam])
 
-    let startTimeFromUrl = React.useMemo1(() => {
+    let startTimeFromUrl = React.useMemo(() => {
       getTopLevelFilter->getString(startTimeFilterKey, "")
     }, [topFiltersToSearchParam])
-    let endTimeFromUrl = React.useMemo1(() => {
+    let endTimeFromUrl = React.useMemo(() => {
       getTopLevelFilter->getString(endTimeFilterKey, "")
     }, [topFiltersToSearchParam])
 
@@ -189,7 +189,7 @@ module TableWrapper = {
         (),
       )
 
-      fetchDetails(tableEntity.uri, weeklyTableReqBody, Post, ())
+      fetchDetails(tableEntity.uri, weeklyTableReqBody, Post)
       ->thenResolve(json => {
         setTableData(_ => getUpdatedData(data, json, cols))
         setTableDataLoading(_ => false)
@@ -216,7 +216,7 @@ module TableWrapper = {
       }
     }
 
-    React.useEffect3(() => {
+    React.useEffect(() => {
       setShowTable(_ => false)
       if (
         startTimeFromUrl->LogicUtils.isNonEmptyString && endTimeFromUrl->LogicUtils.isNonEmptyString
@@ -238,7 +238,7 @@ module TableWrapper = {
           (),
         )
 
-        fetchDetails(tableEntity.uri, tableReqBody, Post, ())
+        fetchDetails(tableEntity.uri, tableReqBody, Post)
         ->thenResolve(json => json->updateTableData)
         ->catch(_ => {
           setTableDataLoading(_ => false)
@@ -248,7 +248,7 @@ module TableWrapper = {
       }
       None
     }, (topFiltersToSearchParam, activeTabStr, customFilter))
-    let newDefaultCols = React.useMemo1(() => {
+    let newDefaultCols = React.useMemo(() => {
       activeTab
       ->Option.getOr([])
       ->Belt.Array.keepMap(item => {
@@ -264,7 +264,7 @@ module TableWrapper = {
       ->Array.concat(allColumns)
     }, [activeTabStr])
 
-    let newAllCols = React.useMemo1(() => {
+    let newAllCols = React.useMemo(() => {
       defaultColumns
       ->Belt.Array.keepMap(item => {
         let val = item->getHeading
@@ -273,7 +273,7 @@ module TableWrapper = {
       ->Array.concat(allColumns)
     }, [activeTabStr])
 
-    let transactionTableDefaultCols = React.useMemo2(() => {
+    let transactionTableDefaultCols = React.useMemo(() => {
       Recoil.atom(`${moduleName}DefaultCols${activeTabStr}`, newDefaultCols)
     }, (newDefaultCols, `${moduleName}DefaultCols${activeTabStr}`))
 
@@ -303,13 +303,13 @@ module TableWrapper = {
               />
             </Form>
           </div>
-          <UIUtils.RenderIf condition={tableData->Array.length > 0}>
+          <RenderIf condition={tableData->Array.length > 0}>
             <div
               className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
               <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
               {"'NA' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </>
       : <Loader />
   }
@@ -426,12 +426,12 @@ module OverallSummary = {
       (),
     )
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       setInitialFilters()
       None
-    })
+    }, [])
 
-    let activeTab = React.useMemo1(() => {
+    let activeTab = React.useMemo(() => {
       Some(
         filterValueJson
         ->getStrArrayFromDict(`${moduleName}.tabName`, activeTav)
@@ -439,13 +439,13 @@ module OverallSummary = {
       )
     }, [filterValueJson])
 
-    let setActiveTab = React.useMemo1(() => {
+    let setActiveTab = React.useMemo(() => {
       (str: string) => {
         setActiveTab(_ => str->String.split(","))
       }
     }, [setActiveTab])
 
-    let updateUrlWithPrefix = React.useMemo1(() => {
+    let updateUrlWithPrefix = React.useMemo(() => {
       (chartType: string) => {
         (dict: Dict.t<string>) => {
           let prev = filterValue

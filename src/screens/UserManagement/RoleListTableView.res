@@ -15,7 +15,6 @@ let make = () => {
         ~entityName=USER_MANAGEMENT,
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
-        (),
       )
       let res = await fetchDetails(`${userDataURL}?groups=true`)
       let rolesData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForRoles)
@@ -26,7 +25,7 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if rolesAvailableData->Array.length == 0 {
       getRolesAvailable()->ignore
     } else {
@@ -34,7 +33,7 @@ let make = () => {
     }
 
     None
-  })
+  }, [])
 
   <div className="mt-5">
     <PageLoaderWrapper screenState={screenStateRoles}>

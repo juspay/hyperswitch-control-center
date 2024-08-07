@@ -78,7 +78,7 @@ module LineChart1D = {
 
     let chartHeight = isMobileView ? 250 : 400
 
-    let setClickedRowNames = React.useMemo1(() => {
+    let setClickedRowNames = React.useMemo(() => {
       (legendData: LineChartUtils.legendTableData) => {
         setClickedRowNamesOrig(prev => {
           prev->Array.includes(legendData.groupByName)
@@ -88,7 +88,7 @@ module LineChart1D = {
       }
     }, [setClickedRowNamesOrig])
 
-    let (chartData, xAxisMapInfo, chartDataOrig) = React.useMemo7(() => {
+    let (chartData, xAxisMapInfo, chartDataOrig) = React.useMemo(() => {
       let chartdata: array<
         LineChartUtils.timeSeriesDictWithSecondryMetrics<JSON.t>,
       > = LineChartUtils.timeSeriesDataMaker(
@@ -251,7 +251,7 @@ module LineChart1D = {
       chartData
     }
 
-    let legendData = React.useMemo5(() => {
+    let legendData = React.useMemo(() => {
       let data = LineChartUtils.getLegendDataForCurrentMetrix(
         ~yAxis=selectedMetrics.metric_name_db,
         ~xAxis,
@@ -305,7 +305,7 @@ module LineChart1D = {
         ->Option.getOr(`${colorOrig}`)
 
       let transformValue = num => {
-        num->HSAnalyticsUtils.setPrecision()
+        num->HSAnalyticsUtils.setPrecision
       }
       let (nonSelectedClass, backgroundColor) =
         clickedRowNames->Array.length === 0 ||
@@ -319,7 +319,7 @@ module LineChart1D = {
           <div className="flex items-stretch justify-start select-none">
             <span
               className={`flex h-3 w-3 rounded-full self-center mr-2`}
-              style={ReactDOM.Style.make(~backgroundColor, ())}
+              style={backgroundColor: backgroundColor}
             />
             <span className={`flex justify-self-start ${nonSelectedClass}`}>
               <TooltipString text=transactionTable.groupByName showTableBelow />
@@ -399,7 +399,6 @@ module LineChart1D = {
           ~title=snakeToTitle(groupKey),
           ~dataType=LabelType,
           ~showSort={!isPartners},
-          (),
         )
 
       | val =>
@@ -408,7 +407,6 @@ module LineChart1D = {
           ~title=val->LineChartUtils.chartLegendTypeToStr,
           ~dataType=NumericType,
           ~showSort={!isPartners},
-          (),
         )
       }
     }
@@ -425,17 +423,16 @@ module LineChart1D = {
       ~getHeading,
       ~uri="",
       ~getObjects=_ => {[]},
-      (),
     )
     let {isSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setTimeout(_ => {
         DOMUtils.window->DOMUtils.dispatchEvent(DOMUtils.event("resize"))
       }, 150)->ignore
       None
     }, [isSidebarExpanded])
-    let options = React.useMemo4(() => {
+    let options = React.useMemo(() => {
       let chartTitleStyle = chartTitleStyle(theme)
       let thresholdVal = selectedMetrics.thresholdVal
       let stepUpFromThreshold = selectedMetrics.step_up_threshold
@@ -695,7 +692,7 @@ module LineChart1D = {
               <HighchartsReact highcharts={highchartsModule} options key={chartKey} />
             </div>
           </AddDataAttributes>
-          <UIUtils.RenderIf condition={showTableLegend && isMobileView}>
+          <RenderIf condition={showTableLegend && isMobileView}>
             <div
               className="flex flex-row items-center gap-2 w-fit self-end cursor-pointer mr-5 mb-2"
               onClick={_ => {setHideLegend(prev => !prev)}}>
@@ -705,7 +702,7 @@ module LineChart1D = {
                 className="text-neutral-400"
               />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
           {if showTableLegend && !hideLegend {
             <div className={`${tableWidth}  pl-5 pt-0 min-w-max`}>
               <LoadedTable
@@ -783,8 +780,7 @@ module LegendItem = {
                 }
               })}>
             <div
-              className={`w-[0.9375rem] h-[0.9375rem] rounded`}
-              style={ReactDOM.Style.make(~background=legendItem.color, ())}
+              className={`w-[0.9375rem] h-[0.9375rem] rounded`} style={background: legendItem.color}
             />
             <div className="font-medium text-fs-14 text-[#3B424F]">
               {React.string(legendItem.name)}

@@ -3,7 +3,6 @@ module PreviewTable = {
   let make = (~data) => {
     open GlobalSearchTypes
     open PaymentIntentEntity
-    let (offset, setOffset) = React.useState(_ => 0)
     let defaultSort: Table.sortedObject = {
       key: "",
       order: Table.INC,
@@ -21,14 +20,14 @@ module PreviewTable = {
     open ResultsTableUtils
     <LoadedTable
       visibleColumns
-      title=" "
+      title=domain
       hideTitle=true
       actualData={tableData}
       entity=tableEntity
       resultsPerPage=10
       totalResults={tableData->Array.length}
-      offset
-      setOffset
+      offset={0}
+      setOffset={_ => ()}
       defaultSort
       currrentFetchCount={tableData->Array.length}
       tableLocalFilter=false
@@ -56,9 +55,16 @@ let make = () => {
   let heightClass = ""
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-  let pageDetail = pageDetailDict->Dict.get("payment_intents")->Option.getOr(defaultValue)
+  let setPageDetails = Recoil.useSetRecoilState(LoadedTable.table_pageDetails)
+  let pageDetail = pageDetailDict->Dict.get(domain)->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let searchText = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("query", "")
+
+  let clearPageDetails = () => {
+    let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
+    newDict->Dict.set(domain, defaultValue)
+    setPageDetails(_ => newDict)
+  }
 
   let getData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -68,7 +74,7 @@ let make = () => {
         ~updateDetails,
         ~offset,
         ~query={searchText},
-        ~path="payment_intents",
+        ~path=domain,
       )
 
       let arr = Array.make(~length=offset, Dict.make())
@@ -92,14 +98,18 @@ let make = () => {
     }
   }
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if searchText->String.length > 0 {
       getData()->ignore
     } else {
       setScreenState(_ => PageLoaderWrapper.Success)
     }
 
-    None
+    Some(
+      () => {
+        clearPageDetails()
+      },
+    )
   }, (offset, searchText))
 
   open ResultsTableUtils
@@ -109,7 +119,7 @@ let make = () => {
     <PageLoaderWrapper screenState>
       <LoadedTable
         visibleColumns
-        title=" "
+        title=domain
         hideTitle=true
         actualData=data
         entity=tableEntity

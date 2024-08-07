@@ -1,5 +1,3 @@
-let makeFieldInfo = FormRenderer.makeFieldInfo
-
 module CheckLocalFilters = {
   @react.component
   let make = (
@@ -18,7 +16,7 @@ module CheckLocalFilters = {
     )
     let values = formState.values
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       if formState.dirty {
         switch formState.values->JSON.Decode.object {
         | Some(valuesDict) => valuesDict->applyFilters
@@ -109,7 +107,7 @@ let make = (
   )
   let remoteFilterDict = remoteFiltersJson->JsonFlattenUtils.flattenObject(false)
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     let searchValues = ignoreUrlUpdate ? localSearchFilters : searchParams
     let initialValues = RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams=searchValues,

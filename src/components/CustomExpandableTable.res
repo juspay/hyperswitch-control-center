@@ -17,9 +17,8 @@ let make = (
   ~getRowDetails,
   ~showSerial=false,
 ) => {
-  open UIUtils
   if showSerial {
-    heading->Array.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No", ()))->ignore
+    heading->Array.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No"))->ignore
   }
 
   let isMobileView = MatchMedia.useMobileChecker()
@@ -83,7 +82,7 @@ let make = (
 
   <div
     className={`overflow ${scrollBarClass} ${tableClass}`} //replaced "overflow-auto" -> to be tested with master
-    style={ReactDOMStyle.make(~minHeight={filterPresent ? "30rem" : ""}, ())}>
+    style={minHeight: {filterPresent ? "30rem" : ""}}>
     <AddDataAttributes attributes=[("data-expandable-table", title)]>
       <table className={`table-auto ${widthClass} h-full ${borderClass}`} colSpan=0>
         <RenderIf condition={heading->Array.length !== 0 && !isMobileView}>
@@ -159,9 +158,9 @@ let make = (
                             if options->Array.length > 1 {
                               let filterInput: ReactFinalForm.fieldRenderPropsInput = {
                                 name: "filterInput",
-                                onBlur: _ev => (),
+                                onBlur: _ => (),
                                 onChange: ev => handleUpdateFilterObj(ev, i),
-                                onFocus: _ev => (),
+                                onFocus: _ => (),
                                 value: selected->Array.map(JSON.Encode.string)->JSON.Encode.array,
                                 checked: true,
                               }

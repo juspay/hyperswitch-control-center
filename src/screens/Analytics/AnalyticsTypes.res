@@ -253,12 +253,14 @@ type userJourneysSingleStat = {
   payment_attempts: int,
   sdk_rendered_count: int,
   average_payment_time: float,
+  load_time: float,
 }
 
 type userJourneysSingleStatSeries = {
   payment_attempts: int,
   sdk_rendered_count: int,
   average_payment_time: float,
+  load_time: float,
   time_series: string,
 }
 

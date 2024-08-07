@@ -22,7 +22,6 @@ let make = () => {
         ~entityName=USER_MANAGEMENT,
         ~methodType=Get,
         ~userRoleTypes=USER_LIST,
-        (),
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->getArrayDataFromJson(itemToObjMapperForUser)
@@ -41,7 +40,6 @@ let make = () => {
         ~userType=#PERMISSION_INFO,
         ~methodType=Get,
         ~queryParamerters=Some(`groups=true`),
-        (),
       )
       let res = await fetchDetails(url)
       setPermissionInfo(_ => res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo))
@@ -51,14 +49,14 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
     } else {
       getUserData()->ignore
     }
     None
-  })
+  }, [])
 
   let filterLogicForUsers = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
@@ -122,7 +120,7 @@ let make = () => {
       text={"Invite users"}
       buttonType=Primary
       onClick={_ => {
-        mixpanelEvent(~eventName="invite_users", ())
+        mixpanelEvent(~eventName="invite_users")
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users/invite-users"))
       }}
       customButtonStyle="w-48"
@@ -133,7 +131,7 @@ let make = () => {
       text={"Create custom roles"}
       buttonType=Primary
       onClick={_ => {
-        mixpanelEvent(~eventName="invite_users", ())
+        mixpanelEvent(~eventName="invite_users")
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users/create-custom-role"))
       }}
       customButtonStyle="w-48"

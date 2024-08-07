@@ -11,19 +11,14 @@ let make = (~flowType) => {
 
   let initialValues = Dict.make()->JSON.Encode.object
   let showToast = ToastState.useShowToast()
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let setResetPassword = async body => {
     try {
-      let url = getURL(
-        ~entityName=USERS,
-        ~userType=#RESET_PASSWORD_TOKEN_ONLY,
-        ~methodType=Post,
-        (),
-      )
-      let _ = await updateDetails(url, body, Post, ())
-      showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
+      let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD_TOKEN_ONLY, ~methodType=Post)
+      let _ = await updateDetails(url, body, Post)
+      showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess)
       setAuthStatus(LoggedOut)
     } catch {
     | Exn.Error(e) => {
@@ -35,10 +30,10 @@ let make = (~flowType) => {
 
   let rotatePassword = async password => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#ROTATE_PASSWORD, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#ROTATE_PASSWORD, ~methodType=Post)
       let body = [("password", password->JSON.Encode.string)]->getJsonFromArrayOfJson
-      let _ = await updateDetails(url, body, Post, ())
-      showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
+      let _ = await updateDetails(url, body, Post)
+      showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess)
       setAuthStatus(LoggedOut)
     } catch {
     | Exn.Error(e) => {
@@ -93,9 +88,9 @@ let make = (~flowType) => {
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
 
         if errorCode->errorSubCodeMapper === UR_29 {
-          showToast(~message=errorMessage, ~toastType=ToastError, ())
+          showToast(~message=errorMessage, ~toastType=ToastError)
         } else {
-          showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())
+          showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError)
           setAuthStatus(LoggedOut)
         }
       }
@@ -108,11 +103,11 @@ let make = (~flowType) => {
   | _ => "Reset password"
   }
 
-  React.useEffect0(_ => {
+  React.useEffect(_ => {
     open GlobalVars
     RescriptReactRouter.replace(appendDashboardPath(~url="/reset_password"))
     None
-  })
+  }, [])
 
   <HSwitchUtils.BackgroundImageWrapper
     customPageCss="flex flex-col items-center justify-center overflow-scroll ">

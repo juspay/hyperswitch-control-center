@@ -39,7 +39,7 @@ let make = (
   | Some(y) => Int.toFloat(y)
   | None => Js.Date.getFullYear(Date.make())
   }
-  React.useEffect2(() => {
+  React.useEffect(() => {
     let fromDateJs = fromDate->DayJs.getDayJsForString
     let toDateJs = toDate->DayJs.getDayJsForString
     let permittedMaxYears = startYear->Float.toInt + 10
@@ -88,7 +88,7 @@ let make = (
     None
   }, (fromDate, toDate))
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if startDate->isNonEmptyString && !fromDateOnFocus {
       setFromDate(_ => (startDate->DayJs.getDayJsForString).format("MMM DD, YYYY"))
     }
@@ -100,7 +100,7 @@ let make = (
     None
   }, (fromDateOnFocus, toDateOnFocus))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if isDateClicked {
       if startDate->isNonEmptyString && !fromDateOnFocus {
         setFromDate(_ => (startDate->DayJs.getDayJsForString).format("MMM DD, YYYY"))

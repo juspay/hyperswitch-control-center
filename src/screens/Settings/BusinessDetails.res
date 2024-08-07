@@ -42,7 +42,6 @@ module DetailsSection = {
                   ~name=field.name,
                   ~placeholder=field.placeholder,
                   ~customInput=field.inputType,
-                  (),
                 )}
               />
             }}
@@ -68,23 +67,21 @@ let make = () => {
   let (merchantInfo, setMerchantInfo) = React.useState(() => Dict.make())
   let (formState, setFormState) = React.useState(_ => Preview)
   let (fetchState, setFetchState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (isDisabled, setIsDisabled) = React.useState(_ => false)
   let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let onSubmit = async (values, _) => {
     try {
       setFetchState(_ => Loading)
-      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ~id=uid, ())
+      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ~id=uid)
       let merchantDetails = await updateDetails(
         accountUrl,
         values->getSettingsPayload(uid->Option.getOr("")),
         Post,
-        (),
       )
       setFormState(_ => Preview)
       let merchantInfo =
         merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails->parseMerchantJson
       setMerchantInfo(_ => merchantInfo)
-      showToast(~message=`Successfully updated business details`, ~toastType=ToastSuccess, ())
+      showToast(~message=`Successfully updated business details`, ~toastType=ToastSuccess)
       setFetchState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -99,7 +96,7 @@ let make = () => {
     setUid(_ => Some(merchantId))
     try {
       setFetchState(_ => Loading)
-      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get, ())
+      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get)
       let merchantDetails = await fetchDetails(accountUrl)
       let merchantInfo =
         merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails->parseMerchantJson
@@ -115,11 +112,11 @@ let make = () => {
     None
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     fetchMerchantInfo()->ignore
     setFormState(_ => Preview)
     None
-  })
+  }, [])
   let buttonText = switch formState {
   | Preview => "Edit"
   | Edit => "Save"
@@ -139,8 +136,8 @@ let make = () => {
           MerchantAccountUtils.validateMerchantAccountForm(
             ~values,
             ~fieldsToValidate=[PrimaryPhone, PrimaryEmail, Website, SecondaryEmail, SecondaryPhone],
-            ~setIsDisabled=Some(setIsDisabled),
-            ~initialData={merchantInfo->JSON.Encode.object},
+            // ~setIsDisabled=Some(setIsDisabled),
+            // ~initialData={merchantInfo->JSON.Encode.object},
             ~isLiveMode=featureFlagDetails.isLiveMode,
           )
         }}>
@@ -177,7 +174,6 @@ let make = () => {
                   text=buttonText
                   buttonType=Primary
                   buttonSize={Small}
-                  disabledParamter={isDisabled}
                   customSumbitButtonStyle="rounded-sm"
                 />
               </div>

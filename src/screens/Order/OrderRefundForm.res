@@ -26,19 +26,18 @@ let make = (
 
   let updateRefundDetails = async body => {
     try {
-      let refundsUrl = getURL(~entityName=REFUNDS, ~methodType=Post, ())
-      let res = await updateDetails(refundsUrl, body, Post, ())
+      let refundsUrl = getURL(~entityName=REFUNDS, ~methodType=Post)
+      let res = await updateDetails(refundsUrl, body, Post)
       let refundStatus = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("status", "")
       refetch()->ignore
       switch refundStatus->statusVariantMapper {
-      | Succeeded => showToast(~message="Refund successful", ~toastType=ToastSuccess, ())
+      | Succeeded => showToast(~message="Refund successful", ~toastType=ToastSuccess)
       | Failed =>
-        showToast(~message="Refund failed - Please check refund details", ~toastType=ToastError, ())
+        showToast(~message="Refund failed - Please check refund details", ~toastType=ToastError)
       | _ =>
         showToast(
           ~message="Processing your refund. Please check refund status",
           ~toastType=ToastInfo,
-          (),
         )
       }
     } catch {
@@ -121,7 +120,7 @@ let make = (
           className="flex border-b-2 px-2 h-24 items-center border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75">
           <FormRenderer.DesktopRow wrapperClass="ml-2">
             <DisplayKeyValueParams
-              heading={Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true, ())}
+              heading={Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true)}
               value={getCell(order, Amount)}
               isInHeader=true
             />
@@ -153,9 +152,7 @@ let make = (
               />
             </FormRenderer.DesktopRow>
             <FormRenderer.DesktopRow>
-              <DisplayKeyValueParams
-                heading={getHeading(CustomerEmail)} value={getCell(order, CustomerEmail)}
-              />
+              <DisplayKeyValueParams heading={getHeading(Email)} value={getCell(order, Email)} />
             </FormRenderer.DesktopRow>
             <FormRenderer.DesktopRow>
               <DisplayKeyValueParams
@@ -163,7 +160,6 @@ let make = (
                   ~key="amount",
                   ~title="Amount Refunded",
                   ~showSort=true,
-                  (),
                 )}
                 value={Currency(amountRefunded.contents /. 100.0, order.currency)}
               />
@@ -176,7 +172,6 @@ let make = (
                   ~key="amount",
                   ~title="Pending Requested Amount",
                   ~showSort=true,
-                  (),
                 )}
                 value={Currency(requestedRefundAmount.contents /. 100.0, order.currency)}
               />
@@ -184,11 +179,11 @@ let make = (
             <FormRenderer.DesktopRow>
               <FormRenderer.FieldRenderer field=amountField labelClass="text-fs-11" />
             </FormRenderer.DesktopRow>
-            <UIUtils.RenderIf condition={showRefundReason}>
+            <RenderIf condition={showRefundReason}>
               <FormRenderer.DesktopRow>
                 <FormRenderer.FieldRenderer field=reasonField labelClass="text-fs-11" />
               </FormRenderer.DesktopRow>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         </div>
         <div className="flex justify-end gap-4 pr-5 pb-2 mb-3 mt-14">

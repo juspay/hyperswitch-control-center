@@ -51,6 +51,7 @@ let connectorList: array<connectorTypes> = [
   Processors(COINBASE),
   Processors(CRYPTOPAY),
   Processors(CYBERSOURCE),
+  Processors(DATATRANS),
   Processors(DLOCAL),
   Processors(FISERV),
   Processors(FORTE),
@@ -85,6 +86,8 @@ let connectorList: array<connectorTypes> = [
   Processors(PLACETOPAY),
   Processors(RAZORPAY),
   Processors(BAMBORA_APAC),
+  Processors(ITAUBANK),
+  Processors(PLAID),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -102,6 +105,7 @@ let connectorListForLive: array<connectorTypes> = [
   Processors(CYBERSOURCE),
   Processors(IATAPAY),
   Processors(KLARNA),
+  Processors(MIFINITY),
   Processors(NMI),
   Processors(PAYME),
   Processors(TRUSTPAY),
@@ -432,6 +436,17 @@ let bamboraApacInfo = {
   description: "Bambora offers the ability to securely and efficiently process online, real-time transactions via an API, our user-friendly interface. The API web service accepts and processes SOAP requests from a remote location over TCP/IP. Transaction results are returned in real-time via the API.",
 }
 
+let itauBankInfo = {
+  description: "The Banking as a Service (BaaS) solution allows non-financial companies to offer services with the ecosystem that banking institutions have. Itaú as a Service (IaaS) is the ideal tool for your company to improve your customers' experience, offering a whole new portfolio of products, with Itaú's technology and security.",
+}
+let dataTransInfo = {
+  description: "Datatrans is a Swiss payment service provider offering secure online, mobile, and in-store payment processing. Key features include support for multiple payment methods, fraud prevention, multi-currency transactions, and integration options for websites and apps.",
+}
+
+let plaidInfo = {
+  description: "Plaid Link makes it easy for users to connect their financial accounts securely and quickly, giving you the best growth for your business.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -526,6 +541,9 @@ let getConnectorNameString = (connector: processorTypes) =>
   | ZSL => "zsl"
   | RAZORPAY => "razorpay"
   | BAMBORA_APAC => "bamboraapac"
+  | ITAUBANK => "itaubank"
+  | DATATRANS => "datatrans"
+  | PLAID => "plaid"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -551,7 +569,7 @@ let getConnectorNameString = (connector: connectorTypes) => {
   }
 }
 
-let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Processor, ()) => {
+let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Processor) => {
   switch connectorType {
   | Processor =>
     switch connector {
@@ -614,6 +632,9 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "zsl" => Processors(ZSL)
     | "razorpay" => Processors(RAZORPAY)
     | "bamboraapac" => Processors(BAMBORA_APAC)
+    | "itaubank" => Processors(ITAUBANK)
+    | "datatrans" => Processors(DATATRANS)
+    | "plaid" => Processors(PLAID)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -693,6 +714,9 @@ let getProcessorInfo = connector => {
   | ZSL => zslInfo
   | RAZORPAY => razorpayInfo
   | BAMBORA_APAC => bamboraApacInfo
+  | ITAUBANK => itauBankInfo
+  | DATATRANS => dataTransInfo
+  | PLAID => plaidInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -814,7 +838,7 @@ let mapAuthType = (authType: string) => {
   }
 }
 
-let getConnectorType = (connector: ConnectorTypes.connectorTypes, ~isPayoutFlow, ()) => {
+let getConnectorType = (connector: ConnectorTypes.connectorTypes, ~isPayoutFlow) => {
   isPayoutFlow
     ? "payout_processor"
     : switch connector {
@@ -868,7 +892,7 @@ let removeMethod = (
   switch (
     method.payment_method_type->getPaymentMethodTypeFromString,
     paymentMethod->getPaymentMethodFromString,
-    connector->getConnectorNameTypeFromString(),
+    connector->getConnectorNameTypeFromString,
   ) {
   | (PayPal, Wallet, Processors(PAYPAL)) =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
@@ -935,7 +959,6 @@ let generateInitialValuesDict = (
   ~isPayoutFlow=false,
   ~isLiveMode=false,
   ~connectorType: ConnectorTypes.connector=ConnectorTypes.Processor,
-  (),
 ) => {
   open LogicUtils
   let dict = values->getDictFromJsonObject
@@ -951,9 +974,8 @@ let generateInitialValuesDict = (
   dict->Dict.set(
     "connector_type",
     getConnectorType(
-      connector->getConnectorNameTypeFromString(~connectorType, ()),
+      connector->getConnectorNameTypeFromString(~connectorType),
       ~isPayoutFlow,
-      (),
     )->JSON.Encode.string,
   )
   dict->Dict.set("disabled", dict->getBool("disabled", false)->JSON.Encode.bool)
@@ -984,22 +1006,6 @@ let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) =>
   switch (connector, fieldName) {
   | (Processors(ADYEN), "merchant_secret") => true
   | _ => false
-  }
-}
-
-let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) => {
-  switch (connector, fieldName) {
-  | (Processors(BLUESNAP), "merchant_id") => false
-  | (Processors(CHECKOUT), "acquirer_bin")
-  | (Processors(NMI), "acquirer_bin")
-  | (Processors(CYBERSOURCE), "acquirer_bin") => false
-  | (Processors(CHECKOUT), "acquirer_merchant_id")
-  | (Processors(NMI), "acquirer_merchant_id")
-  | (Processors(CYBERSOURCE), "acquirer_merchant_id") => false
-  | (Processors(PAYPAL), "paypal_sdk") => false
-  | (Processors(CYBERSOURCE), "acquirer_country_code") => false
-  | (ThreeDsAuthenticator(THREEDSECUREIO), "pull_mechanism_for_external_3ds_enabled") => false
-  | _ => true
   }
 }
 
@@ -1076,19 +1082,30 @@ let validateConnectorRequiredFields = (
       }
     })
   }
-  connectorMetaDataFields
-  ->Dict.keysToArray
-  ->Array.forEach(fieldName => {
-    let walletType = fieldName->getPaymentMethodTypeFromString
-    if walletType !== GooglePay && walletType !== ApplePay {
-      let key = `metadata.${fieldName}`
-      let errorKey = connectorMetaDataFields->getString(fieldName, "")
-      let value = valuesFlattenJson->getString(`metadata.${fieldName}`, "")
-      if value->String.length === 0 && connector->getMetaDataRequiredFields(fieldName) {
-        Dict.set(newDict, key, `Please enter ${errorKey}`->JSON.Encode.string)
+  let keys =
+    connectorMetaDataFields
+    ->Dict.keysToArray
+    ->Array.filter(ele => !Array.includes(ConnectorMetaDataUtils.metaDataInputKeysToIgnore, ele))
+
+  {
+    keys->Array.forEach(field => {
+      let {\"type", name, required, label} =
+        connectorMetaDataFields
+        ->getDictfromDict(field)
+        ->JSON.Encode.object
+        ->convertMapObjectToDict
+        ->CommonMetaDataUtils.inputFieldMapper
+      let key = `metadata.${name}`
+      let value = switch \"type" {
+      | Text | Select => valuesFlattenJson->getString(`${key}`, "")
+      | Toggle => valuesFlattenJson->getBool(`${key}`, false)->getStringFromBool
+      | _ => ""
       }
-    }
-  })
+      if value->String.length === 0 && required {
+        Dict.set(newDict, key, `Please enter ${label}`->JSON.Encode.string)
+      }
+    })
+  }
 
   connectorWebHookDetails
   ->Dict.keysToArray
@@ -1180,7 +1197,7 @@ let validate = (~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => values =>
       ->LogicUtils.getStringFromJson("")
     let regexToUse = isLiveMode ? field.liveValidationRegex : field.testValidationRegex
     let validationResult = switch regexToUse {
-    | Some(regex) => regex->Js.Re.fromString->Js.Re.test_(value)
+    | Some(regex) => regex->RegExp.fromString->RegExp.test(value)
     | None => true
     }
     if field.isRequired->Option.getOr(true) && value->String.length === 0 {
@@ -1208,7 +1225,7 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
   let (suggestedAction, suggestedActionExists) = {
     open SuggestedActionHelper
     let msg = verifyErrorMessage->Option.getOr("")
-    switch connector->getConnectorNameTypeFromString() {
+    switch connector->getConnectorNameTypeFromString {
     | Processors(STRIPE) => (
         {
           if msg->String.includes("Sending credit card numbers directly") {
@@ -1395,7 +1412,6 @@ let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList
 let getProcessorsListFromJson = (
   connnectorList: array<ConnectorTypes.connectorPayload>,
   ~removeFromList: connector=FRMPlayer,
-  (),
 ) => {
   connnectorList->filterList(~removeFromList)
 }
@@ -1461,6 +1477,9 @@ let getDisplayNameForProcessor = connector =>
   | ZSL => "ZSL"
   | RAZORPAY => "Razorpay"
   | BAMBORA_APAC => "Bambora Apac"
+  | ITAUBANK => "Itaubank"
+  | DATATRANS => "Datatrans"
+  | PLAID => "Plaid"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -1476,8 +1495,7 @@ let getDisplayNameForFRMConnector = frmConnector =>
   }
 
 let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {
-  let connectorType =
-    connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType, ())
+  let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType)
   switch connectorType {
   | Processors(connector) => connector->getDisplayNameForProcessor
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
@@ -1492,7 +1510,7 @@ let getConnectorTypeArrayFromListConnectors = (
   connectorsList: array<ConnectorTypes.connectorPayload>,
 ) => {
   connectorsList->Array.map(connectorDetail =>
-    connectorDetail.connector_name->getConnectorNameTypeFromString(~connectorType, ())
+    connectorDetail.connector_name->getConnectorNameTypeFromString(~connectorType)
   )
 }
 

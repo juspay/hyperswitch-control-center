@@ -1,4 +1,4 @@
-let regex: string => Js.Re.t
+let regex: string => RegExp.t
 let highlightedText: (Js.String.t, string) => React.element
 type labelColor = TableUtils.labelColor =
   | LabelGreen
@@ -101,7 +101,6 @@ let makeHeaderInfo: (
   ~showMultiSelectCheckBox: bool=?,
   ~hideOnShrink: bool=?,
   ~customWidth: string=?,
-  unit,
 ) => header
 let getCell: string => cell
 module ProgressCell = TableUtils.ProgressCell

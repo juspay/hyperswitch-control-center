@@ -29,7 +29,7 @@ let make = (
       buttonType={PrimaryOutline}
       text="Back"
       onClick={_ => {
-        let prevStep = getNavigationStepForStandardIntegration(~currentStep, ())
+        let prevStep = getNavigationStepForStandardIntegration(~currentStep)
         if currentStep === DownloadTestAPIKey {
           setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
         } else {
@@ -51,7 +51,7 @@ let make = (
         if isLastStep {
           markAsDone()->ignore
         } else {
-          let nextStep = getNavigationStepForStandardIntegration(~currentStep, ~forward=true, ())
+          let nextStep = getNavigationStepForStandardIntegration(~currentStep, ~forward=true)
           let _ = updateEnumInRecoil([
             (String("completed"), currentStep->getPolyMorphicVariantOfIntegrationSubStep),
             (String("ongoing"), nextStep->getPolyMorphicVariantOfIntegrationSubStep),
@@ -100,7 +100,7 @@ let make = (
             setPlatform
           />
           <div className="bg-white border rounded">
-            <UIUtils.RenderIf
+            <RenderIf
               condition={backEndLang->UserOnboardingUtils.getInstallDependencies->isNonEmptyString}>
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getMigrateFromStripeDX(backEndLang)}
@@ -108,7 +108,7 @@ let make = (
                 headerText="Installation"
                 langauge=backEndLang
               />
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
           <div className="bg-white border rounded">
             <UserOnboardingUIUtils.ShowCodeEditor
@@ -140,7 +140,7 @@ let make = (
             platform
             setPlatform
           />
-          <UIUtils.RenderIf
+          <RenderIf
             condition={frontEndLang->UserOnboardingUtils.getInstallDependencies->isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
@@ -150,8 +150,8 @@ let make = (
                 langauge=frontEndLang
               />
             </div>
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf
+          </RenderIf>
+          <RenderIf
             condition={frontEndLang->UserOnboardingUtils.getInstallDependencies->isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
@@ -161,8 +161,8 @@ let make = (
                 langauge=frontEndLang
               />
             </div>
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={frontEndLang->UserOnboardingUtils.getLoad->isNonEmptyString}>
+          </RenderIf>
+          <RenderIf condition={frontEndLang->UserOnboardingUtils.getLoad->isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getLoad}
@@ -171,9 +171,8 @@ let make = (
                 langauge=frontEndLang
               />
             </div>
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf
-            condition={frontEndLang->UserOnboardingUtils.getInitialize->isNonEmptyString}>
+          </RenderIf>
+          <RenderIf condition={frontEndLang->UserOnboardingUtils.getInitialize->isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getInitialize}
@@ -182,8 +181,8 @@ let make = (
                 langauge=frontEndLang
               />
             </div>
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf
+          </RenderIf>
+          <RenderIf
             condition={frontEndLang
             ->UserOnboardingUtils.getCheckoutFormForDisplayCheckoutPage
             ->isNonEmptyString}>
@@ -195,7 +194,7 @@ let make = (
                 langauge=frontEndLang
               />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       </div>
     | DisplayPaymentConfirmation =>
@@ -217,8 +216,7 @@ let make = (
             platform
             setPlatform
           />
-          <UIUtils.RenderIf
-            condition={frontEndLang->UserOnboardingUtils.getHandleEvents->isNonEmptyString}>
+          <RenderIf condition={frontEndLang->UserOnboardingUtils.getHandleEvents->isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getHandleEvents}
@@ -228,8 +226,8 @@ let make = (
                 langauge=frontEndLang
               />
             </div>
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf
+          </RenderIf>
+          <RenderIf
             condition={frontEndLang->UserOnboardingUtils.getDisplayConformation->isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
@@ -240,7 +238,7 @@ let make = (
                 langauge=frontEndLang
               />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       </div>
     }}

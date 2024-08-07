@@ -25,7 +25,7 @@ let make = (~integrateAppValue: integrateApp) => {
         text="I want to integrate Hyperswitch into my app"
         buttonType={Primary}
         onClick={_ => {
-          mixpanelEvent(~eventName=`quickstart_integration_landing`, ())
+          mixpanelEvent(~eventName=`quickstart_integration_landing`)
           setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
         }}
       />
@@ -66,7 +66,7 @@ let make = (~integrateAppValue: integrateApp) => {
     setQuickStartPageState(_ => GoLive(LANDING))
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if choiceState === #NotSelected {
       setButtonState(_ => Button.Disabled)
     } else {
@@ -108,7 +108,7 @@ let make = (~integrateAppValue: integrateApp) => {
               showBtnTextToolTip={buttonState === Button.Disabled}
               tooltipText="Please select one of the choices"
               onClick={_ => {
-                mixpanelEvent(~eventName=`quickstart_integration_landing_option`, ())
+                mixpanelEvent(~eventName=`quickstart_integration_landing_option`)
                 handleIntegration()->ignore
               }}
               buttonSize=Small

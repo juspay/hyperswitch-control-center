@@ -45,7 +45,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
       <div className="h-2 bg-gray-200">
         <div
           className={`h-full ${backgroundColor}`}
-          style={ReactDOMStyle.make(~width=`${completedPercentage->Int.toString}%`, ())}
+          style={width: `${completedPercentage->Int.toString}%`}
         />
       </div>
     </div>
@@ -89,8 +89,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
           </div>
           <Icon name=icon size=20 />
         </div>
-        <UIUtils.RenderIf
-          condition={sidebarOption.status === ONGOING && subOptionsArray->Array.length > 0}>
+        <RenderIf condition={sidebarOption.status === ONGOING && subOptionsArray->Array.length > 0}>
           <div className="my-4">
             {subOptionsArray
             ->Array.mapWithIndex((subOption, i) => {
@@ -109,7 +108,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
             })
             ->React.array}
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     })
     ->React.array}

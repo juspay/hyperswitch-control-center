@@ -1,7 +1,7 @@
 module RenderSearchResultBody = {
   open GlobalSearchTypes
   open LogicUtils
-  open UIUtils
+
   @react.component
   let make = (~section: resultType) => {
     let redirectOnSelect = element => {
@@ -92,12 +92,17 @@ let make = () => {
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
+
   let getSearchResults = async results => {
     try {
-      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
-      let body = [("query", query->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
-      let response = await fetchDetails(url, body, Post, ())
+      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
+      let body = generateSearchBody(
+        ~searchText={query},
+        ~merchant_id={merchantDetailsValue.merchant_id},
+      )
+      let response = await fetchDetails(url, body, Post)
 
       let local_results = []
       results->Array.forEach((item: resultType) => {
@@ -126,7 +131,7 @@ let make = () => {
     }
   }
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     let (results, text) = globalSearchResult->getSearchresults
 
     if text->isNonEmptyString {

@@ -36,7 +36,7 @@ module SimpleRoutingView = {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let data = gateways->Array.map(str => str->JSON.Encode.string)
 
-        let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
+        let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None)
 
         let _ = await updateDetails(
           activateRuleURL,
@@ -48,13 +48,11 @@ module SimpleRoutingView = {
             "",
           )->JSON.Encode.object,
           Post,
-          (),
         )
 
         showToast(
           ~message="Successfully Created a new Configuraion !",
           ~toastType=ToastState.ToastSuccess,
-          (),
         )
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
         setScreenState(_ => Success)
@@ -67,12 +65,11 @@ module SimpleRoutingView = {
     let handleActivateConfiguration = async _ => {
       try {
         setScreenState(_ => Loading)
-        let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=routingId, ())
-        let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
+        let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=routingId)
+        let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post)
         showToast(
           ~message="Successfully Activated Selected Configuration !",
           ~toastType=ToastState.ToastSuccess,
-          (),
         )
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
         setScreenState(_ => Success)
@@ -235,7 +232,7 @@ let make = (
   let activeRoutingDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let routingUrl = getURL(~entityName=ROUTING, ~methodType=Get, ~id=routingRuleId, ())
+      let routingUrl = getURL(~entityName=ROUTING, ~methodType=Get, ~id=routingRuleId)
       let routingJson = await fetchDetails(routingUrl)
 
       let connectorsOrder =
@@ -279,7 +276,7 @@ let make = (
     setScreenState(_ => Success)
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch routingRuleId {
     | Some(_id) => {
         activeRoutingDetails()->ignore

@@ -14,7 +14,7 @@ let make = (
   open LogicUtils
   open ReactHyperJs
 
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (clientSecret, setClientSecret) = React.useState(_ => None)
   let (paymentStatus, setPaymentStatus) = React.useState(_ => INCOMPLETE)
   let (paymentId, setPaymentId) = React.useState(_ => None)
@@ -48,7 +48,7 @@ let make = (
       let paymentData = initialValues->Identity.genericTypeToJson->JSON.stringify->safeParse
       paymentData->getDictFromJsonObject->Dict.delete("country_currency")
       let body = paymentData->Identity.genericTypeToJson
-      let response = await updateDetails(url, body, Post, ())
+      let response = await updateDetails(url, body, Post)
       let clientSecret = response->getDictFromJsonObject->getOptionString("client_secret")
       setPaymentId(_ => response->getDictFromJsonObject->getOptionString("payment_id"))
       setClientSecret(_ => clientSecret)
@@ -58,7 +58,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let status = filtersFromUrl->Dict.get("status")->Option.getOr("")->String.toLowerCase
     let paymentIdFromPaymemtIntentClientSecret = getClientSecretFromPaymentId(
       ~paymentIntentClientSecret=url.search

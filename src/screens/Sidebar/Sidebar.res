@@ -75,7 +75,6 @@ module SidebarSubOption = {
 module SidebarItem = {
   @react.component
   let make = (~tabInfo, ~isSelected, ~isExpanded, ~setOpenItem=_ => ()) => {
-    open UIUtils
     let sidebarItemRef = React.useRef(Nullable.null)
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
     let getSearchParamByLink = link => getSearchParamByLink(String.substringToEnd(link, ~start=0))
@@ -107,7 +106,7 @@ module SidebarItem = {
         }
 
         <RenderIf condition={access !== NoAccess}>
-          <Link to_=redirectionLink sendMixpanelEvents=true>
+          <Link to_=redirectionLink>
             <AddDataAttributes
               attributes=[
                 ("data-testid", name->String.replaceRegExp(%re("/\s/g"), "")->String.toLowerCase),
@@ -147,7 +146,7 @@ module SidebarItem = {
         let {name, icon, iconTag, link, access, ?iconStyles, ?iconSize} = tabOption
 
         <RenderIf condition={access !== NoAccess}>
-          <Link to_={`${link}${getSearchParamByLink(link)}`} sendMixpanelEvents=true>
+          <Link to_={`${link}${getSearchParamByLink(link)}`}>
             <div
               onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
               className={`${textColor} flex flex-row items-center cursor-pointer transition duration-300 ${selectedClass} p-3 ${isExpanded
@@ -176,7 +175,6 @@ module SidebarItem = {
 module NestedSidebarItem = {
   @react.component
   let make = (~tabInfo, ~isSelected, ~isSideBarExpanded, ~isSectionExpanded) => {
-    open UIUtils
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
     let getSearchParamByLink = link => getSearchParamByLink(Js.String2.substr(link, ~from=0))
 
@@ -208,7 +206,7 @@ module NestedSidebarItem = {
           let linkTagPadding = "pl-2"
 
           <RenderIf condition={access !== NoAccess}>
-            <Link to_={`${link}${getSearchParamByLink(link)}`} sendMixpanelEvents=true>
+            <Link to_={`${link}${getSearchParamByLink(link)}`}>
               <AddDataAttributes
                 attributes=[
                   ("data-testid", name->String.replaceRegExp(%re("/\s/g"), "")->String.toLowerCase),
@@ -252,7 +250,6 @@ module NestedSectionItem = {
     ~isSubLevelItemSelected,
     ~isSideBarExpanded,
   ) => {
-    open UIUtils
     let iconColor = isAnySubItemSelected ? "text-white" : "text-white opacity-60"
 
     let iconOuterClass = if !isSideBarExpanded {
@@ -341,7 +338,6 @@ module SidebarNestedSection = {
     ~setOpenItem=_ => (),
     ~isSectionAutoCollapseEnabled=false,
   ) => {
-    open UIUtils
     let isSubLevelItemSelected = tabInfo => {
       switch tabInfo {
       | SubLevelLink(item) => linkSelectionCheck(firstPart, item.link)
@@ -353,7 +349,7 @@ module SidebarNestedSection = {
 
     let isAnySubItemSelected = section.links->Array.find(isSubLevelItemSelected)->Option.isSome
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       if isSectionExpanded {
         setIsElementShown(_ => true)
       } else if isElementShown {
@@ -364,7 +360,7 @@ module SidebarNestedSection = {
       None
     }, (isSectionExpanded, isSideBarExpanded))
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       if isSideBarExpanded {
         setIsSectionExpanded(_ => isAnySubItemSelected)
       } else {
@@ -373,7 +369,7 @@ module SidebarNestedSection = {
       None
     }, (isSideBarExpanded, isAnySubItemSelected))
 
-    let toggleSectionExpansion = React.useCallback4(_ev => {
+    let toggleSectionExpansion = React.useCallback(_ev => {
       if !isSideBarExpanded {
         setIsSidebarExpanded(_ => true)
         setTimeout(() => {
@@ -451,13 +447,12 @@ module SidebarNestedSection = {
 module PinIconComponentStates = {
   @react.component
   let make = (~isHSSidebarPinned, ~setIsSidebarExpanded, ~isSidebarExpanded) => {
-    open UIUtils
     let isMobileView = MatchMedia.useMobileChecker()
     let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
 
-    let toggleExpand = React.useCallback0(_ => {
+    let toggleExpand = React.useCallback(_ => {
       setIsSidebarExpanded(x => !x)
-    })
+    }, [])
 
     let onClick = ev => {
       ev->ReactEvent.Mouse.preventDefault
@@ -495,7 +490,6 @@ let make = (
   ~linkSelectionCheck=defaultLinkSelectionCheck,
   ~verticalOffset="120px",
 ) => {
-  open UIUtils
   open CommonAuthHooks
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
     ThemeProvider.themeContext,
@@ -514,7 +508,7 @@ let make = (
   let minWidthForPinnedState = MatchMedia.useMatchMedia("(min-width: 1280px)")
   // let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if minWidthForPinnedState {
       setIsSidebarDetails("isPinned", true->JSON.Encode.bool)
       setIsSidebarExpanded(_ => true)
@@ -598,7 +592,7 @@ let make = (
     <div
       ref={sideBarRef->ReactDOM.Ref.domRef}
       className={`flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
-      style={ReactDOMStyle.make(~width=sidebarContainerClassWidth, ())}
+      style={width: sidebarContainerClassWidth}
     />
     <div
       className={`absolute z-40 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}
@@ -607,7 +601,7 @@ let make = (
       <div
         ref={sideBarRef->ReactDOM.Ref.domRef}
         className={`${backgroundColor.primaryNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
-        style={ReactDOMStyle.make(~width=sidebarWidth, ())}>
+        style={width: sidebarWidth}>
         <div className="flex items-center justify-between p-1 mr-2">
           <div
             className={`flex align-center mt-4 pl-3 mb-4 pr-4 ml-1 gap-5 cursor-default`}
@@ -621,7 +615,7 @@ let make = (
         </div>
         <div
           className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar"
-          style={ReactDOMStyle.make(~height=`calc(100vh - ${verticalOffset})`, ())}>
+          style={height: `calc(100vh - ${verticalOffset})`}>
           <style> {React.string(sidebarScrollbarCss)} </style>
           {sidebars
           ->Array.mapWithIndex((tabInfo, index) => {

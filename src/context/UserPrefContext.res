@@ -27,11 +27,6 @@ let userPrefObj: filter = {
 let userPrefContext = React.createContext(userPrefObj)
 
 module Provider = {
-  let makeProps = (~value, ~children, ()) =>
-    {
-      "value": value,
-      "children": children,
-    }
   let make = React.Context.provider(userPrefContext)
 }
 
@@ -56,7 +51,7 @@ let make = (~children) => {
     ->List.toArray
     ->Array.joinWithUnsafe("/")}`
   // UPDATE THE LAST VISITED TAB
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if urlPathConcationation !== "/" {
       setUserPref(prev => {
         let currentConfig = prev->Dict.get(username)->Option.getOr({})
@@ -78,7 +73,7 @@ let make = (~children) => {
   }, (urlPathConcationation, username))
 
   // UPDATE THE searchParams IN LAST VISITED TAB
-  React.useEffect2(() => {
+  React.useEffect(() => {
     setUserPref(prev => {
       let currentConfig = prev->Dict.get(username)->Option.getOr({})
       let updatedPrev = currentConfig
@@ -128,7 +123,7 @@ let make = (~children) => {
     None
   }, (url.search, username))
   // UPDATE THE CURRENT PREF TO THE DATA SOURCE
-  React.useEffect1(() => {
+  React.useEffect(() => {
     UserPrefUtils.saveUserPref(userPref)
     None
   }, [userPref])
@@ -185,7 +180,7 @@ let make = (~children) => {
     ->LogicUtils.getJsonFromArrayOfJson
     ->JSON.stringify
 
-  let value = React.useMemo4(() => {
+  let value = React.useMemo(() => {
     let currentConfig = userPref->Dict.get(username)->Option.getOr({})
     let updatedPrev = currentConfig
     let lastVisitedTab = switch updatedPrev {

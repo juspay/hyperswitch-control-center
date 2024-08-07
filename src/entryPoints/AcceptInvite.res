@@ -12,7 +12,7 @@ let make = () => {
   let getURL = useGetURL()
   let handleLogout = useHandleLogout()
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     let acceptInvitedata = switch authStatus {
     | LoggedIn(info) =>
       switch info {
@@ -34,11 +34,11 @@ let make = () => {
     }
 
     None
-  })
+  }, [])
 
   let onClickLoginToDashboard = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITE, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITE, ~methodType=Post)
       let acceptedMerchantIds = merchantData->Array.reduce([], (acc, ele) => {
         let merchantDataDict = ele->getDictFromJsonObject
         if merchantDataDict->getBool("is_active", false) {
@@ -51,7 +51,7 @@ let make = () => {
           ("merchant_ids", acceptedMerchantIds->JSON.Encode.array),
           ("need_dashboard_entry_response", true->JSON.Encode.bool),
         ]->getJsonFromArrayOfJson
-      let res = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post)
       let typedInfo = res->BasicAuthUtils.getBasicAuthInfo
       if typedInfo.token->Option.isSome {
         open AuthProviderTypes
@@ -60,7 +60,7 @@ let make = () => {
         setAuthStatus(LoggedIn(BasicAuth(typedInfo)))
         setDashboardPageState(_ => #HOME)
       } else {
-        showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
+        showToast(~message="Failed to sign in, Try again", ~toastType=ToastError)
         handleLogout()->ignore
       }
     } catch {

@@ -19,7 +19,6 @@ let make = (~isFromMilestoneCard=false) => {
         ~userType=#USER_DATA,
         ~methodType=Get,
         ~queryParamerters=Some(`keys=ProdIntent`),
-        (),
       )
       let res = await fetchDetails(url)
       let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
@@ -36,10 +35,10 @@ let make = (~isFromMilestoneCard=false) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     getProdVerifyDetails()->ignore
     None
-  })
+  }, [])
 
   <ProdVerifyModal
     showModal={showProdIntentForm}

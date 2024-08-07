@@ -14,7 +14,6 @@ let labelField = FormRenderer.makeFieldInfo(
   ~placeholder="Enter profile name",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 type modalState = Loading | Edit | Successful
@@ -29,7 +28,7 @@ let validateEmptyValue = (key, errors) => {
 let validateCustom = (key, errors, value) => {
   switch key {
   | ProfileName =>
-    if !Js.Re.test_(%re("/^[a-zA-Z][a-zA-Z0-9]*$/"), value) {
+    if !RegExp.test(%re("/^[a-zA-Z][a-zA-Z0-9]*$/"), value) {
       errors->Dict.set(key->getStringFromVariant, "Please enter a profile name"->JSON.Encode.string)
     }
   }

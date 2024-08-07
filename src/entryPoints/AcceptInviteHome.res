@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
   open APIUtils
-  open UIUtils
+
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
@@ -15,7 +15,7 @@ let make = () => {
   let merchantValueatZeroIndex =
     merchantListValue->Array.get(0)->Option.getOr(SwitchMerchantUtils.defaultValue)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let filteredSwitchMerchantList = switchMerchantListValue->Array.filter(ele => !ele.is_active)
     setMerchantListValue(_ => filteredSwitchMerchantList)
     setAcceptedMerchantId(_ => Array.make(~length=filteredSwitchMerchantList->Array.length, false))
@@ -25,7 +25,7 @@ let make = () => {
 
   let acceptInvite = async _ => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITE, ~methodType=Put, ())
+      let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITE, ~methodType=Put)
       let merchantIds = if merchantListValue->Array.length === 1 {
         [merchantValueatZeroIndex.merchant_id->JSON.Encode.string]
       } else {
@@ -45,9 +45,9 @@ let make = () => {
 
       let body =
         [("merchant_ids", merchantIds->JSON.Encode.array)]->LogicUtils.getJsonFromArrayOfJson
-      let _ = await updateDetails(url, body, Put, ())
+      let _ = await updateDetails(url, body, Put)
       let _ = await fetchSwitchMerchantList()
-      showToast(~toastType=ToastSuccess, ~message="Invite Accepted Successfully", ())
+      showToast(~toastType=ToastSuccess, ~message="Invite Accepted Successfully")
       setAcceptedMerchantId(_ => Array.make(~length=merchantListValue->Array.length, false))
     } catch {
     | _ => ()

@@ -16,9 +16,8 @@ let make = (~onClick) => {
         ~entityName=USERS,
         ~methodType=Post,
         ~userType={#ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY},
-        (),
       )
-      let res = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post)
       setAuthStatus(PreLogin(getPreLoginInfo(res)))
     } catch {
     | Exn.Error(e) => {
@@ -29,7 +28,7 @@ let make = (~onClick) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     open CommonAuthUtils
     open TwoFaUtils
     open GlobalVars
@@ -42,7 +41,7 @@ let make = (~onClick) => {
     }
 
     None
-  })
+  }, [])
 
   <EmailVerifyScreen
     errorMessage

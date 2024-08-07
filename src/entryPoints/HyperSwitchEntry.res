@@ -36,6 +36,7 @@ module HyperSwitchEntryComponent = {
           logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
           agreementUrl: dict->getString("agreement_url", "")->getNonEmptyString,
+          dssCertificateUrl: dict->getString("dss_certificate_url", "")->getNonEmptyString,
           applePayCertificateUrl: dict
           ->getString("apple_pay_certificate_url", "")
           ->getNonEmptyString,
@@ -52,11 +53,7 @@ module HyperSwitchEntryComponent = {
 
     let fetchConfig = async () => {
       try {
-        let domain = HyperSwitchEntryUtils.getSessionData(
-          ~key="domain",
-          ~defaultValue="default",
-          (),
-        )
+        let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="default")
         let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
@@ -71,19 +68,19 @@ module HyperSwitchEntryComponent = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       let _ = HyperSwitchEntryUtils.setSessionData(~key="auth_id", ~searchParams=url.search)
       let _ = HyperSwitchEntryUtils.setSessionData(~key="domain", ~searchParams=url.search)
 
       let _ = fetchConfig()->ignore
       None
-    })
-    React.useEffect0(() => {
+    }, [])
+    React.useEffect(() => {
       TimeZoneUtils.getUserTimeZone()->setZone
       None
-    })
+    }, [])
 
-    React.useEffect3(() => {
+    React.useEffect(() => {
       if featureFlagDetails.mixpanel {
         MixPanel.init(
           Window.env.mixpanelToken,
@@ -106,7 +103,7 @@ module HyperSwitchEntryComponent = {
       }
 
       None
-    }, (name, email, Window.env.mixpanelToken))
+    }, [featureFlagDetails.mixpanel])
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle
@@ -115,7 +112,7 @@ module HyperSwitchEntryComponent = {
       GoogleAnalytics.send({hitType: "pageview", page})
     }
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       switch url.path {
       | list{"user", "verify_email"} => "verify_email"->setPageName
       | list{"user", "set_password"} => "set_password"->setPageName
