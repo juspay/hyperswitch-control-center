@@ -77,7 +77,7 @@ module CardRenderer = {
       switch (
         method.payment_method_type->getPaymentMethodTypeFromString,
         paymentMethod->getPaymentMethodFromString,
-        connector->getConnectorNameTypeFromString(),
+        connector->getConnectorNameTypeFromString,
       ) {
       | (PayPal, Wallet, Processors(PAYPAL)) =>
         if standardProviders->Array.some(obj => checkPaymentMethodTypeAndExperience(obj, method)) {
@@ -99,7 +99,7 @@ module CardRenderer = {
           if (
             ((methodVariant === GooglePay || methodVariant === ApplePay) &&
               {
-                switch connector->getConnectorNameTypeFromString() {
+                switch connector->getConnectorNameTypeFromString {
                 | Processors(TRUSTPAY) => false
                 | Processors(AIRWALLEX) => false
                 | Processors(STRIPE_TEST) => false
@@ -143,7 +143,7 @@ module CardRenderer = {
     let isSelected = selectedMethod => {
       switch (
         paymentMethod->getPaymentMethodFromString,
-        connector->getConnectorNameTypeFromString(),
+        connector->getConnectorNameTypeFromString,
       ) {
       | (Wallet, Processors(PAYPAL)) =>
         standardProviders->Array.some(obj =>
@@ -201,7 +201,7 @@ module CardRenderer = {
       <RenderIf
         condition={paymentMethod->getPaymentMethodFromString === Wallet &&
           {
-            switch connector->getConnectorNameTypeFromString() {
+            switch connector->getConnectorNameTypeFromString {
             | Processors(ZEN) => true
             | _ => false
             }
@@ -233,7 +233,7 @@ module CardRenderer = {
                   {switch (
                     value.payment_method_type->getPaymentMethodTypeFromString,
                     paymentMethod->getPaymentMethodFromString,
-                    connector->getConnectorNameTypeFromString(),
+                    connector->getConnectorNameTypeFromString,
                   ) {
                   | (PayPal, Wallet, Processors(PAYPAL)) =>
                     <p

@@ -13,12 +13,12 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
 
   let (verifyDone, setVerifyDone) = React.useState(_ => ConnectorTypes.NoAttempt)
   let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
-  let connectorTypeFromName = connector->getConnectorNameTypeFromString()
+  let connectorTypeFromName = connector->getConnectorNameTypeFromString
 
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->getConnectorInfo
@@ -117,7 +117,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         ~bodyType,
         ~isPayoutFlow,
         ~isLiveMode={featureFlagDetails.isLiveMode},
-        (),
       )
       setScreenState(_ => Loading)
       setCurrentStep(_ => PaymentMethods)
@@ -134,7 +133,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
               showToast(
                 ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
                 ~toastType=ToastState.ToastError,
-                (),
               )
               setCurrentStep(_ => IntegFields)
               setScreenState(_ => Success)
@@ -142,7 +140,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
               showToast(
                 ~message="Failed to Save the Configuration!",
                 ~toastType=ToastState.ToastError,
-                (),
               )
               setScreenState(_ => Error(message))
             }
@@ -163,11 +160,10 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
           ~bodyType,
           ~isPayoutFlow,
           ~isLiveMode={featureFlagDetails.isLiveMode},
-          (),
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connector), ())
-      let _ = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connector))
+      let _ = await updateDetails(url, body, Post)
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore
     } catch {
@@ -226,7 +222,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
     <Form
       initialValues={updatedInitialVal}
       onSubmit={(values, _) => {
-        mixpanelEvent(~eventName=mixpanelEventName, ())
+        mixpanelEvent(~eventName=mixpanelEventName)
         onSubmit(
           ~values,
           ~onSubmitVerify,

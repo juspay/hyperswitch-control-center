@@ -62,7 +62,6 @@ let make = (
     ~callback=() => {
       setShowValidation(_ => false)
     },
-    (),
   )
 
   let validateFunc = strVal => {

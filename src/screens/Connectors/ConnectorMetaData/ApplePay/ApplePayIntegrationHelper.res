@@ -121,7 +121,7 @@ module SampleEmail = {
           className="cursor-pointer h-fit w-fit"
           onClick={_ => {
             Clipboard.writeText(emailContent)
-            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
           }}
         />
       </div>
@@ -162,7 +162,6 @@ module InfoCard = {
 let applePayValueInput = (
   ~applePayField: CommonMetaDataTypes.inputField,
   ~integrationType: option<applePayIntegrationType>=None,
-  (),
 ) => {
   open CommonMetaDataHelper
   let {\"type", name} = applePayField
@@ -171,7 +170,7 @@ let applePayValueInput = (
   {
     switch \"type" {
     | Text => textInput(~field={applePayField}, ~formName)
-    | Select => selectInput(~field={applePayField}, ~formName, ())
+    | Select => selectInput(~field={applePayField}, ~formName)
     | MultiSelect => multiSelectInput(~field={applePayField}, ~formName)
     | _ => textInput(~field={applePayField}, ~formName)
     }

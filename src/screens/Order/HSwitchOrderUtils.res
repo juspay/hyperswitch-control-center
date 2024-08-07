@@ -100,7 +100,6 @@ let amountField = FormRenderer.makeFieldInfo(
   ~customInput=InputFields.numericTextInput(),
   ~placeholder="Enter Refund Amount",
   ~isRequired=true,
-  (),
 )
 
 let reasonField = FormRenderer.makeFieldInfo(
@@ -109,7 +108,6 @@ let reasonField = FormRenderer.makeFieldInfo(
   ~customInput=InputFields.textInput(),
   ~placeholder="Enter Refund Reason",
   ~isRequired=false,
-  (),
 )
 
 let nonRefundConnectors = ["braintree", "klarna", "airwallex"]

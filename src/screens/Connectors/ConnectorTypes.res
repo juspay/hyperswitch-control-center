@@ -88,6 +88,7 @@ type processorTypes =
   | BAMBORA_APAC
   | ITAUBANK
   | DATATRANS
+  | PLAID
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 

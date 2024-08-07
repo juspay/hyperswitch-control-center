@@ -40,16 +40,15 @@ let getUpdatedHeading = (
     let key = colType->colMapper
     switch colType {
     | SuccessRate =>
-      Table.makeHeaderInfo(~key, ~title="Success Rate", ~dataType=NumericType, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Success Rate", ~dataType=NumericType, ~showSort=false)
     | Count =>
-      Table.makeHeaderInfo(~key, ~title="Refund Count", ~dataType=NumericType, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Refund Count", ~dataType=NumericType, ~showSort=false)
     | SuccessCount =>
       Table.makeHeaderInfo(
         ~key,
         ~title="Refund Success Count",
         ~dataType=NumericType,
         ~showSort=false,
-        (),
       )
     | ProcessedAmount =>
       Table.makeHeaderInfo(
@@ -57,17 +56,15 @@ let getUpdatedHeading = (
         ~title="Refund Processed Amount",
         ~dataType=NumericType,
         ~showSort=false,
-        (),
       )
     | Connector =>
-      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=DropDown, ~showSort=false, ())
-    | Currency =>
-      Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=DropDown, ~showSort=false)
+    | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=DropDown, ~showSort=false)
     | RefundMethod =>
-      Table.makeHeaderInfo(~key, ~title="RefundMethod", ~dataType=DropDown, ~showSort=false, ())
-    | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="RefundMethod", ~dataType=DropDown, ~showSort=false)
+    | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown, ~showSort=false)
 
-    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false, ())
+    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false)
     }
   }
   getHeading
@@ -75,7 +72,7 @@ let getUpdatedHeading = (
 
 let getCell = (refundTable: refundTableType, colType: refundColType): Table.cell => {
   let usaNumberAbbreviation = labelValue => {
-    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat(), ())
+    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
   }
 
   let percentFormat = value => {
@@ -112,7 +109,6 @@ let refundTableEntity = () =>
     ~allColumns=allRefundColumns,
     ~getCell,
     ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
-    (),
   )
 
 let singleStateInitialValue = {
@@ -148,11 +144,11 @@ let singleStateSeriesItemToObjMapper = json => {
   json
   ->JSON.Decode.object
   ->Option.map(dict => {
-    refund_success_rate: dict->getFloat("refund_success_rate", 0.0)->setPrecision(),
+    refund_success_rate: dict->getFloat("refund_success_rate", 0.0)->setPrecision,
     refund_count: dict->getInt("refund_count", 0),
     refund_success_count: dict->getInt("refund_success_count", 0),
     time_series: dict->getString("time_bucket", ""),
-    refund_processed_amount: dict->getFloat("refund_processed_amount", 0.0)->setPrecision(),
+    refund_processed_amount: dict->getFloat("refund_processed_amount", 0.0)->setPrecision,
   })
   ->Option.getOr({
     singleStateSeriesInitialValue
@@ -250,7 +246,7 @@ let getStatData = (
 ) => {
   switch colType {
   | SuccessRate => {
-      title: `${domain->LogicUtils.getFirstLetterCaps()} Success Rate`,
+      title: `${domain->LogicUtils.getFirstLetterCaps} Success Rate`,
       tooltipText: "Successful refund over total refund initiated",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.refund_success_rate,
@@ -382,5 +378,4 @@ let chartEntity = tabKeys =>
       },
     ],
     ~moduleName="Refunds Analytics",
-    (),
   )

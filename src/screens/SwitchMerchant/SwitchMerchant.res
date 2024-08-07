@@ -10,19 +10,17 @@ module NewAccountCreationModal = {
     let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
     let createNewAccount = async values => {
       try {
-        let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Fetch.Post, ())
+        let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Post)
         let body = values
-        let _ = await updateDetails(url, body, Post, ())
+        let _ = await updateDetails(url, body, Post)
         let _ = await fetchSwitchMerchantList()
         showToast(
           ~toastType=ToastSuccess,
           ~message="Account Created Successfully!",
           ~autoClose=true,
-          (),
         )
       } catch {
-      | _ =>
-        showToast(~toastType=ToastError, ~message="Account Creation Failed", ~autoClose=true, ())
+      | _ => showToast(~toastType=ToastError, ~message="Account Creation Failed", ~autoClose=true)
       }
 
       setShowModal(_ => false)
@@ -39,7 +37,6 @@ module NewAccountCreationModal = {
       ~placeholder="Eg: HyperSwitch Pvt Ltd",
       ~customInput=InputFields.textInput(),
       ~isRequired=true,
-      (),
     )
 
     let modalBody = {
@@ -266,7 +263,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   let input = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
     {
       name: "-",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = {ev->ReactEvent.Form.target}["value"]
         if value->String.includes("<script>") || value->String.includes("</script>") {
@@ -280,7 +277,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
         let val = value->String.replace("<script>", "")->String.replace("</script>", "")
         setValue(_ => val)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: JSON.Encode.string(value),
       checked: false,
     }
@@ -289,10 +286,10 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   let switchMerchant = async value => {
     open LogicUtils
     try {
-      let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Post)
       let body = Dict.make()
       body->Dict.set("merchant_id", value->JSON.Encode.string)
-      let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
+      let res = await updateDetails(url, body->JSON.Encode.object, Post)
 
       // TODO: When BE changes the response of this api re-evaluate the below conditions
       if featureFlagDetails.totp {

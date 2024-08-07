@@ -17,7 +17,7 @@ let make = (
   open QuickStartTypes
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let postEnumDetails = EnumVariantHook.usePostEnumDetails()
@@ -37,7 +37,7 @@ let make = (
   let multipleConfigurationArrayLength = 2
 
   let handleSummaryProceed = () => {
-    mixpanelEvent(~eventName=`quickstart_connector_summary`, ())
+    mixpanelEvent(~eventName=`quickstart_connector_summary`)
     if (
       connectorArray->Array.length === multipleConfigurationArrayLength &&
         typedEnumValue.configurationType->connectorChoiceStringVariantMapper ===
@@ -69,7 +69,7 @@ let make = (
       setButtonState(_ => Normal)
     } catch {
     | _ =>
-      showToast(~message="Step already set", ~toastType=ToastError, ())
+      showToast(~message="Step already set", ~toastType=ToastError)
       setButtonState(_ => Normal)
     }
   }
@@ -77,7 +77,7 @@ let make = (
   let handleTestConnector = async _ => {
     try {
       setButtonState(_ => Loading)
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ())
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post)
       let connectorName =
         selectedConnector->QuickStartUtils.getTestConnectorName(quickStartPageState)
       let testConnectorBody = HSwitchSetupAccountUtils.constructBody(
@@ -85,33 +85,32 @@ let make = (
         ~json=connectorName->Window.getConnectorConfig,
         ~profileId=activeBusinessProfile.profile_id,
       )
-      let res = await updateDetails(url, testConnectorBody, Post, ())
+      let res = await updateDetails(url, testConnectorBody, Post)
       connectorArray->Array.push(connectorName)
       setConnectorArray(_ => connectorArray)
       setInitialValues(_ => res)
-      setSelectedConnector(_ => connectorName->ConnectorUtils.getConnectorNameTypeFromString())
+      setSelectedConnector(_ => connectorName->ConnectorUtils.getConnectorNameTypeFromString)
       setConnectorConfigureState(_ => Summary)
       updateEnumForTestConnector(res->LogicUtils.getDictFromJsonObject)->ignore
       showToast(
-        ~message=`${connectorName->LogicUtils.getFirstLetterCaps()} connected successfully!`,
+        ~message=`${connectorName->LogicUtils.getFirstLetterCaps} connected successfully!`,
         ~toastType=ToastSuccess,
-        (),
       )
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      showToast(~message=err, ~toastType=ToastError, ())
+      showToast(~message=err, ~toastType=ToastError)
       setButtonState(_ => Normal)
     }
   }
 
   let handleConnectorSubmit = () => {
     if choiceStateForTestConnector === #TestApiKeys {
-      mixpanelEvent(~eventName=`quickstart_select_configuration_type_test`, ())
+      mixpanelEvent(~eventName=`quickstart_select_configuration_type_test`)
       handleTestConnector()->ignore
     } else {
       setConnectorConfigureState(_ => Configure_keys)
-      mixpanelEvent(~eventName=`quickstart_select_configuration_type_keys`, ())
+      mixpanelEvent(~eventName=`quickstart_select_configuration_type_keys`)
     }
   }
 

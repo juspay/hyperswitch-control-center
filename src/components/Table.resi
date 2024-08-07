@@ -101,7 +101,6 @@ let makeHeaderInfo: (
   ~showMultiSelectCheckBox: bool=?,
   ~hideOnShrink: bool=?,
   ~customWidth: string=?,
-  unit,
 ) => header
 let getCell: string => cell
 module ProgressCell = TableUtils.ProgressCell

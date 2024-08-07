@@ -17,7 +17,7 @@ let make = (~onClick) => {
     open HSLocalStorage
 
     try {
-      let url = getURL(~entityName=USERS, ~userType=#USER_INFO, ~methodType=Get, ())
+      let url = getURL(~entityName=USERS, ~userType=#USER_INFO, ~methodType=Get)
       let response = await fetchDetails(url)
       let dict = response->getDictFromJsonObject
       dict->Dict.set("token", token->Option.getOr("")->JSON.Encode.string)
