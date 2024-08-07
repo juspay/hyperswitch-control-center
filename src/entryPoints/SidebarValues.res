@@ -359,6 +359,14 @@ let userManagement = permissionJson => {
     searchOptions: [("View team management", "")],
   })
 }
+let teamRevamp = permissionJson => {
+  SubLevelLink({
+    name: "Team Revamp",
+    link: `/users-revamp`,
+    access: permissionJson.usersView,
+    searchOptions: [("View team management", "")],
+  })
+}
 
 let businessDetails = () => {
   SubLevelLink({
@@ -396,7 +404,12 @@ let complianceCertificateSection = {
   })
 }
 
-let settings = (~isConfigurePmtsEnabled, ~permissionJson, ~complianceCertificate) => {
+let settings = (
+  ~isConfigurePmtsEnabled,
+  ~permissionJson,
+  ~complianceCertificate,
+  ~userManagementRevamp,
+) => {
   let settingsLinkArray = [businessDetails(), businessProfiles()]
 
   if isConfigurePmtsEnabled {
@@ -405,6 +418,10 @@ let settings = (~isConfigurePmtsEnabled, ~permissionJson, ~complianceCertificate
 
   if complianceCertificate {
     settingsLinkArray->Array.push(complianceCertificateSection)->ignore
+  }
+
+  if userManagementRevamp {
+    settingsLinkArray->Array.push(teamRevamp(permissionJson))->ignore
   }
 
   settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
@@ -564,6 +581,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
+    userManagementRevamp,
   } = featureFlagDetails
 
   let sidebar = [
@@ -586,7 +604,12 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
     recon->reconAndSettlement(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
-    settings(~isConfigurePmtsEnabled=configurePmts, ~permissionJson, ~complianceCertificate),
+    settings(
+      ~isConfigurePmtsEnabled=configurePmts,
+      ~permissionJson,
+      ~complianceCertificate,
+      ~userManagementRevamp,
+    ),
   ]
 
   sidebar
