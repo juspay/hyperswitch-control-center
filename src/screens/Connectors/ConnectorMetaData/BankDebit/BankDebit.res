@@ -81,7 +81,6 @@ let make = (
   let connectorsListPMAuth =
     connectorList->ConnectorUtils.getProcessorsListFromJson(
       ~removeFromList=ConnectorTypes.PMAuthenticationProcessor,
-      (),
     )
   let pmAuthConnectors =
     connectorsListPMAuth->Array.map(item => item.connector_name)->removeDuplicate
@@ -140,10 +139,7 @@ let make = (
     makeMultiInputFieldInfoOld(
       ~label=`${inputArg.label}`,
       ~comboCustomInput=renderValueInp(inputArg.options),
-      ~inputFields=[
-        makeInputFieldInfo(~name=`${inputArg.name1}`, ()),
-        makeInputFieldInfo(~name=``, ()),
-      ],
+      ~inputFields=[makeInputFieldInfo(~name=`${inputArg.name1}`), makeInputFieldInfo(~name=``)],
       (),
     )
   }

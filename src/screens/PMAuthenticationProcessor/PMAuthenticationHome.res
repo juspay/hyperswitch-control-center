@@ -36,7 +36,7 @@ let make = () => {
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let url = RescriptReactRouter.useUrl()
-  let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
+  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchDetails = useGetMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
 
@@ -57,7 +57,7 @@ let make = () => {
 
   let getConnectorDetails = async () => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID), ())
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
@@ -151,15 +151,13 @@ let make = () => {
           ~isPayoutFlow=false,
           ~isLiveMode={false},
           ~connectorType=ConnectorTypes.PMAuthenticationProcessor,
-          (),
         )->ignoreFields(connectorID, connectorIgnoredField)
       let connectorUrl = getURL(
         ~entityName=CONNECTOR,
         ~methodType=Post,
         ~id=isUpdateFlow ? Some(connectorID) : None,
-        (),
       )
-      let response = await updateAPIHook(connectorUrl, body, Post, ())
+      let response = await updateAPIHook(connectorUrl, body, Post)
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
     } catch {
@@ -169,10 +167,10 @@ let make = () => {
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
 
         if errorCode === "HE_01" {
-          showToast(~message="Connector label already exist!", ~toastType=ToastError, ())
+          showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConfigurationFields)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError, ())
+          showToast(~message=errorMessage, ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
@@ -185,7 +183,7 @@ let make = () => {
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
 
     validateConnectorRequiredFields(
-      connectorName->getConnectorNameTypeFromString(~connectorType=PMAuthenticationProcessor, ()),
+      connectorName->getConnectorNameTypeFromString(~connectorType=PMAuthenticationProcessor),
       valuesFlattenJson,
       connectorAccountFields,
       connectorMetaDataFields,
@@ -249,11 +247,10 @@ let make = () => {
                 <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
                   connector={connectorName->getConnectorNameTypeFromString(
                     ~connectorType=PMAuthenticationProcessor,
-                    (),
                   )}
                   connectorAccountFields
                   selectedConnector={connectorName
-                  ->getConnectorNameTypeFromString(~connectorType=PMAuthenticationProcessor, ())
+                  ->getConnectorNameTypeFromString(~connectorType=PMAuthenticationProcessor)
                   ->getConnectorInfo}
                   connectorMetaDataFields
                   connectorWebHookDetails

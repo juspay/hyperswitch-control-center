@@ -48,7 +48,6 @@ module CardRenderer = {
     let connectorsListPMAuth =
       connectorList->getProcessorsListFromJson(
         ~removeFromList=ConnectorTypes.PMAuthenticationProcessor,
-        (),
       )
     let isPMAuthConnector = connectorsListPMAuth->Array.length > 0
 
