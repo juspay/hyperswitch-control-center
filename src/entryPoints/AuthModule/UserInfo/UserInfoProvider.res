@@ -3,10 +3,10 @@ let defaultContext = React.createContext(UserInfoUtils.defaultValue)
 module Provider = {
   let make = React.Context.provider(defaultContext)
 }
-
+type userInfoScreenState = Loading | Success | Error
 @react.component
 let make = (~children) => {
-  let (screenState, setScreenState) = React.useState(_ => None)
+  let (screenState, setScreenState) = React.useState(_ => Loading)
   let (userInfo, setUserInfo) = React.useState(_ => UserInfoUtils.defaultValue)
   let fetchApi = AuthHooks.useApiFetcher()
   let getUserInfo = async () => {
@@ -17,9 +17,9 @@ let make = (~children) => {
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
       setUserInfo(_ => userInfo)
-      setScreenState(_ => Some(true))
+      setScreenState(_ => Success)
     } catch {
-    | _ => setScreenState(_ => Some(false))
+    | _ => setScreenState(_ => Error)
     }
   }
 
@@ -29,10 +29,8 @@ let make = (~children) => {
   }, [])
 
   <Provider value={userInfo}>
-    <RenderIf condition={screenState->Option.isSome && screenState->Option.getOr(false) == true}>
-      children
-    </RenderIf>
-    <RenderIf condition={screenState->Option.isSome && screenState->Option.getOr(true) == false}>
+    <RenderIf condition={screenState === Success}> children </RenderIf>
+    <RenderIf condition={screenState === Error}>
       <NoDataFound message="Something went wrong" renderType=Painting />
     </RenderIf>
   </Provider>
