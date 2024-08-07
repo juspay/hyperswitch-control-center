@@ -268,6 +268,18 @@ let make = () => {
                               renderShow={_ => <ThreeDsProcessorHome />}
                             />
                           </AccessControl>
+                        | list{"pm-authentication-processor", ...remainingPath} =>
+                          <AccessControl
+                            permission=userPermissionJson.connectorsView
+                            isEnabled={featureFlagDetails.pmAuthenticationProcessor}>
+                            <EntityScaffold
+                              entityName="PM Authentication Processor"
+                              remainingPath
+                              renderList={() => <PMAuthenticationConnectorList />}
+                              renderNewForm={() => <PMAuthenticationHome />}
+                              renderShow={_ => <PMAuthenticationHome />}
+                            />
+                          </AccessControl>
 
                         | list{"payments", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.operationsView>

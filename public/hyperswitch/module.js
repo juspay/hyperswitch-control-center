@@ -141,6 +141,13 @@ function getAuthenticationConnectorConfig(connectorName) {
     return {};
   }
 }
+function getPMAuthenticationProcessorConfig(connectorName) {
+  if (wasm) {
+    return wasm.getPMAuthenticationProcessorConfig(connectorName);
+  } else {
+    return {};
+  }
+}
 
 function getPayoutDescriptionCategory() {
   if (wasm) {
