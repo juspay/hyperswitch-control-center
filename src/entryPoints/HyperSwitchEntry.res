@@ -24,25 +24,29 @@ module HyperSwitchEntryComponent = {
       }
     }
     let initMixPanel = (token, isMixPanelEnable) => {
-      if isMixPanelEnable {
-        MixPanel.init(
-          token,
-          {
-            "track_pageview": true,
-            "batch_requests": true,
-            "loaded": () => {
-              let mixpanelUserInfo =
-                [("name", email->JSON.Encode.string), ("merchantName", name->JSON.Encode.string)]
-                ->Dict.fromArray
-                ->JSON.Encode.object
+      try {
+        if isMixPanelEnable {
+          MixPanel.init(
+            token,
+            {
+              "track_pageview": true,
+              "batch_requests": true,
+              "loaded": () => {
+                let mixpanelUserInfo =
+                  [("name", email->JSON.Encode.string), ("merchantName", name->JSON.Encode.string)]
+                  ->Dict.fromArray
+                  ->JSON.Encode.object
 
-              let userId = MixPanel.getDistinctId()
-              LocalStorage.setItem("deviceid", userId)
-              MixPanel.identify(userId)
-              MixPanel.mixpanel.people.set(mixpanelUserInfo)
+                let userId = MixPanel.getDistinctId()
+                LocalStorage.setItem("deviceid", userId)
+                MixPanel.identify(userId)
+                MixPanel.mixpanel.people.set(mixpanelUserInfo)
+              },
             },
-          },
-        )
+          )
+        }
+      } catch {
+      | _ => Exn.raiseError("Error on configuring Mixpanel")
       }
     }
     let configURL = (urlConfig: JSON.t) => {
@@ -83,15 +87,18 @@ module HyperSwitchEntryComponent = {
         let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
+        setFeatureFlag(_ => featureFlags)
         let _ = res->configCustomDomainTheme
         let value = res->configURL
         let _ = initMixPanel(value.mixpanelToken, featureFlags.mixpanel)
-        setFeatureFlag(_ => featureFlags)
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | _ => setScreenState(_ => Custom)
+      | Exn.Error(e) => {
+          let err = Exn.message(e)->Option.getOr("Verification Failed")
+          setScreenState(_ => Error(err))
+        }
       }
     }
 
