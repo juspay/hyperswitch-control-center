@@ -40,7 +40,7 @@ type chartConfig = {
   title: title,
   colors: array<string>,
 }
-type chartDataConfig = {groupByKeys: array<dimension>}
+type chartDataConfig = {groupByKeys: array<dimension>, plotChartBy?: array<string>}
 
 type requestBodyConfig = {
   metrics: array<metrics>,

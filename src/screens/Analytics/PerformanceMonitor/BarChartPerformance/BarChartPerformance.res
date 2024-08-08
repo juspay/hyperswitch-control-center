@@ -5,13 +5,15 @@ let make = (
   ~dimensions,
   ~entity: PerformanceMonitorTypes.entity<'t>,
 ) => {
+  let domain = "payments"
   open APIUtils
   open LogicUtils
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (barOption, setBarOptions) = React.useState(_ => JSON.Encode.null)
   let chartFetch = async () => {
     try {
-      let url = "https://sandbox.hyperswitch.io/analytics/v1/metrics/payments"
+      let metricsUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
       let body = entity.getBody(
         ~dimensions,
         ~startTime=startTimeVal,
@@ -22,7 +24,7 @@ let make = (
         ~customFilter=entity.requestBodyConfig.customFilter,
         ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
       )
-      let res = await updateDetails(url, body, Post)
+      let res = await updateDetails(metricsUrl, body, Post)
       let arr =
         res
         ->getDictFromJsonObject

@@ -1,4 +1,3 @@
-open LogicUtils
 open PerformanceMonitorTypes
 
 let getStackedBarData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
@@ -9,25 +8,26 @@ let getStackedBarData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
   let categories = []
   let _ = keys->Array.forEach(v => {
     let dict = grouped->Dict.get(v)->Option.getOr(Dict.make())
-    let _ =
-      dict
-      ->Dict.keysToArray
-      ->Array.forEach(ele => {
-        switch dict->Dict.get(ele) {
-        | None => {
-            let val = dict->getInt(ele, 0)
-            let _ = finalResult->Dict.set(ele, [val])
-          }
-        | Some(_) => {
-            let val = dict->getInt(ele, 0)
-            let arr = finalResult->Dict.get(ele)->Option.getOr([])
-            arr->Array.push(val)
-            let _ = finalResult->Dict.set(ele, arr)
-          }
+    let plotChartBy = config.plotChartBy->Option.getOr(dict->Dict.keysToArray)
+    let _ = plotChartBy->Array.forEach(ele => {
+      switch dict->Dict.get(ele) {
+      | None => {
+          let val = 0
+          let arr = finalResult->Dict.get(ele)->Option.getOr([])
+          arr->Array.push(val)
+          let _ = finalResult->Dict.set(ele, arr)
         }
-      })
+      | Some(val) => {
+          let val = val
+          let arr = finalResult->Dict.get(ele)->Option.getOr([])
+          arr->Array.push(val)
+          let _ = finalResult->Dict.set(ele, arr)
+        }
+      }
+    })
     categories->Array.push(v)
   })
+
   let series =
     finalResult
     ->Dict.keysToArray
@@ -67,15 +67,11 @@ let barOption = (config: chartConfig, data: barChartData) =>
       },
     },
     "legend": {
-      "align": "right",
-      "x": 10,
-      "verticalAlign": "top",
-      "y": 10,
-      "floating": true,
-      "backgroundColor": "white",
-      "borderColor": "#CCC",
-      "borderWidth": 1,
-      "shadow": false,
+      "align": "right", // Align the legend to the right
+      "verticalAlign": "top", // Vertically center the legend
+      "layout": "vertical", // Use a vertical layout for legend items
+      // "width": "35%",
+      "y": 30,
     },
     "tooltip": {
       "headerFormat": "<b>{point.x}</b><br/>",
@@ -88,6 +84,9 @@ let barOption = (config: chartConfig, data: barChartData) =>
           "enabled": true,
         },
       },
+    },
+    "credits": {
+      "enabled": false, // Disable the Highcharts credits
     },
     "series": data.series,
   }->Identity.genericObjectOrRecordToJson

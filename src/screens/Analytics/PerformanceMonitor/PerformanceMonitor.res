@@ -129,6 +129,14 @@ let make = () => {
             startTimeVal
             endTimeVal
             dimensions
+            entity={PerformanceMonitorEntity.getConnectorPaymentMethodFailureEntity}
+          />
+        </div>
+        <div className="">
+          <PieChartPerformance
+            startTimeVal
+            endTimeVal
+            dimensions
             entity={PerformanceMonitorEntity.getConnectorFailureEntity}
           />
         </div>
@@ -138,14 +146,6 @@ let make = () => {
             endTimeVal
             dimensions
             entity={PerformanceMonitorEntity.getPaymentMethodFailureEntity}
-          />
-        </div>
-        <div className="">
-          <PieChartPerformance
-            startTimeVal
-            endTimeVal
-            dimensions
-            entity={PerformanceMonitorEntity.getConnectorPaymentMethodFailureEntity}
           />
         </div>
       </div>

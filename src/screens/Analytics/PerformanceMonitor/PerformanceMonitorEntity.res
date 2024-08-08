@@ -38,6 +38,7 @@ let getStatusPerformanceEntity: entity<'t> = {
   getBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#status],
+    // plotChartBy: ["failure"],
   },
   chartConfig: {
     yAxis: {
@@ -60,11 +61,12 @@ let getConnectorPerformanceEntity: entity<'t> = {
     groupBy: [#connector, #status],
     filters: [#connector, #status],
     customFilter: Some(#status),
-    applyFilterFor: Some(["charged", "failure"]),
+    applyFilterFor: Some(["failure", "charged"]),
   },
   getBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#connector],
+    plotChartBy: ["failure", "charged"],
   },
   chartConfig: {
     yAxis: {
@@ -92,6 +94,7 @@ let getPaymentMethodPerformanceEntity: entity<'t> = {
   getBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#payment_method],
+    plotChartBy: ["failure", "charged"],
   },
   chartConfig: {
     yAxis: {

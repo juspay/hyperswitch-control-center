@@ -101,7 +101,7 @@ let getGroupByKey = (dict, keys: array<dimension>) => {
     ->Array.map(key => {
       dict->getDictFromJsonObject->getString((key: dimension :> string), "")
     })
-    ->Array.joinWith("+")
+    ->Array.joinWith(":")
   key
 }
 
@@ -126,6 +126,7 @@ let getGroupByDataForStatusAndPaymentCount = (array, keys: array<dimension>) => 
       }
     }
   })
-  Js.log2(result, "result")
+
+  // Js.log3(result, keys, "result")
   result
 }

@@ -263,9 +263,10 @@ let analytics = (
   userJourneyAnalyticsFlag,
   authenticationAnalyticsFlag,
   disputeAnalyticsFlag,
+  performanceMonitorFlag,
   ~permissionJson,
 ) => {
-  let links = [paymentAnalytcis, performanceMonitor, refundAnalytics]
+  let links = [paymentAnalytcis, refundAnalytics]
 
   if userJourneyAnalyticsFlag {
     links->Array.push(userJourneyAnalytics)
@@ -277,6 +278,9 @@ let analytics = (
 
   if disputeAnalyticsFlag {
     links->Array.push(disputeAnalytics)
+  }
+  if performanceMonitorFlag {
+    links->Array.push(performanceMonitor)
   }
 
   isAnalyticsEnabled
@@ -571,6 +575,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
+    performanceMonitor: performanceMonitorFlag,
   } = featureFlagDetails
 
   let sidebar = [
@@ -588,6 +593,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       userJourneyAnalyticsFlag,
       authenticationAnalyticsFlag,
       disputeAnalytics,
+      performanceMonitorFlag,
       ~permissionJson,
     ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
