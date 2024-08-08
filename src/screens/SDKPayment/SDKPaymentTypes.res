@@ -6,13 +6,13 @@ type address = {
   state: string,
   zip: string,
   country: string,
-  first_name: string,
-  last_name: string,
+  firstName: string,
+  lastName: string,
 }
 
 type phone = {
   number: string,
-  country_code: string,
+  countryCode: string,
 }
 
 type shipping = {
@@ -26,57 +26,57 @@ type billing = {
   email: string,
 }
 type orderDetails = {
-  product_name: string,
+  productName: string,
   quantity: int,
   amount: float,
 }
-type metadata = {order_details: orderDetails}
+type metadata = {orderDetails: orderDetails}
 
 type online = {
-  ip_address: string,
-  user_agent: string,
+  ipAddress: string,
+  userAgent: string,
 }
 
-type customer_acceptance = {
-  acceptance_type: string,
-  accepted_at: string,
+type customerAcceptance = {
+  acceptanceType: string,
+  acceptedAt: string,
   online: online,
 }
 
-type multi_use = {
+type multiUse = {
   amount: int,
   currency: string,
 }
 
-type mandate_type = {multi_use: multi_use}
+type mandateType = {multiUse: multiUse}
 
 type mandateData = {
-  customer_acceptance: customer_acceptance,
-  mandate_type: mandate_type,
+  customerAcceptance: customerAcceptance,
+  mandateType: mandateType,
 }
 
-type frm_metadata = {order_channel: string}
+type frmMetadata = {orderChannel: string}
 
 type paymentType = {
   amount: float,
   mutable currency: string,
-  profile_id: string,
-  customer_id: string,
+  profileId: string,
+  customerId: string,
   description: string,
-  capture_method: string,
-  amount_to_capture: Nullable.t<float>,
+  captureMethod: string,
+  amountToCapture: Nullable.t<float>,
   email: string,
   name: string,
   phone: string,
-  phone_country_code: string,
-  authentication_type: string,
+  phoneCountryCode: string,
+  authenticationType: string,
   shipping: shipping,
   billing: billing,
   metadata: metadata,
-  return_url: string,
-  payment_type?: Nullable.t<string>,
-  setup_future_usage?: Nullable.t<string>,
-  mandate_data?: Nullable.t<mandateData>,
-  country_currency: string,
-  frm_metadata: frm_metadata,
+  returnUrl: string,
+  paymentType?: Nullable.t<string>,
+  setupFutureUsage?: Nullable.t<string>,
+  mandateData?: Nullable.t<mandateData>,
+  countryCurrency: string,
+  frmMetadata: frmMetadata,
 }
