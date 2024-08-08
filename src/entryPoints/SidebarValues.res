@@ -9,7 +9,9 @@ module OrgMerchantSelectBox = {
     ~user: string,
     ~leftIcon: Button.iconType,
     ~customIconStyle="",
-    ~children: React.element,
+    ~heading="",
+    ~headingClass="text-blue-700 text-sm px-4 py-2",
+    ~listUsers: array<string>,
   ) => {
     open HeadlessUI
 
@@ -64,7 +66,38 @@ module OrgMerchantSelectBox = {
                     } else {
                       setArrow(_ => false)
                     }
-                    {children}
+                    <>
+                      <div className="px-1 py-1">
+                        <p className=headingClass> {heading->React.string} </p>
+                        {listUsers
+                        ->Array.mapWithIndex((user, i) =>
+                          <Menu.Item key={i->Int.toString}>
+                            {props =>
+                              <div className="relative">
+                                <button
+                                  className={
+                                    let activeClasses = if props["active"] {
+                                      "group flex rounded-md items-center w-full px-4 py-2 text-sm bg-gray-100 dark:bg-black hover:bg-[#495d8a]"
+                                    } else {
+                                      "group flex rounded-md items-center w-full px-4 py-2 text-sm"
+                                    }
+                                    `${activeClasses} font-medium text-start`
+                                  }>
+                                  <div className="mr-5"> {user->React.string} </div>
+                                </button>
+                                <RenderIf condition={user === "defaultOrgId"}>
+                                  <Icon
+                                    className={`absolute top-2 right-2 text-white`}
+                                    name="check"
+                                    size=15
+                                  />
+                                </RenderIf>
+                              </div>}
+                          </Menu.Item>
+                        )
+                        ->React.array}
+                      </div>
+                    </>
                   }}
                 </Menu.Items>}
               </Transition>
@@ -78,13 +111,14 @@ module OrgMerchantSelectBox = {
 module OrgViewComponent = {
   @react.component
   let make = () => {
-    open HeadlessUI
     let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
     let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
     let {merchant_id: defaultMerchantId} =
       CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
     let (org, setOrg) = React.useState(_ => [])
     let (merchant, setMerchants) = React.useState(_ => [])
+
+    let listUsers = ["user1", "user2", "user3"]
 
     React.useEffect1(() => {
       setMerchants(_ => merchantList)
@@ -95,8 +129,6 @@ module OrgViewComponent = {
       setOrg(_ => orgList)
       None
     }, [orgList])
-
-    let headingClass = "text-blue-700 text-sm px-4 py-2"
 
     let icon = {
       <>
@@ -110,68 +142,18 @@ module OrgViewComponent = {
 
     <>
       <div className="flex flex-col items-end gap-2 mx-4 my-2 mb-4">
-        <OrgMerchantSelectBox title="Org" user=defaultMerchantId leftIcon=CustomIcon(icon)>
-          <div className="px-1 py-1">
-            <p className=headingClass> {"Organisations"->React.string} </p>
-            {org
-            ->Array.mapWithIndex((option, i) =>
-              <Menu.Item key={i->Int.toString}>
-                {props =>
-                  <div className="relative">
-                    <button
-                      className={
-                        let activeClasses = if props["active"] {
-                          "group flex rounded-md items-center w-full px-4 py-2 text-sm bg-gray-100 dark:bg-black hover:bg-[#495d8a]"
-                        } else {
-                          "group flex rounded-md items-center w-full px-4 py-2 text-sm"
-                        }
-                        `${activeClasses} font-medium text-start`
-                      }>
-                      <div className="mr-5"> {option.org_name->React.string} </div>
-                    </button>
-                    <RenderIf condition={option.org_id === "defaultOrgId"}>
-                      <Icon className={`absolute top-2 right-2 text-white`} name="check" size=15 />
-                    </RenderIf>
-                  </div>}
-              </Menu.Item>
-            )
-            ->React.array}
-          </div>
-        </OrgMerchantSelectBox>
+        <OrgMerchantSelectBox
+          title="Org"
+          user=defaultMerchantId
+          leftIcon=CustomIcon(icon)
+          listUsers
+          heading="Organisations"
+        />
         <div className="flex">
           <div className="w-8 h-10 border-jp-gray-400 ml-10 border-dashed border-b border-l" />
-          <OrgMerchantSelectBox title="Merchants" user=defaultMerchantId leftIcon={NoIcon}>
-            {<>
-              <div className="px-1 py-1 ">
-                <p className=headingClass> {"Merchants"->React.string} </p>
-                {merchant
-                ->Array.mapWithIndex((option, i) =>
-                  <Menu.Item key={i->Int.toString}>
-                    {props =>
-                      <div className="relative">
-                        <button
-                          className={
-                            let activeClasses = if props["active"] {
-                              "group flex rounded-md items-center w-full px-4 py-2 text-sm dark:bg-black hover:bg-[#495d8a]"
-                            } else {
-                              "group flex rounded-md items-center w-full px-4 py-2 text-sm"
-                            }
-                            `${activeClasses} font-medium text-start`
-                          }>
-                          <div className="mr-5"> {option.merchant_name->React.string} </div>
-                        </button>
-                        <RenderIf condition={option.merchant_id === defaultMerchantId}>
-                          <Icon
-                            className={`absolute top-2 right-2 text-white`} name="check" size=15
-                          />
-                        </RenderIf>
-                      </div>}
-                  </Menu.Item>
-                )
-                ->React.array}
-              </div>
-            </>}
-          </OrgMerchantSelectBox>
+          <OrgMerchantSelectBox
+            title="Merchants" user=defaultMerchantId leftIcon={NoIcon} listUsers heading="Merchants"
+          />
         </div>
       </div>
     </>
