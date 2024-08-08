@@ -3,6 +3,32 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.08.06.0
+
+### Refactors
+
+- V(11) rescript - unit functions not required, file name change form bucklescript to res.js & react dom style ([#1100](https://github.com/juspay/hyperswitch-control-center/pull/1100)) ([`798bfb5`](https://github.com/juspay/hyperswitch-control-center/commit/798bfb56d37c593e73bf02f593b43cf35c9bd71f))
+
+### Miscellaneous Tasks
+
+- Extra param for row level customization with select box ([#1116](https://github.com/juspay/hyperswitch-control-center/pull/1116)) ([`d201eac`](https://github.com/juspay/hyperswitch-control-center/commit/d201eac7e38723fdf45cd9def5f41aeac07cf054))
+- Plaid connector addition ([#1096](https://github.com/juspay/hyperswitch-control-center/pull/1096)) ([`e20fae4`](https://github.com/juspay/hyperswitch-control-center/commit/e20fae4cc68ee97cd560adeaeeec6b7e2ef39fec))
+
+**Full Changelog:** [`2024.08.02.1...2024.08.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.02.1...2024.08.06.0)
+
+- - -
+
+## 2024.08.02.1
+
+### Bug Fixes
+
+- Added datatrans connector icon ([#1104](https://github.com/juspay/hyperswitch-control-center/pull/1104)) ([`ea5a995`](https://github.com/juspay/hyperswitch-control-center/commit/ea5a995f5a912f7a19884b728dc2060964b74067))
+- Signin password check removed ([#1106](https://github.com/juspay/hyperswitch-control-center/pull/1106)) ([`1858350`](https://github.com/juspay/hyperswitch-control-center/commit/18583501ff744af89e36886c31de6d08a2e35aa4))
+
+**Full Changelog:** [`2024.08.02.0...2024.08.02.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.02.0...2024.08.02.1)
+
+- - -
+
 ## 2024.08.02.0
 
 ### Bug Fixes

@@ -3,7 +3,7 @@ let useFetchSwitchMerchantList = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let setSwitchMerchantListAtom = HyperswitchAtom.switchMerchantListAtom->Recoil.useSetRecoilState
-  let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get, ())
+  let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get)
 
   async _ => {
     try {

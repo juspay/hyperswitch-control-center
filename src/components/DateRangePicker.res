@@ -281,7 +281,6 @@ module Base = {
           resetToInitalValues()
         }
       },
-      (),
     )
 
     let changeEndDate = (ele, isFromCustomInput, time) => {

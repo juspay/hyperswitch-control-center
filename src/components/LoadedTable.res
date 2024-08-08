@@ -375,16 +375,14 @@ let make = (
   if showSerialNumber {
     heading
     ->Array.unshift(
-      Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType, ()),
+      Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType),
     )
     ->ignore
   }
 
   if checkBoxProps.showCheckBox {
     heading
-    ->Array.unshift(
-      Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true, ()),
-    )
+    ->Array.unshift(Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true))
     ->ignore
   }
 
@@ -927,7 +925,7 @@ let make = (
   let dataId = title->String.split("-")->Array.get(0)->Option.getOr("")
   <AddDataAttributes attributes=[("data-loaded-table", dataId)]>
     <div className="w-full">
-      <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>
+      <div className=addDataAttributesClass style={zIndex: "2"}>
         //removed "sticky" -> to be tested with master
         <div
           className={`flex flex-row justify-between items-center` ++ (

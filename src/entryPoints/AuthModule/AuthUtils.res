@@ -84,8 +84,8 @@ let redirectToLogin = () => {
   open GlobalVars
   open LogicUtils
 
-  let authId = getSessionData(~key="auth_id", ())
-  let domain = getSessionData(~key="domain", ())
+  let authId = getSessionData(~key="auth_id")
+  let domain = getSessionData(~key="domain")
 
   let urlToRedirect = switch (authId->isNonEmptyString, domain->isNonEmptyString) {
   | (true, true) => `/login?auth_id=${authId}&domain=${domain}`

@@ -44,7 +44,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let fetchRoutingRecords = async activeIds => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let routingUrl = `${getURL(~entityName=ROUTING, ~methodType=Get, ())}?limit=100`
+      let routingUrl = `${getURL(~entityName=ROUTING, ~methodType=Get)}?limit=100`
       let routingJson = await fetchDetails(routingUrl)
       let configuredRules = routingJson->RoutingUtils.getRecordsObject
 
@@ -82,7 +82,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let activeRoutingUrl = getURL(~entityName=ACTIVE_ROUTING, ~methodType=Get, ())
+      let activeRoutingUrl = getURL(~entityName=ACTIVE_ROUTING, ~methodType=Get)
       let routingJson = await fetchDetails(activeRoutingUrl)
 
       let routingArr = routingJson->getArrayFromJson([])
