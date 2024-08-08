@@ -221,6 +221,13 @@ let paymentAnalytcis = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
+let performanceMonitor = SubLevelLink({
+  name: "Performance Monitor",
+  link: `/performance-monitor`,
+  access: Access,
+  searchOptions: [("View Performance Monitor", "")],
+})
+
 let disputeAnalytics = SubLevelLink({
   name: "Disputes",
   link: `/analytics-disputes`,
@@ -256,6 +263,7 @@ let analytics = (
   userJourneyAnalyticsFlag,
   authenticationAnalyticsFlag,
   disputeAnalyticsFlag,
+  performanceMonitorFlag,
   ~permissionJson,
 ) => {
   let links = [paymentAnalytcis, refundAnalytics]
@@ -270,6 +278,9 @@ let analytics = (
 
   if disputeAnalyticsFlag {
     links->Array.push(disputeAnalytics)
+  }
+  if performanceMonitorFlag {
+    links->Array.push(performanceMonitor)
   }
 
   isAnalyticsEnabled
@@ -564,6 +575,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
+    performanceMonitor: performanceMonitorFlag,
   } = featureFlagDetails
 
   let sidebar = [
@@ -581,6 +593,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       userJourneyAnalyticsFlag,
       authenticationAnalyticsFlag,
       disputeAnalytics,
+      performanceMonitorFlag,
       ~permissionJson,
     ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),

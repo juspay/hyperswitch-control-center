@@ -75,7 +75,6 @@ let make = () => {
   }, [])
 
   let tabKeys = getStringListFromArrayDict(dimensions)
-
   let tabValues =
     tabKeys
     ->Array.mapWithIndex((key, index) => {
