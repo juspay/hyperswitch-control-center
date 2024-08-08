@@ -109,24 +109,23 @@ let getGroupByDataForStatusAndPaymentCount = (array, keys: array<dimension>) => 
   let result = Dict.make()
   let _ = array->Array.forEach(entry => {
     let key = getGroupByKey(entry, keys)
-    let connectorResult = Js.Dict.get(result, key)
+    let connectorResult = Dict.get(result, key)
     switch connectorResult {
     | None => {
-        let newConnectorResult = Js.Dict.empty()
+        let newConnectorResult = Dict.make()
         let st = entry->getDictFromJsonObject->getString("status", "")
         let pc = entry->getDictFromJsonObject->getInt("payment_count", 0)
-        Js.Dict.set(result, key, newConnectorResult)
-        Js.Dict.set(newConnectorResult, st, pc)
+        Dict.set(result, key, newConnectorResult)
+        Dict.set(newConnectorResult, st, pc)
       }
     | Some(connectorResult) => {
         let st = entry->getDictFromJsonObject->getString("status", "")
         let pc = entry->getDictFromJsonObject->getInt("payment_count", 0)
-        let currentCount = Js.Dict.get(connectorResult, st)->Belt.Option.getWithDefault(0)
-        Js.Dict.set(connectorResult, st, currentCount + pc)
+        let currentCount = Dict.get(connectorResult, st)->Belt.Option.getWithDefault(0)
+        Dict.set(connectorResult, st, currentCount + pc)
       }
     }
   })
 
-  // Js.log3(result, keys, "result")
   result
 }
