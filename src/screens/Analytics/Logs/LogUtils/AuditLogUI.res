@@ -117,9 +117,9 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   open LogUtils
   open LogTypes
   open APIUtils
-  let {merchant_id: merchantId} =
+  let {merchantId} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
-  let fetchDetails = useGetMethod(~showErrorToast=false, ())
+  let fetchDetails = useGetMethod(~showErrorToast=false)
   let fetchPostDetils = useUpdateMethod()
   let (data, setData) = React.useState(_ => [])
   let isError = React.useMemo(() => {ref(false)}, [])
@@ -176,7 +176,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
             | Some(val) => val
             | _ => Dict.make()->JSON.Encode.object
             }
-            fetchPostDetils(url.url, body, Post, ())
+            fetchPostDetils(url.url, body, Post)
           }
         | _ => fetchDetails(url.url)
         }

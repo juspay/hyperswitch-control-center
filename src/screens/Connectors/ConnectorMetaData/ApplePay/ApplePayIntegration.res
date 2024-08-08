@@ -111,7 +111,7 @@ module Landing = {
     open ApplePayIntegrationTypes
     open WalletHelper
     <>
-      {switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+      {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE)
       | Processors(BANKOFAMERICA)
       | Processors(CYBERSOURCE) =>
@@ -202,7 +202,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   let getProcessorDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let paymentMethoConfigUrl = getURL(~entityName=PAYMENT_METHOD_CONFIG, ~methodType=Get, ())
+      let paymentMethoConfigUrl = getURL(~entityName=PAYMENT_METHOD_CONFIG, ~methodType=Get)
       let res = await fetchDetails(
         `${paymentMethoConfigUrl}?connector=${connector}&paymentMethodType=apple_pay`,
       )
@@ -233,7 +233,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
 
   React.useEffect(() => {
     if connector->String.length > 0 {
-      switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+      switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE)
       | Processors(BANKOFAMERICA)
       | Processors(CYBERSOURCE) =>
@@ -257,7 +257,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     sectionHeight="!h-screen">
     <div>
       <Heading />
-      {switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+      {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(ZEN) =>
         <ApplePayZen applePayFields update closeModal setShowWalletConfigurationModal />
       | _ =>
@@ -278,6 +278,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
               merchantBusinessCountry
               setApplePayIntegrationSteps
               setVefifiedDomainList
+              connector
             />
           | #manual =>
             <ApplePayManualFlow

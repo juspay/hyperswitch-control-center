@@ -14,7 +14,6 @@ let labelField = FormRenderer.makeFieldInfo(
   ~placeholder="Enter profile name",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 type modalState = Loading | Edit | Successful

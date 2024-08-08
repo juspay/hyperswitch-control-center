@@ -87,6 +87,7 @@ let connectorList: array<connectorTypes> = [
   Processors(RAZORPAY),
   Processors(BAMBORA_APAC),
   Processors(ITAUBANK),
+  Processors(PLAID),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -442,6 +443,10 @@ let dataTransInfo = {
   description: "Datatrans is a Swiss payment service provider offering secure online, mobile, and in-store payment processing. Key features include support for multiple payment methods, fraud prevention, multi-currency transactions, and integration options for websites and apps.",
 }
 
+let plaidInfo = {
+  description: "Plaid Link makes it easy for users to connect their financial accounts securely and quickly, giving you the best growth for your business.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -538,6 +543,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | BAMBORA_APAC => "bamboraapac"
   | ITAUBANK => "itaubank"
   | DATATRANS => "datatrans"
+  | PLAID => "plaid"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -563,7 +569,7 @@ let getConnectorNameString = (connector: connectorTypes) => {
   }
 }
 
-let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Processor, ()) => {
+let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Processor) => {
   switch connectorType {
   | Processor =>
     switch connector {
@@ -628,6 +634,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "bamboraapac" => Processors(BAMBORA_APAC)
     | "itaubank" => Processors(ITAUBANK)
     | "datatrans" => Processors(DATATRANS)
+    | "plaid" => Processors(PLAID)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -709,6 +716,7 @@ let getProcessorInfo = connector => {
   | BAMBORA_APAC => bamboraApacInfo
   | ITAUBANK => itauBankInfo
   | DATATRANS => dataTransInfo
+  | PLAID => plaidInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -830,7 +838,7 @@ let mapAuthType = (authType: string) => {
   }
 }
 
-let getConnectorType = (connector: ConnectorTypes.connectorTypes, ~isPayoutFlow, ()) => {
+let getConnectorType = (connector: ConnectorTypes.connectorTypes, ~isPayoutFlow) => {
   isPayoutFlow
     ? "payout_processor"
     : switch connector {
@@ -884,7 +892,7 @@ let removeMethod = (
   switch (
     method.payment_method_type->getPaymentMethodTypeFromString,
     paymentMethod->getPaymentMethodFromString,
-    connector->getConnectorNameTypeFromString(),
+    connector->getConnectorNameTypeFromString,
   ) {
   | (PayPal, Wallet, Processors(PAYPAL)) =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
@@ -951,7 +959,6 @@ let generateInitialValuesDict = (
   ~isPayoutFlow=false,
   ~isLiveMode=false,
   ~connectorType: ConnectorTypes.connector=ConnectorTypes.Processor,
-  (),
 ) => {
   open LogicUtils
   let dict = values->getDictFromJsonObject
@@ -967,9 +974,8 @@ let generateInitialValuesDict = (
   dict->Dict.set(
     "connector_type",
     getConnectorType(
-      connector->getConnectorNameTypeFromString(~connectorType, ()),
+      connector->getConnectorNameTypeFromString(~connectorType),
       ~isPayoutFlow,
-      (),
     )->JSON.Encode.string,
   )
   dict->Dict.set("disabled", dict->getBool("disabled", false)->JSON.Encode.bool)
@@ -1219,7 +1225,7 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
   let (suggestedAction, suggestedActionExists) = {
     open SuggestedActionHelper
     let msg = verifyErrorMessage->Option.getOr("")
-    switch connector->getConnectorNameTypeFromString() {
+    switch connector->getConnectorNameTypeFromString {
     | Processors(STRIPE) => (
         {
           if msg->String.includes("Sending credit card numbers directly") {
@@ -1406,7 +1412,6 @@ let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList
 let getProcessorsListFromJson = (
   connnectorList: array<ConnectorTypes.connectorPayload>,
   ~removeFromList: connector=FRMPlayer,
-  (),
 ) => {
   connnectorList->filterList(~removeFromList)
 }
@@ -1474,6 +1479,7 @@ let getDisplayNameForProcessor = connector =>
   | BAMBORA_APAC => "Bambora Apac"
   | ITAUBANK => "Itaubank"
   | DATATRANS => "Datatrans"
+  | PLAID => "Plaid"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -1489,8 +1495,7 @@ let getDisplayNameForFRMConnector = frmConnector =>
   }
 
 let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {
-  let connectorType =
-    connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType, ())
+  let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType)
   switch connectorType {
   | Processors(connector) => connector->getDisplayNameForProcessor
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
@@ -1505,7 +1510,7 @@ let getConnectorTypeArrayFromListConnectors = (
   connectorsList: array<ConnectorTypes.connectorPayload>,
 ) => {
   connectorsList->Array.map(connectorDetail =>
-    connectorDetail.connector_name->getConnectorNameTypeFromString(~connectorType, ())
+    connectorDetail.connector_name->getConnectorNameTypeFromString(~connectorType)
   )
 }
 

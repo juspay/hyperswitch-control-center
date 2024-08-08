@@ -15,7 +15,6 @@ let make = () => {
         ~entityName=USER_MANAGEMENT,
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
-        (),
       )
       let res = await fetchDetails(`${userDataURL}?groups=true`)
       let rolesData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForRoles)

@@ -14,7 +14,7 @@ let getCurrentMigrateFromStripeStepHeading = (step: migrateFromStripeSteps) => {
   }
 }
 
-let getNavigationStepForMigrateFromStripe = (~currentStep, ~forward=false, ()) => {
+let getNavigationStepForMigrateFromStripe = (~currentStep, ~forward=false) => {
   switch currentStep {
   | DownloadAPIKey => forward ? InstallDeps : DownloadAPIKey
   | InstallDeps => forward ? ReplaceAPIKeys : DownloadAPIKey
@@ -36,7 +36,6 @@ let getCurrentStandardIntegrationStepHeading = (step: standardIntegrationSteps) 
 let getNavigationStepForStandardIntegration = (
   ~currentStep: standardIntegrationSteps,
   ~forward=false,
-  (),
 ) => {
   switch currentStep {
   | DownloadTestAPIKey => forward ? CreatePayment : DownloadTestAPIKey

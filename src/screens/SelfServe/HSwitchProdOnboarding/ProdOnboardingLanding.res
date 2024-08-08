@@ -89,10 +89,7 @@ module ProgressBar = {
   let make = (~progressState) => {
     let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
     <div className={`${backgroundColor} bg-opacity-20 h-1.5 w-full`}>
-      <div
-        className={`h-full ${backgroundColor}`}
-        style={ReactDOMStyle.make(~width=`${progressState}%`, ())}
-      />
+      <div className={`h-full ${backgroundColor}`} style={width: `${progressState}%`} />
     </div>
   }
 }
@@ -168,7 +165,7 @@ let make = () => {
   let centerItems = pageView === SETUP_COMPLETED ? "justify-center" : ""
   let urlPush = appendDashboardPath(~url=`/prod-onboarding?${routerUrl.search}`)
 
-  let {user_role: userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let getSetupCompleteEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
     if prodEnums.setupComplete {
@@ -208,7 +205,7 @@ let make = () => {
 
   let getConnectorDetails = async headerVariant => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID), ())
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       let connectorName = json->getDictFromJsonObject->getString("connector_name", "")
       setInitialValues(_ => json)
@@ -230,7 +227,6 @@ let make = () => {
         ~userType=#USER_DATA,
         ~methodType=Get,
         ~queryParamerters=Some(`keys=${prodOnboardingEnumIntialArray->Array.joinWithUnsafe(",")}`),
-        (),
       )
       let response = await fetchDetails(url)
       let prodEnums = response->responseDataMapper(getValueMappedForProd)->getTypedValue
@@ -243,9 +239,9 @@ let make = () => {
   let updateSetupPageCompleted = async () => {
     try {
       setButtonState(_ => Loading)
-      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
-      let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#SetupComplete, ())
-      let _ = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post)
+      let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#SetupComplete)
+      let _ = await updateDetails(url, body, Post)
       setButtonState(_ => Normal)
       setDashboardPageState(_ => #HOME)
     } catch {

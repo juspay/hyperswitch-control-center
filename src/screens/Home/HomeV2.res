@@ -181,11 +181,11 @@ module QuickStart = {
 
     let mixpanelEventForQuickStart = () =>
       if !(typedValueOfEnum.testPayment.payment_id->LogicUtils.isNonEmptyString) {
-        mixpanelEvent(~eventName=`quickstart_configure_test_mode`, ())
+        mixpanelEvent(~eventName=`quickstart_configure_test_mode`)
       } else if !typedValueOfEnum.integrationCompleted {
-        mixpanelEvent(~eventName=`quickstart_start_integration_on_app`, ())
+        mixpanelEvent(~eventName=`quickstart_start_integration_on_app`)
       } else {
-        mixpanelEvent(~eventName=`quickstart_get_productuion_access`, ())
+        mixpanelEvent(~eventName=`quickstart_get_productuion_access`)
       }
 
     <div className="flex flex-col md:flex-row pt-10 border rounded-md bg-white gap-4">
@@ -245,9 +245,9 @@ module RecipesAndPlugins = {
         <ACLDiv
           permission=blockConditionAccessVal
           noAccessDescription=noAccessControlText
-          className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
+          className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted)}
           onClick={_ => {
-            mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
+            mixpanelEvent(~eventName=`stripe_plus_paypal`)
             RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/stripe-plus-paypal"))
           }}>
           <div className="flex items-center gap-2">
@@ -275,9 +275,9 @@ module RecipesAndPlugins = {
         <ACLDiv
           permission=blockConditionAccessVal
           noAccessDescription=noAccessControlText
-          className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
+          className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted)}
           onClick={_ => {
-            mixpanelEvent(~eventName=`woocommerce`, ())
+            mixpanelEvent(~eventName=`woocommerce`)
             RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/woocommerce"))
           }}>
           <div className="flex items-center gap-2">
@@ -331,13 +331,13 @@ module Resources = {
 
     let onClickHandler = item => {
       if item.id === "openSource" {
-        mixpanelEvent(~eventName=`contribute_in_open_source`, ())
+        mixpanelEvent(~eventName=`contribute_in_open_source`)
         "https://github.com/juspay/hyperswitch"->Window._open
       } else if item.id === "developerdocs" {
-        mixpanelEvent(~eventName=`dev_docs`, ())
+        mixpanelEvent(~eventName=`dev_docs`)
         "https://hyperswitch.io/docs"->Window._open
       } else if item.id === "tryTheDemo" {
-        mixpanelEvent(~eventName=`test_payment`, ())
+        mixpanelEvent(~eventName=`test_payment`)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/sdk"))
       }
     }
@@ -410,17 +410,15 @@ let make = () => {
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  let recovery_codes_left = switch authStatus {
-  | LoggedIn(Auth(info)) => info.recovery_codes_left
-  | _ => GlobalVars.maximumRecoveryCodes
-  }
+  let {recoveryCodesLeft} = React.useContext(UserInfoProvider.defaultContext)
+  let recoveryCode = recoveryCodesLeft->Option.getOr(0)
 
   <div className="w-full flex flex-col gap-6">
     <div className="flex flex-col gap-4">
-      <RenderIf condition={featureFlagDetails.totp && recovery_codes_left < 3}>
-        <LowRecoveryCodeBanner recovery_codes_left />
+      <RenderIf
+        condition={featureFlagDetails.totp && recoveryCodesLeft->Option.isSome && recoveryCode < 3}>
+        <LowRecoveryCodeBanner recoveryCode />
       </RenderIf>
       <AcceptInviteHome />
     </div>
