@@ -85,7 +85,7 @@ module OrgMerchantSelectBox = {
                                   }>
                                   <div className="mr-5"> {user->React.string} </div>
                                 </button>
-                                <RenderIf condition={user === "defaultOrgId"}>
+                                <RenderIf condition={user === "user1"}>
                                   <Icon
                                     className={`absolute top-2 right-2 text-white`}
                                     name="check"
@@ -141,7 +141,7 @@ module OrgViewComponent = {
     }
 
     <>
-      <div className="flex flex-col items-end gap-2 mx-4 my-2 mb-4">
+      <div className="flex flex-col items-end gap-2">
         <OrgMerchantSelectBox
           title="Org"
           user=defaultMerchantId
