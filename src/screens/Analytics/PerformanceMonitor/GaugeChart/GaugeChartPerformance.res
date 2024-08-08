@@ -10,7 +10,7 @@ let make = (
   open Highcharts
   open PerformanceMonitorTypes
   let updateDetails = useUpdateMethod()
-  let (gaugeOption, setBarOptions) = React.useState(_ => JSON.Encode.null)
+  let (gaugeOption, setGaugeOptions) = React.useState(_ => JSON.Encode.null)
 
   let _ = bubbleChartModule(highchartsModule)
 
@@ -38,7 +38,7 @@ let make = (
         ->getArrayFromDict("queryData", [])
       let configData = entity.getChartData(~array=arr, ~config=entity.configRequiredForChartData)
       let options = GaugeChartPerformanceUtils.gaugeOption(entity.chartConfig, configData)
-      setBarOptions(_ => options)
+      setGaugeOptions(_ => options)
     } catch {
     | _ => ()
     }

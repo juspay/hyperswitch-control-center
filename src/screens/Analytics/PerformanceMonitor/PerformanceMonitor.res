@@ -95,20 +95,33 @@ let make = () => {
         className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
         topFilterUi
       </div>
-      <div className="flex gap-2">
-        <div className="flex gap-3">
-          <GaugeChartPerformance
-            startTimeVal
-            endTimeVal
-            entity={PerformanceMonitorEntity.getSuccessRatePerformanceEntity}
-          />
-          <GaugeChartPerformance
-            startTimeVal
-            endTimeVal
-            entity={PerformanceMonitorEntity.getRefundsSuccessRatePerformanceEntity}
-            domain="refunds"
-          />
-        </div>
+      <div className="grid grid-cols-4 grid-rows-1 gap-3">
+        <GaugeChartPerformance
+          startTimeVal endTimeVal entity={PerformanceMonitorEntity.getSuccessRatePerformanceEntity}
+        />
+        <GaugeChartPerformance
+          startTimeVal
+          endTimeVal
+          entity={PerformanceMonitorEntity.getRefundsSuccessRatePerformanceEntity}
+          domain="refunds"
+        />
+        <GaugeFailureRate
+          startTimeVal
+          endTimeVal
+          metric=#payment_count
+          title="Payments Failure Rate"
+          filter=#status
+          customValue={"failure"}
+        />
+        <GaugeFailureRate
+          startTimeVal
+          endTimeVal
+          metric=#refund_count
+          title="Refunds Failure Rate"
+          domain="refunds"
+          filter=#refund_status
+          customValue={"failed"}
+        />
       </div>
       <div className="flex gap-2">
         <div className="flex-col">

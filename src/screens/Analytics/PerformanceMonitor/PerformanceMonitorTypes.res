@@ -1,8 +1,21 @@
 type performance = [#ConnectorPerformance | #PaymentMethodPerormance]
-type dimension = [#connector | #payment_method | #payment_method_type | #status | #no_value]
+type dimension = [
+  | #connector
+  | #payment_method
+  | #payment_method_type
+  | #status
+  | #no_value
+  | #refund_status
+]
 
 type status = [#charged | #failure]
-type metrics = [#payment_count | #payment_success_rate | #refund_success_rate]
+type metrics = [
+  | #payment_count
+  | #payment_success_rate
+  | #refund_success_rate
+  | #payment_count
+  | #refund_count
+]
 
 type paymentStatus = [#failure | #charged]
 type paymentDistribution = {

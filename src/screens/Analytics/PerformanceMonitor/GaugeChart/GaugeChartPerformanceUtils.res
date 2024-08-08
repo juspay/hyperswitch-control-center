@@ -15,9 +15,6 @@ let getGaugeData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
         ->Option.getOr(0.0->JSON.Encode.float)
         ->JSON.Decode.float
         ->Option.getOr(0.0)
-        ->Float.toFixedWithPrecision(~digits=3)
-        ->Float.fromString
-        ->Option.getOr(0.0)
 
       rate
     }
@@ -29,7 +26,7 @@ let getGaugeData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
   }
 }
 
-let gaugeOption = (config: chartConfig, data: gaugeChartData) =>
+let gaugeOption = (config: chartConfig, data: gaugeChartData, ~start=50, ~mid=75) =>
   {
     "chart": {
       "type": "gauge",
@@ -65,20 +62,20 @@ let gaugeOption = (config: chartConfig, data: gaugeChartData) =>
       "plotBands": [
         {
           "from": 0,
-          "to": 60,
+          "to": start,
           "color": "#DF5353", // red
           "thickness": 20,
           "borderRadius": "50%",
         },
         {
-          "from": 60,
-          "to": 80,
+          "from": start,
+          "to": mid,
           "color": "#DDDF0D", // yellow
           "thickness": 20,
           "borderRadius": "50%",
         },
         {
-          "from": 80,
+          "from": mid,
           "to": 100,
           "color": "#55BF3B", // green
           "thickness": 20,
@@ -91,8 +88,13 @@ let gaugeOption = (config: chartConfig, data: gaugeChartData) =>
     },
     "series": [
       {
-        "name": "Success Rate",
-        "data": [data.value],
+        "name": "",
+        "data": [
+          data.value
+          ->Float.toFixedWithPrecision(~digits=3)
+          ->Float.fromString
+          ->Option.getOr(0.0),
+        ],
         "tooltip": {
           "valueSuffix": "%",
         },
