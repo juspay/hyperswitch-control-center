@@ -199,12 +199,7 @@ module BasicDetailsSection = {
 let make = () => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-
-  let showTwoFaSettings = switch authStatus {
-  | LoggedIn(Auth(authInfo)) => authInfo.is_two_factor_auth_setup
-  | _ => false
-  }
+  let {isTwoFactorAuthSetup: showTwoFaSettings} = React.useContext(UserInfoProvider.defaultContext)
 
   <div className="flex flex-col overflow-scroll gap-8">
     <PageUtils.PageHeading title="Profile" subTitle="Manage your profile settings here" />

@@ -4,7 +4,7 @@ let useSendEvent = () => {
   open GlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
-  let {email: authInfoEmail, merchant_id, name} =
+  let {email: authInfoEmail, merchantId, name} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
 
   let deviceId = switch LocalStorage.getItem("deviceid")->Nullable.toOption {
@@ -88,7 +88,7 @@ let useSendEvent = () => {
     if featureFlagDetails.mixpanel {
       trackApi(
         ~email={email->parseEmail},
-        ~merchantId=merchant_id,
+        ~merchantId,
         ~description,
         ~event={eventName},
         ~section,

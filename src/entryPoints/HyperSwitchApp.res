@@ -30,8 +30,7 @@ let make = () => {
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let (surveyModal, setSurveyModal) = React.useState(_ => false)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let {merchant_id: merchantId, user_role: userRole} =
-    useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {merchantId, userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode

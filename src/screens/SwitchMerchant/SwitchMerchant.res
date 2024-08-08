@@ -121,7 +121,7 @@ module AddNewMerchantButton = {
 module ExternalUser = {
   @react.component
   let make = (~switchMerchant, ~isAddMerchantEnabled) => {
-    let {merchant_id: defaultMerchantId} =
+    let {merchantId: defaultMerchantId} =
       CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let switchMerchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.switchMerchantListAtom)
@@ -247,12 +247,13 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   let getURL = useGetURL()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {setAuthStatus, authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext)
   let (value, setValue) = React.useState(() => "")
   let merchantId = switch authStatus {
   | LoggedIn(info) =>
     switch info {
     | BasicAuth(basicInfo) => basicInfo.merchant_id->Option.getOr("")
-    | Auth(totpInfo) => totpInfo.merchant_id
+    | Auth(_) => merchantId
     }
   | _ => ""
   }

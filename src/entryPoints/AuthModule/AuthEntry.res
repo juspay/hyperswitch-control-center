@@ -3,7 +3,9 @@ let make = () => {
   <AuthInfoProvider>
     <AuthWrapper>
       <GlobalProvider>
-        <HyperSwitchApp />
+        <UserInfoProvider>
+          <HyperSwitchApp />
+        </UserInfoProvider>
       </GlobalProvider>
     </AuthWrapper>
   </AuthInfoProvider>
