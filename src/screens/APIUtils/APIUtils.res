@@ -3,8 +3,8 @@ open APIUtilsTypes
 open CommonAuthHooks
 exception JsonException(JSON.t)
 
-let useGetURL: unit => getUrlTypes = () => {
-  let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+let useGetURL = () => {
+  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let getUrl = (
     ~entityName: entityName,
     ~methodType: Fetch.requestMethod,
