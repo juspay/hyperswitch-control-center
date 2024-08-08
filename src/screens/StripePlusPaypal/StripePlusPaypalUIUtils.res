@@ -147,6 +147,8 @@ module SelectPaymentMethods = {
         updateDetails
         setMetaData
         isPayoutFlow=false
+        initialValues
+        setInitialValues
       />
     </QuickStartUIUtils.BaseComponent>
   }
