@@ -43,3 +43,4 @@ live_users_counter=false
 granularity=false
 custom_webhook_headers=false
 compliance_certificate=false
+pm_authentication_processor=true
