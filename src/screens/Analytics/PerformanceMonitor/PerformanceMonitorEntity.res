@@ -26,6 +26,62 @@ let defaultDimesions = {
 
 let colors = ["#c74050", "#619f5b"]
 
+let getSuccessRatePerformanceEntity: entity<'t> = {
+  getChartData: GaugeChartPerformanceUtils.getGaugeData,
+  requestBodyConfig: {
+    metrics: [#payment_success_rate],
+    groupBy: [],
+    filters: [],
+    delta: true,
+    customFilter: None,
+    applyFilterFor: None,
+  },
+  configRequiredForChartData: {
+    groupByKeys: [],
+    name: #payment_success_rate,
+  },
+  chartConfig: {
+    yAxis: {
+      text: "",
+    },
+    xAxis: {
+      text: "",
+    },
+    title: {
+      text: "Payment Success Rate",
+    },
+    colors: [],
+  },
+}
+
+let getRefundsSuccessRatePerformanceEntity: entity<'t> = {
+  getChartData: GaugeChartPerformanceUtils.getGaugeData,
+  requestBodyConfig: {
+    metrics: [#refund_success_rate],
+    groupBy: [],
+    filters: [],
+    delta: true,
+    customFilter: None,
+    applyFilterFor: None,
+  },
+  configRequiredForChartData: {
+    groupByKeys: [],
+    name: #refund_success_rate,
+  },
+  chartConfig: {
+    yAxis: {
+      text: "",
+    },
+    xAxis: {
+      text: "",
+    },
+    title: {
+      text: "Refund Success Rate",
+    },
+    colors: [],
+  },
+}
+
 let getStatusPerformanceEntity: entity<'t> = {
   getChartData: BarChartPerformanceUtils.getStackedBarData,
   requestBodyConfig: {
@@ -35,7 +91,6 @@ let getStatusPerformanceEntity: entity<'t> = {
     customFilter: None,
     applyFilterFor: None,
   },
-  getBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#status],
   },
@@ -62,7 +117,6 @@ let getConnectorPerformanceEntity: entity<'t> = {
     customFilter: Some(#status),
     applyFilterFor: Some(["charged", "failure"]),
   },
-  getBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#connector],
   },
@@ -89,7 +143,6 @@ let getPaymentMethodPerformanceEntity: entity<'t> = {
     customFilter: Some(#status),
     applyFilterFor: Some(["charged", "failure"]),
   },
-  getBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#payment_method],
   },
@@ -116,7 +169,6 @@ let getConnectorFailureEntity: entity<'t> = {
     customFilter: Some(#status),
     applyFilterFor: Some(["failure"]),
   },
-  getBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#connector],
   },
@@ -143,7 +195,6 @@ let getPaymentMethodFailureEntity: entity<'t> = {
     customFilter: Some(#status),
     applyFilterFor: Some(["failure"]),
   },
-  getBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#payment_method],
   },
@@ -170,7 +221,6 @@ let getConnectorPaymentMethodFailureEntity: entity<'t> = {
     customFilter: Some(#status),
     applyFilterFor: Some(["failure"]),
   },
-  getBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#connector, #payment_method],
   },

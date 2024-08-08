@@ -96,6 +96,21 @@ let make = () => {
         topFilterUi
       </div>
       <div className="flex gap-2">
+        <div className="flex gap-3">
+          <GaugeChartPerformance
+            startTimeVal
+            endTimeVal
+            entity={PerformanceMonitorEntity.getSuccessRatePerformanceEntity}
+          />
+          <GaugeChartPerformance
+            startTimeVal
+            endTimeVal
+            entity={PerformanceMonitorEntity.getRefundsSuccessRatePerformanceEntity}
+            domain="refunds"
+          />
+        </div>
+      </div>
+      <div className="flex gap-2">
         <div className="flex-col">
           <BarChartPerformance
             startTimeVal

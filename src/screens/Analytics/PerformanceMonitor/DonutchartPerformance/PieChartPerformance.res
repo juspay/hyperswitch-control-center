@@ -70,7 +70,7 @@ let make = (
   let chartFetch = async () => {
     try {
       let url = "https://sandbox.hyperswitch.io/analytics/v1/metrics/payments"
-      let body = entity.getBody(
+      let body = PerformanceUtils.requestBody(
         ~dimensions,
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
