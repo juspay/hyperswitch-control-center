@@ -188,7 +188,10 @@ let pmAuthenticationProcessor = (~permissionJson) => {
     name: "PM Authentication Processor",
     link: `/pm-authentication-processor`,
     access: permissionJson.connectorsView,
-    searchOptions: [],
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=ConnectorUtils.pmAuthenticationConnectorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
   })
 }
 
