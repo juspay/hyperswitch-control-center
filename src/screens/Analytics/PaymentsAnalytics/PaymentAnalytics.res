@@ -282,7 +282,6 @@ let make = () => {
           endTimeFilterKey
           heading="Payments Trends"
         />
-        // <PerformanceMonitor startTimeVal endTimeVal />
       </div>
     </div>
   </PageLoaderWrapper>

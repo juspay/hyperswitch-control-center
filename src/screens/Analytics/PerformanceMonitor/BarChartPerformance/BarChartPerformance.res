@@ -1,11 +1,11 @@
 @react.component
 let make = (
+  ~domain,
   ~startTimeVal,
   ~endTimeVal,
   ~dimensions,
   ~entity: PerformanceMonitorTypes.entity<'t>,
 ) => {
-  let domain = "payments"
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()

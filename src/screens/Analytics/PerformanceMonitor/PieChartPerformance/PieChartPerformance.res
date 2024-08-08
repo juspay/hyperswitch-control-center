@@ -1,5 +1,6 @@
 @react.component
 let make = (
+  ~domain,
   ~startTimeVal,
   ~endTimeVal,
   ~dimensions,
@@ -7,7 +8,6 @@ let make = (
 ) => {
   open APIUtils
   open LogicUtils
-  let domain = "payments"
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (options, setBarOptions) = React.useState(_ => JSON.Encode.null)

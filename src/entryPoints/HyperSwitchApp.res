@@ -363,7 +363,7 @@ let make = () => {
                             permission=userPermissionJson.analyticsView
                             isEnabled={featureFlagDetails.performanceMonitor}>
                             <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
-                              <PerformanceMonitor />
+                              <PerformanceMonitor domain="payments" />
                             </FilterContext>
                           </AccessControl>
                         | list{"analytics-refunds"} =>

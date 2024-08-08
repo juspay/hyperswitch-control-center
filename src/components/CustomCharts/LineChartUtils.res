@@ -495,7 +495,11 @@ let barChartDataMaker = (~yAxis: string, ~rawData: array<JSON.t>, ~activeTab: st
   let value = rawData->Belt.Array.keepMap(item => {
     let dict = item->getDictFromJsonObject
 
-    let selectedSegmentVal = getString(dict, activeTab, "") // groupby/ selected segment
+    let selectedSegmentVal = getString(
+      dict,
+      activeTab,
+      Dict.get(dict, activeTab)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
+    ) // groupby/ selected segment
 
     let stats = getFloat(dict, yAxis, 0.) // overall metrics
     selectedSegmentVal->LogicUtils.isNonEmptyString ? Some(selectedSegmentVal, stats) : None

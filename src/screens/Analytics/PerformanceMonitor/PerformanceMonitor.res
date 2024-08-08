@@ -1,6 +1,5 @@
 @react.component
-let make = () => {
-  let domain = "payments"
+let make = (~domain="payments") => {
   open APIUtils
   open LogicUtils
 
@@ -35,7 +34,7 @@ let make = () => {
   let fetchFilterData = async dimensions => {
     try {
       let groupBy = getStringListFromArrayDict(dimensions)
-      let filterUri = `${Window.env.apiBaseUrl}/analytics/v1/filters/payments`
+      let filterUri = `${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`
       let res = await updateDetails(filterUri, filterBody(~groupBy)->JSON.Encode.object, Post)
       let dim =
         res
@@ -98,6 +97,7 @@ let make = () => {
       <div className="flex gap-2">
         <div className="flex-col">
           <BarChartPerformance
+            domain
             startTimeVal
             endTimeVal
             dimensions
@@ -108,6 +108,7 @@ let make = () => {
       <div className="flex gap-2">
         <div className="flex-col">
           <BarChartPerformance
+            domain
             startTimeVal
             endTimeVal
             dimensions
@@ -116,6 +117,7 @@ let make = () => {
         </div>
         <div className="flex-col">
           <BarChartPerformance
+            domain
             startTimeVal
             endTimeVal
             dimensions
@@ -126,6 +128,7 @@ let make = () => {
       <div className="grid grid-cols-3 gap-4">
         <div className="">
           <PieChartPerformance
+            domain
             startTimeVal
             endTimeVal
             dimensions
@@ -134,6 +137,7 @@ let make = () => {
         </div>
         <div className="">
           <PieChartPerformance
+            domain
             startTimeVal
             endTimeVal
             dimensions
@@ -142,6 +146,7 @@ let make = () => {
         </div>
         <div className="">
           <PieChartPerformance
+            domain
             startTimeVal
             endTimeVal
             dimensions
