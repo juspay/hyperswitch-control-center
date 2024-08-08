@@ -189,7 +189,6 @@ let getFilterRequestBody = (
   ~mode: option<string>=None,
   ~customFilter: string="",
   ~source: string="BATCH",
-  (),
 ) => {
   let body: Dict.t<JSON.t> = Dict.make()
   let timeRange = Dict.make()
@@ -297,7 +296,6 @@ let filterBody = (filterBodyEntity: filterBodyEntity) => {
     ~endDateTime=endTime,
     ~groupByNames=Some(filterBodyEntity.groupByNames),
     ~source=filterBodyEntity.source,
-    (),
   )
 }
 
@@ -509,7 +507,6 @@ let generateTablePayload = (
         ~endDateTime=endTime,
         ~customFilter,
         ~source,
-        (),
       ),
     ]
   } else {
@@ -528,7 +525,6 @@ let generateTablePayload = (
         ~endDateTime=endTime,
         ~customFilter,
         ~source,
-        (),
       ),
     ]
   } else {
@@ -548,7 +544,6 @@ let generateTablePayload = (
         ~endDateTime=endTime,
         ~customFilter,
         ~source,
-        (),
       ),
     ]
   } else {
@@ -570,7 +565,6 @@ let generateTablePayload = (
         ~endDateTime=endTime,
         ~customFilter,
         ~source,
-        (),
       )
     )
   | None => []

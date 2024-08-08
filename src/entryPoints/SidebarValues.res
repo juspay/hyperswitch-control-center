@@ -27,7 +27,7 @@ module GetProductionAccess = {
             ? ()
             : {
                 setShowProdIntentForm(_ => true)
-                mixpanelEvent(~eventName="get_production_access", ())
+                mixpanelEvent(~eventName="get_production_access")
               }
         }}>
         <div className={`text-white ${textStyles} !font-semibold`}>
@@ -263,9 +263,10 @@ let analytics = (
   userJourneyAnalyticsFlag,
   authenticationAnalyticsFlag,
   disputeAnalyticsFlag,
+  performanceMonitorFlag,
   ~permissionJson,
 ) => {
-  let links = [paymentAnalytcis, performanceMonitor, refundAnalytics]
+  let links = [paymentAnalytcis, refundAnalytics]
 
   if userJourneyAnalyticsFlag {
     links->Array.push(userJourneyAnalytics)
@@ -277,6 +278,9 @@ let analytics = (
 
   if disputeAnalyticsFlag {
     links->Array.push(disputeAnalytics)
+  }
+  if performanceMonitorFlag {
+    links->Array.push(performanceMonitor)
   }
 
   isAnalyticsEnabled
@@ -551,7 +555,7 @@ let reconAndSettlement = (recon, isReconEnabled) => {
 }
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
-  let {user_role: userRole} =
+  let {userRole} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
@@ -571,6 +575,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
+    performanceMonitor: performanceMonitorFlag,
   } = featureFlagDetails
 
   let sidebar = [
@@ -588,6 +593,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       userJourneyAnalyticsFlag,
       authenticationAnalyticsFlag,
       disputeAnalytics,
+      performanceMonitorFlag,
       ~permissionJson,
     ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),

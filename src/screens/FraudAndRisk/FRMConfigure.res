@@ -24,14 +24,9 @@ let make = () => {
   let (currentStep, setCurrentStep) = React.useState(_ => isUpdateFlow ? Preview : initStep)
 
   let selectedFRMName: ConnectorTypes.connectorTypes = React.useMemo(() => {
-    let frmName =
-      frmName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer, ())
+    let frmName = frmName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer)
     setInitialValues(_ => {
-      generateInitialValuesDict(
-        ~selectedFRMName=frmName,
-        ~isLiveMode=featureFlagDetails.isLiveMode,
-        (),
-      )
+      generateInitialValuesDict(~selectedFRMName=frmName, ~isLiveMode=featureFlagDetails.isLiveMode)
     })
     setCurrentStep(_ => isUpdateFlow ? Preview : initStep)
     frmName
@@ -51,7 +46,7 @@ let make = () => {
   React.useEffect(() => {
     if frmID !== "new" {
       setScreenState(_ => Loading)
-      let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ~id=Some(frmID), ())
+      let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ~id=Some(frmID))
       getFRMDetails(url)->ignore
     } else {
       setScreenState(_ => Success)

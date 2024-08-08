@@ -490,10 +490,7 @@ let getLegendDataForCurrentMetrix = (
     {...item, index}
   })
 }
-/*
 
- let raw=[{"connector":"",payemnt_count:0}]
- */
 let barChartDataMaker = (~yAxis: string, ~rawData: array<JSON.t>, ~activeTab: string) => {
   let value = rawData->Belt.Array.keepMap(item => {
     let dict = item->getDictFromJsonObject
@@ -569,10 +566,10 @@ let legendClickItem = (s: Highcharts.legendItem, e, setState) => {
 }
 let formatStatsAccToMetrix = (metric: dropDownMetricType, value: float) => {
   switch metric {
-  | Latency => latencyShortNum(~labelValue=value, ())
-  | Volume => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat(), ())
+  | Latency => latencyShortNum(~labelValue=value)
+  | Volume => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat())
   | Rate | Traffic => value->Float.toFixedWithPrecision(~digits=2)->removeTrailingZero ++ "%"
-  | Amount => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat(), ())
+  | Amount => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat())
   }
 }
 

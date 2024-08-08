@@ -24,7 +24,7 @@ module KeyAndCopyArea = {
         className="cursor-pointer h-20 w-20 pt-1"
         onClick={_ => {
           Clipboard.writeText(copyValue)
-          showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+          showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
         }}>
         <img alt="copy-clipboard" src={`/assets/CopyToClipboard.svg`} />
       </div>
@@ -41,8 +41,8 @@ module DeleteConnectorMenu = {
     let deleteConnector = async () => {
       try {
         let connectorID = connectorInfo.merchant_connector_id
-        let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
-        let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete, ())
+        let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+        let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete)
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/connectors"))
       } catch {
       | _ => ()
@@ -112,7 +112,7 @@ module MenuOption = {
                   text="Update"
                   onClick={_ => {
                     panelProps["close"]()
-                    mixpanelEvent(~eventName=`processor_update_${connector}`, ())
+                    mixpanelEvent(~eventName=`processor_update_${connector}`)
                     setCurrentStep(_ => updateStepValue)
                   }}
                 />
@@ -150,7 +150,7 @@ module ConnectorSummaryGrid = {
         ele.profile_id === connectorInfo.profile_id
       )
       ->Option.getOr(defaultBusinessProfile)
-    let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+    let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let copyValueOfWebhookEndpoint = ConnectorUtils.getWebhooksUrl(
       ~connectorName={connectorInfo.merchant_connector_id},
       ~merchantId,
@@ -298,7 +298,7 @@ let make = (
   let connectorCount =
     HyperswitchAtom.connectorListAtom
     ->Recoil.useRecoilValueFromAtom
-    ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer, ())
+    ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
     ->Array.length
   let isFeedbackModalToBeOpen =
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
@@ -315,12 +315,12 @@ let make = (
         connectorInfo.connector_type,
         isConnectorDisabled,
       )
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
-      let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post, ())
-      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
+      let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=redirectPath))
     } catch {
-    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
+    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
     }
   }
 
@@ -346,7 +346,7 @@ let make = (
         <div className="self-center">
           {switch (
             currentStep,
-            connector->getConnectorNameTypeFromString(),
+            connector->getConnectorNameTypeFromString,
             connectorInfo.status,
             paypalAutomaticFlow,
           ) {
@@ -359,7 +359,7 @@ let make = (
                 {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
               </div>
               <RenderIf condition={showMenuOption}>
-                {switch (connector->getConnectorNameTypeFromString(), paypalAutomaticFlow) {
+                {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
                 | (Processors(PAYPAL), true) =>
                   <MenuOptionForPayPal
                     setCurrentStep
@@ -380,7 +380,7 @@ let make = (
           | _ =>
             <Button
               onClick={_ => {
-                mixpanelEvent(~eventName=mixpanelEventName, ())
+                mixpanelEvent(~eventName=mixpanelEventName)
                 if isFeedbackModalToBeOpen {
                   setShowFeedbackModal(_ => true)
                 }

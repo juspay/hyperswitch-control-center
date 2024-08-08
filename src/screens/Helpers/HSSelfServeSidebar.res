@@ -45,7 +45,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
       <div className="h-2 bg-gray-200">
         <div
           className={`h-full ${backgroundColor}`}
-          style={ReactDOMStyle.make(~width=`${completedPercentage->Int.toString}%`, ())}
+          style={width: `${completedPercentage->Int.toString}%`}
         />
       </div>
     </div>

@@ -183,7 +183,6 @@ let make = (
       let (hStartTime, hEndTime) = AnalyticsNewUtils.calculateHistoricTime(
         ~startTime=startTimeFromUrl,
         ~endTime=endTimeFromUrl,
-        (),
       )
 
       let filterConfigHistoric = {
@@ -257,11 +256,9 @@ let make = (
               ~filterValueFromUrl=?filterConfigHistoric.filterValues,
               ~customFilterValue=filterConfigHistoric.customFilterValue,
               ~domain=urlConfig.domain,
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStatHistoric")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
           )
           ->addLogsAroundFetch(
             ~logTitle=`SingleStat histotic data for metrics ${metrics->metrixMapper}`,
@@ -309,11 +306,9 @@ let make = (
               ~filterValueFromUrl=?filterConfigCurrent.filterValues,
               ~customFilterValue=filterConfigCurrent.customFilterValue,
               ~domain=urlConfig.domain,
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
           )
           ->addLogsAroundFetch(~logTitle=`SingleStat data for metrics ${metrics->metrixMapper}`)
           ->then(
@@ -360,11 +355,9 @@ let make = (
               ~customFilterValue=filterConfigCurrent.customFilterValue,
               ~domain=urlConfig.domain,
               ~timeCol=urlConfig.timeColumn,
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStat Time Series")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
           )
           ->addLogsAroundFetch(
             ~logTitle=`SingleStat Time Series data for metrics ${metrics->metrixMapper}`,

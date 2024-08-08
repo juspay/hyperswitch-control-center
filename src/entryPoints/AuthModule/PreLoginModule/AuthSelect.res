@@ -32,8 +32,8 @@ let make = (~setSelectedAuthId) => {
     try {
       let body = Dict.make()
       body->setOptionString("id", method_id)
-      let terminateURL = getURL(~entityName=USERS, ~userType=#AUTH_SELECT, ~methodType=Post, ())
-      let response = await updateDetails(terminateURL, body->JSON.Encode.object, Post, ())
+      let terminateURL = getURL(~entityName=USERS, ~userType=#AUTH_SELECT, ~methodType=Post)
+      let response = await updateDetails(terminateURL, body->JSON.Encode.object, Post)
       setSelectedAuthId(_ => method_id)
       setAuthStatus(PreLogin(getPreLoginInfo(response)))
     } catch {

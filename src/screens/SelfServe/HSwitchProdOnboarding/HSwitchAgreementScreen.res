@@ -5,11 +5,11 @@ let make = () => {
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
   let fetchApi = AuthHooks.useApiFetcher()
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let {dashboardPageState, setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let (isAgreeEnable, setIsAgreeEnable) = React.useState(_ => false)
   let (isSelected, setIsSelected) = React.useState(_ => false)
-  let {user_role: userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   React.useEffect(() => {
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/agreement-signature"))
@@ -18,13 +18,13 @@ let make = () => {
 
   let agreementSignature = async () => {
     try {
-      let agreementUrl = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
-      let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#ProductionAgreement, ())
-      let _ = await updateDetails(agreementUrl, body, Post, ())
+      let agreementUrl = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post)
+      let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#ProductionAgreement)
+      let _ = await updateDetails(agreementUrl, body, Post)
       setDashboardPageState(_ => #PROD_ONBOARDING)
     } catch {
     | _ =>
-      showToast(~toastType=ToastError, ~message="Oops, something went wrong. Please try again.", ())
+      showToast(~toastType=ToastError, ~message="Oops, something went wrong. Please try again.")
     }
   }
 
@@ -39,7 +39,7 @@ let make = () => {
     // For local testing this condition is added
     if downloadURL->LogicUtils.isNonEmptyString {
       open Promise
-      fetchApi(downloadURL, ~method_=Get, ())
+      fetchApi(downloadURL, ~method_=Get)
       ->then(resp => {
         Fetch.Response.blob(resp)
       })
@@ -49,7 +49,7 @@ let make = () => {
           ~content,
           ~fileType="application/pdf",
         )
-        showToast(~toastType=ToastSuccess, ~message="Agreement download complete", ())
+        showToast(~toastType=ToastSuccess, ~message="Agreement download complete")
         agreementSignature()->ignore
         resolve()
       })
@@ -57,7 +57,6 @@ let make = () => {
         showToast(
           ~toastType=ToastError,
           ~message="Oops, something went wrong with the download. Please try again.",
-          (),
         )
         resolve()
       })
@@ -66,7 +65,6 @@ let make = () => {
       showToast(
         ~toastType=ToastError,
         ~message="Oops, something went wrong with the download - localhost",
-        (),
       )
       setDashboardPageState(_ => #PROD_ONBOARDING)
     }

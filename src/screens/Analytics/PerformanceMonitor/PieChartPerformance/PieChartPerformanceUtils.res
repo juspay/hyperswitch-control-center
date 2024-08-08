@@ -17,6 +17,7 @@ let getDontchartOptions = (config: chartConfig, series) => {
     },
     "plotOptions": {
       "pie": {
+        "center": ["50%", "50%"],
         "allowPointSelect": true,
         "cursor": `pointer`,
         "dataLabels": {
@@ -27,9 +28,19 @@ let getDontchartOptions = (config: chartConfig, series) => {
         "showInLegend": true,
       },
     },
+    "legend": {
+      "align": "right", // Align the legend to the right
+      "verticalAlign": "middle", // Vertically center the legend
+      "layout": "vertical", // Use a vertical layout for legend items
+      "width": "35%",
+      // "y": 35,
+    },
+    "credits": {
+      "enabled": false, // Disable the Highcharts credits
+    },
     "series": [
       {
-        "name": "failure",
+        "name": "Total",
         "colorByPoint": true,
         "innerSize": "75%",
         "data": series,

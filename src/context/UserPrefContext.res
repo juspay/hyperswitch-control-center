@@ -27,11 +27,6 @@ let userPrefObj: filter = {
 let userPrefContext = React.createContext(userPrefObj)
 
 module Provider = {
-  let makeProps = (~value, ~children, ()) =>
-    {
-      "value": value,
-      "children": children,
-    }
   let make = React.Context.provider(userPrefContext)
 }
 
@@ -45,7 +40,7 @@ let make = (~children) => {
   | LoggedIn(authType) =>
     switch authType {
     | BasicAuth(basicAuthInfo) => basicAuthInfo.name->Option.getOr("")
-    | Auth(totpAuthInfo) => totpAuthInfo.name
+    | _ => ""
     }
   | _ => ""
   }

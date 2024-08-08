@@ -1,15 +1,10 @@
-type functionType = (
-  ~eventName: string=?,
-  ~email: string=?,
-  ~description: option<string>=?,
-  unit,
-) => unit
+type functionType = (~eventName: string=?, ~email: string=?, ~description: option<string>=?) => unit
 
 let useSendEvent = () => {
   open GlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
-  let {email: authInfoEmail, merchant_id, name} =
+  let {email: authInfoEmail, merchantId, name} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
 
   let deviceId = switch LocalStorage.getItem("deviceid")->Nullable.toOption {
@@ -78,23 +73,22 @@ let useSendEvent = () => {
     try {
       let _ = await fetchApi(
         `${getHostUrl}/mixpanel/track`,
-        ~method_=Fetch.Post,
+        ~method_=Post,
         ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
-        (),
       )
     } catch {
     | _ => ()
     }
   }
 
-  (~eventName, ~email="", ~description=None, ~section="", ~metadata=Dict.make(), ()) => {
+  (~eventName, ~email="", ~description=None, ~section="", ~metadata=Dict.make()) => {
     let section = section->LogicUtils.isNonEmptyString ? section : getUrlEndpoint()
     let eventName = eventName->String.toLowerCase
 
     if featureFlagDetails.mixpanel {
       trackApi(
         ~email={email->parseEmail},
-        ~merchantId=merchant_id,
+        ~merchantId,
         ~description,
         ~event={eventName},
         ~section,

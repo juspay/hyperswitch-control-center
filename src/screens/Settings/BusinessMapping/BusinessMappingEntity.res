@@ -16,17 +16,17 @@ module ProfileActions = {
 
     let onSubmit = async (values, _) => {
       try {
-        let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(profileId), ())
-        let res = await updateDetails(url, values, Post, ())
+        let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(profileId))
+        let res = await updateDetails(url, values, Post)
         let filteredProfileList =
           businessProfiles
           ->Array.filter(businessProfile => businessProfile.profile_id !== profileId)
           ->Array.concat([res->BusinessProfileMapper.businessProfileTypeMapper])
 
         setBusinessProfiles(_ => filteredProfileList)
-        showToast(~message="Updated profile name!", ~toastType=ToastSuccess, ())
+        showToast(~message="Updated profile name!", ~toastType=ToastSuccess)
       } catch {
-      | _ => showToast(~message="Failed to update profile name!", ~toastType=ToastError, ())
+      | _ => showToast(~message="Failed to update profile name!", ~toastType=ToastError)
       }
       setShowModal(_ => false)
       Nullable.null
@@ -38,7 +38,6 @@ module ProfileActions = {
       ~placeholder=`Eg: Hyperswitch`,
       ~customInput=InputFields.textInput(),
       ~isRequired=true,
-      (),
     )
 
     <div className="flex gap-4 items-center">
@@ -61,7 +60,7 @@ module ProfileActions = {
           className="cursor-pointer"
           onClick={_ => {
             Clipboard.writeText(profileId)
-            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
           }}
         />}
         toolTipPosition=ToolTip.Top
@@ -105,10 +104,9 @@ let allColumns = [ProfileId, ProfileName, Action]
 
 let getHeading = colType => {
   switch colType {
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=true, ())
-  | ProfileName =>
-    Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=true, ())
-  | Action => Table.makeHeaderInfo(~key="action", ~title="Action", ~showSort=false, ())
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=true)
+  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=true)
+  | Action => Table.makeHeaderInfo(~key="action", ~title="Action", ~showSort=false)
   }
 }
 
@@ -159,5 +157,4 @@ let businessProfileTableEntity = EntityType.makeEntity(
   ~getHeading,
   ~dataKey="",
   ~getCell,
-  (),
 )

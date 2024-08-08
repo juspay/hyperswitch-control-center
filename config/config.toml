@@ -3,7 +3,7 @@ primary_color="#006DF9"
 primary_hover_color="#005ED6"
 sidebar_color="#242F48"
 [default.endpoints]
-api_url="https://sandbox.hyperswitch.io"
+api_url="http://localhost:8080"
 sdk_url=""
 logo_url=""
 favicon_url=""
@@ -43,3 +43,5 @@ live_users_counter=false
 granularity=false
 custom_webhook_headers=false
 compliance_certificate=false
+pm_authentication_processor=true
+performance_monitor=false

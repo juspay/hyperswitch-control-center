@@ -14,13 +14,8 @@ let make = (~onClick) => {
       open CommonAuthUtils
       open AuthUtils
       let body = token->generateBodyForEmailRedirection
-      let url = getURL(
-        ~entityName=USERS,
-        ~methodType=Post,
-        ~userType={#VERIFY_EMAILV2_TOKEN_ONLY},
-        (),
-      )
-      let res = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#VERIFY_EMAILV2_TOKEN_ONLY})
+      let res = await updateDetails(url, body, Post)
       setAuthStatus(PreLogin(getPreLoginInfo(res)))
     } catch {
     | Exn.Error(e) => {

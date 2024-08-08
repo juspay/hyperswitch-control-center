@@ -28,7 +28,7 @@ let make = (
       buttonType={PrimaryOutline}
       text="Back"
       onClick={_ => {
-        let prevStep = getNavigationStepForMigrateFromStripe(~currentStep, ())
+        let prevStep = getNavigationStepForMigrateFromStripe(~currentStep)
         if currentStep === DownloadAPIKey {
           setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
         } else {
@@ -48,10 +48,10 @@ let make = (
       text={isLastStep ? "Complete" : "Proceed"}
       onClick={_ => {
         if isLastStep {
-          mixpanelEvent(~eventName=`quickstart_integration_completed`, ())
+          mixpanelEvent(~eventName=`quickstart_integration_completed`)
           markAsDone()->ignore
         } else {
-          let nextStep = getNavigationStepForMigrateFromStripe(~currentStep, ~forward=true, ())
+          let nextStep = getNavigationStepForMigrateFromStripe(~currentStep, ~forward=true)
           let _ = updateEnumInRecoil([
             (String("completed"), currentStep->getPolyMorphicVariantOfMigrateFromStripe),
             (String("ongoing"), nextStep->getPolyMorphicVariantOfMigrateFromStripe),

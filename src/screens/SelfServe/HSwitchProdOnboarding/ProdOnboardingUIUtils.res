@@ -95,7 +95,7 @@ module SetupWebhookProcessor = {
         modalHeading="Steps to Setup Webook"
         headerTextClass="!text-xl !font-semibold !ml-3.5"
         element={<ModalChildElementsForSpecificConnector
-          connector={connectorName->ConnectorUtils.getConnectorNameTypeFromString()}
+          connector={connectorName->ConnectorUtils.getConnectorNameTypeFromString}
         />}
         showModal
         setShowModal

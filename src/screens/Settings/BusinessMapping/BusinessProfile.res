@@ -73,7 +73,7 @@ module AddEntryBtn = {
               buttonType=Primary
               onClick={_ => {
                 if updatedProfileId->LogicUtils.isNonEmptyString {
-                  mixpanelEvent(~eventName="business_profiles_configure_payment_settings", ())
+                  mixpanelEvent(~eventName="business_profiles_configure_payment_settings")
                   RescriptReactRouter.replace(
                     GlobalVars.appendDashboardPath(~url=`/payment-settings/${updatedProfileId}`),
                   )
@@ -120,7 +120,7 @@ module AddEntryBtn = {
 let make = (
   ~isFromSettings=true,
   ~showModalFromOtherScreen=false,
-  ~setShowModalFromOtherScreen=_bool => (),
+  ~setShowModalFromOtherScreen=_ => (),
 ) => {
   open APIUtils
   open BusinessMappingUtils
@@ -142,13 +142,13 @@ let make = (
   let updateMerchantDetails = async body => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ())
-      let response = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post)
+      let response = await updateDetails(url, body, Post)
       setUpdatedProfileId(_ =>
         response->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
       )
       fetchBusinessProfiles()->ignore
-      showToast(~message="Your Entry added successfully", ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message="Your Entry added successfully", ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
@@ -163,7 +163,7 @@ let make = (
   }
 
   let onSubmit = async (values, _) => {
-    mixpanelEvent(~eventName="business_profiles_add", ())
+    mixpanelEvent(~eventName="business_profiles_add")
     updateMerchantDetails(values)->ignore
     Nullable.null
   }

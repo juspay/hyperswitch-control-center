@@ -46,7 +46,6 @@ let useGetBgColor = (
   ~showBorder,
   ~isDropdownOpen=false,
   ~isPhoneDropdown=false,
-  (),
 ) => {
   let config = React.useContext(ThemeProvider.themeContext)
   let buttonConfig = config.globalUIConfig.button.backgroundColor
@@ -191,7 +190,6 @@ let useGetTextColor = (
   ~showBorder,
   ~isDropdownOpen=false,
   ~isPhoneDropdown=false,
-  (),
 ) => {
   let config = React.useContext(ThemeProvider.themeContext)
   let textConfig = config.globalUIConfig.button.textColor
@@ -446,7 +444,6 @@ let make = (
     ~showBorder,
     ~isDropdownOpen,
     ~isPhoneDropdown,
-    (),
   )
 
   let textColor = useGetTextColor(
@@ -455,7 +452,6 @@ let make = (
     ~showBorder,
     ~isDropdownOpen,
     ~isPhoneDropdown,
-    (),
   )
 
   let defaultRoundedClass = "rounded"
