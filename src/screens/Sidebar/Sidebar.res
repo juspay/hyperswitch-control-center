@@ -610,6 +610,13 @@ let make = (
           className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar"
           style={height: `calc(100vh - ${verticalOffset})`}>
           <style> {React.string(sidebarScrollbarCss)} </style>
+          // <SidebarHierarchyDropdown
+          //   title="Org"
+          //   user="user1"
+          //   leftIcon={NoIcon}
+          //   listUsers=["user1", "user2", "user3"]
+          //   heading="Organisations"
+          // />
           {sidebars
           ->Array.mapWithIndex((tabInfo, index) => {
             switch tabInfo {
