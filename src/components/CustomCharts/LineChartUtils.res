@@ -490,10 +490,7 @@ let getLegendDataForCurrentMetrix = (
     {...item, index}
   })
 }
-/*
 
- let raw=[{"connector":"",payemnt_count:0}]
- */
 let barChartDataMaker = (~yAxis: string, ~rawData: array<JSON.t>, ~activeTab: string) => {
   let value = rawData->Belt.Array.keepMap(item => {
     let dict = item->getDictFromJsonObject
