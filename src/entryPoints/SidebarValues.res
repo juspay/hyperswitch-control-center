@@ -183,12 +183,22 @@ let threeDsConnector = (~permissionJson) => {
   })
 }
 
+let pmAuthenticationProcessor = (~permissionJson) => {
+  SubLevelLink({
+    name: "PM Authentication Processor",
+    link: `/pm-authentication-processor`,
+    access: permissionJson.connectorsView,
+    searchOptions: [],
+  })
+}
+
 let connectors = (
   isConnectorsEnabled,
   ~isLiveMode,
   ~isFrmEnabled,
   ~isPayoutsEnabled,
   ~isThreedsConnectorEnabled,
+  ~isPMAuthenticationProcessor,
   ~permissionJson,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, permissionJson)]
@@ -202,6 +212,10 @@ let connectors = (
 
   if isFrmEnabled {
     connectorLinkArray->Array.push(fraudAndRisk(~permissionJson))->ignore
+  }
+
+  if isPMAuthenticationProcessor {
+    connectorLinkArray->Array.push(pmAuthenticationProcessor(~permissionJson))->ignore
   }
 
   isConnectorsEnabled
@@ -564,6 +578,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
+    pmAuthenticationProcessor,
   } = featureFlagDetails
 
   let sidebar = [
@@ -575,6 +590,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~isFrmEnabled=frm,
       ~isPayoutsEnabled=payOut,
       ~isThreedsConnectorEnabled=threedsAuthenticator,
+      ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
       ~permissionJson,
     ),
     default->analytics(
