@@ -26,8 +26,7 @@ let defaultDimesions = {
 
 let colors = ["#c74050", "#619f5b"]
 
-let getStatusPerformanceEntity: entity<'t> = {
-  getChartData: BarChartPerformanceUtils.getStackedBarData,
+let getStatusPerformanceEntity: entity<stackBarChartData> = {
   requestBodyConfig: {
     metrics: [#payment_count],
     groupBy: [#status],
@@ -35,12 +34,12 @@ let getStatusPerformanceEntity: entity<'t> = {
     customFilter: None,
     applyFilterFor: None,
   },
-  getBody: PerformanceUtils.requestBody,
+  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#status],
-    // plotChartBy: ["failure"],
   },
-  chartConfig: {
+  getChartData: BarChartPerformanceUtils.getStackedBarData,
+  chartOption: {
     yAxis: {
       text: "",
     },
@@ -52,10 +51,10 @@ let getStatusPerformanceEntity: entity<'t> = {
     },
     colors: ["#c74050", "#619f5b", "#ca8a04", "#06b6d4"],
   },
+  getChartOption: BarChartPerformanceUtils.getBarOption,
 }
 
-let getConnectorPerformanceEntity: entity<'t> = {
-  getChartData: BarChartPerformanceUtils.getStackedBarData,
+let getConnectorPerformanceEntity: entity<stackBarChartData> = {
   requestBodyConfig: {
     metrics: [#payment_count],
     groupBy: [#connector, #status],
@@ -63,12 +62,13 @@ let getConnectorPerformanceEntity: entity<'t> = {
     customFilter: Some(#status),
     applyFilterFor: Some(["failure", "charged"]),
   },
-  getBody: PerformanceUtils.requestBody,
+  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#connector],
     plotChartBy: ["failure", "charged"],
   },
-  chartConfig: {
+  getChartData: BarChartPerformanceUtils.getStackedBarData,
+  chartOption: {
     yAxis: {
       text: "",
     },
@@ -80,10 +80,10 @@ let getConnectorPerformanceEntity: entity<'t> = {
     },
     colors: ["#c74050", "#619f5b"],
   },
+  getChartOption: BarChartPerformanceUtils.getBarOption,
 }
 
-let getPaymentMethodPerformanceEntity: entity<'t> = {
-  getChartData: BarChartPerformanceUtils.getStackedBarData,
+let getPaymentMethodPerformanceEntity: entity<stackBarChartData> = {
   requestBodyConfig: {
     metrics: [#payment_count],
     groupBy: [#payment_method, #status],
@@ -91,12 +91,13 @@ let getPaymentMethodPerformanceEntity: entity<'t> = {
     customFilter: Some(#status),
     applyFilterFor: Some(["charged", "failure"]),
   },
-  getBody: PerformanceUtils.requestBody,
+  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#payment_method],
     plotChartBy: ["failure", "charged"],
   },
-  chartConfig: {
+  getChartData: BarChartPerformanceUtils.getStackedBarData,
+  chartOption: {
     yAxis: {
       text: "",
     },
@@ -108,10 +109,10 @@ let getPaymentMethodPerformanceEntity: entity<'t> = {
     },
     colors: ["#c74050", "#619f5b"],
   },
+  getChartOption: BarChartPerformanceUtils.getBarOption,
 }
 
-let getConnectorFailureEntity: entity<'t> = {
-  getChartData: PieChartPerformanceUtils.getPieCharData,
+let getConnectorFailureEntity: entity<array<donutPieSeriesRecord>> = {
   requestBodyConfig: {
     metrics: [#payment_count],
     groupBy: [#connector, #status],
@@ -119,11 +120,12 @@ let getConnectorFailureEntity: entity<'t> = {
     customFilter: Some(#status),
     applyFilterFor: Some(["failure"]),
   },
-  getBody: PerformanceUtils.requestBody,
+  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#connector],
   },
-  chartConfig: {
+  getChartData: PieChartPerformanceUtils.getDonutCharData,
+  chartOption: {
     yAxis: {
       text: "",
     },
@@ -135,10 +137,10 @@ let getConnectorFailureEntity: entity<'t> = {
     },
     colors: ["#c74050", "#619f5b"],
   },
+  getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
 
-let getPaymentMethodFailureEntity: entity<'t> = {
-  getChartData: PieChartPerformanceUtils.getPieCharData,
+let getPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
   requestBodyConfig: {
     metrics: [#payment_count],
     groupBy: [#payment_method, #status],
@@ -146,11 +148,12 @@ let getPaymentMethodFailureEntity: entity<'t> = {
     customFilter: Some(#status),
     applyFilterFor: Some(["failure"]),
   },
-  getBody: PerformanceUtils.requestBody,
+  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#payment_method],
   },
-  chartConfig: {
+  getChartData: PieChartPerformanceUtils.getDonutCharData,
+  chartOption: {
     yAxis: {
       text: "",
     },
@@ -162,10 +165,10 @@ let getPaymentMethodFailureEntity: entity<'t> = {
     },
     colors: ["#c74050", "#619f5b"],
   },
+  getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
 
-let getConnectorPaymentMethodFailureEntity: entity<'t> = {
-  getChartData: PieChartPerformanceUtils.getPieCharData,
+let getConnectorPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
   requestBodyConfig: {
     metrics: [#payment_count],
     groupBy: [#connector, #payment_method, #status],
@@ -173,11 +176,12 @@ let getConnectorPaymentMethodFailureEntity: entity<'t> = {
     customFilter: Some(#status),
     applyFilterFor: Some(["failure"]),
   },
-  getBody: PerformanceUtils.requestBody,
+  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#connector, #payment_method],
   },
-  chartConfig: {
+  getChartData: PieChartPerformanceUtils.getDonutCharData,
+  chartOption: {
     yAxis: {
       text: "",
     },
@@ -189,4 +193,5 @@ let getConnectorPaymentMethodFailureEntity: entity<'t> = {
     },
     colors: ["#c74050", "#619f5b"],
   },
+  getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }

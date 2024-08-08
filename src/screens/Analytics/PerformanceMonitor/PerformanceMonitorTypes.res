@@ -17,24 +17,30 @@ type dimensionRecord = {
 }
 type dimensions = array<dimensionRecord>
 
-type seriesRecord = {
+type stackBarSeriesRecord = {
   name: string,
   data: array<int>,
 }
 
 type categories = array<string>
-type series = array<seriesRecord>
+type series = array<stackBarSeriesRecord>
 type yAxis = {text: string}
 type xAxis = {text: string}
 
 type title = {text: string}
 type colors = array<string>
 
-type barChartData = {
+type donutPieSeriesRecord = {
+  name: string,
+  y: int,
+}
+type stackBarChartData = {
   categories: categories,
   series: series,
 }
-type chartConfig = {
+
+type donutChatData = {series: series}
+type chartOption = {
   yAxis: yAxis,
   xAxis: xAxis,
   title: title,
@@ -51,7 +57,8 @@ type requestBodyConfig = {
 }
 
 type entity<'t> = {
-  getBody: (
+  requestBodyConfig: requestBodyConfig,
+  getRequestBody: (
     ~dimensions: dimensions,
     ~startTime: string,
     ~endTime: string,
@@ -61,8 +68,8 @@ type entity<'t> = {
     ~customFilter: option<dimension>,
     ~applyFilterFor: option<array<string>>,
   ) => RescriptCore.JSON.t,
-  requestBodyConfig: requestBodyConfig,
-  getChartData: (~array: array<JSON.t>, ~config: chartDataConfig) => 't,
   configRequiredForChartData: chartDataConfig,
-  chartConfig: chartConfig,
+  getChartData: (~array: array<JSON.t>, ~config: chartDataConfig) => 't,
+  chartOption: chartOption,
+  getChartOption: (chartOption, 't) => JSON.t,
 }

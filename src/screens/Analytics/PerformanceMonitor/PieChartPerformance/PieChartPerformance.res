@@ -14,7 +14,7 @@ let make = (
   let chartFetch = async () => {
     try {
       let metricsUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
-      let body = entity.getBody(
+      let body = entity.getRequestBody(
         ~dimensions,
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
@@ -30,7 +30,7 @@ let make = (
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
       let configData = entity.getChartData(~array=arr, ~config=entity.configRequiredForChartData)
-      let options = PieChartPerformanceUtils.getDontchartOptions(entity.chartConfig, configData)
+      let options = entity.getChartOption(entity.chartOption, configData)
       setBarOptions(_ => options)
     } catch {
     | _ => ()

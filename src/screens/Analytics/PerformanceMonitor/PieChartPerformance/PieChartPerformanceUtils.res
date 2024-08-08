@@ -1,7 +1,7 @@
 open LogicUtils
 open PerformanceMonitorTypes
 
-let getDontchartOptions = (config: chartConfig, series) => {
+let getPieChartOptions = (config: chartOption, data) => {
   {
     "chart": {
       "type": "pie",
@@ -43,21 +43,21 @@ let getDontchartOptions = (config: chartConfig, series) => {
         "name": "Total",
         "colorByPoint": true,
         "innerSize": "75%",
-        "data": series,
+        "data": data,
       },
     ],
   }->Identity.genericTypeToJson
 }
 
-let getPieCharData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
+let getDonutCharData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
   let {groupByKeys} = config
   let grouped = PerformanceUtils.getGroupByDataForStatusAndPaymentCount(array, groupByKeys)
   let keys = grouped->Dict.keysToArray
-  let series = keys->Array.map(val => {
+  let series: array<donutPieSeriesRecord> = keys->Array.map(val => {
     let dict = grouped->Dict.get(val)->Option.getOr(Dict.make())
     {
-      "name": val,
-      "y": dict->getInt("failure", 0),
+      name: val,
+      y: dict->getInt("failure", 0),
     }
   })
   series
