@@ -523,7 +523,7 @@ let make = (
   let isHSSidebarPinned = getFromSidebarDetails("isPinned")
   let isExpanded = isSidebarExpanded || isHSSidebarPinned
 
-  let sidebarWidth = isExpanded ? isMobileView ? "100%" : "270px" : "55px"
+  let sidebarWidth = isExpanded ? isMobileView ? "100%" : "285px" : "55px"
   let profileMaxWidth = "145px"
 
   let firstPart = switch List.head(path) {
@@ -554,6 +554,13 @@ let make = (
   let sidebarContainerClassWidth = isMobileView ? "0px" : isHSSidebarPinned ? "270px" : "50px"
 
   let transformClass = "transform md:translate-x-0 transition"
+
+  let optionToElement = (ele, default) => {
+    switch ele {
+    | Some(element) => element
+    | None => default
+    }
+  }
 
   let sidebarScrollbarCss = `
   @supports (-webkit-appearance: none){
@@ -597,7 +604,7 @@ let make = (
         style={width: sidebarWidth}>
         <div className="flex items-center justify-between p-1 mr-2">
           <div
-            className={`flex align-center mt-4 pl-3 mb-6 pr-4 ml-1 gap-5 cursor-default`}
+            className={`flex align-center mt-4 pl-3 mb-4 pr-4 ml-1 gap-5 cursor-default`}
             onClick={ev => {
               ev->ReactEvent.Mouse.preventDefault
               ev->ReactEvent.Mouse.stopPropagation
@@ -650,9 +657,14 @@ let make = (
               </div>
 
             | CustomComponent(customComponentOptions) =>
-              <RenderIf condition={isExpanded} key={Int.toString(index)}>
-                customComponentOptions.component
-              </RenderIf>
+              <>
+                <RenderIf condition={isExpanded} key={Int.toString(index)}>
+                  customComponentOptions.component
+                </RenderIf>
+                <RenderIf condition={!isExpanded}>
+                  {optionToElement(customComponentOptions.collapsedComponent, React.null)}
+                </RenderIf>
+              </>
             }
           })
           ->React.array}

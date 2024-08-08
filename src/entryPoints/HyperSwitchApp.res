@@ -22,6 +22,8 @@ let make = () => {
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
+  let fetchMerchantList = MerchantListHook.useFetchMerchantList()
+  let fetchOrgList = OrgListHook.useFetchOrgList()
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let enumDetails =
@@ -86,6 +88,8 @@ let make = () => {
     try {
       Window.connectorWasmInit()->ignore
       let _ = await fetchSwitchMerchantList()
+      let _ = await fetchMerchantList()
+      let _ = await fetchOrgList()
       let permissionJson = await fetchPermissions()
 
       // TODO: Move this to prod onboarding form
