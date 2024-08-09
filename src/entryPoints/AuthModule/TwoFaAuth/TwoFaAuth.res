@@ -209,6 +209,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
           }
         }
       )
+      CommonAuthUtils.setUserInMixpanel(email)
     } catch {
     | _ => showToast(~message="Something went wrong, Try again", ~toastType=ToastError)
     }

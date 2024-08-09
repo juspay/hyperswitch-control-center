@@ -1,9 +1,7 @@
 module HyperSwitchEntryComponent = {
   @react.component
   let make = () => {
-    open CommonAuthHooks
     let fetchDetails = APIUtils.useGetMethod()
-    let {email, name} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
@@ -87,17 +85,6 @@ module HyperSwitchEntryComponent = {
           {
             "track_pageview": true,
             "batch_requests": true,
-            "loaded": () => {
-              let mixpanelUserInfo =
-                [("name", email->JSON.Encode.string), ("merchantName", name->JSON.Encode.string)]
-                ->Dict.fromArray
-                ->JSON.Encode.object
-
-              let userId = MixPanel.getDistinctId()
-              LocalStorage.setItem("deviceid", userId)
-              MixPanel.identify(userId)
-              MixPanel.mixpanel.people.set(mixpanelUserInfo)
-            },
           },
         )
       }
