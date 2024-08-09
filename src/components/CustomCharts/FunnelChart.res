@@ -8,7 +8,9 @@ let make = (
   ~moduleName,
   ~description,
 ) => {
-  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
+  let {globalUIConfig: {font: {textColor}, primaryColor}} = React.useContext(
+    ThemeProvider.themeContext,
+  )
   let isMobileView = MatchMedia.useMobileChecker()
   let (size, widthClass, flexDirectionClass) = React.useMemo(() => {
     isMobileView ? (0.16, "w-full", "flex-col") : (size, "w-1/2", "flex-row")
@@ -87,7 +89,7 @@ let make = (
               let i = i->Float.fromInt
               let opacity = (i +. 1.) /. length
               let borderTop = `${(size *. 14.)
-                  ->Float.toString}rem solid rgb(0,109,249,${opacity->Float.toString})`
+                  ->Float.toString}rem solid rgb(var(--color-${primaryColor}),${opacity->Float.toString})`
 
               let currentWidthRatio = switch widths->Array.get(i->Float.toInt) {
               | Some(width) => width
