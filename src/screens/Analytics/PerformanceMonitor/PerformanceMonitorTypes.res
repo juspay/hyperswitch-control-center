@@ -40,7 +40,6 @@ type series = array<seriesRecord>
 type yAxis = {text: string}
 type xAxis = {text: string}
 
-type title = {text: string}
 type colors = array<string>
 
 type barChartData = {
@@ -51,9 +50,7 @@ type barChartData = {
 type gaugeChartData = {value: float}
 
 type chartConfig = {
-  yAxis: yAxis,
-  xAxis: xAxis,
-  title: title,
+  title: string,
   colors: array<string>,
 }
 type chartDataConfig = {groupByKeys: array<dimension>, name?: metrics, plotChartBy?: array<string>}

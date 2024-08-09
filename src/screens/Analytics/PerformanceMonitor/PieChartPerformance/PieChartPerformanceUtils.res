@@ -6,13 +6,13 @@ let getDontchartOptions = (config: chartConfig, series) => {
     "chart": {
       "type": "pie",
     },
-    "title": {
-      "text": config.title.text,
-    },
     "tooltip": {
       "valueSuffix": ``,
     },
     "subtitle": {
+      "text": "",
+    },
+    "title": {
       "text": "",
     },
     "plotOptions": {

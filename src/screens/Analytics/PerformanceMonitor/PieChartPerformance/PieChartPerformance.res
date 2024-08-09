@@ -42,7 +42,8 @@ let make = (
     }
     None
   }, [dimensions])
-  <>
+
+  <PerformanceUtils.Card title=entity.chartConfig.title description=entity.chartConfig.title>
     <HighchartPieChart.RawPieChart options={options} />
-  </>
+  </PerformanceUtils.Card>
 }

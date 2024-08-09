@@ -50,15 +50,14 @@ let barOption = (config: chartConfig, data: barChartData) =>
       "type": `column`,
     },
     "colors": config.colors,
-    "title": {
-      "text": config.title.text,
-      "align": "left",
-    },
     "xAxis": {
       "categories": data.categories,
       "title": {
-        "text": config.xAxis.text,
+        "text": "",
       },
+    },
+    "title": {
+      "text": "",
     },
     "yAxis": {
       "min": 0,

@@ -8,7 +8,7 @@ let make = (
   open APIUtils
   open LogicUtils
   open Highcharts
-  open PerformanceMonitorTypes
+
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (gaugeOption, setGaugeOptions) = React.useState(_ => JSON.Encode.null)
@@ -19,7 +19,10 @@ let make = (
     try {
       let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
 
-      let metrics = entity.requestBodyConfig.metrics->Array.map(v => (v: metrics :> string))
+      let metrics =
+        entity.requestBodyConfig.metrics->Array.map(v =>
+          (v: PerformanceMonitorTypes.metrics :> string)
+        )
 
       let body =
         [
@@ -50,5 +53,7 @@ let make = (
     None
   }, [])
 
-  <Chart options={gaugeOption} highcharts />
+  <PerformanceUtils.Card title=entity.chartConfig.title description=entity.chartConfig.title>
+    <Chart options={gaugeOption} highcharts />
+  </PerformanceUtils.Card>
 }

@@ -18,15 +18,7 @@ let make = (
   let (limitData, setLimitData) = React.useState(_ => 0.0)
 
   let defaultChartConfig: PerformanceMonitorTypes.chartConfig = {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: title,
-    },
+    title: "",
     colors: [],
   }
 
@@ -122,5 +114,7 @@ let make = (
     None
   }, [])
 
-  <Chart options={gaugeOption} highcharts />
+  <PerformanceUtils.Card title description=title>
+    <Chart options={gaugeOption} highcharts />
+  </PerformanceUtils.Card>
 }

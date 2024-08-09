@@ -84,7 +84,10 @@ let gaugeOption = (config: chartConfig, data: gaugeChartData, ~start=50, ~mid=75
       ],
     },
     "title": {
-      "text": config.title.text,
+      "text": "",
+    },
+    "credits": {
+      "enabled": false,
     },
     "series": [
       {

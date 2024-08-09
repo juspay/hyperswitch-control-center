@@ -89,15 +89,12 @@ let make = () => {
       />
     </div>
 
-  <>
+  <div className="flex flex-col gap-3">
     <PageLoaderWrapper screenState>
       <div
         className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
         topFilterUi
       </div>
-      <TablePerformance
-        startTimeVal endTimeVal entity={PerformanceMonitorEntity.getFailureRateEntity}
-      />
       <div className="grid grid-cols-4 grid-rows-1 gap-3">
         <GaugeChartPerformance
           startTimeVal endTimeVal entity={PerformanceMonitorEntity.getSuccessRatePerformanceEntity}
@@ -134,50 +131,43 @@ let make = () => {
         //   customValue={"failed"}
         // />
       </div>
-      <div className="flex gap-2">
-        <div className="flex-col">
-          <BarChartPerformance
-            startTimeVal
-            endTimeVal
-            dimensions
-            entity={PerformanceMonitorEntity.getConnectorPerformanceEntity}
-          />
-        </div>
-        <div className="flex-col">
-          <BarChartPerformance
-            startTimeVal
-            endTimeVal
-            dimensions
-            entity={PerformanceMonitorEntity.getPaymentMethodPerformanceEntity}
-          />
-        </div>
+      <div className="grid grid-cols-2 grid-rows-1 gap-3">
+        <BarChartPerformance
+          startTimeVal
+          endTimeVal
+          dimensions
+          entity={PerformanceMonitorEntity.getConnectorPerformanceEntity}
+        />
+        <BarChartPerformance
+          startTimeVal
+          endTimeVal
+          dimensions
+          entity={PerformanceMonitorEntity.getPaymentMethodPerformanceEntity}
+        />
       </div>
-      <div className="grid grid-cols-3 gap-4">
-        <div className="">
-          <PieChartPerformance
-            startTimeVal
-            endTimeVal
-            dimensions
-            entity={PerformanceMonitorEntity.getConnectorPaymentMethodFailureEntity}
-          />
-        </div>
-        <div className="">
-          <PieChartPerformance
-            startTimeVal
-            endTimeVal
-            dimensions
-            entity={PerformanceMonitorEntity.getConnectorFailureEntity}
-          />
-        </div>
-        <div className="">
-          <PieChartPerformance
-            startTimeVal
-            endTimeVal
-            dimensions
-            entity={PerformanceMonitorEntity.getPaymentMethodFailureEntity}
-          />
-        </div>
+      <div className="grid grid-cols-3 grid-rows-1 gap-3">
+        <PieChartPerformance
+          startTimeVal
+          endTimeVal
+          dimensions
+          entity={PerformanceMonitorEntity.getConnectorPaymentMethodFailureEntity}
+        />
+        <PieChartPerformance
+          startTimeVal
+          endTimeVal
+          dimensions
+          entity={PerformanceMonitorEntity.getConnectorFailureEntity}
+        />
+        <PieChartPerformance
+          startTimeVal
+          endTimeVal
+          dimensions
+          entity={PerformanceMonitorEntity.getPaymentMethodFailureEntity}
+        />
       </div>
+      <TablePerformance
+        startTimeVal endTimeVal entity={PerformanceMonitorEntity.getFailureRateEntity}
+      />
     </PageLoaderWrapper>
-  </>
+  </div>
 }

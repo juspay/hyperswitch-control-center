@@ -73,21 +73,7 @@ let make = (
     None
   }, [])
 
-  <div
-    className={`h-full flex flex-col border rounded-lg dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox px-7 py-5`}>
-    <div className={"flex gap-2 items-center text-jp-gray-700 font-bold self-start mb-5"}>
-      <div className="font-semibold text-base text-black dark:text-white">
-        {"Payment Failures"->React.string}
-      </div>
-      <ToolTip
-        description="Payment Failures"
-        toolTipFor={<div className="cursor-pointer">
-          <Icon name="info-vacent" size=13 />
-        </div>}
-        toolTipPosition=ToolTip.Top
-        newDesign=true
-      />
-    </div>
+  <PerformanceUtils.Card title="Payment Failures" description="Payment Failures">
     <LoadedTable
       visibleColumns
       title=" "
@@ -106,5 +92,5 @@ let make = (
       tableDataBorderClass=tableBorderClass
       isAnalyticsModule=true
     />
-  </div>
+  </PerformanceUtils.Card>
 }

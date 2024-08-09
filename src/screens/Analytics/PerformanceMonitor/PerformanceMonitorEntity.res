@@ -41,15 +41,7 @@ let getFailureRateEntity: entity<'t> = {
     name: #payment_success_rate,
   },
   chartConfig: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Payment Failures",
-    },
+    title: "Payment Failures",
     colors: [],
   },
 }
@@ -69,15 +61,7 @@ let getSuccessRatePerformanceEntity: entity<'t> = {
     name: #payment_success_rate,
   },
   chartConfig: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Payment Success Rate",
-    },
+    title: "Payment Success Rate",
     colors: [],
   },
 }
@@ -97,15 +81,7 @@ let getRefundsSuccessRatePerformanceEntity: entity<'t> = {
     name: #refund_success_rate,
   },
   chartConfig: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Refund Success Rate",
-    },
+    title: "Refund Success Rate",
     colors: [],
   },
 }
@@ -123,15 +99,7 @@ let getStatusPerformanceEntity: entity<'t> = {
     groupByKeys: [#status],
   },
   chartConfig: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Payment Distribution By Connector",
-    },
+    title: "Payment Distribution By Connector",
     colors: ["#264653", "#619f5b", "#e9c46a", "#f4a261", "#06d6a0", "#c74050"],
   },
 }
@@ -150,15 +118,7 @@ let getConnectorPerformanceEntity: entity<'t> = {
     plotChartBy: ["failure", "charged"],
   },
   chartConfig: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Payment Distribution By Connector",
-    },
+    title: "Payment Distribution By Connector",
     colors: ["#c74050", "#619f5b"],
   },
 }
@@ -177,15 +137,7 @@ let getPaymentMethodPerformanceEntity: entity<'t> = {
     plotChartBy: ["failure", "charged"],
   },
   chartConfig: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Payment Distribution By Payment Method",
-    },
+    title: "Payment Distribution By Payment Method",
     colors: ["#c74050", "#619f5b"],
   },
 }
@@ -203,15 +155,7 @@ let getConnectorFailureEntity: entity<'t> = {
     groupByKeys: [#connector],
   },
   chartConfig: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Connector Wise Payment Failure",
-    },
+    title: "Connector Wise Payment Failure",
     colors: ["#c74050", "#619f5b"],
   },
 }
@@ -229,15 +173,7 @@ let getPaymentMethodFailureEntity: entity<'t> = {
     groupByKeys: [#payment_method],
   },
   chartConfig: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Method Wise Payment Failure",
-    },
+    title: "Method Wise Payment Failure",
     colors: ["#c74050", "#619f5b"],
   },
 }
@@ -255,15 +191,7 @@ let getConnectorPaymentMethodFailureEntity: entity<'t> = {
     groupByKeys: [#connector, #payment_method],
   },
   chartConfig: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Connector + Payment Method Wise Payment Failure",
-    },
+    title: "Connector + Payment Method Wise Payment Failure",
     colors: ["#c74050", "#619f5b"],
   },
 }
