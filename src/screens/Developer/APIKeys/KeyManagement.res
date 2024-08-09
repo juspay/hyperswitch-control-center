@@ -382,6 +382,7 @@ module KeysManagement = {
       />
       <ApiKeysTable />
       <PublishableAndHashKeySection />
+      <RawCardForwarding />
     </div>
   }
 }
