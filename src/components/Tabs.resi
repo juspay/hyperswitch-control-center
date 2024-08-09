@@ -34,6 +34,7 @@ module TabInfo: {
     ~borderDefaultStyle: string=?,
     ~showBottomBorder: bool=?,
     ~onTabSelection: unit => unit=?,
+    ~selectTabBottomBorderColor: string=?,
   ) => React.element
 }
 module IndicationArrow: {
@@ -78,5 +79,5 @@ let make: (
   ~showBottomBorder: bool=?,
   ~showStickyHeader: bool=?,
   ~contentHeight: string=?,
-) => // ~icon: REact.element=?,
-React.element
+  ~selectTabBottomBorderColor: string=?,
+) => React.element
