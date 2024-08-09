@@ -95,6 +95,9 @@ let make = () => {
         className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
         topFilterUi
       </div>
+      <TablePerformance
+        startTimeVal endTimeVal entity={PerformanceMonitorEntity.getFailureRateEntity}
+      />
       <div className="grid grid-cols-4 grid-rows-1 gap-3">
         <GaugeChartPerformance
           startTimeVal endTimeVal entity={PerformanceMonitorEntity.getSuccessRatePerformanceEntity}
@@ -121,7 +124,6 @@ let make = () => {
             entity={PerformanceMonitorEntity.getStatusPerformanceEntity}
           />
         </div>
-
         // <GaugeFailureRate
         //   startTimeVal
         //   endTimeVal

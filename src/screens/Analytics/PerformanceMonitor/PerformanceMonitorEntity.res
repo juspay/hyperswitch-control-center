@@ -26,6 +26,34 @@ let defaultDimesions = {
 
 let colors = ["#c74050", "#619f5b"]
 
+let getFailureRateEntity: entity<'t> = {
+  getChartData: GaugeChartPerformanceUtils.getGaugeData,
+  requestBodyConfig: {
+    metrics: [#payment_success_rate],
+    groupBy: [],
+    filters: [],
+    delta: true,
+    customFilter: None,
+    applyFilterFor: None,
+  },
+  configRequiredForChartData: {
+    groupByKeys: [],
+    name: #payment_success_rate,
+  },
+  chartConfig: {
+    yAxis: {
+      text: "",
+    },
+    xAxis: {
+      text: "",
+    },
+    title: {
+      text: "Payment Failures",
+    },
+    colors: [],
+  },
+}
+
 let getSuccessRatePerformanceEntity: entity<'t> = {
   getChartData: GaugeChartPerformanceUtils.getGaugeData,
   requestBodyConfig: {
