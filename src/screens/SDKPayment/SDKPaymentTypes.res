@@ -6,13 +6,13 @@ type address = {
   state: string,
   zip: string,
   country: string,
-  firstName: string,
-  lastName: string,
+  first_name: string,
+  last_name: string,
 }
 
 type phone = {
   number: string,
-  countryCode: string,
+  country_code: string,
 }
 
 type shipping = {
@@ -26,57 +26,57 @@ type billing = {
   email: string,
 }
 type orderDetails = {
-  productName: string,
+  product_name: string,
   quantity: int,
   amount: float,
 }
-type metadata = {orderDetails: orderDetails}
+type metadata = {order_details: orderDetails}
 
 type online = {
-  ipAddress: string,
-  userAgent: string,
+  ip_address: string,
+  user_agent: string,
 }
 
-type customerAcceptance = {
-  acceptanceType: string,
-  acceptedAt: string,
+type customer_acceptance = {
+  acceptance_type: string,
+  accepted_at: string,
   online: online,
 }
 
-type multiUse = {
+type multi_use = {
   amount: int,
   currency: string,
 }
 
-type mandateType = {multiUse: multiUse}
+type mandate_type = {multi_use: multi_use}
 
 type mandateData = {
-  customerAcceptance: customerAcceptance,
-  mandateType: mandateType,
+  customer_acceptance: customer_acceptance,
+  mandate_type: mandate_type,
 }
 
-type frmMetadata = {orderChannel: string}
+type frm_metadata = {order_channel: string}
 
 type paymentType = {
   amount: float,
   mutable currency: string,
-  profileId: string,
-  customerId: string,
+  profile_id: string,
+  customer_id: string,
   description: string,
-  captureMethod: string,
-  amountToCapture: Nullable.t<float>,
+  capture_method: string,
+  amount_to_capture: Nullable.t<float>,
   email: string,
   name: string,
   phone: string,
-  phoneCountryCode: string,
-  authenticationType: string,
+  phone_country_code: string,
+  authentication_type: string,
   shipping: shipping,
   billing: billing,
   metadata: metadata,
-  returnUrl: string,
-  paymentType?: Nullable.t<string>,
-  setupFutureUsage?: Nullable.t<string>,
-  mandateData?: Nullable.t<mandateData>,
-  countryCurrency: string,
-  frmMetadata: frmMetadata,
+  return_url: string,
+  payment_type?: Nullable.t<string>,
+  setup_future_usage?: Nullable.t<string>,
+  mandate_data?: Nullable.t<mandateData>,
+  country_currency: string,
+  frm_metadata: frm_metadata,
 }
