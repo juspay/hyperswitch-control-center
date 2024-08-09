@@ -109,7 +109,7 @@ module Landing = {
     ~setApplePayIntegrationType,
   ) => {
     open ApplePayIntegrationTypes
-    open WalletHelper
+    open AdditionalDetailsSidebarHelper
     <>
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE)
@@ -168,7 +168,7 @@ module Landing = {
 let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClickCustomFun) => {
   open APIUtils
   open LogicUtils
-  open WalletHelper
+  open AdditionalDetailsSidebarHelper
   open ApplePayIntegrationTypes
 
   let getURL = useGetURL()
