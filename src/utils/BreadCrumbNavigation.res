@@ -72,7 +72,7 @@ let make = (
                 | (None, None) =>
                   <Link
                     className={`${textClass} ${linkTextClass} ${commonTextClass}`}
-                    to_={`${prefix}${crumb.link}`}>
+                    to_={GlobalVars.appendDashboardPath(~url=`${prefix}${crumb.link}`)}>
                     {React.string(crumb.title)}
                   </Link>
                 | _ =>
