@@ -10,7 +10,9 @@ module PmtConfigInp = {
     open LogicUtils
     let (currentSelection, setCurrentSelection) = React.useState(_ => "")
 
-    let enabledList = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
+    let enabledList = (
+      fieldsArray->Array.get(0)->Option.getOr(ReactFinalForm.fakeFieldRenderProps)
+    ).input
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
