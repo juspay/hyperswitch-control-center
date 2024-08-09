@@ -14,7 +14,7 @@ module PmtConfigInp = {
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToString
         let getPaymentMethodsObject = connector => {
@@ -42,7 +42,7 @@ module PmtConfigInp = {
           enabledList.onChange(newPaymentMethodsArray->Identity.anyTypeToReactEvent)
         }
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: currentSelection->JSON.Encode.string,
       checked: true,
     }
@@ -98,7 +98,7 @@ let make = (
   }
 
   let onCancelClick = () => {
-    let existingValues =
+    let existingPaymentMethodValues =
       formState.values
       ->getDictFromJsonObject
       ->getDictfromDict("pm_auth_config")
@@ -106,12 +106,14 @@ let make = (
       ->JSON.Encode.array
       ->getArrayDataFromJson(itemToObjMapper)
 
-    let _existingValues =
-      existingValues->Array.filter(item => item.payment_method_type !== paymentMethodType)
+    let newPaymentMethodValues =
+      existingPaymentMethodValues->Array.filter(item =>
+        item.payment_method_type !== paymentMethodType
+      )
 
     form.change(
       "pm_auth_config.enabled_payment_methods",
-      _existingValues->Identity.genericTypeToJson,
+      newPaymentMethodValues->Identity.genericTypeToJson,
     )
   }
 

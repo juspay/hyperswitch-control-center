@@ -72,6 +72,18 @@ module CardRenderer = {
         obj.payment_experience == selectedMethod.payment_experience
     }
 
+    let showSideModal = methodVariant => {
+      ((methodVariant === GooglePay || methodVariant === ApplePay) &&
+        {
+          switch connector->getConnectorNameTypeFromString {
+          | Processors(TRUSTPAY)
+          | Processors(AIRWALLEX)
+          | Processors(STRIPE_TEST) => false
+          | _ => true
+          }
+        }) || (paymentMethod->getPaymentMethodFromString === BankDebit && isPMAuthConnector)
+    }
+
     let removeOrAddMethods = (method: paymentMethodConfigType) => {
       switch (
         method.payment_method_type->getPaymentMethodTypeFromString,
@@ -93,24 +105,11 @@ module CardRenderer = {
       | _ =>
         if standardProviders->Array.some(obj => checkPaymentMethodType(obj, method)) {
           paymentMethodsEnabled->removeMethod(paymentMethod, method, connector)->updateDetails
+        } else if showSideModal(method.payment_method_type->getPaymentMethodTypeFromString) {
+          setShowWalletConfigurationModal(_ => !showWalletConfigurationModal)
+          setSelectedWallet(_ => method)
         } else {
-          let methodVariant = method.payment_method_type->getPaymentMethodTypeFromString
-          if (
-            ((methodVariant === GooglePay || methodVariant === ApplePay) &&
-              {
-                switch connector->getConnectorNameTypeFromString {
-                | Processors(TRUSTPAY) => false
-                | Processors(AIRWALLEX) => false
-                | Processors(STRIPE_TEST) => false
-                | _ => true
-                }
-              }) || (paymentMethod->getPaymentMethodFromString === BankDebit && isPMAuthConnector)
-          ) {
-            setShowWalletConfigurationModal(_ => !showWalletConfigurationModal)
-            setSelectedWallet(_ => method)
-          } else {
-            paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
-          }
+          paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
         }
       }
     }
@@ -167,6 +166,11 @@ module CardRenderer = {
       form.change("metadata", initalFormValue->Identity.genericTypeToJson)
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
     }
+
+    let modalHeading = `Additional Details to enable ${paymentMethod->getPaymentMethodFromString !==
+        BankDebit
+        ? selectedWallet.payment_method_type->snakeToTitle
+        : paymentMethod->snakeToTitle}`
 
     <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>
@@ -261,10 +265,7 @@ module CardRenderer = {
           selectedWallet.payment_method_type->getPaymentMethodTypeFromString === GooglePay ||
           (paymentMethod->getPaymentMethodFromString === BankDebit && isPMAuthConnector)}>
           <Modal
-            modalHeading={`Additional Details to enable ${paymentMethod->getPaymentMethodFromString !==
-                BankDebit
-                ? selectedWallet.payment_method_type->snakeToTitle
-                : paymentMethod->snakeToTitle}`}
+            modalHeading
             headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
             headBgClass="sticky top-0 z-30 bg-white"
             showModal={showWalletConfigurationModal}
