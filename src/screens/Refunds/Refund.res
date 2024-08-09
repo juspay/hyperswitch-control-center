@@ -14,7 +14,14 @@ let make = () => {
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Refunds")->Option.getOr(defaultValue)
+  let setPageDetails = Recoil.useSetRecoilState(LoadedTable.table_pageDetails)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
+
+  let clearPageDetails = () => {
+    let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
+    newDict->Dict.set("Refunds", defaultValue)
+    setPageDetails(_ => newDict)
+  }
 
   let fetchRefunds = () => {
     switch filters {
@@ -54,7 +61,7 @@ let make = () => {
     if filters->OrderUIUtils.isNonEmptyValue {
       fetchRefunds()
     }
-    None
+    Some(() => clearPageDetails())
   }, (offset, filters, searchText))
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -92,7 +99,7 @@ let make = () => {
           title="Refunds"
           actualData=refundData
           entity={RefundEntity.refundEntity}
-          resultsPerPage=20
+          resultsPerPage=25
           showSerialNumber=true
           totalResults={totalCount}
           offset

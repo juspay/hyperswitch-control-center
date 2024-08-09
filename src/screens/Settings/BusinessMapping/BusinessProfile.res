@@ -184,7 +184,7 @@ let make = (
           <LoadedTable
             title="Business profiles"
             hideTitle=true
-            resultsPerPage=7
+            resultsPerPage=10
             visibleColumns
             entity={businessProfileTableEntity}
             showSerialNumber=true

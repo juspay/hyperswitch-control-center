@@ -88,7 +88,7 @@ let make = (~isPayoutFlow=false) => {
         title=" "
         actualData={filteredConnectors->Array.map(Nullable.make)}
         totalResults={filteredConnectors->Array.length}
-        resultsPerPage=20
+        resultsPerPage=25
         showSerialNumber=true
         offset
         setOffset
