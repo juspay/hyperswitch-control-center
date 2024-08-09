@@ -99,12 +99,12 @@ let make = () => {
         <GaugeChartPerformance
           startTimeVal endTimeVal entity={PerformanceMonitorEntity.getSuccessRatePerformanceEntity}
         />
-        <GaugeChartPerformance
-          startTimeVal
-          endTimeVal
-          entity={PerformanceMonitorEntity.getRefundsSuccessRatePerformanceEntity}
-          domain="refunds"
-        />
+        // <GaugeChartPerformance
+        //   startTimeVal
+        //   endTimeVal
+        //   entity={PerformanceMonitorEntity.getRefundsSuccessRatePerformanceEntity}
+        //   domain="refunds"
+        // />
         <GaugeFailureRate
           startTimeVal
           endTimeVal
@@ -113,18 +113,7 @@ let make = () => {
           filter=#status
           customValue={"failure"}
         />
-        <GaugeFailureRate
-          startTimeVal
-          endTimeVal
-          metric=#refund_count
-          title="Refunds Failure Rate"
-          domain="refunds"
-          filter=#refund_status
-          customValue={"failed"}
-        />
-      </div>
-      <div className="flex gap-2">
-        <div className="flex-col">
+        <div className="col-span-2">
           <BarChartPerformance
             startTimeVal
             endTimeVal
@@ -132,6 +121,16 @@ let make = () => {
             entity={PerformanceMonitorEntity.getStatusPerformanceEntity}
           />
         </div>
+
+        // <GaugeFailureRate
+        //   startTimeVal
+        //   endTimeVal
+        //   metric=#refund_count
+        //   title="Refunds Failure Rate"
+        //   domain="refunds"
+        //   filter=#refund_status
+        //   customValue={"failed"}
+        // />
       </div>
       <div className="flex gap-2">
         <div className="flex-col">

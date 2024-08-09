@@ -93,7 +93,6 @@ let getStatusPerformanceEntity: entity<'t> = {
   },
   configRequiredForChartData: {
     groupByKeys: [#status],
-    // plotChartBy: ["failure"],
   },
   chartConfig: {
     yAxis: {
@@ -105,7 +104,7 @@ let getStatusPerformanceEntity: entity<'t> = {
     title: {
       text: "Payment Distribution By Connector",
     },
-    colors: ["#c74050", "#619f5b", "#ca8a04", "#06b6d4"],
+    colors: ["#264653", "#619f5b", "#e9c46a", "#f4a261", "#06d6a0", "#c74050"],
   },
 }
 

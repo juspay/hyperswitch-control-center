@@ -11,7 +11,7 @@ let make = (
   open APIUtils
   open LogicUtils
   open Highcharts
-
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (gaugeOption, setGaugeOptions) = React.useState(_ => JSON.Encode.null)
   let (overallData, setOverallData) = React.useState(_ => 0.0)
@@ -39,7 +39,7 @@ let make = (
 
   let fetchOverallData = async () => {
     try {
-      let url = `https://sandbox.hyperswitch.io/analytics/v1/metrics/${domain}`
+      let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
 
       let metrics = (metric: PerformanceMonitorTypes.metrics :> string)
 
@@ -50,11 +50,10 @@ let make = (
             ~delta=true,
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
-            (),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
 
-      let res = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post)
       let arr =
         res
         ->getDictFromJsonObject
@@ -68,7 +67,7 @@ let make = (
 
   let fetchExactData = async () => {
     try {
-      let url = `https://sandbox.hyperswitch.io/analytics/v1/metrics/${domain}`
+      let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
 
       let metrics = (metric: PerformanceMonitorTypes.metrics :> string)
 
@@ -87,11 +86,10 @@ let make = (
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
             ~filter=filters->Some,
-            (),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
 
-      let res = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post)
       let arr =
         res
         ->getDictFromJsonObject

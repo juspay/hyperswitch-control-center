@@ -9,6 +9,7 @@ let make = (
   open LogicUtils
   open Highcharts
   open PerformanceMonitorTypes
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (gaugeOption, setGaugeOptions) = React.useState(_ => JSON.Encode.null)
 
@@ -16,7 +17,7 @@ let make = (
 
   let chartFetch = async () => {
     try {
-      let url = `https://sandbox.hyperswitch.io/analytics/v1/metrics/${domain}`
+      let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
 
       let metrics = entity.requestBodyConfig.metrics->Array.map(v => (v: metrics :> string))
 
@@ -27,11 +28,10 @@ let make = (
             ~delta=true,
             ~startDateTime=startTimeVal,
             ~endDateTime=endTimeVal,
-            (),
           )->JSON.Encode.object,
         ]->JSON.Encode.array
 
-      let res = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post)
       let arr =
         res
         ->getDictFromJsonObject

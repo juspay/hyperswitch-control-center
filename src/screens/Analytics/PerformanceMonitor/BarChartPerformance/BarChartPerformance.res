@@ -14,7 +14,7 @@ let make = (
   let chartFetch = async () => {
     try {
       let metricsUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
-      let body = entity.getBody(
+      let body = PerformanceUtils.requestBody(
         ~dimensions,
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
