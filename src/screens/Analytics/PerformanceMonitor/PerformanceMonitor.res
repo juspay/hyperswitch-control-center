@@ -34,8 +34,8 @@ let make = (~domain="payments") => {
   let fetchFilterData = async dimensions => {
     try {
       let groupBy = getStringListFromArrayDict(dimensions)
-      let filterUri = `${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`
-      let res = await updateDetails(filterUri, filterBody(~groupBy)->JSON.Encode.object, Post)
+      let filterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
+      let res = await updateDetails(filterUrl, filterBody(~groupBy)->JSON.Encode.object, Post)
       let dim =
         res
         ->getDictFromJsonObject
