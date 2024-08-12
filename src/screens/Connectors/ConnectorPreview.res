@@ -150,7 +150,7 @@ module ConnectorSummaryGrid = {
         ele.profile_id === connectorInfo.profile_id
       )
       ->Option.getOr(defaultBusinessProfile)
-    let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+    let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let copyValueOfWebhookEndpoint = ConnectorUtils.getWebhooksUrl(
       ~connectorName={connectorInfo.merchant_connector_id},
       ~merchantId,
