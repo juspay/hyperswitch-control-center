@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.08.12.0
+
+### Miscellaneous Tasks
+
+- Changes for tabs & table customization ([#1118](https://github.com/juspay/hyperswitch-control-center/pull/1118)) ([`7f126c2`](https://github.com/juspay/hyperswitch-control-center/commit/7f126c28754fb75246bacee82a6b76736bedd5a6))
+- Performance monitor ([#1102](https://github.com/juspay/hyperswitch-control-center/pull/1102)) ([`143397b`](https://github.com/juspay/hyperswitch-control-center/commit/143397b7ae74ae1b47a83382efd82deb77ad5517))
+
+**Full Changelog:** [`2024.08.11.0...2024.08.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.11.0...2024.08.12.0)
+
+- - -
+
 ## 2024.08.11.0
 
 ### Features
