@@ -33,7 +33,6 @@ let getPieChartOptions = (config: chartOption, data) => {
       "verticalAlign": "middle", // Vertically center the legend
       "layout": "vertical", // Use a vertical layout for legend items
       "width": "35%",
-      // "y": 35,
     },
     "credits": {
       "enabled": false, // Disable the Highcharts credits
