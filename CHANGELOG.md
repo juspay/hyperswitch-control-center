@@ -3,6 +3,34 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.08.11.0
+
+### Features
+
+- Addition of pm authentication processor new flow ([#1125](https://github.com/juspay/hyperswitch-control-center/pull/1125)) ([`d18b4d1`](https://github.com/juspay/hyperswitch-control-center/commit/d18b4d15a63860a8729fccf48a0ba7217ca7b87d))
+
+### Bug Fixes
+
+- Frictionless success metric fix ([#1133](https://github.com/juspay/hyperswitch-control-center/pull/1133)) ([`d5afd14`](https://github.com/juspay/hyperswitch-control-center/commit/d5afd14131749d2405325c11ed1e842dcf50b775))
+
+**Full Changelog:** [`2024.08.08.0...2024.08.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.08.0...2024.08.11.0)
+
+- - -
+
+## 2024.08.08.0
+
+### Features
+
+- Enable pm_auth_processor ([#1124](https://github.com/juspay/hyperswitch-control-center/pull/1124)) ([`5702f1e`](https://github.com/juspay/hyperswitch-control-center/commit/5702f1e776ea5ce4b7481e5f49f1e818227899df))
+
+### Miscellaneous Tasks
+
+- Refactor user info context ([#1103](https://github.com/juspay/hyperswitch-control-center/pull/1103)) ([`919201a`](https://github.com/juspay/hyperswitch-control-center/commit/919201a10c690e556cef8d5158f8fe9d176c9973))
+
+**Full Changelog:** [`2024.08.06.0...2024.08.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.06.0...2024.08.08.0)
+
+- - -
+
 ## 2024.08.06.0
 
 ### Refactors
