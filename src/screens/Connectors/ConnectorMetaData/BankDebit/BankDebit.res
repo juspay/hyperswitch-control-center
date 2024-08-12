@@ -90,6 +90,8 @@ let make = (
   let pmAuthConnectors =
     connectorsListPMAuth->Array.map(item => item.connector_name)->removeDuplicate
 
+  let pmAuthConnectorOptions = pmAuthConnectors->dropdownOptions
+
   let getConnectorId = (connector: ConnectorTypes.connectorTypes) => {
     let connectorData = connectorsListPMAuth->Array.find(item => {
       item.connector_name->ConnectorUtils.getConnectorNameTypeFromString(
@@ -158,7 +160,7 @@ let make = (
           name1: `pm_auth_config.enabled_payment_methods`,
           name2: ``,
           label: `Select the open banking verification provider to verify the bank accounts`,
-          options: pmAuthConnectors->dropdownOptions,
+          options: pmAuthConnectorOptions,
         })}
         labelTextStyleClass="pt-2 pb-2 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 font-semibold"
       />
