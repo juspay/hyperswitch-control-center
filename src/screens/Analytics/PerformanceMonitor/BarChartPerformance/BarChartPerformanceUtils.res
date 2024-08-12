@@ -1,5 +1,18 @@
 open PerformanceMonitorTypes
 
+let getBarchartColor = name => {
+  switch name {
+  | "failure" => "#f44708"
+  | "charged" => "#8ac926"
+  | "authentication_pending" => "#80E1D9"
+  | "authentication_failed" => "#F8BC3B"
+  | "pending" => "#B2596E"
+  | "payment_method_awaited" => "#72BEF4"
+  | "authorized" => "#FFB27A"
+  | _ => "#0D7EA0"
+  }
+}
+
 let getStackedBarData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
   let {groupByKeys} = config
   let grouped = PerformanceUtils.getGroupByDataForStatusAndPaymentCount(array, groupByKeys)
@@ -32,9 +45,11 @@ let getStackedBarData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
     finalResult
     ->Dict.keysToArray
     ->Array.map(val => {
+      Js.log2(">>", val)
       {
         name: val,
         data: finalResult->Dict.get(val)->Option.getOr([]),
+        color: val->getBarchartColor,
       }
     })
 
@@ -64,13 +79,27 @@ let barOption = (config: chartConfig, data: barChartData) =>
       "stackLabels": {
         "enabled": true,
       },
+      "title": {
+        "text": "",
+      },
     },
     "legend": {
       "align": "right", // Align the legend to the right
-      "verticalAlign": "top", // Vertically center the legend
+      "verticalAlign": "middle", // Vertically center the legend
       "layout": "vertical", // Use a vertical layout for legend items
-      // "width": "35%",
-      "y": 30,
+      "width": "20%",
+      "enabled": true,
+      "itemStyle": LineChartUtils.legendItemStyle("12px"),
+      "itemHiddenStyle": {
+        "color": "rgba(53, 64, 82, 0.2)",
+        "cursor": "pointer",
+        "fontWeight": "500",
+        "fontStyle": "normal",
+      },
+      "itemHoverStyle": LineChartUtils.legendItemStyle("12px"),
+      "symbolRadius": 4,
+      "symbolPaddingTop": 5,
+      "itemMarginBottom": 10,
     },
     "tooltip": {
       "headerFormat": "<b>{point.x}</b><br/>",
@@ -79,6 +108,7 @@ let barOption = (config: chartConfig, data: barChartData) =>
     "plotOptions": {
       "column": {
         "stacking": "normal",
+        "borderRadius": 3,
         "dataLabels": {
           "enabled": true,
         },

@@ -636,27 +636,15 @@ let tooltipFormatter = (
   `<table>${htmlStr}</table>`
 }
 
-let legendItemStyle = (theme: ThemeProvider.theme, legendFontSizeClass) => {
-  switch theme {
-  | Dark =>
-    {
-      "color": "#c7cad0",
-      "cursor": "pointer",
-      "fontSize": legendFontSizeClass,
-      "fontWeight": "500",
-      "fontFamily": "Inter",
-      "fontStyle": "normal",
-    }->genericObjectOrRecordToJson
-  | Light =>
-    {
-      "color": "rgba(53, 64, 82, 0.8)",
-      "cursor": "pointer",
-      "fontSize": legendFontSizeClass,
-      "fontWeight": "500",
-      "fontFamily": "Inter",
-      "fontStyle": "normal",
-    }->genericObjectOrRecordToJson
-  }
+let legendItemStyle = legendFontSizeClass => {
+  {
+    "color": "rgba(53, 64, 82, 0.8)",
+    "cursor": "pointer",
+    "fontSize": legendFontSizeClass,
+    "fontWeight": "500",
+    "fontFamily": "Inter",
+    "fontStyle": "normal",
+  }->genericObjectOrRecordToJson
 }
 
 let legendHiddenStyle = (theme: ThemeProvider.theme) => (

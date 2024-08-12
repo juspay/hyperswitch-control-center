@@ -24,7 +24,7 @@ let defaultDimesions = {
   values: [],
 }
 
-let colors = ["#c74050", "#619f5b"]
+let colors = ["#f44708", "#8ac926"]
 
 let getFailureRateEntity: entity<'t> = {
   getChartData: GaugeChartPerformanceUtils.getGaugeData,
@@ -100,7 +100,20 @@ let getStatusPerformanceEntity: entity<'t> = {
   },
   chartConfig: {
     title: "Payment Distribution By Connector",
-    colors: ["#264653", "#619f5b", "#e9c46a", "#f4a261", "#06d6a0", "#c74050"],
+    colors: [
+      "#7856FF",
+      "#FF7557",
+      "#80E1D9",
+      "#F8BC3B",
+      "#B2596E",
+      "#72BEF4",
+      "#FFB27A",
+      "#0D7EA0",
+      "#3BA974",
+      "#FEBBB2",
+      "#CA80DC",
+      "#5BB7AF",
+    ],
   },
 }
 
@@ -118,8 +131,8 @@ let getConnectorPerformanceEntity: entity<'t> = {
     plotChartBy: ["failure", "charged"],
   },
   chartConfig: {
-    title: "Payment Distribution By Connector",
-    colors: ["#c74050", "#619f5b"],
+    title: "Payment Distribution By Status",
+    colors: ["#f44708", "#8ac926"],
   },
 }
 
@@ -138,7 +151,7 @@ let getPaymentMethodPerformanceEntity: entity<'t> = {
   },
   chartConfig: {
     title: "Payment Distribution By Payment Method",
-    colors: ["#c74050", "#619f5b"],
+    colors: ["#f44708", "#8ac926"],
   },
 }
 
@@ -156,7 +169,20 @@ let getConnectorFailureEntity: entity<'t> = {
   },
   chartConfig: {
     title: "Connector Wise Payment Failure",
-    colors: ["#c74050", "#619f5b"],
+    colors: [
+      "#7856FF",
+      "#FF7557",
+      "#80E1D9",
+      "#F8BC3B",
+      "#B2596E",
+      "#72BEF4",
+      "#FFB27A",
+      "#0D7EA0",
+      "#3BA974",
+      "#FEBBB2",
+      "#CA80DC",
+      "#5BB7AF",
+    ],
   },
 }
 
@@ -174,7 +200,20 @@ let getPaymentMethodFailureEntity: entity<'t> = {
   },
   chartConfig: {
     title: "Method Wise Payment Failure",
-    colors: ["#c74050", "#619f5b"],
+    colors: [
+      "#7856FF",
+      "#FF7557",
+      "#80E1D9",
+      "#F8BC3B",
+      "#B2596E",
+      "#72BEF4",
+      "#FFB27A",
+      "#0D7EA0",
+      "#3BA974",
+      "#FEBBB2",
+      "#CA80DC",
+      "#5BB7AF",
+    ],
   },
 }
 
@@ -192,6 +231,19 @@ let getConnectorPaymentMethodFailureEntity: entity<'t> = {
   },
   chartConfig: {
     title: "Connector + Payment Method Wise Payment Failure",
-    colors: ["#c74050", "#619f5b"],
+    colors: [
+      "#7856FF",
+      "#FF7557",
+      "#80E1D9",
+      "#F8BC3B",
+      "#B2596E",
+      "#72BEF4",
+      "#FFB27A",
+      "#0D7EA0",
+      "#3BA974",
+      "#FEBBB2",
+      "#CA80DC",
+      "#5BB7AF",
+    ],
   },
 }

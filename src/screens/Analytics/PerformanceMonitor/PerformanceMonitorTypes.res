@@ -33,6 +33,7 @@ type dimensions = array<dimensionRecord>
 type seriesRecord = {
   name: string,
   data: array<int>,
+  color?: string,
 }
 
 type categories = array<string>

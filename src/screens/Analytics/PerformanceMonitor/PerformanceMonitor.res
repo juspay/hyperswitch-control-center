@@ -113,14 +113,7 @@ let make = () => {
           filter=#status
           customValue={"failure"}
         />
-        <div className="col-span-2">
-          <BarChartPerformance
-            startTimeVal
-            endTimeVal
-            dimensions
-            entity={PerformanceMonitorEntity.getStatusPerformanceEntity}
-          />
-        </div>
+
         // <GaugeFailureRate
         //   startTimeVal
         //   endTimeVal
@@ -145,13 +138,21 @@ let make = () => {
           entity={PerformanceMonitorEntity.getPaymentMethodPerformanceEntity}
         />
       </div>
-      <div className="grid grid-cols-3 grid-rows-1 gap-3">
+      <div className="grid grid-cols-2 grid-rows-1 gap-3">
+        <BarChartPerformance
+          startTimeVal
+          endTimeVal
+          dimensions
+          entity={PerformanceMonitorEntity.getStatusPerformanceEntity}
+        />
         <PieChartPerformance
           startTimeVal
           endTimeVal
           dimensions
           entity={PerformanceMonitorEntity.getConnectorPaymentMethodFailureEntity}
         />
+      </div>
+      <div className="grid grid-cols-2 grid-rows-1 gap-3">
         <PieChartPerformance
           startTimeVal
           endTimeVal
