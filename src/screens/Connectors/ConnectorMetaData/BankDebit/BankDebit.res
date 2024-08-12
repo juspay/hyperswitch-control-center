@@ -153,28 +153,26 @@ let make = (
     )
   }
 
-  <>
-    <div className="p-4 border border-red-300">
-      <FormRenderer.FieldRenderer
-        field={valueInput({
-          name1: `pm_auth_config.enabled_payment_methods`,
-          name2: ``,
-          label: `Select the open banking verification provider to verify the bank accounts`,
-          options: pmAuthConnectorOptions,
-        })}
-        labelTextStyleClass="pt-2 pb-2 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 font-semibold"
+  <div className="p-4 border border-red-300">
+    <FormRenderer.FieldRenderer
+      field={valueInput({
+        name1: `pm_auth_config.enabled_payment_methods`,
+        name2: ``,
+        label: `Select the open banking verification provider to verify the bank accounts`,
+        options: pmAuthConnectorOptions,
+      })}
+      labelTextStyleClass="pt-2 pb-2 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 font-semibold"
+    />
+    <div className={`flex gap-2 justify-end mt-4`}>
+      <Button text="Cancel" buttonType={Secondary} onClick={_ev => closeModal()} />
+      <Button
+        onClick={_ev => {
+          onSubmit()->ignore
+        }}
+        text="Proceed"
+        buttonType={Primary}
       />
-      <div className={`flex gap-2 justify-end mt-4`}>
-        <Button text="Cancel" buttonType={Secondary} onClick={_ev => closeModal()} />
-        <Button
-          onClick={_ev => {
-            onSubmit()->ignore
-          }}
-          text="Proceed"
-          buttonType={Primary}
-        />
-      </div>
-      <FormValuesSpy />
     </div>
-  </>
+    <FormValuesSpy />
+  </div>
 }
