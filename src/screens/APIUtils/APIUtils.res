@@ -164,6 +164,15 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | ANALYTICS_FILTERS =>
+      switch methodType {
+      | Post =>
+        switch id {
+        | Some(domain) => `analytics/v1/filters/${domain}`
+        | _ => ""
+        }
+      | _ => ""
+      }
 
     /* PAYMENT LOGS (AUDIT TRAIL) */
     | PAYMENT_LOGS =>
