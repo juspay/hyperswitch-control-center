@@ -42,7 +42,6 @@ let make = (
     }
     None
   }, [dimensions])
-  <>
-    <HighchartBarChart.RawBarChart options={barOption} />
-  </>
+
+  <HighchartBarChart.RawBarChart options={barOption} />
 }

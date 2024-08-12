@@ -60,9 +60,10 @@ let getFilterForPerformance = (
 }
 
 let getTimeRange = (startTime, endTime) => {
-  [("startTime", startTime->JSON.Encode.string), ("endTimeVal", endTime->JSON.Encode.string)]
-  ->Dict.fromArray
-  ->JSON.Encode.object
+  [
+    ("startTime", startTime->JSON.Encode.string),
+    ("endTimeVal", endTime->JSON.Encode.string),
+  ]->getJsonFromArrayOfJson
 }
 
 let requestBody = (
@@ -107,7 +108,7 @@ let getGroupByKey = (dict, keys: array<dimension>) => {
 
 let getGroupByDataForStatusAndPaymentCount = (array, keys: array<dimension>) => {
   let result = Dict.make()
-  let _ = array->Array.forEach(entry => {
+  array->Array.forEach(entry => {
     let key = getGroupByKey(entry, keys)
     let connectorResult = Dict.get(result, key)
     switch connectorResult {

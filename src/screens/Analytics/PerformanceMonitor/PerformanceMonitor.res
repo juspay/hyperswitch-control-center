@@ -88,82 +88,80 @@ let make = (~domain="payments") => {
       />
     </div>
 
-  <>
-    <PageLoaderWrapper screenState>
-      <div
-        className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
-        topFilterUi
+  <PageLoaderWrapper screenState>
+    <div
+      className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
+      topFilterUi
+    </div>
+    <div className="flex gap-2">
+      <div className="flex-col">
+        <BarChartPerformance
+          domain
+          startTimeVal
+          endTimeVal
+          dimensions
+          entity={PerformanceMonitorEntity.getStatusPerformanceEntity}
+        />
       </div>
-      <div className="flex gap-2">
-        <div className="flex-col">
-          <BarChartPerformance
-            domain
-            startTimeVal
-            endTimeVal
-            dimensions
-            entity={PerformanceMonitorEntity.getStatusPerformanceEntity}
-          />
-        </div>
+    </div>
+    <div className="flex gap-2">
+      <div className="flex-col">
+        <BarChartPerformance
+          domain
+          startTimeVal
+          endTimeVal
+          dimensions
+          entity={PerformanceMonitorEntity.getPerformanceEntity(
+            ~filters=[#connector],
+            ~groupBy=[#connector],
+            ~groupByKeys=[#connector],
+            ~title="Payment Distribution By Connector",
+          )}
+        />
       </div>
-      <div className="flex gap-2">
-        <div className="flex-col">
-          <BarChartPerformance
-            domain
-            startTimeVal
-            endTimeVal
-            dimensions
-            entity={PerformanceMonitorEntity.getPerformanceEntity(
-              ~filters=[#connector],
-              ~groupBy=[#connector],
-              ~groupByKeys=[#connector],
-              ~title="Payment Distribution By Connector",
-            )}
-          />
-        </div>
-        <div className="flex-col">
-          <BarChartPerformance
-            domain
-            startTimeVal
-            endTimeVal
-            dimensions
-            entity={PerformanceMonitorEntity.getPerformanceEntity(
-              ~filters=[#payment_method],
-              ~groupBy=[#payment_method],
-              ~groupByKeys=[#payment_method],
-              ~title="Payment Distribution By Payment Method",
-            )}
-          />
-        </div>
+      <div className="flex-col">
+        <BarChartPerformance
+          domain
+          startTimeVal
+          endTimeVal
+          dimensions
+          entity={PerformanceMonitorEntity.getPerformanceEntity(
+            ~filters=[#payment_method],
+            ~groupBy=[#payment_method],
+            ~groupByKeys=[#payment_method],
+            ~title="Payment Distribution By Payment Method",
+          )}
+        />
       </div>
-      <div className="grid grid-cols-3 gap-4">
-        <div className="">
-          <PieChartPerformance
-            domain
-            startTimeVal
-            endTimeVal
-            dimensions
-            entity={PerformanceMonitorEntity.getConnectorPaymentMethodFailureEntity}
-          />
-        </div>
-        <div className="">
-          <PieChartPerformance
-            domain
-            startTimeVal
-            endTimeVal
-            dimensions
-            entity={PerformanceMonitorEntity.getConnectorFailureEntity}
-          />
-        </div>
-        <div className="">
-          <PieChartPerformance
-            domain
-            startTimeVal
-            endTimeVal
-            dimensions
-            entity={PerformanceMonitorEntity.getPaymentMethodFailureEntity}
-          />
-        </div>
+    </div>
+    <div className="grid grid-cols-3 gap-4">
+      <div className="">
+        <PieChartPerformance
+          domain
+          startTimeVal
+          endTimeVal
+          dimensions
+          entity={PerformanceMonitorEntity.getConnectorPaymentMethodFailureEntity}
+        />
       </div>
-    </PageLoaderWrapper>
-  </>
+      <div className="">
+        <PieChartPerformance
+          domain
+          startTimeVal
+          endTimeVal
+          dimensions
+          entity={PerformanceMonitorEntity.getConnectorFailureEntity}
+        />
+      </div>
+      <div className="">
+        <PieChartPerformance
+          domain
+          startTimeVal
+          endTimeVal
+          dimensions
+          entity={PerformanceMonitorEntity.getPaymentMethodFailureEntity}
+        />
+      </div>
+    </div>
+  </PageLoaderWrapper>
 }

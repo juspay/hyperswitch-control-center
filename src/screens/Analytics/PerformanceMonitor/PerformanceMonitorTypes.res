@@ -67,7 +67,7 @@ type entity<'t> = {
     ~filters: array<dimension>,
     ~customFilter: option<dimension>,
     ~applyFilterFor: option<array<string>>,
-  ) => RescriptCore.JSON.t,
+  ) => JSON.t,
   configRequiredForChartData: chartDataConfig,
   getChartData: (~array: array<JSON.t>, ~config: chartDataConfig) => 't,
   chartOption: chartOption,
