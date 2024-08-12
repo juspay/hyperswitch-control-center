@@ -112,7 +112,12 @@ let make = (~domain="payments") => {
             startTimeVal
             endTimeVal
             dimensions
-            entity={PerformanceMonitorEntity.getConnectorPerformanceEntity}
+            entity={PerformanceMonitorEntity.getPerformanceEntity(
+              ~filters=[#connector],
+              ~groupBy=[#connector],
+              ~groupByKeys=[#connector],
+              ~title="Payment Distribution By Connector",
+            )}
           />
         </div>
         <div className="flex-col">
@@ -121,7 +126,12 @@ let make = (~domain="payments") => {
             startTimeVal
             endTimeVal
             dimensions
-            entity={PerformanceMonitorEntity.getPaymentMethodPerformanceEntity}
+            entity={PerformanceMonitorEntity.getPerformanceEntity(
+              ~filters=[#payment_method],
+              ~groupBy=[#payment_method],
+              ~groupByKeys=[#payment_method],
+              ~title="Payment Distribution By Payment Method",
+            )}
           />
         </div>
       </div>

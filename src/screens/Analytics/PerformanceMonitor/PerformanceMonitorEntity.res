@@ -54,17 +54,22 @@ let getStatusPerformanceEntity: entity<stackBarChartData> = {
   getChartOption: BarChartPerformanceUtils.getBarOption,
 }
 
-let getConnectorPerformanceEntity: entity<stackBarChartData> = {
+let getPerformanceEntity = (
+  ~groupBy: array<dimension>,
+  ~filters: array<dimension>,
+  ~groupByKeys: array<dimension>,
+  ~title: string,
+): entity<stackBarChartData> => {
   requestBodyConfig: {
     metrics: [#payment_count],
-    groupBy: [#connector, #status],
-    filters: [#connector, #status],
+    groupBy: [#status, ...groupBy],
+    filters: [#status, ...filters],
     customFilter: Some(#status),
     applyFilterFor: Some(["failure", "charged"]),
   },
   getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
-    groupByKeys: [#connector],
+    groupByKeys: [...groupByKeys],
     plotChartBy: ["failure", "charged"],
   },
   getChartData: BarChartPerformanceUtils.getStackedBarData,
@@ -76,36 +81,7 @@ let getConnectorPerformanceEntity: entity<stackBarChartData> = {
       text: "",
     },
     title: {
-      text: "Payment Distribution By Connector",
-    },
-    colors: ["#c74050", "#619f5b"],
-  },
-  getChartOption: BarChartPerformanceUtils.getBarOption,
-}
-
-let getPaymentMethodPerformanceEntity: entity<stackBarChartData> = {
-  requestBodyConfig: {
-    metrics: [#payment_count],
-    groupBy: [#payment_method, #status],
-    filters: [#payment_method, #status],
-    customFilter: Some(#status),
-    applyFilterFor: Some(["charged", "failure"]),
-  },
-  getRequestBody: PerformanceUtils.requestBody,
-  configRequiredForChartData: {
-    groupByKeys: [#payment_method],
-    plotChartBy: ["failure", "charged"],
-  },
-  getChartData: BarChartPerformanceUtils.getStackedBarData,
-  chartOption: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Payment Distribution By Payment Method",
+      text: title,
     },
     colors: ["#c74050", "#619f5b"],
   },
