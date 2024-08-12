@@ -5,7 +5,7 @@ module PmtConfigInp = {
     ~fieldsArray: array<ReactFinalForm.fieldRenderProps>,
     ~paymentMethod: string,
     ~paymentMethodType: string,
-    ~getConnectorId: string => string,
+    ~getConnectorId: ConnectorTypes.connectorTypes => string,
   ) => {
     open LogicUtils
     let (currentSelection, setCurrentSelection) = React.useState(_ => "")
@@ -25,7 +25,11 @@ module PmtConfigInp = {
             payment_method: paymentMethod,
             payment_method_type: paymentMethodType,
             connector_name: connector,
-            mca_id: getConnectorId(connector),
+            mca_id: getConnectorId(
+              connector->ConnectorUtils.getConnectorNameTypeFromString(
+                ~connectorType=PMAuthenticationProcessor,
+              ),
+            ),
           }
         }
         if value->LogicUtils.isNonEmptyString {
@@ -86,11 +90,11 @@ let make = (
   let pmAuthConnectors =
     connectorsListPMAuth->Array.map(item => item.connector_name)->removeDuplicate
 
-  let options = pmAuthConnectors->dropdownOptions
-
-  let getConnectorId = connector => {
+  let getConnectorId = (connector: ConnectorTypes.connectorTypes) => {
     let connectorData = connectorsListPMAuth->Array.find(item => {
-      item.connector_name == connector
+      item.connector_name->ConnectorUtils.getConnectorNameTypeFromString(
+        ~connectorType=ConnectorTypes.PMAuthenticationProcessor,
+      ) === connector
     })
     switch connectorData {
     | Some(connectorData) => connectorData.merchant_connector_id
@@ -154,18 +158,12 @@ let make = (
           name1: `pm_auth_config.enabled_payment_methods`,
           name2: ``,
           label: `Select the open banking verification provider to verify the bank accounts`,
-          options,
+          options: pmAuthConnectors->dropdownOptions,
         })}
         labelTextStyleClass="pt-2 pb-2 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 font-semibold"
       />
       <div className={`flex gap-2 justify-end mt-4`}>
-        <Button
-          text="Cancel"
-          buttonType={Secondary}
-          onClick={_ev => {
-            closeModal()->ignore
-          }}
-        />
+        <Button text="Cancel" buttonType={Secondary} onClick={_ev => closeModal()} />
         <Button
           onClick={_ev => {
             onSubmit()->ignore
