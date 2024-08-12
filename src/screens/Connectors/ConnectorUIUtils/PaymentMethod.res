@@ -29,7 +29,6 @@ module CardRenderer = {
     ~_showAdvancedConfiguration,
     ~setMetaData,
     ~connector,
-    ~initialValues,
     ~setInitialValues,
   ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
@@ -283,7 +282,6 @@ module CardRenderer = {
               paymentMethodsEnabled
               paymentMethod
               onCloseClickCustomFun={removeSelectedWallet}
-              initialValues
               setInitialValues
             />
           </Modal>
@@ -305,7 +303,6 @@ module PaymentMethodsRender = {
     ~updateDetails,
     ~setMetaData,
     ~isPayoutFlow,
-    ~initialValues,
     ~setInitialValues,
   ) => {
     let pmts = React.useMemo(() => {
@@ -332,7 +329,6 @@ module PaymentMethodsRender = {
               _showAdvancedConfiguration=false
               setMetaData
               connector
-              initialValues
               setInitialValues
             />
           </div>
@@ -346,7 +342,6 @@ module PaymentMethodsRender = {
               _showAdvancedConfiguration=false
               setMetaData
               connector
-              initialValues
               setInitialValues
             />
           </div>

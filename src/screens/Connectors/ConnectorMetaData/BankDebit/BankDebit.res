@@ -69,7 +69,6 @@ let make = (
   ~update,
   ~paymentMethod,
   ~paymentMethodType,
-  ~initialValues,
   ~setInitialValues,
 ) => {
   open LogicUtils

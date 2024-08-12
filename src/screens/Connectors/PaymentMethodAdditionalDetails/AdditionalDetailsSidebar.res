@@ -10,7 +10,6 @@ module AdditionalDetailsSidebarComp = {
     ~paymentMethodsEnabled,
     ~paymentMethod,
     ~onCloseClickCustomFun,
-    ~initialValues,
     ~setInitialValues,
   ) => {
     open LogicUtils
@@ -35,7 +34,6 @@ module AdditionalDetailsSidebarComp = {
           onCloseClickCustomFun
           paymentMethod
           paymentMethodType=method.payment_method_type
-          initialValues
           setInitialValues
         />
       | _ => React.null
