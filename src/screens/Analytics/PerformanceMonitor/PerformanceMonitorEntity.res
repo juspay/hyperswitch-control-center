@@ -29,8 +29,6 @@ let getStatusPerformanceEntity: entity<stackBarChartData> = {
     metrics: [#payment_count],
     groupBy: [#status],
     filters: [#status],
-    customFilter: None,
-    applyFilterFor: None,
   },
   configRequiredForChartData: {
     groupByKeys: [#status],
@@ -53,8 +51,8 @@ let getPerformanceEntity = (
     metrics: [#payment_count],
     groupBy: [#status, ...groupBy],
     filters: [#status, ...filters],
-    customFilter: Some(#status),
-    applyFilterFor: Some(["failure", "charged"]),
+    customFilter: #status,
+    applyFilterFor: ["failure", "charged"],
   },
   configRequiredForChartData: {
     groupByKeys: [...groupByKeys],
@@ -73,8 +71,8 @@ let getConnectorFailureEntity: entity<array<donutPieSeriesRecord>> = {
     metrics: [#payment_count],
     groupBy: [#connector, #status],
     filters: [#connector, #status],
-    customFilter: Some(#status),
-    applyFilterFor: Some(["failure"]),
+    customFilter: #status,
+    applyFilterFor: ["failure"],
   },
   configRequiredForChartData: {
     groupByKeys: [#connector],
@@ -92,8 +90,8 @@ let getPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
     metrics: [#payment_count],
     groupBy: [#payment_method, #status],
     filters: [#payment_method, #status],
-    customFilter: Some(#status),
-    applyFilterFor: Some(["failure"]),
+    customFilter: #status,
+    applyFilterFor: ["failure"],
   },
   configRequiredForChartData: {
     groupByKeys: [#payment_method],
@@ -111,8 +109,8 @@ let getConnectorPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> 
     metrics: [#payment_count],
     groupBy: [#connector, #payment_method, #status],
     filters: [#connector, #payment_method, #status],
-    customFilter: Some(#status),
-    applyFilterFor: Some(["failure"]),
+    customFilter: #status,
+    applyFilterFor: ["failure"],
   },
   configRequiredForChartData: {
     groupByKeys: [#connector, #payment_method],
@@ -131,9 +129,6 @@ let getFailureRateEntity: entity<'t> = {
   requestBodyConfig: {
     metrics: [#connector_success_rate],
     groupBy: [#connector],
-    filters: [],
-    customFilter: None,
-    applyFilterFor: None,
     distribution: {
       distributionFor: (#payment_error_message: distribution :> string),
       distributionCardinality: (#TOP_5: distribution :> string),

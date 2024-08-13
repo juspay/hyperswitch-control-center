@@ -42,21 +42,26 @@ let getMetricForPerformance = (~metrics: array<metrics>) =>
 
 let getFilterForPerformance = (
   ~dimensions: dimensions,
-  ~filters: array<dimension>,
+  ~filters: option<array<dimension>>,
   ~custom: option<dimension>=None,
   ~customValue: option<array<string>>=None,
 ) => {
   let filtersDict = Dict.make()
   let customFilter = custom->Option.getOr(#no_value)
-  filters->Array.forEach(filter => {
-    let data = if filter == customFilter {
-      customValue->Option.getOr([])->Array.map(v => v->JSON.Encode.string)
-    } else {
-      getSpecificDimension(dimensions, filter).values->Array.map(v => v->JSON.Encode.string)
+  switch filters {
+  | Some(val) => {
+      val->Array.forEach(filter => {
+        let data = if filter == customFilter {
+          customValue->Option.getOr([])->Array.map(v => v->JSON.Encode.string)
+        } else {
+          getSpecificDimension(dimensions, filter).values->Array.map(v => v->JSON.Encode.string)
+        }
+        filtersDict->Dict.set((filter: dimension :> string), data->JSON.Encode.array)
+      })
+      filtersDict->JSON.Encode.object->Some
     }
-    filtersDict->Dict.set((filter: dimension :> string), data->JSON.Encode.array)
-  })
-  filtersDict->JSON.Encode.object
+  | None => None
+  }
 }
 
 let getTimeRange = (startTime, endTime) => {
@@ -72,14 +77,14 @@ let requestBody = (
   ~endTime: string,
   ~metrics: array<metrics>,
   ~groupBy: array<dimension>,
-  ~filters: array<dimension>,
-  ~customFilter: option<dimension>,
-  ~applyFilterFor: option<array<string>>,
+  ~filters: option<array<dimension>>=[]->Some,
+  ~customFilter: option<dimension>=None,
+  ~applyFilterFor: option<array<string>>=None,
   ~distribution: option<distributionType>=None,
   ~delta=false,
 ) => {
   let metrics = getMetricForPerformance(~metrics)
-  let filters = getFilterForPerformance(
+  let filter = getFilterForPerformance(
     ~dimensions,
     ~filters,
     ~custom=customFilter,
@@ -94,7 +99,7 @@ let requestBody = (
       ~delta,
       ~distributionValues,
       ~groupByNames,
-      ~filter=Some(filters),
+      ~filter,
       ~startDateTime=startTime,
       ~endDateTime=endTime,
     )->JSON.Encode.object,

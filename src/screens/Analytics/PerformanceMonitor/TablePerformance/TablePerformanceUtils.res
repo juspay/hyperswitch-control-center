@@ -1,29 +1,44 @@
 let tableBorderClass = "border-collapse border border-jp-gray-940 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
 type errorObject = {
-  error_reason: string,
+  reason: string,
   count: int,
   connector: string,
 }
 
+type cols =
+  | ErrorReason
+  | Count
+  | Connector
+
+let visibleColumns = [Connector, ErrorReason, Count]
+
+let colMapper = (col: cols) => {
+  switch col {
+  | ErrorReason => "reason"
+  | Count => "count"
+  | Connector => "connector"
+  }
+}
+
 let getTableData = (array: array<JSON.t>) => {
   open LogicUtils
+  open PerformanceMonitorTypes
   let data = []
 
   array->Array.forEach(item => {
-    let valueDict = item->LogicUtils.getDictFromJsonObject
+    let valueDict = item->getDictFromJsonObject
+    let connector = valueDict->getString((#connector: dimension :> string), "")
+    let paymentErrorMessage =
+      valueDict->getArrayFromDict((#payment_error_message: distribution :> string), [])
 
-    let connector = valueDict->LogicUtils.getString("connector", "")
-
-    let paymentErrorMessage = valueDict->LogicUtils.getArrayFromDict("payment_error_message", [])
-
-    if connector->LogicUtils.isNonEmptyString && paymentErrorMessage->Array.length > 0 {
+    if connector->isNonEmptyString && paymentErrorMessage->Array.length > 0 {
       paymentErrorMessage->Array.forEach(value => {
-        let errorDict = value->LogicUtils.getDictFromJsonObject
+        let errorDict = value->getDictFromJsonObject
 
         let obj = {
-          error_reason: errorDict->getString("reason", ""),
-          count: errorDict->getInt("count", 0),
+          reason: errorDict->getString(ErrorReason->colMapper, ""),
+          count: errorDict->getInt(Count->colMapper, 0),
           connector,
         }
 
@@ -42,25 +57,10 @@ let getTableData = (array: array<JSON.t>) => {
   data
 }
 
-type cols =
-  | ErrorReason
-  | Count
-  | Connector
-
-let visibleColumns = [Connector, ErrorReason, Count]
-
-let colMapper = (col: cols) => {
-  switch col {
-  | ErrorReason => "error_reason"
-  | Count => "count"
-  | Connector => "connector"
-  }
-}
-
 let tableItemToObjMapper: 'a => errorObject = dict => {
   open LogicUtils
   {
-    error_reason: dict->getString(ErrorReason->colMapper, "NA"),
+    reason: dict->getString(ErrorReason->colMapper, "NA"),
     count: dict->getInt(Count->colMapper, 0),
     connector: dict->getString(Connector->colMapper, "NA"),
   }
@@ -88,7 +88,7 @@ let getHeading = colType => {
 
 let getCell = (errorObj, colType): Table.cell => {
   switch colType {
-  | ErrorReason => Text(errorObj.error_reason)
+  | ErrorReason => Text(errorObj.reason)
   | Count => Text(errorObj.count->Int.toString)
   | Connector => Text(errorObj.connector)
   }

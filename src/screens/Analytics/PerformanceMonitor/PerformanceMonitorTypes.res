@@ -58,9 +58,9 @@ type distributionType = {
 type requestBodyConfig = {
   metrics: array<metrics>,
   groupBy: array<dimension>,
-  filters: array<dimension>,
-  customFilter: option<dimension>,
-  applyFilterFor: option<array<string>>,
+  filters?: array<dimension>,
+  customFilter?: dimension,
+  applyFilterFor?: array<string>,
   distribution?: distributionType,
 }
 
