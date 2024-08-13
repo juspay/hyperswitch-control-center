@@ -75,7 +75,6 @@ module SidebarSubOption = {
 module SidebarItem = {
   @react.component
   let make = (~tabInfo, ~isSelected, ~isExpanded, ~setOpenItem=_ => ()) => {
-    open UIUtils
     let sidebarItemRef = React.useRef(Nullable.null)
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
     let getSearchParamByLink = link => getSearchParamByLink(String.substringToEnd(link, ~start=0))
@@ -176,7 +175,6 @@ module SidebarItem = {
 module NestedSidebarItem = {
   @react.component
   let make = (~tabInfo, ~isSelected, ~isSideBarExpanded, ~isSectionExpanded) => {
-    open UIUtils
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
     let getSearchParamByLink = link => getSearchParamByLink(Js.String2.substr(link, ~from=0))
 
@@ -252,7 +250,6 @@ module NestedSectionItem = {
     ~isSubLevelItemSelected,
     ~isSideBarExpanded,
   ) => {
-    open UIUtils
     let iconColor = isAnySubItemSelected ? "text-white" : "text-white opacity-60"
 
     let iconOuterClass = if !isSideBarExpanded {
@@ -341,7 +338,6 @@ module SidebarNestedSection = {
     ~setOpenItem=_ => (),
     ~isSectionAutoCollapseEnabled=false,
   ) => {
-    open UIUtils
     let isSubLevelItemSelected = tabInfo => {
       switch tabInfo {
       | SubLevelLink(item) => linkSelectionCheck(firstPart, item.link)
@@ -451,7 +447,6 @@ module SidebarNestedSection = {
 module PinIconComponentStates = {
   @react.component
   let make = (~isHSSidebarPinned, ~setIsSidebarExpanded, ~isSidebarExpanded) => {
-    open UIUtils
     let isMobileView = MatchMedia.useMobileChecker()
     let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
 
@@ -495,7 +490,6 @@ let make = (
   ~linkSelectionCheck=defaultLinkSelectionCheck,
   ~verticalOffset="120px",
 ) => {
-  open UIUtils
   open CommonAuthHooks
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
     ThemeProvider.themeContext,
@@ -591,7 +585,7 @@ let make = (
     <div
       ref={sideBarRef->ReactDOM.Ref.domRef}
       className={`flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
-      style={ReactDOMStyle.make(~width=sidebarContainerClassWidth, ())}
+      style={width: sidebarContainerClassWidth}
     />
     <div
       className={`absolute z-40 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}
@@ -600,7 +594,7 @@ let make = (
       <div
         ref={sideBarRef->ReactDOM.Ref.domRef}
         className={`${backgroundColor.primaryNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
-        style={ReactDOMStyle.make(~width=sidebarWidth, ())}>
+        style={width: sidebarWidth}>
         <div className="flex items-center justify-between p-1 mr-2">
           <div
             className={`flex align-center mt-4 pl-3 mb-6 pr-4 ml-1 gap-5 cursor-default`}
@@ -614,7 +608,7 @@ let make = (
         </div>
         <div
           className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar"
-          style={ReactDOMStyle.make(~height=`calc(100vh - ${verticalOffset})`, ())}>
+          style={height: `calc(100vh - ${verticalOffset})`}>
           <style> {React.string(sidebarScrollbarCss)} </style>
           {sidebars
           ->Array.mapWithIndex((tabInfo, index) => {

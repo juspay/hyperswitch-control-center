@@ -7,7 +7,7 @@ module ShowMoreLink = {
     ~textStyleClass="",
     ~searchText,
   ) => {
-    <UIUtils.RenderIf condition={section.total_results > 10}>
+    <RenderIf condition={section.total_results > 10}>
       {
         let linkText = `View ${section.total_results->Int.toString} result${section.total_results > 1
             ? "s"
@@ -33,11 +33,11 @@ module ShowMoreLink = {
           </div>
         }
       }
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
-let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName, ()) => {
+let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName) => {
   open GlobalSearchTypes
   open LogicUtils
   searchOptions
@@ -82,7 +82,6 @@ let getLocalMatchedResults = (searchText, tabs) => {
           tab.name,
           tab.link,
           ~sectionName="",
-          (),
         )
 
         acc->Array.concat(matchedSearchValues)
@@ -109,7 +108,6 @@ let getLocalMatchedResults = (searchText, tabs) => {
                 tab.name,
                 tab.link,
                 ~sectionName=sectionObj.name,
-                (),
               )
               insideAcc->Array.concat(matchedSearchValues)
             }
@@ -134,7 +132,6 @@ let getLocalMatchedResults = (searchText, tabs) => {
           tab.name,
           tab.link,
           ~sectionName="",
-          (),
         )
         acc->Array.concat(matchedSearchValues)
       }

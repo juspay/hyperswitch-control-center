@@ -27,15 +27,15 @@ module GetProductionAccess = {
             ? ()
             : {
                 setShowProdIntentForm(_ => true)
-                mixpanelEvent(~eventName="get_production_access", ())
+                mixpanelEvent(~eventName="get_production_access")
               }
         }}>
         <div className={`text-white ${textStyles} !font-semibold`}>
           {productionAccessString->React.string}
         </div>
-        <UIUtils.RenderIf condition={!isProdIntent}>
+        <RenderIf condition={!isProdIntent}>
           <Icon name="thin-right-arrow" customIconColor="text-white" size=20 />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     | None =>
       <Shimmer
@@ -183,12 +183,25 @@ let threeDsConnector = (~permissionJson) => {
   })
 }
 
+let pmAuthenticationProcessor = (~permissionJson) => {
+  SubLevelLink({
+    name: "PM Authentication Processor",
+    link: `/pm-authentication-processor`,
+    access: permissionJson.connectorsView,
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=ConnectorUtils.pmAuthenticationConnectorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
+  })
+}
+
 let connectors = (
   isConnectorsEnabled,
   ~isLiveMode,
   ~isFrmEnabled,
   ~isPayoutsEnabled,
   ~isThreedsConnectorEnabled,
+  ~isPMAuthenticationProcessor,
   ~permissionJson,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, permissionJson)]
@@ -202,6 +215,10 @@ let connectors = (
 
   if isFrmEnabled {
     connectorLinkArray->Array.push(fraudAndRisk(~permissionJson))->ignore
+  }
+
+  if isPMAuthenticationProcessor {
+    connectorLinkArray->Array.push(pmAuthenticationProcessor(~permissionJson))->ignore
   }
 
   isConnectorsEnabled
@@ -219,6 +236,13 @@ let paymentAnalytcis = SubLevelLink({
   link: `/analytics-payments`,
   access: Access,
   searchOptions: [("View analytics", "")],
+})
+
+let performanceMonitor = SubLevelLink({
+  name: "Performance Monitor",
+  link: `/performance-monitor`,
+  access: Access,
+  searchOptions: [("View Performance Monitor", "")],
 })
 
 let disputeAnalytics = SubLevelLink({
@@ -256,6 +280,7 @@ let analytics = (
   userJourneyAnalyticsFlag,
   authenticationAnalyticsFlag,
   disputeAnalyticsFlag,
+  performanceMonitorFlag,
   ~permissionJson,
 ) => {
   let links = [paymentAnalytcis, refundAnalytics]
@@ -270,6 +295,9 @@ let analytics = (
 
   if disputeAnalyticsFlag {
     links->Array.push(disputeAnalytics)
+  }
+  if performanceMonitorFlag {
+    links->Array.push(performanceMonitor)
   }
 
   isAnalyticsEnabled
@@ -360,21 +388,6 @@ let userManagement = permissionJson => {
   })
 }
 
-let accountSettings = permissionJson => {
-  // Because it has delete sample data
-
-  SubLevelLink({
-    name: "Account Settings",
-    link: `/account-settings`,
-    access: permissionJson.merchantDetailsManage,
-    searchOptions: [
-      ("View profile", "/profile"),
-      ("Change password", "/profile"),
-      ("Manage your personal profile and preferences", "/profile"),
-    ],
-  })
-}
-
 let businessDetails = () => {
   SubLevelLink({
     name: "Business Details",
@@ -401,15 +414,27 @@ let configurePMTs = permissionJson => {
     searchOptions: [("Configure payment methods", "Configure country currency")],
   })
 }
-let settings = (~isSampleDataEnabled, ~isConfigurePmtsEnabled, ~permissionJson) => {
+
+let complianceCertificateSection = {
+  SubLevelLink({
+    name: "Compliance ",
+    link: `/compliance`,
+    access: Access,
+    searchOptions: [("PCI certificate", "")],
+  })
+}
+
+let settings = (~isConfigurePmtsEnabled, ~permissionJson, ~complianceCertificate) => {
   let settingsLinkArray = [businessDetails(), businessProfiles()]
 
-  if isSampleDataEnabled {
-    settingsLinkArray->Array.push(accountSettings(permissionJson))->ignore
-  }
   if isConfigurePmtsEnabled {
     settingsLinkArray->Array.push(configurePMTs(permissionJson))->ignore
   }
+
+  if complianceCertificate {
+    settingsLinkArray->Array.push(complianceCertificateSection)->ignore
+  }
+
   settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
 
   Section({
@@ -518,37 +543,36 @@ let reconFileProcessor = {
   })
 }
 
-let reconTag = (recon, isReconEnabled) => {
-  recon
-    ? Link({
-        name: "Reconcilation",
-        icon: isReconEnabled ? "recon" : "recon-lock",
-        link: `/recon`,
-        access: Access,
-      })
-    : emptyComponent
-}
+let reconAndSettlement = (recon, isReconEnabled) => {
+  switch (recon, isReconEnabled) {
+  | (true, true) =>
+    Section({
+      name: "Recon And Settlement",
+      icon: "recon",
+      showSection: true,
+      links: [
+        uploadReconFiles,
+        runRecon,
+        reconAnalytics,
+        reconReports,
+        reconConfigurator,
+        reconFileProcessor,
+      ],
+    })
+  | (true, false) =>
+    Link({
+      name: "Reconcilation",
+      icon: isReconEnabled ? "recon" : "recon-lock",
+      link: `/recon`,
+      access: Access,
+    })
 
-let reconAndSettlement = (recon_v2, isReconEnabled) => {
-  recon_v2 && isReconEnabled
-    ? Section({
-        name: "Recon And Settlement",
-        icon: "recon",
-        showSection: true,
-        links: [
-          uploadReconFiles,
-          runRecon,
-          reconAnalytics,
-          reconReports,
-          reconConfigurator,
-          reconFileProcessor,
-        ],
-      })
-    : emptyComponent
+  | (_, _) => emptyComponent
+  }
 }
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
-  let {user_role: userRole} =
+  let {userRole} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
@@ -558,7 +582,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     payOut,
     recon,
     default,
-    sampleData,
     systemMetrics,
     userJourneyAnalytics: userJourneyAnalyticsFlag,
     authenticationAnalytics: authenticationAnalyticsFlag,
@@ -568,7 +591,9 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     quickStart,
     disputeAnalytics,
     configurePmts,
-    reconV2,
+    complianceCertificate,
+    performanceMonitor: performanceMonitorFlag,
+    pmAuthenticationProcessor,
   } = featureFlagDetails
 
   let sidebar = [
@@ -580,23 +605,20 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~isFrmEnabled=frm,
       ~isPayoutsEnabled=payOut,
       ~isThreedsConnectorEnabled=threedsAuthenticator,
+      ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
       ~permissionJson,
     ),
     default->analytics(
       userJourneyAnalyticsFlag,
       authenticationAnalyticsFlag,
       disputeAnalytics,
+      performanceMonitorFlag,
       ~permissionJson,
     ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
-    recon->reconTag(isReconEnabled),
-    reconV2->reconAndSettlement(isReconEnabled),
+    recon->reconAndSettlement(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
-    settings(
-      ~isSampleDataEnabled=sampleData,
-      ~isConfigurePmtsEnabled=configurePmts,
-      ~permissionJson,
-    ),
+    settings(~isConfigurePmtsEnabled=configurePmts, ~permissionJson, ~complianceCertificate),
   ]
 
   sidebar

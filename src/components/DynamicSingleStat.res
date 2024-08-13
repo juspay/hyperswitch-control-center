@@ -88,7 +88,6 @@ let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity) => {
       ~source=?singleStatBodyEntity.source,
       ~granularity=singleStatBodyEntity.granularity,
       ~prefix=singleStatBodyEntity.prefix,
-      (),
     )->JSON.Encode.object,
   ]
   ->JSON.Encode.array
@@ -141,7 +140,6 @@ let make = (
   ~wrapperClass=?,
   ~formaPayload: option<singleStatBodyEntity => string>=?,
 ) => {
-  open UIUtils
   open LogicUtils
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let fetchApi = AuthHooks.useApiFetcher()
@@ -306,7 +304,6 @@ let make = (
           ~method_=Post,
           ~bodyStr=singleStatBody,
           ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
-          (),
         )
         ->addLogsAroundFetch(~logTitle="SingleStat Data Api")
         ->then(json => resolve((`${urlConfig.prefix->Option.getOr("")}${uri}`, json)))
@@ -380,7 +377,6 @@ let make = (
           ~method_=Post,
           ~bodyStr=singleStatBodyMakerFn(singleStatBodyEntity),
           ~headers=[("QueryType", "SingleStatTimeseries")]->Dict.fromArray,
-          (),
         )
         ->addLogsAroundFetch(~logTitle="SingleStatTimeseries Data Api")
         ->then(

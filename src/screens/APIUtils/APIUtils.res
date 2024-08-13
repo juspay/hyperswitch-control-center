@@ -4,7 +4,7 @@ open CommonAuthHooks
 exception JsonException(JSON.t)
 
 let useGetURL = () => {
-  let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let getUrl = (
     ~entityName: entityName,
     ~methodType: Fetch.requestMethod,
@@ -14,7 +14,6 @@ let useGetURL = () => {
     ~userRoleTypes: userRoleTypes=NONE,
     ~reconType: reconType=#NONE,
     ~queryParamerters: option<string>=None,
-    (),
   ) => {
     let connectorBaseURL = `account/${merchantId}/connectors`
 
@@ -161,6 +160,15 @@ let useGetURL = () => {
       | Post =>
         switch id {
         | Some(domain) => `analytics/v1/metrics/${domain}`
+        | _ => ""
+        }
+      | _ => ""
+      }
+    | ANALYTICS_FILTERS =>
+      switch methodType {
+      | Post =>
+        switch id {
+        | Some(domain) => `analytics/v1/filters/${domain}`
         | _ => ""
         }
       | _ => ""
@@ -438,10 +446,10 @@ let useHandleLogout = () => {
 
   () => {
     try {
-      let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
+      let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
       let _ =
-        fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+        fetchApi(logoutUrl, ~method_=Post)
         ->then(Fetch.Response.json)
         ->then(json => {
           json->resolve
@@ -495,7 +503,7 @@ let responseHandler = async (
         switch responseStatus {
         | 401 =>
           if !sessionExpired.contents {
-            showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false, ())
+            showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
             handleLogout()->ignore
             AuthUtils.redirectToLogin()
             sessionExpired := true
@@ -521,7 +529,6 @@ let responseHandler = async (
             ~toastType=ToastError,
             ~message=errorDict->getString("message", "Error Occured"),
             ~autoClose=false,
-            (),
           )
         }
       }
@@ -543,14 +550,14 @@ let catchHandler = (
       if isPlayground {
         popUpCallBack()
       } else if showErrorToast {
-        showToast(~toastType=ToastError, ~message="Something Went Wrong", ~autoClose=false, ())
+        showToast(~toastType=ToastError, ~message="Something Went Wrong", ~autoClose=false)
       }
       Exn.raiseError("Failed to Fetch")
     }
   }
 }
 
-let useGetMethod = (~showErrorToast=true, ()) => {
+let useGetMethod = (~showErrorToast=true) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -573,7 +580,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
 
   async url => {
     try {
-      let res = await fetchApi(url, ~method_=Get, ())
+      let res = await fetchApi(url, ~method_=Get)
       await responseHandler(
         ~res,
         ~showErrorToast,
@@ -591,7 +598,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
   }
 }
 
-let useUpdateMethod = (~showErrorToast=true, ()) => {
+let useUpdateMethod = (~showErrorToast=true) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
@@ -620,7 +627,6 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
     ~bodyFormData=?,
     ~headers=Dict.make(),
     ~contentType=AuthHooks.Headers("application/json"),
-    (),
   ) => {
     try {
       let res = await fetchApi(
@@ -630,7 +636,6 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
         ~bodyFormData,
         ~headers,
         ~contentType,
-        (),
       )
       await responseHandler(
         ~res,

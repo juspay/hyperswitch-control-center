@@ -228,6 +228,8 @@ let make = (
   ~customBorderClass=?,
   ~showborderColor=?,
   ~tableHeadingTextClass="",
+  ~nonFrozenTableParentClass="",
+  ~loadedTableParentClass="",
 ) => {
   open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
@@ -375,16 +377,14 @@ let make = (
   if showSerialNumber {
     heading
     ->Array.unshift(
-      Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType, ()),
+      Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType),
     )
     ->ignore
   }
 
   if checkBoxProps.showCheckBox {
     heading
-    ->Array.unshift(
-      Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true, ()),
-    )
+    ->Array.unshift(Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true))
     ->ignore
   }
 
@@ -828,6 +828,7 @@ let make = (
                 ?customBorderClass
                 ?showborderColor
                 tableHeadingTextClass
+                nonFrozenTableParentClass
               />
             switch tableLocalFilter {
             | true =>
@@ -890,9 +891,9 @@ let make = (
       | Some(x) =>
         <AdvancedSearchComponent entity ?setData ?setSummary> {x} </AdvancedSearchComponent>
       | None =>
-        <UIUtils.RenderIf condition={searchFields->Array.length > 0}>
+        <RenderIf condition={searchFields->Array.length > 0}>
           <AdvancedSearchModal searchFields url=searchUrl entity />
-        </UIUtils.RenderIf>
+        </RenderIf>
       }}
       <DesktopView>
         {switch tableActions {
@@ -926,29 +927,28 @@ let make = (
   }
   let dataId = title->String.split("-")->Array.get(0)->Option.getOr("")
   <AddDataAttributes attributes=[("data-loaded-table", dataId)]>
-    <div className="w-full">
-      <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>
+    <div className={`w-full ${loadedTableParentClass}`}>
+      <div className=addDataAttributesClass style={zIndex: "2"}>
         //removed "sticky" -> to be tested with master
         <div
           className={`flex flex-row justify-between items-center` ++ (
             hideTitle ? "" : ` mt-4 mb-2`
           )}>
           <div className="w-full">
-            <UIUtils.RenderIf condition={!hideTitle}>
+            <RenderIf condition={!hideTitle}>
               <NewThemeHeading
                 heading=title
                 headingSize=titleSize
                 outerMargin=""
                 ?description
-                rightActions={<UIUtils.RenderIf
-                  condition={!isMobileView && !isTableActionBesideFilters}>
+                rightActions={<RenderIf condition={!isMobileView && !isTableActionBesideFilters}>
                   {tableActionElements}
-                </UIUtils.RenderIf>}
+                </RenderIf>}
               />
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         </div>
-        <UIUtils.RenderIf condition={!hideFilterTopPortals}>
+        <RenderIf condition={!hideFilterTopPortals}>
           <div className="flex justify-between items-center">
             <PortalCapture
               key={`tableFilterTopLeft-${title}`}
@@ -961,7 +961,7 @@ let make = (
               customStyle="flex flex-row-reverse items-center gap-x-2"
             />
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div
           className={`flex flex-row mobile:flex-wrap items-center ${tableActionBorder} ${filtersOuterMargin}`}>
           <TableFilterSectionContext isFilterSection=true>
@@ -981,9 +981,9 @@ let make = (
               <PortalCapture key={`extraFilters-${title}`} name={`extraFilters-${title}`} />
             </div>
           </TableFilterSectionContext>
-          <UIUtils.RenderIf condition={isTableActionBesideFilters || isMobileView || hideTitle}>
+          <RenderIf condition={isTableActionBesideFilters || isMobileView || hideTitle}>
             {tableActionElements}
-          </UIUtils.RenderIf>
+          </RenderIf>
           customizeColumsButtons
         </div>
       </div>
@@ -992,9 +992,9 @@ let make = (
       } else {
         loadedTableUI
       }}
-      <UIUtils.RenderIf condition={tableDataLoading && !dataLoading}>
+      <RenderIf condition={tableDataLoading && !dataLoading}>
         <TableDataLoadingIndicator showWithData={rows->Array.length !== 0} />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div
         className={`${tableActions->Option.isSome && isMobileView
             ? `flex flex-row-reverse justify-between mb-10 ${tableDataBackgroundClass}`

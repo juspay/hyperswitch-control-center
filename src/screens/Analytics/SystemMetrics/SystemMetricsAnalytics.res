@@ -115,7 +115,6 @@ module HSiwtchPaymentConfirmLatency = {
           ~source=?singleStatBodyEntity.source,
           ~granularity=singleStatBodyEntity.granularity,
           ~prefix=singleStatBodyEntity.prefix,
-          (),
         )->JSON.Encode.object,
       ]->JSON.Encode.array
     }
@@ -132,7 +131,7 @@ module HSiwtchPaymentConfirmLatency = {
     }
 
     let getOverallLatency = async () => {
-      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("Payment"), Fetch.Post, ())
+      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("Payment"), Post)
       ->thenResolve(json => {
         setOverallrLatency(_ => json->parseJson)
       })
@@ -144,7 +143,7 @@ module HSiwtchPaymentConfirmLatency = {
     }
 
     let getConnectorLatency = () => {
-      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("OutgoingEvent"), Fetch.Post, ())
+      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("OutgoingEvent"), Post)
       ->thenResolve(json => {
         setConnectorLatency(_ => json->parseJson)
         setIsLoading(_ => false)
@@ -184,7 +183,6 @@ module HSiwtchPaymentConfirmLatency = {
                 {latencyShortNum(
                   ~labelValue=latency->Int.toFloat /. 1000.0,
                   ~includeMilliseconds=true,
-                  (),
                 )
                 ->String.toLowerCase
                 ->React.string}
@@ -274,7 +272,7 @@ module SystemMetricsAnalytics = {
       setFilterDataJson(_ => None)
       if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
         try {
-          updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
+          updateDetails(filterUri, filterBody->JSON.Encode.object, Post)
           ->thenResolve(json => setFilterDataJson(_ => json->Some))
           ->catch(_ => resolve())
           ->ignore
@@ -286,7 +284,7 @@ module SystemMetricsAnalytics = {
     }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
-    <UIUtils.RenderIf condition={getModuleFilters->Dict.toArray->Array.length > 0}>
+    <RenderIf condition={getModuleFilters->Dict.toArray->Array.length > 0}>
       {switch chartEntity1 {
       | Some(chartEntity) =>
         <div className="h-75-vh">
@@ -320,7 +318,7 @@ module SystemMetricsAnalytics = {
         </div>
       | _ => React.null
       }}
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -338,7 +336,7 @@ let make = () => {
 
   let loadInfo = async () => {
     try {
-      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain), ())
+      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))

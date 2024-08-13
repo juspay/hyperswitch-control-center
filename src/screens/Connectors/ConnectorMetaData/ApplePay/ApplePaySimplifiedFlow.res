@@ -5,13 +5,14 @@ let make = (
   ~merchantBusinessCountry,
   ~setApplePayIntegrationSteps,
   ~setVefifiedDomainList,
+  ~connector,
 ) => {
   open LogicUtils
   open APIUtils
   open ApplePayIntegrationHelper
   open ApplePayIntegrationUtils
   let getURL = useGetURL()
-  let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
+  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
 
@@ -23,6 +24,7 @@ let make = (
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let initalFormValue =
     formState.values
     ->getDictFromJsonObject
@@ -40,8 +42,8 @@ let make = (
   let onSubmit = async () => {
     try {
       let body = formState.values->constructVerifyApplePayReq(connectorID)
-      let verifyAppleUrl = getURL(~entityName=VERIFY_APPLE_PAY, ~methodType=Post, ())
-      let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post, ())
+      let verifyAppleUrl = getURL(~entityName=VERIFY_APPLE_PAY, ~methodType=Post)
+      let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post)
 
       let data =
         formState.values
@@ -54,7 +56,7 @@ let make = (
       setVefifiedDomainList(_ => [domainName])
       setApplePayIntegrationSteps(_ => ApplePayIntegrationTypes.Verify)
     } catch {
-    | _ => showToast(~message="Failed to Verify", ~toastType=ToastState.ToastError, ())
+    | _ => showToast(~message="Failed to Verify", ~toastType=ToastState.ToastError)
     }
     Nullable.null
   }
@@ -62,7 +64,7 @@ let make = (
   let downloadApplePayCert = () => {
     open Promise
     let downloadURL = Window.env.applePayCertificateUrl->Option.getOr("")
-    fetchApi(downloadURL, ~method_=Get, ())
+    fetchApi(downloadURL, ~method_=Get)
     ->then(Fetch.Response.blob)
     ->then(content => {
       DownloadUtils.download(
@@ -70,7 +72,7 @@ let make = (
         ~content,
         ~fileType="text/plain",
       )
-      showToast(~toastType=ToastSuccess, ~message="File download complete", ())
+      showToast(~toastType=ToastSuccess, ~message="File download complete")
 
       resolve()
     })
@@ -78,7 +80,6 @@ let make = (
       showToast(
         ~toastType=ToastError,
         ~message="Oops, something went wrong with the download. Please try again.",
-        (),
       )
       resolve()
     })
@@ -119,13 +120,12 @@ let make = (
                   ~integrationType=Some(#simplified),
                 )
               },
-              (),
             )}
           />
         | _ =>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={applePayValueInput(~applePayField, ~integrationType={Some(#simplified)}, ())}
+            field={applePayValueInput(~applePayField, ~integrationType={Some(#simplified)})}
           />
         }}
       </div>
@@ -133,7 +133,7 @@ let make = (
     ->React.array
   <>
     <SimplifiedHelper
-      customElement={Some(applePaySimplifiedFields)}
+      customElement={applePaySimplifiedFields}
       heading="Provide your sandbox domain where the verification file will be hosted"
       subText=Some(
         "Input the top-level domain (example.com) or sub-domain (checkout.example.com) where you wish to enable Apple Pay",
@@ -142,7 +142,7 @@ let make = (
     />
     <hr className="w-full" />
     <SimplifiedHelper
-      heading="Download domain verification file" stepNumber="2" customElement=Some(downloadAPIKey)
+      heading="Download domain verification file" stepNumber="2" customElement=downloadAPIKey
     />
     <hr className="w-full" />
     <SimplifiedHelper
@@ -151,15 +151,28 @@ let make = (
         "Host the downloaded verification file at your sandbox domain in the following location :-",
       )
       stepNumber="3"
-      customElement=Some(
-        <HostURL
-          prefix={`${ApplePayIntegrationUtils.applePayNameMapper(
-              ~name="initiative_context",
-              ~integrationType=Some(#simplified),
-            )}`}
-        />,
-      )
+      customElement={<HostURL
+        prefix={`${ApplePayIntegrationUtils.applePayNameMapper(
+            ~name="initiative_context",
+            ~integrationType=Some(#simplified),
+          )}`}
+      />}
     />
+    <RenderIf condition={featureFlagDetails.isLiveMode && featureFlagDetails.complianceCertificate}>
+      {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
+      | Processors(STRIPE) =>
+        <>
+          <hr className="w-full" />
+          <SimplifiedHelper
+            heading="Get feature enabled from stripe"
+            subText=None
+            stepNumber="4"
+            customElement={<SampleEmail />}
+          />
+        </>
+      | _ => React.null
+      }}
+    </RenderIf>
     <div className="w-full flex gap-2 justify-end p-6">
       <Button
         text="Go Back"

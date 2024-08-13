@@ -56,16 +56,15 @@ let getUpdatedHeading = (
     let key = colType->colMapper
     switch colType {
     | Connector =>
-      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=NumericType, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=NumericType, ~showSort=false)
     | DisputeStage =>
-      Table.makeHeaderInfo(~key, ~title="Dispute Stage", ~dataType=NumericType, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Dispute Stage", ~dataType=NumericType, ~showSort=false)
     | TotalAmountDisputed =>
       Table.makeHeaderInfo(
         ~key,
         ~title="Total Amount Disputed",
         ~dataType=NumericType,
         ~showSort=false,
-        (),
       )
     | TotalDisputeLostAmount =>
       Table.makeHeaderInfo(
@@ -73,9 +72,8 @@ let getUpdatedHeading = (
         ~title="Total Dispute Lost Amount",
         ~dataType=NumericType,
         ~showSort=false,
-        (),
       )
-    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false, ())
+    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false)
     }
   }
   getHeading
@@ -83,7 +81,7 @@ let getUpdatedHeading = (
 
 let getCell = (disputeTable: disputeTableType, colType): Table.cell => {
   let usaNumberAbbreviation = labelValue => {
-    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat(), ())
+    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
   }
 
   switch colType {
@@ -117,7 +115,6 @@ let disputeTableEntity = () =>
     ~allColumns=allDisputeColumns,
     ~getCell,
     ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
-    (),
   )
 
 let singleStateInitialValue = {
@@ -167,7 +164,7 @@ type colT =
   | TotalAmountDisputed
   | TotalDisputeLostAmount
 
-let getColumns: unit => array<DynamicSingleStat.columns<colT>> = () => [
+let getColumns = [
   {
     sectionName: "",
     columns: [TotalAmountDisputed, TotalDisputeLostAmount]->generateDefaultStateColumns,
@@ -250,7 +247,7 @@ let getStatData = (
   }
 }
 
-let getSingleStatEntity = (metrics, connector_success_rate) => {
+let getSingleStatEntity = metrics => {
   urlConfig: [
     {
       uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
@@ -259,7 +256,7 @@ let getSingleStatEntity = (metrics, connector_success_rate) => {
   ],
   getObjects: itemToObjMapper,
   getTimeSeriesObject: timeSeriesObjMapper,
-  defaultColumns: getColumns(connector_success_rate),
+  defaultColumns: getColumns,
   getData: getStatData,
   totalVolumeCol: None,
   matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
@@ -304,5 +301,4 @@ let chartEntity = tabKeys =>
       },
     ],
     ~moduleName="Dispute Analytics",
-    (),
   )

@@ -57,8 +57,8 @@ module ResetPassword = {
     let (isLoading, setIsLoading) = React.useState(_ => false)
     let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-    let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
-    let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+    let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
+    let updateDetails = useUpdateMethod(~showErrorToast=false)
     let showToast = ToastState.useShowToast()
 
     let resetPassword = async body => {
@@ -69,21 +69,20 @@ module ResetPassword = {
           ~userType=#FORGOT_PASSWORD,
           ~methodType=Post,
           ~queryParamerters=Some(`auth_id=${authId}`),
-          (),
         )
-        let _ = await updateDetails(url, body, Post, ())
-        showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
+        let _ = await updateDetails(url, body, Post)
+        showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess)
         setIsLoading(_ => false)
       } catch {
       | _ => {
-          showToast(~message="Reset Password Failed, Try again", ~toastType=ToastError, ())
+          showToast(~message="Reset Password Failed, Try again", ~toastType=ToastError)
           setIsLoading(_ => false)
         }
       }
     }
 
     let setPassword = () => {
-      let body = email->CommonAuthUtils.getEmailBody()
+      let body = email->CommonAuthUtils.getEmailBody
       body->resetPassword->ignore
     }
 
@@ -93,7 +92,7 @@ module ResetPassword = {
         <p className="text-hyperswitch_black opacity-50 text-base font-semibold break-all">
           {"********"->React.string}
         </p>
-        <UIUtils.RenderIf condition={!isPlayground}>
+        <RenderIf condition={!isPlayground}>
           <Button
             text={"Reset Password"}
             loadingText="Sending mail..."
@@ -102,7 +101,7 @@ module ResetPassword = {
             buttonSize={Small}
             onClick={_ => setPassword()}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -189,9 +188,9 @@ module BasicDetailsSection = {
           <p className=subTitleClass> {email->React.string} </p>
         </div>
         <hr />
-        <UIUtils.RenderIf condition={!isPlayground && featureFlagDetails.email}>
+        <RenderIf condition={!isPlayground && featureFlagDetails.email}>
           <ResetPassword />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -200,21 +199,16 @@ module BasicDetailsSection = {
 let make = () => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-
-  let showTwoFaSettings = switch authStatus {
-  | LoggedIn(Auth(authInfo)) => authInfo.is_two_factor_auth_setup
-  | _ => false
-  }
+  let {isTwoFactorAuthSetup: showTwoFaSettings} = React.useContext(UserInfoProvider.defaultContext)
 
   <div className="flex flex-col overflow-scroll gap-8">
     <PageUtils.PageHeading title="Profile" subTitle="Manage your profile settings here" />
     <div className="flex flex-col flex-wrap  gap-12">
       <BasicDetailsSection />
       <MerchantDetailsSection />
-      <UIUtils.RenderIf condition={featureFlagDetails.totp && showTwoFaSettings}>
+      <RenderIf condition={featureFlagDetails.totp && showTwoFaSettings}>
         <TwoFactorAuthenticationDetails />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   </div>
 }

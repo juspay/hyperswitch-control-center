@@ -316,6 +316,13 @@ let getDictFromUrlSearchParams = searchParams => {
   })
   ->Dict.fromArray
 }
+
+let setDictNull = (dict, key, optionStr) => {
+  switch optionStr {
+  | Some(str) => dict->Dict.set(key, str->JSON.Encode.string)
+  | None => dict->Dict.set(key, JSON.Encode.null)
+  }
+}
 let setOptionString = (dict, key, optionStr) =>
   optionStr->Option.mapOr((), str => dict->Dict.set(key, str->JSON.Encode.string))
 
@@ -384,7 +391,6 @@ let shortNum = (
   ~labelValue: float,
   ~numberFormat: CurrencyFormatUtils.currencyFormat,
   ~presision: int=2,
-  (),
 ) => {
   open CurrencyFormatUtils
   let value = Math.abs(labelValue)
@@ -413,7 +419,7 @@ let shortNum = (
   }
 }
 
-let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
+let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?) => {
   if labelValue !== 0.0 {
     let value = Int.fromFloat(labelValue)
     let value_days = value / 86400
@@ -499,7 +505,7 @@ let getUniqueArray = (arr: array<'t>) => {
   arr->Array.map(item => (item, ""))->Dict.fromArray->Dict.keysToArray
 }
 
-let getFirstLetterCaps = (str, ~splitBy="-", ()) => {
+let getFirstLetterCaps = (str, ~splitBy="-") => {
   str
   ->String.toLowerCase
   ->String.split(splitBy)
@@ -525,13 +531,13 @@ let isEqualStringArr = (arr1, arr2) => {
   lengthEqual && isContainsAll
 }
 
-let getDefaultNumberFormat = () => {
+let getDefaultNumberFormat = _ => {
   open CurrencyFormatUtils
   USD
 }
 
 let indianShortNum = labelValue => {
-  shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat(), ())
+  shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
 }
 
 let convertNewLineSaperatedDataToArrayOfJson = text => {
@@ -615,7 +621,7 @@ let regex = (positionToCheckFrom, searchString) => {
     ->String.replaceRegExp(%re("/\(/g"), "\\(")
     ->String.replaceRegExp(%re("/\+/g"), "\\+")
     ->String.replaceRegExp(%re("/\)/g"), "\\)")
-  Js.Re.fromStringWithFlags(
+  RegExp.fromStringWithFlags(
     "(.*)(" ++ positionToCheckFrom ++ "" ++ searchStringNew ++ ")(.*)",
     ~flags="i",
   )

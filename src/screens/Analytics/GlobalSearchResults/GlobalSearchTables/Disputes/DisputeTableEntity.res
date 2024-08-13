@@ -1,3 +1,5 @@
+let domain = "disputes"
+
 type disputesObject = {
   dispute_id: string,
   dispute_amount: float,
@@ -121,87 +123,46 @@ let getHeading = colType => {
   let key = colType->colMapper
   switch colType {
   | DisputeId =>
-    Table.makeHeaderInfo(~key, ~title="Dispute Id", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Dispute Id", ~dataType=TextType, ~showSort=false)
   | DisputeAmount =>
-    Table.makeHeaderInfo(~key, ~title="Dispute Amount", ~dataType=TextType, ~showSort=false, ())
-  | Currency =>
-    Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Dispute Amount", ~dataType=TextType, ~showSort=false)
+  | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType, ~showSort=false)
   | DisputeStage =>
-    Table.makeHeaderInfo(~key, ~title="Dispute Stage", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Dispute Stage", ~dataType=TextType, ~showSort=false)
   | DisputeStatus =>
-    Table.makeHeaderInfo(~key, ~title="Dispute Status", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Dispute Status", ~dataType=TextType, ~showSort=false)
   | PaymentId =>
-    Table.makeHeaderInfo(~key, ~title="Payment Id", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Payment Id", ~dataType=TextType, ~showSort=false)
   | AttemptId =>
-    Table.makeHeaderInfo(~key, ~title="Attempt Id", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Attempt Id", ~dataType=TextType, ~showSort=false)
   | MerchantId =>
-    Table.makeHeaderInfo(~key, ~title="Merchant Id", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Merchant Id", ~dataType=TextType, ~showSort=false)
   | ConnectorStatus =>
-    Table.makeHeaderInfo(~key, ~title="Connector Status", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Connector Status", ~dataType=TextType, ~showSort=false)
   | ConnectorDisputeId =>
-    Table.makeHeaderInfo(
-      ~key,
-      ~title="Connector Dispute Id",
-      ~dataType=TextType,
-      ~showSort=false,
-      (),
-    )
+    Table.makeHeaderInfo(~key, ~title="Connector Dispute Id", ~dataType=TextType, ~showSort=false)
   | ConnectorReason =>
-    Table.makeHeaderInfo(~key, ~title="Connector Reason", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Connector Reason", ~dataType=TextType, ~showSort=false)
   | ConnectorReasonCode =>
-    Table.makeHeaderInfo(
-      ~key,
-      ~title="Connector Reason Code",
-      ~dataType=TextType,
-      ~showSort=false,
-      (),
-    )
+    Table.makeHeaderInfo(~key, ~title="Connector Reason Code", ~dataType=TextType, ~showSort=false)
   | ChallengeRequiredBy =>
-    Table.makeHeaderInfo(
-      ~key,
-      ~title="Challenge Required By",
-      ~dataType=TextType,
-      ~showSort=false,
-      (),
-    )
+    Table.makeHeaderInfo(~key, ~title="Challenge Required By", ~dataType=TextType, ~showSort=false)
   | ConnectorCreatedAt =>
-    Table.makeHeaderInfo(
-      ~key,
-      ~title="Connector Created At",
-      ~dataType=TextType,
-      ~showSort=false,
-      (),
-    )
+    Table.makeHeaderInfo(~key, ~title="Connector Created At", ~dataType=TextType, ~showSort=false)
   | ConnectorUpdatedAt =>
-    Table.makeHeaderInfo(
-      ~key,
-      ~title="Connector Updated At",
-      ~dataType=TextType,
-      ~showSort=false,
-      (),
-    )
+    Table.makeHeaderInfo(~key, ~title="Connector Updated At", ~dataType=TextType, ~showSort=false)
   | CreatedAt =>
-    Table.makeHeaderInfo(~key, ~title="Created At", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Created At", ~dataType=TextType, ~showSort=false)
   | ModifiedAt =>
-    Table.makeHeaderInfo(~key, ~title="Modified At", ~dataType=TextType, ~showSort=false, ())
-  | Connector =>
-    Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType, ~showSort=false, ())
-  | Evidence =>
-    Table.makeHeaderInfo(~key, ~title="Evidence", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Modified At", ~dataType=TextType, ~showSort=false)
+  | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType, ~showSort=false)
+  | Evidence => Table.makeHeaderInfo(~key, ~title="Evidence", ~dataType=TextType, ~showSort=false)
   | ProfileId =>
-    Table.makeHeaderInfo(~key, ~title="Profile Id", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Profile Id", ~dataType=TextType, ~showSort=false)
   | MerchantConnectorId =>
-    Table.makeHeaderInfo(
-      ~key,
-      ~title="Merchant Connector Id",
-      ~dataType=TextType,
-      ~showSort=false,
-      (),
-    )
-  | SignFlag =>
-    Table.makeHeaderInfo(~key, ~title="Sign Flag", ~dataType=TextType, ~showSort=false, ())
-  | Timestamp =>
-    Table.makeHeaderInfo(~key, ~title="Timestamp", ~dataType=TextType, ~showSort=false, ())
+    Table.makeHeaderInfo(~key, ~title="Merchant Connector Id", ~dataType=TextType, ~showSort=false)
+  | SignFlag => Table.makeHeaderInfo(~key, ~title="Sign Flag", ~dataType=TextType, ~showSort=false)
+  | Timestamp => Table.makeHeaderInfo(~key, ~title="Timestamp", ~dataType=TextType, ~showSort=false)
   }
 }
 
@@ -270,5 +231,4 @@ let tableEntity = EntityType.makeEntity(
   ~getShowLink={
     dispute => GlobalVars.appendDashboardPath(~url=`/disputes/${dispute.dispute_id}`)
   },
-  (),
 )

@@ -37,7 +37,10 @@ let validateTotpForm = (values: JSON.t, keys: array<string>) => {
     }
 
     // password check
-    CommonAuthUtils.passwordKeyValidation(value, key, "create_password", errors)
+    switch key {
+    | "password" => CommonAuthUtils.passwordKeyValidation(value, key, "password", errors)
+    | _ => CommonAuthUtils.passwordKeyValidation(value, key, "create_password", errors)
+    }
 
     // confirm password check
     CommonAuthUtils.confirmPasswordCheck(

@@ -9,10 +9,10 @@ module ConnectorOverview = {
     let connectorsList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
-      ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer, ())
+      ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
     let configuredConnectors =
       connectorsList->Array.map(paymentMethod =>
-        paymentMethod.connector_name->getConnectorNameTypeFromString()
+        paymentMethod.connector_name->getConnectorNameTypeFromString
       )
 
     let getConnectorIconsList = () => {
@@ -42,7 +42,7 @@ module ConnectorOverview = {
       <div className="flex"> {icons->React.array} </div>
     }
 
-    <UIUtils.RenderIf condition={configuredConnectors->Array.length > 0}>
+    <RenderIf condition={configuredConnectors->Array.length > 0}>
       <div className=boxCss>
         {getConnectorIconsList()}
         <div className="flex items-center gap-2">
@@ -61,7 +61,7 @@ module ConnectorOverview = {
           }}
         />
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -155,21 +155,20 @@ module OverviewInfo = {
 
     let generateSampleData = async () => {
       try {
-        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
+        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post)
         let _ = await updateDetails(
           generateSampleDataUrl,
           [("record", 50.0->JSON.Encode.float)]->Dict.fromArray->JSON.Encode.object,
           Post,
-          (),
         )
-        showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess, ())
+        showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess)
         Window.Location.reload()
       } catch {
       | _ => ()
       }
     }
 
-    <UIUtils.RenderIf condition={sampleData}>
+    <RenderIf condition={sampleData}>
       <div className="flex bg-white border rounded-md gap-2 px-9 py-3">
         <Icon name="info-vacent" className={`${textColor.primaryNormal}`} size=20 />
         <span>
@@ -182,7 +181,7 @@ module OverviewInfo = {
         </span>
         <span> {"sample data"->React.string} </span>
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -194,12 +193,12 @@ let make = () => {
     <p className=headingStyle> {"Overview"->React.string} </p>
     <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
       <ConnectorOverview />
-      <UIUtils.RenderIf condition={userPermissionJson.analyticsView === Access}>
+      <RenderIf condition={userPermissionJson.analyticsView === Access}>
         <PaymentOverview />
-      </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={systemMetrics}>
+      </RenderIf>
+      <RenderIf condition={systemMetrics}>
         <SystemMetricsInsights />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
     <OverviewInfo />
   </div>

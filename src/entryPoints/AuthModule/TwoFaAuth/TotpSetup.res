@@ -21,7 +21,7 @@ module EnterAccessCode = {
           let _ = await verifyRecoveryCodeLogic(body)
           onClickVerifyAccessCode(~skip_2fa=false)->ignore
         } else {
-          showToast(~message="Recovery code cannot be empty!", ~toastType=ToastError, ())
+          showToast(~message="Recovery code cannot be empty!", ~toastType=ToastError)
         }
         setButtonState(_ => Button.Normal)
       } catch {
@@ -122,7 +122,7 @@ module ConfigureTotpScreen = {
 
         if otp->String.length > 0 {
           let body = [("totp", otp->JSON.Encode.string)]->getJsonFromArrayOfJson
-          let methodType = twoFaStatus === TWO_FA_SET ? Fetch.Post : Fetch.Put
+          let methodType: Fetch.requestMethod = twoFaStatus === TWO_FA_SET ? Post : Put
           let _ = await verifyTotpLogic(body, methodType)
 
           if twoFaStatus === TWO_FA_SET {
@@ -131,7 +131,7 @@ module ConfigureTotpScreen = {
             setTwoFaPageState(_ => TwoFaTypes.TOTP_SHOW_RC)
           }
         } else {
-          showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
+          showToast(~message="OTP field cannot be empty!", ~toastType=ToastError)
         }
         setButtonState(_ => Button.Normal)
       } catch {
@@ -181,12 +181,12 @@ module ConfigureTotpScreen = {
         <p className={`${h2TextStyle} text-grey-900`}> {modalHeaderText->React.string} </p>
       </div>
       <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
-        <UIUtils.RenderIf condition={twoFaStatus === TWO_FA_NOT_SET}>
+        <RenderIf condition={twoFaStatus === TWO_FA_NOT_SET}>
           <TwoFaElements.TotpScanQR totpUrl isQrVisible />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div className="flex flex-col justify-center items-center gap-4">
           <TwoFaElements.TotpInput otp setOtp />
-          <UIUtils.RenderIf condition={twoFaStatus === TWO_FA_SET}>
+          <RenderIf condition={twoFaStatus === TWO_FA_SET}>
             <p className={`${p2Regular} text-jp-gray-700`}>
               {"Didn't get a code? "->React.string}
               <span
@@ -195,7 +195,7 @@ module ConfigureTotpScreen = {
                 {"Use recovery-code"->React.string}
               </span>
             </p>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
         <div className="flex justify-end gap-4">
           <Button
@@ -264,7 +264,6 @@ let make = () => {
         ~userType=#TERMINATE_TWO_FACTOR_AUTH,
         ~methodType=Get,
         ~queryParamerters=Some(`skip_two_factor_auth=${skip_2fa->getStringFromBool}`),
-        (),
       )
 
       let response = await fetchDetails(url)
@@ -279,10 +278,10 @@ let make = () => {
             errorCode->CommonAuthUtils.errorSubCodeMapper === UR_41
         ) {
           setTwoFaPageState(_ => TOTP_SHOW_QR)
-          showToast(~message="Failed to complete 2fa!", ~toastType=ToastError, ())
+          showToast(~message="Failed to complete 2fa!", ~toastType=ToastError)
           setShowNewQR(prev => !prev)
         } else {
-          showToast(~message="Something went wrong", ~toastType=ToastError, ())
+          showToast(~message="Something went wrong", ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
@@ -293,7 +292,7 @@ let make = () => {
     open LogicUtils
     try {
       setTotpUrl(_ => "")
-      let url = getURL(~entityName=USERS, ~userType=#BEGIN_TOTP, ~methodType=Get, ())
+      let url = getURL(~entityName=USERS, ~userType=#BEGIN_TOTP, ~methodType=Get)
       let response = await fetchDetails(url)
       let responseDict = response->getDictFromJsonObject->getJsonObjectFromDict("secret")
       switch responseDict->JSON.Classify.classify {

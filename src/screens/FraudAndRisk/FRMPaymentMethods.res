@@ -53,7 +53,7 @@ module FormField = {
         </div>
       </div>
       <div className={`grid grid-cols-2 md:grid-cols-4 gap-4`}>
-        <UIUtils.RenderIf condition={sectionType == FlowType}>
+        <RenderIf condition={sectionType == FlowType}>
           <FormRenderer.FieldRenderer
             field={FormRenderer.makeFieldInfo(
               ~label="",
@@ -73,7 +73,7 @@ module FormField = {
               (),
             )}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -188,7 +188,7 @@ module CheckBoxRenderer = {
       </div>
       {frmConfigInfo.payment_methods
       ->Array.mapWithIndex((paymentMethodInfo, index) => {
-        <UIUtils.RenderIf condition={isOpen} key={index->Int.toString}>
+        <RenderIf condition={isOpen} key={index->Int.toString}>
           <Accordion
             key={index->Int.toString}
             initialExpandedArray=[0]
@@ -216,7 +216,7 @@ module CheckBoxRenderer = {
             contentExpandCss="px-10 pb-6 pt-3 !border-t-0"
             titleStyle="font-semibold text-bold text-md"
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       })
       ->React.array}
     </div>
@@ -242,8 +242,8 @@ module PaymentMethodsRenderer = {
           response
           ->getArrayFromJson([])
           ->Array.map(getDictFromJsonObject)
-          ->FRMUtils.filterList(~removeFromList=FRMPlayer, ())
-          ->FRMUtils.filterList(~removeFromList=ThreedsAuthenticator, ())
+          ->FRMUtils.filterList(~removeFromList=FRMPlayer)
+          ->FRMUtils.filterList(~removeFromList=ThreedsAuthenticator)
           ->getConnectorConfig
 
         let updateFRMConfig =
@@ -298,7 +298,7 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
 
   let onSubmit = (values, _) => {
     open Promise
-    mixpanelEvent(~eventName="frm_step1", ())
+    mixpanelEvent(~eventName="frm_step1")
     let valuesDict = values->getDictFromJsonObject
 
     // filter connector frm config having no payment method config

@@ -44,7 +44,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let fetchRoutingRecords = async activeIds => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let routingUrl = `${getURL(~entityName=PAYOUT_ROUTING, ~methodType=Get, ())}?limit=100`
+      let routingUrl = `${getURL(~entityName=PAYOUT_ROUTING, ~methodType=Get)}?limit=100`
       let routingJson = await fetchDetails(routingUrl)
       let configuredRules = routingJson->RoutingUtils.getRecordsObject
 
@@ -83,7 +83,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
 
-      let activeRoutingUrl = getURL(~entityName=ACTIVE_PAYOUT_ROUTING, ~methodType=Get, ())
+      let activeRoutingUrl = getURL(~entityName=ACTIVE_PAYOUT_ROUTING, ~methodType=Get)
       let routingJson = await fetchDetails(activeRoutingUrl)
 
       let routingArr = routingJson->getArrayFromJson([])
@@ -128,7 +128,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
           types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK] onRedirectBaseUrl="payoutrouting"
         />
       </div>
-      <UIUtils.RenderIf condition={!previewOnly}>
+      <RenderIf condition={!previewOnly}>
         <div className="flex flex-col gap-12">
           <EntityScaffold
             entityName="HyperSwitch Priority Logic"
@@ -148,7 +148,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
               />}
           />
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   </PageLoaderWrapper>
 }

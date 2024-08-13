@@ -34,7 +34,7 @@ module SelectProcessor = {
         text="Proceed"
         onClick={_ => {
           setConnectorConfigureState(_ => Select_configuration_type)
-          mixpanelEvent(~eventName=`quickstart_select_processor`, ())
+          mixpanelEvent(~eventName=`quickstart_select_processor`)
           RescriptReactRouter.replace(`/${basePath}?name=${connectorName}`)
         }}
         buttonSize=Small
@@ -101,10 +101,9 @@ module ConfigureProcessor = {
         ~bodyType,
         ~isPayoutFlow=false,
         ~isLiveMode={featureFlagDetails.isLiveMode},
-        (),
       )
       setInitialValues(_ => body)
-      mixpanelEvent(~eventName=`quickstart_connector_configuration`, ())
+      mixpanelEvent(~eventName=`quickstart_connector_configuration`)
       setConnectorConfigureState(_ => Setup_payment_methods)
       Nullable.null
     }
@@ -118,7 +117,7 @@ module ConfigureProcessor = {
       }
 
       validateConnectorRequiredFields(
-        connectorName->getConnectorNameTypeFromString(),
+        connectorName->getConnectorNameTypeFromString,
         valuesFlattenJson,
         connectorAccountFields,
         connectorMetaDataFields,
@@ -128,14 +127,14 @@ module ConfigureProcessor = {
       )
     }
     let backButton =
-      <UIUtils.RenderIf condition={isBackButtonVisible}>
+      <RenderIf condition={isBackButtonVisible}>
         <Button
           buttonType={PrimaryOutline}
           text="Back"
           onClick={_ => setConnectorConfigureState(_ => Select_configuration_type)}
           buttonSize=Small
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
 
     <Form initialValues onSubmit validate={validateMandatoryField}>
       <QuickStartUIUtils.BaseComponent
@@ -222,9 +221,9 @@ module SelectPaymentMethods = {
         let metaData = body->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
         let _ = ConnectorUtils.updateMetaData(~metaData)
         //
-        let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
+        let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None)
 
-        let response = await updateAPIHook(connectorUrl, body, Post, ())
+        let response = await updateAPIHook(connectorUrl, body, Post)
 
         setInitialValues(_ => response)
         connectorArray->Array.push(connectorName)
@@ -232,12 +231,11 @@ module SelectPaymentMethods = {
         response->LogicUtils.getDictFromJsonObject->updateEnumForConnector->ignore
         setConnectorConfigureState(_ => Summary)
         showToast(
-          ~message=`${connectorName->LogicUtils.getFirstLetterCaps()} connected successfully!`,
+          ~message=`${connectorName->LogicUtils.getFirstLetterCaps} connected successfully!`,
           ~toastType=ToastSuccess,
-          (),
         )
         setButtonState(_ => Button.Normal)
-        mixpanelEvent(~eventName=`quickstart_connector_payment_methods`, ())
+        mixpanelEvent(~eventName=`quickstart_connector_payment_methods`)
       } catch {
       | _ => setButtonState(_ => Button.Normal)
       }

@@ -12,7 +12,7 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=USERS, ~userType=#GENERATE_RECOVERY_CODES, ~methodType=Get, ())
+      let url = getURL(~entityName=USERS, ~userType=#GENERATE_RECOVERY_CODES, ~methodType=Get)
       let response = await fetchDetails(url)
       let recoveryCodesValue = response->getDictFromJsonObject->getStrArray("recovery_codes")
       setRecoveryCodes(_ => recoveryCodesValue)
@@ -26,7 +26,7 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
           setTwoFaPageState(_ => TwoFaTypes.TOTP_SHOW_QR)
           setShowNewQR(prev => !prev)
         } else {
-          showToast(~message="Something went wrong", ~toastType=ToastError, ())
+          showToast(~message="Something went wrong", ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
@@ -37,7 +37,7 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
     open LogicUtils
     ev->ReactEvent.Mouse.stopPropagation
     Clipboard.writeText(JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3))
-    showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+    showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
   }
 
   React.useEffect(() => {
@@ -64,7 +64,7 @@ let make = (~setTwoFaPageState, ~onClickDownload, ~setShowNewQR) => {
         </div>
         <div className="flex gap-4 justify-end">
           <Button
-            leftIcon={CustomIcon(<img src={`/assets/CopyToClipboard.svg`} />)}
+            leftIcon={CustomIcon(<img alt="copy" src={`/assets/CopyToClipboard.svg`} />)}
             text={"Copy"}
             buttonType={Secondary}
             buttonSize={Small}

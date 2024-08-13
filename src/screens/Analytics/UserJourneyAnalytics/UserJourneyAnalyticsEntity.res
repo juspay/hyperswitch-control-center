@@ -41,7 +41,7 @@ let singleStatSeriesItemToObjMapper = json => {
     payment_attempts: dict->getInt("payment_attempts", 0),
     time_series: dict->getString("time_bucket", ""),
     sdk_rendered_count: dict->getInt("sdk_rendered_count", 0),
-    average_payment_time: dict->getFloat("average_payment_time", 0.0)->setPrecision() /. 1000.,
+    average_payment_time: dict->getFloat("average_payment_time", 0.0)->setPrecision /. 1000.,
     load_time: dict->getFloat("load_time", 0.0) /. 1000.,
   })
   ->Option.getOr({
@@ -220,8 +220,8 @@ let getStatData = (
       showDelta: false,
     }
   | AvgPaymentTime => {
-      title: "TP-50 Payment Time",
-      tooltipText: "Time taken to attempt payment",
+      title: "Payment Time",
+      tooltipText: "The time spent on Checkout upto the moment the payment request is sent to the backend server.",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.average_payment_time,
         deltaTimestampData.currentSr,
@@ -239,8 +239,8 @@ let getStatData = (
       showDelta: false,
     }
   | LoadTime => {
-      title: "TP-50 Load Time",
-      tooltipText: "Time taken to Start Render of Checkout from creation of Elements",
+      title: "Checkout Load Time",
+      tooltipText: "Time taken from Checkout creation to the start of its rendering",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.load_time,
         deltaTimestampData.currentSr,
@@ -382,7 +382,6 @@ let commonUserJourneyChartEntity = tabKeys =>
       }
     },
     ~disableGranularity=true,
-    (),
   )
 
 let userJourneyChartEntity = tabKeys => {
@@ -449,11 +448,9 @@ let fixedFilterFields = _json => {
             ~disableApply=false,
             ~dateRangeLimit=180,
             ~optFieldKey=optFilterKey,
-            (),
           ),
           ~inputFields=[],
           ~isRequired=false,
-          (),
         ),
       }: EntityType.initialFilters<'t>
     ),

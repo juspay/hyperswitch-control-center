@@ -1,7 +1,7 @@
 module RenderSearchResultBody = {
   open GlobalSearchTypes
   open LogicUtils
-  open UIUtils
+
   @react.component
   let make = (~section: resultType) => {
     let redirectOnSelect = element => {
@@ -97,12 +97,12 @@ let make = () => {
 
   let getSearchResults = async results => {
     try {
-      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
+      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
       let body = generateSearchBody(
         ~searchText={query},
         ~merchant_id={merchantDetailsValue.merchant_id},
       )
-      let response = await fetchDetails(url, body, Post, ())
+      let response = await fetchDetails(url, body, Post)
 
       let local_results = []
       results->Array.forEach((item: resultType) => {

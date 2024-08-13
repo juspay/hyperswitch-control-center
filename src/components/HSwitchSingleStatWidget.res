@@ -31,9 +31,9 @@ let make = (
     } else if statType === "Volume" {
       value->indianShortNum
     } else if statType === "Latency" {
-      latencyShortNum(~labelValue=value, ())
+      latencyShortNum(~labelValue=value)
     } else if statType === "LatencyMs" {
-      latencyShortNum(~labelValue=value, ~includeMilliseconds=true, ())
+      latencyShortNum(~labelValue=value, ~includeMilliseconds=true)
     } else {
       value->Float.toString
     }
@@ -63,7 +63,7 @@ let make = (
     })
   }, [data])
 
-  let options1 = {
+  let _options1 = {
     chart: {
       height: 10,
       toolbar: {
@@ -102,7 +102,7 @@ let make = (
     colors: ["#006DF9"],
   }
 
-  let series = [
+  let _series = [
     {
       \"type": "area",
       data: sortedData1,
@@ -110,36 +110,33 @@ let make = (
   ]
 
   if singleStatLoading && loaderType === Shimmer {
-    <div
-      className={`p-4`}
-      style={ReactDOMStyle.make(~width=fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%", ())}>
+    <div className={`p-4`} style={width: fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%"}>
       <Shimmer styleClass="w-full h-28" />
     </div>
   } else {
     <div
-      className="h-full mt-4"
-      style={ReactDOMStyle.make(~width=fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%", ())}>
+      className="h-full mt-4" style={width: fullWidth ? "100%" : isMobileWidth ? "100%" : "33.33%"}>
       <div
         className={`h-full flex flex-col border ${borderRounded} dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox p-2 md:mr-4`}>
         <div className="p-4 flex flex-col justify-between h-full gap-auto">
-          <UIUtils.RenderIf condition={singleStatLoading && loaderType === SideLoader}>
+          <RenderIf condition={singleStatLoading && loaderType === SideLoader}>
             <div className="animate-spin self-end absolute">
               <Icon name="spinner" size=16 />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div className="flex justify-between w-full h-1/2 items-end">
             <div className="font-bold text-3xl w-1/3">
               {statValue(statType)->String.toLowerCase->React.string}
             </div>
-            <div className="h-16 w-2/3 scale-[0.4]">
-              <ApexCharts.ReactApexChart
-                \"type"="area"
-                options={options1}
-                series={series->objToJson}
-                height={"170"}
-                width="380"
-              />
-            </div>
+            // <div className="h-16 w-2/3 scale-[0.4]">
+            // <ApexCharts.ReactApexChart
+            //   \"type"="area"
+            //   options={options1}
+            //   series={series->objToJson}
+            //   height={"170"}
+            //   width="380"
+            // />
+            // </div>
           </div>
           <div
             className={"flex gap-2 items-center pt-4 text-jp-gray-700 font-bold self-start h-1/2"}>

@@ -20,7 +20,7 @@ let regex = (a, searchString) => {
     ->String.replaceRegExp(%re("/\+/g"), "\\+")
     ->String.replaceRegExp(%re("/\)/g"), "\\)")
     ->String.replaceRegExp(%re("/\./g"), "")
-  Js.Re.fromStringWithFlags("(.*)(" ++ a ++ "" ++ searchStringNew ++ ")(.*)", ~flags="i")
+  RegExp.fromStringWithFlags("(.*)(" ++ a ++ "" ++ searchStringNew ++ ")(.*)", ~flags="i")
 }
 
 module ListItem = {
@@ -61,6 +61,7 @@ module ListItem = {
     ~showToolTipOptions=false,
     ~textEllipsisForDropDownOptions=false,
     ~textColorClass="",
+    ~customRowClass="",
   ) => {
     let {globalUIConfig: {font}} = React.useContext(ThemeProvider.themeContext)
     let labelText = switch labelValue->String.length {
@@ -196,7 +197,7 @@ module ListItem = {
         <div
           ref={parentRef->ReactDOM.Ref.domRef}
           onClick=onClickTemp
-          className={`flex  relative mx-2 md:mx-0 my-3 md:my-0 pr-2 md:pr-0 md:w-full items-center font-medium  ${overFlowTextCustomClass} ${itemRoundedClass} ${textColor} ${justifyClass} ${cursorClass} ${backgroundClass} ${selectedClass} ${customStyle}  ${customCss} `}>
+          className={`flex  relative mx-2 md:mx-0 my-3 md:my-0 pr-2 md:pr-0 md:w-full items-center font-medium  ${overFlowTextCustomClass} ${itemRoundedClass} ${textColor} ${justifyClass} ${cursorClass} ${backgroundClass} ${selectedClass} ${customStyle}  ${customCss} ${customRowClass}`}>
           {if !isDropDown {
             if showToggle {
               <div className={toggleClass ++ toggleProps} onClick>
@@ -367,6 +368,7 @@ type dropdownOptionWithoutOptional = {
   iconStroke: string,
   textColor: string,
   optGroup: string,
+  customRowClass: string,
 }
 type dropdownOption = {
   label: string,
@@ -377,6 +379,7 @@ type dropdownOption = {
   description?: string,
   iconStroke?: string,
   textColor?: string,
+  customRowClass?: string,
 }
 
 let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOptional => {
@@ -389,6 +392,7 @@ let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOpt
     iconStroke: dropdownOption.iconStroke->Option.getOr(""),
     textColor: dropdownOption.textColor->Option.getOr(""),
     optGroup: dropdownOption.optGroup->Option.getOr("-"),
+    customRowClass: dropdownOption.customRowClass->Option.getOr(""),
   }
 }
 
@@ -731,7 +735,7 @@ module BaseSelect = {
           </div>
         } else if !isMobileView {
           let clearAllCondition = noOfSelected > 0
-          <UIUtils.RenderIf
+          <RenderIf
             condition={filteredOptions->Array.length > 1 &&
               filteredOptions->Array.find(item => item.value === "Loading...")->Option.isNone}>
             <div
@@ -744,7 +748,7 @@ module BaseSelect = {
               />
               {{clearAllCondition ? "Clear All" : "Select All"}->React.string}
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         } else {
           <div
             onClick={selectAll(noOfSelected !== options->Array.length)}
@@ -804,7 +808,7 @@ module BaseSelect = {
           {if !hideBorder {
             <div
               className="my-2 bg-jp-gray-lightmode_steelgray dark:bg-jp-gray-960  "
-              style={ReactDOMStyle.make(~height="1px", ())}
+              style={height: "1px"}
             />
           } else {
             React.null
@@ -895,7 +899,7 @@ module BaseSelect = {
           onClick
         />
       } else {
-        <UIUtils.RenderIf condition={isDropDown && noOfSelected > 0 && showSelectCountButton}>
+        <RenderIf condition={isDropDown && noOfSelected > 0 && showSelectCountButton}>
           <Button
             buttonType=Primary
             text={`Select ${noOfSelected->Int.toString}`}
@@ -903,7 +907,7 @@ module BaseSelect = {
             customButtonStyle="w-full items-center"
             onClick
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       }}
     </div>
   }
@@ -1047,6 +1051,7 @@ module BaseSelectButton = {
               isMobileView
               dataId=i
               iconStroke=option.iconStroke
+              customRowClass={option.customRowClass}
             />
           } else {
             React.null
@@ -1133,6 +1138,7 @@ module RenderListItemInBaseRadio = {
           textEllipsisForDropDownOptions
           textColorClass={option.textColor}
           customMarginStyle=customMarginStyleOfListItem
+          customRowClass={option.customRowClass}
         />
 
       if !descriptionOnHover {
@@ -1140,14 +1146,14 @@ module RenderListItemInBaseRadio = {
         | Some(str) =>
           <div key={i->Int.toString} className="flex flex-row">
             listItemComponent
-            <UIUtils.RenderIf condition={!isHorizontal}>
+            <RenderIf condition={!isHorizontal}>
               <ToolTip
                 description={str}
                 toolTipFor={<div className="py-4 px-4">
                   <Icon size=12 name="info-circle" />
                 </div>}
               />
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         | None => listItemComponent
         }
@@ -1247,7 +1253,6 @@ module BaseRadio = {
       ~callback=() => {
         setSearchString(_ => "")
       },
-      (),
     )
     let onItemClick = (itemData, isDisabled) => _ev => {
       if !isDisabled {
@@ -1370,11 +1375,11 @@ module BaseRadio = {
           ? "animate-textTransition transition duration-400"
           : "animate-textTransitionOff transition duration-400"}`}>
       {switch searchable {
-      | Some(val) => <UIUtils.RenderIf condition={val}> searchInputUI </UIUtils.RenderIf>
+      | Some(val) => <RenderIf condition={val}> searchInputUI </RenderIf>
       | None =>
-        <UIUtils.RenderIf condition={isDropDown && (options->Array.length > 5 || addDynamicValue)}>
+        <RenderIf condition={isDropDown && (options->Array.length > 5 || addDynamicValue)}>
           searchInputUI
-        </UIUtils.RenderIf>
+        </RenderIf>
       }}
       <div
         className={`${maxHeight} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
@@ -1572,15 +1577,10 @@ module BaseDropdown = {
     let refs = autoApply
       ? [selectBoxRef, dropdownRef]
       : [selectBoxRef, dropdownRef, selectBtnRef, clearBtnRef]
-    OutsideClick.useOutsideClick(
-      ~refs=ArrayOfRef(refs),
-      ~isActive=showDropDown,
-      ~callback=() => {
-        setShowDropDown(_ => false)
-        hasApplyButton ? newInputSelect.onChange(preservedAppliedOptions) : ()
-      },
-      (),
-    )
+    OutsideClick.useOutsideClick(~refs=ArrayOfRef(refs), ~isActive=showDropDown, ~callback=() => {
+      setShowDropDown(_ => false)
+      hasApplyButton ? newInputSelect.onChange(preservedAppliedOptions) : ()
+    })
     let onClick = _ => {
       switch buttonClickFn {
       | Some(fn) => fn(input.name)

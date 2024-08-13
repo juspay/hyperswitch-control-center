@@ -189,7 +189,7 @@ module TableWrapper = {
         (),
       )
 
-      fetchDetails(tableEntity.uri, weeklyTableReqBody, Post, ())
+      fetchDetails(tableEntity.uri, weeklyTableReqBody, Post)
       ->thenResolve(json => {
         setTableData(_ => getUpdatedData(data, json, cols))
         setTableDataLoading(_ => false)
@@ -238,7 +238,7 @@ module TableWrapper = {
           (),
         )
 
-        fetchDetails(tableEntity.uri, tableReqBody, Post, ())
+        fetchDetails(tableEntity.uri, tableReqBody, Post)
         ->thenResolve(json => json->updateTableData)
         ->catch(_ => {
           setTableDataLoading(_ => false)
@@ -303,13 +303,13 @@ module TableWrapper = {
               />
             </Form>
           </div>
-          <UIUtils.RenderIf condition={tableData->Array.length > 0}>
+          <RenderIf condition={tableData->Array.length > 0}>
             <div
               className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
               <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
               {"'NA' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </>
       : <Loader />
   }

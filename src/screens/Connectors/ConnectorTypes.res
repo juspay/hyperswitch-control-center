@@ -86,6 +86,9 @@ type processorTypes =
   | MIFINITY
   | RAZORPAY
   | BAMBORA_APAC
+  | ITAUBANK
+  | DATATRANS
+  | PLAID
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
@@ -93,10 +96,13 @@ type frmTypes =
   | Signifyd
   | Riskifyed
 
+type pmAuthenticationProcessorTypes = PLAID
+
 type connectorTypes =
   | Processors(processorTypes)
   | ThreeDsAuthenticator(threeDsAuthenticatorTypes)
   | FRM(frmTypes)
+  | PMAuthenticationProcessor(pmAuthenticationProcessorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -115,6 +121,7 @@ type paymentMethodTypes =
   | GooglePay
   | ApplePay
   | PayPal
+  | BankDebit
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
@@ -160,6 +167,14 @@ type metaData = {
   apple_pay?: applePay,
   goole_pay?: googlePay,
 }
+type pmAuthPaymentMethods = {
+  payment_method: string,
+  payment_method_type: string,
+  connector_name: string,
+  mca_id: string,
+}
+
+type pmAuthDict = {enabled_payment_methods: array<pmAuthPaymentMethods>}
 
 type paymentMethodConfig = {
   bank_redirect?: option<array<string>>,
@@ -235,7 +250,8 @@ type connectorPayload = {
   status: string,
 }
 
-type connector = FRMPlayer | Processor | PayoutConnector | ThreeDsAuthenticator
+type connector =
+  FRMPlayer | Processor | PayoutConnector | ThreeDsAuthenticator | PMAuthenticationProcessor
 
 type connectorTypeVariants =
-  PaymentProcessor | PaymentVas | PayoutProcessor | AuthenticationProcessor
+  PaymentProcessor | PaymentVas | PayoutProcessor | AuthenticationProcessor | PMAuthProcessor

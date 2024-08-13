@@ -1,5 +1,5 @@
 let regex = searchString => {
-  Js.Re.fromStringWithFlags(`` ++ searchString ++ ``, ~flags="gi")
+  RegExp.fromStringWithFlags(`` ++ searchString ++ ``, ~flags="gi")
 }
 let highlightedText = (str, searchedText) => {
   let shouldHighlight =
@@ -163,7 +163,6 @@ let makeHeaderInfo = (
   ~showMultiSelectCheckBox=?,
   ~hideOnShrink=?,
   ~customWidth=?,
-  (),
 ) => {
   {
     key,
@@ -192,7 +191,7 @@ module ProgressCell = {
     <div className="w-full bg-gray-200 rounded-full">
       <div
         className="bg-green-700 text font-medium text-blue-100 text-left pl-5 p-0.5 leading-none rounded-full"
-        style={ReactDOM.Style.make(~width=`${Int.toString(progressPercentage)}%`, ())}>
+        style={width: `${Int.toString(progressPercentage)}%`}>
         {React.string(Int.toString(progressPercentage) ++ "%")}
       </div>
     </div>
@@ -645,13 +644,13 @@ module DeltaColumn = {
             {React.string(Float.toFixedWithPrecision(value, ~digits=2) ++ "%")}
           </p>
         </div>
-        <UIUtils.RenderIf condition={delta !== value}>
+        <RenderIf condition={delta !== value}>
           <div className=paraparentCss>
             <p className={`px-2 py-0.5 fira-code text-fs-10  ${textColor}`}>
               {React.string(detlaStr)}
             </p>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }

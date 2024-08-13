@@ -53,7 +53,7 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let filterUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some("filter"), ())
+  let filterUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some("filter"))
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
@@ -61,7 +61,7 @@ let make = () => {
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
-            apiType=Fetch.Post
+            apiType=Post
             filterUrl
             setFilters
             endTimeFilterKey

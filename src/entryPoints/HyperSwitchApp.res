@@ -1,6 +1,5 @@
 @react.component
 let make = () => {
-  open UIUtils
   open HSwitchUtils
   open GlobalVars
   open APIUtils
@@ -31,8 +30,7 @@ let make = () => {
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let (surveyModal, setSurveyModal) = React.useState(_ => false)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let {merchant_id: merchantId, user_role: userRole} =
-    useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {merchantId, userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
@@ -68,7 +66,6 @@ let make = () => {
         ~userType=#GET_PERMISSIONS,
         ~methodType=Get,
         ~queryParamerters=Some(`groups=true`),
-        (),
       )
       let response = await fetchDetails(url)
       let permissionsValue =
@@ -188,7 +185,7 @@ let make = () => {
                           </div>
                         </div>}
                         headerLeftActions={switch Window.env.logoUrl {
-                        | Some(url) => <img src={`${url}`} />
+                        | Some(url) => <img alt="image" src={`${url}`} />
                         | None => React.null
                         }}
                       />
@@ -267,6 +264,19 @@ let make = () => {
                               renderList={() => <ThreeDsConnectorList />}
                               renderNewForm={() => <ThreeDsProcessorHome />}
                               renderShow={_ => <ThreeDsProcessorHome />}
+                            />
+                          </AccessControl>
+
+                        | list{"pm-authentication-processor", ...remainingPath} =>
+                          <AccessControl
+                            permission=userPermissionJson.connectorsView
+                            isEnabled={featureFlagDetails.pmAuthenticationProcessor}>
+                            <EntityScaffold
+                              entityName="PM Authentication Processor"
+                              remainingPath
+                              renderList={() => <PMAuthenticationConnectorList />}
+                              renderNewForm={() => <PMAuthenticationHome />}
+                              renderShow={_ => <PMAuthenticationHome />}
                             />
                           </AccessControl>
 
@@ -361,6 +371,14 @@ let make = () => {
                               <PaymentAnalytics />
                             </FilterContext>
                           </AccessControl>
+                        | list{"performance-monitor"} =>
+                          <AccessControl
+                            permission=userPermissionJson.analyticsView
+                            isEnabled={featureFlagDetails.performanceMonitor}>
+                            <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
+                              <PerformanceMonitor domain="payments" />
+                            </FilterContext>
+                          </AccessControl>
                         | list{"analytics-refunds"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
                             <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
@@ -424,10 +442,14 @@ let make = () => {
                         | list{"reports"}
                         | list{"config-settings"}
                         | list{"file-processor"} =>
-                          <AccessControl isEnabled=featureFlagDetails.reconV2 permission=Access>
+                          <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
                             <ReconModule urlList={url.path->urlPath} />
                           </AccessControl>
-
+                        | list{"compliance"} =>
+                          <AccessControl
+                            isEnabled=featureFlagDetails.complianceCertificate permission=Access>
+                            <Compliance />
+                          </AccessControl>
                         | list{"sdk"} =>
                           <AccessControl
                             isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
@@ -455,9 +477,9 @@ let make = () => {
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
                             renderShow={_value =>
-                              <UIUtils.RenderIf condition={featureFlagDetails.totp}>
+                              <RenderIf condition={featureFlagDetails.totp}>
                                 <ModifyTwoFaSettings />
-                              </UIUtils.RenderIf>}
+                              </RenderIf>}
                           />
 
                         | list{"business-details"} =>
@@ -468,7 +490,6 @@ let make = () => {
                           <AccessControl permission=Access>
                             <BusinessProfile />
                           </AccessControl>
-
                         | list{"configure-pmts", ...remainingPath} =>
                           <AccessControl
                             permission=userPermissionJson.connectorsView

@@ -36,7 +36,7 @@ module ShowOrderDetails = {
         </div>
       | _ => React.null
       }}
-      <UIUtils.RenderIf condition=isButtonEnabled>
+      <RenderIf condition=isButtonEnabled>
         <div className="flex items-center flex-wrap gap-3 m-3">
           <div className="flex items-start">
             <div className="md:text-5xl font-bold">
@@ -64,7 +64,7 @@ module ShowOrderDetails = {
               : Disabled}
           />
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
       <FormRenderer.DesktopRow>
         <div
           className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
@@ -303,7 +303,12 @@ module Attempts = {
       }
     }
 
-    let attemptsData = order.attempts
+    let attemptsData = order.attempts->Array.toSorted((a, b) => {
+      let rowValue_a = a.attempt_id
+      let rowValue_b = b.attempt_id
+
+      rowValue_a <= rowValue_b ? 1. : -1.
+    })
 
     let heading = attemptsColumns->Array.map(getAttemptHeading)
 
@@ -454,11 +459,10 @@ module FraudRiskBannerDetails = {
             ~entityName=ORDERS,
             ~methodType=Get,
             ~id=Some(order.payment_id),
-            (),
           )}/${decision->String.toLowerCase}`
 
-        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->JSON.Encode.object, Post, ())
-        showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
+        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->JSON.Encode.object, Post)
+        showToast(~message="Details Updated", ~toastType=ToastSuccess)
         refetch()->ignore
       } catch {
       | _ => ()
@@ -502,7 +506,7 @@ module FraudRiskBannerDetails = {
         })
         ->React.array}
       </div>
-      <UIUtils.RenderIf
+      <RenderIf
         condition={order.merchant_decision->String.length === 0 &&
         order.frm_message.frm_status === "fraud" &&
         order.status->HSwitchOrderUtils.statusVariantMapper === Succeeded}>
@@ -522,7 +526,7 @@ module FraudRiskBannerDetails = {
             onClick={_ => openPopUp(~decision=#APPROVE)}
           />
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }
@@ -561,7 +565,7 @@ module FraudRiskBanner = {
     <div
       className="flex justify-between items-center w-full  p-4 rounded-md bg-white border border-[#C04141]/50 ">
       <div className="flex gap-2">
-        <img src={`/icons/redFlag.svg`} />
+        <img alt="image" src={`/icons/redFlag.svg`} />
         <p className="text-lightgray_background font-medium text-fs-16">
           {`This payment is marked fraudulent by ${frmMessage.frm_name}.`->React.string}
         </p>
@@ -588,6 +592,7 @@ module FraudRiskBanner = {
 let make = (~id) => {
   open APIUtils
   open OrderUIUtils
+  let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -613,7 +618,7 @@ let make = (~id) => {
         if message->String.includes("HE_02") {
           setScreenState(_ => Custom)
         } else {
-          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError, ())
+          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError)
           setScreenState(_ => Error("Failed to Fetch!"))
         }
 
@@ -621,17 +626,17 @@ let make = (~id) => {
       }
     }
   }
+
   React.useEffect(() => {
     let accountUrl = getURL(
       ~entityName=ORDERS,
       ~methodType=Get,
       ~id=Some(id),
       ~queryParamerters=Some("expand_attempts=true"),
-      (),
     )
     fetchOrderDetails(accountUrl)->ignore
     None
-  }, [])
+  }, [url])
 
   let isRefundDataAvailable = orderData.refunds->Array.length !== 0
 
@@ -654,10 +659,9 @@ let make = (~id) => {
         ~methodType=Get,
         ~id=Some(id),
         ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
-        (),
       )
       let _ = await fetchOrderDetails(getRefreshStatusUrl)
-      showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
+      showToast(~message="Details Updated", ~toastType=ToastSuccess)
     } catch {
     | _ => ()
     }
@@ -674,7 +678,7 @@ let make = (~id) => {
             cursorStyle="cursor-pointer"
           />
         </div>
-        <UIUtils.RenderIf condition={showSyncButton()}>
+        <RenderIf condition={showSyncButton()}>
           <ACLButton
             access={userPermissionJson.operationsView}
             text="Sync"
@@ -687,14 +691,14 @@ let make = (~id) => {
             buttonType={Primary}
             onClick={_ => refreshStatus()->ignore}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div />
       </div>
       <OrderActions orderData={orderData} refetch={refreshStatus} showModal setShowModal />
     </div>
-    <UIUtils.RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
+    <RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
       <FraudRiskBanner frmMessage={orderData.frm_message} refElement=frmDetailsRef />
-    </UIUtils.RenderIf>
+    </RenderIf>
     <PageLoaderWrapper
       screenState
       customUI={<NoDataFound
@@ -707,7 +711,7 @@ let make = (~id) => {
           openRefundModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
-        <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
+        <RenderIf condition={featureFlagDetails.auditTrail}>
           <RenderAccordian
             initialExpandedArray=[0]
             accordion={[
@@ -722,11 +726,11 @@ let make = (~id) => {
               },
             ]}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div className="overflow-scroll">
           <Attempts order={orderData} />
         </div>
-        <UIUtils.RenderIf condition={isRefundDataAvailable}>
+        <RenderIf condition={isRefundDataAvailable}>
           <div className="overflow-scroll">
             <RenderAccordian
               initialExpandedArray={isRefundDataAvailable ? [0] : []}
@@ -741,8 +745,8 @@ let make = (~id) => {
               ]}
             />
           </div>
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={isDisputeDataVisible}>
+        </RenderIf>
+        <RenderIf condition={isDisputeDataVisible}>
           <div className="overflow-scroll">
             <RenderAccordian
               initialExpandedArray={isDisputeDataVisible ? [0] : []}
@@ -757,7 +761,7 @@ let make = (~id) => {
               ]}
             />
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         <RenderAccordian
           accordion={[
             {
@@ -878,7 +882,7 @@ let make = (~id) => {
             },
           ]}
         />
-        <UIUtils.RenderIf
+        <RenderIf
           condition={orderData.payment_method === "card" &&
             orderData.payment_method_data->Option.isSome}>
           <RenderAccordian
@@ -899,8 +903,8 @@ let make = (~id) => {
               },
             ]}
           />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={orderData.external_authentication_details->Option.isSome}>
+        </RenderIf>
+        <RenderIf condition={orderData.external_authentication_details->Option.isSome}>
           <RenderAccordian
             accordion={[
               {
@@ -914,8 +918,8 @@ let make = (~id) => {
               },
             ]}
           />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!(orderData.metadata->LogicUtils.isEmptyDict)}>
+        </RenderIf>
+        <RenderIf condition={!(orderData.metadata->LogicUtils.isEmptyDict)}>
           <RenderAccordian
             accordion={[
               {
@@ -932,7 +936,7 @@ let make = (~id) => {
               },
             ]}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div className="overflow-scroll">
           <RenderAccordian
             accordion={[

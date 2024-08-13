@@ -59,7 +59,7 @@ let make = () => {
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let filterUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some("v2/filter"), ())
+  let filterUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some("v2/filter"))
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
@@ -81,9 +81,9 @@ let make = () => {
             />}
           />
         </div>
-        <UIUtils.RenderIf condition={generateReport && refundData->Array.length > 0}>
+        <RenderIf condition={generateReport && refundData->Array.length > 0}>
           <GenerateReport entityName={REFUND_REPORT} />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />
       </div>
       <PageLoaderWrapper screenState customUI>

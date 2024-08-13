@@ -84,12 +84,12 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
     try {
       let frmID = initialValues->getDictFromJsonObject->getString("merchant_connector_id", "")
       let disableFRMPayload = initialValues->FRMTypes.getDisableConnectorPayload(isFRMDisabled)
-      let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ~id=Some(frmID), ())
-      let _ = await updateDetails(url, disableFRMPayload->JSON.Encode.object, Post, ())
-      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
+      let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ~id=Some(frmID))
+      let _ = await updateDetails(url, disableFRMPayload->JSON.Encode.object, Post)
+      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/fraud-risk-management"))
     } catch {
-    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
+    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
     }
   }
 
@@ -120,7 +120,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
       | _ =>
         <Button
           onClick={_ => {
-            mixpanelEvent(~eventName="frm_step3", ())
+            mixpanelEvent(~eventName="frm_step3")
             RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/fraud-risk-management"))
           }}
           text="Done"
@@ -133,9 +133,9 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
         <h4 className="text-lg font-semibold"> {"Profile id"->React.string} </h4>
         <div> {frmInfo.profile_id->React.string} </div>
       </div>
-      <UIUtils.RenderIf condition={frmConfigs->Array.length > 0}>
+      <RenderIf condition={frmConfigs->Array.length > 0}>
         <ConfigInfo frmConfigs />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   </div>
 }

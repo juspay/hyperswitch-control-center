@@ -37,9 +37,9 @@ module ConnectorCurrentStepIndicator = {
                   <p className=textColor> {(i + 1)->Int.toString->React.string} </p>
                 }}
               </div>
-              <UIUtils.RenderIf condition={i !== stepsArr->Array.length - 1}>
+              <RenderIf condition={i !== stepsArr->Array.length - 1}>
                 <div className={`h-0.5 ${stepLineIndicator} ml-2 flex-1`} />
-              </UIUtils.RenderIf>
+              </RenderIf>
             </div>
             <div className={stepNameIndicator}>
               {step->ConnectorUtils.getStepName->React.string}
@@ -63,7 +63,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorTypeFromName = connector->getConnectorNameTypeFromString()
+  let connectorTypeFromName = connector->getConnectorNameTypeFromString
   let profileIdFromUrl =
     UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getOptionString("profile_id")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
@@ -82,7 +82,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
 
   let getConnectorDetails = async () => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID), ())
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
@@ -111,13 +111,9 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         }
       }
 
-      let paypalBody = generatePayPalBody(
-        ~connectorId={connectorID},
-        ~profileId=Some(profileId),
-        (),
-      )
-      let url = getURL(~entityName=PAYPAL_ONBOARDING_SYNC, ~methodType=Post, ())
-      let responseValue = await updateDetails(url, paypalBody, Fetch.Post, ())
+      let paypalBody = generatePayPalBody(~connectorId={connectorID}, ~profileId=Some(profileId))
+      let url = getURL(~entityName=PAYPAL_ONBOARDING_SYNC, ~methodType=Post)
+      let responseValue = await updateDetails(url, paypalBody, Post)
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
 
       switch paypalDict->JSON.Classify.classify {
@@ -136,7 +132,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       if err->String.includes("Profile") {
-        showToast(~message="Profile Id not found. Try Again", ~toastType=ToastError, ())
+        showToast(~message="Profile Id not found. Try Again", ~toastType=ToastError)
       }
       setScreenState(_ => PageLoaderWrapper.Custom)
     }
@@ -216,7 +212,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
 
   <PageLoaderWrapper screenState customUI={customUiForPaypal}>
     <div className="flex flex-col gap-10 overflow-scroll h-full w-full">
-      <UIUtils.RenderIf condition={showBreadCrumb}>
+      <RenderIf condition={showBreadCrumb}>
         <BreadCrumbNavigation
           path=[
             connectorID === "new"
@@ -233,16 +229,16 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
           currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector}
           cursorStyle="cursor-pointer"
         />
-      </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={currentStep !== Preview && showStepIndicator}>
+      </RenderIf>
+      <RenderIf condition={currentStep !== Preview && showStepIndicator}>
         <ConnectorCurrentStepIndicator currentStep stepsArr borderWidth />
-      </UIUtils.RenderIf>
-      <UIUtils.RenderIf
+      </RenderIf>
+      <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
         <HSwitchUtils.WarningArea
           warningText="This is a test connector and will not be reflected on your payment processor dashboard."
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
         {switch currentStep {

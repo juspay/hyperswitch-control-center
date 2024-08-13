@@ -21,7 +21,7 @@ module Verify2FAModalComponent = {
       | Totp =>
         <>
           <TwoFaElements.TotpInput otp setOtp />
-          <UIUtils.RenderIf condition={!showOnlyTotp}>
+          <RenderIf condition={!showOnlyTotp}>
             <p className={`${p2Regular} text-jp-gray-700`}>
               {"Didn't get a code? "->React.string}
               <span
@@ -34,7 +34,7 @@ module Verify2FAModalComponent = {
                 {"Use recovery-code"->React.string}
               </span>
             </p>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </>
 
       | RecoveryCode =>
@@ -54,9 +54,9 @@ module Verify2FAModalComponent = {
           </p>
         </>
       }}
-      <UIUtils.RenderIf condition={errorMessage->String.length > 0}>
+      <RenderIf condition={errorMessage->String.length > 0}>
         <div className="text-sm text-red-600"> {`Error: ${errorMessage}`->React.string} </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
   }
 }
@@ -85,7 +85,7 @@ module ResetTotp = {
     let generateNewSecret = async () => {
       try {
         setButtonState(_ => Button.Loading)
-        let url = getURL(~entityName=USERS, ~userType=#RESET_TOTP, ~methodType=Get, ())
+        let url = getURL(~entityName=USERS, ~userType=#RESET_TOTP, ~methodType=Get)
         let res = await fetchDetails(url)
         setTotpSecret(_ => ShowNewTotp(
           res->getDictFromJsonObject->getDictfromDict("secret")->getString("totp_url", ""),
@@ -117,7 +117,7 @@ module ResetTotp = {
             setShowVerifyModal(_ => false)
             generateNewSecret()->ignore
           } else {
-            showToast(~message="Successfully reset the totp !", ~toastType=ToastSuccess, ())
+            showToast(~message="Successfully reset the totp !", ~toastType=ToastSuccess)
             RescriptReactRouter.push(
               GlobalVars.appendDashboardPath(~url="/account-settings/profile"),
             )
@@ -125,7 +125,7 @@ module ResetTotp = {
           setOtp(_ => "")
           setOtpInModal(_ => "")
         } else {
-          showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
+          showToast(~message="OTP field cannot be empty!", ~toastType=ToastError)
         }
         setButtonState(_ => Button.Normal)
       } catch {
@@ -152,7 +152,7 @@ module ResetTotp = {
           let _ = await verifyRecoveryCodeLogic(body)
           setShowVerifyModal(_ => false)
         } else {
-          showToast(~message="Recovery code cannot be empty!", ~toastType=ToastError, ())
+          showToast(~message="Recovery code cannot be empty!", ~toastType=ToastError)
         }
         setRecoveryCode(_ => "")
         setButtonState(_ => Button.Normal)
@@ -169,7 +169,7 @@ module ResetTotp = {
 
     let handle2FaVerify = () => {
       switch twoFaState {
-      | Totp => verifyTOTP(~fromModal=true, ~methodType=Fetch.Post, ~otp={otpInModal})
+      | Totp => verifyTOTP(~fromModal=true, ~methodType=Post, ~otp={otpInModal})
       | RecoveryCode => verifyRecoveryCode()
       }
     }
@@ -286,7 +286,7 @@ module ResetTotp = {
                 buttonSize=Small
                 customButtonStyle="group"
                 buttonState={otp->String.length === 6 ? buttonState : Disabled}
-                onClick={_ => verifyTOTP(~fromModal=false, ~methodType=Fetch.Put, ~otp)->ignore}
+                onClick={_ => verifyTOTP(~fromModal=false, ~methodType=Put, ~otp)->ignore}
                 rightIcon={CustomIcon(
                   <Icon
                     name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
@@ -321,7 +321,7 @@ module RegenerateRecoveryCodes = {
     let generateRecoveryCodes = async () => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let url = getURL(~entityName=USERS, ~userType=#GENERATE_RECOVERY_CODES, ~methodType=Get, ())
+        let url = getURL(~entityName=USERS, ~userType=#GENERATE_RECOVERY_CODES, ~methodType=Get)
         let response = await fetchDetails(url)
         let recoveryCodesValue = response->getDictFromJsonObject->getStrArray("recovery_codes")
         setRecoveryCodes(_ => recoveryCodesValue)
@@ -329,7 +329,7 @@ module RegenerateRecoveryCodes = {
       } catch {
       | _ => {
           setButtonState(_ => Button.Normal)
-          showToast(~message="Failed to generate recovery codes!", ~toastType=ToastError, ())
+          showToast(~message="Failed to generate recovery codes!", ~toastType=ToastError)
           RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=`/account-settings/profile`))
           setScreenState(_ => PageLoaderWrapper.Success)
         }
@@ -345,11 +345,11 @@ module RegenerateRecoveryCodes = {
         setButtonState(_ => Button.Loading)
         if otpInModal->String.length > 0 {
           let body = [("totp", otpInModal->JSON.Encode.string)]->getJsonFromArrayOfJson
-          let _ = await verifyTotpLogic(body, Fetch.Post)
+          let _ = await verifyTotpLogic(body, Post)
           setShowVerifyModal(_ => false)
           generateRecoveryCodes()->ignore
         } else {
-          showToast(~message="OTP field cannot be empty!", ~toastType=ToastError, ())
+          showToast(~message="OTP field cannot be empty!", ~toastType=ToastError)
         }
         setOtpInModal(_ => "")
         setButtonState(_ => Button.Normal)
@@ -400,7 +400,7 @@ module RegenerateRecoveryCodes = {
     let copyRecoveryCodes = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       Clipboard.writeText(JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3))
-      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
     <PageLoaderWrapper screenState>
@@ -455,7 +455,7 @@ module RegenerateRecoveryCodes = {
             </div>
             <div className="flex gap-4 justify-end">
               <Button
-                leftIcon={CustomIcon(<img src={`/assets/CopyToClipboard.svg`} />)}
+                leftIcon={CustomIcon(<img alt="image" src={`/assets/CopyToClipboard.svg`} />)}
                 text={"Copy"}
                 buttonType={Secondary}
                 buttonSize={Small}
@@ -471,7 +471,6 @@ module RegenerateRecoveryCodes = {
                   showToast(
                     ~message="Successfully regenerated new recovery codes !",
                     ~toastType=ToastSuccess,
-                    (),
                   )
                   RescriptReactRouter.push(
                     GlobalVars.appendDashboardPath(~url="/account-settings/profile"),
@@ -506,18 +505,13 @@ let make = () => {
     try {
       open LogicUtils
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=USERS,
-        ~userType=#CHECK_TWO_FACTOR_AUTH_STATUS,
-        ~methodType=Get,
-        (),
-      )
+      let url = getURL(~entityName=USERS, ~userType=#CHECK_TWO_FACTOR_AUTH_STATUS, ~methodType=Get)
       let res = await fetchDetails(url)
       setCheckStatusResponse(_ => res->getDictFromJsonObject->typedValueForCheckStatus)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {
-        showToast(~message="Failed to fetch 2FA status!", ~toastType=ToastError, ())
+        showToast(~message="Failed to fetch 2FA status!", ~toastType=ToastError)
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/account-settings/profile"))
       }
     }

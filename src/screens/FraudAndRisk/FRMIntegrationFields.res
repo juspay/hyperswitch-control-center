@@ -34,11 +34,11 @@ module AdvanceSettings = {
           {"Show advanced settings"->React.string}
         </p>
       </div>
-      <UIUtils.RenderIf condition={renderCountrySelector && isFRMSettings}>
+      <RenderIf condition={renderCountrySelector && isFRMSettings}>
         <ConnectorAccountDetailsHelper.BusinessProfileRender
           isUpdateFlow selectedConnector={frmName}
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </>
   }
 }
@@ -144,7 +144,6 @@ module IntegrationFieldsForm = {
                     ~isRequired=true,
                     ~parse,
                     ~format?,
-                    (),
                   )}
                 />
                 <ConnectorAccountDetailsHelper.ErrorValidation fieldName={field.name} validate />
@@ -195,7 +194,7 @@ let make = (
 
   let (pageState, setPageState) = React.useState(_ => PageLoaderWrapper.Success)
 
-  let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let initialValues = React.useMemo(() => {
     open LogicUtils
@@ -219,7 +218,7 @@ let make = (
       }
 
     | None =>
-      generateInitialValuesDict(~selectedFRMName, ~isLiveMode={featureFlagDetails.isLiveMode}, ())
+      generateInitialValuesDict(~selectedFRMName, ~isLiveMode={featureFlagDetails.isLiveMode})
     }
   }, [retrivedValues])
 
@@ -238,9 +237,9 @@ let make = (
   let updateDetails = useUpdateMethod()
 
   let frmUrl = if frmID->String.length <= 0 {
-    getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ())
+    getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post)
   } else {
-    getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ~id=Some(frmID), ())
+    getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ~id=Some(frmID))
   }
 
   let updateMerchantDetails = async () => {
@@ -256,9 +255,9 @@ let make = (
       ]
       ->Dict.fromArray
       ->JSON.Encode.object
-    let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
+    let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post)
     try {
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
     } catch {
     | _ => ()
     }
@@ -266,12 +265,12 @@ let make = (
   }
 
   let setFRMValues = async body => {
-    fetchApi(frmUrl, body, Fetch.Post, ())
+    fetchApi(frmUrl, body, Post)
     ->thenResolve(res => {
       setCurrentStep(prev => prev->getNextStep)
       let _ = updateMerchantDetails()
       setInitialValues(_ => res)
-      showToast(~message=submitText, ~toastType=ToastSuccess, ())
+      showToast(~message=submitText, ~toastType=ToastSuccess)
       setPageState(_ => Success)
     })
     ->catch(_ => {
@@ -283,7 +282,7 @@ let make = (
   }
 
   let onSubmit = (values, _) => {
-    mixpanelEvent(~eventName="frm_step2", ())
+    mixpanelEvent(~eventName="frm_step2")
     setPageState(_ => Loading)
     let body = isUpdateFlow ? values->ignoreFields : values
     setFRMValues(body)->ignore

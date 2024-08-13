@@ -85,7 +85,6 @@ let getTimeSeriesChart = (chartEntity: chartEntity) => {
       ~customFilter=chartEntity.customFilter->Option.getOr(""),
       ~prefix=chartEntity.prefix,
       ~source=chartEntity.source,
-      (),
     )->JSON.Encode.object,
   ]
   ->JSON.Encode.array
@@ -109,7 +108,6 @@ let getLegendBody = (chartEntity: chartEntity) => {
       ~customFilter=chartEntity.customFilter->Option.getOr(""),
       ~prefix=chartEntity.prefix,
       ~source=chartEntity.source,
-      (),
     )->JSON.Encode.object,
   ]
   ->JSON.Encode.array
@@ -207,7 +205,6 @@ let makeEntity = (
   ~sortingColumnLegend: option<string>=?,
   ~jsonTransformer: option<(string, array<JSON.t>) => array<JSON.t>>=?,
   ~disableGranularity=?,
-  (),
 ) => {
   let granularity = granularity->Array.length === 0 ? [G_ONEDAY] : granularity
   let chartTypes = chartTypes->Array.length === 0 ? [Line] : chartTypes
@@ -244,10 +241,9 @@ let useChartFetch = (~setStatusDict) => {
     ->Array.map(item => {
       fetchApi(
         item.url,
-        ~method_=Fetch.Post,
+        ~method_=Post,
         ~bodyStr=item.body,
         ~headers=[("QueryType", "Chart")]->Dict.fromArray,
-        (),
       )
       ->addLogsAroundFetch(~logTitle="Chart Data Api", ~setStatusDict)
       ->then(json => {
@@ -259,10 +255,9 @@ let useChartFetch = (~setStatusDict) => {
         | {legendBody} =>
           fetchApi(
             item.url,
-            ~method_=Fetch.Post,
+            ~method_=Post,
             ~bodyStr=legendBody,
             ~headers=[("QueryType", "Chart")]->Dict.fromArray,
-            (),
           )
           ->addLogsAroundFetch(~logTitle="Chart Data Api", ~setStatusDict)
           ->then(
@@ -821,7 +816,7 @@ let make = (
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else if comparitionWidget {
                   <div>
-                    <UIUtils.RenderIf condition={featureFlagDetails.granularity}>
+                    <RenderIf condition={featureFlagDetails.granularity}>
                       <div className="w-full flex justify-end p-2">
                         <GranularitySelectBox
                           selectedGranularity
@@ -830,7 +825,7 @@ let make = (
                           endTime={endTimeFromUrl}
                         />
                       </div>
-                    </UIUtils.RenderIf>
+                    </RenderIf>
                     {entityAllMetrics
                     ->Array.mapWithIndex((selectedMetrics, index) => {
                       switch uriConfig->Array.get(0) {

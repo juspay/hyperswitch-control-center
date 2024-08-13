@@ -73,7 +73,7 @@ module AddEntryBtn = {
               buttonType=Primary
               onClick={_ => {
                 if updatedProfileId->LogicUtils.isNonEmptyString {
-                  mixpanelEvent(~eventName="business_profiles_configure_payment_settings", ())
+                  mixpanelEvent(~eventName="business_profiles_configure_payment_settings")
                   RescriptReactRouter.replace(
                     GlobalVars.appendDashboardPath(~url=`/payment-settings/${updatedProfileId}`),
                   )
@@ -92,7 +92,7 @@ module AddEntryBtn = {
     }
 
     <div>
-      <UIUtils.RenderIf condition=isFromSettings>
+      <RenderIf condition=isFromSettings>
         <ACLButton
           text="Add"
           access={userPermissionJson.merchantDetailsManage}
@@ -103,7 +103,7 @@ module AddEntryBtn = {
             setShowModal(_ => true)
           }}
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <Modal
         showModal
         modalHeading=modalHeaderText
@@ -120,7 +120,7 @@ module AddEntryBtn = {
 let make = (
   ~isFromSettings=true,
   ~showModalFromOtherScreen=false,
-  ~setShowModalFromOtherScreen=_bool => (),
+  ~setShowModalFromOtherScreen=_ => (),
 ) => {
   open APIUtils
   open BusinessMappingUtils
@@ -142,13 +142,13 @@ let make = (
   let updateMerchantDetails = async body => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ())
-      let response = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post)
+      let response = await updateDetails(url, body, Post)
       setUpdatedProfileId(_ =>
         response->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
       )
       fetchBusinessProfiles()->ignore
-      showToast(~message="Your Entry added successfully", ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message="Your Entry added successfully", ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
@@ -163,24 +163,24 @@ let make = (
   }
 
   let onSubmit = async (values, _) => {
-    mixpanelEvent(~eventName="business_profiles_add", ())
+    mixpanelEvent(~eventName="business_profiles_add")
     updateMerchantDetails(values)->ignore
     Nullable.null
   }
 
   <PageLoaderWrapper screenState>
-    <UIUtils.RenderIf condition=isFromSettings>
+    <RenderIf condition=isFromSettings>
       <div className="relative h-full">
         <div className="flex flex-col-reverse md:flex-col gap-2">
           <PageUtils.PageHeading
             title="Business Profiles"
             subTitle="Add and manage profiles to represent different businesses across countries."
           />
-          <UIUtils.RenderIf condition={businessProfileValues->Array.length > 1}>
+          <RenderIf condition={businessProfileValues->Array.length > 1}>
             <HSwitchUtils.WarningArea
               warningText="Warning! Now that you've configured more than one profile, you must mandatorily pass 'profile_id' in payments API request every time"
             />
-          </UIUtils.RenderIf>
+          </RenderIf>
           <LoadedTable
             title="Business profiles"
             hideTitle=true
@@ -207,8 +207,8 @@ let make = (
           </div>
         </div>
       </div>
-    </UIUtils.RenderIf>
-    <UIUtils.RenderIf condition={!isFromSettings}>
+    </RenderIf>
+    <RenderIf condition={!isFromSettings}>
       <AddEntryBtn
         isFromSettings
         onSubmit
@@ -219,6 +219,6 @@ let make = (
         updatedProfileId
         setModalState
       />
-    </UIUtils.RenderIf>
+    </RenderIf>
   </PageLoaderWrapper>
 }

@@ -10,7 +10,7 @@ let make = (
 
   let businessProfileValues = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
 
-  <UIUtils.RenderIf condition=isFromSettings>
+  <RenderIf condition=isFromSettings>
     <div className="relative h-full">
       <div className="flex flex-col-reverse md:flex-col">
         <PageUtils.PageHeading
@@ -32,5 +32,5 @@ let make = (
         />
       </div>
     </div>
-  </UIUtils.RenderIf>
+  </RenderIf>
 }

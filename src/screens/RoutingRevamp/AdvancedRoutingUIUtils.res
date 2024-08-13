@@ -207,9 +207,9 @@ module MetadataInp = {
       value: valueField.value,
       checked: true,
     }
-    <UIUtils.RenderIf condition={keyType->variantTypeMapper === Metadata_value}>
+    <RenderIf condition={keyType->variantTypeMapper === Metadata_value}>
       <TextInput placeholder={"Enter Key"} input=textInput />
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -231,9 +231,9 @@ let operatorInput = (id, keyType) => {
     ~label="",
     ~comboCustomInput=renderOperatorInp(keyType),
     ~inputFields=[
-      makeInputFieldInfo(~name=`${id}.lhs`, ()),
-      makeInputFieldInfo(~name=`${id}.comparison`, ()),
-      makeInputFieldInfo(~name=`${id}.value.value`, ()),
+      makeInputFieldInfo(~name=`${id}.lhs`),
+      makeInputFieldInfo(~name=`${id}.comparison`),
+      makeInputFieldInfo(~name=`${id}.value.value`),
     ],
     (),
   )
@@ -249,10 +249,10 @@ let valueInput = (id, variantValues, keyType) => {
     ~label="",
     ~comboCustomInput=renderValueInp(keyType, variantValues),
     ~inputFields=[
-      makeInputFieldInfo(~name=`${id}.lhs`, ()),
-      makeInputFieldInfo(~name=`${id}.${valuePath}`, ()),
-      makeInputFieldInfo(~name=`${id}.comparison`, ()),
-      makeInputFieldInfo(~name=`${id}.value.type`, ()),
+      makeInputFieldInfo(~name=`${id}.lhs`),
+      makeInputFieldInfo(~name=`${id}.${valuePath}`),
+      makeInputFieldInfo(~name=`${id}.comparison`),
+      makeInputFieldInfo(~name=`${id}.value.type`),
     ],
     (),
   )
@@ -262,9 +262,9 @@ let metaInput = (id, keyType) =>
     ~label="",
     ~comboCustomInput=renderMetaInput(keyType),
     ~inputFields=[
-      makeInputFieldInfo(~name=`${id}.value`, ()),
-      makeInputFieldInfo(~name=`${id}.operator`, ()),
-      makeInputFieldInfo(~name=`${id}.value.value.key`, ()),
+      makeInputFieldInfo(~name=`${id}.value`),
+      makeInputFieldInfo(~name=`${id}.operator`),
+      makeInputFieldInfo(~name=`${id}.value.value.key`),
     ],
     (),
   )
@@ -375,15 +375,15 @@ module RuleFieldBase = {
       }
     }, [])
 
-    <UIUtils.RenderIf condition={methodKeys->Array.length > 0}>
+    <RenderIf condition={methodKeys->Array.length > 0}>
       {if isExpanded {
         <div
           className={`flex flex-wrap items-center px-1 ${hover
               ? "rounded-md bg-white dark:bg-black shadow"
               : ""}`}>
-          <UIUtils.RenderIf condition={!isFirst}>
+          <RenderIf condition={!isFirst}>
             <LogicalOps id />
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div className="-mt-5 p-1">
             <FieldWrapper label="">
               <FieldInp methodKeys prefix=id onChangeMethod />
@@ -398,7 +398,7 @@ module RuleFieldBase = {
           <div className="-mt-5">
             <FieldRenderer field={valueInput(id, variantValues, keyType)} />
           </div>
-          <UIUtils.RenderIf condition={!isFirst}>
+          <RenderIf condition={!isFirst}>
             <div
               onClick
               onMouseEnter={_ => setHover(_ => true)}
@@ -406,12 +406,12 @@ module RuleFieldBase = {
               className="flex items-center cursor-pointer rounded-full  border border-jp-gray-500 dark:border-jp-gray-960 bg-red-400 hover:shadow focus:outline-none p-2">
               <Icon size=10 className="text-gray-50 font-semibold" name="close" />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       } else {
         <MakeRuleFieldComponent.CompressedView isFirst id />
       }}
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -480,8 +480,7 @@ let configurationNameInput = makeFieldInfo(
   ~name="name",
   ~isRequired=true,
   ~placeholder="Enter Configuration Name",
-  ~customInput=InputFields.textInput(~autoFocus=true, ()),
-  (),
+  ~customInput=InputFields.textInput(~autoFocus=true),
 )
 let descriptionInput = makeFieldInfo(
   ~label="Description",
@@ -493,9 +492,7 @@ let descriptionInput = makeFieldInfo(
     ~rows=Some(3),
     ~cols=None,
     ~customClass="text-sm",
-    (),
   ),
-  (),
 )
 
 module ConfigureRuleButton = {

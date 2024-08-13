@@ -70,7 +70,7 @@ let make = (
   if totalResults >= resultsPerPage {
     <div className={`flex ${flexDirection} justify-between ${marginClass} ${paginationClass} `}>
       <div className={`flex flex-row w-full ${justify}`}>
-        <UIUtils.RenderIf condition={!isMobileView && showResultsPerPageSelector}>
+        <RenderIf condition={!isMobileView && showResultsPerPageSelector}>
           <div
             className="flex self-center text-center text-gray-400 dark:text-gray-500 font-medium">
             {React.string(
@@ -88,7 +88,7 @@ let make = (
               baseComponent={<Icon className="pl-2" size=20 name="chevron-down" />}
             />
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         {switch downloadCsv {
         | Some(actionData) =>
           <div className="md:mr-2 lg:mr-5 mb-2">

@@ -17,13 +17,14 @@ module CopyTextCustomComp = {
       ev->ReactEvent.Mouse.stopPropagation
       Clipboard.writeText(copyVal)
       customOnCopyClick()
-      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
     if displayValue->LogicUtils.isNonEmptyString {
       <div className=customParentClass>
         <div className=customTextCss> {displayValue->React.string} </div>
         <img
+          alt="cursor"
           src={`/assets/CopyToClipboard.svg`}
           className="cursor-pointer"
           onClick={ev => {
@@ -90,7 +91,7 @@ module BluredTableComponent = {
         <p className="text-center text-grey-700 font-medium opacity-50">
           {infoText->React.string}
         </p>
-        <UIUtils.RenderIf condition={showRedirectCTA}>
+        <RenderIf condition={showRedirectCTA}>
           <Button
             text=buttonText
             buttonType={Primary}
@@ -100,9 +101,9 @@ module BluredTableComponent = {
                 : setPaymentModal(_ => true)
             }}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
-      <UIUtils.RenderIf condition={paymentModal}> {onClickElement} </UIUtils.RenderIf>
+      <RenderIf condition={paymentModal}> {onClickElement} </RenderIf>
     </div>
   }
 }
@@ -120,7 +121,7 @@ module KeyAndCopyArea = {
         className="px-2 py-1 border rounded-md flex gap-2 items-center cursor-pointer"
         onClick={_ => {
           Clipboard.writeText(copyValue)
-          showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+          showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
         }}>
         <Icon name="copy" customIconColor="rgb(156 163 175)" />
         <p className="text-grey-700 opacity-50"> {"Copy"->React.string} </p>

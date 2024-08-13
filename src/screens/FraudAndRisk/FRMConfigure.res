@@ -24,14 +24,9 @@ let make = () => {
   let (currentStep, setCurrentStep) = React.useState(_ => isUpdateFlow ? Preview : initStep)
 
   let selectedFRMName: ConnectorTypes.connectorTypes = React.useMemo(() => {
-    let frmName =
-      frmName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer, ())
+    let frmName = frmName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType=FRMPlayer)
     setInitialValues(_ => {
-      generateInitialValuesDict(
-        ~selectedFRMName=frmName,
-        ~isLiveMode=featureFlagDetails.isLiveMode,
-        (),
-      )
+      generateInitialValuesDict(~selectedFRMName=frmName, ~isLiveMode=featureFlagDetails.isLiveMode)
     })
     setCurrentStep(_ => isUpdateFlow ? Preview : initStep)
     frmName
@@ -51,7 +46,7 @@ let make = () => {
   React.useEffect(() => {
     if frmID !== "new" {
       setScreenState(_ => Loading)
-      let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ~id=Some(frmID), ())
+      let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ~id=Some(frmID))
       getFRMDetails(url)->ignore
     } else {
       setScreenState(_ => Success)
@@ -84,9 +79,9 @@ let make = () => {
       <BreadCrumbNavigation
         path currentPageTitle={frmName->capitalizeString} cursorStyle="cursor-pointer"
       />
-      <UIUtils.RenderIf condition={currentStep !== Preview}>
+      <RenderIf condition={currentStep !== Preview}>
         <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div className="bg-white rounded border h-3/4 p-2 md:p-6 overflow-scroll">
         {switch currentStep {
         | IntegFields =>

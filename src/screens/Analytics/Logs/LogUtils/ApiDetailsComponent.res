@@ -180,11 +180,11 @@ let make = (
   <div className="flex items-start gap-4">
     <div className="flex flex-col items-center h-full">
       <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300`} />
-      <UIUtils.RenderIf condition={index !== logsDataLength}>
+      <RenderIf condition={index !== logsDataLength}>
         <div
           className={`h-full border-${stepperBorderColor} border-dashed rounded divide-x-2 border-2 my-1`}
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </div>
     <div
       className={`flex gap-6 items-start w-full py-3 px-3 cursor-pointer ${borderClass} -mt-5 mb-8`}

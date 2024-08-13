@@ -16,13 +16,13 @@ let make = (~entityName) => {
       buttonSize={XSmall}
       onClick={_ => {
         setReportModal(_ => true)
-        mixpanelEvent(~eventName="generate_reports", ())
+        mixpanelEvent(~eventName="generate_reports")
       }}
       access={accessForGenerateReports}
       toolTipPosition={Left}
     />
-    <UIUtils.RenderIf condition={reportModal}>
+    <RenderIf condition={reportModal}>
       <DownloadReportModal reportModal setReportModal entityName />
-    </UIUtils.RenderIf>
+    </RenderIf>
   </>
 }

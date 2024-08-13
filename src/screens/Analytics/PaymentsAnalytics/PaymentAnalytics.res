@@ -19,7 +19,7 @@ let make = () => {
 
   let loadInfo = async () => {
     try {
-      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain), ())
+      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
@@ -33,7 +33,7 @@ let make = () => {
   let getPaymetsDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let paymentUrl = getURL(~entityName=ORDERS, ~methodType=Get, ())
+      let paymentUrl = getURL(~entityName=ORDERS, ~methodType=Get)
       let paymentDetails = await fetchDetails(paymentUrl)
       let data = paymentDetails->getDictFromJsonObject->getArrayFromDict("data", [])
       if data->Array.length < 0 {
@@ -75,7 +75,6 @@ let make = () => {
   }, [])
 
   let tabKeys = getStringListFromArrayDict(dimensions)
-
   let tabValues =
     tabKeys
     ->Array.mapWithIndex((key, index) => {
@@ -140,7 +139,6 @@ let make = () => {
         ~source=?singleStatBodyEntity.source,
         ~granularity=singleStatBodyEntity.granularity,
         ~prefix=singleStatBodyEntity.prefix,
-        (),
       )->JSON.Encode.object,
     ]
     ->JSON.Encode.array
@@ -181,7 +179,7 @@ let make = () => {
     setFilterDataJson(_ => None)
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       try {
-        updateDetails(filterUri, body, Post, ())
+        updateDetails(filterUri, body, Post)
         ->thenResolve(json => setFilterDataJson(_ => json->Some))
         ->catch(_ => resolve())
         ->ignore
@@ -232,9 +230,9 @@ let make = () => {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between ">
         <PageUtils.PageHeading title subTitle />
-        <UIUtils.RenderIf condition={generateReport}>
+        <RenderIf condition={generateReport}>
           <GenerateReport entityName={PAYMENT_REPORT} />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
       <div
         className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">

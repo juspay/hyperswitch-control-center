@@ -116,24 +116,17 @@ let getUpdatedHeading = (
     let key = colType->colMapper
     switch colType {
     | SuccessRate =>
-      Table.makeHeaderInfo(~key, ~title="Success Rate", ~dataType=NumericType, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Success Rate", ~dataType=NumericType, ~showSort=false)
     | WeeklySuccessRate =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Current Week S.R",
-        ~dataType=NumericType,
-        ~showSort=false,
-        (),
-      )
+      Table.makeHeaderInfo(~key, ~title="Current Week S.R", ~dataType=NumericType, ~showSort=false)
     | Count =>
-      Table.makeHeaderInfo(~key, ~title="Payment Count", ~dataType=NumericType, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Payment Count", ~dataType=NumericType, ~showSort=false)
     | SuccessCount =>
       Table.makeHeaderInfo(
         ~key,
         ~title="Payment Success Count",
         ~dataType=NumericType,
         ~showSort=false,
-        (),
       )
     | ProcessedAmount =>
       Table.makeHeaderInfo(
@@ -141,53 +134,27 @@ let getUpdatedHeading = (
         ~title="Payment Processed Amount",
         ~dataType=NumericType,
         ~showSort=false,
-        (),
       )
     | PaymentErrorMessage =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Top 5 Error Reasons",
-        ~dataType=TextType,
-        ~showSort=false,
-        (),
-      )
+      Table.makeHeaderInfo(~key, ~title="Top 5 Error Reasons", ~dataType=TextType, ~showSort=false)
     | AvgTicketSize =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Avg Ticket Size",
-        ~dataType=NumericType,
-        ~showSort=false,
-        (),
-      )
+      Table.makeHeaderInfo(~key, ~title="Avg Ticket Size", ~dataType=NumericType, ~showSort=false)
     | Connector =>
-      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=DropDown, ~showSort=false, ())
-    | Currency =>
-      Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=DropDown, ~showSort=false)
+    | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=DropDown, ~showSort=false)
     | PaymentMethod =>
-      Table.makeHeaderInfo(~key, ~title="Payment Method", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Payment Method", ~dataType=DropDown, ~showSort=false)
     | PaymentMethodType =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Payment Method Type",
-        ~dataType=DropDown,
-        ~showSort=false,
-        (),
-      )
+      Table.makeHeaderInfo(~key, ~title="Payment Method Type", ~dataType=DropDown, ~showSort=false)
     | AuthType =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Authentication Type",
-        ~dataType=DropDown,
-        ~showSort=false,
-        (),
-      )
-    | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Authentication Type", ~dataType=DropDown, ~showSort=false)
+    | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown, ~showSort=false)
     | ClientSource =>
-      Table.makeHeaderInfo(~key, ~title="Client Source", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Client Source", ~dataType=DropDown, ~showSort=false)
     | ClientVersion =>
-      Table.makeHeaderInfo(~key, ~title="Client Version", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Client Version", ~dataType=DropDown, ~showSort=false)
 
-    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false, ())
+    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false)
     }
   }
   getHeading
@@ -195,7 +162,7 @@ let getUpdatedHeading = (
 
 let getCell = (paymentTable, colType): Table.cell => {
   let usaNumberAbbreviation = labelValue => {
-    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat(), ())
+    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
   }
 
   switch colType {
@@ -240,7 +207,6 @@ let paymentTableEntity = () =>
     ~allColumns=allPaymentColumns,
     ~getCell,
     ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
-    (),
   )
 
 let singleStateInitialValue = {
@@ -290,12 +256,12 @@ let singleStateSeriesItemToObjMapper = json => {
   json
   ->JSON.Decode.object
   ->Option.map(dict => {
-    payment_success_rate: dict->getFloat("payment_success_rate", 0.0)->setPrecision(),
+    payment_success_rate: dict->getFloat("payment_success_rate", 0.0)->setPrecision,
     payment_count: dict->getInt("payment_count", 0),
     payment_success_count: dict->getInt("payment_success_count", 0),
     time_series: dict->getString("time_bucket", ""),
-    payment_processed_amount: dict->getFloat("payment_processed_amount", 0.0)->setPrecision(),
-    payment_avg_ticket_size: dict->getFloat("avg_ticket_size", 0.0)->setPrecision(),
+    payment_processed_amount: dict->getFloat("payment_processed_amount", 0.0)->setPrecision,
+    payment_avg_ticket_size: dict->getFloat("avg_ticket_size", 0.0)->setPrecision,
     retries_count: dict->getInt("retries_count", 0),
     retries_amount_processe: dict->getFloat("retries_amount_processed", 0.0),
     connector_success_rate: dict->getFloat("connector_success_rate", 0.0),
@@ -623,5 +589,4 @@ let chartEntity = tabKeys =>
     ],
     ~moduleName="Payment Analytics",
     ~enableLoaders=true,
-    (),
   )

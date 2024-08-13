@@ -17,9 +17,9 @@ module Add3DSCondition = {
 
     if isExpanded {
       <div className="flex flex-row ml-2">
-        <UIUtils.RenderIf condition={!isFirst}>
+        <RenderIf condition={!isFirst}>
           <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
           <div className="flex flex-wrap gap-4 -mt-2">
             <div className=classStyle> {"Auth type"->React.string} </div>
@@ -33,9 +33,7 @@ module Add3DSCondition = {
                   ~buttonText="Select Field",
                   ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
                   ~deselectDisable=true,
-                  (),
                 ),
-                (),
               )}
             />
           </div>
@@ -83,9 +81,9 @@ module AddSurchargeCondition = {
     {
       if isExpanded {
         <div className="flex flex-row ml-2">
-          <UIUtils.RenderIf condition={!isFirst}>
+          <RenderIf condition={!isFirst}>
             <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
-          </UIUtils.RenderIf>
+          </RenderIf>
           <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
             <div className="flex flex-wrap gap-4">
               <div className=classStyle> {"Surcharge is"->React.string} </div>
@@ -98,21 +96,14 @@ module AddSurchargeCondition = {
                     ~buttonText="Select Surcharge Type",
                     ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
                     ~deselectDisable=true,
-                    (),
                   ),
-                  (),
                 )}
               />
               <FormRenderer.FieldRenderer
                 field={FormRenderer.makeFieldInfo(
                   ~label="",
                   ~name=`${id}.connectorSelection.surcharge_details.surcharge.value.${surchargeValueType}`,
-                  ~customInput=InputFields.numericTextInput(
-                    ~customStyle="!-mt-5",
-                    ~precision=2,
-                    (),
-                  ),
-                  (),
+                  ~customInput=InputFields.numericTextInput(~customStyle="!-mt-5", ~precision=2),
                 )}
               />
             </div>
@@ -127,9 +118,7 @@ module AddSurchargeCondition = {
                     ~customStyle="!-mt-5",
                     ~rightIcon=<Icon name="percent" size=16 />,
                     ~rightIconCustomStyle="-ml-7 -mt-5",
-                    (),
                   ),
-                  (),
                 )}
               />
             </div>
@@ -208,22 +197,22 @@ module Wrapper = {
         if threeDsType->String.length > 0 {
           setIsExpanded(p => !p)
         } else {
-          showToast(~toastType=ToastWarning, ~message="Auth type not selected", ~autoClose=true, ())
+          showToast(~toastType=ToastWarning, ~message="Auth type not selected", ~autoClose=true)
         }
       } else if isFromSurcharge {
         if surchargeTypeValue > 0.0 {
           setIsExpanded(p => !p)
         } else {
-          showToast(~toastType=ToastWarning, ~message="Invalid condition", ~autoClose=true, ())
+          showToast(~toastType=ToastWarning, ~message="Invalid condition", ~autoClose=true)
         }
       } else {
         let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Array.length > 0
         if gatewayArrPresent && areValidConditions {
           setIsExpanded(p => !p)
         } else if gatewayArrPresent {
-          showToast(~toastType=ToastWarning, ~message="Invalid Conditions", ~autoClose=true, ())
+          showToast(~toastType=ToastWarning, ~message="Invalid Conditions", ~autoClose=true)
         } else {
-          showToast(~toastType=ToastWarning, ~message="No Gateway Selected", ~autoClose=true, ())
+          showToast(~toastType=ToastWarning, ~message="No Gateway Selected", ~autoClose=true)
         }
       }
     }
@@ -246,7 +235,7 @@ module Wrapper = {
       <div
         className={`flex flex-row gap-3 md:gap-10 items-center justify-end
         ${isMobileView ? "" : "w-1/3 mr-6"}`}>
-        <UIUtils.RenderIf condition={notFirstRule}>
+        <RenderIf condition={notFirstRule}>
           <div
             onMouseEnter={_ => setDragBtnHover(_ => !isMobileView)}
             onMouseLeave={_ => setDragBtnHover(_ => false)}
@@ -254,11 +243,11 @@ module Wrapper = {
                 ? "py-1"
                 : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
             <Icon name="grip-vertical" className="text-jp-gray-700" size=14 />
-            <UIUtils.RenderIf condition={dragBtnHover}>
+            <RenderIf condition={dragBtnHover}>
               <div className="text-sm "> {React.string("Drag Rule")} </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div
           onClick=onClickAdd
           onMouseEnter={_ => setAddBtnHover(_ => !isMobileView)}
@@ -267,9 +256,9 @@ module Wrapper = {
               ? "py-1"
               : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
           <Icon name="plus" className="text-jp-gray-700" size=12 />
-          <UIUtils.RenderIf condition={addBtnHover}>
+          <RenderIf condition={addBtnHover}>
             <div className="text-sm "> {React.string("Add New Rule")} </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
         {switch onClickCopy {
         | Some(onClick) =>
@@ -281,13 +270,13 @@ module Wrapper = {
                 ? "py-1"
                 : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
             <Icon name="copy" className="text-jp-gray-700" size=12 />
-            <UIUtils.RenderIf condition={copyBtnHover}>
+            <RenderIf condition={copyBtnHover}>
               <div className="text-sm "> {React.string("Copy Rule")} </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         | None => React.null
         }}
-        <UIUtils.RenderIf condition={notFirstRule}>
+        <RenderIf condition={notFirstRule}>
           <div
             onClick=onClickRemove
             onMouseEnter={_ => setDeleteBtnHover(_ => !isMobileView)}
@@ -296,18 +285,18 @@ module Wrapper = {
                 ? "py-1"
                 : ""} bg-gray-100 dark:bg-jp-gray-970 rounded-full border border-jp-gray-600 cursor-pointer`}>
             <Icon name="trash" className="text-jp-gray-700" size=12 />
-            <UIUtils.RenderIf condition={deleteBtnHover}>
+            <RenderIf condition={deleteBtnHover}>
               <div className="text-sm "> {React.string("Delete Rule")} </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
 
     <div className="flex flex-col">
       <div className={`flex flex-row tems-center justify-between z-10 -mt-6 mx-2`}>
-        <UIUtils.RenderIf condition={!isMobileView}>
+        <RenderIf condition={!isMobileView}>
           <div className="hidden lg:flex w-1/3" />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div
           onClick={handleClickExpand}
           className={`cursor-pointer flex flex-row gap-2 items-center justify-between p-2 bg-blue-100 dark:bg-jp-gray-970 rounded-full border ${borderColor.primaryNormal} dark:${borderColor.primaryNormal}`}>
@@ -317,26 +306,26 @@ module Wrapper = {
         {actions}
       </div>
       <div
-        style={ReactDOMStyle.make(~marginTop="-17px", ())}
+        style={marginTop: "-17px"}
         className={`flex 
         ${flex} 
             p-4 py-6 bg-gray-50 dark:bg-jp-gray-lightgray_background rounded-md border 
             ${border} 
             ${borderColor.primaryNormal}`}>
-        <UIUtils.RenderIf condition={!isFirst}>
+        <RenderIf condition={!isFirst}>
           <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds isFromSurcharge />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!isFrom3ds && !isFromSurcharge}>
+        </RenderIf>
+        <RenderIf condition={!isFrom3ds && !isFromSurcharge}>
           <AddRuleGateway id gatewayOptions isExpanded isFirst />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={isFrom3ds}>
+        </RenderIf>
+        <RenderIf condition={isFrom3ds}>
           <Add3DSCondition isFirst id isExpanded threeDsType />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={isFromSurcharge}>
+        </RenderIf>
+        <RenderIf condition={isFromSurcharge}>
           <AddSurchargeCondition
             isFirst id isExpanded surchargeType surchargeTypeValue surchargePercentage
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -486,7 +475,7 @@ let make = (
   let (initialRule, setInitialRule) = React.useState(() => None)
   let showToast = ToastState.useShowToast()
   let fetchDetails = useGetMethod()
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (wasm, setWasm) = React.useState(_ => None)
   let (formState, setFormState) = React.useState(_ => EditReplica)
@@ -503,7 +492,7 @@ let make = (
 
   let activeRoutingDetails = async () => {
     try {
-      let routingUrl = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId, ())
+      let routingUrl = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId)
       let routingJson = await fetchDetails(routingUrl)
       let schemaValue = routingJson->getDictFromJsonObject
       let rulesValue = schemaValue->getObj("algorithm", Dict.make())->getDictfromDict("data")
@@ -634,14 +623,9 @@ let make = (
   let handleActivateConfiguration = async activatingId => {
     try {
       setScreenState(_ => Loading)
-      let activateRuleURL = getURL(
-        ~entityName=urlEntityName,
-        ~methodType=Post,
-        ~id=activatingId,
-        (),
-      )
-      let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
-      showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
+      let activateRuleURL = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=activatingId)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post)
+      showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {
@@ -649,14 +633,13 @@ let make = (
       switch Exn.message(e) {
       | Some(message) =>
         if message->String.includes("IR_16") {
-          showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
+          showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess)
           RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
           setScreenState(_ => Success)
         } else {
           showToast(
             ~message="Failed to Activate the Configuration!",
             ~toastType=ToastState.ToastError,
-            (),
           )
           setScreenState(_ => Error(message))
         }
@@ -668,14 +651,10 @@ let make = (
     try {
       setScreenState(_ => Loading)
 
-      let deactivateRoutingURL = `${getURL(
-          ~entityName=urlEntityName,
-          ~methodType=Post,
-          (),
-        )}/deactivate`
+      let deactivateRoutingURL = `${getURL(~entityName=urlEntityName, ~methodType=Post)}/deactivate`
       let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
-      let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
-      showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
+      let _ = await updateDetails(deactivateRoutingURL, body, Post)
+      showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`))
       setScreenState(_ => Success)
     } catch {
@@ -685,7 +664,6 @@ let make = (
           showToast(
             ~message="Failed to Deactivate the Configuration!",
             ~toastType=ToastState.ToastError,
-            (),
           )
           setScreenState(_ => Error(message))
         }
@@ -733,18 +711,12 @@ let make = (
         },
       }
 
-      let getActivateUrl = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=None, ())
-      let response = await updateDetails(
-        getActivateUrl,
-        payload->Identity.genericTypeToJson,
-        Post,
-        (),
-      )
+      let getActivateUrl = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=None)
+      let response = await updateDetails(getActivateUrl, payload->Identity.genericTypeToJson, Post)
 
       showToast(
         ~message="Successfully Created a new Configuration !",
         ~toastType=ToastState.ToastSuccess,
-        (),
       )
       setScreenState(_ => Success)
       setShowModal(_ => false)
@@ -755,7 +727,7 @@ let make = (
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      showToast(~message="Failed to Save the Configuration!", ~toastType=ToastState.ToastError, ())
+      showToast(~message="Failed to Save the Configuration!", ~toastType=ToastState.ToastError)
       setShowModal(_ => false)
       setScreenState(_ => PageLoaderWrapper.Error(err))
       Exn.raiseError(err)
@@ -792,7 +764,7 @@ let make = (
                   profile
                   setProfile
                 />
-                <UIUtils.RenderIf condition={formState != CreateConfig}>
+                <RenderIf condition={formState != CreateConfig}>
                   <div className="mb-5">
                     <RuleBasedUI
                       gatewayOptions=connectorOptions
@@ -805,7 +777,7 @@ let make = (
                     {switch pageState {
                     | Preview =>
                       <div className="flex flex-col md:flex-row gap-4 my-5">
-                        <UIUtils.RenderIf condition={!isActive}>
+                        <RenderIf condition={!isActive}>
                           <Button
                             text={"Activate Configuration"}
                             buttonType={Primary}
@@ -815,8 +787,8 @@ let make = (
                             customButtonStyle="w-1/5 rounded-sm"
                             buttonState=Normal
                           />
-                        </UIUtils.RenderIf>
-                        <UIUtils.RenderIf condition={isActive}>
+                        </RenderIf>
+                        <RenderIf condition={isActive}>
                           <Button
                             text={"Deactivate Configuration"}
                             buttonType={Primary}
@@ -826,13 +798,13 @@ let make = (
                             customButtonStyle="w-1/5 rounded-sm"
                             buttonState=Normal
                           />
-                        </UIUtils.RenderIf>
+                        </RenderIf>
                       </div>
                     | Create => <RoutingUtils.ConfigureRuleButton setShowModal />
                     | _ => React.null
                     }}
                   </div>
-                </UIUtils.RenderIf>
+                </RenderIf>
                 <CustomModal.RoutingCustomModal
                   showModal
                   setShowModal

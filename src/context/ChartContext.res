@@ -339,11 +339,9 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 ~sortingParams?,
                 ~timeCol,
                 ~domain=value.domain->Option.getOr(""),
-                (),
               )->JSON.stringify,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
               ~betaEndpointConfig=?betaEndPointConfig,
-              (),
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch`)
             ->then(
@@ -399,11 +397,9 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~customFilterValue=customFilter,
               ~sortingParams?,
               ~domain=value.domain->Option.getOr(""),
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
           ->then(text => {
@@ -468,11 +464,9 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 ~sortingParams?,
                 ~timeCol=value.timeCol,
                 ~domain=value.domain->Option.getOr(""),
-                (),
               )->JSON.stringify,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
               ~betaEndpointConfig=?betaEndPointConfig,
-              (),
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch bottomChart`)
             ->then(
@@ -525,11 +519,9 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~customFilterValue=customFilter,
               ~sortingParams?,
               ~domain=value.domain->Option.getOr(""),
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
           ->then(text => {
@@ -815,11 +807,9 @@ module SDKAnalyticsChartContext = {
                     ~customFilterValue=customFilter,
                     ~timeCol,
                     ~domain=value.domain->Option.getOr(""),
-                    (),
                   )->JSON.stringify,
                   ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
                   ~betaEndpointConfig=?betaEndPointConfig,
-                  (),
                 )
                 ->addLogsAroundFetch(~logTitle=`Chart fetch`)
                 ->then(text => {
@@ -856,11 +846,9 @@ module SDKAnalyticsChartContext = {
                           ~timeCol,
                           ~jsonFormattedFilter=item->filterMapper,
                           ~domain=value.domain->Option.getOr(""),
-                          (),
                         )->JSON.stringify,
                         ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
                         ~betaEndpointConfig=?betaEndPointConfig,
-                        (),
                       )
                       ->addLogsAroundFetch(~logTitle=`Chart fetch`)
                       ->then(
