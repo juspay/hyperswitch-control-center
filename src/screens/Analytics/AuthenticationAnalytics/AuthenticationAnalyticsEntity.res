@@ -246,9 +246,9 @@ let getStatData = (
       title: "Frictionless Success Rate",
       tooltipText: "Total number of payments authenticated over a frictionless flow successfully over the total number of payments going through a frictionless flow.",
       deltaTooltipComponent: _ => React.null,
-      value: singleStatData.challenge_success_count->Int.toFloat *.
+      value: singleStatData.frictionless_success_count->Int.toFloat *.
       100. /.
-      singleStatData.challenge_flow_count->Int.toFloat,
+      singleStatData.frictionless_flow_count->Int.toFloat,
       delta: 0.0,
       data: constructData(FrictionlessSuccessRate, timeSeriesData),
       statType: "Rate",

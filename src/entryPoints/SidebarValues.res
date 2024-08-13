@@ -183,12 +183,25 @@ let threeDsConnector = (~permissionJson) => {
   })
 }
 
+let pmAuthenticationProcessor = (~permissionJson) => {
+  SubLevelLink({
+    name: "PM Authentication Processor",
+    link: `/pm-authentication-processor`,
+    access: permissionJson.connectorsView,
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=ConnectorUtils.pmAuthenticationConnectorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
+  })
+}
+
 let connectors = (
   isConnectorsEnabled,
   ~isLiveMode,
   ~isFrmEnabled,
   ~isPayoutsEnabled,
   ~isThreedsConnectorEnabled,
+  ~isPMAuthenticationProcessor,
   ~permissionJson,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, permissionJson)]
@@ -202,6 +215,10 @@ let connectors = (
 
   if isFrmEnabled {
     connectorLinkArray->Array.push(fraudAndRisk(~permissionJson))->ignore
+  }
+
+  if isPMAuthenticationProcessor {
+    connectorLinkArray->Array.push(pmAuthenticationProcessor(~permissionJson))->ignore
   }
 
   isConnectorsEnabled
@@ -219,6 +236,13 @@ let paymentAnalytcis = SubLevelLink({
   link: `/analytics-payments`,
   access: Access,
   searchOptions: [("View analytics", "")],
+})
+
+let performanceMonitor = SubLevelLink({
+  name: "Performance Monitor",
+  link: `/performance-monitor`,
+  access: Access,
+  searchOptions: [("View Performance Monitor", "")],
 })
 
 let disputeAnalytics = SubLevelLink({
@@ -256,6 +280,7 @@ let analytics = (
   userJourneyAnalyticsFlag,
   authenticationAnalyticsFlag,
   disputeAnalyticsFlag,
+  performanceMonitorFlag,
   ~permissionJson,
 ) => {
   let links = [paymentAnalytcis, refundAnalytics]
@@ -270,6 +295,9 @@ let analytics = (
 
   if disputeAnalyticsFlag {
     links->Array.push(disputeAnalytics)
+  }
+  if performanceMonitorFlag {
+    links->Array.push(performanceMonitor)
   }
 
   isAnalyticsEnabled
@@ -561,7 +589,7 @@ let reconAndSettlement = (recon, isReconEnabled) => {
 }
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
-  let {user_role: userRole} =
+  let {userRole} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
@@ -582,6 +610,8 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     configurePmts,
     complianceCertificate,
     userManagementRevamp,
+    performanceMonitor: performanceMonitorFlag,
+    pmAuthenticationProcessor,
   } = featureFlagDetails
 
   let sidebar = [
@@ -593,12 +623,14 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~isFrmEnabled=frm,
       ~isPayoutsEnabled=payOut,
       ~isThreedsConnectorEnabled=threedsAuthenticator,
+      ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
       ~permissionJson,
     ),
     default->analytics(
       userJourneyAnalyticsFlag,
       authenticationAnalyticsFlag,
       disputeAnalytics,
+      performanceMonitorFlag,
       ~permissionJson,
     ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),

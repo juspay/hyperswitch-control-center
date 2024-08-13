@@ -31,6 +31,8 @@ type featureFlag = {
   customWebhookHeaders: bool,
   complianceCertificate: bool,
   userManagementRevamp: bool,
+  pmAuthenticationProcessor: bool,
+  performanceMonitor: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -69,6 +71,8 @@ let featureFlagType = (featureFlags: JSON.t) => {
     customWebhookHeaders: dict->getBool("custom_webhook_headers", false),
     complianceCertificate: dict->getBool("compliance_certificate", false),
     userManagementRevamp: dict->getBool("user_management_revamp", false),
+    pmAuthenticationProcessor: dict->getBool("pm_authentication_processor", false),
+    performanceMonitor: dict->getBool("performance_monitor", false),
   }
   typedFeatureFlag
 }
