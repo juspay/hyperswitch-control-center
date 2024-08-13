@@ -371,6 +371,14 @@ let make = () => {
                               <PaymentAnalytics />
                             </FilterContext>
                           </AccessControl>
+                        | list{"performance-monitor"} =>
+                          <AccessControl
+                            permission=userPermissionJson.analyticsView
+                            isEnabled={featureFlagDetails.performanceMonitor}>
+                            <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
+                              <PerformanceMonitor domain="payments" />
+                            </FilterContext>
+                          </AccessControl>
                         | list{"analytics-refunds"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
                             <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
