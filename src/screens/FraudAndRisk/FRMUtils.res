@@ -137,14 +137,14 @@ let createAllOptions = connectorsConfig => {
 let generateFRMPaymentMethodsConfig = (paymentMethodsDict): array<
   ConnectorTypes.frm_payment_method,
 > => {
+  open ConnectorTypes
   paymentMethodsDict
   ->Dict.keysToArray
   ->Array.map(paymentMethodName => {
-    let b: ConnectorTypes.frm_payment_method = {
+    {
       payment_method: paymentMethodName,
       flow: "pre",
     }
-    b
   })
 }
 
