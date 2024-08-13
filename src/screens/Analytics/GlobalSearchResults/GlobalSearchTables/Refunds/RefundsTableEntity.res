@@ -53,7 +53,7 @@ type cols =
   | SignFlag
   | Timestamp
 
-let visibleColumns = [RefundId, PaymentId, Connector, TotalAmount, Currency, Refundstatus]
+let visibleColumns = [RefundId, PaymentId, Refundstatus, TotalAmount, Currency, Connector]
 
 let colMapper = (col: cols) => {
   switch col {
