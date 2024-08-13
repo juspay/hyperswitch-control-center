@@ -108,7 +108,7 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         <div>
           {connector.payment_methods_enabled
           ->getAllPaymentMethods
-          ->Array.joinWithUnsafe(", ")
+          ->Array.joinWith(", ")
           ->React.string}
         </div>,
         "",

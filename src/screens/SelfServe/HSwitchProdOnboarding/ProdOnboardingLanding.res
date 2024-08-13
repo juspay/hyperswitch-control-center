@@ -170,7 +170,7 @@ let make = () => {
   let getSetupCompleteEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
     if prodEnums.setupComplete {
       setDashboardPageState(_ => #HOME)
-      let baseUrlPath = `${getHostUrl}/${routerUrl.path->List.toArray->Array.joinWithUnsafe("/")}`
+      let baseUrlPath = `${getHostUrl}/${routerUrl.path->List.toArray->Array.joinWith("/")}`
       routerUrl.search->isNonEmptyString
         ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
         : RescriptReactRouter.push(`${baseUrlPath}`)
