@@ -10,6 +10,7 @@ let make = (
   open PerformanceMonitorTypes
   open TablePerformanceUtils
   let getURL = useGetURL()
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let updateDetails = useUpdateMethod()
   let (offset, setOffset) = React.useState(_ => 0)
   let (tableData, setTableData) = React.useState(_ => [])
@@ -49,8 +50,9 @@ let make = (
       }
 
       setTableData(_ => tableData)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => ()
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to load data"))
     }
   }
   React.useEffect(() => {
@@ -61,23 +63,25 @@ let make = (
   }, [])
 
   <PerformanceUtils.Card title="Payment Failures">
-    <LoadedTable
-      visibleColumns
-      title=" "
-      hideTitle=true
-      actualData={tableData}
-      entity=tableEntity
-      resultsPerPage=5
-      totalResults={tableData->Array.length}
-      offset
-      setOffset
-      defaultSort
-      currrentFetchCount={tableData->Array.length}
-      tableLocalFilter=false
-      tableheadingClass=tableBorderClass
-      ignoreHeaderBg=true
-      tableDataBorderClass=tableBorderClass
-      isAnalyticsModule=true
-    />
+    <PageLoaderWrapper screenState>
+      <LoadedTable
+        visibleColumns
+        title=" "
+        hideTitle=true
+        actualData={tableData}
+        entity=tableEntity
+        resultsPerPage=5
+        totalResults={tableData->Array.length}
+        offset
+        setOffset
+        defaultSort
+        currrentFetchCount={tableData->Array.length}
+        tableLocalFilter=false
+        tableheadingClass=tableBorderClass
+        ignoreHeaderBg=true
+        tableDataBorderClass=tableBorderClass
+        isAnalyticsModule=true
+      />
+    </PageLoaderWrapper>
   </PerformanceUtils.Card>
 }
