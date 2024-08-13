@@ -24,8 +24,6 @@ let defaultDimesions = {
   values: [],
 }
 
-let colors = ["#c74050", "#619f5b"]
-
 let getStatusPerformanceEntity: entity<stackBarChartData> = {
   requestBodyConfig: {
     metrics: [#payment_count],
@@ -39,17 +37,9 @@ let getStatusPerformanceEntity: entity<stackBarChartData> = {
     groupByKeys: [#status],
   },
   getChartData: BarChartPerformanceUtils.getStackedBarData,
+  title: "Payment Distribution By Status",
   chartOption: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Payment Distribution By Connector",
-    },
-    colors: ["#c74050", "#619f5b", "#ca8a04", "#06b6d4"],
+    colors: [],
   },
   getChartOption: BarChartPerformanceUtils.getBarOption,
 }
@@ -73,17 +63,9 @@ let getPerformanceEntity = (
     plotChartBy: ["failure", "charged"],
   },
   getChartData: BarChartPerformanceUtils.getStackedBarData,
+  title,
   chartOption: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: title,
-    },
-    colors: ["#c74050", "#619f5b"],
+    colors: [],
   },
   getChartOption: BarChartPerformanceUtils.getBarOption,
 }
@@ -101,17 +83,9 @@ let getConnectorFailureEntity: entity<array<donutPieSeriesRecord>> = {
     groupByKeys: [#connector],
   },
   getChartData: PieChartPerformanceUtils.getDonutCharData,
+  title: "Connector Wise Payment Failure",
   chartOption: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Connector Wise Payment Failure",
-    },
-    colors: ["#c74050", "#619f5b"],
+    colors: [],
   },
   getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
@@ -129,17 +103,9 @@ let getPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
     groupByKeys: [#payment_method],
   },
   getChartData: PieChartPerformanceUtils.getDonutCharData,
+  title: "Method Wise Payment Failure",
   chartOption: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Method Wise Payment Failure",
-    },
-    colors: ["#c74050", "#619f5b"],
+    colors: [],
   },
   getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
@@ -157,17 +123,29 @@ let getConnectorPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> 
     groupByKeys: [#connector, #payment_method],
   },
   getChartData: PieChartPerformanceUtils.getDonutCharData,
+  title: "Connector + Payment Method Wise Payment Failure",
   chartOption: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Connector + Payment Method Wise Payment Failure",
-    },
-    colors: ["#c74050", "#619f5b"],
+    colors: [],
   },
   getChartOption: PieChartPerformanceUtils.getPieChartOptions,
+}
+
+let getFailureRateEntity: entity<'t> = {
+  getRequestBody: PerformanceUtils.requestBody,
+  getChartOption: PieChartPerformanceUtils.getPieChartOptions,
+  getChartData: PieChartPerformanceUtils.getDonutCharData,
+  requestBodyConfig: {
+    metrics: [#connector_success_rate],
+    groupBy: [],
+    filters: [],
+    customFilter: None,
+    applyFilterFor: None,
+  },
+  configRequiredForChartData: {
+    groupByKeys: [],
+  },
+  title: "Payment Failures",
+  chartOption: {
+    colors: [],
+  },
 }

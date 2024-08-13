@@ -30,7 +30,7 @@ let make = (
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
       let configData = entity.getChartData(~array=arr, ~config=entity.configRequiredForChartData)
-      let options = entity.getChartOption(entity.chartOption, configData)
+      let options = entity.getChartOption(configData)
       setBarOptions(_ => options)
     } catch {
     | _ => ()
@@ -43,5 +43,7 @@ let make = (
     None
   }, [dimensions])
 
-  <HighchartPieChart.RawPieChart options={options} />
+  <PerformanceUtils.Card title=entity.title>
+    <HighchartPieChart.RawPieChart options={options} />
+  </PerformanceUtils.Card>
 }

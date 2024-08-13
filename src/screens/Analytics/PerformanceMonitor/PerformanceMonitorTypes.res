@@ -2,7 +2,7 @@ type performance = [#ConnectorPerformance | #PaymentMethodPerormance]
 type dimension = [#connector | #payment_method | #payment_method_type | #status | #no_value]
 
 type status = [#charged | #failure]
-type metrics = [#payment_count]
+type metrics = [#payment_count | #connector_success_rate]
 
 type paymentStatus = [#failure | #charged]
 type paymentDistribution = {
@@ -20,6 +20,7 @@ type dimensions = array<dimensionRecord>
 type stackBarSeriesRecord = {
   name: string,
   data: array<int>,
+  color: string,
 }
 
 type categories = array<string>
@@ -41,9 +42,9 @@ type stackBarChartData = {
 
 type donutChatData = {series: series}
 type chartOption = {
-  yAxis: yAxis,
-  xAxis: xAxis,
-  title: title,
+  yAxis?: yAxis,
+  xAxis?: xAxis,
+  title?: title,
   colors: array<string>,
 }
 type chartDataConfig = {groupByKeys: array<dimension>, plotChartBy?: array<string>}
@@ -71,5 +72,6 @@ type entity<'t> = {
   configRequiredForChartData: chartDataConfig,
   getChartData: (~array: array<JSON.t>, ~config: chartDataConfig) => 't,
   chartOption: chartOption,
-  getChartOption: (chartOption, 't) => JSON.t,
+  getChartOption: 't => JSON.t,
+  title: string,
 }

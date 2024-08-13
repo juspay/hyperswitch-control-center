@@ -96,8 +96,8 @@ let make = (~domain="payments") => {
       className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
       topFilterUi
     </div>
-    <div className="flex gap-2">
-      <div className="flex-col">
+    <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 grid-rows-1 gap-3">
         <BarChartPerformance
           domain
           startTimeVal
@@ -105,10 +105,6 @@ let make = (~domain="payments") => {
           dimensions
           entity={PerformanceMonitorEntity.getStatusPerformanceEntity}
         />
-      </div>
-    </div>
-    <div className="flex gap-2">
-      <div className="flex-col">
         <BarChartPerformance
           domain
           startTimeVal
@@ -122,7 +118,7 @@ let make = (~domain="payments") => {
           )}
         />
       </div>
-      <div className="flex-col">
+      <div className="grid grid-cols-2 grid-rows-1 gap-3">
         <BarChartPerformance
           domain
           startTimeVal
@@ -135,10 +131,6 @@ let make = (~domain="payments") => {
             ~title="Payment Distribution By Payment Method",
           )}
         />
-      </div>
-    </div>
-    <div className="grid grid-cols-3 gap-4">
-      <div className="">
         <PieChartPerformance
           domain
           startTimeVal
@@ -147,7 +139,7 @@ let make = (~domain="payments") => {
           entity={PerformanceMonitorEntity.getConnectorPaymentMethodFailureEntity}
         />
       </div>
-      <div className="">
+      <div className="grid grid-cols-2 grid-rows-1 gap-3">
         <PieChartPerformance
           domain
           startTimeVal
@@ -155,8 +147,6 @@ let make = (~domain="payments") => {
           dimensions
           entity={PerformanceMonitorEntity.getConnectorFailureEntity}
         />
-      </div>
-      <div className="">
         <PieChartPerformance
           domain
           startTimeVal
@@ -165,6 +155,9 @@ let make = (~domain="payments") => {
           entity={PerformanceMonitorEntity.getPaymentMethodFailureEntity}
         />
       </div>
+      <TablePerformance
+        startTimeVal endTimeVal entity={PerformanceMonitorEntity.getFailureRateEntity}
+      />
     </div>
   </PageLoaderWrapper>
 }
