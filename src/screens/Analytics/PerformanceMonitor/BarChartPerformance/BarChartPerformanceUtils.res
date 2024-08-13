@@ -80,7 +80,10 @@ let getStackedBarData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
   let categories = []
   let _ = keys->Array.forEach(v => {
     let dict = grouped->Dict.get(v)->Option.getOr(Dict.make())
-    let plotChartBy = config.plotChartBy->Option.getOr(dict->Dict.keysToArray)
+    let plotChartBy = switch config.plotChartBy {
+    | Some(val) => val->Array.map(item => (item: status :> string))
+    | None => dict->Dict.keysToArray
+    }
     let _ = plotChartBy->Array.forEach(ele => {
       switch dict->Dict.get(ele) {
       | None => {

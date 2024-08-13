@@ -52,11 +52,11 @@ let getPerformanceEntity = (
     groupBy: [#status, ...groupBy],
     filters: [#status, ...filters],
     customFilter: #status,
-    applyFilterFor: ["failure", "charged"],
+    applyFilterFor: [#failure, #charged],
   },
   configRequiredForChartData: {
     groupByKeys: [...groupByKeys],
-    plotChartBy: ["failure", "charged"],
+    plotChartBy: [#failure, #charged],
   },
   getChartData: BarChartPerformanceUtils.getStackedBarData,
   title,
@@ -72,7 +72,7 @@ let getConnectorFailureEntity: entity<array<donutPieSeriesRecord>> = {
     groupBy: [#connector, #status],
     filters: [#connector, #status],
     customFilter: #status,
-    applyFilterFor: ["failure"],
+    applyFilterFor: [#failure],
   },
   configRequiredForChartData: {
     groupByKeys: [#connector],
@@ -91,7 +91,7 @@ let getPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
     groupBy: [#payment_method, #status],
     filters: [#payment_method, #status],
     customFilter: #status,
-    applyFilterFor: ["failure"],
+    applyFilterFor: [#failure],
   },
   configRequiredForChartData: {
     groupByKeys: [#payment_method],
@@ -110,7 +110,7 @@ let getConnectorPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> 
     groupBy: [#connector, #payment_method, #status],
     filters: [#connector, #payment_method, #status],
     customFilter: #status,
-    applyFilterFor: ["failure"],
+    applyFilterFor: [#failure],
   },
   configRequiredForChartData: {
     groupByKeys: [#connector, #payment_method],

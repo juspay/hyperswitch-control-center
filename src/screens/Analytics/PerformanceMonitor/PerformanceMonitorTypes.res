@@ -5,7 +5,6 @@ type status = [#charged | #failure]
 type metrics = [#payment_count | #connector_success_rate]
 type distribution = [#payment_error_message | #TOP_5]
 
-type paymentStatus = [#failure | #charged]
 type paymentDistribution = {
   payment_count: int,
   status: string,
@@ -48,7 +47,7 @@ type chartOption = {
   title?: title,
   colors: array<string>,
 }
-type chartDataConfig = {groupByKeys: array<dimension>, plotChartBy?: array<string>}
+type chartDataConfig = {groupByKeys: array<dimension>, plotChartBy?: array<status>}
 
 type distributionType = {
   distributionFor: string,
@@ -60,7 +59,7 @@ type requestBodyConfig = {
   groupBy: array<dimension>,
   filters?: array<dimension>,
   customFilter?: dimension,
-  applyFilterFor?: array<string>,
+  applyFilterFor?: array<status>,
   distribution?: distributionType,
 }
 
