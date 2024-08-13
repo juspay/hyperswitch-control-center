@@ -143,7 +143,7 @@ let generateFRMPaymentMethodsConfig = (paymentMethodsDict): array<
   ->Array.map(paymentMethodName => {
     {
       payment_method: paymentMethodName,
-      flow: "pre",
+      flow: getFlowTypeNameString(PreAuth),
     }
   })
 }
