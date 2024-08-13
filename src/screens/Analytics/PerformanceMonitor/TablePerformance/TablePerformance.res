@@ -54,7 +54,11 @@ let make = (
       }
 
       setTableData(_ => tableData)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      if arr->Array.length > 0 {
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to load data"))
     }
@@ -66,8 +70,11 @@ let make = (
     None
   }, [])
 
-  <PerformanceUtils.Card title="Payment Failures">
-    <PageLoaderWrapper screenState>
+  <PageLoaderWrapper
+    screenState
+    customLoader={<Shimmer styleClass="w-full h-96" />}
+    customUI={PerformanceUtils.customUI(entity.title)}>
+    <PerformanceUtils.Card title="Payment Failures">
       <LoadedTable
         visibleColumns
         title=" "
@@ -86,6 +93,6 @@ let make = (
         tableDataBorderClass=tableBorderClass
         isAnalyticsModule=true
       />
-    </PageLoaderWrapper>
-  </PerformanceUtils.Card>
+    </PerformanceUtils.Card>
+  </PageLoaderWrapper>
 }
