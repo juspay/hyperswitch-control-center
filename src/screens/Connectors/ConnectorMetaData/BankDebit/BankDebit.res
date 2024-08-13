@@ -94,9 +94,7 @@ let make = (
 
   let getConnectorId = (connector: ConnectorTypes.connectorTypes) => {
     let connectorData = connectorsListPMAuth->Array.find(item => {
-      item.connector_name->ConnectorUtils.getConnectorNameTypeFromString(
-        ~connectorType=ConnectorTypes.PMAuthenticationProcessor,
-      ) === connector
+      item.connector_name == connector->ConnectorUtils.getConnectorNameString
     })
     switch connectorData {
     | Some(connectorData) => connectorData.merchant_connector_id
