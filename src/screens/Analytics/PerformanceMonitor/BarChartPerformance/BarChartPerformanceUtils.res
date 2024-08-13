@@ -3,7 +3,7 @@ open PerformanceMonitorTypes
 let getBarchartColor = name => {
   switch name {
   | "failure" => "#f44708"
-  | "charged" => "#8ac926"
+  | "charged" => "#38b000"
   | "authentication_pending" => "#80E1D9"
   | "authentication_failed" => "#F8BC3B"
   | "pending" => "#B2596E"

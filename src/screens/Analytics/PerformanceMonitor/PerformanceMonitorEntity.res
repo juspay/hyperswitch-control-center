@@ -24,12 +24,12 @@ let defaultDimesions = {
   values: [],
 }
 
-let colors = ["#f44708", "#8ac926"]
+let colors = ["#f44708", "#38b000"]
 
 let getFailureRateEntity: entity<'t> = {
   getChartData: GaugeChartPerformanceUtils.getGaugeData,
   requestBodyConfig: {
-    metrics: [#payment_success_rate],
+    metrics: [#connector_success_rate],
     groupBy: [],
     filters: [],
     delta: true,
@@ -38,7 +38,7 @@ let getFailureRateEntity: entity<'t> = {
   },
   configRequiredForChartData: {
     groupByKeys: [],
-    name: #payment_success_rate,
+    name: #connector_success_rate,
   },
   chartConfig: {
     title: "Payment Failures",
@@ -49,7 +49,7 @@ let getFailureRateEntity: entity<'t> = {
 let getSuccessRatePerformanceEntity: entity<'t> = {
   getChartData: GaugeChartPerformanceUtils.getGaugeData,
   requestBodyConfig: {
-    metrics: [#payment_success_rate],
+    metrics: [#connector_success_rate],
     groupBy: [],
     filters: [],
     delta: true,
@@ -58,7 +58,7 @@ let getSuccessRatePerformanceEntity: entity<'t> = {
   },
   configRequiredForChartData: {
     groupByKeys: [],
-    name: #payment_success_rate,
+    name: #connector_success_rate,
   },
   chartConfig: {
     title: "Payment Success Rate",
@@ -132,7 +132,7 @@ let getConnectorPerformanceEntity: entity<'t> = {
   },
   chartConfig: {
     title: "Payment Distribution By Status",
-    colors: ["#f44708", "#8ac926"],
+    colors: ["#f44708", "#38b000"],
   },
 }
 
@@ -151,7 +151,7 @@ let getPaymentMethodPerformanceEntity: entity<'t> = {
   },
   chartConfig: {
     title: "Payment Distribution By Payment Method",
-    colors: ["#f44708", "#8ac926"],
+    colors: ["#f44708", "#38b000"],
   },
 }
 

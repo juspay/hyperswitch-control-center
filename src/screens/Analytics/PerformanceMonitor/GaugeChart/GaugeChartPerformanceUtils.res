@@ -77,7 +77,7 @@ let gaugeOption = (config: chartConfig, data: gaugeChartData, ~start=50, ~mid=75
         {
           "from": mid,
           "to": 100,
-          "color": "#8ac926", // green
+          "color": "#38b000", // green
           "thickness": 20,
           "borderRadius": "50%",
         },
