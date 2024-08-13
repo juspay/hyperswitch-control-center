@@ -32,7 +32,6 @@ let getStatusPerformanceEntity: entity<stackBarChartData> = {
     customFilter: None,
     applyFilterFor: None,
   },
-  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#status],
   },
@@ -57,7 +56,6 @@ let getPerformanceEntity = (
     customFilter: Some(#status),
     applyFilterFor: Some(["failure", "charged"]),
   },
-  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [...groupByKeys],
     plotChartBy: ["failure", "charged"],
@@ -78,7 +76,6 @@ let getConnectorFailureEntity: entity<array<donutPieSeriesRecord>> = {
     customFilter: Some(#status),
     applyFilterFor: Some(["failure"]),
   },
-  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#connector],
   },
@@ -98,7 +95,6 @@ let getPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
     customFilter: Some(#status),
     applyFilterFor: Some(["failure"]),
   },
-  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#payment_method],
   },
@@ -118,7 +114,6 @@ let getConnectorPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> 
     customFilter: Some(#status),
     applyFilterFor: Some(["failure"]),
   },
-  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#connector, #payment_method],
   },
@@ -131,18 +126,21 @@ let getConnectorPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> 
 }
 
 let getFailureRateEntity: entity<'t> = {
-  getRequestBody: PerformanceUtils.requestBody,
   getChartOption: PieChartPerformanceUtils.getPieChartOptions,
   getChartData: PieChartPerformanceUtils.getDonutCharData,
   requestBodyConfig: {
     metrics: [#connector_success_rate],
-    groupBy: [],
+    groupBy: [#connector],
     filters: [],
     customFilter: None,
     applyFilterFor: None,
+    distribution: {
+      distributionFor: (#payment_error_message: distribution :> string),
+      distributionCardinality: (#TOP_5: distribution :> string),
+    },
   },
   configRequiredForChartData: {
-    groupByKeys: [],
+    groupByKeys: [#connector],
   },
   title: "Payment Failures",
   chartOption: {

@@ -45,7 +45,6 @@ let getTableData = (array: array<JSON.t>) => {
 type cols =
   | ErrorReason
   | Count
-
   | Connector
 
 let visibleColumns = [Connector, ErrorReason, Count]

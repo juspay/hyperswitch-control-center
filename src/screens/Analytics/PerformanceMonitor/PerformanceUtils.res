@@ -34,11 +34,11 @@ let getSpecificDimension = (dimensions: dimensions, dimension: dimension) => {
 }
 
 let getGroupByForPerformance = (~dimensions: array<dimension>) => {
-  dimensions->Array.map(v => (v: dimension :> string)->JSON.Encode.string)->JSON.Encode.array
+  dimensions->Array.map(v => (v: dimension :> string))
 }
 
 let getMetricForPerformance = (~metrics: array<metrics>) =>
-  metrics->Array.map(v => (v: metrics :> string)->JSON.Encode.string)->JSON.Encode.array
+  metrics->Array.map(v => (v: metrics :> string))
 
 let getFilterForPerformance = (
   ~dimensions: dimensions,
@@ -75,8 +75,9 @@ let requestBody = (
   ~filters: array<dimension>,
   ~customFilter: option<dimension>,
   ~applyFilterFor: option<array<string>>,
+  ~distribution: option<distributionType>=None,
+  ~delta=false,
 ) => {
-  let timeRange = getTimeRange(startTime, endTime)
   let metrics = getMetricForPerformance(~metrics)
   let filters = getFilterForPerformance(
     ~dimensions,
@@ -84,16 +85,20 @@ let requestBody = (
     ~custom=customFilter,
     ~customValue=applyFilterFor,
   )
-  let groupByNames = getGroupByForPerformance(~dimensions=groupBy)
-  let body = [
-    {
-      "timeRange": timeRange,
-      "groupByNames": groupByNames,
-      "filters": filters,
-      "metrics": metrics,
-    },
-  ]->Identity.genericTypeToJson
-  body
+  let groupByNames = getGroupByForPerformance(~dimensions=groupBy)->Some
+  let distributionValues = distribution->Identity.genericTypeToJson->Some
+
+  [
+    AnalyticsUtils.getFilterRequestBody(
+      ~metrics=Some(metrics),
+      ~delta,
+      ~distributionValues,
+      ~groupByNames,
+      ~filter=Some(filters),
+      ~startDateTime=startTime,
+      ~endDateTime=endTime,
+    )->JSON.Encode.object,
+  ]->JSON.Encode.array
 }
 
 let getGroupByKey = (dict, keys: array<dimension>) => {

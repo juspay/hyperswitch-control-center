@@ -7,7 +7,6 @@ let make = (
 ) => {
   open APIUtils
   open LogicUtils
-  open Highcharts
   open PerformanceMonitorTypes
   open TablePerformanceUtils
   let getURL = useGetURL()
@@ -19,33 +18,21 @@ let make = (
     order: Table.INC,
   }
 
-  let _ = bubbleChartModule(highchartsModule)
-
   let chartFetch = async () => {
     try {
       let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
 
-      let metrics = entity.requestBodyConfig.metrics->Array.map(v => (v: metrics :> string))
-
-      let distribution =
-        [
-          ("distributionFor", "payment_error_message"->JSON.Encode.string),
-          ("distributionCardinality", "TOP_5"->JSON.Encode.string),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
-
-      let body =
-        [
-          AnalyticsUtils.getFilterRequestBody(
-            ~metrics=Some(metrics),
-            ~delta=true,
-            ~distributionValues=distribution->Some,
-            ~groupByNames=["connector"]->Some,
-            ~startDateTime=startTimeVal,
-            ~endDateTime=endTimeVal,
-          )->JSON.Encode.object,
-        ]->JSON.Encode.array
+      let body = PerformanceUtils.requestBody(
+        ~dimensions=[],
+        ~startTime=startTimeVal,
+        ~endTime=endTimeVal,
+        ~filters=entity.requestBodyConfig.filters,
+        ~metrics=entity.requestBodyConfig.metrics,
+        ~groupBy=entity.requestBodyConfig.groupBy,
+        ~customFilter=entity.requestBodyConfig.customFilter,
+        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
+        ~distribution=entity.requestBodyConfig.distribution,
+      )
 
       let res = await updateDetails(url, body, Post)
       let arr =

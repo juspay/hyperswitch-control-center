@@ -3,6 +3,7 @@ type dimension = [#connector | #payment_method | #payment_method_type | #status 
 
 type status = [#charged | #failure]
 type metrics = [#payment_count | #connector_success_rate]
+type distribution = [#payment_error_message | #TOP_5]
 
 type paymentStatus = [#failure | #charged]
 type paymentDistribution = {
@@ -49,26 +50,22 @@ type chartOption = {
 }
 type chartDataConfig = {groupByKeys: array<dimension>, plotChartBy?: array<string>}
 
+type distributionType = {
+  distributionFor: string,
+  distributionCardinality: string,
+}
+
 type requestBodyConfig = {
   metrics: array<metrics>,
   groupBy: array<dimension>,
   filters: array<dimension>,
   customFilter: option<dimension>,
   applyFilterFor: option<array<string>>,
+  distribution?: distributionType,
 }
 
 type entity<'t> = {
   requestBodyConfig: requestBodyConfig,
-  getRequestBody: (
-    ~dimensions: dimensions,
-    ~startTime: string,
-    ~endTime: string,
-    ~metrics: array<metrics>,
-    ~groupBy: array<dimension>,
-    ~filters: array<dimension>,
-    ~customFilter: option<dimension>,
-    ~applyFilterFor: option<array<string>>,
-  ) => JSON.t,
   configRequiredForChartData: chartDataConfig,
   getChartData: (~array: array<JSON.t>, ~config: chartDataConfig) => 't,
   chartOption: chartOption,
