@@ -463,7 +463,7 @@ module FieldRenderer = {
     let isVisible = true
 
     if isVisible {
-      let names = field.inputNames->Array.joinWithUnsafe("-")
+      let names = field.inputNames->Array.joinWith("-")
 
       <Portal to=portalKey>
         <AddDataAttributes attributes=[("data-component", "fieldRenderer")]>
@@ -701,7 +701,7 @@ module SubmitButton = {
 
           `${key->LogicUtils.snakeToTitle}: ${value}`
         })
-        ->Array.joinWithUnsafe("\n")
+        ->Array.joinWith("\n")
 
       if showToolTip && !avoidDisable {
         <ToolTip

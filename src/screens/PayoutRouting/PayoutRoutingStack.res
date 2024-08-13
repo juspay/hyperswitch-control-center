@@ -4,7 +4,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
-  let pathVar = url.path->List.toArray->Array.joinWithUnsafe("/")
+  let pathVar = url.path->List.toArray->Array.joinWith("/")
 
   let (records, setRecords) = React.useState(_ => [])
   let (activeRoutingIds, setActiveRoutingIds) = React.useState(_ => [])
