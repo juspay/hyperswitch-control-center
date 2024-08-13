@@ -32,12 +32,12 @@ let getStatusPerformanceEntity: entity<stackBarChartData> = {
   },
   configRequiredForChartData: {
     groupByKeys: [#status],
+    yLabels: ["Status"],
   },
   getChartData: BarChartPerformanceUtils.getStackedBarData,
   title: "Payment Distribution By Status",
   chartOption: {
     colors: [],
-    toolTipHeader: "Status",
   },
   getChartOption: BarChartPerformanceUtils.getBarOption,
 }

@@ -46,9 +46,12 @@ type chartOption = {
   xAxis?: xAxis,
   title?: title,
   colors: array<string>,
-  toolTipHeader?: string,
 }
-type chartDataConfig = {groupByKeys: array<dimension>, plotChartBy?: array<status>}
+type chartDataConfig = {
+  groupByKeys: array<dimension>,
+  plotChartBy?: array<status>,
+  yLabels?: array<string>,
+}
 
 type distributionType = {
   distributionFor: string,

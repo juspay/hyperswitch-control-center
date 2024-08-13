@@ -1,5 +1,5 @@
 open PerformanceMonitorTypes
-let getBarOption = (config: chartConfig, data: barChartData) =>
+let getBarOption = data =>
   {
     "chart": {
       "type": `column`,
@@ -114,8 +114,13 @@ let getStackedBarData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
       }
     })
 
+  let updatedCategories = switch config.yLabels {
+  | Some(labels) => labels
+  | None => categories
+  }
+
   {
-    categories,
+    categories: updatedCategories,
     series,
   }
 }
