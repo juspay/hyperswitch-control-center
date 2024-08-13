@@ -123,9 +123,9 @@ let getConnectorPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> 
   getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
 
-let getFailureRateEntity: entity<'t> = {
-  getChartOption: PieChartPerformanceUtils.getPieChartOptions,
-  getChartData: PieChartPerformanceUtils.getDonutCharData,
+let getFailureRateEntity: entity<array<TablePerformanceUtils.errorObject>> = {
+  getChartOption: _ => Dict.make()->JSON.Encode.object,
+  getChartData: (~array as _, ~config as _) => [],
   requestBodyConfig: {
     metrics: [#connector_success_rate],
     groupBy: [#connector],
