@@ -39,6 +39,7 @@ module TabInfo = {
     ~borderDefaultStyle="",
     ~showBottomBorder=true,
     ~onTabSelection=() => (),
+    ~selectTabBottomBorderColor="",
   ) => {
     let tabRef = React.useRef(Nullable.null)
     let fontClass = "font-inter-style"
@@ -72,7 +73,9 @@ module TabInfo = {
       onTabSelection()
     }, (index, handleSelectedIndex))
 
-    let lineStyle = showBottomBorder ? "bg-black w-full h-0.5 rounded-full" : ""
+    let lineStyle = showBottomBorder
+      ? `bg-black w-full h-0.5 rounded-full ${selectTabBottomBorderColor}`
+      : ""
 
     React.useEffect(() => {
       if isSelected && isScrollIntoViewRequired {
@@ -162,9 +165,8 @@ let make = (
   ~showBottomBorder=true,
   ~showStickyHeader=false,
   ~contentHeight="",
+  ~selectTabBottomBorderColor="",
 ) => {
-  // ~icon=React.null,
-
   let _ = defaultClasses
   let initialIndex = initialIndex->Option.getOr(0)
   let (selectedIndex, setSelectedIndex) = React.useState(() => initialIndex)
@@ -253,6 +255,7 @@ let make = (
                   borderDefaultStyle
                   showBottomBorder
                   onTabSelection=?{tab.onTabSelection}
+                  selectTabBottomBorderColor
                 />
               </div>
             })

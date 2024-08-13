@@ -30,8 +30,7 @@ let make = () => {
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let (surveyModal, setSurveyModal) = React.useState(_ => false)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let {merchant_id: merchantId, user_role: userRole} =
-    useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {merchantId, userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
@@ -268,6 +267,19 @@ let make = () => {
                             />
                           </AccessControl>
 
+                        | list{"pm-authentication-processor", ...remainingPath} =>
+                          <AccessControl
+                            permission=userPermissionJson.connectorsView
+                            isEnabled={featureFlagDetails.pmAuthenticationProcessor}>
+                            <EntityScaffold
+                              entityName="PM Authentication Processor"
+                              remainingPath
+                              renderList={() => <PMAuthenticationConnectorList />}
+                              renderNewForm={() => <PMAuthenticationHome />}
+                              renderShow={_ => <PMAuthenticationHome />}
+                            />
+                          </AccessControl>
+
                         | list{"payments", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.operationsView>
                             <FilterContext key="payments" index="payments">
@@ -357,6 +369,14 @@ let make = () => {
                           <AccessControl permission=userPermissionJson.analyticsView>
                             <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
                               <PaymentAnalytics />
+                            </FilterContext>
+                          </AccessControl>
+                        | list{"performance-monitor"} =>
+                          <AccessControl
+                            permission=userPermissionJson.analyticsView
+                            isEnabled={featureFlagDetails.performanceMonitor}>
+                            <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
+                              <PerformanceMonitor domain="payments" />
                             </FilterContext>
                           </AccessControl>
                         | list{"analytics-refunds"} =>

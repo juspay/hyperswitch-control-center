@@ -38,7 +38,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
         Dict.set(
           errors,
           key,
-          `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWithUnsafe(
+          `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWith(
               ",",
             )} character`->JSON.Encode.string,
         )

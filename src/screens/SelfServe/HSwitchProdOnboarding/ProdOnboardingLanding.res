@@ -165,12 +165,12 @@ let make = () => {
   let centerItems = pageView === SETUP_COMPLETED ? "justify-center" : ""
   let urlPush = appendDashboardPath(~url=`/prod-onboarding?${routerUrl.search}`)
 
-  let {user_role: userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let getSetupCompleteEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
     if prodEnums.setupComplete {
       setDashboardPageState(_ => #HOME)
-      let baseUrlPath = `${getHostUrl}/${routerUrl.path->List.toArray->Array.joinWithUnsafe("/")}`
+      let baseUrlPath = `${getHostUrl}/${routerUrl.path->List.toArray->Array.joinWith("/")}`
       routerUrl.search->isNonEmptyString
         ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
         : RescriptReactRouter.push(`${baseUrlPath}`)

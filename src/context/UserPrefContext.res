@@ -40,7 +40,7 @@ let make = (~children) => {
   | LoggedIn(authType) =>
     switch authType {
     | BasicAuth(basicAuthInfo) => basicAuthInfo.name->Option.getOr("")
-    | Auth(totpAuthInfo) => totpAuthInfo.name
+    | _ => ""
     }
   | _ => ""
   }
@@ -49,7 +49,7 @@ let make = (~children) => {
   let urlPathConcationation = `/${url.path
     ->LogicUtils.stripV4
     ->List.toArray
-    ->Array.joinWithUnsafe("/")}`
+    ->Array.joinWith("/")}`
   // UPDATE THE LAST VISITED TAB
   React.useEffect(() => {
     if urlPathConcationation !== "/" {
@@ -102,7 +102,7 @@ let make = (~children) => {
             `${key}=${value}`
           },
         )
-        ->Array.joinWithUnsafe("&")
+        ->Array.joinWith("&")
       let isMarketplaceApp = urlPathConcationation == "/marketplace"
       moduleWisePref->Dict.set(
         urlPathConcationation,

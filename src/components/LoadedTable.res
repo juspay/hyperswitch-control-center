@@ -228,6 +228,8 @@ let make = (
   ~customBorderClass=?,
   ~showborderColor=?,
   ~tableHeadingTextClass="",
+  ~nonFrozenTableParentClass="",
+  ~loadedTableParentClass="",
 ) => {
   open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
@@ -274,7 +276,7 @@ let make = (
     setFirstRender(_ => false)
     setOffset(_ => pageDetail.offset)
     None
-  }, [url.path->List.toArray->Array.joinWithUnsafe("/")])
+  }, [url.path->List.toArray->Array.joinWith("/")])
 
   React.useEffect(_ => {
     if pageDetail.offset !== offset && !firstRender {
@@ -826,6 +828,7 @@ let make = (
                 ?customBorderClass
                 ?showborderColor
                 tableHeadingTextClass
+                nonFrozenTableParentClass
               />
             switch tableLocalFilter {
             | true =>
@@ -924,7 +927,7 @@ let make = (
   }
   let dataId = title->String.split("-")->Array.get(0)->Option.getOr("")
   <AddDataAttributes attributes=[("data-loaded-table", dataId)]>
-    <div className="w-full">
+    <div className={`w-full ${loadedTableParentClass}`}>
       <div className=addDataAttributesClass style={zIndex: "2"}>
         //removed "sticky" -> to be tested with master
         <div
