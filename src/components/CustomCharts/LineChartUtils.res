@@ -290,7 +290,7 @@ let timeSeriesDataMaker = (
         )
       )
       ->Array.map(LogicUtils.snakeToTitle)
-      ->Array.joinWithUnsafe(" : ")
+      ->Array.joinWith(" : ")
     | None =>
       dict->getString(
         groupKey,
@@ -298,8 +298,7 @@ let timeSeriesDataMaker = (
       )
     }
 
-    let xAxisDataPoint =
-      dict->getString(xAxis, "")->String.split(" ")->Array.joinWithUnsafe("T") ++ "Z" // right now it is time string
+    let xAxisDataPoint = dict->getString(xAxis, "")->String.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
     let yAxisDataPoint = dict->getFloat(yAxis, 0.)
 
     let secondryAxisPoint = switch secondryMetrics {

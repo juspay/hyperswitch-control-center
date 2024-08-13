@@ -156,7 +156,7 @@ module RedirectionToPayPalFlow = {
     open GlobalVars
     let getURL = useGetURL()
     let url = RescriptReactRouter.useUrl()
-    let path = url.path->List.toArray->Array.joinWithUnsafe("/")
+    let path = url.path->List.toArray->Array.joinWith("/")
     let connectorId = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
     let updateDetails = useUpdateMethod(~showErrorToast=false)
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
