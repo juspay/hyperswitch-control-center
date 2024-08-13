@@ -1,14 +1,18 @@
+let tableBorderClass = "border-collapse border border-jp-gray-940 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
+
 @react.component
 let make = (
   ~startTimeVal,
   ~endTimeVal,
   ~entity: PerformanceMonitorTypes.entity<'t>,
   ~domain="payments",
+  ~getTableData,
+  ~visibleColumns,
+  ~tableEntity,
 ) => {
   open APIUtils
   open LogicUtils
   open PerformanceMonitorTypes
-  open TablePerformanceUtils
   let getURL = useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let updateDetails = useUpdateMethod()

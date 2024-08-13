@@ -156,7 +156,12 @@ let make = (~domain="payments") => {
         />
       </div>
       <TablePerformance
-        startTimeVal endTimeVal entity={PerformanceMonitorEntity.getFailureRateEntity}
+        startTimeVal
+        endTimeVal
+        entity={PerformanceMonitorEntity.getFailureRateEntity}
+        getTableData
+        visibleColumns
+        tableEntity
       />
     </div>
   </PageLoaderWrapper>
