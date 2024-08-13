@@ -5,7 +5,7 @@ module PMAuthProcessorInput = {
     ~fieldsArray: array<ReactFinalForm.fieldRenderProps>,
     ~paymentMethod: string,
     ~paymentMethodType: string,
-    ~getConnectorId: ConnectorTypes.connectorTypes => string,
+    ~getPMConnectorId: ConnectorTypes.connectorTypes => string,
   ) => {
     open LogicUtils
     let (currentSelection, setCurrentSelection) = React.useState(_ => "")
@@ -25,14 +25,14 @@ module PMAuthProcessorInput = {
             payment_method: paymentMethod,
             payment_method_type: paymentMethodType,
             connector_name: connector,
-            mca_id: getConnectorId(
+            mca_id: getPMConnectorId(
               connector->ConnectorUtils.getConnectorNameTypeFromString(
                 ~connectorType=PMAuthenticationProcessor,
               ),
             ),
           }
         }
-        if value->LogicUtils.isNonEmptyString {
+        if value->isNonEmptyString {
           let paymentMethodsObject = value->getPaymentMethodsObject
           setCurrentSelection(_ => value)
 
@@ -92,7 +92,7 @@ let make = (
 
   let pmAuthConnectorOptions = pmAuthConnectors->dropdownOptions
 
-  let getConnectorId = (connector: ConnectorTypes.connectorTypes) => {
+  let getPMConnectorId = (connector: ConnectorTypes.connectorTypes) => {
     let connectorData = connectorsListPMAuth->Array.find(item => {
       item.connector_name == connector->ConnectorUtils.getConnectorNameString
     })
@@ -138,7 +138,7 @@ let make = (
   let renderValueInp = (options: array<SelectBox.dropdownOption>) => (
     fieldsArray: array<ReactFinalForm.fieldRenderProps>,
   ) => {
-    <PMAuthProcessorInput options fieldsArray paymentMethod paymentMethodType getConnectorId />
+    <PMAuthProcessorInput options fieldsArray paymentMethod paymentMethodType getPMConnectorId />
   }
 
   let valueInput = (inputArg: PaymentMethodConfigTypes.valueInput) => {

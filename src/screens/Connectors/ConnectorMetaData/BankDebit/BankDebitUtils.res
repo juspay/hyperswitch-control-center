@@ -3,7 +3,7 @@ open BankDebitTypes
 
 let dropdownOptions = (connectors: array<string>) => {
   connectors->Array.map((item): SelectBox.dropdownOption => {
-    label: item,
+    label: item->snakeToTitle,
     value: item,
   })
 }
