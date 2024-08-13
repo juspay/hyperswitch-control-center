@@ -306,7 +306,12 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
       ->parseFRMConfig
       ->Array.filter(config => config.payment_methods->Array.length > 0)
 
-    valuesDict->Dict.set("frm_configs", filteredArray->Identity.genericTypeToJson)
+    valuesDict->Dict.set(
+      "frm_configs",
+      filteredArray->Array.length > 0
+        ? filteredArray->Identity.genericTypeToJson
+        : JSON.Encode.null,
+    )
     setInitialValues(_ => valuesDict->JSON.Encode.object)
     setCurrentStep(prev => prev->getNextStep)
 
