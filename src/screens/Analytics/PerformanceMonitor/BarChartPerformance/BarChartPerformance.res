@@ -30,10 +30,11 @@ let make = (
         res
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-      let configData = entity.getChartData(~array=arr, ~config=entity.configRequiredForChartData)
-      let options = entity.getChartOption(configData)
-      setBarOptions(_ => options)
+
       if arr->Array.length > 0 {
+        let configData = entity.getChartData(~array=arr, ~config=entity.configRequiredForChartData)
+        let options = entity.getChartOption(configData)
+        setBarOptions(_ => options)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)

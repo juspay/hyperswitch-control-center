@@ -54,13 +54,14 @@ let make = (
       }
 
       setTableData(_ => tableData)
+
       if arr->Array.length > 0 {
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
       }
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to load data"))
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
   React.useEffect(() => {
