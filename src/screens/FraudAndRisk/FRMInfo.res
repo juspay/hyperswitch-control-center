@@ -99,6 +99,7 @@ let ignoredField = [
   "connector_name",
   "profile_id",
   "applepay_verified_domains",
+  "additional_merchant_data",
 ]
 
 let actionDescriptionForFlow = flowType => {
