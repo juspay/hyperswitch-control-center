@@ -10,9 +10,11 @@ type colType =
   | ProfileName
   | ConnectorLabel
   | PaymentMethods
+  | MerchantConnectorId
 
 let defaultColumns = [
   Name,
+  MerchantConnectorId,
   ProfileId,
   ProfileName,
   ConnectorLabel,
@@ -47,6 +49,12 @@ let getHeading = colType => {
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled", ~showSort=false)
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="", ~showSort=false)
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false)
+  | MerchantConnectorId =>
+    Table.makeHeaderInfo(
+      ~key="merchant_connector_id",
+      ~title="Merchant Connector Id",
+      ~showSort=false,
+    )
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=false)
   | ConnectorLabel =>
     Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label", ~showSort=false)
@@ -105,6 +113,7 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         </div>,
         "",
       )
+    | MerchantConnectorId => DisplayCopyCell(connector.merchant_connector_id)
     }
   }
   getCell
