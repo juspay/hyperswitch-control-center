@@ -222,7 +222,7 @@ let make = (
         urii
       })
       let uri =
-        uri ++ "?" ++ uriList->Array.filter(val => val->isNonEmptyString)->Array.joinWithUnsafe("&")
+        uri ++ "?" ++ uriList->Array.filter(val => val->isNonEmptyString)->Array.joinWith("&")
       uri
     }
 

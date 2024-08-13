@@ -102,7 +102,7 @@ let toCamelCase = str => {
     }
     item->Js.String2.unsafeReplaceBy3(%re("/(?:^\w|[A-Z]|\b\w)/g"), matchFn)
   })
-  ->Array.joinWithUnsafe("")
+  ->Array.joinWith("")
 }
 let getNameFromEmail = email => {
   email
@@ -117,7 +117,7 @@ let getNameFromEmail = email => {
       name->String.get(0)->Option.getOr("")->String.toUpperCase ++ name->String.sliceToEnd(~start=1)
     }
   })
-  ->Array.joinWithUnsafe(" ")
+  ->Array.joinWith(" ")
 }
 
 let getOptionString = (dict, key) => {
@@ -343,7 +343,7 @@ let snakeToCamel = str => {
   str
   ->String.split("_")
   ->Array.mapWithIndex((x, i) => i == 0 ? x : capitalizeString(x))
-  ->Array.joinWithUnsafe("")
+  ->Array.joinWith("")
 }
 
 let camelToSnake = str => {
@@ -354,7 +354,7 @@ let camelToSnake = str => {
 }
 
 let userNameToTitle = str =>
-  str->String.split(".")->Array.map(capitalizeString)->Array.joinWithUnsafe(" ")
+  str->String.split(".")->Array.map(capitalizeString)->Array.joinWith(" ")
 
 let camelCaseToTitle = str => {
   str->capitalizeString->String.replaceRegExp(%re("/([a-z0-9A-Z])([A-Z])/g"), "$1 $2")
@@ -372,11 +372,11 @@ let snakeToTitle = str => {
     let second = x->Js.String2.substringToEnd(~from=1)
     first ++ second
   })
-  ->Array.joinWithUnsafe(" ")
+  ->Array.joinWith(" ")
 }
 
 let titleToSnake = str => {
-  str->String.split(" ")->Array.map(String.toLowerCase)->Array.joinWithUnsafe("_")
+  str->String.split(" ")->Array.map(String.toLowerCase)->Array.joinWith("_")
 }
 
 let getIntFromString = (str, default) => {
@@ -498,7 +498,7 @@ let isEmptyDict = dict => {
 }
 
 let stringReplaceAll = (str, old, new) => {
-  str->String.split(old)->Array.joinWithUnsafe(new)
+  str->String.split(old)->Array.joinWith(new)
 }
 
 let getUniqueArray = (arr: array<'t>) => {
@@ -510,7 +510,7 @@ let getFirstLetterCaps = (str, ~splitBy="-") => {
   ->String.toLowerCase
   ->String.split(splitBy)
   ->Array.map(capitalizeString)
-  ->Array.joinWithUnsafe(" ")
+  ->Array.joinWith(" ")
 }
 
 let getDictfromDict = (dict, key) => {
@@ -569,7 +569,7 @@ let dataMerge = (~dataArr: array<array<JSON.t>>, ~dictKey: array<string>) => {
             dict->getString(ele, "")
           },
         )
-        ->Array.joinWithUnsafe("-")
+        ->Array.joinWith("-")
       let existingData = finalData->getObj(dictKey, Dict.make())->Dict.toArray
       let data = dict->Dict.toArray
 
@@ -610,7 +610,7 @@ let getTitle = name => {
   ->String.toLowerCase
   ->String.split("_")
   ->Array.map(capitalizeString)
-  ->Array.joinWithUnsafe(" ")
+  ->Array.joinWith(" ")
 }
 
 // Regex to check if a string contains a substring

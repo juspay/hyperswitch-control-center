@@ -96,7 +96,7 @@ let make = (
           None
         }
       })
-      ->Array.joinWithUnsafe("&")
+      ->Array.joinWith("&")
 
     (
       filterSearchParam,

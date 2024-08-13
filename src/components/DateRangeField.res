@@ -559,7 +559,7 @@ module Base = {
         DateRangeUtils.datetext(value, disableFutureDates)
         ->String.toLowerCase
         ->String.split(" ")
-        ->Array.joinWithUnsafe("_")
+        ->Array.joinWith("_")
       )
       changeStartDate(stDate, false, Some(stTime))
       changeEndDate(enDate, false, Some(enTime))

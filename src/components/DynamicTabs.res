@@ -146,7 +146,7 @@ module TabInfo = {
             ->String.split("+")
             ->Array.map(String.trim)
             ->Array.map(LogicUtils.snakeToTitle)
-            ->Array.joinWithUnsafe(" + "),
+            ->Array.joinWith(" + "),
           )}
           crossIcon
         </div>
@@ -286,14 +286,14 @@ let make = (
             )
             ->Array.length === 0
 
-          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
+          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
           if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
             let newTab = {
               title: concatinatedTabNames,
-              value: tabName->Array.joinWithUnsafe(","),
+              value: tabName->Array.joinWith(","),
               description: switch tabs->Array.find(
                 item => {
-                  item.value === tabName->Array.joinWithUnsafe(",")
+                  item.value === tabName->Array.joinWith(",")
                 },
               ) {
               | Some(tabValue) =>
@@ -302,7 +302,7 @@ let make = (
               },
               isRemovable: switch tabs->Array.find(
                 item => {
-                  item.value === tabName->Array.joinWithUnsafe(",")
+                  item.value === tabName->Array.joinWith(",")
                 },
               ) {
               | Some(tabValue) => tabValue.isRemovable
@@ -333,7 +333,7 @@ let make = (
       })
       ->Array.length === 0
 
-    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
+    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
 
     if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
       let concatinatedTabIndex =
@@ -343,7 +343,7 @@ let make = (
         let newTab = [
           {
             title: concatinatedTabNames,
-            value: tabName->Array.joinWithUnsafe(","),
+            value: tabName->Array.joinWith(","),
             isRemovable: true,
           },
         ]
@@ -455,8 +455,8 @@ let make = (
   }
 
   let onSubmit = values => {
-    let tabName = values->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
-    let tabValue = values->Array.joinWithUnsafe(",")
+    let tabName = values->Array.map(getTitle)->Array.joinWith(" + ")
+    let tabValue = values->Array.joinWith(",")
     if !Array.includes(collapsibleTabs->Array.map(item => item.title), tabName) {
       let newTab = [
         {
@@ -483,8 +483,8 @@ let make = (
       }, 200)->ignore
     } else {
       setSelectedIndex(_ => Array.indexOf(collapsibleTabs->Array.map(item => item.value), tabValue))
-      updateTabNameWith(Dict.fromArray([("tabName", `[${values->Array.joinWithUnsafe(",")}]`)]))
-      setActiveTab(values->Array.joinWithUnsafe(","))
+      updateTabNameWith(Dict.fromArray([("tabName", `[${values->Array.joinWith(",")}]`)]))
+      setActiveTab(values->Array.joinWith(","))
     }
     setShowModal(_ => false)
   }
