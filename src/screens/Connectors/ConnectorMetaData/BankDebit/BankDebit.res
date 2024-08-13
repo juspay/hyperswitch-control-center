@@ -1,4 +1,4 @@
-module PmtConfigInp = {
+module PMAuthProcessorInput = {
   @react.component
   let make = (
     ~options: array<SelectBox.dropdownOption>,
@@ -138,7 +138,7 @@ let make = (
   let renderValueInp = (options: array<SelectBox.dropdownOption>) => (
     fieldsArray: array<ReactFinalForm.fieldRenderProps>,
   ) => {
-    <PmtConfigInp options fieldsArray paymentMethod paymentMethodType getConnectorId />
+    <PMAuthProcessorInput options fieldsArray paymentMethod paymentMethodType getConnectorId />
   }
 
   let valueInput = (inputArg: PaymentMethodConfigTypes.valueInput) => {

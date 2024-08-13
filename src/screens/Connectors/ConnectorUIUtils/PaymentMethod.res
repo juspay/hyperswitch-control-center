@@ -44,11 +44,10 @@ module CardRenderer = {
 
     let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
-    let connectorsListPMAuth =
-      connectorList->getProcessorsListFromJson(
-        ~removeFromList=ConnectorTypes.PMAuthenticationProcessor,
-      )
-    let isPMAuthConnector = connectorsListPMAuth->Array.length > 0
+    let isPMAuthConnector =
+      connectorList
+      ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.PMAuthenticationProcessor)
+      ->Array.length > 0
 
     let selectedAll = isSelectedAll(paymentMethodsEnabled, provider, paymentMethod)
 
@@ -166,10 +165,13 @@ module CardRenderer = {
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
     }
 
-    let modalHeading = `Additional Details to enable ${paymentMethod->getPaymentMethodFromString !==
-        BankDebit
-        ? selectedWallet.payment_method_type->snakeToTitle
-        : paymentMethod->snakeToTitle}`
+    let title = switch paymentMethod->getPaymentMethodFromString {
+    | BankDebit => paymentMethod->snakeToTitle
+    | Wallet => selectedWallet.payment_method_type->snakeToTitle
+    | _ => ""
+    }
+
+    let modalHeading = `Additional Details to enable ${title}`
 
     <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>
