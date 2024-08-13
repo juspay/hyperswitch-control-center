@@ -87,10 +87,8 @@ let make = (
     connectorList->ConnectorUtils.getProcessorsListFromJson(
       ~removeFromList=ConnectorTypes.PMAuthenticationProcessor,
     )
-  let pmAuthConnectors =
-    connectorsListPMAuth->Array.map(item => item.connector_name)->removeDuplicate
-
-  let pmAuthConnectorOptions = pmAuthConnectors->dropdownOptions
+  let pmAuthConnectorOptions =
+    connectorsListPMAuth->Array.map(item => item.connector_name)->removeDuplicate->dropdownOptions
 
   let getPMConnectorId = (connector: ConnectorTypes.connectorTypes) => {
     let connectorData = connectorsListPMAuth->Array.find(item => {

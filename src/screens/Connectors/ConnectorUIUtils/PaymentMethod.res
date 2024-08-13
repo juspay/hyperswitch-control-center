@@ -29,6 +29,7 @@ module CardRenderer = {
     ~_showAdvancedConfiguration,
     ~setMetaData,
     ~connector,
+    ~initialValues,
     ~setInitialValues,
   ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
@@ -44,9 +45,18 @@ module CardRenderer = {
 
     let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
-    let isPMAuthConnector =
-      connectorList
-      ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.PMAuthenticationProcessor)
+    let pmAuthProcessorList =
+      connectorList->getProcessorsListFromJson(
+        ~removeFromList=ConnectorTypes.PMAuthenticationProcessor,
+      )
+
+    let isPMAuthConnector = pmAuthProcessorList->Array.length > 0
+
+    let currentProfile = initialValues->getDictFromJsonObject->getString("profile_id", "")
+
+    let isProfileIdConfiguredPMAuth =
+      pmAuthProcessorList
+      ->Array.filter(item => item.profile_id === currentProfile)
       ->Array.length > 0
 
     let selectedAll = isSelectedAll(paymentMethodsEnabled, provider, paymentMethod)
@@ -79,7 +89,10 @@ module CardRenderer = {
           | Processors(STRIPE_TEST) => false
           | _ => true
           }
-        }) || (paymentMethod->getPaymentMethodFromString === BankDebit && isPMAuthConnector)
+        }) ||
+        (paymentMethod->getPaymentMethodFromString === BankDebit &&
+        isPMAuthConnector &&
+        isProfileIdConfiguredPMAuth)
     }
 
     let removeOrAddMethods = (method: paymentMethodConfigType) => {
@@ -264,7 +277,9 @@ module CardRenderer = {
           condition={selectedWallet.payment_method_type->getPaymentMethodTypeFromString ===
             ApplePay ||
           selectedWallet.payment_method_type->getPaymentMethodTypeFromString === GooglePay ||
-          (paymentMethod->getPaymentMethodFromString === BankDebit && isPMAuthConnector)}>
+          (paymentMethod->getPaymentMethodFromString === BankDebit &&
+          isPMAuthConnector &&
+          isProfileIdConfiguredPMAuth)}>
           <Modal
             modalHeading
             headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
@@ -305,6 +320,7 @@ module PaymentMethodsRender = {
     ~updateDetails,
     ~setMetaData,
     ~isPayoutFlow,
+    ~initialValues,
     ~setInitialValues,
   ) => {
     let pmts = React.useMemo(() => {
@@ -331,6 +347,7 @@ module PaymentMethodsRender = {
               _showAdvancedConfiguration=false
               setMetaData
               connector
+              initialValues
               setInitialValues
             />
           </div>
@@ -344,6 +361,7 @@ module PaymentMethodsRender = {
               _showAdvancedConfiguration=false
               setMetaData
               connector
+              initialValues
               setInitialValues
             />
           </div>
