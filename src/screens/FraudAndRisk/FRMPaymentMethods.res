@@ -68,9 +68,7 @@ module FormField = {
                 ~buttonText="options",
                 ~baseComponentCustomStyle="flex",
                 ~customStyle="flex gap-2 !overflow-visible",
-                (),
               ),
-              (),
             )}
           />
         </RenderIf>
