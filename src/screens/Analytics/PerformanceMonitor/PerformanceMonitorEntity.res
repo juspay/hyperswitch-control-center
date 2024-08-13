@@ -37,6 +37,7 @@ let getStatusPerformanceEntity: entity<stackBarChartData> = {
   title: "Payment Distribution By Status",
   chartOption: {
     colors: [],
+    toolTipHeader: "Status",
   },
   getChartOption: BarChartPerformanceUtils.getBarOption,
 }

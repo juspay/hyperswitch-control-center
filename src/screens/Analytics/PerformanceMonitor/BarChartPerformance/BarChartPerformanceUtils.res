@@ -1,5 +1,5 @@
 open PerformanceMonitorTypes
-let getBarOption = data =>
+let getBarOption = (config: chartConfig, data: barChartData) =>
   {
     "chart": {
       "type": `column`,

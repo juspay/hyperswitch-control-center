@@ -31,7 +31,7 @@ let make = (
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
       let configData = entity.getChartData(~array=arr, ~config=entity.configRequiredForChartData)
-      let options = entity.getChartOption(configData)
+      let options = entity.getChartOption(entity.chartOption, configData)
       setBarOptions(_ => options)
       if arr->Array.length > 0 {
         setScreenState(_ => PageLoaderWrapper.Success)
