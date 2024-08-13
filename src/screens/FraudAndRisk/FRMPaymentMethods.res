@@ -27,17 +27,9 @@ module ToggleSwitch = {
 }
 
 module FormField = {
-  open FRMTypes
   open FRMInfo
   @react.component
-  let make = (
-    ~fromConfigIndex,
-    ~paymentMethodIndex,
-    ~options,
-    ~label,
-    ~sectionType,
-    ~description,
-  ) => {
+  let make = (~fromConfigIndex, ~paymentMethodIndex, ~options, ~label, ~description) => {
     <div className="w-max">
       <div className="flex">
         <h3 className="font-semibold text-bold text-lg pb-2">
@@ -53,25 +45,23 @@ module FormField = {
         </div>
       </div>
       <div className={`grid grid-cols-2 md:grid-cols-4 gap-4`}>
-        <RenderIf condition={sectionType == FlowType}>
-          <FormRenderer.FieldRenderer
-            field={FormRenderer.makeFieldInfo(
-              ~label="",
-              ~name=`frm_configs[${fromConfigIndex}].payment_methods[${paymentMethodIndex}].flow`,
-              ~customInput=InputFields.radioInput(
-                ~options=options->Array.map((item): SelectBox.dropdownOption => {
-                  {
-                    label: item->getFlowTypeLabel,
-                    value: item,
-                  }
-                }),
-                ~buttonText="options",
-                ~baseComponentCustomStyle="flex",
-                ~customStyle="flex gap-2 !overflow-visible",
-              ),
-            )}
-          />
-        </RenderIf>
+        <FormRenderer.FieldRenderer
+          field={FormRenderer.makeFieldInfo(
+            ~label="",
+            ~name=`frm_configs[${fromConfigIndex}].payment_methods[${paymentMethodIndex}].flow`,
+            ~customInput=InputFields.radioInput(
+              ~options=options->Array.map((item): SelectBox.dropdownOption => {
+                {
+                  label: item->getFlowTypeLabel,
+                  value: item,
+                }
+              }),
+              ~buttonText="options",
+              ~baseComponentCustomStyle="flex",
+              ~customStyle="flex gap-2 !overflow-visible",
+            ),
+          )}
+        />
       </div>
     </div>
   }
@@ -80,7 +70,6 @@ module FormField = {
 module CheckBoxRenderer = {
   open FRMUtils
   open FRMInfo
-  open FRMTypes
   @react.component
   let make = (
     ~fromConfigIndex,
@@ -200,7 +189,6 @@ module CheckBoxRenderer = {
                       label="Choose one of the flows"
                       fromConfigIndex
                       paymentMethodIndex={index->Int.toString}
-                      sectionType={FlowType}
                       description="i. \"PreAuth\" - facilitate transaction verification prior to payment authorization.
                         ii. \"PostAuth\" - facilitate transaction validation post-authorization, before amount capture."
                     />

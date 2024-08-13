@@ -1,7 +1,5 @@
 type filterType = Connector | FRMPlayer | ThreedsAuthenticator
 
-type frmPaymentMethodsSectionType = FlowType
-
 type flowType = PreAuth | PostAuth
 
 type frmActionType = CancelTxn | AutoRefund | ManualReview | Process
