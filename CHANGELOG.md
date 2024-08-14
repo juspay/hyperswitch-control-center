@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.08.14.0
+
+### Features
+
+- Added sr rate graphs ([#1155](https://github.com/juspay/hyperswitch-control-center/pull/1155)) ([`f8e4c13`](https://github.com/juspay/hyperswitch-control-center/commit/f8e4c1375f977b68f67badc23afe23b63a6de4d1))
+
+### Bug Fixes
+
+- Bug fix ([#1153](https://github.com/juspay/hyperswitch-control-center/pull/1153)) ([`88b5e8b`](https://github.com/juspay/hyperswitch-control-center/commit/88b5e8b75c945179de4dce4058fb4e4d5874dc70))
+- Feature flag sidebar ([#1152](https://github.com/juspay/hyperswitch-control-center/pull/1152)) ([`2361077`](https://github.com/juspay/hyperswitch-control-center/commit/2361077afdc0f7f0c768913f0345bdeae1839886))
+
+### Miscellaneous Tasks
+
+- Added mca id in 3ds and pm auth table ([#1157](https://github.com/juspay/hyperswitch-control-center/pull/1157)) ([`ec3529f`](https://github.com/juspay/hyperswitch-control-center/commit/ec3529fc911955fd939d43a07a728916a3987aff))
+
+**Full Changelog:** [`2024.08.13.1...2024.08.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.13.1...2024.08.14.0)
+
+- - -
+
 ## 2024.08.13.1
 
 ### Features
