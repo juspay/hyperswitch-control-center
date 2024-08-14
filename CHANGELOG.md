@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.08.13.1
+
+### Features
+
+- Added table performance ([#1149](https://github.com/juspay/hyperswitch-control-center/pull/1149)) ([`1199a23`](https://github.com/juspay/hyperswitch-control-center/commit/1199a2337c0e1f5440d86954f58351272a54f65e))
+
+### Miscellaneous Tasks
+
+- Update wasm ([#1151](https://github.com/juspay/hyperswitch-control-center/pull/1151)) ([`1873d89`](https://github.com/juspay/hyperswitch-control-center/commit/1873d89d8bd56075ae2be3d272c27ae9ad132c3f))
+
+**Full Changelog:** [`2024.08.13.0...2024.08.13.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.13.0...2024.08.13.1)
+
+- - -
+
 ## 2024.08.13.0
 
 ### Features

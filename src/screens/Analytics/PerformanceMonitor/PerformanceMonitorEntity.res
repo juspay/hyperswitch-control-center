@@ -24,32 +24,20 @@ let defaultDimesions = {
   values: [],
 }
 
-let colors = ["#c74050", "#619f5b"]
-
 let getStatusPerformanceEntity: entity<stackBarChartData> = {
   requestBodyConfig: {
     metrics: [#payment_count],
     groupBy: [#status],
     filters: [#status],
-    customFilter: None,
-    applyFilterFor: None,
   },
-  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#status],
+    yLabels: ["Status"],
   },
   getChartData: BarChartPerformanceUtils.getStackedBarData,
+  title: "Payment Distribution By Status",
   chartOption: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Payment Distribution By Connector",
-    },
-    colors: ["#c74050", "#619f5b", "#ca8a04", "#06b6d4"],
+    colors: [],
   },
   getChartOption: BarChartPerformanceUtils.getBarOption,
 }
@@ -64,26 +52,17 @@ let getPerformanceEntity = (
     metrics: [#payment_count],
     groupBy: [#status, ...groupBy],
     filters: [#status, ...filters],
-    customFilter: Some(#status),
-    applyFilterFor: Some(["failure", "charged"]),
+    customFilter: #status,
+    applyFilterFor: [#failure, #charged],
   },
-  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [...groupByKeys],
-    plotChartBy: ["failure", "charged"],
+    plotChartBy: [#failure, #charged],
   },
   getChartData: BarChartPerformanceUtils.getStackedBarData,
+  title,
   chartOption: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: title,
-    },
-    colors: ["#c74050", "#619f5b"],
+    colors: [],
   },
   getChartOption: BarChartPerformanceUtils.getBarOption,
 }
@@ -93,25 +72,16 @@ let getConnectorFailureEntity: entity<array<donutPieSeriesRecord>> = {
     metrics: [#payment_count],
     groupBy: [#connector, #status],
     filters: [#connector, #status],
-    customFilter: Some(#status),
-    applyFilterFor: Some(["failure"]),
+    customFilter: #status,
+    applyFilterFor: [#failure],
   },
-  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#connector],
   },
   getChartData: PieChartPerformanceUtils.getDonutCharData,
+  title: "Connector Wise Payment Failure",
   chartOption: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Connector Wise Payment Failure",
-    },
-    colors: ["#c74050", "#619f5b"],
+    colors: [],
   },
   getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
@@ -121,25 +91,16 @@ let getPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
     metrics: [#payment_count],
     groupBy: [#payment_method, #status],
     filters: [#payment_method, #status],
-    customFilter: Some(#status),
-    applyFilterFor: Some(["failure"]),
+    customFilter: #status,
+    applyFilterFor: [#failure],
   },
-  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#payment_method],
   },
   getChartData: PieChartPerformanceUtils.getDonutCharData,
+  title: "Method Wise Payment Failure",
   chartOption: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Method Wise Payment Failure",
-    },
-    colors: ["#c74050", "#619f5b"],
+    colors: [],
   },
   getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
@@ -149,25 +110,137 @@ let getConnectorPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> 
     metrics: [#payment_count],
     groupBy: [#connector, #payment_method, #status],
     filters: [#connector, #payment_method, #status],
-    customFilter: Some(#status),
-    applyFilterFor: Some(["failure"]),
+    customFilter: #status,
+    applyFilterFor: [#failure],
   },
-  getRequestBody: PerformanceUtils.requestBody,
   configRequiredForChartData: {
     groupByKeys: [#connector, #payment_method],
   },
   getChartData: PieChartPerformanceUtils.getDonutCharData,
+  title: "Connector + Payment Method Wise Payment Failure",
   chartOption: {
-    yAxis: {
-      text: "",
-    },
-    xAxis: {
-      text: "",
-    },
-    title: {
-      text: "Connector + Payment Method Wise Payment Failure",
-    },
-    colors: ["#c74050", "#619f5b"],
+    colors: [],
   },
   getChartOption: PieChartPerformanceUtils.getPieChartOptions,
+}
+
+type errorObject = {
+  reason: string,
+  count: int,
+  connector: string,
+}
+
+type cols =
+  | ErrorReason
+  | Count
+  | Connector
+
+let visibleColumns = [Connector, ErrorReason, Count]
+
+let colMapper = (col: cols) => {
+  switch col {
+  | ErrorReason => "reason"
+  | Count => "count"
+  | Connector => "connector"
+  }
+}
+
+let getTableData = (array: array<JSON.t>) => {
+  let data = []
+
+  array->Array.forEach(item => {
+    let valueDict = item->getDictFromJsonObject
+    let connector = valueDict->getString((#connector: dimension :> string), "")
+    let paymentErrorMessage =
+      valueDict->getArrayFromDict((#payment_error_message: distribution :> string), [])
+
+    if connector->isNonEmptyString && paymentErrorMessage->Array.length > 0 {
+      paymentErrorMessage->Array.forEach(value => {
+        let errorDict = value->getDictFromJsonObject
+
+        let obj = {
+          reason: errorDict->getString(ErrorReason->colMapper, ""),
+          count: errorDict->getInt(Count->colMapper, 0),
+          connector,
+        }
+
+        data->Array.push(obj)
+      })
+    }
+  })
+
+  data->Array.sort((a, b) => {
+    let rowValue_a = a.count
+    let rowValue_b = b.count
+
+    rowValue_a <= rowValue_b ? 1. : -1.
+  })
+
+  data
+}
+
+let tableItemToObjMapper: 'a => errorObject = dict => {
+  {
+    reason: dict->getString(ErrorReason->colMapper, "NA"),
+    count: dict->getInt(Count->colMapper, 0),
+    connector: dict->getString(Connector->colMapper, "NA"),
+  }
+}
+
+let getObjects: JSON.t => array<errorObject> = json => {
+  json
+  ->LogicUtils.getArrayFromJson([])
+  ->Array.map(item => {
+    tableItemToObjMapper(item->getDictFromJsonObject)
+  })
+}
+
+let getHeading = colType => {
+  let key = colType->colMapper
+  switch colType {
+  | ErrorReason =>
+    Table.makeHeaderInfo(~key, ~title="Error Reason", ~dataType=TextType, ~showSort=false)
+  | Count =>
+    Table.makeHeaderInfo(~key, ~title="Total Occurences", ~dataType=TextType, ~showSort=false)
+  | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType, ~showSort=false)
+  }
+}
+
+let getCell = (errorObj, colType): Table.cell => {
+  switch colType {
+  | ErrorReason => Text(errorObj.reason)
+  | Count => Text(errorObj.count->Int.toString)
+  | Connector => Text(errorObj.connector)
+  }
+}
+
+let tableEntity = EntityType.makeEntity(
+  ~uri=``,
+  ~getObjects,
+  ~dataKey="queryData",
+  ~defaultColumns=visibleColumns,
+  ~requiredSearchFieldsList=[],
+  ~allColumns=visibleColumns,
+  ~getCell,
+  ~getHeading,
+)
+
+let getFailureRateEntity: entity<array<errorObject>> = {
+  getChartOption: _ => Dict.make()->JSON.Encode.object,
+  getChartData: (~array as _, ~config as _) => [],
+  requestBodyConfig: {
+    metrics: [#connector_success_rate],
+    groupBy: [#connector],
+    distribution: {
+      distributionFor: (#payment_error_message: distribution :> string),
+      distributionCardinality: (#TOP_5: distribution :> string),
+    },
+  },
+  configRequiredForChartData: {
+    groupByKeys: [#connector],
+  },
+  title: "Payment Failures",
+  chartOption: {
+    colors: [],
+  },
 }
