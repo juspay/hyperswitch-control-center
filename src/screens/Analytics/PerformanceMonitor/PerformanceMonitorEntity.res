@@ -39,6 +39,24 @@ let getSuccessRatePerformanceEntity: entity<gaugeData> = {
   },
 }
 
+let getFailureRateEntity: entity<gaugeData> = {
+  getChartData: GaugeChartPerformanceUtils.getGaugeData,
+  requestBodyConfig: {
+    metrics: [#payment_count],
+    filters: [#status],
+    customFilter: #status,
+    applyFilterFor: [#failure],
+  },
+  configRequiredForChartData: {
+    groupByKeys: [],
+    name: #payment_count,
+  },
+  title: "Payments Failure Rate",
+  chartOption: {
+    colors: [],
+  },
+}
+
 let getStatusPerformanceEntity: entity<stackBarChartData> = {
   requestBodyConfig: {
     metrics: [#payment_count],
@@ -235,7 +253,7 @@ let tableEntity = EntityType.makeEntity(
   ~getHeading,
 )
 
-let getFailureRateEntity: entity<array<errorObject>> = {
+let getFailureEntity: entity<array<errorObject>> = {
   getChartData: (~array as _, ~config as _) => [],
   requestBodyConfig: {
     metrics: [#connector_success_rate],
