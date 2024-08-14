@@ -12,42 +12,17 @@ let make = (
   let updateDetails = useUpdateMethod()
   let (gaugeOption, setGaugeOptions) = React.useState(_ => JSON.Encode.null)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (overallData, setOverallData) = React.useState(_ => 0.0)
-  let (limitData, setLimitData) = React.useState(_ => 0.0)
 
   let _ = bubbleChartModule(highchartsModule)
 
-  let fetchOverallData = async () => {
-    try {
-      let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
-
-      let body = PerformanceUtils.requestBody(
-        ~dimensions=[],
-        ~delta=true,
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~metrics=entity.requestBodyConfig.metrics,
-        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
-      )
-
-      let res = await updateDetails(url, body, Post)
-      let arr =
-        res
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
-
-      setOverallData(_ =>
-        GaugeChartPerformanceUtils.getGaugeData(
-          ~array=arr,
-          ~config={entity.configRequiredForChartData},
-        ).value
-      )
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
-    }
+  let setGraphOptionValue = (limitData, overallData) => {
+    let rate = limitData /. overallData
+    let value: PerformanceMonitorTypes.gaugeData = {value: rate}
+    let options = entity.getChartOption(value)
+    setGaugeOptions(_ => options)
   }
 
-  let fetchExactData = async () => {
+  let fetchExactData = async overallData => {
     try {
       let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
 
@@ -69,12 +44,11 @@ let make = (
         ->getArrayFromDict("queryData", [])
 
       if arr->Array.length > 0 {
-        setLimitData(_ =>
-          GaugeChartPerformanceUtils.getGaugeData(
-            ~array=arr,
-            ~config={entity.configRequiredForChartData},
-          ).value
-        )
+        let limitData = GaugeChartPerformanceUtils.getGaugeData(
+          ~array=arr,
+          ~config={entity.configRequiredForChartData},
+        ).value
+        setGraphOptionValue(limitData, overallData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
@@ -84,18 +58,42 @@ let make = (
     }
   }
 
-  React.useEffect(() => {
-    let rate = limitData /. overallData
-    let value: PerformanceMonitorTypes.gaugeData = {value: rate}
-    let options = entity.getChartOption(value)
-    setGaugeOptions(_ => options)
-    None
-  }, [overallData, limitData])
+  let fetchOverallData = async () => {
+    try {
+      let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
+
+      let body = PerformanceUtils.requestBody(
+        ~dimensions=[],
+        ~delta=true,
+        ~startTime=startTimeVal,
+        ~endTime=endTimeVal,
+        ~metrics=entity.requestBodyConfig.metrics,
+        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
+      )
+
+      let res = await updateDetails(url, body, Post)
+      let arr =
+        res
+        ->getDictFromJsonObject
+        ->getArrayFromDict("queryData", [])
+
+      if arr->Array.length > 0 {
+        let overallData = GaugeChartPerformanceUtils.getGaugeData(
+          ~array=arr,
+          ~config={entity.configRequiredForChartData},
+        ).value
+        fetchExactData(overallData)->ignore
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
+    }
+  }
 
   React.useEffect(() => {
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       fetchOverallData()->ignore
-      fetchExactData()->ignore
     }
     None
   }, [])
