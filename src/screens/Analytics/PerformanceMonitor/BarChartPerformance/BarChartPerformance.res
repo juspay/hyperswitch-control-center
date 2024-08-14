@@ -33,7 +33,7 @@ let make = (
 
       if arr->Array.length > 0 {
         let configData = entity.getChartData(~array=arr, ~config=entity.configRequiredForChartData)
-        let options = entity.getChartOption(configData)
+        let options = BarChartPerformanceUtils.getBarOption(configData)
         setBarOptions(_ => options)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {

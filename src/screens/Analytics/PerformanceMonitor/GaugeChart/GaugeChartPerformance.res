@@ -1,22 +1,26 @@
 @react.component
 let make = (
-  ~domain,
   ~startTimeVal,
   ~endTimeVal,
-  ~dimensions,
   ~entity: PerformanceMonitorTypes.entity<'t>,
+  ~domain="payments",
 ) => {
   open APIUtils
   open LogicUtils
+  open Highcharts
   let getURL = useGetURL()
-  let updateDetails = useUpdateMethod()
-  let (options, setBarOptions) = React.useState(_ => JSON.Encode.null)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let updateDetails = useUpdateMethod()
+  let (gaugeOption, setGaugeOptions) = React.useState(_ => JSON.Encode.null)
+
+  let _ = bubbleChartModule(highchartsModule)
+
   let chartFetch = async () => {
     try {
-      let metricsUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
+      let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
+
       let body = PerformanceUtils.requestBody(
-        ~dimensions,
+        ~dimensions=[],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~filters=entity.requestBodyConfig.filters,
@@ -25,7 +29,8 @@ let make = (
         ~customFilter=entity.requestBodyConfig.customFilter,
         ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
       )
-      let res = await updateDetails(metricsUrl, body, Post)
+
+      let res = await updateDetails(url, body, Post)
       let arr =
         res
         ->getDictFromJsonObject
@@ -33,8 +38,8 @@ let make = (
 
       if arr->Array.length > 0 {
         let configData = entity.getChartData(~array=arr, ~config=entity.configRequiredForChartData)
-        let options = PieChartPerformanceUtils.getPieChartOptions(configData)
-        setBarOptions(_ => options)
+        let options = GaugeChartPerformanceUtils.gaugeOption(configData)
+        setGaugeOptions(_ => options)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
@@ -48,14 +53,14 @@ let make = (
       chartFetch()->ignore
     }
     None
-  }, [dimensions])
+  }, [])
 
   <PageLoaderWrapper
     screenState
-    customLoader={<Shimmer styleClass="w-full h-96" />}
+    customLoader={<Shimmer styleClass="w-full h-64" />}
     customUI={PerformanceUtils.customUI(entity.title)}>
     <PerformanceUtils.Card title=entity.title>
-      <HighchartPieChart.RawPieChart options={options} />
+      <Chart options={gaugeOption} highcharts />
     </PerformanceUtils.Card>
   </PageLoaderWrapper>
 }

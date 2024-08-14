@@ -24,6 +24,21 @@ let defaultDimesions = {
   values: [],
 }
 
+let getSuccessRatePerformanceEntity: entity<gaugeData> = {
+  getChartData: GaugeChartPerformanceUtils.getGaugeData,
+  requestBodyConfig: {
+    metrics: [#connector_success_rate],
+  },
+  configRequiredForChartData: {
+    groupByKeys: [],
+    name: #connector_success_rate,
+  },
+  title: "Payment Success Rate",
+  chartOption: {
+    colors: [],
+  },
+}
+
 let getStatusPerformanceEntity: entity<stackBarChartData> = {
   requestBodyConfig: {
     metrics: [#payment_count],
@@ -39,7 +54,6 @@ let getStatusPerformanceEntity: entity<stackBarChartData> = {
   chartOption: {
     colors: [],
   },
-  getChartOption: BarChartPerformanceUtils.getBarOption,
 }
 
 let getPerformanceEntity = (
@@ -64,7 +78,6 @@ let getPerformanceEntity = (
   chartOption: {
     colors: [],
   },
-  getChartOption: BarChartPerformanceUtils.getBarOption,
 }
 
 let getConnectorFailureEntity: entity<array<donutPieSeriesRecord>> = {
@@ -83,7 +96,6 @@ let getConnectorFailureEntity: entity<array<donutPieSeriesRecord>> = {
   chartOption: {
     colors: [],
   },
-  getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
 
 let getPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
@@ -102,7 +114,6 @@ let getPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
   chartOption: {
     colors: [],
   },
-  getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
 
 let getConnectorPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
@@ -121,7 +132,6 @@ let getConnectorPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> 
   chartOption: {
     colors: [],
   },
-  getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
 
 type errorObject = {
@@ -226,7 +236,6 @@ let tableEntity = EntityType.makeEntity(
 )
 
 let getFailureRateEntity: entity<array<errorObject>> = {
-  getChartOption: _ => Dict.make()->JSON.Encode.object,
   getChartData: (~array as _, ~config as _) => [],
   requestBodyConfig: {
     metrics: [#connector_success_rate],

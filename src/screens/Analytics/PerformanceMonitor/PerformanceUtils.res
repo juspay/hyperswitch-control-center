@@ -76,7 +76,7 @@ let requestBody = (
   ~startTime: string,
   ~endTime: string,
   ~metrics: array<metrics>,
-  ~groupBy: array<dimension>,
+  ~groupBy: option<array<dimension>>=None,
   ~filters: option<array<dimension>>=[]->Some,
   ~customFilter: option<dimension>=None,
   ~applyFilterFor: option<array<status>>=None,
@@ -90,7 +90,10 @@ let requestBody = (
     ~custom=customFilter,
     ~customValue=applyFilterFor,
   )
-  let groupByNames = getGroupByForPerformance(~dimensions=groupBy)->Some
+  let groupByNames = switch groupBy {
+  | Some(vals) => getGroupByForPerformance(~dimensions=vals)->Some
+  | None => None
+  }
   let distributionValues = distribution->Identity.genericTypeToJson->Some
 
   [

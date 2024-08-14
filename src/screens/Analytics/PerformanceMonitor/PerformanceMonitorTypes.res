@@ -40,6 +40,8 @@ type stackBarChartData = {
   series: series,
 }
 
+type gaugeData = {value: float}
+
 type donutChatData = {series: series}
 type chartOption = {
   yAxis?: yAxis,
@@ -51,6 +53,7 @@ type chartDataConfig = {
   groupByKeys: array<dimension>,
   plotChartBy?: array<status>,
   yLabels?: array<string>,
+  name?: metrics,
 }
 
 type distributionType = {
@@ -60,7 +63,7 @@ type distributionType = {
 
 type requestBodyConfig = {
   metrics: array<metrics>,
-  groupBy: array<dimension>,
+  groupBy?: array<dimension>,
   filters?: array<dimension>,
   customFilter?: dimension,
   applyFilterFor?: array<status>,
@@ -72,6 +75,5 @@ type entity<'t> = {
   configRequiredForChartData: chartDataConfig,
   getChartData: (~array: array<JSON.t>, ~config: chartDataConfig) => 't,
   chartOption: chartOption,
-  getChartOption: 't => JSON.t,
   title: string,
 }
