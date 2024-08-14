@@ -38,15 +38,13 @@ module ConfigInfo = {
               ->Option.getOr([])
               ->Array.mapWithIndex(
                 (paymentMethodType, index) => {
-                  if index == 0 {
+                  <RenderIf condition={index == 0}>
                     <InfoField
                       key={index->Int.toString}
                       label={paymentMethod.payment_method}
                       flowTypeValue={paymentMethodType.flow->getFlowTypeLabel}
                     />
-                  } else {
-                    React.null
-                  }
+                  </RenderIf>
                 },
               )
               ->React.array
