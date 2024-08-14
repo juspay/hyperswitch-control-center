@@ -50,7 +50,7 @@ let getFailureRateEntity: entity<gaugeData> = {
     name: #payment_count,
   },
   title: "Payments Failure Rate",
-  getChartOption: GaugeFailureRateUtils.gaugeOption,
+  getChartOption: GaugeFailureRateUtils.falureGaugeOption,
 }
 
 let getStatusPerformanceEntity: entity<stackBarChartData> = {

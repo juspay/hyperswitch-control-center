@@ -1,5 +1,5 @@
 open PerformanceMonitorTypes
-let gaugeOption = (data: gaugeData) =>
+let falureGaugeOption = (data: gaugeData) =>
   {
     "chart": {
       "type": "gauge",
