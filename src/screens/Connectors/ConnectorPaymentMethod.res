@@ -127,6 +127,8 @@ let make = (
               updateDetails
               setMetaData
               isPayoutFlow
+              initialValues
+              setInitialValues
             />
           </div>
         </div>
