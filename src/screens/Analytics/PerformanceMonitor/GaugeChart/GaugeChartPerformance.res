@@ -39,7 +39,7 @@ let make = (
 
       if arr->Array.length > 0 {
         let configData = entity.getChartData(~array=arr, ~config=entity.configRequiredForChartData)
-        let options = GaugeChartPerformanceUtils.gaugeOption(configData)
+        let options = entity.getChartOption(configData)
         setGaugeOptions(_ => options)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {

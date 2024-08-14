@@ -1,31 +1,4 @@
 open PerformanceMonitorTypes
-
-let getGaugeData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
-  let key = switch config.name {
-  | Some(val) => (val: metrics :> string)
-  | _ => ""
-  }
-  let value = switch array->Array.get(0) {
-  | Some(val) => {
-      let rate =
-        val
-        ->JSON.Decode.object
-        ->Option.getOr(Dict.make())
-        ->Dict.get(key)
-        ->Option.getOr(0.0->JSON.Encode.float)
-        ->JSON.Decode.float
-        ->Option.getOr(0.0)
-
-      rate
-    }
-  | None => 0.0
-  }
-
-  {
-    value: value,
-  }
-}
-
 let gaugeOption = (data: gaugeData) =>
   {
     "chart": {
@@ -62,22 +35,22 @@ let gaugeOption = (data: gaugeData) =>
       "plotBands": [
         {
           "from": 0,
-          "to": 50,
-          "color": "#DA6C68", // red
+          "to": 25,
+          "color": "#7AAF73", // red
           "thickness": 20,
           "borderRadius": "50%",
         },
         {
-          "from": 50,
-          "to": 75,
+          "from": 25,
+          "to": 50,
           "color": "#E3945C", // yellow
           "thickness": 20,
           "borderRadius": "50%",
         },
         {
-          "from": 75,
+          "from": 50,
           "to": 100,
-          "color": "#7AAF73", // green
+          "color": "#DA6C68", // green
           "thickness": 20,
           "borderRadius": "50%",
         },

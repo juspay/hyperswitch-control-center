@@ -43,12 +43,7 @@ type stackBarChartData = {
 type gaugeData = {value: float}
 
 type donutChatData = {series: series}
-type chartOption = {
-  yAxis?: yAxis,
-  xAxis?: xAxis,
-  title?: title,
-  colors: array<string>,
-}
+
 type chartDataConfig = {
   groupByKeys: array<dimension>,
   plotChartBy?: array<status>,
@@ -74,6 +69,6 @@ type entity<'t> = {
   requestBodyConfig: requestBodyConfig,
   configRequiredForChartData: chartDataConfig,
   getChartData: (~array: array<JSON.t>, ~config: chartDataConfig) => 't,
-  chartOption: chartOption,
   title: string,
+  getChartOption: 't => JSON.t,
 }

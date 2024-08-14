@@ -15,6 +15,18 @@ let getPieChartOptions = series => {
     "title": {
       "text": "",
     },
+    "colors": [
+      "#80A3F8",
+      "#7AAF73",
+      "#DA6C68",
+      "#91C8A1",
+      "#E18494",
+      "#79B8F3",
+      "#B6A1D2",
+      "#E3945C",
+      "#FFAB99",
+      "#679FDF",
+    ],
     "plotOptions": {
       "pie": {
         "center": ["50%", "50%"],

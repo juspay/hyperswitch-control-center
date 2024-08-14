@@ -87,13 +87,7 @@ let make = (
   React.useEffect(() => {
     let rate = limitData /. overallData
     let value: PerformanceMonitorTypes.gaugeData = {value: rate}
-    let options = GaugeChartPerformanceUtils.gaugeOption(
-      value,
-      ~start=25,
-      ~mid=50,
-      ~color1="#7AAF73",
-      ~color3="#DA6C68",
-    )
+    let options = entity.getChartOption(value)
     setGaugeOptions(_ => options)
     None
   }, [overallData, limitData])

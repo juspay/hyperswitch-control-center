@@ -118,6 +118,9 @@ let make = (~domain="payments") => {
           )}
         />
       </div>
+      <TablePerformance
+        startTimeVal endTimeVal entity={getFailureEntity} getTableData visibleColumns tableEntity
+      />
       <div className="grid grid-cols-2 grid-rows-1 gap-3">
         <BarChartPerformance
           domain
@@ -143,9 +146,6 @@ let make = (~domain="payments") => {
           domain startTimeVal endTimeVal dimensions entity={getPaymentMethodFailureEntity}
         />
       </div>
-      <TablePerformance
-        startTimeVal endTimeVal entity={getFailureEntity} getTableData visibleColumns tableEntity
-      />
     </div>
   </PageLoaderWrapper>
 }

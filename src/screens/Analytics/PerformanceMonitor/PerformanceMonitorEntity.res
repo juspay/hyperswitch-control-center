@@ -34,9 +34,7 @@ let getSuccessRatePerformanceEntity: entity<gaugeData> = {
     name: #connector_success_rate,
   },
   title: "Payment Success Rate",
-  chartOption: {
-    colors: [],
-  },
+  getChartOption: GaugeChartPerformanceUtils.gaugeOption,
 }
 
 let getFailureRateEntity: entity<gaugeData> = {
@@ -52,9 +50,7 @@ let getFailureRateEntity: entity<gaugeData> = {
     name: #payment_count,
   },
   title: "Payments Failure Rate",
-  chartOption: {
-    colors: [],
-  },
+  getChartOption: GaugeFailureRateUtils.gaugeOption,
 }
 
 let getStatusPerformanceEntity: entity<stackBarChartData> = {
@@ -69,9 +65,7 @@ let getStatusPerformanceEntity: entity<stackBarChartData> = {
   },
   getChartData: BarChartPerformanceUtils.getStackedBarData,
   title: "Payment Distribution By Status",
-  chartOption: {
-    colors: [],
-  },
+  getChartOption: BarChartPerformanceUtils.getBarOption,
 }
 
 let getPerformanceEntity = (
@@ -93,9 +87,7 @@ let getPerformanceEntity = (
   },
   getChartData: BarChartPerformanceUtils.getStackedBarData,
   title,
-  chartOption: {
-    colors: [],
-  },
+  getChartOption: BarChartPerformanceUtils.getBarOption,
 }
 
 let getConnectorFailureEntity: entity<array<donutPieSeriesRecord>> = {
@@ -111,9 +103,7 @@ let getConnectorFailureEntity: entity<array<donutPieSeriesRecord>> = {
   },
   getChartData: PieChartPerformanceUtils.getDonutCharData,
   title: "Connector Wise Payment Failure",
-  chartOption: {
-    colors: [],
-  },
+  getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
 
 let getPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
@@ -129,9 +119,7 @@ let getPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
   },
   getChartData: PieChartPerformanceUtils.getDonutCharData,
   title: "Method Wise Payment Failure",
-  chartOption: {
-    colors: [],
-  },
+  getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
 
 let getConnectorPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
@@ -147,9 +135,7 @@ let getConnectorPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> 
   },
   getChartData: PieChartPerformanceUtils.getDonutCharData,
   title: "Connector + Payment Method Wise Payment Failure",
-  chartOption: {
-    colors: [],
-  },
+  getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
 
 type errorObject = {
@@ -254,6 +240,7 @@ let tableEntity = EntityType.makeEntity(
 )
 
 let getFailureEntity: entity<array<errorObject>> = {
+  getChartOption: _ => Dict.make()->JSON.Encode.object,
   getChartData: (~array as _, ~config as _) => [],
   requestBodyConfig: {
     metrics: [#connector_success_rate],
@@ -267,7 +254,4 @@ let getFailureEntity: entity<array<errorObject>> = {
     groupByKeys: [#connector],
   },
   title: "Payment Failures",
-  chartOption: {
-    colors: [],
-  },
 }
