@@ -63,7 +63,7 @@ let make = (
     })
   }, [data])
 
-  let options1 = {
+  let _options1 = {
     chart: {
       height: 10,
       toolbar: {
@@ -102,7 +102,7 @@ let make = (
     colors: ["#006DF9"],
   }
 
-  let series = [
+  let _series = [
     {
       \"type": "area",
       data: sortedData1,
@@ -128,15 +128,15 @@ let make = (
             <div className="font-bold text-3xl w-1/3">
               {statValue(statType)->String.toLowerCase->React.string}
             </div>
-            <div className="h-16 w-2/3 scale-[0.4]">
-              <ApexCharts.ReactApexChart
-                \"type"="area"
-                options={options1}
-                series={series->objToJson}
-                height={"170"}
-                width="380"
-              />
-            </div>
+            // <div className="h-16 w-2/3 scale-[0.4]">
+            // <ApexCharts.ReactApexChart
+            //   \"type"="area"
+            //   options={options1}
+            //   series={series->objToJson}
+            //   height={"170"}
+            //   width="380"
+            // />
+            // </div>
           </div>
           <div
             className={"flex gap-2 items-center pt-4 text-jp-gray-700 font-bold self-start h-1/2"}>

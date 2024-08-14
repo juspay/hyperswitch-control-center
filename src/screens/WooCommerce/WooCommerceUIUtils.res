@@ -9,7 +9,7 @@ module SelectProcessor = {
   ) => {
     let url = RescriptReactRouter.useUrl()
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
-    let basePath = url.path->List.toArray->Array.joinWithUnsafe("/")
+    let basePath = url.path->List.toArray->Array.joinWith("/")
 
     <QuickStartUIUtils.BaseComponent
       headerText="Select Processor"
@@ -171,6 +171,8 @@ module SelectPaymentMethods = {
         updateDetails
         setMetaData
         isPayoutFlow=false
+        initialValues
+        setInitialValues
       />
     </QuickStartUIUtils.BaseComponent>
   }
