@@ -43,7 +43,7 @@ let make = (
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
 
-      if arr->Array.length > 0 {
+      if arr->Array.length > 0 && overallData > 0.0 {
         let limitData = GaugeChartPerformanceUtils.getGaugeData(
           ~array=arr,
           ~config={entity.configRequiredForChartData},
