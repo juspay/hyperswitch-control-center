@@ -58,8 +58,8 @@ let make = (
 
   <PageLoaderWrapper
     screenState
-    customLoader={<Shimmer styleClass="w-full h-64" />}
-    customUI={PerformanceUtils.customUI(entity.title)}>
+    customLoader={<Shimmer styleClass="w-full h-40" />}
+    customUI={PerformanceUtils.customUI(entity.title, ~height="h-40")}>
     <PerformanceUtils.Card title=entity.title>
       <Chart options={gaugeOption} highcharts />
     </PerformanceUtils.Card>

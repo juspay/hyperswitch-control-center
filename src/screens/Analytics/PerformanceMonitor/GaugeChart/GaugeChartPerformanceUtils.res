@@ -26,7 +26,14 @@ let getGaugeData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
   }
 }
 
-let gaugeOption = (data: gaugeData, ~start=50, ~mid=75) =>
+let gaugeOption = (
+  data: gaugeData,
+  ~start=50,
+  ~mid=75,
+  ~color1="#DA6C68",
+  ~color2="#E3945C",
+  ~color3="#7AAF73",
+) =>
   {
     "chart": {
       "type": "gauge",
@@ -63,21 +70,21 @@ let gaugeOption = (data: gaugeData, ~start=50, ~mid=75) =>
         {
           "from": 0,
           "to": start,
-          "color": "#f44708", // red
+          "color": color1, // red
           "thickness": 20,
           "borderRadius": "50%",
         },
         {
           "from": start,
           "to": mid,
-          "color": "#ffca3a", // yellow
+          "color": color2, // yellow
           "thickness": 20,
           "borderRadius": "50%",
         },
         {
           "from": mid,
           "to": 100,
-          "color": "#38b000", // green
+          "color": color3, // green
           "thickness": 20,
           "borderRadius": "50%",
         },

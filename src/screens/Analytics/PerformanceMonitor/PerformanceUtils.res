@@ -159,10 +159,10 @@ module Card = {
   }
 }
 
-let customUI = title =>
+let customUI = (title, ~height="h-96") =>
   <Card title>
     <div
-      className="w-full h-96 border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5">
+      className={`w-full ${height} border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5`}>
       {"No Data"->React.string}
     </div>
   </Card>

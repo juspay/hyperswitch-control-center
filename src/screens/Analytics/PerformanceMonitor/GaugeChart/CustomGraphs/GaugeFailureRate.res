@@ -87,7 +87,13 @@ let make = (
   React.useEffect(() => {
     let rate = limitData /. overallData
     let value: PerformanceMonitorTypes.gaugeData = {value: rate}
-    let options = GaugeChartPerformanceUtils.gaugeOption(value, ~start=25, ~mid=50)
+    let options = GaugeChartPerformanceUtils.gaugeOption(
+      value,
+      ~start=25,
+      ~mid=50,
+      ~color1="#7AAF73",
+      ~color3="#DA6C68",
+    )
     setGaugeOptions(_ => options)
     None
   }, [overallData, limitData])
@@ -102,8 +108,8 @@ let make = (
 
   <PageLoaderWrapper
     screenState
-    customLoader={<Shimmer styleClass="w-full h-64" />}
-    customUI={PerformanceUtils.customUI(entity.title)}>
+    customLoader={<Shimmer styleClass="w-full h-40" />}
+    customUI={PerformanceUtils.customUI(entity.title, ~height="h-40")}>
     <PerformanceUtils.Card title=entity.title>
       <Chart options={gaugeOption} highcharts />
     </PerformanceUtils.Card>
