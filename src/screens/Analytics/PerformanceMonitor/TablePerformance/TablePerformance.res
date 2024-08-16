@@ -4,7 +4,7 @@ let tableBorderClass = "border-collapse border border-jp-gray-940 border-opacity
 let make = (
   ~startTimeVal,
   ~endTimeVal,
-  ~entity: PerformanceMonitorTypes.entity<'t>,
+  ~entity: PerformanceMonitorTypes.entity<'t, 't1>,
   ~domain="payments",
   ~getTableData,
   ~visibleColumns,

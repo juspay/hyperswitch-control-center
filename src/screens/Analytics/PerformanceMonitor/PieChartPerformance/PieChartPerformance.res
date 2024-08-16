@@ -4,7 +4,7 @@ let make = (
   ~startTimeVal,
   ~endTimeVal,
   ~dimensions,
-  ~entity: PerformanceMonitorTypes.entity<'t>,
+  ~entity: PerformanceMonitorTypes.entity<'t, 't1>,
 ) => {
   open APIUtils
   open LogicUtils
@@ -32,7 +32,9 @@ let make = (
         ->getArrayFromDict("queryData", [])
 
       if arr->Array.length > 0 {
-        let configData = entity.getChartData(~array=arr, ~config=entity.configRequiredForChartData)
+        let configData = entity.getChartData(
+          ~args={array: arr, config: entity.configRequiredForChartData},
+        )
         let options = entity.getChartOption(configData)
         setBarOptions(_ => options)
         setScreenState(_ => PageLoaderWrapper.Success)
