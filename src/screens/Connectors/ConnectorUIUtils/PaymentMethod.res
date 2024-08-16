@@ -39,6 +39,7 @@ module CardRenderer = {
     let initalFormValue = React.useMemo(() => {
       formState.values->getDictFromJsonObject->getDictfromDict("metadata")
     }, [])
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
@@ -58,6 +59,11 @@ module CardRenderer = {
       pmAuthProcessorList
       ->Array.filter(item => item.profile_id === currentProfile)
       ->Array.length > 0
+
+    let shouldShowPMAuthSidebar =
+      featureFlagDetails.pmAuthenticationProcessor &&
+      isPMAuthConnector &&
+      isProfileIdConfiguredPMAuth
 
     let selectedAll = isSelectedAll(paymentMethodsEnabled, provider, paymentMethod)
 
@@ -89,10 +95,7 @@ module CardRenderer = {
           | Processors(STRIPE_TEST) => false
           | _ => true
           }
-        }) ||
-        (paymentMethod->getPaymentMethodFromString === BankDebit &&
-        isPMAuthConnector &&
-        isProfileIdConfiguredPMAuth)
+        }) || (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)
     }
 
     let removeOrAddMethods = (method: paymentMethodConfigType) => {
@@ -277,9 +280,7 @@ module CardRenderer = {
           condition={selectedWallet.payment_method_type->getPaymentMethodTypeFromString ===
             ApplePay ||
           selectedWallet.payment_method_type->getPaymentMethodTypeFromString === GooglePay ||
-          (paymentMethod->getPaymentMethodFromString === BankDebit &&
-          isPMAuthConnector &&
-          isProfileIdConfiguredPMAuth)}>
+          (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)}>
           <Modal
             modalHeading
             headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}

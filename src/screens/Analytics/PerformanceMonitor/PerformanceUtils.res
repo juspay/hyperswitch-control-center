@@ -76,7 +76,7 @@ let requestBody = (
   ~startTime: string,
   ~endTime: string,
   ~metrics: array<metrics>,
-  ~groupBy: array<dimension>,
+  ~groupBy: option<array<dimension>>=None,
   ~filters: option<array<dimension>>=[]->Some,
   ~customFilter: option<dimension>=None,
   ~applyFilterFor: option<array<status>>=None,
@@ -90,7 +90,10 @@ let requestBody = (
     ~custom=customFilter,
     ~customValue=applyFilterFor,
   )
-  let groupByNames = getGroupByForPerformance(~dimensions=groupBy)->Some
+  let groupByNames = switch groupBy {
+  | Some(vals) => getGroupByForPerformance(~dimensions=vals)->Some
+  | None => None
+  }
   let distributionValues = distribution->Identity.genericTypeToJson->Some
 
   [
@@ -145,7 +148,7 @@ module Card = {
   @react.component
   let make = (~title, ~children) => {
     <div
-      className={`h-fit flex flex-col border rounded-lg dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox px-7 py-5`}>
+      className={`h-full flex flex-col justify-between border rounded-lg dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox px-7 py-5`}>
       <div className={"flex gap-2 items-center text-jp-gray-700 font-bold self-start mb-5"}>
         <div className="font-semibold text-base text-black dark:text-white">
           {title->React.string}
@@ -156,10 +159,10 @@ module Card = {
   }
 }
 
-let customUI = title =>
+let customUI = (title, ~height="h-96") =>
   <Card title>
     <div
-      className="w-full h-96 border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5">
+      className={`w-full ${height} border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5`}>
       {"No Data"->React.string}
     </div>
   </Card>

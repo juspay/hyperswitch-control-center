@@ -61,14 +61,14 @@ let getBarOption = data =>
 
 let getBarchartColor = name => {
   switch name {
-  | "failure" => "#f44708"
-  | "charged" => "#38b000"
-  | "authentication_pending" => "#80E1D9"
-  | "authentication_failed" => "#F8BC3B"
-  | "pending" => "#B2596E"
-  | "payment_method_awaited" => "#72BEF4"
-  | "authorized" => "#FFB27A"
-  | _ => "#0D7EA0"
+  | "failure" => "#DA6C68"
+  | "charged" => "#7AAF73"
+  | "authentication_pending" => "#E3945C"
+  | "authentication_failed" => "#E18494"
+  | "pending" => "#B6A1D2"
+  | "payment_method_awaited" => "#80A3F8"
+  | "authorized" => "#91C8A1"
+  | _ => "#79B8F3"
   }
 }
 

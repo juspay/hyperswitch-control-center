@@ -149,7 +149,7 @@ let make = (
     )
   }
 
-  <div className="p-4 border border-red-300">
+  <div className="p-4">
     <FormRenderer.FieldRenderer
       field={valueInput({
         name1: `pm_auth_config.enabled_payment_methods`,
