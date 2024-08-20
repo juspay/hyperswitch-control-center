@@ -17,8 +17,9 @@ let make = () => {
         ~entityName=USER_MANAGEMENT,
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
+        ~queryParamerters= Some("groups=true"),
       )
-      let res = await fetchDetails(`${userDataURL}?groups=true`)
+      let res = await fetchDetails(userDataURL)
       let rolesData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForRoles)
       setRolesAvailableData(_ => rolesData->Array.map(Nullable.make))
       setScreenStateRoles(_ => PageLoaderWrapper.Success)
@@ -28,12 +29,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if rolesAvailableData->Array.length == 0 {
       getRolesAvailable()->ignore
-    } else {
-      setScreenStateRoles(_ => PageLoaderWrapper.Success)
-    }
-
     None
   }, [])
 
