@@ -134,26 +134,16 @@ let createAllOptions = connectorsConfig => {
   })
 }
 
-let generateFRMPaymentMethodsConfig = paymentMethodsDict => {
+let generateFRMPaymentMethodsConfig = (paymentMethodsDict): array<
+  ConnectorTypes.frm_payment_method,
+> => {
   open ConnectorTypes
   paymentMethodsDict
   ->Dict.keysToArray
   ->Array.map(paymentMethodName => {
-    let paymentMethodTypesArr =
-      paymentMethodsDict
-      ->Dict.get(paymentMethodName)
-      ->Option.getOr([])
-      ->Array.map(paymentMethodType => {
-        {
-          payment_method_type: paymentMethodType,
-          flow: "pre",
-          action: "cancel_txn",
-        }
-      })
-
     {
       payment_method: paymentMethodName,
-      payment_method_types: paymentMethodTypesArr,
+      flow: getFlowTypeNameString(PreAuth),
     }
   })
 }
