@@ -53,7 +53,10 @@ let make = (
     Dict.set(dict, "amount", Math.round(amount *. 100.0)->JSON.Encode.float)
     let body = dict
     Dict.set(body, "payment_id", order.payment_id->JSON.Encode.string)
-    Dict.set(body, "refund_type", "instant"->JSON.Encode.string)
+
+    // NOTE: Backend might change later , but for now removed as backend will have default value as scheduled
+    // Dict.set(body, "refund_type", "instant"->JSON.Encode.string)
+
     if !showRefundReason {
       Dict.set(body, "reason", "RETURN"->JSON.Encode.string)
     }
