@@ -7,7 +7,7 @@ let useSendEvent = () => {
   let {email: authInfoEmail, merchantId, name} =
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
 
-  let deviceId = switch LocalStorage.getItem("deviceid")->Nullable.toOption {
+  let deviceId = switch LocalStorage.getItem("deviceId")->Nullable.toOption {
   | Some(id) => id
   | None => authInfoEmail
   }
