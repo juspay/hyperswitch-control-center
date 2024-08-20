@@ -37,7 +37,7 @@ type getInfoType = {
   mutable isPermissionAllowed: bool,
 }
 
-type hirearchyType = {
+type userModuleType = {
   parentGroup: string,
   description: string,
   groups: array<string>,
