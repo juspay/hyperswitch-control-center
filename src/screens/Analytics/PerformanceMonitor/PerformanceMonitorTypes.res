@@ -2,9 +2,9 @@ type performance = [#ConnectorPerformance | #PaymentMethodPerormance]
 type dimension = [#connector | #payment_method | #payment_method_type | #status | #no_value]
 
 type status = [#charged | #failure]
-type metrics = [#payment_count]
+type metrics = [#payment_count | #connector_success_rate]
+type distribution = [#payment_error_message | #TOP_5]
 
-type paymentStatus = [#failure | #charged]
 type paymentDistribution = {
   payment_count: int,
   status: string,
@@ -20,6 +20,7 @@ type dimensions = array<dimensionRecord>
 type stackBarSeriesRecord = {
   name: string,
   data: array<int>,
+  color: string,
 }
 
 type categories = array<string>
@@ -39,37 +40,40 @@ type stackBarChartData = {
   series: series,
 }
 
+type gaugeData = {value: float}
+
 type donutChatData = {series: series}
-type chartOption = {
-  yAxis: yAxis,
-  xAxis: xAxis,
-  title: title,
-  colors: array<string>,
+
+type chartDataConfig = {
+  groupByKeys: array<dimension>,
+  plotChartBy?: array<status>,
+  yLabels?: array<string>,
+  name?: metrics,
 }
-type chartDataConfig = {groupByKeys: array<dimension>, plotChartBy?: array<string>}
+
+type distributionType = {
+  distributionFor: string,
+  distributionCardinality: string,
+}
 
 type requestBodyConfig = {
   metrics: array<metrics>,
-  groupBy: array<dimension>,
-  filters: array<dimension>,
-  customFilter: option<dimension>,
-  applyFilterFor: option<array<string>>,
+  delta?: bool,
+  groupBy?: array<dimension>,
+  filters?: array<dimension>,
+  customFilter?: dimension,
+  applyFilterFor?: array<status>,
+  distribution?: distributionType,
 }
-
-type entity<'t> = {
+type args<'t1> = {
+  array: array<JSON.t>,
+  config: chartDataConfig,
+  optionalArgs?: 't1,
+}
+type entity<'t, 't1> = {
   requestBodyConfig: requestBodyConfig,
-  getRequestBody: (
-    ~dimensions: dimensions,
-    ~startTime: string,
-    ~endTime: string,
-    ~metrics: array<metrics>,
-    ~groupBy: array<dimension>,
-    ~filters: array<dimension>,
-    ~customFilter: option<dimension>,
-    ~applyFilterFor: option<array<string>>,
-  ) => JSON.t,
   configRequiredForChartData: chartDataConfig,
-  getChartData: (~array: array<JSON.t>, ~config: chartDataConfig) => 't,
-  chartOption: chartOption,
-  getChartOption: (chartOption, 't) => JSON.t,
+  getChartData: (~args: args<'t1>) => 't,
+  title: string,
+  getChartOption: 't => JSON.t,
 }

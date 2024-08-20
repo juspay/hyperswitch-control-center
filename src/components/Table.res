@@ -892,11 +892,11 @@ let make = (
       : isMinHeightRequired
       ? ""
       : "overflow-scroll"
-  let parentBorderRadius = !isHighchartLegend ? "rounded-t-lg" : ""
-  let parentBorderClass = !isHighchartLegend ? "border border-jp-2-light-gray-300" : ""
+  let parentBorderRadius = !isHighchartLegend ? "rounded-lg" : ""
+
   <div
     className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getOr(
-        parentBorderClass ++ " " ++ parentBorderRadius,
+        parentBorderRadius,
       )}`}
     style={
       minHeight: {

@@ -1,13 +1,10 @@
 open LogicUtils
 open PerformanceMonitorTypes
 
-let getPieChartOptions = (config: chartOption, data) => {
+let getPieChartOptions = series => {
   {
     "chart": {
       "type": "pie",
-    },
-    "title": {
-      "text": config.title.text,
     },
     "tooltip": {
       "valueSuffix": ``,
@@ -15,6 +12,21 @@ let getPieChartOptions = (config: chartOption, data) => {
     "subtitle": {
       "text": "",
     },
+    "title": {
+      "text": "",
+    },
+    "colors": [
+      "#80A3F8",
+      "#7AAF73",
+      "#DA6C68",
+      "#91C8A1",
+      "#E18494",
+      "#79B8F3",
+      "#B6A1D2",
+      "#E3945C",
+      "#FFAB99",
+      "#679FDF",
+    ],
     "plotOptions": {
       "pie": {
         "center": ["50%", "50%"],
@@ -33,6 +45,18 @@ let getPieChartOptions = (config: chartOption, data) => {
       "verticalAlign": "middle", // Vertically center the legend
       "layout": "vertical", // Use a vertical layout for legend items
       "width": "35%",
+      "enabled": true,
+      "itemStyle": LineChartUtils.legendItemStyle("12px"),
+      "itemHiddenStyle": {
+        "color": "rgba(53, 64, 82, 0.2)",
+        "cursor": "pointer",
+        "fontWeight": "500",
+        "fontStyle": "normal",
+      },
+      "itemHoverStyle": LineChartUtils.legendItemStyle("12px"),
+      "symbolRadius": 4,
+      "symbolPaddingTop": 5,
+      "itemMarginBottom": 10,
     },
     "credits": {
       "enabled": false, // Disable the Highcharts credits
@@ -41,14 +65,15 @@ let getPieChartOptions = (config: chartOption, data) => {
       {
         "name": "Total",
         "colorByPoint": true,
-        "innerSize": "75%",
-        "data": data,
+        "innerSize": "60%",
+        "data": series,
       },
     ],
   }->Identity.genericTypeToJson
 }
 
-let getDonutCharData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
+let getDonutCharData = (~args) => {
+  let {array, config} = args
   let {groupByKeys} = config
   let grouped = PerformanceUtils.getGroupByDataForStatusAndPaymentCount(array, groupByKeys)
   let keys = grouped->Dict.keysToArray

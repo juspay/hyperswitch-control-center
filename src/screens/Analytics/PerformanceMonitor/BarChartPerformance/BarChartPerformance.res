@@ -4,17 +4,18 @@ let make = (
   ~startTimeVal,
   ~endTimeVal,
   ~dimensions,
-  ~entity: PerformanceMonitorTypes.entity<'t>,
+  ~entity: PerformanceMonitorTypes.entity<'t, 't1>,
 ) => {
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (barOption, setBarOptions) = React.useState(_ => JSON.Encode.null)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let chartFetch = async () => {
     try {
       let metricsUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
-      let body = entity.getRequestBody(
+      let body = PerformanceUtils.requestBody(
         ~dimensions,
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
@@ -29,11 +30,19 @@ let make = (
         res
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-      let configData = entity.getChartData(~array=arr, ~config=entity.configRequiredForChartData)
-      let options = entity.getChartOption(entity.chartOption, configData)
-      setBarOptions(_ => options)
+
+      if arr->Array.length > 0 {
+        let configData = entity.getChartData(
+          ~args={array: arr, config: entity.configRequiredForChartData},
+        )
+        let options = entity.getChartOption(configData)
+        setBarOptions(_ => options)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
-    | _ => ()
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
   React.useEffect(() => {
@@ -43,5 +52,12 @@ let make = (
     None
   }, [dimensions])
 
-  <HighchartBarChart.RawBarChart options={barOption} />
+  <PageLoaderWrapper
+    screenState
+    customLoader={<Shimmer styleClass="w-full h-96" />}
+    customUI={PerformanceUtils.customUI(entity.title)}>
+    <PerformanceUtils.Card title=entity.title>
+      <HighchartBarChart.RawBarChart options={barOption} />
+    </PerformanceUtils.Card>
+  </PageLoaderWrapper>
 }

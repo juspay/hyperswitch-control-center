@@ -34,29 +34,34 @@ let getSpecificDimension = (dimensions: dimensions, dimension: dimension) => {
 }
 
 let getGroupByForPerformance = (~dimensions: array<dimension>) => {
-  dimensions->Array.map(v => (v: dimension :> string)->JSON.Encode.string)->JSON.Encode.array
+  dimensions->Array.map(v => (v: dimension :> string))
 }
 
 let getMetricForPerformance = (~metrics: array<metrics>) =>
-  metrics->Array.map(v => (v: metrics :> string)->JSON.Encode.string)->JSON.Encode.array
+  metrics->Array.map(v => (v: metrics :> string))
 
 let getFilterForPerformance = (
   ~dimensions: dimensions,
-  ~filters: array<dimension>,
+  ~filters: option<array<dimension>>,
   ~custom: option<dimension>=None,
-  ~customValue: option<array<string>>=None,
+  ~customValue: option<array<status>>=None,
 ) => {
   let filtersDict = Dict.make()
   let customFilter = custom->Option.getOr(#no_value)
-  filters->Array.forEach(filter => {
-    let data = if filter == customFilter {
-      customValue->Option.getOr([])->Array.map(v => v->JSON.Encode.string)
-    } else {
-      getSpecificDimension(dimensions, filter).values->Array.map(v => v->JSON.Encode.string)
+  switch filters {
+  | Some(val) => {
+      val->Array.forEach(filter => {
+        let data = if filter == customFilter {
+          customValue->Option.getOr([])->Array.map(v => (v: status :> string)->JSON.Encode.string)
+        } else {
+          getSpecificDimension(dimensions, filter).values->Array.map(v => v->JSON.Encode.string)
+        }
+        filtersDict->Dict.set((filter: dimension :> string), data->JSON.Encode.array)
+      })
+      filtersDict->JSON.Encode.object->Some
     }
-    filtersDict->Dict.set((filter: dimension :> string), data->JSON.Encode.array)
-  })
-  filtersDict->JSON.Encode.object
+  | None => None
+  }
 }
 
 let getTimeRange = (startTime, endTime) => {
@@ -71,29 +76,37 @@ let requestBody = (
   ~startTime: string,
   ~endTime: string,
   ~metrics: array<metrics>,
-  ~groupBy: array<dimension>,
-  ~filters: array<dimension>,
-  ~customFilter: option<dimension>,
-  ~applyFilterFor: option<array<string>>,
+  ~groupBy: option<array<dimension>>=None,
+  ~filters: option<array<dimension>>=[]->Some,
+  ~customFilter: option<dimension>=None,
+  ~applyFilterFor: option<array<status>>=None,
+  ~distribution: option<distributionType>=None,
+  ~delta: option<bool>=None,
 ) => {
-  let timeRange = getTimeRange(startTime, endTime)
   let metrics = getMetricForPerformance(~metrics)
-  let filters = getFilterForPerformance(
+  let filter = getFilterForPerformance(
     ~dimensions,
     ~filters,
     ~custom=customFilter,
     ~customValue=applyFilterFor,
   )
-  let groupByNames = getGroupByForPerformance(~dimensions=groupBy)
-  let body = [
-    {
-      "timeRange": timeRange,
-      "groupByNames": groupByNames,
-      "filters": filters,
-      "metrics": metrics,
-    },
-  ]->Identity.genericTypeToJson
-  body
+  let groupByNames = switch groupBy {
+  | Some(vals) => getGroupByForPerformance(~dimensions=vals)->Some
+  | None => None
+  }
+  let distributionValues = distribution->Identity.genericTypeToJson->Some
+
+  [
+    AnalyticsUtils.getFilterRequestBody(
+      ~metrics=Some(metrics),
+      ~delta=delta->Option.getOr(false),
+      ~distributionValues,
+      ~groupByNames,
+      ~filter,
+      ~startDateTime=startTime,
+      ~endDateTime=endTime,
+    )->JSON.Encode.object,
+  ]->JSON.Encode.array
 }
 
 let getGroupByKey = (dict, keys: array<dimension>) => {
@@ -130,3 +143,26 @@ let getGroupByDataForStatusAndPaymentCount = (array, keys: array<dimension>) => 
 
   result
 }
+
+module Card = {
+  @react.component
+  let make = (~title, ~children) => {
+    <div
+      className={`h-full flex flex-col justify-between border rounded-lg dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox px-7 py-5`}>
+      <div className={"flex gap-2 items-center text-jp-gray-700 font-bold self-start mb-5"}>
+        <div className="font-semibold text-base text-black dark:text-white">
+          {title->React.string}
+        </div>
+      </div>
+      {children}
+    </div>
+  }
+}
+
+let customUI = (title, ~height="h-96") =>
+  <Card title>
+    <div
+      className={`w-full ${height} border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5`}>
+      {"No Data"->React.string}
+    </div>
+  </Card>

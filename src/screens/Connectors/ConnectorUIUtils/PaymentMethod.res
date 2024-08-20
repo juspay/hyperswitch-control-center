@@ -18,7 +18,7 @@ module CardRenderer = {
   open LogicUtils
   open ConnectorTypes
   open ConnectorUtils
-  open Wallet
+  open AdditionalDetailsSidebar
 
   @react.component
   let make = (
@@ -29,6 +29,8 @@ module CardRenderer = {
     ~_showAdvancedConfiguration,
     ~setMetaData,
     ~connector,
+    ~initialValues,
+    ~setInitialValues,
   ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -37,9 +39,32 @@ module CardRenderer = {
     let initalFormValue = React.useMemo(() => {
       formState.values->getDictFromJsonObject->getDictfromDict("metadata")
     }, [])
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
+
+    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+
+    let pmAuthProcessorList =
+      connectorList->getProcessorsListFromJson(
+        ~removeFromList=ConnectorTypes.PMAuthenticationProcessor,
+      )
+
+    let isPMAuthConnector = pmAuthProcessorList->Array.length > 0
+
+    let currentProfile = initialValues->getDictFromJsonObject->getString("profile_id", "")
+
+    let isProfileIdConfiguredPMAuth =
+      pmAuthProcessorList
+      ->Array.filter(item => item.profile_id === currentProfile)
+      ->Array.length > 0
+
+    let shouldShowPMAuthSidebar =
+      featureFlagDetails.pmAuthenticationProcessor &&
+      isPMAuthConnector &&
+      isProfileIdConfiguredPMAuth
+
     let selectedAll = isSelectedAll(paymentMethodsEnabled, provider, paymentMethod)
 
     let paymentObj = paymentMethodsEnabled->getSelectedPaymentObj(paymentMethod)
@@ -59,6 +84,18 @@ module CardRenderer = {
     ) => {
       obj.payment_method_type == selectedMethod.payment_method_type &&
         obj.payment_experience == selectedMethod.payment_experience
+    }
+
+    let showSideModal = methodVariant => {
+      ((methodVariant === GooglePay || methodVariant === ApplePay) &&
+        {
+          switch connector->getConnectorNameTypeFromString {
+          | Processors(TRUSTPAY)
+          | Processors(AIRWALLEX)
+          | Processors(STRIPE_TEST) => false
+          | _ => true
+          }
+        }) || (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)
     }
 
     let removeOrAddMethods = (method: paymentMethodConfigType) => {
@@ -82,24 +119,11 @@ module CardRenderer = {
       | _ =>
         if standardProviders->Array.some(obj => checkPaymentMethodType(obj, method)) {
           paymentMethodsEnabled->removeMethod(paymentMethod, method, connector)->updateDetails
+        } else if showSideModal(method.payment_method_type->getPaymentMethodTypeFromString) {
+          setShowWalletConfigurationModal(_ => !showWalletConfigurationModal)
+          setSelectedWallet(_ => method)
         } else {
-          let methodVariant = method.payment_method_type->getPaymentMethodTypeFromString
-          if (
-            (methodVariant === GooglePay || methodVariant === ApplePay) &&
-              {
-                switch connector->getConnectorNameTypeFromString {
-                | Processors(TRUSTPAY) => false
-                | Processors(AIRWALLEX) => false
-                | Processors(STRIPE_TEST) => false
-                | _ => true
-                }
-              }
-          ) {
-            setShowWalletConfigurationModal(_ => !showWalletConfigurationModal)
-            setSelectedWallet(_ => method)
-          } else {
-            paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
-          }
+          paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
         }
       }
     }
@@ -157,6 +181,14 @@ module CardRenderer = {
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
     }
 
+    let title = switch paymentMethod->getPaymentMethodFromString {
+    | BankDebit => paymentMethod->snakeToTitle
+    | Wallet => selectedWallet.payment_method_type->snakeToTitle
+    | _ => ""
+    }
+
+    let modalHeading = `Additional Details to enable ${title}`
+
     <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>
         <RenderIf
@@ -165,7 +197,9 @@ module CardRenderer = {
             <p className="font-semibold text-bold text-lg">
               {React.string(paymentMethod->snakeToTitle)}
             </p>
-            <RenderIf condition={paymentMethod->getPaymentMethodFromString !== Wallet}>
+            <RenderIf
+              condition={paymentMethod->getPaymentMethodFromString !== Wallet &&
+                paymentMethod->getPaymentMethodFromString !== BankDebit}>
               <AddDataAttributes
                 attributes=[
                   ("data-testid", paymentMethod->String.concat("_")->String.concat("select_all")),
@@ -245,9 +279,10 @@ module CardRenderer = {
         <RenderIf
           condition={selectedWallet.payment_method_type->getPaymentMethodTypeFromString ===
             ApplePay ||
-            selectedWallet.payment_method_type->getPaymentMethodTypeFromString === GooglePay}>
+          selectedWallet.payment_method_type->getPaymentMethodTypeFromString === GooglePay ||
+          (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)}>
           <Modal
-            modalHeading={`Additional Details to enable ${selectedWallet.payment_method_type->LogicUtils.snakeToTitle}`}
+            modalHeading
             headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
             headBgClass="sticky top-0 z-30 bg-white"
             showModal={showWalletConfigurationModal}
@@ -257,7 +292,7 @@ module CardRenderer = {
             revealFrom=Reveal.Right
             modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
             childClass={""}>
-            <Wallets
+            <AdditionalDetailsSidebarComp
               method={selectedWallet}
               setMetaData
               setShowWalletConfigurationModal
@@ -265,6 +300,7 @@ module CardRenderer = {
               paymentMethodsEnabled
               paymentMethod
               onCloseClickCustomFun={removeSelectedWallet}
+              setInitialValues
             />
           </Modal>
         </RenderIf>
@@ -285,6 +321,8 @@ module PaymentMethodsRender = {
     ~updateDetails,
     ~setMetaData,
     ~isPayoutFlow,
+    ~initialValues,
+    ~setInitialValues,
   ) => {
     let pmts = React.useMemo(() => {
       (
@@ -299,7 +337,6 @@ module PaymentMethodsRender = {
       {keys
       ->Array.mapWithIndex((value, i) => {
         let provider = pmts->getArrayFromDict(value, [])->JSON.Encode.array->getPaymentMethodMapper
-
         switch value->getPaymentMethodTypeFromString {
         | Credit | Debit =>
           <div key={i->Int.toString}>
@@ -311,6 +348,8 @@ module PaymentMethodsRender = {
               _showAdvancedConfiguration=false
               setMetaData
               connector
+              initialValues
+              setInitialValues
             />
           </div>
         | _ =>
@@ -323,6 +362,8 @@ module PaymentMethodsRender = {
               _showAdvancedConfiguration=false
               setMetaData
               connector
+              initialValues
+              setInitialValues
             />
           </div>
         }

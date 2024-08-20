@@ -5,12 +5,21 @@ type colType =
   | TestMode
   | Status
   | Disabled
-
+  | MerchantConnectorId
   | ProfileId
   | ProfileName
   | ConnectorLabel
 
-let defaultColumns = [Name, ProfileId, ProfileName, ConnectorLabel, Status, Disabled, TestMode]
+let defaultColumns = [
+  Name,
+  MerchantConnectorId,
+  ProfileId,
+  ProfileName,
+  ConnectorLabel,
+  Status,
+  Disabled,
+  TestMode,
+]
 
 let getHeading = colType => {
   switch colType {
@@ -22,6 +31,12 @@ let getHeading = colType => {
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=false)
   | ConnectorLabel =>
     Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label", ~showSort=false)
+  | MerchantConnectorId =>
+    Table.makeHeaderInfo(
+      ~key="merchant_connector_id",
+      ~title="Merchant Connector Id",
+      ~showSort=false,
+    )
   }
 }
 let connectorStatusStyle = connectorStatus =>
@@ -54,6 +69,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       "",
     )
   | ConnectorLabel => Text(connector.connector_label)
+  | MerchantConnectorId => DisplayCopyCell(connector.merchant_connector_id)
   }
 }
 
