@@ -244,18 +244,20 @@ let make = () => {
                 />
               </div>
               <div className={`flex flex-col gap-2 p-2 md:p-10`}>
-                <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
-                  connector={connectorName->getConnectorNameTypeFromString(
-                    ~connectorType=PMAuthenticationProcessor,
-                  )}
-                  connectorAccountFields
-                  selectedConnector={connectorName
-                  ->getConnectorNameTypeFromString(~connectorType=PMAuthenticationProcessor)
-                  ->getConnectorInfo}
-                  connectorMetaDataFields
-                  connectorWebHookDetails
-                  connectorLabelDetailField
-                />
+                <div className="grid grid-cols-2 flex-1">
+                  <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
+                    connector={connectorName->getConnectorNameTypeFromString(
+                      ~connectorType=PMAuthenticationProcessor,
+                    )}
+                    connectorAccountFields
+                    selectedConnector={connectorName
+                    ->getConnectorNameTypeFromString(~connectorType=PMAuthenticationProcessor)
+                    ->getConnectorInfo}
+                    connectorMetaDataFields
+                    connectorWebHookDetails
+                    connectorLabelDetailField
+                  />
+                </div>
               </div>
             </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
             <FormValuesSpy />
