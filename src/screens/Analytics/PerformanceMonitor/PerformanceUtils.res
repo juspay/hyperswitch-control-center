@@ -81,7 +81,7 @@ let requestBody = (
   ~customFilter: option<dimension>=None,
   ~applyFilterFor: option<array<status>>=None,
   ~distribution: option<distributionType>=None,
-  ~delta=false,
+  ~delta: option<bool>=None,
 ) => {
   let metrics = getMetricForPerformance(~metrics)
   let filter = getFilterForPerformance(
@@ -99,7 +99,7 @@ let requestBody = (
   [
     AnalyticsUtils.getFilterRequestBody(
       ~metrics=Some(metrics),
-      ~delta,
+      ~delta=delta->Option.getOr(false),
       ~distributionValues,
       ~groupByNames,
       ~filter,
