@@ -1,7 +1,7 @@
 open PerformanceMonitorTypes
 
 let getFailureRateData = (~args) => {
-  let count = args.overAllPaymentCount->Option.getOr(0.0)
+  let count = args.optionalArgs->Option.getOr(0.0)
   let failureCount = GaugeChartPerformanceUtils.getGaugeData(~args).value
 
   let rate = failureCount /. count

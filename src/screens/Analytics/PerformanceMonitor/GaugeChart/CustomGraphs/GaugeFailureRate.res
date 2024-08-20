@@ -40,7 +40,7 @@ let make = (
           ~args={
             array: arr,
             config: entity2.configRequiredForChartData,
-            overAllPaymentCount: overallData,
+            optionalArgs: overallData,
           },
         )
         let options = entity2.getChartOption(value)

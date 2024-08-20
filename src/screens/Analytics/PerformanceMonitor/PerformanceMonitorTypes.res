@@ -68,7 +68,7 @@ type requestBodyConfig = {
 type args<'t1> = {
   array: array<JSON.t>,
   config: chartDataConfig,
-  overAllPaymentCount?: 't1,
+  optionalArgs?: 't1,
 }
 type entity<'t, 't1> = {
   requestBodyConfig: requestBodyConfig,
