@@ -24,9 +24,10 @@ let defaultDimesions = {
   values: [],
 }
 
-let getSuccessRatePerformanceEntity: entity<gaugeData> = {
+let getSuccessRatePerformanceEntity: entity<gaugeData, option<string>> = {
   getChartData: GaugeChartPerformanceUtils.getGaugeData,
   requestBodyConfig: {
+    delta: true,
     metrics: [#connector_success_rate],
   },
   configRequiredForChartData: {
@@ -37,8 +38,22 @@ let getSuccessRatePerformanceEntity: entity<gaugeData> = {
   getChartOption: GaugeChartPerformanceUtils.gaugeOption,
 }
 
-let getFailureRateEntity: entity<gaugeData> = {
+let overallPaymentCount: entity<gaugeData, option<string>> = {
   getChartData: GaugeChartPerformanceUtils.getGaugeData,
+  requestBodyConfig: {
+    delta: true,
+    metrics: [#payment_count],
+  },
+  configRequiredForChartData: {
+    groupByKeys: [],
+    name: #payment_count,
+  },
+  title: "Overall Payment Count",
+  getChartOption: GaugeFailureRateUtils.falureGaugeOption,
+}
+
+let getFailureRateEntity: entity<gaugeData, float> = {
+  getChartData: GaugeFailureRateUtils.getFailureRateData,
   requestBodyConfig: {
     metrics: [#payment_count],
     filters: [#status],
@@ -53,7 +68,7 @@ let getFailureRateEntity: entity<gaugeData> = {
   getChartOption: GaugeFailureRateUtils.falureGaugeOption,
 }
 
-let getStatusPerformanceEntity: entity<stackBarChartData> = {
+let getStatusPerformanceEntity: entity<stackBarChartData, option<string>> = {
   requestBodyConfig: {
     metrics: [#payment_count],
     groupBy: [#status],
@@ -73,7 +88,7 @@ let getPerformanceEntity = (
   ~filters: array<dimension>,
   ~groupByKeys: array<dimension>,
   ~title: string,
-): entity<stackBarChartData> => {
+): entity<stackBarChartData, option<string>> => {
   requestBodyConfig: {
     metrics: [#payment_count],
     groupBy: [#status, ...groupBy],
@@ -90,7 +105,7 @@ let getPerformanceEntity = (
   getChartOption: BarChartPerformanceUtils.getBarOption,
 }
 
-let getConnectorFailureEntity: entity<array<donutPieSeriesRecord>> = {
+let getConnectorFailureEntity: entity<array<donutPieSeriesRecord>, option<string>> = {
   requestBodyConfig: {
     metrics: [#payment_count],
     groupBy: [#connector, #status],
@@ -106,7 +121,7 @@ let getConnectorFailureEntity: entity<array<donutPieSeriesRecord>> = {
   getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
 
-let getPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
+let getPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>, option<string>> = {
   requestBodyConfig: {
     metrics: [#payment_count],
     groupBy: [#payment_method, #status],
@@ -122,7 +137,7 @@ let getPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
   getChartOption: PieChartPerformanceUtils.getPieChartOptions,
 }
 
-let getConnectorPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>> = {
+let getConnectorPaymentMethodFailureEntity: entity<array<donutPieSeriesRecord>, option<string>> = {
   requestBodyConfig: {
     metrics: [#payment_count],
     groupBy: [#connector, #payment_method, #status],
@@ -239,9 +254,9 @@ let tableEntity = EntityType.makeEntity(
   ~getHeading,
 )
 
-let getFailureEntity: entity<array<errorObject>> = {
+let getFailureEntity: entity<array<errorObject>, option<string>> = {
   getChartOption: _ => Dict.make()->JSON.Encode.object,
-  getChartData: (~array as _, ~config as _) => [],
+  getChartData: (~args as _) => [],
   requestBodyConfig: {
     metrics: [#connector_success_rate],
     groupBy: [#connector],

@@ -72,7 +72,8 @@ let getBarchartColor = name => {
   }
 }
 
-let getStackedBarData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
+let getStackedBarData = (~args) => {
+  let {array, config} = args
   let {groupByKeys} = config
   let grouped = PerformanceUtils.getGroupByDataForStatusAndPaymentCount(array, groupByKeys)
   let keys = grouped->Dict.keysToArray
