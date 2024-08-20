@@ -610,9 +610,9 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
-    userManagementRevamp,
     performanceMonitor: performanceMonitorFlag,
     pmAuthenticationProcessor,
+      userManagementRevamp,
   } = featureFlagDetails
 
   let sidebar = [
