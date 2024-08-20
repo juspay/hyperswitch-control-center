@@ -100,7 +100,9 @@ let make = (~domain="payments") => {
       <div className="grid grid-cols-4 grid-rows-1 gap-3">
         <div className="flex flex-col gap-3">
           <GaugeChartPerformance startTimeVal endTimeVal entity={getSuccessRatePerformanceEntity} />
-          <GaugeFailureRate startTimeVal endTimeVal entity={getFailureRateEntity} />
+          <GaugeFailureRate
+            startTimeVal endTimeVal entity1={overallPaymentCount} entity2={getFailureRateEntity}
+          />
         </div>
         <div className="col-span-3">
           <BarChartPerformance
