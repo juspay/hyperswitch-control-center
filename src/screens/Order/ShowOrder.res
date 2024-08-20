@@ -21,7 +21,6 @@ module ShowOrderDetails = {
     ~paymentStatus,
     ~openRefundModal,
     ~paymentId,
-    ~connectorList=?,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ~sectionTitle=?,
   ) => {
@@ -73,7 +72,7 @@ module ShowOrderDetails = {
             <div className=widthClass key={i->Int.toString}>
               <DisplayKeyValueParams
                 heading={getHeading(colType)}
-                value={getCell(data, colType, connectorList->Option.getOr([]))}
+                value={getCell(data, colType)}
                 customMoneyStyle="!font-normal !text-sm"
                 labelMargin="!py-0 mt-2"
                 overiddingHeadingStyles="text-black text-sm font-medium"
@@ -94,7 +93,6 @@ module OrderInfo = {
   let make = (~order, ~openRefundModal, ~isNonRefundConnector, ~paymentId) => {
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
-    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
     <div className="md:flex md:flex-col md:gap-5">
       <div className="md:flex md:gap-10 md:items-stretch md:mt-5 mb-10">
         <div className="md:w-1/2 w-full">
@@ -138,7 +136,6 @@ module OrderInfo = {
             paymentStatus
             openRefundModal
             paymentId
-            connectorList
           />
         </div>
       </div>
