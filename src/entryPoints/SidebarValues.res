@@ -396,6 +396,15 @@ let teamRevamp = permissionJson => {
   })
 }
 
+let teamRevamp = permissionJson => {
+  SubLevelLink({
+    name: "Users Revamp",
+    link: `/users-revamp`,
+    access: permissionJson.usersView,
+    searchOptions: [("View team management", "")],
+  })
+}
+
 let businessDetails = () => {
   SubLevelLink({
     name: "Business Details",
@@ -612,6 +621,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     userManagementRevamp,
     performanceMonitor: performanceMonitorFlag,
     pmAuthenticationProcessor,
+    userManagementRevamp,
   } = featureFlagDetails
 
   let sidebar = [
