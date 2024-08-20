@@ -17,7 +17,7 @@ let make = () => {
         ~entityName=USER_MANAGEMENT,
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
-        ~queryParamerters= Some("groups=true"),
+        ~queryParamerters=Some("groups=true"),
       )
       let res = await fetchDetails(userDataURL)
       let rolesData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForRoles)
@@ -29,7 +29,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-      getRolesAvailable()->ignore
+    getRolesAvailable()->ignore
     None
   }, [])
 
