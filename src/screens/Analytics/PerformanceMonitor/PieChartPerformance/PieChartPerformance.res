@@ -17,6 +17,7 @@ let make = (
       let metricsUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
       let body = PerformanceUtils.requestBody(
         ~dimensions,
+        ~excludeFilterValue=entity.requestBodyConfig.excludeFilterValue,
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~filters=entity.requestBodyConfig.filters,

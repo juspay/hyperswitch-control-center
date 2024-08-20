@@ -1,7 +1,7 @@
 type performance = [#ConnectorPerformance | #PaymentMethodPerormance]
 type dimension = [#connector | #payment_method | #payment_method_type | #status | #no_value]
 
-type status = [#charged | #failure]
+type status = [#charged | #failure | #payment_method_awaited]
 type metrics = [#payment_count | #connector_success_rate]
 type distribution = [#payment_error_message | #TOP_5]
 
@@ -63,6 +63,7 @@ type requestBodyConfig = {
   filters?: array<dimension>,
   customFilter?: dimension,
   applyFilterFor?: array<status>,
+  excludeFilterValue?: array<status>,
   distribution?: distributionType,
 }
 type args<'t1> = {

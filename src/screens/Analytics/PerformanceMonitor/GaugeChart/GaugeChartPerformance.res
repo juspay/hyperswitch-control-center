@@ -21,6 +21,7 @@ let make = (
 
       let body = PerformanceUtils.requestBody(
         ~dimensions=[],
+        ~excludeFilterValue=entity.requestBodyConfig.excludeFilterValue,
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,

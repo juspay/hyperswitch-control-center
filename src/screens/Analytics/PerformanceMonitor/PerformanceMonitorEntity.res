@@ -73,6 +73,7 @@ let getStatusPerformanceEntity: entity<stackBarChartData, option<string>> = {
     metrics: [#payment_count],
     groupBy: [#status],
     filters: [#status],
+    excludeFilterValue: [#payment_method_awaited],
   },
   configRequiredForChartData: {
     groupByKeys: [#status],
