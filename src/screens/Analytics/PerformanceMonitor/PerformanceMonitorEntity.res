@@ -256,10 +256,7 @@ let tableEntity = EntityType.makeEntity(
 
 let getFailureEntity: entity<array<errorObject>, option<string>> = {
   getChartOption: _ => Dict.make()->JSON.Encode.object,
-  getChartData: (~args) => {
-    let _ = args
-    []
-  },
+  getChartData: (~args as _) => [],
   requestBodyConfig: {
     metrics: [#connector_success_rate],
     groupBy: [#connector],
