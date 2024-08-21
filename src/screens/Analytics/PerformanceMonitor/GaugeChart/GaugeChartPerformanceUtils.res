@@ -95,7 +95,7 @@ let gaugeOption = (data: gaugeData) =>
         "name": "",
         "data": [
           data.value
-          ->Float.toFixedWithPrecision(~digits=3)
+          ->Float.toFixedWithPrecision(~digits=2)
           ->Float.fromString
           ->Option.getOr(0.0),
         ],
