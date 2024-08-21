@@ -375,7 +375,7 @@ let getHeading = (colType: colType) => {
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
   | MerchantId => Table.makeHeaderInfo(~key="merchant_id", ~title="Merchant ID")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Payment Status", ~dataType=DropDown)
-  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
+  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true)
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector")
   | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable")
   | AmountReceived => Table.makeHeaderInfo(~key="amount_received", ~title="Amount Received")

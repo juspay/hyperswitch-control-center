@@ -219,8 +219,6 @@ module ReactWindowTableComponent = {
     ~fullWidth,
     ~removeVerticalLines=true,
     ~showScrollBar=false,
-    ~setSortedObj=?,
-    ~sortedObj=?,
     ~columnFilterRow=?,
     ~tableheadingClass="",
     ~tableBorderClass="",
@@ -391,39 +389,6 @@ module ReactWindowTableComponent = {
                     </div>
                   </RenderIf>
                 </div>
-                {if item.showFilter || item.showSort {
-                  <div className={`flex flex-row items-center`}>
-                    {item.showSort
-                      ? {
-                          <AddDataAttributes attributes=[("data-table", "tableSort")]>
-                            {
-                              let order: sortOrder = switch sortedObj {
-                              | Some(obj: sortedObject) =>
-                                obj.key === item.key ? obj.order : TableUtils.NONE
-                              | None => TableUtils.NONE
-                              }
-                              <div
-                                className="cursor-pointer text-gray-300 pl-4"
-                                onClick={_ev => {
-                                  switch setSortedObj {
-                                  | Some(fn) =>
-                                    fn(_ => Some({
-                                      key: item.key,
-                                      order: order === DEC ? INC : DEC,
-                                    }))
-                                  | None => ()
-                                  }
-                                }}>
-                                <SortIcons order size=13 />
-                              </div>
-                            }
-                          </AddDataAttributes>
-                        }
-                      : React.null}
-                  </div>
-                } else {
-                  React.null
-                }}
               </div>
               <div>
                 {
@@ -624,7 +589,6 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
 @react.component
 let make = (
   ~actualData: array<Nullable.t<'t>>,
-  ~defaultSort=?,
   ~title,
   ~visibleColumns=?,
   ~description=?,
@@ -764,8 +728,6 @@ let make = (
 
   let {getShowLink, getObjects} = entity
 
-  let (sortedObj, setSortedObj) = useSortedObj(title, defaultSort)
-
   let columToConsider = React.useMemo(() => {
     switch (entity.allColumns, visibleColumns) {
     | (Some(allCol), _) => Some(allCol)
@@ -877,11 +839,8 @@ let make = (
   }
 
   let filteredData = React.useMemo(() => {
-    switch sortedObj {
-    | Some(obj: Table.sortedObject) => sortArray(actualData, obj.key, obj.order)
-    | None => actualData
-    }
-  }, (sortedObj, customGetObjects, actualData, getObjects))
+    actualData
+  }, (customGetObjects, actualData, getObjects))
 
   let selectAllCheckBox = React.useMemo(() => {
     let selectedRowDataLength = checkBoxProps.selectedData->Array.length
@@ -1134,8 +1093,6 @@ let make = (
                 fullWidth
                 removeVerticalLines
                 showScrollBar=false
-                setSortedObj
-                ?sortedObj
                 ?columnFilterRow
                 tableheadingClass
                 tableBorderClass
