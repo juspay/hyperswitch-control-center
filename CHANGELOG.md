@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.08.20.1
+
+### Miscellaneous Tasks
+
+- Updated wasm ([#1171](https://github.com/juspay/hyperswitch-control-center/pull/1171)) ([`33ae887`](https://github.com/juspay/hyperswitch-control-center/commit/33ae88775bb2f3de98275ef9e4e2d69402eef41c))
+- Updating the user profile in mixpanel after user login ([#1065](https://github.com/juspay/hyperswitch-control-center/pull/1065)) ([`1454dd5`](https://github.com/juspay/hyperswitch-control-center/commit/1454dd53dda265bdce78d514457b508319d7fb0b))
+- Connector api dependency on orders removed ([#1167](https://github.com/juspay/hyperswitch-control-center/pull/1167)) ([`3bd054b`](https://github.com/juspay/hyperswitch-control-center/commit/3bd054b153cccd88fd7964a65802e6efb46463a6))
+- User revamp independent files ([#1169](https://github.com/juspay/hyperswitch-control-center/pull/1169)) ([`2a8499e`](https://github.com/juspay/hyperswitch-control-center/commit/2a8499e7ce42850683242642bcfe6666d27201d6))
+
+**Full Changelog:** [`2024.08.20.0...2024.08.20.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.20.0...2024.08.20.1)
+
+- - -
+
 ## 2024.08.20.0
 
 ### Bug Fixes
