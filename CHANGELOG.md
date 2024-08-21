@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.08.21.0
+
+### Features
+
+- Performance monitor exclude filter value ([#1178](https://github.com/juspay/hyperswitch-control-center/pull/1178)) ([`273afaa`](https://github.com/juspay/hyperswitch-control-center/commit/273afaa9bba08597f88bdbcc0f6ed609a183eca7))
+
+### Bug Fixes
+
+- Totp extra settings not visible in profile page ([#1183](https://github.com/juspay/hyperswitch-control-center/pull/1183)) ([`02faa3e`](https://github.com/juspay/hyperswitch-control-center/commit/02faa3e4cfdbbe4759200463f294ac02497ba43f))
+
+### Miscellaneous Tasks
+
+- Bug fix audit trail ([#1186](https://github.com/juspay/hyperswitch-control-center/pull/1186)) ([`c7b3ef2`](https://github.com/juspay/hyperswitch-control-center/commit/c7b3ef2dd647ee536e76f6e5d586491d8085e153))
+- Make email with password login ([#1110](https://github.com/juspay/hyperswitch-control-center/pull/1110)) ([`8c3360c`](https://github.com/juspay/hyperswitch-control-center/commit/8c3360cad4b4f9db4223a6d55a297651ac20417b))
+
+**Full Changelog:** [`2024.08.20.1...2024.08.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.20.1...2024.08.21.0)
+
+- - -
+
 ## 2024.08.20.1
 
 ### Miscellaneous Tasks
