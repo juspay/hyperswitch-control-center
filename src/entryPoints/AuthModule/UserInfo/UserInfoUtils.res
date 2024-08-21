@@ -13,7 +13,10 @@ let defaultValue = {
 open LogicUtils
 let itemMapper = dict => {
   email: dict->getString("email", defaultValue.email),
-  isTwoFactorAuthSetup: dict->getBool("is_two_factor_auth_setup", defaultValue.isTwoFactorAuthSetup),
+  isTwoFactorAuthSetup: dict->getBool(
+    "is_two_factor_auth_setup",
+    defaultValue.isTwoFactorAuthSetup,
+  ),
   merchantId: dict->getString("merchant_id", defaultValue.merchantId),
   name: dict->getString("name", defaultValue.name),
   orgId: dict->getString("org_id", defaultValue.orgId),
