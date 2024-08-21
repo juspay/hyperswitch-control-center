@@ -359,7 +359,7 @@ let make = (
       setSelectedIndex(_ => 0)
       (0, collapsibleTabs)
     }
-  }, [])
+  }, [updateCollapsableTabs])
 
   let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
   let (formattedOptions, setFormattedOptions) = React.useState(_ => [])

@@ -5,6 +5,7 @@ let make = (
   ~entity1: PerformanceMonitorTypes.entity<PerformanceMonitorTypes.gaugeData, 't1>,
   ~entity2: PerformanceMonitorTypes.entity<PerformanceMonitorTypes.gaugeData, float>,
   ~domain="payments",
+  ~dimensions,
 ) => {
   open APIUtils
   open LogicUtils
@@ -19,7 +20,7 @@ let make = (
       let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
 
       let body = PerformanceUtils.requestBody(
-        ~dimensions=[],
+        ~dimensions,
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity2.requestBodyConfig.delta,
@@ -59,12 +60,15 @@ let make = (
       let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
 
       let body = PerformanceUtils.requestBody(
-        ~dimensions=[],
+        ~dimensions,
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity1.requestBodyConfig.delta,
         ~metrics=entity1.requestBodyConfig.metrics,
+        ~filters=entity1.requestBodyConfig.filters,
         ~applyFilterFor=entity1.requestBodyConfig.applyFilterFor,
+        ~customFilter=entity1.requestBodyConfig.customFilter,
+        ~excludeFilterValue=entity1.requestBodyConfig.excludeFilterValue,
       )
 
       let res = await updateDetails(url, body, Post)

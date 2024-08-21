@@ -3,6 +3,58 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.08.21.0
+
+### Features
+
+- Performance monitor exclude filter value ([#1178](https://github.com/juspay/hyperswitch-control-center/pull/1178)) ([`273afaa`](https://github.com/juspay/hyperswitch-control-center/commit/273afaa9bba08597f88bdbcc0f6ed609a183eca7))
+
+### Bug Fixes
+
+- Totp extra settings not visible in profile page ([#1183](https://github.com/juspay/hyperswitch-control-center/pull/1183)) ([`02faa3e`](https://github.com/juspay/hyperswitch-control-center/commit/02faa3e4cfdbbe4759200463f294ac02497ba43f))
+
+### Miscellaneous Tasks
+
+- Bug fix audit trail ([#1186](https://github.com/juspay/hyperswitch-control-center/pull/1186)) ([`c7b3ef2`](https://github.com/juspay/hyperswitch-control-center/commit/c7b3ef2dd647ee536e76f6e5d586491d8085e153))
+- Make email with password login ([#1110](https://github.com/juspay/hyperswitch-control-center/pull/1110)) ([`8c3360c`](https://github.com/juspay/hyperswitch-control-center/commit/8c3360cad4b4f9db4223a6d55a297651ac20417b))
+
+**Full Changelog:** [`2024.08.20.1...2024.08.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.20.1...2024.08.21.0)
+
+- - -
+
+## 2024.08.20.1
+
+### Miscellaneous Tasks
+
+- Updated wasm ([#1171](https://github.com/juspay/hyperswitch-control-center/pull/1171)) ([`33ae887`](https://github.com/juspay/hyperswitch-control-center/commit/33ae88775bb2f3de98275ef9e4e2d69402eef41c))
+- Updating the user profile in mixpanel after user login ([#1065](https://github.com/juspay/hyperswitch-control-center/pull/1065)) ([`1454dd5`](https://github.com/juspay/hyperswitch-control-center/commit/1454dd53dda265bdce78d514457b508319d7fb0b))
+- Connector api dependency on orders removed ([#1167](https://github.com/juspay/hyperswitch-control-center/pull/1167)) ([`3bd054b`](https://github.com/juspay/hyperswitch-control-center/commit/3bd054b153cccd88fd7964a65802e6efb46463a6))
+- User revamp independent files ([#1169](https://github.com/juspay/hyperswitch-control-center/pull/1169)) ([`2a8499e`](https://github.com/juspay/hyperswitch-control-center/commit/2a8499e7ce42850683242642bcfe6666d27201d6))
+
+**Full Changelog:** [`2024.08.20.0...2024.08.20.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.20.0...2024.08.20.1)
+
+- - -
+
+## 2024.08.20.0
+
+### Bug Fixes
+
+- Failure rate formula fix ([#1170](https://github.com/juspay/hyperswitch-control-center/pull/1170)) ([`86bcb16`](https://github.com/juspay/hyperswitch-control-center/commit/86bcb167bf6ab8c6e4b8f7c12479ab62bafcf5a3))
+
+### Refactors
+
+- Removed unused packages ([#1141](https://github.com/juspay/hyperswitch-control-center/pull/1141)) ([`caa9113`](https://github.com/juspay/hyperswitch-control-center/commit/caa91136bb5eed97c5dcf12591b53d655fca9b4d))
+
+### Miscellaneous Tasks
+
+- Refactor gauge chart entity ([#1161](https://github.com/juspay/hyperswitch-control-center/pull/1161)) ([`e9454b8`](https://github.com/juspay/hyperswitch-control-center/commit/e9454b89d3218fbb950e6b35fb2fb5a99c100ff2))
+- Refund type removed from refunds api ([#1165](https://github.com/juspay/hyperswitch-control-center/pull/1165)) ([`178dc64`](https://github.com/juspay/hyperswitch-control-center/commit/178dc642f1404e6185d237c7913844d90852c9b1))
+- Frm api changes ([#782](https://github.com/juspay/hyperswitch-control-center/pull/782)) ([`e0f2911`](https://github.com/juspay/hyperswitch-control-center/commit/e0f2911a899a946d9983d6af97722767a56fbf99))
+
+**Full Changelog:** [`2024.08.14.0...2024.08.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.14.0...2024.08.20.0)
+
+- - -
+
 ## 2024.08.14.0
 
 ### Features

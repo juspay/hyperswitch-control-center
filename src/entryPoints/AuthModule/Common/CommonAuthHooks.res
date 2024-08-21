@@ -24,7 +24,7 @@ let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
     | LoginWithPassword =>
       <RenderIf condition={isMagicLinkEnabled}>
         {getFooterLinkComponent(
-          ~btnText="or sign in with an email",
+          ~btnText="or sign in with magic link",
           ~authType=LoginWithEmail,
           ~path=`/login?auth_id${authId}`,
         )}

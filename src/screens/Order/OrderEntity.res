@@ -630,7 +630,7 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   }
 }
 
-let getCellForSummary = (order, summaryColType, _): Table.cell => {
+let getCellForSummary = (order, summaryColType): Table.cell => {
   switch summaryColType {
   | Created => Date(order.created)
   | NetAmount =>
@@ -658,11 +658,7 @@ let getCellForSummary = (order, summaryColType, _): Table.cell => {
   }
 }
 
-let getCellForAboutPayment = (
-  order,
-  aboutPaymentColType: aboutPaymentColType,
-  connectorList: array<ConnectorTypes.connectorPayload>,
-): Table.cell => {
+let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): Table.cell => {
   open HelperComponents
   switch aboutPaymentColType {
   | Connector => CustomCell(<ConnectorCustomCell connectorName=order.connector />, "")
@@ -670,13 +666,7 @@ let getCellForAboutPayment = (
   | PaymentMethodType => Text(order.payment_method_type)
   | Refunds => Text(order.refunds->Array.length > 0 ? "Yes" : "No")
   | AuthenticationType => Text(order.authentication_type)
-  | ConnectorLabel => {
-      let connectorLabel =
-        connectorList
-        ->Array.find(ele => order.merchant_connector_id === ele.merchant_connector_id)
-        ->Option.getOr(Dict.make()->ConnectorListMapper.getProcessorPayloadType)
-      Text(connectorLabel.connector_label)
-    }
+  | ConnectorLabel => Text(order.connector_label)
   | CardBrand => Text(order.card_brand)
   | ProfileId => Text(order.profile_id)
   | ProfileName => Table.CustomCell(<BusinessProfileComponent profile_id={order.profile_id} />, "")
@@ -692,7 +682,7 @@ let getCellForAboutPayment = (
   }
 }
 
-let getCellForOtherDetails = (order, aboutPaymentColType, _): Table.cell => {
+let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
   let splittedName = order.name->String.split(" ")
   switch aboutPaymentColType {
   | MerchantId => Text(order.merchant_id)
@@ -963,6 +953,7 @@ let itemToObjMapper = dict => {
     attempts: dict->getArrayFromDict("attempts", [])->JSON.Encode.array->getAttempts,
     merchant_order_reference_id: dict->getString("merchant_order_reference_id", ""),
     attempt_count: dict->getInt("attempt_count", 0),
+    connector_label: dict->getString("connector_label", "NA"),
   }
 }
 

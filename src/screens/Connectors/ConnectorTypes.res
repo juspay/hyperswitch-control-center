@@ -220,13 +220,14 @@ type payment_methods_enabled = array<paymentMethodEnabledType>
 
 type frm_payment_method_type = {
   payment_method_type: string,
-  mutable flow: string,
-  mutable action: string,
+  flow: string,
+  action: string,
 }
 
 type frm_payment_method = {
   payment_method: string,
-  payment_method_types: array<frm_payment_method_type>,
+  payment_method_types?: array<frm_payment_method_type>,
+  flow: string,
 }
 
 type frm_config = {
