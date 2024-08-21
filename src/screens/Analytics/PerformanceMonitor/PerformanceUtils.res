@@ -45,6 +45,7 @@ let getFilterForPerformance = (
   ~filters: option<array<dimension>>,
   ~custom: option<dimension>=None,
   ~customValue: option<array<status>>=None,
+  ~excludeFilterValue: option<array<status>>=None,
 ) => {
   let filtersDict = Dict.make()
   let customFilter = custom->Option.getOr(#no_value)
@@ -52,11 +53,20 @@ let getFilterForPerformance = (
   | Some(val) => {
       val->Array.forEach(filter => {
         let data = if filter == customFilter {
-          customValue->Option.getOr([])->Array.map(v => (v: status :> string)->JSON.Encode.string)
+          customValue->Option.getOr([])->Array.map(v => (v: status :> string))
         } else {
-          getSpecificDimension(dimensions, filter).values->Array.map(v => v->JSON.Encode.string)
+          getSpecificDimension(dimensions, filter).values
         }
-        filtersDict->Dict.set((filter: dimension :> string), data->JSON.Encode.array)
+
+        let updatedFilters = switch excludeFilterValue {
+        | Some(excludeValues) =>
+          data->Array.filter(item => {
+            !(excludeValues->Array.map(v => (v: status :> string))->Array.includes(item))
+          })
+        | None => data
+        }->Array.map(str => str->JSON.Encode.string)
+
+        filtersDict->Dict.set((filter: dimension :> string), updatedFilters->JSON.Encode.array)
       })
       filtersDict->JSON.Encode.object->Some
     }
@@ -79,6 +89,7 @@ let requestBody = (
   ~groupBy: option<array<dimension>>=None,
   ~filters: option<array<dimension>>=[]->Some,
   ~customFilter: option<dimension>=None,
+  ~excludeFilterValue: option<array<status>>=None,
   ~applyFilterFor: option<array<status>>=None,
   ~distribution: option<distributionType>=None,
   ~delta: option<bool>=None,
@@ -89,6 +100,7 @@ let requestBody = (
     ~filters,
     ~custom=customFilter,
     ~customValue=applyFilterFor,
+    ~excludeFilterValue,
   )
   let groupByNames = switch groupBy {
   | Some(vals) => getGroupByForPerformance(~dimensions=vals)->Some
