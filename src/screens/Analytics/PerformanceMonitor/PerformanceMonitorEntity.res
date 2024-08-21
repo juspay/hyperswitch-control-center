@@ -43,6 +43,8 @@ let overallPaymentCount: entity<gaugeData, option<string>> = {
   requestBodyConfig: {
     delta: true,
     metrics: [#payment_count],
+    filters: [#status],
+    excludeFilterValue: [#payment_method_awaited],
   },
   configRequiredForChartData: {
     groupByKeys: [],
@@ -73,6 +75,7 @@ let getStatusPerformanceEntity: entity<stackBarChartData, option<string>> = {
     metrics: [#payment_count],
     groupBy: [#status],
     filters: [#status],
+    excludeFilterValue: [#payment_method_awaited],
   },
   configRequiredForChartData: {
     groupByKeys: [#status],
