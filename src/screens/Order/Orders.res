@@ -11,7 +11,11 @@ let make = (~previewOnly=false) => {
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
-
+  let defaultSort: Table.sortedObject = {
+    key: "",
+    order: Table.INC,
+  }
+  let (order, setOrderObj) = React.useState(_ => defaultSort)
   let (widthClass, heightClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "max-h-96") : ("w-full", "")
   }, [previewOnly])
@@ -30,6 +34,16 @@ let make = (~previewOnly=false) => {
 
         filters->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
         filters->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
+        let orderObj =
+          [
+            ("on", order.key->JSON.Encode.string),
+            ("by", order.order->TableUtils.getSortOrderString->JSON.Encode.string),
+          ]->Dict.fromArray
+
+        if order.key->isNonEmptyString {
+          filters->Dict.set("order", orderObj->JSON.Encode.object)
+        }
+
         if !(searchText->isEmptyString) {
           filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
         }
@@ -138,6 +152,7 @@ let make = (~previewOnly=false) => {
           sortingBasedOnDisabled=false
           hideTitle=true
           previewOnly
+          setOrderObj
         />
       </PageLoaderWrapper>
     </div>

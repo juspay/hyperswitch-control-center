@@ -230,6 +230,7 @@ let make = (
   ~tableHeadingTextClass="",
   ~nonFrozenTableParentClass="",
   ~loadedTableParentClass="",
+  ~setOrderObj=?,
 ) => {
   open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
@@ -520,9 +521,22 @@ let make = (
 
   let filteredData = React.useMemo(() => {
     switch sortedObj {
-    | Some(obj: Table.sortedObject) => sortArray(actualData, obj.key, obj.order)
-    | None => actualData
+    | Some(obj: Table.sortedObject) =>
+      switch setOrderObj {
+      | Some(fun) => {
+          fun(_ => obj)
+          if obj.key->LogicUtils.isNonEmptyString {
+            let newDict = Dict.make()
+            newDict->Dict.set(title, {offset: 0, resultsPerPage: 10})
+            setPageDetails(_ => newDict)
+          }
+        }
+      | None => ()
+      }
+    | None => ()
     }
+
+    actualData
   }, (sortedObj, customGetObjects, actualData, getObjects))
 
   React.useEffect(() => {

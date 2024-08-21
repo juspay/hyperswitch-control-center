@@ -116,4 +116,5 @@ let make: (
   ~tableHeadingTextClass: string=?,
   ~nonFrozenTableParentClass: string=?,
   ~loadedTableParentClass: string=?,
+  ~setOrderObj: (Table.sortedObject => Table.sortedObject) => unit=?,
 ) => React.element

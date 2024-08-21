@@ -12,6 +12,7 @@ let make = (
   ~resultsPerPage,
   ~offset,
   ~setOffset,
+  ~setOrderObj=?,
   ~handleRefetch=() => (),
   ~entity: EntityType.entityType<'colType, 't>,
   ~onEntityClick=?,
@@ -105,6 +106,7 @@ let make = (
   <LoadedTable
     visibleColumns
     entity
+    ?setOrderObj
     actualData
     title
     hideTitle
