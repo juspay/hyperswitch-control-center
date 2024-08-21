@@ -13,7 +13,6 @@ let useGetData = () => {
       ~bodyFormData: Fetch.formData=?,
       ~headers: Dict.t<'a>=?,
       ~contentType: AuthHooks.contentType=?,
-      unit,
     ) => promise<JSON.t>,
     ~offset,
     ~query,
@@ -32,8 +31,8 @@ let useGetData = () => {
     }
 
     try {
-      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ~id=Some(path), ())
-      let res = await updateDetails(url, body->JSON.Encode.object, Fetch.Post, ())
+      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ~id=Some(path))
+      let res = await updateDetails(url, body->JSON.Encode.object, Post)
       let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("hits", [])
       let total = res->getDictFromJsonObject->getInt("count", 0)
 

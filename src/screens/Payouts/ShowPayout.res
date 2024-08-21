@@ -155,7 +155,7 @@ let make = (~id) => {
   let fetchPayoutsData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let payoutsUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some(id), ())
+      let payoutsUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some(id))
       let response = await fetchDetails(payoutsUrl)
       setPayoutsData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)

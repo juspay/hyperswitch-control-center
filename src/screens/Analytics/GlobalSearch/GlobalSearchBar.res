@@ -220,7 +220,7 @@ let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let redirectOnSelect = element => {
-    mixpanelEvent(~eventName="global_search_redirect", ())
+    mixpanelEvent(~eventName="global_search_redirect")
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
@@ -230,11 +230,11 @@ let make = () => {
 
   let getSearchResults = async results => {
     try {
-      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
+      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
 
       let body = generateSearchBody(~searchText, ~merchant_id={merchantDetailsValue.merchant_id})
 
-      let response = await fetchDetails(url, body, Post, ())
+      let response = await fetchDetails(url, body, Post)
 
       let local_results = []
       results->Array.forEach((item: resultType) => {

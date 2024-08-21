@@ -3,13 +3,7 @@ let getAuthInfo = json => {
   open AuthProviderTypes
   let dict = json->JsonFlattenUtils.flattenObject(false)
   let totpInfo = {
-    email: getString(dict, "email", ""),
-    merchant_id: getString(dict, "merchant_id", ""),
-    name: getString(dict, "name", ""),
     token: getString(dict, "token", "")->getNonEmptyString,
-    role_id: getString(dict, "role_id", ""),
-    is_two_factor_auth_setup: getBool(dict, "is_two_factor_auth_setup", false),
-    recovery_codes_left: getInt(dict, "recovery_codes_left", GlobalVars.maximumRecoveryCodes),
   }
   totpInfo
 }
@@ -84,8 +78,8 @@ let redirectToLogin = () => {
   open GlobalVars
   open LogicUtils
 
-  let authId = getSessionData(~key="auth_id", ())
-  let domain = getSessionData(~key="domain", ())
+  let authId = getSessionData(~key="auth_id")
+  let domain = getSessionData(~key="domain")
 
   let urlToRedirect = switch (authId->isNonEmptyString, domain->isNonEmptyString) {
   | (true, true) => `/login?auth_id=${authId}&domain=${domain}`

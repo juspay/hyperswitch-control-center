@@ -47,6 +47,7 @@ module ListItem: {
     ~showToolTipOptions: bool=?,
     ~textEllipsisForDropDownOptions: bool=?,
     ~textColorClass: string=?,
+    ~customRowClass: string=?,
   ) => React.element
 }
 type dropdownOptionWithoutOptional = {
@@ -58,6 +59,7 @@ type dropdownOptionWithoutOptional = {
   iconStroke: string,
   textColor: string,
   optGroup: string,
+  customRowClass: string,
 }
 type dropdownOption = {
   label: string,
@@ -68,6 +70,7 @@ type dropdownOption = {
   description?: string,
   iconStroke?: string,
   textColor?: string,
+  customRowClass?: string,
 }
 let makeNonOptional: dropdownOption => dropdownOptionWithoutOptional
 let useTransformed: array<dropdownOption> => array<dropdownOptionWithoutOptional>

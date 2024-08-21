@@ -12,7 +12,6 @@ let useFetchEnumDetails = () => {
         ~userType=#USER_DATA,
         ~methodType=Get,
         ~queryParamerters=Some(`keys=${enumArray->Array.joinWithUnsafe(",")}`),
-        (),
       )
       let res = await fetchDetails(url)
       let responseDict = res->responseDataMapper(getValueMapped)
@@ -72,9 +71,9 @@ let usePostEnumDetails = () => {
 
   async (body, enumVariant) => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post)
       let bodyValForApi = enumVariant->QuickStartUtils.generateBodyBasedOnType(body)
-      let _ = await updateDetails(url, bodyValForApi, Post, ())
+      let _ = await updateDetails(url, bodyValForApi, Post)
 
       let updatedRecoilValueDict = updateEnumInRecoil([(body, enumVariant)])
       Nullable.make(updatedRecoilValueDict)

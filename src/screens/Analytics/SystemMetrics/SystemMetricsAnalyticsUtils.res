@@ -158,5 +158,4 @@ let chartEntity = tabKeys =>
     ~chartTypes=[Line],
     ~uriConfig=[],
     ~moduleName="Payment Analytics",
-    (),
   )

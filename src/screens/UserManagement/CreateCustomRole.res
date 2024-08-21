@@ -41,7 +41,7 @@ module NewCustomRoleInputFields = {
   open CommonAuthHooks
   @react.component
   let make = () => {
-    let {user_role: userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+    let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     <div className="flex justify-between">
       <div className="flex flex-col gap-4 w-full">
         <FormRenderer.FieldRenderer
@@ -89,13 +89,13 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
       // TODO -  Seperate RoleName & RoleId in Backend. role_name as free text and role_id as snake_text
       setScreenState(_ => PageLoaderWrapper.Loading)
       let copiedJson = JSON.parseExn(JSON.stringify(values))
-      let url = getURL(~entityName=USERS, ~userType=#CREATE_CUSTOM_ROLE, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#CREATE_CUSTOM_ROLE, ~methodType=Post)
 
       let body = copiedJson->getDictFromJsonObject->JSON.Encode.object
       let roleNameValue =
         body->getDictFromJsonObject->getString("role_name", "")->String.trim->titleToSnake
       body->getDictFromJsonObject->Dict.set("role_name", roleNameValue->JSON.Encode.string)
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
       setScreenState(_ => PageLoaderWrapper.Success)
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
     } catch {
@@ -107,7 +107,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
           setInitialValues(_ => values->LogicUtils.getDictFromJsonObject)
           setScreenState(_ => PageLoaderWrapper.Success)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError, ())
+          showToast(~message=errorMessage, ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
@@ -123,7 +123,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
         ~userType=#PERMISSION_INFO,
         ~methodType=Get,
         ~queryParamerters=Some(`groups=true`),
-        (),
       )
       let res = await fetchDetails(url)
       let permissionInfoValue = res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)

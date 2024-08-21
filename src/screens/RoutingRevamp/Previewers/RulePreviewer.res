@@ -81,7 +81,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
             }
             <div key={Int.toString(index)} className="flex flex-col items-center w-full px-4 pb-6">
               <div
-                style={ReactDOMStyle.make(~marginTop="-1.2rem", ())}
+                style={marginTop: "-1.2rem"}
                 className="text-jp-gray-700 dark:text-jp-gray-700 text-base font-semibold p-1 px-3 bg-jp-gray-50 dark:bg-jp-gray-950 rounded-full border border-jp-gray-600 dark:border-jp-gray-850">
                 {headingText->React.string}
               </div>

@@ -290,7 +290,7 @@ let timeSeriesDataMaker = (
         )
       )
       ->Array.map(LogicUtils.snakeToTitle)
-      ->Array.joinWithUnsafe(" : ")
+      ->Array.joinWith(" : ")
     | None =>
       dict->getString(
         groupKey,
@@ -298,8 +298,7 @@ let timeSeriesDataMaker = (
       )
     }
 
-    let xAxisDataPoint =
-      dict->getString(xAxis, "")->String.split(" ")->Array.joinWithUnsafe("T") ++ "Z" // right now it is time string
+    let xAxisDataPoint = dict->getString(xAxis, "")->String.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
     let yAxisDataPoint = dict->getFloat(yAxis, 0.)
 
     let secondryAxisPoint = switch secondryMetrics {
@@ -570,10 +569,10 @@ let legendClickItem = (s: Highcharts.legendItem, e, setState) => {
 }
 let formatStatsAccToMetrix = (metric: dropDownMetricType, value: float) => {
   switch metric {
-  | Latency => latencyShortNum(~labelValue=value, ())
-  | Volume => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat(), ())
+  | Latency => latencyShortNum(~labelValue=value)
+  | Volume => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat())
   | Rate | Traffic => value->Float.toFixedWithPrecision(~digits=2)->removeTrailingZero ++ "%"
-  | Amount => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat(), ())
+  | Amount => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat())
   }
 }
 
@@ -640,27 +639,15 @@ let tooltipFormatter = (
   `<table>${htmlStr}</table>`
 }
 
-let legendItemStyle = (theme: ThemeProvider.theme, legendFontSizeClass) => {
-  switch theme {
-  | Dark =>
-    {
-      "color": "#c7cad0",
-      "cursor": "pointer",
-      "fontSize": legendFontSizeClass,
-      "fontWeight": "500",
-      "fontFamily": "Inter",
-      "fontStyle": "normal",
-    }->genericObjectOrRecordToJson
-  | Light =>
-    {
-      "color": "rgba(53, 64, 82, 0.8)",
-      "cursor": "pointer",
-      "fontSize": legendFontSizeClass,
-      "fontWeight": "500",
-      "fontFamily": "Inter",
-      "fontStyle": "normal",
-    }->genericObjectOrRecordToJson
-  }
+let legendItemStyle = legendFontSizeClass => {
+  {
+    "color": "rgba(53, 64, 82, 0.8)",
+    "cursor": "pointer",
+    "fontSize": legendFontSizeClass,
+    "fontWeight": "500",
+    "fontFamily": "Inter",
+    "fontStyle": "normal",
+  }->genericObjectOrRecordToJson
 }
 
 let legendHiddenStyle = (theme: ThemeProvider.theme) => (

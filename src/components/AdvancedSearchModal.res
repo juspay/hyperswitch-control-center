@@ -35,13 +35,13 @@ module AdvanceSearch = {
             None
           }
         })
-        ->Array.joinWithUnsafe("&")
+        ->Array.joinWith("&")
       | _ => ""
       }
       let finalUrl = otherQueries->isNonEmptyString ? `${url}?${otherQueries}` : url
 
       open Promise
-      fetchApi(finalUrl, ~bodyStr=JSON.stringify(initialValueJson), ~method_=Fetch.Get, ())
+      fetchApi(finalUrl, ~bodyStr=JSON.stringify(initialValueJson), ~method_=Get)
       ->then(res => res->Fetch.Response.json)
       ->then(json => {
         switch JSON.Classify.classify(json) {
@@ -60,24 +60,19 @@ module AdvanceSearch = {
                 }
 
               | _ =>
-                showToast(
-                  ~message="Something went wrong. Please try again",
-                  ~toastType=ToastError,
-                  (),
-                )
+                showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
               }
             } else {
-              showToast(~message="Data Not Found", ~toastType=ToastWarning, ())
+              showToast(~message="Data Not Found", ~toastType=ToastWarning)
             }
           }
 
-        | _ =>
-          showToast(~message="Something went wrong. Please try again", ~toastType=ToastError, ())
+        | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
         }
         json->Nullable.make->resolve
       })
       ->catch(_err => {
-        showToast(~message="Something went wrong. Please try again", ~toastType=ToastError, ())
+        showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
 
         Nullable.null->resolve
       })
@@ -101,7 +96,7 @@ module AdvanceSearch = {
       if !isSubmitEnabled {
         Dict.set(
           errors,
-          optionalSearchFieldsList->Array.joinWithUnsafe(","),
+          optionalSearchFieldsList->Array.joinWith(","),
           "Atleast One of Optional fields is Required"->JSON.Encode.string,
         )
       }

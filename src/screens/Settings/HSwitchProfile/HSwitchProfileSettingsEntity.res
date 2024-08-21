@@ -27,9 +27,9 @@ let getItems = json => LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 
 let getHeading = colType => {
   switch colType {
-  | MerchantName => Table.makeHeaderInfo(~key="merchant_name", ~title="Merchant Name", ())
-  | RoleName => Table.makeHeaderInfo(~key="role", ~title="Role", ())
-  | MerchantId => Table.makeHeaderInfo(~key="merchant id", ~title="Merchant Id", ())
+  | MerchantName => Table.makeHeaderInfo(~key="merchant_name", ~title="Merchant Name")
+  | RoleName => Table.makeHeaderInfo(~key="role", ~title="Role")
+  | MerchantId => Table.makeHeaderInfo(~key="merchant id", ~title="Merchant Id")
   }
 }
 
@@ -56,5 +56,4 @@ let merchantTableEntity = EntityType.makeEntity(
   ~getHeading,
   ~dataKey="",
   ~getCell,
-  (),
 )

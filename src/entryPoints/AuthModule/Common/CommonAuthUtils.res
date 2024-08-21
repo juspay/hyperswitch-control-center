@@ -38,7 +38,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
         Dict.set(
           errors,
           key,
-          `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWithUnsafe(
+          `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWith(
               ",",
             )} character`->JSON.Encode.string,
         )
@@ -77,7 +77,7 @@ let getEmailPasswordBody = (email, password, country) =>
   ->Dict.fromArray
   ->JSON.Encode.object
 
-let getEmailBody = (email, ~country=?, ()) => {
+let getEmailBody = (email, ~country=?) => {
   let fields = [("email", email->JSON.Encode.string)]
 
   switch country {
@@ -181,5 +181,19 @@ module ToggleLiveTestMode = {
       | _ => React.null
       }}
     </>
+  }
+}
+
+let setUserInMixpanel = email => {
+  if email->LogicUtils.isNonEmptyString {
+    try {
+      let mixpanelUserInfo =
+        [("email", email->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+      MixPanel.identify(email)
+      MixPanel.mixpanel.people.set(mixpanelUserInfo)
+    } catch {
+    | _ => ()
+    }
+    LocalStorage.setItem("deviceId", email)
   }
 }

@@ -14,7 +14,7 @@ let make = () => {
   let loadInfo = async () => {
     open LogicUtils
     try {
-      let infoUrl = getURL(~entityName=ANALYTICS_REFUNDS, ~methodType=Get, ~id=Some(domain), ())
+      let infoUrl = getURL(~entityName=ANALYTICS_REFUNDS, ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
@@ -31,10 +31,10 @@ let make = () => {
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Post, ~id=Some("refund-post"), ())
+      let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Post, ~id=Some("refund-post"))
       let body = Dict.make()
       body->Dict.set("limit", 100->Int.toFloat->JSON.Encode.float)
-      let refundDetails = await updateDetails(refundUrl, body->JSON.Encode.object, Post, ())
+      let refundDetails = await updateDetails(refundUrl, body->JSON.Encode.object, Post)
       let data = refundDetails->getDictFromJsonObject->getArrayFromDict("data", [])
 
       if data->Array.length < 1 {

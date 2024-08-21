@@ -51,7 +51,6 @@ let make = (
     ~callback=() => {
       setIsAppearancePopupOpen(_ => false)
     },
-    (),
   )
 
   let leftMarginOnNav = "ml-0"

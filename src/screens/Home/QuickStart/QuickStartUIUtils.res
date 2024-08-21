@@ -225,9 +225,9 @@ module SelectConnectorGrid = {
     let typedConnectedConnectorList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
-      ->ConnectorUtils.getProcessorsListFromJson()
+      ->ConnectorUtils.getProcessorsListFromJson
       ->Array.map(connectorDict =>
-        connectorDict.connector_name->ConnectorUtils.getConnectorNameTypeFromString()
+        connectorDict.connector_name->ConnectorUtils.getConnectorNameTypeFromString
       )
     let popularConnectorList =
       [

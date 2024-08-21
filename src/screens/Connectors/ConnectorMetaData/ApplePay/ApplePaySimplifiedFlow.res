@@ -12,7 +12,7 @@ let make = (
   open ApplePayIntegrationHelper
   open ApplePayIntegrationUtils
   let getURL = useGetURL()
-  let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
+  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
 
@@ -42,8 +42,8 @@ let make = (
   let onSubmit = async () => {
     try {
       let body = formState.values->constructVerifyApplePayReq(connectorID)
-      let verifyAppleUrl = getURL(~entityName=VERIFY_APPLE_PAY, ~methodType=Post, ())
-      let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post, ())
+      let verifyAppleUrl = getURL(~entityName=VERIFY_APPLE_PAY, ~methodType=Post)
+      let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post)
 
       let data =
         formState.values
@@ -56,7 +56,7 @@ let make = (
       setVefifiedDomainList(_ => [domainName])
       setApplePayIntegrationSteps(_ => ApplePayIntegrationTypes.Verify)
     } catch {
-    | _ => showToast(~message="Failed to Verify", ~toastType=ToastState.ToastError, ())
+    | _ => showToast(~message="Failed to Verify", ~toastType=ToastState.ToastError)
     }
     Nullable.null
   }
@@ -64,7 +64,7 @@ let make = (
   let downloadApplePayCert = () => {
     open Promise
     let downloadURL = Window.env.applePayCertificateUrl->Option.getOr("")
-    fetchApi(downloadURL, ~method_=Get, ())
+    fetchApi(downloadURL, ~method_=Get)
     ->then(Fetch.Response.blob)
     ->then(content => {
       DownloadUtils.download(
@@ -72,7 +72,7 @@ let make = (
         ~content,
         ~fileType="text/plain",
       )
-      showToast(~toastType=ToastSuccess, ~message="File download complete", ())
+      showToast(~toastType=ToastSuccess, ~message="File download complete")
 
       resolve()
     })
@@ -80,7 +80,6 @@ let make = (
       showToast(
         ~toastType=ToastError,
         ~message="Oops, something went wrong with the download. Please try again.",
-        (),
       )
       resolve()
     })
@@ -121,13 +120,12 @@ let make = (
                   ~integrationType=Some(#simplified),
                 )
               },
-              (),
             )}
           />
         | _ =>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={applePayValueInput(~applePayField, ~integrationType={Some(#simplified)}, ())}
+            field={applePayValueInput(~applePayField, ~integrationType={Some(#simplified)})}
           />
         }}
       </div>
@@ -161,7 +159,7 @@ let make = (
       />}
     />
     <RenderIf condition={featureFlagDetails.isLiveMode && featureFlagDetails.complianceCertificate}>
-      {switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+      {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE) =>
         <>
           <hr className="w-full" />

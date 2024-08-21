@@ -75,7 +75,6 @@ module PaymentProcessingDetailsAt = {
               ~placeholder={`Enter Processing Certificate`},
               ~customInput=InputFields.textInput(),
               ~isRequired=true,
-              (),
             )}
           />
           <FormRenderer.FieldRenderer
@@ -96,10 +95,8 @@ module PaymentProcessingDetailsAt = {
                 ~customClass="",
                 ~leftIcon=React.null,
                 ~maxLength=10000,
-                (),
               ),
               ~isRequired=true,
-              (),
             )}
           />
         </div>
@@ -173,7 +170,6 @@ module Initiative = {
           },
           ~onItemChange=onChangeItem,
           ~opt=Some(initiativeOptions),
-          (),
         )}
       />
       {switch initiative {
@@ -259,13 +255,12 @@ let make = (
                   ~integrationType=Some(#manual),
                 )
               },
-              (),
             )}
           />
         | _ =>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={applePayValueInput(~applePayField, ~integrationType=Some(#manual), ())}
+            field={applePayValueInput(~applePayField, ~integrationType=Some(#manual))}
           />
         }}
       </div>

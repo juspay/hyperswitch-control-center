@@ -1,44 +1,3 @@
-module RadioSection = {
-  open ConnectorTypes
-  open FRMTypes
-  open FRMInfo
-  @react.component
-  let make = (~option, ~frmConfigs, ~paymentMethodTypeInfo, ~sectionType, ~setConfigJson) => {
-    let isOptionSelected =
-      switch sectionType {
-      | FlowType => paymentMethodTypeInfo.flow
-      | ActionType => paymentMethodTypeInfo.action
-      } === option
-
-    let handleOnClick = () => {
-      switch sectionType {
-      | FlowType =>
-        if paymentMethodTypeInfo.flow !== option {
-          switch option->getFlowTypeVariantFromString {
-          | PreAuth => paymentMethodTypeInfo.action = CancelTxn->getActionTypeNameString
-          | PostAuth => paymentMethodTypeInfo.action = ManualReview->getActionTypeNameString
-          }
-          paymentMethodTypeInfo.flow = option
-        }
-      | ActionType => paymentMethodTypeInfo.action = option
-      }
-      setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
-    }
-
-    <div>
-      <div className="flex items-center gap-2 break-all">
-        <div onClick={_ => handleOnClick()}>
-          <RadioIcon isSelected={isOptionSelected} />
-        </div>
-        {switch sectionType {
-        | FlowType => option->getFlowTypeLabel->React.string
-        | ActionType => option->getActionTypeLabel->LogicUtils.snakeToTitle->React.string
-        }}
-      </div>
-    </div>
-  }
-}
-
 module ToggleSwitch = {
   open FRMUtils
   @react.component
@@ -68,19 +27,9 @@ module ToggleSwitch = {
 }
 
 module FormField = {
-  open ConnectorTypes
   open FRMInfo
-  open FRMTypes
   @react.component
-  let make = (
-    ~options,
-    ~label,
-    ~paymentMethodTypeInfo,
-    ~frmConfigs,
-    ~sectionType,
-    ~setConfigJson,
-    ~description,
-  ) => {
+  let make = (~fromConfigIndex, ~paymentMethodIndex, ~options, ~label, ~description) => {
     <div className="w-max">
       <div className="flex">
         <h3 className="font-semibold text-bold text-lg pb-2">
@@ -96,25 +45,23 @@ module FormField = {
         </div>
       </div>
       <div className={`grid grid-cols-2 md:grid-cols-4 gap-4`}>
-        <RenderIf condition={sectionType == ActionType}>
-          <div className="flex items-center gap-2 break-all">
-            {paymentMethodTypeInfo.action->getActionTypeLabel->Jsx.string}
-          </div>
-        </RenderIf>
-        <RenderIf condition={sectionType != ActionType}>
-          {options
-          ->Array.mapWithIndex((option, i) => {
-            <RadioSection
-              key={i->Int.toString}
-              option
-              paymentMethodTypeInfo
-              frmConfigs
-              sectionType
-              setConfigJson
-            />
-          })
-          ->React.array}
-        </RenderIf>
+        <FormRenderer.FieldRenderer
+          field={FormRenderer.makeFieldInfo(
+            ~label="",
+            ~name=`frm_configs[${fromConfigIndex}].payment_methods[${paymentMethodIndex}].flow`,
+            ~customInput=InputFields.radioInput(
+              ~options=options->Array.map((item): SelectBox.dropdownOption => {
+                {
+                  label: item->getFlowTypeLabel,
+                  value: item,
+                }
+              }),
+              ~buttonText="options",
+              ~baseComponentCustomStyle="flex",
+              ~customStyle="flex gap-2 !overflow-visible",
+            ),
+          )}
+        />
       </div>
     </div>
   }
@@ -123,9 +70,9 @@ module FormField = {
 module CheckBoxRenderer = {
   open FRMUtils
   open FRMInfo
-  open FRMTypes
   @react.component
   let make = (
+    ~fromConfigIndex,
     ~frmConfigInfo: ConnectorTypes.frm_config,
     ~frmConfigs,
     ~connectorPaymentMethods,
@@ -229,49 +176,32 @@ module CheckBoxRenderer = {
       {frmConfigInfo.payment_methods
       ->Array.mapWithIndex((paymentMethodInfo, index) => {
         <RenderIf condition={isOpen} key={index->Int.toString}>
-          {paymentMethodInfo.payment_method_types
-          ->Array.mapWithIndex((paymentMethodTypeInfo, i) => {
-            <Accordion
-              key={i->Int.toString}
-              initialExpandedArray=[0]
-              accordion={[
-                {
-                  title: paymentMethodTypeInfo.payment_method_type->LogicUtils.snakeToTitle,
-                  renderContent: () => {
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                      <FormField
-                        options={flowTypeAllOptions}
-                        label="Choose one of the flows"
-                        paymentMethodTypeInfo
-                        frmConfigs
-                        sectionType={FlowType}
-                        setConfigJson
-                        description="i. \"PreAuth\" - facilitate transaction verification prior to payment authorization.
+          <Accordion
+            key={index->Int.toString}
+            initialExpandedArray=[0]
+            accordion={[
+              {
+                title: paymentMethodInfo.payment_method->LogicUtils.snakeToTitle,
+                renderContent: () => {
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    <FormField
+                      options={flowTypeAllOptions}
+                      label="Choose one of the flows"
+                      fromConfigIndex
+                      paymentMethodIndex={index->Int.toString}
+                      description="i. \"PreAuth\" - facilitate transaction verification prior to payment authorization.
                         ii. \"PostAuth\" - facilitate transaction validation post-authorization, before amount capture."
-                      />
-                      <FormField
-                        options={paymentMethodTypeInfo.flow->getActionTypeAllOptions}
-                        label="Preferred Action"
-                        paymentMethodTypeInfo
-                        frmConfigs
-                        sectionType={ActionType}
-                        setConfigJson
-                        description={paymentMethodTypeInfo.flow
-                        ->getFlowTypeVariantFromString
-                        ->actionDescriptionForFlow}
-                      />
-                    </div>
-                  },
-                  renderContentOnTop: None,
+                    />
+                  </div>
                 },
-              ]}
-              accordianTopContainerCss="border"
-              accordianBottomContainerCss="p-5"
-              contentExpandCss="px-10 pb-6 pt-3 !border-t-0"
-              titleStyle="font-semibold text-bold text-md"
-            />
-          })
-          ->React.array}
+                renderContentOnTop: None,
+              },
+            ]}
+            accordianTopContainerCss="border"
+            accordianBottomContainerCss="p-5"
+            contentExpandCss="px-10 pb-6 pt-3 !border-t-0"
+            titleStyle="font-semibold text-bold text-md"
+          />
         </RenderIf>
       })
       ->React.array}
@@ -298,8 +228,8 @@ module PaymentMethodsRenderer = {
           response
           ->getArrayFromJson([])
           ->Array.map(getDictFromJsonObject)
-          ->FRMUtils.filterList(~removeFromList=FRMPlayer, ())
-          ->FRMUtils.filterList(~removeFromList=ThreedsAuthenticator, ())
+          ->FRMUtils.filterList(~removeFromList=FRMPlayer)
+          ->FRMUtils.filterList(~removeFromList=ThreedsAuthenticator)
           ->getConnectorConfig
 
         let updateFRMConfig =
@@ -335,6 +265,7 @@ module PaymentMethodsRenderer = {
             frmConfigs
             connectorPaymentMethods={connectorConfig->Dict.get(configInfo.gateway)}
             isUpdateFlow
+            fromConfigIndex={i->Int.toString}
           />
         })
         ->React.array}
@@ -353,7 +284,7 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
 
   let onSubmit = (values, _) => {
     open Promise
-    mixpanelEvent(~eventName="frm_step1", ())
+    mixpanelEvent(~eventName="frm_step1")
     let valuesDict = values->getDictFromJsonObject
 
     // filter connector frm config having no payment method config
@@ -363,7 +294,12 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
       ->parseFRMConfig
       ->Array.filter(config => config.payment_methods->Array.length > 0)
 
-    valuesDict->Dict.set("frm_configs", filteredArray->Identity.genericTypeToJson)
+    valuesDict->Dict.set(
+      "frm_configs",
+      filteredArray->Array.length > 0
+        ? filteredArray->Identity.genericTypeToJson
+        : JSON.Encode.null,
+    )
     setInitialValues(_ => valuesDict->JSON.Encode.object)
     setCurrentStep(prev => prev->getNextStep)
 

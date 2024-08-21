@@ -14,7 +14,7 @@ let make = () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     open LogicUtils
     try {
-      let infoUrl = getURL(~entityName=ANALYTICS_DISPUTES, ~methodType=Get, ~id=Some("dispute"), ())
+      let infoUrl = getURL(~entityName=ANALYTICS_DISPUTES, ~methodType=Get, ~id=Some("dispute"))
       let infoDetails = await fetchDetails(infoUrl)
       setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
@@ -57,7 +57,7 @@ let make = () => {
       tabKeys
       tabValues
       options
-      singleStatEntity={getSingleStatEntity(metrics, ())}
+      singleStatEntity={getSingleStatEntity(metrics)}
       getTable={getDisputeTable}
       colMapper
       tableEntity={disputeTableEntity()}

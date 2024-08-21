@@ -1,18 +1,13 @@
 module InfoField = {
   open LogicUtils
-  open FRMInfo
   @react.component
-  let make = (~label, ~flowTypeValue, ~actionTypeValue) => {
+  let make = (~label, ~flowTypeValue) => {
     <div className="flex flex-col gap-2 mb-7">
       <h4 className="text-lg font-semibold underline"> {label->snakeToTitle->React.string} </h4>
       <div className="flex flex-col gap-1">
         <h3 className="break-all">
           <span className="font-semibold mr-3"> {"Flow :"->React.string} </span>
-          {flowTypeValue->getFlowTypeLabel->React.string}
-        </h3>
-        <h3 className="break-all">
-          <span className="font-semibold mr-3"> {"Action :"->React.string} </span>
-          {actionTypeValue->getActionTypeLabel->React.string}
+          {flowTypeValue->React.string}
         </h3>
       </div>
     </div>
@@ -22,6 +17,7 @@ module InfoField = {
 module ConfigInfo = {
   open LogicUtils
   open ConnectorTypes
+  open FRMInfo
   @react.component
   let make = (~frmConfigs) => {
     frmConfigs
@@ -31,20 +27,28 @@ module ConfigInfo = {
         <div>
           {config.payment_methods
           ->Array.mapWithIndex((paymentMethod, ind) => {
-            <div key={ind->Int.toString}>
-              {paymentMethod.payment_method_types
+            if paymentMethod.payment_method_types->Option.getOr([])->Array.length == 0 {
+              <InfoField
+                key={ind->Int.toString}
+                label={paymentMethod.payment_method}
+                flowTypeValue={paymentMethod.flow->getFlowTypeLabel}
+              />
+            } else {
+              paymentMethod.payment_method_types
+              ->Option.getOr([])
               ->Array.mapWithIndex(
                 (paymentMethodType, index) => {
-                  <InfoField
-                    key={index->Int.toString}
-                    label={paymentMethodType.payment_method_type}
-                    flowTypeValue={paymentMethodType.flow}
-                    actionTypeValue={paymentMethodType.action}
-                  />
+                  <RenderIf condition={index == 0}>
+                    <InfoField
+                      key={index->Int.toString}
+                      label={paymentMethod.payment_method}
+                      flowTypeValue={paymentMethodType.flow->getFlowTypeLabel}
+                    />
+                  </RenderIf>
                 },
               )
-              ->React.array}
-            </div>
+              ->React.array
+            }
           })
           ->React.array}
         </div>
@@ -78,12 +82,12 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
     try {
       let frmID = initialValues->getDictFromJsonObject->getString("merchant_connector_id", "")
       let disableFRMPayload = initialValues->FRMTypes.getDisableConnectorPayload(isFRMDisabled)
-      let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ~id=Some(frmID), ())
-      let _ = await updateDetails(url, disableFRMPayload->JSON.Encode.object, Post, ())
-      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
+      let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ~id=Some(frmID))
+      let _ = await updateDetails(url, disableFRMPayload->JSON.Encode.object, Post)
+      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/fraud-risk-management"))
     } catch {
-    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
+    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
     }
   }
 
@@ -114,7 +118,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
       | _ =>
         <Button
           onClick={_ => {
-            mixpanelEvent(~eventName="frm_step3", ())
+            mixpanelEvent(~eventName="frm_step3")
             RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/fraud-risk-management"))
           }}
           text="Done"

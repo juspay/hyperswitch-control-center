@@ -24,9 +24,9 @@ let make = (
 ) => {
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "dummy-name",
-    onBlur: _ev => (),
+    onBlur: _ => (),
     onChange,
-    onFocus: _ev => (),
+    onFocus: _ => (),
     value,
     checked: true,
   }

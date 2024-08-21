@@ -7,7 +7,7 @@ let paragraphTextVariant = `${getTextClass((P2, Medium))} text-grey-700 opacity-
 let subtextStyle = `${getTextClass((P1, Regular))} text-grey-700 opacity-50`
 let cardHeaderText = getTextClass((H3, Leading_2))
 let hoverStyle = "cursor-pointer group-hover:shadow hover:shadow-homePageBoxShadow group"
-let boxCssHover = (~ishoverStyleRequired, ()) =>
+let boxCssHover = (~ishoverStyleRequired) =>
   `flex flex-col  bg-white border rounded-md pt-10 pl-10 gap-2 h-12.5-rem ${ishoverStyleRequired
       ? hoverStyle
       : ""}`
@@ -125,8 +125,7 @@ module MerchantAuthInfo = {
           <div className="font-semibold text-dark_black"> {"Publishable Key"->React.string} </div>
           <div className="flex items-center">
             <div
-              className="font-medium text-dark_black opacity-40"
-              style={ReactDOMStyle.make(~overflowWrap="anywhere", ())}>
+              className="font-medium text-dark_black opacity-40" style={overflowWrap: "anywhere"}>
               {merchantDetailsValue.publishable_key->React.string}
             </div>
             <CopyFieldValue fieldkey="publishable_key" />
@@ -165,7 +164,7 @@ module CheckoutCard = {
           },
         })
       } else {
-        mixpanelEvent(~eventName=`try_test_payment`, ())
+        mixpanelEvent(~eventName=`try_test_payment`)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/sdk"))
       }
     }
@@ -275,7 +274,7 @@ module DevResources = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                mixpanelEvent(~eventName=`dev_docs`, ())
+                mixpanelEvent(~eventName=`dev_docs`)
                 "https://hyperswitch.io/docs"->Window._open
               }}
             />
@@ -368,15 +367,13 @@ let getValueMappedForProd = (value, key) => {
 
 module LowRecoveryCodeBanner = {
   @react.component
-  let make = (~recovery_codes_left) => {
+  let make = (~recoveryCode) => {
     <div className="w-full bg-orange-200 bg-opacity-40 px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <Icon name="warning-outlined" size=25 />
         <div className="flex gap-2">
           {`You are low on recovery-codes. Only`->React.string}
-          <span className="font-bold">
-            {`${recovery_codes_left->Int.toString} left`->React.string}
-          </span>
+          <span className="font-bold"> {`${recoveryCode->Int.toString} left`->React.string} </span>
         </div>
       </div>
       <Button

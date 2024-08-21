@@ -92,6 +92,9 @@ external isSecureContext: bool = "isSecureContext"
 external getAuthenticationConnectorConfig: string => JSON.t = "getAuthenticationConnectorConfig"
 
 @val @scope("window")
+external getPMAuthenticationProcessorConfig: string => JSON.t = "getPMAuthenticationProcessorConfig"
+
+@val @scope("window")
 external getAllPayoutKeys: unit => array<string> = "getAllPayoutKeys"
 
 @val @scope("window")

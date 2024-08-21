@@ -63,7 +63,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorTypeFromName = connector->getConnectorNameTypeFromString()
+  let connectorTypeFromName = connector->getConnectorNameTypeFromString
   let profileIdFromUrl =
     UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getOptionString("profile_id")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
@@ -82,7 +82,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
 
   let getConnectorDetails = async () => {
     try {
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID), ())
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID))
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
@@ -111,13 +111,9 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         }
       }
 
-      let paypalBody = generatePayPalBody(
-        ~connectorId={connectorID},
-        ~profileId=Some(profileId),
-        (),
-      )
-      let url = getURL(~entityName=PAYPAL_ONBOARDING_SYNC, ~methodType=Post, ())
-      let responseValue = await updateDetails(url, paypalBody, Fetch.Post, ())
+      let paypalBody = generatePayPalBody(~connectorId={connectorID}, ~profileId=Some(profileId))
+      let url = getURL(~entityName=PAYPAL_ONBOARDING_SYNC, ~methodType=Post)
+      let responseValue = await updateDetails(url, paypalBody, Post)
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
 
       switch paypalDict->JSON.Classify.classify {
@@ -136,7 +132,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       if err->String.includes("Profile") {
-        showToast(~message="Profile Id not found. Try Again", ~toastType=ToastError, ())
+        showToast(~message="Profile Id not found. Try Again", ~toastType=ToastError)
       }
       setScreenState(_ => PageLoaderWrapper.Custom)
     }

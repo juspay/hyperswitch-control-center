@@ -10,7 +10,7 @@ let make = () => {
   let getMerchantDetails = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get, ())
+      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get)
       let merchantDetails = await fetchDetails(accountUrl)
       let merchantInfo = merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails
       setMerchantInfo(_ => merchantInfo)

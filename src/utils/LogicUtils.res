@@ -102,7 +102,7 @@ let toCamelCase = str => {
     }
     item->Js.String2.unsafeReplaceBy3(%re("/(?:^\w|[A-Z]|\b\w)/g"), matchFn)
   })
-  ->Array.joinWithUnsafe("")
+  ->Array.joinWith("")
 }
 let getNameFromEmail = email => {
   email
@@ -117,7 +117,7 @@ let getNameFromEmail = email => {
       name->String.get(0)->Option.getOr("")->String.toUpperCase ++ name->String.sliceToEnd(~start=1)
     }
   })
-  ->Array.joinWithUnsafe(" ")
+  ->Array.joinWith(" ")
 }
 
 let getOptionString = (dict, key) => {
@@ -343,7 +343,7 @@ let snakeToCamel = str => {
   str
   ->String.split("_")
   ->Array.mapWithIndex((x, i) => i == 0 ? x : capitalizeString(x))
-  ->Array.joinWithUnsafe("")
+  ->Array.joinWith("")
 }
 
 let camelToSnake = str => {
@@ -354,7 +354,7 @@ let camelToSnake = str => {
 }
 
 let userNameToTitle = str =>
-  str->String.split(".")->Array.map(capitalizeString)->Array.joinWithUnsafe(" ")
+  str->String.split(".")->Array.map(capitalizeString)->Array.joinWith(" ")
 
 let camelCaseToTitle = str => {
   str->capitalizeString->String.replaceRegExp(%re("/([a-z0-9A-Z])([A-Z])/g"), "$1 $2")
@@ -372,11 +372,11 @@ let snakeToTitle = str => {
     let second = x->Js.String2.substringToEnd(~from=1)
     first ++ second
   })
-  ->Array.joinWithUnsafe(" ")
+  ->Array.joinWith(" ")
 }
 
 let titleToSnake = str => {
-  str->String.split(" ")->Array.map(String.toLowerCase)->Array.joinWithUnsafe("_")
+  str->String.split(" ")->Array.map(String.toLowerCase)->Array.joinWith("_")
 }
 
 let getIntFromString = (str, default) => {
@@ -391,7 +391,6 @@ let shortNum = (
   ~labelValue: float,
   ~numberFormat: CurrencyFormatUtils.currencyFormat,
   ~presision: int=2,
-  (),
 ) => {
   open CurrencyFormatUtils
   let value = Math.abs(labelValue)
@@ -420,7 +419,7 @@ let shortNum = (
   }
 }
 
-let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
+let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?) => {
   if labelValue !== 0.0 {
     let value = Int.fromFloat(labelValue)
     let value_days = value / 86400
@@ -499,19 +498,19 @@ let isEmptyDict = dict => {
 }
 
 let stringReplaceAll = (str, old, new) => {
-  str->String.split(old)->Array.joinWithUnsafe(new)
+  str->String.split(old)->Array.joinWith(new)
 }
 
 let getUniqueArray = (arr: array<'t>) => {
   arr->Array.map(item => (item, ""))->Dict.fromArray->Dict.keysToArray
 }
 
-let getFirstLetterCaps = (str, ~splitBy="-", ()) => {
+let getFirstLetterCaps = (str, ~splitBy="-") => {
   str
   ->String.toLowerCase
   ->String.split(splitBy)
   ->Array.map(capitalizeString)
-  ->Array.joinWithUnsafe(" ")
+  ->Array.joinWith(" ")
 }
 
 let getDictfromDict = (dict, key) => {
@@ -532,13 +531,13 @@ let isEqualStringArr = (arr1, arr2) => {
   lengthEqual && isContainsAll
 }
 
-let getDefaultNumberFormat = () => {
+let getDefaultNumberFormat = _ => {
   open CurrencyFormatUtils
   USD
 }
 
 let indianShortNum = labelValue => {
-  shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat(), ())
+  shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
 }
 
 let convertNewLineSaperatedDataToArrayOfJson = text => {
@@ -570,7 +569,7 @@ let dataMerge = (~dataArr: array<array<JSON.t>>, ~dictKey: array<string>) => {
             dict->getString(ele, "")
           },
         )
-        ->Array.joinWithUnsafe("-")
+        ->Array.joinWith("-")
       let existingData = finalData->getObj(dictKey, Dict.make())->Dict.toArray
       let data = dict->Dict.toArray
 
@@ -611,7 +610,7 @@ let getTitle = name => {
   ->String.toLowerCase
   ->String.split("_")
   ->Array.map(capitalizeString)
-  ->Array.joinWithUnsafe(" ")
+  ->Array.joinWith(" ")
 }
 
 // Regex to check if a string contains a substring

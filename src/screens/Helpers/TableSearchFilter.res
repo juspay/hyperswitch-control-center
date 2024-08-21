@@ -41,7 +41,6 @@ let make = (
           InputFields.textInput(
             ~leftIcon=<Icon name="search" size=16 />,
             ~customStyle=`!h-10 ${customInputBoxWidth}`,
-            (),
           )(~input=inputSearch, ~placeholder)
         }}
       />

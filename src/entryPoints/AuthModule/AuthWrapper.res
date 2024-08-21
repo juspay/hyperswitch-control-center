@@ -60,14 +60,10 @@ let make = (~children) => {
     let preLoginInfo = getPreLoginDetailsFromLocalStorage()
     let loggedInInfo = getUserInfoDetailsFromLocalStorage()
 
-    if (
-      loggedInInfo.token->Option.isSome &&
-      loggedInInfo.merchant_id->isNonEmptyString &&
-      loggedInInfo.email->isNonEmptyString
-    ) {
-      setAuthStatus(LoggedIn(Auth(loggedInInfo)))
-    } else if preLoginInfo.token->Option.isSome && preLoginInfo.token_type->isNonEmptyString {
+    if preLoginInfo.token->Option.isSome && preLoginInfo.token_type->isNonEmptyString {
       setAuthStatus(PreLogin(preLoginInfo))
+    } else if loggedInInfo.token->Option.isSome {
+      setAuthStatus(LoggedIn(Auth(loggedInInfo)))
     } else {
       setAuthStatus(LoggedOut)
     }
@@ -78,10 +74,10 @@ let make = (~children) => {
     open LogicUtils
     try {
       let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
-      let url = getURL(~entityName=USERS, ~userType=#FROM_EMAIL, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#FROM_EMAIL, ~methodType=Post)
       switch tokenFromUrl {
       | Some(token) => {
-          let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post, ())
+          let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post)
           setAuthStatus(PreLogin(AuthUtils.getPreLoginInfo(response, ~email_token=Some(token))))
         }
       | None => setAuthStatus(LoggedOut)

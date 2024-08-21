@@ -54,18 +54,17 @@ let useGetStatus = dispute => {
 
 let getHeading = colType => {
   switch colType {
-  | DisputeId => Table.makeHeaderInfo(~key="dispute_id", ~title="Dispute Id", ~showSort=true, ())
-  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment Id", ~showSort=true, ())
-  | AttemptId => Table.makeHeaderInfo(~key="attempt_id", ~title="Attempt Id", ~showSort=true, ())
-  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true, ())
-  | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=true, ())
+  | DisputeId => Table.makeHeaderInfo(~key="dispute_id", ~title="Dispute Id", ~showSort=true)
+  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment Id", ~showSort=true)
+  | AttemptId => Table.makeHeaderInfo(~key="attempt_id", ~title="Attempt Id", ~showSort=true)
+  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true)
+  | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=true)
   | DisputeStage =>
     Table.makeHeaderInfo(
       ~key="dispute_stage",
       ~title="Dispute Stage",
       ~dataType=DropDown,
       ~showSort=true,
-      (),
     )
   | DisputeStatus =>
     Table.makeHeaderInfo(
@@ -73,49 +72,31 @@ let getHeading = colType => {
       ~title="Dispute Status",
       ~dataType=DropDown,
       ~showSort=true,
-      (),
     )
-  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector", ~showSort=true, ())
+  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector", ~showSort=true)
   | ConnectorStatus =>
-    Table.makeHeaderInfo(~key="connector_status", ~title="Connector Status", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="connector_status", ~title="Connector Status", ~showSort=true)
   | ConnectorDisputeId =>
-    Table.makeHeaderInfo(
-      ~key="connector_dispute_id",
-      ~title="Connector Dispute Id",
-      ~showSort=true,
-      (),
-    )
+    Table.makeHeaderInfo(~key="connector_dispute_id", ~title="Connector Dispute Id", ~showSort=true)
   | ConnectorReason =>
-    Table.makeHeaderInfo(~key="connector_reason", ~title="Connector Reason", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="connector_reason", ~title="Connector Reason", ~showSort=true)
   | ConnectorReasonCode =>
     Table.makeHeaderInfo(
       ~key="connector_reason_code",
       ~title="Connector Reason Code",
       ~showSort=true,
-      (),
     )
   | ChallengeRequiredBy =>
     Table.makeHeaderInfo(
       ~key="connector_required_by",
       ~title="Connector Required By",
       ~showSort=true,
-      (),
     )
   | ConnectorCreatedAt =>
-    Table.makeHeaderInfo(
-      ~key="connector_created_at",
-      ~title="Connector Created ",
-      ~showSort=true,
-      (),
-    )
+    Table.makeHeaderInfo(~key="connector_created_at", ~title="Connector Created ", ~showSort=true)
   | ConnectorUpdatedAt =>
-    Table.makeHeaderInfo(
-      ~key="connector_updated_at",
-      ~title="Connector Updated ",
-      ~showSort=true,
-      (),
-    )
-  | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="connector_updated_at", ~title="Connector Updated ", ~showSort=true)
+  | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created", ~showSort=true)
   }
 }
 let amountValue = (amount, currency) => {
@@ -204,5 +185,4 @@ let disputesEntity = EntityType.makeEntity(
   ~getShowLink={
     disputesData => GlobalVars.appendDashboardPath(~url=`/disputes/${disputesData.dispute_id}`)
   },
-  (),
 )

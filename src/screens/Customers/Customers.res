@@ -11,7 +11,7 @@ let make = () => {
   let getCustomersList = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let customersUrl = getURL(~entityName=CUSTOMERS, ~methodType=Get, ())
+      let customersUrl = getURL(~entityName=CUSTOMERS, ~methodType=Get)
       let response = await fetchDetails(customersUrl)
       let data = response->LogicUtils.getArrayDataFromJson(itemToObjMapper)
       setCustomersData(_ => data->Array.map(Nullable.make))

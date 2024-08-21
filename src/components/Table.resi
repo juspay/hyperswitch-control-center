@@ -101,7 +101,6 @@ let makeHeaderInfo: (
   ~showMultiSelectCheckBox: bool=?,
   ~hideOnShrink: bool=?,
   ~customWidth: string=?,
-  unit,
 ) => header
 let getCell: string => cell
 module ProgressCell = TableUtils.ProgressCell
@@ -305,4 +304,5 @@ let make: (
   ~customBorderClass: string=?,
   ~showborderColor: bool=?,
   ~tableHeadingTextClass: string=?,
+  ~nonFrozenTableParentClass: string=?,
 ) => React.element

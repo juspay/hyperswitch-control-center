@@ -13,8 +13,8 @@ let make = (~setAuthType) => {
 
   let acceptInviteFormEmail = async body => {
     try {
-      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL, ())
-      let res = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL)
+      let res = await updateDetails(url, body, Post)
       setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
       setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
     } catch {

@@ -59,7 +59,7 @@ let make = () => {
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let filterUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some("v2/filter"), ())
+  let filterUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some("v2/filter"))
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">

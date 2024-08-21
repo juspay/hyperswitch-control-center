@@ -65,7 +65,7 @@ let make = (
   }
 
   let toast = (message, toastType) => {
-    showToast(~message, ~toastType, ())
+    showToast(~message, ~toastType)
   }
 
   let fileEmptyCheckUpload = (~value, ~files, ~filename, ~mimeType) => {
@@ -138,7 +138,6 @@ let make = (
                       ~message=`File size too large, upload below ${(sizeLimit / 1000)
                           ->Int.toString}kb`,
                       ~toastType=ToastError,
-                      (),
                     )
                   } else {
                     switch rowsLimit {

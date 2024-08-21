@@ -42,7 +42,6 @@ module DetailsSection = {
                   ~name=field.name,
                   ~placeholder=field.placeholder,
                   ~customInput=field.inputType,
-                  (),
                 )}
               />
             }}
@@ -68,22 +67,21 @@ let make = () => {
   let (merchantInfo, setMerchantInfo) = React.useState(() => Dict.make())
   let (formState, setFormState) = React.useState(_ => Preview)
   let (fetchState, setFetchState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let onSubmit = async (values, _) => {
     try {
       setFetchState(_ => Loading)
-      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ~id=uid, ())
+      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ~id=uid)
       let merchantDetails = await updateDetails(
         accountUrl,
         values->getSettingsPayload(uid->Option.getOr("")),
         Post,
-        (),
       )
       setFormState(_ => Preview)
       let merchantInfo =
         merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails->parseMerchantJson
       setMerchantInfo(_ => merchantInfo)
-      showToast(~message=`Successfully updated business details`, ~toastType=ToastSuccess, ())
+      showToast(~message=`Successfully updated business details`, ~toastType=ToastSuccess)
       setFetchState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -98,7 +96,7 @@ let make = () => {
     setUid(_ => Some(merchantId))
     try {
       setFetchState(_ => Loading)
-      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get, ())
+      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get)
       let merchantDetails = await fetchDetails(accountUrl)
       let merchantInfo =
         merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails->parseMerchantJson

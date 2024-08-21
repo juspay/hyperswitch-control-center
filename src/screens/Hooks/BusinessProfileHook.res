@@ -6,7 +6,7 @@ let useFetchBusinessProfiles = () => {
 
   async _ => {
     try {
-      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Get, ())
+      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Get)
       let res = await fetchDetails(url)
       setBusinessProfiles(_ => res->BusinessProfileMapper.getArrayOfBusinessProfile)
       Nullable.make(res->BusinessProfileMapper.getArrayOfBusinessProfile)

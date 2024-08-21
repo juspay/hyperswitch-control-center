@@ -66,7 +66,7 @@ let make = (
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong!")
-        showToast(~message=err, ~toastType=ToastError, ())
+        showToast(~message=err, ~toastType=ToastError)
       }
     }
   }

@@ -66,13 +66,13 @@ module ApiEditModal = {
         let url = switch action {
         | Update => {
             let key_id = keyId->Option.getOr("")
-            getURL(~entityName=API_KEYS, ~methodType=Post, ~id=Some(key_id), ())
+            getURL(~entityName=API_KEYS, ~methodType=Post, ~id=Some(key_id))
           }
 
-        | _ => getURL(~entityName=API_KEYS, ~methodType=Post, ())
+        | _ => getURL(~entityName=API_KEYS, ~methodType=Post)
         }
 
-        let json = await updateDetails(url, body->JSON.Encode.object, Post, ())
+        let json = await updateDetails(url, body->JSON.Encode.object, Post)
         let keyDict = json->LogicUtils.getDictFromJsonObject
 
         setApiKey(_ => keyDict->LogicUtils.getString("api_key", ""))
@@ -89,7 +89,7 @@ module ApiEditModal = {
       | Exn.Error(e) =>
         switch Exn.message(e) {
         | Some(_error) =>
-          showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError, ())
+          showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError)
         | None => ()
         }
         setModalState(_ => SettingApiModalError)
@@ -108,7 +108,7 @@ module ApiEditModal = {
             initialValues={initialValues->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToPristine
             validate={values =>
-              validateAPIKeyForm(values, ["name", "expiration"], ~setShowCustomDate, ())}
+              validateAPIKeyForm(values, ["name", "expiration"], ~setShowCustomDate)}
             onSubmit
             render={({handleSubmit}) => {
               <LabelVisibilityContext showLabel=false>
@@ -195,7 +195,7 @@ module ApiKeyAddBtn = {
         buttonType=Secondary
         buttonSize=Small
         onClick={_ => {
-          mixpanelEvent(~eventName="create_new_api_key", ())
+          mixpanelEvent(~eventName="create_new_api_key")
           setShowModal(_ => true)
         }}
       />
@@ -219,14 +219,14 @@ module TableActionsCell = {
         Dict.set(body, "key_id", keyId->JSON.Encode.string)
         Dict.set(body, "revoked", true->JSON.Encode.bool)
 
-        let deleteUrl = getURL(~entityName=API_KEYS, ~methodType=Delete, ~id=Some(keyId), ())
-        (await deleteDetails(deleteUrl, body->JSON.Encode.object, Delete, ()))->ignore
+        let deleteUrl = getURL(~entityName=API_KEYS, ~methodType=Delete, ~id=Some(keyId))
+        (await deleteDetails(deleteUrl, body->JSON.Encode.object, Delete))->ignore
         getAPIKeyDetails()->ignore
       } catch {
       | Exn.Error(e) =>
         switch Exn.message(e) {
         | Some(_error) =>
-          showToast(~message="Failed to delete API key", ~toastType=ToastState.ToastError, ())
+          showToast(~message="Failed to delete API key", ~toastType=ToastState.ToastError)
         | None => ()
         }
       }
@@ -298,7 +298,7 @@ module ApiKeysTable = {
 
     let getAPIKeyDetails = async () => {
       try {
-        let apiKeyListUrl = getURL(~entityName=API_KEYS, ~methodType=Get, ())
+        let apiKeyListUrl = getURL(~entityName=API_KEYS, ~methodType=Get)
         let apiKeys = await fetchDetails(apiKeyListUrl)
         setData(_ => apiKeys->getItems)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -326,7 +326,7 @@ module ApiKeysTable = {
       | Created => Date(item.created)
       | Expiration =>
         if item.expiration == Never {
-          Text(item.expiration_date->LogicUtils.getFirstLetterCaps())
+          Text(item.expiration_date->LogicUtils.getFirstLetterCaps)
         } else {
           Date(item.expiration_date)
         }
@@ -345,7 +345,6 @@ module ApiKeysTable = {
       ~getHeading,
       ~dataKey="data",
       ~getCell,
-      (),
     )
 
     <PageLoaderWrapper screenState>
