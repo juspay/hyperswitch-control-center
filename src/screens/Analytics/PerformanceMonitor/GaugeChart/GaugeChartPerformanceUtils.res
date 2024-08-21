@@ -35,7 +35,7 @@ let gaugeOption = (data: gaugeData) =>
       "plotBackgroundImage": null,
       "plotBorderWidth": 0,
       "plotShadow": false,
-      "height": "80%",
+      "height": "75%",
     },
     "pane": {
       "startAngle": -90,
