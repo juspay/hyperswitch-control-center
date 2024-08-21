@@ -839,6 +839,17 @@ let concatValueOfGivenKeysOfDict = (dict, keys) => {
 
 let itemToObjMapper = dict => {
   let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
+  let pmtAddressKeys = [
+    "first_name",
+    "last_name",
+    "line1",
+    "line2",
+    "line3",
+    "city",
+    "state",
+    "country",
+    "zip",
+  ]
 
   let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code") => {
     `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
@@ -908,7 +919,7 @@ let itemToObjMapper = dict => {
     ->getDictfromDict("payment_method_data")
     ->getDictfromDict("billing")
     ->getDictfromDict("address")
-    ->concatValueOfGivenKeysOfDict(addressKeys),
+    ->concatValueOfGivenKeysOfDict(pmtAddressKeys),
     payment_method_billing_phone: dict
     ->getDictfromDict("payment_method_data")
     ->getDictfromDict("billing")
