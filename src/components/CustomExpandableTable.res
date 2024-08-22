@@ -8,8 +8,6 @@ let make = (
   ~offset=0,
   ~fullWidth=true,
   ~showScrollBar=false,
-  ~setSortedObj=?,
-  ~sortedObj=?,
   ~setFilterObj=?,
   ~filterObj=?,
   ~onExpandIconClick,

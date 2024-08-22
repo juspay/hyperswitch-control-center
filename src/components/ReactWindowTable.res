@@ -219,8 +219,6 @@ module ReactWindowTableComponent = {
     ~fullWidth,
     ~removeVerticalLines=true,
     ~showScrollBar=false,
-    ~setSortedObj=?,
-    ~sortedObj=?,
     ~columnFilterRow=?,
     ~tableheadingClass="",
     ~tableBorderClass="",
@@ -591,7 +589,6 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
 @react.component
 let make = (
   ~actualData: array<Nullable.t<'t>>,
-  ~defaultSort=?,
   ~title,
   ~visibleColumns=?,
   ~description=?,
@@ -606,7 +603,6 @@ let make = (
   ~downloadCsv=?,
   ~hideTitle=false,
   ~tableDataLoading=false,
-  ~customGetObjects: option<JSON.t => array<'a>>=?,
   ~dataNotFoundComponent=?,
   ~tableLocalFilter=false,
   ~tableheadingClass="",
@@ -729,9 +725,7 @@ let make = (
     ->ignore
   }
 
-  let {getShowLink, getObjects} = entity
-
-  let (sortedObj, setSortedObj) = useSortedObj(title, defaultSort)
+  let {getShowLink} = entity
 
   let columToConsider = React.useMemo(() => {
     switch (entity.allColumns, visibleColumns) {
@@ -843,12 +837,7 @@ let make = (
     actualData
   }
 
-  let filteredData = React.useMemo(() => {
-    switch sortedObj {
-    | Some(obj: Table.sortedObject) => sortArray(actualData, obj.key, obj.order)
-    | None => actualData
-    }
-  }, (sortedObj, customGetObjects, actualData, getObjects))
+  let filteredData = actualData
 
   let selectAllCheckBox = React.useMemo(() => {
     let selectedRowDataLength = checkBoxProps.selectedData->Array.length
@@ -1101,8 +1090,6 @@ let make = (
                 fullWidth
                 removeVerticalLines
                 showScrollBar=false
-                setSortedObj
-                ?sortedObj
                 ?columnFilterRow
                 tableheadingClass
                 tableBorderClass
