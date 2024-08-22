@@ -1,6 +1,7 @@
 open PerformanceMonitorTypes
 
-let getGaugeData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
+let getGaugeData = (~args) => {
+  let {array, config} = args
   let key = switch config.name {
   | Some(val) => (val: metrics :> string)
   | _ => ""
@@ -34,7 +35,7 @@ let gaugeOption = (data: gaugeData) =>
       "plotBackgroundImage": null,
       "plotBorderWidth": 0,
       "plotShadow": false,
-      "height": "80%",
+      "height": "75%",
     },
     "pane": {
       "startAngle": -90,
@@ -94,7 +95,7 @@ let gaugeOption = (data: gaugeData) =>
         "name": "",
         "data": [
           data.value
-          ->Float.toFixedWithPrecision(~digits=3)
+          ->Float.toFixedWithPrecision(~digits=2)
           ->Float.fromString
           ->Option.getOr(0.0),
         ],

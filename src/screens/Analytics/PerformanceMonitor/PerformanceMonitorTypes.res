@@ -1,7 +1,7 @@
 type performance = [#ConnectorPerformance | #PaymentMethodPerormance]
 type dimension = [#connector | #payment_method | #payment_method_type | #status | #no_value]
 
-type status = [#charged | #failure]
+type status = [#charged | #failure | #payment_method_awaited]
 type metrics = [#payment_count | #connector_success_rate]
 type distribution = [#payment_error_message | #TOP_5]
 
@@ -58,17 +58,23 @@ type distributionType = {
 
 type requestBodyConfig = {
   metrics: array<metrics>,
+  delta?: bool,
   groupBy?: array<dimension>,
   filters?: array<dimension>,
   customFilter?: dimension,
   applyFilterFor?: array<status>,
+  excludeFilterValue?: array<status>,
   distribution?: distributionType,
 }
-
-type entity<'t> = {
+type args<'t1> = {
+  array: array<JSON.t>,
+  config: chartDataConfig,
+  optionalArgs?: 't1,
+}
+type entity<'t, 't1> = {
   requestBodyConfig: requestBodyConfig,
   configRequiredForChartData: chartDataConfig,
-  getChartData: (~array: array<JSON.t>, ~config: chartDataConfig) => 't,
+  getChartData: (~args: args<'t1>) => 't,
   title: string,
   getChartOption: 't => JSON.t,
 }

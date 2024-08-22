@@ -72,7 +72,8 @@ let getPieChartOptions = series => {
   }->Identity.genericTypeToJson
 }
 
-let getDonutCharData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
+let getDonutCharData = (~args) => {
+  let {array, config} = args
   let {groupByKeys} = config
   let grouped = PerformanceUtils.getGroupByDataForStatusAndPaymentCount(array, groupByKeys)
   let keys = grouped->Dict.keysToArray
