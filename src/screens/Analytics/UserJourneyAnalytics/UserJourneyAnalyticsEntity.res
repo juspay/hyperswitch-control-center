@@ -41,7 +41,7 @@ let singleStatSeriesItemToObjMapper = json => {
     payment_attempts: dict->getInt("payment_attempts", 0),
     time_series: dict->getString("time_bucket", ""),
     sdk_rendered_count: dict->getInt("sdk_rendered_count", 0),
-    average_payment_time: dict->getFloat("average_payment_time", 0.0)->setPrecision() /. 1000.,
+    average_payment_time: dict->getFloat("average_payment_time", 0.0)->setPrecision /. 1000.,
     load_time: dict->getFloat("load_time", 0.0) /. 1000.,
   })
   ->Option.getOr({
@@ -382,7 +382,6 @@ let commonUserJourneyChartEntity = tabKeys =>
       }
     },
     ~disableGranularity=true,
-    (),
   )
 
 let userJourneyChartEntity = tabKeys => {
@@ -449,11 +448,9 @@ let fixedFilterFields = _json => {
             ~disableApply=false,
             ~dateRangeLimit=180,
             ~optFieldKey=optFilterKey,
-            (),
           ),
           ~inputFields=[],
           ~isRequired=false,
-          (),
         ),
       }: EntityType.initialFilters<'t>
     ),

@@ -16,7 +16,7 @@ let make = (~entityName) => {
       buttonSize={XSmall}
       onClick={_ => {
         setReportModal(_ => true)
-        mixpanelEvent(~eventName="generate_reports", ())
+        mixpanelEvent(~eventName="generate_reports")
       }}
       access={accessForGenerateReports}
       toolTipPosition={Left}

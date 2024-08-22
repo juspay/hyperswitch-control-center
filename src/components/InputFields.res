@@ -39,7 +39,6 @@ let selectInput = (
   ~showBtnTextToolTip=false,
   ~dropdownClassName="",
   ~descriptionOnHover=false,
-  (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <SelectBox
     input
@@ -84,7 +83,6 @@ let infraSelectInput = (
   ~nonSelectedClass="border-jp-gray-600 dark:border-jp-gray-800 text-jp-gray-850 dark:text-jp-gray-400",
   ~showTickMark=true,
   ~allowMultiSelect=true,
-  (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <SelectBox.InfraSelectBox
     input
@@ -249,7 +247,6 @@ let multiSelectInput = (
   ~dropdownClassName="",
   ~baseComponentMethod=?,
   ~disableSelect=false,
-  (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <SelectBox
     input
@@ -316,7 +313,6 @@ let radioInput = (
   ~customSelectStyle="",
   ~fill=?,
   ~maxHeight=?,
-  (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <SelectBox
     input
@@ -362,7 +358,6 @@ let textInput = (
   ~customDarkBackground=?,
   ~phoneInput=false,
   ~widthMatchwithPlaceholderLength=None,
-  (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
   <TextInput
     input
@@ -404,7 +399,6 @@ let textTagInput = (
   ~seperateByComma=false,
   ~seperateBySpace=false,
   ~customButtonStyle=?,
-  (),
 ) => {
   <MultipleTextInput
     input name disabled seperateByComma seperateBySpace ?customStyle ?customButtonStyle placeholder
@@ -423,7 +417,6 @@ let numericTextInput = (
   ~customPaddingClass=?,
   ~rightIconCustomStyle=?,
   ~leftIconCustomStyle=?,
-  (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
   <NumericTextInput
     customStyle
@@ -456,7 +449,6 @@ let singleDatePickerInput = (
   ~buttonSize=?,
   ~showTime=?,
   ~fullLength=?,
-  (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <DatePicker
     input
@@ -493,7 +485,6 @@ let filterDateRangeField = (
   ~hideDate=false,
   ~selectStandardTime=false,
   ~isTooltipVisible=true,
-  (),
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
     <DateRangeField
@@ -537,7 +528,6 @@ let dateRangeField = (
   ~selectStandardTime=false,
   ~customButtonStyle=?,
   ~isTooltipVisible=true,
-  (),
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
     <DateRangePicker
@@ -571,12 +561,11 @@ let multiLineTextInput = (
   ~customClass="text-lg",
   ~leftIcon=?,
   ~maxLength=?,
-  (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
   <MultiLineTextInput ?maxLength input placeholder isDisabled ?rows ?cols customClass ?leftIcon />
 }
 
-let iconFieldWithMessageDes = (mainInputField, ~description="", ()) => (
+let iconFieldWithMessageDes = (mainInputField, ~description="") => (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder,
 ) => {
@@ -595,7 +584,7 @@ let iconFieldWithMessageDes = (mainInputField, ~description="", ()) => (
   </div>
 }
 
-let passwordMatchField = (~leftIcon=?, ()) => (
+let passwordMatchField = (~leftIcon=?) => (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder,
 ) => {
@@ -619,7 +608,6 @@ let checkboxInput = (
   ~customStyle="",
   ~checkboxDimension="",
   ~wrapBasis="",
-  (),
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <SelectBox
     input
@@ -645,7 +633,7 @@ let checkboxInput = (
   />
 }
 
-let boolInput = (~isDisabled, ~isCheckBox=false, ~boolCustomClass="", ()) => (
+let boolInput = (~isDisabled, ~isCheckBox=false, ~boolCustomClass="") => (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder as _,
 ) => {

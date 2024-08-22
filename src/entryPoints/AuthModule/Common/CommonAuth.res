@@ -43,7 +43,7 @@ module Header = {
     let {isSignUpAllowed} = AuthModuleHooks.useAuthMethods()
     let form = ReactFinalForm.useForm()
     let {email: isMagicLinkEnabled} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+    let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
 
     let headerStyle = switch authType {
     | MagicLinkEmailSent

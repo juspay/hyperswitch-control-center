@@ -12,9 +12,9 @@ let connectorMetaDataValueInput = (~connectorMetaDataFields: CommonMetaDataTypes
 
   {
     switch (\"type", name) {
-    | (Select, "merchant_config_currency") => currencyField(~name=formName, ())
+    | (Select, "merchant_config_currency") => currencyField(~name=formName)
     | (Text, _) => textInput(~field={connectorMetaDataFields}, ~formName)
-    | (Select, _) => selectInput(~field={connectorMetaDataFields}, ~formName, ())
+    | (Select, _) => selectInput(~field={connectorMetaDataFields}, ~formName)
     | (Toggle, _) => toggleInput(~field={connectorMetaDataFields}, ~formName)
     | (MultiSelect, _) => multiSelectInput(~field={connectorMetaDataFields}, ~formName)
     | _ => textInput(~field={connectorMetaDataFields}, ~formName)

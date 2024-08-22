@@ -6,7 +6,6 @@ let textInput = (~field: CommonMetaDataTypes.inputField, ~formName) => {
     ~placeholder,
     ~customInput=InputFields.textInput(),
     ~isRequired=required,
-    (),
   )
 }
 
@@ -15,7 +14,6 @@ let selectInput = (
   ~formName,
   ~opt=None,
   ~onItemChange: option<ReactEvent.Form.t => unit>=?,
-  (),
 ) => {
   let {label, required} = field
   let options = switch opt {
@@ -23,30 +21,27 @@ let selectInput = (
   | None => field.options->SelectBox.makeOptions
   }
 
-  FormRenderer.makeFieldInfo(
-    ~label={label},
-    ~isRequired=required,
-    ~name={formName},
-    ~customInput=(~input, ~placeholder as _) =>
-      InputFields.selectInput(
-        ~customStyle="max-h-48",
-        ~options={options},
-        ~buttonText="Select Value",
-        (),
-      )(
-        ~input={
-          ...input,
-          onChange: event => {
-            let _ = switch onItemChange {
-            | Some(func) => func(event)
-            | _ => ()
-            }
-            input.onChange(event)
-          },
+  FormRenderer.makeFieldInfo(~label={label}, ~isRequired=required, ~name={formName}, ~customInput=(
+    ~input,
+    ~placeholder as _,
+  ) =>
+    InputFields.selectInput(
+      ~customStyle="max-h-48",
+      ~options={options},
+      ~buttonText="Select Value",
+    )(
+      ~input={
+        ...input,
+        onChange: event => {
+          let _ = switch onItemChange {
+          | Some(func) => func(event)
+          | _ => ()
+          }
+          input.onChange(event)
         },
-        ~placeholder="",
-      ),
-    (),
+      },
+      ~placeholder="",
+    )
   )
 }
 
@@ -62,9 +57,7 @@ let multiSelectInput = (~field: CommonMetaDataTypes.inputField, ~formName) => {
       ~customButtonStyle="pr-3",
       ~options={options->SelectBox.makeOptions},
       ~buttonText="Select Value",
-      (),
     ),
-    (),
   )
 }
 
@@ -73,8 +66,7 @@ let toggleInput = (~field: CommonMetaDataTypes.inputField, ~formName) => {
   FormRenderer.makeFieldInfo(
     ~name={formName},
     ~label,
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg", ()),
-    (),
+    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
   )
 }
 
@@ -87,32 +79,29 @@ let radioInput = (
 ) => {
   let {label, required, options} = field
 
-  FormRenderer.makeFieldInfo(
-    ~label={label},
-    ~isRequired=required,
-    ~name={formName},
-    ~customInput=(~input, ~placeholder as _) =>
-      InputFields.radioInput(
-        ~customStyle="cursor-pointer gap-2",
-        ~isHorizontal=true,
-        ~options=options->SelectBox.makeOptions,
-        ~buttonText="",
-        ~fill,
-        (),
-      )(
-        ~input={
-          ...input,
-          onChange: event => {
-            let _ = switch onItemChange {
-            | Some(func) => func(event)
-            | _ => ()
-            }
-            input.onChange(event)
-          },
+  FormRenderer.makeFieldInfo(~label={label}, ~isRequired=required, ~name={formName}, ~customInput=(
+    ~input,
+    ~placeholder as _,
+  ) =>
+    InputFields.radioInput(
+      ~customStyle="cursor-pointer gap-2",
+      ~isHorizontal=true,
+      ~options=options->SelectBox.makeOptions,
+      ~buttonText="",
+      ~fill,
+    )(
+      ~input={
+        ...input,
+        onChange: event => {
+          let _ = switch onItemChange {
+          | Some(func) => func(event)
+          | _ => ()
+          }
+          input.onChange(event)
         },
-        ~placeholder="",
-      ),
-    (),
+      },
+      ~placeholder="",
+    )
   )
 }
 
@@ -129,7 +118,6 @@ let currencyField = (
   ~options=CurrencyUtils.currencyList,
   ~disableSelect=false,
   ~toolTipText="",
-  (),
 ) =>
   FormRenderer.makeFieldInfo(
     ~label="Currency",
@@ -142,7 +130,5 @@ let currencyField = (
       ~customStyle="max-h-48",
       ~options=options->Array.map(getCurrencyOption),
       ~buttonText="Select Currency",
-      (),
     ),
-    (),
   )

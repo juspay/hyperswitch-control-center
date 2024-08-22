@@ -29,7 +29,7 @@ let make = (
       buttonType={PrimaryOutline}
       text="Back"
       onClick={_ => {
-        let prevStep = getNavigationStepForStandardIntegration(~currentStep, ())
+        let prevStep = getNavigationStepForStandardIntegration(~currentStep)
         if currentStep === DownloadTestAPIKey {
           setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
         } else {
@@ -51,7 +51,7 @@ let make = (
         if isLastStep {
           markAsDone()->ignore
         } else {
-          let nextStep = getNavigationStepForStandardIntegration(~currentStep, ~forward=true, ())
+          let nextStep = getNavigationStepForStandardIntegration(~currentStep, ~forward=true)
           let _ = updateEnumInRecoil([
             (String("completed"), currentStep->getPolyMorphicVariantOfIntegrationSubStep),
             (String("ongoing"), nextStep->getPolyMorphicVariantOfIntegrationSubStep),

@@ -10,9 +10,11 @@ type colType =
   | ProfileName
   | ConnectorLabel
   | PaymentMethods
+  | MerchantConnectorId
 
 let defaultColumns = [
   Name,
+  MerchantConnectorId,
   ProfileId,
   ProfileName,
   ConnectorLabel,
@@ -41,18 +43,23 @@ let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledType>
 
 let getHeading = colType => {
   switch colType {
-  | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor", ~showSort=false, ())
-  | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode", ~showSort=false, ())
-  | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status", ~showSort=false, ())
-  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled", ~showSort=false, ())
-  | Actions => Table.makeHeaderInfo(~key="actions", ~title="", ~showSort=false, ())
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false, ())
-  | ProfileName =>
-    Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=false, ())
+  | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor", ~showSort=false)
+  | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode", ~showSort=false)
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status", ~showSort=false)
+  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled", ~showSort=false)
+  | Actions => Table.makeHeaderInfo(~key="actions", ~title="", ~showSort=false)
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false)
+  | MerchantConnectorId =>
+    Table.makeHeaderInfo(
+      ~key="merchant_connector_id",
+      ~title="Merchant Connector Id",
+      ~showSort=false,
+    )
+  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=false)
   | ConnectorLabel =>
-    Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label", ~showSort=false, ())
+    Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label", ~showSort=false)
   | PaymentMethods =>
-    Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods", ~showSort=false, ())
+    Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods", ~showSort=false)
   }
 }
 let connectorStatusStyle = connectorStatus =>
@@ -61,7 +68,7 @@ let connectorStatusStyle = connectorStatus =>
   | _ => "text-grey-800 opacity-50"
   }
 
-let getTableCell = (~connectorType: ConnectorTypes.connector=Processor, ()) => {
+let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
   let getCell = (connector: connectorPayload, colType): Table.cell => {
     switch colType {
     | Name =>
@@ -101,11 +108,12 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor, ()) => {
         <div>
           {connector.payment_methods_enabled
           ->getAllPaymentMethods
-          ->Array.joinWithUnsafe(", ")
+          ->Array.joinWith(", ")
           ->React.string}
         </div>,
         "",
       )
+    | MerchantConnectorId => DisplayCopyCell(connector.merchant_connector_id)
     }
   }
   getCell
@@ -129,7 +137,7 @@ let connectorEntity = (path: string, ~permission: CommonAuthTypes.authorization)
     ~getObjects=getPreviouslyConnectedList,
     ~defaultColumns,
     ~getHeading,
-    ~getCell=getTableCell(~connectorType=Processor, ()),
+    ~getCell=getTableCell(~connectorType=Processor),
     ~dataKey="",
     ~getShowLink={
       connec =>
@@ -140,6 +148,5 @@ let connectorEntity = (path: string, ~permission: CommonAuthTypes.authorization)
           ~permission,
         )
     },
-    (),
   )
 }

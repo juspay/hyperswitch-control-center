@@ -8,7 +8,7 @@ let setSessionData = (~key, ~searchParams) => {
   }
 }
 
-let getSessionData = (~key, ~defaultValue="", ()) => {
+let getSessionData = (~key, ~defaultValue="") => {
   let result = sessionStorage.getItem(key)->Nullable.toOption->Option.getOr("")->getNonEmptyString
   switch result {
   | Some(data) => data

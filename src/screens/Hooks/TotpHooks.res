@@ -4,8 +4,8 @@ let useVerifyTotp = () => {
   let updateDetails = useUpdateMethod()
   async (body, methodType) => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#VERIFY_TOTP, ~methodType, ())
-      let response = await updateDetails(url, body, methodType, ())
+      let url = getURL(~entityName=USERS, ~userType=#VERIFY_TOTP, ~methodType)
+      let response = await updateDetails(url, body, methodType)
       response
     } catch {
     | Exn.Error(e) => {
@@ -22,8 +22,8 @@ let useVerifyRecoveryCode = () => {
   let updateDetails = useUpdateMethod()
   async body => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#VERIFY_RECOVERY_CODE, ~methodType=Post, ())
-      let response = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#VERIFY_RECOVERY_CODE, ~methodType=Post)
+      let response = await updateDetails(url, body, Post)
       response
     } catch {
     | Exn.Error(e) => {

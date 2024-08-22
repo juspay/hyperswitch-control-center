@@ -15,7 +15,7 @@ let make = () => {
   let getDisputesList = async () => {
     try {
       setScreenState(_ => Loading)
-      let disputesUrl = getURL(~entityName=DISPUTES, ~methodType=Get, ())
+      let disputesUrl = getURL(~entityName=DISPUTES, ~methodType=Get)
       let response = await fetchDetails(disputesUrl)
       let disputesValue = response->LogicUtils.getArrayDataFromJson(DisputesEntity.itemToObjMapper)
       if disputesValue->Array.length > 0 {

@@ -11,9 +11,6 @@ let make = (~previewOnly=false) => {
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
-  let (paymentModal, setPaymentModal) = React.useState(_ => false)
-  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-  let isConfigureConnector = connectorList->Array.length > 0
 
   let (widthClass, heightClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "max-h-96") : ("w-full", "")
@@ -85,9 +82,12 @@ let make = (~previewOnly=false) => {
 
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
 
-  let customUI = <NoData isConfigureConnector paymentModal setPaymentModal />
+  let customUI =
+    <NoDataFound
+      customCssClass={"my-6"} message="There are no payments as of now" renderType=Painting
+    />
 
-  let filterUrl = getURL(~entityName=ORDERS, ~methodType=Get, ~id=Some("v2/filter"), ())
+  let filterUrl = getURL(~entityName=ORDERS, ~methodType=Get, ~id=Some("v2/filter"))
 
   let filtersUI = React.useMemo(() => {
     <RemoteTableFilters

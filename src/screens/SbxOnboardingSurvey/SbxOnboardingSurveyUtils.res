@@ -17,7 +17,6 @@ let businessName = FormRenderer.makeFieldInfo(
   ~placeholder="Eg: HyperSwitch Pvt Ltd",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 let userName = FormRenderer.makeFieldInfo(
@@ -25,7 +24,6 @@ let userName = FormRenderer.makeFieldInfo(
   ~name="user_name",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 let designation = FormRenderer.makeFieldInfo(
@@ -33,7 +31,6 @@ let designation = FormRenderer.makeFieldInfo(
   ~name="hyperswitch.designation",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 let majorMarkets = FormRenderer.makeFieldInfo(
@@ -42,10 +39,8 @@ let majorMarkets = FormRenderer.makeFieldInfo(
   ~customInput=InputFields.checkboxInput(
     ~options=["North America", "Europe", "LATAM", "APAC", "Africa"]->SelectBox.makeOptions,
     ~buttonText="Major markets",
-    (),
   ),
   ~isRequired=true,
-  (),
 )
 
 let businessSize = FormRenderer.makeFieldInfo(
@@ -61,10 +56,8 @@ let businessSize = FormRenderer.makeFieldInfo(
       "5Mn+ transactions per month",
     ]->SelectBox.makeOptions,
     ~buttonText="Business Size",
-    (),
   ),
   ~isRequired=true,
-  (),
 )
 
 let businessWebsite = FormRenderer.makeFieldInfo(
@@ -72,7 +65,6 @@ let businessWebsite = FormRenderer.makeFieldInfo(
   ~name="hyperswitch.business_website",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 let aboutBusiness = FormRenderer.makeFieldInfo(
@@ -80,7 +72,6 @@ let aboutBusiness = FormRenderer.makeFieldInfo(
   ~name="hyperswitch.about_business",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 let hyperswitchUsage = FormRenderer.makeFieldInfo(
@@ -93,10 +84,8 @@ let hyperswitchUsage = FormRenderer.makeFieldInfo(
       "Looking to resell Hyperswitch's open-source solution",
     ]->SelectBox.makeOptions,
     ~buttonText="Business Size",
-    (),
   ),
   ~isRequired=true,
-  (),
 )
 
 let hyperswitchFeatures = FormRenderer.makeFieldInfo(
@@ -112,10 +101,8 @@ let hyperswitchFeatures = FormRenderer.makeFieldInfo(
       "Disputes/Chargebacks",
     ]->SelectBox.makeOptions,
     ~buttonText="Business Size",
-    (),
   ),
   ~isRequired=true,
-  (),
 )
 
 let processorRequired = FormRenderer.makeFieldInfo(
@@ -134,10 +121,8 @@ let processorRequired = FormRenderer.makeFieldInfo(
       "NMI",
     ]->SelectBox.makeOptions,
     ~buttonText="Business Size",
-    (),
   ),
   ~isRequired=true,
-  (),
 )
 
 let plannedGoLiveDate = FormRenderer.makeFieldInfo(
@@ -145,7 +130,6 @@ let plannedGoLiveDate = FormRenderer.makeFieldInfo(
   ~name="hyperswitch.planned_live_date",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 let miscellaneousTextField = FormRenderer.makeFieldInfo(
@@ -153,7 +137,6 @@ let miscellaneousTextField = FormRenderer.makeFieldInfo(
   ~name="hyperswitch.miscellaneous",
   ~customInput=InputFields.textInput(),
   ~isRequired=true,
-  (),
 )
 
 let constructOnboardingSurveyBody = values => {

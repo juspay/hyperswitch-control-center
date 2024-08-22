@@ -9,4 +9,4 @@ type props = {
   error?: React.element,
 }
 
-let make: props => React.element = reactLazy(() => import_("./ReactPDFViewerSinglePage.bs.js"))
+let make: props => React.element = reactLazy(() => import_("./ReactPDFViewerSinglePage.res.js"))

@@ -17,7 +17,7 @@ module CopyTextCustomComp = {
       ev->ReactEvent.Mouse.stopPropagation
       Clipboard.writeText(copyVal)
       customOnCopyClick()
-      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
     if displayValue->LogicUtils.isNonEmptyString {
@@ -121,7 +121,7 @@ module KeyAndCopyArea = {
         className="px-2 py-1 border rounded-md flex gap-2 items-center cursor-pointer"
         onClick={_ => {
           Clipboard.writeText(copyValue)
-          showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+          showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
         }}>
         <Icon name="copy" customIconColor="rgb(156 163 175)" />
         <p className="text-grey-700 opacity-50"> {"Copy"->React.string} </p>

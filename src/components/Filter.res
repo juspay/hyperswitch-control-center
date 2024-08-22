@@ -1,5 +1,3 @@
-let makeFieldInfo = FormRenderer.makeFieldInfo
-
 module ClearFilters = {
   @react.component
   let make = (
@@ -43,7 +41,7 @@ module ClearFilters = {
             | false => None
             }
           })
-          ->Array.joinWithUnsafe("&")
+          ->Array.joinWith("&")
 
         searchStr->FilterUtils.parseFilterString->updateExistingKeys
       }

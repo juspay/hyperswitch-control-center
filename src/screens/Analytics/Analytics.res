@@ -108,7 +108,7 @@ module TableWrapper = {
 
     let (showTable, setShowTable) = React.useState(_ => false)
     let {getHeading, allColumns, defaultColumns} = tableEntity
-    let activeTabStr = activeTab->Option.getOr([])->Array.joinWithUnsafe("-")
+    let activeTabStr = activeTab->Option.getOr([])->Array.joinWith("-")
     let (startTimeFilterKey, endTimeFilterKey) = dateKeys
     let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
     let (tableData, setTableData) = React.useState(_ => []->Array.map(Nullable.make))
@@ -149,7 +149,7 @@ module TableWrapper = {
             None
           }
         })
-        ->Array.joinWithUnsafe("&")
+        ->Array.joinWith("&")
 
       filterSearchParam
     }, [getTopLevelFilter])
@@ -241,7 +241,7 @@ module TableWrapper = {
         (),
       )
 
-      fetchDetails(tableEntity.uri, weeklyTableReqBody, Post, ())
+      fetchDetails(tableEntity.uri, weeklyTableReqBody, Post)
       ->thenResolve(json => {
         setTableData(_ => getUpdatedData(data, json, cols))
         setTableDataLoading(_ => false)
@@ -276,7 +276,7 @@ module TableWrapper = {
           (),
         )
 
-        fetchDetails(tableEntity.uri, tableReqBody, Post, ())
+        fetchDetails(tableEntity.uri, tableReqBody, Post)
         ->thenResolve(json => {
           switch weeklyTableMetricsCols {
           | Some(cols) => getWeeklyData(json, cols)->ignore
@@ -579,7 +579,7 @@ let make = (
       source: "BATCH",
     }
     AnalyticsUtils.filterBody(filterBodyEntity)
-  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWithUnsafe(",")))
+  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
 
   open APIUtils
   open Promise
@@ -594,7 +594,7 @@ let make = (
       try {
         switch filterUri {
         | Some(filterUri) =>
-          updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
+          updateDetails(filterUri, filterBody->JSON.Encode.object, Post)
           ->thenResolve(json => setFilterDataJson(_ => json->Some))
           ->catch(_ => resolve())
           ->ignore

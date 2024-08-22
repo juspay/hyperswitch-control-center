@@ -102,6 +102,11 @@ export function getPayoutConnectorConfig(key: string): any;
 */
 export function getAuthenticationConnectorConfig(key: string): any;
 /**
+* @param {string} key
+* @returns {any}
+*/
+export function getPMAuthenticationProcessorConfig(key: string): any;
+/**
 * @param {any} input
 * @param {any} response
 * @returns {any}
@@ -155,6 +160,7 @@ export interface InitOutput {
   readonly getConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getPayoutConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getAuthenticationConnectorConfig: (a: number, b: number, c: number) => void;
+  readonly getPMAuthenticationProcessorConfig: (a: number, b: number, c: number) => void;
   readonly getRequestPayload: (a: number, b: number, c: number) => void;
   readonly getResponsePayload: (a: number, b: number) => void;
   readonly getAllPayoutKeys: (a: number) => void;

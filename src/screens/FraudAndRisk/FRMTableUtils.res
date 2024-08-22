@@ -3,7 +3,7 @@ let getArrayDataFromJson = (json, itemToObjMapper) => {
   ->JSON.Decode.array
   ->Option.getOr([])
   ->Belt.Array.keepMap(JSON.Decode.object)
-  ->FRMUtils.filterList(~removeFromList=Connector, ())
+  ->FRMUtils.filterList(~removeFromList=Connector)
   ->Array.map(itemToObjMapper)
 }
 
@@ -20,7 +20,7 @@ let connectorEntity = (path: string, ~permission: CommonAuthTypes.authorization)
     ~getObjects=getPreviouslyConnectedList,
     ~defaultColumns=ConnectorTableUtils.defaultColumns,
     ~getHeading=ConnectorTableUtils.getHeading,
-    ~getCell=ConnectorTableUtils.getTableCell(~connectorType=FRMPlayer, ()),
+    ~getCell=ConnectorTableUtils.getTableCell(~connectorType=FRMPlayer),
     ~dataKey="",
     ~getShowLink={
       connec =>
@@ -31,6 +31,5 @@ let connectorEntity = (path: string, ~permission: CommonAuthTypes.authorization)
           ~permission,
         )
     },
-    (),
   )
 }

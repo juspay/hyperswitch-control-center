@@ -37,7 +37,7 @@ let make = () => {
     // For local testing this condition is added
     if downloadURL->LogicUtils.isNonEmptyString {
       open Promise
-      fetchApi(downloadURL, ~method_=Get, ())
+      fetchApi(downloadURL, ~method_=Get)
       ->then(resp => {
         Fetch.Response.blob(resp)
       })
@@ -50,7 +50,6 @@ let make = () => {
         showToast(
           ~toastType=ToastSuccess,
           ~message="PCI Attestation of Compliance certificate download complete",
-          (),
         )
 
         resolve()
@@ -59,14 +58,13 @@ let make = () => {
         showToast(
           ~toastType=ToastError,
           ~message="Oops, something went wrong with the download. Please try again.",
-          (),
         )
         resolve()
       })
       ->ignore
       setButtonState(_ => Button.Normal)
     } else {
-      showToast(~toastType=ToastError, ~message="Oops, something went wrong with the download ", ())
+      showToast(~toastType=ToastError, ~message="Oops, something went wrong with the download ")
       setButtonState(_ => Button.Normal)
     }
   }

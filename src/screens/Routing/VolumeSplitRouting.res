@@ -22,7 +22,7 @@ module VolumeRoutingView = {
     ~baseUrlForRedirection,
   ) => {
     let getURL = useGetURL()
-    let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+    let updateDetails = useUpdateMethod(~showErrorToast=false)
     let showToast = ToastState.useShowToast()
     let listLength = connectors->Array.length
     let (showModal, setShowModal) = React.useState(_ => false)
@@ -36,14 +36,9 @@ module VolumeRoutingView = {
     let handleActivateConfiguration = async activatingId => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let activateRuleURL = getURL(
-          ~entityName=urlEntityName,
-          ~methodType=Post,
-          ~id=activatingId,
-          (),
-        )
-        let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
-        showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
+        let activateRuleURL = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=activatingId)
+        let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post)
+        showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess)
         RescriptReactRouter.replace(
           GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
         )
@@ -53,14 +48,13 @@ module VolumeRoutingView = {
         switch Exn.message(e) {
         | Some(message) =>
           if message->String.includes("IR_16") {
-            showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
+            showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess)
             RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=baseUrlForRedirection))
             setScreenState(_ => Success)
           } else {
             showToast(
               ~message="Failed to Activate the Configuration!",
               ~toastType=ToastState.ToastError,
-              (),
             )
             setScreenState(_ => Error(message))
           }
@@ -75,11 +69,10 @@ module VolumeRoutingView = {
         let deactivateRoutingURL = `${getURL(
             ~entityName=urlEntityName,
             ~methodType=Post,
-            (),
           )}/deactivate`
         let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
-        let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
-        showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
+        let _ = await updateDetails(deactivateRoutingURL, body, Post)
+        showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess)
         RescriptReactRouter.replace(
           GlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
         )
@@ -91,7 +84,6 @@ module VolumeRoutingView = {
             showToast(
               ~message="Failed to Deactivate the Configuration!",
               ~toastType=ToastState.ToastError,
-              (),
             )
             setScreenState(_ => Error(message))
           }
@@ -217,7 +209,7 @@ let make = (
   ~baseUrlForRedirection,
 ) => {
   let getURL = useGetURL()
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
@@ -234,7 +226,7 @@ let make = (
   }
 
   let activeRoutingDetails = async () => {
-    let routingUrl = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId, ())
+    let routingUrl = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId)
     let routingJson = await fetchDetails(routingUrl)
     let routingJsonToDict = routingJson->getDictFromJsonObject
     setFormState(_ => ViewConfig)
@@ -315,12 +307,11 @@ let make = (
   let onSubmit = async (values, isSaveRule) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let updateUrl = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=None, ())
-      let res = await updateDetails(updateUrl, values, Post, ())
+      let updateUrl = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=None)
+      let res = await updateDetails(updateUrl, values, Post)
       showToast(
         ~message="Successfully Created a new Configuration !",
         ~toastType=ToastState.ToastSuccess,
-        (),
       )
       setScreenState(_ => Success)
       if isSaveRule {
@@ -330,7 +321,7 @@ let make = (
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Something went wrong!")
-      showToast(~message="Failed to Save the Configuration !", ~toastType=ToastState.ToastError, ())
+      showToast(~message="Failed to Save the Configuration !", ~toastType=ToastState.ToastError)
       setScreenState(_ => PageLoaderWrapper.Error(err))
       Exn.raiseError(err)
     }

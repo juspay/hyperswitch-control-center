@@ -1,5 +1,3 @@
-let makeFieldInfo = FormRenderer.makeFieldInfo
-
 module CheckLocalFilters = {
   @react.component
   let make = (

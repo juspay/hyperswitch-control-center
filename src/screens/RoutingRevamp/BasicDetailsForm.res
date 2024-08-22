@@ -7,8 +7,7 @@ let configurationNameInput = makeFieldInfo(
   ~name="name",
   ~isRequired=true,
   ~placeholder="Enter Configuration Name",
-  ~customInput=InputFields.textInput(~autoFocus=true, ()),
-  (),
+  ~customInput=InputFields.textInput(~autoFocus=true),
 )
 let descriptionInput = makeFieldInfo(
   ~label="Description",
@@ -20,9 +19,7 @@ let descriptionInput = makeFieldInfo(
     ~rows=Some(3),
     ~cols=None,
     ~customClass="text-sm",
-    (),
   ),
-  (),
 )
 
 module BusinessProfileInp = {
@@ -31,31 +28,29 @@ module BusinessProfileInp = {
     let selectedConnectorsInput = ReactFinalForm.useField("algorithm.data").input
 
     <FormRenderer.FieldRenderer
-      field={FormRenderer.makeFieldInfo(
-        ~label,
-        ~isRequired=true,
-        ~name="profile_id",
-        ~customInput=(~input, ~placeholder as _) =>
-          InputFields.selectInput(~deselectDisable=true, ~options, ~buttonText="", ())(
-            ~input={
-              ...input,
-              value: profile->JSON.Encode.string,
-              onChange: {
-                ev => {
-                  setProfile(_ => ev->Identity.formReactEventToString)
-                  input.onChange(ev)
-                  let defaultAlgorithm = if routingType == VOLUME_SPLIT {
-                    []->Identity.anyTypeToReactEvent
-                  } else {
-                    AdvancedRoutingUtils.defaultAlgorithmData->Identity.anyTypeToReactEvent
-                  }
-                  selectedConnectorsInput.onChange(defaultAlgorithm)
+      field={FormRenderer.makeFieldInfo(~label, ~isRequired=true, ~name="profile_id", ~customInput=(
+        ~input,
+        ~placeholder as _,
+      ) =>
+        InputFields.selectInput(~deselectDisable=true, ~options, ~buttonText="")(
+          ~input={
+            ...input,
+            value: profile->JSON.Encode.string,
+            onChange: {
+              ev => {
+                setProfile(_ => ev->Identity.formReactEventToString)
+                input.onChange(ev)
+                let defaultAlgorithm = if routingType == VOLUME_SPLIT {
+                  []->Identity.anyTypeToReactEvent
+                } else {
+                  AdvancedRoutingUtils.defaultAlgorithmData->Identity.anyTypeToReactEvent
                 }
-              },
+                selectedConnectorsInput.onChange(defaultAlgorithm)
+              }
             },
-            ~placeholder="",
-          ),
-        (),
+          },
+          ~placeholder="",
+        )
       )}
     />
   }

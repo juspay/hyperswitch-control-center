@@ -11,7 +11,7 @@ let make = () => {
 
   let getListOfMerchantIds = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#MERCHANTS_SELECT, ~methodType=Get, ())
+      let url = getURL(~entityName=USERS, ~userType=#MERCHANTS_SELECT, ~methodType=Get)
       let listOfMerchants = await fetchDetails(url)
       setMerchantData(_ => listOfMerchants->getArrayFromJson([]))
     } catch {
@@ -27,7 +27,7 @@ let make = () => {
   let onClickLoginToDashboard = async () => {
     open AuthUtils
     try {
-      let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITE_TOKEN_ONLY, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITE_TOKEN_ONLY, ~methodType=Post)
 
       let acceptedMerchantIds = merchantData->Array.reduce([], (acc, ele) => {
         let merchantDataDict = ele->getDictFromJsonObject
@@ -37,7 +37,7 @@ let make = () => {
         acc
       })
       let body = [("merchant_ids", acceptedMerchantIds->JSON.Encode.array)]->getJsonFromArrayOfJson
-      let res = await updateDetails(url, body, Post, ())
+      let res = await updateDetails(url, body, Post)
       setAuthStatus(PreLogin(getPreLoginInfo(res)))
     } catch {
     | _ => ()
