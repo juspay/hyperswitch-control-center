@@ -217,7 +217,7 @@ module RemoteTableFilters = {
         filterValue->updateExistingKeys
       }
       None
-    }, [value->OrderTypes.getSortString])
+    }, [value->OrderTypes.getSortString, value.sortKey])
 
     let getAllFilter =
       filterValue
