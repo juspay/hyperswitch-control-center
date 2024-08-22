@@ -621,6 +621,10 @@ let getHeadingForOtherDetails = otherDetailsColType => {
       ~title="Billing Email",
       ~showSort=true,
     )
+  | PMBillingFirstName =>
+    Table.makeHeaderInfo(~key="payment_method_firat_name", ~title="First Name", ~showSort=true)
+  | PMBillingLastName =>
+    Table.makeHeaderInfo(~key="payment_method_last_name", ~title="Last Name", ~showSort=true)
   | MerchantOrderReferenceId =>
     Table.makeHeaderInfo(
       ~key="merchant_order_reference_id",
@@ -716,6 +720,8 @@ let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
   | PMBillingAddress => Text(order.payment_method_billing_address)
   | PMBillingPhone => Text(order.payment_method_billing_email)
   | PMBillingEmail => Text(order.payment_method_billing_phone)
+  | PMBillingFirstName => Text(order.payment_method_billing_first_name)
+  | PMBillingLastName => Text(order.payment_method_billing_last_name)
   | BillingPhone => Text(`${order.billingPhone}`)
   | MerchantOrderReferenceId => Text(order.merchant_order_reference_id)
   }
@@ -839,17 +845,6 @@ let concatValueOfGivenKeysOfDict = (dict, keys) => {
 
 let itemToObjMapper = dict => {
   let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
-  let pmtAddressKeys = [
-    "first_name",
-    "last_name",
-    "line1",
-    "line2",
-    "line3",
-    "city",
-    "state",
-    "country",
-    "zip",
-  ]
 
   let getPhoneNumberString = (phone, ~phoneKey="number", ~codeKey="country_code") => {
     `${phone->getString(codeKey, "")} ${phone->getString(phoneKey, "NA")}`
@@ -919,7 +914,17 @@ let itemToObjMapper = dict => {
     ->getDictfromDict("payment_method_data")
     ->getDictfromDict("billing")
     ->getDictfromDict("address")
-    ->concatValueOfGivenKeysOfDict(pmtAddressKeys),
+    ->concatValueOfGivenKeysOfDict(addressKeys),
+    payment_method_billing_first_name: dict
+    ->getDictfromDict("payment_method_data")
+    ->getDictfromDict("billing")
+    ->getDictfromDict("address")
+    ->getString("first_name", ""),
+    payment_method_billing_last_name: dict
+    ->getDictfromDict("payment_method_data")
+    ->getDictfromDict("billing")
+    ->getDictfromDict("address")
+    ->getString("last_name", ""),
     payment_method_billing_phone: dict
     ->getDictfromDict("payment_method_data")
     ->getDictfromDict("billing")
