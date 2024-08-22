@@ -519,25 +519,35 @@ let make = (
     None
   }, [filteredDataLength])
 
-  let filteredData = React.useMemo(() => {
+  let filteredData = actualData
+
+  let {updateExistingKeys} = FilterContext.filterContext->React.useContext
+
+  React.useEffect(() => {
     switch sortedObj {
     | Some(obj: Table.sortedObject) =>
       switch setOrderObj {
       | Some(fun) => {
-          fun(_ => obj)
-          if obj.key->LogicUtils.isNonEmptyString {
-            let newDict = Dict.make()
-            newDict->Dict.set(title, {offset: 0, resultsPerPage: 10})
-            setPageDetails(_ => newDict)
+          //fun(_ => obj)
+          let filters = Dict.make()
+
+          let orderObj =
+            [
+              ("on", obj.key->JSON.Encode.string),
+              ("by", obj.order->TableUtils.getSortOrderString->JSON.Encode.string),
+            ]->Dict.fromArray
+
+          if obj.key->isNonEmptyString {
+            filters->Dict.set("order", orderObj->JSON.Encode.object->JSON.stringify)
+            filters->updateExistingKeys
           }
         }
       | None => ()
       }
     | None => ()
     }
-
-    actualData
-  }, (sortedObj, customGetObjects, actualData, getObjects))
+    None
+  }, [sortedObj])
 
   React.useEffect(() => {
     let selectedRowDataLength = checkBoxProps.selectedData->Array.length
