@@ -394,19 +394,13 @@ module LineChart1D = {
     let getHeading = (colType: LineChartUtils.chartLegendStatsType) => {
       switch colType {
       | GroupBY =>
-        Table.makeHeaderInfo(
-          ~key="groupByName",
-          ~title=snakeToTitle(groupKey),
-          ~dataType=LabelType,
-          ~showSort={!isPartners},
-        )
+        Table.makeHeaderInfo(~key="groupByName", ~title=snakeToTitle(groupKey), ~dataType=LabelType)
 
       | val =>
         Table.makeHeaderInfo(
           ~key=val->LineChartUtils.chartLegendTypeToStr->String.toLowerCase,
           ~title=val->LineChartUtils.chartLegendTypeToStr,
           ~dataType=NumericType,
-          ~showSort={!isPartners},
         )
       }
     }
