@@ -78,6 +78,7 @@ let make = (
             )}
             <SelectBox.BaseDropdown
               options=selectInputOption
+              fixedDropDownDirection={TopRight}
               buttonText=""
               searchable=false
               allowMultiSelect=false
