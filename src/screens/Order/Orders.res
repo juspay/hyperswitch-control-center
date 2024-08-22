@@ -11,12 +11,15 @@ let make = (~previewOnly=false) => {
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
-
+  let (sortAtomValue, setSortAtom) = Recoil.useRecoilState(LoadedTable.sortAtom)
   let (widthClass, heightClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "max-h-96") : ("w-full", "")
   }, [previewOnly])
-
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
+  let defaultSort: LoadedTable.sortOb = {
+    sortKey: "",
+    sortType: ASC,
+  }
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
@@ -32,6 +35,16 @@ let make = (~previewOnly=false) => {
         filters->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         if !(searchText->isEmptyString) {
           filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
+        }
+
+        let sortObj = sortAtomValue->Dict.get("Orders")->Option.getOr(defaultSort)
+        if sortObj.sortKey->LogicUtils.isNonEmptyString {
+          let orderObj =
+            [
+              ("on", sortObj.sortKey->JSON.Encode.string),
+              ("by", sortObj->OrderTypes.getSortString->JSON.Encode.string),
+            ]->Dict.fromArray
+          filters->Dict.set("order", orderObj->JSON.Encode.object)
         }
 
         dict
@@ -77,8 +90,17 @@ let make = (~previewOnly=false) => {
     if filters->isNonEmptyValue {
       fetchOrders()
     }
+
     None
   }, (offset, filters, searchText))
+
+  React.useEffect(() => {
+    Some(
+      () => {
+        setSortAtom(_ => [("Orders", defaultSort)]->Dict.fromArray)
+      },
+    )
+  }, [])
 
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
 
@@ -91,6 +113,7 @@ let make = (~previewOnly=false) => {
 
   let filtersUI = React.useMemo(() => {
     <RemoteTableFilters
+      title="Orders"
       filterUrl
       setFilters
       endTimeFilterKey

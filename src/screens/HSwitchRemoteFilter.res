@@ -124,6 +124,7 @@ module RemoteTableFilters = {
     ~initialFixedFilter,
     ~setOffset,
     ~customLeftView,
+    ~title="",
     (),
   ) => {
     open LogicUtils
@@ -202,6 +203,21 @@ module RemoteTableFilters = {
       }
       None
     }, [filterValue])
+
+    let (dict, _) = Recoil.useRecoilState(LoadedTable.sortAtom)
+    let defaultSort: LoadedTable.sortOb = {
+      sortKey: "",
+      sortType: DSC,
+    }
+    let value = dict->Dict.get(title)->Option.getOr(defaultSort)
+
+    React.useEffect(() => {
+      if value.sortKey->isNonEmptyString {
+        filterValue->Dict.set("filter", "")
+        filterValue->updateExistingKeys
+      }
+      None
+    }, [value->OrderTypes.getSortString])
 
     let getAllFilter =
       filterValue

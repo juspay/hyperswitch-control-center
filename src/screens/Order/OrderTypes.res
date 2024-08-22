@@ -277,3 +277,9 @@ type optionObj = {
 }
 
 type frmStatus = [#APPROVE | #REJECT]
+
+let getSortString = (value: LoadedTable.sortOb) =>
+  switch value.sortType {
+  | ASC => "asc"
+  | DSC => "desc"
+  }

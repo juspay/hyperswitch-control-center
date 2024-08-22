@@ -399,7 +399,7 @@ let getHeading = (colType: colType) => {
       ~dataType=DropDown,
       ~showSort=false,
     )
-  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=false)
+  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true)
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector", ~showSort=false)
   | AmountCapturable =>
     Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable", ~showSort=false)

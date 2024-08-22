@@ -173,7 +173,6 @@ let make = (
   ~advancedSearchComponent=?,
   ~setData=?,
   ~setSummary=?,
-  ~customGetObjects: option<JSON.t => array<'a>>=?,
   ~dataNotFoundComponent=?,
   ~renderCard=?,
   ~tableLocalFilter=false,
@@ -399,7 +398,7 @@ let make = (
     })
   }, [setLocalResultsPerPageOrig])
 
-  let {getShowLink, searchFields, searchUrl, getObjects} = entity
+  let {getShowLink, searchFields, searchUrl} = entity
   let (sortedObj, setSortedObj) = useSortedObj(title, defaultSort)
 
   React.useEffect(() => {
@@ -518,12 +517,7 @@ let make = (
     None
   }, [filteredDataLength])
 
-  let filteredData = React.useMemo(() => {
-    switch sortedObj {
-    | Some(obj: Table.sortedObject) => sortArray(actualData, obj.key, obj.order)
-    | None => actualData
-    }
-  }, (sortedObj, customGetObjects, actualData, getObjects))
+  let filteredData = actualData
 
   React.useEffect(() => {
     let selectedRowDataLength = checkBoxProps.selectedData->Array.length
