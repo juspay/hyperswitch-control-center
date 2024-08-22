@@ -114,7 +114,7 @@ let getCell = (refundData, colType): Table.cell => {
       <CopyLinkTableCell
         url={`/refunds/${refundData.refund_id}`}
         displayValue={refundData.refund_id}
-        copyValue={refundData.refund_id->Some}
+        copyValue={Some(refundData.refund_id)}
       />,
       "",
     )

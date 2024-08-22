@@ -34,7 +34,7 @@ let getCell = (customersData, colType): Table.cell => {
       <HSwitchOrderUtils.CopyLinkTableCell
         url={`/customers/${customersData.customer_id}`}
         displayValue={customersData.customer_id}
-        copyValue={customersData.customer_id->Some}
+        copyValue={Some(customersData.customer_id)}
       />,
       "",
     )

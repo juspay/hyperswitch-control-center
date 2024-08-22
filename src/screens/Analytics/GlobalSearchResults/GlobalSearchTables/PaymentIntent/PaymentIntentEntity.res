@@ -203,7 +203,7 @@ let getCell = (paymentObj, colType): Table.cell => {
       <HSwitchOrderUtils.CopyLinkTableCell
         url={`/payments/${paymentObj.payment_id}`}
         displayValue={paymentObj.payment_id}
-        copyValue={paymentObj.payment_id->Some}
+        copyValue={Some(paymentObj.payment_id)}
       />,
       "",
     )

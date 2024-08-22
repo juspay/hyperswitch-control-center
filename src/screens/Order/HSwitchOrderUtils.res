@@ -142,7 +142,7 @@ module CopyLinkTableCell = {
       ev->ReactEvent.Mouse.stopPropagation
       Clipboard.writeText(copyVal)
       customOnCopyClick()
-      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
     <div className="flex items-center">
