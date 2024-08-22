@@ -2,7 +2,7 @@
 let make = (
   ~startTimeVal,
   ~endTimeVal,
-  ~entity: PerformanceMonitorTypes.entity<'t>,
+  ~entity: PerformanceMonitorTypes.entity<'t, 't1>,
   ~domain="payments",
 ) => {
   open APIUtils
@@ -21,9 +21,10 @@ let make = (
 
       let body = PerformanceUtils.requestBody(
         ~dimensions=[],
+        ~excludeFilterValue=entity.requestBodyConfig.excludeFilterValue,
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
-        ~delta=true,
+        ~delta=entity.requestBodyConfig.delta,
         ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
         ~groupBy=entity.requestBodyConfig.groupBy,
@@ -38,7 +39,9 @@ let make = (
         ->getArrayFromDict("queryData", [])
 
       if arr->Array.length > 0 {
-        let configData = entity.getChartData(~array=arr, ~config=entity.configRequiredForChartData)
+        let configData = entity.getChartData(
+          ~args={array: arr, config: entity.configRequiredForChartData},
+        )
         let options = entity.getChartOption(configData)
         setGaugeOptions(_ => options)
         setScreenState(_ => PageLoaderWrapper.Success)

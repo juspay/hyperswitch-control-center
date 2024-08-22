@@ -111,6 +111,7 @@ type order = {
   attempts: array<attempts>,
   merchant_order_reference_id: string,
   attempt_count: int,
+  connector_label: string,
 }
 
 type refundsColType =

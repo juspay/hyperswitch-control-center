@@ -1,4 +1,13 @@
 open PerformanceMonitorTypes
+
+let getFailureRateData = (~args) => {
+  let count = args.optionalArgs->Option.getOr(0.0)
+  let failureCount = GaugeChartPerformanceUtils.getGaugeData(~args).value
+
+  let rate = failureCount /. count *. 100.0
+  let value: PerformanceMonitorTypes.gaugeData = {value: rate}
+  value
+}
 let falureGaugeOption = (data: gaugeData) =>
   {
     "chart": {

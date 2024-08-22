@@ -1,6 +1,7 @@
 open PerformanceMonitorTypes
 
-let getGaugeData = (~array: array<JSON.t>, ~config: chartDataConfig) => {
+let getGaugeData = (~args) => {
+  let {array, config} = args
   let key = switch config.name {
   | Some(val) => (val: metrics :> string)
   | _ => ""
