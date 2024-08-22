@@ -3,14 +3,12 @@ let make = () => {
   open HSwitchUtils
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
-  let (surveyModal, setSurveyModal) = React.useState(_ => false)
-  let (userPermissionJson, _) = Recoil.useRecoilState(userPermissionAtom)
+
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(userPermissionAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
-  let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let setUpConnectoreContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -21,7 +19,6 @@ let make = () => {
       ) {
         let _ = await fetchConnectorListResponse()
         let _ = await fetchBusinessProfiles()
-        let _ = await fetchMerchantAccountDetails()
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -36,7 +33,6 @@ let make = () => {
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
-    | list{"home"} => featureFlagDetails.quickStart ? <HomeV2 /> : <Home />
     // Connector Modules
     | list{"connectors", ...remainingPath} =>
       <AccessControl permission=userPermissionJson.connectorsView>
@@ -130,11 +126,5 @@ let make = () => {
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <> </>
     }}
-    <RenderIf
-      condition={!featureFlagDetails.isLiveMode &&
-      userPermissionJson.merchantDetailsManage === Access &&
-      merchantDetailsTypedValue.merchant_name->Option.isNone}>
-      <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
-    </RenderIf>
   </PageLoaderWrapper>
 }

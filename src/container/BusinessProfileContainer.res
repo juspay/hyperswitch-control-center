@@ -3,7 +3,7 @@ let make = () => {
   open HSwitchUtils
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
-  let (userPermissionJson, _) = Recoil.useRecoilState(userPermissionAtom)
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(userPermissionAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

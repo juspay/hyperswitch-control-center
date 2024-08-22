@@ -175,7 +175,7 @@ let make = (~children) => {
       </PageLoaderWrapper>
     | PreLogin(_) => <DecisionScreen />
     | LoggedIn(_token) => children
-    | CheckingAuthStatus => <PageLoaderWrapper.ScreenLoader sectionHeight="h-screen"/>
+    | CheckingAuthStatus => <PageLoaderWrapper.ScreenLoader sectionHeight="h-screen" />
     }}
   </div>
 }
