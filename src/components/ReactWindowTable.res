@@ -391,39 +391,6 @@ module ReactWindowTableComponent = {
                     </div>
                   </RenderIf>
                 </div>
-                {if item.showFilter || item.showSort {
-                  <div className={`flex flex-row items-center`}>
-                    {item.showSort
-                      ? {
-                          <AddDataAttributes attributes=[("data-table", "tableSort")]>
-                            {
-                              let order: sortOrder = switch sortedObj {
-                              | Some(obj: sortedObject) =>
-                                obj.key === item.key ? obj.order : TableUtils.NONE
-                              | None => TableUtils.NONE
-                              }
-                              <div
-                                className="cursor-pointer text-gray-300 pl-4"
-                                onClick={_ev => {
-                                  switch setSortedObj {
-                                  | Some(fn) =>
-                                    fn(_ => Some({
-                                      key: item.key,
-                                      order: order === DEC ? INC : DEC,
-                                    }))
-                                  | None => ()
-                                  }
-                                }}>
-                                <SortIcons order size=13 />
-                              </div>
-                            }
-                          </AddDataAttributes>
-                        }
-                      : React.null}
-                  </div>
-                } else {
-                  React.null
-                }}
               </div>
               <div>
                 {

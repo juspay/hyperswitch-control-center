@@ -443,12 +443,7 @@ module TableHeadingCell = {
                     let selfClass = "self-end"
                     <div className={`flex flex-row ${selfClass} items-center`}>
                       <SortAction
-                        item
-                        sortedObj
-                        setSortedObj
-                        sortIconSize
-                        filterRow
-                        isLastCol={isLastCol && !isFrozen && !isFirstCol}
+                        item sortedObj setSortedObj sortIconSize filterRow isLastCol={false}
                       />
                       {if item.showFilter {
                         let (options, selected) = switch filterObj {
