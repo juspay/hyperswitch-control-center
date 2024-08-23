@@ -31,7 +31,6 @@ module AdditionalDetailsSidebarComp = {
         <BankDebit
           setShowWalletConfigurationModal
           update=updatePaymentMethods
-          onCloseClickCustomFun
           paymentMethod
           paymentMethodType=method.payment_method_type
           setInitialValues
