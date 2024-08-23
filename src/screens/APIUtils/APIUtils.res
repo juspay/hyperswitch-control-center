@@ -287,7 +287,11 @@ let useGetURL = () => {
         let userUrl = `user`
         switch userRoleTypes {
         | USER_LIST => `${userUrl}/user/list`
-        | ROLE_LIST => `${userUrl}/role/list`
+        | ROLE_LIST =>
+          switch queryParamerters {
+          | Some(queryParams) => `${userUrl}/role/list?${queryParams}`
+          | None => `${userUrl}/role/list`
+          }
         | ROLE_ID =>
           switch id {
           | Some(key_id) => `${userUrl}/role/${key_id}`
