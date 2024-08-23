@@ -1,3 +1,6 @@
+/*
+Modules that depend on Merchant data are located within this container.
+ */
 @react.component
 let make = () => {
   open HSwitchUtils

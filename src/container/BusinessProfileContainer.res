@@ -1,3 +1,6 @@
+/*
+Modules that depend on Business Profiles data are located within this container.
+ */
 @react.component
 let make = () => {
   open HSwitchUtils
