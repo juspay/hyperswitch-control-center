@@ -212,3 +212,21 @@ module Details = {
     }
   }
 }
+
+module ViewCards = {
+  open OrderUIUtils
+  @react.component
+  let make = (~view, ~count, ~onViewClick, ~isActiveView) => {
+    let text_class = isActiveView ? "text-blue-500" : "text-jp-gray-800"
+    let border_class = isActiveView ? "border-blue-500" : ""
+
+    <>
+      <div
+        className={`flex flex-col justify-center flex-auto gap-1 bg-white text-semibold border rounded-md px-4 py-3 w-14 my-2 cursor-pointer hover:bg-gray-50 ${border_class}`}
+        onClick={_ => onViewClick(view)}>
+        <p className={` ${text_class}`}> {view->getViewsDisplayName->React.string} </p>
+        <p className={` ${text_class}`}> {count->React.string} </p>
+      </div>
+    </>
+  }
+}

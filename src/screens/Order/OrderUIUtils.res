@@ -19,6 +19,8 @@ type filter = [
   | #unknown
 ]
 
+type viewTypes = All | Succeeded | Failed | Dropoffs | Cancelled
+
 let getFilterTypeFromString = filterType => {
   switch filterType {
   | "connector" => #connector
@@ -420,7 +422,7 @@ let getOrdersList = async (
   try {
     let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post)
     let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
-    let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
+    let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
     if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
@@ -436,7 +438,7 @@ let getOrdersList = async (
         filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
 
         let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
-        let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
+        let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
         let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
         setData(
@@ -471,4 +473,73 @@ let getOrdersList = async (
 
 let isNonEmptyValue = value => {
   value->Option.getOr(Dict.make())->Dict.toArray->Array.length > 0
+}
+
+let viewsArray: array<viewTypes> = [All, Succeeded, Failed, Dropoffs, Cancelled]
+
+let getViewsDisplayName = view => {
+  switch view {
+  | All => "All"
+  | Succeeded => "Succeeded"
+  | Failed => "Failed"
+  | Dropoffs => "Dropoffs"
+  | Cancelled => "Cancelled"
+  }
+}
+
+let getAllPaymentsLabel = obj => {
+  open LogicUtils
+  obj
+  ->getDictFromJsonObject
+  ->getDictfromDict("status_with_count")
+  ->Dict.keysToArray
+  ->Array.joinWith(",")
+}
+
+let getViewsLabel = (view, obj) => {
+  switch view {
+  | All => getAllPaymentsLabel(obj)
+  | Succeeded => "succeeded"
+  | Failed => "failed"
+  | Dropoffs => "requires_payment_method"
+  | Cancelled => "cancelled"
+  }
+}
+
+let getViewTypeFromString = view => {
+  switch view {
+  | "succeeded" => Succeeded
+  | "cancelled" => Cancelled
+  | "failed" => Failed
+  | "requires_payment_method" => Dropoffs
+  | _ => All
+  }
+}
+
+let getAllPaymentsCount = obj => {
+  open LogicUtils
+  let countArray =
+    obj
+    ->getDictFromJsonObject
+    ->getDictfromDict("status_with_count")
+    ->Dict.toArray
+    ->Array.map(item => {
+      let (_, value) = item
+      value
+    })
+  countArray->Array.reduce(0, (acc, curr) =>
+    (acc->Int.toFloat +. curr->JSON.Decode.float->Option.getOr(0.0))->Float.toInt
+  )
+}
+
+let paymentCount = (view, obj) => {
+  open LogicUtils
+  switch view {
+  | All => getAllPaymentsCount(obj)
+  | _ =>
+    obj
+    ->getDictFromJsonObject
+    ->getDictfromDict("status_with_count")
+    ->getInt(view->getViewsLabel(obj), 0)
+  }
 }

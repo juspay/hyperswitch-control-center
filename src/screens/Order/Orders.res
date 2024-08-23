@@ -6,11 +6,17 @@ let make = (~previewOnly=false) => {
   open LogicUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
+  let (paymentCountRes, setPaymentCountRes) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (activeView, setActiveView) = React.useState(_ => All)
+
+  let {updateExistingKeys, removeKeys, filterValueJson, filterKeys, setfilterKeys} =
+    FilterContext.filterContext->React.useContext
 
   let (widthClass, heightClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "max-h-96") : ("w-full", "")
@@ -73,12 +79,86 @@ let make = (~previewOnly=false) => {
     }
   }
 
+  let updateViewsFilterValue = view => {
+    ["status"]->removeKeys
+
+    let customFilterKey = "status"
+    let customFilter = `[${view->getViewsLabel(paymentCountRes)}]`
+
+    updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
+
+    setfilterKeys(_ => filterKeys->Array.filter(item => item !== "status"))
+
+    if !(filterKeys->Array.includes("status")) {
+      filterKeys->Array.push("status")
+    }
+    setfilterKeys(_ => filterKeys)
+  }
+
+  let onViewClick = (view: viewTypes) => {
+    setActiveView(_ => view)
+    updateViewsFilterValue(view)
+  }
+
+  let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
+  let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
+  let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
+
+  let getAggregate = async () => {
+    try {
+      let url = getURL(
+        ~entityName=ORDERS_AGGREGATE,
+        ~methodType=Get,
+        ~queryParamerters=Some(`start_time=${start_time}&end_time=${end_time}`),
+      )
+      let response = await fetchDetails(url)
+      setPaymentCountRes(_ => response)
+    } catch {
+    | _ => ()
+    }
+  }
+
+  let fetchPaymentAggregate = async () => {
+    try {
+      getAggregate()->ignore
+    } catch {
+    | _ => ()
+    }
+  }
+
+  let setActiveViewOnLoad = () => {
+    let appliedStatusFilter =
+      filterValueJson->JSON.Encode.object->getDictFromJsonObject->getArrayFromDict("status", [])
+
+    if appliedStatusFilter->Array.length == 1 {
+      let statusValue =
+        appliedStatusFilter
+        ->Array.get(0)
+        ->Option.getOr(JSON.Encode.string(""))
+        ->JSON.Decode.string
+
+      let status = switch statusValue {
+      | Some(s) => s
+      | None => ""
+      }
+      setActiveView(_ => status->getViewTypeFromString)
+    } else {
+      setActiveView(_ => All)
+    }
+  }
+
   React.useEffect(() => {
     if filters->isNonEmptyValue {
       fetchOrders()
     }
+    setActiveViewOnLoad()
     None
   }, (offset, filters, searchText))
+
+  React.useEffect(() => {
+    fetchPaymentAggregate()->ignore
+    None
+  }, (start_time, end_time))
 
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
 
@@ -104,22 +184,29 @@ let make = (~previewOnly=false) => {
     />
   }, [])
 
+  let viewsUI =
+    viewsArray->Array.map(item =>
+      <OrderUtils.ViewCards
+        view={item}
+        count={paymentCount(item, paymentCountRes)->Int.toString}
+        onViewClick
+        isActiveView={item == activeView}
+      />
+    )
+
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
-      <PageUtils.PageHeading
-        title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
-      />
+      <div className="flex justify-between items-center">
+        <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
+        <RenderIf condition={generateReport && orderData->Array.length > 0}>
+          <GenerateReport entityName={PAYMENT_REPORT} />
+        </RenderIf>
+      </div>
+      <div className="flex gap-6 justify-around"> {viewsUI->React.array} </div>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
           <div className="flex-1"> {filtersUI} </div>
         </RenderIf>
-        <div className="flex flex-col items-end 2xl:flex-row 2xl:justify-end 2xl:items-start gap-3">
-          <RenderIf condition={generateReport && orderData->Array.length > 0}>
-            <GenerateReport entityName={PAYMENT_REPORT} />
-          </RenderIf>
-          <PortalCapture key={`OrdersCustomizeColumn`} name={`OrdersCustomizeColumn`} />
-          <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
-        </div>
       </div>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns

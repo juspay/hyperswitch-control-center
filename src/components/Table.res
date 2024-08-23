@@ -245,6 +245,21 @@ module TableRow = {
           </AddDataAttributes>
         })
         ->React.array}
+        <div className=" sticky right-0 !w-16">
+          <tr>
+            <td colSpan=12 className="bg-white border-jp-gray-940 border-l">
+              <div className="flex flex-row items-center">
+                <TableCell
+                  cell=EllipsisText("", "w-16 h-14")
+                  clearFormatting
+                  isEllipsisTextRelative
+                  customMoneyStyle
+                  ellipseClass
+                />
+              </div>
+            </td>
+          </tr>
+        </div>
       </tr>
       {if isCurrentRowExpanded {
         <tr className="dark:border-jp-gray-dark_disable_border_color">
@@ -589,6 +604,10 @@ module TableHeadingRow = {
             />
           })
           ->React.array}
+          <div
+            className="flex jusitfy-center items-center sticky right-0 w-16 bg-white border-jp-gray-940 border-l h-14">
+            <PortalCapture key={`OrdersCustomizeColumn`} name={`OrdersCustomizeColumn`} />
+          </div>
         </tr>
       </thead>
     } else {
