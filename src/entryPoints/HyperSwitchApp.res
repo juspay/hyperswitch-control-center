@@ -82,11 +82,7 @@ let make = () => {
       if featureFlagDetails.quickStart {
         let _ = await fetchInitialEnums()
       }
-      if featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
-        setDashboardPageState(_ => #PROD_ONBOARDING)
-      } else {
-        setDashboardPageState(_ => #HOME)
-      }
+      setDashboardPageState(_ => #HOME)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ =>
@@ -131,8 +127,10 @@ let make = () => {
         {switch dashboardPageState {
         | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
         | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
+        // INTEGRATION_DOC AND PROD_ONBOARDING Need to be removed
         | #INTEGRATION_DOC => <UserOnboarding />
         | #PROD_ONBOARDING => <ProdOnboardingLanding />
+        //
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
           <div className="relative">

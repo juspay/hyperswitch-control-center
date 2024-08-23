@@ -19,9 +19,11 @@ let make = () => {
         userPermissionJson.workflowsView === Access ||
         userPermissionJson.workflowsManage === Access
       ) {
-        let _ = await fetchConnectorListResponse()
-        let _ = await fetchBusinessProfiles()
         let _ = await fetchMerchantAccountDetails()
+        if !featureFlagDetails.isLiveMode {
+          let _ = await fetchConnectorListResponse()
+          let _ = await fetchBusinessProfiles()
+        }
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -38,7 +40,7 @@ let make = () => {
     {switch url.path->urlPath {
     | list{"home"} => featureFlagDetails.quickStart ? <HomeV2 /> : <Home />
     | list{"unauthorized"} => <UnauthorizedPage />
-    | _ => <> </>
+    | _ => <NotFoundPage />
     }}
     <RenderIf
       condition={!featureFlagDetails.isLiveMode &&

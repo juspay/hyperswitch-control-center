@@ -124,7 +124,7 @@ let make = () => {
         />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
-    | _ => <> </>
+    | _ => <NotFoundPage />
     }}
   </PageLoaderWrapper>
 }

@@ -40,7 +40,7 @@ let make = () => {
         renderShow={_profileId => <PaymentSettings webhookOnly=false showFormOnly=false />}
       />
     | list{"unauthorized"} => <UnauthorizedPage />
-    | _ => <> </>
+    | _ => <NotFoundPage />
     }}
   </PageLoaderWrapper>
 }
