@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.08.22.0
+
+### Bug Fixes
+
+- Loading page height before login screen ([#1195](https://github.com/juspay/hyperswitch-control-center/pull/1195)) ([`0f6de89`](https://github.com/juspay/hyperswitch-control-center/commit/0f6de8993b3c8540d7d56b06b5bb4635f939a648))
+- Performance monitor bugs ([#1190](https://github.com/juspay/hyperswitch-control-center/pull/1190)) ([`047438f`](https://github.com/juspay/hyperswitch-control-center/commit/047438f2290936d50cc846f7cdf28fe7497955b6))
+
+### Miscellaneous Tasks
+
+- Update github workflow ([`a94f218`](https://github.com/juspay/hyperswitch-control-center/commit/a94f218c43f383990b4deac68caf8e46c0d9ef4c))
+
+**Full Changelog:** [`2024.08.21.0...2024.08.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.21.0...2024.08.22.0)
+
+- - -
+
 ## 2024.08.21.0
 
 ### Features

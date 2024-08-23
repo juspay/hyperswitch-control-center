@@ -365,6 +365,18 @@ let make = () => {
                               renderShow={_ => <ShowUserData />}
                             />
                           </AccessControl>
+
+                        | list{"users-revamp", ...remainingPath} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.userManagementRevamp} permission={Access}>
+                            <EntityScaffold
+                              entityName="UserManagement"
+                              remainingPath
+                              renderList={_ => <UserManagementLanding />}
+                              renderShow={_ => <ShowUserData />}
+                            />
+                          </AccessControl>
+
                         | list{"analytics-payments"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
                             <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
