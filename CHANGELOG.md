@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.08.25.0
+
+### Miscellaneous Tasks
+
+- List users UI changes ([#1113](https://github.com/juspay/hyperswitch-control-center/pull/1113)) ([`939d109`](https://github.com/juspay/hyperswitch-control-center/commit/939d109986c1bfd9a9fbae2408f2b951c9a42cb3))
+- Plaid minor enhancements ([#1175](https://github.com/juspay/hyperswitch-control-center/pull/1175)) ([`08b5942`](https://github.com/juspay/hyperswitch-control-center/commit/08b5942d8ff9e5bab3cd6b42052eaa6128fc79ce))
+
+**Full Changelog:** [`2024.08.22.0...2024.08.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.22.0...2024.08.25.0)
+
+- - -
+
 ## 2024.08.22.0
 
 ### Bug Fixes
