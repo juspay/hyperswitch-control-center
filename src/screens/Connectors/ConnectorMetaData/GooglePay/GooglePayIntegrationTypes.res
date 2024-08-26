@@ -28,14 +28,3 @@ type zenGooglepay = {
 }
 type googlePay = {merchant_info: merchantInfo, allowed_payment_methods: allowedPaymentMethods}
 type googlePayConfig = Zen(zenGooglepay) | Standard(googlePay)
-
-type inputType = Text | Toggle | Select
-
-type inputField = {
-  name: string,
-  label: string,
-  placeholder: string,
-  required: bool,
-  options: array<string>,
-  \"type": inputType,
-}

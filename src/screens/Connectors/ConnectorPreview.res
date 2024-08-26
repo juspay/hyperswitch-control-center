@@ -175,7 +175,7 @@ module ConnectorSummaryGrid = {
         }
       }
     }, [connector])
-    let (_, connectorAccountFields, _, _, _, _) = ConnectorUtils.getConnectorFields(
+    let (_, connectorAccountFields, _, _, _, _, _) = ConnectorUtils.getConnectorFields(
       connectorDetails,
     )
 

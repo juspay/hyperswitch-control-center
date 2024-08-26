@@ -50,6 +50,7 @@ module ManualSetupScreen = {
     ~connectorMetaDataFields,
     ~connectorWebHookDetails,
     ~connectorLabelDetailField,
+    ~connectorAdditionalMerchantData,
   ) => {
     <div className="flex flex-col gap-8">
       <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
@@ -59,6 +60,7 @@ module ManualSetupScreen = {
         connectorMetaDataFields
         connectorWebHookDetails
         connectorLabelDetailField
+        connectorAdditionalMerchantData
       />
     </div>
   }

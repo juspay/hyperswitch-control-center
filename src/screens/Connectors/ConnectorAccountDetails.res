@@ -57,8 +57,8 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
     isVerifyConnector,
     connectorWebHookDetails,
     connectorLabelDetailField,
+    connectorAdditionalMerchantData,
   ) = getConnectorFields(connectorDetails)
-
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let updatedInitialVal = React.useMemo(() => {
@@ -254,6 +254,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
               connectorMetaDataFields
               connectorWebHookDetails
               connectorLabelDetailField
+              connectorAdditionalMerchantData
             />
           </div>
           <IntegrationHelp.Render connector setShowModal showModal />
