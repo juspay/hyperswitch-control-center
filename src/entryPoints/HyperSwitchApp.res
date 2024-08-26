@@ -366,7 +366,7 @@ let make = () => {
                             />
                           </AccessControl>
 
-                        | list{"users-revamp"} => <UserManagementContainer />
+                        | list{"users-revamp", ..._} => <UserManagementContainer />
 
                         | list{"analytics-payments"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
