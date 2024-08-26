@@ -1,5 +1,8 @@
 @react.component
-let make = (~message="You don't have access to this module. Contact admin for access") => {
+let make = (
+  ~message="You don't have access to this module. Contact admin for access",
+  ~url="unauthorized",
+) => {
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   React.useEffect(() => {
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/unauthorized"))

@@ -4,7 +4,6 @@ let make = () => {
   open PageUtils
   let greeting = getGreeting()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
   let {recoveryCodesLeft} = React.useContext(UserInfoProvider.defaultContext)
   let recoveryCode = recoveryCodesLeft->Option.getOr(0)
 
