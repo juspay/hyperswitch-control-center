@@ -407,7 +407,7 @@ let make = () => {
                         | list{"unauthorized"} => <UnauthorizedPage />
                         | _ =>
                           RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-                          <ConnectorContainer />
+                          <MerchantAccountContainer />
                         }}
                       </ErrorBoundary>
                     </div>
