@@ -248,7 +248,7 @@ let make = (~filterKeys, ~moduleName) => {
         ~startDateTime=singleStatBodyEntity.startDateTime,
         ~endDateTime=singleStatBodyEntity.endDateTime,
         ~mode=singleStatBodyEntity.mode,
-        ~groupByNames=["currency"]->Some,
+        ~groupByNames=Some(["currency"]),
         ~customFilter=?singleStatBodyEntity.customFilter,
         ~source=?singleStatBodyEntity.source,
         ~granularity=singleStatBodyEntity.granularity,

@@ -323,7 +323,15 @@ let getHeading = colType => {
 
 let getCell = (payoutData, colType): Table.cell => {
   switch colType {
-  | PayoutId => DisplayCopyCell(payoutData.payout_id)
+  | PayoutId =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/payouts/${payoutData.payout_id}`}
+        displayValue={payoutData.payout_id}
+        copyValue={Some(payoutData.payout_id)}
+      />,
+      "",
+    )
   | MerchantId => DisplayCopyCell(payoutData.merchant_id)
   | Currency => Text(payoutData.currency)
   | Connector =>
