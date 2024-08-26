@@ -90,6 +90,9 @@ let make = (
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConnectorTypes.IntegFields)
+        } else if errorCode === "CE_00" {
+          showToast(~message=errorMessage, ~toastType=ToastError)
+          setScreenState(_ => PageLoaderWrapper.Error(errorMessage))
         } else {
           showToast(~message=errorMessage, ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))

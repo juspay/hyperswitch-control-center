@@ -821,7 +821,6 @@ let connectorIgnoredField = [
   "connector_name",
   "profile_id",
   "applepay_verified_domains",
-  "additional_merchant_data",
 ]
 
 let configKeysToIgnore = [
@@ -1325,6 +1324,8 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
   let dict = payload->getDictFromJsonObject
   let connectorAccountDetails =
     dict->getDictfromDict("connector_account_details")->JSON.Encode.object
+  let connectorAdditionalMerchantData =
+    dict->getDictfromDict("additional_merchant_data")->JSON.Encode.object
   let payLoadDetails: wasmExtraPayload = {
     connector_account_details: connectorAccountDetails,
     connector_webhook_details: dict->getDictfromDict("connector_webhook_details")->isEmptyDict
@@ -1335,10 +1336,13 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
     profile_id: dict->getString("profile_id", ""),
     disabled: dict->getBool("disabled", false),
     test_mode: dict->getBool("test_mode", false),
+    additional_merchant_data: connectorAdditionalMerchantData,
   }
   let values = Window.getRequestPayload(wasmRequest, payLoadDetails)
+
   let dict = Dict.fromArray([
     ("connector_account_details", connectorAccountDetails),
+    ("additional_merchant_data", connectorAdditionalMerchantData),
     ("connector_label", dict->getString("connector_label", "")->JSON.Encode.string),
     ("status", dict->getString("status", "active")->JSON.Encode.string),
     (

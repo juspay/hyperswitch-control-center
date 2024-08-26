@@ -1,7 +1,10 @@
 @react.component
-let make = (~connectorAdditionalMerchantData) => {
-  open LogicUtils
+let make = (~connector, ~connectorAdditionalMerchantData) => {
+  open ConnectorTypes
   <>
-    <PlaidAdditionalMerchantData connectorAdditionalMerchantData />
+    {switch connector {
+    | Processors(PLAID) => <PlaidAdditionalMerchantData connectorAdditionalMerchantData />
+    | _ => React.null
+    }}
   </>
 }

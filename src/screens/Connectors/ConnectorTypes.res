@@ -199,6 +199,7 @@ type wasmExtraPayload = {
   disabled: bool,
   test_mode: bool,
   connector_webhook_details: option<JSON.t>,
+  additional_merchant_data?: JSON.t,
 }
 
 // This type are used for FRM configuration which need to moved to wasm

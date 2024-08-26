@@ -323,7 +323,7 @@ module ConnectorConfigurationFields = {
         description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
       />
       <ConnectorMetaData connectorMetaDataFields />
-      <ConnectorAdditionalMerchantData connectorAdditionalMerchantData />
+      <ConnectorAdditionalMerchantData connector connectorAdditionalMerchantData />
       <RenderConnectorInputFields
         details={connectorWebHookDetails}
         name={"connector_webhook_details"}
