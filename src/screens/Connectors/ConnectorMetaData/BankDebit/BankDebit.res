@@ -54,7 +54,7 @@ module PMAuthProcessorInput = {
     }
     <SelectBox.BaseDropdown
       allowMultiSelect=false
-      buttonText="Select Value"
+      buttonText="Select PM Authentication Processor"
       input
       options
       hideMultiSelectButtons=false
@@ -68,7 +68,6 @@ module PMAuthProcessorInput = {
 
 @react.component
 let make = (
-  ~onCloseClickCustomFun,
   ~setShowWalletConfigurationModal,
   ~update,
   ~paymentMethod,
@@ -121,7 +120,7 @@ let make = (
   }
 
   let closeModal = () => {
-    onCloseClickCustomFun()
+    update()
     onCancelClick()
     setShowWalletConfigurationModal(_ => false)
   }
@@ -145,6 +144,7 @@ let make = (
       ~label=`${inputArg.label}`,
       ~comboCustomInput=renderValueInp(inputArg.options),
       ~inputFields=[makeInputFieldInfo(~name=`${inputArg.name1}`), makeInputFieldInfo(~name=``)],
+      ~isRequired=true,
       (),
     )
   }
@@ -167,6 +167,7 @@ let make = (
         }}
         text="Proceed"
         buttonType={Primary}
+        buttonState={validateSelectedPMAuth(formState.values, paymentMethodType)}
       />
     </div>
     <FormValuesSpy />
