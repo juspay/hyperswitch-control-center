@@ -4,7 +4,6 @@ let make = () => {
   open RolesEntity
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-
   let (screenStateRoles, setScreenStateRoles) = React.useState(_ => PageLoaderWrapper.Loading)
   let (rolesAvailableData, setRolesAvailableData) = React.useState(_ => [])
   let (rolesOffset, setRolesOffset) = React.useState(_ => 0)
