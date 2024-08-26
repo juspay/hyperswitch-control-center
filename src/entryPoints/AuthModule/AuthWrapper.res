@@ -154,7 +154,7 @@ let make = (~children) => {
   <div className="font-inter-style">
     {switch authStatus {
     | LoggedOut =>
-      <PageLoaderWrapper screenState>
+      <PageLoaderWrapper screenState sectionHeight="h-screen">
         <AuthHeaderWrapper childrenStyle="flex flex-col gap-4">
           <RenderIf condition={checkAuthMethodExists([PASSWORD, MAGIC_LINK])}>
             <TwoFaAuthScreen setAuthStatus />

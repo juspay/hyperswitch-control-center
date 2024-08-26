@@ -64,6 +64,6 @@ let make = (~auth_id: option<string>) => {
 
   switch localSSOState {
   | SSO_FROM_REDIRECT(_) => <SSOFromRedirect localSSOState />
-  | LOADING => <PageLoaderWrapper.ScreenLoader />
+  | LOADING => <PageLoaderWrapper.ScreenLoader sectionHeight="h-screen" />
   }
 }
