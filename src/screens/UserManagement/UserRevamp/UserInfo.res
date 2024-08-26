@@ -7,6 +7,8 @@ module TableRowForUserDetails = {
     ~merchantName,
     ~parentIndex,
   ) => {
+    let (showModal, setShowModal) = React.useState(_ => false)
+
     let tableElementCss = "table-cell text-left h-fit w-fit p-4"
     let noOfElementsForMerchants = arrayValue->Array.length
     let borderStyle = index =>
@@ -32,8 +34,13 @@ module TableRowForUserDetails = {
           </p>
         </td>
         <td className={`${tableElementCss} text-right`}>
-          <Button text="Update Role" customButtonStyle="!p-2 !bg-white " />
+          <Button
+            text="Manage user"
+            customButtonStyle="!p-2 !bg-white "
+            onClick={_ => setShowModal(_ => true)}
+          />
         </td>
+        <ManageUserModal showModal setShowModal />
       </tr>
     })
     ->React.array
