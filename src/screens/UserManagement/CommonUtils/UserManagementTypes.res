@@ -42,3 +42,20 @@ type userModuleType = {
   description: string,
   groups: array<string>,
 }
+@unboxed
+type groupPermissionType = View | Manage
+
+type orgObjectType = {
+  name: string,
+  id: string,
+}
+
+type userDetailstype = {
+  roleId: string,
+  roleName: string,
+  org: orgObjectType,
+  merchant: orgObjectType,
+  profile: orgObjectType,
+  status: string,
+  entityType: string,
+}
