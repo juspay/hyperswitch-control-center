@@ -72,7 +72,7 @@ let filterByData = (txnArr, value) => {
       })
       ->Array.reduce(false, (acc, item) => item || acc)
 
-    valueArr ? data->Nullable.make->Some : None
+    valueArr ? Some(data->Nullable.make) : None
   })
 }
 
