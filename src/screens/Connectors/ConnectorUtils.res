@@ -1547,7 +1547,7 @@ let getDisplayNameForProcessor = connector =>
   | DATATRANS => "Datatrans"
   | PLAID => "Plaid"
   | PAYBOX => "Paybox"
-  | WELLSFARGO => "Wellsfargo"
+  | WELLSFARGO => "Wells Fargo"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
