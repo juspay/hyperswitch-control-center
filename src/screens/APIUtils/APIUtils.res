@@ -385,6 +385,9 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
+      | #SWITCH_ORG => `${userUrl}/switch/org`
+      | #SWITCH_MERCHANT_NEW => `${userUrl}/switch/merchant`
+      | #SWITCH_PROFILE => `${userUrl}/switch/profile`
 
       // CREATE ROLES
       | #CREATE_CUSTOM_ROLE => `${userUrl}/role`

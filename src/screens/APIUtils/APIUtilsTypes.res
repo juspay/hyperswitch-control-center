@@ -97,6 +97,9 @@ type userType = [
   | #AUTH_SELECT
   | #SIGN_IN_WITH_SSO
   | #CHANGE_PASSWORD
+  | #SWITCH_ORG
+  | #SWITCH_MERCHANT_NEW
+  | #SWITCH_PROFILE
   | #NONE
 ]
 
