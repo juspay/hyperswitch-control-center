@@ -8,7 +8,7 @@ let make = (~to_, ~children, ~openInNewTab=false, ~className=?, ~onClick=?) => {
     | None => ()
     }
 
-    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=to_))
+    to_->RescriptReactRouter.push
   }, [to_])
   if openInNewTab {
     if to_->String.trim->LogicUtils.isEmptyString {

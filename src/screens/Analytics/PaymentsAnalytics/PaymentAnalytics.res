@@ -134,7 +134,7 @@ let make = () => {
         ~startDateTime=singleStatBodyEntity.startDateTime,
         ~endDateTime=singleStatBodyEntity.endDateTime,
         ~mode=singleStatBodyEntity.mode,
-        ~groupByNames=["currency"]->Some,
+        ~groupByNames=Some(["currency"]),
         ~customFilter=?singleStatBodyEntity.customFilter,
         ~source=?singleStatBodyEntity.source,
         ~granularity=singleStatBodyEntity.granularity,
@@ -180,7 +180,7 @@ let make = () => {
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       try {
         updateDetails(filterUri, body, Post)
-        ->thenResolve(json => setFilterDataJson(_ => json->Some))
+        ->thenResolve(json => setFilterDataJson(_ => Some(json)))
         ->catch(_ => resolve())
         ->ignore
       } catch {
@@ -271,13 +271,13 @@ let make = () => {
           defaultSort="total_volume"
           getTable={getPaymentTable}
           colMapper
-          distributionArray={[distribution]->Some}
-          tableEntity={paymentTableEntity()->Some}
+          distributionArray={Some([distribution])}
+          tableEntity={Some(paymentTableEntity())}
           deltaMetrics={getStringListFromArrayDict(metrics)}
           deltaArray=[]
           tableGlobalFilter=filterByData
           weeklyTableMetricsCols
-          formatData={formatData->Some}
+          formatData={Some(formatData)}
           startTimeFilterKey
           endTimeFilterKey
           heading="Payments Trends"

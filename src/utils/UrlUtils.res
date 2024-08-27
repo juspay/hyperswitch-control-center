@@ -18,10 +18,10 @@ let useGetFilterDictFromUrl = prefix => {
         ->Belt.Array.keepMap(entry => {
           let (key, val) = entry
           if prefix->LogicUtils.isEmptyString {
-            entry->Some
+            Some(entry)
           } else if key->String.indexOf(`${prefix}.`) === 0 {
             let transformedKey = key->String.replace(`${prefix}.`, "")
-            (transformedKey, val)->Some
+            Some(transformedKey, val)
           } else {
             None
           }
