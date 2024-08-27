@@ -386,6 +386,23 @@ let useGetURL = () => {
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
 
+      // O-M-P Switch
+      | #LIST_ORG =>
+        switch methodType {
+        | Get => `${userUrl}/list/org`
+        | _ => ""
+        }
+      | #LIST_MERCHANT =>
+        switch methodType {
+        | Get => `${userUrl}/list/merchant`
+        | _ => ""
+        }
+      | #LIST_PROFILE =>
+        switch methodType {
+        | Get => `${userUrl}/list/profile`
+        | _ => ""
+        }
+
       // CREATE ROLES
       | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
       | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`

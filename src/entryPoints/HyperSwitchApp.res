@@ -179,6 +179,9 @@ let make = () => {
                             userRole={userRole}
                             isAddMerchantEnabled={userRole === "org_admin" ? true : false}
                           />
+                          <RenderIf condition={featureFlagDetails.userManagementRevamp}>
+                            <ProfileSwitch />
+                          </RenderIf>
                           <div
                             className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
                             {modeText->React.string}
