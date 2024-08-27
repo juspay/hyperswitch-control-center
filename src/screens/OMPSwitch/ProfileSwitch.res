@@ -7,14 +7,14 @@ module ListBaseComp = {
     <div className="flex flex-col items-end gap-2" onClick={_ => setArrow(prev => !prev)}>
       <div
         className="flex items-center justify-end text-sm text-center text-black font-medium rounded hover:bg-opacity-80 bg-white w-fit">
-        <div className="flex flex-col items-start px-2 py-2  ">
+        <div className="flex flex-col items-start px-2 py-2">
           <p className="fs-10 text-nowrap"> {"current_profile_id"->React.string} </p>
         </div>
         <div className="px-2 py-2">
           <Icon
             className={arrow
-              ? `rotate-0 transition duration-[250ms] opacity-70`
-              : `rotate-180 transition duration-[250ms] opacity-70`}
+              ? "rotate-0 transition duration-[250ms] opacity-70"
+              : "rotate-180 transition duration-[250ms] opacity-70"}
             name="arrow-without-tail"
             size=15
           />
@@ -89,7 +89,7 @@ module NewAccountCreationModal = {
       ~isRequired=true,
     )
 
-    let modalBody = {
+    let modalBody =
       <div className="p-2 m-2">
         <div className="py-5 px-3 flex justify-between align-top">
           <CardUtils.CardHeader
@@ -116,12 +116,11 @@ module NewAccountCreationModal = {
               </div>
             </FormRenderer.DesktopRow>
             <div className="flex justify-end w-full pr-5 pb-3">
-              <FormRenderer.SubmitButton text="Add Profile" buttonSize={Small} />
+              <FormRenderer.SubmitButton text="Add Profile" buttonSize=Small />
             </div>
           </div>
         </Form>
       </div>
-    }
 
     <Modal
       showModal
@@ -130,7 +129,7 @@ module NewAccountCreationModal = {
       childClass="p-0"
       borderBottom=true
       modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
-      modalBody
+      {modalBody}
     </Modal>
   }
 }
@@ -165,9 +164,7 @@ let make = () => {
     profileList
     ->getArrayFromJson([])
     ->Array.map(item => {
-      let dict = item->getDictFromJsonObject
-      let profileId = dict->getString("profile_id", "")
-      profileId
+      item->getDictFromJsonObject->getString("profile_id", "")
     })
 
   let options = profileListArray->SelectBox.makeOptions

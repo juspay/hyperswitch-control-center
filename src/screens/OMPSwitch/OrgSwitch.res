@@ -10,15 +10,15 @@ module ListBaseComp = {
         <img
           src="" alt={orgId->String.slice(~start=0, ~end=1)->String.toUpperCase} className="px-2"
         />
-        <div className="flex flex-col items-start px-2 py-2  ">
+        <div className="flex flex-col items-start px-2 py-2">
           <p className="text-xs text-gray-400"> {"Org"->React.string} </p>
           <p className="fs-10"> {orgId->React.string} </p>
         </div>
         <div className="px-2 py-2">
           <Icon
             className={arrow
-              ? `-rotate-180 transition duration-[250ms] opacity-70`
-              : `rotate-0 transition duration-[250ms] opacity-70`}
+              ? "-rotate-180 transition duration-[250ms] opacity-70"
+              : "rotate-0 transition duration-[250ms] opacity-70"}
             name="arrow-without-tail-new"
             size=15
           />
@@ -56,9 +56,7 @@ let make = () => {
     orgList
     ->getArrayFromJson([])
     ->Array.map(item => {
-      let dict = item->getDictFromJsonObject
-      let orgId = dict->getString("org_id", "")
-      orgId
+      item->getDictFromJsonObject->getString("org_id", "")
     })
 
   let options = orgListArray->SelectBox.makeOptions
@@ -72,26 +70,24 @@ let make = () => {
     checked: true,
   }
 
-  <div className="">
-    <SelectBox.BaseDropdown
-      allowMultiSelect=false
-      buttonText=""
-      input
-      deselectDisable=true
-      customButtonStyle="!rounded-md"
-      options
-      hideMultiSelectButtons=true
-      addButton=false
-      // dropdownCustomWidth="w-full"
-      customStyle="hover:bg-popover-background-hover"
-      customSelectStyle="md:bg-popover-background hover:bg-popover-background-hover"
-      searchable=false
-      fullLength=true
-      baseComponent={<ListBaseComp />}
-      baseComponentCustomStyle="bg-popover-background"
-      optionClass="text-gray-200 text-fs-14"
-      selectClass="text-gray-200 text-fs-14"
-      customDropdownOuterClass="!border-none"
-    />
-  </div>
+  <SelectBox.BaseDropdown
+    allowMultiSelect=false
+    buttonText=""
+    input
+    deselectDisable=true
+    customButtonStyle="!rounded-md"
+    options
+    hideMultiSelectButtons=true
+    addButton=false
+    // dropdownCustomWidth="w-full"
+    customStyle="hover:bg-popover-background-hover"
+    customSelectStyle="md:bg-popover-background hover:bg-popover-background-hover"
+    searchable=false
+    fullLength=true
+    baseComponent={<ListBaseComp />}
+    baseComponentCustomStyle="bg-popover-background"
+    optionClass="text-gray-200 text-fs-14"
+    selectClass="text-gray-200 text-fs-14"
+    customDropdownOuterClass="!border-none"
+  />
 }

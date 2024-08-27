@@ -7,7 +7,7 @@ module OrgMerchantSwitchCollapsed = {
 
     <div className="flex flex-col gap-2">
       <img src="" alt={orgId->String.slice(~start=0, ~end=1)} className={`${style} h-10`} />
-      <div className={`${style}`}> {merchantId->String.slice(~start=0, ~end=2)->React.string} </div>
+      <div className={style}> {merchantId->String.slice(~start=0, ~end=2)->React.string} </div>
     </div>
   }
 }
