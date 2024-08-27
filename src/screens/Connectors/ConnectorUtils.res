@@ -1185,6 +1185,10 @@ let getConnectorFields = connectorDetails => {
   let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
   let connectorWebHookDetails =
     connectorDetails->getDictFromJsonObject->getDictfromDict("connector_webhook_details")
+  let connectorAdditionalMerchantData =
+    connectorDetails
+    ->getDictFromJsonObject
+    ->getDictfromDict("additional_merchant_data")
   (
     bodyType,
     connectorAccountFields,
@@ -1192,6 +1196,7 @@ let getConnectorFields = connectorDetails => {
     isVerifyConnector,
     connectorWebHookDetails,
     connectorLabelDetailField,
+    connectorAdditionalMerchantData,
   )
 }
 
