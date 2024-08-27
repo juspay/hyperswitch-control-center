@@ -1122,7 +1122,7 @@ let validateConnectorRequiredFields = (
         ->getDictfromDict(field)
         ->JSON.Encode.object
         ->convertMapObjectToDict
-        ->CommonDataUtils.inputFieldMapper
+        ->CommonConnectorUtils.inputFieldMapper
       let key = `metadata.${name}`
       let value = switch \"type" {
       | Text | Select => valuesFlattenJson->getString(`${key}`, "")

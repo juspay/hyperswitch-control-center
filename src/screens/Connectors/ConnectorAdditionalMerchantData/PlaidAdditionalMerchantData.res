@@ -103,7 +103,7 @@ let make = (~connectorAdditionalMerchantData) => {
             ->getDictfromDict(field)
             ->JSON.Encode.object
             ->convertMapObjectToDict
-            ->CommonDataUtils.inputFieldMapper
+            ->CommonConnectorUtils.inputFieldMapper
           <PlaidAdditionMerchantDataSelect
             setState=setOpenBankingRecipientData
             value=openBankingRecipientData
@@ -118,7 +118,7 @@ let make = (~connectorAdditionalMerchantData) => {
             ->getDictfromDict(field)
             ->JSON.Encode.object
             ->convertMapObjectToDict
-            ->CommonDataUtils.inputFieldMapper
+            ->CommonConnectorUtils.inputFieldMapper
           <PlaidAdditionMerchantDataSelect
             setState=setaccountData
             value=accountData
@@ -134,7 +134,7 @@ let make = (~connectorAdditionalMerchantData) => {
             let fields =
               field
               ->convertMapObjectToDict
-              ->CommonDataUtils.inputFieldMapper
+              ->CommonConnectorUtils.inputFieldMapper
             <div key={index->Int.toString}>
               <FormRenderer.FieldRenderer
                 labelClass="font-semibold !text-hyperswitch_black"
@@ -152,7 +152,7 @@ let make = (~connectorAdditionalMerchantData) => {
             let fields =
               field
               ->convertMapObjectToDict
-              ->CommonDataUtils.inputFieldMapper
+              ->CommonConnectorUtils.inputFieldMapper
             <div key={index->Int.toString}>
               <FormRenderer.FieldRenderer
                 labelClass="font-semibold !text-hyperswitch_black"
@@ -172,7 +172,7 @@ let make = (~connectorAdditionalMerchantData) => {
             connectorRecipientId
             ->JSON.Encode.object
             ->convertMapObjectToDict
-            ->CommonDataUtils.inputFieldMapper
+            ->CommonConnectorUtils.inputFieldMapper
           <div key={index->Int.toString}>
             <FormRenderer.FieldRenderer
               labelClass="font-semibold !text-hyperswitch_black"
@@ -187,7 +187,7 @@ let make = (~connectorAdditionalMerchantData) => {
             walledId
             ->JSON.Encode.object
             ->convertMapObjectToDict
-            ->CommonDataUtils.inputFieldMapper
+            ->CommonConnectorUtils.inputFieldMapper
           <div key={index->Int.toString}>
             <FormRenderer.FieldRenderer
               labelClass="font-semibold !text-hyperswitch_black"

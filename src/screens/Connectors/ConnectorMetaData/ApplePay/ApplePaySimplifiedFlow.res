@@ -101,17 +101,17 @@ let make = (
   let applePaySimplifiedFields =
     applePayFields
     ->Array.filter(field => {
-      let typedData = field->convertMapObjectToDict->CommonDataUtils.inputFieldMapper
+      let typedData = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
       !(ignoreFieldsonSimplified->Array.includes(typedData.name))
     })
     ->Array.mapWithIndex((field, index) => {
-      let applePayField = field->convertMapObjectToDict->CommonDataUtils.inputFieldMapper
+      let applePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
       <div key={index->Int.toString}>
         {switch applePayField.name {
         | "merchant_business_country" =>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={CommonDataHelper.selectInput(
+            field={CommonConnectorHelper.selectInput(
               ~field={applePayField},
               ~opt={Some(merchantBusinessCountry)},
               ~formName={

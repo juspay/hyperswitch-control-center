@@ -12,9 +12,9 @@ let connectorAdditionalMerchantDataMapper = name => {
   }
 }
 let connectorAdditionalMerchantDataValueInput = (
-  ~connectorAdditionalMerchantData: CommonDataTypes.inputField,
+  ~connectorAdditionalMerchantData: CommonConnectorTypes.inputField,
 ) => {
-  open CommonDataHelper
+  open CommonConnectorHelper
   let {\"type", name} = connectorAdditionalMerchantData
   let formName = connectorAdditionalMerchantDataMapper(name)
 

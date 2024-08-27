@@ -5,8 +5,8 @@ let connectorMetaDataNameMapper = name => {
   }
 }
 
-let connectorMetaDataValueInput = (~connectorMetaDataFields: CommonDataTypes.inputField) => {
-  open CommonDataHelper
+let connectorMetaDataValueInput = (~connectorMetaDataFields: CommonConnectorTypes.inputField) => {
+  open CommonConnectorHelper
   let {\"type", name} = connectorMetaDataFields
   let formName = connectorMetaDataNameMapper(name)
 

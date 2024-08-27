@@ -15,7 +15,7 @@ let make = (~connectorMetaDataFields) => {
         ->getDictfromDict(field)
         ->JSON.Encode.object
         ->convertMapObjectToDict
-        ->CommonDataUtils.inputFieldMapper
+        ->CommonConnectorUtils.inputFieldMapper
       <div key={index->Int.toString}>
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-hyperswitch_black"

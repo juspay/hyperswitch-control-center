@@ -160,10 +160,10 @@ module InfoCard = {
 }
 
 let applePayValueInput = (
-  ~applePayField: CommonDataTypes.inputField,
+  ~applePayField: CommonConnectorTypes.inputField,
   ~integrationType: option<applePayIntegrationType>=None,
 ) => {
-  open CommonDataHelper
+  open CommonConnectorHelper
   let {\"type", name} = applePayField
   let formName = ApplePayIntegrationUtils.applePayNameMapper(~name, ~integrationType)
 
