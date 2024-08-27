@@ -162,7 +162,15 @@ let getHeading = colType => {
 let getCell = (refundsObj, colType): Table.cell => {
   switch colType {
   | InternalReferenceId => Text(refundsObj.internal_reference_id)
-  | RefundId => Text(refundsObj.refund_id)
+  | RefundId =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/refunds/${refundsObj.refund_id}`}
+        displayValue={refundsObj.refund_id}
+        copyValue={Some(refundsObj.refund_id)}
+      />,
+      "",
+    )
   | PaymentId => Text(refundsObj.payment_id)
   | MerchantId => Text(refundsObj.merchant_id)
   | ConnectorTransactionId => Text(refundsObj.connector_transaction_id)

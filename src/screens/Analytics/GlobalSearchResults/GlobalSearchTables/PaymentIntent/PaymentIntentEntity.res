@@ -170,7 +170,15 @@ let getCell = (paymentObj, colType): Table.cell => {
   let orderStatus = paymentObj.status->HSwitchOrderUtils.statusVariantMapper
 
   switch colType {
-  | PaymentId => Text(paymentObj.payment_id)
+  | PaymentId =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/payments/${paymentObj.payment_id}`}
+        displayValue={paymentObj.payment_id}
+        copyValue={Some(paymentObj.payment_id)}
+      />,
+      "",
+    )
   | MerchantId => Text(paymentObj.merchant_id)
   | Status =>
     Label({

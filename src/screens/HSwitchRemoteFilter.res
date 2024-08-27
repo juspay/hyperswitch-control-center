@@ -135,7 +135,7 @@ module RemoteTableFilters = {
 
     React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length === 0 {
-        setFilters(_ => Dict.make()->Some)
+        setFilters(_ => Some(Dict.make()))
         setOffset(_ => 0)
       }
       None
@@ -164,7 +164,7 @@ module RemoteTableFilters = {
           }
         | _ => await fetchDetails(filterUrl)
         }
-        setFilterDataJson(_ => response->Some)
+        setFilterDataJson(_ => Some(response))
       } catch {
       | _ => showToast(~message="Failed to load filters", ~toastType=ToastError)
       }
@@ -195,10 +195,10 @@ module RemoteTableFilters = {
 
     React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length != 0 {
-        setFilters(_ => filterValueJson->Some)
+        setFilters(_ => Some(filterValueJson))
         setOffset(_ => 0)
       } else {
-        setFilters(_ => Dict.make()->Some)
+        setFilters(_ => Some(Dict.make()))
         setOffset(_ => 0)
       }
       None

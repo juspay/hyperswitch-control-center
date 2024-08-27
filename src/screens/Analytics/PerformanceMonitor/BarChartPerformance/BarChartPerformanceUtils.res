@@ -26,7 +26,6 @@ let getBarOption = data =>
       "align": "right", // Align the legend to the right
       "verticalAlign": "middle", // Vertically center the legend
       "layout": "vertical", // Use a vertical layout for legend items
-      "width": "20%",
       "enabled": true,
       "itemStyle": LineChartUtils.legendItemStyle("12px"),
       "itemHiddenStyle": {
@@ -67,7 +66,7 @@ let getBarchartColor = name => {
   | "authentication_failed" => "#E18494"
   | "pending" => "#B6A1D2"
   | "payment_method_awaited" => "#80A3F8"
-  | "authorized" => "#91C8A1"
+  | "authorized" => "#5398A7"
   | _ => "#79B8F3"
   }
 }

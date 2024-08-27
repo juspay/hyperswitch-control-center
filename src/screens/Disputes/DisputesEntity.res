@@ -88,7 +88,15 @@ let getCell = (disputesData, colType): Table.cell => {
   open DisputesUtils
   open HelperComponents
   switch colType {
-  | DisputeId => DisplayCopyCell(disputesData.dispute_id)
+  | DisputeId =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/disputes/${disputesData.dispute_id}`}
+        displayValue={disputesData.dispute_id}
+        copyValue={Some(disputesData.dispute_id)}
+      />,
+      "",
+    )
   | PaymentId => DisplayCopyCell(disputesData.payment_id)
   | AttemptId => DisplayCopyCell(disputesData.attempt_id)
   | Amount => Text(amountValue(disputesData.amount, disputesData.currency))
