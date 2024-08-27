@@ -188,11 +188,9 @@ let make = () => {
       options
       hideMultiSelectButtons=true
       addButton=false
-      // dropdownCustomWidth="!w-fit"
       searchable=false
-      fullLength=true
       baseComponent={<ListBaseComp />}
-      baseComponentCustomStyle="bg-white !w-fit"
+      baseComponentCustomStyle="bg-white"
       bottomComponent={<AddNewProfileButton setShowModal />}
       optionClass="text-gray-600 text-fs-14"
       selectClass="text-gray-600 text-fs-14"

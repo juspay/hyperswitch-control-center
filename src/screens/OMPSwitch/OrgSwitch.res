@@ -77,13 +77,12 @@ let make = () => {
     deselectDisable=true
     customButtonStyle="!rounded-md"
     options
+    marginTop="mt-14"
     hideMultiSelectButtons=true
     addButton=false
-    // dropdownCustomWidth="w-full"
-    customStyle="hover:bg-popover-background-hover"
+    customStyle="hover:bg-popover-background-hover w-fit"
     customSelectStyle="md:bg-popover-background hover:bg-popover-background-hover"
     searchable=false
-    fullLength=true
     baseComponent={<ListBaseComp />}
     baseComponentCustomStyle="bg-popover-background"
     optionClass="text-gray-200 text-fs-14"
