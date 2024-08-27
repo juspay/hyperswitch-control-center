@@ -105,7 +105,7 @@ module HSiwtchPaymentConfirmLatency = {
 
       [
         AnalyticsUtils.getFilterRequestBody(
-          ~filter=filters->Some,
+          ~filter=Some(filters),
           ~metrics=singleStatBodyEntity.metrics,
           ~delta=?singleStatBodyEntity.delta,
           ~startDateTime=singleStatBodyEntity.startDateTime,
@@ -273,7 +273,7 @@ module SystemMetricsAnalytics = {
       if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
         try {
           updateDetails(filterUri, filterBody->JSON.Encode.object, Post)
-          ->thenResolve(json => setFilterDataJson(_ => json->Some))
+          ->thenResolve(json => setFilterDataJson(_ => Some(json)))
           ->catch(_ => resolve())
           ->ignore
         } catch {

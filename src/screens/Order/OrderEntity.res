@@ -621,6 +621,10 @@ let getHeadingForOtherDetails = otherDetailsColType => {
       ~title="Billing Email",
       ~showSort=true,
     )
+  | PMBillingFirstName =>
+    Table.makeHeaderInfo(~key="payment_method_firat_name", ~title="First Name", ~showSort=true)
+  | PMBillingLastName =>
+    Table.makeHeaderInfo(~key="payment_method_last_name", ~title="Last Name", ~showSort=true)
   | MerchantOrderReferenceId =>
     Table.makeHeaderInfo(
       ~key="merchant_order_reference_id",
@@ -716,6 +720,8 @@ let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
   | PMBillingAddress => Text(order.payment_method_billing_address)
   | PMBillingPhone => Text(order.payment_method_billing_email)
   | PMBillingEmail => Text(order.payment_method_billing_phone)
+  | PMBillingFirstName => Text(order.payment_method_billing_first_name)
+  | PMBillingLastName => Text(order.payment_method_billing_last_name)
   | BillingPhone => Text(`${order.billingPhone}`)
   | MerchantOrderReferenceId => Text(order.merchant_order_reference_id)
   }
@@ -727,7 +733,15 @@ let getCell = (order, colType: colType): Table.cell => {
   switch colType {
   | Metadata =>
     CustomCell(<Metadata displayValue={order.metadata->JSON.Encode.object->JSON.stringify} />, "")
-  | PaymentId => Text(order.payment_id)
+  | PaymentId =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/payments/${order.payment_id}`}
+        displayValue={order.payment_id}
+        copyValue={Some(order.payment_id)}
+      />,
+      "",
+    )
   | MerchantId => Text(order.merchant_id)
   | Connector => CustomCell(<ConnectorCustomCell connectorName={order.connector} />, "")
   | Status =>
@@ -909,6 +923,16 @@ let itemToObjMapper = dict => {
     ->getDictfromDict("billing")
     ->getDictfromDict("address")
     ->concatValueOfGivenKeysOfDict(addressKeys),
+    payment_method_billing_first_name: dict
+    ->getDictfromDict("payment_method_data")
+    ->getDictfromDict("billing")
+    ->getDictfromDict("address")
+    ->getString("first_name", ""),
+    payment_method_billing_last_name: dict
+    ->getDictfromDict("payment_method_data")
+    ->getDictfromDict("billing")
+    ->getDictfromDict("address")
+    ->getString("last_name", ""),
     payment_method_billing_phone: dict
     ->getDictfromDict("payment_method_data")
     ->getDictfromDict("billing")

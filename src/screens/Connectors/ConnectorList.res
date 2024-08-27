@@ -9,7 +9,7 @@ let make = (~isPayoutFlow=false) => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (processorModal, setProcessorModal) = React.useState(_ => false)
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let connectorListFromRecoil = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -18,14 +18,10 @@ let make = (~isPayoutFlow=false) => {
 
   let getConnectorListAndUpdateState = async () => {
     try {
-      let response = await fetchConnectorListResponse()
       let removeFromList = isPayoutFlow ? ConnectorTypes.PayoutConnector : ConnectorTypes.FRMPlayer
 
       // TODO : maintain separate list for multiple types of connectors
-      let connectorsList =
-        response
-        ->ConnectorListMapper.getArrayOfConnectorListPayloadType
-        ->getProcessorsListFromJson(~removeFromList)
+      let connectorsList = connectorListFromRecoil->getProcessorsListFromJson(~removeFromList)
       connectorsList->Array.reverse
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))

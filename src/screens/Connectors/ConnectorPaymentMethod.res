@@ -14,6 +14,7 @@ let make = (
   let getURL = useGetURL()
   let _showAdvancedConfiguration = false
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let fetchConnectorList = ConnectorListHook.useFetchConnectorList()
   let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->getPaymentMethodEnabled
   )
@@ -75,6 +76,7 @@ let make = (
       //
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID)
       let response = await updateAPIHook(connectorUrl, body, Post)
+      fetchConnectorList()->ignore
       setInitialValues(_ => response)
       setScreenState(_ => Success)
       setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
