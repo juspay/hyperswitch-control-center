@@ -829,6 +829,7 @@ let configKeysToIgnore = [
   "is_verifiable",
   "metadata",
   "connector_webhook_details",
+  "additional_merchant_data",
 ]
 
 let verifyConnectorIgnoreField = [
