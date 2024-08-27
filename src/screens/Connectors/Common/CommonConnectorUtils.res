@@ -1,4 +1,4 @@
-open CommonMetaDataTypes
+open CommonConnectorTypes
 let inputTypeMapperr = ipType => {
   switch ipType {
   | "Text" => Text
