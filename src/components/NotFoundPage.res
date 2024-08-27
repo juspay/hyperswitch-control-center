@@ -1,6 +1,15 @@
 @react.component
-let make = () => {
-  <div className="h-full flex items-center justify-center">
-    <div className="text-jp-gray-800 font-bold text-3xl"> {"Error 404!"->React.string} </div>
-  </div>
+let make = (~message="Error 404!") => {
+  let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
+  <NoDataFound message renderType={NotFound}>
+    <Button
+      text={"Go to Home"}
+      buttonType=Primary
+      onClick={_ => {
+        setDashboardPageState(_ => #HOME)
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+      }}
+      customButtonStyle="mt-4 !p-2"
+    />
+  </NoDataFound>
 }

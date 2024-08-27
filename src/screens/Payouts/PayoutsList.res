@@ -92,7 +92,6 @@ let make = () => {
           customColumnMapper=TableAtoms.payoutsMapDefaultCols
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
-          showResultsPerPageSelector=false
         />
       </PageLoaderWrapper>
     </div>
