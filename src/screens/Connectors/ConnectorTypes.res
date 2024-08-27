@@ -89,6 +89,7 @@ type processorTypes =
   | ITAUBANK
   | DATATRANS
   | PLAID
+  | SQUARE
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 

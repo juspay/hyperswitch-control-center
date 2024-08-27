@@ -90,6 +90,7 @@ let connectorList: array<connectorTypes> = [
   Processors(BAMBORA_APAC),
   Processors(ITAUBANK),
   Processors(PLAID),
+  Processors(SQUARE),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -449,6 +450,10 @@ let plaidInfo = {
   description: "Plaid Link makes it easy for users to connect their financial accounts securely and quickly, giving you the best growth for your business.",
 }
 
+let squareInfo = {
+  description: "Powering all the ways you do business. Work smarter, automate for efficiency, and open up new revenue streams on the software and hardware platform millions of businesses trust.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -546,6 +551,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | ITAUBANK => "itaubank"
   | DATATRANS => "datatrans"
   | PLAID => "plaid"
+  | SQUARE => "square"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -647,6 +653,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "itaubank" => Processors(ITAUBANK)
     | "datatrans" => Processors(DATATRANS)
     | "plaid" => Processors(PLAID)
+    | "square" => Processors(SQUARE)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -734,6 +741,7 @@ let getProcessorInfo = connector => {
   | ITAUBANK => itauBankInfo
   | DATATRANS => dataTransInfo
   | PLAID => plaidInfo
+  | SQUARE => squareInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -1531,6 +1539,7 @@ let getDisplayNameForProcessor = connector =>
   | ITAUBANK => "Itaubank"
   | DATATRANS => "Datatrans"
   | PLAID => "Plaid"
+  | SQUARE => "Square"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
