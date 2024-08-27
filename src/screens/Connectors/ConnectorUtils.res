@@ -1188,7 +1188,6 @@ let getConnectorFields = connectorDetails => {
     connectorDetails
     ->getDictFromJsonObject
     ->getDictfromDict("additional_merchant_data")
-  Js.log2(connectorAdditionalMerchantData, "additional_merchant_data additional_merchant_data")
   (
     bodyType,
     connectorAccountFields,

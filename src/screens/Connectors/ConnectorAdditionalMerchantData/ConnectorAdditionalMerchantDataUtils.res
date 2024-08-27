@@ -20,7 +20,6 @@ let connectorAdditionalMerchantDataValueInput = (
 
   {
     switch (\"type", name) {
-    // | (Select, "merchant_config_currency") => currencyField(~name=formName)
     | (Text, _) => textInput(~field={connectorAdditionalMerchantData}, ~formName)
     | (Select, _) => selectInput(~field={connectorAdditionalMerchantData}, ~formName)
     | (Toggle, _) => toggleInput(~field={connectorAdditionalMerchantData}, ~formName)
