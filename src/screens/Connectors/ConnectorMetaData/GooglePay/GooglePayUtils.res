@@ -95,8 +95,8 @@ let googlePayNameMapper = name => {
   }
 }
 
-let googlePayValueInput = (~googlePayField: CommonMetaDataTypes.inputField) => {
-  open CommonMetaDataHelper
+let googlePayValueInput = (~googlePayField: CommonConnectorTypes.inputField) => {
+  open CommonConnectorHelper
   let {\"type", name} = googlePayField
   let formName = googlePayNameMapper(name)
 
