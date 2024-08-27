@@ -595,7 +595,7 @@ let make = (
         switch filterUri {
         | Some(filterUri) =>
           updateDetails(filterUri, filterBody->JSON.Encode.object, Post)
-          ->thenResolve(json => setFilterDataJson(_ => json->Some))
+          ->thenResolve(json => setFilterDataJson(_ => Some(json)))
           ->catch(_ => resolve())
           ->ignore
         | None => ()

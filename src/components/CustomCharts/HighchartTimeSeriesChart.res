@@ -266,7 +266,7 @@ module LineChart1D = {
         ) {
           None
         } else {
-          item->Some
+          Some(item)
         }
       })
       if chartdataMaxRows !== -1 {
@@ -554,8 +554,8 @@ module LineChart1D = {
             },
             "series": {
               "marker": {
-                "enabled": showMarkers->Some,
-                "radius": (showMarkers ? 5 : 1)->Some,
+                "enabled": Some(showMarkers),
+                "radius": Some(showMarkers ? 5 : 1),
                 "symbol": Some("circle"),
               },
               "states": Some({

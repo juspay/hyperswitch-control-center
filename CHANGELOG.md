@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.08.26.0
+
+### Bug Fixes
+
+- Redirect on new tab fix ([#1082](https://github.com/juspay/hyperswitch-control-center/pull/1082)) ([`05aa61b`](https://github.com/juspay/hyperswitch-control-center/commit/05aa61b41949ca4b6aa08f68cbec9d019222b480))
+
+### Miscellaneous Tasks
+
+- Pmt billing address name fields ([#1193](https://github.com/juspay/hyperswitch-control-center/pull/1193)) ([`27a2bcb`](https://github.com/juspay/hyperswitch-control-center/commit/27a2bcbf58edab3a9269173013be0724ebdfd917))
+- Graphs color code update ([#1207](https://github.com/juspay/hyperswitch-control-center/pull/1207)) ([`cbad264`](https://github.com/juspay/hyperswitch-control-center/commit/cbad264d9e249103493f9b004a12481a5f136339))
+- Refactor initial pageload ([#1176](https://github.com/juspay/hyperswitch-control-center/pull/1176)) ([`3d942fb`](https://github.com/juspay/hyperswitch-control-center/commit/3d942fbcb43a500ef7ba62cf1ba2d4d8ae017963))
+
+**Full Changelog:** [`2024.08.25.0...2024.08.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.08.25.0...2024.08.26.0)
+
+- - -
+
 ## 2024.08.25.0
 
 ### Miscellaneous Tasks
