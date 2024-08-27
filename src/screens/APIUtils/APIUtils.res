@@ -387,21 +387,9 @@ let useGetURL = () => {
         }
 
       // O-M-P Switch
-      | #LIST_ORG =>
-        switch methodType {
-        | Get => `${userUrl}/list/org`
-        | _ => ""
-        }
-      | #LIST_MERCHANT =>
-        switch methodType {
-        | Get => `${userUrl}/list/merchant`
-        | _ => ""
-        }
-      | #LIST_PROFILE =>
-        switch methodType {
-        | Get => `${userUrl}/list/profile`
-        | _ => ""
-        }
+      | #LIST_ORG => `${userUrl}/list/org`
+      | #LIST_MERCHANT => `${userUrl}/list/merchant`
+      | #LIST_PROFILE => `${userUrl}/list/profile`
 
       // CREATE ROLES
       | #CREATE_CUSTOM_ROLE => `${userUrl}/role`

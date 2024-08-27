@@ -4,11 +4,10 @@ module ListBaseComp = {
     let (arrow, setArrow) = React.useState(_ => false)
     // let {profileId} = React.useContext(UserInfoProvider.defaultContext)
 
-    <div className="flex flex-col items-end gap-2 mr-2" onClick={_ => setArrow(prev => !prev)}>
+    <div className="flex flex-col items-end gap-2" onClick={_ => setArrow(prev => !prev)}>
       <div
         className="flex items-center justify-end text-sm text-center text-black font-medium rounded hover:bg-opacity-80 bg-white w-fit">
         <div className="flex flex-col items-start px-2 py-2  ">
-          // <p className="text-xs text-gray-400"> {"Profile"->React.string} </p>
           <p className="fs-10 text-nowrap"> {"current_profile_id"->React.string} </p>
         </div>
         <div className="px-2 py-2">
@@ -30,7 +29,6 @@ module AddNewProfileButton = {
   let make = (~setShowModal) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
-    // let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <>
       <ACLDiv
         permission={userPermissionJson.merchantDetailsManage}
@@ -59,14 +57,12 @@ module NewAccountCreationModal = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    // let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
 
     let createNewAccount = async values => {
       try {
         let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post)
         let body = values
         let _ = await updateDetails(url, body, Post)
-        // let _ = await fetchSwitchMerchantList()
         showToast(
           ~toastType=ToastSuccess,
           ~message="Account Created Successfully!",
@@ -185,7 +181,7 @@ let make = () => {
     checked: true,
   }
 
-  <div className="">
+  <div className="border border-gray-200 rounded-md">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""

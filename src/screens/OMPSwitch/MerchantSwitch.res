@@ -31,7 +31,6 @@ module AddNewMerchantButton = {
   let make = (~setShowModal) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
-    // let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <ACLDiv
       permission={userPermissionJson.merchantDetailsManage}
       onClick={_ => setShowModal(_ => true)}
@@ -42,7 +41,7 @@ module AddNewMerchantButton = {
       {<>
         <hr />
         <div
-          className="group flex gap-2 items-center font-medium w-56 px-2 py-2 text-sm text-gray-200 bg-popover-background dark:bg-black hover:bg-[#495d8a] hover:text-gray-100">
+          className="group flex gap-2 items-center font-medium w-56 px-2 py-2 text-sm text-gray-200 bg-popover-background dark:bg-black hover:bg-popover-background-hover hover:text-gray-100">
           <Icon name="plus-circle" size=15 />
           {"Add new merchant"->React.string}
         </div>
@@ -58,7 +57,6 @@ module NewAccountCreationModal = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    // let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
     let createNewAccount = async values => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Post)
@@ -193,16 +191,16 @@ let make = () => {
       hideMultiSelectButtons=true
       addButton=false
       // dropdownCustomWidth="w-full"
-      customStyle="!hover:bg-[#495d8a]"
-      customSelectStyle="md:bg-popover-background hover:bg-[#495d8a]"
+      customStyle="hover:bg-popover-background-hover"
+      customSelectStyle="md:bg-popover-background hover:bg-popover-background-hover"
       searchable=false
       fullLength=true
       baseComponent={<ListBaseComp />}
-      baseComponentCustomStyle="bg-popover-background"
+      baseComponentCustomStyle="bg-popover-background border-transparent"
       bottomComponent={<AddNewMerchantButton setShowModal />}
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"
-      customDropdownOuterClass="!border-none"
+      customDropdownOuterClass="!border-none "
       showBorder=true
     />
     <RenderIf condition={showModal}>

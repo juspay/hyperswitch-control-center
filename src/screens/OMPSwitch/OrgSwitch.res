@@ -83,8 +83,8 @@ let make = () => {
       hideMultiSelectButtons=true
       addButton=false
       // dropdownCustomWidth="w-full"
-      customStyle="hover:bg-[#495d8a]"
-      customSelectStyle="md:bg-popover-background hover:bg-[#495d8a]"
+      customStyle="hover:bg-popover-background-hover"
+      customSelectStyle="md:bg-popover-background hover:bg-popover-background-hover"
       searchable=false
       fullLength=true
       baseComponent={<ListBaseComp />}

@@ -494,7 +494,7 @@ let make = (
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
     ThemeProvider.themeContext,
   )
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.featureFlagAtom)
 
   let handleLogout = APIUtils.useHandleLogout()
   let isMobileView = MatchMedia.useMobileChecker()
@@ -524,7 +524,16 @@ let make = (
   let isHSSidebarPinned = getFromSidebarDetails("isPinned")
   let isExpanded = isSidebarExpanded || isHSSidebarPinned
 
-  let sidebarWidth = isExpanded ? isMobileView ? "100%" : "298px" : "55px"
+  let sidebarWidth = {
+    switch isExpanded {
+    | true =>
+      switch isMobileView {
+      | true => "100%"
+      | false => "298px"
+      }
+    | false => "55px"
+    }
+  }
   let profileMaxWidth = "145px"
 
   let firstPart = switch List.head(path) {
