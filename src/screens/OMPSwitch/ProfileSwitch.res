@@ -140,7 +140,7 @@ let make = () => {
   open LogicUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let (profileList, setProfileList) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (profileList, setProfileList) = React.useState(_ => JSON.Encode.null)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (fetchUpdatedProfileList, setFetchUpdatedProfileList) = React.useState(_ => true)
   //   let {profileId} = React.useContext(UserInfoProvider.defaultContext)

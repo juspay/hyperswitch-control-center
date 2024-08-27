@@ -34,7 +34,7 @@ let make = () => {
   open LogicUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let (orgList, setOrgList) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (orgList, setOrgList) = React.useState(_ => JSON.Encode.null)
   let {orgId} = React.useContext(UserInfoProvider.defaultContext)
 
   let getOrgList = async () => {

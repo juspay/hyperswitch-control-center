@@ -139,7 +139,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let {merchantId} = React.useContext(UserInfoProvider.defaultContext)
-  let (merchantList, setMerchantList) = React.useState(_ => Dict.make()->JSON.Encode.object)
+  let (merchantList, setMerchantList) = React.useState(_ => JSON.Encode.null)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (fetchUpdatedMerchantList, setFetchUpdatedMerchantList) = React.useState(_ => true)
 
