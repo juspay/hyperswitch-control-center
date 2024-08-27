@@ -16,6 +16,9 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     collect_shipping_details_from_wallet_connector,
     outgoing_webhook_custom_http_headers,
     is_connector_agnostic_mit_enabled,
+    collect_billing_details_from_wallet_connector,
+    always_collect_billing_details_from_wallet_connector,
+    always_collect_shipping_details_from_wallet_connector,
   } = profileRecord
 
   let profileInfo =
@@ -28,6 +31,18 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   profileInfo->setOptionBool(
     "collect_shipping_details_from_wallet_connector",
     collect_shipping_details_from_wallet_connector,
+  )
+  profileInfo->setOptionBool(
+    "collect_billing_details_from_wallet_connector",
+    collect_billing_details_from_wallet_connector,
+  )
+  profileInfo->setOptionBool(
+    "always_collect_billing_details_from_wallet_connector",
+    always_collect_billing_details_from_wallet_connector,
+  )
+  profileInfo->setOptionBool(
+    "always_collect_shipping_details_from_wallet_connector",
+    always_collect_shipping_details_from_wallet_connector,
   )
 
   profileInfo->setDictNull("webhook_url", webhook_details.webhook_url)
@@ -432,6 +447,9 @@ let defaultValueForBusinessProfile = {
     three_ds_requestor_url: None,
   },
   collect_shipping_details_from_wallet_connector: None,
+  always_collect_shipping_details_from_wallet_connector: None,
+  collect_billing_details_from_wallet_connector: None,
+  always_collect_billing_details_from_wallet_connector: None,
   outgoing_webhook_custom_http_headers: None,
   is_connector_agnostic_mit_enabled: None,
 }

@@ -217,6 +217,70 @@ module ReturnUrl = {
   }
 }
 
+module CollectDetails = {
+  @react.component
+  let make = (~title, ~keys: array<string>) => {
+    open LogicUtils
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let valuesDict = formState.values->getDictFromJsonObject
+    let initValue: bool = keys->Array.some(key => valuesDict->getBool(key, false))
+    let (isSelected, setIsSelected) = React.useState(_ => initValue)
+    let form = ReactFinalForm.useForm()
+
+    let onClick = name => {
+      keys->Array.forEach(key => {
+        form.change(key, (key === name)->JSON.Encode.bool)
+      })
+    }
+
+    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700 opacity-50`
+
+    React.useEffect(() => {
+      if isSelected {
+        switch keys->Array.get(0) {
+        | Some(name) => form.change(name, true->JSON.Encode.bool)
+        | _ => ()
+        }
+      } else {
+        keys->Array.forEach(key => {
+          form.change(key, false->JSON.Encode.bool)
+        })
+      }
+      None
+    }, [isSelected])
+
+    <div>
+      <div className="flex gap-2 items-center">
+        <BoolInput.BaseComponent
+          isSelected
+          setIsSelected={_ => setIsSelected(val => !val)}
+          isDisabled=false
+          boolCustomClass="rounded-lg"
+        />
+        <p className="!text-base !text-grey-700 font-semibold"> {title->React.string} </p>
+      </div>
+      <RenderIf condition={isSelected}>
+        <div className="mt-4">
+          {keys
+          ->Array.map(name => {
+            Js.log2(">>", valuesDict->getBool(name, false))
+            <div
+              className="flex gap-2 mb-3 items-center cursor-pointer" onClick={_ => onClick(name)}>
+              <RadioIcon isSelected={valuesDict->getBool(name, false)} fill="text-green-700" />
+              <div className=p2RegularTextStyle>
+                {name->LogicUtils.snakeToTitle->React.string}
+              </div>
+            </div>
+          })
+          ->React.array}
+        </div>
+      </RenderIf>
+    </div>
+  }
+}
+
 @react.component
 let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open DeveloperUtils
@@ -336,18 +400,22 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   />
                 </div>
                 <DesktopRow>
-                  <FieldRenderer
-                    labelClass="!text-base !text-grey-700 font-semibold"
-                    fieldWrapperClass="max-w-xl"
-                    field={makeFieldInfo(
-                      ~name="collect_shipping_details_from_wallet_connector",
-                      ~label="Collect Shipping Details",
-                      ~customInput=InputFields.boolInput(
-                        ~isDisabled=false,
-                        ~boolCustomClass="rounded-lg",
-                      ),
-                    )}
+                  <CollectDetails
+                    title={"Collect Billing Details"}
+                    keys=[
+                      "collect_billing_details_from_wallet_connector",
+                      "always_collect_billing_details_from_wallet_connector",
+                    ]
                   />
+                  <CollectDetails
+                    title={"Collect Shipping Details"}
+                    keys=[
+                      "collect_shipping_details_from_wallet_connector",
+                      "always_collect_shipping_details_from_wallet_connector",
+                    ]
+                  />
+                </DesktopRow>
+                <DesktopRow>
                   <FieldRenderer
                     labelClass="!text-base !text-grey-700 font-semibold"
                     fieldWrapperClass="max-w-xl"
