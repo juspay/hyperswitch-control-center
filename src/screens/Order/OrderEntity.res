@@ -385,6 +385,7 @@ let allColumns = [
   Metadata,
   MerchantOrderReferenceId,
   AttemptCount,
+  CardNetwork,
 ]
 
 let getHeading = (colType: colType) => {
