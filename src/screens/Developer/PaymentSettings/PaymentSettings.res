@@ -217,21 +217,26 @@ module ReturnUrl = {
   }
 }
 
+type options = {
+  name: string,
+  key: string,
+}
+
 module CollectDetails = {
   @react.component
-  let make = (~title, ~keys: array<string>) => {
+  let make = (~title, ~options: array<options>) => {
     open LogicUtils
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let valuesDict = formState.values->getDictFromJsonObject
-    let initValue: bool = keys->Array.some(key => valuesDict->getBool(key, false))
+    let initValue: bool = options->Array.some(option => valuesDict->getBool(option.key, false))
     let (isSelected, setIsSelected) = React.useState(_ => initValue)
     let form = ReactFinalForm.useForm()
 
-    let onClick = name => {
-      keys->Array.forEach(key => {
-        form.change(key, (key === name)->JSON.Encode.bool)
+    let onClick = key => {
+      options->Array.forEach(option => {
+        form.change(option.key, (option.key === key)->JSON.Encode.bool)
       })
     }
 
@@ -239,16 +244,16 @@ module CollectDetails = {
 
     React.useEffect(() => {
       if isSelected {
-        let value: bool = keys->Array.some(key => valuesDict->getBool(key, false))
+        let value: bool = options->Array.some(option => valuesDict->getBool(option.key, false))
         if !value {
-          switch keys->Array.get(0) {
-          | Some(name) => form.change(name, true->JSON.Encode.bool)
+          switch options->Array.get(0) {
+          | Some(name) => form.change(name.key, true->JSON.Encode.bool)
           | _ => ()
           }
         }
       } else {
-        keys->Array.forEach(key => {
-          form.change(key, false->JSON.Encode.bool)
+        options->Array.forEach(option => {
+          form.change(option.key, false->JSON.Encode.bool)
         })
       }
       None
@@ -266,14 +271,16 @@ module CollectDetails = {
       </div>
       <RenderIf condition={isSelected}>
         <div className="mt-4">
-          {keys
-          ->Array.map(name => {
-            Js.log2(">>", valuesDict->getBool(name, false))
+          {options
+          ->Array.map(option => {
             <div
-              className="flex gap-2 mb-3 items-center cursor-pointer" onClick={_ => onClick(name)}>
-              <RadioIcon isSelected={valuesDict->getBool(name, false)} fill="text-green-700" />
+              className="flex gap-2 mb-3 items-center cursor-pointer"
+              onClick={_ => onClick(option.key)}>
+              <RadioIcon
+                isSelected={valuesDict->getBool(option.key, false)} fill="text-green-700"
+              />
               <div className=p2RegularTextStyle>
-                {name->LogicUtils.snakeToTitle->React.string}
+                {option.name->LogicUtils.snakeToTitle->React.string}
               </div>
             </div>
           })
@@ -404,17 +411,29 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 </div>
                 <DesktopRow>
                   <CollectDetails
-                    title={"Collect Billing Details"}
-                    keys=[
-                      "collect_billing_details_from_wallet_connector",
-                      "always_collect_billing_details_from_wallet_connector",
+                    title={"Collect billing details from wallets"}
+                    options=[
+                      {
+                        name: "only if required by connector",
+                        key: "collect_billing_details_from_wallet_connector",
+                      },
+                      {
+                        name: "always",
+                        key: "always_collect_billing_details_from_wallet_connector",
+                      },
                     ]
                   />
                   <CollectDetails
-                    title={"Collect Shipping Details"}
-                    keys=[
-                      "collect_shipping_details_from_wallet_connector",
-                      "always_collect_shipping_details_from_wallet_connector",
+                    title={"Collect shipping details from wallets"}
+                    options=[
+                      {
+                        name: "only if required by connector",
+                        key: "collect_shipping_details_from_wallet_connector",
+                      },
+                      {
+                        name: "always",
+                        key: "always_collect_shipping_details_from_wallet_connector",
+                      },
                     ]
                   />
                 </DesktopRow>
