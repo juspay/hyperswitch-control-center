@@ -48,7 +48,7 @@ module PaymentProcessingDetailsAt = {
     <>
       <FormRenderer.FieldRenderer
         labelClass="font-semibold !text-hyperswitch_black"
-        field={CommonMetaDataHelper.radioInput(
+        field={CommonConnectorHelper.radioInput(
           ~field=applePayField,
           ~formName=`${ApplePayIntegrationUtils.applePayNameMapper(
               ~name=applePayField.name,
@@ -160,7 +160,7 @@ module Initiative = {
     <>
       <FormRenderer.FieldRenderer
         labelClass="font-semibold !text-hyperswitch_black"
-        field={CommonMetaDataHelper.selectInput(
+        field={CommonConnectorHelper.selectInput(
           ~field={applePayField},
           ~formName={
             ApplePayIntegrationUtils.applePayNameMapper(
@@ -176,7 +176,7 @@ module Initiative = {
       | #web =>
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-hyperswitch_black"
-          field={CommonMetaDataHelper.textInput(
+          field={CommonConnectorHelper.textInput(
             ~field={applePayField},
             ~formName={
               ApplePayIntegrationUtils.applePayNameMapper(
@@ -236,7 +236,7 @@ let make = (
   let applePayManualFields =
     applePayFields
     ->Array.mapWithIndex((field, index) => {
-      let applePayField = field->convertMapObjectToDict->CommonMetaDataUtils.inputFieldMapper
+      let applePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
       let {name} = applePayField
       <div key={index->Int.toString}>
         {switch name {
@@ -246,7 +246,7 @@ let make = (
         | "merchant_business_country" =>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={CommonMetaDataHelper.selectInput(
+            field={CommonConnectorHelper.selectInput(
               ~field={applePayField},
               ~opt={Some(merchantBusinessCountry)},
               ~formName={
