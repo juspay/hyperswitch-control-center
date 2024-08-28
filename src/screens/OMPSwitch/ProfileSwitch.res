@@ -40,7 +40,7 @@ module AddNewProfileButton = {
         {<>
           <hr />
           <div
-            className="group flex gap-2 font-medium w-56 items-center px-2 py-2 text-sm text-blue-500 bg-white dark:bg-black hover:bg-jp-gray-100">
+            className="group flex gap-2 font-medium w-auto items-center px-2 py-2 text-sm text-blue-500 bg-white dark:bg-black hover:bg-jp-gray-100">
             <Icon name="plus-circle" size=15 />
             {"Add new profile"->React.string}
           </div>

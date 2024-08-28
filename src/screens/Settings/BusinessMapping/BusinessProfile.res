@@ -195,7 +195,8 @@ let make = (
             setOffset
             currrentFetchCount={businessProfileValues->Array.length}
           />
-          <RenderIf condition={!featureFlagDetails.userManagementRevamp}>
+          <RenderIf
+            condition={!featureFlagDetails.userManagementRevamp && !featureFlagDetails.totp}>
             <div className="absolute right-0 -top-3">
               <AddEntryBtn
                 onSubmit

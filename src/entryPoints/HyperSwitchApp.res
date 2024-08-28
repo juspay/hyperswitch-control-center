@@ -152,7 +152,9 @@ let make = () => {
                             userRole={userRole}
                             isAddMerchantEnabled={userRole === "org_admin" ? true : false}
                           />
-                          <RenderIf condition={featureFlagDetails.userManagementRevamp}>
+                          <RenderIf
+                            condition={featureFlagDetails.userManagementRevamp &&
+                            featureFlagDetails.totp}>
                             <ProfileSwitch />
                           </RenderIf>
                           <div

@@ -386,7 +386,7 @@ let useGetURL = () => {
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
 
-      // O-M-P Switch
+      // Org-Merchant-Profile List
       | #LIST_ORG => `${userUrl}/list/org`
       | #LIST_MERCHANT => `${userUrl}/list/merchant`
       | #LIST_PROFILE => `${userUrl}/list/profile`

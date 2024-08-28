@@ -1,8 +1,7 @@
 module OrgMerchantSwitchCollapsed = {
   @react.component
   let make = () => {
-    let {orgId} = React.useContext(UserInfoProvider.defaultContext)
-    let {merchantId} = React.useContext(UserInfoProvider.defaultContext)
+    let {orgId, merchantId} = React.useContext(UserInfoProvider.defaultContext)
     let style = "h-10 p-2 mx-auto my-0.5 text-white font-semibold  fs-20 ring-1 ring-blue-800 ring-opacity-15 rounded uppercase "
 
     <div className="flex flex-col gap-2">
