@@ -8,3 +8,8 @@ type userInfo = {
   roleId: string,
   verificationDaysLeft: option<int>,
 }
+
+type userInfoProviderTypes = {
+  userInfo: userInfo,
+  setUserInfoData: userInfo => unit,
+}
