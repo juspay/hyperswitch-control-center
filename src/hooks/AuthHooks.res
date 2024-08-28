@@ -36,17 +36,6 @@ let useApiFetcher = () => {
   open Promise
   let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  let token = React.useMemo(() => {
-    switch authStatus {
-    | PreLogin(info) => info.token
-    | LoggedIn(info) =>
-      switch info {
-      | BasicAuth(basicInfo) => basicInfo.token
-      | Auth(info) => info.token
-      }
-    | _ => None
-    }
-  }, [authStatus])
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
 
   React.useCallback(
@@ -59,6 +48,16 @@ let useApiFetcher = () => {
       ~betaEndpointConfig=?,
       ~contentType=Headers("application/json"),
     ) => {
+      let token = {
+        switch authStatus {
+        | PreLogin(info) => info.token
+        | LoggedIn(info) =>
+          switch info {
+          | BasicAuth(_) | Auth(_) => AuthUtils.getUserInfoDetailsFromLocalStorage().token
+          }
+        | _ => None
+        }
+      }
       let uri = switch betaEndpointConfig {
       | Some(val) => String.replace(uri, val.replaceStr, val.originalApiStr)
       | None => uri
@@ -110,6 +109,6 @@ let useApiFetcher = () => {
         )
       })
     },
-    [token],
+    [],
   )
 }
