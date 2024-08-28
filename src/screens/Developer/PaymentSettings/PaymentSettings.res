@@ -239,9 +239,12 @@ module CollectDetails = {
 
     React.useEffect(() => {
       if isSelected {
-        switch keys->Array.get(0) {
-        | Some(name) => form.change(name, true->JSON.Encode.bool)
-        | _ => ()
+        let value: bool = keys->Array.some(key => valuesDict->getBool(key, false))
+        if !value {
+          switch keys->Array.get(0) {
+          | Some(name) => form.change(name, true->JSON.Encode.bool)
+          | _ => ()
+          }
         }
       } else {
         keys->Array.forEach(key => {

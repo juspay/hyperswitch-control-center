@@ -178,6 +178,18 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     valuesDict->getOptionBool("collect_shipping_details_from_wallet_connector"),
   )
   profileDetailsDict->setOptionBool(
+    "always_collect_shipping_details_from_wallet_connector",
+    valuesDict->getOptionBool("always_collect_shipping_details_from_wallet_connector"),
+  )
+  profileDetailsDict->setOptionBool(
+    "collect_billing_details_from_wallet_connector",
+    valuesDict->getOptionBool("collect_billing_details_from_wallet_connector"),
+  )
+  profileDetailsDict->setOptionBool(
+    "always_collect_billing_details_from_wallet_connector",
+    valuesDict->getOptionBool("always_collect_billing_details_from_wallet_connector"),
+  )
+  profileDetailsDict->setOptionBool(
     "is_connector_agnostic_mit_enabled",
     valuesDict->getOptionBool("is_connector_agnostic_mit_enabled"),
   )
