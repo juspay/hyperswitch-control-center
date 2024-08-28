@@ -18,7 +18,7 @@ let make = () => {
     setScreenStateUsers(_ => PageLoaderWrapper.Loading)
     try {
       let userDataURL = getURL(
-        ~entityName=USER_MANAGEMENT,
+        ~entityName=USER_MANAGEMENT_REVAMP,
         ~methodType=Get,
         ~userRoleTypes=USER_LIST,
       )
@@ -42,9 +42,7 @@ let make = () => {
     let filteredList = if searchText->isNonEmptyString {
       arr->Array.filter((obj: Nullable.t<userTableTypes>) => {
         switch Nullable.toOption(obj) {
-        | Some(obj) =>
-          isContainingStringLowercase(obj.email, searchText) ||
-          isContainingStringLowercase(obj.name, searchText)
+        | Some(obj) => isContainingStringLowercase(obj.email, searchText)
         | None => false
         }
       })
