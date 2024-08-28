@@ -101,26 +101,18 @@ let make = (~previewOnly=false) => {
   }
 
   let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
-  let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
-  let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
+  let startTime = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
+  let endTime = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
 
   let getAggregate = async () => {
     try {
       let url = getURL(
         ~entityName=ORDERS_AGGREGATE,
         ~methodType=Get,
-        ~queryParamerters=Some(`start_time=${start_time}&end_time=${end_time}`),
+        ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
       )
       let response = await fetchDetails(url)
       setPaymentCountRes(_ => response)
-    } catch {
-    | _ => ()
-    }
-  }
-
-  let fetchPaymentAggregate = async () => {
-    try {
-      getAggregate()->ignore
     } catch {
     | _ => ()
     }
@@ -132,15 +124,9 @@ let make = (~previewOnly=false) => {
 
     if appliedStatusFilter->Array.length == 1 {
       let statusValue =
-        appliedStatusFilter
-        ->Array.get(0)
-        ->Option.getOr(JSON.Encode.string(""))
-        ->JSON.Decode.string
+        appliedStatusFilter->getValueFromArray(0, ""->JSON.Encode.string)->JSON.Decode.string
 
-      let status = switch statusValue {
-      | Some(s) => s
-      | None => ""
-      }
+      let status = statusValue->Option.getOr("")
       setActiveView(_ => status->getViewTypeFromString)
     } else {
       setActiveView(_ => All)
@@ -156,9 +142,9 @@ let make = (~previewOnly=false) => {
   }, (offset, filters, searchText))
 
   React.useEffect(() => {
-    fetchPaymentAggregate()->ignore
+    getAggregate()->ignore
     None
-  }, (start_time, end_time))
+  }, (startTime, endTime))
 
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
 
@@ -185,8 +171,9 @@ let make = (~previewOnly=false) => {
   }, [])
 
   let viewsUI =
-    viewsArray->Array.map(item =>
+    viewsArray->Array.mapWithIndex((item, i) =>
       <OrderUtils.ViewCards
+        key={i->Int.toString}
         view={item}
         count={paymentCount(item, paymentCountRes)->Int.toString}
         onViewClick

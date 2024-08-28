@@ -91,7 +91,6 @@ let make = (
       <Portal to={`${title}CustomizeColumn`}>
         <Button
           leftIcon=Button.CustomIcon(<Icon name="edit" size=16 />)
-          text=""
           buttonType=SecondaryFilled
           buttonSize={Small}
           onClick={_ => setShowColumnSelector(_ => true)}

@@ -528,7 +528,7 @@ let getAllPaymentsCount = obj => {
       value
     })
   countArray->Array.reduce(0, (acc, curr) =>
-    (acc->Int.toFloat +. curr->JSON.Decode.float->Option.getOr(0.0))->Float.toInt
+    (acc->Int.toFloat +. curr->getFloatFromJson(0.0))->Float.toInt
   )
 }
 

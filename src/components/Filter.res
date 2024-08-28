@@ -291,7 +291,7 @@ let make = (
   <Form onSubmit initialValues=initialValueJson>
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
-      <div className="flex flex-cols gap-2 justify-between mb-2">
+      <div className="flex gap-2 justify-between my-2">
         <div className={`flex gap-2 flex-wrap ${verticalGap}`}>
           {customLeftView}
           <RenderIf condition={allFilters->Array.length > 0}>
@@ -370,15 +370,13 @@ let make = (
             <ClearFilters defaultFilterKeys ?clearFilters outsidefilter={initalCount > 0} />
           </RenderIf>
         </div>
-        <div>
-          <RenderIf condition={fixedFilters->Array.length > 0}>
-            <FormRenderer.FieldsRenderer
-              fields={fixedFilters->Array.map(item => item.field)}
-              labelClass="hidden"
-              fieldWrapperClass="p-0"
-            />
-          </RenderIf>
-        </div>
+        <RenderIf condition={fixedFilters->Array.length > 0}>
+          <FormRenderer.FieldsRenderer
+            fields={fixedFilters->Array.map(item => item.field)}
+            labelClass="hidden"
+            fieldWrapperClass="p-0"
+          />
+        </RenderIf>
       </div>
     </AddDataAttributes>}
   </Form>
