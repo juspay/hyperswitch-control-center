@@ -139,7 +139,10 @@ let useInternalSwitch = () => {
         ~currentProfileId=userInfoResFromSwitchMerch.orgId,
       )
     } catch {
-    | _ => ()
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
+      }
     }
   }
 }
