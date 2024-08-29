@@ -138,9 +138,11 @@ module NewAccountCreationModal = {
 let make = () => {
   open APIUtils
   open LogicUtils
+  open ProfileSwitchUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let (profileList, setProfileList) = React.useState(_ => JSON.Encode.null)
+  let showToast = ToastState.useShowToast()
+  let (profileList, setProfileList) = React.useState(_ => defaultProfile("", ""))
   let (showModal, setShowModal) = React.useState(_ => false)
   let (fetchUpdatedProfileList, setFetchUpdatedProfileList) = React.useState(_ => true)
   //   let {profileId} = React.useContext(UserInfoProvider.defaultContext)
@@ -149,9 +151,9 @@ let make = () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#LIST_PROFILE, ~methodType=Get)
       let response = await fetchDetails(url)
-      setProfileList(_ => response)
+      setProfileList(_ => response->getArrayDataFromJson(itemToObjMapper))
     } catch {
-    | _ => ()
+    | _ => showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
     }
   }
 
@@ -160,14 +162,8 @@ let make = () => {
     None
   }, [fetchUpdatedProfileList])
 
-  let profileListArray =
-    profileList
-    ->getArrayFromJson([])
-    ->Array.map(item => {
-      item->getDictFromJsonObject->getString("profile_id", "")
-    })
-
-  let options = profileListArray->SelectBox.makeOptions
+  let options: array<SelectBox.dropdownOption> =
+    profileList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",

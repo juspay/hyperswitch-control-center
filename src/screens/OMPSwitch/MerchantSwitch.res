@@ -135,10 +135,12 @@ module NewAccountCreationModal = {
 let make = () => {
   open APIUtils
   open LogicUtils
+  open MerchantSwitchUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let showToast = ToastState.useShowToast()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
-  let (merchantList, setMerchantList) = React.useState(_ => JSON.Encode.null)
+  let (merchantList, setMerchantList) = React.useState(_ => defaultMerchant(merchantId, ""))
   let (showModal, setShowModal) = React.useState(_ => false)
   let (fetchUpdatedMerchantList, setFetchUpdatedMerchantList) = React.useState(_ => true)
 
@@ -146,9 +148,9 @@ let make = () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#LIST_MERCHANT, ~methodType=Get)
       let response = await fetchDetails(url)
-      setMerchantList(_ => response)
+      setMerchantList(_ => response->getArrayDataFromJson(itemToObjMapper))
     } catch {
-    | _ => ()
+    | _ => showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
     }
   }
 
@@ -157,14 +159,8 @@ let make = () => {
     None
   }, [fetchUpdatedMerchantList])
 
-  let merchantListArray =
-    merchantList
-    ->getArrayFromJson([])
-    ->Array.map(item => {
-      item->getDictFromJsonObject->getString("merchant_id", "")
-    })
-
-  let options = merchantListArray->SelectBox.makeOptions
+  let options: array<SelectBox.dropdownOption> =
+    merchantList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
@@ -190,7 +186,7 @@ let make = () => {
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
       baseComponent={<ListBaseComp />}
-      baseComponentCustomStyle="bg-popover-background border-blue-820 rounded"
+      baseComponentCustomStyle="bg-popover-background border-blue-820 rounded text-white"
       bottomComponent={<AddNewMerchantButton setShowModal />}
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"
