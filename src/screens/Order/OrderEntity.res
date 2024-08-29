@@ -440,7 +440,7 @@ let getHeading = (colType: colType) => {
   | Email => Table.makeHeaderInfo(~key="email", ~title="Customer Email", ~showSort=false)
   | Name => Table.makeHeaderInfo(~key="name", ~title="Name", ~showSort=false)
   | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone", ~showSort=false)
-  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return Url", ~showSort=false)
+  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL", ~showSort=false)
   | AuthenticationType =>
     Table.makeHeaderInfo(~key="authentication_type", ~title="Authentication Type", ~showSort=false)
   | StatementDescriptorName =>
