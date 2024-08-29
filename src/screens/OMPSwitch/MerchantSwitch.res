@@ -4,22 +4,21 @@ module ListBaseComp = {
     let {merchantId} = React.useContext(UserInfoProvider.defaultContext)
     let (arrow, setArrow) = React.useState(_ => false)
 
-    <div className="flex flex-col items-end gap-2 mr-2" onClick={_ => setArrow(prev => !prev)}>
-      <div
-        className="flex items-center justify-end text-sm text-center text-white font-medium rounded hover:bg-opacity-80 bg-sidebar-blue w-fit">
-        <div className="flex flex-col items-start px-2 py-2">
-          <p className="text-xs text-gray-400"> {"Merchant"->React.string} </p>
-          <p className="fs-10"> {merchantId->React.string} </p>
-        </div>
-        <div className="px-2 py-2">
-          <Icon
-            className={arrow
-              ? "-rotate-180 transition duration-[250ms] opacity-70"
-              : "rotate-0 transition duration-[250ms] opacity-70"}
-            name="arrow-without-tail-new"
-            size=15
-          />
-        </div>
+    <div
+      className="flex items-center justify-center text-sm text-center text-white font-medium rounded hover:bg-opacity-80 bg-sidebar-blue"
+      onClick={_ => setArrow(prev => !prev)}>
+      <div className="flex flex-col items-start px-2 py-2">
+        <p className="text-xs text-gray-400"> {"Merchant"->React.string} </p>
+        <p className="fs-10"> {merchantId->React.string} </p>
+      </div>
+      <div className="px-2 py-2">
+        <Icon
+          className={arrow
+            ? "-rotate-180 transition duration-[250ms] opacity-70"
+            : "rotate-0 transition duration-[250ms] opacity-70"}
+          name="arrow-without-tail-new"
+          size=15
+        />
       </div>
     </div>
   }
@@ -176,7 +175,7 @@ let make = () => {
     checked: true,
   }
 
-  <div className="border border-popover-background rounded mr-2">
+  <div className="border border-popover-background rounded mx-2">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
@@ -187,7 +186,7 @@ let make = () => {
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false
-      customStyle="bg-blue-840 hover:bg-popover-background-hover rounded w-fit"
+      customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
       baseComponent={<ListBaseComp />}
