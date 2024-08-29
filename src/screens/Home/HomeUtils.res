@@ -265,7 +265,7 @@ module DevResources = {
         <CardLayout width="w-full">
           <CardHeader
             heading="Developer docs"
-            subHeading="Everything you need to know to get the SDK up and running resides here."
+            subHeading="Everything you need to know to get the SDK up and running resides in here."
             leftIcon=Some("docs")
           />
           <CardFooter customFooterStyle="mt-5">
