@@ -33,6 +33,8 @@ let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(NETCETERA),
 ]
 
+let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
+
 let pmAuthenticationConnectorList: array<connectorTypes> = [PMAuthenticationProcessor(PLAID)]
 
 let connectorList: array<connectorTypes> = [
@@ -91,6 +93,7 @@ let connectorList: array<connectorTypes> = [
   Processors(ITAUBANK),
   Processors(PLAID),
   Processors(SQUARE),
+  Processors(PAYBOX),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -454,6 +457,14 @@ let squareInfo = {
   description: "Powering all the ways you do business. Work smarter, automate for efficiency, and open up new revenue streams on the software and hardware platform millions of businesses trust.",
 }
 
+let payboxInfo = {
+  description: "Paybox, operated by Verifone, offers secure online payment solutions for e-commerce businesses. It supports a wide range of payment methods and provides features like one-click payments, recurring payments, and omnichannel payment processing. Their services cater to merchants, web agencies, integrators, and financial institutions, helping them accept various forms of payment",
+}
+
+let wellsfargoInfo = {
+  description: "WellsFargo is a leading American financial services company providing a comprehensive range of banking, investment, and mortgage products. With a focus on personal, small business, and commercial banking, Wells Fargo offers services such as checking and savings accounts, loans, credit cards, wealth management, and payment processing solutions.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -552,6 +563,8 @@ let getConnectorNameString = (connector: processorTypes) =>
   | DATATRANS => "datatrans"
   | PLAID => "plaid"
   | SQUARE => "square"
+  | PAYBOX => "paybox"
+  | WELLSFARGO => "wellsfargo"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -654,6 +667,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "datatrans" => Processors(DATATRANS)
     | "plaid" => Processors(PLAID)
     | "square" => Processors(SQUARE)
+    | "paybox" => Processors(PAYBOX)
+    | "wellsfargo" => Processors(WELLSFARGO)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -742,6 +757,8 @@ let getProcessorInfo = connector => {
   | DATATRANS => dataTransInfo
   | PLAID => plaidInfo
   | SQUARE => squareInfo
+  | PAYBOX => payboxInfo
+  | WELLSFARGO => wellsfargoInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -1540,6 +1557,8 @@ let getDisplayNameForProcessor = connector =>
   | DATATRANS => "Datatrans"
   | PLAID => "Plaid"
   | SQUARE => "Square"
+  | PAYBOX => "Paybox"
+  | WELLSFARGO => "Wells Fargo"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
