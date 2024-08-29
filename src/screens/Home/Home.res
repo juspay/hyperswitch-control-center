@@ -4,7 +4,7 @@ let make = () => {
   open PageUtils
   let greeting = getGreeting()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {recoveryCodesLeft} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {recoveryCodesLeft}} = React.useContext(UserInfoProvider.defaultContext)
   let recoveryCode = recoveryCodesLeft->Option.getOr(0)
 
   <div className="w-full gap-8 flex flex-col">
