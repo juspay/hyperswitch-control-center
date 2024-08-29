@@ -17,7 +17,7 @@ let make = (~isExpanded=false) => {
     <div className="flex flex-col items-end gap-2">
       <OrgSwitch />
       <div className="flex">
-        <div className="w-8 h-10 border-jp-gray-400 ml-10 border-dashed border-b border-l" />
+        <div className="w-6 h-10 border-blue-810 ml-10 border-dashed border-b border-l rounded" />
         <MerchantSwitch />
       </div>
     </div>

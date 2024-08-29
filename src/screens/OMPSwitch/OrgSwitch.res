@@ -6,7 +6,7 @@ module ListBaseComp = {
 
     <div className="flex flex-col items-end gap-2 mr-2" onClick={_ => setArrow(prev => !prev)}>
       <div
-        className="flex items-center justify-end text-sm text-center text-white font-medium rounded hover:bg-opacity-80 bg-popover-background w-fit">
+        className="flex items-center justify-end text-sm text-center text-white font-medium rounded hover:bg-opacity-80 bg-sidebar-blue w-fit">
         <img
           src="" alt={orgId->String.slice(~start=0, ~end=1)->String.toUpperCase} className="px-2"
         />
@@ -70,23 +70,25 @@ let make = () => {
     checked: true,
   }
 
-  <SelectBox.BaseDropdown
-    allowMultiSelect=false
-    buttonText=""
-    input
-    deselectDisable=true
-    customButtonStyle="!rounded-md"
-    options
-    marginTop="mt-14"
-    hideMultiSelectButtons=true
-    addButton=false
-    customStyle="hover:bg-popover-background-hover w-fit"
-    customSelectStyle="md:bg-popover-background hover:bg-popover-background-hover"
-    searchable=false
-    baseComponent={<ListBaseComp />}
-    baseComponentCustomStyle="bg-popover-background"
-    optionClass="text-gray-200 text-fs-14"
-    selectClass="text-gray-200 text-fs-14"
-    customDropdownOuterClass="!border-none"
-  />
+  <div className="border border-blue-820 rounded mr-2">
+    <SelectBox.BaseDropdown
+      allowMultiSelect=false
+      buttonText=""
+      input
+      deselectDisable=true
+      customButtonStyle="!rounded-md"
+      options
+      marginTop="mt-14"
+      hideMultiSelectButtons=true
+      addButton=false
+      customStyle="bg-blue-840 hover:bg-popover-background-hover rounded w-fit"
+      customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
+      searchable=false
+      baseComponent={<ListBaseComp />}
+      baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded"
+      optionClass="text-gray-200 text-fs-14"
+      selectClass="text-gray-200 text-fs-14"
+      customDropdownOuterClass="!border-none"
+    />
+  </div>
 }

@@ -6,7 +6,7 @@ module ListBaseComp = {
 
     <div className="flex flex-col items-end gap-2 mr-2" onClick={_ => setArrow(prev => !prev)}>
       <div
-        className="flex items-center justify-end text-sm text-center text-white font-medium rounded hover:bg-opacity-80 bg-popover-background w-fit">
+        className="flex items-center justify-end text-sm text-center text-white font-medium rounded hover:bg-opacity-80 bg-sidebar-blue w-fit">
         <div className="flex flex-col items-start px-2 py-2">
           <p className="text-xs text-gray-400"> {"Merchant"->React.string} </p>
           <p className="fs-10"> {merchantId->React.string} </p>
@@ -36,11 +36,11 @@ module AddNewMerchantButton = {
       isRelative=false
       contentAlign=Default
       tooltipForWidthClass="!h-full"
-      className={`${cursorStyles} px-1 py-1`}>
+      className={`${cursorStyles} py-1`}>
       {<>
-        <hr />
+        <hr className="border-t border-blue-830" />
         <div
-          className="group flex gap-2 items-center font-medium w-56 px-2 py-2 text-sm text-gray-200 bg-popover-background dark:bg-black hover:bg-popover-background-hover hover:text-gray-100">
+          className="group flex gap-2 items-center font-medium w-56 px-2 py-2 text-sm text-gray-200 bg-blue-840 dark:bg-black hover:bg-popover-background-hover hover:text-gray-100">
           <Icon name="plus-circle" size=15 />
           {"Add new merchant"->React.string}
         </div>
@@ -176,7 +176,7 @@ let make = () => {
     checked: true,
   }
 
-  <div className="">
+  <div className="border border-popover-background rounded mr-2">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
@@ -187,11 +187,11 @@ let make = () => {
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false
-      customStyle="hover:bg-popover-background-hover w-fit"
-      customSelectStyle="md:bg-popover-background hover:bg-popover-background-hover"
+      customStyle="bg-blue-840 hover:bg-popover-background-hover rounded w-fit"
+      customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
       baseComponent={<ListBaseComp />}
-      baseComponentCustomStyle="bg-popover-background border-transparent"
+      baseComponentCustomStyle="bg-popover-background border-blue-820 rounded"
       bottomComponent={<AddNewMerchantButton setShowModal />}
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"

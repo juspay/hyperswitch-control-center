@@ -529,7 +529,7 @@ let make = (
     | true =>
       switch isMobileView {
       | true => "100%"
-      | false => "298px"
+      | false => "310px"
       }
     | false => "55px"
     }
