@@ -19,7 +19,7 @@ let getPieChartOptions = series => {
       "#80A3F8",
       "#7AAF73",
       "#DA6C68",
-      "#91C8A1",
+      "#5398A7",
       "#E18494",
       "#79B8F3",
       "#B6A1D2",

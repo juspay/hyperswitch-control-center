@@ -22,7 +22,7 @@ let getPayoutsList = async (
     let payoutsUrl = getURL(~entityName=PAYOUTS, ~methodType=Post)
     let res = await updateDetails(payoutsUrl, filterValueJson->JSON.Encode.object, Post)
     let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
-    let total = res->getDictFromJsonObject->getInt("size", 0)
+    let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
     let arr = Array.make(~length=offset, Dict.make())
     if total <= offset {
@@ -72,7 +72,7 @@ let filterByData = (txnArr, value) => {
       })
       ->Array.reduce(false, (acc, item) => item || acc)
 
-    valueArr ? data->Nullable.make->Some : None
+    valueArr ? Some(data->Nullable.make) : None
   })
 }
 

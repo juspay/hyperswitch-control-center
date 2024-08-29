@@ -248,7 +248,7 @@ let make = (~filterKeys, ~moduleName) => {
         ~startDateTime=singleStatBodyEntity.startDateTime,
         ~endDateTime=singleStatBodyEntity.endDateTime,
         ~mode=singleStatBodyEntity.mode,
-        ~groupByNames=["currency"]->Some,
+        ~groupByNames=Some(["currency"]),
         ~customFilter=?singleStatBodyEntity.customFilter,
         ~source=?singleStatBodyEntity.source,
         ~granularity=singleStatBodyEntity.granularity,
@@ -267,20 +267,19 @@ let make = (~filterKeys, ~moduleName) => {
       {"Note: Only date range filters are supported currently for Smart Retry metrics"->React.string}
     </div>
     <div className="relative">
-      <div>
-        <DynamicSingleStat
-          entity={singleStatEntity}
-          startTimeFilterKey
-          endTimeFilterKey
-          filterKeys
-          moduleName
-          showPercentage=false
-          statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
-        />
-      </div>
-      <div className="absolute top-0 w-full h-full grid grid-cols-3 grid-rows-2">
-        <div className="col-span-2 " />
-        <div className="row-span-2 h-full">
+      <DynamicSingleStat
+        entity={singleStatEntity}
+        startTimeFilterKey
+        endTimeFilterKey
+        filterKeys
+        moduleName
+        showPercentage=false
+        statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
+      />
+      <div
+        className="absolute top-0 w-full h-full grid grid-cols-3 grid-rows-2 pointer-events-none">
+        <div className="col-span-2 h-96 " />
+        <div className="row-span-2 h-full !pointer-events-auto">
           <DynamicSingleStat
             entity=singleStatAMountEntity
             startTimeFilterKey

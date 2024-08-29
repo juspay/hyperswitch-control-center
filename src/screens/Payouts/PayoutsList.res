@@ -11,7 +11,7 @@ let make = () => {
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
-  let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
+  let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Payouts")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
@@ -20,6 +20,7 @@ let make = () => {
     switch filters {
     | Some(dict) =>
       let filters = [("offset", offset->Int.toFloat->JSON.Encode.float)]->Dict.fromArray
+      filters->Dict.set("limit", 20->Int.toFloat->JSON.Encode.float)
       if !(searchText->isEmptyString) {
         filters->Dict.set("payout_id", searchText->String.trim->JSON.Encode.string)
       }
@@ -82,7 +83,7 @@ let make = () => {
           title="Payouts"
           actualData=payoutData
           entity={PayoutsEntity.payoutEntity}
-          resultsPerPage=10
+          resultsPerPage=20
           showSerialNumber=true
           totalResults={totalCount}
           offset
@@ -92,7 +93,6 @@ let make = () => {
           customColumnMapper=TableAtoms.payoutsMapDefaultCols
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
-          showResultsPerPageSelector=false
         />
       </PageLoaderWrapper>
     </div>
