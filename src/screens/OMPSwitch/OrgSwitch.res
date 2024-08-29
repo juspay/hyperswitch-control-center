@@ -1,7 +1,7 @@
 module ListBaseComp = {
   @react.component
   let make = () => {
-    let {orgId} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
     let (arrow, setArrow) = React.useState(_ => false)
 
     <div
@@ -31,7 +31,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (orgList, setOrgList) = React.useState(_ => JSON.Encode.null)
-  let {orgId} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let getOrgList = async () => {
     try {

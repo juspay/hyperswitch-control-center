@@ -1,7 +1,7 @@
 module ListBaseComp = {
   @react.component
   let make = () => {
-    let {merchantId} = React.useContext(UserInfoProvider.defaultContext)
+    let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
     let (arrow, setArrow) = React.useState(_ => false)
 
     <div
@@ -137,7 +137,7 @@ let make = () => {
   open LogicUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let {merchantId} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (merchantList, setMerchantList) = React.useState(_ => JSON.Encode.null)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (fetchUpdatedMerchantList, setFetchUpdatedMerchantList) = React.useState(_ => true)
