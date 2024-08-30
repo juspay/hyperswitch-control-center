@@ -89,6 +89,8 @@ type processorTypes =
   | ITAUBANK
   | DATATRANS
   | PLAID
+  | PAYBOX
+  | WELLSFARGO
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 

@@ -523,7 +523,16 @@ let make = (
   let isHSSidebarPinned = getFromSidebarDetails("isPinned")
   let isExpanded = isSidebarExpanded || isHSSidebarPinned
 
-  let sidebarWidth = isExpanded ? isMobileView ? "100%" : "270px" : "55px"
+  let sidebarWidth = {
+    switch isExpanded {
+    | true =>
+      switch isMobileView {
+      | true => "100%"
+      | false => "270px"
+      }
+    | false => "55px"
+    }
+  }
   let profileMaxWidth = "145px"
 
   let firstPart = switch List.head(path) {

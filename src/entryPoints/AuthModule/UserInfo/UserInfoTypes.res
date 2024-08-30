@@ -7,4 +7,10 @@ type userInfo = {
   recoveryCodesLeft: option<int>,
   roleId: string,
   verificationDaysLeft: option<int>,
+  profileId: string,
+}
+
+type userInfoProviderTypes = {
+  userInfo: userInfo,
+  setUserInfoData: userInfo => unit,
 }
