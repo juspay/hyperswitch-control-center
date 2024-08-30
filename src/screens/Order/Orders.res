@@ -4,6 +4,7 @@ let make = (~previewOnly=false) => {
   open HSwitchRemoteFilter
   open OrderUIUtils
   open LogicUtils
+  open ViewsUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
@@ -15,7 +16,7 @@ let make = (~previewOnly=false) => {
   let (paymentCountRes, setPaymentCountRes) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (activeView, setActiveView) = React.useState(_ => All)
 
-  let {updateExistingKeys, removeKeys, filterValueJson, filterKeys, setfilterKeys} =
+  let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
 
   let (widthClass, heightClass) = React.useMemo(() => {
@@ -80,14 +81,10 @@ let make = (~previewOnly=false) => {
   }
 
   let updateViewsFilterValue = view => {
-    ["status"]->removeKeys
-
     let customFilterKey = "status"
     let customFilter = `[${view->getViewsLabel(paymentCountRes)}]`
 
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
-
-    setfilterKeys(_ => filterKeys->Array.filter(item => item !== "status"))
 
     if !(filterKeys->Array.includes("status")) {
       filterKeys->Array.push("status")
@@ -171,8 +168,8 @@ let make = (~previewOnly=false) => {
   }, [])
 
   let viewsUI =
-    viewsArray->Array.mapWithIndex((item, i) =>
-      <OrderUtils.ViewCards
+    paymentViewsArray->Array.mapWithIndex((item, i) =>
+      <ViewCards
         key={i->Int.toString}
         view={item}
         count={paymentCount(item, paymentCountRes)->Int.toString}
