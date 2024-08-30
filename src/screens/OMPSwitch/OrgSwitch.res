@@ -17,7 +17,7 @@ let make = () => {
     } catch {
     | _ => {
         setOrgList(_ => defaultOrg(orgId, ""))
-        showToast(~message="Failed to fetch org list", ~toastType=ToastError)
+        showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
       }
     }
   }
