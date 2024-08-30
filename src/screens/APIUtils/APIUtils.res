@@ -301,6 +301,15 @@ let useGetURL = () => {
         }
       }
 
+    /* USER MANGEMENT REVAMP */
+    | USER_MANAGEMENT_V2 => {
+        let userUrl = `user`
+        switch userRoleTypes {
+        | USER_LIST => `${userUrl}/user/v2/list`
+        | _ => ""
+        }
+      }
+
     /* USERS */
     | USERS =>
       let userUrl = `user`
@@ -388,6 +397,11 @@ let useGetURL = () => {
       | #SWITCH_ORG => `${userUrl}/switch/org`
       | #SWITCH_MERCHANT_NEW => `${userUrl}/switch/merchant`
       | #SWITCH_PROFILE => `${userUrl}/switch/profile`
+
+      // Org-Merchant-Profile List
+      | #LIST_ORG => `${userUrl}/list/org`
+      | #LIST_MERCHANT => `${userUrl}/list/merchant`
+      | #LIST_PROFILE => `${userUrl}/list/profile`
 
       // CREATE ROLES
       | #CREATE_CUSTOM_ROLE => `${userUrl}/role`

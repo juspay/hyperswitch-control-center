@@ -46,6 +46,7 @@ type entityName =
   | ACTIVE_ROUTING
   | GLOBAL_SEARCH
   | PAYMENT_METHOD_CONFIG
+  | USER_MANAGEMENT_V2
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
@@ -100,6 +101,9 @@ type userType = [
   | #SWITCH_ORG
   | #SWITCH_MERCHANT_NEW
   | #SWITCH_PROFILE
+  | #LIST_ORG
+  | #LIST_MERCHANT
+  | #LIST_PROFILE
   | #NONE
 ]
 
