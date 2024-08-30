@@ -38,7 +38,7 @@ let make = (
   }, (shouldRefetch, handleRefetch))
 
   let selectInputOption = {
-    [5, 10, 15, 25, 50]
+    [5, 10, 15, 20, 50]
     ->Array.filter(val => val <= totalResults)
     ->Array.map(Int.toString)
     ->SelectBox.makeOptions
