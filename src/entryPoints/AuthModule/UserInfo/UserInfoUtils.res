@@ -9,6 +9,7 @@ let defaultValueOfUserInfo = {
   recoveryCodesLeft: None,
   roleId: "",
   verificationDaysLeft: None,
+  profileId: "",
 }
 
 let defaultValueOfUserInfoProvider = {
@@ -28,4 +29,5 @@ let itemMapper = dict => {
   recoveryCodesLeft: dict->getOptionInt("recovery_codes_left"),
   roleId: dict->getString("role_id", defaultValueOfUserInfo.email),
   verificationDaysLeft: dict->getOptionInt("verification_days_left"),
+  profileId: dict->getString("profileId", ""),
 }
