@@ -42,3 +42,18 @@ let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Reco
     searchText: "",
   },
 )
+
+let orgListAtom: Recoil.recoilAtom<array<OMPSwitchUtils.orgType>> = Recoil.atom(
+  "orgListAtom",
+  OMPSwitchUtils.defaultOrg("", ""),
+)
+
+let merchantListAtom: Recoil.recoilAtom<array<OMPSwitchUtils.merchantType>> = Recoil.atom(
+  "merchantListAtom",
+  OMPSwitchUtils.defaultMerchant("", ""),
+)
+
+let profileListAtom: Recoil.recoilAtom<array<OMPSwitchUtils.profileType>> = Recoil.atom(
+  "profileListAtom",
+  OMPSwitchUtils.defaultProfile("", ""),
+)

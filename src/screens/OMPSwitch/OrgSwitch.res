@@ -7,7 +7,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
-  let (orgList, setOrgList) = React.useState(_ => defaultUser(orgId, ""))
+  let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
 
   let getOrgList = async () => {
     try {
@@ -15,7 +15,10 @@ let make = () => {
       let response = await fetchDetails(url)
       setOrgList(_ => response->getArrayDataFromJson(orgItemToObjMapper))
     } catch {
-    | _ => showToast(~message="Failed to fetch org list", ~toastType=ToastError)
+    | _ => {
+        setOrgList(_ => defaultOrg(orgId, ""))
+        showToast(~message="Failed to fetch org list", ~toastType=ToastError)
+      }
     }
   }
 

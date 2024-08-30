@@ -142,9 +142,9 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let (profileList, setProfileList) = React.useState(_ => defaultUser("", ""))
   let (showModal, setShowModal) = React.useState(_ => false)
-  //   let {profileId} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
 
   let getProfileList = async () => {
     try {
@@ -152,7 +152,10 @@ let make = () => {
       let response = await fetchDetails(url)
       setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
     } catch {
-    | _ => showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
+    | _ => {
+        setProfileList(_ => defaultProfile(profileId, ""))
+        showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
+      }
     }
   }
 
@@ -167,7 +170,7 @@ let make = () => {
     onBlur: _ => (),
     onChange: _ => (),
     onFocus: _ => (),
-    value: "current_profile_id"->JSON.Encode.string,
+    value: profileId->JSON.Encode.string,
     checked: true,
   }
 
