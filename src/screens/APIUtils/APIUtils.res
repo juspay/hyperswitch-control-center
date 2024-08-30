@@ -302,7 +302,7 @@ let useGetURL = () => {
       }
 
     /* USER MANGEMENT REVAMP */
-    | USER_MANAGEMENT_REVAMP => {
+    | USER_MANAGEMENT_V2 => {
         let userUrl = `user`
         switch userRoleTypes {
         | USER_LIST => `${userUrl}/user/v2/list`

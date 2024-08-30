@@ -18,7 +18,7 @@ let make = () => {
     setScreenStateUsers(_ => PageLoaderWrapper.Loading)
     try {
       let userDataURL = getURL(
-        ~entityName=USER_MANAGEMENT_REVAMP,
+        ~entityName=USER_MANAGEMENT_V2,
         ~methodType=Get,
         ~userRoleTypes=USER_LIST,
       )
