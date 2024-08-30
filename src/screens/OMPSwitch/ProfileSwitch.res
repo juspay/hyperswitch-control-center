@@ -142,6 +142,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
+  let profileSwitch = SwitchHooks.useProfileSwitch()
   let (showModal, setShowModal) = React.useState(_ => false)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
@@ -162,10 +163,21 @@ let make = () => {
   let customPadding = "px-1 py-1"
   let customStyle = "w-auto text-blue-500 bg-white dark:bg-black hover:bg-jp-gray-100"
 
+  let profileSwitch = async value => {
+    try {
+      let _ = await profileSwitch(~expectedProfileId=value, ~currentProfileId=profileId)
+    } catch {
+    | _ => showToast(~message="Failed to switch profile", ~toastType=ToastError)
+    }
+  }
+
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),
-    onChange: _ => (),
+    onChange: ev => {
+      let value = ev->Identity.formReactEventToString
+      profileSwitch(value)->ignore
+    },
     onFocus: _ => (),
     value: profileId->JSON.Encode.string,
     checked: true,
@@ -194,7 +206,8 @@ let make = () => {
       />}
       optionClass="text-gray-600 text-fs-14"
       selectClass="text-gray-600 text-fs-14"
-      customDropdownOuterClass="!border-none"
+      customDropdownOuterClass="!border-none !w-full"
+      fullLength=true
     />
     <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getProfileList />

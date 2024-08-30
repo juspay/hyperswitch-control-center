@@ -101,6 +101,9 @@ type userType = [
   | #LIST_ORG
   | #LIST_MERCHANT
   | #LIST_PROFILE
+  | #SWITCH_ORG
+  | #SWITCH_MERCHANT_NEW
+  | #SWITCH_PROFILE
   | #NONE
 ]
 
