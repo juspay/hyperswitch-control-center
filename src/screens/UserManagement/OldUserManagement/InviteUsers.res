@@ -101,7 +101,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   | None => "merchant_view_only"
   }
 
-  let {email, totp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (roleTypeValue, setRoleTypeValue) = React.useState(_ => defaultRole)
@@ -116,21 +116,12 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   }, [])
 
   let getURLForInviteMultipleUser = {
-    if totp {
-      getURL(
-        ~entityName=USERS,
-        ~userType=#INVITE_MULTIPLE_TOKEN_ONLY,
-        ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}`),
-      )
-    } else {
-      getURL(
-        ~entityName=USERS,
-        ~userType=#INVITE_MULTIPLE,
-        ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}`),
-      )
-    }
+    getURL(
+      ~entityName=USERS,
+      ~userType=#INVITE_MULTIPLE_TOKEN_ONLY,
+      ~methodType=Post,
+      ~queryParamerters=Some(`auth_id=${authId}`),
+    )
   }
 
   let inviteListOfUsersWithInviteMultiple = async values => {
