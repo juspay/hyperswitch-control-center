@@ -162,9 +162,6 @@ let make = () => {
   let customPadding = "px-1 py-1"
   let customStyle = "w-auto text-blue-500 bg-white dark:bg-black hover:bg-jp-gray-100"
 
-  // let options: array<SelectBox.dropdownOption> =
-  //   profileList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
-
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),

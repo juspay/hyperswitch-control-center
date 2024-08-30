@@ -107,9 +107,6 @@ let make = () => {
     }
   }
 
-  // let options: array<SelectBox.dropdownOption> =
-  //   merchantList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
-
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),

@@ -22,10 +22,6 @@ let make = () => {
     }
   }
 
-  // let options: array<SelectBox.dropdownOption> = React.useMemo(() => {
-  //   orgList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
-  // }, [orgList])
-
   React.useEffect(() => {
     getOrgList()->ignore
     None
