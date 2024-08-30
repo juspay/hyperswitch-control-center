@@ -98,6 +98,9 @@ type userType = [
   | #AUTH_SELECT
   | #SIGN_IN_WITH_SSO
   | #CHANGE_PASSWORD
+  | #LIST_ORG
+  | #LIST_MERCHANT
+  | #LIST_PROFILE
   | #NONE
 ]
 
