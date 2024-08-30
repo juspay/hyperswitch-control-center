@@ -95,6 +95,7 @@ let make = (
           buttonSize={Small}
           onClick={_ => setShowColumnSelector(_ => true)}
           customButtonStyle="!rounded !bg-white !h-10 !text-black border-none"
+          customPaddingClass="px-4"
         />
       </Portal>
     </RenderIf>
