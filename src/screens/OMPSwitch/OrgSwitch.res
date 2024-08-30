@@ -16,15 +16,15 @@ let make = () => {
       setOrgList(_ => response->getArrayDataFromJson(orgItemToObjMapper))
     } catch {
     | _ => {
-        setOrgList(_ => defaultOrg(orgId, ""))
+        setOrgList(_ => ompDefaultValue(orgId, ""))
         showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
       }
     }
   }
 
-  let options: array<SelectBox.dropdownOption> = React.useMemo(() => {
-    orgList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
-  }, [orgList])
+  // let options: array<SelectBox.dropdownOption> = React.useMemo(() => {
+  //   orgList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
+  // }, [orgList])
 
   React.useEffect(() => {
     getOrgList()->ignore
@@ -47,14 +47,14 @@ let make = () => {
       input
       deselectDisable=true
       customButtonStyle="!rounded-md"
-      options
+      options={orgList->generateDropdownOptions}
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false
       customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
-      baseComponent={<ListBaseComp heading="Org" subHeading=orgId />}
+      baseComponent={<OMPSwitchHelper.ListBaseComp heading="Org" subHeading=orgId />}
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"

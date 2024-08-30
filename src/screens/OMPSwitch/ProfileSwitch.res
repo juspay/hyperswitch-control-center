@@ -153,7 +153,7 @@ let make = () => {
       setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
     } catch {
     | _ => {
-        setProfileList(_ => defaultProfile(profileId, ""))
+        setProfileList(_ => ompDefaultValue(profileId, ""))
         showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
       }
     }
@@ -162,8 +162,8 @@ let make = () => {
   let customPadding = "px-1 py-1"
   let customStyle = "w-auto text-blue-500 bg-white dark:bg-black hover:bg-jp-gray-100"
 
-  let options: array<SelectBox.dropdownOption> =
-    profileList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
+  // let options: array<SelectBox.dropdownOption> =
+  //   profileList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
@@ -186,13 +186,13 @@ let make = () => {
       input
       deselectDisable=true
       customButtonStyle="!rounded-md"
-      options
+      options={profileList->generateDropdownOptions}
       hideMultiSelectButtons=true
       addButton=false
       searchable=false
       baseComponent={<ListBaseCompForProfile />}
       baseComponentCustomStyle="bg-white"
-      bottomComponent={<AddNewMerchantProfileButton
+      bottomComponent={<OMPSwitchHelper.AddNewMerchantProfileButton
         user="profile" setShowModal customPadding customStyle
       />}
       optionClass="text-gray-600 text-fs-14"

@@ -43,17 +43,17 @@ let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Reco
   },
 )
 
-let orgListAtom: Recoil.recoilAtom<array<OMPSwitchUtils.orgType>> = Recoil.atom(
+let orgListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
   "orgListAtom",
-  OMPSwitchUtils.defaultOrg("", ""),
+  OMPSwitchUtils.ompDefaultValue("", ""),
 )
 
-let merchantListAtom: Recoil.recoilAtom<array<OMPSwitchUtils.merchantType>> = Recoil.atom(
+let merchantListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
   "merchantListAtom",
-  OMPSwitchUtils.defaultMerchant("", ""),
+  OMPSwitchUtils.ompDefaultValue("", ""),
 )
 
-let profileListAtom: Recoil.recoilAtom<array<OMPSwitchUtils.profileType>> = Recoil.atom(
+let profileListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
   "profileListAtom",
-  OMPSwitchUtils.defaultProfile("", ""),
+  OMPSwitchUtils.ompDefaultValue("", ""),
 )
