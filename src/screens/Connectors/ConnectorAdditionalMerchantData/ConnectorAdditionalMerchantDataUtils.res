@@ -28,3 +28,18 @@ let connectorAdditionalMerchantDataValueInput = (
     }
   }
 }
+
+let modifiedOptions = options => {
+  // This change should be moved to wasm
+  let dropDownOptions = options->Array.map((item): SelectBox.dropdownOption => {
+    {
+      label: switch item {
+      | "account_data" => "Bank Scheme"
+      | "iban" => "Sepa"
+      | _ => item->LogicUtils.snakeToTitle
+      },
+      value: item,
+    }
+  })
+  dropDownOptions
+}

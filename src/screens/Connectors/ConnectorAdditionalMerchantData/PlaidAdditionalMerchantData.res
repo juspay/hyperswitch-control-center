@@ -35,7 +35,7 @@ module PlaidAdditionMerchantDataSelect = {
         allowMultiSelect=false
         buttonText
         input
-        options={options->SelectBox.makeOptions}
+        options={options}
         hideMultiSelectButtons=false
         showSelectionAsChips=true
         customButtonStyle="w-full"
@@ -107,7 +107,7 @@ let make = (~connectorAdditionalMerchantData) => {
           <PlaidAdditionMerchantDataSelect
             setState=setOpenBankingRecipientData
             value=openBankingRecipientData
-            options=fields.options
+            options={fields.options->modifiedOptions}
             buttonText={`Select ${fields.label}`}
             label={fields.label}
             handler=updateOpenBanking
@@ -122,7 +122,7 @@ let make = (~connectorAdditionalMerchantData) => {
           <PlaidAdditionMerchantDataSelect
             setState=setaccountData
             value=accountData
-            options=fields.options
+            options={fields.options->modifiedOptions}
             buttonText={`Select ${fields.label}`}
             label={fields.label}
             handler=updateAccountData
