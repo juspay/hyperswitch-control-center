@@ -411,7 +411,7 @@ let make = () => {
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let {recoveryCodesLeft} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {recoveryCodesLeft}} = React.useContext(UserInfoProvider.defaultContext)
   let recoveryCode = recoveryCodesLeft->Option.getOr(0)
 
   <div className="w-full flex flex-col gap-6">
