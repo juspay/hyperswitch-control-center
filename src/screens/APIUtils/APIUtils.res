@@ -64,6 +64,20 @@ let useGetURL = () => {
       }
 
     /* OPERATIONS */
+    | PROFILE_ORDERS =>
+      switch methodType {
+      | Get =>
+        switch id {
+        | Some(key_id) =>
+          switch queryParamerters {
+          | Some(queryParams) => `payments/${key_id}?${queryParams}`
+          | None => `payments/${key_id}`
+          }
+        | None => `payments/profile/list?limit=100`
+        }
+      | Post => `payments/profile/list`
+      | _ => ""
+      }
     | ORDERS =>
       switch methodType {
       | Get =>
@@ -105,6 +119,25 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | PROFILE_REFUNDS =>
+      switch methodType {
+      | Get =>
+        switch id {
+        | Some(key_id) =>
+          switch queryParamerters {
+          | Some(queryParams) => `refunds/${key_id}?${queryParams}`
+          | None => `refunds/${key_id}`
+          }
+
+        | None => `refunds/list?limit=100`
+        }
+      | Post =>
+        switch id {
+        | Some(_keyid) => `refunds/list`
+        | None => `refunds`
+        }
+      | _ => ""
+      }
     | DISPUTES =>
       switch methodType {
       | Get =>
@@ -114,12 +147,31 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | PROFILE_DISPUTES =>
+      switch methodType {
+      | Get =>
+        switch id {
+        | Some(dispute_id) => `disputes/${dispute_id}`
+        | None => `disputes/profile/list?limit=10000`
+        }
+      | _ => ""
+      }
     | PAYOUTS =>
       switch methodType {
       | Get =>
         switch id {
         | Some(payout_id) => `payouts/${payout_id}`
         | None => `payouts/list?limit=100`
+        }
+      | Post => `payouts/list`
+      | _ => ""
+      }
+    | PROFILE_PAYOUTS =>
+      switch methodType {
+      | Get =>
+        switch id {
+        | Some(payout_id) => `payouts/${payout_id}`
+        | None => `payouts/profile/list?limit=100`
         }
       | Post => `payouts/list`
       | _ => ""
