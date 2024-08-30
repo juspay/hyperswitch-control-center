@@ -1,56 +1,6 @@
-module ListBaseComp = {
-  @react.component
-  let make = () => {
-    let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
-    let (arrow, setArrow) = React.useState(_ => false)
-
-    <div
-      className="flex items-center justify-center text-sm text-center text-white font-medium rounded hover:bg-opacity-80 bg-sidebar-blue"
-      onClick={_ => setArrow(prev => !prev)}>
-      <div className="flex flex-col items-start px-2 py-2">
-        <p className="text-xs text-gray-400"> {"Merchant"->React.string} </p>
-        <p className="fs-10"> {merchantId->React.string} </p>
-      </div>
-      <div className="px-2 py-2">
-        <Icon
-          className={arrow
-            ? "-rotate-180 transition duration-[250ms] opacity-70"
-            : "rotate-0 transition duration-[250ms] opacity-70"}
-          name="arrow-without-tail-new"
-          size=15
-        />
-      </div>
-    </div>
-  }
-}
-
-module AddNewMerchantButton = {
-  @react.component
-  let make = (~setShowModal) => {
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-    let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
-    <ACLDiv
-      permission={userPermissionJson.merchantDetailsManage}
-      onClick={_ => setShowModal(_ => true)}
-      isRelative=false
-      contentAlign=Default
-      tooltipForWidthClass="!h-full"
-      className={`${cursorStyles} py-1`}>
-      {<>
-        <hr className="border-t border-blue-830" />
-        <div
-          className="group flex gap-2 items-center font-medium w-56 px-2 py-2 text-sm text-gray-200 bg-blue-840 dark:bg-black hover:bg-popover-background-hover hover:text-gray-100">
-          <Icon name="plus-circle" size=15 />
-          {"Add new merchant"->React.string}
-        </div>
-      </>}
-    </ACLDiv>
-  }
-}
-
 module NewAccountCreationModal = {
   @react.component
-  let make = (~setShowModal, ~showModal, ~setFetchUpdatedMerchantList) => {
+  let make = (~setShowModal, ~showModal, ~getMerchantList) => {
     open APIUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
@@ -59,6 +9,7 @@ module NewAccountCreationModal = {
       try {
         let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Post)
         let _ = await updateDetails(url, values, Post)
+        getMerchantList()->ignore
         showToast(
           ~toastType=ToastSuccess,
           ~message="Account Created Successfully!",
@@ -73,7 +24,6 @@ module NewAccountCreationModal = {
     }
 
     let onSubmit = (values, _) => {
-      setFetchUpdatedMerchantList(prev => !prev)
       createNewAccount(values)
     }
 
@@ -135,29 +85,23 @@ module NewAccountCreationModal = {
 let make = () => {
   open APIUtils
   open LogicUtils
-  open MerchantSwitchUtils
+  open OMPSwitchUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
-  let (merchantList, setMerchantList) = React.useState(_ => defaultMerchant(merchantId, ""))
+  let (merchantList, setMerchantList) = React.useState(_ => defaultUser(merchantId, ""))
   let (showModal, setShowModal) = React.useState(_ => false)
-  let (fetchUpdatedMerchantList, setFetchUpdatedMerchantList) = React.useState(_ => true)
 
   let getMerchantList = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#LIST_MERCHANT, ~methodType=Get)
       let response = await fetchDetails(url)
-      setMerchantList(_ => response->getArrayDataFromJson(itemToObjMapper))
+      setMerchantList(_ => response->getArrayDataFromJson(merchantItemToObjMapper))
     } catch {
     | _ => showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
     }
   }
-
-  React.useEffect(() => {
-    getMerchantList()->ignore
-    None
-  }, [fetchUpdatedMerchantList])
 
   let options: array<SelectBox.dropdownOption> =
     merchantList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
@@ -170,6 +114,15 @@ let make = () => {
     value: merchantId->JSON.Encode.string,
     checked: true,
   }
+
+  let customHRTagStyle = "border-t border-blue-830"
+  let customPadding = "py-1"
+  let customStyle = "w-56 text-gray-200 bg-blue-840 dark:bg-black hover:bg-popover-background-hover hover:text-gray-100"
+
+  React.useEffect(() => {
+    getMerchantList()->ignore
+    None
+  }, [])
 
   <div className="border border-popover-background rounded mx-2">
     <SelectBox.BaseDropdown
@@ -185,16 +138,18 @@ let make = () => {
       customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
-      baseComponent={<ListBaseComp />}
+      baseComponent={<ListBaseComp heading="Merchant" subHeading=merchantId />}
       baseComponentCustomStyle="bg-popover-background border-blue-820 rounded text-white"
-      bottomComponent={<AddNewMerchantButton setShowModal />}
+      bottomComponent={<AddNewMerchantProfileButton
+        user="merchant" setShowModal customPadding customStyle customHRTagStyle
+      />}
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"
       customDropdownOuterClass="!border-none"
       showBorder=true
     />
     <RenderIf condition={showModal}>
-      <NewAccountCreationModal setShowModal showModal setFetchUpdatedMerchantList />
+      <NewAccountCreationModal setShowModal showModal getMerchantList />
     </RenderIf>
   </div>
 }

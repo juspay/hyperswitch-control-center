@@ -1,4 +1,4 @@
-module ListBaseComp = {
+module ListBaseCompForProfile = {
   @react.component
   let make = () => {
     let (arrow, setArrow) = React.useState(_ => false)
@@ -52,7 +52,7 @@ module AddNewProfileButton = {
 
 module NewAccountCreationModal = {
   @react.component
-  let make = (~setShowModal, ~showModal, ~setFetchUpdatedProfileList) => {
+  let make = (~setShowModal, ~showModal, ~getProfileList) => {
     open APIUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
@@ -63,6 +63,7 @@ module NewAccountCreationModal = {
         let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post)
         let body = values
         let _ = await updateDetails(url, body, Post)
+        getProfileList()->ignore
         showToast(
           ~toastType=ToastSuccess,
           ~message="Account Created Successfully!",
@@ -77,7 +78,6 @@ module NewAccountCreationModal = {
     }
 
     let onSubmit = (values, _) => {
-      setFetchUpdatedProfileList(prev => !prev)
       createNewAccount(values)
     }
 
@@ -138,29 +138,26 @@ module NewAccountCreationModal = {
 let make = () => {
   open APIUtils
   open LogicUtils
-  open ProfileSwitchUtils
+  open OMPSwitchUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let (profileList, setProfileList) = React.useState(_ => defaultProfile("", ""))
+  let (profileList, setProfileList) = React.useState(_ => defaultUser("", ""))
   let (showModal, setShowModal) = React.useState(_ => false)
-  let (fetchUpdatedProfileList, setFetchUpdatedProfileList) = React.useState(_ => true)
   //   let {profileId} = React.useContext(UserInfoProvider.defaultContext)
 
   let getProfileList = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#LIST_PROFILE, ~methodType=Get)
       let response = await fetchDetails(url)
-      setProfileList(_ => response->getArrayDataFromJson(itemToObjMapper))
+      setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
     } catch {
     | _ => showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
     }
   }
 
-  React.useEffect(() => {
-    getProfileList()->ignore
-    None
-  }, [fetchUpdatedProfileList])
+  let customPadding = "px-1 py-1"
+  let customStyle = "w-auto text-blue-500 bg-white dark:bg-black hover:bg-jp-gray-100"
 
   let options: array<SelectBox.dropdownOption> =
     profileList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
@@ -174,6 +171,11 @@ let make = () => {
     checked: true,
   }
 
+  React.useEffect(() => {
+    getProfileList()->ignore
+    None
+  }, [])
+
   <div className="border border-gray-200 rounded-md">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -185,15 +187,17 @@ let make = () => {
       hideMultiSelectButtons=true
       addButton=false
       searchable=false
-      baseComponent={<ListBaseComp />}
+      baseComponent={<ListBaseCompForProfile />}
       baseComponentCustomStyle="bg-white"
-      bottomComponent={<AddNewProfileButton setShowModal />}
+      bottomComponent={<AddNewMerchantProfileButton
+        user="profile" setShowModal customPadding customStyle
+      />}
       optionClass="text-gray-600 text-fs-14"
       selectClass="text-gray-600 text-fs-14"
       customDropdownOuterClass="!border-none"
     />
     <RenderIf condition={showModal}>
-      <NewAccountCreationModal setShowModal showModal setFetchUpdatedProfileList />
+      <NewAccountCreationModal setShowModal showModal getProfileList />
     </RenderIf>
   </div>
 }
