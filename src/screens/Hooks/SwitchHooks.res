@@ -117,11 +117,9 @@ let useInternalSwitch = () => {
   let merchSwitch = useMerchantSwitch()
   let profileSwitch = useProfileSwitch()
 
-  let {userInfo: {orgId: currentOrgId, merchantId: currentMerchantId}} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
-
-  let currentProfileId = "afvedfve"
+  let {
+    userInfo: {orgId: currentOrgId, merchantId: currentMerchantId, profileId: currentProfileId},
+  } = React.useContext(UserInfoProvider.defaultContext)
 
   async (~expectedOrgId=None, ~expectedMerchantId=None, ~expectedProfileId=None) => {
     try {
@@ -133,10 +131,9 @@ let useInternalSwitch = () => {
         ~expectedMerchantId=expectedMerchantId->Option.getOr(currentMerchantId),
         ~currentMerchantId=userInfoResFromSwitchOrg.merchantId,
       )
-      // Change the ~currentProfileId=userInfoResFromSwitchMerch.orgId to userInfoResFromSwitchMerch.profileId
       let _ = await profileSwitch(
         ~expectedProfileId=expectedProfileId->Option.getOr(currentProfileId),
-        ~currentProfileId=userInfoResFromSwitchMerch.orgId,
+        ~currentProfileId=userInfoResFromSwitchMerch.profileId,
       )
     } catch {
     | Exn.Error(e) => {
