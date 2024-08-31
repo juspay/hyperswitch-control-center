@@ -305,6 +305,15 @@ let useGetURL = () => {
         }
       }
 
+    /* USER MANGEMENT REVAMP */
+    | USER_MANAGEMENT_V2 => {
+        let userUrl = `user`
+        switch userRoleTypes {
+        | USER_LIST => `${userUrl}/user/v2/list`
+        | _ => ""
+        }
+      }
+
     /* USERS */
     | USERS =>
       let userUrl = `user`
@@ -390,6 +399,11 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
+
+      // Org-Merchant-Profile List
+      | #LIST_ORG => `${userUrl}/list/org`
+      | #LIST_MERCHANT => `${userUrl}/list/merchant`
+      | #LIST_PROFILE => `${userUrl}/list/profile`
 
       // CREATE ROLES
       | #CREATE_CUSTOM_ROLE => `${userUrl}/role`

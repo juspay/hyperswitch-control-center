@@ -178,7 +178,7 @@ let filterByData = (txnArr, value) => {
       })
       ->Array.reduce(false, (acc, item) => item || acc)
 
-    valueArr ? data->Nullable.make->Some : None
+    valueArr ? Some(data->Nullable.make) : None
   })
 }
 
@@ -225,7 +225,7 @@ let getOptionsForOrderFilters = (dict, filterValues) => {
       let label = item->getDictFromJsonObject->getString("connector_label", "")
       let value = item->getDictFromJsonObject->getString("merchant_connector_id", "")
       let option: FilterSelectBox.dropdownOption = {
-        label,
+        label: label->LogicUtils.snakeToTitle,
         value,
       }
       option
@@ -296,9 +296,16 @@ let initialFilters = (json, filtervalues) => {
 
     let title = `Select ${key->snakeToTitle}`
 
+    let makeOptions = (options: array<string>): array<FilterSelectBox.dropdownOption> => {
+      options->Array.map(str => {
+        let option: FilterSelectBox.dropdownOption = {label: str->snakeToTitle, value: str}
+        option
+      })
+    }
+
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
-    | _ => values->FilterSelectBox.makeOptions
+    | _ => values->makeOptions
     }
 
     let name = switch key->getFilterTypeFromString {
