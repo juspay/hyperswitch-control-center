@@ -57,12 +57,35 @@ module DropDownItems = {
   }
 }
 
+module DropDownLoading = {
+  @react.component
+  let make = () => {
+    <div className={`${commonDropdownCss} flex justify-center items-center`}>
+      <div className={`flex flex-col text-center items-center animate-spin `}>
+        <Icon name="spinner" size=20 />
+      </div>
+    </div>
+  }
+}
+
+module DropDownNoData = {
+  @react.component
+  let make = () => {
+    <div className={`${commonDropdownCss} flex justify-center items-center`}>
+      <p className="text-semibold text-gray-600 opacity-60">
+        {"No data to display"->React.string}
+      </p>
+    </div>
+  }
+}
+
 @react.component
 let make = (
   ~options: array<SelectBox.dropdownOption>,
   ~onClickDropDownApi,
   ~formKey,
   ~dropDownLoaderState: dropDownState,
+  ~isRequired=false,
 ) => {
   open LogicUtils
   let (arrow, setArrow) = React.useState(_ => false)
@@ -95,6 +118,9 @@ let make = (
             <div
               className="flex justify-start pt-2 pb-2 text-fs-13 text-jp-gray-900 ml-1 font-semibold">
               {"Role"->React.string}
+              <RenderIf condition=isRequired>
+                <span className="text-red-950"> {React.string(" *")} </span>
+              </RenderIf>
             </div>
             <div
               className="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full">
@@ -125,18 +151,8 @@ let make = (
         leaveTo="transform opacity-0 scale-95">
         {switch dropDownLoaderState {
         | Success => <DropDownItems options keyValueFromForm formKey setArrow />
-        | Loading =>
-          <div className={`${commonDropdownCss} flex justify-center items-center`}>
-            <div className={`flex flex-col text-center items-center animate-spin `}>
-              <Icon name="spinner" size=20 />
-            </div>
-          </div>
-        | NoData =>
-          <div className={`${commonDropdownCss} flex justify-center items-center`}>
-            <p className="text-semibold text-gray-600 opacity-60">
-              {"No data to display"->React.string}
-            </p>
-          </div>
+        | Loading => <DropDownLoading />
+        | NoData => <DropDownNoData />
         }}
       </Transition>
     </>}

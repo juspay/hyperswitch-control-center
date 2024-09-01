@@ -16,6 +16,7 @@ let organizationSelection = orgList =>
       ~dropdownCustomWidth="!w-full",
       ~textStyle="!text-gray-500",
     ),
+    ~isRequired=true,
   )
 
 let merchantSelection = merchList =>

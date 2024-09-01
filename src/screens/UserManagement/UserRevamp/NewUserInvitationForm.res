@@ -165,7 +165,9 @@ let make = () => {
         <FormRenderer.FieldRenderer
           field={profileList->profileSelection} labelClass="font-semibold"
         />
-        <DropdownWithLoading options onClickDropDownApi formKey="role_id" dropDownLoaderState />
+        <DropdownWithLoading
+          options onClickDropDownApi formKey="role_id" dropDownLoaderState isRequired=true
+        />
         <NoteComponent />
         <FormValuesSpy />
       </div>
