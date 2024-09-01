@@ -1,12 +1,17 @@
 open HeadlessUI
 
-type dropDownState = Loading | Success
+type dropDownState = Loading | Success | NoData
 
-let commonDropdownCss = "absolute origin-bottom md:max-h-36 md:min-h-36 overflow-scroll show-scrollbar z-30 w-full origin-top-right bg-white dark:bg-jp-gray-950 rounded-sm shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none my-1"
+let commonDropdownCss = "absolute md:max-h-36 md:min-h-36 overflow-scroll z-30 w-full bg-white rounded-sm shadow-lg  focus:outline-none my-1 border border-jp-gray-lightmode_steelgray border-opacity-75  ring-1 ring-black ring-opacity-5"
 
 module DropDownItems = {
   @react.component
-  let make = (~options: array<SelectBox.dropdownOption>, ~formKey, ~initalFormValue, ~setArrow) => {
+  let make = (
+    ~options: array<SelectBox.dropdownOption>,
+    ~formKey,
+    ~keyValueFromForm,
+    ~setArrow,
+  ) => {
     let form = ReactFinalForm.useForm()
     let onItemSelect = value => {
       form.change(formKey, value->Identity.genericTypeToJson)
@@ -29,17 +34,19 @@ module DropDownItems = {
                     onClick={_ => option.value->onItemSelect}
                     className={
                       let activeClasses = if props["active"] {
-                        "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                        "group flex justify-between rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
                       } else {
-                        "group flex rounded-md items-center w-full px-2 py-2 text-sm"
+                        "group flex justify-between rounded-md items-center w-full px-2 py-2 text-sm"
                       }
                       `${activeClasses} font-medium text-start`
                     }>
-                    <div className="mr-5"> {option.label->React.string} </div>
+                    <div className="mr-5">
+                      {option.label
+                      ->LogicUtils.snakeToTitle
+                      ->React.string}
+                    </div>
+                    <Tick isSelected={keyValueFromForm === option.value} />
                   </button>
-                  <RenderIf condition={initalFormValue === option.value}>
-                    <Icon className={`absolute top-2 right-2 `} name="check" size=15 />
-                  </RenderIf>
                 </div>}
             </Menu.Item>
           )
@@ -57,29 +64,28 @@ let make = (
   ~formKey,
   ~dropDownLoaderState: dropDownState,
 ) => {
+  open LogicUtils
   let (arrow, setArrow) = React.useState(_ => false)
 
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
-
-  let initalFormValue =
-    formState.values->LogicUtils.getDictFromJsonObject->LogicUtils.getString(formKey, "")
+  let keyValueFromForm = formState.values->getDictFromJsonObject->getString(formKey, "")
 
   let getNameByLabel = value => {
-    let abc = options->Array.find(v => v.value === value)
-    switch abc {
-    | Some(value) => value.label
+    let filteredValueFromForm = options->Array.find(v => v.value === value)
+    switch filteredValueFromForm {
+    | Some(value) => value.label->snakeToTitle
     | None => "Select a role"
     }
   }
 
   let buttonValue = React.useMemo(() => {
-    switch formState.values->LogicUtils.getDictFromJsonObject->Dict.get(formKey) {
-    | Some(value) => getNameByLabel(value->LogicUtils.getStringFromJson(""))
+    switch formState.values->getDictFromJsonObject->Dict.get(formKey) {
+    | Some(value) => getNameByLabel(value->getStringFromJson(""))
     | None => "Select a role"
     }
-  }, [initalFormValue])
+  }, [keyValueFromForm])
 
   <Menu \"as"="div" className="relative inline-block text-left p-1">
     {_menuProps => <>
@@ -118,12 +124,18 @@ let make = (
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95">
         {switch dropDownLoaderState {
-        | Success => <DropDownItems options initalFormValue formKey setArrow />
+        | Success => <DropDownItems options keyValueFromForm formKey setArrow />
         | Loading =>
           <div className={`${commonDropdownCss} flex justify-center items-center`}>
             <div className={`flex flex-col text-center items-center animate-spin `}>
               <Icon name="spinner" size=20 />
             </div>
+          </div>
+        | NoData =>
+          <div className={`${commonDropdownCss} flex justify-center items-center`}>
+            <p className="text-semibold text-gray-600 opacity-60">
+              {"No data to display"->React.string}
+            </p>
           </div>
         }}
       </Transition>

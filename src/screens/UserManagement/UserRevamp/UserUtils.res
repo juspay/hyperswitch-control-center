@@ -3,33 +3,6 @@ let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType
   [],
 )
 
-let predefinedRoles: array<SelectBox.dropdownOption> = [
-  {
-    label: "Developer",
-    value: "merchant_developer",
-  },
-  {
-    label: "IAM",
-    value: "merchant_iam_admin",
-  },
-  {
-    label: "Operator",
-    value: "merchant_operator",
-  },
-  {
-    label: "Customer support",
-    value: "merchant_customer_support",
-  },
-  {
-    label: "View only",
-    value: "merchant_view_only",
-  },
-  {
-    label: "Merchant Admin",
-    value: "merchant_admin",
-  },
-]
-
 let getMerchantSelectBoxOption = (
   ~label,
   ~value,
@@ -64,72 +37,6 @@ let inviteEmail = FormRenderer.makeFieldInfo(
       ~seperateByComma=true,
     )
   },
-  ~isRequired=true,
-)
-
-let organizationSelection = orgList =>
-  FormRenderer.makeFieldInfo(
-    ~label="Select an organization",
-    ~name="org_value",
-    ~customInput=InputFields.selectInput(
-      ~options=getMerchantSelectBoxOption(
-        ~label="All organizations",
-        ~value="all_organizations",
-        ~dropdownList=orgList,
-      ),
-      ~buttonText="Select an organization",
-      ~fullLength=true,
-      ~customButtonStyle="!rounded-lg",
-      ~dropdownCustomWidth="!w-full",
-      ~textStyle="!text-gray-500",
-    ),
-  )
-let merchantSelection = merchList =>
-  FormRenderer.makeFieldInfo(
-    ~label="Merchants for access",
-    ~name="merchant_value",
-    ~customInput=InputFields.selectInput(
-      ~options=getMerchantSelectBoxOption(
-        ~label="All merchants",
-        ~value="all_merchants",
-        ~dropdownList=merchList,
-      ),
-      ~buttonText="Select a Merchant",
-      ~fullLength=true,
-      ~customButtonStyle="!rounded-lg",
-      ~dropdownCustomWidth="!w-full",
-      ~textStyle="!text-gray-500",
-    ),
-  )
-let profileSelection = profileList =>
-  FormRenderer.makeFieldInfo(
-    ~label="Profiles for access",
-    ~name="profile_value",
-    ~customInput=InputFields.selectInput(
-      ~options=getMerchantSelectBoxOption(
-        ~label="All profiles",
-        ~value="all_profiles",
-        ~dropdownList=profileList,
-      ),
-      ~buttonText="Select a Profile",
-      ~fullLength=true,
-      ~customButtonStyle="!rounded-lg",
-      ~dropdownCustomWidth="!w-full",
-      ~textStyle="!text-gray-500",
-    ),
-  )
-
-let roleSelection = FormRenderer.makeFieldInfo(
-  ~label="Select a role",
-  ~name="roleType",
-  ~customInput=InputFields.selectInput(
-    ~options=predefinedRoles,
-    ~buttonText="Select a role",
-    ~fullLength=true,
-    ~customButtonStyle="!rounded-lg",
-    ~dropdownCustomWidth="!w-full",
-    ~textStyle="!text-gray-500",
-  ),
   ~isRequired=true,
 )
 
@@ -218,13 +125,6 @@ let modulesWithUserAccess = (
   (modulesWithAccess, modulesWithoutAccess)
 }
 
-let tabIndexToVariantMapper = index => {
-  switch index {
-  | 0 => UserManagementTypes.UsersTab
-  | _ => UserManagementTypes.RolesTab
-  }
-}
-
 let stringToVariantMapperForAccess = accessAvailable => {
   open UserManagementTypes
   switch accessAvailable {
@@ -232,4 +132,18 @@ let stringToVariantMapperForAccess = accessAvailable => {
   | "Manage" => Manage
   | _ => View
   }
+}
+
+let makeSelectBoxOptions = result => {
+  open LogicUtils
+
+  result
+  ->getObjectArrayFromJson
+  ->Array.map(objectvalue => {
+    let value: SelectBox.dropdownOption = {
+      label: objectvalue->getString("role_name", ""),
+      value: objectvalue->getString("role_id", ""),
+    }
+    value
+  })
 }

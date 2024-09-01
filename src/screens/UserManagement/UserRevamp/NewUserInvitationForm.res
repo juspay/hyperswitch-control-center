@@ -76,6 +76,7 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open UserUtils
+  open UserManagementHelper
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -87,7 +88,7 @@ let make = () => {
   let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
   let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-
+  let (options, setOptions) = React.useState(_ => []->SelectBox.makeOptions)
   let (dropDownLoaderState, setDropDownLoaderState) = React.useState(_ =>
     DropdownWithLoading.Success
   )
@@ -124,27 +125,15 @@ let make = () => {
     None
   }, [roleTypeValue])
 
-  let (options, setOptions) = React.useState(_ => []->SelectBox.makeOptions)
   let onClickDropDownApi = async () => {
     try {
       setDropDownLoaderState(_ => DropdownWithLoading.Loading)
       let url = getURL(~entityName=USERS, ~userType=#LIST_ROLES_FOR_INVITE, ~methodType=Get)
       let result = await fetchDetails(url)
-
-      let selectBoxoptions =
-        result
-        ->getObjectArrayFromJson
-        ->Array.map(objectvalue => {
-          let value: SelectBox.dropdownOption = {
-            label: objectvalue->getString("role_name", ""),
-            value: objectvalue->getString("role_id", ""),
-          }
-          value
-        })
-      setOptions(_ => selectBoxoptions)
+      setOptions(_ => result->makeSelectBoxOptions)
       setDropDownLoaderState(_ => DropdownWithLoading.Success)
     } catch {
-    | _ => Exn.raiseError("Something went wrong")
+    | _ => setDropDownLoaderState(_ => DropdownWithLoading.NoData)
     }
   }
 
