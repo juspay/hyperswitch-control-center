@@ -5,6 +5,8 @@ exception JsonException(JSON.t)
 
 let useGetURL = () => {
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getUrl = (
     ~entityName: entityName,
     ~methodType: Fetch.requestMethod,
@@ -64,20 +66,6 @@ let useGetURL = () => {
       }
 
     /* OPERATIONS */
-    | PROFILE_ORDERS =>
-      switch methodType {
-      | Get =>
-        switch id {
-        | Some(key_id) =>
-          switch queryParamerters {
-          | Some(queryParams) => `payments/${key_id}?${queryParams}`
-          | None => `payments/${key_id}`
-          }
-        | None => `payments/profile/list?limit=100`
-        }
-      | Post => `payments/profile/list`
-      | _ => ""
-      }
     | ORDERS =>
       switch methodType {
       | Get =>
@@ -89,11 +77,22 @@ let useGetURL = () => {
           }
         | None =>
           switch queryParamerters {
-          | Some(queryParams) => `payments/list?${queryParams}`
+          | Some(queryParams) =>
+            switch (userEntity, userManagementRevamp) {
+            | (#Merchant, true) => `payments/list?${queryParams}`
+            | (#Profile, true) => `payments/profile/list?limit=100`
+            | _ => `payments/list?limit=100`
+            }
           | None => `payments/list?limit=100`
           }
         }
-      | Post => `payments/list`
+      | Post =>
+        switch (userEntity, userManagementRevamp) {
+        | (#Merchant, true) => `payments/list`
+        | (#Profile, true) => `payments/profile/list`
+        | _ => `payments/list`
+        }
+
       | _ => ""
       }
     | REFUNDS =>
@@ -108,32 +107,23 @@ let useGetURL = () => {
 
         | None =>
           switch queryParamerters {
-          | Some(queryParams) => `refunds/list?${queryParams}`
+          | Some(queryParams) =>
+            switch (userEntity, userManagementRevamp) {
+            | (#Merchant, true) => `refunds/list?${queryParams}`
+            | (#Profile, true) => `refunds/profile/list?limit=100`
+            | _ => `refunds/list?limit=100`
+            }
           | None => `refunds/list?limit=100`
           }
         }
       | Post =>
         switch id {
-        | Some(_keyid) => `refunds/list`
-        | None => `refunds`
-        }
-      | _ => ""
-      }
-    | PROFILE_REFUNDS =>
-      switch methodType {
-      | Get =>
-        switch id {
-        | Some(key_id) =>
-          switch queryParamerters {
-          | Some(queryParams) => `refunds/${key_id}?${queryParams}`
-          | None => `refunds/${key_id}`
+        | Some(_keyid) =>
+          switch (userEntity, userManagementRevamp) {
+          | (#Merchant, true) => `refunds/list`
+          | (#Profile, true) => `refunds/profile/list`
+          | _ => `refunds/list`
           }
-
-        | None => `refunds/list?limit=100`
-        }
-      | Post =>
-        switch id {
-        | Some(_keyid) => `refunds/list`
         | None => `refunds`
         }
       | _ => ""
@@ -143,16 +133,12 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(dispute_id) => `disputes/${dispute_id}`
-        | None => `disputes/list?limit=10000`
-        }
-      | _ => ""
-      }
-    | PROFILE_DISPUTES =>
-      switch methodType {
-      | Get =>
-        switch id {
-        | Some(dispute_id) => `disputes/${dispute_id}`
-        | None => `disputes/profile/list?limit=10000`
+        | None =>
+          switch (userEntity, userManagementRevamp) {
+          | (#Merchant, true) => `disputes/list?limit=10000`
+          | (#Profile, true) => `disputes/profile/list?limit=10000`
+          | _ => `disputes/list?limit=10000`
+          }
         }
       | _ => ""
       }
@@ -161,19 +147,20 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(payout_id) => `payouts/${payout_id}`
-        | None => `payouts/list?limit=100`
+        | None =>
+          switch (userEntity, userManagementRevamp) {
+          | (#Merchant, true) => `payouts/list?limit=100`
+          | (#Profile, true) => `payouts/profile/list?limit=10000`
+          | _ => `payouts/list?limit=100`
+          }
         }
-      | Post => `payouts/list`
-      | _ => ""
-      }
-    | PROFILE_PAYOUTS =>
-      switch methodType {
-      | Get =>
-        switch id {
-        | Some(payout_id) => `payouts/${payout_id}`
-        | None => `payouts/profile/list?limit=100`
+      | Post =>
+        switch (userEntity, userManagementRevamp) {
+        | (#Merchant, true) => `payouts/list`
+        | (#Profile, true) => `payouts/profile/list`
+        | _ => `payouts/list`
         }
-      | Post => `payouts/list`
+
       | _ => ""
       }
 
