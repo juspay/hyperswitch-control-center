@@ -46,10 +46,7 @@ type entityName =
   | ACTIVE_ROUTING
   | GLOBAL_SEARCH
   | PAYMENT_METHOD_CONFIG
-<<<<<<< HEAD
   | USER_MANAGEMENT_V2
-=======
->>>>>>> 07c3606f (chore: call merchant level api for orders,refund,disputes and payouts)
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 

@@ -118,16 +118,12 @@ let useGetURL = () => {
         }
       | Post =>
         switch id {
-<<<<<<< HEAD
-        | Some(_keyid) => `refunds/list`
-=======
         | Some(_keyid) =>
           switch (userEntity, userManagementRevamp) {
           | (#Merchant, true) => `refunds/list`
           | (#Profile, true) => `refunds/profile/list`
           | _ => `refunds/list`
           }
->>>>>>> 07c3606f (chore: call merchant level api for orders,refund,disputes and payouts)
         | None => `refunds`
         }
       | _ => ""
@@ -137,16 +133,12 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(dispute_id) => `disputes/${dispute_id}`
-<<<<<<< HEAD
-        | None => `disputes/list?limit=10000`
-=======
         | None =>
           switch (userEntity, userManagementRevamp) {
           | (#Merchant, true) => `disputes/list?limit=10000`
           | (#Profile, true) => `disputes/profile/list?limit=10000`
           | _ => `disputes/list?limit=10000`
           }
->>>>>>> 07c3606f (chore: call merchant level api for orders,refund,disputes and payouts)
         }
       | _ => ""
       }
@@ -162,9 +154,6 @@ let useGetURL = () => {
           | _ => `payouts/list?limit=100`
           }
         }
-<<<<<<< HEAD
-      | Post => `payouts/list`
-=======
       | Post =>
         switch (userEntity, userManagementRevamp) {
         | (#Merchant, true) => `payouts/list`
@@ -172,7 +161,6 @@ let useGetURL = () => {
         | _ => `payouts/list`
         }
 
->>>>>>> 07c3606f (chore: call merchant level api for orders,refund,disputes and payouts)
       | _ => ""
       }
 
