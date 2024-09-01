@@ -102,6 +102,7 @@ type userType = [
   | #LIST_ORG
   | #LIST_MERCHANT
   | #LIST_PROFILE
+  | #LIST_ROLES_FOR_INVITE
   | #NONE
 ]
 

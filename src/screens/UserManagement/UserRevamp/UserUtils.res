@@ -30,14 +30,26 @@ let predefinedRoles: array<SelectBox.dropdownOption> = [
   },
 ]
 
-let getMerchantSelectBoxOption = (~label, ~value, ~options) => {
-  let allMerchantOption: SelectBox.dropdownOption = {
+let getMerchantSelectBoxOption = (
+  ~label,
+  ~value,
+  ~dropdownList: array<OMPSwitchTypes.ompListTypes>,
+  ~showAllSelection=false,
+) => {
+  let allOptions: SelectBox.dropdownOption = {
     label,
     value,
     customRowClass: "!border-b py-2",
     textColor: "font-semibold",
   }
-  [allMerchantOption, ...options->SelectBox.makeOptions]
+  let orgOptions =
+    dropdownList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
+
+  if showAllSelection {
+    [allOptions, ...orgOptions]
+  } else {
+    orgOptions
+  }
 }
 
 let inviteEmail = FormRenderer.makeFieldInfo(
@@ -55,54 +67,57 @@ let inviteEmail = FormRenderer.makeFieldInfo(
   ~isRequired=true,
 )
 
-let organizationSelection = FormRenderer.makeFieldInfo(
-  ~label="Select an organization",
-  ~name="org_value",
-  ~customInput=InputFields.selectInput(
-    ~options=getMerchantSelectBoxOption(
-      ~label="All organizations",
-      ~value="all_organizations",
-      ~options=["Org1", "Org2", "Org3", "Org4", "Org5"],
+let organizationSelection = orgList =>
+  FormRenderer.makeFieldInfo(
+    ~label="Select an organization",
+    ~name="org_value",
+    ~customInput=InputFields.selectInput(
+      ~options=getMerchantSelectBoxOption(
+        ~label="All organizations",
+        ~value="all_organizations",
+        ~dropdownList=orgList,
+      ),
+      ~buttonText="Select an organization",
+      ~fullLength=true,
+      ~customButtonStyle="!rounded-lg",
+      ~dropdownCustomWidth="!w-full",
+      ~textStyle="!text-gray-500",
     ),
-    ~buttonText="Select an organization",
-    ~fullLength=true,
-    ~customButtonStyle="!rounded-lg",
-    ~dropdownCustomWidth="!w-full",
-    ~textStyle="!text-gray-500",
-  ),
-)
-let merchantSelection = FormRenderer.makeFieldInfo(
-  ~label="Merchants for access",
-  ~name="merchant_value",
-  ~customInput=InputFields.selectInput(
-    ~options=getMerchantSelectBoxOption(
-      ~label="All merchants",
-      ~value="all_merchants",
-      ~options=["Merch1", "Merch2", "Merch3", "Merch4", "Merch5"],
+  )
+let merchantSelection = merchList =>
+  FormRenderer.makeFieldInfo(
+    ~label="Merchants for access",
+    ~name="merchant_value",
+    ~customInput=InputFields.selectInput(
+      ~options=getMerchantSelectBoxOption(
+        ~label="All merchants",
+        ~value="all_merchants",
+        ~dropdownList=merchList,
+      ),
+      ~buttonText="Select a Merchant",
+      ~fullLength=true,
+      ~customButtonStyle="!rounded-lg",
+      ~dropdownCustomWidth="!w-full",
+      ~textStyle="!text-gray-500",
     ),
-    ~buttonText="Select a Merchant",
-    ~fullLength=true,
-    ~customButtonStyle="!rounded-lg",
-    ~dropdownCustomWidth="!w-full",
-    ~textStyle="!text-gray-500",
-  ),
-)
-let profileSelection = FormRenderer.makeFieldInfo(
-  ~label="Profiles for access",
-  ~name="profile_value",
-  ~customInput=InputFields.selectInput(
-    ~options=getMerchantSelectBoxOption(
-      ~label="All profiles",
-      ~value="all_profiles",
-      ~options=["Profile1", "Profile2", "Profile3", "Profile4", "Profile5"],
+  )
+let profileSelection = profileList =>
+  FormRenderer.makeFieldInfo(
+    ~label="Profiles for access",
+    ~name="profile_value",
+    ~customInput=InputFields.selectInput(
+      ~options=getMerchantSelectBoxOption(
+        ~label="All profiles",
+        ~value="all_profiles",
+        ~dropdownList=profileList,
+      ),
+      ~buttonText="Select a Profile",
+      ~fullLength=true,
+      ~customButtonStyle="!rounded-lg",
+      ~dropdownCustomWidth="!w-full",
+      ~textStyle="!text-gray-500",
     ),
-    ~buttonText="Select a Profile",
-    ~fullLength=true,
-    ~customButtonStyle="!rounded-lg",
-    ~dropdownCustomWidth="!w-full",
-    ~textStyle="!text-gray-500",
-  ),
-)
+  )
 
 let roleSelection = FormRenderer.makeFieldInfo(
   ~label="Select a role",

@@ -450,6 +450,9 @@ let useGetURL = () => {
       | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
         `${userUrl}/accept_invite_from_email?token_only=true`
 
+      // user-management revamp
+      | #LIST_ROLES_FOR_INVITE => `${userUrl}/role/list/invite?entity_type=merchant`
+
       | #NONE => ""
       }
 

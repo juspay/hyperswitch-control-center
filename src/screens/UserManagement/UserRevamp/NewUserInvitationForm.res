@@ -84,6 +84,13 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let roleTypeValue =
     ReactFinalForm.useField(`roleType`).input.value->getStringFromJson("")->getNonEmptyString
+  let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
+  let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+  let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
+
+  let (dropDownLoaderState, setDropDownLoaderState) = React.useState(_ =>
+    DropdownWithLoading.Success
+  )
 
   let getMemberAcessBasedOnRole = async _ => {
     try {
@@ -117,6 +124,30 @@ let make = () => {
     None
   }, [roleTypeValue])
 
+  let (options, setOptions) = React.useState(_ => []->SelectBox.makeOptions)
+  let onClickDropDownApi = async () => {
+    try {
+      setDropDownLoaderState(_ => DropdownWithLoading.Loading)
+      let url = getURL(~entityName=USERS, ~userType=#LIST_ROLES_FOR_INVITE, ~methodType=Get)
+      let result = await fetchDetails(url)
+
+      let selectBoxoptions =
+        result
+        ->getObjectArrayFromJson
+        ->Array.map(objectvalue => {
+          let value: SelectBox.dropdownOption = {
+            label: objectvalue->getString("role_name", ""),
+            value: objectvalue->getString("role_id", ""),
+          }
+          value
+        })
+      setOptions(_ => selectBoxoptions)
+      setDropDownLoaderState(_ => DropdownWithLoading.Success)
+    } catch {
+    | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+
   <div className="flex flex-col">
     <div className="grid grid-cols-6 gap-6 items-end p-6 !pb-10 border-b">
       <div className="col-span-5 w-full">
@@ -136,10 +167,16 @@ let make = () => {
     </div>
     <div className="grid grid-cols-5">
       <div className="col-span-2 border-r p-6  flex flex-col gap-2">
-        <FormRenderer.FieldRenderer field={organizationSelection} labelClass="font-semibold" />
-        <FormRenderer.FieldRenderer field=merchantSelection labelClass="font-semibold" />
-        <FormRenderer.FieldRenderer field=profileSelection labelClass="font-semibold" />
-        <FormRenderer.FieldRenderer field=roleSelection labelClass="font-semibold" />
+        <FormRenderer.FieldRenderer
+          field={orgList->organizationSelection} labelClass="font-semibold"
+        />
+        <FormRenderer.FieldRenderer
+          field={merchList->merchantSelection} labelClass="font-semibold"
+        />
+        <FormRenderer.FieldRenderer
+          field={profileList->profileSelection} labelClass="font-semibold"
+        />
+        <DropdownWithLoading options onClickDropDownApi formKey="role_id" dropDownLoaderState />
         <NoteComponent />
         <FormValuesSpy />
       </div>
