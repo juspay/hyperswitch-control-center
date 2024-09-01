@@ -66,6 +66,28 @@ let useGetURL = () => {
       }
 
     /* OPERATIONS */
+    | REFUND_FILTERS =>
+      switch methodType {
+      | Get =>
+        switch (userEntity, userManagementRevamp) {
+        | (#Merchant, true) => `refunds/v2/filter`
+        | (#Profile, true) => `refunds/v2/profile/filter`
+        | _ => `refunds/v2/filter`
+        }
+
+      | _ => ""
+      }
+    | ORDER_FILTERS =>
+      switch methodType {
+      | Get =>
+        switch (userEntity, userManagementRevamp) {
+        | (#Merchant, true) => `payments/v2/filter`
+        | (#Profile, true) => `payments/v2/profile/filter`
+        | _ => `payments/v2/filter`
+        }
+
+      | _ => ""
+      }
     | ORDERS =>
       switch methodType {
       | Get =>
@@ -80,7 +102,7 @@ let useGetURL = () => {
           | Some(queryParams) =>
             switch (userEntity, userManagementRevamp) {
             | (#Merchant, true) => `payments/list?${queryParams}`
-            | (#Profile, true) => `payments/profile/list?limit=100`
+            | (#Profile, true) => `payments/profile/list?${queryParams}`
             | _ => `payments/list?limit=100`
             }
           | None => `payments/list?limit=100`
