@@ -205,7 +205,7 @@ let make = () => {
                                 remainingPath
                                 access=Access
                                 renderList={() => <Orders />}
-                                renderShow={id => <ShowOrder id />}
+                                renderShow={(id, key) => <ShowOrder id profileId={key} />}
                               />
                             </FilterContext>
                           </AccessControl>
@@ -220,7 +220,7 @@ let make = () => {
                                 remainingPath
                                 access=Access
                                 renderList={() => <PayoutsList />}
-                                renderShow={id => <ShowPayout id />}
+                                renderShow={(id, key) => <ShowPayout id profileId={key} />}
                               />
                             </FilterContext>
                           </AccessControl>
@@ -232,7 +232,7 @@ let make = () => {
                                 remainingPath
                                 access=Access
                                 renderList={() => <Refund />}
-                                renderShow={id => <ShowRefund id />}
+                                renderShow={(id, key) => <ShowRefund id profileId={key} />}
                               />
                             </FilterContext>
                           </AccessControl>
@@ -243,7 +243,7 @@ let make = () => {
                               remainingPath
                               access=Access
                               renderList={() => <Disputes />}
-                              renderShow={id => <ShowDisputes id />}
+                              renderShow={(id, key) => <ShowDisputes id profileId={key} />}
                             />
                           </AccessControl>
                         | list{"customers", ...remainingPath} =>
@@ -253,7 +253,7 @@ let make = () => {
                               remainingPath
                               access=Access
                               renderList={() => <Customers />}
-                              renderShow={id => <ShowCustomers id />}
+                              renderShow={(id, _) => <ShowCustomers id />}
                             />
                           </AccessControl>
                         | list{"users", "invite-users"} =>
@@ -270,7 +270,7 @@ let make = () => {
                               entityName="UserManagement"
                               remainingPath
                               renderList={_ => <UserRoleEntry />}
-                              renderShow={_ => <ShowUserData />}
+                              renderShow={(_, _) => <ShowUserData />}
                             />
                           </AccessControl>
 
@@ -281,7 +281,7 @@ let make = () => {
                               entityName="UserManagement"
                               remainingPath
                               renderList={_ => <UserManagementLanding />}
-                              renderShow={_ => <ShowUserData />}
+                              renderShow={(_, _) => <ShowUserData />}
                             />
                           </AccessControl>
 
@@ -388,7 +388,7 @@ let make = () => {
                             entityName="profile setting"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
-                            renderShow={_value =>
+                            renderShow={(_, _) =>
                               <RenderIf condition={featureFlagDetails.totp}>
                                 <ModifyTwoFaSettings />
                               </RenderIf>}

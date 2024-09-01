@@ -40,7 +40,7 @@ let make = () => {
         entityName="PaymentSettings"
         remainingPath
         renderList={() => <PaymentSettingsList />}
-        renderShow={_profileId => <PaymentSettings webhookOnly=false showFormOnly=false />}
+        renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
       />
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />

@@ -168,7 +168,7 @@ module DisputesInfo = {
 }
 
 @react.component
-let make = (~id) => {
+let make = (~id, ~profileId) => {
   open APIUtils
   let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
@@ -176,11 +176,13 @@ let make = (~id) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (disputeData, setDisputeData) = React.useState(_ => JSON.Encode.null)
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
 
   let fetchDisputesData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let disputesUrl = getURL(~entityName=DISPUTES, ~methodType=Get, ~id=Some(id))
+      let _ = await internalSwitch(~expectedProfileId=Some(profileId))
       let response = await fetchDetails(disputesUrl)
       setDisputeData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)
