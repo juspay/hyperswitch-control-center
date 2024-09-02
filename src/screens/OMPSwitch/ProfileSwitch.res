@@ -142,7 +142,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let profileSwitch = SwitchHooks.useProfileSwitch()
+  let profileSwitch = OMPSwitchHooks.useProfileSwitch()
   let (showModal, setShowModal) = React.useState(_ => false)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
