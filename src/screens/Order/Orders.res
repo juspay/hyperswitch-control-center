@@ -87,7 +87,7 @@ let make = (~previewOnly=false) => {
       customCssClass={"my-6"} message="There are no payments as of now" renderType=Painting
     />
 
-  let filterUrl = getURL(~entityName=ORDERS, ~methodType=Get, ~id=Some("v2/filter"))
+  let filterUrl = getURL(~entityName=ORDER_FILTERS, ~methodType=Get)
 
   let filtersUI = React.useMemo(() => {
     <RemoteTableFilters
