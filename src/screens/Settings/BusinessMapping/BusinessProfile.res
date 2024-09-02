@@ -129,6 +129,7 @@ let make = (
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (offset, setOffset) = React.useState(_ => 0)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (modalState, setModalState) = React.useState(_ => Edit)
@@ -194,17 +195,19 @@ let make = (
             setOffset
             currrentFetchCount={businessProfileValues->Array.length}
           />
-          <div className="absolute right-0 -top-3">
-            <AddEntryBtn
-              onSubmit
-              modalState
-              showModal
-              setShowModal
-              list={businessProfileValues}
-              updatedProfileId
-              setModalState
-            />
-          </div>
+          <RenderIf condition={!featureFlagDetails.userManagementRevamp}>
+            <div className="absolute right-0 -top-3">
+              <AddEntryBtn
+                onSubmit
+                modalState
+                showModal
+                setShowModal
+                list={businessProfileValues}
+                updatedProfileId
+                setModalState
+              />
+            </div>
+          </RenderIf>
         </div>
       </div>
     </RenderIf>

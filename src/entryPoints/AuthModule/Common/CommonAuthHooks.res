@@ -72,14 +72,6 @@ let useCommonAuthInfo = () => {
   let authInfo: option<CommonAuthTypes.commonAuthInfo> = switch authStatus {
   | LoggedIn(info) =>
     switch info {
-    | BasicAuth({token, merchant_id, name, email, user_role}) =>
-      Some({
-        token: token->Option.getOr("")->LogicUtils.getNonEmptyString,
-        merchantId: merchant_id->Option.getOr(""),
-        name: name->Option.getOr(""),
-        email: email->Option.getOr(""),
-        userRole: user_role->Option.getOr(""),
-      })
     | Auth({token}) =>
       Some({
         token,

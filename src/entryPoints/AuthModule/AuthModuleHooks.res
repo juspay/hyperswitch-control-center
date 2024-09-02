@@ -95,7 +95,7 @@ let useAuthMethods = (): authMethodProps => {
     | None => false
     }
     let emailFeatureFlagEnable = featureFlagValues.email
-    let isTotpFeatureDisable = featureFlagValues.totp
+    // let isTotpFeatureDisable = featureFlagValues.totp
 
     let isLiveMode = featureFlagValues.isLiveMode
 
@@ -108,10 +108,10 @@ let useAuthMethods = (): authMethodProps => {
     } else if isSingUpAllowedinPassword {
       // Singup is allowed if email feature flag and allow_signup in the passowrd method is true
       (true, PASSWORD)
-    } else if !isTotpFeatureDisable && emailFeatureFlagEnable {
+    } else if emailFeatureFlagEnable {
       // Singup is allowed if totp feature  is disable and email feature is enabled
       (true, MAGIC_LINK)
-    } else if !isTotpFeatureDisable {
+    } else if !isLiveMode {
       // Singup is allowed if totp feature  is disable
       (true, PASSWORD)
     } else {

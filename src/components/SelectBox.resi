@@ -8,7 +8,7 @@ external ffInputToSelectInput: ReactFinalForm.fieldRenderPropsInput => ReactFina
 external ffInputToRadioInput: ReactFinalForm.fieldRenderPropsInput => ReactFinalForm.fieldRenderPropsCustomInput<
   string,
 > = "%identity"
-let regex: (string, string) => RegExp.t
+let regex: (string, string) => RescriptCore.RegExp.t
 module ListItem: {
   @react.component
   let make: (
@@ -179,6 +179,9 @@ module RenderListItemInBaseRadio: {
     ~textEllipsisForDropDownOptions: bool,
     ~isHorizontal: bool,
     ~customMarginStyleOfListItem: string=?,
+    ~bottomComponent: React.element=?,
+    ~optionClass: string=?,
+    ~selectClass: string=?,
   ) => React.element
 }
 let getHashMappedOptionValues: array<dropdownOptionWithoutOptional> => RescriptCore.Dict.t<
@@ -221,6 +224,9 @@ module BaseRadio: {
     ~showSearchIcon: bool=?,
     ~showToolTipOptions: bool=?,
     ~textEllipsisForDropDownOptions: bool=?,
+    ~bottomComponent: React.element=?,
+    ~optionClass: string=?,
+    ~selectClass: string=?,
   ) => React.element
 }
 type direction = BottomLeft | BottomMiddle | BottomRight | TopLeft | TopMiddle | TopRight
@@ -294,6 +300,12 @@ module BaseDropdown: {
     ~searchInputPlaceHolder: string=?,
     ~showSearchIcon: bool=?,
     ~sortingBasedOnDisabled: bool=?,
+    ~customSelectStyle: string=?,
+    ~baseComponentCustomStyle: string=?,
+    ~bottomComponent: React.element=?,
+    ~optionClass: string=?,
+    ~selectClass: string=?,
+    ~customDropdownOuterClass: string=?,
   ) => React.element
 }
 module InfraSelectBox: {

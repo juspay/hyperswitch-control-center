@@ -26,6 +26,7 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
+  let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
@@ -94,7 +95,7 @@ let make = () => {
   React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  }, [])
+  }, [orgId, merchantId, profileId])
 
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal
@@ -134,7 +135,8 @@ let make = () => {
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
           <div className="relative">
-            <div className={`h-screen flex flex-col`}>
+            // TODO: Change the key to only profileId once the userInfo starts sending profileId
+            <div className={`h-screen flex flex-col`} key={`${orgId}-${merchantId}-${profileId}`}>
               <div className="flex relative overflow-auto h-screen ">
                 <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
                 <div
@@ -152,6 +154,9 @@ let make = () => {
                             userRole={userRole}
                             isAddMerchantEnabled={userRole === "org_admin" ? true : false}
                           />
+                          <RenderIf condition={featureFlagDetails.userManagementRevamp}>
+                            <ProfileSwitch />
+                          </RenderIf>
                           <div
                             className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
                             {modeText->React.string}
@@ -383,10 +388,7 @@ let make = () => {
                             entityName="profile setting"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
-                            renderShow={_value =>
-                              <RenderIf condition={featureFlagDetails.totp}>
-                                <ModifyTwoFaSettings />
-                              </RenderIf>}
+                            renderShow={_value => <ModifyTwoFaSettings />}
                           />
                         | list{"quick-start"} => determineQuickStartPageState()
                         | list{"woocommerce"} => determineWooCommerce()
