@@ -34,7 +34,7 @@ let make = (~applePayFields, ~update, ~closeModal, ~setShowWalletConfigurationMo
   let applePayManualFields =
     applePayFields
     ->Array.mapWithIndex((field, index) => {
-      let applePayField = field->convertMapObjectToDict->CommonMetaDataUtils.inputFieldMapper
+      let applePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
       <div key={index->Int.toString}>
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-hyperswitch_black"

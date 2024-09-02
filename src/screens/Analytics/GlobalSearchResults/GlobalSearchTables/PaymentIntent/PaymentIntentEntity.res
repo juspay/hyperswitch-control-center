@@ -138,7 +138,7 @@ let getHeading = colType => {
   let key = colType->colMapper
   switch colType {
   | PaymentId => Table.makeHeaderInfo(~key, ~title="Payment Id", ~dataType=TextType)
-  | MerchantId => Table.makeHeaderInfo(~key, ~title="Merchant Id", ~dataType=TextType)
+  | MerchantId => Table.makeHeaderInfo(~key, ~title="Merchant ID", ~dataType=TextType)
   | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=TextType)
   | Amount => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType)
   | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType)
@@ -170,7 +170,15 @@ let getCell = (paymentObj, colType): Table.cell => {
   let orderStatus = paymentObj.status->HSwitchOrderUtils.statusVariantMapper
 
   switch colType {
-  | PaymentId => Text(paymentObj.payment_id)
+  | PaymentId =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/payments/${paymentObj.payment_id}`}
+        displayValue={paymentObj.payment_id}
+        copyValue={Some(paymentObj.payment_id)}
+      />,
+      "",
+    )
   | MerchantId => Text(paymentObj.merchant_id)
   | Status =>
     Label({

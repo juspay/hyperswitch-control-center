@@ -85,6 +85,8 @@ type order = {
   payment_method_billing_address: string,
   payment_method_billing_phone: string,
   payment_method_billing_email: string,
+  payment_method_billing_first_name: string,
+  payment_method_billing_last_name: string,
   metadata: Dict.t<JSON.t>,
   email: string,
   name: string,
@@ -249,6 +251,8 @@ type otherDetailsColType =
   | PMBillingAddress
   | PMBillingPhone
   | PMBillingEmail
+  | PMBillingFirstName
+  | PMBillingLastName
   | Email
   | FirstName
   | LastName

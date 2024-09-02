@@ -1,5 +1,6 @@
 @react.component
 let make = () => {
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
@@ -39,7 +40,9 @@ let make = () => {
           configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
             ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
           )}
-          connectorsAvailableForIntegration=ConnectorUtils.threedsAuthenticatorList
+          connectorsAvailableForIntegration={featureFlagDetails.isLiveMode
+            ? ConnectorUtils.threedsAuthenticatorListForLive
+            : ConnectorUtils.threedsAuthenticatorList}
           urlPrefix="3ds-authenticators/new"
           connectorType=ConnectorTypes.ThreeDsAuthenticator
         />

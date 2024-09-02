@@ -515,7 +515,7 @@ let useSortedObj = (title: string, defaultSort) => {
         | _ => Table.INC
         },
       }
-      setSortedObj(_ => sortObj->Some)
+      setSortedObj(_ => Some(sortObj))
     | None => ()
     }
 

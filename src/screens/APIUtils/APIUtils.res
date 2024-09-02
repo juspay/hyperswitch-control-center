@@ -287,13 +287,26 @@ let useGetURL = () => {
         let userUrl = `user`
         switch userRoleTypes {
         | USER_LIST => `${userUrl}/user/list`
-        | ROLE_LIST => `${userUrl}/role/list`
+        | ROLE_LIST =>
+          switch queryParamerters {
+          | Some(queryParams) => `${userUrl}/role/list?${queryParams}`
+          | None => `${userUrl}/role/list`
+          }
         | ROLE_ID =>
           switch id {
           | Some(key_id) => `${userUrl}/role/${key_id}`
           | None => ""
           }
         | NONE => ""
+        }
+      }
+
+    /* USER MANGEMENT REVAMP */
+    | USER_MANAGEMENT_V2 => {
+        let userUrl = `user`
+        switch userRoleTypes {
+        | USER_LIST => `${userUrl}/user/v2/list`
+        | _ => ""
         }
       }
 
@@ -381,6 +394,11 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
+
+      // Org-Merchant-Profile List
+      | #LIST_ORG => `${userUrl}/list/org`
+      | #LIST_MERCHANT => `${userUrl}/list/merchant`
+      | #LIST_PROFILE => `${userUrl}/list/profile`
 
       // CREATE ROLES
       | #CREATE_CUSTOM_ROLE => `${userUrl}/role`

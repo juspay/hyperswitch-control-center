@@ -199,14 +199,14 @@ module BasicDetailsSection = {
 let make = () => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let {isTwoFactorAuthSetup: showTwoFaSettings} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {isTwoFactorAuthSetup}} = React.useContext(UserInfoProvider.defaultContext)
 
   <div className="flex flex-col overflow-scroll gap-8">
     <PageUtils.PageHeading title="Profile" subTitle="Manage your profile settings here" />
     <div className="flex flex-col flex-wrap  gap-12">
       <BasicDetailsSection />
       <MerchantDetailsSection />
-      <RenderIf condition={featureFlagDetails.totp && showTwoFaSettings}>
+      <RenderIf condition={featureFlagDetails.totp && isTwoFactorAuthSetup}>
         <TwoFactorAuthenticationDetails />
       </RenderIf>
     </div>

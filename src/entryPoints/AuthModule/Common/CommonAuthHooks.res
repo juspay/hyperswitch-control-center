@@ -24,7 +24,7 @@ let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
     | LoginWithPassword =>
       <RenderIf condition={isMagicLinkEnabled}>
         {getFooterLinkComponent(
-          ~btnText="or sign in with an email",
+          ~btnText="or sign in with magic link",
           ~authType=LoginWithEmail,
           ~path=`/login?auth_id${authId}`,
         )}
@@ -66,7 +66,9 @@ let defaultAuthInfo: CommonAuthTypes.commonAuthInfo = {
 
 let useCommonAuthInfo = () => {
   let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {merchantId, roleId, name, email} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {merchantId, roleId, name, email}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let authInfo: option<CommonAuthTypes.commonAuthInfo> = switch authStatus {
   | LoggedIn(info) =>
     switch info {

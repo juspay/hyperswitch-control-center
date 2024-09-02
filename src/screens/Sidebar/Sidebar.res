@@ -106,7 +106,7 @@ module SidebarItem = {
         }
 
         <RenderIf condition={access !== NoAccess}>
-          <Link to_=redirectionLink>
+          <Link to_={GlobalVars.appendDashboardPath(~url=redirectionLink)}>
             <AddDataAttributes
               attributes=[
                 ("data-testid", name->String.replaceRegExp(%re("/\s/g"), "")->String.toLowerCase),
@@ -146,7 +146,7 @@ module SidebarItem = {
         let {name, icon, iconTag, link, access, ?iconStyles, ?iconSize} = tabOption
 
         <RenderIf condition={access !== NoAccess}>
-          <Link to_={`${link}${getSearchParamByLink(link)}`}>
+          <Link to_={GlobalVars.appendDashboardPath(~url=`${link}${getSearchParamByLink(link)}`)}>
             <div
               onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
               className={`${textColor} flex flex-row items-center cursor-pointer transition duration-300 ${selectedClass} p-3 ${isExpanded
@@ -206,7 +206,7 @@ module NestedSidebarItem = {
           let linkTagPadding = "pl-2"
 
           <RenderIf condition={access !== NoAccess}>
-            <Link to_={`${link}${getSearchParamByLink(link)}`}>
+            <Link to_={GlobalVars.appendDashboardPath(~url=`${link}${getSearchParamByLink(link)}`)}>
               <AddDataAttributes
                 attributes=[
                   ("data-testid", name->String.replaceRegExp(%re("/\s/g"), "")->String.toLowerCase),
@@ -494,6 +494,7 @@ let make = (
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
     ThemeProvider.themeContext,
   )
+  let featureFlagDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.featureFlagAtom)
 
   let handleLogout = APIUtils.useHandleLogout()
   let isMobileView = MatchMedia.useMobileChecker()
@@ -523,7 +524,16 @@ let make = (
   let isHSSidebarPinned = getFromSidebarDetails("isPinned")
   let isExpanded = isSidebarExpanded || isHSSidebarPinned
 
-  let sidebarWidth = isExpanded ? isMobileView ? "100%" : "270px" : "55px"
+  let sidebarWidth = {
+    switch isExpanded {
+    | true =>
+      switch isMobileView {
+      | true => "100%"
+      | false => "270px"
+      }
+    | false => "55px"
+    }
+  }
   let profileMaxWidth = "145px"
 
   let firstPart = switch List.head(path) {
@@ -606,6 +616,9 @@ let make = (
           </div>
           <PinIconComponentStates isHSSidebarPinned setIsSidebarExpanded isSidebarExpanded />
         </div>
+        <RenderIf condition={featureFlagDetails.userManagementRevamp && featureFlagDetails.totp}>
+          <SidebarSwitch isExpanded />
+        </RenderIf>
         <div
           className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar"
           style={height: `calc(100vh - ${verticalOffset})`}>

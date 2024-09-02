@@ -579,7 +579,7 @@ let reconAndSettlement = (recon, isReconEnabled) => {
     })
   | (true, false) =>
     Link({
-      name: "Reconcilation",
+      name: "Reconciliation",
       icon: isReconEnabled ? "recon" : "recon-lock",
       link: `/recon`,
       access: Access,
