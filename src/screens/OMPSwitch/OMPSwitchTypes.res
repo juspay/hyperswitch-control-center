@@ -1,1 +1,1 @@
-type userType = {id: string, name: string}
+type ompListTypes = {id: string, name: string}
