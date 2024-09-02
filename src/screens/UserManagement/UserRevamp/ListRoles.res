@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
   open APIUtils
-  open RolesEntity
+  open ListRolesTableEntity
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenStateRoles, setScreenStateRoles) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -16,7 +16,7 @@ let make = () => {
     setScreenStateRoles(_ => PageLoaderWrapper.Loading)
     try {
       let userDataURL = getURL(
-        ~entityName=USER_MANAGEMENT,
+        ~entityName=USER_MANAGEMENT_V2,
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
         ~queryParamerters=Some("groups=true"),

@@ -371,6 +371,7 @@ let useGetURL = () => {
         let userUrl = `user`
         switch userRoleTypes {
         | USER_LIST => `${userUrl}/user/v2/list`
+        | ROLE_LIST => `${userUrl}/list/role_info`
         | _ => ""
         }
       }
