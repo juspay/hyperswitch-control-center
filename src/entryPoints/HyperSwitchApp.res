@@ -154,9 +154,7 @@ let make = () => {
                             userRole={userRole}
                             isAddMerchantEnabled={userRole === "org_admin" ? true : false}
                           />
-                          <RenderIf
-                            condition={featureFlagDetails.userManagementRevamp &&
-                            featureFlagDetails.totp}>
+                          <RenderIf condition={featureFlagDetails.userManagementRevamp}>
                             <ProfileSwitch />
                           </RenderIf>
                           <div
@@ -390,10 +388,7 @@ let make = () => {
                             entityName="profile setting"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
-                            renderShow={_value =>
-                              <RenderIf condition={featureFlagDetails.totp}>
-                                <ModifyTwoFaSettings />
-                              </RenderIf>}
+                            renderShow={_value => <ModifyTwoFaSettings />}
                           />
                         | list{"quick-start"} => determineQuickStartPageState()
                         | list{"woocommerce"} => determineWooCommerce()
