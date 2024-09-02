@@ -628,26 +628,6 @@ let make = (
     })
   }
 
-  let dataExists = rows->Array.length > 0
-  let heading = heading->Array.mapWithIndex((head, index) => {
-    let getValue = row => row->Array.get(index)->Option.mapOr("", Table.getTableCellValue)
-
-    let default = switch rows[0] {
-    | Some(ele) => getValue(ele)
-    | None => ""
-    }
-    let head: Table.header = {
-      ...head,
-      showSort: head.showSort &&
-      dataExists && (
-        totalResults == Array.length(rows)
-          ? rows->Array.some(row => getValue(row) !== default)
-          : true
-      ),
-    }
-    head
-  })
-
   let paginatedData =
     filteredData->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})
   let rows = rows->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})
