@@ -736,7 +736,7 @@ let make = (
     }
   }, (filteredData, getShowLink, onMouseLeave, url.search))
 
-  let filterBottomPadding = isMobileView ? "" : "pb-6"
+  let filterBottomPadding = isMobileView ? "" : "pb-4"
 
   let paddingClass = {rightTitleElement != React.null ? filterBottomPadding : ""}
 
