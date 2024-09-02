@@ -92,7 +92,8 @@ let useProfileSwitch = () => {
 
   async (~expectedProfileId, ~currentProfileId) => {
     try {
-      if expectedProfileId !== currentProfileId {
+      // Need to remove the Empty string check once userInfo contains the profileId
+      if expectedProfileId !== currentProfileId && currentProfileId->LogicUtils.isNonEmptyString {
         let url = getURL(~entityName=USERS, ~userType=#SWITCH_PROFILE, ~methodType=Post)
         let body =
           [("profile_id", expectedProfileId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
