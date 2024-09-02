@@ -427,7 +427,7 @@ let getOrdersList = async (
   try {
     let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post)
     let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
-    let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
+    let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
     if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
@@ -443,7 +443,7 @@ let getOrdersList = async (
         filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
 
         let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
-        let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
+        let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
         let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
         setData(
