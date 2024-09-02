@@ -6,7 +6,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let orgSwitch = SwitchHooks.useOrgSwitch()
+  let orgSwitch = OMPSwitchHooks.useOrgSwitch()
   let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
 
