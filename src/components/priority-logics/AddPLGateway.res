@@ -3,7 +3,24 @@ type gateway = AdvancedRoutingTypes.volumeSplitConnectorSelectionData
 module GatewayView = {
   @react.component
   let make = (~gateways: array<gateway>) => {
+    let url = RescriptReactRouter.useUrl()
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
+
+    let connectorType = switch url->RoutingUtils.urlToVariantMapper {
+    | PayoutRouting => RoutingTypes.PayoutConnector
+    | _ => RoutingTypes.PaymentConnector
+    }
+    let connectorList =
+      HyperswitchAtom.connectorListAtom
+      ->Recoil.useRecoilValueFromAtom
+      ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
+
+    let getGatewayName = merchantConnectorId => {
+      (
+        connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(merchantConnectorId)
+      ).connector_label
+    }
+
     <div className="flex flex-wrap gap-4 items-center">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
@@ -12,7 +29,7 @@ module GatewayView = {
           className={`my-2 h-6 md:h-8 flex items-center rounded-md  border border-jp-gray-500 dark:border-jp-gray-960 font-medium
                             ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200
                             dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1`}>
-          {React.string(ruleGateway.connector.connector)}
+          {React.string(ruleGateway.connector.merchant_connector_id->getGatewayName)}
           <RenderIf condition={ruleGateway.split !== 0}>
             <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
               {React.string(ruleGateway.split->Int.toString ++ "%")}
@@ -35,16 +52,12 @@ let make = (
   ~showDistributionIcon=true,
   ~showFallbackIcon=true,
   ~dropDownButtonText="Add Gateways",
-  ~connectorList=?,
+  ~connectorList,
 ) => {
   let gateWaysInput = ReactFinalForm.useField(`${id}`).input
 
-  let gatewayName = name => {
-    let res =
-      connectorList
-      ->Option.getOr([Dict.make()->ConnectorListMapper.getProcessorPayloadType])
-      ->ConnectorTableUtils.getConnectorObjectFromListViaId(name)
-    res.connector_name
+  let gateWayName = merchantConnectorID => {
+    connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(merchantConnectorID)
   }
 
   let isDistribute =
@@ -94,7 +107,7 @@ let make = (
           }
           let obj: gateway = {
             connector: {
-              connector: item->gatewayName,
+              connector: gateWayName(item).connector_name,
               merchant_connector_id: item,
             },
             split: sharePercent,
@@ -171,7 +184,11 @@ let make = (
                from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 
                dark:text-opacity-50 focus:outline-none px-1 ">
                   <NewThemeUtils.Badge number={i + 1} />
-                  <div> {item.connector.connector->React.string} </div>
+                  <div>
+                    {gateWayName(
+                      item.connector.merchant_connector_id,
+                    ).connector_label->React.string}
+                  </div>
                   <Icon
                     name="close"
                     size=10
