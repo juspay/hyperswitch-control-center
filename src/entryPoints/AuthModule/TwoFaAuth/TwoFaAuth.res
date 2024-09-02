@@ -40,7 +40,6 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     | _ => "Register failed, Try again"
     }
   }
-  Js.log2(domain, "domain")
   let getUserWithEmail = async body => {
     try {
       let url = getURL(
