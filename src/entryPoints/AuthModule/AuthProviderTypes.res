@@ -6,7 +6,7 @@ type preLoginType = {
 
 type authInfo = {token: option<string>}
 
-type authType = BasicAuth(BasicAuthTypes.basicAuthInfo) | Auth(authInfo)
+type authType = Auth(authInfo)
 
 type authStatus =
   | LoggedOut

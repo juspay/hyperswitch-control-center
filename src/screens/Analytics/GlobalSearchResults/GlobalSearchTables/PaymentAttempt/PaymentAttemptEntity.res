@@ -249,9 +249,9 @@ let getHeading = colType => {
   let key = colType->colMapper
   switch colType {
   | PaymentId =>
-    Table.makeHeaderInfo(~key, ~title="Payment Id", ~dataType=TextType, ~showSort=false)
+    Table.makeHeaderInfo(~key, ~title="Payment ID", ~dataType=TextType, ~showSort=false)
   | MerchantId =>
-    Table.makeHeaderInfo(~key, ~title="Merchant Id", ~dataType=TextType, ~showSort=false)
+    Table.makeHeaderInfo(~key, ~title="Merchant ID", ~dataType=TextType, ~showSort=false)
   | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=TextType, ~showSort=false)
   | Amount => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType, ~showSort=false)
   | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType, ~showSort=false)

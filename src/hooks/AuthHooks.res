@@ -53,7 +53,7 @@ let useApiFetcher = () => {
         | PreLogin(info) => info.token
         | LoggedIn(info) =>
           switch info {
-          | BasicAuth(_) | Auth(_) => AuthUtils.getUserInfoDetailsFromLocalStorage().token
+          | Auth(_) => AuthUtils.getUserInfoDetailsFromLocalStorage().token
           }
         | _ => None
         }
