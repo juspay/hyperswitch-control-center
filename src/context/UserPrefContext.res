@@ -39,8 +39,7 @@ let make = (~children) => {
   let username = switch authStatus {
   | LoggedIn(authType) =>
     switch authType {
-    | BasicAuth(basicAuthInfo) => basicAuthInfo.name->Option.getOr("")
-    | _ => ""
+    | Auth(_) => ""
     }
   | _ => ""
   }
