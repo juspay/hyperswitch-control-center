@@ -39,7 +39,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
     }
     let valDict = values->getDictFromJsonObject
     let role = valDict->getString("role_id", "")
-    let emailList = valDict->getStrArray("emailList")
+    let emailList = valDict->getStrArray("email_list")
 
     let body =
       emailList
@@ -136,7 +136,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
       key="invite-user-management"
       initialValues={invitationFormInitialValues}
       validate={values =>
-        values->UserUtils.validateForm(~fieldsToValidate=["emailList", "roleType"])}
+        values->UserUtils.validateForm(~fieldsToValidate=["email_list", "role_id"])}
       onSubmit>
       <NewUserInvitationForm />
     </Form>

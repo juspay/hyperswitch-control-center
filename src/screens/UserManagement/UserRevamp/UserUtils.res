@@ -27,7 +27,7 @@ let getMerchantSelectBoxOption = (
 
 let inviteEmail = FormRenderer.makeFieldInfo(
   ~label="Enter email (s) ",
-  ~name="emailList",
+  ~name="email_list",
   ~customInput=(~input, ~placeholder as _) => {
     let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0
     InputFields.textTagInput(

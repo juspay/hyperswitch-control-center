@@ -30,7 +30,7 @@ module DropDownItems = {
             <Menu.Item key={i->Int.toString}>
               {props =>
                 <div className="relative">
-                  <button
+                  <div
                     onClick={_ => option.value->onItemSelect}
                     className={
                       let activeClasses = if props["active"] {
@@ -46,7 +46,7 @@ module DropDownItems = {
                       ->React.string}
                     </div>
                     <Tick isSelected={keyValueFromForm === option.value} />
-                  </button>
+                  </div>
                 </div>}
             </Menu.Item>
           )
@@ -119,7 +119,7 @@ let make = (
               className="flex justify-start pt-2 pb-2 text-fs-13 text-jp-gray-900 ml-1 font-semibold">
               {"Role"->React.string}
               <RenderIf condition=isRequired>
-                <span className="text-red-950"> {React.string(" *")} </span>
+                <span className="text-red-950"> {React.string("*")} </span>
               </RenderIf>
             </div>
             <div
