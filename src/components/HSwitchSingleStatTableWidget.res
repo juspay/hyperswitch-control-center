@@ -221,7 +221,7 @@ let make = (
               </>
             } else {
               <div
-                className="w-full border flex justify-center border-dashed text-sm opacity-70 rounded-lg p-5">
+                className="w-full border flex justify-center border-dashed text-sm opacity-70 rounded-lg px-5 py-2">
                 {"No Data"->React.string}
               </div>
             }}

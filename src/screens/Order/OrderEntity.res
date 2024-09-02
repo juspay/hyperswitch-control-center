@@ -367,6 +367,7 @@ let allColumns = [
   Metadata,
   MerchantOrderReferenceId,
   AttemptCount,
+  CardNetwork,
 ]
 
 let getHeading = (colType: colType) => {
@@ -375,14 +376,14 @@ let getHeading = (colType: colType) => {
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
   | MerchantId => Table.makeHeaderInfo(~key="merchant_id", ~title="Merchant ID")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Payment Status", ~dataType=DropDown)
-  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true)
+  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector")
   | AmountCapturable => Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable")
   | AmountReceived => Table.makeHeaderInfo(~key="amount_received", ~title="Amount Received")
   | ClientSecret => Table.makeHeaderInfo(~key="client_secret", ~title="Client Secret")
   | ConnectorTransactionID =>
     Table.makeHeaderInfo(~key="connector_transaction_id", ~title="Connector Transaction ID")
-  | Created => Table.makeHeaderInfo(~key="created", ~title="Created", ~showSort=true)
+  | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer ID")
   | Description => Table.makeHeaderInfo(~key="description", ~title="Description")
