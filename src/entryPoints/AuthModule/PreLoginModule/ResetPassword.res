@@ -16,7 +16,7 @@ let make = (~flowType) => {
 
   let setResetPassword = async body => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD_TOKEN_ONLY, ~methodType=Post)
+      let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD, ~methodType=Post)
       let _ = await updateDetails(url, body, Post)
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess)
       setAuthStatus(LoggedOut)

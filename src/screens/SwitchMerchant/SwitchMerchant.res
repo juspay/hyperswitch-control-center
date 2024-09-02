@@ -245,14 +245,12 @@ module ExternalUser = {
 let make = (~userRole, ~isAddMerchantEnabled=false) => {
   open APIUtils
   let getURL = useGetURL()
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {setAuthStatus, authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {merchantId} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (value, setValue) = React.useState(() => "")
   let merchantId = switch authStatus {
   | LoggedIn(info) =>
     switch info {
-    | BasicAuth(basicInfo) => basicInfo.merchant_id->Option.getOr("")
     | Auth(_) => merchantId
     }
   | _ => ""
@@ -293,18 +291,15 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       let res = await updateDetails(url, body->JSON.Encode.object, Post)
 
       // TODO: When BE changes the response of this api re-evaluate the below conditions
-      if featureFlagDetails.totp {
-        let responseDict = res->getDictFromJsonObject
 
-        // Need to revert back once backend does the changes
-        let role_id = responseDict->getString("user_role", "")
-        responseDict->Dict.set("role_id", role_id->JSON.Encode.string)
-        //
+      let responseDict = res->getDictFromJsonObject
 
-        setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict->JSON.Encode.object))))
-      } else {
-        setAuthStatus(LoggedIn(BasicAuth(res->BasicAuthUtils.getBasicAuthInfo)))
-      }
+      // Need to revert back once backend does the changes
+      let role_id = responseDict->getString("user_role", "")
+      responseDict->Dict.set("role_id", role_id->JSON.Encode.string)
+      //
+
+      setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict->JSON.Encode.object))))
 
       setSuccessModal(_ => true)
       await HyperSwitchUtils.delay(2000)
