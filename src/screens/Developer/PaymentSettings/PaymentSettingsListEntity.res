@@ -46,6 +46,15 @@ let itemToObjMapper = dict => {
       dict,
       "collect_shipping_details_from_wallet_connector",
     ),
+    always_collect_shipping_details_from_wallet_connector: dict->getOptionBool(
+      "always_collect_shipping_details_from_wallet_connector",
+    ),
+    collect_billing_details_from_wallet_connector: dict->getOptionBool(
+      "collect_billing_details_from_wallet_connector",
+    ),
+    always_collect_billing_details_from_wallet_connector: dict->getOptionBool(
+      "always_collect_billing_details_from_wallet_connector",
+    ),
     outgoing_webhook_custom_http_headers: None,
     is_connector_agnostic_mit_enabled: None,
   }
