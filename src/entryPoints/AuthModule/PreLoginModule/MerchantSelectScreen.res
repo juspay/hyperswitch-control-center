@@ -27,7 +27,7 @@ let make = () => {
   let onClickLoginToDashboard = async () => {
     open AuthUtils
     try {
-      let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITE_TOKEN_ONLY, ~methodType=Post)
+      let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITE, ~methodType=Post)
 
       let acceptedMerchantIds = merchantData->Array.reduce([], (acc, ele) => {
         let merchantDataDict = ele->getDictFromJsonObject

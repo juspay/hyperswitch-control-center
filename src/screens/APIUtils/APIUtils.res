@@ -393,7 +393,6 @@ let useGetURL = () => {
         | None => `${userUrl}/connect_account`
         }
       | #SIGNINV2 => `${userUrl}/v2/signin`
-      | #SIGNINV2_TOKEN_ONLY => `${userUrl}/v2/signin?token_only=true`
       | #CHANGE_PASSWORD => `${userUrl}/change_password`
       | #SIGNUP
       | #SIGNOUT
@@ -405,8 +404,6 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
-      | #SIGNUP_TOKEN_ONLY => `${userUrl}/signup?token_only=true`
-      | #RESET_PASSWORD_TOKEN_ONLY => `${userUrl}/reset_password?token_only=true`
 
       // POST LOGIN QUESTIONARE
       | #SET_METADATA =>
@@ -448,11 +445,6 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
         }
-      | #INVITE_MULTIPLE_TOKEN_ONLY =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/user/invite_multiple?${params}&token_only=true`
-        | None => `${userUrl}/user/invite_multiple?token_only=true`
-        }
 
       // SWITCH & CREATE MERCHANT
       | #SWITCH_MERCHANT =>
@@ -488,7 +480,6 @@ let useGetURL = () => {
         }
 
       // SPT FLOWS (Merchant select)
-      | #ACCEPT_INVITE_TOKEN_ONLY => `${userUrl}/user/invite/accept?token_only=true`
       | #MERCHANTS_SELECT => `${userUrl}/merchants_select/list`
 
       // SPT FLOWS (Totp)
@@ -513,11 +504,6 @@ let useGetURL = () => {
         }
       | #SIGN_IN_WITH_SSO => `${userUrl}/oidc`
       | #AUTH_SELECT => `${userUrl}/auth/select`
-
-      // SPT EMAIL FLOWS
-      | #VERIFY_EMAILV2_TOKEN_ONLY => `${userUrl}/v2/verify_email?token_only=true`
-      | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
-        `${userUrl}/accept_invite_from_email?token_only=true`
 
       | #NONE => ""
       }

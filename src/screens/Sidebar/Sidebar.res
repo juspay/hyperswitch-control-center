@@ -616,7 +616,7 @@ let make = (
           </div>
           <PinIconComponentStates isHSSidebarPinned setIsSidebarExpanded isSidebarExpanded />
         </div>
-        <RenderIf condition={featureFlagDetails.userManagementRevamp && featureFlagDetails.totp}>
+        <RenderIf condition={featureFlagDetails.userManagementRevamp}>
           <SidebarSwitch isExpanded />
         </RenderIf>
         <div
