@@ -68,7 +68,7 @@ module ClearFilters = {
     <RenderIf condition={hasExtraFilters || outsidefilter}>
       <Button
         text
-        customButtonStyle="bg-white rounded-lg !p-2 !h-10 !border"
+        customButtonStyle="bg-white rounded-lg !p-2 !h-10 !border mt-3"
         showBorder=false
         textStyle
         leftIcon
@@ -291,11 +291,20 @@ let make = (
   <Form onSubmit initialValues=initialValueJson>
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
-      <div className="flex gap-2 justify-between my-2">
-        <div className={`flex gap-2 flex-wrap ${verticalGap}`}>
+      <div>
+        <div className={`flex gap-3 items-center flex-wrap ${verticalGap}`}>
           {customLeftView}
+          <RenderIf condition={fixedFilters->Array.length > 0}>
+            <FormRenderer.FieldsRenderer
+              fields={fixedFilters->Array.map(item => item.field)}
+              labelClass="hidden"
+              fieldWrapperClass="p-0"
+            />
+          </RenderIf>
+        </div>
+        <div className="flex gap-3 flex-wrap">
           <RenderIf condition={allFilters->Array.length > 0}>
-            <Menu \"as"="div" className="relative inline-block text-left">
+            <Menu \"as"="div" className="relative inline-block text-left mt-3">
               {_menuProps =>
                 <div>
                   <Menu.Button
@@ -363,20 +372,15 @@ let make = (
                 </div>}
             </Menu>
           </RenderIf>
+        </div>
+        <div className="flex gap-3 flex-wrap">
           <FormRenderer.FieldsRenderer
-            fields={filterList} labelClass="hidden" fieldWrapperClass="p-0"
+            fields={filterList} labelClass="hidden" fieldWrapperClass="p-0 mt-3"
           />
           <RenderIf condition={count > 0}>
             <ClearFilters defaultFilterKeys ?clearFilters outsidefilter={initalCount > 0} />
           </RenderIf>
         </div>
-        <RenderIf condition={fixedFilters->Array.length > 0}>
-          <FormRenderer.FieldsRenderer
-            fields={fixedFilters->Array.map(item => item.field)}
-            labelClass="hidden"
-            fieldWrapperClass="p-0"
-          />
-        </RenderIf>
       </div>
     </AddDataAttributes>}
   </Form>
