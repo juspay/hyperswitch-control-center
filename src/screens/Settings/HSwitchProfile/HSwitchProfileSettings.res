@@ -197,8 +197,6 @@ module BasicDetailsSection = {
 }
 @react.component
 let make = () => {
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
   let {userInfo: {isTwoFactorAuthSetup}} = React.useContext(UserInfoProvider.defaultContext)
 
   <div className="flex flex-col overflow-scroll gap-8">
@@ -206,7 +204,7 @@ let make = () => {
     <div className="flex flex-col flex-wrap  gap-12">
       <BasicDetailsSection />
       <MerchantDetailsSection />
-      <RenderIf condition={featureFlagDetails.totp && isTwoFactorAuthSetup}>
+      <RenderIf condition={isTwoFactorAuthSetup}>
         <TwoFactorAuthenticationDetails />
       </RenderIf>
     </div>
