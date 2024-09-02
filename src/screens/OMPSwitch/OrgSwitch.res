@@ -6,6 +6,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
+  let orgSwitch = OMPSwitchHooks.useOrgSwitch()
   let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
 
@@ -27,10 +28,21 @@ let make = () => {
     None
   }, [])
 
+  let orgSwitch = async value => {
+    try {
+      let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
+    } catch {
+    | _ => showToast(~message="Failed to switch organisation", ~toastType=ToastError)
+    }
+  }
+
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),
-    onChange: _ => (),
+    onChange: ev => {
+      let value = ev->Identity.formReactEventToString
+      orgSwitch(value)->ignore
+    },
     onFocus: _ => (),
     value: orgId->JSON.Encode.string,
     checked: true,
