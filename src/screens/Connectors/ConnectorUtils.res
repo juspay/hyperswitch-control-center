@@ -92,6 +92,7 @@ let connectorList: array<connectorTypes> = [
   Processors(BAMBORA_APAC),
   Processors(ITAUBANK),
   Processors(PLAID),
+  Processors(SQUARE),
   Processors(PAYBOX),
 ]
 
@@ -452,6 +453,10 @@ let plaidInfo = {
   description: "Plaid Link makes it easy for users to connect their financial accounts securely and quickly, giving you the best growth for your business.",
 }
 
+let squareInfo = {
+  description: "Powering all the ways you do business. Work smarter, automate for efficiency, and open up new revenue streams on the software and hardware platform millions of businesses trust.",
+}
+
 let payboxInfo = {
   description: "Paybox, operated by Verifone, offers secure online payment solutions for e-commerce businesses. It supports a wide range of payment methods and provides features like one-click payments, recurring payments, and omnichannel payment processing. Their services cater to merchants, web agencies, integrators, and financial institutions, helping them accept various forms of payment",
 }
@@ -557,6 +562,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | ITAUBANK => "itaubank"
   | DATATRANS => "datatrans"
   | PLAID => "plaid"
+  | SQUARE => "square"
   | PAYBOX => "paybox"
   | WELLSFARGO => "wellsfargo"
   }
@@ -660,6 +666,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "itaubank" => Processors(ITAUBANK)
     | "datatrans" => Processors(DATATRANS)
     | "plaid" => Processors(PLAID)
+    | "square" => Processors(SQUARE)
     | "paybox" => Processors(PAYBOX)
     | "wellsfargo" => Processors(WELLSFARGO)
     | _ => UnknownConnector("Not known")
@@ -749,6 +756,7 @@ let getProcessorInfo = connector => {
   | ITAUBANK => itauBankInfo
   | DATATRANS => dataTransInfo
   | PLAID => plaidInfo
+  | SQUARE => squareInfo
   | PAYBOX => payboxInfo
   | WELLSFARGO => wellsfargoInfo
   }
@@ -1548,6 +1556,7 @@ let getDisplayNameForProcessor = connector =>
   | ITAUBANK => "Itaubank"
   | DATATRANS => "Datatrans"
   | PLAID => "Plaid"
+  | SQUARE => "Square"
   | PAYBOX => "Paybox"
   | WELLSFARGO => "Wells Fargo"
   }

@@ -6,7 +6,7 @@ type tokenContextObjectType = {
   setToken: (option<string> => option<string>) => unit,
   tokenDetailsDict: Dict.t<JSON.t>,
   setTokenDetailsDict: (Dict.t<JSON.t> => Dict.t<JSON.t>) => unit,
-  parentAuthInfo: option<BasicAuthTypes.basicAuthInfo>,
+  parentAuthInfo: option<AuthProviderTypes.authInfo>,
 }
 
 let defaultTokenObj = {
@@ -14,7 +14,7 @@ let defaultTokenObj = {
   setToken: defaultTokenSetter,
   tokenDetailsDict: Dict.make(),
   setTokenDetailsDict: defaultDictSetter,
-  parentAuthInfo: Some(BasicAuthUtils.getBasicAuthInfo(JSON.Encode.object(Dict.make()))),
+  parentAuthInfo: Some(AuthUtils.getAuthInfo(JSON.Encode.object(Dict.make()))),
 }
 
 let tokenContext = React.createContext(defaultTokenObj)
@@ -31,9 +31,7 @@ let make = (~children) => {
 
   let tokenContextObjext = React.useMemo(() => {
     let parentAuthInfo = Some(
-      BasicAuthUtils.getBasicAuthInfo(
-        tokenDetailsDict->LogicUtils.getJsonObjectFromDict("tokenDict"),
-      ),
+      AuthUtils.getAuthInfo(tokenDetailsDict->LogicUtils.getJsonObjectFromDict("tokenDict")),
     )
 
     {
