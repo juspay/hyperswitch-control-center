@@ -118,7 +118,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   let getURLForInviteMultipleUser = {
     getURL(
       ~entityName=USERS,
-      ~userType=#INVITE_MULTIPLE_TOKEN_ONLY,
+      ~userType=#INVITE_MULTIPLE,
       ~methodType=Post,
       ~queryParamerters=Some(`auth_id=${authId}`),
     )
