@@ -738,17 +738,16 @@ let make = (
 
   let filterBottomPadding = isMobileView ? "" : "pb-6"
 
+  let paddingClass = {rightTitleElement != React.null ? filterBottomPadding : ""}
+
   let customizeColumsButtons = {
     switch clearFormattedDataButton {
     | Some(clearFormattedDataButton) =>
       <div className={`flex flex-row mobile:gap-7 desktop:gap-10 ${filterBottomPadding}`}>
         clearFormattedDataButton
-        <Portal to={""}> rightTitleElement </Portal>
+        {rightTitleElement}
       </div>
-    | _ =>
-      <div className={`${rightTitleElement != React.null ? filterBottomPadding : ""}`}>
-        <Portal to={""}> rightTitleElement </Portal>
-      </div>
+    | _ => <div className={paddingClass}> {rightTitleElement} </div>
     }
   }
 

@@ -546,7 +546,7 @@ module TableHeadingCell = {
 module TableHeadingRow = {
   @react.component
   let make = (
-    ~title="title",
+    ~title="",
     ~headingArray,
     ~isHighchartLegend,
     ~frozenUpto,
