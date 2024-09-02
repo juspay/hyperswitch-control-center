@@ -32,7 +32,7 @@ let make = (~children) => {
     None
   }, [])
 
-  <Provider value={{userInfo, setUserInfoData}}>
+  <Provider value={userInfo, setUserInfoData}>
     <RenderIf condition={screenState === Success}> children </RenderIf>
     <RenderIf condition={screenState === Error}>
       <NoDataFound message="Something went wrong" renderType=Painting />
