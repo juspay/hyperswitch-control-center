@@ -89,6 +89,7 @@ let make = () => {
   let (dropDownLoaderState, setDropDownLoaderState) = React.useState(_ =>
     DropdownWithLoading.Success
   )
+  let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
 
   let getMemberAcessBasedOnRole = async _ => {
     try {
@@ -125,7 +126,13 @@ let make = () => {
   let onClickDropDownApi = async () => {
     try {
       setDropDownLoaderState(_ => DropdownWithLoading.Loading)
-      let url = getURL(~entityName=USERS, ~userType=#LIST_ROLES_FOR_INVITE, ~methodType=Get)
+
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#LIST_ROLES_FOR_INVITE,
+        ~methodType=Get,
+        ~queryParamerters=Some(`entity_type=${(userEntity :> string)->String.toLowerCase} `),
+      )
       let result = await fetchDetails(url)
       setOptions(_ => result->makeSelectBoxOptions)
       if result->LogicUtils.getArrayFromJson([])->Array.length > 0 {
