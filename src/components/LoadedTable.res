@@ -736,7 +736,7 @@ let make = (
     }
   }, (filteredData, getShowLink, onMouseLeave, url.search))
 
-  let filterBottomPadding = isMobileView ? "" : "pb-3"
+  let filterBottomPadding = isMobileView ? "" : "pb-6"
 
   let customizeColumsButtons = {
     switch clearFormattedDataButton {
