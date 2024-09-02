@@ -6,8 +6,9 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
+  let orgSwitch = OMPSwitchHooks.useOrgSwitch()
   let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
-  let (orgList, setOrgList) = React.useState(_ => defaultUser(orgId, ""))
+  let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
 
   let getOrgList = async () => {
     try {
@@ -15,23 +16,33 @@ let make = () => {
       let response = await fetchDetails(url)
       setOrgList(_ => response->getArrayDataFromJson(orgItemToObjMapper))
     } catch {
-    | _ => showToast(~message="Failed to fetch org list", ~toastType=ToastError)
+    | _ => {
+        setOrgList(_ => ompDefaultValue(orgId, ""))
+        showToast(~message="Failed to fetch organisation list", ~toastType=ToastError)
+      }
     }
   }
-
-  let options: array<SelectBox.dropdownOption> = React.useMemo(() => {
-    orgList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
-  }, [orgList])
 
   React.useEffect(() => {
     getOrgList()->ignore
     None
   }, [])
 
+  let orgSwitch = async value => {
+    try {
+      let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
+    } catch {
+    | _ => showToast(~message="Failed to switch organisation", ~toastType=ToastError)
+    }
+  }
+
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),
-    onChange: _ => (),
+    onChange: ev => {
+      let value = ev->Identity.formReactEventToString
+      orgSwitch(value)->ignore
+    },
     onFocus: _ => (),
     value: orgId->JSON.Encode.string,
     checked: true,
@@ -44,14 +55,14 @@ let make = () => {
       input
       deselectDisable=true
       customButtonStyle="!rounded-md"
-      options
+      options={orgList->generateDropdownOptions}
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false
       customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
-      baseComponent={<ListBaseComp heading="Org" subHeading=orgId />}
+      baseComponent={<OMPSwitchHelper.ListBaseComp heading="Org" subHeading=orgId />}
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"

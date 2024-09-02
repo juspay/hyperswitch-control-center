@@ -142,9 +142,10 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
-  let (profileList, setProfileList) = React.useState(_ => defaultUser("", ""))
+  let profileSwitch = OMPSwitchHooks.useProfileSwitch()
   let (showModal, setShowModal) = React.useState(_ => false)
-  //   let {profileId} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
 
   let getProfileList = async () => {
     try {
@@ -152,22 +153,33 @@ let make = () => {
       let response = await fetchDetails(url)
       setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
     } catch {
-    | _ => showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
+    | _ => {
+        setProfileList(_ => ompDefaultValue(profileId, ""))
+        showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
+      }
     }
   }
 
   let customPadding = "px-1 py-1"
   let customStyle = "w-auto text-blue-500 bg-white dark:bg-black hover:bg-jp-gray-100"
 
-  let options: array<SelectBox.dropdownOption> =
-    profileList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
+  let profileSwitch = async value => {
+    try {
+      let _ = await profileSwitch(~expectedProfileId=value, ~currentProfileId=profileId)
+    } catch {
+    | _ => showToast(~message="Failed to switch profile", ~toastType=ToastError)
+    }
+  }
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),
-    onChange: _ => (),
+    onChange: ev => {
+      let value = ev->Identity.formReactEventToString
+      profileSwitch(value)->ignore
+    },
     onFocus: _ => (),
-    value: "current_profile_id"->JSON.Encode.string,
+    value: profileId->JSON.Encode.string,
     checked: true,
   }
 
@@ -183,18 +195,19 @@ let make = () => {
       input
       deselectDisable=true
       customButtonStyle="!rounded-md"
-      options
+      options={profileList->generateDropdownOptions}
       hideMultiSelectButtons=true
       addButton=false
       searchable=false
       baseComponent={<ListBaseCompForProfile />}
       baseComponentCustomStyle="bg-white"
-      bottomComponent={<AddNewMerchantProfileButton
+      bottomComponent={<OMPSwitchHelper.AddNewMerchantProfileButton
         user="profile" setShowModal customPadding customStyle
       />}
       optionClass="text-gray-600 text-fs-14"
       selectClass="text-gray-600 text-fs-14"
-      customDropdownOuterClass="!border-none"
+      customDropdownOuterClass="!border-none !w-full"
+      fullLength=true
     />
     <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getProfileList />

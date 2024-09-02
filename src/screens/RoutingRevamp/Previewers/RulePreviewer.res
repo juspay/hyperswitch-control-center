@@ -4,13 +4,34 @@ open AdvancedRoutingUtils
 module GatewayView = {
   @react.component
   let make = (~gateways) => {
+    let url = RescriptReactRouter.useUrl()
+
+    let connectorType = switch url->RoutingUtils.urlToVariantMapper {
+    | PayoutRouting => RoutingTypes.PayoutConnector
+    | _ => RoutingTypes.PaymentConnector
+    }
+
+    let connectorList =
+      HyperswitchAtom.connectorListAtom
+      ->Recoil.useRecoilValueFromAtom
+      ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
+
+    let getGatewayName = merchantConnectorId => {
+      (
+        connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(merchantConnectorId)
+      ).connector_label
+    }
+
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <div className="flex flex-wrap gap-4 items-center">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
         let (connectorStr, percent) = switch ruleGateway {
-        | PriorityObject(obj) => (obj.connector, None)
-        | VolumeObject(obj) => (obj.connector.connector, Some(obj.split))
+        | PriorityObject(obj) => (obj.merchant_connector_id->getGatewayName, None)
+        | VolumeObject(obj) => (
+            obj.connector.merchant_connector_id->getGatewayName,
+            Some(obj.split),
+          )
         }
         <div
           key={Int.toString(index)}

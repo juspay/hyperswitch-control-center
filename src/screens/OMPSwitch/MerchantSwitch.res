@@ -86,12 +86,14 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open OMPSwitchUtils
+  open OMPSwitchHelper
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
+  let merchSwitch = OMPSwitchHooks.useMerchantSwitch()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
-  let (merchantList, setMerchantList) = React.useState(_ => defaultUser(merchantId, ""))
   let (showModal, setShowModal) = React.useState(_ => false)
+  let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
 
   let getMerchantList = async () => {
     try {
@@ -99,39 +101,50 @@ let make = () => {
       let response = await fetchDetails(url)
       setMerchantList(_ => response->getArrayDataFromJson(merchantItemToObjMapper))
     } catch {
-    | _ => showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
+    | _ => {
+        setMerchantList(_ => ompDefaultValue(merchantId, ""))
+        showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
+      }
     }
   }
 
-  let options: array<SelectBox.dropdownOption> =
-    merchantList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
+  let switchMerch = async value => {
+    try {
+      let _ = await merchSwitch(~expectedMerchantId=value, ~currentMerchantId=merchantId)
+    } catch {
+    | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
+    }
+  }
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),
-    onChange: _ => (),
+    onChange: ev => {
+      let value = ev->Identity.formReactEventToString
+      switchMerch(value)->ignore
+    },
     onFocus: _ => (),
     value: merchantId->JSON.Encode.string,
     checked: true,
   }
 
   let customHRTagStyle = "border-t border-blue-830"
-  let customPadding = "py-1"
-  let customStyle = "w-56 text-gray-200 bg-blue-840 dark:bg-black hover:bg-popover-background-hover hover:text-gray-100"
+  let customPadding = "py-1 w-full"
+  let customStyle = "w-56 text-gray-200 bg-blue-840 dark:bg-black hover:bg-popover-background-hover hover:text-gray-100 !w-full"
 
   React.useEffect(() => {
     getMerchantList()->ignore
     None
   }, [])
 
-  <div className="border border-popover-background rounded mx-2">
+  <div className="border border-popover-background rounded w-full mr-2">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
       input
       deselectDisable=true
       customButtonStyle="!rounded-md"
-      options
+      options={merchantList->generateDropdownOptions}
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false
@@ -145,8 +158,8 @@ let make = () => {
       />}
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"
-      customDropdownOuterClass="!border-none"
-      showBorder=true
+      customDropdownOuterClass="!border-none !w-full"
+      fullLength=true
     />
     <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getMerchantList />
