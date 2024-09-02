@@ -5,6 +5,8 @@ exception JsonException(JSON.t)
 
 let useGetURL = () => {
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getUrl = (
     ~entityName: entityName,
     ~methodType: Fetch.requestMethod,
@@ -64,6 +66,28 @@ let useGetURL = () => {
       }
 
     /* OPERATIONS */
+    | REFUND_FILTERS =>
+      switch methodType {
+      | Get =>
+        switch (userEntity, userManagementRevamp) {
+        | (#Merchant, true) => `refunds/v2/filter`
+        | (#Profile, true) => `refunds/v2/profile/filter`
+        | _ => `refunds/v2/filter`
+        }
+
+      | _ => ""
+      }
+    | ORDER_FILTERS =>
+      switch methodType {
+      | Get =>
+        switch (userEntity, userManagementRevamp) {
+        | (#Merchant, true) => `payments/v2/filter`
+        | (#Profile, true) => `payments/v2/profile/filter`
+        | _ => `payments/v2/filter`
+        }
+
+      | _ => ""
+      }
     | ORDERS =>
       switch methodType {
       | Get =>
@@ -75,11 +99,22 @@ let useGetURL = () => {
           }
         | None =>
           switch queryParamerters {
-          | Some(queryParams) => `payments/list?${queryParams}`
+          | Some(queryParams) =>
+            switch (userEntity, userManagementRevamp) {
+            | (#Merchant, true) => `payments/list?${queryParams}`
+            | (#Profile, true) => `payments/profile/list?${queryParams}`
+            | _ => `payments/list?limit=100`
+            }
           | None => `payments/list?limit=100`
           }
         }
-      | Post => `payments/list`
+      | Post =>
+        switch (userEntity, userManagementRevamp) {
+        | (#Merchant, true) => `payments/list`
+        | (#Profile, true) => `payments/profile/list`
+        | _ => `payments/list`
+        }
+
       | _ => ""
       }
     | REFUNDS =>
@@ -94,13 +129,23 @@ let useGetURL = () => {
 
         | None =>
           switch queryParamerters {
-          | Some(queryParams) => `refunds/list?${queryParams}`
+          | Some(queryParams) =>
+            switch (userEntity, userManagementRevamp) {
+            | (#Merchant, true) => `refunds/list?${queryParams}`
+            | (#Profile, true) => `refunds/profile/list?limit=100`
+            | _ => `refunds/list?limit=100`
+            }
           | None => `refunds/list?limit=100`
           }
         }
       | Post =>
         switch id {
-        | Some(_keyid) => `refunds/list`
+        | Some(_keyid) =>
+          switch (userEntity, userManagementRevamp) {
+          | (#Merchant, true) => `refunds/list`
+          | (#Profile, true) => `refunds/profile/list`
+          | _ => `refunds/list`
+          }
         | None => `refunds`
         }
       | _ => ""
@@ -110,7 +155,12 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(dispute_id) => `disputes/${dispute_id}`
-        | None => `disputes/list?limit=10000`
+        | None =>
+          switch (userEntity, userManagementRevamp) {
+          | (#Merchant, true) => `disputes/list?limit=10000`
+          | (#Profile, true) => `disputes/profile/list?limit=10000`
+          | _ => `disputes/list?limit=10000`
+          }
         }
       | _ => ""
       }
@@ -119,9 +169,20 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(payout_id) => `payouts/${payout_id}`
-        | None => `payouts/list?limit=100`
+        | None =>
+          switch (userEntity, userManagementRevamp) {
+          | (#Merchant, true) => `payouts/list?limit=100`
+          | (#Profile, true) => `payouts/profile/list?limit=10000`
+          | _ => `payouts/list?limit=100`
+          }
         }
-      | Post => `payouts/list`
+      | Post =>
+        switch (userEntity, userManagementRevamp) {
+        | (#Merchant, true) => `payouts/list`
+        | (#Profile, true) => `payouts/profile/list`
+        | _ => `payouts/list`
+        }
+
       | _ => ""
       }
 
@@ -306,6 +367,7 @@ let useGetURL = () => {
         let userUrl = `user`
         switch userRoleTypes {
         | USER_LIST => `${userUrl}/user/v2/list`
+        | ROLE_LIST => `${userUrl}/list/role_info`
         | _ => ""
         }
       }
@@ -322,7 +384,6 @@ let useGetURL = () => {
         | None => `${userUrl}/connect_account`
         }
       | #SIGNINV2 => `${userUrl}/v2/signin`
-      | #SIGNINV2_TOKEN_ONLY => `${userUrl}/v2/signin?token_only=true`
       | #CHANGE_PASSWORD => `${userUrl}/change_password`
       | #SIGNUP
       | #SIGNOUT
@@ -334,8 +395,6 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
-      | #SIGNUP_TOKEN_ONLY => `${userUrl}/signup?token_only=true`
-      | #RESET_PASSWORD_TOKEN_ONLY => `${userUrl}/reset_password?token_only=true`
 
       // POST LOGIN QUESTIONARE
       | #SET_METADATA =>
@@ -377,11 +436,6 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
         }
-      | #INVITE_MULTIPLE_TOKEN_ONLY =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/user/invite_multiple?${params}&token_only=true`
-        | None => `${userUrl}/user/invite_multiple?token_only=true`
-        }
 
       // SWITCH & CREATE MERCHANT
       | #SWITCH_MERCHANT =>
@@ -394,6 +448,9 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
+      | #SWITCH_ORG => `${userUrl}/switch/org`
+      | #SWITCH_MERCHANT_NEW => `${userUrl}/switch/merchant`
+      | #SWITCH_PROFILE => `${userUrl}/switch/profile`
 
       // Org-Merchant-Profile List
       | #LIST_ORG => `${userUrl}/list/org`
@@ -414,7 +471,6 @@ let useGetURL = () => {
         }
 
       // SPT FLOWS (Merchant select)
-      | #ACCEPT_INVITE_TOKEN_ONLY => `${userUrl}/user/invite/accept?token_only=true`
       | #MERCHANTS_SELECT => `${userUrl}/merchants_select/list`
 
       // SPT FLOWS (Totp)
@@ -439,11 +495,6 @@ let useGetURL = () => {
         }
       | #SIGN_IN_WITH_SSO => `${userUrl}/oidc`
       | #AUTH_SELECT => `${userUrl}/auth/select`
-
-      // SPT EMAIL FLOWS
-      | #VERIFY_EMAILV2_TOKEN_ONLY => `${userUrl}/v2/verify_email?token_only=true`
-      | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
-        `${userUrl}/accept_invite_from_email?token_only=true`
 
       | #NONE => ""
       }

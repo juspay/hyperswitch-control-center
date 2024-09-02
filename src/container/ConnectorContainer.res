@@ -32,7 +32,7 @@ let make = () => {
   React.useEffect(() => {
     setUpConnectoreContainer()->ignore
     None
-  }, [userPermissionJson])
+  }, [])
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
