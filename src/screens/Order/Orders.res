@@ -4,17 +4,19 @@ let make = (~previewOnly=false) => {
   open HSwitchRemoteFilter
   open OrderUIUtils
   open LogicUtils
-  open ViewsUtils
+  open ViewUtils
+
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
+  let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
   let (paymentCountRes, setPaymentCountRes) = React.useState(_ => Dict.make()->JSON.Encode.object)
-  let (activeView, setActiveView) = React.useState(_ => All)
+  let (activeView: ViewTypes.viewTypes, setActiveView) = React.useState(_ => ViewTypes.All)
 
   let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
@@ -80,19 +82,27 @@ let make = (~previewOnly=false) => {
     }
   }
 
-  let updateViewsFilterValue = view => {
+  let updateViewsFilterValue = (view: ViewTypes.viewTypes) => {
     let customFilterKey = "status"
-    let customFilter = `[${view->getViewsLabel(paymentCountRes)}]`
+    let customFilter = `[${view->getViewsString(paymentCountRes)}]`
 
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
 
-    if !(filterKeys->Array.includes("status")) {
-      filterKeys->Array.push("status")
+    switch view {
+    | All => {
+        let updateFilterKeys = filterKeys->Array.filter(item => item != "status")
+        setfilterKeys(_ => updateFilterKeys)
+      }
+    | _ => {
+        if !(filterKeys->Array.includes("status")) {
+          filterKeys->Array.push("status")
+        }
+        setfilterKeys(_ => filterKeys)
+      }
     }
-    setfilterKeys(_ => filterKeys)
   }
 
-  let onViewClick = (view: viewTypes) => {
+  let onViewClick = (view: ViewTypes.viewTypes) => {
     setActiveView(_ => view)
     updateViewsFilterValue(view)
   }
@@ -111,7 +121,7 @@ let make = (~previewOnly=false) => {
       let response = await fetchDetails(url)
       setPaymentCountRes(_ => response)
     } catch {
-    | _ => ()
+    | _ => showToast(~toastType=ToastError, ~message="Failed to fetch views count", ~autoClose=true)
     }
   }
 
@@ -169,7 +179,7 @@ let make = (~previewOnly=false) => {
 
   let viewsUI =
     paymentViewsArray->Array.mapWithIndex((item, i) =>
-      <ViewCards
+      <ViewHelpers.ViewCards
         key={i->Int.toString}
         view={item}
         count={paymentCount(item, paymentCountRes)->Int.toString}

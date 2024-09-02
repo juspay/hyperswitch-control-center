@@ -1,4 +1,4 @@
-type viewTypes = All | Succeeded | Failed | Dropoffs | Cancelled
+open ViewTypes
 
 let paymentViewsArray: array<viewTypes> = [All, Succeeded, Failed, Dropoffs, Cancelled]
 
@@ -12,7 +12,7 @@ let getViewsDisplayName = (view: viewTypes) => {
   }
 }
 
-let getAllPaymentsLabel = obj => {
+let getAllPaymentsString = obj => {
   open LogicUtils
   obj
   ->getDictFromJsonObject
@@ -21,9 +21,9 @@ let getAllPaymentsLabel = obj => {
   ->Array.joinWith(",")
 }
 
-let getViewsLabel = (view, obj) => {
+let getViewsString = (view, obj) => {
   switch view {
-  | All => getAllPaymentsLabel(obj)
+  | All => getAllPaymentsString(obj)
   | Succeeded => "succeeded"
   | Failed => "failed"
   | Dropoffs => "requires_payment_method"
@@ -65,23 +65,6 @@ let paymentCount = (view, obj) => {
     obj
     ->getDictFromJsonObject
     ->getDictfromDict("status_with_count")
-    ->getInt(view->getViewsLabel(obj), 0)
-  }
-}
-
-module ViewCards = {
-  @react.component
-  let make = (~view, ~count="", ~onViewClick, ~isActiveView) => {
-    let textClass = isActiveView ? "text-blue-500" : "text-jp-gray-800"
-    let borderClass = isActiveView ? "border-blue-500" : ""
-
-    <div
-      className={`flex flex-col justify-center flex-auto gap-1 bg-white text-semibold border rounded-md px-4 py-3 w-14 my-2 cursor-pointer hover:bg-gray-50 ${borderClass}`}
-      onClick={_ => onViewClick(view)}>
-      <p className={` ${textClass}`}> {view->getViewsDisplayName->React.string} </p>
-      <RenderIf condition={!(count->LogicUtils.isEmptyString)}>
-        <p className={` ${textClass}`}> {count->React.string} </p>
-      </RenderIf>
-    </div>
+    ->getInt(view->getViewsString(obj), 0)
   }
 }
