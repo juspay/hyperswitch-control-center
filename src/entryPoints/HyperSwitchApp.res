@@ -33,7 +33,10 @@ let make = () => {
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
     : "bg-orange-600/80 border-orange-500 text-grey-700"
 
-  let isReconEnabled = merchantDetailsTypedValue.recon_status === Active
+  let isReconEnabled = React.useMemo(() => {
+    merchantDetailsTypedValue.recon_status === Active
+  }, [merchantDetailsTypedValue.merchant_id])
+
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   sessionExpired := false
@@ -184,7 +187,15 @@ let make = () => {
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
-                        | list{"home", ..._} => <MerchantAccountContainer />
+                        | list{"home", ..._}
+                        | list{"recon"}
+                        | list{"upload-files"}
+                        | list{"run-recon"}
+                        | list{"recon-analytics"}
+                        | list{"reports"}
+                        | list{"config-settings"}
+                        | list{"file-processor"} =>
+                          <MerchantAccountContainer />
                         | list{"connectors", ..._}
                         | list{"payoutconnectors", ..._}
                         | list{"3ds-authenticators", ..._}
@@ -346,19 +357,6 @@ let make = () => {
                             </FilterContext>
                           </AccessControl>
 
-                        | list{"recon"} =>
-                          <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
-                            <Recon />
-                          </AccessControl>
-                        | list{"upload-files"}
-                        | list{"run-recon"}
-                        | list{"recon-analytics"}
-                        | list{"reports"}
-                        | list{"config-settings"}
-                        | list{"file-processor"} =>
-                          <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
-                            <ReconModule urlList={url.path->urlPath} />
-                          </AccessControl>
                         | list{"compliance"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.complianceCertificate permission=Access>
