@@ -62,15 +62,14 @@ let make = (~connectorAdditionalMerchantData) => {
     initialValues
     ->getDictfromDict((#open_banking_recipient_data: pliadAdditionalFields :> string))
     ->Dict.keysToArray
-    ->Array.at(0)
-    ->Option.getOr("")
+    ->getValueFromArray(0, "")
+
   let initialAccountdata =
     initialValues
     ->getDictfromDict((#open_banking_recipient_data: pliadAdditionalFields :> string))
     ->getDictfromDict((#account_data: pliadAdditionalFields :> string))
     ->Dict.keysToArray
-    ->Array.at(0)
-    ->Option.getOr("")
+    ->getValueFromArray(0, "")
 
   let (openBankingRecipientData, setOpenBankingRecipientData) = React.useState(_ =>
     initialOpenBankingData
