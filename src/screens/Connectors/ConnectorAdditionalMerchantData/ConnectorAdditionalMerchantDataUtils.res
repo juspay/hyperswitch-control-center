@@ -18,11 +18,11 @@ let connectorAdditionalMerchantDataValueInput = (
   let {\"type", name} = connectorAdditionalMerchantData
   let formName = connectorAdditionalMerchantDataMapper(name)
 
-  switch (\"type", name) {
-  | (Text, _) => textInput(~field={connectorAdditionalMerchantData}, ~formName)
-  | (Select, _) => selectInput(~field={connectorAdditionalMerchantData}, ~formName)
-  | (Toggle, _) => toggleInput(~field={connectorAdditionalMerchantData}, ~formName)
-  | (MultiSelect, _) => multiSelectInput(~field={connectorAdditionalMerchantData}, ~formName)
+  switch \"type" {
+  | Text => textInput(~field={connectorAdditionalMerchantData}, ~formName)
+  | Select => selectInput(~field={connectorAdditionalMerchantData}, ~formName)
+  | Toggle => toggleInput(~field={connectorAdditionalMerchantData}, ~formName)
+  | MultiSelect => multiSelectInput(~field={connectorAdditionalMerchantData}, ~formName)
   | _ => textInput(~field={connectorAdditionalMerchantData}, ~formName)
   }
 }

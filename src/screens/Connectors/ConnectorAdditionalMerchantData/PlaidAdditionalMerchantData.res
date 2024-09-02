@@ -49,6 +49,7 @@ module PlaidAdditionMerchantDataSelect = {
 let make = (~connectorAdditionalMerchantData) => {
   open LogicUtils
   open ConnectorAdditionalMerchantDataUtils
+  open PlaidAdditionalMerchantDataType
   let form = ReactFinalForm.useForm()
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -59,14 +60,14 @@ let make = (~connectorAdditionalMerchantData) => {
     ->getDictfromDict("additional_merchant_data")
   let initialOpenBankingData =
     initialValues
-    ->getDictfromDict("open_banking_recipient_data")
+    ->getDictfromDict((#open_banking_recipient_data: pliadAdditionalFields :> string))
     ->Dict.keysToArray
     ->Array.at(0)
     ->Option.getOr("")
   let initialAccountdata =
     initialValues
-    ->getDictfromDict("open_banking_recipient_data")
-    ->getDictfromDict("account_data")
+    ->getDictfromDict((#open_banking_recipient_data: pliadAdditionalFields :> string))
+    ->getDictfromDict((#account_data: pliadAdditionalFields :> string))
     ->Dict.keysToArray
     ->Array.at(0)
     ->Option.getOr("")
@@ -97,7 +98,7 @@ let make = (~connectorAdditionalMerchantData) => {
     keys
     ->Array.mapWithIndex((field, index) => {
       <div key={index->Int.toString}>
-        {if field === "open_banking_recipient_data" {
+        {if field === (#open_banking_recipient_data: pliadAdditionalFields :> string) {
           let fields =
             connectorAdditionalMerchantData
             ->getDictfromDict(field)
@@ -112,7 +113,10 @@ let make = (~connectorAdditionalMerchantData) => {
             label={fields.label}
             handler=updateOpenBanking
           />
-        } else if field === "account_data" && openBankingRecipientData == "account_data" {
+        } else if (
+          field === (#account_data: pliadAdditionalFields :> string) &&
+            openBankingRecipientData == (#account_data: pliadAdditionalFields :> string)
+        ) {
           let fields =
             connectorAdditionalMerchantData
             ->getDictfromDict(field)
@@ -127,8 +131,15 @@ let make = (~connectorAdditionalMerchantData) => {
             label={fields.label}
             handler=updateAccountData
           />
-        } else if field === "iban" && accountData == "iban" {
-          let ibanKeys = connectorAdditionalMerchantData->getArrayFromDict("iban", [])
+        } else if (
+          field === (#iban: pliadAdditionalFields :> string) &&
+            accountData == (#iban: pliadAdditionalFields :> string)
+        ) {
+          let ibanKeys =
+            connectorAdditionalMerchantData->getArrayFromDict(
+              (#iban: pliadAdditionalFields :> string),
+              [],
+            )
           ibanKeys
           ->Array.mapWithIndex((field, index) => {
             let fields =
@@ -145,8 +156,15 @@ let make = (~connectorAdditionalMerchantData) => {
             </div>
           })
           ->React.array
-        } else if field === "bacs" && accountData == "bacs" {
-          let bacsKeys = connectorAdditionalMerchantData->getArrayFromDict("bacs", [])
+        } else if (
+          field === (#bacs: pliadAdditionalFields :> string) &&
+            accountData == (#bacs: pliadAdditionalFields :> string)
+        ) {
+          let bacsKeys =
+            connectorAdditionalMerchantData->getArrayFromDict(
+              (#bacs: pliadAdditionalFields :> string),
+              [],
+            )
           bacsKeys
           ->Array.mapWithIndex((field, index) => {
             let fields =
@@ -164,10 +182,13 @@ let make = (~connectorAdditionalMerchantData) => {
           })
           ->React.array
         } else if (
-          field === "connector_recipient_id" && openBankingRecipientData == "connector_recipient_id"
+          field === (#connector_recipient_id: pliadAdditionalFields :> string) &&
+            openBankingRecipientData === (#connector_recipient_id: pliadAdditionalFields :> string)
         ) {
           let connectorRecipientId =
-            connectorAdditionalMerchantData->getDictfromDict("connector_recipient_id")
+            connectorAdditionalMerchantData->getDictfromDict(
+              (#connector_recipient_id: pliadAdditionalFields :> string),
+            )
           let fields =
             connectorRecipientId
             ->JSON.Encode.object
@@ -181,8 +202,14 @@ let make = (~connectorAdditionalMerchantData) => {
               )}
             />
           </div>
-        } else if field === "wallet_id" && openBankingRecipientData == "wallet_id" {
-          let walledId = connectorAdditionalMerchantData->getDictfromDict("wallet_id")
+        } else if (
+          field === (#wallet_id: pliadAdditionalFields :> string) &&
+            openBankingRecipientData == (#wallet_id: pliadAdditionalFields :> string)
+        ) {
+          let walledId =
+            connectorAdditionalMerchantData->getDictfromDict(
+              (#wallet_id: pliadAdditionalFields :> string),
+            )
           let fields =
             walledId
             ->JSON.Encode.object
