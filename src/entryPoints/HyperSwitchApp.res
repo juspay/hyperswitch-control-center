@@ -19,19 +19,15 @@ let make = () => {
     isProdIntentCompleted,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
-  let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let enumDetails =
     enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
-  let (surveyModal, setSurveyModal) = React.useState(_ => false)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let {merchantId, userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-
+  let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
@@ -39,11 +35,8 @@ let make = () => {
 
   let isReconEnabled = merchantDetailsTypedValue.recon_status === Active
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
-
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
-
   sessionExpired := false
-
   let fetchInitialEnums = async () => {
     try {
       let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
@@ -85,33 +78,12 @@ let make = () => {
   let setUpDashboard = async () => {
     try {
       Window.connectorWasmInit()->ignore
+      let _ = await fetchPermissions()
       let _ = await fetchSwitchMerchantList()
-      let permissionJson = await fetchPermissions()
-
-      // TODO: Move this to prod onboarding form
-
-      if merchantId->isNonEmptyString {
-        if (
-          permissionJson.connectorsView === Access ||
-          permissionJson.workflowsView === Access ||
-          permissionJson.workflowsManage === Access
-        ) {
-          let _ = await fetchConnectorListResponse()
-        }
-
-        let _ = await fetchBusinessProfiles()
-        let _ = await fetchMerchantAccountDetails()
-      }
       if featureFlagDetails.quickStart {
         let _ = await fetchInitialEnums()
       }
-
-      if featureFlagDetails.isLiveMode && !featureFlagDetails.branding {
-        setDashboardPageState(_ => #PROD_ONBOARDING)
-      } else {
-        setDashboardPageState(_ => #HOME)
-      }
-
+      setDashboardPageState(_ => #HOME)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ =>
@@ -123,7 +95,7 @@ let make = () => {
   React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  }, [])
+  }, [orgId, merchantId, profileId])
 
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal
@@ -156,12 +128,15 @@ let make = () => {
         {switch dashboardPageState {
         | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
         | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
+        // INTEGRATION_DOC AND PROD_ONBOARDING Need to be removed
         | #INTEGRATION_DOC => <UserOnboarding />
         | #PROD_ONBOARDING => <ProdOnboardingLanding />
+        //
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
           <div className="relative">
-            <div className={`h-screen flex flex-col`}>
+            // TODO: Change the key to only profileId once the userInfo starts sending profileId
+            <div className={`h-screen flex flex-col`} key={`${orgId}-${merchantId}-${profileId}`}>
               <div className="flex relative overflow-auto h-screen ">
                 <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
                 <div
@@ -179,6 +154,11 @@ let make = () => {
                             userRole={userRole}
                             isAddMerchantEnabled={userRole === "org_admin" ? true : false}
                           />
+                          <RenderIf
+                            condition={featureFlagDetails.userManagementRevamp &&
+                            featureFlagDetails.totp}>
+                            <ProfileSwitch />
+                          </RenderIf>
                           <div
                             className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
                             {modeText->React.string}
@@ -204,81 +184,20 @@ let make = () => {
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
-                        | list{"home"} => featureFlagDetails.quickStart ? <HomeV2 /> : <Home />
-                        | list{"fraud-risk-management", ...remainingPath} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.frm}
-                            permission=userPermissionJson.connectorsView>
-                            <EntityScaffold
-                              entityName="risk-management"
-                              remainingPath
-                              renderList={() => <FRMSelect />}
-                              renderNewForm={() => <FRMConfigure />}
-                              renderShow={_ => <FRMConfigure />}
-                            />
-                          </AccessControl>
-
-                        | list{"connectors", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.connectorsView>
-                            <EntityScaffold
-                              entityName="Connectors"
-                              remainingPath
-                              renderList={() => <ConnectorList />}
-                              renderNewForm={() => <ConnectorHome />}
-                              renderShow={_ => <ConnectorHome />}
-                            />
-                          </AccessControl>
-
-                        | list{"payoutconnectors", ...remainingPath} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.payOut}
-                            permission=userPermissionJson.connectorsView>
-                            <EntityScaffold
-                              entityName="PayoutConnectors"
-                              remainingPath
-                              renderList={() => <ConnectorList isPayoutFlow=true />}
-                              renderNewForm={() => <ConnectorHome isPayoutFlow=true />}
-                              renderShow={_ => <ConnectorHome isPayoutFlow=true />}
-                            />
-                          </AccessControl>
-
-                        | list{"payoutrouting", ...remainingPath} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.payOut}
-                            permission=userPermissionJson.workflowsView>
-                            <EntityScaffold
-                              entityName="PayoutRouting"
-                              remainingPath
-                              renderList={() => <PayoutRoutingStack remainingPath />}
-                              renderShow={routingType => <PayoutRoutingConfigure routingType />}
-                            />
-                          </AccessControl>
-
-                        | list{"3ds-authenticators", ...remainingPath} =>
-                          <AccessControl
-                            permission=userPermissionJson.connectorsView
-                            isEnabled={featureFlagDetails.threedsAuthenticator}>
-                            <EntityScaffold
-                              entityName="3DS Authenticator"
-                              remainingPath
-                              renderList={() => <ThreeDsConnectorList />}
-                              renderNewForm={() => <ThreeDsProcessorHome />}
-                              renderShow={_ => <ThreeDsProcessorHome />}
-                            />
-                          </AccessControl>
-
-                        | list{"pm-authentication-processor", ...remainingPath} =>
-                          <AccessControl
-                            permission=userPermissionJson.connectorsView
-                            isEnabled={featureFlagDetails.pmAuthenticationProcessor}>
-                            <EntityScaffold
-                              entityName="PM Authentication Processor"
-                              remainingPath
-                              renderList={() => <PMAuthenticationConnectorList />}
-                              renderNewForm={() => <PMAuthenticationHome />}
-                              renderShow={_ => <PMAuthenticationHome />}
-                            />
-                          </AccessControl>
+                        | list{"home", ..._} => <MerchantAccountContainer />
+                        | list{"connectors", ..._}
+                        | list{"payoutconnectors", ..._}
+                        | list{"3ds-authenticators", ..._}
+                        | list{"pm-authentication-processor", ..._}
+                        | list{"fraud-risk-management", ..._}
+                        | list{"configure-pmts", ..._}
+                        | list{"routing", ..._}
+                        | list{"payoutrouting", ..._} =>
+                          <ConnectorContainer />
+                        | list{"business-details", ..._}
+                        | list{"business-profiles", ..._}
+                        | list{"payment-settings", ..._} =>
+                          <BusinessProfileContainer />
 
                         | list{"payments", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.operationsView>
@@ -339,15 +258,6 @@ let make = () => {
                               renderShow={id => <ShowCustomers id />}
                             />
                           </AccessControl>
-                        | list{"routing", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.workflowsView>
-                            <EntityScaffold
-                              entityName="Routing"
-                              remainingPath
-                              renderList={() => <RoutingStack remainingPath />}
-                              renderShow={routingType => <RoutingConfigure routingType />}
-                            />
-                          </AccessControl>
                         | list{"users", "invite-users"} =>
                           <AccessControl permission=userPermissionJson.usersManage>
                             <InviteUsers />
@@ -365,6 +275,18 @@ let make = () => {
                               renderShow={_ => <ShowUserData />}
                             />
                           </AccessControl>
+
+                        | list{"users-revamp", ...remainingPath} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.userManagementRevamp} permission={Access}>
+                            <EntityScaffold
+                              entityName="UserManagement"
+                              remainingPath
+                              renderList={_ => <UserManagementLanding />}
+                              renderShow={_ => <ShowUserData />}
+                            />
+                          </AccessControl>
+
                         | list{"analytics-payments"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
                             <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
@@ -424,14 +346,6 @@ let make = () => {
                             </FilterContext>
                           </AccessControl>
 
-                        | list{"payment-settings", ...remainingPath} =>
-                          <EntityScaffold
-                            entityName="PaymentSettings"
-                            remainingPath
-                            renderList={() => <PaymentSettingsList />}
-                            renderShow={_profileId =>
-                              <PaymentSettings webhookOnly=false showFormOnly=false />}
-                          />
                         | list{"recon"} =>
                           <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
                             <Recon />
@@ -473,7 +387,7 @@ let make = () => {
                           </AccessControl>
                         | list{"account-settings", "profile", ...remainingPath} =>
                           <EntityScaffold
-                            entityName="ConfigurePMTs"
+                            entityName="profile setting"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
                             renderShow={_value =>
@@ -481,29 +395,6 @@ let make = () => {
                                 <ModifyTwoFaSettings />
                               </RenderIf>}
                           />
-
-                        | list{"business-details"} =>
-                          <AccessControl isEnabled=featureFlagDetails.default permission={Access}>
-                            <BusinessDetails />
-                          </AccessControl>
-                        | list{"business-profiles"} =>
-                          <AccessControl permission=Access>
-                            <BusinessProfile />
-                          </AccessControl>
-                        | list{"configure-pmts", ...remainingPath} =>
-                          <AccessControl
-                            permission=userPermissionJson.connectorsView
-                            isEnabled={featureFlagDetails.configurePmts}>
-                            <FilterContext key="ConfigurePmts" index="ConfigurePmts">
-                              <EntityScaffold
-                                entityName="ConfigurePMTs"
-                                remainingPath
-                                renderList={() => <PaymentMethodList />}
-                                renderShow={_profileId =>
-                                  <PaymentSettings webhookOnly=false showFormOnly=false />}
-                              />
-                            </FilterContext>
-                          </AccessControl>
                         | list{"quick-start"} => determineQuickStartPageState()
                         | list{"woocommerce"} => determineWooCommerce()
                         | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
@@ -535,7 +426,7 @@ let make = () => {
                         | list{"unauthorized"} => <UnauthorizedPage />
                         | _ =>
                           RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-                          <Home />
+                          <MerchantAccountContainer />
                         }}
                       </ErrorBoundary>
                     </div>
@@ -551,12 +442,6 @@ let make = () => {
               </RenderIf>
               <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
                 <ProdIntentForm />
-              </RenderIf>
-              <RenderIf
-                condition={!featureFlagDetails.isLiveMode &&
-                userPermissionJson.merchantDetailsManage === Access &&
-                merchantDetailsTypedValue.merchant_name->Option.isNone}>
-                <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
               </RenderIf>
             </div>
           </div>

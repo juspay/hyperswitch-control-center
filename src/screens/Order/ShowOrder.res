@@ -812,7 +812,13 @@ let make = (~id) => {
                     data=orderData
                     getHeading=OrderEntity.getHeadingForOtherDetails
                     getCell=OrderEntity.getCellForOtherDetails
-                    detailsFields=[PMBillingEmail, PMBillingPhone, PMBillingAddress]
+                    detailsFields=[
+                      PMBillingFirstName,
+                      PMBillingLastName,
+                      PMBillingEmail,
+                      PMBillingPhone,
+                      PMBillingAddress,
+                    ]
                     isNonRefundConnector={isNonRefundConnector(orderData.connector)}
                     paymentStatus={orderData.status}
                     openRefundModal={() => ()}
