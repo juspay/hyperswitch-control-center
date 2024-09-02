@@ -86,12 +86,13 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open OMPSwitchUtils
+  open OMPSwitchHelper
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
-  let (merchantList, setMerchantList) = React.useState(_ => defaultUser(merchantId, ""))
   let (showModal, setShowModal) = React.useState(_ => false)
+  let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
 
   let getMerchantList = async () => {
     try {
@@ -99,12 +100,12 @@ let make = () => {
       let response = await fetchDetails(url)
       setMerchantList(_ => response->getArrayDataFromJson(merchantItemToObjMapper))
     } catch {
-    | _ => showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
+    | _ => {
+        setMerchantList(_ => ompDefaultValue(merchantId, ""))
+        showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
+      }
     }
   }
-
-  let options: array<SelectBox.dropdownOption> =
-    merchantList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
@@ -131,7 +132,7 @@ let make = () => {
       input
       deselectDisable=true
       customButtonStyle="!rounded-md"
-      options
+      options={merchantList->generateDropdownOptions}
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false
