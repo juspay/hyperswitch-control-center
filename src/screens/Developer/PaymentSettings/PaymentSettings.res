@@ -230,7 +230,7 @@ module CollectDetails = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let valuesDict = formState.values->getDictFromJsonObject
-    let initValue: bool = options->Array.some(option => valuesDict->getBool(option.key, false))
+    let initValue = options->Array.some(option => valuesDict->getBool(option.key, false))
     let (isSelected, setIsSelected) = React.useState(_ => initValue)
     let form = ReactFinalForm.useForm()
 
@@ -244,7 +244,7 @@ module CollectDetails = {
 
     React.useEffect(() => {
       if isSelected {
-        let value: bool = options->Array.some(option => valuesDict->getBool(option.key, false))
+        let value = options->Array.some(option => valuesDict->getBool(option.key, false))
         if !value {
           switch options->Array.get(0) {
           | Some(name) => form.change(name.key, true->JSON.Encode.bool)
@@ -252,9 +252,7 @@ module CollectDetails = {
           }
         }
       } else {
-        options->Array.forEach(option => {
-          form.change(option.key, false->JSON.Encode.bool)
-        })
+        options->Array.forEach(option => form.change(option.key, false->JSON.Encode.bool))
       }
       None
     }, [isSelected])
@@ -272,8 +270,9 @@ module CollectDetails = {
       <RenderIf condition={isSelected}>
         <div className="mt-4">
           {options
-          ->Array.map(option => {
+          ->Array.mapWithIndex((option, index) =>
             <div
+              key={index->Int.toString}
               className="flex gap-2 mb-3 items-center cursor-pointer"
               onClick={_ => onClick(option.key)}>
               <RadioIcon
@@ -283,7 +282,7 @@ module CollectDetails = {
                 {option.name->LogicUtils.snakeToTitle->React.string}
               </div>
             </div>
-          })
+          )
           ->React.array}
         </div>
       </RenderIf>
