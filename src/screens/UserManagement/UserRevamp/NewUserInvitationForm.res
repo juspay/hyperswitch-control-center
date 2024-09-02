@@ -131,7 +131,11 @@ let make = () => {
       let url = getURL(~entityName=USERS, ~userType=#LIST_ROLES_FOR_INVITE, ~methodType=Get)
       let result = await fetchDetails(url)
       setOptions(_ => result->makeSelectBoxOptions)
-      setDropDownLoaderState(_ => DropdownWithLoading.Success)
+      if result->LogicUtils.getArrayFromJson([])->Array.length > 0 {
+        setDropDownLoaderState(_ => DropdownWithLoading.Success)
+      } else {
+        setDropDownLoaderState(_ => DropdownWithLoading.NoData)
+      }
     } catch {
     | _ => setDropDownLoaderState(_ => DropdownWithLoading.NoData)
     }
