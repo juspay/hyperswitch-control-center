@@ -6,31 +6,30 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
-  let {email, totp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (loaderForInviteUsers, setLoaderForInviteUsers) = React.useState(_ => false)
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
-  let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {orgId, merchantId, profileId, userEntity}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
 
   let invitationFormInitialValues = React.useMemo(() => {
-    [("org_value", orgId->JSON.Encode.string)]->getJsonFromArrayOfJson
+    let initialvalue = [("org_value", orgId->JSON.Encode.string)]
+    if userEntity == #Merchant {
+      initialvalue->Array.push(("merchant_value", merchantId->JSON.Encode.string))
+    } else if userEntity == #Profile {
+      initialvalue->Array.push(("profile_value", profileId->JSON.Encode.string))
+    }
+    initialvalue->getJsonFromArrayOfJson
   }, [])
 
   let getURLForInviteMultipleUser = {
-    if totp {
-      getURL(
-        ~entityName=USERS,
-        ~userType=#INVITE_MULTIPLE_TOKEN_ONLY,
-        ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}`),
-      )
-    } else {
-      getURL(
-        ~entityName=USERS,
-        ~userType=#INVITE_MULTIPLE,
-        ~methodType=Post,
-        ~queryParamerters=Some(`auth_id=${authId}`),
-      )
-    }
+    getURL(
+      ~entityName=USERS,
+      ~userType=#INVITE_MULTIPLE,
+      ~methodType=Post,
+      ~queryParamerters=Some(`auth_id=${authId}`),
+    )
   }
 
   let inviteListOfUsersWithInviteMultiple = async values => {
@@ -39,7 +38,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
       setLoaderForInviteUsers(_ => true)
     }
     let valDict = values->getDictFromJsonObject
-    let role = valDict->getString("roleType", "")
+    let role = valDict->getString("role_id", "")
     let emailList = valDict->getStrArray("emailList")
 
     let body =

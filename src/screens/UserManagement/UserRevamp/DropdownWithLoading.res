@@ -123,7 +123,8 @@ let make = (
               </RenderIf>
             </div>
             <div
-              className="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full">
+              className="relative inline-flex whitespace-pre leading-5 justify-between text-sm py-3 px-4 font-medium rounded-md hover:bg-opacity-80 bg-white border w-full"
+              onClick={_ => arrow ? () : onClickDropDownApi()->ignore}>
               <span
                 className="px-1 text-fs-13 text-sm font-medium leading-5  whitespace-pre !text-gray-500">
                 {buttonValue->React.string}
@@ -134,7 +135,6 @@ let make = (
                   : `rotate-180 transition duration-[250ms] ml-1 mt-1 opacity-60`}
                 name="arrow-without-tail"
                 size=15
-                onClick={_ => arrow ? () : onClickDropDownApi()->ignore}
               />
             </div>
           </div>

@@ -84,10 +84,7 @@ let make = () => {
   let (roleDict, setRoleDict) = React.useState(_ => Dict.make())
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let roleTypeValue =
-    ReactFinalForm.useField(`roleType`).input.value->getStringFromJson("")->getNonEmptyString
-  let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
-  let merchList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
-  let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
+    ReactFinalForm.useField(`role_id`).input.value->getStringFromJson("")->getNonEmptyString
   let (options, setOptions) = React.useState(_ => []->SelectBox.makeOptions)
   let (dropDownLoaderState, setDropDownLoaderState) = React.useState(_ =>
     DropdownWithLoading.Success
@@ -160,15 +157,9 @@ let make = () => {
     </div>
     <div className="grid grid-cols-5">
       <div className="col-span-2 border-r p-6  flex flex-col gap-2">
-        <FormRenderer.FieldRenderer
-          field={orgList->organizationSelection} labelClass="font-semibold"
-        />
-        <FormRenderer.FieldRenderer
-          field={merchList->merchantSelection} labelClass="font-semibold"
-        />
-        <FormRenderer.FieldRenderer
-          field={profileList->profileSelection} labelClass="font-semibold"
-        />
+        <OrganisationSelection />
+        <MerchantSelection />
+        <ProfileSelection />
         <DropdownWithLoading
           options onClickDropDownApi formKey="role_id" dropDownLoaderState isRequired=true
         />

@@ -128,19 +128,22 @@ let make = () => {
         {switch dashboardPageState {
         | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
         | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
-        // INTEGRATION_DOC AND PROD_ONBOARDING Need to be removed
         | #INTEGRATION_DOC => <UserOnboarding />
         | #PROD_ONBOARDING => <ProdOnboardingLanding />
-        //
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
           <div className="relative">
             // TODO: Change the key to only profileId once the userInfo starts sending profileId
-            <div className={`h-screen flex flex-col`} key={`${orgId}-${merchantId}-${profileId}`}>
+            <div className={`h-screen flex flex-col`}>
               <div className="flex relative overflow-auto h-screen ">
-                <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
+                // TODO : Check key once
+                <Sidebar
+                  path={url.path} sidebars={hyperSwitchAppSidebars} key={`${orgId}-${merchantId}`}
+                />
+                // TODO : Check key once
                 <div
-                  className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
+                  className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden"
+                  key={`${orgId}-${merchantId}-${profileId}`}>
                   // <RenderIf condition={verificationDays > 0}>
                   //   <DelayedVerificationBanner verificationDays={verificationDays} />
                   // </RenderIf>
