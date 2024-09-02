@@ -89,7 +89,7 @@ let itemToObjMapperForGetRoleInfro: Dict.t<JSON.t> => UserManagementTypes.userMo
 }
 
 let groupsAccessWrtToArray = (groupsList, userRoleAccessValueList) => {
-  let response = groupsList->Array.reduce([], (acc, value) => {
+  groupsList->Array.reduce([], (acc, value) => {
     if userRoleAccessValueList->Array.includes(value) && value->String.includes("view") {
       let _ = [acc->Array.push("View")]
     } else if userRoleAccessValueList->Array.includes(value) && value->String.includes("manage") {
@@ -97,7 +97,6 @@ let groupsAccessWrtToArray = (groupsList, userRoleAccessValueList) => {
     }
     acc
   })
-  response
 }
 
 let modulesWithUserAccess = (
@@ -128,9 +127,8 @@ let modulesWithUserAccess = (
 let stringToVariantMapperForAccess = accessAvailable => {
   open UserManagementTypes
   switch accessAvailable {
-  | "View" => View
   | "Manage" => Manage
-  | _ => View
+  | "View" | _ => View
   }
 }
 
