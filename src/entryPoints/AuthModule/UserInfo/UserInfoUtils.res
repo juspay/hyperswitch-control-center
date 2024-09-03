@@ -11,6 +11,8 @@ let defaultValueOfUserInfo = {
   verificationDaysLeft: None,
   profileId: "",
   userEntity: #Merchant,
+  transactionEntity: #Merchant,
+  analyticsEntity: #Merchant,
 }
 
 let entityMapper = entity => {
@@ -42,4 +44,6 @@ let itemMapper = dict => {
   verificationDaysLeft: dict->getOptionInt("verification_days_left"),
   profileId: dict->getString("profileId", ""),
   userEntity: dict->getString("entity_type", "")->entityMapper,
+  transactionEntity: dict->getString("entity_type", "")->entityMapper,
+  analyticsEntity: dict->getString("entity_type", "")->entityMapper,
 }
