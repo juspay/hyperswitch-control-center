@@ -59,7 +59,11 @@ let useGetURL = () => {
         | None =>
           switch id {
           | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-          | None => connectorBaseURL
+          | None =>
+            switch (userEntity, userManagementRevamp) {
+            | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile/connectors`
+            | _ => connectorBaseURL
+            }
           }
         }
       | _ => ""
@@ -322,7 +326,11 @@ let useGetURL = () => {
     | BUSINESS_PROFILE =>
       switch id {
       | Some(id) => `account/${merchantId}/business_profile/${id}`
-      | None => `account/${merchantId}/business_profile`
+      | None =>
+        switch (userEntity, userManagementRevamp) {
+        | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile`
+        | _ => `account/${merchantId}/business_profile`
+        }
       }
 
     /* API KEYS */
