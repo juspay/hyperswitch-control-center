@@ -14,26 +14,44 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   )
 
   let invitationFormInitialValues = React.useMemo(() => {
+    /*
+     INFO: For user_entity the default values (Organisation , Merchant , Profile) will be 
+
+    Organization -> (Current orgId , All Merchants, All Profiles)
+    Merchant -> (Current orgIsd , Current merchantId , All Profiles)
+    Profile -> (Current orgId , Current merchantId , Current profileId)
+ */
+
     let initialvalue = [("org_value", orgId->JSON.Encode.string)]
-    if userEntity == #Merchant {
-      initialvalue->Array.push(("merchant_value", merchantId->JSON.Encode.string))
+
+    if userEntity == #Organization {
+      // TODO : Change this condition when user org level user_invite is enabled
+      initialvalue->Array.pushMany([
+        ("merchant_value", merchantId->JSON.Encode.string),
+        ("profile_value", "all_profiles"->JSON.Encode.string),
+      ])
+    } else if userEntity == #Merchant {
+      initialvalue->Array.pushMany([
+        ("merchant_value", merchantId->JSON.Encode.string),
+        ("profile_value", "all_profiles"->JSON.Encode.string),
+      ])
     } else if userEntity == #Profile {
-      initialvalue->Array.push(("profile_value", profileId->JSON.Encode.string))
+      initialvalue->Array.pushMany([
+        ("merchant_value", merchantId->JSON.Encode.string),
+        ("profile_value", profileId->JSON.Encode.string),
+      ])
     }
     initialvalue->getJsonFromArrayOfJson
   }, [])
 
-  let getURLForInviteMultipleUser = {
-    getURL(
+  let inviteListOfUsersWithInviteMultiple = async values => {
+    let url = getURL(
       ~entityName=USERS,
       ~userType=#INVITE_MULTIPLE,
       ~methodType=Post,
       ~queryParamerters=Some(`auth_id=${authId}`),
     )
-  }
 
-  let inviteListOfUsersWithInviteMultiple = async values => {
-    let url = getURLForInviteMultipleUser
     if !email {
       setLoaderForInviteUsers(_ => true)
     }

@@ -139,6 +139,7 @@ module ProfileSelection = {
             ~label="All profiles",
             ~value="all_profiles",
             ~dropdownList=profileList,
+            ~showAllSelection=true,
           ),
           ~buttonText="Select a Profile",
           ~fullLength=true,
