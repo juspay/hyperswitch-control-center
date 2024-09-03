@@ -160,6 +160,7 @@ let make = (~previewOnly=false) => {
           sortingBasedOnDisabled=false
           hideTitle=true
           previewOnly
+          remoteSortEnabled=true
         />
       </PageLoaderWrapper>
     </div>

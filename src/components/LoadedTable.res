@@ -229,6 +229,7 @@ let make = (
   ~tableHeadingTextClass="",
   ~nonFrozenTableParentClass="",
   ~loadedTableParentClass="",
+  ~remoteSortEnabled=false,
 ) => {
   open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
@@ -517,7 +518,16 @@ let make = (
     None
   }, [filteredDataLength])
 
-  let filteredData = actualData
+  let filteredData = React.useMemo(() => {
+    if !remoteSortEnabled {
+      switch sortedObj {
+      | Some(obj: Table.sortedObject) => sortArray(actualData, obj.key, obj.order)
+      | None => actualData
+      }
+    } else {
+      actualData
+    }
+  }, (sortedObj, actualData))
 
   React.useEffect(() => {
     let selectedRowDataLength = checkBoxProps.selectedData->Array.length

@@ -115,4 +115,5 @@ let make: (
   ~tableHeadingTextClass: string=?,
   ~nonFrozenTableParentClass: string=?,
   ~loadedTableParentClass: string=?,
+  ~remoteSortEnabled: bool=?,
 ) => React.element
