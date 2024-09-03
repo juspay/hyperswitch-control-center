@@ -20,21 +20,6 @@ let getMerchantSelectBoxOption = (
   }
 }
 
-let inviteEmail = FormRenderer.makeFieldInfo(
-  ~label="Enter email (s) ",
-  ~name="email_list",
-  ~customInput=(~input, ~placeholder as _) => {
-    let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0
-    InputFields.textTagInput(
-      ~input,
-      ~placeholder=showPlaceHolder ? "Eg: mehak.sam@wise.com, deepak.ven@wise.com" : "",
-      ~customButtonStyle="!rounded-full !px-4",
-      ~seperateByComma=true,
-    )
-  },
-  ~isRequired=true,
-)
-
 let validateEmptyValue = (key, errors) => {
   switch key {
   | "emailList" => Dict.set(errors, "email", "Please enter Invite mails"->JSON.Encode.string)
@@ -64,7 +49,7 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
         ()
       }
     | String(roleType) =>
-      if roleType->String.length === 0 {
+      if roleType->LogicUtils.isEmptyString {
         key->validateEmptyValue(errors)
       }
     | _ => key->validateEmptyValue(errors)
