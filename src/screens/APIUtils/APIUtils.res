@@ -555,6 +555,13 @@ let responseHandler = async (
   ~isPlayground,
   ~popUpCallBack,
   ~handleLogout,
+  ~sendEvent: (
+    ~eventName: string,
+    ~email: string=?,
+    ~description: option<'a>=?,
+    ~section: string=?,
+    ~metadata: RescriptCore.Dict.t<'b>=?,
+  ) => unit,
 ) => {
   let json = try {
     await res->(res => res->Fetch.Response.json)
@@ -563,6 +570,10 @@ let responseHandler = async (
   }
 
   let responseStatus = res->Fetch.Response.status
+
+  if responseStatus >= 500 && responseStatus < 600 {
+    sendEvent(~eventName="API Error",~description=Some(responseStatus), ~metadata=json->getDictFromJsonObject)
+  }
 
   switch responseStatus {
   | 200 => json
@@ -639,6 +650,7 @@ let useGetMethod = (~showErrorToast=true) => {
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let handleLogout = useHandleLogout()
+  let sendEvent = MixpanelHook.useSendEvent()
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let popUpCallBack = () =>
     showPopUp({
@@ -666,6 +678,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~isPlayground,
         ~popUpCallBack,
         ~handleLogout,
+        ~sendEvent,
       )
     } catch {
     | Exn.Error(e) =>
@@ -680,6 +693,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let handleLogout = useHandleLogout()
+  let sendEvent = MixpanelHook.useSendEvent()
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
 
   let popUpCallBack = () =>
@@ -722,6 +736,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~showPopUp,
         ~popUpCallBack,
         ~handleLogout,
+        ~sendEvent,
       )
     } catch {
     | Exn.Error(e) =>
