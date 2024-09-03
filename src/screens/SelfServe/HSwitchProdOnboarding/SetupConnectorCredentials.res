@@ -23,6 +23,7 @@ module ConnectorDetailsForm = {
       _,
       connectorWebHookDetails,
       connectorLabelDetailField,
+      connectorAdditionalMerchantData,
     ) = getConnectorFields(connectorDetails)
     let connectorVariant = connectorName->getConnectorNameTypeFromString
 
@@ -48,6 +49,7 @@ module ConnectorDetailsForm = {
         connectorMetaDataFields
         connectorWebHookDetails
         connectorLabelDetailField
+        connectorAdditionalMerchantData
       />
       <ConnectorAccountDetailsHelper.VerifyConnectorModal
         showVerifyModal
@@ -120,6 +122,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     isVerifyConnector,
     connectorWebHookDetails,
     connectorLabelDetailField,
+    _,
   ) = getConnectorFields(connectorDetails)
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile

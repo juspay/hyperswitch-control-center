@@ -113,6 +113,7 @@ let make = () => {
     _,
     connectorWebHookDetails,
     connectorLabelDetailField,
+    connectorAdditionalMerchantData,
   ) = getConnectorFields(connectorDetails)
 
   React.useEffect(() => {
@@ -252,6 +253,7 @@ let make = () => {
                   connectorMetaDataFields
                   connectorWebHookDetails
                   connectorLabelDetailField
+                  connectorAdditionalMerchantData
                 />
               </div>
             </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
