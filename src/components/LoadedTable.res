@@ -720,6 +720,21 @@ let make = (
     }
   }, (filteredData, getShowLink, onMouseLeave, url.search))
 
+  let filterBottomPadding = isMobileView ? "" : "pb-4"
+
+  let paddingClass = {rightTitleElement != React.null ? filterBottomPadding : ""}
+
+  let customizeColumsButtons = {
+    switch clearFormattedDataButton {
+    | Some(clearFormattedDataButton) =>
+      <div className={`flex flex-row mobile:gap-7 desktop:gap-10 ${filterBottomPadding}`}>
+        clearFormattedDataButton
+        {rightTitleElement}
+      </div>
+    | _ => <div className={paddingClass}> {rightTitleElement} </div>
+    }
+  }
+
   let (loadedTableUI, paginationUI) = if totalResults > 0 {
     let paginationUI = if showPagination {
       <AddDataAttributes attributes=[("data-paginator", "dynamicTablePaginator")]>
@@ -813,6 +828,7 @@ let make = (
                 ?showborderColor
                 tableHeadingTextClass
                 nonFrozenTableParentClass
+                showCustomizeColumn={rightTitleElement != React.null}
               />
             switch tableLocalFilter {
             | true =>
@@ -862,7 +878,7 @@ let make = (
   } else {
     tableActionBorder
   }
-  let filterBottomPadding = isMobileView ? "" : "pb-3"
+
   let filtersOuterMargin = if hideTitle {
     ""
   } else {
@@ -889,20 +905,6 @@ let make = (
         }}
       </DesktopView>
     </div>
-
-  let customizeColumsButtons = {
-    switch clearFormattedDataButton {
-    | Some(clearFormattedDataButton) =>
-      <div className={`flex flex-row mobile:gap-7 desktop:gap-10 ${filterBottomPadding}`}>
-        clearFormattedDataButton
-        <Portal to={""}> rightTitleElement </Portal>
-      </div>
-    | _ =>
-      <div className={`${rightTitleElement != React.null ? filterBottomPadding : ""}`}>
-        <Portal to={""}> rightTitleElement </Portal>
-      </div>
-    }
-  }
 
   let addDataAttributesClass = if isHighchartLegend {
     `visibility: hidden`

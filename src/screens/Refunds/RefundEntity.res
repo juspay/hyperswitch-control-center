@@ -2,6 +2,7 @@ open LogicUtils
 open HSwitchOrderUtils
 
 type refunds = {
+  profile_id: string,
   refund_id: string,
   payment_id: string,
   amount: float,
@@ -139,6 +140,7 @@ let getCell = (refundData, colType): Table.cell => {
 
 let itemToObjMapper = dict => {
   {
+    profile_id: getString(dict, "profile_id", ""),
     amount: getFloat(dict, "amount", 0.0),
     created_at: getString(dict, "created_at", ""),
     currency: getString(dict, "currency", ""),
@@ -167,6 +169,9 @@ let refundEntity = EntityType.makeEntity(
   ~getCell,
   ~dataKey="",
   ~getShowLink={
-    refundData => GlobalVars.appendDashboardPath(~url=`/refunds/${refundData.refund_id}`)
+    refundData =>
+      GlobalVars.appendDashboardPath(
+        ~url=`/refunds/${refundData.refund_id}/${refundData.profile_id}`,
+      )
   },
 )

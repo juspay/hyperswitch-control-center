@@ -92,7 +92,8 @@ let useProfileSwitch = () => {
 
   async (~expectedProfileId, ~currentProfileId) => {
     try {
-      if expectedProfileId !== currentProfileId {
+      // Need to remove the Empty string check once userInfo contains the profileId
+      if expectedProfileId !== currentProfileId && currentProfileId->LogicUtils.isNonEmptyString {
         let url = getURL(~entityName=USERS, ~userType=#SWITCH_PROFILE, ~methodType=Post)
         let body =
           [("profile_id", expectedProfileId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
@@ -116,6 +117,7 @@ let useInternalSwitch = () => {
   let orgSwitch = useOrgSwitch()
   let merchSwitch = useMerchantSwitch()
   let profileSwitch = useProfileSwitch()
+  let showToast = ToastState.useShowToast()
 
   let {
     userInfo: {orgId: currentOrgId, merchantId: currentMerchantId, profileId: currentProfileId},
@@ -137,7 +139,8 @@ let useInternalSwitch = () => {
       )
     } catch {
     | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        let err = Exn.message(e)->Option.getOr("Failed to switch!")
+        showToast(~message=err, ~toastType=ToastError)
         Exn.raiseError(err)
       }
     }
