@@ -105,7 +105,6 @@ type userType = [
   | #SWITCH_MERCHANT_NEW
   | #SWITCH_PROFILE
   | #ROLE_INFO
-  | #LIST_ROLES_FOR_INVITE
   | #NONE
 ]
 

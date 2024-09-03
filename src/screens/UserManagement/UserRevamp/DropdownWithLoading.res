@@ -6,24 +6,13 @@ let commonDropdownCss = "absolute md:max-h-36 md:min-h-36 overflow-scroll z-30 w
 
 module DropDownItems = {
   @react.component
-  let make = (
-    ~options: array<SelectBox.dropdownOption>,
-    ~formKey,
-    ~keyValueFromForm,
-    ~setArrow,
-  ) => {
+  let make = (~options: array<SelectBox.dropdownOption>, ~formKey, ~keyValueFromForm) => {
     let form = ReactFinalForm.useForm()
     let onItemSelect = value => {
       form.change(formKey, value->Identity.genericTypeToJson)
     }
     <Menu.Items className={`divide-y divide-gray-100 ${commonDropdownCss}`}>
-      {props => {
-        if props["open"] {
-          setArrow(_ => true)
-        } else {
-          setArrow(_ => false)
-        }
-
+      {_ => {
         <div className="px-1 py-1 ">
           {options
           ->Array.mapWithIndex((option, i) =>
@@ -88,7 +77,6 @@ let make = (
   ~isRequired=false,
 ) => {
   open LogicUtils
-  let (arrow, setArrow) = React.useState(_ => false)
 
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -111,9 +99,10 @@ let make = (
   }, [keyValueFromForm])
 
   <Menu \"as"="div" className="relative inline-block text-left p-1">
-    {_menuProps => <>
+    {_ => <>
       <Menu.Button className="w-full">
-        {_buttonProps => {
+        {props => {
+          let arrow = props["open"]
           <div className="w-full flex flex-col">
             <div
               className="flex justify-start pt-2 pb-2 text-fs-13 text-jp-gray-900 ml-1 font-semibold">
@@ -130,9 +119,9 @@ let make = (
                 {buttonValue->React.string}
               </span>
               <Icon
-                className={arrow
-                  ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
-                  : `rotate-180 transition duration-[250ms] ml-1 mt-1 opacity-60`}
+                className={`transition duration-[250ms] ml-1 mt-1 opacity-60 ${arrow
+                    ? "rotate-0"
+                    : "rotate-180"}`}
                 name="arrow-without-tail"
                 size=15
               />
@@ -150,7 +139,7 @@ let make = (
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95">
         {switch dropDownLoaderState {
-        | Success => <DropDownItems options keyValueFromForm formKey setArrow />
+        | Success => <DropDownItems options keyValueFromForm formKey />
         | Loading => <DropDownLoading />
         | NoData => <DropDownNoData />
         }}
