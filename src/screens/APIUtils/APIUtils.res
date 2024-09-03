@@ -117,6 +117,16 @@ let useGetURL = () => {
 
       | _ => ""
       }
+    | ORDERS_AGGREGATE =>
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(queryParams) => `payments/aggregate?${queryParams}`
+        | None => `payments/aggregate`
+        }
+      | Post => `payments/aggregate`
+      | _ => ""
+      }
     | REFUNDS =>
       switch methodType {
       | Get =>
