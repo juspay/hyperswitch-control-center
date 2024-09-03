@@ -1,10 +1,14 @@
+type userInfo = {
+  getUserInfo: unit => promise<UserInfoTypes.userInfo>,
+  updateTransaction: unit => unit,
+}
 let useUserInfo = () => {
   open LogicUtils
   let fetchApi = AuthHooks.useApiFetcher()
   let {setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let url = `${Window.env.apiBaseUrl}/user`
 
-  async _ => {
+  let getUserInfo = async () => {
     try {
       let res = await fetchApi(`${url}`, ~method_=Get)
       let response = await res->(res => res->Fetch.Response.json)
@@ -18,13 +22,17 @@ let useUserInfo = () => {
       }
     }
   }
+  let updateTransaction = () => {
+    Js.log("")
+  }
+  {getUserInfo, updateTransaction}
 }
 
 let useOrgSwitch = () => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let userDetails = useUserInfo()
+  let {getUserInfo} = useUserInfo()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let {userInfo: userInfoDefault} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -36,7 +44,7 @@ let useOrgSwitch = () => {
           [("org_id", expectedOrgId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
-        let userInfoRes = await userDetails()
+        let userInfoRes = await getUserInfo()
         userInfoRes
       } else {
         userInfoDefault
@@ -54,7 +62,7 @@ let useMerchantSwitch = () => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let userDetails = useUserInfo()
+  let {getUserInfo} = useUserInfo()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let {userInfo: userInfoDefault} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -68,7 +76,7 @@ let useMerchantSwitch = () => {
           ]->LogicUtils.getJsonFromArrayOfJson
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
-        let userInfoRes = await userDetails()
+        let userInfoRes = await getUserInfo()
         userInfoRes
       } else {
         userInfoDefault
@@ -86,7 +94,7 @@ let useProfileSwitch = () => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let userDetails = useUserInfo()
+  let {getUserInfo} = useUserInfo()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let {userInfo: userInfoDefault} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -99,7 +107,7 @@ let useProfileSwitch = () => {
           [("profile_id", expectedProfileId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
-        let userInfoRes = await userDetails()
+        let userInfoRes = await getUserInfo()
         userInfoRes
       } else {
         userInfoDefault
