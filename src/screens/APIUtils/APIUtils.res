@@ -423,6 +423,7 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
+      | #ROLE_INFO => `${userUrl}/module/list`
 
       // USER ACTIONS
       | #USER_DELETE => `${userUrl}/user/delete`
@@ -495,6 +496,13 @@ let useGetURL = () => {
         }
       | #SIGN_IN_WITH_SSO => `${userUrl}/oidc`
       | #AUTH_SELECT => `${userUrl}/auth/select`
+
+      // user-management revamp
+      | #LIST_ROLES_FOR_INVITE =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/role/list/invite?${params}`
+        | None => ""
+        }
 
       | #NONE => ""
       }

@@ -41,5 +41,5 @@ let itemMapper = dict => {
   roleId: dict->getString("role_id", defaultValueOfUserInfo.email),
   verificationDaysLeft: dict->getOptionInt("verification_days_left"),
   profileId: dict->getString("profileId", ""),
-  userEntity: dict->getString("entity", "")->entityMapper,
+  userEntity: dict->getString("entity_type", "")->entityMapper,
 }

@@ -4,11 +4,13 @@ let make = () => {
   open ListRolesTableEntity
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let mixpanelEvent = MixpanelHook.useSendEvent()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (screenStateRoles, setScreenStateRoles) = React.useState(_ => PageLoaderWrapper.Loading)
   let (rolesAvailableData, setRolesAvailableData) = React.useState(_ => [])
   let (rolesOffset, setRolesOffset) = React.useState(_ => 0)
+
+  // TODO: un-comment this when custom role is implemented
+  // let mixpanelEvent = MixpanelHook.useSendEvent()
+  // let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let getRolesAvailable = async () => {
     setScreenStateRoles(_ => PageLoaderWrapper.Loading)
@@ -35,20 +37,21 @@ let make = () => {
 
   <div className="relative mt-5 flex flex-col gap-6">
     <PageLoaderWrapper screenState={screenStateRoles}>
-      <div className="flex flex-1 justify-end">
-        <ACLButton
-          access={userPermissionJson.usersManage}
-          text={"Create custom roles"}
-          buttonType=Primary
-          onClick={_ => {
-            mixpanelEvent(~eventName="invite_users")
-            RescriptReactRouter.push(
-              GlobalVars.appendDashboardPath(~url="/users/create-custom-role"),
-            )
-          }}
-          customButtonStyle="w-fit !rounded-md"
-        />
-      </div>
+      // TODO: un-comment this when custom role is implemented
+      // <div className="flex flex-1 justify-end">
+      //   <ACLButton
+      //     access={userPermissionJson.usersManage}
+      //     text={"Create custom roles"}
+      //     buttonType=Primary
+      //     onClick={_ => {
+      //       mixpanelEvent(~eventName="invite_users")
+      //       RescriptReactRouter.push(
+      //         GlobalVars.appendDashboardPath(~url="/users/create-custom-role"),
+      //       )
+      //     }}
+      //     customButtonStyle="w-fit !rounded-md"
+      //   />
+      // </div>
       <LoadedTable
         title="Roles"
         hideTitle=true
