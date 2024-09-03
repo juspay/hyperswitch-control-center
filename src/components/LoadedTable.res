@@ -844,7 +844,7 @@ let make = (
                 ?showborderColor
                 tableHeadingTextClass
                 nonFrozenTableParentClass
-                showCustomizeColumn={rightTitleElement != React.null ? true : false}
+                showCustomizeColumn={rightTitleElement != React.null}
               />
             switch tableLocalFilter {
             | true =>

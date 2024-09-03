@@ -33,7 +33,10 @@ let make = () => {
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
     : "bg-orange-600/80 border-orange-500 text-grey-700"
 
-  let isReconEnabled = merchantDetailsTypedValue.recon_status === Active
+  let isReconEnabled = React.useMemo(() => {
+    merchantDetailsTypedValue.recon_status === Active
+  }, [merchantDetailsTypedValue.merchant_id])
+
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   sessionExpired := false
@@ -182,7 +185,15 @@ let make = () => {
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
-                        | list{"home", ..._} => <MerchantAccountContainer />
+                        | list{"home", ..._}
+                        | list{"recon"}
+                        | list{"upload-files"}
+                        | list{"run-recon"}
+                        | list{"recon-analytics"}
+                        | list{"reports"}
+                        | list{"config-settings"}
+                        | list{"file-processor"} =>
+                          <MerchantAccountContainer />
                         | list{"connectors", ..._}
                         | list{"payoutconnectors", ..._}
                         | list{"3ds-authenticators", ..._}
@@ -205,7 +216,7 @@ let make = () => {
                                 remainingPath
                                 access=Access
                                 renderList={() => <Orders />}
-                                renderShow={id => <ShowOrder id />}
+                                renderShow={(id, key) => <ShowOrder id profileId={key} />}
                               />
                             </FilterContext>
                           </AccessControl>
@@ -220,7 +231,7 @@ let make = () => {
                                 remainingPath
                                 access=Access
                                 renderList={() => <PayoutsList />}
-                                renderShow={id => <ShowPayout id />}
+                                renderShow={(id, key) => <ShowPayout id profileId={key} />}
                               />
                             </FilterContext>
                           </AccessControl>
@@ -232,7 +243,7 @@ let make = () => {
                                 remainingPath
                                 access=Access
                                 renderList={() => <Refund />}
-                                renderShow={id => <ShowRefund id />}
+                                renderShow={(id, key) => <ShowRefund id profileId={key} />}
                               />
                             </FilterContext>
                           </AccessControl>
@@ -243,7 +254,7 @@ let make = () => {
                               remainingPath
                               access=Access
                               renderList={() => <Disputes />}
-                              renderShow={id => <ShowDisputes id />}
+                              renderShow={(id, key) => <ShowDisputes id profileId={key} />}
                             />
                           </AccessControl>
                         | list{"customers", ...remainingPath} =>
@@ -253,7 +264,7 @@ let make = () => {
                               remainingPath
                               access=Access
                               renderList={() => <Customers />}
-                              renderShow={id => <ShowCustomers id />}
+                              renderShow={(id, _) => <ShowCustomers id />}
                             />
                           </AccessControl>
                         | list{"users", "invite-users"} =>
@@ -270,7 +281,7 @@ let make = () => {
                               entityName="UserManagement"
                               remainingPath
                               renderList={_ => <UserRoleEntry />}
-                              renderShow={_ => <ShowUserData />}
+                              renderShow={(_, _) => <ShowUserData />}
                             />
                           </AccessControl>
 
@@ -281,7 +292,7 @@ let make = () => {
                               entityName="UserManagement"
                               remainingPath
                               renderList={_ => <UserManagementLanding />}
-                              renderShow={_ => <ShowUserData />}
+                              renderShow={(_, _) => <ShowUserData />}
                             />
                           </AccessControl>
 
@@ -344,19 +355,6 @@ let make = () => {
                             </FilterContext>
                           </AccessControl>
 
-                        | list{"recon"} =>
-                          <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
-                            <Recon />
-                          </AccessControl>
-                        | list{"upload-files"}
-                        | list{"run-recon"}
-                        | list{"recon-analytics"}
-                        | list{"reports"}
-                        | list{"config-settings"}
-                        | list{"file-processor"} =>
-                          <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
-                            <ReconModule urlList={url.path->urlPath} />
-                          </AccessControl>
                         | list{"compliance"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.complianceCertificate permission=Access>
@@ -388,7 +386,7 @@ let make = () => {
                             entityName="profile setting"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
-                            renderShow={_value => <ModifyTwoFaSettings />}
+                            renderShow={(_, _) => <ModifyTwoFaSettings />}
                           />
                         | list{"quick-start"} => determineQuickStartPageState()
                         | list{"woocommerce"} => determineWooCommerce()

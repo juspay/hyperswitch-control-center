@@ -586,7 +586,7 @@ module FraudRiskBanner = {
 }
 
 @react.component
-let make = (~id) => {
+let make = (~id, ~profileId) => {
   open APIUtils
   open OrderUIUtils
   let url = RescriptReactRouter.useUrl()
@@ -599,11 +599,12 @@ let make = (~id) => {
   let (orderData, setOrderData) = React.useState(_ => Dict.make()->OrderEntity.itemToObjMapper)
 
   let frmDetailsRef = React.useRef(Nullable.null)
-
   let fetchDetails = useGetMethod()
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let fetchOrderDetails = async url => {
     try {
       setScreenState(_ => Loading)
+      let _ = await internalSwitch(~expectedProfileId=Some(profileId))
       let res = await fetchDetails(url)
       let order = OrderEntity.itemToObjMapper(res->getDictFromJsonObject)
       setOrderData(_ => order)
