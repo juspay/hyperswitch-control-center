@@ -18,8 +18,8 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
      INFO: For user_entity the default values (Organisation , Merchant , Profile) will be 
 
     Organization -> (Current orgId , All Merchants, All Profiles)
-    Merchant -> (Current orgIsd , Current merchantId , All Profiles)
-    Profile -> (Current orgId , Current merchantId , Current profileId)
+    Merchant -> (Current orgId , Current merchantId , All Profiles)
+    Profile -> (Current orgId , Current merchantId , Current profileId) 
  */
 
     let initialvalue = [("org_value", orgId->JSON.Encode.string)]
@@ -42,7 +42,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
       ])
     }
     initialvalue->getJsonFromArrayOfJson
-  }, [])
+  }, [userEntity])
 
   let inviteListOfUsersWithInviteMultiple = async values => {
     let url = getURL(
