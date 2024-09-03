@@ -57,3 +57,8 @@ let profileListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Rec
   "profileListAtom",
   OMPSwitchUtils.ompDefaultValue("", ""),
 )
+
+let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType>> = Recoil.atom(
+  "moduleListRecoil",
+  [],
+)

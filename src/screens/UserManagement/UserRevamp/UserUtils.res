@@ -1,8 +1,3 @@
-let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType>> = Recoil.atom(
-  "moduleListRecoil",
-  [],
-)
-
 let getMerchantSelectBoxOption = (
   ~label,
   ~value,
