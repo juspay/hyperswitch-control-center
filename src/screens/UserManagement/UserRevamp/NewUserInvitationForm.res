@@ -80,7 +80,7 @@ let make = () => {
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let roleInfo = Recoil.useRecoilValueFromAtom(UserUtils.moduleListRecoil)
+  let roleInfo = Recoil.useRecoilValueFromAtom(HyperswitchAtom.moduleListRecoil)
   let (roleDict, setRoleDict) = React.useState(_ => Dict.make())
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let roleTypeValue =

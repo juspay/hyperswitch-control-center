@@ -16,7 +16,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(userPermissionAtom)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let setRoleInfo = Recoil.useSetRecoilState(UserUtils.moduleListRecoil)
+  let setRoleInfo = Recoil.useSetRecoilState(HyperswitchAtom.moduleListRecoil)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchModuleList = async () => {

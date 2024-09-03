@@ -428,7 +428,6 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
-      | #ROLE_INFO => `${userUrl}/module/list`
 
       // USER ACTIONS
       | #USER_DELETE => `${userUrl}/user/delete`
