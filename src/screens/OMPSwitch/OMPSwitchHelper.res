@@ -46,3 +46,30 @@ module AddNewMerchantProfileButton = {
     </ACLDiv>
   }
 }
+
+module OMPViews = {
+  @react.component
+  let make = (~arrayOfStrings=[]) => {
+    let cssBasedOnIndex = index => {
+      if index == 0 {
+        "rounded-l-md"
+      } else if index == arrayOfStrings->Array.length - 1 {
+        "rounded-r-md"
+      } else {
+        ""
+      }
+    }
+
+    <div className="flex">
+      {arrayOfStrings
+      ->Array.mapWithIndex((value, index) => {
+        let selectedStyle = index === 0 ? `bg-blue-200` : ""
+        <div
+          className={`text-sm py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer`}>
+          {value->React.string}
+        </div>
+      })
+      ->React.array}
+    </div>
+  }
+}

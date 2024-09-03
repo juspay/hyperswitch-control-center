@@ -90,25 +90,34 @@ let make = (~previewOnly=false) => {
   let filterUrl = getURL(~entityName=ORDER_FILTERS, ~methodType=Get)
 
   let filtersUI = React.useMemo(() => {
-    <RemoteTableFilters
-      filterUrl
-      setFilters
-      endTimeFilterKey
-      startTimeFilterKey
-      initialFilters
-      initialFixedFilter
-      setOffset
-      customLeftView={<SearchBarFilter
-        placeholder="Search payment id" setSearchVal=setSearchText searchVal=searchText
-      />}
-    />
+    <>
+      <RemoteTableFilters
+        filterUrl
+        setFilters
+        endTimeFilterKey
+        startTimeFilterKey
+        initialFilters
+        initialFixedFilter
+        setOffset
+        customLeftView={<SearchBarFilter
+          placeholder="Search payment id" setSearchVal=setSearchText searchVal=searchText
+        />}
+      />
+    </>
   }, [])
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
-      <PageUtils.PageHeading
-        title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
-      />
+      <div className="flex">
+        <div className="flex-1">
+          <PageUtils.PageHeading
+            title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
+          />
+        </div>
+        <div className="flex flex-col mt-5 2xl:flex-row 2xl:justify-end 2xl:items-start">
+          <OMPSwitchHelper.OMPViews arrayOfStrings=["All Profile", "Profile"] />
+        </div>
+      </div>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
           <div className="flex-1"> {filtersUI} </div>
