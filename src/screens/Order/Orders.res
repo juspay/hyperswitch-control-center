@@ -39,12 +39,15 @@ let make = (~previewOnly=false) => {
 
         let sortObj = sortAtomValue->Dict.get("Orders")->Option.getOr(defaultSort)
         if sortObj.sortKey->LogicUtils.isNonEmptyString {
-          let orderObj =
+          filters->Dict.set(
+            "order",
             [
               ("on", sortObj.sortKey->JSON.Encode.string),
               ("by", sortObj->OrderTypes.getSortString->JSON.Encode.string),
-            ]->Dict.fromArray
-          filters->Dict.set("order", orderObj->JSON.Encode.object)
+            ]
+            ->Dict.fromArray
+            ->JSON.Encode.object,
+          )
         }
 
         dict
@@ -95,11 +98,7 @@ let make = (~previewOnly=false) => {
   }, (offset, filters, searchText))
 
   React.useEffect(() => {
-    Some(
-      () => {
-        setSortAtom(_ => [("Orders", defaultSort)]->Dict.fromArray)
-      },
-    )
+    Some(() => setSortAtom(_ => [("Orders", defaultSort)]->Dict.fromArray))
   }, [])
 
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""

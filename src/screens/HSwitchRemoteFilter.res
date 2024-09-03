@@ -204,7 +204,7 @@ module RemoteTableFilters = {
       None
     }, [filterValue])
 
-    let (dict, _) = Recoil.useRecoilState(LoadedTable.sortAtom)
+    let dict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
     let defaultSort: LoadedTable.sortOb = {
       sortKey: "",
       sortType: DSC,
