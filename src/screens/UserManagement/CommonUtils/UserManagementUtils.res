@@ -175,8 +175,9 @@ let roleListResponseMapper: Dict.t<JSON.t> => UserRoleEntity.roleListResponse = 
 }
 
 let tabIndeToVariantMapper = index => {
+  open UserManagementTypes
   switch index {
-  | 0 => UserManagementTypes.UsersTab
-  | _ => UserManagementTypes.RolesTab
+  | 0 => UsersTab
+  | _ => RolesTab
   }
 }
