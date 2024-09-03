@@ -217,6 +217,79 @@ module ReturnUrl = {
   }
 }
 
+type options = {
+  name: string,
+  key: string,
+}
+
+module CollectDetails = {
+  @react.component
+  let make = (~title, ~options: array<options>) => {
+    open LogicUtils
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let valuesDict = formState.values->getDictFromJsonObject
+    let initValue = options->Array.some(option => valuesDict->getBool(option.key, false))
+    let (isSelected, setIsSelected) = React.useState(_ => initValue)
+    let form = ReactFinalForm.useForm()
+
+    let onClick = key => {
+      options->Array.forEach(option => {
+        form.change(option.key, (option.key === key)->JSON.Encode.bool)
+      })
+    }
+
+    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700 opacity-50`
+
+    React.useEffect(() => {
+      if isSelected {
+        let value = options->Array.some(option => valuesDict->getBool(option.key, false))
+        if !value {
+          switch options->Array.get(0) {
+          | Some(name) => form.change(name.key, true->JSON.Encode.bool)
+          | _ => ()
+          }
+        }
+      } else {
+        options->Array.forEach(option => form.change(option.key, false->JSON.Encode.bool))
+      }
+      None
+    }, [isSelected])
+
+    <div>
+      <div className="flex gap-2 items-center">
+        <BoolInput.BaseComponent
+          isSelected
+          setIsSelected={_ => setIsSelected(val => !val)}
+          isDisabled=false
+          boolCustomClass="rounded-lg"
+        />
+        <p className="!text-base !text-grey-700 font-semibold"> {title->React.string} </p>
+      </div>
+      <RenderIf condition={isSelected}>
+        <div className="mt-4">
+          {options
+          ->Array.mapWithIndex((option, index) =>
+            <div
+              key={index->Int.toString}
+              className="flex gap-2 mb-3 items-center cursor-pointer"
+              onClick={_ => onClick(option.key)}>
+              <RadioIcon
+                isSelected={valuesDict->getBool(option.key, false)} fill="text-green-700"
+              />
+              <div className=p2RegularTextStyle>
+                {option.name->LogicUtils.snakeToTitle->React.string}
+              </div>
+            </div>
+          )
+          ->React.array}
+        </div>
+      </RenderIf>
+    </div>
+  }
+}
+
 @react.component
 let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open DeveloperUtils
@@ -336,18 +409,34 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   />
                 </div>
                 <DesktopRow>
-                  <FieldRenderer
-                    labelClass="!text-base !text-grey-700 font-semibold"
-                    fieldWrapperClass="max-w-xl"
-                    field={makeFieldInfo(
-                      ~name="collect_shipping_details_from_wallet_connector",
-                      ~label="Collect Shipping Details",
-                      ~customInput=InputFields.boolInput(
-                        ~isDisabled=false,
-                        ~boolCustomClass="rounded-lg",
-                      ),
-                    )}
+                  <CollectDetails
+                    title={"Collect billing details from wallets"}
+                    options=[
+                      {
+                        name: "only if required by connector",
+                        key: "collect_billing_details_from_wallet_connector",
+                      },
+                      {
+                        name: "always",
+                        key: "always_collect_billing_details_from_wallet_connector",
+                      },
+                    ]
                   />
+                  <CollectDetails
+                    title={"Collect shipping details from wallets"}
+                    options=[
+                      {
+                        name: "only if required by connector",
+                        key: "collect_shipping_details_from_wallet_connector",
+                      },
+                      {
+                        name: "always",
+                        key: "always_collect_shipping_details_from_wallet_connector",
+                      },
+                    ]
+                  />
+                </DesktopRow>
+                <DesktopRow>
                   <FieldRenderer
                     labelClass="!text-base !text-grey-700 font-semibold"
                     fieldWrapperClass="max-w-xl"
