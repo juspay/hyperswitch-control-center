@@ -54,7 +54,7 @@ let make = () => {
           entityName="UserManagement"
           remainingPath
           renderList={_ => <UserManagementLanding />}
-          renderShow={_ => <ShowUserData />}
+          renderShow={(_, _) => <ShowUserData />}
         />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />

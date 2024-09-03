@@ -72,7 +72,7 @@ module RefundInfo = {
 }
 
 @react.component
-let make = (~id) => {
+let make = (~id, ~profileId) => {
   open LogicUtils
   open HSwitchOrderUtils
   let url = RescriptReactRouter.useUrl()
@@ -89,10 +89,12 @@ let make = (~id) => {
   let showToast = ToastState.useShowToast()
   let paymentId =
     refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
 
   let fetchRefundData = async () => {
     try {
       let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id))
+      let _ = await internalSwitch(~expectedProfileId=Some(profileId))
       let refundData = await fetchDetails(refundUrl)
       let paymentId =
         refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
