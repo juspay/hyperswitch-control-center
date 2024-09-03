@@ -995,6 +995,7 @@ let orderEntity = EntityType.makeEntity(
   ~getCell,
   ~dataKey="",
   ~getShowLink={
-    order => GlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}`)
+    order =>
+      GlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}/${order.profile_id}`)
   },
 )
