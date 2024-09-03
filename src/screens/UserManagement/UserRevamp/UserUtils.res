@@ -91,9 +91,9 @@ let itemToObjMapperForGetRoleInfro: Dict.t<JSON.t> => UserManagementTypes.userMo
 let groupsAccessWrtToArray = (groupsList, userRoleAccessValueList) => {
   groupsList->Array.reduce([], (acc, value) => {
     if userRoleAccessValueList->Array.includes(value) && value->String.includes("view") {
-      let _ = [acc->Array.push("View")]
+      acc->Array.push("View")
     } else if userRoleAccessValueList->Array.includes(value) && value->String.includes("manage") {
-      let _ = acc->Array.push("Manage")
+      acc->Array.push("Manage")
     }
     acc
   })
