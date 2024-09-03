@@ -116,6 +116,7 @@ let useInternalSwitch = () => {
   let orgSwitch = useOrgSwitch()
   let merchSwitch = useMerchantSwitch()
   let profileSwitch = useProfileSwitch()
+  let showToast = ToastState.useShowToast()
 
   let {
     userInfo: {orgId: currentOrgId, merchantId: currentMerchantId, profileId: currentProfileId},
@@ -137,7 +138,8 @@ let useInternalSwitch = () => {
       )
     } catch {
     | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        let err = Exn.message(e)->Option.getOr("Failed to switch!")
+        showToast(~message=err, ~toastType=ToastError)
         Exn.raiseError(err)
       }
     }

@@ -1,4 +1,4 @@
-type userManagementTypes = Users | Roles
+type userManagementTypes = UsersTab | RolesTab
 
 type permissionType =
   | OperationsView
@@ -42,3 +42,17 @@ type userModuleType = {
   description: string,
   groups: array<string>,
 }
+
+@unboxed
+type parentGroupType =
+  | Operations
+  | Connectors
+  | Workflows
+  | Analytics
+  | Users
+  | Merchant
+  | Organization
+  | UnknownPermission(string)
+
+@unboxed
+type groupPermissionType = View | Manage

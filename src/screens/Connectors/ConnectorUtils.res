@@ -92,6 +92,7 @@ let connectorList: array<connectorTypes> = [
   Processors(BAMBORA_APAC),
   Processors(ITAUBANK),
   Processors(PLAID),
+  Processors(SQUARE),
   Processors(PAYBOX),
 ]
 
@@ -452,6 +453,10 @@ let plaidInfo = {
   description: "Plaid Link makes it easy for users to connect their financial accounts securely and quickly, giving you the best growth for your business.",
 }
 
+let squareInfo = {
+  description: "Powering all the ways you do business. Work smarter, automate for efficiency, and open up new revenue streams on the software and hardware platform millions of businesses trust.",
+}
+
 let payboxInfo = {
   description: "Paybox, operated by Verifone, offers secure online payment solutions for e-commerce businesses. It supports a wide range of payment methods and provides features like one-click payments, recurring payments, and omnichannel payment processing. Their services cater to merchants, web agencies, integrators, and financial institutions, helping them accept various forms of payment",
 }
@@ -557,6 +562,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | ITAUBANK => "itaubank"
   | DATATRANS => "datatrans"
   | PLAID => "plaid"
+  | SQUARE => "square"
   | PAYBOX => "paybox"
   | WELLSFARGO => "wellsfargo"
   }
@@ -660,6 +666,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "itaubank" => Processors(ITAUBANK)
     | "datatrans" => Processors(DATATRANS)
     | "plaid" => Processors(PLAID)
+    | "square" => Processors(SQUARE)
     | "paybox" => Processors(PAYBOX)
     | "wellsfargo" => Processors(WELLSFARGO)
     | _ => UnknownConnector("Not known")
@@ -749,6 +756,7 @@ let getProcessorInfo = connector => {
   | ITAUBANK => itauBankInfo
   | DATATRANS => dataTransInfo
   | PLAID => plaidInfo
+  | SQUARE => squareInfo
   | PAYBOX => payboxInfo
   | WELLSFARGO => wellsfargoInfo
   }
@@ -838,7 +846,6 @@ let connectorIgnoredField = [
   "connector_name",
   "profile_id",
   "applepay_verified_domains",
-  "additional_merchant_data",
 ]
 
 let configKeysToIgnore = [
@@ -846,6 +853,7 @@ let configKeysToIgnore = [
   "is_verifiable",
   "metadata",
   "connector_webhook_details",
+  "additional_merchant_data",
 ]
 
 let verifyConnectorIgnoreField = [
@@ -1202,6 +1210,10 @@ let getConnectorFields = connectorDetails => {
   let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
   let connectorWebHookDetails =
     connectorDetails->getDictFromJsonObject->getDictfromDict("connector_webhook_details")
+  let connectorAdditionalMerchantData =
+    connectorDetails
+    ->getDictFromJsonObject
+    ->getDictfromDict("additional_merchant_data")
   (
     bodyType,
     connectorAccountFields,
@@ -1209,6 +1221,7 @@ let getConnectorFields = connectorDetails => {
     isVerifyConnector,
     connectorWebHookDetails,
     connectorLabelDetailField,
+    connectorAdditionalMerchantData,
   )
 }
 
@@ -1336,6 +1349,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
   let dict = payload->getDictFromJsonObject
   let connectorAccountDetails =
     dict->getDictfromDict("connector_account_details")->JSON.Encode.object
+  let connectorAdditionalMerchantData = dict->getDictfromDict("additional_merchant_data")
   let payLoadDetails: wasmExtraPayload = {
     connector_account_details: connectorAccountDetails,
     connector_webhook_details: dict->getDictfromDict("connector_webhook_details")->isEmptyDict
@@ -1350,6 +1364,12 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
   let values = Window.getRequestPayload(wasmRequest, payLoadDetails)
   let dict = Dict.fromArray([
     ("connector_account_details", connectorAccountDetails),
+    (
+      "additional_merchant_data",
+      connectorAdditionalMerchantData->isEmptyDict
+        ? JSON.Encode.null
+        : connectorAdditionalMerchantData->JSON.Encode.object,
+    ),
     ("connector_label", dict->getString("connector_label", "")->JSON.Encode.string),
     ("status", dict->getString("status", "active")->JSON.Encode.string),
     (
@@ -1548,6 +1568,7 @@ let getDisplayNameForProcessor = connector =>
   | ITAUBANK => "Itaubank"
   | DATATRANS => "Datatrans"
   | PLAID => "Plaid"
+  | SQUARE => "Square"
   | PAYBOX => "Paybox"
   | WELLSFARGO => "Wells Fargo"
   }
