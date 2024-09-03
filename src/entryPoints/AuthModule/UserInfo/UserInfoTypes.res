@@ -10,8 +10,8 @@ type userInfo = {
   verificationDaysLeft: option<int>,
   profileId: string,
   userEntity: entity,
-  transactionEntity: entity,
-  analyticsEntity: entity,
+  mutable transactionEntity: entity,
+  mutable analyticsEntity: entity,
 }
 
 type userInfoProviderTypes = {
