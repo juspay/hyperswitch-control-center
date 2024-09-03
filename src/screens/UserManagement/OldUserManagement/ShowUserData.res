@@ -244,9 +244,7 @@ let make = () => {
       let url = getURL(
         ~entityName=USER_MANAGEMENT,
         ~userRoleTypes=ROLE_ID,
-        ~id={
-          Some(role_id)
-        },
+        ~id=Some(role_id),
         ~methodType=Get,
       )
       let res = await fetchDetails(`${url}?groups=true`)

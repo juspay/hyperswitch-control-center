@@ -92,6 +92,7 @@ module ConfigureProcessor = {
       _,
       connectorWebHookDetails,
       connectorLabelDetailField,
+      _,
     ) = getConnectorFields(connectorDetails)
 
     let onSubmit = async (values, _) => {

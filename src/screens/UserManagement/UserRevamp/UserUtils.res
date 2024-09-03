@@ -1,8 +1,3 @@
-let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType>> = Recoil.atom(
-  "moduleListRecoil",
-  [],
-)
-
 let getMerchantSelectBoxOption = (
   ~label,
   ~value,
@@ -24,21 +19,6 @@ let getMerchantSelectBoxOption = (
     orgOptions
   }
 }
-
-let inviteEmail = FormRenderer.makeFieldInfo(
-  ~label="Enter email (s) ",
-  ~name="email_list",
-  ~customInput=(~input, ~placeholder as _) => {
-    let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0
-    InputFields.textTagInput(
-      ~input,
-      ~placeholder=showPlaceHolder ? "Eg: mehak.sam@wise.com, deepak.ven@wise.com" : "",
-      ~customButtonStyle="!rounded-full !px-4",
-      ~seperateByComma=true,
-    )
-  },
-  ~isRequired=true,
-)
 
 let validateEmptyValue = (key, errors) => {
   switch key {
@@ -69,7 +49,7 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
         ()
       }
     | String(roleType) =>
-      if roleType->String.length === 0 {
+      if roleType->LogicUtils.isEmptyString {
         key->validateEmptyValue(errors)
       }
     | _ => key->validateEmptyValue(errors)
@@ -89,15 +69,14 @@ let itemToObjMapperForGetRoleInfro: Dict.t<JSON.t> => UserManagementTypes.userMo
 }
 
 let groupsAccessWrtToArray = (groupsList, userRoleAccessValueList) => {
-  let response = groupsList->Array.reduce([], (acc, value) => {
+  groupsList->Array.reduce([], (acc, value) => {
     if userRoleAccessValueList->Array.includes(value) && value->String.includes("view") {
-      let _ = [acc->Array.push("View")]
+      acc->Array.push("View")
     } else if userRoleAccessValueList->Array.includes(value) && value->String.includes("manage") {
-      let _ = acc->Array.push("Manage")
+      acc->Array.push("Manage")
     }
     acc
   })
-  response
 }
 
 let modulesWithUserAccess = (
@@ -128,9 +107,8 @@ let modulesWithUserAccess = (
 let stringToVariantMapperForAccess = accessAvailable => {
   open UserManagementTypes
   switch accessAvailable {
-  | "View" => View
   | "Manage" => Manage
-  | _ => View
+  | "View" | _ => View
   }
 }
 

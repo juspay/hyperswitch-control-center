@@ -60,8 +60,8 @@ module MerchantSelection = {
     let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
 
     let disableSelect = switch userEntity {
-    | #Organization => false
     | #Merchant | #Profile => true
+    | #Organization
     | _ => false
     }
 
@@ -113,8 +113,9 @@ module ProfileSelection = {
     let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
 
     let disableSelect = switch userEntity {
-    | #Organization | #Merchant => false
     | #Profile => true
+    | #Organization
+    | #Merchant
     | _ => false
     }
 
@@ -157,3 +158,18 @@ module ProfileSelection = {
     <FormRenderer.FieldRenderer field labelClass="font-semibold" />
   }
 }
+
+let inviteEmail = FormRenderer.makeFieldInfo(
+  ~label="Enter email (s) ",
+  ~name="email_list",
+  ~customInput=(~input, ~placeholder as _) => {
+    let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0
+    InputFields.textTagInput(
+      ~input,
+      ~placeholder=showPlaceHolder ? "Eg: mehak.sam@wise.com, deepak.ven@wise.com" : "",
+      ~customButtonStyle="!rounded-full !px-4",
+      ~seperateByComma=true,
+    )
+  },
+  ~isRequired=true,
+)
