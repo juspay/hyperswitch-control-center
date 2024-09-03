@@ -135,7 +135,7 @@ let make = () => {
       )
       let result = await fetchDetails(url)
       setOptions(_ => result->makeSelectBoxOptions)
-      if result->LogicUtils.getArrayFromJson([])->Array.length > 0 {
+      if result->getArrayFromJson([])->Array.length > 0 {
         setDropDownLoaderState(_ => DropdownWithLoading.Success)
       } else {
         setDropDownLoaderState(_ => DropdownWithLoading.NoData)
