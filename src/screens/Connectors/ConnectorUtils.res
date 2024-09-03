@@ -846,7 +846,6 @@ let connectorIgnoredField = [
   "connector_name",
   "profile_id",
   "applepay_verified_domains",
-  "additional_merchant_data",
 ]
 
 let configKeysToIgnore = [
@@ -854,6 +853,7 @@ let configKeysToIgnore = [
   "is_verifiable",
   "metadata",
   "connector_webhook_details",
+  "additional_merchant_data",
 ]
 
 let verifyConnectorIgnoreField = [
@@ -1210,6 +1210,10 @@ let getConnectorFields = connectorDetails => {
   let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
   let connectorWebHookDetails =
     connectorDetails->getDictFromJsonObject->getDictfromDict("connector_webhook_details")
+  let connectorAdditionalMerchantData =
+    connectorDetails
+    ->getDictFromJsonObject
+    ->getDictfromDict("additional_merchant_data")
   (
     bodyType,
     connectorAccountFields,
@@ -1217,6 +1221,7 @@ let getConnectorFields = connectorDetails => {
     isVerifyConnector,
     connectorWebHookDetails,
     connectorLabelDetailField,
+    connectorAdditionalMerchantData,
   )
 }
 
@@ -1344,6 +1349,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
   let dict = payload->getDictFromJsonObject
   let connectorAccountDetails =
     dict->getDictfromDict("connector_account_details")->JSON.Encode.object
+  let connectorAdditionalMerchantData = dict->getDictfromDict("additional_merchant_data")
   let payLoadDetails: wasmExtraPayload = {
     connector_account_details: connectorAccountDetails,
     connector_webhook_details: dict->getDictfromDict("connector_webhook_details")->isEmptyDict
@@ -1358,6 +1364,12 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
   let values = Window.getRequestPayload(wasmRequest, payLoadDetails)
   let dict = Dict.fromArray([
     ("connector_account_details", connectorAccountDetails),
+    (
+      "additional_merchant_data",
+      connectorAdditionalMerchantData->isEmptyDict
+        ? JSON.Encode.null
+        : connectorAdditionalMerchantData->JSON.Encode.object,
+    ),
     ("connector_label", dict->getString("connector_label", "")->JSON.Encode.string),
     ("status", dict->getString("status", "active")->JSON.Encode.string),
     (
