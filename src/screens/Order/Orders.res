@@ -44,9 +44,7 @@ let make = (~previewOnly=false) => {
             [
               ("on", sortObj.sortKey->JSON.Encode.string),
               ("by", sortObj->OrderTypes.getSortString->JSON.Encode.string),
-            ]
-            ->Dict.fromArray
-            ->JSON.Encode.object,
+            ]->getJsonFromArrayOfJson,
           )
         }
 

@@ -837,11 +837,9 @@ let make = (
     actualData
   }
 
-  let filteredData = actualData
-
   let selectAllCheckBox = React.useMemo(() => {
     let selectedRowDataLength = checkBoxProps.selectedData->Array.length
-    let isCompleteDataSelected = selectedRowDataLength === filteredData->Array.length
+    let isCompleteDataSelected = selectedRowDataLength === actualData->Array.length
     if isCompleteDataSelected {
       Some(ALL)
     } else if checkBoxProps.selectedData->Array.length === 0 {
@@ -849,13 +847,13 @@ let make = (
     } else {
       Some(PARTIAL)
     }
-  }, (checkBoxProps.selectedData, filteredData))
+  }, (checkBoxProps.selectedData, actualData))
   let setSelectAllCheckBox = React.useCallback(
     (v: option<TableUtils.multipleSelectRows> => option<TableUtils.multipleSelectRows>) => {
       switch v(selectAllCheckBox) {
       | Some(ALL) =>
         checkBoxProps.setSelectedData(_ => {
-          filteredData->Array.map(Identity.nullableOfAnyTypeToJsonType)
+          actualData->Array.map(Identity.nullableOfAnyTypeToJsonType)
         })
       | Some(PARTIAL)
       | None =>
@@ -868,7 +866,7 @@ let make = (
   React.useEffect(() => {
     if selectAllCheckBox === Some(ALL) {
       checkBoxProps.setSelectedData(_ => {
-        filteredData->Array.map(Identity.nullableOfAnyTypeToJsonType)
+        actualData->Array.map(Identity.nullableOfAnyTypeToJsonType)
       })
     } else if selectAllCheckBox === None {
       checkBoxProps.setSelectedData(_ => [])
@@ -878,7 +876,7 @@ let make = (
   let sNoArr = Dict.get(columnFilter, "s_no")->Option.getOr([])
   // filtering for SNO
   let rows =
-    filteredData
+    actualData
     ->Array.mapWithIndex((nullableItem, index) => {
       let actualRows = switch nullableItem->Nullable.toOption {
       | Some(item) => {
@@ -987,7 +985,7 @@ let make = (
   })
 
   let handleRowClick = React.useCallback(index => {
-    let actualVal = switch filteredData[index] {
+    let actualVal = switch actualData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
     }
@@ -1008,10 +1006,10 @@ let make = (
       }
     | None => ()
     }
-  }, (filteredData, getShowLink, onEntityClick, url.search))
+  }, (actualData, getShowLink, onEntityClick, url.search))
 
   let handleMouseEnter = React.useCallback(index => {
-    let actualVal = switch filteredData[index] {
+    let actualVal = switch actualData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
     }
@@ -1023,10 +1021,10 @@ let make = (
       }
     | None => ()
     }
-  }, (filteredData, getShowLink, onMouseEnter, url.search))
+  }, (actualData, getShowLink, onMouseEnter, url.search))
 
   let handleMouseLeave = React.useCallback(index => {
-    let actualVal = switch filteredData[index] {
+    let actualVal = switch actualData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
     }
@@ -1038,7 +1036,7 @@ let make = (
       }
     | None => ()
     }
-  }, (filteredData, getShowLink, onMouseLeave, url.search))
+  }, (actualData, getShowLink, onMouseLeave, url.search))
 
   <AddDataAttributes attributes=[("data-loaded-table", title)]>
     <div>
