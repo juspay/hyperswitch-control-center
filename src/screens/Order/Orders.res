@@ -4,7 +4,7 @@ let make = (~previewOnly=false) => {
   open HSwitchRemoteFilter
   open OrderUIUtils
   open LogicUtils
-  open ViewUtils
+  open TransactionViewUtils
 
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -16,7 +16,9 @@ let make = (~previewOnly=false) => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
   let (paymentCountRes, setPaymentCountRes) = React.useState(_ => Dict.make()->JSON.Encode.object)
-  let (activeView: ViewTypes.viewTypes, setActiveView) = React.useState(_ => ViewTypes.All)
+  let (activeView: TransactionViewTypes.viewTypes, setActiveView) = React.useState(_ =>
+    TransactionViewTypes.All
+  )
 
   let {updateExistingKeys, filterValueJson, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
@@ -82,7 +84,7 @@ let make = (~previewOnly=false) => {
     }
   }
 
-  let updateViewsFilterValue = (view: ViewTypes.viewTypes) => {
+  let updateViewsFilterValue = (view: TransactionViewTypes.viewTypes) => {
     let customFilterKey = "status"
     let customFilter = `[${view->getViewsString(paymentCountRes)}]`
 
@@ -102,7 +104,7 @@ let make = (~previewOnly=false) => {
     }
   }
 
-  let onViewClick = (view: ViewTypes.viewTypes) => {
+  let onViewClick = (view: TransactionViewTypes.viewTypes) => {
     setActiveView(_ => view)
     updateViewsFilterValue(view)
   }
@@ -179,7 +181,7 @@ let make = (~previewOnly=false) => {
 
   let viewsUI =
     paymentViewsArray->Array.mapWithIndex((item, i) =>
-      <ViewHelpers.ViewCards
+      <TransactionView
         key={i->Int.toString}
         view={item}
         count={paymentCount(item, paymentCountRes)->Int.toString}

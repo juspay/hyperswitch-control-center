@@ -1,4 +1,4 @@
-open ViewTypes
+open TransactionViewTypes
 
 let paymentViewsArray: array<viewTypes> = [All, Succeeded, Failed, Dropoffs, Cancelled]
 
