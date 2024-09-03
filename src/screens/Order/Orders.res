@@ -6,7 +6,7 @@ let make = (~previewOnly=false) => {
   open LogicUtils
   let getURL = useGetURL()
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: transactionEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
@@ -116,7 +116,9 @@ let make = (~previewOnly=false) => {
         </div>
         <div className="flex flex-col mt-5 2xl:flex-row 2xl:justify-end 2xl:items-start">
           <OMPSwitchHelper.OMPViews
-            onChange={updateTransactionEntity} arrayOfStrings=["All Profile", "Profile"]
+            views={orderViewList}
+            selectedEntity={transactionEntity}
+            onChange={updateTransactionEntity}
           />
         </div>
       </div>

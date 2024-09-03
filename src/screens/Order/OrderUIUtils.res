@@ -479,3 +479,14 @@ let getOrdersList = async (
 let isNonEmptyValue = value => {
   value->Option.getOr(Dict.make())->Dict.toArray->Array.length > 0
 }
+
+let orderViewList: OMPSwitchTypes.ompViews = [
+  {
+    lable: "Profile",
+    entity: #Profile,
+  },
+  {
+    lable: "ALL Profile",
+    entity: #Merchant,
+  },
+]

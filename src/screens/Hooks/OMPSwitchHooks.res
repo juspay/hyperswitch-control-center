@@ -1,6 +1,6 @@
 type userInfo = {
   getUserInfo: unit => promise<UserInfoTypes.userInfo>,
-  updateTransactionEntity: unit => unit,
+  updateTransactionEntity: UserInfoTypes.entity => unit,
 }
 let useUserInfo = () => {
   open LogicUtils
@@ -22,10 +22,10 @@ let useUserInfo = () => {
       }
     }
   }
-  let updateTransactionEntity = () => {
+  let updateTransactionEntity = (transactionEntity: UserInfoTypes.entity) => {
     let updateInfo = {
       ...userInfo,
-      transactionEntity: #Profile,
+      transactionEntity,
     }
 
     setUserInfoData(updateInfo)

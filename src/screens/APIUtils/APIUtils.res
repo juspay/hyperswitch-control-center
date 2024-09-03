@@ -17,7 +17,7 @@ let useGetURL = () => {
     ~reconType: reconType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
-    let {transactionEntity, userEntity} = getUserInfoData()
+    let {transactionEntity} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
 
     let endpoint = switch entityName {
@@ -70,7 +70,7 @@ let useGetURL = () => {
     | REFUND_FILTERS =>
       switch methodType {
       | Get =>
-        switch (userEntity, userManagementRevamp) {
+        switch (transactionEntity, userManagementRevamp) {
         | (#Merchant, true) => `refunds/v2/filter`
         | (#Profile, true) => `refunds/v2/profile/filter`
         | _ => `refunds/v2/filter`
@@ -120,13 +120,11 @@ let useGetURL = () => {
           | None => `payments/list?limit=100`
           }
         }
-      | Post => {
-          Js.log2(transactionEntity, "transactionEntity")
-          switch (transactionEntity, userManagementRevamp) {
-          | (#Merchant, true) => `payments/list`
-          | (#Profile, true) => `payments/profile/list`
-          | _ => `payments/list`
-          }
+      | Post =>
+        switch (transactionEntity, userManagementRevamp) {
+        | (#Merchant, true) => `payments/list`
+        | (#Profile, true) => `payments/profile/list`
+        | _ => `payments/list`
         }
 
       | _ => ""
@@ -154,7 +152,7 @@ let useGetURL = () => {
         | None =>
           switch queryParamerters {
           | Some(queryParams) =>
-            switch (userEntity, userManagementRevamp) {
+            switch (transactionEntity, userManagementRevamp) {
             | (#Merchant, true) => `refunds/list?${queryParams}`
             | (#Profile, true) => `refunds/profile/list?limit=100`
             | _ => `refunds/list?limit=100`
@@ -165,7 +163,7 @@ let useGetURL = () => {
       | Post =>
         switch id {
         | Some(_keyid) =>
-          switch (userEntity, userManagementRevamp) {
+          switch (transactionEntity, userManagementRevamp) {
           | (#Merchant, true) => `refunds/list`
           | (#Profile, true) => `refunds/profile/list`
           | _ => `refunds/list`
@@ -180,7 +178,7 @@ let useGetURL = () => {
         switch id {
         | Some(dispute_id) => `disputes/${dispute_id}`
         | None =>
-          switch (userEntity, userManagementRevamp) {
+          switch (transactionEntity, userManagementRevamp) {
           | (#Merchant, true) => `disputes/list?limit=10000`
           | (#Profile, true) => `disputes/profile/list?limit=10000`
           | _ => `disputes/list?limit=10000`
@@ -194,14 +192,14 @@ let useGetURL = () => {
         switch id {
         | Some(payout_id) => `payouts/${payout_id}`
         | None =>
-          switch (userEntity, userManagementRevamp) {
+          switch (transactionEntity, userManagementRevamp) {
           | (#Merchant, true) => `payouts/list?limit=100`
           | (#Profile, true) => `payouts/profile/list?limit=10000`
           | _ => `payouts/list?limit=100`
           }
         }
       | Post =>
-        switch (userEntity, userManagementRevamp) {
+        switch (transactionEntity, userManagementRevamp) {
         | (#Merchant, true) => `payouts/list`
         | (#Profile, true) => `payouts/profile/list`
         | _ => `payouts/list`
