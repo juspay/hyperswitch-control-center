@@ -207,7 +207,11 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(routingId) => `routing/${routingId}`
-        | _ => `routing`
+        | None =>
+          switch (userEntity, userManagementRevamp) {
+          | (#Merchant, true) | (#Profile, true) => `routing/list/profile`
+          | _ => `routing`
+          }
         }
       | Post =>
         switch id {
@@ -267,7 +271,11 @@ let useGetURL = () => {
       | Get | Put =>
         switch id {
         | Some(routingId) => `routing/${routingId}`
-        | _ => `routing/payouts`
+        | _ =>
+          switch (userEntity, userManagementRevamp) {
+          | (#Merchant, true) | (#Profile, true) => `routing/payouts/list/profile`
+          | _ => `routing/payouts`
+          }
         }
       | Post =>
         switch id {
