@@ -3,10 +3,10 @@ let useFetchSwitchMerchantList = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let setSwitchMerchantListAtom = HyperswitchAtom.switchMerchantListAtom->Recoil.useSetRecoilState
-  let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get)
 
   async _ => {
     try {
+      let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get)
       let res = await fetchDetails(url)
       let typedValueOfResponse = res->SwitchMerchantUtils.convertListResponseToTypedResponse
       setSwitchMerchantListAtom(_ => typedValueOfResponse)

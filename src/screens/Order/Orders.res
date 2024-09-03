@@ -5,6 +5,8 @@ let make = (~previewOnly=false) => {
   open OrderUIUtils
   open LogicUtils
   let getURL = useGetURL()
+  let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
+  let {userInfo: transactionEntity} = React.useContext(UserInfoProvider.defaultContext)
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
@@ -78,7 +80,7 @@ let make = (~previewOnly=false) => {
       fetchOrders()
     }
     None
-  }, (offset, filters, searchText))
+  }, (offset, filters, searchText, transactionEntity))
 
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
 
@@ -87,12 +89,9 @@ let make = (~previewOnly=false) => {
       customCssClass={"my-6"} message="There are no payments as of now" renderType=Painting
     />
 
-  let filterUrl = getURL(~entityName=ORDER_FILTERS, ~methodType=Get)
-
   let filtersUI = React.useMemo(() => {
     <>
       <RemoteTableFilters
-        filterUrl
         setFilters
         endTimeFilterKey
         startTimeFilterKey
@@ -102,6 +101,7 @@ let make = (~previewOnly=false) => {
         customLeftView={<SearchBarFilter
           placeholder="Search payment id" setSearchVal=setSearchText searchVal=searchText
         />}
+        entityName=ORDER_FILTERS
       />
     </>
   }, [])
@@ -115,7 +115,9 @@ let make = (~previewOnly=false) => {
           />
         </div>
         <div className="flex flex-col mt-5 2xl:flex-row 2xl:justify-end 2xl:items-start">
-          <OMPSwitchHelper.OMPViews arrayOfStrings=["All Profile", "Profile"] />
+          <OMPSwitchHelper.OMPViews
+            onChange={updateTransactionEntity} arrayOfStrings=["All Profile", "Profile"]
+          />
         </div>
       </div>
       <div className="flex">

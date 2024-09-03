@@ -59,15 +59,12 @@ let make = () => {
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let filterUrl = getURL(~entityName=REFUND_FILTERS, ~methodType=Get)
-
   <ErrorBoundary>
     <div className="min-h-[50vh]">
       <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
-            filterUrl
             setFilters
             endTimeFilterKey
             startTimeFilterKey
@@ -79,6 +76,7 @@ let make = () => {
               setSearchVal=setSearchText
               searchVal=searchText
             />}
+            entityName=REFUND_FILTERS
           />
         </div>
         <RenderIf condition={generateReport && refundData->Array.length > 0}>

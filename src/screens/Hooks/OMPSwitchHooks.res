@@ -5,7 +5,7 @@ type userInfo = {
 let useUserInfo = () => {
   open LogicUtils
   let fetchApi = AuthHooks.useApiFetcher()
-  let {setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {setUserInfoData, userInfo} = React.useContext(UserInfoProvider.defaultContext)
   let url = `${Window.env.apiBaseUrl}/user`
 
   let getUserInfo = async () => {
@@ -23,7 +23,12 @@ let useUserInfo = () => {
     }
   }
   let updateTransactionEntity = () => {
-    Js.log("")
+    let updateInfo = {
+      ...userInfo,
+      transactionEntity: #Profile,
+    }
+
+    setUserInfoData(updateInfo)
   }
   {getUserInfo, updateTransactionEntity}
 }

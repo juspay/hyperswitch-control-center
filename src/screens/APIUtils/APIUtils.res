@@ -5,7 +5,7 @@ exception JsonException(JSON.t)
 
 let useGetURL = () => {
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-  let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getUrl = (
     ~entityName: entityName,
@@ -17,6 +17,7 @@ let useGetURL = () => {
     ~reconType: reconType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
+    let {transactionEntity, userEntity} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
 
     let endpoint = switch entityName {
@@ -80,10 +81,21 @@ let useGetURL = () => {
     | ORDER_FILTERS =>
       switch methodType {
       | Get =>
-        switch (userEntity, userManagementRevamp) {
+        switch (transactionEntity, userManagementRevamp) {
         | (#Merchant, true) => `payments/v2/filter`
         | (#Profile, true) => `payments/v2/profile/filter`
         | _ => `payments/v2/filter`
+        }
+
+      | _ => ""
+      }
+    | PAYOUTS_FILTERS =>
+      switch methodType {
+      | Post =>
+        switch (transactionEntity, userManagementRevamp) {
+        | (#Merchant, true) => `payouts/filter`
+        | (#Profile, true) => `payouts/profile/filter`
+        | _ => `payouts/filter`
         }
 
       | _ => ""
@@ -100,7 +112,7 @@ let useGetURL = () => {
         | None =>
           switch queryParamerters {
           | Some(queryParams) =>
-            switch (userEntity, userManagementRevamp) {
+            switch (transactionEntity, userManagementRevamp) {
             | (#Merchant, true) => `payments/list?${queryParams}`
             | (#Profile, true) => `payments/profile/list?${queryParams}`
             | _ => `payments/list?limit=100`
@@ -108,11 +120,13 @@ let useGetURL = () => {
           | None => `payments/list?limit=100`
           }
         }
-      | Post =>
-        switch (userEntity, userManagementRevamp) {
-        | (#Merchant, true) => `payments/list`
-        | (#Profile, true) => `payments/profile/list`
-        | _ => `payments/list`
+      | Post => {
+          Js.log2(transactionEntity, "transactionEntity")
+          switch (transactionEntity, userManagementRevamp) {
+          | (#Merchant, true) => `payments/list`
+          | (#Profile, true) => `payments/profile/list`
+          | _ => `payments/list`
+          }
         }
 
       | _ => ""

@@ -54,7 +54,7 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let filterUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some("filter"))
+  // let filterUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some("filter"))
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
@@ -63,7 +63,6 @@ let make = () => {
         <div className="flex-1">
           <RemoteTableFilters
             apiType=Post
-            filterUrl
             setFilters
             endTimeFilterKey
             startTimeFilterKey
@@ -73,6 +72,7 @@ let make = () => {
             customLeftView={<SearchBarFilter
               placeholder="Search payout id" setSearchVal=setSearchText searchVal=searchText
             />}
+            entityName=PAYOUTS_FILTERS
           />
         </div>
         <PortalCapture key={`PayoutsCustomizeColumn`} name={`PayoutsCustomizeColumn`} />

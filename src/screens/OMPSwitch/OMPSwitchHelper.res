@@ -49,7 +49,7 @@ module AddNewMerchantProfileButton = {
 
 module OMPViews = {
   @react.component
-  let make = (~arrayOfStrings=[]) => {
+  let make = (~arrayOfStrings=[], ~onChange) => {
     let cssBasedOnIndex = index => {
       if index == 0 {
         "rounded-l-md"
@@ -65,6 +65,7 @@ module OMPViews = {
       ->Array.mapWithIndex((value, index) => {
         let selectedStyle = index === 0 ? `bg-blue-200` : ""
         <div
+          onClick={_ => onChange()->ignore}
           className={`text-sm py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer`}>
           {value->React.string}
         </div>
