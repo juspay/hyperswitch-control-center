@@ -47,3 +47,11 @@ let generateDropdownOptions = dropdownList => {
     dropdownList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
   options
 }
+
+let getNameFromListForId = (~list: array<ompListTypes>, ~id) => {
+  let filteredValue = list->Array.find(item => item.id === id)
+  switch filteredValue {
+  | Some(filteredValue) => filteredValue.name
+  | None => id
+  }
+}
