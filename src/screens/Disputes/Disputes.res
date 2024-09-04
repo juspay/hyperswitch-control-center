@@ -15,7 +15,6 @@ let make = () => {
   let {generateReport, userManagementRevamp} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
   let getDisputesList = async () => {
     try {
       setScreenState(_ => Loading)
@@ -74,9 +73,7 @@ let make = () => {
       <RenderIf condition={userManagementRevamp}>
         <div className="flex flex-col mt-5 2xl:flex-row 2xl:justify-end 2xl:items-start">
           <OMPSwitchHelper.OMPViews
-            views={OrderUIUtils.orderViewList}
-            selectedEntity={transactionEntity}
-            onChange={updateTransactionEntity}
+            views={OrderUIUtils.orderViewList} onChange={updateTransactionEntity}
           />
         </div>
       </RenderIf>

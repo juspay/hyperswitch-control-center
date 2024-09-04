@@ -27,7 +27,6 @@ let useUserInfo = () => {
       ...userInfo,
       transactionEntity,
     }
-
     setUserInfoData(updateInfo)
   }
   {getUserInfo, updateTransactionEntity}

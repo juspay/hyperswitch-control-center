@@ -482,11 +482,11 @@ let isNonEmptyValue = value => {
 
 let orderViewList: OMPSwitchTypes.ompViews = [
   {
-    lable: "Profile",
-    entity: #Profile,
+    lable: "All Profiles",
+    entity: #Merchant,
   },
   {
-    lable: "ALL Profile",
-    entity: #Merchant,
+    lable: "Profile",
+    entity: #Profile,
   },
 ]

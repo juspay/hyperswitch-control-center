@@ -17,7 +17,6 @@ let make = () => {
   let pageDetail = pageDetailDict->Dict.get("Refunds")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
   let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchRefunds = () => {
     switch filters {
@@ -71,9 +70,7 @@ let make = () => {
         <RenderIf condition={userManagementRevamp}>
           <div className="flex flex-col mt-5 2xl:flex-row 2xl:justify-end 2xl:items-start">
             <OMPSwitchHelper.OMPViews
-              views={OrderUIUtils.orderViewList}
-              selectedEntity={transactionEntity}
-              onChange={updateTransactionEntity}
+              views={OrderUIUtils.orderViewList} onChange={updateTransactionEntity}
             />
           </div>
         </RenderIf>
