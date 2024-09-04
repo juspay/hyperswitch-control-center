@@ -14,7 +14,11 @@ let make = () => {
   let loadInfo = async () => {
     open LogicUtils
     try {
-      let infoUrl = getURL(~entityName=ANALYTICS_AUTHENTICATION, ~methodType=Get, ~id=Some(domain))
+      let infoUrl = getURL(
+        ~entityName=ANALYTICS_AUTHENTICATION,
+        ~methodType=Get,
+        ~id=Some("auth_events"),
+      )
       let infoDetails = await fetchDetails(infoUrl)
       setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))

@@ -14,7 +14,11 @@ let make = () => {
   let loadInfo = async () => {
     open LogicUtils
     try {
-      let infoUrl = getURL(~entityName=ANALYTICS_USER_JOURNEY, ~methodType=Get, ~id=Some(domain))
+      let infoUrl = getURL(
+        ~entityName=ANALYTICS_USER_JOURNEY,
+        ~methodType=Get,
+        ~id=Some("sdk_events"),
+      )
       let infoDetails = await fetchDetails(infoUrl)
       setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
@@ -60,7 +64,7 @@ let make = () => {
       <Analytics
         pageTitle=title
         pageSubTitle=subTitle
-        filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
+        filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/sdk_events`)
         key="UserJourneyAnalytics"
         moduleName="UserJourney"
         deltaMetrics={getStringListFromArrayDict(metrics)}
