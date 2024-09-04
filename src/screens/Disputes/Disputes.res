@@ -41,7 +41,7 @@ let make = () => {
   React.useEffect(() => {
     getDisputesList()->ignore
     None
-  }, [transactionEntity])
+  }, [])
 
   let customUI =
     <>

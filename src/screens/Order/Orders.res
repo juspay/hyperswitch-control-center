@@ -81,7 +81,7 @@ let make = (~previewOnly=false) => {
       fetchOrders()
     }
     None
-  }, (offset, filters, searchText, transactionEntity))
+  }, (offset, filters, searchText))
 
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
 

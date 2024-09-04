@@ -58,7 +58,7 @@ let make = () => {
       fetchRefunds()
     }
     None
-  }, (offset, filters, searchText, transactionEntity))
+  }, (offset, filters, searchText))
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 

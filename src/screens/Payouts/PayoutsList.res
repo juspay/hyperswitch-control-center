@@ -54,7 +54,7 @@ let make = () => {
       fetchPayouts()
     }
     None
-  }, (offset, filters, searchText, transactionEntity))
+  }, (offset, filters, searchText))
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
