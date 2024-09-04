@@ -181,3 +181,29 @@ let inviteEmail = FormRenderer.makeFieldInfo(
   },
   ~isRequired=true,
 )
+
+module SwitchMerchantForUserAction = {
+  @react.component
+  let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
+    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+
+    let onSwitchForUserAction = async () => {
+      try {
+        let _ = await internalSwitch(
+          ~expectedOrgId=userInfoValue.org.actualId,
+          ~expectedMerchantId=userInfoValue.merchant.actualId,
+          ~expectedProfileId=userInfoValue.profile.actualId,
+        )
+      } catch {
+      | _ => ()
+      }
+    }
+
+    <Button
+      text="Switch to update"
+      customButtonStyle="!p-2"
+      buttonType={PrimaryOutline}
+      onClick={_ => onSwitchForUserAction()->ignore}
+    />
+  }
+}

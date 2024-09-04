@@ -113,10 +113,12 @@ let getNameAndIdFromDict: (Dict.t<JSON.t>, string) => UserManagementTypes.orgObj
     ? {
         name: default,
         id: default,
+        actualId: None,
       }
     : {
         name: dict->getString("name", ""),
         id: dict->getString("id", ""),
+        actualId: dict->getOptionString("id"),
       }
 }
 
@@ -153,14 +155,17 @@ let groupByMerchants: array<UserManagementTypes.userDetailstype> => Dict.t<
   dict
 }
 
-type userStatusTypes = Active | InviteSent | None
-
-let getLabelForStatus = value =>
+let getLabelForStatus = value => {
   switch value {
-  | "invite_sent" => (InviteSent, "text-orange-950 bg-orange-950 bg-opacity-20")
-  | "active" => (Active, "text-green-700 bg-green-700 bg-opacity-20")
-  | _ => (None, "text-grey-700 opacity-50")
+  | "InvitationSent" => (
+      UserManagementTypes.InviteSent,
+      "text-orange-950 bg-orange-950 bg-opacity-20",
+    )
+  | "Active" => (UserManagementTypes.Active, "text-green-700 bg-green-700 bg-opacity-20")
+  | _ => (UserManagementTypes.None, "text-grey-700 opacity-50")
   }
+}
+
 let stringToVariantMapperForAccess = accessAvailable => {
   open UserManagementTypes
   switch accessAvailable {

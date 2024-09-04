@@ -46,6 +46,7 @@ type userModuleType = {
 type orgObjectType = {
   name: string,
   id: string,
+  actualId: option<string>,
 }
 
 type userDetailstype = {
@@ -73,3 +74,7 @@ type parentGroupType =
 type groupPermissionType = View | Manage
 
 type allSelectionType = [#All_Merchants | #All_Profiles]
+
+type userActionType = SwitchUser | ManageUser | NoActionAccess
+
+type userStatusTypes = Active | InviteSent | None

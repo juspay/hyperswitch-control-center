@@ -1,18 +1,77 @@
 let h2OptionalStyle = HSwitchUtils.getTextClass((H2, Optional))
 
+module UserAction = {
+  @react.component
+  let make = (~value: UserManagementTypes.userDetailstype) => {
+    open UserManagementTypes
+
+    let url = RescriptReactRouter.useUrl()
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let userEmail =
+      url.search
+      ->LogicUtils.getDictFromUrlSearchParams
+      ->Dict.get("email")
+      ->Option.getOr("")
+    let {userInfo: {orgId, merchantId, profileId, email}} = React.useContext(
+      UserInfoProvider.defaultContext,
+    )
+
+    let decideWhatToShow = {
+      if value.entityType->UserInfoUtils.entityMapper === #Organization {
+        // User is at org level
+        NoActionAccess
+      } else if userEmail === email {
+        // User cannot update its own role
+        NoActionAccess
+      } else if userPermissionJson.usersManage === NoAccess {
+        // User doesn't have user write permission
+        NoActionAccess
+      } else if (
+        // Profile level user
+        value.org.actualId->Option.getOr("") === orgId &&
+        value.merchant.actualId->Option.getOr("") === merchantId &&
+        value.profile.actualId->Option.getOr("") === profileId
+      ) {
+        ManageUser
+      } else if (
+        // Merchant level user
+        value.org.actualId->Option.getOr("") === orgId &&
+        value.merchant.actualId->Option.getOr("") === merchantId &&
+        value.profile.actualId->Option.isNone
+      ) {
+        ManageUser
+      } else {
+        SwitchUser
+      }
+    }
+
+    switch decideWhatToShow {
+    | ManageUser => <ManageUserModal userInfoValue={value} />
+    | SwitchUser => <UserManagementHelper.SwitchMerchantForUserAction userInfoValue={value} />
+    | NoActionAccess => React.null
+    }
+  }
+}
+
 module TableRowForUserDetails = {
   @react.component
   let make = (
     ~arrayValue: array<UserManagementTypes.userDetailstype>,
     ~merchantName,
     ~parentIndex,
+    ~noOfElementsInParent,
   ) => {
-    let (showModal, setShowModal) = React.useState(_ => false)
+    open LogicUtils
 
     let tableElementCss = "table-cell text-left h-fit w-fit p-4"
     let noOfElementsForMerchants = arrayValue->Array.length
+
     let borderStyle = index =>
-      noOfElementsForMerchants - 1 == index && parentIndex != 2 ? "border-b" : ""
+      noOfElementsForMerchants - 1 == index && parentIndex != noOfElementsInParent - 1
+        ? "border-b"
+        : ""
+
+    let cssValueWithMultipleValues = noOfElementsForMerchants > 1 ? "align-top" : "align-center"
 
     arrayValue
     ->Array.mapWithIndex((value, index) => {
@@ -21,26 +80,23 @@ module TableRowForUserDetails = {
       <tr className={`${index->borderStyle}`}>
         <RenderIf condition={index == 0}>
           <td
-            className={`${tableElementCss} align-top pt-4 font-semibold`}
+            className={`${tableElementCss} ${cssValueWithMultipleValues} pt-4 font-semibold`}
             rowSpan={noOfElementsForMerchants}>
-            {merchantName->LogicUtils.capitalizeString->React.string}
+            {merchantName->capitalizeString->React.string}
           </td>
         </RenderIf>
         <td className=tableElementCss> {value.profile.name->React.string} </td>
-        <td className=tableElementCss> {value.roleId->React.string} </td>
+        <td className=tableElementCss>
+          {value.roleId->snakeToTitle->capitalizeString->React.string}
+        </td>
         <td className=tableElementCss>
           <p className={`${statusColor} px-4 py-1 w-fit rounded-full`}>
             {(statusValue :> string)->React.string}
           </p>
         </td>
         <td className={`${tableElementCss} text-right`}>
-          <Button
-            text="Manage user"
-            customButtonStyle="!p-2 !bg-white "
-            onClick={_ => setShowModal(_ => true)}
-          />
+          <UserAction value />
         </td>
-        <ManageUserModal showModal setShowModal />
       </tr>
     })
     ->React.array
@@ -58,6 +114,11 @@ module UserAccessInfo = {
       | None => []
       }
 
+    let noOfElementsInParent =
+      userData
+      ->Dict.keysToArray
+      ->Array.length
+
     <table>
       <thead className="border-b">
         <tr className="p-4">
@@ -73,7 +134,10 @@ module UserAccessInfo = {
         ->Dict.keysToArray
         ->Array.mapWithIndex((items, parentIndex) => {
           <TableRowForUserDetails
-            merchantName={items} arrayValue={items->getObjectForThekey} parentIndex
+            merchantName={items}
+            arrayValue={items->getObjectForThekey}
+            parentIndex
+            noOfElementsInParent
           />
         })
         ->React.array}
@@ -84,7 +148,14 @@ module UserAccessInfo = {
 
 module UserDetails = {
   @react.component
-  let make = (~userEmail, ~userData: Dict.t<array<UserManagementTypes.userDetailstype>>) => {
+  let make = (~userData: Dict.t<array<UserManagementTypes.userDetailstype>>) => {
+    let url = RescriptReactRouter.useUrl()
+    let userEmail =
+      url.search
+      ->LogicUtils.getDictFromUrlSearchParams
+      ->Dict.get("email")
+      ->Option.getOr("")
+
     <div className="flex flex-col bg-white rounded-xl border p-6 gap-12">
       <div className="flex gap-4">
         <img alt="user_icon" src={`/icons/user_icon.svg`} className="h-16 w-16" />
@@ -102,7 +173,10 @@ module UserDetails = {
 }
 @react.component
 let make = () => {
-  open Promise
+  open APIUtils
+
+  let getURL = useGetURL()
+  let updateMethod = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
   let userEmail =
     url.search
@@ -113,22 +187,13 @@ let make = () => {
   let (userData, setUserData) = React.useState(_ => Dict.make())
 
   let userDetailsFetch = async () => {
-    // TODO : add API to fetch the details of a particular user
     try {
-      Fetch.fetchWithInit(
-        "http://localhost:8082/get_user_details",
-        Fetch.RequestInit.make(~method_=Get),
-      )
-      ->then(res => res->Fetch.Response.json)
-      ->then(json => {
-        let finalResp = json->UserUtils.valueToType
-        setUserData(_ => finalResp->UserUtils.groupByMerchants)
-        resolve()
-      })
-      ->catch(_err => {
-        resolve()
-      })
-      ->ignore
+      let url = getURL(~entityName=USERS, ~userType=#USER_DETAILS, ~methodType=Post)
+      let body = [("email", userEmail->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+      let response = await updateMethod(url, body, Post)
+      let typedValue = response->UserUtils.valueToType
+      Js.log2("valueeee", typedValue->UserUtils.groupByMerchants)
+      setUserData(_ => typedValue->UserUtils.groupByMerchants)
     } catch {
     | _ => ()
     }
@@ -148,6 +213,6 @@ let make = () => {
         cursorStyle="cursor-pointer"
       />
     </div>
-    <UserDetails userEmail userData />
+    <UserDetails userData />
   </div>
 }
