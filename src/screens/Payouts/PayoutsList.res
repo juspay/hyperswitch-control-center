@@ -57,16 +57,12 @@ let make = () => {
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
-      <div className="flex">
-        <div className="flex-1">
-          <PageUtils.PageHeading title="Payouts" subTitle="View and manage all payouts" />
-        </div>
+      <div className="flex justify-between items-center">
+        <PageUtils.PageHeading title="Payouts" subTitle="View and manage all payouts" />
         <RenderIf condition={userManagementRevamp}>
-          <div className="flex flex-col mt-5 2xl:flex-row 2xl:justify-end 2xl:items-start">
-            <OMPSwitchHelper.OMPViews
-              views={OrderUIUtils.orderViewList} onChange={updateTransactionEntity}
-            />
-          </div>
+          <OMPSwitchHelper.OMPViews
+            views={OrderUIUtils.orderViewList} onChange={updateTransactionEntity}
+          />
         </RenderIf>
       </div>
       <div className="flex justify-between gap-3">

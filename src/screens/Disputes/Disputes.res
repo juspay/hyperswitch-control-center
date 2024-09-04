@@ -66,16 +66,12 @@ let make = () => {
     </>
 
   <div>
-    <div className="flex">
-      <div className="flex-1">
-        <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />
-      </div>
+    <div className="flex justify-between items-center">
+      <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />
       <RenderIf condition={userManagementRevamp}>
-        <div className="flex flex-col mt-5 2xl:flex-row 2xl:justify-end 2xl:items-start">
-          <OMPSwitchHelper.OMPViews
-            views={OrderUIUtils.orderViewList} onChange={updateTransactionEntity}
-          />
-        </div>
+        <OMPSwitchHelper.OMPViews
+          views={OrderUIUtils.orderViewList} onChange={updateTransactionEntity}
+        />
       </RenderIf>
     </div>
     <div className="flex w-full justify-end pb-3 gap-3">

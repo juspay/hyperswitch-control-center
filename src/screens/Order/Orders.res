@@ -108,16 +108,12 @@ let make = (~previewOnly=false) => {
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
-      <div className="flex">
-        <div className="flex-1">
-          <PageUtils.PageHeading
-            title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
-          />
-        </div>
+      <div className="flex justify-between items-center">
+        <PageUtils.PageHeading
+          title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
+        />
         <RenderIf condition={userManagementRevamp}>
-          <div className="flex flex-col mt-5 2xl:flex-row 2xl:justify-end 2xl:items-start">
-            <OMPSwitchHelper.OMPViews views={orderViewList} onChange={updateTransactionEntity} />
-          </div>
+          <OMPSwitchHelper.OMPViews views={orderViewList} onChange={updateTransactionEntity} />
         </RenderIf>
       </div>
       <div className="flex">

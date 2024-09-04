@@ -62,7 +62,7 @@ module OMPViews = {
       }
     }
 
-    <div className="flex">
+    <div className="flex h-fit">
       {views
       ->Array.mapWithIndex((value, index) => {
         let selectedStyle = value.entity === transactionEntity ? `bg-blue-200` : ""
