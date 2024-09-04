@@ -47,3 +47,18 @@ let generateDropdownOptions = dropdownList => {
     dropdownList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
   options
 }
+
+let analyticsViewList: ompViews = [
+  {
+    lable: "All Merchant",
+    entity: #Organization,
+  },
+  {
+    lable: "All Profiles",
+    entity: #Merchant,
+  },
+  {
+    lable: "Profile",
+    entity: #Profile,
+  },
+]

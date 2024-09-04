@@ -15,7 +15,10 @@ let make = () => {
   let (metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])
   let fetchDetails = useGetMethod()
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, userManagementRevamp} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let {userInfo: {analyticsEntity}} = React.useContext(UserInfoProvider.defaultContext)
 
   let loadInfo = async () => {
     try {
@@ -235,9 +238,16 @@ let make = () => {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between ">
         <PageUtils.PageHeading title subTitle />
-        <RenderIf condition={generateReport}>
-          <GenerateReport entityName={PAYMENT_REPORT} />
+        <RenderIf condition={userManagementRevamp}>
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.analyticsViewList}
+            selectedEntity={analyticsEntity}
+            onChange={updateAnalytcisEntity}
+          />
         </RenderIf>
+        // <RenderIf condition={generateReport}>
+        //   <GenerateReport entityName={PAYMENT_REPORT} />
+        // </RenderIf>
       </div>
       <div
         className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">

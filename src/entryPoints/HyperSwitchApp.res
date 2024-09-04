@@ -212,6 +212,11 @@ let make = () => {
                         | list{"disputes", ..._}
                         | list{"payouts", ..._} =>
                           <TransactionContainer />
+                        | list{"analytics-payments"}
+                        | list{"performance-monitor"}
+                        | list{"analytics-refunds"}
+                        | list{"analytics-disputes"} =>
+                          <AnalyticsContainser />
                         | list{"customers", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.operationsView>
                             <EntityScaffold
@@ -242,34 +247,6 @@ let make = () => {
 
                         | list{"users-revamp", ..._} => <UserManagementContainer />
 
-                        | list{"analytics-payments"} =>
-                          <AccessControl permission=userPermissionJson.analyticsView>
-                            <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
-                              <PaymentAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"performance-monitor"} =>
-                          <AccessControl
-                            permission=userPermissionJson.analyticsView
-                            isEnabled={featureFlagDetails.performanceMonitor}>
-                            <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
-                              <PerformanceMonitor domain="payments" />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"analytics-refunds"} =>
-                          <AccessControl permission=userPermissionJson.analyticsView>
-                            <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
-                              <RefundsAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"analytics-disputes"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.disputeAnalytics}
-                            permission=userPermissionJson.analyticsView>
-                            <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
-                              <DisputeAnalytics />
-                            </FilterContext>
-                          </AccessControl>
                         | list{"analytics-user-journey"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.userJourneyAnalytics

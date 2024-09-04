@@ -524,7 +524,8 @@ let make = (
 
   let startTimeVal = filterValueDict->getString(startTimeFilterKey, "")
   let endTimeVal = filterValueDict->getString(endTimeFilterKey, "")
-
+  let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let {userInfo: {analyticsEntity}} = React.useContext(UserInfoProvider.defaultContext)
   let updateUrlWithPrefix = React.useMemo(() => {
     (chartType: string) => {
       (dict: Dict.t<string>) => {
@@ -682,12 +683,19 @@ let make = (
       <div>
         <div className="flex items-center justify-between">
           <PageUtils.PageHeading title=pageTitle subTitle=pageSubTitle />
-          <RenderIf condition={generateReport}>
-            {switch generateReportType {
-            | Some(entityName) => <GenerateReport entityName />
-            | None => React.null
-            }}
+          <RenderIf condition={moduleName == "Refunds" || moduleName == "Disputes"}>
+            <OMPSwitchHelper.OMPViews
+              views={OMPSwitchUtils.analyticsViewList}
+              selectedEntity={analyticsEntity}
+              onChange={updateAnalytcisEntity}
+            />
           </RenderIf>
+          // <RenderIf condition={generateReport}>
+          //   {switch generateReportType {
+          //   | Some(entityName) => <GenerateReport entityName />
+          //   | None => React.null
+          //   }}
+          // </RenderIf>
         </div>
         <div className="mt-2 -ml-1"> topFilterUi </div>
         <div>
