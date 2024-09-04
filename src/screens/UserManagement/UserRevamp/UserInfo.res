@@ -183,19 +183,21 @@ let make = () => {
     ->LogicUtils.getDictFromUrlSearchParams
     ->Dict.get("email")
     ->Option.getOr("")
-
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (userData, setUserData) = React.useState(_ => Dict.make())
 
   let userDetailsFetch = async () => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=USERS, ~userType=#USER_DETAILS, ~methodType=Post)
       let body = [("email", userEmail->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
       let response = await updateMethod(url, body, Post)
       let typedValue = response->UserUtils.valueToType
-      Js.log2("valueeee", typedValue->UserUtils.groupByMerchants)
+
       setUserData(_ => typedValue->UserUtils.groupByMerchants)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => ()
+    | _ => setScreenState (_ => PageLoaderWrapper.Error("Failed to fetch user details!"))
     }
   }
 
@@ -213,6 +215,8 @@ let make = () => {
         cursorStyle="cursor-pointer"
       />
     </div>
-    <UserDetails userData />
+    <PageLoaderWrapper screenState>
+      <UserDetails userData />
+    </PageLoaderWrapper>
   </div>
 }
