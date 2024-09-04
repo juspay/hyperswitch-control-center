@@ -17,7 +17,7 @@ let useGetURL = () => {
     ~reconType: reconType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
-    let {transactionEntity, userEntity} = getUserInfoData()
+    let {transactionEntity, analyticsEntity, userEntity} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
 
     let endpoint = switch entityName {
@@ -245,7 +245,12 @@ let useGetURL = () => {
       switch methodType {
       | Get =>
         switch id {
-        | Some(domain) => `analytics/v1/${domain}/info`
+        | Some(domain) =>
+          switch (analyticsEntity, userManagementRevamp) {
+          | (#Organization, true) => `/analytics/v1/org/{domain}/info`
+          | _ => `analytics/v1/${domain}/info`
+          }
+
         | _ => ""
         }
       | Post =>
