@@ -245,12 +245,13 @@ let useGetURL = () => {
       switch methodType {
       | Get =>
         switch id {
+        // Need to write seperate enum for info api
         | Some(domain) =>
           switch (analyticsEntity, userManagementRevamp) {
-          | (#Organization, true) => `/analytics/v1/org/${domain}/info`
-          | (#Merchant, true) => `/analytics/v1/merchant/${domain}/info`
-          | (#Profile, true) => `/analytics/v1/profile/${domain}/info`
-          | _ => `/analytics/v1/merchant/${domain}/info`
+          | (#Organization, true) => `analytics/v1/org/${domain}/info`
+          | (#Merchant, true) => `analytics/v1/merchant/${domain}/info`
+          | (#Profile, true) => `analytics/v1/profile/${domain}/info`
+          | _ => `analytics/v1/merchant/${domain}/info`
           }
 
         | _ => ""
