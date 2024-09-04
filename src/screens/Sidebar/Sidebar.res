@@ -572,19 +572,13 @@ let make = (
             | Link(record) => {
                 let isSelected = linkSelectionCheck(firstPart, record.link)
                 <SidebarItem
-                  key={Int.toString(index)}
-                  tabInfo
-                  isSelected
-                  isSidebarExpanded={isSidebarExpanded}
-                  setOpenItem
+                  key={Int.toString(index)} tabInfo isSelected isSidebarExpanded setOpenItem
                 />
               }
 
             | LinkWithTag(record) => {
                 let isSelected = linkSelectionCheck(firstPart, record.link)
-                <SidebarItem
-                  key={Int.toString(index)} tabInfo isSelected isSidebarExpanded={isSidebarExpanded}
-                />
+                <SidebarItem key={Int.toString(index)} tabInfo isSelected isSidebarExpanded />
               }
 
             | Section(section) =>
