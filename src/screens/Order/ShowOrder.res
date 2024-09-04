@@ -604,7 +604,7 @@ let make = (~id, ~profileId) => {
   let fetchOrderDetails = async url => {
     try {
       setScreenState(_ => Loading)
-      let _ = await internalSwitch(~expectedProfileId=Some(profileId))
+      let _ = await internalSwitch(~expectedProfileId=profileId)
       let res = await fetchDetails(url)
       let order = OrderEntity.itemToObjMapper(res->getDictFromJsonObject)
       setOrderData(_ => order)
