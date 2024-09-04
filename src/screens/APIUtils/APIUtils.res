@@ -247,15 +247,24 @@ let useGetURL = () => {
         switch id {
         | Some(domain) =>
           switch (analyticsEntity, userManagementRevamp) {
-          | (#Organization, true) => `/analytics/v1/org/{domain}/info`
-          | _ => `analytics/v1/${domain}/info`
+          | (#Organization, true) => `/analytics/v1/org/${domain}/info`
+          | (#Merchant, true) => `/analytics/v1/merchant/${domain}/info`
+          | (#Profile, true) => `/analytics/v1/profile/${domain}/info`
+          | _ => `/analytics/v1/merchant/${domain}/info`
           }
 
         | _ => ""
         }
       | Post =>
         switch id {
-        | Some(domain) => `analytics/v1/metrics/${domain}`
+        | Some(domain) =>
+          switch (analyticsEntity, userManagementRevamp) {
+          | (#Organization, true) => `analytics/v1/org/metrics/${domain}`
+          | (#Merchant, true) => `analytics/v1/merchant/metrics/${domain}`
+          | (#Profile, true) => `analytics/v1/profile/metrics/${domain}`
+          | _ => `analytics/v1/merchant/metrics/${domain}`
+          }
+
         | _ => ""
         }
       | _ => ""
@@ -264,7 +273,14 @@ let useGetURL = () => {
       switch methodType {
       | Post =>
         switch id {
-        | Some(domain) => `analytics/v1/filters/${domain}`
+        | Some(domain) =>
+          switch (analyticsEntity, userManagementRevamp) {
+          | (#Organization, true) => `analytics/v1/org/filters/${domain}`
+          | (#Merchant, true) => `analytics/v1/merchant/filters/${domain}`
+          | (#Profile, true) => `analytics/v1/profile/filters/${domain}`
+          | _ => `analytics/v1/merchant/filters/${domain}`
+          }
+
         | _ => ""
         }
       | _ => ""
@@ -275,8 +291,18 @@ let useGetURL = () => {
       switch methodType {
       | Get =>
         switch id {
-        | Some(payment_id) => `analytics/v1/api_event_logs?type=Payment&payment_id=${payment_id}`
-        | None => `analytics/v1/event-logs`
+        | Some(payment_id) =>
+          switch (analyticsEntity, userManagementRevamp) {
+          | (#Organization, true) =>
+            `analytics/v1/org/api_event_logs?type=Payment&payment_id=${payment_id}`
+          | (#Merchant, true) =>
+            `analytics/v1/merchant/api_event_logs?type=Payment&payment_id=${payment_id}`
+          | (#Profile, true) =>
+            `analytics/v1/profile/api_event_logs?type=Payment&payment_id=${payment_id}`
+          | _ => `analytics/v1/merchant/api_event_logs?type=Payment&payment_id=${payment_id}`
+          }
+
+        | None => ``
         }
       | _ => ""
       }
@@ -313,9 +339,29 @@ let useGetURL = () => {
     | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
 
     /* REPORTS */
-    | PAYMENT_REPORT => `analytics/v1/report/payments`
-    | REFUND_REPORT => `analytics/v1/report/refunds`
-    | DISPUTE_REPORT => `analytics/v1/report/dispute`
+    | PAYMENT_REPORT =>
+      switch (analyticsEntity, userManagementRevamp) {
+      | (#Organization, true) => `analytics/v1/org/report/payments`
+      | (#Merchant, true) => `analytics/v1/merchant/report/payments`
+      | (#Profile, true) => `analytics/v1/report/payments`
+      | _ => `analytics/v1/profile/report/payments`
+      }
+
+    | REFUND_REPORT =>
+      switch (analyticsEntity, userManagementRevamp) {
+      | (#Organization, true) => `analytics/v1/org/report/refunds`
+      | (#Merchant, true) => `analytics/v1/merchant/report/refunds`
+      | (#Profile, true) => `analytics/v1/report/refunds`
+      | _ => `analytics/v1/profile/report/refunds`
+      }
+
+    | DISPUTE_REPORT =>
+      switch (analyticsEntity, userManagementRevamp) {
+      | (#Organization, true) => `analytics/v1/org/report/dispute`
+      | (#Merchant, true) => `analytics/v1/merchant/report/dispute`
+      | (#Profile, true) => `analytics/v1/report/dispute`
+      | _ => `analytics/v1/profile/report/dispute`
+      }
 
     /* EVENT LOGS */
     | SDK_EVENT_LOGS => `analytics/v1/sdk_event_logs`
