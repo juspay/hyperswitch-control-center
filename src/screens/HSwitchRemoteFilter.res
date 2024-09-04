@@ -116,7 +116,6 @@ module RemoteTableFilters = {
   @react.component
   let make = (
     ~apiType: Fetch.requestMethod=Get,
-    ~filterUrl,
     ~setFilters,
     ~endTimeFilterKey,
     ~startTimeFilterKey,
@@ -124,9 +123,15 @@ module RemoteTableFilters = {
     ~initialFixedFilter,
     ~setOffset,
     ~customLeftView,
+    ~entityName: APIUtilsTypes.entityName,
     (),
   ) => {
     open LogicUtils
+    open APIUtils
+
+    let getURL = useGetURL()
+    let {userInfo: transactionEntity} = React.useContext(UserInfoProvider.defaultContext)
+
     let {filterValue, updateExistingKeys, filterValueJson, reset} =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
@@ -140,8 +145,6 @@ module RemoteTableFilters = {
       None
     }, [])
 
-    open APIUtils
-
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
     let updateDetails = useUpdateMethod()
     let defaultDate = getDateFilteredObject(~range=30)
@@ -151,6 +154,7 @@ module RemoteTableFilters = {
 
     let fetchAllFilters = async () => {
       try {
+        let filterUrl = getURL(~entityName, ~methodType=apiType)
         setFilterDataJson(_ => None)
         let response = switch apiType {
         | Post => {
@@ -172,7 +176,7 @@ module RemoteTableFilters = {
     React.useEffect(() => {
       fetchAllFilters()->ignore
       None
-    }, [])
+    }, [transactionEntity])
 
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 

@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.04.1
+
+### Bug Fixes
+
+- Entity scaffold url path ([#1293](https://github.com/juspay/hyperswitch-control-center/pull/1293)) ([`791f91d`](https://github.com/juspay/hyperswitch-control-center/commit/791f91d6e7f6bac5d40cee177e6e62d636cd3264))
+
+### Miscellaneous Tasks
+
+- Update user info hook ([#1287](https://github.com/juspay/hyperswitch-control-center/pull/1287)) ([`1500415`](https://github.com/juspay/hyperswitch-control-center/commit/1500415edf33477fb4485d801549fb419f787fcb))
+- Profile level api integration ([#1285](https://github.com/juspay/hyperswitch-control-center/pull/1285)) ([`b4d546d`](https://github.com/juspay/hyperswitch-control-center/commit/b4d546d50314513733da314e30a3cec1304a4983))
+
+**Full Changelog:** [`2024.09.04.0...2024.09.04.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.04.0...2024.09.04.1)
+
+- - -
+
 ## 2024.09.04.0
 
 ### Features

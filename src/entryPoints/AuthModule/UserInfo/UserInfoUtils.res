@@ -28,6 +28,7 @@ let entityMapper = entity => {
 let defaultValueOfUserInfoProvider = {
   userInfo: defaultValueOfUserInfo,
   setUserInfoData: _ => (),
+  getUserInfoData: _ => defaultValueOfUserInfo,
 }
 open LogicUtils
 let itemMapper = dict => {

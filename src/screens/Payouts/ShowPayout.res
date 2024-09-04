@@ -156,7 +156,7 @@ let make = (~id, ~profileId) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let payoutsUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some(id))
-      let _ = await internalSwitch(~expectedProfileId=Some(profileId))
+      let _ = await internalSwitch(~expectedProfileId=profileId)
       let response = await fetchDetails(payoutsUrl)
       setPayoutsData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)

@@ -15,7 +15,8 @@ let make = () => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Payouts")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-
+  let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
+  let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchPayouts = () => {
     switch filters {
     | Some(dict) =>
@@ -54,16 +55,20 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let filterUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some("filter"))
-
   <ErrorBoundary>
     <div className="min-h-[50vh]">
-      <PageUtils.PageHeading title="Payouts" subTitle="View and manage all payouts" />
+      <div className="flex justify-between items-center">
+        <PageUtils.PageHeading title="Payouts" subTitle="View and manage all payouts" />
+        <RenderIf condition={userManagementRevamp}>
+          <OMPSwitchHelper.OMPViews
+            views={OrderUIUtils.orderViewList} onChange={updateTransactionEntity}
+          />
+        </RenderIf>
+      </div>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
             apiType=Post
-            filterUrl
             setFilters
             endTimeFilterKey
             startTimeFilterKey
@@ -73,6 +78,7 @@ let make = () => {
             customLeftView={<SearchBarFilter
               placeholder="Search payout id" setSearchVal=setSearchText searchVal=searchText
             />}
+            entityName=PAYOUTS_FILTERS
           />
         </div>
         <PortalCapture key={`PayoutsCustomizeColumn`} name={`PayoutsCustomizeColumn`} />
