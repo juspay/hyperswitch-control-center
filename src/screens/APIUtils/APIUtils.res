@@ -330,7 +330,7 @@ let useGetURL = () => {
 
     /* REPORTS */
     | PAYMENT_REPORT =>
-      switch (analyticsEntity, userManagementRevamp) {
+      switch (transactionEntity, userManagementRevamp) {
       | (#Organization, true) => `analytics/v1/org/report/payments`
       | (#Merchant, true) => `analytics/v1/merchant/report/payments`
       | (#Profile, true) => `analytics/v1/profile/report/payments`
@@ -338,7 +338,7 @@ let useGetURL = () => {
       }
 
     | REFUND_REPORT =>
-      switch (analyticsEntity, userManagementRevamp) {
+      switch (transactionEntity, userManagementRevamp) {
       | (#Organization, true) => `analytics/v1/org/report/refunds`
       | (#Merchant, true) => `analytics/v1/merchant/report/refunds`
       | (#Profile, true) => `analytics/v1/profile/report/refunds`
@@ -346,7 +346,7 @@ let useGetURL = () => {
       }
 
     | DISPUTE_REPORT =>
-      switch (analyticsEntity, userManagementRevamp) {
+      switch (transactionEntity, userManagementRevamp) {
       | (#Organization, true) => `analytics/v1/org/report/dispute`
       | (#Merchant, true) => `analytics/v1/merchant/report/dispute`
       | (#Profile, true) => `analytics/v1/profile/report/dispute`
