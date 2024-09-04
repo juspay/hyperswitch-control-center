@@ -381,7 +381,11 @@ let useGetURL = () => {
           }
         | ROLE_ID =>
           switch id {
-          | Some(key_id) => `${userUrl}/role/${key_id}`
+          | Some(key_id) =>
+            switch queryParamerters {
+            | Some(queryParams) => `${userUrl}/role/${key_id}?${queryParams}`
+            | None => `${userUrl}/role/${key_id}`
+            }
           | None => ""
           }
         | NONE => ""
@@ -444,12 +448,12 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/role?${params}`
         | None => `${userUrl}/role`
         }
+      | #ROLE_INFO => `${userUrl}/module/list`
       | #PERMISSION_INFO =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
-      | #ROLE_INFO => `${userUrl}/module/list`
 
       // USER ACTIONS
       | #USER_DELETE => `${userUrl}/user/delete`

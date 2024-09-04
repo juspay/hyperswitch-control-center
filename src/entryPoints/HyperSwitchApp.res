@@ -285,16 +285,7 @@ let make = () => {
                             />
                           </AccessControl>
 
-                        | list{"users-revamp", ...remainingPath} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.userManagementRevamp} permission={Access}>
-                            <EntityScaffold
-                              entityName="UserManagement"
-                              remainingPath
-                              renderList={_ => <UserManagementLanding />}
-                              renderShow={(_, _) => <ShowUserData />}
-                            />
-                          </AccessControl>
+                        | list{"users-revamp", ..._} => <UserManagementContainer />
 
                         | list{"analytics-payments"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
