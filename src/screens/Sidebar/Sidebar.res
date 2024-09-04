@@ -444,45 +444,6 @@ module SidebarNestedSection = {
   }
 }
 
-module PinIconComponentStates = {
-  @react.component
-  let make = (~isHSSidebarPinned, ~setIsSidebarExpanded, ~isSidebarExpanded) => {
-    let isMobileView = MatchMedia.useMobileChecker()
-    let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
-
-    let toggleExpand = React.useCallback(_ => {
-      setIsSidebarExpanded(x => !x)
-    }, [])
-
-    let onClick = ev => {
-      ev->ReactEvent.Mouse.preventDefault
-      ev->ReactEvent.Mouse.stopPropagation
-      ev->toggleExpand
-      setIsSidebarDetails("isPinned", !isHSSidebarPinned->JSON.Encode.bool)
-    }
-
-    <>
-      <RenderIf condition={isSidebarExpanded && !isHSSidebarPinned && !isMobileView}>
-        <Icon size=35 name="sidebar-pin-default" onClick className="cursor-pointer" />
-      </RenderIf>
-      <RenderIf condition={isHSSidebarPinned && !isMobileView}>
-        <Icon size=35 name="sidebar-pin-pinned" onClick className="cursor-pointer" />
-      </RenderIf>
-      <RenderIf condition={isMobileView}>
-        <div className="flex align-center mt-4 pl-3 mb-6 pr-4 ml-1 gap-5 cursor-default">
-          <Icon
-            className="mr-1"
-            size=20
-            name="collapse-cross"
-            customIconColor="#FEFEFE"
-            onClick={_ => setIsSidebarExpanded(_ => false)}
-          />
-        </div>
-      </RenderIf>
-    </>
-  }
-}
-
 @react.component
 let make = (
   ~sidebars: array<topLevelItem>,
@@ -614,7 +575,17 @@ let make = (
             }}>
             <Icon size=20 name="hamburger-new" />
           </div>
-          <PinIconComponentStates isHSSidebarPinned setIsSidebarExpanded isSidebarExpanded />
+          <RenderIf condition={isMobileView}>
+            <div className="flex align-center mt-4 pl-3 mb-6 pr-4 ml-1 gap-5 cursor-default">
+              <Icon
+                className="mr-1"
+                size=20
+                name="collapse-cross"
+                customIconColor="#FEFEFE"
+                onClick={_ => setIsSidebarExpanded(_ => false)}
+              />
+            </div>
+          </RenderIf>
         </div>
         <RenderIf condition={featureFlagDetails.userManagementRevamp}>
           <SidebarSwitch isExpanded />
