@@ -233,6 +233,24 @@ let useGetURL = () => {
       | _ => ""
       }
     | ACTIVE_ROUTING => `routing/active`
+    /* ANALYTICS V2 */
+
+    | ANALYTICS_PAYMENTS_V2 =>
+      switch methodType {
+      | Post =>
+        switch id {
+        | Some(domain) =>
+          switch (analyticsEntity, userManagementRevamp) {
+          | (#Organization, true) => `analytics/v2/org/metrics/${domain}`
+          | (#Merchant, true) => `analytics/v2/merchant/metrics/${domain}`
+          | (#Profile, true) => `analytics/v2/profile/metrics/${domain}`
+          | _ => `analytics/v2/merchant/metrics/${domain}`
+          }
+
+        | _ => ""
+        }
+      | _ => ""
+      }
 
     /* ANALYTICS */
     | ANALYTICS_REFUNDS

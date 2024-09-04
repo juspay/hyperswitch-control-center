@@ -156,10 +156,10 @@ let getStatData = (
   }
 }
 
-let getSmartRetriesSingleStatEntity = (metrics, defaultColumns) => {
+let getSmartRetriesSingleStatEntity = (metrics, defaultColumns, ~uri) => {
   urlConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v2/metrics/${domain}`,
+      uri,
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
@@ -168,13 +168,13 @@ let getSmartRetriesSingleStatEntity = (metrics, defaultColumns) => {
   defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v2/metrics/${domain}`,
+  matrixUriMapper: _ => uri,
 }
 
-let getSmartRetriesAmountSingleStatEntity = (metrics, defaultColumns) => {
+let getSmartRetriesAmountSingleStatEntity = (metrics, defaultColumns, ~uri) => {
   urlConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v2/metrics/${domain}`,
+      uri,
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
@@ -183,7 +183,7 @@ let getSmartRetriesAmountSingleStatEntity = (metrics, defaultColumns) => {
   defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v2/metrics/${domain}`,
+  matrixUriMapper: _ => uri,
 }
 
 let smartRetrivesColumns: array<DynamicSingleStat.columns<colT>> = [
@@ -214,6 +214,13 @@ let smartRetrivesAmountColumns: array<DynamicSingleStat.columns<colT>> = [
 
 @react.component
 let make = (~filterKeys, ~moduleName) => {
+  open APIUtils
+  let getURL = useGetURL()
+  let smartRetryAnalyticsUrl = getURL(
+    ~entityName=ANALYTICS_PAYMENTS_V2,
+    ~methodType=Post,
+    ~id=Some(domain),
+  )
   let smartRetrieMetrics = [
     "successful_smart_retries",
     "total_smart_retries",
@@ -232,11 +239,13 @@ let make = (~filterKeys, ~moduleName) => {
   let singleStatEntity = getSmartRetriesSingleStatEntity(
     smartRetrieMetrics->formatMetrics,
     smartRetrivesColumns,
+    ~uri=smartRetryAnalyticsUrl,
   )
 
   let singleStatAMountEntity = getSmartRetriesSingleStatEntity(
     smartRetrieMetrics->formatMetrics,
     smartRetrivesAmountColumns,
+    ~uri=smartRetryAnalyticsUrl,
   )
 
   let formaPayload = (singleStatBodyEntity: DynamicSingleStat.singleStatBodyEntity) => {
