@@ -113,17 +113,20 @@ let payouts = permissionJson => {
   })
 }
 
-let operations = (isOperationsEnabled, ~permissionJson, ~isPayoutsEnabled) => {
+let operations = (isOperationsEnabled, ~permissionJson, ~isPayoutsEnabled, ~isCustomersEnabled) => {
   let payments = payments(permissionJson)
   let refunds = refunds(permissionJson)
   let disputes = disputes(permissionJson)
   let customers = customers(permissionJson)
   let payouts = payouts(permissionJson)
 
-  let links = [payments, refunds, disputes, customers]
+  let links = [payments, refunds, disputes]
 
   if isPayoutsEnabled {
     links->Array.push(payouts)->ignore
+  }
+  if isCustomersEnabled {
+    links->Array.push(customers)->ignore
   }
 
   isOperationsEnabled
@@ -594,7 +597,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-
+  let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
   let {
     frm,
     payOut,
@@ -615,10 +618,12 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     userManagementRevamp,
   } = featureFlagDetails
 
+  let isCustomersEnabled = userEntity !== #Profile
+
   let sidebar = [
     productionAccessComponent(quickStart),
     default->home,
-    default->operations(~permissionJson, ~isPayoutsEnabled=payOut),
+    default->operations(~permissionJson, ~isPayoutsEnabled=payOut, ~isCustomersEnabled),
     default->connectors(
       ~isLiveMode,
       ~isFrmEnabled=frm,
