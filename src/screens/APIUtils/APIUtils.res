@@ -290,14 +290,7 @@ let useGetURL = () => {
       switch methodType {
       | Get =>
         switch queryParamerters {
-        | Some(params) =>
-          switch (analyticsEntity, userManagementRevamp) {
-          | (#Organization, true) => `analytics/v1/org/api_event_logs?${params}`
-          | (#Merchant, true) => `analytics/v1/merchant/api_event_logs?${params}`
-          | (#Profile, true) => `analytics/v1/profile/api_event_logs?${params}`
-          | _ => `analytics/v1/merchant/api_event_logs?${params}`
-          }
-
+        | Some(params) => `analytics/v1/profile/api_event_logs?${params}`
         | None => ``
         }
       | _ => ""
@@ -339,40 +332,33 @@ let useGetURL = () => {
       switch (analyticsEntity, userManagementRevamp) {
       | (#Organization, true) => `analytics/v1/org/report/payments`
       | (#Merchant, true) => `analytics/v1/merchant/report/payments`
-      | (#Profile, true) => `analytics/v1/report/payments`
-      | _ => `analytics/v1/profile/report/payments`
+      | (#Profile, true) => `analytics/v1/profile/report/payments`
+      | _ => `analytics/v1/merchant/report/payments`
       }
 
     | REFUND_REPORT =>
       switch (analyticsEntity, userManagementRevamp) {
       | (#Organization, true) => `analytics/v1/org/report/refunds`
       | (#Merchant, true) => `analytics/v1/merchant/report/refunds`
-      | (#Profile, true) => `analytics/v1/report/refunds`
-      | _ => `analytics/v1/profile/report/refunds`
+      | (#Profile, true) => `analytics/v1/profile/report/refunds`
+      | _ => `analytics/v1/prmerchantofile/report/refunds`
       }
 
     | DISPUTE_REPORT =>
       switch (analyticsEntity, userManagementRevamp) {
       | (#Organization, true) => `analytics/v1/org/report/dispute`
       | (#Merchant, true) => `analytics/v1/merchant/report/dispute`
-      | (#Profile, true) => `analytics/v1/report/dispute`
+      | (#Profile, true) => `analytics/v1/profile/report/dispute`
       | _ => `analytics/v1/profile/report/dispute`
       }
 
     /* EVENT LOGS */
-    | SDK_EVENT_LOGS => `analytics/v1/sdk_event_logs`
+    | SDK_EVENT_LOGS => `analytics/v1/profile/sdk_event_logs`
     | WEBHOOKS_EVENT_LOGS =>
       switch methodType {
       | Get =>
         switch queryParamerters {
-        | Some(params) =>
-          switch (analyticsEntity, userManagementRevamp) {
-          | (#Organization, true) => `analytics/v1/org/outgoing_webhook_event_logs?${params}`
-          | (#Merchant, true) => `analytics/v1/merchant/outgoing_webhook_event_logs?${params}`
-          | (#Profile, true) => `analytics/v1/profile/outgoing_webhook_event_logs?${params}`
-          | _ => `analytics/v1/merchant/outgoing_webhook_event_logs?${params}`
-          }
-
+        | Some(params) => `analytics/v1/profile/outgoing_webhook_event_logs?${params}`
         | None => ``
         }
       | _ => ""
@@ -381,14 +367,7 @@ let useGetURL = () => {
       switch methodType {
       | Get =>
         switch queryParamerters {
-        | Some(params) =>
-          switch (analyticsEntity, userManagementRevamp) {
-          | (#Organization, true) => `analytics/v1/org/connector_event_logs?${params}`
-          | (#Merchant, true) => `analytics/v1/merchant/connector_event_logs?${params}`
-          | (#Profile, true) => `analytics/v1/profile/connector_event_logs?${params}`
-          | _ => `analytics/v1/merchant/connector_event_logs?${params}`
-          }
-
+        | Some(params) => `analytics/v1/profile/connector_event_logs?${params}`
         | None => ``
         }
       | _ => ""
