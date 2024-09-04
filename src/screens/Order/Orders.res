@@ -6,6 +6,7 @@ let make = (~previewOnly=false) => {
   open LogicUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -20,7 +21,8 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, userManagementRevamp} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchOrders = () => {
     if !previewOnly {
@@ -87,11 +89,8 @@ let make = (~previewOnly=false) => {
       customCssClass={"my-6"} message="There are no payments as of now" renderType=Painting
     />
 
-  let filterUrl = getURL(~entityName=ORDER_FILTERS, ~methodType=Get)
-
   let filtersUI = React.useMemo(() => {
     <RemoteTableFilters
-      filterUrl
       setFilters
       endTimeFilterKey
       startTimeFilterKey
@@ -101,14 +100,20 @@ let make = (~previewOnly=false) => {
       customLeftView={<SearchBarFilter
         placeholder="Search payment id" setSearchVal=setSearchText searchVal=searchText
       />}
+      entityName=ORDER_FILTERS
     />
   }, [])
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
-      <PageUtils.PageHeading
-        title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
-      />
+      <div className="flex justify-between items-center">
+        <PageUtils.PageHeading
+          title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
+        />
+        <RenderIf condition={userManagementRevamp}>
+          <OMPSwitchHelper.OMPViews views={orderViewList} onChange={updateTransactionEntity} />
+        </RenderIf>
+      </div>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
           <div className="flex-1"> {filtersUI} </div>
