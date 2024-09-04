@@ -149,10 +149,11 @@ module UserAccessInfo = {
 module UserDetails = {
   @react.component
   let make = (~userData: Dict.t<array<UserManagementTypes.userDetailstype>>) => {
+    open LogicUtils
     let url = RescriptReactRouter.useUrl()
     let userEmail =
       url.search
-      ->LogicUtils.getDictFromUrlSearchParams
+      ->getDictFromUrlSearchParams
       ->Dict.get("email")
       ->Option.getOr("")
 
@@ -160,7 +161,7 @@ module UserDetails = {
       <div className="flex gap-4">
         <img alt="user_icon" src={`/icons/user_icon.svg`} className="h-16 w-16" />
         <div>
-          <p className=h2OptionalStyle> {userEmail->React.string} </p>
+          <p className=h2OptionalStyle> {userEmail->getNameFromEmail->React.string} </p>
           <p className="text-grey-600 opacity-40"> {userEmail->React.string} </p>
         </div>
       </div>
@@ -174,13 +175,13 @@ module UserDetails = {
 @react.component
 let make = () => {
   open APIUtils
-
+  open LogicUtils
   let getURL = useGetURL()
   let updateMethod = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
   let userEmail =
     url.search
-    ->LogicUtils.getDictFromUrlSearchParams
+    ->getDictFromUrlSearchParams
     ->Dict.get("email")
     ->Option.getOr("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -190,7 +191,7 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=USERS, ~userType=#USER_DETAILS, ~methodType=Post)
-      let body = [("email", userEmail->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+      let body = [("email", userEmail->JSON.Encode.string)]->getJsonFromArrayOfJson
       let response = await updateMethod(url, body, Post)
       let typedValue = response->UserUtils.valueToType
 

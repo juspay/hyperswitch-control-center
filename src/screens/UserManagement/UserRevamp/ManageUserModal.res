@@ -8,6 +8,7 @@ module ChangeRoleSection = {
   @react.component
   let make = (~defaultRole, ~options) => {
     open APIUtils
+    open LogicUtils
     let getURL = useGetURL()
     let url = RescriptReactRouter.useUrl()
     let showToast = ToastState.useShowToast()
@@ -15,7 +16,7 @@ module ChangeRoleSection = {
     let (userRole, setUserRole) = React.useState(_ => defaultRole)
     let userEmail =
       url.search
-      ->LogicUtils.getDictFromUrlSearchParams
+      ->getDictFromUrlSearchParams
       ->Dict.get("email")
       ->Option.getOr("")
 
@@ -38,7 +39,7 @@ module ChangeRoleSection = {
           [
             ("email", userEmail->JSON.Encode.string),
             ("role_id", userRole->JSON.Encode.string),
-          ]->LogicUtils.getJsonFromArrayOfJson
+          ]->getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post)
         showToast(~message="Role successfully updated!", ~toastType=ToastSuccess)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users-revamp"))
@@ -80,7 +81,7 @@ module ResendInviteSection = {
   @react.component
   let make = (~invitationStatus) => {
     open APIUtils
-
+    open LogicUtils
     let getURL = useGetURL()
     let showToast = ToastState.useShowToast()
     let url = RescriptReactRouter.useUrl()
@@ -89,7 +90,7 @@ module ResendInviteSection = {
     let (statusValue, _) = invitationStatus->UserUtils.getLabelForStatus
     let userEmail =
       url.search
-      ->LogicUtils.getDictFromUrlSearchParams
+      ->getDictFromUrlSearchParams
       ->Dict.get("email")
       ->Option.getOr("")
 
@@ -101,7 +102,7 @@ module ResendInviteSection = {
           ~methodType=Post,
           ~queryParamerters=Some(`auth_id=${authId}`),
         )
-        let body = [("email", userEmail->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+        let body = [("email", userEmail->JSON.Encode.string)]->getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post)
         showToast(~message="Invite resend. Please check your email.", ~toastType=ToastSuccess)
       } catch {
@@ -133,6 +134,7 @@ module DeleteUserRole = {
   @react.component
   let make = (~setShowModal) => {
     open APIUtils
+    open LogicUtils
     let getURL = useGetURL()
     let showToast = ToastState.useShowToast()
     let url = RescriptReactRouter.useUrl()
@@ -140,14 +142,14 @@ module DeleteUserRole = {
     let showPopUp = PopUpState.useShowPopUp()
     let userEmail =
       url.search
-      ->LogicUtils.getDictFromUrlSearchParams
+      ->getDictFromUrlSearchParams
       ->Dict.get("email")
       ->Option.getOr("")
 
     let deleteUser = async () => {
       try {
         let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#USER_DELETE})
-        let body = [("email", userEmail->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+        let body = [("email", userEmail->JSON.Encode.string)]->getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Delete)
         showToast(~message=`User has been successfully deleted.`, ~toastType=ToastSuccess)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users-revamp"))

@@ -42,6 +42,6 @@ live_users_counter=false
 granularity=false
 custom_webhook_headers=false
 compliance_certificate=false
-user_management_revamp=true
+user_management_revamp=false
 pm_authentication_processor=true
 performance_monitor=false
