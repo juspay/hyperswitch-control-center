@@ -90,20 +90,18 @@ let make = (~previewOnly=false) => {
     />
 
   let filtersUI = React.useMemo(() => {
-    <>
-      <RemoteTableFilters
-        setFilters
-        endTimeFilterKey
-        startTimeFilterKey
-        initialFilters
-        initialFixedFilter
-        setOffset
-        customLeftView={<SearchBarFilter
-          placeholder="Search payment id" setSearchVal=setSearchText searchVal=searchText
-        />}
-        entityName=ORDER_FILTERS
-      />
-    </>
+    <RemoteTableFilters
+      setFilters
+      endTimeFilterKey
+      startTimeFilterKey
+      initialFilters
+      initialFixedFilter
+      setOffset
+      customLeftView={<SearchBarFilter
+        placeholder="Search payment id" setSearchVal=setSearchText searchVal=searchText
+      />}
+      entityName=ORDER_FILTERS
+    />
   }, [])
 
   <ErrorBoundary>
