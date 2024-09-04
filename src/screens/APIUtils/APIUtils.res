@@ -286,20 +286,16 @@ let useGetURL = () => {
       | _ => ""
       }
 
-    /* PAYMENT LOGS (AUDIT TRAIL) */
-    | PAYMENT_LOGS =>
+    | API_EVENT_LOGS =>
       switch methodType {
       | Get =>
-        switch id {
-        | Some(payment_id) =>
+        switch queryParamerters {
+        | Some(params) =>
           switch (analyticsEntity, userManagementRevamp) {
-          | (#Organization, true) =>
-            `analytics/v1/org/api_event_logs?type=Payment&payment_id=${payment_id}`
-          | (#Merchant, true) =>
-            `analytics/v1/merchant/api_event_logs?type=Payment&payment_id=${payment_id}`
-          | (#Profile, true) =>
-            `analytics/v1/profile/api_event_logs?type=Payment&payment_id=${payment_id}`
-          | _ => `analytics/v1/merchant/api_event_logs?type=Payment&payment_id=${payment_id}`
+          | (#Organization, true) => `analytics/v1/org/api_event_logs?${params}`
+          | (#Merchant, true) => `analytics/v1/merchant/api_event_logs?${params}`
+          | (#Profile, true) => `analytics/v1/profile/api_event_logs?${params}`
+          | _ => `analytics/v1/merchant/api_event_logs?${params}`
           }
 
         | None => ``
@@ -366,15 +362,36 @@ let useGetURL = () => {
     /* EVENT LOGS */
     | SDK_EVENT_LOGS => `analytics/v1/sdk_event_logs`
     | WEBHOOKS_EVENT_LOGS =>
-      switch id {
-      | Some(payment_id) => `analytics/v1/outgoing_webhook_event_logs?payment_id=${payment_id}`
-      | None => ""
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(params) =>
+          switch (analyticsEntity, userManagementRevamp) {
+          | (#Organization, true) => `analytics/v1/org/outgoing_webhook_event_logs?${params}`
+          | (#Merchant, true) => `analytics/v1/merchant/outgoing_webhook_event_logs?${params}`
+          | (#Profile, true) => `analytics/v1/profile/outgoing_webhook_event_logs?${params}`
+          | _ => `analytics/v1/merchant/outgoing_webhook_event_logs?${params}`
+          }
+
+        | None => ``
+        }
+      | _ => ""
       }
     | CONNECTOR_EVENT_LOGS =>
-      switch id {
-      | Some(payment_id) =>
-        `analytics/v1/connector_event_logs?type=Payment&payment_id=${payment_id}`
-      | None => ""
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(params) =>
+          switch (analyticsEntity, userManagementRevamp) {
+          | (#Organization, true) => `analytics/v1/org/connector_event_logs?${params}`
+          | (#Merchant, true) => `analytics/v1/merchant/connector_event_logs?${params}`
+          | (#Profile, true) => `analytics/v1/profile/connector_event_logs?${params}`
+          | _ => `analytics/v1/merchant/connector_event_logs?${params}`
+          }
+
+        | None => ``
+        }
+      | _ => ""
       }
 
     /* SAMPLE DATA */
