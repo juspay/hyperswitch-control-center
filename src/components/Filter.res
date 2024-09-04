@@ -291,78 +291,90 @@ let make = (
   <Form onSubmit initialValues=initialValueJson>
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
-      <div className="flex gap-2 justify-between my-2">
-        <div className={`flex gap-2 flex-wrap ${verticalGap}`}>
-          {customLeftView}
-          <RenderIf condition={allFilters->Array.length > 0}>
-            <Menu \"as"="div" className="relative inline-block text-left">
-              {_menuProps =>
-                <div>
-                  <Menu.Button
-                    className="flex items-center whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg h-10 hover:bg-opacity-80 bg-white border">
-                    {_buttonProps => {
-                      <>
-                        <Icon className={"mr-2"} name="plus" size=15 />
-                        {"Add Filters"->React.string}
-                      </>
-                    }}
-                  </Menu.Button>
-                  <Transition
-                    \"as"="span"
-                    enter="transition ease-out duration-100"
-                    enterFrom="transform opacity-0 scale-95"
-                    enterTo="transform opacity-100 scale-100"
-                    leave="transition ease-in duration-75"
-                    leaveFrom="transform opacity-100 scale-100"
-                    leaveTo="transform opacity-0 scale-95">
-                    {<Menu.Items
-                      className="absolute left-0 w-fit z-50 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                      {_props => {
+      {<>
+        <div className="flex gap-2 justify-between my-2">
+          <div className={`flex gap-2 flex-wrap ${verticalGap}`}>
+            {customLeftView}
+            <RenderIf condition={allFilters->Array.length > 0}>
+              <Menu \"as"="div" className="relative inline-block text-left">
+                {_menuProps =>
+                  <div>
+                    <Menu.Button
+                      className="flex items-center whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg h-10 hover:bg-opacity-80 bg-white border">
+                      {_buttonProps => {
                         <>
-                          <div className="px-1 py-1">
-                            {allFilters
-                            ->Array.mapWithIndex((option, i) =>
-                              <Menu.Item key={i->Int.toString}>
-                                {props =>
-                                  <div className="relative w-max">
-                                    <button
-                                      onClick={_ => addFilter(option)}
-                                      className={
-                                        let activeClasses = if props["active"] {
-                                          "group flex rounded-md items-center w-48 px-2 py-2 text-sm bg-gray-100 dark:bg-black"
-                                        } else {
-                                          "group flex rounded-md items-center w-48 px-2 py-2 text-sm"
-                                        }
-                                        `${activeClasses} font-medium`
-                                      }>
-                                      <RenderIf
-                                        condition={option.label->LogicUtils.isNonEmptyString}>
-                                        <div className="mr-5">
-                                          {option.label->LogicUtils.snakeToTitle->React.string}
-                                        </div>
-                                      </RenderIf>
-                                      <RenderIf condition={option.label->LogicUtils.isEmptyString}>
-                                        <div className="mr-5">
-                                          {option.inputNames
-                                          ->Array.get(0)
-                                          ->Option.getOr("")
-                                          ->LogicUtils.snakeToTitle
-                                          ->React.string}
-                                        </div>
-                                      </RenderIf>
-                                    </button>
-                                  </div>}
-                              </Menu.Item>
-                            )
-                            ->React.array}
-                          </div>
+                          <Icon className={"mr-2"} name="plus" size=15 />
+                          {"Add Filters"->React.string}
                         </>
                       }}
-                    </Menu.Items>}
-                  </Transition>
-                </div>}
-            </Menu>
+                    </Menu.Button>
+                    <Transition
+                      \"as"="span"
+                      enter="transition ease-out duration-100"
+                      enterFrom="transform opacity-0 scale-95"
+                      enterTo="transform opacity-100 scale-100"
+                      leave="transition ease-in duration-75"
+                      leaveFrom="transform opacity-100 scale-100"
+                      leaveTo="transform opacity-0 scale-95">
+                      {<Menu.Items
+                        className="absolute left-0 w-fit z-50 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        {_props => {
+                          <>
+                            <div className="px-1 py-1">
+                              {allFilters
+                              ->Array.mapWithIndex((option, i) =>
+                                <Menu.Item key={i->Int.toString}>
+                                  {props =>
+                                    <div className="relative w-max">
+                                      <button
+                                        onClick={_ => addFilter(option)}
+                                        className={
+                                          let activeClasses = if props["active"] {
+                                            "group flex rounded-md items-center w-48 px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                                          } else {
+                                            "group flex rounded-md items-center w-48 px-2 py-2 text-sm"
+                                          }
+                                          `${activeClasses} font-medium`
+                                        }>
+                                        <RenderIf
+                                          condition={option.label->LogicUtils.isNonEmptyString}>
+                                          <div className="mr-5">
+                                            {option.label->LogicUtils.snakeToTitle->React.string}
+                                          </div>
+                                        </RenderIf>
+                                        <RenderIf
+                                          condition={option.label->LogicUtils.isEmptyString}>
+                                          <div className="mr-5">
+                                            {option.inputNames
+                                            ->Array.get(0)
+                                            ->Option.getOr("")
+                                            ->LogicUtils.snakeToTitle
+                                            ->React.string}
+                                          </div>
+                                        </RenderIf>
+                                      </button>
+                                    </div>}
+                                </Menu.Item>
+                              )
+                              ->React.array}
+                            </div>
+                          </>
+                        }}
+                      </Menu.Items>}
+                    </Transition>
+                  </div>}
+              </Menu>
+            </RenderIf>
+          </div>
+          <RenderIf condition={fixedFilters->Array.length > 0}>
+            <FormRenderer.FieldsRenderer
+              fields={fixedFilters->Array.map(item => item.field)}
+              labelClass="hidden"
+              fieldWrapperClass="p-0"
+            />
           </RenderIf>
+        </div>
+        <div className={`flex gap-2 flex-wrap ${verticalGap}`}>
           <FormRenderer.FieldsRenderer
             fields={filterList} labelClass="hidden" fieldWrapperClass="p-0"
           />
@@ -370,14 +382,7 @@ let make = (
             <ClearFilters defaultFilterKeys ?clearFilters outsidefilter={initalCount > 0} />
           </RenderIf>
         </div>
-        <RenderIf condition={fixedFilters->Array.length > 0}>
-          <FormRenderer.FieldsRenderer
-            fields={fixedFilters->Array.map(item => item.field)}
-            labelClass="hidden"
-            fieldWrapperClass="p-0"
-          />
-        </RenderIf>
-      </div>
+      </>}
     </AddDataAttributes>}
   </Form>
 }
