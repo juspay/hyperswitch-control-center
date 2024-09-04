@@ -197,7 +197,7 @@ let make = () => {
       setUserData(_ => typedValue->UserUtils.groupByMerchants)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState (_ => PageLoaderWrapper.Error("Failed to fetch user details!"))
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch user details!"))
     }
   }
 
