@@ -6,6 +6,7 @@ let make = () => {
   open RefundUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (refundData, setRefundsData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -15,7 +16,9 @@ let make = () => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Refunds")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-
+  let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
+  let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchRefunds = () => {
     switch filters {
     | Some(dict) =>
@@ -55,13 +58,26 @@ let make = () => {
       fetchRefunds()
     }
     None
-  }, (offset, filters, searchText))
+  }, (offset, filters, searchText, transactionEntity))
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
-      <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
+      <div className="flex">
+        <div className="flex-1">
+          <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
+        </div>
+        <RenderIf condition={userManagementRevamp}>
+          <div className="flex flex-col mt-5 2xl:flex-row 2xl:justify-end 2xl:items-start">
+            <OMPSwitchHelper.OMPViews
+              views={OrderUIUtils.orderViewList}
+              selectedEntity={transactionEntity}
+              onChange={updateTransactionEntity}
+            />
+          </div>
+        </RenderIf>
+      </div>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters

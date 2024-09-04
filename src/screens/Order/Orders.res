@@ -5,9 +5,9 @@ let make = (~previewOnly=false) => {
   open OrderUIUtils
   open LogicUtils
   let getURL = useGetURL()
+  let updateDetails = useUpdateMethod()
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
-  let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -22,7 +22,8 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, userManagementRevamp} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchOrders = () => {
     if !previewOnly {
@@ -114,13 +115,15 @@ let make = (~previewOnly=false) => {
             title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
           />
         </div>
-        <div className="flex flex-col mt-5 2xl:flex-row 2xl:justify-end 2xl:items-start">
-          <OMPSwitchHelper.OMPViews
-            views={orderViewList}
-            selectedEntity={transactionEntity}
-            onChange={updateTransactionEntity}
-          />
-        </div>
+        <RenderIf condition={userManagementRevamp}>
+          <div className="flex flex-col mt-5 2xl:flex-row 2xl:justify-end 2xl:items-start">
+            <OMPSwitchHelper.OMPViews
+              views={orderViewList}
+              selectedEntity={transactionEntity}
+              onChange={updateTransactionEntity}
+            />
+          </div>
+        </RenderIf>
       </div>
       <div className="flex">
         <RenderIf condition={!previewOnly}>

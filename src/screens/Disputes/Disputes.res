@@ -12,6 +12,10 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let fetchDetails = useGetMethod()
 
+  let {generateReport, userManagementRevamp} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
+  let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
   let getDisputesList = async () => {
     try {
       setScreenState(_ => Loading)
@@ -37,7 +41,7 @@ let make = () => {
   React.useEffect(() => {
     getDisputesList()->ignore
     None
-  }, [])
+  }, [transactionEntity])
 
   let customUI =
     <>
@@ -62,10 +66,21 @@ let make = () => {
       />
     </>
 
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
   <div>
-    <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />
+    <div className="flex">
+      <div className="flex-1">
+        <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />
+      </div>
+      <RenderIf condition={userManagementRevamp}>
+        <div className="flex flex-col mt-5 2xl:flex-row 2xl:justify-end 2xl:items-start">
+          <OMPSwitchHelper.OMPViews
+            views={OrderUIUtils.orderViewList}
+            selectedEntity={transactionEntity}
+            onChange={updateTransactionEntity}
+          />
+        </div>
+      </RenderIf>
+    </div>
     <div className="flex w-full justify-end pb-3 gap-3">
       <RenderIf condition={generateReport && disputesData->Array.length > 0}>
         <GenerateReport entityName={DISPUTE_REPORT} />
