@@ -1,122 +1,24 @@
-let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType>> = Recoil.atom(
-  "moduleListRecoil",
-  [],
-)
-
-let predefinedRoles: array<SelectBox.dropdownOption> = [
-  {
-    label: "Developer",
-    value: "merchant_developer",
-  },
-  {
-    label: "IAM",
-    value: "merchant_iam_admin",
-  },
-  {
-    label: "Operator",
-    value: "merchant_operator",
-  },
-  {
-    label: "Customer support",
-    value: "merchant_customer_support",
-  },
-  {
-    label: "View only",
-    value: "merchant_view_only",
-  },
-  {
-    label: "Merchant Admin",
-    value: "merchant_admin",
-  },
-]
-
-let getMerchantSelectBoxOption = (~label, ~value, ~options) => {
-  let allMerchantOption: SelectBox.dropdownOption = {
+let getMerchantSelectBoxOption = (
+  ~label,
+  ~value,
+  ~dropdownList: array<OMPSwitchTypes.ompListTypes>,
+  ~showAllSelection=false,
+) => {
+  let allOptions: SelectBox.dropdownOption = {
     label,
     value,
     customRowClass: "!border-b py-2",
     textColor: "font-semibold",
   }
-  [allMerchantOption, ...options->SelectBox.makeOptions]
+  let orgOptions =
+    dropdownList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
+
+  if showAllSelection {
+    [allOptions, ...orgOptions]
+  } else {
+    orgOptions
+  }
 }
-
-let inviteEmail = FormRenderer.makeFieldInfo(
-  ~label="Enter email (s) ",
-  ~name="emailList",
-  ~customInput=(~input, ~placeholder as _) => {
-    let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0
-    InputFields.textTagInput(
-      ~input,
-      ~placeholder=showPlaceHolder ? "Eg: mehak.sam@wise.com, deepak.ven@wise.com" : "",
-      ~customButtonStyle="!rounded-full !px-4",
-      ~seperateByComma=true,
-    )
-  },
-  ~isRequired=true,
-)
-
-let organizationSelection = FormRenderer.makeFieldInfo(
-  ~label="Select an organization",
-  ~name="org_value",
-  ~customInput=InputFields.selectInput(
-    ~options=getMerchantSelectBoxOption(
-      ~label="All organizations",
-      ~value="all_organizations",
-      ~options=["Org1", "Org2", "Org3", "Org4", "Org5"],
-    ),
-    ~buttonText="Select an organization",
-    ~fullLength=true,
-    ~customButtonStyle="!rounded-lg",
-    ~dropdownCustomWidth="!w-full",
-    ~textStyle="!text-gray-500",
-  ),
-)
-let merchantSelection = FormRenderer.makeFieldInfo(
-  ~label="Merchants for access",
-  ~name="merchant_value",
-  ~customInput=InputFields.selectInput(
-    ~options=getMerchantSelectBoxOption(
-      ~label="All merchants",
-      ~value="all_merchants",
-      ~options=["Merch1", "Merch2", "Merch3", "Merch4", "Merch5"],
-    ),
-    ~buttonText="Select a Merchant",
-    ~fullLength=true,
-    ~customButtonStyle="!rounded-lg",
-    ~dropdownCustomWidth="!w-full",
-    ~textStyle="!text-gray-500",
-  ),
-)
-let profileSelection = FormRenderer.makeFieldInfo(
-  ~label="Profiles for access",
-  ~name="profile_value",
-  ~customInput=InputFields.selectInput(
-    ~options=getMerchantSelectBoxOption(
-      ~label="All profiles",
-      ~value="all_profiles",
-      ~options=["Profile1", "Profile2", "Profile3", "Profile4", "Profile5"],
-    ),
-    ~buttonText="Select a Profile",
-    ~fullLength=true,
-    ~customButtonStyle="!rounded-lg",
-    ~dropdownCustomWidth="!w-full",
-    ~textStyle="!text-gray-500",
-  ),
-)
-
-let roleSelection = FormRenderer.makeFieldInfo(
-  ~label="Select a role",
-  ~name="roleType",
-  ~customInput=InputFields.selectInput(
-    ~options=predefinedRoles,
-    ~buttonText="Select a role",
-    ~fullLength=true,
-    ~customButtonStyle="!rounded-lg",
-    ~dropdownCustomWidth="!w-full",
-    ~textStyle="!text-gray-500",
-  ),
-  ~isRequired=true,
-)
 
 let validateEmptyValue = (key, errors) => {
   switch key {
@@ -147,7 +49,7 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
         ()
       }
     | String(roleType) =>
-      if roleType->String.length === 0 {
+      if roleType->LogicUtils.isEmptyString {
         key->validateEmptyValue(errors)
       }
     | _ => key->validateEmptyValue(errors)
@@ -167,15 +69,14 @@ let itemToObjMapperForGetRoleInfro: Dict.t<JSON.t> => UserManagementTypes.userMo
 }
 
 let groupsAccessWrtToArray = (groupsList, userRoleAccessValueList) => {
-  let response = groupsList->Array.reduce([], (acc, value) => {
+  groupsList->Array.reduce([], (acc, value) => {
     if userRoleAccessValueList->Array.includes(value) && value->String.includes("view") {
-      let _ = [acc->Array.push("View")]
+      acc->Array.push("View")
     } else if userRoleAccessValueList->Array.includes(value) && value->String.includes("manage") {
-      let _ = acc->Array.push("Manage")
+      acc->Array.push("Manage")
     }
     acc
   })
-  response
 }
 
 let modulesWithUserAccess = (
@@ -203,22 +104,6 @@ let modulesWithUserAccess = (
   (modulesWithAccess, modulesWithoutAccess)
 }
 
-let tabIndexToVariantMapper = index => {
-  open UserManagementTypes
-  switch index {
-  | 0 => Users
-  | _ => Roles
-  }
-}
-
-let stringToVariantMapperForAccess = accessAvailable => {
-  open UserManagementTypes
-  switch accessAvailable {
-  | "View" => View
-  | "Manage" => Manage
-  | _ => View
-  }
-}
 let getNameAndIdFromDict: (Dict.t<JSON.t>, string) => UserManagementTypes.orgObjectType = (
   dict,
   default,
@@ -275,4 +160,54 @@ let getLabelForStatus = value =>
   | "invite_sent" => (InviteSent, "text-orange-950 bg-orange-950 bg-opacity-20")
   | "active" => (Active, "text-green-700 bg-green-700 bg-opacity-20")
   | _ => (None, "text-grey-700 opacity-50")
+  }
+let stringToVariantMapperForAccess = accessAvailable => {
+  open UserManagementTypes
+  switch accessAvailable {
+  | "Manage" => Manage
+  | "View" | _ => View
+  }
+}
+
+let makeSelectBoxOptions = result => {
+  open LogicUtils
+
+  result
+  ->getObjectArrayFromJson
+  ->Array.map(objectvalue => {
+    let value: SelectBox.dropdownOption = {
+      label: objectvalue->getString("role_name", ""),
+      value: objectvalue->getString("role_id", ""),
+    }
+    value
+  })
+}
+
+let getEntityType = valueDict => {
+  /*
+ INFO: For the values (Organisation , Merchant , Profile) in form 
+
+ (Some(org_id) , all merchants ,  all profiles) --> get roles for organisation
+ (Some(org_id) , Some(merchant_id) ,  all profiles) --> get roles for merchants
+ (Some(org_id) , Some(merchant_id) ,  Some(profile_id)) --> get roles for profiles
+ */
+
+  open LogicUtils
+  let orgValue = valueDict->getOptionString("org_value")
+  let merchantValue = valueDict->getOptionString("merchant_value")
+  let profileValue = valueDict->getOptionString("profile_value")
+
+  switch (orgValue, merchantValue, profileValue) {
+  | (Some(_orgId), Some("all_merchants"), Some("all_profiles")) => "organisation"
+  | (Some(_orgId), Some(_merchnatId), Some("all_profiles")) => "merchant"
+  | (Some(_orgId), Some(_merchnatId), Some(_profileId)) => "profile"
+  | _ => ""
+  }
+}
+
+let stringToVariantForAllSelection = formStringValue =>
+  switch formStringValue {
+  | "all_merchants" => Some(#All_Merchants)
+  | "all_profiles" => Some(#All_Profiles)
+  | _ => None
   }

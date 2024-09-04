@@ -197,7 +197,7 @@ let getRefundHeading = (refundsColType: refundsColType) => {
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created", ~showSort=true)
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=true)
   | LastUpdated => Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated", ~showSort=true)
-  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment Id", ~showSort=true)
+  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID", ~showSort=true)
   | RefundStatus => Table.makeHeaderInfo(~key="status", ~title="Refund Status", ~showSort=true)
   | RefundId => Table.makeHeaderInfo(~key="refund_id", ~title="Refund ID", ~showSort=true)
   | RefundReason => Table.makeHeaderInfo(~key="reason", ~title="Refund Reason", ~showSort=true)
@@ -255,7 +255,7 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
 
 let getFrmHeading = (frmDetailsColType: frmColType) => {
   switch frmDetailsColType {
-  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="PaymentId", ~showSort=true)
+  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID", ~showSort=true)
   | PaymentMethodType =>
     Table.makeHeaderInfo(~key="payment_method_type", ~title="Payment Method Type", ~showSort=true)
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true)
@@ -275,7 +275,7 @@ let getAuthenticationHeading = (authenticationDetailsColType: authenticationColT
   | AuthenticationFlow =>
     Table.makeHeaderInfo(~key="authentication_flow", ~title="Authentication Flow", ~showSort=true)
   | DsTransactionId =>
-    Table.makeHeaderInfo(~key="ds_transaction_id", ~title="Ds Transaction Id", ~showSort=true)
+    Table.makeHeaderInfo(~key="ds_transaction_id", ~title="Ds Transaction ID", ~showSort=true)
   | ElectronicCommerceIndicator =>
     Table.makeHeaderInfo(
       ~key="electronic_commerce_indicator",
@@ -385,6 +385,7 @@ let allColumns = [
   Metadata,
   MerchantOrderReferenceId,
   AttemptCount,
+  CardNetwork,
 ]
 
 let getHeading = (colType: colType) => {
@@ -402,7 +403,7 @@ let getHeading = (colType: colType) => {
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=false)
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector", ~showSort=false)
   | AmountCapturable =>
-    Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable", ~showSort=false)
+    Table.makeHeaderInfo(~key="amount_capturable", ~title="Amount Capturable", ~showSort=false)
   | AmountReceived =>
     Table.makeHeaderInfo(~key="amount_received", ~title="Amount Received", ~showSort=false)
   | ClientSecret =>
@@ -439,7 +440,7 @@ let getHeading = (colType: colType) => {
   | Email => Table.makeHeaderInfo(~key="email", ~title="Customer Email", ~showSort=false)
   | Name => Table.makeHeaderInfo(~key="name", ~title="Name", ~showSort=false)
   | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone", ~showSort=false)
-  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="ReturnUrl", ~showSort=false)
+  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL", ~showSort=false)
   | AuthenticationType =>
     Table.makeHeaderInfo(~key="authentication_type", ~title="Authentication Type", ~showSort=false)
   | StatementDescriptorName =>
@@ -461,7 +462,7 @@ let getHeading = (colType: colType) => {
   | ErrorMessage =>
     Table.makeHeaderInfo(~key="error_message", ~title="Error Message", ~showSort=false)
   | Refunds => Table.makeHeaderInfo(~key="refunds", ~title="Refunds", ~showSort=false)
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false)
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile ID", ~showSort=false)
   | CardNetwork => Table.makeHeaderInfo(~key="CardNetwork", ~title="Card Network", ~showSort=false)
   | MerchantOrderReferenceId =>
     Table.makeHeaderInfo(
@@ -470,7 +471,7 @@ let getHeading = (colType: colType) => {
       ~showSort=false,
     )
   | AttemptCount =>
-    Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt count", ~showSort=false)
+    Table.makeHeaderInfo(~key="attempt_count", ~title="Attempt Count", ~showSort=false)
   }
 }
 
@@ -537,7 +538,7 @@ let getHeadingForAboutPayment = aboutPaymentColType => {
   switch aboutPaymentColType {
   | Connector =>
     Table.makeHeaderInfo(~key="connector", ~title="Preferred connector", ~showSort=true)
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=true)
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile ID", ~showSort=true)
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=true)
   | CardBrand => Table.makeHeaderInfo(~key="card_brand", ~title="Card Brand", ~showSort=true)
   | ConnectorLabel =>
@@ -595,7 +596,7 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | BillingAddress => Table.makeHeaderInfo(~key="billing", ~title="Address", ~showSort=true)
   | BillingPhone => Table.makeHeaderInfo(~key="BillingPhone", ~title="Phone", ~showSort=true)
   | AmountCapturable =>
-    Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable", ~showSort=true)
+    Table.makeHeaderInfo(~key="amount_capturable", ~title="Amount Capturable", ~showSort=true)
   | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code", ~showSort=true)
   | MandateData => Table.makeHeaderInfo(~key="mandate_data", ~title="Mandate Data", ~showSort=true)
   | FRMName => Table.makeHeaderInfo(~key="frm_name", ~title="Tag", ~showSort=true)
@@ -628,7 +629,7 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | MerchantOrderReferenceId =>
     Table.makeHeaderInfo(
       ~key="merchant_order_reference_id",
-      ~title="Merchant Order Reference Id",
+      ~title="Merchant Order Reference ID",
       ~showSort=false,
     )
   }
@@ -994,6 +995,7 @@ let orderEntity = EntityType.makeEntity(
   ~getCell,
   ~dataKey="",
   ~getShowLink={
-    order => GlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}`)
+    order =>
+      GlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}/${order.profile_id}`)
   },
 )

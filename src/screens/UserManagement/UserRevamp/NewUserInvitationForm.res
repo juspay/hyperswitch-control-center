@@ -35,9 +35,10 @@ module ModulePermissionRender = {
 }
 module RoleToPermission = {
   @react.component
-  let make = (~roleInfo: array<UserManagementTypes.userModuleType>, ~roleDict, ~role) => {
+  let make = (~roleDict, ~role) => {
     open LogicUtils
     let userAcessGroup = roleDict->getDictfromDict(role)->getStrArrayFromDict("groups", [])
+    let roleInfo = Recoil.useRecoilValueFromAtom(HyperswitchAtom.moduleListRecoil)
     let (modulesWithAccess, moduleWithoutAccess) = UserUtils.modulesWithUserAccess(
       roleInfo,
       userAcessGroup,
@@ -61,11 +62,25 @@ module RoleToPermission = {
 module NoteComponent = {
   @react.component
   let make = () => {
+    let {userInfo: {orgId, merchantId, profileId, userEntity}} = React.useContext(
+      UserInfoProvider.defaultContext,
+    )
+
+    // TODO : Chnage id to name once backend starts sending name in userinfo
+    let descriptionBasedOnEntity = switch userEntity {
+    | #Organization =>
+      `You can only invite people for ${orgId} here. To invite users to another organisation, please switch the organisation.`
+    | #Merchant =>
+      `You can only invite people for ${merchantId} here. To invite users to another merchant, please switch the merchant.`
+    | #Profile =>
+      `You can only invite people for ${profileId} here. To invite users to another profile, please switch the profile.`
+    | _ => ""
+    }
+
     <div className="flex gap-2 items-start justify-start">
-      <Icon name="info-vacent" size=18 className="" customIconColor="!text-gray-400" />
-      // TODO : Change based on selection
+      <Icon name="info-vacent" size=18 customIconColor="!text-gray-400" />
       <span className={`${p3RegularTextClass} text-gray-500`}>
-        {"You can only invite people for 'Hyperswitch US' here. To invite users to another organisation, please switch the organisation."->React.string}
+        {descriptionBasedOnEntity->React.string}
       </span>
     </div>
   }
@@ -76,14 +91,22 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open UserUtils
+  open UserManagementHelper
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let roleInfo = Recoil.useRecoilValueFromAtom(UserUtils.moduleListRecoil)
   let (roleDict, setRoleDict) = React.useState(_ => Dict.make())
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let roleTypeValue =
-    ReactFinalForm.useField(`roleType`).input.value->getStringFromJson("")->getNonEmptyString
+    ReactFinalForm.useField(`role_id`).input.value->getStringFromJson("")->getNonEmptyString
+  let (options, setOptions) = React.useState(_ => []->SelectBox.makeOptions)
+  let (dropDownLoaderState, setDropDownLoaderState) = React.useState(_ =>
+    DropdownWithLoading.Success
+  )
+
+  let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+    ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+  )
 
   let getMemberAcessBasedOnRole = async _ => {
     try {
@@ -117,6 +140,30 @@ let make = () => {
     None
   }, [roleTypeValue])
 
+  let onClickDropDownApi = async () => {
+    try {
+      setDropDownLoaderState(_ => DropdownWithLoading.Loading)
+
+      let roleEntity = formState.values->getDictFromJsonObject->getEntityType
+
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#LIST_ROLES_FOR_INVITE,
+        ~methodType=Get,
+        ~queryParamerters=Some(`entity_type=${roleEntity}`),
+      )
+      let result = await fetchDetails(url)
+      setOptions(_ => result->makeSelectBoxOptions)
+      if result->getArrayFromJson([])->Array.length > 0 {
+        setDropDownLoaderState(_ => DropdownWithLoading.Success)
+      } else {
+        setDropDownLoaderState(_ => DropdownWithLoading.NoData)
+      }
+    } catch {
+    | _ => setDropDownLoaderState(_ => DropdownWithLoading.NoData)
+    }
+  }
+
   <div className="flex flex-col">
     <div className="grid grid-cols-6 gap-6 items-end p-6 !pb-10 border-b">
       <div className="col-span-5 w-full">
@@ -136,10 +183,12 @@ let make = () => {
     </div>
     <div className="grid grid-cols-5">
       <div className="col-span-2 border-r p-6  flex flex-col gap-2">
-        <FormRenderer.FieldRenderer field={organizationSelection} labelClass="font-semibold" />
-        <FormRenderer.FieldRenderer field=merchantSelection labelClass="font-semibold" />
-        <FormRenderer.FieldRenderer field=profileSelection labelClass="font-semibold" />
-        <FormRenderer.FieldRenderer field=roleSelection labelClass="font-semibold" />
+        <OrganisationSelection />
+        <MerchantSelection />
+        <ProfileSelection />
+        <DropdownWithLoading
+          options onClickDropDownApi formKey="role_id" dropDownLoaderState isRequired=true
+        />
         <NoteComponent />
         <FormValuesSpy />
       </div>
@@ -148,11 +197,11 @@ let make = () => {
         | Some(role) =>
           <>
             <p className={`${p1MediumTextClass} !font-semibold py-2`}>
-              {`Role Description - '${role}'`->React.string}
+              {`Role Description - '${role->snakeToTitle}'`->React.string}
             </p>
             <PageLoaderWrapper screenState>
               <div className="border rounded-md p-4 flex flex-col">
-                <RoleToPermission roleInfo roleDict role={roleTypeValue->Option.getOr("")} />
+                <RoleToPermission roleDict role={roleTypeValue->Option.getOr("")} />
               </div>
             </PageLoaderWrapper>
           </>

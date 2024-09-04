@@ -26,13 +26,17 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
+  let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
     : "bg-orange-600/80 border-orange-500 text-grey-700"
 
-  let isReconEnabled = merchantDetailsTypedValue.recon_status === Active
+  let isReconEnabled = React.useMemo(() => {
+    merchantDetailsTypedValue.recon_status === Active
+  }, [merchantDetailsTypedValue.merchant_id])
+
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   sessionExpired := false
@@ -94,7 +98,7 @@ let make = () => {
   React.useEffect(() => {
     setUpDashboard()->ignore
     None
-  }, [])
+  }, [orgId, merchantId, profileId])
 
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal
@@ -134,7 +138,8 @@ let make = () => {
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
           <div className="relative">
-            <div className={`h-screen flex flex-col`}>
+            // TODO: Change the key to only profileId once the userInfo starts sending profileId
+            <div className={`h-screen flex flex-col`} key={`${orgId}-${merchantId}-${profileId}`}>
               <div className="flex relative overflow-auto h-screen ">
                 <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
                 <div
@@ -152,6 +157,9 @@ let make = () => {
                             userRole={userRole}
                             isAddMerchantEnabled={userRole === "org_admin" ? true : false}
                           />
+                          <RenderIf condition={featureFlagDetails.userManagementRevamp}>
+                            <ProfileSwitch />
+                          </RenderIf>
                           <div
                             className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
                             {modeText->React.string}
@@ -177,7 +185,15 @@ let make = () => {
                       className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
                       <ErrorBoundary>
                         {switch url.path->urlPath {
-                        | list{"home", ..._} => <MerchantAccountContainer />
+                        | list{"home", ..._}
+                        | list{"recon"}
+                        | list{"upload-files"}
+                        | list{"run-recon"}
+                        | list{"recon-analytics"}
+                        | list{"reports"}
+                        | list{"config-settings"}
+                        | list{"file-processor"} =>
+                          <MerchantAccountContainer />
                         | list{"connectors", ..._}
                         | list{"payoutconnectors", ..._}
                         | list{"3ds-authenticators", ..._}
@@ -191,56 +207,11 @@ let make = () => {
                         | list{"business-profiles", ..._}
                         | list{"payment-settings", ..._} =>
                           <BusinessProfileContainer />
-
-                        | list{"payments", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
-                            <FilterContext key="payments" index="payments">
-                              <EntityScaffold
-                                entityName="Payments"
-                                remainingPath
-                                access=Access
-                                renderList={() => <Orders />}
-                                renderShow={id => <ShowOrder id />}
-                              />
-                            </FilterContext>
-                          </AccessControl>
-
-                        | list{"payouts", ...remainingPath} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.payOut}
-                            permission=userPermissionJson.operationsView>
-                            <FilterContext key="payouts" index="payouts">
-                              <EntityScaffold
-                                entityName="Payouts"
-                                remainingPath
-                                access=Access
-                                renderList={() => <PayoutsList />}
-                                renderShow={id => <ShowPayout id />}
-                              />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"refunds", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
-                            <FilterContext key="refunds" index="refunds">
-                              <EntityScaffold
-                                entityName="Refunds"
-                                remainingPath
-                                access=Access
-                                renderList={() => <Refund />}
-                                renderShow={id => <ShowRefund id />}
-                              />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"disputes", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
-                            <EntityScaffold
-                              entityName="Disputes"
-                              remainingPath
-                              access=Access
-                              renderList={() => <Disputes />}
-                              renderShow={id => <ShowDisputes id />}
-                            />
-                          </AccessControl>
+                        | list{"payments", ..._}
+                        | list{"refunds", ..._}
+                        | list{"disputes", ..._}
+                        | list{"payouts", ..._} =>
+                          <TransactionContainer />
                         | list{"customers", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.operationsView>
                             <EntityScaffold
@@ -248,7 +219,7 @@ let make = () => {
                               remainingPath
                               access=Access
                               renderList={() => <Customers />}
-                              renderShow={id => <ShowCustomers id />}
+                              renderShow={(id, _) => <ShowCustomers id />}
                             />
                           </AccessControl>
                         | list{"users", "invite-users"} =>
@@ -265,7 +236,7 @@ let make = () => {
                               entityName="UserManagement"
                               remainingPath
                               renderList={_ => <UserRoleEntry />}
-                              renderShow={_ => <ShowUserData />}
+                              renderShow={(_, _) => <ShowUserData />}
                             />
                           </AccessControl>
 
@@ -330,19 +301,6 @@ let make = () => {
                             </FilterContext>
                           </AccessControl>
 
-                        | list{"recon"} =>
-                          <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
-                            <Recon />
-                          </AccessControl>
-                        | list{"upload-files"}
-                        | list{"run-recon"}
-                        | list{"recon-analytics"}
-                        | list{"reports"}
-                        | list{"config-settings"}
-                        | list{"file-processor"} =>
-                          <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
-                            <ReconModule urlList={url.path->urlPath} />
-                          </AccessControl>
                         | list{"compliance"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.complianceCertificate permission=Access>
@@ -374,10 +332,7 @@ let make = () => {
                             entityName="profile setting"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
-                            renderShow={_value =>
-                              <RenderIf condition={featureFlagDetails.totp}>
-                                <ModifyTwoFaSettings />
-                              </RenderIf>}
+                            renderShow={(_, _) => <ModifyTwoFaSettings />}
                           />
                         | list{"quick-start"} => determineQuickStartPageState()
                         | list{"woocommerce"} => determineWooCommerce()

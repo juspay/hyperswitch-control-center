@@ -159,6 +159,7 @@ let getCell = (disputesData, colType): Table.cell => {
 
 let itemToObjMapper = dict => {
   {
+    profile_id: dict->getString("profile_id", ""),
     dispute_id: dict->getString("dispute_id", ""),
     payment_id: dict->getString("payment_id", ""),
     attempt_id: dict->getString("attempt_id", ""),
@@ -191,6 +192,9 @@ let disputesEntity = EntityType.makeEntity(
   ~getCell,
   ~dataKey="",
   ~getShowLink={
-    disputesData => GlobalVars.appendDashboardPath(~url=`/disputes/${disputesData.dispute_id}`)
+    disputesData =>
+      GlobalVars.appendDashboardPath(
+        ~url=`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}`,
+      )
   },
 )

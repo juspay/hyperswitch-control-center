@@ -1100,68 +1100,84 @@ module RenderListItemInBaseRadio = {
     ~textEllipsisForDropDownOptions,
     ~isHorizontal,
     ~customMarginStyleOfListItem="mx-3 py-2 gap-2",
+    ~bottomComponent=?,
+    ~optionClass="",
+    ~selectClass="",
   ) => {
-    newOptions
-    ->Array.mapWithIndex((option, i) => {
-      let isSelected = switch value->JSON.Decode.string {
-      | Some(str) => option.value === str
-      | None => false
-      }
-
-      let description = descriptionOnHover ? option.description : None
-      let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
-      let listItemComponent =
-        <ListItem
-          key={Int.toString(i)}
-          isDropDown
-          isSelected
-          fill
-          searchString
-          onClick={onItemClick(option.value, option.isDisabled)}
-          text=option.label
-          optionSize
-          isSelectedStateMinus
-          labelValue=option.label
-          multiSelect=false
-          icon=option.icon
-          leftVacennt
-          isDisabled=option.isDisabled
-          isMobileView
-          description
-          listFlexDirection
-          customStyle
-          customSelectStyle
-          ?textOverflowClass
-          dataId=i
-          iconStroke=option.iconStroke
-          showToolTipOptions
-          textEllipsisForDropDownOptions
-          textColorClass={option.textColor}
-          customMarginStyle=customMarginStyleOfListItem
-          customRowClass={option.customRowClass}
-        />
-
-      if !descriptionOnHover {
-        switch option.description {
-        | Some(str) =>
-          <div key={i->Int.toString} className="flex flex-row">
-            listItemComponent
-            <RenderIf condition={!isHorizontal}>
-              <ToolTip
-                description={str}
-                toolTipFor={<div className="py-4 px-4">
-                  <Icon size=12 name="info-circle" />
-                </div>}
-              />
-            </RenderIf>
-          </div>
-        | None => listItemComponent
+    let dropdownList =
+      newOptions
+      ->Array.mapWithIndex((option, i) => {
+        let isSelected = switch value->JSON.Decode.string {
+        | Some(str) => option.value === str
+        | None => false
         }
-      } else {
-        listItemComponent
-      }
-    })
-    ->React.array
+
+        let description = descriptionOnHover ? option.description : None
+        let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
+        let listItemComponent =
+          <ListItem
+            key={Int.toString(i)}
+            isDropDown
+            isSelected
+            fill
+            searchString
+            onClick={onItemClick(option.value, option.isDisabled)}
+            text=option.label
+            optionSize
+            isSelectedStateMinus
+            labelValue=option.label
+            multiSelect=false
+            icon=option.icon
+            leftVacennt
+            isDisabled=option.isDisabled
+            isMobileView
+            description
+            listFlexDirection
+            customStyle
+            customSelectStyle
+            ?textOverflowClass
+            dataId=i
+            iconStroke=option.iconStroke
+            showToolTipOptions
+            textEllipsisForDropDownOptions
+            textColorClass={option.textColor}
+            customMarginStyle=customMarginStyleOfListItem
+            customRowClass={option.customRowClass}
+            optionClass
+            selectClass
+          />
+
+        if !descriptionOnHover {
+          switch option.description {
+          | Some(str) =>
+            <div key={i->Int.toString} className="flex flex-row">
+              listItemComponent
+              <RenderIf condition={!isHorizontal}>
+                <ToolTip
+                  description={str}
+                  toolTipFor={<div className="py-4 px-4">
+                    <Icon size=12 name="info-circle" />
+                  </div>}
+                />
+              </RenderIf>
+            </div>
+          | None => listItemComponent
+          }
+        } else {
+          listItemComponent
+        }
+      })
+      ->React.array
+
+    <>
+      <div className=""> {dropdownList} </div>
+      <div className="sticky bottom-0">
+        {switch bottomComponent {
+        | Some(comp) => <span> {comp} </span>
+        | None => React.null
+        }}
+      </div>
+    </>
   }
 }
 
@@ -1229,6 +1245,9 @@ module BaseRadio = {
     ~showSearchIcon=true,
     ~showToolTipOptions=false,
     ~textEllipsisForDropDownOptions=false,
+    ~bottomComponent=React.null,
+    ~optionClass="",
+    ~selectClass="",
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1407,6 +1426,9 @@ module BaseRadio = {
             showToolTipOptions
             textEllipsisForDropDownOptions
             isHorizontal
+            bottomComponent
+            optionClass
+            selectClass
           />
         } else {
           {
@@ -1525,6 +1547,12 @@ module BaseDropdown = {
     ~searchInputPlaceHolder="",
     ~showSearchIcon=true,
     ~sortingBasedOnDisabled=?,
+    ~customSelectStyle="",
+    ~baseComponentCustomStyle="",
+    ~bottomComponent=React.null,
+    ~optionClass="",
+    ~selectClass="",
+    ~customDropdownOuterClass="",
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1778,6 +1806,11 @@ module BaseDropdown = {
         textEllipsisForDropDownOptions
         searchInputPlaceHolder
         showSearchIcon
+        customSelectStyle
+        baseComponentCustomStyle
+        bottomComponent
+        optionClass
+        selectClass
       />
     }
 
@@ -1901,7 +1934,7 @@ module BaseDropdown = {
                   dropDirection == BottomMiddle ||
                   dropDirection == BottomRight
                     ? "origin-top"
-                    : "origin-bottom"} ${dropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-jp-gray-950 ${fullLength
+                    : "origin-bottom"} ${dropdownOuterClass} ${customDropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-jp-gray-950 ${fullLength
                     ? "w-full"
                     : ""}`}
                 ref={dropdownRef->ReactDOM.Ref.domRef}>
@@ -1921,7 +1954,7 @@ module BaseDropdown = {
               dropDirection == BottomMiddle ||
               dropDirection == BottomRight
                 ? "origin-top"
-                : "origin-bottom"} ${dropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-jp-gray-950`}
+                : "origin-bottom"} ${dropdownOuterClass} ${customDropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-jp-gray-950`}
             ref={dropdownRef->ReactDOM.Ref.domRef}>
             optionsElement
           </div>

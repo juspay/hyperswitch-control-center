@@ -1,6 +1,5 @@
 # Ignore Mac DS_Store files
 .DS_Store
-**/.DS_Store
 node_modules
 dist/
 **/**.res.js

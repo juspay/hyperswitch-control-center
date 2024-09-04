@@ -1,6 +1,6 @@
 open UserInfoTypes
 
-let defaultValue = {
+let defaultValueOfUserInfo = {
   email: "",
   isTwoFactorAuthSetup: false,
   merchantId: "",
@@ -9,18 +9,42 @@ let defaultValue = {
   recoveryCodesLeft: None,
   roleId: "",
   verificationDaysLeft: None,
+  profileId: "",
+  userEntity: #Merchant,
+  transactionEntity: #Merchant,
+  analyticsEntity: #Merchant,
+}
+
+let entityMapper = entity => {
+  switch entity->String.toLowerCase {
+  | "internal" => #Internal
+  | "organization" => #Organization
+  | "merchant" => #Merchant
+  | "profile" => #Profile
+  | _ => #Merchant
+  }
+}
+
+let defaultValueOfUserInfoProvider = {
+  userInfo: defaultValueOfUserInfo,
+  setUserInfoData: _ => (),
+  getUserInfoData: _ => defaultValueOfUserInfo,
 }
 open LogicUtils
 let itemMapper = dict => {
-  email: dict->getString("email", defaultValue.email),
+  email: dict->getString("email", defaultValueOfUserInfo.email),
   isTwoFactorAuthSetup: dict->getBool(
     "is_two_factor_auth_setup",
-    defaultValue.isTwoFactorAuthSetup,
+    defaultValueOfUserInfo.isTwoFactorAuthSetup,
   ),
-  merchantId: dict->getString("merchant_id", defaultValue.merchantId),
-  name: dict->getString("name", defaultValue.name),
-  orgId: dict->getString("org_id", defaultValue.orgId),
+  merchantId: dict->getString("merchant_id", defaultValueOfUserInfo.merchantId),
+  name: dict->getString("name", defaultValueOfUserInfo.name),
+  orgId: dict->getString("org_id", defaultValueOfUserInfo.orgId),
   recoveryCodesLeft: dict->getOptionInt("recovery_codes_left"),
-  roleId: dict->getString("role_id", defaultValue.email),
+  roleId: dict->getString("role_id", defaultValueOfUserInfo.email),
   verificationDaysLeft: dict->getOptionInt("verification_days_left"),
+  profileId: dict->getString("profileId", ""),
+  userEntity: dict->getString("entity_type", "")->entityMapper,
+  transactionEntity: dict->getString("entity_type", "")->entityMapper,
+  analyticsEntity: dict->getString("entity_type", "")->entityMapper,
 }

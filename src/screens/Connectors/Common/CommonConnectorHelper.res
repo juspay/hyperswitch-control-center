@@ -1,4 +1,4 @@
-let textInput = (~field: CommonMetaDataTypes.inputField, ~formName) => {
+let textInput = (~field: CommonConnectorTypes.inputField, ~formName) => {
   let {placeholder, label, required} = field
   FormRenderer.makeFieldInfo(
     ~label,
@@ -10,7 +10,7 @@ let textInput = (~field: CommonMetaDataTypes.inputField, ~formName) => {
 }
 
 let selectInput = (
-  ~field: CommonMetaDataTypes.inputField,
+  ~field: CommonConnectorTypes.inputField,
   ~formName,
   ~opt=None,
   ~onItemChange: option<ReactEvent.Form.t => unit>=?,
@@ -45,7 +45,7 @@ let selectInput = (
   )
 }
 
-let multiSelectInput = (~field: CommonMetaDataTypes.inputField, ~formName) => {
+let multiSelectInput = (~field: CommonConnectorTypes.inputField, ~formName) => {
   let {label, required, options} = field
   FormRenderer.makeFieldInfo(
     ~label,
@@ -61,7 +61,7 @@ let multiSelectInput = (~field: CommonMetaDataTypes.inputField, ~formName) => {
   )
 }
 
-let toggleInput = (~field: CommonMetaDataTypes.inputField, ~formName) => {
+let toggleInput = (~field: CommonConnectorTypes.inputField, ~formName) => {
   let {label} = field
   FormRenderer.makeFieldInfo(
     ~name={formName},
@@ -71,7 +71,7 @@ let toggleInput = (~field: CommonMetaDataTypes.inputField, ~formName) => {
 }
 
 let radioInput = (
-  ~field: CommonMetaDataTypes.inputField,
+  ~field: CommonConnectorTypes.inputField,
   ~formName,
   ~onItemChange: option<ReactEvent.Form.t => unit>=?,
   ~fill="",

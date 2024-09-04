@@ -32,7 +32,7 @@ let make = () => {
   React.useEffect(() => {
     setUpConnectoreContainer()->ignore
     None
-  }, [userPermissionJson])
+  }, [])
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
@@ -44,7 +44,7 @@ let make = () => {
           remainingPath
           renderList={() => <ConnectorList />}
           renderNewForm={() => <ConnectorHome />}
-          renderShow={_ => <ConnectorHome />}
+          renderShow={(_, _) => <ConnectorHome />}
         />
       </AccessControl>
     | list{"payoutconnectors", ...remainingPath} =>
@@ -55,7 +55,7 @@ let make = () => {
           remainingPath
           renderList={() => <ConnectorList isPayoutFlow=true />}
           renderNewForm={() => <ConnectorHome isPayoutFlow=true />}
-          renderShow={_ => <ConnectorHome isPayoutFlow=true />}
+          renderShow={(_, _) => <ConnectorHome isPayoutFlow=true />}
         />
       </AccessControl>
     | list{"3ds-authenticators", ...remainingPath} =>
@@ -67,7 +67,7 @@ let make = () => {
           remainingPath
           renderList={() => <ThreeDsConnectorList />}
           renderNewForm={() => <ThreeDsProcessorHome />}
-          renderShow={_ => <ThreeDsProcessorHome />}
+          renderShow={(_, _) => <ThreeDsProcessorHome />}
         />
       </AccessControl>
 
@@ -80,7 +80,7 @@ let make = () => {
           remainingPath
           renderList={() => <PMAuthenticationConnectorList />}
           renderNewForm={() => <PMAuthenticationHome />}
-          renderShow={_ => <PMAuthenticationHome />}
+          renderShow={(_, _) => <PMAuthenticationHome />}
         />
       </AccessControl>
     | list{"fraud-risk-management", ...remainingPath} =>
@@ -91,7 +91,7 @@ let make = () => {
           remainingPath
           renderList={() => <FRMSelect />}
           renderNewForm={() => <FRMConfigure />}
-          renderShow={_ => <FRMConfigure />}
+          renderShow={(_, _) => <FRMConfigure />}
         />
       </AccessControl>
     | list{"configure-pmts", ...remainingPath} =>
@@ -102,7 +102,7 @@ let make = () => {
             entityName="ConfigurePMTs"
             remainingPath
             renderList={() => <PaymentMethodList />}
-            renderShow={_profileId => <PaymentSettings webhookOnly=false showFormOnly=false />}
+            renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
           />
         </FilterContext>
       </AccessControl>
@@ -113,7 +113,7 @@ let make = () => {
           entityName="Routing"
           remainingPath
           renderList={() => <RoutingStack remainingPath />}
-          renderShow={routingType => <RoutingConfigure routingType />}
+          renderShow={(routingType, _) => <RoutingConfigure routingType />}
         />
       </AccessControl>
     | list{"payoutrouting", ...remainingPath} =>
@@ -123,7 +123,7 @@ let make = () => {
           entityName="PayoutRouting"
           remainingPath
           renderList={() => <PayoutRoutingStack remainingPath />}
-          renderShow={routingType => <PayoutRoutingConfigure routingType />}
+          renderShow={(routingType, _) => <PayoutRoutingConfigure routingType />}
         />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />

@@ -14,7 +14,7 @@ module EmailPasswordForm = {
         <RenderIf condition={email}>
           <AddDataAttributes attributes=[("data-testid", "forgot-password")]>
             <label
-              className={`not-italic text-[12px] font-semibold font-ibm-plex ${textColor.primaryNormal} cursor-pointer`}
+              className={`not-italic text-[12px] font-semibold font-ibm-plex ${textColor.primaryNormal} cursor-pointer w-fit`}
               onClick={_ => setAuthType(_ => CommonAuthTypes.ForgetPassword)}>
               {"Forgot Password?"->React.string}
             </label>

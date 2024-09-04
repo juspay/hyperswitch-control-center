@@ -45,6 +45,7 @@ type processorTypes =
   | ACI
   | WORLDLINE
   | FISERV
+  | FISERVIPG
   | SHIFT4
   | RAPYD
   | PAYU
@@ -89,6 +90,9 @@ type processorTypes =
   | ITAUBANK
   | DATATRANS
   | PLAID
+  | SQUARE
+  | PAYBOX
+  | WELLSFARGO
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 

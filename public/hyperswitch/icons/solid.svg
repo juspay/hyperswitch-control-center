@@ -7915,6 +7915,17 @@ License)
       fill="#1C1B1F"
     />
   </symbol>
+   <symbol
+    id="arrow-without-tail-new"
+    viewBox="-3 -5 15 15"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M5.55469 6.35417L0.554688 1.35417L1.72135 0.1875L5.55469 4.02083L9.38802 0.1875L10.5547 1.35417L5.55469 6.35417Z"
+      fill="#FEFEFE"
+    />
+  </symbol>
 
   <symbol
     id="unticked"

@@ -6,7 +6,6 @@ let make = () => {
   open HSwitchUtils
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(userPermissionAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -23,7 +22,7 @@ let make = () => {
   React.useEffect(() => {
     setUpBussinessProfileContainer()->ignore
     None
-  }, [userPermissionJson])
+  }, [])
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
     // Business Profile Modules
@@ -40,7 +39,7 @@ let make = () => {
         entityName="PaymentSettings"
         remainingPath
         renderList={() => <PaymentSettingsList />}
-        renderShow={_profileId => <PaymentSettings webhookOnly=false showFormOnly=false />}
+        renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
       />
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />

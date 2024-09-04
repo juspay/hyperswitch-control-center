@@ -40,7 +40,6 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     | _ => "Register failed, Try again"
     }
   }
-  Js.log2(domain, "domain")
   let getUserWithEmail = async body => {
     try {
       let url = getURL(
@@ -158,7 +157,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         | (PASSWORD, true, _, SignUP) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
-            getUserWithEmailPassword(body, #SIGNUP_TOKEN_ONLY)
+            getUserWithEmailPassword(body, #SIGNUP)
           }
 
         | (_, _, true, LoginWithEmail) => {
@@ -169,7 +168,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         | (_, _, _, LoginWithPassword) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
-            getUserWithEmailPassword(body, #SIGNINV2_TOKEN_ONLY)
+            getUserWithEmailPassword(body, #SIGNINV2)
           }
         | (_, _, _, ResendVerifyEmail) => {
             let exists = checkAuthMethodExists([PASSWORD])

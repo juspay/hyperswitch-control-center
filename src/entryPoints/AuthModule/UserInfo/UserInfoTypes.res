@@ -1,3 +1,4 @@
+type entity = [#Internal | #Organization | #Merchant | #Profile]
 type userInfo = {
   email: string,
   isTwoFactorAuthSetup: bool,
@@ -7,4 +8,14 @@ type userInfo = {
   recoveryCodesLeft: option<int>,
   roleId: string,
   verificationDaysLeft: option<int>,
+  profileId: string,
+  userEntity: entity,
+  mutable transactionEntity: entity,
+  mutable analyticsEntity: entity,
+}
+
+type userInfoProviderTypes = {
+  userInfo: userInfo,
+  setUserInfoData: userInfo => unit,
+  getUserInfoData: unit => userInfo,
 }

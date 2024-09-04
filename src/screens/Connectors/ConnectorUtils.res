@@ -33,6 +33,8 @@ let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(NETCETERA),
 ]
 
+let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
+
 let pmAuthenticationConnectorList: array<connectorTypes> = [PMAuthenticationProcessor(PLAID)]
 
 let connectorList: array<connectorTypes> = [
@@ -56,6 +58,7 @@ let connectorList: array<connectorTypes> = [
   Processors(DATATRANS),
   Processors(DLOCAL),
   Processors(FISERV),
+  Processors(FISERVIPG),
   Processors(FORTE),
   Processors(GLOBALPAY),
   Processors(GLOBEPAY),
@@ -90,6 +93,8 @@ let connectorList: array<connectorTypes> = [
   Processors(BAMBORA_APAC),
   Processors(ITAUBANK),
   Processors(PLAID),
+  Processors(SQUARE),
+  Processors(PAYBOX),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -258,6 +263,10 @@ let worldlineInfo = {
 
 let fiservInfo = {
   description: "Full-service processor offering secure payment solutions and innovative banking technologies for businesses of all sizes.",
+}
+
+let fiservIPGInfo = {
+  description: "Internet Payment Gateway(IPG) is an application from Fiserv which offers Internet payment services in Europe, Middle East and Africa.",
 }
 
 let shift4Info = {
@@ -449,6 +458,18 @@ let plaidInfo = {
   description: "Plaid Link makes it easy for users to connect their financial accounts securely and quickly, giving you the best growth for your business.",
 }
 
+let squareInfo = {
+  description: "Powering all the ways you do business. Work smarter, automate for efficiency, and open up new revenue streams on the software and hardware platform millions of businesses trust.",
+}
+
+let payboxInfo = {
+  description: "Paybox, operated by Verifone, offers secure online payment solutions for e-commerce businesses. It supports a wide range of payment methods and provides features like one-click payments, recurring payments, and omnichannel payment processing. Their services cater to merchants, web agencies, integrators, and financial institutions, helping them accept various forms of payment",
+}
+
+let wellsfargoInfo = {
+  description: "WellsFargo is a leading American financial services company providing a comprehensive range of banking, investment, and mortgage products. With a focus on personal, small business, and commercial banking, Wells Fargo offers services such as checking and savings accounts, loans, credit cards, wealth management, and payment processing solutions.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -546,6 +567,10 @@ let getConnectorNameString = (connector: processorTypes) =>
   | ITAUBANK => "itaubank"
   | DATATRANS => "datatrans"
   | PLAID => "plaid"
+  | SQUARE => "square"
+  | PAYBOX => "paybox"
+  | WELLSFARGO => "wellsfargo"
+  | FISERVIPG => "fiservemea"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -601,6 +626,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "aci" => Processors(ACI)
     | "worldline" => Processors(WORLDLINE)
     | "fiserv" => Processors(FISERV)
+    | "fiservemea" => Processors(FISERVIPG)
     | "shift4" => Processors(SHIFT4)
     | "rapyd" => Processors(RAPYD)
     | "payu" => Processors(PAYU)
@@ -647,6 +673,9 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "itaubank" => Processors(ITAUBANK)
     | "datatrans" => Processors(DATATRANS)
     | "plaid" => Processors(PLAID)
+    | "square" => Processors(SQUARE)
+    | "paybox" => Processors(PAYBOX)
+    | "wellsfargo" => Processors(WELLSFARGO)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -689,6 +718,7 @@ let getProcessorInfo = connector => {
   | ACI => aciInfo
   | WORLDLINE => worldlineInfo
   | FISERV => fiservInfo
+  | FISERVIPG => fiservInfo
   | SHIFT4 => shift4Info
   | RAPYD => rapydInfo
   | PAYU => payuInfo
@@ -734,6 +764,9 @@ let getProcessorInfo = connector => {
   | ITAUBANK => itauBankInfo
   | DATATRANS => dataTransInfo
   | PLAID => plaidInfo
+  | SQUARE => squareInfo
+  | PAYBOX => payboxInfo
+  | WELLSFARGO => wellsfargoInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -821,7 +854,6 @@ let connectorIgnoredField = [
   "connector_name",
   "profile_id",
   "applepay_verified_domains",
-  "additional_merchant_data",
 ]
 
 let configKeysToIgnore = [
@@ -829,6 +861,7 @@ let configKeysToIgnore = [
   "is_verifiable",
   "metadata",
   "connector_webhook_details",
+  "additional_merchant_data",
 ]
 
 let verifyConnectorIgnoreField = [
@@ -1123,7 +1156,7 @@ let validateConnectorRequiredFields = (
         ->getDictfromDict(field)
         ->JSON.Encode.object
         ->convertMapObjectToDict
-        ->CommonMetaDataUtils.inputFieldMapper
+        ->CommonConnectorUtils.inputFieldMapper
       let key = `metadata.${name}`
       let value = switch \"type" {
       | Text | Select => valuesFlattenJson->getString(`${key}`, "")
@@ -1185,6 +1218,10 @@ let getConnectorFields = connectorDetails => {
   let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
   let connectorWebHookDetails =
     connectorDetails->getDictFromJsonObject->getDictfromDict("connector_webhook_details")
+  let connectorAdditionalMerchantData =
+    connectorDetails
+    ->getDictFromJsonObject
+    ->getDictfromDict("additional_merchant_data")
   (
     bodyType,
     connectorAccountFields,
@@ -1192,6 +1229,7 @@ let getConnectorFields = connectorDetails => {
     isVerifyConnector,
     connectorWebHookDetails,
     connectorLabelDetailField,
+    connectorAdditionalMerchantData,
   )
 }
 
@@ -1319,6 +1357,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
   let dict = payload->getDictFromJsonObject
   let connectorAccountDetails =
     dict->getDictfromDict("connector_account_details")->JSON.Encode.object
+  let connectorAdditionalMerchantData = dict->getDictfromDict("additional_merchant_data")
   let payLoadDetails: wasmExtraPayload = {
     connector_account_details: connectorAccountDetails,
     connector_webhook_details: dict->getDictfromDict("connector_webhook_details")->isEmptyDict
@@ -1333,6 +1372,12 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
   let values = Window.getRequestPayload(wasmRequest, payLoadDetails)
   let dict = Dict.fromArray([
     ("connector_account_details", connectorAccountDetails),
+    (
+      "additional_merchant_data",
+      connectorAdditionalMerchantData->isEmptyDict
+        ? JSON.Encode.null
+        : connectorAdditionalMerchantData->JSON.Encode.object,
+    ),
     ("connector_label", dict->getString("connector_label", "")->JSON.Encode.string),
     ("status", dict->getString("status", "active")->JSON.Encode.string),
     (
@@ -1531,6 +1576,10 @@ let getDisplayNameForProcessor = connector =>
   | ITAUBANK => "Itaubank"
   | DATATRANS => "Datatrans"
   | PLAID => "Plaid"
+  | SQUARE => "Square"
+  | PAYBOX => "Paybox"
+  | WELLSFARGO => "Wells Fargo"
+  | FISERVIPG => "Fiserv IPG"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

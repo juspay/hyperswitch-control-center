@@ -494,6 +494,7 @@ let make = (
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
     ThemeProvider.themeContext,
   )
+  let featureFlagDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.featureFlagAtom)
 
   let handleLogout = APIUtils.useHandleLogout()
   let isMobileView = MatchMedia.useMobileChecker()
@@ -523,7 +524,16 @@ let make = (
   let isHSSidebarPinned = getFromSidebarDetails("isPinned")
   let isExpanded = isSidebarExpanded || isHSSidebarPinned
 
-  let sidebarWidth = isExpanded ? isMobileView ? "100%" : "270px" : "55px"
+  let sidebarWidth = {
+    switch isExpanded {
+    | true =>
+      switch isMobileView {
+      | true => "100%"
+      | false => "270px"
+      }
+    | false => "55px"
+    }
+  }
   let profileMaxWidth = "145px"
 
   let firstPart = switch List.head(path) {
@@ -606,6 +616,9 @@ let make = (
           </div>
           <PinIconComponentStates isHSSidebarPinned setIsSidebarExpanded isSidebarExpanded />
         </div>
+        <RenderIf condition={featureFlagDetails.userManagementRevamp}>
+          <SidebarSwitch isExpanded />
+        </RenderIf>
         <div
           className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar"
           style={height: `calc(100vh - ${verticalOffset})`}>

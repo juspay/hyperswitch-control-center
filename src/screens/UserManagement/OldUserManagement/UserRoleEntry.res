@@ -114,7 +114,7 @@ let make = () => {
   ]
 
   let buttonValueBasedonTab = switch tabIndex->UserManagementUtils.tabIndeToVariantMapper {
-  | Users =>
+  | UsersTab =>
     <ACLButton
       access={userPermissionJson.usersManage}
       text={"Invite users"}
@@ -125,7 +125,7 @@ let make = () => {
       }}
       customButtonStyle="w-48"
     />
-  | Roles =>
+  | RolesTab =>
     <ACLButton
       access={userPermissionJson.usersManage}
       text={"Create custom roles"}
