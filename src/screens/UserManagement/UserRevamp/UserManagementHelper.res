@@ -32,6 +32,7 @@ module OrganisationSelection = {
             ~value="all_organizations",
             ~dropdownList=orgList,
           ),
+          ~deselectDisable=true,
           ~buttonText="Select an organization",
           ~fullLength=true,
           ~customButtonStyle="!rounded-lg",
@@ -67,9 +68,10 @@ module MerchantSelection = {
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
       try {
-        let _ = await internalSwitch(
-          ~expectedMerchantId=Some(event->Identity.formReactEventToString),
-        )
+        let selectedMerchantValue = event->Identity.formReactEventToString
+        if selectedMerchantValue->stringToVariantForAllSelection->Option.isNone {
+          let _ = await internalSwitch(~expectedMerchantId=Some(selectedMerchantValue))
+        }
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
@@ -85,7 +87,9 @@ module MerchantSelection = {
             ~label="All merchants",
             ~value="all_merchants",
             ~dropdownList=merchList,
+            ~showAllSelection=true,
           ),
+          ~deselectDisable=true,
           ~buttonText="Select a Merchant",
           ~fullLength=true,
           ~customButtonStyle="!rounded-lg",
@@ -121,9 +125,11 @@ module ProfileSelection = {
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
       try {
-        let _ = await internalSwitch(
-          ~expectedProfileId=Some(event->Identity.formReactEventToString),
-        )
+        let selectedProfileValue = event->Identity.formReactEventToString
+
+        if selectedProfileValue->stringToVariantForAllSelection->Option.isNone {
+          let _ = await internalSwitch(~expectedProfileId=Some(selectedProfileValue))
+        }
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
@@ -141,6 +147,7 @@ module ProfileSelection = {
             ~dropdownList=profileList,
             ~showAllSelection=true,
           ),
+          ~deselectDisable=true,
           ~buttonText="Select a Profile",
           ~fullLength=true,
           ~customButtonStyle="!rounded-lg",
@@ -161,7 +168,7 @@ module ProfileSelection = {
 }
 
 let inviteEmail = FormRenderer.makeFieldInfo(
-  ~label="Enter email (s) ",
+  ~label="Enter email(s) ",
   ~name="email_list",
   ~customInput=(~input, ~placeholder as _) => {
     let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0

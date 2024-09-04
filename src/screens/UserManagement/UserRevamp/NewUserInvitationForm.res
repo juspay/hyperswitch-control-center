@@ -35,9 +35,10 @@ module ModulePermissionRender = {
 }
 module RoleToPermission = {
   @react.component
-  let make = (~roleInfo: array<UserManagementTypes.userModuleType>, ~roleDict, ~role) => {
+  let make = (~roleDict, ~role) => {
     open LogicUtils
     let userAcessGroup = roleDict->getDictfromDict(role)->getStrArrayFromDict("groups", [])
+    let roleInfo = Recoil.useRecoilValueFromAtom(HyperswitchAtom.moduleListRecoil)
     let (modulesWithAccess, moduleWithoutAccess) = UserUtils.modulesWithUserAccess(
       roleInfo,
       userAcessGroup,
@@ -94,7 +95,6 @@ let make = () => {
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let roleInfo = Recoil.useRecoilValueFromAtom(HyperswitchAtom.moduleListRecoil)
   let (roleDict, setRoleDict) = React.useState(_ => Dict.make())
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let roleTypeValue =
@@ -201,7 +201,7 @@ let make = () => {
             </p>
             <PageLoaderWrapper screenState>
               <div className="border rounded-md p-4 flex flex-col">
-                <RoleToPermission roleInfo roleDict role={roleTypeValue->Option.getOr("")} />
+                <RoleToPermission roleDict role={roleTypeValue->Option.getOr("")} />
               </div>
             </PageLoaderWrapper>
           </>

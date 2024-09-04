@@ -147,3 +147,10 @@ let getEntityType = valueDict => {
   | _ => ""
   }
 }
+
+let stringToVariantForAllSelection = formStringValue =>
+  switch formStringValue {
+  | "all_merchants" => Some(#All_Merchants)
+  | "all_profiles" => Some(#All_Profiles)
+  | _ => None
+  }
