@@ -182,7 +182,7 @@ let make = (~id, ~profileId) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let disputesUrl = getURL(~entityName=DISPUTES, ~methodType=Get, ~id=Some(id))
-      let _ = await internalSwitch(~expectedProfileId=Some(profileId))
+      let _ = await internalSwitch(~expectedProfileId=profileId)
       let response = await fetchDetails(disputesUrl)
       setDisputeData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)

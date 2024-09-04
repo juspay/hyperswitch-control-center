@@ -59,7 +59,11 @@ let useGetURL = () => {
         | None =>
           switch id {
           | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-          | None => connectorBaseURL
+          | None =>
+            switch (userEntity, userManagementRevamp) {
+            | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile/connectors`
+            | _ => connectorBaseURL
+            }
           }
         }
       | _ => ""
@@ -203,7 +207,11 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(routingId) => `routing/${routingId}`
-        | _ => `routing`
+        | None =>
+          switch (userEntity, userManagementRevamp) {
+          | (#Merchant, true) | (#Profile, true) => `routing/list/profile`
+          | _ => `routing`
+          }
         }
       | Post =>
         switch id {
@@ -263,7 +271,11 @@ let useGetURL = () => {
       | Get | Put =>
         switch id {
         | Some(routingId) => `routing/${routingId}`
-        | _ => `routing/payouts`
+        | _ =>
+          switch (userEntity, userManagementRevamp) {
+          | (#Merchant, true) | (#Profile, true) => `routing/payouts/list/profile`
+          | _ => `routing/payouts`
+          }
         }
       | Post =>
         switch id {
@@ -322,7 +334,11 @@ let useGetURL = () => {
     | BUSINESS_PROFILE =>
       switch id {
       | Some(id) => `account/${merchantId}/business_profile/${id}`
-      | None => `account/${merchantId}/business_profile`
+      | None =>
+        switch (userEntity, userManagementRevamp) {
+        | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile`
+        | _ => `account/${merchantId}/business_profile`
+        }
       }
 
     /* API KEYS */
@@ -381,7 +397,7 @@ let useGetURL = () => {
         let userUrl = `user`
         switch userRoleTypes {
         | USER_LIST => `${userUrl}/user/v2/list`
-        | ROLE_LIST => `${userUrl}/list/role_info`
+        | ROLE_LIST => `${userUrl}/role/v2/list`
         | _ => ""
         }
       }
