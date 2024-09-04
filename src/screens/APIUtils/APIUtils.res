@@ -17,7 +17,7 @@ let useGetURL = () => {
     ~reconType: reconType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
-    let {transactionEntity} = getUserInfoData()
+    let {transactionEntity, userEntity} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
 
     let endpoint = switch entityName {
