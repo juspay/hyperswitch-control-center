@@ -654,6 +654,12 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/role/list/invite?${params}`
         | None => ""
         }
+      | #USER_DETAILS => `${userUrl}/user/v2`
+      | #LIST_ROLES_FOR_ROLE_UPDATE =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/role/list/update?${params}`
+        | None => ""
+        }
 
       | #NONE => ""
       }
