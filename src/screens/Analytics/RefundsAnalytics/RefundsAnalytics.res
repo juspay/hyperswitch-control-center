@@ -67,22 +67,28 @@ let make = () => {
   let title = "Refunds Analytics"
   let subTitle = "Uncover patterns and drive business performance through data-driven insights with refund analytics"
 
+  let analyticsfilterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
+  let refundAnalyticsUrl = getURL(
+    ~entityName=ANALYTICS_PAYMENTS,
+    ~methodType=Post,
+    ~id=Some(domain),
+  )
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
     <Analytics
       pageTitle=title
       pageSubTitle=subTitle
-      filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
+      filterUri=Some(analyticsfilterUrl)
       key="RefundsAnalytics"
       moduleName="Refunds"
       deltaMetrics={getStringListFromArrayDict(metrics)}
-      chartEntity={default: chartEntity(tabKeys)}
+      chartEntity={default: chartEntity(tabKeys, ~uri=refundAnalyticsUrl)}
       tabKeys
       tabValues
       options={options}
-      singleStatEntity={getSingleStatEntity(metrics)}
+      singleStatEntity={getSingleStatEntity(metrics, refundAnalyticsUrl)}
       getTable={getRefundTable}
       colMapper
-      tableEntity={refundTableEntity()}
+      tableEntity={refundTableEntity(~uri=refundAnalyticsUrl)}
       defaultSort="total_volume"
       deltaArray=[]
       tableUpdatedHeading=getUpdatedHeading
