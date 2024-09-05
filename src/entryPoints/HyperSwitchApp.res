@@ -241,7 +241,6 @@ let make = () => {
                           </AccessControl>
 
                         | list{"users-revamp", ..._} => <UserManagementContainer />
-
                         | list{"analytics-payments"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
                             <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
@@ -268,6 +267,14 @@ let make = () => {
                             permission=userPermissionJson.analyticsView>
                             <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
                               <DisputeAnalytics />
+                            </FilterContext>
+                          </AccessControl>
+                        | list{"new-analytics-overview"} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.newAnalytics}
+                            permission=userPermissionJson.analyticsView>
+                            <FilterContext key="NewAnalytics" index="NewAnalytics">
+                              <NewAnalyticsContainer />
                             </FilterContext>
                           </AccessControl>
                         | list{"analytics-user-journey"} =>
