@@ -79,9 +79,16 @@ module HSiwtchPaymentConfirmLatency = {
   open SystemMetricsAnalyticsUtils
   open Promise
   open LogicUtils
+  open APIUtils
   @react.component
   let make = () => {
-    let url = `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`
+    let getURL = useGetURL()
+    let systemMetricsAnalyticsUrl = getURL(
+      ~entityName=ANALYTICS_PAYMENTS,
+      ~methodType=Post,
+      ~id=Some(domain),
+    )
+    let url = systemMetricsAnalyticsUrl
     let (isLoading, setIsLoading) = React.useState(_ => true)
     let (latency, setLatency) = React.useState(_ => 0)
     let (connectorLatency, setConnectorLatency) = React.useState(_ => 0)
@@ -329,6 +336,7 @@ let make = () => {
   open HSAnalyticsUtils
   open LogicUtils
   let getURL = useGetURL()
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])
@@ -356,17 +364,22 @@ let make = () => {
   let tabKeys = getStringListFromArrayDict(dimensions)
   let title = "System Metrics"
   let subTitle = "Gain Insights, monitor performance and make Informed Decisions with System Metrics."
-
+  let analyticsfilterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
+  let systemMetricsAnalyticsUrl = getURL(
+    ~entityName=ANALYTICS_PAYMENTS,
+    ~methodType=Post,
+    ~id=Some(domain),
+  )
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
     <SystemMetricsAnalytics
       pageTitle=title
       pageSubTitle=subTitle
-      filterUri={`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`}
+      filterUri={analyticsfilterUrl}
       key="SystemMetrics"
       moduleName="SystemMetrics"
-      chartEntity={default: chartEntity(tabKeys)}
+      chartEntity={default: chartEntity(tabKeys, ~uri=systemMetricsAnalyticsUrl)}
       filteredTabKeys={tabKeys}
-      singleStatEntity={getSingleStatEntity(metrics)}
+      singleStatEntity={getSingleStatEntity(metrics, systemMetricsAnalyticsUrl)}
       startTimeFilterKey
       endTimeFilterKey
       initialFixedFilters=initialFixedFilterFields

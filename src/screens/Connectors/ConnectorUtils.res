@@ -96,6 +96,7 @@ let connectorList: array<connectorTypes> = [
   Processors(SQUARE),
   Processors(PAYBOX),
   Processors(FIUU),
+  Processors(WELLSFARGO),
 ]
 
 let connectorListForLive: array<connectorTypes> = [

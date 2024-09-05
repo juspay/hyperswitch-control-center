@@ -1,18 +1,30 @@
 @react.component
 let make = (~paymentId, ~disputeId) => {
   open LogTypes
-
-  let disputesLogsUrl = `${Window.env.apiBaseUrl}/analytics/v1/api_event_logs?type=Dispute&payment_id=${paymentId}&dispute_id=${disputeId}`
-  let webhooksLogsUrl = `${Window.env.apiBaseUrl}/analytics/v1/outgoing_webhook_event_logs?&payment_id=${paymentId}&dispute_id=${disputeId}`
-  let connectorLogsUrl = `${Window.env.apiBaseUrl}/analytics/v1/connector_event_logs?payment_id=${paymentId}&dispute_id=${disputeId}`
-
+  open APIUtils
+  let getURL = useGetURL()
+  let webhookLogsUrl = getURL(
+    ~entityName=WEBHOOKS_EVENT_LOGS,
+    ~methodType=Get,
+    ~queryParamerters=Some(`payment_id=${paymentId}&dispute_id=${disputeId}`),
+  )
+  let disputesLogsUrl = getURL(
+    ~entityName=API_EVENT_LOGS,
+    ~methodType=Get,
+    ~queryParamerters=Some(`type=Dispute&payment_id=${paymentId}&dispute_id=${disputeId}`),
+  )
+  let connectorLogsUrl = getURL(
+    ~entityName=CONNECTOR_EVENT_LOGS,
+    ~methodType=Get,
+    ~queryParamerters=Some(`payment_id=${paymentId}&dispute_id=${disputeId}`),
+  )
   let urls = [
     {
       url: disputesLogsUrl,
       apiMethod: Get,
     },
     {
-      url: webhooksLogsUrl,
+      url: webhookLogsUrl,
       apiMethod: Get,
     },
     {
