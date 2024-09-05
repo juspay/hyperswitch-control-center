@@ -113,7 +113,7 @@ let payouts = permissionJson => {
   })
 }
 
-let operations = (isOperationsEnabled, ~permissionJson, ~isPayoutsEnabled, ~isCustomersEnabled) => {
+let operations = (isOperationsEnabled, ~permissionJson, ~isPayoutsEnabled, ~userEntity) => {
   let payments = payments(permissionJson)
   let refunds = refunds(permissionJson)
   let disputes = disputes(permissionJson)
@@ -121,6 +121,7 @@ let operations = (isOperationsEnabled, ~permissionJson, ~isPayoutsEnabled, ~isCu
   let payouts = payouts(permissionJson)
 
   let links = [payments, refunds, disputes]
+  let isCustomersEnabled = userEntity !== #Profile
 
   if isPayoutsEnabled {
     links->Array.push(payouts)->ignore
@@ -618,12 +619,10 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     userManagementRevamp,
   } = featureFlagDetails
 
-  let isCustomersEnabled = userEntity !== #Profile
-
   let sidebar = [
     productionAccessComponent(quickStart),
     default->home,
-    default->operations(~permissionJson, ~isPayoutsEnabled=payOut, ~isCustomersEnabled),
+    default->operations(~permissionJson, ~isPayoutsEnabled=payOut, ~userEntity),
     default->connectors(
       ~isLiveMode,
       ~isFrmEnabled=frm,
