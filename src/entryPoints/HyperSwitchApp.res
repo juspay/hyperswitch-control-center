@@ -155,10 +155,12 @@ let make = () => {
                       <Navbar
                         headerActions={<div className="relative flex items-center gap-4 my-2 ">
                           <GlobalSearchBar />
-                          <SwitchMerchant
-                            userRole={userRole}
-                            isAddMerchantEnabled={userRole === "org_admin" ? true : false}
-                          />
+                          <RenderIf condition={!featureFlagDetails.userManagementRevamp}>
+                            <SwitchMerchant
+                              userRole={userRole}
+                              isAddMerchantEnabled={userRole === "org_admin"}
+                            />
+                          </RenderIf>
                           <RenderIf condition={featureFlagDetails.userManagementRevamp}>
                             <ProfileSwitch />
                           </RenderIf>

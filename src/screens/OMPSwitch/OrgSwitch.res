@@ -10,6 +10,7 @@ let make = () => {
   let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
+  let (arrow, setArrow) = React.useState(_ => false)
 
   let getOrgList = async () => {
     try {
@@ -51,7 +52,11 @@ let make = () => {
     checked: true,
   }
 
-  <div className="border border-blue-820 rounded mx-2 ">
+  let toggleChevronState = () => {
+    setArrow(prev => !prev)
+  }
+
+  <div className="border border-blue-820 rounded w-full">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
@@ -65,11 +70,15 @@ let make = () => {
       customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
-      baseComponent={<OMPSwitchHelper.ListBaseComp heading="Org" subHeading=orgId />}
+      baseComponent={<OMPSwitchHelper.ListBaseComp
+        heading="Org" subHeading={currentOMPName(orgList, orgId)} arrow
+      />}
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"
-      customDropdownOuterClass="!border-none"
+      customDropdownOuterClass="!border-none !w-full"
+      fullLength=true
+      toggleChevronState
     />
     <LoaderModal
       showModal={showSwitchingOrg}
