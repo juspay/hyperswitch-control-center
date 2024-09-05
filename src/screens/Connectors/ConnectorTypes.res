@@ -45,6 +45,7 @@ type processorTypes =
   | ACI
   | WORLDLINE
   | FISERV
+  | FISERVIPG
   | SHIFT4
   | RAPYD
   | PAYU

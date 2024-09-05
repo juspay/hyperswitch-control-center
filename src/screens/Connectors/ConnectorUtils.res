@@ -58,6 +58,7 @@ let connectorList: array<connectorTypes> = [
   Processors(DATATRANS),
   Processors(DLOCAL),
   Processors(FISERV),
+  Processors(FISERVIPG),
   Processors(FORTE),
   Processors(GLOBALPAY),
   Processors(GLOBEPAY),
@@ -262,6 +263,10 @@ let worldlineInfo = {
 
 let fiservInfo = {
   description: "Full-service processor offering secure payment solutions and innovative banking technologies for businesses of all sizes.",
+}
+
+let fiservIPGInfo = {
+  description: "Internet Payment Gateway(IPG) is an application from Fiserv which offers Internet payment services in Europe, Middle East and Africa.",
 }
 
 let shift4Info = {
@@ -565,6 +570,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | SQUARE => "square"
   | PAYBOX => "paybox"
   | WELLSFARGO => "wellsfargo"
+  | FISERVIPG => "fiservemea"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -620,6 +626,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "aci" => Processors(ACI)
     | "worldline" => Processors(WORLDLINE)
     | "fiserv" => Processors(FISERV)
+    | "fiservemea" => Processors(FISERVIPG)
     | "shift4" => Processors(SHIFT4)
     | "rapyd" => Processors(RAPYD)
     | "payu" => Processors(PAYU)
@@ -711,6 +718,7 @@ let getProcessorInfo = connector => {
   | ACI => aciInfo
   | WORLDLINE => worldlineInfo
   | FISERV => fiservInfo
+  | FISERVIPG => fiservInfo
   | SHIFT4 => shift4Info
   | RAPYD => rapydInfo
   | PAYU => payuInfo
@@ -1571,6 +1579,7 @@ let getDisplayNameForProcessor = connector =>
   | SQUARE => "Square"
   | PAYBOX => "Paybox"
   | WELLSFARGO => "Wells Fargo"
+  | FISERVIPG => "Fiserv IPG"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

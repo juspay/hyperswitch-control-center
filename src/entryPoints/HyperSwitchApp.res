@@ -26,7 +26,9 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {orgId, merchantId, profileId, userEntity}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
@@ -207,64 +209,21 @@ let make = () => {
                         | list{"business-profiles", ..._}
                         | list{"payment-settings", ..._} =>
                           <BusinessProfileContainer />
-
-                        | list{"payments", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
-                            <FilterContext key="payments" index="payments">
-                              <EntityScaffold
-                                entityName="Payments"
-                                remainingPath
-                                access=Access
-                                renderList={() => <Orders />}
-                                renderShow={id => <ShowOrder id />}
-                              />
-                            </FilterContext>
-                          </AccessControl>
-
-                        | list{"payouts", ...remainingPath} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.payOut}
-                            permission=userPermissionJson.operationsView>
-                            <FilterContext key="payouts" index="payouts">
-                              <EntityScaffold
-                                entityName="Payouts"
-                                remainingPath
-                                access=Access
-                                renderList={() => <PayoutsList />}
-                                renderShow={id => <ShowPayout id />}
-                              />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"refunds", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
-                            <FilterContext key="refunds" index="refunds">
-                              <EntityScaffold
-                                entityName="Refunds"
-                                remainingPath
-                                access=Access
-                                renderList={() => <Refund />}
-                                renderShow={id => <ShowRefund id />}
-                              />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"disputes", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
-                            <EntityScaffold
-                              entityName="Disputes"
-                              remainingPath
-                              access=Access
-                              renderList={() => <Disputes />}
-                              renderShow={id => <ShowDisputes id />}
-                            />
-                          </AccessControl>
+                        | list{"payments", ..._}
+                        | list{"refunds", ..._}
+                        | list{"disputes", ..._}
+                        | list{"payouts", ..._} =>
+                          <TransactionContainer />
                         | list{"customers", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
+                          <AccessControl
+                            permission={userPermissionJson.operationsView}
+                            isEnabled={userEntity !== #Profile}>
                             <EntityScaffold
                               entityName="Customers"
                               remainingPath
                               access=Access
                               renderList={() => <Customers />}
-                              renderShow={id => <ShowCustomers id />}
+                              renderShow={(id, _) => <ShowCustomers id />}
                             />
                           </AccessControl>
                         | list{"users", "invite-users"} =>
@@ -281,20 +240,11 @@ let make = () => {
                               entityName="UserManagement"
                               remainingPath
                               renderList={_ => <UserRoleEntry />}
-                              renderShow={_ => <ShowUserData />}
+                              renderShow={(_, _) => <ShowUserData />}
                             />
                           </AccessControl>
 
-                        | list{"users-revamp", ...remainingPath} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.userManagementRevamp} permission={Access}>
-                            <EntityScaffold
-                              entityName="UserManagement"
-                              remainingPath
-                              renderList={_ => <UserManagementLanding />}
-                              renderShow={_ => <ShowUserData />}
-                            />
-                          </AccessControl>
+                        | list{"users-revamp", ..._} => <UserManagementContainer />
 
                         | list{"analytics-payments"} =>
                           <AccessControl permission=userPermissionJson.analyticsView>
@@ -386,7 +336,7 @@ let make = () => {
                             entityName="profile setting"
                             remainingPath
                             renderList={() => <HSwitchProfileSettings />}
-                            renderShow={_value => <ModifyTwoFaSettings />}
+                            renderShow={(_, _) => <ModifyTwoFaSettings />}
                           />
                         | list{"quick-start"} => determineQuickStartPageState()
                         | list{"woocommerce"} => determineWooCommerce()

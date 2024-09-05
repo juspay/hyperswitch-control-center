@@ -1,4 +1,4 @@
-let regex: string => RegExp.t
+let regex: string => RescriptCore.RegExp.t
 let highlightedText: (Js.String.t, string) => React.element
 type labelColor = TableUtils.labelColor =
   | LabelGreen
@@ -170,6 +170,7 @@ module TableRow: {
     ~fixLastCol: bool=?,
     ~alignCellContent: string=?,
     ~customCellColor: string=?,
+    ~showCustomizeColumn: bool=?,
   ) => React.element
 }
 module SortAction: {
@@ -216,6 +217,7 @@ module TableHeadingCell: {
 module TableHeadingRow: {
   @react.component
   let make: (
+    ~title: string=?,
     ~headingArray: array<header>,
     ~isHighchartLegend: bool,
     ~frozenUpto: int,
@@ -239,6 +241,7 @@ module TableHeadingRow: {
     ~columnFilterRow: option<array<filterRow>>,
     ~customizeColumnNewTheme: customiseColumnConfig=?,
     ~tableHeadingTextClass: string=?,
+    ~showCustomizeColumn: bool=?,
   ) => React.element
 }
 @react.component
@@ -305,4 +308,5 @@ let make: (
   ~showborderColor: bool=?,
   ~tableHeadingTextClass: string=?,
   ~nonFrozenTableParentClass: string=?,
+  ~showCustomizeColumn: bool=?,
 ) => React.element

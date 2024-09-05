@@ -145,17 +145,18 @@ module PayoutInfo = {
 }
 
 @react.component
-let make = (~id) => {
+let make = (~id, ~profileId) => {
   open APIUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (payoutsData, setPayoutsData) = React.useState(_ => JSON.Encode.null)
-
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let fetchPayoutsData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let payoutsUrl = getURL(~entityName=PAYOUTS, ~methodType=Get, ~id=Some(id))
+      let _ = await internalSwitch(~expectedProfileId=profileId)
       let response = await fetchDetails(payoutsUrl)
       setPayoutsData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)

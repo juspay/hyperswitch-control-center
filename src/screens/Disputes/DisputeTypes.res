@@ -1,4 +1,5 @@
 type disputes = {
+  profile_id: string,
   dispute_id: string,
   payment_id: string,
   attempt_id: string,
