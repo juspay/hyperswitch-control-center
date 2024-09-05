@@ -10,8 +10,8 @@ module ListBaseComp = {
       <div className="px-2 py-2">
         <Icon
           className={arrow
-            ? "-rotate-180 transition duration-[250ms] opacity-70"
-            : "rotate-0 transition duration-[250ms] opacity-70"}
+            ? "rotate-0 transition duration-[250ms] opacity-70"
+            : "-rotate-180 transition duration-[250ms] opacity-70"}
           name="arrow-without-tail-new"
           size=15
         />
