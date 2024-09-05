@@ -9,6 +9,7 @@ let make = () => {
   let orgSwitch = OMPSwitchHooks.useOrgSwitch()
   let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
+  let (arrow, setArrow) = React.useState(_ => false)
 
   let getOrgList = async () => {
     try {
@@ -36,6 +37,11 @@ let make = () => {
     }
   }
 
+  let currOrgName = switch orgList->Array.find(org => org.id == orgId) {
+  | Some(org) => org.name
+  | None => ""
+  }
+
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),
@@ -46,6 +52,10 @@ let make = () => {
     onFocus: _ => (),
     value: orgId->JSON.Encode.string,
     checked: true,
+  }
+
+  let toggleChevronState = () => {
+    setArrow(prev => !prev)
   }
 
   <div className="border border-blue-820 rounded mx-2 ">
@@ -62,11 +72,12 @@ let make = () => {
       customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
-      baseComponent={<OMPSwitchHelper.ListBaseComp heading="Org" subHeading=orgId />}
+      baseComponent={<OMPSwitchHelper.ListBaseComp heading="Org" subHeading=currOrgName arrow />}
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"
       customDropdownOuterClass="!border-none"
+      toggleChevronState
     />
   </div>
 }

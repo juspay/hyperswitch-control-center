@@ -1537,6 +1537,7 @@ module BaseDropdown = {
     ~onApply=?,
     ~showAllSelectedOptions=true,
     ~buttonClickFn=?,
+    ~toggleChevronState: option<unit => unit>=?,
     ~showSelectCountButton=false,
     ~maxHeight=?,
     ~customBackColor=?,
@@ -1609,6 +1610,15 @@ module BaseDropdown = {
       setShowDropDown(_ => false)
       hasApplyButton ? newInputSelect.onChange(preservedAppliedOptions) : ()
     })
+
+    React.useEffect(() => {
+      let _ = switch toggleChevronState {
+      | Some(fn) => fn()
+      | None => ()
+      }
+      None
+    }, [showDropDown])
+
     let onClick = _ => {
       switch buttonClickFn {
       | Some(fn) => fn(input.name)

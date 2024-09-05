@@ -94,6 +94,7 @@ let make = () => {
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
+  let (arrow, setArrow) = React.useState(_ => false)
 
   let getMerchantList = async () => {
     try {
@@ -114,6 +115,11 @@ let make = () => {
     } catch {
     | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
     }
+  }
+
+  let currMerchantName = switch merchantList->Array.find(merchant => merchant.id == merchantId) {
+  | Some(merchant) => merchant.name
+  | None => ""
   }
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -137,6 +143,10 @@ let make = () => {
     None
   }, [])
 
+  let toggleChevronState = () => {
+    setArrow(prev => !prev)
+  }
+
   <div className="border border-popover-background rounded w-full mr-2">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -151,7 +161,7 @@ let make = () => {
       customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
-      baseComponent={<ListBaseComp heading="Merchant" subHeading=merchantId />}
+      baseComponent={<ListBaseComp heading="Merchant" subHeading=currMerchantName arrow />}
       baseComponentCustomStyle="bg-popover-background border-blue-820 rounded text-white"
       bottomComponent={<AddNewMerchantProfileButton
         user="merchant" setShowModal customPadding customStyle customHRTagStyle
@@ -160,6 +170,7 @@ let make = () => {
       selectClass="text-gray-200 text-fs-14"
       customDropdownOuterClass="!border-none !w-full"
       fullLength=true
+      toggleChevronState
     />
     <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getMerchantList />
