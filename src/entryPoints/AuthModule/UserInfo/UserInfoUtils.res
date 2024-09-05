@@ -43,7 +43,7 @@ let itemMapper = dict => {
   recoveryCodesLeft: dict->getOptionInt("recovery_codes_left"),
   roleId: dict->getString("role_id", defaultValueOfUserInfo.email),
   verificationDaysLeft: dict->getOptionInt("verification_days_left"),
-  profileId: dict->getString("profileId", ""),
+  profileId: dict->getString("profile_id", ""),
   userEntity: dict->getString("entity_type", "")->entityMapper,
   transactionEntity: dict->getString("entity_type", "")->entityMapper,
   analyticsEntity: dict->getString("entity_type", "")->entityMapper,
