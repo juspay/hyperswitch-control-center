@@ -95,6 +95,7 @@ let connectorList: array<connectorTypes> = [
   Processors(PLAID),
   Processors(SQUARE),
   Processors(PAYBOX),
+  Processors(FIUU),
   Processors(WELLSFARGO),
 ]
 
@@ -471,6 +472,10 @@ let wellsfargoInfo = {
   description: "WellsFargo is a leading American financial services company providing a comprehensive range of banking, investment, and mortgage products. With a focus on personal, small business, and commercial banking, Wells Fargo offers services such as checking and savings accounts, loans, credit cards, wealth management, and payment processing solutions.",
 }
 
+let fiuuInfo = {
+  description: "Fiuu has been the premier merchant service provider in Southeast Asia since 2005, connecting international brands to consumers across the region. The company helps its clients establish a foothold in Southeast Asia's market by offering a full range of alternative payment methods, such as online banking, cash at 7-Eleven (Fiuu Cash), e-wallets, and more. Fiuu provides comprehensive payment solutions to facilitate market entry and expansion for businesses looking to reach Southeast Asian consumers.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -572,6 +577,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PAYBOX => "paybox"
   | WELLSFARGO => "wellsfargo"
   | FISERVIPG => "fiservemea"
+  | FIUU => "fiuu"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -677,6 +683,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "square" => Processors(SQUARE)
     | "paybox" => Processors(PAYBOX)
     | "wellsfargo" => Processors(WELLSFARGO)
+    | "fiuu" => Processors(FIUU)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -768,6 +775,7 @@ let getProcessorInfo = connector => {
   | SQUARE => squareInfo
   | PAYBOX => payboxInfo
   | WELLSFARGO => wellsfargoInfo
+  | FIUU => fiuuInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -1531,7 +1539,7 @@ let getDisplayNameForProcessor = connector =>
   | EBANX => "Ebanx"
   | ACI => "ACI Worldwide"
   | WORLDLINE => "Worldline"
-  | FISERV => "Fiserv"
+  | FISERV => "Fiserv Commerce Hub"
   | SHIFT4 => "Shift4"
   | RAPYD => "Rapyd"
   | PAYU => "PayU"
@@ -1581,6 +1589,7 @@ let getDisplayNameForProcessor = connector =>
   | PAYBOX => "Paybox"
   | WELLSFARGO => "Wells Fargo"
   | FISERVIPG => "Fiserv IPG"
+  | FIUU => "Fiuu"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
