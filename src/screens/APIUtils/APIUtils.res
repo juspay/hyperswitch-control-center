@@ -160,6 +160,15 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | REFUNDS_AGGREGATE =>
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(queryParams) => `refunds/aggregate?${queryParams}`
+        | None => `refunds/aggregate`
+        }
+      | _ => `refunds/aggregate`
+      }
     | DISPUTES =>
       switch methodType {
       | Get =>

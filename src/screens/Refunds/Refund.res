@@ -63,7 +63,15 @@ let make = () => {
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
-      <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
+      <div className="flex justify-between items-center">
+        <PageUtils.PageHeading title="Refunds" subTitle="" />
+        <RenderIf condition={generateReport && refundData->Array.length > 0}>
+          <GenerateReport entityName={REFUND_REPORT} />
+        </RenderIf>
+      </div>
+      <div className="flex gap-6 justify-around">
+        <TransactionView entity=TransactionViewTypes.Refunds />
+      </div>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
@@ -81,10 +89,7 @@ let make = () => {
             />}
           />
         </div>
-        <RenderIf condition={generateReport && refundData->Array.length > 0}>
-          <GenerateReport entityName={REFUND_REPORT} />
-        </RenderIf>
-        <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />
+        // <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />
       </div>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
