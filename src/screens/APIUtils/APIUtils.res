@@ -52,7 +52,11 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-        | None => connectorBaseURL
+        | None =>
+          switch (userEntity, userManagementRevamp) {
+          | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile/connectors`
+          | _ => connectorBaseURL
+          }
         }
       | Post | Delete =>
         switch connector {
@@ -60,11 +64,7 @@ let useGetURL = () => {
         | None =>
           switch id {
           | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-          | None =>
-            switch (userEntity, userManagementRevamp) {
-            | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile/connectors`
-            | _ => connectorBaseURL
-            }
+          | None => connectorBaseURL
           }
         }
       | _ => ""
@@ -244,7 +244,9 @@ let useGetURL = () => {
           | (#Organization, true) => `analytics/v2/org/metrics/${domain}`
           | (#Merchant, true) => `analytics/v2/merchant/metrics/${domain}`
           | (#Profile, true) => `analytics/v2/profile/metrics/${domain}`
-          | _ => `analytics/v2/merchant/metrics/${domain}`
+          | (_, true) => `analytics/v2/merchant/metrics/${domain}`
+          // This Need to removed when userManagementRevamp feature flag is removed
+          | _ => `analytics/v2/metrics/${domain}`
           }
 
         | _ => ""
@@ -269,7 +271,9 @@ let useGetURL = () => {
           | (#Organization, true) => `analytics/v1/org/${domain}/info`
           | (#Merchant, true) => `analytics/v1/merchant/${domain}/info`
           | (#Profile, true) => `analytics/v1/profile/${domain}/info`
-          | _ => `analytics/v1/merchant/${domain}/info`
+          | (_, true) => `analytics/v1/merchant/${domain}/info`
+          // This Need to removed when userManagementRevamp feature flag is removed
+          | _ => `analytics/v1/${domain}/info`
           }
 
         | _ => ""
@@ -281,7 +285,9 @@ let useGetURL = () => {
           | (#Organization, true) => `analytics/v1/org/metrics/${domain}`
           | (#Merchant, true) => `analytics/v1/merchant/metrics/${domain}`
           | (#Profile, true) => `analytics/v1/profile/metrics/${domain}`
-          | _ => `analytics/v1/merchant/metrics/${domain}`
+          | (_, true) => `analytics/v1/merchant/metrics/${domain}`
+          // This Need to removed when userManagementRevamp feature flag is removed
+          | _ => `analytics/v1/metrics/${domain}`
           }
 
         | _ => ""
@@ -297,7 +303,9 @@ let useGetURL = () => {
           | (#Organization, true) => `analytics/v1/org/filters/${domain}`
           | (#Merchant, true) => `analytics/v1/merchant/filters/${domain}`
           | (#Profile, true) => `analytics/v1/profile/filters/${domain}`
-          | _ => `analytics/v1/merchant/filters/${domain}`
+          | (_, true) => `analytics/v1/merchant/filters/${domain}`
+          // This Need to removed when userManagementRevamp feature flag is removed
+          | _ => `analytics/v1/filters/${domain}`
           }
 
         | _ => ""
@@ -309,7 +317,13 @@ let useGetURL = () => {
       switch methodType {
       | Get =>
         switch queryParamerters {
-        | Some(params) => `analytics/v1/profile/api_event_logs?${params}`
+        | Some(params) =>
+          switch userManagementRevamp {
+          | true => `analytics/v1/profile/api_event_logs?${params}`
+          // This Need to removed when userManagementRevamp feature flag is removed
+          | false => `analytics/v1/api_event_logs?${params}`
+          }
+
         | None => ``
         }
       | _ => ""
@@ -319,7 +333,7 @@ let useGetURL = () => {
     | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
     | PAYOUT_ROUTING =>
       switch methodType {
-      | Get | Put =>
+      | Get =>
         switch id {
         | Some(routingId) => `routing/${routingId}`
         | _ =>
@@ -327,6 +341,12 @@ let useGetURL = () => {
           | (#Merchant, true) | (#Profile, true) => `routing/payouts/list/profile`
           | _ => `routing/payouts`
           }
+        }
+
+      | Put =>
+        switch id {
+        | Some(routingId) => `routing/${routingId}`
+        | _ => `routing/payouts`
         }
       | Post =>
         switch id {
@@ -352,7 +372,9 @@ let useGetURL = () => {
       | (#Organization, true) => `analytics/v1/org/report/payments`
       | (#Merchant, true) => `analytics/v1/merchant/report/payments`
       | (#Profile, true) => `analytics/v1/profile/report/payments`
-      | _ => `analytics/v1/merchant/report/payments`
+      | (_, true) => `analytics/v1/merchant/report/payments`
+      // This Need to removed when userManagementRevamp feature flag is removed
+      | _ => `analytics/v1/report/payments`
       }
 
     | REFUND_REPORT =>
@@ -360,7 +382,9 @@ let useGetURL = () => {
       | (#Organization, true) => `analytics/v1/org/report/refunds`
       | (#Merchant, true) => `analytics/v1/merchant/report/refunds`
       | (#Profile, true) => `analytics/v1/profile/report/refunds`
-      | _ => `analytics/v1/prmerchantofile/report/refunds`
+      | (_, true) => `analytics/v1/merchant/report/refunds`
+      // This Need to removed when userManagementRevamp feature flag is removed
+      | _ => `analytics/v1/report/refunds`
       }
 
     | DISPUTE_REPORT =>
@@ -368,17 +392,30 @@ let useGetURL = () => {
       | (#Organization, true) => `analytics/v1/org/report/dispute`
       | (#Merchant, true) => `analytics/v1/merchant/report/dispute`
       | (#Profile, true) => `analytics/v1/profile/report/dispute`
-      | _ => `analytics/v1/profile/report/dispute`
+      | (_, true) => `analytics/v1/merchant/report/dispute`
+      // This Need to removed when userManagementRevamp feature flag is removed
+      | _ => `analytics/v1/report/dispute`
       }
 
     /* EVENT LOGS */
-    | SDK_EVENT_LOGS => `analytics/v1/profile/sdk_event_logs`
+    | SDK_EVENT_LOGS =>
+      switch userManagementRevamp {
+      | true => `analytics/v1/profile/sdk_event_logs`
+      // This Need to removed when userManagementRevamp feature flag is removed
+      | false => `analytics/v1/sdk_event_logs`
+      }
+
     | WEBHOOKS_EVENT_LOGS =>
       switch methodType {
       | Get =>
         switch queryParamerters {
-        | Some(params) => `analytics/v1/profile/outgoing_webhook_event_logs?${params}`
-        | None => ``
+        | Some(params) =>
+          switch userManagementRevamp {
+          | true => `analytics/v1/profile/outgoing_webhook_event_logs?${params}`
+          // This Need to removed when userManagementRevamp feature flag is removed
+          | false => `analytics/v1/outgoing_webhook_event_logs?${params}`
+          }
+        | None => `analytics/v1/outgoing_webhook_event_logs`
         }
       | _ => ""
       }
@@ -386,8 +423,14 @@ let useGetURL = () => {
       switch methodType {
       | Get =>
         switch queryParamerters {
-        | Some(params) => `analytics/v1/profile/connector_event_logs?${params}`
-        | None => ``
+        | Some(params) =>
+          switch userManagementRevamp {
+          | true => `analytics/v1/profile/connector_event_logs?${params}`
+          // This Need to removed when userManagementRevamp feature flag is removed
+          | false => `analytics/v1/connector_event_logs?${params}`
+          }
+
+        | None => `analytics/v1/connector_event_logs`
         }
       | _ => ""
       }
