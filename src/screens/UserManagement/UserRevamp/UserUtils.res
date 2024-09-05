@@ -135,10 +135,7 @@ let itemToObjMapper: Dict.t<JSON.t> => UserManagementTypes.userDetailstype = dic
   }
 }
 
-let valueToType: JSON.t => array<UserManagementTypes.userDetailstype> = json => {
-  open LogicUtils
-  json->getArrayDataFromJson(itemToObjMapper)
-}
+let valueToType = json => json->LogicUtils.getArrayDataFromJson(itemToObjMapper)
 
 let groupByMerchants: array<UserManagementTypes.userDetailstype> => Dict.t<
   array<UserManagementTypes.userDetailstype>,
