@@ -5,8 +5,7 @@ module ListBaseCompForProfile = {
       <div
         className="flex items-center justify-end text-sm text-center text-black font-medium rounded hover:bg-opacity-80 bg-white w-fit">
         <div className="flex flex-col items-start px-2 py-2">
-          // use currProfile instead of hardcoded value
-          <p className="fs-10 text-nowrap"> {"profile_id"->React.string} </p>
+          <p className="fs-10 text-nowrap"> {{currProfile}->React.string} </p>
         </div>
         <div className="px-2 py-2">
           <Icon
