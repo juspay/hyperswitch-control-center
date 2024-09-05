@@ -37,11 +37,6 @@ let make = () => {
     }
   }
 
-  let currOrgName = switch orgList->Array.find(org => org.id == orgId) {
-  | Some(org) => org.name
-  | None => ""
-  }
-
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),
@@ -72,7 +67,9 @@ let make = () => {
       customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
-      baseComponent={<OMPSwitchHelper.ListBaseComp heading="Org" subHeading=currOrgName arrow />}
+      baseComponent={<OMPSwitchHelper.ListBaseComp
+        heading="Org" subHeading={currentOMPName(orgList, orgId)} arrow
+      />}
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"

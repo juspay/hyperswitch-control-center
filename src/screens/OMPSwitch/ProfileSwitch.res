@@ -171,11 +171,6 @@ let make = () => {
     }
   }
 
-  let currProfileName = switch profileList->Array.find(profile => profile.id == profileId) {
-  | Some(profile) => profile.name
-  | None => ""
-  }
-
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),
@@ -208,7 +203,9 @@ let make = () => {
       hideMultiSelectButtons=true
       addButton=false
       searchable=false
-      baseComponent={<ListBaseCompForProfile currProfile=currProfileName arrow />}
+      baseComponent={<ListBaseCompForProfile
+        currProfile={currentOMPName(profileList, profileId)} arrow
+      />}
       baseComponentCustomStyle="bg-white"
       bottomComponent={<OMPSwitchHelper.AddNewMerchantProfileButton
         user="profile" setShowModal customPadding customStyle

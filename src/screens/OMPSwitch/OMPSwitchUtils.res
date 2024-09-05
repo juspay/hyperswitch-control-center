@@ -6,6 +6,13 @@ let ompDefaultValue = (currUserId, currUserName) => [
   },
 ]
 
+let currentOMPName = (list: array<ompListTypes>, id: string) => {
+  switch list->Array.find(user => user.id == id) {
+  | Some(user) => user.name
+  | None => id
+  }
+}
+
 let orgItemToObjMapper = dict => {
   open LogicUtils
   {

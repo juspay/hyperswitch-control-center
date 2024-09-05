@@ -1612,7 +1612,7 @@ module BaseDropdown = {
     })
 
     React.useEffect(() => {
-      let _ = switch toggleChevronState {
+      switch toggleChevronState {
       | Some(fn) => fn()
       | None => ()
       }

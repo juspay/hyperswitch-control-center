@@ -117,11 +117,6 @@ let make = () => {
     }
   }
 
-  let currMerchantName = switch merchantList->Array.find(merchant => merchant.id == merchantId) {
-  | Some(merchant) => merchant.name
-  | None => ""
-  }
-
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ => (),
@@ -161,7 +156,9 @@ let make = () => {
       customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
-      baseComponent={<ListBaseComp heading="Merchant" subHeading=currMerchantName arrow />}
+      baseComponent={<ListBaseComp
+        heading="Merchant" subHeading={currentOMPName(merchantList, merchantId)} arrow
+      />}
       baseComponentCustomStyle="bg-popover-background border-blue-820 rounded text-white"
       bottomComponent={<AddNewMerchantProfileButton
         user="merchant" setShowModal customPadding customStyle customHRTagStyle
