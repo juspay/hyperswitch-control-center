@@ -72,7 +72,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     userManagementRevamp: dict->getBool("user_management_revamp", false),
     pmAuthenticationProcessor: dict->getBool("pm_authentication_processor", false),
     performanceMonitor: dict->getBool("performance_monitor", false),
-    newAnalytics: ict->getBool("new_analytics", false),
+    newAnalytics: dict->getBool("new_analytics", false),
   }
   typedFeatureFlag
 }
