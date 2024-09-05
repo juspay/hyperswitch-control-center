@@ -10,3 +10,15 @@ type preLoginTypes =
   | RESET_PASSWORD
   | USER_INFO
   | ERROR
+
+type invitationResponseType = {
+  entityId: string,
+  entityType: UserInfoTypes.entity,
+  entityName: string,
+  roleId: string,
+}
+
+type acceptInviteRequest = {
+  entity_id: string,
+  entity_type: string,
+}
