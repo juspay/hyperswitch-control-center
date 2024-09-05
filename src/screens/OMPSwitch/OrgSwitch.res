@@ -58,7 +58,7 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
-  <div className="border border-blue-820 rounded mx-2 ">
+  <div className="border border-blue-820 rounded w-full">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
@@ -76,7 +76,8 @@ let make = () => {
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"
-      customDropdownOuterClass="!border-none"
+      customDropdownOuterClass="!border-none !w-full"
+      fullLength=true
       toggleChevronState
     />
   </div>
