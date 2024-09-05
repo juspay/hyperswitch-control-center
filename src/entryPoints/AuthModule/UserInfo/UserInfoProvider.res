@@ -27,12 +27,16 @@ let make = (~children) => {
     setUserInfo(_ => userData)
   }
 
+  let getUserInfoData = () => {
+    userInfo
+  }
+
   React.useEffect(() => {
     getUserInfo()->ignore
     None
   }, [])
 
-  <Provider value={userInfo, setUserInfoData}>
+  <Provider value={userInfo, setUserInfoData, getUserInfoData}>
     <RenderIf condition={screenState === Success}> children </RenderIf>
     <RenderIf condition={screenState === Error}>
       <NoDataFound message="Something went wrong" renderType=Painting />

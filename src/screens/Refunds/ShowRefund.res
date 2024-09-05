@@ -94,7 +94,7 @@ let make = (~id, ~profileId) => {
   let fetchRefundData = async () => {
     try {
       let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id))
-      let _ = await internalSwitch(~expectedProfileId=Some(profileId))
+      let _ = await internalSwitch(~expectedProfileId=profileId)
       let refundData = await fetchDetails(refundUrl)
       let paymentId =
         refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")

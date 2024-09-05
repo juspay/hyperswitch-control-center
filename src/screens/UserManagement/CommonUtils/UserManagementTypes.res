@@ -56,3 +56,5 @@ type parentGroupType =
 
 @unboxed
 type groupPermissionType = View | Manage
+
+type allSelectionType = [#All_Merchants | #All_Profiles]

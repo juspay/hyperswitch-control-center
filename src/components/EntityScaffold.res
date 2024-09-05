@@ -13,7 +13,8 @@ let make = (
   } else {
     switch remainingPath {
     | list{"new"} => renderNewForm()
-    | list{id, key} => renderShow(id, key)
+    | list{id} => renderShow(id, None)
+    | list{id, key} => renderShow(id, Some(key))
     | list{} => renderList()
     | _ => <NotFoundPage />
     }
