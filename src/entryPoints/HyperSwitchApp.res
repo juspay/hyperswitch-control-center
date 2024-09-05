@@ -26,7 +26,7 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let {userInfo: {orgId, merchantId, profileId, userEntity}} = React.useContext(
+  let {userInfo: {orgId, merchantId, profileId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
@@ -214,10 +214,15 @@ let make = () => {
                         | list{"disputes", ..._}
                         | list{"payouts", ..._} =>
                           <TransactionContainer />
+                        | list{"analytics-payments"}
+                        | list{"performance-monitor"}
+                        | list{"analytics-refunds"}
+                        | list{"analytics-disputes"} =>
+                          <AnalyticsContainser />
                         | list{"customers", ...remainingPath} =>
                           <AccessControl
                             permission={userPermissionJson.operationsView}
-                            isEnabled={userEntity !== #Profile}>
+                            isEnabled={[#Organization, #Merchant]->checkUserEntity}>
                             <EntityScaffold
                               entityName="Customers"
                               remainingPath
@@ -245,37 +250,10 @@ let make = () => {
                           </AccessControl>
 
                         | list{"users-revamp", ..._} => <UserManagementContainer />
-                        | list{"analytics-payments"} =>
-                          <AccessControl permission=userPermissionJson.analyticsView>
-                            <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
-                              <PaymentAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"performance-monitor"} =>
-                          <AccessControl
-                            permission=userPermissionJson.analyticsView
-                            isEnabled={featureFlagDetails.performanceMonitor}>
-                            <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
-                              <PerformanceMonitor domain="payments" />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"analytics-refunds"} =>
-                          <AccessControl permission=userPermissionJson.analyticsView>
-                            <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
-                              <RefundsAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"analytics-disputes"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.disputeAnalytics}
-                            permission=userPermissionJson.analyticsView>
-                            <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
-                              <DisputeAnalytics />
-                            </FilterContext>
-                          </AccessControl>
                         | list{"analytics-user-journey"} =>
                           <AccessControl
-                            isEnabled=featureFlagDetails.userJourneyAnalytics
+                            isEnabled={featureFlagDetails.userJourneyAnalytics &&
+                            [#Organization, #Merchant]->checkUserEntity}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                               <UserJourneyAnalytics />
@@ -291,7 +269,8 @@ let make = () => {
                           </AccessControl>
                         | list{"analytics-authentication"} =>
                           <AccessControl
-                            isEnabled=featureFlagDetails.authenticationAnalytics
+                            isEnabled={featureFlagDetails.authenticationAnalytics &&
+                            [#Organization, #Merchant]->checkUserEntity}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext
                               key="AuthenticationAnalytics" index="AuthenticationAnalytics">

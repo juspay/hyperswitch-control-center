@@ -42,3 +42,13 @@ let divider =
     <p className=" text-gray-400"> {"OR"->React.string} </p>
     <hr className="w-full" />
   </div>
+
+let itemToObjectMapper = dict => {
+  open LogicUtils
+  {
+    entityId: dict->getString("entity_id", ""),
+    entityType: dict->getString("entity_type", "")->UserInfoUtils.entityMapper,
+    entityName: dict->getString("entity_name", ""),
+    roleId: dict->getString("role_id", ""),
+  }
+}

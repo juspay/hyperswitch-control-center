@@ -97,7 +97,6 @@ let make = () => {
       endTimeFilterKey={endTimeFilterKey}
       initialFilters={initialFilterFields}
       initialFixedFilters={initialFixedFilterFields}
-      generateReportType={REFUND_REPORT}
     />
   </PageLoaderWrapper>
 }
