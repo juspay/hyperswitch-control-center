@@ -1,11 +1,12 @@
 type userInfo = {
   getUserInfo: unit => promise<UserInfoTypes.userInfo>,
-  updateTransactionEntity: unit => unit,
+  updateTransactionEntity: UserInfoTypes.entity => unit,
+  updateAnalytcisEntity: UserInfoTypes.entity => unit,
 }
 let useUserInfo = () => {
   open LogicUtils
   let fetchApi = AuthHooks.useApiFetcher()
-  let {setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {setUserInfoData, userInfo} = React.useContext(UserInfoProvider.defaultContext)
   let url = `${Window.env.apiBaseUrl}/user`
 
   let getUserInfo = async () => {
@@ -22,10 +23,21 @@ let useUserInfo = () => {
       }
     }
   }
-  let updateTransactionEntity = () => {
-    Js.log("")
+  let updateTransactionEntity = (transactionEntity: UserInfoTypes.entity) => {
+    let updateInfo = {
+      ...userInfo,
+      transactionEntity,
+    }
+    setUserInfoData(updateInfo)
   }
-  {getUserInfo, updateTransactionEntity}
+  let updateAnalytcisEntity = (analyticsEntity: UserInfoTypes.entity) => {
+    let updateInfo = {
+      ...userInfo,
+      analyticsEntity,
+    }
+    setUserInfoData(updateInfo)
+  }
+  {getUserInfo, updateTransactionEntity, updateAnalytcisEntity}
 }
 
 let useOrgSwitch = () => {

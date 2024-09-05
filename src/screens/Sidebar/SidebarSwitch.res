@@ -14,7 +14,7 @@ module OrgMerchantSwitchCollapsed = {
 @react.component
 let make = (~isSidebarExpanded=false) => {
   let expandedContent =
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 mx-2">
       <OrgSwitch />
       <div className="flex">
         <div

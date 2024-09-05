@@ -43,6 +43,22 @@ type userModuleType = {
   groups: array<string>,
 }
 
+type orgObjectType = {
+  name: string,
+  value: string,
+  id: option<string>,
+}
+
+type userDetailstype = {
+  roleId: string,
+  roleName: string,
+  org: orgObjectType,
+  merchant: orgObjectType,
+  profile: orgObjectType,
+  status: string,
+  entityType: string,
+}
+
 @unboxed
 type parentGroupType =
   | Operations
@@ -56,3 +72,9 @@ type parentGroupType =
 
 @unboxed
 type groupPermissionType = View | Manage
+
+type allSelectionType = [#All_Merchants | #All_Profiles]
+
+type userActionType = SwitchUser | ManageUser | NoActionAccess
+
+type userStatusTypes = Active | InviteSent | None

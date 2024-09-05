@@ -495,7 +495,7 @@ let make = (
   let sidebarClass = "shadow-md"
   let sidebarMaxWidth = isMobileView ? "w-screen" : "w-max"
 
-  let sidebarContainerClassWidth = isMobileView ? "0px" : "270px"
+  let sidebarContainerClassWidth = isMobileView ? "0px" : "275px"
 
   let transformClass = "transform md:translate-x-0 transition"
 
