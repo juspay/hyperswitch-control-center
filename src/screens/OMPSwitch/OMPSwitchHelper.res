@@ -54,8 +54,6 @@ module OMPViews = {
     ~selectedEntity: UserInfoTypes.entity,
     ~onChange,
   ) => {
-    // let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
-
     let cssBasedOnIndex = index => {
       if index == 0 {
         "rounded-l-md"

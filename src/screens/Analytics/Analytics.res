@@ -491,10 +491,8 @@ let make = (
   ~moduleName: string,
   ~weeklyTableMetricsCols=?,
   ~distributionArray=None,
-  ~generateReportType: option<APIUtilsTypes.entityName>=?,
   ~formatData=None,
 ) => {
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
   let {filterValue, updateExistingKeys, filterValueJson} = React.useContext(
     FilterContext.filterContext,
@@ -690,12 +688,6 @@ let make = (
               onChange={updateAnalytcisEntity}
             />
           </RenderIf>
-          // <RenderIf condition={generateReport}>
-          //   {switch generateReportType {
-          //   | Some(entityName) => <GenerateReport entityName />
-          //   | None => React.null
-          //   }}
-          // </RenderIf>
         </div>
         <div className="mt-2 -ml-1"> topFilterUi </div>
         <div>

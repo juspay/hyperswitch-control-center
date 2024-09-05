@@ -15,8 +15,7 @@ let make = () => {
   let (metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])
   let fetchDetails = useGetMethod()
-  let {generateReport, userManagementRevamp} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
   let {userInfo: {analyticsEntity}} = React.useContext(UserInfoProvider.defaultContext)
 
