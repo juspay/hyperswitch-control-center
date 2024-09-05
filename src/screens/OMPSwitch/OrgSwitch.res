@@ -9,6 +9,7 @@ let make = () => {
   let orgSwitch = OMPSwitchHooks.useOrgSwitch()
   let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
+  let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
 
   let getOrgList = async () => {
     try {
@@ -30,7 +31,9 @@ let make = () => {
 
   let orgSwitch = async value => {
     try {
+      setShowSwitchingOrg(_ => true)
       let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
+      setShowSwitchingOrg(_ => false)
     } catch {
     | _ => showToast(~message="Failed to switch organisation", ~toastType=ToastError)
     }
@@ -67,6 +70,11 @@ let make = () => {
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"
       customDropdownOuterClass="!border-none"
+    />
+    <LoaderModal
+      showModal={showSwitchingOrg}
+      setShowModal={setShowSwitchingOrg}
+      text="Switching organisation..."
     />
   </div>
 }

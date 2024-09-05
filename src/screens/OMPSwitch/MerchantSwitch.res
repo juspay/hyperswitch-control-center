@@ -94,6 +94,7 @@ let make = () => {
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
+  let (showSwitchingMerch, setShowSwitchingMerch) = React.useState(_ => false)
 
   let getMerchantList = async () => {
     try {
@@ -110,7 +111,9 @@ let make = () => {
 
   let switchMerch = async value => {
     try {
+      setShowSwitchingMerch(_ => true)
       let _ = await merchSwitch(~expectedMerchantId=value, ~currentMerchantId=merchantId)
+      setShowSwitchingMerch(_ => false)
     } catch {
     | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
     }
@@ -164,5 +167,10 @@ let make = () => {
     <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getMerchantList />
     </RenderIf>
+    <LoaderModal
+      showModal={showSwitchingMerch}
+      setShowModal={setShowSwitchingMerch}
+      text="Switching merchant..."
+    />
   </div>
 }

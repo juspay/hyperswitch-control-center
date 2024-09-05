@@ -146,6 +146,7 @@ let make = () => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
+  let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
 
   let getProfileList = async () => {
     try {
@@ -212,5 +213,10 @@ let make = () => {
     <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getProfileList />
     </RenderIf>
+    <LoaderModal
+      showModal={showSwitchingProfile}
+      setShowModal={setShowSwitchingProfile}
+      text="Switching profile..."
+    />
   </div>
 }
