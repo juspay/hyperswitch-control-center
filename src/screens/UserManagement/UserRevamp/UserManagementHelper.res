@@ -185,17 +185,18 @@ let inviteEmail = FormRenderer.makeFieldInfo(
 module SwitchMerchantForUserAction = {
   @react.component
   let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
+    let showToast = ToastState.useShowToast()
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
 
     let onSwitchForUserAction = async () => {
       try {
         let _ = await internalSwitch(
-          ~expectedOrgId=userInfoValue.org.actualId,
-          ~expectedMerchantId=userInfoValue.merchant.actualId,
-          ~expectedProfileId=userInfoValue.profile.actualId,
+          ~expectedOrgId=userInfoValue.org.id,
+          ~expectedMerchantId=userInfoValue.merchant.id,
+          ~expectedProfileId=userInfoValue.profile.id,
         )
       } catch {
-      | _ => ()
+      | _ => showToast(~message="Failed to perform operation!", ~toastType=ToastError)
       }
     }
 

@@ -45,8 +45,8 @@ type userModuleType = {
 
 type orgObjectType = {
   name: string,
-  id: string,
-  actualId: option<string>,
+  value: string,
+  id: option<string>,
 }
 
 type userDetailstype = {

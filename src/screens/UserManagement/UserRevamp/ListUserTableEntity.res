@@ -65,7 +65,7 @@ let customCellForRoles = listOfRoles => {
 
     <div className="flex gap-1 items-center">
       <Icon size=18 name="person" />
-      {firstRole.role_name->String.replace("_", " ")->LogicUtils.capitalizeString->React.string}
+      {firstRole.role_id->LogicUtils.snakeToTitle->LogicUtils.capitalizeString->React.string}
     </div>
   }
 }

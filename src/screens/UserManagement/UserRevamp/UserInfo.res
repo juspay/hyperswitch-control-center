@@ -28,16 +28,16 @@ module UserAction = {
         NoActionAccess
       } else if (
         // Profile level user
-        value.org.actualId->Option.getOr("") === orgId &&
-        value.merchant.actualId->Option.getOr("") === merchantId &&
-        value.profile.actualId->Option.getOr("") === profileId
+        value.org.id->Option.getOr("") === orgId &&
+        value.merchant.id->Option.getOr("") === merchantId &&
+        value.profile.id->Option.getOr("") === profileId
       ) {
         ManageUser
       } else if (
         // Merchant level user
-        value.org.actualId->Option.getOr("") === orgId &&
-        value.merchant.actualId->Option.getOr("") === merchantId &&
-        value.profile.actualId->Option.isNone
+        value.org.id->Option.getOr("") === orgId &&
+        value.merchant.id->Option.getOr("") === merchantId &&
+        value.profile.id->Option.isNone
       ) {
         ManageUser
       } else {
@@ -105,17 +105,18 @@ module TableRowForUserDetails = {
 
 module UserAccessInfo = {
   @react.component
-  let make = (~userData: Dict.t<array<UserManagementTypes.userDetailstype>>) => {
+  let make = (~userData: array<UserManagementTypes.userDetailstype>) => {
     let tableHeaderCss = "table-cell text-left py-2 px-4 text-sm font-normal text-gray-400"
+    let groupByMerchantData = userData->UserUtils.groupByMerchants
 
     let getObjectForThekey = key =>
-      switch userData->Dict.get(key) {
+      switch groupByMerchantData->Dict.get(key) {
       | Some(value) => value
       | None => []
       }
 
     let noOfElementsInParent =
-      userData
+      groupByMerchantData
       ->Dict.keysToArray
       ->Array.length
 
@@ -130,7 +131,7 @@ module UserAccessInfo = {
         </tr>
       </thead>
       <tbody>
-        {userData
+        {groupByMerchantData
         ->Dict.keysToArray
         ->Array.mapWithIndex((items, parentIndex) => {
           <TableRowForUserDetails
@@ -148,7 +149,7 @@ module UserAccessInfo = {
 
 module UserDetails = {
   @react.component
-  let make = (~userData: Dict.t<array<UserManagementTypes.userDetailstype>>) => {
+  let make = (~userData: array<UserManagementTypes.userDetailstype>) => {
     open LogicUtils
     let url = RescriptReactRouter.useUrl()
     let userEmail =
@@ -176,6 +177,7 @@ module UserDetails = {
 let make = () => {
   open APIUtils
   open LogicUtils
+  open UserUtils
   let getURL = useGetURL()
   let updateMethod = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
@@ -185,7 +187,7 @@ let make = () => {
     ->Dict.get("email")
     ->Option.getOr("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (userData, setUserData) = React.useState(_ => Dict.make())
+  let (userData, setUserData) = React.useState(_ => JSON.Encode.null->valueToType)
 
   let userDetailsFetch = async () => {
     try {
@@ -193,9 +195,7 @@ let make = () => {
       let url = getURL(~entityName=USERS, ~userType=#USER_DETAILS, ~methodType=Post)
       let body = [("email", userEmail->JSON.Encode.string)]->getJsonFromArrayOfJson
       let response = await updateMethod(url, body, Post)
-      let typedValue = response->UserUtils.valueToType
-
-      setUserData(_ => typedValue->UserUtils.groupByMerchants)
+      setUserData(_ => response->valueToType)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch user details!"))

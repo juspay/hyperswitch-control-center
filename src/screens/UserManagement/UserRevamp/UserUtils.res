@@ -112,13 +112,13 @@ let getNameAndIdFromDict: (Dict.t<JSON.t>, string) => UserManagementTypes.orgObj
   dict->isEmptyDict
     ? {
         name: default,
-        id: default,
-        actualId: None,
+        value: default,
+        id: None,
       }
     : {
         name: dict->getString("name", ""),
-        id: dict->getString("id", ""),
-        actualId: dict->getOptionString("id"),
+        value: dict->getString("id", ""),
+        id: dict->getOptionString("id"),
       }
 }
 
@@ -146,9 +146,9 @@ let groupByMerchants: array<UserManagementTypes.userDetailstype> => Dict.t<
   let dict = Dict.make()
 
   typedValue->Array.forEach(item => {
-    switch dict->Dict.get(item.merchant.id) {
-    | Some(value) => dict->Dict.set(item.merchant.id, [item, ...value])
-    | None => dict->Dict.set(item.merchant.id, [item])
+    switch dict->Dict.get(item.merchant.value) {
+    | Some(value) => dict->Dict.set(item.merchant.value, [item, ...value])
+    | None => dict->Dict.set(item.merchant.value, [item])
     }
   })
 
