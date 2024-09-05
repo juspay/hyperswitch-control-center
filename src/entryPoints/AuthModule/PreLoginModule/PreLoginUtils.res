@@ -52,4 +52,3 @@ let itemToObjectMapper = dict => {
     roleId: dict->getString("role_id", ""),
   }
 }
-
