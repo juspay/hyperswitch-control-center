@@ -3,7 +3,11 @@ let make = (~paymentId, ~createdAt) => {
   open LogTypes
   open APIUtils
   let getURL = useGetURL()
-  let apiLogsUrl = getURL(~entityName=PAYMENT_LOGS, ~methodType=Get, ~id=Some(paymentId))
+  let apiLogsUrl = getURL(
+    ~entityName=API_EVENT_LOGS,
+    ~methodType=Get,
+    ~queryParamerters=Some(`type=Payment&payment_id=${paymentId}`),
+  )
   let sdkLogsUrl = getURL(~entityName=SDK_EVENT_LOGS, ~methodType=Post, ~id=Some(paymentId))
   let startTime = createdAt->Date.fromString->Date.getTime -. 1000. *. 60. *. 5.
   let startTime = startTime->Js.Date.fromFloat->Date.toISOString
@@ -18,11 +22,15 @@ let make = (~paymentId, ~createdAt) => {
       ->JSON.Encode.object,
     ),
   ]->LogicUtils.getJsonFromArrayOfJson
-  let webhookLogsUrl = getURL(~entityName=WEBHOOKS_EVENT_LOGS, ~methodType=Get, ~id=Some(paymentId))
+  let webhookLogsUrl = getURL(
+    ~entityName=WEBHOOKS_EVENT_LOGS,
+    ~methodType=Get,
+    ~queryParamerters=Some(`payment_id=${paymentId}`),
+  )
   let connectorLogsUrl = getURL(
     ~entityName=CONNECTOR_EVENT_LOGS,
     ~methodType=Get,
-    ~id=Some(paymentId),
+    ~queryParamerters=Some(`type=Payment&payment_id=${paymentId}`),
   )
 
   let urls = [
