@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.05.1
+
+### Miscellaneous Tasks
+
+- Disable customers for profile level users ([#1304](https://github.com/juspay/hyperswitch-control-center/pull/1304)) ([`d5c72ef`](https://github.com/juspay/hyperswitch-control-center/commit/d5c72ef3ab0fcc9c933dbc940e911cd2a0cbbfa3))
+
+**Full Changelog:** [`2024.09.05.0...2024.09.05.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.05.0...2024.09.05.1)
+
+- - -
+
 ## 2024.09.05.0
 
 ### Features
