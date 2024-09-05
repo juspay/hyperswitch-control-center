@@ -54,7 +54,10 @@ let useGetURL = () => {
         | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
         | None =>
           switch (userEntity, userManagementRevamp) {
-          | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile/connectors`
+          | (#Organization, true)
+          | (#Merchant, true)
+          | (#Profile, true) =>
+            `account/${merchantId}/profile/connectors`
           | _ => connectorBaseURL
           }
         }
@@ -221,7 +224,9 @@ let useGetURL = () => {
         | Some(routingId) => `routing/${routingId}`
         | None =>
           switch (userEntity, userManagementRevamp) {
-          | (#Merchant, true) | (#Profile, true) => `routing/list/profile`
+          | (#Organization, true)
+          | (#Merchant, true)
+          | (#Profile, true) => `routing/list/profile`
           | _ => `routing`
           }
         }
@@ -338,7 +343,9 @@ let useGetURL = () => {
         | Some(routingId) => `routing/${routingId}`
         | _ =>
           switch (userEntity, userManagementRevamp) {
-          | (#Merchant, true) | (#Profile, true) => `routing/payouts/list/profile`
+          | (#Organization, true)
+          | (#Merchant, true)
+          | (#Profile, true) => `routing/payouts/list/profile`
           | _ => `routing/payouts`
           }
         }
@@ -456,7 +463,10 @@ let useGetURL = () => {
       switch methodType {
       | Get =>
         switch (userEntity, userManagementRevamp) {
-        | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile`
+        | (#Organization, true)
+        | (#Merchant, true)
+        | (#Profile, true) =>
+          `account/${merchantId}/profile`
         | _ => `account/${merchantId}/business_profile`
         }
       | Post =>

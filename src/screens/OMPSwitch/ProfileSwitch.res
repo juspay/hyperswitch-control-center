@@ -143,6 +143,7 @@ let make = () => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
+  let (showSwitchingProfile, setShowSwitchingProfile) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
 
   let getProfileList = async () => {
@@ -163,9 +164,14 @@ let make = () => {
 
   let profileSwitch = async value => {
     try {
+      setShowSwitchingProfile(_ => true)
       let _ = await profileSwitch(~expectedProfileId=value, ~currentProfileId=profileId)
+      setShowSwitchingProfile(_ => false)
     } catch {
-    | _ => showToast(~message="Failed to switch profile", ~toastType=ToastError)
+    | _ => {
+        showToast(~message="Failed to switch profile", ~toastType=ToastError)
+        setShowSwitchingProfile(_ => false)
+      }
     }
   }
 
@@ -217,5 +223,10 @@ let make = () => {
     <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getProfileList />
     </RenderIf>
+    <LoaderModal
+      showModal={showSwitchingProfile}
+      setShowModal={setShowSwitchingProfile}
+      text="Switching profile..."
+    />
   </div>
 }
