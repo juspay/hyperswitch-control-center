@@ -561,7 +561,7 @@ let make = (
       ()
     }
   }
-  let sidebarContainerClassWidth = isMobileView ? "0px" : isHSSidebarPinned ? "270px" : "50px"
+  let sidebarContainerClassWidth = isMobileView ? "0px" : isHSSidebarPinned ? "275px" : "50px"
 
   let transformClass = "transform md:translate-x-0 transition"
 
