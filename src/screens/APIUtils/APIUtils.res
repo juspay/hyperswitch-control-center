@@ -245,7 +245,7 @@ let useGetURL = () => {
           | (#Merchant, true) => `analytics/v2/merchant/metrics/${domain}`
           | (#Profile, true) => `analytics/v2/profile/metrics/${domain}`
           | (_, true) => `analytics/v2/merchant/metrics/${domain}`
-          // This Need to remove when userManagementRevamp feature flag is remove
+          // This Need to removed when userManagementRevamp feature flag is removed
           | _ => `analytics/v2/metrics/${domain}`
           }
 
@@ -401,6 +401,7 @@ let useGetURL = () => {
     | SDK_EVENT_LOGS =>
       switch userManagementRevamp {
       | true => `analytics/v1/profile/sdk_event_logs`
+      // This Need to removed when userManagementRevamp feature flag is removed
       | false => `analytics/v1/sdk_event_logs`
       }
 
@@ -411,9 +412,9 @@ let useGetURL = () => {
         | Some(params) =>
           switch userManagementRevamp {
           | true => `analytics/v1/profile/outgoing_webhook_event_logs?${params}`
+          // This Need to removed when userManagementRevamp feature flag is removed
           | false => `analytics/v1/outgoing_webhook_event_logs?${params}`
           }
-
         | None => `analytics/v1/outgoing_webhook_event_logs`
         }
       | _ => ""
@@ -425,6 +426,7 @@ let useGetURL = () => {
         | Some(params) =>
           switch userManagementRevamp {
           | true => `analytics/v1/profile/connector_event_logs?${params}`
+          // This Need to removed when userManagementRevamp feature flag is removed
           | false => `analytics/v1/connector_event_logs?${params}`
           }
 
