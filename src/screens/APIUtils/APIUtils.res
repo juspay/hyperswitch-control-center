@@ -486,6 +486,9 @@ let useGetURL = () => {
         | None => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
         }
 
+      // ACCEPT INVITE PRE_LOGIN
+      | #ACCEPT_INVITATION_PRE_LOGIN => `${userUrl}/user/invite/accept/v2/pre_auth`
+
       // SWITCH & CREATE MERCHANT
       | #SWITCH_MERCHANT =>
         switch methodType {
@@ -551,7 +554,7 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/role/list/invite?${params}`
         | None => ""
         }
-
+      | #LIST_INVITATION => `${userUrl}/list/invitation`
       | #NONE => ""
       }
 
