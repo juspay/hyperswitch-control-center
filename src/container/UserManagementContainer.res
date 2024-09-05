@@ -41,7 +41,7 @@ let make = () => {
       fetchModuleList()->ignore
     }
     None
-  }, [userPermissionJson])
+  }, [])
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
