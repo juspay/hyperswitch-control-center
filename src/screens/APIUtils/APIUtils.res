@@ -124,8 +124,7 @@ let useGetURL = () => {
         | Some(queryParams) => `payments/aggregate?${queryParams}`
         | None => `payments/aggregate`
         }
-      | Post => `payments/aggregate`
-      | _ => ""
+      | _ => `payments/aggregate`
       }
     | REFUNDS =>
       switch methodType {
