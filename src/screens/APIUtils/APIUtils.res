@@ -241,7 +241,7 @@ let useGetURL = () => {
         switch id {
         | Some(domain) =>
           switch (analyticsEntity, userManagementRevamp) {
-          | (#Organization, true) => `analytics/v2/org/metrics/${domain}`
+          | (#Organisation, true) => `analytics/v2/org/metrics/${domain}`
           | (#Merchant, true) => `analytics/v2/merchant/metrics/${domain}`
           | (#Profile, true) => `analytics/v2/profile/metrics/${domain}`
           | (_, true) => `analytics/v2/merchant/metrics/${domain}`
@@ -268,7 +268,7 @@ let useGetURL = () => {
         // Need to write seperate enum for info api
         | Some(domain) =>
           switch (analyticsEntity, userManagementRevamp) {
-          | (#Organization, true) => `analytics/v1/org/${domain}/info`
+          | (#Organisation, true) => `analytics/v1/org/${domain}/info`
           | (#Merchant, true) => `analytics/v1/merchant/${domain}/info`
           | (#Profile, true) => `analytics/v1/profile/${domain}/info`
           | (_, true) => `analytics/v1/merchant/${domain}/info`
@@ -282,7 +282,7 @@ let useGetURL = () => {
         switch id {
         | Some(domain) =>
           switch (analyticsEntity, userManagementRevamp) {
-          | (#Organization, true) => `analytics/v1/org/metrics/${domain}`
+          | (#Organisation, true) => `analytics/v1/org/metrics/${domain}`
           | (#Merchant, true) => `analytics/v1/merchant/metrics/${domain}`
           | (#Profile, true) => `analytics/v1/profile/metrics/${domain}`
           | (_, true) => `analytics/v1/merchant/metrics/${domain}`
@@ -300,7 +300,7 @@ let useGetURL = () => {
         switch id {
         | Some(domain) =>
           switch (analyticsEntity, userManagementRevamp) {
-          | (#Organization, true) => `analytics/v1/org/filters/${domain}`
+          | (#Organisation, true) => `analytics/v1/org/filters/${domain}`
           | (#Merchant, true) => `analytics/v1/merchant/filters/${domain}`
           | (#Profile, true) => `analytics/v1/profile/filters/${domain}`
           | (_, true) => `analytics/v1/merchant/filters/${domain}`
@@ -369,7 +369,7 @@ let useGetURL = () => {
     /* REPORTS */
     | PAYMENT_REPORT =>
       switch (transactionEntity, userManagementRevamp) {
-      | (#Organization, true) => `analytics/v1/org/report/payments`
+      | (#Organisation, true) => `analytics/v1/org/report/payments`
       | (#Merchant, true) => `analytics/v1/merchant/report/payments`
       | (#Profile, true) => `analytics/v1/profile/report/payments`
       | (_, true) => `analytics/v1/merchant/report/payments`
@@ -379,7 +379,7 @@ let useGetURL = () => {
 
     | REFUND_REPORT =>
       switch (transactionEntity, userManagementRevamp) {
-      | (#Organization, true) => `analytics/v1/org/report/refunds`
+      | (#Organisation, true) => `analytics/v1/org/report/refunds`
       | (#Merchant, true) => `analytics/v1/merchant/report/refunds`
       | (#Profile, true) => `analytics/v1/profile/report/refunds`
       | (_, true) => `analytics/v1/merchant/report/refunds`
@@ -389,7 +389,7 @@ let useGetURL = () => {
 
     | DISPUTE_REPORT =>
       switch (transactionEntity, userManagementRevamp) {
-      | (#Organization, true) => `analytics/v1/org/report/dispute`
+      | (#Organisation, true) => `analytics/v1/org/report/dispute`
       | (#Merchant, true) => `analytics/v1/merchant/report/dispute`
       | (#Profile, true) => `analytics/v1/profile/report/dispute`
       | (_, true) => `analytics/v1/merchant/report/dispute`

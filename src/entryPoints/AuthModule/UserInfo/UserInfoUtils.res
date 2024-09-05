@@ -18,7 +18,7 @@ let defaultValueOfUserInfo = {
 let entityMapper = entity => {
   switch entity->String.toLowerCase {
   | "internal" => #Internal
-  | "organization" => #Organization
+  | "organization" => #Organisation
   | "merchant" => #Merchant
   | "profile" => #Profile
   | _ => #Merchant

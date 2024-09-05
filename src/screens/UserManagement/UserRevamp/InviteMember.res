@@ -24,7 +24,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
 
     let initialvalue = [("org_value", orgId->JSON.Encode.string)]
 
-    if userEntity == #Organization {
+    if userEntity == #Organisation {
       // TODO : Change this condition when user org level user_invite is enabled
       initialvalue->Array.pushMany([
         ("merchant_value", merchantId->JSON.Encode.string),
