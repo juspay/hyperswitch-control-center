@@ -1,4 +1,4 @@
-type entity = [#Internal | #Organisation | #Merchant | #Profile]
+type entity = [#Internal | #Organization | #Merchant | #Profile]
 type userInfo = {
   email: string,
   isTwoFactorAuthSetup: bool,
