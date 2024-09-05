@@ -46,3 +46,35 @@ module AddNewMerchantProfileButton = {
     </ACLDiv>
   }
 }
+
+module OMPViews = {
+  @react.component
+  let make = (
+    ~views: OMPSwitchTypes.ompViews,
+    ~selectedEntity: UserInfoTypes.entity,
+    ~onChange,
+  ) => {
+    let cssBasedOnIndex = index => {
+      if index == 0 {
+        "rounded-l-md"
+      } else if index == views->Array.length - 1 {
+        "rounded-r-md"
+      } else {
+        ""
+      }
+    }
+
+    <div className="flex h-fit">
+      {views
+      ->Array.mapWithIndex((value, index) => {
+        let selectedStyle = value.entity === selectedEntity ? `bg-blue-200` : ""
+        <div
+          onClick={_ => onChange(value.entity)->ignore}
+          className={`text-sm py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer`}>
+          {value.lable->React.string}
+        </div>
+      })
+      ->React.array}
+    </div>
+  }
+}

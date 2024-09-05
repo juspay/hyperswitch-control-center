@@ -3,6 +3,49 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.05.2
+
+### Features
+
+- Enabled wellsfargo connector ([#1300](https://github.com/juspay/hyperswitch-control-center/pull/1300)) ([`2b45cfa`](https://github.com/juspay/hyperswitch-control-center/commit/2b45cfa968cd6af4e4f5b180d93d37b4ac0faf81))
+- Fiuu connector added ([#1308](https://github.com/juspay/hyperswitch-control-center/pull/1308)) ([`5ac5d5f`](https://github.com/juspay/hyperswitch-control-center/commit/5ac5d5fae3ef885d3c809775f054ed96bb23541c))
+
+### Miscellaneous Tasks
+
+- Analytics org merchant profile level api ([#1302](https://github.com/juspay/hyperswitch-control-center/pull/1302)) ([`70707b4`](https://github.com/juspay/hyperswitch-control-center/commit/70707b45356b7d4297e496cf1c489d6e2f0663be))
+- Show user details page ([#1208](https://github.com/juspay/hyperswitch-control-center/pull/1208)) ([`964812d`](https://github.com/juspay/hyperswitch-control-center/commit/964812dbdae3b5bd999bebf1575a6897e2dd34c6))
+- Org merchant profile level views analytics ([#1303](https://github.com/juspay/hyperswitch-control-center/pull/1303)) ([`93fd685`](https://github.com/juspay/hyperswitch-control-center/commit/93fd685364fe23a604c752dad44706ffed2c5e61))
+- Pending invites screen changes ([#1307](https://github.com/juspay/hyperswitch-control-center/pull/1307)) ([`f4f2779`](https://github.com/juspay/hyperswitch-control-center/commit/f4f2779958ca0ebed7210df351b7981d1df9653c))
+
+**Full Changelog:** [`2024.09.05.1...2024.09.05.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.05.1...2024.09.05.2)
+
+- - -
+
+## 2024.09.05.1
+
+### Miscellaneous Tasks
+
+- Disable customers for profile level users ([#1304](https://github.com/juspay/hyperswitch-control-center/pull/1304)) ([`d5c72ef`](https://github.com/juspay/hyperswitch-control-center/commit/d5c72ef3ab0fcc9c933dbc940e911cd2a0cbbfa3))
+
+**Full Changelog:** [`2024.09.05.0...2024.09.05.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.05.0...2024.09.05.1)
+
+- - -
+
+## 2024.09.05.0
+
+### Features
+
+- Added Fiserv IPG connector ([#1289](https://github.com/juspay/hyperswitch-control-center/pull/1289)) ([`009605e`](https://github.com/juspay/hyperswitch-control-center/commit/009605edaa70469c548f976b768b5bba5279617c))
+
+### Miscellaneous Tasks
+
+- New user invitation page ([#1199](https://github.com/juspay/hyperswitch-control-center/pull/1199)) ([`968478a`](https://github.com/juspay/hyperswitch-control-center/commit/968478abab002a38568d917cafe6fa33a3ef5c3b))
+- Add profile level views in payment page ([#1290](https://github.com/juspay/hyperswitch-control-center/pull/1290)) ([`ff5d897`](https://github.com/juspay/hyperswitch-control-center/commit/ff5d897d8dac67ff5c17eee9e56da5797097c2cb))
+
+**Full Changelog:** [`2024.09.04.1...2024.09.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.04.1...2024.09.05.0)
+
+- - -
+
 ## 2024.09.04.1
 
 ### Bug Fixes

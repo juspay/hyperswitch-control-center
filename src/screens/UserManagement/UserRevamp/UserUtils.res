@@ -104,6 +104,65 @@ let modulesWithUserAccess = (
   (modulesWithAccess, modulesWithoutAccess)
 }
 
+let getNameAndIdFromDict: (Dict.t<JSON.t>, string) => UserManagementTypes.orgObjectType = (
+  dict,
+  default,
+) => {
+  open LogicUtils
+  dict->isEmptyDict
+    ? {
+        name: default,
+        value: default,
+        id: None,
+      }
+    : {
+        name: dict->getString("name", ""),
+        value: dict->getString("id", ""),
+        id: dict->getOptionString("id"),
+      }
+}
+
+let itemToObjMapper: Dict.t<JSON.t> => UserManagementTypes.userDetailstype = dict => {
+  open LogicUtils
+  {
+    roleId: dict->getString("role_id", ""),
+    roleName: dict->getString("role_name", ""),
+    org: dict->getDictfromDict("org")->getNameAndIdFromDict("all_orgs"),
+    merchant: dict->getDictfromDict("merchant")->getNameAndIdFromDict("all_merchants"),
+    profile: dict->getDictfromDict("profile")->getNameAndIdFromDict("all_profiles"),
+    status: dict->getString("status", ""),
+    entityType: dict->getString("entity_type", ""),
+  }
+}
+
+let valueToType = json => json->LogicUtils.getArrayDataFromJson(itemToObjMapper)
+
+let groupByMerchants: array<UserManagementTypes.userDetailstype> => Dict.t<
+  array<UserManagementTypes.userDetailstype>,
+> = typedValue => {
+  let dict = Dict.make()
+
+  typedValue->Array.forEach(item => {
+    switch dict->Dict.get(item.merchant.value) {
+    | Some(value) => dict->Dict.set(item.merchant.value, [item, ...value])
+    | None => dict->Dict.set(item.merchant.value, [item])
+    }
+  })
+
+  dict
+}
+
+let getLabelForStatus = value => {
+  switch value {
+  | "InvitationSent" => (
+      UserManagementTypes.InviteSent,
+      "text-orange-950 bg-orange-950 bg-opacity-20",
+    )
+  | "Active" => (UserManagementTypes.Active, "text-green-700 bg-green-700 bg-opacity-20")
+  | _ => (UserManagementTypes.None, "text-grey-700 opacity-50")
+  }
+}
+
 let stringToVariantMapperForAccess = accessAvailable => {
   open UserManagementTypes
   switch accessAvailable {
@@ -125,3 +184,32 @@ let makeSelectBoxOptions = result => {
     value
   })
 }
+
+let getEntityType = valueDict => {
+  /*
+ INFO: For the values (Organisation , Merchant , Profile) in form 
+
+ (Some(org_id) , all merchants ,  all profiles) --> get roles for organisation
+ (Some(org_id) , Some(merchant_id) ,  all profiles) --> get roles for merchants
+ (Some(org_id) , Some(merchant_id) ,  Some(profile_id)) --> get roles for profiles
+ */
+
+  open LogicUtils
+  let orgValue = valueDict->getOptionString("org_value")
+  let merchantValue = valueDict->getOptionString("merchant_value")
+  let profileValue = valueDict->getOptionString("profile_value")
+
+  switch (orgValue, merchantValue, profileValue) {
+  | (Some(_orgId), Some("all_merchants"), Some("all_profiles")) => "organisation"
+  | (Some(_orgId), Some(_merchnatId), Some("all_profiles")) => "merchant"
+  | (Some(_orgId), Some(_merchnatId), Some(_profileId)) => "profile"
+  | _ => ""
+  }
+}
+
+let stringToVariantForAllSelection = formStringValue =>
+  switch formStringValue {
+  | "all_merchants" => Some(#All_Merchants)
+  | "all_profiles" => Some(#All_Profiles)
+  | _ => None
+  }

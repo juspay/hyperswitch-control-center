@@ -26,7 +26,9 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {orgId, merchantId, profileId}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
@@ -207,58 +209,20 @@ let make = () => {
                         | list{"business-profiles", ..._}
                         | list{"payment-settings", ..._} =>
                           <BusinessProfileContainer />
-
-                        | list{"payments", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
-                            <FilterContext key="payments" index="payments">
-                              <EntityScaffold
-                                entityName="Payments"
-                                remainingPath
-                                access=Access
-                                renderList={() => <Orders />}
-                                renderShow={(id, key) => <ShowOrder id profileId={key} />}
-                              />
-                            </FilterContext>
-                          </AccessControl>
-
-                        | list{"payouts", ...remainingPath} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.payOut}
-                            permission=userPermissionJson.operationsView>
-                            <FilterContext key="payouts" index="payouts">
-                              <EntityScaffold
-                                entityName="Payouts"
-                                remainingPath
-                                access=Access
-                                renderList={() => <PayoutsList />}
-                                renderShow={(id, key) => <ShowPayout id profileId={key} />}
-                              />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"refunds", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
-                            <FilterContext key="refunds" index="refunds">
-                              <EntityScaffold
-                                entityName="Refunds"
-                                remainingPath
-                                access=Access
-                                renderList={() => <Refund />}
-                                renderShow={(id, key) => <ShowRefund id profileId={key} />}
-                              />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"disputes", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
-                            <EntityScaffold
-                              entityName="Disputes"
-                              remainingPath
-                              access=Access
-                              renderList={() => <Disputes />}
-                              renderShow={(id, key) => <ShowDisputes id profileId={key} />}
-                            />
-                          </AccessControl>
+                        | list{"payments", ..._}
+                        | list{"refunds", ..._}
+                        | list{"disputes", ..._}
+                        | list{"payouts", ..._} =>
+                          <TransactionContainer />
+                        | list{"analytics-payments"}
+                        | list{"performance-monitor"}
+                        | list{"analytics-refunds"}
+                        | list{"analytics-disputes"} =>
+                          <AnalyticsContainser />
                         | list{"customers", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
+                          <AccessControl
+                            permission={userPermissionJson.operationsView}
+                            isEnabled={[#Organization, #Merchant]->checkUserEntity}>
                             <EntityScaffold
                               entityName="Customers"
                               remainingPath
@@ -285,48 +249,12 @@ let make = () => {
                             />
                           </AccessControl>
 
-                        | list{"users-revamp", ...remainingPath} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.userManagementRevamp} permission={Access}>
-                            <EntityScaffold
-                              entityName="UserManagement"
-                              remainingPath
-                              renderList={_ => <UserManagementLanding />}
-                              renderShow={(_, _) => <ShowUserData />}
-                            />
-                          </AccessControl>
+                        | list{"users-revamp", ..._} => <UserManagementContainer />
 
-                        | list{"analytics-payments"} =>
-                          <AccessControl permission=userPermissionJson.analyticsView>
-                            <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
-                              <PaymentAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"performance-monitor"} =>
-                          <AccessControl
-                            permission=userPermissionJson.analyticsView
-                            isEnabled={featureFlagDetails.performanceMonitor}>
-                            <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
-                              <PerformanceMonitor domain="payments" />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"analytics-refunds"} =>
-                          <AccessControl permission=userPermissionJson.analyticsView>
-                            <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
-                              <RefundsAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"analytics-disputes"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.disputeAnalytics}
-                            permission=userPermissionJson.analyticsView>
-                            <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
-                              <DisputeAnalytics />
-                            </FilterContext>
-                          </AccessControl>
                         | list{"analytics-user-journey"} =>
                           <AccessControl
-                            isEnabled=featureFlagDetails.userJourneyAnalytics
+                            isEnabled={featureFlagDetails.userJourneyAnalytics &&
+                            [#Organization, #Merchant]->checkUserEntity}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                               <UserJourneyAnalytics />
@@ -334,7 +262,8 @@ let make = () => {
                           </AccessControl>
                         | list{"analytics-authentication"} =>
                           <AccessControl
-                            isEnabled=featureFlagDetails.authenticationAnalytics
+                            isEnabled={featureFlagDetails.authenticationAnalytics &&
+                            [#Organization, #Merchant]->checkUserEntity}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext
                               key="AuthenticationAnalytics" index="AuthenticationAnalytics">
