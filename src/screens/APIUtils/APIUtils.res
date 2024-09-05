@@ -350,13 +350,22 @@ let useGetURL = () => {
 
     /* BUSINESS PROFILE */
     | BUSINESS_PROFILE =>
-      switch id {
-      | Some(id) => `account/${merchantId}/business_profile/${id}`
-      | None =>
+      switch methodType {
+      | Get =>
         switch (userEntity, userManagementRevamp) {
         | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile`
         | _ => `account/${merchantId}/business_profile`
         }
+      | Post =>
+        switch id {
+        | Some(id) => `account/${merchantId}/business_profile/${id}`
+        | None =>
+          switch (userEntity, userManagementRevamp) {
+          | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/business_profile`
+          | _ => `account/${merchantId}/business_profile`
+          }
+        }
+      | _ => `account/${merchantId}/business_profile`
       }
 
     /* API KEYS */
