@@ -52,7 +52,11 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-        | None => connectorBaseURL
+        | None =>
+          switch (userEntity, userManagementRevamp) {
+          | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile/connectors`
+          | _ => connectorBaseURL
+          }
         }
       | Post | Delete =>
         switch connector {
@@ -60,11 +64,7 @@ let useGetURL = () => {
         | None =>
           switch id {
           | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-          | None =>
-            switch (userEntity, userManagementRevamp) {
-            | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile/connectors`
-            | _ => connectorBaseURL
-            }
+          | None => connectorBaseURL
           }
         }
       | _ => ""
@@ -319,7 +319,7 @@ let useGetURL = () => {
     | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
     | PAYOUT_ROUTING =>
       switch methodType {
-      | Get | Put =>
+      | Get =>
         switch id {
         | Some(routingId) => `routing/${routingId}`
         | _ =>
@@ -327,6 +327,12 @@ let useGetURL = () => {
           | (#Merchant, true) | (#Profile, true) => `routing/payouts/list/profile`
           | _ => `routing/payouts`
           }
+        }
+
+      | Put =>
+        switch id {
+        | Some(routingId) => `routing/${routingId}`
+        | _ => `routing/payouts`
         }
       | Post =>
         switch id {
