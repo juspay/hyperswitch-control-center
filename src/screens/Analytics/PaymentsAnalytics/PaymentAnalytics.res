@@ -17,7 +17,9 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {analyticsEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
 
   let loadInfo = async () => {
     try {
@@ -239,7 +241,7 @@ let make = () => {
         <PageUtils.PageHeading title subTitle />
         <RenderIf condition={userManagementRevamp}>
           <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.analyticsViewList()}
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
             selectedEntity={analyticsEntity}
             onChange={updateAnalytcisEntity}
           />

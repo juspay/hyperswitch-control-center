@@ -497,6 +497,7 @@ let make = (
   let {filterValue, updateExistingKeys, filterValueJson} = React.useContext(
     FilterContext.filterContext,
   )
+  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
 
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)
@@ -683,7 +684,7 @@ let make = (
           <PageUtils.PageHeading title=pageTitle subTitle=pageSubTitle />
           <RenderIf condition={moduleName == "Refunds" || moduleName == "Disputes"}>
             <OMPSwitchHelper.OMPViews
-              views={OMPSwitchUtils.analyticsViewList()}
+              views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
               selectedEntity={analyticsEntity}
               onChange={updateAnalytcisEntity}
             />
