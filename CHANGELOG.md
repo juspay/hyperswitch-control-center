@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.05.1
+
+### Miscellaneous Tasks
+
+- Disable customers for profile level users ([#1304](https://github.com/juspay/hyperswitch-control-center/pull/1304)) ([`d5c72ef`](https://github.com/juspay/hyperswitch-control-center/commit/d5c72ef3ab0fcc9c933dbc940e911cd2a0cbbfa3))
+
+**Full Changelog:** [`2024.09.05.0...2024.09.05.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.05.0...2024.09.05.1)
+
+- - -
+
+## 2024.09.05.0
+
+### Features
+
+- Added Fiserv IPG connector ([#1289](https://github.com/juspay/hyperswitch-control-center/pull/1289)) ([`009605e`](https://github.com/juspay/hyperswitch-control-center/commit/009605edaa70469c548f976b768b5bba5279617c))
+
+### Miscellaneous Tasks
+
+- New user invitation page ([#1199](https://github.com/juspay/hyperswitch-control-center/pull/1199)) ([`968478a`](https://github.com/juspay/hyperswitch-control-center/commit/968478abab002a38568d917cafe6fa33a3ef5c3b))
+- Add profile level views in payment page ([#1290](https://github.com/juspay/hyperswitch-control-center/pull/1290)) ([`ff5d897`](https://github.com/juspay/hyperswitch-control-center/commit/ff5d897d8dac67ff5c17eee9e56da5797097c2cb))
+
+**Full Changelog:** [`2024.09.04.1...2024.09.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.04.1...2024.09.05.0)
+
+- - -
+
 ## 2024.09.04.1
 
 ### Bug Fixes
