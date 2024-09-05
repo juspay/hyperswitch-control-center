@@ -47,7 +47,7 @@ let itemToObjectMapper = dict => {
   open LogicUtils
   {
     entityId: dict->getString("entity_id", ""),
-    entityType: dict->getString("entity_id", "")->UserInfoUtils.entityMapper,
+    entityType: dict->getString("entity_type", "")->UserInfoUtils.entityMapper,
     entityName: dict->getString("entity_name", ""),
     roleId: dict->getString("role_id", ""),
   }

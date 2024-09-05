@@ -30,12 +30,7 @@ let make = () => {
     getListOfMerchantIds()->ignore
     None
   }, [])
-
-  let acceptInviteOnClick = ele => {
-    let acceptInvites = acceptedInvites->Array.copy
-    acceptInvites->Array.push(ele)
-    setAcceptedInvites(_ => acceptInvites)
-  }
+  let acceptInviteOnClick = ele => setAcceptedInvites(_ => [...acceptedInvites, ele])
 
   let checkIfInvitationAccepted = (entityId, entityType: UserInfoTypes.entity) => {
     acceptedInvites->Array.find(value =>

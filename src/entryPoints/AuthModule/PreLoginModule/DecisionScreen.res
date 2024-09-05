@@ -18,7 +18,7 @@ let make = () => {
   | SSO => <SSODecisionScreen auth_id=selectedAuthId />
   | MERCHANT_SELECT
   | ACCEPT_INVITE =>
-    featureFlagDetails.userManagementRevamp ? <MerchantSelectScreen /> : <ListInvitationScreen />
+    featureFlagDetails.userManagementRevamp ? <ListInvitationScreen /> : <MerchantSelectScreen />
   | TOTP => <TotpSetup />
   | FORCE_SET_PASSWORD
   | RESET_PASSWORD =>
