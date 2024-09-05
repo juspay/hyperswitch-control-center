@@ -12,25 +12,6 @@ let getViewsDisplayName = (view: viewTypes) => {
   }
 }
 
-let getAllPaymentsString = obj => {
-  open LogicUtils
-  obj
-  ->getDictFromJsonObject
-  ->getDictfromDict("status_with_count")
-  ->Dict.keysToArray
-  ->Array.joinWith(",")
-}
-
-let getViewsString = (view, obj) => {
-  switch view {
-  | All => getAllPaymentsString(obj)
-  | Succeeded => "succeeded"
-  | Failed => "failed"
-  | Dropoffs => "requires_payment_method"
-  | Cancelled => "cancelled"
-  }
-}
-
 let getViewTypeFromString = view => {
   switch view {
   | "succeeded" => Succeeded
@@ -41,7 +22,26 @@ let getViewTypeFromString = view => {
   }
 }
 
-let getAllPaymentsCount = obj => {
+let getAllViewsString = obj => {
+  open LogicUtils
+  obj
+  ->getDictFromJsonObject
+  ->getDictfromDict("status_with_count")
+  ->Dict.keysToArray
+  ->Array.joinWith(",")
+}
+
+let getViewsString = (view, obj) => {
+  switch view {
+  | All => getAllViewsString(obj)
+  | Succeeded => "succeeded"
+  | Failed => "failed"
+  | Dropoffs => "requires_payment_method"
+  | Cancelled => "cancelled"
+  }
+}
+
+let getAllViewCount = obj => {
   open LogicUtils
   let countArray =
     obj
@@ -57,10 +57,10 @@ let getAllPaymentsCount = obj => {
   )
 }
 
-let paymentCount = (view, obj) => {
+let getViewCount = (view, obj) => {
   open LogicUtils
   switch view {
-  | All => getAllPaymentsCount(obj)
+  | All => getAllViewCount(obj)
   | _ =>
     obj
     ->getDictFromJsonObject

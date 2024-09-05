@@ -114,7 +114,7 @@ let make = (~previewOnly=false) => {
         </RenderIf>
       </div>
       <div className="flex gap-6 justify-around">
-        <TransactionView.PaymentTransactionView />
+        <TransactionView entity=TransactionViewTypes.Orders />
       </div>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
