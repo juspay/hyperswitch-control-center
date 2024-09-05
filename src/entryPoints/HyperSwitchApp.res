@@ -157,8 +157,7 @@ let make = () => {
                           <GlobalSearchBar />
                           <RenderIf condition={!featureFlagDetails.userManagementRevamp}>
                             <SwitchMerchant
-                              userRole={userRole}
-                              isAddMerchantEnabled={userRole === "org_admin"}
+                              userRole={userRole} isAddMerchantEnabled={userRole === "org_admin"}
                             />
                           </RenderIf>
                           <RenderIf condition={featureFlagDetails.userManagementRevamp}>
