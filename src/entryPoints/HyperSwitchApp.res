@@ -273,20 +273,20 @@ let make = () => {
                               <DisputeAnalytics />
                             </FilterContext>
                           </AccessControl>
-                        | list{"new-analytics-overview"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.newAnalytics}
-                            permission=userPermissionJson.analyticsView>
-                            <FilterContext key="NewAnalytics" index="NewAnalytics">
-                              <NewAnalyticsContainer />
-                            </FilterContext>
-                          </AccessControl>
                         | list{"analytics-user-journey"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.userJourneyAnalytics
                             permission=userPermissionJson.analyticsView>
                             <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                               <UserJourneyAnalytics />
+                            </FilterContext>
+                          </AccessControl>
+                        | list{"new-analytics-overview"} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.newAnalytics}
+                            permission=userPermissionJson.analyticsView>
+                            <FilterContext key="NewAnalytics" index="NewAnalytics">
+                              <NewAnalyticsContainer />
                             </FilterContext>
                           </AccessControl>
                         | list{"analytics-authentication"} =>
