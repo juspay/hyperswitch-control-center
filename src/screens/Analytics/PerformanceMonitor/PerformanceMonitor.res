@@ -2,7 +2,7 @@
 let make = (~domain="payments") => {
   open APIUtils
   open LogicUtils
-
+  open HyperswitchAtom
   open HSAnalyticsUtils
   open PerformanceMonitorEntity
   let getURL = useGetURL()
@@ -21,7 +21,11 @@ let make = (~domain="payments") => {
     ~origin="analytics",
     (),
   )
-
+  let {userManagementRevamp} = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {checkUserEntity, userInfo: {analyticsEntity}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
+  let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
   let filterBody = (~groupBy) => {
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
       startTime: startTimeVal,
@@ -89,72 +93,87 @@ let make = (~domain="payments") => {
     </div>
 
   <PageLoaderWrapper screenState>
-    <div className="flex items-center justify-between ">
-      <PageUtils.PageHeading title="Performance Monitor" subTitle="" />
-    </div>
-    <div
-      className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
-      topFilterUi
-    </div>
-    <div className="flex flex-col gap-3">
-      <div className="grid grid-cols-4 grid-rows-1 gap-3">
-        <div className="flex flex-col gap-3">
-          <GaugeChartPerformance startTimeVal endTimeVal entity={getSuccessRatePerformanceEntity} />
-          <GaugeFailureRate
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between ">
+        <PageUtils.PageHeading title="Performance Monitor" subTitle="" />
+        <RenderIf condition={userManagementRevamp}>
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+            selectedEntity={analyticsEntity}
+            onChange={updateAnalytcisEntity}
+          />
+        </RenderIf>
+      </div>
+      <div
+        className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
+        topFilterUi
+      </div>
+      <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-4 grid-rows-1 gap-3">
+          <div className="flex flex-col gap-3">
+            <GaugeChartPerformance
+              startTimeVal endTimeVal entity={getSuccessRatePerformanceEntity}
+            />
+            <GaugeFailureRate
+              startTimeVal
+              endTimeVal
+              entity1={overallPaymentCount}
+              entity2={getFailureRateEntity}
+              dimensions
+            />
+          </div>
+          <div className="col-span-3">
+            <BarChartPerformance
+              domain startTimeVal endTimeVal dimensions entity={getStatusPerformanceEntity}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 grid-rows-1 gap-3">
+          <BarChartPerformance
+            domain
             startTimeVal
             endTimeVal
-            entity1={overallPaymentCount}
-            entity2={getFailureRateEntity}
             dimensions
+            entity={getPerformanceEntity(
+              ~filters=[#payment_method],
+              ~groupBy=[#payment_method],
+              ~groupByKeys=[#payment_method],
+              ~title="Payment Distribution By Payment Method",
+            )}
           />
-        </div>
-        <div className="col-span-3">
           <BarChartPerformance
-            domain startTimeVal endTimeVal dimensions entity={getStatusPerformanceEntity}
+            domain
+            startTimeVal
+            endTimeVal
+            dimensions
+            entity={getPerformanceEntity(
+              ~filters=[#connector],
+              ~groupBy=[#connector],
+              ~groupByKeys=[#connector],
+              ~title="Payment Distribution By Connector",
+            )}
           />
         </div>
-      </div>
-      <div className="grid grid-cols-2 grid-rows-1 gap-3">
-        <BarChartPerformance
-          domain
-          startTimeVal
-          endTimeVal
-          dimensions
-          entity={getPerformanceEntity(
-            ~filters=[#payment_method],
-            ~groupBy=[#payment_method],
-            ~groupByKeys=[#payment_method],
-            ~title="Payment Distribution By Payment Method",
-          )}
+        <TablePerformance
+          startTimeVal endTimeVal entity={getFailureEntity} getTableData visibleColumns tableEntity
         />
-        <BarChartPerformance
-          domain
-          startTimeVal
-          endTimeVal
-          dimensions
-          entity={getPerformanceEntity(
-            ~filters=[#connector],
-            ~groupBy=[#connector],
-            ~groupByKeys=[#connector],
-            ~title="Payment Distribution By Connector",
-          )}
-        />
-      </div>
-      <TablePerformance
-        startTimeVal endTimeVal entity={getFailureEntity} getTableData visibleColumns tableEntity
-      />
-      <div className="grid grid-cols-2 grid-rows-1 gap-3">
-        <PieChartPerformance
-          domain startTimeVal endTimeVal dimensions entity={getConnectorFailureEntity}
-        />
-        <PieChartPerformance
-          domain startTimeVal endTimeVal dimensions entity={getPaymentMethodFailureEntity}
-        />
-      </div>
-      <div className="grid grid-cols-2 grid-rows-1 gap-3">
-        <PieChartPerformance
-          domain startTimeVal endTimeVal dimensions entity={getConnectorPaymentMethodFailureEntity}
-        />
+        <div className="grid grid-cols-2 grid-rows-1 gap-3">
+          <PieChartPerformance
+            domain startTimeVal endTimeVal dimensions entity={getConnectorFailureEntity}
+          />
+          <PieChartPerformance
+            domain startTimeVal endTimeVal dimensions entity={getPaymentMethodFailureEntity}
+          />
+        </div>
+        <div className="grid grid-cols-2 grid-rows-1 gap-3">
+          <PieChartPerformance
+            domain
+            startTimeVal
+            endTimeVal
+            dimensions
+            entity={getConnectorPaymentMethodFailureEntity}
+          />
+        </div>
       </div>
     </div>
   </PageLoaderWrapper>
