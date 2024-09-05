@@ -31,12 +31,16 @@ let make = (~children) => {
     userInfo
   }
 
+  let checkUserEntity = (entity: UserInfoTypes.entity) => {
+    userInfo.userEntity === entity
+  }
+
   React.useEffect(() => {
     getUserInfo()->ignore
     None
   }, [])
 
-  <Provider value={userInfo, setUserInfoData, getUserInfoData}>
+  <Provider value={userInfo, setUserInfoData, getUserInfoData, checkUserEntity}>
     <RenderIf condition={screenState === Success}> children </RenderIf>
     <RenderIf condition={screenState === Error}>
       <NoDataFound message="Something went wrong" renderType=Painting />

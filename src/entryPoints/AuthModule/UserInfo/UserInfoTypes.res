@@ -1,4 +1,4 @@
-type entity = [#Internal | #Organization | #Merchant | #Profile]
+type entity = [#Internal | #Organisation | #Merchant | #Profile]
 type userInfo = {
   email: string,
   isTwoFactorAuthSetup: bool,
@@ -18,4 +18,5 @@ type userInfoProviderTypes = {
   userInfo: userInfo,
   setUserInfoData: userInfo => unit,
   getUserInfoData: unit => userInfo,
+  checkUserEntity: entity => bool,
 }

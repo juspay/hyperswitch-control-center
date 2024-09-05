@@ -7,7 +7,9 @@ let make = (~previewOnly=false) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {transactionEntity, userEntity}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -111,7 +113,7 @@ let make = (~previewOnly=false) => {
         <PageUtils.PageHeading
           title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
         />
-        <RenderIf condition={userManagementRevamp}>
+        <RenderIf condition={userManagementRevamp && userEntity !== #Profile}>
           <OMPSwitchHelper.OMPViews
             views={orderViewList}
             selectedEntity={transactionEntity}

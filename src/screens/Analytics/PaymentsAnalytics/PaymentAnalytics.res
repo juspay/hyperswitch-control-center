@@ -239,14 +239,11 @@ let make = () => {
         <PageUtils.PageHeading title subTitle />
         <RenderIf condition={userManagementRevamp}>
           <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.analyticsViewList}
+            views={OMPSwitchUtils.analyticsViewList()}
             selectedEntity={analyticsEntity}
             onChange={updateAnalytcisEntity}
           />
         </RenderIf>
-        // <RenderIf condition={generateReport}>
-        //   <GenerateReport entityName={PAYMENT_REPORT} />
-        // </RenderIf>
       </div>
       <div
         className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">

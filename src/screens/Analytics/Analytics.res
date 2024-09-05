@@ -683,7 +683,7 @@ let make = (
           <PageUtils.PageHeading title=pageTitle subTitle=pageSubTitle />
           <RenderIf condition={moduleName == "Refunds" || moduleName == "Disputes"}>
             <OMPSwitchHelper.OMPViews
-              views={OMPSwitchUtils.analyticsViewList}
+              views={OMPSwitchUtils.analyticsViewList()}
               selectedEntity={analyticsEntity}
               onChange={updateAnalytcisEntity}
             />

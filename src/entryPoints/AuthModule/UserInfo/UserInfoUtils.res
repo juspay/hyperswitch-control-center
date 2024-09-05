@@ -18,7 +18,7 @@ let defaultValueOfUserInfo = {
 let entityMapper = entity => {
   switch entity->String.toLowerCase {
   | "internal" => #Internal
-  | "organization" => #Organization
+  | "organization" => #Organisation
   | "merchant" => #Merchant
   | "profile" => #Profile
   | _ => #Merchant
@@ -29,6 +29,7 @@ let defaultValueOfUserInfoProvider = {
   userInfo: defaultValueOfUserInfo,
   setUserInfoData: _ => (),
   getUserInfoData: _ => defaultValueOfUserInfo,
+  checkUserEntity: _ => false,
 }
 open LogicUtils
 let itemMapper = dict => {

@@ -48,17 +48,20 @@ let generateDropdownOptions = dropdownList => {
   options
 }
 
-let analyticsViewList: ompViews = [
-  {
-    lable: "All Merchant",
-    entity: #Organization,
-  },
-  {
-    lable: "All Profiles",
-    entity: #Merchant,
-  },
-  {
-    lable: "Profile",
-    entity: #Profile,
-  },
-]
+let analyticsViewList = (): ompViews => {
+  let arr = [
+    {
+      lable: "All Merchant",
+      entity: #Organisation,
+    },
+    {
+      lable: "All Profiles",
+      entity: #Merchant,
+    },
+    {
+      lable: "Profile",
+      entity: #Profile,
+    },
+  ]
+  arr
+}
