@@ -9,7 +9,7 @@ module OrganisationSelection = {
     let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
 
     let disableSelect = switch userEntity {
-    | #Organization | #Merchant | #Profile => true
+    | #Organisation | #Merchant | #Profile => true
     | _ => false
     }
 
@@ -62,7 +62,7 @@ module MerchantSelection = {
 
     let disableSelect = switch userEntity {
     | #Merchant | #Profile => true
-    | #Organization
+    | #Organisation
     | _ => false
     }
 
@@ -118,7 +118,7 @@ module ProfileSelection = {
 
     let disableSelect = switch userEntity {
     | #Profile => true
-    | #Organization
+    | #Organisation
     | #Merchant
     | _ => false
     }
