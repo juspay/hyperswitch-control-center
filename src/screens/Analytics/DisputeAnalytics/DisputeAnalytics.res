@@ -44,23 +44,28 @@ let make = () => {
 
   let title = "Disputes Analytics"
   let subTitle = "Gain Insights, monitor performance and make Informed Decisions with Dispute Analytics."
-
+  let analyticsfilterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
+  let disputeAnalyticsUrl = getURL(
+    ~entityName=ANALYTICS_PAYMENTS,
+    ~methodType=Post,
+    ~id=Some(domain),
+  )
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
     <Analytics
       pageTitle=title
       pageSubTitle=subTitle
-      filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
+      filterUri=Some(analyticsfilterUrl)
       key="DisputesAnalytics"
       moduleName="Disputes"
       deltaMetrics={getStringListFromArrayDict(metrics)}
-      chartEntity={default: chartEntity(tabKeys)}
+      chartEntity={default: chartEntity(tabKeys, ~uri=disputeAnalyticsUrl)}
       tabKeys
       tabValues
       options
-      singleStatEntity={getSingleStatEntity(metrics)}
+      singleStatEntity={getSingleStatEntity(metrics, ~uri=disputeAnalyticsUrl)}
       getTable={getDisputeTable}
       colMapper
-      tableEntity={disputeTableEntity()}
+      tableEntity={disputeTableEntity(~uri=disputeAnalyticsUrl)}
       defaultSort="total_volume"
       deltaArray=[]
       tableUpdatedHeading=getUpdatedHeading
