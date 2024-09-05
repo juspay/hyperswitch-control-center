@@ -358,16 +358,26 @@ let surcharge = permissionJson => {
   })
 }
 
-let workflow = (isWorkflowEnabled, isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled) => {
+let workflow = (
+  isWorkflowEnabled,
+  isSurchargeEnabled,
+  ~permissionJson,
+  ~isPayoutEnabled,
+  ~userEntity,
+) => {
   let routing = routing(permissionJson)
   let threeDs = threeDs(permissionJson)
   let payoutRouting = payoutRouting(permissionJson)
   let surcharge = surcharge(permissionJson)
 
-  let defaultWorkFlow = [routing, threeDs]
+  let defaultWorkFlow = [routing]
+  let isNotProfileEntity = userEntity !== #Profile
 
-  if isSurchargeEnabled {
+  if isSurchargeEnabled && isNotProfileEntity {
     defaultWorkFlow->Array.push(surcharge)->ignore
+  }
+  if isNotProfileEntity {
+    defaultWorkFlow->Array.push(threeDs)->ignore
   }
   if isPayoutEnabled {
     defaultWorkFlow->Array.push(payoutRouting)->ignore
@@ -638,7 +648,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       performanceMonitorFlag,
       ~permissionJson,
     ),
-    default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
+    default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut, ~userEntity),
     recon->reconAndSettlement(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
     settings(
