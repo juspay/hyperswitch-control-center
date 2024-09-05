@@ -105,9 +105,9 @@ let getDisputeTable: JSON.t => array<disputeTableType> = json => {
 
 let makeFieldInfo = FormRenderer.makeFieldInfo
 
-let disputeTableEntity = () =>
+let disputeTableEntity = (~uri) =>
   EntityType.makeEntity(
-    ~uri=`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+    ~uri,
     ~getObjects=getDisputeTable,
     ~dataKey="queryData",
     ~defaultColumns=defaultDisputeColumns,
@@ -247,10 +247,10 @@ let getStatData = (
   }
 }
 
-let getSingleStatEntity = metrics => {
+let getSingleStatEntity = (metrics, ~uri) => {
   urlConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+      uri,
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
@@ -259,7 +259,7 @@ let getSingleStatEntity = metrics => {
   defaultColumns: getColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+  matrixUriMapper: _ => uri,
 }
 
 let metricsConfig: array<LineChartUtils.metricsConfig> = [
@@ -281,9 +281,9 @@ let metricsConfig: array<LineChartUtils.metricsConfig> = [
   },
 ]
 
-let chartEntity = tabKeys =>
+let chartEntity = (tabKeys, ~uri) =>
   DynamicChart.makeEntity(
-    ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`),
+    ~uri=String(uri),
     ~filterKeys=tabKeys,
     ~dateFilterKeys=(startTimeFilterKey, endTimeFilterKey),
     ~currentMetrics=("Dispute Status Metric", "Total Amount Disputed"), // 2nd metric will be static and we won't show the 2nd metric option to the first metric
@@ -292,7 +292,7 @@ let chartEntity = tabKeys =>
     ~chartTypes=[Line],
     ~uriConfig=[
       {
-        uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+        uri,
         timeSeriesBody: DynamicChart.getTimeSeriesChart,
         legendBody: DynamicChart.getLegendBody,
         metrics: metricsConfig,

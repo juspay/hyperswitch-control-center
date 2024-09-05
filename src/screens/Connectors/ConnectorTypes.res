@@ -93,6 +93,7 @@ type processorTypes =
   | SQUARE
   | PAYBOX
   | WELLSFARGO
+  | FIUU
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 

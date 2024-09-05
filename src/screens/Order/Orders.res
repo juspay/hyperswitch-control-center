@@ -7,6 +7,9 @@ let make = (~previewOnly=false) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
+  let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -111,7 +114,11 @@ let make = (~previewOnly=false) => {
           title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
         />
         <RenderIf condition={userManagementRevamp}>
-          <OMPSwitchHelper.OMPViews views={orderViewList} onChange={updateTransactionEntity} />
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+            selectedEntity={transactionEntity}
+            onChange={updateTransactionEntity}
+          />
         </RenderIf>
       </div>
       <div className="flex">
