@@ -26,7 +26,9 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {orgId, merchantId, profileId, userEntity}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
@@ -213,7 +215,9 @@ let make = () => {
                         | list{"payouts", ..._} =>
                           <TransactionContainer />
                         | list{"customers", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
+                          <AccessControl
+                            permission={userPermissionJson.operationsView}
+                            isEnabled={userEntity !== #Profile}>
                             <EntityScaffold
                               entityName="Customers"
                               remainingPath
