@@ -1538,7 +1538,7 @@ let getDisplayNameForProcessor = connector =>
   | EBANX => "Ebanx"
   | ACI => "ACI Worldwide"
   | WORLDLINE => "Worldline"
-  | FISERV => "Fiserv"
+  | FISERV => "Fiserv Commerce Hub"
   | SHIFT4 => "Shift4"
   | RAPYD => "Rapyd"
   | PAYU => "PayU"
