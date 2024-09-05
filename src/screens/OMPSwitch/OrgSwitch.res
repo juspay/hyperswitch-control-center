@@ -36,7 +36,10 @@ let make = () => {
       let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
       setShowSwitchingOrg(_ => false)
     } catch {
-    | _ => showToast(~message="Failed to switch organisation", ~toastType=ToastError)
+    | _ => {
+        showToast(~message="Failed to switch organisation", ~toastType=ToastError)
+        setShowSwitchingOrg(_ => false)
+      }
     }
   }
 

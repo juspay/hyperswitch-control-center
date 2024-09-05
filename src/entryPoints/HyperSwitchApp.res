@@ -82,6 +82,7 @@ let make = () => {
 
   let setUpDashboard = async () => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       Window.connectorWasmInit()->ignore
       let _ = await fetchPermissions()
       let _ = await fetchSwitchMerchantList()
@@ -141,7 +142,7 @@ let make = () => {
         | #HOME =>
           <div className="relative">
             // TODO: Change the key to only profileId once the userInfo starts sending profileId
-            <div className={`h-screen flex flex-col`} key={`${orgId}-${merchantId}-${profileId}`}>
+            <div className={`h-screen flex flex-col`}>
               <div className="flex relative overflow-auto h-screen ">
                 <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
                 <div

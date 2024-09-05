@@ -116,7 +116,10 @@ let make = () => {
       let _ = await merchSwitch(~expectedMerchantId=value, ~currentMerchantId=merchantId)
       setShowSwitchingMerch(_ => false)
     } catch {
-    | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
+    | _ => {
+        showToast(~message="Failed to switch merchant", ~toastType=ToastError)
+        setShowSwitchingMerch(_ => false)
+      }
     }
   }
 

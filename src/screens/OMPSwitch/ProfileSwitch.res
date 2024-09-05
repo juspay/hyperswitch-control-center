@@ -164,9 +164,14 @@ let make = () => {
 
   let profileSwitch = async value => {
     try {
+      setShowSwitchingProfile(_ => true)
       let _ = await profileSwitch(~expectedProfileId=value, ~currentProfileId=profileId)
+      setShowSwitchingProfile(_ => false)
     } catch {
-    | _ => showToast(~message="Failed to switch profile", ~toastType=ToastError)
+    | _ => {
+        showToast(~message="Failed to switch profile", ~toastType=ToastError)
+        setShowSwitchingProfile(_ => false)
+      }
     }
   }
 
