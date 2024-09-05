@@ -37,7 +37,9 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    fetchModuleList()->ignore
+    if userPermissionJson.usersManage === Access {
+      fetchModuleList()->ignore
+    }
     None
   }, [userPermissionJson])
 
