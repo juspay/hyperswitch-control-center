@@ -16,7 +16,9 @@ let make = () => {
   let pageDetail = pageDetailDict->Dict.get("Payouts")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
-  let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
 
   let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchPayouts = () => {
@@ -63,7 +65,7 @@ let make = () => {
         <PageUtils.PageHeading title="Payouts" subTitle="View and manage all payouts" />
         <RenderIf condition={userManagementRevamp}>
           <OMPSwitchHelper.OMPViews
-            views={OrderUIUtils.orderViewList}
+            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
             selectedEntity={transactionEntity}
             onChange={updateTransactionEntity}
           />

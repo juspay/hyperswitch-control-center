@@ -31,8 +31,8 @@ let make = (~children) => {
     userInfo
   }
 
-  let checkUserEntity = (entity: UserInfoTypes.entity) => {
-    userInfo.userEntity === entity
+  let checkUserEntity = (entities: array<UserInfoTypes.entity>) => {
+    entities->Array.includes(userInfo.userEntity)
   }
 
   React.useEffect(() => {

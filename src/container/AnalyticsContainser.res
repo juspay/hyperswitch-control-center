@@ -14,12 +14,6 @@ let make = () => {
           <PaymentAnalytics />
         </FilterContext>
       </AccessControl>
-    | list{"performance-monitor"} =>
-      <AccessControl permission=userPermissionJson.analyticsView isEnabled={performanceMonitor}>
-        <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
-          <PerformanceMonitor domain="payments" />
-        </FilterContext>
-      </AccessControl>
     | list{"analytics-refunds"} =>
       <AccessControl permission=userPermissionJson.analyticsView>
         <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
@@ -30,6 +24,12 @@ let make = () => {
       <AccessControl isEnabled={disputeAnalytics} permission=userPermissionJson.analyticsView>
         <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
           <DisputeAnalytics />
+        </FilterContext>
+      </AccessControl>
+    | list{"performance-monitor"} =>
+      <AccessControl permission=userPermissionJson.analyticsView isEnabled={performanceMonitor}>
+        <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
+          <PerformanceMonitor domain="payments" />
         </FilterContext>
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />

@@ -47,24 +47,31 @@ let generateDropdownOptions = dropdownList => {
     dropdownList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
   options
 }
+let org = {
+  lable: "All Merchant",
+  entity: #Organization,
+}
+let merchant = {
+  lable: "All Profile",
+  entity: #Merchant,
+}
+let profile = {
+  lable: "Profile",
+  entity: #Profile,
+}
+
+let transactionViewList = (~checkUserEntity): ompViews => {
+  if checkUserEntity([#Merchant]) {
+    [merchant, profile]
+  } else {
+    []
+  }
+}
 
 let analyticsViewList = (~checkUserEntity): ompViews => {
-  let org = {
-    lable: "All Merchant",
-    entity: #Organisation,
-  }
-  let merchant = {
-    lable: "All Merchant",
-    entity: #Organisation,
-  }
-  let profile = {
-    lable: "All Merchant",
-    entity: #Organisation,
-  }
-
-  if checkUserEntity(#Organisation) {
+  if checkUserEntity([#Organization]) {
     [org, merchant, profile]
-  } else if checkUserEntity(#Merchant) {
+  } else if checkUserEntity([#Merchant]) {
     [merchant, profile]
   } else {
     []

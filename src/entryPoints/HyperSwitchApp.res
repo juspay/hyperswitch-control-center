@@ -26,7 +26,7 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let {userInfo: {orgId, merchantId, profileId, userEntity}} = React.useContext(
+  let {userInfo: {orgId, merchantId, profileId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
@@ -222,7 +222,7 @@ let make = () => {
                         | list{"customers", ...remainingPath} =>
                           <AccessControl
                             permission={userPermissionJson.operationsView}
-                            isEnabled={userEntity !== #Profile}>
+                            isEnabled={[#Organization, #Merchant]->checkUserEntity}>
                             <EntityScaffold
                               entityName="Customers"
                               remainingPath
@@ -253,7 +253,8 @@ let make = () => {
 
                         | list{"analytics-user-journey"} =>
                           <AccessControl
-                            isEnabled=featureFlagDetails.userJourneyAnalytics
+                            isEnabled={featureFlagDetails.userJourneyAnalytics &&
+                            [#Organization, #Merchant]->checkUserEntity}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                               <UserJourneyAnalytics />
@@ -261,7 +262,8 @@ let make = () => {
                           </AccessControl>
                         | list{"analytics-authentication"} =>
                           <AccessControl
-                            isEnabled=featureFlagDetails.authenticationAnalytics
+                            isEnabled={featureFlagDetails.authenticationAnalytics &&
+                            [#Organization, #Merchant]->checkUserEntity}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext
                               key="AuthenticationAnalytics" index="AuthenticationAnalytics">
