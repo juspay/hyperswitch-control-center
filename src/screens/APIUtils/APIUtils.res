@@ -620,7 +620,11 @@ let responseHandler = async (
   let responseStatus = res->Fetch.Response.status
 
   if responseStatus >= 500 && responseStatus < 600 {
-    sendEvent(~eventName="API Error",~description=Some(responseStatus), ~metadata=json->getDictFromJsonObject)
+    sendEvent(
+      ~eventName="API Error",
+      ~description=Some(responseStatus),
+      ~metadata=json->getDictFromJsonObject,
+    )
   }
 
   switch responseStatus {
