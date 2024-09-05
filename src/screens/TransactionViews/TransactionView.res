@@ -34,19 +34,22 @@ let make = (~entity=TransactionViewTypes.Orders) => {
   )
 
   let updateViewsFilterValue = (view: TransactionViewTypes.viewTypes) => {
-    let customFilterKey = "status"
+    let customFilterKey = switch entity {
+    | Orders => "status"
+    | _ => ""
+    }
     let customFilter = `[${view->getViewsString(countRes)}]`
 
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
 
     switch view {
     | All => {
-        let updateFilterKeys = filterKeys->Array.filter(item => item != "status")
+        let updateFilterKeys = filterKeys->Array.filter(item => item != customFilterKey)
         setfilterKeys(_ => updateFilterKeys)
       }
     | _ => {
-        if !(filterKeys->Array.includes("status")) {
-          filterKeys->Array.push("status")
+        if !(filterKeys->Array.includes(customFilterKey)) {
+          filterKeys->Array.push(customFilterKey)
         }
         setfilterKeys(_ => filterKeys)
       }
