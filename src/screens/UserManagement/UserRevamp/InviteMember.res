@@ -133,7 +133,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
 
     showToast(~message, ~toastType)
 
-    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users-revamp"))
+    RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users-v2"))
     Nullable.null
   }
 
@@ -142,12 +142,9 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   }
 
   <div className="flex flex-col overflow-y-scroll gap-4 h-full">
+    <PageUtils.PageHeading title="Invite New Users" />
     <BreadCrumbNavigation
-      path=[{title: "Users", link: "/users-revamp"}] currentPageTitle="Invite new users"
-    />
-    <PageUtils.PageHeading
-      title="Invite New Users"
-      subTitle="An invite will be sent to the email addresses to set up a new account"
+      path=[{title: "Team management", link: "/users-v2"}] currentPageTitle="Invite new users"
     />
     <Form
       formClass="h-4/5 bg-white relative overflow-y-scroll flex flex-col gap-10 border rounded-md"

@@ -404,8 +404,8 @@ let userManagement = permissionJson => {
 
 let teamRevamp = permissionJson => {
   SubLevelLink({
-    name: "Users Revamp",
-    link: `/users-revamp`,
+    name: "Users",
+    link: `/users-v2`,
     access: permissionJson.usersView,
     searchOptions: [("View team management", "")],
   })
@@ -465,9 +465,9 @@ let settings = (
 
   if userManagementRevamp {
     settingsLinkArray->Array.push(teamRevamp(permissionJson))->ignore
+  } else {
+    settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
   }
-
-  settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
 
   Section({
     name: "Settings",

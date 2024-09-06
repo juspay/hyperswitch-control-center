@@ -46,11 +46,15 @@ let make = () => {
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
     // User Management modules
-    | list{"users-revamp", "invite-users"} =>
+    | list{"users-v2", "invite-users"} =>
       <AccessControl isEnabled={featureFlagDetails.userManagementRevamp} permission={Access}>
         <InviteMember />
       </AccessControl>
-    | list{"users-revamp", ...remainingPath} =>
+    | list{"users-v2", "create-custom-role"} =>
+      <AccessControl permission=userPermissionJson.usersManage>
+        <CreateCustomRole baseUrl="users-v2" breadCrumbHeader="Team management" />
+      </AccessControl>
+    | list{"users-v2", ...remainingPath} =>
       <AccessControl isEnabled={featureFlagDetails.userManagementRevamp} permission={Access}>
         <EntityScaffold
           entityName="UserManagement"
