@@ -19,32 +19,6 @@ module ListBaseCompForProfile = {
   }
 }
 
-module AddNewProfileButton = {
-  @react.component
-  let make = (~setShowModal) => {
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-    let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
-    <>
-      <ACLDiv
-        permission={userPermissionJson.merchantDetailsManage}
-        onClick={_ => setShowModal(_ => true)}
-        isRelative=false
-        contentAlign=Default
-        tooltipForWidthClass="!h-full"
-        className={`${cursorStyles} px-1 py-1`}>
-        {<>
-          <hr />
-          <div
-            className="group flex gap-2 font-medium w-auto items-center px-2 py-2 text-sm text-blue-500 bg-white dark:bg-black hover:bg-jp-gray-100">
-            <Icon name="plus-circle" size=15 />
-            {"Add new profile"->React.string}
-          </div>
-        </>}
-      </ACLDiv>
-    </>
-  }
-}
-
 module NewAccountCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal, ~getProfileList) => {
