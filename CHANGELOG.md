@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.06.2
+
+### Bug Fixes
+
+- Fixed all profiles issue in teams ([#1318](https://github.com/juspay/hyperswitch-control-center/pull/1318)) ([`5dcf9a1`](https://github.com/juspay/hyperswitch-control-center/commit/5dcf9a1e8b745e5bfea0b49e672942861de0ef52))
+
+### Miscellaneous Tasks
+
+- Chore: pin functionality removed ([#1297](https://github.com/juspay/hyperswitch-control-center/pull/1297)) ([`0aafec4`](https://github.com/juspay/hyperswitch-control-center/commit/0aafec4579aa3655807696ac23d570c301567f0f))
+
+**Full Changelog:** [`2024.09.06.1...2024.09.06.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.06.1...2024.09.06.2)
+
+- - -
+
 ## 2024.09.06.1
 
 ### Bug Fixes
