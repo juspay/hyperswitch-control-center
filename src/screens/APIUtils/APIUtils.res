@@ -693,7 +693,6 @@ let useGetURL = () => {
 let useHandleLogout = () => {
   let getURL = useGetURL()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
 
@@ -711,7 +710,6 @@ let useHandleLogout = () => {
           JSON.Encode.null->resolve
         })
       setAuthStateToLogout()
-      setIsSidebarExpanded(_ => false)
       clearRecoilValue()
       AuthUtils.redirectToLogin()
       LocalStorage.clear()

@@ -333,7 +333,6 @@ module SidebarNestedSection = {
     ~linkSelectionCheck,
     ~firstPart,
     ~isSideBarExpanded,
-    ~setIsSidebarExpanded,
     ~openItem="",
     ~setOpenItem=_ => (),
     ~isSectionAutoCollapseEnabled=false,
@@ -369,9 +368,8 @@ module SidebarNestedSection = {
       None
     }, (isSideBarExpanded, isAnySubItemSelected))
 
-    let toggleSectionExpansion = React.useCallback(_ev => {
+    let toggleSectionExpansion = React.useCallback(_ => {
       if !isSideBarExpanded {
-        setIsSidebarExpanded(_ => true)
         setTimeout(() => {
           setIsSectionExpanded(_ => true)
         }, 200)->ignore
@@ -380,7 +378,7 @@ module SidebarNestedSection = {
       } else {
         setIsSectionExpanded(p => !p)
       }
-    }, (setIsSectionExpanded, isSideBarExpanded, setIsSidebarExpanded, isAnySubItemSelected))
+    }, (setIsSectionExpanded, isSideBarExpanded, isAnySubItemSelected))
 
     let textColor = {
       if isSideBarExpanded {
@@ -465,7 +463,7 @@ let make = (
   let (openItem, setOpenItem) = React.useState(_ => "")
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
-  let minWidthForPinnedState = MatchMedia.useMatchMedia("(min-width: 1280px)")
+  let minWidthForPinnedState = MatchMedia.useMatchMedia("(min-width: 0px)")
   // let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
   React.useEffect(() => {
@@ -589,7 +587,6 @@ let make = (
                   linkSelectionCheck
                   firstPart
                   isSideBarExpanded={isSidebarExpanded}
-                  setIsSidebarExpanded
                   openItem
                   setOpenItem
                   isSectionAutoCollapseEnabled=true
