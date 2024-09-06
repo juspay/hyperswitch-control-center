@@ -463,22 +463,19 @@ let make = (
   let (openItem, setOpenItem) = React.useState(_ => "")
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
-  let minWidthForPinnedState = MatchMedia.useMatchMedia("(min-width: 0px)")
-  // let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
-
   React.useEffect(() => {
-    setIsSidebarExpanded(_ => minWidthForPinnedState)
+    setIsSidebarExpanded(_ => !isMobileView)
     None
-  }, [minWidthForPinnedState])
+  }, [isMobileView])
 
   let sidebarWidth = {
     switch isSidebarExpanded {
     | true =>
       switch isMobileView {
       | true => "100%"
-      | false => "270px"
+      | false => "275px"
       }
-    | false => "55px"
+    | false => "275px"
     }
   }
   let profileMaxWidth = "145px"
