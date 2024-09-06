@@ -15,12 +15,13 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(userPermissionAtom)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let setRoleInfo = Recoil.useSetRecoilState(HyperswitchAtom.moduleListRecoil)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchModuleList = async () => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
         ~entityName=USERS,
         ~userType=#ROLE_INFO,
@@ -47,7 +48,9 @@ let make = () => {
     {switch url.path->urlPath {
     // User Management modules
     | list{"users-v2", "invite-users"} =>
-      <AccessControl isEnabled={featureFlagDetails.userManagementRevamp} permission={Access}>
+      <AccessControl
+        isEnabled={featureFlagDetails.userManagementRevamp}
+        permission={userPermissionJson.usersManage}>
         <InviteMember />
       </AccessControl>
     | list{"users-v2", "create-custom-role"} =>
@@ -55,7 +58,9 @@ let make = () => {
         <CreateCustomRole baseUrl="users-v2" breadCrumbHeader="Team management" />
       </AccessControl>
     | list{"users-v2", ...remainingPath} =>
-      <AccessControl isEnabled={featureFlagDetails.userManagementRevamp} permission={Access}>
+      <AccessControl
+        isEnabled={featureFlagDetails.userManagementRevamp}
+        permission={userPermissionJson.usersView}>
         <EntityScaffold
           entityName="UserManagement"
           remainingPath
