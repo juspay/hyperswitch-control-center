@@ -79,22 +79,25 @@ let make = () => {
       }
     }
   }
+  let (renderKey, setRenderkey) = React.useState(_ => "")
 
   let setUpDashboard = async () => {
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
       Window.connectorWasmInit()->ignore
       let _ = await fetchPermissions()
       let _ = await fetchSwitchMerchantList()
       if featureFlagDetails.quickStart {
         let _ = await fetchInitialEnums()
       }
+      switch url.path->urlPath {
+      | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
+      | _ => ()
+      }
       setDashboardPageState(_ => #HOME)
+      setRenderkey(_ => profileId)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ =>
-      setDashboardPageState(_ => #HOME)
-      setScreenState(_ => PageLoaderWrapper.Error(""))
+    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }
   }
 
@@ -140,7 +143,7 @@ let make = () => {
         //
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
-          <div className="relative">
+          <div className="relative" key={renderKey}>
             // TODO: Change the key to only profileId once the userInfo starts sending profileId
             <div className={`h-screen flex flex-col`}>
               <div className="flex relative overflow-auto h-screen ">
@@ -196,7 +199,8 @@ let make = () => {
                         | list{"recon-analytics"}
                         | list{"reports"}
                         | list{"config-settings"}
-                        | list{"file-processor"} =>
+                        | list{"file-processor"}
+                        | list{"sdk"} =>
                           <MerchantAccountContainer />
                         | list{"connectors", ..._}
                         | list{"payoutconnectors", ..._}
@@ -290,11 +294,6 @@ let make = () => {
                           <AccessControl
                             isEnabled=featureFlagDetails.complianceCertificate permission=Access>
                             <Compliance />
-                          </AccessControl>
-                        | list{"sdk"} =>
-                          <AccessControl
-                            isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
-                            <SDKPage />
                           </AccessControl>
                         | list{"3ds"} =>
                           <AccessControl permission=userPermissionJson.workflowsView>
