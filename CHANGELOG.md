@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.06.1
+
+### Bug Fixes
+
+- User-revamp fixes ([#1317](https://github.com/juspay/hyperswitch-control-center/pull/1317)) ([`0317fb1`](https://github.com/juspay/hyperswitch-control-center/commit/0317fb10398f091b10e579532347228ab00a16c2))
+
+**Full Changelog:** [`2024.09.06.0...2024.09.06.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.06.0...2024.09.06.1)
+
+- - -
+
 ## 2024.09.06.0
 
 ### Bug Fixes

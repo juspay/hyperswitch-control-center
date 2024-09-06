@@ -63,7 +63,7 @@ module NewCustomRoleInputFields = {
 }
 
 @react.component
-let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
+let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~breadCrumbHeader) => {
   open APIUtils
   open LogicUtils
 
@@ -97,7 +97,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
       body->getDictFromJsonObject->Dict.set("role_name", roleNameValue->JSON.Encode.string)
       let _ = await updateDetails(url, body, Post)
       setScreenState(_ => PageLoaderWrapper.Success)
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=`/${baseUrl}`))
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -144,13 +144,16 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
 
   <div className="flex flex-col overflow-y-scroll h-full">
     <RenderIf condition={isInviteUserFlow}>
-      <BreadCrumbNavigation
-        path=[{title: "Users", link: "/users"}] currentPageTitle="Create custom roles"
-      />
-      <PageUtils.PageHeading
-        title="Create custom role"
-        subTitle="Adjust permissions to create custom roles that match your requirement"
-      />
+      <div className="flex flex-col gap-2">
+        <PageUtils.PageHeading
+          title="Create custom role"
+          subTitle="Adjust permissions to create custom roles that match your requirement"
+        />
+        <BreadCrumbNavigation
+          path=[{title: breadCrumbHeader, link: `/${baseUrl}`}]
+          currentPageTitle="Create custom roles"
+        />
+      </div>
     </RenderIf>
     <div
       className={`h-4/5 bg-white relative overflow-y-scroll flex flex-col gap-10 ${paddingClass} ${marginClass}`}>

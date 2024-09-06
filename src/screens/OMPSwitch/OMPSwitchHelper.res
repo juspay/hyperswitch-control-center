@@ -64,7 +64,7 @@ module OMPViews = {
     <div className="flex h-fit">
       {views
       ->Array.mapWithIndex((value, index) => {
-        let selectedStyle = value.entity === selectedEntity ? `bg-blue-200` : ""
+        let selectedStyle = selectedEntity == value.entity ? `bg-blue-200` : ""
         <div
           onClick={_ => onChange(value.entity)->ignore}
           className={`text-sm py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer`}>
