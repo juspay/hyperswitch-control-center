@@ -17,12 +17,10 @@ let make = () => {
   let setUpConnectoreContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      if (
-        userPermissionJson.connectorsView === Access ||
-        userPermissionJson.workflowsView === Access ||
-        userPermissionJson.workflowsManage === Access
-      ) {
+      if userPermissionJson.merchantDetailsView == Access {
         let _ = await fetchMerchantAccountDetails()
+      }
+      if userPermissionJson.connectorsView === Access {
         if !featureFlagDetails.isLiveMode {
           let _ = await fetchConnectorListResponse()
           let _ = await fetchBusinessProfiles()
@@ -38,31 +36,38 @@ let make = () => {
     setUpConnectoreContainer()->ignore
     None
   }, [])
+  <div>
+    <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
+      {switch url.path->urlPath {
+      | list{"home"} => <Home />
 
-  <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
-    {switch url.path->urlPath {
-    | list{"home"} => featureFlagDetails.quickStart ? <HomeV2 /> : <Home />
-    | list{"recon"} =>
-      <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
-        <Recon />
-      </AccessControl>
-    | list{"upload-files"}
-    | list{"run-recon"}
-    | list{"recon-analytics"}
-    | list{"reports"}
-    | list{"config-settings"}
-    | list{"file-processor"} =>
-      <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
-        <ReconModule urlList={url.path->urlPath} />
-      </AccessControl>
-    | list{"unauthorized"} => <UnauthorizedPage />
-    | _ => <NotFoundPage />
-    }}
-    <RenderIf
-      condition={!featureFlagDetails.isLiveMode &&
-      userPermissionJson.merchantDetailsManage === Access &&
-      merchantDetailsTypedValue.merchant_name->Option.isNone}>
-      <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
-    </RenderIf>
-  </PageLoaderWrapper>
+      | list{"recon"} =>
+        <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
+          <Recon />
+        </AccessControl>
+      | list{"upload-files"}
+      | list{"run-recon"}
+      | list{"recon-analytics"}
+      | list{"reports"}
+      | list{"config-settings"}
+      | list{"file-processor"} =>
+        <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
+          <ReconModule urlList={url.path->urlPath} />
+        </AccessControl>
+      | list{"sdk"} =>
+        <AccessControl
+          isEnabled={!featureFlagDetails.isLiveMode} permission={userPermissionJson.connectorsView}>
+          <SDKPage />
+        </AccessControl>
+      | list{"unauthorized"} => <UnauthorizedPage />
+      | _ => <NotFoundPage />
+      }}
+      <RenderIf
+        condition={!featureFlagDetails.isLiveMode &&
+        userPermissionJson.merchantDetailsManage === Access &&
+        merchantDetailsTypedValue.merchant_name->Option.isNone}>
+        <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
+      </RenderIf>
+    </PageLoaderWrapper>
+  </div>
 }
