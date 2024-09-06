@@ -203,6 +203,7 @@ let make = () => {
     <PageUtils.PageHeading title="Profile" subTitle="Manage your profile settings here" />
     <div className="flex flex-col flex-wrap  gap-12">
       <BasicDetailsSection />
+      // TODO : uncomment this when separate api for getting merchant details
       // <MerchantDetailsSection />
       <RenderIf condition={isTwoFactorAuthSetup}>
         <TwoFactorAuthenticationDetails />
