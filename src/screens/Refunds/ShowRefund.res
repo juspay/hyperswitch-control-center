@@ -181,7 +181,8 @@ let make = (~id, ~profileId) => {
       />}>
       <RefundInfo orderDict={refundData->LogicUtils.getDictFromJsonObject} />
       <div className="mt-5" />
-      <RenderIf condition={featureFlagDetails.auditTrail}>
+      <RenderIf
+        condition={featureFlagDetails.auditTrail && userPermissionJson.analyticsView == Access}>
         <OrderUIUtils.RenderAccordian
           initialExpandedArray=[0]
           accordion={[

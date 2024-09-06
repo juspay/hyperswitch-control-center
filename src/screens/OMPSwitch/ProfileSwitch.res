@@ -3,7 +3,7 @@ module ListBaseCompForProfile = {
   let make = (~currProfile, ~arrow) => {
     <div className="flex flex-col items-end gap-2">
       <div
-        className="flex items-center justify-end text-sm text-center text-black font-medium rounded hover:bg-opacity-80 bg-white w-fit">
+        className="flex items-center justify-end text-sm text-center text-black font-medium rounded hover:bg-opacity-80 bg-white w-fit cursor-pointer">
         <div className="flex flex-col items-start px-2 py-2">
           <p className="fs-10 text-nowrap"> {currProfile->React.string} </p>
         </div>
