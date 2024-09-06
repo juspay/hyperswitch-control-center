@@ -44,6 +44,4 @@ type contextType = {
 type sidebarContextType = {
   isSidebarExpanded: bool,
   setIsSidebarExpanded: (bool => bool) => unit,
-  getFromSidebarDetails: string => bool,
-  setIsSidebarDetails: (string, JSON.t) => unit,
 }

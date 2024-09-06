@@ -33,11 +33,11 @@ module MenuOption = {
 
 module SidebarOption = {
   @react.component
-  let make = (~isExpanded, ~name, ~icon, ~isSelected) => {
+  let make = (~isSidebarExpanded, ~name, ~icon, ~isSelected) => {
     let textBoldStyles = isSelected ? "font-bold" : "font-semibold opacity-60"
     let iconColor = isSelected ? "text-white" : "text-white opacity-60"
 
-    if isExpanded {
+    if isSidebarExpanded {
       <div className="flex items-center gap-5">
         <Icon size={getIconSize("small")} name=icon className=iconColor />
         <div className={`text-offset_white text-sm ${textBoldStyles} whitespace-nowrap`}>
@@ -74,7 +74,7 @@ module SidebarSubOption = {
 
 module SidebarItem = {
   @react.component
-  let make = (~tabInfo, ~isSelected, ~isExpanded, ~setOpenItem=_ => ()) => {
+  let make = (~tabInfo, ~isSelected, ~isSidebarExpanded, ~setOpenItem=_ => ()) => {
     let sidebarItemRef = React.useRef(Nullable.null)
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
     let getSearchParamByLink = link => getSearchParamByLink(String.substringToEnd(link, ~start=0))
@@ -114,10 +114,10 @@ module SidebarItem = {
               <div
                 ref={sidebarItemRef->ReactDOM.Ref.domRef}
                 onClick={onSidebarItemClick}
-                className={`${textColor} relative overflow-hidden flex flex-row items-center rounded-lg cursor-pointer ${selectedClass} p-3 ${isExpanded
+                className={`${textColor} relative overflow-hidden flex flex-row items-center rounded-lg cursor-pointer ${selectedClass} p-3 ${isSidebarExpanded
                     ? "mx-2"
                     : "mx-1"} hover:bg-light_white my-0.5`}>
-                <SidebarOption name icon isExpanded isSelected />
+                <SidebarOption name icon isSidebarExpanded isSelected />
               </div>
             </AddDataAttributes>
           </Link>
@@ -136,7 +136,7 @@ module SidebarItem = {
             href={link}
             target="_blank"
             className={`${textColor} flex flex-row items-center cursor-pointer ${selectedClass} p-3`}>
-            <SidebarOption name icon isExpanded isSelected />
+            <SidebarOption name icon isSidebarExpanded isSelected />
             remoteUi
           </a>
         </RenderIf>
@@ -149,11 +149,11 @@ module SidebarItem = {
           <Link to_={GlobalVars.appendDashboardPath(~url=`${link}${getSearchParamByLink(link)}`)}>
             <div
               onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
-              className={`${textColor} flex flex-row items-center cursor-pointer transition duration-300 ${selectedClass} p-3 ${isExpanded
+              className={`${textColor} flex flex-row items-center cursor-pointer transition duration-300 ${selectedClass} p-3 ${isSidebarExpanded
                   ? "mx-2"
                   : "mx-1"} hover:bg-light_white my-0.5`}>
-              <SidebarOption name icon isExpanded isSelected />
-              <RenderIf condition={isExpanded}>
+              <SidebarOption name icon isSidebarExpanded isSelected />
+              <RenderIf condition={isSidebarExpanded}>
                 <Icon
                   size={iconSize->Option.getOr(26)}
                   name=iconTag
@@ -333,7 +333,6 @@ module SidebarNestedSection = {
     ~linkSelectionCheck,
     ~firstPart,
     ~isSideBarExpanded,
-    ~setIsSidebarExpanded,
     ~openItem="",
     ~setOpenItem=_ => (),
     ~isSectionAutoCollapseEnabled=false,
@@ -369,9 +368,8 @@ module SidebarNestedSection = {
       None
     }, (isSideBarExpanded, isAnySubItemSelected))
 
-    let toggleSectionExpansion = React.useCallback(_ev => {
+    let toggleSectionExpansion = React.useCallback(_ => {
       if !isSideBarExpanded {
-        setIsSidebarExpanded(_ => true)
         setTimeout(() => {
           setIsSectionExpanded(_ => true)
         }, 200)->ignore
@@ -380,7 +378,7 @@ module SidebarNestedSection = {
       } else {
         setIsSectionExpanded(p => !p)
       }
-    }, (setIsSectionExpanded, isSideBarExpanded, setIsSidebarExpanded, isAnySubItemSelected))
+    }, (setIsSectionExpanded, isSideBarExpanded, isAnySubItemSelected))
 
     let textColor = {
       if isSideBarExpanded {
@@ -444,45 +442,6 @@ module SidebarNestedSection = {
   }
 }
 
-module PinIconComponentStates = {
-  @react.component
-  let make = (~isHSSidebarPinned, ~setIsSidebarExpanded, ~isSidebarExpanded) => {
-    let isMobileView = MatchMedia.useMobileChecker()
-    let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
-
-    let toggleExpand = React.useCallback(_ => {
-      setIsSidebarExpanded(x => !x)
-    }, [])
-
-    let onClick = ev => {
-      ev->ReactEvent.Mouse.preventDefault
-      ev->ReactEvent.Mouse.stopPropagation
-      ev->toggleExpand
-      setIsSidebarDetails("isPinned", !isHSSidebarPinned->JSON.Encode.bool)
-    }
-
-    <>
-      <RenderIf condition={isSidebarExpanded && !isHSSidebarPinned && !isMobileView}>
-        <Icon size=35 name="sidebar-pin-default" onClick className="cursor-pointer" />
-      </RenderIf>
-      <RenderIf condition={isHSSidebarPinned && !isMobileView}>
-        <Icon size=35 name="sidebar-pin-pinned" onClick className="cursor-pointer" />
-      </RenderIf>
-      <RenderIf condition={isMobileView}>
-        <div className="flex align-center mt-4 pl-3 mb-6 pr-4 ml-1 gap-5 cursor-default">
-          <Icon
-            className="mr-1"
-            size=20
-            name="collapse-cross"
-            customIconColor="#FEFEFE"
-            onClick={_ => setIsSidebarExpanded(_ => false)}
-          />
-        </div>
-      </RenderIf>
-    </>
-  }
-}
-
 @react.component
 let make = (
   ~sidebars: array<topLevelItem>,
@@ -502,36 +461,21 @@ let make = (
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
 
   let (openItem, setOpenItem) = React.useState(_ => "")
-  let {getFromSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
-  let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
-
-  let minWidthForPinnedState = MatchMedia.useMatchMedia("(min-width: 1280px)")
-  // let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
   React.useEffect(() => {
-    if minWidthForPinnedState {
-      setIsSidebarDetails("isPinned", true->JSON.Encode.bool)
-      setIsSidebarExpanded(_ => true)
-    } else {
-      setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
-      setIsSidebarExpanded(_ => false)
-    }
-
+    setIsSidebarExpanded(_ => !isMobileView)
     None
-  }, [minWidthForPinnedState])
-
-  let isHSSidebarPinned = getFromSidebarDetails("isPinned")
-  let isExpanded = isSidebarExpanded || isHSSidebarPinned
+  }, [isMobileView])
 
   let sidebarWidth = {
-    switch isExpanded {
+    switch isSidebarExpanded {
     | true =>
       switch isMobileView {
       | true => "100%"
-      | false => "270px"
+      | false => "275px"
       }
-    | false => "55px"
+    | false => "275px"
     }
   }
   let profileMaxWidth = "145px"
@@ -541,27 +485,12 @@ let make = (
   | None => "/"
   }
 
-  let expansionClass = !isExpanded ? "-translate-x-full" : ""
+  let expansionClass = !isSidebarExpanded ? "-translate-x-full" : ""
 
   let sidebarClass = "shadow-md"
   let sidebarMaxWidth = isMobileView ? "w-screen" : "w-max"
 
-  let onMouseHoverEvent = () => {
-    if !isHSSidebarPinned {
-      setIsSidebarExpanded(_ => true)
-    } else {
-      ()
-    }
-  }
-
-  let onMouseHoverLeaveEvent = () => {
-    if !isHSSidebarPinned {
-      setIsSidebarExpanded(_ => false)
-    } else {
-      ()
-    }
-  }
-  let sidebarContainerClassWidth = isMobileView ? "0px" : isHSSidebarPinned ? "275px" : "50px"
+  let sidebarContainerClassWidth = isMobileView ? "0px" : "275px"
 
   let transformClass = "transform md:translate-x-0 transition"
 
@@ -598,9 +527,7 @@ let make = (
       style={width: sidebarContainerClassWidth}
     />
     <div
-      className={`absolute z-40 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}
-      onMouseOver={_ => onMouseHoverEvent()}
-      onMouseLeave={_ => onMouseHoverLeaveEvent()}>
+      className={`absolute z-40 h-screen flex ${transformClass} duration-300 ease-in-out ${sidebarMaxWidth} ${expansionClass}`}>
       <div
         ref={sideBarRef->ReactDOM.Ref.domRef}
         className={`${backgroundColor.primaryNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
@@ -614,10 +541,20 @@ let make = (
             }}>
             <Icon size=20 name="hamburger-new" />
           </div>
-          <PinIconComponentStates isHSSidebarPinned setIsSidebarExpanded isSidebarExpanded />
+          <RenderIf condition={isMobileView}>
+            <div className="flex align-center mt-4 pl-3 mb-6 pr-4 ml-1 gap-5 cursor-default">
+              <Icon
+                className="mr-1"
+                size=20
+                name="collapse-cross"
+                customIconColor="#FEFEFE"
+                onClick={_ => setIsSidebarExpanded(_ => false)}
+              />
+            </div>
+          </RenderIf>
         </div>
         <RenderIf condition={featureFlagDetails.userManagementRevamp}>
-          <SidebarSwitch isExpanded />
+          <SidebarSwitch isSidebarExpanded />
         </RenderIf>
         <div
           className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar"
@@ -630,13 +567,13 @@ let make = (
             | Link(record) => {
                 let isSelected = linkSelectionCheck(firstPart, record.link)
                 <SidebarItem
-                  key={Int.toString(index)} tabInfo isSelected isExpanded={isExpanded} setOpenItem
+                  key={Int.toString(index)} tabInfo isSelected isSidebarExpanded setOpenItem
                 />
               }
 
             | LinkWithTag(record) => {
                 let isSelected = linkSelectionCheck(firstPart, record.link)
-                <SidebarItem key={Int.toString(index)} tabInfo isSelected isExpanded={isExpanded} />
+                <SidebarItem key={Int.toString(index)} tabInfo isSelected isSidebarExpanded />
               }
 
             | Section(section) =>
@@ -646,8 +583,7 @@ let make = (
                   section
                   linkSelectionCheck
                   firstPart
-                  isSideBarExpanded={isExpanded}
-                  setIsSidebarExpanded
+                  isSideBarExpanded={isSidebarExpanded}
                   openItem
                   setOpenItem
                   isSectionAutoCollapseEnabled=true
@@ -656,14 +592,14 @@ let make = (
             | Heading(headingOptions) =>
               <div
                 key={Int.toString(index)}
-                className={`text-xs font-semibold leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-sm border-transparent px-3 ${isExpanded
+                className={`text-xs font-semibold leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-sm border-transparent px-3 ${isSidebarExpanded
                     ? "mx-2"
                     : "mx-1"} mt-5 mb-3`}>
-                {{isExpanded ? headingOptions.name : ""}->React.string}
+                {{isSidebarExpanded ? headingOptions.name : ""}->React.string}
               </div>
 
             | CustomComponent(customComponentOptions) =>
-              <RenderIf condition={isExpanded} key={Int.toString(index)}>
+              <RenderIf condition={isSidebarExpanded} key={Int.toString(index)}>
                 customComponentOptions.component
               </RenderIf>
             }
@@ -671,7 +607,7 @@ let make = (
           ->React.array}
         </div>
         <div className="flex items-center justify-between mb-5 mt-2 mx-2 mr-2 hover:bg-[#334264]">
-          <RenderIf condition={isExpanded}>
+          <RenderIf condition={isSidebarExpanded}>
             <Popover className="relative inline-block text-left">
               {popoverProps => <>
                 <Popover.Button
@@ -691,7 +627,7 @@ let make = (
                       </div>
                       <ToolTip
                         description=email
-                        toolTipFor={<RenderIf condition={isExpanded}>
+                        toolTipFor={<RenderIf condition={isSidebarExpanded}>
                           <div
                             className={`w-[${profileMaxWidth}] text-sm font-medium text-gray-400 dark:text-gray-600 text-ellipsis overflow-hidden`}>
                             {email->React.string}
