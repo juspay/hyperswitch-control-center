@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.06.0
+
+### Bug Fixes
+
+- Fix: bug fixes user restructuring ([#1311](https://github.com/juspay/hyperswitch-control-center/pull/1311)) ([`7fd1bc7`](https://github.com/juspay/hyperswitch-control-center/commit/7fd1bc7de5886e68c6508cac1de2c5d873437b95))
+- Dialog on org , merchant and profile switch & bug-fixes ([#1299](https://github.com/juspay/hyperswitch-control-center/pull/1299)) ([`007ea04`](https://github.com/juspay/hyperswitch-control-center/commit/007ea042f8e9510ce4b6a2481bb201b4ff440f7a))
+
+**Full Changelog:** [`2024.09.05.2...2024.09.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.05.2...2024.09.06.0)
+
+- - -
+
 ## 2024.09.05.2
 
 ### Features
