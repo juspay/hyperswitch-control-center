@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.06.4
+
+### Bug Fixes
+
+- User permission change for audit trail ([#1322](https://github.com/juspay/hyperswitch-control-center/pull/1322)) ([`26f2dcf`](https://github.com/juspay/hyperswitch-control-center/commit/26f2dcf529e49dca17c78c51f22357905643f01c))
+- Merchant id from user-info ([#1324](https://github.com/juspay/hyperswitch-control-center/pull/1324)) ([`12b0d16`](https://github.com/juspay/hyperswitch-control-center/commit/12b0d168a012220dd475884546910485bc1edffb))
+
+**Full Changelog:** [`2024.09.06.3...2024.09.06.4`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.06.3...2024.09.06.4)
+
+- - -
+
 ## 2024.09.06.3
 
 ### Bug Fixes
