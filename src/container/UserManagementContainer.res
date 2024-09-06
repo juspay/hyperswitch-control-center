@@ -21,16 +21,18 @@ let make = () => {
 
   let fetchModuleList = async () => {
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=USERS,
-        ~userType=#ROLE_INFO,
-        ~methodType=Get,
-        ~queryParamerters=Some(`groups=true`),
-      )
-      let res = await fetchDetails(url)
-      let roleInfo = res->LogicUtils.getArrayDataFromJson(UserUtils.itemToObjMapperForGetRoleInfro)
-      setRoleInfo(_ => roleInfo)
+      if userPermissionJson.usersManage === Access {
+        let url = getURL(
+          ~entityName=USERS,
+          ~userType=#ROLE_INFO,
+          ~methodType=Get,
+          ~queryParamerters=Some(`groups=true`),
+        )
+        let res = await fetchDetails(url)
+        let roleInfo =
+          res->LogicUtils.getArrayDataFromJson(UserUtils.itemToObjMapperForGetRoleInfro)
+        setRoleInfo(_ => roleInfo)
+      }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
@@ -38,9 +40,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if userPermissionJson.usersManage === Access {
-      fetchModuleList()->ignore
-    }
+    fetchModuleList()->ignore
     None
   }, [])
 
@@ -69,7 +69,7 @@ let make = () => {
         />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
-    | _ => <> </>
+    | _ => <NotFoundPage />
     }}
   </PageLoaderWrapper>
 }
