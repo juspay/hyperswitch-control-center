@@ -19,8 +19,7 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let form = ReactFinalForm.useForm()
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
-  let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
-  let merchantId = merchantDetailsValue.merchant_id
+  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
