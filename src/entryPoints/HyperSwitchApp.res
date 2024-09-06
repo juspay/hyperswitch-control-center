@@ -259,7 +259,8 @@ let make = () => {
                               <UserJourneyAnalytics />
                             </FilterContext>
                           </AccessControl>
-                        | list{"new-analytics-overview"} =>
+                        | list{"new-analytics-overview"}
+                        | list{"new-analytics-payment"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.newAnalytics}
                             permission=userPermissionJson.analyticsView>
