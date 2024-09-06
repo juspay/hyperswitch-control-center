@@ -1,9 +1,87 @@
 module InfoSection = {
   @react.component
   let make = () => {
-    <div className="w-full px-7 py-8">
-      <div className="flex flex-col gap-2 ">
+    open HeadlessUI
+    let (arrow, setArrow) = React.useState(_ => false)
+
+    <div className="w-full px-7 py-8 flex justify-between">
+      <div className="flex gap-2 items-center">
         <div className="text-3xl font-[600]"> {"165K"->React.string} </div>
+        <div className="bg-[#0E92551A] w-fit h-fit rounded-2xl text-[#12B76A] flex px-2 pt-0.5">
+          <Icon className="mt-0.5 -mr-1" name="arrow-increasing" size=25 />
+          <div className="font-[600]"> {"8%"->React.string} </div>
+        </div>
+      </div>
+      <div>
+        <Menu \"as"="div" className="relative inline-block text-left">
+          {_menuProps =>
+            <div>
+              <Menu.Button
+                className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border border-[#E5E5E5]">
+                {_buttonProps => {
+                  <>
+                    {"By Amount"->React.string}
+                    <Icon
+                      className={arrow
+                        ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
+                        : `rotate-180 transition duration-[250ms] ml-1 mt-1 opacity-60`}
+                      name="arrow-without-tail"
+                      size=15
+                    />
+                  </>
+                }}
+              </Menu.Button>
+              <Transition
+                \"as"="span"
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95">
+                {<Menu.Items
+                  className="absolute right-0 z-50 w-fit mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  {props => {
+                    if props["open"] {
+                      setArrow(_ => true)
+                    } else {
+                      setArrow(_ => false)
+                    }
+                    <>
+                      <div className="px-1 py-1 ">
+                        {[]
+                        ->Array.mapWithIndex((option, i) =>
+                          <Menu.Item key={i->Int.toString}>
+                            {props =>
+                              <div className="relative">
+                                <button
+                                  onClick={_ => ()}
+                                  className={
+                                    let activeClasses = if props["active"] {
+                                      "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                                    } else {
+                                      "group flex rounded-md items-center w-full px-2 py-2 text-sm"
+                                    }
+                                    `${activeClasses} font-medium text-start`
+                                  }>
+                                  <div className="mr-5"> {""->React.string} </div>
+                                </button>
+                                <RenderIf condition={true}>
+                                  <Icon
+                                    className={`absolute top-2 right-2 `} name="check" size=15
+                                  />
+                                </RenderIf>
+                              </div>}
+                          </Menu.Item>
+                        )
+                        ->React.array}
+                      </div>
+                    </>
+                  }}
+                </Menu.Items>}
+              </Transition>
+            </div>}
+        </Menu>
       </div>
     </div>
   }
@@ -34,7 +112,9 @@ let make = () => {
     </h2>
     <Card>
       <InfoSection />
-      <Chart options highcharts />
+      <div className="mx-3">
+        <Chart options highcharts />
+      </div>
       <NoteSection />
     </Card>
   </div>
