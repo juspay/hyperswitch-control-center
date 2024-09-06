@@ -239,7 +239,7 @@ let make = () => {
                           </AccessControl>
                         | list{"users", "create-custom-role"} =>
                           <AccessControl permission=userPermissionJson.usersManage>
-                            <CreateCustomRole />
+                            <CreateCustomRole baseUrl="users" breadCrumbHeader="Users" />
                           </AccessControl>
                         | list{"users", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.usersView>
@@ -251,7 +251,7 @@ let make = () => {
                             />
                           </AccessControl>
 
-                        | list{"users-revamp", ..._} => <UserManagementContainer />
+                        | list{"users-v2", ..._} => <UserManagementContainer />
 
                         | list{"analytics-user-journey"} =>
                           <AccessControl
