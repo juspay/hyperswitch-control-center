@@ -49,8 +49,8 @@ let emptyComponent = CustomComponent({
   component: React.null,
 })
 
-let productionAccessComponent = isProductionAccessEnabled =>
-  isProductionAccessEnabled
+let productionAccessComponent = (isProductionAccessEnabled, permissionJson) =>
+  isProductionAccessEnabled && permissionJson.merchantDetailsManage === Access
     ? CustomComponent({
         component: <GetProductionAccess />,
       })
@@ -505,8 +505,8 @@ let paymentSettings = () => {
   })
 }
 
-let developers = (isDevelopersEnabled, userRole, systemMetrics, ~permissionJson) => {
-  let isInternalUser = userRole->String.includes("internal_")
+let developers = (isDevelopersEnabled, systemMetrics, ~permissionJson, ~checkUserEntity) => {
+  let isInternalUser = checkUserEntity([#Internal])
   let apiKeys = apiKeys(permissionJson)
   let paymentSettings = paymentSettings()
   let systemMetric = systemMetric(permissionJson)
@@ -575,9 +575,9 @@ let reconFileProcessor = {
   })
 }
 
-let reconAndSettlement = (recon, isReconEnabled) => {
-  switch (recon, isReconEnabled) {
-  | (true, true) =>
+let reconAndSettlement = (recon, isReconEnabled, checkUserEntity) => {
+  switch (recon, isReconEnabled, checkUserEntity([#Merchant, #Organization])) {
+  | (true, true, true) =>
     Section({
       name: "Recon And Settlement",
       icon: "recon",
@@ -591,7 +591,7 @@ let reconAndSettlement = (recon, isReconEnabled) => {
         reconFileProcessor,
       ],
     })
-  | (true, false) =>
+  | (true, false, true) =>
     Link({
       name: "Reconciliation",
       icon: isReconEnabled ? "recon" : "recon-lock",
@@ -599,16 +599,14 @@ let reconAndSettlement = (recon, isReconEnabled) => {
       access: Access,
     })
 
-  | (_, _) => emptyComponent
+  | _ => emptyComponent
   }
 }
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
-  let {userRole} =
-    CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-  let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {
     frm,
     payOut,
@@ -630,7 +628,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   } = featureFlagDetails
 
   let sidebar = [
-    productionAccessComponent(quickStart),
+    productionAccessComponent(quickStart, permissionJson),
     default->home,
     default->operations(~permissionJson, ~isPayoutsEnabled=payOut, ~userEntity),
     default->connectors(
@@ -649,8 +647,8 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~permissionJson,
     ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut, ~userEntity),
-    recon->reconAndSettlement(isReconEnabled),
-    default->developers(userRole, systemMetrics, ~permissionJson),
+    recon->reconAndSettlement(isReconEnabled, checkUserEntity),
+    default->developers(systemMetrics, ~permissionJson, ~checkUserEntity),
     settings(
       ~isConfigurePmtsEnabled=configurePmts,
       ~permissionJson,

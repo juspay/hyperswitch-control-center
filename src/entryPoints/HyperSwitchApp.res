@@ -164,7 +164,14 @@ let make = () => {
                               userRole={userRole} isAddMerchantEnabled={userRole === "org_admin"}
                             />
                           </RenderIf>
-                          <RenderIf condition={featureFlagDetails.userManagementRevamp}>
+                          <RenderIf
+                            condition={featureFlagDetails.userManagementRevamp &&
+                            checkUserEntity([#Internal])}>
+                            <SwitchMerchantForInternal />
+                          </RenderIf>
+                          <RenderIf
+                            condition={featureFlagDetails.userManagementRevamp &&
+                            !checkUserEntity([#Internal])}>
                             <ProfileSwitch />
                           </RenderIf>
                           <div
@@ -282,8 +289,8 @@ let make = () => {
                           </AccessControl>
                         | list{"developer-system-metrics"} =>
                           <AccessControl
-                            isEnabled={userRole->String.includes("internal_") &&
-                              featureFlagDetails.systemMetrics}
+                            isEnabled={checkUserEntity([#Internal]) &&
+                            featureFlagDetails.systemMetrics}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext key="SystemMetrics" index="SystemMetrics">
                               <SystemMetricsAnalytics />

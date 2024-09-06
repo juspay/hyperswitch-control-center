@@ -17,7 +17,7 @@ let defaultValueOfUserInfo = {
 
 let entityMapper = entity => {
   switch entity->String.toLowerCase {
-  // | "internal" => #Internal
+  | "internal" => #Internal
   | "organization" => #Organization
   | "merchant" => #Merchant
   | "profile" => #Profile
@@ -27,8 +27,18 @@ let entityMapper = entity => {
 
 let transactionEntityMapper = entity => {
   switch entity->String.toLowerCase {
-  // | "internal" => #Internal
-  | "merchant" => #Merchant
+  | "internal"
+  | "merchant" =>
+    #Merchant
+  | "profile" => #Profile
+  | _ => #Merchant
+  }
+}
+
+let analyticsEntityMapper = entity => {
+  switch entity->String.toLowerCase {
+  | "organization" => #Organization
+  | "merchant" | "internal" => #Merchant
   | "profile" => #Profile
   | _ => #Merchant
   }
@@ -55,6 +65,6 @@ let itemMapper = dict => {
   verificationDaysLeft: dict->getOptionInt("verification_days_left"),
   profileId: dict->getString("profile_id", ""),
   userEntity: dict->getString("entity_type", "")->entityMapper,
-  analyticsEntity: dict->getString("entity_type", "")->entityMapper,
+  analyticsEntity: dict->getString("entity_type", "")->analyticsEntityMapper,
   transactionEntity: dict->getString("entity_type", "")->transactionEntityMapper,
 }
