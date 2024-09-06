@@ -2,7 +2,7 @@ open HeadlessUI
 
 type dropDownState = Loading | Success | NoData
 
-let commonDropdownCss = "absolute md:max-h-36 md:min-h-36 overflow-scroll z-30 w-full bg-white rounded-sm shadow-lg  focus:outline-none my-1 border border-jp-gray-lightmode_steelgray border-opacity-75  ring-1 ring-black ring-opacity-5"
+let commonDropdownCss = "absolute md:max-h-36 md:min-h-fit overflow-scroll z-30 w-full bg-white rounded-sm shadow-lg  focus:outline-none my-1 border border-jp-gray-lightmode_steelgray border-opacity-75  ring-1 ring-black ring-opacity-5"
 
 module DropDownItems = {
   @react.component
@@ -60,7 +60,7 @@ module DropDownLoading = {
 module DropDownNoData = {
   @react.component
   let make = () => {
-    <div className={`${commonDropdownCss} flex justify-center items-center`}>
+    <div className={`${commonDropdownCss} flex justify-center items-center p-6`}>
       <p className="text-semibold text-gray-600 opacity-60">
         {"No data to display"->React.string}
       </p>

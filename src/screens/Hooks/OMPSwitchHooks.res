@@ -1,6 +1,7 @@
 type userInfo = {
   getUserInfo: unit => promise<UserInfoTypes.userInfo>,
   updateTransactionEntity: UserInfoTypes.entity => unit,
+  updateAnalytcisEntity: UserInfoTypes.entity => unit,
 }
 let useUserInfo = () => {
   open LogicUtils
@@ -29,7 +30,14 @@ let useUserInfo = () => {
     }
     setUserInfoData(updateInfo)
   }
-  {getUserInfo, updateTransactionEntity}
+  let updateAnalytcisEntity = (analyticsEntity: UserInfoTypes.entity) => {
+    let updateInfo = {
+      ...userInfo,
+      analyticsEntity,
+    }
+    setUserInfoData(updateInfo)
+  }
+  {getUserInfo, updateTransactionEntity, updateAnalytcisEntity}
 }
 
 let useOrgSwitch = () => {

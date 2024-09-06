@@ -37,9 +37,11 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    fetchModuleList()->ignore
+    if userPermissionJson.usersManage === Access {
+      fetchModuleList()->ignore
+    }
     None
-  }, [userPermissionJson])
+  }, [])
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
@@ -54,7 +56,7 @@ let make = () => {
           entityName="UserManagement"
           remainingPath
           renderList={_ => <UserManagementLanding />}
-          renderShow={(_, _) => <ShowUserData />}
+          renderShow={(_, _) => <UserInfo />}
         />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />

@@ -26,7 +26,7 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let {userInfo: {orgId, merchantId, profileId, userEntity}} = React.useContext(
+  let {userInfo: {orgId, merchantId, profileId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
@@ -82,6 +82,7 @@ let make = () => {
 
   let setUpDashboard = async () => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       Window.connectorWasmInit()->ignore
       let _ = await fetchPermissions()
       let _ = await fetchSwitchMerchantList()
@@ -141,7 +142,7 @@ let make = () => {
         | #HOME =>
           <div className="relative">
             // TODO: Change the key to only profileId once the userInfo starts sending profileId
-            <div className={`h-screen flex flex-col`} key={`${orgId}-${merchantId}-${profileId}`}>
+            <div className={`h-screen flex flex-col`}>
               <div className="flex relative overflow-auto h-screen ">
                 <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
                 <div
@@ -155,10 +156,11 @@ let make = () => {
                       <Navbar
                         headerActions={<div className="relative flex items-center gap-4 my-2 ">
                           <GlobalSearchBar />
-                          <SwitchMerchant
-                            userRole={userRole}
-                            isAddMerchantEnabled={userRole === "org_admin" ? true : false}
-                          />
+                          <RenderIf condition={!featureFlagDetails.userManagementRevamp}>
+                            <SwitchMerchant
+                              userRole={userRole} isAddMerchantEnabled={userRole === "org_admin"}
+                            />
+                          </RenderIf>
                           <RenderIf condition={featureFlagDetails.userManagementRevamp}>
                             <ProfileSwitch />
                           </RenderIf>
@@ -214,10 +216,15 @@ let make = () => {
                         | list{"disputes", ..._}
                         | list{"payouts", ..._} =>
                           <TransactionContainer />
+                        | list{"analytics-payments"}
+                        | list{"performance-monitor"}
+                        | list{"analytics-refunds"}
+                        | list{"analytics-disputes"} =>
+                          <AnalyticsContainser />
                         | list{"customers", ...remainingPath} =>
                           <AccessControl
                             permission={userPermissionJson.operationsView}
-                            isEnabled={userEntity !== #Profile}>
+                            isEnabled={[#Organization, #Merchant]->checkUserEntity}>
                             <EntityScaffold
                               entityName="Customers"
                               remainingPath
@@ -246,37 +253,10 @@ let make = () => {
 
                         | list{"users-revamp", ..._} => <UserManagementContainer />
 
-                        | list{"analytics-payments"} =>
-                          <AccessControl permission=userPermissionJson.analyticsView>
-                            <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
-                              <PaymentAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"performance-monitor"} =>
-                          <AccessControl
-                            permission=userPermissionJson.analyticsView
-                            isEnabled={featureFlagDetails.performanceMonitor}>
-                            <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
-                              <PerformanceMonitor domain="payments" />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"analytics-refunds"} =>
-                          <AccessControl permission=userPermissionJson.analyticsView>
-                            <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
-                              <RefundsAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"analytics-disputes"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.disputeAnalytics}
-                            permission=userPermissionJson.analyticsView>
-                            <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
-                              <DisputeAnalytics />
-                            </FilterContext>
-                          </AccessControl>
                         | list{"analytics-user-journey"} =>
                           <AccessControl
-                            isEnabled=featureFlagDetails.userJourneyAnalytics
+                            isEnabled={featureFlagDetails.userJourneyAnalytics &&
+                            [#Organization, #Merchant]->checkUserEntity}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                               <UserJourneyAnalytics />
@@ -284,7 +264,8 @@ let make = () => {
                           </AccessControl>
                         | list{"analytics-authentication"} =>
                           <AccessControl
-                            isEnabled=featureFlagDetails.authenticationAnalytics
+                            isEnabled={featureFlagDetails.authenticationAnalytics &&
+                            [#Organization, #Merchant]->checkUserEntity}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext
                               key="AuthenticationAnalytics" index="AuthenticationAnalytics">
