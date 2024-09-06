@@ -12,7 +12,8 @@ module InfoSection = {
 module NoteSection = {
   @react.component
   let make = () => {
-    <div className="w-fit m-7 py-3 px-4 bg-[#F7D59B4D] rounded-lg flex gap-2 font-medium">
+    <div
+      className="w-fit mx-7 mb-7 mt-3 py-3 px-4 bg-[#F7D59B4D] rounded-lg flex gap-2 font-medium">
       <Icon name="info-vacent " size=16 />
       <p className="text-[#474D59] text-sm">
         {"Highest amount received was USD9,700 for the month of Aug. Lowest amount issued was ₹2,900 for the month of Aug"->React.string}
