@@ -13,13 +13,13 @@ let make = () => {
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let setUpConnectoreContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      if userPermissionJson.merchantDetailsView == Access {
-        let _ = await fetchMerchantAccountDetails()
-      }
+
+      let _ = await fetchMerchantAccountDetails()
       if userPermissionJson.connectorsView === Access {
         if !featureFlagDetails.isLiveMode {
           let _ = await fetchConnectorListResponse()
@@ -42,7 +42,8 @@ let make = () => {
       | list{"home"} => <Home />
 
       | list{"recon"} =>
-        <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
+        <AccessControl
+          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])} permission=Access>
           <Recon />
         </AccessControl>
       | list{"upload-files"}
@@ -51,7 +52,8 @@ let make = () => {
       | list{"reports"}
       | list{"config-settings"}
       | list{"file-processor"} =>
-        <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
+        <AccessControl
+          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])} permission=Access>
           <ReconModule urlList={url.path->urlPath} />
         </AccessControl>
       | list{"sdk"} =>
