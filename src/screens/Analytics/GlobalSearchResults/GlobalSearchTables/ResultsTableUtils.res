@@ -3,7 +3,7 @@ let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid b
 let useGetData = () => {
   open LogicUtils
   let body = Dict.make()
-  let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
+  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let getURL = APIUtils.useGetURL()
   async (
     ~updateDetails: (
@@ -25,7 +25,7 @@ let useGetData = () => {
     if !(query->CommonAuthUtils.isValidEmail) {
       let filters = [("customer_email", [query->JSON.Encode.string]->JSON.Encode.array)]
       body->Dict.set("filters", filters->getJsonFromArrayOfJson)
-      body->Dict.set("query", merchantDetailsValue.merchant_id->JSON.Encode.string)
+      body->Dict.set("query", merchantId->JSON.Encode.string)
     } else {
       body->Dict.set("query", query->JSON.Encode.string)
     }

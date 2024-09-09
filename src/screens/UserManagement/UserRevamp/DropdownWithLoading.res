@@ -49,10 +49,11 @@ module DropDownItems = {
 module DropDownLoading = {
   @react.component
   let make = () => {
-    <div className={`${commonDropdownCss} flex justify-center items-center`}>
+    <div className={`${commonDropdownCss} flex flex-col justify-center items-center p-6 gap-4`}>
       <div className={`flex flex-col text-center items-center animate-spin `}>
         <Icon name="spinner" size=20 />
       </div>
+      <p className="text-gray-600"> {"Fetching data..."->React.string} </p>
     </div>
   }
 }

@@ -2,7 +2,7 @@ module ListBaseComp = {
   @react.component
   let make = (~heading, ~subHeading, ~arrow) => {
     <div
-      className="flex items-center justify-between text-sm text-center text-white font-medium rounded hover:bg-opacity-80 bg-sidebar-blue">
+      className="flex items-center justify-between text-sm text-center text-white font-medium rounded hover:bg-opacity-80 bg-sidebar-blue cursor-pointer">
       <div className="flex flex-col items-start px-2 py-2">
         <p className="text-xs text-gray-400"> {heading->React.string} </p>
         <p className="fs-10"> {subHeading->React.string} </p>
@@ -64,7 +64,7 @@ module OMPViews = {
     <div className="flex h-fit">
       {views
       ->Array.mapWithIndex((value, index) => {
-        let selectedStyle = value.entity === selectedEntity ? `bg-blue-200` : ""
+        let selectedStyle = selectedEntity == value.entity ? `bg-blue-200` : ""
         <div
           onClick={_ => onChange(value.entity)->ignore}
           className={`text-sm py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer`}>

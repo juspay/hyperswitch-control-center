@@ -21,15 +21,18 @@ let make = () => {
 
   let fetchModuleList = async () => {
     try {
-      let url = getURL(
-        ~entityName=USERS,
-        ~userType=#ROLE_INFO,
-        ~methodType=Get,
-        ~queryParamerters=Some(`groups=true`),
-      )
-      let res = await fetchDetails(url)
-      let roleInfo = res->LogicUtils.getArrayDataFromJson(UserUtils.itemToObjMapperForGetRoleInfro)
-      setRoleInfo(_ => roleInfo)
+      if userPermissionJson.usersManage === Access {
+        let url = getURL(
+          ~entityName=USERS,
+          ~userType=#ROLE_INFO,
+          ~methodType=Get,
+          ~queryParamerters=Some(`groups=true`),
+        )
+        let res = await fetchDetails(url)
+        let roleInfo =
+          res->LogicUtils.getArrayDataFromJson(UserUtils.itemToObjMapperForGetRoleInfro)
+        setRoleInfo(_ => roleInfo)
+      }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
@@ -37,21 +40,27 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if userPermissionJson.usersManage === Access {
-      fetchModuleList()->ignore
-    }
+    fetchModuleList()->ignore
     None
   }, [])
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
     // User Management modules
-    | list{"users-revamp", "invite-users"} =>
-      <AccessControl isEnabled={featureFlagDetails.userManagementRevamp} permission={Access}>
+    | list{"users-v2", "invite-users"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.userManagementRevamp}
+        permission={userPermissionJson.usersManage}>
         <InviteMember />
       </AccessControl>
-    | list{"users-revamp", ...remainingPath} =>
-      <AccessControl isEnabled={featureFlagDetails.userManagementRevamp} permission={Access}>
+    | list{"users-v2", "create-custom-role"} =>
+      <AccessControl permission=userPermissionJson.usersManage>
+        <CreateCustomRole baseUrl="users-v2" breadCrumbHeader="Team management" />
+      </AccessControl>
+    | list{"users-v2", ...remainingPath} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.userManagementRevamp}
+        permission={userPermissionJson.usersView}>
         <EntityScaffold
           entityName="UserManagement"
           remainingPath
@@ -60,7 +69,7 @@ let make = () => {
         />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
-    | _ => <> </>
+    | _ => <NotFoundPage />
     }}
   </PageLoaderWrapper>
 }

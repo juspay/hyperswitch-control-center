@@ -248,6 +248,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   let {setAuthStatus, authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (value, setValue) = React.useState(() => "")
+
   let merchantId = switch authStatus {
   | LoggedIn(info) =>
     switch info {
@@ -259,6 +260,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   let showPopUp = PopUpState.useShowPopUp()
   let isInternalUser = userRole->String.includes("internal_")
   let (successModal, setSuccessModal) = React.useState(_ => false)
+
   let input = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
     {
       name: "-",
