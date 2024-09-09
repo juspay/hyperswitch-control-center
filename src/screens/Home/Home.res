@@ -13,7 +13,6 @@ let make = () => {
         <HomeUtils.LowRecoveryCodeBanner recoveryCode />
       </RenderIf>
       {featureFlagDetails.userManagementRevamp ? <PendingInvitationsHome /> : <AcceptInviteHome />}
-      <AcceptInviteHome />
     </div>
     <PageHeading
       title={`${greeting}, it's great to see you!`}

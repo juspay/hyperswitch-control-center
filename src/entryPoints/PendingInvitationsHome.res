@@ -46,11 +46,13 @@ module InviteForMultipleInvitation = {
               <div
                 className="w-full bg-white p-6 flex items-center justify-between border-1 rounded-xl !shadow-[0_2px_4px_0_rgba(0,0,0,_0.05)]"
                 key={index->Int.toString}>
-                <div className="flex items-center gap-3">
-                  <Icon size=40 name="group-users-without-circle" />
-                  <div>
-                    {`You've been invited to the Hyperswitch dashboard by `->React.string}
-                    <span className="font-bold"> {ele.entityId->React.string} </span>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-3">
+                    <Icon size=40 name="group-users-without-circle" />
+                    <div>
+                      {`You've been invited to the Hyperswitch dashboard by `->React.string}
+                      <span className="font-bold"> {ele.entityId->React.string} </span>
+                    </div>
                   </div>
                   {switch checkIfInvitationAccepted(ele.entityId, ele.entityType) {
                   | Some(_) =>
