@@ -709,7 +709,8 @@ let make = (~id, ~profileId) => {
           openRefundModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
-        <RenderIf condition={featureFlagDetails.auditTrail}>
+        <RenderIf
+          condition={featureFlagDetails.auditTrail && userPermissionJson.analyticsView == Access}>
           <RenderAccordian
             initialExpandedArray=[0]
             accordion={[

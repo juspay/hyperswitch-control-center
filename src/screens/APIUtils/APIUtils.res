@@ -54,7 +54,10 @@ let useGetURL = () => {
         | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
         | None =>
           switch (userEntity, userManagementRevamp) {
-          | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile/connectors`
+          | (#Organization, true)
+          | (#Merchant, true)
+          | (#Profile, true) =>
+            `account/${merchantId}/profile/connectors`
           | _ => connectorBaseURL
           }
         }
@@ -221,7 +224,9 @@ let useGetURL = () => {
         | Some(routingId) => `routing/${routingId}`
         | None =>
           switch (userEntity, userManagementRevamp) {
-          | (#Merchant, true) | (#Profile, true) => `routing/list/profile`
+          | (#Organization, true)
+          | (#Merchant, true)
+          | (#Profile, true) => `routing/list/profile`
           | _ => `routing`
           }
         }
@@ -338,7 +343,9 @@ let useGetURL = () => {
         | Some(routingId) => `routing/${routingId}`
         | _ =>
           switch (userEntity, userManagementRevamp) {
-          | (#Merchant, true) | (#Profile, true) => `routing/payouts/list/profile`
+          | (#Organization, true)
+          | (#Merchant, true)
+          | (#Profile, true) => `routing/payouts/list/profile`
           | _ => `routing/payouts`
           }
         }
@@ -453,13 +460,21 @@ let useGetURL = () => {
 
     /* BUSINESS PROFILE */
     | BUSINESS_PROFILE =>
-      switch id {
-      | Some(id) => `account/${merchantId}/business_profile/${id}`
-      | None =>
+      switch methodType {
+      | Get =>
         switch (userEntity, userManagementRevamp) {
-        | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile`
+        | (#Organization, true)
+        | (#Merchant, true)
+        | (#Profile, true) =>
+          `account/${merchantId}/profile`
         | _ => `account/${merchantId}/business_profile`
         }
+      | Post =>
+        switch id {
+        | Some(id) => `account/${merchantId}/business_profile/${id}`
+        | None => `account/${merchantId}/business_profile`
+        }
+      | _ => `account/${merchantId}/business_profile`
       }
 
     /* API KEYS */
@@ -678,7 +693,6 @@ let useGetURL = () => {
 let useHandleLogout = () => {
   let getURL = useGetURL()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
 
@@ -696,7 +710,6 @@ let useHandleLogout = () => {
           JSON.Encode.null->resolve
         })
       setAuthStateToLogout()
-      setIsSidebarExpanded(_ => false)
       clearRecoilValue()
       AuthUtils.redirectToLogin()
       LocalStorage.clear()

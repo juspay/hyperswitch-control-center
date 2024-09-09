@@ -218,7 +218,8 @@ let make = () => {
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
+  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+
   let redirectOnSelect = element => {
     mixpanelEvent(~eventName="global_search_redirect")
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
@@ -232,7 +233,7 @@ let make = () => {
     try {
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
 
-      let body = generateSearchBody(~searchText, ~merchant_id={merchantDetailsValue.merchant_id})
+      let body = generateSearchBody(~searchText, ~merchant_id={merchantId})
 
       let response = await fetchDetails(url, body, Post)
 
