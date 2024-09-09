@@ -114,7 +114,6 @@ let make = (~previewOnly=false) => {
   let filtersUI = React.useMemo(() => {
     <RemoteTableFilters
       title="Orders"
-      filterUrl
       setFilters
       endTimeFilterKey
       startTimeFilterKey
