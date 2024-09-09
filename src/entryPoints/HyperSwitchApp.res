@@ -232,6 +232,15 @@ let make = () => {
                         | list{"analytics-refunds"}
                         | list{"analytics-disputes"} =>
                           <AnalyticsContainser />
+                        | list{"new-analytics-overview"}
+                        | list{"new-analytics-payment"} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.newAnalytics}
+                            permission=userPermissionJson.analyticsView>
+                            <FilterContext key="NewAnalytics" index="NewAnalytics">
+                              <NewAnalyticsContainer />
+                            </FilterContext>
+                          </AccessControl>
                         | list{"customers", ...remainingPath} =>
                           <AccessControl
                             permission={userPermissionJson.operationsView}
@@ -261,9 +270,7 @@ let make = () => {
                               renderShow={(_, _) => <ShowUserData />}
                             />
                           </AccessControl>
-
                         | list{"users-v2", ..._} => <UserManagementContainer />
-
                         | list{"analytics-user-journey"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.userJourneyAnalytics &&
@@ -271,15 +278,6 @@ let make = () => {
                             permission=userPermissionJson.analyticsView>
                             <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                               <UserJourneyAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"new-analytics-overview"}
-                        | list{"new-analytics-payment"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.newAnalytics}
-                            permission=userPermissionJson.analyticsView>
-                            <FilterContext key="NewAnalytics" index="NewAnalytics">
-                              <NewAnalyticsContainer />
                             </FilterContext>
                           </AccessControl>
                         | list{"analytics-authentication"} =>
