@@ -6,7 +6,7 @@ module MenuOption = {
     let openConfirmationPopUp = _ => {
       showPopUp({
         popUpType: (Warning, WithIcon),
-        heading: "Confirm Action ? ",
+        heading: "Confirm Action?",
         description: `You are about to ${isConnectorDisabled
             ? "Enable"
             : "Disable"->String.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
@@ -81,11 +81,8 @@ let make = () => {
   | _ => true
   }
 
-  let connectorInfo = {
-    initialValues
-    ->LogicUtils.getDictFromJsonObject
-    ->ConnectorListMapper.getProcessorPayloadType
-  }
+  let connectorInfo =
+    initialValues->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
 
   let isConnectorDisabled = connectorInfo.disabled
 
@@ -98,10 +95,10 @@ let make = () => {
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
       let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
-      showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
+      showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/pm-authentication-processor"))
     } catch {
-    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
+    | Exn.Error(_) => showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
     }
   }
 
@@ -246,8 +243,8 @@ let make = () => {
 
   let connectorStatusStyle = connectorStatus =>
     switch connectorStatus {
+    | true => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
     | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
-    | _ => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
     }
 
   let summaryPageButton = switch currentStep {
