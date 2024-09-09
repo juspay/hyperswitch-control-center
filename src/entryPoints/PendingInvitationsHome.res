@@ -3,11 +3,16 @@ module InviteForMultipleInvitation = {
   let make = (
     ~pendingInvites: array<PreLoginTypes.invitationResponseType>,
     ~acceptInvite,
-    ~acceptInviteOnClick,
-    ~acceptedInvites: array<PreLoginTypes.invitationResponseType>,
     ~showModal,
     ~setShowModal,
   ) => {
+    open LogicUtils
+    let (acceptedInvites, setAcceptedInvites) = React.useState(_ =>
+      JSON.Encode.null->getArrayDataFromJson(PreLoginUtils.itemToObjectMapper)
+    )
+
+    let acceptInviteOnClick = ele => setAcceptedInvites(_ => [...acceptedInvites, ele])
+
     let checkIfInvitationAccepted = (entityId, entityType: UserInfoTypes.entity) => {
       acceptedInvites->Array.find(value =>
         value.entityId === entityId && value.entityType === entityType
@@ -92,16 +97,11 @@ module InviteForMultipleInvitation = {
 
 module InviteForSingleInvitation = {
   @react.component
-  let make = (~pendingInvites, ~acceptInvite, ~acceptInviteOnClick) => {
+  let make = (~pendingInvites, ~acceptInvite) => {
     open LogicUtils
 
     let inviteValue =
       pendingInvites->getValueFromArray(0, Dict.make()->PreLoginUtils.itemToObjectMapper)
-
-    let onAcceptClick = async () => {
-      let acceptedInvitesArray = acceptInviteOnClick(inviteValue)
-      acceptInvite(acceptedInvitesArray)->ignore
-    }
 
     <div className="w-full bg-white px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -117,7 +117,7 @@ module InviteForSingleInvitation = {
         text="Accept"
         buttonType={PrimaryOutline}
         customButtonStyle="!p-2"
-        onClick={_ => onAcceptClick()->ignore}
+        onClick={_ => acceptInvite([inviteValue])->ignore}
       />
     </div>
   }
@@ -132,7 +132,6 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let fetchDetails = useGetMethod()
   let (pendingInvites, setPendingInvites) = React.useState(_ => [])
-  let (acceptedInvites, setAcceptedInvites) = React.useState(_ => [])
 
   let getListOfMerchantIds = async () => {
     try {
@@ -170,12 +169,6 @@ let make = () => {
     }
   }
 
-  let acceptInviteOnClick = ele => {
-    let acceptedInvitesArray = [...acceptedInvites, ele]
-    setAcceptedInvites(_ => acceptedInvitesArray)
-    acceptedInvitesArray
-  }
-
   React.useEffect(() => {
     getListOfMerchantIds()->ignore
     None
@@ -183,12 +176,10 @@ let make = () => {
 
   <RenderIf condition={pendingInvites->Array.length !== 0}>
     <RenderIf condition={pendingInvites->Array.length === 1}>
-      <InviteForSingleInvitation pendingInvites acceptInvite acceptInviteOnClick />
+      <InviteForSingleInvitation pendingInvites acceptInvite />
     </RenderIf>
     <RenderIf condition={pendingInvites->Array.length > 1}>
-      <InviteForMultipleInvitation
-        pendingInvites acceptInvite acceptInviteOnClick acceptedInvites showModal setShowModal
-      />
+      <InviteForMultipleInvitation pendingInvites acceptInvite showModal setShowModal />
     </RenderIf>
   </RenderIf>
 }
