@@ -173,7 +173,6 @@ let make = (
   ~advancedSearchComponent=?,
   ~setData=?,
   ~setSummary=?,
-  ~customGetObjects: option<JSON.t => array<'a>>=?,
   ~dataNotFoundComponent=?,
   ~renderCard=?,
   ~tableLocalFilter=false,
@@ -230,6 +229,7 @@ let make = (
   ~tableHeadingTextClass="",
   ~nonFrozenTableParentClass="",
   ~loadedTableParentClass="",
+  ~remoteSortEnabled=false,
 ) => {
   open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
@@ -399,7 +399,7 @@ let make = (
     })
   }, [setLocalResultsPerPageOrig])
 
-  let {getShowLink, searchFields, searchUrl, getObjects} = entity
+  let {getShowLink, searchFields, searchUrl} = entity
   let (sortedObj, setSortedObj) = useSortedObj(title, defaultSort)
 
   React.useEffect(() => {
@@ -519,11 +519,15 @@ let make = (
   }, [filteredDataLength])
 
   let filteredData = React.useMemo(() => {
-    switch sortedObj {
-    | Some(obj: Table.sortedObject) => sortArray(actualData, obj.key, obj.order)
-    | None => actualData
+    if !remoteSortEnabled {
+      switch sortedObj {
+      | Some(obj: Table.sortedObject) => sortArray(actualData, obj.key, obj.order)
+      | None => actualData
+      }
+    } else {
+      actualData
     }
-  }, (sortedObj, customGetObjects, actualData, getObjects))
+  }, (sortedObj, actualData))
 
   React.useEffect(() => {
     let selectedRowDataLength = checkBoxProps.selectedData->Array.length
@@ -633,26 +637,6 @@ let make = (
       item->Array.length == 0 ? None : Some(item)
     })
   }
-
-  let dataExists = rows->Array.length > 0
-  let heading = heading->Array.mapWithIndex((head, index) => {
-    let getValue = row => row->Array.get(index)->Option.mapOr("", Table.getTableCellValue)
-
-    let default = switch rows[0] {
-    | Some(ele) => getValue(ele)
-    | None => ""
-    }
-    let head: Table.header = {
-      ...head,
-      showSort: head.showSort &&
-      dataExists && (
-        totalResults == Array.length(rows)
-          ? rows->Array.some(row => getValue(row) !== default)
-          : true
-      ),
-    }
-    head
-  })
 
   let paginatedData =
     filteredData->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})

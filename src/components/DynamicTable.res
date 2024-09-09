@@ -502,7 +502,6 @@ let make = (
             tableDataLoading
             ?dataNotFoundComponent
             ?bottomActions
-            ?defaultSort
             tableLocalFilter
             collapseTableRow
             getRowDetails
