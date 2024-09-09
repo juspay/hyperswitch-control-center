@@ -419,7 +419,7 @@ module TableHeadingCell = {
       "h-4 w-4",
     )
 
-    let sortIconSize = isHighchartLegend ? 11 : 13
+    let sortIconSize = isHighchartLegend ? 11 : 15
     let justifyClass = ""
     <AddDataAttributes attributes=[("data-table-heading", item.title)]>
       <th key={Int.toString(i)} className=tableHeaderClass style={width: fixedWidthClass}>
@@ -461,12 +461,7 @@ module TableHeadingCell = {
                     let selfClass = "self-end"
                     <div className={`flex flex-row ${selfClass} items-center`}>
                       <SortAction
-                        item
-                        sortedObj
-                        setSortedObj
-                        sortIconSize
-                        filterRow
-                        isLastCol={isLastCol && !isFrozen && !isFirstCol}
+                        item sortedObj setSortedObj sortIconSize filterRow isLastCol={false}
                       />
                       {if item.showFilter {
                         let (options, selected) = switch filterObj {

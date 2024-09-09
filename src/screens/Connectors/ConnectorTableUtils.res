@@ -43,23 +43,17 @@ let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledType>
 
 let getHeading = colType => {
   switch colType {
-  | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor", ~showSort=false)
-  | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode", ~showSort=false)
-  | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status", ~showSort=false)
-  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled", ~showSort=false)
-  | Actions => Table.makeHeaderInfo(~key="actions", ~title="", ~showSort=false)
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false)
+  | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor")
+  | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode")
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
+  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
+  | Actions => Table.makeHeaderInfo(~key="actions", ~title="")
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
   | MerchantConnectorId =>
-    Table.makeHeaderInfo(
-      ~key="merchant_connector_id",
-      ~title="Merchant Connector Id",
-      ~showSort=false,
-    )
-  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=false)
-  | ConnectorLabel =>
-    Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label", ~showSort=false)
-  | PaymentMethods =>
-    Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods", ~showSort=false)
+    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
+  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
+  | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
+  | PaymentMethods => Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods")
   }
 }
 let connectorStatusStyle = connectorStatus =>

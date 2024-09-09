@@ -230,11 +230,9 @@ let getObjects: JSON.t => array<errorObject> = json => {
 let getHeading = colType => {
   let key = colType->colMapper
   switch colType {
-  | ErrorReason =>
-    Table.makeHeaderInfo(~key, ~title="Error Reason", ~dataType=TextType, ~showSort=false)
-  | Count =>
-    Table.makeHeaderInfo(~key, ~title="Total Occurences", ~dataType=TextType, ~showSort=false)
-  | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType, ~showSort=false)
+  | ErrorReason => Table.makeHeaderInfo(~key, ~title="Error Reason", ~dataType=TextType)
+  | Count => Table.makeHeaderInfo(~key, ~title="Total Occurences", ~dataType=TextType)
+  | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType)
   }
 }
 
