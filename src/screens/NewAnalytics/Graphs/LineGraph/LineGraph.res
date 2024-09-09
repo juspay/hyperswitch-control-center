@@ -1,3 +1,13 @@
+module TabSwitch = {
+  @react.component
+  let make = () => {
+    <div>
+      <Icon name="graph" size=16 />
+      <Icon name="table-view" size=16 />
+    </div>
+  }
+}
+
 module InfoSection = {
   @react.component
   let make = () => {
@@ -82,6 +92,7 @@ module InfoSection = {
               </Transition>
             </div>}
         </Menu>
+        <TabSwitch />
       </div>
     </div>
   }
