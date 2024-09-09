@@ -163,7 +163,7 @@ let make = () => {
 
       let _ = await updateDetails(url, body, Post)
       setShowModal(_ => false)
-      let _ = await getListOfMerchantIds()
+      getListOfMerchantIds()->ignore
     } catch {
     | _ => showToast(~message="Failed to accept invitations!", ~toastType=ToastError)
     }
