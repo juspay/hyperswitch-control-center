@@ -127,6 +127,7 @@ type paymentMethodTypes =
   | ApplePay
   | PayPal
   | BankDebit
+  | OpenBankingPIS
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
