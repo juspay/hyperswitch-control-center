@@ -3,7 +3,7 @@ let make = () => {
   open HomeUtils
   open PageUtils
   let greeting = getGreeting()
-
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userInfo: {recoveryCodesLeft}} = React.useContext(UserInfoProvider.defaultContext)
   let recoveryCode = recoveryCodesLeft->Option.getOr(0)
 
@@ -12,7 +12,7 @@ let make = () => {
       <RenderIf condition={recoveryCodesLeft->Option.isSome && recoveryCode < 3}>
         <HomeUtils.LowRecoveryCodeBanner recoveryCode />
       </RenderIf>
-      <AcceptInviteHome />
+      {featureFlagDetails.userManagementRevamp ? <PendingInvitationsHome /> : <AcceptInviteHome />}
     </div>
     <PageHeading
       title={`${greeting}, it's great to see you!`}

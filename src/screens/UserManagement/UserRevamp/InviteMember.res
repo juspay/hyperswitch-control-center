@@ -141,7 +141,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
     inviteListOfUsersWithInviteMultiple(values)
   }
 
-  <div className="flex flex-col overflow-y-scroll gap-4 h-full">
+  <div className="flex flex-col overflow-y-scroll gap-4 h-85-vh">
     <PageUtils.PageHeading title="Invite New Users" />
     <BreadCrumbNavigation
       path=[{title: "Team management", link: "/users-v2"}] currentPageTitle="Invite new users"

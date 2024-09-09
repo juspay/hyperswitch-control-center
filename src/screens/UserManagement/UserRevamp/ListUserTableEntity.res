@@ -43,8 +43,8 @@ let itemToObjMapperForUser = dict => {
 
 let getHeadingForUser = (colType: userColTypes) => {
   switch colType {
-  | Email => Table.makeHeaderInfo(~key="email", ~title="Email", ~showSort=true)
-  | Role => Table.makeHeaderInfo(~key="role", ~title="Role", ~showSort=true)
+  | Email => Table.makeHeaderInfo(~key="email", ~title="Email")
+  | Role => Table.makeHeaderInfo(~key="role", ~title="Role")
   }
 }
 
