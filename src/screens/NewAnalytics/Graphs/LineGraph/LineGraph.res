@@ -1,9 +1,32 @@
+type viewType = Graph | Table
+
 module TabSwitch = {
   @react.component
   let make = () => {
-    <div>
-      <Icon name="graph" size=16 />
-      <Icon name="table-view" size=16 />
+    let (viewType, setViewType) = React.useState(_ => Graph)
+
+    <div className="border border-[#E5E5E5] flex w-fit rounded-lg cursor-pointer">
+      <div
+        className={`rounded-l-lg pl-3 pr-2 pt-2 ${viewType == Graph
+            ? "bg-white"
+            : "bg-[#F6F6F6]"} `}
+        onClick={_ => setViewType(_ => Graph)}>
+        <Icon
+          className={viewType == Graph ? "text-[#1E1E1E]" : ""}
+          name={viewType == Graph ? "graph-dark" : "graph"}
+          size=25
+        />
+      </div>
+      <div className="h-full border-l border-[#E5E5E5]" />
+      <div
+        className={`rounded-r-lg pl-3 pr-2 pt-2 ${viewType == Table ? "bg-white" : "bg-[#F6F6F6]"}`}
+        onClick={_ => setViewType(_ => Table)}>
+        <Icon
+          className={viewType == Table ? "text-[#1E1E1E]" : "text-[#A0A0A0]"}
+          name="table-view"
+          size=25
+        />
+      </div>
     </div>
   }
 }
@@ -22,7 +45,7 @@ module InfoSection = {
           <div className="font-[600]"> {"8%"->React.string} </div>
         </div>
       </div>
-      <div>
+      <div className="flex gap-3">
         <Menu \"as"="div" className="relative inline-block text-left">
           {_menuProps =>
             <div>
