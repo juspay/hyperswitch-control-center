@@ -17,7 +17,7 @@ let useGetURL = () => {
     ~reconType: reconType=#NONE,
     ~queryParamerters: option<string>=None,
   ) => {
-    let {transactionEntity, userEntity} = getUserInfoData()
+    let {transactionEntity, analyticsEntity, userEntity} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
 
     let endpoint = switch entityName {
@@ -54,7 +54,10 @@ let useGetURL = () => {
         | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
         | None =>
           switch (userEntity, userManagementRevamp) {
-          | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile/connectors`
+          | (#Organization, true)
+          | (#Merchant, true)
+          | (#Profile, true) =>
+            `account/${merchantId}/profile/connectors`
           | _ => connectorBaseURL
           }
         }
@@ -221,7 +224,9 @@ let useGetURL = () => {
         | Some(routingId) => `routing/${routingId}`
         | None =>
           switch (userEntity, userManagementRevamp) {
-          | (#Merchant, true) | (#Profile, true) => `routing/list/profile`
+          | (#Organization, true)
+          | (#Merchant, true)
+          | (#Profile, true) => `routing/list/profile`
           | _ => `routing`
           }
         }
@@ -233,6 +238,26 @@ let useGetURL = () => {
       | _ => ""
       }
     | ACTIVE_ROUTING => `routing/active`
+    /* ANALYTICS V2 */
+
+    | ANALYTICS_PAYMENTS_V2 =>
+      switch methodType {
+      | Post =>
+        switch id {
+        | Some(domain) =>
+          switch (analyticsEntity, userManagementRevamp) {
+          | (#Organization, true) => `analytics/v2/org/metrics/${domain}`
+          | (#Merchant, true) => `analytics/v2/merchant/metrics/${domain}`
+          | (#Profile, true) => `analytics/v2/profile/metrics/${domain}`
+          | (_, true) => `analytics/v2/merchant/metrics/${domain}`
+          // This Need to removed when userManagementRevamp feature flag is removed
+          | _ => `analytics/v2/metrics/${domain}`
+          }
+
+        | _ => ""
+        }
+      | _ => ""
+      }
 
     /* ANALYTICS */
     | ANALYTICS_REFUNDS
@@ -245,12 +270,31 @@ let useGetURL = () => {
       switch methodType {
       | Get =>
         switch id {
-        | Some(domain) => `analytics/v1/${domain}/info`
+        // Need to write seperate enum for info api
+        | Some(domain) =>
+          switch (analyticsEntity, userManagementRevamp) {
+          | (#Organization, true) => `analytics/v1/org/${domain}/info`
+          | (#Merchant, true) => `analytics/v1/merchant/${domain}/info`
+          | (#Profile, true) => `analytics/v1/profile/${domain}/info`
+          | (_, true) => `analytics/v1/merchant/${domain}/info`
+          // This Need to removed when userManagementRevamp feature flag is removed
+          | _ => `analytics/v1/${domain}/info`
+          }
+
         | _ => ""
         }
       | Post =>
         switch id {
-        | Some(domain) => `analytics/v1/metrics/${domain}`
+        | Some(domain) =>
+          switch (analyticsEntity, userManagementRevamp) {
+          | (#Organization, true) => `analytics/v1/org/metrics/${domain}`
+          | (#Merchant, true) => `analytics/v1/merchant/metrics/${domain}`
+          | (#Profile, true) => `analytics/v1/profile/metrics/${domain}`
+          | (_, true) => `analytics/v1/merchant/metrics/${domain}`
+          // This Need to removed when userManagementRevamp feature flag is removed
+          | _ => `analytics/v1/metrics/${domain}`
+          }
+
         | _ => ""
         }
       | _ => ""
@@ -259,19 +303,33 @@ let useGetURL = () => {
       switch methodType {
       | Post =>
         switch id {
-        | Some(domain) => `analytics/v1/filters/${domain}`
+        | Some(domain) =>
+          switch (analyticsEntity, userManagementRevamp) {
+          | (#Organization, true) => `analytics/v1/org/filters/${domain}`
+          | (#Merchant, true) => `analytics/v1/merchant/filters/${domain}`
+          | (#Profile, true) => `analytics/v1/profile/filters/${domain}`
+          | (_, true) => `analytics/v1/merchant/filters/${domain}`
+          // This Need to removed when userManagementRevamp feature flag is removed
+          | _ => `analytics/v1/filters/${domain}`
+          }
+
         | _ => ""
         }
       | _ => ""
       }
 
-    /* PAYMENT LOGS (AUDIT TRAIL) */
-    | PAYMENT_LOGS =>
+    | API_EVENT_LOGS =>
       switch methodType {
       | Get =>
-        switch id {
-        | Some(payment_id) => `analytics/v1/api_event_logs?type=Payment&payment_id=${payment_id}`
-        | None => `analytics/v1/event-logs`
+        switch queryParamerters {
+        | Some(params) =>
+          switch userManagementRevamp {
+          | true => `analytics/v1/profile/api_event_logs?${params}`
+          // This Need to removed when userManagementRevamp feature flag is removed
+          | false => `analytics/v1/api_event_logs?${params}`
+          }
+
+        | None => ``
         }
       | _ => ""
       }
@@ -285,7 +343,9 @@ let useGetURL = () => {
         | Some(routingId) => `routing/${routingId}`
         | _ =>
           switch (userEntity, userManagementRevamp) {
-          | (#Merchant, true) | (#Profile, true) => `routing/payouts/list/profile`
+          | (#Organization, true)
+          | (#Merchant, true)
+          | (#Profile, true) => `routing/payouts/list/profile`
           | _ => `routing/payouts`
           }
         }
@@ -314,22 +374,72 @@ let useGetURL = () => {
     | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
 
     /* REPORTS */
-    | PAYMENT_REPORT => `analytics/v1/report/payments`
-    | REFUND_REPORT => `analytics/v1/report/refunds`
-    | DISPUTE_REPORT => `analytics/v1/report/dispute`
+    | PAYMENT_REPORT =>
+      switch (transactionEntity, userManagementRevamp) {
+      | (#Organization, true) => `analytics/v1/org/report/payments`
+      | (#Merchant, true) => `analytics/v1/merchant/report/payments`
+      | (#Profile, true) => `analytics/v1/profile/report/payments`
+      | (_, true) => `analytics/v1/merchant/report/payments`
+      // This Need to removed when userManagementRevamp feature flag is removed
+      | _ => `analytics/v1/report/payments`
+      }
+
+    | REFUND_REPORT =>
+      switch (transactionEntity, userManagementRevamp) {
+      | (#Organization, true) => `analytics/v1/org/report/refunds`
+      | (#Merchant, true) => `analytics/v1/merchant/report/refunds`
+      | (#Profile, true) => `analytics/v1/profile/report/refunds`
+      | (_, true) => `analytics/v1/merchant/report/refunds`
+      // This Need to removed when userManagementRevamp feature flag is removed
+      | _ => `analytics/v1/report/refunds`
+      }
+
+    | DISPUTE_REPORT =>
+      switch (transactionEntity, userManagementRevamp) {
+      | (#Organization, true) => `analytics/v1/org/report/dispute`
+      | (#Merchant, true) => `analytics/v1/merchant/report/dispute`
+      | (#Profile, true) => `analytics/v1/profile/report/dispute`
+      | (_, true) => `analytics/v1/merchant/report/dispute`
+      // This Need to removed when userManagementRevamp feature flag is removed
+      | _ => `analytics/v1/report/dispute`
+      }
 
     /* EVENT LOGS */
-    | SDK_EVENT_LOGS => `analytics/v1/sdk_event_logs`
+    | SDK_EVENT_LOGS =>
+      switch userManagementRevamp {
+      | true => `analytics/v1/profile/sdk_event_logs`
+      // This Need to removed when userManagementRevamp feature flag is removed
+      | false => `analytics/v1/sdk_event_logs`
+      }
+
     | WEBHOOKS_EVENT_LOGS =>
-      switch id {
-      | Some(payment_id) => `analytics/v1/outgoing_webhook_event_logs?payment_id=${payment_id}`
-      | None => ""
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(params) =>
+          switch userManagementRevamp {
+          | true => `analytics/v1/profile/outgoing_webhook_event_logs?${params}`
+          // This Need to removed when userManagementRevamp feature flag is removed
+          | false => `analytics/v1/outgoing_webhook_event_logs?${params}`
+          }
+        | None => `analytics/v1/outgoing_webhook_event_logs`
+        }
+      | _ => ""
       }
     | CONNECTOR_EVENT_LOGS =>
-      switch id {
-      | Some(payment_id) =>
-        `analytics/v1/connector_event_logs?type=Payment&payment_id=${payment_id}`
-      | None => ""
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(params) =>
+          switch userManagementRevamp {
+          | true => `analytics/v1/profile/connector_event_logs?${params}`
+          // This Need to removed when userManagementRevamp feature flag is removed
+          | false => `analytics/v1/connector_event_logs?${params}`
+          }
+
+        | None => `analytics/v1/connector_event_logs`
+        }
+      | _ => ""
       }
 
     /* SAMPLE DATA */
@@ -350,13 +460,21 @@ let useGetURL = () => {
 
     /* BUSINESS PROFILE */
     | BUSINESS_PROFILE =>
-      switch id {
-      | Some(id) => `account/${merchantId}/business_profile/${id}`
-      | None =>
+      switch methodType {
+      | Get =>
         switch (userEntity, userManagementRevamp) {
-        | (#Merchant, true) | (#Profile, true) => `account/${merchantId}/profile`
+        | (#Organization, true)
+        | (#Merchant, true)
+        | (#Profile, true) =>
+          `account/${merchantId}/profile`
         | _ => `account/${merchantId}/business_profile`
         }
+      | Post =>
+        switch id {
+        | Some(id) => `account/${merchantId}/business_profile/${id}`
+        | None => `account/${merchantId}/business_profile`
+        }
+      | _ => `account/${merchantId}/business_profile`
       }
 
     /* API KEYS */
@@ -486,6 +604,9 @@ let useGetURL = () => {
         | None => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
         }
 
+      // ACCEPT INVITE PRE_LOGIN
+      | #ACCEPT_INVITATION_PRE_LOGIN => `${userUrl}/user/invite/accept/v2/pre_auth`
+
       // SWITCH & CREATE MERCHANT
       | #SWITCH_MERCHANT =>
         switch methodType {
@@ -551,6 +672,13 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/role/list/invite?${params}`
         | None => ""
         }
+      | #LIST_INVITATION => `${userUrl}/list/invitation`
+      | #USER_DETAILS => `${userUrl}/user/v2`
+      | #LIST_ROLES_FOR_ROLE_UPDATE =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/role/list/update?${params}`
+        | None => ""
+        }
 
       | #NONE => ""
       }
@@ -565,7 +693,6 @@ let useGetURL = () => {
 let useHandleLogout = () => {
   let getURL = useGetURL()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
 
@@ -583,7 +710,6 @@ let useHandleLogout = () => {
           JSON.Encode.null->resolve
         })
       setAuthStateToLogout()
-      setIsSidebarExpanded(_ => false)
       clearRecoilValue()
       AuthUtils.redirectToLogin()
       LocalStorage.clear()

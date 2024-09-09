@@ -360,7 +360,7 @@ module BusinessProfileRender = {
           ~customInput=(~input, ~placeholder as _) =>
             InputFields.selectInput(
               ~deselectDisable=true,
-              ~disableSelect=isUpdateFlow,
+              ~disableSelect={isUpdateFlow || businessProfiles->HomeUtils.isDefaultBusinessProfile},
               ~customStyle="max-h-48",
               ~options={
                 businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption

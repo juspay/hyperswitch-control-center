@@ -97,7 +97,7 @@ let make = () => {
   React.useEffect(() => {
     setInitialValues(_ => defaultBusinessProfile->SDKPaymentUtils.initialValueForForm)
     None
-  }, [defaultBusinessProfile.profile_id->String.length])
+  }, [defaultBusinessProfile.profile_id])
 
   let onProceed = async (~paymentId) => {
     switch paymentId {

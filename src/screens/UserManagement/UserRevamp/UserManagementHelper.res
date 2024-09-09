@@ -87,7 +87,6 @@ module MerchantSelection = {
             ~label="All merchants",
             ~value="all_merchants",
             ~dropdownList=merchList,
-            ~showAllSelection=true,
           ),
           ~deselectDisable=true,
           ~buttonText="Select a Merchant",
@@ -181,3 +180,30 @@ let inviteEmail = FormRenderer.makeFieldInfo(
   },
   ~isRequired=true,
 )
+
+module SwitchMerchantForUserAction = {
+  @react.component
+  let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
+    let showToast = ToastState.useShowToast()
+    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+
+    let onSwitchForUserAction = async () => {
+      try {
+        let _ = await internalSwitch(
+          ~expectedOrgId=userInfoValue.org.id,
+          ~expectedMerchantId=userInfoValue.merchant.id,
+          ~expectedProfileId=userInfoValue.profile.id,
+        )
+      } catch {
+      | _ => showToast(~message="Failed to perform operation!", ~toastType=ToastError)
+      }
+    }
+
+    <Button
+      text="Switch to update"
+      customButtonStyle="!p-2"
+      buttonType={PrimaryOutline}
+      onClick={_ => onSwitchForUserAction()->ignore}
+    />
+  }
+}

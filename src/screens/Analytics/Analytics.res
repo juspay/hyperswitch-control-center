@@ -491,14 +491,13 @@ let make = (
   ~moduleName: string,
   ~weeklyTableMetricsCols=?,
   ~distributionArray=None,
-  ~generateReportType: option<APIUtilsTypes.entityName>=?,
   ~formatData=None,
 ) => {
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
   let {filterValue, updateExistingKeys, filterValueJson} = React.useContext(
     FilterContext.filterContext,
   )
+  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
 
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)
@@ -524,7 +523,9 @@ let make = (
 
   let startTimeVal = filterValueDict->getString(startTimeFilterKey, "")
   let endTimeVal = filterValueDict->getString(endTimeFilterKey, "")
-
+  let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let {userInfo: {analyticsEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let updateUrlWithPrefix = React.useMemo(() => {
     (chartType: string) => {
       (dict: Dict.t<string>) => {
@@ -682,11 +683,15 @@ let make = (
       <div>
         <div className="flex items-center justify-between">
           <PageUtils.PageHeading title=pageTitle subTitle=pageSubTitle />
-          <RenderIf condition={generateReport}>
-            {switch generateReportType {
-            | Some(entityName) => <GenerateReport entityName />
-            | None => React.null
-            }}
+          // Refactor required
+          <RenderIf
+            condition={userManagementRevamp &&
+            (moduleName == "Refunds" || moduleName == "Disputes")}>
+            <OMPSwitchHelper.OMPViews
+              views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+              selectedEntity={analyticsEntity}
+              onChange={updateAnalytcisEntity}
+            />
           </RenderIf>
         </div>
         <div className="mt-2 -ml-1"> topFilterUi </div>

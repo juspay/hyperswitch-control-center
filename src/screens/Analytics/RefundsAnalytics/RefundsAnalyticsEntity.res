@@ -85,9 +85,9 @@ let getRefundTable: JSON.t => array<refundTableType> = json => {
   })
 }
 
-let refundTableEntity = () =>
+let refundTableEntity = (~uri) =>
   EntityType.makeEntity(
-    ~uri=`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+    ~uri,
     ~getObjects=getRefundTable,
     ~dataKey="queryData",
     ~defaultColumns=defaultRefundColumns,
@@ -311,10 +311,13 @@ let getStatSentiment = {
   ]->Dict.fromArray
 }
 
-let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
+let getSingleStatEntity: ('a, string) => DynamicSingleStat.entityType<'colType, 't, 't2> = (
+  metrics,
+  uri,
+) => {
   urlConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+      uri,
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
@@ -323,7 +326,7 @@ let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> =
   defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+  matrixUriMapper: _ => uri,
   statSentiment: getStatSentiment,
 }
 
@@ -344,9 +347,9 @@ let metricsConfig: array<LineChartUtils.metricsConfig> = [
   },
 ]
 
-let chartEntity = tabKeys =>
+let chartEntity = (tabKeys, ~uri) =>
   DynamicChart.makeEntity(
-    ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`),
+    ~uri=String(uri),
     ~filterKeys=tabKeys,
     ~dateFilterKeys=(startTimeFilterKey, endTimeFilterKey),
     ~currentMetrics=("refund_success_rate", "refund_count"), // 2nd metric will be static and we won't show the 2nd metric option to the first metric
@@ -355,7 +358,7 @@ let chartEntity = tabKeys =>
     ~chartTypes=[Line],
     ~uriConfig=[
       {
-        uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+        uri,
         timeSeriesBody: DynamicChart.getTimeSeriesChart,
         legendBody: DynamicChart.getLegendBody,
         metrics: metricsConfig,

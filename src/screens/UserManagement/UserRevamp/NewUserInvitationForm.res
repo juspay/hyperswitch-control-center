@@ -16,7 +16,7 @@ module ModulePermissionRender = {
 
     <div key={index->Int.toString} className={`flex justify-between ${customCss}`}>
       <div className="flex flex-col gap-2 basis-3/5 ">
-        <p className=p2MediumTextClass> {(elem.parentGroup :> string)->React.string} </p>
+        <p className=p2MediumTextClass> {elem.parentGroup->React.string} </p>
         <p className=p3RegularTextClass> {elem.description->React.string} </p>
       </div>
       <div className="flex gap-2 h-fit">
