@@ -32,7 +32,12 @@ module BusinessProfileInp = {
         ~input,
         ~placeholder as _,
       ) =>
-        InputFields.selectInput(~deselectDisable=true, ~options, ~buttonText="")(
+        InputFields.selectInput(
+          ~disableSelect={options->Array.length == 1},
+          ~deselectDisable=true,
+          ~options,
+          ~buttonText="",
+        )(
           ~input={
             ...input,
             value: profile->JSON.Encode.string,

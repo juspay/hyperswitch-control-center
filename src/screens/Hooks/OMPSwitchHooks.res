@@ -139,9 +139,7 @@ let useInternalSwitch = () => {
   let profileSwitch = useProfileSwitch()
   let showToast = ToastState.useShowToast()
 
-  let {
-    userInfo: {orgId: currentOrgId, merchantId: currentMerchantId, profileId: currentProfileId},
-  } = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {orgId: currentOrgId}} = React.useContext(UserInfoProvider.defaultContext)
 
   async (~expectedOrgId=None, ~expectedMerchantId=None, ~expectedProfileId=None) => {
     try {
@@ -150,11 +148,11 @@ let useInternalSwitch = () => {
         ~currentOrgId,
       )
       let userInfoResFromSwitchMerch = await merchSwitch(
-        ~expectedMerchantId=expectedMerchantId->Option.getOr(currentMerchantId),
+        ~expectedMerchantId=expectedMerchantId->Option.getOr(userInfoResFromSwitchOrg.merchantId),
         ~currentMerchantId=userInfoResFromSwitchOrg.merchantId,
       )
       let _ = await profileSwitch(
-        ~expectedProfileId=expectedProfileId->Option.getOr(currentProfileId),
+        ~expectedProfileId=expectedProfileId->Option.getOr(userInfoResFromSwitchMerch.profileId),
         ~currentProfileId=userInfoResFromSwitchMerch.profileId,
       )
     } catch {
