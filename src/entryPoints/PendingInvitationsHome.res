@@ -98,7 +98,7 @@ module InviteForSingleInvitation = {
     let inviteValue =
       pendingInvites->getValueFromArray(0, Dict.make()->PreLoginUtils.itemToObjectMapper)
 
-    let onAccptClick = async () => {
+    let onAcceptClick = async () => {
       let acceptedInvitesArray = acceptInviteOnClick(inviteValue)
       acceptInvite(acceptedInvitesArray)->ignore
     }
@@ -117,7 +117,7 @@ module InviteForSingleInvitation = {
         text="Accept"
         buttonType={PrimaryOutline}
         customButtonStyle="!p-2"
-        onClick={_ => onAccptClick()->ignore}
+        onClick={_ => onAcceptClick()->ignore}
       />
     </div>
   }
@@ -166,7 +166,7 @@ let make = () => {
       setShowModal(_ => false)
       let _ = await getListOfMerchantIds()
     } catch {
-    | _ => ()
+    | _ => showToast(~message="Failed to accept invitations!", ~toastType=ToastError)
     }
   }
 
