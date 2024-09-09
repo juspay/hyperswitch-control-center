@@ -164,7 +164,7 @@ let make = () => {
     }
   }
 
-  <div className="flex flex-col">
+  <div className="flex flex-col h-full">
     <div className="grid grid-cols-6 gap-6 items-end p-6 !pb-10 border-b">
       <div className="col-span-5 w-full">
         <FormRenderer.FieldRenderer
@@ -181,7 +181,7 @@ let make = () => {
         />
       </div>
     </div>
-    <div className="grid grid-cols-5">
+    <div className="grid grid-cols-5 h-full">
       <div className="col-span-2 border-r p-6  flex flex-col gap-2">
         <OrganisationSelection />
         <MerchantSelection />
@@ -190,7 +190,7 @@ let make = () => {
           options onClickDropDownApi formKey="role_id" dropDownLoaderState isRequired=true
         />
         <NoteComponent />
-        <FormValuesSpy />
+        // <FormValuesSpy />
       </div>
       <div className="p-6 flex flex-col gap-2 col-span-3">
         {switch roleTypeValue {
