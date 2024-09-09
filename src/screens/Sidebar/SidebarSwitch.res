@@ -12,9 +12,9 @@ module OrgMerchantSwitchCollapsed = {
 }
 
 @react.component
-let make = (~isExpanded=false) => {
+let make = (~isSidebarExpanded=false) => {
   let expandedContent =
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 mx-2">
       <OrgSwitch />
       <div className="flex">
         <div
@@ -25,8 +25,8 @@ let make = (~isExpanded=false) => {
     </div>
 
   <>
-    <RenderIf condition={isExpanded}> expandedContent </RenderIf>
-    <RenderIf condition={!isExpanded}>
+    <RenderIf condition={isSidebarExpanded}> expandedContent </RenderIf>
+    <RenderIf condition={!isSidebarExpanded}>
       <OrgMerchantSwitchCollapsed />
     </RenderIf>
   </>

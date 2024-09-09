@@ -49,8 +49,8 @@ let emptyComponent = CustomComponent({
   component: React.null,
 })
 
-let productionAccessComponent = isProductionAccessEnabled =>
-  isProductionAccessEnabled
+let productionAccessComponent = (isProductionAccessEnabled, permissionJson) =>
+  isProductionAccessEnabled && permissionJson.merchantDetailsManage === Access
     ? CustomComponent({
         component: <GetProductionAccess />,
       })
@@ -370,16 +370,26 @@ let surcharge = permissionJson => {
   })
 }
 
-let workflow = (isWorkflowEnabled, isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled) => {
+let workflow = (
+  isWorkflowEnabled,
+  isSurchargeEnabled,
+  ~permissionJson,
+  ~isPayoutEnabled,
+  ~userEntity,
+) => {
   let routing = routing(permissionJson)
   let threeDs = threeDs(permissionJson)
   let payoutRouting = payoutRouting(permissionJson)
   let surcharge = surcharge(permissionJson)
 
-  let defaultWorkFlow = [routing, threeDs]
+  let defaultWorkFlow = [routing]
+  let isNotProfileEntity = userEntity !== #Profile
 
-  if isSurchargeEnabled {
+  if isSurchargeEnabled && isNotProfileEntity {
     defaultWorkFlow->Array.push(surcharge)->ignore
+  }
+  if isNotProfileEntity {
+    defaultWorkFlow->Array.push(threeDs)->ignore
   }
   if isPayoutEnabled {
     defaultWorkFlow->Array.push(payoutRouting)->ignore
@@ -406,8 +416,8 @@ let userManagement = permissionJson => {
 
 let teamRevamp = permissionJson => {
   SubLevelLink({
-    name: "Users Revamp",
-    link: `/users-revamp`,
+    name: "Users",
+    link: `/users-v2`,
     access: permissionJson.usersView,
     searchOptions: [("View team management", "")],
   })
@@ -467,9 +477,9 @@ let settings = (
 
   if userManagementRevamp {
     settingsLinkArray->Array.push(teamRevamp(permissionJson))->ignore
+  } else {
+    settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
   }
-
-  settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
 
   Section({
     name: "Settings",
@@ -507,8 +517,8 @@ let paymentSettings = () => {
   })
 }
 
-let developers = (isDevelopersEnabled, userRole, systemMetrics, ~permissionJson) => {
-  let isInternalUser = userRole->String.includes("internal_")
+let developers = (isDevelopersEnabled, systemMetrics, ~permissionJson, ~checkUserEntity) => {
+  let isInternalUser = checkUserEntity([#Internal])
   let apiKeys = apiKeys(permissionJson)
   let paymentSettings = paymentSettings()
   let systemMetric = systemMetric(permissionJson)
@@ -577,9 +587,9 @@ let reconFileProcessor = {
   })
 }
 
-let reconAndSettlement = (recon, isReconEnabled) => {
-  switch (recon, isReconEnabled) {
-  | (true, true) =>
+let reconAndSettlement = (recon, isReconEnabled, checkUserEntity) => {
+  switch (recon, isReconEnabled, checkUserEntity([#Merchant, #Organization])) {
+  | (true, true, true) =>
     Section({
       name: "Recon And Settlement",
       icon: "recon",
@@ -593,7 +603,7 @@ let reconAndSettlement = (recon, isReconEnabled) => {
         reconFileProcessor,
       ],
     })
-  | (true, false) =>
+  | (true, false, true) =>
     Link({
       name: "Reconciliation",
       icon: isReconEnabled ? "recon" : "recon-lock",
@@ -601,16 +611,14 @@ let reconAndSettlement = (recon, isReconEnabled) => {
       access: Access,
     })
 
-  | (_, _) => emptyComponent
+  | _ => emptyComponent
   }
 }
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
-  let {userRole} =
-    CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-  let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {
     frm,
     payOut,
@@ -633,7 +641,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   } = featureFlagDetails
 
   let sidebar = [
-    productionAccessComponent(quickStart),
+    productionAccessComponent(quickStart, permissionJson),
     default->home,
     default->operations(~permissionJson, ~isPayoutsEnabled=payOut, ~userEntity),
     default->connectors(
@@ -652,9 +660,9 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       newAnalytics,
       ~permissionJson,
     ),
-    default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
-    recon->reconAndSettlement(isReconEnabled),
-    default->developers(userRole, systemMetrics, ~permissionJson),
+    default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut, ~userEntity),
+    recon->reconAndSettlement(isReconEnabled, checkUserEntity),
+    default->developers(systemMetrics, ~permissionJson, ~checkUserEntity),
     settings(
       ~isConfigurePmtsEnabled=configurePmts,
       ~permissionJson,
