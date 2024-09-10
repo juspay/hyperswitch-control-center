@@ -8,7 +8,7 @@ external ffInputToSelectInput: ReactFinalForm.fieldRenderPropsInput => ReactFina
 external ffInputToRadioInput: ReactFinalForm.fieldRenderPropsInput => ReactFinalForm.fieldRenderPropsCustomInput<
   string,
 > = "%identity"
-let regex: (string, string) => Js.Re.t
+let regex: (string, string) => RescriptCore.RegExp.t
 module ListItem: {
   @react.component
   let make: (
@@ -20,10 +20,10 @@ module ListItem: {
     ~isSelected: bool,
     ~isPrevSelected: bool=?,
     ~isNextSelected: bool=?,
-    ~onClick: JsxEvent.Mouse.t => unit,
-    ~text: string,
+    ~onClick: JsxEventU.Mouse.t => unit,
+    ~text: Js.String2.t,
     ~fill: string=?,
-    ~labelValue: string=?,
+    ~labelValue: Js.String2.t=?,
     ~isDisabled: bool=?,
     ~icon: Button.iconType,
     ~leftVacennt: bool=?,
@@ -47,6 +47,7 @@ module ListItem: {
     ~showToolTipOptions: bool=?,
     ~textEllipsisForDropDownOptions: bool=?,
     ~textColorClass: string=?,
+    ~customRowClass: string=?,
   ) => React.element
 }
 type dropdownOptionWithoutOptional = {
@@ -58,6 +59,7 @@ type dropdownOptionWithoutOptional = {
   iconStroke: string,
   textColor: string,
   optGroup: string,
+  customRowClass: string,
 }
 type dropdownOption = {
   label: string,
@@ -68,6 +70,7 @@ type dropdownOption = {
   description?: string,
   iconStroke?: string,
   textColor?: string,
+  customRowClass?: string,
 }
 let makeNonOptional: dropdownOption => dropdownOptionWithoutOptional
 let useTransformed: array<dropdownOption> => array<dropdownOptionWithoutOptional>
@@ -84,7 +87,7 @@ module BaseSelect: {
     ~optionSize: CheckBoxIcon.size=?,
     ~isSelectedStateMinus: bool=?,
     ~onSelect: array<string> => unit,
-    ~value: JSON.t,
+    ~value: RescriptCore.JSON.t,
     ~onBlur: ReactEvent.Focus.t => unit=?,
     ~showClearAll: bool=?,
     ~isHorizontal: bool=?,
@@ -125,9 +128,9 @@ module BaseSelect: {
     ~customSelectAllStyle: string=?,
     ~checkboxDimension: string=?,
     ~dropdownClassName: string=?,
-    ~onItemSelect: (JsxEvent.Mouse.t, Js_string.t) => unit=?,
+    ~onItemSelect: (JsxEventU.Mouse.t, string) => unit=?,
     ~wrapBasis: string=?,
-    ~preservedAppliedOptions: array<Js_string.t>=?,
+    ~preservedAppliedOptions: array<string>=?,
   ) => React.element
 }
 module BaseSelectButton: {
@@ -140,7 +143,7 @@ module BaseSelectButton: {
     ~optionSize: CheckBoxIcon.size=?,
     ~isSelectedStateMinus: bool=?,
     ~onSelect: string => unit,
-    ~value: JSON.t,
+    ~value: RescriptCore.JSON.t,
     ~deselectDisable: bool=?,
     ~onBlur: ReactEvent.Focus.t => unit=?,
     ~setShowDropDown: ('a => bool) => unit=?,
@@ -158,14 +161,14 @@ module RenderListItemInBaseRadio: {
   @react.component
   let make: (
     ~newOptions: array<dropdownOptionWithoutOptional>,
-    ~value: JSON.t,
+    ~value: Core__JSON.t,
     ~descriptionOnHover: bool,
     ~isDropDown: bool,
     ~textIconPresent: bool,
     ~searchString: string,
     ~optionSize: CheckBoxIcon.size,
     ~isSelectedStateMinus: bool,
-    ~onItemClick: (string, bool, JsxEvent.Mouse.t) => unit,
+    ~onItemClick: (string, bool) => JsxEventU.Mouse.t => unit,
     ~fill: string,
     ~customStyle: string,
     ~isMobileView: bool,
@@ -176,6 +179,9 @@ module RenderListItemInBaseRadio: {
     ~textEllipsisForDropDownOptions: bool,
     ~isHorizontal: bool,
     ~customMarginStyleOfListItem: string=?,
+    ~bottomComponent: React.element=?,
+    ~optionClass: string=?,
+    ~selectClass: string=?,
   ) => React.element
 }
 let getHashMappedOptionValues: array<dropdownOptionWithoutOptional> => RescriptCore.Dict.t<
@@ -192,7 +198,7 @@ module BaseRadio: {
     ~optionSize: CheckBoxIcon.size=?,
     ~isSelectedStateMinus: bool=?,
     ~onSelect: string => unit,
-    ~value: JSON.t,
+    ~value: RescriptCore.JSON.t,
     ~deselectDisable: bool=?,
     ~onBlur: ReactEvent.Focus.t => unit=?,
     ~fill: string=?,
@@ -203,11 +209,11 @@ module BaseRadio: {
     ~descriptionOnHover: bool=?,
     ~addDynamicValue: bool=?,
     ~dropdownCustomWidth: string=?,
-    ~dropdownRef: React.ref<Nullable.t<Dom.element>>=?,
+    ~dropdownRef: React.ref<RescriptCore.Nullable.t<Dom.element>>=?,
     ~showMatchingRecordsText: bool=?,
     ~fullLength: bool=?,
     ~selectedString: string=?,
-    ~setSelectedString: ('a => Js_string.t) => unit=?,
+    ~setSelectedString: ('a => string) => unit=?,
     ~setExtSearchString: ('b => string) => unit=?,
     ~listFlexDirection: string=?,
     ~baseComponentCustomStyle: string=?,
@@ -218,6 +224,9 @@ module BaseRadio: {
     ~showSearchIcon: bool=?,
     ~showToolTipOptions: bool=?,
     ~textEllipsisForDropDownOptions: bool=?,
+    ~bottomComponent: React.element=?,
+    ~optionClass: string=?,
+    ~selectClass: string=?,
   ) => React.element
 }
 type direction = BottomLeft | BottomMiddle | BottomRight | TopLeft | TopMiddle | TopRight
@@ -273,7 +282,7 @@ module BaseDropdown: {
     ~textStyleClass: string=?,
     ~buttonStyleOnDropDownOpened: string=?,
     ~selectedString: string=?,
-    ~setSelectedString: ('a => Js_string.t) => unit=?,
+    ~setSelectedString: ('a => string) => unit=?,
     ~setExtSearchString: ('b => string) => unit=?,
     ~listFlexDirection: string=?,
     ~ellipsisOnly: bool=?,
@@ -281,6 +290,7 @@ module BaseDropdown: {
     ~onApply: JsxEvent.Mouse.t => unit=?,
     ~showAllSelectedOptions: bool=?,
     ~buttonClickFn: string => unit=?,
+    ~toggleChevronState: unit => unit=?,
     ~showSelectCountButton: bool=?,
     ~maxHeight: string=?,
     ~customBackColor: string=?,
@@ -291,6 +301,12 @@ module BaseDropdown: {
     ~searchInputPlaceHolder: string=?,
     ~showSearchIcon: bool=?,
     ~sortingBasedOnDisabled: bool=?,
+    ~customSelectStyle: string=?,
+    ~baseComponentCustomStyle: string=?,
+    ~bottomComponent: React.element=?,
+    ~optionClass: string=?,
+    ~selectClass: string=?,
+    ~customDropdownOuterClass: string=?,
   ) => React.element
 }
 module InfraSelectBox: {
@@ -397,6 +413,6 @@ let make: (
   ~textEllipsisForDropDownOptions: bool=?,
   ~showBtnTextToolTip: bool=?,
   ~dropdownClassName: string=?,
-  ~onItemSelect: (JsxEvent.Mouse.t, Js_string.t) => unit=?,
+  ~onItemSelect: (JsxEventU.Mouse.t, string) => unit=?,
   ~wrapBasis: string=?,
 ) => React.element

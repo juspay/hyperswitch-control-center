@@ -57,8 +57,10 @@ module LineChart1D = {
     ~isPartners=false,
     ~showIndicator=false,
     ~showMarkers=false,
+    ~comparitionWidget=false,
+    ~selectedTab: option<array<string>>=?,
   ) => {
-    let (theme, _setTheme) = React.useContext(ThemeProvider.themeContext)
+    let {theme} = React.useContext(ThemeProvider.themeContext)
     let (_, setLegendState) = React.useState(_ => [])
     let isMobileView = MatchMedia.useMobileChecker()
     let (hideLegend, setHideLegend) = React.useState(_ => isMobileView)
@@ -76,7 +78,7 @@ module LineChart1D = {
 
     let chartHeight = isMobileView ? 250 : 400
 
-    let setClickedRowNames = React.useMemo1(() => {
+    let setClickedRowNames = React.useMemo(() => {
       (legendData: LineChartUtils.legendTableData) => {
         setClickedRowNamesOrig(prev => {
           prev->Array.includes(legendData.groupByName)
@@ -86,7 +88,7 @@ module LineChart1D = {
       }
     }, [setClickedRowNamesOrig])
 
-    let (chartData, xAxisMapInfo, chartDataOrig) = React.useMemo7(() => {
+    let (chartData, xAxisMapInfo, chartDataOrig) = React.useMemo(() => {
       let chartdata: array<
         LineChartUtils.timeSeriesDictWithSecondryMetrics<JSON.t>,
       > = LineChartUtils.timeSeriesDataMaker(
@@ -95,6 +97,7 @@ module LineChart1D = {
         ~xAxis,
         ~metricsConfig=selectedMetrics,
         ~commonColors=commonColorsArr,
+        ~selectedTab=selectedTab->Option.getOr([]),
         (),
       )->Belt.Array.keepMap(item => {
         if (
@@ -248,7 +251,7 @@ module LineChart1D = {
       chartData
     }
 
-    let legendData = React.useMemo5(() => {
+    let legendData = React.useMemo(() => {
       let data = LineChartUtils.getLegendDataForCurrentMetrix(
         ~yAxis=selectedMetrics.metric_name_db,
         ~xAxis,
@@ -263,7 +266,7 @@ module LineChart1D = {
         ) {
           None
         } else {
-          item->Some
+          Some(item)
         }
       })
       if chartdataMaxRows !== -1 {
@@ -302,7 +305,7 @@ module LineChart1D = {
         ->Option.getOr(`${colorOrig}`)
 
       let transformValue = num => {
-        num->HSAnalyticsUtils.setPrecision()
+        num->HSAnalyticsUtils.setPrecision
       }
       let (nonSelectedClass, backgroundColor) =
         clickedRowNames->Array.length === 0 ||
@@ -316,7 +319,7 @@ module LineChart1D = {
           <div className="flex items-stretch justify-start select-none">
             <span
               className={`flex h-3 w-3 rounded-full self-center mr-2`}
-              style={ReactDOM.Style.make(~backgroundColor, ())}
+              style={backgroundColor: backgroundColor}
             />
             <span className={`flex justify-self-start ${nonSelectedClass}`}>
               <TooltipString text=transactionTable.groupByName showTableBelow />
@@ -360,9 +363,9 @@ module LineChart1D = {
                     <Icon name="sad-tear" className="text-red-500" size=18 />
                   </div>
                 } else if transactionTable.current < 40. {
-                  <Icon name="sad-tear" className="text-red-300" size=18 />
+                  <Icon name="sad-tear" className="text-red-100" size=18 />
                 } else if transactionTable.current < 50. {
-                  <Icon name="sad-tear" className="text-red-200" size=18 />
+                  <Icon name="sad-tear" className="text-red-100" size=18 />
                 } else if transactionTable.current < 60. {
                   <Icon name="smile" className="text-green-200" size=18 />
                 } else if transactionTable.current < 90. {
@@ -391,21 +394,13 @@ module LineChart1D = {
     let getHeading = (colType: LineChartUtils.chartLegendStatsType) => {
       switch colType {
       | GroupBY =>
-        Table.makeHeaderInfo(
-          ~key="groupByName",
-          ~title=snakeToTitle(groupKey),
-          ~dataType=LabelType,
-          ~showSort={!isPartners},
-          (),
-        )
+        Table.makeHeaderInfo(~key="groupByName", ~title=snakeToTitle(groupKey), ~dataType=LabelType)
 
       | val =>
         Table.makeHeaderInfo(
           ~key=val->LineChartUtils.chartLegendTypeToStr->String.toLowerCase,
           ~title=val->LineChartUtils.chartLegendTypeToStr,
           ~dataType=NumericType,
-          ~showSort={!isPartners},
-          (),
         )
       }
     }
@@ -422,17 +417,16 @@ module LineChart1D = {
       ~getHeading,
       ~uri="",
       ~getObjects=_ => {[]},
-      (),
     )
     let {isSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
-    React.useEffect1(() => {
-      Js.Global.setTimeout(_ => {
+    React.useEffect(() => {
+      setTimeout(_ => {
         DOMUtils.window->DOMUtils.dispatchEvent(DOMUtils.event("resize"))
       }, 150)->ignore
       None
     }, [isSidebarExpanded])
-    let options = React.useMemo4(() => {
+    let options = React.useMemo(() => {
       let chartTitleStyle = chartTitleStyle(theme)
       let thresholdVal = selectedMetrics.thresholdVal
       let stepUpFromThreshold = selectedMetrics.step_up_threshold
@@ -445,9 +439,12 @@ module LineChart1D = {
       | Points =>
         {
           "enabled": !isMultiDimensional,
-          "itemStyle": legendItemStyle(theme, "IBM Plex Sans", "12px"),
+          "itemStyle": legendItemStyle("12px"),
           "itemHiddenStyle": legendHiddenStyle(theme),
-          "itemHoverStyle": legendItemStyle(theme),
+          "itemHoverStyle": legendItemStyle("12px"),
+          "symbolRadius": 4,
+          "symbolPaddingTop": 5,
+          "itemMarginBottom": 10,
         }->genericObjectOrRecordToJson
       }
 
@@ -461,34 +458,32 @@ module LineChart1D = {
               "backgroundColor": Nullable.null,
               "height": Some(chartHeight),
               "events": {
-                render: (
-                  @this
-                  (this: chartEventOnload) => {
-                    let strokeColor = switch theme {
-                    | Dark => "#2e2f39"
-                    | Light => "#e6e6e6"
-                    }
-                    switch this.yAxis[0] {
-                    | Some(ele) =>
-                      Highcharts.objectEach(ele.ticks, tick => {
-                        if Some(tick.pos) === thresholdVal {
-                          tick.gridLine.attr(.
-                            {
-                              "stroke-width": "0",
-                            }->genericObjectOrRecordToJson,
-                          )
-                        } else {
-                          tick.gridLine.attr(.
-                            {
-                              "stroke": strokeColor,
-                            }->genericObjectOrRecordToJson,
-                          )
-                        }
-                      })
-                    | None => ()
-                    }
+                render: () => {
+                  let this = thisChartEventOnLoad
+                  let strokeColor = switch theme {
+                  | Dark => "#2e2f39"
+                  | Light => "#e6e6e6"
                   }
-                )->Some,
+                  switch this.yAxis[0] {
+                  | Some(ele) =>
+                    Highcharts.objectEach(ele.ticks, tick => {
+                      if Some(tick.pos) === thresholdVal {
+                        tick.gridLine.attr(
+                          {
+                            "stroke-width": "0",
+                          }->genericObjectOrRecordToJson,
+                        )
+                      } else {
+                        tick.gridLine.attr(
+                          {
+                            "stroke": strokeColor,
+                          }->genericObjectOrRecordToJson,
+                        )
+                      }
+                    })
+                  | None => ()
+                  }
+                },
               }->Some,
             }->genericObjectOrRecordToJson,
           )
@@ -507,13 +502,19 @@ module LineChart1D = {
           "useHTML": true,
           "formatter": tooltipFormatter(selectedMetrics, xAxisMapInfo, groupKey)->Some,
           "hideDelay": 0,
-          "outside": false,
-          "shape": "square",
-          "backgroundColor": theme === Light ? "rgba(25, 26, 26, 1)" : "rgba(247, 247, 250, 1)",
-          "borderColor": theme === Light ? "rgba(25, 26, 26, 1)" : "rgba(247, 247, 250, 1)",
-          "boxShadow": "",
+          "outside": true,
+          "borderRadius": 20,
+          "backgroundColor": "#ffffff",
+          "borderColor": "#E5E5E5",
+          "shadow": {
+            "color": "rgba(0, 0, 0, 0.15)",
+            "offsetX": 0,
+            "offsetY": 0,
+            "opacity": 0.07,
+            "width": 10,
+          },
           "style": {
-            "color": theme === Light ? "rgba(246, 248, 249, 1)" : "rgba(25, 26, 26, 1)",
+            "color": "#333333",
           },
         }->genericObjectOrRecordToJson,
         plotOptions: Some(
@@ -547,8 +548,8 @@ module LineChart1D = {
             },
             "series": {
               "marker": {
-                "enabled": showMarkers->Some,
-                "radius": (showMarkers ? 5 : 1)->Some,
+                "enabled": Some(showMarkers),
+                "radius": Some(showMarkers ? 5 : 1),
                 "symbol": Some("circle"),
               },
               "states": Some({
@@ -612,9 +613,7 @@ module LineChart1D = {
                   let positions = NumericUtils.pretty([lower_bound, upper_bound], 5)
 
                   let positionArr =
-                    Array.concat(positions, [threshold])->Js.Array2.sortInPlaceWith(
-                      numericArraySortComperator,
-                    )
+                    Array.concat(positions, [threshold])->Array.toSorted(numericArraySortComperator)
                   positionArr
                 }
 
@@ -687,7 +686,7 @@ module LineChart1D = {
               <HighchartsReact highcharts={highchartsModule} options key={chartKey} />
             </div>
           </AddDataAttributes>
-          <UIUtils.RenderIf condition={showTableLegend && isMobileView}>
+          <RenderIf condition={showTableLegend && isMobileView}>
             <div
               className="flex flex-row items-center gap-2 w-fit self-end cursor-pointer mr-5 mb-2"
               onClick={_ => {setHideLegend(prev => !prev)}}>
@@ -697,7 +696,7 @@ module LineChart1D = {
                 className="text-neutral-400"
               />
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
           {if showTableLegend && !hideLegend {
             <div className={`${tableWidth}  pl-5 pt-0 min-w-max`}>
               <LoadedTable
@@ -718,7 +717,7 @@ module LineChart1D = {
                 onEntityClick={val => {
                   setClickedRowNames(val)
                 }}
-                onEntityDoubleClick={val => {
+                onEntityDoubleClick={_val => {
                   setClickedRowNamesOrig(_ => [])
                   clickedRowNames->Array.length > 0 ? setHoverOnRows(_ => None) : ()
                 }}
@@ -727,7 +726,7 @@ module LineChart1D = {
                     ? setHoverOnRows(_ => Some(val.groupByName))
                     : ()
                 }}
-                onMouseLeave={val => {
+                onMouseLeave={_val => {
                   clickedRowNames->Array.length === 0 ? setHoverOnRows(_ => None) : ()
                 }}
                 isHighchartLegend=true
@@ -775,8 +774,7 @@ module LegendItem = {
                 }
               })}>
             <div
-              className={`w-[0.9375rem] h-[0.9375rem] rounded`}
-              style={ReactDOM.Style.make(~background=legendItem.color, ())}
+              className={`w-[0.9375rem] h-[0.9375rem] rounded`} style={background: legendItem.color}
             />
             <div className="font-medium text-fs-14 text-[#3B424F]">
               {React.string(legendItem.name)}
@@ -891,7 +889,7 @@ module LineChart2D = {
     rawChartData->Array.forEach(item => {
       let dict = item->getDictFromJsonObject
       let groupBy = dict->getString(groupBy1, "")
-      let groupBy = groupBy === "" ? "NA" : groupBy
+      let groupBy = groupBy->LogicUtils.isEmptyString ? "NA" : groupBy
 
       chartDictData->LineChartUtils.appendToDictValue(groupBy, item)
     })
@@ -937,9 +935,9 @@ module LineChart3D = {
     rawChartData->Array.forEach(item => {
       let dict = item->getDictFromJsonObject
       let groupBy1 = dict->getString(groupBy1, "")
-      let groupBy1 = groupBy1 === "" ? "NA" : groupBy1
+      let groupBy1 = groupBy1->LogicUtils.isEmptyString ? "NA" : groupBy1
       let groupBy2 = dict->getString(groupBy2, "")
-      let groupBy2 = groupBy2 === "" ? "NA" : groupBy2
+      let groupBy2 = groupBy2->LogicUtils.isEmptyString ? "NA" : groupBy2
 
       chartDictData->LineChartUtils.appendToDictValue(groupBy1 ++ " / " ++ groupBy2, item)
     })

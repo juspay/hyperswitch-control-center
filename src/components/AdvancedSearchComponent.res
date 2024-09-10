@@ -11,24 +11,19 @@ let getSummary: JSON.t => EntityType.summary = json => {
 }
 
 @react.component
-let make = (
-  ~children,
-  ~setData=?,
-  ~entity: EntityType.entityType<'colType, 't>,
-  ~setSummary=?,
-  (),
-) => {
+let make = (~children, ~setData=?, ~entity: EntityType.entityType<'colType, 't>, ~setSummary=?) => {
   let {getObjects, searchUrl: url} = entity
   let fetchApi = AuthHooks.useApiFetcher()
   let initialValueJson = JSON.Encode.object(Dict.make())
   let showToast = ToastState.useShowToast()
   let (showModal, setShowModal) = React.useState(_ => false)
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let onSubmit = (values, form: ReactFinalForm.formApi) => {
     open Promise
 
-    fetchApi(url, ~bodyStr=JSON.stringify(values), ~method_=Fetch.Post, ())
-    ->then(Fetch.Response.json)
+    fetchApi(url, ~bodyStr=JSON.stringify(values), ~method_=Post, ~xFeatureRoute)
+    ->then(res => res->Fetch.Response.json)
     ->then(json => {
       let jsonData = json->JSON.Decode.object->Option.flatMap(dict => dict->Dict.get("rows"))
       let newData = switch jsonData {
@@ -55,7 +50,7 @@ let make = (
       json->Nullable.make->resolve
     })
     ->catch(_err => {
-      showToast(~message="Something went wrong. Please try again", ~toastType=ToastError, ())
+      showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
 
       Nullable.null->resolve
     })

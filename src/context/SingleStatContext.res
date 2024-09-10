@@ -54,18 +54,18 @@ let make = (
   let getAllFilter = filterValueJson
   let (isSingleStatVisible, setSingleStatIsVisible) = React.useState(_ => false)
   let parentToken = AuthWrapperUtils.useTokenParent(Original)
-  let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetchNew()
+  let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
   let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
-  let fetchApi = AuthHooks.useApiFetcher(~betaEndpointConfig=?betaEndPointConfig, ())
-
-  let getTopLevelSingleStatFilter = React.useMemo1(() => {
+  let fetchApi = AuthHooks.useApiFetcher()
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let getTopLevelSingleStatFilter = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
-      if prefix === moduleName && prefix !== "" {
+      if prefix === moduleName && prefix->LogicUtils.isNonEmptyString {
         None
       } else {
         Some((prefix, value))
@@ -74,7 +74,7 @@ let make = (
     ->Dict.fromArray
   }, [getAllFilter])
 
-  let (topFiltersToSearchParam, customFilter, modeValue) = React.useMemo1(() => {
+  let (topFiltersToSearchParam, customFilter, modeValue) = React.useMemo(() => {
     let modeValue = Some(getTopLevelSingleStatFilter->LogicUtils.getString(modeKey, ""))
     let allFilterKeys = Array.concat(
       [startTimeFilterKey, endTimeFilterKey, modeValue->Option.getOr("")],
@@ -105,22 +105,21 @@ let make = (
     )
   }, [getTopLevelSingleStatFilter])
 
-  let filterValueFromUrl = React.useMemo1(() => {
+  let filterValueFromUrl = React.useMemo(() => {
     getTopLevelSingleStatFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(entries => {
       let (key, value) = entries
       filterKeys->Array.includes(key) ? Some((key, value)) : None
     })
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    ->getJsonFromArrayOfJson
     ->Some
   }, [topFiltersToSearchParam])
 
-  let startTimeFromUrl = React.useMemo1(() => {
+  let startTimeFromUrl = React.useMemo(() => {
     getTopLevelSingleStatFilter->LogicUtils.getString(startTimeFilterKey, "")
   }, [topFiltersToSearchParam])
-  let endTimeFromUrl = React.useMemo1(() => {
+  let endTimeFromUrl = React.useMemo(() => {
     getTopLevelSingleStatFilter->LogicUtils.getString(endTimeFilterKey, "")
   }, [topFiltersToSearchParam])
 
@@ -153,14 +152,18 @@ let make = (
     setIsSingleStatFetchedWithCurrentDependency,
   ) = React.useState(_ => false)
 
-  React.useEffect6(() => {
-    if startTimeFromUrl !== "" && endTimeFromUrl !== "" && parentToken->Option.isSome {
+  React.useEffect(() => {
+    if (
+      startTimeFromUrl->LogicUtils.isNonEmptyString &&
+      endTimeFromUrl->LogicUtils.isNonEmptyString &&
+      parentToken->Option.isSome
+    ) {
       setIsSingleStatFetchedWithCurrentDependency(_ => false)
     }
     None
   }, (endTimeFromUrl, startTimeFromUrl, filterValueFromUrl, parentToken, customFilter, modeValue))
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if !singleStatFetchedWithCurrentDependency && isSingleStatVisible {
       setIsSingleStatFetchedWithCurrentDependency(_ => true)
       let granularity = LineChartUtils.getGranularityNew(
@@ -180,7 +183,6 @@ let make = (
       let (hStartTime, hEndTime) = AnalyticsNewUtils.calculateHistoricTime(
         ~startTime=startTimeFromUrl,
         ~endTime=endTimeFromUrl,
-        (),
       )
 
       let filterConfigHistoric = {
@@ -190,7 +192,7 @@ let make = (
       }
       setSingleStatTime(_ => {
         let a: timeObj = {
-          apiStartTime: Js.Date.now(),
+          apiStartTime: Date.now(),
           apiEndTime: 0.,
         }
         a
@@ -203,7 +205,7 @@ let make = (
         setIndividualSingleStatTime(
           prev => {
             let individualTime = prev->Dict.toArray->Dict.fromArray
-            individualTime->Dict.set(index->Int.toString, Js.Date.now())
+            individualTime->Dict.set(index->Int.toString, Date.now())
             individualTime
           },
         )
@@ -254,11 +256,10 @@ let make = (
               ~filterValueFromUrl=?filterConfigHistoric.filterValues,
               ~customFilterValue=filterConfigHistoric.customFilterValue,
               ~domain=urlConfig.domain,
-              (),
             )->JSON.stringify,
-            ~authToken=parentToken,
             ~headers=[("QueryType", "SingleStatHistoric")]->Dict.fromArray,
-            (),
+            ~betaEndpointConfig=?betaEndPointConfig,
+            ~xFeatureRoute,
           )
           ->addLogsAroundFetch(
             ~logTitle=`SingleStat histotic data for metrics ${metrics->metrixMapper}`,
@@ -306,11 +307,10 @@ let make = (
               ~filterValueFromUrl=?filterConfigCurrent.filterValues,
               ~customFilterValue=filterConfigCurrent.customFilterValue,
               ~domain=urlConfig.domain,
-              (),
             )->JSON.stringify,
-            ~authToken=parentToken,
             ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
-            (),
+            ~betaEndpointConfig=?betaEndPointConfig,
+            ~xFeatureRoute,
           )
           ->addLogsAroundFetch(~logTitle=`SingleStat data for metrics ${metrics->metrixMapper}`)
           ->then(
@@ -357,11 +357,10 @@ let make = (
               ~customFilterValue=filterConfigCurrent.customFilterValue,
               ~domain=urlConfig.domain,
               ~timeCol=urlConfig.timeColumn,
-              (),
             )->JSON.stringify,
-            ~authToken=parentToken,
             ~headers=[("QueryType", "SingleStat Time Series")]->Dict.fromArray,
-            (),
+            ~betaEndpointConfig=?betaEndPointConfig,
+            ~xFeatureRoute,
           )
           ->addLogsAroundFetch(
             ~logTitle=`SingleStat Time Series data for metrics ${metrics->metrixMapper}`,
@@ -435,8 +434,8 @@ let make = (
                 let individualTime = prev->Dict.toArray->Dict.fromArray
                 individualTime->Dict.set(
                   index->Int.toString,
-                  Js.Date.now() -.
-                  individualTime->Dict.get(index->Int.toString)->Option.getOr(Js.Date.now()),
+                  Date.now() -.
+                  individualTime->Dict.get(index->Int.toString)->Option.getOr(Date.now()),
                 )
                 individualTime
               },
@@ -445,7 +444,7 @@ let make = (
               setSingleStatTime(
                 prev => {
                   ...prev,
-                  apiEndTime: Js.Date.now(),
+                  apiEndTime: Date.now(),
                 },
               )
             }
@@ -458,7 +457,7 @@ let make = (
 
     None
   }, (singleStatFetchedWithCurrentDependency, isSingleStatVisible))
-  let value = React.useMemo4(() => {
+  let value = React.useMemo(() => {
     {
       singleStatData: Some(singleStatStateData),
       singleStatTimeSeries: Some(singleStatTimeSeries),

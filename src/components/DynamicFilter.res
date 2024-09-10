@@ -7,6 +7,7 @@ module CustomFilters = {
     ~setCustomFilter,
     ~currentFilterValue,
   ) => {
+    open LogicUtils
     let (errMessage, setErrMessage) = React.useState(_ => "")
 
     let (completionDisposable, setCompletionDisposable) = Recoil.useRecoilState(
@@ -24,12 +25,12 @@ module CustomFilters = {
       setShowModal(_ => false)
     }
     let onChange = str => {
-      if str === "" {
+      if str->isEmptyString {
         setPlaceHolder(_ => placeholderText)
       }
       setLocalData(_ => str)
     }
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setErrMessage(_ => "")
       if String.includes(localData, `"`) {
         setErrMessage(str => `${str} Please use ' instead of ".`)
@@ -53,7 +54,8 @@ module CustomFilters = {
 
         let firstEle = mArr[0]->Option.getOr("")
         if (
-          firstEle != "" && tabNames->Array.indexOf(firstEle->String.trim->String.toLowerCase) < 0
+          firstEle->isNonEmptyString &&
+            tabNames->Array.indexOf(firstEle->String.trim->String.toLowerCase) < 0
         ) {
           setErrMessage(str => `${str} ${firstEle} is not a valid dimension.`)
         }
@@ -88,7 +90,7 @@ module CustomFilters = {
       switch completionDisposable {
       | Some(_val) => ()
       | None =>
-        setCompletionDisposable(._ =>
+        setCompletionDisposable(_ =>
           Monaco.Language.registerCompletionItemProvider(
             monaco.languages,
             "sql",
@@ -103,7 +105,7 @@ module CustomFilters = {
       onClick={_ => {setPlaceHolder(_ => "")}}
       onKeyPress={_ => {setMouseEnter(_ => true)}}
       onMouseLeave={_ => {setMouseEnter(_ => false)}}>
-      {if placeholderTextSt !== "" && localData === "" && !mounseEnter {
+      {if placeholderTextSt->isNonEmptyString && localData->isEmptyString && !mounseEnter {
         <div className="monaco-placeholder text-black opacity-50 ml-6 ">
           {placeholderTextSt->React.string}
         </div>
@@ -127,7 +129,7 @@ module CustomFilters = {
       />
       <div>
         <span className="flex break-words text-red-800">
-          {errMessage == "" ? React.null : React.string(errMessage)}
+          {errMessage->isEmptyString ? React.null : React.string(errMessage)}
         </span>
         <div className="mt-6">
           <Button
@@ -135,7 +137,7 @@ module CustomFilters = {
             buttonType=Primary
             buttonSize=Small
             onClick=onSubmit
-            buttonState={errMessage == "" ? Normal : Disabled}
+            buttonState={errMessage->isEmptyString ? Normal : Disabled}
           />
         </div>
       </div>
@@ -153,17 +155,17 @@ let make = (
   ~tabNames: array<string>,
   ~updateUrlWith=?,
   ~showCustomFilter=true,
-  ~customViewTop=React.null,
+  ~customLeftView=React.null,
   ~filterButtonStyle="",
   ~moduleName="",
   ~customFilterKey="",
   ~filterFieldsPortalName="navbarSecondRow",
   ~filtersDisplayOption=true,
   ~showSelectFiltersSearch=false,
-  ~revampedFilter=false,
-  ~hideFiltersDefaultValue=?,
   ~refreshFilters=true,
 ) => {
+  open LogicUtils
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let localFilters = initialFilters->Array.filter(item => item.localFilter->Option.isSome)
   let remoteOptions = options->Array.filter(item => item.localFilter->Option.isNone)
   let defaultFilters = ""->JSON.Encode.string
@@ -177,7 +179,7 @@ let make = (
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
   }
 
-  let customFilters = if customFilterKey !== "" {
+  let customFilters = if customFilterKey->isNonEmptyString {
     <>
       <div className="mx-2">
         <Button
@@ -186,7 +188,7 @@ let make = (
           showBorder=false
           buttonSize=Small
           leftIcon={CustomIcon(<Icon name="add_custom_img" size=14 />)}
-          textStyle="text-blue-800"
+          textStyle={`${textColor.primaryNormal}`}
           onClick={_ev => setShowModal(_ => true)}
         />
       </div>
@@ -214,7 +216,7 @@ let make = (
   }
 
   <div className="flex-1 ml-1">
-    <RemoteFilter
+    <Filter
       defaultFilters
       fixedFilters=initialFixedFilters
       requiredSearchFieldsList=[]
@@ -222,26 +224,18 @@ let make = (
       localOptions=[]
       remoteOptions
       remoteFilters=initialFilters
-      refreshFilters
       popupFilterFields
       autoApply=false
-      showExtraFiltersInline=true
       addFilterStyle="pt-4"
       filterButtonStyle
-      tooltipStyling=""
-      showClearFilterButton=true
       defaultFilterKeys
-      customView=customFilters
-      customViewTop
+      customRightView=customFilters
+      customLeftView
       ?updateUrlWith
       clearFilters
-      filterFieldsPortalName
-      initalCount={currentCustomFilterValue !== "" ? 1 : 0}
-      showFiltersBtn=filtersDisplayOption
+      initalCount={currentCustomFilterValue->isNonEmptyString ? 1 : 0}
       showSelectFiltersSearch
       tableName=moduleName
-      revampedFilter
-      ?hideFiltersDefaultValue
     />
   </div>
 }

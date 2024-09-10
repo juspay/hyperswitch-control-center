@@ -39,7 +39,7 @@ module FilterRow = {
             React.null
           } else {
             <div
-              key={string_of_int(cellIndex)}
+              key={Int.toString(cellIndex)}
               className={`h-full p-0 align-top ${borderClass} ${tableDataBorderClass} ${cellWidth}`}>
               <div className={`h-full box-border ${paddingClass}`}>
                 <TableFilterCell cell=item />
@@ -78,7 +78,7 @@ module NewCell = {
   ) => {
     open Window
 
-    let onClick = React.useCallback2(_ev => {
+    let onClick = React.useCallback(_ev => {
       let isRangeSelected = getSelection().\"type" == "Range"
       switch (onRowClick, isRangeSelected) {
       | (Some(fn), false) => fn(rowIndex)
@@ -86,18 +86,18 @@ module NewCell = {
       }
     }, (onRowClick, rowIndex))
 
-    let isCurrentRowExpanded = React.useMemo1(() => {
+    let isCurrentRowExpanded = React.useMemo(() => {
       expandedIndexArr->Array.includes(rowIndex)
     }, [expandedIndexArr])
 
-    let onMouseEnter = React.useCallback2(_ev => {
+    let onMouseEnter = React.useCallback(_ev => {
       switch onMouseEnter {
       | Some(fn) => fn(rowIndex)
       | _ => ()
       }
     }, (onMouseEnter, rowIndex))
 
-    let onMouseLeave = React.useCallback2(_ev => {
+    let onMouseLeave = React.useCallback(_ev => {
       switch onMouseLeave {
       | Some(fn) => fn(rowIndex)
       | _ => ()
@@ -117,7 +117,7 @@ module NewCell = {
       ->Array.includes(true)
 
     let customcellColouredCell =
-      customcellColouredCellCheck && customCellColor !== ""
+      customcellColouredCellCheck && customCellColor->LogicUtils.isNonEmptyString
         ? customCellColor
         : "bg-white hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-850"
 
@@ -164,7 +164,7 @@ module NewCell = {
           let cursorI = cellIndex == 0 ? "cursor-pointer" : ""
 
           <div
-            key={string_of_int(cellIndex)}
+            key={Int.toString(cellIndex)}
             className={`${cellWidth} ${overflowStyle}  h-auto align-top ${borderClass}  ${highlightCell
                 ? "hover:font-bold"
                 : ""} ${tableDataBorderClass} 
@@ -219,8 +219,6 @@ module ReactWindowTableComponent = {
     ~fullWidth,
     ~removeVerticalLines=true,
     ~showScrollBar=false,
-    ~setSortedObj=?,
-    ~sortedObj=?,
     ~columnFilterRow=?,
     ~tableheadingClass="",
     ~tableBorderClass="",
@@ -266,7 +264,7 @@ module ReactWindowTableComponent = {
     let (expandedIndexArr, setExpandedIndexArr) = React.useState(_ => [])
     let handleExpand = (index, bool) => fn.current(index, bool)
 
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setExpandedIndexArr(_ => [])
       handleExpand(0, true)
       None
@@ -358,23 +356,23 @@ module ReactWindowTableComponent = {
             }
 
             <div
-              key={string_of_int(i)}
+              key={Int.toString(i)}
               className={` ${cellWidth} ${borderClass} justify-between items-center  bg-white dark:bg-jp-gray-darkgray_background text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 whitespace-pre select-none ${roundedClass} ${tableheadingClass}`}>
               <div
-                className={`flex flex-row ${cellWidth} pl-2 py-4 bg-gradient-to-b from-jp-gray-450 to-jp-gray-350 dark:from-jp-gray-950  dark:to-jp-gray-950 text-jp-gray-900`}>
+                className={`flex flex-row ${cellWidth} pl-2 py-4 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950  dark:to-jp-gray-950 text-jp-gray-900`}>
                 <div className="">
                   <div className="flex flex-row">
                     <div className="font-bold text-fs-13"> {React.string(item.title)} </div>
-                    <UIUtils.RenderIf condition={item.description->Option.isSome}>
+                    <RenderIf condition={item.description->Option.isSome}>
                       <div className="text-sm text-gray-500 mx-2">
                         <ToolTip
                           description={item.description->Option.getOr("")}
                           toolTipPosition={ToolTip.Bottom}
                         />
                       </div>
-                    </UIUtils.RenderIf>
+                    </RenderIf>
                   </div>
-                  <UIUtils.RenderIf condition={item.showMultiSelectCheckBox->Option.getOr(false)}>
+                  <RenderIf condition={item.showMultiSelectCheckBox->Option.getOr(false)}>
                     <div className=" mt-1 mr-2">
                       <CheckBoxIcon
                         isSelected={isAllSelected}
@@ -383,47 +381,14 @@ module ReactWindowTableComponent = {
                         checkboxDimension
                       />
                     </div>
-                  </UIUtils.RenderIf>
-                  <UIUtils.RenderIf condition={item.data->Option.isSome}>
+                  </RenderIf>
+                  <RenderIf condition={item.data->Option.isSome}>
                     <div
                       className="flex justify-start font-bold text-fs-10 whitespace-pre text-ellipsis overflow-x-hidden">
                       {React.string(item.data->Option.getOr(""))}
                     </div>
-                  </UIUtils.RenderIf>
+                  </RenderIf>
                 </div>
-                {if item.showFilter || item.showSort {
-                  <div className={`flex flex-row items-center`}>
-                    {item.showSort
-                      ? {
-                          <AddDataAttributes attributes=[("data-table", "tableSort")]>
-                            {
-                              let order: sortOrder = switch sortedObj {
-                              | Some(obj: sortedObject) =>
-                                obj.key === item.key ? obj.order : TableUtils.NONE
-                              | None => TableUtils.NONE
-                              }
-                              <div
-                                className="cursor-pointer text-gray-300 pl-4"
-                                onClick={_ev => {
-                                  switch setSortedObj {
-                                  | Some(fn) =>
-                                    fn(_ => Some({
-                                      key: item.key,
-                                      order: order === DEC ? INC : DEC,
-                                    }))
-                                  | None => ()
-                                  }
-                                }}>
-                                <SortIcons order size=13 />
-                              </div>
-                            }
-                          </AddDataAttributes>
-                        }
-                      : React.null}
-                  </div>
-                } else {
-                  React.null
-                }}
               </div>
               <div>
                 {
@@ -466,7 +431,7 @@ module ReactWindowTableComponent = {
 
             <>
               <NewCell
-                key={string_of_int(rowIndex)}
+                key={Int.toString(rowIndex)}
                 item
                 rowIndex
                 onRowClick
@@ -503,7 +468,7 @@ module ReactWindowTableComponent = {
 
     <div
       className={` overflow-x-scroll ${scrollBarClass}`}
-      style={ReactDOMStyle.make(~minHeight={filterPresent ? "30rem" : ""}, ())}>
+      style={minHeight: {filterPresent ? "30rem" : ""}}>
       <div
         className={`w-max	${widthClass} h-full border border-jp-gray-940 border-opacity-50 dark:border-jp-gray-960 rounded-lg ${tableBorderClass}`}
         colSpan=0>
@@ -512,7 +477,7 @@ module ReactWindowTableComponent = {
           <ReactWindow.VariableSizeList
             ref={el => {
               open ReactWindow.ListComponent
-              fn.current = el->resetAfterIndex
+              fn.current = (index, val) => el->resetAfterIndex(index, val)
             }}
             itemSize={index => getHeight(index)}
             height=tableHeight
@@ -533,14 +498,14 @@ type sortOb = {
   sortType: sortTyp,
 }
 
-let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Dict.make())
+let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>> = Recoil.atom("sortAtom", Dict.make())
 
 let useSortedObj = (title: string, defaultSort) => {
   let (dict, setDict) = Recoil.useRecoilState(sortAtom)
   let filters = Dict.get(dict, title)
 
   let (sortedObj, setSortedObj) = React.useState(_ => defaultSort)
-  React.useEffect0(() => {
+  React.useEffect(() => {
     switch filters {
     | Some(filt) =>
       let sortObj: Table.sortedObject = {
@@ -550,15 +515,15 @@ let useSortedObj = (title: string, defaultSort) => {
         | _ => Table.INC
         },
       }
-      setSortedObj(_ => sortObj->Some)
+      setSortedObj(_ => Some(sortObj))
     | None => ()
     }
 
     None
-  })
+  }, [])
 
   // Adding new
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch sortedObj {
     | Some(obj: Table.sortedObject) =>
       let sortOb = {
@@ -569,7 +534,7 @@ let useSortedObj = (title: string, defaultSort) => {
         },
       }
 
-      setDict(.dict => {
+      setDict(dict => {
         let nDict = Dict.fromArray(Dict.toArray(dict))
         Dict.set(nDict, title, sortOb)
         nDict
@@ -595,7 +560,7 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
     }
   }
   let sortedArrayByOrder = {
-    let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
+    let _ = originalData->Array.toSorted((i1, i2) => {
       let item1 = i1->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       let item2 = i2->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       // flatten items and get data
@@ -607,13 +572,13 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
       let value1 = getValue(val1)
       let value2 = getValue(val2)
       if value1 === value2 {
-        0
+        0.
       } else if value1 > value2 {
-        sortOrder === DEC ? 1 : -1
+        sortOrder === DEC ? 1. : -1.
       } else if sortOrder === DEC {
-        -1
+        -1.
       } else {
-        1
+        1.
       }
     })
     originalData
@@ -624,7 +589,6 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
 @react.component
 let make = (
   ~actualData: array<Nullable.t<'t>>,
-  ~defaultSort=?,
   ~title,
   ~visibleColumns=?,
   ~description=?,
@@ -639,7 +603,6 @@ let make = (
   ~downloadCsv=?,
   ~hideTitle=false,
   ~tableDataLoading=false,
-  ~customGetObjects: option<JSON.t => array<'a>>=?,
   ~dataNotFoundComponent=?,
   ~tableLocalFilter=false,
   ~tableheadingClass="",
@@ -701,14 +664,14 @@ let make = (
     React.null
   }
 
-  let setColumnFilter = React.useMemo1(() => {
+  let setColumnFilter = React.useMemo(() => {
     (filterKey, filterValue: array<JSON.t>) => {
       setColumnFilterOrig(oldFitlers => {
         let newObj = oldFitlers->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->String.make
-            updatedItem !== ""
+            updatedItem->LogicUtils.isNonEmptyString
           },
         )
         if filterValue->Array.length === 0 {
@@ -729,12 +692,12 @@ let make = (
     }
   }, [setColumnFilterOrig])
 
-  let filterValue = React.useMemo2(() => {
+  let filterValue = React.useMemo(() => {
     (columnFilter, setColumnFilter)
   }, (columnFilter, setColumnFilter))
 
   let (isFilterOpen, setIsFilterOpenOrig) = React.useState(_ => Dict.make())
-  let setIsFilterOpen = React.useMemo1(() => {
+  let setIsFilterOpen = React.useMemo(() => {
     (filterKey, value: bool) => {
       setIsFilterOpenOrig(oldFitlers => {
         let newObj = oldFitlers->DictionaryUtils.copyOfDict
@@ -743,7 +706,7 @@ let make = (
       })
     }
   }, [setColumnFilterOrig])
-  let filterOpenValue = React.useMemo2(() => {
+  let filterOpenValue = React.useMemo(() => {
     (isFilterOpen, setIsFilterOpen)
   }, (isFilterOpen, setIsFilterOpen))
 
@@ -752,23 +715,19 @@ let make = (
   if showSerialNumber {
     heading
     ->Array.unshift(
-      Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType, ()),
+      Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType),
     )
     ->ignore
   }
   if checkBoxProps.showCheckBox {
     heading
-    ->Array.unshift(
-      Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true, ()),
-    )
+    ->Array.unshift(Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true))
     ->ignore
   }
 
-  let {getShowLink, getObjects} = entity
+  let {getShowLink} = entity
 
-  let (sortedObj, setSortedObj) = useSortedObj(title, defaultSort)
-
-  let columToConsider = React.useMemo3(() => {
+  let columToConsider = React.useMemo(() => {
     switch (entity.allColumns, visibleColumns) {
     | (Some(allCol), _) => Some(allCol)
     | (_, Some(visibleColumns)) => Some(visibleColumns)
@@ -776,7 +735,7 @@ let make = (
     }
   }, (entity.allColumns, visibleColumns, entity.defaultColumns))
 
-  let columnFilterRow = React.useMemo5(() => {
+  let columnFilterRow = React.useMemo(() => {
     if tableLocalFilter {
       let columnFilterRow =
         visibleColumns
@@ -806,6 +765,7 @@ let make = (
                     let dataType = heading.dataType
                     let value = switch entity.getCell(rows, item) {
                     | CustomCell(_, str)
+                    | DisplayCopyCell(str)
                     | EllipsisText(str, _)
                     | Link(str)
                     | Date(str)
@@ -817,7 +777,7 @@ let make = (
                       convertStrCellToFloat(dataType, x.title)
                     | DeltaPercentage(num, _) | Currency(num, _) | Numeric(num, _) =>
                       convertFloatCellToStr(dataType, num)
-                    | Progress(num) => convertFloatCellToStr(dataType, num->Js.Int.toFloat)
+                    | Progress(num) => convertFloatCellToStr(dataType, num->Int.toFloat)
                     | StartEndDate(_) | InputField(_) | TrimmedText(_) | DropDown(_) =>
                       convertStrCellToFloat(dataType, "")
                     }
@@ -840,7 +800,7 @@ let make = (
               let newArr =
                 filterValueArray
                 ->Array.map(item => item->JSON.Decode.float->Option.getOr(0.))
-                ->Js.Array2.sortInPlaceWith(LogicUtils.numericArraySortComperator)
+                ->Array.toSorted(LogicUtils.numericArraySortComperator)
               let lengthOfArr = newArr->Array.length
 
               if lengthOfArr >= 2 {
@@ -877,16 +837,9 @@ let make = (
     actualData
   }
 
-  let filteredData = React.useMemo4(() => {
-    switch sortedObj {
-    | Some(obj: Table.sortedObject) => sortArray(actualData, obj.key, obj.order)
-    | None => actualData
-    }
-  }, (sortedObj, customGetObjects, actualData, getObjects))
-
-  let selectAllCheckBox = React.useMemo2(() => {
+  let selectAllCheckBox = React.useMemo(() => {
     let selectedRowDataLength = checkBoxProps.selectedData->Array.length
-    let isCompleteDataSelected = selectedRowDataLength === filteredData->Array.length
+    let isCompleteDataSelected = selectedRowDataLength === actualData->Array.length
     if isCompleteDataSelected {
       Some(ALL)
     } else if checkBoxProps.selectedData->Array.length === 0 {
@@ -894,13 +847,13 @@ let make = (
     } else {
       Some(PARTIAL)
     }
-  }, (checkBoxProps.selectedData, filteredData))
-  let setSelectAllCheckBox = React.useCallback1(
+  }, (checkBoxProps.selectedData, actualData))
+  let setSelectAllCheckBox = React.useCallback(
     (v: option<TableUtils.multipleSelectRows> => option<TableUtils.multipleSelectRows>) => {
       switch v(selectAllCheckBox) {
       | Some(ALL) =>
         checkBoxProps.setSelectedData(_ => {
-          filteredData->Array.map(Identity.nullableOfAnyTypeToJsonType)
+          actualData->Array.map(Identity.nullableOfAnyTypeToJsonType)
         })
       | Some(PARTIAL)
       | None =>
@@ -910,10 +863,10 @@ let make = (
     [selectAllCheckBox],
   )
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if selectAllCheckBox === Some(ALL) {
       checkBoxProps.setSelectedData(_ => {
-        filteredData->Array.map(Identity.nullableOfAnyTypeToJsonType)
+        actualData->Array.map(Identity.nullableOfAnyTypeToJsonType)
       })
     } else if selectAllCheckBox === None {
       checkBoxProps.setSelectedData(_ => [])
@@ -923,7 +876,7 @@ let make = (
   let sNoArr = Dict.get(columnFilter, "s_no")->Option.getOr([])
   // filtering for SNO
   let rows =
-    filteredData
+    actualData
     ->Array.mapWithIndex((nullableItem, index) => {
       let actualRows = switch nullableItem->Nullable.toOption {
       | Some(item) => {
@@ -1031,8 +984,8 @@ let make = (
     head
   })
 
-  let handleRowClick = React.useCallback4(index => {
-    let actualVal = switch filteredData[index] {
+  let handleRowClick = React.useCallback(index => {
+    let actualVal = switch actualData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
     }
@@ -1044,7 +997,7 @@ let make = (
         switch getShowLink {
         | Some(fn) => {
             let link = fn(value)
-            let finalUrl = url.search->String.length > 0 ? `${link}?${url.search}` : link
+            let finalUrl = url.search->LogicUtils.isNonEmptyString ? `${link}?${url.search}` : link
             RescriptReactRouter.push(finalUrl)
           }
 
@@ -1053,10 +1006,10 @@ let make = (
       }
     | None => ()
     }
-  }, (filteredData, getShowLink, onEntityClick, url.search))
+  }, (actualData, getShowLink, onEntityClick, url.search))
 
-  let handleMouseEnter = React.useCallback4(index => {
-    let actualVal = switch filteredData[index] {
+  let handleMouseEnter = React.useCallback(index => {
+    let actualVal = switch actualData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
     }
@@ -1068,10 +1021,10 @@ let make = (
       }
     | None => ()
     }
-  }, (filteredData, getShowLink, onMouseEnter, url.search))
+  }, (actualData, getShowLink, onMouseEnter, url.search))
 
-  let handleMouseLeave = React.useCallback4(index => {
-    let actualVal = switch filteredData[index] {
+  let handleMouseLeave = React.useCallback(index => {
+    let actualVal = switch actualData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
     }
@@ -1083,13 +1036,13 @@ let make = (
       }
     | None => ()
     }
-  }, (filteredData, getShowLink, onMouseLeave, url.search))
+  }, (actualData, getShowLink, onMouseLeave, url.search))
 
   <AddDataAttributes attributes=[("data-loaded-table", title)]>
     <div>
       <div
         className={` bg-gray-50 dark:bg-jp-gray-darkgray_background empty:hidden`}
-        style={ReactDOMStyle.make(~zIndex="2", ())}>
+        style={zIndex: "2"}>
         <div className="flex flex-row justify-between items-center mt-4 mb-2">
           {if hideTitle {
             React.null
@@ -1135,8 +1088,6 @@ let make = (
                 fullWidth
                 removeVerticalLines
                 showScrollBar=false
-                setSortedObj
-                ?sortedObj
                 ?columnFilterRow
                 tableheadingClass
                 tableBorderClass

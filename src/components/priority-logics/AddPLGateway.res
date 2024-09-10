@@ -3,20 +3,38 @@ type gateway = AdvancedRoutingTypes.volumeSplitConnectorSelectionData
 module GatewayView = {
   @react.component
   let make = (~gateways: array<gateway>) => {
+    let url = RescriptReactRouter.useUrl()
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
+
+    let connectorType = switch url->RoutingUtils.urlToVariantMapper {
+    | PayoutRouting => RoutingTypes.PayoutConnector
+    | _ => RoutingTypes.PaymentConnector
+    }
+    let connectorList =
+      HyperswitchAtom.connectorListAtom
+      ->Recoil.useRecoilValueFromAtom
+      ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
+
+    let getGatewayName = merchantConnectorId => {
+      (
+        connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(merchantConnectorId)
+      ).connector_label
+    }
+
     <div className="flex flex-wrap gap-4 items-center">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
         <div
           key={Int.toString(index)}
-          className="my-2 h-6 md:h-8 flex items-center rounded-md  border border-jp-gray-500 dark:border-jp-gray-960 font-medium
-                            text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200
-                            dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1">
-          {React.string(ruleGateway.connector.connector)}
-          <UIUtils.RenderIf condition={ruleGateway.split !== 0}>
+          className={`my-2 h-6 md:h-8 flex items-center rounded-md  border border-jp-gray-500 dark:border-jp-gray-960 font-medium
+                            ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200
+                            dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1`}>
+          {React.string(ruleGateway.connector.merchant_connector_id->getGatewayName)}
+          <RenderIf condition={ruleGateway.split !== 0}>
             <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
-              {React.string(ruleGateway.split->string_of_int ++ "%")}
+              {React.string(ruleGateway.split->Int.toString ++ "%")}
             </span>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       })
       ->React.array}
@@ -34,16 +52,12 @@ let make = (
   ~showDistributionIcon=true,
   ~showFallbackIcon=true,
   ~dropDownButtonText="Add Gateways",
-  ~connectorList=?,
+  ~connectorList,
 ) => {
   let gateWaysInput = ReactFinalForm.useField(`${id}`).input
 
-  let gatewayName = name => {
-    let res =
-      connectorList
-      ->Option.getOr([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
-      ->ConnectorTableUtils.getConnectorNameViaId(name)
-    res.connector_name
+  let gateWayName = merchantConnectorID => {
+    connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(merchantConnectorID)
   }
 
   let isDistribute =
@@ -93,7 +107,7 @@ let make = (
           }
           let obj: gateway = {
             connector: {
-              connector: item->gatewayName,
+              connector: gateWayName(item).connector_name,
               merchant_connector_id: item,
             },
             split: sharePercent,
@@ -136,9 +150,9 @@ let make = (
 
   if isExpanded {
     <div className="flex flex-row ml-2">
-      <UIUtils.RenderIf condition={!isFirst}>
+      <RenderIf condition={!isFirst}>
         <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
         <div className="flex flex-wrap gap-4">
           <div className="flex">
@@ -159,18 +173,22 @@ let make = (
           </div>
           {selectedOptions
           ->Array.mapWithIndex((item, i) => {
-            let key = string_of_int(i + 1)
+            let key = Int.toString(i + 1)
 
             {
               <div className="flex flex-row" key>
                 <div
                   className="w-min flex flex-row items-center justify-around gap-2 h-10 rounded-md  border border-jp-gray-500 dark:border-jp-gray-960
-               text-jp-gray-900 text-opacity-75 hover:text-opacity-100 dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme
-               dark:hover:text-opacity-75 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 bg-gradient-to-b
-               from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 dark:text-jp-gray-text_darktheme
+               text-jp-gray-900  hover:text-opacity-100 dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme
+               dark:hover:text-opacity-75  text-opacity-50 hover:text-jp-gray-900 bg-gradient-to-b
+               from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 
                dark:text-opacity-50 focus:outline-none px-1 ">
                   <NewThemeUtils.Badge number={i + 1} />
-                  <div> {item.connector.connector->React.string} </div>
+                  <div>
+                    {gateWayName(
+                      item.connector.merchant_connector_id,
+                    ).connector_label->React.string}
+                  </div>
                   <Icon
                     name="close"
                     size=10
@@ -180,7 +198,7 @@ let make = (
                       removeItem(i)
                     }}
                   />
-                  <UIUtils.RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
+                  <RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
                     {<>
                       <input
                         className="w-10 text-right outline-none bg-white dark:bg-jp-gray-970 px-1 border border-jp-gray-300 dark:border-jp-gray-850 rounded-md"
@@ -195,7 +213,7 @@ let make = (
                       />
                       <div> {React.string("%")} </div>
                     </>}
-                  </UIUtils.RenderIf>
+                  </RenderIf>
                 </div>
               </div>
             }

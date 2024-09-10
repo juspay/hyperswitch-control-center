@@ -1,6 +1,6 @@
 type promisifyable
 type execResponse
-type promiseableExecFile = (. string, array<string>) => Promise.t<execResponse>
+type promiseableExecFile = (string, array<string>) => Promise.t<execResponse>
 
 module Util = {
   @module("util")
@@ -28,12 +28,12 @@ module Querystring = {
 }
 
 module Http = {
-  type url = {toString: (. unit) => string}
+  type url = {toString: unit => string}
 
   external asUrl: string => url = "%identity"
 
-  type on = (. string, unit => unit) => unit
-  type read = (. unit) => Nullable.t<string>
+  type on = (string, unit => unit) => unit
+  type read = unit => Nullable.t<string>
   type headers = Dict.t<string>
   type server
   type request = {url: url, headers: headers, method: string, on: on, read: read}
@@ -41,9 +41,9 @@ module Http = {
   external makeHeader: {..} => headers = "%identity"
 
   type response = {
-    writeHead: (. int, headers) => unit,
-    write: (. string) => unit,
-    end: (. unit) => unit,
+    writeHead: (int, headers) => unit,
+    write: string => unit,
+    end: unit => unit,
   }
 
   type serverHandler = (request, response) => Promise.t<unit>

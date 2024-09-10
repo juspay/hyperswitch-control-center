@@ -19,7 +19,7 @@ type domObj = {
 external removeEventListener: (Dom.element, string, event => unit) => unit = "removeEventListener"
 
 let useLinearRippleHook = (ref: React.ref<Nullable.t<Dom.element>>, shouldRipple) => {
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let handleMouseOver = _ev => {
       switch ref.current->Nullable.toOption {
       | Some(splash) => {
@@ -33,7 +33,7 @@ let useLinearRippleHook = (ref: React.ref<Nullable.t<Dom.element>>, shouldRipple
           link->style->setHeight(`70px`)
           link->style->setWidth(`400px`)
           link->style->setaAnimationTimingFunction("linear")
-          Js.Global.setTimeout(() => {
+          setTimeout(() => {
             splash->removeChild(link)
           }, 300)->ignore
         }
@@ -61,7 +61,7 @@ let useLinearRippleHook = (ref: React.ref<Nullable.t<Dom.element>>, shouldRipple
 }
 
 let useHorizontalRippleHook = (ref: React.ref<Nullable.t<Dom.element>>) => {
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let handleMouseOver = _ev => {
       switch ref.current->Nullable.toOption {
       | Some(splash) => {
@@ -77,14 +77,14 @@ let useHorizontalRippleHook = (ref: React.ref<Nullable.t<Dom.element>>) => {
           link->style->setHeight("70px")
           link->style->setWidth("70px")
 
-          Js.Global.setTimeout(() => {
+          setTimeout(() => {
             link->style->setHeight("400px")
             link->style->setWidth("400px")
             link->style->setOpacity("20")
             link->style->setaAnimationTimingFunction("cubic-bezier(0.25, 0.1, 0.25, 1)")
           }, 0)->ignore
 
-          Js.Global.setTimeout(() => {
+          setTimeout(() => {
             splash->removeChild(link)
           }, 400)->ignore
         }

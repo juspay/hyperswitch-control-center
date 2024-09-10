@@ -12,16 +12,10 @@ type buttonType =
   | Delete
   | Transparent
   | SelectTransparent
-  | DarkBluePrimary
-  | BrownButton
-  | GreyButton
-  | DarkBlueSecondary
-  | ArdraPagination
-  | UpiPaginator
+
   | DarkPurple
   | Dropdown
-  | LightBlue
-  | ArdraDefaultBlue
+
 type buttonSize = Large | Medium | Small | XSmall
 type iconType =
   | FontAwesome(string)
@@ -38,40 +32,22 @@ type badgeColor =
   | BadgeYellow
   | BadgeDarkGreen
   | BadgeDarkRed
-  | BadgeBrown
   | NoBadge
 type badge = {value: string, color: badgeColor}
-let getBGColor: (
-  ~buttonType: buttonType,
-  ~buttonState: buttonState,
-  ~showBorder: bool,
-  ~isDropdownOpen: bool=?,
-  ~isPhoneDropdown: bool=?,
-  unit,
-) => string
 let useGetBgColor: (
   ~buttonType: buttonType,
   ~buttonState: buttonState,
   ~showBorder: bool,
   ~isDropdownOpen: bool=?,
   ~isPhoneDropdown: bool=?,
-  unit,
 ) => string
-let getTextColor: (
-  ~buttonType: buttonType,
-  ~buttonState: buttonState,
-  ~showBorder: bool,
-  ~isDropdownOpen: bool=?,
-  ~isPhoneDropdown: bool=?,
-  unit,
-) => string
+
 let useGetTextColor: (
   ~buttonType: buttonType,
   ~buttonState: buttonState,
   ~showBorder: bool,
   ~isDropdownOpen: bool=?,
   ~isPhoneDropdown: bool=?,
-  unit,
 ) => string
 @react.component
 let make: (
@@ -118,4 +94,5 @@ let make: (
   ~showTooltip: bool=?,
   ~tooltipText: string=?,
   ~toolTipPosition: ToolTip.toolTipPosition=?,
+  ~dataTestId: string=?,
 ) => React.element

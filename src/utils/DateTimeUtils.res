@@ -63,7 +63,7 @@ let utcToISTDate = timeStr => {
 }
 
 let parseAsFloat = (dateStr: string) => {
-  let date = (dateStr->DayJs.getDayJsForString).toDate(.)
+  let date = (dateStr->DayJs.getDayJsForString).toDate()
   Js.Date.makeWithYMDHMS(
     ~year=date->Js.Date.getFullYear,
     ~month=date->Js.Date.getMonth,
@@ -76,8 +76,8 @@ let parseAsFloat = (dateStr: string) => {
 }
 
 let toUtc = (datetime: Date.t) => {
-  let offset = Js.Date.getTimezoneOffset(Js.Date.now()->Js.Date.fromFloat)->Int.fromFloat
-  (datetime->DayJs.getDayJsForJsDate).add(. offset, "minute").toDate(.)
+  let offset = Js.Date.getTimezoneOffset(Date.now()->Js.Date.fromFloat)->Int.fromFloat
+  (datetime->DayJs.getDayJsForJsDate).add(offset, "minute").toDate()
 }
 
 let getStartEndDiff = (startDate, endDate) => {

@@ -54,22 +54,21 @@ module RangeSliderLocalFilter = {
       ~callback=() => {
         setShowDropDown(_ => false)
       },
-      (),
     )
 
-    let min = minVal->Js.Float.toString
+    let min = minVal->Float.toString
 
-    let max = maxVal->Js.Float.toString
+    let max = maxVal->Float.toString
 
     <div className="flex relative flex-row flex-wrap">
       <div className="flex relative flex-row flex-wrap w-full">
         <div
-          className="flex justify-center relative h-10 flex flex-row min-w-min items-center bg-white text-jp-gray-900 text-opacity-75 hover:shadow hover:text-jp-gray-900 hover:text-opacity-75 dark:bg-jp-gray-darkgray_background dark:hover:bg-jp-gray-950 dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none rounded-md  border border-jp-gray-950 border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100  text-jp-gray-950 hover:text-black dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75 cursor-pointer px-2  w-full justify-between overflow-hidden w-full"
+          className="flex justify-center relative h-10 flex flex-row min-w-min items-center bg-white text-jp-gray-900 text-opacity-75 hover:shadow hover:text-jp-gray-900 hover:text-opacity-75 dark:bg-jp-gray-darkgray_background dark:hover:bg-jp-gray-950 dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none rounded-md border border-jp-gray-950 border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100 text-jp-gray-950 hover:text-black dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75 cursor-pointer px-2 w-full justify-between overflow-hidden w-full"
           type_="button"
           onClick={_ => setShowDropDown(prev => !prev)}>
           {rightIcon}
         </div>
-        <UIUtils.RenderIf condition={min !== max && showDropDown}>
+        <RenderIf condition={min !== max && showDropDown}>
           <div
             ref={dropdownRef->ReactDOM.Ref.domRef}
             className=" top-3.5 px-4 pt-4 pb-2 bg-white border dark:bg-jp-gray-lightgray_background border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded shadow-generic_shadow dark:shadow-generic_shadow_dark mt-8 absolute border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded shadow-generic_shadow dark:shadow-generic_shadow_dark z-20 ">
@@ -77,7 +76,7 @@ module RangeSliderLocalFilter = {
               <RangeSlider min max maxSlide minSlide />
             </div>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -94,7 +93,10 @@ module FilterDropDown = {
     let dummyDict = Dict.make()
     arr->LogicUtils.getStrArrayFromJsonArray->Array.forEach(item => Dict.set(dummyDict, item, ""))
     let options =
-      dummyDict->Dict.keysToArray->Array.filter(item => item != "")->SelectBox.makeOptions
+      dummyDict
+      ->Dict.keysToArray
+      ->Array.filter(item => item->LogicUtils.isNonEmptyString)
+      ->SelectBox.makeOptions
 
     let selectedValue = Dict.get(lclFiltrState, val)->Option.getOr([])
 
@@ -114,7 +116,7 @@ module FilterDropDown = {
           <div onClick={e => e->ReactEvent.Mouse.stopPropagation}>
             <span
               className={`flex items-center `}
-              onClick={e => {
+              onClick={_e => {
                 setLclFltrState(val, [])
               }}>
               <Icon className="align-middle" name="cross" />
@@ -151,7 +153,7 @@ module FilterDropDown = {
       />
     } else {
       <div
-        className="flex justify-center relative h-10 flex flex-row min-w-min items-center bg-white text-jp-gray-900 text-opacity-75 hover:shadow hover:text-jp-gray-900 hover:text-opacity-75 dark:bg-jp-gray-darkgray_background dark:hover:bg-jp-gray-950 dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none rounded-md  border border-jp-gray-950 border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100  text-jp-gray-950 hover:text-black dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75 cursor-pointer px-2  w-full justify-between overflow-hidden w-full"
+        className="flex justify-center relative h-10 flex flex-row min-w-min items-center bg-white text-jp-gray-900 text-opacity-75 hover:shadow hover:text-jp-gray-900 hover:text-opacity-75 dark:bg-jp-gray-darkgray_background dark:hover:bg-jp-gray-950 dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none rounded-md border border-jp-gray-950 border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100 text-jp-gray-950 hover:text-black dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75 cursor-pointer px-2 w-full justify-between overflow-hidden w-full"
         type_="button">
         <div className="max-w-[250px] md:max-w-xs">
           <div className="px-2 text-fs-13 font-medium truncate whitespace-pre ">
@@ -179,7 +181,7 @@ module TextFilterCell = {
       ->Option.getOr([])
       ->Array.get(0)
       ->Option.getOr(""->JSON.Encode.string)
-    let localInput = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
+    let localInput = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
         onBlur: _ev => (),
@@ -216,7 +218,7 @@ module TextFilterCell = {
     <div className="flex">
       <TextInput
         input=localInput
-        customStyle="flex justify-center h-10 flex flex-row items-center  text-opacity-50 hover:text-opacity-100  dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75 rounded-md border-jp-gray-500 dark:border-jp-gray-960 to-jp-gray-350 dark:from-jp-gray-lightgray_background dark:to-jp-gray-lightgray_background hover:shadow dark:text-jp-gray-text_darktheme dark:text-opacity-50 px-2  w-full justify-between "
+        customStyle="flex justify-center h-10 flex flex-row items-center text-opacity-50 hover:text-opacity-100 dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75 rounded-md border-jp-gray-500 dark:border-jp-gray-960 to-jp-gray-200 dark:from-jp-gray-lightgray_background dark:to-jp-gray-lightgray_background hover:shadow dark:text-jp-gray-text_darktheme dark:text-opacity-50 px-2 w-full justify-between "
         placeholder="All"
         isDisabled=false
         inputMode="text"
@@ -238,7 +240,7 @@ module RangeFilterCell = {
         maxVal->JSON.Encode.float,
       ])
 
-    let minSlide = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
+    let minSlide = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
         onBlur: _ev => (),
@@ -258,7 +260,7 @@ module RangeFilterCell = {
       }
     }, [selectedValueStr])
 
-    let maxSlide = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
+    let maxSlide = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
         onBlur: _ev => (),

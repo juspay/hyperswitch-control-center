@@ -38,6 +38,9 @@ let make = (
   ~phoneInput=false,
   ~removeValidationCheck=false,
 ) => {
+  let {globalUIConfig: {shadow: {shadowColor}, border: {borderColor}}} = React.useContext(
+    ThemeProvider.themeContext,
+  )
   let showPopUp = PopUpState.useShowPopUp()
   let isInValid = try {
     let {meta} = ReactFinalForm.useField(input.name)
@@ -62,7 +65,7 @@ let make = (
   let (showPassword, setShowPassword) = React.useState(_ => false)
   let inputRef = React.useRef(Nullable.null)
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     switch widthMatchwithPlaceholderLength {
     | Some(length) =>
       switch inputRef.current->Nullable.toOption {
@@ -82,7 +85,7 @@ let make = (
     None
   }, (inputRef.current, input.name))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let val = input.value->JSON.Decode.string->Option.getOr("")
 
     if val->String.includes("<script>") || val->String.includes("</script>") {
@@ -103,7 +106,7 @@ let make = (
     None
   }, [input.value])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch focusOnKeyPress {
     | Some(func) => {
         let keyDownFn = ev => {
@@ -136,10 +139,10 @@ let make = (
 
   let borderClass = isInValid
     ? "border-red-500 focus:border-red-500  dark:border-red-500 dark:hover:border-red-500 dark:focus:border-red-500 focus:shadow-text_input_shadow focus:shadow-red-500"
-    : "border-jp-gray-lightmode_steelgray focus:border-blue-800 dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:focus:border-blue-800 focus:shadow-text_input_shadow focus:shadow-blue-800"
+    : `border-jp-gray-lightmode_steelgray ${borderColor.primaryFocused} dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:${borderColor.primaryFocused} focus:shadow-text_input_shadow ${shadowColor.primaryFocused}`
 
-  let dashboardClass = customDashboardClass->Option.getOr("h-10 text-sm font-semibold")
-  let rightPaddingClass = if description !== "" || isInValid {
+  let dashboardClass = customDashboardClass->Option.getOr("h-10 text-sm font-normal")
+  let rightPaddingClass = if description->LogicUtils.isNonEmptyString || isInValid {
     "pr-10"
   } else {
     switch rightIcon {
@@ -152,15 +155,15 @@ let make = (
   | None => "pl-2"
   }
   let verticalPadding = ""
-  let placeholderClass = ""
+  let placeholderClass = "placeholder-opacity-50"
   let textAndBgClass = `${customDarkBackground} text-jp-gray-900 text-opacity-75 focus:text-opacity-100 dark:text-jp-gray-text_darktheme dark:text-opacity-75 dark:placeholder-jp-gray-text_darktheme dark:placeholder-opacity-25 dark:focus:text-opacity-100`
 
   let width = widthMatchwithPlaceholderLength->Option.isSome ? "" : customWidth
   let textPaddingClass =
-    type_ !== "range" && customPaddingClass == ""
+    type_ !== "range" && customPaddingClass->LogicUtils.isEmptyString
       ? `${rightPaddingClass} ${leftPaddingClass} ${verticalPadding}`
       : customPaddingClass
-  let hoverCss = if onHoverCss == "" {
+  let hoverCss = if onHoverCss->LogicUtils.isEmptyString {
     "hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-20 hover:border-opacity-20 dark:hover:bg-jp-gray-970"
   } else {
     onHoverCss
@@ -190,7 +193,9 @@ let make = (
   | None => ""
   }
   let rightIconStyle =
-    rightIconCustomStyle == "" ? `-ml-10 ${rightIconCursorClass}` : rightIconCustomStyle
+    rightIconCustomStyle->LogicUtils.isEmptyString
+      ? `-ml-10 ${rightIconCursorClass}`
+      : rightIconCustomStyle
   let rightIconClick = ev => {
     switch rightIconOnClick {
     | Some(fn) => fn(ev)
@@ -301,7 +306,7 @@ let make = (
           autoFocus
           ?form
         />
-        {description !== ""
+        {description->LogicUtils.isNonEmptyString
           ? <ToolTip
               description
               toolTipPosition=Right

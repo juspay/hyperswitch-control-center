@@ -16,7 +16,7 @@ type snackbarProps = {
 
 let defaultOpenSnackbar: array<snackbarProps> = []
 
-let openSnackbar = Recoil.atom(. "openSnackbar", defaultOpenSnackbar)
+let openSnackbar = Recoil.atom("openSnackbar", defaultOpenSnackbar)
 
 type showSnackbarFn = (
   ~heading: string,

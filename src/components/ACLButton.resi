@@ -26,7 +26,7 @@ let make: (
   ~customHeightClass: string=?,
   ~customBackColor: string=?,
   ~showBtnTextToolTip: bool=?,
-  ~access: AuthTypes.authorization=?,
+  ~access: CommonAuthTypes.authorization=?,
   ~tooltipText: string=?,
   ~toolTipPosition: ToolTip.toolTipPosition=?,
 ) => React.element

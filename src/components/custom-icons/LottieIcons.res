@@ -6,7 +6,7 @@ let useLottieIcon = (isSelected, selectedLottieJson, deselectLottieJson) => {
   )
   let (autoplay, setAutoplay) = React.useState(() => false)
 
-  React.useEffect3(() => {
+  React.useEffect(() => {
     if hasRendered.current {
       setAutoplay(_ => true)
 

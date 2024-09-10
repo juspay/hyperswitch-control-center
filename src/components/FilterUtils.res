@@ -1,12 +1,12 @@
 let parseFilterString = queryString => {
   queryString
-  ->Js.Global.decodeURI
+  ->decodeURI
   ->String.split("&")
   ->Belt.Array.keepMap(str => {
     let arr = str->String.split("=")
     let key = arr->Array.get(0)->Option.getOr("-")
     let val = arr->Array.sliceToEnd(~start=1)->Array.joinWith("=")
-    key === "" || val === "" ? None : Some((key, val))
+    key->LogicUtils.isEmptyString || val->LogicUtils.isEmptyString ? None : Some((key, val))
   })
   ->Dict.fromArray
 }

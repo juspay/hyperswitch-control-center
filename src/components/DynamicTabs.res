@@ -53,13 +53,13 @@ module TabInfo = {
 
     let defaultThemeBasedClass = `${fontClass} px-6`
 
-    let defaultClasses = `font-semibold ${defaultThemeBasedClass} w-max flex flex-auto flex-row items-center justify-center text-body`
+    let defaultClasses = `font-semibold ${defaultThemeBasedClass} w-max flex flex-auto flex-row items-center justify-center text-body mb-1`
     let selectionClasses = if isSelected {
       "font-semibold text-black"
     } else {
       "text-jp-gray-700 dark:text-jp-gray-tabset_gray dark:text-opacity-75  hover:text-jp-gray-800 dark:hover:text-opacity-100 font-medium"
     }
-    let handleClick = React.useCallback2(_ev => {
+    let handleClick = React.useCallback(_ev => {
       handleSelectedTab(
         ~tabValue={
           switch tabNames->Array.get(index) {
@@ -74,8 +74,6 @@ module TabInfo = {
 
     let bottomBorderColor = ""
     let borderClass = ""
-
-    let tabHeight = "47px"
 
     let lineStyle = "bg-black w-full h-0.5 rounded-full"
 
@@ -126,7 +124,7 @@ module TabInfo = {
             )
           }
         }}
-        style={ReactDOMStyle.make(~marginLeft="15px", ())}
+        style={marginLeft: "15px"}
         height="10"
         width="10"
         fill="none"
@@ -153,16 +151,16 @@ module TabInfo = {
           crossIcon
         </div>
         <div />
-        {if isSelected {
+        <RenderIf condition={isSelected}>
           <FramerMotion.Motion.Div className=lineStyle layoutId="underline" />
-        } else {
-          <div className="h-0.5" />
-        }}
+        </RenderIf>
+        <RenderIf condition={!isSelected}>
+          <div className="w-full h-0.5 rounded-full" />
+        </RenderIf>
       </div>
 
     <div
-      className={`flex flex-row cursor-pointer pt-0.5 pb-0 ${borderClass} ${bottomBorderColor} items-center`}
-      style={ReactDOMStyle.make(~height=tabHeight, ())}>
+      className={`flex flex-row cursor-pointer pt-0.5 pb-0 ${borderClass} ${bottomBorderColor} items-center h-14`}>
       {tab}
     </div>
   }
@@ -171,14 +169,13 @@ module TabInfo = {
 module IndicationArrow = {
   @react.component
   let make = (~iconName, ~side, ~refElement: React.ref<Js.nullable<Dom.element>>, ~isVisible) => {
-    open UIUtils
     let isMobileView = MatchMedia.useMobileChecker()
     let onClick = {
       _ev =>
         refElement.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"})
+          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"}))
         )
     }
     let roundness = side == "left" ? "rounded-tr-md ml-2" : "rounded-tl-md"
@@ -217,7 +214,7 @@ let make = (
   ~disableIndicationArrow=false,
   ~tabContainerClass="",
   ~showBorder=true,
-  ~maxSelection=3,
+  ~maxSelection=1,
   ~tabId="",
   ~setActiveTab: string => unit,
   ~updateUrlDict=?,
@@ -225,7 +222,10 @@ let make = (
   ~defaultTabs: option<array<tab>>=?,
   ~enableDescriptionHeader: bool=false,
   ~toolTipDescription="Add more tabs",
+  ~updateCollapsableTabs=false,
+  ~showAddMoreTabs=true,
 ) => {
+  open LogicUtils
   let eulerBgClass = "bg-jp-gray-100 dark:bg-jp-gray-darkgray_background"
   let bgClass = eulerBgClass
   // this tabs will always loaded independent of user preference
@@ -259,13 +259,15 @@ let make = (
 
   let (tabsDetails, setTabDetails) = React.useState(_ => tabs->Array.copy)
 
-  let (initialIndex, updatedCollapsableTabs) = React.useMemo0(() => {
+  let (selectedIndex, setSelectedIndex) = React.useState(_ => 0)
+
+  let (initialIndex, updatedCollapsableTabs) = React.useMemo(() => {
     let defautTabValues = defaultTabs->Array.map(item => item.value)
     let collapsibleTabs = switch getConfig(availableTabUserPrefKey) {
     | Some(jsonVal) => {
         let tabsFromPreference =
           jsonVal
-          ->LogicUtils.getStrArryFromJson
+          ->getStrArryFromJson
           ->Array.filter(item => !(defautTabValues->Array.includes(item)))
 
         let tabsFromPreference =
@@ -274,7 +276,7 @@ let make = (
           )
 
         tabsFromPreference->Belt.Array.keepMap(tabName => {
-          let tabName = tabName->LogicUtils.getUniqueArray
+          let tabName = tabName->getUniqueArray
           let validated =
             tabName
             ->Array.filter(
@@ -320,7 +322,7 @@ let make = (
     let tabName = switch initalTab {
     | Some(value) => value
     | None =>
-      getTabNames->LogicUtils.getStrArrayFromDict("tabName", [])->Array.filter(item => item !== "")
+      getTabNames->getStrArrayFromDict("tabName", [])->Array.filter(item => item->isNonEmptyString)
     }
     let tabName = tabName->LogicUtils.getUniqueArray
 
@@ -348,38 +350,32 @@ let make = (
         let updatedColllapsableTab = Array.concat(collapsibleTabs, newTab)
 
         setTabDetails(_ => Array.concat(tabsDetails, newTab))
-        setActiveTab(getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs)))
-        updateTabNameWith(
-          Dict.fromArray([
-            (
-              "tabName",
-              `[${getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs))}]`,
-            ),
-          ]),
-        )
+
         (Array.length(collapsibleTabs), updatedColllapsableTab)
       } else {
-        setActiveTab(getValueFromArrayTab(collapsibleTabs, concatinatedTabIndex))
-
-        updateTabNameWith(
-          Dict.fromArray([
-            ("tabName", `[${getValueFromArrayTab(collapsibleTabs, concatinatedTabIndex)}]`),
-          ]),
-        )
         (concatinatedTabIndex, collapsibleTabs)
       }
     } else {
-      setActiveTab(getValueFromArrayTab(collapsibleTabs, 0))
-
-      updateTabNameWith(
-        Dict.fromArray([("tabName", `[${getValueFromArrayTab(collapsibleTabs, 0)}]`)]),
-      )
+      setSelectedIndex(_ => 0)
       (0, collapsibleTabs)
     }
-  })
+  }, [updateCollapsableTabs])
+
   let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
+  let (formattedOptions, setFormattedOptions) = React.useState(_ => [])
+
+  React.useEffect(_ => {
+    setSelectedIndex(_ => initialIndex)
+    None
+  }, [initialIndex])
+
+  React.useEffect(_ => {
+    setCollapsibleTabs(_ => updatedCollapsableTabs)
+    None
+  }, [updatedCollapsableTabs])
+
   // this will update the current available tabs to the userpreference
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let collapsibleTabsValues =
       collapsibleTabs
       ->Array.map(item => {
@@ -395,8 +391,6 @@ let make = (
     getValueFromArrayTab(updatedCollapsableTabs, 0),
     getValueFromArrayTab(updatedCollapsableTabs, initialIndex),
   ])
-
-  let (selectedIndex, setSelectedIndex) = React.useState(_ => initialIndex)
 
   let (isLeftArrowVisible, setIsLeftArrowVisible) = React.useState(() => false)
   let (isRightArrowVisible, setIsRightArrowVisible) = React.useState(() => true)
@@ -480,11 +474,11 @@ let make = (
       updateTabNameWith(Dict.fromArray([("tabName", `[${getValueFromArrayTab(newTab, 0)}]`)]))
       setActiveTab(getValueFromArrayTab(newTab, 0))
 
-      Js.Global.setTimeout(_ => {
+      setTimeout(_ => {
         lastTabRef.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"})
+          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"}))
         )
       }, 200)->ignore
     } else {
@@ -495,28 +489,34 @@ let make = (
     setShowModal(_ => false)
   }
 
-  let formattedOptions = tabs->Array.map((x): SelectBox.dropdownOption => {
-    switch x.description {
-    | Some(description) => {
-        label: x.title,
-        value: x.value,
-        icon: CustomRightIcon(
-          description !== ""
-            ? <ToolTip
-                customStyle="-mr-1.5"
-                arrowCustomStyle={isMobileView ? "" : "ml-1.5"}
-                description
-                toolTipPosition={ToolTip.BottomLeft}
-                justifyClass="ml-2 h-auto mb-0.5"
-              />
-            : React.null,
-        ),
-      }
-    | _ => {label: x.title, value: x.value}
-    }
-  })
+  React.useEffect(() => {
+    let options =
+      tabs
+      ->Array.filter(tab => !(tab.value->String.split(",")->Array.length > 1))
+      ->Array.map((x): SelectBox.dropdownOption => {
+        switch x.description {
+        | Some(description) => {
+            label: x.title,
+            value: x.value,
+            icon: CustomRightIcon(
+              description->LogicUtils.isNonEmptyString
+                ? <ToolTip
+                    customStyle="-mr-1.5"
+                    arrowCustomStyle={isMobileView ? "" : "ml-1.5"}
+                    description
+                    toolTipPosition={ToolTip.BottomLeft}
+                    justifyClass="ml-2 h-auto mb-0.5"
+                  />
+                : React.null,
+            ),
+          }
+        | _ => {label: x.title, value: x.value}
+        }
+      })
 
-  let wrapperStyle = ""
+    setFormattedOptions(_ => options)
+    None
+  }, [collapsibleTabs])
 
   let addBtnStyle = `text-black cursor-pointer border-2 border-black-900 !px-4 !rounded-lg `
 
@@ -525,11 +525,11 @@ let make = (
   <div className={isMobileView ? `sticky top-0 z-15 ${bgClass}` : ""}>
     <ErrorBoundary>
       <div className="py-0 flex flex-row">
-        <UIUtils.RenderIf condition={!isMobileView}>
+        <RenderIf condition={!isMobileView}>
           <IndicationArrow
             iconName="caret-left" side="left" refElement=firstTabRef isVisible=isLeftArrowVisible
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div
           className={`overflow-x-auto no-scrollbar overflow-y-hidden ${outerAllignmentClass}`}
           ref={scrollRef->ReactDOM.Ref.domRef}
@@ -537,13 +537,13 @@ let make = (
           <div className="flex flex-row">
             <div
               className={`flex flex-row mt-5 ${tabOuterClass}
-            ${wrapperStyle}  ${tabContainerClass}`}>
+             ${tabContainerClass}`}>
               {collapsibleTabs
               ->Array.mapWithIndex((tab, i) => {
                 let ref = if i == 0 {
                   firstTabRef->ReactDOM.Ref.domRef->Some
                 } else {
-                  Js.Global.setTimeout(_ => {
+                  setTimeout(_ => {
                     setTabScroll(
                       firstTabRef,
                       lastTabRef,
@@ -555,7 +555,7 @@ let make = (
                   }, 200)->ignore
                   lastTabRef->ReactDOM.Ref.domRef->Some
                 }
-                <div ?ref key={string_of_int(i)}>
+                <div ?ref key={Int.toString(i)}>
                   <TabInfo
                     title={tab.title}
                     isSelected={selectedIndex === i}
@@ -577,46 +577,47 @@ let make = (
           </div>
         </div>
         <div className="flex flex-row">
-          <UIUtils.RenderIf condition={!isMobileView}>
+          <RenderIf condition={!isMobileView}>
             <IndicationArrow
               iconName="caret-right"
               side="right"
               refElement=lastTabRef
               isVisible=isRightArrowVisible
             />
-          </UIUtils.RenderIf>
-          <div
-            className="flex flex-row"
-            style={ReactDOMStyle.make(~marginTop="20px", ~marginLeft="7px", ())}>
-            <ToolTip
-              description=toolTipDescription
-              toolTipFor={<Button
-                text="+"
-                buttonType={NonFilled}
-                buttonSize=Small
-                customButtonStyle=addBtnStyle
-                textStyle=addBtnTextStyle
-                onClick={_ev => setShowModal(_ => true)}
-              />}
-              toolTipPosition=Top
-              tooltipWidthClass="w-fit"
-            />
-          </div>
+          </RenderIf>
+          <RenderIf condition={showAddMoreTabs && formattedOptions->Array.length > 0}>
+            <div className="flex flex-row" style={marginTop: "20px", marginLeft: "7px"}>
+              <ToolTip
+                description=toolTipDescription
+                toolTipFor={<Button
+                  text="+"
+                  buttonType={NonFilled}
+                  buttonSize=Small
+                  customButtonStyle=addBtnStyle
+                  textStyle=addBtnTextStyle
+                  onClick={_ev => setShowModal(_ => true)}
+                />}
+                toolTipPosition=Top
+                tooltipWidthClass="w-fit"
+              />
+            </div>
+          </RenderIf>
         </div>
       </div>
       <SelectModal
-        modalHeading="Add Segments"
-        modalHeadingDescription={`You can choose upto maximum of ${maxSelection->Int.toString} segments`}
+        modalHeading="Add Segment"
+        modalHeadingDescription={`You can select up to ${maxSelection->Int.toString} options`}
         ?headerTextClass
         showModal
         setShowModal
         onSubmit
         initialValues=[]
         options=formattedOptions
-        submitButtonText="Add Segments"
+        submitButtonText="Add Segment"
         showSelectAll=false
         showDeSelectAll=true
         maxSelection
+        headerClass="h-fit"
       />
       <div className=bottomBorderClass />
     </ErrorBoundary>

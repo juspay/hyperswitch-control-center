@@ -29,8 +29,8 @@ module TabInfo = {
     ~textStyle="",
     ~tabsCustomClass="",
     ~borderBottomStyle="",
-    ~lightThemeColor="blue-800",
-    ~darkThemeColor="blue-800",
+    ~lightThemeColor="blue-500",
+    ~darkThemeColor="blue-500",
     ~backgroundStyle="bg-gradient-to-b",
     ~tabView=Compress,
     ~showRedDot=false,
@@ -39,6 +39,7 @@ module TabInfo = {
     ~borderDefaultStyle="",
     ~showBottomBorder=true,
     ~onTabSelection=() => (),
+    ~selectTabBottomBorderColor="",
   ) => {
     let tabRef = React.useRef(Nullable.null)
     let fontClass = "font-inter-style"
@@ -72,14 +73,16 @@ module TabInfo = {
       onTabSelection()
     }, (index, handleSelectedIndex))
 
-    let lineStyle = showBottomBorder ? "bg-black w-full h-0.5 rounded-full" : ""
+    let lineStyle = showBottomBorder
+      ? `bg-black w-full h-0.5 rounded-full z-10 ${selectTabBottomBorderColor}`
+      : ""
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       if isSelected && isScrollIntoViewRequired {
         tabRef.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"})
+          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"}))
         )
       }
       None
@@ -110,7 +113,7 @@ module IndicationArrow = {
         refElement.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"})
+          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"}))
         )
     }
     let roundness = side == "left" ? "rounded-tr-md" : "rounded-tl-md"
@@ -146,8 +149,8 @@ let make = (
   ~visitedTabs=[],
   ~disabledTab=[],
   ~tabBottomShadow="shadow-md",
-  ~lightThemeColor="blue-800",
-  ~darkThemeColor="blue-800",
+  ~lightThemeColor="blue-500",
+  ~darkThemeColor="blue-500",
   ~defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 rounded-t-md bg-gradient-to-b from-white to-white hover:from-jp-gray-250 hover:to-jp-gray-200 hover:bg-jp-gray-100 dark:from-jp-gray-950 dark:to-jp-gray-950 border border-b-0 border-jp-gray-500 dark:border-jp-gray-960 font-semibold text-body",
   ~showBorder=true,
   ~renderedTabClassName="",
@@ -162,18 +165,17 @@ let make = (
   ~showBottomBorder=true,
   ~showStickyHeader=false,
   ~contentHeight="",
+  ~selectTabBottomBorderColor="",
 ) => {
-  // ~icon=React.null,
-
   let _ = defaultClasses
   let initialIndex = initialIndex->Option.getOr(0)
   let (selectedIndex, setSelectedIndex) = React.useState(() => initialIndex)
   let tabOuterClass = `${tabBottomShadow} ${gapBetweenTabs}`
-  let bottomBorderClass = "border-b border-jp-gray-500 dark:border-jp-gray-960"
+  let bottomBorderClass = "bg-[#CBCBCB] w-full h-0.5 rounded-full -mt-0.5"
 
   let renderedTabClassName = renderedTabClassName
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setSelectedIndex(_ => initialIndex)
     None
   }, [initialIndex])
@@ -232,7 +234,7 @@ let make = (
               } else {
                 None
               }
-              <div className=tabClass ?ref key={string_of_int(i)}>
+              <div className=tabClass ?ref key={Int.toString(i)}>
                 <TabInfo
                   title={tab.title}
                   tabElement=tab.tabElement
@@ -253,6 +255,7 @@ let make = (
                   borderDefaultStyle
                   showBottomBorder
                   onTabSelection=?{tab.onTabSelection}
+                  selectTabBottomBorderColor
                 />
               </div>
             })
@@ -260,16 +263,16 @@ let make = (
           </div>
         </div>
       </div>
-      <UIUtils.RenderIf condition={!showStickyHeader && showBorder}>
+      <RenderIf condition={!showStickyHeader && showBorder}>
         <div className=bottomBorderClass />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div className=renderedTabClassName>
-        <ErrorBoundary key={string_of_int(selectedIndex)}>
+        <ErrorBoundary key={Int.toString(selectedIndex)}>
           {switch tabs->Array.get(selectedIndex) {
           | Some(selectedTab) => {
               let component = selectedTab.renderContent()
               <FramerMotion.TransitionComponent
-                id={string_of_int(selectedIndex)} className=contentHeight>
+                id={Int.toString(selectedIndex)} className=contentHeight>
                 {component}
               </FramerMotion.TransitionComponent>
             }

@@ -4,9 +4,9 @@ type file
 
 type read = {
   mutable onload: arg => unit,
-  readAsText: (. string) => unit,
-  readAsBinaryString: (. string) => unit,
-  readAsDataURL: (. file) => unit,
+  readAsText: string => unit,
+  readAsBinaryString: string => unit,
+  readAsDataURL: file => unit,
   result: string,
   onerror: string => unit,
 }

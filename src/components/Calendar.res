@@ -49,6 +49,8 @@ module TableRow = {
     ~setShowMsg=?,
     ~allowedDateRange: option<dateObj>=?,
   ) => {
+    open LogicUtils
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let customTimezoneToISOString = TimeZoneHook.useCustomTimeZoneToIsoString()
     let highlight = cellHighlighter
 
@@ -63,7 +65,7 @@ module TableRow = {
               customTimezoneToISOString(
                 String.make(year),
                 String.make(month +. 1.0),
-                String.make(obj == "" ? "01" : obj),
+                String.make(obj->isEmptyString ? "01" : obj),
                 "00",
                 "00",
                 "00",
@@ -85,7 +87,7 @@ module TableRow = {
             }
             let dateNotInRange = switch allowedDateRange {
             | Some(obj) =>
-              if obj.startDate !== "" && obj.endDate !== "" {
+              if obj.startDate->isNonEmptyString && obj.endDate->isNonEmptyString {
                 !(
                   date->Date.getTime -. obj.startDate->Date.fromString->Date.getTime >= 0.0 &&
                     obj.endDate->Date.fromString->Date.getTime -. date->Date.getTime >= 0.0
@@ -105,9 +107,9 @@ module TableRow = {
 
             let isInLimit = switch dateRangeLimit {
             | Some(limit) =>
-              if startDate !== "" {
+              if startDate->isNonEmptyString {
                 date->Date.getTime -. startDate->Date.fromString->Date.getTime <
-                  ((limit->Js.Int.toFloat -. 1.) *. 24. *. 60. *. 60. -. 60.) *. 1000.
+                  ((limit->Int.toFloat -. 1.) *. 24. *. 60. *. 60. -. 60.) *. 1000.
               } else {
                 true
               }
@@ -116,7 +118,7 @@ module TableRow = {
 
             let onClick = _evt => {
               let isClickDisabled =
-                (endDate === "" && !isInLimit) ||
+                (endDate->isEmptyString && !isInLimit) ||
                 (isFutureDate ? disableFutureDates : disablePastDates) ||
                 customDisabledFutureDays > 0.0 && isInCustomDisable ||
                 dateNotInRange
@@ -124,7 +126,7 @@ module TableRow = {
               | true =>
                 switch onDateClick {
                 | Some(fn) =>
-                  fn((Date.toISOString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"))
+                  fn((Date.toISOString(date)->DayJs.getDayJsForString).format("YYYY-MM-DD"))
 
                 | None => ()
                 }
@@ -132,14 +134,14 @@ module TableRow = {
               }
             }
             let hSelf = highlight(
-              (Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"),
+              (Date.toString(date)->DayJs.getDayJsForString).format("YYYY-MM-DD"),
             )
 
             let dayClass = if (
               (isFutureDate && disableFutureDates) ||
               customDisabledFutureDays > 0.0 && isInCustomDisable ||
               !isFutureDate && disablePastDates ||
-              endDate === "" && !isInLimit ||
+              endDate->isEmptyString && !isInLimit ||
               dateNotInRange
             ) {
               "cursor-not-allowed"
@@ -157,53 +159,53 @@ module TableRow = {
               )
               datevalue
             }
-            let today = (Date.make()->Date.toString->DayJs.getDayJsForString).format(. "YYYY-MM-DD")
+            let today = (Date.make()->Date.toString->DayJs.getDayJsForString).format("YYYY-MM-DD")
 
             let renderingDate = (
               getDate([Float.toString(year), Float.toString(month +. 1.0), obj])
               ->Date.toString
               ->DayJs.getDayJsForString
-            ).format(. "YYYY-MM-DD")
+            ).format("YYYY-MM-DD")
 
             let textColor =
               today == renderingDate
-                ? "text-blue-800"
+                ? `${textColor.primaryNormal}`
                 : "text-jp-gray-900 text-opacity-75 dark:text-opacity-75"
-            let classN = if obj == "" || hSelf.highlightSelf {
+            let classN = if obj->isEmptyString || hSelf.highlightSelf {
               `h-9 p-0 w-9 font-semibold font-fira-code text-center ${textColor}  dark:text-jp-gray-text_darktheme  ${dayClass}`
             } else {
               `h-9 p-0 w-9 font-semibold text-center font-fira-code ${textColor}  dark:text-jp-gray-text_darktheme hover:text-opacity-100 dark:hover:text-opacity-100 hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-75 hover:rounded-lg dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 ${dayClass} `
             }
             let c2 =
-              obj != "" && hSelf.highlightSelf
-                ? "h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white rounded-full"
+              obj->isNonEmptyString && hSelf.highlightSelf
+                ? "h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-full"
                 : "h-full w-full"
 
             let shouldHighlight = (startDate, endDate, obj, month, year) => {
-              if startDate != "" && obj != "" {
+              if startDate->isNonEmptyString && obj->isNonEmptyString {
                 let parsedStartDate = getDate(String.split(startDate, "-"))
                 let z = getDate([year, month, obj])
 
-                if endDate != "" {
+                if endDate->isNonEmptyString {
                   let parsedEndDate = getDate(String.split(endDate, "-"))
                   z == parsedStartDate
-                    ? `h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white rounded-l-lg `
+                    ? `h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-l-lg `
                     : z == parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white rounded-r-lg "
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-r-lg "
                     : z > parsedStartDate && z < parsedEndDate
                     ? "h-full w-full flex flex-1 justify-center items-center bg-blue-100  dark:bg-gray-700 dark:bg-opacity-100 text-gray-600 dark:text-gray-400"
                     : "h-full w-full"
                 } else if z == parsedStartDate {
-                  `h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white rounded-lg ${changeHighlightCellStyle}`
+                  `h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-lg ${changeHighlightCellStyle}`
                 } else if (
-                  hoverdDate != "" &&
-                  endDate == "" &&
+                  hoverdDate->isNonEmptyString &&
+                  endDate->isEmptyString &&
                   z > parsedStartDate &&
                   z <= hoverdDate->Date.fromString &&
                   !(
                     (isFutureDate && disableFutureDates) ||
                     !isFutureDate && disablePastDates ||
-                    (endDate === "" && !isInLimit)
+                    (endDate->isEmptyString && !isInLimit)
                   )
                 ) {
                   "h-full w-full flex flex-1 justify-center items-center bg-blue-100 dark:bg-gray-700 dark:bg-opacity-100"
@@ -225,15 +227,18 @@ module TableRow = {
               )
             }
             let handleHover = () => {
-              let date = (Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD")
+              let date = (Date.toString(date)->DayJs.getDayJsForString).format("YYYY-MM-DD")
               let parsedDate = getDate(String.split(date, "-"))
               setHoverdDate(_ => parsedDate->Date.toString)
               switch setShowMsg {
               | Some(setMsg) =>
                 if (
-                  hoverdDate !== "" &&
-                    ((!isInLimit && endDate === "" && !isFutureDate && disableFutureDates) ||
-                      (!disableFutureDates && !isInLimit && endDate === ""))
+                  hoverdDate->isNonEmptyString &&
+                    ((!isInLimit &&
+                    endDate->isEmptyString &&
+                    !isFutureDate &&
+                    disableFutureDates) ||
+                      (!disableFutureDates && !isInLimit && endDate->isEmptyString))
                 ) {
                   setMsg(_ => true)
                 } else {
@@ -243,33 +248,33 @@ module TableRow = {
               }
             }
             <td
-              key={string_of_int(cellIndex)}
+              key={Int.toString(cellIndex)}
               className={classN}
               onClick
               onMouseOver={_ => handleHover()}
-              onMouseOut={evt => setHoverdDate(_ => "")}>
+              onMouseOut={_evt => setHoverdDate(_ => "")}>
               <AddDataAttributes
                 attributes=[
                   (
                     "data-calender-date",
-                    hSelf.highlightSelf || startDate != "" ? "selected" : "normal",
+                    hSelf.highlightSelf || startDate->isNonEmptyString ? "selected" : "normal",
                   ),
                   (
                     "data-calender-date-disabled",
                     (isFutureDate && disableFutureDates) ||
                     customDisabledFutureDays > 0.0 && isInCustomDisable ||
                     !isFutureDate && disablePastDates ||
-                    endDate === "" && !isInLimit ||
+                    endDate->isEmptyString && !isInLimit ||
                     dateNotInRange
                       ? "disabled"
                       : "enabled",
                   ),
                 ]>
-                <span className={startDate == "" ? c2 : c3}>
+                <span className={startDate->isEmptyString ? c2 : c3}>
                   {cellRenderer(
-                    obj == ""
+                    obj->isEmptyString
                       ? None
-                      : Some((Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD")),
+                      : Some((Date.toString(date)->DayJs.getDayJsForString).format("YYYY-MM-DD")),
                   )}
                 </span>
               </AddDataAttributes>
@@ -381,7 +386,7 @@ let make = (
           <tr>
             {heading
             ->Array.mapWithIndex((item, i) => {
-              <th key={string_of_int(i)}>
+              <th key={Int.toString(i)}>
                 <div
                   className="flex flex-1 justify-center py-1 text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
                   {React.string(isMobileView ? item->String.charAt(0) : item)}
@@ -398,7 +403,7 @@ let make = (
         {rowInfo
         ->Array.mapWithIndex((item, rowIndex) => {
           <TableRow
-            key={string_of_int(rowIndex)}
+            key={Int.toString(rowIndex)}
             item
             rowIndex
             onDateClick

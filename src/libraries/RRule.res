@@ -159,17 +159,17 @@ let isScheduled: (scheduleRuleRecipe, Date.t, Date.t, Date.t) => bool = (
       | Yearly => mod(getYear(currentTime) - getYear(startTime), recur.interval) == 0
       | Monthly =>
         mod(
-          (currentTime->DayJs.getDayJsForJsDate).diff(. Date.toString(startTime), "month"),
+          (currentTime->DayJs.getDayJsForJsDate).diff(Date.toString(startTime), "month"),
           recur.interval,
         ) == 0
       | Weekly =>
         mod(
-          (currentTime->DayJs.getDayJsForJsDate).diff(. Date.toString(startTime), "week"),
+          (currentTime->DayJs.getDayJsForJsDate).diff(Date.toString(startTime), "week"),
           recur.interval,
         ) == 0
       | Daily =>
         mod(
-          (currentTime->DayJs.getDayJsForJsDate).diff(. Date.toString(startTime), "day"),
+          (currentTime->DayJs.getDayJsForJsDate).diff(Date.toString(startTime), "day"),
           recur.interval,
         ) == 0
       }

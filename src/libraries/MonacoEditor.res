@@ -23,6 +23,6 @@ type props = {
   onMount?: Monaco.Editor.IStandaloneCodeEditor.t => unit,
 }
 
-let make: props => React.element = reactLazy(.() => {
+let make: props => React.element = reactLazy(() => {
   import_("@monaco-editor/react")
 })

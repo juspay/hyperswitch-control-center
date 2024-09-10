@@ -25,8 +25,9 @@ module NewThemeHeading = {
     | XSmall => "text-fs-14"
     }
 
-    let headingColor = headingColor === "" ? "text-jp-gray-900" : headingColor
-    let descriptionColor = descriptionColor === "" ? "text-jp-2-light-gray-1000" : descriptionColor
+    let headingColor = headingColor->LogicUtils.isEmptyString ? "text-jp-gray-900" : headingColor
+    let descriptionColor =
+      descriptionColor->LogicUtils.isEmptyString ? "text-jp-2-light-gray-1000" : descriptionColor
 
     <div className={`flex flex-col ${outerMargin} w-full items-start`}>
       <div className={`flex w-full justify-between ${alignItems} gap-10`}>
@@ -66,12 +67,12 @@ module Badge = {
   @react.component
   let make = (~number, ~color: color=Blue) => {
     let (badgeColor, textColor) = switch color {
-    | Blue => ("bg-blue-800", " text-white")
+    | Blue => ("bg-blue-500", " text-white")
     | Gray => ("bg-jp-2-light-gray-300", "text-jp-2-light-gray-1800")
     }
-    <AddDataAttributes attributes=[("data-badge-value", string_of_int(number))]>
+    <AddDataAttributes attributes=[("data-badge-value", Int.toString(number))]>
       <div className={`px-1.5 rounded-full ${badgeColor} ${textColor} font-semibold text-sm`}>
-        {React.string(string_of_int(number))}
+        {React.string(Int.toString(number))}
       </div>
     </AddDataAttributes>
   }

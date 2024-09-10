@@ -11,7 +11,7 @@ module CustomInputBox = {
     ~autoFocus=false,
     ~widthClass="w-full",
     ~fontClassName="text-jp-gray-900 text-body text-opacity-75",
-    ~borderClass="h-10 pl-4 border-2 border-jp-gray-700 dark:border-jp-gray-800 border-opacity-25 focus:border-opacity-100 focus:border-blue-800 dark:focus:border-blue-800 rounded-md",
+    ~borderClass="h-10 pl-4 border-2 border-jp-gray-700 dark:border-jp-gray-800 border-opacity-25 focus:border-opacity-100 focus:border-blue-500 dark:focus:border-blue-500 rounded-md",
     ~maxLength=100,
     ~setVal,
   ) => {
@@ -89,18 +89,19 @@ let make = (
   ~startTimeStr,
   ~endTimeStr,
 ) => {
+  let {globalUIConfig: {border: {borderColor}}} = React.useContext(ThemeProvider.themeContext)
   let todayDateTime = DayJs.getDayJs()
-  let time = todayDateTime.format(. "hh:mm:ss a")
+  let time = todayDateTime.format("hh:mm:ss a")
 
   let defaultStartTime =
-    endDate == todayDateTime.format(. "YYYY-MM-DD")
+    endDate == todayDateTime.format("YYYY-MM-DD")
       ? time->String.toUpperCase
-      : (`${endDate} ${endTimeStr}`->DayJs.getDayJsForString).format(.
+      : (`${endDate} ${endTimeStr}`->DayJs.getDayJsForString).format(
           "hh:mm:ss a",
         )->String.toUpperCase
 
   let (fromTime, setFromTime) = React.useState(_ =>
-    (`${startDate} ${startTimeStr}`->DayJs.getDayJsForString).format(.
+    (`${startDate} ${startTimeStr}`->DayJs.getDayJsForString).format(
       "hh:mm:ss a",
     )->String.toUpperCase
   )
@@ -150,14 +151,14 @@ let make = (
     settoTime(_ => toTime->String.toUpperCase)
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let endTime = localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)
     let startDateTime = `${startDate} ${fromTime}`->DayJs.getDayJsForString
 
-    if startDateTime.isValid(.) {
-      let startTimeVal = startDateTime.format(. "HH:mm:ss")
+    if startDateTime.isValid() {
+      let startTimeVal = startDateTime.format("HH:mm:ss")
 
-      if localStartDate !== "" {
+      if localStartDate->LogicUtils.isNonEmptyString {
         if disableFutureDates && startDate == todayDate && startTimeVal > todayTime {
           setStartDate(~date=startDate, ~time=todayTime)
         } else if disableFutureDates && startDate == endDate && startTimeVal > endTime {
@@ -170,13 +171,13 @@ let make = (
     None
   }, [fromTime])
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let startTime = localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)
     let endDateTime = `${endDate} ${toTime}`->DayJs.getDayJsForString
 
-    if endDateTime.isValid(.) {
-      let endTimeVal = endDateTime.format(. "HH:mm:ss")
-      if localEndDate !== "" {
+    if endDateTime.isValid() {
+      let endTimeVal = endDateTime.format("HH:mm:ss")
+      if localEndDate->LogicUtils.isNonEmptyString {
         if disableFutureDates && endDate == todayDate && endTimeVal > todayTime {
           setEndDate(~date=startDate, ~time=todayTime)
         } else if disableFutureDates && startDate == endDate && endTimeVal < startTime {
@@ -190,17 +191,17 @@ let make = (
     None
   }, [toTime])
 
-  let updatedFromDate = fromDateJs.isValid(.)
+  let updatedFromDate = fromDateJs.isValid()
     ? try {
-        fromDateJs.format(. "dddd, MMMM DD, YYYY")
+        fromDateJs.format("dddd, MMMM DD, YYYY")
       } catch {
       | _error => ""
       }
     : ""
 
-  let updatedToDate = toDateJs.isValid(.)
+  let updatedToDate = toDateJs.isValid()
     ? try {
-        toDateJs.format(. "dddd, MMMM DD, YYYY")
+        toDateJs.format("dddd, MMMM DD, YYYY")
       } catch {
       | _error => ""
       }
@@ -216,7 +217,7 @@ let make = (
           input=inputFromDate
           fontClassName=textBoxClass
           placeholder="09:00 AM"
-          borderClass="h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-jp-gray-700 border-opacity-75 focus:border-opacity-100 focus:border-blue-800 dark:focus:border-blue-800"
+          borderClass={`h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-jp-gray-700 border-opacity-75 focus:border-opacity-100 ${borderColor.primaryFocused} dark:${borderColor.primaryFocused}`}
           setVal=setFromTimeDropdown
         />
       </div>
@@ -228,7 +229,7 @@ let make = (
           input=inputtoDate
           fontClassName=textBoxClass
           placeholder="11:00 PM"
-          borderClass="h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-jp-gray-700 border-opacity-75 focus:border-opacity-100 focus:border-blue-800 dark:focus:border-blue-800"
+          borderClass={`h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-jp-gray-700 border-opacity-75 focus:border-opacity-100 ${borderColor.primaryFocused} dark:${borderColor.primaryFocused}`}
           setVal=setToTimeDropdown
         />
       </div>

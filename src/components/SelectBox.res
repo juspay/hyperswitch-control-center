@@ -20,7 +20,7 @@ let regex = (a, searchString) => {
     ->String.replaceRegExp(%re("/\+/g"), "\\+")
     ->String.replaceRegExp(%re("/\)/g"), "\\)")
     ->String.replaceRegExp(%re("/\./g"), "")
-  Js.Re.fromStringWithFlags("(.*)(" ++ a ++ "" ++ searchStringNew ++ ")(.*)", ~flags="i")
+  RegExp.fromStringWithFlags("(.*)(" ++ a ++ "" ++ searchStringNew ++ ")(.*)", ~flags="i")
 }
 
 module ListItem = {
@@ -61,21 +61,23 @@ module ListItem = {
     ~showToolTipOptions=false,
     ~textEllipsisForDropDownOptions=false,
     ~textColorClass="",
+    ~customRowClass="",
   ) => {
+    let {globalUIConfig: {font}} = React.useContext(ThemeProvider.themeContext)
     let labelText = switch labelValue->String.length {
     | 0 => text
     | _ => labelValue
     }
     let (toggleSelect, setToggleSelect) = React.useState(() => isSelected)
     let listText =
-      searchString === ""
+      searchString->LogicUtils.isEmptyString
         ? [text]
         : {
             switch Js.String2.match_(text, regex("\\b", searchString)) {
-            | Some(r) => Js.Array2.sliceFrom(r, 1)->Belt.Array.keepMap(x => x)
+            | Some(r) => r->Array.sliceToEnd(~start=1)->Belt.Array.keepMap(x => x)
             | None =>
               switch Js.String2.match_(text, regex("_", searchString)) {
-              | Some(a) => Js.Array2.sliceFrom(a, 1)->Belt.Array.keepMap(x => x)
+              | Some(a) => a->Array.sliceToEnd(~start=1)->Belt.Array.keepMap(x => x)
               | None => [text]
               }
             }
@@ -94,7 +96,7 @@ module ListItem = {
     }
     let backgroundClass = if showToggle {
       ""
-    } else if isSelected && customStyle->String.length > 0 {
+    } else if isSelected && customStyle->LogicUtils.isNonEmptyString {
       customSelectStyle
     } else if isDropDown && isSelected && !isDisabled {
       `${bgClass} transition ease-[cubic-bezier(0.33, 1, 0.68, 1)]`
@@ -127,7 +129,7 @@ module ListItem = {
         setToggleSelect(_ => val)
       }
     }
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setToggleSelect(_ => isSelected)
       None
     }, [isSelected])
@@ -148,7 +150,7 @@ module ListItem = {
 
     let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme"
 
-    let textColor = if textColorClass->String.length > 0 {
+    let textColor = if textColorClass->LogicUtils.isNonEmptyString {
       textColorClass
     } else {
       textColor
@@ -164,11 +166,11 @@ module ListItem = {
     }
     let textGap = ""
 
-    let selectedNoBadgeColor = "bg-blue-800"
+    let selectedNoBadgeColor = "bg-blue-500"
     let optionIconStroke = ""
 
     let optionTextSize = !isDropDown && optionSize === Large ? "text-fs-16" : "text-base"
-    let searchMatchTextColor = "dark:text-blue-800 text-blue-800"
+    let searchMatchTextColor = `dark:${font.textColor.primaryNormal} ${font.textColor.primaryNormal}`
     let optionDescPadding = if optionSize === Small {
       showToggle ? "pl-12" : "pl-7"
     } else if showToggle {
@@ -182,7 +184,8 @@ module ListItem = {
     | None => "overflow-hidden"
     }
 
-    let customCss = listFlexDirection === "" ? `flex-row ${paddingClass}` : listFlexDirection
+    let customCss =
+      listFlexDirection->LogicUtils.isEmptyString ? `flex-row ${paddingClass}` : listFlexDirection
     RippleEffectBackground.useLinearRippleHook(parentRef, isDropDown)
     let comp =
       <AddDataAttributes
@@ -194,7 +197,7 @@ module ListItem = {
         <div
           ref={parentRef->ReactDOM.Ref.domRef}
           onClick=onClickTemp
-          className={`flex  relative mx-2 md:mx-0 my-3 md:my-0 pr-2 md:pr-0 md:w-full items-center font-medium  ${overFlowTextCustomClass} ${itemRoundedClass} ${textColor} ${justifyClass} ${cursorClass} ${backgroundClass} ${selectedClass} ${customStyle}  ${customCss} `}>
+          className={`flex  relative mx-2 md:mx-0 my-3 md:my-0 pr-2 md:pr-0 md:w-full items-center font-medium  ${overFlowTextCustomClass} ${itemRoundedClass} ${textColor} ${justifyClass} ${cursorClass} ${backgroundClass} ${selectedClass} ${customStyle}  ${customCss} ${customRowClass}`}>
           {if !isDropDown {
             if showToggle {
               <div className={toggleClass ++ toggleProps} onClick>
@@ -204,7 +207,7 @@ module ListItem = {
               </div>
             } else if multiSelect {
               <span className=toggleClass>
-                {checkboxDimension != ""
+                {checkboxDimension->LogicUtils.isNonEmptyString
                   ? <CheckBoxIcon
                       isSelected isDisabled size=optionSize isSelectedStateMinus checkboxDimension
                     />
@@ -229,7 +232,9 @@ module ListItem = {
               {switch icon {
               | FontAwesome(iconName) =>
                 <Icon
-                  className={`align-middle ${iconStroke == "" ? optionIconStroke : iconStroke} `}
+                  className={`align-middle ${iconStroke->LogicUtils.isEmptyString
+                      ? optionIconStroke
+                      : iconStroke} `}
                   size={20}
                   name=iconName
                 />
@@ -240,7 +245,7 @@ module ListItem = {
               }}
               <div className="w-full">
                 {listText
-                ->Array.filter(str => str !== "")
+                ->Array.filter(str => str->LogicUtils.isNonEmptyString)
                 ->Array.mapWithIndex((item, i) => {
                   if (
                     (String.toLowerCase(item) == String.toLowerCase(searchString) ||
@@ -248,9 +253,9 @@ module ListItem = {
                       String.length(searchString) > 0
                   ) {
                     <AddDataAttributes
-                      key={i->string_of_int} attributes=[("data-searched-text", item)]>
+                      key={i->Int.toString} attributes=[("data-searched-text", item)]>
                       <mark
-                        key={i->string_of_int} className={`${searchMatchTextColor} bg-transparent`}>
+                        key={i->Int.toString} className={`${searchMatchTextColor} bg-transparent`}>
                         {item->React.string}
                       </mark>
                     </AddDataAttributes>
@@ -265,8 +270,8 @@ module ListItem = {
 
                     let selectOptions =
                       <AddDataAttributes
-                        attributes=[("data-text", labelText)] key={i->string_of_int}>
-                        <span key={i->string_of_int} className=textClass value=labelText>
+                        attributes=[("data-text", labelText)] key={i->Int.toString}>
+                        <span key={i->Int.toString} className=textClass value=labelText>
                           {item->React.string}
                         </span>
                       </AddDataAttributes>
@@ -274,7 +279,7 @@ module ListItem = {
                     {
                       if showToolTipOptions {
                         <ToolTip
-                          key={i->string_of_int}
+                          key={i->Int.toString}
                           description=item
                           toolTipFor=selectOptions
                           contentAlign=Default
@@ -363,6 +368,7 @@ type dropdownOptionWithoutOptional = {
   iconStroke: string,
   textColor: string,
   optGroup: string,
+  customRowClass: string,
 }
 type dropdownOption = {
   label: string,
@@ -373,6 +379,7 @@ type dropdownOption = {
   description?: string,
   iconStroke?: string,
   textColor?: string,
+  customRowClass?: string,
 }
 
 let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOptional => {
@@ -385,11 +392,12 @@ let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOpt
     iconStroke: dropdownOption.iconStroke->Option.getOr(""),
     textColor: dropdownOption.textColor->Option.getOr(""),
     optGroup: dropdownOption.optGroup->Option.getOr("-"),
+    customRowClass: dropdownOption.customRowClass->Option.getOr(""),
   }
 }
 
 let useTransformed = options => {
-  React.useMemo1(() => {
+  React.useMemo(() => {
     options->Array.map(makeNonOptional)
   }, [options])
 }
@@ -449,7 +457,7 @@ module BaseSelect = {
     ~optionClass="",
     ~selectClass="",
     ~toggleProps="",
-    ~showSelectCountButton=true,
+    ~showSelectCountButton=false,
     ~customSelectAllStyle="",
     ~checkboxDimension="",
     ~dropdownClassName="",
@@ -457,6 +465,7 @@ module BaseSelect = {
     ~wrapBasis="",
     ~preservedAppliedOptions=[],
   ) => {
+    let {globalUIConfig: {font}} = React.useContext(ThemeProvider.themeContext)
     let (searchString, setSearchString) = React.useState(() => "")
     let maxHeight = if maxHeight->String.includes("72") {
       "md:max-h-66.5"
@@ -464,32 +473,32 @@ module BaseSelect = {
       maxHeight
     }
 
-    let saneValue = React.useMemo1(() =>
+    let saneValue = React.useMemo(() =>
       switch values->JSON.Decode.array {
       | Some(jsonArr) => jsonArr->LogicUtils.getStrArrayFromJsonArray
       | _ => []
       }
     , [values])
 
-    let initialSelectedOptions = React.useMemo0(() => {
+    let initialSelectedOptions = React.useMemo(() => {
       options->Array.filter(item => saneValue->Array.includes(item.value))
-    })
+    }, [])
 
-    let options = options->Js.Array2.sortInPlaceWith((item1, item2) => {
+    options->Array.sort((item1, item2) => {
       let item1Index = initialSelectedOptions->Array.findIndex(item => item.label === item1.label)
       let item2Index = initialSelectedOptions->Array.findIndex(item => item.label === item2.label)
 
-      item1Index <= item2Index ? 1 : -1
+      item1Index <= item2Index ? 1. : -1.
     })
 
     let transformedOptions = useTransformed(options)
 
     let (filteredOptions, setFilteredOptions) = React.useState(() => transformedOptions)
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setFilteredOptions(_ => transformedOptions)
       None
     }, [transformedOptions])
-    React.useEffect1(() => {
+    React.useEffect(() => {
       let shouldDisplay = (option: dropdownOption) => {
         switch Js.String2.match_(option.label, regex("\\b", searchString)) {
         | Some(_) => true
@@ -506,7 +515,7 @@ module BaseSelect = {
       None
     }, [searchString])
 
-    let onItemClick = (itemDataValue, isDisabled, e) => {
+    let onItemClick = (itemDataValue, isDisabled) => e => {
       if !isDisabled {
         let data = if Array.includes(saneValue, itemDataValue) {
           let values =
@@ -531,7 +540,7 @@ module BaseSelect = {
       setSearchString(_ => str)
     }
 
-    let selectAll = (select, _ev) => {
+    let selectAll = select => _ev => {
       let newValues = if select {
         let newVal =
           filteredOptions
@@ -573,15 +582,15 @@ module BaseSelect = {
     let textIconPresent = options->Array.some(op => op.icon->Option.getOr(NoIcon) !== NoIcon)
 
     let _ = if sortingBasedOnDisabled {
-      options->Js.Array2.sortInPlaceWith((m1, m2) => {
+      options->Array.toSorted((m1, m2) => {
         let m1Disabled = m1.isDisabled->Option.getOr(false)
         let m2Disabled = m2.isDisabled->Option.getOr(false)
         if m1Disabled === m2Disabled {
-          0
+          0.
         } else if m1Disabled {
-          1
+          1.
         } else {
-          -1
+          -1.
         }
       })
     } else {
@@ -614,14 +623,14 @@ module BaseSelect = {
       }
     }
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       searchRef.current->Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
 
     let listPadding = ""
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       if noOfSelected === options->Array.length {
         setChooseAllToggleSelected(_ => true)
       } else {
@@ -631,14 +640,14 @@ module BaseSelect = {
     }, (noOfSelected, options))
     let toggleSelectAll = val => {
       if !disableSelect {
-        selectAll(val, "")
+        selectAll(val)("")
 
         setChooseAllToggleSelected(_ => val)
       }
     }
     let disabledClass = disableSelect ? "cursor-not-allowed" : ""
 
-    let marginClass = if customMargin == "" {
+    let marginClass = if customMargin->LogicUtils.isEmptyString {
       "mt-4"
     } else {
       customMargin
@@ -653,7 +662,9 @@ module BaseSelect = {
             inputText=searchString
             searchRef
             onChange=handleSearch
-            placeholder={searchInputPlaceHolder === "" ? "Search..." : searchInputPlaceHolder}
+            placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
+              ? "Search..."
+              : searchInputPlaceHolder}
             showSearchIcon
           />
         </div>
@@ -713,9 +724,9 @@ module BaseSelect = {
             ) {
               <div className="text-sm text-gray-500 text-start mt-1 ml-1.5 font-bold">
                 {React.string(
-                  `${noOfSelected->string_of_int} items selected out of ${options
+                  `${noOfSelected->Int.toString} items selected out of ${options
                     ->Array.length
-                    ->string_of_int} options`,
+                    ->Int.toString} options`,
                 )}
               </div>
             } else {
@@ -724,7 +735,7 @@ module BaseSelect = {
           </div>
         } else if !isMobileView {
           let clearAllCondition = noOfSelected > 0
-          <UIUtils.RenderIf
+          <RenderIf
             condition={filteredOptions->Array.length > 1 &&
               filteredOptions->Array.find(item => item.value === "Loading...")->Option.isNone}>
             <div
@@ -737,13 +748,13 @@ module BaseSelect = {
               />
               {{clearAllCondition ? "Clear All" : "Select All"}->React.string}
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         } else {
           <div
             onClick={selectAll(noOfSelected !== options->Array.length)}
             className={`flex ${isHorizontal
                 ? "flex-col"
-                : "flex-row"} justify-between pr-4 pl-5 pt-6 pb-1 text-base font-semibold text-blue-800 cursor-pointer`}>
+                : "flex-row"} justify-between pr-4 pl-5 pt-6 pb-1 text-base font-semibold ${font.textColor.primaryNormal} cursor-pointer`}>
             {"SELECT ALL"->React.string}
             <CheckBoxIcon isSelected={noOfSelected === options->Array.length} />
           </div>
@@ -777,7 +788,7 @@ module BaseSelect = {
                       ),
                     ]>
                     <div
-                      className={`font-semibold text-blue-800 ${disabledClass} ${customSelectAllStyle}`}
+                      className={`font-semibold ${font.textColor.primaryNormal} ${disabledClass} ${customSelectAllStyle}`}
                       onClick={_ => {
                         toggleSelectAll(!isChooseAllToggleSelected)
                       }}>
@@ -797,7 +808,7 @@ module BaseSelect = {
           {if !hideBorder {
             <div
               className="my-2 bg-jp-gray-lightmode_steelgray dark:bg-jp-gray-960  "
-              style={ReactDOMStyle.make(~height="1px", ())}
+              style={height: "1px"}
             />
           } else {
             React.null
@@ -810,7 +821,7 @@ module BaseSelect = {
         className={`overflow-auto ${listPadding} ${isHorizontal
             ? "flex flex-row grow"
             : ""}  ${showToggle ? "ml-3" : maxHeight}` ++ {
-          wrapBasis == "" ? "" : " flex flex-wrap justify-between"
+          wrapBasis->LogicUtils.isEmptyString ? "" : " flex flex-wrap justify-between"
         }}>
         {if filteredOptions->Array.length === 0 {
           <div className="flex justify-center items-center m-4">
@@ -834,7 +845,7 @@ module BaseSelect = {
               }
               let isSelected = index > -1
               let serialNumber =
-                isSelected && showSerialNumber ? Some(string_of_int(index + 1)) : None
+                isSelected && showSerialNumber ? Some(Int.toString(index + 1)) : None
               let leftVacennt = isDropDown && textIconPresent && item.icon === NoIcon
               <div className={`${gapClass} ${wrapBasis}`} key={item.value}>
                 <ListItem
@@ -888,7 +899,7 @@ module BaseSelect = {
           onClick
         />
       } else {
-        <UIUtils.RenderIf condition={isDropDown && noOfSelected > 0 && showSelectCountButton}>
+        <RenderIf condition={isDropDown && noOfSelected > 0 && showSelectCountButton}>
           <Button
             buttonType=Primary
             text={`Select ${noOfSelected->Int.toString}`}
@@ -896,7 +907,7 @@ module BaseSelect = {
             customButtonStyle="w-full items-center"
             onClick
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       }}
     </div>
   }
@@ -930,7 +941,7 @@ module BaseSelectButton = {
     let (itemdata, setItemData) = React.useState(() => "")
     let (assignButtonState, setAssignButtonState) = React.useState(_ => false)
     let searchRef = React.useRef(Nullable.null)
-    let onItemClick = (itemData, _ev) => {
+    let onItemClick = itemData => _ev => {
       if !disableSelect {
         let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
 
@@ -950,7 +961,7 @@ module BaseSelectButton = {
       }
     }
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       searchRef.current->Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
@@ -993,7 +1004,9 @@ module BaseSelectButton = {
               inputText=searchString
               onChange=handleSearch
               searchRef
-              placeholder={searchInputPlaceHolder === "" ? "Search..." : searchInputPlaceHolder}
+              placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
+                ? "Search..."
+                : searchInputPlaceHolder}
               showSearchIcon
             />
           </div>
@@ -1023,7 +1036,7 @@ module BaseSelectButton = {
           let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
           if shouldDisplay {
             <ListItem
-              key={string_of_int(i)}
+              key={Int.toString(i)}
               isDropDown
               isSelected
               optionSize
@@ -1038,6 +1051,7 @@ module BaseSelectButton = {
               isMobileView
               dataId=i
               iconStroke=option.iconStroke
+              customRowClass={option.customRowClass}
             />
           } else {
             React.null
@@ -1086,67 +1100,84 @@ module RenderListItemInBaseRadio = {
     ~textEllipsisForDropDownOptions,
     ~isHorizontal,
     ~customMarginStyleOfListItem="mx-3 py-2 gap-2",
+    ~bottomComponent=?,
+    ~optionClass="",
+    ~selectClass="",
   ) => {
-    newOptions
-    ->Array.mapWithIndex((option, i) => {
-      let isSelected = switch value->JSON.Decode.string {
-      | Some(str) => option.value === str
-      | None => false
-      }
-
-      let description = descriptionOnHover ? option.description : None
-      let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
-      let listItemComponent =
-        <ListItem
-          key={string_of_int(i)}
-          isDropDown
-          isSelected
-          fill
-          searchString
-          onClick={onItemClick(option.value, option.isDisabled)}
-          text=option.label
-          optionSize
-          isSelectedStateMinus
-          labelValue=option.label
-          multiSelect=false
-          icon=option.icon
-          leftVacennt
-          isDisabled=option.isDisabled
-          isMobileView
-          description
-          listFlexDirection
-          customStyle
-          customSelectStyle
-          ?textOverflowClass
-          dataId=i
-          iconStroke=option.iconStroke
-          showToolTipOptions
-          textEllipsisForDropDownOptions
-          textColorClass={option.textColor}
-          customMarginStyle=customMarginStyleOfListItem
-        />
-
-      if !descriptionOnHover {
-        switch option.description {
-        | Some(str) =>
-          <div key={i->string_of_int} className="flex flex-row">
-            listItemComponent
-            <UIUtils.RenderIf condition={!isHorizontal}>
-              <ToolTip
-                description={str}
-                toolTipFor={<div className="py-4 px-4">
-                  <Icon size=12 name="info-circle" />
-                </div>}
-              />
-            </UIUtils.RenderIf>
-          </div>
-        | None => listItemComponent
+    let dropdownList =
+      newOptions
+      ->Array.mapWithIndex((option, i) => {
+        let isSelected = switch value->JSON.Decode.string {
+        | Some(str) => option.value === str
+        | None => false
         }
-      } else {
-        listItemComponent
-      }
-    })
-    ->React.array
+
+        let description = descriptionOnHover ? option.description : None
+        let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
+        let listItemComponent =
+          <ListItem
+            key={Int.toString(i)}
+            isDropDown
+            isSelected
+            fill
+            searchString
+            onClick={onItemClick(option.value, option.isDisabled)}
+            text=option.label
+            optionSize
+            isSelectedStateMinus
+            labelValue=option.label
+            multiSelect=false
+            icon=option.icon
+            leftVacennt
+            isDisabled=option.isDisabled
+            isMobileView
+            description
+            listFlexDirection
+            customStyle
+            customSelectStyle
+            ?textOverflowClass
+            dataId=i
+            iconStroke=option.iconStroke
+            showToolTipOptions
+            textEllipsisForDropDownOptions
+            textColorClass={option.textColor}
+            customMarginStyle=customMarginStyleOfListItem
+            customRowClass={option.customRowClass}
+            optionClass
+            selectClass
+          />
+
+        if !descriptionOnHover {
+          switch option.description {
+          | Some(str) =>
+            <div key={i->Int.toString} className="flex flex-row">
+              listItemComponent
+              <RenderIf condition={!isHorizontal}>
+                <ToolTip
+                  description={str}
+                  toolTipFor={<div className="py-4 px-4">
+                    <Icon size=12 name="info-circle" />
+                  </div>}
+                />
+              </RenderIf>
+            </div>
+          | None => listItemComponent
+          }
+        } else {
+          listItemComponent
+        }
+      })
+      ->React.array
+
+    <>
+      <div className=""> {dropdownList} </div>
+      <div className="sticky bottom-0">
+        {switch bottomComponent {
+        | Some(comp) => <span> {comp} </span>
+        | None => React.null
+        }}
+      </div>
+    </>
   }
 }
 
@@ -1169,11 +1200,11 @@ let getHashMappedOptionValues = (options: array<dropdownOptionWithoutOptional>) 
 let getSortedKeys = hashMappedOptions => {
   hashMappedOptions
   ->Dict.keysToArray
-  ->Js.Array2.sortInPlaceWith((a, b) => {
+  ->Array.toSorted((a, b) => {
     switch (a, b) {
-    | ("-", _) => 1
-    | (_, "-") => -1
-    | (_, _) => String.compare(a, b)->Float.toInt
+    | ("-", _) => 1.
+    | (_, "-") => -1.
+    | (_, _) => String.compare(a, b)
     }
   })
 }
@@ -1214,8 +1245,11 @@ module BaseRadio = {
     ~showSearchIcon=true,
     ~showToolTipOptions=false,
     ~textEllipsisForDropDownOptions=false,
+    ~bottomComponent=React.null,
+    ~optionClass="",
+    ~selectClass="",
   ) => {
-    let options = React.useMemo1(() => {
+    let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
     }, [options])
 
@@ -1227,7 +1261,7 @@ module BaseRadio = {
     let (optgroupKeys, setOptgroupKeys) = React.useState(_ => getSortedKeys(hashMappedOptions))
 
     let (searchString, setSearchString) = React.useState(() => "")
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setExtSearchString(_ => searchString)
       None
     }, [searchString])
@@ -1238,9 +1272,8 @@ module BaseRadio = {
       ~callback=() => {
         setSearchString(_ => "")
       },
-      (),
     )
-    let onItemClick = (itemData, isDisabled, _ev) => {
+    let onItemClick = (itemData, isDisabled) => _ev => {
       if !isDisabled {
         let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
 
@@ -1252,7 +1285,7 @@ module BaseRadio = {
             addDynamicValue && !(options->Array.map(item => item.value)->Array.includes(itemData))
           ) {
             setSelectedString(_ => itemData)
-          } else if selectedString !== "" {
+          } else if selectedString->LogicUtils.isNonEmptyString {
             setSelectedString(_ => "")
           }
 
@@ -1281,13 +1314,16 @@ module BaseRadio = {
 
     let searchRef = React.useRef(Nullable.null)
 
-    let width = isHorizontal || !isDropDown || customStyle === "" ? widthClass : customStyle
+    let width =
+      isHorizontal || !isDropDown || customStyle->LogicUtils.isEmptyString
+        ? widthClass
+        : customStyle
 
     let inlineClass = isHorizontal ? "inline-flex" : ""
 
     let textIconPresent = options->Array.some(op => op.icon !== NoIcon)
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       searchRef.current->Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
@@ -1307,8 +1343,8 @@ module BaseRadio = {
       }
     }
 
-    let newOptions = React.useMemo3(() => {
-      let options = if selectedString !== "" {
+    let newOptions = React.useMemo(() => {
+      let options = if selectedString->LogicUtils.isNonEmptyString {
         options->Array.concat([selectedString]->makeOptions->Array.map(makeNonOptional))
       } else {
         options
@@ -1346,7 +1382,9 @@ module BaseRadio = {
             inputText=searchString
             onChange=handleSearch
             searchRef
-            placeholder={searchInputPlaceHolder === "" ? "Search..." : searchInputPlaceHolder}
+            placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
+              ? "Search..."
+              : searchInputPlaceHolder}
             showSearchIcon
           />
         </div>
@@ -1356,11 +1394,11 @@ module BaseRadio = {
           ? "animate-textTransition transition duration-400"
           : "animate-textTransitionOff transition duration-400"}`}>
       {switch searchable {
-      | Some(val) => <UIUtils.RenderIf condition={val}> searchInputUI </UIUtils.RenderIf>
+      | Some(val) => <RenderIf condition={val}> searchInputUI </RenderIf>
       | None =>
-        <UIUtils.RenderIf condition={isDropDown && (options->Array.length > 5 || addDynamicValue)}>
+        <RenderIf condition={isDropDown && (options->Array.length > 5 || addDynamicValue)}>
           searchInputUI
-        </UIUtils.RenderIf>
+        </RenderIf>
       }}
       <div
         className={`${maxHeight} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
@@ -1388,12 +1426,15 @@ module BaseRadio = {
             showToolTipOptions
             textEllipsisForDropDownOptions
             isHorizontal
+            bottomComponent
+            optionClass
+            selectClass
           />
         } else {
           {
             optgroupKeys
             ->Array.mapWithIndex((ele, index) => {
-              <React.Fragment key={index->string_of_int}>
+              <React.Fragment key={index->Int.toString}>
                 <h2 className="p-3 font-bold"> {ele->React.string} </h2>
                 <RenderListItemInBaseRadio
                   newOptions={getHashMappedOptionValues(newOptions)
@@ -1496,7 +1537,8 @@ module BaseDropdown = {
     ~onApply=?,
     ~showAllSelectedOptions=true,
     ~buttonClickFn=?,
-    ~showSelectCountButton=true,
+    ~toggleChevronState: option<unit => unit>=?,
+    ~showSelectCountButton=false,
     ~maxHeight=?,
     ~customBackColor=?,
     ~showToolTipOptions=false,
@@ -1506,6 +1548,12 @@ module BaseDropdown = {
     ~searchInputPlaceHolder="",
     ~showSearchIcon=true,
     ~sortingBasedOnDisabled=?,
+    ~customSelectStyle="",
+    ~baseComponentCustomStyle="",
+    ~bottomComponent=React.null,
+    ~optionClass="",
+    ~selectClass="",
+    ~customDropdownOuterClass="",
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1546,7 +1594,7 @@ module BaseDropdown = {
         selectBtnRef.current = element
       }
     }
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setShowDropDown(_ => false)
       None
     }, [dropDownCustomBtnClick])
@@ -1558,15 +1606,19 @@ module BaseDropdown = {
     let refs = autoApply
       ? [selectBoxRef, dropdownRef]
       : [selectBoxRef, dropdownRef, selectBtnRef, clearBtnRef]
-    OutsideClick.useOutsideClick(
-      ~refs=ArrayOfRef(refs),
-      ~isActive=showDropDown,
-      ~callback=() => {
-        setShowDropDown(_ => false)
-        hasApplyButton ? newInputSelect.onChange(preservedAppliedOptions) : ()
-      },
-      (),
-    )
+    OutsideClick.useOutsideClick(~refs=ArrayOfRef(refs), ~isActive=showDropDown, ~callback=() => {
+      setShowDropDown(_ => false)
+      hasApplyButton ? newInputSelect.onChange(preservedAppliedOptions) : ()
+    })
+
+    React.useEffect(() => {
+      switch toggleChevronState {
+      | Some(fn) => fn()
+      | None => ()
+      }
+      None
+    }, [showDropDown])
+
     let onClick = _ => {
       switch buttonClickFn {
       | Some(fn) => fn(input.name)
@@ -1574,13 +1626,13 @@ module BaseDropdown = {
       }
       setShowDropDown(_ => !showDropDown)
       setIsGrowDown(_ => true)
-      let _id = Js.Global.setTimeout(() => setIsGrowDown(_ => false), 250)
+      let _id = setTimeout(() => setIsGrowDown(_ => false), 250)
       if isInitialRender {
         setIsInitialRender(_ => false)
       }
     }
 
-    let removeOption = (text, _ev) => {
+    let removeOption = text => _ev => {
       let actualValue = switch Array.find(transformedOptions, option => option.value == text) {
       | Some(str) => str.value
       | None => ""
@@ -1608,7 +1660,7 @@ module BaseDropdown = {
         | None => (buttonText, defaultLeftIcon, "")
         }
 
-    let dropDirection = React.useMemo1(() => {
+    let dropDirection = React.useMemo(() => {
       switch fixedDropDownDirection {
       | Some(dropDownDirection) => dropDownDirection
       | None =>
@@ -1655,7 +1707,7 @@ module BaseDropdown = {
       addButton ? setShowDropDown(_ => true) : setShowDropDown(_ => false)
     }
 
-    let allSellectedOptions = React.useMemo2(() => {
+    let allSellectedOptions = React.useMemo(() => {
       newInputSelect.value
       ->JSON.Decode.array
       ->Option.getOr([])
@@ -1670,7 +1722,7 @@ module BaseDropdown = {
 
     let title = showAllSelectedOptions ? allSellectedOptions : buttonText
 
-    let badgeForSelect = React.useMemo1((): Button.badge => {
+    let badgeForSelect = React.useMemo((): Button.badge => {
       let count = newInputSelect.value->JSON.Decode.array->Option.getOr([])->Array.length
       let condition = count > 1
 
@@ -1764,12 +1816,17 @@ module BaseDropdown = {
         textEllipsisForDropDownOptions
         searchInputPlaceHolder
         showSearchIcon
+        customSelectStyle
+        baseComponentCustomStyle
+        bottomComponent
+        optionClass
+        selectClass
       />
     }
 
     let selectButtonText = if !showSelectionAsChips {
       title
-    } else if selectedString !== "" {
+    } else if selectedString->LogicUtils.isNonEmptyString {
       selectedString
     } else {
       dropDowntext
@@ -1887,7 +1944,7 @@ module BaseDropdown = {
                   dropDirection == BottomMiddle ||
                   dropDirection == BottomRight
                     ? "origin-top"
-                    : "origin-bottom"} ${dropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-jp-gray-950 ${fullLength
+                    : "origin-bottom"} ${dropdownOuterClass} ${customDropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-jp-gray-950 ${fullLength
                     ? "w-full"
                     : ""}`}
                 ref={dropdownRef->ReactDOM.Ref.domRef}>
@@ -1907,7 +1964,7 @@ module BaseDropdown = {
               dropDirection == BottomMiddle ||
               dropDirection == BottomRight
                 ? "origin-top"
-                : "origin-bottom"} ${dropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-jp-gray-950`}
+                : "origin-bottom"} ${dropdownOuterClass} ${customDropdownOuterClass} z-20 ${marginBottom} bg-gray-50 dark:bg-jp-gray-950`}
             ref={dropdownRef->ReactDOM.Ref.domRef}>
             optionsElement
           </div>
@@ -1930,7 +1987,7 @@ module BaseDropdown = {
               | None => ("", NoIcon)
               }
 
-              <div key={string_of_int(i)} className="m-2">
+              <div key={Int.toString(i)} className="m-2">
                 <Button
                   buttonFor=buttonText
                   buttonSize=Small
@@ -1971,7 +2028,7 @@ module InfraSelectBox = {
 
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
-    let saneValue = React.useMemo1(() =>
+    let saneValue = React.useMemo(() =>
       switch values->JSON.Decode.array {
       | Some(jsonArr) => jsonArr->LogicUtils.getStrArrayFromJsonArray
       | _ => []
@@ -2004,7 +2061,7 @@ module InfraSelectBox = {
         let selectedClass = isSelected ? selectedClass : nonSelectedClass
 
         <div
-          key={string_of_int(i)}
+          key={Int.toString(i)}
           onClick={_ => onItemClick(option.value, option.isDisabled)}
           className={`px-4 py-1 border ${borderRadius} flex flex-row gap-2 items-center cursor-pointer ${selectedClass}`}>
           {if isSelected && showTickMark {
@@ -2037,10 +2094,10 @@ module ChipFilterSelectBox = {
     let transformedOptions = useTransformed(options)
 
     let initalClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
-    let passedClassName = "flex items-center m-2 bg-blue-600 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
+    let passedClassName = "flex items-center m-2 bg-blue-400 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
-    let saneValue = React.useMemo1(() => {
+    let saneValue = React.useMemo(() => {
       values->LogicUtils.getArrayFromJson([])->LogicUtils.getStrArrayFromJsonArray
     }, [values])
 
@@ -2068,10 +2125,11 @@ module ChipFilterSelectBox = {
       ->Array.mapWithIndex((option, i) => {
         let isSelected = saneValue->Array.includes(option.value)
         let selectedClass = isSelected ? passedClassName : initalClassName
-        let chipsCss = customStyleForChips == "" ? selectedClass : customStyleForChips
+        let chipsCss =
+          customStyleForChips->LogicUtils.isEmptyString ? selectedClass : customStyleForChips
 
         <div
-          key={string_of_int(i)}
+          key={Int.toString(i)}
           onClick={_ => onItemClick(option.value, option.isDisabled)}
           className={`px-4 py-1 mr-1 mt-0.5 border rounded-full flex flex-row gap-2 items-center cursor-pointer ${chipsCss}`}>
           {if isTickRequired {
@@ -2162,7 +2220,7 @@ let make = (
   ~optionClass="",
   ~selectClass="",
   ~toggleProps="",
-  ~showSelectCountButton=true,
+  ~showSelectCountButton=false,
   ~leftIcon=?,
   ~customBackColor=?,
   ~customSelectAllStyle=?,

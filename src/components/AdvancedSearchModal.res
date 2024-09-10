@@ -15,10 +15,12 @@ module AdvanceSearch = {
     ~setSearchDataDict,
     ~setShowSearchDetailsModal,
   ) => {
+    open LogicUtils
     let {optionalSearchFieldsList, requiredSearchFieldsList, detailsKey} = entity
     let fetchApi = AuthHooks.useApiFetcher()
     let initialValueJson = JSON.Encode.object(Dict.make())
     let showToast = ToastState.useShowToast()
+    let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let onSubmit = (values, _) => {
       let otherQueries = switch values->JSON.Decode.object {
@@ -27,8 +29,8 @@ module AdvanceSearch = {
         ->Dict.toArray
         ->Belt.Array.keepMap(entry => {
           let (key, value) = entry
-          let stringVal = LogicUtils.getStringFromJson(value, "")
-          if stringVal !== "" {
+          let stringVal = getStringFromJson(value, "")
+          if stringVal->isNonEmptyString {
             Some(`${key}=${stringVal}`)
           } else {
             None
@@ -37,19 +39,19 @@ module AdvanceSearch = {
         ->Array.joinWith("&")
       | _ => ""
       }
-      let finalUrl = otherQueries->String.length > 0 ? `${url}?${otherQueries}` : url
+      let finalUrl = otherQueries->isNonEmptyString ? `${url}?${otherQueries}` : url
 
       open Promise
-      open LogicUtils
-      fetchApi(finalUrl, ~bodyStr=JSON.stringify(initialValueJson), ~method_=Fetch.Get, ())
-      ->then(Fetch.Response.json)
+      fetchApi(finalUrl, ~bodyStr=JSON.stringify(initialValueJson), ~method_=Get, ~xFeatureRoute)
+      ->then(res => res->Fetch.Response.json)
       ->then(json => {
         switch JSON.Classify.classify(json) {
         | Object(jsonDict) => {
             let statusStr = getString(jsonDict, "status", "FAILURE")
 
             if statusStr === "SUCCESS" {
-              let payloadDict = jsonDict->Dict.get(detailsKey)->Option.flatMap(JSON.Decode.object)
+              let payloadDict =
+                jsonDict->Dict.get(detailsKey)->Option.flatMap(obj => obj->JSON.Decode.object)
 
               switch payloadDict {
               | Some(dict) => {
@@ -59,24 +61,19 @@ module AdvanceSearch = {
                 }
 
               | _ =>
-                showToast(
-                  ~message="Something went wrong. Please try again",
-                  ~toastType=ToastError,
-                  (),
-                )
+                showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
               }
             } else {
-              showToast(~message="Data Not Found", ~toastType=ToastWarning, ())
+              showToast(~message="Data Not Found", ~toastType=ToastWarning)
             }
           }
 
-        | _ =>
-          showToast(~message="Something went wrong. Please try again", ~toastType=ToastError, ())
+        | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
         }
         json->Nullable.make->resolve
       })
       ->catch(_err => {
-        showToast(~message="Something went wrong. Please try again", ~toastType=ToastError, ())
+        showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
 
         Nullable.null->resolve
       })

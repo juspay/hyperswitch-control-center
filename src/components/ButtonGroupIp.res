@@ -8,6 +8,7 @@ let make = (
   ~isSeparate=false,
   ~buttonSize=?,
 ) => {
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let onChange = str => input.onChange(str->Identity.stringToFormReactEvent)
   let buttonState = {isDisabled ? Button.Disabled : Button.Normal}
 
@@ -17,7 +18,7 @@ let make = (
       let active = input.value->LogicUtils.getStringFromJson("") === op.value
       if isSeparate {
         <Button
-          key={i->string_of_int}
+          key={i->Int.toString}
           text={op.label}
           onClick={_ => onChange(op.value)}
           buttonType={active ? Primary : SecondaryFilled}
@@ -27,10 +28,10 @@ let make = (
         />
       } else {
         <Button
-          key={i->string_of_int}
+          key={i->Int.toString}
           text={op.label}
           onClick={_ => onChange(op.value)}
-          textStyle={active ? "text-blue-800" : ""}
+          textStyle={active ? `${textColor.primaryNormal}` : ""}
           textWeight={active ? "font-semibold" : "font-medium"}
           customButtonStyle={active ? "shadow-inner px-0" : "px-0"}
           buttonType={active ? SecondaryFilled : Secondary}

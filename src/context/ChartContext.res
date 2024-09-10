@@ -63,16 +63,16 @@ module Provider = {
 let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultFilter=?) => {
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let getAllFilter = filterValueJson
-  let (activeTab, activeTabStr) = React.useMemo1(() => {
+  let (activeTab, activeTabStr) = React.useMemo(() => {
     let activeTabOptionalArr =
       getAllFilter->getOptionStrArrayFromDict(`${chartEntity.moduleName}.tabName`)
     (activeTabOptionalArr, activeTabOptionalArr->Option.getOr([])->Array.joinWith(","))
   }, [getAllFilter])
 
   let parentToken = AuthWrapperUtils.useTokenParent(Original)
-  let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetchNew()
+  let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
   let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
-  let fetchApi = AuthHooks.useApiFetcher(~betaEndpointConfig=?betaEndPointConfig, ())
+  let fetchApi = AuthHooks.useApiFetcher()
   let jsonTransFormer = switch chartEntity {
   | {jsonTransformer} => jsonTransformer
   | _ => (_val, arr) => arr
@@ -91,8 +91,9 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
   let {allFilterDimension} = chartEntity
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let sortingParams = React.useMemo1((): option<AnalyticsNewUtils.sortedBasedOn> => {
+  let sortingParams = React.useMemo((): option<AnalyticsNewUtils.sortedBasedOn> => {
     switch chartEntity {
     | {sortingColumnLegend} =>
       Some({
@@ -116,14 +117,14 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
       (key, value->UrlFetchUtils.getFilterValue)
     })
     ->Dict.fromArray
-  let getTopLevelChartFilter = React.useMemo1(() => {
+  let getTopLevelChartFilter = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
-      if prefix === chartId && prefix !== "" {
+      if prefix === chartId && prefix->isNonEmptyString {
         None
       } else {
         Some((prefix, value))
@@ -132,7 +133,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     ->Dict.fromArray
   }, [getAllFilter])
 
-  let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
+  let (topFiltersToSearchParam, customFilter) = React.useMemo(() => {
     let filterSearchParam =
       getTopLevelChartFilter
       ->Dict.toArray
@@ -151,15 +152,15 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
       })
       ->Array.joinWith("&")
 
-    (filterSearchParam, getTopLevelChartFilter->LogicUtils.getString(customFilterKey, ""))
+    (filterSearchParam, getTopLevelChartFilter->getString(customFilterKey, ""))
   }, [getTopLevelChartFilter])
   let customFilter = switch defaultFilter {
   | Some(defaultFilter) =>
-    customFilter == "" ? defaultFilter : `${defaultFilter} and ${customFilter}`
+    customFilter->isEmptyString ? defaultFilter : `${defaultFilter} and ${customFilter}`
   | _ => customFilter
   }
 
-  let getChartCompFilters = React.useMemo1(() => {
+  let getChartCompFilters = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
@@ -169,9 +170,9 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
       let fitlerName = keyArr->Array.get(1)->Option.getOr("")
 
       // when chart id is not there then there won't be any prefix so the prefix will the filter name
-      if chartId === "" {
+      if chartId->isEmptyString {
         Some((prefix, value))
-      } else if prefix === chartId && fitlerName !== "" {
+      } else if prefix === chartId && fitlerName->isNonEmptyString {
         Some((fitlerName, value))
       } else {
         None
@@ -180,7 +181,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     ->Dict.fromArray
   }, [getAllFilter])
 
-  let (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl) = React.useMemo1(() => {
+  let (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl) = React.useMemo(() => {
     let startTimeFromUrl = getTopLevelChartFilter->getString(startTimeFilterKey, "")
     let endTimeFromUrl = getTopLevelChartFilter->getString(endTimeFilterKey, "")
     let filterValueFromUrl =
@@ -202,13 +203,15 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     getChartCompFilters->getString("chartBottomMetric", currentBottomMetrix)
 
   let (granularity, setGranularity) = React.useState(_ => None)
-  let current_granularity = if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
+  let current_granularity = if (
+    startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString
+  ) {
     getGranularity(~startTime=startTimeFromUrl, ~endTime=endTimeFromUrl)
   } else {
     []
   }
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     setGranularity(prev => {
       current_granularity->Array.includes(prev->Option.getOr(""))
         ? prev
@@ -227,15 +230,15 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     setBottomChartFetchWithCurrentDependecyChange,
   ) = React.useState(_ => false)
 
-  React.useEffect5(() => {
+  React.useEffect(() => {
     let chartType =
       getChartCompFilters->getString(
         "chartType",
         chartEntity.chartTypes->Array.get(0)->Option.getOr(Line)->DynamicChart.chartMapper,
       )
     if (
-      startTimeFromUrl !== "" &&
-      endTimeFromUrl !== "" &&
+      startTimeFromUrl->isNonEmptyString &&
+      endTimeFromUrl->isNonEmptyString &&
       parentToken->Option.isSome &&
       (granularity->Option.isSome || chartType !== "Line Chart") &&
       current_granularity->Array.includes(granularity->Option.getOr(""))
@@ -258,15 +261,15 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     sortingParams,
   ))
 
-  React.useEffect5(() => {
+  React.useEffect(() => {
     let chartType =
       getChartCompFilters->getString(
         "chartType",
         chartEntity.chartTypes->Array.get(0)->Option.getOr(Line)->DynamicChart.chartMapper,
       )
     if (
-      startTimeFromUrl !== "" &&
-      endTimeFromUrl !== "" &&
+      startTimeFromUrl->isNonEmptyString &&
+      endTimeFromUrl->isNonEmptyString &&
       parentToken->Option.isSome &&
       (granularity->Option.isSome || chartType !== "Line Chart") &&
       current_granularity->Array.includes(granularity->Option.getOr(""))
@@ -289,7 +292,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     sortingParams,
   ))
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if !topChartFetchWithCurrentDependecyChange && topChartVisible {
       setTopChartFetchWithCurrentDependecyChange(_ => true)
 
@@ -337,11 +340,10 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 ~sortingParams?,
                 ~timeCol,
                 ~domain=value.domain->Option.getOr(""),
-                (),
               )->JSON.stringify,
-              ~authToken=parentToken,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
-              (),
+              ~betaEndpointConfig=?betaEndPointConfig,
+              ~xFeatureRoute,
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch`)
             ->then(
@@ -397,11 +399,10 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~customFilterValue=customFilter,
               ~sortingParams?,
               ~domain=value.domain->Option.getOr(""),
-              (),
             )->JSON.stringify,
-            ~authToken=parentToken,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
-            (),
+            ~betaEndpointConfig=?betaEndPointConfig,
+            ~xFeatureRoute,
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
           ->then(text => {
@@ -420,7 +421,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     None
   }, (topChartFetchWithCurrentDependecyChange, topChartVisible))
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if !bottomChartFetchWithCurrentDependecyChange && bottomChartVisible {
       setBottomChartFetchWithCurrentDependecyChange(_ => true)
       switch chartEntity.uriConfig->Array.find(item => {
@@ -466,11 +467,10 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 ~sortingParams?,
                 ~timeCol=value.timeCol,
                 ~domain=value.domain->Option.getOr(""),
-                (),
               )->JSON.stringify,
-              ~authToken=parentToken,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
-              (),
+              ~betaEndpointConfig=?betaEndPointConfig,
+              ~xFeatureRoute,
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch bottomChart`)
             ->then(
@@ -523,11 +523,10 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~customFilterValue=customFilter,
               ~sortingParams?,
               ~domain=value.domain->Option.getOr(""),
-              (),
             )->JSON.stringify,
-            ~authToken=parentToken,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
-            (),
+            ~betaEndpointConfig=?betaEndPointConfig,
+            ~xFeatureRoute,
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
           ->then(text => {
@@ -546,11 +545,11 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     None
   }, (bottomChartFetchWithCurrentDependecyChange, bottomChartVisible))
 
-  let chartData = React.useMemo4(() => {
+  let chartData = React.useMemo(() => {
     (topChartData, topChartDataLegendData, bottomChartData, bottomChartDataLegendData)
   }, (topChartData, topChartDataLegendData, bottomChartData, bottomChartDataLegendData))
 
-  let value = React.useMemo5(() => {
+  let value = React.useMemo(() => {
     let (
       topChartData,
       topChartDataLegendData,
@@ -585,10 +584,11 @@ module SDKAnalyticsChartContext = {
     ~segmentValue: option<array<string>>=?,
     ~differentTimeValues: option<array<AnalyticsUtils.timeRanges>>=?,
   ) => {
+    let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let parentToken = AuthWrapperUtils.useTokenParent(Original)
-    let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetchNew()
+    let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
     let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
-    let fetchApi = AuthHooks.useApiFetcher(~betaEndpointConfig=?betaEndPointConfig, ())
+    let fetchApi = AuthHooks.useApiFetcher()
     let jsonTransFormer = switch chartEntity {
     | {jsonTransformer} => jsonTransformer
     | _ => (_val, arr) => arr
@@ -621,14 +621,14 @@ module SDKAnalyticsChartContext = {
         (key, value->UrlFetchUtils.getFilterValue)
       })
       ->Dict.fromArray
-    let getTopLevelChartFilter = React.useMemo1(() => {
+    let getTopLevelChartFilter = React.useMemo(() => {
       getAllFilter
       ->Dict.toArray
       ->Belt.Array.keepMap(item => {
         let (key, value) = item
         let keyArr = key->String.split(".")
         let prefix = keyArr->Array.get(0)->Option.getOr("")
-        if prefix === chartId && prefix !== "" {
+        if prefix === chartId && prefix->isNonEmptyString {
           None
         } else {
           Some((prefix, value))
@@ -637,7 +637,7 @@ module SDKAnalyticsChartContext = {
       ->Dict.fromArray
     }, [getAllFilter])
 
-    let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
+    let (topFiltersToSearchParam, customFilter) = React.useMemo(() => {
       let filterSearchParam =
         getTopLevelChartFilter
         ->Dict.toArray
@@ -656,15 +656,15 @@ module SDKAnalyticsChartContext = {
         })
         ->Array.joinWith("&")
 
-      (filterSearchParam, getTopLevelChartFilter->LogicUtils.getString(customFilterKey, ""))
+      (filterSearchParam, getTopLevelChartFilter->getString(customFilterKey, ""))
     }, [getTopLevelChartFilter])
     let customFilter = switch defaultFilter {
     | Some(defaultFilter) =>
-      customFilter == "" ? defaultFilter : `${defaultFilter} and ${customFilter}`
+      customFilter->isEmptyString ? defaultFilter : `${defaultFilter} and ${customFilter}`
     | _ => customFilter
     }
 
-    let getChartCompFilters = React.useMemo1(() => {
+    let getChartCompFilters = React.useMemo(() => {
       getAllFilter
       ->Dict.toArray
       ->Belt.Array.keepMap(item => {
@@ -674,9 +674,9 @@ module SDKAnalyticsChartContext = {
         let fitlerName = keyArr->Array.get(1)->Option.getOr("")
 
         // when chart id is not there then there won't be any prefix so the prefix will the filter name
-        if chartId === "" {
+        if chartId->isEmptyString {
           Some((prefix, value))
-        } else if prefix === chartId && fitlerName !== "" {
+        } else if prefix === chartId && fitlerName->isNonEmptyString {
           Some((fitlerName, value))
         } else {
           None
@@ -685,7 +685,7 @@ module SDKAnalyticsChartContext = {
       ->Dict.fromArray
     }, [getAllFilter])
 
-    let (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl) = React.useMemo1(() => {
+    let (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl) = React.useMemo(() => {
       let startTimeFromUrl = getTopLevelChartFilter->getString(startTimeFilterKey, "")
       let endTimeFromUrl = getTopLevelChartFilter->getString(endTimeFilterKey, "")
       let filterValueFromUrl =
@@ -695,8 +695,7 @@ module SDKAnalyticsChartContext = {
           let (key, value) = entries
           chartEntity.allFilterDimension->Array.includes(key) ? Some((key, value)) : None
         })
-        ->Dict.fromArray
-        ->JSON.Encode.object
+        ->getJsonFromArrayOfJson
         ->Some
       (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl)
     }, [topFiltersToSearchParam])
@@ -714,13 +713,15 @@ module SDKAnalyticsChartContext = {
       getChartCompFilters->getString("chartBottomMetric", currentBottomMetrix)
 
     let (granularity, setGranularity) = React.useState(_ => None)
-    let current_granularity = if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
+    let current_granularity = if (
+      startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString
+    ) {
       getGranularity(~startTime=startTimeFromUrl, ~endTime=endTimeFromUrl)
     } else {
       []
     }
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       setGranularity(prev => {
         current_granularity->Array.includes(prev->Option.getOr(""))
           ? prev
@@ -734,38 +735,43 @@ module SDKAnalyticsChartContext = {
       setTopChartFetchWithCurrentDependecyChange,
     ) = React.useState(_ => false)
 
-    React.useEffect4(() => {
-      let chartType =
-        getChartCompFilters->getString(
-          "chartType",
-          chartEntity.chartTypes->Array.get(0)->Option.getOr(Line)->DynamicChart.chartMapper,
-        )
-      if (
-        startTimeFromUrl !== "" &&
-        endTimeFromUrl !== "" &&
-        parentToken->Option.isSome &&
-        (granularity->Option.isSome || chartType !== "Line Chart") &&
-        current_granularity->Array.includes(granularity->Option.getOr(""))
-      ) {
-        setTopChartFetchWithCurrentDependecyChange(_ => false)
-      }
+    React.useEffect(
+      () => {
+        let chartType =
+          getChartCompFilters->getString(
+            "chartType",
+            chartEntity.chartTypes->Array.get(0)->Option.getOr(Line)->DynamicChart.chartMapper,
+          )
+        if (
+          startTimeFromUrl->isNonEmptyString &&
+          endTimeFromUrl->isNonEmptyString &&
+          parentToken->Option.isSome &&
+          (granularity->Option.isSome || chartType !== "Line Chart") &&
+          current_granularity->Array.includes(granularity->Option.getOr(""))
+        ) {
+          setTopChartFetchWithCurrentDependecyChange(_ => false)
+        }
 
-      None
-    }, (
-      parentToken,
-      current_granularity->Array.joinWith("-") ++
-      granularity->Option.getOr("") ++
-      cardinalityFromUrl ++
-      selectedTrends->Array.joinWith(",") ++
-      customFilter ++
-      startTimeFromUrl ++
-      segmentValue->Option.getOr([])->Array.joinWith(",") ++
-      endTimeFromUrl,
-      filterValueFromUrl,
-      differentTimeValues->Array.map(item => `${item.fromTime}${item.toTime}`)->Array.joinWith(","),
-    ))
+        None
+      },
+      (
+        parentToken,
+        current_granularity->Array.joinWith("-") ++
+        granularity->Option.getOr("") ++
+        cardinalityFromUrl ++
+        selectedTrends->Array.joinWith(",") ++
+        customFilter ++
+        startTimeFromUrl ++
+        segmentValue->Option.getOr([])->Array.joinWith(",") ++
+        endTimeFromUrl,
+        filterValueFromUrl,
+        differentTimeValues
+        ->Array.map(item => `${item.fromTime}${item.toTime}`)
+        ->Array.joinWith(","),
+      ),
+    )
 
-    React.useEffect2(() => {
+    React.useEffect(() => {
       if !topChartFetchWithCurrentDependecyChange && topChartVisible {
         setTopChartFetchWithCurrentDependecyChange(_ => true)
         let metricsSDK = "total_volume"
@@ -807,11 +813,10 @@ module SDKAnalyticsChartContext = {
                     ~customFilterValue=customFilter,
                     ~timeCol,
                     ~domain=value.domain->Option.getOr(""),
-                    (),
                   )->JSON.stringify,
-                  ~authToken=parentToken,
                   ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
-                  (),
+                  ~betaEndpointConfig=?betaEndPointConfig,
+                  ~xFeatureRoute,
                 )
                 ->addLogsAroundFetch(~logTitle=`Chart fetch`)
                 ->then(text => {
@@ -848,11 +853,10 @@ module SDKAnalyticsChartContext = {
                           ~timeCol,
                           ~jsonFormattedFilter=item->filterMapper,
                           ~domain=value.domain->Option.getOr(""),
-                          (),
                         )->JSON.stringify,
-                        ~authToken=parentToken,
                         ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
-                        (),
+                        ~betaEndpointConfig=?betaEndPointConfig,
+                        ~xFeatureRoute,
                       )
                       ->addLogsAroundFetch(~logTitle=`Chart fetch`)
                       ->then(
@@ -936,7 +940,7 @@ module SDKAnalyticsChartContext = {
       None
     }, (topChartFetchWithCurrentDependecyChange, topChartVisible))
 
-    // React.useEffect2(() => {
+    // React.useEffect(() => {
     //   if !bottomChartFetchWithCurrentDependecyChange && bottomChartVisible {
     //     setBottomChartFetchWithCurrentDependecyChange(_ => true)
     //     let metricsSDK = "total_volume"
@@ -981,8 +985,8 @@ module SDKAnalyticsChartContext = {
     //                   ~domain=value.domain->Option.getOr(""),
     //                   (),
     //                 )->JSON.stringify,
-    //                 ~authToken=parentToken,
     //                 ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
+    // ~betaEndpointConfig=?betaEndPointConfig,
     //                 (),
     //               )
     //               ->addLogsAroundFetch(~logTitle=`Chart fetch`)
@@ -1024,11 +1028,11 @@ module SDKAnalyticsChartContext = {
     //   None
     // }, (bottomChartFetchWithCurrentDependecyChange, bottomChartVisible))
 
-    let chartData = React.useMemo4(() => {
+    let chartData = React.useMemo(() => {
       (topChartData, topChartDataLegendData, bottomChartData, bottomChartDataLegendData)
     }, (topChartData, topChartDataLegendData, bottomChartData, bottomChartDataLegendData))
 
-    let value = React.useMemo5(() => {
+    let value = React.useMemo(() => {
       let (
         topChartData,
         topChartDataLegendData,

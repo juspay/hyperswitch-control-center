@@ -10,10 +10,9 @@ let useOutsideClick = (
   ~isActive,
   ~events=["click"],
   ~callback,
-  (),
 ) => {
   let eventCallback = UseEvent.useEvent0(callback)
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if isActive {
       let handleClick = (e: Dom.event) => {
         let targ = Webapi.Dom.Event.target(e)
@@ -53,7 +52,7 @@ let useOutsideClick = (
         }
       }
 
-      Js.Global.setTimeout(() => {
+      setTimeout(() => {
         events->Array.forEach(
           event => {
             Webapi.Dom.window->Webapi.Dom.Window.addEventListener(event, handleClick)

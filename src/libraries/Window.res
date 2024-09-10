@@ -2,6 +2,8 @@ type t
 
 type listener<'ev> = 'ev => unit
 
+type event = {data: string}
+
 @val @scope("window")
 external parent: 't = "parent"
 
@@ -86,6 +88,21 @@ external payPalCreateAccountWindow: unit => unit = "payPalCreateAccountWindow"
 @val @scope("window")
 external isSecureContext: bool = "isSecureContext"
 
+@val @scope("window")
+external getAuthenticationConnectorConfig: string => JSON.t = "getAuthenticationConnectorConfig"
+
+@val @scope("window")
+external getPMAuthenticationProcessorConfig: string => JSON.t = "getPMAuthenticationProcessorConfig"
+
+@val @scope("window")
+external getAllPayoutKeys: unit => array<string> = "getAllPayoutKeys"
+
+@val @scope("window")
+external getPayoutVariantValues: string => array<string> = "getPayoutVariantValues"
+
+@val @scope("window")
+external getPayoutDescriptionCategory: unit => JSON.t = "getPayoutDescriptionCategory"
+
 module MatchMedia = {
   type matchEvent = {
     matches: bool,
@@ -94,8 +111,8 @@ module MatchMedia = {
 
   type queryResponse = {
     matches: bool,
-    addListener: (. matchEvent => unit) => unit,
-    removeListener: (. matchEvent => unit) => unit,
+    addListener: (matchEvent => unit) => unit,
+    removeListener: (matchEvent => unit) => unit,
   }
 }
 
@@ -113,6 +130,9 @@ module Location = {
 
   @val @scope(("window", "location"))
   external reload: unit => unit = "reload"
+
+  @val @scope(("window", "location"))
+  external hardReload: bool => unit = "reload"
 
   @val @scope(("window", "location"))
   external replace: string => unit = "replace"
@@ -158,16 +178,16 @@ module Screen = {
   external screenWidth: string = "width"
 }
 
-type date = {getTimezoneOffset: (. unit) => float}
+type date = {getTimezoneOffset: unit => float}
 
 @new external date: unit => date = "Date"
 let date = date()
-let timeZoneOffset = date.getTimezoneOffset(.)->Js.Float.toString
+let timeZoneOffset = date.getTimezoneOffset()->Float.toString
 
 type options = {timeZone: string}
-type dateTimeFormat = {resolvedOptions: (. unit) => options}
+type dateTimeFormat = {resolvedOptions: unit => options}
 @val @scope("Intl")
-external dateTimeFormat: (. unit) => dateTimeFormat = "DateTimeFormat"
+external dateTimeFormat: unit => dateTimeFormat = "DateTimeFormat"
 
 module History = {
   @val @scope(("window", "history"))
@@ -229,6 +249,8 @@ external fcWidget: 'a = "fcWidget"
 type boundingClient = {x: int, y: int, width: int, height: int}
 @send external getBoundingClientRect: Dom.element => boundingClient = "getBoundingClientRect"
 
-type env = {apiBaseUrl?: string, sdkBaseUrl?: string, mixpanelToken?: string}
 @val @scope("window")
-external env: env = "_env_"
+external appendStyle: HyperSwitchConfigTypes.customStyle => unit = "appendStyle"
+
+@val @scope("window")
+external env: HyperSwitchConfigTypes.urlConfig = "_env_"

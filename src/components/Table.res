@@ -36,7 +36,7 @@ module TableFilterRow = {
           `${borderTop} border-r ${borderColor}`
         }
         <td
-          key={string_of_int(cellIndex)}
+          key={Int.toString(cellIndex)}
           className={`align-top ${borderClass} ${tableDataBorderClass}`}>
           <div className={`box-border ${paddingClass}`}>
             <TableFilterCell cell=obj />
@@ -82,12 +82,13 @@ module TableRow = {
     ~fixLastCol=false,
     ~alignCellContent="",
     ~customCellColor="",
+    ~showCustomizeColumn=false,
   ) => {
     open Window
     let (isCurrentRowExpanded, setIsCurrentRowExpanded) = React.useState(_ => false)
     let (expandedData, setExpandedData) = React.useState(_ => React.null)
     let actualIndex = offset + rowIndex
-    let onClick = React.useCallback2(_ev => {
+    let onClick = React.useCallback(_ev => {
       let isRangeSelected = getSelection().\"type" == "Range"
       switch (onRowClick, isRangeSelected) {
       | (Some(fn), false) => fn(actualIndex)
@@ -95,21 +96,21 @@ module TableRow = {
       }
     }, (onRowClick, actualIndex))
 
-    let onDoubleClick = React.useCallback2(_ev => {
+    let onDoubleClick = React.useCallback(_ev => {
       switch onRowDoubleClick {
       | Some(fn) => fn(actualIndex)
       | _ => ()
       }
     }, (onRowDoubleClick, actualIndex))
 
-    let onMouseEnter = React.useCallback2(_ev => {
+    let onMouseEnter = React.useCallback(_ev => {
       switch onMouseEnter {
       | Some(fn) => fn(actualIndex)
       | _ => ()
       }
     }, (onMouseEnter, actualIndex))
 
-    let onMouseLeave = React.useCallback2(_ev => {
+    let onMouseLeave = React.useCallback(_ev => {
       switch onMouseLeave {
       | Some(fn) => fn(actualIndex)
       | _ => ()
@@ -132,7 +133,9 @@ module TableRow = {
     let fontSize = "text-fs-13"
     let fontWeight = ""
     let textColor = "text-jp-gray-900  dark:text-jp-gray-text_darktheme dark:text-opacity-75"
-    let hoverClass = "hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-table_hover_dark"
+    let hoverClass = onRowClickPresent
+      ? "hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-table_hover_dark"
+      : ""
     let tableBodyText = if isHighchartLegend {
       `group rounded-md ${cursorClass} text-fs-10 font-medium dark:text-jp-gray-dark_chart_legend_text jp-gray-light_chart_legend_text pb-4 whitespace-nowrap text-ellipsis overflow-x-hidden`
     } else {
@@ -198,11 +201,11 @@ module TableRow = {
           let location = `${title}_tr${(rowIndex + 1)->Int.toString}_td${(cellIndex + 1)
               ->Int.toString}`
           <AddDataAttributes
-            key={cellIndex->string_of_int} attributes=[("data-table-location", location)]>
+            key={cellIndex->Int.toString} attributes=[("data-table-location", location)]>
             <td
-              key={string_of_int(cellIndex)}
+              key={Int.toString(cellIndex)}
               className={`${tableRowBorderClass} ${customColorCell}`}
-              style={ReactDOMStyle.make(~width=fixedWidthClass, ())}
+              style={width: fixedWidthClass}
               onClick={_ => {
                 if collapseTableRow && cellIndex == 0 {
                   setIsCurrentRowExpanded(prev => !prev)
@@ -243,6 +246,23 @@ module TableRow = {
           </AddDataAttributes>
         })
         ->React.array}
+        <RenderIf condition={showCustomizeColumn}>
+          <div className=" sticky right-0">
+            <tr>
+              <td colSpan=12 className="bg-white border-jp-gray-940 !border-l !p-0">
+                <div className="flex flex-row items-center">
+                  <TableCell
+                    cell=EllipsisText("", "w-14 h-14")
+                    clearFormatting
+                    isEllipsisTextRelative
+                    customMoneyStyle
+                    ellipseClass
+                  />
+                </div>
+              </td>
+            </tr>
+          </div>
+        </RenderIf>
       </tr>
       {if isCurrentRowExpanded {
         <tr className="dark:border-jp-gray-dark_disable_border_color">
@@ -330,9 +350,9 @@ module TableHeadingCell = {
       | Some(fn) =>
         fn((prevFilterObj: array<filterObject>) => {
           prevFilterObj->Array.map(obj => {
-            obj.key === string_of_int(i)
+            obj.key === Int.toString(i)
               ? {
-                  key: string_of_int(i),
+                  key: Int.toString(i),
                   options: obj.options,
                   selected: ev->Identity.formReactEventToArrayOfString,
                 }
@@ -360,7 +380,7 @@ module TableHeadingCell = {
     let headerBgColor =
       headerCustomBgColor->Option.isSome
         ? headerCustomBgColor->Option.getOr("")
-        : "bg-gray-50 dark:bg-jp-gray-darkgray_background"
+        : "bg-offset_white dark:bg-jp-gray-darkgray_background"
     let paddingClass = "px-4 py-3"
     let roundedClass = if isFirstCol {
       "rounded-tl"
@@ -389,7 +409,7 @@ module TableHeadingCell = {
           : ""}`
     }
     let tableHeadingTextClass = if isHighchartLegend {
-      "text-fs-11 dark:text-blue-650 text-jp-gray-900 text-opacity-80 dark:text-opacity-100 font-medium not-italic whitespace-nowrap text-ellipsis overflow-x-hidden "
+      "text-fs-11 dark:text-blue-300 text-jp-gray-900 text-opacity-80 dark:text-opacity-100 font-medium not-italic whitespace-nowrap text-ellipsis overflow-x-hidden "
     } else {
       `${fontWeight} ${fontSize} ${tableHeadingTextClass}`
     }
@@ -399,13 +419,10 @@ module TableHeadingCell = {
       "h-4 w-4",
     )
 
-    let sortIconSize = isHighchartLegend ? 11 : 13
+    let sortIconSize = isHighchartLegend ? 11 : 15
     let justifyClass = ""
     <AddDataAttributes attributes=[("data-table-heading", item.title)]>
-      <th
-        key={string_of_int(i)}
-        className=tableHeaderClass
-        style={ReactDOMStyle.make(~width=fixedWidthClass, ())}>
+      <th key={Int.toString(i)} className=tableHeaderClass style={width: fixedWidthClass}>
         {switch customizeColumnNewTheme {
         | Some(value) =>
           <div className="flex flex-row justify-center items-center"> value.customizeColumnUi </div>
@@ -416,7 +433,7 @@ module TableHeadingCell = {
                 : justifyClass}`}>
             <div className="">
               <div className={"flex flex-row"}>
-                <UIUtils.RenderIf condition={item.showMultiSelectCheckBox->Option.getOr(false)}>
+                <RenderIf condition={item.showMultiSelectCheckBox->Option.getOr(false)}>
                   <div className=" mt-1 mr-2">
                     <CheckBoxIcon
                       isSelected={isAllSelected}
@@ -425,13 +442,13 @@ module TableHeadingCell = {
                       checkboxDimension
                     />
                   </div>
-                </UIUtils.RenderIf>
+                </RenderIf>
                 <div className="flex justify-between items-center">
                   {switch item.headerElement {
                   | Some(headerElement) => headerElement
                   | _ => <div className=tableHeadingTextClass> {React.string(item.title)} </div>
                   }}
-                  <UIUtils.RenderIf condition={item.data->Option.isSome}>
+                  <RenderIf condition={item.data->Option.isSome}>
                     <AddDataAttributes
                       attributes=[("data-heading-value", item.data->Option.getOr(""))]>
                       <div
@@ -439,17 +456,12 @@ module TableHeadingCell = {
                         {React.string(` (${item.data->Option.getOr("")})`)}
                       </div>
                     </AddDataAttributes>
-                  </UIUtils.RenderIf>
+                  </RenderIf>
                   {if item.showFilter || item.showSort || filterRow->Option.isSome {
                     let selfClass = "self-end"
                     <div className={`flex flex-row ${selfClass} items-center`}>
                       <SortAction
-                        item
-                        sortedObj
-                        setSortedObj
-                        sortIconSize
-                        filterRow
-                        isLastCol={isLastCol && !isFrozen && !isFirstCol}
+                        item sortedObj setSortedObj sortIconSize filterRow isLastCol={false}
                       />
                       {if item.showFilter {
                         let (options, selected) = switch filterObj {
@@ -505,17 +517,18 @@ module TableHeadingCell = {
                     React.null
                   }}
                 </div>
-                <UIUtils.RenderIf condition={item.isMandatory->Option.getOr(false)}>
+                <RenderIf condition={item.isMandatory->Option.getOr(false)}>
                   <div className="text-red-400 text-sm ml-1"> {React.string("*")} </div>
-                </UIUtils.RenderIf>
-                <UIUtils.RenderIf condition={item.description->Option.getOr("") !== ""}>
+                </RenderIf>
+                <RenderIf
+                  condition={item.description->Option.getOr("")->LogicUtils.isNonEmptyString}>
                   <div className="text-sm text-gray-500 mx-2">
                     <ToolTip
                       description={item.description->Option.getOr("")}
                       toolTipPosition={ToolTip.Bottom}
                     />
                   </div>
-                </UIUtils.RenderIf>
+                </RenderIf>
               </div>
             </div>
           </div>
@@ -528,6 +541,7 @@ module TableHeadingCell = {
 module TableHeadingRow = {
   @react.component
   let make = (
+    ~title="",
     ~headingArray,
     ~isHighchartLegend,
     ~frozenUpto,
@@ -551,6 +565,7 @@ module TableHeadingRow = {
     ~columnFilterRow,
     ~customizeColumnNewTheme=?,
     ~tableHeadingTextClass="",
+    ~showCustomizeColumn=false,
   ) => {
     if headingArray->Array.length !== 0 {
       <thead>
@@ -589,6 +604,12 @@ module TableHeadingRow = {
             />
           })
           ->React.array}
+          <RenderIf condition={showCustomizeColumn}>
+            <div
+              className="flex jusitfy-center items-center sticky right-0 w-14 bg-white border-jp-gray-940 border-l h-14">
+              <PortalCapture key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} />
+            </div>
+          </RenderIf>
         </tr>
       </thead>
     } else {
@@ -660,6 +681,8 @@ let make = (
   ~customBorderClass=?,
   ~showborderColor=true,
   ~tableHeadingTextClass="",
+  ~nonFrozenTableParentClass="",
+  ~showCustomizeColumn=false,
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
@@ -709,7 +732,7 @@ let make = (
     ->Array.mapWithIndex((item: array<cell>, rowIndex) => {
       <TableRow
         title
-        key={string_of_int(offset + rowIndex)}
+        key={Int.toString(offset + rowIndex)}
         item
         rowIndex
         offset
@@ -740,6 +763,7 @@ let make = (
         fixLastCol
         ?alignCellContent
         ?customCellColor
+        showCustomizeColumn
       />
     })
     ->React.array
@@ -750,7 +774,7 @@ let make = (
     | Some(fitlerRows) =>
       switch isFrozen {
       | true => Some(fitlerRows->Array.slice(~start=0, ~end=frozenUpto))
-      | false => Some(fitlerRows->Js.Array2.sliceFrom(frozenUpto))
+      | false => Some(fitlerRows->Array.sliceToEnd(~start=frozenUpto))
       }
     | None => None
     }
@@ -761,6 +785,7 @@ let make = (
 
     let customizeColumnNewTheme = isCustomiseColumn ? customizeColumnNewTheme : None
     <TableHeadingRow
+      title
       headingArray
       isHighchartLegend
       frozenUpto
@@ -784,6 +809,7 @@ let make = (
       columnFilterRow
       ?customizeColumnNewTheme
       tableHeadingTextClass
+      showCustomizeColumn
     />
   }
 
@@ -792,7 +818,7 @@ let make = (
     | Some(fitlerRows) => {
         let filterRows = switch isFrozen {
         | true => fitlerRows->Array.slice(~start=0, ~end=frozenUpto)
-        | false => fitlerRows->Js.Array2.sliceFrom(frozenUpto)
+        | false => fitlerRows->Array.sliceToEnd(~start=frozenUpto)
         }
 
         <TableFilterRow
@@ -812,15 +838,15 @@ let make = (
 
   let frozenHeading = heading->Array.slice(~start=0, ~end=frozenUpto)
   let frozenCustomiseColumnHeading = [
-    makeHeaderInfo(~key="", ~title="Customize Column", ~showMultiSelectCheckBox=true, ()),
+    makeHeaderInfo(~key="", ~title="Customize Column", ~showMultiSelectCheckBox=true),
   ]
   let frozenRow = rowInfo->Array.map(row => {
     row->Array.slice(~start=0, ~end=frozenUpto)
   })
 
-  let remainingHeading = heading->Js.Array2.sliceFrom(frozenUpto)
+  let remainingHeading = heading->Array.sliceToEnd(~start=frozenUpto)
   let remaingRow = rowInfo->Array.map(row => {
-    row->Js.Array2.sliceFrom(frozenUpto)
+    row->Array.sliceToEnd(~start=frozenUpto)
   })
 
   let frozenTableWidthClass = isMobileView ? "w-48" : "w-auto"
@@ -834,9 +860,9 @@ let make = (
   let frozenTable = {
     <table
       className={`table-auto ${frozenTableWidthClass} ${parentBoderColor} rounded-lg ${tableBorderClass} ${stickCol}`}>
-      <UIUtils.RenderIf condition=showHeading>
+      <RenderIf condition=showHeading>
         {renderTableHeadingRow(frozenHeading, true, false, lastHeadingClass)}
-      </UIUtils.RenderIf>
+      </RenderIf>
       <tbody>
         {tableFilterRow(~isFrozen=true)}
         {tableRows(frozenRow, false)}
@@ -848,14 +874,14 @@ let make = (
 
   let customizeColumn = {
     <table className={`table-auto rounded-lg sticky right-0 !px-0 !py-0 z-10`}>
-      <UIUtils.RenderIf condition=showHeading>
+      <RenderIf condition=showHeading>
         {renderTableHeadingRow(
           frozenCustomiseColumnHeading,
           true,
           true,
           `${lastHeadingClass} rounded-tl-none rounded-tr-lg`,
         )}
-      </UIUtils.RenderIf>
+      </RenderIf>
       <tbody>
         {tableRows(
           Array.fromInitializer(~length=totalLength, i => i + 1)->Array.map(_ => [Text("")]),
@@ -874,9 +900,9 @@ let make = (
 
   let nonFrozenTable = {
     <table id="table" className=tableBorderClass>
-      <UIUtils.RenderIf condition=showHeading>
+      <RenderIf condition=showHeading>
         {renderTableHeadingRow(remainingHeading, false, false, `${lastHeadingClass}`)}
-      </UIUtils.RenderIf>
+      </RenderIf>
       <tbody>
         {tableFilterRow(~isFrozen=false)}
         {tableRows(remaingRow, false)}
@@ -891,33 +917,33 @@ let make = (
       : isMinHeightRequired
       ? ""
       : "overflow-scroll"
-  let parentBorderRadius = !isHighchartLegend ? "rounded-t-lg" : ""
-  let parentBorderClass = !isHighchartLegend ? "border border-jp-2-light-gray-300" : ""
+  let parentBorderRadius = !isHighchartLegend ? "rounded-lg" : ""
+
   <div
     className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getOr(
-        parentBorderClass ++ " " ++ parentBorderRadius,
+        parentBorderRadius,
       )}`}
-    style={ReactDOMStyle.make(
-      ~minHeight={
-        minTableHeightClass != ""
+    style={
+      minHeight: {
+        minTableHeightClass->LogicUtils.isNonEmptyString
           ? minTableHeightClass
           : filterPresent || isMinHeightRequired
           ? "25rem"
           : ""
       },
-      ~maxHeight={maxTableHeight},
-      (),
-    )} //replaced "overflow-auto" -> to be tested with master
+      maxHeight: maxTableHeight,
+    } //replaced "overflow-auto" -> to be tested with master
   >
-    <UIUtils.RenderIf condition={frozenUpto > 0}> {frozenTable} </UIUtils.RenderIf>
-    <div className={`flex-1 ${overflowClass} no-scrollbar ${childMinWidthClass}`}>
+    <RenderIf condition={frozenUpto > 0}> {frozenTable} </RenderIf>
+    <div
+      className={`flex-1 ${overflowClass} no-scrollbar ${childMinWidthClass} ${nonFrozenTableParentClass}`}>
       nonFrozenTable
     </div>
     {switch customizeColumnNewTheme {
     | Some(customizeColumnObj) =>
-      <UIUtils.RenderIf condition={customizeColumnObj.customizeColumnUi !== React.null}>
+      <RenderIf condition={customizeColumnObj.customizeColumnUi !== React.null}>
         {customizeColumn}
-      </UIUtils.RenderIf>
+      </RenderIf>
     | None => React.null
     }}
   </div>

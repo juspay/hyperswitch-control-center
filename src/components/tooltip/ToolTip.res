@@ -35,7 +35,7 @@ module TooltipMainWrapper = {
     let handleMouseOver = _evt => {
       if !visibleOnClick {
         switch timeoutRef.current {
-        | Some(timerId) => Js.Global.clearTimeout(timerId)
+        | Some(timerId) => clearTimeout(timerId)
         | None => ()
         }
         setIsToolTipVisible(_ => true)
@@ -45,7 +45,7 @@ module TooltipMainWrapper = {
     let handleClick = _evt => {
       if visibleOnClick {
         switch timeoutRef.current {
-        | Some(timerId) => Js.Global.clearTimeout(timerId)
+        | Some(timerId) => clearTimeout(timerId)
         | None => ()
         }
         setIsToolTipVisible(_ => true)
@@ -54,7 +54,7 @@ module TooltipMainWrapper = {
 
     let handleMouseOut = _evt => {
       if hoverOnToolTip {
-        timeoutRef.current = Js.Global.setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
             setIsToolTipVisible(_ => false)
           }, 200)->Some
       } else {
@@ -124,8 +124,8 @@ module TooltipWrapper = {
     }
 
     ReactDOMStyle.make(
-      ~top=`${toolTipTopPosition->string_of_int}px`,
-      ~left=`${toolTipLeftPosition->string_of_int}px`,
+      ~top=`${toolTipTopPosition->Int.toString}px`,
+      ~left=`${toolTipLeftPosition->Int.toString}px`,
       (),
     )
   }
@@ -170,8 +170,8 @@ module TooltipWrapper = {
     }
 
     ReactDOMStyle.make(
-      ~top=`${toolTipTopPosition->Js.Float.toString}%`,
-      ~left=`${toolTipLeftPosition->Js.Float.toString}%`,
+      ~top=`${toolTipTopPosition->Float.toString}%`,
+      ~left=`${toolTipLeftPosition->Float.toString}%`,
       (),
     )
   }
@@ -202,7 +202,8 @@ module TooltipWrapper = {
     ~defaultPosition,
     ~children,
   ) => {
-    let descriptionExists = description != "" || descriptionComponent != React.null
+    let descriptionExists =
+      description->LogicUtils.isNonEmptyString || descriptionComponent != React.null
 
     let textStyle = textStyle
     let fontWeight = "font-semibold"
@@ -247,7 +248,7 @@ module TooltipWrapper = {
 
     <div className={`${tooltipOpacity} ${pointerEvents}`}>
       <div
-        className={`${toolTipPositionString} ${tooltipWidthClass} z-30 h-auto break-words`}
+        className={`${toolTipPositionString} ${tooltipWidthClass} z-50 h-auto break-words`}
         style={ReactDOMStyle.combine(tooltipPositionStyle, ReactDOMStyle.make(~hyphens="auto", ()))}
         ref={toolTipRef->ReactDOM.Ref.domRef}>
         <div
@@ -272,15 +273,15 @@ module DescriptionSection = {
     <div className={textStyleGap}>
       {description
       ->String.split("\n")
-      ->Array.filter(str => str !== "")
+      ->Array.filter(str => str->LogicUtils.isNonEmptyString)
       ->Array.mapWithIndex((item, i) => {
-        <AddDataAttributes attributes=[("data-text", item)] key={i->string_of_int}>
+        <AddDataAttributes attributes=[("data-text", item)] key={i->Int.toString}>
           <div key={item} className="flex flex-col gap-1"> {React.string(item)} </div>
         </AddDataAttributes>
       })
       ->React.array}
       <div className=descriptionComponentClass>
-        <UIUtils.RenderIf condition=dismissable>
+        <RenderIf condition=dismissable>
           <Icon
             name="popUpClose"
             className="stroke-jp-2-dark-gray-2000 cursor-pointer"
@@ -288,7 +289,7 @@ module DescriptionSection = {
             size=20
             onClick={_ => setIsToolTipVisible(prev => !prev)}
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
         {descriptionComponent}
       </div>
     </div>
@@ -390,8 +391,8 @@ module Arrow = {
     let borderLeftColor = position === Left ? arrowColor : "transparent"
 
     ReactDOMStyle.make(
-      ~top=`${arrowTopPosition->string_of_int}px`,
-      ~left=`${arrowLeftPosition->string_of_int}px`,
+      ~top=`${arrowTopPosition->Int.toString}px`,
+      ~left=`${arrowLeftPosition->Int.toString}px`,
       ~borderWidth,
       ~width="0",
       ~height="0",
@@ -499,7 +500,9 @@ module Arrow = {
     | Dark => "#fff"
     }
 
-    let arrowColor = if arrowBgClass !== "" && bgColor !== "" {
+    let arrowColor = if (
+      arrowBgClass->LogicUtils.isNonEmptyString && bgColor->LogicUtils.isNonEmptyString
+    ) {
       arrowBgClass
     } else {
       arrowBackGroundClass
@@ -550,7 +553,7 @@ module Arrow = {
     <div
       style=tooltipArrowPosition
       ref={toolTipArrowRef->ReactDOM.Ref.domRef}
-      className={`${arrowCustomStyle} ${toolTipPositionString} border-solid z-30 w-auto`}
+      className={`${arrowCustomStyle} ${toolTipPositionString} border-solid z-50 w-auto`}
     />
   }
 }
@@ -623,13 +626,14 @@ let make = (
   ~justifyClass="justify-center",
   ~flexClass="flex-col",
   ~height="h-full",
-  ~textStyle="text-fs-11",
+  ~textStyle="text-xs leading-5",
   ~hoverOnToolTip=false,
   ~tooltipArrowSize=5,
   ~visibleOnClick=false,
   ~descriptionComponentClass="flex flex-row-reverse",
   ~isRelative=true,
   ~dismissable=false,
+  ~newDesign=false,
   (),
 ) => {
   let (isToolTipVisible, setIsToolTipVisible) = React.useState(_ => false)
@@ -637,7 +641,7 @@ let make = (
   let componentRef = React.useRef(Nullable.null)
   let toolTipArrowRef = React.useRef(Nullable.null)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if isToolTipVisible {
       let handleScroll = (_e: Webapi.Dom.Event.t) => {
         setIsToolTipVisible(_ => false)
@@ -663,9 +667,11 @@ let make = (
   let componentWidth = componentRef->getBoundingRectInfo(val => val.width)
   let componentHeight = componentRef->getBoundingRectInfo(val => val.height)
 
-  let tooltipBgClass = "dark:bg-jp-gray-tooltip_bg_dark bg-jp-gray-tooltip_bg_light dark:text-jp-gray-lightgray_background dark:text-opacity-75 text-jp-gray-text_darktheme text-opacity-75"
+  let tooltipBgClass = newDesign
+    ? "bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 text-jp-gray-800"
+    : "dark:bg-jp-gray-tooltip_bg_dark bg-jp-gray-tooltip_bg_light dark:text-jp-gray-lightgray_background dark:text-opacity-75 text-jp-gray-text_darktheme text-opacity-75"
 
-  let bgColor = bgColor === "" ? tooltipBgClass : bgColor
+  let bgColor = bgColor->LogicUtils.isEmptyString ? tooltipBgClass : bgColor
 
   let defaultPosition = getDefaultPosition(
     ~positionX,

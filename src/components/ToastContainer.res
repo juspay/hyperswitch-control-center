@@ -1,20 +1,20 @@
 module ToastHeading = {
   @react.component
   let make = (~toastProps: ToastState.toastProps, ~hideToast, ~toastDuration=0) => {
-    React.useEffect2(() => {
+    React.useEffect(() => {
       let duration = if toastDuration == 0 {
         3000
       } else {
         toastDuration
       }
       let timeout = {
-        Js.Global.setTimeout(() => {
+        setTimeout(() => {
           hideToast(toastProps.toastKey)
         }, duration)
       }
       Some(
         () => {
-          Js.Global.clearTimeout(timeout)
+          clearTimeout(timeout)
         },
       )
     }, (hideToast, toastProps))
@@ -22,9 +22,8 @@ module ToastHeading = {
     let toastColorClasses = switch toastProps.toastType {
     | ToastError => "bg-red-960 border-red-960 rounded-md"
     | ToastWarning => "bg-orange-950 border-orange-950 rounded-md"
-    | ToastInfo => "bg-blue-950 border-blue-950 rounded-md"
-    | ToastSuccess => "bg-green-800 border-green-800 rounded-md"
-    | ToastReject => "bg-red-960 border-red-960 rounded-md"
+    | ToastInfo => "bg-blue-600 border-blue-600 rounded-md"
+    | ToastSuccess => "bg-green-700 border-green-700 rounded-md"
     }
 
     let toastIconName = switch toastProps.toastType {
@@ -32,15 +31,14 @@ module ToastHeading = {
     | ToastError => "times-circle"
     | ToastWarning => "exclamation-triangle"
     | ToastInfo => "info-circle"
-    | ToastReject => "check-circle"
     }
 
     let toastClass = "p-4 font-semibold"
     let onClickButtonText = () => {
       RescriptReactRouter.push(
         switch toastProps.helpLink {
-        | Some(str) => str
-        | None => ""
+        | Some(str) => GlobalVars.appendDashboardPath(~url=str)
+        | None => GlobalVars.appendDashboardPath(~url="")
         },
       )
     }
@@ -74,9 +72,9 @@ module Toast = {
 
   @react.component
   let make = (~toastProps: ToastState.toastProps, ~hideToast, ~toastDuration) => {
-    let stopPropagation = React.useCallback0(ev => {
+    let stopPropagation = React.useCallback(ev => {
       ev->convertToWebapiEvent->Webapi.Dom.Event.stopPropagation
-    })
+    }, [])
     <div className=" m-2 shadow-lg z-100 pointer-events-auto" onClick=stopPropagation>
       <ToastHeading toastProps hideToast toastDuration />
     </div>
@@ -87,8 +85,8 @@ module Toast = {
 let make = (~children) => {
   let (openToasts, setOpenToasts) = Recoil.useRecoilState(ToastState.openToasts)
 
-  let hideToast = React.useCallback1(key => {
-    setOpenToasts(.prevArr => {
+  let hideToast = React.useCallback(key => {
+    setOpenToasts(prevArr => {
       Array.filter(
         prevArr,
         (toastProps: ToastState.toastProps) => {

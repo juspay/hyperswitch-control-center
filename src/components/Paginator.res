@@ -27,7 +27,7 @@ let make = (
 
   let toNum = resultsPerPage + start > totalResults ? totalResults : resultsPerPage + start - 1
   let shouldRefetch = toNum > currrentFetchCount && toNum <= totalResults && !tableDataLoading
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if shouldRefetch {
       switch handleRefetch {
       | Some(fun) => fun()
@@ -38,7 +38,7 @@ let make = (
   }, (shouldRefetch, handleRefetch))
 
   let selectInputOption = {
-    [5, 10, 15, 25, 50, 100]
+    [5, 10, 15, 20, 50]
     ->Array.filter(val => val <= totalResults)
     ->Array.map(Int.toString)
     ->SelectBox.makeOptions
@@ -55,9 +55,9 @@ let make = (
     value: resultsPerPage->Int.toString->JSON.Encode.string,
     checked: true,
   }
-  let paginate = React.useCallback5(pageNumber => {
+  let paginate = React.useCallback(pageNumber => {
     let total = Math.ceil(Int.toFloat(totalResults) /. Int.toFloat(resultsPerPage))->Float.toInt
-    //  for handling page count
+    // for handling page count
     let defaultPageNumber = Math.Int.min(total, pageNumber)
     let page = defaultPageNumber
 
@@ -70,14 +70,15 @@ let make = (
   if totalResults >= resultsPerPage {
     <div className={`flex ${flexDirection} justify-between ${marginClass} ${paginationClass} `}>
       <div className={`flex flex-row w-full ${justify}`}>
-        <UIUtils.RenderIf condition={!isMobileView && showResultsPerPageSelector}>
+        <RenderIf condition={!isMobileView && showResultsPerPageSelector}>
           <div
             className="flex self-center text-center text-gray-400 dark:text-gray-500 font-medium">
             {React.string(
-              `Showing ${start->string_of_int} to ${toNum->string_of_int} of ${totalResults->string_of_int} entries`,
+              `Showing ${start->Int.toString} to ${toNum->Int.toString} of ${totalResults->Int.toString} entries`,
             )}
             <SelectBox.BaseDropdown
               options=selectInputOption
+              fixedDropDownDirection={TopRight}
               buttonText=""
               searchable=false
               allowMultiSelect=false
@@ -88,7 +89,7 @@ let make = (
               baseComponent={<Icon className="pl-2" size=20 name="chevron-down" />}
             />
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         {switch downloadCsv {
         | Some(actionData) =>
           <div className="md:mr-2 lg:mr-5 mb-2">

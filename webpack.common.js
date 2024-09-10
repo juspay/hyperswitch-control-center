@@ -9,7 +9,7 @@ const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 module.exports = (appName = "hyperswitch", publicPath = "auto") => {
   const isDevelopment = process.env.NODE_ENV !== "production";
   let entryObj = {
-    app: `./src/entryPoints/hyperswitch/HyperSwitchEntry.bs.js`,
+    app: `./src/entryPoints/HyperSwitchEntry.res.js`,
   };
   return {
     entry: entryObj,
@@ -29,15 +29,7 @@ module.exports = (appName = "hyperswitch", publicPath = "auto") => {
               loader: "postcss-loader",
               options: {
                 postcssOptions: {
-                  plugins: [
-                    [
-                      tailwindcss(
-                        appName == "hyperswitch"
-                          ? "./tailwindHyperSwitch.config.js"
-                          : "./tailwindMain.config.js",
-                      ),
-                    ],
-                  ],
+                  plugins: [[tailwindcss("./tailwind.config.js")]],
                 },
               },
             },
@@ -46,6 +38,15 @@ module.exports = (appName = "hyperswitch", publicPath = "auto") => {
         {
           test: /\.ttf$/,
           use: ["file-loader"],
+        },
+        {
+          test: /\.js$/,
+          use: {
+            loader: "istanbul-instrumenter-loader",
+            options: { esModules: true },
+          },
+          enforce: "post",
+          exclude: /node_modules|\.spec\.js$/,
         },
       ],
     },

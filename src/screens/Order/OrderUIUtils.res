@@ -1,0 +1,492 @@
+type filterTypes = {
+  connector: array<string>,
+  currency: array<string>,
+  authentication_type: array<string>,
+  payment_method: array<string>,
+  payment_method_type: array<string>,
+  status: array<string>,
+  connector_label: array<string>,
+}
+
+type filter = [
+  | #connector
+  | #payment_method
+  | #currency
+  | #authentication_type
+  | #status
+  | #payment_method_type
+  | #connector_label
+  | #unknown
+]
+
+let getFilterTypeFromString = filterType => {
+  switch filterType {
+  | "connector" => #connector
+  | "payment_method" => #payment_method
+  | "currency" => #currency
+  | "status" => #status
+  | "authentication_type" => #authentication_type
+  | "payment_method_type" => #payment_method_type
+  | "connector_label" => #connector_label
+  | _ => #unknown
+  }
+}
+
+module RenderAccordian = {
+  @react.component
+  let make = (~initialExpandedArray=[], ~accordion) => {
+    <Accordion
+      initialExpandedArray
+      accordion
+      accordianTopContainerCss="border"
+      accordianBottomContainerCss="p-5"
+      contentExpandCss="px-4 py-3 !border-t-0"
+      titleStyle="font-semibold text-bold text-md"
+    />
+  }
+}
+
+module GenerateSampleDataButton = {
+  open APIUtils
+  @react.component
+  let make = (~previewOnly, ~getOrdersList) => {
+    let getURL = useGetURL()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+    let updateDetails = useUpdateMethod()
+    let showToast = ToastState.useShowToast()
+    let showPopUp = PopUpState.useShowPopUp()
+    let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+
+    let generateSampleData = async () => {
+      mixpanelEvent(~eventName="generate_sample_data")
+      try {
+        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post)
+        let _ = await updateDetails(
+          generateSampleDataUrl,
+          [("record", 50.0->JSON.Encode.float)]->Dict.fromArray->JSON.Encode.object,
+          Post,
+        )
+        showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess)
+        getOrdersList()->ignore
+      } catch {
+      | _ => ()
+      }
+    }
+
+    let deleteSampleData = async () => {
+      try {
+        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Delete)
+        let _ = await updateDetails(generateSampleDataUrl, Dict.make()->JSON.Encode.object, Delete)
+        showToast(~message="Sample data deleted successfully", ~toastType=ToastSuccess)
+        getOrdersList()->ignore
+      } catch {
+      | _ => ()
+      }
+    }
+
+    let openPopUpModal = _ =>
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Are you sure?",
+        description: {
+          "This action cannot be undone. This will permanently delete all the sample payments and refunds data. To confirm, click the 'Delete All' button below."->React.string
+        },
+        handleConfirm: {
+          text: "Delete All",
+          onClick: {
+            _ => {
+              deleteSampleData()->ignore
+            }
+          },
+        },
+        handleCancel: {
+          text: "Cancel",
+          onClick: {
+            _ => ()
+          },
+        },
+      })
+
+    let rightIconClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      openPopUpModal()
+    }
+
+    <RenderIf condition={sampleData && !previewOnly}>
+      <div className="flex items-start">
+        <ACLButton
+          access={userPermissionJson.operationsManage}
+          buttonType={Secondary}
+          buttonSize={XSmall}
+          text="Generate Sample Data"
+          customButtonStyle="!rounded-l-md !rounded-none"
+          onClick={_ => generateSampleData()->ignore}
+          leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
+        />
+        <ACLDiv
+          height="h-fit"
+          permission={userPermissionJson.operationsManage}
+          className="bg-jp-gray-button_gray text-jp-gray-900 text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  focus:outline-none items-center border border-border_gray cursor-pointer p-2.5 overflow-hidden text-jp-gray-950 hover:text-black
+          border flex items-center justify-center rounded-r-md"
+          onClick={ev => rightIconClick(ev)}>
+          <Icon name="delete" size=16 customWidth="14" className="scale-125" />
+        </ACLDiv>
+      </div>
+    </RenderIf>
+  }
+}
+
+module NoData = {
+  @react.component
+  let make = (~isConfigureConnector, ~paymentModal, ~setPaymentModal) => {
+    let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+    <HelperComponents.BluredTableComponent
+      infoText={isConfigureConnector
+        ? isLiveMode
+            ? "There are no payments as of now."
+            : "There are no payments as of now. Try making a test payment and visualise the checkout experience."
+        : "Connect to a payment processor to make your first payment"}
+      buttonText={isConfigureConnector ? "Make a payment" : "Connect a connector"}
+      moduleName=""
+      paymentModal
+      setPaymentModal
+      showRedirectCTA={!isLiveMode}
+      onClickUrl={isConfigureConnector ? "/sdk" : `/connectors`}
+    />
+  }
+}
+
+let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
+
+let filterByData = (txnArr, value) => {
+  open LogicUtils
+  let searchText = value->getStringFromJson("")
+
+  txnArr
+  ->Belt.Array.keepMap(Nullable.toOption)
+  ->Belt.Array.keepMap(data => {
+    let valueArr =
+      data
+      ->Identity.genericTypeToDictOfJson
+      ->Dict.toArray
+      ->Array.map(item => {
+        let (_, value) = item
+
+        value->getStringFromJson("")->String.toLowerCase->String.includes(searchText)
+      })
+      ->Array.reduce(false, (acc, item) => item || acc)
+
+    valueArr ? Some(data->Nullable.make) : None
+  })
+}
+
+let getConditionalFilter = (key, dict, filterValues) => {
+  open LogicUtils
+
+  let filtersArr = switch key->getFilterTypeFromString {
+  | #connector_label => {
+      let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+      let newArr = arr->Array.flatMap(connector => {
+        let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
+        connectorLabelArr->Array.map(item => {
+          item->getDictFromJsonObject->getString("connector_label", "")
+        })
+      })
+      newArr
+    }
+  | #payment_method_type => {
+      let arr = filterValues->getArrayFromDict("payment_method", [])->getStrArrayFromJsonArray
+      let newArr = arr->Array.flatMap(paymentMethod => {
+        let paymentMethodTypeArr =
+          dict
+          ->getDictfromDict("payment_method")
+          ->getArrayFromDict(paymentMethod, [])
+          ->getStrArrayFromJsonArray
+        paymentMethodTypeArr->Array.map(item => {
+          item
+        })
+      })
+      newArr
+    }
+  | _ => []
+  }
+
+  filtersArr
+}
+
+let getOptionsForOrderFilters = (dict, filterValues) => {
+  open LogicUtils
+  let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+  let newArr = arr->Array.flatMap(connector => {
+    let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
+    connectorLabelArr->Array.map(item => {
+      let label = item->getDictFromJsonObject->getString("connector_label", "")
+      let value = item->getDictFromJsonObject->getString("merchant_connector_id", "")
+      let option: FilterSelectBox.dropdownOption = {
+        label: label->LogicUtils.snakeToTitle,
+        value,
+      }
+      option
+    })
+  })
+  newArr
+}
+
+let getAllPaymentMethodType = dict => {
+  open LogicUtils
+  let paymentMethods = dict->getDictfromDict("payment_method")->Dict.keysToArray
+  paymentMethods->Array.reduce([], (acc, item) => {
+    Array.concat(
+      acc,
+      {
+        dict
+        ->getDictfromDict("payment_method")
+        ->getArrayFromDict(item, [])
+        ->getStrArrayFromJsonArray
+      },
+    )
+  })
+}
+
+let itemToObjMapper = dict => {
+  open LogicUtils
+  {
+    connector: dict->getDictfromDict("connector")->Dict.keysToArray,
+    currency: dict->getArrayFromDict("currency", [])->getStrArrayFromJsonArray,
+    authentication_type: dict
+    ->getArrayFromDict("authentication_type", [])
+    ->getStrArrayFromJsonArray,
+    status: dict->getArrayFromDict("status", [])->getStrArrayFromJsonArray,
+    payment_method: dict->getDictfromDict("payment_method")->Dict.keysToArray,
+    payment_method_type: getAllPaymentMethodType(dict),
+    connector_label: [],
+  }
+}
+
+let initialFilters = (json, filtervalues) => {
+  open LogicUtils
+
+  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+
+  let filterDict = json->getDictFromJsonObject
+  let filterArr = filterDict->itemToObjMapper
+  let arr = filterDict->Dict.keysToArray
+
+  if connectorFilter->Array.length !== 0 {
+    arr->Array.push("connector_label")
+  }
+  arr->Array.push("payment_method_type")
+
+  arr->Array.map((key): EntityType.initialFilters<'t> => {
+    let values = switch key->getFilterTypeFromString {
+    | #connector => filterArr.connector
+    | #payment_method => filterArr.payment_method
+    | #currency => filterArr.currency
+    | #authentication_type => filterArr.authentication_type
+    | #status => filterArr.status
+    | #payment_method_type =>
+      getConditionalFilter(key, filterDict, filtervalues)->Array.length > 0
+        ? getConditionalFilter(key, filterDict, filtervalues)
+        : filterArr.payment_method_type
+    | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
+    | _ => []
+    }
+
+    let title = `Select ${key->snakeToTitle}`
+
+    let makeOptions = (options: array<string>): array<FilterSelectBox.dropdownOption> => {
+      options->Array.map(str => {
+        let option: FilterSelectBox.dropdownOption = {label: str->snakeToTitle, value: str}
+        option
+      })
+    }
+
+    let options = switch key->getFilterTypeFromString {
+    | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
+    | _ => values->makeOptions
+    }
+
+    let name = switch key->getFilterTypeFromString {
+    | #connector_label => "merchant_connector_id"
+    | _ => key
+    }
+
+    {
+      field: FormRenderer.makeFieldInfo(
+        ~label=key,
+        ~name,
+        ~customInput=InputFields.filterMultiSelectInput(
+          ~options,
+          ~buttonText=title,
+          ~showSelectionAsChips=false,
+          ~searchable=true,
+          ~showToolTip=true,
+          ~showNameAsToolTip=true,
+          ~customButtonStyle="bg-none",
+          (),
+        ),
+      ),
+      localFilter: Some(filterByData),
+    }
+  })
+}
+
+let initialFixedFilter = () => [
+  (
+    {
+      localFilter: None,
+      field: FormRenderer.makeMultiInputFieldInfo(
+        ~label="",
+        ~comboCustomInput=InputFields.filterDateRangeField(
+          ~startKey=startTimeFilterKey,
+          ~endKey=endTimeFilterKey,
+          ~format="YYYY-MM-DDTHH:mm:ss[Z]",
+          ~showTime=false,
+          ~disablePastDates={false},
+          ~disableFutureDates={true},
+          ~predefinedDays=[
+            Hour(0.5),
+            Hour(1.0),
+            Hour(2.0),
+            Today,
+            Yesterday,
+            Day(2.0),
+            Day(7.0),
+            Day(30.0),
+            ThisMonth,
+            LastMonth,
+          ],
+          ~numMonths=2,
+          ~disableApply=false,
+          ~dateRangeLimit=180,
+        ),
+        ~inputFields=[],
+        ~isRequired=false,
+      ),
+    }: EntityType.initialFilters<'t>
+  ),
+]
+
+let setData = (
+  offset,
+  setOffset,
+  total,
+  data,
+  setTotalCount,
+  setOrdersData,
+  setScreenState,
+  previewOnly,
+) => {
+  let arr = Array.make(~length=offset, Dict.make())
+  if total <= offset {
+    setOffset(_ => 0)
+  }
+
+  if total > 0 {
+    let orderDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
+
+    let orderData =
+      arr
+      ->Array.concat(orderDataDictArr)
+      ->Array.map(OrderEntity.itemToObjMapper)
+      ->Array.filterWithIndex((_, i) => {
+        !previewOnly || i <= 2
+      })
+
+    let list = orderData->Array.map(Nullable.make)
+    setTotalCount(_ => total)
+    setOrdersData(_ => list)
+    setScreenState(_ => PageLoaderWrapper.Success)
+  } else {
+    setScreenState(_ => PageLoaderWrapper.Custom)
+  }
+}
+
+let getOrdersList = async (
+  filterValueJson,
+  ~updateDetails: (
+    string,
+    JSON.t,
+    Fetch.requestMethod,
+    ~bodyFormData: Fetch.formData=?,
+    ~headers: Dict.t<'a>=?,
+    ~contentType: AuthHooks.contentType=?,
+  ) => promise<JSON.t>,
+  ~getURL: APIUtilsTypes.getUrlTypes,
+  ~setOrdersData,
+  ~previewOnly,
+  ~setScreenState,
+  ~setOffset,
+  ~setTotalCount,
+  ~offset,
+) => {
+  open LogicUtils
+  setScreenState(_ => PageLoaderWrapper.Loading)
+  try {
+    let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post)
+    let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
+    let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
+    let total = res->getDictFromJsonObject->getInt("total_count", 0)
+
+    if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
+      let payment_id =
+        filterValueJson
+        ->Dict.get("payment_id")
+        ->Option.getOr(""->JSON.Encode.string)
+        ->JSON.Decode.string
+        ->Option.getOr("")
+
+      if RegExp.test(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
+        let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
+        filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
+
+        let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
+        let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
+        let total = res->getDictFromJsonObject->getInt("total_count", 0)
+
+        setData(
+          offset,
+          setOffset,
+          total,
+          data,
+          setTotalCount,
+          setOrdersData,
+          setScreenState,
+          previewOnly,
+        )
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
+    } else {
+      setData(
+        offset,
+        setOffset,
+        total,
+        data,
+        setTotalCount,
+        setOrdersData,
+        setScreenState,
+        previewOnly,
+      )
+    }
+  } catch {
+  | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
+  }
+}
+
+let isNonEmptyValue = value => {
+  value->Option.getOr(Dict.make())->Dict.toArray->Array.length > 0
+}
+
+let orderViewList: OMPSwitchTypes.ompViews = [
+  {
+    lable: "All Profiles",
+    entity: #Merchant,
+  },
+  {
+    lable: "Profile",
+    entity: #Profile,
+  },
+]

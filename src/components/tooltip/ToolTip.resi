@@ -28,4 +28,5 @@ let make: (
   ~descriptionComponentClass: string=?,
   ~isRelative: bool=?,
   ~dismissable: bool=?,
+  ~newDesign: bool=?,
 ) => React.element

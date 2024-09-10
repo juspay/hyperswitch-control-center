@@ -1,9 +1,10 @@
 let regex = searchString => {
-  Js.Re.fromStringWithFlags(`` ++ searchString ++ ``, ~flags="gi")
+  RegExp.fromStringWithFlags(`` ++ searchString ++ ``, ~flags="gi")
 }
 let highlightedText = (str, searchedText) => {
   let shouldHighlight =
-    searchedText != "" && String.includes(str->String.toLowerCase, searchedText->String.toLowerCase)
+    searchedText->LogicUtils.isNonEmptyString &&
+      String.includes(str->String.toLowerCase, searchedText->String.toLowerCase)
   if shouldHighlight {
     let re = regex(searchedText)
     let matchFn = (matchPart, _offset, _wholeString) => `@@${matchPart}@@`
@@ -16,10 +17,10 @@ let highlightedText = (str, searchedText) => {
           String.toLowerCase(item) == String.toLowerCase(searchedText) &&
             String.length(searchedText) > 0
         ) {
-          <mark key={i->string_of_int} className="bg-yellow"> {item->React.string} </mark>
+          <mark key={i->Int.toString} className="bg-yellow"> {item->React.string} </mark>
         } else {
           let className = ""
-          <span key={i->string_of_int} className value=str> {item->React.string} </span>
+          <span key={i->Int.toString} className value=str> {item->React.string} </span>
         }
       })
       ->React.array
@@ -41,8 +42,6 @@ type labelColor =
   | LabelBrown
   | LabelLightBlue
   | LabelWhite
-  | LabelLightOrange
-  | LabelLightGray
   | LabelViolet
   | LabelLightGreen
   | LabelLightRed
@@ -125,6 +124,7 @@ type cell =
   | Link(string)
   | Progress(int)
   | CustomCell(React.element, string)
+  | DisplayCopyCell(string)
   | TrimmedText(string, string)
   | DeltaPercentage(float, float)
   | DropDown(string)
@@ -163,7 +163,6 @@ let makeHeaderInfo = (
   ~showMultiSelectCheckBox=?,
   ~hideOnShrink=?,
   ~customWidth=?,
-  (),
 ) => {
   {
     key,
@@ -182,10 +181,6 @@ let makeHeaderInfo = (
   }
 }
 
-let dateFormat = (timestamp, format) => {
-  let readableTimestamp = (timestamp->DayJs.getDayJsForString).format(. format)
-  readableTimestamp
-}
 let getCell = (item): cell => {
   Text(item)
 }
@@ -195,8 +190,8 @@ module ProgressCell = {
   let make = (~progressPercentage) => {
     <div className="w-full bg-gray-200 rounded-full">
       <div
-        className="bg-green-800 text font-medium text-blue-100 text-left pl-5 p-0.5 leading-none rounded-full"
-        style={ReactDOM.Style.make(~width=`${Int.toString(progressPercentage)}%`, ())}>
+        className="bg-green-700 text font-medium text-blue-100 text-left pl-5 p-0.5 leading-none rounded-full"
+        style={width: `${Int.toString(progressPercentage)}%`}>
         {React.string(Int.toString(progressPercentage) ++ "%")}
       </div>
     </div>
@@ -212,7 +207,7 @@ module BaseComponentMethod = {
   @react.component
   let make = (~showDropDown, ~filterKey) => {
     let (_, setLclFilterOpen) = React.useContext(DataTableFilterOpenContext.filterOpenContext)
-    React.useEffect1(() => {
+    React.useEffect(() => {
       setLclFilterOpen(filterKey, showDropDown)
       None
     }, [showDropDown])
@@ -235,22 +230,21 @@ module LabelCell = {
     ~fontStyle="font-ibm-plex",
     ~showIcon=true,
   ) => {
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
     let isMobileView = MatchMedia.useMobileChecker()
     let bgOpacity = isMobileView ? "bg-opacity-12 dark:!bg-opacity-12" : ""
     let borderColor = switch labelColor {
     | LabelGreen => `bg-green-950 ${bgOpacity} dark:bg-opacity-50`
     | LabelRed => `bg-red-960 ${bgOpacity} dark:bg-opacity-50`
-    | LabelBlue => "bg-blue-800 dark:bg-opacity-50"
+    | LabelBlue => `${backgroundColor} dark:bg-opacity-50`
     | LabelGray => "bg-blue-table_gray"
     | LabelOrange => `bg-orange-950 ${bgOpacity} dark:bg-opacity-50`
-    | LabelYellow => "bg-blue-table_yellow"
-    | LabelDarkGreen => "bg-green-800"
+    | LabelYellow => "bg-yellow-600"
+    | LabelDarkGreen => "bg-green-700"
     | LabelDarkRed => "bg-red-400"
     | LabelBrown => "bg-brown-600 bg-opacity-50"
-    | LabelLightBlue => "bg-blue-800 bg-opacity-50"
+    | LabelLightBlue => `${backgroundColor} bg-opacity-50`
     | LabelWhite => "bg-white border border-jp-gray-300"
-    | LabelLightOrange => "bg-ardra-warning bg-opacity-50"
-    | LabelLightGray => "bg-ardra-secondary-200 bg-opacity-50"
     | LabelViolet => "bg-violet-500"
     | LabelLightGreen => "bg-green-700  dark:bg-opacity-50"
     | LabelLightRed => "bg-red-400 dark:bg-opacity-50"
@@ -258,9 +252,7 @@ module LabelCell = {
 
     let textColor = switch labelColor {
     | LabelGray => "text-jp-gray-900"
-    | LabelYellow => "text-jp-gray-900"
     | LabelWhite => "text-jp-gray-700"
-    | LabelLightOrange => "text-jp-gray-900"
     | _ => "text-white"
     }
 
@@ -302,17 +294,15 @@ module NewLabelCell = {
     let _borderColor = switch labelColor {
     | LabelGreen => "bg-green-950 dark:bg-opacity-50"
     | LabelRed => "bg-red-960 dark:bg-opacity-50"
-    | LabelBlue => "bg-blue-800 dark:bg-opacity-50"
+    | LabelBlue => "bg-blue-500 dark:bg-opacity-50"
     | LabelGray => "bg-blue-table_gray"
     | LabelOrange => "bg-orange-950 dark:bg-opacity-50"
     | LabelYellow => "bg-blue-table_yellow"
-    | LabelDarkGreen => "bg-green-800"
+    | LabelDarkGreen => "bg-green-700"
     | LabelDarkRed => "bg-red-400"
     | LabelBrown => "bg-brown-600 bg-opacity-50"
-    | LabelLightBlue => "bg-blue-800 bg-opacity-50"
+    | LabelLightBlue => "bg-blue-500 bg-opacity-50"
     | LabelWhite => "bg-white border border-jp-gray-300"
-    | LabelLightOrange => "bg-ardra-warning bg-opacity-50"
-    | LabelLightGray => "bg-ardra-secondary-200 bg-opacity-50"
     | LabelViolet => "bg-violet-500"
     | LabelLightGreen => "bg-green-700 dark:bg-opacity-50"
     | LabelLightRed => "bg-red-400 dark:bg-opacity-50"
@@ -359,13 +349,11 @@ module ColoredTextCell = {
     | LabelOrange => "text-status-text-orange"
     | LabelGray => "text-grey-500"
     | LabelYellow => "text-yellow-400"
-    | LabelDarkGreen => "text-green-800"
+    | LabelDarkGreen => "text-green-700"
     | LabelDarkRed => "text-red-700"
     | LabelBrown => "text-yellow-800"
     | LabelLightBlue => "text-sky-300"
     | LabelWhite => "text-jp-gray-500"
-    | LabelLightOrange => "text-ardra-warning"
-    | LabelLightGray => "text-ardra-secondary-200"
     | LabelViolet => "bg-violet-500"
     | LabelLightGreen => "bg-green-700"
     | LabelLightRed => "bg-red-400"
@@ -440,6 +428,7 @@ module MoneyCell = {
 module LinkCell = {
   @react.component
   let make = (~data, ~trimLength=?) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let (showCopy, setShowCopy) = React.useState(() => false)
     let isMobileView = MatchMedia.useMobileChecker()
 
@@ -466,7 +455,7 @@ module LinkCell = {
 
     <div className="flex flex-row items-center" onMouseOver={mouseOver} onMouseOut={mouseOut}>
       <div
-        className={"whitespace-pre text-sm font-fira-code dark:text-opacity-75 text-right p-1 text-blue-900 text-ellipsis overflow-hidden"}>
+        className={`whitespace-pre text-sm font-fira-code dark:text-opacity-75 text-right p-1 ${textColor.primaryNormal} text-ellipsis overflow-hidden`}>
         <a href=data target="_blank" onClick=preventEvent> {React.string(trimData)} </a>
       </div>
       <div className=visibility>
@@ -554,14 +543,15 @@ module EllipsisText = {
     ~ellipsisThreshold=20,
     ~toolTipPosition: ToolTip.toolTipPosition=ToolTip.Right,
   ) => {
+    open LogicUtils
     let modifiedText =
-      ellipsisIdentifier !== ""
+      ellipsisIdentifier->isNonEmptyString
         ? {
             text->String.split(ellipsisIdentifier)->Array.get(0)->Option.getOr("") ++ "..."
           }
         : text
     let ellipsesCondition =
-      ellipsisIdentifier !== ""
+      ellipsisIdentifier->isNonEmptyString
         ? String.includes(ellipsisIdentifier, text)
         : text->String.length > ellipsisThreshold
 
@@ -588,6 +578,7 @@ module EllipsisText = {
 module TrimmedText = {
   @react.component
   let make = (~text, ~width, ~highlightText="", ~hideShowMore=false) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let (show, setshow) = React.useState(_ => true)
     let breakWords = hideShowMore ? "" : "whitespace-nowrap text-ellipsis overflow-x-hidden"
     if text->String.length > 40 {
@@ -598,7 +589,9 @@ module TrimmedText = {
           </div>
         </AddDataAttributes>
         {if !hideShowMore {
-          <div className={"text-blue-800 cursor-pointer"} onClick={_ => setshow(show => !show)}>
+          <div
+            className={`${textColor.primaryNormal} cursor-pointer`}
+            onClick={_ => setshow(show => !show)}>
             {show ? React.string("More") : React.string("Less")}
           </div>
         } else {
@@ -636,7 +629,7 @@ module DeltaColumn = {
       ("", textColor, "", "", "bg-jp-2-gray-30")
     } else if delta < 0. {
       let textColor = "text-red-980"
-      ("", textColor, "text-jp-2-red-200", "arrow-down", "bg-jp-2-red-50")
+      ("", textColor, "text-jp-2-red-100", "arrow-down", "bg-jp-2-red-100")
     } else {
       let textColor = "text-green-950"
       ("+", textColor, "text-jp-2-green-300", "arrow-up", "bg-jp-2-green-50")
@@ -651,13 +644,13 @@ module DeltaColumn = {
             {React.string(Float.toFixedWithPrecision(value, ~digits=2) ++ "%")}
           </p>
         </div>
-        <UIUtils.RenderIf condition={delta !== value}>
+        <RenderIf condition={delta !== value}>
           <div className=paraparentCss>
             <p className={`px-2 py-0.5 fira-code text-fs-10  ${textColor}`}>
               {React.string(detlaStr)}
             </p>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -679,6 +672,7 @@ module TableCell = {
     ~isEllipsisTextRelative=true,
     ~ellipseClass="",
   ) => {
+    open LogicUtils
     switch cell {
     | Label(x) =>
       <AddDataAttributes attributes=[("data-testid", x.title->String.toLowerCase)]>
@@ -693,7 +687,7 @@ module TableCell = {
       </AddDataAttributes>
 
     | Text(x) | DropDown(x) => {
-        let x = x === "" ? "NA" : x
+        let x = x->isEmptyString ? "NA" : x
         <AddDataAttributes attributes=[("data-desc", x), ("data-testid", x->String.toLowerCase)]>
           <div> {highlightedText(x, highlightText)} </div>
         </AddDataAttributes>
@@ -708,11 +702,11 @@ module TableCell = {
       <MoneyCell amount currency ?textAlign fontBold customMoneyStyle />
 
     | Date(timestamp) =>
-      timestamp->String.length > 0
+      timestamp->isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle />
         : <div> {React.string("-")} </div>
     | DateWithoutTime(timestamp) =>
-      timestamp->String.length > 0
+      timestamp->isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle hideTime=true />
         : <div> {React.string("-")} </div>
     | StartEndDate(startDate, endDate) => <StartEndDateCell startDate endDate />
@@ -720,6 +714,7 @@ module TableCell = {
     | Link(ele) => <LinkCell data=ele trimLength=55 />
     | Progress(percent) => <ProgressCell progressPercentage=percent />
     | CustomCell(ele, _) => ele
+    | DisplayCopyCell(string) => <HelperComponents.CopyTextCustomComp displayValue=string />
     | DeltaPercentage(value, delta) => <DeltaColumn value delta />
     | Numeric(num, mapper) => <Numeric num mapper clearFormatting />
     | ColoredText(x) => <ColoredTextCell labelColor=x.color text=x.title />
@@ -741,11 +736,12 @@ module NewTableCell = {
     ~clearFormatting=false,
     ~fontStyle="",
   ) => {
+    open LogicUtils
     switch cell {
     | Label(x) =>
       <NewLabelCell labelColor=x.color text=x.title ?labelMargin highlightText fontStyle />
     | Text(x) | DropDown(x) => {
-        let x = x === "" ? "NA" : x
+        let x = x->isEmptyString ? "NA" : x
         <AddDataAttributes attributes=[("data-desc", x)]>
           <div> {highlightedText(x, highlightText)} </div>
         </AddDataAttributes>
@@ -757,11 +753,11 @@ module NewTableCell = {
       <MoneyCell amount currency ?textAlign fontBold customMoneyStyle />
 
     | Date(timestamp) =>
-      timestamp->String.length > 0
+      timestamp->isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle />
         : <div> {React.string("-")} </div>
     | DateWithoutTime(timestamp) =>
-      timestamp->String.length > 0
+      timestamp->isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle hideTime=true />
         : <div> {React.string("-")} </div>
     | StartEndDate(startDate, endDate) => <StartEndDateCell startDate endDate />
@@ -769,6 +765,7 @@ module NewTableCell = {
     | Link(ele) => <LinkCell data=ele trimLength=55 />
     | Progress(percent) => <ProgressCell progressPercentage=percent />
     | CustomCell(ele, _) => ele
+    | DisplayCopyCell(string) => <HelperComponents.CopyTextCustomComp displayValue=string />
     | DeltaPercentage(value, delta) => <DeltaColumn value delta />
     | Numeric(num, mapper) => <Numeric num mapper clearFormatting />
     | ColoredText(x) => <ColoredTextCell labelColor=x.color text=x.title />
@@ -787,6 +784,7 @@ let getTableCellValue = cell => {
   | Currency(val, _) => val->Float.toString
   | Link(str) => str
   | CustomCell(_, value) => value
+  | DisplayCopyCell(str) => str
   | EllipsisText(x, _) => x
   | DeltaPercentage(x, _) | Numeric(x, _) => x->Float.toString
   | ColoredText(x) => x.title
@@ -797,14 +795,15 @@ let getTableCellValue = cell => {
 module SortIcons = {
   @react.component
   let make = (~order: sortOrder, ~size: int) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let (iconColor1, iconColor2) = switch order {
-    | INC => ("text-gray-400", "text-gray-300")
-    | DEC => ("text-gray-300", "text-gray-400")
-    | NONE => ("text-gray-400", "text-gray-400")
+    | INC => ("text-gray-300", textColor.primaryNormal)
+    | DEC => (textColor.primaryNormal, "text-gray-300")
+    | NONE => ("text-gray-300", "text-gray-300")
     }
     <div className="flex flex-col justify-center">
-      <Icon className={`-mb-2 ${iconColor1}`} name="sort-up" size />
-      <Icon className={iconColor2} name="sort-down" size />
+      <Icon className={`-mb-0.5 ${iconColor1}`} name="caret-up" size />
+      <Icon className={`-mt-0.5 ${iconColor2}`} name="caret-down" size />
     </div>
   }
 }

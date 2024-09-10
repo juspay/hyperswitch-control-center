@@ -23,7 +23,7 @@ module DisplayKeyValueParams = {
     ~textColor="",
     ~overiddingHeadingStyles="",
   ) => {
-    let marginClass = if labelMargin == "" {
+    let marginClass = if labelMargin->LogicUtils.isEmptyString {
       "mt-4 py-0"
     } else {
       labelMargin
@@ -40,7 +40,8 @@ module DisplayKeyValueParams = {
       ""
     }
 
-    let textColor = textColor === "" ? "text-jp-gray-900 dark:text-white" : textColor
+    let textColor =
+      textColor->LogicUtils.isEmptyString ? "text-jp-gray-900 dark:text-white" : textColor
 
     let description = heading.description->Option.getOr("")
 
@@ -52,11 +53,11 @@ module DisplayKeyValueParams = {
             <div className={`${overiddingHeadingStyles}`}>
               {React.string(showTitle ? heading.title : "")}
             </div>
-            <UIUtils.RenderIf condition={description != ""}>
+            <RenderIf condition={description->LogicUtils.isNonEmptyString}>
               <div className="text-sm text-gray-500 mx-2 -mt-1">
                 <ToolTip description={description} toolTipPosition={ToolTip.Top} />
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
           <div className={`${fontClass} font-semibold text-left  mr-5 ${textColor} ${breakWords}`}>
             <Table.TableCell
@@ -81,7 +82,7 @@ type topic =
 module Heading = {
   @react.component
   let make = (~topic: topic, ~children=?, ~borderClass="border-b", ~headingCss="") => {
-    let widthClass = headingCss === "" ? "" : "w-full"
+    let widthClass = headingCss->LogicUtils.isEmptyString ? "" : "w-full"
     <div
       className={`${borderClass} border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 flex justify justify-between dark:bg-jp-gray-lightgray_background ${headingCss}`}>
       <div className={`p-2 m-2 flex flex-row justify-start ${widthClass}`}>
@@ -136,10 +137,10 @@ module Details = {
         customCssClass={`${borderRequired
             ? "border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960"
             : ""} ${bgColor} rounded-md `}>
-        <UIUtils.RenderIf condition=isHeadingRequired>
+        <RenderIf condition=isHeadingRequired>
           <Heading topic=heading headingCss> {headRightElement} </Heading>
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition=showDetails>
+        </RenderIf>
+        <RenderIf condition=showDetails>
           <FormRenderer.DesktopRow>
             <div
               className={`${flexClass} ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
@@ -186,7 +187,7 @@ module Details = {
               }}
             </div>
           </FormRenderer.DesktopRow>
-        </UIUtils.RenderIf>
+        </RenderIf>
         {switch children {
         | Some(ele) => ele
         | None => React.null

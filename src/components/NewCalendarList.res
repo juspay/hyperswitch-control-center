@@ -28,6 +28,7 @@ let make = (
   ~firstCalendar=false,
   ~customDisabledFutureDays=0.0,
 ) => {
+  open LogicUtils
   let (fromDate, setFromDate) = React.useState(_ => "")
   let (toDate, setToDate) = React.useState(_ => "")
   let (fromDateOnFocus, setFromDateOnFocus) = React.useState(_ => false)
@@ -38,34 +39,34 @@ let make = (
   | Some(y) => Int.toFloat(y)
   | None => Js.Date.getFullYear(Date.make())
   }
-  React.useEffect2(() => {
+  React.useEffect(() => {
     let fromDateJs = fromDate->DayJs.getDayJsForString
     let toDateJs = toDate->DayJs.getDayJsForString
     let permittedMaxYears = startYear->Float.toInt + 10
     let updatedFromDate =
-      fromDate != "" &&
+      fromDate->isNonEmptyString &&
       fromDate->String.length >= 5 &&
-      fromDateJs.isValid(.) &&
-      fromDateJs.year(.) <= permittedMaxYears
+      fromDateJs.isValid() &&
+      fromDateJs.year() <= permittedMaxYears
         ? try {
-            fromDateJs.format(. "YYYY-MM-DD")
+            fromDateJs.format("YYYY-MM-DD")
           } catch {
           | _error => ""
           }
         : ""
     let updatedToDate =
-      toDate != "" &&
+      toDate->isNonEmptyString &&
       toDate->String.length >= 5 &&
-      toDateJs.isValid(.) &&
-      toDateJs.year(.) <= permittedMaxYears
+      toDateJs.isValid() &&
+      toDateJs.year() <= permittedMaxYears
         ? try {
-            toDateJs.format(. "YYYY-MM-DD")
+            toDateJs.format("YYYY-MM-DD")
           } catch {
           | _error => ""
           }
         : ""
 
-    if updatedFromDate != "" && updatedFromDate != startDate {
+    if updatedFromDate->isNonEmptyString && updatedFromDate != startDate {
       switch changeStartDate {
       | Some(changeStartDate) => changeStartDate(updatedFromDate, false, false, None)
       | None => ()
@@ -73,8 +74,8 @@ let make = (
     }
 
     if (
-      updatedFromDate != "" &&
-      updatedToDate != "" &&
+      updatedFromDate->isNonEmptyString &&
+      updatedToDate->isNonEmptyString &&
       updatedToDate != endDate &&
       toDateJs >= fromDateJs
     ) {
@@ -87,25 +88,25 @@ let make = (
     None
   }, (fromDate, toDate))
 
-  React.useEffect2(() => {
-    if startDate != "" && !fromDateOnFocus {
-      setFromDate(_ => (startDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
+  React.useEffect(() => {
+    if startDate->isNonEmptyString && !fromDateOnFocus {
+      setFromDate(_ => (startDate->DayJs.getDayJsForString).format("MMM DD, YYYY"))
     }
-    if endDate != "" && !toDateOnFocus {
-      setToDate(_ => (endDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
+    if endDate->isNonEmptyString && !toDateOnFocus {
+      setToDate(_ => (endDate->DayJs.getDayJsForString).format("MMM DD, YYYY"))
     } else {
       setToDate(_ => "")
     }
     None
   }, (fromDateOnFocus, toDateOnFocus))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if isDateClicked {
-      if startDate != "" && !fromDateOnFocus {
-        setFromDate(_ => (startDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
+      if startDate->isNonEmptyString && !fromDateOnFocus {
+        setFromDate(_ => (startDate->DayJs.getDayJsForString).format("MMM DD, YYYY"))
       }
-      if endDate != "" && !toDateOnFocus {
-        setToDate(_ => (endDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
+      if endDate->isNonEmptyString && !toDateOnFocus {
+        setToDate(_ => (endDate->DayJs.getDayJsForString).format("MMM DD, YYYY"))
       } else {
         setToDate(_ => "")
       }
@@ -149,7 +150,7 @@ let make = (
         Int.toFloat(Float.toInt(Js.Date.getMonth(currDateTemp)) + i),
       )
       let tempMonth = if disableFutureDates {
-        (Js.Date.fromFloat(tempDate)->DayJs.getDayJsForJsDate).toString(.)
+        (Js.Date.fromFloat(tempDate)->DayJs.getDayJsForJsDate).toString()
         ->Date.fromString
         ->Js.Date.getMonth
       } else {
@@ -183,7 +184,7 @@ let make = (
 
       let topPadding = !showTime ? "pt-6" : ""
 
-      <div key={string_of_int(i)}>
+      <div key={Int.toString(i)}>
         <div className={`flex flex-row justify-between items-center px-6 pb-5 ${topPadding}`}>
           <TextInput
             customDashboardClass="h-11 text-base font-normal shadow-jp-2-xs"
@@ -203,7 +204,7 @@ let make = (
           />
         </div>
         <NewCalendar
-          key={string_of_int(i)}
+          key={Int.toString(i)}
           month={getMonthFromFloat(tempMonth)}
           year={Float.toInt(tempYear)}
           showTitle=false

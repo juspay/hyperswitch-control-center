@@ -1,6 +1,6 @@
 @react.component
 let make = (~showModal, ~setShowModal, ~text) => {
-  <UIUtils.RenderIf condition={showModal}>
+  <RenderIf condition={showModal}>
     <Modal
       showModal
       setShowModal
@@ -12,5 +12,5 @@ let make = (~showModal, ~setShowModal, ~text) => {
         <div className="text-xl font-semibold mb-4"> {text->React.string} </div>
       </div>
     </Modal>
-  </UIUtils.RenderIf>
+  </RenderIf>
 }

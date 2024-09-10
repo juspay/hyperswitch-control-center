@@ -1,4 +1,4 @@
-open AuthTypes
+open CommonAuthTypes
 @react.component
 let make = (~isEnabled=true, ~permission, ~children) => {
   let isAccessAllowed = permission === Access

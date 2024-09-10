@@ -8,8 +8,6 @@ let make = (
   ~offset=0,
   ~fullWidth=true,
   ~showScrollBar=false,
-  ~setSortedObj=?,
-  ~sortedObj=?,
   ~setFilterObj=?,
   ~filterObj=?,
   ~onExpandIconClick,
@@ -17,9 +15,8 @@ let make = (
   ~getRowDetails,
   ~showSerial=false,
 ) => {
-  open UIUtils
   if showSerial {
-    heading->Array.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No", ()))->ignore
+    heading->Array.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No"))->ignore
   }
 
   let isMobileView = MatchMedia.useMobileChecker()
@@ -61,9 +58,9 @@ let make = (
         prevFilterObj->Option.map(prevObj => {
           prevObj->Array.map(
             obj => {
-              if obj.key === string_of_int(i) {
+              if obj.key === Int.toString(i) {
                 {
-                  key: string_of_int(i),
+                  key: Int.toString(i),
                   options: obj.options,
                   selected: ev->Identity.formReactEventToArrayOfString,
                 }
@@ -83,7 +80,7 @@ let make = (
 
   <div
     className={`overflow ${scrollBarClass} ${tableClass}`} //replaced "overflow-auto" -> to be tested with master
-    style={ReactDOMStyle.make(~minHeight={filterPresent ? "30rem" : ""}, ())}>
+    style={minHeight: {filterPresent ? "30rem" : ""}}>
     <AddDataAttributes attributes=[("data-expandable-table", title)]>
       <table className={`table-auto ${widthClass} h-full ${borderClass}`} colSpan=0>
         <RenderIf condition={heading->Array.length !== 0 && !isMobileView}>
@@ -103,13 +100,13 @@ let make = (
                 let roundedClass = oldThemeRoundedClass
                 let borderClass = isLastCol ? "" : "border-jp-gray-500 dark:border-jp-gray-960"
                 let borderClass = borderClass
-                let bgColor = "bg-gradient-to-b from-jp-gray-450 to-jp-gray-350 dark:from-jp-gray-950  dark:to-jp-gray-950"
+                let bgColor = "bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950"
                 let headerTextClass = "text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
                 let fontWeight = "font-bold"
                 let fontSize = "text-sm"
                 let paddingClass = "px-4 py-3"
                 <AddDataAttributes
-                  attributes=[("data-table-heading", item.title)] key={i->string_of_int}>
+                  attributes=[("data-table-heading", item.title)] key={i->Int.toString}>
                   <th className="p-0">
                     <div
                       className={`flex flex-row ${borderClass} justify-between items-center ${paddingClass} ${bgColor} ${headerTextClass} whitespace-pre ${roundedClass}`}>
@@ -118,33 +115,6 @@ let make = (
                       </div>
                       <RenderIf condition={item.showFilter || item.showSort}>
                         <div className="flex flex-row items-center select-none">
-                          <RenderIf condition={item.showSort}>
-                            {
-                              let order: sortOrder = switch sortedObj {
-                              | Some(obj: sortedObject) => obj.key === item.key ? obj.order : NONE
-                              | None => NONE
-                              }
-
-                              let handleSortClick = _ev => {
-                                switch setSortedObj {
-                                | Some(fn) =>
-                                  fn(_ => Some({
-                                    key: item.key,
-                                    order: order === DEC ? INC : DEC,
-                                  }))
-                                | None => ()
-                                }
-                              }
-
-                              <AddDataAttributes attributes=[("data-table", "tableSort")]>
-                                <div
-                                  className="cursor-pointer text-gray-300 pl-4"
-                                  onClick=handleSortClick>
-                                  <SortIcons order size=13 />
-                                </div>
-                              </AddDataAttributes>
-                            }
-                          </RenderIf>
                           {if item.showFilter {
                             let (options, selected) =
                               filterObj
@@ -159,9 +129,9 @@ let make = (
                             if options->Array.length > 1 {
                               let filterInput: ReactFinalForm.fieldRenderPropsInput = {
                                 name: "filterInput",
-                                onBlur: _ev => (),
+                                onBlur: _ => (),
                                 onChange: ev => handleUpdateFilterObj(ev, i),
-                                onFocus: _ev => (),
+                                onFocus: _ => (),
                                 value: selected->Array.map(JSON.Encode.string)->JSON.Encode.array,
                                 checked: true,
                               }
@@ -198,7 +168,7 @@ let make = (
           {rowInfo
           ->Array.mapWithIndex((item: array<cell>, rowIndex) => {
             <CollapsableTableRow
-              key={string_of_int(rowIndex)}
+              key={Int.toString(rowIndex)}
               item
               rowIndex
               offset

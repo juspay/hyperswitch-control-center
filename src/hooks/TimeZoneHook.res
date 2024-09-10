@@ -51,7 +51,7 @@ let dateTimeStringToDateTimeFloat = (dateTime: dateTimeString) => {
 }
 
 let formattedDateTimeFloat = (dateTime: dateTimeFloat, format: string) => {
-  (dateTime->dateTimeObjectToDate->Date.toString->DayJs.getDayJsForString).format(. format)
+  (dateTime->dateTimeObjectToDate->Date.toString->DayJs.getDayJsForString).format(format)
 }
 
 let formattedDateTimeString = (dateTime: dateTimeString, format: string) => {
@@ -121,45 +121,42 @@ let convertTimeZone = (date, timezoneString) => {
 let useCustomTimeZoneToIsoString = () => {
   let (zone, _setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
 
-  let customTimezoneToISOString = React.useCallback1(
-    (year, month, day, hours, minutes, seconds) => {
-      let selectedTimeZoneData = TimeZoneData.getTimeZoneData(zone)
-      let timeZoneData = selectedTimeZoneData
-      let timezone = timeZoneData.offset
+  let customTimezoneToISOString = React.useCallback((year, month, day, hours, minutes, seconds) => {
+    let selectedTimeZoneData = TimeZoneData.getTimeZoneData(zone)
+    let timeZoneData = selectedTimeZoneData
+    let timezone = timeZoneData.offset
 
-      let monthString = String.length(month) == 1 ? `0${month}` : month
-      let dayString = String.length(day) == 1 ? `0${day}` : day
-      let hoursString = formatter(hours)
-      let minutesString = formatter(minutes)
+    let monthString = String.length(month) == 1 ? `0${month}` : month
+    let dayString = String.length(day) == 1 ? `0${day}` : day
+    let hoursString = formatter(hours)
+    let minutesString = formatter(minutes)
 
-      let secondsString = formatter(seconds)
+    let secondsString = formatter(seconds)
 
-      let fullTimeManagedString =
-        year ++
-        "-" ++
-        monthString ++
-        "-" ++
-        dayString ++
-        "T" ++
-        hoursString ++
-        ":" ++
-        minutesString ++
-        ":" ++
-        secondsString ++
-        timezone
-      let newFormedDate = Date.fromString(fullTimeManagedString)
-      let isoFormattedDate = Date.toISOString(newFormedDate)
-      isoFormattedDate
-    },
-    [zone],
-  )
+    let fullTimeManagedString =
+      year ++
+      "-" ++
+      monthString ++
+      "-" ++
+      dayString ++
+      "T" ++
+      hoursString ++
+      ":" ++
+      minutesString ++
+      ":" ++
+      secondsString ++
+      timezone
+    let newFormedDate = Date.fromString(fullTimeManagedString)
+    let isoFormattedDate = Date.toISOString(newFormedDate)
+    isoFormattedDate
+  }, [zone])
   customTimezoneToISOString
 }
 
 let useIsoStringToCustomTimeZone = () => {
   let (zone, _setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
 
-  let isoStringToCustomTimezone = React.useCallback1(isoString => {
+  let isoStringToCustomTimezone = React.useCallback(isoString => {
     let selectedTimeZoneData = TimeZoneData.getTimeZoneData(zone)
     let selectedTimeZoneAlias = selectedTimeZoneData.region
     let timezoneConvertedString = convertTimeZone(isoString, selectedTimeZoneAlias)
@@ -172,7 +169,7 @@ let useIsoStringToCustomTimeZone = () => {
 let useIsoStringToCustomTimeZoneInFloat = () => {
   let (zone, _setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
 
-  let isoStringToCustomTimezoneInFloat = React.useCallback1(isoString => {
+  let isoStringToCustomTimezoneInFloat = React.useCallback(isoString => {
     let selectedTimeZoneData = TimeZoneData.getTimeZoneData(zone)
     let selectedTimeZoneAlias = selectedTimeZoneData.region
     let timezoneConvertedString = convertTimeZone(isoString, selectedTimeZoneAlias)

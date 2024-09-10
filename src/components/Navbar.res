@@ -32,12 +32,13 @@ let make = (
   ~portalStyle="",
   ~homeLink="/",
   ~popOverPanelCustomClass="",
+  ~headerLeftActions=?,
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let (showModal, setShowModal) = React.useState(_ => false)
   let (isAppearancePopupOpen, setIsAppearancePopupOpen) = React.useState(_ => false)
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
-  let (authStatus, _setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let mobileMargin = isMobileView ? "" : "mr-7"
 
@@ -50,7 +51,6 @@ let make = (
     ~callback=() => {
       setIsAppearancePopupOpen(_ => false)
     },
-    (),
   )
 
   let leftMarginOnNav = "ml-0"
@@ -59,6 +59,10 @@ let make = (
     <div id="navbar" className={`w-full mx-auto`}>
       <div
         className={`flex flex-row items-start justify-between min-h-16 items-center ${customHeight}`}>
+        {switch headerLeftActions {
+        | Some(actions) => actions
+        | None => React.null
+        }}
         <div className={`flex flex-wrap ml-5 justify-between items-center w-full`}>
           <PortalCapture key=leftPortalName name=leftPortalName customStyle={`${portalStyle}`} />
           <div className="flex flex-row place-content-centerx">
@@ -118,6 +122,8 @@ let make = (
   // </div>
 
   | LoggedOut => React.null
-  | CheckingAuthStatus => React.string("...")
+  | PreLogin(_)
+  | CheckingAuthStatus =>
+    React.string("...")
   }
 }

@@ -10,7 +10,7 @@ module TimeZone = {
 @react.component
 let make = (~children) => {
   let (zone, setZoneBase) = React.useState(_ => UserTimeZoneTypes.IST)
-  let setZone = React.useCallback1(value => {
+  let setZone = React.useCallback(value => {
     setZoneBase(_ => value)
   }, [setZoneBase])
 

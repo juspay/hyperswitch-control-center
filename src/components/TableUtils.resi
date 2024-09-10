@@ -1,5 +1,5 @@
-let regex: string => Js.Re.t
-let highlightedText: (string, string) => React.element
+let regex: string => RescriptCore.RegExp.t
+let highlightedText: (Js.String.t, string) => React.element
 type labelColor =
   | LabelGreen
   | LabelRed
@@ -12,21 +12,20 @@ type labelColor =
   | LabelBrown
   | LabelLightBlue
   | LabelWhite
-  | LabelLightOrange
-  | LabelLightGray
   | LabelViolet
   | LabelLightGreen
   | LabelLightRed
 type filterDataType = Float(float, float) | String | DateTime
 type disableField = {key: string, values: array<string>}
+type customiseColumnConfig = {showDropDown: bool, customizeColumnUi: React.element}
 type selectAllSubmitActions = {
   btnText: string,
   showMultiSelectCheckBox: bool,
-  onClick: array<JSON.t> => unit,
+  onClick: array<RescriptCore.JSON.t> => unit,
   disableParam: disableField,
 }
 type hideItem = {key: string, value: string}
-external jsonToStr: JSON.t => string = "%identity"
+external jsonToStr: RescriptCore.JSON.t => string = "%identity"
 type textAlign = Left | Right
 type fontBold = bool
 type labelMargin = string
@@ -38,7 +37,7 @@ let getSortOrderString: sortOrder => string
 type label = {title: string, color: labelColor, showIcon?: bool}
 type currency = string
 type filterRow =
-  | DropDownFilter(string, array<JSON.t>)
+  | DropDownFilter(string, array<RescriptCore.JSON.t>)
   | TextFilter(string)
   | Range(string, float, float)
 type cell =
@@ -53,6 +52,7 @@ type cell =
   | Link(string)
   | Progress(int)
   | CustomCell(React.element, string)
+  | DisplayCopyCell(string)
   | TrimmedText(string, string)
   | DeltaPercentage(float, float)
   | DropDown(string)
@@ -88,20 +88,22 @@ let makeHeaderInfo: (
   ~showMultiSelectCheckBox: bool=?,
   ~hideOnShrink: bool=?,
   ~customWidth: string=?,
-  unit,
 ) => header
-let dateFormat: (string, string) => string
 let getCell: string => cell
 module ProgressCell: {
   @react.component
   let make: (~progressPercentage: int) => React.element
 }
 let getTextAlignmentClass: textAlign => string
+module BaseComponentMethod: {
+  @react.component
+  let make: (~showDropDown: bool, ~filterKey: string) => React.element
+}
 module LabelCell: {
   @react.component
   let make: (
     ~labelColor: labelColor,
-    ~text: string,
+    ~text: Js.String.t,
     ~labelMargin: string=?,
     ~highlightText: string=?,
     ~fontStyle: string=?,
@@ -140,10 +142,9 @@ module MoneyCell: {
 }
 module LinkCell: {
   @react.component
-  let make: (~data: string, ~trimLength: int=?) => React.element
+  let make: (~data: Js.String.t, ~trimLength: int=?) => React.element
 }
 module DateCell: {
-  // let getFormattedDate: (string, string) => string
   @react.component
   let make: (
     ~timestamp: string,
@@ -161,7 +162,7 @@ module StartEndDateCell: {
 module EllipsisText: {
   @react.component
   let make: (
-    ~text: string,
+    ~text: Js.String.t,
     ~width: string,
     ~highlightText: string=?,
     ~isEllipsisTextRelative: bool=?,
@@ -174,7 +175,7 @@ module EllipsisText: {
 module TrimmedText: {
   @react.component
   let make: (
-    ~text: string,
+    ~text: Js.String.t,
     ~width: string,
     ~highlightText: string=?,
     ~hideShowMore: bool=?,
@@ -236,8 +237,4 @@ module HeaderActions: {
     ~isLastCol: bool=?,
     ~filterKey: string,
   ) => React.element
-}
-type customiseColumnConfig = {
-  showDropDown: bool,
-  customizeColumnUi: React.element,
 }

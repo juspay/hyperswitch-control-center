@@ -1,3 +1,5 @@
+type chartType = Default | Table
+
 type singleStatData = {
   title: string,
   tooltipText: string,
@@ -7,11 +9,25 @@ type singleStatData = {
   data: array<(float, float)>,
   statType: string,
   showDelta: bool,
+  label?: string,
+}
+
+type columnsType<'colType> = {
+  colType: 'colType,
+  chartType?: chartType,
+}
+
+let generateDefaultStateColumns: array<'colType> => array<columnsType<'colType>> = arr => {
+  arr->Array.map(col => {
+    {
+      colType: col,
+    }
+  })
 }
 
 type columns<'colType> = {
   sectionName: string,
-  columns: array<'colType>,
+  columns: array<columnsType<'colType>>,
   sectionInfo?: string,
 }
 
@@ -24,6 +40,7 @@ type singleStatBodyEntity = {
   granularity?: string,
   mode?: string,
   customFilter?: string,
+  groupByNames?: array<string>,
   source?: string,
   prefix?: string,
 }
@@ -31,15 +48,13 @@ type singleStatBodyEntity = {
 type urlConfig = {
   uri: string,
   metrics: array<string>,
-  singleStatBody?: singleStatBodyEntity => string,
-  singleStatTimeSeriesBody?: singleStatBodyEntity => string,
   prefix?: string,
 }
 type deltaRange = {currentSr: AnalyticsUtils.timeRanges}
 
 type entityType<'colType, 't, 't2> = {
   urlConfig: array<urlConfig>,
-  getObjects: JSON.t => 't,
+  getObjects: JSON.t => array<'t>,
   getTimeSeriesObject: JSON.t => array<'t2>,
   defaultColumns: array<columns<'colType>>, // (sectionName, defaultColumns)
   getData: ('t, array<'t2>, deltaRange, 'colType, string) => singleStatData,
@@ -56,7 +71,7 @@ type timeType = {startTime: string, endTime: string}
 
 type singleStatDataObj<'t> = {
   sectionUrl: string,
-  singleStatData: 't,
+  singleStatData: array<'t>,
   deltaTime: deltaRange,
 }
 
@@ -73,7 +88,6 @@ let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity) => {
       ~source=?singleStatBodyEntity.source,
       ~granularity=singleStatBodyEntity.granularity,
       ~prefix=singleStatBodyEntity.prefix,
-      (),
     )->JSON.Encode.object,
   ]
   ->JSON.Encode.array
@@ -115,7 +129,6 @@ let make = (
   ~startTimeFilterKey,
   ~endTimeFilterKey,
   ~moduleName="",
-  ~setTotalVolume,
   ~showPercentage=true,
   ~chartAlignment=#column,
   ~isHomePage=false,
@@ -125,8 +138,11 @@ let make = (
   ~statSentiment=?,
   ~statThreshold=?,
   ~wrapperClass=?,
+  ~formaPayload: option<singleStatBodyEntity => string>=?,
 ) => {
-  open UIUtils
+  open LogicUtils
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let getAllFilter = filterValueJson
@@ -134,14 +150,14 @@ let make = (
   let (showStats, setShowStats) = React.useState(_ => false)
 
   // without prefix only table related Filters
-  let getTopLevelFilter = React.useMemo1(() => {
+  let getTopLevelFilter = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
-      if prefix === moduleName && prefix !== "" {
+      if prefix === moduleName && prefix->isNonEmptyString {
         None
       } else {
         Some((prefix, value))
@@ -151,7 +167,7 @@ let make = (
   }, [getAllFilter])
 
   let mode = switch modeKey {
-  | Some(modeKey) => Some(getTopLevelFilter->LogicUtils.getString(modeKey, ""))
+  | Some(modeKey) => Some(getTopLevelFilter->getString(modeKey, ""))
   | None => Some("ORDER")
   }
 
@@ -173,14 +189,11 @@ let make = (
 
   let deltaItemToObjMapper = json => {
     let metaData =
-      json
-      ->LogicUtils.getDictFromJsonObject
-      ->LogicUtils.getArrayFromDict("metaData", [])
-      ->deltaTimeRangeMapper
+      json->getDictFromJsonObject->getArrayFromDict("metaData", [])->deltaTimeRangeMapper
     metaData
   }
 
-  let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
+  let (topFiltersToSearchParam, customFilter) = React.useMemo(() => {
     let filterSearchParam =
       getTopLevelFilter
       ->Dict.toArray
@@ -199,32 +212,31 @@ let make = (
       })
       ->Array.joinWith("&")
 
-    (filterSearchParam, getTopLevelFilter->LogicUtils.getString(customFilterKey, ""))
+    (filterSearchParam, getTopLevelFilter->getString(customFilterKey, ""))
   }, [getTopLevelFilter])
 
-  let filterValueFromUrl = React.useMemo1(() => {
+  let filterValueFromUrl = React.useMemo(() => {
     getTopLevelFilter
     ->Dict.toArray
     ->Belt.Array.keepMap(entries => {
       let (key, value) = entries
       filterKeys->Array.includes(key) ? Some((key, value)) : None
     })
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    ->getJsonFromArrayOfJson
     ->Some
   }, [topFiltersToSearchParam])
 
-  let startTimeFromUrl = React.useMemo1(() => {
-    getTopLevelFilter->LogicUtils.getString(startTimeFilterKey, defaultStartDate)
+  let startTimeFromUrl = React.useMemo(() => {
+    getTopLevelFilter->getString(startTimeFilterKey, defaultStartDate)
   }, [topFiltersToSearchParam])
-  let endTimeFromUrl = React.useMemo1(() => {
-    getTopLevelFilter->LogicUtils.getString(endTimeFilterKey, defaultEndDate)
+  let endTimeFromUrl = React.useMemo(() => {
+    getTopLevelFilter->getString(endTimeFilterKey, defaultEndDate)
   }, [topFiltersToSearchParam])
 
   let homePageCss = isHomePage || chartAlignment === #row ? "flex-col" : "flex-row"
   let wrapperClass =
     wrapperClass->Option.getOr(
-      `flex mt-5 flex-col md:${homePageCss} flex-wrap justify-start items-stretch relative`,
+      `flex flex-col md:${homePageCss} flex-wrap justify-start items-stretch relative h-full`,
     )
 
   let (singleStatData, setSingleStatData) = React.useState(() => None)
@@ -238,7 +250,7 @@ let make = (
     singleStatData,
   })
 
-  React.useEffect4(() => {
+  React.useEffect(() => {
     if !(singleStatLoading || singleStatLoadingTimeSeries) {
       setSingleStatCombinedData(_ => {
         singleStatTimeData,
@@ -247,17 +259,17 @@ let make = (
     }
     None
   }, (singleStatLoadingTimeSeries, singleStatLoading, singleStatTimeData, singleStatData))
-  let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetch()
+  let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetch()
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if singleStatData !== None && singleStatTimeData !== None {
       setShimmerType(_ => SideLoader)
     }
     None
   }, (singleStatData, singleStatTimeData))
 
-  React.useEffect5(() => {
-    if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
+  React.useEffect(() => {
+    if startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString {
       open Promise
       setSingleStatLoading(_ => enableLoaders)
 
@@ -266,10 +278,7 @@ let make = (
         let {uri, metrics} = urlConfig
         let domain = String.split("/", uri)->Array.get(4)->Option.getOr("")
         let startTime = if domain === "mandate" {
-          (endTimeFromUrl->DayJs.getDayJsForString).subtract(.
-            1,
-            "hour",
-          ).toDate(.)->Date.toISOString
+          (endTimeFromUrl->DayJs.getDayJsForString).subtract(1, "hour").toDate()->Date.toISOString
         } else {
           startTimeFromUrl
         }
@@ -285,15 +294,19 @@ let make = (
           source,
           prefix: ?urlConfig.prefix,
         }
-        let singleStatBodyMakerFn = urlConfig.singleStatBody->Option.getOr(singleStatBodyMake)
 
-        let singleStatBody = singleStatBodyMakerFn(singleStatBodyEntity)
+        let singleStatBodyMakerFn = switch formaPayload {
+        | Some(fun) => fun
+        | _ => singleStatBodyMake
+        }
+
+        let singleStatBody = singleStatBodyEntity->singleStatBodyMakerFn
         fetchApi(
           uri,
           ~method_=Post,
           ~bodyStr=singleStatBody,
           ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
-          (),
+          ~xFeatureRoute,
         )
         ->addLogsAroundFetch(~logTitle="SingleStat Data Api")
         ->then(json => resolve((`${urlConfig.prefix->Option.getOr("")}${uri}`, json)))
@@ -304,35 +317,7 @@ let make = (
         let data = dataArr->Array.map(
           item => {
             let (sectionName, json) = item
-            switch entity.totalVolumeCol {
-            | Some(val) => {
-                let totalVolumeKeyVal =
-                  json
-                  ->LogicUtils.getDictFromJsonObject
-                  ->LogicUtils.getJsonObjectFromDict("queryData")
-                  ->LogicUtils.getArrayFromJson([])
-                  ->Array.get(0)
-                  ->Option.getOr(JSON.Encode.object(Dict.make()))
-                  ->LogicUtils.getDictFromJsonObject
-                  ->Dict.toArray
-                  ->Array.find(
-                    item => {
-                      let (key, _) = item
-                      key === val
-                    },
-                  )
-                switch totalVolumeKeyVal {
-                | Some(data) => {
-                    let (_key, value) = data
-                    setTotalVolume(_ => value->JSON.Decode.float->Option.getOr(0.)->Float.toInt)
-                  }
 
-                | None => ()
-                }
-              }
-
-            | None => ()
-            }
             let data = entity.getObjects(json)
             let deltaTime = deltaItemToObjMapper(json)
 
@@ -353,8 +338,8 @@ let make = (
     None
   }, (endTimeFromUrl, startTimeFromUrl, filterValueFromUrl, customFilter, mode))
 
-  React.useEffect5(() => {
-    if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
+  React.useEffect(() => {
+    if startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString {
       setSingleStatLoadingTimeSeries(_ => enableLoaders)
 
       open Promise
@@ -363,14 +348,14 @@ let make = (
         let {uri, metrics} = urlConfig
         let domain = String.split("/", uri)->Array.get(4)->Option.getOr("")
         let startTime = if domain === "mandate" {
-          (endTimeFromUrl->DayJs.getDayJsForString).subtract(.
-            1,
-            "hour",
-          ).toDate(.)->Date.toISOString
+          (endTimeFromUrl->DayJs.getDayJsForString).subtract(1, "hour").toDate()->Date.toISOString
         } else {
           startTimeFromUrl
         }
-        let granularity = LineChartUtils.getGranularity(~startTime, ~endTime=endTimeFromUrl)
+        let granularity =
+          DynamicChart.getGranularity(~startTime, ~endTime=endTimeFromUrl)->Array.map(
+            item => item->DynamicChart.getGranularityString,
+          )
 
         let singleStatBodyEntity = {
           filter: ?filterValueFromUrl,
@@ -384,14 +369,18 @@ let make = (
           source,
           prefix: ?urlConfig.prefix,
         }
-        let singleStatBodyMakerFn =
-          urlConfig.singleStatTimeSeriesBody->Option.getOr(singleStatBodyMake)
+
+        let singleStatBodyMakerFn = switch formaPayload {
+        | Some(fun) => fun
+        | _ => singleStatBodyMake
+        }
+
         fetchApi(
           uri,
           ~method_=Post,
           ~bodyStr=singleStatBodyMakerFn(singleStatBodyEntity),
           ~headers=[("QueryType", "SingleStatTimeseries")]->Dict.fromArray,
-          (),
+          ~xFeatureRoute,
         )
         ->addLogsAroundFetch(~logTitle="SingleStatTimeseries Data Api")
         ->then(
@@ -425,10 +414,11 @@ let make = (
 
   entity.defaultColumns
   ->Array.mapWithIndex((urlConfig, index) => {
-    let {sectionName, columns} = urlConfig
+    let {columns} = urlConfig
+    let fullWidth = {columns->Array.length == 1}
 
     let singleStateArr = columns->Array.mapWithIndex((col, singleStatArrIndex) => {
-      let uri = col->entity.matrixUriMapper
+      let uri = col.colType->entity.matrixUriMapper
       let timeSeriesData =
         singlestatDataCombined.singleStatTimeData
         ->Option.getOr([("--", [])])
@@ -439,132 +429,255 @@ let make = (
           },
         )
       let timeSeriesData = []->Array.concatMany(timeSeriesData)
-      switch singlestatDataCombined.singleStatData {
-      | Some(sdata) => {
-          let sectiondata =
-            sdata
-            ->Array.filter(
-              item => {
-                item.sectionUrl === uri
-              },
-            )
-            ->Array.get(0)
 
-          switch sectiondata {
-          | Some(data) => {
+      switch col.chartType->Option.getOr(Default) {
+      | Table =>
+        switch singlestatDataCombined.singleStatData {
+        | Some(sdata) => {
+            let sectiondata =
+              sdata
+              ->Array.filter(
+                item => {
+                  item.sectionUrl === uri
+                },
+              )
+              ->Array.get(0)
+
+            let dict =
+              [("queryData", [Dict.make()->JSON.Encode.object]->JSON.Encode.array)]->Dict.fromArray
+            let (title, tooltipText, statType) = switch dict
+            ->JSON.Encode.object
+            ->entity.getObjects
+            ->Array.get(0) {
+            | Some(item) =>
+              let date = {
+                currentSr: {
+                  fromTime: "",
+                  toTime: "",
+                },
+              }
               let info = entity.getData(
-                data.singleStatData,
+                item,
                 timeSeriesData,
-                data.deltaTime,
-                col,
+                date,
+                col.colType,
                 mode->Option.getOr("ORDER"),
               )
 
-              <HSwitchSingleStatWidget
-                key={singleStatArrIndex->string_of_int}
-                title=info.title
-                tooltipText=info.tooltipText
-                deltaTooltipComponent={info.deltaTooltipComponent(info.statType)}
-                value=info.value
-                data=info.data
-                statType=info.statType
+              (info.title, info.tooltipText, info.statType)
+            | None => ("", "", "")
+            }
+
+            switch sectiondata {
+            | Some(data) =>
+              let info = data.singleStatData->Array.map(
+                infoData => {
+                  entity.getData(
+                    infoData,
+                    timeSeriesData,
+                    data.deltaTime,
+                    col.colType,
+                    mode->Option.getOr("ORDER"),
+                  )
+                },
+              )
+
+              let modifiedData = info->Array.map(
+                item => {
+                  let val: HSwitchSingleStatTableWidget.tableRowType = {
+                    rowLabel: item.label->Option.getOr("NA"),
+                    rowValue: item.value,
+                  }
+                  val
+                },
+              )
+
+              modifiedData->Array.sort(
+                (a, b) => {
+                  let rowValue_a = a.rowValue
+                  let rowValue_b = b.rowValue
+
+                  rowValue_a <= rowValue_b ? 1. : -1.
+                },
+              )
+
+              <HSwitchSingleStatTableWidget
+                key={singleStatArrIndex->Int.toString}
                 singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
-                showPercentage=info.showDelta
+                title
+                tooltipText
+                loaderType=shimmerType
+                value=modifiedData
+                statType
+                statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
+                filterNullVals
+                ?statSentiment
+                ?statThreshold
+                fullWidth
+              />
+
+            | None =>
+              <HSwitchSingleStatTableWidget
+                key={singleStatArrIndex->Int.toString}
+                deltaTooltipComponent=React.null
+                value=[]
+                statType=""
+                singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
                 loaderType=shimmerType
                 statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
                 filterNullVals
                 ?statSentiment
                 ?statThreshold
-                isHomePage
+                fullWidth
               />
             }
-
-          | None =>
-            <HSwitchSingleStatWidget
-              key={singleStatArrIndex->string_of_int}
-              title=""
-              tooltipText=""
-              deltaTooltipComponent=React.null
-              value=0.
-              data=[]
-              statType=""
-              singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
-              loaderType=shimmerType
-              statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
-              filterNullVals
-              ?statSentiment
-              ?statThreshold
-              isHomePage
-            />
           }
-        }
 
-      | None =>
-        <HSwitchSingleStatWidget
-          key={singleStatArrIndex->string_of_int}
-          title=""
-          tooltipText=""
-          deltaTooltipComponent=React.null
-          value=0.
-          data=[]
-          statType=""
-          singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
-          loaderType=shimmerType
-          statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
-          filterNullVals
-          ?statSentiment
-          isHomePage
-        />
+        | None =>
+          <HSwitchSingleStatTableWidget
+            key={singleStatArrIndex->Int.toString}
+            deltaTooltipComponent=React.null
+            value=[]
+            statType=""
+            singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
+            loaderType=shimmerType
+            statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
+            filterNullVals
+            ?statSentiment
+            fullWidth
+          />
+        }
+      | _ =>
+        switch singlestatDataCombined.singleStatData {
+        | Some(sdata) => {
+            let sectiondata =
+              sdata
+              ->Array.filter(
+                item => {
+                  item.sectionUrl === uri
+                },
+              )
+              ->Array.get(0)
+
+            switch sectiondata {
+            | Some(data) => {
+                let info = data.singleStatData->Array.map(
+                  infoData => {
+                    entity.getData(
+                      infoData,
+                      timeSeriesData,
+                      data.deltaTime,
+                      col.colType,
+                      mode->Option.getOr("ORDER"),
+                    )
+                  },
+                )
+
+                switch info->Array.get(0) {
+                | Some(stateData) =>
+                  <HSwitchSingleStatWidget
+                    key={singleStatArrIndex->Int.toString}
+                    title=stateData.title
+                    tooltipText=stateData.tooltipText
+                    deltaTooltipComponent={stateData.deltaTooltipComponent(stateData.statType)}
+                    value=stateData.value
+                    data=stateData.data
+                    statType=stateData.statType
+                    singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
+                    showPercentage=stateData.showDelta
+                    loaderType=shimmerType
+                    statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
+                    filterNullVals
+                    ?statSentiment
+                    fullWidth
+                    ?statThreshold
+                  />
+                | _ =>
+                  <HSwitchSingleStatWidget
+                    key={singleStatArrIndex->Int.toString}
+                    title=""
+                    tooltipText=""
+                    deltaTooltipComponent=React.null
+                    value=0.
+                    data=[]
+                    statType=""
+                    singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
+                    loaderType=shimmerType
+                    statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
+                    filterNullVals
+                    ?statSentiment
+                    ?statThreshold
+                    fullWidth
+                  />
+                }
+              }
+
+            | None =>
+              <HSwitchSingleStatWidget
+                key={singleStatArrIndex->Int.toString}
+                title=""
+                tooltipText=""
+                deltaTooltipComponent=React.null
+                value=0.
+                data=[]
+                statType=""
+                singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
+                loaderType=shimmerType
+                statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
+                filterNullVals
+                ?statSentiment
+                ?statThreshold
+                fullWidth
+              />
+            }
+          }
+
+        | None =>
+          <HSwitchSingleStatWidget
+            key={singleStatArrIndex->Int.toString}
+            title=""
+            tooltipText=""
+            deltaTooltipComponent=React.null
+            value=0.
+            data=[]
+            statType=""
+            singleStatLoading={singleStatLoading || singleStatLoadingTimeSeries}
+            loaderType=shimmerType
+            statChartColor={mod(singleStatArrIndex, 2) === 0 ? #blue : #grey}
+            filterNullVals
+            ?statSentiment
+            fullWidth
+          />
+        }
       }
     })
 
     <AddDataAttributes
-      attributes=[("data-dynamic-single-stats", "dynamic stats")] key={index->string_of_int}>
-      <div>
-        <RenderIf condition={sectionName !== ""}>
-          <div
-            className="mb-5 block pl-5 pt-5 not-italic font-bold text-fs-18 text-black dark:text-white">
-            {sectionName->React.string}
-          </div>
-        </RenderIf>
-        {switch urlConfig.sectionInfo {
-        | Some(info) =>
-          <div
-            className="mb-5 block p-2 not-italic font-normal text-fs-12 text-black dark:text-white bg-blue-info dark:bg-blue-info dark:bg-opacity-20 ml-6"
-            style={ReactDOMStyle.make(
-              ~borderLeft="6px solid #2196F3",
-              ~maxWidth="max-content",
-              (),
-            )}>
-            {info->React.string}
-          </div>
-        | None => React.null
-        }}
-        <div className=wrapperClass>
-          {if isMobileView && !isHomePage {
-            <div className="flex flex-col gap-2 items-center">
-              <div className="flex flex-wrap w-full">
-                {singleStateArr
-                ->Array.mapWithIndex((element, index) => {
-                  <RenderIf condition={index < 4 || showStats} key={index->string_of_int}>
-                    <div className="w-full md:w-1/2"> element </div>
-                  </RenderIf>
-                })
-                ->React.array}
-              </div>
-              <div className="w-full px-2">
-                <Button
-                  text={showStats ? "Hide All Stats" : "View All Stats"}
-                  onClick={_ => setShowStats(prev => !prev)}
-                  buttonType={Pagination}
-                  customButtonStyle="w-full"
-                />
-              </div>
+      attributes=[("data-dynamic-single-stats", "dynamic stats")] key={index->Int.toString}>
+      <div className=wrapperClass>
+        {if isMobileView {
+          <div className="flex flex-col gap-2 items-center h-full">
+            <div className="flex flex-wrap w-full h-full">
+              {singleStateArr
+              ->Array.mapWithIndex((element, index) => {
+                <RenderIf condition={index < 4 || showStats} key={index->Int.toString}>
+                  <div className="w-full md:w-1/2"> element </div>
+                </RenderIf>
+              })
+              ->React.array}
             </div>
-          } else {
-            singleStateArr->React.array
-          }}
-        </div>
+            <div className="w-full px-2">
+              <Button
+                text={showStats ? "Hide All Stats" : "View All Stats"}
+                onClick={_ => setShowStats(prev => !prev)}
+                buttonType={Pagination}
+                customButtonStyle="w-full"
+              />
+            </div>
+          </div>
+        } else {
+          singleStateArr->React.array
+        }}
       </div>
     </AddDataAttributes>
   })

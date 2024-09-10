@@ -447,6 +447,7 @@ module SelectBoxHeadlessUI = {
     ~deSelectAllowed=true,
     ~dropdownWidth="w-52",
   ) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let transformedOptions = SelectBox.useTransformed(options)
     let dropdownPositionClass = switch dropdownPosition {
     | Left => "right-0"
@@ -459,9 +460,9 @@ module SelectBoxHeadlessUI = {
     }
     <div className="text-left">
       <Menu \"as"="div" className="relative inline-block text-left">
-        {menuProps =>
+        {_menuProps =>
           <div>
-            <Menu.Button className> {buttonProps => children} </Menu.Button>
+            <Menu.Button className> {_buttonProps => children} </Menu.Button>
             <Transition
               \"as"="span"
               enter="transition ease-out duration-100"
@@ -472,7 +473,7 @@ module SelectBoxHeadlessUI = {
               leaveTo="transform opacity-0 scale-95">
               <Menu.Items
                 className={`absolute z-10 ${dropdownPositionClass} ${dropdownWidth} max-h-[225px] overflow-auto mt-2 p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
-                {props =>
+                {_props =>
                   transformedOptions
                   ->Array.mapWithIndex((option, index) => {
                     let selected = switch value {
@@ -503,7 +504,10 @@ module SelectBoxHeadlessUI = {
                               <Icon className="align-middle" size=12 name=iconName />
                             | _ => React.null
                             }}
-                            <span className={selected ? "text-blue-800 font-semibold" : ""}>
+                            <span
+                              className={selected
+                                ? `${textColor.primaryNormal} font-semibold`
+                                : ""}>
                               {React.string(option.label)}
                             </span>
                           </div>

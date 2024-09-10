@@ -3,17 +3,19 @@ type point = {name: string, percentage: float}
 type yAxisRecord = {point: point}
 type tooltipRecord = {name: string, y: int}
 type style = {color: string, opacity: string}
+external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => tooltipRecord => string = "%identity"
 type tooltip = {
-  pointFormatter: Js_OO.Callback.arity1<tooltipRecord => string>,
+  pointFormatter: tooltipRecord => string,
   useHTML: bool,
   backgroundColor: string,
   borderColor: string,
   headerFormat: string,
 }
+external asDataLabelFormatter: Js_OO.Callback.arity1<'a> => yAxisRecord => string = "%identity"
 type dataLabels = {
   enabled: bool,
   connectorShape: string,
-  formatter: Js_OO.Callback.arity1<yAxisRecord => string>,
+  formatter: yAxisRecord => string,
   style: style,
   useHTML: bool,
 }

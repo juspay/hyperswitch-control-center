@@ -6,25 +6,24 @@ let calculateHistoricTime = (
   ~endTime: string,
   ~format: string="YYYY-MM-DDTHH:mm:ss[Z]",
   ~timeZone: timeZone=UTC,
-  (),
 ) => {
   let toUtc = switch timeZone {
   | UTC => toUtc
   | IST => val => val
   }
-  if startTime !== "" && endTime !== "" {
+  if startTime->LogicUtils.isNonEmptyString && endTime->LogicUtils.isNonEmptyString {
     let startDateTime = startTime->DateTimeUtils.parseAsFloat->Js.Date.fromFloat->toUtc
 
     let startTimeDayJs = startDateTime->DayJs.getDayJsForJsDate
     let endDateTime = endTime->DateTimeUtils.parseAsFloat->Js.Date.fromFloat->toUtc
 
     let endDateTimeJs = endDateTime->DayJs.getDayJsForJsDate
-    let timediff = endDateTimeJs.diff(. Date.toString(startDateTime), "hours")
+    let timediff = endDateTimeJs.diff(Date.toString(startDateTime), "hours")
 
     if timediff < 24 {
       (
-        startTimeDayJs.subtract(. 24, "hours").format(. format),
-        endDateTimeJs.subtract(. 24, "hours").format(. format),
+        startTimeDayJs.subtract(24, "hours").format(format),
+        endDateTimeJs.subtract(24, "hours").format(format),
       )
     } else {
       let fromTime = startDateTime->Js.Date.valueOf
@@ -34,7 +33,7 @@ let calculateHistoricTime = (
         (fromTime -. 1.)->Js.Date.fromFloat->DayJs.getDayJsForJsDate,
       )
 
-      (startTime.format(. format), endTime.format(. format))
+      (startTime.format(format), endTime.format(format))
     }
   } else {
     ("", "")
@@ -102,7 +101,7 @@ let getFilterBody = (
       let filterValueArr =
         value
         ->Array.mapWithIndex((item, _index) => {
-          if Js.String.match_(%re("/ != /gi"), item)->Option.isSome {
+          if item->String.match(%re("/ != /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ != /gi"), "@@")
               ->String.split("@@")
@@ -124,7 +123,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ > /gi"), item)->Option.isSome {
+          } else if String.match(item, %re("/ > /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ > /gi"), "@@")
               ->String.split("@@")
@@ -146,7 +145,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ < /gi"), item)->Option.isSome {
+          } else if item->String.match(%re("/ < /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ < /gi"), "@@")
               ->String.split("@@")
@@ -168,7 +167,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ >= /gi"), item)->Option.isSome {
+          } else if item->String.match(%re("/ >= /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ >= /gi"), "@@")
               ->String.split("@@")
@@ -190,7 +189,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ <= /gi"), item)->Option.isSome {
+          } else if item->String.match(%re("/ <= /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ <= /gi"), "@@")
               ->String.split("@@")
@@ -212,7 +211,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ = /gi"), item)->Option.isSome {
+          } else if item->String.match(%re("/ = /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ = /gi"), "@@")
               ->String.split("@@")
@@ -234,7 +233,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ IN /gi"), item)->Option.isSome {
+          } else if item->String.match(%re("/ IN /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ IN /gi"), "@@")
               ->String.split("@@")
@@ -260,7 +259,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ NOT IN /gi"), item)->Option.isSome {
+          } else if item->String.match(%re("/ NOT IN /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ NOT IN /gi"), "@@")
               ->String.split("@@")
@@ -286,7 +285,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ LIKE /gi"), item)->Option.isSome {
+          } else if item->String.match(%re("/ LIKE /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ LIKE /gi"), "@@")
               ->String.split("@@")
@@ -329,8 +328,8 @@ let getFilterBody = (
             ])->JSON.Encode.object,
           ),
         ])
-        let filterValueArr = Js.Array2.sliceFrom(filterValueArr->Array.copy, 2)
-        let andAndOr = Js.Array2.sliceFrom(andAndOr->Array.copy, 1)
+        let filterValueArr = filterValueArr->Array.copy->Array.sliceToEnd(~start=2)
+        let andAndOr = andAndOr->Array.copy->Array.sliceToEnd(~start=1)
 
         filterValueArr->Array.forEachWithIndex((item, index) => {
           let complextFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Dict.fromArray
@@ -427,7 +426,6 @@ let apiBodyMaker = (
   ~timeCol: string="txn_initiated",
   ~domain: string,
   ~dataLimit: option<float>=?,
-  (),
 ) => {
   let finalBody = Dict.make()
 

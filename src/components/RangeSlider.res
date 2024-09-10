@@ -40,20 +40,20 @@ let make = (
       : minSlide.value,
   }
 
-  let diff = React.useMemo2(() => {
+  let diff = React.useMemo(() => {
     Math.max(max -. min, 1.)
   }, (max, min))
 
-  let maxsliderVal = React.useMemo1(() => {
+  let maxsliderVal = React.useMemo(() => {
     switch maxSlide.value->JSON.Decode.float {
-    | Some(num) => Math.ceil(num)->Js.Float.toString
+    | Some(num) => Math.ceil(num)->Float.toString
     | None => "0"
     }
   }, [maxSlide.value])
 
-  let minsliderVal = React.useMemo1(() => {
+  let minsliderVal = React.useMemo(() => {
     switch minSlide.value->JSON.Decode.float {
-    | Some(num) => Math.floor(num)->Js.Float.toString
+    | Some(num) => Math.floor(num)->Float.toString
     | None => "0"
     }
   }, [minSlide.value])
@@ -68,34 +68,33 @@ let make = (
 
   let inputClassname = (hasError, isFocused) => {
     let bg = hasError
-      ? "bg-jp-2-red-50"
+      ? "bg-jp-2-red-100"
       : `${isFocused
             ? "bg-jp-2-light-primary-200"
             : "focus:bg-jp-2-light-primary-200 hover:bg-jp-2-light-gray-100"}`
     `w-max numberInput outline-none p-1 ${bg} `
   }
 
-  let bgClass = isMinFocused || isMaxFocused ? "bg-blue-800" : "bg-jp-2-light-gray-2000"
+  let bgClass = isMinFocused || isMaxFocused ? "bg-blue-500" : "bg-jp-2-light-gray-2000"
   <div className="relative pt-1 w-max">
-    <div className={`h-1 rounded relative bg-gray-200`} style={ReactDOMStyle.make(~width, ())}>
+    <div className={`h-1 rounded relative bg-gray-200`} style={width: width}>
       <div
         className={`h-1 rounded absolute ${bgClass}`}
-        style={ReactDOMStyle.make(
-          ~width=((maxsliderVal->LogicUtils.getFloatFromString(0.) -.
+        style={
+          width: ((maxsliderVal->LogicUtils.getFloatFromString(0.) -.
             minsliderVal->LogicUtils.getFloatFromString(0.)) *.
           100. /.
-          diff)->Js.Float.toString ++ "%",
-          ~left=((minsliderVal->LogicUtils.getFloatFromString(0.) -. min) *. 100. /. diff)
-            ->Js.Float.toString ++ "%",
-          ~right=((max -. maxsliderVal->LogicUtils.getFloatFromString(0.)) *. 100. /. diff)
-            ->Js.Float.toString ++ "%",
-          (),
-        )}
+          diff)->Float.toString ++ "%",
+          left: ((minsliderVal->LogicUtils.getFloatFromString(0.) -. min) *. 100. /. diff)
+            ->Float.toString ++ "%",
+          right: ((max -. maxsliderVal->LogicUtils.getFloatFromString(0.)) *. 100. /. diff)
+            ->Float.toString ++ "%",
+        }
       />
     </div>
     <div className={`absolute top-0`}>
       <input
-        style={ReactDOMStyle.make(~width, ())}
+        style={width: width}
         className={`absolute bg-transparent pointer-events-none appearance-none slider hover:sliderFocus active:sliderFocus outline-none`}
         type_="range"
         value=minsliderVal
@@ -114,7 +113,7 @@ let make = (
         onMouseLeave={_ => setIsFocused(((_, max)) => (false, max))}
       />
       <input
-        style={ReactDOMStyle.make(~width, ())}
+        style={width: width}
         className={`absolute bg-transparent pointer-events-none appearance-none slider hover:sliderFocus active:sliderFocus outline-none`}
         type_="range"
         value=maxsliderVal

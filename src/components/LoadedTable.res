@@ -18,7 +18,7 @@ let checkBoxPropDefaultVal: checkBoxProps = {
   setSelectedData: _ => (),
 }
 
-let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Dict.make())
+let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>> = Recoil.atom("sortAtom", Dict.make())
 
 let backgroundClass = "bg-gray-50 dark:bg-jp-gray-darkgray_background"
 
@@ -27,7 +27,7 @@ let useSortedObj = (title: string, defaultSort) => {
   let filters = Dict.get(dict, title)
 
   let (sortedObj, setSortedObj) = React.useState(_ => defaultSort)
-  React.useEffect0(() => {
+  React.useEffect(() => {
     switch filters {
     | Some(filt) =>
       let sortObj: Table.sortedObject = {
@@ -37,15 +37,15 @@ let useSortedObj = (title: string, defaultSort) => {
         | _ => Table.INC
         },
       }
-      setSortedObj(_ => sortObj->Some)
+      setSortedObj(_ => Some(sortObj))
     | None => ()
     }
 
     None
-  })
+  }, [])
 
   // Adding new
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch sortedObj {
     | Some(obj: Table.sortedObject) =>
       let sortOb = {
@@ -56,7 +56,7 @@ let useSortedObj = (title: string, defaultSort) => {
         },
       }
 
-      setDict(.dict => {
+      setDict(dict => {
         let nDict = Dict.fromArray(Dict.toArray(dict))
         Dict.set(nDict, title, sortOb)
         nDict
@@ -82,7 +82,7 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
     }
   }
   let sortedArrayByOrder = {
-    let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
+    originalData->Array.toSorted((i1, i2) => {
       let item1 = i1->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       let item2 = i2->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       // flatten items and get data
@@ -101,25 +101,24 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
       let value2 = getValue(val2)
       if value1 === ""->JSON.Encode.string || value2 === ""->JSON.Encode.string {
         if value1 === value2 {
-          0
+          0.
         } else if value2 === ""->JSON.Encode.string {
-          sortOrder === DEC ? 1 : -1
+          sortOrder === DEC ? 1. : -1.
         } else if sortOrder === DEC {
-          -1
+          -1.
         } else {
-          1
+          1.
         }
       } else if value1 === value2 {
-        0
+        0.
       } else if value1 > value2 {
-        sortOrder === DEC ? 1 : -1
+        sortOrder === DEC ? 1. : -1.
       } else if sortOrder === DEC {
-        -1
+        -1.
       } else {
-        1
+        1.
       }
     })
-    originalData
   }
   sortedArrayByOrder
 }
@@ -128,7 +127,7 @@ type pageDetails = {
   resultsPerPage: int,
 }
 
-let table_pageDetails: Recoil.recoilAtom<Dict.t<pageDetails>> = Recoil.atom(.
+let table_pageDetails: Recoil.recoilAtom<Dict.t<pageDetails>> = Recoil.atom(
   "table_pageDetails",
   Dict.make(),
 )
@@ -174,7 +173,6 @@ let make = (
   ~advancedSearchComponent=?,
   ~setData=?,
   ~setSummary=?,
-  ~customGetObjects: option<JSON.t => array<'a>>=?,
   ~dataNotFoundComponent=?,
   ~renderCard=?,
   ~tableLocalFilter=false,
@@ -229,10 +227,14 @@ let make = (
   ~customBorderClass=?,
   ~showborderColor=?,
   ~tableHeadingTextClass="",
+  ~nonFrozenTableParentClass="",
+  ~loadedTableParentClass="",
+  ~remoteSortEnabled=false,
 ) => {
+  open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
-  React.useEffect0(_ => {
-    if title === "" && GlobalVars.isLocalhost {
+  React.useEffect(_ => {
+    if title->isEmptyString && GlobalVars.isLocalhost {
       showPopUp({
         popUpType: (Denied, WithIcon),
         heading: `Title cannot be empty!`,
@@ -241,9 +243,8 @@ let make = (
       })
     }
     None
-  })
-  let resultsPerPage =
-    resultsPerPage > 10 ? defaultResultsPerPage ? 10 : resultsPerPage : resultsPerPage
+  }, [])
+
   let customizeColumnNewTheme = None
   let defaultValue: pageDetails = {offset, resultsPerPage}
   let (firstRender, setFirstRender) = React.useState(_ => true)
@@ -267,17 +268,17 @@ let make = (
 
     newDict->Dict.set(title, value)
     setOffset(_ => offsetVal(0))
-    setPageDetails(._ => newDict)
+    setPageDetails(_ => newDict)
   }
   let url = RescriptReactRouter.useUrl()
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     setFirstRender(_ => false)
     setOffset(_ => pageDetail.offset)
     None
   }, [url.path->List.toArray->Array.joinWith("/")])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     if pageDetail.offset !== offset && !firstRender {
       let value = switch pageDetailDict->Dict.get(title) {
       | Some(val) => {offset, resultsPerPage: val.resultsPerPage}
@@ -286,7 +287,7 @@ let make = (
 
       let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
       newDict->Dict.set(title, value)
-      setPageDetails(._ => newDict)
+      setPageDetails(_ => newDict)
     }
     None
   }, [offset])
@@ -304,7 +305,7 @@ let make = (
     let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
 
     newDict->Dict.set(title, value)
-    setPageDetails(._ => newDict)
+    setPageDetails(_ => newDict)
   }
 
   let (columnFilter, setColumnFilterOrig) = React.useState(_ => Dict.make())
@@ -317,14 +318,14 @@ let make = (
 
   let localResultsPerPage = pageDetail.resultsPerPage
 
-  let setColumnFilter = React.useMemo1(() => {
+  let setColumnFilter = React.useMemo(() => {
     (filterKey, filterValue: array<JSON.t>) => {
       setColumnFilterOrig(oldFitlers => {
         let newObj = oldFitlers->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->String.make
-            updatedItem !== ""
+            updatedItem->isNonEmptyString
           },
         )
         if filterValue->Array.length === 0 {
@@ -345,19 +346,19 @@ let make = (
     }
   }, [setColumnFilterOrig])
 
-  React.useEffect1(_ => {
+  React.useEffect(_ => {
     if columnFilter != Dict.make() {
       newSetOffset(_ => 0)
     }
     None
   }, [columnFilter])
 
-  let filterValue = React.useMemo2(() => {
+  let filterValue = React.useMemo(() => {
     (columnFilter, setColumnFilter)
   }, (columnFilter, setColumnFilter))
 
   let (isFilterOpen, setIsFilterOpenOrig) = React.useState(_ => Dict.make())
-  let setIsFilterOpen = React.useMemo1(() => {
+  let setIsFilterOpen = React.useMemo(() => {
     (filterKey, value: bool) => {
       setIsFilterOpenOrig(oldFitlers => {
         let newObj = oldFitlers->DictionaryUtils.copyOfDict
@@ -366,7 +367,7 @@ let make = (
       })
     }
   }, [setColumnFilterOrig])
-  let filterOpenValue = React.useMemo2(() => {
+  let filterOpenValue = React.useMemo(() => {
     (isFilterOpen, setIsFilterOpen)
   }, (isFilterOpen, setIsFilterOpen))
 
@@ -376,20 +377,18 @@ let make = (
   if showSerialNumber {
     heading
     ->Array.unshift(
-      Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType, ()),
+      Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType),
     )
     ->ignore
   }
 
   if checkBoxProps.showCheckBox {
     heading
-    ->Array.unshift(
-      Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true, ()),
-    )
+    ->Array.unshift(Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true))
     ->ignore
   }
 
-  let setLocalResultsPerPage = React.useCallback1(fn => {
+  let setLocalResultsPerPage = React.useCallback(fn => {
     setLocalResultsPerPageOrig(prev => {
       let newVal = prev->fn
       if newVal == 0 {
@@ -400,10 +399,10 @@ let make = (
     })
   }, [setLocalResultsPerPageOrig])
 
-  let {getShowLink, searchFields, searchUrl, getObjects} = entity
+  let {getShowLink, searchFields, searchUrl} = entity
   let (sortedObj, setSortedObj) = useSortedObj(title, defaultSort)
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setDataView(_prev => isMobileView && !showTableOnMobileView ? Card : Table)
     None
   }, [isMobileView])
@@ -413,7 +412,7 @@ let make = (
   let offsetVal = offset < totalResults ? offset : defaultOffset
   let offsetVal = ignoreUrlUpdate ? offset : offsetVal
 
-  React.useEffect4(() => {
+  React.useEffect(() => {
     if offset > currrentFetchCount && offset <= totalResults && !tableDataLoading {
       switch handleRefetch {
       | Some(fun) => fun()
@@ -424,7 +423,7 @@ let make = (
   }, (offset, currrentFetchCount, totalResults, tableDataLoading))
 
   let originalActualData = actualData
-  let actualData = React.useMemo5(() => {
+  let actualData = React.useMemo(() => {
     if tableLocalFilter {
       filteredData(actualData, columnFilter, visibleColumns, entity, dateFormatConvertor)
     } else {
@@ -432,7 +431,7 @@ let make = (
     }
   }, (actualData, columnFilter, visibleColumns, entity, dateFormatConvertor))
 
-  let columnFilterRow = React.useMemo4(() => {
+  let columnFilterRow = React.useMemo(() => {
     if tableLocalFilter {
       let columnFilterRow =
         visibleColumns
@@ -457,6 +456,7 @@ let make = (
               | Some(rows) =>
                 let value = switch entity.getCell(rows, item) {
                 | CustomCell(_, str)
+                | DisplayCopyCell(str)
                 | EllipsisText(str, _)
                 | Link(str)
                 | Date(str)
@@ -468,7 +468,7 @@ let make = (
                   convertStrCellToFloat(dataType, x.title)
                 | DeltaPercentage(num, _) | Currency(num, _) | Numeric(num, _) =>
                   convertFloatCellToStr(dataType, num)
-                | Progress(num) => convertFloatCellToStr(dataType, num->Js.Int.toFloat)
+                | Progress(num) => convertFloatCellToStr(dataType, num->Int.toFloat)
                 | StartEndDate(_) | InputField(_) | TrimmedText(_) | DropDown(_) =>
                   convertStrCellToFloat(dataType, "")
                 }
@@ -510,7 +510,7 @@ let make = (
   let filteredDataLength =
     columnFilter->Dict.keysToArray->Array.length !== 0 ? actualData->Array.length : totalResults
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     switch setExtFilteredDataLength {
     | Some(fn) => fn(_ => filteredDataLength)
     | _ => ()
@@ -518,14 +518,18 @@ let make = (
     None
   }, [filteredDataLength])
 
-  let filteredData = React.useMemo4(() => {
-    switch sortedObj {
-    | Some(obj: Table.sortedObject) => sortArray(actualData, obj.key, obj.order)
-    | None => actualData
+  let filteredData = React.useMemo(() => {
+    if !remoteSortEnabled {
+      switch sortedObj {
+      | Some(obj: Table.sortedObject) => sortArray(actualData, obj.key, obj.order)
+      | None => actualData
+      }
+    } else {
+      actualData
     }
-  }, (sortedObj, customGetObjects, actualData, getObjects))
+  }, (sortedObj, actualData))
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     let selectedRowDataLength = checkBoxProps.selectedData->Array.length
     let isCompleteDataSelected = selectedRowDataLength === filteredData->Array.length
     if isCompleteDataSelected {
@@ -539,7 +543,7 @@ let make = (
     None
   }, (checkBoxProps.selectedData, filteredData))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if selectAllCheckBox === Some(ALL) {
       checkBoxProps.setSelectedData(_ => {
         filteredData->Array.map(
@@ -616,7 +620,7 @@ let make = (
                 isSelected={selectedRowIndex !== -1} setIsSelected checkboxDimension="h-4 w-4"
               />
             </div>,
-            (selectedRowIndex !== -1)->LogicUtils.getStringFromBool,
+            (selectedRowIndex !== -1)->getStringFromBool,
           ),
         )
         ->ignore
@@ -634,31 +638,11 @@ let make = (
     })
   }
 
-  let dataExists = rows->Array.length > 0
-  let heading = heading->Array.mapWithIndex((head, index) => {
-    let getValue = row => row->Array.get(index)->Option.mapOr("", Table.getTableCellValue)
-
-    let default = switch rows[0] {
-    | Some(ele) => getValue(ele)
-    | None => ""
-    }
-    let head: Table.header = {
-      ...head,
-      showSort: head.showSort &&
-      dataExists && (
-        totalResults == Array.length(rows)
-          ? rows->Array.some(row => getValue(row) !== default)
-          : true
-      ),
-    }
-    head
-  })
-
   let paginatedData =
     filteredData->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})
   let rows = rows->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})
 
-  let handleRowClick = React.useCallback4(index => {
+  let handleRowClick = React.useCallback(index => {
     let actualVal = switch filteredData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
@@ -671,7 +655,7 @@ let make = (
         switch getShowLink {
         | Some(fn) => {
             let link = fn(value)
-            let finalUrl = url.search->String.length > 0 ? `${link}?${url.search}` : link
+            let finalUrl = url.search->isNonEmptyString ? `${link}?${url.search}` : link
             RescriptReactRouter.push(finalUrl)
           }
 
@@ -682,7 +666,7 @@ let make = (
     }
   }, (filteredData, getShowLink, onEntityClick, url.search))
 
-  let onRowDoubleClick = React.useCallback4(index => {
+  let onRowDoubleClick = React.useCallback(index => {
     let actualVal = switch filteredData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
@@ -695,7 +679,7 @@ let make = (
         switch getShowLink {
         | Some(fn) => {
             let link = fn(value)
-            let finalUrl = url.search->String.length > 0 ? `${link}?${url.search}` : link
+            let finalUrl = url.search->isNonEmptyString ? `${link}?${url.search}` : link
             RescriptReactRouter.push(finalUrl)
           }
 
@@ -706,7 +690,7 @@ let make = (
     }
   }, (filteredData, getShowLink, onEntityDoubleClick, url.search))
 
-  let handleMouseEnter = React.useCallback4(index => {
+  let handleMouseEnter = React.useCallback(index => {
     let actualVal = switch filteredData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
@@ -721,7 +705,7 @@ let make = (
     }
   }, (filteredData, getShowLink, onMouseEnter, url.search))
 
-  let handleMouseLeaeve = React.useCallback4(index => {
+  let handleMouseLeaeve = React.useCallback(index => {
     let actualVal = switch filteredData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
@@ -735,6 +719,21 @@ let make = (
     | None => ()
     }
   }, (filteredData, getShowLink, onMouseLeave, url.search))
+
+  let filterBottomPadding = isMobileView ? "" : "pb-4"
+
+  let paddingClass = {rightTitleElement != React.null ? filterBottomPadding : ""}
+
+  let customizeColumsButtons = {
+    switch clearFormattedDataButton {
+    | Some(clearFormattedDataButton) =>
+      <div className={`flex flex-row mobile:gap-7 desktop:gap-10 ${filterBottomPadding}`}>
+        clearFormattedDataButton
+        {rightTitleElement}
+      </div>
+    | _ => <div className={paddingClass}> {rightTitleElement} </div>
+    }
+  }
 
   let (loadedTableUI, paginationUI) = if totalResults > 0 {
     let paginationUI = if showPagination {
@@ -828,6 +827,8 @@ let make = (
                 ?customBorderClass
                 ?showborderColor
                 tableHeadingTextClass
+                nonFrozenTableParentClass
+                showCustomizeColumn={rightTitleElement != React.null}
               />
             switch tableLocalFilter {
             | true =>
@@ -877,7 +878,7 @@ let make = (
   } else {
     tableActionBorder
   }
-  let filterBottomPadding = isMobileView ? "" : "pb-3"
+
   let filtersOuterMargin = if hideTitle {
     ""
   } else {
@@ -890,9 +891,9 @@ let make = (
       | Some(x) =>
         <AdvancedSearchComponent entity ?setData ?setSummary> {x} </AdvancedSearchComponent>
       | None =>
-        <UIUtils.RenderIf condition={searchFields->Array.length > 0}>
+        <RenderIf condition={searchFields->Array.length > 0}>
           <AdvancedSearchModal searchFields url=searchUrl entity />
-        </UIUtils.RenderIf>
+        </RenderIf>
       }}
       <DesktopView>
         {switch tableActions {
@@ -905,18 +906,6 @@ let make = (
       </DesktopView>
     </div>
 
-  let customizeColumsButtons =
-    <div className=filterBottomPadding>
-      {switch clearFormattedDataButton {
-      | Some(clearFormattedDataButton) =>
-        <div className={`flex flex-row mobile:gap-7 desktop:gap-10`}>
-          clearFormattedDataButton
-          <Portal to={""}> rightTitleElement </Portal>
-        </div>
-      | _ => <Portal to={""}> rightTitleElement </Portal>
-      }}
-    </div>
-
   let addDataAttributesClass = if isHighchartLegend {
     `visibility: hidden`
   } else {
@@ -924,29 +913,28 @@ let make = (
   }
   let dataId = title->String.split("-")->Array.get(0)->Option.getOr("")
   <AddDataAttributes attributes=[("data-loaded-table", dataId)]>
-    <div className="w-full">
-      <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>
+    <div className={`w-full ${loadedTableParentClass}`}>
+      <div className=addDataAttributesClass style={zIndex: "2"}>
         //removed "sticky" -> to be tested with master
         <div
           className={`flex flex-row justify-between items-center` ++ (
             hideTitle ? "" : ` mt-4 mb-2`
           )}>
           <div className="w-full">
-            <UIUtils.RenderIf condition={!hideTitle}>
+            <RenderIf condition={!hideTitle}>
               <NewThemeHeading
                 heading=title
                 headingSize=titleSize
                 outerMargin=""
                 ?description
-                rightActions={<UIUtils.RenderIf
-                  condition={!isMobileView && !isTableActionBesideFilters}>
+                rightActions={<RenderIf condition={!isMobileView && !isTableActionBesideFilters}>
                   {tableActionElements}
-                </UIUtils.RenderIf>}
+                </RenderIf>}
               />
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
         </div>
-        <UIUtils.RenderIf condition={!hideFilterTopPortals}>
+        <RenderIf condition={!hideFilterTopPortals}>
           <div className="flex justify-between items-center">
             <PortalCapture
               key={`tableFilterTopLeft-${title}`}
@@ -959,7 +947,7 @@ let make = (
               customStyle="flex flex-row-reverse items-center gap-x-2"
             />
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         <div
           className={`flex flex-row mobile:flex-wrap items-center ${tableActionBorder} ${filtersOuterMargin}`}>
           <TableFilterSectionContext isFilterSection=true>
@@ -979,9 +967,9 @@ let make = (
               <PortalCapture key={`extraFilters-${title}`} name={`extraFilters-${title}`} />
             </div>
           </TableFilterSectionContext>
-          <UIUtils.RenderIf condition={isTableActionBesideFilters || isMobileView || hideTitle}>
+          <RenderIf condition={isTableActionBesideFilters || isMobileView || hideTitle}>
             {tableActionElements}
-          </UIUtils.RenderIf>
+          </RenderIf>
           customizeColumsButtons
         </div>
       </div>
@@ -990,9 +978,9 @@ let make = (
       } else {
         loadedTableUI
       }}
-      <UIUtils.RenderIf condition={tableDataLoading && !dataLoading}>
+      <RenderIf condition={tableDataLoading && !dataLoading}>
         <TableDataLoadingIndicator showWithData={rows->Array.length !== 0} />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div
         className={`${tableActions->Option.isSome && isMobileView
             ? `flex flex-row-reverse justify-between mb-10 ${tableDataBackgroundClass}`

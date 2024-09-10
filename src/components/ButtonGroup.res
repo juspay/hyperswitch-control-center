@@ -7,7 +7,7 @@ module ButtonWrapper = {
   let make = (~element, ~count, ~index) => {
     let isFirst = index === 0
     let isLast = index === count - 1
-    let value = React.useMemo2(() => makeInfoRecord(~isFirst, ~isLast), (isFirst, isLast))
+    let value = React.useMemo(() => makeInfoRecord(~isFirst, ~isLast), (isFirst, isLast))
     <ButtonGroupContext.Parent value> element </ButtonGroupContext.Parent>
   }
 }

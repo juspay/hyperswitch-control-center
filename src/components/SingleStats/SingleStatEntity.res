@@ -4,7 +4,7 @@ type filterConfig = {
   source: string, // source can be BATCH, KVLOGS basically which DB to fetch
   modeValue: string, // modeValue can be ORDERS, TXN so here is the mode is orders we see data aggregated by the order_id and if mode is txn the data is aggregated by txn id simmilarly more mode can be added
   filterValues?: JSON.t, // which all filters will be applicable for the single stats (those keys i.e merchant_id, payment_gateway etc.)
-  startTime: string, // start time from when data will fetch   (later can be moved to the parent level)
+  startTime: string, // start time from when data will fetch  (later can be moved to the parent level)
   endTime: string, // end time till when data should be fetched (later can be moved to the parent level)
   customFilterValue: string, // custome filter key is the key by which stores the value of the applied customfilter in the url
   granularity?: (int, string),
@@ -23,7 +23,7 @@ type singleStatDataWidgetData = {
   title: string, // title of the single stat
   tooltipText: string, // tooltip of the single stat
   // deltaTooltipComponent: string => React.element, // delta tooltip hover compoment of the single stat
-  statType: AnalyticsTypesUtils.metricsType, // wheather the metric which we are showing  is a Rate, Volume, Latency
+  statType: AnalyticsTypesUtils.metricsType, // wheather the metric which we are showing is a Rate, Volume, Latency
   showDelta: bool, // wheather to show the delta or not
 }
 

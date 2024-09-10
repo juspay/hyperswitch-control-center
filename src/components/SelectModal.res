@@ -21,13 +21,14 @@ let make = (
   ~showSerialNumber=true,
   ~showConversionRate=false,
   ~headerTextClass="text-3xl font-semibold tracking-tight",
+  ~headerClass="",
 ) => {
   let maxLengthArray = (arr, setValues) => {
     switch maxSelection {
     | -1 => setValues(_ => arr)
     | _ =>
       if arr->Array.length > maxSelection {
-        let temp = arr->Js.Array2.sliceFrom(arr->Array.length - maxSelection)
+        let temp = arr->Array.sliceToEnd(~start=arr->Array.length - maxSelection)
         setValues(_ => temp)
       } else {
         setValues(_ => arr)
@@ -38,7 +39,7 @@ let make = (
   let (values, setValues) = React.useState(_ => initialValues)
   let onClick = _ => values->onSubmit
 
-  let disableSelectBtn = React.useMemo2(
+  let disableSelectBtn = React.useMemo(
     () =>
       (initialValues->Array.toString === values->Array.toString && !enableSelect) ||
         values->Array.length === 0,
@@ -49,7 +50,7 @@ let make = (
   let buttonText =
     submitButtonText->Option.getOr(len > 0 ? `${len->Int.toString} ${title} Selected` : "Select")
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if !showModal {
       setValues(_ => initialValues)
     }
@@ -80,17 +81,16 @@ let make = (
       closeOnOutsideClick
       revealFrom
       modalClass="w-full h-screen md:w-96 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
-      headingClass="py-6 px-2.5 h-24 border-b border-solid flex flex-col justify-center !bg-white dark:!bg-black border-slate-300"
+      headingClass={`${headerClass} py-6 px-2.5 h-24 border-b border-solid flex flex-col justify-center !bg-white dark:!bg-black border-slate-300`}
       headerTextClass
       childClass="p-0 m-0">
       <div
         className={`overflow-hidden p-6 pb-12 border-b border-solid  ${showConversionRate
             ? "border-slate-100"
             : "border-slate-300"} dark:border-slate-500`}
-        style={ReactDOMStyle.make(
-          ~height=`${showConversionRate ? "calc(100vh - 17rem)" : "calc(100vh - 12rem)"}`,
-          (),
-        )}>
+        style={
+          height: `${showConversionRate ? "calc(100vh - 17rem)" : "calc(100vh - 12rem)"}`,
+        }>
         <SelectBox.BaseSelect
           isDropDown=false
           options
@@ -100,7 +100,7 @@ let make = (
           showSerialNumber
           maxHeight="max-h-full"
           searchable=true
-          searchInputPlaceHolder={`Search in ${options->Array.length->string_of_int} options`}
+          searchInputPlaceHolder={`Search in ${options->Array.length->Int.toString} options`}
           customStyle="px-2 py-1"
           customSearchStyle="bg-white dark:bg-jp-gray-lightgray_background"
           disableSelect

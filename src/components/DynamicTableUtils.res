@@ -176,9 +176,9 @@ module TableHeading = {
     } else {
       "lg:mb-4 lg:mt-8"
     }
-    if title !== "" || description->Option.isSome {
+    if title->LogicUtils.isNonEmptyString || description->Option.isSome {
       <div className={`flex ${tooltipFlexDir} ${marginClass}`}>
-        {if title !== "" {
+        {if title->LogicUtils.isNonEmptyString {
           <AddDataAttributes attributes=[("data-table-heading-title", title)]>
             <div className=tableHeadingClass> {React.string(title)} </div>
           </AddDataAttributes>
@@ -227,9 +227,9 @@ module TableLoadingErrorIndicator = {
     }
 
     <div className={`flex flex-col w-full`}>
-      <UIUtils.RenderIf condition={!hideTitle}>
+      <RenderIf condition={!hideTitle}>
         <TableHeading title />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <TableFilterSectionContext isFilterSection=true>
         <div className=filtersBorder> {filters} </div>
       </TableFilterSectionContext>
@@ -287,8 +287,8 @@ module ChooseColumns = {
   ) => {
     let (visibleColumns, setVisibleColumns) = Recoil.useRecoilState(activeColumnsAtom)
     let {getHeading} = entity
-    let setColumns = React.useCallback1(fn => {
-      setVisibleColumns(. fn)
+    let setColumns = React.useCallback(fn => {
+      setVisibleColumns(fn)
       setShowColumnSelector(_ => false)
     }, [setVisibleColumns])
     if entity.allColumns->Option.isSome && totalResults > 0 {

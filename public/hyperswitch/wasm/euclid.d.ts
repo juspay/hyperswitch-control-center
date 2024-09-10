@@ -83,6 +83,10 @@ export function getVariantValues(key: string): any;
 */
 export function addTwo(n1: bigint, n2: bigint): bigint;
 /**
+* @returns {any}
+*/
+export function getDescriptionCategory(): any;
+/**
 * @param {string} key
 * @returns {any}
 */
@@ -92,6 +96,16 @@ export function getConnectorConfig(key: string): any;
 * @returns {any}
 */
 export function getPayoutConnectorConfig(key: string): any;
+/**
+* @param {string} key
+* @returns {any}
+*/
+export function getAuthenticationConnectorConfig(key: string): any;
+/**
+* @param {string} key
+* @returns {any}
+*/
+export function getPMAuthenticationProcessorConfig(key: string): any;
 /**
 * @param {any} input
 * @param {any} response
@@ -106,7 +120,16 @@ export function getResponsePayload(input: any): any;
 /**
 * @returns {any}
 */
-export function getDescriptionCategory(): any;
+export function getAllPayoutKeys(): any;
+/**
+* @param {string} key
+* @returns {any}
+*/
+export function getPayoutVariantValues(key: string): any;
+/**
+* @returns {any}
+*/
+export function getPayoutDescriptionCategory(): any;
 /**
 *
 * Function exposed as `wasm` function in js `parse`. Allowing use to extend the functionality and
@@ -133,11 +156,17 @@ export interface InitOutput {
   readonly getSurchargeKeys: (a: number) => void;
   readonly getVariantValues: (a: number, b: number, c: number) => void;
   readonly addTwo: (a: number, b: number) => number;
+  readonly getDescriptionCategory: (a: number) => void;
   readonly getConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getPayoutConnectorConfig: (a: number, b: number, c: number) => void;
+  readonly getAuthenticationConnectorConfig: (a: number, b: number, c: number) => void;
+  readonly getPMAuthenticationProcessorConfig: (a: number, b: number, c: number) => void;
   readonly getRequestPayload: (a: number, b: number, c: number) => void;
   readonly getResponsePayload: (a: number, b: number) => void;
-  readonly getDescriptionCategory: (a: number) => void;
+  readonly getAllPayoutKeys: (a: number) => void;
+  readonly getPayoutVariantValues: (a: number, b: number, c: number) => void;
+  readonly getPayoutDescriptionCategory: (a: number) => void;
+  readonly ring_core_0_17_8_bn_mul_mont: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
   readonly parse: (a: number, b: number, c: number) => void;
   readonly parseToString: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_0: (a: number, b: number) => number;

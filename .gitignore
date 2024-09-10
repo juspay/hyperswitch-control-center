@@ -1,9 +1,8 @@
 # Ignore Mac DS_Store files
 .DS_Store
-**/.DS_Store
 node_modules
 dist/
-**/**.bs.js
+**/**.res.js
 lib/
 # yarn
 .pnp.*
@@ -22,3 +21,8 @@ user_data.sh
 .bsb.lock
 package-lock.json
 screenshots
+hyperswitch/
+downloads
+.env
+.nyc_output
+coverage

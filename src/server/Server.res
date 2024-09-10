@@ -9,7 +9,14 @@ let port = 9000
 open NodeJs
 
 @module("./config.mjs")
-external configHandler: (Http.request, Http.response, bool, string) => unit = "configHandler"
+external configHandler: (Http.request, Http.response, bool, string, string) => unit =
+  "configHandler"
+
+@module("./health.mjs")
+external healthHandler: (Http.request, Http.response) => unit = "healthHandler"
+
+@module("./health.mjs")
+external healthReadinessHandler: (Http.request, Http.response) => unit = "healthReadinessHandler"
 
 module ServerHandler = {
   type rewrite = {source: string, destination: string}
@@ -24,7 +31,6 @@ module ServerHandler = {
     ~public: string,
     ~rewrites: array<rewrite>,
     ~headers: array<headerType>,
-    unit,
   ) => options = ""
 
   @module
@@ -47,7 +53,15 @@ external execSync: (string, encodeType) => string = "execSync"
 let currentCommitHash = nullableGitCommitStr->Option.getOr("no-commit-hash")
 
 let serverHandler: Http.serverHandler = (request, response) => {
-  let arr = request.url.toString(.)->String.split("?")
+  let arr = request.url.toString()->String.split("?")
+  let domain =
+    arr
+    ->Array.get(1)
+    ->Option.getOr("domain=default")
+    ->Js.String2.split("=")
+    ->Array.get(1)
+    ->Option.getOr("default")
+
   let path =
     arr
     ->Array.get(0)
@@ -55,16 +69,26 @@ let serverHandler: Http.serverHandler = (request, response) => {
     ->String.replaceRegExp(%re("/^\/\//"), "/")
     ->String.replaceRegExp(%re("/^\/v4\//"), "/")
 
-  if path === "/config/merchant-access" && request.method === "POST" {
-    let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/FeatureFlag.json")
+  if path->String.includes("/config/merchant-config") && request.method === "GET" {
+    let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/config.toml")
     Promise.make((resolve, _reject) => {
-      configHandler(request, response, true, path)
-      ()->resolve(. _)
+      configHandler(request, response, true, domain, path)
+      ()->(resolve(_))
+    })
+  } else if path === "/health" && request.method === "GET" {
+    Promise.make((resolve, _reject) => {
+      healthHandler(request, response)
+      ()->(resolve(_))
+    })
+  } else if path === "/health/ready" && request.method === "GET" {
+    Promise.make((resolve, _reject) => {
+      healthReadinessHandler(request, response)
+      ()->(resolve(_))
     })
   } else {
     open ServerHandler
 
-    let cache = if request.url.toString(.)->String.endsWith(".svg") {
+    let cache = if request.url.toString()->String.endsWith(".svg") {
       "max-age=3600, must-revalidate"
     } else {
       "no-cache"
@@ -109,7 +133,6 @@ let serverHandler: Http.serverHandler = (request, response) => {
           },
         ],
         ~rewrites=[makeRewrite(~source="**", ~destination="/index.html")],
-        (),
       ),
     )
   }
@@ -117,10 +140,11 @@ let serverHandler: Http.serverHandler = (request, response) => {
 let serverHandlerWrapper = (req, res) => {
   try {serverHandler(req, res)} catch {
   | err => {
-      let err = err->Exn.asJsExn->Option.flatMap(Exn.message)->Option.getOr("Error Found")
-      res.writeHead(. 200, Http.makeHeader({"Content-Type": "text/plain"}))
-      `Error : ${err}`->res.write(. _)
-      res.end(.)
+      let err =
+        err->Exn.asJsExn->Option.flatMap(msg => msg->Exn.message)->Option.getOr("Error Found")
+      res.writeHead(200, Http.makeHeader({"Content-Type": "text/plain"}))
+      `Error : ${err}`->(res.write(_))
+      res.end()
       Promise.resolve()
     }
   }

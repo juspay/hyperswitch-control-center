@@ -3,7 +3,7 @@ let make = (~fill="#7c7d82", ~onClick) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let marginStyle = isMobileView ? "" : "mr-2"
   <AddDataAttributes attributes=[("data-component", `modalCloseIcon`)]>
-    {if HSwitchGlobalVars.isHyperSwitchDashboard {
+    {if GlobalVars.isHyperSwitchDashboard {
       <div className="" onClick>
         <Icon
           name="close" className="border-2 p-2 rounded-2xl bg-gray-100 cursor-pointer" size=30

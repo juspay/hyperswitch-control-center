@@ -16,8 +16,8 @@ let useLottieJson = lottieFileName => {
   let uriPrefix = LogicUtils.useUrlPrefix()
   let showToast = ToastState.useShowToast()
   let prefix = `${Window.Location.origin}${uriPrefix}`
-
-  React.useEffect1(() => {
+  // let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  React.useEffect(() => {
     switch lottieDict->Dict.get(lottieFileName) {
     | Some(val) =>
       switch val {
@@ -26,15 +26,15 @@ let useLottieJson = lottieFileName => {
       }
     | None => {
         let fetchLottie =
-          fetchApi(`${prefix}/lottie-files/${lottieFileName}`, ~method_=Get, ())
-          ->then(Fetch.Response.json)
+          fetchApi(`${prefix}/lottie-files/${lottieFileName}`, ~method_=Get, ~xFeatureRoute=false)
+          ->then(res => res->Fetch.Response.json)
           ->then(json => {
             setlottieJson(_ => json)
             lottieDict->Dict.set(lottieFileName, Loaded(json))
             json->resolve
           })
           ->catch(_err => {
-            showToast(~message="Error!", ~toastType=ToastError, ())
+            showToast(~message="Error!", ~toastType=ToastError)
             JSON.Encode.null->resolve
           })
 

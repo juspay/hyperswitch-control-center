@@ -1,3 +1,7 @@
+let isEmptyString = str => str->String.length === 0
+
+let isNonEmptyString = str => str->String.length > 0
+
 let methodStr = (method: Fetch.requestMethod) => {
   switch method {
   | Get => "GET"
@@ -62,12 +66,16 @@ let getDictFromJsonObject = json => {
   }
 }
 
-let convertMapObjectToDict = genericTypeMapVal => {
-  open MapTypes
-  let map = create(genericTypeMapVal)
-  let mapIterator = map.entries(.)
-  let dict = object.fromEntries(. mapIterator)->getDictFromJsonObject
-  dict
+let convertMapObjectToDict = (genericTypeMapVal: JSON.t) => {
+  try {
+    open MapTypes
+    let map = create(genericTypeMapVal)
+    let mapIterator = map.entries()
+    let dict = object.fromEntries(mapIterator)->getDictFromJsonObject
+    dict
+  } catch {
+  | _ => Dict.make()
+  }
 }
 
 let removeDuplicate = (arr: array<string>) => {
@@ -103,7 +111,7 @@ let getNameFromEmail = email => {
   ->Option.getOr("")
   ->String.split(".")
   ->Array.map(name => {
-    if name == "" {
+    if name->isEmptyString {
       name
     } else {
       name->String.get(0)->Option.getOr("")->String.toUpperCase ++ name->String.sliceToEnd(~start=1)
@@ -113,7 +121,7 @@ let getNameFromEmail = email => {
 }
 
 let getOptionString = (dict, key) => {
-  dict->Dict.get(key)->Option.flatMap(JSON.Decode.string)
+  dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.string)
 }
 
 let getString = (dict, key, default) => {
@@ -133,7 +141,7 @@ let getArrayFromJson = (json: JSON.t, default) => {
 }
 
 let getOptionalArrayFromDict = (dict, key) => {
-  dict->Dict.get(key)->Option.flatMap(JSON.Decode.array)
+  dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.array)
 }
 
 let getArrayFromDict = (dict, key, default) => {
@@ -167,15 +175,15 @@ let getOptionStrArrayFromJson = json => {
 }
 
 let getStrArrayFromDict = (dict, key, default) => {
-  dict->Dict.get(key)->Option.flatMap(getOptionStrArrayFromJson)->Option.getOr(default)
+  dict->Dict.get(key)->Option.flatMap(val => val->getOptionStrArrayFromJson)->Option.getOr(default)
 }
 
 let getOptionStrArrayFromDict = (dict, key) => {
-  dict->Dict.get(key)->Option.flatMap(getOptionStrArrayFromJson)
+  dict->Dict.get(key)->Option.flatMap(val => val->getOptionStrArrayFromJson)
 }
 
 let getNonEmptyString = str => {
-  if str === "" {
+  if str->isEmptyString {
     None
   } else {
     Some(str)
@@ -191,7 +199,7 @@ let getNonEmptyArray = arr => {
 }
 
 let getOptionBool = (dict, key) => {
-  dict->Dict.get(key)->Option.flatMap(JSON.Decode.bool)
+  dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.bool)
 }
 
 let getBool = (dict, key, default) => {
@@ -291,7 +299,7 @@ let getFloat = (dict, key, default) => {
 }
 
 let getObj = (dict, key, default) => {
-  dict->Dict.get(key)->Option.flatMap(JSON.Decode.object)->Option.getOr(default)
+  dict->Dict.get(key)->Option.flatMap(obj => obj->JSON.Decode.object)->Option.getOr(default)
 }
 
 let getDictFromUrlSearchParams = searchParams => {
@@ -307,6 +315,13 @@ let getDictFromUrlSearchParams = searchParams => {
     }
   })
   ->Dict.fromArray
+}
+
+let setDictNull = (dict, key, optionStr) => {
+  switch optionStr {
+  | Some(str) => dict->Dict.set(key, str->JSON.Encode.string)
+  | None => dict->Dict.set(key, JSON.Encode.null)
+  }
 }
 let setOptionString = (dict, key, optionStr) =>
   optionStr->Option.mapOr((), str => dict->Dict.set(key, str->JSON.Encode.string))
@@ -337,6 +352,9 @@ let camelToSnake = str => {
   ->String.replaceRegExp(%re("/([a-z0-9A-Z])([A-Z])/g"), "$1_$2")
   ->String.toLowerCase
 }
+
+let userNameToTitle = str =>
+  str->String.split(".")->Array.map(capitalizeString)->Array.joinWith(" ")
 
 let camelCaseToTitle = str => {
   str->capitalizeString->String.replaceRegExp(%re("/([a-z0-9A-Z])([A-Z])/g"), "$1 $2")
@@ -373,7 +391,6 @@ let shortNum = (
   ~labelValue: float,
   ~numberFormat: CurrencyFormatUtils.currencyFormat,
   ~presision: int=2,
-  (),
 ) => {
   open CurrencyFormatUtils
   let value = Math.abs(labelValue)
@@ -402,7 +419,7 @@ let shortNum = (
   }
 }
 
-let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
+let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?) => {
   if labelValue !== 0.0 {
     let value = Int.fromFloat(labelValue)
     let value_days = value / 86400
@@ -446,7 +463,7 @@ let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
     } else {
       ""
     }
-    let sec_disp = if seconds > 0 {
+    let sec_disp = if seconds > 0 || millisec_disp->isNonEmptyString {
       `${String.make(seconds)}${millisec_disp}S `
     } else {
       ""
@@ -468,21 +485,17 @@ let checkEmptyJson = json => {
 
 let numericArraySortComperator = (a, b) => {
   if a < b {
-    -1
+    -1.
   } else if a > b {
-    1
+    1.
   } else {
-    0
+    0.
   }
 }
 
 let isEmptyDict = dict => {
   dict->Dict.keysToArray->Array.length === 0
 }
-
-let isEmptyString = str => str->String.length === 0
-
-let isNonEmptyString = str => str->String.length > 0
 
 let stringReplaceAll = (str, old, new) => {
   str->String.split(old)->Array.joinWith(new)
@@ -492,8 +505,12 @@ let getUniqueArray = (arr: array<'t>) => {
   arr->Array.map(item => (item, ""))->Dict.fromArray->Dict.keysToArray
 }
 
-let getFirstLetterCaps = (str, ~splitBy="-", ()) => {
-  str->String.toLowerCase->String.split(splitBy)->Array.map(capitalizeString)->Array.joinWith(" ")
+let getFirstLetterCaps = (str, ~splitBy="-") => {
+  str
+  ->String.toLowerCase
+  ->String.split(splitBy)
+  ->Array.map(capitalizeString)
+  ->Array.joinWith(" ")
 }
 
 let getDictfromDict = (dict, key) => {
@@ -514,19 +531,19 @@ let isEqualStringArr = (arr1, arr2) => {
   lengthEqual && isContainsAll
 }
 
-let getDefaultNumberFormat = () => {
+let getDefaultNumberFormat = _ => {
   open CurrencyFormatUtils
   USD
 }
 
 let indianShortNum = labelValue => {
-  shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat(), ())
+  shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
 }
 
 let convertNewLineSaperatedDataToArrayOfJson = text => {
   text
   ->String.split("\n")
-  ->Array.filter(item => item !== "")
+  ->Array.filter(item => item->isNonEmptyString)
   ->Array.map(item => {
     item->safeParse
   })
@@ -567,7 +584,7 @@ let dataMerge = (~dataArr: array<array<JSON.t>>, ~dictKey: array<string>) => {
 }
 
 let getJsonFromStr = data => {
-  if data !== "" {
+  if data->isNonEmptyString {
     JSON.stringifyWithIndent(safeParse(data), 2)
   } else {
     data
@@ -578,18 +595,22 @@ let compareLogic = (firstValue, secondValue) => {
   let temp1 = firstValue
   let temp2 = secondValue
   if temp1 == temp2 {
-    0
+    0.
   } else if temp1 > temp2 {
-    -1
+    -1.
   } else {
-    1
+    1.
   }
 }
 
 let getJsonFromArrayOfJson = arr => arr->Dict.fromArray->JSON.Encode.object
 
 let getTitle = name => {
-  name->String.toLowerCase->String.split("_")->Array.map(capitalizeString)->Array.joinWith(" ")
+  name
+  ->String.toLowerCase
+  ->String.split("_")
+  ->Array.map(capitalizeString)
+  ->Array.joinWith(" ")
 }
 
 // Regex to check if a string contains a substring
@@ -600,7 +621,7 @@ let regex = (positionToCheckFrom, searchString) => {
     ->String.replaceRegExp(%re("/\(/g"), "\\(")
     ->String.replaceRegExp(%re("/\+/g"), "\\+")
     ->String.replaceRegExp(%re("/\)/g"), "\\)")
-  Js.Re.fromStringWithFlags(
+  RegExp.fromStringWithFlags(
     "(.*)(" ++ positionToCheckFrom ++ "" ++ searchStringNew ++ ")(.*)",
     ~flags="i",
   )
@@ -628,3 +649,36 @@ let listOfMatchedText = (text, searchText) => {
 let getJsonFromArrayOfString = arr => {
   arr->Array.map(ele => ele->JSON.Encode.string)->JSON.Encode.array
 }
+
+let truncateFileNameWithEllipses = (~fileName, ~maxTextLength) => {
+  let lastIndex = fileName->String.lastIndexOf(".")
+  let beforeDotFileName = fileName->String.substring(~start=0, ~end=lastIndex)
+  let afterDotFileType = fileName->String.substringToEnd(~start=lastIndex + 1)
+
+  if beforeDotFileName->String.length + afterDotFileType->String.length + 1 <= maxTextLength {
+    fileName
+  } else {
+    let truncatedText =
+      beforeDotFileName->String.slice(~start=0, ~end=maxTextLength)->String.concat("...")
+    truncatedText ++ "." ++ afterDotFileType
+  }
+}
+
+let getDaysDiffForDates = (~startDate, ~endDate) => {
+  let startDate = startDate->Date.fromTime
+  let endDate = endDate->Date.fromTime
+  let daysDiff = Math.abs(endDate->Date.getTime -. startDate->Date.getTime)
+  let noOfmiliiseconds = 1000.0 *. 60.0 *. 60.0 *. 24.0
+
+  Math.floor(daysDiff /. noOfmiliiseconds)
+}
+
+let getOptionalFromNullable = val => {
+  val->Nullable.toOption
+}
+
+let getValFromNullableValue = (val, default) => {
+  val->getOptionalFromNullable->Option.getOr(default)
+}
+
+let dateFormat = (timestamp, format) => (timestamp->DayJs.getDayJsForString).format(format)

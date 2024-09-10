@@ -40,14 +40,14 @@ let getPredefinedStartAndEndDate = (
   todayDate,
   todayTime,
 ) => {
-  let lastMonth = todayDayJsObj.subtract(. 1, "month").endOf(. "month").toDate(.)
-  let lastSixMonths = todayDayJsObj.toDate(.)
-  let nextMonth = todayDayJsObj.add(. 1, "month").endOf(. "month").toDate(.)
-  let yesterday = todayDayJsObj.subtract(. 1, "day").toDate(.)
-  let tomorrow = todayDayJsObj.add(. 1, "day").toDate(.)
+  let lastMonth = todayDayJsObj.subtract(1, "month").endOf("month").toDate()
+  let lastSixMonths = todayDayJsObj.toDate()
+  let nextMonth = todayDayJsObj.add(1, "month").endOf("month").toDate()
+  let yesterday = todayDayJsObj.subtract(1, "day").toDate()
+  let tomorrow = todayDayJsObj.add(1, "day").toDate()
   let thisMonth = disableFutureDates
-    ? todayDayJsObj.toDate(.)
-    : todayDayJsObj.endOf(. "month").toDate(.)
+    ? todayDayJsObj.toDate()
+    : todayDayJsObj.endOf("month").toDate()
 
   let customDate = switch value {
   | LastMonth => lastMonth
@@ -56,15 +56,15 @@ let getPredefinedStartAndEndDate = (
   | Yesterday => yesterday
   | Tomorrow => tomorrow
   | ThisMonth => thisMonth
-  | _ => todayDayJsObj.toDate(.)
+  | _ => todayDayJsObj.toDate()
   }
 
   let daysInMonth =
-    (customDate->DayJs.getDayJsForJsDate).endOf(. "month").toString(.)
+    (customDate->DayJs.getDayJsForJsDate).endOf("month").toString()
     ->Date.fromString
     ->Js.Date.getDate
-  let prevDate = (customDate->DayJs.getDayJsForJsDate).subtract(. 6, "month").toString(.)
-  let daysInSixMonth = (customDate->DayJs.getDayJsForJsDate).diff(. prevDate, "day")->Int.toFloat
+  let prevDate = (customDate->DayJs.getDayJsForJsDate).subtract(6, "month").toString()
+  let daysInSixMonth = (customDate->DayJs.getDayJsForJsDate).diff(prevDate, "day")->Int.toFloat
   let count = switch value {
   | Today => 1.0
   | Yesterday => 1.0

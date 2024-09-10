@@ -12,16 +12,9 @@ type buttonType =
   | Delete
   | Transparent
   | SelectTransparent
-  | DarkBluePrimary
-  | BrownButton
-  | GreyButton
-  | DarkBlueSecondary
-  | ArdraPagination
-  | UpiPaginator
+
   | DarkPurple
   | Dropdown
-  | LightBlue
-  | ArdraDefaultBlue
 
 type buttonSize = Large | Medium | Small | XSmall
 
@@ -40,36 +33,38 @@ type badgeColor =
   | BadgeYellow
   | BadgeDarkGreen
   | BadgeDarkRed
-  | BadgeBrown
+
   | NoBadge
 type badge = {
   value: string,
   color: badgeColor,
 }
 
-let getBGColor = (
+let useGetBgColor = (
   ~buttonType,
   ~buttonState,
   ~showBorder,
   ~isDropdownOpen=false,
   ~isPhoneDropdown=false,
-  (),
-) =>
+) => {
+  let config = React.useContext(ThemeProvider.themeContext)
+  let buttonConfig = config.globalUIConfig.button.backgroundColor
   switch buttonType {
   | Primary =>
     switch buttonState {
     | Focused
-    | Normal => "bg-blue-900 hover:bg-blue-primary_hover focus:outline-none"
-    | Loading => "bg-blue-900"
-    | Disabled => "bg-blue-700 opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
-    | NoHover => "bg-blue-900 hover:bg-blue-primary_hover focus:outline-none dark:text-opacity-50 text-opacity-50"
+    | Normal =>
+      buttonConfig.primaryNormal
+    | Loading => buttonConfig.primaryLoading
+    | Disabled => buttonConfig.primaryDisabled
+    | NoHover => buttonConfig.primaryNoHover
     }
-  | PrimaryOutline => "mix-blend-normal"
+  | PrimaryOutline => buttonConfig.primaryOutline
 
   | SecondaryFilled =>
     switch buttonState {
     | Focused
-    | Normal => "bg-gradient-to-b from-jp-gray-450 to-jp-gray-350 dark:from-jp-gray-950 dark:to-jp-gray-950 hover:shadow dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none"
+    | Normal => "bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 hover:shadow dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none"
     | Loading => "bg-jp-gray-200 dark:bg-jp-gray-800 dark:bg-opacity-10"
     | Disabled => "bg-jp-gray-300 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
     | NoHover => "bg-gradient-to-b overflow-x-scroll from-jp-gray-200 to-jp-gray-300 dark:from-jp-gray-950 dark:to-jp-gray-950 dark:gray-text_darktheme focus:outline-none dark:text-opacity-50 text-opacity-50"
@@ -86,10 +81,10 @@ let getBGColor = (
   | FilterAdd =>
     switch buttonState {
     | Focused
-    | Normal => "hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-40 dark:hover:bg-jp-gray-950 dark:hover:bg-opacity-100 text-blue-800 dark:text-blue-800 dark:text-opacity-100 focus:outline-none"
+    | Normal => "hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-40 dark:hover:bg-jp-gray-950 dark:hover:bg-opacity-100 text-blue-500 dark:text-blue-500 dark:text-opacity-100 focus:outline-none"
     | Loading => "bg-jp-gray-200 dark:bg-jp-gray-800 dark:bg-opacity-10"
     | Disabled => "bg-jp-gray-300 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
-    | NoHover => "hover:bg-jp-gray-600 hover:bg-opacity-40 dark:hover:bg-jp-gray-950 dark:hover:bg-opacity-100 dark:text-blue-800  focus:outline-none dark:text-opacity-100 text-opacity-50"
+    | NoHover => "hover:bg-jp-gray-600 hover:bg-opacity-40 dark:hover:bg-jp-gray-950 dark:hover:bg-opacity-100 dark:text-blue-500  focus:outline-none dark:text-opacity-100 text-opacity-50"
     }
   | Pagination =>
     switch buttonState {
@@ -101,14 +96,6 @@ let getBGColor = (
     | Disabled => "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-300 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
 
     | NoHover => "bg-white border-left-1 border-right-1 font-normal text-jp-gray-900 text-opacity-75 hover:text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75"
-    }
-  | ArdraPagination =>
-    switch buttonState {
-    | Focused
-    | Normal => "!border-[0.5px] !h-7 !w-7 font-semibold text-ardra-primary-100 hover:text-jp-gray-900 hover:border-[#8C8E9D] bg-white dark:text-jp-gray-text_darktheme focus:outline-none mr-2.5 rounded"
-    | Loading => "!border-[0.5px] !h-7 !w-7 font-semibold bg-jp-gray-200 dark:bg-jp-gray-800 dark:bg-opacity-10 mr-2.5"
-    | Disabled => "!border-[0.5px] !h-7 !w-7 font-semibold text-jp-gray-600 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50 mr-2.5"
-    | NoHover => "!border-[0.5px] !h-7  !w-7 font-semibold text-jp-gray-100 hover:text-jp-gray-100 bg-ardra-primary-100 dark:text-jp-gray-text_darktheme focus:outline-none mr-2.5 rounded"
     }
   | Dropdown => {
       let hoverCss = isPhoneDropdown ? "" : "hover:bg-jp-2-light-gray-100"
@@ -159,7 +146,6 @@ let getBGColor = (
     | NoHover => "bg-white text-jp-gray-900 text-opacity-50 dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none"
     }
 
-  | UpiPaginator => "bg-blue-100 text-jp-gray-900 text-opacity-50 hover:shadow hover:text-opacity-75 dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none"
   | Delete =>
     switch buttonState {
     | Focused
@@ -186,24 +172,7 @@ let getBGColor = (
     | Disabled => "bg-gray-100   hover:bg-blue-200 focus:outline-none"
     | NoHover => "bg-gray-100   hover:bg-blue-200 focus:outline-none"
     }
-  | DarkBluePrimary =>
-    switch buttonState {
-    | Focused
-    | Normal => "bg-ardra-primary-100  hover:bg-ardra-primary-200  dark:bg-black focus:outline-none"
-    | Loading => "bg-ardra-primary-100  hover:bg-ardra-primary-200 focus:outline-none"
-    | Disabled => "bg-ardra-secondary-200  hover:bg-ardra-secondary-200 focus:outline-none"
-    | NoHover => "bg-ardra-primary-100  hover:bg-ardra-primary-200 focus:outline-none"
-    }
-  | BrownButton => "bg-ardra-brown"
-  | GreyButton => "bg-ardra-secondary-400"
-  | DarkBlueSecondary =>
-    switch buttonState {
-    | Focused
-    | Normal => "bg-jp-gray-200  hover:bg-jp-gray-300  dark:bg-black focus:outline-none"
-    | Loading => "bg-jp-gray-200  hover:bg-jp-gray-300  dark:bg-black focus:outline-none"
-    | Disabled => "bg-ardra-secondary-200  hover:bg-ardra-secondary-200 focus:outline-none"
-    | NoHover => "bg-ardra-primary-100  hover:bg-ardra-primary-200 focus:outline-none"
-    }
+
   | DarkPurple =>
     switch buttonState {
     | Focused
@@ -212,55 +181,30 @@ let getBGColor = (
     | Disabled => "bg-[#4F54EF] dark:bg-black focus:outline-none"
     | NoHover => "bg-[#4F54EF] dark:bg-black focus:outline-none"
     }
-  | LightBlue =>
-    switch buttonState {
-    | Focused
-    | Normal => "bg-ardra-light-blue border-ardra-approve-text dark:bg-black focus:outline-none"
-    | Loading => "bg-ardra-light-blue border-ardra-approve-text focus:outline-none"
-    | Disabled => "bg-ardra-light-blue border-ardra-approve-text dark:bg-black focus:outline-none"
-    | NoHover => "bg-ardra-light-blue border-ardra-approve-text focus:outline-none"
-    }
-  | ArdraDefaultBlue =>
-    switch buttonState {
-    | Focused
-    | Normal => "primary-gradient dark:bg-black focus:outline-none"
-    | Loading => "primary-gradient dark:bg-black focus:outline-none"
-    | Disabled => "bg-jp-2-light-gray-600  dark:bg-black focus:outline-none"
-    | NoHover => "primary-gradient focus:outline-none"
-    }
   }
-
-let useGetBgColor = (
-  ~buttonType,
-  ~buttonState,
-  ~showBorder,
-  ~isDropdownOpen=false,
-  ~isPhoneDropdown=false,
-  (),
-) => {
-  getBGColor(~buttonType, ~buttonState, ~showBorder, ~isDropdownOpen, ~isPhoneDropdown, ())
 }
 
-let getTextColor = (
+let useGetTextColor = (
   ~buttonType,
   ~buttonState,
   ~showBorder,
   ~isDropdownOpen=false,
   ~isPhoneDropdown=false,
-  (),
-) =>
+) => {
+  let config = React.useContext(ThemeProvider.themeContext)
+  let textConfig = config.globalUIConfig.button.textColor
   switch buttonType {
   | Primary =>
     switch buttonState {
-    | Disabled => "text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25"
-    | _ => "text-white"
+    | Disabled => textConfig.primaryDisabled
+    | _ => textConfig.primaryNormal
     }
-  | PrimaryOutline => "text-blue-800"
+  | PrimaryOutline => textConfig.primaryOutline
 
-  | FilterAdd => "text-blue-800"
+  | FilterAdd => "text-blue-500"
   | Delete => "text-white"
   | Transparent => "text-gray-400"
-  | SelectTransparent => "text-blue-800"
+  | SelectTransparent => "text-blue-500"
   | Dropdown =>
     switch buttonState {
     | Disabled => "text-jp-2-light-gray-600"
@@ -284,14 +228,8 @@ let getTextColor = (
     | Loading => "text-jp-gray-800 hover:text-black dark:text-jp-gray-text_darktheme dark:text-opacity-75"
     | _ => "text-jp-gray-800 hover:text-black dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75"
     }
-  | DarkBluePrimary => "text-white"
-  | BrownButton => "text-white"
-  | GreyButton => "text-black"
-  | DarkBlueSecondary => "text-ardra-primary-100"
+
   | DarkPurple => "text-white"
-  | ArdraPagination => "text-ardra-primary-100 !p-0"
-  | LightBlue => "text-ardra-approve-text"
-  | ArdraDefaultBlue => "text-white"
 
   | _ =>
     switch buttonState {
@@ -303,16 +241,6 @@ let getTextColor = (
     | _ => "text-jp-gray-900 text-opacity-50 hover:text-opacity-100 dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75"
     }
   }
-
-let useGetTextColor = (
-  ~buttonType,
-  ~buttonState,
-  ~showBorder,
-  ~isDropdownOpen=false,
-  ~isPhoneDropdown=false,
-  (),
-) => {
-  getTextColor(~buttonType, ~buttonState, ~showBorder, ~isDropdownOpen, ~isPhoneDropdown, ())
 }
 
 @react.component
@@ -363,6 +291,7 @@ let make = (
   ~showTooltip=false,
   ~tooltipText=?,
   ~toolTipPosition=ToolTip.Top,
+  ~dataTestId="",
 ) => {
   let parentRef = React.useRef(Nullable.null)
   let dummyRef = React.useRef(Nullable.null)
@@ -399,13 +328,12 @@ let make = (
     switch badge.color {
     | BadgeGreen => "bg-green-950 dark:bg-opacity-50"
     | BadgeRed => "bg-red-960 dark:bg-opacity-50"
-    | BadgeBlue => "bg-blue-800 dark:bg-opacity-50"
+    | BadgeBlue => "bg-blue-500 dark:bg-opacity-50"
     | BadgeGray => "bg-blue-table_gray"
     | BadgeOrange => "bg-orange-950 dark:bg-opacity-50"
     | BadgeYellow => "bg-blue-table_yellow"
-    | BadgeDarkGreen => "bg-green-800"
+    | BadgeDarkGreen => "bg-green-700"
     | BadgeDarkRed => "bg-red-400"
-    | BadgeBrown => "bg-ardra-brown"
     | NoBadge => "hidden"
     }
   }
@@ -516,7 +444,6 @@ let make = (
     ~showBorder,
     ~isDropdownOpen,
     ~isPhoneDropdown,
-    (),
   )
 
   let textColor = useGetTextColor(
@@ -525,7 +452,6 @@ let make = (
     ~showBorder,
     ~isDropdownOpen,
     ~isPhoneDropdown,
-    (),
   )
 
   let defaultRoundedClass = "rounded"
@@ -568,20 +494,19 @@ let make = (
       | Disabled => ""
       | _ =>
         if showBorder {
-          `${borderWidth} border-blue-850`
+          `${borderWidth}`
         } else {
           ""
         }
       }
-    | PrimaryOutline => "border-2 border-blue-800"
+    | PrimaryOutline => `border-2`
     | Dropdown
     | Secondary =>
       showBorder
         ? switch buttonState {
           | Disabled => ""
           | Loading => `${borderWidth} border-border_gray`
-          | _ =>
-            `${borderWidth} border-border_gray border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100`
+          | _ => `${borderWidth} border-border_gray dark:border-jp-gray-960 dark:border-opacity-100`
           }
         : switch buttonState {
           | Disabled => ""
@@ -616,7 +541,7 @@ let make = (
           }
 
     | FilterAdd => "border-0"
-    | SelectTransparent => "border border-1 border-blue-900"
+    | SelectTransparent => "border border-1 border-blue-500"
     | Transparent => "border border-jp-2-light-gray-400"
     | Delete =>
       switch buttonState {
@@ -676,7 +601,9 @@ let make = (
 
   let dataAttrKey = isSelectBoxButton ? "data-value" : "data-button-for"
   let dataAttrStr =
-    textId === "" ? iconId : textId->String.concat(buttonFor)->LogicUtils.toCamelCase
+    textId->LogicUtils.isEmptyString
+      ? iconId
+      : textId->String.concat(buttonFor)->LogicUtils.toCamelCase
   let relativeClass = isRelative ? "relative" : ""
   let conditionalButtonStyles = `${allowButtonTextMinWidth
       ? "min-w-min"
@@ -685,7 +612,7 @@ let make = (
     )}`
   let customJustifyStyle = customButtonStyle->String.includes("justify") ? "" : "justify-center"
 
-  <AddDataAttributes attributes=[(dataAttrKey, dataAttrStr)]>
+  <AddDataAttributes attributes=[(dataAttrKey, dataAttrStr), ("data-testid", dataTestId)]>
     <button
       type_
       disabled=dis
@@ -696,7 +623,7 @@ let make = (
           e->ReactEvent.Keyboard.preventDefault
         }
       }}
-      className={`flex group ${customJustifyStyle} ${relativeClass} ${heightClass} ${conditionalButtonStyles} items-center ${borderStyle}  ${textColor} ${cursorType} ${paddingClass} ${lengthStyle} ${customButtonStyle}  ${customTextOverFlowClass}`}
+      className={`flex group ${customButtonStyle} ${customJustifyStyle} ${relativeClass} ${heightClass} ${conditionalButtonStyles} items-center ${borderStyle}   ${cursorType} ${paddingClass} ${lengthStyle}   ${customTextOverFlowClass} ${textColor}`}
       onClick=handleClick>
       {if buttonState == Loading {
         <span className={iconPadding}>
@@ -765,11 +692,11 @@ let make = (
       }}
       {switch buttonRightText {
       | Some(text) =>
-        <UIUtils.RenderIf condition={!(text->LogicUtils.isEmptyString)}>
+        <RenderIf condition={!(text->LogicUtils.isEmptyString)}>
           <span className="text-jp-2-light-primary-600 font-semibold text-fs-14">
             {React.string(text)}
           </span>
-        </UIUtils.RenderIf>
+        </RenderIf>
       | None => React.null
       }}
       {switch rightIcon {

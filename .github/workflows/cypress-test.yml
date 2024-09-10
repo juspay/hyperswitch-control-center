@@ -1,7 +1,7 @@
 name: Cypress Tests
 
 on:
-  merge_group:
+  pull_request:
 
 jobs:
   cypress-tests:
@@ -13,6 +13,16 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.AUTO_RELEASE_PAT }}
+
+      - name: Clear Docker cache
+        run: |
+          docker builder prune -af
+
+      - name: Execute Shell Script
+        run: |
+          chmod +x cypress/start_hyperswitch.sh
+          sh cypress/start_hyperswitch.sh
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -21,12 +31,22 @@ jobs:
       - name: Install dependencies
         run: npm install --force
 
+      - name: Make Curl Request
+        run: |
+          # Replace the URL with your actual endpoint
+          response=$(curl --location --request GET 'http://localhost:8080/health')
+
+          echo "Response:"
+          echo "$response"
+
       - name: Cypress run
-        env:
-          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
-          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
         uses: cypress-io/github-action@v6
         with:
           install: false
-          build: npm run build:prod
-          start: npm run serve
+          build: npm run build:test
+          start: npm run test:start
+          # spec: cypress/e2e/quick-start/sbx-quick-start.cy.js
+
+      # - name: Check Coverage Thresholds
+      #   run: |
+      #     npx nyc check-coverage --lines 50 --functions 50 --branches 50 --statements 50

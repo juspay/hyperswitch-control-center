@@ -2,8 +2,8 @@ open InputFields
 type inputFieldType = {
   name: string,
   placeholder: string,
-  format: option<(. ~value: JSON.t, ~name: string) => JSON.t>,
-  parse: option<(. ~value: JSON.t, ~name: string) => JSON.t>,
+  format: option<(~value: JSON.t, ~name: string) => JSON.t>,
+  parse: option<(~value: JSON.t, ~name: string) => JSON.t>,
   disabled: bool,
   isRequired: bool,
   @as("type") type_: string,
@@ -37,11 +37,10 @@ let makeInputFieldInfo = (
   ~type_="text",
   ~isRequired=false,
   ~validate: option<(option<string>, JSON.t) => Promise.t<Nullable.t<string>>>=?,
-  (),
 ) => {
   let label = label->Option.getOr(name)
 
-  let newCustomInput = customInput->Option.getOr(InputFields.textInput(~isDisabled=disabled, ()))
+  let newCustomInput = customInput->Option.getOr(InputFields.textInput(~isDisabled=disabled))
 
   {
     name,
@@ -99,7 +98,6 @@ let makeMultiInputFieldInfo = (
   ~comboCustomInput: option<comboCustomInputRecord>=?,
   ~fieldPortalKey: option<string>=?,
   ~inputFields,
-  (),
 ) => {
   let inputNames =
     comboCustomInput
@@ -141,11 +139,10 @@ let makeFieldInfo = (
   ~isRequired=false,
   ~fieldPortalKey: option<string>=?,
   ~validate: option<(option<string>, JSON.t) => Promise.t<Nullable.t<string>>>=?,
-  (),
 ) => {
   let label = label->Option.getOr(name)
 
-  let newCustomInput = customInput->Option.getOr(InputFields.textInput(~isDisabled=disabled, ()))
+  let newCustomInput = customInput->Option.getOr(InputFields.textInput(~isDisabled=disabled))
 
   makeMultiInputFieldInfo(
     ~label,
@@ -170,10 +167,8 @@ let makeFieldInfo = (
         ~type_,
         ~isRequired,
         ~validate?,
-        (),
       ),
     ],
-    (),
   )
 }
 
@@ -199,41 +194,41 @@ module FieldWrapper = {
     ~subHeadingClass="",
   ) => {
     let showLabel = React.useContext(LabelVisibilityContext.formLabelRenderContext)
-    let fieldWrapperClass = if fieldWrapperClass == "" {
+    let fieldWrapperClass = if fieldWrapperClass->LogicUtils.isEmptyString {
       "p-1 flex flex-col"
     } else {
       fieldWrapperClass
     }
     let subTextClass = `pt-2 pb-2 text-sm text-bold text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ${subTextClass}`
 
-    let labelPadding = labelPadding === "" ? "pt-2 pb-2" : labelPadding
+    let labelPadding = labelPadding->LogicUtils.isEmptyString ? "pt-2 pb-2" : labelPadding
 
     let labelTextClass =
-      labelTextStyleClass->String.length > 0
+      labelTextStyleClass->LogicUtils.isNonEmptyString
         ? labelTextStyleClass
-        : "text-fs-13 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1"
+        : "text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1"
 
     <AddDataAttributes attributes=[("data-component-field-wrapper", `field-${dataId}`)]>
       <div className={fieldWrapperClass}>
         {<>
           <div className="flex items-center">
-            <UIUtils.RenderIf condition=showLabel>
+            <RenderIf condition=showLabel>
               <AddDataAttributes attributes=[("data-form-label", label)]>
                 <label className={`${labelPadding} ${labelTextClass} ${labelClass}`}>
                   {React.string(label)}
-                  <UIUtils.RenderIf condition=isRequired>
+                  <RenderIf condition=isRequired>
                     <span className="text-red-950"> {React.string(" *")} </span>
-                  </UIUtils.RenderIf>
+                  </RenderIf>
                 </label>
               </AddDataAttributes>
-            </UIUtils.RenderIf>
+            </RenderIf>
             {switch description {
             | Some(description) =>
-              <UIUtils.RenderIf condition={description !== ""}>
+              <RenderIf condition={description->LogicUtils.isNonEmptyString}>
                 <div className="text-sm text-gray-500 mx-2">
                   <ToolTip description toolTipPosition />
                 </div>
-              </UIUtils.RenderIf>
+              </RenderIf>
             | None => React.null
             }}
             {switch descriptionComponent {
@@ -265,7 +260,7 @@ module FieldWrapper = {
           }}
         </>}
         children
-        {switch subText->Option.flatMap(LogicUtils.getNonEmptyString) {
+        {switch subText->Option.flatMap(val => val->LogicUtils.getNonEmptyString) {
         | Some(subText) => <div className=subTextClass> {React.string(subText)} </div>
         | None => React.null
         }}
@@ -361,7 +356,7 @@ module ComboFieldsRenderer = {
       <ButtonGroup wrapperClass="flex flex-row items-center">
         {field.inputFields
         ->Array.mapWithIndex((field, i) => {
-          <ErrorBoundary key={string_of_int(i)}>
+          <ErrorBoundary key={Int.toString(i)}>
             <FieldInputRenderer field showError=false />
           </ErrorBoundary>
         })
@@ -370,7 +365,7 @@ module ComboFieldsRenderer = {
       <div>
         {field.inputFields
         ->Array.mapWithIndex((field, i) => {
-          <ErrorBoundary key={string_of_int(i)}>
+          <ErrorBoundary key={Int.toString(i)}>
             <FieldErrorRenderer field />
           </ErrorBoundary>
         })
@@ -396,9 +391,9 @@ module ComboFieldsRenderer3 = {
       if inputFields->Array.length === 0 {
         renderInputs(fieldsState)
       } else {
-        let inputField = inputFields[0]->Option.getOr(makeInputFieldInfo(~name="", ()))
+        let inputField = inputFields[0]->Option.getOr(makeInputFieldInfo(~name=""))
 
-        let restInputFields = Js.Array2.sliceFrom(inputFields, 1)
+        let restInputFields = inputFields->Array.sliceToEnd(~start=1)
 
         <ReactFinalForm.Field
           name=inputField.name
@@ -491,7 +486,7 @@ module FieldRenderer = {
               subHeadingClass
               dataId=names>
               {if field.inputFields->Array.length === 1 {
-                let field = field.inputFields[0]->Option.getOr(makeInputFieldInfo(~name="", ()))
+                let field = field.inputFields[0]->Option.getOr(makeInputFieldInfo(~name=""))
 
                 <ErrorBoundary>
                   <FieldInputRenderer field errorClass showErrorOnChange />
@@ -526,7 +521,7 @@ module FormError = {
       JSON.Encode.object(subscriptionDict)
     }
 
-    React.useEffect0(() => {
+    React.useEffect(() => {
       let unsubscribe = form.subscribe(formState => {
         setSubmitErrors(_ => formState.submitErrors->Nullable.toOption)
 
@@ -534,7 +529,7 @@ module FormError = {
       }, subscriptionJson)
 
       Some(unsubscribe)
-    })
+    }, [])
     switch submitErrors {
     | Some(errorsJson) =>
       switch errorsJson->JSON.Decode.object {
@@ -585,6 +580,7 @@ module SubmitButton = {
     ~textStyle=?,
     ~textWeight=?,
     ~customHeightClass=?,
+    ~dataTestId=?,
   ) => {
     let dict = Dict.make()
     [
@@ -616,7 +612,7 @@ module SubmitButton = {
 
     let showPopUp = PopUpState.useShowPopUp()
     let (avoidDisable, setAvoidDisable) = React.useState(_ => userInteractionRequired)
-    React.useEffect0(() => {
+    React.useEffect(() => {
       let onClick = {
         _ev => {
           setAvoidDisable(_ => false)
@@ -628,7 +624,7 @@ module SubmitButton = {
           Window.removeEventListener("click", onClick)
         },
       )
-    })
+    }, [])
     let form = ReactFinalForm.useForm()
     let openPopUp = (confirmType, confirmText, buttonText, cancelButtonText, popUpType) => {
       showPopUp({
@@ -662,10 +658,15 @@ module SubmitButton = {
         ?customPaddingClass
         ?textStyle
         ?textWeight
+        ?dataTestId
       />
 
     let buttonState: Button.buttonState =
-      loadingText !== "" && submitting ? Loading : !avoidDisable && disabled ? Disabled : Normal
+      loadingText->LogicUtils.isNonEmptyString && submitting
+        ? Loading
+        : !avoidDisable && disabled
+        ? Disabled
+        : Normal
 
     let submitBtn =
       <>
@@ -684,6 +685,7 @@ module SubmitButton = {
           ?buttonSize
           ?customHeightClass
           ?textStyle
+          ?dataTestId
         />
       </>
 
@@ -700,13 +702,12 @@ module SubmitButton = {
           `${key->LogicUtils.snakeToTitle}: ${value}`
         })
         ->Array.joinWith("\n")
-      let tooltipStyle = hasError ? "bg-infra-red-900" : ""
+
       if showToolTip && !avoidDisable {
         <ToolTip
           description
           toolTipFor=button
           toolTipPosition
-          customStyle=tooltipStyle
           tooltipPositioning
           tooltipWidthClass
           height=tooltipForHeight
@@ -732,7 +733,7 @@ module FieldsRenderer = {
   ) => {
     Array.mapWithIndex(fields, (field, i) => {
       <FieldRenderer
-        key={string_of_int(i)}
+        key={Int.toString(i)}
         field
         fieldWrapperClass
         labelClass

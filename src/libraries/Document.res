@@ -1,6 +1,6 @@
 type domElement
 
-type document = {querySelectorAll: (. string) => array<domElement>}
+type document = {querySelectorAll: string => array<domElement>}
 @val external document: document = "document"
 
 @val @scope("document")

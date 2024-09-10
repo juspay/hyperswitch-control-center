@@ -45,7 +45,7 @@ let make = (
   let (fileTypes, setFileTypes) = React.useState(_ => defaultFileNames)
   let showToast = ToastState.useShowToast()
 
-  React.useEffect2(() => {
+  React.useEffect(() => {
     fileNamesInput.onChange(fileNames->Identity.anyTypeToReactEvent)
     fileTypeInput.onChange(fileTypes->Identity.anyTypeToReactEvent)
     None
@@ -65,11 +65,11 @@ let make = (
   }
 
   let toast = (message, toastType) => {
-    showToast(~message, ~toastType, ())
+    showToast(~message, ~toastType)
   }
 
   let fileEmptyCheckUpload = (~value, ~files, ~filename, ~mimeType) => {
-    if value !== "" {
+    if value->LogicUtils.isNonEmptyString {
       setFilenames(prev => {
         let fileArr = prev->Array.copy->Array.concat(filename)
         fileArr
@@ -111,11 +111,11 @@ let make = (
               fileTypeArr->Array.includes(fileFormat) || fileTypeArr->Array.includes("*")
             let fileReader = FileReader.reader
             let _file = if filename->String.includes("p12") {
-              fileReader.readAsBinaryString(. value)
+              fileReader.readAsBinaryString(value)
             } else if shouldEncodeBase64 {
-              fileReader.readAsDataURL(. value)
+              fileReader.readAsDataURL(value)
             } else {
-              fileReader.readAsText(. value)
+              fileReader.readAsText(value)
             }
 
             fileReader.onload = e => {
@@ -138,13 +138,12 @@ let make = (
                       ~message=`File size too large, upload below ${(sizeLimit / 1000)
                           ->Int.toString}kb`,
                       ~toastType=ToastError,
-                      (),
                     )
                   } else {
                     switch rowsLimit {
                     | Some(val) =>
                       let rows = String.split(file, "\n")->Array.length
-                      if value !== "" && rows - 1 < val {
+                      if value->LogicUtils.isNonEmptyString && rows - 1 < val {
                         setFilenames(prev => {
                           let fileArr = prev->Array.copy->Array.concat(filename)
                           fileArr
@@ -225,7 +224,7 @@ let make = (
         }}>
         {if !isDisabled {
           <input
-            key={string_of_int(key)}
+            key={Int.toString(key)}
             type_="file"
             accept={fileType}
             hidden=true
@@ -255,8 +254,8 @@ let make = (
               ? "flex items-center gap-4 flex-1 pointer-events-none"
               : "flex items-center gap-4 flex-1"}>
             {switch fileName->String.split(".")->Array.pop->Option.getOr("") {
-            | "pdf" => <img src={`/icons/paIcons/pdfIcon.svg`} />
-            | "csv" => <img src={`/icons/paIcons/csvIcon.svg`} />
+            | "pdf" => <img alt="pdf" src={`/icons/paIcons/pdfIcon.svg`} />
+            | "csv" => <img alt="csv" src={`/icons/paIcons/csvIcon.svg`} />
             | _ => React.null
             }}
             <div

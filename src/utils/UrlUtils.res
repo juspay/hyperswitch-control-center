@@ -2,11 +2,11 @@ let useGetFilterDictFromUrl = prefix => {
   let url = RescriptReactRouter.useUrl()
   let (searchParamsDict, setSearchParamDict) = React.useState(_ => Dict.make())
 
-  React.useEffect1(() => {
-    if url.search !== "" {
+  React.useEffect(() => {
+    if url.search->LogicUtils.isNonEmptyString {
       let searcParamsToDict =
         url.search
-        ->Js.Global.decodeURI
+        ->decodeURI
         ->String.split("&")
         ->Array.map(str => {
           let arr = str->String.split("=")
@@ -17,11 +17,11 @@ let useGetFilterDictFromUrl = prefix => {
         })
         ->Belt.Array.keepMap(entry => {
           let (key, val) = entry
-          if prefix === "" {
-            entry->Some
+          if prefix->LogicUtils.isEmptyString {
+            Some(entry)
           } else if key->String.indexOf(`${prefix}.`) === 0 {
             let transformedKey = key->String.replace(`${prefix}.`, "")
-            (transformedKey, val)->Some
+            Some(transformedKey, val)
           } else {
             None
           }

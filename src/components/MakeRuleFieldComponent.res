@@ -7,7 +7,7 @@ let validateConditionJson = json => {
       ele != ""->JSON.Encode.string
     })
     ->Array.length > 0 ||
-    dict->getString("value", "") !== "" ||
+    dict->getString("value", "")->LogicUtils.isNonEmptyString ||
     dict->getFloat("value", -1.0) !== -1.0 ||
     dict->getString("operator", "") == "IS NULL" ||
     dict->getString("operator", "") == "IS NOT NULL"
@@ -27,12 +27,10 @@ module TextView = {
     ~fontColor="text-jp-gray-800 dark:text-jp-gray-600",
     ~fontWeight="font-medium",
   ) => {
-    str !== ""
+    str->LogicUtils.isNonEmptyString
       ? <AddDataAttributes attributes=[("data-plc-text", str)]>
           <div
-            className={`text-opacity-75 dark:text-opacity-75 
-              hover:text-opacity-100 dark:hover:text-opacity-100  
-              mx-1  ${fontColor} ${fontWeight} `}>
+            className={`text-opacity-75 dark:text-opacity-75 hover:text-opacity-100 dark:hover:text-opacity-100 mx-1 ${fontColor} ${fontWeight} `}>
             {React.string(str)}
           </div>
         </AddDataAttributes>
@@ -44,16 +42,27 @@ module CompressedView = {
   @react.component
   let make = (~id, ~isFirst) => {
     open LogicUtils
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let conditionInput = ReactFinalForm.useField(id).input
+
+    let displayForValue = value =>
+      switch value->JSON.Classify.classify {
+      | Array(arr) => arr->Array.joinWithUnsafe(", ")
+      | String(str) => str
+      | Number(num) => num->Float.toString
+      | Object(obj) => obj->getString("value", "")
+      | _ => ""
+      }
+
     let condition =
       conditionInput.value
       ->JSON.Decode.object
       ->Option.flatMap(dict => {
         Some(
-          dict->getString("logical.operator", ""),
-          dict->getString("real_field", ""),
-          dict->getString("operator", ""),
-          dict->getOptionStrArrayFromDict("value")->Option.getOr([dict->getString("value", "")]),
+          dict->getString("logical", ""),
+          dict->getString("lhs", ""),
+          dict->getString("comparison", ""),
+          dict->getDictfromDict("value")->getJsonObjectFromDict("value")->displayForValue,
           dict->getDictfromDict("metadata")->getOptionString("key"),
         )
       })
@@ -61,7 +70,9 @@ module CompressedView = {
     | Some((logical, field, operator, value, key)) =>
       <div className="flex flex-wrap items-center gap-4">
         {if !isFirst {
-          <TextView str=logical fontColor="text-blue-800" fontWeight="font-semibold" />
+          <TextView
+            str=logical fontColor={`${textColor.primaryNormal}`} fontWeight="font-semibold"
+          />
         } else {
           React.null
         }}
@@ -71,7 +82,7 @@ module CompressedView = {
         | None => React.null
         }}
         <TextView str=operator fontColor="text-red-500" fontWeight="font-semibold" />
-        <TextView str={value->Array.filter(ele => ele != "")->Array.joinWith(", ")} />
+        <TextView str={value} />
       </div>
     | None => React.null
     }

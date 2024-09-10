@@ -1,4 +1,4 @@
-let getFloat = strJson => strJson->JSON.Decode.string->Option.flatMap(Float.fromString)
+let getFloat = strJson => strJson->JSON.Decode.string->Option.flatMap(val => val->Float.fromString)
 
 @react.component
 let make = (
@@ -27,7 +27,7 @@ let make = (
 ) => {
   let (localStrValue, setLocalStrValue) = React.useState(() => input.value)
   let inputRef = React.useRef(Nullable.null)
-  React.useEffect2(() => {
+  React.useEffect(() => {
     switch widthMatchwithPlaceholderLength {
     | Some(length) =>
       switch inputRef.current->Nullable.toOption {
@@ -46,7 +46,7 @@ let make = (
     }
     None
   }, (inputRef.current, input.name))
-  let modifiedInput = React.useMemo2(() => {
+  let modifiedInput = React.useMemo(() => {
     {
       ...input,
       value: localStrValue,
@@ -61,7 +61,8 @@ let make = (
             strArr->Array.joinWithUnsafe("")->String.split(".")->Array.slice(~start=0, ~end=2)
           let result = if removeLeadingZeroes {
             str[0] = str[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
-            str[0] = str[0]->Option.getOr("") === "" ? "0" : str[0]->Option.getOr("")
+            str[0] =
+              str[0]->Option.getOr("")->LogicUtils.isEmptyString ? "0" : str[0]->Option.getOr("")
             str->Array.joinWith(".")
           } else {
             str->Array.joinWith(".")
@@ -80,13 +81,14 @@ let make = (
         | None => ""
         }
 
-        let finalVal = precisionCheckedVal !== "" ? precisionCheckedVal : cleanedValue
+        let finalVal =
+          precisionCheckedVal->LogicUtils.isNonEmptyString ? precisionCheckedVal : cleanedValue
         setLocalStrValue(_ => finalVal->JSON.Encode.string)
 
         switch finalVal->JSON.Encode.string->getFloat {
         | Some(num) => input.onChange(num->Identity.anyTypeToReactEvent)
         | None =>
-          if value === "" {
+          if value->LogicUtils.isEmptyString {
             input.onChange(JSON.Encode.null->Identity.anyTypeToReactEvent)
           }
         }
@@ -94,7 +96,7 @@ let make = (
     }
   }, (localStrValue, input))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setLocalStrValue(prevLocalStr => {
       let numericPrevLocalValue =
         prevLocalStr

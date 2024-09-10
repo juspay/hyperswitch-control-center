@@ -49,7 +49,7 @@ module TableHeading = {
   let make = (~heading) => {
     <th>
       <div
-        className={`flex flex-row justify-between px-4 py-3 bg-gradient-to-b from-jp-gray-450 to-jp-gray-350 dark:from-jp-gray-950  dark:to-jp-gray-950 text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75 whitespace-pre `}>
+        className={`flex flex-row justify-between px-4 py-3 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950  dark:to-jp-gray-950 text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75 whitespace-pre `}>
         <div className="font-bold text-sm"> {heading->React.string} </div>
       </div>
     </th>
@@ -82,7 +82,7 @@ module TableStructure = {
 @react.component
 let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~headings, ~fields) => {
   let tableInput = input->ffInputToTableInput
-  let currentValue = React.useMemo1(() => {
+  let currentValue = React.useMemo(() => {
     switch tableInput.value->JSON.Decode.array {
     | Some(str) =>
       str->Array.map(item => {
@@ -126,7 +126,7 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~headings, ~fields) =>
     setKeyValue(_ => a)
   }
 
-  let onClick = (elemIndex, isLast, _) => {
+  let onClick = (elemIndex, isLast) => _ev => {
     let value = if isLast {
       Array.concat(initialState, dummyInitialState)
     } else {

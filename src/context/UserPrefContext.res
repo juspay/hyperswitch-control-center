@@ -27,11 +27,6 @@ let userPrefObj: filter = {
 let userPrefContext = React.createContext(userPrefObj)
 
 module Provider = {
-  let makeProps = (~value, ~children, ()) =>
-    {
-      "value": value,
-      "children": children,
-    }
   let make = React.Context.provider(userPrefContext)
 }
 
@@ -39,17 +34,23 @@ module Provider = {
 let make = (~children) => {
   // this fetch will only happen once after that context will be updated each time when url chnaged and it keep hitting the update api
   let userPrefInitialVal: Dict.t<userPref> = UserPrefUtils.getUserPref()
-  let (authStatus, _setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let username = switch authStatus {
-  | LoggedIn(authInfo) => authInfo.username
+  | LoggedIn(authType) =>
+    switch authType {
+    | Auth(_) => ""
+    }
   | _ => ""
   }
   let (userPref, setUserPref) = React.useState(_ => userPrefInitialVal)
   let url = RescriptReactRouter.useUrl()
-  let urlPathConcationation = `/${url.path->LogicUtils.stripV4->List.toArray->Array.joinWith("/")}`
+  let urlPathConcationation = `/${url.path
+    ->LogicUtils.stripV4
+    ->List.toArray
+    ->Array.joinWith("/")}`
   // UPDATE THE LAST VISITED TAB
-  React.useEffect2(() => {
+  React.useEffect(() => {
     if urlPathConcationation !== "/" {
       setUserPref(prev => {
         let currentConfig = prev->Dict.get(username)->Option.getOr({})
@@ -71,7 +72,7 @@ let make = (~children) => {
   }, (urlPathConcationation, username))
 
   // UPDATE THE searchParams IN LAST VISITED TAB
-  React.useEffect2(() => {
+  React.useEffect(() => {
     setUserPref(prev => {
       let currentConfig = prev->Dict.get(username)->Option.getOr({})
       let updatedPrev = currentConfig
@@ -121,7 +122,7 @@ let make = (~children) => {
     None
   }, (url.search, username))
   // UPDATE THE CURRENT PREF TO THE DATA SOURCE
-  React.useEffect1(() => {
+  React.useEffect(() => {
     UserPrefUtils.saveUserPref(userPref)
     None
   }, [userPref])
@@ -175,11 +176,10 @@ let make = (~children) => {
       let (key, value) = item
       (key, value->userPrefToJson)
     })
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    ->LogicUtils.getJsonFromArrayOfJson
     ->JSON.stringify
 
-  let value = React.useMemo4(() => {
+  let value = React.useMemo(() => {
     let currentConfig = userPref->Dict.get(username)->Option.getOr({})
     let updatedPrev = currentConfig
     let lastVisitedTab = switch updatedPrev {
@@ -192,7 +192,7 @@ let make = (~children) => {
     }
     let getSearchParamByLink = link => {
       let searchParam = UserPrefUtils.getSearchParams(moduleVisePref, ~key=link) // this is for removing the v4 from the link
-      searchParam !== "" ? `?${searchParam}` : ""
+      searchParam->LogicUtils.isNonEmptyString ? `?${searchParam}` : ""
     }
 
     {

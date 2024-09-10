@@ -3,7 +3,7 @@ let useRemoteFilter = (~searchParams, ~remoteFilters, ~remoteOptions, ~mandatory
     JSON.Encode.object(Dict.make())
   )
 
-  let remoteFiltersFromUrlTemp = React.useMemo1(() => {
+  let remoteFiltersFromUrlTemp = React.useMemo(() => {
     RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
       ~initialFilters=remoteFilters,
@@ -33,7 +33,7 @@ let make = (
   ~bottomActions=?,
   ~resultsPerPage=15,
   ~onEntityClick=?,
-  ~method: Fetch.requestMethod=Fetch.Post,
+  ~method: Fetch.requestMethod=Post,
   ~path=?,
   ~downloadCsv=?,
   ~prefixAddition=?,
@@ -58,7 +58,6 @@ let make = (
   ~forcePreventConcatData=false,
   ~collapseTableRow=false,
   ~showRefreshFilter=true,
-  ~showRemoteOptions=false,
   ~filterButtonStyle="",
   ~getRowDetails=_ => React.null,
   ~onMouseEnter=?,
@@ -79,7 +78,7 @@ let make = (
   ~filterCols=?,
   ~filterIcon=?,
   ~applyFilters=false,
-  ~errorButtonType: Button.buttonType=DarkBluePrimary,
+  ~errorButtonType: Button.buttonType=Primary,
   ~maxTableHeight="",
   ~tableheadingClass="",
   ~ignoreHeaderBg=false,
@@ -98,6 +97,7 @@ let make = (
   ~defaultKeysAllowed=?,
   ~urlKeyTypeDict: Dict.t<RemoteFiltersUtils.urlKEyType>=Dict.make(),
 ) => {
+  open LogicUtils
   let {
     getObjects,
     dataKey,
@@ -115,9 +115,10 @@ let make = (
     filterCheck,
     filterForRow,
   } = entity
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let tableName =
     prefixAddition->Option.getOr(false)
-      ? title->String.replaceRegExp(_, %re("/ /g"), "-")->String.toLowerCase->Some
+      ? title->(String.replaceRegExp(_, %re("/ /g"), "-"))->String.toLowerCase->Some
       : None
   let (defaultFilters, setDefaultFilters) = React.useState(() => entity.defaultFilters)
   let defaultSummary: EntityType.summary = {totalCount: 0, count: 0}
@@ -126,11 +127,11 @@ let make = (
   let (tableDataLoading, setTableDataLoading) = React.useState(() => false)
   let fetchApi = AuthHooks.useApiFetcher()
   let url = RescriptReactRouter.useUrl()
-  let searchParams = disableURIdecode ? url.search : url.search->Js.Global.decodeURI
+  let searchParams = disableURIdecode ? url.search : url.search->decodeURI
   let (refreshData, _setRefreshData) = React.useContext(RefreshStateContext.refreshStateContext)
   let (offset, setOffset) = React.useState(() => 0)
   let remoteFilters = initialFilters->Array.filter(item => item.localFilter->Option.isNone)
-  let filtersFromUrl = LogicUtils.getDictFromUrlSearchParams(searchParams)
+  let filtersFromUrl = getDictFromUrlSearchParams(searchParams)
   let localFilters = initialFilters->Array.filter(item => item.localFilter->Option.isSome)
   let showToast = ToastState.useShowToast()
 
@@ -151,11 +152,11 @@ let make = (
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
 
   let (finalData, setFinalData) = React.useState(_ => None)
-  React.useEffect1(() => {
+  React.useEffect(() => {
     setDefaultFilters(_ => entity.defaultFilters)
     None
   }, [entity.defaultFilters])
-  React.useEffect5(() => {
+  React.useEffect(() => {
     let remoteFilterDict = RemoteFiltersUtils.getFinalDict(
       ~filterJson=defaultFilters,
       ~filtersFromUrl=remoteFiltersFromUrl,
@@ -172,12 +173,9 @@ let make = (
     open Promise
     let finalJson = switch body {
     | Some(b) =>
-      let remoteFilterDict = remoteFilterDict->LogicUtils.getDictFromJsonObject
+      let remoteFilterDict = remoteFilterDict->getDictFromJsonObject
       if mergeBodytoRemoteFilterDict {
-        DictionaryUtils.mergeDicts([
-          b->LogicUtils.getDictFromJsonObject,
-          remoteFilterDict,
-        ])->JSON.Encode.object
+        DictionaryUtils.mergeDicts([b->getDictFromJsonObject, remoteFilterDict])->JSON.Encode.object
       } else {
         b
       }
@@ -190,7 +188,7 @@ let make = (
 
     let setNewData = sampleRes => {
       if (
-        (remoteFiltersFromUrl->LogicUtils.getDictFromJsonObject != Dict.make() && offset == 0) ||
+        (remoteFiltersFromUrl->getDictFromJsonObject != Dict.make() && offset == 0) ||
           forcePreventConcatData
       ) {
         clearData()
@@ -204,8 +202,7 @@ let make = (
 
     let getCustomUri = (uri, searchValueDict) => {
       let uriList = Dict.keysToArray(searchValueDict)->Array.map(val => {
-        let defaultFilterOffset =
-          defaultFilters->LogicUtils.getDictFromJsonObject->LogicUtils.getInt("offset", 0)
+        let defaultFilterOffset = defaultFilters->getDictFromJsonObject->getInt("offset", 0)
         let dictValue = if val === "offset" {
           defaultFilterOffset->Int.toString
         } else {
@@ -214,18 +211,19 @@ let make = (
             ->Dict.get(val)
             ->Option.getOr(searchValueDict->Dict.get(val)->Option.getOr(""))
           if requireDateFormatting && (val == "startTime" || val == "endTime") {
-            (x->DayJs.getDayJsForString).format(. "YYYY-MM-DD+HH:mm:ss")
+            (x->DayJs.getDayJsForString).format("YYYY-MM-DD+HH:mm:ss")
           } else if requireDateFormatting && (val == "start_date" || val == "end_date") {
-            (x->DayJs.getDayJsForString).format(. "YYYY-MM-DD HH:mm:ss")
+            (x->DayJs.getDayJsForString).format("YYYY-MM-DD HH:mm:ss")
           } else {
             x
           }
         }
-        let urii = dictValue == "" || dictValue == "NA" ? "" : `${val}=${dictValue}`
+        let urii = dictValue->isEmptyString || dictValue == "NA" ? "" : `${val}=${dictValue}`
 
         urii
       })
-      let uri = uri ++ "?" ++ uriList->Array.filter(val => val !== "")->Array.joinWith("&")
+      let uri =
+        uri ++ "?" ++ uriList->Array.filter(val => val->isNonEmptyString)->Array.joinWith("&")
       uri
     }
 
@@ -239,7 +237,7 @@ let make = (
     }
     let uri = uri ++ getNewUrl(defaultFilters)
     setTableDataLoading(_ => true)
-    fetchApi(uri, ~bodyStr=JSON.stringify(finalJson), ~headers, ~method_=method, ())
+    fetchApi(uri, ~bodyStr=JSON.stringify(finalJson), ~headers, ~method_=method, ~xFeatureRoute)
     ->then(resp => {
       let status = resp->Fetch.Response.status
       if status >= 300 {
@@ -266,12 +264,7 @@ let make = (
         }
 
       | _ =>
-        showToast(
-          ~message="Response was not a JSON object",
-          ~toastType=ToastError,
-          ~autoClose=true,
-          (),
-        )
+        showToast(~message="Response was not a JSON object", ~toastType=ToastError, ~autoClose=true)
       }
       setTableDataLoading(_ => false)
       resolve()
@@ -284,14 +277,14 @@ let make = (
     None
   }, (remoteFiltersFromUrl, defaultFilters, fetchApi, refreshData, uri))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if refetchCounter > 0 {
       Window.Location.reload()
     }
     None
   }, [refetchCounter])
 
-  let refetch = React.useCallback1(() => {
+  let refetch = React.useCallback(() => {
     setRefetchCounter(p => p + 1)
   }, [setRefetchCounter])
 
@@ -303,7 +296,7 @@ let make = (
       let newDefaultFilter =
         defaultFilters->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
 
-      Dict.set(newDefaultFilter, "offset", rowFetched->Js.Int.toFloat->JSON.Encode.float)
+      Dict.set(newDefaultFilter, "offset", rowFetched->Int.toFloat->JSON.Encode.float)
       setDefaultFilters(_ => newDefaultFilter->JSON.Encode.object)
     }
   }
@@ -341,15 +334,13 @@ let make = (
           } else {
             React.null
           }}
-          <UIUtils.RenderIf condition=showRemoteFilter>
+          <RenderIf condition=showRemoteFilter>
             <LabelVisibilityContext showLabel=false>
-              <RemoteFilter
+              <Filter
                 defaultFilters=entity.defaultFilters
                 requiredSearchFieldsList=entity.requiredSearchFieldsList
                 setOffset
-                refreshFilters=showRefreshFilter
                 filterButtonStyle
-                showRemoteOptions
                 ?path
                 title
                 remoteFilters
@@ -362,10 +353,9 @@ let make = (
                 ?autoApply
                 showClearFilter
                 showSelectFiltersSearch=showFiltersSearch
-                disableURIdecode
               />
             </LabelVisibilityContext>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       if isFiltersInPortal {
         <Portal to=portalKey> {children} </Portal>
@@ -377,7 +367,7 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     let temp = switch filterObj {
     | Some(obj) =>
       switch filterCols {
@@ -397,7 +387,7 @@ let make = (
     None
   }, [data])
   let checkLength = ref(true)
-  React.useEffect2(() => {
+  React.useEffect(() => {
     let findVal = (accumulator, item: TableUtils.filterObject) =>
       Array.concat(accumulator, item.selected)
     let keys = switch filterObj {
@@ -513,7 +503,6 @@ let make = (
             tableDataLoading
             ?dataNotFoundComponent
             ?bottomActions
-            ?defaultSort
             tableLocalFilter
             collapseTableRow
             getRowDetails

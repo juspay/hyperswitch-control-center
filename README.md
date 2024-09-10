@@ -39,12 +39,11 @@ Follow these simple steps to set up Hyperswitch on your local machine.
    npm install --force
    ```
 
-4. Update the .env file in the root directory.
+4. Update the config.toml file
 
    ```bash
-   apiBaseUrl = your-backend-url
-   sdkBaseUrl = your-sdk-url
-   mixpanelToken = mixpanel-token
+   api_url = your-backend-url
+   sdk_url = your-sdk-url
    # To view Mixpanel events on the Mixpanel dashboard, you must add your Mixpanel token; otherwise, you can ignore this requirement.
    ```
 
@@ -64,13 +63,23 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 
 ---
 
+### Running with Docker
+
+1. `docker run -p 9000:9000  -e default__endpoints__api_url=your-backend-url -e default__endpoints__sdk_url=your-sdk-url juspaydotin/hyperswitch-control-center:latest`
+
+### Accessing the Application
+
+Once the containers are up and running, you can access the application by navigating to http://localhost:9000 in your web browser.
+
+---
+
 ## Feature Flags
 
 Feature flags allow the users to enable or disable certain functionalities or flows in the control center.
 
 ### Using feature flags
 
-The FeatureFlag.json file can be found under config/FeatueFlag.json. By default, all the feature flags are turned off (`False` value).
+The config.toml file can be found under config/config.toml. By default, all the feature flags are turned off (`False` value).
 
 ### Feature flag descriptions
 
@@ -78,21 +87,9 @@ The FeatureFlag.json file can be found under config/FeatueFlag.json. By default,
 
 The `generate_report` feature flag controls the ability to generate detailed reports on payments, refunds, and disputes. When enabled, this allows users to pull reports covering the previous 6 months of transaction data. The reports can provide insights into trends, identify issues, and inform business decisions.
 
-#### Business profile
-
-The `business_profile` feature flag enables the ability to create multiple business profiles within a single organisation account. Each business profile can have its own settings, connectors, and payment routing configuration from other profiles. This allows large enterprises to manage different lines of business, subsidiaries, or geographic regions under one umbrella account while keeping the data and workflows separate.
-
 #### Mixpanel
 
 The `mixpanel` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information via REST API.
-
-#### MixpanelSDK
-
-The `mixpanel_sdk` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information via it's SDK.
-
-#### Verify Connector
-
-The `verify_connector` feature flag enables connector validation when adding new payment processors. When enabled, this will perform a test API call to the processor after entering credentials to verify connectivity. This helps catch any issues with the integration or credentials before attempting to process live payments.
 
 #### Feedback
 
@@ -101,10 +98,6 @@ The `feedback` feature flag enables the ability for users to provide direct prod
 #### Test Processors
 
 The `test_processors` feature flag allows enabling sandbox/test payment processors for testing purposes. When enabled, developers and testers can add test payment processors like Stripe Test or PayPal Test to trial payment flows without touching live transactions or making processor API calls.
-
-#### User Management / Team
-
-The `user_management` feature flag enables user administration capabilities. When enabled, administrators can add, edit, and remove user accounts from the organization. They can also manage user roles and permissions that control access to different features and data.
 
 #### Recon
 
@@ -130,14 +123,6 @@ The `system_metrics` feature flag unlocks access to system monitoring and metric
 
 The `audit_trail` feature flag enables access to payment and refund audit logs within the dashboard. When turned on, users can view detailed trails showing the history of transactions including status changes, approvals, edits, and more.
 
-#### Switch Merchant
-
-The `switch_merchant` feature flag allows organizations to create and manage multiple merchant accounts within a single dashboard instance. When enabled, users can set up and configure separate merchants for different business lines, products, or brands. Users can switch between merchant profiles which have independent settings, connectors, and reporting.
-
-#### Home page
-
-The `home_page` feature flag controls whether the dashboard home page is enabled or hidden. When turned on, the home page displaying summary metrics and quick links will be visible after logging in.
-
 #### Test Live Toggle
 
 The `test_live_toggle` feature flag enables users to toggle between test and live modes when signing in. When enabled, users will see an option during sign-in to actively switch between test and live environments.
@@ -145,24 +130,59 @@ The `test_live_toggle` feature flag enables users to toggle between test and liv
 #### Is Live Mode
 
 The `is_live_mode` feature flag enables the live mode - that the user is accessing. When enabled, it will show a visual indicator within the dashboard signaling whether the user is currently in a test environment or live production environment.
+In Live mode, current users are not allowed to sign up. Users must be created manually.
 
-#### Magic Link
+#### Email
 
-The `magic_link` feature flag enables user sign-in and sign-up using magic links instead of passwords. When enabled, users can request a magic link via email that logs them into their account or creates a new account if they are signing up.
-
-#### Production Access
-
-The `production_access` feature flag enables a flow for users to request live production access. When enabled, it shows a modal or call-to-action allowing users to indicate interest in taking their account live and processing real payments.
+The `email` feature flag enables user sign-in and sign-up using magic links instead of passwords. When enabled, users can request a magic link via email that logs them into their account or creates a new account if they are signing up.
 
 #### Quick Start
 
 The `quick_start` feature flag enables the simplified onboarding flow for new users, where they connect to processors, configure payment routing and test a payment, all in one flow.
 
+### Surcharge
+
+The `surcharge` feature flag enables the ability to apply surcharges to payments. When enabled, you can create advanced rules based on payment parameters like amount, currency, and payment method to enforce surcharges as needed.
+
+### User Journey
+
+Enabling `user_journey_analytics` grants access to the user journey module within the analytics section of the dashboard. This feature provides comprehensive graphical representations of payment analytics, facilitating a deeper understanding of user behavior and usage patterns.
+
+### Branding
+
+Enabling `branding` feature flag enables customization of branding elements like logos, colors.
+
 ---
 
-## Deployment
+## Customize the Color and Logo
 
-You can deploy the application to a hosting platform like Netlify, Vercel, or Firebase Hosting. Configure the deployment settings as needed for your chosen platform.
+Priamry color,logo and favicon can customizied by setting the values in the config.toml
+
+```
+[default.theme]
+primary_color="#006DF9"
+primary_hover_color="#005ED6"
+sidebar_color="#242F48"
+[default.endpoints]
+logo_url=""
+favicon_url=""
+```
+
+## Enable the features on Run time by overriding the default value
+
+You can override these default values either by exporting them directly
+
+```
+export default__theme__sidebar_color="#3b0764";
+export default__features__threeds_authenticator=true;
+export default__features__is_live_mode=true;
+
+```
+
+Or, you can set these values as environment variables by defining them in the `.env` file and pass the file
+during the docker run command
+
+`docker run -p 9000:9000 --env-file=.env juspaydotin/hyperswitch-control-center:latest`
 
 ### Deploy on AWS cloud
 
