@@ -27,8 +27,6 @@ let useSendEvent = () => {
   | Local => "localhost"
   }
 
-  let mixpanel_token = Window.env.mixpanelToken
-
   let url = RescriptReactRouter.useUrl()
 
   let getUrlEndpoint = () => {
@@ -46,6 +44,8 @@ let useSendEvent = () => {
     ~section,
     ~metadata=Dict.make(),
   ) => {
+    let mixpanel_token = Window.env.mixpanelToken
+
     let body = {
       "section": section,
       "event": event,

@@ -123,6 +123,7 @@ module RemoteTableFilters = {
     ~initialFixedFilter,
     ~setOffset,
     ~customLeftView,
+    ~title="",
     ~entityName: APIUtilsTypes.entityName,
     (),
   ) => {
@@ -206,6 +207,21 @@ module RemoteTableFilters = {
       }
       None
     }, [filterValue])
+
+    let dict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
+    let defaultSort: LoadedTable.sortOb = {
+      sortKey: "",
+      sortType: DSC,
+    }
+    let value = dict->Dict.get(title)->Option.getOr(defaultSort)
+
+    React.useEffect(() => {
+      if value.sortKey->isNonEmptyString {
+        filterValue->Dict.set("filter", "")
+        filterValue->updateExistingKeys
+      }
+      None
+    }, [value->OrderTypes.getSortString, value.sortKey])
 
     let getAllFilter =
       filterValue
