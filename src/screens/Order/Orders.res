@@ -133,15 +133,15 @@ let make = (~previewOnly=false) => {
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
         <div className="flex gap-4">
-          <RenderIf condition={generateReport && orderData->Array.length > 0}>
-            <GenerateReport entityName={PAYMENT_REPORT} />
-          </RenderIf>
           <RenderIf condition={userManagementRevamp}>
             <OMPSwitchHelper.OMPViews
               views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
               selectedEntity={transactionEntity}
               onChange={updateTransactionEntity}
             />
+          </RenderIf>
+          <RenderIf condition={generateReport && orderData->Array.length > 0}>
+            <GenerateReport entityName={PAYMENT_REPORT} />
           </RenderIf>
         </div>
       </div>
