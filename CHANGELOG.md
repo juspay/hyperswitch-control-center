@@ -3,6 +3,28 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.10.0
+
+### Features
+
+- Mixpanel 5xx error ([#1313](https://github.com/juspay/hyperswitch-control-center/pull/1313)) ([`6fba4b3`](https://github.com/juspay/hyperswitch-control-center/commit/6fba4b3ea91a58eadfc341cb66dd01af538cf52d))
+- New analytics file structure ([#1310](https://github.com/juspay/hyperswitch-control-center/pull/1310)) ([`6bb8fae`](https://github.com/juspay/hyperswitch-control-center/commit/6bb8faef4a6d77ffaeaee38879580c1db25c45d0))
+- Table remote sorting feature ([#1198](https://github.com/juspay/hyperswitch-control-center/pull/1198)) ([`c9b6691`](https://github.com/juspay/hyperswitch-control-center/commit/c9b6691d5b27c0e00c4a451a37ade2b11ddbfb7d))
+- New analytics tabs ([#1338](https://github.com/juspay/hyperswitch-control-center/pull/1338)) ([`646b752`](https://github.com/juspay/hyperswitch-control-center/commit/646b75280d622fd7f2c27274fda61b4f3082a3f6))
+- Add disable option for pm auth processor ([#1332](https://github.com/juspay/hyperswitch-control-center/pull/1332)) ([`0a491d1`](https://github.com/juspay/hyperswitch-control-center/commit/0a491d1f36b01b530565918c30802e9e299a5bc1))
+
+### Bug Fixes
+
+- Bug fix width issue ([#1326](https://github.com/juspay/hyperswitch-control-center/pull/1326)) ([`266ebc2`](https://github.com/juspay/hyperswitch-control-center/commit/266ebc20d5d47586702cfa994bd5d5cc611c34ca))
+
+### Miscellaneous Tasks
+
+- Pending invitations in home page ([#1330](https://github.com/juspay/hyperswitch-control-center/pull/1330)) ([`ba13558`](https://github.com/juspay/hyperswitch-control-center/commit/ba135588b915be2339082ec0b65da403253f161b))
+
+**Full Changelog:** [`2024.09.06.4...2024.09.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.06.4...2024.09.10.0)
+
+- - -
+
 ## 2024.09.06.4
 
 ### Bug Fixes
