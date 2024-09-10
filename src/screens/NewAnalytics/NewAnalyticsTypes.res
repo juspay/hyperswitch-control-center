@@ -1,5 +1,6 @@
 type analyticsPages = Overview | Payment
 type viewType = Graph | Table
+type statisticsDirection = Upward | Downward
 
 type analyticsPagesRoutes =
   | @as("new-analytics-overview") NewAnalyticsOverview
@@ -26,3 +27,5 @@ type entity = {
   title: string,
   domain: domain,
 }
+
+type dropDownOptionType = {label: string}

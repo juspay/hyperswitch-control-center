@@ -87,6 +87,9 @@ module.exports = {
         focusBoxShadow:
           "0px 1px 2px 0px rgba(0, 0, 0, 0.05), 0px 0px 0px 4px rgba(232, 243, 255, 1)",
       },
+      fontWeight: {
+        600: "600",
+      },
       fontSize: {
         "fs-10": "10px",
         "fs-11": "11px",
@@ -128,6 +131,11 @@ module.exports = {
           300: "#CCCCCC",
           700: "#151A1F",
           900: "#333333",
+          dark: "#1E1E1E",
+          light: "#F6F6F6",
+          medium: "#A0A0A0",
+          outline: "#E5E5E5",
+          text: "#474D59",
         },
         green: {
           50: "#EFF4EF",
@@ -137,6 +145,8 @@ module.exports = {
           960: "#3A833A",
           success_page_bg: "#E8FDF2",
           accepted_green_800: "#39934F",
+          dark: "#12B76A",
+          light: "#0E92551A",
         },
         orange: {
           100: "#FEF2E9",
@@ -156,7 +166,10 @@ module.exports = {
           960: "#EF6969",
           980: "#FC5454",
           failed_page_bg: "#FDEDE8",
+          dark: "#F04E42",
+          light: "#FEEDEC",
         },
+        "yellow-bg": "#F7D59B4D",
         "profile-sidebar-blue": "#16488F",
         "status-green": "#36AF47",
         "popover-background": "#334264",
