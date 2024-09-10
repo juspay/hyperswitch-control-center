@@ -94,18 +94,22 @@ module ProfileActions = {
 type columns =
   | ProfileName
   | ProfileId
+  | ReturnUrl
+  | WebhookUrl
   | Action
 
-let visibleColumns = [ProfileId, ProfileName, Action]
+let visibleColumns = [ProfileId, ProfileName, ReturnUrl, WebhookUrl, Action]
 
-let defaultColumns = [ProfileId, ProfileName, Action]
+let defaultColumns = [ProfileId, ProfileName, ReturnUrl, WebhookUrl, Action]
 
-let allColumns = [ProfileId, ProfileName, Action]
+let allColumns = [ProfileId, ProfileName, ReturnUrl, WebhookUrl, Action]
 
 let getHeading = colType => {
   switch colType {
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
+  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL")
+  | WebhookUrl => Table.makeHeaderInfo(~key="webhook_url", ~title="Webhook URL")
   | Action => Table.makeHeaderInfo(~key="action", ~title="Action")
   }
 }
@@ -114,6 +118,8 @@ let getCell = (item: profileEntity, colType): Table.cell => {
   switch colType {
   | ProfileId => Text(item.profile_id)
   | ProfileName => Text(item.profile_name)
+  | ReturnUrl => Text(item.return_url->Option.getOr(""))
+  | WebhookUrl => Text(item.webhook_details.webhook_url->Option.getOr(""))
   | Action =>
     CustomCell(
       <ProfileActions defaultProfileName={item.profile_name} profileId={item.profile_id} />,
@@ -158,12 +164,20 @@ let getItems: JSON.t => array<profileEntity> = json => {
   LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let businessProfileTableEntity = EntityType.makeEntity(
-  ~uri="",
-  ~getObjects=getItems,
-  ~defaultColumns,
-  ~allColumns,
-  ~getHeading,
-  ~dataKey="",
-  ~getCell,
-)
+let businessProfileTableEntity = (~permission: CommonAuthTypes.authorization) =>
+  EntityType.makeEntity(
+    ~uri="",
+    ~getObjects=getItems,
+    ~defaultColumns,
+    ~allColumns,
+    ~getHeading,
+    ~dataKey="",
+    ~getCell,
+    ~getShowLink={
+      profile =>
+        PermissionUtils.linkForGetShowLinkViaAccess(
+          ~url=GlobalVars.appendDashboardPath(~url=`/business-profiles/${profile.profile_id}`),
+          ~permission,
+        )
+    },
+  )

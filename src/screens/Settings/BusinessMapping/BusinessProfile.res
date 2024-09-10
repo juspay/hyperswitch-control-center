@@ -135,6 +135,7 @@ let make = (
   let (modalState, setModalState) = React.useState(_ => Edit)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (updatedProfileId, setUpdatedProfileId) = React.useState(_ => "")
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let businessProfileValues = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
 
@@ -187,7 +188,9 @@ let make = (
             hideTitle=true
             resultsPerPage=7
             visibleColumns
-            entity={businessProfileTableEntity}
+            entity={businessProfileTableEntity(
+              ~permission=userPermissionJson.merchantDetailsManage,
+            )}
             showSerialNumber=true
             actualData={businessProfileValues->Array.map(Nullable.make)}
             totalResults={businessProfileValues->Array.length}

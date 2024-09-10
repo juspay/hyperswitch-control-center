@@ -30,9 +30,14 @@ let make = () => {
       <AccessControl isEnabled=featureFlagDetails.default permission={Access}>
         <BusinessDetails />
       </AccessControl>
-    | list{"business-profiles"} =>
+    | list{"business-profiles", ...remainingPath} =>
       <AccessControl permission=Access>
-        <BusinessProfile />
+        <EntityScaffold
+          entityName="BusinessProfile"
+          remainingPath
+          renderList={() => <BusinessProfile />}
+          renderShow={(_, _) => <BusinessProfileDetails webhookOnly=false showFormOnly=false />}
+        />
       </AccessControl>
     | list{"payment-settings", ...remainingPath} =>
       <EntityScaffold
