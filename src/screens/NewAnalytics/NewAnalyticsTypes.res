@@ -4,9 +4,10 @@ type analyticsPagesRoutes =
   | @as("new-analytics-overview") NewAnalyticsOverview
   | @as("new-analytics-payment") NewAnalyticsPayment
 
+type domain = [#payments]
 type dimension = [#connector | #payment_method | #payment_method_type | #status | #no_value]
 type status = [#charged | #failure | #payment_method_awaited]
-type metrics = [#payment_count | #connector_success_rate]
+type metrics = [#payment_processed_amount]
 
 type dimensionRecord = {
   dimension: dimension,
@@ -25,8 +26,8 @@ type requestBodyConfig = {
   excludeFilterValue?: array<status>,
 }
 
-type entity<'t, 't1> = {
+type entity = {
   requestBodyConfig: requestBodyConfig,
   title: string,
-  getChartOption: 't => JSON.t,
+  domain: domain,
 }

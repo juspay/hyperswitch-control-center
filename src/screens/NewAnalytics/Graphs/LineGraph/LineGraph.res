@@ -1,5 +1,23 @@
 type viewType = Graph | Table
 
+module Card = {
+  @react.component
+  let make = (~children) => {
+    <div
+      className={`h-full flex flex-col justify-between border rounded-lg dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox`}>
+      {children}
+    </div>
+  }
+}
+
+let customUI = (~height="h-96") =>
+  <Card>
+    <div
+      className={`${height} border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
+      {"No Data"->React.string}
+    </div>
+  </Card>
+
 module TabSwitch = {
   @react.component
   let make = () => {
@@ -45,78 +63,78 @@ module InfoSection = {
           <div className="font-[600]"> {"8%"->React.string} </div>
         </div>
       </div>
-      <div className="flex gap-3">
-        <Menu \"as"="div" className="relative inline-block text-left">
-          {_menuProps =>
-            <div>
-              <Menu.Button
-                className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border border-[#E5E5E5]">
-                {_buttonProps => {
-                  <>
-                    {"By Amount"->React.string}
-                    <Icon
-                      className={arrow
-                        ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
-                        : `rotate-180 transition duration-[250ms] ml-1 mt-1 opacity-60`}
-                      name="arrow-without-tail"
-                      size=15
-                    />
-                  </>
-                }}
-              </Menu.Button>
-              <Transition
-                \"as"="span"
-                enter="transition ease-out duration-100"
-                enterFrom="transform opacity-0 scale-95"
-                enterTo="transform opacity-100 scale-100"
-                leave="transition ease-in duration-75"
-                leaveFrom="transform opacity-100 scale-100"
-                leaveTo="transform opacity-0 scale-95">
-                {<Menu.Items
-                  className="absolute right-0 z-50 w-fit mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  {props => {
-                    if props["open"] {
-                      setArrow(_ => true)
-                    } else {
-                      setArrow(_ => false)
-                    }
-                    <>
-                      <div className="px-1 py-1 ">
-                        {[]
-                        ->Array.mapWithIndex((option, i) =>
-                          <Menu.Item key={i->Int.toString}>
-                            {props =>
-                              <div className="relative">
-                                <button
-                                  onClick={_ => ()}
-                                  className={
-                                    let activeClasses = if props["active"] {
-                                      "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
-                                    } else {
-                                      "group flex rounded-md items-center w-full px-2 py-2 text-sm"
-                                    }
-                                    `${activeClasses} font-medium text-start`
-                                  }>
-                                  <div className="mr-5"> {""->React.string} </div>
-                                </button>
-                                <RenderIf condition={true}>
-                                  <Icon
-                                    className={`absolute top-2 right-2 `} name="check" size=15
-                                  />
-                                </RenderIf>
-                              </div>}
-                          </Menu.Item>
-                        )
-                        ->React.array}
-                      </div>
-                    </>
-                  }}
-                </Menu.Items>}
-              </Transition>
-            </div>}
-        </Menu>
-        <TabSwitch />
-      </div>
+      // <div className="flex gap-3">
+      //   <Menu \"as"="div" className="relative inline-block text-left">
+      //     {_menuProps =>
+      //       <div>
+      //         <Menu.Button
+      //           className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border border-[#E5E5E5]">
+      //           {_buttonProps => {
+      //             <>
+      //               {"By Amount"->React.string}
+      //               <Icon
+      //                 className={arrow
+      //                   ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
+      //                   : `rotate-180 transition duration-[250ms] ml-1 mt-1 opacity-60`}
+      //                 name="arrow-without-tail"
+      //                 size=15
+      //               />
+      //             </>
+      //           }}
+      //         </Menu.Button>
+      //         <Transition
+      //           \"as"="span"
+      //           enter="transition ease-out duration-100"
+      //           enterFrom="transform opacity-0 scale-95"
+      //           enterTo="transform opacity-100 scale-100"
+      //           leave="transition ease-in duration-75"
+      //           leaveFrom="transform opacity-100 scale-100"
+      //           leaveTo="transform opacity-0 scale-95">
+      //           {<Menu.Items
+      //             className="absolute right-0 z-50 w-fit mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+      //             {props => {
+      //               if props["open"] {
+      //                 setArrow(_ => true)
+      //               } else {
+      //                 setArrow(_ => false)
+      //               }
+      //               <>
+      //                 <div className="px-1 py-1 ">
+      //                   {[]
+      //                   ->Array.mapWithIndex((option, i) =>
+      //                     <Menu.Item key={i->Int.toString}>
+      //                       {props =>
+      //                         <div className="relative">
+      //                           <button
+      //                             onClick={_ => ()}
+      //                             className={
+      //                               let activeClasses = if props["active"] {
+      //                                 "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+      //                               } else {
+      //                                 "group flex rounded-md items-center w-full px-2 py-2 text-sm"
+      //                               }
+      //                               `${activeClasses} font-medium text-start`
+      //                             }>
+      //                             <div className="mr-5"> {""->React.string} </div>
+      //                           </button>
+      //                           <RenderIf condition={true}>
+      //                             <Icon
+      //                               className={`absolute top-2 right-2 `} name="check" size=15
+      //                             />
+      //                           </RenderIf>
+      //                         </div>}
+      //                     </Menu.Item>
+      //                   )
+      //                   ->React.array}
+      //                 </div>
+      //               </>
+      //             }}
+      //           </Menu.Items>}
+      //         </Transition>
+      //       </div>}
+      //   </Menu>
+      //   <TabSwitch />
+      // </div>
     </div>
   }
 }
@@ -135,21 +153,69 @@ module NoteSection = {
 }
 
 @react.component
-let make = () => {
-  open GraphUtils
+let make = (~startTimeVal, ~endTimeVal, ~entity: NewAnalyticsTypes.entity) => {
   open Highcharts
   open LineGraphUtils
+  open APIUtils
+  open LogicUtils
+
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod()
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+
+  let chartFetch = async () => {
+    try {
+      let metricsUrl = getURL(
+        ~entityName=ANALYTICS_PAYMENTS,
+        ~methodType=Post,
+        ~id=Some((entity.domain :> string)),
+      )
+      let body = requestBody(
+        ~dimensions=[],
+        ~delta=entity.requestBodyConfig.delta,
+        ~startTime=startTimeVal,
+        ~excludeFilterValue=entity.requestBodyConfig.excludeFilterValue,
+        ~endTime=endTimeVal,
+        ~filters=entity.requestBodyConfig.filters,
+        ~metrics=entity.requestBodyConfig.metrics,
+        ~groupBy=entity.requestBodyConfig.groupBy,
+        ~customFilter=entity.requestBodyConfig.customFilter,
+        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
+      )
+      let res = await updateDetails(metricsUrl, body, Post)
+      let arr =
+        res
+        ->getDictFromJsonObject
+        ->getArrayFromDict("queryData", [])
+
+      if arr->Array.length > 0 {
+        Js.log2(">>", arr->getChartData(~color="#2f7ed8", ~name="Series 1"))
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
+    }
+  }
+  React.useEffect(() => {
+    if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
+      chartFetch()->ignore
+    }
+    None
+  }, [])
 
   <div>
-    <h2 className="font-[600] text-xl text-[#333333] pb-5">
-      {"Payments Processed"->React.string}
-    </h2>
-    <Card>
-      <InfoSection />
-      <div className="mx-3">
-        <Chart options highcharts />
-      </div>
-      <NoteSection />
-    </Card>
+    <h2 className="font-[600] text-xl text-[#333333] pb-5"> {entity.title->React.string} </h2>
+    <PageLoaderWrapper
+      screenState customLoader={<Shimmer styleClass="w-full h-96" />} customUI={customUI()}>
+      <Card>
+        <InfoSection />
+        <div className="mx-3">
+          <Chart options highcharts />
+        </div>
+        <NoteSection />
+      </Card>
+    </PageLoaderWrapper>
   </div>
 }
