@@ -79,22 +79,25 @@ let make = () => {
       }
     }
   }
+  let (renderKey, setRenderkey) = React.useState(_ => "")
 
   let setUpDashboard = async () => {
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
       Window.connectorWasmInit()->ignore
       let _ = await fetchPermissions()
       let _ = await fetchSwitchMerchantList()
       if featureFlagDetails.quickStart {
         let _ = await fetchInitialEnums()
       }
+      switch url.path->urlPath {
+      | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
+      | _ => ()
+      }
       setDashboardPageState(_ => #HOME)
+      setRenderkey(_ => profileId)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ =>
-      setDashboardPageState(_ => #HOME)
-      setScreenState(_ => PageLoaderWrapper.Error(""))
+    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }
   }
 
@@ -140,7 +143,7 @@ let make = () => {
         //
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
-          <div className="relative">
+          <div className="relative" key={renderKey}>
             // TODO: Change the key to only profileId once the userInfo starts sending profileId
             <div className={`h-screen flex flex-col`}>
               <div className="flex relative overflow-auto h-screen ">
@@ -161,7 +164,14 @@ let make = () => {
                               userRole={userRole} isAddMerchantEnabled={userRole === "org_admin"}
                             />
                           </RenderIf>
-                          <RenderIf condition={featureFlagDetails.userManagementRevamp}>
+                          <RenderIf
+                            condition={featureFlagDetails.userManagementRevamp &&
+                            checkUserEntity([#Internal])}>
+                            <SwitchMerchantForInternal />
+                          </RenderIf>
+                          <RenderIf
+                            condition={featureFlagDetails.userManagementRevamp &&
+                            !checkUserEntity([#Internal])}>
                             <ProfileSwitch />
                           </RenderIf>
                           <div
@@ -196,7 +206,8 @@ let make = () => {
                         | list{"recon-analytics"}
                         | list{"reports"}
                         | list{"config-settings"}
-                        | list{"file-processor"} =>
+                        | list{"file-processor"}
+                        | list{"sdk"} =>
                           <MerchantAccountContainer />
                         | list{"connectors", ..._}
                         | list{"payoutconnectors", ..._}
@@ -221,6 +232,15 @@ let make = () => {
                         | list{"analytics-refunds"}
                         | list{"analytics-disputes"} =>
                           <AnalyticsContainser />
+                        | list{"new-analytics-overview"}
+                        | list{"new-analytics-payment"} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.newAnalytics}
+                            permission=userPermissionJson.analyticsView>
+                            <FilterContext key="NewAnalytics" index="NewAnalytics">
+                              <NewAnalyticsContainer />
+                            </FilterContext>
+                          </AccessControl>
                         | list{"customers", ...remainingPath} =>
                           <AccessControl
                             permission={userPermissionJson.operationsView}
@@ -239,7 +259,7 @@ let make = () => {
                           </AccessControl>
                         | list{"users", "create-custom-role"} =>
                           <AccessControl permission=userPermissionJson.usersManage>
-                            <CreateCustomRole />
+                            <CreateCustomRole baseUrl="users" breadCrumbHeader="Users" />
                           </AccessControl>
                         | list{"users", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.usersView>
@@ -250,9 +270,7 @@ let make = () => {
                               renderShow={(_, _) => <ShowUserData />}
                             />
                           </AccessControl>
-
-                        | list{"users-revamp", ..._} => <UserManagementContainer />
-
+                        | list{"users-v2", ..._} => <UserManagementContainer />
                         | list{"analytics-user-journey"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.userJourneyAnalytics &&
@@ -278,8 +296,8 @@ let make = () => {
                           </AccessControl>
                         | list{"developer-system-metrics"} =>
                           <AccessControl
-                            isEnabled={userRole->String.includes("internal_") &&
-                              featureFlagDetails.systemMetrics}
+                            isEnabled={checkUserEntity([#Internal]) &&
+                            featureFlagDetails.systemMetrics}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext key="SystemMetrics" index="SystemMetrics">
                               <SystemMetricsAnalytics />
@@ -290,11 +308,6 @@ let make = () => {
                           <AccessControl
                             isEnabled=featureFlagDetails.complianceCertificate permission=Access>
                             <Compliance />
-                          </AccessControl>
-                        | list{"sdk"} =>
-                          <AccessControl
-                            isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
-                            <SDKPage />
                           </AccessControl>
                         | list{"3ds"} =>
                           <AccessControl permission=userPermissionJson.workflowsView>

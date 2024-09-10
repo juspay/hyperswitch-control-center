@@ -34,7 +34,7 @@ let roleScope = userRole => {
   })
 
   FormRenderer.makeFieldInfo(
-    ~label="Role Scope ",
+    ~label="Role Scope",
     ~name="role_scope",
     ~customInput=InputFields.selectInput(
       ~options=roleScopeArray,

@@ -626,6 +626,8 @@ let useGetURL = () => {
 
       // INVITATION INSIDE DASHBOARD
       | #RESEND_INVITE
+      | #ACCEPT_INVITATION_HOME =>
+        `${userUrl}/user/invite/accept/v2`
       | #INVITE_MULTIPLE =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
@@ -721,7 +723,6 @@ let useGetURL = () => {
 let useHandleLogout = () => {
   let getURL = useGetURL()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
 
@@ -739,7 +740,6 @@ let useHandleLogout = () => {
           JSON.Encode.null->resolve
         })
       setAuthStateToLogout()
-      setIsSidebarExpanded(_ => false)
       clearRecoilValue()
       AuthUtils.redirectToLogin()
       LocalStorage.clear()
@@ -759,6 +759,13 @@ let responseHandler = async (
   ~isPlayground,
   ~popUpCallBack,
   ~handleLogout,
+  ~sendEvent: (
+    ~eventName: string,
+    ~email: string=?,
+    ~description: option<'a>=?,
+    ~section: string=?,
+    ~metadata: Dict.t<'b>=?,
+  ) => unit,
 ) => {
   let json = try {
     await res->(res => res->Fetch.Response.json)
@@ -767,6 +774,14 @@ let responseHandler = async (
   }
 
   let responseStatus = res->Fetch.Response.status
+
+  if responseStatus >= 500 && responseStatus < 600 {
+    sendEvent(
+      ~eventName="API Error",
+      ~description=Some(responseStatus),
+      ~metadata=json->getDictFromJsonObject,
+    )
+  }
 
   switch responseStatus {
   | 200 => json
@@ -843,6 +858,7 @@ let useGetMethod = (~showErrorToast=true) => {
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let handleLogout = useHandleLogout()
+  let sendEvent = MixpanelHook.useSendEvent()
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let popUpCallBack = () =>
     showPopUp({
@@ -870,6 +886,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~isPlayground,
         ~popUpCallBack,
         ~handleLogout,
+        ~sendEvent,
       )
     } catch {
     | Exn.Error(e) =>
@@ -884,6 +901,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let handleLogout = useHandleLogout()
+  let sendEvent = MixpanelHook.useSendEvent()
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
 
   let popUpCallBack = () =>
@@ -926,6 +944,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~showPopUp,
         ~popUpCallBack,
         ~handleLogout,
+        ~sendEvent,
       )
     } catch {
     | Exn.Error(e) =>

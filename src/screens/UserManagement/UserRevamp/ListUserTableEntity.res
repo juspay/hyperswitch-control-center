@@ -43,8 +43,8 @@ let itemToObjMapperForUser = dict => {
 
 let getHeadingForUser = (colType: userColTypes) => {
   switch colType {
-  | Email => Table.makeHeaderInfo(~key="email", ~title="Email", ~showSort=true)
-  | Role => Table.makeHeaderInfo(~key="role", ~title="Role", ~showSort=true)
+  | Email => Table.makeHeaderInfo(~key="email", ~title="Email")
+  | Role => Table.makeHeaderInfo(~key="role", ~title="Role")
   }
 }
 
@@ -90,5 +90,5 @@ let userEntity = EntityType.makeEntity(
   ~getCell=getCellForUser,
   ~dataKey="",
   ~getShowLink=userId =>
-    GlobalVars.appendDashboardPath(~url=`/users-revamp/details?email=${userId.email}`),
+    GlobalVars.appendDashboardPath(~url=`/users-v2/details?email=${userId.email}`),
 )
