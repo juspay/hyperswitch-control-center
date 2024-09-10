@@ -45,5 +45,5 @@ compliance_certificate=false
 user_management_revamp=false
 pm_authentication_processor=true
 performance_monitor=false
-new_analytics=true
+new_analytics=false
 down_time=false
