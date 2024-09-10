@@ -8,7 +8,7 @@ module InfoViewForWebhooks = {
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
-    <div className={`flex flex-col gap-2 m-2 md:m-4 w-1/2`}>
+    <div className="flex flex-col gap-2 m-2 md:m-4 w-1/2">
       <p className="font-semibold text-fs-15"> {heading->React.string} </p>
       <div className="flex gap-2 break-all w-full items-start">
         <p className="font-medium text-fs-14 text-black opacity-50"> {subHeading->React.string} </p>
@@ -107,10 +107,10 @@ module WebHookAuthenticationHeaders = {
   let make = () => {
     <div className="flex-1">
       <p
-        className={`ml-4 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 !text-base !text-grey-700 font-semibold ml-1`}>
+        className="text-fs-13 dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-base !text-grey-700 font-semibold ml-1">
         {"Custom HTTP Headers"->React.string}
       </p>
-      <div className="grid grid-cols-5 flex gap-2">
+      <div className="grid grid-cols-5 gap-2">
         {Array.fromInitializer(~length=4, i => i)
         ->Array.mapWithIndex((_, index) =>
           <div key={index->Int.toString} className="col-span-4">
@@ -176,7 +176,7 @@ module WebHook = {
         </div>
         <RenderIf condition={customWebhookHeaders}>
           <div className="ml-4">
-            <div className={"mt-4 flex items-center text-jp-gray-700 font-bold self-start"}>
+            <div className="mt-4 flex items-center text-jp-gray-700 font-bold self-start">
               <div className="font-semibold text-base text-black dark:text-white">
                 {"Enable Custom HTTP Headers"->React.string}
               </div>
