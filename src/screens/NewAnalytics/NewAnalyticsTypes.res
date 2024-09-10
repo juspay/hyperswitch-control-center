@@ -5,9 +5,9 @@ type analyticsPagesRoutes =
   | @as("new-analytics-payment") NewAnalyticsPayment
 
 type domain = [#payments]
-type dimension = [#connector | #payment_method | #payment_method_type | #status | #no_value]
+type dimension = [#currency | #no_value]
 type status = [#charged | #failure | #payment_method_awaited]
-type metrics = [#payment_processed_amount]
+type metrics = [#payment_processed_amount | #payment_success_rate]
 
 type dimensionRecord = {
   dimension: dimension,
