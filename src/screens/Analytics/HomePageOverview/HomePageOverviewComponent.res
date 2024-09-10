@@ -70,8 +70,10 @@ module SystemMetricsInsights = {
   open SystemMetricsAnalyticsUtils
   open HSAnalyticsUtils
   open AnalyticsTypes
+  open APIUtils
   @react.component
   let make = () => {
+    let getURL = useGetURL()
     let getStatData = (
       singleStatData: systemMetricsObjectType,
       timeSeriesData: array<systemMetricsSingleStateSeries>,
@@ -105,10 +107,13 @@ module SystemMetricsInsights = {
       },
     ]
 
-    let getStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
+    let getStatEntity: ('a, string) => DynamicSingleStat.entityType<'colType, 't, 't2> = (
+      metrics,
+      uri,
+    ) => {
       urlConfig: [
         {
-          uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+          uri,
           metrics: metrics->getStringListFromArrayDict,
         },
       ],
@@ -117,14 +122,19 @@ module SystemMetricsInsights = {
       defaultColumns,
       getData: getStatData,
       totalVolumeCol: None,
-      matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+      matrixUriMapper: _ => uri,
     }
 
     let metrics = ["latency"]->Array.map(key => {
       [("name", key->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
     })
+    let analyticsUrl = getURL(
+      ~entityName=ANALYTICS_PAYMENTS,
+      ~methodType=Post,
+      ~id=Some("payments"),
+    )
 
-    let singleStatEntity = getStatEntity(metrics)
+    let singleStatEntity = getStatEntity(metrics, analyticsUrl)
     let dateDict = HSwitchRemoteFilter.getDateFilteredObject()
 
     <DynamicSingleStat

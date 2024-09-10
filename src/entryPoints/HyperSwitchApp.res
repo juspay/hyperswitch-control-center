@@ -26,7 +26,9 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let {userInfo: {orgId, merchantId, profileId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {orgId, merchantId, profileId}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
@@ -77,6 +79,7 @@ let make = () => {
       }
     }
   }
+  let (renderKey, setRenderkey) = React.useState(_ => "")
 
   let setUpDashboard = async () => {
     try {
@@ -86,12 +89,15 @@ let make = () => {
       if featureFlagDetails.quickStart {
         let _ = await fetchInitialEnums()
       }
+      switch url.path->urlPath {
+      | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
+      | _ => ()
+      }
       setDashboardPageState(_ => #HOME)
+      setRenderkey(_ => profileId)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ =>
-      setDashboardPageState(_ => #HOME)
-      setScreenState(_ => PageLoaderWrapper.Error(""))
+    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }
   }
 
@@ -137,9 +143,9 @@ let make = () => {
         //
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
-          <div className="relative">
+          <div className="relative" key={renderKey}>
             // TODO: Change the key to only profileId once the userInfo starts sending profileId
-            <div className={`h-screen flex flex-col`} key={`${orgId}-${merchantId}-${profileId}`}>
+            <div className={`h-screen flex flex-col`}>
               <div className="flex relative overflow-auto h-screen ">
                 <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
                 <div
@@ -153,11 +159,19 @@ let make = () => {
                       <Navbar
                         headerActions={<div className="relative flex items-center gap-4 my-2 ">
                           <GlobalSearchBar />
-                          <SwitchMerchant
-                            userRole={userRole}
-                            isAddMerchantEnabled={userRole === "org_admin" ? true : false}
-                          />
-                          <RenderIf condition={featureFlagDetails.userManagementRevamp}>
+                          <RenderIf condition={!featureFlagDetails.userManagementRevamp}>
+                            <SwitchMerchant
+                              userRole={userRole} isAddMerchantEnabled={userRole === "org_admin"}
+                            />
+                          </RenderIf>
+                          <RenderIf
+                            condition={featureFlagDetails.userManagementRevamp &&
+                            checkUserEntity([#Internal])}>
+                            <SwitchMerchantForInternal />
+                          </RenderIf>
+                          <RenderIf
+                            condition={featureFlagDetails.userManagementRevamp &&
+                            !checkUserEntity([#Internal])}>
                             <ProfileSwitch />
                           </RenderIf>
                           <div
@@ -192,7 +206,8 @@ let make = () => {
                         | list{"recon-analytics"}
                         | list{"reports"}
                         | list{"config-settings"}
-                        | list{"file-processor"} =>
+                        | list{"file-processor"}
+                        | list{"sdk"} =>
                           <MerchantAccountContainer />
                         | list{"connectors", ..._}
                         | list{"payoutconnectors", ..._}
@@ -207,58 +222,29 @@ let make = () => {
                         | list{"business-profiles", ..._}
                         | list{"payment-settings", ..._} =>
                           <BusinessProfileContainer />
-
-                        | list{"payments", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
-                            <FilterContext key="payments" index="payments">
-                              <EntityScaffold
-                                entityName="Payments"
-                                remainingPath
-                                access=Access
-                                renderList={() => <Orders />}
-                                renderShow={(id, key) => <ShowOrder id profileId={key} />}
-                              />
-                            </FilterContext>
-                          </AccessControl>
-
-                        | list{"payouts", ...remainingPath} =>
+                        | list{"payments", ..._}
+                        | list{"refunds", ..._}
+                        | list{"disputes", ..._}
+                        | list{"payouts", ..._} =>
+                          <TransactionContainer />
+                        | list{"analytics-payments"}
+                        | list{"performance-monitor"}
+                        | list{"analytics-refunds"}
+                        | list{"analytics-disputes"} =>
+                          <AnalyticsContainser />
+                        | list{"new-analytics-overview"}
+                        | list{"new-analytics-payment"} =>
                           <AccessControl
-                            isEnabled={featureFlagDetails.payOut}
-                            permission=userPermissionJson.operationsView>
-                            <FilterContext key="payouts" index="payouts">
-                              <EntityScaffold
-                                entityName="Payouts"
-                                remainingPath
-                                access=Access
-                                renderList={() => <PayoutsList />}
-                                renderShow={(id, key) => <ShowPayout id profileId={key} />}
-                              />
+                            isEnabled={featureFlagDetails.newAnalytics}
+                            permission=userPermissionJson.analyticsView>
+                            <FilterContext key="NewAnalytics" index="NewAnalytics">
+                              <NewAnalyticsContainer />
                             </FilterContext>
-                          </AccessControl>
-                        | list{"refunds", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
-                            <FilterContext key="refunds" index="refunds">
-                              <EntityScaffold
-                                entityName="Refunds"
-                                remainingPath
-                                access=Access
-                                renderList={() => <Refund />}
-                                renderShow={(id, key) => <ShowRefund id profileId={key} />}
-                              />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"disputes", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
-                            <EntityScaffold
-                              entityName="Disputes"
-                              remainingPath
-                              access=Access
-                              renderList={() => <Disputes />}
-                              renderShow={(id, key) => <ShowDisputes id profileId={key} />}
-                            />
                           </AccessControl>
                         | list{"customers", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.operationsView>
+                          <AccessControl
+                            permission={userPermissionJson.operationsView}
+                            isEnabled={[#Organization, #Merchant]->checkUserEntity}>
                             <EntityScaffold
                               entityName="Customers"
                               remainingPath
@@ -273,7 +259,7 @@ let make = () => {
                           </AccessControl>
                         | list{"users", "create-custom-role"} =>
                           <AccessControl permission=userPermissionJson.usersManage>
-                            <CreateCustomRole />
+                            <CreateCustomRole baseUrl="users" breadCrumbHeader="Users" />
                           </AccessControl>
                         | list{"users", ...remainingPath} =>
                           <AccessControl permission=userPermissionJson.usersView>
@@ -284,49 +270,11 @@ let make = () => {
                               renderShow={(_, _) => <ShowUserData />}
                             />
                           </AccessControl>
-
-                        | list{"users-revamp", ...remainingPath} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.userManagementRevamp} permission={Access}>
-                            <EntityScaffold
-                              entityName="UserManagement"
-                              remainingPath
-                              renderList={_ => <UserManagementLanding />}
-                              renderShow={(_, _) => <ShowUserData />}
-                            />
-                          </AccessControl>
-
-                        | list{"analytics-payments"} =>
-                          <AccessControl permission=userPermissionJson.analyticsView>
-                            <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
-                              <PaymentAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"performance-monitor"} =>
-                          <AccessControl
-                            permission=userPermissionJson.analyticsView
-                            isEnabled={featureFlagDetails.performanceMonitor}>
-                            <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
-                              <PerformanceMonitor domain="payments" />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"analytics-refunds"} =>
-                          <AccessControl permission=userPermissionJson.analyticsView>
-                            <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
-                              <RefundsAnalytics />
-                            </FilterContext>
-                          </AccessControl>
-                        | list{"analytics-disputes"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.disputeAnalytics}
-                            permission=userPermissionJson.analyticsView>
-                            <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
-                              <DisputeAnalytics />
-                            </FilterContext>
-                          </AccessControl>
+                        | list{"users-v2", ..._} => <UserManagementContainer />
                         | list{"analytics-user-journey"} =>
                           <AccessControl
-                            isEnabled=featureFlagDetails.userJourneyAnalytics
+                            isEnabled={featureFlagDetails.userJourneyAnalytics &&
+                            [#Organization, #Merchant]->checkUserEntity}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                               <UserJourneyAnalytics />
@@ -334,7 +282,8 @@ let make = () => {
                           </AccessControl>
                         | list{"analytics-authentication"} =>
                           <AccessControl
-                            isEnabled=featureFlagDetails.authenticationAnalytics
+                            isEnabled={featureFlagDetails.authenticationAnalytics &&
+                            [#Organization, #Merchant]->checkUserEntity}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext
                               key="AuthenticationAnalytics" index="AuthenticationAnalytics">
@@ -347,8 +296,8 @@ let make = () => {
                           </AccessControl>
                         | list{"developer-system-metrics"} =>
                           <AccessControl
-                            isEnabled={userRole->String.includes("internal_") &&
-                              featureFlagDetails.systemMetrics}
+                            isEnabled={checkUserEntity([#Internal]) &&
+                            featureFlagDetails.systemMetrics}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext key="SystemMetrics" index="SystemMetrics">
                               <SystemMetricsAnalytics />
@@ -359,11 +308,6 @@ let make = () => {
                           <AccessControl
                             isEnabled=featureFlagDetails.complianceCertificate permission=Access>
                             <Compliance />
-                          </AccessControl>
-                        | list{"sdk"} =>
-                          <AccessControl
-                            isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
-                            <SDKPage />
                           </AccessControl>
                         | list{"3ds"} =>
                           <AccessControl permission=userPermissionJson.workflowsView>

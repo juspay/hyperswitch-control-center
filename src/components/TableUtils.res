@@ -795,14 +795,15 @@ let getTableCellValue = cell => {
 module SortIcons = {
   @react.component
   let make = (~order: sortOrder, ~size: int) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let (iconColor1, iconColor2) = switch order {
-    | INC => ("text-gray-400", "text-gray-300")
-    | DEC => ("text-gray-300", "text-gray-400")
-    | NONE => ("text-gray-400", "text-gray-400")
+    | INC => ("text-gray-300", textColor.primaryNormal)
+    | DEC => (textColor.primaryNormal, "text-gray-300")
+    | NONE => ("text-gray-300", "text-gray-300")
     }
     <div className="flex flex-col justify-center">
-      <Icon className={`-mb-2 ${iconColor1}`} name="sort-up" size />
-      <Icon className={iconColor2} name="sort-down" size />
+      <Icon className={`-mb-0.5 ${iconColor1}`} name="caret-up" size />
+      <Icon className={`-mt-0.5 ${iconColor2}`} name="caret-down" size />
     </div>
   }
 }

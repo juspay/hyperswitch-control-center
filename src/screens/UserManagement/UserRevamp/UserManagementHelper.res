@@ -32,6 +32,7 @@ module OrganisationSelection = {
             ~value="all_organizations",
             ~dropdownList=orgList,
           ),
+          ~deselectDisable=true,
           ~buttonText="Select an organization",
           ~fullLength=true,
           ~customButtonStyle="!rounded-lg",
@@ -67,9 +68,10 @@ module MerchantSelection = {
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
       try {
-        let _ = await internalSwitch(
-          ~expectedMerchantId=Some(event->Identity.formReactEventToString),
-        )
+        let selectedMerchantValue = event->Identity.formReactEventToString
+        if selectedMerchantValue->stringToVariantForAllSelection->Option.isNone {
+          let _ = await internalSwitch(~expectedMerchantId=Some(selectedMerchantValue))
+        }
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
@@ -86,6 +88,7 @@ module MerchantSelection = {
             ~value="all_merchants",
             ~dropdownList=merchList,
           ),
+          ~deselectDisable=true,
           ~buttonText="Select a Merchant",
           ~fullLength=true,
           ~customButtonStyle="!rounded-lg",
@@ -121,9 +124,11 @@ module ProfileSelection = {
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
       try {
-        let _ = await internalSwitch(
-          ~expectedProfileId=Some(event->Identity.formReactEventToString),
-        )
+        let selectedProfileValue = event->Identity.formReactEventToString
+
+        if selectedProfileValue->stringToVariantForAllSelection->Option.isNone {
+          let _ = await internalSwitch(~expectedProfileId=Some(selectedProfileValue))
+        }
         input.onChange(event)
       } catch {
       | _ => showToast(~message="Something went wrong. Please try again", ~toastType=ToastError)
@@ -139,7 +144,9 @@ module ProfileSelection = {
             ~label="All profiles",
             ~value="all_profiles",
             ~dropdownList=profileList,
+            ~showAllSelection=true,
           ),
+          ~deselectDisable=true,
           ~buttonText="Select a Profile",
           ~fullLength=true,
           ~customButtonStyle="!rounded-lg",
@@ -160,7 +167,7 @@ module ProfileSelection = {
 }
 
 let inviteEmail = FormRenderer.makeFieldInfo(
-  ~label="Enter email (s) ",
+  ~label="Enter email(s) ",
   ~name="email_list",
   ~customInput=(~input, ~placeholder as _) => {
     let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0
@@ -173,3 +180,30 @@ let inviteEmail = FormRenderer.makeFieldInfo(
   },
   ~isRequired=true,
 )
+
+module SwitchMerchantForUserAction = {
+  @react.component
+  let make = (~userInfoValue: UserManagementTypes.userDetailstype) => {
+    let showToast = ToastState.useShowToast()
+    let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+
+    let onSwitchForUserAction = async () => {
+      try {
+        let _ = await internalSwitch(
+          ~expectedOrgId=userInfoValue.org.id,
+          ~expectedMerchantId=userInfoValue.merchant.id,
+          ~expectedProfileId=userInfoValue.profile.id,
+        )
+      } catch {
+      | _ => showToast(~message="Failed to perform operation!", ~toastType=ToastError)
+      }
+    }
+
+    <Button
+      text="Switch to update"
+      customButtonStyle="!p-2"
+      buttonType={PrimaryOutline}
+      onClick={_ => onSwitchForUserAction()->ignore}
+    />
+  }
+}

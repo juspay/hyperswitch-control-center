@@ -219,8 +219,6 @@ module ReactWindowTableComponent = {
     ~fullWidth,
     ~removeVerticalLines=true,
     ~showScrollBar=false,
-    ~setSortedObj=?,
-    ~sortedObj=?,
     ~columnFilterRow=?,
     ~tableheadingClass="",
     ~tableBorderClass="",
@@ -391,39 +389,6 @@ module ReactWindowTableComponent = {
                     </div>
                   </RenderIf>
                 </div>
-                {if item.showFilter || item.showSort {
-                  <div className={`flex flex-row items-center`}>
-                    {item.showSort
-                      ? {
-                          <AddDataAttributes attributes=[("data-table", "tableSort")]>
-                            {
-                              let order: sortOrder = switch sortedObj {
-                              | Some(obj: sortedObject) =>
-                                obj.key === item.key ? obj.order : TableUtils.NONE
-                              | None => TableUtils.NONE
-                              }
-                              <div
-                                className="cursor-pointer text-gray-300 pl-4"
-                                onClick={_ev => {
-                                  switch setSortedObj {
-                                  | Some(fn) =>
-                                    fn(_ => Some({
-                                      key: item.key,
-                                      order: order === DEC ? INC : DEC,
-                                    }))
-                                  | None => ()
-                                  }
-                                }}>
-                                <SortIcons order size=13 />
-                              </div>
-                            }
-                          </AddDataAttributes>
-                        }
-                      : React.null}
-                  </div>
-                } else {
-                  React.null
-                }}
               </div>
               <div>
                 {
@@ -624,7 +589,6 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
 @react.component
 let make = (
   ~actualData: array<Nullable.t<'t>>,
-  ~defaultSort=?,
   ~title,
   ~visibleColumns=?,
   ~description=?,
@@ -639,7 +603,6 @@ let make = (
   ~downloadCsv=?,
   ~hideTitle=false,
   ~tableDataLoading=false,
-  ~customGetObjects: option<JSON.t => array<'a>>=?,
   ~dataNotFoundComponent=?,
   ~tableLocalFilter=false,
   ~tableheadingClass="",
@@ -762,9 +725,7 @@ let make = (
     ->ignore
   }
 
-  let {getShowLink, getObjects} = entity
-
-  let (sortedObj, setSortedObj) = useSortedObj(title, defaultSort)
+  let {getShowLink} = entity
 
   let columToConsider = React.useMemo(() => {
     switch (entity.allColumns, visibleColumns) {
@@ -876,16 +837,9 @@ let make = (
     actualData
   }
 
-  let filteredData = React.useMemo(() => {
-    switch sortedObj {
-    | Some(obj: Table.sortedObject) => sortArray(actualData, obj.key, obj.order)
-    | None => actualData
-    }
-  }, (sortedObj, customGetObjects, actualData, getObjects))
-
   let selectAllCheckBox = React.useMemo(() => {
     let selectedRowDataLength = checkBoxProps.selectedData->Array.length
-    let isCompleteDataSelected = selectedRowDataLength === filteredData->Array.length
+    let isCompleteDataSelected = selectedRowDataLength === actualData->Array.length
     if isCompleteDataSelected {
       Some(ALL)
     } else if checkBoxProps.selectedData->Array.length === 0 {
@@ -893,13 +847,13 @@ let make = (
     } else {
       Some(PARTIAL)
     }
-  }, (checkBoxProps.selectedData, filteredData))
+  }, (checkBoxProps.selectedData, actualData))
   let setSelectAllCheckBox = React.useCallback(
     (v: option<TableUtils.multipleSelectRows> => option<TableUtils.multipleSelectRows>) => {
       switch v(selectAllCheckBox) {
       | Some(ALL) =>
         checkBoxProps.setSelectedData(_ => {
-          filteredData->Array.map(Identity.nullableOfAnyTypeToJsonType)
+          actualData->Array.map(Identity.nullableOfAnyTypeToJsonType)
         })
       | Some(PARTIAL)
       | None =>
@@ -912,7 +866,7 @@ let make = (
   React.useEffect(() => {
     if selectAllCheckBox === Some(ALL) {
       checkBoxProps.setSelectedData(_ => {
-        filteredData->Array.map(Identity.nullableOfAnyTypeToJsonType)
+        actualData->Array.map(Identity.nullableOfAnyTypeToJsonType)
       })
     } else if selectAllCheckBox === None {
       checkBoxProps.setSelectedData(_ => [])
@@ -922,7 +876,7 @@ let make = (
   let sNoArr = Dict.get(columnFilter, "s_no")->Option.getOr([])
   // filtering for SNO
   let rows =
-    filteredData
+    actualData
     ->Array.mapWithIndex((nullableItem, index) => {
       let actualRows = switch nullableItem->Nullable.toOption {
       | Some(item) => {
@@ -1031,7 +985,7 @@ let make = (
   })
 
   let handleRowClick = React.useCallback(index => {
-    let actualVal = switch filteredData[index] {
+    let actualVal = switch actualData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
     }
@@ -1052,10 +1006,10 @@ let make = (
       }
     | None => ()
     }
-  }, (filteredData, getShowLink, onEntityClick, url.search))
+  }, (actualData, getShowLink, onEntityClick, url.search))
 
   let handleMouseEnter = React.useCallback(index => {
-    let actualVal = switch filteredData[index] {
+    let actualVal = switch actualData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
     }
@@ -1067,10 +1021,10 @@ let make = (
       }
     | None => ()
     }
-  }, (filteredData, getShowLink, onMouseEnter, url.search))
+  }, (actualData, getShowLink, onMouseEnter, url.search))
 
   let handleMouseLeave = React.useCallback(index => {
-    let actualVal = switch filteredData[index] {
+    let actualVal = switch actualData[index] {
     | Some(ele) => ele->Nullable.toOption
     | None => None
     }
@@ -1082,7 +1036,7 @@ let make = (
       }
     | None => ()
     }
-  }, (filteredData, getShowLink, onMouseLeave, url.search))
+  }, (actualData, getShowLink, onMouseLeave, url.search))
 
   <AddDataAttributes attributes=[("data-loaded-table", title)]>
     <div>
@@ -1134,8 +1088,6 @@ let make = (
                 fullWidth
                 removeVerticalLines
                 showScrollBar=false
-                setSortedObj
-                ?sortedObj
                 ?columnFilterRow
                 tableheadingClass
                 tableBorderClass

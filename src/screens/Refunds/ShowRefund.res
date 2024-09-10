@@ -94,7 +94,7 @@ let make = (~id, ~profileId) => {
   let fetchRefundData = async () => {
     try {
       let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id))
-      let _ = await internalSwitch(~expectedProfileId=Some(profileId))
+      let _ = await internalSwitch(~expectedProfileId=profileId)
       let refundData = await fetchDetails(refundUrl)
       let paymentId =
         refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
@@ -181,7 +181,8 @@ let make = (~id, ~profileId) => {
       />}>
       <RefundInfo orderDict={refundData->LogicUtils.getDictFromJsonObject} />
       <div className="mt-5" />
-      <RenderIf condition={featureFlagDetails.auditTrail}>
+      <RenderIf
+        condition={featureFlagDetails.auditTrail && userPermissionJson.analyticsView == Access}>
         <OrderUIUtils.RenderAccordian
           initialExpandedArray=[0]
           accordion={[
