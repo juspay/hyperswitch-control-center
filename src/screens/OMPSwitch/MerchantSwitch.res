@@ -148,7 +148,7 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
-  <div className="border border-popover-background rounded w-full">
+  <div className="border border-popover-background rounded w-5/6">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
