@@ -108,7 +108,8 @@ let useGetURL = () => {
 
       | _ => ""
       }
-    | ORDERS => switch methodType {
+    | ORDERS =>
+      switch methodType {
       | Get =>
         switch id {
         | Some(key_id) =>
