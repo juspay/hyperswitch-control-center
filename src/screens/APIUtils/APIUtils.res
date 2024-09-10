@@ -56,7 +56,8 @@ let useGetURL = () => {
           switch (userEntity, userManagementRevamp) {
           | (#Organization, true)
           | (#Merchant, true)
-          | (#Profile, true) =>
+          | (#Profile, true)
+          | (#Internal, true) =>
             `account/${merchantId}/profile/connectors`
           | _ => connectorBaseURL
           }
@@ -107,8 +108,7 @@ let useGetURL = () => {
 
       | _ => ""
       }
-    | ORDERS =>
-      switch methodType {
+    | ORDERS => switch methodType {
       | Get =>
         switch id {
         | Some(key_id) =>
@@ -116,15 +116,12 @@ let useGetURL = () => {
           | Some(queryParams) => `payments/${key_id}?${queryParams}`
           | None => `payments/${key_id}`
           }
+
         | None =>
-          switch queryParamerters {
-          | Some(queryParams) =>
-            switch (transactionEntity, userManagementRevamp) {
-            | (#Merchant, true) => `payments/list?${queryParams}`
-            | (#Profile, true) => `payments/profile/list?${queryParams}`
-            | _ => `payments/list?limit=100`
-            }
-          | None => `payments/list?limit=100`
+          switch (transactionEntity, userManagementRevamp) {
+          | (#Merchant, true) => `payments/list?limit=100`
+          | (#Profile, true) => `payments/profile/list?limit=100`
+          | _ => `payments/list?limit=100`
           }
         }
       | Post =>
@@ -226,7 +223,8 @@ let useGetURL = () => {
           switch (userEntity, userManagementRevamp) {
           | (#Organization, true)
           | (#Merchant, true)
-          | (#Profile, true) => `routing/list/profile`
+          | (#Profile, true)
+          | (#Internal, true) => `routing/list/profile`
           | _ => `routing`
           }
         }
@@ -345,7 +343,8 @@ let useGetURL = () => {
           switch (userEntity, userManagementRevamp) {
           | (#Organization, true)
           | (#Merchant, true)
-          | (#Profile, true) => `routing/payouts/list/profile`
+          | (#Profile, true)
+          | (#Internal, true) => `routing/payouts/list/profile`
           | _ => `routing/payouts`
           }
         }
@@ -465,7 +464,8 @@ let useGetURL = () => {
         switch (userEntity, userManagementRevamp) {
         | (#Organization, true)
         | (#Merchant, true)
-        | (#Profile, true) =>
+        | (#Profile, true)
+        | (#Internal, true) =>
           `account/${merchantId}/profile`
         | _ => `account/${merchantId}/business_profile`
         }
@@ -761,14 +761,18 @@ let responseHandler = async (
       let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
       let errorStringifiedJson = errorDict->JSON.Encode.object->JSON.stringify
 
-      //TODO:-
-      // errorCodes to be handled
-      // let errorCode = errorDict->getString("code", "")
-
       if isPlayground && responseStatus === 403 {
         popUpCallBack()
       } else if showErrorToast {
         switch responseStatus {
+        | 400 => {
+            let errorCode = errorDict->getString("code", "")
+            switch errorCode->CommonAuthUtils.errorSubCodeMapper {
+            | HE_02 | UR_33 =>
+              RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+            | _ => ()
+            }
+          }
         | 401 =>
           if !sessionExpired.contents {
             showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
@@ -792,6 +796,13 @@ let responseHandler = async (
             },
           })
 
+        | 404 => {
+            let errorCode = errorDict->getString("code", "")
+            switch errorCode->CommonAuthUtils.errorSubCodeMapper {
+            | HE_02 => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+            | _ => ()
+            }
+          }
         | _ =>
           showToast(
             ~toastType=ToastError,
@@ -814,6 +825,7 @@ let catchHandler = (
 ) => {
   switch Exn.message(err) {
   | Some(msg) => Exn.raiseError(msg)
+
   | None => {
       if isPlayground {
         popUpCallBack()
