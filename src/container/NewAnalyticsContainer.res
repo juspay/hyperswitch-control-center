@@ -1,6 +1,6 @@
 @react.component
 let make = () => {
-  open NewAnalyticsUtils
+  open NewAnalyticsContainerUtils
   open NewAnalyticsTypes
   let url = RescriptReactRouter.useUrl()
   let (tabIndex, setTabIndex) = React.useState(_ => url->getPageIndex)
