@@ -519,18 +519,26 @@ let paymentSettings = () => {
 
 let developers = (isDevelopersEnabled, systemMetrics, ~permissionJson, ~checkUserEntity) => {
   let isInternalUser = checkUserEntity([#Internal])
+  let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(permissionJson)
   let paymentSettings = paymentSettings()
   let systemMetric = systemMetric(permissionJson)
+
+  let defaultDevelopersOptions = [paymentSettings]
+
+  if isInternalUser && systemMetrics {
+    defaultDevelopersOptions->Array.push(systemMetric)
+  }
+  if !isProfileUser {
+    defaultDevelopersOptions->Array.push(apiKeys)
+  }
 
   isDevelopersEnabled
     ? Section({
         name: "Developers",
         icon: "developer",
         showSection: true,
-        links: isInternalUser && systemMetrics
-          ? [apiKeys, paymentSettings, systemMetric]
-          : [apiKeys, paymentSettings],
+        links: defaultDevelopersOptions,
       })
     : emptyComponent
 }
