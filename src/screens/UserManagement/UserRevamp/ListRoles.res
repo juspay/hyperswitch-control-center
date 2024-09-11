@@ -7,7 +7,7 @@ let make = () => {
   let (screenStateRoles, setScreenStateRoles) = React.useState(_ => PageLoaderWrapper.Loading)
   let (rolesAvailableData, setRolesAvailableData) = React.useState(_ => [])
   let (rolesOffset, setRolesOffset) = React.useState(_ => 0)
-
+  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
@@ -42,12 +42,13 @@ let make = () => {
           text={"Create custom roles"}
           buttonType=Primary
           onClick={_ => {
-            mixpanelEvent(~eventName="invite_users")
+            mixpanelEvent(~eventName="create_custom_role")
             RescriptReactRouter.push(
               GlobalVars.appendDashboardPath(~url="/users-v2/create-custom-role"),
             )
           }}
           customButtonStyle="w-fit !rounded-md"
+          buttonState={checkUserEntity([#Profile]) ? Disabled : Normal}
         />
       </div>
       <LoadedTable
