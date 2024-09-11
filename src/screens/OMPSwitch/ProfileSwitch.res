@@ -138,6 +138,7 @@ let make = () => {
     try {
       setShowSwitchingProfile(_ => true)
       let _ = await profileSwitch(~expectedProfileId=value, ~currentProfileId=profileId)
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
       setShowSwitchingProfile(_ => false)
     } catch {
     | _ => {

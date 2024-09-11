@@ -120,7 +120,6 @@ let useProfileSwitch = () => {
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
         userInfoRes
       } else {
         userInfoDefault
