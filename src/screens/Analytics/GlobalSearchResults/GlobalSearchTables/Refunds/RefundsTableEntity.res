@@ -115,7 +115,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => refundsObject = dict => {
     refund_error_code: dict->getString(RefundErrorCode->colMapper, "NA"),
     sign_flag: dict->getInt(SignFlag->colMapper, 0),
     timestamp: dict->getString(Timestamp->colMapper, "NA"),
-    profile_id: dict->getString(Timestamp->colMapper, "NA"),
+    profile_id: dict->getString(ProfileId->colMapper, "NA"),
   }
 }
 
