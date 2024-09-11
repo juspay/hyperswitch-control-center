@@ -115,18 +115,15 @@ let make = (~entity=TransactionViewTypes.Orders) => {
   | _ => []
   }
 
-  let viewsUI =
-    viewsArray
-    ->Array.mapWithIndex((item, i) =>
-      <TransactionViewCard
-        key={i->Int.toString}
-        view={item}
-        count={getViewCount(item, countRes)->Int.toString}
-        onViewClick
-        isActiveView={item == activeView}
-      />
-    )
-    ->React.array
-
-  viewsUI
+  viewsArray
+  ->Array.mapWithIndex((item, i) =>
+    <TransactionViewCard
+      key={i->Int.toString}
+      view={item}
+      count={getViewCount(item, countRes)->Int.toString}
+      onViewClick
+      isActiveView={item == activeView}
+    />
+  )
+  ->React.array
 }
