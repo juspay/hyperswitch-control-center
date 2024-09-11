@@ -117,11 +117,13 @@ let parseErrorMessage = errorMessage => {
 
 let errorSubCodeMapper = (subCode: string) => {
   switch subCode {
+  | "HE_02" => HE_02
   | "UR_01" => UR_01
   | "UR_03" => UR_03
   | "UR_05" => UR_05
   | "UR_16" => UR_16
   | "UR_29" => UR_29
+  | "UR_33" => UR_33
   | "UR_38" => UR_38
   | "UR_40" => UR_40
   | "UR_41" => UR_41

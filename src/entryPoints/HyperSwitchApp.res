@@ -291,7 +291,9 @@ let make = () => {
                             </FilterContext>
                           </AccessControl>
                         | list{"developer-api-keys"} =>
-                          <AccessControl permission=userPermissionJson.merchantDetailsManage>
+                          <AccessControl
+                            permission=userPermissionJson.merchantDetailsManage
+                            isEnabled={!checkUserEntity([#Profile])}>
                             <KeyManagement.KeysManagement />
                           </AccessControl>
                         | list{"developer-system-metrics"} =>
