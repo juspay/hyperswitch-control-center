@@ -323,13 +323,10 @@ let make = (
                             <button
                               onClick={_ => addFilter(option)}
                               className={
-                                let buttonStyle = "group flex rounded-md items-center w-48 px-2 py-2 text-sm"
-                                let activeClasses = if props["active"] {
-                                  `${buttonStyle} bg-gray-100 dark:bg-black`
-                                } else {
-                                  buttonStyle
-                                }
-                                `${activeClasses} font-medium`
+                                let activeClasses = props["active"]
+                                  ? "bg-gray-100 dark:bg-black"
+                                  : ""
+                                `group flex rounded-md items-center w-48 px-2 py-2 text-sm font-medium ${activeClasses}`
                               }>
                               <RenderIf condition={option.label->isNonEmptyString}>
                                 <div className="mr-5">
