@@ -22,12 +22,12 @@ type requestBodyConfig = {
   excludeFilterValue?: array<status>,
 }
 
-type entity<'t> = {
+type entity<'t, 'chatOption> = {
   requestBodyConfig: requestBodyConfig,
   title: string,
   domain: domain,
   getObjects: JSON.t => 't,
-  getChatOptions: 't => JSON.t,
+  getChatOptions: 't => 'chatOption,
 }
 
 type dropDownOptionType = {label: string}

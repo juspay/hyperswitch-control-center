@@ -10,7 +10,10 @@ let tabs: array<Tabs.tab> = [
   },
   {
     title: "Payments",
-    renderContent: () => <div className="mt-5"> {"Payments page"->React.string} </div>,
+    renderContent: () =>
+      <div className="mt-5">
+        <NewPaymentAnalytics />
+      </div>,
   },
 ]
 
