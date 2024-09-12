@@ -25,6 +25,7 @@ type refundsObject = {
   refund_error_code: string,
   sign_flag: int,
   timestamp: string,
+  profile_id: string,
 }
 
 type cols =
@@ -52,6 +53,7 @@ type cols =
   | RefundErrorCode
   | SignFlag
   | Timestamp
+  | ProfileId
 
 let visibleColumns = [RefundId, PaymentId, Refundstatus, TotalAmount, Currency, Connector]
 
@@ -81,6 +83,7 @@ let colMapper = (col: cols) => {
   | RefundErrorCode => "refund_error_code"
   | SignFlag => "sign_flag"
   | Timestamp => "timestamp"
+  | ProfileId => "profile_id"
   }
 }
 
@@ -112,6 +115,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => refundsObject = dict => {
     refund_error_code: dict->getString(RefundErrorCode->colMapper, "NA"),
     sign_flag: dict->getInt(SignFlag->colMapper, 0),
     timestamp: dict->getString(Timestamp->colMapper, "NA"),
+    profile_id: dict->getString(ProfileId->colMapper, "NA"),
   }
 }
 
@@ -156,6 +160,7 @@ let getHeading = colType => {
   | RefundErrorCode => Table.makeHeaderInfo(~key, ~title="Refund Error Code", ~dataType=TextType)
   | SignFlag => Table.makeHeaderInfo(~key, ~title="Sign Flag", ~dataType=TextType)
   | Timestamp => Table.makeHeaderInfo(~key, ~title="Timestamp", ~dataType=TextType)
+  | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile Id", ~dataType=TextType)
   }
 }
 
@@ -215,6 +220,7 @@ let getCell = (refundsObj, colType): Table.cell => {
   | RefundErrorCode => Text(refundsObj.refund_error_code)
   | SignFlag => Text(refundsObj.sign_flag->Int.toString)
   | Timestamp => Text(refundsObj.timestamp)
+  | ProfileId => Text(refundsObj.profile_id)
   }
 }
 
@@ -228,6 +234,7 @@ let tableEntity = EntityType.makeEntity(
   ~getCell,
   ~getHeading,
   ~getShowLink={
-    refund => GlobalVars.appendDashboardPath(~url=`/refunds/${refund.refund_id}`)
+    refund =>
+      GlobalVars.appendDashboardPath(~url=`/refunds/${refund.refund_id}/${refund.profile_id}`)
   },
 )

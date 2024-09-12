@@ -142,7 +142,7 @@ let make = (
   let removeItem = index => {
     input.onChange(
       selectedOptions
-      ->Array.map(selectedOption => selectedOption.connector.connector)
+      ->Array.map(selectedOption => selectedOption.connector.merchant_connector_id)
       ->Array.filterWithIndex((_, i) => i !== index)
       ->Identity.anyTypeToReactEvent,
     )

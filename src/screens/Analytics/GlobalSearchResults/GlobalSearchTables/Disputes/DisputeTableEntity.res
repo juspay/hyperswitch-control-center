@@ -217,6 +217,7 @@ let tableEntity = EntityType.makeEntity(
   ~getCell,
   ~getHeading,
   ~getShowLink={
-    dispute => GlobalVars.appendDashboardPath(~url=`/disputes/${dispute.dispute_id}`)
+    dispute =>
+      GlobalVars.appendDashboardPath(~url=`/disputes/${dispute.dispute_id}/${dispute.profile_id}`)
   },
 )

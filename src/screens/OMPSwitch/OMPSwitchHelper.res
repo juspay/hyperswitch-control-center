@@ -3,9 +3,11 @@ module ListBaseComp = {
   let make = (~heading, ~subHeading, ~arrow) => {
     <div
       className="flex items-center justify-between text-sm text-center text-white font-medium rounded hover:bg-opacity-80 bg-sidebar-blue cursor-pointer">
-      <div className="flex flex-col items-start px-2 py-2">
+      <div className="flex flex-col items-start px-2 py-2 w-5/6">
         <p className="text-xs text-gray-400"> {heading->React.string} </p>
-        <p className="fs-10"> {subHeading->React.string} </p>
+        <div className="w-full text-left overflow-auto">
+          <p className="fs-10"> {subHeading->React.string} </p>
+        </div>
       </div>
       <div className="px-2 py-2">
         <Icon

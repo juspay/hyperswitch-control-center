@@ -33,6 +33,7 @@ type featureFlag = {
   pmAuthenticationProcessor: bool,
   performanceMonitor: bool,
   newAnalytics: bool,
+  downTime: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -73,6 +74,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     pmAuthenticationProcessor: dict->getBool("pm_authentication_processor", false),
     performanceMonitor: dict->getBool("performance_monitor", false),
     newAnalytics: dict->getBool("new_analytics", false),
+    downTime: dict->getBool("down_time", false),
   }
   typedFeatureFlag
 }
