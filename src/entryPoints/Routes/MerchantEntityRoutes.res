@@ -3,6 +3,7 @@
   This file defines all the routes specific to the merchant level, 
   accessible only to users with an entity type of "merchant."
 */
+
 @react.component
 let make = () => {
   let url = RescriptReactRouter.useUrl()

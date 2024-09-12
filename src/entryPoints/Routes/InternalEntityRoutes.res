@@ -3,6 +3,7 @@
   This file defines all the routes specific to the internal user, 
   accessible only to users with an entity type of "internal."
 */
+
 @react.component
 let make = () => {
   let url = RescriptReactRouter.useUrl()

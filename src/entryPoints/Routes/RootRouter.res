@@ -2,7 +2,26 @@
  RootRouter.res
   This file maps all the routes for the application with their respective components that
   are accessible regardless of user access levels.
- */
+*/
+
+module UserEntityRouter = {
+  @react.component
+  let make = () => {
+    let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
+
+    {
+      switch userEntity {
+      | #Profile =>
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+        <MerchantAccountContainer />
+      | #Merchant
+      | #Organization =>
+        <MerchantEntityRoutes />
+      | #Internal => <InternalEntityRoutes />
+      }
+    }
+  }
+}
 
 @react.component
 let make = () => {
@@ -17,7 +36,6 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, _) = Recoil.useRecoilState(userPermissionAtom)
-  let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
   let enumDetails =
     enumVariantAtom
     ->Recoil.useRecoilValueFromAtom
@@ -93,7 +111,6 @@ let make = () => {
           <NewAnalyticsContainer />
         </FilterContext>
       </AccessControl>
-
     | list{"users", "invite-users"} =>
       <AccessControl permission=userPermissionJson.usersManage>
         <InviteUsers />
@@ -162,16 +179,7 @@ let make = () => {
         <DisputeTable />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
-    | _ =>
-      switch userEntity {
-      | #Profile =>
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
-        <MerchantAccountContainer />
-      | #Merchant
-      | #Organization =>
-        <MerchantEntityRoutes />
-      | #Internal => <InternalEntityRoutes />
-      }
+    | _ => <UserEntityRouter />
     }}
   </ErrorBoundary>
 }
