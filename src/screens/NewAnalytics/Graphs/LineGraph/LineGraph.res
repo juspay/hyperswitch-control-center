@@ -1,7 +1,7 @@
 @react.component
 let make = (~entity) => {
   open NewAnalyticsTypes
-  open NewAnalyticsUtils
+  open NewAnalyticsHelper
 
   let options = JSON.Encode.string("")->entity.getObjects->entity.getChatOptions
 
