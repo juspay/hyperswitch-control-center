@@ -144,6 +144,7 @@ let make = (
   ~showSelectFiltersSearch=false,
 ) => {
   open HeadlessUI
+  open LogicUtils
 
   let isMobileView = MatchMedia.useMobileChecker()
   let {query, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
@@ -175,7 +176,7 @@ let make = (
       ~options=remoteOptions,
       (),
     )
-    ->LogicUtils.getDictFromJsonObject
+    ->getDictFromJsonObject
     ->Dict.keysToArray
     ->Array.length
 
@@ -191,7 +192,7 @@ let make = (
     | Some(fn) =>
       fn(
         initialValues
-        ->LogicUtils.getDictFromJsonObject
+        ->getDictFromJsonObject
         ->Dict.toArray
         ->Array.map(item => {
           let (key, value) = item
@@ -329,16 +330,16 @@ let make = (
                                 }
                                 `${activeClasses} font-medium`
                               }>
-                              <RenderIf condition={option.label->LogicUtils.isNonEmptyString}>
+                              <RenderIf condition={option.label->isNonEmptyString}>
                                 <div className="mr-5">
-                                  {option.label->LogicUtils.snakeToTitle->React.string}
+                                  {option.label->snakeToTitle->React.string}
                                 </div>
                               </RenderIf>
-                              <RenderIf condition={option.label->LogicUtils.isEmptyString}>
+                              <RenderIf condition={option.label->isEmptyString}>
                                 <div className="mr-5">
                                   {option.inputNames
-                                  ->LogicUtils.getValueFromArray(0, "")
-                                  ->LogicUtils.snakeToTitle
+                                  ->getValueFromArray(0, "")
+                                  ->snakeToTitle
                                   ->React.string}
                                 </div>
                               </RenderIf>
