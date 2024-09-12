@@ -87,9 +87,6 @@ module.exports = {
         focusBoxShadow:
           "0px 1px 2px 0px rgba(0, 0, 0, 0.05), 0px 0px 0px 4px rgba(232, 243, 255, 1)",
       },
-      fontWeight: {
-        600: "600",
-      },
       fontSize: {
         "fs-10": "10px",
         "fs-11": "11px",

@@ -148,7 +148,7 @@ module GraphHeader = {
   let make = (~title) => {
     <div className="w-full px-7 py-8 flex justify-between">
       <div className="flex gap-2 items-center">
-        <div className="text-3xl font-600"> {title->React.string} </div>
+        <div className="text-3xl font-semibold"> {title->React.string} </div>
         <StatisticsCard value="8" direction={Upward} />
       </div>
     </div>
