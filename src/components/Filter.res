@@ -323,10 +323,11 @@ let make = (
                             <button
                               onClick={_ => addFilter(option)}
                               className={
+                                let buttonStyle = "group flex rounded-md items-center w-48 px-2 py-2 text-sm"
                                 let activeClasses = if props["active"] {
-                                  "group flex rounded-md items-center w-48 px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                                  `${buttonStyle} bg-gray-100 dark:bg-black`
                                 } else {
-                                  "group flex rounded-md items-center w-48 px-2 py-2 text-sm"
+                                  buttonStyle
                                 }
                                 `${activeClasses} font-medium`
                               }>
