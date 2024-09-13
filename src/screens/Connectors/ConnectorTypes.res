@@ -103,11 +103,14 @@ type frmTypes =
 
 type pmAuthenticationProcessorTypes = PLAID
 
+type taxProcessorTypes = TAXJAR
+
 type connectorTypes =
   | Processors(processorTypes)
   | ThreeDsAuthenticator(threeDsAuthenticatorTypes)
   | FRM(frmTypes)
   | PMAuthenticationProcessor(pmAuthenticationProcessorTypes)
+  | TaxProcessor(taxProcessorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -257,7 +260,17 @@ type connectorPayload = {
 }
 
 type connector =
-  FRMPlayer | Processor | PayoutConnector | ThreeDsAuthenticator | PMAuthenticationProcessor
+  | FRMPlayer
+  | Processor
+  | PayoutConnector
+  | ThreeDsAuthenticator
+  | PMAuthenticationProcessor
+  | TaxProcessor
 
 type connectorTypeVariants =
-  PaymentProcessor | PaymentVas | PayoutProcessor | AuthenticationProcessor | PMAuthProcessor
+  | PaymentProcessor
+  | PaymentVas
+  | PayoutProcessor
+  | AuthenticationProcessor
+  | PMAuthProcessor
+  | TaxProcessor
