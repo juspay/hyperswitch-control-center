@@ -839,7 +839,7 @@ let getTabsForIntegration = (
                   src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
                 />
               </div>
-              <PaymentSettings webhookOnly=true />
+              <BusinessProfileDetails webhookOnly=true />
             </TabsContentWrapper>
             <TabsContentWrapper currentRoute tabIndex={6}>
               <div

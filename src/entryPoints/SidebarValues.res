@@ -508,19 +508,9 @@ let systemMetric = permissionJson => {
   })
 }
 
-let paymentSettings = () => {
-  SubLevelLink({
-    name: "Payment Settings",
-    link: `/payment-settings`,
-    access: Access,
-    searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
-  })
-}
-
 let developers = (isDevelopersEnabled, systemMetrics, ~permissionJson, ~checkUserEntity) => {
   let isInternalUser = checkUserEntity([#Internal])
   let apiKeys = apiKeys(permissionJson)
-  let paymentSettings = paymentSettings()
   let systemMetric = systemMetric(permissionJson)
 
   isDevelopersEnabled
@@ -528,9 +518,7 @@ let developers = (isDevelopersEnabled, systemMetrics, ~permissionJson, ~checkUse
         name: "Developers",
         icon: "developer",
         showSection: true,
-        links: isInternalUser && systemMetrics
-          ? [apiKeys, paymentSettings, systemMetric]
-          : [apiKeys, paymentSettings],
+        links: isInternalUser && systemMetrics ? [apiKeys, systemMetric] : [apiKeys],
       })
     : emptyComponent
 }

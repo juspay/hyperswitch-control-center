@@ -102,7 +102,7 @@ let make = () => {
             entityName="ConfigurePMTs"
             remainingPath
             renderList={() => <PaymentMethodList />}
-            renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
+            renderShow={(_, _) => <BusinessProfileDetails webhookOnly=false showFormOnly=false />}
           />
         </FilterContext>
       </AccessControl>
