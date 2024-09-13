@@ -1,35 +1,3 @@
-module PaymentsProcessed = {
-  open NewAnalyticsTypes
-  open NewAnalyticsHelper
-  open LineGraphTypes
-  @react.component
-  let make = (
-    ~entity: moduleEntity,
-    ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
-  ) => {
-    let (paymentsProcessed, setpaymentsProcessed) = React.useState(_ => JSON.Encode.null)
-    let getPaymentsProcessed = async () => {
-      try {
-        setpaymentsProcessed(_ => JSON.Encode.null)
-      } catch {
-      | _ => ()
-      }
-    }
-    React.useEffect(() => {
-      getPaymentsProcessed()->ignore
-      None
-    }, [])
-    <div>
-      <ModuleHeader title={entity.title} />
-      <Card>
-        <GraphHeader title="165K USD" />
-        <div className="mr-3 mb-5">
-          <LineGraph entity={chartEntity} data={paymentsProcessed} />
-        </div>
-      </Card>
-    </div>
-  }
-}
 @react.component
 let make = () => {
   open OverViewAnalyticsEntity
