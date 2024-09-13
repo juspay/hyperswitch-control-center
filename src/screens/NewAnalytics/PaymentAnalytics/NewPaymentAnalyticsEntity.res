@@ -1,5 +1,5 @@
 open NewAnalyticsTypes
-let paymentsLifeCycleEntity: entity = {
+let paymentsLifeCycleEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
     metrics: [#payment_processed_amount],

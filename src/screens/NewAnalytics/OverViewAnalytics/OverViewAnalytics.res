@@ -3,7 +3,10 @@ module PaymentsProcessed = {
   open NewAnalyticsHelper
   open LineGraphTypes
   @react.component
-  let make = (~entity: entity, ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>) => {
+  let make = (
+    ~entity: moduleEntity,
+    ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
+  ) => {
     let (paymentsProcessed, setpaymentsProcessed) = React.useState(_ => JSON.Encode.null)
     let getPaymentsProcessed = async () => {
       try {

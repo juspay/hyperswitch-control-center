@@ -5,7 +5,10 @@ module PaymentsLifeCycle = {
   open NewAnalyticsHelper
   open SankeyGraphTypes
   @react.component
-  let make = (~entity: entity, ~chartEntity: chartEntity<sankeyPayload, sankeyGraphOptions>) => {
+  let make = (
+    ~entity: moduleEntity,
+    ~chartEntity: chartEntity<sankeyPayload, sankeyGraphOptions>,
+  ) => {
     let (paymentsLifeCycle, setPaymentsLifeCycle) = React.useState(_ => JSON.Encode.null)
     let getPaymentLieCycleData = async () => {
       try {
