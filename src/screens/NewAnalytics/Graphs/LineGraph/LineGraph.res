@@ -7,6 +7,7 @@ let make = (~entity, ~data: JSON.t, ~className="") => {
   let (options, setOptions) = React.useState(_ => default)
 
   React.useEffect(() => {
+    // to re-rendor the chart
     setOptions(_ => entity.getChatOptions(data)->lineGraphOptionsToJson)
     None
   }, [])

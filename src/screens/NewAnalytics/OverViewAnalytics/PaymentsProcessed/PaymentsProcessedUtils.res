@@ -75,6 +75,7 @@ let getCell = (obj, colType): Table.cell => {
   }
 }
 
+// Remove this
 let getData = {
   "queryData": [
     {"count": 24, "amount": 952, "currency": "USD", "time_bucket": "2024-08-13 18:30:00"},
