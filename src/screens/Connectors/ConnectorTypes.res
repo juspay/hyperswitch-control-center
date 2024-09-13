@@ -94,6 +94,7 @@ type processorTypes =
   | PAYBOX
   | WELLSFARGO
   | FIUU
+  | NOVALNET
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
