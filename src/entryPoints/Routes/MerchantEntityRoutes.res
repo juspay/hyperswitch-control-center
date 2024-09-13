@@ -22,6 +22,14 @@ let make = () => {
           renderShow={(id, _) => <ShowCustomers id />}
         />
       </AccessControl>
+    | list{"recon"}
+    | list{"upload-files"}
+    | list{"run-recon"}
+    | list{"recon-analytics"}
+    | list{"reports"}
+    | list{"config-settings"}
+    | list{"file-processor"} =>
+      <MerchantAccountContainer />
     | list{"analytics-user-journey"} =>
       <AccessControl
         isEnabled=featureFlagDetails.userJourneyAnalytics

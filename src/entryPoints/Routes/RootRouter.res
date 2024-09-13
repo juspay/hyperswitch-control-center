@@ -1,9 +1,8 @@
-/*
- RootRouter.res
-  This file maps all the routes for the application with their respective components that
-  are accessible regardless of user access levels.
-*/
-
+/**
+ * Component: RootRouter.res
+ * Purpose: maps all the routes for the application with their respective components that
+ * are accessible regardless of user access levels.
+ */
 module UserEntityRouter = {
   @react.component
   let make = () => {
@@ -71,13 +70,6 @@ let make = () => {
   <ErrorBoundary>
     {switch url.path->urlPath {
     | list{"home", ..._}
-    | list{"recon"}
-    | list{"upload-files"}
-    | list{"run-recon"}
-    | list{"recon-analytics"}
-    | list{"reports"}
-    | list{"config-settings"}
-    | list{"file-processor"}
     | list{"sdk"} =>
       <MerchantAccountContainer />
     | list{"connectors", ..._}
