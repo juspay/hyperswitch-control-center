@@ -1,8 +1,6 @@
 open LineGraphTypes
 let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
   let {categories, data, title} = lineGraphOptions
-  Js.log(categories)
-  Js.log(data)
   {
     chart: {
       \"type": "line",
