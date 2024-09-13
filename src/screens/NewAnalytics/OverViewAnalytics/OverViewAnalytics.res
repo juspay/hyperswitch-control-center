@@ -4,14 +4,10 @@ module PaymentsProcessed = {
   open LineGraphTypes
   @react.component
   let make = (~entity: entity<lineGraphPayload, lineGraphOptions>) => {
-    let data = entity.getObjects(JSON.Encode.null)
-    let options = entity.getChatOptions(data)
-    let (options, setOptions) = React.useState(_ => options)
+    let (paymentsProcessed, setpaymentsProcessed) = React.useState(_ => JSON.Encode.null)
     let getPaymentsProcessed = async () => {
       try {
-        let apiData = entity.getObjects(JSON.Encode.null)
-        let options = entity.getChatOptions(apiData)
-        setOptions(_ => options)
+        setpaymentsProcessed(_ => JSON.Encode.null)
       } catch {
       | _ => ()
       }
@@ -24,7 +20,7 @@ module PaymentsProcessed = {
       <h2 className="font-600 text-xl text-jp-gray-900 pb-5"> {entity.title->React.string} </h2>
       <Card>
         <div className="mr-3 my-10">
-          <LineGraph options={options} />
+          <LineGraph entity={entity} data={paymentsProcessed} />
         </div>
       </Card>
     </div>
