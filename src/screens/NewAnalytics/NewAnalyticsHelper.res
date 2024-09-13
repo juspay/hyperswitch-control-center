@@ -22,9 +22,8 @@ module NoData = {
 
 module TabSwitch = {
   @react.component
-  let make = () => {
+  let make = (~viewType, ~setViewType) => {
     open NewAnalyticsTypes
-    let (viewType, setViewType) = React.useState(_ => Graph)
 
     let (icon1Bg, icon1Color, icon1Name) = switch viewType {
     | Graph => ("bg-white", "text-grey-dark", "graph-dark")
@@ -38,12 +37,14 @@ module TabSwitch = {
 
     <div className="border border-gray-outline flex w-fit rounded-lg cursor-pointer">
       <div
-        className={`rounded-l-lg pl-3 pr-2 pt-2 ${icon1Bg}`} onClick={_ => setViewType(_ => Graph)}>
+        className={`rounded-l-lg pl-3 pr-2 pt-2 pb-0.5 ${icon1Bg}`}
+        onClick={_ => setViewType(_ => Graph)}>
         <Icon className={icon1Color} name={icon1Name} size=25 />
       </div>
       <div className="h-full border-l border-gray-outline" />
       <div
-        className={`rounded-r-lg pl-3 pr-2 pt-2 ${icon2Bg}`} onClick={_ => setViewType(_ => Table)}>
+        className={`rounded-r-lg pl-3 pr-2 pt-2 pb-0.5 ${icon2Bg}`}
+        onClick={_ => setViewType(_ => Table)}>
         <Icon className={icon2Color} name=icon2Name size=25 />
       </div>
     </div>
@@ -152,15 +153,14 @@ module ModuleHeader = {
 
 module GraphHeader = {
   @react.component
-  let make = (~title) => {
+  let make = (~title, ~viewType, ~setViewType) => {
     <div className="w-full px-7 py-8 flex justify-between">
       <div className="flex gap-2 items-center">
         <div className="text-3xl font-600"> {title->React.string} </div>
         <StatisticsCard value="8" direction={Upward} />
       </div>
       <div className="flex gap-2">
-        <CustomDropDown buttonText="Amount" options=[] />
-        <TabSwitch />
+        <TabSwitch viewType setViewType />
       </div>
     </div>
   }
