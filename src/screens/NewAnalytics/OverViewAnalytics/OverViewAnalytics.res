@@ -22,7 +22,8 @@ module PaymentsProcessed = {
     <div>
       <ModuleHeader title={entity.title} />
       <Card>
-        <div className="mr-3 my-10">
+        <GraphHeader title="165K USD" />
+        <div className="mr-3 mb-5">
           <LineGraph entity={chartEntity} data={paymentsProcessed} />
         </div>
       </Card>

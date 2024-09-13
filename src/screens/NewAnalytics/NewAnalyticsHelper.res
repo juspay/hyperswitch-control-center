@@ -143,6 +143,13 @@ module NoteSection = {
   }
 }
 
+module ModuleHeader = {
+  @react.component
+  let make = (~title) => {
+    <h2 className="font-semibold text-xl text-jp-gray-900 pb-5"> {title->React.string} </h2>
+  }
+}
+
 module GraphHeader = {
   @react.component
   let make = (~title) => {
@@ -151,13 +158,10 @@ module GraphHeader = {
         <div className="text-3xl font-600"> {title->React.string} </div>
         <StatisticsCard value="8" direction={Upward} />
       </div>
+      <div className="flex gap-2">
+        <CustomDropDown buttonText="Amount" options=[] />
+        <TabSwitch />
+      </div>
     </div>
-  }
-}
-
-module ModuleHeader = {
-  @react.component
-  let make = (~title) => {
-    <h2 className="font-semibold text-xl text-jp-gray-900 pb-5"> {title->React.string} </h2>
   }
 }
