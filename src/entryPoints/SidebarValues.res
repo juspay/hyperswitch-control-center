@@ -407,19 +407,10 @@ let workflow = (
 
 let userManagement = permissionJson => {
   SubLevelLink({
-    name: "Team",
+    name: "Users",
     link: `/users`,
     access: permissionJson.usersView,
-    searchOptions: [("View team management", "")],
-  })
-}
-
-let teamRevamp = permissionJson => {
-  SubLevelLink({
-    name: "Users",
-    link: `/users-v2`,
-    access: permissionJson.usersView,
-    searchOptions: [("View team management", "")],
+    searchOptions: [("View user management", "")],
   })
 }
 
@@ -459,12 +450,7 @@ let complianceCertificateSection = {
   })
 }
 
-let settings = (
-  ~isConfigurePmtsEnabled,
-  ~permissionJson,
-  ~complianceCertificate,
-  ~userManagementRevamp,
-) => {
+let settings = (~isConfigurePmtsEnabled, ~permissionJson, ~complianceCertificate) => {
   let settingsLinkArray = [businessDetails(), businessProfiles()]
 
   if isConfigurePmtsEnabled {
@@ -475,11 +461,7 @@ let settings = (
     settingsLinkArray->Array.push(complianceCertificateSection)->ignore
   }
 
-  if userManagementRevamp {
-    settingsLinkArray->Array.push(teamRevamp(permissionJson))->ignore
-  } else {
-    settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
-  }
+  settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
 
   Section({
     name: "Settings",
@@ -644,7 +626,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     complianceCertificate,
     performanceMonitor: performanceMonitorFlag,
     pmAuthenticationProcessor,
-    userManagementRevamp,
     newAnalytics,
   } = featureFlagDetails
 
@@ -671,12 +652,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut, ~userEntity),
     recon->reconAndSettlement(isReconEnabled, checkUserEntity),
     default->developers(systemMetrics, ~permissionJson, ~checkUserEntity),
-    settings(
-      ~isConfigurePmtsEnabled=configurePmts,
-      ~permissionJson,
-      ~complianceCertificate,
-      ~userManagementRevamp,
-    ),
+    settings(~isConfigurePmtsEnabled=configurePmts, ~permissionJson, ~complianceCertificate),
   ]
 
   sidebar

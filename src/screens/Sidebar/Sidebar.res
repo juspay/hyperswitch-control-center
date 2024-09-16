@@ -453,8 +453,6 @@ let make = (
   let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
     ThemeProvider.themeContext,
   )
-  let featureFlagDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.featureFlagAtom)
-
   let handleLogout = APIUtils.useHandleLogout()
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
@@ -553,8 +551,7 @@ let make = (
             </div>
           </RenderIf>
         </div>
-        <RenderIf
-          condition={featureFlagDetails.userManagementRevamp && !checkUserEntity([#Internal])}>
+        <RenderIf condition={!checkUserEntity([#Internal])}>
           <SidebarSwitch isSidebarExpanded />
         </RenderIf>
         <div

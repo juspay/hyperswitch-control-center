@@ -27,8 +27,7 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport, userManagementRevamp} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchOrders = () => {
     if !previewOnly {
@@ -133,13 +132,11 @@ let make = (~previewOnly=false) => {
         <PageUtils.PageHeading
           title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
         />
-        <RenderIf condition={userManagementRevamp}>
-          <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-            selectedEntity={transactionEntity}
-            onChange={updateTransactionEntity}
-          />
-        </RenderIf>
+        <OMPSwitchHelper.OMPViews
+          views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+          selectedEntity={transactionEntity}
+          onChange={updateTransactionEntity}
+        />
       </div>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
