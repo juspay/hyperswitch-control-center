@@ -150,6 +150,14 @@ function getPMAuthenticationProcessorConfig(connectorName) {
   }
 }
 
+function getTaxProcessorConfig(connectorName) {
+  if (wasm) {
+    return wasm.getTaxProcessorConfig(connectorName);
+  } else {
+    return {};
+  }
+}
+
 function getPayoutDescriptionCategory() {
   if (wasm) {
     return wasm.getPayoutDescriptionCategory();
