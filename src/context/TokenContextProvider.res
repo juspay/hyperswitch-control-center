@@ -1,5 +1,5 @@
-let defaultTokenSetter = (_: option<string> => option<string>) => ()
-let defaultDictSetter = (_: Dict.t<JSON.t> => Dict.t<JSON.t>) => ()
+let defaultTokenSetter = _ => ()
+let defaultDictSetter = _ => ()
 
 type tokenContextObjectType = {
   token: option<string>,
