@@ -222,11 +222,13 @@ let make = () => {
         ~id=isUpdateFlow ? Some(connectorID) : None,
       )
       let response = await updateAPIHook(connectorUrl, body, Post)
-      let mcaId =
-        response
-        ->getDictFromJsonObject
-        ->getString("merchant_connector_id", "")
-      let _ = await updateTaxJarDetails(mcaId)
+      if !isUpdateFlow {
+        let mcaId =
+          response
+          ->getDictFromJsonObject
+          ->getString("merchant_connector_id", "")
+        let _ = await updateTaxJarDetails(mcaId)
+      }
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
     } catch {
