@@ -32,7 +32,7 @@ module TooltipMainWrapper = {
 
     let timeoutRef = React.useRef(None)
 
-    let handleMouseOver = _evt => {
+    let handleMouseOver = _ => {
       if !visibleOnClick {
         switch timeoutRef.current {
         | Some(timerId) => clearTimeout(timerId)
@@ -42,7 +42,7 @@ module TooltipMainWrapper = {
       }
     }
 
-    let handleClick = _evt => {
+    let handleClick = _ => {
       if visibleOnClick {
         switch timeoutRef.current {
         | Some(timerId) => clearTimeout(timerId)
@@ -52,7 +52,7 @@ module TooltipMainWrapper = {
       }
     }
 
-    let handleMouseOut = _evt => {
+    let handleMouseOut = _ => {
       if hoverOnToolTip {
         timeoutRef.current = setTimeout(() => {
             setIsToolTipVisible(_ => false)
@@ -643,7 +643,7 @@ let make = (
 
   React.useEffect(() => {
     if isToolTipVisible {
-      let handleScroll = (_e: Webapi.Dom.Event.t) => {
+      let handleScroll = (_: Webapi.Dom.Event.t) => {
         setIsToolTipVisible(_ => false)
       }
       Window.addEventListener3("scroll", handleScroll, true)

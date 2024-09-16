@@ -19,12 +19,12 @@ module TableCell = {
       ->Array.mapWithIndex((itm, i) => {
         let input: ReactFinalForm.fieldRenderPropsInput = {
           name: `input`,
-          onBlur: _ev => (),
+          onBlur: _ => (),
           onChange: ev => {
             let event = ev->ReactEvent.Form.target
             onChange(elemIndex, i, event["value"])
           },
-          onFocus: _ev => (),
+          onFocus: _ => (),
           value: (keyValue[elemIndex]->Option.getOr([]))[i]->Option.getOr("")->JSON.Encode.string,
           checked: true,
         }
@@ -126,7 +126,7 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~headings, ~fields) =>
     setKeyValue(_ => a)
   }
 
-  let onClick = (elemIndex, isLast) => _ev => {
+  let onClick = (elemIndex, isLast) => _ => {
     let value = if isLast {
       Array.concat(initialState, dummyInitialState)
     } else {

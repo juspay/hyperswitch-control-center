@@ -4,7 +4,7 @@ let make = (~values=[], ~showButton=false, ~onButtonClick=_ => (), ~converterFn=
     <div className="flex flex-wrap flex-row">
       {values
       ->Array.map(value => {
-        let onClick = _evt => {
+        let onClick = _ => {
           onButtonClick(value)
         }
         <div

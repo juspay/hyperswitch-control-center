@@ -170,7 +170,7 @@ module SaveAndActivateButton = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
 
-    let handleSaveAndActivate = async _ev => {
+    let handleSaveAndActivate = async _ => {
       try {
         let onSubmitResponse = await onSubmit(formState.values, false)
         let currentActivatedFromJson = onSubmitResponse->getValFromNullableValue(JSON.Encode.null)

@@ -231,11 +231,11 @@ let make = (
 
   let headerTextClass = headerTextClass->getHeaderTextClass
 
-  let onCloseClick = _evt => {
+  let onCloseClick = _ => {
     setShowModal(prev => !prev)
     onCloseClickCustomFun()
   }
-  let onBackClick = _evt => onBackClick()
+  let onBackClick = _ => onBackClick()
 
   let handleOverlayClick = ev => {
     if closeOnOutsideClick {

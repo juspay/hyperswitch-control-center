@@ -44,7 +44,7 @@ module CardDetails = {
     ~isAnalyticsModule,
   ) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let onCardClick = _ev => {
+    let onCardClick = _ => {
       switch onRowClick {
       | Some(fn) => fn(rowIndex + offset)
       | None => ()
@@ -53,7 +53,7 @@ module CardDetails = {
 
     let (show, setshow) = React.useState(_ => true)
 
-    let showMore = _ev => {
+    let showMore = _ => {
       setshow(prev => !prev)
     }
 

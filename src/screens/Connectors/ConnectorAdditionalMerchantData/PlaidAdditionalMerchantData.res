@@ -78,7 +78,7 @@ let make = (~connectorAdditionalMerchantData) => {
 
   let keys = connectorAdditionalMerchantData->Dict.keysToArray
 
-  let updateOpenBanking = (_evt: ReactEvent.Form.t) => {
+  let updateOpenBanking = (_: ReactEvent.Form.t) => {
     form.change(
       "additional_merchant_data.open_banking_recipient_data",
       JSON.Encode.null->Identity.genericTypeToJson,
@@ -86,7 +86,7 @@ let make = (~connectorAdditionalMerchantData) => {
     setaccountData(_ => "")
   }
 
-  let updateAccountData = (_evt: ReactEvent.Form.t) => {
+  let updateAccountData = (_: ReactEvent.Form.t) => {
     form.change(
       "additional_merchant_data.open_banking_recipient_data.account_data",
       JSON.Encode.null->Identity.genericTypeToJson,

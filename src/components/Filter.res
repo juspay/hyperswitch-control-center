@@ -305,11 +305,11 @@ let make = (
         <div className="flex gap-3 flex-wrap">
           <RenderIf condition={allFilters->Array.length > 0}>
             <Menu \"as"="div" className="relative inline-block text-left mt-3">
-              {_menuProps =>
+              {_ =>
                 <div>
                   <Menu.Button
                     className="flex items-center whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg h-10 hover:bg-opacity-80 bg-white border">
-                    {_buttonProps => {
+                    {_ => {
                       <>
                         <Icon className={"mr-2"} name="plus" size=15 />
                         {"Add Filters"->React.string}
@@ -326,7 +326,7 @@ let make = (
                     leaveTo="transform opacity-0 scale-95">
                     {<Menu.Items
                       className="absolute left-0 w-fit z-50 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                      {_props => {
+                      {_ => {
                         <>
                           <div className="px-1 py-1">
                             {allFilters
