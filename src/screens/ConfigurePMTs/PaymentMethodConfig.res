@@ -10,7 +10,7 @@ module PmtConfigInp = {
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToArrayOfString
         if value->Array.length <= 0 {
@@ -25,7 +25,7 @@ module PmtConfigInp = {
           enableType.onChange("enable_only"->Identity.anyTypeToReactEvent)
         }
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: enabledList.value,
       checked: true,
     }

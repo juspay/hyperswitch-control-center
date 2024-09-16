@@ -88,7 +88,7 @@ module TableRow = {
     let (isCurrentRowExpanded, setIsCurrentRowExpanded) = React.useState(_ => false)
     let (expandedData, setExpandedData) = React.useState(_ => React.null)
     let actualIndex = offset + rowIndex
-    let onClick = React.useCallback(_ev => {
+    let onClick = React.useCallback(_ => {
       let isRangeSelected = getSelection().\"type" == "Range"
       switch (onRowClick, isRangeSelected) {
       | (Some(fn), false) => fn(actualIndex)
@@ -96,21 +96,21 @@ module TableRow = {
       }
     }, (onRowClick, actualIndex))
 
-    let onDoubleClick = React.useCallback(_ev => {
+    let onDoubleClick = React.useCallback(_ => {
       switch onRowDoubleClick {
       | Some(fn) => fn(actualIndex)
       | _ => ()
       }
     }, (onRowDoubleClick, actualIndex))
 
-    let onMouseEnter = React.useCallback(_ev => {
+    let onMouseEnter = React.useCallback(_ => {
       switch onMouseEnter {
       | Some(fn) => fn(actualIndex)
       | _ => ()
       }
     }, (onMouseEnter, actualIndex))
 
-    let onMouseLeave = React.useCallback(_ev => {
+    let onMouseLeave = React.useCallback(_ => {
       switch onMouseLeave {
       | Some(fn) => fn(actualIndex)
       | _ => ()
@@ -290,7 +290,7 @@ module SortAction = {
       | Some(obj: sortedObject) => obj.key === item.key ? obj.order : NONE
       | None => NONE
       }
-      let handleSortClick = _ev => {
+      let handleSortClick = _ => {
         switch setSortedObj {
         | Some(fn) =>
           fn(_ => Some({
@@ -475,9 +475,9 @@ module TableHeadingCell = {
                         if options->Array.length > 1 {
                           let filterInput: ReactFinalForm.fieldRenderPropsInput = {
                             name: "filterInput",
-                            onBlur: _ev => (),
+                            onBlur: _ => (),
                             onChange: ev => handleUpdateFilterObj(ev, i),
-                            onFocus: _ev => (),
+                            onFocus: _ => (),
                             value: selected->Array.map(JSON.Encode.string)->JSON.Encode.array,
                             checked: true,
                           }

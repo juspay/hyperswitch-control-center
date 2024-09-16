@@ -38,9 +38,9 @@ let make = (
   <div className="text-left">
     <AddDataAttributes attributes=[("data-testid", "profile")]>
       <Menu \"as"="div" className="relative inline-block text-left">
-        {_menuProps =>
+        {_ =>
           <div>
-            <Menu.Button className> {_buttonProps => children} </Menu.Button>
+            <Menu.Button className> {_ => children} </Menu.Button>
             <Transition
               \"as"="span"
               enter="transition ease-out duration-100"
@@ -53,7 +53,7 @@ let make = (
                 <BottomModal headerText="Select Action" onCloseClick=closeClick>
                   <Menu.Items
                     className={`w-full p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
-                    {_props =>
+                    {_ =>
                       options
                       ->Array.mapWithIndex((option, index) => {
                         let selected = switch value {
@@ -137,7 +137,7 @@ let make = (
               } else {
                 <Menu.Items
                   className={`absolute z-10 ${dropdownPositionClass} mt-2 p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${dropDownClass}`}>
-                  {_props =>
+                  {_ =>
                     options
                     ->Array.mapWithIndex((option, index) => {
                       let selected = switch value {

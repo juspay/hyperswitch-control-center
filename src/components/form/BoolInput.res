@@ -12,7 +12,7 @@ module BaseComponent = {
     ~boolCustomClass="",
     ~addAttributeId="",
   ) => {
-    let toggleSelect = React.useCallback(_ev => {
+    let toggleSelect = React.useCallback(_ => {
       if !isDisabled {
         setIsSelected(!isSelected)
       }
