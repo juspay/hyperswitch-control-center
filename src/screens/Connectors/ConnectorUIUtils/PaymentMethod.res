@@ -263,6 +263,12 @@ module CardRenderer = {
                         ? "PayPal Redirect"->React.string
                         : "PayPal SDK"->React.string}
                     </p>
+                  | (OpenBankingPIS, _, _) =>
+                    <p
+                      className={`${p2RegularTextStyle} cursor-pointer`}
+                      onClick={_ => removeOrAddMethods(value)}>
+                      {"Open Banking PIS"->React.string}
+                    </p>
                   | _ =>
                     <p
                       className={`${p2RegularTextStyle} cursor-pointer`}

@@ -74,7 +74,7 @@ module TabInfo = {
     }, (index, handleSelectedIndex))
 
     let lineStyle = showBottomBorder
-      ? `bg-black w-full h-0.5 rounded-full ${selectTabBottomBorderColor}`
+      ? `bg-black w-full h-0.5 rounded-full z-10 ${selectTabBottomBorderColor}`
       : ""
 
     React.useEffect(() => {
@@ -171,7 +171,7 @@ let make = (
   let initialIndex = initialIndex->Option.getOr(0)
   let (selectedIndex, setSelectedIndex) = React.useState(() => initialIndex)
   let tabOuterClass = `${tabBottomShadow} ${gapBetweenTabs}`
-  let bottomBorderClass = "border-b border-jp-gray-500 dark:border-jp-gray-960"
+  let bottomBorderClass = "bg-[#CBCBCB] w-full h-0.5 rounded-full -mt-0.5"
 
   let renderedTabClassName = renderedTabClassName
 

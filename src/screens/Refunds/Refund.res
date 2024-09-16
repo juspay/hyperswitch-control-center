@@ -6,6 +6,7 @@ let make = () => {
   open RefundUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (refundData, setRefundsData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -15,7 +16,12 @@ let make = () => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Refunds")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
+  let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
+  let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
 
+  let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchRefunds = () => {
     switch filters {
     | Some(dict) =>
@@ -59,12 +65,17 @@ let make = () => {
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let filterUrl = getURL(~entityName=REFUND_FILTERS, ~methodType=Get)
-
   <ErrorBoundary>
     <div className="min-h-[50vh]">
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Refunds" subTitle="" />
+        <RenderIf condition={userManagementRevamp}>
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+            selectedEntity={transactionEntity}
+            onChange={updateTransactionEntity}
+          />
+        </RenderIf>
         <RenderIf condition={generateReport && refundData->Array.length > 0}>
           <GenerateReport entityName={REFUND_REPORT} />
         </RenderIf>
@@ -75,7 +86,6 @@ let make = () => {
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
-            filterUrl
             setFilters
             endTimeFilterKey
             startTimeFilterKey
@@ -87,6 +97,7 @@ let make = () => {
               setSearchVal=setSearchText
               searchVal=searchText
             />}
+            entityName=REFUND_FILTERS
           />
         </div>
         // <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />

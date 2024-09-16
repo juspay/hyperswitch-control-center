@@ -7,21 +7,29 @@ let make = (~previewOnly=false) => {
 
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
+  let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
-
+  let (sortAtomValue, setSortAtom) = Recoil.useRecoilState(LoadedTable.sortAtom)
   let (widthClass, heightClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "max-h-96") : ("w-full", "")
   }, [previewOnly])
-
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
+  let defaultSort: LoadedTable.sortOb = {
+    sortKey: "",
+    sortType: ASC,
+  }
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, userManagementRevamp} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchOrders = () => {
     if !previewOnly {
@@ -33,6 +41,17 @@ let make = (~previewOnly=false) => {
         filters->Dict.set("limit", 50->Int.toFloat->JSON.Encode.float)
         if !(searchText->isEmptyString) {
           filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
+        }
+
+        let sortObj = sortAtomValue->Dict.get("Orders")->Option.getOr(defaultSort)
+        if sortObj.sortKey->LogicUtils.isNonEmptyString {
+          filters->Dict.set(
+            "order",
+            [
+              ("on", sortObj.sortKey->JSON.Encode.string),
+              ("by", sortObj->OrderTypes.getSortString->JSON.Encode.string),
+            ]->getJsonFromArrayOfJson,
+          )
         }
 
         dict
@@ -78,8 +97,13 @@ let make = (~previewOnly=false) => {
     if filters->isNonEmptyValue {
       fetchOrders()
     }
+
     None
   }, (offset, filters, searchText))
+
+  React.useEffect(() => {
+    Some(() => setSortAtom(_ => [("Orders", defaultSort)]->Dict.fromArray))
+  }, [])
 
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
 
@@ -88,11 +112,9 @@ let make = (~previewOnly=false) => {
       customCssClass={"my-6"} message="There are no payments as of now" renderType=Painting
     />
 
-  let filterUrl = getURL(~entityName=ORDER_FILTERS, ~methodType=Get)
-
   let filtersUI = React.useMemo(() => {
     <RemoteTableFilters
-      filterUrl
+      title="Orders"
       setFilters
       endTimeFilterKey
       startTimeFilterKey
@@ -102,6 +124,7 @@ let make = (~previewOnly=false) => {
       customLeftView={<SearchBarFilter
         placeholder="Search payment id" setSearchVal=setSearchText searchVal=searchText
       />}
+      entityName=ORDER_FILTERS
     />
   }, [])
 
@@ -109,9 +132,18 @@ let make = (~previewOnly=false) => {
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
-        <RenderIf condition={generateReport && orderData->Array.length > 0}>
-          <GenerateReport entityName={PAYMENT_REPORT} />
-        </RenderIf>
+        <div className="flex gap-4">
+          <RenderIf condition={userManagementRevamp}>
+            <OMPSwitchHelper.OMPViews
+              views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+              selectedEntity={transactionEntity}
+              onChange={updateTransactionEntity}
+            />
+          </RenderIf>
+          <RenderIf condition={generateReport && orderData->Array.length > 0}>
+            <GenerateReport entityName={PAYMENT_REPORT} />
+          </RenderIf>
+        </div>
       </div>
       <div className="flex gap-6 justify-around">
         <TransactionView entity=TransactionViewTypes.Orders />
@@ -138,6 +170,7 @@ let make = (~previewOnly=false) => {
           sortingBasedOnDisabled=false
           hideTitle=true
           previewOnly
+          remoteSortEnabled=true
         />
       </PageLoaderWrapper>
     </div>

@@ -1,10 +1,15 @@
+type userInfo = {
+  getUserInfo: unit => promise<UserInfoTypes.userInfo>,
+  updateTransactionEntity: UserInfoTypes.entity => unit,
+  updateAnalytcisEntity: UserInfoTypes.entity => unit,
+}
 let useUserInfo = () => {
   open LogicUtils
   let fetchApi = AuthHooks.useApiFetcher()
-  let {setUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let {setUserInfoData, userInfo} = React.useContext(UserInfoProvider.defaultContext)
   let url = `${Window.env.apiBaseUrl}/user`
 
-  async _ => {
+  let getUserInfo = async () => {
     try {
       let res = await fetchApi(`${url}`, ~method_=Get)
       let response = await res->(res => res->Fetch.Response.json)
@@ -18,13 +23,28 @@ let useUserInfo = () => {
       }
     }
   }
+  let updateTransactionEntity = (transactionEntity: UserInfoTypes.entity) => {
+    let updateInfo = {
+      ...userInfo,
+      transactionEntity,
+    }
+    setUserInfoData(updateInfo)
+  }
+  let updateAnalytcisEntity = (analyticsEntity: UserInfoTypes.entity) => {
+    let updateInfo = {
+      ...userInfo,
+      analyticsEntity,
+    }
+    setUserInfoData(updateInfo)
+  }
+  {getUserInfo, updateTransactionEntity, updateAnalytcisEntity}
 }
 
 let useOrgSwitch = () => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let userDetails = useUserInfo()
+  let {getUserInfo} = useUserInfo()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let {userInfo: userInfoDefault} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -36,7 +56,7 @@ let useOrgSwitch = () => {
           [("org_id", expectedOrgId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
-        let userInfoRes = await userDetails()
+        let userInfoRes = await getUserInfo()
         userInfoRes
       } else {
         userInfoDefault
@@ -54,7 +74,7 @@ let useMerchantSwitch = () => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let userDetails = useUserInfo()
+  let {getUserInfo} = useUserInfo()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let {userInfo: userInfoDefault} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -68,7 +88,7 @@ let useMerchantSwitch = () => {
           ]->LogicUtils.getJsonFromArrayOfJson
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
-        let userInfoRes = await userDetails()
+        let userInfoRes = await getUserInfo()
         userInfoRes
       } else {
         userInfoDefault
@@ -86,7 +106,7 @@ let useProfileSwitch = () => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let userDetails = useUserInfo()
+  let {getUserInfo} = useUserInfo()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let {userInfo: userInfoDefault} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -99,7 +119,7 @@ let useProfileSwitch = () => {
           [("profile_id", expectedProfileId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
-        let userInfoRes = await userDetails()
+        let userInfoRes = await getUserInfo()
         userInfoRes
       } else {
         userInfoDefault
@@ -119,9 +139,7 @@ let useInternalSwitch = () => {
   let profileSwitch = useProfileSwitch()
   let showToast = ToastState.useShowToast()
 
-  let {
-    userInfo: {orgId: currentOrgId, merchantId: currentMerchantId, profileId: currentProfileId},
-  } = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {orgId: currentOrgId}} = React.useContext(UserInfoProvider.defaultContext)
 
   async (~expectedOrgId=None, ~expectedMerchantId=None, ~expectedProfileId=None) => {
     try {
@@ -130,11 +148,11 @@ let useInternalSwitch = () => {
         ~currentOrgId,
       )
       let userInfoResFromSwitchMerch = await merchSwitch(
-        ~expectedMerchantId=expectedMerchantId->Option.getOr(currentMerchantId),
+        ~expectedMerchantId=expectedMerchantId->Option.getOr(userInfoResFromSwitchOrg.merchantId),
         ~currentMerchantId=userInfoResFromSwitchOrg.merchantId,
       )
       let _ = await profileSwitch(
-        ~expectedProfileId=expectedProfileId->Option.getOr(currentProfileId),
+        ~expectedProfileId=expectedProfileId->Option.getOr(userInfoResFromSwitchMerch.profileId),
         ~currentProfileId=userInfoResFromSwitchMerch.profileId,
       )
     } catch {

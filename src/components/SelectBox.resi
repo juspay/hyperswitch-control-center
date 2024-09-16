@@ -290,6 +290,7 @@ module BaseDropdown: {
     ~onApply: JsxEvent.Mouse.t => unit=?,
     ~showAllSelectedOptions: bool=?,
     ~buttonClickFn: string => unit=?,
+    ~toggleChevronState: unit => unit=?,
     ~showSelectCountButton: bool=?,
     ~maxHeight: string=?,
     ~customBackColor: string=?,

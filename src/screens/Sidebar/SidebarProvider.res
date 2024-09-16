@@ -1,20 +1,8 @@
 open ProviderTypes
 
-let setIsSidebarDetails = (key, value) => {
-  let localStorageData = HSLocalStorage.getInfoFromLocalStorage(~lStorageKey="sidebar")
-  localStorageData->Dict.set(key, value)
-  "sidebar"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
-}
-
-let getFromSidebarDetails = key => {
-  HSLocalStorage.getInfoFromLocalStorage(~lStorageKey="sidebar")->LogicUtils.getBool(key, false)
-}
-
 let defaultValue = {
   isSidebarExpanded: false,
   setIsSidebarExpanded: _ => (),
-  getFromSidebarDetails,
-  setIsSidebarDetails,
 }
 
 let defaultContext = React.createContext(defaultValue)
@@ -31,8 +19,6 @@ let make = (~children) => {
     value={
       isSidebarExpanded,
       setIsSidebarExpanded,
-      getFromSidebarDetails,
-      setIsSidebarDetails,
     }>
     children
   </Provider>

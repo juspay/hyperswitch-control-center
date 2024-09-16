@@ -604,7 +604,7 @@ let make = (~id, ~profileId) => {
   let fetchOrderDetails = async url => {
     try {
       setScreenState(_ => Loading)
-      let _ = await internalSwitch(~expectedProfileId=Some(profileId))
+      let _ = await internalSwitch(~expectedProfileId=profileId)
       let res = await fetchDetails(url)
       let order = OrderEntity.itemToObjMapper(res->getDictFromJsonObject)
       setOrderData(_ => order)
@@ -709,7 +709,8 @@ let make = (~id, ~profileId) => {
           openRefundModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
-        <RenderIf condition={featureFlagDetails.auditTrail}>
+        <RenderIf
+          condition={featureFlagDetails.auditTrail && userPermissionJson.analyticsView == Access}>
           <RenderAccordian
             initialExpandedArray=[0]
             accordion={[
