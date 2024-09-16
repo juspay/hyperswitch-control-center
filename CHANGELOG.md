@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.16.0
+
+### Miscellaneous Tasks
+
+- Line graph utils ([#1349](https://github.com/juspay/hyperswitch-control-center/pull/1349)) ([`ba4e885`](https://github.com/juspay/hyperswitch-control-center/commit/ba4e88565818551f1a82bc6c76da6dff1ceb4273))
+
+**Full Changelog:** [`2024.09.13.0...2024.09.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.13.0...2024.09.16.0)
+
+- - -
+
+## 2024.09.13.0
+
+### Bug Fixes
+
+- Volume based routing fix ([#1365](https://github.com/juspay/hyperswitch-control-center/pull/1365)) ([`8bc98e4`](https://github.com/juspay/hyperswitch-control-center/commit/8bc98e4ae0b61001d3ac23a3ddaac16e26dee2c0))
+- Global search fixes ([#1366](https://github.com/juspay/hyperswitch-control-center/pull/1366)) ([`7274021`](https://github.com/juspay/hyperswitch-control-center/commit/727402161be194f636f91f5cb1e416ec6e256596))
+
+### Miscellaneous Tasks
+
+- Add a sankey utils graph ([#1371](https://github.com/juspay/hyperswitch-control-center/pull/1371)) ([`74f5d0c`](https://github.com/juspay/hyperswitch-control-center/commit/74f5d0cc60fa2fd6667f7f0dbbb552d6bd238b1e))
+
+**Full Changelog:** [`2024.09.11.1...2024.09.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.11.1...2024.09.13.0)
+
+- - -
+
 ## 2024.09.11.1
 
 ### Bug Fixes
