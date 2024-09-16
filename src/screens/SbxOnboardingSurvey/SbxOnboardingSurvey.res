@@ -7,7 +7,7 @@ module OtherfieldRender = {
 
     let textInput: ReactFinalForm.fieldRenderPropsInput = {
       name: `${field_name}_otherstring`,
-      onBlur: _ev => {
+      onBlur: _ => {
         let textFieldValue = textField.value->getStringFromJson("")
         let valueFieldValue = valueField.value->getArrayFromJson([])->getStrArrayFromJsonArray
         if textFieldValue->isNonEmptyString {
@@ -20,7 +20,7 @@ module OtherfieldRender = {
         let value = target["value"]
         textField.onChange(value->Identity.anyTypeToReactEvent)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: textField.value,
       checked: false,
     }

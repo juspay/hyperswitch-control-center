@@ -63,7 +63,7 @@ module DeleteConnectorMenu = {
     }
     <AddDataAttributes attributes=[("data-testid", "delete-button"->String.toLowerCase)]>
       <div>
-        <Button text="Delete" onClick={_e => openConfirmationPopUp()} />
+        <Button text="Delete" onClick={_ => openConfirmationPopUp()} />
       </div>
     </AddDataAttributes>
   }
@@ -101,7 +101,7 @@ module MenuOption = {
 
     <Popover \"as"="div" className="relative inline-block text-left">
       {_popoverProps => <>
-        <Popover.Button> {_buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
+        <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
         <Popover.Panel className="absolute z-20 right-5 top-4">
           {panelProps => {
             <div

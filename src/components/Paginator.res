@@ -45,13 +45,13 @@ let make = (
   }
   let selectInput: ReactFinalForm.fieldRenderPropsInput = {
     name: "dummy-name",
-    onBlur: _ev => (),
+    onBlur: _ => (),
     onChange: ev => {
       setResultsPerPage(_ => {
         ev->Identity.formReactEventToString->Int.fromString->Option.getOr(15)
       })
     },
-    onFocus: _ev => (),
+    onFocus: _ => (),
     value: resultsPerPage->Int.toString->JSON.Encode.string,
     checked: true,
   }
