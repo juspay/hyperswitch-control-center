@@ -643,7 +643,7 @@ let make = (
 
   React.useEffect(() => {
     if isToolTipVisible {
-      let handleScroll = (_: Webapi.Dom.Event.t) => {
+      let handleScroll = _ => {
         setIsToolTipVisible(_ => false)
       }
       Window.addEventListener3("scroll", handleScroll, true)

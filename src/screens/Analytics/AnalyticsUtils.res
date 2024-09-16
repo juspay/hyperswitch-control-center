@@ -471,7 +471,7 @@ let generateTablePayload = (
   ~mode: option<string>,
   ~customFilter,
   ~showDeltaMetrics=false,
-  ~moduleName as _: string,
+  ~moduleName as _,
   ~source: string="BATCH",
   (),
 ) => {
