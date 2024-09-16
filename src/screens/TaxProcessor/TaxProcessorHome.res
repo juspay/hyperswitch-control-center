@@ -189,6 +189,22 @@ let make = () => {
     None
   }, [connectorName])
 
+  let updateTaxJarDetails = async mcaId => {
+    try {
+      let url = getURL(
+        ~entityName=BUSINESS_PROFILE,
+        ~methodType=Post,
+        ~id=Some(activeBusinessProfile.profile_id),
+      )
+      let body = Dict.make()
+      body->Dict.set("tax_connector_id", mcaId->JSON.Encode.string)
+      body->Dict.set("is_tax_connector_enabled", true->JSON.Encode.bool)
+      let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
+    } catch {
+    | _ => showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
+    }
+  }
+
   let onSubmit = async (values, _) => {
     try {
       let body =
@@ -206,6 +222,11 @@ let make = () => {
         ~id=isUpdateFlow ? Some(connectorID) : None,
       )
       let response = await updateAPIHook(connectorUrl, body, Post)
+      let mcaId =
+        response
+        ->getDictFromJsonObject
+        ->getString("merchant_connector_id", "")
+      let _ = await updateTaxJarDetails(mcaId)
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
     } catch {
