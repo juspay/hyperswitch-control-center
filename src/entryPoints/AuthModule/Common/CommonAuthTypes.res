@@ -24,12 +24,14 @@ type authFlow =
   | ActivateFromEmail
 type data = {code: string, message: string, type_: string}
 type subCode =
+  | HE_02
   | UR_00
   | UR_01
   | UR_03
   | UR_05
   | UR_16
   | UR_29
+  | UR_33
   | UR_38
   | UR_40
   | UR_41

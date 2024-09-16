@@ -132,12 +132,13 @@ let make = () => {
   }
 
   let customPadding = "px-1 py-1"
-  let customStyle = "w-fit text-blue-500 bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap"
+  let customStyle = "text-blue-500 bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
 
   let profileSwitch = async value => {
     try {
       setShowSwitchingProfile(_ => true)
       let _ = await profileSwitch(~expectedProfileId=value, ~currentProfileId=profileId)
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
       setShowSwitchingProfile(_ => false)
     } catch {
     | _ => {

@@ -95,6 +95,9 @@ external getAuthenticationConnectorConfig: string => JSON.t = "getAuthentication
 external getPMAuthenticationProcessorConfig: string => JSON.t = "getPMAuthenticationProcessorConfig"
 
 @val @scope("window")
+external getTaxProcessorConfig: string => JSON.t = "getTaxProcessorConfig"
+
+@val @scope("window")
 external getAllPayoutKeys: unit => array<string> = "getAllPayoutKeys"
 
 @val @scope("window")
