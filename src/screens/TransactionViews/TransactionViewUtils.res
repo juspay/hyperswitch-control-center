@@ -64,11 +64,7 @@ let getAllViewCount = obj => {
     obj
     ->getDictFromJsonObject
     ->getDictfromDict("status_with_count")
-    ->Dict.toArray
-    ->Array.map(item => {
-      let (_, value) = item
-      value
-    })
+    ->Dict.valuesToArray
   countArray->Array.reduce(0, (acc, curr) =>
     (acc->Int.toFloat +. curr->getFloatFromJson(0.0))->Float.toInt
   )
