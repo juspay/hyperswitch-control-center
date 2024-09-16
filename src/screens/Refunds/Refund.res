@@ -102,7 +102,6 @@ let make = () => {
             entityName=REFUND_FILTERS
           />
         </div>
-        // <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />
       </div>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
