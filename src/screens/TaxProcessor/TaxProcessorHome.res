@@ -189,7 +189,7 @@ let make = () => {
     None
   }, [connectorName])
 
-  let updateTaxJarDetails = async mcaId => {
+  let updateBusinessProfileDetails = async mcaId => {
     try {
       let url = getURL(
         ~entityName=BUSINESS_PROFILE,
@@ -227,7 +227,7 @@ let make = () => {
           response
           ->getDictFromJsonObject
           ->getString("merchant_connector_id", "")
-        let _ = await updateTaxJarDetails(mcaId)
+        let _ = await updateBusinessProfileDetails(mcaId)
       }
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
