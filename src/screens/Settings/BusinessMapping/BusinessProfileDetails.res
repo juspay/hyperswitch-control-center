@@ -42,7 +42,7 @@ module AuthenticationInput = {
         formState.values
         ->getDictFromJsonObject
         ->getDictfromDict("outgoing_webhook_custom_http_headers")
-      let key = outGoingWebhookDict->Dict.keysToArray->LogicUtils.getValueFromArray(index, "")
+      let key = outGoingWebhookDict->Dict.keysToArray->getValueFromArray(index, "")
       let outGoingWebHookVal = outGoingWebhookDict->getOptionString(key)
       switch outGoingWebHookVal {
       | Some(value) => (key, value)
@@ -66,9 +66,8 @@ module AuthenticationInput = {
           let name = `outgoing_webhook_custom_http_headers.${key}`
           form.change(name, JSON.Encode.null)
         }
-        switch value->getOptionIntFromString->Option.isNone {
-        | true => setKey(_ => value)
-        | _ => ()
+        if value->getOptionIntFromString->Option.isNone {
+          setKey(_ => value)
         }
       },
       onFocus: _ => (),
@@ -78,7 +77,7 @@ module AuthenticationInput = {
     let valueInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => {
-        if key->String.length > 0 {
+        if key->isNonEmptyString {
           let name = `outgoing_webhook_custom_http_headers.${key}`
           form.change(name, metaValue->JSON.Encode.string)
         }
@@ -204,16 +203,14 @@ module ReturnUrl = {
   @react.component
   let make = () => {
     open FormRenderer
-    <>
-      <DesktopRow>
-        <FieldRenderer
-          field={DeveloperUtils.returnUrl}
-          errorClass={HSwitchUtils.errorClass}
-          labelClass="!text-base !text-grey-700 font-semibold"
-          fieldWrapperClass="max-w-xl"
-        />
-      </DesktopRow>
-    </>
+    <DesktopRow>
+      <FieldRenderer
+        field={DeveloperUtils.returnUrl}
+        errorClass={HSwitchUtils.errorClass}
+        labelClass="!text-base !text-grey-700 font-semibold"
+        fieldWrapperClass="max-w-xl"
+      />
+    </DesktopRow>
   }
 }
 
