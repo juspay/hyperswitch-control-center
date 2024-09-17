@@ -8,7 +8,7 @@ let make = (~connector, ~connectorInfo: ConnectorTypes.connectorPayload) => {
   let showToast = ToastState.useShowToast()
 
   let (showModal, setShowFeedbackModal) = React.useState(_ => false)
-  // Need to remove connector merge connector and connectorTypeVariants
+  // Need to remove connector and merge connector and connectorTypeVariants
   let (processorType, connectorType) = connectorInfo.connector_type->connectorTypeTuple
   let connectorTypeFromName = connector->getConnectorNameTypeFromString(~connectorType)
 
