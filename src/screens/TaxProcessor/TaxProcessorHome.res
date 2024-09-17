@@ -351,7 +351,12 @@ let make = () => {
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector=connectorName connectorType={TaxProcessor} headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo connector=connectorName setScreenState={_ => ()} isPayoutFlow=false
+              connectorInfo
+              connector=connectorName
+              setScreenState={_ => ()}
+              isPayoutFlow=false
+              setCurrentStep
+              updateStepValue=None
             />
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
         }}
