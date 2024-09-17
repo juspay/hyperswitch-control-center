@@ -1,7 +1,7 @@
 module MenuOption = {
   open HeadlessUI
   @react.component
-  let make = (~disableConnector, ~isConnectorDisabled) => {
+  let make = (~updateStepValue, ~setCurrentStep, ~disableConnector, ~isConnectorDisabled) => {
     let showPopUp = PopUpState.useShowPopUp()
     let openConfirmationPopUp = _ => {
       showPopUp({
@@ -21,7 +21,7 @@ module MenuOption = {
     let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Enable" : "Disable"
 
     <Popover \"as"="div" className="relative inline-block text-left">
-      {_popoverProps => <>
+      {_ => <>
         <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
         <Popover.Panel className="absolute z-20 right-5 top-4">
           {panelProps => {
@@ -29,6 +29,13 @@ module MenuOption = {
               id="neglectTopbarTheme"
               className="relative flex flex-col bg-white py-3 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
               {<>
+                <Navbar.MenuOption
+                  text="Update"
+                  onClick={_ => {
+                    panelProps["close"]()
+                    setCurrentStep(_ => updateStepValue)
+                  }}
+                />
                 <Navbar.MenuOption
                   text={connectorStatusAvailableToSwitch}
                   onClick={_ => {
@@ -47,7 +54,7 @@ module MenuOption = {
 
 @react.component
 let make = () => {
-  open PMAuthenticationTypes
+  open TaxProcessorTypes
   open ConnectorUtils
   open APIUtils
   open LogicUtils
@@ -70,7 +77,7 @@ let make = () => {
     )->MerchantAccountUtils.getValueFromBusinessProfile
 
   let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
-  | list{"pm-authentication-processor", "new"} => false
+  | list{"tax-processor", "new"} => false
   | _ => true
   }
 
@@ -89,7 +96,7 @@ let make = () => {
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
       let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
       showToast(~message="Successfully Saved the Changes", ~toastType=ToastSuccess)
-      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/pm-authentication-processor"))
+      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/tax-processor"))
     } catch {
     | Exn.Error(_) => showToast(~message="Failed to Disable connector!", ~toastType=ToastError)
     }
@@ -132,7 +139,7 @@ let make = () => {
   let connectorDetails = React.useMemo(() => {
     try {
       if connectorName->LogicUtils.isNonEmptyString {
-        let dict = Window.getPMAuthenticationProcessorConfig(connectorName)
+        let dict = Window.getTaxProcessorConfig(connectorName)
         dict
       } else {
         Dict.make()->JSON.Encode.object
@@ -182,6 +189,22 @@ let make = () => {
     None
   }, [connectorName])
 
+  let updateBusinessProfileDetails = async mcaId => {
+    try {
+      let url = getURL(
+        ~entityName=BUSINESS_PROFILE,
+        ~methodType=Post,
+        ~id=Some(activeBusinessProfile.profile_id),
+      )
+      let body = Dict.make()
+      body->Dict.set("tax_connector_id", mcaId->JSON.Encode.string)
+      body->Dict.set("is_tax_connector_enabled", true->JSON.Encode.bool)
+      let _ = await updateDetails(url, body->Identity.genericTypeToJson, Post)
+    } catch {
+    | _ => showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
+    }
+  }
+
   let onSubmit = async (values, _) => {
     try {
       let body =
@@ -191,7 +214,7 @@ let make = () => {
           ~bodyType,
           ~isPayoutFlow=false,
           ~isLiveMode={false},
-          ~connectorType=ConnectorTypes.PMAuthenticationProcessor,
+          ~connectorType=ConnectorTypes.TaxProcessor,
         )->ignoreFields(connectorID, connectorIgnoredField)
       let connectorUrl = getURL(
         ~entityName=CONNECTOR,
@@ -199,6 +222,13 @@ let make = () => {
         ~id=isUpdateFlow ? Some(connectorID) : None,
       )
       let response = await updateAPIHook(connectorUrl, body, Post)
+      if !isUpdateFlow {
+        let mcaId =
+          response
+          ->getDictFromJsonObject
+          ->getString("merchant_connector_id", "")
+        let _ = await updateBusinessProfileDetails(mcaId)
+      }
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
     } catch {
@@ -224,7 +254,7 @@ let make = () => {
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
 
     validateConnectorRequiredFields(
-      connectorName->getConnectorNameTypeFromString(~connectorType=PMAuthenticationProcessor),
+      connectorName->getConnectorNameTypeFromString(~connectorType=TaxProcessor),
       valuesFlattenJson,
       connectorAccountFields,
       connectorMetaDataFields,
@@ -247,16 +277,15 @@ let make = () => {
         className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
         {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
       </div>
-      <MenuOption disableConnector isConnectorDisabled />
+      <MenuOption
+        updateStepValue=ConfigurationFields setCurrentStep disableConnector isConnectorDisabled
+      />
     </div>
   | _ =>
     <Button
       text="Done"
       buttonType=Primary
-      onClick={_ =>
-        RescriptReactRouter.push(
-          GlobalVars.appendDashboardPath(~url="/pm-authentication-processor"),
-        )}
+      onClick={_ => RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/tax-processor"))}
     />
   }
 
@@ -266,17 +295,17 @@ let make = () => {
         path=[
           connectorID === "new"
             ? {
-                title: "PM Authentication Processor",
-                link: "/pm-authentication-processor",
+                title: "Tax Processor",
+                link: "/tax-processor",
                 warning: `You have not yet completed configuring your ${connectorName->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
               }
             : {
-                title: "PM Authentication Porcessor",
-                link: "/pm-authentication-processor",
+                title: "Tax Porcessor",
+                link: "/tax-processor",
               },
         ]
         currentPageTitle={connectorName->ConnectorUtils.getDisplayNameForConnector(
-          ~connectorType=PMAuthenticationProcessor,
+          ~connectorType=TaxProcessor,
         )}
         cursorStyle="cursor-pointer"
       />
@@ -287,7 +316,7 @@ let make = () => {
           <Form initialValues={initialValues} onSubmit validate={validateMandatoryField}>
             <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
               connector=connectorName
-              connectorType={PMAuthenticationProcessor}
+              connectorType={TaxProcessor}
               headerButton={<AddDataAttributes
                 attributes=[("data-testid", "connector-submit-button")]>
                 <FormRenderer.SubmitButton loadingText="Processing..." text="Connect and Proceed" />
@@ -297,15 +326,15 @@ let make = () => {
                   isUpdateFlow selectedConnector={connectorName}
                 />
               </div>
-              <div className={`flex flex-col gap-2 p-2 md:p-10`}>
+              <div className="flex flex-col gap-2 p-2 md:p-10">
                 <div className="grid grid-cols-2 flex-1">
                   <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
                     connector={connectorName->getConnectorNameTypeFromString(
-                      ~connectorType=PMAuthenticationProcessor,
+                      ~connectorType=TaxProcessor,
                     )}
                     connectorAccountFields
                     selectedConnector={connectorName
-                    ->getConnectorNameTypeFromString(~connectorType=PMAuthenticationProcessor)
+                    ->getConnectorNameTypeFromString(~connectorType=TaxProcessor)
                     ->getConnectorInfo}
                     connectorMetaDataFields
                     connectorWebHookDetails
@@ -320,18 +349,10 @@ let make = () => {
 
         | Summary | Preview =>
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
-            connector=connectorName
-            connectorType={PMAuthenticationProcessor}
-            headerButton={summaryPageButton}>
+            connector=connectorName connectorType={TaxProcessor} headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo
-              connector=connectorName
-              setScreenState={_ => ()}
-              isPayoutFlow=false
-              setCurrentStep={_ => ()}
-              updateStepValue={None}
+              connectorInfo connector=connectorName setScreenState={_ => ()} isPayoutFlow=false
             />
-            <div />
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
         }}
       </div>

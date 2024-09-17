@@ -39,7 +39,7 @@ module OperatorInp = {
   @react.component
   let make = (~fieldsArray: array<ReactFinalForm.fieldRenderProps>, ~keyType) => {
     let defaultInput: ReactFinalForm.fieldRenderProps = {
-      input: ReactFinalForm.makeInputRecord(""->JSON.Encode.string, _e => ()),
+      input: ReactFinalForm.makeInputRecord(""->JSON.Encode.string, _ => ()),
       meta: ReactFinalForm.makeCustomError(None),
     }
     let field = (fieldsArray->Array.get(0)->Option.getOr(defaultInput)).input
@@ -49,12 +49,12 @@ module OperatorInp = {
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToString
         operator.onChange(value->Identity.anyTypeToReactEvent)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: operator.value,
       checked: true,
     }
@@ -135,12 +135,12 @@ module ValueInp = {
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToArrayOfString
         valueField.onChange(value->Identity.anyTypeToReactEvent)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: valueField.value,
       checked: true,
     }
@@ -187,7 +187,7 @@ module MetadataInp = {
 
     let textInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => {
+      onBlur: _ => {
         let value = valueField.value
         let val = value->LogicUtils.getStringFromJson("")
         let valSplit = String.split(val, ",")
@@ -203,7 +203,7 @@ module MetadataInp = {
         let value = target["value"]
         valueField.onChange(value->Identity.anyTypeToReactEvent)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: valueField.value,
       checked: true,
     }
@@ -313,7 +313,7 @@ module FieldInp = {
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToString
         onChangeMethod(value)
@@ -321,7 +321,7 @@ module FieldInp = {
         op.onChange(""->Identity.anyTypeToReactEvent)
         val.onChange(""->Identity.anyTypeToReactEvent)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: field.value,
       checked: true,
     }
@@ -524,7 +524,7 @@ module SaveAndActivateButton = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
 
-    let handleSaveAndActivate = async _ev => {
+    let handleSaveAndActivate = async _ => {
       try {
         let onSubmitResponse = await onSubmit(formState.values, false)
         let currentActivatedFromJson =

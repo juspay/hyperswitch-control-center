@@ -440,11 +440,11 @@ module LinkCell = {
 
     | None => data
     }
-    let mouseOver = _ev => {
+    let mouseOver = _ => {
       setShowCopy(_ => true)
     }
 
-    let mouseOut = _ev => {
+    let mouseOut = _ => {
       setShowCopy(_ => false)
     }
     let visibility = showCopy && !isMobileView ? "visible" : "invisible"
@@ -839,9 +839,9 @@ module HeaderActions = {
 
     let actionInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "heading",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange,
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: order->getSortOrderToString->JSON.Encode.string,
       checked: true,
     }

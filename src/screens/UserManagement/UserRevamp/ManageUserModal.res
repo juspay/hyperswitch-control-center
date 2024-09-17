@@ -22,12 +22,12 @@ module ChangeRoleSection = {
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToString
         setUserRole(_ => value)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: userRole->JSON.Encode.string,
       checked: true,
     }

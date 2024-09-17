@@ -130,8 +130,8 @@ module MonthItem = {
 open InfraCalendar
 @react.component
 let make = (
-  ~month as _: option<month>=?,
-  ~year as _: option<int>=?,
+  ~month as _,
+  ~year as _,
   ~onDateClick=?,
   ~cellHighlighter=?,
   ~cellRenderer=?,

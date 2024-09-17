@@ -63,7 +63,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
             Disabled
           }}
           customButtonStyle="!h-10"
-          onClick={_evt => paginate(Math.Int.max(1, currentPage - 1))}
+          onClick={_ => paginate(Math.Int.max(1, currentPage - 1))}
         />
         {pageNumbers
         ->Array.filter(nonEmpty)
@@ -73,7 +73,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
           <Button
             key={idx->Int.toString}
             text={number->Int.toString}
-            onClick={_evt => paginate(number)}
+            onClick={_ => paginate(number)}
             buttonType
             customButtonStyle="!h-10 border-left-1 border-right-1"
             buttonState={if isSelected {
@@ -87,7 +87,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
         <Button
           rightIcon
           buttonType
-          onClick={_evt => paginate(currentPage + 1)}
+          onClick={_ => paginate(currentPage + 1)}
           customButtonStyle="!h-10"
           buttonState={if currentPage < Array.length(pageNumbers) {
             Normal
@@ -107,10 +107,10 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
       let selectInput: ReactFinalForm.fieldRenderPropsInput = {
         name: "dummy-name",
         onBlur: _ev => (),
-        onChange: _evt => {
-          let val = ranges->Array.get(_evt->formEventToInt - 1)->Option.getOr("1-10")
+        onChange: ev => {
+          let val = ranges->Array.get(ev->formEventToInt - 1)->Option.getOr("1-10")
           setDropDownVal(_ => val)
-          paginate(_evt->formEventToInt)
+          paginate(ev->formEventToInt)
         },
         onFocus: _ev => (),
         value: ""->JSON.Encode.string,

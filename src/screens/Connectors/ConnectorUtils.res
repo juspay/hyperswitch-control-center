@@ -37,6 +37,8 @@ let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticat
 
 let pmAuthenticationConnectorList: array<connectorTypes> = [PMAuthenticationProcessor(PLAID)]
 
+let taxProcessorList: array<connectorTypes> = [TaxProcessor(TAXJAR)]
+
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(PAYPAL),
@@ -97,6 +99,7 @@ let connectorList: array<connectorTypes> = [
   Processors(PAYBOX),
   Processors(FIUU),
   Processors(WELLSFARGO),
+  Processors(NOVALNET),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -477,6 +480,14 @@ let fiuuInfo = {
   description: "Fiuu has been the premier merchant service provider in Southeast Asia since 2005, connecting international brands to consumers across the region. The company helps its clients establish a foothold in Southeast Asia's market by offering a full range of alternative payment methods, such as online banking, cash at 7-Eleven (Fiuu Cash), e-wallets, and more. Fiuu provides comprehensive payment solutions to facilitate market entry and expansion for businesses looking to reach Southeast Asian consumers.",
 }
 
+let novalnetInfo = {
+  description: "Novalnet is a global payment service provider and financial technology company based in Germany. It offers a wide range of payment processing solutions and services to merchants and businesses, enabling them to accept various forms of payments online, in-store, or through mobile platforms.",
+}
+
+let taxJarInfo = {
+  description: "TaxJar is reimagining how businesses manage sales tax compliance. Its cloud-based platform automates the entire sales tax life cycle across all sales channels — from calculations and nexus tracking to reporting and filing.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -579,6 +590,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | WELLSFARGO => "wellsfargo"
   | FISERVIPG => "fiservemea"
   | FIUU => "fiuu"
+  | NOVALNET => "novalnet"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -602,6 +614,12 @@ let getPMAuthenticationConnectorNameString = (
   }
 }
 
+let getTaxProcessorNameString = (taxProcessor: taxProcessorTypes) => {
+  switch taxProcessor {
+  | TAXJAR => "taxjar"
+  }
+}
+
 let getConnectorNameString = (connector: connectorTypes) => {
   switch connector {
   | Processors(connector) => connector->getConnectorNameString
@@ -610,6 +628,7 @@ let getConnectorNameString = (connector: connectorTypes) => {
   | FRM(frmConnector) => frmConnector->getFRMNameString
   | PMAuthenticationProcessor(pmAuthenticationConnector) =>
     pmAuthenticationConnector->getPMAuthenticationConnectorNameString
+  | TaxProcessor(taxProcessor) => taxProcessor->getTaxProcessorNameString
   | UnknownConnector(str) => str
   }
 }
@@ -685,6 +704,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "paybox" => Processors(PAYBOX)
     | "wellsfargo" => Processors(WELLSFARGO)
     | "fiuu" => Processors(FIUU)
+    | "novalnet" => Processors(NOVALNET)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -702,6 +722,11 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | PMAuthenticationProcessor =>
     switch connector {
     | "plaid" => PMAuthenticationProcessor(PLAID)
+    | _ => UnknownConnector("Not known")
+    }
+  | TaxProcessor =>
+    switch connector {
+    | "taxjar" => TaxProcessor(TAXJAR)
     | _ => UnknownConnector("Not known")
     }
   | _ => UnknownConnector("Not known")
@@ -777,6 +802,7 @@ let getProcessorInfo = connector => {
   | PAYBOX => payboxInfo
   | WELLSFARGO => wellsfargoInfo
   | FIUU => fiuuInfo
+  | NOVALNET => novalnetInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -798,6 +824,12 @@ let getOpenBankingProcessorInfo = (
   }
 }
 
+let getTaxProcessorInfo = (taxProcessor: ConnectorTypes.taxProcessorTypes) => {
+  switch taxProcessor {
+  | TAXJAR => taxJarInfo
+  }
+}
+
 let getConnectorInfo = connector => {
   switch connector {
   | Processors(connector) => connector->getProcessorInfo
@@ -805,6 +837,7 @@ let getConnectorInfo = connector => {
   | FRM(frm) => frm->getFrmInfo
   | PMAuthenticationProcessor(pmAuthenticationConnector) =>
     pmAuthenticationConnector->getOpenBankingProcessorInfo
+  | TaxProcessor(taxProcessor) => taxProcessor->getTaxProcessorInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }
@@ -915,6 +948,7 @@ let getConnectorType = (connector: ConnectorTypes.connectorTypes, ~isPayoutFlow)
     : switch connector {
       | ThreeDsAuthenticator(_) => "authentication_processor"
       | PMAuthenticationProcessor(_) => "payment_method_auth"
+      | TaxProcessor(_) => "tax_processor"
       | UnknownConnector(str) => str
       | _ => "payment_processor"
       }
@@ -1499,6 +1533,7 @@ let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList
     let isPayoutConnector = connectorType == "payout_processor"
     let isThreeDsAuthenticator = connectorType == "authentication_processor"
     let isPMAuthenticationProcessor = connectorType == "payment_method_auth"
+    let isTaxProcessor = connectorType == "tax_processor"
     let isConnector =
       connectorType !== "payment_vas" &&
       !isPayoutConnector &&
@@ -1511,6 +1546,7 @@ let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList
     | PayoutConnector => isPayoutConnector
     | ThreeDsAuthenticator => isThreeDsAuthenticator
     | PMAuthenticationProcessor => isPMAuthenticationProcessor
+    | TaxProcessor => isTaxProcessor
     }
   })
 }
@@ -1591,6 +1627,7 @@ let getDisplayNameForProcessor = connector =>
   | WELLSFARGO => "Wells Fargo"
   | FISERVIPG => "Fiserv IPG"
   | FIUU => "Fiuu"
+  | NOVALNET => "Novalnet"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -1611,6 +1648,12 @@ let getDisplayNameForOpenBankingProcessor = pmAuthenticationConnector => {
   }
 }
 
+let getDisplayNameForTaxProcessor = taxProcessor => {
+  switch taxProcessor {
+  | TAXJAR => "Tax Jar"
+  }
+}
+
 let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {
   let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType)
   switch connectorType {
@@ -1620,6 +1663,7 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
   | FRM(frmConnector) => frmConnector->getDisplayNameForFRMConnector
   | PMAuthenticationProcessor(pmAuthenticationConnector) =>
     pmAuthenticationConnector->getDisplayNameForOpenBankingProcessor
+  | TaxProcessor(taxProcessor) => taxProcessor->getDisplayNameForTaxProcessor
   | UnknownConnector(str) => str
   }
 }
@@ -1651,6 +1695,7 @@ let connectorTypeStringToTypeMapper = connector_type => {
   | "payout_processor" => PayoutProcessor
   | "authentication_processor" => AuthenticationProcessor
   | "payment_method_auth" => PMAuthProcessor
+  | "tax_processor" => TaxProcessor
   | _ => PaymentProcessor
   }
 }
