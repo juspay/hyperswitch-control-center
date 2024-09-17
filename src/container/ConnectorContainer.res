@@ -85,8 +85,7 @@ let make = () => {
       </AccessControl>
     | list{"tax-processor", ...remainingPath} =>
       <AccessControl
-        permission=userPermissionJson.connectorsView
-        isEnabled={featureFlagDetails.pmAuthenticationProcessor}>
+        permission=userPermissionJson.connectorsView isEnabled={featureFlagDetails.taxProcessor}>
         <EntityScaffold
           entityName="Tax Processor"
           remainingPath
