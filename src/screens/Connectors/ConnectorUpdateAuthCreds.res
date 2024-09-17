@@ -2,6 +2,7 @@
 let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetails) => {
   open ConnectorUtils
   open APIUtils
+  open LogicUtils
   open ConnectorAccountDetailsHelper
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let getURL = useGetURL()
@@ -59,7 +60,12 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       ("connector_webhook_details", connectorInfo.connector_webhook_details),
       ("connector_label", connectorInfo.connector_label->JSON.Encode.string),
       ("metadata", connectorInfo.metadata),
-      ("additional_merchant_data", connectorInfo.additional_merchant_data),
+      (
+        "additional_merchant_data",
+        connectorInfo.additional_merchant_data->checkEmptyJson
+          ? JSON.Encode.null
+          : connectorInfo.additional_merchant_data,
+      ),
     ]->LogicUtils.getJsonFromArrayOfJson
   }, (
     connectorInfo.connector_webhook_details,
