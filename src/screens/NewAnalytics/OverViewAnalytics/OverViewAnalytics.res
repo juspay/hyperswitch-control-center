@@ -3,7 +3,7 @@ module PaymentsProcessed = {
   open NewAnalyticsHelper
   open LineGraphTypes
   @react.component
-  let make = (~entity: entity<lineGraphPayload, lineGraphOptions>) => {
+  let make = (~entity: entity, ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>) => {
     let (paymentsProcessed, setpaymentsProcessed) = React.useState(_ => JSON.Encode.null)
     let getPaymentsProcessed = async () => {
       try {
@@ -17,10 +17,10 @@ module PaymentsProcessed = {
       None
     }, [])
     <div>
-      <h2 className="font-600 text-xl text-jp-gray-900 pb-5"> {entity.title->React.string} </h2>
+      <ModuleHeader title={entity.title} />
       <Card>
         <div className="mr-3 my-10">
-          <LineGraph entity={entity} data={paymentsProcessed} />
+          <LineGraph entity={chartEntity} data={paymentsProcessed} />
         </div>
       </Card>
     </div>
@@ -28,7 +28,11 @@ module PaymentsProcessed = {
 }
 @react.component
 let make = () => {
+  open OverViewAnalyticsEntity
+
   <div className="flex flex-col gap-5 mt-5">
-    <PaymentsProcessed entity={OverViewAnalyticsEntity.paymentsProcessed} />
+    <PaymentsProcessed
+      entity={paymentsProcessedEntity} chartEntity={paymentsProcessedChartEntity}
+    />
   </div>
 }
