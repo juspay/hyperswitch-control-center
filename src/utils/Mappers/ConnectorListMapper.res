@@ -128,12 +128,10 @@ let getProcessorPayloadType = dict => {
     connector_webhook_details: dict
     ->Dict.get("connector_webhook_details")
     ->Option.getOr(JSON.Encode.null),
-    metadata: dict
-    ->Dict.get("metadata")
-    ->Option.getOr(JSON.Encode.null),
+    metadata: dict->getObj("metadata", Dict.make())->JSON.Encode.object,
     additional_merchant_data: dict
-    ->Dict.get("additional_merchant_data")
-    ->Option.getOr(JSON.Encode.null),
+    ->getObj("additional_merchant_data", Dict.make())
+    ->JSON.Encode.object,
   }
 }
 

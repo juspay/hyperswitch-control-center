@@ -60,9 +60,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       ("connector_label", connectorInfo.connector_label->JSON.Encode.string),
       ("metadata", connectorInfo.metadata),
       ("additional_merchant_data", connectorInfo.additional_merchant_data),
-    ]
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    ]->LogicUtils.getJsonFromArrayOfJson
   }, (
     connectorInfo.connector_webhook_details,
     connectorInfo.connector_label,
@@ -129,7 +127,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       borderBottom=true
       revealFrom=Reveal.Right
       modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900">
-      {<Form initialValues validate={validateMandatoryField} onSubmit>
+      <Form initialValues validate={validateMandatoryField} onSubmit>
         <ConnectorConfigurationFields
           connector={connectorTypeFromName}
           connectorAccountFields
@@ -143,7 +141,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
           <FormRenderer.SubmitButton text="Submit" />
         </div>
         <FormValuesSpy />
-      </Form>}
+      </Form>
     </Modal>
   </>
 }
