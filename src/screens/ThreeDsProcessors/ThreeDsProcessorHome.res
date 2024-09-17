@@ -274,6 +274,7 @@ let make = () => {
               isPayoutFlow=false
               setCurrentStep={_ => ()}
               updateStepValue=None
+              getConnectorDetails={Some(getConnectorDetails)}
             />
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
         }}

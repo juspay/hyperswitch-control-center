@@ -268,6 +268,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
             isPayoutFlow
             setInitialValues
             getPayPalStatus
+            getConnectorDetails={Some(getConnectorDetails)}
           />
         }}
       </div>

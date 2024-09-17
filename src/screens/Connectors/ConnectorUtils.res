@@ -897,6 +897,7 @@ let connectorIgnoredField = [
   "connector_name",
   "profile_id",
   "applepay_verified_domains",
+  "connector_account_details",
 ]
 
 let configKeysToIgnore = [

@@ -259,6 +259,7 @@ type connectorPayload = {
   frm_configs?: array<frm_config>,
   status: string,
   connector_webhook_details: JSON.t,
+  additional_merchant_data: JSON.t,
 }
 
 type connector =

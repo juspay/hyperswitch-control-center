@@ -131,6 +131,9 @@ let getProcessorPayloadType = dict => {
     metadata: dict
     ->Dict.get("metadata")
     ->Option.getOr(JSON.Encode.null),
+    additional_merchant_data: dict
+    ->Dict.get("additional_merchant_data")
+    ->Option.getOr(JSON.Encode.null),
   }
 }
 

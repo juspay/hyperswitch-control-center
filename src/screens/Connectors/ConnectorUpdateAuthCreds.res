@@ -1,5 +1,5 @@
 @react.component
-let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
+let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetails) => {
   open ConnectorUtils
   open APIUtils
   open ConnectorAccountDetailsHelper
@@ -59,10 +59,15 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
       ("connector_webhook_details", connectorInfo.connector_webhook_details),
       ("connector_label", connectorInfo.connector_label->JSON.Encode.string),
       ("metadata", connectorInfo.metadata),
+      ("additional_merchant_data", connectorInfo.additional_merchant_data),
     ]
     ->Dict.fromArray
     ->JSON.Encode.object
-  }, [connectorName])
+  }, (
+    connectorInfo.connector_webhook_details,
+    connectorInfo.connector_label,
+    connectorInfo.metadata,
+  ))
 
   let onSubmit = async (values, _) => {
     try {
@@ -72,6 +77,10 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
         ~id=Some(connectorInfo.merchant_connector_id),
       )
       let _ = await updateAPIHook(url, values, Post)
+      switch getConnectorDetails {
+      | Some(fun) => fun()->ignore
+      | _ => ()
+      }
       setShowFeedbackModal(_ => false)
     } catch {
     | _ => showToast(~message="Connector Failed to update", ~toastType=ToastError)
@@ -120,23 +129,21 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
       borderBottom=true
       revealFrom=Reveal.Right
       modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900">
-      {<>
-        <Form initialValues validate={validateMandatoryField} onSubmit>
-          <ConnectorConfigurationFields
-            connector={connectorTypeFromName}
-            connectorAccountFields
-            selectedConnector
-            connectorMetaDataFields
-            connectorWebHookDetails
-            connectorLabelDetailField
-            connectorAdditionalMerchantData
-          />
-          <div className="flex p-1 justify-end mb-2">
-            <FormRenderer.SubmitButton text="Submit" />
-          </div>
-          <FormValuesSpy />
-        </Form>
-      </>}
+      {<Form initialValues validate={validateMandatoryField} onSubmit>
+        <ConnectorConfigurationFields
+          connector={connectorTypeFromName}
+          connectorAccountFields
+          selectedConnector
+          connectorMetaDataFields
+          connectorWebHookDetails
+          connectorLabelDetailField
+          connectorAdditionalMerchantData
+        />
+        <div className="flex p-1 justify-end mb-2">
+          <FormRenderer.SubmitButton text="Submit" />
+        </div>
+        <FormValuesSpy />
+      </Form>}
     </Modal>
   </>
 }
