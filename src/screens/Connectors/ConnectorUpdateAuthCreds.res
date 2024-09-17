@@ -1,5 +1,5 @@
 @react.component
-let make = (~connector, ~connectorInfo: ConnectorTypes.connectorPayload) => {
+let make = (~connectorInfo: ConnectorTypes.connectorPayload) => {
   open ConnectorUtils
   open APIUtils
   open ConnectorAccountDetailsHelper
@@ -11,16 +11,17 @@ let make = (~connector, ~connectorInfo: ConnectorTypes.connectorPayload) => {
   let (showModal, setShowFeedbackModal) = React.useState(_ => false)
   // Need to remove connector and merge connector and connectorTypeVariants
   let (processorType, connectorType) = connectorInfo.connector_type->connectorTypeTuple
-  let connectorTypeFromName = connector->getConnectorNameTypeFromString(~connectorType)
+  let {connector_name: connectorName} = connectorInfo
+  let connectorTypeFromName = connectorName->getConnectorNameTypeFromString(~connectorType)
 
   let connectorDetails = React.useMemo(() => {
     try {
-      if connector->LogicUtils.isNonEmptyString {
+      if connectorName->LogicUtils.isNonEmptyString {
         let dict = switch processorType {
-        | PaymentProcessor => Window.getConnectorConfig(connector)
-        | PayoutProcessor => Window.getPayoutConnectorConfig(connector)
-        | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connector)
-        | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connector)
+        | PaymentProcessor => Window.getConnectorConfig(connectorName)
+        | PayoutProcessor => Window.getPayoutConnectorConfig(connectorName)
+        | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
+        | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
         | _ => JSON.Encode.null
         }
         dict
@@ -34,7 +35,7 @@ let make = (~connector, ~connectorInfo: ConnectorTypes.connectorPayload) => {
         JSON.Encode.null
       }
     }
-  }, [connector])
+  }, [connectorName])
   let (
     _,
     connectorAccountFields,
@@ -60,11 +61,7 @@ let make = (~connector, ~connectorInfo: ConnectorTypes.connectorPayload) => {
     ]
     ->Dict.fromArray
     ->JSON.Encode.object
-  }, [])
-
-  React.useEffect(() => {
-    None
-  }, [])
+  }, [connectorName])
 
   let onSubmit = async (values, _) => {
     try {
@@ -97,17 +94,17 @@ let make = (~connector, ~connectorInfo: ConnectorTypes.connectorPayload) => {
 
   let selectedConnector = React.useMemo(() => {
     connectorTypeFromName->getConnectorInfo
-  }, [connector])
+  }, [connectorName])
   <>
     <div
       className="cursor-pointer"
       onClick={_ => {
-        mixpanelEvent(~eventName=`processor_update_creds_${connector}`)
+        mixpanelEvent(~eventName=`processor_update_creds_${connectorName}`)
         setShowFeedbackModal(_ => true)
       }}>
       <ToolTip
         height=""
-        description={`Update the ${connector} creds`}
+        description={`Update the ${connectorName} creds`}
         toolTipFor={<Icon name="edit" className={`mt-1 ml-1`} />}
         toolTipPosition=Top
         tooltipWidthClass="w-fit"
@@ -115,7 +112,7 @@ let make = (~connector, ~connectorInfo: ConnectorTypes.connectorPayload) => {
     </div>
     <Modal
       closeOnOutsideClick=true
-      modalHeading={`Update Connector ${connector}`}
+      modalHeading={`Update Connector ${connectorName}`}
       showModal
       setShowModal=setShowFeedbackModal
       childClass="p-1"

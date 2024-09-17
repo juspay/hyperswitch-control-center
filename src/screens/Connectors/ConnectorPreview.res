@@ -204,7 +204,7 @@ module ConnectorSummaryGrid = {
       <div className="grid grid-cols-4  my-12">
         <div className="flex items-start">
           <h4 className="text-lg font-semibold"> {"API Keys"->React.string} </h4>
-          <ConnectorUpdateAuthCreds connector connectorInfo />
+          <ConnectorUpdateAuthCreds connectorInfo />
         </div>
         <div className="flex flex-col gap-6 col-span-3">
           {connectorAccountFields
