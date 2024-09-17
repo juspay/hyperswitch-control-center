@@ -97,6 +97,7 @@ let connectorList: array<connectorTypes> = [
   Processors(PAYBOX),
   Processors(FIUU),
   Processors(WELLSFARGO),
+  Processors(NOVALNET),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -477,6 +478,10 @@ let fiuuInfo = {
   description: "Fiuu has been the premier merchant service provider in Southeast Asia since 2005, connecting international brands to consumers across the region. The company helps its clients establish a foothold in Southeast Asia's market by offering a full range of alternative payment methods, such as online banking, cash at 7-Eleven (Fiuu Cash), e-wallets, and more. Fiuu provides comprehensive payment solutions to facilitate market entry and expansion for businesses looking to reach Southeast Asian consumers.",
 }
 
+let novalnetInfo = {
+  description: "Novalnet is a global payment service provider and financial technology company based in Germany. It offers a wide range of payment processing solutions and services to merchants and businesses, enabling them to accept various forms of payments online, in-store, or through mobile platforms.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -579,6 +584,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | WELLSFARGO => "wellsfargo"
   | FISERVIPG => "fiservemea"
   | FIUU => "fiuu"
+  | NOVALNET => "novalnet"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -685,6 +691,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "paybox" => Processors(PAYBOX)
     | "wellsfargo" => Processors(WELLSFARGO)
     | "fiuu" => Processors(FIUU)
+    | "novalnet" => Processors(NOVALNET)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -777,6 +784,7 @@ let getProcessorInfo = connector => {
   | PAYBOX => payboxInfo
   | WELLSFARGO => wellsfargoInfo
   | FIUU => fiuuInfo
+  | NOVALNET => novalnetInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -1591,6 +1599,7 @@ let getDisplayNameForProcessor = connector =>
   | WELLSFARGO => "Wells Fargo"
   | FISERVIPG => "Fiserv IPG"
   | FIUU => "Fiuu"
+  | NOVALNET => "Novalnet"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

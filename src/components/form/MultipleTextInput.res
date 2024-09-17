@@ -113,7 +113,7 @@ let make = (
   let input1: ReactFinalForm.fieldRenderPropsInput = {
     {
       name,
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = {ev->ReactEvent.Form.target}["value"]
         if value->String.includes("<script>") || value->String.includes("</script>") {
@@ -127,7 +127,7 @@ let make = (
         let val = value->String.replace("<script>", "")->String.replace("</script>", "")
         setText(_ => val)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: JSON.Encode.string(text),
       checked: false,
     }

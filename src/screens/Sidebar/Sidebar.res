@@ -617,7 +617,7 @@ let make = (
                     }
                     `${openClasses} border-none`
                   }>
-                  {_buttonProps => <>
+                  {_ => <>
                     <div className="flex items-center">
                       <div
                         className="inline-block text-offset_white bg-profile-sidebar-blue text-center w-10 h-10 leading-10 rounded-full mr-4">

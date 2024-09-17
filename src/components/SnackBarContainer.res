@@ -27,7 +27,7 @@ module Snackbar = {
       React.null
     }
 
-    let handleClick = React.useCallback(_ev => {
+    let handleClick = React.useCallback(_ => {
       switch snackbarProps.onClose {
       | Some(fn) => fn()
       | _ => ()

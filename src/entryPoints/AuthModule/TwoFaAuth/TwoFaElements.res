@@ -88,12 +88,12 @@ module RecoveryCodesInput = {
   let make = (~recoveryCode, ~setRecoveryCode) => {
     let recoveryCodeInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "recovery_code_input",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
         setRecoveryCode(_ => value)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: recoveryCode->JSON.Encode.string,
       checked: true,
     }

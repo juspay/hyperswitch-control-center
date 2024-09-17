@@ -126,7 +126,7 @@ let make = (
   ~path="",
   ~remoteFilters: array<EntityType.initialFilters<'t>>,
   ~remoteOptions: array<EntityType.optionType<'t>>,
-  ~localOptions as _: array<EntityType.optionType<'t>>,
+  ~localOptions as _,
   ~localFilters: array<EntityType.initialFilters<'t>>,
   ~mandatoryRemoteKeys=[],
   ~popupFilterFields: array<EntityType.optionType<'t>>=[],
