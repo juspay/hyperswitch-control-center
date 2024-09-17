@@ -358,6 +358,8 @@ let make = () => {
               connector=connectorName
               setScreenState={_ => ()}
               isPayoutFlow=false
+              setCurrentStep={_ => ()}
+              updateStepValue=None
             />
           </QuickStartUIUtils.BaseComponent>
         | _ => React.null

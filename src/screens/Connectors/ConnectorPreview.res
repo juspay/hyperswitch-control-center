@@ -74,7 +74,6 @@ module MenuOption = {
   @react.component
   let make = (
     ~updateStepValue=ConnectorTypes.IntegFields,
-    ~setCurrentStep,
     ~disableConnector,
     ~isConnectorDisabled,
     ~pageName="connector",
@@ -109,14 +108,6 @@ module MenuOption = {
               className="relative flex flex-col bg-white py-3 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
               {<>
                 <Navbar.MenuOption
-                  text="Update"
-                  onClick={_ => {
-                    panelProps["close"]()
-                    mixpanelEvent(~eventName=`processor_update_${connector}`)
-                    setCurrentStep(_ => updateStepValue)
-                  }}
-                />
-                <Navbar.MenuOption
                   text={connectorStatusAvailableToSwitch}
                   onClick={_ => {
                     panelProps["close"]()
@@ -133,7 +124,6 @@ module MenuOption = {
 }
 
 module ConnectorSummaryGrid = {
-  open PageLoaderWrapper
   open CommonAuthHooks
   @react.component
   let make = (
@@ -141,6 +131,8 @@ module ConnectorSummaryGrid = {
     ~connector,
     ~isPayoutFlow,
     ~setScreenState,
+    ~setCurrentStep,
+    ~updateStepValue=None,
   ) => {
     let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
     let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
@@ -161,7 +153,7 @@ module ConnectorSummaryGrid = {
           let dict = isPayoutFlow
             ? Window.getPayoutConnectorConfig(connector)
             : Window.getConnectorConfig(connector)
-          setScreenState(_ => Success)
+
           dict
         } else {
           Dict.make()->JSON.Encode.object
@@ -211,7 +203,10 @@ module ConnectorSummaryGrid = {
         </div>
       </div>
       <div className="grid grid-cols-4  my-12">
-        <h4 className="text-lg font-semibold"> {"API Keys"->React.string} </h4>
+        <div className="flex items-start">
+          <h4 className="text-lg font-semibold"> {"API Keys"->React.string} </h4>
+          <ConnectorUpdateAuthCreds connector isPayoutFlow connectorInfo />
+        </div>
         <div className="flex flex-col gap-6 col-span-3">
           {connectorAccountFields
           ->Dict.keysToArray
@@ -226,9 +221,25 @@ module ConnectorSummaryGrid = {
           })
           ->React.array}
         </div>
+        <div />
       </div>
       <div className="grid grid-cols-4  my-12">
-        <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
+        <div className="flex items-start">
+          <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
+          {switch updateStepValue {
+          | Some(state) => <div
+              className="cursor-pointer" onClick={_ => setCurrentStep(_ => state)}>
+              <ToolTip
+                height=""
+                description={`Update the ${connector} payment methods`}
+                toolTipFor={<Icon name="edit" className={`mt-1 ml-1`} />}
+                toolTipPosition=Top
+                tooltipWidthClass="w-fit"
+              />
+            </div>
+          | None => React.null
+          }}
+        </div>
         <div className="flex flex-col gap-6 col-span-3">
           <div
             className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
@@ -371,8 +382,7 @@ let make = (
                     isUpdateFlow
                     setInitialValues
                   />
-                | (_, _) =>
-                  <MenuOption setCurrentStep disableConnector isConnectorDisabled connector />
+                | (_, _) => <MenuOption disableConnector isConnectorDisabled connector />
                 }}
               </RenderIf>
             </div>
@@ -392,7 +402,14 @@ let make = (
           }}
         </div>
       </div>
-      <ConnectorSummaryGrid connectorInfo connector isPayoutFlow setScreenState />
+      <ConnectorSummaryGrid
+        connectorInfo
+        connector
+        isPayoutFlow
+        setScreenState
+        setCurrentStep
+        updateStepValue={Some(ConnectorTypes.PaymentMethods)}
+      />
     </div>
   </PageLoaderWrapper>
 }

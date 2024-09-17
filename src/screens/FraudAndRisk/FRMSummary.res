@@ -108,7 +108,6 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
           </p>
           <ConnectorPreview.MenuOption
             updateStepValue={ConnectorTypes.PaymentMethods}
-            setCurrentStep
             disableConnector={disableFRM}
             isConnectorDisabled={isfrmDisabled}
             pageName={url.path->LogicUtils.getListHead}

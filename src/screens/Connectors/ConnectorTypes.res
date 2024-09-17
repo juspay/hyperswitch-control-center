@@ -250,10 +250,11 @@ type connectorPayload = {
   disabled: bool,
   payment_methods_enabled: payment_methods_enabled,
   profile_id: string,
-  metadata?: JSON.t,
+  metadata: JSON.t,
   merchant_connector_id: string,
   frm_configs?: array<frm_config>,
   status: string,
+  connector_webhook_details: JSON.t,
 }
 
 type connector =
