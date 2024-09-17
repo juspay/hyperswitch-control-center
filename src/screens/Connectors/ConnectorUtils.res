@@ -897,6 +897,7 @@ let connectorIgnoredField = [
   "connector_name",
   "profile_id",
   "applepay_verified_domains",
+  "connector_account_details",
 ]
 
 let configKeysToIgnore = [
@@ -1676,6 +1677,17 @@ let getConnectorTypeArrayFromListConnectors = (
   connectorsList->Array.map(connectorDetail =>
     connectorDetail.connector_name->getConnectorNameTypeFromString(~connectorType)
   )
+}
+// Need to remove connector and merge connector and connectorTypeVariants
+let connectorTypeTuple = connectorType => {
+  switch connectorType {
+  | "payment_processor" => (PaymentProcessor, Processor)
+  | "payment_vas" => (PaymentVas, FRMPlayer)
+  | "payout_processor" => (PayoutProcessor, PayoutConnector)
+  | "authentication_processor" => (AuthenticationProcessor, ThreeDsAuthenticator)
+  | "payment_method_auth" => (PMAuthProcessor, PMAuthenticationProcessor)
+  | _ => (PaymentProcessor, Processor)
+  }
 }
 
 let connectorTypeStringToTypeMapper = connector_type => {
