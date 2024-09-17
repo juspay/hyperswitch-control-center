@@ -1,5 +1,5 @@
 @react.component
-let make = (~connector, ~isPayoutFlow, ~connectorInfo: ConnectorTypes.connectorPayload) => {
+let make = (~connector, ~connectorInfo: ConnectorTypes.connectorPayload) => {
   open ConnectorUtils
   open APIUtils
   open ConnectorAccountDetailsHelper
@@ -8,22 +8,29 @@ let make = (~connector, ~isPayoutFlow, ~connectorInfo: ConnectorTypes.connectorP
   let showToast = ToastState.useShowToast()
 
   let (showModal, setShowFeedbackModal) = React.useState(_ => false)
-  let connectorTypeFromName = connector->getConnectorNameTypeFromString
+  // Need to remove connector merge connector and connectorTypeVariants
+  let (processorType, connectorType) = connectorInfo.connector_type->connectorTypeTuple
+  let connectorTypeFromName = connector->getConnectorNameTypeFromString(~connectorType)
+
   let connectorDetails = React.useMemo(() => {
     try {
       if connector->LogicUtils.isNonEmptyString {
-        let dict = isPayoutFlow
-          ? Window.getPayoutConnectorConfig(connector)
-          : Window.getConnectorConfig(connector)
+        let dict = switch processorType {
+        | PaymentProcessor => Window.getConnectorConfig(connector)
+        | PayoutProcessor => Window.getPayoutConnectorConfig(connector)
+        | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connector)
+        | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connector)
+        | _ => JSON.Encode.null
+        }
         dict
       } else {
-        Dict.make()->JSON.Encode.object
+        JSON.Encode.null
       }
     } catch {
     | Exn.Error(e) => {
         Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
         let _ = Exn.message(e)->Option.getOr("Something went wrong")
-        Dict.make()->JSON.Encode.object
+        JSON.Encode.null
       }
     }
   }, [connector])
