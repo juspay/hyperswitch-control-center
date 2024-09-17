@@ -273,7 +273,6 @@ let make = () => {
               setScreenState={_ => ()}
               isPayoutFlow=false
               setCurrentStep={_ => ()}
-              updateStepValue=None
               getConnectorDetails={Some(getConnectorDetails)}
             />
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>

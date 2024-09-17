@@ -232,6 +232,7 @@ module ConnectorSummaryGrid = {
               className="cursor-pointer"
               onClick={_ => {
                 mixpanelEvent(~eventName=`processor_update_payment_methods_${connector}`)
+
                 setCurrentStep(_ => state)
               }}>
               <ToolTip
