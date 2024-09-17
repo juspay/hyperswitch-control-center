@@ -1538,7 +1538,8 @@ let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList
       connectorType !== "payment_vas" &&
       !isPayoutConnector &&
       !isThreeDsAuthenticator &&
-      !isPMAuthenticationProcessor
+      !isPMAuthenticationProcessor &&
+      !isTaxProcessor
 
     switch removeFromList {
     | Processor => !isConnector
