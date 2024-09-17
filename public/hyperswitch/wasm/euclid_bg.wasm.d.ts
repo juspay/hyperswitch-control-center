@@ -18,6 +18,7 @@ export function getDescriptionCategory(a: number): void;
 export function getConnectorConfig(a: number, b: number, c: number): void;
 export function getPayoutConnectorConfig(a: number, b: number, c: number): void;
 export function getAuthenticationConnectorConfig(a: number, b: number, c: number): void;
+export function getTaxProcessorConfig(a: number, b: number, c: number): void;
 export function getPMAuthenticationProcessorConfig(a: number, b: number, c: number): void;
 export function getRequestPayload(a: number, b: number, c: number): void;
 export function getResponsePayload(a: number, b: number): void;

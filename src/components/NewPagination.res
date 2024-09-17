@@ -23,13 +23,13 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
         name="chevron-left"
         className="fill-ardra-secondary-300"
         size=16
-        onClick={_evt => paginate(Math.Int.max(1, currentPage - 1))}
+        onClick={_ => paginate(Math.Int.max(1, currentPage - 1))}
       />
     } else {
       <Icon
         name="leftDisabledPaginator"
         size=16
-        onClick={_evt => paginate(Math.Int.max(1, currentPage - 1))}
+        onClick={_ => paginate(Math.Int.max(1, currentPage - 1))}
       />
     }}
     {pageNumbers
@@ -39,7 +39,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
         <Button
           key={idx->Int.toString}
           text={number->Int.toString}
-          onClick={_evt => paginate(number)}
+          onClick={_ => paginate(number)}
           buttonType={Pill}
           customButtonStyle="rounded-[4px] w-[39px] h-[36px]"
           textStyle="text-[#0E111E] text-[14px]"
@@ -49,9 +49,9 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
     })
     ->React.array}
     {if currentPage < Array.length(pageNumbers) {
-      <Icon name="chevron-right" size=16 onClick={_evt => paginate(currentPage + 1)} />
+      <Icon name="chevron-right" size=16 onClick={_ => paginate(currentPage + 1)} />
     } else {
-      <Icon name="rightDisabledPaginator" size=16 onClick={_evt => paginate(currentPage + 1)} />
+      <Icon name="rightDisabledPaginator" size=16 onClick={_ => paginate(currentPage + 1)} />
     }}
   </ButtonGroup>
 }

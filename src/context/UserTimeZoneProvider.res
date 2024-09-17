@@ -1,5 +1,5 @@
 open UserTimeZoneTypes
-let defaultSetter = (_: timeZoneType) => ()
+let defaultSetter = _ => ()
 
 let userTimeContext = React.createContext((IST, defaultSetter))
 

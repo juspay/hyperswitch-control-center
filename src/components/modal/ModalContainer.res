@@ -1,7 +1,7 @@
 module ModalHeading = {
   @react.component
   let make = (~title, ~hideModal) => {
-    let handleClick = React.useCallback(_ev => {
+    let handleClick = React.useCallback(_ => {
       hideModal()
     }, [hideModal])
     <div className="bg-purple-300 p-4 text-lg flex flex-row justify-between">
@@ -22,7 +22,7 @@ module Modal = {
       hideModalAtIndex(index)
     }, (hideModalAtIndex, index))
 
-    let handleOutsideClick = React.useCallback(_ev => {
+    let handleOutsideClick = React.useCallback(_ => {
       if modalProps.closeOnClickOutside {
         hideModal()
       }

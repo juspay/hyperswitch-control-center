@@ -6,12 +6,12 @@ module AdvanceSettings = {
 
     let inputLabel: ReactFinalForm.fieldRenderPropsInput = {
       name: `input`,
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToBool
         setIsFRMSettings(_ => value)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: {isFRMSettings->JSON.Encode.bool},
       checked: true,
     }

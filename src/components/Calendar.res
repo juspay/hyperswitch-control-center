@@ -116,7 +116,7 @@ module TableRow = {
             | None => true
             }
 
-            let onClick = _evt => {
+            let onClick = _ => {
               let isClickDisabled =
                 (endDate->isEmptyString && !isInLimit) ||
                 (isFutureDate ? disableFutureDates : disablePastDates) ||
@@ -252,7 +252,7 @@ module TableRow = {
               className={classN}
               onClick
               onMouseOver={_ => handleHover()}
-              onMouseOut={_evt => setHoverdDate(_ => "")}>
+              onMouseOut={_ => setHoverdDate(_ => "")}>
               <AddDataAttributes
                 attributes=[
                   (
