@@ -59,7 +59,7 @@ module ConfigInfo = {
 }
 
 @react.component
-let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
+let make = (~initialValues, ~currentStep) => {
   open LogicUtils
   open FRMUtils
   open APIUtils
@@ -111,7 +111,6 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
             disableConnector={disableFRM}
             isConnectorDisabled={isfrmDisabled}
             pageName={url.path->LogicUtils.getListHead}
-            connector={frmInfo.connector_name}
           />
         </div>
       | _ =>
