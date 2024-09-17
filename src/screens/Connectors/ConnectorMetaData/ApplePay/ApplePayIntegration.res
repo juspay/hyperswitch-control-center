@@ -50,7 +50,7 @@ module Verified = {
           <div
             key={Int.toString(index)}
             className="mt-4 cursor-pointer"
-            onClick={_e => setApplePayIntegrationType(_ => #manual)}>
+            onClick={_ => setApplePayIntegrationType(_ => #manual)}>
             <div className={`relative w-full  p-6 rounded flex flex-col justify-between border `}>
               <div className="flex justify-between">
                 <div className={`font-medium text-base text-hyperswitch_black `}>
@@ -67,7 +67,7 @@ module Verified = {
                     />
                   | #manual =>
                     <Icon
-                      onClick={_ev => setApplePayIntegrationSteps(_ => Configure)}
+                      onClick={_ => setApplePayIntegrationSteps(_ => Configure)}
                       name={"arrow-right"}
                       size={15}
                     />
@@ -82,12 +82,12 @@ module Verified = {
           <Button
             text="Reconfigure"
             buttonType={Secondary}
-            onClick={_ev => {
+            onClick={_ => {
               setApplePayIntegrationSteps(_ => Landing)
             }}
           />
           <Button
-            onClick={_ev => {
+            onClick={_ => {
               onSubmit()
             }}
             text="Proceed"
@@ -117,7 +117,7 @@ module Landing = {
       | Processors(CYBERSOURCE) =>
         <div
           className="p-6 m-2 cursor-pointer"
-          onClick={_e => setApplePayIntegrationType(_ => #simplified)}>
+          onClick={_ => setApplePayIntegrationType(_ => #simplified)}>
           <Card heading="Web Domain" isSelected={appleIntegrationType === #simplified}>
             <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
               {"Get Apple Pay enabled on your web domains by hosting a verification file, that’s it."->React.string}
@@ -133,7 +133,7 @@ module Landing = {
       | _ => React.null
       }}
       <div
-        className="p-6 m-2 cursor-pointer" onClick={_e => setApplePayIntegrationType(_ => #manual)}>
+        className="p-6 m-2 cursor-pointer" onClick={_ => setApplePayIntegrationType(_ => #manual)}>
         <Card heading="iOS Certificate" isSelected={appleIntegrationType === #manual}>
           <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
             <CustomSubText />
@@ -150,12 +150,12 @@ module Landing = {
         <Button
           text="Cancel"
           buttonType={Secondary}
-          onClick={_ev => {
+          onClick={_ => {
             closeModal()
           }}
         />
         <Button
-          onClick={_ev => setApplePayIntegrationSteps(_ => Configure)}
+          onClick={_ => setApplePayIntegrationSteps(_ => Configure)}
           text="Continue"
           buttonType={Primary}
         />

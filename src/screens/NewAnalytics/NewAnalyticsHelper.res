@@ -57,11 +57,11 @@ module CustomDropDown = {
     open HeadlessUI
     let (arrow, setArrow) = React.useState(_ => false)
     <Menu \"as"="div" className="relative inline-block text-left">
-      {_menuProps =>
+      {_ =>
         <div>
           <Menu.Button
             className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border border-outline">
-            {_buttonProps => {
+            {_ => {
               <>
                 {buttonText->React.string}
                 <Icon
@@ -152,5 +152,12 @@ module GraphHeader = {
         <StatisticsCard value="8" direction={Upward} />
       </div>
     </div>
+  }
+}
+
+module ModuleHeader = {
+  @react.component
+  let make = (~title) => {
+    <h2 className="font-semibold text-xl text-jp-gray-900 pb-5"> {title->React.string} </h2>
   }
 }

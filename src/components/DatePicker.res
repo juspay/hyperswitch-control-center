@@ -112,7 +112,7 @@ let make = (
       setIsExpanded(p => !p)
     },
   )
-  let changeVisibility = _ev => {
+  let changeVisibility = _ => {
     if !isDisabled {
       setIsExpanded(p => !p)
     }

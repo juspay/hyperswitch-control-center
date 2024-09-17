@@ -203,7 +203,7 @@ let generateTablePayload = (
   ~mode: option<string>,
   ~customFilter,
   ~showDeltaMetrics,
-  ~moduleName as _: string,
+  ~moduleName as _,
   ~source: string="BATCH",
   (),
 ) => {

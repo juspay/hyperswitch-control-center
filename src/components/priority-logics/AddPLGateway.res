@@ -92,7 +92,7 @@ let make = (
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "gateways",
-    onBlur: _ev => (),
+    onBlur: _ => (),
     onChange: ev => {
       let newSelectedOptions = ev->Identity.formReactEventToArrayOfString
       if newSelectedOptions->Array.length === 0 {
@@ -117,7 +117,7 @@ let make = (
         gateWaysInput.onChange(gatewaysArr->Identity.anyTypeToReactEvent)
       }
     },
-    onFocus: _ev => (),
+    onFocus: _ => (),
     value: selectedOptions
     ->Array.map(selectedOption =>
       selectedOption.connector.merchant_connector_id->JSON.Encode.string

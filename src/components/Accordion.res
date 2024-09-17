@@ -87,7 +87,7 @@ module AccordionInfo = {
   ) => {
     let (isExpanded, setIsExpanded) = React.useState(() => expanded)
 
-    let handleClick = _e => {
+    let handleClick = _ => {
       setIsExpanded(prevExpanded => !prevExpanded)
     }
 
