@@ -154,3 +154,10 @@ module GraphHeader = {
     </div>
   }
 }
+
+module ModuleHeader = {
+  @react.component
+  let make = (~title) => {
+    <h2 className="font-semibold text-xl text-jp-gray-900 pb-5"> {title->React.string} </h2>
+  }
+}

@@ -202,6 +202,7 @@ let make = () => {
                         | list{"payoutconnectors", ..._}
                         | list{"3ds-authenticators", ..._}
                         | list{"pm-authentication-processor", ..._}
+                        | list{"tax-processor", ..._}
                         | list{"fraud-risk-management", ..._}
                         | list{"configure-pmts", ..._}
                         | list{"routing", ..._}

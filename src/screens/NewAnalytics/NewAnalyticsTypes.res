@@ -22,10 +22,13 @@ type requestBodyConfig = {
   excludeFilterValue?: array<status>,
 }
 
-type entity<'t, 'chatOption> = {
+type entity = {
   requestBodyConfig: requestBodyConfig,
   title: string,
   domain: domain,
+}
+
+type chartEntity<'t, 'chatOption> = {
   getObjects: JSON.t => 't,
   getChatOptions: 't => 'chatOption,
 }
