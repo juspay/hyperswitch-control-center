@@ -1,5 +1,6 @@
 open NewAnalyticsTypes
-let paymentsProcessedEntity: entity = {
+open PaymentsProcessedUtils
+let paymentsProcessedEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
     metrics: [#payment_processed_amount],
@@ -12,6 +13,17 @@ let paymentsProcessedChartEntity: chartEntity<
   LineGraphTypes.lineGraphPayload,
   LineGraphTypes.lineGraphOptions,
 > = {
-  getObjects: OverViewAnalyticsUtils.paymentsProcessedMapper,
+  getObjects: PaymentsProcessedUtils.paymentsProcessedMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
 }
+
+let tableEntity = EntityType.makeEntity(
+  ~uri=``,
+  ~getObjects,
+  ~dataKey="queryData",
+  ~defaultColumns=visibleColumns,
+  ~requiredSearchFieldsList=[],
+  ~allColumns=visibleColumns,
+  ~getCell,
+  ~getHeading,
+)

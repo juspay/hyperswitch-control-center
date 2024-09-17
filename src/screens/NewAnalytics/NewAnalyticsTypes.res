@@ -22,7 +22,7 @@ type requestBodyConfig = {
   excludeFilterValue?: array<status>,
 }
 
-type entity = {
+type moduleEntity = {
   requestBodyConfig: requestBodyConfig,
   title: string,
   domain: domain,
