@@ -1,6 +1,6 @@
 type theme = Light | Dark
 
-let defaultSetter = (_: theme) => ()
+let defaultSetter = _ => ()
 
 type themeType = LightTheme
 
@@ -29,7 +29,7 @@ let themeContext = {
   globalUIConfig: UIConfig.defaultUIConfig,
   theme: Light,
   themeSetter: defaultSetter,
-  configCustomDomainTheme: (_: JSON.t) => (),
+  configCustomDomainTheme: _ => (),
 }
 
 let themeContext = React.createContext(themeContext)

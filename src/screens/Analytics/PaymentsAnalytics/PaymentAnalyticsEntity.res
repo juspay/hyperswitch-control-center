@@ -108,10 +108,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentTableType = dict => {
   }
 }
 
-let getUpdatedHeading = (
-  ~item as _: option<paymentTableType>,
-  ~dateObj as _: option<AnalyticsUtils.prevDates>,
-) => {
+let getUpdatedHeading = (~item as _, ~dateObj as _) => {
   let getHeading = colType => {
     let key = colType->colMapper
     switch colType {

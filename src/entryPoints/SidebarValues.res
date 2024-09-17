@@ -199,6 +199,18 @@ let pmAuthenticationProcessor = (~permissionJson) => {
   })
 }
 
+let taxProcessor = (~permissionJson) => {
+  SubLevelLink({
+    name: "Tax Processor",
+    link: `/tax-processor`,
+    access: permissionJson.connectorsView,
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=ConnectorUtils.taxProcessorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
+  })
+}
+
 let connectors = (
   isConnectorsEnabled,
   ~isLiveMode,
@@ -206,6 +218,7 @@ let connectors = (
   ~isPayoutsEnabled,
   ~isThreedsConnectorEnabled,
   ~isPMAuthenticationProcessor,
+  ~isTaxProcessor,
   ~permissionJson,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, permissionJson)]
@@ -223,6 +236,10 @@ let connectors = (
 
   if isPMAuthenticationProcessor {
     connectorLinkArray->Array.push(pmAuthenticationProcessor(~permissionJson))->ignore
+  }
+
+  if isTaxProcessor {
+    connectorLinkArray->Array.push(taxProcessor(~permissionJson))->ignore
   }
 
   isConnectorsEnabled
@@ -644,6 +661,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     complianceCertificate,
     performanceMonitor: performanceMonitorFlag,
     pmAuthenticationProcessor,
+    taxProcessor,
     userManagementRevamp,
     newAnalytics,
   } = featureFlagDetails
@@ -658,6 +676,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~isPayoutsEnabled=payOut,
       ~isThreedsConnectorEnabled=threedsAuthenticator,
       ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
+      ~isTaxProcessor=taxProcessor,
       ~permissionJson,
     ),
     default->analytics(

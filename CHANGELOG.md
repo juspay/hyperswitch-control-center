@@ -3,6 +3,41 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.17.1
+
+### Features
+
+- Tax processor addition and taxjar addition ([#1379](https://github.com/juspay/hyperswitch-control-center/pull/1379)) ([`0b4dad9`](https://github.com/juspay/hyperswitch-control-center/commit/0b4dad9a496d315ac43b26d829f55f6f281050f6))
+- Table view switch to the graph component ([#1381](https://github.com/juspay/hyperswitch-control-center/pull/1381)) ([`70b7a61`](https://github.com/juspay/hyperswitch-control-center/commit/70b7a615fb5c99e409a213102a2987bbca03b855))
+
+### Miscellaneous Tasks
+
+- Analytics entity refactor ([#1377](https://github.com/juspay/hyperswitch-control-center/pull/1377)) ([`52fecda`](https://github.com/juspay/hyperswitch-control-center/commit/52fecdabeb832e938c1f07bd66465f5654aea171))
+- Taxjar icon ([#1403](https://github.com/juspay/hyperswitch-control-center/pull/1403)) ([`af175be`](https://github.com/juspay/hyperswitch-control-center/commit/af175be31897efc133b8ffe8fe020afe55a80216))
+- Tax processor ([#1405](https://github.com/juspay/hyperswitch-control-center/pull/1405)) ([`6fc6374`](https://github.com/juspay/hyperswitch-control-center/commit/6fc6374ad4ed30ee613c13f7bfed5b5f6b666f6a))
+
+**Full Changelog:** [`2024.09.17.0...2024.09.17.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.17.0...2024.09.17.1)
+
+- - -
+
+## 2024.09.17.0
+
+### Features
+
+- Core file changes for tax processor addition ([#1378](https://github.com/juspay/hyperswitch-control-center/pull/1378)) ([`9aba852`](https://github.com/juspay/hyperswitch-control-center/commit/9aba85242e62c5d723d74992fa389265148ad99d))
+- Payment operation revamp ([#1203](https://github.com/juspay/hyperswitch-control-center/pull/1203)) ([`2fee0ee`](https://github.com/juspay/hyperswitch-control-center/commit/2fee0ee3cc087496604cd65376745cd8c9bd8740))
+- Novalnet connector addition ([#1373](https://github.com/juspay/hyperswitch-control-center/pull/1373)) ([`989b1f6`](https://github.com/juspay/hyperswitch-control-center/commit/989b1f69a1c7cb0fd5e03f3bc10ff6a1cb53950f))
+
+### Miscellaneous Tasks
+
+- Moved user management files from old modules ([#1389](https://github.com/juspay/hyperswitch-control-center/pull/1389)) ([`188a136`](https://github.com/juspay/hyperswitch-control-center/commit/188a13685f6017d32c597b53febf0d0a5b6d2d62))
+- Update wasm for tax processor ([#1391](https://github.com/juspay/hyperswitch-control-center/pull/1391)) ([`7a40f4a`](https://github.com/juspay/hyperswitch-control-center/commit/7a40f4a3ea155e99e4f24009ded9a572f9966866))
+- Unused vars removed ([#1383](https://github.com/juspay/hyperswitch-control-center/pull/1383)) ([`790040d`](https://github.com/juspay/hyperswitch-control-center/commit/790040d4e9c1c3fec1dfab2cc41eb47f3c8a05e8))
+
+**Full Changelog:** [`2024.09.16.0...2024.09.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.16.0...2024.09.17.0)
+
+- - -
+
 ## 2024.09.16.0
 
 ### Miscellaneous Tasks

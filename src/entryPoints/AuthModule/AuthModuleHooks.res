@@ -52,7 +52,7 @@ let useAuthMethods = (): authMethodProps => {
       }
       setAuthMethods(_ => methods)
     } catch {
-    | Exn.Error(_e) => setAuthMethods(_ => AuthUtils.defaultListOfAuth)
+    | Exn.Error(_) => setAuthMethods(_ => AuthUtils.defaultListOfAuth)
     }
   }, [])
 

@@ -1,7 +1,7 @@
 module MenuOption = {
   open HeadlessUI
   @react.component
-  let make = (~updateStepValue, ~setCurrentStep, ~disableConnector, ~isConnectorDisabled) => {
+  let make = (~disableConnector, ~isConnectorDisabled) => {
     let showPopUp = PopUpState.useShowPopUp()
     let openConfirmationPopUp = _ => {
       showPopUp({
@@ -22,20 +22,13 @@ module MenuOption = {
 
     <Popover \"as"="div" className="relative inline-block text-left">
       {_popoverProps => <>
-        <Popover.Button> {_buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
+        <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
         <Popover.Panel className="absolute z-20 right-5 top-4">
           {panelProps => {
             <div
               id="neglectTopbarTheme"
-              className="relative flex flex-col bg-white py-3 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
+              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
               {<>
-                <Navbar.MenuOption
-                  text="Update"
-                  onClick={_ => {
-                    panelProps["close"]()
-                    setCurrentStep(_ => updateStepValue)
-                  }}
-                />
                 <Navbar.MenuOption
                   text={connectorStatusAvailableToSwitch}
                   onClick={_ => {
@@ -254,9 +247,7 @@ let make = () => {
         className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
         {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
       </div>
-      <MenuOption
-        updateStepValue=ConfigurationFields setCurrentStep disableConnector isConnectorDisabled
-      />
+      <MenuOption disableConnector isConnectorDisabled />
     </div>
   | _ =>
     <Button
@@ -333,8 +324,14 @@ let make = () => {
             connectorType={PMAuthenticationProcessor}
             headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
-              connectorInfo connector=connectorName setScreenState={_ => ()} isPayoutFlow=false
+              connectorInfo
+              connector=connectorName
+              setScreenState={_ => ()}
+              isPayoutFlow=false
+              getConnectorDetails={Some(getConnectorDetails)}
+              setCurrentStep={_ => ()}
             />
+            <div />
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
         }}
       </div>

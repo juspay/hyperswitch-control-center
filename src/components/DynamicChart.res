@@ -324,7 +324,7 @@ module GranularitySelectBox = {
     open HeadlessUI
     <>
       <Menu \"as"="div" className="relative inline-block text-left">
-        {_menuProps =>
+        {_ =>
           <div>
             <Menu.Button
               className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-3 py-1 font-medium rounded-md hover:bg-opacity-80 bg-white border">
@@ -352,7 +352,7 @@ module GranularitySelectBox = {
               leaveTo="transform opacity-0 scale-95">
               {<Menu.Items
                 className="absolute right-0 z-50 w-36 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                {_props => {
+                {_ => {
                   <>
                     <div className="px-1 py-1 ">
                       {options
