@@ -16,8 +16,7 @@ module TableModule = {
 
     let paymentsProcessed =
       data
-      ->Belt.Array.keepMap(JSON.Decode.object)
-      ->Array.map(PaymentsProcessedUtils.tableItemToObjMapper)
+      ->LogicUtils.getArrayDataFromJson(tableItemToObjMapper)
       ->Array.map(Nullable.make)
 
     <div className>
@@ -49,7 +48,7 @@ let make = (
   ~entity: moduleEntity,
   ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
 ) => {
-  let (paymentsProcessed, setpaymentsProcessed) = React.useState(_ => [])
+  let (paymentsProcessed, setpaymentsProcessed) = React.useState(_ => JSON.Encode.array([]))
   let (viewType, setViewType) = React.useState(_ => Graph)
 
   let getPaymentsProcessed = async () => {
@@ -58,6 +57,7 @@ let make = (
         getData
         ->LogicUtils.getDictFromJsonObject
         ->LogicUtils.getArrayFromDict("queryData", [])
+        ->JSON.Encode.array
 
       setpaymentsProcessed(_ => data)
     } catch {
@@ -75,10 +75,7 @@ let make = (
       <GraphHeader title="165K USD" viewType setViewType />
       <div className="mb-5">
         {switch viewType {
-        | Graph =>
-          <LineGraph
-            entity={chartEntity} data={paymentsProcessed->JSON.Encode.array} className="mr-3"
-          />
+        | Graph => <LineGraph entity={chartEntity} data={paymentsProcessed} className="mr-3" />
         | Table => <TableModule data={paymentsProcessed} className="mx-7" />
         }}
       </div>
