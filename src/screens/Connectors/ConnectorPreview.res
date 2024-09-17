@@ -77,9 +77,7 @@ module MenuOption = {
     ~disableConnector,
     ~isConnectorDisabled,
     ~pageName="connector",
-    ~connector,
   ) => {
-    let mixpanelEvent = MixpanelHook.useSendEvent()
     let showPopUp = PopUpState.useShowPopUp()
     let openConfirmationPopUp = _ => {
       showPopUp({
@@ -134,6 +132,7 @@ module ConnectorSummaryGrid = {
     ~setCurrentStep,
     ~updateStepValue=None,
   ) => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
     let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
     let currentProfileName =
@@ -228,7 +227,12 @@ module ConnectorSummaryGrid = {
           <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
           {switch updateStepValue {
           | Some(state) =>
-            <div className="cursor-pointer" onClick={_ => setCurrentStep(_ => state)}>
+            <div
+              className="cursor-pointer"
+              onClick={_ => {
+                mixpanelEvent(~eventName=`processor_update_payment_methods_${connector}`)
+                setCurrentStep(_ => state)
+              }}>
               <ToolTip
                 height=""
                 description={`Update the ${connector} payment methods`}
@@ -382,7 +386,7 @@ let make = (
                     isUpdateFlow
                     setInitialValues
                   />
-                | (_, _) => <MenuOption disableConnector isConnectorDisabled connector />
+                | (_, _) => <MenuOption disableConnector isConnectorDisabled />
                 }}
               </RenderIf>
             </div>

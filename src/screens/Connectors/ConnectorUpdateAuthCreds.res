@@ -3,6 +3,7 @@ let make = (~connector, ~connectorInfo: ConnectorTypes.connectorPayload) => {
   open ConnectorUtils
   open APIUtils
   open ConnectorAccountDetailsHelper
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let getURL = useGetURL()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let showToast = ToastState.useShowToast()
@@ -98,7 +99,12 @@ let make = (~connector, ~connectorInfo: ConnectorTypes.connectorPayload) => {
     connectorTypeFromName->getConnectorInfo
   }, [connector])
   <>
-    <div className="cursor-pointer" onClick={_ => setShowFeedbackModal(_ => true)}>
+    <div
+      className="cursor-pointer"
+      onClick={_ => {
+        mixpanelEvent(~eventName=`processor_update_creds_${connector}`)
+        setShowFeedbackModal(_ => true)
+      }}>
       <ToolTip
         height=""
         description={`Update the ${connector} creds`}

@@ -1632,7 +1632,7 @@ let getConnectorTypeArrayFromListConnectors = (
     connectorDetail.connector_name->getConnectorNameTypeFromString(~connectorType)
   )
 }
-// Need to remove connector merge connector and connectorTypeVariants
+// Need to remove connector and merge connector and connectorTypeVariants
 let connectorTypeTuple = connectorType => {
   switch connectorType {
   | "payment_processor" => (PaymentProcessor, Processor)
