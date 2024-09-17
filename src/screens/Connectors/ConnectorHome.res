@@ -67,7 +67,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let profileIdFromUrl =
     UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getOptionString("profile_id")
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
@@ -170,6 +170,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         await getConnectorDetails()
       }
       determinePageState()
+      setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")

@@ -27,7 +27,7 @@ module MenuOption = {
           {panelProps => {
             <div
               id="neglectTopbarTheme"
-              className="relative flex flex-col bg-white py-3 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
+              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
               {<>
                 <Navbar.MenuOption
                   text={connectorStatusAvailableToSwitch}
