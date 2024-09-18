@@ -710,13 +710,28 @@ let responseHandler = async (
   }
 
   let responseStatus = res->Fetch.Response.status
+  let error_code =
+    json
+    ->getDictFromJsonObject
+    ->getObj("error", Dict.make())
+    ->getString("code", "")
 
-  if responseStatus >= 500 && responseStatus < 600 {
+  // TODO: will remove this later
+  switch error_code->CommonAuthUtils.errorSubCodeMapper {
+  | HE_02 | UR_33 | HE_O1 =>
     sendEvent(
       ~eventName="API Error",
       ~description=Some(responseStatus),
       ~metadata=json->getDictFromJsonObject,
     )
+  | _ =>
+    if responseStatus >= 500 && responseStatus < 600 {
+      sendEvent(
+        ~eventName="API Error",
+        ~description=Some(responseStatus),
+        ~metadata=json->getDictFromJsonObject,
+      )
+    }
   }
 
   switch responseStatus {

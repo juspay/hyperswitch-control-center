@@ -29,14 +29,15 @@ let appendDashboardPath = (~url) => {
   }
 }
 
-type hostType = Live | Sandbox | Local | Netlify
+type hostType = Live | Sandbox | Local | Integ
 
 let hostName = Window.Location.hostname
 
 let hostType = switch hostName {
 | "live.hyperswitch.io" => Live
 | "app.hyperswitch.io" => Sandbox
-| _ => hostName->String.includes("netlify") ? Netlify : Local
+| "integ.hyperswitch.io" => Integ
+| _ => Local
 }
 
 let getHostUrlWithBasePath = `${Window.Location.origin}${appendDashboardPath(~url="")}`
