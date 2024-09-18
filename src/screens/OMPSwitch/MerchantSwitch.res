@@ -49,7 +49,7 @@ module NewAccountCreationModal = {
         Dict.set(
           errors,
           "company_name",
-          "Merchant name should contain special characters"->JSON.Encode.string,
+          "Merchant name should not contain special characters"->JSON.Encode.string,
         )
       } else {
         ()
