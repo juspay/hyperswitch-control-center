@@ -24,6 +24,7 @@ type authFlow =
   | ActivateFromEmail
 type data = {code: string, message: string, type_: string}
 type subCode =
+  | HE_O1
   | HE_02
   | UR_00
   | UR_01
