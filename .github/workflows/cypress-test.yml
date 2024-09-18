@@ -22,13 +22,6 @@ jobs:
         run: |
           chmod +x cypress/start_hyperswitch.sh
           sh cypress/start_hyperswitch.sh
-          
-      - run:
-          name: Wait for service to be up
-          command: |
-            timeout 30 bash -c 'until curl -s localhost:8080; do sleep 1; done'
-
-      
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -38,13 +31,21 @@ jobs:
       - name: Install dependencies
         run: npm install --force
 
-      # - name: Make Curl Request
-      #   run: |
-      #     # Replace the URL with your actual endpoint
-      #     response=$(curl --location --request GET 'http://localhost:8080/health')
+      - name: Make Curl Request
+        run: |
+          # Wait for the service to be available
+          echo "Waiting for service to be up..."
+          timeout 30 bash -c 'until curl --output /dev/null --silent --head --fail http://localhost:8080/health; do
+            echo "Waiting for service..."
+            sleep 2
+          done'
+          
+          # Once the service is up, make the actual curl request
+          response=$(curl --location --request GET 'http://localhost:8080/health')
 
-      #     echo "Response:"
-      #     echo "$response"
+          echo "Response:"
+          echo "$response"
+
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
