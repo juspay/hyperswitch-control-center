@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.17.2
+
+### Features
+
+- Handle masked api keys ([#1400](https://github.com/juspay/hyperswitch-control-center/pull/1400)) ([`2cc832c`](https://github.com/juspay/hyperswitch-control-center/commit/2cc832ca2d1c8b7689d175e5b0d5d01cc7304d0d))
+
+### Miscellaneous Tasks
+
+- Handle masked api keys ([`91358cb`](https://github.com/juspay/hyperswitch-control-center/commit/91358cb6dcca083e5669b57be4141119ada5635e))
+
+**Full Changelog:** [`2024.09.17.1...2024.09.17.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.17.1...2024.09.17.2)
+
+- - -
+
 ## 2024.09.17.1
 
 ### Features
