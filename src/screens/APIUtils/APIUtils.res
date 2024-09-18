@@ -732,8 +732,14 @@ let responseHandler = async (
         | 400 => {
             let errorCode = errorDict->getString("code", "")
             switch errorCode->CommonAuthUtils.errorSubCodeMapper {
-            | HE_02 | UR_33 =>
-              RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+            | HE_02 | UR_33 => {
+                sendEvent(
+                  ~eventName="API Error",
+                  ~description=Some(responseStatus),
+                  ~metadata=json->getDictFromJsonObject,
+                )
+                RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+              }
             | _ => ()
             }
           }

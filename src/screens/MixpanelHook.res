@@ -47,10 +47,11 @@ let useSendEvent = () => {
     let mixpanel_token = Window.env.mixpanelToken
 
     let body = {
-      "section": section,
       "event": event,
-      "metadata": metadata,
       "properties": {
+        "path": Window.Location.pathName,
+        "metadata": metadata,
+        "section": section,
         "token": mixpanel_token,
         "distinct_id": deviceId,
         "$device_id": deviceId->String.split(":")->Array.get(1),
