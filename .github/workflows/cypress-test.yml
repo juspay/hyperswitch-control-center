@@ -34,7 +34,7 @@ jobs:
       - name: Make Curl Request
         run: |
           # Once the service is up, make the actual curl request
-          response=$(curl --location --request GET 'http://localhost:8080/health')
+          response=$(curl --location --request GET 'http://0.0.0.0:8080/health')
 
           echo "Response:"
           echo "$response"
