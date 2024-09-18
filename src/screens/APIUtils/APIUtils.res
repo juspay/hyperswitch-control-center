@@ -732,7 +732,8 @@ let responseHandler = async (
         | 400 => {
             let errorCode = errorDict->getString("code", "")
             switch errorCode->CommonAuthUtils.errorSubCodeMapper {
-            | HE_02 | UR_33 => {
+            | HE_02 | UR_33 | HE_O1 => {
+                // TODO: just for testing, will remove it later
                 sendEvent(
                   ~eventName="API Error",
                   ~description=Some(responseStatus),
