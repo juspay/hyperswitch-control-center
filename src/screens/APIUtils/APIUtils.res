@@ -710,8 +710,11 @@ let responseHandler = async (
   }
 
   let responseStatus = res->Fetch.Response.status
-
-  if responseStatus >= 500 && responseStatus < 600 {
+  let error_code = json->getDictFromJsonObject->getObj("error", Dict.make())->getString("code", "")
+  if (
+    (responseStatus >= 500 && responseStatus < 600) ||
+      ["HE_02", "UR_33", "HE_O1"]->Array.includes(error_code)
+  ) {
     sendEvent(
       ~eventName="API Error",
       ~description=Some(responseStatus),
