@@ -41,19 +41,20 @@ module NewAccountCreationModal = {
       let companyName = values->getDictFromJsonObject->getString("company_name", "")->String.trim
       let regexForCompanyName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
 
-      if companyName->isEmptyString {
-        Dict.set(errors, "company_name", "Merchant name cannot be empty"->JSON.Encode.string)
+      let errorMessage = if companyName->isEmptyString {
+        "Merchant name cannot be empty"
       } else if companyName->String.length > 64 {
-        Dict.set(errors, "company_name", "Merchant name too long"->JSON.Encode.string)
+        "Merchant name too long"
       } else if !RegExp.test(RegExp.fromString(regexForCompanyName), companyName) {
-        Dict.set(
-          errors,
-          "company_name",
-          "Merchant name should not contain special characters"->JSON.Encode.string,
-        )
+        "Merchant name should not contain special characters"
       } else {
-        ()
+        ""
       }
+
+      if errorMessage->isNonEmptyString {
+        Dict.set(errors, "company_name", errorMessage->JSON.Encode.string)
+      }
+
       errors->JSON.Encode.object
     }
 
