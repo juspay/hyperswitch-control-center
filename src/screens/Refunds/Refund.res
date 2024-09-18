@@ -21,7 +21,6 @@ let make = () => {
     UserInfoProvider.defaultContext,
   )
 
-  let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchRefunds = () => {
     switch filters {
     | Some(dict) =>
@@ -69,13 +68,11 @@ let make = () => {
     <div className="min-h-[50vh]">
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
-        <RenderIf condition={userManagementRevamp}>
-          <OMPSwitchHelper.OMPViews
-            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-            selectedEntity={transactionEntity}
-            onChange={updateTransactionEntity}
-          />
-        </RenderIf>
+        <OMPSwitchHelper.OMPViews
+          views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+          selectedEntity={transactionEntity}
+          onChange={updateTransactionEntity}
+        />
       </div>
       <div className="flex justify-between gap-3">
         <div className="flex-1">

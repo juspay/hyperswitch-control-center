@@ -42,7 +42,7 @@ module ChangeRoleSection = {
           ]->getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post)
         showToast(~message="Role successfully updated!", ~toastType=ToastSuccess)
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users-v2"))
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
       } catch {
       | _ => showToast(~message="Failed to update the role", ~toastType=ToastError)
       }
@@ -152,7 +152,7 @@ module DeleteUserRole = {
         let body = [("email", userEmail->JSON.Encode.string)]->getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Delete)
         showToast(~message=`User has been successfully deleted.`, ~toastType=ToastSuccess)
-        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users-v2"))
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/users"))
       } catch {
       | _ => showToast(~message=`Failed to delete the user.`, ~toastType=ToastError)
       }
