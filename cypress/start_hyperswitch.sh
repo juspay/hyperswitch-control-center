@@ -6,8 +6,8 @@ cd hyperswitch
 sed 's|juspaydotin/hyperswitch-router:standalone|juspaydotin/hyperswitch-router:latest|g' docker-compose.yml > docker-compose.tmp
 mv docker-compose.tmp docker-compose.yml
 docker --version
-# chmod +x /usr/local/bin/docker-compose
-# docker-compose
-# docker-compose --version
+chmod +x /usr/local/bin/docker-compose
+docker-compose
+docker-compose --version
 # # Start Docker Compose services in detached mode
 docker-compose up -d pg redis-standalone migration_runner hyperswitch-server
