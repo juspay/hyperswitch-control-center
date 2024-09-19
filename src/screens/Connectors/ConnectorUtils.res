@@ -711,6 +711,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "wellsfargo" => Processors(WELLSFARGO)
     | "fiuu" => Processors(FIUU)
     | "novalnet" => Processors(NOVALNET)
+    | "deutschebank" => Processors(DEUTSCHEBANK)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
