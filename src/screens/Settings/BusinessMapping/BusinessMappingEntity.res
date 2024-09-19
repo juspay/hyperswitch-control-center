@@ -1,108 +1,17 @@
 open HSwitchSettingTypes
 open BusinessMappingUtils
 
-module ProfileActions = {
-  @react.component
-  let make = (~defaultProfileName, ~profileId) => {
-    open APIUtils
-    let getURL = useGetURL()
-    let updateDetails = useUpdateMethod()
-    let showToast = ToastState.useShowToast()
-    let (showModal, setShowModal) = React.useState(_ => false)
-    let (businessProfiles, setBusinessProfiles) = Recoil.useRecoilState(
-      HyperswitchAtom.businessProfilesAtom,
-    )
-    let initialValues = [("profile_name", defaultProfileName->JSON.Encode.string)]->Dict.fromArray
-
-    let onSubmit = async (values, _) => {
-      try {
-        let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(profileId))
-        let res = await updateDetails(url, values, Post)
-        let filteredProfileList =
-          businessProfiles
-          ->Array.filter(businessProfile => businessProfile.profile_id !== profileId)
-          ->Array.concat([res->BusinessProfileMapper.businessProfileTypeMapper])
-
-        setBusinessProfiles(_ => filteredProfileList)
-        showToast(~message="Updated profile name!", ~toastType=ToastSuccess)
-      } catch {
-      | _ => showToast(~message="Failed to update profile name!", ~toastType=ToastError)
-      }
-      setShowModal(_ => false)
-      Nullable.null
-    }
-
-    let businessName = FormRenderer.makeFieldInfo(
-      ~label="Profile Name",
-      ~name="profile_name",
-      ~placeholder=`Eg: Hyperswitch`,
-      ~customInput=InputFields.textInput(),
-      ~isRequired=true,
-    )
-
-    <div className="flex gap-4 items-center">
-      <ToolTip
-        description="Edit profile name"
-        toolTipFor={<Icon
-          name="pencil-alt"
-          size=14
-          className="cursor-pointer"
-          onClick={_ => setShowModal(_ => true)}
-        />}
-        toolTipPosition=ToolTip.Top
-        contentAlign={Left}
-      />
-      <ToolTip
-        description="Copy profile Id"
-        toolTipFor={<Icon
-          name="copy-code"
-          size=20
-          className="cursor-pointer"
-          onClick={_ => {
-            Clipboard.writeText(profileId)
-            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
-          }}
-        />}
-        toolTipPosition=ToolTip.Top
-        contentAlign={Left}
-      />
-      <Modal
-        key=defaultProfileName
-        modalHeading="Edit Profile name"
-        showModal
-        setShowModal
-        modalClass="w-1/4 m-auto">
-        <Form initialValues={initialValues->JSON.Encode.object} onSubmit>
-          <div className="flex flex-col gap-12 h-full w-full">
-            <FormRenderer.DesktopRow>
-              <FormRenderer.FieldRenderer
-                fieldWrapperClass="w-full"
-                field={businessName}
-                labelClass="!text-black font-medium !-ml-[0.5px]"
-              />
-            </FormRenderer.DesktopRow>
-            <div className="flex justify-end w-full pr-5 pb-3">
-              <FormRenderer.SubmitButton text="Submit changes" buttonSize={Small} />
-            </div>
-          </div>
-        </Form>
-      </Modal>
-    </div>
-  }
-}
-
 type columns =
   | ProfileName
   | ProfileId
   | ReturnUrl
   | WebhookUrl
-  | Action
 
-let visibleColumns = [ProfileId, ProfileName, ReturnUrl, WebhookUrl, Action]
+let visibleColumns = [ProfileId, ProfileName, ReturnUrl, WebhookUrl]
 
-let defaultColumns = [ProfileId, ProfileName, ReturnUrl, WebhookUrl, Action]
+let defaultColumns = [ProfileId, ProfileName, ReturnUrl, WebhookUrl]
 
-let allColumns = [ProfileId, ProfileName, ReturnUrl, WebhookUrl, Action]
+let allColumns = [ProfileId, ProfileName, ReturnUrl, WebhookUrl]
 
 let getHeading = colType => {
   switch colType {
@@ -110,21 +19,15 @@ let getHeading = colType => {
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL")
   | WebhookUrl => Table.makeHeaderInfo(~key="webhook_url", ~title="Webhook URL")
-  | Action => Table.makeHeaderInfo(~key="action", ~title="Action")
   }
 }
 
 let getCell = (item: profileEntity, colType): Table.cell => {
   switch colType {
-  | ProfileId => Text(item.profile_id)
+  | ProfileId => DisplayCopyCell(item.profile_id)
   | ProfileName => Text(item.profile_name)
   | ReturnUrl => Text(item.return_url->Option.getOr(""))
   | WebhookUrl => Text(item.webhook_details.webhook_url->Option.getOr(""))
-  | Action =>
-    CustomCell(
-      <ProfileActions defaultProfileName={item.profile_name} profileId={item.profile_id} />,
-      "",
-    )
   }
 }
 
