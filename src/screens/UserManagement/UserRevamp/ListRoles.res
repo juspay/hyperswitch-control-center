@@ -44,7 +44,7 @@ let make = () => {
           onClick={_ => {
             mixpanelEvent(~eventName="create_custom_role")
             RescriptReactRouter.push(
-              GlobalVars.appendDashboardPath(~url="/users-v2/create-custom-role"),
+              GlobalVars.appendDashboardPath(~url="/users/create-custom-role"),
             )
           }}
           customButtonStyle="w-fit !rounded-md"

@@ -61,7 +61,7 @@ let make = () => {
           buttonType=Primary
           onClick={_ => {
             mixpanelEvent(~eventName="invite_users")
-            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users-v2/invite-users"))
+            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/users/invite-users"))
           }}
           customButtonStyle="w-fit !rounded-md"
         />

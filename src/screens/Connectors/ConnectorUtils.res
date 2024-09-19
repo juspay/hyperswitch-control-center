@@ -100,6 +100,7 @@ let connectorList: array<connectorTypes> = [
   Processors(FIUU),
   Processors(WELLSFARGO),
   Processors(NOVALNET),
+  Processors(DEUTSCHEBANK),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -484,6 +485,10 @@ let novalnetInfo = {
   description: "Novalnet is a global payment service provider and financial technology company based in Germany. It offers a wide range of payment processing solutions and services to merchants and businesses, enabling them to accept various forms of payments online, in-store, or through mobile platforms.",
 }
 
+let deutscheBankInfo = {
+  description: "Deutsche Bank is a German multinational investment bank and financial services company.",
+}
+
 let taxJarInfo = {
   description: "TaxJar is reimagining how businesses manage sales tax compliance. Its cloud-based platform automates the entire sales tax life cycle across all sales channels — from calculations and nexus tracking to reporting and filing.",
 }
@@ -591,6 +596,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | FISERVIPG => "fiservemea"
   | FIUU => "fiuu"
   | NOVALNET => "novalnet"
+  | DEUTSCHEBANK => "deutschebank"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -705,6 +711,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "wellsfargo" => Processors(WELLSFARGO)
     | "fiuu" => Processors(FIUU)
     | "novalnet" => Processors(NOVALNET)
+    | "deutschebank" => Processors(DEUTSCHEBANK)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -803,6 +810,7 @@ let getProcessorInfo = connector => {
   | WELLSFARGO => wellsfargoInfo
   | FIUU => fiuuInfo
   | NOVALNET => novalnetInfo
+  | DEUTSCHEBANK => deutscheBankInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -1630,6 +1638,7 @@ let getDisplayNameForProcessor = connector =>
   | FISERVIPG => "Fiserv IPG"
   | FIUU => "Fiuu"
   | NOVALNET => "Novalnet"
+  | DEUTSCHEBANK => "Deutsche Bank"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
