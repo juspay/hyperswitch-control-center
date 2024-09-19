@@ -523,7 +523,6 @@ let make = (
   let endTimeVal = filterValueDict->getString(endTimeFilterKey, "")
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
   let {userInfo: {analyticsEntity}} = React.useContext(UserInfoProvider.defaultContext)
-  let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let updateUrlWithPrefix = React.useMemo(() => {
     (chartType: string) => {
       (dict: Dict.t<string>) => {
@@ -682,9 +681,7 @@ let make = (
         <div className="flex items-center justify-between">
           <PageUtils.PageHeading title=pageTitle subTitle=pageSubTitle />
           // Refactor required
-          <RenderIf
-            condition={userManagementRevamp &&
-            (moduleName == "Refunds" || moduleName == "Disputes")}>
+          <RenderIf condition={moduleName == "Refunds" || moduleName == "Disputes"}>
             <OMPSwitchHelper.OMPViews
               views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
               selectedEntity={analyticsEntity}
