@@ -1,5 +1,5 @@
 /**
- * @module RootRouter.ja
+ * @module RootRouter.res
  * 
  * @description Maps all the routes for the application with their respective components that
  * are accessible regardless of user access levels.
