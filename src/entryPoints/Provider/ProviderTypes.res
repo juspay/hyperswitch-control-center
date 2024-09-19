@@ -3,7 +3,6 @@ type integration = {
   mutable metadata: JSON.t,
 }
 type dashboardPageStateTypes = [
-  | #POST_LOGIN_QUES_NOT_DONE
   | #AUTO_CONNECTOR_INTEGRATION
   | #DEFAULT
   | #INTEGRATION_DOC
