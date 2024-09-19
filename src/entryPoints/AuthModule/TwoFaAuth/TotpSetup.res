@@ -54,7 +54,6 @@ module EnterAccessCode = {
         },
       )
     }, [recoveryCode])
-
     <div className={`bg-white h-20-rem w-200 rounded-2xl flex flex-col`}>
       <div className="p-6 border-b-2 flex justify-between items-center">
         <p className={`${h2TextStyle} text-grey-900`}> {"Enter access code"->React.string} </p>
@@ -77,6 +76,7 @@ module EnterAccessCode = {
             buttonType={Secondary}
             buttonSize=Small
             onClick={_ => onClickVerifyAccessCode(~skip_2fa=true)->ignore}
+            dataTestId="skip-now"
           />
           <Button
             text="Verify recovery code"
@@ -203,6 +203,7 @@ module ConfigureTotpScreen = {
             buttonType={Secondary}
             buttonSize=Small
             onClick={_ => skipTotpSetup()->ignore}
+            dataTestId="skip-now"
           />
           <Button
             text=buttonText
