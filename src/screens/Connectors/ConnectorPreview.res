@@ -202,24 +202,30 @@ module ConnectorSummaryGrid = {
           {`${currentProfileName.profile_name} - ${connectorInfo.profile_id}`->React.string}
         </div>
       </div>
-      <div className="grid grid-cols-4  my-12">
+      <div className="grid grid-cols-4 my-12">
         <div className="flex items-start">
           <h4 className="text-lg font-semibold"> {"API Keys"->React.string} </h4>
-          <ConnectorUpdateAuthCreds connectorInfo getConnectorDetails />
         </div>
         <div className="flex flex-col gap-6 col-span-3">
-          {connectorAccountFields
-          ->Dict.keysToArray
-          ->Array.mapWithIndex((field, index) => {
-            open LogicUtils
-            let label = connectorAccountFields->getString(field, "")
-            <InfoField
-              key={index->Int.toString}
-              label={label}
-              render={connectorInfo->ConnectorUtils.getConnectorDetailsValue(field)}
-            />
-          })
-          ->React.array}
+          <div className="flex gap-12">
+            <div className="flex flex-col gap-6 w-1/2">
+              {connectorAccountFields
+              ->Dict.keysToArray
+              ->Array.mapWithIndex((field, index) => {
+                open LogicUtils
+                let label = connectorAccountFields->getString(field, "")
+                <>
+                  <InfoField
+                    key={index->Int.toString}
+                    label={label}
+                    render={connectorInfo->ConnectorUtils.getConnectorDetailsValue(field)}
+                  />
+                </>
+              })
+              ->React.array}
+            </div>
+            <ConnectorUpdateAuthCreds connectorInfo getConnectorDetails />
+          </div>
         </div>
         <div />
       </div>
@@ -228,23 +234,46 @@ module ConnectorSummaryGrid = {
         <div className="grid grid-cols-4  my-12">
           <div className="flex items-start">
             <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
-            <div
-              className="cursor-pointer"
-              onClick={_ => {
-                mixpanelEvent(~eventName=`processor_update_payment_methods_${connector}`)
-
-                setCurrentStep(_ => state)
-              }}>
-              <ToolTip
-                height=""
-                description={`Update the ${connector} payment methods`}
-                toolTipFor={<Icon name="edit" className={`mt-1 ml-1`} />}
-                toolTipPosition=Top
-                tooltipWidthClass="w-fit"
-              />
-            </div>
           </div>
           <div className="flex flex-col gap-6 col-span-3">
+            <div className="flex gap-12">
+              <div className="flex flex-col gap-6 col-span-3 w-1/2">
+                {connectorInfo.payment_methods_enabled
+                ->Array.mapWithIndex((field, index) => {
+                  <InfoField
+                    key={index->Int.toString}
+                    label={field.payment_method->LogicUtils.snakeToTitle}
+                    render={Some(
+                      field.payment_method_types
+                      ->Array.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
+                      ->Array.reduce([], (acc, curr) => {
+                        if !(acc->Array.includes(curr)) {
+                          acc->Array.push(curr)
+                        }
+                        acc
+                      })
+                      ->Array.joinWith(", "),
+                    )}
+                  />
+                })
+                ->React.array}
+              </div>
+              <div
+                className="cursor-pointer"
+                onClick={_ => {
+                  mixpanelEvent(~eventName=`processor_update_payment_methods_${connector}`)
+
+                  setCurrentStep(_ => state)
+                }}>
+                <ToolTip
+                  height=""
+                  description={`Update the ${connector} payment methods`}
+                  toolTipFor={<Icon size=18 name="edit" className={` ml-2`} />}
+                  toolTipPosition=Top
+                  tooltipWidthClass="w-fit"
+                />
+              </div>
+            </div>
             <div
               className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
               <Icon name="info-vacent" size=18 />
@@ -261,25 +290,6 @@ module ConnectorSummaryGrid = {
                 </a>
               </p>
             </div>
-            {connectorInfo.payment_methods_enabled
-            ->Array.mapWithIndex((field, index) => {
-              <InfoField
-                key={index->Int.toString}
-                label={field.payment_method->LogicUtils.snakeToTitle}
-                render={Some(
-                  field.payment_method_types
-                  ->Array.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
-                  ->Array.reduce([], (acc, curr) => {
-                    if !(acc->Array.includes(curr)) {
-                      acc->Array.push(curr)
-                    }
-                    acc
-                  })
-                  ->Array.joinWith(", "),
-                )}
-              />
-            })
-            ->React.array}
           </div>
         </div>
 
