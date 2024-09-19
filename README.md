@@ -423,19 +423,33 @@ Welcome to the standard process for raising a Pull Request (PR) directly from a 
 
 ### Running Tests
 
-1. To run tests interactively in Cypress Test Runner:
+1.
+
+```
+npm run build:test
+npm run test:start
+```
+
+2. To run tests interactively in Cypress Test Runner:
 
    ```
    npm run cy:open
 
    ```
 
-2. To run tests in headless mode (CI/CD):
+3. To run tests in headless mode (CI/CD):
 
    ```
    npm run cy:run
 
    ```
+
+### Running Tests Locally
+
+## Prerequisite
+
+1. Make sure to run the Hyperswitch backend locally by following the instructions at https://github.com/juspay/hyperswitch.
+2. Once the backend is running, follow the steps in Running Tests to execute the Cypress test suite.
 
 ## License
 
