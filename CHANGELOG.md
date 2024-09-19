@@ -18,7 +18,7 @@ All notable changes to this project will be documented in this file. See [conven
 - Merchant name validation added ([#1416](https://github.com/juspay/hyperswitch-control-center/pull/1416)) ([`e143725`](https://github.com/juspay/hyperswitch-control-center/commit/e14372523fc323aaf2c90bc630d73e4bcee9d57b))
 - Update wasm for deutsche ([#1429](https://github.com/juspay/hyperswitch-control-center/pull/1429)) ([`6fc9d63`](https://github.com/juspay/hyperswitch-control-center/commit/6fc9d63757df8ba9fb4e5df1d448de5189903c27))
 - Post login questions page related files removal ([#1427](https://github.com/juspay/hyperswitch-control-center/pull/1427)) ([`93382db`](https://github.com/juspay/hyperswitch-control-center/commit/93382db3ff28d9f0e99af08407c7f9593930466a))
-- UI changes update connector creds ([#1438](https://github.com/juspay/hyperswitch-control-center/pull/1438)) ([`3101b29`](https://github.com/juspay/hyperswitch-control-center/commit/3101b298e0e4dff45cef5afa23f0f32da1166e92))
+- UI changes for update connector creds ([#1438](https://github.com/juspay/hyperswitch-control-center/pull/1438)) ([`3101b29`](https://github.com/juspay/hyperswitch-control-center/commit/3101b298e0e4dff45cef5afa23f0f32da1166e92))
 
 **Full Changelog:** [`2024.09.18.0...2024.09.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.18.0...2024.09.19.0)
 
