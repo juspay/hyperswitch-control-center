@@ -293,7 +293,6 @@ let make = (
   ~toolTipPosition=ToolTip.Top,
   ~dataTestId="",
 ) => {
-  Js.log(dataTestId)
   let parentRef = React.useRef(Nullable.null)
   let dummyRef = React.useRef(Nullable.null)
   let buttonRef = disableRipple ? dummyRef : parentRef
