@@ -12,8 +12,15 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
   let (showModal, setShowFeedbackModal) = React.useState(_ => false)
   // Need to remove connector and merge connector and connectorTypeVariants
   let (processorType, connectorType) = connectorInfo.connector_type->connectorTypeTuple
-  let {connector_name: connectorName} = connectorInfo
+  let {connector_name: connectorName, merchant_connector_id: connectorId} = connectorInfo
   let connectorTypeFromName = connectorName->getConnectorNameTypeFromString(~connectorType)
+
+  React.useEffect(() => {
+    RescriptReactRouter.replace(
+      GlobalVars.appendDashboardPath(~url=`/connectors/${connectorId}?name=${connectorName}`),
+    )
+    None
+  }, [])
 
   let connectorDetails = React.useMemo(() => {
     try {
@@ -119,7 +126,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       <ToolTip
         height=""
         description={`Update the ${connectorName} creds`}
-        toolTipFor={<Icon name="edit" className={`mt-1 ml-1`} />}
+        toolTipFor={<Icon size=18 name="edit" className={`mt-1 ml-1`} />}
         toolTipPosition=Top
         tooltipWidthClass="w-fit"
       />
