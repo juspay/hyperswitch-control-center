@@ -139,10 +139,7 @@ module UserAccessInfo = {
         ->Dict.keysToArray
         ->Array.mapWithIndex((items, parentIndex) => {
           <TableRowForUserDetails
-            // merchantName={getNameForMerchantId(items)}
-            arrayValue={items->getObjectForThekey}
-            parentIndex
-            noOfElementsInParent
+            arrayValue={items->getObjectForThekey} parentIndex noOfElementsInParent
           />
         })
         ->React.array}
