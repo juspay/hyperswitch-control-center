@@ -1,6 +1,7 @@
 /**
- * Component: RootRouter.res
- * Purpose: maps all the routes for the application with their respective components that
+ * @module RootRouter.ja
+ * 
+ * @description Maps all the routes for the application with their respective components that
  * are accessible regardless of user access levels.
  */
 module UserEntityRouter = {
