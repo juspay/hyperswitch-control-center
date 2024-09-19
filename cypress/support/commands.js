@@ -31,6 +31,7 @@ Cypress.Commands.add("login_UI", (name = "", pass = "") => {
   cy.get("[data-testid=email]").type(username);
   cy.get("[data-testid=password]").type(password);
   cy.get('button[type="submit"]').click({ force: true });
+  cy.get("[data-testid=skip-now]").click({ force: true });
 });
 
 Cypress.Commands.add("singup_curl", (name = "", pass = "") => {
