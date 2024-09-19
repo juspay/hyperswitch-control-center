@@ -419,6 +419,24 @@ Welcome to the standard process for raising a Pull Request (PR) directly from a 
 - Include relevant tests, documentation updates, or screenshots, if applicable.
 - Collaborate and communicate effectively with other contributors and maintainers throughout the review process.
 
+## Cypress Test Suite
+
+### Running Tests
+
+1. To run tests interactively in Cypress Test Runner:
+
+   ```
+   npm run cy:open
+
+   ```
+
+2. To run tests in headless mode (CI/CD):
+
+   ```
+   npm run cy:run
+
+   ```
+
 ## License
 
 This project is open-source and available under the Apache 2.0 license.
