@@ -6,7 +6,6 @@ let make = () => {
   open PermissionUtils
   open LogicUtils
   open HyperswitchAtom
-  open CommonAuthHooks
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
@@ -29,7 +28,6 @@ let make = () => {
   let {userInfo: {orgId, merchantId, profileId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
-  let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
@@ -159,19 +157,10 @@ let make = () => {
                       <Navbar
                         headerActions={<div className="relative flex items-center gap-4 my-2 ">
                           <GlobalSearchBar />
-                          <RenderIf condition={!featureFlagDetails.userManagementRevamp}>
-                            <SwitchMerchant
-                              userRole={userRole} isAddMerchantEnabled={userRole === "org_admin"}
-                            />
-                          </RenderIf>
-                          <RenderIf
-                            condition={featureFlagDetails.userManagementRevamp &&
-                            checkUserEntity([#Internal])}>
+                          <RenderIf condition={checkUserEntity([#Internal])}>
                             <SwitchMerchantForInternal />
                           </RenderIf>
-                          <RenderIf
-                            condition={featureFlagDetails.userManagementRevamp &&
-                            !checkUserEntity([#Internal])}>
+                          <RenderIf condition={!checkUserEntity([#Internal])}>
                             <ProfileSwitch />
                           </RenderIf>
                           <div
@@ -213,6 +202,7 @@ let make = () => {
                         | list{"payoutconnectors", ..._}
                         | list{"3ds-authenticators", ..._}
                         | list{"pm-authentication-processor", ..._}
+                        | list{"tax-processor", ..._}
                         | list{"fraud-risk-management", ..._}
                         | list{"configure-pmts", ..._}
                         | list{"routing", ..._}
@@ -252,24 +242,7 @@ let make = () => {
                               renderShow={(id, _) => <ShowCustomers id />}
                             />
                           </AccessControl>
-                        | list{"users", "invite-users"} =>
-                          <AccessControl permission=userPermissionJson.usersManage>
-                            <InviteUsers />
-                          </AccessControl>
-                        | list{"users", "create-custom-role"} =>
-                          <AccessControl permission=userPermissionJson.usersManage>
-                            <CreateCustomRole baseUrl="users" breadCrumbHeader="Users" />
-                          </AccessControl>
-                        | list{"users", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.usersView>
-                            <EntityScaffold
-                              entityName="UserManagement"
-                              remainingPath
-                              renderList={_ => <UserRoleEntry />}
-                              renderShow={(_, _) => <ShowUserData />}
-                            />
-                          </AccessControl>
-                        | list{"users-v2", ..._} => <UserManagementContainer />
+                        | list{"users", ..._} => <UserManagementContainer />
                         | list{"analytics-user-journey"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.userJourneyAnalytics &&

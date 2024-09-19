@@ -17,7 +17,6 @@ let make = () => {
   let userPermissionJson = Recoil.useRecoilValueFromAtom(userPermissionAtom)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let setRoleInfo = Recoil.useSetRecoilState(HyperswitchAtom.moduleListRecoil)
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchModuleList = async () => {
     try {
@@ -47,20 +46,16 @@ let make = () => {
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
     // User Management modules
-    | list{"users-v2", "invite-users"} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.userManagementRevamp}
-        permission={userPermissionJson.usersManage}>
+    | list{"users", "invite-users"} =>
+      <AccessControl permission={userPermissionJson.usersManage}>
         <InviteMember />
       </AccessControl>
-    | list{"users-v2", "create-custom-role"} =>
+    | list{"users", "create-custom-role"} =>
       <AccessControl permission=userPermissionJson.usersManage>
-        <CreateCustomRole baseUrl="users-v2" breadCrumbHeader="Team management" />
+        <CreateCustomRole baseUrl="users" breadCrumbHeader="Team management" />
       </AccessControl>
-    | list{"users-v2", ...remainingPath} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.userManagementRevamp}
-        permission={userPermissionJson.usersView}>
+    | list{"users", ...remainingPath} =>
+      <AccessControl permission={userPermissionJson.usersView}>
         <EntityScaffold
           entityName="UserManagement"
           remainingPath

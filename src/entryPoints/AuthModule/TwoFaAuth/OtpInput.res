@@ -27,6 +27,7 @@ module InputFieldForOtp = {
     }
 
     <input
+      key={index->Int.toString}
       ref={inputRef->ReactDOM.Ref.domRef}
       value={subVal}
       className=inputClass

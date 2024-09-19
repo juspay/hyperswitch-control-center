@@ -409,7 +409,6 @@ let make = () => {
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userInfo: {recoveryCodesLeft}} = React.useContext(UserInfoProvider.defaultContext)
   let recoveryCode = recoveryCodesLeft->Option.getOr(0)
 
@@ -418,7 +417,7 @@ let make = () => {
       <RenderIf condition={recoveryCodesLeft->Option.isSome && recoveryCode < 3}>
         <LowRecoveryCodeBanner recoveryCode />
       </RenderIf>
-      {featureFlagDetails.userManagementRevamp ? <PendingInvitationsHome /> : <AcceptInviteHome />}
+      <PendingInvitationsHome />
     </div>
     <div className="w-full flex flex-col gap-7">
       <QuickStartModule />

@@ -1,6 +1,5 @@
 @react.component
 let make = () => {
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (selectedAuthId, setSelectedAuthId) = React.useState(_ => None)
   let {authStatus, setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
 
@@ -18,7 +17,7 @@ let make = () => {
   | SSO => <SSODecisionScreen auth_id=selectedAuthId />
   | MERCHANT_SELECT
   | ACCEPT_INVITE =>
-    featureFlagDetails.userManagementRevamp ? <ListInvitationScreen /> : <MerchantSelectScreen />
+    <ListInvitationScreen />
   | TOTP => <TotpSetup />
   | FORCE_SET_PASSWORD
   | RESET_PASSWORD =>
