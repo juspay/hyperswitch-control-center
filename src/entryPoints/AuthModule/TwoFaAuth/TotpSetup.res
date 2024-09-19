@@ -318,7 +318,7 @@ let make = () => {
     None
   }, [showNewQR])
 
-  <PageLoaderWrapper screenState>
+  <PageLoaderWrapper screenState sectionHeight="h-screen">
     <BackgroundImageWrapper>
       <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
         {switch twoFaPageState {
