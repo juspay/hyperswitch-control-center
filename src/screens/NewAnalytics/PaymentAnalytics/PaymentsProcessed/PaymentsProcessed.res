@@ -1,7 +1,7 @@
 open NewAnalyticsTypes
 open NewAnalyticsHelper
 open LineGraphTypes
-open OverViewAnalyticsEntity
+open NewPaymentAnalyticsEntity
 open PaymentsProcessedUtils
 
 module TableModule = {
@@ -25,7 +25,7 @@ module TableModule = {
         title=" "
         hideTitle=true
         actualData={paymentsProcessed}
-        entity=tableEntity
+        entity=paymentsProcessedTableEntity
         resultsPerPage=10
         totalResults={paymentsProcessed->Array.length}
         offset
