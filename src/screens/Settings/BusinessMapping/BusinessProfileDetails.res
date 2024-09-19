@@ -1,6 +1,6 @@
 module InfoViewForWebhooks = {
   @react.component
-  let make = (~heading, ~subHeading, ~isCopy=false, ~customComp=React.null) => {
+  let make = (~heading, ~subHeading, ~isCopy=false, ~customRightComp=?) => {
     let showToast = ToastState.useShowToast()
     let onCopyClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
@@ -22,7 +22,7 @@ module InfoViewForWebhooks = {
             }}
           />
         </RenderIf>
-        {customComp}
+        {customRightComp->Option.getOr(React.null)}
       </div>
     </div>
   }
@@ -479,7 +479,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   <InfoViewForWebhooks
                     heading="Profile Name"
                     subHeading=busiProfieDetails.profile_name
-                    customComp={<EditProfileName
+                    customRightComp={<EditProfileName
                       defaultProfileName=busiProfieDetails.profile_name
                       profileId=busiProfieDetails.profile_id
                     />}
