@@ -94,6 +94,7 @@ type processorTypes =
   | PAYBOX
   | WELLSFARGO
   | FIUU
+  | NOVALNET
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
@@ -103,11 +104,14 @@ type frmTypes =
 
 type pmAuthenticationProcessorTypes = PLAID
 
+type taxProcessorTypes = TAXJAR
+
 type connectorTypes =
   | Processors(processorTypes)
   | ThreeDsAuthenticator(threeDsAuthenticatorTypes)
   | FRM(frmTypes)
   | PMAuthenticationProcessor(pmAuthenticationProcessorTypes)
+  | TaxProcessor(taxProcessorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -250,14 +254,26 @@ type connectorPayload = {
   disabled: bool,
   payment_methods_enabled: payment_methods_enabled,
   profile_id: string,
-  metadata?: JSON.t,
+  metadata: JSON.t,
   merchant_connector_id: string,
   frm_configs?: array<frm_config>,
   status: string,
+  connector_webhook_details: JSON.t,
+  additional_merchant_data: JSON.t,
 }
 
 type connector =
-  FRMPlayer | Processor | PayoutConnector | ThreeDsAuthenticator | PMAuthenticationProcessor
+  | FRMPlayer
+  | Processor
+  | PayoutConnector
+  | ThreeDsAuthenticator
+  | PMAuthenticationProcessor
+  | TaxProcessor
 
 type connectorTypeVariants =
-  PaymentProcessor | PaymentVas | PayoutProcessor | AuthenticationProcessor | PMAuthProcessor
+  | PaymentProcessor
+  | PaymentVas
+  | PayoutProcessor
+  | AuthenticationProcessor
+  | PMAuthProcessor
+  | TaxProcessor
