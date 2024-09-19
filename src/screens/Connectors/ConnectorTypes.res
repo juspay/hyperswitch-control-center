@@ -95,6 +95,7 @@ type processorTypes =
   | WELLSFARGO
   | FIUU
   | NOVALNET
+  | DEUTSCHEBANK
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 

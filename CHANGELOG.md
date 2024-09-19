@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.18.0
+
+### Features
+
+- Remove user-management revamp feature flag ([#1394](https://github.com/juspay/hyperswitch-control-center/pull/1394)) ([`6d7123b`](https://github.com/juspay/hyperswitch-control-center/commit/6d7123bd4302193c11291d44fe381e2fcab112e4))
+
+### Bug Fixes
+
+- Bug fixes ui ([#1396](https://github.com/juspay/hyperswitch-control-center/pull/1396)) ([`8e4d2d8`](https://github.com/juspay/hyperswitch-control-center/commit/8e4d2d8cc35b348d43371364c05bed157d8d6062))
+
+### Miscellaneous Tasks
+
+- Home page changes for profile level users ([#1409](https://github.com/juspay/hyperswitch-control-center/pull/1409)) ([`877de7f`](https://github.com/juspay/hyperswitch-control-center/commit/877de7fd8e52c1d46e43653525b77aa26d08dbf9))
+
+**Full Changelog:** [`2024.09.17.2...2024.09.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.17.2...2024.09.18.0)
+
+- - -
+
 ## 2024.09.17.2
 
 ### Features
