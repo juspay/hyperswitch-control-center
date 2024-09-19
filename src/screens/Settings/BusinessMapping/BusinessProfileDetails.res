@@ -407,8 +407,9 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
     defaultFieldsToValidate
   }
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     setBusiProfie(_ => businessProfileDetails)
+    None
   }, [businessProfileDetails])
 
   let onSubmit = async (values, _) => {
