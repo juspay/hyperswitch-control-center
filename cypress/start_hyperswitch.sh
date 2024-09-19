@@ -23,7 +23,6 @@ fi
 # Use sed to remove the [network_tokenization_service] section and all its keys
 sed '/^\[network_tokenization_service\]/,/^\[.*\]/d' "$toml_file" > temp.toml
 mv temp.toml "$toml_file"
-cat "$toml_file"
 echo "[network_tokenization_service] section removed from $toml_file."
 
 
