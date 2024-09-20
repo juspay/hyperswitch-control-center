@@ -3,6 +3,7 @@ open NewAnalyticsHelper
 open LineGraphTypes
 open NewPaymentAnalyticsEntity
 open PaymentsProcessedUtils
+open LogicUtils
 
 module TableModule = {
   @react.component
@@ -69,10 +70,26 @@ let make = (
     None
   }, [])
 
+  let totalAmount =
+    paymentsProcessed
+    ->getArrayFromJson([])
+    ->getValueFromArray(0, JSON.Encode.array([]))
+    ->getDictFromJsonObject
+    ->getInt("amount", 0)
+
+  let currency =
+    paymentsProcessed
+    ->getArrayFromJson([])
+    ->getValueFromArray(0, JSON.Encode.array([]))
+    ->getDictFromJsonObject
+    ->getString("currency", "")
+
+  let graphTitle = totalAmount->Int.toString ++ " " ++ currency
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
-      <GraphHeader title="165K USD" viewType setViewType />
+      <GraphHeader title={graphTitle} viewType setViewType showTabSwitch=true />
       <div className="mb-5">
         {switch viewType {
         | Graph => <LineGraph entity={chartEntity} data={paymentsProcessed} className="mr-3" />

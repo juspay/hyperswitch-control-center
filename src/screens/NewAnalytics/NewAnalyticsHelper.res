@@ -153,15 +153,17 @@ module ModuleHeader = {
 
 module GraphHeader = {
   @react.component
-  let make = (~title, ~viewType, ~setViewType) => {
+  let make = (~title, ~showTabSwitch, ~viewType, ~setViewType=_ => ()) => {
     <div className="w-full px-7 py-8 flex justify-between">
       <div className="flex gap-2 items-center">
         <div className="text-3xl font-600"> {title->React.string} </div>
         <StatisticsCard value="8" direction={Upward} />
       </div>
-      <div className="flex gap-2">
-        <TabSwitch viewType setViewType />
-      </div>
+      <RenderIf condition={showTabSwitch}>
+        <div className="flex gap-2">
+          <TabSwitch viewType setViewType />
+        </div>
+      </RenderIf>
     </div>
   }
 }

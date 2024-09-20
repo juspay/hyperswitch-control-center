@@ -1,6 +1,7 @@
 open NewAnalyticsTypes
 open NewAnalyticsHelper
 open LineGraphTypes
+open LogicUtils
 
 @react.component
 let make = (
@@ -49,9 +50,20 @@ let make = (
     None
   }, [])
 
+  let graphTitle =
+    paymentsSuccessRate
+    ->getArrayFromJson([])
+    ->getValueFromArray(0, JSON.Encode.array([]))
+    ->getDictFromJsonObject
+    ->getArrayFromDict("metaData", [])
+    ->getValueFromArray(0, JSON.Encode.null)
+    ->getDictFromJsonObject
+    ->getInt("payments_success_rate", 0)
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
+      <GraphHeader title={graphTitle->Int.toString} viewType={Graph} showTabSwitch=false />
       <div className="mb-5">
         <LineGraph entity={chartEntity} data={paymentsSuccessRate} className="mr-3" />
       </div>
