@@ -52,34 +52,34 @@ module TabSwitch = {
 }
 
 module Tabs = {
+  open NewAnalyticsTypes
   @react.component
-  let make = (~option, ~setOption, ~options) => {
-    open NewAnalyticsTypes
+  let make = (~option: tab, ~setOption, ~options: array<tab>) => {
+    let getStyle = (value: string, index) => {
+      let textStyle =
+        value === option.value
+          ? "bg-white text-grey-dark font-medium"
+          : "bg-grey-light text-grey-medium"
 
-    // let (icon1Bg, icon1Color, icon1Name) = switch viewType {
-    // | Graph => ("bg-white", "text-grey-dark", "graph-dark")
-    // | Table => ("bg-grey-light", "", "graph")
-    // }
+      let borderStyle = index === 0 ? "" : "border-l"
 
-    // let (icon2Bg, icon2Color, icon2Name) = switch viewType {
-    // | Graph => ("bg-grey-light", "text-grey-medium", "table-view")
-    // | Table => ("bg-white", "text-grey-dark", "table-view")
-    // }
+      let borderRadius =
+        index === 0 ? "rounded-l-lg" : index === options->Array.length - 1 ? "rounded-r-lg" : ""
 
-    // <div className="border border-gray-outline flex w-fit rounded-lg cursor-pointer">
-    //   <div
-    //     className={`rounded-l-lg pl-3 pr-2 pt-2 pb-1 ${icon1Bg}`}
-    //     onClick={_ => setViewType(_ => Graph)}>
-    //     <Icon className={icon1Color} name={icon1Name} size=25 />
-    //   </div>
-    //   <div className="h-full border-l border-gray-outline" />
-    //   <div
-    //     className={`rounded-r-lg pl-3 pr-2 pt-2 pb-1 ${icon2Bg}`}
-    //     onClick={_ => setViewType(_ => Table)}>
-    //     <Icon className={icon2Color} name=icon2Name size=25 />
-    //   </div>
-    // </div>
-    {"hello"->React.string}
+      `${textStyle} ${borderStyle} ${borderRadius}`
+    }
+
+    <div className="border border-gray-outline flex w-fit rounded-lg cursor-pointer">
+      {options
+      ->Array.mapWithIndex((tabValue, index) =>
+        <div
+          className={`px-3 py-2 ${tabValue.value->getStyle(index)}`}
+          onClick={_ => setOption(_ => tabValue)}>
+          {tabValue.title->React.string}
+        </div>
+      )
+      ->React.array}
+    </div>
   }
 }
 
@@ -184,6 +184,7 @@ module ModuleHeader = {
 }
 
 module GraphHeader = {
+  open NewAnalyticsTypes
   @react.component
   let make = (~title, ~viewType, ~setViewType) => {
     <div className="w-full px-7 py-8 flex justify-between">
