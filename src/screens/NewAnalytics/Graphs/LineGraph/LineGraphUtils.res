@@ -1,4 +1,15 @@
 open LineGraphTypes
+let tooltipFormatter = (
+  @this
+  (this: pointFormatter) => {
+    `
+    <div style="border-radius: 12px;" >
+    here
+    </div>
+    `
+  }
+)->asTooltipPointFormatter
+
 let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
   let {categories, data, title} = lineGraphOptions
   {
@@ -27,6 +38,18 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       tickmarkPlacement: "on",
       endOnTick: false,
       startOnTick: false,
+    },
+    tooltip: {
+      style: {
+        fontFamily: "Arial, sans-serif", // Set the desired font family
+        fontSize: "14px", // Optional: Set the font size
+      },
+      shape: "square",
+      backgroundColor: "#FFFFFF",
+      borderColor: "#E5E5E5",
+      useHTML: true,
+      formatter: tooltipFormatter,
+      shared: true, // Allows multiple series' data to be shown in a single tooltip
     },
     yAxis: {
       title,

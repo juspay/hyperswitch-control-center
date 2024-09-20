@@ -2,6 +2,12 @@ type \"type" = string
 type spacingLeft = int
 type spacingRight = int
 
+type point = {sum: string, id: string}
+type pointFormatter = {point: point}
+
+external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => pointFormatter => string =
+  "%identity"
+
 type categories = array<string>
 type crosshair = bool
 type lineWidth = int
@@ -71,6 +77,21 @@ type xAxis = {
   startOnTick: startOnTick,
 }
 
+type fontstyle = {
+  fontFamily: string,
+  fontSize: string,
+}
+
+type tooltip = {
+  shape: string,
+  backgroundColor: string,
+  borderColor: string,
+  useHTML: bool,
+  formatter: pointFormatter => string,
+  shared: bool,
+  style: fontstyle,
+}
+
 type lineGraphOptions = {
   chart: chart,
   title: title,
@@ -79,6 +100,7 @@ type lineGraphOptions = {
   plotOptions: plotOptions,
   series: data,
   credits: credits,
+  tooltip: tooltip,
 }
 
 type lineGraphPayload = {categories: categories, data: data, title: title}
