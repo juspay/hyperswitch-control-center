@@ -8,7 +8,6 @@ let make = (
   ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
 ) => {
   let (paymentsSuccessRate, setpaymentsSuccessRate) = React.useState(_ => JSON.Encode.array([]))
-  let (viewType, setViewType) = React.useState(_ => Graph)
 
   let getPaymentsSuccessRate = async () => {
     try {
@@ -45,12 +44,8 @@ let make = (
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
-      <GraphHeader title="88 %" viewType setViewType />
       <div className="mb-5">
-        {switch viewType {
-        | Graph => <LineGraph entity={chartEntity} data={paymentsSuccessRate} className="mr-3" />
-        | Table => <div />
-        }}
+        <LineGraph entity={chartEntity} data={paymentsSuccessRate} className="mr-3" />
       </div>
     </Card>
   </div>
