@@ -14,12 +14,14 @@ let paymentsProcessedMapper = (_json): LineGraphTypes.lineGraphPayload => {
     "10 Aug",
     "11 Aug",
   ]
-  let data = {
-    showInLegend: false,
-    name: "Series 1",
-    data: [3000, 5000, 7000, 5360, 4500, 6800, 5400, 3000, 0, 0],
-    color: "#2f7ed8",
-  }
+  let data = [
+    {
+      showInLegend: false,
+      name: "Series 1",
+      data: [3000, 5000, 7000, 5360, 4500, 6800, 5400, 3000, 0, 0],
+      color: "#2f7ed8",
+    },
+  ]
   let title = {
     text: "USD",
   }

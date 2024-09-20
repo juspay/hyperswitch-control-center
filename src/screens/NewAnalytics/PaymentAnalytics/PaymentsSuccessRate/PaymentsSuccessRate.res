@@ -11,26 +11,34 @@ let make = (
 
   let getPaymentsSuccessRate = async () => {
     try {
-      let response = {
-        "queryData": [
-          {"payments_success_rate": 40, "time_bucket": "2024-08-13 18:30:00"},
-          {"payments_success_rate": 35, "time_bucket": "2024-08-14 18:30:00"},
-          {"payments_success_rate": 60, "time_bucket": "2024-08-15 18:30:00"},
-          {"payments_success_rate": 70, "time_bucket": "2024-08-16 18:30:00"},
-          {"payments_success_rate": 75, "time_bucket": "2024-08-17 18:30:00"},
-          {"payments_success_rate": 65, "time_bucket": "2024-08-18 18:30:00"},
-          {"payments_success_rate": 50, "time_bucket": "2024-08-19 18:30:00"},
-        ],
-        "metaData": [{"payments_success_rate": 50}],
-      }->Identity.genericObjectOrRecordToJson
+      let response = [
+        {
+          "queryData": [
+            {"payments_success_rate": 40, "time_bucket": "2024-08-13 18:30:00"},
+            {"payments_success_rate": 35, "time_bucket": "2024-08-14 18:30:00"},
+            {"payments_success_rate": 60, "time_bucket": "2024-08-15 18:30:00"},
+            {"payments_success_rate": 70, "time_bucket": "2024-08-16 18:30:00"},
+            {"payments_success_rate": 75, "time_bucket": "2024-08-17 18:30:00"},
+            {"payments_success_rate": 65, "time_bucket": "2024-08-18 18:30:00"},
+            {"payments_success_rate": 50, "time_bucket": "2024-08-19 18:30:00"},
+          ],
+          "metaData": [{"payments_success_rate": 50}],
+        },
+        {
+          "queryData": [
+            {"payments_success_rate": 30, "time_bucket": "2024-08-13 18:30:00"},
+            {"payments_success_rate": 90, "time_bucket": "2024-08-14 18:30:00"},
+            {"payments_success_rate": 60, "time_bucket": "2024-08-15 18:30:00"},
+            {"payments_success_rate": 50, "time_bucket": "2024-08-16 18:30:00"},
+            {"payments_success_rate": 80, "time_bucket": "2024-08-17 18:30:00"},
+            {"payments_success_rate": 65, "time_bucket": "2024-08-18 18:30:00"},
+            {"payments_success_rate": 80, "time_bucket": "2024-08-19 18:30:00"},
+          ],
+          "metaData": [{"payments_success_rate": 50}],
+        },
+      ]->Identity.genericTypeToJson
 
-      let data =
-        response
-        ->LogicUtils.getDictFromJsonObject
-        ->LogicUtils.getArrayFromDict("queryData", [])
-        ->JSON.Encode.array
-
-      setpaymentsSuccessRate(_ => data)
+      setpaymentsSuccessRate(_ => response)
     } catch {
     | _ => ()
     }

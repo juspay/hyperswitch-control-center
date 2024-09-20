@@ -43,12 +43,15 @@ type chart = {
   spacingLeft: spacingLeft,
   spacingRight: spacingRight,
 }
-type data = {
+
+type dataObj = {
   showInLegend: showInLegend,
   name: name,
   data: array<int>,
   color: color,
 }
+
+type data = array<dataObj>
 
 type yAxis = {
   title: title,
