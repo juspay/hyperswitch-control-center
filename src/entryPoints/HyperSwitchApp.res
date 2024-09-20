@@ -133,12 +133,10 @@ let make = () => {
     <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
       <div>
         {switch dashboardPageState {
-        | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
         | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
         // INTEGRATION_DOC AND PROD_ONBOARDING Need to be removed
         | #INTEGRATION_DOC => <UserOnboarding />
         | #PROD_ONBOARDING => <ProdOnboardingLanding />
-        //
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
           <div className="relative" key={renderKey}>
@@ -148,10 +146,6 @@ let make = () => {
                 <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
-                  // <RenderIf condition={verificationDays > 0}>
-                  //   <DelayedVerificationBanner verificationDays={verificationDays} />
-                  // </RenderIf>
-                  // TODO : To be removed after new navbar design
                   <div className="border-b shadow hyperswitch_box_shadow ">
                     <div className="w-full max-w-fixedPageWidth px-9">
                       <Navbar
@@ -221,7 +215,6 @@ let make = () => {
                         | list{"analytics-refunds"}
                         | list{"analytics-disputes"} =>
                           <AnalyticsContainser />
-                        | list{"new-analytics-overview"}
                         | list{"new-analytics-payment"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.newAnalytics}

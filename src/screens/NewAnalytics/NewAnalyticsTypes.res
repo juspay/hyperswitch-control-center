@@ -1,10 +1,8 @@
-type analyticsPages = Overview | Payment
+type analyticsPages = Payment
 type viewType = Graph | Table
 type statisticsDirection = Upward | Downward
 
-type analyticsPagesRoutes =
-  | @as("new-analytics-overview") NewAnalyticsOverview
-  | @as("new-analytics-payment") NewAnalyticsPayment
+type analyticsPagesRoutes = | @as("new-analytics-payment") NewAnalyticsPayment
 
 type domain = [#payments]
 type dimension = [#no_value]
