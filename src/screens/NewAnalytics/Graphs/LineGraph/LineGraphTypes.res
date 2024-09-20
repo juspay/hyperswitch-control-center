@@ -2,8 +2,8 @@ type \"type" = string
 type spacingLeft = int
 type spacingRight = int
 
-type point = {sum: string, id: string}
-type pointFormatter = {point: point}
+type point = {color: string, x: string, y: float}
+type pointFormatter = {points: array<point>}
 
 external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => pointFormatter => string =
   "%identity"
@@ -77,9 +77,10 @@ type xAxis = {
   startOnTick: startOnTick,
 }
 
-type fontstyle = {
+type cssStyle = {
   fontFamily: string,
   fontSize: string,
+  padding: string,
 }
 
 type tooltip = {
@@ -89,7 +90,9 @@ type tooltip = {
   useHTML: bool,
   formatter: pointFormatter => string,
   shared: bool,
-  style: fontstyle,
+  style: cssStyle,
+  borderWidth: float,
+  shadow: bool,
 }
 
 type lineGraphOptions = {
@@ -98,7 +101,7 @@ type lineGraphOptions = {
   xAxis: xAxis,
   yAxis: yAxis,
   plotOptions: plotOptions,
-  series: data,
+  series: array<data>,
   credits: credits,
   tooltip: tooltip,
 }
