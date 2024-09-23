@@ -53,7 +53,13 @@ module OMPViews = {
     ~selectedEntity: UserInfoTypes.entity,
     ~onChange,
   ) => {
+    open OMPSwitchUtils
+
     let {userInfo} = React.useContext(UserInfoProvider.defaultContext)
+    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
+    let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
+
     let cssBasedOnIndex = index => {
       if index == 0 {
         "rounded-l-md"
@@ -64,15 +70,19 @@ module OMPViews = {
       }
     }
 
-    let getName = entityType =>
-      switch entityType {
-      | #Organization => userInfo.orgId
-      | #Merchant => userInfo.merchantId
-      | #Profile => userInfo.profileId
+    let getName = entityType => {
+      let name = switch entityType {
+      | #Organization => currentOMPName(orgList, userInfo.orgId)
+      | #Merchant => currentOMPName(merchantList, userInfo.merchantId)
+      | #Profile => currentOMPName(profileList, userInfo.profileId)
       | _ => ""
       }
-      ->String.substring(~start=0, ~end=10)
-      ->String.concat("...")
+      name->String.length > 10
+        ? name
+          ->String.substring(~start=0, ~end=10)
+          ->String.concat("...")
+        : name
+    }
 
     <div className="flex h-fit">
       {views
