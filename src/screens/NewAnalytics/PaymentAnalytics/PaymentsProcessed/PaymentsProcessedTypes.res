@@ -10,3 +10,5 @@ type paymentsProcessedCols =
   | Amount
   | Currency
   | TimeBucket
+
+type queryData = [#Count | #Amount | #TimeBucket]

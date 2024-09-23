@@ -2,31 +2,17 @@ open PaymentsProcessedTypes
 open NewPaymentAnalyticsUtils
 open LogicUtils
 
-let getData = (json: JSON.t): LineGraphTypes.data => {
-  json
-  ->getArrayFromJson([])
-  ->Array.mapWithIndex((item, index) => {
-    let data =
-      item
-      ->getDictFromJsonObject
-      ->getArrayFromDict("queryData", [])
-      ->Array.map(item => {
-        item->getDictFromJsonObject->getInt("amount", 0)
-      })
-    let dataObj: LineGraphTypes.dataObj = {
-      showInLegend: false,
-      name: `Series ${index->Int.toString}`,
-      data,
-      color: "#2f7ed8",
-    }
-    dataObj
-  })
-}
+let getPaymentQueryDataString = queryData =>
+  switch queryData {
+  | #Amount => "amount"
+  | #Count => "count"
+  | #TimeBucket => "time_bucket"
+  }
 
 let paymentsProcessedMapper = (json: JSON.t): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
   let categories = getCategories(json)
-  let data = getData(json)
+  let data = getData(json, getPaymentQueryDataString(#Amount))
   let title = {
     text: "USD",
   }
