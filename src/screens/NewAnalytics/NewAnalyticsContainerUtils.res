@@ -10,10 +10,15 @@ let tabs: array<Tabs.tab> = [
   },
 ]
 
+let getPageVariant = string => {
+  switch string {
+  | "new-analytics-payment" | _ => NewAnalyticsPayment
+  }
+}
+
 let getPageIndex = (url: RescriptReactRouter.url) => {
   switch url.path->HSwitchUtils.urlPath {
-  | list{"new-analytics-payment"} => 1
-  | _ => 0
+  | list{"new-analytics-payment"} | _ => 0
   }
 }
 
