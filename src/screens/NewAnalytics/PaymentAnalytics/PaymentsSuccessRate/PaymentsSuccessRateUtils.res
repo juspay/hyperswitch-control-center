@@ -1,4 +1,17 @@
 open NewPaymentAnalyticsUtils
+open LogicUtils
+
+let getMetaData = json => {
+  json
+  ->getArrayFromJson([])
+  ->getValueFromArray(0, JSON.Encode.array([]))
+  ->getDictFromJsonObject
+  ->getArrayFromDict("metaData", [])
+  ->getValueFromArray(0, JSON.Encode.null)
+  ->getDictFromJsonObject
+}
+
+let graphTitle = json => getMetaData(json)->getInt("payments_success_rate", 0)->Int.toString
 
 let getPaymentQueryDataString = queryData =>
   switch queryData {

@@ -19,6 +19,22 @@ let paymentsProcessedMapper = (json: JSON.t): LineGraphTypes.lineGraphPayload =>
   {categories, data, title}
 }
 
+let getMetaData = json =>
+  json
+  ->getArrayFromJson([])
+  ->getValueFromArray(0, JSON.Encode.array([]))
+  ->getDictFromJsonObject
+  ->getArrayFromDict("metaData", [])
+  ->getValueFromArray(0, JSON.Encode.array([]))
+  ->getDictFromJsonObject
+
+let graphTitle = json => {
+  let totalAmount = getMetaData(json)->getInt("amount", 0)
+  let currency = getMetaData(json)->getString("currency", "")
+
+  totalAmount->Int.toString ++ " " ++ currency
+}
+
 let visibleColumns = [Count, Amount, Currency, TimeBucket]
 
 let colMapper = (col: paymentsProcessedCols) => {
