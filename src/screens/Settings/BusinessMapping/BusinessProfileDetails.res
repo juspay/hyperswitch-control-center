@@ -288,21 +288,6 @@ module CollectDetails = {
   }
 }
 
-module ProfileName = {
-  @react.component
-  let make = () => {
-    open FormRenderer
-    <DesktopRow>
-      <FieldRenderer
-        field={DeveloperUtils.profileName}
-        errorClass={HSwitchUtils.errorClass}
-        labelClass="!text-base !text-grey-700 font-semibold"
-        fieldWrapperClass="max-w-xl"
-      />
-    </DesktopRow>
-  }
-}
-
 @react.component
 let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open DeveloperUtils
@@ -408,12 +393,17 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 className={`${showFormOnly
                     ? ""
                     : "px-2 py-4"} flex flex-col gap-7 overflow-hidden`}>
-                <div className="flex items-center">
-                  <InfoViewForWebhooks
-                    heading="Profile ID" subHeading=busiProfieDetails.profile_id isCopy=true
+                <InfoViewForWebhooks
+                  heading="Profile ID" subHeading=busiProfieDetails.profile_id isCopy=true
+                />
+                <DesktopRow>
+                  <FieldRenderer
+                    field={DeveloperUtils.profileName}
+                    errorClass={HSwitchUtils.errorClass}
+                    labelClass="!text-base !text-grey-700 font-semibold"
+                    fieldWrapperClass="max-w-xl"
                   />
-                  <ProfileName />
-                </div>
+                </DesktopRow>
                 <div className="flex items-center">
                   <InfoViewForWebhooks
                     heading="Merchant ID" subHeading={busiProfieDetails.merchant_id}
