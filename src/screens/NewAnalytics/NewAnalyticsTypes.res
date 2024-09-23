@@ -5,10 +5,20 @@ type statisticsDirection = Upward | Downward
 type analyticsPagesRoutes = | @as("new-analytics-payment") NewAnalyticsPayment
 
 type domain = [#payments]
-type dimension = [#no_value]
+type dimension = [
+  | #connector
+  | #payment_method
+  | #payment_method_type
+  | #card_network
+  | #authentication_type
+]
 type status = [#charged | #failure]
 type metrics = [#payment_processed_amount | #payment_success_rate]
-
+type granularity = [
+  | #hour_wise
+  | #day_wise
+  | #week_wise
+]
 // will change this once we get the api srtcuture
 type requestBodyConfig = {
   metrics: array<metrics>,
@@ -32,3 +42,8 @@ type chartEntity<'t, 'chatOption> = {
 }
 
 type dropDownOptionType = {label: string}
+
+type tab = {
+  title: string,
+  value: string,
+}
