@@ -1,1 +1,3 @@
-type queryData = [#PaymentSuccessRate | #TimeBucket]
+type queryData =
+  | PaymentSuccessRate
+  | TimeBucket
