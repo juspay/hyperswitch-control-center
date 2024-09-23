@@ -53,6 +53,7 @@ module OMPViews = {
     ~selectedEntity: UserInfoTypes.entity,
     ~onChange,
   ) => {
+    let {userInfo} = React.useContext(UserInfoProvider.defaultContext)
     let cssBasedOnIndex = index => {
       if index == 0 {
         "rounded-l-md"
@@ -63,6 +64,16 @@ module OMPViews = {
       }
     }
 
+    let getName = entityType =>
+      switch entityType {
+      | #Organization => userInfo.orgId
+      | #Merchant => userInfo.merchantId
+      | #Profile => userInfo.profileId
+      | _ => ""
+      }
+      ->String.substring(~start=0, ~end=10)
+      ->String.concat("...")
+
     <div className="flex h-fit">
       {views
       ->Array.mapWithIndex((value, index) => {
@@ -70,7 +81,7 @@ module OMPViews = {
         <div
           onClick={_ => onChange(value.entity)->ignore}
           className={`text-sm py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer`}>
-          {value.lable->React.string}
+          {`${value.lable} (${value.entity->getName})`->React.string}
         </div>
       })
       ->React.array}

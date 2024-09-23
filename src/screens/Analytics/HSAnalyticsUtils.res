@@ -175,9 +175,9 @@ let getStringListFromArrayDict = metrics => {
 
 module NoData = {
   @react.component
-  let make = (~title, ~subTitle) => {
+  let make = (~title) => {
     <div className="p-5">
-      <PageUtils.PageHeading title subTitle />
+      <PageUtils.PageHeading title />
       <NoDataFound message="No Data Available" renderType=Painting>
         <Button
           text={"Make a Payment"}
