@@ -4,6 +4,7 @@ let make = (~previewOnly=false) => {
   open HSwitchRemoteFilter
   open OrderUIUtils
   open LogicUtils
+
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
@@ -27,8 +28,7 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport, userManagementRevamp} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchOrders = () => {
     if !previewOnly {
@@ -130,27 +130,25 @@ let make = (~previewOnly=false) => {
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <div className="flex justify-between items-center">
-        <PageUtils.PageHeading
-          title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
-        />
-        <RenderIf condition={userManagementRevamp}>
+        <PageUtils.PageHeading title="Payment Operations" subTitle="" customTitleStyle />
+        <div className="flex gap-4">
           <OMPSwitchHelper.OMPViews
             views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
             selectedEntity={transactionEntity}
             onChange={updateTransactionEntity}
           />
-        </RenderIf>
+          <RenderIf condition={generateReport && orderData->Array.length > 0}>
+            <GenerateReport entityName={PAYMENT_REPORT} />
+          </RenderIf>
+        </div>
+      </div>
+      <div className="flex gap-6 justify-around">
+        <TransactionView entity=TransactionViewTypes.Orders />
       </div>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
           <div className="flex-1"> {filtersUI} </div>
         </RenderIf>
-        <div className="flex flex-col items-end 2xl:flex-row 2xl:justify-end 2xl:items-start gap-3">
-          <RenderIf condition={generateReport && orderData->Array.length > 0}>
-            <GenerateReport entityName={PAYMENT_REPORT} />
-          </RenderIf>
-          <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
-        </div>
       </div>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns

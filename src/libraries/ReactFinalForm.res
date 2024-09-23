@@ -19,9 +19,9 @@ type fieldRenderPropsCustomInput<'t> = {
 let makeInputRecord = (val, setVal): fieldRenderPropsInput => {
   {
     name: "",
-    onBlur: _ev => (),
+    onBlur: _ => (),
     onChange: setVal,
-    onFocus: _ev => (),
+    onFocus: _ => (),
     value: val,
     checked: false,
   }
@@ -236,9 +236,9 @@ external useFieldWithOptions: (string, useFieldOption) => fieldRenderProps = "us
 
 let makeFakeInput = (
   ~value=JSON.Encode.null,
-  ~onChange=_ev => (),
-  ~onBlur=_ev => (),
-  ~onFocus=_ev => (),
+  ~onChange=_ => (),
+  ~onBlur=_ => (),
+  ~onFocus=_ => (),
   (),
 ) => {
   let input: fieldRenderPropsInput = {

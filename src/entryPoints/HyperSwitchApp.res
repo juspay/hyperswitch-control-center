@@ -6,7 +6,6 @@ let make = () => {
   open PermissionUtils
   open LogicUtils
   open HyperswitchAtom
-  open CommonAuthHooks
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
@@ -26,7 +25,6 @@ let make = () => {
   let {userInfo: {orgId, merchantId, profileId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
-  let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
@@ -107,12 +105,10 @@ let make = () => {
     <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
       <div>
         {switch dashboardPageState {
-        | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
         | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
         // INTEGRATION_DOC AND PROD_ONBOARDING Need to be removed
         | #INTEGRATION_DOC => <UserOnboarding />
         | #PROD_ONBOARDING => <ProdOnboardingLanding />
-        //
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
           <div className="relative" key={renderKey}>
@@ -122,28 +118,15 @@ let make = () => {
                 <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
-                  // <RenderIf condition={verificationDays > 0}>
-                  //   <DelayedVerificationBanner verificationDays={verificationDays} />
-                  // </RenderIf>
-                  // TODO : To be removed after new navbar design
                   <div className="border-b shadow hyperswitch_box_shadow ">
                     <div className="w-full max-w-fixedPageWidth px-9">
                       <Navbar
                         headerActions={<div className="relative flex items-center gap-4 my-2 ">
                           <GlobalSearchBar />
-                          <RenderIf condition={!featureFlagDetails.userManagementRevamp}>
-                            <SwitchMerchant
-                              userRole={userRole} isAddMerchantEnabled={userRole === "org_admin"}
-                            />
-                          </RenderIf>
-                          <RenderIf
-                            condition={featureFlagDetails.userManagementRevamp &&
-                            checkUserEntity([#Internal])}>
+                          <RenderIf condition={checkUserEntity([#Internal])}>
                             <SwitchMerchantForInternal />
                           </RenderIf>
-                          <RenderIf
-                            condition={featureFlagDetails.userManagementRevamp &&
-                            !checkUserEntity([#Internal])}>
+                          <RenderIf condition={!checkUserEntity([#Internal])}>
                             <ProfileSwitch />
                           </RenderIf>
                           <div

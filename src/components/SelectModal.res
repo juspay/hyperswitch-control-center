@@ -61,12 +61,12 @@ let make = (
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "cutomixedColumnsInput",
-    onBlur: _ev => (),
+    onBlur: _ => (),
     onChange: ev => {
       let target = ev->Identity.formReactEventToArrayOfString
       maxLengthArray(target, setValues)
     },
-    onFocus: _ev => (),
+    onFocus: _ => (),
     value: values->LogicUtils.getJsonFromArrayOfString,
     checked: false,
   }

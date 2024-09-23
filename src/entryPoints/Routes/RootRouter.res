@@ -79,6 +79,7 @@ let make = () => {
     | list{"pm-authentication-processor", ..._}
     | list{"fraud-risk-management", ..._}
     | list{"configure-pmts", ..._}
+    | list{"tax-processor", ..._}
     | list{"routing", ..._}
     | list{"payoutrouting", ..._} =>
       <ConnectorContainer />
@@ -104,24 +105,7 @@ let make = () => {
           <NewAnalyticsContainer />
         </FilterContext>
       </AccessControl>
-    | list{"users", "invite-users"} =>
-      <AccessControl permission=userPermissionJson.usersManage>
-        <InviteUsers />
-      </AccessControl>
-    | list{"users", "create-custom-role"} =>
-      <AccessControl permission=userPermissionJson.usersManage>
-        <CreateCustomRole baseUrl="users" breadCrumbHeader="Users" />
-      </AccessControl>
-    | list{"users", ...remainingPath} =>
-      <AccessControl permission=userPermissionJson.usersView>
-        <EntityScaffold
-          entityName="UserManagement"
-          remainingPath
-          renderList={_ => <UserRoleEntry />}
-          renderShow={(_, _) => <ShowUserData />}
-        />
-      </AccessControl>
-    | list{"users-v2", ..._} => <UserManagementContainer />
+    | list{"users", ..._} => <UserManagementContainer />
     | list{"compliance"} =>
       <AccessControl isEnabled=featureFlagDetails.complianceCertificate permission=Access>
         <Compliance />

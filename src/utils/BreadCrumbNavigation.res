@@ -41,7 +41,7 @@ let make = (
       let onClick = switch crumb.onClick {
       | Some(fn) => fn
       | None =>
-        _ev =>
+        _ =>
           showPopUp({
             popUpType: (Warning, WithIcon),
             heading: "Heads up!",

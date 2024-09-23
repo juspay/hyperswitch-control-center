@@ -24,9 +24,9 @@ let make = (
 
   let inputSearch: ReactFinalForm.fieldRenderPropsInput = {
     name: "search",
-    onBlur: _ev => (),
+    onBlur: _ => (),
     onChange,
-    onFocus: _ev => (),
+    onFocus: _ => (),
     value: searchVal->JSON.Encode.string,
     checked: true,
   }

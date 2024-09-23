@@ -97,7 +97,7 @@ module TableRow = {
               | None => true
               }
 
-              let onClick = _evt => {
+              let onClick = _ => {
                 switch setIsDateClicked {
                 | Some(setIsDateClicked) => setIsDateClicked(_ => true)
                 | _ => ()
@@ -308,7 +308,7 @@ module TableRow = {
                 className={`${classN} ${highlightBgClass} text-sm font-normal`}
                 onClick
                 onMouseOver={_ => handleHover()}
-                onMouseOut={_evt => setHoverdDate(_ => "")}>
+                onMouseOut={_ => setHoverdDate(_ => "")}>
                 <AddDataAttributes
                   attributes=[
                     (

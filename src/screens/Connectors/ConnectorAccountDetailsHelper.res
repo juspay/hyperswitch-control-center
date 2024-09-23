@@ -13,13 +13,13 @@ module MultiConfigInp = {
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToArrayOfString
         valueField.onChange(value->Identity.anyTypeToReactEvent)
         enabledList.onChange(value->Identity.anyTypeToReactEvent)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: enabledList.value,
       checked: true,
     }
@@ -210,7 +210,7 @@ module CashToCodeSelectBox = {
       {opts
       ->Array.mapWithIndex((country, index) => {
         <div key={index->Int.toString} className="flex items-center gap-2 break-words p-2">
-          <div onClick={_e => selectedCountry(country)}>
+          <div onClick={_ => selectedCountry(country)}>
             <CheckBoxIcon isSelected={country->isSelected} />
           </div>
           <p className=p2RegularTextStyle> {React.string(country->snakeToTitle)} </p>

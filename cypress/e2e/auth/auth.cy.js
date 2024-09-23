@@ -11,7 +11,7 @@ describe("Auth Module", () => {
     cy.get("#footer").should("exist");
   });
 
-  it("check singup flow", () => {
+  it("check signup flow", () => {
     const password = "Cypress98#";
     cy.visit("http://localhost:9000/");
     cy.get("#card-subtitle").click();
@@ -19,6 +19,7 @@ describe("Auth Module", () => {
     cy.get("[data-testid=email]").type(username);
     cy.get("[data-testid=password]").type(password);
     cy.get('button[type="submit"]').click({ force: true });
+    cy.get("[data-testid=skip-now]").click({ force: true });
     cy.url().should("eq", "http://localhost:9000/dashboard/home");
   });
 
@@ -57,7 +58,12 @@ describe("Auth Module", () => {
           sdk_url: "",
           logo_url: "",
           favicon_url: "",
+          agreement_url: "",
+          agreement_version: "",
+          apple_pay_certificate_url: "",
           mixpanel_token: "",
+          recon_iframe_url: "",
+          dss_certificate_url: "",
         },
         features: {
           test_live_toggle: false,
@@ -75,12 +81,25 @@ describe("Auth Module", () => {
           mixpanel: false,
           generate_report: false,
           user_journey_analytics: false,
+          authentication_analytics: false,
           surcharge: false,
-          permission_based_module: false,
           dispute_evidence_upload: false,
           paypal_automatic_flow: false,
-          invite_multiple: false,
-          "accept-invite": false,
+          threeds_authenticator: false,
+          global_search: false,
+          dispute_analytics: false,
+          configure_pmts: false,
+          branding: false,
+          live_users_counter: false,
+          granularity: false,
+          custom_webhook_headers: false,
+          compliance_certificate: false,
+          user_management_revamp: false,
+          pm_authentication_processor: true,
+          performance_monitor: false,
+          new_analytics: false,
+          down_time: false,
+          tax_processor: true,
         },
       },
     }).as("getFeatureData");
@@ -90,6 +109,10 @@ describe("Auth Module", () => {
     cy.url().should("include", "/login");
     cy.get("#card-header").should("contain", "Hey there, Welcome back!");
     cy.get("#card-subtitle").should("contain", "Sign up");
+    cy.get("[data-testid=card-foot-text]")
+      .should("contain", "sign in using password")
+      .click();
+
     cy.get("[data-testid=forgot-password]").click();
     cy.url().should("include", "/forget-password");
     cy.get("#card-header").should("contain", "Forgot Password?");
@@ -101,6 +124,7 @@ describe("Auth Module", () => {
     cy.get("[data-testid=email]").type(username);
     cy.get("[data-testid=password]").type(password);
     cy.get('button[type="submit"]').click({ force: true });
+    cy.get("[data-testid=skip-now]").click({ force: true });
     cy.url().should("eq", "http://localhost:9000/dashboard/home");
   });
 
@@ -118,6 +142,7 @@ describe("Auth Module", () => {
     cy.get("[data-testid=email]").type(`  ${username}  `);
     cy.get("[data-testid=password]").type(password);
     cy.get('button[type="submit"]').click({ force: true });
+    cy.get("[data-testid=skip-now]").click({ force: true });
     cy.url().should("eq", "http://localhost:9000/dashboard/home");
   });
 });

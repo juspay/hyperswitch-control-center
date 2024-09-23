@@ -125,6 +125,13 @@ let getProcessorPayloadType = dict => {
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
     frm_configs: dict->getArrayFromDict("frm_configs", [])->convertFRMConfigJsonToObjResponse,
     status: dict->getString("status", "inactive"),
+    connector_webhook_details: dict
+    ->Dict.get("connector_webhook_details")
+    ->Option.getOr(JSON.Encode.null),
+    metadata: dict->getObj("metadata", Dict.make())->JSON.Encode.object,
+    additional_merchant_data: dict
+    ->getObj("additional_merchant_data", Dict.make())
+    ->JSON.Encode.object,
   }
 }
 

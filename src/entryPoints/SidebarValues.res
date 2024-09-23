@@ -199,6 +199,18 @@ let pmAuthenticationProcessor = (~permissionJson) => {
   })
 }
 
+let taxProcessor = (~permissionJson) => {
+  SubLevelLink({
+    name: "Tax Processor",
+    link: `/tax-processor`,
+    access: permissionJson.connectorsView,
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=ConnectorUtils.taxProcessorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
+  })
+}
+
 let connectors = (
   isConnectorsEnabled,
   ~isLiveMode,
@@ -206,6 +218,7 @@ let connectors = (
   ~isPayoutsEnabled,
   ~isThreedsConnectorEnabled,
   ~isPMAuthenticationProcessor,
+  ~isTaxProcessor,
   ~permissionJson,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, permissionJson)]
@@ -223,6 +236,10 @@ let connectors = (
 
   if isPMAuthenticationProcessor {
     connectorLinkArray->Array.push(pmAuthenticationProcessor(~permissionJson))->ignore
+  }
+
+  if isTaxProcessor {
+    connectorLinkArray->Array.push(taxProcessor(~permissionJson))->ignore
   }
 
   isConnectorsEnabled
@@ -251,7 +268,7 @@ let performanceMonitor = SubLevelLink({
 
 let newAnalytics = SubLevelLink({
   name: "New Analytics",
-  link: `/new-analytics-overview`,
+  link: `/new-analytics-payment`,
   access: Access,
   searchOptions: [("New Analytics", "")],
 })
@@ -407,19 +424,10 @@ let workflow = (
 
 let userManagement = permissionJson => {
   SubLevelLink({
-    name: "Team",
+    name: "Users",
     link: `/users`,
     access: permissionJson.usersView,
-    searchOptions: [("View team management", "")],
-  })
-}
-
-let teamRevamp = permissionJson => {
-  SubLevelLink({
-    name: "Users",
-    link: `/users-v2`,
-    access: permissionJson.usersView,
-    searchOptions: [("View team management", "")],
+    searchOptions: [("View user management", "")],
   })
 }
 
@@ -459,12 +467,7 @@ let complianceCertificateSection = {
   })
 }
 
-let settings = (
-  ~isConfigurePmtsEnabled,
-  ~permissionJson,
-  ~complianceCertificate,
-  ~userManagementRevamp,
-) => {
+let settings = (~isConfigurePmtsEnabled, ~permissionJson, ~complianceCertificate) => {
   let settingsLinkArray = [businessDetails(), businessProfiles()]
 
   if isConfigurePmtsEnabled {
@@ -475,11 +478,7 @@ let settings = (
     settingsLinkArray->Array.push(complianceCertificateSection)->ignore
   }
 
-  if userManagementRevamp {
-    settingsLinkArray->Array.push(teamRevamp(permissionJson))->ignore
-  } else {
-    settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
-  }
+  settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
 
   Section({
     name: "Settings",
@@ -644,7 +643,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     complianceCertificate,
     performanceMonitor: performanceMonitorFlag,
     pmAuthenticationProcessor,
-    userManagementRevamp,
+    taxProcessor,
     newAnalytics,
   } = featureFlagDetails
 
@@ -658,6 +657,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~isPayoutsEnabled=payOut,
       ~isThreedsConnectorEnabled=threedsAuthenticator,
       ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
+      ~isTaxProcessor=taxProcessor,
       ~permissionJson,
     ),
     default->analytics(
@@ -671,12 +671,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut, ~userEntity),
     recon->reconAndSettlement(isReconEnabled, checkUserEntity),
     default->developers(systemMetrics, ~permissionJson, ~checkUserEntity),
-    settings(
-      ~isConfigurePmtsEnabled=configurePmts,
-      ~permissionJson,
-      ~complianceCertificate,
-      ~userManagementRevamp,
-    ),
+    settings(~isConfigurePmtsEnabled=configurePmts, ~permissionJson, ~complianceCertificate),
   ]
 
   sidebar
