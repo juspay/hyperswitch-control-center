@@ -1,17 +1,7 @@
 open LogicUtils
+open NewPaymentAnalyticsUtils
 
-let getTimeBucket = (json: JSON.t): array<string> => {
-  json
-  ->getArrayFromJson([])
-  ->Array.flatMap(item => {
-    item
-    ->getDictFromJsonObject
-    ->getArrayFromDict("queryData", [])
-    ->Array.map(item => item->getDictFromJsonObject->getString("time_bucket", ""))
-  })
-}
-
-let createData = (json: JSON.t): LineGraphTypes.data => {
+let getData = (json: JSON.t): LineGraphTypes.data => {
   json
   ->getArrayFromJson([])
   ->Array.mapWithIndex((item, index) => {
@@ -34,8 +24,8 @@ let createData = (json: JSON.t): LineGraphTypes.data => {
 
 let paymentsSuccessRateMapper = (json: JSON.t): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  let categories = getTimeBucket(json)
-  let data = createData(json)
+  let categories = getCategories(json)
+  let data = getData(json)
   let title = {
     text: "Payments Success Rate",
   }
