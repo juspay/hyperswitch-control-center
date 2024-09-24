@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.24.0
+
+### Features
+
+- New tabs ui ([#1440](https://github.com/juspay/hyperswitch-control-center/pull/1440)) ([`955cd2c`](https://github.com/juspay/hyperswitch-control-center/commit/955cd2c38a574a77b780b898a518cb70d4c9788e))
+
+**Full Changelog:** [`2024.09.23.0...2024.09.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.23.0...2024.09.24.0)
+
+- - -
+
 ## 2024.09.23.0
 
 ### Miscellaneous Tasks
