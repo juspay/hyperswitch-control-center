@@ -24,9 +24,6 @@ type enabled = {enabled: bool}
 type credits = {
   ...enabled,
 }
-type exporting = {
-  ...enabled,
-}
 type marker = {
   ...enabled,
 }
