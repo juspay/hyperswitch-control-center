@@ -169,7 +169,8 @@ let useOMPData = () => {
   let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
   let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
   let {userInfo} = React.useContext(UserInfoProvider.defaultContext)
-  let getList: unit => OMPSwitchTypes.ompList = () => {
+
+  let getList: unit => OMPSwitchTypes.ompList = _ => {
     {
       orgList,
       merchantList,
