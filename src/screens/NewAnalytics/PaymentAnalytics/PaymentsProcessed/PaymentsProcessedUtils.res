@@ -11,8 +11,8 @@ let getPaymentQueryDataString = queryData =>
 
 let paymentsProcessedMapper = (json: JSON.t): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  let categories = getCategories(json)
-  let data = getData(json, getPaymentQueryDataString(Amount))
+  let categories = getCategories(json, (#time_bucket: PaymentsProcessedTypes.categories :> string))
+  let data = getLineGraphData(json, getPaymentQueryDataString(Amount))
   let title = {
     text: "USD",
   }

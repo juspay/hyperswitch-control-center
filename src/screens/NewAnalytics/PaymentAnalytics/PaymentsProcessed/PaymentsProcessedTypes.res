@@ -8,3 +8,5 @@ type paymentsProcessedCols =
   | Count
   | Amount
   | TimeBucket
+
+type categories = [#time_bucket]
