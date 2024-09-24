@@ -3,8 +3,6 @@ type spacingLeft = int
 type spacingRight = int
 
 type categories = array<string>
-type crosshair = bool
-type barWidth = int
 type align = string
 type color = string
 type gridLineWidth = int
@@ -13,7 +11,10 @@ type gridLineDashStyle = string
 type tickmarkPlacement = string
 type endOnTick = bool
 type startOnTick = bool
+type tickInterval = int
+type tickWidth = int
 type min = int
+type max = int
 type showInLegend = bool
 type name = string
 
@@ -29,7 +30,8 @@ type exporting = {
 type marker = {
   ...enabled,
 }
-type bar = {marker: marker}
+type pointPadding = float
+type bar = {marker: marker, pointPadding: pointPadding}
 type plotOptions = {bar: bar}
 type labels = {
   align: align,
@@ -55,18 +57,22 @@ type yAxis = {
   gridLineWidth: gridLineWidth,
   gridLineColor: gridLineColor,
   gridLineDashStyle: gridLineDashStyle,
-  tickmarkPlacement: tickmarkPlacement,
-  endOnTick: endOnTick,
-  startOnTick: startOnTick,
+  tickInterval: tickInterval,
   min: min,
+  max: max,
 }
 
 type xAxis = {
   categories: categories,
-  crosshair: crosshair,
-  barWidth: barWidth,
   labels: labels,
+  tickWidth: tickWidth,
+  tickmarkPlacement: tickmarkPlacement,
+  endOnTick: endOnTick,
+  startOnTick: startOnTick,
   gridLineDashStyle: gridLineDashStyle,
+  gridLineWidth: gridLineWidth,
+  gridLineColor: gridLineColor,
+  min: min,
 }
 
 type barGraphOptions = {

@@ -12,31 +12,36 @@ let getBarGraphOptions = (barGraphOptions: barGraphPayload) => {
     },
     xAxis: {
       categories,
-      crosshair: true,
-      barWidth: 1,
       labels: {
         align: "center",
         style: {
           color: "#999",
         },
       },
+      tickWidth: 1,
+      tickmarkPlacement: "on",
+      endOnTick: false,
+      startOnTick: false,
       gridLineDashStyle: "Dash",
+      gridLineWidth: 1,
+      gridLineColor: "#e6e6e6",
+      min: 0,
     },
     yAxis: {
       title,
       gridLineWidth: 1,
       gridLineColor: "#e6e6e6",
       gridLineDashStyle: "Solid",
-      tickmarkPlacement: "on",
-      endOnTick: false,
-      startOnTick: false,
+      tickInterval: 25,
       min: 0,
+      max: 100,
     },
     plotOptions: {
       bar: {
         marker: {
           enabled: false,
         },
+        pointPadding: 0.2,
       },
     },
     series: data,
