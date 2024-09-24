@@ -28,7 +28,7 @@ let make = () => {
         ~userRoleTypes=USER_LIST,
         ~queryParamerters=userModuleEntity == #Default
           ? None
-          : Some(`keys=${(userModuleEntity :> string)->String.toLowerCase}`),
+          : Some(`entity_type=${(userModuleEntity :> string)->String.toLowerCase}`),
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->getArrayDataFromJson(itemToObjMapperForUser)
