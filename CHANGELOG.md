@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.24.1
+
+### Features
+
+- Bar graph entity ([#1457](https://github.com/juspay/hyperswitch-control-center/pull/1457)) ([`2f12b56`](https://github.com/juspay/hyperswitch-control-center/commit/2f12b5698d51777782af06022bf35ca07e8c02a2))
+
+### Bug Fixes
+
+- Omp views changes in analytics & ops ([#1452](https://github.com/juspay/hyperswitch-control-center/pull/1452)) ([`b089409`](https://github.com/juspay/hyperswitch-control-center/commit/b089409c1455ecc7b84c866a960ac8460f855e8c))
+
+### Miscellaneous Tasks
+
+- Payments success rate graph ([#1439](https://github.com/juspay/hyperswitch-control-center/pull/1439)) ([`46277b1`](https://github.com/juspay/hyperswitch-control-center/commit/46277b12c9ceda6d2a31f17247292bbb380900ca))
+
+**Full Changelog:** [`2024.09.24.0...2024.09.24.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.24.0...2024.09.24.1)
+
+- - -
+
 ## 2024.09.24.0
 
 ### Features
