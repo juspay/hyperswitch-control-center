@@ -258,6 +258,34 @@ let useGetURL = () => {
       }
 
     /* ANALYTICS */
+    | SYSTEM_ANALYTICS_PAYMENTS =>
+      switch methodType {
+      | Post =>
+        switch (analyticsEntity, userManagementRevamp) {
+        | (#Organization, true)
+        | (#Merchant, true)
+        | (#Profile, true) => `analytics/v1/merchant/metrics/api_events`
+        | (_, true) => `analytics/v1/merchant/metrics/api_events`
+        // This Need to removed when userManagementRevamp feature flag is removed
+        | _ => `analytics/v1/metrics/api_events`
+        }
+
+      | _ => ""
+      }
+    | SYSTEM_ANALYTICS_FILTERS =>
+      switch methodType {
+      | Post =>
+        switch (analyticsEntity, userManagementRevamp) {
+        | (#Organization, true)
+        | (#Merchant, true)
+        | (#Profile, true) => `analytics/v1/merchant/filters/api_events`
+        | (_, true) => `analytics/v1/merchant/filters/api_events`
+        // This Need to removed when userManagementRevamp feature flag is removed
+        | _ => `analytics/v1/filters/api_events`
+        }
+
+      | _ => ""
+      }
     | ANALYTICS_REFUNDS
     | ANALYTICS_PAYMENTS
     | ANALYTICS_USER_JOURNEY

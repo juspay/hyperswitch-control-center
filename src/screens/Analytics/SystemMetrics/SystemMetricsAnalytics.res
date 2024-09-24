@@ -364,9 +364,13 @@ let make = () => {
   let tabKeys = getStringListFromArrayDict(dimensions)
   let title = "System Metrics"
   let subTitle = "Gain Insights, monitor performance and make Informed Decisions with System Metrics."
-  let analyticsfilterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
+  let analyticsfilterUrl = getURL(
+    ~entityName=SYSTEM_ANALYTICS_FILTERS,
+    ~methodType=Post,
+    ~id=Some(domain),
+  )
   let systemMetricsAnalyticsUrl = getURL(
-    ~entityName=ANALYTICS_PAYMENTS,
+    ~entityName=SYSTEM_ANALYTICS_PAYMENTS,
     ~methodType=Post,
     ~id=Some(domain),
   )
