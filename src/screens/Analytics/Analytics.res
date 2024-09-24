@@ -465,7 +465,6 @@ open AnalyticsTypes
 @react.component
 let make = (
   ~pageTitle="",
-  ~pageSubTitle="",
   ~startTimeFilterKey: string,
   ~endTimeFilterKey: string,
   ~chartEntity: nestedEntityType,
@@ -679,7 +678,7 @@ let make = (
     | Some(chartEntity) =>
       <div>
         <div className="flex items-center justify-between">
-          <PageUtils.PageHeading title=pageTitle subTitle=pageSubTitle />
+          <PageUtils.PageHeading title=pageTitle />
           // Refactor required
           <RenderIf condition={moduleName == "Refunds" || moduleName == "Disputes"}>
             <OMPSwitchHelper.OMPViews

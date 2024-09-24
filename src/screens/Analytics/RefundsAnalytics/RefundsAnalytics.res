@@ -65,7 +65,6 @@ let make = () => {
   })
 
   let title = "Refunds Analytics"
-  let subTitle = "Uncover patterns and drive business performance through data-driven insights with refund analytics"
 
   let analyticsfilterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
   let refundAnalyticsUrl = getURL(
@@ -73,10 +72,9 @@ let make = () => {
     ~methodType=Post,
     ~id=Some(domain),
   )
-  <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
+  <PageLoaderWrapper screenState customUI={<NoData title />}>
     <Analytics
       pageTitle=title
-      pageSubTitle=subTitle
       filterUri=Some(analyticsfilterUrl)
       key="RefundsAnalytics"
       moduleName="Refunds"
