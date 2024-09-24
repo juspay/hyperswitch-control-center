@@ -72,7 +72,7 @@ let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, ba
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
-      <GraphHeader title={"graphTitle"} viewType setViewType showTabSwitch=true />
+      <GraphHeader title="" viewType setViewType showTabSwitch=true />
       <div className="mb-5">
         {switch viewType {
         | Graph => <BarGraph entity={chartEntity} data={paymentsDistribution} className="mr-3" />
