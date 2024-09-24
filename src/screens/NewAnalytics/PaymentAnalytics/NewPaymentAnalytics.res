@@ -9,5 +9,8 @@ let make = () => {
     <PaymentsProcessed
       entity={paymentsProcessedEntity} chartEntity={paymentsProcessedChartEntity}
     />
+    <PaymentsSuccessRate
+      entity={paymentsSuccessRateEntity} chartEntity={paymentsSuccessRateChartEntity}
+    />
   </div>
 }

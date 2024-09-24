@@ -46,3 +46,21 @@ let paymentsProcessedTableEntity = EntityType.makeEntity(
   ~getCell,
   ~getHeading,
 )
+
+// Payments Success Rate
+let paymentsSuccessRateEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [#payment_success_rate],
+  },
+  title: "Payments Success Rate",
+  domain: #payments,
+}
+
+let paymentsSuccessRateChartEntity: chartEntity<
+  LineGraphTypes.lineGraphPayload,
+  LineGraphTypes.lineGraphOptions,
+> = {
+  getObjects: PaymentsSuccessRateUtils.paymentsSuccessRateMapper,
+  getChatOptions: LineGraphUtils.getLineGraphOptions,
+}

@@ -53,13 +53,22 @@ let make = (
 
   let getPaymentsProcessed = async () => {
     try {
-      let data =
-        getData
-        ->LogicUtils.getDictFromJsonObject
-        ->LogicUtils.getArrayFromDict("queryData", [])
-        ->JSON.Encode.array
+      let response = [
+        {
+          "queryData": [
+            {"count": 24, "amount": 952, "time_bucket": "2024-08-13 18:30:00"},
+            {"count": 28, "amount": 1020, "time_bucket": "2024-08-14 18:30:00"},
+            {"count": 35, "amount": 1450, "time_bucket": "2024-08-15 18:30:00"},
+            {"count": 30, "amount": 1150, "time_bucket": "2024-08-16 18:30:00"},
+            {"count": 40, "amount": 1600, "time_bucket": "2024-08-17 18:30:00"},
+            {"count": 29, "amount": 1200, "time_bucket": "2024-08-18 18:30:00"},
+            {"count": 31, "amount": 1300, "time_bucket": "2024-08-19 18:30:00"},
+          ],
+          "metaData": [{"count": 217, "amount": 8672, "currency": "USD"}],
+        },
+      ]->Identity.genericTypeToJson
 
-      setpaymentsProcessed(_ => data)
+      setpaymentsProcessed(_ => response)
     } catch {
     | _ => ()
     }
@@ -72,7 +81,7 @@ let make = (
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
-      <GraphHeader title="165K USD" viewType setViewType />
+      <GraphHeader title={graphTitle(paymentsProcessed)} viewType setViewType showTabSwitch=true />
       <div className="mb-5">
         {switch viewType {
         | Graph => <LineGraph entity={chartEntity} data={paymentsProcessed} className="mr-3" />
