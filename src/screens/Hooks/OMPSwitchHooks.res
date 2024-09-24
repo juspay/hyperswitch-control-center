@@ -163,7 +163,7 @@ let useInternalSwitch = () => {
   }
 }
 
-let useList = () => {
+let useOMPData = () => {
   open OMPSwitchUtils
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)

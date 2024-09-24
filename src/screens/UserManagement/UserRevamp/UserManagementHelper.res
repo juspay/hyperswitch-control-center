@@ -215,7 +215,7 @@ module UserOmpView = {
     ~userModuleEntity: UserManagementTypes.userModuleTypes,
     ~setUserModuleEntity,
   ) => {
-    let (_, getNameForId) = OMPSwitchHooks.useList()
+    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
     let cssBasedOnIndex = index => {
       if index == 0 {
