@@ -214,13 +214,11 @@ module ConnectorSummaryGrid = {
               ->Array.mapWithIndex((field, index) => {
                 open LogicUtils
                 let label = connectorAccountFields->getString(field, "")
-                <>
-                  <InfoField
-                    key={index->Int.toString}
-                    label={label}
-                    render={connectorInfo->ConnectorUtils.getConnectorDetailsValue(field)}
-                  />
-                </>
+                <InfoField
+                  key={index->Int.toString}
+                  label={label}
+                  render={connectorInfo->ConnectorUtils.getConnectorDetailsValue(field)}
+                />
               })
               ->React.array}
             </div>
