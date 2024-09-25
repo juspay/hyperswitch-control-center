@@ -457,7 +457,7 @@ let make = (
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let (openItem, setOpenItem) = React.useState(_ => "")
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
@@ -551,7 +551,7 @@ let make = (
             </div>
           </RenderIf>
         </div>
-        <RenderIf condition={!checkUserEntity([#Internal])}>
+        <RenderIf condition={!(roleId->String.startsWith("internal"))}>
           <SidebarSwitch isSidebarExpanded />
         </RenderIf>
         <div

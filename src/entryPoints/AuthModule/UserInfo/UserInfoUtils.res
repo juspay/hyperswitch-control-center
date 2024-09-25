@@ -17,7 +17,6 @@ let defaultValueOfUserInfo = {
 
 let entityMapper = entity => {
   switch entity->String.toLowerCase {
-  | "internal" => #Internal
   | "organization" => #Organization
   | "merchant" => #Merchant
   | "profile" => #Profile
@@ -61,7 +60,7 @@ let itemMapper = dict => {
   name: dict->getString("name", defaultValueOfUserInfo.name),
   orgId: dict->getString("org_id", defaultValueOfUserInfo.orgId),
   recoveryCodesLeft: dict->getOptionInt("recovery_codes_left"),
-  roleId: dict->getString("role_id", defaultValueOfUserInfo.email),
+  roleId: dict->getString("role_id", defaultValueOfUserInfo.roleId),
   verificationDaysLeft: dict->getOptionInt("verification_days_left"),
   profileId: dict->getString("profile_id", ""),
   userEntity: dict->getString("entity_type", "")->entityMapper,

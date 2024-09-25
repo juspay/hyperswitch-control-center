@@ -516,8 +516,14 @@ let paymentSettings = () => {
   })
 }
 
-let developers = (isDevelopersEnabled, systemMetrics, ~permissionJson, ~checkUserEntity) => {
-  let isInternalUser = checkUserEntity([#Internal])
+let developers = (
+  isDevelopersEnabled,
+  systemMetrics,
+  ~permissionJson,
+  ~checkUserEntity,
+  ~roleId,
+) => {
+  let isInternalUser = roleId->String.startsWith("internal")
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(permissionJson)
   let paymentSettings = paymentSettings()
@@ -625,7 +631,9 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity) => {
 let useGetSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-  let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {userEntity, roleId}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let {
     frm,
     payOut,
@@ -670,7 +678,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut, ~userEntity),
     recon->reconAndSettlement(isReconEnabled, checkUserEntity),
-    default->developers(systemMetrics, ~permissionJson, ~checkUserEntity),
+    default->developers(systemMetrics, ~permissionJson, ~checkUserEntity, ~roleId),
     settings(~isConfigurePmtsEnabled=configurePmts, ~permissionJson, ~complianceCertificate),
   ]
 
