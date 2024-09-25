@@ -1695,6 +1695,7 @@ let connectorTypeTuple = connectorType => {
   | "payout_processor" => (PayoutProcessor, PayoutConnector)
   | "authentication_processor" => (AuthenticationProcessor, ThreeDsAuthenticator)
   | "payment_method_auth" => (PMAuthProcessor, PMAuthenticationProcessor)
+  | "tax_processor" => (TaxProcessor, TaxProcessor)
   | _ => (PaymentProcessor, Processor)
   }
 }

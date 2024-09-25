@@ -12,7 +12,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
   let (showModal, setShowFeedbackModal) = React.useState(_ => false)
   // Need to remove connector and merge connector and connectorTypeVariants
   let (processorType, connectorType) = connectorInfo.connector_type->connectorTypeTuple
-  let {connector_name: connectorName} = connectorInfo
+  let {connector_name: connectorName, merchant_connector_id: connectorId} = connectorInfo
   let connectorTypeFromName = connectorName->getConnectorNameTypeFromString(~connectorType)
 
   let connectorDetails = React.useMemo(() => {
@@ -24,7 +24,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
         | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
         | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
-        | _ => JSON.Encode.null
+        | PaymentVas => JSON.Encode.null
         }
         dict
       } else {
@@ -47,6 +47,44 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
   ) = getConnectorFields(connectorDetails)
+
+  React.useEffect(() => {
+    switch processorType {
+    | PaymentProcessor =>
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url=`/connectors/${connectorId}?name=${connectorName}`),
+      )
+    | PaymentVas =>
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(
+          ~url=`/fraud-risk-management/${connectorId}?name=${connectorName}`,
+        ),
+      )
+    | PayoutProcessor =>
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(
+          ~url=`/payoutconnectors/${connectorId}?name=${connectorName}`,
+        ),
+      )
+    | AuthenticationProcessor =>
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(
+          ~url=`/3ds-authenticators/${connectorId}?name=${connectorName}`,
+        ),
+      )
+    | PMAuthProcessor =>
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(
+          ~url=`/pm-authentication-processor/${connectorId}?name=${connectorName}`,
+        ),
+      )
+    | TaxProcessor =>
+      RescriptReactRouter.replace(
+        GlobalVars.appendDashboardPath(~url=`/tax-processor/${connectorId}?name=${connectorName}`),
+      )
+    }
+    None
+  }, [connectorId])
 
   let initialValues = React.useMemo(() => {
     [
