@@ -12,7 +12,7 @@ module TableModule = {
       key: "",
       order: Table.INC,
     }
-    let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
+    let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
     let paymentsDistribution = getTableData(data)
 
