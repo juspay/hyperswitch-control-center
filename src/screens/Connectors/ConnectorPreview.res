@@ -133,6 +133,7 @@ module ConnectorSummaryGrid = {
     ~updateStepValue=None,
     ~getConnectorDetails=None,
   ) => {
+    let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
     let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
@@ -170,7 +171,6 @@ module ConnectorSummaryGrid = {
     let (_, connectorAccountFields, _, _, _, _, _) = ConnectorUtils.getConnectorFields(
       connectorDetails,
     )
-    let url = RescriptReactRouter.useUrl()
     let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
     | list{_, "new"} => false
     | _ => true
