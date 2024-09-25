@@ -1,26 +1,56 @@
-open APIUtils
-open PageLoaderWrapper
 @react.component
 let make = () => {
+  open APIUtils
+  open PageLoaderWrapper
+  open HSwitchRemoteFilter
+  open DisputesUtils
   let getURL = useGetURL()
   let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
     ThemeProvider.themeContext,
   )
   let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let fetchDetails = useGetMethod()
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let (disputesData, setDisputesData) = React.useState(_ => [])
+  let (searchText, setSearchText) = React.useState(_ => "")
   let (offset, setOffset) = React.useState(_ => 0)
-  let fetchDetails = useGetMethod()
+  let (filters, setFilters) = React.useState(_ => None)
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+
   let getDisputesList = async () => {
     try {
       setScreenState(_ => Loading)
-      let disputesUrl = getURL(~entityName=DISPUTES, ~methodType=Get)
+      if searchText->LogicUtils.isNonEmptyString {
+        filterValueJson->Dict.set("dispute_id", searchText->String.trim->JSON.Encode.string)
+        filterValueJson->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
+      }
+      let queryParam =
+        filterValueJson
+        ->Dict.toArray
+        ->Array.map(item => {
+          let (key, value) = item
+          let value = switch value->JSON.Classify.classify {
+          | String(str) => str
+          | Array(arr) => {
+              let valueString = arr->LogicUtils.getStrArrayFromJsonArray->Array.joinWith(",")
+              valueString
+            }
+          | _ => ""
+          }
+          `${key}=${value}`
+        })
+        ->Array.joinWith("&")
+      let disputesUrl = getURL(
+        ~entityName=DISPUTES,
+        ~methodType=Get,
+        ~queryParamerters=Some(queryParam),
+      )
       let response = await fetchDetails(disputesUrl)
       let disputesValue = response->LogicUtils.getArrayDataFromJson(DisputesEntity.itemToObjMapper)
       if disputesValue->Array.length > 0 {
@@ -42,7 +72,7 @@ let make = () => {
   React.useEffect(() => {
     getDisputesList()->ignore
     None
-  }, [])
+  }, (filters, searchText))
 
   let customUI =
     <>
@@ -80,6 +110,20 @@ let make = () => {
       <RenderIf condition={generateReport && disputesData->Array.length > 0}>
         <GenerateReport entityName={DISPUTE_REPORT} />
       </RenderIf>
+    </div>
+    <div className="flex">
+      <RemoteTableFilters
+        setFilters
+        endTimeFilterKey
+        startTimeFilterKey
+        initialFilters
+        initialFixedFilter
+        setOffset
+        customLeftView={<SearchBarFilter
+          placeholder="Search disptue id" setSearchVal=setSearchText searchVal=searchText //// dispute id
+        />}
+        entityName=DISPUTE_FILTERS
+      />
     </div>
     <PageLoaderWrapper screenState customUI>
       <div className="flex flex-col gap-4">
