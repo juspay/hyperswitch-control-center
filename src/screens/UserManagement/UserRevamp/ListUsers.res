@@ -1,7 +1,7 @@
 open ListUserTableEntity
 
 @react.component
-let make = () => {
+let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()
@@ -13,11 +13,6 @@ let make = () => {
   let (screenStateUsers, setScreenStateUsers) = React.useState(_ => PageLoaderWrapper.Loading)
   let (userOffset, setUserOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let (
-    userModuleEntity: UserManagementTypes.userModuleTypes,
-    setUserModuleEntity,
-  ) = React.useState(_ => #Default)
 
   let getUserData = async () => {
     setScreenStateUsers(_ => PageLoaderWrapper.Loading)
@@ -74,11 +69,6 @@ let make = () => {
           customButtonStyle="w-fit !rounded-md"
         />
       </div>
-      <UserManagementHelper.UserOmpView
-        views={UserManagementUtils.getUserManagementViewValues(~checkUserEntity)}
-        userModuleEntity
-        setUserModuleEntity
-      />
       <LoadedTable
         title="Users"
         hideTitle=true

@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
   open APIUtils
   open ListRolesTableEntity
   let getURL = useGetURL()
@@ -18,7 +18,9 @@ let make = () => {
         ~entityName=USER_MANAGEMENT_V2,
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
-        ~queryParamerters=Some("groups=true"),
+        ~queryParamerters=userModuleEntity == #Default
+          ? None
+          : Some(`entity_type=${(userModuleEntity :> string)->String.toLowerCase}`),
       )
       let res = await fetchDetails(userDataURL)
       let rolesData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForRoles)
@@ -32,7 +34,7 @@ let make = () => {
   React.useEffect(() => {
     getRolesAvailable()->ignore
     None
-  }, [])
+  }, [userModuleEntity])
 
   <div className="relative mt-5 flex flex-col gap-6">
     <PageLoaderWrapper screenState={screenStateRoles}>
