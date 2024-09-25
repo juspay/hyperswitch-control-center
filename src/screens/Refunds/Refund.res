@@ -62,7 +62,8 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, transactionView} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
@@ -79,9 +80,11 @@ let make = () => {
           </RenderIf>
         </div>
       </div>
-      <div className="flex gap-6 justify-around">
-        <TransactionView entity=TransactionViewTypes.Refunds />
-      </div>
+      <RenderIf condition={transactionView}>
+        <div className="flex gap-6 justify-around">
+          <TransactionView entity=TransactionViewTypes.Refunds />
+        </div>
+      </RenderIf>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
