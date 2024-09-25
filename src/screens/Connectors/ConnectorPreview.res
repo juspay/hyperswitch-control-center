@@ -133,6 +133,7 @@ module ConnectorSummaryGrid = {
     ~updateStepValue=None,
     ~getConnectorDetails=None,
   ) => {
+    let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
     let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
@@ -170,6 +171,10 @@ module ConnectorSummaryGrid = {
     let (_, connectorAccountFields, _, _, _, _, _) = ConnectorUtils.getConnectorFields(
       connectorDetails,
     )
+    let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
+    | list{_, "new"} => false
+    | _ => true
+    }
 
     <div className="p-2 md:px-10">
       <div className="grid grid-cols-4 my-12">
@@ -224,7 +229,9 @@ module ConnectorSummaryGrid = {
               })
               ->React.array}
             </div>
-            <ConnectorUpdateAuthCreds connectorInfo getConnectorDetails />
+            <RenderIf condition={isUpdateFlow}>
+              <ConnectorUpdateAuthCreds connectorInfo getConnectorDetails />
+            </RenderIf>
           </div>
         </div>
         <div />
@@ -258,21 +265,23 @@ module ConnectorSummaryGrid = {
                 })
                 ->React.array}
               </div>
-              <div
-                className="cursor-pointer"
-                onClick={_ => {
-                  mixpanelEvent(~eventName=`processor_update_payment_methods_${connector}`)
+              <RenderIf condition={isUpdateFlow}>
+                <div
+                  className="cursor-pointer"
+                  onClick={_ => {
+                    mixpanelEvent(~eventName=`processor_update_payment_methods_${connector}`)
 
-                  setCurrentStep(_ => state)
-                }}>
-                <ToolTip
-                  height=""
-                  description={`Update the ${connector} payment methods`}
-                  toolTipFor={<Icon size=18 name="edit" className={` ml-2`} />}
-                  toolTipPosition=Top
-                  tooltipWidthClass="w-fit"
-                />
-              </div>
+                    setCurrentStep(_ => state)
+                  }}>
+                  <ToolTip
+                    height=""
+                    description={`Update the ${connector} payment methods`}
+                    toolTipFor={<Icon size=18 name="edit" className={` ml-2`} />}
+                    toolTipPosition=Top
+                    tooltipWidthClass="w-fit"
+                  />
+                </div>
+              </RenderIf>
             </div>
             <div
               className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
