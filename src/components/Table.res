@@ -247,7 +247,7 @@ module TableRow = {
         })
         ->React.array}
         <RenderIf condition={showCustomizeColumn}>
-          <div className=" sticky right-0">
+          <div className="sticky right-0" onClick={e => e->ReactEvent.Mouse.stopPropagation}>
             <tr>
               <td colSpan=12 className="bg-white border-jp-gray-940 !border-l !p-0">
                 <div className="flex flex-row items-center">
