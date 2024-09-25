@@ -247,12 +247,10 @@ module TableRow = {
         })
         ->React.array}
         <RenderIf condition={showCustomizeColumn}>
-          <div className=" sticky right-0">
+          <div className="sticky right-0" onClick={e => e->ReactEvent.Mouse.stopPropagation}>
             <tr>
               <td colSpan=12 className="bg-white border-jp-gray-940 !border-l !p-0">
-                <div
-                  className="flex flex-row items-center"
-                  onClick={e => e->ReactEvent.Mouse.stopPropagation}>
+                <div className="flex flex-row items-center">
                   <TableCell
                     cell=EllipsisText("", "w-14 h-14")
                     clearFormatting
