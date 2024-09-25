@@ -64,3 +64,33 @@ let paymentsSuccessRateChartEntity: chartEntity<
   getObjects: PaymentsSuccessRateUtils.paymentsSuccessRateMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
 }
+
+// Payments Distribution
+open PaymentsDistributionUtils
+let paymentsDistributionEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [#payment_success_rate],
+  },
+  title: "Payments Distribution",
+  domain: #payments,
+}
+
+let paymentsDistributionChartEntity: chartEntity<
+  BarGraphTypes.barGraphPayload,
+  BarGraphTypes.barGraphOptions,
+> = {
+  getObjects: PaymentsDistributionUtils.paymentsDistributionMapper,
+  getChatOptions: BarGraphUtils.getBarGraphOptions,
+}
+
+let paymentsDistributionTableEntity = EntityType.makeEntity(
+  ~uri=``,
+  ~getObjects,
+  ~dataKey="queryData",
+  ~defaultColumns=visibleColumns,
+  ~requiredSearchFieldsList=[],
+  ~allColumns=visibleColumns,
+  ~getCell,
+  ~getHeading,
+)

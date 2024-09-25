@@ -22,8 +22,8 @@ let getPaymentQueryDataString = queryData =>
 
 let paymentsSuccessRateMapper = (json: JSON.t): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  let categories = getCategories(json)
-  let data = getData(json, getPaymentQueryDataString(PaymentSuccessRate))
+  let categories = getCategories(json, getPaymentQueryDataString(TimeBucket))
+  let data = getLineGraphData(json, getPaymentQueryDataString(PaymentSuccessRate))
   let title = {
     text: "Payments Success Rate",
   }
