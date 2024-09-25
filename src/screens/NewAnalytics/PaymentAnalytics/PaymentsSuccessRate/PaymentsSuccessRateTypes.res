@@ -1,0 +1,3 @@
+type queryData =
+  | PaymentSuccessRate
+  | TimeBucket

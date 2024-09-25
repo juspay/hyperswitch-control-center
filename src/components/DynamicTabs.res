@@ -59,7 +59,7 @@ module TabInfo = {
     } else {
       "text-jp-gray-700 dark:text-jp-gray-tabset_gray dark:text-opacity-75  hover:text-jp-gray-800 dark:hover:text-opacity-100 font-medium"
     }
-    let handleClick = React.useCallback(_ev => {
+    let handleClick = React.useCallback(_ => {
       handleSelectedTab(
         ~tabValue={
           switch tabNames->Array.get(index) {
@@ -171,7 +171,7 @@ module IndicationArrow = {
   let make = (~iconName, ~side, ~refElement: React.ref<Js.nullable<Dom.element>>, ~isVisible) => {
     let isMobileView = MatchMedia.useMobileChecker()
     let onClick = {
-      _ev =>
+      _ =>
         refElement.current
         ->Nullable.toOption
         ->Option.forEach(input =>
@@ -399,7 +399,7 @@ let make = (
   let scrollRef = React.useRef(Nullable.null)
   let lastTabRef = React.useRef(Nullable.null)
 
-  let onScroll = _ev => {
+  let onScroll = _ => {
     setTabScroll(
       firstTabRef,
       lastTabRef,
@@ -595,7 +595,7 @@ let make = (
                   buttonSize=Small
                   customButtonStyle=addBtnStyle
                   textStyle=addBtnTextStyle
-                  onClick={_ev => setShowModal(_ => true)}
+                  onClick={_ => setShowModal(_ => true)}
                 />}
                 toolTipPosition=Top
                 tooltipWidthClass="w-fit"

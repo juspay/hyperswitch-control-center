@@ -160,9 +160,9 @@ let make = (
       labelTextStyleClass="pt-2 pb-2 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 font-semibold"
     />
     <div className={`flex gap-2 justify-end mt-4`}>
-      <Button text="Cancel" buttonType={Secondary} onClick={_ev => closeModal()} />
+      <Button text="Cancel" buttonType={Secondary} onClick={_ => closeModal()} />
       <Button
-        onClick={_ev => {
+        onClick={_ => {
           onSubmit()->ignore
         }}
         text="Proceed"

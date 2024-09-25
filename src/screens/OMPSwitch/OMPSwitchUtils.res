@@ -54,12 +54,13 @@ let generateDropdownOptions = dropdownList => {
     dropdownList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
   options
 }
+
 let org = {
-  lable: "All Merchant",
+  lable: "Organization",
   entity: #Organization,
 }
 let merchant = {
-  lable: "All Profile",
+  lable: "Merchant",
   entity: #Merchant,
 }
 let profile = {

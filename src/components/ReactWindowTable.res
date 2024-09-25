@@ -78,7 +78,7 @@ module NewCell = {
   ) => {
     open Window
 
-    let onClick = React.useCallback(_ev => {
+    let onClick = React.useCallback(_ => {
       let isRangeSelected = getSelection().\"type" == "Range"
       switch (onRowClick, isRangeSelected) {
       | (Some(fn), false) => fn(rowIndex)
@@ -90,14 +90,14 @@ module NewCell = {
       expandedIndexArr->Array.includes(rowIndex)
     }, [expandedIndexArr])
 
-    let onMouseEnter = React.useCallback(_ev => {
+    let onMouseEnter = React.useCallback(_ => {
       switch onMouseEnter {
       | Some(fn) => fn(rowIndex)
       | _ => ()
       }
     }, (onMouseEnter, rowIndex))
 
-    let onMouseLeave = React.useCallback(_ev => {
+    let onMouseLeave = React.useCallback(_ => {
       switch onMouseLeave {
       | Some(fn) => fn(rowIndex)
       | _ => ()
@@ -400,7 +400,7 @@ module ReactWindowTableComponent = {
                       hideFilter={showCheckBox && isFirstCol}
                       removeVerticalLines
                       tableDataBorderClass
-                      isLast={i === len - 1 ? true : false}
+                      isLast={i === len - 1}
                       cellIndex=i
                       cellWidth
                     />

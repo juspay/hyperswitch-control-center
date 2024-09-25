@@ -540,7 +540,7 @@ module BaseSelect = {
       setSearchString(_ => str)
     }
 
-    let selectAll = select => _ev => {
+    let selectAll = select => _ => {
       let newValues = if select {
         let newVal =
           filteredOptions
@@ -941,7 +941,7 @@ module BaseSelectButton = {
     let (itemdata, setItemData) = React.useState(() => "")
     let (assignButtonState, setAssignButtonState) = React.useState(_ => false)
     let searchRef = React.useRef(Nullable.null)
-    let onItemClick = itemData => _ev => {
+    let onItemClick = itemData => _ => {
       if !disableSelect {
         let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
 
@@ -1273,7 +1273,7 @@ module BaseRadio = {
         setSearchString(_ => "")
       },
     )
-    let onItemClick = (itemData, isDisabled) => _ev => {
+    let onItemClick = (itemData, isDisabled) => _ => {
       if !isDisabled {
         let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
 
@@ -1632,7 +1632,7 @@ module BaseDropdown = {
       }
     }
 
-    let removeOption = text => _ev => {
+    let removeOption = text => _ => {
       let actualValue = switch Array.find(transformedOptions, option => option.value == text) {
       | Some(str) => str.value
       | None => ""
@@ -1702,8 +1702,8 @@ module BaseDropdown = {
     | TopLeft | TopRight => "mb-12"
     }
 
-    let onRadioOptionSelect = _ev => {
-      newInputRadio.onChange(_ev)
+    let onRadioOptionSelect = ev => {
+      newInputRadio.onChange(ev)
       addButton ? setShowDropDown(_ => true) : setShowDropDown(_ => false)
     }
 

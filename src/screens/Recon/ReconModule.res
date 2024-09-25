@@ -57,7 +57,7 @@ let make = (~urlList) => {
         {if redirectToken->isNonEmptyString {
           <div className="h-85-vh overflow-scroll">
             <iframe
-              onLoad={_ev => {
+              onLoad={_ => {
                 setIframeLoaded(_ => true)
               }}
               id="recon-module"

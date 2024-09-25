@@ -93,34 +93,6 @@ let validateFormForRoles = values => {
   errors->JSON.Encode.object
 }
 
-let roleListDataMapper: UserRoleEntity.roleListResponse => SelectBox.dropdownOption = ele => {
-  let roleNameToDisplay = switch ele.role_name {
-  | "iam" => ele.role_name->String.toLocaleUpperCase
-  | _ => ele.role_name->LogicUtils.snakeToTitle
-  }
-
-  {
-    label: roleNameToDisplay,
-    value: ele.role_id,
-  }
-}
-
-let roleOptions: array<UserRoleEntity.roleListResponse> => array<
-  SelectBox.dropdownOption,
-> = roleListData => roleListData->Array.map(roleListDataMapper)
-
-let roleType = (roleListData, boderColor) =>
-  FormRenderer.makeFieldInfo(
-    ~label="Choose a role",
-    ~name="roleType",
-    ~customInput=InputFields.infraSelectInput(
-      ~options=roleOptions(roleListData),
-      ~allowMultiSelect=false,
-      ~selectedClass={boderColor},
-    ),
-    ~isRequired=true,
-  )
-
 let getArrayOfPermissionData = json => {
   json
   ->LogicUtils.getDictFromJsonObject
@@ -166,18 +138,39 @@ module RolePermissionValueRenderer = {
   }
 }
 
-let roleListResponseMapper: Dict.t<JSON.t> => UserRoleEntity.roleListResponse = dict => {
-  open LogicUtils
-  {
-    role_id: dict->getString("role_id", ""),
-    role_name: dict->getString("role_name", ""),
-  }
-}
-
 let tabIndeToVariantMapper = index => {
   open UserManagementTypes
   switch index {
   | 0 => UsersTab
   | _ => RolesTab
+  }
+}
+
+let getUserManagementViewValues = (~checkUserEntity) => {
+  open UserManagementTypes
+
+  let org = {
+    label: "Organization",
+    entity: #Organization,
+  }
+  let merchant = {
+    label: "Merchant",
+    entity: #Merchant,
+  }
+  let profile = {
+    label: "Profile",
+    entity: #Profile,
+  }
+  let default = {
+    label: "My Team",
+    entity: #Default,
+  }
+
+  if checkUserEntity([#Organization]) {
+    [default, org, merchant, profile]
+  } else if checkUserEntity([#Merchant]) {
+    [default, merchant, profile]
+  } else {
+    [default]
   }
 }

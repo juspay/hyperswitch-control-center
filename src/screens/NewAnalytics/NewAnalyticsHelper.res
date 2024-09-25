@@ -22,9 +22,8 @@ module NoData = {
 
 module TabSwitch = {
   @react.component
-  let make = () => {
+  let make = (~viewType, ~setViewType) => {
     open NewAnalyticsTypes
-    let (viewType, setViewType) = React.useState(_ => Graph)
 
     let (icon1Bg, icon1Color, icon1Name) = switch viewType {
     | Graph => ("bg-white", "text-grey-dark", "graph-dark")
@@ -38,14 +37,48 @@ module TabSwitch = {
 
     <div className="border border-gray-outline flex w-fit rounded-lg cursor-pointer">
       <div
-        className={`rounded-l-lg pl-3 pr-2 pt-2 ${icon1Bg}`} onClick={_ => setViewType(_ => Graph)}>
+        className={`rounded-l-lg pl-3 pr-2 pt-2 pb-1 ${icon1Bg}`}
+        onClick={_ => setViewType(_ => Graph)}>
         <Icon className={icon1Color} name={icon1Name} size=25 />
       </div>
       <div className="h-full border-l border-gray-outline" />
       <div
-        className={`rounded-r-lg pl-3 pr-2 pt-2 ${icon2Bg}`} onClick={_ => setViewType(_ => Table)}>
+        className={`rounded-r-lg pl-3 pr-2 pt-2 pb-1 ${icon2Bg}`}
+        onClick={_ => setViewType(_ => Table)}>
         <Icon className={icon2Color} name=icon2Name size=25 />
       </div>
+    </div>
+  }
+}
+
+module Tabs = {
+  open NewAnalyticsTypes
+  @react.component
+  let make = (~option: tab, ~setOption, ~options: array<tab>) => {
+    let getStyle = (value: string, index) => {
+      let textStyle =
+        value === option.value
+          ? "bg-white text-grey-dark font-medium"
+          : "bg-grey-light text-grey-medium"
+
+      let borderStyle = index === 0 ? "" : "border-l"
+
+      let borderRadius =
+        index === 0 ? "rounded-l-lg" : index === options->Array.length - 1 ? "rounded-r-lg" : ""
+
+      `${textStyle} ${borderStyle} ${borderRadius}`
+    }
+
+    <div className="border border-gray-outline flex w-fit rounded-lg cursor-pointer">
+      {options
+      ->Array.mapWithIndex((tabValue, index) =>
+        <div
+          className={`px-3 py-2 ${tabValue.value->getStyle(index)}`}
+          onClick={_ => setOption(_ => tabValue)}>
+          {tabValue.title->React.string}
+        </div>
+      )
+      ->React.array}
     </div>
   }
 }
@@ -57,11 +90,11 @@ module CustomDropDown = {
     open HeadlessUI
     let (arrow, setArrow) = React.useState(_ => false)
     <Menu \"as"="div" className="relative inline-block text-left">
-      {_menuProps =>
+      {_ =>
         <div>
           <Menu.Button
             className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border border-outline">
-            {_buttonProps => {
+            {_ => {
               <>
                 {buttonText->React.string}
                 <Icon
@@ -143,14 +176,27 @@ module NoteSection = {
   }
 }
 
-module GraphHeader = {
+module ModuleHeader = {
   @react.component
   let make = (~title) => {
+    <h2 className="font-semibold text-xl text-jp-gray-900 pb-5"> {title->React.string} </h2>
+  }
+}
+
+module GraphHeader = {
+  open NewAnalyticsTypes
+  @react.component
+  let make = (~title, ~showTabSwitch, ~viewType, ~setViewType=_ => ()) => {
     <div className="w-full px-7 py-8 flex justify-between">
       <div className="flex gap-2 items-center">
         <div className="text-3xl font-600"> {title->React.string} </div>
         <StatisticsCard value="8" direction={Upward} />
       </div>
+      <RenderIf condition={showTabSwitch}>
+        <div className="flex gap-2">
+          <TabSwitch viewType setViewType />
+        </div>
+      </RenderIf>
     </div>
   }
 }

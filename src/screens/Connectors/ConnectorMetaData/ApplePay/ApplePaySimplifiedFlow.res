@@ -176,14 +176,14 @@ let make = (
       <Button
         text="Go Back"
         buttonType={Secondary}
-        onClick={_ev => {
+        onClick={_ => {
           setApplePayIntegrationSteps(_ => Landing)
         }}
       />
       <Button
         text="Verify & Enable"
         buttonType={Primary}
-        onClick={_ev => {
+        onClick={_ => {
           onSubmit()->ignore
         }}
         buttonState={formState.values->validateSimplifedFlow}

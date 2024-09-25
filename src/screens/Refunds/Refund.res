@@ -21,7 +21,6 @@ let make = () => {
     UserInfoProvider.defaultContext,
   )
 
-  let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchRefunds = () => {
     switch filters {
     | Some(dict) =>

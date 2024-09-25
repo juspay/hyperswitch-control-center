@@ -39,7 +39,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "gateways",
-    onBlur: _ev => (),
+    onBlur: _ => (),
     onChange: ev => {
       let newSelectedOptions = ev->Identity.formReactEventToArrayOfString
 
@@ -72,7 +72,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
         gateWaysInput.onChange(gatewaysArr->Identity.anyTypeToReactEvent)
       }
     },
-    onFocus: _ev => (),
+    onFocus: _ => (),
     value: selectedOptions
     ->Array.map(option =>
       AdvancedRoutingUtils.getConnectorStringFromConnectorSelectionData(

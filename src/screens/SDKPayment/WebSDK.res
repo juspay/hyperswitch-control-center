@@ -66,7 +66,7 @@ module CheckoutForm = {
         ->then(json => {
           json->resolve
         })
-        ->catch(_e => {
+        ->catch(_ => {
           Dict.make()->JSON.Encode.object->resolve
         })
         ->ignore

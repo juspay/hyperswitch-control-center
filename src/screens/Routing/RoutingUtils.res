@@ -170,7 +170,7 @@ module SaveAndActivateButton = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
 
-    let handleSaveAndActivate = async _ev => {
+    let handleSaveAndActivate = async _ => {
       try {
         let onSubmitResponse = await onSubmit(formState.values, false)
         let currentActivatedFromJson = onSubmitResponse->getValFromNullableValue(JSON.Encode.null)
@@ -252,11 +252,12 @@ let getRecordsObject = json => {
 }
 
 let filter = (connector_type, ~retainInList) => {
-  let paymentRegex = %re("/(payout_processor|payment_vas)/ig")
   switch retainInList {
-  | PaymentConnector => RegExp.exec(paymentRegex, connector_type)->Option.isNone
+  | PaymentConnector => connector_type === "payment_processor"
   | FRMPlayer => connector_type === "payment_vas"
   | PayoutConnector => connector_type === "payout_processor"
+  | PMAuthenticationProcessor => connector_type === "payment_method_auth"
+  | TaxProcessor => connector_type === "tax_processor"
   }
 }
 

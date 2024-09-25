@@ -57,7 +57,6 @@ module TableRowForUserDetails = {
   @react.component
   let make = (
     ~arrayValue: array<UserManagementTypes.userDetailstype>,
-    ~merchantName,
     ~parentIndex,
     ~noOfElementsInParent,
   ) => {
@@ -77,6 +76,11 @@ module TableRowForUserDetails = {
     ->Array.mapWithIndex((value, index) => {
       let (statusValue, statusColor) = value.status->UserUtils.getLabelForStatus
 
+      let profileName = value.profile.name->isEmptyString ? value.profile.value : value.profile.name
+
+      let merchantName =
+        value.merchant.name->isEmptyString ? value.merchant.value : value.merchant.name
+
       <tr className={`${index->borderStyle}`}>
         <RenderIf condition={index == 0}>
           <td
@@ -85,7 +89,7 @@ module TableRowForUserDetails = {
             {merchantName->capitalizeString->React.string}
           </td>
         </RenderIf>
-        <td className=tableElementCss> {value.profile.name->React.string} </td>
+        <td className=tableElementCss> {profileName->React.string} </td>
         <td className=tableElementCss>
           {value.roleId->snakeToTitle->capitalizeString->React.string}
         </td>
@@ -135,10 +139,7 @@ module UserAccessInfo = {
         ->Dict.keysToArray
         ->Array.mapWithIndex((items, parentIndex) => {
           <TableRowForUserDetails
-            merchantName={items}
-            arrayValue={items->getObjectForThekey}
-            parentIndex
-            noOfElementsInParent
+            arrayValue={items->getObjectForThekey} parentIndex noOfElementsInParent
           />
         })
         ->React.array}
@@ -211,7 +212,7 @@ let make = () => {
     <div className="flex flex-col gap-2">
       <PageUtils.PageHeading title={"Team management"} />
       <BreadCrumbNavigation
-        path=[{title: "Team management", link: "/users-v2"}]
+        path=[{title: "Team management", link: "/users"}]
         currentPageTitle=userEmail
         cursorStyle="cursor-pointer"
       />

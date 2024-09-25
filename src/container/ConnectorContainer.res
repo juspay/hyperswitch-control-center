@@ -83,6 +83,17 @@ let make = () => {
           renderShow={(_, _) => <PMAuthenticationHome />}
         />
       </AccessControl>
+    | list{"tax-processor", ...remainingPath} =>
+      <AccessControl
+        permission=userPermissionJson.connectorsView isEnabled={featureFlagDetails.taxProcessor}>
+        <EntityScaffold
+          entityName="Tax Processor"
+          remainingPath
+          renderList={() => <TaxProcessorList />}
+          renderNewForm={() => <TaxProcessorHome />}
+          renderShow={(_, _) => <TaxProcessorHome />}
+        />
+      </AccessControl>
     | list{"fraud-risk-management", ...remainingPath} =>
       <AccessControl
         isEnabled={featureFlagDetails.frm} permission=userPermissionJson.connectorsView>
