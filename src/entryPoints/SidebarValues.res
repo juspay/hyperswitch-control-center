@@ -445,7 +445,14 @@ let businessProfiles = () => {
     name: "Business Profiles",
     link: `/business-profiles`,
     access: Access,
-    searchOptions: [("Configure business profiles", "")],
+    searchOptions: [
+      ("Configure business profiles", ""),
+      ("View webhooks", ""),
+      ("View return url", ""),
+      ("Update profile name", ""),
+      ("Update return url", ""),
+      ("Update rebhook url", ""),
+    ],
   })
 }
 

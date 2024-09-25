@@ -185,7 +185,7 @@ let make = (
             title="Business profiles"
             hideTitle=true
             resultsPerPage=7
-            visibleColumns
+            visibleColumns=allColumns
             entity={businessProfileTableEntity(
               ~permission=userPermissionJson.merchantDetailsManage,
             )}

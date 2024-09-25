@@ -7,10 +7,6 @@ type columns =
   | ReturnUrl
   | WebhookUrl
 
-let visibleColumns = [ProfileId, ProfileName, ReturnUrl, WebhookUrl]
-
-let defaultColumns = [ProfileId, ProfileName, ReturnUrl, WebhookUrl]
-
 let allColumns = [ProfileId, ProfileName, ReturnUrl, WebhookUrl]
 
 let getHeading = colType => {
@@ -71,7 +67,7 @@ let businessProfileTableEntity = (~permission: CommonAuthTypes.authorization) =>
   EntityType.makeEntity(
     ~uri="",
     ~getObjects=getItems,
-    ~defaultColumns,
+    ~defaultColumns=allColumns,
     ~allColumns,
     ~getHeading,
     ~dataKey="",
