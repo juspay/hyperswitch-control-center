@@ -184,9 +184,9 @@ let useGetURL = () => {
       | Get =>
         switch queryParamerters {
         | Some(queryParams) =>
-          switch (transactionEntity, userManagementRevamp) {
-          | (#Merchant, true) => `refunds/aggregate?${queryParams}`
-          | (#Profile, true) => `refunds/profile/aggregate?${queryParams}`
+          switch transactionEntity {
+          | #Merchant => `refunds/aggregate?${queryParams}`
+          | #Profile => `refunds/profile/aggregate?${queryParams}`
           | _ => `refunds/aggregate?${queryParams}`
           }
         | None => `refunds/aggregate`
