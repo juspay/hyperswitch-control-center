@@ -250,7 +250,9 @@ module TableRow = {
           <div className=" sticky right-0">
             <tr>
               <td colSpan=12 className="bg-white border-jp-gray-940 !border-l !p-0">
-                <div className="flex flex-row items-center">
+                <div
+                  className="flex flex-row items-center"
+                  onClick={e => e->ReactEvent.Mouse.stopPropagation}>
                   <TableCell
                     cell=EllipsisText("", "w-14 h-14")
                     clearFormatting
