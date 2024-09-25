@@ -145,3 +145,32 @@ let tabIndeToVariantMapper = index => {
   | _ => RolesTab
   }
 }
+
+let getUserManagementViewValues = (~checkUserEntity) => {
+  open UserManagementTypes
+
+  let org = {
+    label: "Organization",
+    entity: #Organization,
+  }
+  let merchant = {
+    label: "Merchant",
+    entity: #Merchant,
+  }
+  let profile = {
+    label: "Profile",
+    entity: #Profile,
+  }
+  let default = {
+    label: "My Team",
+    entity: #Default,
+  }
+
+  if checkUserEntity([#Organization]) {
+    [default, org, merchant, profile]
+  } else if checkUserEntity([#Merchant]) {
+    [default, merchant, profile]
+  } else {
+    [default]
+  }
+}

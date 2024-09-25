@@ -1,7 +1,7 @@
 open ListUserTableEntity
 
 @react.component
-let make = () => {
+let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()
@@ -21,6 +21,9 @@ let make = () => {
         ~entityName=USER_MANAGEMENT_V2,
         ~methodType=Get,
         ~userRoleTypes=USER_LIST,
+        ~queryParamerters=userModuleEntity == #Default
+          ? None
+          : Some(`entity_type=${(userModuleEntity :> string)->String.toLowerCase}`),
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->getArrayDataFromJson(itemToObjMapperForUser)
@@ -35,7 +38,7 @@ let make = () => {
   React.useEffect(() => {
     getUserData()->ignore
     None
-  }, [])
+  }, [userModuleEntity])
 
   let filterLogicForUsers = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
@@ -53,7 +56,7 @@ let make = () => {
   }, ~wait=200)
 
   <PageLoaderWrapper screenState={screenStateUsers}>
-    <div className="relative mt-5 w-full">
+    <div className="relative mt-5 w-full flex flex-col gap-12">
       <div className="absolute right-0 z-10">
         <ACLButton
           access={userPermissionJson.usersManage}

@@ -78,3 +78,10 @@ type allSelectionType = [#All_Merchants | #All_Profiles]
 type userActionType = SwitchUser | ManageUser | NoActionAccess
 
 type userStatusTypes = Active | InviteSent | None
+
+type userModuleTypes = [UserInfoTypes.entity | #Default]
+
+type ompViewType = {
+  label: string,
+  entity: userModuleTypes,
+}
