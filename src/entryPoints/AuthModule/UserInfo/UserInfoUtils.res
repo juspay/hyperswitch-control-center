@@ -26,9 +26,7 @@ let entityMapper = entity => {
 
 let transactionEntityMapper = entity => {
   switch entity->String.toLowerCase {
-  | "internal"
-  | "merchant" =>
-    #Merchant
+  | "merchant" => #Merchant
   | "profile" => #Profile
   | _ => #Merchant
   }
@@ -37,7 +35,7 @@ let transactionEntityMapper = entity => {
 let analyticsEntityMapper = entity => {
   switch entity->String.toLowerCase {
   | "organization" => #Organization
-  | "merchant" | "internal" => #Merchant
+  | "merchant" => #Merchant
   | "profile" => #Profile
   | _ => #Merchant
   }

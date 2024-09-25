@@ -28,6 +28,9 @@ let make = () => {
   let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let isInternalUser =
+    roleId->UserManagementUtils.stringToVariantMapper == InternalViewOnly ||
+      roleId->UserManagementUtils.stringToVariantMapper == InternalAdmin
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
@@ -151,7 +154,7 @@ let make = () => {
                       <Navbar
                         headerActions={<div className="relative flex items-center gap-4 my-2 ">
                           <GlobalSearchBar />
-                          <RenderIf condition={roleId->String.startsWith("internal")}>
+                          <RenderIf condition={isInternalUser}>
                             <SwitchMerchantForInternal />
                           </RenderIf>
                           <ProfileSwitch />
@@ -262,8 +265,7 @@ let make = () => {
                           </AccessControl>
                         | list{"developer-system-metrics"} =>
                           <AccessControl
-                            isEnabled={roleId->String.startsWith("internal") &&
-                              featureFlagDetails.systemMetrics}
+                            isEnabled={isInternalUser && featureFlagDetails.systemMetrics}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext key="SystemMetrics" index="SystemMetrics">
                               <SystemMetricsAnalytics />

@@ -458,6 +458,9 @@ let make = (
   let sideBarRef = React.useRef(Nullable.null)
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  let isInternalUser =
+    roleId->UserManagementUtils.stringToVariantMapper == InternalViewOnly ||
+      roleId->UserManagementUtils.stringToVariantMapper == InternalAdmin
   let (openItem, setOpenItem) = React.useState(_ => "")
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
@@ -551,7 +554,7 @@ let make = (
             </div>
           </RenderIf>
         </div>
-        <RenderIf condition={!(roleId->String.startsWith("internal"))}>
+        <RenderIf condition={!isInternalUser}>
           <SidebarSwitch isSidebarExpanded />
         </RenderIf>
         <div
