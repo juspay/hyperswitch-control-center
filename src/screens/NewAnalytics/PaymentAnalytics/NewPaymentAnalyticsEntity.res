@@ -70,7 +70,7 @@ open PaymentsDistributionUtils
 let paymentsDistributionEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_distribution],
+    metrics: [#payment_success_rate],
   },
   title: "Payments Distribution",
   domain: #payments,

@@ -10,7 +10,7 @@ let getPaymentQueryDataString = queryData =>
 
 let paymentsDistributionMapper = (json: JSON.t): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
-  let categories = getCategories(json, (#connector: PaymentsDistributionTypes.categories :> string))
+  let categories = getCategories(json, (#connector: NewAnalyticsTypes.dimension :> string))
   let data = getBarGraphData(json, getPaymentQueryDataString(PaymentsSuccessRate))
   let title = {
     text: "",
