@@ -41,9 +41,4 @@ type chartEntity<'t, 'chatOption> = {
   getChatOptions: 't => 'chatOption,
 }
 
-type dropDownOptionType = {label: string}
-
-type tab = {
-  title: string,
-  value: string,
-}
+type optionType = {label: string, value: string}

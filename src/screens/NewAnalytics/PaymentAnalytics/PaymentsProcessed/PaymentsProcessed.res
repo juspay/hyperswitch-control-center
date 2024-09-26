@@ -43,13 +43,73 @@ module TableModule = {
   }
 }
 
+module PaymentsProcessedHeader = {
+  open NewAnalyticsTypes
+  @react.component
+  let make = (
+    ~title,
+    ~viewType,
+    ~setViewType,
+    ~selectedMetric,
+    ~setSelectedMetric,
+    ~granularity,
+    ~setGranularity,
+  ) => {
+    let dropDownOptions = [
+      {label: "By Amount", value: "amount"},
+      {label: "By Count", value: "count"},
+    ]
+    let tabs = [
+      {label: "Hourly", value: "hour_wise"},
+      {label: "Daily", value: "day_wise"},
+      {label: "Weekly", value: "week_wise"},
+    ]
+
+    let setSelectedMetric = value => {
+      setSelectedMetric(_ => value)
+    }
+
+    let setGranularity = value => {
+      setGranularity(_ => value)
+    }
+
+    <div className="w-full px-7 py-8 flex justify-between">
+      <div className="flex gap-2 items-center">
+        <div className="text-3xl font-600"> {title->React.string} </div>
+        <StatisticsCard value="8" direction={Upward} />
+      </div>
+      <div>
+        <Tabs option={granularity} setOption={setGranularity} options={tabs} />
+      </div>
+      <div className="flex gap-2">
+        <CustomDropDown
+          buttonText={selectedMetric} options={dropDownOptions} setOption={setSelectedMetric}
+        />
+        <TabSwitch viewType setViewType />
+      </div>
+    </div>
+  }
+}
+
 @react.component
 let make = (
   ~entity: moduleEntity,
   ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
 ) => {
   let (paymentsProcessed, setpaymentsProcessed) = React.useState(_ => JSON.Encode.array([]))
+  let (selectedMetric, setSelectedMetric) = React.useState(_ => {
+    label: "By Amount",
+    value: "amount",
+  })
+  let (granularity, setGranularity) = React.useState(_ => {
+    label: "Hourly",
+    value: "hour_wise",
+  })
   let (viewType, setViewType) = React.useState(_ => Graph)
+
+  let setViewType = value => {
+    setViewType(_ => value)
+  }
 
   let getPaymentsProcessed = async () => {
     try {
@@ -81,7 +141,15 @@ let make = (
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
-      <GraphHeader title={graphTitle(paymentsProcessed)} viewType setViewType showTabSwitch=true />
+      <PaymentsProcessedHeader
+        title={graphTitle(paymentsProcessed)}
+        viewType
+        setViewType
+        selectedMetric
+        setSelectedMetric
+        granularity
+        setGranularity
+      />
       <div className="mb-5">
         {switch viewType {
         | Graph => <LineGraph entity={chartEntity} data={paymentsProcessed} className="mr-3" />

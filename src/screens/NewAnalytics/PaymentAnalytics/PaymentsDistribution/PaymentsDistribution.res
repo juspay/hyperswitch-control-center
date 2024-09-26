@@ -45,6 +45,10 @@ let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, ba
   let (paymentsDistribution, setpaymentsDistribution) = React.useState(_ => JSON.Encode.array([]))
   let (viewType, setViewType) = React.useState(_ => Graph)
 
+  let setViewType = value => {
+    setViewType(_ => value)
+  }
+
   let getPaymentsDistribution = async () => {
     try {
       let response = [
