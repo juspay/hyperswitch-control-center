@@ -130,7 +130,7 @@ let usePageView = () => {
     try {
       if featureFlagDetails.mixpanel {
         let _ = await fetchApi(
-          `https://app.hyperswitch.io/mixpanel/track`,
+          `${getHostUrl}/mixpanel/track`,
           ~method_=Post,
           ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
         )
@@ -146,6 +146,7 @@ let useSetIdentity = () => {
   let fetchApi = AuthHooks.useApiFetcher()
   let mixpanel_token = Window.env.mixpanelToken
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   async (~distinctId) => {
     let name = distinctId->LogicUtils.getNameFromEmail
     let body = {
