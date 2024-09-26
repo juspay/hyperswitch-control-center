@@ -65,6 +65,10 @@ module PaymentsProcessedHeader = {
       {label: "Weekly", value: "week_wise"},
     ]
 
+    let setViewType = value => {
+      setViewType(_ => value)
+    }
+
     let setSelectedMetric = value => {
       setSelectedMetric(_ => value)
     }
@@ -73,15 +77,15 @@ module PaymentsProcessedHeader = {
       setGranularity(_ => value)
     }
 
-    <div className="w-full px-7 py-8 flex justify-between">
+    <div className="w-full px-7 py-8 grid grid-cols-3">
       <div className="flex gap-2 items-center">
         <div className="text-3xl font-600"> {title->React.string} </div>
         <StatisticsCard value="8" direction={Upward} />
       </div>
-      <div>
+      <div className="flex justify-center">
         <Tabs option={granularity} setOption={setGranularity} options={tabs} />
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 justify-end">
         <CustomDropDown
           buttonText={selectedMetric} options={dropDownOptions} setOption={setSelectedMetric}
         />
@@ -106,10 +110,6 @@ let make = (
     value: "hour_wise",
   })
   let (viewType, setViewType) = React.useState(_ => Graph)
-
-  let setViewType = value => {
-    setViewType(_ => value)
-  }
 
   let getPaymentsProcessed = async () => {
     try {

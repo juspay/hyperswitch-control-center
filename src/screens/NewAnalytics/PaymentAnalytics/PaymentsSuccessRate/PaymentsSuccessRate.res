@@ -3,12 +3,43 @@ open NewAnalyticsHelper
 open LineGraphTypes
 open PaymentsSuccessRateUtils
 
+module PaymentsSuccessRateHeader = {
+  open NewAnalyticsTypes
+  @react.component
+  let make = (~title, ~granularity, ~setGranularity) => {
+    let tabs = [
+      {label: "Hourly", value: "hour_wise"},
+      {label: "Daily", value: "day_wise"},
+      {label: "Weekly", value: "week_wise"},
+    ]
+
+    let setGranularity = value => {
+      setGranularity(_ => value)
+    }
+
+    <div className="w-full px-7 py-8 grid grid-cols-3">
+      <div className="flex gap-2 items-center">
+        <div className="text-3xl font-600"> {title->React.string} </div>
+        <StatisticsCard value="8" direction={Upward} />
+      </div>
+      <div className="flex justify-center">
+        <Tabs option={granularity} setOption={setGranularity} options={tabs} />
+      </div>
+      <div />
+    </div>
+  }
+}
+
 @react.component
 let make = (
   ~entity: moduleEntity,
   ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
 ) => {
   let (paymentsSuccessRate, setpaymentsSuccessRate) = React.useState(_ => JSON.Encode.array([]))
+  let (granularity, setGranularity) = React.useState(_ => {
+    label: "Hourly",
+    value: "hour_wise",
+  })
 
   let getPaymentsSuccessRate = async () => {
     try {
@@ -53,7 +84,9 @@ let make = (
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
-      <GraphHeader title={graphTitle(paymentsSuccessRate)} viewType={Graph} showTabSwitch=false />
+      <PaymentsSuccessRateHeader
+        title={graphTitle(paymentsSuccessRate)} granularity setGranularity
+      />
       <div className="mb-5">
         <LineGraph entity={chartEntity} data={paymentsSuccessRate} className="mr-3" />
       </div>

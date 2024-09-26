@@ -40,14 +40,43 @@ module TableModule = {
   }
 }
 
+module PaymentsDistributionHeader = {
+  open NewAnalyticsTypes
+  @react.component
+  let make = (~viewType, ~setViewType, ~groupBy, ~setGroupBy) => {
+    let tabs = [
+      {label: "Connector", value: "connector"},
+      {label: "Payment Method", value: "payment_method"},
+      {label: "Payment Method Type", value: "payment_method_type"},
+      {label: "Card Network", value: "card_network"},
+      {label: "Authentication Type", value: "authentication_type"},
+    ]
+
+    let setViewType = value => {
+      setViewType(_ => value)
+    }
+
+    let setGroupBy = value => {
+      setGroupBy(_ => value)
+    }
+
+    <div className="w-full px-7 py-8 flex justify-between">
+      <Tabs option={groupBy} setOption={setGroupBy} options={tabs} />
+      <div className="flex gap-2">
+        <TabSwitch viewType setViewType />
+      </div>
+    </div>
+  }
+}
+
 @react.component
 let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, barGraphOptions>) => {
   let (paymentsDistribution, setpaymentsDistribution) = React.useState(_ => JSON.Encode.array([]))
   let (viewType, setViewType) = React.useState(_ => Graph)
-
-  let setViewType = value => {
-    setViewType(_ => value)
-  }
+  let (groupBy, setGroupBy) = React.useState(_ => {
+    label: "Connector",
+    value: "connector",
+  })
 
   let getPaymentsDistribution = async () => {
     try {
@@ -76,7 +105,7 @@ let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, ba
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
-      <GraphHeader title="" viewType setViewType showTabSwitch=true />
+      <PaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
       <div className="mb-5">
         {switch viewType {
         | Graph => <BarGraph entity={chartEntity} data={paymentsDistribution} className="mr-3" />
