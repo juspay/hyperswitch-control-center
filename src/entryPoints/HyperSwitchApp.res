@@ -110,7 +110,6 @@ let make = () => {
     if featureFlagDetails.mixpanel {
       pageViewEvent(~path)->ignore
     }
-    Js.log(path)
     None
   }, (featureFlagDetails.mixpanel, path))
 

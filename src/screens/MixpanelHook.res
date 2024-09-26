@@ -67,7 +67,7 @@ let useSendEvent = () => {
 
     try {
       let _ = await fetchApi(
-        `https://app.hyperswitch.io/mixpanel/track`,
+        `${getHostUrl}/mixpanel/track`,
         ~method_=Post,
         ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
       )
