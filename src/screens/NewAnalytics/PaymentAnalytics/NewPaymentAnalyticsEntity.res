@@ -18,6 +18,7 @@ let paymentsLifeCycleChartEntity: chartEntity<
 }
 
 // Payments Processed
+open PaymentsProcessedUtils
 let paymentsProcessedEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
@@ -35,19 +36,16 @@ let paymentsProcessedChartEntity: chartEntity<
   getChatOptions: LineGraphUtils.getLineGraphOptions,
 }
 
-let paymentsProcessedTableEntity = {
-  open PaymentsProcessedUtils
-  EntityType.makeEntity(
-    ~uri=``,
-    ~getObjects,
-    ~dataKey="queryData",
-    ~defaultColumns=visibleColumns,
-    ~requiredSearchFieldsList=[],
-    ~allColumns=visibleColumns,
-    ~getCell,
-    ~getHeading,
-  )
-}
+let paymentsProcessedTableEntity = EntityType.makeEntity(
+  ~uri=``,
+  ~getObjects,
+  ~dataKey="queryData",
+  ~defaultColumns=visibleColumns,
+  ~requiredSearchFieldsList=[],
+  ~allColumns=visibleColumns,
+  ~getCell,
+  ~getHeading,
+)
 
 // Payments Success Rate
 let paymentsSuccessRateEntity: moduleEntity = {
@@ -68,6 +66,7 @@ let paymentsSuccessRateChartEntity: chartEntity<
 }
 
 // Payments Distribution
+open PaymentsDistributionUtils
 let paymentsDistributionEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
@@ -85,16 +84,13 @@ let paymentsDistributionChartEntity: chartEntity<
   getChatOptions: BarGraphUtils.getBarGraphOptions,
 }
 
-let paymentsDistributionTableEntity = {
-  open PaymentsDistributionUtils
-  EntityType.makeEntity(
-    ~uri=``,
-    ~getObjects,
-    ~dataKey="queryData",
-    ~defaultColumns=visibleColumns,
-    ~requiredSearchFieldsList=[],
-    ~allColumns=visibleColumns,
-    ~getCell,
-    ~getHeading,
-  )
-}
+let paymentsDistributionTableEntity = EntityType.makeEntity(
+  ~uri=``,
+  ~getObjects,
+  ~dataKey="queryData",
+  ~defaultColumns=visibleColumns,
+  ~requiredSearchFieldsList=[],
+  ~allColumns=visibleColumns,
+  ~getCell,
+  ~getHeading,
+)
