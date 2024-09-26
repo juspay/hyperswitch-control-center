@@ -223,7 +223,7 @@ let initialFilters = (json, filtervalues) => {
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
 
   let filterDict = json->getDictFromJsonObject
-  let arr = filterDict->Dict.keysToArray->Array.filterWithIndex((_item, index) => index <= 2)
+  let arr = filterDict->Dict.keysToArray->Array.filter(item => item != "currency")
 
   if connectorFilter->Array.length !== 0 {
     arr->Array.push("connector_label")
