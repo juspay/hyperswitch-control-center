@@ -6,6 +6,7 @@ let make = () => {
   open PermissionUtils
   open LogicUtils
   open HyperswitchAtom
+  let pageViewEvent = MixpanelHook.usePageView()
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
@@ -98,11 +99,20 @@ let make = () => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }
   }
+  let path = url.path->List.toArray->Array.joinWith("/")
 
   React.useEffect(() => {
     setUpDashboard()->ignore
     None
   }, [orgId, merchantId, profileId])
+
+  React.useEffect(() => {
+    if featureFlagDetails.mixpanel {
+      pageViewEvent(~path)->ignore
+    }
+    Js.log(path)
+    None
+  }, (featureFlagDetails.mixpanel, path))
 
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal

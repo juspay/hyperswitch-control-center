@@ -10,6 +10,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let url = RescriptReactRouter.useUrl()
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let setMixpanelIdentity = MixpanelHook.useSetIdentity()
+
   let initialValues = Dict.make()->JSON.Encode.object
   let clientCountry = HSwitchUtils.getBrowswerDetails().clientCountry
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
@@ -148,6 +150,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
       let email = valuesDict->getString("email", "")
       setEmail(_ => email)
       logMixpanelEvents(email)
+      setMixpanelIdentity(~distinctId=email)->ignore
+
       let _ = await (
         switch (signupMethod, signUpAllowed, isMagicLinkEnabled(), authType) {
         | (MAGIC_LINK, true, true, SignUP) => {
