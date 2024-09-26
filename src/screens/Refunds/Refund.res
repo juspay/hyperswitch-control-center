@@ -68,7 +68,7 @@ let make = () => {
   <ErrorBoundary>
     <div className="min-h-[50vh]">
       <div className="flex justify-between items-center">
-        <PageUtils.PageHeading title="Refunds" subTitle="" />
+        <PageUtils.PageHeading title="Refunds" />
         <div className="flex gap-4">
           <OMPSwitchHelper.OMPViews
             views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}

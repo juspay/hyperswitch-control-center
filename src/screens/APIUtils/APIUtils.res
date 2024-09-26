@@ -185,9 +185,10 @@ let useGetURL = () => {
         switch queryParamerters {
         | Some(queryParams) =>
           switch transactionEntity {
-          | #Merchant => `refunds/aggregate?${queryParams}`
           | #Profile => `refunds/profile/aggregate?${queryParams}`
-          | _ => `refunds/aggregate?${queryParams}`
+          | #Merchant
+          | _ =>
+            `refunds/aggregate?${queryParams}`
           }
         | None => `refunds/aggregate`
         }
