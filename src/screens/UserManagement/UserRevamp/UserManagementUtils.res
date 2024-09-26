@@ -174,3 +174,12 @@ let getUserManagementViewValues = (~checkUserEntity) => {
     [default]
   }
 }
+
+let stringToVariantMapper = roleId => {
+  open UserManagementTypes
+  switch roleId {
+  | "internal_view_only" => InternalViewOnly
+  | "internal_admin" => InternalAdmin
+  | _ => NonInternal
+  }
+}

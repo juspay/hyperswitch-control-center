@@ -74,7 +74,6 @@ module NoteComponent = {
       `You can only invite people for ${merchantId} here. To invite users to another merchant, please switch the merchant.`
     | #Profile =>
       `You can only invite people for ${profileId} here. To invite users to another profile, please switch the profile.`
-    | _ => ""
     }
 
     <div className="flex gap-2 items-start justify-start">
