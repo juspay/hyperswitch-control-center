@@ -10,7 +10,6 @@ module OrganisationSelection = {
 
     let disableSelect = switch userEntity {
     | #Organization | #Merchant | #Profile => true
-    | _ => false
     }
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
@@ -62,8 +61,7 @@ module MerchantSelection = {
 
     let disableSelect = switch userEntity {
     | #Merchant | #Profile => true
-    | #Organization
-    | _ => false
+    | #Organization => false
     }
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
@@ -118,8 +116,7 @@ module ProfileSelection = {
     let disableSelect = switch userEntity {
     | #Profile => true
     | #Organization
-    | #Merchant
-    | _ => false
+    | #Merchant => false
     }
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {

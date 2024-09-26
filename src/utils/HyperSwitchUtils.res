@@ -39,3 +39,9 @@ let delay = ms =>
   Promise.make((resolve, _) => {
     let _ = setTimeout(() => resolve(), ms)
   })
+
+let checkIsInternalUser = roleId => {
+  open UserManagementUtils
+  roleId->stringToVariantMapper == InternalViewOnly ||
+    roleId->stringToVariantMapper == InternalAdmin
+}
