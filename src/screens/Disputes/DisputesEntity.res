@@ -91,7 +91,7 @@ let getCell = (disputesData, colType): Table.cell => {
   | DisputeId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/disputes/${disputesData.dispute_id}`}
+        url={`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}`}
         displayValue={disputesData.dispute_id}
         copyValue={Some(disputesData.dispute_id)}
       />,

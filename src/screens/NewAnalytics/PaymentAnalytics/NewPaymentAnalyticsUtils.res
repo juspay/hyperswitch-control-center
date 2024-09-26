@@ -1,69 +1,54 @@
-// helper functions
+open LogicUtils
 
-let paymentsLifeCycleMapper = (_json): SankeyGraphTypes.sankeyPayload => {
-  open SankeyGraphTypes
-  let processedData = [
-    ("Payments Initiated", "Success", 8000, "#E4EFFF"),
-    ("Payments Initiated", "Non-terminal state", 1200, "#E4EFFF"),
-    ("Success", "Dispute Raised", 200, "#F7E0E0"),
-    ("Success", "Refunds Issued", 600, "#E4EFFF"),
-    ("Payments Initiated", "Failed", 200, "#F7E0E0"),
-    ("Payments Initiated", "Drop-offs", 600, "#F7E0E0"),
-  ]
-  let sankeyNodes = [
-    {
-      id: "Payments Initiated",
-      dataLabels: {
-        align: "left",
-        x: -130,
-      },
-    },
-    {
-      id: "Success",
-      dataLabels: {
-        align: "right",
-        x: -25,
-      },
-    },
-    {
-      id: "Dispute Raised",
-      dataLabels: {
-        align: "right",
-        x: 105,
-      },
-    },
-    {
-      id: "Refunds Issued",
-      dataLabels: {
-        align: "right",
-        x: 110,
-      },
-    },
-    {
-      id: "Non-terminal state",
-      dataLabels: {
-        align: "left",
-        x: 20,
-      },
-    },
-    {
-      id: "Failed",
-      dataLabels: {
-        align: "left",
-        x: 20,
-      },
-    },
-    {
-      id: "Drop-offs",
-      dataLabels: {
-        align: "left",
-        x: 20,
-      },
-    },
-  ]
-  let title = {
-    text: "Payments Lifecycle",
-  }
-  let colors = ["#91B7EE", "#91B7EE", "#91B7EE", "#EC6262", "#91B7EE", "#EC6262", "#BA3535"]
-  {data: processedData, nodes: sankeyNodes, title, colors}
+let getCategories = (json: JSON.t, key: string): array<string> => {
+  json
+  ->getArrayFromJson([])
+  ->Array.flatMap(item => {
+    item
+    ->getDictFromJsonObject
+    ->getArrayFromDict("queryData", [])
+    ->Array.map(item => item->getDictFromJsonObject->getString(key, ""))
+  })
+}
+
+let getLineGraphData = (json: JSON.t, key: string): LineGraphTypes.data => {
+  json
+  ->getArrayFromJson([])
+  ->Array.mapWithIndex((item, index) => {
+    let data =
+      item
+      ->getDictFromJsonObject
+      ->getArrayFromDict("queryData", [])
+      ->Array.map(item => {
+        item->getDictFromJsonObject->getInt(key, 0)
+      })
+    let dataObj: LineGraphTypes.dataObj = {
+      showInLegend: false,
+      name: `Series ${(index + 1)->Int.toString}`,
+      data,
+      color: "#2f7ed8",
+    }
+    dataObj
+  })
+}
+
+let getBarGraphData = (json: JSON.t, key: string): BarGraphTypes.data => {
+  json
+  ->getArrayFromJson([])
+  ->Array.mapWithIndex((item, index) => {
+    let data =
+      item
+      ->getDictFromJsonObject
+      ->getArrayFromDict("queryData", [])
+      ->Array.map(item => {
+        item->getDictFromJsonObject->getInt(key, 0)
+      })
+    let dataObj: BarGraphTypes.dataObj = {
+      showInLegend: false,
+      name: `Series ${(index + 1)->Int.toString}`,
+      data,
+      color: "#7CC88F",
+    }
+    dataObj
+  })
 }

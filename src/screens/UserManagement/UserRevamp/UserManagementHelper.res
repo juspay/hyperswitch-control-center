@@ -207,3 +207,59 @@ module SwitchMerchantForUserAction = {
     />
   }
 }
+
+module UserOmpView = {
+  @react.component
+  let make = (
+    ~views: array<UserManagementTypes.ompViewType>,
+    ~userModuleEntity: UserManagementTypes.userModuleTypes,
+    ~setUserModuleEntity,
+  ) => {
+    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
+
+    let cssBasedOnIndex = index => {
+      if index == 0 {
+        "rounded-l-md"
+      } else if index == views->Array.length - 1 {
+        "rounded-r-md"
+      } else {
+        ""
+      }
+    }
+
+    let getName = entityType => {
+      let name = getNameForId(entityType)
+      name->String.length > 10
+        ? name
+          ->String.substring(~start=0, ~end=10)
+          ->String.concat("...")
+        : name
+    }
+
+    let onChange = entity => {
+      setUserModuleEntity(_ => entity)
+    }
+
+    let labelBasedOnEntity: UserManagementTypes.ompViewType => string = value =>
+      switch value.entity {
+      | #Default => value.label
+      | _ => `${value.label} (${value.entity->getName})`
+      }
+
+    <div className="flex">
+      <div className="flex h-fit">
+        {views
+        ->Array.mapWithIndex((value, index) => {
+          let selectedStyle = userModuleEntity == value.entity ? `bg-blue-200` : ""
+
+          <div
+            onClick={_ => onChange(value.entity)->ignore}
+            className={`text-sm py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer`}>
+            {`${value->labelBasedOnEntity}`->React.string}
+          </div>
+        })
+        ->React.array}
+      </div>
+    </div>
+  }
+}

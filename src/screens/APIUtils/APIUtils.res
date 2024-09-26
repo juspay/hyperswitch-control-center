@@ -516,8 +516,16 @@ let useGetURL = () => {
     | USER_MANAGEMENT_V2 => {
         let userUrl = `user`
         switch userRoleTypes {
-        | USER_LIST => `${userUrl}/user/v2/list`
-        | ROLE_LIST => `${userUrl}/role/v2/list`
+        | USER_LIST =>
+          switch queryParamerters {
+          | Some(queryParams) => `${userUrl}/user/v2/list?${queryParams}`
+          | None => `${userUrl}/user/v2/list`
+          }
+        | ROLE_LIST =>
+          switch queryParamerters {
+          | Some(queryParams) => `${userUrl}/role/v2/list?${queryParams}`
+          | None => `${userUrl}/role/v2/list`
+          }
         | _ => ""
         }
       }

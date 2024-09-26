@@ -258,6 +258,7 @@ module RemoteTableFilters = {
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => reset()}
+        title
       />
     | _ =>
       <Filter
@@ -274,6 +275,7 @@ module RemoteTableFilters = {
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => reset()}
+        title
       />
     }
   }

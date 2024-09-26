@@ -363,13 +363,16 @@ let make = (
             {customLeftView}
             <RenderIf condition={allFilters->Array.length > 0}> {allFiltersUI} </RenderIf>
           </div>
-          <RenderIf condition={fixedFilters->Array.length > 0}>
-            <FormRenderer.FieldsRenderer
-              fields={fixedFilters->Array.map(item => item.field)}
-              labelClass="hidden"
-              fieldWrapperClass="p-0"
-            />
-          </RenderIf>
+          <div className="flex gap-2">
+            <RenderIf condition={fixedFilters->Array.length > 0}>
+              <FormRenderer.FieldsRenderer
+                fields={fixedFilters->Array.map(item => item.field)}
+                labelClass="hidden"
+                fieldWrapperClass="p-0"
+              />
+            </RenderIf>
+            <PortalCapture key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} />
+          </div>
         </div>
         <div className={`flex gap-2 flex-wrap ${verticalGap}`}>
           <FormRenderer.FieldsRenderer

@@ -89,6 +89,7 @@ let make = () => {
               searchVal=searchText
             />}
             entityName=REFUND_FILTERS
+            title="Refunds"
           />
         </div>
         <RenderIf condition={generateReport && refundData->Array.length > 0}>

@@ -24,7 +24,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
         | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
         | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
-        | _ => JSON.Encode.null
+        | PaymentVas => JSON.Encode.null
         }
         dict
       } else {
@@ -119,7 +119,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
       <ToolTip
         height=""
         description={`Update the ${connectorName} creds`}
-        toolTipFor={<Icon name="edit" className={`mt-1 ml-1`} />}
+        toolTipFor={<Icon size=18 name="edit" className={`mt-1 ml-1`} />}
         toolTipPosition=Top
         tooltipWidthClass="w-fit"
       />

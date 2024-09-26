@@ -5,3 +5,9 @@ type opmView = {
   entity: UserInfoTypes.entity,
 }
 type ompViews = array<opmView>
+
+type ompList = {
+  orgList: array<ompListTypes>,
+  merchantList: array<ompListTypes>,
+  profileList: array<ompListTypes>,
+}
