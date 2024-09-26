@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.26.0
+
+### Bug Fixes
+
+- Table customise column bugfix ([#1469](https://github.com/juspay/hyperswitch-control-center/pull/1469)) ([`abc1852`](https://github.com/juspay/hyperswitch-control-center/commit/abc18523def610b41c653bddb0745318a18e77bb))
+- Update connector url on preview ([#1471](https://github.com/juspay/hyperswitch-control-center/pull/1471)) ([`de870b5`](https://github.com/juspay/hyperswitch-control-center/commit/de870b577f7c3222c7ca059e91c09f50de2d0dfa))
+
+### Miscellaneous Tasks
+
+- Empty points generator function for graphs ([#1460](https://github.com/juspay/hyperswitch-control-center/pull/1460)) ([`0d3433e`](https://github.com/juspay/hyperswitch-control-center/commit/0d3433e4524b4f90cd09737ea5acc495f999af55))
+- Transaction view feature flag ([#1472](https://github.com/juspay/hyperswitch-control-center/pull/1472)) ([`8b48ef4`](https://github.com/juspay/hyperswitch-control-center/commit/8b48ef43278255c50d2c3437f7c8045024f2c45f))
+- Payments distribution graph ([#1459](https://github.com/juspay/hyperswitch-control-center/pull/1459)) ([`e15f598`](https://github.com/juspay/hyperswitch-control-center/commit/e15f598507b6a45b403c44321dcf415e3d421b96))
+
+**Full Changelog:** [`2024.09.25.0...2024.09.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.25.0...2024.09.26.0)
+
+- - -
+
 ## 2024.09.25.0
 
 ### Bug Fixes
