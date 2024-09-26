@@ -28,9 +28,7 @@ let make = () => {
   let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
-  let isInternalUser =
-    roleId->UserManagementUtils.stringToVariantMapper == InternalViewOnly ||
-      roleId->UserManagementUtils.stringToVariantMapper == InternalAdmin
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"

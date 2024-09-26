@@ -523,9 +523,7 @@ let developers = (
   ~checkUserEntity,
   ~roleId,
 ) => {
-  let isInternalUser =
-    roleId->UserManagementUtils.stringToVariantMapper == InternalViewOnly ||
-      roleId->UserManagementUtils.stringToVariantMapper == InternalAdmin
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let isProfileUser = checkUserEntity([#Profile])
   let apiKeys = apiKeys(permissionJson)
   let paymentSettings = paymentSettings()
