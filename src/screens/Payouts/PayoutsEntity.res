@@ -306,7 +306,7 @@ let getCell = (payoutData, colType): Table.cell => {
   | PayoutId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/payouts/${payoutData.payout_id}`}
+        url={`/payouts/${payoutData.payout_id}/${payoutData.profile_id}`}
         displayValue={payoutData.payout_id}
         copyValue={Some(payoutData.payout_id)}
       />,
