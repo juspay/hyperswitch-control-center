@@ -91,12 +91,12 @@ let make = (
     <RenderIf condition={!hideRightTitleElement}>
       <Portal to={`${title}CustomizeColumn`}>
         <Button
-          leftIcon=Button.CustomIcon(<Icon name="edit" size=16 />)
+          leftIcon=Button.CustomIcon(<Icon name="customise-columns" size=16 />)
           buttonType=SecondaryFilled
-          buttonSize={Small}
+          buttonSize={XSmall}
           onClick={_ => setShowColumnSelector(_ => true)}
-          customButtonStyle="!rounded !bg-white !h-10 !text-black border-none"
-          customPaddingClass="px-4"
+          customButtonStyle="!rounded !bg-white !h-10 !text-black"
+          customPaddingClass="px-2"
         />
       </Portal>
     </RenderIf>
