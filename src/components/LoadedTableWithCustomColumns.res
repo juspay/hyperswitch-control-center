@@ -93,7 +93,7 @@ let make = (
         <Button
           leftIcon=Button.CustomIcon(<Icon name="customise-columns" size=16 />)
           buttonType=SecondaryFilled
-          buttonSize={XSmall}
+          buttonSize=XSmall
           onClick={_ => setShowColumnSelector(_ => true)}
           customButtonStyle="!rounded !bg-white !h-10 !text-black"
           customPaddingClass="px-2"
