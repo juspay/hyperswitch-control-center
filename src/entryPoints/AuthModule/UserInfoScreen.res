@@ -3,7 +3,6 @@ let make = (~onClick) => {
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {setAuthStatus, authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  // let mixpanel = MixpanelHook.useSetIdentity(),
   let token = switch authStatus {
   | PreLogin(preLoginInfo) => preLoginInfo.token
   | _ => None

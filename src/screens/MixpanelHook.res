@@ -67,7 +67,7 @@ let useSendEvent = () => {
 
     try {
       let _ = await fetchApi(
-        `${getHostUrl}/mixpanel/track`,
+        `https://app.hyperswitch.io/mixpanel/track`,
         ~method_=Post,
         ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
       )
@@ -130,7 +130,7 @@ let usePageView = () => {
     try {
       if featureFlagDetails.mixpanel {
         let _ = await fetchApi(
-          `${getHostUrl}/mixpanel/track`,
+          `https://app.hyperswitch.io/mixpanel/track`,
           ~method_=Post,
           ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
         )
@@ -145,6 +145,7 @@ let useSetIdentity = () => {
   open GlobalVars
   let fetchApi = AuthHooks.useApiFetcher()
   let mixpanel_token = Window.env.mixpanelToken
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   async (~distinctId) => {
     let name = distinctId->LogicUtils.getNameFromEmail
     let body = {
@@ -164,16 +165,18 @@ let useSetIdentity = () => {
     }
 
     try {
-      let _ = await fetchApi(
-        `${getHostUrl}/mixpanel/track`,
-        ~method_=Post,
-        ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
-      )
-      let _ = await fetchApi(
-        `${getHostUrl}/mixpanel/engage`,
-        ~method_=Post,
-        ~bodyStr=`data=${peopleProperties->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
-      )
+      if featureFlagDetails.mixpanel {
+        let _ = await fetchApi(
+          `${getHostUrl}/mixpanel/track`,
+          ~method_=Post,
+          ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+        )
+        let _ = await fetchApi(
+          `${getHostUrl}/mixpanel/engage`,
+          ~method_=Post,
+          ~bodyStr=`data=${peopleProperties->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+        )
+      }
     } catch {
     | _ => Js.log("CAME HERE")
     }
