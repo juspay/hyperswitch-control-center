@@ -1,6 +1,6 @@
 module InfoViewForWebhooks = {
   @react.component
-  let make = (~heading, ~subHeading, ~isCopy=false) => {
+  let make = (~heading, ~subHeading, ~isCopy=false, ~customRightComp=?) => {
     let showToast = ToastState.useShowToast()
     let onCopyClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
@@ -8,7 +8,7 @@ module InfoViewForWebhooks = {
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
     }
 
-    <div className={`flex flex-col gap-2 m-2 md:m-4 w-1/2`}>
+    <div className="flex flex-col gap-2 m-2 md:m-4 w-1/2">
       <p className="font-semibold text-fs-15"> {heading->React.string} </p>
       <div className="flex gap-2 break-all w-full items-start">
         <p className="font-medium text-fs-14 text-black opacity-50"> {subHeading->React.string} </p>
@@ -22,6 +22,7 @@ module InfoViewForWebhooks = {
             }}
           />
         </RenderIf>
+        {customRightComp->Option.getOr(React.null)}
       </div>
     </div>
   }
@@ -42,7 +43,7 @@ module AuthenticationInput = {
         formState.values
         ->getDictFromJsonObject
         ->getDictfromDict("outgoing_webhook_custom_http_headers")
-      let key = outGoingWebhookDict->Dict.keysToArray->LogicUtils.getValueFromArray(index, "")
+      let key = outGoingWebhookDict->Dict.keysToArray->getValueFromArray(index, "")
       let outGoingWebHookVal = outGoingWebhookDict->getOptionString(key)
       switch outGoingWebHookVal {
       | Some(value) => (key, value)
@@ -66,9 +67,8 @@ module AuthenticationInput = {
           let name = `outgoing_webhook_custom_http_headers.${key}`
           form.change(name, JSON.Encode.null)
         }
-        switch value->getOptionIntFromString->Option.isNone {
-        | true => setKey(_ => value)
-        | _ => ()
+        if value->getOptionIntFromString->Option.isNone {
+          setKey(_ => value)
         }
       },
       onFocus: _ => (),
@@ -78,7 +78,7 @@ module AuthenticationInput = {
     let valueInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => {
-        if key->String.length > 0 {
+        if key->isNonEmptyString {
           let name = `outgoing_webhook_custom_http_headers.${key}`
           form.change(name, metaValue->JSON.Encode.string)
         }
@@ -107,10 +107,10 @@ module WebHookAuthenticationHeaders = {
   let make = () => {
     <div className="flex-1">
       <p
-        className={`ml-4 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 !text-base !text-grey-700 font-semibold ml-1`}>
+        className="text-fs-13 dark:text-jp-gray-text_darktheme dark:text-opacity-50 !text-base !text-grey-700 font-semibold ml-1">
         {"Custom HTTP Headers"->React.string}
       </p>
-      <div className="grid grid-cols-5 flex gap-2">
+      <div className="grid grid-cols-5 gap-2">
         {Array.fromInitializer(~length=4, i => i)
         ->Array.mapWithIndex((_, index) =>
           <div key={index->Int.toString} className="col-span-4">
@@ -176,7 +176,7 @@ module WebHook = {
         </div>
         <RenderIf condition={customWebhookHeaders}>
           <div className="ml-4">
-            <div className={"mt-4 flex items-center text-jp-gray-700 font-bold self-start"}>
+            <div className="mt-4 flex items-center text-jp-gray-700 font-bold self-start">
               <div className="font-semibold text-base text-black dark:text-white">
                 {"Enable Custom HTTP Headers"->React.string}
               </div>
@@ -204,16 +204,14 @@ module ReturnUrl = {
   @react.component
   let make = () => {
     open FormRenderer
-    <>
-      <DesktopRow>
-        <FieldRenderer
-          field={DeveloperUtils.returnUrl}
-          errorClass={HSwitchUtils.errorClass}
-          labelClass="!text-base !text-grey-700 font-semibold"
-          fieldWrapperClass="max-w-xl"
-        />
-      </DesktopRow>
-    </>
+    <DesktopRow>
+      <FieldRenderer
+        field={DeveloperUtils.returnUrl}
+        errorClass={HSwitchUtils.errorClass}
+        labelClass="!text-base !text-grey-700 font-semibold"
+        fieldWrapperClass="max-w-xl"
+      />
+    </DesktopRow>
   }
 }
 
@@ -329,6 +327,11 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
     defaultFieldsToValidate
   }
 
+  React.useEffect(() => {
+    setBusiProfie(_ => businessProfileDetails)
+    None
+  }, [businessProfileDetails])
+
   let onSubmit = async (values, _) => {
     try {
       open LogicUtils
@@ -359,8 +362,8 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
         <BreadCrumbNavigation
           path=[
             {
-              title: "Payment Settings",
-              link: "/payment-settings",
+              title: "Business Profiles",
+              link: "/business-profiles",
             },
           ]
           currentPageTitle={busiProfieDetails.profile_name}
@@ -390,14 +393,17 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 className={`${showFormOnly
                     ? ""
                     : "px-2 py-4"} flex flex-col gap-7 overflow-hidden`}>
-                <div className="flex items-center">
-                  <InfoViewForWebhooks
-                    heading="Profile ID" subHeading=busiProfieDetails.profile_id isCopy=true
+                <InfoViewForWebhooks
+                  heading="Profile ID" subHeading=busiProfieDetails.profile_id isCopy=true
+                />
+                <DesktopRow>
+                  <FieldRenderer
+                    field={DeveloperUtils.profileName}
+                    errorClass={HSwitchUtils.errorClass}
+                    labelClass="!text-base !text-grey-700 font-semibold"
+                    fieldWrapperClass="max-w-xl"
                   />
-                  <InfoViewForWebhooks
-                    heading="Profile Name" subHeading=busiProfieDetails.profile_name
-                  />
-                </div>
+                </DesktopRow>
                 <div className="flex items-center">
                   <InfoViewForWebhooks
                     heading="Merchant ID" subHeading={busiProfieDetails.merchant_id}

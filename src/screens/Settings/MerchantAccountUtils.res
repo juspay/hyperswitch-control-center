@@ -170,6 +170,10 @@ let getBusinessProfilePayload = (values: JSON.t) => {
 
   let profileDetailsDict = Dict.make()
   profileDetailsDict->setDictNull(
+    "profile_name",
+    valuesDict->getString("profile_name", "")->getNonEmptyString,
+  )
+  profileDetailsDict->setDictNull(
     "return_url",
     valuesDict->getString("return_url", "")->getNonEmptyString,
   )

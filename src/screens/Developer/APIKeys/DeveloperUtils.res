@@ -165,6 +165,14 @@ let returnUrl = FormRenderer.makeFieldInfo(
   ~isRequired=false,
 )
 
+let profileName = FormRenderer.makeFieldInfo(
+  ~label="Profile Name",
+  ~name="profile_name",
+  ~placeholder="Enter Profile Name",
+  ~customInput=InputFields.textInput(~autoComplete="off"),
+  ~isRequired=false,
+)
+
 let authenticationConnectors = connectorList =>
   FormRenderer.makeFieldInfo(
     ~label="Authentication Connectors",
