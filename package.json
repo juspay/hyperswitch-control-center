@@ -22,7 +22,7 @@
     "cy:run": "sh cypress/start_hyperswitch.sh && cypress run",
     "local:cy:open": "cypress open",
     "lint:hooks": "eslint src/ --max-warnings 0",
-    "dev": "concurrently -k \"npm run re:start\" \"npm run start\""
+    "dev": "concurrently --prefix-colors \"yellow,green\" \"npm run re:start\" \"npm run start\""
   },
   "husky": {
     "hooks": {
