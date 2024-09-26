@@ -272,3 +272,7 @@ let initialFilters = (json, filtervalues) => {
     }
   })
 }
+
+let isNonEmptyValue = value => {
+  value->Option.getOr(Dict.make())->Dict.toArray->Array.length > 0
+}

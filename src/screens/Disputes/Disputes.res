@@ -70,32 +70,16 @@ let make = () => {
     }
   }
   React.useEffect(() => {
-    getDisputesList()->ignore
+    if filters->isNonEmptyValue {
+      getDisputesList()->ignore
+    }
     None
   }, (filters, searchText))
 
   let customUI =
-    <>
-      <RenderIf condition={!branding}>
-        <div
-          className={`${borderColor.primaryNormal} flex  items-start  text-sm rounded-md gap-2 px-4 py-3 mt-5`}>
-          <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
-          <p>
-            {"Missing disputes? Disputes might not be supported for your payment processor or might not yet have been integrated with hyperswitch. Please check the"->React.string}
-            <a
-              href="https://hyperswitch.io/pm-list"
-              target="_blank"
-              className={`${textColor.primaryNormal}`}>
-              {" feature matrix "->React.string}
-            </a>
-            {"for your processor."->React.string}
-          </p>
-        </div>
-      </RenderIf>
-      <HelperComponents.BluredTableComponent
-        infoText="No disputes as of now." moduleName=" " showRedirectCTA=false
-      />
-    </>
+    <NoDataFound
+      customCssClass={"my-6"} message="There are no disputes as of now" renderType=Painting
+    />
 
   <div>
     <div className="flex justify-between items-center">
