@@ -55,16 +55,6 @@ module PaymentsProcessedHeader = {
     ~granularity,
     ~setGranularity,
   ) => {
-    let dropDownOptions = [
-      {label: "By Amount", value: "amount"},
-      {label: "By Count", value: "count"},
-    ]
-    let tabs = [
-      {label: "Hourly", value: "hour_wise"},
-      {label: "Daily", value: "day_wise"},
-      {label: "Weekly", value: "week_wise"},
-    ]
-
     let setViewType = value => {
       setViewType(_ => value)
     }
@@ -101,14 +91,8 @@ let make = (
   ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
 ) => {
   let (paymentsProcessed, setpaymentsProcessed) = React.useState(_ => JSON.Encode.array([]))
-  let (selectedMetric, setSelectedMetric) = React.useState(_ => {
-    label: "By Amount",
-    value: "amount",
-  })
-  let (granularity, setGranularity) = React.useState(_ => {
-    label: "Hourly",
-    value: "hour_wise",
-  })
+  let (selectedMetric, setSelectedMetric) = React.useState(_ => defaultMetric)
+  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
   let (viewType, setViewType) = React.useState(_ => Graph)
 
   let getPaymentsProcessed = async () => {
@@ -116,13 +100,25 @@ let make = (
       let response = [
         {
           "queryData": [
-            {"count": 24, "amount": 952, "time_bucket": "2024-08-13 18:30:00"},
-            {"count": 28, "amount": 1020, "time_bucket": "2024-08-14 18:30:00"},
-            {"count": 35, "amount": 1450, "time_bucket": "2024-08-15 18:30:00"},
-            {"count": 30, "amount": 1150, "time_bucket": "2024-08-16 18:30:00"},
-            {"count": 40, "amount": 1600, "time_bucket": "2024-08-17 18:30:00"},
-            {"count": 29, "amount": 1200, "time_bucket": "2024-08-18 18:30:00"},
-            {"count": 31, "amount": 1300, "time_bucket": "2024-08-19 18:30:00"},
+            {"count": 24, "amount": 952, "time_bucket": "2024-08-13 00:00:00"},
+            {"count": 28, "amount": 1020, "time_bucket": "2024-08-14 00:00:00"},
+            {"count": 35, "amount": 1450, "time_bucket": "2024-08-15 00:00:00"},
+            {"count": 30, "amount": 1150, "time_bucket": "2024-08-16 00:00:00"},
+            {"count": 40, "amount": 1600, "time_bucket": "2024-08-17 00:00:00"},
+            {"count": 29, "amount": 1200, "time_bucket": "2024-08-18 00:00:00"},
+            {"count": 31, "amount": 1300, "time_bucket": "2024-08-19 00:00:00"},
+          ],
+          "metaData": [{"count": 217, "amount": 8672, "currency": "USD"}],
+        },
+        {
+          "queryData": [
+            {"count": 34, "amount": 9520, "time_bucket": "2024-08-13 00:00:00"},
+            {"count": 38, "amount": 10200, "time_bucket": "2024-08-14 00:00:00"},
+            {"count": 45, "amount": 14500, "time_bucket": "2024-08-15 00:00:00"},
+            {"count": 40, "amount": 11500, "time_bucket": "2024-08-16 00:00:00"},
+            {"count": 50, "amount": 16000, "time_bucket": "2024-08-17 00:00:00"},
+            {"count": 39, "amount": 12000, "time_bucket": "2024-08-18 00:00:00"},
+            {"count": 41, "amount": 13000, "time_bucket": "2024-08-19 00:00:00"},
           ],
           "metaData": [{"count": 217, "amount": 8672, "currency": "USD"}],
         },
@@ -136,7 +132,7 @@ let make = (
   React.useEffect(() => {
     getPaymentsProcessed()->ignore
     None
-  }, [])
+  }, [granularity])
 
   <div>
     <ModuleHeader title={entity.title} />
@@ -152,7 +148,16 @@ let make = (
       />
       <div className="mb-5">
         {switch viewType {
-        | Graph => <LineGraph entity={chartEntity} data={paymentsProcessed} className="mr-3" />
+        | Graph =>
+          <LineGraph
+            entity={chartEntity}
+            config={chartEntity.getObjects(
+              ~data=paymentsProcessed,
+              ~xKey=selectedMetric.value,
+              ~yKey=TimeBucket->colMapper,
+            )}
+            className="mr-3"
+          />
         | Table => <TableModule data={paymentsProcessed} className="mx-7" />
         }}
       </div>

@@ -7,12 +7,6 @@ module PaymentsSuccessRateHeader = {
   open NewAnalyticsTypes
   @react.component
   let make = (~title, ~granularity, ~setGranularity) => {
-    let tabs = [
-      {label: "Hourly", value: "hour_wise"},
-      {label: "Daily", value: "day_wise"},
-      {label: "Weekly", value: "week_wise"},
-    ]
-
     let setGranularity = value => {
       setGranularity(_ => value)
     }
@@ -36,10 +30,7 @@ let make = (
   ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
 ) => {
   let (paymentsSuccessRate, setpaymentsSuccessRate) = React.useState(_ => JSON.Encode.array([]))
-  let (granularity, setGranularity) = React.useState(_ => {
-    label: "Hourly",
-    value: "hour_wise",
-  })
+  let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
 
   let getPaymentsSuccessRate = async () => {
     try {
@@ -88,7 +79,15 @@ let make = (
         title={graphTitle(paymentsSuccessRate)} granularity setGranularity
       />
       <div className="mb-5">
-        <LineGraph entity={chartEntity} data={paymentsSuccessRate} className="mr-3" />
+        <LineGraph
+          entity={chartEntity}
+          config={chartEntity.getObjects(
+            ~data=paymentsSuccessRate,
+            ~xKey=PaymentSuccessRate->colMapper,
+            ~yKey=TimeBucket->colMapper,
+          )}
+          className="mr-3"
+        />
       </div>
     </Card>
   </div>

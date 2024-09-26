@@ -41,17 +41,8 @@ module TableModule = {
 }
 
 module PaymentsDistributionHeader = {
-  open NewAnalyticsTypes
   @react.component
   let make = (~viewType, ~setViewType, ~groupBy, ~setGroupBy) => {
-    let tabs = [
-      {label: "Connector", value: "connector"},
-      {label: "Payment Method", value: "payment_method"},
-      {label: "Payment Method Type", value: "payment_method_type"},
-      {label: "Card Network", value: "card_network"},
-      {label: "Authentication Type", value: "authentication_type"},
-    ]
-
     let setViewType = value => {
       setViewType(_ => value)
     }
@@ -73,20 +64,17 @@ module PaymentsDistributionHeader = {
 let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, barGraphOptions>) => {
   let (paymentsDistribution, setpaymentsDistribution) = React.useState(_ => JSON.Encode.array([]))
   let (viewType, setViewType) = React.useState(_ => Graph)
-  let (groupBy, setGroupBy) = React.useState(_ => {
-    label: "Connector",
-    value: "connector",
-  })
+  let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
 
   let getPaymentsDistribution = async () => {
     try {
       let response = [
         {
           "queryData": [
-            {"payments_success_rate": 40, "connector": "stripe"},
-            {"payments_success_rate": 60, "connector": "adyen"},
-            {"payments_success_rate": 75, "connector": "paypal"},
-            {"payments_success_rate": 65, "connector": "checkout"},
+            {"payments_success_rate": 40, "connector": "stripe", "payment_method": "card"},
+            {"payments_success_rate": 60, "connector": "adyen", "payment_method": "wallet"},
+            {"payments_success_rate": 75, "connector": "paypal", "payment_method": "gpay"},
+            {"payments_success_rate": 65, "connector": "checkout", "payment_method": "apple-pay"},
           ],
           "metaData": null,
         },
@@ -108,7 +96,16 @@ let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, ba
       <PaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
       <div className="mb-5">
         {switch viewType {
-        | Graph => <BarGraph entity={chartEntity} data={paymentsDistribution} className="mr-3" />
+        | Graph =>
+          <BarGraph
+            entity={chartEntity}
+            object={chartEntity.getObjects(
+              ~data=paymentsDistribution,
+              ~xKey=PaymentsSuccessRate->colMapper,
+              ~yKey=groupBy.value,
+            )}
+            className="mr-3"
+          />
         | Table => <TableModule data={paymentsDistribution} className="mx-7" />
         }}
       </div>

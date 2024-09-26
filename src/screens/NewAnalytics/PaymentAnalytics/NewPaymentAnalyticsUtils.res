@@ -22,6 +22,7 @@ let getLineGraphData = (json: JSON.t, key: string): LineGraphTypes.data => {
       ->Array.map(item => {
         item->getDictFromJsonObject->getInt(key, 0)
       })
+
     let dataObj: LineGraphTypes.dataObj = {
       showInLegend: false,
       name: `Series ${(index + 1)->Int.toString}`,

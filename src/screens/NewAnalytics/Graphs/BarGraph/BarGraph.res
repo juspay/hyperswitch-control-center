@@ -1,8 +1,7 @@
 external barGraphOptionsToJson: BarGraphTypes.barGraphOptions => JSON.t = "%identity"
 @react.component
-let make = (~entity, ~data: JSON.t, ~className="") => {
+let make = (~entity, ~object, ~className="") => {
   open NewAnalyticsTypes
-  let object = entity.getObjects(data)
   let options = entity.getChatOptions(object)->barGraphOptionsToJson
 
   <div className>

@@ -1,11 +1,8 @@
-//Logic utils
-
-open NewAnalyticsTypes
-let getBucketSize = (granularity: granularity) => {
+let getBucketSize = granularity => {
   switch granularity {
-  | #hour_wise => "hour"
-  | #day_wise => "day"
-  | #week_wise => "week"
+  | "hour_wise" => "hour"
+  | "week_wise" => "week"
+  | "day_wise" | _ => "day"
   }
 }
 
@@ -14,8 +11,8 @@ let fillMissingDataPoints = (
   ~startDate,
   ~endDate,
   ~timeKey="time_bucket",
-  ~defaultValue: Dict.t<JSON.t>,
-  ~granularity: granularity,
+  ~defaultValue: JSON.t,
+  ~granularity: string,
 ) => {
   open LogicUtils
   let dataPoints = Dict.make()
@@ -24,8 +21,8 @@ let fillMissingDataPoints = (
   let gap = granularity->getBucketSize
 
   for x in 1 to endingPoint.diff(startingPoint.toString(), gap) {
-    let newDict = defaultValue->Dict.copy
-    let timeVal = startingPoint.add(x, gap).endOf(gap).format("YYYY-MM-DD HH:MM:SS")
+    let newDict = defaultValue->getDictFromJsonObject->Dict.copy
+    let timeVal = startingPoint.add(x, gap).endOf(gap).format("YYYY-MM-DD 00:00:00")
     newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
     dataPoints->Dict.set(timeVal, newDict->JSON.Encode.object)
   }
