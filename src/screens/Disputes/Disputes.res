@@ -5,10 +5,6 @@ let make = () => {
   open HSwitchRemoteFilter
   open DisputesUtils
   let getURL = useGetURL()
-  let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
-    ThemeProvider.themeContext,
-  )
-  let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchDetails = useGetMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => Loading)
@@ -81,38 +77,40 @@ let make = () => {
       customCssClass={"my-6"} message="There are no disputes as of now" renderType=Painting
     />
 
+  let filtersUI =
+    <RemoteTableFilters
+      setFilters
+      endTimeFilterKey
+      startTimeFilterKey
+      initialFilters
+      initialFixedFilter
+      setOffset
+      customLeftView={<SearchBarFilter
+        placeholder="Search disptue id" setSearchVal=setSearchText searchVal=searchText //// dispute id
+      />}
+      entityName=DISPUTE_FILTERS
+      title="Disputes"
+    />
+
   <div>
     <div className="flex justify-between items-center">
       <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />
-      <OMPSwitchHelper.OMPViews
-        views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-        selectedEntity={transactionEntity}
-        onChange={updateTransactionEntity}
-      />
+      <div className="flex gap-4">
+        <OMPSwitchHelper.OMPViews
+          views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+          selectedEntity={transactionEntity}
+          onChange={updateTransactionEntity}
+        />
+        <RenderIf condition={generateReport && disputesData->Array.length > 0}>
+          <GenerateReport entityName={DISPUTE_REPORT} />
+        </RenderIf>
+      </div>
     </div>
-    <div className="flex w-full justify-end pb-3 gap-3">
-      <RenderIf condition={generateReport && disputesData->Array.length > 0}>
-        <GenerateReport entityName={DISPUTE_REPORT} />
-      </RenderIf>
-    </div>
-    <div className="flex">
-      <RemoteTableFilters
-        setFilters
-        endTimeFilterKey
-        startTimeFilterKey
-        initialFilters
-        initialFixedFilter
-        setOffset
-        customLeftView={<SearchBarFilter
-          placeholder="Search disptue id" setSearchVal=setSearchText searchVal=searchText //// dispute id
-        />}
-        entityName=DISPUTE_FILTERS
-      />
-    </div>
+    <div className="flex-1"> {filtersUI} </div>
     <PageLoaderWrapper screenState customUI>
       <div className="flex flex-col gap-4">
         <LoadedTableWithCustomColumns
-          title=" "
+          title="Disputes"
           hideTitle=true
           actualData=disputesData
           entity={DisputesEntity.disputesEntity}
