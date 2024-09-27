@@ -93,7 +93,6 @@ let make = (
   ~entity: moduleEntity,
   ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
 ) => {
-  open LogicUtils
   open PaymentsProcessedTypes
   let (paymentsProcessed, setpaymentsProcessed) = React.useState(_ => JSON.Encode.array([]))
   let (selectedMetric, setSelectedMetric) = React.useState(_ => defaultMetric)
@@ -129,27 +128,19 @@ let make = (
           "metaData": [{"count": 217, "amount": 8672, "currency": "USD"}],
         }->Identity.genericTypeToJson,
       ]
-      let data =
-        responses
-        ->Array.map(response => {
-          let responseDict = response->getDictFromJsonObject->Dict.copy
-          let queryData = responseDict->getArrayFromDict("queryData", [])
-          let modifiedData = NewAnalyticsUtils.fillMissingDataPoints(
-            ~data=queryData,
-            ~startDate="2024-08-13",
-            ~endDate="2024-08-27",
-            ~timeKey="time_bucket",
-            ~defaultValue={
-              count: 0,
-              amount: 0.0,
-              time_bucket: "",
-            }->Identity.genericTypeToJson,
-            ~granularity=granularity.value,
-          )
-          responseDict->Dict.set("queryData", modifiedData->JSON.Encode.array)
-          responseDict
-        })
-        ->Identity.genericTypeToJson
+      let data = NewPaymentAnalyticsUtils.modifyDataWithMissingPoints(
+        ~data=responses,
+        ~key="queryData",
+        ~startDate="2024-08-13",
+        ~endDate="2024-08-27",
+        ~defaultValue={
+          count: 0,
+          amount: 0.0,
+          time_bucket: "",
+        }->Identity.genericTypeToJson,
+        ~timeKey="time_bucket",
+        ~granularity=granularity.value,
+      )->Identity.genericTypeToJson
 
       setpaymentsProcessed(_ => data)
     } catch {

@@ -32,7 +32,6 @@ let make = (
   ~entity: moduleEntity,
   ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
 ) => {
-  open LogicUtils
   open PaymentsSuccessRateTypes
   let (paymentsSuccessRate, setpaymentsSuccessRate) = React.useState(_ => JSON.Encode.array([]))
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
@@ -63,22 +62,15 @@ let make = (
       ]
 
       let data =
-        responses
-        ->Array.map(response => {
-          let responseDict = response->getDictFromJsonObject->Dict.copy
-          let queryData = responseDict->getArrayFromDict("queryData", [])
-          let modifiedData = NewAnalyticsUtils.fillMissingDataPoints(
-            ~data=queryData,
-            ~startDate="2024-08-13",
-            ~endDate="2024-08-19",
-            ~timeKey="time_bucket",
-            ~defaultValue={payments_success_rate: 0.0, time_bucket: ""}->Identity.genericTypeToJson,
-            ~granularity=granularity.value,
-          )
-          responseDict->Dict.set("queryData", modifiedData->JSON.Encode.array)
-          responseDict
-        })
-        ->Identity.genericTypeToJson
+        NewPaymentAnalyticsUtils.modifyDataWithMissingPoints(
+          ~data=responses,
+          ~key="queryData",
+          ~startDate="2024-08-13",
+          ~endDate="2024-08-19",
+          ~defaultValue={payments_success_rate: 0.0, time_bucket: ""}->Identity.genericTypeToJson,
+          ~timeKey="time_bucket",
+          ~granularity=granularity.value,
+        )->Identity.genericTypeToJson
 
       setpaymentsSuccessRate(_ => data)
     } catch {

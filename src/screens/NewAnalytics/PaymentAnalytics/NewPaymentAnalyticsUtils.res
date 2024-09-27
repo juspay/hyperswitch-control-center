@@ -57,3 +57,28 @@ let getBarGraphData = (json: JSON.t, key: string): BarGraphTypes.data => {
     dataObj
   })
 }
+
+let modifyDataWithMissingPoints = (
+  ~data,
+  ~key,
+  ~startDate,
+  ~endDate,
+  ~defaultValue: JSON.t,
+  ~timeKey="time_bucket",
+  ~granularity,
+) => {
+  data->Array.map(response => {
+    let dict = response->getDictFromJsonObject->Dict.copy
+    let queryData = dict->getArrayFromDict(key, [])
+    let modifiedData = NewAnalyticsUtils.fillMissingDataPoints(
+      ~data=queryData,
+      ~startDate,
+      ~endDate,
+      ~timeKey,
+      ~defaultValue,
+      ~granularity,
+    )
+    dict->Dict.set(key, modifiedData->JSON.Encode.array)
+    dict
+  })
+}
