@@ -1,13 +1,13 @@
 @react.component
 let make = () => {
   open APIUtils
-  open PageLoaderWrapper
   open HSwitchRemoteFilter
   open DisputesUtils
+
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
-  let (screenState, setScreenState) = React.useState(_ => Loading)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (disputesData, setDisputesData) = React.useState(_ => [])
   let (searchText, setSearchText) = React.useState(_ => "")
   let (offset, setOffset) = React.useState(_ => 0)
@@ -18,11 +18,11 @@ let make = () => {
   let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
-
   let getDisputesList = async () => {
+    open LogicUtils
     try {
       setScreenState(_ => Loading)
-      if searchText->LogicUtils.isNonEmptyString {
+      if searchText->isNonEmptyString {
         filterValueJson->Dict.set("dispute_id", searchText->String.trim->JSON.Encode.string)
         filterValueJson->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
       }
@@ -34,7 +34,7 @@ let make = () => {
           let value = switch value->JSON.Classify.classify {
           | String(str) => str
           | Array(arr) => {
-              let valueString = arr->LogicUtils.getStrArrayFromJsonArray->Array.joinWith(",")
+              let valueString = arr->getStrArrayFromJsonArray->Array.joinWith(",")
               valueString
             }
           | _ => ""
@@ -48,7 +48,7 @@ let make = () => {
         ~queryParamerters=Some(queryParam),
       )
       let response = await fetchDetails(disputesUrl)
-      let disputesValue = response->LogicUtils.getArrayDataFromJson(DisputesEntity.itemToObjMapper)
+      let disputesValue = response->getArrayDataFromJson(DisputesEntity.itemToObjMapper)
       if disputesValue->Array.length > 0 {
         setDisputesData(_ => disputesValue->Array.map(Nullable.make))
         setScreenState(_ => Success)
@@ -86,7 +86,7 @@ let make = () => {
       initialFixedFilter
       setOffset
       customLeftView={<SearchBarFilter
-        placeholder="Search disptue id" setSearchVal=setSearchText searchVal=searchText //// dispute id
+        placeholder="Search disptue id" setSearchVal=setSearchText searchVal=searchText
       />}
       entityName=DISPUTE_FILTERS
       title="Disputes"

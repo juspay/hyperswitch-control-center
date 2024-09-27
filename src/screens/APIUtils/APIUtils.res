@@ -98,9 +98,9 @@ let useGetURL = () => {
       switch methodType {
       | Get =>
         switch transactionEntity {
-        | #Merchant => `disputes/filter`
         | #Profile => `disputes/profile/filter`
-        | _ => `disputes/v2/filter`
+        | #Merchant
+        | _ => `disputes/filter`
         }
 
       | _ => ""
@@ -198,14 +198,15 @@ let useGetURL = () => {
           switch queryParamerters {
           | Some(queryParams) =>
             switch transactionEntity {
-            | #Merchant => `disputes/list?${queryParams}&limit=10000`
             | #Profile => `disputes/profile/list?${queryParams}&limit=10000`
-            | _ => `disputes/list?limit=10000`
+            | #Merchant
+            | _ =>
+              `disputes/list?${queryParams}&limit=10000`
             }
           | None =>
             switch transactionEntity {
-            | #Merchant => `disputes/list?limit=10000`
             | #Profile => `disputes/profile/list?limit=10000`
+            | #Merchant
             | _ => `disputes/list?limit=10000`
             }
           }

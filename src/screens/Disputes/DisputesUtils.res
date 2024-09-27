@@ -1,26 +1,5 @@
-type filterTypes = {
-  connector: array<string>,
-  currency: array<string>,
-  connector_label: array<string>,
-  dispute_status: array<string>,
-  dispute_stage: array<string>,
-}
-
-type filter = [
-  | #connector
-  | #currency
-  | #connector_label
-  | #dispute_status
-  | #dispute_stage
-  | #unknown
-]
-
-open ConnectorTypes
-let connectorsSupportEvidenceUpload = [Processors(CHECKOUT), Processors(STRIPE)]
-let connectorsSupportAcceptDispute = [Processors(CHECKOUT)]
-let connectorSupportCounterDispute = [Processors(CHECKOUT), Processors(STRIPE)]
-
 open DisputeTypes
+open LogicUtils
 let disputeStageVariantMapper = stage => {
   switch stage {
   | "pre_dispute" => PreDispute
@@ -57,7 +36,6 @@ let evidenceList = [
 ]
 
 let getDictFromFilesAvailable = arrayValue => {
-  open LogicUtils
   let manipulatedDict = Dict.make()
   arrayValue->Array.forEach(val => {
     let dictFromJson = val->getDictFromJsonObject
@@ -111,7 +89,6 @@ let getFilterTypeFromString = filterType => {
 }
 
 let filterByData = (txnArr, value) => {
-  open LogicUtils
   let searchText = value->getStringFromJson("")
 
   txnArr
@@ -169,8 +146,6 @@ let initialFixedFilter = () => [
 ]
 
 let getConditionalFilter = (key, dict, filterValues) => {
-  open LogicUtils
-
   let filtersArr = switch key->getFilterTypeFromString {
   | #connector_label => {
       let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
@@ -189,7 +164,6 @@ let getConditionalFilter = (key, dict, filterValues) => {
 }
 
 let getOptionsForDisputeFilters = (dict, filterValues) => {
-  open LogicUtils
   let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   let newArr = arr->Array.flatMap(connector => {
     let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
@@ -207,7 +181,6 @@ let getOptionsForDisputeFilters = (dict, filterValues) => {
 }
 
 let itemToObjMapper = dict => {
-  open LogicUtils
   {
     connector: dict->getDictfromDict("connector")->Dict.keysToArray,
     currency: dict->getArrayFromDict("currency", [])->getStrArrayFromJsonArray,
@@ -218,8 +191,6 @@ let itemToObjMapper = dict => {
 }
 
 let initialFilters = (json, filtervalues) => {
-  open LogicUtils
-
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
 
   let filterDict = json->getDictFromJsonObject
@@ -276,3 +247,8 @@ let initialFilters = (json, filtervalues) => {
 let isNonEmptyValue = value => {
   value->Option.getOr(Dict.make())->Dict.toArray->Array.length > 0
 }
+
+open ConnectorTypes
+let connectorsSupportEvidenceUpload = [Processors(CHECKOUT), Processors(STRIPE)]
+let connectorsSupportAcceptDispute = [Processors(CHECKOUT)]
+let connectorSupportCounterDispute = [Processors(CHECKOUT), Processors(STRIPE)]
