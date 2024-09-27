@@ -179,7 +179,7 @@ let useSetIdentity = () => {
         )
       }
     } catch {
-    | _ => Js.log("CAME HERE")
+    | _ => ()
     }
   }
 }
