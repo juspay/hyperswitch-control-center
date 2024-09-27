@@ -251,7 +251,7 @@ module UserOmpView = {
 
           <div
             onClick={_ => onChange(value.entity)->ignore}
-            className={`text-sm py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer`}>
+            className={`text-xs py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer break-all`}>
             {`${value->labelBasedOnEntity}`->React.string}
           </div>
         })
