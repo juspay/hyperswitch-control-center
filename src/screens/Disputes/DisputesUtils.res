@@ -146,28 +146,32 @@ let initialFixedFilter = () => [
 ]
 
 let getConditionalFilter = (key, dict, filterValues) => {
-  let filtersArr = switch key->getFilterTypeFromString {
-  | #connector_label => {
-      let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-      let newArr = arr->Array.flatMap(connector => {
-        let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
-        connectorLabelArr->Array.map(item => {
-          item->getDictFromJsonObject->getString("connector_label", "")
-        })
+  switch key->getFilterTypeFromString {
+  | #connector_label =>
+    filterValues
+    ->getArrayFromDict("connector", [])
+    ->getStrArrayFromJsonArray
+    ->Array.flatMap(connector => {
+      dict
+      ->getDictfromDict("connector")
+      ->getArrayFromDict(connector, [])
+      ->Array.map(item => {
+        item->getDictFromJsonObject->getString("connector_label", "")
       })
-      newArr
-    }
+    })
   | _ => []
   }
-
-  filtersArr
 }
 
 let getOptionsForDisputeFilters = (dict, filterValues) => {
-  let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  let newArr = arr->Array.flatMap(connector => {
-    let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
-    connectorLabelArr->Array.map(item => {
+  filterValues
+  ->getArrayFromDict("connector", [])
+  ->getStrArrayFromJsonArray
+  ->Array.flatMap(connector => {
+    dict
+    ->getDictfromDict("connector")
+    ->getArrayFromDict(connector, [])
+    ->Array.map(item => {
       let label = item->getDictFromJsonObject->getString("connector_label", "")
       let value = item->getDictFromJsonObject->getString("merchant_connector_id", "")
       let option: FilterSelectBox.dropdownOption = {
@@ -177,7 +181,6 @@ let getOptionsForDisputeFilters = (dict, filterValues) => {
       option
     })
   })
-  newArr
 }
 
 let itemToObjMapper = dict => {
