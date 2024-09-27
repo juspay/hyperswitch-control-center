@@ -81,7 +81,7 @@ let make = (
       <div className="mb-5">
         <LineGraph
           entity={chartEntity}
-          config={chartEntity.getObjects(
+          data={chartEntity.getObjects(
             ~data=paymentsSuccessRate,
             ~xKey=PaymentSuccessRate->colMapper,
             ~yKey=TimeBucket->colMapper,

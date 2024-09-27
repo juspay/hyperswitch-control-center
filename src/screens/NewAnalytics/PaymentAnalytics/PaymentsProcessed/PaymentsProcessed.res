@@ -138,7 +138,7 @@ let make = (
     <ModuleHeader title={entity.title} />
     <Card>
       <PaymentsProcessedHeader
-        title={graphTitle(paymentsProcessed)}
+        title={paymentsProcessed->graphTitle}
         viewType
         setViewType
         selectedMetric
@@ -151,7 +151,7 @@ let make = (
         | Graph =>
           <LineGraph
             entity={chartEntity}
-            config={chartEntity.getObjects(
+            data={chartEntity.getObjects(
               ~data=paymentsProcessed,
               ~xKey=selectedMetric.value,
               ~yKey=TimeBucket->colMapper,
