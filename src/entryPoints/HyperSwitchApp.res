@@ -26,9 +26,10 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let {userInfo: {orgId, merchantId, profileId}, checkUserEntity} = React.useContext(
+  let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
@@ -160,12 +161,10 @@ let make = () => {
                       <Navbar
                         headerActions={<div className="relative flex items-center gap-4 my-2 ">
                           <GlobalSearchBar />
-                          <RenderIf condition={checkUserEntity([#Internal])}>
+                          <RenderIf condition={isInternalUser}>
                             <SwitchMerchantForInternal />
                           </RenderIf>
-                          <RenderIf condition={!checkUserEntity([#Internal])}>
-                            <ProfileSwitch />
-                          </RenderIf>
+                          <ProfileSwitch />
                           <div
                             className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
                             {modeText->React.string}
@@ -273,8 +272,7 @@ let make = () => {
                           </AccessControl>
                         | list{"developer-system-metrics"} =>
                           <AccessControl
-                            isEnabled={checkUserEntity([#Internal]) &&
-                            featureFlagDetails.systemMetrics}
+                            isEnabled={isInternalUser && featureFlagDetails.systemMetrics}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext key="SystemMetrics" index="SystemMetrics">
                               <SystemMetricsAnalytics />

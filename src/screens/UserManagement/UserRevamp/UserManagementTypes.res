@@ -1,5 +1,7 @@
 type userManagementTypes = UsersTab | RolesTab
 
+type internalUserType = InternalViewOnly | InternalAdmin | NonInternal
+
 type permissionType =
   | OperationsView
   | OperationsManage
