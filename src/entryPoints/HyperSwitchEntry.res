@@ -78,20 +78,6 @@ module HyperSwitchEntryComponent = {
       None
     }, [])
 
-    React.useEffect(() => {
-      if featureFlagDetails.mixpanel {
-        MixPanel.init(
-          Window.env.mixpanelToken,
-          {
-            "track_pageview": true,
-            "batch_requests": true,
-          },
-        )
-      }
-
-      None
-    }, [featureFlagDetails.mixpanel])
-
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle
       let title = `${page} - Dashboard`
