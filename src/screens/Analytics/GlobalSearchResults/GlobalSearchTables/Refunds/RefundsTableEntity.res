@@ -170,7 +170,7 @@ let getCell = (refundsObj, colType): Table.cell => {
   | RefundId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/refunds/${refundsObj.refund_id}`}
+        url={`/refunds/${refundsObj.refund_id}/${refundsObj.profile_id}`}
         displayValue={refundsObj.refund_id}
         copyValue={Some(refundsObj.refund_id)}
       />,
