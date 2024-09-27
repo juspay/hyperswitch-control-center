@@ -106,8 +106,6 @@ let make = () => {
   React.useEffect(() => {
     if connectorName->LogicUtils.isNonEmptyString {
       getDetails()->ignore
-    } else {
-      setScreenState(_ => Error("Connector name not found"))
     }
     None
   }, [connectorName])
