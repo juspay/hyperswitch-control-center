@@ -89,6 +89,7 @@ module OMPViews = {
       ->Array.mapWithIndex((value, index) => {
         let selectedStyle = selectedEntity == value.entity ? `bg-blue-200` : ""
         <div
+          key={index->Int.toString}
           onClick={_ => onChange(value.entity)->ignore}
           className={`text-xs py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer break-all`}>
           {`${value.lable} (${value.entity->getName})`->React.string}
