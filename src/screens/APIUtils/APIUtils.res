@@ -55,8 +55,7 @@ let useGetURL = () => {
           switch userEntity {
           | #Organization
           | #Merchant
-          | #Profile
-          | #Internal =>
+          | #Profile =>
             `account/${merchantId}/profile/connectors`
           }
         }
@@ -246,8 +245,7 @@ let useGetURL = () => {
           switch userEntity {
           | #Organization
           | #Merchant
-          | #Profile
-          | #Internal => `routing/list/profile`
+          | #Profile => `routing/list/profile`
           }
         }
       | Post =>
@@ -269,7 +267,6 @@ let useGetURL = () => {
           | #Organization => `analytics/v2/org/metrics/${domain}`
           | #Merchant => `analytics/v2/merchant/metrics/${domain}`
           | #Profile => `analytics/v2/profile/metrics/${domain}`
-          | _ => `analytics/v2/merchant/metrics/${domain}`
           }
 
         | _ => ""
@@ -294,7 +291,6 @@ let useGetURL = () => {
           | #Organization => `analytics/v1/org/${domain}/info`
           | #Merchant => `analytics/v1/merchant/${domain}/info`
           | #Profile => `analytics/v1/profile/${domain}/info`
-          | _ => `analytics/v1/merchant/${domain}/info`
           }
 
         | _ => ""
@@ -306,7 +302,6 @@ let useGetURL = () => {
           | #Organization => `analytics/v1/org/metrics/${domain}`
           | #Merchant => `analytics/v1/merchant/metrics/${domain}`
           | #Profile => `analytics/v1/profile/metrics/${domain}`
-          | _ => `analytics/v1/merchant/metrics/${domain}`
           }
 
         | _ => ""
@@ -322,7 +317,6 @@ let useGetURL = () => {
           | #Organization => `analytics/v1/org/filters/${domain}`
           | #Merchant => `analytics/v1/merchant/filters/${domain}`
           | #Profile => `analytics/v1/profile/filters/${domain}`
-          | _ => `analytics/v1/merchant/filters/${domain}`
           }
 
         | _ => ""
@@ -351,8 +345,7 @@ let useGetURL = () => {
           switch userEntity {
           | #Organization
           | #Merchant
-          | #Profile
-          | #Internal => `routing/payouts/list/profile`
+          | #Profile => `routing/payouts/list/profile`
           }
         }
 
@@ -385,7 +378,6 @@ let useGetURL = () => {
       | #Organization => `analytics/v1/org/report/payments`
       | #Merchant => `analytics/v1/merchant/report/payments`
       | #Profile => `analytics/v1/profile/report/payments`
-      | _ => `analytics/v1/merchant/report/payments`
       }
 
     | REFUND_REPORT =>
@@ -393,7 +385,6 @@ let useGetURL = () => {
       | #Organization => `analytics/v1/org/report/refunds`
       | #Merchant => `analytics/v1/merchant/report/refunds`
       | #Profile => `analytics/v1/profile/report/refunds`
-      | _ => `analytics/v1/merchant/report/refunds`
       }
 
     | DISPUTE_REPORT =>
@@ -401,7 +392,6 @@ let useGetURL = () => {
       | #Organization => `analytics/v1/org/report/dispute`
       | #Merchant => `analytics/v1/merchant/report/dispute`
       | #Profile => `analytics/v1/profile/report/dispute`
-      | _ => `analytics/v1/merchant/report/dispute`
       }
 
     /* EVENT LOGS */
@@ -449,8 +439,7 @@ let useGetURL = () => {
         switch userEntity {
         | #Organization
         | #Merchant
-        | #Profile
-        | #Internal =>
+        | #Profile =>
           `account/${merchantId}/profile`
         }
       | Post =>

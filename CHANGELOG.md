@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.09.26.1
+
+### Miscellaneous Tasks
+
+- Github template added ([#1458](https://github.com/juspay/hyperswitch-control-center/pull/1458)) ([`c6c1455`](https://github.com/juspay/hyperswitch-control-center/commit/c6c1455fc55b1ea2cdc47de2d608386e51649e7c))
+- Removed compiler warning and threeds comp change ([#1478](https://github.com/juspay/hyperswitch-control-center/pull/1478)) ([`2999335`](https://github.com/juspay/hyperswitch-control-center/commit/2999335de1a167a7f199169abb9bfb36ec5603d9))
+- Modified table customise columns, warning remove ([#1477](https://github.com/juspay/hyperswitch-control-center/pull/1477)) ([`59b390a`](https://github.com/juspay/hyperswitch-control-center/commit/59b390aa5c2c49a5bb6c046e09c550ae80dca05e))
+- Internal entity removal ([#1467](https://github.com/juspay/hyperswitch-control-center/pull/1467)) ([`4c94b8d`](https://github.com/juspay/hyperswitch-control-center/commit/4c94b8d1dc53f888ba4703fe5c0da3326ae6ca0f))
+
+**Full Changelog:** [`2024.09.26.0...2024.09.26.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.26.0...2024.09.26.1)
+
+- - -
+
 ## 2024.09.26.0
 
 ### Bug Fixes
