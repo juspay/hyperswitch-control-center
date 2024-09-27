@@ -106,6 +106,77 @@ let getConnectorAccountDetails = dict => {
   }
 }
 
+let connectorAuthTypeMapper = (str): connectorAuthType => {
+  switch str->String.toLowerCase {
+  | "headerkey" => HeaderKey
+  | "bodykey" => BodyKey
+  | "signaturekey" => SignatureKey
+  | "multiauthkey" => MultiAuthKey
+  | "currencyauthkey" => CurrencyAuthKey
+  | "certificateauth" => CertificateAuth
+  | _ => Unknown
+  }
+}
+
+let getHeaderAuth = (dict): headerKey => {
+  open LogicUtils
+  {
+    auth_type: dict->getString("auth_type", ""),
+    api_key: dict->getString("api_key", ""),
+  }
+}
+let getBodyKeyAuth = (dict): bodyKey => {
+  open LogicUtils
+  {
+    auth_type: dict->getString("auth_type", ""),
+    api_key: dict->getString("api_key", ""),
+    key1: dict->getString("key1", ""),
+  }
+}
+let getSignatureKeyAuth = (dict): signatureKey => {
+  open LogicUtils
+  {
+    auth_type: dict->getString("auth_type", ""),
+    api_key: dict->getString("api_key", ""),
+    key1: dict->getString("key1", ""),
+    api_secret: dict->getString("api_secret", ""),
+  }
+}
+let getMultiAuthKeyAuth = (dict): multiAuthKey => {
+  open LogicUtils
+  {
+    auth_type: dict->getString("auth_type", ""),
+    api_key: dict->getString("api_key", ""),
+    key1: dict->getString("key1", ""),
+    api_secret: dict->getString("api_secret", ""),
+    key2: dict->getString("key2", ""),
+  }
+}
+
+let getCurrencyAuthKey = (dict): multiAuthKey => {
+  open LogicUtils
+  {
+    auth_type: dict->getString("auth_type", ""),
+    api_key: dict->getString("api_key", ""),
+    key1: dict->getString("key1", ""),
+    api_secret: dict->getString("api_secret", ""),
+    key2: dict->getString("key2", ""),
+  }
+}
+
+let getAccountDetails = (dict): connectorAuthTypeObj => {
+  open LogicUtils
+  let authType = dict->getString("auth_type", "")->connectorAuthTypeMapper
+  let d = switch authType {
+  | HeaderKey => HeaderKey(dict->getHeaderAuth)
+  | BodyKey => BodyKey(dict->getBodyKeyAuth)
+  | SignatureKey => SignatureKey(dict->getSignatureKeyAuth)
+  | MultiAuthKey => MultiAuthKey(dict->getMultiAuthKeyAuth)
+  | CurrencyAuthKey => CurrencyAuthKey(dict->getHeaderAuth)
+  // | CertificateAuth => CertificateAuth()
+  }
+}
+
 let getProcessorPayloadType = dict => {
   open LogicUtils
   {

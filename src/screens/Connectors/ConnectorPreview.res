@@ -148,26 +148,34 @@ module ConnectorSummaryGrid = {
       ~connectorName={connectorInfo.merchant_connector_id},
       ~merchantId,
     )
+    let (processorType, connectorType) =
+      connectorInfo.connector_type->ConnectorUtils.connectorTypeTuple
+    let {connector_name: connectorName} = connectorInfo
+    let connectorTypeFromName =
+      connectorName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
     let connectorDetails = React.useMemo(() => {
       try {
-        if connector->LogicUtils.isNonEmptyString {
-          let dict = isPayoutFlow
-            ? Window.getPayoutConnectorConfig(connector)
-            : Window.getConnectorConfig(connector)
-
+        if connectorName->LogicUtils.isNonEmptyString {
+          let dict = switch processorType {
+          | PaymentProcessor => Window.getConnectorConfig(connectorName)
+          | PayoutProcessor => Window.getPayoutConnectorConfig(connectorName)
+          | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
+          | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
+          | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
+          | PaymentVas => JSON.Encode.null
+          }
           dict
         } else {
-          Dict.make()->JSON.Encode.object
+          JSON.Encode.null
         }
       } catch {
       | Exn.Error(e) => {
           Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-          let err = Exn.message(e)->Option.getOr("Something went wrong")
-          setScreenState(_ => PageLoaderWrapper.Error(err))
-          Dict.make()->JSON.Encode.object
+          let _ = Exn.message(e)->Option.getOr("Something went wrong")
+          JSON.Encode.null
         }
       }
-    }, [connector])
+    }, [connectorName])
     let (_, connectorAccountFields, _, _, _, _, _) = ConnectorUtils.getConnectorFields(
       connectorDetails,
     )
@@ -175,7 +183,10 @@ module ConnectorSummaryGrid = {
     | list{_, "new"} => false
     | _ => true
     }
-
+    let _ = switch connectorTypeFromName {
+    | Processors(CASHTOCODE) => Js.log2(connectorInfo.connector_account_details, "DETAILS")
+    | _ => Js.log("")
+    }
     <div className="p-2 md:px-10">
       <div className="grid grid-cols-4 my-12">
         <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
@@ -209,7 +220,7 @@ module ConnectorSummaryGrid = {
       </div>
       <div className="grid grid-cols-4 my-12">
         <div className="flex items-start">
-          <h4 className="text-lg font-semibold"> {"API Keys"->React.string} </h4>
+          <h4 className="text-lg font-semibold"> {"Creds"->React.string} </h4>
         </div>
         <div className="flex flex-col gap-6 col-span-3">
           <div className="flex gap-12">

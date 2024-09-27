@@ -214,6 +214,49 @@ type wasmExtraPayload = {
 
 // This type are used for FRM configuration which need to moved to wasm
 
+type headerKey = {auth_type: string, api_key: string}
+type bodyKey = {
+  auth_type: string,
+  api_key: string,
+  key1: string,
+}
+type signatureKey = {
+  auth_type: string,
+  api_key: string,
+  key1: string,
+  api_secret: string,
+}
+type multiAuthKey = {
+  auth_type: string,
+  api_key: string,
+  key1: string,
+  api_secret: string,
+  key2: string,
+}
+type currencyKey = {
+  auth_type: string,
+  merchant_id_classic: string,
+  password_classic: string,
+  username_classic: string,
+}
+type currencyAuthKey = {auth_key_map: (string, currencyKey), auth_type: string}
+type certificateAuth = {
+  auth_type: string,
+  certificate: string,
+  private_key: string,
+}
+
+type connectorAuthType =
+  HeaderKey | BodyKey | SignatureKey | MultiAuthKey | CurrencyAuthKey | CertificateAuth | Unknown
+
+type connectorAuthTypeObj =
+  | HeaderKey(headerKey)
+  | BodyKey(bodyKey)
+  | SignatureKey(signatureKey)
+  | MultiAuthKey(multiAuthKey)
+  | CurrencyAuthKey(currencyAuthKey)
+  | CertificateAuth(certificateAuth)
+
 type connectorAccountDetails = {
   auth_type: string,
   api_secret?: string,
@@ -222,6 +265,7 @@ type connectorAccountDetails = {
   key2?: string,
 }
 
+type account_details = {auth_type: connectorAuthTypeObj}
 type paymentMethodEnabledType = {
   payment_method: string,
   payment_method_types: array<paymentMethodConfigType>,
@@ -251,6 +295,7 @@ type connectorPayload = {
   connector_name: string,
   connector_label: string,
   connector_account_details: connectorAccountDetails,
+  account_details: account_details,
   test_mode: bool,
   disabled: bool,
   payment_methods_enabled: payment_methods_enabled,
