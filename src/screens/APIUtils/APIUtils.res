@@ -558,9 +558,8 @@ let useGetURL = () => {
       | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
 
       // INVITATION INSIDE DASHBOARD
-      | #RESEND_INVITE
-      | #ACCEPT_INVITATION_HOME =>
-        `${userUrl}/user/invite/accept/v2`
+      | #RESEND_INVITE => `${userUrl}/user/resend_invite`
+      | #ACCEPT_INVITATION_HOME => `${userUrl}/user/invite/accept/v2`
       | #INVITE_MULTIPLE =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
