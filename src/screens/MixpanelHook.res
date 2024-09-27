@@ -4,9 +4,9 @@ let useSendEvent = () => {
   open GlobalVars
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
-  let {email: authInfoEmail, merchantId, name} =
-    CommonAuthHooks.useCommonAuthInfo()->Option.getOr(CommonAuthHooks.defaultAuthInfo)
-
+  let {userInfo: {email: authInfoEmail, merchantId, name}} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let deviceId = switch LocalStorage.getItem("deviceId")->Nullable.toOption {
   | Some(id) => id
   | None => authInfoEmail
@@ -20,12 +20,7 @@ let useSendEvent = () => {
   let {clientCountry} = HSwitchUtils.getBrowswerDetails()
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
 
-  let environment = switch GlobalVars.hostType {
-  | Live => "production"
-  | Sandbox => "sandbox"
-  | Netlify => "netlify"
-  | Local => "localhost"
-  }
+  let environment = GlobalVars.hostType->getEnvironment
 
   let url = RescriptReactRouter.useUrl()
 
@@ -47,10 +42,10 @@ let useSendEvent = () => {
     let mixpanel_token = Window.env.mixpanelToken
 
     let body = {
-      "section": section,
       "event": event,
-      "metadata": metadata,
       "properties": {
+        "section": section,
+        "metadata": metadata,
         "token": mixpanel_token,
         "distinct_id": deviceId,
         "$device_id": deviceId->String.split(":")->Array.get(1),
@@ -94,6 +89,97 @@ let useSendEvent = () => {
         ~section,
         ~metadata,
       )->ignore
+    }
+  }
+}
+
+let usePageView = () => {
+  open GlobalVars
+  open Window
+  let fetchApi = AuthHooks.useApiFetcher()
+  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
+  let environment = GlobalVars.hostType->getEnvironment
+  let {clientCountry} = HSwitchUtils.getBrowswerDetails()
+  let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  async (~path) => {
+    let mixpanel_token = Window.env.mixpanelToken
+    let {email, merchantId, name} = getUserInfoData()
+    let body = {
+      "event": "page_view",
+      "properties": {
+        "token": mixpanel_token,
+        "distinct_id": email,
+        "$device_id": email->String.split(":")->Array.get(1),
+        "$screen_height": Screen.screenHeight,
+        "$screen_width": Screen.screenWidth,
+        "name": email,
+        "merchantName": name,
+        "email": email,
+        "mp_lib": "restapi",
+        "merchantId": merchantId,
+        "environment": environment,
+        "lang": Navigator.browserLanguage,
+        "$os": Navigator.platform,
+        "$browser": Navigator.browserName,
+        "mp_country_code": country,
+        "page": path,
+      },
+    }
+
+    try {
+      if featureFlagDetails.mixpanel {
+        let _ = await fetchApi(
+          `${getHostUrl}/mixpanel/track`,
+          ~method_=Post,
+          ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+        )
+      }
+    } catch {
+    | _ => ()
+    }
+  }
+}
+
+let useSetIdentity = () => {
+  open GlobalVars
+  let fetchApi = AuthHooks.useApiFetcher()
+  let mixpanel_token = Window.env.mixpanelToken
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+  async (~distinctId) => {
+    let name = distinctId->LogicUtils.getNameFromEmail
+    let body = {
+      "event": `$identify`,
+      "properties": {
+        "distinct_id": distinctId,
+        "token": mixpanel_token,
+      },
+    }
+    let peopleProperties = {
+      "$token": mixpanel_token,
+      "$distinct_id": distinctId,
+      "$set": {
+        "$email": distinctId,
+        "$first_name": name,
+      },
+    }
+
+    try {
+      if featureFlagDetails.mixpanel {
+        let _ = await fetchApi(
+          `${getHostUrl}/mixpanel/track`,
+          ~method_=Post,
+          ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+        )
+        let _ = await fetchApi(
+          `${getHostUrl}/mixpanel/engage`,
+          ~method_=Post,
+          ~bodyStr=`data=${peopleProperties->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+        )
+      }
+    } catch {
+    | _ => ()
     }
   }
 }
