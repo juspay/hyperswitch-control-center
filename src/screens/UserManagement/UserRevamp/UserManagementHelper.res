@@ -215,7 +215,9 @@ module UserOmpView = {
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
     let cssBasedOnIndex = index => {
-      if index == 0 {
+      if views->Array.length == 1 {
+        "rounded-md"
+      } else if index == 0 {
         "rounded-l-md"
       } else if index == views->Array.length - 1 {
         "rounded-r-md"
