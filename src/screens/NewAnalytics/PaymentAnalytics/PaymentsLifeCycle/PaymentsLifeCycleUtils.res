@@ -1,4 +1,8 @@
-let paymentsLifeCycleMapper = (_json): SankeyGraphTypes.sankeyPayload => {
+let paymentsLifeCycleMapper = (
+  ~data as _,
+  ~xKey as _,
+  ~yKey as _,
+): SankeyGraphTypes.sankeyPayload => {
   open SankeyGraphTypes
   let processedData = [
     ("Payments Initiated", "Success", 8000, "#E4EFFF"),
