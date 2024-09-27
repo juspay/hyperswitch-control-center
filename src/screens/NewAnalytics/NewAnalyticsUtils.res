@@ -22,7 +22,7 @@ let fillMissingDataPoints = (
 
   for x in 1 to endingPoint.diff(startingPoint.toString(), gap) {
     let newDict = defaultValue->getDictFromJsonObject->Dict.copy
-    let timeVal = startingPoint.add(x, gap).endOf(gap).format("YYYY-MM-DD 00:00:00")
+    let timeVal = startingPoint.add(x, gap).endOf(gap).format("YYYY-MM-DD")
     newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
     dataPoints->Dict.set(timeVal, newDict->JSON.Encode.object)
   }

@@ -93,6 +93,8 @@ let make = (
   ~entity: moduleEntity,
   ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
 ) => {
+  open LogicUtils
+  open PaymentsProcessedTypes
   let (paymentsProcessed, setpaymentsProcessed) = React.useState(_ => JSON.Encode.array([]))
   let (selectedMetric, setSelectedMetric) = React.useState(_ => defaultMetric)
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
@@ -100,34 +102,56 @@ let make = (
 
   let getPaymentsProcessed = async () => {
     try {
-      let response = [
+      let responses = [
         {
           "queryData": [
-            {"count": 24, "amount": 952, "time_bucket": "2024-08-13 01:00:00"},
-            {"count": 28, "amount": 1020, "time_bucket": "2024-08-14 02:00:00"},
-            {"count": 35, "amount": 1450, "time_bucket": "2024-08-15 03:00:00"},
-            {"count": 30, "amount": 1150, "time_bucket": "2024-08-16 04:00:00"},
-            {"count": 29, "amount": 1200, "time_bucket": "2024-08-18 06:00:00"},
-            {"count": 31, "amount": 1300, "time_bucket": "2024-08-19 07:00:00"},
-            {"count": 28, "amount": 1020, "time_bucket": "2024-08-22 02:00:00"},
-            {"count": 40, "amount": 1600, "time_bucket": "2024-08-24 05:00:00"},
+            {"count": 24, "amount": 952, "time_bucket": "2024-08-13"},
+            {"count": 28, "amount": 1020, "time_bucket": "2024-08-14"},
+            {"count": 35, "amount": 1450, "time_bucket": "2024-08-15"},
+            {"count": 30, "amount": 1150, "time_bucket": "2024-08-16"},
+            {"count": 29, "amount": 1200, "time_bucket": "2024-08-18"},
+            {"count": 31, "amount": 1300, "time_bucket": "2024-08-19"},
+            {"count": 28, "amount": 1020, "time_bucket": "2024-08-22"},
+            {"count": 40, "amount": 1600, "time_bucket": "2024-08-24"},
           ],
           "metaData": [{"count": 217, "amount": 8672, "currency": "USD"}],
-        },
+        }->Identity.genericTypeToJson,
         {
           "queryData": [
-            {"count": 34, "amount": 9520, "time_bucket": "2024-08-13 01:00:00"},
-            {"count": 38, "amount": 10200, "time_bucket": "2024-08-14 02:00:00"},
-            {"count": 40, "amount": 11500, "time_bucket": "2024-08-16 04:00:00"},
-            {"count": 50, "amount": 16000, "time_bucket": "2024-08-17 05:00:00"},
-            {"count": 45, "amount": 14500, "time_bucket": "2024-08-20 03:00:00"},
-            {"count": 39, "amount": 12000, "time_bucket": "2024-08-26 06:00:00"},
-            {"count": 41, "amount": 13000, "time_bucket": "2024-08-27 07:00:00"},
+            {"count": 34, "amount": 9520, "time_bucket": "2024-08-13"},
+            {"count": 38, "amount": 10200, "time_bucket": "2024-08-14"},
+            {"count": 40, "amount": 11500, "time_bucket": "2024-08-16"},
+            {"count": 50, "amount": 16000, "time_bucket": "2024-08-17"},
+            {"count": 45, "amount": 14500, "time_bucket": "2024-08-20"},
+            {"count": 39, "amount": 12000, "time_bucket": "2024-08-26"},
+            {"count": 41, "amount": 13000, "time_bucket": "2024-08-27"},
           ],
           "metaData": [{"count": 217, "amount": 8672, "currency": "USD"}],
-        },
-      ]->Identity.genericTypeToJson
-      setpaymentsProcessed(_ => response)
+        }->Identity.genericTypeToJson,
+      ]
+      let data =
+        responses
+        ->Array.map(response => {
+          let responseDict = response->getDictFromJsonObject->Dict.copy
+          let queryData = responseDict->getArrayFromDict("queryData", [])
+          let modifiedData = NewAnalyticsUtils.fillMissingDataPoints(
+            ~data=queryData,
+            ~startDate="2024-08-13",
+            ~endDate="2024-08-27",
+            ~timeKey="time_bucket",
+            ~defaultValue={
+              count: 0,
+              amount: 0.0,
+              time_bucket: "",
+            }->Identity.genericTypeToJson,
+            ~granularity=granularity.value,
+          )
+          responseDict->Dict.set("queryData", modifiedData->JSON.Encode.array)
+          responseDict
+        })
+        ->Identity.genericTypeToJson
+
+      setpaymentsProcessed(_ => data)
     } catch {
     | _ => ()
     }

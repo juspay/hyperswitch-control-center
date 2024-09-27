@@ -32,39 +32,55 @@ let make = (
   ~entity: moduleEntity,
   ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
 ) => {
+  open LogicUtils
+  open PaymentsSuccessRateTypes
   let (paymentsSuccessRate, setpaymentsSuccessRate) = React.useState(_ => JSON.Encode.array([]))
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
 
   let getPaymentsSuccessRate = async () => {
     try {
-      let response = [
+      let responses = [
         {
           "queryData": [
-            {"payments_success_rate": 40, "time_bucket": "2024-08-13 18:30:00"},
-            {"payments_success_rate": 35, "time_bucket": "2024-08-14 18:30:00"},
-            {"payments_success_rate": 60, "time_bucket": "2024-08-15 18:30:00"},
-            {"payments_success_rate": 70, "time_bucket": "2024-08-16 18:30:00"},
-            {"payments_success_rate": 75, "time_bucket": "2024-08-17 18:30:00"},
-            {"payments_success_rate": 65, "time_bucket": "2024-08-18 18:30:00"},
-            {"payments_success_rate": 50, "time_bucket": "2024-08-19 18:30:00"},
+            {"payments_success_rate": 40, "time_bucket": "2024-08-13"},
+            {"payments_success_rate": 60, "time_bucket": "2024-08-15"},
+            {"payments_success_rate": 70, "time_bucket": "2024-08-16"},
+            {"payments_success_rate": 75, "time_bucket": "2024-08-17"},
+            {"payments_success_rate": 50, "time_bucket": "2024-08-19"},
           ],
           "metaData": [{"payments_success_rate": 50}],
-        },
+        }->Identity.genericTypeToJson,
         {
           "queryData": [
-            {"payments_success_rate": 30, "time_bucket": "2024-08-13 18:30:00"},
-            {"payments_success_rate": 90, "time_bucket": "2024-08-14 18:30:00"},
-            {"payments_success_rate": 60, "time_bucket": "2024-08-15 18:30:00"},
-            {"payments_success_rate": 50, "time_bucket": "2024-08-16 18:30:00"},
-            {"payments_success_rate": 80, "time_bucket": "2024-08-17 18:30:00"},
-            {"payments_success_rate": 65, "time_bucket": "2024-08-18 18:30:00"},
-            {"payments_success_rate": 80, "time_bucket": "2024-08-19 18:30:00"},
+            {"payments_success_rate": 30, "time_bucket": "2024-08-13"},
+            {"payments_success_rate": 90, "time_bucket": "2024-08-14"},
+            {"payments_success_rate": 60, "time_bucket": "2024-08-15"},
+            {"payments_success_rate": 65, "time_bucket": "2024-08-18"},
+            {"payments_success_rate": 80, "time_bucket": "2024-08-19"},
           ],
           "metaData": [{"payments_success_rate": 50}],
-        },
-      ]->Identity.genericTypeToJson
+        }->Identity.genericTypeToJson,
+      ]
 
-      setpaymentsSuccessRate(_ => response)
+      let data =
+        responses
+        ->Array.map(response => {
+          let responseDict = response->getDictFromJsonObject->Dict.copy
+          let queryData = responseDict->getArrayFromDict("queryData", [])
+          let modifiedData = NewAnalyticsUtils.fillMissingDataPoints(
+            ~data=queryData,
+            ~startDate="2024-08-13",
+            ~endDate="2024-08-19",
+            ~timeKey="time_bucket",
+            ~defaultValue={payments_success_rate: 0.0, time_bucket: ""}->Identity.genericTypeToJson,
+            ~granularity=granularity.value,
+          )
+          responseDict->Dict.set("queryData", modifiedData->JSON.Encode.array)
+          responseDict
+        })
+        ->Identity.genericTypeToJson
+
+      setpaymentsSuccessRate(_ => data)
     } catch {
     | _ => ()
     }

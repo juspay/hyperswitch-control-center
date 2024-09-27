@@ -11,6 +11,10 @@ let getCategories = (json: JSON.t, key: string): array<string> => {
   })
 }
 
+let getColor = index => {
+  ["#1059C1B2", "#0EB025B2"]->Array.get(index)->Option.getOr("#1059C1B2")
+}
+
 let getLineGraphData = (json: JSON.t, key: string): LineGraphTypes.data => {
   json
   ->getArrayFromJson([])
@@ -27,7 +31,7 @@ let getLineGraphData = (json: JSON.t, key: string): LineGraphTypes.data => {
       showInLegend: false,
       name: `Series ${(index + 1)->Int.toString}`,
       data,
-      color: "#2f7ed8",
+      color: index->getColor,
     }
     dataObj
   })
