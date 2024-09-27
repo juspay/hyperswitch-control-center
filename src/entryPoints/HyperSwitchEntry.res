@@ -6,7 +6,6 @@ module HyperSwitchEntryComponent = {
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {configCustomDomainTheme} = React.useContext(ThemeProvider.themeContext)
 
     let configureFavIcon = (faviconUrl: option<string>) => {

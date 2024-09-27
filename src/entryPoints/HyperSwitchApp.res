@@ -144,9 +144,8 @@ let make = () => {
       <div>
         {switch dashboardPageState {
         | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
-        // INTEGRATION_DOC AND PROD_ONBOARDING Need to be removed
+        // INTEGRATION_DOC Need to be removed
         | #INTEGRATION_DOC => <UserOnboarding />
-        | #PROD_ONBOARDING => <ProdOnboardingLanding />
         | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
           <div className="relative" key={renderKey}>
