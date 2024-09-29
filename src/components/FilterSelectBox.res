@@ -1580,11 +1580,17 @@ module BaseDropdown = {
 
     React.useEffect(() => {
       open LogicUtils
-      setPreservedAppliedOptions(_ =>
+      let nonStatusFilters =
         filterValueJson
-        ->getArrayFromDict("status", [])
-        ->getStrArrayFromJsonArray
-      )
+        ->Dict.keysToArray
+        ->Array.filter(item => item != "start_time" && item != "end_time" && item != "status")
+      if nonStatusFilters->Array.length == 0 {
+        setPreservedAppliedOptions(_ =>
+          filterValueJson
+          ->getArrayFromDict("status", [])
+          ->getStrArrayFromJsonArray
+        )
+      }
       None
     }, [filterValueJson])
 
