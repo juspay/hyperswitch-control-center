@@ -88,7 +88,7 @@ let make = (~entity=TransactionViewTypes.Orders) => {
     }
   }
 
-  let settingActiveViewOnLoad = entity => {
+  let settingActiveView = entity => {
     let customFilterKey = getCustomFilterKey(entity)
 
     let appliedStatusFilter = filterValueJson->getArrayFromDict(customFilterKey, [])
@@ -105,7 +105,7 @@ let make = (~entity=TransactionViewTypes.Orders) => {
   }
 
   React.useEffect(() => {
-    settingActiveViewOnLoad(entity)
+    settingActiveView(entity)
     None
   }, ())
 
