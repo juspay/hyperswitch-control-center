@@ -91,11 +91,7 @@ let make = (~entity=TransactionViewTypes.Orders) => {
   let settingActiveViewOnLoad = entity => {
     let customFilterKey = getCustomFilterKey(entity)
 
-    let appliedStatusFilter =
-      filterValueJson
-      ->JSON.Encode.object
-      ->getDictFromJsonObject
-      ->getArrayFromDict(customFilterKey, [])
+    let appliedStatusFilter = filterValueJson->getArrayFromDict(customFilterKey, [])
 
     if appliedStatusFilter->Array.length == 1 {
       let statusValue =

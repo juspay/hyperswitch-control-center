@@ -1582,8 +1582,6 @@ module BaseDropdown = {
       open LogicUtils
       setPreservedAppliedOptions(_ =>
         filterValueJson
-        ->JSON.Encode.object
-        ->getDictFromJsonObject
         ->getArrayFromDict("status", [])
         ->getStrArrayFromJsonArray
       )
