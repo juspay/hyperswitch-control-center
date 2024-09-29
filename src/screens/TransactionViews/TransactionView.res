@@ -34,11 +34,7 @@ let make = (~entity=TransactionViewTypes.Orders) => {
   )
 
   let updateViewsFilterValue = (view: TransactionViewTypes.viewTypes) => {
-    let customFilterKey = switch entity {
-    | Orders => "status"
-    | Refunds => "refund_status"
-    | _ => ""
-    }
+    let customFilterKey = getCustomFilterKey(entity)
     let customFilter = `[${view->getViewsString(countRes, entity)}]`
 
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
@@ -92,25 +88,30 @@ let make = (~entity=TransactionViewTypes.Orders) => {
     }
   }
 
-  let setActiveViewOnLoad = () => {
+  let settingActiveViewOnLoad = entity => {
+    let customFilterKey = getCustomFilterKey(entity)
+
     let appliedStatusFilter =
-      filterValueJson->JSON.Encode.object->getDictFromJsonObject->getArrayFromDict("status", [])
+      filterValueJson
+      ->JSON.Encode.object
+      ->getDictFromJsonObject
+      ->getArrayFromDict(customFilterKey, [])
 
     if appliedStatusFilter->Array.length == 1 {
       let statusValue =
         appliedStatusFilter->getValueFromArray(0, ""->JSON.Encode.string)->JSON.Decode.string
 
       let status = statusValue->Option.getOr("")
-      setActiveView(_ => status->getViewTypeFromString)
+      setActiveView(_ => status->getViewTypeFromString(entity))
     } else {
       setActiveView(_ => All)
     }
   }
 
   React.useEffect(() => {
-    setActiveViewOnLoad()
+    settingActiveViewOnLoad(entity)
     None
-  }, [])
+  }, ())
 
   React.useEffect(() => {
     getAggregate()->ignore

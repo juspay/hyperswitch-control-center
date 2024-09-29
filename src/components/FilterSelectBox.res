@@ -1558,7 +1558,9 @@ module BaseDropdown = {
       DropdownTextWeighContextWrapper.selectedTextWeightContext,
     )
     let isFilterSection = React.useContext(TableFilterSectionContext.filterSectionContext)
-    let {removeKeys, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
+    let {removeKeys, filterKeys, setfilterKeys, filterValueJson} = React.useContext(
+      FilterContext.filterContext,
+    )
     let showBorder = isFilterSection && !isMobileView ? Some(false) : showBorder
 
     let dropdownOuterClass = "bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
@@ -1575,6 +1577,18 @@ module BaseDropdown = {
     let (preservedAppliedOptions, setPreservedAppliedOptions) = React.useState(_ =>
       newInputSelect.value->LogicUtils.getStrArryFromJson
     )
+
+    React.useEffect(() => {
+      open LogicUtils
+      setPreservedAppliedOptions(_ =>
+        filterValueJson
+        ->JSON.Encode.object
+        ->getDictFromJsonObject
+        ->getArrayFromDict("status", [])
+        ->getStrArrayFromJsonArray
+      )
+      None
+    }, [filterValueJson])
 
     let onApply = ev => {
       switch onApply {
