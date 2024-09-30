@@ -2,6 +2,7 @@
 let make = () => {
   open NewAnalyticsContainerUtils
   let url = RescriptReactRouter.useUrl()
+  let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let (tabIndex, setTabIndex) = React.useState(_ => url->getPageIndex)
 
   React.useEffect(() => {
@@ -10,8 +11,34 @@ let make = () => {
     None
   }, [tabIndex])
 
+  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
+    ~updateExistingKeys,
+    ~startTimeFilterKey,
+    ~endTimeFilterKey,
+    ~origin="analytics",
+    (),
+  )
+
+  React.useEffect(() => {
+    setInitialFilters()
+    None
+  }, [])
+
   <div>
     <PageUtils.PageHeading title="Analytics" />
+    <DynamicFilter
+      initialFilters=[]
+      options=[]
+      popupFilterFields=[]
+      initialFixedFilters={initialFixedFilterFields()}
+      defaultFilterKeys=[]
+      tabNames=[]
+      updateUrlWith=updateExistingKeys //
+      key="1"
+      filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+      showCustomFilter=false
+      refreshFilters=false
+    />
     <Tabs
       initialIndex={url->getPageIndex}
       tabs
