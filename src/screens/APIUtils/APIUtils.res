@@ -477,12 +477,6 @@ let useGetURL = () => {
     | USER_MANAGEMENT => {
         let userUrl = `user`
         switch userRoleTypes {
-        | USER_LIST => `${userUrl}/user/list`
-        | ROLE_LIST =>
-          switch queryParamerters {
-          | Some(queryParams) => `${userUrl}/role/list?${queryParams}`
-          | None => `${userUrl}/role/list`
-          }
         | ROLE_ID =>
           switch id {
           | Some(key_id) =>
@@ -493,6 +487,7 @@ let useGetURL = () => {
           | None => ""
           }
         | NONE => ""
+        | _ => ""
         }
       }
 
@@ -507,8 +502,8 @@ let useGetURL = () => {
           }
         | ROLE_LIST =>
           switch queryParamerters {
-          | Some(queryParams) => `${userUrl}/role/v2/list?${queryParams}`
-          | None => `${userUrl}/role/v2/list`
+          | Some(queryParams) => `${userUrl}/role/list?${queryParams}`
+          | None => `${userUrl}/role/list`
           }
         | _ => ""
         }
@@ -574,7 +569,7 @@ let useGetURL = () => {
 
       // INVITATION INSIDE DASHBOARD
       | #RESEND_INVITE => `${userUrl}/user/resend_invite`
-      | #ACCEPT_INVITATION_HOME => `${userUrl}/user/invite/accept/v2`
+      | #ACCEPT_INVITATION_HOME => `${userUrl}/user/invite/accept`
       | #INVITE_MULTIPLE =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
@@ -582,7 +577,7 @@ let useGetURL = () => {
         }
 
       // ACCEPT INVITE PRE_LOGIN
-      | #ACCEPT_INVITATION_PRE_LOGIN => `${userUrl}/user/invite/accept/v2/pre_auth`
+      | #ACCEPT_INVITATION_PRE_LOGIN => `${userUrl}/user/invite/accept/pre_auth`
 
       // SWITCH & CREATE MERCHANT
       | #SWITCH_MERCHANT =>
@@ -605,7 +600,6 @@ let useGetURL = () => {
 
       // CREATE ROLES
       | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
-      | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
 
       // EMAIL FLOWS
       | #FROM_EMAIL => `${userUrl}/from_email`
@@ -646,7 +640,7 @@ let useGetURL = () => {
         | None => ""
         }
       | #LIST_INVITATION => `${userUrl}/list/invitation`
-      | #USER_DETAILS => `${userUrl}/user/v2`
+      | #USER_DETAILS => `${userUrl}/user`
       | #LIST_ROLES_FOR_ROLE_UPDATE =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/role/list/update?${params}`
