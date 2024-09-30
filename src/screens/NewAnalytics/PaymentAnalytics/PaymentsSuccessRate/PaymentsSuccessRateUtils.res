@@ -35,13 +35,9 @@ let paymentsSuccessRateMapper = (
 }
 
 open NewAnalyticsTypes
-let tabs = [
-  {label: "Hourly", value: (#hour_wise: granularity :> string)},
-  {label: "Daily", value: (#day_wise: granularity :> string)},
-  {label: "Weekly", value: (#week_wise: granularity :> string)},
-]
+let tabs = [{label: "Daily", value: (#G_ONEDAY: granularity :> string)}]
 
 let defaulGranularity = {
   label: "Hourly",
-  value: (#hour_wise: granularity :> string),
+  value: (#G_ONEDAY: granularity :> string),
 }

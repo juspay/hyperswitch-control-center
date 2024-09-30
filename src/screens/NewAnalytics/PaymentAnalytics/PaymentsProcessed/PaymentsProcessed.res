@@ -5,6 +5,7 @@ open NewPaymentAnalyticsEntity
 open PaymentsProcessedUtils
 
 module TableModule = {
+  open LogicUtils
   @react.component
   let make = (~data, ~className="") => {
     let (offset, setOffset) = React.useState(_ => 0)
@@ -14,10 +15,17 @@ module TableModule = {
     }
     let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
-    let paymentsProcessed =
-      data
-      ->LogicUtils.getArrayDataFromJson(tableItemToObjMapper)
-      ->Array.map(Nullable.make)
+    let paymentsProcessed = switch data->getArrayFromJson([])->Array.get(0) {
+    | Some(val) => {
+        let valueDict = val->getDictFromJsonObject
+        valueDict
+        ->getArrayFromDict("queryData", [])
+        ->Array.map(getDictFromJsonObject)
+        ->Array.map(tableItemToObjMapper)
+      }
+
+    | _ => []
+    }->Array.map(Nullable.make)
 
     <div className>
       <LoadedTable
@@ -36,6 +44,7 @@ module TableModule = {
         tableheadingClass=tableBorderClass
         tableBorderClass
         ignoreHeaderBg=true
+        showSerialNumber=true
         tableDataBorderClass=tableBorderClass
         isAnalyticsModule=true
       />
@@ -95,8 +104,7 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
-  open PaymentsProcessedTypes
-  let getURL = useGetURL()
+  //let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -106,8 +114,6 @@ let make = (
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
-
-  Js.log2(">>", filterValueJson)
 
   let getPaymentsProcessed = async () => {
     try {
@@ -125,6 +131,7 @@ let make = (
         ~groupBy=entity.requestBodyConfig.groupBy,
         ~customFilter=entity.requestBodyConfig.customFilter,
         ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
+        ~granularity=granularity.value->Some,
       )
 
       let response = await updateDetails(url, body, Post)
@@ -134,7 +141,7 @@ let make = (
         ->getArrayFromDict("queryData", [])
 
       if arr->Array.length > 0 {
-        setpaymentsProcessed(_ => response)
+        setpaymentsProcessed(_ => [response]->JSON.Encode.array)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
@@ -172,7 +179,7 @@ let make = (
               data={chartEntity.getObjects(
                 ~data=paymentsProcessed,
                 ~xKey=selectedMetric.value,
-                ~yKey=TimeBucket->colMapper,
+                ~yKey=(#time_bucket: metrics :> string),
               )}
               className="mr-3"
             />
