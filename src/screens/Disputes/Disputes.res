@@ -70,16 +70,16 @@ let make = () => {
   <div>
     <div className="flex justify-between items-center">
       <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />
-      <OMPSwitchHelper.OMPViews
-        views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-        selectedEntity={transactionEntity}
-        onChange={updateTransactionEntity}
-      />
-    </div>
-    <div className="flex w-full justify-end pb-3 gap-3">
-      <RenderIf condition={generateReport && disputesData->Array.length > 0}>
-        <GenerateReport entityName={DISPUTE_REPORT} />
-      </RenderIf>
+      <div className="flex gap-4">
+        <OMPSwitchHelper.OMPViews
+          views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+          selectedEntity={transactionEntity}
+          onChange={updateTransactionEntity}
+        />
+        <RenderIf condition={true && disputesData->Array.length > 0}>
+          <GenerateReport entityName={DISPUTE_REPORT} />
+        </RenderIf>
+      </div>
     </div>
     <PageLoaderWrapper screenState customUI>
       <div className="flex flex-col gap-4">

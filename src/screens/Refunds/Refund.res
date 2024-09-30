@@ -68,11 +68,16 @@ let make = () => {
     <div className="min-h-[50vh]">
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
-        <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-          selectedEntity={transactionEntity}
-          onChange={updateTransactionEntity}
-        />
+        <div className="flex gap-4">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+            selectedEntity={transactionEntity}
+            onChange={updateTransactionEntity}
+          />
+          <RenderIf condition={generateReport && refundData->Array.length > 0}>
+            <GenerateReport entityName={REFUND_REPORT} />
+          </RenderIf>
+        </div>
       </div>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
@@ -92,10 +97,6 @@ let make = () => {
             title="Refunds"
           />
         </div>
-        <RenderIf condition={generateReport && refundData->Array.length > 0}>
-          <GenerateReport entityName={REFUND_REPORT} />
-        </RenderIf>
-        <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />
       </div>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
