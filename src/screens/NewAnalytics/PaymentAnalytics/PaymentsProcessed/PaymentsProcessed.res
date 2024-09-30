@@ -93,92 +93,93 @@ let make = (
   ~entity: moduleEntity,
   ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
 ) => {
+  open LogicUtils
+  open APIUtils
   open PaymentsProcessedTypes
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod()
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (paymentsProcessed, setpaymentsProcessed) = React.useState(_ => JSON.Encode.array([]))
   let (selectedMetric, setSelectedMetric) = React.useState(_ => defaultMetric)
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
   let (viewType, setViewType) = React.useState(_ => Graph)
+  let startTimeVal = filterValueJson->getString("startTime", "")
+  let endTimeVal = filterValueJson->getString("endTime", "")
+
+  Js.log2(">>", filterValueJson)
 
   let getPaymentsProcessed = async () => {
     try {
-      let responses = [
-        {
-          "queryData": [
-            {"count": 24, "amount": 952, "time_bucket": "2024-08-13"},
-            {"count": 28, "amount": 1020, "time_bucket": "2024-08-14"},
-            {"count": 35, "amount": 1450, "time_bucket": "2024-08-15"},
-            {"count": 30, "amount": 1150, "time_bucket": "2024-08-16"},
-            {"count": 29, "amount": 1200, "time_bucket": "2024-08-18"},
-            {"count": 31, "amount": 1300, "time_bucket": "2024-08-19"},
-            {"count": 28, "amount": 1020, "time_bucket": "2024-08-22"},
-            {"count": 40, "amount": 1600, "time_bucket": "2024-08-24"},
-          ],
-          "metaData": [{"count": 217, "amount": 8672, "currency": "USD"}],
-        }->Identity.genericTypeToJson,
-        {
-          "queryData": [
-            {"count": 34, "amount": 9520, "time_bucket": "2024-08-13"},
-            {"count": 38, "amount": 10200, "time_bucket": "2024-08-14"},
-            {"count": 40, "amount": 11500, "time_bucket": "2024-08-16"},
-            {"count": 50, "amount": 16000, "time_bucket": "2024-08-17"},
-            {"count": 45, "amount": 14500, "time_bucket": "2024-08-20"},
-            {"count": 39, "amount": 12000, "time_bucket": "2024-08-26"},
-            {"count": 41, "amount": 13000, "time_bucket": "2024-08-27"},
-          ],
-          "metaData": [{"count": 217, "amount": 8672, "currency": "USD"}],
-        }->Identity.genericTypeToJson,
-      ]
-      let data = NewPaymentAnalyticsUtils.modifyDataWithMissingPoints(
-        ~data=responses,
-        ~key="queryData",
-        ~startDate="2024-08-13",
-        ~endDate="2024-08-27",
-        ~defaultValue={
-          count: 0,
-          amount: 0.0,
-          time_bucket: "",
-        }->Identity.genericTypeToJson,
-        ~timeKey="time_bucket",
-        ~granularity=granularity.value,
-      )->Identity.genericTypeToJson
+      //let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
 
-      setpaymentsProcessed(_ => data)
+      let url = "https://integ-api.hyperswitch.io/analytics/v1/org/metrics/payments"
+
+      let body = NewAnalyticsUtils.requestBody(
+        ~dimensions=[],
+        ~startTime=startTimeVal,
+        ~endTime=endTimeVal,
+        ~delta=entity.requestBodyConfig.delta,
+        ~filters=entity.requestBodyConfig.filters,
+        ~metrics=entity.requestBodyConfig.metrics,
+        ~groupBy=entity.requestBodyConfig.groupBy,
+        ~customFilter=entity.requestBodyConfig.customFilter,
+        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
+      )
+
+      let response = await updateDetails(url, body, Post)
+      let arr =
+        response
+        ->getDictFromJsonObject
+        ->getArrayFromDict("queryData", [])
+
+      if arr->Array.length > 0 {
+        setpaymentsProcessed(_ => response)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
-    | _ => ()
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
   React.useEffect(() => {
-    getPaymentsProcessed()->ignore
+    if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
+      getPaymentsProcessed()->ignore
+    }
     None
-  }, [granularity])
+  }, [startTimeVal, endTimeVal])
 
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
-      <PaymentsProcessedHeader
-        title={paymentsProcessed->graphTitle}
-        viewType
-        setViewType
-        selectedMetric
-        setSelectedMetric
-        granularity
-        setGranularity
-      />
-      <div className="mb-5">
-        {switch viewType {
-        | Graph =>
-          <LineGraph
-            entity={chartEntity}
-            data={chartEntity.getObjects(
-              ~data=paymentsProcessed,
-              ~xKey=selectedMetric.value,
-              ~yKey=TimeBucket->colMapper,
-            )}
-            className="mr-3"
-          />
-        | Table => <TableModule data={paymentsProcessed} className="mx-7" />
-        }}
-      </div>
+      <PageLoaderWrapper
+        screenState customLoader={<Shimmer styleClass="w-full h-96" />} customUI={<NoData />}>
+        <PaymentsProcessedHeader
+          title={paymentsProcessed->graphTitle}
+          viewType
+          setViewType
+          selectedMetric
+          setSelectedMetric
+          granularity
+          setGranularity
+        />
+        <div className="mb-5">
+          {switch viewType {
+          | Graph =>
+            <LineGraph
+              entity={chartEntity}
+              data={chartEntity.getObjects(
+                ~data=paymentsProcessed,
+                ~xKey=selectedMetric.value,
+                ~yKey=TimeBucket->colMapper,
+              )}
+              className="mr-3"
+            />
+          | Table => <TableModule data={paymentsProcessed} className="mx-7" />
+          }}
+        </div>
+      </PageLoaderWrapper>
     </Card>
   </div>
 }

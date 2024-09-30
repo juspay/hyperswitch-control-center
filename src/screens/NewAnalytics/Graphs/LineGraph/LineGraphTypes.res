@@ -104,7 +104,7 @@ type lineGraphOptions = {
   xAxis: xAxis,
   yAxis: yAxis,
   plotOptions: plotOptions,
-  series: array<data>,
+  series: data,
   credits: credits,
   tooltip: tooltip,
 }
