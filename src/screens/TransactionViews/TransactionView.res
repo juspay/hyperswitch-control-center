@@ -33,10 +33,10 @@ let make = (~entity=TransactionViewTypes.Orders) => {
     TransactionViewTypes.All
   )
 
-  let updateViewsFilterValue = (view: TransactionViewTypes.viewTypes) => {
-    let customFilterKey = getCustomFilterKey(entity)
-    let customFilter = `[${view->getViewsString(countRes, entity)}]`
+  let customFilterKey = getCustomFilterKey(entity)
 
+  let updateViewsFilterValue = (view: TransactionViewTypes.viewTypes) => {
+    let customFilter = `[${view->getViewsString(countRes, entity)}]`
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
 
     switch view {
@@ -88,9 +88,7 @@ let make = (~entity=TransactionViewTypes.Orders) => {
     }
   }
 
-  let settingActiveView = entity => {
-    let customFilterKey = getCustomFilterKey(entity)
-
+  let settingActiveView = () => {
     let appliedStatusFilter = filterValueJson->getArrayFromDict(customFilterKey, [])
 
     if appliedStatusFilter->Array.length == 1 {
@@ -105,7 +103,7 @@ let make = (~entity=TransactionViewTypes.Orders) => {
   }
 
   React.useEffect(() => {
-    settingActiveView(entity)
+    settingActiveView()
     None
   }, [filterValueJson])
 
