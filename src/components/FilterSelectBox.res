@@ -1578,6 +1578,7 @@ module BaseDropdown = {
       newInputSelect.value->LogicUtils.getStrArryFromJson
     )
 
+    // this useEffect enables communication between transaction view changes and the filter dropdown options via filterValueJson
     React.useEffect(() => {
       open LogicUtils
       let nonStatusFilters =
