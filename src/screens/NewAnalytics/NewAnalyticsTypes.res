@@ -36,14 +36,9 @@ type moduleEntity = {
   domain: domain,
 }
 
-type chartEntity<'t, 'chatOption> = {
-  getObjects: JSON.t => 't,
-  getChatOptions: 't => 'chatOption,
+type chartEntity<'t, 'chartOption> = {
+  getObjects: (~data: JSON.t, ~xKey: string, ~yKey: string) => 't,
+  getChatOptions: 't => 'chartOption,
 }
 
-type dropDownOptionType = {label: string}
-
-type tab = {
-  title: string,
-  value: string,
-}
+type optionType = {label: string, value: string}

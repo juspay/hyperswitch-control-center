@@ -2,17 +2,22 @@ open PaymentsProcessedTypes
 open NewPaymentAnalyticsUtils
 open LogicUtils
 
-let getPaymentQueryDataString = queryData =>
-  switch queryData {
-  | Amount => "amount"
+let colMapper = (col: paymentsProcessedCols) => {
+  switch col {
   | Count => "count"
+  | Amount => "amount"
   | TimeBucket => "time_bucket"
   }
+}
 
-let paymentsProcessedMapper = (json: JSON.t): LineGraphTypes.lineGraphPayload => {
+let paymentsProcessedMapper = (
+  ~data: JSON.t,
+  ~xKey: string,
+  ~yKey: string,
+): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  let categories = getCategories(json, getPaymentQueryDataString(TimeBucket))
-  let data = getLineGraphData(json, getPaymentQueryDataString(Amount))
+  let categories = getCategories(data, yKey)
+  let data = getLineGraphData(data, xKey)
   let title = {
     text: "USD",
   }
@@ -36,14 +41,6 @@ let graphTitle = json => {
 }
 
 let visibleColumns = [Count, Amount, TimeBucket]
-
-let colMapper = (col: paymentsProcessedCols) => {
-  switch col {
-  | Count => "count"
-  | Amount => "amount"
-  | TimeBucket => "time_bucket"
-  }
-}
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
   {
@@ -76,4 +73,26 @@ let getCell = (obj, colType): Table.cell => {
   | Amount => Text(obj.amount->Float.toString)
   | TimeBucket => Text(obj.time_bucket)
   }
+}
+
+open NewAnalyticsTypes
+let dropDownOptions = [
+  {label: "By Amount", value: Amount->colMapper},
+  {label: "By Count", value: Count->colMapper},
+]
+
+let tabs = [
+  {label: "Hourly", value: (#hour_wise: granularity :> string)},
+  {label: "Daily", value: (#day_wise: granularity :> string)},
+  {label: "Weekly", value: (#week_wise: granularity :> string)},
+]
+
+let defaultMetric = {
+  label: "By Amount",
+  value: Amount->colMapper,
+}
+
+let defaulGranularity = {
+  label: "Daily",
+  value: (#day_wise: granularity :> string),
 }

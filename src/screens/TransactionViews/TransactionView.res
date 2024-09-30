@@ -36,9 +36,10 @@ let make = (~entity=TransactionViewTypes.Orders) => {
   let updateViewsFilterValue = (view: TransactionViewTypes.viewTypes) => {
     let customFilterKey = switch entity {
     | Orders => "status"
+    | Refunds => "refund_status"
     | _ => ""
     }
-    let customFilter = `[${view->getViewsString(countRes)}]`
+    let customFilter = `[${view->getViewsString(countRes, entity)}]`
 
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
 
@@ -72,6 +73,12 @@ let make = (~entity=TransactionViewTypes.Orders) => {
       | Orders =>
         getURL(
           ~entityName=ORDERS_AGGREGATE,
+          ~methodType=Get,
+          ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
+        )
+      | Refunds =>
+        getURL(
+          ~entityName=REFUNDS_AGGREGATE,
           ~methodType=Get,
           ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
         )
@@ -112,6 +119,7 @@ let make = (~entity=TransactionViewTypes.Orders) => {
 
   let viewsArray = switch entity {
   | Orders => paymentViewsArray
+  | Refunds => refundViewsArray
   | _ => []
   }
 
@@ -120,7 +128,7 @@ let make = (~entity=TransactionViewTypes.Orders) => {
     <TransactionViewCard
       key={i->Int.toString}
       view={item}
-      count={getViewCount(item, countRes)->Int.toString}
+      count={getViewCount(item, countRes, entity)->Int.toString}
       onViewClick
       isActiveView={item == activeView}
     />

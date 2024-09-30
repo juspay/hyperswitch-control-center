@@ -7,13 +7,11 @@ module NewAccountCreationModal = {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
     let createNewAccount = async values => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Post)
         let body = values
         let _ = await updateDetails(url, body, Post)
-        let _ = await fetchSwitchMerchantList()
         showToast(
           ~toastType=ToastSuccess,
           ~message="Account Created Successfully!",
