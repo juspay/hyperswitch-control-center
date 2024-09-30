@@ -1,7 +1,6 @@
 open ConnectorTypes
+open LogicUtils
 let parsePaymentMethodType = paymentMethodType => {
-  open LogicUtils
-
   let paymentMethodTypeDict = paymentMethodType->getDictFromJsonObject
   {
     payment_method_type: paymentMethodTypeDict->getString("payment_method_type", ""),
@@ -10,8 +9,6 @@ let parsePaymentMethodType = paymentMethodType => {
   }
 }
 let parsePaymentMethodResponse = paymentMethod => {
-  open LogicUtils
-
   let paymentMethodDict = paymentMethod->getDictFromJsonObject
   let payment_method_types =
     paymentMethodDict
@@ -28,8 +25,6 @@ let parsePaymentMethodResponse = paymentMethod => {
 }
 
 let parsePaymentMethod = paymentMethod => {
-  open LogicUtils
-
   let paymentMethodDict = paymentMethod->getDictFromJsonObject
   let flow = paymentMethodDict->getString("flow", "")
 
@@ -40,8 +35,6 @@ let parsePaymentMethod = paymentMethod => {
 }
 
 let convertFRMConfigJsonToObjResponse = json => {
-  open LogicUtils
-
   json->Array.map(config => {
     let configDict = config->getDictFromJsonObject
     let payment_methods =
@@ -55,8 +48,6 @@ let convertFRMConfigJsonToObjResponse = json => {
 }
 
 let convertFRMConfigJsonToObj = json => {
-  open LogicUtils
-
   json->Array.map(config => {
     let configDict = config->getDictFromJsonObject
     let payment_methods =
@@ -70,7 +61,6 @@ let convertFRMConfigJsonToObj = json => {
 }
 
 let getPaymentMethodTypes = dict => {
-  open LogicUtils
   open ConnectorUtils
   {
     payment_method_type: dict->getString("payment_method_type", ""),
@@ -86,7 +76,6 @@ let getPaymentMethodTypes = dict => {
 }
 
 let getPaymentMethodsEnabled: Dict.t<JSON.t> => paymentMethodEnabledType = dict => {
-  open LogicUtils
   {
     payment_method: dict->getString("payment_method", ""),
     payment_method_types: dict
@@ -97,7 +86,6 @@ let getPaymentMethodsEnabled: Dict.t<JSON.t> => paymentMethodEnabledType = dict 
 }
 
 let getConnectorAccountDetails = dict => {
-  open LogicUtils
   {
     auth_type: dict->getString("auth_type", ""),
     api_secret: dict->getString("api_secret", ""),
@@ -114,71 +102,58 @@ let connectorAuthTypeMapper = (str): connectorAuthType => {
   | "multiauthkey" => MultiAuthKey
   | "currencyauthkey" => CurrencyAuthKey
   | "certificateauth" => CertificateAuth
-  | _ => Unknown
+  | _ => UnKnownAuthType
   }
 }
 
 let getHeaderAuth = (dict): headerKey => {
-  open LogicUtils
-  {
-    auth_type: dict->getString("auth_type", ""),
-    api_key: dict->getString("api_key", ""),
-  }
+  auth_type: dict->getString("auth_type", ""),
+  api_key: dict->getString("api_key", ""),
 }
 let getBodyKeyAuth = (dict): bodyKey => {
-  open LogicUtils
-  {
-    auth_type: dict->getString("auth_type", ""),
-    api_key: dict->getString("api_key", ""),
-    key1: dict->getString("key1", ""),
-  }
+  auth_type: dict->getString("auth_type", ""),
+  api_key: dict->getString("api_key", ""),
+  key1: dict->getString("key1", ""),
 }
 let getSignatureKeyAuth = (dict): signatureKey => {
-  open LogicUtils
-  {
-    auth_type: dict->getString("auth_type", ""),
-    api_key: dict->getString("api_key", ""),
-    key1: dict->getString("key1", ""),
-    api_secret: dict->getString("api_secret", ""),
-  }
+  auth_type: dict->getString("auth_type", ""),
+  api_key: dict->getString("api_key", ""),
+  key1: dict->getString("key1", ""),
+  api_secret: dict->getString("api_secret", ""),
 }
 let getMultiAuthKeyAuth = (dict): multiAuthKey => {
-  open LogicUtils
-  {
-    auth_type: dict->getString("auth_type", ""),
-    api_key: dict->getString("api_key", ""),
-    key1: dict->getString("key1", ""),
-    api_secret: dict->getString("api_secret", ""),
-    key2: dict->getString("key2", ""),
-  }
+  auth_type: dict->getString("auth_type", ""),
+  api_key: dict->getString("api_key", ""),
+  key1: dict->getString("key1", ""),
+  api_secret: dict->getString("api_secret", ""),
+  key2: dict->getString("key2", ""),
 }
 
-let getCurrencyAuthKey = (dict): multiAuthKey => {
-  open LogicUtils
-  {
-    auth_type: dict->getString("auth_type", ""),
-    api_key: dict->getString("api_key", ""),
-    key1: dict->getString("key1", ""),
-    api_secret: dict->getString("api_secret", ""),
-    key2: dict->getString("key2", ""),
-  }
+let getCurrencyAuthKey = (dict): currencyAuthKey => {
+  auth_type: dict->getString("auth_type", ""),
+  auth_key_map: dict->getDictfromDict("auth_key_map"),
+}
+let getCertificateAuth = (dict): certificateAuth => {
+  auth_type: dict->getString("auth_type", ""),
+  certificate: dict->getString("certificate", ""),
+  private_key: dict->getString("private_key", ""),
 }
 
 let getAccountDetails = (dict): connectorAuthTypeObj => {
-  open LogicUtils
   let authType = dict->getString("auth_type", "")->connectorAuthTypeMapper
   let d = switch authType {
   | HeaderKey => HeaderKey(dict->getHeaderAuth)
   | BodyKey => BodyKey(dict->getBodyKeyAuth)
   | SignatureKey => SignatureKey(dict->getSignatureKeyAuth)
   | MultiAuthKey => MultiAuthKey(dict->getMultiAuthKeyAuth)
-  | CurrencyAuthKey => CurrencyAuthKey(dict->getHeaderAuth)
-  // | CertificateAuth => CertificateAuth()
+  | CurrencyAuthKey => CurrencyAuthKey(dict->getCurrencyAuthKey)
+  | CertificateAuth => CertificateAuth(dict->getCertificateAuth)
+  | UnKnownAuthType => UnKnownAuthType(JSON.Encode.null)
   }
+  d
 }
 
 let getProcessorPayloadType = dict => {
-  open LogicUtils
   {
     connector_type: dict->getString("connector_type", ""),
     connector_name: dict->getString("connector_name", ""),
@@ -203,11 +178,11 @@ let getProcessorPayloadType = dict => {
     additional_merchant_data: dict
     ->getObj("additional_merchant_data", Dict.make())
     ->JSON.Encode.object,
+    account_details: dict->getObj("connector_account_details", Dict.make())->getAccountDetails,
   }
 }
 
 let getArrayOfConnectorListPayloadType = json => {
-  open LogicUtils
   json
   ->getArrayFromJson([])
   ->Array.map(connectorJson => {

@@ -239,7 +239,8 @@ type currencyKey = {
   password_classic: string,
   username_classic: string,
 }
-type currencyAuthKey = {auth_key_map: (string, currencyKey), auth_type: string}
+type authKeyMap = {}
+type currencyAuthKey = {auth_key_map: Js.Dict.t<JSON.t>, auth_type: string}
 type certificateAuth = {
   auth_type: string,
   certificate: string,
@@ -247,7 +248,13 @@ type certificateAuth = {
 }
 
 type connectorAuthType =
-  HeaderKey | BodyKey | SignatureKey | MultiAuthKey | CurrencyAuthKey | CertificateAuth | Unknown
+  | HeaderKey
+  | BodyKey
+  | SignatureKey
+  | MultiAuthKey
+  | CurrencyAuthKey
+  | CertificateAuth
+  | UnKnownAuthType
 
 type connectorAuthTypeObj =
   | HeaderKey(headerKey)
@@ -256,6 +263,7 @@ type connectorAuthTypeObj =
   | MultiAuthKey(multiAuthKey)
   | CurrencyAuthKey(currencyAuthKey)
   | CertificateAuth(certificateAuth)
+  | UnKnownAuthType(JSON.t)
 
 type connectorAccountDetails = {
   auth_type: string,
@@ -265,7 +273,6 @@ type connectorAccountDetails = {
   key2?: string,
 }
 
-type account_details = {auth_type: connectorAuthTypeObj}
 type paymentMethodEnabledType = {
   payment_method: string,
   payment_method_types: array<paymentMethodConfigType>,
@@ -295,7 +302,7 @@ type connectorPayload = {
   connector_name: string,
   connector_label: string,
   connector_account_details: connectorAccountDetails,
-  account_details: account_details,
+  account_details: connectorAuthTypeObj,
   test_mode: bool,
   disabled: bool,
   payment_methods_enabled: payment_methods_enabled,

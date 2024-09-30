@@ -176,6 +176,7 @@ module ConnectorSummaryGrid = {
         }
       }
     }, [connectorName])
+    Js.log2(connectorInfo, "connectorInfo")
     let (_, connectorAccountFields, _, _, _, _, _) = ConnectorUtils.getConnectorFields(
       connectorDetails,
     )
