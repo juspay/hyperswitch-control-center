@@ -65,9 +65,6 @@ let make = () => {
     try {
       Window.connectorWasmInit()->ignore
       let _ = await fetchPermissions()
-      if featureFlagDetails.quickStart {
-        let _ = await fetchInitialEnums()
-      }
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
