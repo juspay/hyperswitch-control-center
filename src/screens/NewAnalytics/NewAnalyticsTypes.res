@@ -13,7 +13,17 @@ type dimension = [
   | #authentication_type
 ]
 type status = [#charged | #failure]
-type metrics = [#payment_processed_amount | #payment_count | #payment_success_rate | #time_bucket]
+type metrics = [
+  | #payment_processed_amount
+  | #payment_count
+  | #payment_success_rate
+  | #time_bucket
+  | #connector
+  | #payment_method
+  | #payment_method_type
+  | #card_network
+  | #authentication_type
+]
 type granularity = [
   | #G_ONEDAY
 ]

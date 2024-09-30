@@ -42,7 +42,7 @@ let requestBody = (
   ~startTime: string,
   ~endTime: string,
   ~metrics: array<metrics>,
-  ~groupBy: option<array<dimension>>=None,
+  ~groupByNames: option<array<string>>=None,
   ~filters as _: option<array<dimension>>=[]->Some,
   ~customFilter as _: option<dimension>=None,
   ~excludeFilterValue as _: option<array<status>>=None,
@@ -52,11 +52,6 @@ let requestBody = (
 ) => {
   let metrics = metrics->Array.map(v => (v: metrics :> string))
   let filter = Dict.make()->JSON.Encode.object->Some
-
-  let groupByNames = switch groupBy {
-  | Some(vals) => vals->Array.map(v => (v: dimension :> string))->Some
-  | None => None
-  }
 
   [
     AnalyticsUtils.getFilterRequestBody(
