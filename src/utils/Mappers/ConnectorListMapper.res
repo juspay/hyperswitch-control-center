@@ -107,22 +107,18 @@ let connectorAuthTypeMapper = (str): connectorAuthType => {
 }
 
 let getHeaderAuth = (dict): headerKey => {
-  auth_type: dict->getString("auth_type", ""),
   api_key: dict->getString("api_key", ""),
 }
 let getBodyKeyAuth = (dict): bodyKey => {
-  auth_type: dict->getString("auth_type", ""),
   api_key: dict->getString("api_key", ""),
   key1: dict->getString("key1", ""),
 }
 let getSignatureKeyAuth = (dict): signatureKey => {
-  auth_type: dict->getString("auth_type", ""),
   api_key: dict->getString("api_key", ""),
   key1: dict->getString("key1", ""),
   api_secret: dict->getString("api_secret", ""),
 }
 let getMultiAuthKeyAuth = (dict): multiAuthKey => {
-  auth_type: dict->getString("auth_type", ""),
   api_key: dict->getString("api_key", ""),
   key1: dict->getString("key1", ""),
   api_secret: dict->getString("api_secret", ""),
@@ -130,11 +126,9 @@ let getMultiAuthKeyAuth = (dict): multiAuthKey => {
 }
 
 let getCurrencyAuthKey = (dict): currencyAuthKey => {
-  auth_type: dict->getString("auth_type", ""),
   auth_key_map: dict->getDictfromDict("auth_key_map"),
 }
 let getCertificateAuth = (dict): certificateAuth => {
-  auth_type: dict->getString("auth_type", ""),
   certificate: dict->getString("certificate", ""),
   private_key: dict->getString("private_key", ""),
 }

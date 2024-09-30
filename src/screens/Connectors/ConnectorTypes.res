@@ -214,35 +214,30 @@ type wasmExtraPayload = {
 
 // This type are used for FRM configuration which need to moved to wasm
 
-type headerKey = {auth_type: string, api_key: string}
+type headerKey = {api_key: string}
 type bodyKey = {
-  auth_type: string,
   api_key: string,
   key1: string,
 }
 type signatureKey = {
-  auth_type: string,
   api_key: string,
   key1: string,
   api_secret: string,
 }
 type multiAuthKey = {
-  auth_type: string,
   api_key: string,
   key1: string,
   api_secret: string,
   key2: string,
 }
 type currencyKey = {
-  auth_type: string,
   merchant_id_classic: string,
   password_classic: string,
   username_classic: string,
 }
-type authKeyMap = {}
-type currencyAuthKey = {auth_key_map: Js.Dict.t<JSON.t>, auth_type: string}
+
+type currencyAuthKey = {auth_key_map: Js.Dict.t<JSON.t>}
 type certificateAuth = {
-  auth_type: string,
   certificate: string,
   private_key: string,
 }
