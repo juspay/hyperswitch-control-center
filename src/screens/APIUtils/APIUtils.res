@@ -587,7 +587,6 @@ let useGetURL = () => {
       // SWITCH & CREATE MERCHANT
       | #SWITCH_MERCHANT =>
         switch methodType {
-        | Get => `${userUrl}/switch/list`
         | _ => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
       | #CREATE_MERCHANT =>
@@ -616,9 +615,6 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
-
-      // SPT FLOWS (Merchant select)
-      | #MERCHANTS_SELECT => `${userUrl}/merchants_select/list`
 
       // SPT FLOWS (Totp)
       | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
