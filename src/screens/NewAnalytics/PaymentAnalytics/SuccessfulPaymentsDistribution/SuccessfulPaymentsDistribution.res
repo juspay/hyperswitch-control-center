@@ -2,7 +2,7 @@ open NewAnalyticsTypes
 open NewAnalyticsHelper
 open NewPaymentAnalyticsEntity
 open BarGraphTypes
-open PaymentsDistributionUtils
+open SuccessfulPaymentsDistributionUtils
 
 module TableModule = {
   @react.component
@@ -14,21 +14,21 @@ module TableModule = {
     }
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
-    let paymentsDistribution = getTableData(data)
+    let successfulPaymentsDistribution = getTableData(data)
 
     <div className>
       <LoadedTable
         visibleColumns
         title=" "
         hideTitle=true
-        actualData={paymentsDistribution}
-        entity=paymentsDistributionTableEntity
+        actualData={successfulPaymentsDistribution}
+        entity=successfulPaymentsDistributionTableEntity
         resultsPerPage=10
-        totalResults={paymentsDistribution->Array.length}
+        totalResults={successfulPaymentsDistribution->Array.length}
         offset
         setOffset
         defaultSort
-        currrentFetchCount={paymentsDistribution->Array.length}
+        currrentFetchCount={successfulPaymentsDistribution->Array.length}
         tableLocalFilter=false
         tableheadingClass=tableBorderClass
         tableBorderClass
@@ -40,7 +40,7 @@ module TableModule = {
   }
 }
 
-module PaymentsDistributionHeader = {
+module SuccessfulPaymentsDistributionHeader = {
   @react.component
   let make = (~viewType, ~setViewType, ~groupBy, ~setGroupBy) => {
     let setViewType = value => {
@@ -62,11 +62,13 @@ module PaymentsDistributionHeader = {
 
 @react.component
 let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, barGraphOptions>) => {
-  let (paymentsDistribution, setpaymentsDistribution) = React.useState(_ => JSON.Encode.array([]))
+  let (successfulPaymentsDistribution, setsuccessfulPaymentsDistribution) = React.useState(_ =>
+    JSON.Encode.array([])
+  )
   let (viewType, setViewType) = React.useState(_ => Graph)
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
 
-  let getPaymentsDistribution = async () => {
+  let getSuccessfulPaymentsDistribution = async () => {
     try {
       let response = [
         {
@@ -80,33 +82,33 @@ let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, ba
         },
       ]->Identity.genericTypeToJson
 
-      setpaymentsDistribution(_ => response)
+      setsuccessfulPaymentsDistribution(_ => response)
     } catch {
     | _ => ()
     }
   }
   React.useEffect(() => {
-    getPaymentsDistribution()->ignore
+    getSuccessfulPaymentsDistribution()->ignore
     None
   }, [])
 
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
-      <PaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
+      <SuccessfulPaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
       <div className="mb-5">
         {switch viewType {
         | Graph =>
           <BarGraph
             entity={chartEntity}
             object={chartEntity.getObjects(
-              ~data=paymentsDistribution,
+              ~data=successfulPaymentsDistribution,
               ~xKey=PaymentsSuccessRate->colMapper,
               ~yKey=groupBy.value,
             )}
             className="mr-3"
           />
-        | Table => <TableModule data={paymentsDistribution} className="mx-7" />
+        | Table => <TableModule data={successfulPaymentsDistribution} className="mx-7" />
         }}
       </div>
     </Card>

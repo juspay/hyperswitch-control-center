@@ -1,5 +1,5 @@
 open NewPaymentAnalyticsUtils
-open PaymentsDistributionTypes
+open SuccessfulPaymentsDistributionTypes
 open LogicUtils
 
 let colMapper = (col: queryData) => {
@@ -10,7 +10,7 @@ let colMapper = (col: queryData) => {
   }
 }
 
-let paymentsDistributionMapper = (
+let successfulPaymentsDistributionMapper = (
   ~data: JSON.t,
   ~xKey: string,
   ~yKey: string,
@@ -26,7 +26,7 @@ let paymentsDistributionMapper = (
 
 let visibleColumns = [PaymentsSuccessRate, Connector]
 
-let tableItemToObjMapper: Dict.t<JSON.t> => paymentsDistributionObject = dict => {
+let tableItemToObjMapper: Dict.t<JSON.t> => successfulPaymentsDistributionObject = dict => {
   {
     payments_success_rate: dict->getInt(PaymentsSuccessRate->colMapper, 0),
     connector: dict->getString(Connector->colMapper, ""),
@@ -34,7 +34,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentsDistributionObject = dict =>
   }
 }
 
-let getObjects: JSON.t => array<paymentsDistributionObject> = json => {
+let getObjects: JSON.t => array<successfulPaymentsDistributionObject> = json => {
   json
   ->LogicUtils.getArrayFromJson([])
   ->Array.map(item => {
