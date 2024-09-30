@@ -76,13 +76,13 @@ module PaymentsProcessedHeader = {
       setGranularity(_ => value)
     }
 
-    <div className="w-full px-7 py-8 grid grid-cols-2">
-      <div className="flex gap-2 items-center">
-        <div className="text-3xl font-600"> {title->React.string} </div>
-        <StatisticsCard value="8" direction={Upward} />
-      </div>
+    <div className="w-full px-7 py-8 grid grid-cols-1">
       // will enable it in future
       <RenderIf condition={false}>
+        <div className="flex gap-2 items-center">
+          <div className="text-3xl font-600"> {title->React.string} </div>
+          <StatisticsCard value="8" direction={Upward} />
+        </div>
         <div className="flex justify-center">
           <Tabs option={granularity} setOption={setGranularity} options={tabs} />
         </div>

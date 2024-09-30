@@ -1,5 +1,4 @@
 open NewPaymentAnalyticsUtils
-open PaymentsSuccessRateTypes
 open LogicUtils
 
 let getMetaData = json => {
@@ -13,12 +12,6 @@ let getMetaData = json => {
 }
 
 let graphTitle = json => getMetaData(json)->getInt("payments_success_rate", 0)->Int.toString
-
-let colMapper = queryData =>
-  switch queryData {
-  | PaymentSuccessRate => "payments_success_rate"
-  | TimeBucket => "time_bucket"
-  }
 
 let paymentsSuccessRateMapper = (
   ~data: JSON.t,
