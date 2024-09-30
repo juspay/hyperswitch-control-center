@@ -42,7 +42,13 @@ let connectorStatusStyle = connectorStatus =>
 
 let getCell = (connector: connectorPayload, colType): Table.cell => {
   switch colType {
-  | Name => Text(connector.connector_name)
+  | Name =>
+    CustomCell(
+      <HelperComponents.ConnectorCustomCell
+        connectorName=connector.connector_name connectorType={PMAuthenticationProcessor}
+      />,
+      "",
+    )
   | TestMode => Text(connector.test_mode ? "True" : "False")
   | Disabled =>
     Label({
