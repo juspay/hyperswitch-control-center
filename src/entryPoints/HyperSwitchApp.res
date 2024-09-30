@@ -19,7 +19,6 @@ let make = () => {
     isProdIntentCompleted,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let enumDetails =
     enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
@@ -85,7 +84,6 @@ let make = () => {
     try {
       Window.connectorWasmInit()->ignore
       let _ = await fetchPermissions()
-      let _ = await fetchSwitchMerchantList()
       if featureFlagDetails.quickStart {
         let _ = await fetchInitialEnums()
       }
