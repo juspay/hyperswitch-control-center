@@ -136,18 +136,25 @@ let make = (
         ~granularity=granularity.value->Some,
       )
 
-      let response = await updateDetails(url, body, Post)
-      let arr =
-        response
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
-
-      if arr->Array.length > 0 {
-        setpaymentsProcessed(_ => [response]->JSON.Encode.array)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } else {
-        setScreenState(_ => PageLoaderWrapper.Custom)
-      }
+      let responses = await PromiseUtils.allSettledPolyfill([
+        updateDetails(url, body, Post),
+        updateDetails(url, body, Post),
+      ])
+      let data = NewPaymentAnalyticsUtils.modifyDataWithMissingPoints(
+        ~data=responses,
+        ~key="queryData",
+        ~startDate=startTimeVal,
+        ~endDate=endTimeVal,
+        ~defaultValue={
+          "count": 0,
+          "amount": 0,
+          "time_bucket": startTimeVal,
+        }->Identity.genericTypeToJson,
+        ~timeKey="time_bucket",
+        ~granularity=granularity.value,
+      )->Identity.genericTypeToJson
+      setpaymentsProcessed(_ => data)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
