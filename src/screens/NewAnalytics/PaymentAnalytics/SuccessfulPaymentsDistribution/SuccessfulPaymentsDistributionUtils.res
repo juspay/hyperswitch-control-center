@@ -2,11 +2,13 @@ open NewPaymentAnalyticsUtils
 open SuccessfulPaymentsDistributionTypes
 open LogicUtils
 
-let colMapper = (col: queryData) => {
-  switch col {
-  | PaymentsSuccessRate => "payments_success_rate"
-  | Connector => "connector"
-  | PaymentMethod => "payment_method"
+let getDimentionType = string => {
+  switch string {
+  | "connector" => #connector
+  | "payment_method" => #payment_method
+  | "payment_method_type" => #payment_method_type
+  | "card_network" => #card_network
+  | "authentication_type" | _ => #authentication_type
   }
 }
 
@@ -24,13 +26,14 @@ let successfulPaymentsDistributionMapper = (
   {categories, data, title}
 }
 
-let visibleColumns = [PaymentsSuccessRate, Connector]
+open NewAnalyticsTypes
+let visibleColumns: array<metrics> = [#payment_success_rate]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => successfulPaymentsDistributionObject = dict => {
   {
-    payments_success_rate: dict->getInt(PaymentsSuccessRate->colMapper, 0),
-    connector: dict->getString(Connector->colMapper, ""),
-    payment_method: dict->getString(PaymentMethod->colMapper, ""),
+    payments_success_rate: dict->getInt((#payment_success_rate: metrics :> string), 0),
+    connector: dict->getString((#connector: metrics :> string), ""),
+    payment_method: dict->getString((#payment_method: metrics :> string), ""),
   }
 }
 
@@ -42,21 +45,34 @@ let getObjects: JSON.t => array<successfulPaymentsDistributionObject> = json => 
   })
 }
 
-let getHeading = colType => {
-  let key = colType->colMapper
+let getHeading = (colType: metrics) => {
   switch colType {
-  | PaymentsSuccessRate =>
-    Table.makeHeaderInfo(~key, ~title="Payments Success Rate", ~dataType=TextType)
-  | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType)
-  | PaymentMethod => Table.makeHeaderInfo(~key, ~title="Payment Method", ~dataType=TextType)
+  | #payment_success_rate =>
+    Table.makeHeaderInfo(
+      ~key=(#payment_success_rate: metrics :> string),
+      ~title="Payments Success Rate",
+      ~dataType=TextType,
+    )
+  | #connector =>
+    Table.makeHeaderInfo(
+      ~key=(#connector: metrics :> string),
+      ~title="Connector",
+      ~dataType=TextType,
+    )
+  | #payment_method | _ =>
+    Table.makeHeaderInfo(
+      ~key=(#payment_method: metrics :> string),
+      ~title="Payment Method",
+      ~dataType=TextType,
+    )
   }
 }
 
-let getCell = (obj, colType): Table.cell => {
+let getCell = (obj, colType: metrics): Table.cell => {
   switch colType {
-  | PaymentsSuccessRate => Text(obj.payments_success_rate->Int.toString)
-  | Connector => Text(obj.connector)
-  | PaymentMethod => Text(obj.payment_method)
+  | #payment_success_rate => Text(obj.payments_success_rate->Int.toString)
+  | #connector => Text(obj.connector)
+  | #payment_method | _ => Text(obj.payment_method)
   }
 }
 
@@ -70,7 +86,6 @@ let getTableData = json =>
   ->getArrayDataFromJson(tableItemToObjMapper)
   ->Array.map(Nullable.make)
 
-open NewAnalyticsTypes
 let tabs = [
   {
     label: "Connector",
@@ -83,10 +98,6 @@ let tabs = [
   {
     label: "Payment Method Type",
     value: (#payment_method_type: dimension :> string),
-  },
-  {
-    label: "Card Network",
-    value: (#card_network: dimension :> string),
   },
   {
     label: "Authentication Type",

@@ -1,5 +1,4 @@
 open NewPaymentAnalyticsUtils
-open PaymentsSuccessRateTypes
 open LogicUtils
 
 let getMetaData = json => {
@@ -13,12 +12,6 @@ let getMetaData = json => {
 }
 
 let graphTitle = json => getMetaData(json)->getInt("payments_success_rate", 0)->Int.toString
-
-let colMapper = queryData =>
-  switch queryData {
-  | PaymentSuccessRate => "payments_success_rate"
-  | TimeBucket => "time_bucket"
-  }
 
 let paymentsSuccessRateMapper = (
   ~data: JSON.t,
@@ -35,13 +28,9 @@ let paymentsSuccessRateMapper = (
 }
 
 open NewAnalyticsTypes
-let tabs = [
-  {label: "Hourly", value: (#hour_wise: granularity :> string)},
-  {label: "Daily", value: (#day_wise: granularity :> string)},
-  {label: "Weekly", value: (#week_wise: granularity :> string)},
-]
+let tabs = [{label: "Daily", value: (#G_ONEDAY: granularity :> string)}]
 
 let defaulGranularity = {
   label: "Hourly",
-  value: (#hour_wise: granularity :> string),
+  value: (#G_ONEDAY: granularity :> string),
 }
