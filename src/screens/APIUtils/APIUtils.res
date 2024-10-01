@@ -94,6 +94,17 @@ let useGetURL = () => {
 
       | _ => ""
       }
+    | DISPUTE_FILTERS =>
+      switch methodType {
+      | Get =>
+        switch transactionEntity {
+        | #Profile => `disputes/profile/filter`
+        | #Merchant
+        | _ => `disputes/filter`
+        }
+
+      | _ => ""
+      }
     | PAYOUTS_FILTERS =>
       switch methodType {
       | Post =>
@@ -199,10 +210,20 @@ let useGetURL = () => {
         switch id {
         | Some(dispute_id) => `disputes/${dispute_id}`
         | None =>
-          switch transactionEntity {
-          | #Merchant => `disputes/list?limit=10000`
-          | #Profile => `disputes/profile/list?limit=10000`
-          | _ => `disputes/list?limit=10000`
+          switch queryParamerters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Profile => `disputes/profile/list?${queryParams}&limit=10000`
+            | #Merchant
+            | _ =>
+              `disputes/list?${queryParams}&limit=10000`
+            }
+          | None =>
+            switch transactionEntity {
+            | #Profile => `disputes/profile/list?limit=10000`
+            | #Merchant
+            | _ => `disputes/list?limit=10000`
+            }
           }
         }
       | _ => ""

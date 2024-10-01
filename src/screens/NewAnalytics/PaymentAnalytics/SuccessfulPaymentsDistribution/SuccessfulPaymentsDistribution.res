@@ -2,7 +2,7 @@ open NewAnalyticsTypes
 open NewAnalyticsHelper
 open NewPaymentAnalyticsEntity
 open BarGraphTypes
-open PaymentsDistributionUtils
+open SuccessfulPaymentsDistributionUtils
 
 module TableModule = {
   @react.component
@@ -14,21 +14,21 @@ module TableModule = {
     }
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
     let visibleColumns = visibleColumns->Array.concat([selectedTab->getDimentionType])
-    let paymentsDistribution = getTableData(data)
+    let tableData = getTableData(data)
 
     <div className>
       <LoadedTable
         visibleColumns
         title=" "
         hideTitle=true
-        actualData={paymentsDistribution}
-        entity=paymentsDistributionTableEntity
+        actualData={tableData}
+        entity=successfulPaymentsDistributionTableEntity
         resultsPerPage=10
-        totalResults={paymentsDistribution->Array.length}
+        totalResults={tableData->Array.length}
         offset
         setOffset
         defaultSort
-        currrentFetchCount={paymentsDistribution->Array.length}
+        currrentFetchCount={tableData->Array.length}
         tableLocalFilter=false
         tableheadingClass=tableBorderClass
         tableBorderClass
@@ -40,7 +40,7 @@ module TableModule = {
   }
 }
 
-module PaymentsDistributionHeader = {
+module SuccessfulPaymentsDistributionHeader = {
   @react.component
   let make = (~viewType, ~setViewType, ~groupBy, ~setGroupBy) => {
     let setViewType = value => {
@@ -122,7 +122,7 @@ let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, ba
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer styleClass="w-full h-96 " />} customUI={<NoData />}>
-        <PaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
+        <SuccessfulPaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
         <div className="mb-5">
           {switch viewType {
           | Graph =>

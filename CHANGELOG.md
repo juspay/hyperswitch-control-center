@@ -3,6 +3,29 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.10.01.0
+
+### Features
+
+- Dispute filters ([#1474](https://github.com/juspay/hyperswitch-control-center/pull/1474)) ([`d8c8974`](https://github.com/juspay/hyperswitch-control-center/commit/d8c8974539d321d5241638112f92b9207e1427bc))
+
+### Bug Fixes
+
+- Check for disabled pm auth connector ([#1506](https://github.com/juspay/hyperswitch-control-center/pull/1506)) ([`9105eb1`](https://github.com/juspay/hyperswitch-control-center/commit/9105eb1c534b972acc8a0dd21258215cf566e3d2))
+- Removed unused api from app ([#1500](https://github.com/juspay/hyperswitch-control-center/pull/1500)) ([`5b9635e`](https://github.com/juspay/hyperswitch-control-center/commit/5b9635e8db8462bfff5059d6ef0c78dbecb8c651))
+- Transaction views ([#1498](https://github.com/juspay/hyperswitch-control-center/pull/1498)) ([`80efd6c`](https://github.com/juspay/hyperswitch-control-center/commit/80efd6cd449dc1561049f5b666dc09f01ac4a789))
+
+### Miscellaneous Tasks
+
+- Omp views ui changes ([#1486](https://github.com/juspay/hyperswitch-control-center/pull/1486)) ([`677015c`](https://github.com/juspay/hyperswitch-control-center/commit/677015c0456d555a368f4663b55a3ec7e59e3cd2))
+- Fix testing bug - displaying Processor in table ([#1507](https://github.com/juspay/hyperswitch-control-center/pull/1507)) ([`5c61535`](https://github.com/juspay/hyperswitch-control-center/commit/5c61535901d063995a860f8d4cda4dbcc475a970))
+- Changes in connector addition template ([#1496](https://github.com/juspay/hyperswitch-control-center/pull/1496)) ([`1fcb0b5`](https://github.com/juspay/hyperswitch-control-center/commit/1fcb0b5bbc61acea6dc5f772682c1e177bb3da63))
+- Updated file names and variables names for successful payment … ([#1519](https://github.com/juspay/hyperswitch-control-center/pull/1519)) ([`6bb53ca`](https://github.com/juspay/hyperswitch-control-center/commit/6bb53ca66f7ef51de9977f81c86b7e272d54a9f9))
+
+**Full Changelog:** [`2024.09.30.0...2024.10.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.09.30.0...2024.10.01.0)
+
+- - -
+
 ## 2024.09.30.0
 
 ### Features

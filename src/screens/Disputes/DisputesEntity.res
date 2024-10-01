@@ -23,7 +23,7 @@ let allColumns = [
   PaymentId,
 ]
 
-let useGetStatus = dispute => {
+let useGetStatus = (dispute: disputes) => {
   open DisputesUtils
   let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = dispute.dispute_status->String.toUpperCase

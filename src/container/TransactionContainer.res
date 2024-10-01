@@ -46,13 +46,15 @@ let make = () => {
       </AccessControl>
     | list{"disputes", ...remainingPath} =>
       <AccessControl permission=userPermissionJson.operationsView>
-        <EntityScaffold
-          entityName="Disputes"
-          remainingPath
-          access=Access
-          renderList={() => <Disputes />}
-          renderShow={(id, key) => <ShowDisputes id profileId={key} />}
-        />
+        <FilterContext key="disputes" index="disputes">
+          <EntityScaffold
+            entityName="Disputes"
+            remainingPath
+            access=Access
+            renderList={() => <Disputes />}
+            renderShow={(id, key) => <ShowDisputes id profileId={key} />}
+          />
+        </FilterContext>
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
