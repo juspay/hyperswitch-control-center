@@ -92,7 +92,7 @@ let make = (
     <ModuleHeader title={entity.title} />
     <Card>
       <PageLoaderWrapper
-        screenState customLoader={<Shimmer styleClass="w-full h-96" />} customUI={<NoData />}>
+        screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
         <PaymentsSuccessRateHeader title="0" granularity setGranularity />
         <div className="mb-5">
           <LineGraph

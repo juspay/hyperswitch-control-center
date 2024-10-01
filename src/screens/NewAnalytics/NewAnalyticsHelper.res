@@ -11,12 +11,24 @@ module Card = {
 module NoData = {
   @react.component
   let make = (~height="h-96") => {
-    <Card>
-      <div
-        className={`${height} border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
-        {`No entires in selected time period.`->React.string}
-      </div>
-    </Card>
+    <div
+      className={`${height} border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
+      {"No entires in selected time period."->React.string}
+    </div>
+  }
+}
+
+module Shimmer = {
+  @react.component
+  let make = (~className="w-full h-96", ~layoutId) => {
+    <FramerMotion.Motion.Div
+      className={`${className} bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100`}
+      initial={{backgroundPosition: "-200% 0"}}
+      animate={{backgroundPosition: "200% 0"}}
+      transition={{duration: 1.5, ease: "easeInOut", repeat: 10000}}
+      style={{backgroundSize: "200% 100%"}}
+      layoutId
+    />
   }
 }
 
