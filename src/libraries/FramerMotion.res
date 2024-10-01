@@ -18,7 +18,7 @@ type animate = {
   y?: int,
   x?: int,
   opacity?: float,
-  backgroundPosition?: array<string>,
+  backgroundPosition?: string,
   height?: string,
   width?: string,
   background?: string,

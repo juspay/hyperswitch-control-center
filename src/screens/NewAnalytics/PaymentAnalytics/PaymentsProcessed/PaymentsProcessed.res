@@ -163,7 +163,7 @@ let make = (
     <ModuleHeader title={entity.title} />
     <Card>
       <PageLoaderWrapper
-        screenState customLoader={<Shimmer styleClass="w-full h-96" />} customUI={<NoData />}>
+        screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
         <PaymentsProcessedHeader
           title={paymentsProcessed->graphTitle}
           viewType
