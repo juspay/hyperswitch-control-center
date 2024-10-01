@@ -9,22 +9,20 @@ let make = (
   let (data, setData) = React.useState(_ => JSON.Encode.null)
   let getPaymentLieCycleData = async () => {
     try {
-      let response = [
-        {
-          "normal_success": 0,
-          "normal_failure": 0,
-          "cancelled": 0,
-          "smart_retried_success": 0,
-          "smart_retried_failure": 0,
-          "pending": 0,
-          "failed": 0,
-          "partial_refunded": 0,
-          "refunded": 0,
-          "disputed": 0,
-          "pm_awaited": 0,
-          "customer_awaited": 0,
-        }->Identity.genericTypeToJson,
-      ]->Identity.genericTypeToJson
+      let response = {
+        "normal_success": 10,
+        "normal_failure": 10,
+        "cancelled": 10,
+        "smart_retried_success": 10,
+        "smart_retried_failure": 10,
+        "pending": 10,
+        "failed": 10,
+        "partial_refunded": 10,
+        "refunded": 10,
+        "disputed": 10,
+        "pm_awaited": 10,
+        "customer_awaited": 10,
+      }->Identity.genericTypeToJson
 
       setData(_ => response)
     } catch {
