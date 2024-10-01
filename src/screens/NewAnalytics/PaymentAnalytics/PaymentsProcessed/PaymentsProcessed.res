@@ -116,6 +116,7 @@ let make = (
   let endTimeVal = filterValueJson->getString("endTime", "")
 
   let getPaymentsProcessed = async () => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
         ~entityName=ANALYTICS_PAYMENTS,
