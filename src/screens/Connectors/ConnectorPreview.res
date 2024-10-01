@@ -176,10 +176,10 @@ module ConnectorSummaryGrid = {
         }
       }
     }, [connectorName])
-    Js.log2(connectorInfo, "connectorInfo")
     let (_, connectorAccountFields, _, _, _, _, _) = ConnectorUtils.getConnectorFields(
       connectorDetails,
     )
+    Js.log2(connectorAccountFields, "connectorInfo")
     let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
     | list{_, "new"} => false
     | _ => true
@@ -226,18 +226,7 @@ module ConnectorSummaryGrid = {
         <div className="flex flex-col gap-6 col-span-3">
           <div className="flex gap-12">
             <div className="flex flex-col gap-6 w-1/2">
-              {connectorAccountFields
-              ->Dict.keysToArray
-              ->Array.mapWithIndex((field, index) => {
-                open LogicUtils
-                let label = connectorAccountFields->getString(field, "")
-                <InfoField
-                  key={index->Int.toString}
-                  label={label}
-                  render={connectorInfo->ConnectorUtils.getConnectorDetailsValue(field)}
-                />
-              })
-              ->React.array}
+              <ConnectorPreviewHelper.PreviewCreds connectorAccountFields connectorInfo />
             </div>
             <RenderIf condition={isUpdateFlow}>
               <ConnectorUpdateAuthCreds connectorInfo getConnectorDetails />
