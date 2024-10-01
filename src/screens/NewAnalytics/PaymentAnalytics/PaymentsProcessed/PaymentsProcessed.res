@@ -104,7 +104,7 @@ let make = (
 ) => {
   open LogicUtils
   open APIUtils
-  //let getURL = useGetURL()
+  let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -117,9 +117,11 @@ let make = (
 
   let getPaymentsProcessed = async () => {
     try {
-      //let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
-
-      let url = "https://integ-api.hyperswitch.io/analytics/v1/org/metrics/payments"
+      let url = getURL(
+        ~entityName=ANALYTICS_PAYMENTS,
+        ~methodType=Post,
+        ~id=Some((entity.domain: domain :> string)),
+      )
 
       let body = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
@@ -150,7 +152,7 @@ let make = (
     }
   }
   React.useEffect(() => {
-    if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
       getPaymentsProcessed()->ignore
     }
     None
