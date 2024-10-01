@@ -62,18 +62,29 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, transactionView} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
       <div className="flex justify-between items-center">
-        <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
-        <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
-          selectedEntity={transactionEntity}
-          onChange={updateTransactionEntity}
-        />
+        <PageUtils.PageHeading title="Refunds" />
+        <div className="flex gap-4">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+            selectedEntity={transactionEntity}
+            onChange={updateTransactionEntity}
+          />
+          <RenderIf condition={generateReport && refundData->Array.length > 0}>
+            <GenerateReport entityName={REFUND_REPORT} />
+          </RenderIf>
+        </div>
       </div>
+      <RenderIf condition={transactionView}>
+        <div className="flex gap-6 justify-around">
+          <TransactionView entity=TransactionViewTypes.Refunds />
+        </div>
+      </RenderIf>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
@@ -92,10 +103,6 @@ let make = () => {
             title="Refunds"
           />
         </div>
-        <RenderIf condition={generateReport && refundData->Array.length > 0}>
-          <GenerateReport entityName={REFUND_REPORT} />
-        </RenderIf>
-        <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />
       </div>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns

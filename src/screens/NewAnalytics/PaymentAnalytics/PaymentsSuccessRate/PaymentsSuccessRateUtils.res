@@ -14,18 +14,34 @@ let getMetaData = json => {
 
 let graphTitle = json => getMetaData(json)->getInt("payments_success_rate", 0)->Int.toString
 
-let getPaymentQueryDataString = queryData =>
+let colMapper = queryData =>
   switch queryData {
   | PaymentSuccessRate => "payments_success_rate"
   | TimeBucket => "time_bucket"
   }
 
-let paymentsSuccessRateMapper = (json: JSON.t): LineGraphTypes.lineGraphPayload => {
+let paymentsSuccessRateMapper = (
+  ~data: JSON.t,
+  ~xKey: string,
+  ~yKey: string,
+): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  let categories = getCategories(json, getPaymentQueryDataString(TimeBucket))
-  let data = getLineGraphData(json, getPaymentQueryDataString(PaymentSuccessRate))
+  let categories = getCategories(data, yKey)
+  let data = getLineGraphData(data, xKey)
   let title = {
     text: "Payments Success Rate",
   }
   {categories, data, title}
+}
+
+open NewAnalyticsTypes
+let tabs = [
+  {label: "Hourly", value: (#hour_wise: granularity :> string)},
+  {label: "Daily", value: (#day_wise: granularity :> string)},
+  {label: "Weekly", value: (#week_wise: granularity :> string)},
+]
+
+let defaulGranularity = {
+  label: "Hourly",
+  value: (#hour_wise: granularity :> string),
 }

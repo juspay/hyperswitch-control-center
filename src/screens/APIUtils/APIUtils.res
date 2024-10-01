@@ -94,6 +94,17 @@ let useGetURL = () => {
 
       | _ => ""
       }
+    | DISPUTE_FILTERS =>
+      switch methodType {
+      | Get =>
+        switch transactionEntity {
+        | #Profile => `disputes/profile/filter`
+        | #Merchant
+        | _ => `disputes/filter`
+        }
+
+      | _ => ""
+      }
     | PAYOUTS_FILTERS =>
       switch methodType {
       | Post =>
@@ -178,16 +189,41 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | REFUNDS_AGGREGATE =>
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(queryParams) =>
+          switch transactionEntity {
+          | #Profile => `refunds/profile/aggregate?${queryParams}`
+          | #Merchant
+          | _ =>
+            `refunds/aggregate?${queryParams}`
+          }
+        | None => `refunds/aggregate`
+        }
+      | _ => `refunds/aggregate`
+      }
     | DISPUTES =>
       switch methodType {
       | Get =>
         switch id {
         | Some(dispute_id) => `disputes/${dispute_id}`
         | None =>
-          switch transactionEntity {
-          | #Merchant => `disputes/list?limit=10000`
-          | #Profile => `disputes/profile/list?limit=10000`
-          | _ => `disputes/list?limit=10000`
+          switch queryParamerters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Profile => `disputes/profile/list?${queryParams}&limit=10000`
+            | #Merchant
+            | _ =>
+              `disputes/list?${queryParams}&limit=10000`
+            }
+          | None =>
+            switch transactionEntity {
+            | #Profile => `disputes/profile/list?limit=10000`
+            | #Merchant
+            | _ => `disputes/list?limit=10000`
+            }
           }
         }
       | _ => ""
@@ -558,9 +594,8 @@ let useGetURL = () => {
       | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
 
       // INVITATION INSIDE DASHBOARD
-      | #RESEND_INVITE
-      | #ACCEPT_INVITATION_HOME =>
-        `${userUrl}/user/invite/accept/v2`
+      | #RESEND_INVITE => `${userUrl}/user/resend_invite`
+      | #ACCEPT_INVITATION_HOME => `${userUrl}/user/invite/accept/v2`
       | #INVITE_MULTIPLE =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
@@ -573,7 +608,6 @@ let useGetURL = () => {
       // SWITCH & CREATE MERCHANT
       | #SWITCH_MERCHANT =>
         switch methodType {
-        | Get => `${userUrl}/switch/list`
         | _ => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
       | #CREATE_MERCHANT =>
@@ -602,9 +636,6 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
-
-      // SPT FLOWS (Merchant select)
-      | #MERCHANTS_SELECT => `${userUrl}/merchants_select/list`
 
       // SPT FLOWS (Totp)
       | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`

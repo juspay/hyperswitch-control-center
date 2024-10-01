@@ -215,7 +215,9 @@ module UserOmpView = {
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
     let cssBasedOnIndex = index => {
-      if index == 0 {
+      if views->Array.length == 1 {
+        "rounded-md"
+      } else if index == 0 {
         "rounded-l-md"
       } else if index == views->Array.length - 1 {
         "rounded-r-md"
@@ -250,8 +252,9 @@ module UserOmpView = {
           let selectedStyle = userModuleEntity == value.entity ? `bg-blue-200` : ""
 
           <div
+            key={index->Int.toString}
             onClick={_ => onChange(value.entity)->ignore}
-            className={`text-sm py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer`}>
+            className={`text-xs py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer break-all`}>
             {`${value->labelBasedOnEntity}`->React.string}
           </div>
         })
