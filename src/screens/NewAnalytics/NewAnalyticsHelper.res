@@ -14,7 +14,7 @@ module NoData = {
     <Card>
       <div
         className={`${height} border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
-        {"No Data"->React.string}
+        {`No entires in selected time period.`->React.string}
       </div>
     </Card>
   }

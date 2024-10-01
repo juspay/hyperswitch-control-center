@@ -24,6 +24,16 @@ let make = () => {
     None
   }, [])
 
+  let tabs: array<Tabs.tab> = [
+    {
+      title: "Payments",
+      renderContent: () =>
+        <div className="mt-5">
+          <NewPaymentAnalytics />
+        </div>,
+    },
+  ]
+
   <div>
     <PageUtils.PageHeading title="Analytics" />
     <div
