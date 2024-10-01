@@ -1,40 +1,43 @@
 open NewPaymentAnalyticsUtils
-open SuccessfulPaymentsDistributionTypes
+open FailedPaymentsDistributionTypes
 open LogicUtils
 
-let colMapper = (col: queryData) => {
+let colMapper = (col: col) => {
   switch col {
-  | PaymentsSuccessRate => "payments_success_rate"
+  | ErrorReason => "reason"
+  | Count => "count"
+  | Ratio => "percentage"
   | Connector => "connector"
-  | PaymentMethod => "payment_method"
+  | PaymentsFailureRate => "payments_failure_rate"
   }
 }
 
-let successfulPaymentsDistributionMapper = (
+let failedPaymentsDistributionMapper = (
   ~data: JSON.t,
   ~xKey: string,
   ~yKey: string,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
   let categories = getCategories(data, yKey)
-  let data = getBarGraphData(data, xKey, "#7CC88F")
+  let data = getBarGraphData(data, xKey, "#BA3535")
   let title = {
     text: "",
   }
   {categories, data, title}
 }
 
-let visibleColumns = [PaymentsSuccessRate, Connector]
+let visibleColumns = [ErrorReason, Count, Ratio, Connector]
 
-let tableItemToObjMapper: Dict.t<JSON.t> => successfulPaymentsDistributionObject = dict => {
+let tableItemToObjMapper: Dict.t<JSON.t> => failedPaymentsDistributionObject = dict => {
   {
-    payments_success_rate: dict->getInt(PaymentsSuccessRate->colMapper, 0),
+    reason: dict->getString(ErrorReason->colMapper, ""),
+    count: dict->getInt(Count->colMapper, 0),
     connector: dict->getString(Connector->colMapper, ""),
-    payment_method: dict->getString(PaymentMethod->colMapper, ""),
+    percentage: dict->getInt(Ratio->colMapper, 0),
   }
 }
 
-let getObjects: JSON.t => array<successfulPaymentsDistributionObject> = json => {
+let getObjects: JSON.t => array<failedPaymentsDistributionObject> = json => {
   json
   ->LogicUtils.getArrayFromJson([])
   ->Array.map(item => {
@@ -45,18 +48,21 @@ let getObjects: JSON.t => array<successfulPaymentsDistributionObject> = json => 
 let getHeading = colType => {
   let key = colType->colMapper
   switch colType {
-  | PaymentsSuccessRate =>
-    Table.makeHeaderInfo(~key, ~title="Payments Success Rate", ~dataType=TextType)
+  | ErrorReason => Table.makeHeaderInfo(~key, ~title="Error Reason", ~dataType=TextType)
+  | Count => Table.makeHeaderInfo(~key, ~title="Count", ~dataType=TextType)
+  | Ratio => Table.makeHeaderInfo(~key, ~title="Ratio", ~dataType=TextType)
   | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType)
-  | PaymentMethod => Table.makeHeaderInfo(~key, ~title="Payment Method", ~dataType=TextType)
+  | _ => Table.makeHeaderInfo(~key, ~title="", ~dataType=TextType)
   }
 }
 
 let getCell = (obj, colType): Table.cell => {
   switch colType {
-  | PaymentsSuccessRate => Text(obj.payments_success_rate->Int.toString)
+  | ErrorReason => Text(obj.reason)
+  | Count => Text(obj.count->Int.toString)
+  | Ratio => Text(obj.percentage->Int.toString)
   | Connector => Text(obj.connector)
-  | PaymentMethod => Text(obj.payment_method)
+  | _ => Text("")
   }
 }
 

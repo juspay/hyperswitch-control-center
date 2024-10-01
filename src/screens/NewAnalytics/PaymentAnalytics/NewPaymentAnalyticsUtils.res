@@ -37,7 +37,7 @@ let getLineGraphData = (json: JSON.t, key: string): LineGraphTypes.data => {
   })
 }
 
-let getBarGraphData = (json: JSON.t, key: string): BarGraphTypes.data => {
+let getBarGraphData = (json: JSON.t, key: string, barColor: string): BarGraphTypes.data => {
   json
   ->getArrayFromJson([])
   ->Array.mapWithIndex((item, index) => {
@@ -52,7 +52,7 @@ let getBarGraphData = (json: JSON.t, key: string): BarGraphTypes.data => {
       showInLegend: false,
       name: `Series ${(index + 1)->Int.toString}`,
       data,
-      color: "#7CC88F",
+      color: barColor,
     }
     dataObj
   })
