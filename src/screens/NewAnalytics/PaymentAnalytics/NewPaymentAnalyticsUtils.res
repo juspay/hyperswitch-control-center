@@ -59,7 +59,6 @@ let getBarGraphObj = (
   ~name: string,
   ~color,
 ): BarGraphTypes.dataObj => {
-  Js.log2(array, key)
   let data = array->Array.map(item => {
     item->getDictFromJsonObject->getInt(key, 0)
   })
