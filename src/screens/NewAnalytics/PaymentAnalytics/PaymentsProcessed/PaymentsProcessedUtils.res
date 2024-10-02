@@ -14,7 +14,7 @@ let paymentsProcessedMapper = (
     ->Array.at(0)
     ->Option.getOr([]->JSON.Encode.array)
     ->getArrayFromJson([])
-    ->getCategoriesV2(yKey)
+    ->getCategories(yKey)
 
   let lineGraphData =
     data
