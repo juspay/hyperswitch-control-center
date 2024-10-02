@@ -158,28 +158,33 @@ let make = (
         secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
       let secondaryMetaData =
         primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
-      let modifiedData =
-        [primaryData, secondaryData]
-        ->Array.map(data => {
-          NewAnalyticsUtils.fillMissingDataPoints(
-            ~data,
-            ~startDate=startTimeVal,
-            ~endDate=endTimeVal,
-            ~timeKey="time_bucket",
-            ~defaultValue={
-              "payment_count": 0,
-              "payment_processed_amount": 0,
-              "time_bucket": startTimeVal,
-            }->Identity.genericTypeToJson,
-            ~granularity=granularity.value,
-          )
-        })
-        ->Identity.genericTypeToJson
-      setPaymentsProcessedData(_ => modifiedData)
-      setPaymentsProcessedMetaData(_ =>
-        primaryMetaData->Array.concat(secondaryMetaData)->Identity.genericTypeToJson
-      )
-      setScreenState(_ => PageLoaderWrapper.Success)
+
+      if primaryData->Array.length > 0 {
+        let modifiedData =
+          [primaryData, secondaryData]
+          ->Array.map(data => {
+            NewAnalyticsUtils.fillMissingDataPoints(
+              ~data,
+              ~startDate=startTimeVal,
+              ~endDate=endTimeVal,
+              ~timeKey="time_bucket",
+              ~defaultValue={
+                "payment_count": 0,
+                "payment_processed_amount": 0,
+                "time_bucket": startTimeVal,
+              }->Identity.genericTypeToJson,
+              ~granularity=granularity.value,
+            )
+          })
+          ->Identity.genericTypeToJson
+        setPaymentsProcessedData(_ => modifiedData)
+        setPaymentsProcessedMetaData(_ =>
+          primaryMetaData->Array.concat(secondaryMetaData)->Identity.genericTypeToJson
+        )
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
