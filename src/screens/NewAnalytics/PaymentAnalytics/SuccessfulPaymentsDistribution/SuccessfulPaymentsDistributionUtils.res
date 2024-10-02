@@ -18,7 +18,10 @@ let successfulPaymentsDistributionMapper = (
   ~yKey: string,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
+  Js.log(data)
+
   let categories = getCategories(data, yKey)
+  Js.log(categories)
   let data = getBarGraphData(data, xKey)
   let title = {
     text: "",

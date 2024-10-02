@@ -73,28 +73,6 @@ let getLineGraphObj = (
   dataObj
 }
 
-let getLineGraphData = (json: JSON.t, key: string): LineGraphTypes.data => {
-  json
-  ->getArrayFromJson([])
-  ->Array.mapWithIndex((item, index) => {
-    let data =
-      item
-      ->getDictFromJsonObject
-      ->getArrayFromDict("queryData", [])
-      ->Array.map(item => {
-        item->getDictFromJsonObject->getInt(key, 0)
-      })
-
-    let dataObj: LineGraphTypes.dataObj = {
-      showInLegend: false,
-      name: `Series ${(index + 1)->Int.toString}`,
-      data,
-      color: index->getColor,
-    }
-    dataObj
-  })
-}
-
 let getBarGraphData = (json: JSON.t, key: string): BarGraphTypes.data => {
   json
   ->getArrayFromJson([])
