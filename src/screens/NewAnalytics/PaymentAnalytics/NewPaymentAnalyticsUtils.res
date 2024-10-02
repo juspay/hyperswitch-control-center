@@ -22,7 +22,7 @@ let getCategories = (data: array<JSON.t>, key: string) => {
   data->Array.map(item => {
     let value = item->getDictFromJsonObject->getString(key, "")
 
-    if value->LogicUtils.isNonEmptyString && key == "time_bucket" {
+    if value->isNonEmptyString && key == "time_bucket" {
       let dateObj = value->DayJs.getDayJsForString
       `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
     } else {
