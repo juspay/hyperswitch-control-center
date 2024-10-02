@@ -8,12 +8,33 @@ let paymentsProcessedMapper = (
   ~yKey: string,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  let categories = getCategories(data, yKey)
-  let data = getLineGraphData(data, xKey)
+  Js.log2(xKey, "xKey")
+  Js.log2(yKey, "yKey")
+  Js.log2(data, "data")
+
+  let categories =
+    data
+    ->getArrayFromJson([])
+    ->Array.at(0)
+    ->Option.getOr([]->JSON.Encode.array)
+    ->getArrayFromJson([])
+    ->getCategoriesV2(yKey)
+  // let categories = data->getCategoriesV3(yKey)
+  Js.log2(categories, "CAT")
+  let lineGraphData =
+    data
+    ->getArrayFromJson([])
+    ->Array.mapWithIndex((item, index) => {
+      let name = `Series ${(index + 1)->Int.toString}`
+      let color = index->getColor
+      getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color)
+    })
+  Js.log(lineGraphData)
+
   let title = {
     text: "USD",
   }
-  {categories, data, title}
+  {categories, data: lineGraphData, title}
 }
 
 let getMetaData = json =>

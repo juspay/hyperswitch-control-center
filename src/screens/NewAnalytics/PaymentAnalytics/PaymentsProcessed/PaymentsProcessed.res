@@ -109,6 +109,12 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (paymentsProcessed, setpaymentsProcessed) = React.useState(_ => JSON.Encode.array([]))
+
+  let (paymentsProcessedData, setpaymentsProcessedData) = React.useState(_ => JSON.Encode.array([]))
+  let (paymentsProcessedMetaData, setpaymentsProcessedMetaData) = React.useState(_ =>
+    JSON.Encode.array([])
+  )
+
   let (selectedMetric, setSelectedMetric) = React.useState(_ => defaultMetric)
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
   let (viewType, setViewType) = React.useState(_ => Graph)
@@ -124,7 +130,7 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let body = NewAnalyticsUtils.requestBody(
+      let primaryBody = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
@@ -135,25 +141,51 @@ let make = (
         ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
         ~granularity=granularity.value->Some,
       )
+      let secondaryBody = NewAnalyticsUtils.requestBody(
+        ~dimensions=[],
+        ~startTime="2024-09-03T18:30:00Z",
+        ~endTime="2024-09-11T18:30:00Z",
+        ~delta=entity.requestBodyConfig.delta,
+        ~filters=entity.requestBodyConfig.filters,
+        ~metrics=entity.requestBodyConfig.metrics,
+        ~customFilter=entity.requestBodyConfig.customFilter,
+        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
+        ~granularity=granularity.value->Some,
+      )
 
-      let responses = await PromiseUtils.allSettledPolyfill([
-        updateDetails(url, body, Post),
-        updateDetails(url, body, Post),
-      ])
-      let data = NewPaymentAnalyticsUtils.modifyDataWithMissingPoints(
-        ~data=responses,
-        ~key="queryData",
-        ~startDate=startTimeVal,
-        ~endDate=endTimeVal,
-        ~defaultValue={
-          "count": 0,
-          "amount": 0,
-          "time_bucket": startTimeVal,
-        }->Identity.genericTypeToJson,
-        ~timeKey="time_bucket",
-        ~granularity=granularity.value,
-      )->Identity.genericTypeToJson
-      setpaymentsProcessed(_ => data)
+      let primaryResponse = await updateDetails(url, primaryBody, Post)
+      let secondaryResponse = await updateDetails(url, secondaryBody, Post)
+
+      let primaryData = primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+
+      let secondaryData =
+        secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      let secondaryMetaData =
+        primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+
+      let modifiedData =
+        [primaryData]
+        ->Array.map(data => {
+          NewAnalyticsUtils.fillMissingDataPoints(
+            ~data,
+            ~startDate=startTimeVal,
+            ~endDate=endTimeVal,
+            ~timeKey="time_bucket",
+            ~defaultValue={
+              "count": 0,
+              "amount": 0,
+              "time_bucket": startTimeVal,
+            }->Identity.genericTypeToJson,
+            ~granularity=granularity.value,
+          )
+        })
+        ->Identity.genericTypeToJson
+      Js.log2(modifiedData, "data")
+      setpaymentsProcessedData(_ => modifiedData)
+      setpaymentsProcessedMetaData(_ =>
+        [primaryMetaData, secondaryMetaData]->Identity.genericTypeToJson
+      )
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
@@ -186,7 +218,7 @@ let make = (
             <LineGraph
               entity={chartEntity}
               data={chartEntity.getObjects(
-                ~data=paymentsProcessed,
+                ~data=paymentsProcessedData,
                 ~xKey=selectedMetric.value,
                 ~yKey=(#time_bucket: metrics :> string),
               )}

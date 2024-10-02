@@ -18,6 +18,38 @@ let getMonthName = month => {
   }
 }
 
+let getCategoriesV2 = (data: array<JSON.t>, key: string) => {
+  data->Array.map(item => {
+    let value = item->getDictFromJsonObject->getString(key, "")
+
+    if value->LogicUtils.isNonEmptyString && key == "time_bucket" {
+      let dateObj = value->DayJs.getDayJsForString
+      `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+    } else {
+      value
+    }
+  })
+}
+
+let getCategoriesV3 = (json: JSON.t, key: string): array<string> => {
+  json
+  ->getArrayFromJson([])
+  ->Array.flatMap(item => {
+    item
+    ->getArrayFromJson([])
+    ->Array.map(item => {
+      let value = item->getDictFromJsonObject->getString(key, "")
+
+      if value->LogicUtils.isNonEmptyString && key == "time_bucket" {
+        let dateObj = value->DayJs.getDayJsForString
+        `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+      } else {
+        value
+      }
+    })
+  })
+}
+
 let getCategories = (json: JSON.t, key: string): array<string> => {
   json
   ->getArrayFromJson([])
@@ -40,6 +72,24 @@ let getCategories = (json: JSON.t, key: string): array<string> => {
 
 let getColor = index => {
   ["#1059C1B2", "#0EB025B2"]->Array.get(index)->Option.getOr("#1059C1B2")
+}
+
+let getLineGraphObj = (
+  ~array: array<JSON.t>,
+  ~key: string,
+  ~name: string,
+  ~color,
+): LineGraphTypes.dataObj => {
+  let data = array->Array.map(item => {
+    item->getDictFromJsonObject->getInt(key, 0)
+  })
+  let dataObj: LineGraphTypes.dataObj = {
+    showInLegend: false,
+    name: `${name}`,
+    data,
+    color,
+  }
+  dataObj
 }
 
 let getLineGraphData = (json: JSON.t, key: string): LineGraphTypes.data => {
