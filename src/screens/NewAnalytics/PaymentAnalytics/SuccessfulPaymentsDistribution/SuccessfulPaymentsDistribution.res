@@ -69,6 +69,7 @@ let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, ba
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (paymentsDistribution, setpaymentsDistribution) = React.useState(_ => JSON.Encode.array([]))
+
   let (viewType, setViewType) = React.useState(_ => Graph)
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -96,13 +97,14 @@ let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, ba
       )
 
       let response = await updateDetails(url, body, Post)
+      let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
       let arr =
         response
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
 
       if arr->Array.length > 0 {
-        setpaymentsDistribution(_ => [response]->JSON.Encode.array)
+        setpaymentsDistribution(_ => responseData->JSON.Encode.array)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)

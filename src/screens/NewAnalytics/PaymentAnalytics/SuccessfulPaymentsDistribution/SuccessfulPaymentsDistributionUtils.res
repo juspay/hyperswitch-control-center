@@ -20,13 +20,34 @@ let successfulPaymentsDistributionMapper = (
   open BarGraphTypes
   Js.log(data)
 
-  let categories = getCategories(data, yKey)
-  Js.log(categories)
+  let categories =
+    data
+    ->getArrayFromJson([])
+    ->getCategoriesV2(yKey)
+
+  // let lineGraphData =
+  //   data
+  //   ->getArrayFromJson([])
+  //   ->Array.mapWithIndex((item, index) => {
+  //     let name = `Series ${(index + 1)->Int.toString}`
+  //     let color = "#7CC88F"
+  //     getBarGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color)
+  //   })
+  let lineGraphData = getBarGraphObj(
+    ~array=data->getArrayFromJson([]),
+    ~key=xKey,
+    ~name=``,
+    ~color="#7CC88F",
+  )
+  // Js.log2(lineGraphData, "lineGraphData")
   let data = getBarGraphData(data, xKey)
+
+  // Js.log2(data, "data")
+
   let title = {
     text: "",
   }
-  {categories, data, title}
+  {categories, data: [lineGraphData], title}
 }
 
 open NewAnalyticsTypes

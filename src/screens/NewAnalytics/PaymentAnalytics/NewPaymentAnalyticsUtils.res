@@ -73,6 +73,25 @@ let getLineGraphObj = (
   dataObj
 }
 
+let getBarGraphObj = (
+  ~array: array<JSON.t>,
+  ~key: string,
+  ~name: string,
+  ~color,
+): BarGraphTypes.dataObj => {
+  Js.log2(array, key)
+  let data = array->Array.map(item => {
+    item->getDictFromJsonObject->getInt(key, 0)
+  })
+  let dataObj: BarGraphTypes.dataObj = {
+    showInLegend: false,
+    name: `${name}`,
+    data,
+    color,
+  }
+  dataObj
+}
+
 let getBarGraphData = (json: JSON.t, key: string): BarGraphTypes.data => {
   json
   ->getArrayFromJson([])
