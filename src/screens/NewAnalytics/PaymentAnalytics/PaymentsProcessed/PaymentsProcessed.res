@@ -106,8 +106,8 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
 
-  let (paymentsProcessedData, setpaymentsProcessedData) = React.useState(_ => JSON.Encode.array([]))
-  let (paymentsProcessedMetaData, setpaymentsProcessedMetaData) = React.useState(_ =>
+  let (paymentsProcessedData, setPaymentsProcessedData) = React.useState(_ => JSON.Encode.array([]))
+  let (paymentsProcessedMetaData, setPaymentsProcessedMetaData) = React.useState(_ =>
     JSON.Encode.array([])
   )
 
@@ -175,9 +175,9 @@ let make = (
           )
         })
         ->Identity.genericTypeToJson
-      setpaymentsProcessedData(_ => modifiedData)
-      setpaymentsProcessedMetaData(_ =>
-        [primaryMetaData, secondaryMetaData]->Identity.genericTypeToJson
+      setPaymentsProcessedData(_ => modifiedData)
+      setPaymentsProcessedMetaData(_ =>
+        primaryMetaData->Array.concat(secondaryMetaData)->Identity.genericTypeToJson
       )
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

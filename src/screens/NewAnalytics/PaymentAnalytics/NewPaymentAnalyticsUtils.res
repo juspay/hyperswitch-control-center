@@ -31,25 +31,6 @@ let getCategoriesV2 = (data: array<JSON.t>, key: string) => {
   })
 }
 
-let getCategoriesV3 = (json: JSON.t, key: string): array<string> => {
-  json
-  ->getArrayFromJson([])
-  ->Array.flatMap(item => {
-    item
-    ->getArrayFromJson([])
-    ->Array.map(item => {
-      let value = item->getDictFromJsonObject->getString(key, "")
-
-      if value->LogicUtils.isNonEmptyString && key == "time_bucket" {
-        let dateObj = value->DayJs.getDayJsForString
-        `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
-      } else {
-        value
-      }
-    })
-  })
-}
-
 let getCategories = (json: JSON.t, key: string): array<string> => {
   json
   ->getArrayFromJson([])
