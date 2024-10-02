@@ -36,7 +36,7 @@ let paymentsSuccessRateMapper = (
       getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color)
     })
   let title = {
-    text: "USD",
+    text: "Payments Success Rate",
   }
   {categories, data: lineGraphData, title}
 }
