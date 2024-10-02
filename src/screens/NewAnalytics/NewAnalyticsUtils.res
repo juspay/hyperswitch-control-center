@@ -15,23 +15,29 @@ let fillMissingDataPoints = (
   ~granularity: string,
 ) => {
   open LogicUtils
+  let dataDict = Dict.make()
+  data->Array.forEach(item => {
+    let time = item->getDictFromJsonObject->getString(timeKey, "")
+    dataDict->Dict.set(time, item)
+  })
   let dataPoints = Dict.make()
   let startingPoint = startDate->DayJs.getDayJsForString
   let endingPoint = endDate->DayJs.getDayJsForString
   let gap = granularity->getBucketSize
-
-  for x in 1 to endingPoint.diff(startingPoint.toString(), gap) {
+  for x in 0 to endingPoint.diff(startingPoint.toString(), gap) {
     let newDict = defaultValue->getDictFromJsonObject->Dict.copy
     let timeVal = startingPoint.add(x, gap).endOf(gap).format("YYYY-MM-DD 00:00:00")
-    newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
-    dataPoints->Dict.set(timeVal, newDict->JSON.Encode.object)
+    switch dataDict->Dict.get(timeVal) {
+    | Some(val) => {
+        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
+        dataPoints->Dict.set(timeVal, val)
+      }
+    | None => {
+        newDict->Dict.set(timeKey, timeVal->JSON.Encode.string)
+        dataPoints->Dict.set(timeVal, newDict->JSON.Encode.object)
+      }
+    }
   }
-
-  data->Array.forEach(value => {
-    let dataDict = value->getDictFromJsonObject
-    dataPoints->Dict.set(dataDict->getString(timeKey, ""), value)
-  })
-
   dataPoints->Dict.valuesToArray
 }
 

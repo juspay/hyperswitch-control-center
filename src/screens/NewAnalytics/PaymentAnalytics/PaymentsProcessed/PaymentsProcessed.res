@@ -16,14 +16,11 @@ module TableModule = {
     let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
     let paymentsProcessed = switch data->getArrayFromJson([])->Array.get(0) {
-    | Some(val) => {
-        let valueDict = val->getDictFromJsonObject
-        valueDict
-        ->getArrayFromDict("queryData", [])
-        ->Array.map(getDictFromJsonObject)
-        ->Array.map(tableItemToObjMapper)
-      }
-
+    | Some(val) =>
+      val
+      ->getArrayFromJson([])
+      ->Array.map(getDictFromJsonObject)
+      ->Array.map(tableItemToObjMapper)
     | _ => []
     }->Array.map(Nullable.make)
 
@@ -108,7 +105,6 @@ let make = (
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
-  let (paymentsProcessed, setpaymentsProcessed) = React.useState(_ => JSON.Encode.array([]))
 
   let (paymentsProcessedData, setpaymentsProcessedData) = React.useState(_ => JSON.Encode.array([]))
   let (paymentsProcessedMetaData, setpaymentsProcessedMetaData) = React.useState(_ =>
@@ -143,8 +139,8 @@ let make = (
       )
       let secondaryBody = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
-        ~startTime="2024-09-03T18:30:00Z",
-        ~endTime="2024-09-11T18:30:00Z",
+        ~startTime="2024-08-11T18:30:00Z", // use compare by function
+        ~endTime="2024-08-18T18:30:00Z", // use compare by function
         ~delta=entity.requestBodyConfig.delta,
         ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
@@ -155,7 +151,6 @@ let make = (
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
       let secondaryResponse = await updateDetails(url, secondaryBody, Post)
-
       let primaryData = primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
@@ -163,9 +158,8 @@ let make = (
         secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
       let secondaryMetaData =
         primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
-
       let modifiedData =
-        [primaryData]
+        [primaryData, secondaryData]
         ->Array.map(data => {
           NewAnalyticsUtils.fillMissingDataPoints(
             ~data,
@@ -173,15 +167,14 @@ let make = (
             ~endDate=endTimeVal,
             ~timeKey="time_bucket",
             ~defaultValue={
-              "count": 0,
-              "amount": 0,
+              "payment_count": 0,
+              "payment_processed_amount": 0,
               "time_bucket": startTimeVal,
             }->Identity.genericTypeToJson,
             ~granularity=granularity.value,
           )
         })
         ->Identity.genericTypeToJson
-      Js.log2(modifiedData, "data")
       setpaymentsProcessedData(_ => modifiedData)
       setpaymentsProcessedMetaData(_ =>
         [primaryMetaData, secondaryMetaData]->Identity.genericTypeToJson
@@ -203,8 +196,9 @@ let make = (
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
+        // Need to modify
         <PaymentsProcessedHeader
-          title={paymentsProcessed->graphTitle}
+          title={paymentsProcessedMetaData->graphTitle}
           viewType
           setViewType
           selectedMetric
@@ -224,7 +218,7 @@ let make = (
               )}
               className="mr-3"
             />
-          | Table => <TableModule data={paymentsProcessed} className="mx-7" />
+          | Table => <TableModule data={paymentsProcessedData} className="mx-7" />
           }}
         </div>
       </PageLoaderWrapper>

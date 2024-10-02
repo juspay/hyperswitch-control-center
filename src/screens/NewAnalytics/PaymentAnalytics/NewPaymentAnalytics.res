@@ -12,9 +12,9 @@ let make = () => {
     // <PaymentsSuccessRate
     //   entity={paymentsSuccessRateEntity} chartEntity={paymentsSuccessRateChartEntity}
     // />
-    // <SuccessfulPaymentsDistribution
-    //   entity={successfulPaymentsDistributionEntity}
-    //   chartEntity={successfulPaymentsDistributionChartEntity}
-    // />
+    <SuccessfulPaymentsDistribution
+      entity={successfulPaymentsDistributionEntity}
+      chartEntity={successfulPaymentsDistributionChartEntity}
+    />
   </div>
 }
