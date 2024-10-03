@@ -3,20 +3,21 @@ open LogicUtils
 open PaymentsLifeCycleTypes
 let paymentLifeCycleResponseMapper = (json: JSON.t) => {
   let valueDict = json->getDictFromJsonObject
+  // response need to be changed to snake_case
   {
-    normalSuccess: valueDict->getInt("normal_success", 0),
-    normalFailure: valueDict->getInt("normal_failure", 0),
+    normalSuccess: valueDict->getInt("normalSuccess", 0),
+    normalFailure: valueDict->getInt("normalFailure", 0),
     cancelled: valueDict->getInt("cancelled", 0),
-    smartRetriedSuccess: valueDict->getInt("smart_retried_success", 0),
-    smartRetriedFailure: valueDict->getInt("smart_retried_failure", 0),
+    smartRetriedSuccess: valueDict->getInt("smartRetriedSuccess", 0),
+    smartRetriedFailure: valueDict->getInt("smartRetriedFailure", 0),
     pending: valueDict->getInt("pending", 0),
-    partialRefunded: valueDict->getInt("partial_refunded", 0),
+    partialRefunded: valueDict->getInt("partialRefunded", 0),
     refunded: valueDict->getInt("refunded", 0),
     disputed: valueDict->getInt("disputed", 0),
-    pmAwaited: valueDict->getInt("pm_awaited", 0),
-    customerAwaited: valueDict->getInt("customer_awaited", 0),
-    merchantAwaited: valueDict->getInt("merchant_awaited", 0),
-    confirmationAwaited: valueDict->getInt("confirmation_awaited", 0),
+    pmAwaited: valueDict->getInt("pmAwaited", 0),
+    customerAwaited: valueDict->getInt("customerAwaited", 0),
+    merchantAwaited: valueDict->getInt("merchantAwaited", 0),
+    confirmationAwaited: valueDict->getInt("confirmationAwaited", 0),
   }
 }
 
