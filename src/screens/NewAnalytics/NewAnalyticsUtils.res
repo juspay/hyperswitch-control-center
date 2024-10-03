@@ -71,3 +71,14 @@ let requestBody = (
     )->JSON.Encode.object,
   ]->JSON.Encode.array
 }
+
+let getComparisionTimePeriod = (~startDate, ~endDate) => {
+  let startingPoint = startDate->DayJs.getDayJsForString
+  let endingPoint = endDate->DayJs.getDayJsForString
+  let gap = endingPoint.diff(startingPoint.toString(), "millisecond") // diff between points
+
+  let startTimeValue = startingPoint.subtract(gap, "millisecond").toString()
+  let endTimeVal = endingPoint.subtract(gap, "millisecond").toString()
+
+  (startTimeValue, endTimeVal)
+}
