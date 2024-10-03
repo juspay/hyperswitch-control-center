@@ -180,7 +180,6 @@ module ConnectorSummaryGrid = {
     | _ => true
     }
 
-    // <div className="p-2 md:px-10">
     <>
       <div className="grid grid-cols-4 border-b md:px-10 py-8">
         <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
@@ -297,7 +296,6 @@ module ConnectorSummaryGrid = {
       | None => React.null
       }}
     </>
-    // </div>
   }
 }
 
