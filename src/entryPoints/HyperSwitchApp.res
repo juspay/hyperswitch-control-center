@@ -15,16 +15,11 @@ let make = () => {
     setShowFeedbackModal,
     dashboardPageState,
     setDashboardPageState,
-    setQuickStartPageState,
-    isProdIntentCompleted,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
-  let enumDetails =
-    enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
-  let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
@@ -41,20 +36,6 @@ let make = () => {
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   sessionExpired := false
-  let fetchInitialEnums = async () => {
-    try {
-      let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
-      let responseValueDict = response->getValFromNullableValue(Dict.make())
-      let pageStateToSet = responseValueDict->QuickStartUtils.getCurrentStep
-      setQuickStartPageState(_ => pageStateToSet->QuickStartUtils.enumToVarinatMapper)
-      responseValueDict
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
 
   let fetchPermissions = async () => {
     try {
@@ -84,9 +65,6 @@ let make = () => {
     try {
       Window.connectorWasmInit()->ignore
       let _ = await fetchPermissions()
-      if featureFlagDetails.quickStart {
-        let _ = await fetchInitialEnums()
-      }
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
@@ -112,40 +90,13 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
-  let determineStripePlusPayPal = () => {
-    enumDetails->checkStripePlusPayPal
-      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-      : setDashboardPageState(_ => #STRIPE_PLUS_PAYPAL)
-
-    React.null
-  }
-
-  let determineWooCommerce = () => {
-    enumDetails->checkWooCommerce
-      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-      : setDashboardPageState(_ => #WOOCOMMERCE_FLOW)
-
-    React.null
-  }
-
-  let determineQuickStartPageState = () => {
-    isProdIntentCompleted->Option.getOr(false) &&
-    enumDetails.integrationCompleted &&
-    !(enumDetails.testPayment.payment_id->isEmptyString)
-      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-      : setDashboardPageState(_ => #QUICK_START)
-
-    React.null
-  }
   <>
     <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
       <div>
         {switch dashboardPageState {
         | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
-        // INTEGRATION_DOC AND PROD_ONBOARDING Need to be removed
+        // INTEGRATION_DOC Need to be removed
         | #INTEGRATION_DOC => <UserOnboarding />
-        | #PROD_ONBOARDING => <ProdOnboardingLanding />
-        | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
           <div className="relative" key={renderKey}>
             // TODO: Change the key to only profileId once the userInfo starts sending profileId
@@ -305,9 +256,6 @@ let make = () => {
                             renderList={() => <HSwitchProfileSettings />}
                             renderShow={(_, _) => <ModifyTwoFaSettings />}
                           />
-                        | list{"quick-start"} => determineQuickStartPageState()
-                        | list{"woocommerce"} => determineWooCommerce()
-                        | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
                         | list{"search"} => <SearchResultsPage />
                         | list{"payment-attempts"} =>
                           <AccessControl
@@ -355,12 +303,10 @@ let make = () => {
               </RenderIf>
             </div>
           </div>
-        | #WOOCOMMERCE_FLOW => <WooCommerce />
         | #DEFAULT =>
           <div className="h-screen flex justify-center items-center">
             <Loader />
           </div>
-        | #STRIPE_PLUS_PAYPAL => <StripePlusPaypal />
         }}
       </div>
     </PageLoaderWrapper>
