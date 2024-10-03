@@ -103,6 +103,7 @@ module FailedPaymentsDistributionHeader = {
 
 @react.component
 let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, barGraphOptions>) => {
+  open LogicUtils
   let (failedPaymentsDistribution, setfailedPaymentsDistribution) = React.useState(_ =>
     JSON.Encode.array([])
   )
@@ -111,19 +112,18 @@ let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, ba
 
   let getFailedPaymentsDistribution = async () => {
     try {
-      let response = [
-        {
-          "queryData": [
-            {"payments_failure_rate": 40, "connector": "stripe"},
-            {"payments_failure_rate": 60, "connector": "adyen"},
-            {"payments_failure_rate": 75, "connector": "paypal"},
-            {"payments_failure_rate": 65, "connector": "checkout"},
-          ],
-          "metaData": null,
-        },
-      ]->Identity.genericTypeToJson
+      let response = {
+        "queryData": [
+          {"payments_failure_rate": 40, "connector": "stripe"},
+          {"payments_failure_rate": 60, "connector": "adyen"},
+          {"payments_failure_rate": 75, "connector": "paypal"},
+          {"payments_failure_rate": 65, "connector": "checkout"},
+        ],
+        "metaData": null,
+      }->Identity.genericTypeToJson
 
-      setfailedPaymentsDistribution(_ => response)
+      let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      setfailedPaymentsDistribution(_ => responseData->JSON.Encode.array)
     } catch {
     | _ => ()
     }

@@ -18,12 +18,20 @@ let failedPaymentsDistributionMapper = (
   ~yKey: string,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
-  let categories = getCategories(data, yKey)
-  let data = getBarGraphData(data, xKey, "#BA3535")
+  let categories =
+    data
+    ->getArrayFromJson([])
+    ->getCategories(yKey)
+  let barGraphData = getBarGraphObj(
+    ~array=data->getArrayFromJson([]),
+    ~key=xKey,
+    ~name=xKey->snakeToTitle,
+    ~color="#BA3535",
+  )
   let title = {
     text: "",
   }
-  {categories, data, title}
+  {categories, data: [barGraphData], title}
 }
 
 let visibleColumns = [ErrorReason, Count, Ratio, Connector]
