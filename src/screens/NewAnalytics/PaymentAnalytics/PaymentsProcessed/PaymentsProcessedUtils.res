@@ -8,14 +8,27 @@ let paymentsProcessedMapper = (
   ~yKey: string,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  let categories = getCategories(data, yKey)
-  let data = getLineGraphData(data, xKey)
+  let categories =
+    data
+    ->getArrayFromJson([])
+    ->getValueFromArray(0, []->JSON.Encode.array)
+    ->getArrayFromJson([])
+    ->getCategories(yKey)
+
+  let lineGraphData =
+    data
+    ->getArrayFromJson([])
+    ->Array.mapWithIndex((item, index) => {
+      let name = `Series ${(index + 1)->Int.toString}`
+      let color = index->getColor
+      getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color)
+    })
   let title = {
     text: "USD",
   }
-  {categories, data, title}
+  {categories, data: lineGraphData, title}
 }
-
+// Need to modify
 let getMetaData = json =>
   json
   ->getArrayFromJson([])
@@ -28,7 +41,6 @@ let getMetaData = json =>
 let graphTitle = json => {
   let totalAmount = getMetaData(json)->getInt("amount", 0)
   let currency = getMetaData(json)->getString("currency", "")
-
   totalAmount->Int.toString ++ " " ++ currency
 }
 

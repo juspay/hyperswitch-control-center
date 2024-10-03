@@ -19,12 +19,25 @@ let paymentsSuccessRateMapper = (
   ~yKey: string,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  let categories = getCategories(data, yKey)
-  let data = getLineGraphData(data, xKey)
+  let categories =
+    data
+    ->getArrayFromJson([])
+    ->getValueFromArray(0, []->JSON.Encode.array)
+    ->getArrayFromJson([])
+    ->getCategories(yKey)
+
+  let lineGraphData =
+    data
+    ->getArrayFromJson([])
+    ->Array.mapWithIndex((item, index) => {
+      let name = `Series ${(index + 1)->Int.toString}`
+      let color = index->getColor
+      getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color)
+    })
   let title = {
     text: "Payments Success Rate",
   }
-  {categories, data, title}
+  {categories, data: lineGraphData, title}
 }
 
 open NewAnalyticsTypes
