@@ -18,12 +18,21 @@ let successfulPaymentsDistributionMapper = (
   ~yKey: string,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
-  let categories = getCategories(data, yKey)
-  let data = getBarGraphData(data, xKey)
+  let categories =
+    data
+    ->getArrayFromJson([])
+    ->getCategories(yKey)
+
+  let barGraphData = getBarGraphObj(
+    ~array=data->getArrayFromJson([]),
+    ~key=xKey,
+    ~name=xKey->snakeToTitle,
+    ~color="#7CC88F",
+  )
   let title = {
     text: "",
   }
-  {categories, data, title}
+  {categories, data: [barGraphData], title}
 }
 
 open NewAnalyticsTypes

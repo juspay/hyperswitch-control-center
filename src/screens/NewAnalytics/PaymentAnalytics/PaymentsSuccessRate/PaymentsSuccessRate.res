@@ -30,14 +30,21 @@ module PaymentsSuccessRateHeader = {
 @react.component
 let make = (
   ~entity: moduleEntity,
-  ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
+  ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions, JSON.t>,
 ) => {
   open LogicUtils
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (paymentsSuccessRate, setpaymentsSuccessRate) = React.useState(_ => JSON.Encode.array([]))
+
+  let (paymentsSuccessRateData, setPaymentsSuccessRateData) = React.useState(_ =>
+    JSON.Encode.array([])
+  )
+  let (_paymentsSuccessRateMetaData, setpaymentsProcessedMetaData) = React.useState(_ =>
+    JSON.Encode.array([])
+  )
+
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
@@ -52,7 +59,7 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let body = NewAnalyticsUtils.requestBody(
+      let primaryBody = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
@@ -63,15 +70,49 @@ let make = (
         ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
         ~granularity=granularity.value->Some,
       )
+      let secondaryBody = NewAnalyticsUtils.requestBody(
+        ~dimensions=[],
+        ~startTime="2024-08-11T18:30:00Z", // use compare by function
+        ~endTime="2024-08-18T18:30:00Z", // use compare by function
+        ~delta=entity.requestBodyConfig.delta,
+        ~filters=entity.requestBodyConfig.filters,
+        ~metrics=entity.requestBodyConfig.metrics,
+        ~customFilter=entity.requestBodyConfig.customFilter,
+        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
+        ~granularity=granularity.value->Some,
+      )
 
-      let response = await updateDetails(url, body, Post)
-      let arr =
-        response
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
+      let primaryResponse = await updateDetails(url, primaryBody, Post)
+      let secondaryResponse = await updateDetails(url, secondaryBody, Post)
+      let primaryData = primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
-      if arr->Array.length > 0 {
-        setpaymentsSuccessRate(_ => [response]->JSON.Encode.array)
+      let secondaryData =
+        secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      let secondaryMetaData =
+        primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+      if primaryData->Array.length > 0 {
+        let modifiedData =
+          [primaryData, secondaryData]
+          ->Array.map(data => {
+            NewAnalyticsUtils.fillMissingDataPoints(
+              ~data,
+              ~startDate=startTimeVal,
+              ~endDate=endTimeVal,
+              ~timeKey="time_bucket",
+              ~defaultValue={
+                "payment_count": 0,
+                "payment_processed_amount": 0,
+                "time_bucket": startTimeVal,
+              }->Identity.genericTypeToJson,
+              ~granularity=granularity.value,
+            )
+          })
+          ->Identity.genericTypeToJson
+        setPaymentsSuccessRateData(_ => modifiedData)
+        setpaymentsProcessedMetaData(_ =>
+          primaryMetaData->Array.concat(secondaryMetaData)->Identity.genericTypeToJson
+        )
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
@@ -98,7 +139,7 @@ let make = (
           <LineGraph
             entity={chartEntity}
             data={chartEntity.getObjects(
-              ~data=paymentsSuccessRate,
+              ~data=paymentsSuccessRateData,
               ~xKey=(#payment_success_rate: metrics :> string),
               ~yKey=(#time_bucket: metrics :> string),
             )}

@@ -55,6 +55,7 @@ type entityName =
   | USER_MANAGEMENT_V2
   | API_EVENT_LOGS
   | ANALYTICS_PAYMENTS_V2
+  | ANALYTICS_SANKEY
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
