@@ -67,7 +67,7 @@ type series = {
 }
 
 type title = {text: string}
-type sankeyGraphOptions = {title: title, series: array<series>, chart: chart}
+type sankeyGraphOptions = {title: title, series: array<series>, chart: chart, credits: credits}
 
 type sankeyPayload = {
   title: title,
