@@ -21,7 +21,7 @@ let paymentsLifeCycleChartEntity: chartEntity<
 let paymentsProcessedEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_processed_amount],
+    metrics: [#payment_processed_amount, #payment_count],
   },
   title: "Payments Processed",
   domain: #payments,
@@ -68,7 +68,7 @@ let paymentsSuccessRateChartEntity: chartEntity<
 }
 
 // Payments Distribution
-let paymentsDistributionEntity: moduleEntity = {
+let successfulPaymentsDistributionEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
     metrics: [#payment_success_rate],
@@ -77,16 +77,16 @@ let paymentsDistributionEntity: moduleEntity = {
   domain: #payments,
 }
 
-let paymentsDistributionChartEntity: chartEntity<
+let successfulPaymentsDistributionChartEntity: chartEntity<
   BarGraphTypes.barGraphPayload,
   BarGraphTypes.barGraphOptions,
 > = {
-  getObjects: PaymentsDistributionUtils.paymentsDistributionMapper,
+  getObjects: SuccessfulPaymentsDistributionUtils.successfulPaymentsDistributionMapper,
   getChatOptions: BarGraphUtils.getBarGraphOptions,
 }
 
-let paymentsDistributionTableEntity = {
-  open PaymentsDistributionUtils
+let successfulPaymentsDistributionTableEntity = {
+  open SuccessfulPaymentsDistributionUtils
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects,

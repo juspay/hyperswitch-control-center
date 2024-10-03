@@ -1558,7 +1558,9 @@ module BaseDropdown = {
       DropdownTextWeighContextWrapper.selectedTextWeightContext,
     )
     let isFilterSection = React.useContext(TableFilterSectionContext.filterSectionContext)
-    let {removeKeys, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
+    let {removeKeys, filterKeys, setfilterKeys, filterValueJson} = React.useContext(
+      FilterContext.filterContext,
+    )
     let showBorder = isFilterSection && !isMobileView ? Some(false) : showBorder
 
     let dropdownOuterClass = "bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
@@ -1575,6 +1577,23 @@ module BaseDropdown = {
     let (preservedAppliedOptions, setPreservedAppliedOptions) = React.useState(_ =>
       newInputSelect.value->LogicUtils.getStrArryFromJson
     )
+
+    // this useEffect enables communication between transaction view changes and the filter dropdown options via filterValueJson
+    React.useEffect(() => {
+      open LogicUtils
+      let nonStatusFilters =
+        filterValueJson
+        ->Dict.keysToArray
+        ->Array.filter(item => item != "start_time" && item != "end_time" && item != "status")
+      if nonStatusFilters->Array.length == 0 {
+        setPreservedAppliedOptions(_ =>
+          filterValueJson
+          ->getArrayFromDict("status", [])
+          ->getStrArrayFromJsonArray
+        )
+      }
+      None
+    }, [filterValueJson])
 
     let onApply = ev => {
       switch onApply {

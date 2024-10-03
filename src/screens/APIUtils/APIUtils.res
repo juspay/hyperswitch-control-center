@@ -94,6 +94,17 @@ let useGetURL = () => {
 
       | _ => ""
       }
+    | DISPUTE_FILTERS =>
+      switch methodType {
+      | Get =>
+        switch transactionEntity {
+        | #Profile => `disputes/profile/filter`
+        | #Merchant
+        | _ => `disputes/filter`
+        }
+
+      | _ => ""
+      }
     | PAYOUTS_FILTERS =>
       switch methodType {
       | Post =>
@@ -199,10 +210,20 @@ let useGetURL = () => {
         switch id {
         | Some(dispute_id) => `disputes/${dispute_id}`
         | None =>
-          switch transactionEntity {
-          | #Merchant => `disputes/list?limit=10000`
-          | #Profile => `disputes/profile/list?limit=10000`
-          | _ => `disputes/list?limit=10000`
+          switch queryParamerters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Profile => `disputes/profile/list?${queryParams}&limit=10000`
+            | #Merchant
+            | _ =>
+              `disputes/list?${queryParams}&limit=10000`
+            }
+          | None =>
+            switch transactionEntity {
+            | #Profile => `disputes/profile/list?limit=10000`
+            | #Merchant
+            | _ => `disputes/list?limit=10000`
+            }
           }
         }
       | _ => ""
@@ -328,7 +349,33 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | NEW_ANALYTICS =>
+      switch methodType {
+      | Get =>
+        switch id {
+        // Need to write seperate enum for info api
+        | Some(domain) =>
+          switch analyticsEntity {
+          | #Organization => `analytics/v2/org/${domain}/info`
+          | #Merchant => `analytics/v2/merchant/${domain}/info`
+          | #Profile => `analytics/v2/profile/${domain}/info`
+          }
 
+        | _ => ""
+        }
+      | Post =>
+        switch id {
+        | Some(domain) =>
+          switch analyticsEntity {
+          | #Organization => `analytics/v2/org/metrics/${domain}`
+          | #Merchant => `analytics/v2/merchant/metrics/${domain}`
+          | #Profile => `analytics/v2/profile/metrics/${domain}`
+          }
+
+        | _ => ""
+        }
+      | _ => ""
+      }
     /* PAYOUTS ROUTING */
     | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
     | PAYOUT_ROUTING =>
