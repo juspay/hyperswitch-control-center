@@ -201,8 +201,6 @@ let make = (
           ->LogicUtils.getDictFromJsonObject
           ->ConnectorListMapper.getProcessorPayloadType}
           connector=connectorName
-          setScreenState={_ => ()}
-          isPayoutFlow=false
           updateStepValue=None
           setCurrentStep={_ => ()}
         />

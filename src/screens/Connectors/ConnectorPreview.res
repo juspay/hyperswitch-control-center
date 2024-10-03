@@ -21,7 +21,7 @@ module KeyAndCopyArea = {
         {copyValue->React.string}
       </p>
       <div
-        className="cursor-pointer h-20 w-20 pt-1"
+        className="cursor-pointer  w-20 pt-1"
         onClick={_ => {
           Clipboard.writeText(copyValue)
           showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
@@ -127,8 +127,6 @@ module ConnectorSummaryGrid = {
   let make = (
     ~connectorInfo: ConnectorTypes.connectorPayload,
     ~connector,
-    ~isPayoutFlow,
-    ~setScreenState,
     ~setCurrentStep,
     ~updateStepValue=None,
     ~getConnectorDetails=None,
@@ -148,11 +146,9 @@ module ConnectorSummaryGrid = {
       ~connectorName={connectorInfo.merchant_connector_id},
       ~merchantId,
     )
-    let (processorType, connectorType) =
-      connectorInfo.connector_type->ConnectorUtils.connectorTypeTuple
+    let (processorType, _) = connectorInfo.connector_type->ConnectorUtils.connectorTypeTuple
     let {connector_name: connectorName} = connectorInfo
-    let connectorTypeFromName =
-      connectorName->ConnectorUtils.getConnectorNameTypeFromString(~connectorType)
+
     let connectorDetails = React.useMemo(() => {
       try {
         if connectorName->LogicUtils.isNonEmptyString {
@@ -179,17 +175,14 @@ module ConnectorSummaryGrid = {
     let (_, connectorAccountFields, _, _, _, _, _) = ConnectorUtils.getConnectorFields(
       connectorDetails,
     )
-    Js.log2(connectorAccountFields, "connectorInfo")
     let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
     | list{_, "new"} => false
     | _ => true
     }
-    let _ = switch connectorTypeFromName {
-    | Processors(CASHTOCODE) => Js.log2(connectorInfo.connector_account_details, "DETAILS")
-    | _ => Js.log("")
-    }
-    <div className="p-2 md:px-10">
-      <div className="grid grid-cols-4 my-12">
+
+    // <div className="p-2 md:px-10">
+    <>
+      <div className="grid grid-cols-4 border-b md:px-10 py-8">
         <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
         <AddDataAttributes attributes=[("data-testid", "connector_status"->String.toLowerCase)]>
           <div
@@ -198,7 +191,7 @@ module ConnectorSummaryGrid = {
           </div>
         </AddDataAttributes>
       </div>
-      <div className="grid grid-cols-4 my-12">
+      <div className="grid grid-cols-4 border-b md:px-10 py-8">
         <div className="flex items-start">
           <h4 className="text-lg font-semibold"> {"Webhook Endpoint"->React.string} </h4>
           <ToolTip
@@ -213,17 +206,17 @@ module ConnectorSummaryGrid = {
           <KeyAndCopyArea copyValue={copyValueOfWebhookEndpoint} />
         </div>
       </div>
-      <div className="grid grid-cols-4 my-12">
+      <div className="grid grid-cols-4 border-b  md:px-10 py-8">
         <h4 className="text-lg font-semibold"> {"Profile"->React.string} </h4>
         <div className="col-span-3">
           {`${currentProfileName.profile_name} - ${connectorInfo.profile_id}`->React.string}
         </div>
       </div>
-      <div className="grid grid-cols-4 my-12">
+      <div className="grid grid-cols-4 border-b  md:px-10 py-8">
         <div className="flex items-start">
           <h4 className="text-lg font-semibold"> {"Creds"->React.string} </h4>
         </div>
-        <div className="flex flex-col gap-6 col-span-3">
+        <div className="flex flex-col gap-6  col-span-3">
           <div className="flex gap-12">
             <div className="flex flex-col gap-6 w-1/2">
               <ConnectorPreviewHelper.PreviewCreds connectorAccountFields connectorInfo />
@@ -237,7 +230,7 @@ module ConnectorSummaryGrid = {
       </div>
       {switch updateStepValue {
       | Some(state) =>
-        <div className="grid grid-cols-4  my-12">
+        <div className="grid grid-cols-4 border-b md:px-10 py-8">
           <div className="flex items-start">
             <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
           </div>
@@ -303,7 +296,8 @@ module ConnectorSummaryGrid = {
 
       | None => React.null
       }}
-    </div>
+    </>
+    // </div>
   }
 }
 
@@ -313,7 +307,6 @@ let make = (
   ~currentStep: ConnectorTypes.steps,
   ~setCurrentStep,
   ~isUpdateFlow,
-  ~isPayoutFlow,
   ~showMenuOption=true,
   ~setInitialValues,
   ~getPayPalStatus,
@@ -433,8 +426,6 @@ let make = (
       <ConnectorSummaryGrid
         connectorInfo
         connector
-        isPayoutFlow
-        setScreenState
         setCurrentStep
         updateStepValue={Some(ConnectorTypes.PaymentMethods)}
         getConnectorDetails

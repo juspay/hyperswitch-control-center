@@ -275,7 +275,6 @@ let make = () => {
                     currentStep=ConnectorTypes.Preview
                     setCurrentStep={_ => ()}
                     isUpdateFlow=true
-                    isPayoutFlow=false
                     showMenuOption=false
                     setInitialValues
                     getPayPalStatus={_ => ()}
