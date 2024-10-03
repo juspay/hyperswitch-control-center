@@ -1,10 +1,5 @@
 type paymentsProcessedObject = {
-  count: int,
-  amount: float,
+  payment_count: int,
+  payment_processed_amount: float,
   time_bucket: string,
 }
-
-type paymentsProcessedCols =
-  | Count
-  | Amount
-  | TimeBucket
