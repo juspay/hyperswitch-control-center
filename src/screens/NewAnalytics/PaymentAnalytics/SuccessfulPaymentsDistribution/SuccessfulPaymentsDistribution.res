@@ -61,7 +61,10 @@ module SuccessfulPaymentsDistributionHeader = {
 }
 
 @react.component
-let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, barGraphOptions>) => {
+let make = (
+  ~entity: moduleEntity,
+  ~chartEntity: chartEntity<barGraphPayload, barGraphOptions, JSON.t>,
+) => {
   open LogicUtils
   open APIUtils
   let getURL = useGetURL()
