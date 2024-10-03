@@ -688,7 +688,7 @@ module TableCell = {
     | Text(x) | DropDown(x) => {
         let x = x->isEmptyString ? "NA" : x
         <AddDataAttributes attributes=[("data-desc", x), ("data-testid", x->String.toLowerCase)]>
-          <div className="text-nowrap"> {highlightedText(x, highlightText)} </div>
+          <div> {highlightedText(x, highlightText)} </div>
         </AddDataAttributes>
       }
 

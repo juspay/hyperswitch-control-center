@@ -105,7 +105,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
         },
       },
     },
-    series: [data],
+    series: data,
     credits: {
       enabled: false,
     },

@@ -13,11 +13,20 @@ type dimension = [
   | #authentication_type
 ]
 type status = [#charged | #failure]
-type metrics = [#payment_processed_amount | #payment_success_rate | #payment_failure_rate]
+type metrics = [
+  | #payment_processed_amount
+  | #payment_count
+  | #payment_success_rate
+  | #payment_failure_rate
+  | #time_bucket
+  | #connector
+  | #payment_method
+  | #payment_method_type
+  | #card_network
+  | #authentication_type
+]
 type granularity = [
-  | #hour_wise
-  | #day_wise
-  | #week_wise
+  | #G_ONEDAY
 ]
 // will change this once we get the api srtcuture
 type requestBodyConfig = {

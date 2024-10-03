@@ -21,7 +21,7 @@ let paymentsLifeCycleChartEntity: chartEntity<
 let paymentsProcessedEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_processed_amount],
+    metrics: [#payment_processed_amount, #payment_count],
   },
   title: "Payments Processed",
   domain: #payments,
