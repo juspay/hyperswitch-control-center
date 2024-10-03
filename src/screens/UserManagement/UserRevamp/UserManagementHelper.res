@@ -85,6 +85,7 @@ module MerchantSelection = {
             ~label="All merchants",
             ~value="all_merchants",
             ~dropdownList=merchList,
+            ~showAllSelection=true,
           ),
           ~deselectDisable=true,
           ~buttonText="Select a Merchant",
