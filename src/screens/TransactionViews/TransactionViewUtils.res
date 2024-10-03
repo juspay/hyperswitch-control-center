@@ -2,6 +2,15 @@ open TransactionViewTypes
 
 let paymentViewsArray: array<viewTypes> = [All, Succeeded, Failed, Dropoffs, Cancelled]
 
+let refundViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
+
+let getCustomFilterKey = entity =>
+  switch entity {
+  | Orders => "status"
+  | Refunds => "refund_status"
+  | _ => ""
+  }
+
 let getViewsDisplayName = (view: viewTypes) => {
   switch view {
   | All => "All"
@@ -9,15 +18,28 @@ let getViewsDisplayName = (view: viewTypes) => {
   | Failed => "Failed"
   | Dropoffs => "Dropoffs"
   | Cancelled => "Cancelled"
+  | Pending => "Pending"
   }
 }
 
-let getViewTypeFromString = view => {
-  switch view {
-  | "succeeded" => Succeeded
-  | "cancelled" => Cancelled
-  | "failed" => Failed
-  | "requires_payment_method" => Dropoffs
+let getViewTypeFromString = (view, entity) => {
+  switch entity {
+  | Orders =>
+    switch view {
+    | "succeeded" => Succeeded
+    | "cancelled" => Cancelled
+    | "failed" => Failed
+    | "requires_payment_method" => Dropoffs
+    | "pending" => Pending
+    | _ => All
+    }
+  | Refunds =>
+    switch view {
+    | "success" => Succeeded
+    | "failure" => Failed
+    | "pending" => Pending
+    | _ => All
+    }
   | _ => All
   }
 }
@@ -31,13 +53,26 @@ let getAllViewsString = obj => {
   ->Array.joinWith(",")
 }
 
-let getViewsString = (view, obj) => {
-  switch view {
-  | All => getAllViewsString(obj)
-  | Succeeded => "succeeded"
-  | Failed => "failed"
-  | Dropoffs => "requires_payment_method"
-  | Cancelled => "cancelled"
+let getViewsString = (view, obj, entity) => {
+  switch entity {
+  | Orders =>
+    switch view {
+    | All => getAllViewsString(obj)
+    | Succeeded => "succeeded"
+    | Failed => "failed"
+    | Dropoffs => "requires_payment_method"
+    | Cancelled => "cancelled"
+    | Pending => "pending"
+    }
+  | Refunds =>
+    switch view {
+    | All => getAllViewsString(obj)
+    | Succeeded => "success"
+    | Failed => "failure"
+    | Pending => "pending"
+    | _ => ""
+    }
+  | _ => ""
   }
 }
 
@@ -53,7 +88,7 @@ let getAllViewCount = obj => {
   )
 }
 
-let getViewCount = (view, obj) => {
+let getViewCount = (view, obj, entity) => {
   open LogicUtils
   switch view {
   | All => getAllViewCount(obj)
@@ -61,6 +96,6 @@ let getViewCount = (view, obj) => {
     obj
     ->getDictFromJsonObject
     ->getDictfromDict("status_with_count")
-    ->getInt(view->getViewsString(obj), 0)
+    ->getInt(view->getViewsString(obj, entity), 0)
   }
 }

@@ -1,3 +1,3 @@
 type operationsTypes = Orders | Refunds | Disputes
 
-type viewTypes = All | Succeeded | Failed | Dropoffs | Cancelled
+type viewTypes = All | Succeeded | Failed | Dropoffs | Cancelled | Pending

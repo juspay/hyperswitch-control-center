@@ -44,7 +44,7 @@ let make = (~previewOnly=false) => {
         }
 
         let sortObj = sortAtomValue->Dict.get("Orders")->Option.getOr(defaultSort)
-        if sortObj.sortKey->LogicUtils.isNonEmptyString {
+        if sortObj.sortKey->isNonEmptyString {
           filters->Dict.set(
             "order",
             [

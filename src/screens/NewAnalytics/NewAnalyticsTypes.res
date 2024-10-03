@@ -13,11 +13,19 @@ type dimension = [
   | #authentication_type
 ]
 type status = [#charged | #failure]
-type metrics = [#payment_processed_amount | #payment_success_rate]
+type metrics = [
+  | #payment_processed_amount
+  | #payment_count
+  | #payment_success_rate
+  | #time_bucket
+  | #connector
+  | #payment_method
+  | #payment_method_type
+  | #card_network
+  | #authentication_type
+]
 type granularity = [
-  | #hour_wise
-  | #day_wise
-  | #week_wise
+  | #G_ONEDAY
 ]
 // will change this once we get the api srtcuture
 type requestBodyConfig = {
@@ -36,14 +44,9 @@ type moduleEntity = {
   domain: domain,
 }
 
-type chartEntity<'t, 'chatOption> = {
-  getObjects: JSON.t => 't,
-  getChatOptions: 't => 'chatOption,
+type chartEntity<'t, 'chartOption, 'data> = {
+  getObjects: (~data: 'data, ~xKey: string, ~yKey: string) => 't,
+  getChatOptions: 't => 'chartOption,
 }
 
-type dropDownOptionType = {label: string}
-
-type tab = {
-  title: string,
-  value: string,
-}
+type optionType = {label: string, value: string}
