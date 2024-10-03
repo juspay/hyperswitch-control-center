@@ -4,10 +4,7 @@ let make = (
   ~url="unauthorized",
 ) => {
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
-  React.useEffect(() => {
-    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/unauthorized"))
-    None
-  }, [])
+
   <NoDataFound message renderType={Locked}>
     <Button
       text={"Go to Home"}
