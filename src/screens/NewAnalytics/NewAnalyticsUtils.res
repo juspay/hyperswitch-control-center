@@ -77,8 +77,8 @@ let getComparisionTimePeriod = (~startDate, ~endDate) => {
   let endingPoint = endDate->DayJs.getDayJsForString
   let gap = endingPoint.diff(startingPoint.toString(), "millisecond") // diff between points
 
-  let startTimeValue = startingPoint.subtract(gap, "millisecond").toString()
-  let endTimeVal = endingPoint.subtract(gap, "millisecond").toString()
+  let startTimeValue = startingPoint.subtract(gap, "millisecond").toDate()
+  let endTimeVal = endingPoint.subtract(gap, "millisecond").toDate()
 
   (startTimeValue, endTimeVal)
 }
