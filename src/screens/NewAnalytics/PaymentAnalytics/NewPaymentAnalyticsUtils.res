@@ -116,3 +116,32 @@ let modifyDataWithMissingPoints = (
     dict
   })
 }
+
+let getMetaDataValue = (~data, ~index, ~key) => {
+  data
+  ->getArrayFromJson([])
+  ->Array.get(index)
+  ->Option.getOr([]->JSON.Encode.array)
+  ->getArrayFromJson([])
+  ->Array.get(0)
+  ->Option.getOr(Dict.make()->JSON.Encode.object)
+  ->getDictFromJsonObject
+  ->getFloat(key, 0.0)
+}
+
+let calculatePercentageChange = (~primaryValue, ~secondaryValue) => {
+  open NewAnalyticsTypes
+  let change = secondaryValue -. primaryValue
+
+  if change > 0.0 {
+    let a = change /. primaryValue
+    let percentage = a *. 100.0
+    (percentage->Float.toString, Upward)
+  } else if change < 0.0 {
+    let a = change *. -1.0 /. primaryValue
+    let percentage = a *. 100.0
+    (percentage->Float.toString, Downward)
+  } else {
+    ("0", Upward)
+  }
+}

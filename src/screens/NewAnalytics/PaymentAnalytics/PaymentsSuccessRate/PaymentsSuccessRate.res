@@ -4,20 +4,25 @@ open LineGraphTypes
 open PaymentsSuccessRateUtils
 
 module PaymentsSuccessRateHeader = {
-  open NewAnalyticsTypes
+  open NewPaymentAnalyticsUtils
   @react.component
-  let make = (~title, ~granularity, ~setGranularity) => {
+  let make = (~data, ~keyValue, ~granularity, ~setGranularity) => {
     let setGranularity = value => {
       setGranularity(_ => value)
     }
 
+    let primaryValue = getMetaDataValue(~data, ~index=0, ~key=keyValue)
+    let secondaryValue = getMetaDataValue(~data, ~index=1, ~key=keyValue)
+
+    let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
+
     <div className="w-full px-7 py-8 grid grid-cols-2">
       // will enable it in future
+      <div className="flex gap-2 items-center">
+        <div className="text-3xl font-600"> {primaryValue->Float.toString->React.string} </div>
+        <StatisticsCard value direction />
+      </div>
       <RenderIf condition={false}>
-        <div className="flex gap-2 items-center">
-          <div className="text-3xl font-600"> {title->React.string} </div>
-          <StatisticsCard value="8" direction={Upward} />
-        </div>
         <div className="flex justify-center">
           <Tabs option={granularity} setOption={setGranularity} options={tabs} />
         </div>
@@ -41,7 +46,7 @@ let make = (
   let (paymentsSuccessRateData, setPaymentsSuccessRateData) = React.useState(_ =>
     JSON.Encode.array([])
   )
-  let (_paymentsSuccessRateMetaData, setpaymentsProcessedMetaData) = React.useState(_ =>
+  let (paymentsSuccessRateMetaData, setpaymentsProcessedMetaData) = React.useState(_ =>
     JSON.Encode.array([])
   )
 
@@ -134,7 +139,12 @@ let make = (
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        <PaymentsSuccessRateHeader title="0" granularity setGranularity />
+        <PaymentsSuccessRateHeader
+          data={paymentsSuccessRateMetaData}
+          keyValue={"total_success_rate"}
+          granularity
+          setGranularity
+        />
         <div className="mb-5">
           <LineGraph
             entity={chartEntity}
