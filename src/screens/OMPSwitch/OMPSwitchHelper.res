@@ -24,7 +24,7 @@ module ListBaseComp = {
 
 module AddNewMerchantProfileButton = {
   @react.component
-  let make = (~user, ~setShowModal, ~customPadding="", ~customStyle="", ~customHRTagStyle="") => {
+  let make = (~user, ~setShowModal, ~customPadding="", ~customStyle="", ~customHRTagStyle="",~addProfileBtnStyle="") => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
     <ACLDiv
@@ -33,7 +33,7 @@ module AddNewMerchantProfileButton = {
       isRelative=false
       contentAlign=Default
       tooltipForWidthClass="!h-full"
-      className={`${cursorStyles} ${customPadding}`}>
+      className={`${cursorStyles} ${customPadding} ${addProfileBtnStyle}`}>
       {<>
         <hr className={customHRTagStyle} />
         <div

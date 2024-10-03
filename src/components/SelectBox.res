@@ -1103,6 +1103,7 @@ module RenderListItemInBaseRadio = {
     ~bottomComponent=?,
     ~optionClass="",
     ~selectClass="",
+    ~customScrollStyle
   ) => {
     let dropdownList =
       newOptions
@@ -1169,8 +1170,26 @@ module RenderListItemInBaseRadio = {
       })
       ->React.array
 
+    let sidebarScrollbarCss = `
+      @supports (-webkit-appearance: none) {
+        .sidebar-scrollbar {
+          scrollbar-width: thin !important;
+          scrollbar-color: #8a8c8f;
+        }
+
+        .sidebar-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #8a8c8f;
+          border-radius: 3px;
+        }
+
+        .sidebar-scrollbar::-webkit-scrollbar-track {
+          display: none;
+        }
+      }
+    `
     <>
-      <div className=""> {dropdownList} </div>
+      <div className={`${customScrollStyle}  sidebar-scrollbar`} >
+       <style> {React.string(sidebarScrollbarCss)} </style> {dropdownList} </div>
       <div className="sticky bottom-0">
         {switch bottomComponent {
         | Some(comp) => <span> {comp} </span>
@@ -1248,6 +1267,7 @@ module BaseRadio = {
     ~bottomComponent=React.null,
     ~optionClass="",
     ~selectClass="",
+    ~customScrollStyle=""
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1429,6 +1449,7 @@ module BaseRadio = {
             bottomComponent
             optionClass
             selectClass
+            customScrollStyle
           />
         } else {
           {
@@ -1458,6 +1479,7 @@ module BaseRadio = {
                   textEllipsisForDropDownOptions
                   isHorizontal
                   customMarginStyleOfListItem="ml-8 mx-3 py-2 gap-2"
+                  customScrollStyle
                 />
               </React.Fragment>
             })
@@ -1504,7 +1526,7 @@ module BaseDropdown = {
     ~onAssignClick=?,
     ~fixedDropDownDirection=?,
     ~addButton=false,
-    ~marginTop="mt-12", //to position dropdown below the button,
+    ~marginTop="mt-10", //to position dropdown below the button,
     ~customStyle="",
     ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
     ~showSelectionAsChips=true,
@@ -1554,6 +1576,7 @@ module BaseDropdown = {
     ~optionClass="",
     ~selectClass="",
     ~customDropdownOuterClass="",
+    ~customScrollStyle="",
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1821,6 +1844,7 @@ module BaseDropdown = {
         bottomComponent
         optionClass
         selectClass
+        customScrollStyle
       />
     }
 
