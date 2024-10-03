@@ -16,11 +16,7 @@ module TableModule = {
     let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
     let paymentsProcessed = switch data->getArrayFromJson([])->Array.get(0) {
-    | Some(val) =>
-      val
-      ->getArrayFromJson([])
-      ->Array.map(getDictFromJsonObject)
-      ->Array.map(tableItemToObjMapper)
+    | Some(val) => val->getArrayDataFromJson(tableItemToObjMapper)
     | _ => []
     }->Array.map(Nullable.make)
 

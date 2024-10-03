@@ -46,7 +46,7 @@ let getLineGraphObj = (
   })
   let dataObj: LineGraphTypes.dataObj = {
     showInLegend: false,
-    name: `${name}`,
+    name,
     data,
     color,
   }
@@ -64,7 +64,7 @@ let getBarGraphObj = (
   })
   let dataObj: BarGraphTypes.dataObj = {
     showInLegend: false,
-    name: `${name}`,
+    name,
     data,
     color,
   }

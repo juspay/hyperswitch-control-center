@@ -11,8 +11,7 @@ let paymentsProcessedMapper = (
   let categories =
     data
     ->getArrayFromJson([])
-    ->Array.at(0)
-    ->Option.getOr([]->JSON.Encode.array)
+    ->getValueFromArray(0, []->JSON.Encode.array)
     ->getArrayFromJson([])
     ->getCategories(yKey)
 
