@@ -103,7 +103,7 @@ let successfulPaymentsDistributionTableEntity = {
 let failedPaymentsDistributionEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_failure_rate],
+    metrics: [#payments_distribution],
   },
   title: "Failed Payments Distribution",
   domain: #payments,

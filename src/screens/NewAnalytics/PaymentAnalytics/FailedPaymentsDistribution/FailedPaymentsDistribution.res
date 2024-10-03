@@ -104,14 +104,54 @@ module FailedPaymentsDistributionHeader = {
 @react.component
 let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, barGraphOptions>) => {
   open LogicUtils
+  open APIUtils
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod()
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (failedPaymentsDistribution, setfailedPaymentsDistribution) = React.useState(_ =>
     JSON.Encode.array([])
   )
   let (viewType, setViewType) = React.useState(_ => Graph)
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
+  let startTimeVal = filterValueJson->getString("startTime", "")
+  let endTimeVal = filterValueJson->getString("endTime", "")
 
   let getFailedPaymentsDistribution = async () => {
     try {
+      // setScreenState(_ => PageLoaderWrapper.Loading)
+      // let url = getURL(
+      //   ~entityName=ANALYTICS_PAYMENTS,
+      //   ~methodType=Post,
+      //   ~id=Some((entity.domain: domain :> string)),
+      // )
+
+      // let body = NewAnalyticsUtils.requestBody(
+      //   ~dimensions=[],
+      //   ~startTime=startTimeVal,
+      //   ~endTime=endTimeVal,
+      //   ~delta=entity.requestBodyConfig.delta,
+      //   ~filters=entity.requestBodyConfig.filters,
+      //   ~metrics=entity.requestBodyConfig.metrics,
+      //   ~groupByNames=[groupBy.value]->Some,
+      //   ~customFilter=entity.requestBodyConfig.customFilter,
+      //   ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
+      // )
+      // let response = await updateDetails(url, body, Post)
+
+      // let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      // let arr =
+      //   response
+      //   ->getDictFromJsonObject
+      //   ->getArrayFromDict("queryData", [])
+
+      // if arr->Array.length > 0 {
+      //   setfailedPaymentsDistribution(_ => responseData->JSON.Encode.array)
+      //   setScreenState(_ => PageLoaderWrapper.Success)
+      // } else {
+      //   setScreenState(_ => PageLoaderWrapper.Custom)
+      // }
+
       let response = {
         "queryData": [
           {"payments_failure_rate": 40, "connector": "stripe"},
@@ -125,33 +165,40 @@ let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, ba
       let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
       setfailedPaymentsDistribution(_ => responseData->JSON.Encode.array)
     } catch {
+    // | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     | _ => ()
     }
   }
+
   React.useEffect(() => {
-    getFailedPaymentsDistribution()->ignore
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      getFailedPaymentsDistribution()->ignore
+    }
     None
-  }, [])
+  }, [startTimeVal, endTimeVal, groupBy.value])
 
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
-      <FailedPaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
-      <div className="mb-5">
-        {switch viewType {
-        | Graph =>
-          <BarGraph
-            entity={chartEntity}
-            object={chartEntity.getObjects(
-              ~data=failedPaymentsDistribution,
-              ~xKey=PaymentsFailureRate->colMapper,
-              ~yKey=groupBy.value,
-            )}
-            className="mr-3"
-          />
-        | Table => <TableModule className="mx-7" />
-        }}
-      </div>
+      <PageLoaderWrapper
+        screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
+        <FailedPaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
+        <div className="mb-5">
+          {switch viewType {
+          | Graph =>
+            <BarGraph
+              entity={chartEntity}
+              object={chartEntity.getObjects(
+                ~data=failedPaymentsDistribution,
+                ~xKey=PaymentsFailureRate->colMapper,
+                ~yKey=groupBy.value,
+              )}
+              className="mr-3"
+            />
+          | Table => <TableModule className="mx-7" />
+          }}
+        </div>
+      </PageLoaderWrapper>
     </Card>
   </div>
 }

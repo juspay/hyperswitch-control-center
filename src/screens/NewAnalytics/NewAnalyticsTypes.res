@@ -24,6 +24,7 @@ type metrics = [
   | #payment_method_type
   | #card_network
   | #authentication_type
+  | #payments_distribution
 ]
 type granularity = [
   | #G_ONEDAY
