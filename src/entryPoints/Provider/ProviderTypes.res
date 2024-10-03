@@ -6,11 +6,7 @@ type dashboardPageStateTypes = [
   | #AUTO_CONNECTOR_INTEGRATION
   | #DEFAULT
   | #INTEGRATION_DOC
-  | #PROD_ONBOARDING
   | #HOME
-  | #WOOCOMMERCE_FLOW
-  | #STRIPE_PLUS_PAYPAL
-  | #QUICK_START
 ]
 
 type integrationDetailsType = {
@@ -34,10 +30,6 @@ type contextType = {
   ) => unit,
   isProdIntentCompleted: option<bool>,
   setIsProdIntentCompleted: (option<bool> => option<bool>) => unit,
-  quickStartPageState: QuickStartTypes.quickStartType,
-  setQuickStartPageState: (
-    QuickStartTypes.quickStartType => QuickStartTypes.quickStartType
-  ) => unit,
 }
 
 type sidebarContextType = {
