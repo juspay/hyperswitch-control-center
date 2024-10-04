@@ -59,7 +59,7 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
-  let customScrollStyle = "max-h-72 overflow-scroll scrollbar-thin px-1 pt-1 "
+  let customScrollStyle ="max-h-72 overflow-scroll px-1 pt-1 "
 
   <div className="border border-blue-820 rounded w-full">
     <SelectBox.BaseDropdown

@@ -184,7 +184,7 @@ module RenderListItemInBaseRadio: {
   ~bottomComponent: React.element=?,
   ~optionClass: string=?,
   ~selectClass: string=?,
-  ~customScrollStyle: string,
+  ~customScrollStyle:string=?,
 ) => React.element
 }
 let getHashMappedOptionValues: array<dropdownOptionWithoutOptional> => RescriptCore.Dict.t<
@@ -230,7 +230,8 @@ module BaseRadio: {
   ~bottomComponent: React.element=?,
   ~optionClass: string=?,
   ~selectClass: string=?,
-  ~customScrollStyle: string=?,
+  ~customScrollStyle:string=?,
+  ~dropdownContainerStyle: string=?,
 ) => React.element
 }
 type direction = BottomLeft | BottomMiddle | BottomRight | TopLeft | TopMiddle | TopRight
@@ -311,7 +312,8 @@ module BaseDropdown: {
   ~optionClass: string=?,
   ~selectClass: string=?,
   ~customDropdownOuterClass: string=?,
-  ~customScrollStyle: string=?,
+  ~customScrollStyle:string=?,
+  ~dropdownContainerStyle: string=?,
 ) => React.element
 }
 module InfraSelectBox: {
@@ -420,4 +422,5 @@ let make: (
   ~dropdownClassName: string=?,
   ~onItemSelect: (JsxEventU.Mouse.t, string) => unit=?,
   ~wrapBasis: string=?,
+  ~customScrollStyle:string=?
 ) => React.element
