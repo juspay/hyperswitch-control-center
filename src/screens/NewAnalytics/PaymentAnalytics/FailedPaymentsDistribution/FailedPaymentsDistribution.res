@@ -18,7 +18,6 @@ module TableModule = {
     let updateDetails = useUpdateMethod()
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
     let (offset, setOffset) = React.useState(_ => 0)
-    let (apiData, setApiData) = React.useState(_ => JSON.Encode.null)
     let (tableData, setTableData) = React.useState(_ => []->Array.map(Nullable.make))
     let defaultSort: Table.sortedObject = {
       key: "",
@@ -26,6 +25,12 @@ module TableModule = {
     }
 
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
+
+    let setData = data => {
+      let updatedTableData =
+        data->LogicUtils.getArrayDataFromJson(tableItemToObjMapper)->Array.map(Nullable.make)
+      setTableData(_ => updatedTableData)
+    }
 
     let getTableAPIData = async () => {
       try {
@@ -45,8 +50,7 @@ module TableModule = {
         )
 
         let response = await updateDetails(url, body, Post)
-
-        setApiData(_ => response)
+        setData(response)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | _ => setScreenState(_ => PageLoaderWrapper.Custom)
@@ -56,14 +60,7 @@ module TableModule = {
     React.useEffect(() => {
       getTableAPIData()->ignore
       None
-    }, [])
-
-    React.useEffect(() => {
-      let updatedTableData =
-        apiData->LogicUtils.getArrayDataFromJson(tableItemToObjMapper)->Array.map(Nullable.make)
-      setTableData(_ => updatedTableData)
-      None
-    }, [apiData])
+    }, [startTimeVal, endTimeVal])
 
     <div className>
       <PageLoaderWrapper screenState customUI={<NoData />}>
