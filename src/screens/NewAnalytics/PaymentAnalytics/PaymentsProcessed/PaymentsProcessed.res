@@ -47,9 +47,10 @@ module TableModule = {
 
 module PaymentsProcessedHeader = {
   open NewAnalyticsTypes
+  open NewPaymentAnalyticsUtils
   @react.component
   let make = (
-    ~title,
+    ~data: JSON.t,
     ~viewType,
     ~setViewType,
     ~selectedMetric,
@@ -57,6 +58,15 @@ module PaymentsProcessedHeader = {
     ~granularity,
     ~setGranularity,
   ) => {
+    let primaryValue = getMetaDataValue(~data, ~index=0, ~key=selectedMetric.value->getMetaDataKey)
+    let secondaryValue = getMetaDataValue(
+      ~data,
+      ~index=1,
+      ~key=selectedMetric.value->getMetaDataKey,
+    )
+
+    let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
+
     let setViewType = value => {
       setViewType(_ => value)
     }
@@ -70,12 +80,12 @@ module PaymentsProcessedHeader = {
     }
 
     <div className="w-full px-7 py-8 grid grid-cols-1">
+      <div className="flex gap-2 items-center">
+        <div className="text-3xl font-600"> {primaryValue->Float.toString->React.string} </div>
+        <StatisticsCard value direction />
+      </div>
       // will enable it in future
       <RenderIf condition={false}>
-        <div className="flex gap-2 items-center">
-          <div className="text-3xl font-600"> {title->React.string} </div>
-          <StatisticsCard value="8" direction={Upward} />
-        </div>
         <div className="flex justify-center">
           <Tabs option={granularity} setOption={setGranularity} options={tabs} />
         </div>
@@ -101,12 +111,10 @@ let make = (
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
-
   let (paymentsProcessedData, setPaymentsProcessedData) = React.useState(_ => JSON.Encode.array([]))
   let (paymentsProcessedMetaData, setPaymentsProcessedMetaData) = React.useState(_ =>
     JSON.Encode.array([])
   )
-
   let (selectedMetric, setSelectedMetric) = React.useState(_ => defaultMetric)
   let (granularity, setGranularity) = React.useState(_ => defaulGranularity)
   let (viewType, setViewType) = React.useState(_ => Graph)
@@ -220,7 +228,7 @@ let make = (
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
         // Need to modify
         <PaymentsProcessedHeader
-          title={paymentsProcessedMetaData->graphTitle}
+          data=paymentsProcessedMetaData
           viewType
           setViewType
           selectedMetric
