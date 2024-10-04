@@ -70,10 +70,16 @@ let make = (
         ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
         ~granularity=granularity.value->Some,
       )
+
+      let (prevStartTime, prevEndTime) = NewAnalyticsUtils.getComparisionTimePeriod(
+        ~startDate=startTimeVal,
+        ~endDate=endTimeVal,
+      )
+
       let secondaryBody = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
-        ~startTime="2024-08-11T18:30:00Z", // use compare by function
-        ~endTime="2024-08-18T18:30:00Z", // use compare by function
+        ~startTime=prevStartTime,
+        ~endTime=prevEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
@@ -92,24 +98,38 @@ let make = (
       let secondaryMetaData =
         primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
       if primaryData->Array.length > 0 {
-        let modifiedData =
-          [primaryData, secondaryData]
-          ->Array.map(data => {
-            NewAnalyticsUtils.fillMissingDataPoints(
-              ~data,
-              ~startDate=startTimeVal,
-              ~endDate=endTimeVal,
-              ~timeKey="time_bucket",
-              ~defaultValue={
-                "payment_count": 0,
-                "payment_processed_amount": 0,
-                "time_bucket": startTimeVal,
-              }->Identity.genericTypeToJson,
-              ~granularity=granularity.value,
-            )
-          })
-          ->Identity.genericTypeToJson
-        setPaymentsSuccessRateData(_ => modifiedData)
+        let primaryModifiedData = [primaryData]->Array.map(data => {
+          NewAnalyticsUtils.fillMissingDataPoints(
+            ~data,
+            ~startDate=startTimeVal,
+            ~endDate=endTimeVal,
+            ~timeKey="time_bucket",
+            ~defaultValue={
+              "payment_count": 0,
+              "payment_success_rate": 0,
+              "time_bucket": startTimeVal,
+            }->Identity.genericTypeToJson,
+            ~granularity=granularity.value,
+          )
+        })
+
+        let secondaryModifiedData = [secondaryData]->Array.map(data => {
+          NewAnalyticsUtils.fillMissingDataPoints(
+            ~data,
+            ~startDate=prevStartTime,
+            ~endDate=prevEndTime,
+            ~timeKey="time_bucket",
+            ~defaultValue={
+              "payment_count": 0,
+              "payment_success_rate": 0,
+              "time_bucket": startTimeVal,
+            }->Identity.genericTypeToJson,
+            ~granularity=granularity.value,
+          )
+        })
+        setPaymentsSuccessRateData(_ =>
+          primaryModifiedData->Array.concat(secondaryModifiedData)->Identity.genericTypeToJson
+        )
         setpaymentsProcessedMetaData(_ =>
           primaryMetaData->Array.concat(secondaryMetaData)->Identity.genericTypeToJson
         )
