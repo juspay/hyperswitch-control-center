@@ -133,10 +133,16 @@ let make = (
         ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
         ~granularity=granularity.value->Some,
       )
+
+      let (prevStartTime, prevEndTime) = NewAnalyticsUtils.getComparisionTimePeriod(
+        ~startDate=startTimeVal,
+        ~endDate=endTimeVal,
+      )
+
       let secondaryBody = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
-        ~startTime="2024-08-11T18:30:00Z", // use compare by function
-        ~endTime="2024-08-18T18:30:00Z", // use compare by function
+        ~startTime=prevStartTime,
+        ~endTime=prevEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
