@@ -14,8 +14,6 @@ let defaultValue = {
   setPermissionInfo: _ => (),
   isProdIntentCompleted: None,
   setIsProdIntentCompleted: _ => (),
-  quickStartPageState: QuickStartTypes.ConnectProcessor(LANDING),
-  setQuickStartPageState: _ => (),
 }
 
 let defaultContext = React.createContext(defaultValue)
@@ -31,10 +29,6 @@ let make = (~children) => {
   let (dashboardPageState, setDashboardPageState) = React.useState(_ => #DEFAULT)
   let (permissionInfo, setPermissionInfo) = React.useState(_ => [])
   let (isProdIntentCompleted, setIsProdIntentCompleted) = React.useState(_ => None)
-  let (
-    quickStartPageState,
-    setQuickStartPageState,
-  ) = React.useState(_ => QuickStartTypes.ConnectProcessor(LANDING))
 
   let (integrationDetails, setIntegrationDetails) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->ProviderHelper.getIntegrationDetails
@@ -54,8 +48,6 @@ let make = (~children) => {
       setPermissionInfo,
       isProdIntentCompleted,
       setIsProdIntentCompleted,
-      quickStartPageState,
-      setQuickStartPageState,
     }>
     children
   </Provider>

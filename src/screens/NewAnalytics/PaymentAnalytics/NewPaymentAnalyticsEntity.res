@@ -12,6 +12,7 @@ let paymentsLifeCycleEntity: moduleEntity = {
 let paymentsLifeCycleChartEntity: chartEntity<
   SankeyGraphTypes.sankeyPayload,
   SankeyGraphTypes.sankeyGraphOptions,
+  PaymentsLifeCycleTypes.paymentLifeCycle,
 > = {
   getObjects: PaymentsLifeCycleUtils.paymentsLifeCycleMapper,
   getChatOptions: SankeyGraphUtils.getSankyGraphOptions,
@@ -30,6 +31,7 @@ let paymentsProcessedEntity: moduleEntity = {
 let paymentsProcessedChartEntity: chartEntity<
   LineGraphTypes.lineGraphPayload,
   LineGraphTypes.lineGraphOptions,
+  JSON.t,
 > = {
   getObjects: PaymentsProcessedUtils.paymentsProcessedMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
@@ -62,6 +64,7 @@ let paymentsSuccessRateEntity: moduleEntity = {
 let paymentsSuccessRateChartEntity: chartEntity<
   LineGraphTypes.lineGraphPayload,
   LineGraphTypes.lineGraphOptions,
+  JSON.t,
 > = {
   getObjects: PaymentsSuccessRateUtils.paymentsSuccessRateMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
@@ -80,6 +83,7 @@ let successfulPaymentsDistributionEntity: moduleEntity = {
 let successfulPaymentsDistributionChartEntity: chartEntity<
   BarGraphTypes.barGraphPayload,
   BarGraphTypes.barGraphOptions,
+  JSON.t,
 > = {
   getObjects: SuccessfulPaymentsDistributionUtils.successfulPaymentsDistributionMapper,
   getChatOptions: BarGraphUtils.getBarGraphOptions,

@@ -46,8 +46,8 @@ type moduleEntity = {
   domain: domain,
 }
 
-type chartEntity<'t, 'chartOption> = {
-  getObjects: (~data: JSON.t, ~xKey: string, ~yKey: string) => 't,
+type chartEntity<'t, 'chartOption, 'data> = {
+  getObjects: (~data: 'data, ~xKey: string, ~yKey: string) => 't,
   getChatOptions: 't => 'chartOption,
 }
 

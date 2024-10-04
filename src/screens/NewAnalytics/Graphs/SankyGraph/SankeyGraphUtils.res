@@ -46,6 +46,9 @@ let getSankyGraphOptions = (payload: sankeyPayload) => {
       spacingLeft: 150,
       spacingRight: 150,
     },
+    credits: {
+      enabled: false,
+    },
   }
   options
 }

@@ -93,7 +93,7 @@ module PaymentsProcessedHeader = {
 @react.component
 let make = (
   ~entity: moduleEntity,
-  ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions>,
+  ~chartEntity: chartEntity<lineGraphPayload, lineGraphOptions, JSON.t>,
 ) => {
   open LogicUtils
   open APIUtils

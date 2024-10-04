@@ -335,41 +335,6 @@ let responseDataMapper = (res: JSON.t, mapper: (Dict.t<JSON.t>, string) => JSON.
   resDict
 }
 
-let getValueMapped = (value, key) => {
-  open LogicUtils
-  let keyVariant = key->QuickStartUtils.stringToVariantMapperForUserData
-  switch keyVariant {
-  | #ProductionAgreement
-  | #IntegrationCompleted
-  | #SPTestPayment
-  | #DownloadWoocom
-  | #ConfigureWoocom
-  | #SetupWoocomWebhook =>
-    value->getBool(key, false)->JSON.Encode.bool
-  | #ConfigurationType => value->getString(key, "")->JSON.Encode.string
-  | #FirstProcessorConnected
-  | #SecondProcessorConnected
-  | #StripeConnected
-  | #PaypalConnected
-  | #IntegrationMethod =>
-    value->getJsonObjectFromDict(key)
-  | #TestPayment => value->getJsonObjectFromDict(key)
-  | #ConfiguredRouting | #SPRoutingConfigured => value->getJsonObjectFromDict(key)
-  }
-}
-
-let getValueMappedForProd = (value, key) => {
-  open LogicUtils
-  let keyVariant = key->ProdOnboardingUtils.stringToVariantMapperForUserData
-  switch keyVariant {
-  | #ProductionAgreement
-  | #ConfigureEndpoint
-  | #SetupComplete =>
-    value->getBool(key, false)->JSON.Encode.bool
-  | #SetupProcessor => value->getJsonObjectFromDict(key)
-  }
-}
-
 module LowRecoveryCodeBanner = {
   @react.component
   let make = (~recoveryCode) => {
