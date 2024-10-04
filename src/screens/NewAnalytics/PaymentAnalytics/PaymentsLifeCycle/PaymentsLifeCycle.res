@@ -25,12 +25,13 @@ let make = (
   let getPaymentLieCycleData = async () => {
     try {
       let url = getURL(~entityName=ANALYTICS_SANKEY, ~methodType=Post)
-      let paymentLifeCycleBody = NewAnalyticsUtils.requestBody(
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-        ~dimensions=[],
-        ~metrics=[],
-      )
+      let paymentLifeCycleBody =
+        [
+          ("startTime", startTimeVal->JSON.Encode.string),
+          ("endTime", endTimeVal->JSON.Encode.string),
+        ]
+        ->Dict.fromArray
+        ->JSON.Encode.object
       // Expected response
       // let response = {
       //   "normal_success": 15,
@@ -55,9 +56,11 @@ let make = (
     }
   }
   React.useEffect(() => {
-    getPaymentLieCycleData()->ignore
+    if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
+      getPaymentLieCycleData()->ignore
+    }
     None
-  }, [])
+  }, (startTimeVal, endTimeVal))
   <div>
     <ModuleHeader title={entity.title} />
     <PageLoaderWrapper
