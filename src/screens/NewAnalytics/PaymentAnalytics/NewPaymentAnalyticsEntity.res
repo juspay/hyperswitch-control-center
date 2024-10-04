@@ -116,6 +116,7 @@ let failedPaymentsDistributionEntity: moduleEntity = {
 let failedPaymentsDistributionChartEntity: chartEntity<
   BarGraphTypes.barGraphPayload,
   BarGraphTypes.barGraphOptions,
+  JSON.t,
 > = {
   getObjects: FailedPaymentsDistributionUtils.failedPaymentsDistributionMapper,
   getChatOptions: BarGraphUtils.getBarGraphOptions,

@@ -6,7 +6,17 @@ open FailedPaymentsDistributionUtils
 
 module TableModule = {
   @react.component
-  let make = (~className="") => {
+  let make = (
+    ~className="",
+    ~groupBy: string,
+    ~domain: string,
+    ~startTimeVal: string,
+    ~endTimeVal: string,
+  ) => {
+    open APIUtils
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
     let (offset, setOffset) = React.useState(_ => 0)
     let (apiData, setApiData) = React.useState(_ => JSON.Encode.null)
     let (tableData, setTableData) = React.useState(_ => []->Array.map(Nullable.make))
@@ -14,34 +24,32 @@ module TableModule = {
       key: "",
       order: Table.INC,
     }
+
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
     let getTableAPIData = async () => {
       try {
-        let _request = {
-          "groupByNames": ["connector"],
-          "distribution": {
-            "distributionFor": "payment_error_message",
-          },
-        }->Identity.genericTypeToJson
-        let response = [
-          {
-            "reason": "No error message",
-            "count": 4,
-            "percentage": 66.67,
-            "connector": "stripe",
-          },
-          {
-            "reason": "The payment failed.",
-            "count": 2,
-            "percentage": 33.33,
-            "connector": "checkout",
-          },
-        ]->Identity.genericTypeToJson
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
+
+        let distribution = Dict.make()
+        distribution->Dict.set("distributionFor", "failure_reasons"->JSON.Encode.string)
+
+        let body = NewAnalyticsUtils.requestBody(
+          ~dimensions=[],
+          ~startTime=startTimeVal,
+          ~endTime=endTimeVal,
+          ~metrics=[],
+          ~groupByNames=[groupBy]->Some,
+          ~distributionValues=distribution->JSON.Encode.object->Some,
+        )
+
+        let response = await updateDetails(url, body, Post)
 
         setApiData(_ => response)
+        setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | _ => ()
+      | _ => setScreenState(_ => PageLoaderWrapper.Custom)
       }
     }
 
@@ -58,25 +66,27 @@ module TableModule = {
     }, [apiData])
 
     <div className>
-      <LoadedTable
-        visibleColumns
-        title=" "
-        hideTitle=true
-        actualData={tableData}
-        entity=failedPaymentsDistributionTableEntity
-        resultsPerPage=10
-        totalResults={tableData->Array.length}
-        offset
-        setOffset
-        defaultSort
-        currrentFetchCount={tableData->Array.length}
-        tableLocalFilter=false
-        tableheadingClass=tableBorderClass
-        tableBorderClass
-        ignoreHeaderBg=true
-        tableDataBorderClass=tableBorderClass
-        isAnalyticsModule=true
-      />
+      <PageLoaderWrapper screenState customUI={<NoData />}>
+        <LoadedTable
+          visibleColumns
+          title=" "
+          hideTitle=true
+          actualData={tableData}
+          entity=failedPaymentsDistributionTableEntity
+          resultsPerPage=10
+          totalResults={tableData->Array.length}
+          offset
+          setOffset
+          defaultSort
+          currrentFetchCount={tableData->Array.length}
+          tableLocalFilter=false
+          tableheadingClass=tableBorderClass
+          tableBorderClass
+          ignoreHeaderBg=true
+          tableDataBorderClass=tableBorderClass
+          isAnalyticsModule=true
+        />
+      </PageLoaderWrapper>
     </div>
   }
 }
@@ -102,7 +112,10 @@ module FailedPaymentsDistributionHeader = {
 }
 
 @react.component
-let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, barGraphOptions>) => {
+let make = (
+  ~entity: moduleEntity,
+  ~chartEntity: chartEntity<barGraphPayload, barGraphOptions, JSON.t>,
+) => {
   open LogicUtils
   open APIUtils
   let getURL = useGetURL()
@@ -119,54 +132,40 @@ let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, ba
 
   let getFailedPaymentsDistribution = async () => {
     try {
-      // setScreenState(_ => PageLoaderWrapper.Loading)
-      // let url = getURL(
-      //   ~entityName=ANALYTICS_PAYMENTS,
-      //   ~methodType=Post,
-      //   ~id=Some((entity.domain: domain :> string)),
-      // )
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let url = getURL(
+        ~entityName=ANALYTICS_PAYMENTS,
+        ~methodType=Post,
+        ~id=Some((entity.domain: domain :> string)),
+      )
 
-      // let body = NewAnalyticsUtils.requestBody(
-      //   ~dimensions=[],
-      //   ~startTime=startTimeVal,
-      //   ~endTime=endTimeVal,
-      //   ~delta=entity.requestBodyConfig.delta,
-      //   ~filters=entity.requestBodyConfig.filters,
-      //   ~metrics=entity.requestBodyConfig.metrics,
-      //   ~groupByNames=[groupBy.value]->Some,
-      //   ~customFilter=entity.requestBodyConfig.customFilter,
-      //   ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
-      // )
-      // let response = await updateDetails(url, body, Post)
+      let body = NewAnalyticsUtils.requestBody(
+        ~dimensions=[],
+        ~startTime=startTimeVal,
+        ~endTime=endTimeVal,
+        ~delta=entity.requestBodyConfig.delta,
+        ~filters=entity.requestBodyConfig.filters,
+        ~metrics=entity.requestBodyConfig.metrics,
+        ~groupByNames=[groupBy.value]->Some,
+        ~customFilter=entity.requestBodyConfig.customFilter,
+        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
+      )
 
-      // let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
-      // let arr =
-      //   response
-      //   ->getDictFromJsonObject
-      //   ->getArrayFromDict("queryData", [])
-
-      // if arr->Array.length > 0 {
-      //   setfailedPaymentsDistribution(_ => responseData->JSON.Encode.array)
-      //   setScreenState(_ => PageLoaderWrapper.Success)
-      // } else {
-      //   setScreenState(_ => PageLoaderWrapper.Custom)
-      // }
-
-      let response = {
-        "queryData": [
-          {"payments_failure_rate": 40, "connector": "stripe"},
-          {"payments_failure_rate": 60, "connector": "adyen"},
-          {"payments_failure_rate": 75, "connector": "paypal"},
-          {"payments_failure_rate": 65, "connector": "checkout"},
-        ],
-        "metaData": null,
-      }->Identity.genericTypeToJson
-
+      let response = await updateDetails(url, body, Post)
       let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
-      setfailedPaymentsDistribution(_ => responseData->JSON.Encode.array)
+      let arr =
+        response
+        ->getDictFromJsonObject
+        ->getArrayFromDict("queryData", [])
+
+      if arr->Array.length > 0 {
+        setfailedPaymentsDistribution(_ => responseData->JSON.Encode.array)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
-    // | _ => setScreenState(_ => PageLoaderWrapper.Custom)
-    | _ => ()
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
@@ -195,7 +194,14 @@ let make = (~entity: moduleEntity, ~chartEntity: chartEntity<barGraphPayload, ba
               )}
               className="mr-3"
             />
-          | Table => <TableModule className="mx-7" />
+          | Table =>
+            <TableModule
+              className="mx-7"
+              groupBy={groupBy.value}
+              domain={(entity.domain: domain :> string)}
+              startTimeVal
+              endTimeVal
+            />
           }}
         </div>
       </PageLoaderWrapper>

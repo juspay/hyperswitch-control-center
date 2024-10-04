@@ -4,11 +4,21 @@ open LogicUtils
 
 let colMapper = (col: col) => {
   switch col {
-  | ErrorReason => "reason"
-  | Count => "count"
+  | ErrorReason => "error_reason"
+  | Count => "failure_reason_count"
   | Ratio => "percentage"
   | Connector => "connector"
   | PaymentsFailureRate => "payments_failure_rate"
+  }
+}
+
+let getDimentionType = string => {
+  switch string {
+  | "connector" => #connector
+  | "payment_method" => #payment_method
+  | "payment_method_type" => #payment_method_type
+  | "card_network" => #card_network
+  | "authentication_type" | _ => #authentication_type
   }
 }
 
