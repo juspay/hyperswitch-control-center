@@ -134,6 +134,7 @@ let usePageView = () => {
           `${getHostUrl}/mixpanel/track`,
           ~method_=Post,
           ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+          ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
         )
       }
     } catch {
@@ -172,11 +173,13 @@ let useSetIdentity = () => {
           `${getHostUrl}/mixpanel/track`,
           ~method_=Post,
           ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+          ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
         )
         let _ = await fetchApi(
           `${getHostUrl}/mixpanel/engage`,
           ~method_=Post,
           ~bodyStr=`data=${peopleProperties->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+          ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
         )
       }
     } catch {

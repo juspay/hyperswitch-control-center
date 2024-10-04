@@ -1,21 +1,22 @@
 open LineGraphTypes
-let tooltipFormatter = (
-  @this
-  (this: pointFormatter) => {
-    let title = `<div style="font-size: 16px; font-weight: bold;">Payments Processed</div>`
+let tooltipFormatter = (~title: LineGraphTypes.title) =>
+  (
+    @this
+    (this: pointFormatter) => {
+      let title = `<div style="font-size: 16px; font-weight: bold;">${title.text}</div>`
 
-    let tableItems =
-      this.points
-      ->Array.map(point =>
-        `<div style="display: flex; align-items: center;">
+      let tableItems =
+        this.points
+        ->Array.map(point =>
+          `<div style="display: flex; align-items: center;">
                   <div style="width: 10px; height: 10px; background-color:${point.color}; border-radius:3px;"></div>
                   <div style="margin-left: 8px;">${point.x}</div>
                   <div style="flex: 1; text-align: right; font-weight: bold;">${point.y->Float.toString} USD</div>
                 </div>`
-      )
-      ->Array.joinWith("")
+        )
+        ->Array.joinWith("")
 
-    let content = `
+      let content = `
           <div style=" 
           padding:5px 12px;
           border-left: 3px solid #0069FD;
@@ -33,7 +34,7 @@ let tooltipFormatter = (
               </div>
         </div>`
 
-    `<div style="
+      `<div style="
     padding: 10px;
     width:fit-content;
     border-radius: 7px;
@@ -44,8 +45,8 @@ let tooltipFormatter = (
     position:relative;">
         ${content}
     </div>`
-  }
-)->asTooltipPointFormatter
+    }
+  )->asTooltipPointFormatter
 
 let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
   let {categories, data, title} = lineGraphOptions
@@ -87,7 +88,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       backgroundColor: "transparent",
       borderColor: "transparent",
       borderWidth: 0.0,
-      formatter: tooltipFormatter,
+      formatter: tooltipFormatter(~title),
       useHTML: true,
       shared: true, // Allows multiple series' data to be shown in a single tooltip
     },
