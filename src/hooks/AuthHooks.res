@@ -3,7 +3,7 @@ let headersForXFeature = (~uri, ~headers) => {
   if uri->String.includes("lottie-files") || uri->String.includes("config/merchant-access") {
     headers->Dict.set("Content-Type", `application/json`)
   } else {
-    headers->Dict.set("x-feature", "hyperswitch-custom")
+    headers->Dict.set("x-feature", "router-custom")
   }
 }
 
@@ -52,7 +52,6 @@ let useApiFetcher = () => {
   let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
-  // let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   React.useCallback(
     (
       uri,
