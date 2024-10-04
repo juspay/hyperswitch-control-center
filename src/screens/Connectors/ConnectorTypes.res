@@ -239,7 +239,6 @@ type currencyKey = {
   password_classic: string,
   username_classic: string,
 }
-type authKeyMap = {}
 type currencyAuthKey = {auth_key_map: Js.Dict.t<JSON.t>, auth_type: string}
 type certificateAuth = {
   auth_type: string,
@@ -301,8 +300,7 @@ type connectorPayload = {
   connector_type: string,
   connector_name: string,
   connector_label: string,
-  connector_account_details: connectorAccountDetails,
-  account_details: connectorAuthTypeObj,
+  connector_account_details: connectorAuthTypeObj,
   test_mode: bool,
   disabled: bool,
   payment_methods_enabled: payment_methods_enabled,

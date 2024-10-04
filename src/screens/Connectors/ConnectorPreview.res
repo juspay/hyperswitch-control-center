@@ -21,7 +21,7 @@ module KeyAndCopyArea = {
         {copyValue->React.string}
       </p>
       <div
-        className="cursor-pointer  w-20 pt-1"
+        className="cursor-pointer w-20 pt-1"
         onClick={_ => {
           Clipboard.writeText(copyValue)
           showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
