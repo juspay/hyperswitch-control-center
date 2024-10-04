@@ -57,7 +57,7 @@ module CardRenderer = {
 
     let isProfileIdConfiguredPMAuth =
       pmAuthProcessorList
-      ->Array.filter(item => item.profile_id === currentProfile && item.disabled == false)
+      ->Array.filter(item => item.profile_id === currentProfile && !item.disabled)
       ->Array.length > 0
 
     let shouldShowPMAuthSidebar =
