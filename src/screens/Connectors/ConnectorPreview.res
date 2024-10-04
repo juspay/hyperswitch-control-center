@@ -171,7 +171,7 @@ module ConnectorSummaryGrid = {
           JSON.Encode.null
         }
       }
-    }, [connectorName])
+    }, [connectorInfo.merchant_connector_id])
     let (_, connectorAccountFields, _, _, _, _, _) = ConnectorUtils.getConnectorFields(
       connectorDetails,
     )

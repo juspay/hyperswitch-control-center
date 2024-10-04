@@ -37,7 +37,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
         JSON.Encode.null
       }
     }
-  }, [connectorName])
+  }, [connectorInfo.merchant_connector_id])
   let (
     _,
     connectorAccountFields,
