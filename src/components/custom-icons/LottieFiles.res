@@ -16,7 +16,6 @@ let useLottieJson = lottieFileName => {
   let uriPrefix = LogicUtils.useUrlPrefix()
   let showToast = ToastState.useShowToast()
   let prefix = `${Window.Location.origin}${uriPrefix}`
-  // let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   React.useEffect(() => {
     switch lottieDict->Dict.get(lottieFileName) {
     | Some(val) =>
