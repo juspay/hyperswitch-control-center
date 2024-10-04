@@ -5,16 +5,16 @@ open LogicUtils
 module BaseTableComponent = {
   @react.component
   let make = (
-    ~filters as _: (string, string),
+    ~filters as _,
     ~tableData,
     ~defaultSort: string,
     ~tableDataLoading: bool,
     ~transactionTableDefaultCols,
     ~newDefaultCols: array<'colType>,
     ~newAllCols: array<'colType>,
-    ~colMapper as _: 'colType => string,
+    ~colMapper as _,
     ~tableEntity: EntityType.entityType<'colType, 't>,
-    ~tableGlobalFilter as _: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
+    ~tableGlobalFilter as _,
     ~activeTab as _,
   ) => {
     open DynamicTableUtils
@@ -89,9 +89,7 @@ module TableWrapper = {
     ~tableEntity: EntityType.entityType<'colType, 't>,
     ~deltaMetrics: array<string>,
     ~deltaArray: array<string>,
-    ~tableUpdatedHeading as _: option<
-      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>) => 'colType => Table.header,
-    >,
+    ~tableUpdatedHeading as _,
     ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
     ~moduleName,
     ~weeklyTableMetricsCols,
@@ -467,7 +465,6 @@ open AnalyticsTypes
 @react.component
 let make = (
   ~pageTitle="",
-  ~pageSubTitle="",
   ~startTimeFilterKey: string,
   ~endTimeFilterKey: string,
   ~chartEntity: nestedEntityType,
@@ -525,7 +522,6 @@ let make = (
   let endTimeVal = filterValueDict->getString(endTimeFilterKey, "")
   let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
   let {userInfo: {analyticsEntity}} = React.useContext(UserInfoProvider.defaultContext)
-  let {userManagementRevamp} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let updateUrlWithPrefix = React.useMemo(() => {
     (chartType: string) => {
       (dict: Dict.t<string>) => {
@@ -682,11 +678,9 @@ let make = (
     | Some(chartEntity) =>
       <div>
         <div className="flex items-center justify-between">
-          <PageUtils.PageHeading title=pageTitle subTitle=pageSubTitle />
+          <PageUtils.PageHeading title=pageTitle />
           // Refactor required
-          <RenderIf
-            condition={userManagementRevamp &&
-            (moduleName == "Refunds" || moduleName == "Disputes")}>
+          <RenderIf condition={moduleName == "Refunds" || moduleName == "Disputes"}>
             <OMPSwitchHelper.OMPViews
               views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
               selectedEntity={analyticsEntity}

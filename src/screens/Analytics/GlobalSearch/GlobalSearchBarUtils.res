@@ -159,27 +159,28 @@ let getElements = (hits, section) => {
     let payId = value->getString("payment_id", "")
     let amount = value->getAmount("amount", "currency")
     let status = value->getString("status", "")
+    let profileId = value->getString("profile_id", "")
 
-    (payId, amount, status)
+    (payId, amount, status, profileId)
   }
 
   switch section {
   | PaymentAttempts =>
     hits->Array.map(item => {
-      let (payId, amount, status) = item->getValues
+      let (payId, amount, status, profileId) = item->getValues
 
       {
         texts: [payId, amount, status]->Array.map(JSON.Encode.string),
-        redirect_link: `/payments/${payId}`->JSON.Encode.string,
+        redirect_link: `/payments/${payId}/${profileId}`->JSON.Encode.string,
       }
     })
   | PaymentIntents =>
     hits->Array.map(item => {
-      let (payId, amount, status) = item->getValues
+      let (payId, amount, status, profileId) = item->getValues
 
       {
         texts: [payId, amount, status]->Array.map(JSON.Encode.string),
-        redirect_link: `/payments/${payId}`->JSON.Encode.string,
+        redirect_link: `/payments/${payId}/${profileId}`->JSON.Encode.string,
       }
     })
 
@@ -189,10 +190,11 @@ let getElements = (hits, section) => {
       let refId = value->getString("refund_id", "")
       let amount = value->getAmount("total_amount", "currency")
       let status = value->getString("refund_status", "")
+      let profileId = value->getString("profile_id", "")
 
       {
         texts: [refId, amount, status]->Array.map(JSON.Encode.string),
-        redirect_link: `/refunds/${refId}`->JSON.Encode.string,
+        redirect_link: `/refunds/${refId}/${profileId}`->JSON.Encode.string,
       }
     })
   | Disputes =>
@@ -201,10 +203,11 @@ let getElements = (hits, section) => {
       let disId = value->getString("dispute_id", "")
       let amount = value->getAmount("dispute_amount", "currency")
       let status = value->getString("dispute_status", "")
+      let profileId = value->getString("profile_id", "")
 
       {
         texts: [disId, amount, status]->Array.map(JSON.Encode.string),
-        redirect_link: `/disputes/${disId}`->JSON.Encode.string,
+        redirect_link: `/disputes/${disId}/${profileId}`->JSON.Encode.string,
       }
     })
   | Local | Others | Default => []

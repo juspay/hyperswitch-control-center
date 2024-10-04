@@ -1,4 +1,4 @@
-let defaultSetter = (_: option<AuthHooks.betaEndpoint>) => ()
+let defaultSetter = _ => ()
 let defaultValue: option<AuthHooks.betaEndpoint> = None
 let betaEndPointConfig = React.createContext(defaultValue)
 

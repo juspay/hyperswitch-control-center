@@ -53,6 +53,7 @@ type paymentAttemptObject = {
   unified_message: string,
   client_source: string,
   client_version: string,
+  profile_id: string,
 }
 
 type cols =
@@ -108,6 +109,7 @@ type cols =
   | UnifiedMessage
   | ClientSource
   | ClientVersion
+  | ProfileId
 
 let visibleColumns = [
   PaymentId,
@@ -174,6 +176,7 @@ let colMapper = (col: cols) => {
   | UnifiedMessage => "unified_message"
   | ClientSource => "client_source"
   | ClientVersion => "client_version"
+  | ProfileId => "profile_id"
   }
 }
 
@@ -233,6 +236,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentAttemptObject = dict => {
     unified_message: dict->getString(UnifiedMessage->colMapper, "NA"),
     client_source: dict->getString(ClientSource->colMapper, "NA"),
     client_version: dict->getString(ClientVersion->colMapper, "NA"),
+    profile_id: dict->getString(ProfileId->colMapper, "NA"),
   }
 }
 
@@ -308,6 +312,7 @@ let getHeading = colType => {
   | UnifiedMessage => Table.makeHeaderInfo(~key, ~title="Unified Message", ~dataType=TextType)
   | ClientSource => Table.makeHeaderInfo(~key, ~title="Client Source", ~dataType=TextType)
   | ClientVersion => Table.makeHeaderInfo(~key, ~title="Client Version", ~dataType=TextType)
+  | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile Id", ~dataType=TextType)
   }
 }
 
@@ -316,7 +321,7 @@ let getCell = (paymentObj, colType): Table.cell => {
   | PaymentId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/payments/${paymentObj.payment_id}`}
+        url={`/payments/${paymentObj.payment_id}/${paymentObj.profile_id}`}
         displayValue={paymentObj.payment_id}
         copyValue={Some(paymentObj.payment_id)}
       />,
@@ -411,6 +416,7 @@ let getCell = (paymentObj, colType): Table.cell => {
   | UnifiedMessage => Text(paymentObj.unified_message)
   | ClientSource => Text(paymentObj.client_source)
   | ClientVersion => Text(paymentObj.client_version)
+  | ProfileId => Text(paymentObj.profile_id)
   }
 }
 
@@ -424,6 +430,7 @@ let tableEntity = EntityType.makeEntity(
   ~getCell,
   ~getHeading,
   ~getShowLink={
-    order => GlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}`)
+    order =>
+      GlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}/${order.profile_id}`)
   },
 )

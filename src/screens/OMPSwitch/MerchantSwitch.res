@@ -35,6 +35,29 @@ module NewAccountCreationModal = {
       ~isRequired=true,
     )
 
+    let validateForm = (values: JSON.t) => {
+      open LogicUtils
+      let errors = Dict.make()
+      let companyName = values->getDictFromJsonObject->getString("company_name", "")->String.trim
+      let regexForCompanyName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
+
+      let errorMessage = if companyName->isEmptyString {
+        "Merchant name cannot be empty"
+      } else if companyName->String.length > 64 {
+        "Merchant name too long"
+      } else if !RegExp.test(RegExp.fromString(regexForCompanyName), companyName) {
+        "Merchant name should not contain special characters"
+      } else {
+        ""
+      }
+
+      if errorMessage->isNonEmptyString {
+        Dict.set(errors, "company_name", errorMessage->JSON.Encode.string)
+      }
+
+      errors->JSON.Encode.object
+    }
+
     let modalBody = {
       <div className="p-2 m-2">
         <div className="py-5 px-3 flex justify-between align-top">
@@ -49,13 +72,14 @@ module NewAccountCreationModal = {
             />
           </div>
         </div>
-        <Form key="new-account-creation" onSubmit>
+        <Form key="new-account-creation" onSubmit validate={validateForm}>
           <div className="flex flex-col gap-12 h-full w-full">
             <FormRenderer.DesktopRow>
               <div className="flex flex-col gap-5">
                 <FormRenderer.FieldRenderer
                   fieldWrapperClass="w-full"
                   field={merchantName}
+                  showErrorOnChange=true
                   errorClass={ProdVerifyModalUtils.errorClass}
                   labelClass="!text-black font-medium !-ml-[0.5px]"
                 />
@@ -148,7 +172,7 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
-  <div className="border border-popover-background rounded w-full">
+  <div className="border border-popover-background rounded w-5/6">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""

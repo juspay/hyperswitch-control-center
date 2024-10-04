@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
   open APIUtils
   open ListRolesTableEntity
   let getURL = useGetURL()
@@ -7,7 +7,7 @@ let make = () => {
   let (screenStateRoles, setScreenStateRoles) = React.useState(_ => PageLoaderWrapper.Loading)
   let (rolesAvailableData, setRolesAvailableData) = React.useState(_ => [])
   let (rolesOffset, setRolesOffset) = React.useState(_ => 0)
-
+  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
@@ -18,7 +18,9 @@ let make = () => {
         ~entityName=USER_MANAGEMENT_V2,
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
-        ~queryParamerters=Some("groups=true"),
+        ~queryParamerters=userModuleEntity == #Default
+          ? None
+          : Some(`entity_type=${(userModuleEntity :> string)->String.toLowerCase}`),
       )
       let res = await fetchDetails(userDataURL)
       let rolesData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForRoles)
@@ -32,7 +34,7 @@ let make = () => {
   React.useEffect(() => {
     getRolesAvailable()->ignore
     None
-  }, [])
+  }, [userModuleEntity])
 
   <div className="relative mt-5 flex flex-col gap-6">
     <PageLoaderWrapper screenState={screenStateRoles}>
@@ -42,12 +44,13 @@ let make = () => {
           text={"Create custom roles"}
           buttonType=Primary
           onClick={_ => {
-            mixpanelEvent(~eventName="invite_users")
+            mixpanelEvent(~eventName="create_custom_role")
             RescriptReactRouter.push(
-              GlobalVars.appendDashboardPath(~url="/users-v2/create-custom-role"),
+              GlobalVars.appendDashboardPath(~url="/users/create-custom-role"),
             )
           }}
           customButtonStyle="w-fit !rounded-md"
+          buttonState={checkUserEntity([#Profile]) ? Disabled : Normal}
         />
       </div>
       <LoadedTable

@@ -82,13 +82,12 @@ module TableRow = {
     ~fixLastCol=false,
     ~alignCellContent="",
     ~customCellColor="",
-    ~showCustomizeColumn=false,
   ) => {
     open Window
     let (isCurrentRowExpanded, setIsCurrentRowExpanded) = React.useState(_ => false)
     let (expandedData, setExpandedData) = React.useState(_ => React.null)
     let actualIndex = offset + rowIndex
-    let onClick = React.useCallback(_ev => {
+    let onClick = React.useCallback(_ => {
       let isRangeSelected = getSelection().\"type" == "Range"
       switch (onRowClick, isRangeSelected) {
       | (Some(fn), false) => fn(actualIndex)
@@ -96,21 +95,21 @@ module TableRow = {
       }
     }, (onRowClick, actualIndex))
 
-    let onDoubleClick = React.useCallback(_ev => {
+    let onDoubleClick = React.useCallback(_ => {
       switch onRowDoubleClick {
       | Some(fn) => fn(actualIndex)
       | _ => ()
       }
     }, (onRowDoubleClick, actualIndex))
 
-    let onMouseEnter = React.useCallback(_ev => {
+    let onMouseEnter = React.useCallback(_ => {
       switch onMouseEnter {
       | Some(fn) => fn(actualIndex)
       | _ => ()
       }
     }, (onMouseEnter, actualIndex))
 
-    let onMouseLeave = React.useCallback(_ev => {
+    let onMouseLeave = React.useCallback(_ => {
       switch onMouseLeave {
       | Some(fn) => fn(actualIndex)
       | _ => ()
@@ -246,23 +245,6 @@ module TableRow = {
           </AddDataAttributes>
         })
         ->React.array}
-        <RenderIf condition={showCustomizeColumn}>
-          <div className=" sticky right-0">
-            <tr>
-              <td colSpan=12 className="bg-white border-jp-gray-940 !border-l !p-0">
-                <div className="flex flex-row items-center">
-                  <TableCell
-                    cell=EllipsisText("", "w-14 h-14")
-                    clearFormatting
-                    isEllipsisTextRelative
-                    customMoneyStyle
-                    ellipseClass
-                  />
-                </div>
-              </td>
-            </tr>
-          </div>
-        </RenderIf>
       </tr>
       {if isCurrentRowExpanded {
         <tr className="dark:border-jp-gray-dark_disable_border_color">
@@ -290,7 +272,7 @@ module SortAction = {
       | Some(obj: sortedObject) => obj.key === item.key ? obj.order : NONE
       | None => NONE
       }
-      let handleSortClick = _ev => {
+      let handleSortClick = _ => {
         switch setSortedObj {
         | Some(fn) =>
           fn(_ => Some({
@@ -475,9 +457,9 @@ module TableHeadingCell = {
                         if options->Array.length > 1 {
                           let filterInput: ReactFinalForm.fieldRenderPropsInput = {
                             name: "filterInput",
-                            onBlur: _ev => (),
+                            onBlur: _ => (),
                             onChange: ev => handleUpdateFilterObj(ev, i),
-                            onFocus: _ev => (),
+                            onFocus: _ => (),
                             value: selected->Array.map(JSON.Encode.string)->JSON.Encode.array,
                             checked: true,
                           }
@@ -541,7 +523,6 @@ module TableHeadingCell = {
 module TableHeadingRow = {
   @react.component
   let make = (
-    ~title="",
     ~headingArray,
     ~isHighchartLegend,
     ~frozenUpto,
@@ -565,7 +546,6 @@ module TableHeadingRow = {
     ~columnFilterRow,
     ~customizeColumnNewTheme=?,
     ~tableHeadingTextClass="",
-    ~showCustomizeColumn=false,
   ) => {
     if headingArray->Array.length !== 0 {
       <thead>
@@ -604,12 +584,6 @@ module TableHeadingRow = {
             />
           })
           ->React.array}
-          <RenderIf condition={showCustomizeColumn}>
-            <div
-              className="flex jusitfy-center items-center sticky right-0 w-14 bg-white border-jp-gray-940 border-l h-14">
-              <PortalCapture key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} />
-            </div>
-          </RenderIf>
         </tr>
       </thead>
     } else {
@@ -682,7 +656,6 @@ let make = (
   ~showborderColor=true,
   ~tableHeadingTextClass="",
   ~nonFrozenTableParentClass="",
-  ~showCustomizeColumn=false,
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
@@ -763,7 +736,6 @@ let make = (
         fixLastCol
         ?alignCellContent
         ?customCellColor
-        showCustomizeColumn
       />
     })
     ->React.array
@@ -785,7 +757,6 @@ let make = (
 
     let customizeColumnNewTheme = isCustomiseColumn ? customizeColumnNewTheme : None
     <TableHeadingRow
-      title
       headingArray
       isHighchartLegend
       frozenUpto
@@ -809,7 +780,6 @@ let make = (
       columnFilterRow
       ?customizeColumnNewTheme
       tableHeadingTextClass
-      showCustomizeColumn
     />
   }
 

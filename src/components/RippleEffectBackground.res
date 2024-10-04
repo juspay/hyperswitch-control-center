@@ -20,7 +20,7 @@ external removeEventListener: (Dom.element, string, event => unit) => unit = "re
 
 let useLinearRippleHook = (ref: React.ref<Nullable.t<Dom.element>>, shouldRipple) => {
   React.useEffect(() => {
-    let handleMouseOver = _ev => {
+    let handleMouseOver = _ => {
       switch ref.current->Nullable.toOption {
       | Some(splash) => {
           let link = document->DOMUtils.createElement("div")
@@ -62,7 +62,7 @@ let useLinearRippleHook = (ref: React.ref<Nullable.t<Dom.element>>, shouldRipple
 
 let useHorizontalRippleHook = (ref: React.ref<Nullable.t<Dom.element>>) => {
   React.useEffect(() => {
-    let handleMouseOver = _ev => {
+    let handleMouseOver = _ => {
       switch ref.current->Nullable.toOption {
       | Some(splash) => {
           let link = document->DOMUtils.createElement("div")

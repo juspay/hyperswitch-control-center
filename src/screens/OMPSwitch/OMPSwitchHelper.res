@@ -3,9 +3,11 @@ module ListBaseComp = {
   let make = (~heading, ~subHeading, ~arrow) => {
     <div
       className="flex items-center justify-between text-sm text-center text-white font-medium rounded hover:bg-opacity-80 bg-sidebar-blue cursor-pointer">
-      <div className="flex flex-col items-start px-2 py-2">
+      <div className="flex flex-col items-start px-2 py-2 w-5/6">
         <p className="text-xs text-gray-400"> {heading->React.string} </p>
-        <p className="fs-10"> {subHeading->React.string} </p>
+        <div className="w-full text-left overflow-auto">
+          <p className="fs-10"> {subHeading->React.string} </p>
+        </div>
       </div>
       <div className="px-2 py-2">
         <Icon
@@ -51,6 +53,13 @@ module OMPViews = {
     ~selectedEntity: UserInfoTypes.entity,
     ~onChange,
   ) => {
+    open OMPSwitchUtils
+
+    let {userInfo} = React.useContext(UserInfoProvider.defaultContext)
+    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
+    let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
+
     let cssBasedOnIndex = index => {
       if index == 0 {
         "rounded-l-md"
@@ -61,14 +70,29 @@ module OMPViews = {
       }
     }
 
+    let getName = entityType => {
+      let name = switch entityType {
+      | #Organization => currentOMPName(orgList, userInfo.orgId)
+      | #Merchant => currentOMPName(merchantList, userInfo.merchantId)
+      | #Profile => currentOMPName(profileList, userInfo.profileId)
+      | _ => ""
+      }
+      name->String.length > 10
+        ? name
+          ->String.substring(~start=0, ~end=10)
+          ->String.concat("...")
+        : name
+    }
+
     <div className="flex h-fit">
       {views
       ->Array.mapWithIndex((value, index) => {
         let selectedStyle = selectedEntity == value.entity ? `bg-blue-200` : ""
         <div
+          key={index->Int.toString}
           onClick={_ => onChange(value.entity)->ignore}
-          className={`text-sm py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer`}>
-          {value.lable->React.string}
+          className={`text-xs py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer break-all`}>
+          {`${value.lable} (${value.entity->getName})`->React.string}
         </div>
       })
       ->React.array}

@@ -29,11 +29,16 @@ type featureFlag = {
   granularity: bool,
   customWebhookHeaders: bool,
   complianceCertificate: bool,
-  userManagementRevamp: bool,
   pmAuthenticationProcessor: bool,
   performanceMonitor: bool,
   newAnalytics: bool,
+<<<<<<< HEAD
   xFeatureRoute: bool,
+=======
+  downTime: bool,
+  taxProcessor: bool,
+  transactionView: bool,
+>>>>>>> fcca1025d61e2032df48051e97626d4572ab3476
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -70,11 +75,16 @@ let featureFlagType = (featureFlags: JSON.t) => {
     granularity: dict->getBool("granularity", false),
     customWebhookHeaders: dict->getBool("custom_webhook_headers", false),
     complianceCertificate: dict->getBool("compliance_certificate", false),
-    userManagementRevamp: dict->getBool("user_management_revamp", false),
     pmAuthenticationProcessor: dict->getBool("pm_authentication_processor", false),
     performanceMonitor: dict->getBool("performance_monitor", false),
     newAnalytics: dict->getBool("new_analytics", false),
+<<<<<<< HEAD
     xFeatureRoute: dict->getBool("x_feature_route", false),
+=======
+    downTime: dict->getBool("down_time", false),
+    taxProcessor: dict->getBool("tax_processor", false),
+    transactionView: dict->getBool("transaction_view", false),
+>>>>>>> fcca1025d61e2032df48051e97626d4572ab3476
   }
   typedFeatureFlag
 }

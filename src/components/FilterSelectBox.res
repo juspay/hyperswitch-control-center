@@ -539,7 +539,7 @@ module BaseSelect = {
       setSearchString(_ => str)
     }
 
-    let selectAll = select => _ev => {
+    let selectAll = select => _ => {
       let newValues = if select {
         let newVal =
           filteredOptions
@@ -901,7 +901,7 @@ module BaseSelectButton = {
     let (itemdata, setItemData) = React.useState(() => "")
     let (assignButtonState, setAssignButtonState) = React.useState(_ => false)
     let searchRef = React.useRef(Nullable.null)
-    let onItemClick = itemData => _ev => {
+    let onItemClick = itemData => _ => {
       if !disableSelect {
         let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
 
@@ -1212,7 +1212,7 @@ module BaseRadio = {
         setSearchString(_ => "")
       },
     )
-    let onItemClick = (itemData, isDisabled) => _ev => {
+    let onItemClick = (itemData, isDisabled) => _ => {
       if !isDisabled {
         let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
 
@@ -1558,7 +1558,9 @@ module BaseDropdown = {
       DropdownTextWeighContextWrapper.selectedTextWeightContext,
     )
     let isFilterSection = React.useContext(TableFilterSectionContext.filterSectionContext)
-    let {removeKeys, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
+    let {removeKeys, filterKeys, setfilterKeys, filterValueJson} = React.useContext(
+      FilterContext.filterContext,
+    )
     let showBorder = isFilterSection && !isMobileView ? Some(false) : showBorder
 
     let dropdownOuterClass = "bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
@@ -1575,6 +1577,23 @@ module BaseDropdown = {
     let (preservedAppliedOptions, setPreservedAppliedOptions) = React.useState(_ =>
       newInputSelect.value->LogicUtils.getStrArryFromJson
     )
+
+    // this useEffect enables communication between transaction view changes and the filter dropdown options via filterValueJson
+    React.useEffect(() => {
+      open LogicUtils
+      let nonStatusFilters =
+        filterValueJson
+        ->Dict.keysToArray
+        ->Array.filter(item => item != "start_time" && item != "end_time" && item != "status")
+      if nonStatusFilters->Array.length == 0 {
+        setPreservedAppliedOptions(_ =>
+          filterValueJson
+          ->getArrayFromDict("status", [])
+          ->getStrArrayFromJsonArray
+        )
+      }
+      None
+    }, [filterValueJson])
 
     let onApply = ev => {
       switch onApply {
@@ -1612,7 +1631,7 @@ module BaseDropdown = {
       }
     }
 
-    let removeOption = text => _ev => {
+    let removeOption = text => _ => {
       let actualValue = switch Array.find(transformedOptions, option => option.value == text) {
       | Some(str) => str.value
       | None => ""
@@ -1682,8 +1701,8 @@ module BaseDropdown = {
     | TopLeft | TopRight => "mb-12"
     }
 
-    let onRadioOptionSelect = _ev => {
-      newInputRadio.onChange(_ev)
+    let onRadioOptionSelect = ev => {
+      newInputRadio.onChange(ev)
       addButton ? setShowDropDown(_ => true) : setShowDropDown(_ => false)
     }
 

@@ -25,6 +25,7 @@ type paymentIntentObject = {
   attempt_count: int,
   sign_flag: int,
   timestamp: string,
+  profile_id: string,
 }
 
 type cols =
@@ -52,6 +53,7 @@ type cols =
   | AttemptCount
   | SignFlag
   | Timestamp
+  | ProfileId
 
 let visibleColumns = [
   PaymentId,
@@ -91,6 +93,7 @@ let colMapper = (col: cols) => {
   | AttemptCount => "attempt_count"
   | SignFlag => "sign_flag"
   | Timestamp => "@timestamp"
+  | ProfileId => "profile_id"
   }
 }
 
@@ -122,6 +125,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => paymentIntentObject = dict => {
     attempt_count: dict->getInt(AttemptCount->colMapper, 0),
     sign_flag: dict->getInt(SignFlag->colMapper, 0),
     timestamp: dict->getString(Timestamp->colMapper, "NA"),
+    profile_id: dict->getString(ProfileId->colMapper, "NA"),
   }
 }
 
@@ -163,6 +167,7 @@ let getHeading = colType => {
   | AttemptCount => Table.makeHeaderInfo(~key, ~title="Attempt Count", ~dataType=TextType)
   | SignFlag => Table.makeHeaderInfo(~key, ~title="Sign Flag", ~dataType=TextType)
   | Timestamp => Table.makeHeaderInfo(~key, ~title="Time Stamp", ~dataType=TextType)
+  | ProfileId => Table.makeHeaderInfo(~key, ~title="Profile Id", ~dataType=TextType)
   }
 }
 
@@ -173,7 +178,7 @@ let getCell = (paymentObj, colType): Table.cell => {
   | PaymentId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/payments/${paymentObj.payment_id}`}
+        url={`/payments/${paymentObj.payment_id}/${paymentObj.profile_id}`}
         displayValue={paymentObj.payment_id}
         copyValue={Some(paymentObj.payment_id)}
       />,
@@ -232,6 +237,7 @@ let getCell = (paymentObj, colType): Table.cell => {
   | AttemptCount => Text(paymentObj.attempt_count->Int.toString)
   | SignFlag => Text(paymentObj.sign_flag->Int.toString)
   | Timestamp => Text(paymentObj.timestamp)
+  | ProfileId => Text(paymentObj.profile_id)
   }
 }
 
@@ -245,6 +251,7 @@ let tableEntity = EntityType.makeEntity(
   ~getCell,
   ~getHeading,
   ~getShowLink={
-    order => GlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}`)
+    order =>
+      GlobalVars.appendDashboardPath(~url=`/payments/${order.payment_id}/${order.profile_id}`)
   },
 )

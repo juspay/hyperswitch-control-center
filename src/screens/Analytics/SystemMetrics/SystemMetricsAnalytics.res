@@ -363,17 +363,16 @@ let make = () => {
 
   let tabKeys = getStringListFromArrayDict(dimensions)
   let title = "System Metrics"
-  let subTitle = "Gain Insights, monitor performance and make Informed Decisions with System Metrics."
+
   let analyticsfilterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
   let systemMetricsAnalyticsUrl = getURL(
     ~entityName=ANALYTICS_PAYMENTS,
     ~methodType=Post,
     ~id=Some(domain),
   )
-  <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
+  <PageLoaderWrapper screenState customUI={<NoData title />}>
     <SystemMetricsAnalytics
       pageTitle=title
-      pageSubTitle=subTitle
       filterUri={analyticsfilterUrl}
       key="SystemMetrics"
       moduleName="SystemMetrics"

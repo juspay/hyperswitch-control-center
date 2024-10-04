@@ -32,10 +32,7 @@ let tableItemToObjMapper: 'a => refundTableType = dict => {
   }
 }
 
-let getUpdatedHeading = (
-  ~item as _: option<refundTableType>,
-  ~dateObj as _: option<AnalyticsUtils.prevDates>,
-) => {
+let getUpdatedHeading = (~item as _, ~dateObj as _) => {
   let getHeading = colType => {
     let key = colType->colMapper
     switch colType {

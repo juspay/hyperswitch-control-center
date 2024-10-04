@@ -68,12 +68,12 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       <Button
         text="Cancel"
         buttonType={Secondary}
-        onClick={_ev => {
+        onClick={_ => {
           closeModal()->ignore
         }}
       />
       <Button
-        onClick={_ev => {
+        onClick={_ => {
           onSubmit()->ignore
         }}
         text="Proceed"

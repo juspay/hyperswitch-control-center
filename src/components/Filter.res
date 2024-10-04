@@ -68,7 +68,7 @@ module ClearFilters = {
     <RenderIf condition={hasExtraFilters || outsidefilter}>
       <Button
         text
-        customButtonStyle="bg-white rounded-lg !p-2 !h-10 !border mt-3"
+        customButtonStyle="bg-white rounded-lg !p-2 !h-10 !border"
         showBorder=false
         textStyle
         leftIcon
@@ -126,7 +126,7 @@ let make = (
   ~path="",
   ~remoteFilters: array<EntityType.initialFilters<'t>>,
   ~remoteOptions: array<EntityType.optionType<'t>>,
-  ~localOptions as _: array<EntityType.optionType<'t>>,
+  ~localOptions as _,
   ~localFilters: array<EntityType.initialFilters<'t>>,
   ~mandatoryRemoteKeys=[],
   ~popupFilterFields: array<EntityType.optionType<'t>>=[],
@@ -144,6 +144,7 @@ let make = (
   ~showSelectFiltersSearch=false,
 ) => {
   open HeadlessUI
+  open LogicUtils
 
   let isMobileView = MatchMedia.useMobileChecker()
   let {query, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
@@ -175,7 +176,7 @@ let make = (
       ~options=remoteOptions,
       (),
     )
-    ->LogicUtils.getDictFromJsonObject
+    ->getDictFromJsonObject
     ->Dict.keysToArray
     ->Array.length
 
@@ -191,7 +192,7 @@ let make = (
     | Some(fn) =>
       fn(
         initialValues
-        ->LogicUtils.getDictFromJsonObject
+        ->getDictFromJsonObject
         ->Dict.toArray
         ->Array.map(item => {
           let (key, value) = item
@@ -288,100 +289,100 @@ let make = (
     setfilterKeys(_ => keys)
   }
 
+  let allFiltersUI =
+    <Menu \"as"="div" className="relative inline-block text-left">
+      {_ =>
+        <div>
+          <Menu.Button
+            className="flex items-center whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg h-10 hover:bg-opacity-80 bg-white border">
+            {_ => {
+              <>
+                <Icon className={"mr-2"} name="plus" size=15 />
+                {"Add Filters"->React.string}
+              </>
+            }}
+          </Menu.Button>
+          <Transition
+            \"as"="span"
+            enter="transition ease-out duration-100"
+            enterFrom="transform opacity-0 scale-95"
+            enterTo="transform opacity-100 scale-100"
+            leave="transition ease-in duration-75"
+            leaveFrom="transform opacity-100 scale-100"
+            leaveTo="transform opacity-0 scale-95">
+            <Menu.Items
+              className="absolute left-0 w-fit z-50 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+              {_ => {
+                <>
+                  <div className="px-1 py-1">
+                    {allFilters
+                    ->Array.mapWithIndex((option, i) =>
+                      <Menu.Item key={i->Int.toString}>
+                        {props =>
+                          <div className="relative w-max">
+                            <button
+                              onClick={_ => addFilter(option)}
+                              className={
+                                let activeClasses = props["active"]
+                                  ? "bg-gray-100 dark:bg-black"
+                                  : ""
+                                `group flex rounded-md items-center w-48 px-2 py-2 text-sm font-medium ${activeClasses}`
+                              }>
+                              <RenderIf condition={option.label->isNonEmptyString}>
+                                <div className="mr-5">
+                                  {option.label->snakeToTitle->React.string}
+                                </div>
+                              </RenderIf>
+                              <RenderIf condition={option.label->isEmptyString}>
+                                <div className="mr-5">
+                                  {option.inputNames
+                                  ->getValueFromArray(0, "")
+                                  ->snakeToTitle
+                                  ->React.string}
+                                </div>
+                              </RenderIf>
+                            </button>
+                          </div>}
+                      </Menu.Item>
+                    )
+                    ->React.array}
+                  </div>
+                </>
+              }}
+            </Menu.Items>
+          </Transition>
+        </div>}
+    </Menu>
+
   <Form onSubmit initialValues=initialValueJson>
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
-      <div>
-        <div className={`flex gap-3 items-center flex-wrap ${verticalGap}`}>
-          {customLeftView}
-          <RenderIf condition={fixedFilters->Array.length > 0}>
-            <FormRenderer.FieldsRenderer
-              fields={fixedFilters->Array.map(item => item.field)}
-              labelClass="hidden"
-              fieldWrapperClass="p-0"
-            />
-          </RenderIf>
+      {<>
+        <div className="flex gap-2 justify-between my-2">
+          <div className={`flex gap-2 flex-wrap ${verticalGap}`}>
+            {customLeftView}
+            <RenderIf condition={allFilters->Array.length > 0}> {allFiltersUI} </RenderIf>
+          </div>
+          <div className="flex gap-2">
+            <RenderIf condition={fixedFilters->Array.length > 0}>
+              <FormRenderer.FieldsRenderer
+                fields={fixedFilters->Array.map(item => item.field)}
+                labelClass="hidden"
+                fieldWrapperClass="p-0"
+              />
+            </RenderIf>
+            <PortalCapture key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} />
+          </div>
         </div>
-        <div className="flex gap-3 flex-wrap">
-          <RenderIf condition={allFilters->Array.length > 0}>
-            <Menu \"as"="div" className="relative inline-block text-left mt-3">
-              {_menuProps =>
-                <div>
-                  <Menu.Button
-                    className="flex items-center whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg h-10 hover:bg-opacity-80 bg-white border">
-                    {_buttonProps => {
-                      <>
-                        <Icon className={"mr-2"} name="plus" size=15 />
-                        {"Add Filters"->React.string}
-                      </>
-                    }}
-                  </Menu.Button>
-                  <Transition
-                    \"as"="span"
-                    enter="transition ease-out duration-100"
-                    enterFrom="transform opacity-0 scale-95"
-                    enterTo="transform opacity-100 scale-100"
-                    leave="transition ease-in duration-75"
-                    leaveFrom="transform opacity-100 scale-100"
-                    leaveTo="transform opacity-0 scale-95">
-                    {<Menu.Items
-                      className="absolute left-0 w-fit z-50 mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                      {_props => {
-                        <>
-                          <div className="px-1 py-1">
-                            {allFilters
-                            ->Array.mapWithIndex((option, i) =>
-                              <Menu.Item key={i->Int.toString}>
-                                {props =>
-                                  <div className="relative w-max">
-                                    <button
-                                      onClick={_ => addFilter(option)}
-                                      className={
-                                        let activeClasses = if props["active"] {
-                                          "group flex rounded-md items-center w-48 px-2 py-2 text-sm bg-gray-100 dark:bg-black"
-                                        } else {
-                                          "group flex rounded-md items-center w-48 px-2 py-2 text-sm"
-                                        }
-                                        `${activeClasses} font-medium`
-                                      }>
-                                      <RenderIf
-                                        condition={option.label->LogicUtils.isNonEmptyString}>
-                                        <div className="mr-5">
-                                          {option.label->LogicUtils.snakeToTitle->React.string}
-                                        </div>
-                                      </RenderIf>
-                                      <RenderIf condition={option.label->LogicUtils.isEmptyString}>
-                                        <div className="mr-5">
-                                          {option.inputNames
-                                          ->Array.get(0)
-                                          ->Option.getOr("")
-                                          ->LogicUtils.snakeToTitle
-                                          ->React.string}
-                                        </div>
-                                      </RenderIf>
-                                    </button>
-                                  </div>}
-                              </Menu.Item>
-                            )
-                            ->React.array}
-                          </div>
-                        </>
-                      }}
-                    </Menu.Items>}
-                  </Transition>
-                </div>}
-            </Menu>
-          </RenderIf>
-        </div>
-        <div className="flex gap-3 flex-wrap">
+        <div className={`flex gap-2 flex-wrap ${verticalGap}`}>
           <FormRenderer.FieldsRenderer
-            fields={filterList} labelClass="hidden" fieldWrapperClass="p-0 mt-3"
+            fields={filterList} labelClass="hidden" fieldWrapperClass="p-0"
           />
           <RenderIf condition={count > 0}>
             <ClearFilters defaultFilterKeys ?clearFilters outsidefilter={initalCount > 0} />
           </RenderIf>
         </div>
-      </div>
+      </>}
     </AddDataAttributes>}
   </Form>
 }

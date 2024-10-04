@@ -63,7 +63,7 @@ module DeleteConnectorMenu = {
     }
     <AddDataAttributes attributes=[("data-testid", "delete-button"->String.toLowerCase)]>
       <div>
-        <Button text="Delete" onClick={_e => openConfirmationPopUp()} />
+        <Button text="Delete" onClick={_ => openConfirmationPopUp()} />
       </div>
     </AddDataAttributes>
   }
@@ -74,13 +74,10 @@ module MenuOption = {
   @react.component
   let make = (
     ~updateStepValue=ConnectorTypes.IntegFields,
-    ~setCurrentStep,
     ~disableConnector,
     ~isConnectorDisabled,
     ~pageName="connector",
-    ~connector,
   ) => {
-    let mixpanelEvent = MixpanelHook.useSendEvent()
     let showPopUp = PopUpState.useShowPopUp()
     let openConfirmationPopUp = _ => {
       showPopUp({
@@ -101,21 +98,13 @@ module MenuOption = {
 
     <Popover \"as"="div" className="relative inline-block text-left">
       {_popoverProps => <>
-        <Popover.Button> {_buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
+        <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
         <Popover.Panel className="absolute z-20 right-5 top-4">
           {panelProps => {
             <div
               id="neglectTopbarTheme"
-              className="relative flex flex-col bg-white py-3 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
+              className="relative flex flex-col bg-white py-1 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
               {<>
-                <Navbar.MenuOption
-                  text="Update"
-                  onClick={_ => {
-                    panelProps["close"]()
-                    mixpanelEvent(~eventName=`processor_update_${connector}`)
-                    setCurrentStep(_ => updateStepValue)
-                  }}
-                />
                 <Navbar.MenuOption
                   text={connectorStatusAvailableToSwitch}
                   onClick={_ => {
@@ -133,7 +122,6 @@ module MenuOption = {
 }
 
 module ConnectorSummaryGrid = {
-  open PageLoaderWrapper
   open CommonAuthHooks
   @react.component
   let make = (
@@ -141,7 +129,12 @@ module ConnectorSummaryGrid = {
     ~connector,
     ~isPayoutFlow,
     ~setScreenState,
+    ~setCurrentStep,
+    ~updateStepValue=None,
+    ~getConnectorDetails=None,
   ) => {
+    let url = RescriptReactRouter.useUrl()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
     let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
     let currentProfileName =
@@ -161,7 +154,7 @@ module ConnectorSummaryGrid = {
           let dict = isPayoutFlow
             ? Window.getPayoutConnectorConfig(connector)
             : Window.getConnectorConfig(connector)
-          setScreenState(_ => Success)
+
           dict
         } else {
           Dict.make()->JSON.Encode.object
@@ -178,6 +171,10 @@ module ConnectorSummaryGrid = {
     let (_, connectorAccountFields, _, _, _, _, _) = ConnectorUtils.getConnectorFields(
       connectorDetails,
     )
+    let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
+    | list{_, "new"} => false
+    | _ => true
+    }
 
     <div className="p-2 md:px-10">
       <div className="grid grid-cols-4 my-12">
@@ -210,61 +207,101 @@ module ConnectorSummaryGrid = {
           {`${currentProfileName.profile_name} - ${connectorInfo.profile_id}`->React.string}
         </div>
       </div>
-      <div className="grid grid-cols-4  my-12">
-        <h4 className="text-lg font-semibold"> {"API Keys"->React.string} </h4>
-        <div className="flex flex-col gap-6 col-span-3">
-          {connectorAccountFields
-          ->Dict.keysToArray
-          ->Array.mapWithIndex((field, index) => {
-            open LogicUtils
-            let label = connectorAccountFields->getString(field, "")
-            <InfoField
-              key={index->Int.toString}
-              label={label}
-              render={connectorInfo->ConnectorUtils.getConnectorDetailsValue(field)}
-            />
-          })
-          ->React.array}
+      <div className="grid grid-cols-4 my-12">
+        <div className="flex items-start">
+          <h4 className="text-lg font-semibold"> {"API Keys"->React.string} </h4>
         </div>
-      </div>
-      <div className="grid grid-cols-4  my-12">
-        <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
         <div className="flex flex-col gap-6 col-span-3">
-          <div
-            className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
-            <Icon name="info-vacent" size=18 />
-            <p>
-              {"Improve conversion rate by conditionally managing PMTs visibility on checkout . Visit Settings >"->React.string}
-              <a
-                onClick={_ =>
-                  RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/configure-pmts"))}
-                target="_blank"
-                className="text-blue-500 underline cursor-pointer">
-                {"Configure PMTs at Checkout"->React.string}
-              </a>
-            </p>
+          <div className="flex gap-12">
+            <div className="flex flex-col gap-6 w-1/2">
+              {connectorAccountFields
+              ->Dict.keysToArray
+              ->Array.mapWithIndex((field, index) => {
+                open LogicUtils
+                let label = connectorAccountFields->getString(field, "")
+                <InfoField
+                  key={index->Int.toString}
+                  label={label}
+                  render={connectorInfo->ConnectorUtils.getConnectorDetailsValue(field)}
+                />
+              })
+              ->React.array}
+            </div>
+            <RenderIf condition={isUpdateFlow}>
+              <ConnectorUpdateAuthCreds connectorInfo getConnectorDetails />
+            </RenderIf>
           </div>
-          {connectorInfo.payment_methods_enabled
-          ->Array.mapWithIndex((field, index) => {
-            <InfoField
-              key={index->Int.toString}
-              label={field.payment_method->LogicUtils.snakeToTitle}
-              render={Some(
-                field.payment_method_types
-                ->Array.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
-                ->Array.reduce([], (acc, curr) => {
-                  if !(acc->Array.includes(curr)) {
-                    acc->Array.push(curr)
-                  }
-                  acc
-                })
-                ->Array.joinWith(", "),
-              )}
-            />
-          })
-          ->React.array}
         </div>
+        <div />
       </div>
+      {switch updateStepValue {
+      | Some(state) =>
+        <div className="grid grid-cols-4  my-12">
+          <div className="flex items-start">
+            <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
+          </div>
+          <div className="flex flex-col gap-6 col-span-3">
+            <div className="flex gap-12">
+              <div className="flex flex-col gap-6 col-span-3 w-1/2">
+                {connectorInfo.payment_methods_enabled
+                ->Array.mapWithIndex((field, index) => {
+                  <InfoField
+                    key={index->Int.toString}
+                    label={field.payment_method->LogicUtils.snakeToTitle}
+                    render={Some(
+                      field.payment_method_types
+                      ->Array.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
+                      ->Array.reduce([], (acc, curr) => {
+                        if !(acc->Array.includes(curr)) {
+                          acc->Array.push(curr)
+                        }
+                        acc
+                      })
+                      ->Array.joinWith(", "),
+                    )}
+                  />
+                })
+                ->React.array}
+              </div>
+              <RenderIf condition={isUpdateFlow}>
+                <div
+                  className="cursor-pointer"
+                  onClick={_ => {
+                    mixpanelEvent(~eventName=`processor_update_payment_methods_${connector}`)
+
+                    setCurrentStep(_ => state)
+                  }}>
+                  <ToolTip
+                    height=""
+                    description={`Update the ${connector} payment methods`}
+                    toolTipFor={<Icon size=18 name="edit" className={` ml-2`} />}
+                    toolTipPosition=Top
+                    tooltipWidthClass="w-fit"
+                  />
+                </div>
+              </RenderIf>
+            </div>
+            <div
+              className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
+              <Icon name="info-vacent" size=18 />
+              <p>
+                {"Improve conversion rate by conditionally managing PMTs visibility on checkout . Visit Settings >"->React.string}
+                <a
+                  onClick={_ =>
+                    RescriptReactRouter.push(
+                      GlobalVars.appendDashboardPath(~url="/configure-pmts"),
+                    )}
+                  target="_blank"
+                  className="text-blue-500 underline cursor-pointer">
+                  {"Configure PMTs at Checkout"->React.string}
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+
+      | None => React.null
+      }}
     </div>
   }
 }
@@ -279,6 +316,7 @@ let make = (
   ~showMenuOption=true,
   ~setInitialValues,
   ~getPayPalStatus,
+  ~getConnectorDetails=None,
 ) => {
   open APIUtils
   open ConnectorUtils
@@ -371,8 +409,7 @@ let make = (
                     isUpdateFlow
                     setInitialValues
                   />
-                | (_, _) =>
-                  <MenuOption setCurrentStep disableConnector isConnectorDisabled connector />
+                | (_, _) => <MenuOption disableConnector isConnectorDisabled />
                 }}
               </RenderIf>
             </div>
@@ -392,7 +429,15 @@ let make = (
           }}
         </div>
       </div>
-      <ConnectorSummaryGrid connectorInfo connector isPayoutFlow setScreenState />
+      <ConnectorSummaryGrid
+        connectorInfo
+        connector
+        isPayoutFlow
+        setScreenState
+        setCurrentStep
+        updateStepValue={Some(ConnectorTypes.PaymentMethods)}
+        getConnectorDetails
+      />
     </div>
   </PageLoaderWrapper>
 }

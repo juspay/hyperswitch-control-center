@@ -23,7 +23,7 @@ let allColumns = [
   PaymentId,
 ]
 
-let useGetStatus = dispute => {
+let useGetStatus = (dispute: disputes) => {
   open DisputesUtils
   let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = dispute.dispute_status->String.toUpperCase
@@ -91,7 +91,7 @@ let getCell = (disputesData, colType): Table.cell => {
   | DisputeId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/disputes/${disputesData.dispute_id}`}
+        url={`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}`}
         displayValue={disputesData.dispute_id}
         copyValue={Some(disputesData.dispute_id)}
       />,

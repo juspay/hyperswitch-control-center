@@ -614,7 +614,7 @@ module SubmitButton = {
     let (avoidDisable, setAvoidDisable) = React.useState(_ => userInteractionRequired)
     React.useEffect(() => {
       let onClick = {
-        _ev => {
+        _ => {
           setAvoidDisable(_ => false)
         }
       }
@@ -676,7 +676,7 @@ module SubmitButton = {
           buttonType
           buttonState
           loadingText
-          onClick={_ev => {
+          onClick={_ => {
             form.submit()->ignore
           }} //either onclick or type_should be called #warning
           leftIcon=icon

@@ -189,7 +189,7 @@ let make = (
           buttonSize=Small
           leftIcon={CustomIcon(<Icon name="add_custom_img" size=14 />)}
           textStyle={`${textColor.primaryNormal}`}
-          onClick={_ev => setShowModal(_ => true)}
+          onClick={_ => setShowModal(_ => true)}
         />
       </div>
       <Modal

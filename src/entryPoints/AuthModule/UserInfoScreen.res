@@ -3,7 +3,6 @@ let make = (~onClick) => {
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {setAuthStatus, authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-
   let token = switch authStatus {
   | PreLogin(preLoginInfo) => preLoginInfo.token
   | _ => None
@@ -13,6 +12,7 @@ let make = (~onClick) => {
     try {
       let dict = [("token", token->Option.getOr("")->JSON.Encode.string)]->Dict.fromArray
       let info = AuthUtils.getAuthInfo(dict->JSON.Encode.object)
+
       setAuthStatus(LoggedIn(Auth(info)))
       removeItemFromLocalStorage(~key="PRE_LOGIN_INFO")
       removeItemFromLocalStorage(~key="email_token")

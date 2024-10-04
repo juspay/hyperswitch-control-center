@@ -64,7 +64,7 @@ module TabInfo = {
     } else {
       `text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75 text-opacity-50 hover:text-opacity-75 dark:hover:text-opacity-100  ${borderDefaultStyle}`
     }
-    let handleClick = React.useCallback2(_ev => {
+    let handleClick = React.useCallback2(_ => {
       if isDisabled && disabledTab->Array.includes(title) {
         ()
       } else {
@@ -109,7 +109,7 @@ module IndicationArrow = {
   @react.component
   let make = (~iconName, ~side, ~refElement: React.ref<Js.nullable<Dom.element>>, ~isVisible) => {
     let onClick = {
-      _ev =>
+      _ =>
         refElement.current
         ->Nullable.toOption
         ->Option.forEach(input =>
@@ -186,7 +186,7 @@ let make = (
   let scrollRef = React.useRef(Nullable.null)
   let lastTabRef = React.useRef(Nullable.null)
   let numberOfTabs = Array.length(tabs)
-  let onScroll = _ev => {
+  let onScroll = _ => {
     let leftVal = firstTabRef->getBoundingRectInfo(val => val.x)
     let rightVal = lastTabRef->getBoundingRectInfo(val => val.right)
     let scrollValLeft = scrollRef->getBoundingRectInfo(val => val.x)

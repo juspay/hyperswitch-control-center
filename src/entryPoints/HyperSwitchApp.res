@@ -6,7 +6,7 @@ let make = () => {
   open PermissionUtils
   open LogicUtils
   open HyperswitchAtom
-  open CommonAuthHooks
+  let pageViewEvent = MixpanelHook.usePageView()
   let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
@@ -15,21 +15,15 @@ let make = () => {
     setShowFeedbackModal,
     dashboardPageState,
     setDashboardPageState,
-    setQuickStartPageState,
-    isProdIntentCompleted,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
-  let enumDetails =
-    enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
-  let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let {userInfo: {orgId, merchantId, profileId}, checkUserEntity} = React.useContext(
+  let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
-  let {userRole} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
@@ -42,20 +36,6 @@ let make = () => {
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   sessionExpired := false
-  let fetchInitialEnums = async () => {
-    try {
-      let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
-      let responseValueDict = response->getValFromNullableValue(Dict.make())
-      let pageStateToSet = responseValueDict->QuickStartUtils.getCurrentStep
-      setQuickStartPageState(_ => pageStateToSet->QuickStartUtils.enumToVarinatMapper)
-      responseValueDict
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
 
   let fetchPermissions = async () => {
     try {
@@ -85,10 +65,6 @@ let make = () => {
     try {
       Window.connectorWasmInit()->ignore
       let _ = await fetchPermissions()
-      let _ = await fetchSwitchMerchantList()
-      if featureFlagDetails.quickStart {
-        let _ = await fetchInitialEnums()
-      }
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
@@ -100,48 +76,27 @@ let make = () => {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }
   }
+  let path = url.path->List.toArray->Array.joinWith("/")
 
   React.useEffect(() => {
     setUpDashboard()->ignore
     None
   }, [orgId, merchantId, profileId])
 
-  let determineStripePlusPayPal = () => {
-    enumDetails->checkStripePlusPayPal
-      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-      : setDashboardPageState(_ => #STRIPE_PLUS_PAYPAL)
+  React.useEffect(() => {
+    if featureFlagDetails.mixpanel {
+      pageViewEvent(~path)->ignore
+    }
+    None
+  }, (featureFlagDetails.mixpanel, path))
 
-    React.null
-  }
-
-  let determineWooCommerce = () => {
-    enumDetails->checkWooCommerce
-      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-      : setDashboardPageState(_ => #WOOCOMMERCE_FLOW)
-
-    React.null
-  }
-
-  let determineQuickStartPageState = () => {
-    isProdIntentCompleted->Option.getOr(false) &&
-    enumDetails.integrationCompleted &&
-    !(enumDetails.testPayment.payment_id->isEmptyString)
-      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-      : setDashboardPageState(_ => #QUICK_START)
-
-    React.null
-  }
   <>
     <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
       <div>
         {switch dashboardPageState {
-        | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
         | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
-        // INTEGRATION_DOC AND PROD_ONBOARDING Need to be removed
+        // INTEGRATION_DOC Need to be removed
         | #INTEGRATION_DOC => <UserOnboarding />
-        | #PROD_ONBOARDING => <ProdOnboardingLanding />
-        //
-        | #QUICK_START => <ConfigureControlCenter />
         | #HOME =>
           <div className="relative" key={renderKey}>
             // TODO: Change the key to only profileId once the userInfo starts sending profileId
@@ -150,30 +105,15 @@ let make = () => {
                 <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
-                  // <RenderIf condition={verificationDays > 0}>
-                  //   <DelayedVerificationBanner verificationDays={verificationDays} />
-                  // </RenderIf>
-                  // TODO : To be removed after new navbar design
                   <div className="border-b shadow hyperswitch_box_shadow ">
                     <div className="w-full max-w-fixedPageWidth px-9">
                       <Navbar
                         headerActions={<div className="relative flex items-center gap-4 my-2 ">
                           <GlobalSearchBar />
-                          <RenderIf condition={!featureFlagDetails.userManagementRevamp}>
-                            <SwitchMerchant
-                              userRole={userRole} isAddMerchantEnabled={userRole === "org_admin"}
-                            />
-                          </RenderIf>
-                          <RenderIf
-                            condition={featureFlagDetails.userManagementRevamp &&
-                            checkUserEntity([#Internal])}>
+                          <RenderIf condition={isInternalUser}>
                             <SwitchMerchantForInternal />
                           </RenderIf>
-                          <RenderIf
-                            condition={featureFlagDetails.userManagementRevamp &&
-                            !checkUserEntity([#Internal])}>
-                            <ProfileSwitch />
-                          </RenderIf>
+                          <ProfileSwitch />
                           <div
                             className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
                             {modeText->React.string}
@@ -213,6 +153,7 @@ let make = () => {
                         | list{"payoutconnectors", ..._}
                         | list{"3ds-authenticators", ..._}
                         | list{"pm-authentication-processor", ..._}
+                        | list{"tax-processor", ..._}
                         | list{"fraud-risk-management", ..._}
                         | list{"configure-pmts", ..._}
                         | list{"routing", ..._}
@@ -232,7 +173,6 @@ let make = () => {
                         | list{"analytics-refunds"}
                         | list{"analytics-disputes"} =>
                           <AnalyticsContainser />
-                        | list{"new-analytics-overview"}
                         | list{"new-analytics-payment"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.newAnalytics}
@@ -253,24 +193,7 @@ let make = () => {
                               renderShow={(id, _) => <ShowCustomers id />}
                             />
                           </AccessControl>
-                        | list{"users", "invite-users"} =>
-                          <AccessControl permission=userPermissionJson.usersManage>
-                            <InviteUsers />
-                          </AccessControl>
-                        | list{"users", "create-custom-role"} =>
-                          <AccessControl permission=userPermissionJson.usersManage>
-                            <CreateCustomRole baseUrl="users" breadCrumbHeader="Users" />
-                          </AccessControl>
-                        | list{"users", ...remainingPath} =>
-                          <AccessControl permission=userPermissionJson.usersView>
-                            <EntityScaffold
-                              entityName="UserManagement"
-                              remainingPath
-                              renderList={_ => <UserRoleEntry />}
-                              renderShow={(_, _) => <ShowUserData />}
-                            />
-                          </AccessControl>
-                        | list{"users-v2", ..._} => <UserManagementContainer />
+                        | list{"users", ..._} => <UserManagementContainer />
                         | list{"analytics-user-journey"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.userJourneyAnalytics &&
@@ -291,13 +214,14 @@ let make = () => {
                             </FilterContext>
                           </AccessControl>
                         | list{"developer-api-keys"} =>
-                          <AccessControl permission=userPermissionJson.merchantDetailsManage>
+                          <AccessControl
+                            permission=userPermissionJson.merchantDetailsManage
+                            isEnabled={!checkUserEntity([#Profile])}>
                             <KeyManagement.KeysManagement />
                           </AccessControl>
                         | list{"developer-system-metrics"} =>
                           <AccessControl
-                            isEnabled={checkUserEntity([#Internal]) &&
-                            featureFlagDetails.systemMetrics}
+                            isEnabled={isInternalUser && featureFlagDetails.systemMetrics}
                             permission=userPermissionJson.analyticsView>
                             <FilterContext key="SystemMetrics" index="SystemMetrics">
                               <SystemMetricsAnalytics />
@@ -332,9 +256,6 @@ let make = () => {
                             renderList={() => <HSwitchProfileSettings />}
                             renderShow={(_, _) => <ModifyTwoFaSettings />}
                           />
-                        | list{"quick-start"} => determineQuickStartPageState()
-                        | list{"woocommerce"} => determineWooCommerce()
-                        | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
                         | list{"search"} => <SearchResultsPage />
                         | list{"payment-attempts"} =>
                           <AccessControl
@@ -382,12 +303,10 @@ let make = () => {
               </RenderIf>
             </div>
           </div>
-        | #WOOCOMMERCE_FLOW => <WooCommerce />
         | #DEFAULT =>
           <div className="h-screen flex justify-center items-center">
             <Loader />
           </div>
-        | #STRIPE_PLUS_PAYPAL => <StripePlusPaypal />
         }}
       </div>
     </PageLoaderWrapper>

@@ -647,7 +647,7 @@ let getCell = (order, colType: colType): Table.cell => {
   | PaymentId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
-        url={`/payments/${order.payment_id}`}
+        url={`/payments/${order.payment_id}/${order.profile_id}`}
         displayValue={order.payment_id}
         copyValue={Some(order.payment_id)}
       />,

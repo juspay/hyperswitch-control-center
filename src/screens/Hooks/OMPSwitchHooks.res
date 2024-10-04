@@ -138,7 +138,6 @@ let useInternalSwitch = () => {
   let orgSwitch = useOrgSwitch()
   let merchSwitch = useMerchantSwitch()
   let profileSwitch = useProfileSwitch()
-  let showToast = ToastState.useShowToast()
 
   let {userInfo: {orgId: currentOrgId}} = React.useContext(UserInfoProvider.defaultContext)
 
@@ -159,9 +158,34 @@ let useInternalSwitch = () => {
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to switch!")
-        showToast(~message=err, ~toastType=ToastError)
         Exn.raiseError(err)
       }
     }
   }
+}
+
+let useOMPData = () => {
+  open OMPSwitchUtils
+  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+  let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
+  let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
+  let {userInfo} = React.useContext(UserInfoProvider.defaultContext)
+
+  let getList: unit => OMPSwitchTypes.ompList = _ => {
+    {
+      orgList,
+      merchantList,
+      profileList,
+    }
+  }
+
+  let getNameForId = entityType =>
+    switch entityType {
+    | #Organization => currentOMPName(orgList, userInfo.orgId)
+    | #Merchant => currentOMPName(merchantList, userInfo.merchantId)
+    | #Profile => currentOMPName(profileList, userInfo.profileId)
+    | _ => ""
+    }
+
+  (getList, getNameForId)
 }

@@ -92,9 +92,9 @@ module SearchBarFilter = {
 
     let inputSearch: ReactFinalForm.fieldRenderPropsInput = {
       name: "name",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange,
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: baseValue->JSON.Encode.string,
       checked: true,
     }
@@ -258,6 +258,7 @@ module RemoteTableFilters = {
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => reset()}
+        title
       />
     | _ =>
       <Filter
@@ -274,6 +275,7 @@ module RemoteTableFilters = {
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => reset()}
+        title
       />
     }
   }

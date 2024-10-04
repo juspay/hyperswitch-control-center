@@ -1,0 +1,15 @@
+type paymentLifeCycle = {
+  normalSuccess: int,
+  normalFailure: int,
+  cancelled: int,
+  smartRetriedSuccess: int,
+  smartRetriedFailure: int,
+  pending: int,
+  partialRefunded: int,
+  refunded: int,
+  disputed: int,
+  pmAwaited: int,
+  customerAwaited: int,
+  merchantAwaited: int,
+  confirmationAwaited: int,
+}

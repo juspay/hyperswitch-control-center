@@ -1,3 +1,39 @@
+module BasicAccountSetupSuccessfulPage = {
+  @react.component
+  let make = (
+    ~iconName,
+    ~statusText,
+    ~buttonText,
+    ~buttonOnClick,
+    ~errorMessage="",
+    ~customWidth="w-full",
+    ~bgColor="bg-green-success_page_bg",
+    ~buttonState=Button.Normal,
+    ~isButtonVisible=true,
+  ) => {
+    let headerTextStyle = "text-xl font-semibold text-grey-700"
+    <div className={`flex flex-col gap-4 p-9 h-full ${customWidth} justify-between rounded shadow`}>
+      <div className={`p-4 h-5/6 ${bgColor} flex flex-col justify-center items-center gap-8`}>
+        <Icon name=iconName size=120 />
+        <p className=headerTextStyle> {statusText->React.string} </p>
+        <RenderIf condition={statusText == "Payment Failed"}>
+          <p className="text-center"> {errorMessage->React.string} </p>
+        </RenderIf>
+      </div>
+      <RenderIf condition={isButtonVisible}>
+        <Button
+          text=buttonText
+          buttonSize={Small}
+          buttonType={Primary}
+          customButtonStyle="!rounded-md"
+          onClick={_ => buttonOnClick()}
+          buttonState
+        />
+      </RenderIf>
+    </div>
+  }
+}
+
 @react.component
 let make = (
   ~returnUrl,
@@ -84,7 +120,7 @@ let make = (
   <div className={`flex flex-col gap-12 h-full ${paymentStatusStyles}`}>
     {switch paymentStatus {
     | SUCCESS =>
-      <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
+      <BasicAccountSetupSuccessfulPage
         iconName="account-setup-completed"
         statusText="Payment Successful"
         buttonText=successButtonText
@@ -95,7 +131,7 @@ let make = (
       />
 
     | FAILED(_err) =>
-      <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
+      <BasicAccountSetupSuccessfulPage
         iconName="account-setup-failed"
         statusText="Payment Failed"
         buttonText=successButtonText
@@ -106,7 +142,7 @@ let make = (
         isButtonVisible={paymentId->Option.isSome}
       />
     | CHECKCONFIGURATION =>
-      <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
+      <BasicAccountSetupSuccessfulPage
         iconName="processing"
         statusText="Check your Configurations"
         buttonText=successButtonText
@@ -117,7 +153,7 @@ let make = (
       />
 
     | PROCESSING =>
-      <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
+      <BasicAccountSetupSuccessfulPage
         iconName="processing"
         statusText="Payment Pending"
         buttonText=successButtonText

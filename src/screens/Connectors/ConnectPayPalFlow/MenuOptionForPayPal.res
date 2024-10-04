@@ -88,7 +88,7 @@ let make = (
 
   <Popover \"as"="div" className="relative inline-block text-left">
     {_popoverProps => <>
-      <Popover.Button> {_buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
+      <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
       <Popover.Panel className="absolute z-20 right-0 top-10">
         {panelProps => {
           <div
