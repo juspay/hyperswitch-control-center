@@ -71,3 +71,25 @@ let requestBody = (
     )->JSON.Encode.object,
   ]->JSON.Encode.array
 }
+
+let valueFormatter = (value, statType) => {
+  open LogicUtils
+
+  let percentFormat = value => {
+    `${Float.toFixedWithPrecision(value, ~digits=2)}%`
+  }
+
+  if statType === "Amount" {
+    value->indianShortNum
+  } else if statType === "Rate" || statType === "NegativeRate" {
+    value->Js.Float.isNaN ? "-" : value->percentFormat
+  } else if statType === "Volume" {
+    value->indianShortNum
+  } else if statType === "Latency" {
+    latencyShortNum(~labelValue=value)
+  } else if statType === "LatencyMs" {
+    latencyShortNum(~labelValue=value, ~includeMilliseconds=true)
+  } else {
+    value->Float.toString
+  }
+}
