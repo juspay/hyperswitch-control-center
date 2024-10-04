@@ -115,7 +115,7 @@ let make = (~entity=TransactionViewTypes.Orders) => {
   React.useEffect(() => {
     settingActiveView()
     None
-  }, [filterValueJson])
+  }, (filterValueJson, countRes))
 
   React.useEffect(() => {
     getAggregate()->ignore
