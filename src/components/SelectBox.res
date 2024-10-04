@@ -1103,6 +1103,7 @@ module RenderListItemInBaseRadio = {
     ~bottomComponent=?,
     ~optionClass="",
     ~selectClass="",
+    ~customScrollStyle=?,
   ) => {
     let dropdownList =
       newOptions
@@ -1169,8 +1170,35 @@ module RenderListItemInBaseRadio = {
       })
       ->React.array
 
+    let sidebarScrollbarCss = `
+      @supports (-webkit-appearance: none) {
+        .sidebar-scrollbar {
+          scrollbar-width: thin !important;
+          scrollbar-color: #8a8c8f;
+        }
+
+        .sidebar-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #8a8c8f;
+          border-radius: 3px;
+        }
+
+        .sidebar-scrollbar::-webkit-scrollbar-track {
+          display: none;
+        }
+      }
+    `
+    let (className, styleElement) = switch customScrollStyle {
+    | None => ("", React.null)
+    | Some(style) => (
+        `${style}  sidebar-scrollbar`,
+        <style> {React.string(sidebarScrollbarCss)} </style>,
+      )
+    }
     <>
-      <div className=""> {dropdownList} </div>
+      <div className={className}>
+        {styleElement}
+        {dropdownList}
+      </div>
       <div className="sticky bottom-0">
         {switch bottomComponent {
         | Some(comp) => <span> {comp} </span>
@@ -1248,6 +1276,8 @@ module BaseRadio = {
     ~bottomComponent=React.null,
     ~optionClass="",
     ~selectClass="",
+    ~customScrollStyle=?,
+    ~dropdownContainerStyle="",
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1390,7 +1420,7 @@ module BaseRadio = {
         </div>
       </div>
     <div
-      className={`${dropDownbgClass} ${roundedClass} dark:bg-jp-gray-lightgray_background ${width} ${overflowClass} font-medium flex flex-col ${showDropDown
+      className={`${dropDownbgClass} ${roundedClass} dark:bg-jp-gray-lightgray_background ${dropdownContainerStyle} ${width} ${overflowClass} font-medium flex flex-col ${showDropDown
           ? "animate-textTransition transition duration-400"
           : "animate-textTransitionOff transition duration-400"}`}>
       {switch searchable {
@@ -1429,6 +1459,7 @@ module BaseRadio = {
             bottomComponent
             optionClass
             selectClass
+            ?customScrollStyle
           />
         } else {
           {
@@ -1458,6 +1489,7 @@ module BaseRadio = {
                   textEllipsisForDropDownOptions
                   isHorizontal
                   customMarginStyleOfListItem="ml-8 mx-3 py-2 gap-2"
+                  ?customScrollStyle
                 />
               </React.Fragment>
             })
@@ -1504,7 +1536,7 @@ module BaseDropdown = {
     ~onAssignClick=?,
     ~fixedDropDownDirection=?,
     ~addButton=false,
-    ~marginTop="mt-12", //to position dropdown below the button,
+    ~marginTop="mt-10", //to position dropdown below the button,
     ~customStyle="",
     ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
     ~showSelectionAsChips=true,
@@ -1554,6 +1586,8 @@ module BaseDropdown = {
     ~optionClass="",
     ~selectClass="",
     ~customDropdownOuterClass="",
+    ~customScrollStyle=?,
+    ~dropdownContainerStyle="",
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1821,6 +1855,8 @@ module BaseDropdown = {
         bottomComponent
         optionClass
         selectClass
+        ?customScrollStyle
+        dropdownContainerStyle
       />
     }
 
@@ -2231,6 +2267,7 @@ let make = (
   ~dropdownClassName="",
   ~onItemSelect=(_, _) => (),
   ~wrapBasis="",
+  ~customScrollStyle=?,
   (),
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
@@ -2302,6 +2339,7 @@ let make = (
       dropdownClassName
       ?searchInputPlaceHolder
       showSearchIcon
+      ?customScrollStyle
     />
   } else if allowMultiSelect {
     <BaseSelect
@@ -2371,6 +2409,7 @@ let make = (
       showSearchIcon
       descriptionOnHover
       showToolTipOptions
+      ?customScrollStyle
     />
   }
 }

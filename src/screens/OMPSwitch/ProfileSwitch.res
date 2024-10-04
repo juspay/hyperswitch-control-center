@@ -133,10 +133,10 @@ let make = () => {
       }
     }
   }
-
-  let customPadding = "px-1 py-1"
   let customStyle = "text-blue-500 bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
-
+  let addItemBtnStyle = "border border-t-0 w-full"
+  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
+  let dropdownContainerStyle = "min-w-[15rem] rounded-md border border-1"
   let profileSwitch = async value => {
     try {
       setShowSwitchingProfile(_ => true)
@@ -189,13 +189,15 @@ let make = () => {
       />}
       baseComponentCustomStyle="bg-white"
       bottomComponent={<OMPSwitchHelper.AddNewMerchantProfileButton
-        user="profile" setShowModal customPadding customStyle
+        user="profile" setShowModal customStyle addItemBtnStyle
       />}
       optionClass="text-gray-600 text-fs-14"
       selectClass="text-gray-600 text-fs-14"
       customDropdownOuterClass="!border-none !w-full"
       fullLength=true
       toggleChevronState
+      customScrollStyle
+      dropdownContainerStyle
     />
     <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getProfileList />
