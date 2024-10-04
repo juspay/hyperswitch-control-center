@@ -78,8 +78,8 @@ let make = (
 
       let secondaryBody = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
-        ~startTime=prevStartTime, // use compare by function
-        ~endTime=prevEndTime, // use compare by function
+        ~startTime=prevStartTime,
+        ~endTime=prevEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
