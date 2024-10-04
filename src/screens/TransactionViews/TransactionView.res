@@ -78,7 +78,12 @@ let make = (~entity=TransactionViewTypes.Orders) => {
           ~methodType=Get,
           ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
         )
-      | _ => ""
+      | Disputes =>
+        getURL(
+          ~entityName=DISPUTES_AGGREGATE,
+          ~methodType=Get,
+          ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
+        )
       }
 
       let response = await fetchDetails(url)
