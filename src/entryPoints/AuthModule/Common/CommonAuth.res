@@ -1,6 +1,7 @@
 module TermsAndCondition = {
   @react.component
   let make = () => {
+  <AddDataAttributes attributes=[("data-testid", "tc-text")]>
     <div id="tc-text" className="text-center text-sm text-gray-300">
       {"By continuing, you agree to our "->React.string}
       <a
@@ -17,6 +18,7 @@ module TermsAndCondition = {
         {"Privacy Policy"->React.string}
       </a>
     </div>
+   </AddDataAttributes>
   }
 }
 
@@ -25,12 +27,14 @@ module PageFooterSection = {
   let make = () => {
     <div
       className="justify-center text-base flex flex-col md:flex-row md:gap-3 items-center py-5 md:py-7">
-      <div id="footer" className="flex items-center gap-2">
-        {"An open-source initiative by "->React.string}
-        <a href="https://juspay.in/" target="__blank">
-          <img alt="juspay-logo" src={`/icons/juspay-logo-dark.svg`} className="h-3" />
-        </a>
-      </div>
+      <AddDataAttributes attributes=[("data-testid", "footer")]>
+          <div id="footer" className="flex items-center gap-2">
+            {"An open-source initiative by "->React.string}
+            <a href="https://juspay.in/" target="__blank">
+              <img alt="juspay-logo" src={`/icons/juspay-logo-dark.svg`} className="h-3" />
+            </a>
+          </div>
+      </AddDataAttributes>
     </div>
   }
 }
@@ -77,17 +81,19 @@ module Header = {
     let getHeaderLink = (~prefix, ~authType, ~path, ~sufix) => {
       <div className="flex text-sm items-center gap-2">
         <div className="text-grey-650"> {prefix->React.string} </div>
-        <div
-          onClick={_ => {
-            form.resetFieldState("email")
-            form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
-            setAuthType(_ => authType)
-            GlobalVars.appendDashboardPath(~url=path)->RescriptReactRouter.push
-          }}
-          id="card-subtitle"
-          className={`font-semibold ${textColor.primaryNormal} cursor-pointer`}>
-          {sufix->React.string}
-        </div>
+        <AddDataAttributes attributes=[("data-testid", "card-subtitle")]>
+            <div
+              onClick={_ => {
+                form.resetFieldState("email")
+                form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
+                setAuthType(_ => authType)
+                GlobalVars.appendDashboardPath(~url=path)->RescriptReactRouter.push
+              }}
+              id="card-subtitle"
+              className={`font-semibold ${textColor.primaryNormal} cursor-pointer`}>
+              {sufix->React.string}
+            </div>
+        </AddDataAttributes>
       </div>
     }
 
@@ -112,9 +118,11 @@ module Header = {
           }}
         </div>
       </RenderIf>
-      <h1 id="card-header" className="font-semibold text-xl md:text-2xl">
-        {cardHeaderText->React.string}
-      </h1>
+      <AddDataAttributes attributes=[("data-testid", "card-header")]>
+          <h1 id="card-header" className="font-semibold text-xl md:text-2xl">
+            {cardHeaderText->React.string}
+          </h1>
+      </AddDataAttributes>
       {switch authType {
       | LoginWithPassword | LoginWithEmail =>
         <RenderIf condition={signUpAllowed}>
