@@ -162,24 +162,39 @@ let make = (
         primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
       if primaryData->Array.length > 0 {
-        let modifiedData =
-          [primaryData, secondaryData]
-          ->Array.map(data => {
-            NewAnalyticsUtils.fillMissingDataPoints(
-              ~data,
-              ~startDate=startTimeVal,
-              ~endDate=endTimeVal,
-              ~timeKey="time_bucket",
-              ~defaultValue={
-                "payment_count": 0,
-                "payment_processed_amount": 0,
-                "time_bucket": startTimeVal,
-              }->Identity.genericTypeToJson,
-              ~granularity=granularity.value,
-            )
-          })
-          ->Identity.genericTypeToJson
-        setPaymentsProcessedData(_ => modifiedData)
+        let primaryModifiedData = [primaryData]->Array.map(data => {
+          NewAnalyticsUtils.fillMissingDataPoints(
+            ~data,
+            ~startDate=startTimeVal,
+            ~endDate=endTimeVal,
+            ~timeKey="time_bucket",
+            ~defaultValue={
+              "payment_count": 0,
+              "payment_processed_amount": 0,
+              "time_bucket": startTimeVal,
+            }->Identity.genericTypeToJson,
+            ~granularity=granularity.value,
+          )
+        })
+
+        let secondaryModifiedData = [secondaryData]->Array.map(data => {
+          NewAnalyticsUtils.fillMissingDataPoints(
+            ~data,
+            ~startDate=prevStartTime,
+            ~endDate=prevEndTime,
+            ~timeKey="time_bucket",
+            ~defaultValue={
+              "payment_count": 0,
+              "payment_processed_amount": 0,
+              "time_bucket": startTimeVal,
+            }->Identity.genericTypeToJson,
+            ~granularity=granularity.value,
+          )
+        })
+
+        setPaymentsProcessedData(_ =>
+          primaryModifiedData->Array.concat(secondaryModifiedData)->Identity.genericTypeToJson
+        )
         setPaymentsProcessedMetaData(_ =>
           primaryMetaData->Array.concat(secondaryMetaData)->Identity.genericTypeToJson
         )
