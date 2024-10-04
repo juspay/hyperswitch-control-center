@@ -127,7 +127,6 @@ let make = (
             ~granularity=granularity.value,
           )
         })
-        Js.log(primaryModifiedData->Array.concat(secondaryModifiedData))
         setPaymentsSuccessRateData(_ =>
           primaryModifiedData->Array.concat(secondaryModifiedData)->Identity.genericTypeToJson
         )
