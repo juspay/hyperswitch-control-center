@@ -160,7 +160,7 @@ let getProcessorPayloadType = dict => {
     connector_label: dict->getString("connector_label", ""),
     connector_account_details: dict
     ->getObj("connector_account_details", Dict.make())
-    ->getConnectorAccountDetails,
+    ->getAccountDetails,
     test_mode: dict->getBool("test_mode", true),
     disabled: dict->getBool("disabled", true),
     payment_methods_enabled: dict
@@ -178,7 +178,6 @@ let getProcessorPayloadType = dict => {
     additional_merchant_data: dict
     ->getObj("additional_merchant_data", Dict.make())
     ->JSON.Encode.object,
-    account_details: dict->getObj("connector_account_details", Dict.make())->getAccountDetails,
   }
 }
 
