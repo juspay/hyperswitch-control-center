@@ -1190,7 +1190,7 @@ module RenderListItemInBaseRadio = {
     let (className, styleElement) = switch customScrollStyle {
     | None => ("", React.null)
     | Some(style) => (
-        style ++ " sidebar-scrollbar",
+        `${style}  sidebar-scrollbar`,
         <style> {React.string(sidebarScrollbarCss)} </style>,
       )
     }
