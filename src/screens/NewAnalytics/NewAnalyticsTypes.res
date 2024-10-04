@@ -17,7 +17,6 @@ type metrics = [
   | #payment_processed_amount
   | #payment_count
   | #payment_success_rate
-  | #payment_failure_rate
   | #time_bucket
   | #connector
   | #payment_method
