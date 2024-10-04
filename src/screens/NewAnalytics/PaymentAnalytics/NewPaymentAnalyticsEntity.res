@@ -74,7 +74,7 @@ let paymentsSuccessRateChartEntity: chartEntity<
 let successfulPaymentsDistributionEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_success_rate],
+    metrics: [#payments_distribution],
   },
   title: "Successful Payments Distribution",
   domain: #payments,
