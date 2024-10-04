@@ -24,7 +24,7 @@ let paymentsProcessedMapper = (
       getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color)
     })
   let title = {
-    text: "USD",
+    text: "Payments Processed",
   }
   {categories, data: lineGraphData, title}
 }
