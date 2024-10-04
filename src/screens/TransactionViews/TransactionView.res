@@ -40,10 +40,10 @@ let make = (~entity=TransactionViewTypes.Orders) => {
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
 
     switch view {
-    | All => {
-        let updateFilterKeys = filterKeys->Array.filter(item => item != customFilterKey)
-        setfilterKeys(_ => updateFilterKeys)
-      }
+    // | All => {
+    //     let updateFilterKeys = filterKeys->Array.filter(item => item != customFilterKey)
+    //     setfilterKeys(_ => updateFilterKeys)
+    //   }
     | _ => {
         if !(filterKeys->Array.includes(customFilterKey)) {
           filterKeys->Array.push(customFilterKey)
@@ -91,14 +91,24 @@ let make = (~entity=TransactionViewTypes.Orders) => {
   let settingActiveView = () => {
     let appliedStatusFilter = filterValueJson->getArrayFromDict(customFilterKey, [])
 
+    let setViewToAll =
+      appliedStatusFilter->getStrArrayFromJsonArray->Array.toSorted(compareLogic) ==
+        countRes
+        ->getDictFromJsonObject
+        ->getDictfromDict("status_with_count")
+        ->Dict.keysToArray
+        ->Array.toSorted(compareLogic)
+
     if appliedStatusFilter->Array.length == 1 {
       let statusValue =
         appliedStatusFilter->getValueFromArray(0, ""->JSON.Encode.string)->JSON.Decode.string
 
       let status = statusValue->Option.getOr("")
       setActiveView(_ => status->getViewTypeFromString(entity))
-    } else {
+    } else if setViewToAll {
       setActiveView(_ => All)
+    } else {
+      setActiveView(_ => None)
     }
   }
 
