@@ -24,6 +24,24 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
+Cypress.Commands.add('getByTestId', (testId) => {
+  return cy.get(`[data-testid="${testId}"]`)
+})
+
+Cypress.Commands.add('clickOnElementWithText', (selector, text) => {
+  cy.contains(selector, text).should("be.visible").click();
+})
+
+Cypress.Commands.add('navigateFromSideMenu', (menuItem) => {
+  if (menuItem.includes("/")) {
+    const [firstMenu, secondMenu] = menuItem.split("/").map((item) => item.toLowerCase());
+    cy.get(`[data-testid=${firstMenu}]`).click();
+    cy.get(`[data-testid=${secondMenu}]`).click();
+  } else {
+    cy.get(`[data-testid=${menuItem.toLowerCase()}]`).click();
+  }
+})
+
 Cypress.Commands.add("login_UI", (name = "", pass = "") => {
   cy.visit("http://localhost:9000");
   const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
