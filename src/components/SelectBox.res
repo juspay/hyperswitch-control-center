@@ -1105,8 +1105,23 @@ module RenderListItemInBaseRadio = {
     ~selectClass="",
     ~customScrollStyle=?,
   ) => {
+    let selectedOptions = newOptions->Array.filter(option => {
+      switch value->JSON.Decode.string {
+      | Some(str) => option.value === str
+      | None => false
+      }
+    })
+    
+    let otherOptions = newOptions->Array.filter(option => {
+      switch value->JSON.Decode.string {
+      | Some(str) => option.value !== str
+      | None => true
+      }
+    })
+
+    let sortedOptions = Js.Array.concat(otherOptions,selectedOptions)
     let dropdownList =
-      newOptions
+      sortedOptions
       ->Array.mapWithIndex((option, i) => {
         let isSelected = switch value->JSON.Decode.string {
         | Some(str) => option.value === str
