@@ -72,6 +72,22 @@ let requestBody = (
   ]->JSON.Encode.array
 }
 
+let valueFormatter = (value, statType: valueType) => {
+  open LogicUtils
+
+  let percentFormat = value => {
+    `${Float.toFixedWithPrecision(value, ~digits=2)}%`
+  }
+
+  switch statType {
+  | Amount => value->indianShortNum
+  | Rate => value->Js.Float.isNaN ? "-" : value->percentFormat
+  | Volume => value->indianShortNum
+  | Latency => latencyShortNum(~labelValue=value)
+  | LatencyMs => latencyShortNum(~labelValue=value, ~includeMilliseconds=true)
+  | No_Type => value->Float.toString
+  }
+}
 let getComparisionTimePeriod = (~startDate, ~endDate) => {
   let startingPoint = startDate->DayJs.getDayJsForString
   let endingPoint = endDate->DayJs.getDayJsForString
