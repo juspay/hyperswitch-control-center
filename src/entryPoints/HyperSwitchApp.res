@@ -84,6 +84,11 @@ let make = () => {
     try {
       Window.connectorWasmInit()->ignore
       let _ = await fetchPermissions()
+
+      // This needs to be removed
+      // TODO: change userPermissionJson type to option<permissionJson>
+      await HyperSwitchUtils.delay(2000)
+
       if featureFlagDetails.quickStart {
         let _ = await fetchInitialEnums()
       }
