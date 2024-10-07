@@ -107,7 +107,7 @@ let make = (
         ->getArrayFromDict("queryData", [])
 
       if arr->Array.length > 0 {
-        setpaymentsDistribution(_ => responseData->JSON.Encode.array)
+        setpaymentsDistribution(_ => [responseData->JSON.Encode.array]->JSON.Encode.array)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
