@@ -23,7 +23,7 @@ let make = () => {
   let showToast = ToastState.useShowToast()
   let fetchApi = AuthHooks.useApiFetcher()
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
-
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let downloadPDF = _ => {
     setButtonState(_ => Button.Loading)
     let currentDate =
@@ -37,7 +37,7 @@ let make = () => {
     // For local testing this condition is added
     if downloadURL->LogicUtils.isNonEmptyString {
       open Promise
-      fetchApi(downloadURL, ~method_=Get)
+      fetchApi(downloadURL, ~method_=Get, ~xFeatureRoute)
       ->then(resp => {
         Fetch.Response.blob(resp)
       })

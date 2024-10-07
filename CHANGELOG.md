@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.10.07.0
+
+### Features
+
+- Compare function ([#1542](https://github.com/juspay/hyperswitch-control-center/pull/1542)) ([`938ccc7`](https://github.com/juspay/hyperswitch-control-center/commit/938ccc7bc2e83cf149b6c9660d28dd3275b6a128))
+- Added graphs header ([#1539](https://github.com/juspay/hyperswitch-control-center/pull/1539)) ([`583ddf2`](https://github.com/juspay/hyperswitch-control-center/commit/583ddf2f3672d2bc04cabd9e6b6eb848e1e5dfca))
+- Add scroll for merchant, org, and profile dropdowns ([#1537](https://github.com/juspay/hyperswitch-control-center/pull/1537)) ([`3bee31c`](https://github.com/juspay/hyperswitch-control-center/commit/3bee31cbb86952b4ece81902f7f9ff0d6cd6670c))
+
+### Testing
+
+- Creation of dummy connector using cypress ([#1497](https://github.com/juspay/hyperswitch-control-center/pull/1497)) ([`f040964`](https://github.com/juspay/hyperswitch-control-center/commit/f040964457cdd557bf5c8a414d72ce265a51e741))
+
+**Full Changelog:** [`2024.10.04.0...2024.10.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.10.04.0...2024.10.07.0)
+
+- - -
+
 ## 2024.10.04.0
 
 ### Miscellaneous Tasks

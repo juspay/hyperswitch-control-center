@@ -162,7 +162,7 @@ let make = () => {
   let customHRTagStyle = "border-t border-blue-830"
   let customPadding = "py-1 w-full"
   let customStyle = "w-56 text-gray-200 bg-blue-840 dark:bg-black hover:bg-popover-background-hover hover:text-gray-100 !w-full"
-
+  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
   React.useEffect(() => {
     getMerchantList()->ignore
     None
@@ -198,6 +198,7 @@ let make = () => {
       customDropdownOuterClass="!border-none !w-full"
       fullLength=true
       toggleChevronState
+      customScrollStyle
     />
     <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getMerchantList />

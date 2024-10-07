@@ -9,11 +9,12 @@ let make = (~children) => {
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let (userInfo, setUserInfo) = React.useState(_ => UserInfoUtils.defaultValueOfUserInfo)
   let fetchApi = AuthHooks.useApiFetcher()
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getUserInfo = async () => {
     open LogicUtils
     let url = `${Window.env.apiBaseUrl}/user`
     try {
-      let res = await fetchApi(`${url}`, ~method_=Get)
+      let res = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute)
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
       setUserInfo(_ => userInfo)

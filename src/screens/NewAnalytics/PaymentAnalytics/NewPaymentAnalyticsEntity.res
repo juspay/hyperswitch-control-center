@@ -1,4 +1,14 @@
 open NewAnalyticsTypes
+// OverView section
+let overviewSectionEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: true,
+    metrics: [],
+  },
+  title: "OverView Section",
+  domain: #payments,
+}
+
 // Payments Lifecycle
 let paymentsLifeCycleEntity: moduleEntity = {
   requestBodyConfig: {

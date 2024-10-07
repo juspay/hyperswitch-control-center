@@ -24,7 +24,7 @@ let paymentsProcessedMapper = (
       getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color)
     })
   let title = {
-    text: "USD",
+    text: "Payments Processed",
   }
   {categories, data: lineGraphData, title}
 }
@@ -37,12 +37,6 @@ let getMetaData = json =>
   ->getArrayFromDict("metaData", [])
   ->getValueFromArray(0, JSON.Encode.array([]))
   ->getDictFromJsonObject
-
-let graphTitle = json => {
-  let totalAmount = getMetaData(json)->getInt("amount", 0)
-  let currency = getMetaData(json)->getString("currency", "")
-  totalAmount->Int.toString ++ " " ++ currency
-}
 
 open NewAnalyticsTypes
 let visibleColumns: array<metrics> = [#payment_processed_amount, #payment_count, #time_bucket]
@@ -105,4 +99,12 @@ let defaultMetric = {
 let defaulGranularity = {
   label: "Daily",
   value: (#G_ONEDAY: granularity :> string),
+}
+
+let getMetaDataKey = key => {
+  switch key {
+  | "payment_processed_amount" => "total_payment_processed_amount"
+  | "payment_count" => "total_payment_processed_count"
+  | _ => ""
+  }
 }
