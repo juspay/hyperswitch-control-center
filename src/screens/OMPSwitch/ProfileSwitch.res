@@ -60,6 +60,29 @@ module NewAccountCreationModal = {
       ~isRequired=true,
     )
 
+    let validateForm = (values: JSON.t) => {
+      open LogicUtils
+      let errors = Dict.make()
+      let profileName = values->getDictFromJsonObject->getString("profile_name", "")->String.trim
+      let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
+
+      let errorMessage = if profileName->isEmptyString {
+        "Profile name cannot be empty"
+      } else if profileName->String.length > 64 {
+        "Profile name too long"
+      } else if !RegExp.test(RegExp.fromString(regexForProfileName), profileName) {
+        "Profile name should not contain special characters"
+      } else {
+        ""
+      }
+
+      if errorMessage->isNonEmptyString {
+        Dict.set(errors, "profile_name", errorMessage->JSON.Encode.string)
+      }
+
+      errors->JSON.Encode.object
+    }
+
     let modalBody =
       <div className="p-2 m-2">
         <div className="py-5 px-3 flex justify-between align-top">
@@ -74,7 +97,7 @@ module NewAccountCreationModal = {
             />
           </div>
         </div>
-        <Form key="new-account-creation" onSubmit>
+        <Form key="new-account-creation" onSubmit validate={validateForm}>
           <div className="flex flex-col gap-12 h-full w-full">
             <FormRenderer.DesktopRow>
               <div className="flex flex-col gap-5">
