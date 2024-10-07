@@ -12,7 +12,7 @@ let getDimentionType = string => {
   }
 }
 
-let getSuccessfulPaymentsDistributionXKey = (~isSmartRetry) => {
+let getXKey = (~isSmartRetry) => {
   switch isSmartRetry {
   | true => "payments_success_rate_distribution"
   | false => "payments_success_rate_distribution_without_smart_retries"

@@ -138,7 +138,7 @@ let make = (
               entity={chartEntity}
               object={chartEntity.getObjects(
                 ~data=failedPaymentsDistribution,
-                ~xKey=getFailedPaymentsDistributionXKey(~isSmartRetry=false),
+                ~xKey=getXKey(~isSmartRetry=false),
                 ~yKey=groupBy.value,
               )}
               className="mr-3"
