@@ -1,87 +1,6 @@
 open PaymentsProcessedTypes
 open NewPaymentAnalyticsUtils
 open LogicUtils
-open NewAnalyticsUtils
-let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
-  let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
-
-  let (textColor, icon) = switch direction {
-  | Upward => ("#12B76A", "▲")
-  | Downward => ("#F04E42", "▼")
-  | No_Change => ("#A0A0A0", "")
-  }
-
-  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->valueFormatter(Rate)}</span>`
-}
-
-open LineGraphTypes
-let tooltipFormatter = (~secondaryCategories) => {
-  (
-    @this
-    (this: pointFormatter) => {
-      let title = `<div style="font-size: 16px; font-weight: bold;">Payments Processed</div>`
-
-      let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}}
-      let primartPoint = this.points->getValueFromArray(0, defaultValue)
-      let secondaryPoint = this.points->getValueFromArray(1, defaultValue)
-
-      let tableItems = [
-        `<div style="display: flex; align-items: center;">
-            <div style="width: 10px; height: 10px; background-color:${primartPoint.color}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${primartPoint.x}</div>
-            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueFormatter(
-            primartPoint.y,
-            Amount,
-          )}</div>
-        </div>`,
-        `<div style="display: flex; align-items: center;">
-            <div style="width: 10px; height: 10px; background-color:${secondaryPoint.color}; border-radius:3px;"></div>
-            <div style="margin-left: 8px;">${secondaryCategories->LogicUtils.getValueFromArray(
-            secondaryPoint.point.index,
-            "",
-          )}${getToolTipConparision(
-            ~primaryValue=primartPoint.y,
-            ~secondaryValue=secondaryPoint.y,
-          )}</div>
-            <div style="flex: 1; text-align: right; font-weight: bold;margin-left:25px;">${valueFormatter(
-            secondaryPoint.y,
-            Amount,
-          )} </div>
-        </div>`,
-      ]->Array.joinWith("")
-
-      let content = `
-          <div style=" 
-          padding:5px 12px;
-          border-left: 3px solid #0069FD;
-          display:flex;
-          flex-direction:column;
-          justify-content: space-between;
-          gap: 7px;">
-              ${title}
-              <div style="
-                margin-top: 5px;
-                display:flex;
-                flex-direction:column;
-                gap: 7px;">
-                ${tableItems}
-              </div>
-        </div>`
-
-      `<div style="
-    padding: 10px;
-    width:fit-content;
-    border-radius: 7px;
-    background-color:#FFFFFF;
-    padding:10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    border: 1px solid #E5E5E5;
-    position:relative;">
-        ${content}
-    </div>`
-    }
-  )->asTooltipPointFormatter
-}
 
 let paymentsProcessedMapper = (
   ~data: JSON.t,
@@ -107,7 +26,11 @@ let paymentsProcessedMapper = (
     categories: primaryCategories,
     data: lineGraphData,
     title,
-    tooltipFormatter: tooltipFormatter(~secondaryCategories),
+    tooltipFormatter: tooltipFormatter(
+      ~secondaryCategories,
+      ~title="Payments Processed",
+      ~metricType=Amount,
+    ),
   }
 }
 // Need to modify

@@ -98,3 +98,32 @@ let getComparisionTimePeriod = (~startDate, ~endDate) => {
 
   (startTimeValue, endTimeVal)
 }
+
+let calculatePercentageChange = (~primaryValue, ~secondaryValue) => {
+  open NewAnalyticsTypes
+  let change = secondaryValue -. primaryValue
+
+  if primaryValue === 0.0 || change === 0.0 {
+    (0.0, No_Change)
+  } else if change > 0.0 {
+    let diff = change /. primaryValue
+    let percentage = diff *. 100.0
+    (percentage, Upward)
+  } else {
+    let diff = change *. -1.0 /. primaryValue
+    let percentage = diff *. 100.0
+    (percentage, Downward)
+  }
+}
+
+let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
+  let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
+
+  let (textColor, icon) = switch direction {
+  | Upward => ("#12B76A", "▲")
+  | Downward => ("#F04E42", "▼")
+  | No_Change => ("#A0A0A0", "")
+  }
+
+  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->valueFormatter(Rate)}</span>`
+}
