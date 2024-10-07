@@ -37,41 +37,23 @@ const paymentOperationTableColumns = [
   "Created",
 ];
 
-const currencies = ["INR", "USD", "EUR"];
+const dummyPaymentData = {
+  dropdownOption: "Germany (EUR)",
+  currency: "EUR",
+  amount: "101",
+  cardDetails: {
+    cardNo: "4242424242424242",
+    expiry: "0532",
+    cvv: "567",
+  },
+};
 
-// // Helper function to create payments for different currencies.
-// const createPayments = (cy, currency) => {
-//   let data = getConnectorDetails("stripe")["pm_list"]["PaymentIntent"];
-//   let req_data = data[`RequestCurrency${currency}`];
-//   let res_data = data["Response"];
-
-//   cy.createPaymentIntentTest(
-//     create_payment_body_with_currency(currency),
-//     req_data,
-//     res_data,
-//     "no_three_ds",
-//     "automatic",
-//     globalState
-//   );
-// };
+let username = `cypress+${Math.round(+new Date() / 1000)}@gmail.com`;
 
 describe("connector", () => {
-  const username = "test@gmail.com";
-  const password = "Test1441@41";
-
   // Login before each testcase
   beforeEach(() => {
-    // TODO: Make this a custom command if it's not already
-    cy.visit("https://app.hyperswitch.io/dashboard/payments");
-    cy.url().should("include", "/login");
-
-    cy.get("[data-testid=email]").type(username);
-    cy.get("[data-testid=password]").type(password);
-    cy.get('button[type="submit"]').click({ force: true });
-    cy.get("[data-testid=skip-now]", { timeout: 3000 }).click({ force: true });
-
-    cy.wait(3000);
-    cy.url().should("include", "/dashboard/home");
+    cy.login_UI(username);
   });
 
   it("Verify Default Elements on Payment Operations Page", () => {
@@ -109,28 +91,27 @@ describe("connector", () => {
         cy.get("button").eq(index).should("have.text", option),
       );
     });
-    // TODO: Add these assertions to the test case later once discussed with the team.
-    // Verify the "Generate reports" button is present and visible.
-    // Verify the "Customize columns" button is present and visible.
   });
 
   it("Verify Payments Displayed", () => {
+    // Make  payment.
+    cy.createDummyPayment(dummyPaymentData);
     // Navigate to the "Payment Operations" page using the side menu.
     cy.navigateFromSideMenu("Operations/Payments");
     // Verify the URL to ensure the redirection to the "Payment Operations" page.
     cy.url().should("include", `/dashboard/payments`);
-    // // Make 3 payments.
-    // currencies.forEach((currency) => {
-    //   createPayments(cy, currency);
-    // });
 
-    // TODO: Add these assertions to the test case later once discussed with the team.
-    // Verify the payments are displayed in the table with valid payment details.
+    // These assertions will pass only if the payments are visible in the table.
     // Verify the table contains the following columns.
     cy.get("table").within(() => {
-      paymentOperationTableColumns.forEach((column) =>
-        cy.get("th").should("have.text", column),
+      paymentOperationTableColumns.forEach((column, index) =>
+        cy.get("th").eq(index).should("have.text", column),
       );
     });
+
+    // Verify the "Generate reports" button is present and visible.
+    cy.get("[data-button-for=generateReports]").should("exist");
+    // Verify the "Customize columns" button is present and visible.
+    cy.get("[data-button-for=CustomIcon]").should("exist");
   });
 });
