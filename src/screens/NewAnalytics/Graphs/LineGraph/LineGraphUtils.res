@@ -50,6 +50,12 @@ let tooltipFormatter = (~title: LineGraphTypes.title) =>
 
 let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
   let {categories, data, title} = lineGraphOptions
+
+  let stepInterval = Js.Math.max_int(
+    Js.Math.ceil_int(categories->Array.length->Int.toFloat /. 20.0),
+    1,
+  )
+
   {
     chart: {
       \"type": "line",
@@ -71,6 +77,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
         },
         y: 35,
       },
+      tickInterval: stepInterval,
       gridLineWidth: 1,
       gridLineColor: "#e6e6e6",
       tickmarkPlacement: "on",

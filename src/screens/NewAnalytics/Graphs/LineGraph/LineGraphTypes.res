@@ -73,6 +73,7 @@ type xAxis = {
   lineWidth: lineWidth,
   tickWidth: tickWidth,
   labels: labels,
+  tickInterval: int,
   gridLineWidth: gridLineWidth,
   gridLineColor: gridLineColor,
   tickmarkPlacement: tickmarkPlacement,
