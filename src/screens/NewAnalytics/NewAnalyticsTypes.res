@@ -4,7 +4,7 @@ type statisticsDirection = Upward | Downward
 
 type analyticsPagesRoutes = | @as("new-analytics-payment") NewAnalyticsPayment
 
-type domain = [#payments]
+type domain = [#payments | #refunds | #disputes]
 type dimension = [
   | #connector
   | #payment_method
@@ -23,6 +23,10 @@ type metrics = [
   | #payment_method_type
   | #card_network
   | #authentication_type
+  | #smart_retried_amount
+  | #payments_success_rate
+  | #refund_success_count
+  | #dispute_status_metric
 ]
 type granularity = [
   | #G_ONEDAY
@@ -50,3 +54,11 @@ type chartEntity<'t, 'chartOption, 'data> = {
 }
 
 type optionType = {label: string, value: string}
+
+type valueType =
+  | Amount
+  | Rate
+  | Volume
+  | Latency
+  | LatencyMs
+  | No_Type
