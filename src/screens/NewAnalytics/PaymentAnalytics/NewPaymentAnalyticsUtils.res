@@ -136,7 +136,7 @@ let calculatePercentageChange = (~primaryValue, ~secondaryValue) => {
   let change = secondaryValue -. primaryValue
 
   if primaryValue === 0.0 || change === 0.0 {
-    (0.0, Upward)
+    (0.0, No_Change)
   } else if change > 0.0 {
     let diff = change /. primaryValue
     let percentage = diff *. 100.0

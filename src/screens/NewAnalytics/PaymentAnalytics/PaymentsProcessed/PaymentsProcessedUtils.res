@@ -1,6 +1,18 @@
 open PaymentsProcessedTypes
 open NewPaymentAnalyticsUtils
 open LogicUtils
+open NewAnalyticsUtils
+let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
+  let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
+
+  let (textColor, icon) = switch direction {
+  | Upward => ("#12B76A", "▲")
+  | Downward => ("#F04E42", "▼")
+  | No_Change => ("#A0A0A0", "")
+  }
+
+  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->valueFormatter(Rate)}</span>`
+}
 
 open LineGraphTypes
 let tooltipFormatter = (~secondaryCategories) => {
@@ -15,18 +27,27 @@ let tooltipFormatter = (~secondaryCategories) => {
 
       let tableItems = [
         `<div style="display: flex; align-items: center;">
-                  <div style="width: 10px; height: 10px; background-color:${primartPoint.color}; border-radius:3px;"></div>
-                  <div style="margin-left: 8px;">${primartPoint.x}</div>
-                  <div style="flex: 1; text-align: right; font-weight: bold;">${primartPoint.y->Float.toString}</div>
-                </div>`,
+            <div style="width: 10px; height: 10px; background-color:${primartPoint.color}; border-radius:3px;"></div>
+            <div style="margin-left: 8px;">${primartPoint.x}</div>
+            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueFormatter(
+            primartPoint.y,
+            Amount,
+          )}</div>
+        </div>`,
         `<div style="display: flex; align-items: center;">
-                  <div style="width: 10px; height: 10px; background-color:${secondaryPoint.color}; border-radius:3px;"></div>
-                  <div style="margin-left: 8px;">${secondaryCategories->LogicUtils.getValueFromArray(
+            <div style="width: 10px; height: 10px; background-color:${secondaryPoint.color}; border-radius:3px;"></div>
+            <div style="margin-left: 8px;">${secondaryCategories->LogicUtils.getValueFromArray(
             secondaryPoint.point.index,
             "",
+          )}${getToolTipConparision(
+            ~primaryValue=primartPoint.y,
+            ~secondaryValue=secondaryPoint.y,
           )}</div>
-                  <div style="flex: 1; text-align: right; font-weight: bold;">${secondaryPoint.y->Float.toString}</div>
-                </div>`,
+            <div style="flex: 1; text-align: right; font-weight: bold;margin-left:25px;">${valueFormatter(
+            secondaryPoint.y,
+            Amount,
+          )} </div>
+        </div>`,
       ]->Array.joinWith("")
 
       let content = `
