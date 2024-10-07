@@ -57,6 +57,8 @@ let itemToObjMapper = dict => {
     ),
     outgoing_webhook_custom_http_headers: None,
     is_connector_agnostic_mit_enabled: None,
+    is_auto_retries_enabled: dict->getOptionBool("is_auto_retries_enabled"),
+    max_auto_retries_enabled: dict->getOptionInt("max_auto_retries_enabled"),
   }
 }
 
