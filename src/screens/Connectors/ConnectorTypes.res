@@ -96,6 +96,7 @@ type processorTypes =
   | FIUU
   | NOVALNET
   | DEUTSCHEBANK
+  | NEXIXPAY
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
