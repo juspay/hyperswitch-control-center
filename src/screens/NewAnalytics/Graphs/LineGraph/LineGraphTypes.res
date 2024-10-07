@@ -2,7 +2,8 @@ type \"type" = string
 type spacingLeft = int
 type spacingRight = int
 
-type point = {color: string, x: string, y: float}
+type info = {index: int}
+type point = {color: string, x: string, y: float, point: info}
 type pointFormatter = {points: array<point>}
 
 external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => pointFormatter => string =
@@ -110,4 +111,9 @@ type lineGraphOptions = {
   tooltip: tooltip,
 }
 
-type lineGraphPayload = {categories: categories, data: data, title: title}
+type lineGraphPayload = {
+  categories: categories,
+  data: data,
+  title: title,
+  tooltipFormatter: pointFormatter => string,
+}

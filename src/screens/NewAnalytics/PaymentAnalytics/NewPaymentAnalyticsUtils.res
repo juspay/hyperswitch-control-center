@@ -18,8 +18,12 @@ let getMonthName = month => {
   }
 }
 
-let getCategories = (data: array<JSON.t>, key: string) => {
-  data->Array.map(item => {
+let getCategories = (data: JSON.t, index: int, key: string) => {
+  data
+  ->getArrayFromJson([])
+  ->getValueFromArray(index, []->JSON.Encode.array)
+  ->getArrayFromJson([])
+  ->Array.map(item => {
     let value = item->getDictFromJsonObject->getString(key, "")
 
     if value->isNonEmptyString && key == "time_bucket" {
