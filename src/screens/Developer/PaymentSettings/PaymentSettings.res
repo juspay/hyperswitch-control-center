@@ -356,6 +356,14 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
 
+  React.useEffect(() => {
+    if businessProfileDetails.profile_id->LogicUtils.isNonEmptyString {
+      setBusiProfie(_ => businessProfileDetails)
+      setScreenState(_ => Success)
+    }
+    None
+  }, [businessProfileDetails.profile_id])
+
   let threedsConnectorList =
     HyperswitchAtom.connectorListAtom
     ->Recoil.useRecoilValueFromAtom
