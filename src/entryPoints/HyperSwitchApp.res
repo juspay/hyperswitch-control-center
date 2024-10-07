@@ -65,6 +65,7 @@ let make = () => {
     try {
       Window.connectorWasmInit()->ignore
       let _ = await fetchPermissions()
+      await HyperSwitchUtils.delay(2000)
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
