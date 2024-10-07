@@ -28,6 +28,7 @@ type metrics = [
   | #payments_success_rate
   | #refund_success_count
   | #dispute_status_metric
+  | #payment_failed_rate
 ]
 type granularity = [
   | #G_ONEDAY

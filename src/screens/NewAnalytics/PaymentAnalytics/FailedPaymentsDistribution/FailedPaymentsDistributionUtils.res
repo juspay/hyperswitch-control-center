@@ -2,16 +2,6 @@ open NewPaymentAnalyticsUtils
 open FailedPaymentsDistributionTypes
 open LogicUtils
 
-let colMapper = (col: col) => {
-  switch col {
-  | ErrorReason => "error_reason"
-  | Count => "failure_reason_count"
-  | Ratio => "percentage"
-  | Connector => "connector"
-  | PaymentsFailureRate => "payments_failure_rate"
-  }
-}
-
 let getDimentionType = string => {
   switch string {
   | "connector" => #connector
@@ -19,6 +9,13 @@ let getDimentionType = string => {
   | "payment_method_type" => #payment_method_type
   | "card_network" => #card_network
   | "authentication_type" | _ => #authentication_type
+  }
+}
+
+let getFailedPaymentsDistributionXKey = (~isSmartRetry) => {
+  switch isSmartRetry {
+  | true => "payments_failure_rate_distribution"
+  | false => "payments_failure_rate_distribution_without_smart_retries"
   }
 }
 
@@ -44,14 +41,14 @@ let failedPaymentsDistributionMapper = (
   {categories, data: [barGraphData], title}
 }
 
-let visibleColumns = [ErrorReason, Count, Ratio, Connector]
+open NewAnalyticsTypes
+let visibleColumns: array<metrics> = [#payment_failed_rate]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => failedPaymentsDistributionObject = dict => {
   {
-    reason: dict->getString(ErrorReason->colMapper, ""),
-    count: dict->getInt(Count->colMapper, 0),
-    connector: dict->getString(Connector->colMapper, ""),
-    percentage: dict->getInt(Ratio->colMapper, 0),
+    payments_failure_rate_distribution: dict->getInt("payments_failure_rate_distribution", 0),
+    connector: dict->getString((#connector: metrics :> string), ""),
+    payment_method: dict->getString((#payment_method: metrics :> string), ""),
   }
 }
 
@@ -63,38 +60,41 @@ let getObjects: JSON.t => array<failedPaymentsDistributionObject> = json => {
   })
 }
 
-let getHeading = colType => {
-  let key = colType->colMapper
+let getHeading = (colType: metrics) => {
   switch colType {
-  | ErrorReason => Table.makeHeaderInfo(~key, ~title="Error Reason", ~dataType=TextType)
-  | Count => Table.makeHeaderInfo(~key, ~title="Count", ~dataType=TextType)
-  | Ratio => Table.makeHeaderInfo(~key, ~title="Ratio", ~dataType=TextType)
-  | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType)
-  | _ => Table.makeHeaderInfo(~key, ~title="", ~dataType=TextType)
+  | #payment_failed_rate =>
+    Table.makeHeaderInfo(
+      ~key=(#payment_failed_rate: metrics :> string),
+      ~title="Payments Failed Rate",
+      ~dataType=TextType,
+    )
+  | #connector =>
+    Table.makeHeaderInfo(
+      ~key=(#connector: metrics :> string),
+      ~title="Connector",
+      ~dataType=TextType,
+    )
+  | #payment_method | _ =>
+    Table.makeHeaderInfo(
+      ~key=(#payment_method: metrics :> string),
+      ~title="Payment Method",
+      ~dataType=TextType,
+    )
   }
 }
 
-let getCell = (obj, colType): Table.cell => {
+let getCell = (obj, colType: metrics): Table.cell => {
   switch colType {
-  | ErrorReason => Text(obj.reason)
-  | Count => Text(obj.count->Int.toString)
-  | Ratio => Text(obj.percentage->Int.toString)
-  | Connector => Text(obj.connector)
-  | _ => Text("")
+  | #payment_failed_rate => Text(obj.payments_failure_rate_distribution->Int.toString)
+  | #connector => Text(obj.connector)
+  | #payment_method | _ => Text(obj.payment_method)
   }
 }
 
-let getTableData = json =>
-  json
-  ->getArrayFromJson([])
-  ->getValueFromArray(0, []->JSON.Encode.array)
-  ->getDictFromJsonObject
-  ->getArrayFromDict("queryData", [])
-  ->JSON.Encode.array
-  ->getArrayDataFromJson(tableItemToObjMapper)
-  ->Array.map(Nullable.make)
+let getTableData = json => {
+  json->getArrayDataFromJson(tableItemToObjMapper)->Array.map(Nullable.make)
+}
 
-open NewAnalyticsTypes
 let tabs = [
   {
     label: "Connector",
@@ -107,10 +107,6 @@ let tabs = [
   {
     label: "Payment Method Type",
     value: (#payment_method_type: dimension :> string),
-  },
-  {
-    label: "Card Network",
-    value: (#card_network: dimension :> string),
   },
   {
     label: "Authentication Type",

@@ -6,84 +6,36 @@ open FailedPaymentsDistributionUtils
 
 module TableModule = {
   @react.component
-  let make = (
-    ~className="",
-    ~groupBy: string,
-    ~domain: string,
-    ~startTimeVal: string,
-    ~endTimeVal: string,
-  ) => {
-    open APIUtils
-    let getURL = useGetURL()
-    let updateDetails = useUpdateMethod()
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let make = (~data, ~className="", ~selectedTab: string) => {
     let (offset, setOffset) = React.useState(_ => 0)
-    let (tableData, setTableData) = React.useState(_ => []->Array.map(Nullable.make))
     let defaultSort: Table.sortedObject = {
       key: "",
       order: Table.INC,
     }
-
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
-
-    let setData = data => {
-      let updatedTableData =
-        data->LogicUtils.getArrayDataFromJson(tableItemToObjMapper)->Array.map(Nullable.make)
-      setTableData(_ => updatedTableData)
-    }
-
-    let getTableAPIData = async () => {
-      try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-        let url = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some(domain))
-
-        let distribution = Dict.make()
-        distribution->Dict.set("distributionFor", "failure_reasons"->JSON.Encode.string)
-
-        let body = NewAnalyticsUtils.requestBody(
-          ~dimensions=[],
-          ~startTime=startTimeVal,
-          ~endTime=endTimeVal,
-          ~metrics=[],
-          ~groupByNames=[groupBy]->Some,
-          ~distributionValues=distribution->JSON.Encode.object->Some,
-        )
-
-        let response = await updateDetails(url, body, Post)
-        setData(response)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } catch {
-      | _ => setScreenState(_ => PageLoaderWrapper.Custom)
-      }
-    }
-
-    React.useEffect(() => {
-      getTableAPIData()->ignore
-      None
-    }, [startTimeVal, endTimeVal])
+    let visibleColumns = visibleColumns->Array.concat([selectedTab->getDimentionType])
+    let tableData = getTableData(data)
 
     <div className>
-      <PageLoaderWrapper screenState customUI={<NoData />}>
-        <LoadedTable
-          visibleColumns
-          title=" "
-          hideTitle=true
-          actualData={tableData}
-          entity=failedPaymentsDistributionTableEntity
-          resultsPerPage=10
-          totalResults={tableData->Array.length}
-          offset
-          setOffset
-          defaultSort
-          currrentFetchCount={tableData->Array.length}
-          tableLocalFilter=false
-          tableheadingClass=tableBorderClass
-          tableBorderClass
-          ignoreHeaderBg=true
-          tableDataBorderClass=tableBorderClass
-          isAnalyticsModule=true
-        />
-      </PageLoaderWrapper>
+      <LoadedTable
+        visibleColumns
+        title=" "
+        hideTitle=true
+        actualData={tableData}
+        entity=failedPaymentsDistributionTableEntity
+        resultsPerPage=10
+        totalResults={tableData->Array.length}
+        offset
+        setOffset
+        defaultSort
+        currrentFetchCount={tableData->Array.length}
+        tableLocalFilter=false
+        tableheadingClass=tableBorderClass
+        tableBorderClass
+        ignoreHeaderBg=true
+        tableDataBorderClass=tableBorderClass
+        isAnalyticsModule=true
+      />
     </div>
   }
 }
@@ -186,18 +138,14 @@ let make = (
               entity={chartEntity}
               object={chartEntity.getObjects(
                 ~data=failedPaymentsDistribution,
-                ~xKey=PaymentsFailureRate->colMapper,
+                ~xKey=getFailedPaymentsDistributionXKey(~isSmartRetry=false),
                 ~yKey=groupBy.value,
               )}
               className="mr-3"
             />
           | Table =>
             <TableModule
-              className="mx-7"
-              groupBy={groupBy.value}
-              domain={(entity.domain: domain :> string)}
-              startTimeVal
-              endTimeVal
+              data={failedPaymentsDistribution} className="mx-7" selectedTab={groupBy.value}
             />
           }}
         </div>

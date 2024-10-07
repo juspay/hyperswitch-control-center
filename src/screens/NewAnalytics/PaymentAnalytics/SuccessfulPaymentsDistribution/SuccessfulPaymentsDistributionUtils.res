@@ -12,6 +12,13 @@ let getDimentionType = string => {
   }
 }
 
+let getSuccessfulPaymentsDistributionXKey = (~isSmartRetry) => {
+  switch isSmartRetry {
+  | true => "payments_success_rate_distribution"
+  | false => "payments_success_rate_distribution_without_smart_retries"
+  }
+}
+
 let successfulPaymentsDistributionMapper = (
   ~data: JSON.t,
   ~xKey: string,
@@ -85,15 +92,9 @@ let getCell = (obj, colType: metrics): Table.cell => {
   }
 }
 
-let getTableData = json =>
-  json
-  ->getArrayFromJson([])
-  ->getValueFromArray(0, []->JSON.Encode.array)
-  ->getDictFromJsonObject
-  ->getArrayFromDict("queryData", [])
-  ->JSON.Encode.array
-  ->getArrayDataFromJson(tableItemToObjMapper)
-  ->Array.map(Nullable.make)
+let getTableData = json => {
+  json->getArrayDataFromJson(tableItemToObjMapper)->Array.map(Nullable.make)
+}
 
 let tabs = [
   {
