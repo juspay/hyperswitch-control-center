@@ -1,30 +1,12 @@
 open LogicUtils
 
-let getMonthName = month => {
-  switch month {
-  | 0 => "Jan"
-  | 1 => "Feb"
-  | 2 => "Mar"
-  | 3 => "Apr"
-  | 4 => "May"
-  | 5 => "Jun"
-  | 6 => "Jul"
-  | 7 => "Aug"
-  | 8 => "Sep"
-  | 9 => "Oct"
-  | 10 => "Nov"
-  | 11 => "Dec"
-  | _ => ""
-  }
-}
-
 let getCategories = (data: array<JSON.t>, key: string) => {
   data->Array.map(item => {
     let value = item->getDictFromJsonObject->getString(key, "")
 
     if value->isNonEmptyString && key == "time_bucket" {
       let dateObj = value->DayJs.getDayJsForString
-      `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+      `${dateObj.month()->NewAnalyticsUtils.getMonthName} ${dateObj.format("DD")}`
     } else {
       value
     }
@@ -45,7 +27,7 @@ let getLineGraphObj = (
     item->getDictFromJsonObject->getInt(key, 0)
   })
   let dataObj: LineGraphTypes.dataObj = {
-    showInLegend: false,
+    showInLegend: true,
     name,
     data,
     color,

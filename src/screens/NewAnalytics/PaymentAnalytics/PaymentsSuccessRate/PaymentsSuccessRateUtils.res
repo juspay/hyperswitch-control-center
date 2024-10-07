@@ -30,7 +30,7 @@ let paymentsSuccessRateMapper = (
     data
     ->getArrayFromJson([])
     ->Array.mapWithIndex((item, index) => {
-      let name = `Series ${(index + 1)->Int.toString}`
+      let name = NewAnalyticsUtils.getLabelName(~key=yKey, ~index, ~points=item)
       let color = index->getColor
       getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color)
     })
