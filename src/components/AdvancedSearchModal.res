@@ -20,6 +20,7 @@ module AdvanceSearch = {
     let fetchApi = AuthHooks.useApiFetcher()
     let initialValueJson = JSON.Encode.object(Dict.make())
     let showToast = ToastState.useShowToast()
+    let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let onSubmit = (values, _) => {
       let otherQueries = switch values->JSON.Decode.object {
@@ -41,7 +42,7 @@ module AdvanceSearch = {
       let finalUrl = otherQueries->isNonEmptyString ? `${url}?${otherQueries}` : url
 
       open Promise
-      fetchApi(finalUrl, ~bodyStr=JSON.stringify(initialValueJson), ~method_=Get)
+      fetchApi(finalUrl, ~bodyStr=JSON.stringify(initialValueJson), ~method_=Get, ~xFeatureRoute)
       ->then(res => res->Fetch.Response.json)
       ->then(json => {
         switch JSON.Classify.classify(json) {
