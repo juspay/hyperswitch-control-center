@@ -14,6 +14,13 @@ module Verify2FAModalComponent = {
     ~showOnlyTotp=false,
   ) => {
     open HSwitchSettingTypes
+    let handleOnClick = (~stateToSet) => {
+      setOtp(_ => "")
+      setRecoveryCode(_ => "")
+      setErrorMessage(_ => "")
+      setTwoFaState(_ => stateToSet)
+    }
+
     <div className="flex flex-col items-center gap-2 ">
       {switch twoFaState {
       | Totp =>
@@ -24,11 +31,7 @@ module Verify2FAModalComponent = {
               {"Didn't get a code? "->React.string}
               <span
                 className="cursor-pointer underline underline-offset-2 text-blue-600"
-                onClick={_ => {
-                  setOtp(_ => "")
-                  setErrorMessage(_ => "")
-                  setTwoFaState(_ => RecoveryCode)
-                }}>
+                onClick={_ => handleOnClick(~stateToSet=RecoveryCode)}>
                 {"Use recovery-code"->React.string}
               </span>
             </p>
@@ -42,17 +45,13 @@ module Verify2FAModalComponent = {
             {"Didn't get a code? "->React.string}
             <span
               className="cursor-pointer underline underline-offset-2 text-blue-600"
-              onClick={_ => {
-                setRecoveryCode(_ => "")
-                setErrorMessage(_ => "")
-                setTwoFaState(_ => Totp)
-              }}>
+              onClick={_ => handleOnClick(~stateToSet=Totp)}>
               {"Use totp instead"->React.string}
             </span>
           </p>
         </>
       }}
-      <RenderIf condition={errorMessage->String.length > 0}>
+      <RenderIf condition={errorMessage->LogicUtils.isNonEmptyString}>
         <div className="text-sm text-red-600"> {`Error: ${errorMessage}`->React.string} </div>
       </RenderIf>
     </div>
