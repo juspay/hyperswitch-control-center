@@ -26,13 +26,9 @@ let getHeaders = (
     | Some(str) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
-<<<<<<< HEAD
-        headers
-=======
         if xFeatureRoute {
           headersForXFeature(~headers, ~uri)
         }
->>>>>>> main
       }
     | None => ()
     }
