@@ -356,8 +356,8 @@ let make = (
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
       let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      fetchConnectorListResponse()->ignore
       setInitialValues(_ => res)
-      let _ = await fetchConnectorListResponse()
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
     } catch {
     | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
