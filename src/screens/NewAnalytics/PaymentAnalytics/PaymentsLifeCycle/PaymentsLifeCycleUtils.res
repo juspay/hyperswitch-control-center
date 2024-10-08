@@ -5,19 +5,19 @@ let paymentLifeCycleResponseMapper = (json: JSON.t) => {
   let valueDict = json->getDictFromJsonObject
   // response need to be changed to snake_case
   {
-    normal_success: valueDict->getInt("normal_success", 0),
-    normal_failure: valueDict->getInt("normal_failure", 0),
+    normalSuccess: valueDict->getInt("normal_success", 0),
+    normalFailure: valueDict->getInt("normal_failure", 0),
     cancelled: valueDict->getInt("cancelled", 0),
-    smart_retried_success: valueDict->getInt("smart_retried_success", 0),
-    smart_retried_failure: valueDict->getInt("smart_retried_failure", 0),
+    smartRetriedSuccess: valueDict->getInt("smart_retried_success", 0),
+    smartRetriedFailure: valueDict->getInt("smart_retried_failure", 0),
     pending: valueDict->getInt("pending", 0),
-    partial_refunded: valueDict->getInt("partial_refunded", 0),
+    partialRefunded: valueDict->getInt("partial_refunded", 0),
     refunded: valueDict->getInt("refunded", 0),
     disputed: valueDict->getInt("disputed", 0),
-    pm_awaited: valueDict->getInt("pm_awaited", 0),
-    customer_awaited: valueDict->getInt("customer_awaited", 0),
-    merchant_awaited: valueDict->getInt("merchant_awaited", 0),
-    confirmation_awaited: valueDict->getInt("confirmation_awaited", 0),
+    pmAwaited: valueDict->getInt("pm_awaited", 0),
+    customerAwaited: valueDict->getInt("customer_awaited", 0),
+    merchantAwaited: valueDict->getInt("merchant_awaited", 0),
+    confirmationAwaited: valueDict->getInt("confirmation_awaited", 0),
   }
 }
 
@@ -26,14 +26,14 @@ let paymentsLifeCycleMapper = (
   ~xKey as _,
   ~yKey as _,
 ): SankeyGraphTypes.sankeyPayload => {
-  let success = data.normal_success + data.smart_retried_success
-  let failure = data.normal_failure + data.smart_retried_failure
+  let success = data.normalSuccess + data.smartRetriedSuccess
+  let failure = data.normalFailure + data.smartRetriedFailure
   let refunded = data.refunded
   let pending = data.pending // Attempted Pending
   let cancelled = data.cancelled
-  let customerAwaited = data.customer_awaited // DropOff2
+  let customerAwaited = data.customerAwaited // DropOff2
   let attemptedPayments = pending + customerAwaited + success + failure
-  let pmAwaited = data.pm_awaited // Dropoff1
+  let pmAwaited = data.pmAwaited // Dropoff1
   let _totalPayment = pmAwaited + attemptedPayments + cancelled
 
   let disputed = data.disputed
