@@ -83,6 +83,7 @@ module Tabs = {
       {options
       ->Array.mapWithIndex((tabValue, index) =>
         <div
+          key={index->Int.toString}
           className={`px-3 py-2 ${tabValue.value->getStyle(index)} selection:bg-white`}
           onClick={_ => setOption(tabValue)}>
           {tabValue.label->React.string}
