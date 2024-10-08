@@ -24,12 +24,6 @@ let useUserPermissionHook = () => {
       let response = await fetchDetails(url)
       let permissionsValue =
         response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
-      //   Js.log2(
-      //     "permissionsValue",
-      //     permissionsValue
-      //     ->Array.map(ele => ele->mapStringToPermissionType)
-      //     ->HyperSwitchEntryUtils.convertValueToMap,
-      //   )
       setuserPermissionMap(_ => Some(
         permissionsValue
         ->Array.map(ele => ele->PermissionMapper.mapStringToPermissionType)
