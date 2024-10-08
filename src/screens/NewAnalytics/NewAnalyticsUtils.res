@@ -101,6 +101,47 @@ let getComparisionTimePeriod = (~startDate, ~endDate) => {
   (startTimeValue, endTimeVal)
 }
 
+let getMonthName = month => {
+  switch month {
+  | 0 => "Jan"
+  | 1 => "Feb"
+  | 2 => "Mar"
+  | 3 => "Apr"
+  | 4 => "May"
+  | 5 => "Jun"
+  | 6 => "Jul"
+  | 7 => "Aug"
+  | 8 => "Sep"
+  | 9 => "Oct"
+  | 10 => "Nov"
+  | 11 => "Dec"
+  | _ => ""
+  }
+}
+
+let getLabelName = (~key, ~index, ~points) => {
+  open LogicUtils
+  let getDateObject = (array, index) => {
+    array
+    ->getValueFromArray(index, Dict.make()->JSON.Encode.object)
+    ->getDictFromJsonObject
+    ->getString(key, "")
+    ->DayJs.getDayJsForString
+  }
+
+  if key === "time_bucket" {
+    let pointsArray = points->getArrayFromJson([])
+    let startPoint = pointsArray->getDateObject(0)
+    let endPoint = pointsArray->getDateObject(1)
+
+    let startDate = `${startPoint.month()->getMonthName} ${startPoint.format("DD")}`
+    let endDate = `${endPoint.month()->getMonthName} ${endPoint.format("DD")}`
+
+    `${startDate}-${endDate}`
+  } else {
+    `Series ${(index + 1)->Int.toString}`
+  }
+}
 let calculatePercentageChange = (~primaryValue, ~secondaryValue) => {
   open NewAnalyticsTypes
   let change = secondaryValue -. primaryValue
