@@ -55,6 +55,7 @@ let requestBody = (
   ~applyFilterFor as _: option<array<status>>=None,
   ~delta: option<bool>=None,
   ~granularity: option<string>=None,
+  ~distributionValues: option<JSON.t>=None,
 ) => {
   let metrics = metrics->Array.map(v => (v: metrics :> string))
   let filter = Dict.make()->JSON.Encode.object->Some
@@ -68,6 +69,7 @@ let requestBody = (
       ~startDateTime=startTime,
       ~endDateTime=endTime,
       ~granularity,
+      ~distributionValues,
     )->JSON.Encode.object,
   ]->JSON.Encode.array
 }
@@ -139,4 +141,32 @@ let getLabelName = (~key, ~index, ~points) => {
   } else {
     `Series ${(index + 1)->Int.toString}`
   }
+}
+let calculatePercentageChange = (~primaryValue, ~secondaryValue) => {
+  open NewAnalyticsTypes
+  let change = secondaryValue -. primaryValue
+
+  if primaryValue === 0.0 || change === 0.0 {
+    (0.0, No_Change)
+  } else if change > 0.0 {
+    let diff = change /. primaryValue
+    let percentage = diff *. 100.0
+    (percentage, Upward)
+  } else {
+    let diff = change *. -1.0 /. primaryValue
+    let percentage = diff *. 100.0
+    (percentage, Downward)
+  }
+}
+
+let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
+  let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
+
+  let (textColor, icon) = switch direction {
+  | Upward => ("#12B76A", "▲")
+  | Downward => ("#F04E42", "▼")
+  | No_Change => ("#A0A0A0", "")
+  }
+
+  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->valueFormatter(Rate)}</span>`
 }

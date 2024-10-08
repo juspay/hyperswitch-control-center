@@ -1105,6 +1105,20 @@ module RenderListItemInBaseRadio = {
     ~selectClass="",
     ~customScrollStyle=?,
   ) => {
+    let decodedValue = value->JSON.Decode.string
+    switch decodedValue {
+    | Some(str) =>
+      newOptions->Array.sort((item1, item2) => {
+        if item1.value == str {
+          -1.
+        } else if item2.value == str {
+          1.
+        } else {
+          0.
+        }
+      })
+    | None => ()
+    }
     let dropdownList =
       newOptions
       ->Array.mapWithIndex((option, i) => {

@@ -47,6 +47,7 @@ module TableModule = {
 
 module PaymentsProcessedHeader = {
   open NewAnalyticsTypes
+  open NewAnalyticsUtils
   open NewPaymentAnalyticsUtils
   @react.component
   let make = (

@@ -1248,16 +1248,6 @@ let getPlaceHolder = label => {
   `Enter ${label->LogicUtils.snakeToTitle}`
 }
 
-let getConnectorDetailsValue = (connectorInfo: connectorPayload, str) => {
-  switch str {
-  | "api_key" => connectorInfo.connector_account_details.api_key
-  | "api_secret" => connectorInfo.connector_account_details.api_secret
-  | "key1" => connectorInfo.connector_account_details.key1
-  | "key2" => connectorInfo.connector_account_details.key2
-  | "auth_type" => Some(connectorInfo.connector_account_details.auth_type)
-  | _ => Some("")
-  }
-}
 let connectorLabelDetailField = Dict.fromArray([
   ("connector_label", "Connector label"->JSON.Encode.string),
 ])

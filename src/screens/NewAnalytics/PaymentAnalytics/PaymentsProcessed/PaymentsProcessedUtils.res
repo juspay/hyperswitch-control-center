@@ -8,12 +8,8 @@ let paymentsProcessedMapper = (
   ~yKey: string,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  let categories =
-    data
-    ->getArrayFromJson([])
-    ->getValueFromArray(0, []->JSON.Encode.array)
-    ->getArrayFromJson([])
-    ->getCategories(yKey)
+  let primaryCategories = data->getCategories(0, yKey)
+  let secondaryCategories = data->getCategories(1, yKey)
 
   let lineGraphData =
     data
@@ -26,7 +22,16 @@ let paymentsProcessedMapper = (
   let title = {
     text: "Payments Processed",
   }
-  {categories, data: lineGraphData, title}
+  {
+    categories: primaryCategories,
+    data: lineGraphData,
+    title,
+    tooltipFormatter: tooltipFormatter(
+      ~secondaryCategories,
+      ~title="Payments Processed",
+      ~metricType=Amount,
+    ),
+  }
 }
 // Need to modify
 let getMetaData = json =>
