@@ -17,7 +17,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let userPermissionMap = Recoil.useRecoilValueFromAtom(userPermissionAtomMapType)
+  let (userPermissionMap, setuserPermissionMap) = Recoil.useRecoilState(userPermissionAtomMapType)
   let {fetchUserPermissions, userHasAccess} = PermissionHooks.useUserPermissionHook()
   let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -40,6 +40,8 @@ let make = () => {
 
   let setUpDashboard = async () => {
     try {
+      // NOTE: Treat permission map similar to screenstate
+      setuserPermissionMap(_ => None)
       Window.connectorWasmInit()->ignore
       let _ = await fetchUserPermissions()
       switch url.path->urlPath {
