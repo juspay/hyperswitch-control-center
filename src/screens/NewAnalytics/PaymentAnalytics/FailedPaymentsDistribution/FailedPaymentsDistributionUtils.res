@@ -25,10 +25,7 @@ let failedPaymentsDistributionMapper = (
   ~yKey: string,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
-  let categories =
-    data
-    ->getArrayFromJson([])
-    ->getCategories(yKey)
+  let categories = [data]->JSON.Encode.array->getCategories(0, yKey)
   let barGraphData = getBarGraphObj(
     ~array=data->getArrayFromJson([]),
     ~key=xKey,

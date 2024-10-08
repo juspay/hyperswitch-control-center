@@ -25,7 +25,7 @@ let successfulPaymentsDistributionMapper = (
   ~yKey: string,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
-  let categories = data->getCategories(0, yKey)
+  let categories = [data]->JSON.Encode.array->getCategories(0, yKey)
 
   let barGraphData = getBarGraphObj(
     ~array=data->getArrayFromJson([]),
@@ -36,6 +36,7 @@ let successfulPaymentsDistributionMapper = (
   let title = {
     text: "",
   }
+
   {categories, data: [barGraphData], title}
 }
 
@@ -44,7 +45,7 @@ let visibleColumns: array<metrics> = [#payment_success_rate]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => successfulPaymentsDistributionObject = dict => {
   {
-    payments_success_rate: dict->getInt((#payment_success_rate: metrics :> string), 0),
+    payments_success_rate: dict->getInt("payments_success_rate_distribution", 0),
     connector: dict->getString((#connector: metrics :> string), ""),
     payment_method: dict->getString((#payment_method: metrics :> string), ""),
   }
