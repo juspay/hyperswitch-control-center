@@ -23,7 +23,7 @@ let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatu
   "paypalAccountStatusAtom",
   PayPalFlowTypes.Connect_paypal_landing,
 )
-// TODO: remove this after userPermissionAtomMapType is stable
+// TODO: remove this after userGroupPermissionsAtom is stable
 let userPermissionAtom: Recoil.recoilAtom<UserManagementTypes.permissionJson> = Recoil.atom(
   "userPermissionAtom",
   PermissionMapper.defaultValueForPermission,
