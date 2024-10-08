@@ -356,7 +356,7 @@ let make = (
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
       let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
-      setInitialValues(_=>res)
+      setInitialValues(_ => res)
       let _ = await fetchConnectorListResponse()
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
     } catch {
