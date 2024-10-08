@@ -4,8 +4,8 @@ module ConnectorOverview = {
   @react.component
   let make = () => {
     open ConnectorUtils
+    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
     let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let connectorsList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
@@ -52,7 +52,7 @@ module ConnectorOverview = {
         </div>
         <ACLButton
           text="+ Add More"
-          access={userPermissionJson.connectorsView}
+          access={userHasAccess(~permission=ConnectorsView)}
           buttonType={PrimaryOutline}
           customButtonStyle="w-10 !px-3"
           buttonSize={Small}
@@ -198,12 +198,13 @@ module OverviewInfo = {
 @react.component
 let make = () => {
   let {systemMetrics} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+
   <div className="flex flex-col gap-4">
     <p className=headingStyle> {"Overview"->React.string} </p>
     <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
       <ConnectorOverview />
-      <RenderIf condition={userPermissionJson.analyticsView === Access}>
+      <RenderIf condition={userHasAccess(~permission=AnalyticsView) === Access}>
         <PaymentOverview />
       </RenderIf>
       <RenderIf condition={systemMetrics}>

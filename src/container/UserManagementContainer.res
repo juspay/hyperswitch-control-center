@@ -9,18 +9,18 @@ Pre-requisite APIs :
 @react.component
 let make = () => {
   open HSwitchUtils
-  open HyperswitchAtom
+
   open APIUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(userPermissionAtom)
+  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let setRoleInfo = Recoil.useSetRecoilState(HyperswitchAtom.moduleListRecoil)
 
   let fetchModuleList = async () => {
     try {
-      if userPermissionJson.usersManage === Access {
+      if userHasAccess(~permission=UsersManage) === Access {
         let url = getURL(
           ~entityName=USERS,
           ~userType=#ROLE_INFO,
@@ -47,15 +47,15 @@ let make = () => {
     {switch url.path->urlPath {
     // User Management modules
     | list{"users", "invite-users"} =>
-      <AccessControl permission={userPermissionJson.usersManage}>
+      <AccessControl permission={userHasAccess(~permission=UsersManage)}>
         <InviteMember />
       </AccessControl>
     | list{"users", "create-custom-role"} =>
-      <AccessControl permission=userPermissionJson.usersManage>
+      <AccessControl permission={userHasAccess(~permission=UsersManage)}>
         <CreateCustomRole baseUrl="users" breadCrumbHeader="Team management" />
       </AccessControl>
     | list{"users", ...remainingPath} =>
-      <AccessControl permission={userPermissionJson.usersView}>
+      <AccessControl permission={userHasAccess(~permission=UsersView)}>
         <EntityScaffold
           entityName="UserManagement"
           remainingPath

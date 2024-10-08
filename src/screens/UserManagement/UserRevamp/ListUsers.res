@@ -7,7 +7,7 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
   let (usersData, setUsersData) = React.useState(_ => [])
   let (usersFilterData, setUsersFilterData) = React.useState(_ => [])
   let (screenStateUsers, setScreenStateUsers) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -59,7 +59,7 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
     <div className="relative mt-5 w-full flex flex-col gap-12">
       <div className="absolute right-0 z-10">
         <ACLButton
-          access={userPermissionJson.usersManage}
+          access={userHasAccess(~permission=UsersManage)}
           text={"Invite users"}
           buttonType=Primary
           onClick={_ => {

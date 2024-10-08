@@ -2,11 +2,11 @@
 let make = (~entityName) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (reportModal, setReportModal) = React.useState(_ => false)
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
 
-  let accessForGenerateReports = PermissionUtils.hasAnyPermission(
-    userPermissionJson.operationsView,
-    userPermissionJson.analyticsView,
+  let accessForGenerateReports = PermissionMapper.hasAnyPermission(
+    userHasAccess(~permission=OperationsView),
+    userHasAccess(~permission=AnalyticsView),
   )
 
   <>

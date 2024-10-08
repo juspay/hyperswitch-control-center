@@ -26,7 +26,7 @@ module AddEntryBtn = {
       [
         ("profile_name", `default${list->Array.length->Int.toString}`->JSON.Encode.string),
       ]->Dict.fromArray
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
     let modalBody =
       <div>
         {switch modalState {
@@ -95,7 +95,7 @@ module AddEntryBtn = {
       <RenderIf condition=isFromSettings>
         <ACLButton
           text="Add"
-          access={userPermissionJson.merchantDetailsManage}
+          access={userHasAccess(~permission=MerchantDetailsManage)}
           buttonSize=Small
           buttonType={Primary}
           onClick={_ => {

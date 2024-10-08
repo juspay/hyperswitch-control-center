@@ -6,7 +6,7 @@ module UserAction = {
     open UserManagementTypes
 
     let url = RescriptReactRouter.useUrl()
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
     let userEmail =
       url.search
       ->LogicUtils.getDictFromUrlSearchParams
@@ -23,7 +23,7 @@ module UserAction = {
       } else if userEmail === email {
         // User cannot update its own role
         NoActionAccess
-      } else if userPermissionJson.usersManage === NoAccess {
+      } else if userHasAccess(~permission=UsersManage) === NoAccess {
         // User doesn't have user write permission
         NoActionAccess
       } else if (

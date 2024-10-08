@@ -5,7 +5,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
 
   let getConnectorList = async _ => {
     try {
@@ -54,7 +54,7 @@ let make = () => {
             resultsPerPage=20
             entity={ThreeDsTableEntity.threeDsAuthenticatorEntity(
               `3ds-authenticators`,
-              ~permission=userPermissionJson.connectorsManage,
+              ~permission=userHasAccess(~permission=ConnectorsManage),
             )}
             offset
             setOffset

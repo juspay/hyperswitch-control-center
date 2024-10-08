@@ -71,8 +71,8 @@ let make = (
   ~element: option<React.element>=?,
 ) => {
   open FormRenderer
+  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
 
-  let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (showPaymentMthdConfigModal, setShowPaymentMthdConfigModal) = React.useState(_ => false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currencies, setCurrencies) = React.useState(_ => [])
@@ -196,7 +196,7 @@ let make = (
       </Modal>
     </RenderIf>
     <ACLDiv
-      permission=permissionJson.connectorsManage
+      permission={userHasAccess(~permission=ConnectorsManage)}
       className="cursor-pointer w-150"
       onClick={_ => getProcessorDetails()->ignore}>
       {switch element {

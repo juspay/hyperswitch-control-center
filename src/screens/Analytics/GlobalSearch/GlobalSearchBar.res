@@ -215,8 +215,8 @@ let make = () => {
   let searchText = searchText->String.trim
   let loader = LottieFiles.useLottieJson("loader-circle.json")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-  let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
+  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let isShowRemoteResults = globalSearch && userHasAccess(~permission=OperationsView) === Access
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
 

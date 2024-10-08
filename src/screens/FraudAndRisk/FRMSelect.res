@@ -2,7 +2,7 @@ module NewProcessorCards = {
   open FRMInfo
   @react.component
   let make = (~configuredFRMs: array<ConnectorTypes.connectorTypes>) => {
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let frmAvailableForIntegration = frmList
     let unConfiguredFRMs = frmAvailableForIntegration->Array.filter(total =>
@@ -47,7 +47,7 @@ module NewProcessorCards = {
               </div>
               <ACLButton
                 text="Connect"
-                access=userPermissionJson.connectorsManage
+                access={userHasAccess(~permission=ConnectorsManage)}
                 buttonType=Secondary
                 buttonSize=Small
                 onClick={_ => handleClick(frmName)}
@@ -82,7 +82,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchDetails = APIUtils.useGetMethod()
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
   let (
     configuredFRMs: array<ConnectorTypes.connectorTypes>,
     setConfiguredFRMs,
@@ -180,7 +180,7 @@ let make = () => {
           setOffset
           entity={FRMTableUtils.connectorEntity(
             "fraud-risk-management",
-            ~permission={userPermissionJson.connectorsManage},
+            ~permission={userHasAccess(~permission=ConnectorsManage)},
           )}
           currrentFetchCount={filteredFRMData->Array.length}
           collapseTableRow=false

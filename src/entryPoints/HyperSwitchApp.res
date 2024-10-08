@@ -3,13 +3,11 @@ let make = () => {
   open HSwitchUtils
   open GlobalVars
   open APIUtils
-  open PermissionUtils
-  open LogicUtils
+
   open HyperswitchAtom
   let pageViewEvent = MixpanelHook.usePageView()
-  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let fetchDetails = useGetMethod()
+
   let {
     showFeedbackModal,
     setShowFeedbackModal,
@@ -19,7 +17,8 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
+  let userPermissionMap = Recoil.useRecoilValueFromAtom(userPermissionAtomMapType)
+  let {fetchUserPermissions, userHasAccess} = PermissionHooks.useUserPermissionHook()
   let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
@@ -37,46 +36,51 @@ let make = () => {
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   sessionExpired := false
 
-  let fetchPermissions = async () => {
-    try {
-      let url = getURL(
-        ~entityName=USERS,
-        ~userType=#GET_PERMISSIONS,
-        ~methodType=Get,
-        ~queryParamerters=Some(`groups=true`),
-      )
-      let response = await fetchDetails(url)
-      let permissionsValue =
-        response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
-      let permissionJson =
-        permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
-      setuserPermissionJson(_ => permissionJson)
-      permissionJson
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
+  // let fetchPermissions = async () => {
+  //   try {
+  //     let url = getURL(
+  //       ~entityName=USERS,
+  //       ~userType=#GET_PERMISSIONS,
+  //       ~methodType=Get,
+  //       ~queryParamerters=Some(`groups=true`),
+  //     )
+  //     let response = await fetchDetails(url)
+  //     let permissionsValue =
+  //       response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
+  //     Js.log2(
+  //       "permissionsValue",
+  //       permissionsValue
+  //       ->Array.map(ele => ele->mapStringToPermissionType)
+  //       ->HyperSwitchEntryUtils.convertValueToMap,
+  //     )
+  //     setuserPermissionMap(_ => Some(
+  //       permissionsValue
+  //       ->Array.map(ele => ele->mapStringToPermissionType)
+  //       ->HyperSwitchEntryUtils.convertValueToMap,
+  //     ))
+  //     let permissionJson =
+  //       permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
+  //     setuserPermissionJson(_ => permissionJson)
+  //     permissionJson
+  //   } catch {
+  //   | Exn.Error(e) => {
+  //       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+  //       Exn.raiseError(err)
+  //     }
+  //   }
+  // }
   let (renderKey, setRenderkey) = React.useState(_ => "")
 
   let setUpDashboard = async () => {
     try {
       Window.connectorWasmInit()->ignore
-      let _ = await fetchPermissions()
-
-      // This needs to be removed
-      // TODO: change userPermissionJson type to option<permissionJson>
-      await HyperSwitchUtils.delay(2000)
-
+      let _ = await fetchUserPermissions()
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
       }
       setDashboardPageState(_ => #HOME)
       setRenderkey(_ => profileId)
-      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }
@@ -94,6 +98,13 @@ let make = () => {
     }
     None
   }, (featureFlagDetails.mixpanel, path))
+
+  React.useEffect1(() => {
+    if userPermissionMap->Option.isSome {
+      setScreenState(_ => PageLoaderWrapper.Success)
+    }
+    None
+  }, [userPermissionMap])
 
   <>
     <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
@@ -181,14 +192,14 @@ let make = () => {
                         | list{"new-analytics-payment"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.newAnalytics}
-                            permission=userPermissionJson.analyticsView>
+                            permission={userHasAccess(~permission=AnalyticsView)}>
                             <FilterContext key="NewAnalytics" index="NewAnalytics">
                               <NewAnalyticsContainer />
                             </FilterContext>
                           </AccessControl>
                         | list{"customers", ...remainingPath} =>
                           <AccessControl
-                            permission={userPermissionJson.operationsView}
+                            permission={userHasAccess(~permission=OperationsView)}
                             isEnabled={[#Organization, #Merchant]->checkUserEntity}>
                             <EntityScaffold
                               entityName="Customers"
@@ -203,7 +214,7 @@ let make = () => {
                           <AccessControl
                             isEnabled={featureFlagDetails.userJourneyAnalytics &&
                             [#Organization, #Merchant]->checkUserEntity}
-                            permission=userPermissionJson.analyticsView>
+                            permission={userHasAccess(~permission=AnalyticsView)}>
                             <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                               <UserJourneyAnalytics />
                             </FilterContext>
@@ -212,7 +223,7 @@ let make = () => {
                           <AccessControl
                             isEnabled={featureFlagDetails.authenticationAnalytics &&
                             [#Organization, #Merchant]->checkUserEntity}
-                            permission=userPermissionJson.analyticsView>
+                            permission={userHasAccess(~permission=AnalyticsView)}>
                             <FilterContext
                               key="AuthenticationAnalytics" index="AuthenticationAnalytics">
                               <AuthenticationAnalytics />
@@ -220,14 +231,14 @@ let make = () => {
                           </AccessControl>
                         | list{"developer-api-keys"} =>
                           <AccessControl
-                            permission=userPermissionJson.merchantDetailsManage
+                            permission={userHasAccess(~permission=MerchantDetailsManage)}
                             isEnabled={!checkUserEntity([#Profile])}>
                             <KeyManagement.KeysManagement />
                           </AccessControl>
                         | list{"developer-system-metrics"} =>
                           <AccessControl
                             isEnabled={isInternalUser && featureFlagDetails.systemMetrics}
-                            permission=userPermissionJson.analyticsView>
+                            permission={userHasAccess(~permission=AnalyticsView)}>
                             <FilterContext key="SystemMetrics" index="SystemMetrics">
                               <SystemMetricsAnalytics />
                             </FilterContext>
@@ -239,19 +250,19 @@ let make = () => {
                             <Compliance />
                           </AccessControl>
                         | list{"3ds"} =>
-                          <AccessControl permission=userPermissionJson.workflowsView>
+                          <AccessControl permission={userHasAccess(~permission=WorkflowsView)}>
                             <HSwitchThreeDS />
                           </AccessControl>
                         | list{"surcharge"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.surcharge}
-                            permission=userPermissionJson.workflowsView>
+                            permission={userHasAccess(~permission=WorkflowsView)}>
                             <Surcharge />
                           </AccessControl>
                         | list{"account-settings"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.sampleData
-                            permission=userPermissionJson.merchantDetailsManage>
+                            permission={userHasAccess(~permission=MerchantDetailsManage)}>
                             <HSwitchSettings />
                           </AccessControl>
                         | list{"account-settings", "profile", ...remainingPath} =>
@@ -265,25 +276,25 @@ let make = () => {
                         | list{"payment-attempts"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission=userPermissionJson.operationsView>
+                            permission={userHasAccess(~permission=OperationsView)}>
                             <PaymentAttemptTable />
                           </AccessControl>
                         | list{"payment-intents"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission=userPermissionJson.operationsView>
+                            permission={userHasAccess(~permission=OperationsView)}>
                             <PaymentIntentTable />
                           </AccessControl>
                         | list{"refunds-global"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission=userPermissionJson.operationsView>
+                            permission={userHasAccess(~permission=OperationsView)}>
                             <RefundsTable />
                           </AccessControl>
                         | list{"dispute-global"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission=userPermissionJson.operationsView>
+                            permission={userHasAccess(~permission=OperationsView)}>
                             <DisputeTable />
                           </AccessControl>
                         | list{"unauthorized"} => <UnauthorizedPage />

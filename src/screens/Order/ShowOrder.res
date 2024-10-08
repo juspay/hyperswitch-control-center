@@ -24,7 +24,7 @@ module ShowOrderDetails = {
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ~sectionTitle=?,
   ) => {
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
     let typedPaymentStatus = paymentStatus->statusVariantMapper
     let statusUI = useGetStatus(data)
     <Section customCssClass={`${border} ${bgColor} rounded-md px-5 pt-5 h-full`}>
@@ -50,7 +50,7 @@ module ShowOrderDetails = {
           </div>
           {statusUI}
           <ACLButton
-            access={userPermissionJson.operationsManage}
+            access={userHasAccess(~permission=OperationsManage)}
             text="+ Refund"
             onClick={_ => {
               openRefundModal()
@@ -591,7 +591,7 @@ let make = (~id, ~profileId) => {
   open OrderUIUtils
   let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -678,7 +678,7 @@ let make = (~id, ~profileId) => {
         </div>
         <RenderIf condition={showSyncButton()}>
           <ACLButton
-            access={userPermissionJson.operationsView}
+            access={userHasAccess(~permission=OperationsView)}
             text="Sync"
             leftIcon={Button.CustomIcon(
               <Icon
@@ -710,7 +710,8 @@ let make = (~id, ~profileId) => {
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
         <RenderIf
-          condition={featureFlagDetails.auditTrail && userPermissionJson.analyticsView == Access}>
+          condition={featureFlagDetails.auditTrail &&
+          userHasAccess(~permission=AnalyticsView) === Access}>
           <RenderAccordian
             initialExpandedArray=[0]
             accordion={[

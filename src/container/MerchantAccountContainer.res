@@ -7,7 +7,7 @@ let make = () => {
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
   let (surveyModal, setSurveyModal) = React.useState(_ => false)
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(userPermissionAtom)
+  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
@@ -20,7 +20,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
 
       let _ = await fetchMerchantAccountDetails()
-      if userPermissionJson.connectorsView === Access {
+      if userHasAccess(~permission=ConnectorsView) === Access {
         if !featureFlagDetails.isLiveMode {
           let _ = await fetchConnectorListResponse()
           let _ = await fetchBusinessProfiles()
@@ -58,7 +58,8 @@ let make = () => {
         </AccessControl>
       | list{"sdk"} =>
         <AccessControl
-          isEnabled={!featureFlagDetails.isLiveMode} permission={userPermissionJson.connectorsView}>
+          isEnabled={!featureFlagDetails.isLiveMode}
+          permission={userHasAccess(~permission=ConnectorsView)}>
           <SDKPage />
         </AccessControl>
       | list{"unauthorized"} => <UnauthorizedPage />
@@ -66,7 +67,7 @@ let make = () => {
       }}
       <RenderIf
         condition={!featureFlagDetails.isLiveMode &&
-        userPermissionJson.merchantDetailsManage === Access &&
+        userHasAccess(~permission=MerchantDetailsManage) === Access &&
         merchantDetailsTypedValue.merchant_name->Option.isNone}>
         <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
       </RenderIf>

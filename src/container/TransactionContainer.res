@@ -3,13 +3,14 @@ let make = () => {
   open HSwitchUtils
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(userPermissionAtom)
+
+  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
   let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
   let {payOut} = featureFlagAtom->Recoil.useRecoilValueFromAtom
   <div key={(transactionEntity :> string)}>
     {switch url.path->urlPath {
     | list{"payments", ...remainingPath} =>
-      <AccessControl permission=userPermissionJson.operationsView>
+      <AccessControl permission={userHasAccess(~permission=OperationsView)}>
         <FilterContext key="payments" index="payments">
           <EntityScaffold
             entityName="Payments"
@@ -21,7 +22,7 @@ let make = () => {
         </FilterContext>
       </AccessControl>
     | list{"payouts", ...remainingPath} =>
-      <AccessControl isEnabled={payOut} permission=userPermissionJson.operationsView>
+      <AccessControl isEnabled={payOut} permission={userHasAccess(~permission=OperationsView)}>
         <FilterContext key="payouts" index="payouts">
           <EntityScaffold
             entityName="Payouts"
@@ -33,7 +34,7 @@ let make = () => {
         </FilterContext>
       </AccessControl>
     | list{"refunds", ...remainingPath} =>
-      <AccessControl permission=userPermissionJson.operationsView>
+      <AccessControl permission={userHasAccess(~permission=OperationsView)}>
         <FilterContext key="refunds" index="refunds">
           <EntityScaffold
             entityName="Refunds"
@@ -45,7 +46,7 @@ let make = () => {
         </FilterContext>
       </AccessControl>
     | list{"disputes", ...remainingPath} =>
-      <AccessControl permission=userPermissionJson.operationsView>
+      <AccessControl permission={userHasAccess(~permission=OperationsView)}>
         <FilterContext key="disputes" index="disputes">
           <EntityScaffold
             entityName="Disputes"

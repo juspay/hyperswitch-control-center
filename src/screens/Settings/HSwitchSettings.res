@@ -26,7 +26,7 @@ module TileComponent = {
     let showPopUp = PopUpState.useShowPopUp()
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
 
     let deleteSampleData = async () => {
       try {
@@ -79,7 +79,7 @@ module TileComponent = {
       }
     }
     let accessBasedOnCardName = switch cardName {
-    | #DELETE_SAMPLE_DATA => userPermissionJson.operationsManage
+    | #DELETE_SAMPLE_DATA => userHasAccess(~permission=OperationsManage)
     | _ => Access
     }
 
