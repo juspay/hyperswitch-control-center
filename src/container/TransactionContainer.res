@@ -4,7 +4,7 @@ let make = () => {
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
 
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
   let {payOut} = featureFlagAtom->Recoil.useRecoilValueFromAtom
   <div key={(transactionEntity :> string)}>

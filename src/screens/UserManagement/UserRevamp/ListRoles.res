@@ -9,7 +9,7 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
   let (rolesOffset, setRolesOffset) = React.useState(_ => 0)
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
 
   let getRolesAvailable = async () => {
     setScreenStateRoles(_ => PageLoaderWrapper.Loading)

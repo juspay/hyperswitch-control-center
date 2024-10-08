@@ -26,7 +26,7 @@ module AddEntryBtn = {
       [
         ("profile_name", `default${list->Array.length->Int.toString}`->JSON.Encode.string),
       ]->Dict.fromArray
-    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
     let modalBody =
       <div>
         {switch modalState {

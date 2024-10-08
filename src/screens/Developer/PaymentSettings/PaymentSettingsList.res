@@ -6,7 +6,7 @@ let make = (
 ) => {
   open PaymentSettingsListEntity
   let (offset, setOffset) = React.useState(_ => 0)
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let businessProfileValues = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
 
   <RenderIf condition=isFromSettings>

@@ -7,7 +7,7 @@ let useClearRecoilValue = () => {
   let setEnumVariantAtom = enumVariantAtom->Recoil.useSetRecoilState
   let setPaypalAccountStatusAtom = paypalAccountStatusAtom->Recoil.useSetRecoilState
   let setUserPermissionAtom = userPermissionAtom->Recoil.useSetRecoilState
-  let setUserPermissionAtomMapType = userPermissionAtomMapType->Recoil.useSetRecoilState
+  let setUserGroupPermissionsAtom = userGroupPermissionsAtom->Recoil.useSetRecoilState
   let setSwitchMerchantListAtom = switchMerchantListAtom->Recoil.useSetRecoilState
   let setCurrentTabNameRecoilAtom = currentTabNameRecoilAtom->Recoil.useSetRecoilState
   let setOrgListRecoilAtom = orgListAtom->Recoil.useSetRecoilState
@@ -24,7 +24,7 @@ let useClearRecoilValue = () => {
     setEnumVariantAtom(_ => "")
     setPaypalAccountStatusAtom(_ => PayPalFlowTypes.Connect_paypal_landing)
     setUserPermissionAtom(_ => PermissionMapper.defaultValueForPermission)
-    setUserPermissionAtomMapType(_ => None)
+    setUserGroupPermissionsAtom(_ => None)
     setSwitchMerchantListAtom(_ => [SwitchMerchantUtils.defaultValue])
     setCurrentTabNameRecoilAtom(_ => "ActiveTab")
     setOrgListRecoilAtom(_ => OMPSwitchUtils.ompDefaultValue("", ""))

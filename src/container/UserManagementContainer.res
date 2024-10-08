@@ -14,7 +14,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let setRoleInfo = Recoil.useSetRecoilState(HyperswitchAtom.moduleListRecoil)
 

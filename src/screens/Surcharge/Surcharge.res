@@ -106,7 +106,7 @@ let make = () => {
   let (pageView, setPageView) = React.useState(_ => LANDING)
   let showPopUp = PopUpState.useShowPopUp()
   let (showWarning, setShowWarning) = React.useState(_ => true)
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let getWasm = async () => {

@@ -2,7 +2,7 @@ module NewProcessorCards = {
   open FRMInfo
   @react.component
   let make = (~configuredFRMs: array<ConnectorTypes.connectorTypes>) => {
-    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let frmAvailableForIntegration = frmList
     let unConfiguredFRMs = frmAvailableForIntegration->Array.filter(total =>
@@ -82,7 +82,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchDetails = APIUtils.useGetMethod()
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let (
     configuredFRMs: array<ConnectorTypes.connectorTypes>,
     setConfiguredFRMs,

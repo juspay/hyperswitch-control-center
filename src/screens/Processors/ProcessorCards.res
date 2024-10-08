@@ -23,7 +23,7 @@ module RequestConnector = {
 module CantFindProcessor = {
   @react.component
   let make = (~showRequestConnectorBtn, ~setShowModal) => {
-    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
 
     <RenderIf condition={showRequestConnectorBtn}>
       <ACLButton
@@ -57,7 +57,7 @@ let make = (
 ) => {
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let unConfiguredConnectors =

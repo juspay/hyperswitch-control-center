@@ -32,7 +32,7 @@ module AddNewMerchantProfileButton = {
     ~customHRTagStyle="",
     ~addItemBtnStyle="",
   ) => {
-    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
     let cursorStyles = PermissionUtils.cursorStyles(
       userHasAccess(~permission=MerchantDetailsManage),
     )

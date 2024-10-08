@@ -56,7 +56,7 @@ module GenerateSampleDataButton = {
     let showToast = ToastState.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
 
     let generateSampleData = async () => {
       mixpanelEvent(~eventName="generate_sample_data")

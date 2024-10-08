@@ -7,7 +7,7 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let (usersData, setUsersData) = React.useState(_ => [])
   let (usersFilterData, setUsersFilterData) = React.useState(_ => [])
   let (screenStateUsers, setScreenStateUsers) = React.useState(_ => PageLoaderWrapper.Loading)

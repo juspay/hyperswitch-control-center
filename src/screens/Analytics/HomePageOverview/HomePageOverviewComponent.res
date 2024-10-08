@@ -4,7 +4,7 @@ module ConnectorOverview = {
   @react.component
   let make = () => {
     open ConnectorUtils
-    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
     let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
     let connectorsList =
       HyperswitchAtom.connectorListAtom
@@ -198,7 +198,7 @@ module OverviewInfo = {
 @react.component
 let make = () => {
   let {systemMetrics} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
 
   <div className="flex flex-col gap-4">
     <p className=headingStyle> {"Overview"->React.string} </p>

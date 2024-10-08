@@ -1,19 +1,21 @@
 type userPermissionType = {
-  fetchUserPermissions: unit => promise<UserManagementTypes.permissionJson>,
+  fetchUserGroupPermissions: unit => promise<UserManagementTypes.permissionJson>,
   userHasAccess: (~permission: UserManagementTypes.permissionType) => CommonAuthTypes.authorization,
 }
 
-let useUserPermissionHook = () => {
+let useUserGroupPermissionsHook = () => {
   open APIUtils
   open LogicUtils
   open PermissionMapper
   open HyperswitchAtom
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let (userPermissionMap, setuserPermissionMap) = Recoil.useRecoilState(userPermissionAtomMapType)
+  let (userGroupPermissions, setuserGroupPermissions) = Recoil.useRecoilState(
+    userGroupPermissionsAtom,
+  )
   let setuserPermissionJson = Recoil.useSetRecoilState(userPermissionAtom)
 
-  let fetchUserPermissions = async () => {
+  let fetchUserGroupPermissions = async () => {
     try {
       let url = getURL(
         ~entityName=USERS,
@@ -24,7 +26,7 @@ let useUserPermissionHook = () => {
       let response = await fetchDetails(url)
       let permissionsValue =
         response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
-      setuserPermissionMap(_ => Some(
+      setuserGroupPermissions(_ => Some(
         permissionsValue
         ->Array.map(ele => ele->PermissionMapper.mapStringToPermissionType)
         ->convertValueToMap,
@@ -42,9 +44,9 @@ let useUserPermissionHook = () => {
   }
 
   let userHasAccess = (~permission) => {
-    switch userPermissionMap {
-    | Some(permissionValue) =>
-      switch permissionValue->Map.get(permission) {
+    switch userGroupPermissions {
+    | Some(groupPermissions) =>
+      switch groupPermissions->Map.get(permission) {
       | Some(value) => value
       | None => NoAccess
       }
@@ -52,5 +54,5 @@ let useUserPermissionHook = () => {
     }
   }
 
-  {fetchUserPermissions, userHasAccess}
+  {fetchUserGroupPermissions, userHasAccess}
 }

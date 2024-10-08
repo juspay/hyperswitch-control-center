@@ -71,7 +71,7 @@ let make = (
   ~element: option<React.element>=?,
 ) => {
   open FormRenderer
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
 
   let (showPaymentMthdConfigModal, setShowPaymentMthdConfigModal) = React.useState(_ => false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)

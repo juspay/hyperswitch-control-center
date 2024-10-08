@@ -17,8 +17,10 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let (userPermissionMap, setuserPermissionMap) = Recoil.useRecoilState(userPermissionAtomMapType)
-  let {fetchUserPermissions, userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let (userGroupPermissions, setuserGroupPermissions) = Recoil.useRecoilState(
+    userGroupPermissionsAtom,
+  )
+  let {fetchUserGroupPermissions, userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
@@ -41,9 +43,9 @@ let make = () => {
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat permission map similar to screenstate
-      setuserPermissionMap(_ => None)
+      setuserGroupPermissions(_ => None)
       Window.connectorWasmInit()->ignore
-      let _ = await fetchUserPermissions()
+      let _ = await fetchUserGroupPermissions()
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
@@ -69,11 +71,11 @@ let make = () => {
   }, (featureFlagDetails.mixpanel, path))
 
   React.useEffect1(() => {
-    if userPermissionMap->Option.isSome {
+    if userGroupPermissions->Option.isSome {
       setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
-  }, [userPermissionMap])
+  }, [userGroupPermissions])
 
   <>
     <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>

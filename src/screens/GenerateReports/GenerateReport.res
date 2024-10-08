@@ -2,7 +2,7 @@
 let make = (~entityName) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (reportModal, setReportModal) = React.useState(_ => false)
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
 
   let accessForGenerateReports = PermissionMapper.hasAnyPermission(
     userHasAccess(~permission=OperationsView),

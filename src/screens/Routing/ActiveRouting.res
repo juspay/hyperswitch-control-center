@@ -29,7 +29,7 @@ module ActionButtons = {
       ThemeProvider.themeContext,
     )
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
 
     switch routeType {
     | PRIORITY
@@ -78,7 +78,7 @@ module ActiveSection = {
     open LogicUtils
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
-    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
 
     let routingName = switch activeRoutingType {
     | DEFAULTFALLBACK => ""

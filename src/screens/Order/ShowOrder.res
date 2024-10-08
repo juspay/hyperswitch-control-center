@@ -24,7 +24,7 @@ module ShowOrderDetails = {
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ~sectionTitle=?,
   ) => {
-    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
     let typedPaymentStatus = paymentStatus->statusVariantMapper
     let statusUI = useGetStatus(data)
     <Section customCssClass={`${border} ${bgColor} rounded-md px-5 pt-5 h-full`}>
@@ -591,7 +591,7 @@ let make = (~id, ~profileId) => {
   open OrderUIUtils
   let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

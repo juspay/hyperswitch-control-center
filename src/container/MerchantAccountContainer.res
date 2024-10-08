@@ -7,7 +7,7 @@ let make = () => {
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
   let (surveyModal, setSurveyModal) = React.useState(_ => false)
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()

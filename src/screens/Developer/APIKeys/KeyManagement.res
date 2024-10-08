@@ -177,7 +177,7 @@ module ApiKeyAddBtn = {
   @react.component
   let make = (~getAPIKeyDetails) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
     let (showModal, setShowModal) = React.useState(_ => false)
     let initialValues = Dict.make()
     initialValues->Dict.set("expiration", Never->getStringFromRecordType->JSON.Encode.string)

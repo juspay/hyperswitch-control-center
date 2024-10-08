@@ -87,12 +87,12 @@ let getPermissionJson = permissionList => {
 
 let convertValueToMap = arrayValue => {
   open CommonAuthTypes
-  let userPermissionMap: Map.t<
+  let userGroupPermissions: Map.t<
     UserManagementTypes.permissionType,
     CommonAuthTypes.authorization,
   > = Map.make()
   arrayValue->Array.forEach(value => {
-    userPermissionMap->Map.set(value, Access)
+    userGroupPermissions->Map.set(value, Access)
   })
-  userPermissionMap
+  userGroupPermissions
 }

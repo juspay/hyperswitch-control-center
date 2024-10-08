@@ -91,7 +91,7 @@ let make = () => {
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let isShowRemoteResults = globalSearch && userHasAccess(~permission=OperationsView) === Access
 

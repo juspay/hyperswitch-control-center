@@ -2,7 +2,7 @@ open PayoutHistoryTableEntity
 
 @react.component
 let make = (~records, ~activeRoutingIds: array<string>) => {
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let (offset, setOffset) = React.useState(_ => 0)
 
   <LoadedTable

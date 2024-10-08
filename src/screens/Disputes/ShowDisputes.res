@@ -173,7 +173,7 @@ let make = (~id, ~profileId) => {
   let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (disputeData, setDisputeData) = React.useState(_ => JSON.Encode.null)

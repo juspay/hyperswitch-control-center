@@ -29,9 +29,9 @@ let userPermissionAtom: Recoil.recoilAtom<UserManagementTypes.permissionJson> = 
   PermissionMapper.defaultValueForPermission,
 )
 
-let userPermissionAtomMapType: Recoil.recoilAtom<
+let userGroupPermissionsAtom: Recoil.recoilAtom<
   option<Map.t<UserManagementTypes.permissionType, CommonAuthTypes.authorization>>,
-> = Recoil.atom("userPermissionAtomMapType", None)
+> = Recoil.atom("userGroupPermissionsAtom", None)
 
 let switchMerchantListAtom: Recoil.recoilAtom<
   array<SwitchMerchantUtils.switchMerchantListResponse>,

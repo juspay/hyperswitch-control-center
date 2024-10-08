@@ -26,7 +26,7 @@ module TileComponent = {
     let showPopUp = PopUpState.useShowPopUp()
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
-    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
 
     let deleteSampleData = async () => {
       try {

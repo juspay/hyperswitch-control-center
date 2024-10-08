@@ -3,7 +3,7 @@ let make = () => {
   open HSwitchUtils
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let {userInfo: {analyticsEntity}} = React.useContext(UserInfoProvider.defaultContext)
   let {performanceMonitor, disputeAnalytics} = featureFlagAtom->Recoil.useRecoilValueFromAtom
   <div key={(analyticsEntity :> string)}>

@@ -631,7 +631,7 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity) => {
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let {userInfo: {userEntity, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )

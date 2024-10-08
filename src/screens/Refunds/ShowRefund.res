@@ -77,7 +77,7 @@ let make = (~id, ~profileId) => {
   open HSwitchOrderUtils
   let url = RescriptReactRouter.useUrl()
   let getURL = APIUtils.useGetURL()
-  let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading

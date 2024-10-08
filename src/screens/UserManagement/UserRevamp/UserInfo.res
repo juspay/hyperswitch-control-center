@@ -6,7 +6,7 @@ module UserAction = {
     open UserManagementTypes
 
     let url = RescriptReactRouter.useUrl()
-    let {userHasAccess} = PermissionHooks.useUserPermissionHook()
+    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
     let userEmail =
       url.search
       ->LogicUtils.getDictFromUrlSearchParams
