@@ -23,10 +23,12 @@ type metrics = [
   | #payment_method_type
   | #card_network
   | #authentication_type
+  | #payments_distribution
   | #smart_retried_amount
   | #payments_success_rate
   | #refund_success_count
   | #dispute_status_metric
+  | #payment_failed_rate
 ]
 type granularity = [
   | #G_ONEDAY

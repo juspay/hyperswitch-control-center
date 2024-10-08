@@ -2,7 +2,7 @@ open NewAnalyticsTypes
 open NewAnalyticsHelper
 open NewPaymentAnalyticsEntity
 open BarGraphTypes
-open SuccessfulPaymentsDistributionUtils
+open FailedPaymentsDistributionUtils
 
 module TableModule = {
   @react.component
@@ -22,7 +22,7 @@ module TableModule = {
         title=" "
         hideTitle=true
         actualData={tableData}
-        entity=successfulPaymentsDistributionTableEntity
+        entity=failedPaymentsDistributionTableEntity
         resultsPerPage=10
         totalResults={tableData->Array.length}
         offset
@@ -40,7 +40,7 @@ module TableModule = {
   }
 }
 
-module SuccessfulPaymentsDistributionHeader = {
+module FailedPaymentsDistributionHeader = {
   @react.component
   let make = (~viewType, ~setViewType, ~groupBy, ~setGroupBy) => {
     let setViewType = value => {
@@ -70,17 +70,18 @@ let make = (
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (paymentsDistribution, setpaymentsDistribution) = React.useState(_ => JSON.Encode.array([]))
-
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (failedPaymentsDistribution, setfailedPaymentsDistribution) = React.useState(_ =>
+    JSON.Encode.array([])
+  )
   let (viewType, setViewType) = React.useState(_ => Graph)
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
 
-  let getPaymentsDistribution = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
+  let getFailedPaymentsDistribution = async () => {
     try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
         ~entityName=ANALYTICS_PAYMENTS,
         ~methodType=Post,
@@ -107,7 +108,7 @@ let make = (
         ->getArrayFromDict("queryData", [])
 
       if arr->Array.length > 0 {
-        setpaymentsDistribution(_ => responseData->JSON.Encode.array)
+        setfailedPaymentsDistribution(_ => responseData->JSON.Encode.array)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
@@ -119,7 +120,7 @@ let make = (
 
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      getPaymentsDistribution()->ignore
+      getFailedPaymentsDistribution()->ignore
     }
     None
   }, [startTimeVal, endTimeVal, groupBy.value])
@@ -129,21 +130,23 @@ let make = (
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        <SuccessfulPaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
+        <FailedPaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
         <div className="mb-5">
           {switch viewType {
           | Graph =>
             <BarGraph
               entity={chartEntity}
               object={chartEntity.getObjects(
-                ~data=paymentsDistribution,
-                ~xKey=getXKey(~isSmartRetry=true),
+                ~data=failedPaymentsDistribution,
+                ~xKey=getXKey(~isSmartRetry=false),
                 ~yKey=groupBy.value,
               )}
               className="mr-3"
             />
           | Table =>
-            <TableModule data={paymentsDistribution} className="mx-7" selectedTab={groupBy.value} />
+            <TableModule
+              data={failedPaymentsDistribution} className="mx-7" selectedTab={groupBy.value}
+            />
           }}
         </div>
       </PageLoaderWrapper>

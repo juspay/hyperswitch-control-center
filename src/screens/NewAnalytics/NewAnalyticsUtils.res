@@ -55,6 +55,7 @@ let requestBody = (
   ~applyFilterFor as _: option<array<status>>=None,
   ~delta: option<bool>=None,
   ~granularity: option<string>=None,
+  ~distributionValues: option<JSON.t>=None,
 ) => {
   let metrics = metrics->Array.map(v => (v: metrics :> string))
   let filter = Dict.make()->JSON.Encode.object->Some
@@ -68,6 +69,7 @@ let requestBody = (
       ~startDateTime=startTime,
       ~endDateTime=endTime,
       ~granularity,
+      ~distributionValues,
     )->JSON.Encode.object,
   ]->JSON.Encode.array
 }
