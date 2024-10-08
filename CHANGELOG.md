@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.10.08.0
+
+### Features
+
+- Add auto retries in payment settings ([#1551](https://github.com/juspay/hyperswitch-control-center/pull/1551)) ([`78479fa`](https://github.com/juspay/hyperswitch-control-center/commit/78479fade99cc04b115a8c40924ade9c9ae38606))
+
+### Miscellaneous Tasks
+
+- Ran prettier command to format unformatted file ([#1566](https://github.com/juspay/hyperswitch-control-center/pull/1566)) ([`66e2063`](https://github.com/juspay/hyperswitch-control-center/commit/66e206350e60989068206c29ffd63d30fad7f094))
+
+**Full Changelog:** [`2024.10.07.1...2024.10.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.10.07.1...2024.10.08.0)
+
+- - -
+
 ## 2024.10.07.1
 
 ### Features
