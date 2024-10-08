@@ -9,7 +9,7 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
   let (rolesOffset, setRolesOffset) = React.useState(_ => 0)
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let getRolesAvailable = async () => {
     setScreenStateRoles(_ => PageLoaderWrapper.Loading)
@@ -40,7 +40,7 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
     <PageLoaderWrapper screenState={screenStateRoles}>
       <div className="flex flex-1 justify-end">
         <ACLButton
-          access={userHasAccess(~permission=UsersManage)}
+          access={userHasAccess(~groupACL=UsersManage)}
           text={"Create custom roles"}
           buttonType=Primary
           onClick={_ => {

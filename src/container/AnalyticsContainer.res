@@ -3,33 +3,33 @@ let make = () => {
   open HSwitchUtils
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
-  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {analyticsEntity}} = React.useContext(UserInfoProvider.defaultContext)
   let {performanceMonitor, disputeAnalytics} = featureFlagAtom->Recoil.useRecoilValueFromAtom
   <div key={(analyticsEntity :> string)}>
     {switch url.path->urlPath {
     | list{"analytics-payments"} =>
-      <AccessControl permission={userHasAccess(~permission=AnalyticsView)}>
+      <AccessControl permission={userHasAccess(~groupACL=AnalyticsView)}>
         <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
           <PaymentAnalytics />
         </FilterContext>
       </AccessControl>
     | list{"analytics-refunds"} =>
-      <AccessControl permission={userHasAccess(~permission=AnalyticsView)}>
+      <AccessControl permission={userHasAccess(~groupACL=AnalyticsView)}>
         <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
           <RefundsAnalytics />
         </FilterContext>
       </AccessControl>
     | list{"analytics-disputes"} =>
       <AccessControl
-        isEnabled={disputeAnalytics} permission={userHasAccess(~permission=AnalyticsView)}>
+        isEnabled={disputeAnalytics} permission={userHasAccess(~groupACL=AnalyticsView)}>
         <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
           <DisputeAnalytics />
         </FilterContext>
       </AccessControl>
     | list{"performance-monitor"} =>
       <AccessControl
-        permission={userHasAccess(~permission=AnalyticsView)} isEnabled={performanceMonitor}>
+        permission={userHasAccess(~groupACL=AnalyticsView)} isEnabled={performanceMonitor}>
         <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
           <PerformanceMonitor domain="payments" />
         </FilterContext>

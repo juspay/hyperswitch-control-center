@@ -91,9 +91,9 @@ let make = () => {
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
-  let isShowRemoteResults = globalSearch && userHasAccess(~permission=OperationsView) === Access
+  let isShowRemoteResults = globalSearch && userHasAccess(~groupACL=OperationsView) === Access
 
   let getSearchResults = async results => {
     try {

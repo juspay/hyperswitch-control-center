@@ -173,7 +173,7 @@ let make = (~id, ~profileId) => {
   let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (disputeData, setDisputeData) = React.useState(_ => JSON.Encode.null)
@@ -221,7 +221,7 @@ let make = (~id, ~profileId) => {
       <div className="mt-5" />
       <RenderIf
         condition={featureFlagDetails.auditTrail &&
-        userHasAccess(~permission=AnalyticsView) == Access}>
+        userHasAccess(~groupACL=AnalyticsView) == Access}>
         <OrderUIUtils.RenderAccordian
           accordion={[
             {

@@ -26,7 +26,7 @@ module TileComponent = {
     let showPopUp = PopUpState.useShowPopUp()
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
-    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let deleteSampleData = async () => {
       try {
@@ -79,7 +79,7 @@ module TileComponent = {
       }
     }
     let accessBasedOnCardName = switch cardName {
-    | #DELETE_SAMPLE_DATA => userHasAccess(~permission=OperationsManage)
+    | #DELETE_SAMPLE_DATA => userHasAccess(~groupACL=OperationsManage)
     | _ => Access
     }
 

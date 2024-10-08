@@ -77,7 +77,7 @@ let make = (~id, ~profileId) => {
   open HSwitchOrderUtils
   let url = RescriptReactRouter.useUrl()
   let getURL = APIUtils.useGetURL()
-  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading
@@ -158,7 +158,7 @@ let make = (~id, ~profileId) => {
         </div>
         <RenderIf condition={showSyncButton()}>
           <ACLButton
-            access={userHasAccess(~permission=OperationsView)}
+            access={userHasAccess(~groupACL=OperationsView)}
             text="Sync"
             leftIcon={Button.CustomIcon(
               <Icon
@@ -183,7 +183,7 @@ let make = (~id, ~profileId) => {
       <div className="mt-5" />
       <RenderIf
         condition={featureFlagDetails.auditTrail &&
-        userHasAccess(~permission=AnalyticsView) === Access}>
+        userHasAccess(~groupACL=AnalyticsView) === Access}>
         <OrderUIUtils.RenderAccordian
           initialExpandedArray=[0]
           accordion={[
@@ -199,7 +199,7 @@ let make = (~id, ~profileId) => {
           ]}
         />
       </RenderIf>
-      <RenderIf condition={userHasAccess(~permission=OperationsView) === Access}>
+      <RenderIf condition={userHasAccess(~groupACL=OperationsView) === Access}>
         <LoadedTable
           title="Payment"
           actualData=orderData

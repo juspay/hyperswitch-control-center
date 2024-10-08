@@ -26,7 +26,7 @@ module AddEntryBtn = {
       [
         ("profile_name", `default${list->Array.length->Int.toString}`->JSON.Encode.string),
       ]->Dict.fromArray
-    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let modalBody =
       <div>
         {switch modalState {
@@ -95,7 +95,7 @@ module AddEntryBtn = {
       <RenderIf condition=isFromSettings>
         <ACLButton
           text="Add"
-          access={userHasAccess(~permission=MerchantDetailsManage)}
+          access={userHasAccess(~groupACL=MerchantDetailsManage)}
           buttonSize=Small
           buttonType={Primary}
           onClick={_ => {

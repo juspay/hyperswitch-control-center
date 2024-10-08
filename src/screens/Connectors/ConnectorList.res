@@ -10,7 +10,7 @@ let make = (~isPayoutFlow=false) => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (processorModal, setProcessorModal) = React.useState(_ => false)
   let connectorListFromRecoil = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let textStyle = HSwitchUtils.getTextClass((H2, Optional))
@@ -139,7 +139,7 @@ let make = (~isPayoutFlow=false) => {
             setOffset
             entity={ConnectorTableUtils.connectorEntity(
               `${entityPrefix}connectors`,
-              ~permission=userHasAccess(~permission=ConnectorsManage),
+              ~permission=userHasAccess(~groupACL=ConnectorsManage),
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false

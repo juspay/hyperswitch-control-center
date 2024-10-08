@@ -2,17 +2,14 @@ open HistoryEntity
 module HistoryTable = {
   @react.component
   let make = (~records, ~activeRoutingIds: array<string>) => {
-    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let (offset, setOffset) = React.useState(_ => 0)
 
     <LoadedTable
       title="History"
       hideTitle=true
       actualData=records
-      entity={historyEntity(
-        activeRoutingIds,
-        ~permission=userHasAccess(~permission=WorkflowsManage),
-      )}
+      entity={historyEntity(activeRoutingIds, ~permission=userHasAccess(~groupACL=WorkflowsManage))}
       resultsPerPage=10
       showSerialNumber=true
       totalResults={records->Array.length}

@@ -6,7 +6,7 @@ let make = () => {
   open HSwitchUtils
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
-  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
@@ -15,9 +15,9 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       if (
-        userHasAccess(~permission=ConnectorsView) === Access ||
-        userHasAccess(~permission=WorkflowsView) === Access ||
-        userHasAccess(~permission=WorkflowsManage) === Access
+        userHasAccess(~groupACL=ConnectorsView) === Access ||
+        userHasAccess(~groupACL=WorkflowsView) === Access ||
+        userHasAccess(~groupACL=WorkflowsManage) === Access
       ) {
         let _ = await fetchConnectorListResponse()
         let _ = await fetchBusinessProfiles()
@@ -37,7 +37,7 @@ let make = () => {
     {switch url.path->urlPath {
     // Connector Modules
     | list{"connectors", ...remainingPath} =>
-      <AccessControl permission={userHasAccess(~permission=ConnectorsView)}>
+      <AccessControl permission={userHasAccess(~groupACL=ConnectorsView)}>
         <EntityScaffold
           entityName="Connectors"
           remainingPath
@@ -48,8 +48,7 @@ let make = () => {
       </AccessControl>
     | list{"payoutconnectors", ...remainingPath} =>
       <AccessControl
-        isEnabled={featureFlagDetails.payOut}
-        permission={userHasAccess(~permission=ConnectorsView)}>
+        isEnabled={featureFlagDetails.payOut} permission={userHasAccess(~groupACL=ConnectorsView)}>
         <EntityScaffold
           entityName="PayoutConnectors"
           remainingPath
@@ -60,7 +59,7 @@ let make = () => {
       </AccessControl>
     | list{"3ds-authenticators", ...remainingPath} =>
       <AccessControl
-        permission={userHasAccess(~permission=ConnectorsView)}
+        permission={userHasAccess(~groupACL=ConnectorsView)}
         isEnabled={featureFlagDetails.threedsAuthenticator}>
         <EntityScaffold
           entityName="3DS Authenticator"
@@ -73,7 +72,7 @@ let make = () => {
 
     | list{"pm-authentication-processor", ...remainingPath} =>
       <AccessControl
-        permission={userHasAccess(~permission=ConnectorsView)}
+        permission={userHasAccess(~groupACL=ConnectorsView)}
         isEnabled={featureFlagDetails.pmAuthenticationProcessor}>
         <EntityScaffold
           entityName="PM Authentication Processor"
@@ -85,7 +84,7 @@ let make = () => {
       </AccessControl>
     | list{"tax-processor", ...remainingPath} =>
       <AccessControl
-        permission={userHasAccess(~permission=ConnectorsView)}
+        permission={userHasAccess(~groupACL=ConnectorsView)}
         isEnabled={featureFlagDetails.taxProcessor}>
         <EntityScaffold
           entityName="Tax Processor"
@@ -97,7 +96,7 @@ let make = () => {
       </AccessControl>
     | list{"fraud-risk-management", ...remainingPath} =>
       <AccessControl
-        isEnabled={featureFlagDetails.frm} permission={userHasAccess(~permission=ConnectorsView)}>
+        isEnabled={featureFlagDetails.frm} permission={userHasAccess(~groupACL=ConnectorsView)}>
         <EntityScaffold
           entityName="risk-management"
           remainingPath
@@ -108,7 +107,7 @@ let make = () => {
       </AccessControl>
     | list{"configure-pmts", ...remainingPath} =>
       <AccessControl
-        permission={userHasAccess(~permission=ConnectorsView)}
+        permission={userHasAccess(~groupACL=ConnectorsView)}
         isEnabled={featureFlagDetails.configurePmts}>
         <FilterContext key="ConfigurePmts" index="ConfigurePmts">
           <EntityScaffold
@@ -121,7 +120,7 @@ let make = () => {
       </AccessControl>
     // Routing
     | list{"routing", ...remainingPath} =>
-      <AccessControl permission={userHasAccess(~permission=WorkflowsView)}>
+      <AccessControl permission={userHasAccess(~groupACL=WorkflowsView)}>
         <EntityScaffold
           entityName="Routing"
           remainingPath
@@ -131,7 +130,7 @@ let make = () => {
       </AccessControl>
     | list{"payoutrouting", ...remainingPath} =>
       <AccessControl
-        isEnabled={featureFlagDetails.payOut} permission={userHasAccess(~permission=WorkflowsView)}>
+        isEnabled={featureFlagDetails.payOut} permission={userHasAccess(~groupACL=WorkflowsView)}>
         <EntityScaffold
           entityName="PayoutRouting"
           remainingPath

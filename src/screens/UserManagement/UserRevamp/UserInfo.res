@@ -6,7 +6,7 @@ module UserAction = {
     open UserManagementTypes
 
     let url = RescriptReactRouter.useUrl()
-    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let userEmail =
       url.search
       ->LogicUtils.getDictFromUrlSearchParams
@@ -23,7 +23,7 @@ module UserAction = {
       } else if userEmail === email {
         // User cannot update its own role
         NoActionAccess
-      } else if userHasAccess(~permission=UsersManage) === NoAccess {
+      } else if userHasAccess(~groupACL=UsersManage) === NoAccess {
         // User doesn't have user write permission
         NoActionAccess
       } else if (

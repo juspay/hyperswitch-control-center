@@ -14,13 +14,13 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
-  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let setRoleInfo = Recoil.useSetRecoilState(HyperswitchAtom.moduleListRecoil)
 
   let fetchModuleList = async () => {
     try {
-      if userHasAccess(~permission=UsersManage) === Access {
+      if userHasAccess(~groupACL=UsersManage) === Access {
         let url = getURL(
           ~entityName=USERS,
           ~userType=#ROLE_INFO,
@@ -47,15 +47,15 @@ let make = () => {
     {switch url.path->urlPath {
     // User Management modules
     | list{"users", "invite-users"} =>
-      <AccessControl permission={userHasAccess(~permission=UsersManage)}>
+      <AccessControl permission={userHasAccess(~groupACL=UsersManage)}>
         <InviteMember />
       </AccessControl>
     | list{"users", "create-custom-role"} =>
-      <AccessControl permission={userHasAccess(~permission=UsersManage)}>
+      <AccessControl permission={userHasAccess(~groupACL=UsersManage)}>
         <CreateCustomRole baseUrl="users" breadCrumbHeader="Team management" />
       </AccessControl>
     | list{"users", ...remainingPath} =>
-      <AccessControl permission={userHasAccess(~permission=UsersView)}>
+      <AccessControl permission={userHasAccess(~groupACL=UsersView)}>
         <EntityScaffold
           entityName="UserManagement"
           remainingPath

@@ -51,7 +51,7 @@ let emptyComponent = CustomComponent({
 
 let productionAccessComponent = (isProductionAccessEnabled, userHasAccess) =>
   isProductionAccessEnabled &&
-  userHasAccess(~permission=MerchantDetailsManage) === CommonAuthTypes.Access
+  userHasAccess(~groupACL=MerchantDetailsManage) === CommonAuthTypes.Access
     ? CustomComponent({
         component: <GetProductionAccess />,
       })
@@ -73,7 +73,7 @@ let payments = userHasAccess => {
   SubLevelLink({
     name: "Payments",
     link: `/payments`,
-    access: userHasAccess(~permission=OperationsView),
+    access: userHasAccess(~groupACL=OperationsView),
     searchOptions: [("View payment operations", "")],
   })
 }
@@ -82,7 +82,7 @@ let refunds = userHasAccess => {
   SubLevelLink({
     name: "Refunds",
     link: `/refunds`,
-    access: userHasAccess(~permission=OperationsView),
+    access: userHasAccess(~groupACL=OperationsView),
     searchOptions: [("View refund operations", "")],
   })
 }
@@ -91,7 +91,7 @@ let disputes = userHasAccess => {
   SubLevelLink({
     name: "Disputes",
     link: `/disputes`,
-    access: userHasAccess(~permission=OperationsView),
+    access: userHasAccess(~groupACL=OperationsView),
     searchOptions: [("View dispute operations", "")],
   })
 }
@@ -100,7 +100,7 @@ let customers = userHasAccess => {
   SubLevelLink({
     name: "Customers",
     link: `/customers`,
-    access: userHasAccess(~permission=OperationsView),
+    access: userHasAccess(~groupACL=OperationsView),
     searchOptions: [("View customers", "")],
   })
 }
@@ -109,7 +109,7 @@ let payouts = userHasAccess => {
   SubLevelLink({
     name: "Payouts",
     link: `/payouts`,
-    access: userHasAccess(~permission=OperationsView),
+    access: userHasAccess(~groupACL=OperationsView),
     searchOptions: [("View payouts operations", "")],
   })
 }
@@ -145,7 +145,7 @@ let paymentProcessor = (isLiveMode, userHasAccess) => {
   SubLevelLink({
     name: "Payment Processors",
     link: `/connectors`,
-    access: userHasAccess(~permission=ConnectorsView),
+    access: userHasAccess(~groupACL=ConnectorsView),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
       ~processorList=isLiveMode
         ? ConnectorUtils.connectorListForLive
@@ -159,7 +159,7 @@ let payoutConnectors = (~userHasAccess) => {
   SubLevelLink({
     name: "Payout Processors",
     link: `/payoutconnectors`,
-    access: userHasAccess(~permission=ConnectorsView),
+    access: userHasAccess(~groupACL=ConnectorsView),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
       ~processorList=ConnectorUtils.payoutConnectorList,
       ~getNameFromString=ConnectorUtils.getConnectorNameString,
@@ -171,7 +171,7 @@ let fraudAndRisk = (~userHasAccess) => {
   SubLevelLink({
     name: "Fraud & Risk",
     link: `/fraud-risk-management`,
-    access: userHasAccess(~permission=ConnectorsView),
+    access: userHasAccess(~groupACL=ConnectorsView),
     searchOptions: [],
   })
 }
@@ -180,7 +180,7 @@ let threeDsConnector = (~userHasAccess) => {
   SubLevelLink({
     name: "3DS Authenticator",
     link: "/3ds-authenticators",
-    access: userHasAccess(~permission=ConnectorsView),
+    access: userHasAccess(~groupACL=ConnectorsView),
     searchOptions: [
       ("Connect 3dsecure.io", "/new?name=threedsecureio"),
       ("Connect threedsecureio", "/new?name=threedsecureio"),
@@ -192,7 +192,7 @@ let pmAuthenticationProcessor = (~userHasAccess) => {
   SubLevelLink({
     name: "PM Authentication Processor",
     link: `/pm-authentication-processor`,
-    access: userHasAccess(~permission=ConnectorsView),
+    access: userHasAccess(~groupACL=ConnectorsView),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
       ~processorList=ConnectorUtils.pmAuthenticationConnectorList,
       ~getNameFromString=ConnectorUtils.getConnectorNameString,
@@ -204,7 +204,7 @@ let taxProcessor = (~userHasAccess) => {
   SubLevelLink({
     name: "Tax Processor",
     link: `/tax-processor`,
-    access: userHasAccess(~permission=ConnectorsView),
+    access: userHasAccess(~groupACL=ConnectorsView),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
       ~processorList=ConnectorUtils.taxProcessorList,
       ~getNameFromString=ConnectorUtils.getConnectorNameString,
@@ -338,7 +338,7 @@ let analytics = (
     ? Section({
         name: "Analytics",
         icon: "analytics",
-        showSection: userHasAccess(~permission=AnalyticsView) === CommonAuthTypes.Access,
+        showSection: userHasAccess(~groupACL=AnalyticsView) === CommonAuthTypes.Access,
         links,
       })
     : emptyComponent
@@ -347,7 +347,7 @@ let routing = userHasAccess => {
   SubLevelLink({
     name: "Routing",
     link: `/routing`,
-    access: userHasAccess(~permission=WorkflowsView),
+    access: userHasAccess(~groupACL=WorkflowsView),
     searchOptions: [
       ("Manage default routing configuration", "/default"),
       ("Create new volume based routing", "/volume"),
@@ -361,7 +361,7 @@ let payoutRouting = userHasAccess => {
   SubLevelLink({
     name: "Payout Routing",
     link: `/payoutrouting`,
-    access: userHasAccess(~permission=WorkflowsView),
+    access: userHasAccess(~groupACL=WorkflowsView),
     searchOptions: [
       ("Manage default routing configuration", "/default"),
       ("Create new volume based routing", "/volume"),
@@ -375,7 +375,7 @@ let threeDs = userHasAccess => {
   SubLevelLink({
     name: "3DS Decision Manager",
     link: `/3ds`,
-    access: userHasAccess(~permission=WorkflowsView),
+    access: userHasAccess(~groupACL=WorkflowsView),
     searchOptions: [("Configure 3ds", "")],
   })
 }
@@ -383,7 +383,7 @@ let surcharge = userHasAccess => {
   SubLevelLink({
     name: "Surcharge",
     link: `/surcharge`,
-    access: userHasAccess(~permission=WorkflowsView),
+    access: userHasAccess(~groupACL=WorkflowsView),
     searchOptions: [("Add Surcharge", "")],
   })
 }
@@ -427,7 +427,7 @@ let userManagement = userHasAccess => {
   SubLevelLink({
     name: "Users",
     link: `/users`,
-    access: userHasAccess(~permission=UsersView),
+    access: userHasAccess(~groupACL=UsersView),
     searchOptions: [("View user management", "")],
   })
 }
@@ -454,7 +454,7 @@ let configurePMTs = userHasAccess => {
   SubLevelLink({
     name: "Configure PMTs",
     link: `/configure-pmts`,
-    access: userHasAccess(~permission=ConnectorsView),
+    access: userHasAccess(~groupACL=ConnectorsView),
     searchOptions: [("Configure payment methods", "Configure country currency")],
   })
 }
@@ -493,7 +493,7 @@ let apiKeys = userHasAccess => {
   SubLevelLink({
     name: "API Keys",
     link: `/developer-api-keys`,
-    access: userHasAccess(~permission=MerchantDetailsManage),
+    access: userHasAccess(~groupACL=MerchantDetailsManage),
     searchOptions: [("View API Keys", "")],
   })
 }
@@ -502,7 +502,7 @@ let systemMetric = userHasAccess => {
   SubLevelLink({
     name: "System Metrics",
     link: `/developer-system-metrics`,
-    access: userHasAccess(~permission=AnalyticsView),
+    access: userHasAccess(~groupACL=AnalyticsView),
     iconTag: "betaTag",
     searchOptions: [("View System Metrics", "")],
   })
@@ -631,7 +631,7 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity) => {
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {userEntity, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )

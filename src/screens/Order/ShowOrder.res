@@ -24,7 +24,7 @@ module ShowOrderDetails = {
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ~sectionTitle=?,
   ) => {
-    let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let typedPaymentStatus = paymentStatus->statusVariantMapper
     let statusUI = useGetStatus(data)
     <Section customCssClass={`${border} ${bgColor} rounded-md px-5 pt-5 h-full`}>
@@ -50,7 +50,7 @@ module ShowOrderDetails = {
           </div>
           {statusUI}
           <ACLButton
-            access={userHasAccess(~permission=OperationsManage)}
+            access={userHasAccess(~groupACL=OperationsManage)}
             text="+ Refund"
             onClick={_ => {
               openRefundModal()
@@ -591,7 +591,7 @@ let make = (~id, ~profileId) => {
   open OrderUIUtils
   let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
-  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -678,7 +678,7 @@ let make = (~id, ~profileId) => {
         </div>
         <RenderIf condition={showSyncButton()}>
           <ACLButton
-            access={userHasAccess(~permission=OperationsView)}
+            access={userHasAccess(~groupACL=OperationsView)}
             text="Sync"
             leftIcon={Button.CustomIcon(
               <Icon
@@ -711,7 +711,7 @@ let make = (~id, ~profileId) => {
         />
         <RenderIf
           condition={featureFlagDetails.auditTrail &&
-          userHasAccess(~permission=AnalyticsView) === Access}>
+          userHasAccess(~groupACL=AnalyticsView) === Access}>
           <RenderAccordian
             initialExpandedArray=[0]
             accordion={[

@@ -1,21 +1,19 @@
 type userPermissionType = {
-  fetchUserGroupPermissions: unit => promise<UserManagementTypes.permissionJson>,
-  userHasAccess: (~permission: UserManagementTypes.permissionType) => CommonAuthTypes.authorization,
+  fetchUserGroupACL: unit => promise<UserManagementTypes.permissionJson>,
+  userHasAccess: (~groupACL: UserManagementTypes.permissionType) => CommonAuthTypes.authorization,
 }
 
-let useUserGroupPermissionsHook = () => {
+let useUserGroupACLHook = () => {
   open APIUtils
   open LogicUtils
-  open PermissionMapper
+  open GroupACLMapper
   open HyperswitchAtom
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let (userGroupPermissions, setuserGroupPermissions) = Recoil.useRecoilState(
-    userGroupPermissionsAtom,
-  )
+  let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let setuserPermissionJson = Recoil.useSetRecoilState(userPermissionAtom)
 
-  let fetchUserGroupPermissions = async () => {
+  let fetchUserGroupACL = async () => {
     try {
       let url = getURL(
         ~entityName=USERS,
@@ -26,9 +24,9 @@ let useUserGroupPermissionsHook = () => {
       let response = await fetchDetails(url)
       let permissionsValue =
         response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
-      setuserGroupPermissions(_ => Some(
+      setuserGroupACL(_ => Some(
         permissionsValue
-        ->Array.map(ele => ele->PermissionMapper.mapStringToPermissionType)
+        ->Array.map(ele => ele->mapStringToPermissionType)
         ->convertValueToMap,
       ))
       let permissionJson =
@@ -43,10 +41,10 @@ let useUserGroupPermissionsHook = () => {
     }
   }
 
-  let userHasAccess = (~permission) => {
-    switch userGroupPermissions {
+  let userHasAccess = (~groupACL) => {
+    switch userGroupACL {
     | Some(groupPermissions) =>
-      switch groupPermissions->Map.get(permission) {
+      switch groupPermissions->Map.get(groupACL) {
       | Some(value) => value
       | None => NoAccess
       }
@@ -54,5 +52,5 @@ let useUserGroupPermissionsHook = () => {
     }
   }
 
-  {fetchUserGroupPermissions, userHasAccess}
+  {fetchUserGroupACL, userHasAccess}
 }

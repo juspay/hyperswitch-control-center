@@ -20,7 +20,7 @@ module RenderCustomRoles = {
     }
 
     <RenderIf
-      condition={groupName->PermissionMapper.mapStringToPermissionType !== OrganizationManage}>
+      condition={groupName->GroupACLMapper.mapStringToPermissionType !== OrganizationManage}>
       <div className="flex gap-6 items-start cursor-pointer" onClick={_ => onClickGroup(groupName)}>
         <div className="mt-1">
           <CheckBoxIcon isSelected={checkboxSelected} size={Large} />

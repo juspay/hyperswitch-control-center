@@ -2,7 +2,7 @@ open PayoutHistoryTableEntity
 
 @react.component
 let make = (~records, ~activeRoutingIds: array<string>) => {
-  let {userHasAccess} = PermissionHooks.useUserGroupPermissionsHook()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (offset, setOffset) = React.useState(_ => 0)
 
   <LoadedTable
@@ -11,7 +11,7 @@ let make = (~records, ~activeRoutingIds: array<string>) => {
     actualData=records
     entity={payoutHistoryEntity(
       activeRoutingIds,
-      ~permission=userHasAccess(~permission=WorkflowsManage),
+      ~permission=userHasAccess(~groupACL=WorkflowsManage),
     )}
     resultsPerPage=10
     showSerialNumber=true
