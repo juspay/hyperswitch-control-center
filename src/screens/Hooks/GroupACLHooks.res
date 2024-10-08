@@ -43,8 +43,8 @@ let useUserGroupACLHook = () => {
 
   let userHasAccess = (~groupACL) => {
     switch userGroupACL {
-    | Some(groupPermissions) =>
-      switch groupPermissions->Map.get(groupACL) {
+    | Some(groupACLValue) =>
+      switch groupACLValue->Map.get(groupACL) {
       | Some(value) => value
       | None => NoAccess
       }
