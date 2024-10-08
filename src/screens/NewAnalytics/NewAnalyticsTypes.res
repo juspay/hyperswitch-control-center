@@ -1,6 +1,6 @@
 type analyticsPages = Payment
 type viewType = Graph | Table
-type statisticsDirection = Upward | Downward
+type statisticsDirection = Upward | Downward | No_Change
 
 type analyticsPagesRoutes = | @as("new-analytics-payment") NewAnalyticsPayment
 

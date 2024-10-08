@@ -4,7 +4,6 @@ module SmartRetryCard = {
   open NewAnalyticsHelper
   open NewPaymentsOverviewSectionTypes
   open NewPaymentsOverviewSectionUtils
-  open NewPaymentAnalyticsUtils
   open NewAnalyticsUtils
   @react.component
   let make = (~metric, ~data) => {
@@ -38,7 +37,6 @@ module SmartRetryCard = {
 module OverViewStat = {
   open NewAnalyticsHelper
   open NewAnalyticsUtils
-  open NewPaymentAnalyticsUtils
   open NewPaymentsOverviewSectionTypes
   open NewPaymentsOverviewSectionUtils
   @react.component
