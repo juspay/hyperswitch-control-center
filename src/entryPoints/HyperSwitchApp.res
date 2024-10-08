@@ -188,7 +188,7 @@ let make = () => {
                         | list{"performance-monitor"}
                         | list{"analytics-refunds"}
                         | list{"analytics-disputes"} =>
-                          <AnalyticsContainser />
+                          <AnalyticsContainer />
                         | list{"new-analytics-payment"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.newAnalytics}

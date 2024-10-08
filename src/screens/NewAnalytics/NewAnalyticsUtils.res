@@ -55,6 +55,7 @@ let requestBody = (
   ~applyFilterFor as _: option<array<status>>=None,
   ~delta: option<bool>=None,
   ~granularity: option<string>=None,
+  ~distributionValues: option<JSON.t>=None,
 ) => {
   let metrics = metrics->Array.map(v => (v: metrics :> string))
   let filter = Dict.make()->JSON.Encode.object->Some
@@ -68,6 +69,7 @@ let requestBody = (
       ~startDateTime=startTime,
       ~endDateTime=endTime,
       ~granularity,
+      ~distributionValues,
     )->JSON.Encode.object,
   ]->JSON.Encode.array
 }
@@ -97,4 +99,74 @@ let getComparisionTimePeriod = (~startDate, ~endDate) => {
   let endTimeVal = endingPoint.subtract(gap, "millisecond").toDate()->Date.toISOString
 
   (startTimeValue, endTimeVal)
+}
+
+let getMonthName = month => {
+  switch month {
+  | 0 => "Jan"
+  | 1 => "Feb"
+  | 2 => "Mar"
+  | 3 => "Apr"
+  | 4 => "May"
+  | 5 => "Jun"
+  | 6 => "Jul"
+  | 7 => "Aug"
+  | 8 => "Sep"
+  | 9 => "Oct"
+  | 10 => "Nov"
+  | 11 => "Dec"
+  | _ => ""
+  }
+}
+
+let getLabelName = (~key, ~index, ~points) => {
+  open LogicUtils
+  let getDateObject = (array, index) => {
+    array
+    ->getValueFromArray(index, Dict.make()->JSON.Encode.object)
+    ->getDictFromJsonObject
+    ->getString(key, "")
+    ->DayJs.getDayJsForString
+  }
+
+  if key === "time_bucket" {
+    let pointsArray = points->getArrayFromJson([])
+    let startPoint = pointsArray->getDateObject(0)
+    let endPoint = pointsArray->getDateObject(1)
+
+    let startDate = `${startPoint.month()->getMonthName} ${startPoint.format("DD")}`
+    let endDate = `${endPoint.month()->getMonthName} ${endPoint.format("DD")}`
+
+    `${startDate}-${endDate}`
+  } else {
+    `Series ${(index + 1)->Int.toString}`
+  }
+}
+let calculatePercentageChange = (~primaryValue, ~secondaryValue) => {
+  open NewAnalyticsTypes
+  let change = secondaryValue -. primaryValue
+
+  if primaryValue === 0.0 || change === 0.0 {
+    (0.0, No_Change)
+  } else if change > 0.0 {
+    let diff = change /. primaryValue
+    let percentage = diff *. 100.0
+    (percentage, Upward)
+  } else {
+    let diff = change *. -1.0 /. primaryValue
+    let percentage = diff *. 100.0
+    (percentage, Downward)
+  }
+}
+
+let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
+  let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
+
+  let (textColor, icon) = switch direction {
+  | Upward => ("#12B76A", "▲")
+  | Downward => ("#F04E42", "▼")
+  | No_Change => ("#A0A0A0", "")
+  }
+
+  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->valueFormatter(Rate)}</span>`
 }
