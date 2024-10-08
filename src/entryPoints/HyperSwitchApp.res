@@ -65,6 +65,11 @@ let make = () => {
     try {
       Window.connectorWasmInit()->ignore
       let _ = await fetchPermissions()
+
+      // This needs to be removed
+      // TODO: change userPermissionJson type to option<permissionJson>
+      await HyperSwitchUtils.delay(2000)
+
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()

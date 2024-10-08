@@ -34,7 +34,7 @@ let paymentsLifeCycleMapper = (
   let customerAwaited = data.customerAwaited // DropOff2
   let attemptedPayments = pending + customerAwaited + success + failure
   let pmAwaited = data.pmAwaited // Dropoff1
-  let totalPayment = pmAwaited + attemptedPayments + cancelled
+  let _totalPayment = pmAwaited + attemptedPayments + cancelled
 
   let disputed = data.disputed
 
