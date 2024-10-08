@@ -327,6 +327,7 @@ let make = (
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let {setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -354,9 +355,10 @@ let make = (
         isConnectorDisabled,
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
-      let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      setInitialValues(_=>res)
+      let _ = await fetchConnectorListResponse()
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
-      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=redirectPath))
     } catch {
     | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
     }
