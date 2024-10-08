@@ -16,7 +16,6 @@ let useLottieJson = lottieFileName => {
   let uriPrefix = LogicUtils.useUrlPrefix()
   let showToast = ToastState.useShowToast()
   let prefix = `${Window.Location.origin}${uriPrefix}`
-
   React.useEffect(() => {
     switch lottieDict->Dict.get(lottieFileName) {
     | Some(val) =>
@@ -26,7 +25,7 @@ let useLottieJson = lottieFileName => {
       }
     | None => {
         let fetchLottie =
-          fetchApi(`${prefix}/lottie-files/${lottieFileName}`, ~method_=Get)
+          fetchApi(`${prefix}/lottie-files/${lottieFileName}`, ~method_=Get, ~xFeatureRoute=false)
           ->then(res => res->Fetch.Response.json)
           ->then(json => {
             setlottieJson(_ => json)

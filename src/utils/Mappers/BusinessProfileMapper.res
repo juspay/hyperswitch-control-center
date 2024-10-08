@@ -54,6 +54,8 @@ let businessProfileTypeMapper = values => {
     outgoing_webhook_custom_http_headers: !(outgoingWebhookHeades->isEmptyDict)
       ? Some(outgoingWebhookHeades)
       : None,
+    is_auto_retries_enabled: jsonDict->getOptionBool("is_auto_retries_enabled"),
+    max_auto_retries_enabled: jsonDict->getOptionInt("max_auto_retries_enabled"),
   }
   businessProfile
 }

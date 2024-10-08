@@ -18,10 +18,7 @@ let successfulPaymentsDistributionMapper = (
   ~yKey: string,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
-  let categories =
-    data
-    ->getArrayFromJson([])
-    ->getCategories(yKey)
+  let categories = data->getCategories(0, yKey)
 
   let barGraphData = getBarGraphObj(
     ~array=data->getArrayFromJson([]),

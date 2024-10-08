@@ -1179,7 +1179,7 @@ let validateConnectorRequiredFields = (
         vector->Js.Vector.set(index, res)
       })
 
-      let _ = Js.Vector.filterInPlace(val => val == true, vector)
+      Js.Vector.filterInPlace(val => val, vector)
 
       if vector->Js.Vector.length === 0 {
         Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)

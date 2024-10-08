@@ -72,6 +72,22 @@ let requestBody = (
   ]->JSON.Encode.array
 }
 
+let valueFormatter = (value, statType: valueType) => {
+  open LogicUtils
+
+  let percentFormat = value => {
+    `${Float.toFixedWithPrecision(value, ~digits=2)}%`
+  }
+
+  switch statType {
+  | Amount => value->indianShortNum
+  | Rate => value->Js.Float.isNaN ? "-" : value->percentFormat
+  | Volume => value->indianShortNum
+  | Latency => latencyShortNum(~labelValue=value)
+  | LatencyMs => latencyShortNum(~labelValue=value, ~includeMilliseconds=true)
+  | No_Type => value->Float.toString
+  }
+}
 let getComparisionTimePeriod = (~startDate, ~endDate) => {
   let startingPoint = startDate->DayJs.getDayJsForString
   let endingPoint = endDate->DayJs.getDayJsForString
@@ -81,4 +97,33 @@ let getComparisionTimePeriod = (~startDate, ~endDate) => {
   let endTimeVal = endingPoint.subtract(gap, "millisecond").toDate()->Date.toISOString
 
   (startTimeValue, endTimeVal)
+}
+
+let calculatePercentageChange = (~primaryValue, ~secondaryValue) => {
+  open NewAnalyticsTypes
+  let change = secondaryValue -. primaryValue
+
+  if primaryValue === 0.0 || change === 0.0 {
+    (0.0, No_Change)
+  } else if change > 0.0 {
+    let diff = change /. primaryValue
+    let percentage = diff *. 100.0
+    (percentage, Upward)
+  } else {
+    let diff = change *. -1.0 /. primaryValue
+    let percentage = diff *. 100.0
+    (percentage, Downward)
+  }
+}
+
+let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
+  let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
+
+  let (textColor, icon) = switch direction {
+  | Upward => ("#12B76A", "▲")
+  | Downward => ("#F04E42", "▼")
+  | No_Change => ("#A0A0A0", "")
+  }
+
+  `<span style="color:${textColor};margin-left:7px;" >${icon}${value->valueFormatter(Rate)}</span>`
 }
