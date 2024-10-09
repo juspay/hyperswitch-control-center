@@ -76,11 +76,7 @@ let getGroupAccessJson = groupACL => {
 }
 
 let convertValueToMap = arrayValue => {
-  open CommonAuthTypes
-  let userGroupACLMap: Map.t<
-    UserManagementTypes.groupAccessType,
-    CommonAuthTypes.authorization,
-  > = Map.make()
+  let userGroupACLMap: Map.t<groupAccessType, authorization> = Map.make()
   arrayValue->Array.forEach(value => userGroupACLMap->Map.set(value, Access))
   userGroupACLMap
 }
