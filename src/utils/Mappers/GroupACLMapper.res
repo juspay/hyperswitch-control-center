@@ -59,13 +59,8 @@ let hasAnyGroupAccess = (group1, group2) => {
   }
 }
 
-let getAccessValue = (~groupAccess: groupAccessType, ~groupACL) => {
-  let isGroupFound = groupACL->Array.find(ele => {
-    ele == groupAccess
-  })
-
-  isGroupFound->Option.isSome ? Access : NoAccess
-}
+let getAccessValue = (~groupAccess: groupAccessType, ~groupACL) =>
+  groupACL->Array.find(ele => ele == groupAccess)->Option.isSome ? Access : NoAccess
 
 // TODO: Refactor to not call function for every group
 let getGroupAccessJson = groupACL => {
