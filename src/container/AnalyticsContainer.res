@@ -9,27 +9,27 @@ let make = () => {
   <div key={(analyticsEntity :> string)}>
     {switch url.path->urlPath {
     | list{"analytics-payments"} =>
-      <AccessControl permission={userHasAccess(~groupACL=AnalyticsView)}>
+      <AccessControl authorization={userHasAccess(~groupAccess=AnalyticsView)}>
         <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
           <PaymentAnalytics />
         </FilterContext>
       </AccessControl>
     | list{"analytics-refunds"} =>
-      <AccessControl permission={userHasAccess(~groupACL=AnalyticsView)}>
+      <AccessControl authorization={userHasAccess(~groupAccess=AnalyticsView)}>
         <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
           <RefundsAnalytics />
         </FilterContext>
       </AccessControl>
     | list{"analytics-disputes"} =>
       <AccessControl
-        isEnabled={disputeAnalytics} permission={userHasAccess(~groupACL=AnalyticsView)}>
+        isEnabled={disputeAnalytics} authorization={userHasAccess(~groupAccess=AnalyticsView)}>
         <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
           <DisputeAnalytics />
         </FilterContext>
       </AccessControl>
     | list{"performance-monitor"} =>
       <AccessControl
-        permission={userHasAccess(~groupACL=AnalyticsView)} isEnabled={performanceMonitor}>
+        authorization={userHasAccess(~groupAccess=AnalyticsView)} isEnabled={performanceMonitor}>
         <FilterContext key="PerformanceMonitor" index="PerformanceMonitor">
           <PerformanceMonitor domain="payments" />
         </FilterContext>

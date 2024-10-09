@@ -364,7 +364,7 @@ let make = () => {
             </p>
             <ACLButton
               text="Create New"
-              access={userHasAccess(~groupACL=WorkflowsManage)}
+              authorization={userHasAccess(~groupAccess=WorkflowsManage)}
               buttonType=Primary
               customButtonStyle="!w-1/6"
               onClick={_ => handleCreateNew()}

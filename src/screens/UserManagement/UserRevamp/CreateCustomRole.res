@@ -20,7 +20,7 @@ module RenderCustomRoles = {
     }
 
     <RenderIf
-      condition={groupName->GroupACLMapper.mapStringToPermissionType !== OrganizationManage}>
+      condition={groupName->GroupACLMapper.mapStringToGroupAccessType !== OrganizationManage}>
       <div className="flex gap-6 items-start cursor-pointer" onClick={_ => onClickGroup(groupName)}>
         <div className="mt-1">
           <CheckBoxIcon isSelected={checkboxSelected} size={Large} />
@@ -120,7 +120,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~baseUrl, ~brea
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
         ~entityName=USERS,
-        ~userType=#PERMISSION_INFO,
+        ~userType=#GROUP_ACCESS_INFO,
         ~methodType=Get,
         ~queryParamerters=Some(`groups=true`),
       )

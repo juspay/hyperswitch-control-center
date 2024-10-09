@@ -23,8 +23,8 @@ module UserAction = {
       } else if userEmail === email {
         // User cannot update its own role
         NoActionAccess
-      } else if userHasAccess(~groupACL=UsersManage) === NoAccess {
-        // User doesn't have user write permission
+      } else if userHasAccess(~groupAccess=UsersManage) === NoAccess {
+        // User doesn't have user write access
         NoActionAccess
       } else if (
         // Profile level user

@@ -79,7 +79,7 @@ module TileComponent = {
       }
     }
     let accessBasedOnCardName = switch cardName {
-    | #DELETE_SAMPLE_DATA => userHasAccess(~groupACL=OperationsManage)
+    | #DELETE_SAMPLE_DATA => userHasAccess(~groupAccess=OperationsManage)
     | _ => Access
     }
 
@@ -95,7 +95,7 @@ module TileComponent = {
         </p>
       </div>
       <ACLButton
-        access=accessBasedOnCardName
+        authorization=accessBasedOnCardName
         text=buttonText
         buttonType=Secondary
         customButtonStyle="w-2/3"

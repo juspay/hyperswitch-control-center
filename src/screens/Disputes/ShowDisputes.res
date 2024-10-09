@@ -221,7 +221,7 @@ let make = (~id, ~profileId) => {
       <div className="mt-5" />
       <RenderIf
         condition={featureFlagDetails.auditTrail &&
-        userHasAccess(~groupACL=AnalyticsView) == Access}>
+        userHasAccess(~groupAccess=AnalyticsView) == Access}>
         <OrderUIUtils.RenderAccordian
           accordion={[
             {

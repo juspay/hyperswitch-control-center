@@ -20,7 +20,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
 
       let _ = await fetchMerchantAccountDetails()
-      if userHasAccess(~groupACL=ConnectorsView) === Access {
+      if userHasAccess(~groupAccess=ConnectorsView) === Access {
         if !featureFlagDetails.isLiveMode {
           let _ = await fetchConnectorListResponse()
           let _ = await fetchBusinessProfiles()
@@ -43,7 +43,7 @@ let make = () => {
 
       | list{"recon"} =>
         <AccessControl
-          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])} permission=Access>
+          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])} authorization=Access>
           <Recon />
         </AccessControl>
       | list{"upload-files"}
@@ -53,13 +53,13 @@ let make = () => {
       | list{"config-settings"}
       | list{"file-processor"} =>
         <AccessControl
-          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])} permission=Access>
+          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])} authorization=Access>
           <ReconModule urlList={url.path->urlPath} />
         </AccessControl>
       | list{"sdk"} =>
         <AccessControl
           isEnabled={!featureFlagDetails.isLiveMode}
-          permission={userHasAccess(~groupACL=ConnectorsView)}>
+          authorization={userHasAccess(~groupAccess=ConnectorsView)}>
           <SDKPage />
         </AccessControl>
       | list{"unauthorized"} => <UnauthorizedPage />
@@ -67,7 +67,7 @@ let make = () => {
       }}
       <RenderIf
         condition={!featureFlagDetails.isLiveMode &&
-        userHasAccess(~groupACL=MerchantDetailsManage) === Access &&
+        userHasAccess(~groupAccess=MerchantDetailsManage) === Access &&
         merchantDetailsTypedValue.merchant_name->Option.isNone}>
         <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
       </RenderIf>

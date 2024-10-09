@@ -216,7 +216,7 @@ let make = () => {
   let loader = LottieFiles.useLottieJson("loader-circle.json")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let isShowRemoteResults = globalSearch && userHasAccess(~groupACL=OperationsView) === Access
+  let isShowRemoteResults = globalSearch && userHasAccess(~groupAccess=OperationsView) === Access
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
 

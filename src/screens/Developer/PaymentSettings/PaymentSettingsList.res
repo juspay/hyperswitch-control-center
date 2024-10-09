@@ -22,7 +22,7 @@ let make = (
           resultsPerPage=7
           visibleColumns
           entity={webhookProfileTableEntity(
-            ~permission=userHasAccess(~groupACL=MerchantDetailsManage),
+            ~authorization=userHasAccess(~groupAccess=MerchantDetailsManage),
           )}
           showSerialNumber=true
           actualData={businessProfileValues->Array.map(Nullable.make)}

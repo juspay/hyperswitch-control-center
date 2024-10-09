@@ -4,9 +4,9 @@ let make = (~entityName) => {
   let (reportModal, setReportModal) = React.useState(_ => false)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
-  let accessForGenerateReports = GroupACLMapper.hasAnyPermission(
-    userHasAccess(~groupACL=OperationsView),
-    userHasAccess(~groupACL=AnalyticsView),
+  let accessForGenerateReports = GroupACLMapper.hasAnyGroupAccess(
+    userHasAccess(~groupAccess=OperationsView),
+    userHasAccess(~groupAccess=AnalyticsView),
   )
 
   <>
@@ -18,7 +18,7 @@ let make = (~entityName) => {
         setReportModal(_ => true)
         mixpanelEvent(~eventName="generate_reports")
       }}
-      access={accessForGenerateReports}
+      authorization={accessForGenerateReports}
       toolTipPosition={Left}
     />
     <RenderIf condition={reportModal}>

@@ -3,7 +3,7 @@ This container holds the APIs needed for all user management-related modules.
 It ensures that the necessary data is available before any user management component loads.
 
 Pre-requisite APIs :
- - ROLE_INFO : To get the list available permissions for modules 
+ - ROLE_INFO : To get the list available authorizations for modules 
 */
 
 @react.component
@@ -20,7 +20,7 @@ let make = () => {
 
   let fetchModuleList = async () => {
     try {
-      if userHasAccess(~groupACL=UsersManage) === Access {
+      if userHasAccess(~groupAccess=UsersManage) === Access {
         let url = getURL(
           ~entityName=USERS,
           ~userType=#ROLE_INFO,
@@ -47,15 +47,15 @@ let make = () => {
     {switch url.path->urlPath {
     // User Management modules
     | list{"users", "invite-users"} =>
-      <AccessControl permission={userHasAccess(~groupACL=UsersManage)}>
+      <AccessControl authorization={userHasAccess(~groupAccess=UsersManage)}>
         <InviteMember />
       </AccessControl>
     | list{"users", "create-custom-role"} =>
-      <AccessControl permission={userHasAccess(~groupACL=UsersManage)}>
+      <AccessControl authorization={userHasAccess(~groupAccess=UsersManage)}>
         <CreateCustomRole baseUrl="users" breadCrumbHeader="Team management" />
       </AccessControl>
     | list{"users", ...remainingPath} =>
-      <AccessControl permission={userHasAccess(~groupACL=UsersView)}>
+      <AccessControl authorization={userHasAccess(~groupAccess=UsersView)}>
         <EntityScaffold
           entityName="UserManagement"
           remainingPath

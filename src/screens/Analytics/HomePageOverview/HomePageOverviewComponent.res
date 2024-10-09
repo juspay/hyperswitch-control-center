@@ -52,7 +52,7 @@ module ConnectorOverview = {
         </div>
         <ACLButton
           text="+ Add More"
-          access={userHasAccess(~groupACL=ConnectorsView)}
+          authorization={userHasAccess(~groupAccess=ConnectorsView)}
           buttonType={PrimaryOutline}
           customButtonStyle="w-10 !px-3"
           buttonSize={Small}
@@ -204,7 +204,7 @@ let make = () => {
     <p className=headingStyle> {"Overview"->React.string} </p>
     <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
       <ConnectorOverview />
-      <RenderIf condition={userHasAccess(~groupACL=AnalyticsView) === Access}>
+      <RenderIf condition={userHasAccess(~groupAccess=AnalyticsView) === Access}>
         <PaymentOverview />
       </RenderIf>
       <RenderIf condition={systemMetrics}>

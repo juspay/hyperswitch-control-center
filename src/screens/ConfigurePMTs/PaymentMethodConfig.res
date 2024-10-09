@@ -196,7 +196,7 @@ let make = (
       </Modal>
     </RenderIf>
     <ACLDiv
-      permission={userHasAccess(~groupACL=ConnectorsManage)}
+      authorization={userHasAccess(~groupAccess=ConnectorsManage)}
       className="cursor-pointer w-150"
       onClick={_ => getProcessorDetails()->ignore}>
       {switch element {

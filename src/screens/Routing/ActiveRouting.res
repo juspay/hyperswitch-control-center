@@ -37,7 +37,7 @@ module ActionButtons = {
     | ADVANCED =>
       <ACLButton
         text={"Setup"}
-        access={userHasAccess(~groupACL=WorkflowsManage)}
+        authorization={userHasAccess(~groupAccess=WorkflowsManage)}
         buttonType=Secondary
         buttonSize={Small}
         customButtonStyle={` !${borderColor.primaryNormal} bg-white ${textColor.primaryNormal}`}
@@ -53,7 +53,7 @@ module ActionButtons = {
     | DEFAULTFALLBACK =>
       <ACLButton
         text={"Manage"}
-        access={userHasAccess(~groupACL=WorkflowsManage)}
+        authorization={userHasAccess(~groupAccess=WorkflowsManage)}
         buttonType=Secondary
         customButtonStyle={`!${borderColor.primaryNormal} bg-white ${textColor.primaryNormal}`}
         buttonSize={Small}
@@ -119,7 +119,7 @@ module ActiveSection = {
         </div>
         <div className="flex gap-5 pt-6 w-1/4">
           <ACLButton
-            access={userHasAccess(~groupACL=WorkflowsManage)}
+            authorization={userHasAccess(~groupAccess=WorkflowsManage)}
             text="Manage"
             buttonType=Secondary
             customButtonStyle="w-2/3"

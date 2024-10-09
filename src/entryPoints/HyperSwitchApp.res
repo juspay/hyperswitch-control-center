@@ -40,7 +40,7 @@ let make = () => {
 
   let setUpDashboard = async () => {
     try {
-      // NOTE: Treat permission map similar to screenstate
+      // NOTE: Treat groupACL map similar to screenstate
       setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
       let _ = await fetchUserGroupACL()
@@ -161,14 +161,14 @@ let make = () => {
                         | list{"new-analytics-payment"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.newAnalytics}
-                            permission={userHasAccess(~groupACL=AnalyticsView)}>
+                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext key="NewAnalytics" index="NewAnalytics">
                               <NewAnalyticsContainer />
                             </FilterContext>
                           </AccessControl>
                         | list{"customers", ...remainingPath} =>
                           <AccessControl
-                            permission={userHasAccess(~groupACL=OperationsView)}
+                            authorization={userHasAccess(~groupAccess=OperationsView)}
                             isEnabled={[#Organization, #Merchant]->checkUserEntity}>
                             <EntityScaffold
                               entityName="Customers"
@@ -183,7 +183,7 @@ let make = () => {
                           <AccessControl
                             isEnabled={featureFlagDetails.userJourneyAnalytics &&
                             [#Organization, #Merchant]->checkUserEntity}
-                            permission={userHasAccess(~groupACL=AnalyticsView)}>
+                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                               <UserJourneyAnalytics />
                             </FilterContext>
@@ -192,7 +192,7 @@ let make = () => {
                           <AccessControl
                             isEnabled={featureFlagDetails.authenticationAnalytics &&
                             [#Organization, #Merchant]->checkUserEntity}
-                            permission={userHasAccess(~groupACL=AnalyticsView)}>
+                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext
                               key="AuthenticationAnalytics" index="AuthenticationAnalytics">
                               <AuthenticationAnalytics />
@@ -200,14 +200,14 @@ let make = () => {
                           </AccessControl>
                         | list{"developer-api-keys"} =>
                           <AccessControl
-                            permission={userHasAccess(~groupACL=MerchantDetailsManage)}
+                            authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
                             isEnabled={!checkUserEntity([#Profile])}>
                             <KeyManagement.KeysManagement />
                           </AccessControl>
                         | list{"developer-system-metrics"} =>
                           <AccessControl
                             isEnabled={isInternalUser && featureFlagDetails.systemMetrics}
-                            permission={userHasAccess(~groupACL=AnalyticsView)}>
+                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext key="SystemMetrics" index="SystemMetrics">
                               <SystemMetricsAnalytics />
                             </FilterContext>
@@ -215,23 +215,23 @@ let make = () => {
 
                         | list{"compliance"} =>
                           <AccessControl
-                            isEnabled=featureFlagDetails.complianceCertificate permission=Access>
+                            isEnabled=featureFlagDetails.complianceCertificate authorization=Access>
                             <Compliance />
                           </AccessControl>
                         | list{"3ds"} =>
-                          <AccessControl permission={userHasAccess(~groupACL=WorkflowsView)}>
+                          <AccessControl authorization={userHasAccess(~groupAccess=WorkflowsView)}>
                             <HSwitchThreeDS />
                           </AccessControl>
                         | list{"surcharge"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.surcharge}
-                            permission={userHasAccess(~groupACL=WorkflowsView)}>
+                            authorization={userHasAccess(~groupAccess=WorkflowsView)}>
                             <Surcharge />
                           </AccessControl>
                         | list{"account-settings"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.sampleData
-                            permission={userHasAccess(~groupACL=MerchantDetailsManage)}>
+                            authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}>
                             <HSwitchSettings />
                           </AccessControl>
                         | list{"account-settings", "profile", ...remainingPath} =>
@@ -245,25 +245,25 @@ let make = () => {
                         | list{"payment-attempts"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission={userHasAccess(~groupACL=OperationsView)}>
+                            authorization={userHasAccess(~groupAccess=OperationsView)}>
                             <PaymentAttemptTable />
                           </AccessControl>
                         | list{"payment-intents"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission={userHasAccess(~groupACL=OperationsView)}>
+                            authorization={userHasAccess(~groupAccess=OperationsView)}>
                             <PaymentIntentTable />
                           </AccessControl>
                         | list{"refunds-global"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission={userHasAccess(~groupACL=OperationsView)}>
+                            authorization={userHasAccess(~groupAccess=OperationsView)}>
                             <RefundsTable />
                           </AccessControl>
                         | list{"dispute-global"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission={userHasAccess(~groupACL=OperationsView)}>
+                            authorization={userHasAccess(~groupAccess=OperationsView)}>
                             <DisputeTable />
                           </AccessControl>
                         | list{"unauthorized"} => <UnauthorizedPage />

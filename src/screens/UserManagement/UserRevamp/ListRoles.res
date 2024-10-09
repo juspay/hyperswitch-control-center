@@ -40,7 +40,7 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
     <PageLoaderWrapper screenState={screenStateRoles}>
       <div className="flex flex-1 justify-end">
         <ACLButton
-          access={userHasAccess(~groupACL=UsersManage)}
+          authorization={userHasAccess(~groupAccess=UsersManage)}
           text={"Create custom roles"}
           buttonType=Primary
           onClick={_ => {

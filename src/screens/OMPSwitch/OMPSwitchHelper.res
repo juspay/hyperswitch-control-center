@@ -33,9 +33,11 @@ module AddNewMerchantProfileButton = {
     ~addItemBtnStyle="",
   ) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-    let cursorStyles = PermissionUtils.cursorStyles(userHasAccess(~groupACL=MerchantDetailsManage))
+    let cursorStyles = GroupAccessUtils.cursorStyles(
+      userHasAccess(~groupAccess=MerchantDetailsManage),
+    )
     <ACLDiv
-      permission={userHasAccess(~groupACL=MerchantDetailsManage)}
+      authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
       onClick={_ => setShowModal(_ => true)}
       isRelative=false
       contentAlign=Default

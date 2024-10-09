@@ -139,7 +139,7 @@ let make = (~isPayoutFlow=false) => {
             setOffset
             entity={ConnectorTableUtils.connectorEntity(
               `${entityPrefix}connectors`,
-              ~permission=userHasAccess(~groupACL=ConnectorsManage),
+              ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false

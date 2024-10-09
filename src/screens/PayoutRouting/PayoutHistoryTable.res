@@ -11,7 +11,7 @@ let make = (~records, ~activeRoutingIds: array<string>) => {
     actualData=records
     entity={payoutHistoryEntity(
       activeRoutingIds,
-      ~permission=userHasAccess(~groupACL=WorkflowsManage),
+      ~authorization=userHasAccess(~groupAccess=WorkflowsManage),
     )}
     resultsPerPage=10
     showSerialNumber=true

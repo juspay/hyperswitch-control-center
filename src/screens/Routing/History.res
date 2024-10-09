@@ -9,7 +9,10 @@ module HistoryTable = {
       title="History"
       hideTitle=true
       actualData=records
-      entity={historyEntity(activeRoutingIds, ~permission=userHasAccess(~groupACL=WorkflowsManage))}
+      entity={historyEntity(
+        activeRoutingIds,
+        ~authorization=userHasAccess(~groupAccess=WorkflowsManage),
+      )}
       resultsPerPage=10
       showSerialNumber=true
       totalResults={records->Array.length}

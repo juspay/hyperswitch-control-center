@@ -47,7 +47,7 @@ module NewProcessorCards = {
               </div>
               <ACLButton
                 text="Connect"
-                access={userHasAccess(~groupACL=ConnectorsManage)}
+                authorization={userHasAccess(~groupAccess=ConnectorsManage)}
                 buttonType=Secondary
                 buttonSize=Small
                 onClick={_ => handleClick(frmName)}
@@ -180,7 +180,7 @@ let make = () => {
           setOffset
           entity={FRMTableUtils.connectorEntity(
             "fraud-risk-management",
-            ~permission={userHasAccess(~groupACL=ConnectorsManage)},
+            ~authorization={userHasAccess(~groupAccess=ConnectorsManage)},
           )}
           currrentFetchCount={filteredFRMData->Array.length}
           collapseTableRow=false

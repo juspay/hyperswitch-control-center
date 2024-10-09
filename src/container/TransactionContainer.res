@@ -10,7 +10,7 @@ let make = () => {
   <div key={(transactionEntity :> string)}>
     {switch url.path->urlPath {
     | list{"payments", ...remainingPath} =>
-      <AccessControl permission={userHasAccess(~groupACL=OperationsView)}>
+      <AccessControl authorization={userHasAccess(~groupAccess=OperationsView)}>
         <FilterContext key="payments" index="payments">
           <EntityScaffold
             entityName="Payments"
@@ -22,7 +22,7 @@ let make = () => {
         </FilterContext>
       </AccessControl>
     | list{"payouts", ...remainingPath} =>
-      <AccessControl isEnabled={payOut} permission={userHasAccess(~groupACL=OperationsView)}>
+      <AccessControl isEnabled={payOut} authorization={userHasAccess(~groupAccess=OperationsView)}>
         <FilterContext key="payouts" index="payouts">
           <EntityScaffold
             entityName="Payouts"
@@ -34,7 +34,7 @@ let make = () => {
         </FilterContext>
       </AccessControl>
     | list{"refunds", ...remainingPath} =>
-      <AccessControl permission={userHasAccess(~groupACL=OperationsView)}>
+      <AccessControl authorization={userHasAccess(~groupAccess=OperationsView)}>
         <FilterContext key="refunds" index="refunds">
           <EntityScaffold
             entityName="Refunds"
@@ -46,7 +46,7 @@ let make = () => {
         </FilterContext>
       </AccessControl>
     | list{"disputes", ...remainingPath} =>
-      <AccessControl permission={userHasAccess(~groupACL=OperationsView)}>
+      <AccessControl authorization={userHasAccess(~groupAccess=OperationsView)}>
         <FilterContext key="disputes" index="disputes">
           <EntityScaffold
             entityName="Disputes"

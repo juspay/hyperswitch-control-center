@@ -27,7 +27,7 @@ module CantFindProcessor = {
 
     <RenderIf condition={showRequestConnectorBtn}>
       <ACLButton
-        access={userHasAccess(~groupACL=MerchantDetailsManage)}
+        authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
         text="Request a Processor"
         buttonType={Transparent}
         buttonSize={Small}
@@ -121,7 +121,7 @@ let make = (
           showDummyConnectorButton &&
           urlPrefix == "connectors/new"}>
           <ACLButton
-            access={userHasAccess(~groupACL=ConnectorsManage)}
+            authorization={userHasAccess(~groupAccess=ConnectorsManage)}
             leftIcon={CustomIcon(
               <Icon
                 name="plus"
@@ -150,7 +150,7 @@ let make = (
             let size = "w-14 h-14 rounded-sm"
 
             <ACLDiv
-              permission={userHasAccess(~groupACL=ConnectorsManage)}
+              authorization={userHasAccess(~groupAccess=ConnectorsManage)}
               onClick={_ => ()}
               key={i->string_of_int}
               className="border p-6 gap-4 bg-white rounded flex flex-col justify-between"
@@ -165,7 +165,7 @@ let make = (
                 {connectorInfo.description->React.string}
               </p>
               <ACLButton
-                access={userHasAccess(~groupACL=ConnectorsManage)}
+                authorization={userHasAccess(~groupAccess=ConnectorsManage)}
                 text="Connect"
                 onClick={_ => handleClick(connectorName)}
                 buttonType={Transparent}

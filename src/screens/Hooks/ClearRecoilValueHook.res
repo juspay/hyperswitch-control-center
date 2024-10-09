@@ -23,7 +23,7 @@ let useClearRecoilValue = () => {
     )
     setEnumVariantAtom(_ => "")
     setPaypalAccountStatusAtom(_ => PayPalFlowTypes.Connect_paypal_landing)
-    setUserPermissionAtom(_ => GroupACLMapper.defaultValueForPermission)
+    setUserPermissionAtom(_ => GroupACLMapper.defaultValueForGroupAccessJson)
     setUserGroupACLAtom(_ => None)
     setSwitchMerchantListAtom(_ => [SwitchMerchantUtils.defaultValue])
     setCurrentTabNameRecoilAtom(_ => "ActiveTab")

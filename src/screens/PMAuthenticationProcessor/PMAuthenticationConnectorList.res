@@ -51,7 +51,7 @@ let make = () => {
             resultsPerPage=20
             entity={PMAuthenticationTableEntity.pmAuthenticationEntity(
               `pm-authentication-processor`,
-              ~permission=userHasAccess(~groupACL=ConnectorsManage),
+              ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
             offset
             setOffset

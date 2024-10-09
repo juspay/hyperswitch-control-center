@@ -50,7 +50,7 @@ module ShowOrderDetails = {
           </div>
           {statusUI}
           <ACLButton
-            access={userHasAccess(~groupACL=OperationsManage)}
+            authorization={userHasAccess(~groupAccess=OperationsManage)}
             text="+ Refund"
             onClick={_ => {
               openRefundModal()
@@ -678,7 +678,7 @@ let make = (~id, ~profileId) => {
         </div>
         <RenderIf condition={showSyncButton()}>
           <ACLButton
-            access={userHasAccess(~groupACL=OperationsView)}
+            authorization={userHasAccess(~groupAccess=OperationsView)}
             text="Sync"
             leftIcon={Button.CustomIcon(
               <Icon
@@ -711,7 +711,7 @@ let make = (~id, ~profileId) => {
         />
         <RenderIf
           condition={featureFlagDetails.auditTrail &&
-          userHasAccess(~groupACL=AnalyticsView) === Access}>
+          userHasAccess(~groupAccess=AnalyticsView) === Access}>
           <RenderAccordian
             initialExpandedArray=[0]
             accordion={[

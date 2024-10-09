@@ -59,7 +59,7 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
     <div className="relative mt-5 w-full flex flex-col gap-12">
       <div className="absolute right-0 z-10">
         <ACLButton
-          access={userHasAccess(~groupACL=UsersManage)}
+          authorization={userHasAccess(~groupAccess=UsersManage)}
           text={"Invite users"}
           buttonType=Primary
           onClick={_ => {

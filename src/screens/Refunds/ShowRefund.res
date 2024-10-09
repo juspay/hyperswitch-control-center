@@ -158,7 +158,7 @@ let make = (~id, ~profileId) => {
         </div>
         <RenderIf condition={showSyncButton()}>
           <ACLButton
-            access={userHasAccess(~groupACL=OperationsView)}
+            authorization={userHasAccess(~groupAccess=OperationsView)}
             text="Sync"
             leftIcon={Button.CustomIcon(
               <Icon
@@ -183,7 +183,7 @@ let make = (~id, ~profileId) => {
       <div className="mt-5" />
       <RenderIf
         condition={featureFlagDetails.auditTrail &&
-        userHasAccess(~groupACL=AnalyticsView) === Access}>
+        userHasAccess(~groupAccess=AnalyticsView) === Access}>
         <OrderUIUtils.RenderAccordian
           initialExpandedArray=[0]
           accordion={[
@@ -199,7 +199,7 @@ let make = (~id, ~profileId) => {
           ]}
         />
       </RenderIf>
-      <RenderIf condition={userHasAccess(~groupACL=OperationsView) === Access}>
+      <RenderIf condition={userHasAccess(~groupAccess=OperationsView) === Access}>
         <LoadedTable
           title="Payment"
           actualData=orderData

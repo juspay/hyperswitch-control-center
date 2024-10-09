@@ -1,8 +1,8 @@
 open CommonAuthTypes
 open UserManagementTypes
 
-let mapPermissionTypeToString = permissionType => {
-  switch permissionType {
+let mapGroupAccessTypeToString = groupAccessType => {
+  switch groupAccessType {
   | OperationsView => "operations_view"
   | OperationsManage => "operations_manage"
   | ConnectorsView => "connectors_view"
@@ -15,11 +15,11 @@ let mapPermissionTypeToString = permissionType => {
   | MerchantDetailsView => "merchant_details_view"
   | MerchantDetailsManage => "merchant_details_manage"
   | OrganizationManage => "organization_manage"
-  | UnknownPermission(val) => val
+  | UnknownGroupAccess(val) => val
   }
 }
 
-let mapStringToPermissionType = val => {
+let mapStringToGroupAccessType = val => {
   switch val {
   | "operations_view" => OperationsView
   | "operations_manage" => OperationsManage
@@ -33,11 +33,11 @@ let mapStringToPermissionType = val => {
   | "merchant_details_view" => MerchantDetailsView
   | "merchant_details_manage" => MerchantDetailsManage
   | "organization_manage" => OrganizationManage
-  | val => UnknownPermission(val)
+  | val => UnknownGroupAccess(val)
   }
 }
 
-let defaultValueForPermission = {
+let defaultValueForGroupAccessJson = {
   operationsView: NoAccess,
   operationsManage: NoAccess,
   connectorsView: NoAccess,
@@ -52,47 +52,47 @@ let defaultValueForPermission = {
   organizationManage: NoAccess,
 }
 
-let hasAnyPermission = (permission1, permission2) => {
-  switch (permission1, permission2) {
+let hasAnyGroupAccess = (group1, group2) => {
+  switch (group1, group2) {
   | (NoAccess, NoAccess) => NoAccess
   | (_, _) => Access
   }
 }
 
-let getAccessValue = (~permissionValue: permissionType, ~permissionList) => {
-  let isPermissionFound = permissionList->Array.find(ele => {
-    ele == permissionValue
+let getAccessValue = (~groupAccess: groupAccessType, ~groupACL) => {
+  let isGroupFound = groupACL->Array.find(ele => {
+    ele == groupAccess
   })
 
-  isPermissionFound->Option.isSome ? Access : NoAccess
+  isGroupFound->Option.isSome ? Access : NoAccess
 }
 
-// TODO: Refactor to not call function for every permission
-let getPermissionJson = permissionList => {
+// TODO: Refactor to not call function for every group
+let getGroupAccessJson = groupACL => {
   {
-    operationsView: getAccessValue(~permissionValue=OperationsView, ~permissionList),
-    operationsManage: getAccessValue(~permissionValue=OperationsManage, ~permissionList),
-    connectorsView: getAccessValue(~permissionValue=ConnectorsView, ~permissionList),
-    connectorsManage: getAccessValue(~permissionValue=ConnectorsManage, ~permissionList),
-    workflowsView: getAccessValue(~permissionValue=WorkflowsView, ~permissionList),
-    workflowsManage: getAccessValue(~permissionValue=WorkflowsManage, ~permissionList),
-    analyticsView: getAccessValue(~permissionValue=AnalyticsView, ~permissionList),
-    usersView: getAccessValue(~permissionValue=UsersView, ~permissionList),
-    usersManage: getAccessValue(~permissionValue=UsersManage, ~permissionList),
-    merchantDetailsView: getAccessValue(~permissionValue=MerchantDetailsView, ~permissionList),
-    merchantDetailsManage: getAccessValue(~permissionValue=MerchantDetailsManage, ~permissionList),
-    organizationManage: getAccessValue(~permissionValue=OrganizationManage, ~permissionList),
+    operationsView: getAccessValue(~groupAccess=OperationsView, ~groupACL),
+    operationsManage: getAccessValue(~groupAccess=OperationsManage, ~groupACL),
+    connectorsView: getAccessValue(~groupAccess=ConnectorsView, ~groupACL),
+    connectorsManage: getAccessValue(~groupAccess=ConnectorsManage, ~groupACL),
+    workflowsView: getAccessValue(~groupAccess=WorkflowsView, ~groupACL),
+    workflowsManage: getAccessValue(~groupAccess=WorkflowsManage, ~groupACL),
+    analyticsView: getAccessValue(~groupAccess=AnalyticsView, ~groupACL),
+    usersView: getAccessValue(~groupAccess=UsersView, ~groupACL),
+    usersManage: getAccessValue(~groupAccess=UsersManage, ~groupACL),
+    merchantDetailsView: getAccessValue(~groupAccess=MerchantDetailsView, ~groupACL),
+    merchantDetailsManage: getAccessValue(~groupAccess=MerchantDetailsManage, ~groupACL),
+    organizationManage: getAccessValue(~groupAccess=OrganizationManage, ~groupACL),
   }
 }
 
 let convertValueToMap = arrayValue => {
   open CommonAuthTypes
-  let userGroupPermissions: Map.t<
-    UserManagementTypes.permissionType,
+  let userGroupACLMap: Map.t<
+    UserManagementTypes.groupAccessType,
     CommonAuthTypes.authorization,
   > = Map.make()
   arrayValue->Array.forEach(value => {
-    userGroupPermissions->Map.set(value, Access)
+    userGroupACLMap->Map.set(value, Access)
   })
-  userGroupPermissions
+  userGroupACLMap
 }

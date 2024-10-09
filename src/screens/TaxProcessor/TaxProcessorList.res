@@ -50,7 +50,7 @@ let make = () => {
             resultsPerPage=20
             entity={TaxProcessorTableEntity.taxProcessorEntity(
               `tax-processor`,
-              ~permission=userHasAccess(~groupACL=ConnectorsManage),
+              ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
             offset
             setOffset

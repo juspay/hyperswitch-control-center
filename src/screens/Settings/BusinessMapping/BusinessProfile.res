@@ -95,7 +95,7 @@ module AddEntryBtn = {
       <RenderIf condition=isFromSettings>
         <ACLButton
           text="Add"
-          access={userHasAccess(~groupACL=MerchantDetailsManage)}
+          authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
           buttonSize=Small
           buttonType={Primary}
           onClick={_ => {

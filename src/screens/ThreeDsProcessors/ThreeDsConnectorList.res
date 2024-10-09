@@ -54,7 +54,7 @@ let make = () => {
             resultsPerPage=20
             entity={ThreeDsTableEntity.threeDsAuthenticatorEntity(
               `3ds-authenticators`,
-              ~permission=userHasAccess(~groupACL=ConnectorsManage),
+              ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
             offset
             setOffset

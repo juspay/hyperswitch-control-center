@@ -1,6 +1,22 @@
-type userPermissionType = {
-  fetchUserGroupACL: unit => promise<UserManagementTypes.permissionJson>,
-  userHasAccess: (~groupACL: UserManagementTypes.permissionType) => CommonAuthTypes.authorization,
+/**
+ * @module GroupACLHook
+ *
+ * @description This exposes a hook to call the list of user group access
+ *               and to check if the user has access to that group
+ *
+ *  @functions
+ *  - fetchUserGroupACL : fetches the list of user group level access
+ *  - userHasAccess: checks if the user has access to that group or not
+ *         @params
+ *         - groupAccess : group to check if the user has access or not
+ *
+ *
+ */
+type userGroupACLType = {
+  fetchUserGroupACL: unit => promise<UserManagementTypes.groupAccessJsonType>,
+  userHasAccess: (
+    ~groupAccess: UserManagementTypes.groupAccessType,
+  ) => CommonAuthTypes.authorization,
 }
 
 let useUserGroupACLHook = () => {
@@ -17,20 +33,20 @@ let useUserGroupACLHook = () => {
     try {
       let url = getURL(
         ~entityName=USERS,
-        ~userType=#GET_PERMISSIONS,
+        ~userType=#GET_GROUP_ACL,
         ~methodType=Get,
         ~queryParamerters=Some(`groups=true`),
       )
       let response = await fetchDetails(url)
-      let permissionsValue =
+      let groupsAccessValue =
         response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
       setuserGroupACL(_ => Some(
-        permissionsValue
-        ->Array.map(ele => ele->mapStringToPermissionType)
+        groupsAccessValue
+        ->Array.map(ele => ele->mapStringToGroupAccessType)
         ->convertValueToMap,
       ))
       let permissionJson =
-        permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
+        groupsAccessValue->Array.map(ele => ele->mapStringToGroupAccessType)->getGroupAccessJson
       setuserPermissionJson(_ => permissionJson)
       permissionJson
     } catch {
@@ -41,10 +57,10 @@ let useUserGroupACLHook = () => {
     }
   }
 
-  let userHasAccess = (~groupACL) => {
+  let userHasAccess = (~groupAccess) => {
     switch userGroupACL {
     | Some(groupACLValue) =>
-      switch groupACLValue->Map.get(groupACL) {
+      switch groupACLValue->Map.get(groupAccess) {
       | Some(value) => value
       | None => NoAccess
       }
