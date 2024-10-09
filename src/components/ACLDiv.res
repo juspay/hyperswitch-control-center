@@ -1,6 +1,6 @@
 @react.component
 let make = (
-  ~permission,
+  ~authorization,
   ~onClick,
   ~children,
   ~className="",
@@ -15,7 +15,7 @@ let make = (
   ~height=?,
 ) => {
   <ACLToolTip
-    access=permission
+    authorization
     ?noAccessDescription
     ?tooltipForWidthClass
     ?description
@@ -26,7 +26,7 @@ let make = (
     ?height
     toolTipFor={<AddDataAttributes
       attributes=[("data-testid", dataAttrStr->Option.getOr("")->String.toLowerCase)]>
-      <div className onClick={permission === CommonAuthTypes.Access ? onClick : {_ => ()}}>
+      <div className onClick={authorization === CommonAuthTypes.Access ? onClick : {_ => ()}}>
         {children}
       </div>
     </AddDataAttributes>}

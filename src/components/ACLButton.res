@@ -28,16 +28,16 @@ let make = (
   ~customHeightClass=?,
   ~customBackColor=?,
   ~showBtnTextToolTip=false,
-  ~access=CommonAuthTypes.Access,
+  ~authorization=CommonAuthTypes.Access,
   ~tooltipText=HSwitchUtils.noAccessControlText,
   ~toolTipPosition=?,
 ) => {
-  let buttonState = switch access {
+  let buttonState = switch authorization {
   | Access => buttonState
   | NoAccess => Button.Disabled
   }
 
-  let showBtnTextToolTip = access === NoAccess
+  let showBtnTextToolTip = authorization === NoAccess
 
   <Button
     buttonState
