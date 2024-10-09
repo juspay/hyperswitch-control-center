@@ -476,6 +476,8 @@ let filterDateRangeField = (
   ~disableFutureDates=false,
   ~showTime=false,
   ~predefinedDays=[],
+  ~compareOptions=[],
+  ~enableComparision=false,
   ~disableApply=false,
   ~numMonths=1,
   ~dateRangeLimit=?,
@@ -492,6 +494,8 @@ let filterDateRangeField = (
       disableFutureDates
       format
       predefinedDays
+      enableComparision
+      compareOptions
       numMonths
       showTime
       disableApply

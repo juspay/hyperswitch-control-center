@@ -229,6 +229,8 @@ let filterDateRangeField: (
   ~disableFutureDates: bool=?,
   ~showTime: bool=?,
   ~predefinedDays: array<DateRangeUtils.customDateRange>=?,
+  ~compareOptions: array<DateRangeUtils.compareOption>=?,
+  ~enableComparision: bool=?,
   ~disableApply: bool=?,
   ~numMonths: int=?,
   ~dateRangeLimit: int=?,

@@ -153,7 +153,7 @@ let make = (~entity: moduleEntity) => {
       )
 
       // secondary date range
-      let (prevStartTime, prevEndTime) = NewAnalyticsUtils.getComparisionTimePeriod(
+      let (prevStartTime, prevEndTime) = DateRangeUtils.getComparisionTimePeriod(
         ~startDate=startTimeVal,
         ~endDate=endTimeVal,
       )

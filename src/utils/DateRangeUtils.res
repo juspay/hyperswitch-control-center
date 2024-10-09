@@ -8,6 +8,16 @@ type customDateRange =
   | NextMonth
   | Hour(float)
   | Day(float)
+
+type compareOption =
+  | No_Comparison
+  | Previous_Period
+  | Custom
+
+type dropdownType =
+  | PrimaryDateRange
+  | CompareDateRange
+
 let getDateString = (value, isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString) => {
   try {
     let {year, month, date} = isoStringToCustomTimeZone(value)
@@ -180,4 +190,114 @@ let changeTimeFormat = (~customTimezoneToISOString, ~date, ~time, ~format) => {
     timeSecond,
   )
   TimeZoneHook.formattedISOString(dateTimeCheck, format)
+}
+
+let getComparisionTimePeriod = (~startDate, ~endDate) => {
+  let startingPoint = startDate->DayJs.getDayJsForString
+  let endingPoint = endDate->DayJs.getDayJsForString
+  let gap = endingPoint.diff(startingPoint.toString(), "millisecond") // diff between points
+
+  let startTimeValue = startingPoint.subtract(gap, "millisecond").toDate()->Date.toISOString
+  let endTimeVal = endingPoint.subtract(gap, "millisecond").toDate()->Date.toISOString
+
+  (startTimeValue, endTimeVal)
+}
+
+let defaultCellHighlighter = (_): Calendar.highlighter => {
+  {
+    highlightSelf: false,
+    highlightLeft: false,
+    highlightRight: false,
+  }
+}
+
+let useErroryValueResetter = (value: string, setValue: (string => string) => unit) => {
+  React.useEffect(() => {
+    let isErroryTimeValue = _ => {
+      try {
+        false
+      } catch {
+      | _error => true
+      }
+    }
+    if value->isErroryTimeValue {
+      setValue(_ => "")
+    }
+
+    None
+  }, [])
+}
+
+let getDateStringForValue = (
+  value,
+  isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
+) => {
+  if value->LogicUtils.isEmptyString {
+    ""
+  } else {
+    try {
+      let check = TimeZoneHook.formattedISOString(value, "YYYY-MM-DDTHH:mm:ss.SSS[Z]")
+      let {year, month, date} = isoStringToCustomTimeZone(check)
+      `${year}-${month}-${date}`
+    } catch {
+    | _error => ""
+    }
+  }
+}
+
+let getTimeStringForValue = (
+  value,
+  isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
+) => {
+  if value->LogicUtils.isEmptyString {
+    ""
+  } else {
+    try {
+      let check = TimeZoneHook.formattedISOString(value, "YYYY-MM-DDTHH:mm:ss.SSS[Z]")
+      let {hour, minute, second} = isoStringToCustomTimeZone(check)
+      `${hour}:${minute}:${second}`
+    } catch {
+    | _error => ""
+    }
+  }
+}
+
+let getFormattedDate = (date, format) => {
+  date->Date.fromString->Date.toISOString->TimeZoneHook.formattedISOString(format)
+}
+
+let isStartBeforeEndDate = (start, end) => {
+  let getDate = date => {
+    let datevalue = Js.Date.makeWithYMD(
+      ~year=Js.Float.fromString(date[0]->Option.getOr("")),
+      ~month=Js.Float.fromString(
+        String.make(Js.Float.fromString(date[1]->Option.getOr("")) -. 1.0),
+      ),
+      ~date=Js.Float.fromString(date[2]->Option.getOr("")),
+      (),
+    )
+    datevalue
+  }
+  let startDate = getDate(String.split(start, "-"))
+  let endDate = getDate(String.split(end, "-"))
+  startDate < endDate
+}
+
+let getStartEndDiff = (startDate, endDate) => {
+  let diffTime = Math.abs(
+    endDate->Date.fromString->Date.getTime -. startDate->Date.fromString->Date.getTime,
+  )
+  diffTime
+}
+
+let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
+  React.useMemo(() => {
+    let val = input.value->JSON.Decode.string->Option.getOr("")
+    let onChange = fn => {
+      let newVal = fn(val)
+      input.onChange(newVal->Identity.stringToFormReactEvent)
+    }
+
+    (val, onChange)
+  }, [input])
 }

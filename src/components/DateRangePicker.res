@@ -1,3 +1,5 @@
+open DateRangeUtils
+
 let defaultCellHighlighter = (_): Calendar.highlighter => {
   {
     highlightSelf: false,
@@ -178,7 +180,6 @@ module Base = {
     ~customborderCSS="",
     ~isTooltipVisible=true,
   ) => {
-    open DateRangeUtils
     open LogicUtils
     let (isCustomSelected, setIsCustomSelected) = React.useState(_ =>
       predefinedDays->Array.length === 0
