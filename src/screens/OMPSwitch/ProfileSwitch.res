@@ -69,7 +69,7 @@ module NewAccountCreationModal = {
       let errorMessage = if profileName->isEmptyString {
         "Profile name cannot be empty"
       } else if profileName->String.length > 64 {
-        "Profile name too long"
+        "Profile name cannot exceed 64 characters"
       } else if !RegExp.test(RegExp.fromString(regexForProfileName), profileName) {
         "Profile name should not contain special characters"
       } else {
@@ -84,32 +84,32 @@ module NewAccountCreationModal = {
     }
 
     let modalBody =
-      <div className="p-2 m-2">
-        <div className="py-5 px-3 flex justify-between align-top">
+      <div className="">
+        <div className="p-3 m-3 flex justify-between">
           <CardUtils.CardHeader
             heading="Add a new profile"
             subHeading=""
             customSubHeadingStyle="w-full !max-w-none pr-10"
           />
           <div className="h-fit" onClick={_ => setShowModal(_ => false)}>
-            <Icon
-              name="close" className="border-2 p-2 rounded-2xl bg-gray-100 cursor-pointer" size=30
-            />
+            <Icon name="modal-close-icon" className="cursor-pointer" size=30 />
           </div>
         </div>
+        <hr />
         <Form key="new-account-creation" onSubmit validate={validateForm}>
-          <div className="flex flex-col gap-12 h-full w-full">
-            <FormRenderer.DesktopRow>
-              <div className="flex flex-col gap-5">
+          <div className="flex flex-col h-full w-full">
+            <div className="py-10">
+              <FormRenderer.DesktopRow>
                 <FormRenderer.FieldRenderer
                   fieldWrapperClass="w-full"
                   field={profileName}
                   errorClass={ProdVerifyModalUtils.errorClass}
                   labelClass="!text-black font-medium !-ml-[0.5px]"
                 />
-              </div>
-            </FormRenderer.DesktopRow>
-            <div className="flex justify-end w-full pr-5 pb-3">
+              </FormRenderer.DesktopRow>
+            </div>
+            <hr className="mt-4" />
+            <div className="flex justify-end w-full p-5">
               <FormRenderer.SubmitButton text="Add Profile" buttonSize=Small />
             </div>
           </div>
