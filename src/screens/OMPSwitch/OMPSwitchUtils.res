@@ -48,10 +48,63 @@ let profileItemToObjMapper = dict => {
     },
   }
 }
+module OMPCopyTextCustomComp = {
+  @react.component
+  let make = (
+    ~displayValue,
+    ~copyValue=None,
+    ~customTextCss="",
+    ~customParentClass="flex items-center",
+    ~customOnCopyClick=() => (),
+  ) => {
+    let showToast = ToastState.useShowToast()
+    let copyVal = switch copyValue {
+    | Some(val) => val
+    | None => displayValue
+    }
+    let onCopyClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      Clipboard.writeText(copyVal)
+      customOnCopyClick()
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
+    }
+
+    if displayValue->LogicUtils.isNonEmptyString {
+      <div className=customParentClass>
+        <div className=customTextCss> {displayValue->React.string} </div>
+        <img
+          alt="cursor"
+          src={`/assets/copyid.svg`}
+          className="cursor-pointer"
+          onClick={ev => {
+            onCopyClick(ev)
+          }}
+        />
+      </div>
+    } else {
+      "NA"->React.string
+    }
+  }
+}
 
 let generateDropdownOptions = dropdownList => {
-  let options: array<SelectBox.dropdownOption> =
-    dropdownList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
+  let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
+    item
+  ): SelectBox.dropdownOption => {
+    label: item.name,
+    value: item.id,
+    icon: Button.CustomRightIcon(
+      <ToolTip
+        description={item.id}
+        toolTipFor={<div className="cursor-pointer mr-2 mt-1">
+       <OMPCopyTextCustomComp displayValue=" " copyValue=Some({item.id})/>
+        </div>}
+        toolTipPosition=ToolTip.TopRight
+        newDesign=true
+      />
+      ,
+    ),
+  })
   options
 }
 
