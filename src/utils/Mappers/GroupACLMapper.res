@@ -1,7 +1,7 @@
 open CommonAuthTypes
 open UserManagementTypes
 
-let mapGroupAccessTypeToString = groupAccessType => {
+let mapGroupAccessTypeToString = groupAccessType =>
   switch groupAccessType {
   | OperationsView => "operations_view"
   | OperationsManage => "operations_manage"
@@ -17,9 +17,8 @@ let mapGroupAccessTypeToString = groupAccessType => {
   | OrganizationManage => "organization_manage"
   | UnknownGroupAccess(val) => val
   }
-}
 
-let mapStringToGroupAccessType = val => {
+let mapStringToGroupAccessType = val =>
   switch val {
   | "operations_view" => OperationsView
   | "operations_manage" => OperationsManage
@@ -35,7 +34,6 @@ let mapStringToGroupAccessType = val => {
   | "organization_manage" => OrganizationManage
   | val => UnknownGroupAccess(val)
   }
-}
 
 let defaultValueForGroupAccessJson = {
   operationsView: NoAccess,
@@ -52,32 +50,29 @@ let defaultValueForGroupAccessJson = {
   organizationManage: NoAccess,
 }
 
-let hasAnyGroupAccess = (group1, group2) => {
+let hasAnyGroupAccess = (group1, group2) =>
   switch (group1, group2) {
   | (NoAccess, NoAccess) => NoAccess
   | (_, _) => Access
   }
-}
 
 let getAccessValue = (~groupAccess: groupAccessType, ~groupACL) =>
   groupACL->Array.find(ele => ele == groupAccess)->Option.isSome ? Access : NoAccess
 
 // TODO: Refactor to not call function for every group
 let getGroupAccessJson = groupACL => {
-  {
-    operationsView: getAccessValue(~groupAccess=OperationsView, ~groupACL),
-    operationsManage: getAccessValue(~groupAccess=OperationsManage, ~groupACL),
-    connectorsView: getAccessValue(~groupAccess=ConnectorsView, ~groupACL),
-    connectorsManage: getAccessValue(~groupAccess=ConnectorsManage, ~groupACL),
-    workflowsView: getAccessValue(~groupAccess=WorkflowsView, ~groupACL),
-    workflowsManage: getAccessValue(~groupAccess=WorkflowsManage, ~groupACL),
-    analyticsView: getAccessValue(~groupAccess=AnalyticsView, ~groupACL),
-    usersView: getAccessValue(~groupAccess=UsersView, ~groupACL),
-    usersManage: getAccessValue(~groupAccess=UsersManage, ~groupACL),
-    merchantDetailsView: getAccessValue(~groupAccess=MerchantDetailsView, ~groupACL),
-    merchantDetailsManage: getAccessValue(~groupAccess=MerchantDetailsManage, ~groupACL),
-    organizationManage: getAccessValue(~groupAccess=OrganizationManage, ~groupACL),
-  }
+  operationsView: getAccessValue(~groupAccess=OperationsView, ~groupACL),
+  operationsManage: getAccessValue(~groupAccess=OperationsManage, ~groupACL),
+  connectorsView: getAccessValue(~groupAccess=ConnectorsView, ~groupACL),
+  connectorsManage: getAccessValue(~groupAccess=ConnectorsManage, ~groupACL),
+  workflowsView: getAccessValue(~groupAccess=WorkflowsView, ~groupACL),
+  workflowsManage: getAccessValue(~groupAccess=WorkflowsManage, ~groupACL),
+  analyticsView: getAccessValue(~groupAccess=AnalyticsView, ~groupACL),
+  usersView: getAccessValue(~groupAccess=UsersView, ~groupACL),
+  usersManage: getAccessValue(~groupAccess=UsersManage, ~groupACL),
+  merchantDetailsView: getAccessValue(~groupAccess=MerchantDetailsView, ~groupACL),
+  merchantDetailsManage: getAccessValue(~groupAccess=MerchantDetailsManage, ~groupACL),
+  organizationManage: getAccessValue(~groupAccess=OrganizationManage, ~groupACL),
 }
 
 let convertValueToMap = arrayValue => {
