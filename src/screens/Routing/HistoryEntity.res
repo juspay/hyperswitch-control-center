@@ -82,7 +82,7 @@ let getHistoryRules: JSON.t => array<historyData> = json => {
 
 let historyEntity = (
   activeRoutingIds: array<string>,
-  ~permission: CommonAuthTypes.authorization,
+  ~authorization: CommonAuthTypes.authorization,
 ) => {
   EntityType.makeEntity(
     ~uri=``,
@@ -94,7 +94,7 @@ let historyEntity = (
     ~dataKey="records",
     ~getShowLink={
       value => {
-        PermissionUtils.linkForGetShowLinkViaAccess(
+        GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
             ~url=`/routing/${value.kind
               ->routingTypeMapper
@@ -102,7 +102,7 @@ let historyEntity = (
                 ? "&isActive=true"
                 : ""}`,
           ),
-          ~permission,
+          ~authorization,
         )
       }
     },

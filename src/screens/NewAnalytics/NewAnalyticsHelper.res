@@ -83,6 +83,7 @@ module Tabs = {
       {options
       ->Array.mapWithIndex((tabValue, index) =>
         <div
+          key={index->Int.toString}
           className={`px-3 py-2 ${tabValue.value->getStyle(index)} selection:bg-white`}
           onClick={_ => setOption(tabValue)}>
           {tabValue.label->React.string}
@@ -172,6 +173,7 @@ module StatisticsCard = {
     let (bgColor, textColor) = switch direction {
     | Upward => ("bg-green-light", "text-green-dark")
     | Downward => ("bg-red-light", "text-red-dark")
+    | No_Change => ("bg-gray-100", "text-gray-500")
     }
 
     <div className={`${bgColor} ${textColor} w-fit h-fit rounded-2xl flex px-2 pt-0.5`}>

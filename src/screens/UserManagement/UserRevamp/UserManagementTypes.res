@@ -2,7 +2,8 @@ type userManagementTypes = UsersTab | RolesTab
 
 type internalUserType = InternalViewOnly | InternalAdmin | NonInternal
 
-type permissionType =
+@unboxed
+type groupAccessType =
   | OperationsView
   | OperationsManage
   | ConnectorsView
@@ -15,10 +16,10 @@ type permissionType =
   | MerchantDetailsView
   | MerchantDetailsManage
   | OrganizationManage
-  | UnknownPermission(string)
+  | UnknownGroupAccess(string)
 
 open CommonAuthTypes
-type permissionJson = {
+type groupAccessJsonType = {
   operationsView: authorization,
   operationsManage: authorization,
   connectorsView: authorization,
@@ -36,7 +37,6 @@ type permissionJson = {
 type getInfoType = {
   module_: string,
   description: string,
-  mutable isPermissionAllowed: bool,
 }
 
 type userModuleType = {
@@ -70,10 +70,10 @@ type parentGroupType =
   | Users
   | Merchant
   | Organization
-  | UnknownPermission(string)
+  | UnknownGroup(string)
 
 @unboxed
-type groupPermissionType = View | Manage
+type groupControlType = View | Manage
 
 type allSelectionType = [#All_Merchants | #All_Profiles]
 

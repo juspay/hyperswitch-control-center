@@ -3,7 +3,7 @@ let headersForXFeature = (~uri, ~headers) => {
   if uri->String.includes("lottie-files") || uri->String.includes("config/merchant-access") {
     headers->Dict.set("Content-Type", `application/json`)
   } else {
-    headers->Dict.set("x-feature", "router-custom")
+    headers->Dict.set("x-feature", "integ-custom")
   }
 }
 
