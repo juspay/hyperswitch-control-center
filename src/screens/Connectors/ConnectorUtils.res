@@ -101,6 +101,7 @@ let connectorList: array<connectorTypes> = [
   Processors(WELLSFARGO),
   Processors(NOVALNET),
   Processors(DEUTSCHEBANK),
+  Processors(NEXIXPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -492,7 +493,9 @@ let deutscheBankInfo = {
 let taxJarInfo = {
   description: "TaxJar is reimagining how businesses manage sales tax compliance. Its cloud-based platform automates the entire sales tax life cycle across all sales channels — from calculations and nexus tracking to reporting and filing.",
 }
-
+let nexixpayInfo = {
+  description : "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online."
+}
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -597,6 +600,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | FIUU => "fiuu"
   | NOVALNET => "novalnet"
   | DEUTSCHEBANK => "deutschebank"
+  | NEXIXPAY => "nexixpay"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -712,6 +716,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "fiuu" => Processors(FIUU)
     | "novalnet" => Processors(NOVALNET)
     | "deutschebank" => Processors(DEUTSCHEBANK)
+    | "nexixpay" => Processors(NEXIXPAY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -811,6 +816,7 @@ let getProcessorInfo = connector => {
   | FIUU => fiuuInfo
   | NOVALNET => novalnetInfo
   | DEUTSCHEBANK => deutscheBankInfo
+  | NEXIXPAY => nexixpayInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -1248,16 +1254,6 @@ let getPlaceHolder = label => {
   `Enter ${label->LogicUtils.snakeToTitle}`
 }
 
-let getConnectorDetailsValue = (connectorInfo: connectorPayload, str) => {
-  switch str {
-  | "api_key" => connectorInfo.connector_account_details.api_key
-  | "api_secret" => connectorInfo.connector_account_details.api_secret
-  | "key1" => connectorInfo.connector_account_details.key1
-  | "key2" => connectorInfo.connector_account_details.key2
-  | "auth_type" => Some(connectorInfo.connector_account_details.auth_type)
-  | _ => Some("")
-  }
-}
 let connectorLabelDetailField = Dict.fromArray([
   ("connector_label", "Connector label"->JSON.Encode.string),
 ])
@@ -1639,6 +1635,7 @@ let getDisplayNameForProcessor = connector =>
   | FIUU => "Fiuu"
   | NOVALNET => "Novalnet"
   | DEUTSCHEBANK => "Deutsche Bank"
+  | NEXIXPAY => "Nexixpay"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

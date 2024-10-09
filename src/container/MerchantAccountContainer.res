@@ -7,7 +7,7 @@ let make = () => {
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
   let (surveyModal, setSurveyModal) = React.useState(_ => false)
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(userPermissionAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
@@ -20,7 +20,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
 
       let _ = await fetchMerchantAccountDetails()
-      if userPermissionJson.connectorsView === Access {
+      if userHasAccess(~groupAccess=ConnectorsView) === Access {
         if !featureFlagDetails.isLiveMode {
           let _ = await fetchConnectorListResponse()
           let _ = await fetchBusinessProfiles()
@@ -43,7 +43,7 @@ let make = () => {
 
       | list{"recon"} =>
         <AccessControl
-          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])} permission=Access>
+          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])} authorization=Access>
           <Recon />
         </AccessControl>
       | list{"upload-files"}
@@ -53,12 +53,13 @@ let make = () => {
       | list{"config-settings"}
       | list{"file-processor"} =>
         <AccessControl
-          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])} permission=Access>
+          isEnabled={featureFlagDetails.recon && !checkUserEntity([#Profile])} authorization=Access>
           <ReconModule urlList={url.path->urlPath} />
         </AccessControl>
       | list{"sdk"} =>
         <AccessControl
-          isEnabled={!featureFlagDetails.isLiveMode} permission={userPermissionJson.connectorsView}>
+          isEnabled={!featureFlagDetails.isLiveMode}
+          authorization={userHasAccess(~groupAccess=ConnectorsView)}>
           <SDKPage />
         </AccessControl>
       | list{"unauthorized"} => <UnauthorizedPage />
@@ -66,7 +67,7 @@ let make = () => {
       }}
       <RenderIf
         condition={!featureFlagDetails.isLiveMode &&
-        userPermissionJson.merchantDetailsManage === Access &&
+        userHasAccess(~groupAccess=MerchantDetailsManage) === Access &&
         merchantDetailsTypedValue.merchant_name->Option.isNone}>
         <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
       </RenderIf>

@@ -335,6 +335,9 @@ let setOptionArray = (dict, key, optionArray) =>
 let setOptionDict = (dict, key, optionDictValue) =>
   optionDictValue->Option.mapOr((), value => dict->Dict.set(key, value->JSON.Encode.object))
 
+let setOptionInt = (dict, key, optionInt) =>
+  optionInt->Option.mapOr((), int => dict->Dict.set(key, int->JSON.Encode.int))
+
 let capitalizeString = str => {
   String.toUpperCase(String.charAt(str, 0)) ++ Js.String2.substringToEnd(str, ~from=1)
 }
