@@ -77,7 +77,7 @@ let make = (~id, ~profileId) => {
   open HSwitchOrderUtils
   let url = RescriptReactRouter.useUrl()
   let getURL = APIUtils.useGetURL()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading
@@ -158,7 +158,7 @@ let make = (~id, ~profileId) => {
         </div>
         <RenderIf condition={showSyncButton()}>
           <ACLButton
-            access={userPermissionJson.operationsView}
+            authorization={userHasAccess(~groupAccess=OperationsView)}
             text="Sync"
             leftIcon={Button.CustomIcon(
               <Icon
@@ -182,7 +182,8 @@ let make = (~id, ~profileId) => {
       <RefundInfo orderDict={refundData->LogicUtils.getDictFromJsonObject} />
       <div className="mt-5" />
       <RenderIf
-        condition={featureFlagDetails.auditTrail && userPermissionJson.analyticsView == Access}>
+        condition={featureFlagDetails.auditTrail &&
+        userHasAccess(~groupAccess=AnalyticsView) === Access}>
         <OrderUIUtils.RenderAccordian
           initialExpandedArray=[0]
           accordion={[
@@ -198,7 +199,7 @@ let make = (~id, ~profileId) => {
           ]}
         />
       </RenderIf>
-      <RenderIf condition={userPermissionJson.operationsView !== NoAccess}>
+      <RenderIf condition={userHasAccess(~groupAccess=OperationsView) === Access}>
         <LoadedTable
           title="Payment"
           actualData=orderData
