@@ -5,6 +5,7 @@ open PaymentsSuccessRateUtils
 
 module PaymentsSuccessRateHeader = {
   open NewPaymentAnalyticsUtils
+  open NewAnalyticsUtils
   @react.component
   let make = (~data, ~keyValue, ~granularity, ~setGranularity) => {
     let setGranularity = value => {

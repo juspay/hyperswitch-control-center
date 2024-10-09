@@ -34,12 +34,12 @@ let paymentsLifeCycleMapper = (
   let customerAwaited = data.customerAwaited // DropOff2
   let attemptedPayments = pending + customerAwaited + success + failure
   let pmAwaited = data.pmAwaited // Dropoff1
-  let totalPayment = pmAwaited + attemptedPayments + cancelled
+  let _totalPayment = pmAwaited + attemptedPayments + cancelled
 
   let disputed = data.disputed
 
   let processedData = [
-    ("Payments Initiated", "Success", totalPayment, "#E4EFFF"),
+    ("Payments Initiated", "Success", success, "#E4EFFF"),
     ("Payments Initiated", "Non-terminal state", customerAwaited, "#E4EFFF"),
     ("Success", "Dispute Raised", disputed, "#F7E0E0"),
     ("Success", "Refunds Issued", refunded, "#E4EFFF"),

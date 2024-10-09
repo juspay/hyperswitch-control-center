@@ -29,20 +29,14 @@ describe("connector", () => {
   it("Create a dummy connector", () => {
     cy.url().should("include", "/dashboard/home");
 
-    cy.get('[data-form-label="Business name"]').should(
-      "exist",
-    );
-    cy.get("[data-testid=merchant_name]").type(
-      "test_business",
-    );
+    cy.get('[data-form-label="Business name"]').should("exist");
+    cy.get("[data-testid=merchant_name]").type("test_business");
     cy.get("[data-button-for=startExploring]").click();
     cy.reload(true);
     cy.get("[data-testid=connectors]").click();
     cy.get("[data-testid=paymentprocessors]").click();
     cy.contains("Payment Processors").should("be.visible");
-    cy.contains("Connect a Dummy Processor").should(
-      "be.visible",
-    );
+    cy.contains("Connect a Dummy Processor").should("be.visible");
     cy.get("[data-button-for=connectNow]").click({
       force: true,
     });
@@ -52,9 +46,7 @@ describe("connector", () => {
       .find("button")
       .should("have.length", 4);
     cy.contains("Stripe Dummy").should("be.visible");
-    cy.get('[data-testid="stripe_test"]')
-      .find("button")
-      .click({ force: true });
+    cy.get('[data-testid="stripe_test"]').find("button").click({ force: true });
     cy.url().should("include", "/dashboard/connectors");
     cy.contains("Credentials").should("be.visible");
     cy.get("[name=connector_account_details\\.api_key]")

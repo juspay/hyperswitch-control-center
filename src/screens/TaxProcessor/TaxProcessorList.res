@@ -4,7 +4,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let getConnectorList = async _ => {
     try {
@@ -50,7 +50,7 @@ let make = () => {
             resultsPerPage=20
             entity={TaxProcessorTableEntity.taxProcessorEntity(
               `tax-processor`,
-              ~permission=userPermissionJson.connectorsManage,
+              ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
             offset
             setOffset

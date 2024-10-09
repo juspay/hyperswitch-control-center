@@ -11,9 +11,9 @@ type rolesColTypes =
   | RoleName
   | RoleScope
   | EntityType
-  | ModulePermissions
+  | RoleGroupAccess
 
-let defaultColumnsForRoles = [RoleName, EntityType, ModulePermissions]
+let defaultColumnsForRoles = [RoleName, EntityType, RoleGroupAccess]
 
 let itemToObjMapperForRoles = dict => {
   {
@@ -29,7 +29,7 @@ let getHeadingForRoles = (colType: rolesColTypes) => {
   | RoleName => Table.makeHeaderInfo(~key="role_name", ~title="Role name", ~showSort=true)
   | RoleScope => Table.makeHeaderInfo(~key="role_scope", ~title="Role scope")
   | EntityType => Table.makeHeaderInfo(~key="entity_type", ~title="Entity Type")
-  | ModulePermissions => Table.makeHeaderInfo(~key="groups", ~title="Module permissions")
+  | RoleGroupAccess => Table.makeHeaderInfo(~key="groups", ~title="Module permissions")
   }
 }
 
@@ -38,7 +38,7 @@ let getCellForRoles = (data: rolesTableTypes, colType: rolesColTypes): Table.cel
   | RoleName => Text(data.role_name->LogicUtils.snakeToTitle)
   | RoleScope => Text(data.role_scope->LogicUtils.capitalizeString)
   | EntityType => Text(data.entity_name->LogicUtils.capitalizeString)
-  | ModulePermissions =>
+  | RoleGroupAccess =>
     Table.CustomCell(
       <div>
         {data.groups

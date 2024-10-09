@@ -8,10 +8,11 @@ let useUserInfo = () => {
   let fetchApi = AuthHooks.useApiFetcher()
   let {setUserInfoData, userInfo} = React.useContext(UserInfoProvider.defaultContext)
   let url = `${Window.env.apiBaseUrl}/user`
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let getUserInfo = async () => {
     try {
-      let res = await fetchApi(`${url}`, ~method_=Get)
+      let res = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute)
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
       setUserInfoData(userInfo)
