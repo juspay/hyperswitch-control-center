@@ -50,7 +50,9 @@ module TableRow = {
     ~allowedDateRange: option<dateObj>=?,
   ) => {
     open LogicUtils
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
+    let {globalUIConfig: {font: {textColor}, backgroundColor}} = React.useContext(
+      ThemeProvider.themeContext,
+    )
     let customTimezoneToISOString = TimeZoneHook.useCustomTimeZoneToIsoString()
     let highlight = cellHighlighter
 
@@ -144,9 +146,9 @@ module TableRow = {
               endDate->isEmptyString && !isInLimit ||
               dateNotInRange
             ) {
-              "cursor-not-allowed"
+              "cursor-not-allowed opacity-50"
             } else {
-              "cursor-default"
+              "cursor-default "
             }
             let getDate = date => {
               let datevalue = Js.Date.makeWithYMD(
@@ -169,8 +171,9 @@ module TableRow = {
 
             let textColor =
               today == renderingDate
-                ? `${textColor.primaryNormal}`
-                : "text-jp-gray-900 text-opacity-75 dark:text-opacity-75"
+                ? `${textColor.primaryNormal} underline underline-offset-4`
+                : "text-blue-dark"
+
             let classN = if obj->isEmptyString || hSelf.highlightSelf {
               `h-9 p-0 w-9 font-semibold font-fira-code text-center ${textColor}  dark:text-jp-gray-text_darktheme  ${dayClass}`
             } else {
@@ -189,14 +192,14 @@ module TableRow = {
                 if endDate->isNonEmptyString {
                   let parsedEndDate = getDate(String.split(endDate, "-"))
                   z == parsedStartDate
-                    ? `h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-l-lg `
+                    ? `h-full w-full flex flex-1 justify-center items-center ${backgroundColor} bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-l-md `
                     : z == parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-r-lg "
+                    ? `h-full w-full flex flex-1 justify-center items-center ${backgroundColor} bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-r-md `
                     : z > parsedStartDate && z < parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-100  dark:bg-gray-700 dark:bg-opacity-100 text-gray-600 dark:text-gray-400"
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-grey-selection dark:bg-gray-700 dark:bg-opacity-100 dark:text-gray-400"
                     : "h-full w-full"
                 } else if z == parsedStartDate {
-                  `h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-lg ${changeHighlightCellStyle}`
+                  `h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-md ${changeHighlightCellStyle}`
                 } else if (
                   hoverdDate->isNonEmptyString &&
                   endDate->isEmptyString &&
@@ -387,8 +390,7 @@ let make = (
             {heading
             ->Array.mapWithIndex((item, i) => {
               <th key={Int.toString(i)}>
-                <div
-                  className="flex flex-1 justify-center py-1 text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
+                <div className="flex flex-1 justify-center p-1 text-blue-light font-medium text-sm">
                   {React.string(isMobileView ? item->String.charAt(0) : item)}
                 </div>
               </th>

@@ -121,6 +121,8 @@ module.exports = {
           840: "#303E5F",
           background_blue: "#EAEEF9",
           info_blue_background: "#F6F8FA",
+          dark: "#101827",
+          light: "#9CA3AF",
         },
         grey: {
           0: "#FEFEFE",
@@ -133,6 +135,7 @@ module.exports = {
           medium: "#A0A0A0",
           outline: "#E5E5E5",
           text: "#474D59",
+          selection: "#F3F4F6",
         },
         green: {
           50: "#EFF4EF",
