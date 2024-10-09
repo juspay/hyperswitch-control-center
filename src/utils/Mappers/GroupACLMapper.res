@@ -86,8 +86,6 @@ let convertValueToMap = arrayValue => {
     UserManagementTypes.groupAccessType,
     CommonAuthTypes.authorization,
   > = Map.make()
-  arrayValue->Array.forEach(value => {
-    userGroupACLMap->Map.set(value, Access)
-  })
+  arrayValue->Array.forEach(value => userGroupACLMap->Map.set(value, Access))
   userGroupACLMap
 }
