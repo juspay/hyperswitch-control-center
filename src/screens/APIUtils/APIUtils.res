@@ -228,6 +228,20 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | DISPUTES_AGGREGATE => switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(queryParams) =>
+          switch transactionEntity {
+          | #Profile => `disputes/profile/aggregate?${queryParams}`
+          | #Merchant
+          | _ =>
+            `disputes/aggregate?${queryParams}`
+          }
+        | None => `disputes/aggregate`
+        }
+      | _ => `disputes/aggregate`
+      }
     | PAYOUTS =>
       switch methodType {
       | Get =>
