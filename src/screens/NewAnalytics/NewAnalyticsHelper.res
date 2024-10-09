@@ -11,12 +11,24 @@ module Card = {
 module NoData = {
   @react.component
   let make = (~height="h-96") => {
-    <Card>
-      <div
-        className={`${height} border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
-        {"No Data"->React.string}
-      </div>
-    </Card>
+    <div
+      className={`${height} border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
+      {"No entires in selected time period."->React.string}
+    </div>
+  }
+}
+
+module Shimmer = {
+  @react.component
+  let make = (~className="w-full h-96", ~layoutId) => {
+    <FramerMotion.Motion.Div
+      className={`${className} bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100`}
+      initial={{backgroundPosition: "-200% 0"}}
+      animate={{backgroundPosition: "200% 0"}}
+      transition={{duration: 1.5, ease: "easeInOut", repeat: 10000}}
+      style={{backgroundSize: "200% 100%"}}
+      layoutId
+    />
   }
 }
 
@@ -37,14 +49,12 @@ module TabSwitch = {
 
     <div className="border border-gray-outline flex w-fit rounded-lg cursor-pointer">
       <div
-        className={`rounded-l-lg pl-3 pr-2 pt-2 pb-1 ${icon1Bg}`}
-        onClick={_ => setViewType(_ => Graph)}>
+        className={`rounded-l-lg pl-3 pr-2 pt-2 pb-1 ${icon1Bg}`} onClick={_ => setViewType(Graph)}>
         <Icon className={icon1Color} name={icon1Name} size=25 />
       </div>
       <div className="h-full border-l border-gray-outline" />
       <div
-        className={`rounded-r-lg pl-3 pr-2 pt-2 pb-1 ${icon2Bg}`}
-        onClick={_ => setViewType(_ => Table)}>
+        className={`rounded-r-lg pl-3 pr-2 pt-2 pb-1 ${icon2Bg}`} onClick={_ => setViewType(Table)}>
         <Icon className={icon2Color} name=icon2Name size=25 />
       </div>
     </div>
@@ -54,7 +64,7 @@ module TabSwitch = {
 module Tabs = {
   open NewAnalyticsTypes
   @react.component
-  let make = (~option: tab, ~setOption, ~options: array<tab>) => {
+  let make = (~option: optionType, ~setOption: optionType => unit, ~options: array<optionType>) => {
     let getStyle = (value: string, index) => {
       let textStyle =
         value === option.value
@@ -69,13 +79,14 @@ module Tabs = {
       `${textStyle} ${borderStyle} ${borderRadius}`
     }
 
-    <div className="border border-gray-outline flex w-fit rounded-lg cursor-pointer">
+    <div className="border border-gray-outline flex w-fit rounded-lg cursor-pointer text-sm ">
       {options
       ->Array.mapWithIndex((tabValue, index) =>
         <div
-          className={`px-3 py-2 ${tabValue.value->getStyle(index)}`}
-          onClick={_ => setOption(_ => tabValue)}>
-          {tabValue.title->React.string}
+          key={index->Int.toString}
+          className={`px-3 py-2 ${tabValue.value->getStyle(index)} selection:bg-white`}
+          onClick={_ => setOption(tabValue)}>
+          {tabValue.label->React.string}
         </div>
       )
       ->React.array}
@@ -86,7 +97,11 @@ module Tabs = {
 module CustomDropDown = {
   open NewAnalyticsTypes
   @react.component
-  let make = (~buttonText, ~options: array<dropDownOptionType>) => {
+  let make = (
+    ~buttonText: optionType,
+    ~options: array<optionType>,
+    ~setOption: optionType => unit,
+  ) => {
     open HeadlessUI
     let (arrow, setArrow) = React.useState(_ => false)
     <Menu \"as"="div" className="relative inline-block text-left">
@@ -96,7 +111,7 @@ module CustomDropDown = {
             className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-lg hover:bg-opacity-80 bg-white border border-outline">
             {_ => {
               <>
-                {buttonText->React.string}
+                {buttonText.label->React.string}
                 <Icon
                   className={arrow
                     ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
@@ -116,7 +131,7 @@ module CustomDropDown = {
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95">
             {<Menu.Items
-              className="absolute right-0 z-50 w-fit mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+              className="absolute right-0 z-50 w-max mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
               {props => {
                 setArrow(_ => props["open"])
 
@@ -127,7 +142,7 @@ module CustomDropDown = {
                       {props =>
                         <div className="relative">
                           <button
-                            onClick={_ => ()}
+                            onClick={_ => setOption(option)}
                             className={
                               let activeClasses = if props["active"] {
                                 "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
@@ -158,10 +173,16 @@ module StatisticsCard = {
     let (bgColor, textColor) = switch direction {
     | Upward => ("bg-green-light", "text-green-dark")
     | Downward => ("bg-red-light", "text-red-dark")
+    | No_Change => ("bg-gray-100", "text-gray-500")
     }
+
     <div className={`${bgColor} ${textColor} w-fit h-fit rounded-2xl flex px-2 pt-0.5`}>
-      <Icon className="mt-0.5 -mr-1" name="arrow-increasing" size=25 />
-      <div className="font-[600]"> {`${value}%`->React.string} </div>
+      <div className="-mb-0.5 flex">
+        <Icon className="mt-1 -mr-1" name="arrow-increasing" size=25 />
+        <div className="font-semibold">
+          {`${value->NewAnalyticsUtils.valueFormatter(Rate)}`->React.string}
+        </div>
+      </div>
     </div>
   }
 }
@@ -186,15 +207,17 @@ module ModuleHeader = {
 module GraphHeader = {
   open NewAnalyticsTypes
   @react.component
-  let make = (~title, ~viewType, ~setViewType) => {
+  let make = (~title, ~showTabSwitch, ~viewType, ~setViewType=_ => ()) => {
     <div className="w-full px-7 py-8 flex justify-between">
       <div className="flex gap-2 items-center">
         <div className="text-3xl font-600"> {title->React.string} </div>
-        <StatisticsCard value="8" direction={Upward} />
+        <StatisticsCard value=8.8 direction={Upward} />
       </div>
-      <div className="flex gap-2">
-        <TabSwitch viewType setViewType />
-      </div>
+      <RenderIf condition={showTabSwitch}>
+        <div className="flex gap-2">
+          <TabSwitch viewType setViewType />
+        </div>
+      </RenderIf>
     </div>
   }
 }

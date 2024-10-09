@@ -344,8 +344,6 @@ let make = () => {
               ->LogicUtils.getDictFromJsonObject
               ->ConnectorListMapper.getProcessorPayloadType}
               connector=connectorName
-              setScreenState={_ => ()}
-              isPayoutFlow=false
               setCurrentStep
               getConnectorDetails={Some(getConnectorDetails)}
             />

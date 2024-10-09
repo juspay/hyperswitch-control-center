@@ -126,7 +126,6 @@ let make = () => {
   }
 
   let title = "Payments Analytics"
-  let subTitle = "Gain Insights, monitor performance and make Informed Decisions with Payment Analytics."
 
   let formaPayload = (singleStatBodyEntity: DynamicSingleStat.singleStatBodyEntity) => {
     [
@@ -234,10 +233,10 @@ let make = () => {
   }
 
   open AnalyticsNew
-  <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
+  <PageLoaderWrapper screenState customUI={<NoData title />}>
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between ">
-        <PageUtils.PageHeading title subTitle />
+        <PageUtils.PageHeading title />
         <OMPSwitchHelper.OMPViews
           views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
           selectedEntity={analyticsEntity}
@@ -245,7 +244,7 @@ let make = () => {
         />
       </div>
       <div
-        className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
+        className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
         topFilterUi
       </div>
       <div className="flex flex-col gap-14">

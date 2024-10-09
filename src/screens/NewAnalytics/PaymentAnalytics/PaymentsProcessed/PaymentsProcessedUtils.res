@@ -1,54 +1,60 @@
 open PaymentsProcessedTypes
-let paymentsProcessedMapper = (_json): LineGraphTypes.lineGraphPayload => {
+open NewPaymentAnalyticsUtils
+open LogicUtils
+
+let paymentsProcessedMapper = (
+  ~data: JSON.t,
+  ~xKey: string,
+  ~yKey: string,
+): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  let categories = [
-    "01 Aug",
-    "02 Aug",
-    "03 Aug",
-    "04 Aug",
-    "05 Aug",
-    "06 Aug",
-    "07 Aug",
-    "08 Aug",
-    "09 Aug",
-    "10 Aug",
-    "11 Aug",
-  ]
-  let data = {
-    showInLegend: false,
-    name: "Series 1",
-    data: [3000, 5000, 7000, 5360, 4500, 6800, 5400, 3000, 0, 0],
-    color: "#2f7ed8",
-  }
+  let primaryCategories = data->getCategories(0, yKey)
+  let secondaryCategories = data->getCategories(1, yKey)
+
+  let lineGraphData =
+    data
+    ->getArrayFromJson([])
+    ->Array.mapWithIndex((item, index) => {
+      let name = NewAnalyticsUtils.getLabelName(~key=yKey, ~index, ~points=item)
+      let color = index->getColor
+      getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color)
+    })
   let title = {
-    text: "USD",
+    text: "Payments Processed",
   }
-  {categories, data, title}
-}
-
-let visibleColumns = [Count, Amount, Currency, TimeBucket]
-
-let colMapper = (col: paymentsProcessedCols) => {
-  switch col {
-  | Count => "count"
-  | Amount => "amount"
-  | Currency => "currency"
-  | TimeBucket => "time_bucket"
+  {
+    categories: primaryCategories,
+    data: lineGraphData,
+    title,
+    tooltipFormatter: tooltipFormatter(
+      ~secondaryCategories,
+      ~title="Payments Processed",
+      ~metricType=Amount,
+    ),
   }
 }
+// Need to modify
+let getMetaData = json =>
+  json
+  ->getArrayFromJson([])
+  ->getValueFromArray(0, JSON.Encode.array([]))
+  ->getDictFromJsonObject
+  ->getArrayFromDict("metaData", [])
+  ->getValueFromArray(0, JSON.Encode.array([]))
+  ->getDictFromJsonObject
+
+open NewAnalyticsTypes
+let visibleColumns: array<metrics> = [#payment_processed_amount, #payment_count, #time_bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
-  open LogicUtils
   {
-    count: dict->getInt(Count->colMapper, 0),
-    amount: dict->getFloat(Amount->colMapper, 0.0),
-    currency: dict->getString(Currency->colMapper, "NA"),
-    time_bucket: dict->getString(TimeBucket->colMapper, "NA"),
+    payment_count: dict->getInt((#payment_count: metrics :> string), 0),
+    payment_processed_amount: dict->getFloat((#payment_processed_amount: metrics :> string), 0.0),
+    time_bucket: dict->getString((#time_bucket: metrics :> string), "NA"),
   }
 }
 
 let getObjects: JSON.t => array<paymentsProcessedObject> = json => {
-  open LogicUtils
   json
   ->LogicUtils.getArrayFromJson([])
   ->Array.map(item => {
@@ -56,66 +62,54 @@ let getObjects: JSON.t => array<paymentsProcessedObject> = json => {
   })
 }
 
-let getHeading = colType => {
-  let key = colType->colMapper
+let getHeading = (colType: metrics) => {
   switch colType {
-  | Count => Table.makeHeaderInfo(~key, ~title="Count", ~dataType=TextType)
-  | Amount => Table.makeHeaderInfo(~key, ~title="Amount", ~dataType=TextType)
-  | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType)
-  | TimeBucket => Table.makeHeaderInfo(~key, ~title="Date", ~dataType=TextType)
+  | #payment_count =>
+    Table.makeHeaderInfo(
+      ~key=(#payment_count: metrics :> string),
+      ~title="Count",
+      ~dataType=TextType,
+    )
+  | #payment_processed_amount =>
+    Table.makeHeaderInfo(
+      ~key=(#payment_processed_amount: metrics :> string),
+      ~title="Amount",
+      ~dataType=TextType,
+    )
+  | #time_bucket | _ =>
+    Table.makeHeaderInfo(~key=(#time_bucket: metrics :> string), ~title="Date", ~dataType=TextType)
   }
 }
 
-let getCell = (obj, colType): Table.cell => {
+let getCell = (obj, colType: metrics): Table.cell => {
   switch colType {
-  | Count => Text(obj.count->Int.toString)
-  | Amount => Text(obj.amount->Float.toString)
-  | Currency => Text(obj.currency)
-  | TimeBucket => Text(obj.time_bucket)
+  | #payment_count => Text(obj.payment_count->Int.toString)
+  | #payment_processed_amount => Text(obj.payment_processed_amount->Float.toString)
+  | #time_bucket | _ => Text(obj.time_bucket)
   }
 }
 
-// Remove this
-let getData = {
-  "queryData": [
-    {"count": 24, "amount": 952, "currency": "USD", "time_bucket": "2024-08-13 18:30:00"},
-    {"count": 28, "amount": 1020, "currency": "USD", "time_bucket": "2024-08-14 18:30:00"},
-    {"count": 35, "amount": 1450, "currency": "USD", "time_bucket": "2024-08-15 18:30:00"},
-    {"count": 30, "amount": 1150, "currency": "USD", "time_bucket": "2024-08-16 18:30:00"},
-    {"count": 40, "amount": 1600, "currency": "USD", "time_bucket": "2024-08-17 18:30:00"},
-    {"count": 29, "amount": 1200, "currency": "USD", "time_bucket": "2024-08-18 18:30:00"},
-    {"count": 31, "amount": 1300, "currency": "USD", "time_bucket": "2024-08-19 18:30:00"},
-    {"count": 56, "amount": 3925, "currency": "EUR", "time_bucket": "2024-08-13 18:30:00"},
-    {"count": 50, "amount": 3750, "currency": "EUR", "time_bucket": "2024-08-14 18:30:00"},
-    {"count": 42, "amount": 3150, "currency": "EUR", "time_bucket": "2024-08-15 18:30:00"},
-    {"count": 38, "amount": 2900, "currency": "EUR", "time_bucket": "2024-08-16 18:30:00"},
-    {"count": 44, "amount": 3300, "currency": "EUR", "time_bucket": "2024-08-17 18:30:00"},
-    {"count": 50, "amount": 3750, "currency": "EUR", "time_bucket": "2024-08-18 18:30:00"},
-    {"count": 60, "amount": 4500, "currency": "EUR", "time_bucket": "2024-08-19 18:30:00"},
-    {"count": 48, "amount": 3600, "currency": "GBP", "time_bucket": "2024-08-13 18:30:00"},
-    {"count": 45, "amount": 3400, "currency": "GBP", "time_bucket": "2024-08-14 18:30:00"},
-    {"count": 40, "amount": 3000, "currency": "GBP", "time_bucket": "2024-08-15 18:30:00"},
-    {"count": 43, "amount": 3200, "currency": "GBP", "time_bucket": "2024-08-16 18:30:00"},
-    {"count": 46, "amount": 3500, "currency": "GBP", "time_bucket": "2024-08-17 18:30:00"},
-    {"count": 50, "amount": 3800, "currency": "GBP", "time_bucket": "2024-08-18 18:30:00"},
-    {"count": 52, "amount": 4000, "currency": "GBP", "time_bucket": "2024-08-19 18:30:00"},
-  ],
-  "metaData": [
-    {"count": 217, "amount": 8672, "currency": "USD"},
-    {"count": 340, "amount": 25575, "currency": "EUR"},
-    {"count": 324, "amount": 24500, "currency": "GBP"},
-  ],
-}->Identity.genericObjectOrRecordToJson
+let dropDownOptions = [
+  {label: "By Amount", value: (#payment_processed_amount: metrics :> string)},
+  {label: "By Count", value: (#payment_count: metrics :> string)},
+]
 
-let getData2 = {
-  "queryData": [
-    {"count": 24, "amount": 952, "time_bucket": "2024-08-13 18:30:00"},
-    {"count": 28, "amount": 1020, "time_bucket": "2024-08-14 18:30:00"},
-    {"count": 35, "amount": 1450, "time_bucket": "2024-08-15 18:30:00"},
-    {"count": 30, "amount": 1150, "time_bucket": "2024-08-16 18:30:00"},
-    {"count": 40, "amount": 1600, "time_bucket": "2024-08-17 18:30:00"},
-    {"count": 29, "amount": 1200, "time_bucket": "2024-08-18 18:30:00"},
-    {"count": 31, "amount": 1300, "time_bucket": "2024-08-19 18:30:00"},
-  ],
-  "metaData": [{"count": 217, "amount": 8672, "currency": "USD"}],
-}->Identity.genericObjectOrRecordToJson
+let tabs = [{label: "Daily", value: (#G_ONEDAY: granularity :> string)}]
+
+let defaultMetric = {
+  label: "By Amount",
+  value: (#payment_processed_amount: metrics :> string),
+}
+
+let defaulGranularity = {
+  label: "Daily",
+  value: (#G_ONEDAY: granularity :> string),
+}
+
+let getMetaDataKey = key => {
+  switch key {
+  | "payment_processed_amount" => "total_payment_processed_amount"
+  | "payment_count" => "total_payment_processed_count"
+  | _ => ""
+  }
+}

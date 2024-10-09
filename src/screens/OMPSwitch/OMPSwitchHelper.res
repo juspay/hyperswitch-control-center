@@ -24,16 +24,25 @@ module ListBaseComp = {
 
 module AddNewMerchantProfileButton = {
   @react.component
-  let make = (~user, ~setShowModal, ~customPadding="", ~customStyle="", ~customHRTagStyle="") => {
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-    let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
+  let make = (
+    ~user,
+    ~setShowModal,
+    ~customPadding="",
+    ~customStyle="",
+    ~customHRTagStyle="",
+    ~addItemBtnStyle="",
+  ) => {
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let cursorStyles = GroupAccessUtils.cursorStyles(
+      userHasAccess(~groupAccess=MerchantDetailsManage),
+    )
     <ACLDiv
-      permission={userPermissionJson.merchantDetailsManage}
+      authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
       onClick={_ => setShowModal(_ => true)}
       isRelative=false
       contentAlign=Default
       tooltipForWidthClass="!h-full"
-      className={`${cursorStyles} ${customPadding}`}>
+      className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}>
       {<>
         <hr className={customHRTagStyle} />
         <div
@@ -53,6 +62,13 @@ module OMPViews = {
     ~selectedEntity: UserInfoTypes.entity,
     ~onChange,
   ) => {
+    open OMPSwitchUtils
+
+    let {userInfo} = React.useContext(UserInfoProvider.defaultContext)
+    let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+    let orgList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orgListAtom)
+    let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
+
     let cssBasedOnIndex = index => {
       if index == 0 {
         "rounded-l-md"
@@ -63,14 +79,29 @@ module OMPViews = {
       }
     }
 
+    let getName = entityType => {
+      let name = switch entityType {
+      | #Organization => currentOMPName(orgList, userInfo.orgId)
+      | #Merchant => currentOMPName(merchantList, userInfo.merchantId)
+      | #Profile => currentOMPName(profileList, userInfo.profileId)
+      | _ => ""
+      }
+      name->String.length > 10
+        ? name
+          ->String.substring(~start=0, ~end=10)
+          ->String.concat("...")
+        : name
+    }
+
     <div className="flex h-fit">
       {views
       ->Array.mapWithIndex((value, index) => {
         let selectedStyle = selectedEntity == value.entity ? `bg-blue-200` : ""
         <div
+          key={index->Int.toString}
           onClick={_ => onChange(value.entity)->ignore}
-          className={`text-sm py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer`}>
-          {value.lable->React.string}
+          className={`text-xs py-2 px-3 ${selectedStyle} border text-blue-500 border-blue-500 ${index->cssBasedOnIndex} cursor-pointer break-all`}>
+          {`${value.lable} (${value.entity->getName})`->React.string}
         </div>
       })
       ->React.array}

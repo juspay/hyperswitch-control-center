@@ -49,8 +49,9 @@ let emptyComponent = CustomComponent({
   component: React.null,
 })
 
-let productionAccessComponent = (isProductionAccessEnabled, permissionJson) =>
-  isProductionAccessEnabled && permissionJson.merchantDetailsManage === Access
+let productionAccessComponent = (isProductionAccessEnabled, userHasAccess) =>
+  isProductionAccessEnabled &&
+  userHasAccess(~groupAccess=MerchantDetailsManage) === CommonAuthTypes.Access
     ? CustomComponent({
         component: <GetProductionAccess />,
       })
@@ -68,57 +69,57 @@ let home = isHomeEnabled =>
       })
     : emptyComponent
 
-let payments = permissionJson => {
+let payments = userHasAccess => {
   SubLevelLink({
     name: "Payments",
     link: `/payments`,
-    access: permissionJson.operationsView,
+    access: userHasAccess(~groupAccess=OperationsView),
     searchOptions: [("View payment operations", "")],
   })
 }
 
-let refunds = permissionJson => {
+let refunds = userHasAccess => {
   SubLevelLink({
     name: "Refunds",
     link: `/refunds`,
-    access: permissionJson.operationsView,
+    access: userHasAccess(~groupAccess=OperationsView),
     searchOptions: [("View refund operations", "")],
   })
 }
 
-let disputes = permissionJson => {
+let disputes = userHasAccess => {
   SubLevelLink({
     name: "Disputes",
     link: `/disputes`,
-    access: permissionJson.operationsView,
+    access: userHasAccess(~groupAccess=OperationsView),
     searchOptions: [("View dispute operations", "")],
   })
 }
 
-let customers = permissionJson => {
+let customers = userHasAccess => {
   SubLevelLink({
     name: "Customers",
     link: `/customers`,
-    access: permissionJson.operationsView,
+    access: userHasAccess(~groupAccess=OperationsView),
     searchOptions: [("View customers", "")],
   })
 }
 
-let payouts = permissionJson => {
+let payouts = userHasAccess => {
   SubLevelLink({
     name: "Payouts",
     link: `/payouts`,
-    access: permissionJson.operationsView,
+    access: userHasAccess(~groupAccess=OperationsView),
     searchOptions: [("View payouts operations", "")],
   })
 }
 
-let operations = (isOperationsEnabled, ~permissionJson, ~isPayoutsEnabled, ~userEntity) => {
-  let payments = payments(permissionJson)
-  let refunds = refunds(permissionJson)
-  let disputes = disputes(permissionJson)
-  let customers = customers(permissionJson)
-  let payouts = payouts(permissionJson)
+let operations = (isOperationsEnabled, ~userHasAccess, ~isPayoutsEnabled, ~userEntity) => {
+  let payments = payments(userHasAccess)
+  let refunds = refunds(userHasAccess)
+  let disputes = disputes(userHasAccess)
+  let customers = customers(userHasAccess)
+  let payouts = payouts(userHasAccess)
 
   let links = [payments, refunds, disputes]
   let isCustomersEnabled = userEntity !== #Profile
@@ -140,11 +141,11 @@ let operations = (isOperationsEnabled, ~permissionJson, ~isPayoutsEnabled, ~user
     : emptyComponent
 }
 
-let paymentProcessor = (isLiveMode, permissionJson) => {
+let paymentProcessor = (isLiveMode, userHasAccess) => {
   SubLevelLink({
     name: "Payment Processors",
     link: `/connectors`,
-    access: permissionJson.connectorsView,
+    access: userHasAccess(~groupAccess=ConnectorsView),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
       ~processorList=isLiveMode
         ? ConnectorUtils.connectorListForLive
@@ -154,11 +155,11 @@ let paymentProcessor = (isLiveMode, permissionJson) => {
   })
 }
 
-let payoutConnectors = (~permissionJson) => {
+let payoutConnectors = (~userHasAccess) => {
   SubLevelLink({
     name: "Payout Processors",
     link: `/payoutconnectors`,
-    access: permissionJson.connectorsView,
+    access: userHasAccess(~groupAccess=ConnectorsView),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
       ~processorList=ConnectorUtils.payoutConnectorList,
       ~getNameFromString=ConnectorUtils.getConnectorNameString,
@@ -166,20 +167,20 @@ let payoutConnectors = (~permissionJson) => {
   })
 }
 
-let fraudAndRisk = (~permissionJson) => {
+let fraudAndRisk = (~userHasAccess) => {
   SubLevelLink({
     name: "Fraud & Risk",
     link: `/fraud-risk-management`,
-    access: permissionJson.connectorsView,
+    access: userHasAccess(~groupAccess=ConnectorsView),
     searchOptions: [],
   })
 }
 
-let threeDsConnector = (~permissionJson) => {
+let threeDsConnector = (~userHasAccess) => {
   SubLevelLink({
     name: "3DS Authenticator",
     link: "/3ds-authenticators",
-    access: permissionJson.connectorsView,
+    access: userHasAccess(~groupAccess=ConnectorsView),
     searchOptions: [
       ("Connect 3dsecure.io", "/new?name=threedsecureio"),
       ("Connect threedsecureio", "/new?name=threedsecureio"),
@@ -187,11 +188,11 @@ let threeDsConnector = (~permissionJson) => {
   })
 }
 
-let pmAuthenticationProcessor = (~permissionJson) => {
+let pmAuthenticationProcessor = (~userHasAccess) => {
   SubLevelLink({
     name: "PM Authentication Processor",
     link: `/pm-authentication-processor`,
-    access: permissionJson.connectorsView,
+    access: userHasAccess(~groupAccess=ConnectorsView),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
       ~processorList=ConnectorUtils.pmAuthenticationConnectorList,
       ~getNameFromString=ConnectorUtils.getConnectorNameString,
@@ -199,11 +200,11 @@ let pmAuthenticationProcessor = (~permissionJson) => {
   })
 }
 
-let taxProcessor = (~permissionJson) => {
+let taxProcessor = (~userHasAccess) => {
   SubLevelLink({
     name: "Tax Processor",
     link: `/tax-processor`,
-    access: permissionJson.connectorsView,
+    access: userHasAccess(~groupAccess=ConnectorsView),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
       ~processorList=ConnectorUtils.taxProcessorList,
       ~getNameFromString=ConnectorUtils.getConnectorNameString,
@@ -219,27 +220,27 @@ let connectors = (
   ~isThreedsConnectorEnabled,
   ~isPMAuthenticationProcessor,
   ~isTaxProcessor,
-  ~permissionJson,
+  ~userHasAccess,
 ) => {
-  let connectorLinkArray = [paymentProcessor(isLiveMode, permissionJson)]
+  let connectorLinkArray = [paymentProcessor(isLiveMode, userHasAccess)]
 
   if isPayoutsEnabled {
-    connectorLinkArray->Array.push(payoutConnectors(~permissionJson))->ignore
+    connectorLinkArray->Array.push(payoutConnectors(~userHasAccess))->ignore
   }
   if isThreedsConnectorEnabled {
-    connectorLinkArray->Array.push(threeDsConnector(~permissionJson))->ignore
+    connectorLinkArray->Array.push(threeDsConnector(~userHasAccess))->ignore
   }
 
   if isFrmEnabled {
-    connectorLinkArray->Array.push(fraudAndRisk(~permissionJson))->ignore
+    connectorLinkArray->Array.push(fraudAndRisk(~userHasAccess))->ignore
   }
 
   if isPMAuthenticationProcessor {
-    connectorLinkArray->Array.push(pmAuthenticationProcessor(~permissionJson))->ignore
+    connectorLinkArray->Array.push(pmAuthenticationProcessor(~userHasAccess))->ignore
   }
 
   if isTaxProcessor {
-    connectorLinkArray->Array.push(taxProcessor(~permissionJson))->ignore
+    connectorLinkArray->Array.push(taxProcessor(~userHasAccess))->ignore
   }
 
   isConnectorsEnabled
@@ -310,7 +311,7 @@ let analytics = (
   disputeAnalyticsFlag,
   performanceMonitorFlag,
   newAnalyticsflag,
-  ~permissionJson,
+  ~userHasAccess,
 ) => {
   let links = [paymentAnalytcis, refundAnalytics]
 
@@ -337,16 +338,16 @@ let analytics = (
     ? Section({
         name: "Analytics",
         icon: "analytics",
-        showSection: permissionJson.analyticsView === Access,
+        showSection: userHasAccess(~groupAccess=AnalyticsView) === CommonAuthTypes.Access,
         links,
       })
     : emptyComponent
 }
-let routing = permissionJson => {
+let routing = userHasAccess => {
   SubLevelLink({
     name: "Routing",
     link: `/routing`,
-    access: permissionJson.workflowsView,
+    access: userHasAccess(~groupAccess=WorkflowsView),
     searchOptions: [
       ("Manage default routing configuration", "/default"),
       ("Create new volume based routing", "/volume"),
@@ -356,11 +357,11 @@ let routing = permissionJson => {
   })
 }
 
-let payoutRouting = permissionJson => {
+let payoutRouting = userHasAccess => {
   SubLevelLink({
     name: "Payout Routing",
     link: `/payoutrouting`,
-    access: permissionJson.workflowsView,
+    access: userHasAccess(~groupAccess=WorkflowsView),
     searchOptions: [
       ("Manage default routing configuration", "/default"),
       ("Create new volume based routing", "/volume"),
@@ -370,19 +371,19 @@ let payoutRouting = permissionJson => {
   })
 }
 
-let threeDs = permissionJson => {
+let threeDs = userHasAccess => {
   SubLevelLink({
     name: "3DS Decision Manager",
     link: `/3ds`,
-    access: permissionJson.workflowsView,
+    access: userHasAccess(~groupAccess=WorkflowsView),
     searchOptions: [("Configure 3ds", "")],
   })
 }
-let surcharge = permissionJson => {
+let surcharge = userHasAccess => {
   SubLevelLink({
     name: "Surcharge",
     link: `/surcharge`,
-    access: permissionJson.workflowsView,
+    access: userHasAccess(~groupAccess=WorkflowsView),
     searchOptions: [("Add Surcharge", "")],
   })
 }
@@ -390,14 +391,14 @@ let surcharge = permissionJson => {
 let workflow = (
   isWorkflowEnabled,
   isSurchargeEnabled,
-  ~permissionJson,
+  ~userHasAccess,
   ~isPayoutEnabled,
   ~userEntity,
 ) => {
-  let routing = routing(permissionJson)
-  let threeDs = threeDs(permissionJson)
-  let payoutRouting = payoutRouting(permissionJson)
-  let surcharge = surcharge(permissionJson)
+  let routing = routing(userHasAccess)
+  let threeDs = threeDs(userHasAccess)
+  let payoutRouting = payoutRouting(userHasAccess)
+  let surcharge = surcharge(userHasAccess)
 
   let defaultWorkFlow = [routing]
   let isNotProfileEntity = userEntity !== #Profile
@@ -422,11 +423,11 @@ let workflow = (
     : emptyComponent
 }
 
-let userManagement = permissionJson => {
+let userManagement = userHasAccess => {
   SubLevelLink({
     name: "Users",
     link: `/users`,
-    access: permissionJson.usersView,
+    access: userHasAccess(~groupAccess=UsersView),
     searchOptions: [("View user management", "")],
   })
 }
@@ -449,11 +450,11 @@ let businessProfiles = () => {
   })
 }
 
-let configurePMTs = permissionJson => {
+let configurePMTs = userHasAccess => {
   SubLevelLink({
     name: "Configure PMTs",
     link: `/configure-pmts`,
-    access: permissionJson.connectorsView,
+    access: userHasAccess(~groupAccess=ConnectorsView),
     searchOptions: [("Configure payment methods", "Configure country currency")],
   })
 }
@@ -467,18 +468,18 @@ let complianceCertificateSection = {
   })
 }
 
-let settings = (~isConfigurePmtsEnabled, ~permissionJson, ~complianceCertificate) => {
+let settings = (~isConfigurePmtsEnabled, ~userHasAccess, ~complianceCertificate) => {
   let settingsLinkArray = [businessDetails(), businessProfiles()]
 
   if isConfigurePmtsEnabled {
-    settingsLinkArray->Array.push(configurePMTs(permissionJson))->ignore
+    settingsLinkArray->Array.push(configurePMTs(userHasAccess))->ignore
   }
 
   if complianceCertificate {
     settingsLinkArray->Array.push(complianceCertificateSection)->ignore
   }
 
-  settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
+  settingsLinkArray->Array.push(userManagement(userHasAccess))->ignore
 
   Section({
     name: "Settings",
@@ -488,20 +489,20 @@ let settings = (~isConfigurePmtsEnabled, ~permissionJson, ~complianceCertificate
   })
 }
 
-let apiKeys = permissionJson => {
+let apiKeys = userHasAccess => {
   SubLevelLink({
     name: "API Keys",
     link: `/developer-api-keys`,
-    access: permissionJson.merchantDetailsManage,
+    access: userHasAccess(~groupAccess=MerchantDetailsManage),
     searchOptions: [("View API Keys", "")],
   })
 }
 
-let systemMetric = permissionJson => {
+let systemMetric = userHasAccess => {
   SubLevelLink({
     name: "System Metrics",
     link: `/developer-system-metrics`,
-    access: permissionJson.analyticsView,
+    access: userHasAccess(~groupAccess=AnalyticsView),
     iconTag: "betaTag",
     searchOptions: [("View System Metrics", "")],
   })
@@ -516,12 +517,18 @@ let paymentSettings = () => {
   })
 }
 
-let developers = (isDevelopersEnabled, systemMetrics, ~permissionJson, ~checkUserEntity) => {
-  let isInternalUser = checkUserEntity([#Internal])
+let developers = (
+  isDevelopersEnabled,
+  systemMetrics,
+  ~userHasAccess,
+  ~checkUserEntity,
+  ~roleId,
+) => {
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let isProfileUser = checkUserEntity([#Profile])
-  let apiKeys = apiKeys(permissionJson)
+  let apiKeys = apiKeys(userHasAccess)
   let paymentSettings = paymentSettings()
-  let systemMetric = systemMetric(permissionJson)
+  let systemMetric = systemMetric(userHasAccess)
 
   let defaultDevelopersOptions = [paymentSettings]
 
@@ -624,8 +631,10 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity) => {
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-  let {userInfo: {userEntity}, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userInfo: {userEntity, roleId}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let {
     frm,
     payOut,
@@ -648,9 +657,9 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   } = featureFlagDetails
 
   let sidebar = [
-    productionAccessComponent(quickStart, permissionJson),
+    productionAccessComponent(quickStart, userHasAccess),
     default->home,
-    default->operations(~permissionJson, ~isPayoutsEnabled=payOut, ~userEntity),
+    default->operations(~userHasAccess, ~isPayoutsEnabled=payOut, ~userEntity),
     default->connectors(
       ~isLiveMode,
       ~isFrmEnabled=frm,
@@ -658,7 +667,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~isThreedsConnectorEnabled=threedsAuthenticator,
       ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
       ~isTaxProcessor=taxProcessor,
-      ~permissionJson,
+      ~userHasAccess,
     ),
     default->analytics(
       userJourneyAnalyticsFlag,
@@ -666,12 +675,12 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       disputeAnalytics,
       performanceMonitorFlag,
       newAnalytics,
-      ~permissionJson,
+      ~userHasAccess,
     ),
-    default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut, ~userEntity),
+    default->workflow(isSurchargeEnabled, ~userHasAccess, ~isPayoutEnabled=payOut, ~userEntity),
     recon->reconAndSettlement(isReconEnabled, checkUserEntity),
-    default->developers(systemMetrics, ~permissionJson, ~checkUserEntity),
-    settings(~isConfigurePmtsEnabled=configurePmts, ~permissionJson, ~complianceCertificate),
+    default->developers(systemMetrics, ~userHasAccess, ~checkUserEntity, ~roleId),
+    settings(~isConfigurePmtsEnabled=configurePmts, ~userHasAccess, ~complianceCertificate),
   ]
 
   sidebar

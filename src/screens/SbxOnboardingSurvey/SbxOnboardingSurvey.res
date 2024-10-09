@@ -47,7 +47,6 @@ let make = (~showModal, ~setShowModal) => {
   let {merchantId, email: userEmail} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let (merchantDetailsTypedValue, setMerchantDetailsValue) =
     HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilState
-  let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
 
   let getMerchantNameFromJson = values =>
     values->getDictFromJsonObject->getString("merchant_name", "")
@@ -92,7 +91,6 @@ let make = (~showModal, ~setShowModal) => {
           ("merchant_name", values->getMerchantNameFromJson->JSON.Encode.string),
         ]->getJsonFromArrayOfJson
       let merchantDetails = await updateDetails(accountUrl, body, Post)
-      let _ = fetchSwitchMerchantList()
       setMerchantDetailsValue(_ => merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails)
     } catch {
     | _ => {

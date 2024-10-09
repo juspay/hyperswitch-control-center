@@ -34,6 +34,8 @@ type featureFlag = {
   newAnalytics: bool,
   downTime: bool,
   taxProcessor: bool,
+  transactionView: bool,
+  xFeatureRoute: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -75,6 +77,8 @@ let featureFlagType = (featureFlags: JSON.t) => {
     newAnalytics: dict->getBool("new_analytics", false),
     downTime: dict->getBool("down_time", false),
     taxProcessor: dict->getBool("tax_processor", false),
+    transactionView: dict->getBool("transaction_view", false),
+    xFeatureRoute: dict->getBool("x_feature_route", false),
   }
   typedFeatureFlag
 }

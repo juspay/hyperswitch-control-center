@@ -3,7 +3,7 @@ let p2MediumTextClass = HSwitchUtils.getTextClass((P2, Medium))
 let p3MediumTextClass = HSwitchUtils.getTextClass((P3, Medium))
 let p3RegularTextClass = HSwitchUtils.getTextClass((P3, Regular))
 
-module ModulePermissionRender = {
+module ModuleAccessRenderer = {
   @react.component
   let make = (~elem: UserManagementTypes.userModuleType, ~index, ~customCss="") => {
     open UserUtils
@@ -33,7 +33,7 @@ module ModulePermissionRender = {
     </div>
   }
 }
-module RoleToPermission = {
+module RoleAccessOverview = {
   @react.component
   let make = (~roleDict, ~role) => {
     open LogicUtils
@@ -47,12 +47,12 @@ module RoleToPermission = {
     <div className="flex flex-col gap-8">
       {modulesWithAccess
       ->Array.mapWithIndex((elem, index) => {
-        <ModulePermissionRender elem index />
+        <ModuleAccessRenderer elem index />
       })
       ->React.array}
       {moduleWithoutAccess
       ->Array.mapWithIndex((elem, index) => {
-        <ModulePermissionRender elem index customCss="text-grey-200" />
+        <ModuleAccessRenderer elem index customCss="text-grey-200" />
       })
       ->React.array}
     </div>
@@ -74,7 +74,6 @@ module NoteComponent = {
       `You can only invite people for ${merchantId} here. To invite users to another merchant, please switch the merchant.`
     | #Profile =>
       `You can only invite people for ${profileId} here. To invite users to another profile, please switch the profile.`
-    | _ => ""
     }
 
     <div className="flex gap-2 items-start justify-start">
@@ -201,7 +200,7 @@ let make = () => {
             </p>
             <PageLoaderWrapper screenState>
               <div className="border rounded-md p-4 flex flex-col">
-                <RoleToPermission roleDict role={roleTypeValue->Option.getOr("")} />
+                <RoleAccessOverview roleDict role={roleTypeValue->Option.getOr("")} />
               </div>
             </PageLoaderWrapper>
           </>

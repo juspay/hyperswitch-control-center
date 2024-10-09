@@ -43,17 +43,16 @@ let make = () => {
   })
 
   let title = "Disputes Analytics"
-  let subTitle = "Gain Insights, monitor performance and make Informed Decisions with Dispute Analytics."
+
   let analyticsfilterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
   let disputeAnalyticsUrl = getURL(
     ~entityName=ANALYTICS_PAYMENTS,
     ~methodType=Post,
     ~id=Some(domain),
   )
-  <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
+  <PageLoaderWrapper screenState customUI={<NoData title />}>
     <Analytics
       pageTitle=title
-      pageSubTitle=subTitle
       filterUri=Some(analyticsfilterUrl)
       key="DisputesAnalytics"
       moduleName="Disputes"

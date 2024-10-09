@@ -28,7 +28,8 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, transactionView} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchOrders = () => {
     if !previewOnly {
@@ -43,7 +44,7 @@ let make = (~previewOnly=false) => {
         }
 
         let sortObj = sortAtomValue->Dict.get("Orders")->Option.getOr(defaultSort)
-        if sortObj.sortKey->LogicUtils.isNonEmptyString {
+        if sortObj.sortKey->isNonEmptyString {
           filters->Dict.set(
             "order",
             [
@@ -142,9 +143,11 @@ let make = (~previewOnly=false) => {
           </RenderIf>
         </div>
       </div>
-      <div className="flex gap-6 justify-around">
-        <TransactionView entity=TransactionViewTypes.Orders />
-      </div>
+      <RenderIf condition={transactionView}>
+        <div className="flex gap-6 justify-around">
+          <TransactionView entity=TransactionViewTypes.Orders />
+        </div>
+      </RenderIf>
       <div className="flex">
         <RenderIf condition={!previewOnly}>
           <div className="flex-1"> {filtersUI} </div>

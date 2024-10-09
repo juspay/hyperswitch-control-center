@@ -16,9 +16,6 @@ let checkHealth = async (res) => {
     let indexFile = "dist/hyperswitch/index.html";
 
     let data = Fs.readFileSync(indexFile, { encoding: "utf8" });
-    if (data.includes(`<script src="/env-config.js"></script>`)) {
-      output.env_config = true;
-    }
     if (data.includes(`<div id="app"></div>`)) {
       output.app_file = true;
     }

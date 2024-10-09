@@ -59,7 +59,7 @@ module GenerateSampleDataButton = {
     let showToast = ToastState.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let generateSampleData = async () => {
       mixpanelEvent(~eventName="generate_sample_data")
@@ -119,7 +119,7 @@ module GenerateSampleDataButton = {
     <RenderIf condition={sampleData && !previewOnly}>
       <div className="flex items-start">
         <ACLButton
-          access={userPermissionJson.operationsManage}
+          authorization={userHasAccess(~groupAccess=OperationsManage)}
           buttonType={Secondary}
           buttonSize={XSmall}
           text="Generate Sample Data"
@@ -129,7 +129,7 @@ module GenerateSampleDataButton = {
         />
         <ACLDiv
           height="h-fit"
-          permission={userPermissionJson.operationsManage}
+          authorization={userHasAccess(~groupAccess=OperationsManage)}
           className="bg-jp-gray-button_gray text-jp-gray-900 text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  focus:outline-none items-center border border-border_gray cursor-pointer p-2.5 overflow-hidden text-jp-gray-950 hover:text-black
           border flex items-center justify-center rounded-r-md"
           onClick={ev => rightIconClick(ev)}>

@@ -48,3 +48,19 @@ type disputeStatus =
 
 type disputeStage = PreDispute | Dispute | PreArbitration | NotFound
 type disputeStatusType = Landing | EvidencePresent
+type filterTypes = {
+  connector: array<string>,
+  currency: array<string>,
+  connector_label: array<string>,
+  dispute_status: array<string>,
+  dispute_stage: array<string>,
+}
+
+type filter = [
+  | #connector
+  | #currency
+  | #connector_label
+  | #dispute_status
+  | #dispute_stage
+  | #unknown
+]

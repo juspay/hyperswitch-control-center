@@ -1,32 +1,3 @@
-module MenuOption = {
-  open HeadlessUI
-  @react.component
-  let make = (~updateStepValue, ~setCurrentStep) => {
-    <Popover \"as"="div" className="relative inline-block text-left">
-      {_popoverProps => <>
-        <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
-        <Popover.Panel className="absolute z-20 right-5 top-4">
-          {panelProps => {
-            <div
-              id="neglectTopbarTheme"
-              className="relative flex flex-col bg-white py-3 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
-              {<>
-                <Navbar.MenuOption
-                  text="Update"
-                  onClick={_ => {
-                    panelProps["close"]()
-                    setCurrentStep(_ => updateStepValue)
-                  }}
-                />
-              </>}
-            </div>
-          }}
-        </Popover.Panel>
-      </>}
-    </Popover>
-  }
-}
-
 @react.component
 let make = () => {
   open ThreeDsProcessorTypes
@@ -135,8 +106,6 @@ let make = () => {
   React.useEffect(() => {
     if connectorName->LogicUtils.isNonEmptyString {
       getDetails()->ignore
-    } else {
-      setScreenState(_ => Error("Connector name not found"))
     }
     None
   }, [connectorName])
@@ -194,7 +163,7 @@ let make = () => {
   }
 
   let summaryPageButton = switch currentStep {
-  | Preview => <MenuOption updateStepValue=ConfigurationFields setCurrentStep />
+  | Preview => React.null
   | _ =>
     <Button
       text="Done"
@@ -270,8 +239,6 @@ let make = () => {
               ->LogicUtils.getDictFromJsonObject
               ->ConnectorListMapper.getProcessorPayloadType}
               connector=connectorName
-              setScreenState={_ => ()}
-              isPayoutFlow=false
               setCurrentStep={_ => ()}
               getConnectorDetails={Some(getConnectorDetails)}
             />

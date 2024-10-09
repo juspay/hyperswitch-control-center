@@ -33,13 +33,10 @@ let make = (~entity=TransactionViewTypes.Orders) => {
     TransactionViewTypes.All
   )
 
-  let updateViewsFilterValue = (view: TransactionViewTypes.viewTypes) => {
-    let customFilterKey = switch entity {
-    | Orders => "status"
-    | _ => ""
-    }
-    let customFilter = `[${view->getViewsString(countRes)}]`
+  let customFilterKey = getCustomFilterKey(entity)
 
+  let updateViewsFilterValue = (view: TransactionViewTypes.viewTypes) => {
+    let customFilter = `[${view->getViewsString(countRes, entity)}]`
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
 
     switch view {
@@ -75,6 +72,12 @@ let make = (~entity=TransactionViewTypes.Orders) => {
           ~methodType=Get,
           ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
         )
+      | Refunds =>
+        getURL(
+          ~entityName=REFUNDS_AGGREGATE,
+          ~methodType=Get,
+          ~queryParamerters=Some(`start_time=${startTime}&end_time=${endTime}`),
+        )
       | _ => ""
       }
 
@@ -85,25 +88,24 @@ let make = (~entity=TransactionViewTypes.Orders) => {
     }
   }
 
-  let setActiveViewOnLoad = () => {
-    let appliedStatusFilter =
-      filterValueJson->JSON.Encode.object->getDictFromJsonObject->getArrayFromDict("status", [])
+  let settingActiveView = () => {
+    let appliedStatusFilter = filterValueJson->getArrayFromDict(customFilterKey, [])
 
     if appliedStatusFilter->Array.length == 1 {
       let statusValue =
         appliedStatusFilter->getValueFromArray(0, ""->JSON.Encode.string)->JSON.Decode.string
 
       let status = statusValue->Option.getOr("")
-      setActiveView(_ => status->getViewTypeFromString)
+      setActiveView(_ => status->getViewTypeFromString(entity))
     } else {
       setActiveView(_ => All)
     }
   }
 
   React.useEffect(() => {
-    setActiveViewOnLoad()
+    settingActiveView()
     None
-  }, [])
+  }, [filterValueJson])
 
   React.useEffect(() => {
     getAggregate()->ignore
@@ -112,6 +114,7 @@ let make = (~entity=TransactionViewTypes.Orders) => {
 
   let viewsArray = switch entity {
   | Orders => paymentViewsArray
+  | Refunds => refundViewsArray
   | _ => []
   }
 
@@ -120,7 +123,7 @@ let make = (~entity=TransactionViewTypes.Orders) => {
     <TransactionViewCard
       key={i->Int.toString}
       view={item}
-      count={getViewCount(item, countRes)->Int.toString}
+      count={getViewCount(item, countRes, entity)->Int.toString}
       onViewClick
       isActiveView={item == activeView}
     />

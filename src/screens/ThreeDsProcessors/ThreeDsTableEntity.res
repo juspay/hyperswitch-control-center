@@ -42,7 +42,13 @@ let connectorStatusStyle = connectorStatus =>
 
 let getCell = (connector: connectorPayload, colType): Table.cell => {
   switch colType {
-  | Name => Text(connector.connector_name)
+  | Name =>
+    CustomCell(
+      <HelperComponents.ConnectorCustomCell
+        connectorName=connector.connector_name connectorType={ThreeDsAuthenticator}
+      />,
+      "",
+    )
   | TestMode => Text(connector.test_mode ? "True" : "False")
   | Disabled =>
     Label({
@@ -80,7 +86,7 @@ let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
   LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
 }
 
-let threeDsAuthenticatorEntity = (path: string, ~permission: CommonAuthTypes.authorization) => {
+let threeDsAuthenticatorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,
@@ -90,11 +96,11 @@ let threeDsAuthenticatorEntity = (path: string, ~permission: CommonAuthTypes.aut
     ~dataKey="",
     ~getShowLink={
       connec =>
-        PermissionUtils.linkForGetShowLinkViaAccess(
+        GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
             ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
           ),
-          ~permission,
+          ~authorization,
         )
     },
   )

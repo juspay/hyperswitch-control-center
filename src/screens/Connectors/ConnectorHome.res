@@ -266,7 +266,6 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
             currentStep
             setCurrentStep
             isUpdateFlow
-            isPayoutFlow
             setInitialValues
             getPayPalStatus
             getConnectorDetails={Some(getConnectorDetails)}

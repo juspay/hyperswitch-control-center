@@ -12,15 +12,8 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
   let (showModal, setShowFeedbackModal) = React.useState(_ => false)
   // Need to remove connector and merge connector and connectorTypeVariants
   let (processorType, connectorType) = connectorInfo.connector_type->connectorTypeTuple
-  let {connector_name: connectorName, merchant_connector_id: connectorId} = connectorInfo
+  let {connector_name: connectorName} = connectorInfo
   let connectorTypeFromName = connectorName->getConnectorNameTypeFromString(~connectorType)
-
-  React.useEffect(() => {
-    RescriptReactRouter.replace(
-      GlobalVars.appendDashboardPath(~url=`/connectors/${connectorId}?name=${connectorName}`),
-    )
-    None
-  }, [])
 
   let connectorDetails = React.useMemo(() => {
     try {
@@ -31,7 +24,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
         | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
         | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
-        | _ => JSON.Encode.null
+        | PaymentVas => JSON.Encode.null
         }
         dict
       } else {
@@ -44,7 +37,7 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
         JSON.Encode.null
       }
     }
-  }, [connectorName])
+  }, [connectorInfo.merchant_connector_id])
   let (
     _,
     connectorAccountFields,
@@ -56,11 +49,20 @@ let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~getConnectorDetail
   ) = getConnectorFields(connectorDetails)
 
   let initialValues = React.useMemo(() => {
+    let authType = switch connectorInfo.connector_account_details {
+    | HeaderKey(authKeys) => authKeys.auth_type
+    | BodyKey(bodyKey) => bodyKey.auth_type
+    | SignatureKey(signatureKey) => signatureKey.auth_type
+    | MultiAuthKey(multiAuthKey) => multiAuthKey.auth_type
+    | CertificateAuth(certificateAuth) => certificateAuth.auth_type
+    | CurrencyAuthKey(currencyAuthKey) => currencyAuthKey.auth_type
+    | UnKnownAuthType(_) => ""
+    }
     [
       ("connector_type", connectorInfo.connector_type->JSON.Encode.string),
       (
         "connector_account_details",
-        [("auth_type", connectorInfo.connector_account_details.auth_type->JSON.Encode.string)]
+        [("auth_type", authType->JSON.Encode.string)]
         ->Dict.fromArray
         ->JSON.Encode.object,
       ),

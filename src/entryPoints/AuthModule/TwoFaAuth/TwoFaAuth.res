@@ -10,6 +10,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let url = RescriptReactRouter.useUrl()
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let setMixpanelIdentity = MixpanelHook.useSetIdentity()
+
   let initialValues = Dict.make()->JSON.Encode.object
   let clientCountry = HSwitchUtils.getBrowswerDetails().clientCountry
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
@@ -148,6 +150,8 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
       let email = valuesDict->getString("email", "")
       setEmail(_ => email)
       logMixpanelEvents(email)
+      setMixpanelIdentity(~distinctId=email)->ignore
+
       let _ = await (
         switch (signupMethod, signUpAllowed, isMagicLinkEnabled(), authType) {
         | (MAGIC_LINK, true, true, SignUP) => {
@@ -208,7 +212,6 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
           }
         }
       )
-      CommonAuthUtils.setUserInMixpanel(email)
     } catch {
     | _ => showToast(~message="Something went wrong, Try again", ~toastType=ToastError)
     }
@@ -288,24 +291,26 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
             <ResendBtn callBackFun={resendEmail} />
           | _ => React.null
           }}
-          <div id="auth-submit-btn" className="flex flex-col gap-2">
-            {switch authType {
-            | LoginWithPassword
-            | LoginWithEmail
-            | ResetPassword
-            | ForgetPassword
-            | ResendVerifyEmail
-            | SignUP =>
-              <FormRenderer.SubmitButton
-                customSumbitButtonStyle="!w-full !rounded"
-                text=submitBtnText
-                userInteractionRequired=true
-                showToolTip=false
-                loadingText="Loading..."
-              />
-            | _ => React.null
-            }}
-          </div>
+          <AddDataAttributes attributes=[("data-testid", "auth-submit-btn")]>
+            <div id="auth-submit-btn" className="flex flex-col gap-2">
+              {switch authType {
+              | LoginWithPassword
+              | LoginWithEmail
+              | ResetPassword
+              | ForgetPassword
+              | ResendVerifyEmail
+              | SignUP =>
+                <FormRenderer.SubmitButton
+                  customSumbitButtonStyle="!w-full !rounded"
+                  text=submitBtnText
+                  userInteractionRequired=true
+                  showToolTip=false
+                  loadingText="Loading..."
+                />
+              | _ => React.null
+              }}
+            </div>
+          </AddDataAttributes>
           <AddDataAttributes attributes=[("data-testid", "card-foot-text")]>
             <div> {note} </div>
           </AddDataAttributes>

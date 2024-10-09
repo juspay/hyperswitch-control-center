@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
   open APIUtils
   open ListRolesTableEntity
   let getURL = useGetURL()
@@ -9,7 +9,7 @@ let make = () => {
   let (rolesOffset, setRolesOffset) = React.useState(_ => 0)
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let getRolesAvailable = async () => {
     setScreenStateRoles(_ => PageLoaderWrapper.Loading)
@@ -18,7 +18,9 @@ let make = () => {
         ~entityName=USER_MANAGEMENT_V2,
         ~methodType=Get,
         ~userRoleTypes=ROLE_LIST,
-        ~queryParamerters=Some("groups=true"),
+        ~queryParamerters=userModuleEntity == #Default
+          ? None
+          : Some(`entity_type=${(userModuleEntity :> string)->String.toLowerCase}`),
       )
       let res = await fetchDetails(userDataURL)
       let rolesData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForRoles)
@@ -32,13 +34,13 @@ let make = () => {
   React.useEffect(() => {
     getRolesAvailable()->ignore
     None
-  }, [])
+  }, [userModuleEntity])
 
   <div className="relative mt-5 flex flex-col gap-6">
     <PageLoaderWrapper screenState={screenStateRoles}>
       <div className="flex flex-1 justify-end">
         <ACLButton
-          access={userPermissionJson.usersManage}
+          authorization={userHasAccess(~groupAccess=UsersManage)}
           text={"Create custom roles"}
           buttonType=Primary
           onClick={_ => {

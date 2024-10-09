@@ -55,8 +55,7 @@ let useGetURL = () => {
           switch userEntity {
           | #Organization
           | #Merchant
-          | #Profile
-          | #Internal =>
+          | #Profile =>
             `account/${merchantId}/profile/connectors`
           }
         }
@@ -91,6 +90,17 @@ let useGetURL = () => {
         | #Merchant => `payments/v2/filter`
         | #Profile => `payments/v2/profile/filter`
         | _ => `payments/v2/filter`
+        }
+
+      | _ => ""
+      }
+    | DISPUTE_FILTERS =>
+      switch methodType {
+      | Get =>
+        switch transactionEntity {
+        | #Profile => `disputes/profile/filter`
+        | #Merchant
+        | _ => `disputes/filter`
         }
 
       | _ => ""
@@ -179,16 +189,41 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | REFUNDS_AGGREGATE =>
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(queryParams) =>
+          switch transactionEntity {
+          | #Profile => `refunds/profile/aggregate?${queryParams}`
+          | #Merchant
+          | _ =>
+            `refunds/aggregate?${queryParams}`
+          }
+        | None => `refunds/aggregate`
+        }
+      | _ => `refunds/aggregate`
+      }
     | DISPUTES =>
       switch methodType {
       | Get =>
         switch id {
         | Some(dispute_id) => `disputes/${dispute_id}`
         | None =>
-          switch transactionEntity {
-          | #Merchant => `disputes/list?limit=10000`
-          | #Profile => `disputes/profile/list?limit=10000`
-          | _ => `disputes/list?limit=10000`
+          switch queryParamerters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Profile => `disputes/profile/list?${queryParams}&limit=10000`
+            | #Merchant
+            | _ =>
+              `disputes/list?${queryParams}&limit=10000`
+            }
+          | None =>
+            switch transactionEntity {
+            | #Profile => `disputes/profile/list?limit=10000`
+            | #Merchant
+            | _ => `disputes/list?limit=10000`
+            }
           }
         }
       | _ => ""
@@ -226,8 +261,7 @@ let useGetURL = () => {
           switch userEntity {
           | #Organization
           | #Merchant
-          | #Profile
-          | #Internal => `routing/list/profile`
+          | #Profile => `routing/list/profile`
           }
         }
       | Post =>
@@ -249,7 +283,6 @@ let useGetURL = () => {
           | #Organization => `analytics/v2/org/metrics/${domain}`
           | #Merchant => `analytics/v2/merchant/metrics/${domain}`
           | #Profile => `analytics/v2/profile/metrics/${domain}`
-          | _ => `analytics/v2/merchant/metrics/${domain}`
           }
 
         | _ => ""
@@ -274,7 +307,6 @@ let useGetURL = () => {
           | #Organization => `analytics/v1/org/${domain}/info`
           | #Merchant => `analytics/v1/merchant/${domain}/info`
           | #Profile => `analytics/v1/profile/${domain}/info`
-          | _ => `analytics/v1/merchant/${domain}/info`
           }
 
         | _ => ""
@@ -286,7 +318,6 @@ let useGetURL = () => {
           | #Organization => `analytics/v1/org/metrics/${domain}`
           | #Merchant => `analytics/v1/merchant/metrics/${domain}`
           | #Profile => `analytics/v1/profile/metrics/${domain}`
-          | _ => `analytics/v1/merchant/metrics/${domain}`
           }
 
         | _ => ""
@@ -302,7 +333,6 @@ let useGetURL = () => {
           | #Organization => `analytics/v1/org/filters/${domain}`
           | #Merchant => `analytics/v1/merchant/filters/${domain}`
           | #Profile => `analytics/v1/profile/filters/${domain}`
-          | _ => `analytics/v1/merchant/filters/${domain}`
           }
 
         | _ => ""
@@ -319,7 +349,44 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | NEW_ANALYTICS =>
+      switch methodType {
+      | Get =>
+        switch id {
+        // Need to write seperate enum for info api
+        | Some(domain) =>
+          switch analyticsEntity {
+          | #Organization => `analytics/v2/org/${domain}/info`
+          | #Merchant => `analytics/v2/merchant/${domain}/info`
+          | #Profile => `analytics/v2/profile/${domain}/info`
+          }
 
+        | _ => ""
+        }
+      | Post =>
+        switch id {
+        | Some(domain) =>
+          switch analyticsEntity {
+          | #Organization => `analytics/v2/org/metrics/${domain}`
+          | #Merchant => `analytics/v2/merchant/metrics/${domain}`
+          | #Profile => `analytics/v2/profile/metrics/${domain}`
+          }
+
+        | _ => ""
+        }
+      | _ => ""
+      }
+    | ANALYTICS_SANKEY =>
+      switch methodType {
+      | Post =>
+        switch analyticsEntity {
+        | #Organization => `analytics/v1/org/metrics/sankey`
+        | #Merchant => `analytics/v1/merchant/metrics/sankey`
+        | #Profile => `analytics/v1/profile/metrics/sankey`
+        }
+
+      | _ => ""
+      }
     /* PAYOUTS ROUTING */
     | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
     | PAYOUT_ROUTING =>
@@ -331,8 +398,7 @@ let useGetURL = () => {
           switch userEntity {
           | #Organization
           | #Merchant
-          | #Profile
-          | #Internal => `routing/payouts/list/profile`
+          | #Profile => `routing/payouts/list/profile`
           }
         }
 
@@ -365,7 +431,6 @@ let useGetURL = () => {
       | #Organization => `analytics/v1/org/report/payments`
       | #Merchant => `analytics/v1/merchant/report/payments`
       | #Profile => `analytics/v1/profile/report/payments`
-      | _ => `analytics/v1/merchant/report/payments`
       }
 
     | REFUND_REPORT =>
@@ -373,7 +438,6 @@ let useGetURL = () => {
       | #Organization => `analytics/v1/org/report/refunds`
       | #Merchant => `analytics/v1/merchant/report/refunds`
       | #Profile => `analytics/v1/profile/report/refunds`
-      | _ => `analytics/v1/merchant/report/refunds`
       }
 
     | DISPUTE_REPORT =>
@@ -381,7 +445,6 @@ let useGetURL = () => {
       | #Organization => `analytics/v1/org/report/dispute`
       | #Merchant => `analytics/v1/merchant/report/dispute`
       | #Profile => `analytics/v1/profile/report/dispute`
-      | _ => `analytics/v1/merchant/report/dispute`
       }
 
     /* EVENT LOGS */
@@ -429,8 +492,7 @@ let useGetURL = () => {
         switch userEntity {
         | #Organization
         | #Merchant
-        | #Profile
-        | #Internal =>
+        | #Profile =>
           `account/${merchantId}/profile`
         }
       | Post =>
@@ -496,8 +558,16 @@ let useGetURL = () => {
     | USER_MANAGEMENT_V2 => {
         let userUrl = `user`
         switch userRoleTypes {
-        | USER_LIST => `${userUrl}/user/v2/list`
-        | ROLE_LIST => `${userUrl}/role/v2/list`
+        | USER_LIST =>
+          switch queryParamerters {
+          | Some(queryParams) => `${userUrl}/user/v2/list?${queryParams}`
+          | None => `${userUrl}/user/v2/list`
+          }
+        | ROLE_LIST =>
+          switch queryParamerters {
+          | Some(queryParams) => `${userUrl}/role/v2/list?${queryParams}`
+          | None => `${userUrl}/role/v2/list`
+          }
         | _ => ""
         }
       }
@@ -542,14 +612,14 @@ let useGetURL = () => {
       | #MERCHANT_DATA => `${userUrl}/data`
       | #USER_INFO => userUrl
 
-      // USER PERMISSIONS
-      | #GET_PERMISSIONS =>
+      // USER GROUP ACCESS
+      | #GET_GROUP_ACL =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/role?${params}`
         | None => `${userUrl}/role`
         }
       | #ROLE_INFO => `${userUrl}/module/list`
-      | #PERMISSION_INFO =>
+      | #GROUP_ACCESS_INFO =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
@@ -561,9 +631,8 @@ let useGetURL = () => {
       | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
 
       // INVITATION INSIDE DASHBOARD
-      | #RESEND_INVITE
-      | #ACCEPT_INVITATION_HOME =>
-        `${userUrl}/user/invite/accept/v2`
+      | #RESEND_INVITE => `${userUrl}/user/resend_invite`
+      | #ACCEPT_INVITATION_HOME => `${userUrl}/user/invite/accept/v2`
       | #INVITE_MULTIPLE =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
@@ -573,12 +642,7 @@ let useGetURL = () => {
       // ACCEPT INVITE PRE_LOGIN
       | #ACCEPT_INVITATION_PRE_LOGIN => `${userUrl}/user/invite/accept/v2/pre_auth`
 
-      // SWITCH & CREATE MERCHANT
-      | #SWITCH_MERCHANT =>
-        switch methodType {
-        | Get => `${userUrl}/switch/list`
-        | _ => `${userUrl}/${(userType :> string)->String.toLowerCase}`
-        }
+      // CREATE MERCHANT
       | #CREATE_MERCHANT =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
@@ -605,9 +669,6 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
-
-      // SPT FLOWS (Merchant select)
-      | #MERCHANTS_SELECT => `${userUrl}/merchants_select/list`
 
       // SPT FLOWS (Totp)
       | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
@@ -661,13 +722,13 @@ let useHandleLogout = () => {
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
-
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   () => {
     try {
       let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
       let _ =
-        fetchApi(logoutUrl, ~method_=Post)
+        fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute)
         ->then(Fetch.Response.json)
         ->then(json => {
           json->resolve
@@ -822,10 +883,11 @@ let useGetMethod = (~showErrorToast=true) => {
         },
       },
     })
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async url => {
     try {
-      let res = await fetchApi(url, ~method_=Get)
+      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute)
       await responseHandler(
         ~res,
         ~showErrorToast,
@@ -866,6 +928,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         },
       },
     })
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (
     url,
@@ -883,6 +946,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~bodyFormData,
         ~headers,
         ~contentType,
+        ~xFeatureRoute,
       )
       await responseHandler(
         ~res,
