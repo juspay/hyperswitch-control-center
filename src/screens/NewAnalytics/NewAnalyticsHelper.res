@@ -83,6 +83,7 @@ module Tabs = {
       {options
       ->Array.mapWithIndex((tabValue, index) =>
         <div
+          key={index->Int.toString}
           className={`px-3 py-2 ${tabValue.value->getStyle(index)} selection:bg-white`}
           onClick={_ => setOption(tabValue)}>
           {tabValue.label->React.string}
@@ -172,11 +173,15 @@ module StatisticsCard = {
     let (bgColor, textColor) = switch direction {
     | Upward => ("bg-green-light", "text-green-dark")
     | Downward => ("bg-red-light", "text-red-dark")
+    | No_Change => ("bg-gray-100", "text-gray-500")
     }
+
     <div className={`${bgColor} ${textColor} w-fit h-fit rounded-2xl flex px-2 pt-0.5`}>
       <div className="-mb-0.5 flex">
         <Icon className="mt-1 -mr-1" name="arrow-increasing" size=25 />
-        <div className="font-semibold"> {`${value}%`->React.string} </div>
+        <div className="font-semibold">
+          {`${value->NewAnalyticsUtils.valueFormatter(Rate)}`->React.string}
+        </div>
       </div>
     </div>
   }
@@ -206,7 +211,7 @@ module GraphHeader = {
     <div className="w-full px-7 py-8 flex justify-between">
       <div className="flex gap-2 items-center">
         <div className="text-3xl font-600"> {title->React.string} </div>
-        <StatisticsCard value="8" direction={Upward} />
+        <StatisticsCard value=8.8 direction={Upward} />
       </div>
       <RenderIf condition={showTabSwitch}>
         <div className="flex gap-2">

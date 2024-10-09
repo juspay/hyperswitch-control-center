@@ -279,11 +279,7 @@ let make = (
           let tabName = tabName->getUniqueArray
           let validated =
             tabName
-            ->Array.filter(
-              item => {
-                tabs->Array.map(item => item.value)->Array.includes(item) === false
-              },
-            )
+            ->Array.filter(item => !(tabs->Array.map(item => item.value)->Array.includes(item)))
             ->Array.length === 0
 
           let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
@@ -328,9 +324,7 @@ let make = (
 
     let validated =
       tabName
-      ->Array.filter(item => {
-        tabs->Array.map(item => item.value)->Array.includes(item) === false
-      })
+      ->Array.filter(item => !(tabs->Array.map(item => item.value)->Array.includes(item)))
       ->Array.length === 0
 
     let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
@@ -417,7 +411,7 @@ let make = (
     ~collapsibleTabs: array<tab>,
     ~removed: bool,
   ) => unit = (~tabValue: string, ~collapsibleTabs: array<tab>, ~removed: bool) => {
-    if removed === false {
+    if !removed {
       if (
         tabValue !== tabStacksnames->Array.get(tabStacksnames->Array.length - 1)->Option.getOr("")
       ) {

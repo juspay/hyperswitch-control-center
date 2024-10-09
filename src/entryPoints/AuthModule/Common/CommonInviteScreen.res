@@ -8,10 +8,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let isAtleastOneAccept = React.useMemo(() => {
     merchantData
-    ->Array.find(ele => {
-      let merchantDataDict = ele->getDictFromJsonObject
-      merchantDataDict->getBool("is_active", false) === true
-    })
+    ->Array.find(ele => ele->getDictFromJsonObject->getBool("is_active", false))
     ->Option.getOr(JSON.Encode.null)
     ->getDictFromJsonObject
     ->getBool("is_active", false)

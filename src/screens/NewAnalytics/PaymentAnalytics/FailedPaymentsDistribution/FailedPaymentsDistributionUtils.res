@@ -1,5 +1,5 @@
 open NewPaymentAnalyticsUtils
-open SuccessfulPaymentsDistributionTypes
+open FailedPaymentsDistributionTypes
 open LogicUtils
 
 let getDimentionType = string => {
@@ -14,44 +14,42 @@ let getDimentionType = string => {
 
 let getXKey = (~isSmartRetry) => {
   switch isSmartRetry {
-  | true => "payments_success_rate_distribution"
-  | false => "payments_success_rate_distribution_without_smart_retries"
+  | true => "payments_failure_rate_distribution"
+  | false => "payments_failure_rate_distribution_without_smart_retries"
   }
 }
 
-let successfulPaymentsDistributionMapper = (
+let failedPaymentsDistributionMapper = (
   ~data: JSON.t,
   ~xKey: string,
   ~yKey: string,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
   let categories = [data]->JSON.Encode.array->getCategories(0, yKey)
-
   let barGraphData = getBarGraphObj(
     ~array=data->getArrayFromJson([]),
     ~key=xKey,
     ~name=xKey->snakeToTitle,
-    ~color="#7CC88F",
+    ~color="#BA3535",
   )
   let title = {
     text: "",
   }
-
   {categories, data: [barGraphData], title}
 }
 
 open NewAnalyticsTypes
-let visibleColumns: array<metrics> = [#payment_success_rate]
+let visibleColumns: array<metrics> = [#payment_failed_rate]
 
-let tableItemToObjMapper: Dict.t<JSON.t> => successfulPaymentsDistributionObject = dict => {
+let tableItemToObjMapper: Dict.t<JSON.t> => failedPaymentsDistributionObject = dict => {
   {
-    payments_success_rate: dict->getInt("payments_success_rate_distribution", 0),
+    payments_failure_rate_distribution: dict->getInt("payments_failure_rate_distribution", 0),
     connector: dict->getString((#connector: metrics :> string), ""),
     payment_method: dict->getString((#payment_method: metrics :> string), ""),
   }
 }
 
-let getObjects: JSON.t => array<successfulPaymentsDistributionObject> = json => {
+let getObjects: JSON.t => array<failedPaymentsDistributionObject> = json => {
   json
   ->LogicUtils.getArrayFromJson([])
   ->Array.map(item => {
@@ -61,10 +59,10 @@ let getObjects: JSON.t => array<successfulPaymentsDistributionObject> = json => 
 
 let getHeading = (colType: metrics) => {
   switch colType {
-  | #payment_success_rate =>
+  | #payment_failed_rate =>
     Table.makeHeaderInfo(
-      ~key=(#payment_success_rate: metrics :> string),
-      ~title="Payments Success Rate",
+      ~key=(#payment_failed_rate: metrics :> string),
+      ~title="Payments Failed Rate",
       ~dataType=TextType,
     )
   | #connector =>
@@ -84,7 +82,7 @@ let getHeading = (colType: metrics) => {
 
 let getCell = (obj, colType: metrics): Table.cell => {
   switch colType {
-  | #payment_success_rate => Text(obj.payments_success_rate->Int.toString)
+  | #payment_failed_rate => Text(obj.payments_failure_rate_distribution->Int.toString)
   | #connector => Text(obj.connector)
   | #payment_method | _ => Text(obj.payment_method)
   }

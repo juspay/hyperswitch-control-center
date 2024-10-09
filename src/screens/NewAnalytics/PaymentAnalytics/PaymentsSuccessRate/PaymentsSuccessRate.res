@@ -4,20 +4,26 @@ open LineGraphTypes
 open PaymentsSuccessRateUtils
 
 module PaymentsSuccessRateHeader = {
-  open NewAnalyticsTypes
+  open NewPaymentAnalyticsUtils
+  open NewAnalyticsUtils
   @react.component
-  let make = (~title, ~granularity, ~setGranularity) => {
+  let make = (~data, ~keyValue, ~granularity, ~setGranularity) => {
     let setGranularity = value => {
       setGranularity(_ => value)
     }
 
+    let primaryValue = getMetaDataValue(~data, ~index=0, ~key=keyValue)
+    let secondaryValue = getMetaDataValue(~data, ~index=1, ~key=keyValue)
+
+    let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
+
     <div className="w-full px-7 py-8 grid grid-cols-2">
       // will enable it in future
+      <div className="flex gap-2 items-center">
+        <div className="text-3xl font-600"> {primaryValue->Float.toString->React.string} </div>
+        <StatisticsCard value direction />
+      </div>
       <RenderIf condition={false}>
-        <div className="flex gap-2 items-center">
-          <div className="text-3xl font-600"> {title->React.string} </div>
-          <StatisticsCard value="8" direction={Upward} />
-        </div>
         <div className="flex justify-center">
           <Tabs option={granularity} setOption={setGranularity} options={tabs} />
         </div>
@@ -41,7 +47,7 @@ let make = (
   let (paymentsSuccessRateData, setPaymentsSuccessRateData) = React.useState(_ =>
     JSON.Encode.array([])
   )
-  let (_paymentsSuccessRateMetaData, setpaymentsProcessedMetaData) = React.useState(_ =>
+  let (paymentsSuccessRateMetaData, setpaymentsProcessedMetaData) = React.useState(_ =>
     JSON.Encode.array([])
   )
 
@@ -70,10 +76,16 @@ let make = (
         ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
         ~granularity=granularity.value->Some,
       )
+
+      let (prevStartTime, prevEndTime) = NewAnalyticsUtils.getComparisionTimePeriod(
+        ~startDate=startTimeVal,
+        ~endDate=endTimeVal,
+      )
+
       let secondaryBody = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
-        ~startTime="2024-08-11T18:30:00Z", // use compare by function
-        ~endTime="2024-08-18T18:30:00Z", // use compare by function
+        ~startTime=prevStartTime,
+        ~endTime=prevEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
@@ -92,24 +104,38 @@ let make = (
       let secondaryMetaData =
         primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
       if primaryData->Array.length > 0 {
-        let modifiedData =
-          [primaryData, secondaryData]
-          ->Array.map(data => {
-            NewAnalyticsUtils.fillMissingDataPoints(
-              ~data,
-              ~startDate=startTimeVal,
-              ~endDate=endTimeVal,
-              ~timeKey="time_bucket",
-              ~defaultValue={
-                "payment_count": 0,
-                "payment_processed_amount": 0,
-                "time_bucket": startTimeVal,
-              }->Identity.genericTypeToJson,
-              ~granularity=granularity.value,
-            )
-          })
-          ->Identity.genericTypeToJson
-        setPaymentsSuccessRateData(_ => modifiedData)
+        let primaryModifiedData = [primaryData]->Array.map(data => {
+          NewAnalyticsUtils.fillMissingDataPoints(
+            ~data,
+            ~startDate=startTimeVal,
+            ~endDate=endTimeVal,
+            ~timeKey="time_bucket",
+            ~defaultValue={
+              "payment_count": 0,
+              "payment_success_rate": 0,
+              "time_bucket": startTimeVal,
+            }->Identity.genericTypeToJson,
+            ~granularity=granularity.value,
+          )
+        })
+
+        let secondaryModifiedData = [secondaryData]->Array.map(data => {
+          NewAnalyticsUtils.fillMissingDataPoints(
+            ~data,
+            ~startDate=prevStartTime,
+            ~endDate=prevEndTime,
+            ~timeKey="time_bucket",
+            ~defaultValue={
+              "payment_count": 0,
+              "payment_success_rate": 0,
+              "time_bucket": startTimeVal,
+            }->Identity.genericTypeToJson,
+            ~granularity=granularity.value,
+          )
+        })
+        setPaymentsSuccessRateData(_ =>
+          primaryModifiedData->Array.concat(secondaryModifiedData)->Identity.genericTypeToJson
+        )
         setpaymentsProcessedMetaData(_ =>
           primaryMetaData->Array.concat(secondaryMetaData)->Identity.genericTypeToJson
         )
@@ -134,7 +160,12 @@ let make = (
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        <PaymentsSuccessRateHeader title="0" granularity setGranularity />
+        <PaymentsSuccessRateHeader
+          data={paymentsSuccessRateMetaData}
+          keyValue={"total_success_rate"}
+          granularity
+          setGranularity
+        />
         <div className="mb-5">
           <LineGraph
             entity={chartEntity}

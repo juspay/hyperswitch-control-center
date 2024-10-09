@@ -104,6 +104,7 @@ type validationFields =
   | AuthetnticationConnectors(array<JSON.t>)
   | ThreeDsRequestorUrl
   | UnknownValidateFields(string)
+  | MaxAutoRetries
 
 type formStateType = Preview | Edit
 type fieldType = {
@@ -153,6 +154,8 @@ type profileEntity = {
   always_collect_billing_details_from_wallet_connector: option<bool>,
   is_connector_agnostic_mit_enabled: option<bool>,
   outgoing_webhook_custom_http_headers: option<Dict.t<JSON.t>>,
+  is_auto_retries_enabled: option<bool>,
+  max_auto_retries_enabled: option<int>,
 }
 
 type twoFaType = RecoveryCode | Totp

@@ -290,6 +290,49 @@ module CollectDetails = {
   }
 }
 
+module AutoRetries = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+    open DeveloperUtils
+    open LogicUtils
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let form = ReactFinalForm.useForm()
+    let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
+
+    let isAutoRetryEnabled =
+      formState.values->getDictFromJsonObject->getBool("is_auto_retries_enabled", false)
+
+    if !isAutoRetryEnabled {
+      form.change("max_auto_retries_enabled", JSON.Encode.null->Identity.genericTypeToJson)
+    }
+
+    <>
+      <DesktopRow>
+        <FieldRenderer
+          labelClass="!text-base !text-grey-700 font-semibold"
+          fieldWrapperClass="max-w-xl"
+          field={makeFieldInfo(
+            ~name="is_auto_retries_enabled",
+            ~label="Auto Retries",
+            ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+          )}
+        />
+      </DesktopRow>
+      <RenderIf condition={isAutoRetryEnabled}>
+        <FieldRenderer
+          field={maxAutoRetries}
+          errorClass
+          labelClass="!text-base !text-grey-700 font-semibold"
+          fieldWrapperClass="max-w-xl mx-4"
+        />
+      </RenderIf>
+    </>
+  }
+}
+
 @react.component
 let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open DeveloperUtils
@@ -308,10 +351,18 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let (busiProfieDetails, setBusiProfie) = React.useState(_ => businessProfileDetails)
 
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (enableCustomHttpHeaders, setCustomHttpHeaders) = React.useState(_ => false)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
+
+  React.useEffect(() => {
+    if businessProfileDetails.profile_id->LogicUtils.isNonEmptyString {
+      setBusiProfie(_ => businessProfileDetails)
+      setScreenState(_ => Success)
+    }
+    None
+  }, [businessProfileDetails.profile_id])
 
   let threedsConnectorList =
     HyperswitchAtom.connectorListAtom
@@ -325,7 +376,9 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let fieldsToValidate = () => {
     let defaultFieldsToValidate =
-      [WebhookUrl, ReturnUrl]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
+      [WebhookUrl, ReturnUrl, MaxAutoRetries]->Array.filter(urlField =>
+        urlField === WebhookUrl || !webhookOnly
+      )
     defaultFieldsToValidate
   }
 
@@ -468,6 +521,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </DesktopRow>
                 </RenderIf>
+                <AutoRetries />
                 <ReturnUrl />
                 <WebHook enableCustomHttpHeaders setCustomHttpHeaders />
                 <DesktopRow>

@@ -61,6 +61,7 @@ module CheckoutForm = {
           ~bodyStr=val->JSON.stringifyAny->Option.getOr(""),
           ~headers=[("Access-Control-Allow-Origin", "*")]->Dict.fromArray,
           ~method_=Post,
+          ~xFeatureRoute=false,
         )
         ->then(res => res->Fetch.Response.json)
         ->then(json => {
