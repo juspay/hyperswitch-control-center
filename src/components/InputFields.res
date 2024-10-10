@@ -482,7 +482,6 @@ let filterDateRangeField = (
   ~numMonths=1,
   ~dateRangeLimit=?,
   ~removeFilterOption=?,
-  ~optFieldKey=?,
   ~showSeconds=true,
   ~hideDate=false,
   ~selectStandardTime=false,
@@ -503,7 +502,6 @@ let filterDateRangeField = (
       endKey
       ?dateRangeLimit
       ?removeFilterOption
-      ?optFieldKey
       showSeconds
       hideDate
       selectStandardTime

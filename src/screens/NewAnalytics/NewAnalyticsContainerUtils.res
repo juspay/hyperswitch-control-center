@@ -47,7 +47,7 @@ let initialFixedFilterFields = () => {
               LastMonth,
             ],
             ~enableComparision=true,
-            ~compareOptions=[Previous_Period, Custom, No_Comparison],
+            ~compareOptions=[Previous_Period, No_Comparison],
             ~numMonths=2,
             ~disableApply=false,
             ~dateRangeLimit=180,

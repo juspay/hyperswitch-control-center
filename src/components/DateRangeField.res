@@ -21,10 +21,11 @@ module CompareOption = {
 
     <div
       onClick={_ => {
-        setCalendarVisibility(_ => true)
-        setIsCustomSelected(_ => true)
+        // setCalendarVisibility(_ => true)
+        // setIsCustomSelected(_ => true)
+        ()
       }}
-      className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-full   hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 `}>
+      className={`text-center md:text-start min-w-max bg-white w-full   hover:bg-jp-gray-100 hover:bg-opacity-75 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 `}>
       {switch value {
       | No_Comparison => "No Comparison"->React.string
       | Previous_Period =>
@@ -55,11 +56,10 @@ module PredefinedOption = {
     ~formatDateTime,
     ~isTooltipVisible=true,
   ) => {
-    let optionBG = if predefinedOptionSelected === Some(value) {
-      "bg-blue-100 dark:bg-jp-gray-850 py-2"
-    } else {
-      "bg-transparent md:bg-white md:dark:bg-jp-gray-lightgray_background py-2"
-    }
+    let optionBG =
+      predefinedOptionSelected === Some(value)
+        ? "bg-blue-100 py-2"
+        : "bg-transparent md:bg-white py-2"
 
     let (stDate, enDate, stTime, enTime) = DateRangeUtils.getPredefinedStartAndEndDate(
       todayDayJsObj,
@@ -88,7 +88,7 @@ module PredefinedOption = {
         <div
           className={`${optionBG} mx-2 rounded-md p-2 hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100  cursor-pointer text-sm font-medium text-grey-900`}
           onClick=handleClick>
-          {React.string(dateRangeDropdownVal)}
+          {dateRangeDropdownVal->React.string}
         </div>
       </AddDataAttributes>}
       toolTipPosition=Right
@@ -104,6 +104,10 @@ module Base = {
     ~setStartDateVal: (string => string) => unit,
     ~endDateVal: string,
     ~setEndDateVal: (string => string) => unit,
+    ~seconStartDateVal: string,
+    ~setSeconStartDateVal: (string => string) => unit,
+    ~seconEndDateVal: string,
+    ~setSeconEndDateVal: (string => string) => unit,
     ~showTime=false,
     ~disable=false,
     ~disablePastDates=true,
@@ -116,7 +120,6 @@ module Base = {
     ~disableApply=true,
     ~removeFilterOption=false,
     ~dateRangeLimit=?,
-    ~optFieldKey as _=?,
     ~textHideInMobileView=true,
     ~showSeconds=true,
     ~hideDate=false,
@@ -143,13 +146,9 @@ module Base = {
     let customTimezoneToISOString = TimeZoneHook.useCustomTimeZoneToIsoString()
     let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
     let isoStringToCustomTimezoneInFloat = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
-
     let (clickedDates, setClickedDates) = React.useState(_ => [])
-
     let (localStartDate, setLocalStartDate) = React.useState(_ => startDateVal)
     let (localEndDate, setLocalEndDate) = React.useState(_ => endDateVal)
-    let (_localOpt, setLocalOpt) = React.useState(_ => "")
-
     let (isDropdownExpandedPrimary, setIsDropdownExpandedPrimary) = React.useState(_ => false)
     let (calendarVisibilityPrimary, setCalendarVisibilityPrimary) = React.useState(_ => false)
     let (isDropdownExpandedSecondary, setIsDropdownExpandedSecondary) = React.useState(_ => false)
@@ -159,6 +158,8 @@ module Base = {
 
     let dropdownPosition =
       isFilterSection && !isMobileView && isCustomSelectedPrimary ? "right-0" : ""
+    let customStyleForBtn = "rounded-lg bg-white"
+    let timeVisibilityClass = showTime ? "block" : "hidden"
 
     let todayDayJsObj = React.useMemo(() => {
       Date.make()->Date.toString->DayJs.getDayJsForString
@@ -166,23 +167,23 @@ module Base = {
 
     let currentTime = todayDayJsObj.format("HH:mm")
     let todayDate = todayDayJsObj.format("YYYY-MM-DD")
+
     let todayTime = React.useMemo(() => {
       todayDayJsObj.format("HH:mm:ss")
     }, [currentTime])
 
     let initialStartTime = disableFutureDates || selectStandardTime ? "00:00:00" : "23:59:59"
     let initialEndTime = disableFutureDates || selectStandardTime ? "23:59:59" : "00:00:00"
+
     React.useEffect(() => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
-      setLocalOpt(_ => "")
       None
     }, (startDateVal, endDateVal))
 
     let resetStartEndInput = () => {
       setLocalStartDate(_ => "")
       setLocalEndDate(_ => "")
-      setLocalOpt(_ => "")
     }
 
     React.useEffect(() => {
@@ -221,7 +222,6 @@ module Base = {
     let resetToInitalValues = () => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
-      setLocalOpt(_ => "")
     }
 
     OutsideClick.useOutsideClick(
@@ -244,9 +244,10 @@ module Base = {
         setEndDateVal(_ => "")
       } else {
         let endDateSplit = String.split(ele, "-")
-        let endDateDate = endDateSplit[2]->Option.getOr("")
-        let endDateYear = endDateSplit[0]->Option.getOr("")
-        let endDateMonth = endDateSplit[1]->Option.getOr("")
+        let endDateDate = endDateSplit->getValueFromArray(2, "")
+        let endDateYear = endDateSplit->getValueFromArray(0, "")
+        let endDateMonth = endDateSplit->getValueFromArray(1, "")
+
         let splitTime = switch time {
         | Some(val) => val
         | None =>
@@ -258,9 +259,9 @@ module Base = {
         }
 
         let timeSplit = String.split(splitTime, ":")
-        let timeHour = timeSplit->Array.get(0)->Option.getOr("00")
-        let timeMinute = timeSplit->Array.get(1)->Option.getOr("00")
-        let timeSecond = timeSplit->Array.get(2)->Option.getOr("00")
+        let timeHour = timeSplit->getValueFromArray(0, "00")
+        let timeMinute = timeSplit->getValueFromArray(1, "00")
+        let timeSecond = timeSplit->getValueFromArray(2, "00")
         let endDateTimeCheck = customTimezoneToISOString(
           endDateYear,
           endDateMonth,
@@ -275,9 +276,9 @@ module Base = {
     let changeStartDate = (ele, isFromCustomInput, time) => {
       let setDate = str => {
         let startDateSplit = String.split(str, "-")
-        let startDateDay = startDateSplit[2]->Option.getOr("")
-        let startDateYear = startDateSplit[0]->Option.getOr("")
-        let startDateMonth = startDateSplit[1]->Option.getOr("")
+        let startDateDay = startDateSplit->getValueFromArray(2, "")
+        let startDateYear = startDateSplit->getValueFromArray(0, "")
+        let startDateMonth = startDateSplit->getValueFromArray(1, "")
         let splitTime = switch time {
         | Some(val) => val
         | None =>
@@ -288,9 +289,9 @@ module Base = {
           }
         }
         let timeSplit = String.split(splitTime, ":")
-        let timeHour = timeSplit->Array.get(0)->Option.getOr("00")
-        let timeMinute = timeSplit->Array.get(1)->Option.getOr("00")
-        let timeSecond = timeSplit->Array.get(2)->Option.getOr("00")
+        let timeHour = timeSplit->getValueFromArray(0, "00")
+        let timeMinute = timeSplit->getValueFromArray(1, "00")
+        let timeSecond = timeSplit->getValueFromArray(2, "00")
         let startDateTimeCheck = customTimezoneToISOString(
           startDateYear,
           startDateMonth,
@@ -511,12 +512,6 @@ module Base = {
 
       setStartDate(~date=startDate, ~time=stTime)
       setEndDate(~date=endDate, ~time=enTime)
-      setLocalOpt(_ =>
-        DateRangeUtils.datetext(value, disableFutureDates)
-        ->String.toLowerCase
-        ->String.split(" ")
-        ->Array.joinWith("_")
-      )
       changeStartDate(stDate, false, Some(stTime))
       changeEndDate(enDate, false, Some(enTime))
     }
@@ -580,10 +575,6 @@ module Base = {
       None
     }, (startDate, endDate, localStartDate, localEndDate))
 
-    let customStyleForBtn = "rounded-lg bg-white"
-
-    let timeVisibilityClass = showTime ? "block" : "hidden"
-
     let getDiffForPredefined = predefinedDay => {
       let (stDate, enDate, stTime, enTime) = DateRangeUtils.getPredefinedStartAndEndDate(
         todayDayJsObj,
@@ -646,11 +637,6 @@ module Base = {
       }
     }
 
-    let customeRangeBg = switch predefinedOptionSelected {
-    | Some(_) => "bg-white dark:bg-jp-gray-lightgray_background"
-    | None => "bg-jp-gray-100 dark:bg-jp-gray-850"
-    }
-
     let removeApplyFilter = ev => {
       ev->ReactEvent.Mouse.stopPropagation
       resetToInitalValues()
@@ -660,7 +646,11 @@ module Base = {
 
     let buttonType: option<Button.buttonType> = buttonType
 
-    let arrowIconSize = 14
+    let customeRangeBg = switch predefinedOptionSelected {
+    | Some(_) => "bg-white dark:bg-jp-gray-lightgray_background"
+    | None => "bg-jp-gray-100 dark:bg-jp-gray-850"
+    }
+
     let strokeColor = if disable {
       "stroke-jp-2-light-gray-600"
     } else if isDropdownExpandedActualPrimary {
@@ -671,17 +661,18 @@ module Base = {
 
     let iconElement = {
       <div className="flex flex-row gap-2">
-        <Icon className=strokeColor name=buttonIcon size=arrowIconSize />
-        {if removeFilterOption && startDateVal->isNonEmptyString && endDateVal->isNonEmptyString {
+        <Icon className=strokeColor name=buttonIcon size=14 />
+        <RenderIf
+          condition={removeFilterOption &&
+          startDateVal->isNonEmptyString &&
+          endDateVal->isNonEmptyString}>
           <Icon name="crossicon" size=16 onClick=removeApplyFilter />
-        } else {
-          React.null
-        }}
+        </RenderIf>
       </div>
     }
 
     let dropDownElement = dropDownType =>
-      <div className={`flex md:flex-row flex-col w-full py-2`}>
+      <div className={"flex md:flex-row flex-col w-full py-2"}>
         {switch dropDownType {
         | PrimaryDateRange =>
           <RenderIf condition={predefinedDays->Array.length > 0 && showOption}>
@@ -709,15 +700,17 @@ module Base = {
                     />
                   </div>
                 })
+                ->Array.concat([
+                  <div
+                    className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3   hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customeRangeBg}}`}
+                    onClick={_ => {
+                      setCalendarVisibilityPrimary(_ => true)
+                      setIsCustomSelectedPrimary(_ => true)
+                    }}>
+                    {React.string("Custom Range")}
+                  </div>,
+                ])
                 ->React.array}
-                <div
-                  className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3   hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customeRangeBg}}`}
-                  onClick={_ => {
-                    setCalendarVisibilityPrimary(_ => true)
-                    setIsCustomSelectedPrimary(_ => true)
-                  }}>
-                  {React.string("Custom Range")}
-                </div>
               </div>
             </AddDataAttributes>
           </RenderIf>
@@ -766,9 +759,7 @@ module Base = {
               <TimeInput input=startTimeInput showSeconds label="From" />
               <TimeInput input=endTimeInput showSeconds label="To" />
             </div>
-            {if disableApply {
-              React.null
-            } else {
+            <RenderIf condition={!disableApply}>
               <div
                 id="neglectTopbarTheme"
                 className="flex flex-row flex-wrap gap-3 bg-white dark:bg-jp-gray-lightgray_background px-3 mt-3 mb-1 align-center justify-end ">
@@ -784,15 +775,17 @@ module Base = {
                   text="Apply"
                   customButtonStyle="rounded-lg"
                   buttonType=Primary
-                  buttonState={endDate->LogicUtils.isEmptyString ? Disabled : Normal}
+                  buttonState={endDate->isEmptyString ? Disabled : Normal}
                   buttonSize=XSmall
                   onClick={handleApply}
                 />
               </div>
-            }}
+            </RenderIf>
           </div>
         </AddDataAttributes>
       </div>
+
+    let dropDownClass = `absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`
 
     <div className="flex gap-2">
       <div ref={dateRangeRef->ReactDOM.Ref.domRef} className="daterangSelection relative">
@@ -815,9 +808,7 @@ module Base = {
           toolTipPosition={Top}
         />
         <RenderIf condition={isDropdownExpandedActualPrimary}>
-          <div
-            ref={dropdownRef->ReactDOM.Ref.domRef}
-            className={`absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`}>
+          <div ref={dropdownRef->ReactDOM.Ref.domRef} className=dropDownClass>
             {dropDownElement(PrimaryDateRange)}
           </div>
         </RenderIf>
@@ -838,9 +829,7 @@ module Base = {
             buttonState={disable ? Disabled : Normal}
           />
           <RenderIf condition={isDropdownExpandedActualSecondary}>
-            <div
-              ref={dropdownRef->ReactDOM.Ref.domRef}
-              className={`absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`}>
+            <div ref={dropdownRef->ReactDOM.Ref.domRef} className=dropDownClass>
               {dropDownElement(CompareDateRange)}
             </div>
           </RenderIf>
@@ -854,6 +843,8 @@ module Base = {
 let make = (
   ~startKey: string,
   ~endKey: string,
+  ~seconStartKey: string="seconStartKey",
+  ~seconEndKey: string="seconEndKey",
   ~showTime=false,
   ~disable=false,
   ~disablePastDates=true,
@@ -866,7 +857,6 @@ let make = (
   ~disableApply=true,
   ~removeFilterOption=false,
   ~dateRangeLimit=?,
-  ~optFieldKey=?,
   ~textHideInMobileView=true,
   ~showSeconds=true,
   ~hideDate=false,
@@ -878,16 +868,26 @@ let make = (
   ~removeConversion=false,
   ~isTooltipVisible=true,
 ) => {
+  // primary
   let startInput = ReactFinalForm.useField(startKey).input
   let endInput = ReactFinalForm.useField(endKey).input
   let (startDateVal, setStartDateVal) = useStateForInput(startInput)
   let (endDateVal, setEndDateVal) = useStateForInput(endInput)
+  // secondary
+  let seconStartInput = ReactFinalForm.useField(seconStartKey).input
+  let seconEndInput = ReactFinalForm.useField(seconEndKey).input
+  let (seconStartDateVal, setSeconStartDateVal) = useStateForInput(seconStartInput)
+  let (seconEndDateVal, setSeconEndDateVal) = useStateForInput(seconEndInput)
 
   <Base
     startDateVal
     setStartDateVal
     endDateVal
     setEndDateVal
+    seconStartDateVal
+    setSeconStartDateVal
+    seconEndDateVal
+    setSeconEndDateVal
     showTime
     disable
     disablePastDates
@@ -900,7 +900,6 @@ let make = (
     disableApply
     removeFilterOption
     ?dateRangeLimit
-    ?optFieldKey
     textHideInMobileView
     showSeconds
     hideDate

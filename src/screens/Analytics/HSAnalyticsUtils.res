@@ -125,7 +125,7 @@ let initialFilterFields = json => {
 
   dropdownValue
 }
-let (startTimeFilterKey, endTimeFilterKey, optFilterKey) = ("startTime", "endTime", "opt")
+let (startTimeFilterKey, endTimeFilterKey) = ("startTime", "endTime")
 
 let initialFixedFilterFields = _json => {
   let newArr = [
@@ -156,7 +156,6 @@ let initialFixedFilterFields = _json => {
             ~numMonths=2,
             ~disableApply=false,
             ~dateRangeLimit=180,
-            ~optFieldKey=optFilterKey,
           ),
           ~inputFields=[],
           ~isRequired=false,

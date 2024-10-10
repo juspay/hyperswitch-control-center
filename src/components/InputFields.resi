@@ -235,7 +235,6 @@ let filterDateRangeField: (
   ~numMonths: int=?,
   ~dateRangeLimit: int=?,
   ~removeFilterOption: bool=?,
-  ~optFieldKey: 'a=?,
   ~showSeconds: bool=?,
   ~hideDate: bool=?,
   ~selectStandardTime: bool=?,
