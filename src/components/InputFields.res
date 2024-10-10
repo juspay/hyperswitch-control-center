@@ -471,6 +471,8 @@ let singleDatePickerInput = (
 let filterDateRangeField = (
   ~startKey: string,
   ~endKey: string,
+  ~seconStartKey="",
+  ~seconEndKey="",
   ~format,
   ~disablePastDates=false,
   ~disableFutureDates=false,
@@ -500,6 +502,8 @@ let filterDateRangeField = (
       disableApply
       startKey
       endKey
+      seconStartKey
+      seconEndKey
       ?dateRangeLimit
       ?removeFilterOption
       showSeconds

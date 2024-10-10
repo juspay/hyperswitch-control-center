@@ -18,7 +18,12 @@ let getPageFromIndex = index => {
   }
 }
 
-let (startTimeFilterKey, endTimeFilterKey) = ("startTime", "endTime")
+let (startTimeFilterKey, endTimeFilterKey, compareStartTimeFilterKey, compareEndTimeFilterKey) = (
+  "startTime",
+  "endTime",
+  "compareStartTime",
+  "compareEndTime",
+)
 
 let initialFixedFilterFields = () => {
   let newArr = [
@@ -30,6 +35,8 @@ let initialFixedFilterFields = () => {
           ~comboCustomInput=InputFields.filterDateRangeField(
             ~startKey=startTimeFilterKey,
             ~endKey=endTimeFilterKey,
+            ~seconStartKey=compareStartTimeFilterKey,
+            ~seconEndKey=compareEndTimeFilterKey,
             ~format="YYYY-MM-DDTHH:mm:ss[Z]",
             ~showTime=true,
             ~disablePastDates={false},
