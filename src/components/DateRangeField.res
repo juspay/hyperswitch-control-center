@@ -2,13 +2,7 @@ open DateRangeUtils
 
 module CompareOption = {
   @react.component
-  let make = (
-    ~value: compareOption,
-    ~startDateVal,
-    ~endDateVal,
-    ~setCalendarVisibility,
-    ~setIsCustomSelected,
-  ) => {
+  let make = (~value: compareOption, ~startDateVal, ~endDateVal, ~onClick) => {
     let (startDate, endDate) = getComparisionTimePeriod(
       ~startDate=startDateVal,
       ~endDate=endDateVal,
@@ -20,11 +14,7 @@ module CompareOption = {
     let previousPeriod = `${startDateStr} - ${endDateStr}`
 
     <div
-      onClick={_ => {
-        // setCalendarVisibility(_ => true)
-        // setIsCustomSelected(_ => true)
-        ()
-      }}
+      onClick={_ => onClick(value)}
       className={`text-center md:text-start min-w-max bg-white w-full   hover:bg-jp-gray-100 hover:bg-opacity-75 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 `}>
       {switch value {
       | No_Comparison => "No Comparison"->React.string
@@ -54,7 +44,6 @@ module PredefinedOption = {
     ~todayDate,
     ~todayTime,
     ~formatDateTime,
-    ~isTooltipVisible=true,
   ) => {
     let optionBG =
       predefinedOptionSelected === Some(value)
@@ -79,10 +68,12 @@ module PredefinedOption = {
       onClick(value, disableFutureDates)
     }
     let dateRangeDropdownVal = DateRangeUtils.datetext(value, disableFutureDates)
+    let description = {`${startDate} - ${endDate}`}
+
     <ToolTip
       tooltipWidthClass="w-fit"
       tooltipForWidthClass="!block w-full"
-      description={isTooltipVisible ? `${startDate} - ${endDate}` : ""}
+      description
       toolTipFor={<AddDataAttributes
         attributes=[("data-daterange-dropdown-value", dateRangeDropdownVal)]>
         <div
@@ -149,6 +140,10 @@ module Base = {
     let (clickedDates, setClickedDates) = React.useState(_ => [])
     let (localStartDate, setLocalStartDate) = React.useState(_ => startDateVal)
     let (localEndDate, setLocalEndDate) = React.useState(_ => endDateVal)
+    let (localStartSecondaryDate, setLocalStartSecondaryDate) = React.useState(_ =>
+      seconStartDateVal
+    )
+    let (localEndSecondaryDate, setLocalEndSecondaryDate) = React.useState(_ => seconEndDateVal)
     let (isDropdownExpandedPrimary, setIsDropdownExpandedPrimary) = React.useState(_ => false)
     let (calendarVisibilityPrimary, setCalendarVisibilityPrimary) = React.useState(_ => false)
     let (isDropdownExpandedSecondary, setIsDropdownExpandedSecondary) = React.useState(_ => false)
@@ -179,32 +174,35 @@ module Base = {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
       None
-    }, (startDateVal, endDateVal))
+    }, [startDateVal, endDateVal])
 
-    let resetStartEndInput = () => {
-      setLocalStartDate(_ => "")
-      setLocalEndDate(_ => "")
+    let resetStartEndInput = (~setStartDate, ~setEndDate) => {
+      setStartDate(_ => "")
+      setEndDate(_ => "")
     }
 
     React.useEffect(() => {
       switch dateRangeLimit {
       | Some(maxLen) => {
           let diff = getStartEndDiff(localStartDate, localEndDate)
-          if diff > (maxLen->Int.toFloat *. 24. *. 60. *. 60. -. 1.) *. 1000. {
-            resetStartEndInput()
+          let maxDiffInMillis = (maxLen->Int.toFloat *. 24. *. 60. *. 60. -. 1.) *. 1000.
+          if diff > maxDiffInMillis {
+            resetStartEndInput(~setStartDate=setLocalStartDate, ~setEndDate=setLocalEndDate)
           }
         }
 
       | None => ()
       }
       None
-    }, (localStartDate, localEndDate))
+    }, [localStartDate, localEndDate])
 
     let dateRangeRef = React.useRef(Nullable.null)
     let dropdownRef = React.useRef(Nullable.null)
 
     useErroryValueResetter(startDateVal, setStartDateVal)
     useErroryValueResetter(endDateVal, setEndDateVal)
+    useErroryValueResetter(seconStartDateVal, setSeconStartDateVal)
+    useErroryValueResetter(seconEndDateVal, setSeconEndDateVal)
 
     let startDate = localStartDate->getDateStringForValue(isoStringToCustomTimeZone)
     let endDate = localEndDate->getDateStringForValue(isoStringToCustomTimeZone)
@@ -218,10 +216,20 @@ module Base = {
         setStartDateVal(_ => localStartDate)
         setEndDateVal(_ => localEndDate)
       }
+      if (
+        enableComparision &&
+        localStartSecondaryDate->isNonEmptyString &&
+        localEndSecondaryDate->isNonEmptyString
+      ) {
+        setSeconStartDateVal(_ => localStartSecondaryDate)
+        setSeconEndDateVal(_ => localEndSecondaryDate)
+      }
     }
     let resetToInitalValues = () => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
+      setLocalStartSecondaryDate(_ => seconStartDateVal)
+      setLocalEndSecondaryDate(_ => seconEndDateVal)
     }
 
     OutsideClick.useOutsideClick(
@@ -304,29 +312,29 @@ module Base = {
         setLocalStartDate(_ => TimeZoneHook.formattedISOString(startDateTimeCheck, format))
       }
       let resetStartDate = () => {
-        resetStartEndInput()
+        resetStartEndInput(~setStartDate=setLocalStartDate, ~setEndDate=setLocalEndDate)
         setDate(ele)
       }
-      if startDate->isNonEmptyString && startDate == ele && isFromCustomInput {
+
+      let isStartDateNonEmpty = startDate->isNonEmptyString
+      let isEndDateNonEmpty = endDate->isNonEmptyString
+      let isEndDateEmpty = endDate->isEmptyString
+
+      if isStartDateNonEmpty && startDate == ele && isFromCustomInput {
         changeEndDate(ele, isFromCustomInput, None)
-      } else if startDate->isNonEmptyString && startDate > ele && isFromCustomInput {
+      } else if isStartDateNonEmpty && startDate > ele && isFromCustomInput {
         resetStartDate()
-      } else if endDate->isNonEmptyString && startDate == ele && isFromCustomInput {
+      } else if isEndDateNonEmpty && startDate == ele && isFromCustomInput {
         resetStartDate()
       } else if (
         ele > startDate &&
         ele < endDate &&
-        startDate->isNonEmptyString &&
-        endDate->isNonEmptyString &&
+        isStartDateNonEmpty &&
+        isEndDateNonEmpty &&
         isFromCustomInput
       ) {
         resetStartDate()
-      } else if (
-        startDate->isNonEmptyString &&
-        endDate->isNonEmptyString &&
-        ele > endDate &&
-        isFromCustomInput
-      ) {
+      } else if isStartDateNonEmpty && isEndDateNonEmpty && ele > endDate && isFromCustomInput {
         resetStartDate()
       } else {
         ()
@@ -337,9 +345,9 @@ module Base = {
       }
 
       if (
-        (startDate->isNonEmptyString && endDate->isEmptyString && !isFromCustomInput) ||
-          (startDate->isNonEmptyString &&
-          endDate->isEmptyString &&
+        (isStartDateNonEmpty && isEndDateEmpty && !isFromCustomInput) ||
+          (isStartDateNonEmpty &&
+          isEndDateEmpty &&
           isStartBeforeEndDate(startDate, ele) &&
           isFromCustomInput)
       ) {
@@ -370,31 +378,24 @@ module Base = {
       setIsDropdownExpandedPrimary(_ => false)
     }
 
-    let selectedStartDate = if localStartDate->isNonEmptyString {
-      getFormattedDate(
-        localStartDate->getDateStringForValue(isoStringToCustomTimeZone),
-        "YYYY-MM-DD",
-      )
-    } else {
-      ""
-    }
-    let selectedEndDate = if localEndDate->isNonEmptyString {
-      getFormattedDate(localEndDate->getDateStringForValue(isoStringToCustomTimeZone), "YYYY-MM-DD")
-    } else {
-      ""
-    }
-    let setStartDate = (~date, ~time) => {
+    let formatDate = date =>
+      date->isNonEmptyString
+        ? getFormattedDate(date->getDateStringForValue(isoStringToCustomTimeZone), "YYYY-MM-DD")
+        : ""
+
+    let selectedStartDate = formatDate(localStartDate)
+    let selectedEndDate = formatDate(localEndDate)
+
+    let setDate = (~date, ~time, setLocalDate) => {
       if date->isNonEmptyString {
         let timestamp = changeTimeFormat(~date, ~time, ~customTimezoneToISOString, ~format)
-        setLocalStartDate(_ => timestamp)
+        setLocalDate(_ => timestamp)
       }
     }
-    let setEndDate = (~date, ~time) => {
-      if date->isNonEmptyString {
-        let timestamp = changeTimeFormat(~date, ~time, ~customTimezoneToISOString, ~format)
-        setLocalEndDate(_ => timestamp)
-      }
-    }
+
+    let setStartDate = (~date, ~time) => setDate(~date, ~time, setLocalStartDate)
+    let setEndDate = (~date, ~time) => setDate(~date, ~time, setLocalEndDate)
+
     let startTimeInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ => (),
@@ -441,52 +442,56 @@ module Base = {
       checked: false,
     }
 
-    let startDateStr =
-      startDateVal->isNonEmptyString
-        ? getFormattedDate(
-            startDateVal->getDateStringForValue(isoStringToCustomTimeZone),
-            "MMM DD, YYYY",
-          )
-        : buttonText->isNonEmptyString
-        ? buttonText
-        : "[From-Date]"
-    let endDateStr =
-      endDateVal->isNonEmptyString
-        ? getFormattedDate(
-            endDateVal->getDateStringForValue(isoStringToCustomTimeZone),
-            "MMM DD, YYYY",
-          )
-        : buttonText->isNonEmptyString
-        ? ""
-        : "[To-Date]"
-    let startTimeStr =
-      startDateVal->isNonEmptyString
-        ? startDateVal->getTimeStringForValue(isoStringToCustomTimeZone)
-        : "00:00:00"
-    let endTimeStr =
-      startDateVal->isNonEmptyString
-        ? endDateVal->getTimeStringForValue(isoStringToCustomTimeZone)
-        : "23:59:59"
+    let formatDateString = (~dateVal, ~buttonText, ~defaultLabel) => {
+      if dateVal->isNonEmptyString {
+        getFormattedDate(dateVal->getDateStringForValue(isoStringToCustomTimeZone), "MMM DD, YYYY")
+      } else if buttonText->isNonEmptyString {
+        buttonText
+      } else {
+        defaultLabel
+      }
+    }
 
-    let endTimeStr = {
-      let timeArr = endTimeStr->String.split(":")
-      let endTimeTxt = `${timeArr[0]->Option.getOr("00")}:${timeArr[1]->Option.getOr("00")}`
-      showSeconds ? `${endTimeTxt}:${timeArr[2]->Option.getOr("00")}` : endTimeTxt
+    let startDateStr = formatDateString(
+      ~dateVal=startDateVal,
+      ~buttonText,
+      ~defaultLabel="[From-Date]",
+    )
+    let endDateStr = formatDateString(~dateVal=endDateVal, ~buttonText, ~defaultLabel="[To-Date]")
+
+    let formatTimeString = (~timeVal, ~defaultTime, ~showSeconds) => {
+      if timeVal->isNonEmptyString {
+        let timeArr = timeVal->String.split(":")
+        let timeTxt = `${timeArr->getValueFromArray(0, "00")}:${timeArr->getValueFromArray(
+            1,
+            "00",
+          )}`
+        showSeconds ? `${timeTxt}:${timeArr->getValueFromArray(2, "00")}` : timeTxt
+      } else {
+        defaultTime
+      }
     }
-    let startTimeStr = {
-      let timeArr = startTimeStr->String.split(":")
-      let startTimeTxt = `${timeArr[0]->Option.getOr("00")}:${timeArr[1]->Option.getOr("00")}`
-      showSeconds ? `${startTimeTxt}:${timeArr[2]->Option.getOr("00")}` : startTimeTxt
-    }
+
+    let startTimeStr = formatTimeString(
+      ~timeVal=startDateVal->getTimeStringForValue(isoStringToCustomTimeZone),
+      ~defaultTime="00:00:00",
+      ~showSeconds,
+    )
+    let endTimeStr = formatTimeString(
+      ~timeVal=endDateVal->getTimeStringForValue(isoStringToCustomTimeZone),
+      ~defaultTime="23:59:59",
+      ~showSeconds,
+    )
 
     let tooltipText = {
-      startDateVal->isEmptyString && endDateVal->isEmptyString
-        ? `Select Date ${showTime ? "and Time" : ""}`
-        : showTime
-        ? `${startDateStr} ${startTimeStr} - ${endDateStr} ${endTimeStr}`
-        : endDateVal->isEmptyString
-        ? `${startDateStr} - Now`
-        : `${startDateStr} ${startDateStr === buttonText ? "" : "-"} ${endDateStr}`
+      switch (startDateVal->isEmptyString, endDateVal->isEmptyString, showTime) {
+      | (true, true, _) => `Select Date ${showTime ? "and Time" : ""}`
+      | (false, true, true) => `${startDateStr} ${startTimeStr} - Now`
+      | (false, false, true) => `${startDateStr} ${startTimeStr} - ${endDateStr} ${endTimeStr}`
+      | (false, false, false) =>
+        `${startDateStr} ${startDateStr === buttonText ? "" : "-"} ${endDateStr}`
+      | _ => ""
+      }
     }
 
     let buttonIcon = isDropdownExpandedPrimary ? "angle-up" : "angle-down"
@@ -508,7 +513,7 @@ module Base = {
         todayTime,
       )
 
-      resetStartEndInput()
+      resetStartEndInput(~setStartDate=setLocalStartDate, ~setEndDate=setLocalEndDate)
 
       setStartDate(~date=startDate, ~time=stTime)
       setEndDate(~date=endDate, ~time=enTime)
@@ -516,61 +521,107 @@ module Base = {
       changeEndDate(enDate, false, Some(enTime))
     }
 
+    let handleCompareOptionClick = value => {
+      switch value {
+      | Custom => {
+          setCalendarVisibilitySecondary(_ => true)
+          setIsCustomSelectedSecondary(_ => true)
+        }
+      | _ => {
+          setIsCustomSelectedSecondary(_ => false)
+          setCalendarVisibilitySecondary(_ => false)
+          setIsDropdownExpandedSecondary(_ => false)
+          setShowOption(_ => false)
+
+          let (startDate, endDate) = getComparisionTimePeriod(
+            ~startDate=startDateVal,
+            ~endDate=endDateVal,
+          )
+
+          resetStartEndInput(
+            ~setStartDate=setLocalStartSecondaryDate,
+            ~setEndDate=setLocalEndSecondaryDate,
+          )
+
+          // setSecondaryStartDate(~date=startDate, ~time=getFormattedDate(startDate, "HH:MM:00"))
+          // setSecondaryEndDate(~date=endDate, ~time=getFormattedDate(endDate, "HH:MM:00"))
+
+          // changeSeconStartDate(startDate, false, Some("00:00:00"))
+          // changeSecondaryEndDate(endDate, false, Some("00:00:00"))
+        }
+      }
+    }
+
+    let toggleDropdown = (
+      ~isDropdownExpanded,
+      ~setIsDropdownExpanded,
+      ~calendarVisibility,
+      ~setCalendarVisibility,
+      ~predefinedOptionsLength,
+      ~isCustomSelected,
+      ~setShowOption,
+    ) => {
+      if predefinedOptionsLength > 0 {
+        if calendarVisibility {
+          setCalendarVisibility(_ => false)
+          setIsDropdownExpanded(_ => !isDropdownExpanded)
+          setShowOption(_ => !isCustomSelected)
+        } else {
+          setIsDropdownExpanded(_ => true)
+          setCalendarVisibility(_ => true)
+          setShowOption(_ => true)
+        }
+      } else {
+        setIsDropdownExpanded(_ => !isDropdownExpanded)
+        setCalendarVisibility(_ => !isDropdownExpanded)
+      }
+    }
+
     let handleDropdownClick = dropDownType => {
       switch dropDownType {
       | PrimaryDateRange => {
           setIsDropdownExpandedSecondary(_ => false)
           setCalendarVisibilitySecondary(_ => false)
-          if predefinedDays->Array.length > 0 {
-            if calendarVisibilityPrimary {
-              setCalendarVisibilityPrimary(_ => false)
-              setShowOption(_ => !isDropdownExpandedPrimary)
-              setIsDropdownExpandedPrimary(_ => !isDropdownExpandedPrimary)
-              setShowOption(_ => !isCustomSelectedPrimary)
-            } else {
-              setIsDropdownExpandedPrimary(_ => true)
-              setCalendarVisibilityPrimary(_ => true)
-              setShowOption(_ => true)
-            }
-          } else {
-            setIsDropdownExpandedPrimary(_ => !isDropdownExpandedPrimary)
-            setCalendarVisibilityPrimary(_ => !isDropdownExpandedPrimary)
-          }
+          toggleDropdown(
+            ~isDropdownExpanded=isDropdownExpandedPrimary,
+            ~setIsDropdownExpanded=setIsDropdownExpandedPrimary,
+            ~calendarVisibility=calendarVisibilityPrimary,
+            ~setCalendarVisibility=setCalendarVisibilityPrimary,
+            ~predefinedOptionsLength=predefinedDays->Array.length,
+            ~isCustomSelected=isCustomSelectedPrimary,
+            ~setShowOption,
+          )
         }
       | CompareDateRange => {
           setIsDropdownExpandedPrimary(_ => false)
           setCalendarVisibilityPrimary(_ => false)
-          if compareOptions->Array.length > 0 {
-            if calendarVisibilitySecondary {
-              setCalendarVisibilitySecondary(_ => false)
-              setIsDropdownExpandedSecondary(_ => !isDropdownExpandedSecondary)
-              setShowOption(_ => !isCustomSelectedPrimary)
-            } else {
-              setIsDropdownExpandedSecondary(_ => true)
-              setCalendarVisibilitySecondary(_ => true)
-              setShowOption(_ => true)
-            }
-          } else {
-            setIsDropdownExpandedSecondary(_ => !isDropdownExpandedSecondary)
-            setCalendarVisibilitySecondary(_ => !isDropdownExpandedSecondary)
-          }
+          toggleDropdown(
+            ~isDropdownExpanded=isDropdownExpandedSecondary,
+            ~setIsDropdownExpanded=setIsDropdownExpandedSecondary,
+            ~calendarVisibility=calendarVisibilitySecondary,
+            ~setCalendarVisibility=setCalendarVisibilitySecondary,
+            ~predefinedOptionsLength=compareOptions->Array.length,
+            ~isCustomSelected=isCustomSelectedPrimary,
+            ~setShowOption,
+          )
         }
       }
     }
 
     React.useEffect(() => {
-      if startDate->isNonEmptyString && endDate->isNonEmptyString {
-        if (
-          localStartDate->isNonEmptyString &&
-          localEndDate->isNonEmptyString &&
-          (disableApply || !isCustomSelectedPrimary)
-        ) {
-          saveDates()
-        }
+      let shouldSaveDates =
+        startDate->isNonEmptyString &&
+        endDate->isNonEmptyString &&
+        localStartDate->isNonEmptyString &&
+        localEndDate->isNonEmptyString &&
+        (disableApply || !isCustomSelectedPrimary)
 
-        if disableApply {
-          setShowOption(_ => false)
-        }
+      if shouldSaveDates {
+        saveDates()
+      }
+
+      if disableApply {
+        setShowOption(_ => false)
       }
       None
     }, (startDate, endDate, localStartDate, localEndDate))
@@ -620,21 +671,22 @@ module Base = {
     let buttonText = switch predefinedOptionSelected {
     | Some(value) => DateRangeUtils.datetext(value, disableFutureDates)
     | None =>
-      startDateVal->isEmptyString && endDateVal->isEmptyString
-        ? `Select Date`
-        : endDateVal->isEmptyString
-        ? `${startDateStr} - Now`
-        : `${startDateStr} ${startDateStr === buttonText ? "" : "-"} ${endDateStr}`
+      switch (startDateVal->isEmptyString, endDateVal->isEmptyString) {
+      | (true, true) => `Select Date`
+      | (true, false) => `${endDateStr}` // When start date is empty, show only end date
+      | (false, true) => `${startDateStr} - Now` // When end date is empty, show start date and "Now"
+      | (false, false) => {
+          let separator = startDateStr === buttonText ? "" : "-"
+          `${startDateStr} ${separator} ${endDateStr}`
+        }
+      }
     }
 
-    let filteredPredefinedDays = {
-      switch dateRangeLimit {
-      | Some(limit) =>
-        predefinedDays->Array.filter(item => {
-          getDiffForPredefined(item) <= (limit->Float.fromInt *. 24. *. 60. *. 60. -. 1.) *. 1000.
-        })
-      | None => predefinedDays
-      }
+    let filteredPredefinedDays = switch dateRangeLimit {
+    | Some(limit) =>
+      let maxDiff = (limit->Float.fromInt *. 24. *. 60. *. 60. -. 1.) *. 1000.
+      predefinedDays->Array.filter(item => getDiffForPredefined(item) <= maxDiff)
+    | None => predefinedDays
     }
 
     let removeApplyFilter = ev => {
@@ -642,6 +694,8 @@ module Base = {
       resetToInitalValues()
       setStartDateVal(_ => "")
       setEndDateVal(_ => "")
+      setSeconStartDateVal(_ => "")
+      setSeconEndDateVal(_ => "")
     }
 
     let buttonType: option<Button.buttonType> = buttonType
@@ -696,7 +750,6 @@ module Base = {
                       todayDate
                       todayTime
                       formatDateTime
-                      isTooltipVisible
                     />
                   </div>
                 })
@@ -722,13 +775,7 @@ module Base = {
                 ->Array.mapWithIndex((value, i) => {
                   <div
                     key={i->Int.toString} className="w-full md:min-w-max text-center md:text-start">
-                    <CompareOption
-                      value
-                      startDateVal
-                      endDateVal
-                      setCalendarVisibility={setCalendarVisibilitySecondary}
-                      setIsCustomSelected={setIsCustomSelectedSecondary}
-                    />
+                    <CompareOption value startDateVal endDateVal onClick=handleCompareOptionClick />
                   </div>
                 })
                 ->React.array}
