@@ -41,6 +41,7 @@ let make = () => {
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
+      setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
       let _ = await fetchUserGroupACL()
@@ -76,18 +77,19 @@ let make = () => {
   }, [userGroupACL])
 
   <>
-    <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
-      <div>
-        {switch dashboardPageState {
-        | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
-        // INTEGRATION_DOC Need to be removed
-        | #INTEGRATION_DOC => <UserOnboarding />
-        | #HOME =>
-          <div className="relative" key={renderKey}>
-            // TODO: Change the key to only profileId once the userInfo starts sending profileId
-            <div className={`h-screen flex flex-col`}>
-              <div className="flex relative overflow-auto h-screen ">
-                <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
+    <div>
+      {switch dashboardPageState {
+      | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
+      // INTEGRATION_DOC Need to be removed
+      | #INTEGRATION_DOC => <UserOnboarding />
+      | #HOME =>
+        <div className="relative" key={renderKey}>
+          // TODO: Change the key to only profileId once the userInfo starts sending profileId
+          <div className={`h-screen flex flex-col`}>
+            <div className="flex relative overflow-auto h-screen ">
+              <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
+              <PageLoaderWrapper
+                screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
                   <div className="border-b shadow hyperswitch_box_shadow ">
@@ -275,25 +277,25 @@ let make = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-              <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
-                <HSwitchFeedBackModal
-                  modalHeading="We'd love to hear from you!"
-                  showModal={showFeedbackModal}
-                  setShowModal={setShowFeedbackModal}
-                />
-              </RenderIf>
-              <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
-                <ProdIntentForm />
-              </RenderIf>
+              </PageLoaderWrapper>
             </div>
+            <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
+              <HSwitchFeedBackModal
+                modalHeading="We'd love to hear from you!"
+                showModal={showFeedbackModal}
+                setShowModal={setShowFeedbackModal}
+              />
+            </RenderIf>
+            <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
+              <ProdIntentForm />
+            </RenderIf>
           </div>
-        | #DEFAULT =>
-          <div className="h-screen flex justify-center items-center">
-            <Loader />
-          </div>
-        }}
-      </div>
-    </PageLoaderWrapper>
+        </div>
+      | #DEFAULT =>
+        <div className="h-screen flex justify-center items-center">
+          <Loader />
+        </div>
+      }}
+    </div>
   </>
 }
