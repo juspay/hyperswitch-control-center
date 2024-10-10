@@ -32,7 +32,7 @@ let make = (
   ~headerAlignmentClass="flex-row",
   ~customIcon=None,
 ) => {
-  let customHeight = btnRequired === false ? `h-full` : `h-screen`
+  let customHeight = btnRequired ? `h-screen` : `h-full`
   let customButton =
     <Button
       text=submitButtonText

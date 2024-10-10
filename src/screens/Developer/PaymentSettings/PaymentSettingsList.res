@@ -6,8 +6,7 @@ let make = (
 ) => {
   open PaymentSettingsListEntity
   let (offset, setOffset) = React.useState(_ => 0)
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let businessProfileValues = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
 
   <RenderIf condition=isFromSettings>
@@ -22,7 +21,9 @@ let make = (
           hideTitle=true
           resultsPerPage=7
           visibleColumns
-          entity={webhookProfileTableEntity(~permission=userPermissionJson.merchantDetailsManage)}
+          entity={webhookProfileTableEntity(
+            ~authorization=userHasAccess(~groupAccess=MerchantDetailsManage),
+          )}
           showSerialNumber=true
           actualData={businessProfileValues->Array.map(Nullable.make)}
           totalResults={businessProfileValues->Array.length}

@@ -1,4 +1,14 @@
 open NewAnalyticsTypes
+// OverView section
+let overviewSectionEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: true,
+    metrics: [],
+  },
+  title: "OverView Section",
+  domain: #payments,
+}
+
 // Payments Lifecycle
 let paymentsLifeCycleEntity: moduleEntity = {
   requestBodyConfig: {
@@ -12,6 +22,7 @@ let paymentsLifeCycleEntity: moduleEntity = {
 let paymentsLifeCycleChartEntity: chartEntity<
   SankeyGraphTypes.sankeyPayload,
   SankeyGraphTypes.sankeyGraphOptions,
+  PaymentsLifeCycleTypes.paymentLifeCycle,
 > = {
   getObjects: PaymentsLifeCycleUtils.paymentsLifeCycleMapper,
   getChatOptions: SankeyGraphUtils.getSankyGraphOptions,
@@ -21,7 +32,7 @@ let paymentsLifeCycleChartEntity: chartEntity<
 let paymentsProcessedEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_processed_amount],
+    metrics: [#payment_processed_amount, #payment_count],
   },
   title: "Payments Processed",
   domain: #payments,
@@ -30,6 +41,7 @@ let paymentsProcessedEntity: moduleEntity = {
 let paymentsProcessedChartEntity: chartEntity<
   LineGraphTypes.lineGraphPayload,
   LineGraphTypes.lineGraphOptions,
+  JSON.t,
 > = {
   getObjects: PaymentsProcessedUtils.paymentsProcessedMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
@@ -62,24 +74,26 @@ let paymentsSuccessRateEntity: moduleEntity = {
 let paymentsSuccessRateChartEntity: chartEntity<
   LineGraphTypes.lineGraphPayload,
   LineGraphTypes.lineGraphOptions,
+  JSON.t,
 > = {
   getObjects: PaymentsSuccessRateUtils.paymentsSuccessRateMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
 }
 
-// Payments Distribution
+// Successful Payments Distribution
 let successfulPaymentsDistributionEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_success_rate],
+    metrics: [#payments_distribution],
   },
-  title: "Payments Distribution",
+  title: "Successful Payments Distribution",
   domain: #payments,
 }
 
 let successfulPaymentsDistributionChartEntity: chartEntity<
   BarGraphTypes.barGraphPayload,
   BarGraphTypes.barGraphOptions,
+  JSON.t,
 > = {
   getObjects: SuccessfulPaymentsDistributionUtils.successfulPaymentsDistributionMapper,
   getChatOptions: BarGraphUtils.getBarGraphOptions,
@@ -87,6 +101,39 @@ let successfulPaymentsDistributionChartEntity: chartEntity<
 
 let successfulPaymentsDistributionTableEntity = {
   open SuccessfulPaymentsDistributionUtils
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects,
+    ~dataKey="queryData",
+    ~defaultColumns=visibleColumns,
+    ~requiredSearchFieldsList=[],
+    ~allColumns=visibleColumns,
+    ~getCell,
+    ~getHeading,
+  )
+}
+
+// Failed Payments Distribution
+let failedPaymentsDistributionEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [#payments_distribution],
+  },
+  title: "Failed Payments Distribution",
+  domain: #payments,
+}
+
+let failedPaymentsDistributionChartEntity: chartEntity<
+  BarGraphTypes.barGraphPayload,
+  BarGraphTypes.barGraphOptions,
+  JSON.t,
+> = {
+  getObjects: FailedPaymentsDistributionUtils.failedPaymentsDistributionMapper,
+  getChatOptions: BarGraphUtils.getBarGraphOptions,
+}
+
+let failedPaymentsDistributionTableEntity = {
+  open FailedPaymentsDistributionUtils
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects,

@@ -349,7 +349,44 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | NEW_ANALYTICS =>
+      switch methodType {
+      | Get =>
+        switch id {
+        // Need to write seperate enum for info api
+        | Some(domain) =>
+          switch analyticsEntity {
+          | #Organization => `analytics/v2/org/${domain}/info`
+          | #Merchant => `analytics/v2/merchant/${domain}/info`
+          | #Profile => `analytics/v2/profile/${domain}/info`
+          }
 
+        | _ => ""
+        }
+      | Post =>
+        switch id {
+        | Some(domain) =>
+          switch analyticsEntity {
+          | #Organization => `analytics/v2/org/metrics/${domain}`
+          | #Merchant => `analytics/v2/merchant/metrics/${domain}`
+          | #Profile => `analytics/v2/profile/metrics/${domain}`
+          }
+
+        | _ => ""
+        }
+      | _ => ""
+      }
+    | ANALYTICS_SANKEY =>
+      switch methodType {
+      | Post =>
+        switch analyticsEntity {
+        | #Organization => `analytics/v1/org/metrics/sankey`
+        | #Merchant => `analytics/v1/merchant/metrics/sankey`
+        | #Profile => `analytics/v1/profile/metrics/sankey`
+        }
+
+      | _ => ""
+      }
     /* PAYOUTS ROUTING */
     | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
     | PAYOUT_ROUTING =>
@@ -575,14 +612,14 @@ let useGetURL = () => {
       | #MERCHANT_DATA => `${userUrl}/data`
       | #USER_INFO => userUrl
 
-      // USER PERMISSIONS
-      | #GET_PERMISSIONS =>
+      // USER GROUP ACCESS
+      | #GET_GROUP_ACL =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/role?${params}`
         | None => `${userUrl}/role`
         }
       | #ROLE_INFO => `${userUrl}/module/list`
-      | #PERMISSION_INFO =>
+      | #GROUP_ACCESS_INFO =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
@@ -605,11 +642,7 @@ let useGetURL = () => {
       // ACCEPT INVITE PRE_LOGIN
       | #ACCEPT_INVITATION_PRE_LOGIN => `${userUrl}/user/invite/accept/v2/pre_auth`
 
-      // SWITCH & CREATE MERCHANT
-      | #SWITCH_MERCHANT =>
-        switch methodType {
-        | _ => `${userUrl}/${(userType :> string)->String.toLowerCase}`
-        }
+      // CREATE MERCHANT
       | #CREATE_MERCHANT =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
@@ -689,13 +722,13 @@ let useHandleLogout = () => {
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
-
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   () => {
     try {
       let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
       let _ =
-        fetchApi(logoutUrl, ~method_=Post)
+        fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute)
         ->then(Fetch.Response.json)
         ->then(json => {
           json->resolve
@@ -850,10 +883,11 @@ let useGetMethod = (~showErrorToast=true) => {
         },
       },
     })
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async url => {
     try {
-      let res = await fetchApi(url, ~method_=Get)
+      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute)
       await responseHandler(
         ~res,
         ~showErrorToast,
@@ -894,6 +928,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         },
       },
     })
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (
     url,
@@ -911,6 +946,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~bodyFormData,
         ~headers,
         ~contentType,
+        ~xFeatureRoute,
       )
       await responseHandler(
         ~res,

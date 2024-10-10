@@ -57,6 +57,8 @@ let itemToObjMapper = dict => {
     ),
     outgoing_webhook_custom_http_headers: None,
     is_connector_agnostic_mit_enabled: None,
+    is_auto_retries_enabled: dict->getOptionBool("is_auto_retries_enabled"),
+    max_auto_retries_enabled: dict->getOptionInt("max_auto_retries_enabled"),
   }
 }
 
@@ -64,7 +66,7 @@ let getItems: JSON.t => array<profileEntity> = json => {
   LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let webhookProfileTableEntity = (~permission: CommonAuthTypes.authorization) =>
+let webhookProfileTableEntity = (~authorization: CommonAuthTypes.authorization) =>
   EntityType.makeEntity(
     ~uri="",
     ~getObjects=getItems,
@@ -75,9 +77,9 @@ let webhookProfileTableEntity = (~permission: CommonAuthTypes.authorization) =>
     ~getCell,
     ~getShowLink={
       profile =>
-        PermissionUtils.linkForGetShowLinkViaAccess(
+        GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(~url=`/payment-settings/${profile.profile_id}`),
-          ~permission,
+          ~authorization,
         )
     },
   )

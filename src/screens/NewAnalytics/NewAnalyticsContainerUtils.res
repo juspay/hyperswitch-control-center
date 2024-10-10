@@ -1,15 +1,5 @@
 open NewAnalyticsTypes
 
-let tabs: array<Tabs.tab> = [
-  {
-    title: "Payments",
-    renderContent: () =>
-      <div className="mt-5">
-        <NewPaymentAnalytics />
-      </div>,
-  },
-]
-
 let getPageVariant = string => {
   switch string {
   | "new-analytics-payment" | _ => NewAnalyticsPayment

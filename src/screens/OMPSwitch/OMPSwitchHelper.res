@@ -24,16 +24,25 @@ module ListBaseComp = {
 
 module AddNewMerchantProfileButton = {
   @react.component
-  let make = (~user, ~setShowModal, ~customPadding="", ~customStyle="", ~customHRTagStyle="") => {
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-    let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
+  let make = (
+    ~user,
+    ~setShowModal,
+    ~customPadding="",
+    ~customStyle="",
+    ~customHRTagStyle="",
+    ~addItemBtnStyle="",
+  ) => {
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let cursorStyles = GroupAccessUtils.cursorStyles(
+      userHasAccess(~groupAccess=MerchantDetailsManage),
+    )
     <ACLDiv
-      permission={userPermissionJson.merchantDetailsManage}
+      authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
       onClick={_ => setShowModal(_ => true)}
       isRelative=false
       contentAlign=Default
       tooltipForWidthClass="!h-full"
-      className={`${cursorStyles} ${customPadding}`}>
+      className={`${cursorStyles} ${customPadding} ${addItemBtnStyle}`}>
       {<>
         <hr className={customHRTagStyle} />
         <div

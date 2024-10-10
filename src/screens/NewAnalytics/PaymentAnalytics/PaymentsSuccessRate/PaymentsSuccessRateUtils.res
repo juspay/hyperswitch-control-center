@@ -1,5 +1,4 @@
 open NewPaymentAnalyticsUtils
-open PaymentsSuccessRateTypes
 open LogicUtils
 
 let getMetaData = json => {
@@ -14,34 +13,42 @@ let getMetaData = json => {
 
 let graphTitle = json => getMetaData(json)->getInt("payments_success_rate", 0)->Int.toString
 
-let colMapper = queryData =>
-  switch queryData {
-  | PaymentSuccessRate => "payments_success_rate"
-  | TimeBucket => "time_bucket"
-  }
-
 let paymentsSuccessRateMapper = (
   ~data: JSON.t,
   ~xKey: string,
   ~yKey: string,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  let categories = getCategories(data, yKey)
-  let data = getLineGraphData(data, xKey)
+  let primaryCategories = data->getCategories(0, yKey)
+  let secondaryCategories = data->getCategories(1, yKey)
+
+  let lineGraphData =
+    data
+    ->getArrayFromJson([])
+    ->Array.mapWithIndex((item, index) => {
+      let name = NewAnalyticsUtils.getLabelName(~key=yKey, ~index, ~points=item)
+      let color = index->getColor
+      getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color)
+    })
   let title = {
     text: "Payments Success Rate",
   }
-  {categories, data, title}
+  {
+    categories: primaryCategories,
+    data: lineGraphData,
+    title,
+    tooltipFormatter: tooltipFormatter(
+      ~secondaryCategories,
+      ~title="Payments Success Rate",
+      ~metricType=Rate,
+    ),
+  }
 }
 
 open NewAnalyticsTypes
-let tabs = [
-  {label: "Hourly", value: (#hour_wise: granularity :> string)},
-  {label: "Daily", value: (#day_wise: granularity :> string)},
-  {label: "Weekly", value: (#week_wise: granularity :> string)},
-]
+let tabs = [{label: "Daily", value: (#G_ONEDAY: granularity :> string)}]
 
 let defaulGranularity = {
   label: "Hourly",
-  value: (#hour_wise: granularity :> string),
+  value: (#G_ONEDAY: granularity :> string),
 }
