@@ -96,13 +96,12 @@ let generateDropdownOptions = dropdownList => {
     icon: Button.CustomRightIcon(
       <ToolTip
         description={item.id}
-        toolTipFor={<div className="cursor-pointer mr-2 mt-1">
-       <OMPCopyTextCustomComp displayValue=" " copyValue=Some({item.id})/>
+        customStyle="!whitespace-nowrap"
+        toolTipFor={<div className="cursor-pointer">
+          <OMPCopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
         </div>}
         toolTipPosition=ToolTip.TopRight
-        newDesign=true
-      />
-      ,
+      />,
     ),
   })
   options

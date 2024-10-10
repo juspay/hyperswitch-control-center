@@ -199,6 +199,7 @@ let make = () => {
       fullLength=true
       toggleChevronState
       customScrollStyle
+      shouldDisplaySelectedOnTop=true
     />
     <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getMerchantList />

@@ -198,6 +198,7 @@ let make = () => {
       toggleChevronState
       customScrollStyle
       dropdownContainerStyle
+      shouldDisplaySelectedOnTop=true
     />
     <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getProfileList />
