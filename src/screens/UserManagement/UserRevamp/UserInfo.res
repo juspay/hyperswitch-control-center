@@ -17,10 +17,7 @@ module UserAction = {
     )
 
     let decideWhatToShow = {
-      if value.entityType->UserInfoUtils.entityMapper === #Organization {
-        // User is at org level
-        NoActionAccess
-      } else if userEmail === email {
+      if userEmail === email {
         // User cannot update its own role
         NoActionAccess
       } else if userHasAccess(~groupAccess=UsersManage) === NoAccess {
@@ -37,6 +34,13 @@ module UserAction = {
         // Merchant level user
         value.org.id->Option.getOr("") === orgId &&
         value.merchant.id->Option.getOr("") === merchantId &&
+        value.profile.id->Option.isNone
+      ) {
+        ManageUser
+      } else if (
+        // Org level user
+        value.org.id->Option.getOr("") === orgId &&
+        value.merchant.id->Option.isNone &&
         value.profile.id->Option.isNone
       ) {
         ManageUser
