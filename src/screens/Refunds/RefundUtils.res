@@ -140,6 +140,7 @@ let initialFixedFilter = () => [
 let getValueFromFilterType = (filter: filter) => {
   switch filter {
   | #connector_label => "merchant_connector_id"
+  | #status => "refund_status"
   | _ => (filter :> string)
   }
 }
