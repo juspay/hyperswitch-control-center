@@ -204,18 +204,15 @@ let initialFilters = (json, filtervalues, setfilterKeys, filterKeys) => {
   let filterDict = json->getDictFromJsonObject
   let arr = filterDict->Dict.keysToArray->Array.filter(item => item != "currency")
 
-  React.useEffect(() => {
-    let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-    if connectorFilter->Array.length !== 0 {
-      arr->Array.push((#connector_label: filter :> string))
+  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+  if connectorFilter->Array.length !== 0 {
+    arr->Array.push((#connector_label: filter :> string))
 
-      if !(filterKeys->Array.includes(getValueFromFilterType(#connector_label))) {
-        filterKeys->Array.push(getValueFromFilterType(#connector_label))
-        setfilterKeys(_ => filterKeys)
-      }
+    if !(filterKeys->Array.includes(getValueFromFilterType(#connector_label))) {
+      filterKeys->Array.push(getValueFromFilterType(#connector_label))
+      setfilterKeys(_ => filterKeys)
     }
-    None
-  }, [filtervalues])
+  }
 
   let filterArr = filterDict->itemToObjMapper
 

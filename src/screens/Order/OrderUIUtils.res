@@ -279,19 +279,15 @@ let initialFilters = (json, filtervalues, setfilterKeys, filterKeys) => {
   let filterArr = filterDict->itemToObjMapper
   let arr = filterDict->Dict.keysToArray
 
-  React.useEffect(() => {
-    let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-    if connectorFilter->Array.length !== 0 {
-      arr->Array.push((#connector_label: filter :> string))
+  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+  if connectorFilter->Array.length !== 0 {
+    arr->Array.push((#connector_label: filter :> string))
 
-      if !(filterKeys->Array.includes(getValueFromFilterType(#connector_label))) {
-        filterKeys->Array.push(getValueFromFilterType(#connector_label))
-        setfilterKeys(_ => filterKeys)
-      }
+    if !(filterKeys->Array.includes(getValueFromFilterType(#connector_label))) {
+      filterKeys->Array.push(getValueFromFilterType(#connector_label))
+      setfilterKeys(_ => filterKeys)
     }
-    None
-  }, [filtervalues])
-
+  }
   arr->Array.push((#payment_method_type: filter :> string))
 
   arr->Array.map((key): EntityType.initialFilters<'t> => {
