@@ -6,7 +6,7 @@ module ClearFilters = {
     ~isCountRequired=true,
     ~outsidefilter=false,
   ) => {
-    let {updateExistingKeys, filterKeys: _} = React.useContext(FilterContext.filterContext)
+    let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
     let textStyle = "text-red-900"
     let leftIcon: Button.iconType = CustomIcon(<Icon name="trash-outline" size=24 />)
 
@@ -65,7 +65,6 @@ module ClearFilters = {
       ->Array.length > 0
     }, (formState.initialValues, defaultFilterKeys))
     let text = "Clear All"
-    // <RenderIf condition={filterKeys->Array.length != 0 || outsidefilter}>
     <RenderIf condition={hasExtraFilters || outsidefilter}>
       <Button
         text
