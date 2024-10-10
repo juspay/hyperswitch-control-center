@@ -1,6 +1,6 @@
 open CommonAuthTypes
 @react.component
-let make = (~isEnabled=true, ~permission, ~children) => {
-  let isAccessAllowed = permission === Access
+let make = (~isEnabled=true, ~authorization, ~children) => {
+  let isAccessAllowed = authorization === Access
   isEnabled && isAccessAllowed ? children : <UnauthorizedPage />
 }

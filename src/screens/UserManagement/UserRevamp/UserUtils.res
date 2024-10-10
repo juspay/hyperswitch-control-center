@@ -200,7 +200,7 @@ let getEntityType = valueDict => {
   let profileValue = valueDict->getOptionString("profile_value")
 
   switch (orgValue, merchantValue, profileValue) {
-  | (Some(_orgId), Some("all_merchants"), Some("all_profiles")) => "organisation"
+  | (Some(_orgId), Some("all_merchants"), Some("all_profiles")) => "organization"
   | (Some(_orgId), Some(_merchnatId), Some("all_profiles")) => "merchant"
   | (Some(_orgId), Some(_merchnatId), Some(_profileId)) => "profile"
   | _ => ""
