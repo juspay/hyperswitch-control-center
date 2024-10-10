@@ -301,3 +301,39 @@ let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
     (val, onChange)
   }, [input])
 }
+
+let formatTimeString = (~timeVal, ~defaultTime, ~showSeconds) => {
+  open LogicUtils
+  if timeVal->isNonEmptyString {
+    let timeArr = timeVal->String.split(":")
+    let timeTxt = `${timeArr->getValueFromArray(0, "00")}:${timeArr->getValueFromArray(1, "00")}`
+    showSeconds ? `${timeTxt}:${timeArr->getValueFromArray(2, "00")}` : timeTxt
+  } else {
+    defaultTime
+  }
+}
+
+let toggleDropdown = (
+  ~isDropdownExpanded,
+  ~setIsDropdownExpanded,
+  ~calendarVisibility,
+  ~setCalendarVisibility,
+  ~predefinedOptionsLength,
+  ~isCustomSelected,
+  ~setShowOption,
+) => {
+  if predefinedOptionsLength > 0 {
+    if calendarVisibility {
+      setCalendarVisibility(_ => false)
+      setIsDropdownExpanded(_ => !isDropdownExpanded)
+      setShowOption(_ => !isCustomSelected)
+    } else {
+      setIsDropdownExpanded(_ => true)
+      setCalendarVisibility(_ => true)
+      setShowOption(_ => true)
+    }
+  } else {
+    setIsDropdownExpanded(_ => !isDropdownExpanded)
+    setCalendarVisibility(_ => !isDropdownExpanded)
+  }
+}
