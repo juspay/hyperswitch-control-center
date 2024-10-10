@@ -70,7 +70,7 @@ module NewAccountCreationModal = {
 
     let modalBody = {
       <div className="">
-        <div className="p-3 m-3 flex justify-between">
+        <div className="pt-3 m-3 flex justify-between">
           <CardUtils.CardHeader
             heading="Add a new merchant"
             subHeading=""
@@ -95,7 +95,7 @@ module NewAccountCreationModal = {
               </FormRenderer.DesktopRow>
             </div>
             <hr className="mt-4" />
-            <div className="flex justify-end w-full p-5">
+            <div className="flex justify-end w-full p-3">
               <FormRenderer.SubmitButton text="Add Merchant" buttonSize=Small />
             </div>
           </div>
