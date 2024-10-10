@@ -26,7 +26,7 @@ module TileComponent = {
     let showPopUp = PopUpState.useShowPopUp()
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let deleteSampleData = async () => {
       try {
@@ -79,7 +79,7 @@ module TileComponent = {
       }
     }
     let accessBasedOnCardName = switch cardName {
-    | #DELETE_SAMPLE_DATA => userPermissionJson.operationsManage
+    | #DELETE_SAMPLE_DATA => userHasAccess(~groupAccess=OperationsManage)
     | _ => Access
     }
 
@@ -95,7 +95,7 @@ module TileComponent = {
         </p>
       </div>
       <ACLButton
-        access=accessBasedOnCardName
+        authorization=accessBasedOnCardName
         text=buttonText
         buttonType=Secondary
         customButtonStyle="w-2/3"

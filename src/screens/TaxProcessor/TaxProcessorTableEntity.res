@@ -86,7 +86,7 @@ let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
   LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
 }
 
-let taxProcessorEntity = (path: string, ~permission: CommonAuthTypes.authorization) => {
+let taxProcessorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,
@@ -96,11 +96,11 @@ let taxProcessorEntity = (path: string, ~permission: CommonAuthTypes.authorizati
     ~dataKey="",
     ~getShowLink={
       connec =>
-        PermissionUtils.linkForGetShowLinkViaAccess(
+        GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
             ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
           ),
-          ~permission,
+          ~authorization,
         )
     },
   )

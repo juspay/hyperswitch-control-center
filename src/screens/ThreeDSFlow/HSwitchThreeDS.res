@@ -148,7 +148,7 @@ let make = () => {
   let (pageView, setPageView) = React.useState(_ => NEW)
   let showPopUp = PopUpState.useShowPopUp()
   let (showWarning, setShowWarning) = React.useState(_ => true)
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let getWasm = async () => {
     try {
@@ -364,7 +364,7 @@ let make = () => {
             </p>
             <ACLButton
               text="Create New"
-              access=userPermissionJson.workflowsManage
+              authorization={userHasAccess(~groupAccess=WorkflowsManage)}
               buttonType=Primary
               customButtonStyle="!w-1/6"
               onClick={_ => handleCreateNew()}
