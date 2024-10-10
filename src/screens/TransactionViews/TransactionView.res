@@ -39,17 +39,9 @@ let make = (~entity=TransactionViewTypes.Orders) => {
     let customFilter = `[${view->getViewsString(countRes, entity)}]`
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
 
-    switch view {
-    // | All => {
-    //     let updateFilterKeys = filterKeys->Array.filter(item => item != customFilterKey)
-    //     setfilterKeys(_ => updateFilterKeys)
-    //   }
-    | _ => {
-        if !(filterKeys->Array.includes(customFilterKey)) {
-          filterKeys->Array.push(customFilterKey)
-        }
-        setfilterKeys(_ => filterKeys)
-      }
+    if !(filterKeys->Array.includes(customFilterKey)) {
+      filterKeys->Array.push(customFilterKey)
+      setfilterKeys(_ => filterKeys)
     }
   }
 

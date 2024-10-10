@@ -195,20 +195,21 @@ let itemToObjMapper = dict => {
 let initialFilters = (json, filtervalues, setfilterKeys, filterKeys) => {
   open LogicUtils
 
-  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-
   let filterDict = json->getDictFromJsonObject
   let arr = filterDict->Dict.keysToArray->Array.filterWithIndex((_item, index) => index <= 2)
 
-  if connectorFilter->Array.length !== 0 {
-    arr->Array.push((#connector_label: filter :> string))
+  React.useEffect(() => {
+    let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+    if connectorFilter->Array.length !== 0 {
+      arr->Array.push((#connector_label: filter :> string))
 
-    if !(filterKeys->Array.includes(getValueFromFilterType(#connector_label))) {
-      filterKeys->Array.push(getValueFromFilterType(#connector_label))
+      if !(filterKeys->Array.includes(getValueFromFilterType(#connector_label))) {
+        filterKeys->Array.push(getValueFromFilterType(#connector_label))
+        setfilterKeys(_ => filterKeys)
+      }
     }
-
-    setfilterKeys(_ => filterKeys)
-  }
+    None
+  }, [filtervalues])
 
   let filterArr = filterDict->itemToObjMapper
 
