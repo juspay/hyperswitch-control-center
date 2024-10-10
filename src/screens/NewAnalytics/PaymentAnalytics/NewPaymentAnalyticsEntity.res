@@ -1,0 +1,147 @@
+open NewAnalyticsTypes
+// OverView section
+let overviewSectionEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: true,
+    metrics: [],
+  },
+  title: "OverView Section",
+  domain: #payments,
+}
+
+// Payments Lifecycle
+let paymentsLifeCycleEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [#payment_processed_amount],
+  },
+  title: "Payments Lifecycle",
+  domain: #payments,
+}
+
+let paymentsLifeCycleChartEntity: chartEntity<
+  SankeyGraphTypes.sankeyPayload,
+  SankeyGraphTypes.sankeyGraphOptions,
+  PaymentsLifeCycleTypes.paymentLifeCycle,
+> = {
+  getObjects: PaymentsLifeCycleUtils.paymentsLifeCycleMapper,
+  getChatOptions: SankeyGraphUtils.getSankyGraphOptions,
+}
+
+// Payments Processed
+let paymentsProcessedEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [#payment_processed_amount, #payment_count],
+  },
+  title: "Payments Processed",
+  domain: #payments,
+}
+
+let paymentsProcessedChartEntity: chartEntity<
+  LineGraphTypes.lineGraphPayload,
+  LineGraphTypes.lineGraphOptions,
+  JSON.t,
+> = {
+  getObjects: PaymentsProcessedUtils.paymentsProcessedMapper,
+  getChatOptions: LineGraphUtils.getLineGraphOptions,
+}
+
+let paymentsProcessedTableEntity = {
+  open PaymentsProcessedUtils
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects,
+    ~dataKey="queryData",
+    ~defaultColumns=visibleColumns,
+    ~requiredSearchFieldsList=[],
+    ~allColumns=visibleColumns,
+    ~getCell,
+    ~getHeading,
+  )
+}
+
+// Payments Success Rate
+let paymentsSuccessRateEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [#payment_success_rate],
+  },
+  title: "Payments Success Rate",
+  domain: #payments,
+}
+
+let paymentsSuccessRateChartEntity: chartEntity<
+  LineGraphTypes.lineGraphPayload,
+  LineGraphTypes.lineGraphOptions,
+  JSON.t,
+> = {
+  getObjects: PaymentsSuccessRateUtils.paymentsSuccessRateMapper,
+  getChatOptions: LineGraphUtils.getLineGraphOptions,
+}
+
+// Successful Payments Distribution
+let successfulPaymentsDistributionEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [#payments_distribution],
+  },
+  title: "Successful Payments Distribution",
+  domain: #payments,
+}
+
+let successfulPaymentsDistributionChartEntity: chartEntity<
+  BarGraphTypes.barGraphPayload,
+  BarGraphTypes.barGraphOptions,
+  JSON.t,
+> = {
+  getObjects: SuccessfulPaymentsDistributionUtils.successfulPaymentsDistributionMapper,
+  getChatOptions: BarGraphUtils.getBarGraphOptions,
+}
+
+let successfulPaymentsDistributionTableEntity = {
+  open SuccessfulPaymentsDistributionUtils
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects,
+    ~dataKey="queryData",
+    ~defaultColumns=visibleColumns,
+    ~requiredSearchFieldsList=[],
+    ~allColumns=visibleColumns,
+    ~getCell,
+    ~getHeading,
+  )
+}
+
+// Failed Payments Distribution
+let failedPaymentsDistributionEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [#payments_distribution],
+  },
+  title: "Failed Payments Distribution",
+  domain: #payments,
+}
+
+let failedPaymentsDistributionChartEntity: chartEntity<
+  BarGraphTypes.barGraphPayload,
+  BarGraphTypes.barGraphOptions,
+  JSON.t,
+> = {
+  getObjects: FailedPaymentsDistributionUtils.failedPaymentsDistributionMapper,
+  getChatOptions: BarGraphUtils.getBarGraphOptions,
+}
+
+let failedPaymentsDistributionTableEntity = {
+  open FailedPaymentsDistributionUtils
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects,
+    ~dataKey="queryData",
+    ~defaultColumns=visibleColumns,
+    ~requiredSearchFieldsList=[],
+    ~allColumns=visibleColumns,
+    ~getCell,
+    ~getHeading,
+  )
+}

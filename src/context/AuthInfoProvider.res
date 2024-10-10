@@ -31,21 +31,6 @@ let make = (~children) => {
     switch newAuthStatus {
     | LoggedIn(info) =>
       switch info {
-      | BasicAuth(basicInfo) =>
-        switch basicInfo.token {
-        | Some(token) =>
-          if !(token->LogicUtils.isEmptyString) {
-            setAuth(_ => newAuthStatus)
-            BasicAuthUtils.setBasicAuthResToStorage(basicInfo)
-          } else {
-            setAuth(_ => LoggedOut)
-            CommonAuthUtils.clearLocalStorage()
-          }
-        | None => {
-            setAuth(_ => LoggedOut)
-            CommonAuthUtils.clearLocalStorage()
-          }
-        }
       | Auth(totpInfo) =>
         if totpInfo.token->Option.isSome {
           setAuth(_ => newAuthStatus)
@@ -71,7 +56,7 @@ let make = (~children) => {
   let setAuthStateToLogout = React.useCallback(() => {
     setAuth(_ => LoggedOut)
     CommonAuthUtils.clearLocalStorage()
-    CookieStorage.deleteCookie(~cookieName="login_token", ~domain=GlobalVars.hostName, ())
+    CookieStorage.deleteCookie(~cookieName="login_token", ~domain=GlobalVars.hostName)
   }, [])
 
   <Provider

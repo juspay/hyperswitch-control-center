@@ -30,7 +30,7 @@ let getDomainOfCookie = domain => {
   }
 }
 
-let deleteCookie = (~cookieName, ~domain=?, ()) => {
+let deleteCookie = (~cookieName, ~domain=?) => {
   let domainClause = `domain=${getDomainOfCookie(domain)}`
   setCookieVal(`${cookieName}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;${domainClause}`)
   setCookieVal(`${cookieName}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`)

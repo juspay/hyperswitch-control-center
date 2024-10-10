@@ -25,10 +25,17 @@ type featureFlag = {
   disputeAnalytics: bool,
   configurePmts: bool,
   branding: bool,
-  totp: bool,
   liveUsersCounter: bool,
   granularity: bool,
-  reconV2: bool,
+  customWebhookHeaders: bool,
+  complianceCertificate: bool,
+  pmAuthenticationProcessor: bool,
+  performanceMonitor: bool,
+  newAnalytics: bool,
+  downTime: bool,
+  taxProcessor: bool,
+  transactionView: bool,
+  xFeatureRoute: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -61,10 +68,17 @@ let featureFlagType = (featureFlags: JSON.t) => {
     disputeAnalytics: dict->getBool("dispute_analytics", false),
     configurePmts: dict->getBool("configure_pmts", false),
     branding: dict->getBool("branding", false),
-    totp: dict->getBool("totp", false),
     liveUsersCounter: dict->getBool("live_users_counter", false),
     granularity: dict->getBool("granularity", false),
-    reconV2: dict->getBool("recon_v2", false),
+    customWebhookHeaders: dict->getBool("custom_webhook_headers", false),
+    complianceCertificate: dict->getBool("compliance_certificate", false),
+    pmAuthenticationProcessor: dict->getBool("pm_authentication_processor", false),
+    performanceMonitor: dict->getBool("performance_monitor", false),
+    newAnalytics: dict->getBool("new_analytics", false),
+    downTime: dict->getBool("down_time", false),
+    taxProcessor: dict->getBool("tax_processor", false),
+    transactionView: dict->getBool("transaction_view", false),
+    xFeatureRoute: dict->getBool("x_feature_route", false),
   }
   typedFeatureFlag
 }

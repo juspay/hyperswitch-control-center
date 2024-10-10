@@ -132,10 +132,13 @@ let getStatData = (
   }
 }
 
-let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
+let getSingleStatEntity: ('a, string) => DynamicSingleStat.entityType<'colType, 't, 't2> = (
+  metrics,
+  uri,
+) => {
   urlConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+      uri,
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
@@ -144,12 +147,12 @@ let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> =
   defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+  matrixUriMapper: _ => uri,
 }
 
-let chartEntity = tabKeys =>
+let chartEntity = (tabKeys, ~uri) =>
   DynamicChart.makeEntity(
-    ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`),
+    ~uri=String(uri),
     ~filterKeys=tabKeys,
     ~dateFilterKeys=(startTimeFilterKey, endTimeFilterKey),
     ~currentMetrics=("Success Rate", "Volume"), // 2nd metric will be static and we won't show the 2nd metric option to the first metric
@@ -158,5 +161,4 @@ let chartEntity = tabKeys =>
     ~chartTypes=[Line],
     ~uriConfig=[],
     ~moduleName="Payment Analytics",
-    (),
   )

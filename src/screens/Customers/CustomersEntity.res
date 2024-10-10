@@ -15,22 +15,28 @@ let allColumns = [CustomerId, Name, Email, Phone, PhoneCountryCode, Description,
 
 let getHeading = colType => {
   switch colType {
-  | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer Id", ~showSort=true, ())
-  | Name => Table.makeHeaderInfo(~key="name", ~title="Customer Name", ~showSort=true, ())
-  | Email => Table.makeHeaderInfo(~key="email", ~title="Email", ~showSort=true, ())
-  | PhoneCountryCode =>
-    Table.makeHeaderInfo(~key="phone_country_code", ~title="Phone Country Code", ~showSort=true, ())
-  | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone", ~showSort=true, ())
-  | Description =>
-    Table.makeHeaderInfo(~key="description", ~title="Description", ~showSort=true, ())
-  | Address => Table.makeHeaderInfo(~key="address", ~title="Address", ~showSort=true, ())
-  | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created", ~showSort=true, ())
+  | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer Id")
+  | Name => Table.makeHeaderInfo(~key="name", ~title="Customer Name")
+  | Email => Table.makeHeaderInfo(~key="email", ~title="Email")
+  | PhoneCountryCode => Table.makeHeaderInfo(~key="phone_country_code", ~title="Phone Country Code")
+  | Phone => Table.makeHeaderInfo(~key="phone", ~title="Phone")
+  | Description => Table.makeHeaderInfo(~key="description", ~title="Description")
+  | Address => Table.makeHeaderInfo(~key="address", ~title="Address")
+  | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created")
   }
 }
 
 let getCell = (customersData, colType): Table.cell => {
   switch colType {
-  | CustomerId => Text(customersData.customer_id)
+  | CustomerId =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/customers/${customersData.customer_id}`}
+        displayValue={customersData.customer_id}
+        copyValue={Some(customersData.customer_id)}
+      />,
+      "",
+    )
   | Name => Text(customersData.name)
   | Email => Text(customersData.email)
   | Phone => Text(customersData.phone)
@@ -72,5 +78,4 @@ let customersEntity = EntityType.makeEntity(
   ~getShowLink={
     customerData => GlobalVars.appendDashboardPath(~url=`/customers/${customerData.customer_id}`)
   },
-  (),
 )

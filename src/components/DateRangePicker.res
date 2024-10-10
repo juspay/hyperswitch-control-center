@@ -281,7 +281,6 @@ module Base = {
           resetToInitalValues()
         }
       },
-      (),
     )
 
     let changeEndDate = (ele, isFromCustomInput, time) => {
@@ -404,7 +403,7 @@ module Base = {
       changeStartDate(str, true, None)
     }
 
-    let handleApply = _ev => {
+    let handleApply = _ => {
       setShowOption(_ => false)
       setCalendarVisibility(p => !p)
       setIsDropdownExpanded(_ => false)
@@ -444,7 +443,7 @@ module Base = {
     }
     let startTimeInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: timeValEv => {
         let startTimeVal = timeValEv->Identity.formReactEventToString
         let endTime = localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)
@@ -461,13 +460,13 @@ module Base = {
           }
         }
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)->JSON.Encode.string,
       checked: false,
     }
     let endTimeInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: timeValEv => {
         let endTimeVal = timeValEv->Identity.formReactEventToString
         let startTime = localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)
@@ -483,7 +482,7 @@ module Base = {
           }
         }
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)->JSON.Encode.string,
       checked: false,
     }
@@ -561,7 +560,7 @@ module Base = {
         DateRangeUtils.datetext(value, disableFutureDates)
         ->String.toLowerCase
         ->String.split(" ")
-        ->Array.joinWithUnsafe("_")
+        ->Array.joinWith("_")
       )
       changeStartDate(stDate, false, Some(stTime))
       changeEndDate(enDate, false, Some(enTime))

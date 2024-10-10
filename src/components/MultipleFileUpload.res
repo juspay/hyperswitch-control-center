@@ -65,7 +65,7 @@ let make = (
   }
 
   let toast = (message, toastType) => {
-    showToast(~message, ~toastType, ())
+    showToast(~message, ~toastType)
   }
 
   let fileEmptyCheckUpload = (~value, ~files, ~filename, ~mimeType) => {
@@ -138,7 +138,6 @@ let make = (
                       ~message=`File size too large, upload below ${(sizeLimit / 1000)
                           ->Int.toString}kb`,
                       ~toastType=ToastError,
-                      (),
                     )
                   } else {
                     switch rowsLimit {
@@ -255,8 +254,8 @@ let make = (
               ? "flex items-center gap-4 flex-1 pointer-events-none"
               : "flex items-center gap-4 flex-1"}>
             {switch fileName->String.split(".")->Array.pop->Option.getOr("") {
-            | "pdf" => <img src={`/icons/paIcons/pdfIcon.svg`} />
-            | "csv" => <img src={`/icons/paIcons/csvIcon.svg`} />
+            | "pdf" => <img alt="pdf" src={`/icons/paIcons/pdfIcon.svg`} />
+            | "csv" => <img alt="csv" src={`/icons/paIcons/csvIcon.svg`} />
             | _ => React.null
             }}
             <div

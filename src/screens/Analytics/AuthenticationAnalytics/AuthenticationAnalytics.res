@@ -17,8 +17,7 @@ let make = () => {
       let infoUrl = getURL(
         ~entityName=ANALYTICS_AUTHENTICATION,
         ~methodType=Get,
-        ~id=Some(domain),
-        (),
+        ~id=Some("auth_events"),
       )
       let infoDetails = await fetchDetails(infoUrl)
       setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
@@ -58,13 +57,11 @@ let make = () => {
   })
 
   let title = "Authentication Analytics"
-  let subTitle = "Know more about how well your users are able to authenticate payments"
 
   <div>
-    <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
+    <PageLoaderWrapper screenState customUI={<NoData title />}>
       <Analytics
         pageTitle=title
-        pageSubTitle=subTitle
         filterUri=None
         key="AuthenticationAnalytics"
         moduleName="Authentication"

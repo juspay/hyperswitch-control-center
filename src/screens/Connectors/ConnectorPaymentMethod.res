@@ -14,6 +14,7 @@ let make = (
   let getURL = useGetURL()
   let _showAdvancedConfiguration = false
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let fetchConnectorList = ConnectorListHook.useFetchConnectorList()
   let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->getPaymentMethodEnabled
   )
@@ -21,7 +22,7 @@ let make = (
   let showToast = ToastState.useShowToast()
   let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
   let (screenState, setScreenState) = React.useState(_ => Loading)
-  let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
+  let updateAPIHook = useUpdateMethod(~showErrorToast=false)
 
   let updateDetails = value => {
     setPaymentMethods(_ => value->Array.copy)
@@ -56,7 +57,7 @@ let make = (
   let mixpanelEventName = isUpdateFlow ? "processor_step2_onUpdate" : "processor_step2"
 
   let onSubmit = async () => {
-    mixpanelEvent(~eventName=mixpanelEventName, ())
+    mixpanelEvent(~eventName=mixpanelEventName)
     try {
       setScreenState(_ => Loading)
       let obj: ConnectorTypes.wasmRequest = {
@@ -73,15 +74,15 @@ let make = (
       let metaData = body->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
       let _ = ConnectorUtils.updateMetaData(~metaData)
       //
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
-      let response = await updateAPIHook(connectorUrl, body, Post, ())
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID)
+      let response = await updateAPIHook(connectorUrl, body, Post)
+      fetchConnectorList()->ignore
       setInitialValues(_ => response)
       setScreenState(_ => Success)
       setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
       showToast(
         ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
         ~toastType=ToastSuccess,
-        (),
       )
     } catch {
     | Exn.Error(e) => {
@@ -89,10 +90,10 @@ let make = (
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         if errorCode === "HE_01" {
-          showToast(~message="Connector label already exist!", ~toastType=ToastError, ())
+          showToast(~message="Connector label already exist!", ~toastType=ToastError)
           setCurrentStep(_ => ConnectorTypes.IntegFields)
         } else {
-          showToast(~message=errorMessage, ~toastType=ToastError, ())
+          showToast(~message=errorMessage, ~toastType=ToastError)
           setScreenState(_ => PageLoaderWrapper.Error(err))
         }
       }
@@ -128,6 +129,8 @@ let make = (
               updateDetails
               setMetaData
               isPayoutFlow
+              initialValues
+              setInitialValues
             />
           </div>
         </div>

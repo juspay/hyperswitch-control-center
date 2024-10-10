@@ -55,7 +55,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   <>
     {googlePayFields
     ->Array.mapWithIndex((field, index) => {
-      let googlePayField = field->convertMapObjectToDict->CommonMetaDataUtils.inputFieldMapper
+      let googlePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
       <div key={index->Int.toString}>
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-hyperswitch_black"
@@ -68,12 +68,12 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       <Button
         text="Cancel"
         buttonType={Secondary}
-        onClick={_ev => {
+        onClick={_ => {
           closeModal()->ignore
         }}
       />
       <Button
-        onClick={_ev => {
+        onClick={_ => {
           onSubmit()->ignore
         }}
         text="Proceed"

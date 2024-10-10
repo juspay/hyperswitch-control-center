@@ -87,7 +87,7 @@ module TableRow = {
     let (isCurrentRowExpanded, setIsCurrentRowExpanded) = React.useState(_ => false)
     let (expandedData, setExpandedData) = React.useState(_ => React.null)
     let actualIndex = offset + rowIndex
-    let onClick = React.useCallback(_ev => {
+    let onClick = React.useCallback(_ => {
       let isRangeSelected = getSelection().\"type" == "Range"
       switch (onRowClick, isRangeSelected) {
       | (Some(fn), false) => fn(actualIndex)
@@ -95,21 +95,21 @@ module TableRow = {
       }
     }, (onRowClick, actualIndex))
 
-    let onDoubleClick = React.useCallback(_ev => {
+    let onDoubleClick = React.useCallback(_ => {
       switch onRowDoubleClick {
       | Some(fn) => fn(actualIndex)
       | _ => ()
       }
     }, (onRowDoubleClick, actualIndex))
 
-    let onMouseEnter = React.useCallback(_ev => {
+    let onMouseEnter = React.useCallback(_ => {
       switch onMouseEnter {
       | Some(fn) => fn(actualIndex)
       | _ => ()
       }
     }, (onMouseEnter, actualIndex))
 
-    let onMouseLeave = React.useCallback(_ev => {
+    let onMouseLeave = React.useCallback(_ => {
       switch onMouseLeave {
       | Some(fn) => fn(actualIndex)
       | _ => ()
@@ -204,7 +204,7 @@ module TableRow = {
             <td
               key={Int.toString(cellIndex)}
               className={`${tableRowBorderClass} ${customColorCell}`}
-              style={ReactDOMStyle.make(~width=fixedWidthClass, ())}
+              style={width: fixedWidthClass}
               onClick={_ => {
                 if collapseTableRow && cellIndex == 0 {
                   setIsCurrentRowExpanded(prev => !prev)
@@ -272,7 +272,7 @@ module SortAction = {
       | Some(obj: sortedObject) => obj.key === item.key ? obj.order : NONE
       | None => NONE
       }
-      let handleSortClick = _ev => {
+      let handleSortClick = _ => {
         switch setSortedObj {
         | Some(fn) =>
           fn(_ => Some({
@@ -401,13 +401,10 @@ module TableHeadingCell = {
       "h-4 w-4",
     )
 
-    let sortIconSize = isHighchartLegend ? 11 : 13
+    let sortIconSize = isHighchartLegend ? 11 : 15
     let justifyClass = ""
     <AddDataAttributes attributes=[("data-table-heading", item.title)]>
-      <th
-        key={Int.toString(i)}
-        className=tableHeaderClass
-        style={ReactDOMStyle.make(~width=fixedWidthClass, ())}>
+      <th key={Int.toString(i)} className=tableHeaderClass style={width: fixedWidthClass}>
         {switch customizeColumnNewTheme {
         | Some(value) =>
           <div className="flex flex-row justify-center items-center"> value.customizeColumnUi </div>
@@ -446,12 +443,7 @@ module TableHeadingCell = {
                     let selfClass = "self-end"
                     <div className={`flex flex-row ${selfClass} items-center`}>
                       <SortAction
-                        item
-                        sortedObj
-                        setSortedObj
-                        sortIconSize
-                        filterRow
-                        isLastCol={isLastCol && !isFrozen && !isFirstCol}
+                        item sortedObj setSortedObj sortIconSize filterRow isLastCol={false}
                       />
                       {if item.showFilter {
                         let (options, selected) = switch filterObj {
@@ -465,9 +457,9 @@ module TableHeadingCell = {
                         if options->Array.length > 1 {
                           let filterInput: ReactFinalForm.fieldRenderPropsInput = {
                             name: "filterInput",
-                            onBlur: _ev => (),
+                            onBlur: _ => (),
                             onChange: ev => handleUpdateFilterObj(ev, i),
-                            onFocus: _ev => (),
+                            onFocus: _ => (),
                             value: selected->Array.map(JSON.Encode.string)->JSON.Encode.array,
                             checked: true,
                           }
@@ -663,6 +655,7 @@ let make = (
   ~customBorderClass=?,
   ~showborderColor=true,
   ~tableHeadingTextClass="",
+  ~nonFrozenTableParentClass="",
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
@@ -815,7 +808,7 @@ let make = (
 
   let frozenHeading = heading->Array.slice(~start=0, ~end=frozenUpto)
   let frozenCustomiseColumnHeading = [
-    makeHeaderInfo(~key="", ~title="Customize Column", ~showMultiSelectCheckBox=true, ()),
+    makeHeaderInfo(~key="", ~title="Customize Column", ~showMultiSelectCheckBox=true),
   ]
   let frozenRow = rowInfo->Array.map(row => {
     row->Array.slice(~start=0, ~end=frozenUpto)
@@ -894,26 +887,26 @@ let make = (
       : isMinHeightRequired
       ? ""
       : "overflow-scroll"
-  let parentBorderRadius = !isHighchartLegend ? "rounded-t-lg" : ""
-  let parentBorderClass = !isHighchartLegend ? "border border-jp-2-light-gray-300" : ""
+  let parentBorderRadius = !isHighchartLegend ? "rounded-lg" : ""
+
   <div
     className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getOr(
-        parentBorderClass ++ " " ++ parentBorderRadius,
+        parentBorderRadius,
       )}`}
-    style={ReactDOMStyle.make(
-      ~minHeight={
+    style={
+      minHeight: {
         minTableHeightClass->LogicUtils.isNonEmptyString
           ? minTableHeightClass
           : filterPresent || isMinHeightRequired
           ? "25rem"
           : ""
       },
-      ~maxHeight={maxTableHeight},
-      (),
-    )} //replaced "overflow-auto" -> to be tested with master
+      maxHeight: maxTableHeight,
+    } //replaced "overflow-auto" -> to be tested with master
   >
     <RenderIf condition={frozenUpto > 0}> {frozenTable} </RenderIf>
-    <div className={`flex-1 ${overflowClass} no-scrollbar ${childMinWidthClass}`}>
+    <div
+      className={`flex-1 ${overflowClass} no-scrollbar ${childMinWidthClass} ${nonFrozenTableParentClass}`}>
       nonFrozenTable
     </div>
     {switch customizeColumnNewTheme {

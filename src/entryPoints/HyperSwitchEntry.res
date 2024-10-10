@@ -1,14 +1,11 @@
 module HyperSwitchEntryComponent = {
   @react.component
   let make = () => {
-    open CommonAuthHooks
     let fetchDetails = APIUtils.useGetMethod()
-    let {email, name} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {configCustomDomainTheme} = React.useContext(ThemeProvider.themeContext)
 
     let configureFavIcon = (faviconUrl: option<string>) => {
@@ -36,6 +33,7 @@ module HyperSwitchEntryComponent = {
           logoUrl: dict->getString("logo_url", "")->getNonEmptyString,
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
           agreementUrl: dict->getString("agreement_url", "")->getNonEmptyString,
+          dssCertificateUrl: dict->getString("dss_certificate_url", "")->getNonEmptyString,
           applePayCertificateUrl: dict
           ->getString("apple_pay_certificate_url", "")
           ->getNonEmptyString,
@@ -52,11 +50,7 @@ module HyperSwitchEntryComponent = {
 
     let fetchConfig = async () => {
       try {
-        let domain = HyperSwitchEntryUtils.getSessionData(
-          ~key="domain",
-          ~defaultValue="default",
-          (),
-        )
+        let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="default")
         let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
@@ -82,31 +76,6 @@ module HyperSwitchEntryComponent = {
       TimeZoneUtils.getUserTimeZone()->setZone
       None
     }, [])
-
-    React.useEffect(() => {
-      if featureFlagDetails.mixpanel {
-        MixPanel.init(
-          Window.env.mixpanelToken,
-          {
-            "track_pageview": true,
-            "batch_requests": true,
-            "loaded": () => {
-              let mixpanelUserInfo =
-                [("name", email->JSON.Encode.string), ("merchantName", name->JSON.Encode.string)]
-                ->Dict.fromArray
-                ->JSON.Encode.object
-
-              let userId = MixPanel.getDistinctId()
-              LocalStorage.setItem("deviceid", userId)
-              MixPanel.identify(userId)
-              MixPanel.mixpanel.people.set(mixpanelUserInfo)
-            },
-          },
-        )
-      }
-
-      None
-    }, (name, email, Window.env.mixpanelToken))
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle
@@ -137,11 +106,7 @@ module HyperSwitchEntryComponent = {
       sectionHeight="h-screen"
       customUI={<NoDataFound message="Oops! Missing config" renderType=NotFound />}>
       <div className="text-black">
-        {if featureFlagDetails.totp {
-          <AuthEntry />
-        } else {
-          <BasicAuthEntry />
-        }}
+        <AuthEntry />
       </div>
     </PageLoaderWrapper>
   }

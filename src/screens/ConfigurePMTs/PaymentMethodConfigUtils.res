@@ -134,7 +134,6 @@ let mapPaymentMethodValues = (
   ~mappedArr,
   ~pmIndex: int,
   ~filters=Dict.make()->pmtConfigFilter,
-  (),
 ) => {
   let pm =
     connectorPayload.payment_methods_enabled[pmIndex]->Option.getOr(
@@ -167,9 +166,9 @@ let paymentMethodFilter = (
     switch filters.paymentMethod {
     | Some(methods) =>
       if methods->Array.includes(item.payment_method) {
-        mapPaymentMethodValues(~connectorPayload, ~mappedArr, ~pmIndex, ~filters, ())
+        mapPaymentMethodValues(~connectorPayload, ~mappedArr, ~pmIndex, ~filters)
       }
-    | None => mapPaymentMethodValues(~connectorPayload, ~mappedArr, ~pmIndex, ~filters, ())
+    | None => mapPaymentMethodValues(~connectorPayload, ~mappedArr, ~pmIndex, ~filters)
     }
   })
 }
@@ -239,7 +238,6 @@ let initialFilters = (
           ~customButtonStyle="bg-none",
           (),
         ),
-        (),
       ),
       localFilter: None,
     },
@@ -261,7 +259,6 @@ let initialFilters = (
           ~customButtonStyle="bg-none",
           (),
         ),
-        (),
       ),
       localFilter: None,
     },
@@ -283,7 +280,6 @@ let initialFilters = (
           ~customButtonStyle="bg-none",
           (),
         ),
-        (),
       ),
       localFilter: None,
     },
@@ -305,7 +301,6 @@ let initialFilters = (
           ~customButtonStyle="bg-none",
           (),
         ),
-        (),
       ),
       localFilter: None,
     },

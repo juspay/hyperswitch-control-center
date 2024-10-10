@@ -3,7 +3,7 @@ let getArrayDataFromJson = (json, itemToObjMapper) => {
   ->JSON.Decode.array
   ->Option.getOr([])
   ->Belt.Array.keepMap(JSON.Decode.object)
-  ->FRMUtils.filterList(~removeFromList=Connector, ())
+  ->FRMUtils.filterList(~removeFromList=Connector)
   ->Array.map(itemToObjMapper)
 }
 
@@ -14,23 +14,22 @@ let getPreviouslyConnectedList: JSON.t => array<ConnectorTypes.connectorPayload>
   )->ConnectorTableUtils.sortPreviouslyConnectedList
 }
 
-let connectorEntity = (path: string, ~permission: CommonAuthTypes.authorization) => {
+let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,
     ~defaultColumns=ConnectorTableUtils.defaultColumns,
     ~getHeading=ConnectorTableUtils.getHeading,
-    ~getCell=ConnectorTableUtils.getTableCell(~connectorType=FRMPlayer, ()),
+    ~getCell=ConnectorTableUtils.getTableCell(~connectorType=FRMPlayer),
     ~dataKey="",
     ~getShowLink={
       connec =>
-        PermissionUtils.linkForGetShowLinkViaAccess(
+        GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
             ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
           ),
-          ~permission,
+          ~authorization,
         )
     },
-    (),
   )
 }

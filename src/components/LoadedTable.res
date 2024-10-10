@@ -37,7 +37,7 @@ let useSortedObj = (title: string, defaultSort) => {
         | _ => Table.INC
         },
       }
-      setSortedObj(_ => sortObj->Some)
+      setSortedObj(_ => Some(sortObj))
     | None => ()
     }
 
@@ -173,7 +173,6 @@ let make = (
   ~advancedSearchComponent=?,
   ~setData=?,
   ~setSummary=?,
-  ~customGetObjects: option<JSON.t => array<'a>>=?,
   ~dataNotFoundComponent=?,
   ~renderCard=?,
   ~tableLocalFilter=false,
@@ -228,6 +227,9 @@ let make = (
   ~customBorderClass=?,
   ~showborderColor=?,
   ~tableHeadingTextClass="",
+  ~nonFrozenTableParentClass="",
+  ~loadedTableParentClass="",
+  ~remoteSortEnabled=false,
 ) => {
   open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
@@ -274,7 +276,7 @@ let make = (
     setFirstRender(_ => false)
     setOffset(_ => pageDetail.offset)
     None
-  }, [url.path->List.toArray->Array.joinWithUnsafe("/")])
+  }, [url.path->List.toArray->Array.joinWith("/")])
 
   React.useEffect(_ => {
     if pageDetail.offset !== offset && !firstRender {
@@ -375,16 +377,14 @@ let make = (
   if showSerialNumber {
     heading
     ->Array.unshift(
-      Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType, ()),
+      Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType),
     )
     ->ignore
   }
 
   if checkBoxProps.showCheckBox {
     heading
-    ->Array.unshift(
-      Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true, ()),
-    )
+    ->Array.unshift(Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true))
     ->ignore
   }
 
@@ -399,7 +399,7 @@ let make = (
     })
   }, [setLocalResultsPerPageOrig])
 
-  let {getShowLink, searchFields, searchUrl, getObjects} = entity
+  let {getShowLink, searchFields, searchUrl} = entity
   let (sortedObj, setSortedObj) = useSortedObj(title, defaultSort)
 
   React.useEffect(() => {
@@ -519,11 +519,15 @@ let make = (
   }, [filteredDataLength])
 
   let filteredData = React.useMemo(() => {
-    switch sortedObj {
-    | Some(obj: Table.sortedObject) => sortArray(actualData, obj.key, obj.order)
-    | None => actualData
+    if !remoteSortEnabled {
+      switch sortedObj {
+      | Some(obj: Table.sortedObject) => sortArray(actualData, obj.key, obj.order)
+      | None => actualData
+      }
+    } else {
+      actualData
     }
-  }, (sortedObj, customGetObjects, actualData, getObjects))
+  }, (sortedObj, actualData))
 
   React.useEffect(() => {
     let selectedRowDataLength = checkBoxProps.selectedData->Array.length
@@ -634,26 +638,6 @@ let make = (
     })
   }
 
-  let dataExists = rows->Array.length > 0
-  let heading = heading->Array.mapWithIndex((head, index) => {
-    let getValue = row => row->Array.get(index)->Option.mapOr("", Table.getTableCellValue)
-
-    let default = switch rows[0] {
-    | Some(ele) => getValue(ele)
-    | None => ""
-    }
-    let head: Table.header = {
-      ...head,
-      showSort: head.showSort &&
-      dataExists && (
-        totalResults == Array.length(rows)
-          ? rows->Array.some(row => getValue(row) !== default)
-          : true
-      ),
-    }
-    head
-  })
-
   let paginatedData =
     filteredData->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})
   let rows = rows->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})
@@ -735,6 +719,21 @@ let make = (
     | None => ()
     }
   }, (filteredData, getShowLink, onMouseLeave, url.search))
+
+  let filterBottomPadding = isMobileView ? "" : "pb-4"
+
+  let paddingClass = {rightTitleElement != React.null ? filterBottomPadding : ""}
+
+  let customizeColumsButtons = {
+    switch clearFormattedDataButton {
+    | Some(clearFormattedDataButton) =>
+      <div className={`flex flex-row mobile:gap-7 desktop:gap-10 ${filterBottomPadding}`}>
+        clearFormattedDataButton
+        {rightTitleElement}
+      </div>
+    | _ => <div className={paddingClass}> {rightTitleElement} </div>
+    }
+  }
 
   let (loadedTableUI, paginationUI) = if totalResults > 0 {
     let paginationUI = if showPagination {
@@ -828,6 +827,7 @@ let make = (
                 ?customBorderClass
                 ?showborderColor
                 tableHeadingTextClass
+                nonFrozenTableParentClass
               />
             switch tableLocalFilter {
             | true =>
@@ -877,7 +877,7 @@ let make = (
   } else {
     tableActionBorder
   }
-  let filterBottomPadding = isMobileView ? "" : "pb-3"
+
   let filtersOuterMargin = if hideTitle {
     ""
   } else {
@@ -905,20 +905,6 @@ let make = (
       </DesktopView>
     </div>
 
-  let customizeColumsButtons = {
-    switch clearFormattedDataButton {
-    | Some(clearFormattedDataButton) =>
-      <div className={`flex flex-row mobile:gap-7 desktop:gap-10 ${filterBottomPadding}`}>
-        clearFormattedDataButton
-        <Portal to={""}> rightTitleElement </Portal>
-      </div>
-    | _ =>
-      <div className={`${rightTitleElement != React.null ? filterBottomPadding : ""}`}>
-        <Portal to={""}> rightTitleElement </Portal>
-      </div>
-    }
-  }
-
   let addDataAttributesClass = if isHighchartLegend {
     `visibility: hidden`
   } else {
@@ -926,8 +912,8 @@ let make = (
   }
   let dataId = title->String.split("-")->Array.get(0)->Option.getOr("")
   <AddDataAttributes attributes=[("data-loaded-table", dataId)]>
-    <div className="w-full">
-      <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>
+    <div className={`w-full ${loadedTableParentClass}`}>
+      <div className=addDataAttributesClass style={zIndex: "2"}>
         //removed "sticky" -> to be tested with master
         <div
           className={`flex flex-row justify-between items-center` ++ (

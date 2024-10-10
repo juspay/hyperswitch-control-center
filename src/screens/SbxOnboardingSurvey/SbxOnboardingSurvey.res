@@ -7,7 +7,7 @@ module OtherfieldRender = {
 
     let textInput: ReactFinalForm.fieldRenderPropsInput = {
       name: `${field_name}_otherstring`,
-      onBlur: _ev => {
+      onBlur: _ => {
         let textFieldValue = textField.value->getStringFromJson("")
         let valueFieldValue = valueField.value->getArrayFromJson([])->getStrArrayFromJsonArray
         if textFieldValue->isNonEmptyString {
@@ -20,7 +20,7 @@ module OtherfieldRender = {
         let value = target["value"]
         textField.onChange(value->Identity.anyTypeToReactEvent)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: textField.value,
       checked: false,
     }
@@ -43,12 +43,10 @@ let make = (~showModal, ~setShowModal) => {
   open CommonAuthHooks
   let getURL = useGetURL()
   let showToast = ToastState.useShowToast()
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-  let {merchant_id: merchantId, email: userEmail} =
-    useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
+  let {merchantId, email: userEmail} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let (merchantDetailsTypedValue, setMerchantDetailsValue) =
     HyperswitchAtom.merchantDetailsValueAtom->Recoil.useRecoilState
-  let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
 
   let getMerchantNameFromJson = values =>
     values->getDictFromJsonObject->getString("merchant_name", "")
@@ -57,13 +55,13 @@ let make = (~showModal, ~setShowModal) => {
   // let updateUserName = async values => {
   //   try {
   //     let userName = values->getDictFromJsonObject->getString("user_name", "")
-  //     let url = getURL(~entityName=USERS, ~userType=#USER_UPDATE, ~methodType=Post, ())
+  //     let url = getURL(~entityName=USERS, ~userType=#USER_UPDATE, ~methodType=Post)
   //     let body = values->constructUserUpdateBody
-  //     let _ = await updateDetails(url, body, Post, ())
+  //     let _ = await updateDetails(url, body, Post)
   //     HSwitchUtils.setUserDetails("name", userName->JSON.Encode.string)
   //   } catch {
   //   | _ => {
-  //       showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError, ())
+  //       showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError)
   //       setShowModal(_ => true)
   //     }
   //   }
@@ -72,13 +70,13 @@ let make = (~showModal, ~setShowModal) => {
   // TODO: Move this to prod onboarding form
   // let updateOnboardingSurveyDetails = async values => {
   //   try {
-  //     let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
+  //     let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post)
   //     let bodyValues = values->constructOnboardingSurveyBody->JSON.Encode.object
   //     let body = [("OnboardingSurvey", bodyValues)]->getJsonFromArrayOfJson
-  //     let _ = await updateDetails(url, body, Post, ())
+  //     let _ = await updateDetails(url, body, Post)
   //   } catch {
   //   | _ => {
-  //       showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError, ())
+  //       showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError)
   //       setShowModal(_ => true)
   //     }
   //   }
@@ -86,23 +84,17 @@ let make = (~showModal, ~setShowModal) => {
 
   let udpateMerchantDetails = async values => {
     try {
-      let accountUrl = getURL(
-        ~entityName=MERCHANT_ACCOUNT,
-        ~methodType=Post,
-        ~id=Some(merchantId),
-        (),
-      )
+      let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ~id=Some(merchantId))
       let body =
         [
           ("merchant_id", merchantId->JSON.Encode.string),
           ("merchant_name", values->getMerchantNameFromJson->JSON.Encode.string),
         ]->getJsonFromArrayOfJson
-      let merchantDetails = await updateDetails(accountUrl, body, Post, ())
-      let _ = fetchSwitchMerchantList()
+      let merchantDetails = await updateDetails(accountUrl, body, Post)
       setMerchantDetailsValue(_ => merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails)
     } catch {
     | _ => {
-        showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError, ())
+        showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError)
         setShowModal(_ => true)
       }
     }
@@ -115,11 +107,11 @@ let make = (~showModal, ~setShowModal) => {
       // TODO: Move this to prod onboarding form
       // let _ = values->updateOnboardingSurveyDetails
       // let _ = values->updateUserName
-      showToast(~message=`Successfully updated onboarding survey`, ~toastType=ToastSuccess, ())
+      showToast(~message=`Successfully updated onboarding survey`, ~toastType=ToastSuccess)
       setShowModal(_ => false)
     } catch {
     | _ => {
-        showToast(~message=`Please try again!`, ~toastType=ToastError, ())
+        showToast(~message=`Please try again!`, ~toastType=ToastError)
         setShowModal(_ => true)
       }
     }

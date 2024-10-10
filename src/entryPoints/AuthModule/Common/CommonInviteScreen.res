@@ -8,10 +8,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let isAtleastOneAccept = React.useMemo(() => {
     merchantData
-    ->Array.find(ele => {
-      let merchantDataDict = ele->getDictFromJsonObject
-      merchantDataDict->getBool("is_active", false) === true
-    })
+    ->Array.find(ele => ele->getDictFromJsonObject->getBool("is_active", false))
     ->Option.getOr(JSON.Encode.null)
     ->getDictFromJsonObject
     ->getBool("is_active", false)
@@ -21,7 +18,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
     <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
       <div className="bg-white h-35-rem w-200 rounded-2xl">
         <div className="p-6 border-b-2">
-          <img src={`assets/Dark/hyperswitchLogoIconWithText.svg`} />
+          <img alt="logo-with-text" src={`assets/Dark/hyperswitchLogoIconWithText.svg`} />
         </div>
         <div className="p-6 flex flex-col gap-2">
           <p className={`${textHeadingClass} text-grey-900`}>

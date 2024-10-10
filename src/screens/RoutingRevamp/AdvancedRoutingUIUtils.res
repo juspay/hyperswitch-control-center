@@ -39,7 +39,7 @@ module OperatorInp = {
   @react.component
   let make = (~fieldsArray: array<ReactFinalForm.fieldRenderProps>, ~keyType) => {
     let defaultInput: ReactFinalForm.fieldRenderProps = {
-      input: ReactFinalForm.makeInputRecord(""->JSON.Encode.string, _e => ()),
+      input: ReactFinalForm.makeInputRecord(""->JSON.Encode.string, _ => ()),
       meta: ReactFinalForm.makeCustomError(None),
     }
     let field = (fieldsArray->Array.get(0)->Option.getOr(defaultInput)).input
@@ -49,12 +49,12 @@ module OperatorInp = {
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToString
         operator.onChange(value->Identity.anyTypeToReactEvent)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: operator.value,
       checked: true,
     }
@@ -135,12 +135,12 @@ module ValueInp = {
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToArrayOfString
         valueField.onChange(value->Identity.anyTypeToReactEvent)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: valueField.value,
       checked: true,
     }
@@ -187,14 +187,14 @@ module MetadataInp = {
 
     let textInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => {
+      onBlur: _ => {
         let value = valueField.value
         let val = value->LogicUtils.getStringFromJson("")
         let valSplit = String.split(val, ",")
         let arrStr = valSplit->Array.map(item => {
           String.trim(item)
         })
-        let finalVal = Array.joinWithUnsafe(arrStr, ",")->JSON.Encode.string
+        let finalVal = Array.joinWith(arrStr, ",")->JSON.Encode.string
 
         valueField.onChange(finalVal->Identity.anyTypeToReactEvent)
       },
@@ -203,7 +203,7 @@ module MetadataInp = {
         let value = target["value"]
         valueField.onChange(value->Identity.anyTypeToReactEvent)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: valueField.value,
       checked: true,
     }
@@ -231,9 +231,9 @@ let operatorInput = (id, keyType) => {
     ~label="",
     ~comboCustomInput=renderOperatorInp(keyType),
     ~inputFields=[
-      makeInputFieldInfo(~name=`${id}.lhs`, ()),
-      makeInputFieldInfo(~name=`${id}.comparison`, ()),
-      makeInputFieldInfo(~name=`${id}.value.value`, ()),
+      makeInputFieldInfo(~name=`${id}.lhs`),
+      makeInputFieldInfo(~name=`${id}.comparison`),
+      makeInputFieldInfo(~name=`${id}.value.value`),
     ],
     (),
   )
@@ -249,10 +249,10 @@ let valueInput = (id, variantValues, keyType) => {
     ~label="",
     ~comboCustomInput=renderValueInp(keyType, variantValues),
     ~inputFields=[
-      makeInputFieldInfo(~name=`${id}.lhs`, ()),
-      makeInputFieldInfo(~name=`${id}.${valuePath}`, ()),
-      makeInputFieldInfo(~name=`${id}.comparison`, ()),
-      makeInputFieldInfo(~name=`${id}.value.type`, ()),
+      makeInputFieldInfo(~name=`${id}.lhs`),
+      makeInputFieldInfo(~name=`${id}.${valuePath}`),
+      makeInputFieldInfo(~name=`${id}.comparison`),
+      makeInputFieldInfo(~name=`${id}.value.type`),
     ],
     (),
   )
@@ -262,9 +262,9 @@ let metaInput = (id, keyType) =>
     ~label="",
     ~comboCustomInput=renderMetaInput(keyType),
     ~inputFields=[
-      makeInputFieldInfo(~name=`${id}.value`, ()),
-      makeInputFieldInfo(~name=`${id}.operator`, ()),
-      makeInputFieldInfo(~name=`${id}.value.value.key`, ()),
+      makeInputFieldInfo(~name=`${id}.value`),
+      makeInputFieldInfo(~name=`${id}.operator`),
+      makeInputFieldInfo(~name=`${id}.value.value.key`),
     ],
     (),
   )
@@ -313,7 +313,7 @@ module FieldInp = {
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToString
         onChangeMethod(value)
@@ -321,7 +321,7 @@ module FieldInp = {
         op.onChange(""->Identity.anyTypeToReactEvent)
         val.onChange(""->Identity.anyTypeToReactEvent)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: field.value,
       checked: true,
     }
@@ -480,8 +480,7 @@ let configurationNameInput = makeFieldInfo(
   ~name="name",
   ~isRequired=true,
   ~placeholder="Enter Configuration Name",
-  ~customInput=InputFields.textInput(~autoFocus=true, ()),
-  (),
+  ~customInput=InputFields.textInput(~autoFocus=true),
 )
 let descriptionInput = makeFieldInfo(
   ~label="Description",
@@ -493,9 +492,7 @@ let descriptionInput = makeFieldInfo(
     ~rows=Some(3),
     ~cols=None,
     ~customClass="text-sm",
-    (),
   ),
-  (),
 )
 
 module ConfigureRuleButton = {
@@ -527,7 +524,7 @@ module SaveAndActivateButton = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
 
-    let handleSaveAndActivate = async _ev => {
+    let handleSaveAndActivate = async _ => {
       try {
         let onSubmitResponse = await onSubmit(formState.values, false)
         let currentActivatedFromJson =

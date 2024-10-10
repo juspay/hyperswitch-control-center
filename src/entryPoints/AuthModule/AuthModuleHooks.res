@@ -19,19 +19,18 @@ let useAuthMethods = (): authMethodProps => {
 
   let getURL = useGetURL()
   let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let fetchDetails = useGetMethod(~showErrorToast=false, ())
+  let fetchDetails = useGetMethod(~showErrorToast=false)
 
   let {authMethods, setAuthMethods} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let fetchAuthMethods = React.useCallback(async () => {
     try {
-      let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+      let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
       let authListUrl = getURL(
         ~entityName=USERS,
         ~userType=#GET_AUTH_LIST,
         ~methodType=Get,
         ~queryParamerters=Some(`auth_id=${authId}`),
-        (),
       )
 
       let json = await fetchDetails(`${authListUrl}`)
@@ -53,7 +52,7 @@ let useAuthMethods = (): authMethodProps => {
       }
       setAuthMethods(_ => methods)
     } catch {
-    | Exn.Error(_e) => setAuthMethods(_ => AuthUtils.defaultListOfAuth)
+    | Exn.Error(_) => setAuthMethods(_ => AuthUtils.defaultListOfAuth)
     }
   }, [])
 
@@ -96,7 +95,7 @@ let useAuthMethods = (): authMethodProps => {
     | None => false
     }
     let emailFeatureFlagEnable = featureFlagValues.email
-    let isTotpFeatureDisable = featureFlagValues.totp
+    // let isTotpFeatureDisable = featureFlagValues.totp
 
     let isLiveMode = featureFlagValues.isLiveMode
 
@@ -109,10 +108,10 @@ let useAuthMethods = (): authMethodProps => {
     } else if isSingUpAllowedinPassword {
       // Singup is allowed if email feature flag and allow_signup in the passowrd method is true
       (true, PASSWORD)
-    } else if !isTotpFeatureDisable && emailFeatureFlagEnable {
+    } else if emailFeatureFlagEnable {
       // Singup is allowed if totp feature  is disable and email feature is enabled
       (true, MAGIC_LINK)
-    } else if !isTotpFeatureDisable {
+    } else if !isLiveMode {
       // Singup is allowed if totp feature  is disable
       (true, PASSWORD)
     } else {
@@ -130,10 +129,10 @@ let useAuthMethods = (): authMethodProps => {
   }
 }
 
-let useNote = (authType, setAuthType, ()) => {
+let useNote = (authType, setAuthType) => {
   open CommonAuthTypes
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
+  let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
 
   let {isMagicLinkEnabled, isPasswordEnabled} = useAuthMethods()
 

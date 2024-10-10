@@ -66,7 +66,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let (activeTab, activeTabStr) = React.useMemo(() => {
     let activeTabOptionalArr =
       getAllFilter->getOptionStrArrayFromDict(`${chartEntity.moduleName}.tabName`)
-    (activeTabOptionalArr, activeTabOptionalArr->Option.getOr([])->Array.joinWithUnsafe(","))
+    (activeTabOptionalArr, activeTabOptionalArr->Option.getOr([])->Array.joinWith(","))
   }, [getAllFilter])
 
   let parentToken = AuthWrapperUtils.useTokenParent(Original)
@@ -91,6 +91,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
   let {allFilterDimension} = chartEntity
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let sortingParams = React.useMemo((): option<AnalyticsNewUtils.sortedBasedOn> => {
     switch chartEntity {
@@ -149,7 +150,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
           None
         }
       })
-      ->Array.joinWithUnsafe("&")
+      ->Array.joinWith("&")
 
     (filterSearchParam, getTopLevelChartFilter->getString(customFilterKey, ""))
   }, [getTopLevelChartFilter])
@@ -248,7 +249,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     None
   }, (
     parentToken,
-    current_granularity->Array.joinWithUnsafe("-") ++
+    current_granularity->Array.joinWith("-") ++
     granularity->Option.getOr("") ++
     cardinalityFromUrl ++
     chartTopMetricFromUrl ++
@@ -279,7 +280,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     None
   }, (
     parentToken,
-    current_granularity->Array.joinWithUnsafe("-") ++
+    current_granularity->Array.joinWith("-") ++
     granularity->Option.getOr("") ++
     chartBottomMetricFromUrl ++
     startTimeFromUrl ++
@@ -339,11 +340,10 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 ~sortingParams?,
                 ~timeCol,
                 ~domain=value.domain->Option.getOr(""),
-                (),
               )->JSON.stringify,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
               ~betaEndpointConfig=?betaEndPointConfig,
-              (),
+              ~xFeatureRoute,
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch`)
             ->then(
@@ -399,11 +399,10 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~customFilterValue=customFilter,
               ~sortingParams?,
               ~domain=value.domain->Option.getOr(""),
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
+            ~xFeatureRoute,
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
           ->then(text => {
@@ -468,11 +467,10 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 ~sortingParams?,
                 ~timeCol=value.timeCol,
                 ~domain=value.domain->Option.getOr(""),
-                (),
               )->JSON.stringify,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
               ~betaEndpointConfig=?betaEndPointConfig,
-              (),
+              ~xFeatureRoute,
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch bottomChart`)
             ->then(
@@ -525,11 +523,10 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~customFilterValue=customFilter,
               ~sortingParams?,
               ~domain=value.domain->Option.getOr(""),
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
+            ~xFeatureRoute,
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
           ->then(text => {
@@ -587,6 +584,7 @@ module SDKAnalyticsChartContext = {
     ~segmentValue: option<array<string>>=?,
     ~differentTimeValues: option<array<AnalyticsUtils.timeRanges>>=?,
   ) => {
+    let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let parentToken = AuthWrapperUtils.useTokenParent(Original)
     let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
     let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
@@ -656,7 +654,7 @@ module SDKAnalyticsChartContext = {
             None
           }
         })
-        ->Array.joinWithUnsafe("&")
+        ->Array.joinWith("&")
 
       (filterSearchParam, getTopLevelChartFilter->getString(customFilterKey, ""))
     }, [getTopLevelChartFilter])
@@ -758,18 +756,18 @@ module SDKAnalyticsChartContext = {
       },
       (
         parentToken,
-        current_granularity->Array.joinWithUnsafe("-") ++
+        current_granularity->Array.joinWith("-") ++
         granularity->Option.getOr("") ++
         cardinalityFromUrl ++
-        selectedTrends->Array.joinWithUnsafe(",") ++
+        selectedTrends->Array.joinWith(",") ++
         customFilter ++
         startTimeFromUrl ++
-        segmentValue->Option.getOr([])->Array.joinWithUnsafe(",") ++
+        segmentValue->Option.getOr([])->Array.joinWith(",") ++
         endTimeFromUrl,
         filterValueFromUrl,
         differentTimeValues
         ->Array.map(item => `${item.fromTime}${item.toTime}`)
-        ->Array.joinWithUnsafe(","),
+        ->Array.joinWith(","),
       ),
     )
 
@@ -815,11 +813,10 @@ module SDKAnalyticsChartContext = {
                     ~customFilterValue=customFilter,
                     ~timeCol,
                     ~domain=value.domain->Option.getOr(""),
-                    (),
                   )->JSON.stringify,
                   ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
                   ~betaEndpointConfig=?betaEndPointConfig,
-                  (),
+                  ~xFeatureRoute,
                 )
                 ->addLogsAroundFetch(~logTitle=`Chart fetch`)
                 ->then(text => {
@@ -836,7 +833,7 @@ module SDKAnalyticsChartContext = {
                             : None
                         },
                       )
-                      ->Array.joinWithUnsafe("-dimension-")
+                      ->Array.joinWith("-dimension-")
                     },
                   )
 
@@ -856,11 +853,10 @@ module SDKAnalyticsChartContext = {
                           ~timeCol,
                           ~jsonFormattedFilter=item->filterMapper,
                           ~domain=value.domain->Option.getOr(""),
-                          (),
                         )->JSON.stringify,
                         ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
                         ~betaEndpointConfig=?betaEndPointConfig,
-                        (),
+                        ~xFeatureRoute,
                       )
                       ->addLogsAroundFetch(~logTitle=`Chart fetch`)
                       ->then(
@@ -884,7 +880,7 @@ module SDKAnalyticsChartContext = {
                                           : None
                                       },
                                     )
-                                    ->Array.joinWithUnsafe("-dimension-")
+                                    ->Array.joinWith("-dimension-")
 
                                   groupedArr->Array.includes(origDictArr)
                                     ? Some(

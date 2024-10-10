@@ -20,7 +20,7 @@ let regex = (a, searchString) => {
     ->String.replaceRegExp(%re("/\+/g"), "\\+")
     ->String.replaceRegExp(%re("/\)/g"), "\\)")
     ->String.replaceRegExp(%re("/\./g"), "")
-  Js.Re.fromStringWithFlags("(.*)(" ++ a ++ "" ++ searchStringNew ++ ")(.*)", ~flags="i")
+  RegExp.fromStringWithFlags("(.*)(" ++ a ++ "" ++ searchStringNew ++ ")(.*)", ~flags="i")
 }
 
 module ListItem = {
@@ -368,6 +368,7 @@ type dropdownOptionWithoutOptional = {
   iconStroke: string,
   textColor: string,
   optGroup: string,
+  customRowClass: string,
 }
 type dropdownOption = {
   label: string,
@@ -378,6 +379,7 @@ type dropdownOption = {
   description?: string,
   iconStroke?: string,
   textColor?: string,
+  customRowClass?: string,
 }
 
 let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOptional => {
@@ -390,6 +392,7 @@ let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOpt
     iconStroke: dropdownOption.iconStroke->Option.getOr(""),
     textColor: dropdownOption.textColor->Option.getOr(""),
     optGroup: dropdownOption.optGroup->Option.getOr("-"),
+    customRowClass: dropdownOption.customRowClass->Option.getOr(""),
   }
 }
 
@@ -536,7 +539,7 @@ module BaseSelect = {
       setSearchString(_ => str)
     }
 
-    let selectAll = select => _ev => {
+    let selectAll = select => _ => {
       let newValues = if select {
         let newVal =
           filteredOptions
@@ -773,7 +776,7 @@ module BaseSelect = {
             {if !hideBorder {
               <div
                 className="my-2 bg-jp-gray-lightmode_steelgray dark:bg-jp-gray-960  "
-                style={ReactDOMStyle.make(~height="1px", ())}
+                style={height: "1px"}
               />
             } else {
               React.null
@@ -898,7 +901,7 @@ module BaseSelectButton = {
     let (itemdata, setItemData) = React.useState(() => "")
     let (assignButtonState, setAssignButtonState) = React.useState(_ => false)
     let searchRef = React.useRef(Nullable.null)
-    let onItemClick = itemData => _ev => {
+    let onItemClick = itemData => _ => {
       if !disableSelect {
         let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
 
@@ -1208,9 +1211,8 @@ module BaseRadio = {
       ~callback=() => {
         setSearchString(_ => "")
       },
-      (),
     )
-    let onItemClick = (itemData, isDisabled) => _ev => {
+    let onItemClick = (itemData, isDisabled) => _ => {
       if !isDisabled {
         let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
 
@@ -1556,7 +1558,9 @@ module BaseDropdown = {
       DropdownTextWeighContextWrapper.selectedTextWeightContext,
     )
     let isFilterSection = React.useContext(TableFilterSectionContext.filterSectionContext)
-    let {removeKeys, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
+    let {removeKeys, filterKeys, setfilterKeys, filterValueJson} = React.useContext(
+      FilterContext.filterContext,
+    )
     let showBorder = isFilterSection && !isMobileView ? Some(false) : showBorder
 
     let dropdownOuterClass = "bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
@@ -1573,6 +1577,23 @@ module BaseDropdown = {
     let (preservedAppliedOptions, setPreservedAppliedOptions) = React.useState(_ =>
       newInputSelect.value->LogicUtils.getStrArryFromJson
     )
+
+    // this useEffect enables communication between transaction view changes and the filter dropdown options via filterValueJson
+    React.useEffect(() => {
+      open LogicUtils
+      let nonStatusFilters =
+        filterValueJson
+        ->Dict.keysToArray
+        ->Array.filter(item => item != "start_time" && item != "end_time" && item != "status")
+      if nonStatusFilters->Array.length == 0 {
+        setPreservedAppliedOptions(_ =>
+          filterValueJson
+          ->getArrayFromDict("status", [])
+          ->getStrArrayFromJsonArray
+        )
+      }
+      None
+    }, [filterValueJson])
 
     let onApply = ev => {
       switch onApply {
@@ -1593,15 +1614,10 @@ module BaseDropdown = {
     let refs = autoApply
       ? [selectBoxRef, dropdownRef]
       : [selectBoxRef, dropdownRef, selectBtnRef, clearBtnRef]
-    OutsideClick.useOutsideClick(
-      ~refs=ArrayOfRef(refs),
-      ~isActive=showDropDown,
-      ~callback=() => {
-        setShowDropDown(_ => false)
-        hasApplyButton ? newInputSelect.onChange(preservedAppliedOptions) : ()
-      },
-      (),
-    )
+    OutsideClick.useOutsideClick(~refs=ArrayOfRef(refs), ~isActive=showDropDown, ~callback=() => {
+      setShowDropDown(_ => false)
+      hasApplyButton ? newInputSelect.onChange(preservedAppliedOptions) : ()
+    })
     let onClick = _ => {
       switch buttonClickFn {
       | Some(fn) => fn(input.name)
@@ -1615,7 +1631,7 @@ module BaseDropdown = {
       }
     }
 
-    let removeOption = text => _ev => {
+    let removeOption = text => _ => {
       let actualValue = switch Array.find(transformedOptions, option => option.value == text) {
       | Some(str) => str.value
       | None => ""
@@ -1685,8 +1701,8 @@ module BaseDropdown = {
     | TopLeft | TopRight => "mb-12"
     }
 
-    let onRadioOptionSelect = _ev => {
-      newInputRadio.onChange(_ev)
+    let onRadioOptionSelect = ev => {
+      newInputRadio.onChange(ev)
       addButton ? setShowDropDown(_ => true) : setShowDropDown(_ => false)
     }
 
@@ -1698,7 +1714,7 @@ module BaseDropdown = {
       ->Belt.Array.keepMap(str => {
         transformedOptions->Array.find(x => x.value == str)->Option.map(x => x.label)
       })
-      ->Array.joinWithUnsafe(", ")
+      ->Array.joinWith(", ")
       ->LogicUtils.getNonEmptyString
       ->Option.getOr(buttonText)
     }, (transformedOptions, newInputSelect.value))
@@ -1894,7 +1910,7 @@ module BaseDropdown = {
                           ? `Select ${LogicUtils.snakeToTitle(newInputSelect.name)}`
                           : newInputSelect.value
                             ->LogicUtils.getStrArryFromJson
-                            ->Array.joinWithUnsafe(",\n")}
+                            ->Array.joinWith(",\n")}
                         toolTipFor=selectButton
                         toolTipPosition=Bottom
                         tooltipWidthClass=""

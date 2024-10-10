@@ -55,7 +55,7 @@ let make = (
 
       arr
       ->Array.map(padNum)
-      ->Array.joinWithUnsafe(":")
+      ->Array.joinWith(":")
       ->Identity.anyTypeToReactEvent
       ->input.onChange
     }

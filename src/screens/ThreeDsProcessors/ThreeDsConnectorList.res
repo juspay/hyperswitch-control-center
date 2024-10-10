@@ -1,10 +1,11 @@
 @react.component
 let make = () => {
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let getConnectorList = async _ => {
     try {
@@ -39,7 +40,9 @@ let make = () => {
           configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
             ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
           )}
-          connectorsAvailableForIntegration=ConnectorUtils.threedsAuthenticatorList
+          connectorsAvailableForIntegration={featureFlagDetails.isLiveMode
+            ? ConnectorUtils.threedsAuthenticatorListForLive
+            : ConnectorUtils.threedsAuthenticatorList}
           urlPrefix="3ds-authenticators/new"
           connectorType=ConnectorTypes.ThreeDsAuthenticator
         />
@@ -51,7 +54,7 @@ let make = () => {
             resultsPerPage=20
             entity={ThreeDsTableEntity.threeDsAuthenticatorEntity(
               `3ds-authenticators`,
-              ~permission=userPermissionJson.connectorsManage,
+              ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
             offset
             setOffset

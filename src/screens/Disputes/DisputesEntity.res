@@ -23,7 +23,7 @@ let allColumns = [
   PaymentId,
 ]
 
-let useGetStatus = dispute => {
+let useGetStatus = (dispute: disputes) => {
   open DisputesUtils
   let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = dispute.dispute_status->String.toUpperCase
@@ -54,68 +54,29 @@ let useGetStatus = dispute => {
 
 let getHeading = colType => {
   switch colType {
-  | DisputeId => Table.makeHeaderInfo(~key="dispute_id", ~title="Dispute Id", ~showSort=true, ())
-  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment Id", ~showSort=true, ())
-  | AttemptId => Table.makeHeaderInfo(~key="attempt_id", ~title="Attempt Id", ~showSort=true, ())
-  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true, ())
-  | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=true, ())
+  | DisputeId => Table.makeHeaderInfo(~key="dispute_id", ~title="Dispute Id")
+  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment Id")
+  | AttemptId => Table.makeHeaderInfo(~key="attempt_id", ~title="Attempt Id")
+  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
+  | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
   | DisputeStage =>
-    Table.makeHeaderInfo(
-      ~key="dispute_stage",
-      ~title="Dispute Stage",
-      ~dataType=DropDown,
-      ~showSort=true,
-      (),
-    )
+    Table.makeHeaderInfo(~key="dispute_stage", ~title="Dispute Stage", ~dataType=DropDown)
   | DisputeStatus =>
-    Table.makeHeaderInfo(
-      ~key="dispute_status",
-      ~title="Dispute Status",
-      ~dataType=DropDown,
-      ~showSort=true,
-      (),
-    )
-  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector", ~showSort=true, ())
-  | ConnectorStatus =>
-    Table.makeHeaderInfo(~key="connector_status", ~title="Connector Status", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="dispute_status", ~title="Dispute Status", ~dataType=DropDown)
+  | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector")
+  | ConnectorStatus => Table.makeHeaderInfo(~key="connector_status", ~title="Connector Status")
   | ConnectorDisputeId =>
-    Table.makeHeaderInfo(
-      ~key="connector_dispute_id",
-      ~title="Connector Dispute Id",
-      ~showSort=true,
-      (),
-    )
-  | ConnectorReason =>
-    Table.makeHeaderInfo(~key="connector_reason", ~title="Connector Reason", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="connector_dispute_id", ~title="Connector Dispute Id")
+  | ConnectorReason => Table.makeHeaderInfo(~key="connector_reason", ~title="Connector Reason")
   | ConnectorReasonCode =>
-    Table.makeHeaderInfo(
-      ~key="connector_reason_code",
-      ~title="Connector Reason Code",
-      ~showSort=true,
-      (),
-    )
+    Table.makeHeaderInfo(~key="connector_reason_code", ~title="Connector Reason Code")
   | ChallengeRequiredBy =>
-    Table.makeHeaderInfo(
-      ~key="connector_required_by",
-      ~title="Connector Required By",
-      ~showSort=true,
-      (),
-    )
+    Table.makeHeaderInfo(~key="connector_required_by", ~title="Connector Required By")
   | ConnectorCreatedAt =>
-    Table.makeHeaderInfo(
-      ~key="connector_created_at",
-      ~title="Connector Created ",
-      ~showSort=true,
-      (),
-    )
+    Table.makeHeaderInfo(~key="connector_created_at", ~title="Connector Created ")
   | ConnectorUpdatedAt =>
-    Table.makeHeaderInfo(
-      ~key="connector_updated_at",
-      ~title="Connector Updated ",
-      ~showSort=true,
-      (),
-    )
-  | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created", ~showSort=true, ())
+    Table.makeHeaderInfo(~key="connector_updated_at", ~title="Connector Updated ")
+  | CreatedAt => Table.makeHeaderInfo(~key="created_at", ~title="Created")
   }
 }
 let amountValue = (amount, currency) => {
@@ -127,7 +88,15 @@ let getCell = (disputesData, colType): Table.cell => {
   open DisputesUtils
   open HelperComponents
   switch colType {
-  | DisputeId => DisplayCopyCell(disputesData.dispute_id)
+  | DisputeId =>
+    CustomCell(
+      <HSwitchOrderUtils.CopyLinkTableCell
+        url={`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}`}
+        displayValue={disputesData.dispute_id}
+        copyValue={Some(disputesData.dispute_id)}
+      />,
+      "",
+    )
   | PaymentId => DisplayCopyCell(disputesData.payment_id)
   | AttemptId => DisplayCopyCell(disputesData.attempt_id)
   | Amount => Text(amountValue(disputesData.amount, disputesData.currency))
@@ -170,6 +139,7 @@ let getCell = (disputesData, colType): Table.cell => {
 
 let itemToObjMapper = dict => {
   {
+    profile_id: dict->getString("profile_id", ""),
     dispute_id: dict->getString("dispute_id", ""),
     payment_id: dict->getString("payment_id", ""),
     attempt_id: dict->getString("attempt_id", ""),
@@ -202,7 +172,9 @@ let disputesEntity = EntityType.makeEntity(
   ~getCell,
   ~dataKey="",
   ~getShowLink={
-    disputesData => GlobalVars.appendDashboardPath(~url=`/disputes/${disputesData.dispute_id}`)
+    disputesData =>
+      GlobalVars.appendDashboardPath(
+        ~url=`/disputes/${disputesData.dispute_id}/${disputesData.profile_id}`,
+      )
   },
-  (),
 )

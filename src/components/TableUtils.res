@@ -1,5 +1,5 @@
 let regex = searchString => {
-  Js.Re.fromStringWithFlags(`` ++ searchString ++ ``, ~flags="gi")
+  RegExp.fromStringWithFlags(`` ++ searchString ++ ``, ~flags="gi")
 }
 let highlightedText = (str, searchedText) => {
   let shouldHighlight =
@@ -163,7 +163,6 @@ let makeHeaderInfo = (
   ~showMultiSelectCheckBox=?,
   ~hideOnShrink=?,
   ~customWidth=?,
-  (),
 ) => {
   {
     key,
@@ -192,7 +191,7 @@ module ProgressCell = {
     <div className="w-full bg-gray-200 rounded-full">
       <div
         className="bg-green-700 text font-medium text-blue-100 text-left pl-5 p-0.5 leading-none rounded-full"
-        style={ReactDOM.Style.make(~width=`${Int.toString(progressPercentage)}%`, ())}>
+        style={width: `${Int.toString(progressPercentage)}%`}>
         {React.string(Int.toString(progressPercentage) ++ "%")}
       </div>
     </div>
@@ -373,13 +372,13 @@ module ColoredTextCell = {
 module Numeric = {
   @react.component
   let make = (~num: float, ~mapper, ~clearFormatting) => {
-    if clearFormatting == false {
-      <AddDataAttributes attributes=[("data-numeric", num->mapper)]>
-        <div> {React.string(num->mapper)} </div>
-      </AddDataAttributes>
-    } else {
+    if clearFormatting {
       <AddDataAttributes attributes=[("data-numeric", num->Float.toString)]>
         <div> {React.string(num->Float.toString)} </div>
+      </AddDataAttributes>
+    } else {
+      <AddDataAttributes attributes=[("data-numeric", num->mapper)]>
+        <div> {React.string(num->mapper)} </div>
       </AddDataAttributes>
     }
   }
@@ -441,11 +440,11 @@ module LinkCell = {
 
     | None => data
     }
-    let mouseOver = _ev => {
+    let mouseOver = _ => {
       setShowCopy(_ => true)
     }
 
-    let mouseOut = _ev => {
+    let mouseOut = _ => {
       setShowCopy(_ => false)
     }
     let visibility = showCopy && !isMobileView ? "visible" : "invisible"
@@ -686,7 +685,6 @@ module TableCell = {
           fontStyle
         />
       </AddDataAttributes>
-
     | Text(x) | DropDown(x) => {
         let x = x->isEmptyString ? "NA" : x
         <AddDataAttributes attributes=[("data-desc", x), ("data-testid", x->String.toLowerCase)]>
@@ -796,14 +794,15 @@ let getTableCellValue = cell => {
 module SortIcons = {
   @react.component
   let make = (~order: sortOrder, ~size: int) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let (iconColor1, iconColor2) = switch order {
-    | INC => ("text-gray-400", "text-gray-300")
-    | DEC => ("text-gray-300", "text-gray-400")
-    | NONE => ("text-gray-400", "text-gray-400")
+    | INC => ("text-gray-300", textColor.primaryNormal)
+    | DEC => (textColor.primaryNormal, "text-gray-300")
+    | NONE => ("text-gray-300", "text-gray-300")
     }
     <div className="flex flex-col justify-center">
-      <Icon className={`-mb-2 ${iconColor1}`} name="sort-up" size />
-      <Icon className={iconColor2} name="sort-down" size />
+      <Icon className={`-mb-0.5 ${iconColor1}`} name="caret-up" size />
+      <Icon className={`-mt-0.5 ${iconColor2}`} name="caret-down" size />
     </div>
   }
 }
@@ -839,9 +838,9 @@ module HeaderActions = {
 
     let actionInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "heading",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange,
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: order->getSortOrderToString->JSON.Encode.string,
       checked: true,
     }

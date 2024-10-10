@@ -60,14 +60,14 @@ module CheckoutForm = {
           "https://4gla4dnvbg.execute-api.ap-south-1.amazonaws.com/default/hyperConfig",
           ~bodyStr=val->JSON.stringifyAny->Option.getOr(""),
           ~headers=[("Access-Control-Allow-Origin", "*")]->Dict.fromArray,
-          ~method_=Fetch.Post,
-          (),
+          ~method_=Post,
+          ~xFeatureRoute=false,
         )
         ->then(res => res->Fetch.Response.json)
         ->then(json => {
           json->resolve
         })
-        ->catch(_e => {
+        ->catch(_ => {
           Dict.make()->JSON.Encode.object->resolve
         })
         ->ignore

@@ -9,8 +9,8 @@ let make = (~isPayoutFlow=false) => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (processorModal, setProcessorModal) = React.useState(_ => false)
-  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let connectorListFromRecoil = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let textStyle = HSwitchUtils.getTextClass((H2, Optional))
@@ -18,14 +18,10 @@ let make = (~isPayoutFlow=false) => {
 
   let getConnectorListAndUpdateState = async () => {
     try {
-      let response = await fetchConnectorListResponse()
       let removeFromList = isPayoutFlow ? ConnectorTypes.PayoutConnector : ConnectorTypes.FRMPlayer
 
       // TODO : maintain separate list for multiple types of connectors
-      let connectorsList =
-        response
-        ->ConnectorListMapper.getArrayOfConnectorListPayloadType
-        ->getProcessorsListFromJson(~removeFromList, ())
+      let connectorsList = connectorListFromRecoil->getProcessorsListFromJson(~removeFromList)
       connectorsList->Array.reverse
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
@@ -103,7 +99,7 @@ let make = (~isPayoutFlow=false) => {
           </div>
           <RenderIf condition={!isMobileView}>
             <div className="h-30 md:w-[37rem] flex justify-end hidden laptop:block">
-              <img src="/assets/DummyConnectorImage.svg" />
+              <img alt="dummy-connector" src="/assets/DummyConnectorImage.svg" />
             </div>
           </RenderIf>
         </div>
@@ -143,7 +139,7 @@ let make = (~isPayoutFlow=false) => {
             setOffset
             entity={ConnectorTableUtils.connectorEntity(
               `${entityPrefix}connectors`,
-              ~permission=userPermissionJson.connectorsManage,
+              ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false

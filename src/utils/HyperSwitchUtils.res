@@ -31,7 +31,7 @@ let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
       `/${pageTitle}/${type_}`
     }
 
-  | _ => `/${url.path->List.toArray->Array.joinWithUnsafe("/")}`
+  | _ => `/${url.path->List.toArray->Array.joinWith("/")}`
   }
 }
 
@@ -39,3 +39,9 @@ let delay = ms =>
   Promise.make((resolve, _) => {
     let _ = setTimeout(() => resolve(), ms)
   })
+
+let checkIsInternalUser = roleId => {
+  open UserManagementUtils
+  roleId->stringToVariantMapper == InternalViewOnly ||
+    roleId->stringToVariantMapper == InternalAdmin
+}

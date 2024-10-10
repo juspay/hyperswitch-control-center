@@ -16,6 +16,11 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     collect_shipping_details_from_wallet_connector,
     outgoing_webhook_custom_http_headers,
     is_connector_agnostic_mit_enabled,
+    collect_billing_details_from_wallet_connector,
+    always_collect_billing_details_from_wallet_connector,
+    always_collect_shipping_details_from_wallet_connector,
+    is_auto_retries_enabled,
+    max_auto_retries_enabled,
   } = profileRecord
 
   let profileInfo =
@@ -29,6 +34,21 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     "collect_shipping_details_from_wallet_connector",
     collect_shipping_details_from_wallet_connector,
   )
+  profileInfo->setOptionBool(
+    "collect_billing_details_from_wallet_connector",
+    collect_billing_details_from_wallet_connector,
+  )
+  profileInfo->setOptionBool(
+    "always_collect_billing_details_from_wallet_connector",
+    always_collect_billing_details_from_wallet_connector,
+  )
+  profileInfo->setOptionBool(
+    "always_collect_shipping_details_from_wallet_connector",
+    always_collect_shipping_details_from_wallet_connector,
+  )
+
+  profileInfo->setOptionBool("is_auto_retries_enabled", is_auto_retries_enabled)
+  profileInfo->setOptionInt("max_auto_retries_enabled", max_auto_retries_enabled)
 
   profileInfo->setDictNull("webhook_url", webhook_details.webhook_url)
   profileInfo->setOptionString("webhook_version", webhook_details.webhook_version)
@@ -163,6 +183,29 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     valuesDict->getOptionBool("collect_shipping_details_from_wallet_connector"),
   )
   profileDetailsDict->setOptionBool(
+    "always_collect_shipping_details_from_wallet_connector",
+    valuesDict->getOptionBool("always_collect_shipping_details_from_wallet_connector"),
+  )
+  profileDetailsDict->setOptionBool(
+    "collect_billing_details_from_wallet_connector",
+    valuesDict->getOptionBool("collect_billing_details_from_wallet_connector"),
+  )
+  profileDetailsDict->setOptionBool(
+    "always_collect_billing_details_from_wallet_connector",
+    valuesDict->getOptionBool("always_collect_billing_details_from_wallet_connector"),
+  )
+
+  profileDetailsDict->setOptionBool(
+    "is_auto_retries_enabled",
+    valuesDict->getOptionBool("is_auto_retries_enabled"),
+  )
+
+  profileDetailsDict->setOptionInt(
+    "max_auto_retries_enabled",
+    valuesDict->getOptionInt("max_auto_retries_enabled"),
+  )
+
+  profileDetailsDict->setOptionBool(
     "is_connector_agnostic_mit_enabled",
     valuesDict->getOptionBool("is_connector_agnostic_mit_enabled"),
   )
@@ -281,6 +324,7 @@ let validationFieldsMapper = key => {
   | AuthetnticationConnectors(_) => "authentication_connectors"
   | ThreeDsRequestorUrl => "three_ds_requestor_url"
   | UnknownValidateFields(key) => key
+  | MaxAutoRetries => "max_auto_retries_enabled"
   }
 }
 
@@ -351,7 +395,7 @@ let validateCustom = (key, errors, value, isLiveMode) => {
       )
     }
   | PrimaryPhone | SecondaryPhone =>
-    if !Js.Re.test_(%re("/^(?:\+\d{1,15}?[.-])??\d{3}?[.-]?\d{3}[.-]?\d{3,9}$/"), value) {
+    if !RegExp.test(%re("/^(?:\+\d{1,15}?[.-])??\d{3}?[.-]?\d{3}[.-]?\d{3,9}$/"), value) {
       Dict.set(
         errors,
         key->validationFieldsMapper,
@@ -360,12 +404,20 @@ let validateCustom = (key, errors, value, isLiveMode) => {
     }
   | Website | WebhookUrl | ReturnUrl | ThreeDsRequestorUrl => {
       let regexUrl = isLiveMode
-        ? Js.Re.test_(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
-        : Js.Re.test_(%re("/^(http|https):\/\//i"), value)
+        ? RegExp.test(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
+        : RegExp.test(%re("/^(http|https):\/\//i"), value)
 
       if !regexUrl {
         Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->JSON.Encode.string)
       }
+    }
+  | MaxAutoRetries =>
+    if !RegExp.test(%re("/^[1-5]$/"), value) {
+      Dict.set(
+        errors,
+        key->validationFieldsMapper,
+        "Please enter integer value from 1 to 5"->JSON.Encode.string,
+      )
     }
 
   | _ => ()
@@ -432,8 +484,13 @@ let defaultValueForBusinessProfile = {
     three_ds_requestor_url: None,
   },
   collect_shipping_details_from_wallet_connector: None,
+  always_collect_shipping_details_from_wallet_connector: None,
+  collect_billing_details_from_wallet_connector: None,
+  always_collect_billing_details_from_wallet_connector: None,
   outgoing_webhook_custom_http_headers: None,
   is_connector_agnostic_mit_enabled: None,
+  is_auto_retries_enabled: None,
+  max_auto_retries_enabled: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

@@ -156,10 +156,10 @@ let getStatData = (
   }
 }
 
-let getSmartRetriesSingleStatEntity = (metrics, defaultColumns) => {
+let getSmartRetriesSingleStatEntity = (metrics, defaultColumns, ~uri) => {
   urlConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v2/metrics/${domain}`,
+      uri,
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
@@ -168,13 +168,13 @@ let getSmartRetriesSingleStatEntity = (metrics, defaultColumns) => {
   defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v2/metrics/${domain}`,
+  matrixUriMapper: _ => uri,
 }
 
-let getSmartRetriesAmountSingleStatEntity = (metrics, defaultColumns) => {
+let getSmartRetriesAmountSingleStatEntity = (metrics, defaultColumns, ~uri) => {
   urlConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v2/metrics/${domain}`,
+      uri,
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
@@ -183,7 +183,7 @@ let getSmartRetriesAmountSingleStatEntity = (metrics, defaultColumns) => {
   defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v2/metrics/${domain}`,
+  matrixUriMapper: _ => uri,
 }
 
 let smartRetrivesColumns: array<DynamicSingleStat.columns<colT>> = [
@@ -214,6 +214,13 @@ let smartRetrivesAmountColumns: array<DynamicSingleStat.columns<colT>> = [
 
 @react.component
 let make = (~filterKeys, ~moduleName) => {
+  open APIUtils
+  let getURL = useGetURL()
+  let smartRetryAnalyticsUrl = getURL(
+    ~entityName=ANALYTICS_PAYMENTS_V2,
+    ~methodType=Post,
+    ~id=Some(domain),
+  )
   let smartRetrieMetrics = [
     "successful_smart_retries",
     "total_smart_retries",
@@ -232,11 +239,13 @@ let make = (~filterKeys, ~moduleName) => {
   let singleStatEntity = getSmartRetriesSingleStatEntity(
     smartRetrieMetrics->formatMetrics,
     smartRetrivesColumns,
+    ~uri=smartRetryAnalyticsUrl,
   )
 
   let singleStatAMountEntity = getSmartRetriesSingleStatEntity(
     smartRetrieMetrics->formatMetrics,
     smartRetrivesAmountColumns,
+    ~uri=smartRetryAnalyticsUrl,
   )
 
   let formaPayload = (singleStatBodyEntity: DynamicSingleStat.singleStatBodyEntity) => {
@@ -248,12 +257,11 @@ let make = (~filterKeys, ~moduleName) => {
         ~startDateTime=singleStatBodyEntity.startDateTime,
         ~endDateTime=singleStatBodyEntity.endDateTime,
         ~mode=singleStatBodyEntity.mode,
-        ~groupByNames=["currency"]->Some,
+        ~groupByNames=Some(["currency"]),
         ~customFilter=?singleStatBodyEntity.customFilter,
         ~source=?singleStatBodyEntity.source,
         ~granularity=singleStatBodyEntity.granularity,
         ~prefix=singleStatBodyEntity.prefix,
-        (),
       )->JSON.Encode.object,
     ]
     ->JSON.Encode.array
@@ -268,20 +276,19 @@ let make = (~filterKeys, ~moduleName) => {
       {"Note: Only date range filters are supported currently for Smart Retry metrics"->React.string}
     </div>
     <div className="relative">
-      <div>
-        <DynamicSingleStat
-          entity={singleStatEntity}
-          startTimeFilterKey
-          endTimeFilterKey
-          filterKeys
-          moduleName
-          showPercentage=false
-          statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
-        />
-      </div>
-      <div className="absolute top-0 w-full h-full grid grid-cols-3 grid-rows-2">
-        <div className="col-span-2 " />
-        <div className="row-span-2 h-full">
+      <DynamicSingleStat
+        entity={singleStatEntity}
+        startTimeFilterKey
+        endTimeFilterKey
+        filterKeys
+        moduleName
+        showPercentage=false
+        statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
+      />
+      <div
+        className="absolute top-0 w-full h-full grid grid-cols-3 grid-rows-2 pointer-events-none">
+        <div className="col-span-2 h-96 " />
+        <div className="row-span-2 h-full !pointer-events-auto">
           <DynamicSingleStat
             entity=singleStatAMountEntity
             startTimeFilterKey

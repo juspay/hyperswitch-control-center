@@ -14,7 +14,7 @@ let make = () => {
   let loadInfo = async () => {
     open LogicUtils
     try {
-      let infoUrl = getURL(~entityName=ANALYTICS_REFUNDS, ~methodType=Get, ~id=Some(domain), ())
+      let infoUrl = getURL(~entityName=ANALYTICS_REFUNDS, ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
@@ -31,10 +31,10 @@ let make = () => {
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Post, ~id=Some("refund-post"), ())
+      let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Post, ~id=Some("refund-post"))
       let body = Dict.make()
       body->Dict.set("limit", 100->Int.toFloat->JSON.Encode.float)
-      let refundDetails = await updateDetails(refundUrl, body->JSON.Encode.object, Post, ())
+      let refundDetails = await updateDetails(refundUrl, body->JSON.Encode.object, Post)
       let data = refundDetails->getDictFromJsonObject->getArrayFromDict("data", [])
 
       if data->Array.length < 1 {
@@ -65,24 +65,28 @@ let make = () => {
   })
 
   let title = "Refunds Analytics"
-  let subTitle = "Uncover patterns and drive business performance through data-driven insights with refund analytics"
 
-  <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
+  let analyticsfilterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
+  let refundAnalyticsUrl = getURL(
+    ~entityName=ANALYTICS_PAYMENTS,
+    ~methodType=Post,
+    ~id=Some(domain),
+  )
+  <PageLoaderWrapper screenState customUI={<NoData title />}>
     <Analytics
       pageTitle=title
-      pageSubTitle=subTitle
-      filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
+      filterUri=Some(analyticsfilterUrl)
       key="RefundsAnalytics"
       moduleName="Refunds"
       deltaMetrics={getStringListFromArrayDict(metrics)}
-      chartEntity={default: chartEntity(tabKeys)}
+      chartEntity={default: chartEntity(tabKeys, ~uri=refundAnalyticsUrl)}
       tabKeys
       tabValues
       options={options}
-      singleStatEntity={getSingleStatEntity(metrics)}
+      singleStatEntity={getSingleStatEntity(metrics, refundAnalyticsUrl)}
       getTable={getRefundTable}
       colMapper
-      tableEntity={refundTableEntity()}
+      tableEntity={refundTableEntity(~uri=refundAnalyticsUrl)}
       defaultSort="total_volume"
       deltaArray=[]
       tableUpdatedHeading=getUpdatedHeading
@@ -91,7 +95,6 @@ let make = () => {
       endTimeFilterKey={endTimeFilterKey}
       initialFilters={initialFilterFields}
       initialFixedFilters={initialFixedFilterFields}
-      generateReportType={REFUND_REPORT}
     />
   </PageLoaderWrapper>
 }

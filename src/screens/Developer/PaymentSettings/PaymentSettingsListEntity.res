@@ -14,10 +14,9 @@ let allColumns = [ProfileName, ReturnUrl, WebhookUrl]
 
 let getHeading = colType => {
   switch colType {
-  | ProfileName =>
-    Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=true, ())
-  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL", ~showSort=true, ())
-  | WebhookUrl => Table.makeHeaderInfo(~key="webhook_url", ~title="Webhook URL", ~showSort=true, ())
+  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
+  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL")
+  | WebhookUrl => Table.makeHeaderInfo(~key="webhook_url", ~title="Webhook URL")
   }
 }
 
@@ -47,8 +46,19 @@ let itemToObjMapper = dict => {
       dict,
       "collect_shipping_details_from_wallet_connector",
     ),
+    always_collect_shipping_details_from_wallet_connector: dict->getOptionBool(
+      "always_collect_shipping_details_from_wallet_connector",
+    ),
+    collect_billing_details_from_wallet_connector: dict->getOptionBool(
+      "collect_billing_details_from_wallet_connector",
+    ),
+    always_collect_billing_details_from_wallet_connector: dict->getOptionBool(
+      "always_collect_billing_details_from_wallet_connector",
+    ),
     outgoing_webhook_custom_http_headers: None,
     is_connector_agnostic_mit_enabled: None,
+    is_auto_retries_enabled: dict->getOptionBool("is_auto_retries_enabled"),
+    max_auto_retries_enabled: dict->getOptionInt("max_auto_retries_enabled"),
   }
 }
 
@@ -56,7 +66,7 @@ let getItems: JSON.t => array<profileEntity> = json => {
   LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let webhookProfileTableEntity = (~permission: CommonAuthTypes.authorization) =>
+let webhookProfileTableEntity = (~authorization: CommonAuthTypes.authorization) =>
   EntityType.makeEntity(
     ~uri="",
     ~getObjects=getItems,
@@ -67,10 +77,9 @@ let webhookProfileTableEntity = (~permission: CommonAuthTypes.authorization) =>
     ~getCell,
     ~getShowLink={
       profile =>
-        PermissionUtils.linkForGetShowLinkViaAccess(
+        GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(~url=`/payment-settings/${profile.profile_id}`),
-          ~permission,
+          ~authorization,
         )
     },
-    (),
   )

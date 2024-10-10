@@ -66,7 +66,7 @@ let make = (
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong!")
-        showToast(~message=err, ~toastType=ToastError, ())
+        showToast(~message=err, ~toastType=ToastError)
       }
     }
   }
@@ -85,19 +85,25 @@ let make = (
       handleCancel: {text: "Cancel"},
     })
   }
-
+  let authType = switch connectorInfo.connector_account_details {
+  | HeaderKey(authKeys) => authKeys.auth_type
+  | BodyKey(bodyKey) => bodyKey.auth_type
+  | SignatureKey(signatureKey) => signatureKey.auth_type
+  | MultiAuthKey(multiAuthKey) => multiAuthKey.auth_type
+  | CertificateAuth(certificateAuth) => certificateAuth.auth_type
+  | CurrencyAuthKey(currencyAuthKey) => currencyAuthKey.auth_type
+  | UnKnownAuthType(_) => ""
+  }
   <Popover \"as"="div" className="relative inline-block text-left">
     {_popoverProps => <>
-      <Popover.Button> {_buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
+      <Popover.Button> {_ => <Icon name="menu-option" size=28 />} </Popover.Button>
       <Popover.Panel className="absolute z-20 right-0 top-10">
         {panelProps => {
           <div
             id="neglectTopbarTheme"
             className="relative flex flex-col bg-white py-3 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-max">
             {<>
-              <RenderIf
-                condition={connectorInfo.connector_account_details.auth_type->ConnectorUtils.mapAuthType ===
-                  #SignatureKey}>
+              <RenderIf condition={authType->ConnectorUtils.mapAuthType === #SignatureKey}>
                 <Navbar.MenuOption
                   text="Create new PayPal account"
                   onClick={_ => {
@@ -113,9 +119,7 @@ let make = (
                   setSetupAccountStatus(_ => PayPalFlowTypes.Connect_paypal_landing)
                 }}
               />
-              <RenderIf
-                condition={connectorInfo.connector_account_details.auth_type->ConnectorUtils.mapAuthType ===
-                  #BodyKey}>
+              <RenderIf condition={authType->ConnectorUtils.mapAuthType === #BodyKey}>
                 <Navbar.MenuOption
                   text="Update"
                   onClick={_ => {
@@ -124,9 +128,7 @@ let make = (
                   }}
                 />
               </RenderIf>
-              <RenderIf
-                condition={connectorInfo.connector_account_details.auth_type->ConnectorUtils.mapAuthType ===
-                  #SignatureKey}>
+              <RenderIf condition={authType->ConnectorUtils.mapAuthType === #SignatureKey}>
                 <Navbar.MenuOption
                   text="Update Payment Methods"
                   onClick={_ => {

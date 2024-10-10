@@ -4,7 +4,8 @@ open CommonAuthHooks
 exception JsonException(JSON.t)
 
 let useGetURL = () => {
-  let {merchant_id: merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
   let getUrl = (
     ~entityName: entityName,
     ~methodType: Fetch.requestMethod,
@@ -14,8 +15,8 @@ let useGetURL = () => {
     ~userRoleTypes: userRoleTypes=NONE,
     ~reconType: reconType=#NONE,
     ~queryParamerters: option<string>=None,
-    (),
   ) => {
+    let {transactionEntity, analyticsEntity, userEntity} = getUserInfoData()
     let connectorBaseURL = `account/${merchantId}/connectors`
 
     let endpoint = switch entityName {
@@ -50,7 +51,13 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
-        | None => connectorBaseURL
+        | None =>
+          switch userEntity {
+          | #Organization
+          | #Merchant
+          | #Profile =>
+            `account/${merchantId}/profile/connectors`
+          }
         }
       | Post | Delete =>
         switch connector {
@@ -65,6 +72,50 @@ let useGetURL = () => {
       }
 
     /* OPERATIONS */
+    | REFUND_FILTERS =>
+      switch methodType {
+      | Get =>
+        switch transactionEntity {
+        | #Merchant => `refunds/v2/filter`
+        | #Profile => `refunds/v2/profile/filter`
+        | _ => `refunds/v2/filter`
+        }
+
+      | _ => ""
+      }
+    | ORDER_FILTERS =>
+      switch methodType {
+      | Get =>
+        switch transactionEntity {
+        | #Merchant => `payments/v2/filter`
+        | #Profile => `payments/v2/profile/filter`
+        | _ => `payments/v2/filter`
+        }
+
+      | _ => ""
+      }
+    | DISPUTE_FILTERS =>
+      switch methodType {
+      | Get =>
+        switch transactionEntity {
+        | #Profile => `disputes/profile/filter`
+        | #Merchant
+        | _ => `disputes/filter`
+        }
+
+      | _ => ""
+      }
+    | PAYOUTS_FILTERS =>
+      switch methodType {
+      | Post =>
+        switch transactionEntity {
+        | #Merchant => `payouts/filter`
+        | #Profile => `payouts/profile/filter`
+        | _ => `payouts/filter`
+        }
+
+      | _ => ""
+      }
     | ORDERS =>
       switch methodType {
       | Get =>
@@ -74,14 +125,36 @@ let useGetURL = () => {
           | Some(queryParams) => `payments/${key_id}?${queryParams}`
           | None => `payments/${key_id}`
           }
+
         | None =>
-          switch queryParamerters {
-          | Some(queryParams) => `payments/list?${queryParams}`
-          | None => `payments/list?limit=100`
+          switch transactionEntity {
+          | #Merchant => `payments/list?limit=100`
+          | #Profile => `payments/profile/list?limit=100`
+          | _ => `payments/list?limit=100`
           }
         }
-      | Post => `payments/list`
+      | Post =>
+        switch transactionEntity {
+        | #Merchant => `payments/list`
+        | #Profile => `payments/profile/list`
+        | _ => `payments/list`
+        }
+
       | _ => ""
+      }
+    | ORDERS_AGGREGATE =>
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(queryParams) =>
+          switch transactionEntity {
+          | #Merchant => `payments/aggregate?${queryParams}`
+          | #Profile => `payments/profile/aggregate?${queryParams}`
+          | _ => `payments/aggregate?${queryParams}`
+          }
+        | None => `payments/aggregate`
+        }
+      | _ => `payments/aggregate`
       }
     | REFUNDS =>
       switch methodType {
@@ -95,23 +168,63 @@ let useGetURL = () => {
 
         | None =>
           switch queryParamerters {
-          | Some(queryParams) => `refunds/list?${queryParams}`
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Merchant => `refunds/list?${queryParams}`
+            | #Profile => `refunds/profile/list?limit=100`
+            | _ => `refunds/list?limit=100`
+            }
           | None => `refunds/list?limit=100`
           }
         }
       | Post =>
         switch id {
-        | Some(_keyid) => `refunds/list`
+        | Some(_keyid) =>
+          switch transactionEntity {
+          | #Merchant => `refunds/list`
+          | #Profile => `refunds/profile/list`
+          | _ => `refunds/list`
+          }
         | None => `refunds`
         }
       | _ => ""
+      }
+    | REFUNDS_AGGREGATE =>
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(queryParams) =>
+          switch transactionEntity {
+          | #Profile => `refunds/profile/aggregate?${queryParams}`
+          | #Merchant
+          | _ =>
+            `refunds/aggregate?${queryParams}`
+          }
+        | None => `refunds/aggregate`
+        }
+      | _ => `refunds/aggregate`
       }
     | DISPUTES =>
       switch methodType {
       | Get =>
         switch id {
         | Some(dispute_id) => `disputes/${dispute_id}`
-        | None => `disputes/list?limit=10000`
+        | None =>
+          switch queryParamerters {
+          | Some(queryParams) =>
+            switch transactionEntity {
+            | #Profile => `disputes/profile/list?${queryParams}&limit=10000`
+            | #Merchant
+            | _ =>
+              `disputes/list?${queryParams}&limit=10000`
+            }
+          | None =>
+            switch transactionEntity {
+            | #Profile => `disputes/profile/list?limit=10000`
+            | #Merchant
+            | _ => `disputes/list?limit=10000`
+            }
+          }
         }
       | _ => ""
       }
@@ -120,9 +233,20 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(payout_id) => `payouts/${payout_id}`
-        | None => `payouts/list?limit=100`
+        | None =>
+          switch transactionEntity {
+          | #Merchant => `payouts/list?limit=100`
+          | #Profile => `payouts/profile/list?limit=10000`
+          | _ => `payouts/list?limit=100`
+          }
         }
-      | Post => `payouts/list`
+      | Post =>
+        switch transactionEntity {
+        | #Merchant => `payouts/list`
+        | #Profile => `payouts/profile/list`
+        | _ => `payouts/list`
+        }
+
       | _ => ""
       }
 
@@ -133,7 +257,12 @@ let useGetURL = () => {
       | Get =>
         switch id {
         | Some(routingId) => `routing/${routingId}`
-        | _ => `routing`
+        | None =>
+          switch userEntity {
+          | #Organization
+          | #Merchant
+          | #Profile => `routing/list/profile`
+          }
         }
       | Post =>
         switch id {
@@ -143,6 +272,23 @@ let useGetURL = () => {
       | _ => ""
       }
     | ACTIVE_ROUTING => `routing/active`
+    /* ANALYTICS V2 */
+
+    | ANALYTICS_PAYMENTS_V2 =>
+      switch methodType {
+      | Post =>
+        switch id {
+        | Some(domain) =>
+          switch analyticsEntity {
+          | #Organization => `analytics/v2/org/metrics/${domain}`
+          | #Merchant => `analytics/v2/merchant/metrics/${domain}`
+          | #Profile => `analytics/v2/profile/metrics/${domain}`
+          }
+
+        | _ => ""
+        }
+      | _ => ""
+      }
 
     /* ANALYTICS */
     | ANALYTICS_REFUNDS
@@ -155,33 +301,108 @@ let useGetURL = () => {
       switch methodType {
       | Get =>
         switch id {
-        | Some(domain) => `analytics/v1/${domain}/info`
+        // Need to write seperate enum for info api
+        | Some(domain) =>
+          switch analyticsEntity {
+          | #Organization => `analytics/v1/org/${domain}/info`
+          | #Merchant => `analytics/v1/merchant/${domain}/info`
+          | #Profile => `analytics/v1/profile/${domain}/info`
+          }
+
         | _ => ""
         }
       | Post =>
         switch id {
-        | Some(domain) => `analytics/v1/metrics/${domain}`
+        | Some(domain) =>
+          switch analyticsEntity {
+          | #Organization => `analytics/v1/org/metrics/${domain}`
+          | #Merchant => `analytics/v1/merchant/metrics/${domain}`
+          | #Profile => `analytics/v1/profile/metrics/${domain}`
+          }
+
+        | _ => ""
+        }
+      | _ => ""
+      }
+    | ANALYTICS_FILTERS =>
+      switch methodType {
+      | Post =>
+        switch id {
+        | Some(domain) =>
+          switch analyticsEntity {
+          | #Organization => `analytics/v1/org/filters/${domain}`
+          | #Merchant => `analytics/v1/merchant/filters/${domain}`
+          | #Profile => `analytics/v1/profile/filters/${domain}`
+          }
+
         | _ => ""
         }
       | _ => ""
       }
 
-    /* PAYMENT LOGS (AUDIT TRAIL) */
-    | PAYMENT_LOGS =>
+    | API_EVENT_LOGS =>
       switch methodType {
       | Get =>
-        switch id {
-        | Some(payment_id) => `analytics/v1/api_event_logs?type=Payment&payment_id=${payment_id}`
-        | None => `analytics/v1/event-logs`
+        switch queryParamerters {
+        | Some(params) => `analytics/v1/profile/api_event_logs?${params}`
+        | None => ``
         }
       | _ => ""
       }
+    | NEW_ANALYTICS =>
+      switch methodType {
+      | Get =>
+        switch id {
+        // Need to write seperate enum for info api
+        | Some(domain) =>
+          switch analyticsEntity {
+          | #Organization => `analytics/v2/org/${domain}/info`
+          | #Merchant => `analytics/v2/merchant/${domain}/info`
+          | #Profile => `analytics/v2/profile/${domain}/info`
+          }
 
+        | _ => ""
+        }
+      | Post =>
+        switch id {
+        | Some(domain) =>
+          switch analyticsEntity {
+          | #Organization => `analytics/v2/org/metrics/${domain}`
+          | #Merchant => `analytics/v2/merchant/metrics/${domain}`
+          | #Profile => `analytics/v2/profile/metrics/${domain}`
+          }
+
+        | _ => ""
+        }
+      | _ => ""
+      }
+    | ANALYTICS_SANKEY =>
+      switch methodType {
+      | Post =>
+        switch analyticsEntity {
+        | #Organization => `analytics/v1/org/metrics/sankey`
+        | #Merchant => `analytics/v1/merchant/metrics/sankey`
+        | #Profile => `analytics/v1/profile/metrics/sankey`
+        }
+
+      | _ => ""
+      }
     /* PAYOUTS ROUTING */
     | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
     | PAYOUT_ROUTING =>
       switch methodType {
-      | Get | Put =>
+      | Get =>
+        switch id {
+        | Some(routingId) => `routing/${routingId}`
+        | _ =>
+          switch userEntity {
+          | #Organization
+          | #Merchant
+          | #Profile => `routing/payouts/list/profile`
+          }
+        }
+
+      | Put =>
         switch id {
         | Some(routingId) => `routing/${routingId}`
         | _ => `routing/payouts`
@@ -205,22 +426,47 @@ let useGetURL = () => {
     | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
 
     /* REPORTS */
-    | PAYMENT_REPORT => `analytics/v1/report/payments`
-    | REFUND_REPORT => `analytics/v1/report/refunds`
-    | DISPUTE_REPORT => `analytics/v1/report/dispute`
+    | PAYMENT_REPORT =>
+      switch transactionEntity {
+      | #Organization => `analytics/v1/org/report/payments`
+      | #Merchant => `analytics/v1/merchant/report/payments`
+      | #Profile => `analytics/v1/profile/report/payments`
+      }
+
+    | REFUND_REPORT =>
+      switch transactionEntity {
+      | #Organization => `analytics/v1/org/report/refunds`
+      | #Merchant => `analytics/v1/merchant/report/refunds`
+      | #Profile => `analytics/v1/profile/report/refunds`
+      }
+
+    | DISPUTE_REPORT =>
+      switch transactionEntity {
+      | #Organization => `analytics/v1/org/report/dispute`
+      | #Merchant => `analytics/v1/merchant/report/dispute`
+      | #Profile => `analytics/v1/profile/report/dispute`
+      }
 
     /* EVENT LOGS */
-    | SDK_EVENT_LOGS => `analytics/v1/sdk_event_logs`
+    | SDK_EVENT_LOGS => `analytics/v1/profile/sdk_event_logs`
+
     | WEBHOOKS_EVENT_LOGS =>
-      switch id {
-      | Some(payment_id) => `analytics/v1/outgoing_webhook_event_logs?payment_id=${payment_id}`
-      | None => ""
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(params) => `analytics/v1/profile/outgoing_webhook_event_logs?${params}`
+        | None => `analytics/v1/outgoing_webhook_event_logs`
+        }
+      | _ => ""
       }
     | CONNECTOR_EVENT_LOGS =>
-      switch id {
-      | Some(payment_id) =>
-        `analytics/v1/connector_event_logs?type=Payment&payment_id=${payment_id}`
-      | None => ""
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(params) => `analytics/v1/profile/connector_event_logs?${params}`
+        | None => `analytics/v1/connector_event_logs`
+        }
+      | _ => ""
       }
 
     /* SAMPLE DATA */
@@ -241,9 +487,20 @@ let useGetURL = () => {
 
     /* BUSINESS PROFILE */
     | BUSINESS_PROFILE =>
-      switch id {
-      | Some(id) => `account/${merchantId}/business_profile/${id}`
-      | None => `account/${merchantId}/business_profile`
+      switch methodType {
+      | Get =>
+        switch userEntity {
+        | #Organization
+        | #Merchant
+        | #Profile =>
+          `account/${merchantId}/profile`
+        }
+      | Post =>
+        switch id {
+        | Some(id) => `account/${merchantId}/business_profile/${id}`
+        | None => `account/${merchantId}/business_profile`
+        }
+      | _ => `account/${merchantId}/business_profile`
       }
 
     /* API KEYS */
@@ -279,13 +536,39 @@ let useGetURL = () => {
         let userUrl = `user`
         switch userRoleTypes {
         | USER_LIST => `${userUrl}/user/list`
-        | ROLE_LIST => `${userUrl}/role/list`
+        | ROLE_LIST =>
+          switch queryParamerters {
+          | Some(queryParams) => `${userUrl}/role/list?${queryParams}`
+          | None => `${userUrl}/role/list`
+          }
         | ROLE_ID =>
           switch id {
-          | Some(key_id) => `${userUrl}/role/${key_id}`
+          | Some(key_id) =>
+            switch queryParamerters {
+            | Some(queryParams) => `${userUrl}/role/${key_id}?${queryParams}`
+            | None => `${userUrl}/role/${key_id}`
+            }
           | None => ""
           }
         | NONE => ""
+        }
+      }
+
+    /* USER MANGEMENT REVAMP */
+    | USER_MANAGEMENT_V2 => {
+        let userUrl = `user`
+        switch userRoleTypes {
+        | USER_LIST =>
+          switch queryParamerters {
+          | Some(queryParams) => `${userUrl}/user/v2/list?${queryParams}`
+          | None => `${userUrl}/user/v2/list`
+          }
+        | ROLE_LIST =>
+          switch queryParamerters {
+          | Some(queryParams) => `${userUrl}/role/v2/list?${queryParams}`
+          | None => `${userUrl}/role/v2/list`
+          }
+        | _ => ""
         }
       }
 
@@ -301,7 +584,6 @@ let useGetURL = () => {
         | None => `${userUrl}/connect_account`
         }
       | #SIGNINV2 => `${userUrl}/v2/signin`
-      | #SIGNINV2_TOKEN_ONLY => `${userUrl}/v2/signin?token_only=true`
       | #CHANGE_PASSWORD => `${userUrl}/change_password`
       | #SIGNUP
       | #SIGNOUT
@@ -313,8 +595,6 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
-      | #SIGNUP_TOKEN_ONLY => `${userUrl}/signup?token_only=true`
-      | #RESET_PASSWORD_TOKEN_ONLY => `${userUrl}/reset_password?token_only=true`
 
       // POST LOGIN QUESTIONARE
       | #SET_METADATA =>
@@ -332,13 +612,14 @@ let useGetURL = () => {
       | #MERCHANT_DATA => `${userUrl}/data`
       | #USER_INFO => userUrl
 
-      // USER PERMISSIONS
-      | #GET_PERMISSIONS =>
+      // USER GROUP ACCESS
+      | #GET_GROUP_ACL =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/role?${params}`
         | None => `${userUrl}/role`
         }
-      | #PERMISSION_INFO =>
+      | #ROLE_INFO => `${userUrl}/module/list`
+      | #GROUP_ACCESS_INFO =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
@@ -350,29 +631,31 @@ let useGetURL = () => {
       | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
 
       // INVITATION INSIDE DASHBOARD
-      | #RESEND_INVITE
+      | #RESEND_INVITE => `${userUrl}/user/resend_invite`
+      | #ACCEPT_INVITATION_HOME => `${userUrl}/user/invite/accept/v2`
       | #INVITE_MULTIPLE =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/user/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
         }
-      | #INVITE_MULTIPLE_TOKEN_ONLY =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/user/invite_multiple?${params}&token_only=true`
-        | None => `${userUrl}/user/invite_multiple?token_only=true`
-        }
 
-      // SWITCH & CREATE MERCHANT
-      | #SWITCH_MERCHANT =>
-        switch methodType {
-        | Get => `${userUrl}/switch/list`
-        | _ => `${userUrl}/${(userType :> string)->String.toLowerCase}`
-        }
+      // ACCEPT INVITE PRE_LOGIN
+      | #ACCEPT_INVITATION_PRE_LOGIN => `${userUrl}/user/invite/accept/v2/pre_auth`
+
+      // CREATE MERCHANT
       | #CREATE_MERCHANT =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
+      | #SWITCH_ORG => `${userUrl}/switch/org`
+      | #SWITCH_MERCHANT_NEW => `${userUrl}/switch/merchant`
+      | #SWITCH_PROFILE => `${userUrl}/switch/profile`
+
+      // Org-Merchant-Profile List
+      | #LIST_ORG => `${userUrl}/list/org`
+      | #LIST_MERCHANT => `${userUrl}/list/merchant`
+      | #LIST_PROFILE => `${userUrl}/list/profile`
 
       // CREATE ROLES
       | #CREATE_CUSTOM_ROLE => `${userUrl}/role`
@@ -386,10 +669,6 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
         | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
         }
-
-      // SPT FLOWS (Merchant select)
-      | #ACCEPT_INVITE_TOKEN_ONLY => `${userUrl}/user/invite/accept?token_only=true`
-      | #MERCHANTS_SELECT => `${userUrl}/merchants_select/list`
 
       // SPT FLOWS (Totp)
       | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
@@ -414,10 +693,19 @@ let useGetURL = () => {
       | #SIGN_IN_WITH_SSO => `${userUrl}/oidc`
       | #AUTH_SELECT => `${userUrl}/auth/select`
 
-      // SPT EMAIL FLOWS
-      | #VERIFY_EMAILV2_TOKEN_ONLY => `${userUrl}/v2/verify_email?token_only=true`
-      | #ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY =>
-        `${userUrl}/accept_invite_from_email?token_only=true`
+      // user-management revamp
+      | #LIST_ROLES_FOR_INVITE =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/role/list/invite?${params}`
+        | None => ""
+        }
+      | #LIST_INVITATION => `${userUrl}/list/invitation`
+      | #USER_DETAILS => `${userUrl}/user/v2`
+      | #LIST_ROLES_FOR_ROLE_UPDATE =>
+        switch queryParamerters {
+        | Some(params) => `${userUrl}/role/list/update?${params}`
+        | None => ""
+        }
 
       | #NONE => ""
       }
@@ -432,16 +720,15 @@ let useGetURL = () => {
 let useHandleLogout = () => {
   let getURL = useGetURL()
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
-
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   () => {
     try {
-      let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
+      let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
       let _ =
-        fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+        fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute)
         ->then(Fetch.Response.json)
         ->then(json => {
           json->resolve
@@ -450,7 +737,6 @@ let useHandleLogout = () => {
           JSON.Encode.null->resolve
         })
       setAuthStateToLogout()
-      setIsSidebarExpanded(_ => false)
       clearRecoilValue()
       AuthUtils.redirectToLogin()
       LocalStorage.clear()
@@ -470,6 +756,13 @@ let responseHandler = async (
   ~isPlayground,
   ~popUpCallBack,
   ~handleLogout,
+  ~sendEvent: (
+    ~eventName: string,
+    ~email: string=?,
+    ~description: option<'a>=?,
+    ~section: string=?,
+    ~metadata: Dict.t<'b>=?,
+  ) => unit,
 ) => {
   let json = try {
     await res->(res => res->Fetch.Response.json)
@@ -479,23 +772,35 @@ let responseHandler = async (
 
   let responseStatus = res->Fetch.Response.status
 
+  if responseStatus >= 500 && responseStatus < 600 {
+    sendEvent(
+      ~eventName="API Error",
+      ~description=Some(responseStatus),
+      ~metadata=json->getDictFromJsonObject,
+    )
+  }
+
   switch responseStatus {
   | 200 => json
   | _ => {
       let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
       let errorStringifiedJson = errorDict->JSON.Encode.object->JSON.stringify
 
-      //TODO:-
-      // errorCodes to be handled
-      // let errorCode = errorDict->getString("code", "")
-
       if isPlayground && responseStatus === 403 {
         popUpCallBack()
       } else if showErrorToast {
         switch responseStatus {
+        | 400 => {
+            let errorCode = errorDict->getString("code", "")
+            switch errorCode->CommonAuthUtils.errorSubCodeMapper {
+            | HE_02 | UR_33 =>
+              RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+            | _ => ()
+            }
+          }
         | 401 =>
           if !sessionExpired.contents {
-            showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false, ())
+            showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false)
             handleLogout()->ignore
             AuthUtils.redirectToLogin()
             sessionExpired := true
@@ -516,12 +821,18 @@ let responseHandler = async (
             },
           })
 
+        | 404 => {
+            let errorCode = errorDict->getString("code", "")
+            switch errorCode->CommonAuthUtils.errorSubCodeMapper {
+            | HE_02 => RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+            | _ => ()
+            }
+          }
         | _ =>
           showToast(
             ~toastType=ToastError,
             ~message=errorDict->getString("message", "Error Occured"),
             ~autoClose=false,
-            (),
           )
         }
       }
@@ -539,22 +850,24 @@ let catchHandler = (
 ) => {
   switch Exn.message(err) {
   | Some(msg) => Exn.raiseError(msg)
+
   | None => {
       if isPlayground {
         popUpCallBack()
       } else if showErrorToast {
-        showToast(~toastType=ToastError, ~message="Something Went Wrong", ~autoClose=false, ())
+        showToast(~toastType=ToastError, ~message="Something Went Wrong", ~autoClose=false)
       }
       Exn.raiseError("Failed to Fetch")
     }
   }
 }
 
-let useGetMethod = (~showErrorToast=true, ()) => {
+let useGetMethod = (~showErrorToast=true) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let handleLogout = useHandleLogout()
+  let sendEvent = MixpanelHook.useSendEvent()
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let popUpCallBack = () =>
     showPopUp({
@@ -570,10 +883,11 @@ let useGetMethod = (~showErrorToast=true, ()) => {
         },
       },
     })
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async url => {
     try {
-      let res = await fetchApi(url, ~method_=Get, ())
+      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute)
       await responseHandler(
         ~res,
         ~showErrorToast,
@@ -582,6 +896,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
         ~isPlayground,
         ~popUpCallBack,
         ~handleLogout,
+        ~sendEvent,
       )
     } catch {
     | Exn.Error(e) =>
@@ -591,11 +906,12 @@ let useGetMethod = (~showErrorToast=true, ()) => {
   }
 }
 
-let useUpdateMethod = (~showErrorToast=true, ()) => {
+let useUpdateMethod = (~showErrorToast=true) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let handleLogout = useHandleLogout()
+  let sendEvent = MixpanelHook.useSendEvent()
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
 
   let popUpCallBack = () =>
@@ -612,6 +928,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
         },
       },
     })
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (
     url,
@@ -620,7 +937,6 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
     ~bodyFormData=?,
     ~headers=Dict.make(),
     ~contentType=AuthHooks.Headers("application/json"),
-    (),
   ) => {
     try {
       let res = await fetchApi(
@@ -630,7 +946,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
         ~bodyFormData,
         ~headers,
         ~contentType,
-        (),
+        ~xFeatureRoute,
       )
       await responseHandler(
         ~res,
@@ -640,6 +956,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
         ~showPopUp,
         ~popUpCallBack,
         ~handleLogout,
+        ~sendEvent,
       )
     } catch {
     | Exn.Error(e) =>

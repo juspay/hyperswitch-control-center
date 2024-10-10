@@ -15,8 +15,8 @@ module SSOFromRedirect = {
         | SSO_FROM_REDIRECT(#Okta(data)) => data->Identity.genericTypeToJson
         | _ => Dict.make()->JSON.Encode.object
         }
-        let ssoUrl = getURL(~entityName=USERS, ~userType=#SIGN_IN_WITH_SSO, ~methodType=Post, ())
-        let response = await updateDetails(ssoUrl, body, Post, ())
+        let ssoUrl = getURL(~entityName=USERS, ~userType=#SIGN_IN_WITH_SSO, ~methodType=Post)
+        let response = await updateDetails(ssoUrl, body, Post)
         setAuthStatus(PreLogin(getPreLoginInfo(response)))
       } catch {
       | _ => setAuthStatus(LoggedOut)
@@ -64,6 +64,6 @@ let make = (~auth_id: option<string>) => {
 
   switch localSSOState {
   | SSO_FROM_REDIRECT(_) => <SSOFromRedirect localSSOState />
-  | LOADING => <PageLoaderWrapper.ScreenLoader />
+  | LOADING => <PageLoaderWrapper.ScreenLoader sectionHeight="h-screen" />
   }
 }

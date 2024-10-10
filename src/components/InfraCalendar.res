@@ -68,7 +68,7 @@ module TableRow = {
             )
             let isFutureDate = todayInitial -. date->Date.getTime < 0.0
 
-            let onClick = _evt => {
+            let onClick = _ => {
               let isClickDisabled = isFutureDate ? disableFutureDates : disablePastDates
               switch !isClickDisabled {
               | true =>

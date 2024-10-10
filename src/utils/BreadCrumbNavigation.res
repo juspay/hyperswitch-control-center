@@ -41,7 +41,7 @@ let make = (
       let onClick = switch crumb.onClick {
       | Some(fn) => fn
       | None =>
-        _ev =>
+        _ =>
           showPopUp({
             popUpType: (Warning, WithIcon),
             heading: "Heads up!",
@@ -72,7 +72,7 @@ let make = (
                 | (None, None) =>
                   <Link
                     className={`${textClass} ${linkTextClass} ${commonTextClass}`}
-                    to_={`${prefix}${crumb.link}`}>
+                    to_={GlobalVars.appendDashboardPath(~url=`${prefix}${crumb.link}`)}>
                     {React.string(crumb.title)}
                   </Link>
                 | _ =>

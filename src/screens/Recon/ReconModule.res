@@ -12,7 +12,7 @@ let make = (~urlList) => {
 
   let getReconToken = async () => {
     try {
-      let url = getURL(~entityName=RECON, ~reconType=#TOKEN, ~methodType=Get, ())
+      let url = getURL(~entityName=RECON, ~reconType=#TOKEN, ~methodType=Get)
       let res = await fetchDetails(url)
       let token = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("token", "")
       setRedirectToken(_ => token)
@@ -28,7 +28,7 @@ let make = (~urlList) => {
   | list{"reports"}
   | list{"config-settings"}
   | list{"file-processor"} =>
-    urlList->List.toArray->Array.joinWithUnsafe("/")
+    urlList->List.toArray->Array.joinWith("/")
   | list{"recon-analytics"} => "analytics"
   | _ => ""
   }
@@ -57,7 +57,7 @@ let make = (~urlList) => {
         {if redirectToken->isNonEmptyString {
           <div className="h-85-vh overflow-scroll">
             <iframe
-              onLoad={_ev => {
+              onLoad={_ => {
                 setIframeLoaded(_ => true)
               }}
               id="recon-module"

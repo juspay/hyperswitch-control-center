@@ -48,34 +48,17 @@ let tableItemToObjMapper: Dict.t<JSON.t> => disputeTableType = dict => {
   }
 }
 
-let getUpdatedHeading = (
-  ~item as _: option<disputeTableType>,
-  ~dateObj as _: option<AnalyticsUtils.prevDates>,
-) => {
+let getUpdatedHeading = (~item as _, ~dateObj as _) => {
   let getHeading = colType => {
     let key = colType->colMapper
     switch colType {
-    | Connector =>
-      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=NumericType, ~showSort=false, ())
-    | DisputeStage =>
-      Table.makeHeaderInfo(~key, ~title="Dispute Stage", ~dataType=NumericType, ~showSort=false, ())
+    | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=NumericType)
+    | DisputeStage => Table.makeHeaderInfo(~key, ~title="Dispute Stage", ~dataType=NumericType)
     | TotalAmountDisputed =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Total Amount Disputed",
-        ~dataType=NumericType,
-        ~showSort=false,
-        (),
-      )
+      Table.makeHeaderInfo(~key, ~title="Total Amount Disputed", ~dataType=NumericType)
     | TotalDisputeLostAmount =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Total Dispute Lost Amount",
-        ~dataType=NumericType,
-        ~showSort=false,
-        (),
-      )
-    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Total Dispute Lost Amount", ~dataType=NumericType)
+    | NoCol => Table.makeHeaderInfo(~key, ~title="")
     }
   }
   getHeading
@@ -83,7 +66,7 @@ let getUpdatedHeading = (
 
 let getCell = (disputeTable: disputeTableType, colType): Table.cell => {
   let usaNumberAbbreviation = labelValue => {
-    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat(), ())
+    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
   }
 
   switch colType {
@@ -107,9 +90,9 @@ let getDisputeTable: JSON.t => array<disputeTableType> = json => {
 
 let makeFieldInfo = FormRenderer.makeFieldInfo
 
-let disputeTableEntity = () =>
+let disputeTableEntity = (~uri) =>
   EntityType.makeEntity(
-    ~uri=`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+    ~uri,
     ~getObjects=getDisputeTable,
     ~dataKey="queryData",
     ~defaultColumns=defaultDisputeColumns,
@@ -117,7 +100,6 @@ let disputeTableEntity = () =>
     ~allColumns=allDisputeColumns,
     ~getCell,
     ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
-    (),
   )
 
 let singleStateInitialValue = {
@@ -167,7 +149,7 @@ type colT =
   | TotalAmountDisputed
   | TotalDisputeLostAmount
 
-let getColumns: unit => array<DynamicSingleStat.columns<colT>> = () => [
+let getColumns = [
   {
     sectionName: "",
     columns: [TotalAmountDisputed, TotalDisputeLostAmount]->generateDefaultStateColumns,
@@ -250,19 +232,19 @@ let getStatData = (
   }
 }
 
-let getSingleStatEntity = (metrics, connector_success_rate) => {
+let getSingleStatEntity = (metrics, ~uri) => {
   urlConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+      uri,
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
   getObjects: itemToObjMapper,
   getTimeSeriesObject: timeSeriesObjMapper,
-  defaultColumns: getColumns(connector_success_rate),
+  defaultColumns: getColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+  matrixUriMapper: _ => uri,
 }
 
 let metricsConfig: array<LineChartUtils.metricsConfig> = [
@@ -284,9 +266,9 @@ let metricsConfig: array<LineChartUtils.metricsConfig> = [
   },
 ]
 
-let chartEntity = tabKeys =>
+let chartEntity = (tabKeys, ~uri) =>
   DynamicChart.makeEntity(
-    ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`),
+    ~uri=String(uri),
     ~filterKeys=tabKeys,
     ~dateFilterKeys=(startTimeFilterKey, endTimeFilterKey),
     ~currentMetrics=("Dispute Status Metric", "Total Amount Disputed"), // 2nd metric will be static and we won't show the 2nd metric option to the first metric
@@ -295,7 +277,7 @@ let chartEntity = tabKeys =>
     ~chartTypes=[Line],
     ~uriConfig=[
       {
-        uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+        uri,
         timeSeriesBody: DynamicChart.getTimeSeriesChart,
         legendBody: DynamicChart.getLegendBody,
         metrics: metricsConfig,
@@ -304,5 +286,4 @@ let chartEntity = tabKeys =>
       },
     ],
     ~moduleName="Dispute Analytics",
-    (),
   )

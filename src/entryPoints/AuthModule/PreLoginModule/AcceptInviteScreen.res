@@ -12,13 +12,8 @@ let make = (~onClick) => {
     try {
       open AuthUtils
 
-      let url = getURL(
-        ~entityName=USERS,
-        ~methodType=Post,
-        ~userType={#ACCEPT_INVITE_FROM_EMAIL_TOKEN_ONLY},
-        (),
-      )
-      let res = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#ACCEPT_INVITE_FROM_EMAIL})
+      let res = await updateDetails(url, body, Post)
       setAuthStatus(PreLogin(getPreLoginInfo(res)))
     } catch {
     | Exn.Error(e) => {

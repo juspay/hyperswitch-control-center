@@ -29,7 +29,7 @@ module ActionButtons = {
       ThemeProvider.themeContext,
     )
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     switch routeType {
     | PRIORITY
@@ -37,7 +37,7 @@ module ActionButtons = {
     | ADVANCED =>
       <ACLButton
         text={"Setup"}
-        access={userPermissionJson.workflowsManage}
+        authorization={userHasAccess(~groupAccess=WorkflowsManage)}
         buttonType=Secondary
         buttonSize={Small}
         customButtonStyle={` !${borderColor.primaryNormal} bg-white ${textColor.primaryNormal}`}
@@ -47,13 +47,13 @@ module ActionButtons = {
               ~url=`/${onRedirectBaseUrl}/${routingTypeName(routeType)}`,
             ),
           )
-          mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
+          mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`)
         }}
       />
     | DEFAULTFALLBACK =>
       <ACLButton
         text={"Manage"}
-        access={userPermissionJson.workflowsManage}
+        authorization={userHasAccess(~groupAccess=WorkflowsManage)}
         buttonType=Secondary
         customButtonStyle={`!${borderColor.primaryNormal} bg-white ${textColor.primaryNormal}`}
         buttonSize={Small}
@@ -63,7 +63,7 @@ module ActionButtons = {
               ~url=`/${onRedirectBaseUrl}/${routingTypeName(routeType)}`,
             ),
           )
-          mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
+          mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`)
         }}
       />
 
@@ -78,7 +78,7 @@ module ActiveSection = {
     open LogicUtils
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let routingName = switch activeRoutingType {
     | DEFAULTFALLBACK => ""
@@ -119,7 +119,7 @@ module ActiveSection = {
         </div>
         <div className="flex gap-5 pt-6 w-1/4">
           <ACLButton
-            access={userPermissionJson.workflowsManage}
+            authorization={userHasAccess(~groupAccess=WorkflowsManage)}
             text="Manage"
             buttonType=Secondary
             customButtonStyle="w-2/3"

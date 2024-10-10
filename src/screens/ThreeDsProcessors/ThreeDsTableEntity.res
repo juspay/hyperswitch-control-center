@@ -5,24 +5,33 @@ type colType =
   | TestMode
   | Status
   | Disabled
-
+  | MerchantConnectorId
   | ProfileId
   | ProfileName
   | ConnectorLabel
 
-let defaultColumns = [Name, ProfileId, ProfileName, ConnectorLabel, Status, Disabled, TestMode]
+let defaultColumns = [
+  Name,
+  MerchantConnectorId,
+  ProfileId,
+  ProfileName,
+  ConnectorLabel,
+  Status,
+  Disabled,
+  TestMode,
+]
 
 let getHeading = colType => {
   switch colType {
-  | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor", ~showSort=false, ())
-  | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode", ~showSort=false, ())
-  | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status", ~showSort=false, ())
-  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled", ~showSort=false, ())
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false, ())
-  | ProfileName =>
-    Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=false, ())
-  | ConnectorLabel =>
-    Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label", ~showSort=false, ())
+  | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor")
+  | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode")
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
+  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
+  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
+  | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
+  | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
+  | MerchantConnectorId =>
+    Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
   }
 }
 let connectorStatusStyle = connectorStatus =>
@@ -33,7 +42,13 @@ let connectorStatusStyle = connectorStatus =>
 
 let getCell = (connector: connectorPayload, colType): Table.cell => {
   switch colType {
-  | Name => Text(connector.connector_name)
+  | Name =>
+    CustomCell(
+      <HelperComponents.ConnectorCustomCell
+        connectorName=connector.connector_name connectorType={ThreeDsAuthenticator}
+      />,
+      "",
+    )
   | TestMode => Text(connector.test_mode ? "True" : "False")
   | Disabled =>
     Label({
@@ -55,6 +70,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       "",
     )
   | ConnectorLabel => Text(connector.connector_label)
+  | MerchantConnectorId => DisplayCopyCell(connector.merchant_connector_id)
   }
 }
 
@@ -70,7 +86,7 @@ let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
   LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
 }
 
-let threeDsAuthenticatorEntity = (path: string, ~permission: CommonAuthTypes.authorization) => {
+let threeDsAuthenticatorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,
@@ -80,13 +96,12 @@ let threeDsAuthenticatorEntity = (path: string, ~permission: CommonAuthTypes.aut
     ~dataKey="",
     ~getShowLink={
       connec =>
-        PermissionUtils.linkForGetShowLinkViaAccess(
+        GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~url=GlobalVars.appendDashboardPath(
             ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
           ),
-          ~permission,
+          ~authorization,
         )
     },
-    (),
   )
 }

@@ -56,6 +56,9 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
     amount_to_capture: Nullable.make(10000.00),
     return_url: `${Window.Location.origin}${Window.Location.pathName}`,
     country_currency: "US-USD",
+    frm_metadata: {
+      order_channel: "web",
+    },
   }
 }
 
@@ -72,6 +75,7 @@ let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
   let metaData = getDictFormDictOfValues("metadata")->getDictfromDict("order_details")
   let amount = dictOfValues->getFloat("amount", 10000.00)
   let countryCurrency = dictOfValues->getString("country_currency", "US-USD")->String.split("-")
+  let order_channel = getDictFormDictOfValues("frm_metadata")->getString("order_channel", "")
 
   let mandateData: SDKPaymentTypes.mandateData = {
     customer_acceptance: {
@@ -88,6 +92,10 @@ let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
         currency: countryCurrency->Array.at(1)->Option.getOr("USD"),
       },
     },
+  }
+
+  let frm_metadata: SDKPaymentTypes.frm_metadata = {
+    order_channel: order_channel,
   }
 
   {
@@ -150,5 +158,6 @@ let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
     setup_future_usage: amount === 0.00 ? Nullable.make("off_session") : Nullable.null,
     mandate_data: amount === 0.00 ? Nullable.make(mandateData) : Nullable.null,
     country_currency: dictOfValues->getString("country_currency", "US-USD"),
+    frm_metadata,
   }
 }

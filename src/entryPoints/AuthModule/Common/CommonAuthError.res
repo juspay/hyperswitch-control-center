@@ -9,7 +9,7 @@ let make = (~onClick) => {
         parentClass="flex flex-col justify-center items-center bg-white"
       />
       <div className="flex flex-col justify-between items-center gap-12 ">
-        <img src={`/assets/WorkInProgress.svg`} />
+        <img alt="work-in-progress" src={`/assets/WorkInProgress.svg`} />
         <div
           className={`leading-4 ml-1 mt-2 text-center flex items-center flex-col gap-6 w-full md:w-133 flex-wrap`}>
           <div className="flex gap-2.5 items-center">

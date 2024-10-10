@@ -266,7 +266,7 @@ module LineChart1D = {
         ) {
           None
         } else {
-          item->Some
+          Some(item)
         }
       })
       if chartdataMaxRows !== -1 {
@@ -305,7 +305,7 @@ module LineChart1D = {
         ->Option.getOr(`${colorOrig}`)
 
       let transformValue = num => {
-        num->HSAnalyticsUtils.setPrecision()
+        num->HSAnalyticsUtils.setPrecision
       }
       let (nonSelectedClass, backgroundColor) =
         clickedRowNames->Array.length === 0 ||
@@ -319,7 +319,7 @@ module LineChart1D = {
           <div className="flex items-stretch justify-start select-none">
             <span
               className={`flex h-3 w-3 rounded-full self-center mr-2`}
-              style={ReactDOM.Style.make(~backgroundColor, ())}
+              style={backgroundColor: backgroundColor}
             />
             <span className={`flex justify-self-start ${nonSelectedClass}`}>
               <TooltipString text=transactionTable.groupByName showTableBelow />
@@ -394,21 +394,13 @@ module LineChart1D = {
     let getHeading = (colType: LineChartUtils.chartLegendStatsType) => {
       switch colType {
       | GroupBY =>
-        Table.makeHeaderInfo(
-          ~key="groupByName",
-          ~title=snakeToTitle(groupKey),
-          ~dataType=LabelType,
-          ~showSort={!isPartners},
-          (),
-        )
+        Table.makeHeaderInfo(~key="groupByName", ~title=snakeToTitle(groupKey), ~dataType=LabelType)
 
       | val =>
         Table.makeHeaderInfo(
           ~key=val->LineChartUtils.chartLegendTypeToStr->String.toLowerCase,
           ~title=val->LineChartUtils.chartLegendTypeToStr,
           ~dataType=NumericType,
-          ~showSort={!isPartners},
-          (),
         )
       }
     }
@@ -425,7 +417,6 @@ module LineChart1D = {
       ~getHeading,
       ~uri="",
       ~getObjects=_ => {[]},
-      (),
     )
     let {isSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
@@ -448,9 +439,9 @@ module LineChart1D = {
       | Points =>
         {
           "enabled": !isMultiDimensional,
-          "itemStyle": legendItemStyle(theme, "12px"),
+          "itemStyle": legendItemStyle("12px"),
           "itemHiddenStyle": legendHiddenStyle(theme),
-          "itemHoverStyle": legendItemStyle(theme, "12px"),
+          "itemHoverStyle": legendItemStyle("12px"),
           "symbolRadius": 4,
           "symbolPaddingTop": 5,
           "itemMarginBottom": 10,
@@ -557,8 +548,8 @@ module LineChart1D = {
             },
             "series": {
               "marker": {
-                "enabled": showMarkers->Some,
-                "radius": (showMarkers ? 5 : 1)->Some,
+                "enabled": Some(showMarkers),
+                "radius": Some(showMarkers ? 5 : 1),
                 "symbol": Some("circle"),
               },
               "states": Some({
@@ -783,8 +774,7 @@ module LegendItem = {
                 }
               })}>
             <div
-              className={`w-[0.9375rem] h-[0.9375rem] rounded`}
-              style={ReactDOM.Style.make(~background=legendItem.color, ())}
+              className={`w-[0.9375rem] h-[0.9375rem] rounded`} style={background: legendItem.color}
             />
             <div className="font-medium text-fs-14 text-[#3B424F]">
               {React.string(legendItem.name)}

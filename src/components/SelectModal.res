@@ -61,12 +61,12 @@ let make = (
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "cutomixedColumnsInput",
-    onBlur: _ev => (),
+    onBlur: _ => (),
     onChange: ev => {
       let target = ev->Identity.formReactEventToArrayOfString
       maxLengthArray(target, setValues)
     },
-    onFocus: _ev => (),
+    onFocus: _ => (),
     value: values->LogicUtils.getJsonFromArrayOfString,
     checked: false,
   }
@@ -88,10 +88,9 @@ let make = (
         className={`overflow-hidden p-6 pb-12 border-b border-solid  ${showConversionRate
             ? "border-slate-100"
             : "border-slate-300"} dark:border-slate-500`}
-        style={ReactDOMStyle.make(
-          ~height=`${showConversionRate ? "calc(100vh - 17rem)" : "calc(100vh - 12rem)"}`,
-          (),
-        )}>
+        style={
+          height: `${showConversionRate ? "calc(100vh - 17rem)" : "calc(100vh - 12rem)"}`,
+        }>
         <SelectBox.BaseSelect
           isDropDown=false
           options

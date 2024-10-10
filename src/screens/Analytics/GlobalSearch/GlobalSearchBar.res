@@ -53,7 +53,7 @@ module EmptyResult = {
     <FramerMotion.Motion.Div
       layoutId="empty" initial={{scale: 0.9, opacity: 0.0}} animate={{scale: 1.0, opacity: 1.0}}>
       <div className="flex flex-col w-full h-fit p-7 justify-center items-center gap-6">
-        <img className="w-1/9" src={`${prefix}/icons/globalSearchNoResult.svg`} />
+        <img alt="no-result" className="w-1/9" src={`${prefix}/icons/globalSearchNoResult.svg`} />
         <div className="w-3/5 text-wrap text-center break-all">
           {`No Results for " ${searchText} "`->React.string}
         </div>
@@ -79,17 +79,14 @@ module OptionsWrapper = {
 module OptionWrapper = {
   open HeadlessUI
   @react.component
-  let make = (~index, ~value, ~redirectOnSelect, ~children) => {
+  let make = (~index, ~value, ~children) => {
     let activeClasses = isActive => {
       let borderClass = isActive ? "bg-gray-100 dark:bg-jp-gray-960" : ""
       `group flex items-center w-full p-2 text-sm rounded-lg ${borderClass}`
     }
 
     <Combobox.Option
-      className="flex flex-row cursor-pointer truncate"
-      onClick={_ => value->redirectOnSelect}
-      key={index->Int.toString}
-      value>
+      className="flex flex-row cursor-pointer truncate" key={index->Int.toString} value>
       {props => {
         <div className={props["active"]->activeClasses}> {children} </div>
       }}
@@ -124,7 +121,7 @@ module SearchResultsComponent = {
   open LogicUtils
 
   @react.component
-  let make = (~searchResults, ~searchText, ~redirectOnSelect, ~setShowModal) => {
+  let make = (~searchResults, ~searchText, ~setShowModal) => {
     React.useEffect(() => {
       let onKeyPress = event => {
         let keyPressed = event->ReactEvent.Keyboard.key
@@ -171,7 +168,7 @@ module SearchResultsComponent = {
           ->Array.mapWithIndex((item, i) => {
             let elementsArray = item.texts
 
-            <OptionWrapper key={Int.toString(i)} index={i} value={item} redirectOnSelect>
+            <OptionWrapper key={Int.toString(i)} index={i} value={item}>
               {elementsArray
               ->Array.mapWithIndex(
                 (item, index) => {
@@ -218,12 +215,13 @@ let make = () => {
   let searchText = searchText->String.trim
   let loader = LottieFiles.useLottieJson("loader-circle.json")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-  let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let isShowRemoteResults = globalSearch && userHasAccess(~groupAccess=OperationsView) === Access
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
+  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+
   let redirectOnSelect = element => {
-    mixpanelEvent(~eventName="global_search_redirect", ())
+    mixpanelEvent(~eventName="global_search_redirect")
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
@@ -233,11 +231,11 @@ let make = () => {
 
   let getSearchResults = async results => {
     try {
-      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
+      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
 
-      let body = generateSearchBody(~searchText, ~merchant_id={merchantDetailsValue.merchant_id})
+      let body = generateSearchBody(~searchText, ~merchant_id={merchantId})
 
-      let response = await fetchDetails(url, body, Post, ())
+      let response = await fetchDetails(url, body, Post)
 
       let local_results = []
       results->Array.forEach((item: resultType) => {
@@ -398,7 +396,7 @@ let make = () => {
                 if searchText->isNonEmptyString && searchResults->Array.length === 0 {
                   <EmptyResult prefix searchText />
                 } else {
-                  <SearchResultsComponent searchResults searchText redirectOnSelect setShowModal />
+                  <SearchResultsComponent searchResults searchText setShowModal />
                 }
               }}
             </>

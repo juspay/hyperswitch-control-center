@@ -1,10 +1,21 @@
 @react.component
 let make = () => {
-  <AuthInfoProvider>
-    <AuthWrapper>
-      <GlobalProvider>
-        <HyperSwitchApp />
-      </GlobalProvider>
-    </AuthWrapper>
-  </AuthInfoProvider>
+  open HyperswitchAtom
+  let {downTime} = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  <>
+    <RenderIf condition={downTime}>
+      <UnderMaintenance />
+    </RenderIf>
+    <RenderIf condition={!downTime}>
+      <AuthInfoProvider>
+        <AuthWrapper>
+          <GlobalProvider>
+            <UserInfoProvider>
+              <HyperSwitchApp />
+            </UserInfoProvider>
+          </GlobalProvider>
+        </AuthWrapper>
+      </AuthInfoProvider>
+    </RenderIf>
+  </>
 }

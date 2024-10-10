@@ -21,11 +21,10 @@ module ShowOrderDetails = {
     ~paymentStatus,
     ~openRefundModal,
     ~paymentId,
-    ~connectorList=?,
     ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ~sectionTitle=?,
   ) => {
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let typedPaymentStatus = paymentStatus->statusVariantMapper
     let statusUI = useGetStatus(data)
     <Section customCssClass={`${border} ${bgColor} rounded-md px-5 pt-5 h-full`}>
@@ -51,7 +50,7 @@ module ShowOrderDetails = {
           </div>
           {statusUI}
           <ACLButton
-            access={userPermissionJson.operationsManage}
+            authorization={userHasAccess(~groupAccess=OperationsManage)}
             text="+ Refund"
             onClick={_ => {
               openRefundModal()
@@ -73,7 +72,7 @@ module ShowOrderDetails = {
             <div className=widthClass key={i->Int.toString}>
               <DisplayKeyValueParams
                 heading={getHeading(colType)}
-                value={getCell(data, colType, connectorList->Option.getOr([]))}
+                value={getCell(data, colType)}
                 customMoneyStyle="!font-normal !text-sm"
                 labelMargin="!py-0 mt-2"
                 overiddingHeadingStyles="text-black text-sm font-medium"
@@ -94,7 +93,6 @@ module OrderInfo = {
   let make = (~order, ~openRefundModal, ~isNonRefundConnector, ~paymentId) => {
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
-    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
     <div className="md:flex md:flex-col md:gap-5">
       <div className="md:flex md:gap-10 md:items-stretch md:mt-5 mb-10">
         <div className="md:w-1/2 w-full">
@@ -138,7 +136,6 @@ module OrderInfo = {
             paymentStatus
             openRefundModal
             paymentId
-            connectorList
           />
         </div>
       </div>
@@ -459,11 +456,10 @@ module FraudRiskBannerDetails = {
             ~entityName=ORDERS,
             ~methodType=Get,
             ~id=Some(order.payment_id),
-            (),
           )}/${decision->String.toLowerCase}`
 
-        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->JSON.Encode.object, Post, ())
-        showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
+        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->JSON.Encode.object, Post)
+        showToast(~message="Details Updated", ~toastType=ToastSuccess)
         refetch()->ignore
       } catch {
       | _ => ()
@@ -566,7 +562,7 @@ module FraudRiskBanner = {
     <div
       className="flex justify-between items-center w-full  p-4 rounded-md bg-white border border-[#C04141]/50 ">
       <div className="flex gap-2">
-        <img src={`/icons/redFlag.svg`} />
+        <img alt="image" src={`/icons/redFlag.svg`} />
         <p className="text-lightgray_background font-medium text-fs-16">
           {`This payment is marked fraudulent by ${frmMessage.frm_name}.`->React.string}
         </p>
@@ -590,12 +586,12 @@ module FraudRiskBanner = {
 }
 
 @react.component
-let make = (~id) => {
+let make = (~id, ~profileId) => {
   open APIUtils
   open OrderUIUtils
   let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -603,11 +599,12 @@ let make = (~id) => {
   let (orderData, setOrderData) = React.useState(_ => Dict.make()->OrderEntity.itemToObjMapper)
 
   let frmDetailsRef = React.useRef(Nullable.null)
-
   let fetchDetails = useGetMethod()
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let fetchOrderDetails = async url => {
     try {
       setScreenState(_ => Loading)
+      let _ = await internalSwitch(~expectedProfileId=profileId)
       let res = await fetchDetails(url)
       let order = OrderEntity.itemToObjMapper(res->getDictFromJsonObject)
       setOrderData(_ => order)
@@ -619,7 +616,7 @@ let make = (~id) => {
         if message->String.includes("HE_02") {
           setScreenState(_ => Custom)
         } else {
-          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError, ())
+          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError)
           setScreenState(_ => Error("Failed to Fetch!"))
         }
 
@@ -634,7 +631,6 @@ let make = (~id) => {
       ~methodType=Get,
       ~id=Some(id),
       ~queryParamerters=Some("expand_attempts=true"),
-      (),
     )
     fetchOrderDetails(accountUrl)->ignore
     None
@@ -661,10 +657,9 @@ let make = (~id) => {
         ~methodType=Get,
         ~id=Some(id),
         ~queryParamerters=Some("force_sync=true&expand_attempts=true"),
-        (),
       )
       let _ = await fetchOrderDetails(getRefreshStatusUrl)
-      showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
+      showToast(~message="Details Updated", ~toastType=ToastSuccess)
     } catch {
     | _ => ()
     }
@@ -683,7 +678,7 @@ let make = (~id) => {
         </div>
         <RenderIf condition={showSyncButton()}>
           <ACLButton
-            access={userPermissionJson.operationsView}
+            authorization={userHasAccess(~groupAccess=OperationsView)}
             text="Sync"
             leftIcon={Button.CustomIcon(
               <Icon
@@ -714,7 +709,9 @@ let make = (~id) => {
           openRefundModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
-        <RenderIf condition={featureFlagDetails.auditTrail}>
+        <RenderIf
+          condition={featureFlagDetails.auditTrail &&
+          userHasAccess(~groupAccess=AnalyticsView) === Access}>
           <RenderAccordian
             initialExpandedArray=[0]
             accordion={[
@@ -818,7 +815,13 @@ let make = (~id) => {
                     data=orderData
                     getHeading=OrderEntity.getHeadingForOtherDetails
                     getCell=OrderEntity.getCellForOtherDetails
-                    detailsFields=[PMBillingEmail, PMBillingPhone, PMBillingAddress]
+                    detailsFields=[
+                      PMBillingFirstName,
+                      PMBillingLastName,
+                      PMBillingEmail,
+                      PMBillingPhone,
+                      PMBillingAddress,
+                    ]
                     isNonRefundConnector={isNonRefundConnector(orderData.connector)}
                     paymentStatus={orderData.status}
                     openRefundModal={() => ()}

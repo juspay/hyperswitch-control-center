@@ -34,11 +34,11 @@ let make = (~applePayFields, ~update, ~closeModal, ~setShowWalletConfigurationMo
   let applePayManualFields =
     applePayFields
     ->Array.mapWithIndex((field, index) => {
-      let applePayField = field->convertMapObjectToDict->CommonMetaDataUtils.inputFieldMapper
+      let applePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
       <div key={index->Int.toString}>
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-hyperswitch_black"
-          field={applePayValueInput(~applePayField, ())}
+          field={applePayValueInput(~applePayField)}
         />
       </div>
     })
@@ -49,7 +49,7 @@ let make = (~applePayFields, ~update, ~closeModal, ~setShowWalletConfigurationMo
       <Button
         text="Go Back"
         buttonType={Secondary}
-        onClick={_ev => {
+        onClick={_ => {
           // setShowWalletConfigurationModal(_ => false)
           closeModal()
         }}
@@ -57,7 +57,7 @@ let make = (~applePayFields, ~update, ~closeModal, ~setShowWalletConfigurationMo
       <Button
         text="Verify & Enable"
         buttonType={Primary}
-        onClick={_ev => {
+        onClick={_ => {
           onSubmit()->ignore
         }}
         buttonState={formState.values->validateZenFlow}

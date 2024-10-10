@@ -56,19 +56,18 @@ module GenerateSampleDataButton = {
     let showToast = ToastState.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let generateSampleData = async () => {
-      mixpanelEvent(~eventName="generate_sample_data", ())
+      mixpanelEvent(~eventName="generate_sample_data")
       try {
-        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
+        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post)
         let _ = await updateDetails(
           generateSampleDataUrl,
           [("record", 50.0->JSON.Encode.float)]->Dict.fromArray->JSON.Encode.object,
           Post,
-          (),
         )
-        showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess, ())
+        showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess)
         getOrdersList()->ignore
       } catch {
       | _ => ()
@@ -77,14 +76,9 @@ module GenerateSampleDataButton = {
 
     let deleteSampleData = async () => {
       try {
-        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Delete, ())
-        let _ = await updateDetails(
-          generateSampleDataUrl,
-          Dict.make()->JSON.Encode.object,
-          Delete,
-          (),
-        )
-        showToast(~message="Sample data deleted successfully", ~toastType=ToastSuccess, ())
+        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Delete)
+        let _ = await updateDetails(generateSampleDataUrl, Dict.make()->JSON.Encode.object, Delete)
+        showToast(~message="Sample data deleted successfully", ~toastType=ToastSuccess)
         getOrdersList()->ignore
       } catch {
       | _ => ()
@@ -122,7 +116,7 @@ module GenerateSampleDataButton = {
     <RenderIf condition={sampleData && !previewOnly}>
       <div className="flex items-start">
         <ACLButton
-          access={userPermissionJson.operationsManage}
+          authorization={userHasAccess(~groupAccess=OperationsManage)}
           buttonType={Secondary}
           buttonSize={XSmall}
           text="Generate Sample Data"
@@ -132,7 +126,7 @@ module GenerateSampleDataButton = {
         />
         <ACLDiv
           height="h-fit"
-          permission={userPermissionJson.operationsManage}
+          authorization={userHasAccess(~groupAccess=OperationsManage)}
           className="bg-jp-gray-button_gray text-jp-gray-900 text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  focus:outline-none items-center border border-border_gray cursor-pointer p-2.5 overflow-hidden text-jp-gray-950 hover:text-black
           border flex items-center justify-center rounded-r-md"
           onClick={ev => rightIconClick(ev)}>
@@ -184,7 +178,7 @@ let filterByData = (txnArr, value) => {
       })
       ->Array.reduce(false, (acc, item) => item || acc)
 
-    valueArr ? data->Nullable.make->Some : None
+    valueArr ? Some(data->Nullable.make) : None
   })
 }
 
@@ -231,7 +225,7 @@ let getOptionsForOrderFilters = (dict, filterValues) => {
       let label = item->getDictFromJsonObject->getString("connector_label", "")
       let value = item->getDictFromJsonObject->getString("merchant_connector_id", "")
       let option: FilterSelectBox.dropdownOption = {
-        label,
+        label: label->LogicUtils.snakeToTitle,
         value,
       }
       option
@@ -302,9 +296,16 @@ let initialFilters = (json, filtervalues) => {
 
     let title = `Select ${key->snakeToTitle}`
 
+    let makeOptions = (options: array<string>): array<FilterSelectBox.dropdownOption> => {
+      options->Array.map(str => {
+        let option: FilterSelectBox.dropdownOption = {label: str->snakeToTitle, value: str}
+        option
+      })
+    }
+
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
-    | _ => values->FilterSelectBox.makeOptions
+    | _ => values->makeOptions
     }
 
     let name = switch key->getFilterTypeFromString {
@@ -326,7 +327,6 @@ let initialFilters = (json, filtervalues) => {
           ~customButtonStyle="bg-none",
           (),
         ),
-        (),
       ),
       localFilter: Some(filterByData),
     }
@@ -361,11 +361,9 @@ let initialFixedFilter = () => [
           ~numMonths=2,
           ~disableApply=false,
           ~dateRangeLimit=180,
-          (),
         ),
         ~inputFields=[],
         ~isRequired=false,
-        (),
       ),
     }: EntityType.initialFilters<'t>
   ),
@@ -415,19 +413,8 @@ let getOrdersList = async (
     ~bodyFormData: Fetch.formData=?,
     ~headers: Dict.t<'a>=?,
     ~contentType: AuthHooks.contentType=?,
-    unit,
   ) => promise<JSON.t>,
-  ~getURL: (
-    ~entityName: APIUtilsTypes.entityName,
-    ~methodType: Fetch.requestMethod,
-    ~id: option<string>=?,
-    ~connector: option<'a>=?,
-    ~userType: APIUtilsTypes.userType=?,
-    ~userRoleTypes: APIUtilsTypes.userRoleTypes=?,
-    ~reconType: APIUtilsTypes.reconType=?,
-    ~queryParamerters: option<string>=?,
-    unit,
-  ) => string,
+  ~getURL: APIUtilsTypes.getUrlTypes,
   ~setOrdersData,
   ~previewOnly,
   ~setScreenState,
@@ -438,9 +425,9 @@ let getOrdersList = async (
   open LogicUtils
   setScreenState(_ => PageLoaderWrapper.Loading)
   try {
-    let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post, ())
-    let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Fetch.Post, ())
-    let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
+    let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post)
+    let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
+    let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
     if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
@@ -451,17 +438,12 @@ let getOrdersList = async (
         ->JSON.Decode.string
         ->Option.getOr("")
 
-      if Js.Re.test_(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
+      if RegExp.test(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
         let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
         filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
 
-        let res = await updateDetails(
-          ordersUrl,
-          filterValueJson->JSON.Encode.object,
-          Fetch.Post,
-          (),
-        )
-        let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
+        let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Post)
+        let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
         let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
         setData(
@@ -497,3 +479,14 @@ let getOrdersList = async (
 let isNonEmptyValue = value => {
   value->Option.getOr(Dict.make())->Dict.toArray->Array.length > 0
 }
+
+let orderViewList: OMPSwitchTypes.ompViews = [
+  {
+    lable: "All Profiles",
+    entity: #Merchant,
+  },
+  {
+    lable: "Profile",
+    entity: #Profile,
+  },
+]

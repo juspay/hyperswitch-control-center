@@ -15,11 +15,14 @@ let make = () => {
   let (metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])
   let fetchDetails = useGetMethod()
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let {userInfo: {analyticsEntity}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
 
   let loadInfo = async () => {
     try {
-      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain), ())
+      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
@@ -33,7 +36,7 @@ let make = () => {
   let getPaymetsDetails = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let paymentUrl = getURL(~entityName=ORDERS, ~methodType=Get, ())
+      let paymentUrl = getURL(~entityName=ORDERS, ~methodType=Get)
       let paymentDetails = await fetchDetails(paymentUrl)
       let data = paymentDetails->getDictFromJsonObject->getArrayFromDict("data", [])
       if data->Array.length < 0 {
@@ -75,7 +78,6 @@ let make = () => {
   }, [])
 
   let tabKeys = getStringListFromArrayDict(dimensions)
-
   let tabValues =
     tabKeys
     ->Array.mapWithIndex((key, index) => {
@@ -124,7 +126,6 @@ let make = () => {
   }
 
   let title = "Payments Analytics"
-  let subTitle = "Gain Insights, monitor performance and make Informed Decisions with Payment Analytics."
 
   let formaPayload = (singleStatBodyEntity: DynamicSingleStat.singleStatBodyEntity) => {
     [
@@ -135,12 +136,11 @@ let make = () => {
         ~startDateTime=singleStatBodyEntity.startDateTime,
         ~endDateTime=singleStatBodyEntity.endDateTime,
         ~mode=singleStatBodyEntity.mode,
-        ~groupByNames=["currency"]->Some,
+        ~groupByNames=Some(["currency"]),
         ~customFilter=?singleStatBodyEntity.customFilter,
         ~source=?singleStatBodyEntity.source,
         ~granularity=singleStatBodyEntity.granularity,
         ~prefix=singleStatBodyEntity.prefix,
-        (),
       )->JSON.Encode.object,
     ]
     ->JSON.Encode.array
@@ -163,7 +163,12 @@ let make = () => {
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
 
-  let filterUri = `${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`
+  let analyticsfilterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
+  let paymentAnalyticsUrl = getURL(
+    ~entityName=ANALYTICS_PAYMENTS,
+    ~methodType=Post,
+    ~id=Some(domain),
+  )
 
   let filterBody = React.useMemo(() => {
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
@@ -181,8 +186,8 @@ let make = () => {
     setFilterDataJson(_ => None)
     if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       try {
-        updateDetails(filterUri, body, Post, ())
-        ->thenResolve(json => setFilterDataJson(_ => json->Some))
+        updateDetails(analyticsfilterUrl, body, Post)
+        ->thenResolve(json => setFilterDataJson(_ => Some(json)))
         ->catch(_ => resolve())
         ->ignore
       } catch {
@@ -228,16 +233,18 @@ let make = () => {
   }
 
   open AnalyticsNew
-  <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
+  <PageLoaderWrapper screenState customUI={<NoData title />}>
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between ">
-        <PageUtils.PageHeading title subTitle />
-        <RenderIf condition={generateReport}>
-          <GenerateReport entityName={PAYMENT_REPORT} />
-        </RenderIf>
+        <PageUtils.PageHeading title />
+        <OMPSwitchHelper.OMPViews
+          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+          selectedEntity={analyticsEntity}
+          onChange={updateAnalytcisEntity}
+        />
       </div>
       <div
-        className="-ml-1 sticky top-0 z-30  p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
+        className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
         topFilterUi
       </div>
       <div className="flex flex-col gap-14">
@@ -246,6 +253,7 @@ let make = () => {
           singleStatEntity={getSingleStatEntity(
             generalMetrics->formatMetrics,
             generalMetricsColumns,
+            ~uri=paymentAnalyticsUrl,
           )}
           filterKeys=tabKeys
           startTimeFilterKey
@@ -257,6 +265,7 @@ let make = () => {
           singleStatEntity={getSingleStatEntity(
             analyticsAmountMetrics->formatMetrics,
             amountMetricsColumns,
+            ~uri=paymentAnalyticsUrl,
           )}
           filterKeys=tabKeys
           startTimeFilterKey
@@ -269,17 +278,17 @@ let make = () => {
           filteredTabVales=tabValues
           moduleName="overall_summary"
           filteredTabKeys={tabKeys}
-          chartEntity={chartEntity(tabKeys)}
+          chartEntity={chartEntity(tabKeys, ~uri=paymentAnalyticsUrl)}
           defaultSort="total_volume"
           getTable={getPaymentTable}
           colMapper
-          distributionArray={[distribution]->Some}
-          tableEntity={paymentTableEntity()->Some}
+          distributionArray={Some([distribution])}
+          tableEntity={Some(paymentTableEntity(~uri=paymentAnalyticsUrl))}
           deltaMetrics={getStringListFromArrayDict(metrics)}
           deltaArray=[]
           tableGlobalFilter=filterByData
           weeklyTableMetricsCols
-          formatData={formatData->Some}
+          formatData={Some(formatData)}
           startTimeFilterKey
           endTimeFilterKey
           heading="Payments Trends"

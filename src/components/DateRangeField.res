@@ -278,7 +278,6 @@ module Base = {
           resetToInitalValues()
         }
       },
-      (),
     )
 
     let changeEndDate = (ele, isFromCustomInput, time) => {
@@ -401,7 +400,7 @@ module Base = {
       changeStartDate(str, true, None)
     }
 
-    let handleApply = _ev => {
+    let handleApply = _ => {
       setShowOption(_ => false)
       setCalendarVisibility(p => !p)
       setIsDropdownExpanded(_ => false)
@@ -441,7 +440,7 @@ module Base = {
     }
     let startTimeInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: timeValEv => {
         let startTimeVal = timeValEv->Identity.formReactEventToString
         let endTime = localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)
@@ -458,13 +457,13 @@ module Base = {
           }
         }
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)->JSON.Encode.string,
       checked: false,
     }
     let endTimeInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: timeValEv => {
         let endTimeVal = timeValEv->Identity.formReactEventToString
         let startTime = localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)
@@ -480,7 +479,7 @@ module Base = {
           }
         }
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)->JSON.Encode.string,
       checked: false,
     }
@@ -560,7 +559,7 @@ module Base = {
         DateRangeUtils.datetext(value, disableFutureDates)
         ->String.toLowerCase
         ->String.split(" ")
-        ->Array.joinWithUnsafe("_")
+        ->Array.joinWith("_")
       )
       changeStartDate(stDate, false, Some(stTime))
       changeEndDate(enDate, false, Some(enTime))
@@ -838,7 +837,7 @@ module Base = {
               leaveTo="transform opacity-0 scale-95">
               <div
                 ref={dropdownRef->ReactDOM.Ref.domRef}
-                className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2`}>
+                className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`}>
                 calendarElement
               </div>
             </Transition>

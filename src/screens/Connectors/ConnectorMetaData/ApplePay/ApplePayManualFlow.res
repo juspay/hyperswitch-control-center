@@ -48,7 +48,7 @@ module PaymentProcessingDetailsAt = {
     <>
       <FormRenderer.FieldRenderer
         labelClass="font-semibold !text-hyperswitch_black"
-        field={CommonMetaDataHelper.radioInput(
+        field={CommonConnectorHelper.radioInput(
           ~field=applePayField,
           ~formName=`${ApplePayIntegrationUtils.applePayNameMapper(
               ~name=applePayField.name,
@@ -75,7 +75,6 @@ module PaymentProcessingDetailsAt = {
               ~placeholder={`Enter Processing Certificate`},
               ~customInput=InputFields.textInput(),
               ~isRequired=true,
-              (),
             )}
           />
           <FormRenderer.FieldRenderer
@@ -96,10 +95,8 @@ module PaymentProcessingDetailsAt = {
                 ~customClass="",
                 ~leftIcon=React.null,
                 ~maxLength=10000,
-                (),
               ),
               ~isRequired=true,
-              (),
             )}
           />
         </div>
@@ -163,7 +160,7 @@ module Initiative = {
     <>
       <FormRenderer.FieldRenderer
         labelClass="font-semibold !text-hyperswitch_black"
-        field={CommonMetaDataHelper.selectInput(
+        field={CommonConnectorHelper.selectInput(
           ~field={applePayField},
           ~formName={
             ApplePayIntegrationUtils.applePayNameMapper(
@@ -173,14 +170,13 @@ module Initiative = {
           },
           ~onItemChange=onChangeItem,
           ~opt=Some(initiativeOptions),
-          (),
         )}
       />
       {switch initiative {
       | #web =>
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-hyperswitch_black"
-          field={CommonMetaDataHelper.textInput(
+          field={CommonConnectorHelper.textInput(
             ~field={applePayField},
             ~formName={
               ApplePayIntegrationUtils.applePayNameMapper(
@@ -240,7 +236,7 @@ let make = (
   let applePayManualFields =
     applePayFields
     ->Array.mapWithIndex((field, index) => {
-      let applePayField = field->convertMapObjectToDict->CommonMetaDataUtils.inputFieldMapper
+      let applePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
       let {name} = applePayField
       <div key={index->Int.toString}>
         {switch name {
@@ -250,7 +246,7 @@ let make = (
         | "merchant_business_country" =>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={CommonMetaDataHelper.selectInput(
+            field={CommonConnectorHelper.selectInput(
               ~field={applePayField},
               ~opt={Some(merchantBusinessCountry)},
               ~formName={
@@ -259,13 +255,12 @@ let make = (
                   ~integrationType=Some(#manual),
                 )
               },
-              (),
             )}
           />
         | _ =>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={applePayValueInput(~applePayField, ~integrationType=Some(#manual), ())}
+            field={applePayValueInput(~applePayField, ~integrationType=Some(#manual))}
           />
         }}
       </div>
@@ -277,14 +272,14 @@ let make = (
       <Button
         text="Go Back"
         buttonType={Secondary}
-        onClick={_ev => {
+        onClick={_ => {
           setApplePayIntegrationSteps(_ => Landing)
         }}
       />
       <Button
         text="Verify & Enable"
         buttonType={Primary}
-        onClick={_ev => {
+        onClick={_ => {
           onSubmit()->ignore
         }}
         buttonState={formState.values->validateManualFlow}

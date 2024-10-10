@@ -59,7 +59,6 @@ let make: (
   ~advancedSearchComponent: React.element=?,
   ~setData: ('e => option<array<Nullable.t<'b>>>) => unit=?,
   ~setSummary: ('f => EntityType.summary) => unit=?,
-  ~customGetObjects: JSON.t => array<'g>=?,
   ~dataNotFoundComponent: React.element=?,
   ~renderCard: (~index: int, ~item: 'b, ~onRowClick: int => unit) => React.element=?,
   ~tableLocalFilter: bool=?,
@@ -114,4 +113,7 @@ let make: (
   ~customBorderClass: string=?,
   ~showborderColor: bool=?,
   ~tableHeadingTextClass: string=?,
+  ~nonFrozenTableParentClass: string=?,
+  ~loadedTableParentClass: string=?,
+  ~remoteSortEnabled: bool=?,
 ) => React.element

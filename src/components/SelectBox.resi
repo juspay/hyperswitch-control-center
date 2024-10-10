@@ -8,7 +8,7 @@ external ffInputToSelectInput: ReactFinalForm.fieldRenderPropsInput => ReactFina
 external ffInputToRadioInput: ReactFinalForm.fieldRenderPropsInput => ReactFinalForm.fieldRenderPropsCustomInput<
   string,
 > = "%identity"
-let regex: (string, string) => Js.Re.t
+let regex: (string, string) => RescriptCore.RegExp.t
 module ListItem: {
   @react.component
   let make: (
@@ -47,6 +47,7 @@ module ListItem: {
     ~showToolTipOptions: bool=?,
     ~textEllipsisForDropDownOptions: bool=?,
     ~textColorClass: string=?,
+    ~customRowClass: string=?,
   ) => React.element
 }
 type dropdownOptionWithoutOptional = {
@@ -58,6 +59,7 @@ type dropdownOptionWithoutOptional = {
   iconStroke: string,
   textColor: string,
   optGroup: string,
+  customRowClass: string,
 }
 type dropdownOption = {
   label: string,
@@ -68,6 +70,7 @@ type dropdownOption = {
   description?: string,
   iconStroke?: string,
   textColor?: string,
+  customRowClass?: string,
 }
 let makeNonOptional: dropdownOption => dropdownOptionWithoutOptional
 let useTransformed: array<dropdownOption> => array<dropdownOptionWithoutOptional>
@@ -176,6 +179,10 @@ module RenderListItemInBaseRadio: {
     ~textEllipsisForDropDownOptions: bool,
     ~isHorizontal: bool,
     ~customMarginStyleOfListItem: string=?,
+    ~bottomComponent: React.element=?,
+    ~optionClass: string=?,
+    ~selectClass: string=?,
+    ~customScrollStyle: string=?,
   ) => React.element
 }
 let getHashMappedOptionValues: array<dropdownOptionWithoutOptional> => RescriptCore.Dict.t<
@@ -218,6 +225,11 @@ module BaseRadio: {
     ~showSearchIcon: bool=?,
     ~showToolTipOptions: bool=?,
     ~textEllipsisForDropDownOptions: bool=?,
+    ~bottomComponent: React.element=?,
+    ~optionClass: string=?,
+    ~selectClass: string=?,
+    ~customScrollStyle: string=?,
+    ~dropdownContainerStyle: string=?,
   ) => React.element
 }
 type direction = BottomLeft | BottomMiddle | BottomRight | TopLeft | TopMiddle | TopRight
@@ -281,6 +293,7 @@ module BaseDropdown: {
     ~onApply: JsxEvent.Mouse.t => unit=?,
     ~showAllSelectedOptions: bool=?,
     ~buttonClickFn: string => unit=?,
+    ~toggleChevronState: unit => unit=?,
     ~showSelectCountButton: bool=?,
     ~maxHeight: string=?,
     ~customBackColor: string=?,
@@ -291,6 +304,14 @@ module BaseDropdown: {
     ~searchInputPlaceHolder: string=?,
     ~showSearchIcon: bool=?,
     ~sortingBasedOnDisabled: bool=?,
+    ~customSelectStyle: string=?,
+    ~baseComponentCustomStyle: string=?,
+    ~bottomComponent: React.element=?,
+    ~optionClass: string=?,
+    ~selectClass: string=?,
+    ~customDropdownOuterClass: string=?,
+    ~customScrollStyle: string=?,
+    ~dropdownContainerStyle: string=?,
   ) => React.element
 }
 module InfraSelectBox: {
@@ -399,4 +420,5 @@ let make: (
   ~dropdownClassName: string=?,
   ~onItemSelect: (JsxEventU.Mouse.t, string) => unit=?,
   ~wrapBasis: string=?,
+  ~customScrollStyle: string=?,
 ) => React.element

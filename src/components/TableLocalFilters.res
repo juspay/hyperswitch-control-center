@@ -54,7 +54,6 @@ module RangeSliderLocalFilter = {
       ~callback=() => {
         setShowDropDown(_ => false)
       },
-      (),
     )
 
     let min = minVal->Float.toString
@@ -103,9 +102,9 @@ module FilterDropDown = {
 
     let filterInput: ReactFinalForm.fieldRenderPropsInput = {
       name: val,
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => setLclFltrState(val, ev->formEventToJsonArr),
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: selectedValue->JSON.Encode.array,
       checked: true,
     }
@@ -117,7 +116,7 @@ module FilterDropDown = {
           <div onClick={e => e->ReactEvent.Mouse.stopPropagation}>
             <span
               className={`flex items-center `}
-              onClick={_e => {
+              onClick={_ => {
                 setLclFltrState(val, [])
               }}>
               <Icon className="align-middle" name="cross" />
@@ -185,7 +184,7 @@ module TextFilterCell = {
     let localInput = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
-        onBlur: _ev => (),
+        onBlur: _ => (),
         onChange: ev => {
           let value = {ev->ReactEvent.Form.target}["value"]
           if value->String.includes("<script>") || value->String.includes("</script>") {
@@ -200,7 +199,7 @@ module TextFilterCell = {
 
           setLclFltrState(val, [value->JSON.Encode.string])
         },
-        onFocus: _ev => (),
+        onFocus: _ => (),
         value: selectedValue,
         checked: false,
       }
@@ -244,7 +243,7 @@ module RangeFilterCell = {
     let minSlide = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
-        onBlur: _ev => (),
+        onBlur: _ => (),
         onChange: ev => {
           let value = {ev->ReactEvent.Form.target}["value"]
 
@@ -255,7 +254,7 @@ module RangeFilterCell = {
           | None => ()
           }
         },
-        onFocus: _ev => (),
+        onFocus: _ => (),
         value: selectedValueStr[0]->Option.getOr(JSON.Encode.float(0.0)),
         checked: false,
       }
@@ -264,7 +263,7 @@ module RangeFilterCell = {
     let maxSlide = React.useMemo((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
-        onBlur: _ev => (),
+        onBlur: _ => (),
         onChange: ev => {
           let value = {ev->ReactEvent.Form.target}["value"]
 
@@ -274,7 +273,7 @@ module RangeFilterCell = {
           | None => ()
           }
         },
-        onFocus: _ev => (),
+        onFocus: _ => (),
         value: selectedValueStr[1]->Option.getOr(JSON.Encode.float(0.0)),
         checked: false,
       }

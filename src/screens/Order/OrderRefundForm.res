@@ -26,19 +26,18 @@ let make = (
 
   let updateRefundDetails = async body => {
     try {
-      let refundsUrl = getURL(~entityName=REFUNDS, ~methodType=Post, ())
-      let res = await updateDetails(refundsUrl, body, Post, ())
+      let refundsUrl = getURL(~entityName=REFUNDS, ~methodType=Post)
+      let res = await updateDetails(refundsUrl, body, Post)
       let refundStatus = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("status", "")
       refetch()->ignore
       switch refundStatus->statusVariantMapper {
-      | Succeeded => showToast(~message="Refund successful", ~toastType=ToastSuccess, ())
+      | Succeeded => showToast(~message="Refund successful", ~toastType=ToastSuccess)
       | Failed =>
-        showToast(~message="Refund failed - Please check refund details", ~toastType=ToastError, ())
+        showToast(~message="Refund failed - Please check refund details", ~toastType=ToastError)
       | _ =>
         showToast(
           ~message="Processing your refund. Please check refund status",
           ~toastType=ToastInfo,
-          (),
         )
       }
     } catch {
@@ -54,7 +53,10 @@ let make = (
     Dict.set(dict, "amount", Math.round(amount *. 100.0)->JSON.Encode.float)
     let body = dict
     Dict.set(body, "payment_id", order.payment_id->JSON.Encode.string)
-    Dict.set(body, "refund_type", "instant"->JSON.Encode.string)
+
+    // NOTE: Backend might change later , but for now removed as backend will have default value as scheduled
+    // Dict.set(body, "refund_type", "instant"->JSON.Encode.string)
+
     if !showRefundReason {
       Dict.set(body, "reason", "RETURN"->JSON.Encode.string)
     }
@@ -121,7 +123,7 @@ let make = (
           className="flex border-b-2 px-2 h-24 items-center border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75">
           <FormRenderer.DesktopRow wrapperClass="ml-2">
             <DisplayKeyValueParams
-              heading={Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=true, ())}
+              heading={Table.makeHeaderInfo(~key="amount", ~title="Amount")}
               value={getCell(order, Amount)}
               isInHeader=true
             />
@@ -153,18 +155,11 @@ let make = (
               />
             </FormRenderer.DesktopRow>
             <FormRenderer.DesktopRow>
-              <DisplayKeyValueParams
-                heading={getHeading(CustomerEmail)} value={getCell(order, CustomerEmail)}
-              />
+              <DisplayKeyValueParams heading={getHeading(Email)} value={getCell(order, Email)} />
             </FormRenderer.DesktopRow>
             <FormRenderer.DesktopRow>
               <DisplayKeyValueParams
-                heading={Table.makeHeaderInfo(
-                  ~key="amount",
-                  ~title="Amount Refunded",
-                  ~showSort=true,
-                  (),
-                )}
+                heading={Table.makeHeaderInfo(~key="amount", ~title="Amount Refunded")}
                 value={Currency(amountRefunded.contents /. 100.0, order.currency)}
               />
             </FormRenderer.DesktopRow>
@@ -172,12 +167,7 @@ let make = (
           <div className="flex flex-col w-1/2 gap-2">
             <FormRenderer.DesktopRow>
               <DisplayKeyValueParams
-                heading={Table.makeHeaderInfo(
-                  ~key="amount",
-                  ~title="Pending Requested Amount",
-                  ~showSort=true,
-                  (),
-                )}
+                heading={Table.makeHeaderInfo(~key="amount", ~title="Pending Requested Amount")}
                 value={Currency(requestedRefundAmount.contents /. 100.0, order.currency)}
               />
             </FormRenderer.DesktopRow>

@@ -31,7 +31,6 @@ module ServerHandler = {
     ~public: string,
     ~rewrites: array<rewrite>,
     ~headers: array<headerType>,
-    unit,
   ) => options = ""
 
   @module
@@ -134,7 +133,6 @@ let serverHandler: Http.serverHandler = (request, response) => {
           },
         ],
         ~rewrites=[makeRewrite(~source="**", ~destination="/index.html")],
-        (),
       ),
     )
   }

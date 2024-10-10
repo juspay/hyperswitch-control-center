@@ -72,12 +72,12 @@ module RefundInfo = {
 }
 
 @react.component
-let make = (~id) => {
+let make = (~id, ~profileId) => {
   open LogicUtils
   open HSwitchOrderUtils
   let url = RescriptReactRouter.useUrl()
   let getURL = APIUtils.useGetURL()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading
@@ -89,10 +89,12 @@ let make = (~id) => {
   let showToast = ToastState.useShowToast()
   let paymentId =
     refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
 
   let fetchRefundData = async () => {
     try {
-      let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id), ())
+      let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some(id))
+      let _ = await internalSwitch(~expectedProfileId=profileId)
       let refundData = await fetchDetails(refundUrl)
       let paymentId =
         refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
@@ -101,7 +103,6 @@ let make = (~id) => {
         ~methodType=Get,
         ~id=Some(paymentId),
         ~queryParamerters=Some("expand_attempts=true"),
-        (),
       )
       let orderData = await fetchDetails(orderUrl)
       let paymentArray =
@@ -116,7 +117,7 @@ let make = (~id) => {
         if message->String.includes("HE_02") {
           setScreenStateForRefund(_ => Custom)
         } else {
-          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError, ())
+          showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError)
           setScreenStateForRefund(_ => Error("Failed to Fetch!"))
         }
 
@@ -141,7 +142,7 @@ let make = (~id) => {
 
   let syncData = () => {
     fetchRefundData()->ignore
-    showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
+    showToast(~message="Details Updated", ~toastType=ToastSuccess)
   }
 
   <div className="flex flex-col overflow-scroll">
@@ -157,7 +158,7 @@ let make = (~id) => {
         </div>
         <RenderIf condition={showSyncButton()}>
           <ACLButton
-            access={userPermissionJson.operationsView}
+            authorization={userHasAccess(~groupAccess=OperationsView)}
             text="Sync"
             leftIcon={Button.CustomIcon(
               <Icon
@@ -180,7 +181,9 @@ let make = (~id) => {
       />}>
       <RefundInfo orderDict={refundData->LogicUtils.getDictFromJsonObject} />
       <div className="mt-5" />
-      <RenderIf condition={featureFlagDetails.auditTrail}>
+      <RenderIf
+        condition={featureFlagDetails.auditTrail &&
+        userHasAccess(~groupAccess=AnalyticsView) === Access}>
         <OrderUIUtils.RenderAccordian
           initialExpandedArray=[0]
           accordion={[
@@ -196,7 +199,7 @@ let make = (~id) => {
           ]}
         />
       </RenderIf>
-      <RenderIf condition={userPermissionJson.operationsView !== NoAccess}>
+      <RenderIf condition={userHasAccess(~groupAccess=OperationsView) === Access}>
         <LoadedTable
           title="Payment"
           actualData=orderData

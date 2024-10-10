@@ -4,50 +4,6 @@ let sectionHeadingClass = "font-semibold text-fs-18"
 let p1Leading1TextClass = HSwitchUtils.getTextClass((P1, Regular))
 let p3RegularTextClass = `${HSwitchUtils.getTextClass((P3, Regular))} text-gray-700 opacity-50`
 
-module MerchantDetailsSection = {
-  @react.component
-  let make = () => {
-    open HSwitchProfileSettingsEntity
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-    let (offset, setOffset) = React.useState(_ => 0)
-
-    let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
-    let switchMerchantListValue = Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.switchMerchantListAtom,
-    )
-
-    React.useEffect(() => {
-      try {
-        let _ = fetchSwitchMerchantList()
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } catch {
-      | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Custom)
-      }
-      None
-    }, [])
-
-    <PageLoaderWrapper screenState sectionHeight="h-40-vh">
-      <div>
-        <div className="border bg-gray-50 rounded-t-lg border-b-0 w-full px-10 py-6">
-          <p className=sectionHeadingClass> {"Merchant Info"->React.string} </p>
-        </div>
-        <LoadedTable
-          title="Merchant Info"
-          hideTitle=true
-          resultsPerPage=7
-          visibleColumns
-          entity={merchantTableEntity}
-          actualData={switchMerchantListValue->Array.map(Nullable.make)}
-          totalResults={switchMerchantListValue->Array.length}
-          offset
-          setOffset
-          currrentFetchCount={switchMerchantListValue->Array.length}
-        />
-      </div>
-    </PageLoaderWrapper>
-  }
-}
-
 module ResetPassword = {
   @react.component
   let make = () => {
@@ -57,8 +13,8 @@ module ResetPassword = {
     let (isLoading, setIsLoading) = React.useState(_ => false)
     let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-    let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id", ())
-    let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+    let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
+    let updateDetails = useUpdateMethod(~showErrorToast=false)
     let showToast = ToastState.useShowToast()
 
     let resetPassword = async body => {
@@ -69,21 +25,20 @@ module ResetPassword = {
           ~userType=#FORGOT_PASSWORD,
           ~methodType=Post,
           ~queryParamerters=Some(`auth_id=${authId}`),
-          (),
         )
-        let _ = await updateDetails(url, body, Post, ())
-        showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
+        let _ = await updateDetails(url, body, Post)
+        showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess)
         setIsLoading(_ => false)
       } catch {
       | _ => {
-          showToast(~message="Reset Password Failed, Try again", ~toastType=ToastError, ())
+          showToast(~message="Reset Password Failed, Try again", ~toastType=ToastError)
           setIsLoading(_ => false)
         }
       }
     }
 
     let setPassword = () => {
-      let body = email->CommonAuthUtils.getEmailBody()
+      let body = email->CommonAuthUtils.getEmailBody
       body->resetPassword->ignore
     }
 
@@ -198,21 +153,13 @@ module BasicDetailsSection = {
 }
 @react.component
 let make = () => {
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
-  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-
-  let showTwoFaSettings = switch authStatus {
-  | LoggedIn(Auth(authInfo)) => authInfo.is_two_factor_auth_setup
-  | _ => false
-  }
+  let {userInfo: {isTwoFactorAuthSetup}} = React.useContext(UserInfoProvider.defaultContext)
 
   <div className="flex flex-col overflow-scroll gap-8">
     <PageUtils.PageHeading title="Profile" subTitle="Manage your profile settings here" />
     <div className="flex flex-col flex-wrap  gap-12">
       <BasicDetailsSection />
-      <MerchantDetailsSection />
-      <RenderIf condition={featureFlagDetails.totp && showTwoFaSettings}>
+      <RenderIf condition={isTwoFactorAuthSetup}>
         <TwoFactorAuthenticationDetails />
       </RenderIf>
     </div>

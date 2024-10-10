@@ -104,20 +104,19 @@ let make = () => {
 
   open APIUtils
   let getURL = useGetURL()
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
 
   let skipAndContinue = async () => {
     try {
-      let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
+      let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post)
       let metaDataDict = Dict.fromArray([("is_skip", true->JSON.Encode.bool)])->JSON.Encode.object
       let body = HSwitchUtils.constructOnboardingBody(
         ~dashboardPageState,
         ~integrationDetails,
         ~is_done=false,
         ~metadata=metaDataDict,
-        (),
       )
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
     } catch {
     | _ => ()
@@ -127,7 +126,7 @@ let make = () => {
 
   let markAsDone = async () => {
     try {
-      let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
+      let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post)
       let body = HSwitchUtils.constructOnboardingBody(
         ~dashboardPageState,
         ~integrationDetails,
@@ -139,9 +138,8 @@ let make = () => {
             currentRoute->UserOnboardingUtils.variantToTextMapperForBuildHS->JSON.Encode.string,
           ),
         ]->LogicUtils.getJsonFromArrayOfJson,
-        (),
       )
-      let _ = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       setDashboardPageState(_ => #HOME)
     } catch {
@@ -153,10 +151,9 @@ let make = () => {
 
   <div
     className="h-screen w-full bg-no-repeat bg-cover "
-    style={ReactDOMStyle.make(
-      ~backgroundImage=`url(/images/hyperswitchImages/PostLoginBackground.svg)`,
-      (),
-    )}>
+    style={
+      backgroundImage: `url(/images/hyperswitchImages/PostLoginBackground.svg)`,
+    }>
     <div
       className="h-screen w-screen  md:w-pageWidth11 md:mx-auto overflow-hidden grid grid-cols-1 md:grid-cols-[12rem,1fr,18rem] md:grid-rows-[4rem,1fr] py-10 px-4 gap-x-2 gap-y-8 grid-flow-row md:grid-flow-row">
       <div className="justify-self-center md:justify-self-start row-span-1">

@@ -33,6 +33,12 @@ let threedsAuthenticatorList: array<connectorTypes> = [
   ThreeDsAuthenticator(NETCETERA),
 ]
 
+let threedsAuthenticatorListForLive: array<connectorTypes> = [ThreeDsAuthenticator(NETCETERA)]
+
+let pmAuthenticationConnectorList: array<connectorTypes> = [PMAuthenticationProcessor(PLAID)]
+
+let taxProcessorList: array<connectorTypes> = [TaxProcessor(TAXJAR)]
+
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(PAYPAL),
@@ -51,8 +57,10 @@ let connectorList: array<connectorTypes> = [
   Processors(COINBASE),
   Processors(CRYPTOPAY),
   Processors(CYBERSOURCE),
+  Processors(DATATRANS),
   Processors(DLOCAL),
   Processors(FISERV),
+  Processors(FISERVIPG),
   Processors(FORTE),
   Processors(GLOBALPAY),
   Processors(GLOBEPAY),
@@ -86,6 +94,14 @@ let connectorList: array<connectorTypes> = [
   Processors(RAZORPAY),
   Processors(BAMBORA_APAC),
   Processors(ITAUBANK),
+  Processors(PLAID),
+  Processors(SQUARE),
+  Processors(PAYBOX),
+  Processors(FIUU),
+  Processors(WELLSFARGO),
+  Processors(NOVALNET),
+  Processors(DEUTSCHEBANK),
+  Processors(NEXIXPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -135,6 +151,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "google_pay" => GooglePay
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
+  | "open_banking_pis" => OpenBankingPIS
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
@@ -254,6 +271,10 @@ let worldlineInfo = {
 
 let fiservInfo = {
   description: "Full-service processor offering secure payment solutions and innovative banking technologies for businesses of all sizes.",
+}
+
+let fiservIPGInfo = {
+  description: "Internet Payment Gateway(IPG) is an application from Fiserv which offers Internet payment services in Europe, Middle East and Africa.",
 }
 
 let shift4Info = {
@@ -437,7 +458,44 @@ let bamboraApacInfo = {
 let itauBankInfo = {
   description: "The Banking as a Service (BaaS) solution allows non-financial companies to offer services with the ecosystem that banking institutions have. Itaú as a Service (IaaS) is the ideal tool for your company to improve your customers' experience, offering a whole new portfolio of products, with Itaú's technology and security.",
 }
+let dataTransInfo = {
+  description: "Datatrans is a Swiss payment service provider offering secure online, mobile, and in-store payment processing. Key features include support for multiple payment methods, fraud prevention, multi-currency transactions, and integration options for websites and apps.",
+}
 
+let plaidInfo = {
+  description: "Plaid Link makes it easy for users to connect their financial accounts securely and quickly, giving you the best growth for your business.",
+}
+
+let squareInfo = {
+  description: "Powering all the ways you do business. Work smarter, automate for efficiency, and open up new revenue streams on the software and hardware platform millions of businesses trust.",
+}
+
+let payboxInfo = {
+  description: "Paybox, operated by Verifone, offers secure online payment solutions for e-commerce businesses. It supports a wide range of payment methods and provides features like one-click payments, recurring payments, and omnichannel payment processing. Their services cater to merchants, web agencies, integrators, and financial institutions, helping them accept various forms of payment",
+}
+
+let wellsfargoInfo = {
+  description: "WellsFargo is a leading American financial services company providing a comprehensive range of banking, investment, and mortgage products. With a focus on personal, small business, and commercial banking, Wells Fargo offers services such as checking and savings accounts, loans, credit cards, wealth management, and payment processing solutions.",
+}
+
+let fiuuInfo = {
+  description: "Fiuu has been the premier merchant service provider in Southeast Asia since 2005, connecting international brands to consumers across the region. The company helps its clients establish a foothold in Southeast Asia's market by offering a full range of alternative payment methods, such as online banking, cash at 7-Eleven (Fiuu Cash), e-wallets, and more. Fiuu provides comprehensive payment solutions to facilitate market entry and expansion for businesses looking to reach Southeast Asian consumers.",
+}
+
+let novalnetInfo = {
+  description: "Novalnet is a global payment service provider and financial technology company based in Germany. It offers a wide range of payment processing solutions and services to merchants and businesses, enabling them to accept various forms of payments online, in-store, or through mobile platforms.",
+}
+
+let deutscheBankInfo = {
+  description: "Deutsche Bank is a German multinational investment bank and financial services company.",
+}
+
+let taxJarInfo = {
+  description: "TaxJar is reimagining how businesses manage sales tax compliance. Its cloud-based platform automates the entire sales tax life cycle across all sales channels — from calculations and nexus tracking to reporting and filing.",
+}
+let nexixpayInfo = {
+  description : "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online."
+}
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -533,6 +591,16 @@ let getConnectorNameString = (connector: processorTypes) =>
   | RAZORPAY => "razorpay"
   | BAMBORA_APAC => "bamboraapac"
   | ITAUBANK => "itaubank"
+  | DATATRANS => "datatrans"
+  | PLAID => "plaid"
+  | SQUARE => "square"
+  | PAYBOX => "paybox"
+  | WELLSFARGO => "wellsfargo"
+  | FISERVIPG => "fiservemea"
+  | FIUU => "fiuu"
+  | NOVALNET => "novalnet"
+  | DEUTSCHEBANK => "deutschebank"
+  | NEXIXPAY => "nexixpay"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -548,17 +616,34 @@ let getFRMNameString = (frm: frmTypes) => {
   }
 }
 
+let getPMAuthenticationConnectorNameString = (
+  pmAuthenticationConnector: pmAuthenticationProcessorTypes,
+) => {
+  switch pmAuthenticationConnector {
+  | PLAID => "plaid"
+  }
+}
+
+let getTaxProcessorNameString = (taxProcessor: taxProcessorTypes) => {
+  switch taxProcessor {
+  | TAXJAR => "taxjar"
+  }
+}
+
 let getConnectorNameString = (connector: connectorTypes) => {
   switch connector {
   | Processors(connector) => connector->getConnectorNameString
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
     threeDsAuthenticator->getThreeDsAuthenticatorNameString
   | FRM(frmConnector) => frmConnector->getFRMNameString
+  | PMAuthenticationProcessor(pmAuthenticationConnector) =>
+    pmAuthenticationConnector->getPMAuthenticationConnectorNameString
+  | TaxProcessor(taxProcessor) => taxProcessor->getTaxProcessorNameString
   | UnknownConnector(str) => str
   }
 }
 
-let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Processor, ()) => {
+let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Processor) => {
   switch connectorType {
   | Processor =>
     switch connector {
@@ -578,6 +663,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "aci" => Processors(ACI)
     | "worldline" => Processors(WORLDLINE)
     | "fiserv" => Processors(FISERV)
+    | "fiservemea" => Processors(FISERVIPG)
     | "shift4" => Processors(SHIFT4)
     | "rapyd" => Processors(RAPYD)
     | "payu" => Processors(PAYU)
@@ -622,6 +708,15 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "razorpay" => Processors(RAZORPAY)
     | "bamboraapac" => Processors(BAMBORA_APAC)
     | "itaubank" => Processors(ITAUBANK)
+    | "datatrans" => Processors(DATATRANS)
+    | "plaid" => Processors(PLAID)
+    | "square" => Processors(SQUARE)
+    | "paybox" => Processors(PAYBOX)
+    | "wellsfargo" => Processors(WELLSFARGO)
+    | "fiuu" => Processors(FIUU)
+    | "novalnet" => Processors(NOVALNET)
+    | "deutschebank" => Processors(DEUTSCHEBANK)
+    | "nexixpay" => Processors(NEXIXPAY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -634,6 +729,16 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "riskified" => FRM(Riskifyed)
     | "signifyd" => FRM(Signifyd)
+    | _ => UnknownConnector("Not known")
+    }
+  | PMAuthenticationProcessor =>
+    switch connector {
+    | "plaid" => PMAuthenticationProcessor(PLAID)
+    | _ => UnknownConnector("Not known")
+    }
+  | TaxProcessor =>
+    switch connector {
+    | "taxjar" => TaxProcessor(TAXJAR)
     | _ => UnknownConnector("Not known")
     }
   | _ => UnknownConnector("Not known")
@@ -659,6 +764,7 @@ let getProcessorInfo = connector => {
   | ACI => aciInfo
   | WORLDLINE => worldlineInfo
   | FISERV => fiservInfo
+  | FISERVIPG => fiservInfo
   | SHIFT4 => shift4Info
   | RAPYD => rapydInfo
   | PAYU => payuInfo
@@ -702,6 +808,15 @@ let getProcessorInfo = connector => {
   | RAZORPAY => razorpayInfo
   | BAMBORA_APAC => bamboraApacInfo
   | ITAUBANK => itauBankInfo
+  | DATATRANS => dataTransInfo
+  | PLAID => plaidInfo
+  | SQUARE => squareInfo
+  | PAYBOX => payboxInfo
+  | WELLSFARGO => wellsfargoInfo
+  | FIUU => fiuuInfo
+  | NOVALNET => novalnetInfo
+  | DEUTSCHEBANK => deutscheBankInfo
+  | NEXIXPAY => nexixpayInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -715,11 +830,28 @@ let getFrmInfo = frm =>
   | Riskifyed => riskifyedInfo
   }
 
+let getOpenBankingProcessorInfo = (
+  pmAuthenticationConnector: ConnectorTypes.pmAuthenticationProcessorTypes,
+) => {
+  switch pmAuthenticationConnector {
+  | PLAID => plaidInfo
+  }
+}
+
+let getTaxProcessorInfo = (taxProcessor: ConnectorTypes.taxProcessorTypes) => {
+  switch taxProcessor {
+  | TAXJAR => taxJarInfo
+  }
+}
+
 let getConnectorInfo = connector => {
   switch connector {
   | Processors(connector) => connector->getProcessorInfo
   | ThreeDsAuthenticator(threeDsAuthenticator) => threeDsAuthenticator->getThreedsAuthenticatorInfo
   | FRM(frm) => frm->getFrmInfo
+  | PMAuthenticationProcessor(pmAuthenticationConnector) =>
+    pmAuthenticationConnector->getOpenBankingProcessorInfo
+  | TaxProcessor(taxProcessor) => taxProcessor->getTaxProcessorInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }
@@ -779,6 +911,7 @@ let connectorIgnoredField = [
   "connector_name",
   "profile_id",
   "applepay_verified_domains",
+  "connector_account_details",
 ]
 
 let configKeysToIgnore = [
@@ -786,6 +919,7 @@ let configKeysToIgnore = [
   "is_verifiable",
   "metadata",
   "connector_webhook_details",
+  "additional_merchant_data",
 ]
 
 let verifyConnectorIgnoreField = [
@@ -823,11 +957,13 @@ let mapAuthType = (authType: string) => {
   }
 }
 
-let getConnectorType = (connector: ConnectorTypes.connectorTypes, ~isPayoutFlow, ()) => {
+let getConnectorType = (connector: ConnectorTypes.connectorTypes, ~isPayoutFlow) => {
   isPayoutFlow
     ? "payout_processor"
     : switch connector {
       | ThreeDsAuthenticator(_) => "authentication_processor"
+      | PMAuthenticationProcessor(_) => "payment_method_auth"
+      | TaxProcessor(_) => "tax_processor"
       | UnknownConnector(str) => str
       | _ => "payment_processor"
       }
@@ -877,7 +1013,7 @@ let removeMethod = (
   switch (
     method.payment_method_type->getPaymentMethodTypeFromString,
     paymentMethod->getPaymentMethodFromString,
-    connector->getConnectorNameTypeFromString(),
+    connector->getConnectorNameTypeFromString,
   ) {
   | (PayPal, Wallet, Processors(PAYPAL)) =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
@@ -944,7 +1080,6 @@ let generateInitialValuesDict = (
   ~isPayoutFlow=false,
   ~isLiveMode=false,
   ~connectorType: ConnectorTypes.connector=ConnectorTypes.Processor,
-  (),
 ) => {
   open LogicUtils
   let dict = values->getDictFromJsonObject
@@ -960,9 +1095,8 @@ let generateInitialValuesDict = (
   dict->Dict.set(
     "connector_type",
     getConnectorType(
-      connector->getConnectorNameTypeFromString(~connectorType, ()),
+      connector->getConnectorNameTypeFromString(~connectorType),
       ~isPayoutFlow,
-      (),
     )->JSON.Encode.string,
   )
   dict->Dict.set("disabled", dict->getBool("disabled", false)->JSON.Encode.bool)
@@ -1051,7 +1185,7 @@ let validateConnectorRequiredFields = (
         vector->Js.Vector.set(index, res)
       })
 
-      let _ = Js.Vector.filterInPlace(val => val == true, vector)
+      Js.Vector.filterInPlace(val => val, vector)
 
       if vector->Js.Vector.length === 0 {
         Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
@@ -1081,7 +1215,7 @@ let validateConnectorRequiredFields = (
         ->getDictfromDict(field)
         ->JSON.Encode.object
         ->convertMapObjectToDict
-        ->CommonMetaDataUtils.inputFieldMapper
+        ->CommonConnectorUtils.inputFieldMapper
       let key = `metadata.${name}`
       let value = switch \"type" {
       | Text | Select => valuesFlattenJson->getString(`${key}`, "")
@@ -1120,16 +1254,6 @@ let getPlaceHolder = label => {
   `Enter ${label->LogicUtils.snakeToTitle}`
 }
 
-let getConnectorDetailsValue = (connectorInfo: connectorPayload, str) => {
-  switch str {
-  | "api_key" => connectorInfo.connector_account_details.api_key
-  | "api_secret" => connectorInfo.connector_account_details.api_secret
-  | "key1" => connectorInfo.connector_account_details.key1
-  | "key2" => connectorInfo.connector_account_details.key2
-  | "auth_type" => Some(connectorInfo.connector_account_details.auth_type)
-  | _ => Some("")
-  }
-}
 let connectorLabelDetailField = Dict.fromArray([
   ("connector_label", "Connector label"->JSON.Encode.string),
 ])
@@ -1143,6 +1267,10 @@ let getConnectorFields = connectorDetails => {
   let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
   let connectorWebHookDetails =
     connectorDetails->getDictFromJsonObject->getDictfromDict("connector_webhook_details")
+  let connectorAdditionalMerchantData =
+    connectorDetails
+    ->getDictFromJsonObject
+    ->getDictfromDict("additional_merchant_data")
   (
     bodyType,
     connectorAccountFields,
@@ -1150,6 +1278,7 @@ let getConnectorFields = connectorDetails => {
     isVerifyConnector,
     connectorWebHookDetails,
     connectorLabelDetailField,
+    connectorAdditionalMerchantData,
   )
 }
 
@@ -1184,7 +1313,7 @@ let validate = (~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => values =>
       ->LogicUtils.getStringFromJson("")
     let regexToUse = isLiveMode ? field.liveValidationRegex : field.testValidationRegex
     let validationResult = switch regexToUse {
-    | Some(regex) => regex->Js.Re.fromString->Js.Re.test_(value)
+    | Some(regex) => regex->RegExp.fromString->RegExp.test(value)
     | None => true
     }
     if field.isRequired->Option.getOr(true) && value->String.length === 0 {
@@ -1212,7 +1341,7 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
   let (suggestedAction, suggestedActionExists) = {
     open SuggestedActionHelper
     let msg = verifyErrorMessage->Option.getOr("")
-    switch connector->getConnectorNameTypeFromString() {
+    switch connector->getConnectorNameTypeFromString {
     | Processors(STRIPE) => (
         {
           if msg->String.includes("Sending credit card numbers directly") {
@@ -1262,11 +1391,22 @@ let getWebhooksUrl = (~connectorName, ~merchantId) => {
   `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
 }
 
+let itemToPMAuthMapper = dict => {
+  open LogicUtils
+  {
+    payment_method: dict->getString("payment_method", ""),
+    payment_method_type: dict->getString("payment_method_type", ""),
+    connector_name: dict->getString("connector_name", ""),
+    mca_id: dict->getString("mca_id", ""),
+  }
+}
+
 let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) => {
   open LogicUtils
   let dict = payload->getDictFromJsonObject
   let connectorAccountDetails =
     dict->getDictfromDict("connector_account_details")->JSON.Encode.object
+  let connectorAdditionalMerchantData = dict->getDictfromDict("additional_merchant_data")
   let payLoadDetails: wasmExtraPayload = {
     connector_account_details: connectorAccountDetails,
     connector_webhook_details: dict->getDictfromDict("connector_webhook_details")->isEmptyDict
@@ -1281,9 +1421,22 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
   let values = Window.getRequestPayload(wasmRequest, payLoadDetails)
   let dict = Dict.fromArray([
     ("connector_account_details", connectorAccountDetails),
+    (
+      "additional_merchant_data",
+      connectorAdditionalMerchantData->isEmptyDict
+        ? JSON.Encode.null
+        : connectorAdditionalMerchantData->JSON.Encode.object,
+    ),
     ("connector_label", dict->getString("connector_label", "")->JSON.Encode.string),
     ("status", dict->getString("status", "active")->JSON.Encode.string),
+    (
+      "pm_auth_config",
+      dict->getDictfromDict("pm_auth_config")->isEmptyDict
+        ? JSON.Encode.null
+        : dict->getDictfromDict("pm_auth_config")->JSON.Encode.object,
+    ),
   ])
+
   values
   ->getDictFromJsonObject
   ->Dict.toArray
@@ -1384,14 +1537,22 @@ let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList
     let connectorType = dict.connector_type
     let isPayoutConnector = connectorType == "payout_processor"
     let isThreeDsAuthenticator = connectorType == "authentication_processor"
+    let isPMAuthenticationProcessor = connectorType == "payment_method_auth"
+    let isTaxProcessor = connectorType == "tax_processor"
     let isConnector =
-      connectorType !== "payment_vas" && !isPayoutConnector && !isThreeDsAuthenticator
+      connectorType !== "payment_vas" &&
+      !isPayoutConnector &&
+      !isThreeDsAuthenticator &&
+      !isPMAuthenticationProcessor &&
+      !isTaxProcessor
 
     switch removeFromList {
     | Processor => !isConnector
     | FRMPlayer => isConnector
     | PayoutConnector => isPayoutConnector
     | ThreeDsAuthenticator => isThreeDsAuthenticator
+    | PMAuthenticationProcessor => isPMAuthenticationProcessor
+    | TaxProcessor => isTaxProcessor
     }
   })
 }
@@ -1399,7 +1560,6 @@ let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList
 let getProcessorsListFromJson = (
   connnectorList: array<ConnectorTypes.connectorPayload>,
   ~removeFromList: connector=FRMPlayer,
-  (),
 ) => {
   connnectorList->filterList(~removeFromList)
 }
@@ -1422,7 +1582,7 @@ let getDisplayNameForProcessor = connector =>
   | EBANX => "Ebanx"
   | ACI => "ACI Worldwide"
   | WORLDLINE => "Worldline"
-  | FISERV => "Fiserv"
+  | FISERV => "Fiserv Commerce Hub"
   | SHIFT4 => "Shift4"
   | RAPYD => "Rapyd"
   | PAYU => "PayU"
@@ -1466,6 +1626,16 @@ let getDisplayNameForProcessor = connector =>
   | RAZORPAY => "Razorpay"
   | BAMBORA_APAC => "Bambora Apac"
   | ITAUBANK => "Itaubank"
+  | DATATRANS => "Datatrans"
+  | PLAID => "Plaid"
+  | SQUARE => "Square"
+  | PAYBOX => "Paybox"
+  | WELLSFARGO => "Wells Fargo"
+  | FISERVIPG => "Fiserv IPG"
+  | FIUU => "Fiuu"
+  | NOVALNET => "Novalnet"
+  | DEUTSCHEBANK => "Deutsche Bank"
+  | NEXIXPAY => "Nexixpay"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -1480,14 +1650,28 @@ let getDisplayNameForFRMConnector = frmConnector =>
   | Riskifyed => "Riskified"
   }
 
+let getDisplayNameForOpenBankingProcessor = pmAuthenticationConnector => {
+  switch pmAuthenticationConnector {
+  | PLAID => "Plaid"
+  }
+}
+
+let getDisplayNameForTaxProcessor = taxProcessor => {
+  switch taxProcessor {
+  | TAXJAR => "Tax Jar"
+  }
+}
+
 let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {
-  let connectorType =
-    connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType, ())
+  let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType)
   switch connectorType {
   | Processors(connector) => connector->getDisplayNameForProcessor
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
     threeDsAuthenticator->getDisplayNameForThreedsAuthenticator
   | FRM(frmConnector) => frmConnector->getDisplayNameForFRMConnector
+  | PMAuthenticationProcessor(pmAuthenticationConnector) =>
+    pmAuthenticationConnector->getDisplayNameForOpenBankingProcessor
+  | TaxProcessor(taxProcessor) => taxProcessor->getDisplayNameForTaxProcessor
   | UnknownConnector(str) => str
   }
 }
@@ -1497,8 +1681,20 @@ let getConnectorTypeArrayFromListConnectors = (
   connectorsList: array<ConnectorTypes.connectorPayload>,
 ) => {
   connectorsList->Array.map(connectorDetail =>
-    connectorDetail.connector_name->getConnectorNameTypeFromString(~connectorType, ())
+    connectorDetail.connector_name->getConnectorNameTypeFromString(~connectorType)
   )
+}
+// Need to remove connector and merge connector and connectorTypeVariants
+let connectorTypeTuple = connectorType => {
+  switch connectorType {
+  | "payment_processor" => (PaymentProcessor, Processor)
+  | "payment_vas" => (PaymentVas, FRMPlayer)
+  | "payout_processor" => (PayoutProcessor, PayoutConnector)
+  | "authentication_processor" => (AuthenticationProcessor, ThreeDsAuthenticator)
+  | "payment_method_auth" => (PMAuthProcessor, PMAuthenticationProcessor)
+  | "tax_processor" => (TaxProcessor, TaxProcessor)
+  | _ => (PaymentProcessor, Processor)
+  }
 }
 
 let connectorTypeStringToTypeMapper = connector_type => {
@@ -1507,6 +1703,8 @@ let connectorTypeStringToTypeMapper = connector_type => {
   | "payment_vas" => PaymentVas
   | "payout_processor" => PayoutProcessor
   | "authentication_processor" => AuthenticationProcessor
+  | "payment_method_auth" => PMAuthProcessor
+  | "tax_processor" => TaxProcessor
   | _ => PaymentProcessor
   }
 }

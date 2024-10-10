@@ -55,6 +55,8 @@ type mandateData = {
   mandate_type: mandate_type,
 }
 
+type frm_metadata = {order_channel: string}
+
 type paymentType = {
   amount: float,
   mutable currency: string,
@@ -76,4 +78,5 @@ type paymentType = {
   setup_future_usage?: Nullable.t<string>,
   mandate_data?: Nullable.t<mandateData>,
   country_currency: string,
+  frm_metadata: frm_metadata,
 }

@@ -24,9 +24,9 @@ let make = (
 
   let inputSearch: ReactFinalForm.fieldRenderPropsInput = {
     name: "search",
-    onBlur: _ev => (),
+    onBlur: _ => (),
     onChange,
-    onFocus: _ev => (),
+    onFocus: _ => (),
     value: searchVal->JSON.Encode.string,
     checked: true,
   }
@@ -41,7 +41,6 @@ let make = (
           InputFields.textInput(
             ~leftIcon=<Icon name="search" size=16 />,
             ~customStyle=`!h-10 ${customInputBoxWidth}`,
-            (),
           )(~input=inputSearch, ~placeholder)
         }}
       />

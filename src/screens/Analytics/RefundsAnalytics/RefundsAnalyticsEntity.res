@@ -32,42 +32,22 @@ let tableItemToObjMapper: 'a => refundTableType = dict => {
   }
 }
 
-let getUpdatedHeading = (
-  ~item as _: option<refundTableType>,
-  ~dateObj as _: option<AnalyticsUtils.prevDates>,
-) => {
+let getUpdatedHeading = (~item as _, ~dateObj as _) => {
   let getHeading = colType => {
     let key = colType->colMapper
     switch colType {
-    | SuccessRate =>
-      Table.makeHeaderInfo(~key, ~title="Success Rate", ~dataType=NumericType, ~showSort=false, ())
-    | Count =>
-      Table.makeHeaderInfo(~key, ~title="Refund Count", ~dataType=NumericType, ~showSort=false, ())
+    | SuccessRate => Table.makeHeaderInfo(~key, ~title="Success Rate", ~dataType=NumericType)
+    | Count => Table.makeHeaderInfo(~key, ~title="Refund Count", ~dataType=NumericType)
     | SuccessCount =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Refund Success Count",
-        ~dataType=NumericType,
-        ~showSort=false,
-        (),
-      )
+      Table.makeHeaderInfo(~key, ~title="Refund Success Count", ~dataType=NumericType)
     | ProcessedAmount =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Refund Processed Amount",
-        ~dataType=NumericType,
-        ~showSort=false,
-        (),
-      )
-    | Connector =>
-      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=DropDown, ~showSort=false, ())
-    | Currency =>
-      Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=DropDown, ~showSort=false, ())
-    | RefundMethod =>
-      Table.makeHeaderInfo(~key, ~title="RefundMethod", ~dataType=DropDown, ~showSort=false, ())
-    | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown, ~showSort=false, ())
+      Table.makeHeaderInfo(~key, ~title="Refund Processed Amount", ~dataType=NumericType)
+    | Connector => Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=DropDown)
+    | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=DropDown)
+    | RefundMethod => Table.makeHeaderInfo(~key, ~title="RefundMethod", ~dataType=DropDown)
+    | Status => Table.makeHeaderInfo(~key, ~title="Status", ~dataType=DropDown)
 
-    | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false, ())
+    | NoCol => Table.makeHeaderInfo(~key, ~title="")
     }
   }
   getHeading
@@ -75,7 +55,7 @@ let getUpdatedHeading = (
 
 let getCell = (refundTable: refundTableType, colType: refundColType): Table.cell => {
   let usaNumberAbbreviation = labelValue => {
-    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat(), ())
+    shortNum(~labelValue, ~numberFormat=getDefaultNumberFormat())
   }
 
   let percentFormat = value => {
@@ -102,9 +82,9 @@ let getRefundTable: JSON.t => array<refundTableType> = json => {
   })
 }
 
-let refundTableEntity = () =>
+let refundTableEntity = (~uri) =>
   EntityType.makeEntity(
-    ~uri=`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+    ~uri,
     ~getObjects=getRefundTable,
     ~dataKey="queryData",
     ~defaultColumns=defaultRefundColumns,
@@ -112,7 +92,6 @@ let refundTableEntity = () =>
     ~allColumns=allRefundColumns,
     ~getCell,
     ~getHeading=getUpdatedHeading(~item=None, ~dateObj=None),
-    (),
   )
 
 let singleStateInitialValue = {
@@ -148,11 +127,11 @@ let singleStateSeriesItemToObjMapper = json => {
   json
   ->JSON.Decode.object
   ->Option.map(dict => {
-    refund_success_rate: dict->getFloat("refund_success_rate", 0.0)->setPrecision(),
+    refund_success_rate: dict->getFloat("refund_success_rate", 0.0)->setPrecision,
     refund_count: dict->getInt("refund_count", 0),
     refund_success_count: dict->getInt("refund_success_count", 0),
     time_series: dict->getString("time_bucket", ""),
-    refund_processed_amount: dict->getFloat("refund_processed_amount", 0.0)->setPrecision(),
+    refund_processed_amount: dict->getFloat("refund_processed_amount", 0.0)->setPrecision,
   })
   ->Option.getOr({
     singleStateSeriesInitialValue
@@ -250,7 +229,7 @@ let getStatData = (
 ) => {
   switch colType {
   | SuccessRate => {
-      title: `${domain->LogicUtils.getFirstLetterCaps()} Success Rate`,
+      title: `${domain->LogicUtils.getFirstLetterCaps} Success Rate`,
       tooltipText: "Successful refund over total refund initiated",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.refund_success_rate,
@@ -329,10 +308,13 @@ let getStatSentiment = {
   ]->Dict.fromArray
 }
 
-let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
+let getSingleStatEntity: ('a, string) => DynamicSingleStat.entityType<'colType, 't, 't2> = (
+  metrics,
+  uri,
+) => {
   urlConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+      uri,
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
@@ -341,7 +323,7 @@ let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> =
   defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+  matrixUriMapper: _ => uri,
   statSentiment: getStatSentiment,
 }
 
@@ -362,9 +344,9 @@ let metricsConfig: array<LineChartUtils.metricsConfig> = [
   },
 ]
 
-let chartEntity = tabKeys =>
+let chartEntity = (tabKeys, ~uri) =>
   DynamicChart.makeEntity(
-    ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`),
+    ~uri=String(uri),
     ~filterKeys=tabKeys,
     ~dateFilterKeys=(startTimeFilterKey, endTimeFilterKey),
     ~currentMetrics=("refund_success_rate", "refund_count"), // 2nd metric will be static and we won't show the 2nd metric option to the first metric
@@ -373,7 +355,7 @@ let chartEntity = tabKeys =>
     ~chartTypes=[Line],
     ~uriConfig=[
       {
-        uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+        uri,
         timeSeriesBody: DynamicChart.getTimeSeriesChart,
         legendBody: DynamicChart.getLegendBody,
         metrics: metricsConfig,
@@ -382,5 +364,4 @@ let chartEntity = tabKeys =>
       },
     ],
     ~moduleName="Refunds Analytics",
-    (),
   )

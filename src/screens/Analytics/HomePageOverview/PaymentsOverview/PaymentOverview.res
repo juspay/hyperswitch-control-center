@@ -1,7 +1,8 @@
 @react.component
 let make = () => {
   open HSAnalyticsUtils
-
+  open APIUtils
+  let getURL = useGetURL()
   let metrics = [
     "payment_success_rate",
     "payment_count",
@@ -9,8 +10,9 @@ let make = () => {
   ]->Array.map(key => {
     [("name", key->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
   })
+  let analyticsUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Post, ~id=Some("payments"))
 
-  let singleStatEntity = PaymentOverviewUtils.getSingleStatEntity(metrics)
+  let singleStatEntity = PaymentOverviewUtils.getSingleStatEntity(metrics, analyticsUrl)
   let dateDict = HSwitchRemoteFilter.getDateFilteredObject()
 
   <DynamicSingleStat

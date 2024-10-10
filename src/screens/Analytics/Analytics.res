@@ -5,16 +5,16 @@ open LogicUtils
 module BaseTableComponent = {
   @react.component
   let make = (
-    ~filters as _: (string, string),
+    ~filters as _,
     ~tableData,
     ~defaultSort: string,
     ~tableDataLoading: bool,
     ~transactionTableDefaultCols,
     ~newDefaultCols: array<'colType>,
     ~newAllCols: array<'colType>,
-    ~colMapper as _: 'colType => string,
+    ~colMapper as _,
     ~tableEntity: EntityType.entityType<'colType, 't>,
-    ~tableGlobalFilter as _: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
+    ~tableGlobalFilter as _,
     ~activeTab as _,
   ) => {
     open DynamicTableUtils
@@ -89,9 +89,7 @@ module TableWrapper = {
     ~tableEntity: EntityType.entityType<'colType, 't>,
     ~deltaMetrics: array<string>,
     ~deltaArray: array<string>,
-    ~tableUpdatedHeading as _: option<
-      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>) => 'colType => Table.header,
-    >,
+    ~tableUpdatedHeading as _,
     ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
     ~moduleName,
     ~weeklyTableMetricsCols,
@@ -108,7 +106,7 @@ module TableWrapper = {
 
     let (showTable, setShowTable) = React.useState(_ => false)
     let {getHeading, allColumns, defaultColumns} = tableEntity
-    let activeTabStr = activeTab->Option.getOr([])->Array.joinWithUnsafe("-")
+    let activeTabStr = activeTab->Option.getOr([])->Array.joinWith("-")
     let (startTimeFilterKey, endTimeFilterKey) = dateKeys
     let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
     let (tableData, setTableData) = React.useState(_ => []->Array.map(Nullable.make))
@@ -149,7 +147,7 @@ module TableWrapper = {
             None
           }
         })
-        ->Array.joinWithUnsafe("&")
+        ->Array.joinWith("&")
 
       filterSearchParam
     }, [getTopLevelFilter])
@@ -241,7 +239,7 @@ module TableWrapper = {
         (),
       )
 
-      fetchDetails(tableEntity.uri, weeklyTableReqBody, Post, ())
+      fetchDetails(tableEntity.uri, weeklyTableReqBody, Post)
       ->thenResolve(json => {
         setTableData(_ => getUpdatedData(data, json, cols))
         setTableDataLoading(_ => false)
@@ -276,7 +274,7 @@ module TableWrapper = {
           (),
         )
 
-        fetchDetails(tableEntity.uri, tableReqBody, Post, ())
+        fetchDetails(tableEntity.uri, tableReqBody, Post)
         ->thenResolve(json => {
           switch weeklyTableMetricsCols {
           | Some(cols) => getWeeklyData(json, cols)->ignore
@@ -467,7 +465,6 @@ open AnalyticsTypes
 @react.component
 let make = (
   ~pageTitle="",
-  ~pageSubTitle="",
   ~startTimeFilterKey: string,
   ~endTimeFilterKey: string,
   ~chartEntity: nestedEntityType,
@@ -491,14 +488,13 @@ let make = (
   ~moduleName: string,
   ~weeklyTableMetricsCols=?,
   ~distributionArray=None,
-  ~generateReportType: option<APIUtilsTypes.entityName>=?,
   ~formatData=None,
 ) => {
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
   let {filterValue, updateExistingKeys, filterValueJson} = React.useContext(
     FilterContext.filterContext,
   )
+  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
 
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)
@@ -524,7 +520,8 @@ let make = (
 
   let startTimeVal = filterValueDict->getString(startTimeFilterKey, "")
   let endTimeVal = filterValueDict->getString(endTimeFilterKey, "")
-
+  let {updateAnalytcisEntity} = OMPSwitchHooks.useUserInfo()
+  let {userInfo: {analyticsEntity}} = React.useContext(UserInfoProvider.defaultContext)
   let updateUrlWithPrefix = React.useMemo(() => {
     (chartType: string) => {
       (dict: Dict.t<string>) => {
@@ -579,7 +576,7 @@ let make = (
       source: "BATCH",
     }
     AnalyticsUtils.filterBody(filterBodyEntity)
-  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWithUnsafe(",")))
+  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
 
   open APIUtils
   open Promise
@@ -594,8 +591,8 @@ let make = (
       try {
         switch filterUri {
         | Some(filterUri) =>
-          updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
-          ->thenResolve(json => setFilterDataJson(_ => json->Some))
+          updateDetails(filterUri, filterBody->JSON.Encode.object, Post)
+          ->thenResolve(json => setFilterDataJson(_ => Some(json)))
           ->catch(_ => resolve())
           ->ignore
         | None => ()
@@ -681,12 +678,14 @@ let make = (
     | Some(chartEntity) =>
       <div>
         <div className="flex items-center justify-between">
-          <PageUtils.PageHeading title=pageTitle subTitle=pageSubTitle />
-          <RenderIf condition={generateReport}>
-            {switch generateReportType {
-            | Some(entityName) => <GenerateReport entityName />
-            | None => React.null
-            }}
+          <PageUtils.PageHeading title=pageTitle />
+          // Refactor required
+          <RenderIf condition={moduleName == "Refunds" || moduleName == "Disputes"}>
+            <OMPSwitchHelper.OMPViews
+              views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+              selectedEntity={analyticsEntity}
+              onChange={updateAnalytcisEntity}
+            />
           </RenderIf>
         </div>
         <div className="mt-2 -ml-1"> topFilterUi </div>

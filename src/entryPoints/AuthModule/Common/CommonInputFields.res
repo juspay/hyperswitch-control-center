@@ -4,7 +4,7 @@ let emailField = FormRenderer.makeFieldInfo(
   ~placeholder="Enter your Email",
   ~isRequired=false,
   ~customInput=(~input, ~placeholder as _) =>
-    InputFields.textInput(~autoComplete="off", ())(
+    InputFields.textInput(~autoComplete="off")(
       ~input={
         ...input,
         onChange: event =>
@@ -15,7 +15,6 @@ let emailField = FormRenderer.makeFieldInfo(
       },
       ~placeholder="Enter your Email",
     ),
-  (),
 )
 
 let createPasswordField = FormRenderer.makeFieldInfo(
@@ -27,10 +26,8 @@ let createPasswordField = FormRenderer.makeFieldInfo(
     ~leftIcon={
       <Icon name="password-lock" size=13 />
     },
-    (),
   ),
   ~isRequired=false,
-  (),
 )
 
 let confirmPasswordField = FormRenderer.makeFieldInfo(
@@ -44,10 +41,8 @@ let confirmPasswordField = FormRenderer.makeFieldInfo(
     ~leftIcon={
       <Icon name="password-lock" size=13 />
     },
-    (),
   ),
   ~isRequired=false,
-  (),
 )
 
 let passwordField = FormRenderer.makeFieldInfo(
@@ -61,8 +56,6 @@ let passwordField = FormRenderer.makeFieldInfo(
     ~leftIcon={
       <Icon name="password-lock" size=13 />
     },
-    (),
   ),
   ~isRequired=false,
-  (),
 )

@@ -4,15 +4,15 @@ module ConnectorOverview = {
   @react.component
   let make = () => {
     open ConnectorUtils
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let connectorsList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
-      ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer, ())
+      ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer)
     let configuredConnectors =
       connectorsList->Array.map(paymentMethod =>
-        paymentMethod.connector_name->getConnectorNameTypeFromString()
+        paymentMethod.connector_name->getConnectorNameTypeFromString
       )
 
     let getConnectorIconsList = () => {
@@ -52,7 +52,7 @@ module ConnectorOverview = {
         </div>
         <ACLButton
           text="+ Add More"
-          access={userPermissionJson.connectorsView}
+          authorization={userHasAccess(~groupAccess=ConnectorsView)}
           buttonType={PrimaryOutline}
           customButtonStyle="w-10 !px-3"
           buttonSize={Small}
@@ -70,8 +70,10 @@ module SystemMetricsInsights = {
   open SystemMetricsAnalyticsUtils
   open HSAnalyticsUtils
   open AnalyticsTypes
+  open APIUtils
   @react.component
   let make = () => {
+    let getURL = useGetURL()
     let getStatData = (
       singleStatData: systemMetricsObjectType,
       timeSeriesData: array<systemMetricsSingleStateSeries>,
@@ -105,10 +107,13 @@ module SystemMetricsInsights = {
       },
     ]
 
-    let getStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
+    let getStatEntity: ('a, string) => DynamicSingleStat.entityType<'colType, 't, 't2> = (
+      metrics,
+      uri,
+    ) => {
       urlConfig: [
         {
-          uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+          uri,
           metrics: metrics->getStringListFromArrayDict,
         },
       ],
@@ -117,14 +122,19 @@ module SystemMetricsInsights = {
       defaultColumns,
       getData: getStatData,
       totalVolumeCol: None,
-      matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+      matrixUriMapper: _ => uri,
     }
 
     let metrics = ["latency"]->Array.map(key => {
       [("name", key->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
     })
+    let analyticsUrl = getURL(
+      ~entityName=ANALYTICS_PAYMENTS,
+      ~methodType=Post,
+      ~id=Some("payments"),
+    )
 
-    let singleStatEntity = getStatEntity(metrics)
+    let singleStatEntity = getStatEntity(metrics, analyticsUrl)
     let dateDict = HSwitchRemoteFilter.getDateFilteredObject()
 
     <DynamicSingleStat
@@ -155,14 +165,13 @@ module OverviewInfo = {
 
     let generateSampleData = async () => {
       try {
-        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
+        let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post)
         let _ = await updateDetails(
           generateSampleDataUrl,
           [("record", 50.0->JSON.Encode.float)]->Dict.fromArray->JSON.Encode.object,
           Post,
-          (),
         )
-        showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess, ())
+        showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess)
         Window.Location.reload()
       } catch {
       | _ => ()
@@ -189,12 +198,13 @@ module OverviewInfo = {
 @react.component
 let make = () => {
   let {systemMetrics} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+
   <div className="flex flex-col gap-4">
     <p className=headingStyle> {"Overview"->React.string} </p>
     <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
       <ConnectorOverview />
-      <RenderIf condition={userPermissionJson.analyticsView === Access}>
+      <RenderIf condition={userHasAccess(~groupAccess=AnalyticsView) === Access}>
         <PaymentOverview />
       </RenderIf>
       <RenderIf condition={systemMetrics}>

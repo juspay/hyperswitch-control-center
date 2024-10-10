@@ -79,9 +79,16 @@ module HSiwtchPaymentConfirmLatency = {
   open SystemMetricsAnalyticsUtils
   open Promise
   open LogicUtils
+  open APIUtils
   @react.component
   let make = () => {
-    let url = `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`
+    let getURL = useGetURL()
+    let systemMetricsAnalyticsUrl = getURL(
+      ~entityName=ANALYTICS_PAYMENTS,
+      ~methodType=Post,
+      ~id=Some(domain),
+    )
+    let url = systemMetricsAnalyticsUrl
     let (isLoading, setIsLoading) = React.useState(_ => true)
     let (latency, setLatency) = React.useState(_ => 0)
     let (connectorLatency, setConnectorLatency) = React.useState(_ => 0)
@@ -105,7 +112,7 @@ module HSiwtchPaymentConfirmLatency = {
 
       [
         AnalyticsUtils.getFilterRequestBody(
-          ~filter=filters->Some,
+          ~filter=Some(filters),
           ~metrics=singleStatBodyEntity.metrics,
           ~delta=?singleStatBodyEntity.delta,
           ~startDateTime=singleStatBodyEntity.startDateTime,
@@ -115,7 +122,6 @@ module HSiwtchPaymentConfirmLatency = {
           ~source=?singleStatBodyEntity.source,
           ~granularity=singleStatBodyEntity.granularity,
           ~prefix=singleStatBodyEntity.prefix,
-          (),
         )->JSON.Encode.object,
       ]->JSON.Encode.array
     }
@@ -132,7 +138,7 @@ module HSiwtchPaymentConfirmLatency = {
     }
 
     let getOverallLatency = async () => {
-      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("Payment"), Fetch.Post, ())
+      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("Payment"), Post)
       ->thenResolve(json => {
         setOverallrLatency(_ => json->parseJson)
       })
@@ -144,7 +150,7 @@ module HSiwtchPaymentConfirmLatency = {
     }
 
     let getConnectorLatency = () => {
-      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("OutgoingEvent"), Fetch.Post, ())
+      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("OutgoingEvent"), Post)
       ->thenResolve(json => {
         setConnectorLatency(_ => json->parseJson)
         setIsLoading(_ => false)
@@ -184,7 +190,6 @@ module HSiwtchPaymentConfirmLatency = {
                 {latencyShortNum(
                   ~labelValue=latency->Int.toFloat /. 1000.0,
                   ~includeMilliseconds=true,
-                  (),
                 )
                 ->String.toLowerCase
                 ->React.string}
@@ -261,7 +266,7 @@ module SystemMetricsAnalytics = {
         source: "BATCH",
       }
       AnalyticsUtils.filterBody(filterBodyEntity)
-    }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWithUnsafe(",")))
+    }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
 
     open APIUtils
     open Promise
@@ -274,8 +279,8 @@ module SystemMetricsAnalytics = {
       setFilterDataJson(_ => None)
       if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
         try {
-          updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
-          ->thenResolve(json => setFilterDataJson(_ => json->Some))
+          updateDetails(filterUri, filterBody->JSON.Encode.object, Post)
+          ->thenResolve(json => setFilterDataJson(_ => Some(json)))
           ->catch(_ => resolve())
           ->ignore
         } catch {
@@ -331,6 +336,7 @@ let make = () => {
   open HSAnalyticsUtils
   open LogicUtils
   let getURL = useGetURL()
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])
@@ -338,7 +344,7 @@ let make = () => {
 
   let loadInfo = async () => {
     try {
-      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain), ())
+      let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
       setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
@@ -357,18 +363,22 @@ let make = () => {
 
   let tabKeys = getStringListFromArrayDict(dimensions)
   let title = "System Metrics"
-  let subTitle = "Gain Insights, monitor performance and make Informed Decisions with System Metrics."
 
-  <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
+  let analyticsfilterUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some(domain))
+  let systemMetricsAnalyticsUrl = getURL(
+    ~entityName=ANALYTICS_PAYMENTS,
+    ~methodType=Post,
+    ~id=Some(domain),
+  )
+  <PageLoaderWrapper screenState customUI={<NoData title />}>
     <SystemMetricsAnalytics
       pageTitle=title
-      pageSubTitle=subTitle
-      filterUri={`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`}
+      filterUri={analyticsfilterUrl}
       key="SystemMetrics"
       moduleName="SystemMetrics"
-      chartEntity={default: chartEntity(tabKeys)}
+      chartEntity={default: chartEntity(tabKeys, ~uri=systemMetricsAnalyticsUrl)}
       filteredTabKeys={tabKeys}
-      singleStatEntity={getSingleStatEntity(metrics)}
+      singleStatEntity={getSingleStatEntity(metrics, systemMetricsAnalyticsUrl)}
       startTimeFilterKey
       endTimeFilterKey
       initialFixedFilters=initialFixedFilterFields

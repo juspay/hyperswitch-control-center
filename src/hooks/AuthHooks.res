@@ -1,6 +1,19 @@
 type contentType = Headers(string) | Unknown
+let headersForXFeature = (~uri, ~headers) => {
+  if uri->String.includes("lottie-files") || uri->String.includes("config/merchant-access") {
+    headers->Dict.set("Content-Type", `application/json`)
+  } else {
+    headers->Dict.set("x-feature", "integ-custom")
+  }
+}
 
-let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ~token, ()) => {
+let getHeaders = (
+  ~uri,
+  ~headers,
+  ~contentType=Headers("application/json"),
+  ~xFeatureRoute,
+  ~token,
+) => {
   let isMixpanel = uri->String.includes("mixpanel")
 
   let headerObj = if isMixpanel {
@@ -9,19 +22,21 @@ let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ~tok
       ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
-    let res = switch token {
+    switch token {
     | Some(str) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
-        headers
+        if xFeatureRoute {
+          headersForXFeature(~headers, ~uri)
+        }
       }
-    | None => headers
+    | None => ()
     }
     switch contentType {
     | Headers(headerString) => headers->Dict.set("Content-Type", headerString)
     | Unknown => ()
     }
-    res
+    headers
   }
   Fetch.HeadersInit.make(headerObj->Identity.dictOfAnyTypeToObj)
 }
@@ -36,19 +51,7 @@ let useApiFetcher = () => {
   open Promise
   let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
 
-  let token = React.useMemo(() => {
-    switch authStatus {
-    | PreLogin(info) => info.token
-    | LoggedIn(info) =>
-      switch info {
-      | BasicAuth(basicInfo) => basicInfo.token
-      | Auth(info) => info.token
-      }
-    | _ => None
-    }
-  }, [authStatus])
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
-
   React.useCallback(
     (
       uri,
@@ -58,8 +61,18 @@ let useApiFetcher = () => {
       ~method_: Fetch.requestMethod,
       ~betaEndpointConfig=?,
       ~contentType=Headers("application/json"),
-      (),
+      ~xFeatureRoute,
     ) => {
+      let token = {
+        switch authStatus {
+        | PreLogin(info) => info.token
+        | LoggedIn(info) =>
+          switch info {
+          | Auth(_) => AuthUtils.getUserInfoDetailsFromLocalStorage().token
+          }
+        | _ => None
+        }
+      }
       let uri = switch betaEndpointConfig {
       | Some(val) => String.replace(uri, val.replaceStr, val.originalApiStr)
       | None => uri
@@ -82,8 +95,7 @@ let useApiFetcher = () => {
             ~method_,
             ~body?,
             ~credentials=SameOrigin,
-            ~headers=getHeaders(~headers, ~uri, ~contentType, ~token, ()),
-            (),
+            ~headers=getHeaders(~headers, ~uri, ~contentType, ~token, ~xFeatureRoute),
           ),
         )
         ->catch(
@@ -112,6 +124,6 @@ let useApiFetcher = () => {
         )
       })
     },
-    [token],
+    [],
   )
 }

@@ -88,7 +88,6 @@ let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity) => {
       ~source=?singleStatBodyEntity.source,
       ~granularity=singleStatBodyEntity.granularity,
       ~prefix=singleStatBodyEntity.prefix,
-      (),
     )->JSON.Encode.object,
   ]
   ->JSON.Encode.array
@@ -142,6 +141,8 @@ let make = (
   ~formaPayload: option<singleStatBodyEntity => string>=?,
 ) => {
   open LogicUtils
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let getAllFilter = filterValueJson
@@ -209,7 +210,7 @@ let make = (
           None
         }
       })
-      ->Array.joinWithUnsafe("&")
+      ->Array.joinWith("&")
 
     (filterSearchParam, getTopLevelFilter->getString(customFilterKey, ""))
   }, [getTopLevelFilter])
@@ -305,7 +306,7 @@ let make = (
           ~method_=Post,
           ~bodyStr=singleStatBody,
           ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
-          (),
+          ~xFeatureRoute,
         )
         ->addLogsAroundFetch(~logTitle="SingleStat Data Api")
         ->then(json => resolve((`${urlConfig.prefix->Option.getOr("")}${uri}`, json)))
@@ -379,7 +380,7 @@ let make = (
           ~method_=Post,
           ~bodyStr=singleStatBodyMakerFn(singleStatBodyEntity),
           ~headers=[("QueryType", "SingleStatTimeseries")]->Dict.fromArray,
-          (),
+          ~xFeatureRoute,
         )
         ->addLogsAroundFetch(~logTitle="SingleStatTimeseries Data Api")
         ->then(

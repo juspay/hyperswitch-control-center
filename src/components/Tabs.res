@@ -39,6 +39,7 @@ module TabInfo = {
     ~borderDefaultStyle="",
     ~showBottomBorder=true,
     ~onTabSelection=() => (),
+    ~selectTabBottomBorderColor="",
   ) => {
     let tabRef = React.useRef(Nullable.null)
     let fontClass = "font-inter-style"
@@ -63,7 +64,7 @@ module TabInfo = {
     } else {
       `text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75 text-opacity-50 hover:text-opacity-75 dark:hover:text-opacity-100  ${borderDefaultStyle}`
     }
-    let handleClick = React.useCallback2(_ev => {
+    let handleClick = React.useCallback2(_ => {
       if isDisabled && disabledTab->Array.includes(title) {
         ()
       } else {
@@ -72,7 +73,9 @@ module TabInfo = {
       onTabSelection()
     }, (index, handleSelectedIndex))
 
-    let lineStyle = showBottomBorder ? "bg-black w-full h-0.5 rounded-full" : ""
+    let lineStyle = showBottomBorder
+      ? `bg-black w-full h-0.5 rounded-full z-10 ${selectTabBottomBorderColor}`
+      : ""
 
     React.useEffect(() => {
       if isSelected && isScrollIntoViewRequired {
@@ -106,7 +109,7 @@ module IndicationArrow = {
   @react.component
   let make = (~iconName, ~side, ~refElement: React.ref<Js.nullable<Dom.element>>, ~isVisible) => {
     let onClick = {
-      _ev =>
+      _ =>
         refElement.current
         ->Nullable.toOption
         ->Option.forEach(input =>
@@ -162,14 +165,13 @@ let make = (
   ~showBottomBorder=true,
   ~showStickyHeader=false,
   ~contentHeight="",
+  ~selectTabBottomBorderColor="",
 ) => {
-  // ~icon=React.null,
-
   let _ = defaultClasses
   let initialIndex = initialIndex->Option.getOr(0)
   let (selectedIndex, setSelectedIndex) = React.useState(() => initialIndex)
   let tabOuterClass = `${tabBottomShadow} ${gapBetweenTabs}`
-  let bottomBorderClass = "border-b border-jp-gray-500 dark:border-jp-gray-960"
+  let bottomBorderClass = "bg-[#CBCBCB] w-full h-0.5 rounded-full -mt-0.5"
 
   let renderedTabClassName = renderedTabClassName
 
@@ -184,7 +186,7 @@ let make = (
   let scrollRef = React.useRef(Nullable.null)
   let lastTabRef = React.useRef(Nullable.null)
   let numberOfTabs = Array.length(tabs)
-  let onScroll = _ev => {
+  let onScroll = _ => {
     let leftVal = firstTabRef->getBoundingRectInfo(val => val.x)
     let rightVal = lastTabRef->getBoundingRectInfo(val => val.right)
     let scrollValLeft = scrollRef->getBoundingRectInfo(val => val.x)
@@ -253,6 +255,7 @@ let make = (
                   borderDefaultStyle
                   showBottomBorder
                   onTabSelection=?{tab.onTabSelection}
+                  selectTabBottomBorderColor
                 />
               </div>
             })

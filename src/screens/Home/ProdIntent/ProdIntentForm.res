@@ -19,7 +19,6 @@ let make = (~isFromMilestoneCard=false) => {
         ~userType=#USER_DATA,
         ~methodType=Get,
         ~queryParamerters=Some(`keys=ProdIntent`),
-        (),
       )
       let res = await fetchDetails(url)
       let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)

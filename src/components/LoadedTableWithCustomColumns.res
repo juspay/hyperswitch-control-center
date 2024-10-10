@@ -63,6 +63,7 @@ let make = (
   ~setExtFilteredDataLength=?,
   ~noScrollbar=false,
   ~previewOnly=false,
+  ~remoteSortEnabled=false,
 ) => {
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
   let activeColumnsAtom = customColumnMapper->Some
@@ -90,12 +91,12 @@ let make = (
     <RenderIf condition={!hideRightTitleElement}>
       <Portal to={`${title}CustomizeColumn`}>
         <Button
-          leftIcon=Button.CustomIcon(<Icon name="edit" size=16 />)
-          text="Customize Columns"
+          leftIcon=Button.CustomIcon(<Icon name="customise-columns" size=16 />)
           buttonType=SecondaryFilled
           buttonSize=XSmall
           onClick={_ => setShowColumnSelector(_ => true)}
-          customButtonStyle="!rounded-lg !bg-white !h-10 !text-black"
+          customButtonStyle="!rounded !bg-white !h-10 !text-black"
+          customPaddingClass="px-2"
         />
       </Portal>
     </RenderIf>
@@ -149,5 +150,6 @@ let make = (
     showResultsPerPageSelector
     ?setExtFilteredDataLength
     noScrollbar
+    remoteSortEnabled
   />
 }

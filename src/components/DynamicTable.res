@@ -33,7 +33,7 @@ let make = (
   ~bottomActions=?,
   ~resultsPerPage=15,
   ~onEntityClick=?,
-  ~method: Fetch.requestMethod=Fetch.Post,
+  ~method: Fetch.requestMethod=Post,
   ~path=?,
   ~downloadCsv=?,
   ~prefixAddition=?,
@@ -115,6 +115,7 @@ let make = (
     filterCheck,
     filterForRow,
   } = entity
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let tableName =
     prefixAddition->Option.getOr(false)
       ? title->(String.replaceRegExp(_, %re("/ /g"), "-"))->String.toLowerCase->Some
@@ -222,7 +223,7 @@ let make = (
         urii
       })
       let uri =
-        uri ++ "?" ++ uriList->Array.filter(val => val->isNonEmptyString)->Array.joinWithUnsafe("&")
+        uri ++ "?" ++ uriList->Array.filter(val => val->isNonEmptyString)->Array.joinWith("&")
       uri
     }
 
@@ -236,7 +237,7 @@ let make = (
     }
     let uri = uri ++ getNewUrl(defaultFilters)
     setTableDataLoading(_ => true)
-    fetchApi(uri, ~bodyStr=JSON.stringify(finalJson), ~headers, ~method_=method, ())
+    fetchApi(uri, ~bodyStr=JSON.stringify(finalJson), ~headers, ~method_=method, ~xFeatureRoute)
     ->then(resp => {
       let status = resp->Fetch.Response.status
       if status >= 300 {
@@ -263,12 +264,7 @@ let make = (
         }
 
       | _ =>
-        showToast(
-          ~message="Response was not a JSON object",
-          ~toastType=ToastError,
-          ~autoClose=true,
-          (),
-        )
+        showToast(~message="Response was not a JSON object", ~toastType=ToastError, ~autoClose=true)
       }
       setTableDataLoading(_ => false)
       resolve()
@@ -507,7 +503,6 @@ let make = (
             tableDataLoading
             ?dataNotFoundComponent
             ?bottomActions
-            ?defaultSort
             tableLocalFilter
             collapseTableRow
             getRowDetails

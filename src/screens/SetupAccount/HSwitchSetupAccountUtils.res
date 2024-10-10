@@ -36,7 +36,6 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
     ]->getJsonFromArrayOfJson,
     ~connector=connectorName,
     ~bodyType,
-    (),
   )
 
   let creditCardNetworkArray =

@@ -57,7 +57,7 @@ let make = (
   let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
   let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
   let fetchApi = AuthHooks.useApiFetcher()
-
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getTopLevelSingleStatFilter = React.useMemo(() => {
     getAllFilter
     ->Dict.toArray
@@ -96,7 +96,7 @@ let make = (
           None
         }
       })
-      ->Array.joinWithUnsafe("&")
+      ->Array.joinWith("&")
 
     (
       filterSearchParam,
@@ -183,7 +183,6 @@ let make = (
       let (hStartTime, hEndTime) = AnalyticsNewUtils.calculateHistoricTime(
         ~startTime=startTimeFromUrl,
         ~endTime=endTimeFromUrl,
-        (),
       )
 
       let filterConfigHistoric = {
@@ -257,11 +256,10 @@ let make = (
               ~filterValueFromUrl=?filterConfigHistoric.filterValues,
               ~customFilterValue=filterConfigHistoric.customFilterValue,
               ~domain=urlConfig.domain,
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStatHistoric")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
+            ~xFeatureRoute,
           )
           ->addLogsAroundFetch(
             ~logTitle=`SingleStat histotic data for metrics ${metrics->metrixMapper}`,
@@ -309,11 +307,10 @@ let make = (
               ~filterValueFromUrl=?filterConfigCurrent.filterValues,
               ~customFilterValue=filterConfigCurrent.customFilterValue,
               ~domain=urlConfig.domain,
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
+            ~xFeatureRoute,
           )
           ->addLogsAroundFetch(~logTitle=`SingleStat data for metrics ${metrics->metrixMapper}`)
           ->then(
@@ -360,11 +357,10 @@ let make = (
               ~customFilterValue=filterConfigCurrent.customFilterValue,
               ~domain=urlConfig.domain,
               ~timeCol=urlConfig.timeColumn,
-              (),
             )->JSON.stringify,
             ~headers=[("QueryType", "SingleStat Time Series")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
-            (),
+            ~xFeatureRoute,
           )
           ->addLogsAroundFetch(
             ~logTitle=`SingleStat Time Series data for metrics ${metrics->metrixMapper}`,

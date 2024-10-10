@@ -7,7 +7,7 @@ let formateDateString = date => {
   date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]")
 }
 
-let getDateFilteredObject = (~range=7, ()) => {
+let getDateFilteredObject = (~range=7) => {
   let currentDate = Date.make()
 
   let end_time = currentDate->formateDateString
@@ -42,7 +42,7 @@ let useSetInitialFilters = (
   () => {
     let inititalSearchParam = Dict.make()
 
-    let defaultDate = getDateFilteredObject(~range, ())
+    let defaultDate = getDateFilteredObject(~range)
 
     if filterValueJson->Dict.keysToArray->Array.length < 1 {
       let timeRange =
@@ -92,9 +92,9 @@ module SearchBarFilter = {
 
     let inputSearch: ReactFinalForm.fieldRenderPropsInput = {
       name: "name",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange,
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: baseValue->JSON.Encode.string,
       checked: true,
     }
@@ -107,7 +107,6 @@ module SearchBarFilter = {
         ~iconOpacity="opacity-100",
         ~leftIconCustomStyle="pl-4",
         ~inputStyle="!placeholder:opacity-90",
-        (),
       )(~input=inputSearch, ~placeholder)}
     </div>
   }
@@ -116,8 +115,7 @@ module SearchBarFilter = {
 module RemoteTableFilters = {
   @react.component
   let make = (
-    ~apiType=Fetch.Get,
-    ~filterUrl,
+    ~apiType: Fetch.requestMethod=Get,
     ~setFilters,
     ~endTimeFilterKey,
     ~startTimeFilterKey,
@@ -125,9 +123,16 @@ module RemoteTableFilters = {
     ~initialFixedFilter,
     ~setOffset,
     ~customLeftView,
+    ~title="",
+    ~entityName: APIUtilsTypes.entityName,
     (),
   ) => {
     open LogicUtils
+    open APIUtils
+
+    let getURL = useGetURL()
+    let {userInfo: transactionEntity} = React.useContext(UserInfoProvider.defaultContext)
+
     let {filterValue, updateExistingKeys, filterValueJson, reset} =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
@@ -135,23 +140,22 @@ module RemoteTableFilters = {
 
     React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length === 0 {
-        setFilters(_ => Dict.make()->Some)
+        setFilters(_ => Some(Dict.make()))
         setOffset(_ => 0)
       }
       None
     }, [])
 
-    open APIUtils
-
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
     let updateDetails = useUpdateMethod()
-    let defaultDate = getDateFilteredObject(~range=30, ())
+    let defaultDate = getDateFilteredObject(~range=30)
     let start_time = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
     let end_time = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
     let fetchDetails = useGetMethod()
 
     let fetchAllFilters = async () => {
       try {
+        let filterUrl = getURL(~entityName, ~methodType=apiType)
         setFilterDataJson(_ => None)
         let response = switch apiType {
         | Post => {
@@ -160,20 +164,20 @@ module RemoteTableFilters = {
                 (startTimeFilterKey, start_time->JSON.Encode.string),
                 (endTimeFilterKey, end_time->JSON.Encode.string),
               ]->getJsonFromArrayOfJson
-            await updateDetails(filterUrl, body, Fetch.Post, ())
+            await updateDetails(filterUrl, body, Post)
           }
         | _ => await fetchDetails(filterUrl)
         }
-        setFilterDataJson(_ => response->Some)
+        setFilterDataJson(_ => Some(response))
       } catch {
-      | _ => showToast(~message="Failed to load filters", ~toastType=ToastError, ())
+      | _ => showToast(~message="Failed to load filters", ~toastType=ToastError)
       }
     }
 
     React.useEffect(() => {
       fetchAllFilters()->ignore
       None
-    }, [])
+    }, [transactionEntity])
 
     let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
@@ -195,14 +199,29 @@ module RemoteTableFilters = {
 
     React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length != 0 {
-        setFilters(_ => filterValueJson->Some)
+        setFilters(_ => Some(filterValueJson))
         setOffset(_ => 0)
       } else {
-        setFilters(_ => Dict.make()->Some)
+        setFilters(_ => Some(Dict.make()))
         setOffset(_ => 0)
       }
       None
     }, [filterValue])
+
+    let dict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
+    let defaultSort: LoadedTable.sortOb = {
+      sortKey: "",
+      sortType: DSC,
+    }
+    let value = dict->Dict.get(title)->Option.getOr(defaultSort)
+
+    React.useEffect(() => {
+      if value.sortKey->isNonEmptyString {
+        filterValue->Dict.set("filter", "")
+        filterValue->updateExistingKeys
+      }
+      None
+    }, [value->OrderTypes.getSortString, value.sortKey])
 
     let getAllFilter =
       filterValue
@@ -239,6 +258,7 @@ module RemoteTableFilters = {
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => reset()}
+        title
       />
     | _ =>
       <Filter
@@ -255,6 +275,7 @@ module RemoteTableFilters = {
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => reset()}
+        title
       />
     }
   }

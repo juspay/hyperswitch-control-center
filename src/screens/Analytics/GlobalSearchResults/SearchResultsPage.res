@@ -91,18 +91,15 @@ let make = () => {
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-  let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
-  let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
+  let isShowRemoteResults = globalSearch && userHasAccess(~groupAccess=OperationsView) === Access
 
   let getSearchResults = async results => {
     try {
-      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
-      let body = generateSearchBody(
-        ~searchText={query},
-        ~merchant_id={merchantDetailsValue.merchant_id},
-      )
-      let response = await fetchDetails(url, body, Post, ())
+      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
+      let body = generateSearchBody(~searchText={query}, ~merchant_id={merchantId})
+      let response = await fetchDetails(url, body, Post)
 
       let local_results = []
       results->Array.forEach((item: resultType) => {

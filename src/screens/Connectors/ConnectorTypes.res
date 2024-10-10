@@ -45,6 +45,7 @@ type processorTypes =
   | ACI
   | WORLDLINE
   | FISERV
+  | FISERVIPG
   | SHIFT4
   | RAPYD
   | PAYU
@@ -87,6 +88,15 @@ type processorTypes =
   | RAZORPAY
   | BAMBORA_APAC
   | ITAUBANK
+  | DATATRANS
+  | PLAID
+  | SQUARE
+  | PAYBOX
+  | WELLSFARGO
+  | FIUU
+  | NOVALNET
+  | DEUTSCHEBANK
+  | NEXIXPAY
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
@@ -94,10 +104,16 @@ type frmTypes =
   | Signifyd
   | Riskifyed
 
+type pmAuthenticationProcessorTypes = PLAID
+
+type taxProcessorTypes = TAXJAR
+
 type connectorTypes =
   | Processors(processorTypes)
   | ThreeDsAuthenticator(threeDsAuthenticatorTypes)
   | FRM(frmTypes)
+  | PMAuthenticationProcessor(pmAuthenticationProcessorTypes)
+  | TaxProcessor(taxProcessorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -116,6 +132,8 @@ type paymentMethodTypes =
   | GooglePay
   | ApplePay
   | PayPal
+  | BankDebit
+  | OpenBankingPIS
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
@@ -161,6 +179,14 @@ type metaData = {
   apple_pay?: applePay,
   goole_pay?: googlePay,
 }
+type pmAuthPaymentMethods = {
+  payment_method: string,
+  payment_method_type: string,
+  connector_name: string,
+  mca_id: string,
+}
+
+type pmAuthDict = {enabled_payment_methods: array<pmAuthPaymentMethods>}
 
 type paymentMethodConfig = {
   bank_redirect?: option<array<string>>,
@@ -189,6 +215,56 @@ type wasmExtraPayload = {
 
 // This type are used for FRM configuration which need to moved to wasm
 
+type headerKey = {auth_type: string, api_key: string}
+type bodyKey = {
+  auth_type: string,
+  api_key: string,
+  key1: string,
+}
+type signatureKey = {
+  auth_type: string,
+  api_key: string,
+  key1: string,
+  api_secret: string,
+}
+type multiAuthKey = {
+  auth_type: string,
+  api_key: string,
+  key1: string,
+  api_secret: string,
+  key2: string,
+}
+type currencyKey = {
+  auth_type: string,
+  merchant_id_classic: string,
+  password_classic: string,
+  username_classic: string,
+}
+type currencyAuthKey = {auth_key_map: Js.Dict.t<JSON.t>, auth_type: string}
+type certificateAuth = {
+  auth_type: string,
+  certificate: string,
+  private_key: string,
+}
+
+type connectorAuthType =
+  | HeaderKey
+  | BodyKey
+  | SignatureKey
+  | MultiAuthKey
+  | CurrencyAuthKey
+  | CertificateAuth
+  | UnKnownAuthType
+
+type connectorAuthTypeObj =
+  | HeaderKey(headerKey)
+  | BodyKey(bodyKey)
+  | SignatureKey(signatureKey)
+  | MultiAuthKey(multiAuthKey)
+  | CurrencyAuthKey(currencyAuthKey)
+  | CertificateAuth(certificateAuth)
+  | UnKnownAuthType(JSON.t)
+
 type connectorAccountDetails = {
   auth_type: string,
   api_secret?: string,
@@ -206,13 +282,14 @@ type payment_methods_enabled = array<paymentMethodEnabledType>
 
 type frm_payment_method_type = {
   payment_method_type: string,
-  mutable flow: string,
-  mutable action: string,
+  flow: string,
+  action: string,
 }
 
 type frm_payment_method = {
   payment_method: string,
-  payment_method_types: array<frm_payment_method_type>,
+  payment_method_types?: array<frm_payment_method_type>,
+  flow: string,
 }
 
 type frm_config = {
@@ -224,18 +301,31 @@ type connectorPayload = {
   connector_type: string,
   connector_name: string,
   connector_label: string,
-  connector_account_details: connectorAccountDetails,
+  connector_account_details: connectorAuthTypeObj,
   test_mode: bool,
   disabled: bool,
   payment_methods_enabled: payment_methods_enabled,
   profile_id: string,
-  metadata?: JSON.t,
+  metadata: JSON.t,
   merchant_connector_id: string,
   frm_configs?: array<frm_config>,
   status: string,
+  connector_webhook_details: JSON.t,
+  additional_merchant_data: JSON.t,
 }
 
-type connector = FRMPlayer | Processor | PayoutConnector | ThreeDsAuthenticator
+type connector =
+  | FRMPlayer
+  | Processor
+  | PayoutConnector
+  | ThreeDsAuthenticator
+  | PMAuthenticationProcessor
+  | TaxProcessor
 
 type connectorTypeVariants =
-  PaymentProcessor | PaymentVas | PayoutProcessor | AuthenticationProcessor
+  | PaymentProcessor
+  | PaymentVas
+  | PayoutProcessor
+  | AuthenticationProcessor
+  | PMAuthProcessor
+  | TaxProcessor

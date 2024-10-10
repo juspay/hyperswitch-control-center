@@ -26,7 +26,7 @@ module AddEntryBtn = {
       [
         ("profile_name", `default${list->Array.length->Int.toString}`->JSON.Encode.string),
       ]->Dict.fromArray
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let modalBody =
       <div>
         {switch modalState {
@@ -73,7 +73,7 @@ module AddEntryBtn = {
               buttonType=Primary
               onClick={_ => {
                 if updatedProfileId->LogicUtils.isNonEmptyString {
-                  mixpanelEvent(~eventName="business_profiles_configure_payment_settings", ())
+                  mixpanelEvent(~eventName="business_profiles_configure_payment_settings")
                   RescriptReactRouter.replace(
                     GlobalVars.appendDashboardPath(~url=`/payment-settings/${updatedProfileId}`),
                   )
@@ -95,7 +95,7 @@ module AddEntryBtn = {
       <RenderIf condition=isFromSettings>
         <ACLButton
           text="Add"
-          access={userPermissionJson.merchantDetailsManage}
+          authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
           buttonSize=Small
           buttonType={Primary}
           onClick={_ => {
@@ -120,7 +120,7 @@ module AddEntryBtn = {
 let make = (
   ~isFromSettings=true,
   ~showModalFromOtherScreen=false,
-  ~setShowModalFromOtherScreen=_bool => (),
+  ~setShowModalFromOtherScreen=_ => (),
 ) => {
   open APIUtils
   open BusinessMappingUtils
@@ -130,7 +130,6 @@ let make = (
   let updateDetails = useUpdateMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (offset, setOffset) = React.useState(_ => 0)
-  let (showModal, setShowModal) = React.useState(_ => false)
   let (modalState, setModalState) = React.useState(_ => Edit)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (updatedProfileId, setUpdatedProfileId) = React.useState(_ => "")
@@ -142,13 +141,13 @@ let make = (
   let updateMerchantDetails = async body => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ())
-      let response = await updateDetails(url, body, Post, ())
+      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post)
+      let response = await updateDetails(url, body, Post)
       setUpdatedProfileId(_ =>
         response->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
       )
       fetchBusinessProfiles()->ignore
-      showToast(~message="Your Entry added successfully", ~toastType=ToastState.ToastSuccess, ())
+      showToast(~message="Your Entry added successfully", ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
@@ -163,7 +162,7 @@ let make = (
   }
 
   let onSubmit = async (values, _) => {
-    mixpanelEvent(~eventName="business_profiles_add", ())
+    mixpanelEvent(~eventName="business_profiles_add")
     updateMerchantDetails(values)->ignore
     Nullable.null
   }
@@ -194,17 +193,6 @@ let make = (
             setOffset
             currrentFetchCount={businessProfileValues->Array.length}
           />
-          <div className="absolute right-0 -top-3">
-            <AddEntryBtn
-              onSubmit
-              modalState
-              showModal
-              setShowModal
-              list={businessProfileValues}
-              updatedProfileId
-              setModalState
-            />
-          </div>
         </div>
       </div>
     </RenderIf>

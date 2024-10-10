@@ -2,7 +2,7 @@ module Render = {
   @react.component
   let make = (~connector, ~showModal, ~setShowModal) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let integrationSteps = switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+    let integrationSteps = switch connector->ConnectorUtils.getConnectorNameTypeFromString {
     | Processors(STRIPE) =>
       <div className="">
         <ol className="list-decimal pl-4">
@@ -14,8 +14,9 @@ module Render = {
             {React.string(" section")}
             <a href={`/icons/stripe_apikey.png`} target="_blank">
               <img
+                alt="stripe-api-key"
                 className="m-4 border rounded-lg border-gray-200"
-                style={ReactDOMStyle.make(~maxWidth="94%", ())}
+                style={maxWidth: "94%"}
                 src={`/icons/stripe_apikey.png`}
               />
             </a>
@@ -57,8 +58,9 @@ module Render = {
         </div>
         <a href={`/icons/stripe_helper.png`} target="_blank">
           <img
+            alt="stripe-helper"
             className="m-4 border rounded-lg border-gray-200"
-            style={ReactDOMStyle.make(~maxWidth="94%", ())}
+            style={maxWidth: "94%"}
             src={`/icons/stripe_helper.png`}
           />
         </a>
@@ -72,7 +74,9 @@ module Render = {
             {React.string(" tab and navigate to API credentials.")}
             <a href={`/icons/adyen_apikey.png`} target="_blank">
               <img
-                className="m-4 border rounded-lg border-gray-200" src={`/icons/adyen_apikey.png`}
+                alt="adyen-api-key"
+                className="m-4 border rounded-lg border-gray-200"
+                src={`/icons/adyen_apikey.png`}
               />
             </a>
           </li>
@@ -89,6 +93,7 @@ module Render = {
         </div>
         <a href={`/icons/adyen_merchantID.png`} target="_blank">
           <img
+            alt="adyen-merchant-id"
             className="m-8 border rounded-lg border-gray-200 w-3/4"
             src={`/icons/adyen_merchantID.png`}
           />
@@ -147,8 +152,9 @@ module Render = {
             )}
             <a href={`/icons/paypal_apikey.png`} target="_blank">
               <img
+                alt="paypal-api-key"
                 className="m-4 border rounded-lg border-gray-200"
-                style={ReactDOMStyle.make(~maxWidth="94%", ())}
+                style={maxWidth: "94%"}
                 src={`/icons/paypal_apikey.png`}
               />
             </a>

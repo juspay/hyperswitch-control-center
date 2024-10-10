@@ -85,6 +85,8 @@ type order = {
   payment_method_billing_address: string,
   payment_method_billing_phone: string,
   payment_method_billing_email: string,
+  payment_method_billing_first_name: string,
+  payment_method_billing_last_name: string,
   metadata: Dict.t<JSON.t>,
   email: string,
   name: string,
@@ -111,6 +113,7 @@ type order = {
   attempts: array<attempts>,
   merchant_order_reference_id: string,
   attempt_count: int,
+  connector_label: string,
 }
 
 type refundsColType =
@@ -179,7 +182,6 @@ type colType =
   | Created
   | Currency
   | CustomerId
-  | CustomerEmail
   | Description
   | Refunds
   | MandateId
@@ -249,6 +251,8 @@ type otherDetailsColType =
   | PMBillingAddress
   | PMBillingPhone
   | PMBillingEmail
+  | PMBillingFirstName
+  | PMBillingLastName
   | Email
   | FirstName
   | LastName
@@ -277,3 +281,9 @@ type optionObj = {
 }
 
 type frmStatus = [#APPROVE | #REJECT]
+
+let getSortString = (value: LoadedTable.sortOb) =>
+  switch value.sortType {
+  | ASC => "asc"
+  | DSC => "desc"
+  }

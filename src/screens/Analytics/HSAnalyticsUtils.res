@@ -1,6 +1,6 @@
 let filterFieldsPortalName = "analytics"
 
-let setPrecision = (num, ~digit=2, ()) => {
+let setPrecision = (num, ~digit=2) => {
   num->Float.toFixedWithPrecision(~digits=digit)->Js.Float.fromString
 }
 
@@ -44,9 +44,7 @@ let options: JSON.t => array<EntityType.optionType<'t>> = json => {
               ~showToolTip=true,
               ~showNameAsToolTip=true,
               ~customButtonStyle="bg-none",
-              (),
             ),
-            (),
           )
         },
         parser: val => val,
@@ -115,7 +113,6 @@ let initialFilterFields = json => {
                   ~customButtonStyle="bg-none",
                   (),
                 ),
-                (),
               ),
               localFilter: Some(filterByData),
             }: EntityType.initialFilters<'t>
@@ -160,11 +157,9 @@ let initialFixedFilterFields = _json => {
             ~disableApply=false,
             ~dateRangeLimit=180,
             ~optFieldKey=optFilterKey,
-            (),
           ),
           ~inputFields=[],
           ~isRequired=false,
-          (),
         ),
       }: EntityType.initialFilters<'t>
     ),
@@ -180,9 +175,9 @@ let getStringListFromArrayDict = metrics => {
 
 module NoData = {
   @react.component
-  let make = (~title, ~subTitle) => {
+  let make = (~title) => {
     <div className="p-5">
-      <PageUtils.PageHeading title subTitle />
+      <PageUtils.PageHeading title />
       <NoDataFound message="No Data Available" renderType=Painting>
         <Button
           text={"Make a Payment"}
@@ -208,7 +203,7 @@ let generateTablePayload = (
   ~mode: option<string>,
   ~customFilter,
   ~showDeltaMetrics,
-  ~moduleName as _: string,
+  ~moduleName as _,
   ~source: string="BATCH",
   (),
 ) => {
@@ -246,7 +241,6 @@ let generateTablePayload = (
         ~endDateTime=endTime,
         ~customFilter,
         ~source,
-        (),
       ),
     ]
   } else {
@@ -268,7 +262,6 @@ let generateTablePayload = (
           ~endDateTime=endTime,
           ~customFilter,
           ~source,
-          (),
         )
       )
     | None => [
@@ -282,7 +275,6 @@ let generateTablePayload = (
           ~endDateTime=endTime,
           ~customFilter,
           ~source,
-          (),
         ),
       ]
     }
@@ -303,7 +295,6 @@ let generateTablePayload = (
         ~endDateTime=endTime,
         ~customFilter,
         ~source,
-        (),
       ),
     ]
   } else {

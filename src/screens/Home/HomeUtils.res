@@ -7,7 +7,7 @@ let paragraphTextVariant = `${getTextClass((P2, Medium))} text-grey-700 opacity-
 let subtextStyle = `${getTextClass((P1, Regular))} text-grey-700 opacity-50`
 let cardHeaderText = getTextClass((H3, Leading_2))
 let hoverStyle = "cursor-pointer group-hover:shadow hover:shadow-homePageBoxShadow group"
-let boxCssHover = (~ishoverStyleRequired, ()) =>
+let boxCssHover = (~ishoverStyleRequired) =>
   `flex flex-col  bg-white border rounded-md pt-10 pl-10 gap-2 h-12.5-rem ${ishoverStyleRequired
       ? hoverStyle
       : ""}`
@@ -125,8 +125,7 @@ module MerchantAuthInfo = {
           <div className="font-semibold text-dark_black"> {"Publishable Key"->React.string} </div>
           <div className="flex items-center">
             <div
-              className="font-medium text-dark_black opacity-40"
-              style={ReactDOMStyle.make(~overflowWrap="anywhere", ())}>
+              className="font-medium text-dark_black opacity-40" style={overflowWrap: "anywhere"}>
               {merchantDetailsValue.publishable_key->React.string}
             </div>
             <CopyFieldValue fieldkey="publishable_key" />
@@ -165,7 +164,7 @@ module CheckoutCard = {
           },
         })
       } else {
-        mixpanelEvent(~eventName=`try_test_payment`, ())
+        mixpanelEvent(~eventName=`try_test_payment`)
         RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/sdk"))
       }
     }
@@ -182,7 +181,7 @@ module CheckoutCard = {
 
     <CardLayout width="w-full md:w-1/2">
       <CardHeader heading=title subHeading=description leftIcon=Some("checkout") />
-      <img className="w-10/12 -mt-7 hidden md:block" src="/assets/sdk.svg" />
+      <img alt="sdk" className="w-10/12 -mt-7 hidden md:block" src="/assets/sdk.svg" />
       <CardFooter customFooterStyle="!m-1 !mt-2">
         <Button
           text="Try it out" buttonType={Secondary} buttonSize={Small} onClick={handleOnClick}
@@ -197,12 +196,16 @@ module ControlCenter = {
   let make = () => {
     let merchantDetailsValue = useMerchantDetailsValue()
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
 
     let isLiveModeEnabledStyles = isLiveMode
       ? "flex flex-col md:flex-row gap-5 w-full"
       : "flex flex-col gap-5 md:w-1/2 w-full"
 
     <div className="flex flex-col gap-5 md:flex-row">
+      <RenderIf condition={!isLiveMode}>
+        <CheckoutCard />
+      </RenderIf>
       <div className=isLiveModeEnabledStyles>
         <CardLayout width="w-full" customStyle={isLiveMode ? "" : "h-3/6"}>
           <CardHeader
@@ -211,6 +214,7 @@ module ControlCenter = {
             leftIcon=Some("connector")
           />
           <img
+            alt="connector-list"
             className="inline-block absolute right-5 bottom-5  lg:block"
             src="/assets/connectorsList.svg"
           />
@@ -225,29 +229,30 @@ module ControlCenter = {
             />
           </CardFooter>
         </CardLayout>
-        <CardLayout width="w-full" customStyle={isLiveMode ? "" : "h-4/6"}>
-          <CardHeader
-            heading="Credentials and Keys"
-            subHeading="Your secret credentials to start integrating"
-            leftIcon=Some("merchantInfo")
-            customSubHeadingStyle="w-full max-w-none"
-          />
-          <MerchantAuthInfo merchantDetailsValue />
-          <CardFooter>
-            <Button
-              text="Go to API keys"
-              buttonType={Secondary}
-              buttonSize={Small}
-              onClick={_ => {
-                RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/developer-api-keys"))
-              }}
+        <RenderIf condition={!checkUserEntity([#Profile])}>
+          <CardLayout width="w-full" customStyle={isLiveMode ? "" : "h-4/6"}>
+            <CardHeader
+              heading="Credentials and Keys"
+              subHeading="Your secret credentials to start integrating"
+              leftIcon=Some("merchantInfo")
+              customSubHeadingStyle="w-full max-w-none"
             />
-          </CardFooter>
-        </CardLayout>
+            <MerchantAuthInfo merchantDetailsValue />
+            <CardFooter>
+              <Button
+                text="Go to API keys"
+                buttonType={Secondary}
+                buttonSize={Small}
+                onClick={_ => {
+                  RescriptReactRouter.push(
+                    GlobalVars.appendDashboardPath(~url="/developer-api-keys"),
+                  )
+                }}
+              />
+            </CardFooter>
+          </CardLayout>
+        </RenderIf>
       </div>
-      <RenderIf condition={!isLiveMode}>
-        <CheckoutCard />
-      </RenderIf>
     </div>
   }
 }
@@ -274,7 +279,7 @@ module DevResources = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                mixpanelEvent(~eventName=`dev_docs`, ())
+                mixpanelEvent(~eventName=`dev_docs`)
                 "https://hyperswitch.io/docs"->Window._open
               }}
             />
@@ -330,52 +335,15 @@ let responseDataMapper = (res: JSON.t, mapper: (Dict.t<JSON.t>, string) => JSON.
   resDict
 }
 
-let getValueMapped = (value, key) => {
-  open LogicUtils
-  let keyVariant = key->QuickStartUtils.stringToVariantMapperForUserData
-  switch keyVariant {
-  | #ProductionAgreement
-  | #IntegrationCompleted
-  | #SPTestPayment
-  | #DownloadWoocom
-  | #ConfigureWoocom
-  | #SetupWoocomWebhook =>
-    value->getBool(key, false)->JSON.Encode.bool
-  | #ConfigurationType => value->getString(key, "")->JSON.Encode.string
-  | #FirstProcessorConnected
-  | #SecondProcessorConnected
-  | #StripeConnected
-  | #PaypalConnected
-  | #IntegrationMethod =>
-    value->getJsonObjectFromDict(key)
-  | #TestPayment => value->getJsonObjectFromDict(key)
-  | #ConfiguredRouting | #SPRoutingConfigured => value->getJsonObjectFromDict(key)
-  }
-}
-
-let getValueMappedForProd = (value, key) => {
-  open LogicUtils
-  let keyVariant = key->ProdOnboardingUtils.stringToVariantMapperForUserData
-  switch keyVariant {
-  | #ProductionAgreement
-  | #ConfigureEndpoint
-  | #SetupComplete =>
-    value->getBool(key, false)->JSON.Encode.bool
-  | #SetupProcessor => value->getJsonObjectFromDict(key)
-  }
-}
-
 module LowRecoveryCodeBanner = {
   @react.component
-  let make = (~recovery_codes_left) => {
+  let make = (~recoveryCode) => {
     <div className="w-full bg-orange-200 bg-opacity-40 px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <Icon name="warning-outlined" size=25 />
         <div className="flex gap-2">
           {`You are low on recovery-codes. Only`->React.string}
-          <span className="font-bold">
-            {`${recovery_codes_left->Int.toString} left`->React.string}
-          </span>
+          <span className="font-bold"> {`${recoveryCode->Int.toString} left`->React.string} </span>
         </div>
       </div>
       <Button

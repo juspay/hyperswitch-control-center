@@ -23,10 +23,15 @@ let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatu
   "paypalAccountStatusAtom",
   PayPalFlowTypes.Connect_paypal_landing,
 )
-let userPermissionAtom: Recoil.recoilAtom<UserManagementTypes.permissionJson> = Recoil.atom(
+// TODO: remove this after userGroupPermissionsAtom is stable
+let userPermissionAtom: Recoil.recoilAtom<UserManagementTypes.groupAccessJsonType> = Recoil.atom(
   "userPermissionAtom",
-  PermissionUtils.defaultValueForPermission,
+  GroupACLMapper.defaultValueForGroupAccessJson,
 )
+
+let userGroupACLAtom: Recoil.recoilAtom<
+  option<Map.t<UserManagementTypes.groupAccessType, CommonAuthTypes.authorization>>,
+> = Recoil.atom("userGroupACLAtom", None)
 
 let switchMerchantListAtom: Recoil.recoilAtom<
   array<SwitchMerchantUtils.switchMerchantListResponse>,
@@ -41,4 +46,24 @@ let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Reco
     remote_results: [],
     searchText: "",
   },
+)
+
+let orgListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
+  "orgListAtom",
+  OMPSwitchUtils.ompDefaultValue("", ""),
+)
+
+let merchantListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
+  "merchantListAtom",
+  OMPSwitchUtils.ompDefaultValue("", ""),
+)
+
+let profileListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
+  "profileListAtom",
+  OMPSwitchUtils.ompDefaultValue("", ""),
+)
+
+let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType>> = Recoil.atom(
+  "moduleListRecoil",
+  [],
 )

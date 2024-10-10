@@ -6,7 +6,7 @@ module DisputesNoteComponent = {
     let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
       ThemeProvider.themeContext,
     )
-    let connectorTypeFromName = disputesData.connector->getConnectorNameTypeFromString()
+    let connectorTypeFromName = disputesData.connector->getConnectorNameTypeFromString
     let dashboardLink = {
       switch connectorTypeFromName {
       | Processors(BLUESNAP) | Processors(STRIPE) =>
@@ -53,7 +53,7 @@ module Details = {
     open DisputesUtils
     open LogicUtils
 
-    let connectorTypeFromName = data.connector->ConnectorUtils.getConnectorNameTypeFromString()
+    let connectorTypeFromName = data.connector->ConnectorUtils.getConnectorNameTypeFromString
     let {disputeEvidenceUpload} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (uploadEvidenceModal, setUploadEvidenceModal) = React.useState(_ => false)
     let (fileUploadedDict, setFileUploadedDict) = React.useState(_ => Dict.make())
@@ -148,7 +148,7 @@ module DisputesInfo = {
   @react.component
   let make = (~orderDict, ~setDisputeData) => {
     let disputesData = DisputesEntity.itemToObjMapper(orderDict)
-    let connectorName = disputesData.connector->ConnectorUtils.getConnectorNameTypeFromString()
+    let connectorName = disputesData.connector->ConnectorUtils.getConnectorNameTypeFromString
 
     let showNoteComponentCondition = ConnectorUtils.existsInArray(
       connectorName,
@@ -168,19 +168,22 @@ module DisputesInfo = {
 }
 
 @react.component
-let make = (~id) => {
+let make = (~id, ~profileId) => {
   open APIUtils
   let url = RescriptReactRouter.useUrl()
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (disputeData, setDisputeData) = React.useState(_ => JSON.Encode.null)
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
 
   let fetchDisputesData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let disputesUrl = getURL(~entityName=DISPUTES, ~methodType=Get, ~id=Some(id), ())
+      let disputesUrl = getURL(~entityName=DISPUTES, ~methodType=Get, ~id=Some(id))
+      let _ = await internalSwitch(~expectedProfileId=profileId)
       let response = await fetchDetails(disputesUrl)
       setDisputeData(_ => response)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -216,7 +219,9 @@ let make = (~id) => {
       </div>
       <DisputesInfo orderDict={data} setDisputeData />
       <div className="mt-5" />
-      <RenderIf condition={featureFlagDetails.auditTrail}>
+      <RenderIf
+        condition={featureFlagDetails.auditTrail &&
+        userHasAccess(~groupAccess=AnalyticsView) == Access}>
         <OrderUIUtils.RenderAccordian
           accordion={[
             {

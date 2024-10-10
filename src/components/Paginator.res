@@ -38,20 +38,20 @@ let make = (
   }, (shouldRefetch, handleRefetch))
 
   let selectInputOption = {
-    [5, 10, 15, 25, 50]
+    [5, 10, 15, 20, 50]
     ->Array.filter(val => val <= totalResults)
     ->Array.map(Int.toString)
     ->SelectBox.makeOptions
   }
   let selectInput: ReactFinalForm.fieldRenderPropsInput = {
     name: "dummy-name",
-    onBlur: _ev => (),
+    onBlur: _ => (),
     onChange: ev => {
       setResultsPerPage(_ => {
         ev->Identity.formReactEventToString->Int.fromString->Option.getOr(15)
       })
     },
-    onFocus: _ev => (),
+    onFocus: _ => (),
     value: resultsPerPage->Int.toString->JSON.Encode.string,
     checked: true,
   }
@@ -78,6 +78,7 @@ let make = (
             )}
             <SelectBox.BaseDropdown
               options=selectInputOption
+              fixedDropDownDirection={TopRight}
               buttonText=""
               searchable=false
               allowMultiSelect=false

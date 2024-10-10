@@ -59,7 +59,7 @@ module TabInfo = {
     } else {
       "text-jp-gray-700 dark:text-jp-gray-tabset_gray dark:text-opacity-75  hover:text-jp-gray-800 dark:hover:text-opacity-100 font-medium"
     }
-    let handleClick = React.useCallback(_ev => {
+    let handleClick = React.useCallback(_ => {
       handleSelectedTab(
         ~tabValue={
           switch tabNames->Array.get(index) {
@@ -124,7 +124,7 @@ module TabInfo = {
             )
           }
         }}
-        style={ReactDOMStyle.make(~marginLeft="15px", ())}
+        style={marginLeft: "15px"}
         height="10"
         width="10"
         fill="none"
@@ -146,7 +146,7 @@ module TabInfo = {
             ->String.split("+")
             ->Array.map(String.trim)
             ->Array.map(LogicUtils.snakeToTitle)
-            ->Array.joinWithUnsafe(" + "),
+            ->Array.joinWith(" + "),
           )}
           crossIcon
         </div>
@@ -171,7 +171,7 @@ module IndicationArrow = {
   let make = (~iconName, ~side, ~refElement: React.ref<Js.nullable<Dom.element>>, ~isVisible) => {
     let isMobileView = MatchMedia.useMobileChecker()
     let onClick = {
-      _ev =>
+      _ =>
         refElement.current
         ->Nullable.toOption
         ->Option.forEach(input =>
@@ -279,21 +279,17 @@ let make = (
           let tabName = tabName->getUniqueArray
           let validated =
             tabName
-            ->Array.filter(
-              item => {
-                tabs->Array.map(item => item.value)->Array.includes(item) === false
-              },
-            )
+            ->Array.filter(item => !(tabs->Array.map(item => item.value)->Array.includes(item)))
             ->Array.length === 0
 
-          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
+          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
           if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
             let newTab = {
               title: concatinatedTabNames,
-              value: tabName->Array.joinWithUnsafe(","),
+              value: tabName->Array.joinWith(","),
               description: switch tabs->Array.find(
                 item => {
-                  item.value === tabName->Array.joinWithUnsafe(",")
+                  item.value === tabName->Array.joinWith(",")
                 },
               ) {
               | Some(tabValue) =>
@@ -302,7 +298,7 @@ let make = (
               },
               isRemovable: switch tabs->Array.find(
                 item => {
-                  item.value === tabName->Array.joinWithUnsafe(",")
+                  item.value === tabName->Array.joinWith(",")
                 },
               ) {
               | Some(tabValue) => tabValue.isRemovable
@@ -328,12 +324,10 @@ let make = (
 
     let validated =
       tabName
-      ->Array.filter(item => {
-        tabs->Array.map(item => item.value)->Array.includes(item) === false
-      })
+      ->Array.filter(item => !(tabs->Array.map(item => item.value)->Array.includes(item)))
       ->Array.length === 0
 
-    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
+    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
 
     if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
       let concatinatedTabIndex =
@@ -343,7 +337,7 @@ let make = (
         let newTab = [
           {
             title: concatinatedTabNames,
-            value: tabName->Array.joinWithUnsafe(","),
+            value: tabName->Array.joinWith(","),
             isRemovable: true,
           },
         ]
@@ -359,7 +353,7 @@ let make = (
       setSelectedIndex(_ => 0)
       (0, collapsibleTabs)
     }
-  }, [])
+  }, [updateCollapsableTabs])
 
   let (collapsibleTabs, setCollapsibleTabs) = React.useState(_ => updatedCollapsableTabs)
   let (formattedOptions, setFormattedOptions) = React.useState(_ => [])
@@ -399,7 +393,7 @@ let make = (
   let scrollRef = React.useRef(Nullable.null)
   let lastTabRef = React.useRef(Nullable.null)
 
-  let onScroll = _ev => {
+  let onScroll = _ => {
     setTabScroll(
       firstTabRef,
       lastTabRef,
@@ -417,7 +411,7 @@ let make = (
     ~collapsibleTabs: array<tab>,
     ~removed: bool,
   ) => unit = (~tabValue: string, ~collapsibleTabs: array<tab>, ~removed: bool) => {
-    if removed === false {
+    if !removed {
       if (
         tabValue !== tabStacksnames->Array.get(tabStacksnames->Array.length - 1)->Option.getOr("")
       ) {
@@ -455,8 +449,8 @@ let make = (
   }
 
   let onSubmit = values => {
-    let tabName = values->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
-    let tabValue = values->Array.joinWithUnsafe(",")
+    let tabName = values->Array.map(getTitle)->Array.joinWith(" + ")
+    let tabValue = values->Array.joinWith(",")
     if !Array.includes(collapsibleTabs->Array.map(item => item.title), tabName) {
       let newTab = [
         {
@@ -483,8 +477,8 @@ let make = (
       }, 200)->ignore
     } else {
       setSelectedIndex(_ => Array.indexOf(collapsibleTabs->Array.map(item => item.value), tabValue))
-      updateTabNameWith(Dict.fromArray([("tabName", `[${values->Array.joinWithUnsafe(",")}]`)]))
-      setActiveTab(values->Array.joinWithUnsafe(","))
+      updateTabNameWith(Dict.fromArray([("tabName", `[${values->Array.joinWith(",")}]`)]))
+      setActiveTab(values->Array.joinWith(","))
     }
     setShowModal(_ => false)
   }
@@ -586,9 +580,7 @@ let make = (
             />
           </RenderIf>
           <RenderIf condition={showAddMoreTabs && formattedOptions->Array.length > 0}>
-            <div
-              className="flex flex-row"
-              style={ReactDOMStyle.make(~marginTop="20px", ~marginLeft="7px", ())}>
+            <div className="flex flex-row" style={marginTop: "20px", marginLeft: "7px"}>
               <ToolTip
                 description=toolTipDescription
                 toolTipFor={<Button
@@ -597,7 +589,7 @@ let make = (
                   buttonSize=Small
                   customButtonStyle=addBtnStyle
                   textStyle=addBtnTextStyle
-                  onClick={_ev => setShowModal(_ => true)}
+                  onClick={_ => setShowModal(_ => true)}
                 />}
                 toolTipPosition=Top
                 tooltipWidthClass="w-fit"

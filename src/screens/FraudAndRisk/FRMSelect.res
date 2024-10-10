@@ -2,7 +2,7 @@ module NewProcessorCards = {
   open FRMInfo
   @react.component
   let make = (~configuredFRMs: array<ConnectorTypes.connectorTypes>) => {
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let frmAvailableForIntegration = frmList
     let unConfiguredFRMs = frmAvailableForIntegration->Array.filter(total =>
@@ -14,7 +14,7 @@ module NewProcessorCards = {
     )
 
     let handleClick = frmName => {
-      mixpanelEvent(~eventName=`connect_frm_${frmName}`, ())
+      mixpanelEvent(~eventName=`connect_frm_${frmName}`)
       RescriptReactRouter.push(
         GlobalVars.appendDashboardPath(~url=`/fraud-risk-management/new?name=${frmName}`),
       )
@@ -47,7 +47,7 @@ module NewProcessorCards = {
               </div>
               <ACLButton
                 text="Connect"
-                access=userPermissionJson.connectorsManage
+                authorization={userHasAccess(~groupAccess=ConnectorsManage)}
                 buttonType=Secondary
                 buttonSize=Small
                 onClick={_ => handleClick(frmName)}
@@ -82,7 +82,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchDetails = APIUtils.useGetMethod()
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (
     configuredFRMs: array<ConnectorTypes.connectorTypes>,
     setConfiguredFRMs,
@@ -105,15 +105,15 @@ let make = () => {
   React.useEffect(() => {
     open Promise
     open LogicUtils
-    fetchDetails(getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ()))
+    fetchDetails(getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get))
     ->thenResolve(json => {
       let processorsList = json->getArrayFromJson([])->Array.map(getDictFromJsonObject)
 
       let connectorsCount =
-        processorsList->FRMUtils.filterList(~removeFromList=FRMPlayer, ())->Array.length
+        processorsList->FRMUtils.filterList(~removeFromList=FRMPlayer)->Array.length
 
       if connectorsCount > 0 {
-        let frmList = processorsList->FRMUtils.filterList(~removeFromList=Connector, ())
+        let frmList = processorsList->FRMUtils.filterList(~removeFromList=Connector)
         let previousData = frmList->Array.map(ConnectorListMapper.getProcessorPayloadType)
         setFilteredFRMData(_ => previousData->Array.map(Nullable.make))
         setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
@@ -123,7 +123,6 @@ let make = () => {
             ->getString("connector_name", "")
             ->ConnectorUtils.getConnectorNameTypeFromString(
               ~connectorType=ConnectorTypes.FRMPlayer,
-              (),
             ),
         )
         setConfiguredFRMs(_ => arr)
@@ -181,7 +180,7 @@ let make = () => {
           setOffset
           entity={FRMTableUtils.connectorEntity(
             "fraud-risk-management",
-            ~permission={userPermissionJson.connectorsManage},
+            ~authorization={userHasAccess(~groupAccess=ConnectorsManage)},
           )}
           currrentFetchCount={filteredFRMData->Array.length}
           collapseTableRow=false
@@ -189,7 +188,7 @@ let make = () => {
       </RenderIf>
       <NewProcessorCards configuredFRMs />
       <RenderIf condition={!isMobileView}>
-        <img className="w-full max-w-[1400px] mb-10" src="/assets/frmBanner.svg" />
+        <img alt="frm-banner" className="w-full max-w-[1400px] mb-10" src="/assets/frmBanner.svg" />
       </RenderIf>
     </div>
   </PageLoaderWrapper>

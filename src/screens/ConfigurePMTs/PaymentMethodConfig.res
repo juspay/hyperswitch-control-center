@@ -10,7 +10,7 @@ module PmtConfigInp = {
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToArrayOfString
         if value->Array.length <= 0 {
@@ -25,7 +25,7 @@ module PmtConfigInp = {
           enableType.onChange("enable_only"->Identity.anyTypeToReactEvent)
         }
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: enabledList.value,
       checked: true,
     }
@@ -55,9 +55,9 @@ let valueInput = (inputArg: PaymentMethodConfigTypes.valueInput) => {
     ~label=`${inputArg.label}`,
     ~comboCustomInput=renderValueInp(inputArg.options),
     ~inputFields=[
-      makeInputFieldInfo(~name=`${inputArg.name1}`, ()),
-      makeInputFieldInfo(~name=`${inputArg.name2}`, ()),
-      makeInputFieldInfo(~name=`${inputArg.name2}.type`, ()),
+      makeInputFieldInfo(~name=`${inputArg.name1}`),
+      makeInputFieldInfo(~name=`${inputArg.name2}`),
+      makeInputFieldInfo(~name=`${inputArg.name2}.type`),
     ],
     (),
   )
@@ -71,8 +71,8 @@ let make = (
   ~element: option<React.element>=?,
 ) => {
   open FormRenderer
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
-  let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (showPaymentMthdConfigModal, setShowPaymentMthdConfigModal) = React.useState(_ => false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currencies, setCurrencies) = React.useState(_ => [])
@@ -96,7 +96,7 @@ let make = (
     try {
       setShowPaymentMthdConfigModal(_ => true)
       setScreenState(_ => Loading)
-      let paymentMethoConfigUrl = getURL(~entityName=PAYMENT_METHOD_CONFIG, ~methodType=Get, ())
+      let paymentMethoConfigUrl = getURL(~entityName=PAYMENT_METHOD_CONFIG, ~methodType=Get)
       let data =
         connectorList
         ->Array.filter(item =>
@@ -142,8 +142,8 @@ let make = (
 
   let onSubmit = async (values, _) => {
     try {
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(merchant_connector_id), ())
-      let _ = await updateDetails(url, values, Post, ())
+      let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(merchant_connector_id))
+      let _ = await updateDetails(url, values, Post)
       let _ = await setReferesh()
       setShowPaymentMthdConfigModal(_ => false)
     } catch {
@@ -196,7 +196,7 @@ let make = (
       </Modal>
     </RenderIf>
     <ACLDiv
-      permission=permissionJson.connectorsManage
+      authorization={userHasAccess(~groupAccess=ConnectorsManage)}
       className="cursor-pointer w-150"
       onClick={_ => getProcessorDetails()->ignore}>
       {switch element {

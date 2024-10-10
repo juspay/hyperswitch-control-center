@@ -13,13 +13,13 @@ module MultiConfigInp = {
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
-      onBlur: _ev => (),
+      onBlur: _ => (),
       onChange: ev => {
         let value = ev->Identity.formReactEventToArrayOfString
         valueField.onChange(value->Identity.anyTypeToReactEvent)
         enabledList.onChange(value->Identity.anyTypeToReactEvent)
       },
-      onFocus: _ev => (),
+      onFocus: _ => (),
       value: enabledList.value,
       checked: true,
     }
@@ -37,8 +37,8 @@ let multiValueInput = (~label, ~fieldName1, ~fieldName2) => {
     ~label,
     ~comboCustomInput=renderValueInp(~label),
     ~inputFields=[
-      makeInputFieldInfo(~name=`${fieldName1}`, ()),
-      makeInputFieldInfo(~name=`${fieldName2}`, ()),
+      makeInputFieldInfo(~name=`${fieldName1}`),
+      makeInputFieldInfo(~name=`${fieldName2}`),
     ],
     (),
   )
@@ -61,7 +61,7 @@ let inputField = (
     ~name,
     ~description,
     ~toolTipPosition,
-    ~customInput=InputFields.textInput(~isDisabled=disabled, ()),
+    ~customInput=InputFields.textInput(~isDisabled=disabled),
     ~placeholder=switch getPlaceholder {
     | Some(fun) => fun(label)
     | None => `Enter ${label->LogicUtils.snakeToTitle}`
@@ -70,7 +70,6 @@ let inputField = (
     | Some(fun) => fun(connector, field)
     | None => true
     },
-    (),
   )
 
 module ErrorValidation = {
@@ -211,7 +210,7 @@ module CashToCodeSelectBox = {
       {opts
       ->Array.mapWithIndex((country, index) => {
         <div key={index->Int.toString} className="flex items-center gap-2 break-words p-2">
-          <div onClick={_e => selectedCountry(country)}>
+          <div onClick={_ => selectedCountry(country)}>
             <CheckBoxIcon isSelected={country->isSelected} />
           </div>
           <p className=p2RegularTextStyle> {React.string(country->snakeToTitle)} </p>
@@ -299,6 +298,7 @@ module ConnectorConfigurationFields = {
     ~connectorWebHookDetails,
     ~isUpdateFlow=false,
     ~connectorLabelDetailField,
+    ~connectorAdditionalMerchantData,
   ) => {
     <div className="flex flex-col">
       {switch connector {
@@ -323,6 +323,7 @@ module ConnectorConfigurationFields = {
         description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
       />
       <ConnectorMetaData connectorMetaDataFields />
+      <ConnectorAdditionalMerchantData connector connectorAdditionalMerchantData />
       <RenderConnectorInputFields
         details={connectorWebHookDetails}
         name={"connector_webhook_details"}
@@ -359,13 +360,12 @@ module BusinessProfileRender = {
           ~customInput=(~input, ~placeholder as _) =>
             InputFields.selectInput(
               ~deselectDisable=true,
-              ~disableSelect=isUpdateFlow,
+              ~disableSelect={isUpdateFlow || businessProfiles->HomeUtils.isDefaultBusinessProfile},
               ~customStyle="max-h-48",
               ~options={
                 businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption
               },
               ~buttonText="Select Profile",
-              (),
             )(
               ~input={
                 ...input,
@@ -387,7 +387,6 @@ module BusinessProfileRender = {
               },
               ~placeholder="",
             ),
-          (),
         )}
       />
       <RenderIf condition={!isUpdateFlow}>
@@ -489,7 +488,7 @@ module ConnectorHeaderWrapper = {
   ) => {
     open ConnectorUtils
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let connectorNameFromType = connector->getConnectorNameTypeFromString()
+    let connectorNameFromType = connector->getConnectorNameTypeFromString
     let setShowModalFunction = switch handleShowModal {
     | Some(func) => func
     | _ => _ => ()

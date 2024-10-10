@@ -6,6 +6,7 @@ let make = () => {
   open RefundUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (refundData, setRefundsData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -15,6 +16,10 @@ let make = () => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Refunds")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
+  let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
+  let {userInfo: {transactionEntity}, checkUserEntity} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
 
   let fetchRefunds = () => {
     switch filters {
@@ -57,17 +62,32 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
-  let filterUrl = getURL(~entityName=REFUNDS, ~methodType=Get, ~id=Some("v2/filter"), ())
+  let {generateReport, transactionView} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
-      <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
+      <div className="flex justify-between items-center">
+        <PageUtils.PageHeading title="Refunds" />
+        <div className="flex gap-4">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
+            selectedEntity={transactionEntity}
+            onChange={updateTransactionEntity}
+          />
+          <RenderIf condition={generateReport && refundData->Array.length > 0}>
+            <GenerateReport entityName={REFUND_REPORT} />
+          </RenderIf>
+        </div>
+      </div>
+      <RenderIf condition={transactionView}>
+        <div className="flex gap-6 justify-around">
+          <TransactionView entity=TransactionViewTypes.Refunds />
+        </div>
+      </RenderIf>
       <div className="flex justify-between gap-3">
         <div className="flex-1">
           <RemoteTableFilters
-            filterUrl
             setFilters
             endTimeFilterKey
             startTimeFilterKey
@@ -79,12 +99,10 @@ let make = () => {
               setSearchVal=setSearchText
               searchVal=searchText
             />}
+            entityName=REFUND_FILTERS
+            title="Refunds"
           />
         </div>
-        <RenderIf condition={generateReport && refundData->Array.length > 0}>
-          <GenerateReport entityName={REFUND_REPORT} />
-        </RenderIf>
-        <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />
       </div>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns

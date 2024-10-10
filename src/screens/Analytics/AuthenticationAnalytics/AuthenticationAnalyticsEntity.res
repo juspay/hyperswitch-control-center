@@ -3,7 +3,6 @@ open DynamicSingleStat
 
 open HSAnalyticsUtils
 open AnalyticsTypes
-let domain = "auth_events"
 
 let singleStatInitialValue = {
   three_ds_sdk_count: 0,
@@ -246,9 +245,9 @@ let getStatData = (
       title: "Frictionless Success Rate",
       tooltipText: "Total number of payments authenticated over a frictionless flow successfully over the total number of payments going through a frictionless flow.",
       deltaTooltipComponent: _ => React.null,
-      value: singleStatData.challenge_success_count->Int.toFloat *.
+      value: singleStatData.frictionless_success_count->Int.toFloat *.
       100. /.
-      singleStatData.challenge_flow_count->Int.toFloat,
+      singleStatData.frictionless_flow_count->Int.toFloat,
       delta: 0.0,
       data: constructData(FrictionlessSuccessRate, timeSeriesData),
       statType: "Rate",
@@ -260,7 +259,7 @@ let getStatData = (
 let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
   urlConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/auth_events`,
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
@@ -269,7 +268,7 @@ let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> =
   defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/auth_events`,
   statSentiment: Dict.make(),
   statThreshold: Dict.make(),
 }
@@ -373,7 +372,7 @@ let authenticationFunnelMetricsConfig: array<LineChartUtils.metricsConfig> = [
 
 let commonAuthenticationChartEntity = tabKeys =>
   DynamicChart.makeEntity(
-    ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`),
+    ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/auth_events`),
     ~filterKeys=tabKeys,
     ~dateFilterKeys=(startTimeFilterKey, endTimeFilterKey),
     ~currentMetrics=("Success Rate", "Volume"), // 2nd metric will be static and we won't show the 2nd metric option to the first metric
@@ -382,7 +381,7 @@ let commonAuthenticationChartEntity = tabKeys =>
     ~chartTypes=[SemiDonut],
     ~uriConfig=[
       {
-        uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+        uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/auth_events`,
         timeSeriesBody: DynamicChart.getTimeSeriesChart,
         legendBody: DynamicChart.getLegendBody,
         metrics: paymentMetricsConfig,
@@ -396,7 +395,6 @@ let commonAuthenticationChartEntity = tabKeys =>
         [""]
       }
     },
-    (),
   )
 
 let authenticationFunnelChartEntity = tabKeys => {
@@ -404,7 +402,7 @@ let authenticationFunnelChartEntity = tabKeys => {
   chartTypes: [Funnel],
   uriConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/auth_events`,
       timeSeriesBody: DynamicChart.getTimeSeriesChart,
       legendBody: DynamicChart.getLegendBody,
       metrics: authenticationFunnelMetricsConfig,

@@ -2,6 +2,7 @@ open LogicUtils
 open HSwitchOrderUtils
 
 type refunds = {
+  profile_id: string,
   refund_id: string,
   payment_id: string,
   amount: float,
@@ -76,34 +77,18 @@ let useGetStatus = order => {
 
 let getHeading = colType => {
   switch colType {
-  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount", ~showSort=false, ())
-  | Created => Table.makeHeaderInfo(~key="created", ~title="Created", ~showSort=false, ())
-  | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=false, ())
-  | LastUpdated =>
-    Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated", ~showSort=false, ())
-  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID", ~showSort=false, ())
-  | RefundId => Table.makeHeaderInfo(~key="refund_id", ~title="Refund ID", ~showSort=false, ())
-  | RefundReason => Table.makeHeaderInfo(~key="reason", ~title="Refund Reason", ~showSort=false, ())
-  | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code", ~showSort=false, ())
-  | ErrorMessage =>
-    Table.makeHeaderInfo(~key="error_message", ~title="Error Message", ~showSort=false, ())
-  | RefundStatus =>
-    Table.makeHeaderInfo(
-      ~key="status",
-      ~title="Refund Status",
-      ~dataType=DropDown,
-      ~showSort=false,
-      (),
-    )
-  | MetaData =>
-    Table.makeHeaderInfo(
-      ~key="metaData",
-      ~title="MetaData",
-      ~dataType=DropDown,
-      ~showSort=false,
-      (),
-    )
-  | ConnectorName => Table.makeHeaderInfo(~key="connector", ~title="Connector", ~showSort=false, ())
+  | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
+  | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
+  | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
+  | LastUpdated => Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated")
+  | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
+  | RefundId => Table.makeHeaderInfo(~key="refund_id", ~title="Refund ID")
+  | RefundReason => Table.makeHeaderInfo(~key="reason", ~title="Refund Reason")
+  | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code")
+  | ErrorMessage => Table.makeHeaderInfo(~key="error_message", ~title="Error Message")
+  | RefundStatus => Table.makeHeaderInfo(~key="status", ~title="Refund Status", ~dataType=DropDown)
+  | MetaData => Table.makeHeaderInfo(~key="metaData", ~title="MetaData", ~dataType=DropDown)
+  | ConnectorName => Table.makeHeaderInfo(~key="connector", ~title="Connector")
   }
 }
 
@@ -122,7 +107,15 @@ let getCell = (refundData, colType): Table.cell => {
   | ErrorMessage => Text(refundData.error_message)
   | PaymentId => DisplayCopyCell(refundData.payment_id)
   | RefundReason => Text(refundData.reason)
-  | RefundId => DisplayCopyCell(refundData.refund_id)
+  | RefundId =>
+    CustomCell(
+      <CopyLinkTableCell
+        url={`/refunds/${refundData.refund_id}/${refundData.profile_id}`}
+        displayValue={refundData.refund_id}
+        copyValue={Some(refundData.refund_id)}
+      />,
+      "",
+    )
   | RefundStatus =>
     Label({
       title: refundData.status->String.toUpperCase,
@@ -147,6 +140,7 @@ let getCell = (refundData, colType): Table.cell => {
 
 let itemToObjMapper = dict => {
   {
+    profile_id: getString(dict, "profile_id", ""),
     amount: getFloat(dict, "amount", 0.0),
     created_at: getString(dict, "created_at", ""),
     currency: getString(dict, "currency", ""),
@@ -175,7 +169,9 @@ let refundEntity = EntityType.makeEntity(
   ~getCell,
   ~dataKey="",
   ~getShowLink={
-    refundData => GlobalVars.appendDashboardPath(~url=`/refunds/${refundData.refund_id}`)
+    refundData =>
+      GlobalVars.appendDashboardPath(
+        ~url=`/refunds/${refundData.refund_id}/${refundData.profile_id}`,
+      )
   },
-  (),
 )

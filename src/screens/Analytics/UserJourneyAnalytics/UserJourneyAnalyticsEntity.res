@@ -3,7 +3,6 @@ open DynamicSingleStat
 
 open HSAnalyticsUtils
 open AnalyticsTypes
-let domain = "sdk_events"
 
 let singleStatInitialValue = {
   payment_attempts: 0,
@@ -41,7 +40,7 @@ let singleStatSeriesItemToObjMapper = json => {
     payment_attempts: dict->getInt("payment_attempts", 0),
     time_series: dict->getString("time_bucket", ""),
     sdk_rendered_count: dict->getInt("sdk_rendered_count", 0),
-    average_payment_time: dict->getFloat("average_payment_time", 0.0)->setPrecision() /. 1000.,
+    average_payment_time: dict->getFloat("average_payment_time", 0.0)->setPrecision /. 1000.,
     load_time: dict->getFloat("load_time", 0.0) /. 1000.,
   })
   ->Option.getOr({
@@ -220,8 +219,8 @@ let getStatData = (
       showDelta: false,
     }
   | AvgPaymentTime => {
-      title: "TP-50 Payment Time",
-      tooltipText: "Time taken to attempt payment",
+      title: "Payment Time",
+      tooltipText: "The time spent on Checkout upto the moment the payment request is sent to the backend server.",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.average_payment_time,
         deltaTimestampData.currentSr,
@@ -239,8 +238,8 @@ let getStatData = (
       showDelta: false,
     }
   | LoadTime => {
-      title: "TP-50 Load Time",
-      tooltipText: "Time taken to Start Render of Checkout from creation of Elements",
+      title: "Checkout Load Time",
+      tooltipText: "Time taken from Checkout creation to the start of its rendering",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.load_time,
         deltaTimestampData.currentSr,
@@ -277,7 +276,7 @@ let getStatThresholds = {
 let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
   urlConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/sdk_events`,
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
@@ -286,7 +285,7 @@ let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> =
   defaultColumns,
   getData: getStatData,
   totalVolumeCol: None,
-  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+  matrixUriMapper: _ => `${Window.env.apiBaseUrl}/analytics/v1/metrics/sdk_events`,
   statSentiment: getStatSentiment,
   statThreshold: getStatThresholds,
 }
@@ -358,7 +357,7 @@ let userJourneyFunnelMetricsConfig: array<LineChartUtils.metricsConfig> = [
 
 let commonUserJourneyChartEntity = tabKeys =>
   DynamicChart.makeEntity(
-    ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`),
+    ~uri=String(`${Window.env.apiBaseUrl}/analytics/v1/metrics/sdk_events`),
     ~filterKeys=tabKeys,
     ~dateFilterKeys=(startTimeFilterKey, endTimeFilterKey),
     ~currentMetrics=("Success Rate", "Volume"), // 2nd metric will be static and we won't show the 2nd metric option to the first metric
@@ -367,7 +366,7 @@ let commonUserJourneyChartEntity = tabKeys =>
     ~chartTypes=[SemiDonut],
     ~uriConfig=[
       {
-        uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+        uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/sdk_events`,
         timeSeriesBody: DynamicChart.getTimeSeriesChart,
         legendBody: DynamicChart.getLegendBody,
         metrics: paymentMetricsConfig,
@@ -382,14 +381,13 @@ let commonUserJourneyChartEntity = tabKeys =>
       }
     },
     ~disableGranularity=true,
-    (),
   )
 
 let userJourneyChartEntity = tabKeys => {
   ...commonUserJourneyChartEntity(tabKeys),
   uriConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/sdk_events`,
       timeSeriesBody: DynamicChart.getTimeSeriesChart,
       legendBody: DynamicChart.getLegendBody,
       metrics: userJourneyMetricsConfig,
@@ -404,7 +402,7 @@ let userJourneyBarChartEntity = tabKeys => {
   chartTypes: [HorizontalBar],
   uriConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/sdk_events`,
       timeSeriesBody: DynamicChart.getTimeSeriesChart,
       legendBody: DynamicChart.getLegendBody,
       metrics: userJourneyMetricsConfig,
@@ -419,7 +417,7 @@ let userJourneyFunnelChartEntity = tabKeys => {
   chartTypes: [Funnel],
   uriConfig: [
     {
-      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/${domain}`,
+      uri: `${Window.env.apiBaseUrl}/analytics/v1/metrics/sdk_events`,
       timeSeriesBody: DynamicChart.getTimeSeriesChart,
       legendBody: DynamicChart.getLegendBody,
       metrics: userJourneyFunnelMetricsConfig,
@@ -449,11 +447,9 @@ let fixedFilterFields = _json => {
             ~disableApply=false,
             ~dateRangeLimit=180,
             ~optFieldKey=optFilterKey,
-            (),
           ),
           ~inputFields=[],
           ~isRequired=false,
-          (),
         ),
       }: EntityType.initialFilters<'t>
     ),

@@ -23,7 +23,7 @@ let make = (
 
   let handleOnClickCopy = (~parsedValue) => {
     Clipboard.writeText(parsedValue)
-    showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+    showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
   }
 
   let copyParsedJson =

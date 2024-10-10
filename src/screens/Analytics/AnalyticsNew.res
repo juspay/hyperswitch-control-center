@@ -38,9 +38,7 @@ module TableWrapper = {
     ~tableEntity: EntityType.entityType<'colType, 't>,
     ~deltaMetrics: array<string>,
     ~deltaArray: array<string>,
-    ~tableUpdatedHeading as _: option<
-      (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
-    >,
+    ~tableUpdatedHeading as _,
     ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
     ~moduleName,
     ~weeklyTableMetricsCols,
@@ -189,7 +187,7 @@ module TableWrapper = {
         (),
       )
 
-      fetchDetails(tableEntity.uri, weeklyTableReqBody, Post, ())
+      fetchDetails(tableEntity.uri, weeklyTableReqBody, Post)
       ->thenResolve(json => {
         setTableData(_ => getUpdatedData(data, json, cols))
         setTableDataLoading(_ => false)
@@ -238,7 +236,7 @@ module TableWrapper = {
           (),
         )
 
-        fetchDetails(tableEntity.uri, tableReqBody, Post, ())
+        fetchDetails(tableEntity.uri, tableReqBody, Post)
         ->thenResolve(json => json->updateTableData)
         ->catch(_ => {
           setTableDataLoading(_ => false)

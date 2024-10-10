@@ -4,13 +4,34 @@ open AdvancedRoutingUtils
 module GatewayView = {
   @react.component
   let make = (~gateways) => {
+    let url = RescriptReactRouter.useUrl()
+
+    let connectorType = switch url->RoutingUtils.urlToVariantMapper {
+    | PayoutRouting => RoutingTypes.PayoutConnector
+    | _ => RoutingTypes.PaymentConnector
+    }
+
+    let connectorList =
+      HyperswitchAtom.connectorListAtom
+      ->Recoil.useRecoilValueFromAtom
+      ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
+
+    let getGatewayName = merchantConnectorId => {
+      (
+        connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(merchantConnectorId)
+      ).connector_label
+    }
+
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     <div className="flex flex-wrap gap-4 items-center">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
         let (connectorStr, percent) = switch ruleGateway {
-        | PriorityObject(obj) => (obj.connector, None)
-        | VolumeObject(obj) => (obj.connector.connector, Some(obj.split))
+        | PriorityObject(obj) => (obj.merchant_connector_id->getGatewayName, None)
+        | VolumeObject(obj) => (
+            obj.connector.merchant_connector_id->getGatewayName,
+            Some(obj.split),
+          )
         }
         <div
           key={Int.toString(index)}
@@ -81,7 +102,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
             }
             <div key={Int.toString(index)} className="flex flex-col items-center w-full px-4 pb-6">
               <div
-                style={ReactDOMStyle.make(~marginTop="-1.2rem", ())}
+                style={marginTop: "-1.2rem"}
                 className="text-jp-gray-700 dark:text-jp-gray-700 text-base font-semibold p-1 px-3 bg-jp-gray-50 dark:bg-jp-gray-950 rounded-full border border-jp-gray-600 dark:border-jp-gray-850">
                 {headingText->React.string}
               </div>

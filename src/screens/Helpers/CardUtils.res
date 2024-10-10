@@ -3,7 +3,8 @@ module CardHeader = {
   let make = (~heading, ~subHeading, ~leftIcon=None, ~customSubHeadingStyle="") => {
     <div className="flex gap-3">
       {switch leftIcon {
-      | Some(icon) => <img className="h-6 inline-block align-top" src={`/icons/${icon}.svg`} />
+      | Some(icon) =>
+        <img alt="image" className="h-6 inline-block align-top" src={`/icons/${icon}.svg`} />
       | None => React.null
       }}
       <div>

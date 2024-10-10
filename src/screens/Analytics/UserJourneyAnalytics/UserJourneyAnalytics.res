@@ -17,8 +17,7 @@ let make = () => {
       let infoUrl = getURL(
         ~entityName=ANALYTICS_USER_JOURNEY,
         ~methodType=Get,
-        ~id=Some(domain),
-        (),
+        ~id=Some("sdk_events"),
       )
       let infoDetails = await fetchDetails(infoUrl)
       setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
@@ -58,14 +57,12 @@ let make = () => {
   })
 
   let title = "Know your users"
-  let subTitle = "User Journey analytics is a level deeper into payment analytics and aims at providing you a wholesome understanding of the end users and their usage patterns."
 
   <div>
-    <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
+    <PageLoaderWrapper screenState customUI={<NoData title />}>
       <Analytics
         pageTitle=title
-        pageSubTitle=subTitle
-        filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/${domain}`)
+        filterUri=Some(`${Window.env.apiBaseUrl}/analytics/v1/filters/sdk_events`)
         key="UserJourneyAnalytics"
         moduleName="UserJourney"
         deltaMetrics={getStringListFromArrayDict(metrics)}

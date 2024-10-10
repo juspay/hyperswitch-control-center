@@ -111,9 +111,8 @@ let make = (
     ~callback=() => {
       setIsExpanded(p => !p)
     },
-    (),
   )
-  let changeVisibility = _ev => {
+  let changeVisibility = _ => {
     if !isDisabled {
       setIsExpanded(p => !p)
     }
@@ -159,7 +158,7 @@ let make = (
 
   let startTimeInput: ReactFinalForm.fieldRenderPropsInput = {
     name: "string",
-    onBlur: _ev => (),
+    onBlur: _ => (),
     onChange: timeValEv => {
       let timeVal = timeValEv->Identity.formReactEventToString
       if selectedDate->isNonEmptyString {
@@ -192,7 +191,7 @@ let make = (
         input.onChange(timestamp->dateFormat(format)->Identity.stringToFormReactEvent)
       }
     },
-    onFocus: _ev => (),
+    onFocus: _ => (),
     value: {
       let time = date->DateRangePicker.getTimeStringForValue(isoStringToCustomTimeZone)
       let time =
