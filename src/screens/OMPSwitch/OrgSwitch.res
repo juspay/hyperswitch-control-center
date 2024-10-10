@@ -85,6 +85,7 @@ let make = () => {
       fullLength=true
       toggleChevronState
       customScrollStyle
+      shouldDisplaySelectedOnTop=true
     />
     <LoaderModal
       showModal={showSwitchingOrg}

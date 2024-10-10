@@ -182,7 +182,7 @@ let make = () => {
       options={profileList->generateDropdownOptions}
       hideMultiSelectButtons=true
       addButton=false
-      searchable=false
+      searchable=true
       customStyle="absolute w-fit right-0"
       baseComponent={<ListBaseCompForProfile
         currProfile={currentOMPName(profileList, profileId)} arrow
@@ -198,6 +198,7 @@ let make = () => {
       toggleChevronState
       customScrollStyle
       dropdownContainerStyle
+      shouldDisplaySelectedOnTop=true
     />
     <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getProfileList />
