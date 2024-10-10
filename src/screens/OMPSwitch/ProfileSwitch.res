@@ -55,8 +55,18 @@ module NewAccountCreationModal = {
     let profileName = FormRenderer.makeFieldInfo(
       ~label="Profile Name",
       ~name="profile_name",
-      ~placeholder="Eg: My New Profile",
-      ~customInput=InputFields.textInput(),
+      ~customInput=(~input, ~placeholder as _) =>
+        InputFields.textInput()(
+          ~input={
+            ...input,
+            onChange: event =>
+              ReactEvent.Form.target(event)["value"]
+              ->String.trimStart
+              ->Identity.stringToFormReactEvent
+              ->input.onChange,
+          },
+          ~placeholder="Eg: My New Profile",
+        ),
       ~isRequired=true,
     )
 

@@ -30,8 +30,18 @@ module NewAccountCreationModal = {
     let merchantName = FormRenderer.makeFieldInfo(
       ~label="Merchant Name",
       ~name="company_name",
-      ~placeholder="Eg: My New Merchant",
-      ~customInput=InputFields.textInput(),
+      ~customInput=(~input, ~placeholder as _) =>
+        InputFields.textInput()(
+          ~input={
+            ...input,
+            onChange: event =>
+              ReactEvent.Form.target(event)["value"]
+              ->String.trimStart
+              ->Identity.stringToFormReactEvent
+              ->input.onChange,
+          },
+          ~placeholder="Eg: My New Merchant",
+        ),
       ~isRequired=true,
     )
 
