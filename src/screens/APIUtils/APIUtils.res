@@ -619,10 +619,11 @@ let useGetURL = () => {
         | None => `${userUrl}/role`
         }
       | #ROLE_INFO => `${userUrl}/module/list`
+
       | #GROUP_ACCESS_INFO =>
         switch queryParamerters {
-        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
-        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        | Some(params) => `${userUrl}/permission_info?${params}`
+        | None => `${userUrl}/permission_info`
         }
 
       // USER ACTIONS
