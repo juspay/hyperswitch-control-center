@@ -494,7 +494,7 @@ let taxJarInfo = {
   description: "TaxJar is reimagining how businesses manage sales tax compliance. Its cloud-based platform automates the entire sales tax life cycle across all sales channels — from calculations and nexus tracking to reporting and filing.",
 }
 let nexixpayInfo = {
-  description : "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online."
+  description: "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online.",
 }
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
