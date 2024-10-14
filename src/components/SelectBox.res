@@ -1104,7 +1104,7 @@ module RenderListItemInBaseRadio = {
     ~optionClass="",
     ~selectClass="",
     ~customScrollStyle=?,
-    ~shouldDisplaySelectedOnTop
+    ~shouldDisplaySelectedOnTop,
   ) => {
     let decodedValue = value->JSON.Decode.string
     switch (decodedValue, shouldDisplaySelectedOnTop) {
@@ -1292,7 +1292,7 @@ module BaseRadio = {
     ~selectClass="",
     ~customScrollStyle=?,
     ~dropdownContainerStyle="",
-    ~shouldDisplaySelectedOnTop=false
+    ~shouldDisplaySelectedOnTop=false,
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1418,7 +1418,10 @@ module BaseRadio = {
       }
     }, (searchString, options, selectedString))
     let overflowClass = !isDropDown ? "" : "overflow-auto"
-
+    let heightScroll = switch customScrollStyle {
+    | Some(_) => "max-h-full"
+    | None => maxHeight
+    }
     let searchInputUI =
       <div
         className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 `}>
@@ -1446,10 +1449,7 @@ module BaseRadio = {
         </RenderIf>
       }}
       <div
-        className={`${switch customScrollStyle {
-          | Some(_) => "max-h-full"
-          | None => maxHeight
-          }} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
+        className={`${heightScroll} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
         {if newOptions->Array.length === 0 && showMatchingRecordsText {
           <div className="flex justify-center items-center m-4">
             {React.string("No matching records found")}
@@ -1608,7 +1608,7 @@ module BaseDropdown = {
     ~customDropdownOuterClass="",
     ~customScrollStyle=?,
     ~dropdownContainerStyle="",
-    ~shouldDisplaySelectedOnTop=false
+    ~shouldDisplaySelectedOnTop=false,
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
