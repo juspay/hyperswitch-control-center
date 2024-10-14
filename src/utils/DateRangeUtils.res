@@ -412,6 +412,7 @@ let getDiffForPredefined = (
   let todayDayJsObj = Date.make()->Date.toString->DayJs.getDayJsForString
   let todayDate = todayDayJsObj.format("YYYY-MM-DD")
   let todayTime = todayDayJsObj.format("HH:mm:ss")
+  let format = "YYYY-MM-DDTHH:mm:00[Z]"
 
   let (stDate, enDate, stTime, enTime) = getPredefinedStartAndEndDate(
     todayDayJsObj,
@@ -429,14 +430,15 @@ let getDiffForPredefined = (
     ~date=stDate,
     ~time=stTime,
     ~customTimezoneToISOString,
-    ~format="YYYY-MM-DDTHH:mm:00[Z]",
+    ~format,
   )
   let endTimestamp = changeTimeFormat(
     ~date=enDate,
     ~time=enTime,
     ~customTimezoneToISOString,
-    ~format="YYYY-MM-DDTHH:mm:00[Z]",
+    ~format,
   )
+
   getStartEndDiff(startTimestamp, endTimestamp)
 }
 
@@ -450,13 +452,10 @@ let getIsPredefinedOptionSelected = (
   disableFutureDates,
   disablePastDates,
 ) => {
+  let format = "YYYY-MM-DDTHH:mm:00[Z]"
   predefinedDays->Array.find(item => {
-    let startDate = convertTimeStamp(
-      ~isoStringToCustomTimeZone,
-      startDateVal,
-      "YYYY-MM-DDTHH:mm:00[Z]",
-    )
-    let endDate = convertTimeStamp(~isoStringToCustomTimeZone, endDateVal, "YYYY-MM-DDTHH:mm:00[Z]")
+    let startDate = convertTimeStamp(~isoStringToCustomTimeZone, startDateVal, format)
+    let endDate = convertTimeStamp(~isoStringToCustomTimeZone, endDateVal, format)
     let difference = getStartEndDiff(startDate, endDate)
     getDiffForPredefined(
       item,
@@ -483,3 +482,8 @@ let getStrokeColor = (disable, isDropdownExpandedActualPrimary) =>
   } else {
     "stroke-jp-2-light-gray-1100"
   }
+
+let resetStartEndInput = (~setStartDate, ~setEndDate) => {
+  setStartDate(_ => "")
+  setEndDate(_ => "")
+}
