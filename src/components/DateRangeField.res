@@ -442,22 +442,18 @@ module Base = {
       checked: false,
     }
 
-    let formatDateString = (~dateVal, ~buttonText, ~defaultLabel) => {
-      if dateVal->isNonEmptyString {
-        getFormattedDate(dateVal->getDateStringForValue(isoStringToCustomTimeZone), "MMM DD, YYYY")
-      } else if buttonText->isNonEmptyString {
-        buttonText
-      } else {
-        defaultLabel
-      }
-    }
-
     let startDateStr = formatDateString(
       ~dateVal=startDateVal,
       ~buttonText,
       ~defaultLabel="[From-Date]",
+      ~isoStringToCustomTimeZone,
     )
-    let endDateStr = formatDateString(~dateVal=endDateVal, ~buttonText, ~defaultLabel="[To-Date]")
+    let endDateStr = formatDateString(
+      ~dateVal=endDateVal,
+      ~buttonText,
+      ~defaultLabel="[To-Date]",
+      ~isoStringToCustomTimeZone,
+    )
 
     let startTimeStr = formatTimeString(
       ~timeVal=startDateVal->getTimeStringForValue(isoStringToCustomTimeZone),
@@ -588,52 +584,20 @@ module Base = {
       None
     }, (startDate, endDate, localStartDate, localEndDate))
 
-    let getDiffForPredefined = predefinedDay => {
-      let (stDate, enDate, stTime, enTime) = DateRangeUtils.getPredefinedStartAndEndDate(
-        todayDayJsObj,
-        isoStringToCustomTimeZone,
-        isoStringToCustomTimezoneInFloat,
-        customTimezoneToISOString,
-        predefinedDay,
-        disableFutureDates,
-        disablePastDates,
-        todayDate,
-        todayTime,
-      )
-      let startTimestamp = changeTimeFormat(
-        ~date=stDate,
-        ~time=stTime,
-        ~customTimezoneToISOString,
-        ~format="YYYY-MM-DDTHH:mm:00[Z]",
-      )
-      let endTimestamp = changeTimeFormat(
-        ~date=enDate,
-        ~time=enTime,
-        ~customTimezoneToISOString,
-        ~format="YYYY-MM-DDTHH:mm:00[Z]",
-      )
-      getStartEndDiff(startTimestamp, endTimestamp)
-    }
-
-    let predefinedOptionSelected = predefinedDays->Array.find(item => {
-      let startDate = convertTimeStamp(
-        ~isoStringToCustomTimeZone,
-        startDateVal,
-        "YYYY-MM-DDTHH:mm:00[Z]",
-      )
-      let endDate = convertTimeStamp(
-        ~isoStringToCustomTimeZone,
-        endDateVal,
-        "YYYY-MM-DDTHH:mm:00[Z]",
-      )
-      let difference = getStartEndDiff(startDate, endDate)
-      getDiffForPredefined(item) === difference
-    })
-
     let filteredPredefinedDays = switch dateRangeLimit {
     | Some(limit) =>
       let maxDiff = (limit->Float.fromInt *. 24. *. 60. *. 60. -. 1.) *. 1000.
-      predefinedDays->Array.filter(item => getDiffForPredefined(item) <= maxDiff)
+      predefinedDays->Array.filter(item =>
+        getDiffForPredefined(
+          item,
+          isoStringToCustomTimeZone,
+          isoStringToCustomTimezoneInFloat,
+          customTimezoneToISOString,
+          disableFutureDates,
+          disablePastDates,
+        ) <=
+        maxDiff
+      )
     | None => predefinedDays
     }
 
@@ -646,22 +610,35 @@ module Base = {
       setSeconEndDateVal(_ => "")
     }
 
-    let customeRangeBg = switch predefinedOptionSelected {
-    | Some(_) => "bg-white dark:bg-jp-gray-lightgray_background"
-    | None => "bg-jp-gray-100 dark:bg-jp-gray-850"
-    }
+    let isPrimaryPredefinedOptionSelected = getIsPredefinedOptionSelected(
+      predefinedDays,
+      startDateVal,
+      endDateVal,
+      isoStringToCustomTimeZone,
+      isoStringToCustomTimezoneInFloat,
+      customTimezoneToISOString,
+      disableFutureDates,
+      disablePastDates,
+    )
 
-    let strokeColor = if disable {
-      "stroke-jp-2-light-gray-600"
-    } else if isDropdownExpandedActualPrimary {
-      "stroke-jp-2-light-gray-1700"
-    } else {
-      "stroke-jp-2-light-gray-1100"
-    }
+    let isSecondaryPredefinedOptionSelected = getIsPredefinedOptionSelected(
+      predefinedDays,
+      seconStartDateVal,
+      seconEndDateVal,
+      isoStringToCustomTimeZone,
+      isoStringToCustomTimezoneInFloat,
+      customTimezoneToISOString,
+      disableFutureDates,
+      disablePastDates,
+    )
 
     let iconElement = {
       <div className="flex flex-row gap-2">
-        <Icon className=strokeColor name=buttonIcon size=14 />
+        <Icon
+          className={getStrokeColor(disable, isDropdownExpandedActualPrimary)}
+          name=buttonIcon
+          size=14
+        />
         <RenderIf
           condition={removeFilterOption &&
           startDateVal->isNonEmptyString &&
@@ -671,14 +648,23 @@ module Base = {
       </div>
     }
 
-    let buttonText = getButtonText(
-      ~predefinedOptionSelected,
+    let primaryButtonText = getButtonText(
+      ~predefinedOptionSelected=isPrimaryPredefinedOptionSelected,
       ~disableFutureDates,
       ~startDateVal,
       ~endDateVal,
-      ~startDateStr,
-      ~endDateStr,
       ~buttonText,
+      ~isoStringToCustomTimeZone,
+    )
+
+    let compareButtonText = getButtonText(
+      ~predefinedOptionSelected=isSecondaryPredefinedOptionSelected,
+      ~disableFutureDates,
+      ~startDateVal=seconStartDateVal,
+      ~endDateVal=seconEndDateVal,
+      ~buttonText,
+      ~isoStringToCustomTimeZone,
+      ~isCompare=true,
     )
 
     let dropDownElement = dropDownType =>
@@ -688,38 +674,42 @@ module Base = {
           <RenderIf condition={predefinedDays->Array.length > 0 && showOption}>
             <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
               <div className="flex flex-wrap gap-1 md:flex-col">
-                {filteredPredefinedDays
-                ->Array.mapWithIndex((value, i) => {
-                  <div
-                    key={i->Int.toString}
-                    className="w-1/3 md:w-full md:min-w-max text-center md:text-start">
-                    <PredefinedOption
-                      predefinedOptionSelected
-                      value
-                      onClick=handlePredefinedOptionClick
-                      disableFutureDates
-                      disablePastDates
-                      todayDayJsObj
-                      isoStringToCustomTimeZone
-                      isoStringToCustomTimezoneInFloat
-                      customTimezoneToISOString
-                      todayDate
-                      todayTime
-                      formatDateTime
-                    />
-                  </div>
-                })
-                ->Array.concat([
-                  <div
-                    className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3   hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customeRangeBg}}`}
-                    onClick={_ => {
-                      setCalendarVisibilityPrimary(_ => true)
-                      setIsCustomSelectedPrimary(_ => true)
-                    }}>
-                    {React.string("Custom Range")}
-                  </div>,
-                ])
-                ->React.array}
+                {
+                  let customBg = isPrimaryPredefinedOptionSelected->getCustomeRangeBg
+
+                  filteredPredefinedDays
+                  ->Array.mapWithIndex((value, i) => {
+                    <div
+                      key={i->Int.toString}
+                      className="w-1/3 md:w-full md:min-w-max text-center md:text-start">
+                      <PredefinedOption
+                        predefinedOptionSelected=isPrimaryPredefinedOptionSelected
+                        value
+                        onClick=handlePredefinedOptionClick
+                        disableFutureDates
+                        disablePastDates
+                        todayDayJsObj
+                        isoStringToCustomTimeZone
+                        isoStringToCustomTimezoneInFloat
+                        customTimezoneToISOString
+                        todayDate
+                        todayTime
+                        formatDateTime
+                      />
+                    </div>
+                  })
+                  ->Array.concat([
+                    <div
+                      className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3   hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customBg}`}
+                      onClick={_ => {
+                        setCalendarVisibilityPrimary(_ => true)
+                        setIsCustomSelectedPrimary(_ => true)
+                      }}>
+                      {React.string("Custom Range")}
+                    </div>,
+                  ])
+                  ->React.array
+                }
               </div>
             </AddDataAttributes>
           </RenderIf>
@@ -789,13 +779,14 @@ module Base = {
       </div>
 
     let dropDownClass = `absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`
+    let formatText = text => isMobileView && textHideInMobileView ? "" : text
 
     <div className="flex gap-2">
       <div ref={dateRangeRef->ReactDOM.Ref.domRef} className="daterangSelection relative">
         <ToolTip
           description={tooltipText}
           toolTipFor={<Button
-            text={isMobileView && textHideInMobileView ? "" : buttonText}
+            text={primaryButtonText->formatText}
             leftIcon={CustomIcon(<Icon name="calendar-filter" size=22 />)}
             rightIcon={CustomIcon(iconElement)}
             buttonSize=XSmall
@@ -819,10 +810,7 @@ module Base = {
       <RenderIf condition={enableComparision}>
         <div className="daterangSelection relative">
           <Button
-            text={isMobileView && textHideInMobileView ? "" : buttonText}
-            leftIcon={CustomIcon(
-              <div className="text-blue-dark"> {"Compare: "->React.string} </div>,
-            )}
+            text={compareButtonText->formatText}
             rightIcon={CustomIcon(iconElement)}
             buttonSize=XSmall
             isDropdownOpen=isDropdownExpandedActualSecondary
@@ -881,6 +869,8 @@ let make = (
   let seconEndInput = ReactFinalForm.useField(seconEndKey).input
   let (seconStartDateVal, setSeconStartDateVal) = useStateForInput(seconStartInput)
   let (seconEndDateVal, setSeconEndDateVal) = useStateForInput(seconEndInput)
+
+  Js.log2(">>", seconStartDateVal)
 
   <Base
     startDateVal
