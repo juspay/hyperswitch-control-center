@@ -169,6 +169,7 @@ module DateSelectorButton = {
       ~defaultTime="00:00:00",
       ~showSeconds,
     )
+
     let endTimeStr = formatTimeString(
       ~timeVal=endDateVal->getTimeStringForValue(isoStringToCustomTimeZone),
       ~defaultTime="23:59:59",

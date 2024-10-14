@@ -38,6 +38,7 @@ module Base = {
     ~isTooltipVisible=true,
   ) => {
     open LogicUtils
+
     let (isCustomSelectedPrimary, setIsCustomSelectedPrimary) = React.useState(_ =>
       predefinedDays->Array.length === 0
     )
@@ -90,6 +91,12 @@ module Base = {
     }, [startDateVal, endDateVal])
 
     React.useEffect(() => {
+      setLocalEndSecondaryDate(_ => seconEndDateVal)
+      setLocalStartSecondaryDate(_ => seconStartDateVal)
+      None
+    }, [seconStartDateVal, seconEndDateVal])
+
+    React.useEffect(() => {
       switch dateRangeLimit {
       | Some(maxLen) => {
           let diff = getStartEndDiff(localStartDate, localEndDate)
@@ -121,11 +128,14 @@ module Base = {
     let isDropdownExpandedActualSecondary =
       isDropdownExpandedSecondary && calendarVisibilitySecondary
 
-    let saveDates = () => {
+    let savePrimaryDates = () => {
       if localStartDate->isNonEmptyString && localEndDate->isNonEmptyString {
         setStartDateVal(_ => localStartDate)
         setEndDateVal(_ => localEndDate)
       }
+    }
+
+    let saveSecondaryDates = () => {
       if (
         enableComparision &&
         localStartSecondaryDate->isNonEmptyString &&
@@ -135,6 +145,7 @@ module Base = {
         setSeconEndDateVal(_ => localEndSecondaryDate)
       }
     }
+
     let resetToInitalValues = () => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
@@ -408,7 +419,8 @@ module Base = {
       setShowOption(_ => false)
       setCalendarVisibilityPrimary(p => !p)
       setIsDropdownExpandedPrimary(_ => false)
-      saveDates()
+      savePrimaryDates()
+      saveSecondaryDates()
     }
 
     let cancelButton = _ => {
@@ -515,13 +527,10 @@ module Base = {
           setIsDropdownExpandedSecondary(_ => false)
           setShowOption(_ => false)
 
-          resetStartEndInput(
-            ~setStartDate=setLocalStartSecondaryDate,
-            ~setEndDate=setLocalEndSecondaryDate,
-          )
-
-          setSeconStartDateVal(_ => "")
-          setSeconEndDateVal(_ => "")
+          setLocalStartSecondaryDate(_ => "No_Value")
+          setLocalEndSecondaryDate(_ => "No_Value")
+          setSeconStartDateVal(_ => "No_Value")
+          setSeconEndDateVal(_ => "No_Value")
         }
       | Previous_Period => {
           setIsCustomSelectedSecondary(_ => false)
@@ -547,7 +556,7 @@ module Base = {
           setDateTime(~date=stDate, ~time=stTime, setLocalStartSecondaryDate)
           setDateTime(~date=edDate, ~time=endTime, setLocalEndSecondaryDate)
 
-          changeSecondaryStartDate(stDate, false, Some("00:00:00"))
+          changeSecondaryStartDate(stDate, false, Some(stTime))
           changeSecondaryEndDate(edDate, false, Some(endTime))
         }
       }
@@ -585,19 +594,26 @@ module Base = {
     }
 
     React.useEffect(() => {
-      let shouldSaveDates =
+      let shouldPrimarySaveDates =
         startDate->isNonEmptyString &&
         endDate->isNonEmptyString &&
         localStartDate->isNonEmptyString &&
         localEndDate->isNonEmptyString &&
+        (disableApply || !isCustomSelectedPrimary)
+
+      let shouldSecondarySaveDates =
         seconStartDate->isNonEmptyString &&
         seconEndDateVal->isNonEmptyString &&
         localStartSecondaryDate->isNonEmptyString &&
         localEndSecondaryDate->isNonEmptyString &&
         (disableApply || !isCustomSelectedPrimary)
 
-      if shouldSaveDates {
-        saveDates()
+      if shouldPrimarySaveDates {
+        savePrimaryDates()
+      }
+
+      if shouldSecondarySaveDates {
+        saveSecondaryDates()
       }
 
       if disableApply {
@@ -818,7 +834,6 @@ module Base = {
             textStyle
             iconBorderColor=customborderCSS
             customButtonStyle=customStyleForBtn
-            enableToolTip=false
             showLeftIcon=false
             isCompare=true
           />

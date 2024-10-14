@@ -382,7 +382,10 @@ let getButtonText = (
       | (true, true) => `No Comparison`
       | (true, false) => `Compare: ${endDateStr}` // When start date is empty, show only end date
       | (false, true) => `Compare: ${startDateStr} - Now` // When end date is empty, show start date and "Now"
-      | (false, false) => {
+      | (false, false) =>
+        if startDateVal == "No_Value" && endDateVal == "No_Value" {
+          `No Comparison`
+        } else {
           let separator = startDateStr === buttonText ? "" : "-"
           `Compare: ${startDateStr} ${separator} ${endDateStr}`
         }
