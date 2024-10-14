@@ -489,6 +489,7 @@ let filterDateRangeField = (
   ~selectStandardTime=false,
   ~isTooltipVisible=true,
 ): comboCustomInputRecord => {
+  open LogicUtils
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
     <DateRangeField
       disablePastDates
@@ -513,7 +514,15 @@ let filterDateRangeField = (
     />
   }
 
-  {fn, names: [startKey, endKey]}
+  let inputNames = [startKey, endKey]
+
+  let names = if seconStartKey->isNonEmptyString && seconEndKey->isNonEmptyString {
+    [...inputNames, seconStartKey, seconEndKey]
+  } else {
+    [...inputNames]
+  }
+
+  {fn, names}
 }
 
 let dateRangeField = (
