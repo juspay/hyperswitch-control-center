@@ -36,8 +36,6 @@ let make = () => {
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   sessionExpired := false
 
-  let (renderKey, setRenderkey) = React.useState(_ => "")
-
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
@@ -50,9 +48,8 @@ let make = () => {
       | _ => ()
       }
       setDashboardPageState(_ => #HOME)
-      setRenderkey(_ => profileId)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
   }
   let path = url.path->List.toArray->Array.joinWith("/")
@@ -83,11 +80,13 @@ let make = () => {
       // INTEGRATION_DOC Need to be removed
       | #INTEGRATION_DOC => <UserOnboarding />
       | #HOME =>
-        <div className="relative" key={renderKey}>
+        <div className="relative">
           // TODO: Change the key to only profileId once the userInfo starts sending profileId
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative overflow-auto h-screen ">
-              <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
+              <Sidebar
+                path={url.path} sidebars={hyperSwitchAppSidebars} key={(screenState :> string)}
+              />
               <PageLoaderWrapper
                 screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
                 <div
