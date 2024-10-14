@@ -144,11 +144,19 @@ module Base = {
 
     OutsideClick.useOutsideClick(
       ~refs=ArrayOfRef([dateRangeRef, dropdownRef]),
-      ~isActive=isDropdownExpandedPrimary || calendarVisibilityPrimary,
+      ~isActive=isDropdownExpandedPrimary ||
+      calendarVisibilityPrimary ||
+      isDropdownExpandedActualSecondary ||
+      calendarVisibilitySecondary,
       ~callback=() => {
         setIsDropdownExpandedPrimary(_ => false)
-        setCalendarVisibilityPrimary(p => !p)
-        if isDropdownExpandedActualPrimary && isCustomSelectedPrimary {
+        setIsDropdownExpandedSecondary(_ => false)
+        setCalendarVisibilityPrimary(_ => false)
+        setCalendarVisibilitySecondary(_ => false)
+        let isResetValue =
+          (isDropdownExpandedActualPrimary && isCustomSelectedPrimary) ||
+            (isDropdownExpandedActualSecondary && isCustomSelectedSecondary)
+        if isResetValue {
           resetToInitalValues()
         }
       },
@@ -501,7 +509,21 @@ module Base = {
           setCalendarVisibilitySecondary(_ => true)
           setIsCustomSelectedSecondary(_ => true)
         }
-      | _ => {
+      | No_Comparison => {
+          setIsCustomSelectedSecondary(_ => false)
+          setCalendarVisibilitySecondary(_ => false)
+          setIsDropdownExpandedSecondary(_ => false)
+          setShowOption(_ => false)
+
+          resetStartEndInput(
+            ~setStartDate=setLocalStartSecondaryDate,
+            ~setEndDate=setLocalEndSecondaryDate,
+          )
+
+          setSeconStartDateVal(_ => "")
+          setSeconEndDateVal(_ => "")
+        }
+      | Previous_Period => {
           setIsCustomSelectedSecondary(_ => false)
           setCalendarVisibilitySecondary(_ => false)
           setIsDropdownExpandedSecondary(_ => false)
@@ -568,6 +590,10 @@ module Base = {
         endDate->isNonEmptyString &&
         localStartDate->isNonEmptyString &&
         localEndDate->isNonEmptyString &&
+        seconStartDate->isNonEmptyString &&
+        seconEndDateVal->isNonEmptyString &&
+        localStartSecondaryDate->isNonEmptyString &&
+        localEndSecondaryDate->isNonEmptyString &&
         (disableApply || !isCustomSelectedPrimary)
 
       if shouldSaveDates {
@@ -578,7 +604,16 @@ module Base = {
         setShowOption(_ => false)
       }
       None
-    }, (startDate, endDate, localStartDate, localEndDate))
+    }, [
+      startDate,
+      endDate,
+      localStartDate,
+      localEndDate,
+      seconStartDate,
+      seconEndDate,
+      localStartSecondaryDate,
+      localEndSecondaryDate,
+    ])
 
     let filteredPredefinedDays = switch dateRangeLimit {
     | Some(limit) =>
@@ -763,7 +798,7 @@ module Base = {
         </RenderIf>
       </div>
       <RenderIf condition={enableComparision}>
-        <div className="daterangSelection relative">
+        <div ref={dateRangeRef->ReactDOM.Ref.domRef} className="daterangSelection relative">
           <DateSelectorButton
             startDateVal=seconStartDateVal
             endDateVal=seconEndDateVal
