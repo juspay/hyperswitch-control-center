@@ -1,0 +1,21 @@
+{
+  "connector_type": "payment_processor",
+  "connector_name": "pretendpay",
+  "connector_label": "pretendpay_default",
+  "connector_account_details": {
+    "auth_type": "HeaderKey",
+    "api_key": "te****ey"
+  },
+  "connector_webhook_details": null,
+  "metadata": {},
+  "test_mode": true,
+  "disabled": false,
+  "frm_configs": null,
+  "business_country": null,
+  "business_label": null,
+  "business_sub_label": null,
+  "pm_auth_config": null,
+  "status": "active",
+  "additional_merchant_data": null,
+  "connector_wallets_details": null
+}
