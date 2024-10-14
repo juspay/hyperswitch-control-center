@@ -630,20 +630,6 @@ module Base = {
       getDiffForPredefined(item) === difference
     })
 
-    let buttonText = switch predefinedOptionSelected {
-    | Some(value) => DateRangeUtils.datetext(value, disableFutureDates)
-    | None =>
-      switch (startDateVal->isEmptyString, endDateVal->isEmptyString) {
-      | (true, true) => `Select Date`
-      | (true, false) => `${endDateStr}` // When start date is empty, show only end date
-      | (false, true) => `${startDateStr} - Now` // When end date is empty, show start date and "Now"
-      | (false, false) => {
-          let separator = startDateStr === buttonText ? "" : "-"
-          `${startDateStr} ${separator} ${endDateStr}`
-        }
-      }
-    }
-
     let filteredPredefinedDays = switch dateRangeLimit {
     | Some(limit) =>
       let maxDiff = (limit->Float.fromInt *. 24. *. 60. *. 60. -. 1.) *. 1000.
@@ -659,8 +645,6 @@ module Base = {
       setSeconStartDateVal(_ => "")
       setSeconEndDateVal(_ => "")
     }
-
-    let buttonType: option<Button.buttonType> = buttonType
 
     let customeRangeBg = switch predefinedOptionSelected {
     | Some(_) => "bg-white dark:bg-jp-gray-lightgray_background"
@@ -686,6 +670,16 @@ module Base = {
         </RenderIf>
       </div>
     }
+
+    let buttonText = getButtonText(
+      ~predefinedOptionSelected,
+      ~disableFutureDates,
+      ~startDateVal,
+      ~endDateVal,
+      ~startDateStr,
+      ~endDateStr,
+      ~buttonText,
+    )
 
     let dropDownElement = dropDownType =>
       <div className={"flex md:flex-row flex-col w-full py-2"}>

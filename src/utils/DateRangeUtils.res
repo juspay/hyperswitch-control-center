@@ -337,3 +337,28 @@ let toggleDropdown = (
     setCalendarVisibility(_ => !isDropdownExpanded)
   }
 }
+
+let getButtonText = (
+  ~predefinedOptionSelected,
+  ~disableFutureDates,
+  ~startDateVal,
+  ~endDateVal,
+  ~startDateStr,
+  ~endDateStr,
+  ~buttonText,
+) => {
+  open LogicUtils
+  switch predefinedOptionSelected {
+  | Some(value) => datetext(value, disableFutureDates)
+  | None =>
+    switch (startDateVal->isEmptyString, endDateVal->isEmptyString) {
+    | (true, true) => `Select Date`
+    | (true, false) => `${endDateStr}` // When start date is empty, show only end date
+    | (false, true) => `${startDateStr} - Now` // When end date is empty, show start date and "Now"
+    | (false, false) => {
+        let separator = startDateStr === buttonText ? "" : "-"
+        `${startDateStr} ${separator} ${endDateStr}`
+      }
+    }
+  }
+}
