@@ -148,6 +148,7 @@ module DateSelectorButton = {
     ~showLeftIcon=true,
     ~isCompare=false,
   ) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let isMobileView = MatchMedia.useMobileChecker()
     let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
 
@@ -200,9 +201,14 @@ module DateSelectorButton = {
         ~isCompare,
       )->formatText
 
-    let leftIcon = showLeftIcon
-      ? Button.CustomIcon(<Icon name="calendar-filter" size=22 />)
-      : Button.NoIcon
+    let leftIcon = if isCompare {
+      let text = buttonText === "No Comparison" ? "" : "Compare: "
+      Button.CustomIcon(<span className="font-medium text-sm"> {text->React.string} </span>)
+    } else if showLeftIcon {
+      Button.CustomIcon(<Icon name="calendar-filter" size=22 />)
+    } else {
+      Button.NoIcon
+    }
 
     let rightIcon = {
       Button.CustomIcon(
@@ -219,6 +225,11 @@ module DateSelectorButton = {
       )
     }
 
+    let textStyle = switch textStyle {
+    | Some(value) => value
+    | None => isCompare ? textColor.primaryNormal : ""
+    }
+
     let button =
       <Button
         text={buttonText}
@@ -231,7 +242,7 @@ module DateSelectorButton = {
         customButtonStyle
         buttonState={disable ? Disabled : Normal}
         ?buttonType
-        ?textStyle
+        textStyle
       />
 
     if enableToolTip {
