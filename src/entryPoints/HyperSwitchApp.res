@@ -88,7 +88,7 @@ let make = () => {
                 path={url.path} sidebars={hyperSwitchAppSidebars} key={(screenState :> string)}
               />
               <PageLoaderWrapper
-                screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
+                screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
                   <div className="border-b shadow hyperswitch_box_shadow ">
