@@ -23,7 +23,6 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-
 Cypress.Commands.add("login_UI", (name = "", pass = "") => {
   cy.visit("http://localhost:9000");
   const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
@@ -39,28 +38,21 @@ Cypress.Commands.add("login_UI", (name = "", pass = "") => {
 });
 
 Cypress.Commands.add("signup_curl", (name = "", pass = "") => {
-  // Retrieve the username and password, use environment variables if not provided
   const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
   const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
   cy.log(`Base URL: ${Cypress.env("baseUrl")}`);
-  // Make the signup request
   cy.request({
     method: "POST",
     url: `http://localhost:8080/user/signup`,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: { email: username, password: password, country: "IN" },
-    failOnStatusCode: false, // Allows handling failed requests
+    failOnStatusCode: false,
   }).then((response) => {
-    // Handle different response scenarios
     if (response.status >= 200 && response.status < 300) {
       cy.log("Signup successful");
-      expect(response.body).to.have.property("token"); // Expect token if successful
+      expect(response.body).to.have.property("token");
     } else {
-      // Handle error response
       cy.log(`Signup failed with status: ${response.status}`);
-      //  throw new Error(`Signup request failed with status: ${response.status} and message: ${response.body.message || "No message provided"}`);
     }
   });
 });
@@ -68,22 +60,14 @@ Cypress.Commands.add("signup_curl", (name = "", pass = "") => {
 Cypress.Commands.add("login_curl", (name = "", pass = "") => {
   const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
   const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
-  // /user/signin
   cy.request({
     method: "POST",
     url: `http://localhost:8080/user/signin`,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: { email: username, password: password, country: "IN" },
   }).then((response) => {
-    // Assuming the token is returned in the response body as "token"
     const token = response.body.token;
-
-    // Save token in Cypress environment for future use
     Cypress.env("token", token);
-
-    // Optionally, log the token (for debugging)
     cy.log("Token saved in Cypress.env: ", Cypress.env("token"));
   });
 });
@@ -103,12 +87,10 @@ Cypress.Commands.add("deleteConnector", (mca_id) => {
   });
 });
 
-// Utility to log request IDs for easier debugging
 const logRequestId = (requestId) => {
   cy.log(`Request ID: ${requestId}`);
 };
 
-// Cypress command to log in the user and retrieve TOTP token
 Cypress.Commands.add("userLogin", () => {
   const baseUrl = Cypress.env("baseUrl");
   const email = Cypress.env("email");
@@ -118,9 +100,7 @@ Cypress.Commands.add("userLogin", () => {
   cy.request({
     method: "POST",
     url: url,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: { email, password },
     failOnStatusCode: false,
   }).then((response) => {
@@ -128,7 +108,6 @@ Cypress.Commands.add("userLogin", () => {
 
     if (response.status === 200 && response.body.token_type === "totp") {
       expect(response.body).to.have.property("token").and.to.not.be.empty;
-
       Cypress.env("totpToken", response.body.token);
     } else {
       throw new Error(
@@ -138,7 +117,6 @@ Cypress.Commands.add("userLogin", () => {
   });
 });
 
-// Cypress command to terminate 2FA and get user info token
 Cypress.Commands.add("terminate2Fa", () => {
   const baseUrl = Cypress.env("baseUrl");
   const totpToken = Cypress.env("totpToken");
@@ -157,14 +135,10 @@ Cypress.Commands.add("terminate2Fa", () => {
 
     if (response.status === 200 && response.body.token_type === "user_info") {
       expect(response.body).to.have.property("token").and.to.not.be.empty;
-
       Cypress.env("userInfoToken", response.body.token);
 
-      // Store the token in localStorage in the required format {"token": "<actual_token>"}
       cy.window().then((window) => {
-        const tokenObject = {
-          token: response.body.token,
-        };
+        const tokenObject = { token: response.body.token };
         window.localStorage.setItem("USER_INFO", JSON.stringify(tokenObject));
       });
     } else {
@@ -175,7 +149,6 @@ Cypress.Commands.add("terminate2Fa", () => {
   });
 });
 
-// Cypress command to fetch user info and store IDs
 Cypress.Commands.add("userInfo", () => {
   const baseUrl = Cypress.env("baseUrl");
   const userInfoToken = Cypress.env("userInfoToken");
@@ -192,17 +165,12 @@ Cypress.Commands.add("userInfo", () => {
   }).then((response) => {
     logRequestId(response.headers["x-request-id"]);
 
-    // Check for successful response
     if (response.status === 200) {
-      // Log the response body for debugging
       console.log("Response Body:", response.body);
-
-      // Assert that the response contains the required keys
       expect(response.body).to.have.property("merchant_id");
       expect(response.body).to.have.property("org_id");
       expect(response.body).to.have.property("profile_id");
 
-      // Set environment variables
       Cypress.env("merchantId", response.body.merchant_id);
       Cypress.env("organizationId", response.body.org_id);
       Cypress.env("profileId", response.body.profile_id);
@@ -213,3 +181,43 @@ Cypress.Commands.add("userInfo", () => {
     }
   });
 });
+
+Cypress.Commands.add(
+  "createDummyConnector",
+  (connectorType, createConnectorBody) => {
+    const baseUrl = Cypress.env("baseUrl");
+    const apiKey = Cypress.env("adminApiKey");
+    const token = Cypress.env("userInfoToken");
+    const merchantId = Cypress.env("merchantId");
+
+    createConnectorBody.connector_type = connectorType;
+
+    cy.request({
+      method: "POST",
+      url: `${baseUrl}/account/${merchantId}/connectors`,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "api-key": apiKey,
+      },
+      body: createConnectorBody,
+      failOnStatusCode: false,
+    }).then((response) => {
+      console.log("Connector Creation Response:", response);
+
+      if (
+        response.status === 400 &&
+        response.body.error.message.includes("already exists")
+      ) {
+        console.warn(`Warning: ${response.body.message}`);
+        cy.log("Connector already exists, skipping creation.");
+      } else if (response.status === 201) {
+        cy.log("Connector created successfully.");
+      } else {
+        throw new Error(
+          `Failed to create connector with status ${response.status}: ${response.body.message || "Unknown error"}`,
+        );
+      }
+    });
+  },
+);
