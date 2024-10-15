@@ -221,3 +221,38 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("makePayment", (makePaymentBody) => {
+  const baseUrl = Cypress.env("baseUrl");
+  const apiKey = Cypress.env("adminApiKey");
+  const token = Cypress.env("userInfoToken");
+  const merchantId = Cypress.env("merchantId");
+
+  cy.request({
+    method: "POST",
+    url: `${baseUrl}/payments`,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      "api-key": apiKey,
+    },
+    body: makePaymentBody,
+    failOnStatusCode: false,
+  }).then((response) => {
+    console.log("Payment Creation Response:", response);
+
+    if (
+      response.status === 400 &&
+      response.body.error.message.includes("already exists")
+    ) {
+      console.warn(`Warning: ${response.body.message}`);
+      cy.log("Payment already exists, skipping creation.");
+    } else if (response.status === 200) {
+      cy.log("Connector created successfully.");
+    } else {
+      throw new Error(
+        `Failed to create payment with status ${response.status}: ${response.body.message || "Unknown error"}`,
+      );
+    }
+  });
+});
