@@ -1,3 +1,4 @@
+@unboxed
 type viewType = Loading | Error(string) | Success | Custom
 
 module ScreenLoader = {
