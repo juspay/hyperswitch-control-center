@@ -137,14 +137,6 @@ let initialFixedFilter = () => [
   ),
 ]
 
-let getValueFromFilterType = (filter: filter) => {
-  switch filter {
-  | #connector_label => "merchant_connector_id"
-  | #status => "refund_status"
-  | _ => (filter :> string)
-  }
-}
-
 let getConditionalFilter = (key, dict, filterValues) => {
   open LogicUtils
 
@@ -193,20 +185,16 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues, setfilterKeys, filterKeys) => {
+let initialFilters = (json, filtervalues) => {
   open LogicUtils
+
+  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
 
   let filterDict = json->getDictFromJsonObject
   let arr = filterDict->Dict.keysToArray->Array.filterWithIndex((_item, index) => index <= 2)
 
-  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   if connectorFilter->Array.length !== 0 {
-    arr->Array.push((#connector_label: filter :> string))
-
-    if !(filterKeys->Array.includes(getValueFromFilterType(#connector_label))) {
-      filterKeys->Array.push(getValueFromFilterType(#connector_label))
-      setfilterKeys(_ => filterKeys)
-    }
+    arr->Array.push("connector_label")
   }
 
   let filterArr = filterDict->itemToObjMapper
@@ -227,10 +215,15 @@ let initialFilters = (json, filtervalues, setfilterKeys, filterKeys) => {
     | _ => values->FilterSelectBox.makeOptions
     }
 
+    let name = switch key->getFilterTypeFromString {
+    | #connector_label => "merchant_connector_id"
+    | _ => key
+    }
+
     {
       field: FormRenderer.makeFieldInfo(
         ~label=key,
-        ~name=getValueFromFilterType(key->getFilterTypeFromString),
+        ~name,
         ~customInput=InputFields.filterMultiSelectInput(
           ~options,
           ~buttonText=title,
