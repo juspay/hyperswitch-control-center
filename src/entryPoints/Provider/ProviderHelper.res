@@ -32,6 +32,5 @@ let itemToObjMapperForGetInfo: Dict.t<JSON.t> => UserManagementTypes.getInfoType
   {
     module_: getString(dict, "group", ""),
     description: getString(dict, "description", ""),
-    isPermissionAllowed: false,
   }
 }

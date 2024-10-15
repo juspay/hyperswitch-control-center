@@ -12,16 +12,20 @@ let getDimentionType = string => {
   }
 }
 
+let getXKey = (~isSmartRetry) => {
+  switch isSmartRetry {
+  | true => "payments_success_rate_distribution"
+  | false => "payments_success_rate_distribution_without_smart_retries"
+  }
+}
+
 let successfulPaymentsDistributionMapper = (
   ~data: JSON.t,
   ~xKey: string,
   ~yKey: string,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
-  let categories =
-    data
-    ->getArrayFromJson([])
-    ->getCategories(yKey)
+  let categories = [data]->JSON.Encode.array->getCategories(0, yKey)
 
   let barGraphData = getBarGraphObj(
     ~array=data->getArrayFromJson([]),
@@ -32,6 +36,7 @@ let successfulPaymentsDistributionMapper = (
   let title = {
     text: "",
   }
+
   {categories, data: [barGraphData], title}
 }
 
@@ -40,7 +45,7 @@ let visibleColumns: array<metrics> = [#payment_success_rate]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => successfulPaymentsDistributionObject = dict => {
   {
-    payments_success_rate: dict->getInt((#payment_success_rate: metrics :> string), 0),
+    payments_success_rate: dict->getInt("payments_success_rate_distribution", 0),
     connector: dict->getString((#connector: metrics :> string), ""),
     payment_method: dict->getString((#payment_method: metrics :> string), ""),
   }
@@ -85,15 +90,9 @@ let getCell = (obj, colType: metrics): Table.cell => {
   }
 }
 
-let getTableData = json =>
-  json
-  ->getArrayFromJson([])
-  ->getValueFromArray(0, []->JSON.Encode.array)
-  ->getDictFromJsonObject
-  ->getArrayFromDict("queryData", [])
-  ->JSON.Encode.array
-  ->getArrayDataFromJson(tableItemToObjMapper)
-  ->Array.map(Nullable.make)
+let getTableData = json => {
+  json->getArrayDataFromJson(tableItemToObjMapper)->Array.map(Nullable.make)
+}
 
 let tabs = [
   {

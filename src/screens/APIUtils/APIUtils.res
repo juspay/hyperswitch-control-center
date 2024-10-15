@@ -626,17 +626,18 @@ let useGetURL = () => {
       | #MERCHANT_DATA => `${userUrl}/data`
       | #USER_INFO => userUrl
 
-      // USER PERMISSIONS
-      | #GET_PERMISSIONS =>
+      // USER GROUP ACCESS
+      | #GET_GROUP_ACL =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/role?${params}`
         | None => `${userUrl}/role`
         }
       | #ROLE_INFO => `${userUrl}/module/list`
-      | #PERMISSION_INFO =>
+
+      | #GROUP_ACCESS_INFO =>
         switch queryParamerters {
-        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
-        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        | Some(params) => `${userUrl}/permission_info?${params}`
+        | None => `${userUrl}/permission_info`
         }
 
       // USER ACTIONS
@@ -736,13 +737,13 @@ let useHandleLogout = () => {
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
-
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   () => {
     try {
       let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
       let _ =
-        fetchApi(logoutUrl, ~method_=Post)
+        fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute)
         ->then(Fetch.Response.json)
         ->then(json => {
           json->resolve
@@ -897,10 +898,11 @@ let useGetMethod = (~showErrorToast=true) => {
         },
       },
     })
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async url => {
     try {
-      let res = await fetchApi(url, ~method_=Get)
+      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute)
       await responseHandler(
         ~res,
         ~showErrorToast,
@@ -941,6 +943,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         },
       },
     })
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (
     url,
@@ -958,6 +961,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~bodyFormData,
         ~headers,
         ~contentType,
+        ~xFeatureRoute,
       )
       await responseHandler(
         ~res,

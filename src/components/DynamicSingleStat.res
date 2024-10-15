@@ -141,6 +141,8 @@ let make = (
   ~formaPayload: option<singleStatBodyEntity => string>=?,
 ) => {
   open LogicUtils
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let getAllFilter = filterValueJson
@@ -304,6 +306,7 @@ let make = (
           ~method_=Post,
           ~bodyStr=singleStatBody,
           ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
+          ~xFeatureRoute,
         )
         ->addLogsAroundFetch(~logTitle="SingleStat Data Api")
         ->then(json => resolve((`${urlConfig.prefix->Option.getOr("")}${uri}`, json)))
@@ -377,6 +380,7 @@ let make = (
           ~method_=Post,
           ~bodyStr=singleStatBodyMakerFn(singleStatBodyEntity),
           ~headers=[("QueryType", "SingleStatTimeseries")]->Dict.fromArray,
+          ~xFeatureRoute,
         )
         ->addLogsAroundFetch(~logTitle="SingleStatTimeseries Data Api")
         ->then(

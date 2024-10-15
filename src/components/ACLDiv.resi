@@ -1,6 +1,6 @@
 @react.component
 let make: (
-  ~permission: CommonAuthTypes.authorization,
+  ~authorization: CommonAuthTypes.authorization,
   ~onClick: JsxEvent.Mouse.t => unit,
   ~children: React.element,
   ~className: string=?,

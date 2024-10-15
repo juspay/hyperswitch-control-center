@@ -61,7 +61,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (uid, setUid) = React.useState(() => None)
   let (merchantInfo, setMerchantInfo) = React.useState(() => Dict.make())
@@ -153,7 +153,7 @@ let make = () => {
           {switch formState {
           | Preview =>
             <ACLButton
-              access={userPermissionJson.merchantDetailsManage}
+              authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
               text="Edit"
               onClick={_ => setFormState(_ => Edit)}
               buttonType=Primary

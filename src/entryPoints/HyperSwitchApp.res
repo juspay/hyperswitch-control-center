@@ -3,13 +3,11 @@ let make = () => {
   open HSwitchUtils
   open GlobalVars
   open APIUtils
-  open PermissionUtils
-  open LogicUtils
+
   open HyperswitchAtom
   let pageViewEvent = MixpanelHook.usePageView()
-  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let fetchDetails = useGetMethod()
+
   let {
     showFeedbackModal,
     setShowFeedbackModal,
@@ -19,7 +17,8 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
+  let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
+  let {fetchUserGroupACL, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
@@ -37,43 +36,20 @@ let make = () => {
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   sessionExpired := false
 
-  let fetchPermissions = async () => {
-    try {
-      let url = getURL(
-        ~entityName=USERS,
-        ~userType=#GET_PERMISSIONS,
-        ~methodType=Get,
-        ~queryParamerters=Some(`groups=true`),
-      )
-      let response = await fetchDetails(url)
-      let permissionsValue =
-        response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
-      let permissionJson =
-        permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
-      setuserPermissionJson(_ => permissionJson)
-      permissionJson
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
-  let (renderKey, setRenderkey) = React.useState(_ => "")
-
   let setUpDashboard = async () => {
     try {
+      // NOTE: Treat groupACL map similar to screenstate
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
-      let _ = await fetchPermissions()
+      let _ = await fetchUserGroupACL()
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
       }
       setDashboardPageState(_ => #HOME)
-      setRenderkey(_ => profileId)
-      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
   }
   let path = url.path->List.toArray->Array.joinWith("/")
@@ -90,19 +66,29 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
+  React.useEffect1(() => {
+    if userGroupACL->Option.isSome {
+      setScreenState(_ => PageLoaderWrapper.Success)
+    }
+    None
+  }, [userGroupACL])
+
   <>
-    <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
-      <div>
-        {switch dashboardPageState {
-        | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
-        // INTEGRATION_DOC Need to be removed
-        | #INTEGRATION_DOC => <UserOnboarding />
-        | #HOME =>
-          <div className="relative" key={renderKey}>
-            // TODO: Change the key to only profileId once the userInfo starts sending profileId
-            <div className={`h-screen flex flex-col`}>
-              <div className="flex relative overflow-auto h-screen ">
-                <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
+    <div>
+      {switch dashboardPageState {
+      | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
+      // INTEGRATION_DOC Need to be removed
+      | #INTEGRATION_DOC => <UserOnboarding />
+      | #HOME =>
+        <div className="relative">
+          // TODO: Change the key to only profileId once the userInfo starts sending profileId
+          <div className={`h-screen flex flex-col`}>
+            <div className="flex relative overflow-auto h-screen ">
+              <Sidebar
+                path={url.path} sidebars={hyperSwitchAppSidebars} key={(screenState :> string)}
+              />
+              <PageLoaderWrapper
+                screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
                   <div className="border-b shadow hyperswitch_box_shadow ">
@@ -172,18 +158,18 @@ let make = () => {
                         | list{"performance-monitor"}
                         | list{"analytics-refunds"}
                         | list{"analytics-disputes"} =>
-                          <AnalyticsContainser />
+                          <AnalyticsContainer />
                         | list{"new-analytics-payment"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.newAnalytics}
-                            permission=userPermissionJson.analyticsView>
+                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext key="NewAnalytics" index="NewAnalytics">
                               <NewAnalyticsContainer />
                             </FilterContext>
                           </AccessControl>
                         | list{"customers", ...remainingPath} =>
                           <AccessControl
-                            permission={userPermissionJson.operationsView}
+                            authorization={userHasAccess(~groupAccess=OperationsView)}
                             isEnabled={[#Organization, #Merchant]->checkUserEntity}>
                             <EntityScaffold
                               entityName="Customers"
@@ -198,7 +184,7 @@ let make = () => {
                           <AccessControl
                             isEnabled={featureFlagDetails.userJourneyAnalytics &&
                             [#Organization, #Merchant]->checkUserEntity}
-                            permission=userPermissionJson.analyticsView>
+                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                               <UserJourneyAnalytics />
                             </FilterContext>
@@ -207,7 +193,7 @@ let make = () => {
                           <AccessControl
                             isEnabled={featureFlagDetails.authenticationAnalytics &&
                             [#Organization, #Merchant]->checkUserEntity}
-                            permission=userPermissionJson.analyticsView>
+                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext
                               key="AuthenticationAnalytics" index="AuthenticationAnalytics">
                               <AuthenticationAnalytics />
@@ -215,14 +201,14 @@ let make = () => {
                           </AccessControl>
                         | list{"developer-api-keys"} =>
                           <AccessControl
-                            permission=userPermissionJson.merchantDetailsManage
+                            authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
                             isEnabled={!checkUserEntity([#Profile])}>
                             <KeyManagement.KeysManagement />
                           </AccessControl>
                         | list{"developer-system-metrics"} =>
                           <AccessControl
                             isEnabled={isInternalUser && featureFlagDetails.systemMetrics}
-                            permission=userPermissionJson.analyticsView>
+                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext key="SystemMetrics" index="SystemMetrics">
                               <SystemMetricsAnalytics />
                             </FilterContext>
@@ -230,23 +216,23 @@ let make = () => {
 
                         | list{"compliance"} =>
                           <AccessControl
-                            isEnabled=featureFlagDetails.complianceCertificate permission=Access>
+                            isEnabled=featureFlagDetails.complianceCertificate authorization=Access>
                             <Compliance />
                           </AccessControl>
                         | list{"3ds"} =>
-                          <AccessControl permission=userPermissionJson.workflowsView>
+                          <AccessControl authorization={userHasAccess(~groupAccess=WorkflowsView)}>
                             <HSwitchThreeDS />
                           </AccessControl>
                         | list{"surcharge"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.surcharge}
-                            permission=userPermissionJson.workflowsView>
+                            authorization={userHasAccess(~groupAccess=WorkflowsView)}>
                             <Surcharge />
                           </AccessControl>
                         | list{"account-settings"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.sampleData
-                            permission=userPermissionJson.merchantDetailsManage>
+                            authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}>
                             <HSwitchSettings />
                           </AccessControl>
                         | list{"account-settings", "profile", ...remainingPath} =>
@@ -260,25 +246,25 @@ let make = () => {
                         | list{"payment-attempts"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission=userPermissionJson.operationsView>
+                            authorization={userHasAccess(~groupAccess=OperationsView)}>
                             <PaymentAttemptTable />
                           </AccessControl>
                         | list{"payment-intents"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission=userPermissionJson.operationsView>
+                            authorization={userHasAccess(~groupAccess=OperationsView)}>
                             <PaymentIntentTable />
                           </AccessControl>
                         | list{"refunds-global"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission=userPermissionJson.operationsView>
+                            authorization={userHasAccess(~groupAccess=OperationsView)}>
                             <RefundsTable />
                           </AccessControl>
                         | list{"dispute-global"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission=userPermissionJson.operationsView>
+                            authorization={userHasAccess(~groupAccess=OperationsView)}>
                             <DisputeTable />
                           </AccessControl>
                         | list{"unauthorized"} => <UnauthorizedPage />
@@ -290,25 +276,25 @@ let make = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-              <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
-                <HSwitchFeedBackModal
-                  modalHeading="We'd love to hear from you!"
-                  showModal={showFeedbackModal}
-                  setShowModal={setShowFeedbackModal}
-                />
-              </RenderIf>
-              <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
-                <ProdIntentForm />
-              </RenderIf>
+              </PageLoaderWrapper>
             </div>
+            <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
+              <HSwitchFeedBackModal
+                modalHeading="We'd love to hear from you!"
+                showModal={showFeedbackModal}
+                setShowModal={setShowFeedbackModal}
+              />
+            </RenderIf>
+            <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
+              <ProdIntentForm />
+            </RenderIf>
           </div>
-        | #DEFAULT =>
-          <div className="h-screen flex justify-center items-center">
-            <Loader />
-          </div>
-        }}
-      </div>
-    </PageLoaderWrapper>
+        </div>
+      | #DEFAULT =>
+        <div className="h-screen flex justify-center items-center">
+          <Loader />
+        </div>
+      }}
+    </div>
   </>
 }

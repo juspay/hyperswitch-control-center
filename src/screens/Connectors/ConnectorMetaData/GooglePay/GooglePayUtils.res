@@ -16,6 +16,7 @@ let getCustomGateWayName = connector => {
   | Processors(AUTHORIZEDOTNET) => "authorizenet"
   | Processors(GLOBALPAY) => "globalpayments"
   | Processors(BANKOFAMERICA) | Processors(CYBERSOURCE) => "cybersource"
+  | Processors(FIUU) => "molpay"
   | _ => connector
   }
 }
