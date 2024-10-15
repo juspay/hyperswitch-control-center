@@ -14,8 +14,8 @@ type dimension = [
 ]
 type status = [#charged | #failure]
 type metrics = [
-  | #payment_processed_amount
-  | #payment_count
+  | #sessionized_payment_processed_amount
+  | #sessionized_payment_processed_count
   | #payment_success_rate
   | #time_bucket
   | #connector
