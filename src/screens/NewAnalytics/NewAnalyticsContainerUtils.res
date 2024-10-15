@@ -41,7 +41,7 @@ let initialFixedFilterFields = () => {
             ~disableFutureDates={true},
             ~predefinedDays=[Today, Yesterday, Day(2.0), Day(7.0), Day(30.0), ThisMonth, LastMonth],
             ~enableComparision=true,
-            ~compareOptions=[Previous_Period, No_Comparison],
+            ~compareOptions=[Previous_Period, Custom, No_Comparison],
             ~seconStartKey=compareStartTimeFilterKey,
             ~seconEndKey=compareEndTimeFilterKey,
             ~numMonths=2,

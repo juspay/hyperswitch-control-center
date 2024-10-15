@@ -203,6 +203,12 @@ let getComparisionTimePeriod = (~startDate, ~endDate) => {
   (startTimeValue, endTimeVal)
 }
 
+let getGapBetweenRange = (~startDate, ~endDate) => {
+  let startingPoint = startDate->DayJs.getDayJsForString
+  let endingPoint = endDate->DayJs.getDayJsForString
+  endingPoint.diff(startingPoint.toString(), "day") // diff between points
+}
+
 let defaultCellHighlighter = (_): Calendar.highlighter => {
   {
     highlightSelf: false,

@@ -52,6 +52,7 @@ module Base = {
     let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
     let isoStringToCustomTimezoneInFloat = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
     let (clickedDates, setClickedDates) = React.useState(_ => [])
+    let (clickedSecondaryDates, setClickedSecondaryDates) = React.useState(_ => [])
     let (localStartDate, setLocalStartDate) = React.useState(_ => startDateVal)
     let (localEndDate, setLocalEndDate) = React.useState(_ => endDateVal)
     let (localStartSecondaryDate, setLocalStartSecondaryDate) = React.useState(_ =>
@@ -121,8 +122,8 @@ module Base = {
 
     let startDate = localStartDate->getDateStringForValue(isoStringToCustomTimeZone)
     let endDate = localEndDate->getDateStringForValue(isoStringToCustomTimeZone)
-    let seconStartDate = localStartDate->getDateStringForValue(isoStringToCustomTimeZone)
-    let seconEndDate = localEndDate->getDateStringForValue(isoStringToCustomTimeZone)
+    let seconStartDate = localStartSecondaryDate->getDateStringForValue(isoStringToCustomTimeZone)
+    let seconEndDate = localEndSecondaryDate->getDateStringForValue(isoStringToCustomTimeZone)
 
     let isDropdownExpandedActualPrimary = isDropdownExpandedPrimary && calendarVisibilityPrimary
     let isDropdownExpandedActualSecondary =
@@ -405,7 +406,7 @@ module Base = {
       }
     }
 
-    let onDateClick = str => {
+    let onDateClickPrimary = str => {
       let data = switch Array.find(clickedDates, x => x == str) {
       | Some(_d) => Belt.Array.keep(clickedDates, x => x != str)
       | None => Array.concat(clickedDates, [str])
@@ -415,18 +416,40 @@ module Base = {
       changeStartDate(str, true, None)
     }
 
-    let handleApply = _ => {
+    let onDateClickSecondary = str => {
+      let data = switch Array.find(clickedSecondaryDates, x => x == str) {
+      | Some(_d) => Belt.Array.keep(clickedSecondaryDates, x => x != str)
+      | None => Array.concat(clickedSecondaryDates, [str])
+      }
+      let dat = data->Array.map(x => x)
+      setClickedSecondaryDates(_ => dat)
+      changeSecondaryStartDate(str, true, None)
+    }
+
+    let handleApplyPrimary = _ => {
       setShowOption(_ => false)
-      setCalendarVisibilityPrimary(p => !p)
+      setCalendarVisibilityPrimary(_ => false)
       setIsDropdownExpandedPrimary(_ => false)
       savePrimaryDates()
+    }
+
+    let handleApplySecondary = _ => {
+      setShowOption(_ => false)
+      setCalendarVisibilitySecondary(_ => false)
+      setIsDropdownExpandedSecondary(_ => false)
       saveSecondaryDates()
     }
 
-    let cancelButton = _ => {
+    let cancelButtonPrimary = _ => {
       resetToInitalValues()
-      setCalendarVisibilityPrimary(p => !p)
+      setCalendarVisibilityPrimary(_ => false)
       setIsDropdownExpandedPrimary(_ => false)
+    }
+
+    let cancelButtonSecondary = _ => {
+      resetToInitalValues()
+      setCalendarVisibilitySecondary(_ => false)
+      setIsDropdownExpandedSecondary(_ => false)
     }
 
     let formatDate = date =>
@@ -670,10 +693,10 @@ module Base = {
       disablePastDates,
     )
 
-    let dropDownElement = dropDownType =>
-      <div className={"flex md:flex-row flex-col w-full py-2"}>
-        {switch dropDownType {
-        | PrimaryDateRange =>
+    let dropDownElement = dropDownType => {
+      switch dropDownType {
+      | PrimaryDateRange =>
+        <div className={"flex md:flex-row flex-col w-full py-2"}>
           <RenderIf condition={predefinedDays->Array.length > 0 && showOption}>
             <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
               <div className="flex flex-wrap gap-1 md:flex-col">
@@ -716,7 +739,55 @@ module Base = {
               </div>
             </AddDataAttributes>
           </RenderIf>
-        | CompareDateRange =>
+          <AddDataAttributes attributes=[("data-date-picker-section", "date-picker-calendar")]>
+            <div
+              className={calendarVisibilityPrimary && isCustomSelectedPrimary
+                ? "w-auto md:w-max h-auto"
+                : "hidden"}>
+              <CalendarList
+                count=numMonths
+                cellHighlighter=defaultCellHighlighter
+                startDate
+                endDate
+                onDateClick=onDateClickPrimary
+                disablePastDates
+                disableFutureDates
+                ?dateRangeLimit
+                calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
+                ?allowedDateRange
+              />
+              <div
+                className={`${timeVisibilityClass} w-full flex flex-row md:gap-4 p-3 justify-around md:justify-start dark:text-gray-400 text-gray-700 `}>
+                <TimeInput input=startTimeInput showSeconds label="From" />
+                <TimeInput input=endTimeInput showSeconds label="To" />
+              </div>
+              <RenderIf condition={!disableApply}>
+                <div
+                  id="neglectTopbarTheme"
+                  className="flex flex-row flex-wrap gap-3 bg-white dark:bg-jp-gray-lightgray_background px-3 mt-3 mb-1 align-center justify-end ">
+                  <Button
+                    text="Cancel"
+                    customButtonStyle="rounded-lg"
+                    buttonType=Secondary
+                    buttonState=Normal
+                    buttonSize=XSmall
+                    onClick={cancelButtonPrimary}
+                  />
+                  <Button
+                    text="Apply"
+                    customButtonStyle="rounded-lg"
+                    buttonType=Primary
+                    buttonState={endDate->isEmptyString ? Disabled : Normal}
+                    buttonSize=XSmall
+                    onClick={handleApplyPrimary}
+                  />
+                </div>
+              </RenderIf>
+            </div>
+          </AddDataAttributes>
+        </div>
+      | CompareDateRange =>
+        <div className={"flex md:flex-row flex-col w-full py-2"}>
           <RenderIf condition={compareOptions->Array.length > 0 && showOption}>
             <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
               <div className="flex flex-wrap gap-1 md:flex-col">
@@ -731,55 +802,53 @@ module Base = {
               </div>
             </AddDataAttributes>
           </RenderIf>
-        }}
-        <AddDataAttributes attributes=[("data-date-picker-section", "date-picker-calendar")]>
-          <div
-            className={(calendarVisibilityPrimary && isCustomSelectedPrimary) ||
-              (calendarVisibilitySecondary && isCustomSelectedSecondary)
-              ? "w-auto md:w-max h-auto"
-              : "hidden"}>
-            <CalendarList
-              count=numMonths
-              cellHighlighter=defaultCellHighlighter
-              startDate
-              endDate
-              onDateClick
-              disablePastDates
-              disableFutureDates
-              ?dateRangeLimit
-              calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
-              ?allowedDateRange
-            />
+          <AddDataAttributes attributes=[("data-date-picker-section", "date-picker-calendar")]>
             <div
-              className={`${timeVisibilityClass} w-full flex flex-row md:gap-4 p-3 justify-around md:justify-start dark:text-gray-400 text-gray-700 `}>
-              <TimeInput input=startTimeInput showSeconds label="From" />
-              <TimeInput input=endTimeInput showSeconds label="To" />
+              className={calendarVisibilitySecondary && isCustomSelectedSecondary
+                ? "w-auto md:w-max h-auto"
+                : "hidden"}>
+              <CalendarList
+                count=numMonths
+                cellHighlighter=defaultCellHighlighter
+                startDate=seconStartDate
+                endDate=seconEndDate
+                disablePastDates
+                disableFutureDates
+                onDateClick=onDateClickSecondary
+                dateRangeLimit={getGapBetweenRange(~startDate=startDateVal, ~endDate=endDateVal)}
+                allowedDateRange={
+                  startDate: "1999-01-01T00:00:00Z",
+                  endDate: startDateVal,
+                }
+                calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
+              />
+              <RenderIf condition={!disableApply}>
+                <div
+                  id="neglectTopbarTheme"
+                  className="flex flex-row flex-wrap gap-3 bg-white dark:bg-jp-gray-lightgray_background px-3 mt-3 mb-1 align-center justify-end ">
+                  <Button
+                    text="Cancel"
+                    customButtonStyle="rounded-lg"
+                    buttonType=Secondary
+                    buttonState=Normal
+                    buttonSize=XSmall
+                    onClick={cancelButtonSecondary}
+                  />
+                  <Button
+                    text="Apply"
+                    customButtonStyle="rounded-lg"
+                    buttonType=Primary
+                    buttonState={seconEndDate->isEmptyString ? Disabled : Normal}
+                    buttonSize=XSmall
+                    onClick={handleApplySecondary}
+                  />
+                </div>
+              </RenderIf>
             </div>
-            <RenderIf condition={!disableApply}>
-              <div
-                id="neglectTopbarTheme"
-                className="flex flex-row flex-wrap gap-3 bg-white dark:bg-jp-gray-lightgray_background px-3 mt-3 mb-1 align-center justify-end ">
-                <Button
-                  text="Cancel"
-                  customButtonStyle="rounded-lg"
-                  buttonType=Secondary
-                  buttonState=Normal
-                  buttonSize=XSmall
-                  onClick={cancelButton}
-                />
-                <Button
-                  text="Apply"
-                  customButtonStyle="rounded-lg"
-                  buttonType=Primary
-                  buttonState={endDate->isEmptyString ? Disabled : Normal}
-                  buttonSize=XSmall
-                  onClick={handleApply}
-                />
-              </div>
-            </RenderIf>
-          </div>
-        </AddDataAttributes>
-      </div>
+          </AddDataAttributes>
+        </div>
+      }
+    }
 
     let dropDownClass = `absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`
 
