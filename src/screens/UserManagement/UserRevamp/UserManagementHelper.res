@@ -85,7 +85,6 @@ module MerchantSelection = {
             ~label="All merchants",
             ~value="all_merchants",
             ~dropdownList=merchList,
-            ~showAllSelection=true,
           ),
           ~deselectDisable=true,
           ~buttonText="Select a Merchant",
@@ -113,31 +112,10 @@ module ProfileSelection = {
     let internalSwitch = OMPSwitchHooks.useInternalSwitch()
     let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
     let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
-    let form = ReactFinalForm.useForm()
-    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-    )
 
     let disableSelect = switch userEntity {
     | #Profile => true
-    | #Organization => {
-        let selected_merchant =
-          formState.values
-          ->LogicUtils.getDictFromJsonObject
-          ->LogicUtils.getString("merchant_value", "")
-        switch selected_merchant->stringToVariantForAllSelection {
-        | Some(#All_Merchants) => {
-            form.change(
-              "profile_value",
-              (#All_Profiles: UserManagementTypes.allSelectionType :> string)
-              ->String.toLowerCase
-              ->JSON.Encode.string,
-            )
-            true
-          }
-        | _ => false
-        }
-      }
+    | #Organization
     | #Merchant => false
     }
 
