@@ -4,6 +4,8 @@ let paymentViewsArray: array<viewTypes> = [All, Succeeded, Failed, Dropoffs, Can
 
 let refundViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
 
+let disputeViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
+
 let getCustomFilterKey = entity =>
   switch entity {
   | Orders => "status"

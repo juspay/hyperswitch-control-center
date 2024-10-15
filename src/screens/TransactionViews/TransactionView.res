@@ -120,7 +120,7 @@ let make = (~entity=TransactionViewTypes.Orders) => {
   let viewsArray = switch entity {
   | Orders => paymentViewsArray
   | Refunds => refundViewsArray
-  | _ => []
+  | Disputes => disputeViewsArray
   }
 
   viewsArray
