@@ -110,6 +110,7 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open OMPSwitchUtils
+  open OMPSwitchHelper
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
@@ -188,7 +189,7 @@ let make = () => {
         currProfile={currentOMPName(profileList, profileId)} arrow
       />}
       baseComponentCustomStyle="bg-white"
-      bottomComponent={<OMPSwitchHelper.AddNewMerchantProfileButton
+      bottomComponent={<AddNewMerchantProfileButton
         user="profile" setShowModal customStyle addItemBtnStyle
       />}
       optionClass="text-gray-600 text-fs-14"
