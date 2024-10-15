@@ -4,8 +4,8 @@ describe("connector", () => {
 
   const getIframeBody = () => {
     return cy
-      .get("iframe", { timeout: 20000 })
-      .its("0.contentDocument.body", { timeout: 20000 })
+      .get("iframe")
+      .its("0.contentDocument.body")
       .should("not.be.empty")
       .then(cy.wrap);
   };
@@ -101,7 +101,7 @@ describe("connector", () => {
     cy.get("[data-testid=amount]").find("input").clear().type("77");
     cy.get("[data-button-for=showPreview]").click();
     getIframeBody()
-      .get("[data-testid=cardNoInput]", { timeout: 20000 })
+      .find("[data-testid=cardNoInput]", { timeout: 20000 })
       .should("exist")
       .type("4242424242424242");
     getIframeBody()
@@ -111,6 +111,7 @@ describe("connector", () => {
     getIframeBody().find("[data-testid=cvvInput]").should("exist").type("492");
     cy.get("[data-button-for=payEUR77]").should("exist").click();
     cy.contains("Payment Successful").should("be.visible");
+    cy.get("[data-button-for=goToPayment]").should("exist").click();
     cy.url().should("include", "dashboard/payments");
   });
 });
