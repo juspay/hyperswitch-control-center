@@ -105,7 +105,7 @@ describe("Payment Operations Page - Columns Customization and Functionalities", 
 
   it("Should display matching columns when searching for valid column names", () => {
     cy.visit("http://localhost:9000/Dashboard/payments");
-    cy.get('button[data-button-for="CustomIcon"]').click();
+    cy.get('button[data-button-for="CustomIcon"]').should("be.visible").click();
     cy.get(".border > .rounded-md").should(
       "be.visible",
       "have.attr",
@@ -113,12 +113,28 @@ describe("Payment Operations Page - Columns Customization and Functionalities", 
       "Search in 23 options",
     );
 
-    // Search for valid column names
     ["Merchant", "Profile", "Payment"].forEach((searchTerm) => {
       cy.get('input[placeholder="Search in 23 options"]')
         .clear()
         .type(searchTerm);
-      cy.contains(searchTerm).should("exist"); // Ensure matching results appear
+      cy.contains(searchTerm).should("exist");
     });
+  });
+
+  it("Should show 'No matching records found' when searching for invalid column names", () => {
+    cy.visit("http://localhost:9000/Dashboard/payments");
+    cy.get('button[data-button-for="CustomIcon"]').click();
+    cy.get('input[placeholder="Search in 23 options"]').should("be.visible");
+
+    ["abacd", "something", "createdAt"].forEach((searchTerm) => {
+      cy.get('input[placeholder="Search in 23 options"]')
+        .clear()
+        .type(searchTerm);
+      cy.contains("No matching records found").should("be.visible");
+    });
+    cy.get('[data-icon="searchExit"]').click();
+    cy.get(
+      '[data-component="modal:Table Columns"] [data-dropdown-numeric]',
+    ).should("have.length", 23);
   });
 });
