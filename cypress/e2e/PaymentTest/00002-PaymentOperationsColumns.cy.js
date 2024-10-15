@@ -4,7 +4,7 @@ describe("Payment Operations Page - Columns Customization and Functionalities", 
   const username = `cypress@gmail.com`;
   const password = "Cypress8#";
 
-  before(() => {
+  beforeEach(() => {
     cy.signup_curl(username, password);
     cy.userLogin();
     cy.terminate2Fa();
@@ -100,6 +100,25 @@ describe("Payment Operations Page - Columns Customization and Functionalities", 
 
     columns.optional.forEach((column) => {
       cy.get(`[data-table-heading="${column}"]`).should("not.exist");
+    });
+  });
+
+  it("Should display matching columns when searching for valid column names", () => {
+    cy.visit("http://localhost:9000/Dashboard/payments");
+    cy.get('button[data-button-for="CustomIcon"]').click();
+    cy.get(".border > .rounded-md").should(
+      "be.visible",
+      "have.attr",
+      "placeholder",
+      "Search in 23 options",
+    );
+
+    // Search for valid column names
+    ["Merchant", "Profile", "Payment"].forEach((searchTerm) => {
+      cy.get('input[placeholder="Search in 23 options"]')
+        .clear()
+        .type(searchTerm);
+      cy.contains(searchTerm).should("exist"); // Ensure matching results appear
     });
   });
 });
