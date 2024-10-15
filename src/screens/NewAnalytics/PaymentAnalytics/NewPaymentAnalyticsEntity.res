@@ -13,7 +13,7 @@ let overviewSectionEntity: moduleEntity = {
 let paymentsLifeCycleEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_processed_amount],
+    metrics: [#sessionized_payment_processed_amount],
   },
   title: "Payments Lifecycle",
   domain: #payments,
@@ -32,7 +32,7 @@ let paymentsLifeCycleChartEntity: chartEntity<
 let paymentsProcessedEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_processed_amount, #payment_count],
+    metrics: [#sessionized_payment_processed_amount, #sessionized_payment_processed_count],
   },
   title: "Payments Processed",
   domain: #payments,
