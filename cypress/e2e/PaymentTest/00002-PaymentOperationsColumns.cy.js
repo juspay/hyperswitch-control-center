@@ -3,7 +3,8 @@ import * as fixtures from "../../fixtures/imports";
 describe("Payment Operations Page - Columns Customization and Functionalities", () => {
   const username = `cypress@gmail.com`;
   const password = "Cypress8#";
-
+  const columnSize = 23;
+  const requiredColumnsSize = 13;
   beforeEach(() => {
     cy.signup_curl(username, password);
     cy.userLogin();
@@ -82,13 +83,17 @@ describe("Payment Operations Page - Columns Customization and Functionalities", 
       cy.wrap($el).click();
     });
 
-    cy.contains("button", "23 Columns Selected").should("be.visible");
+    cy.contains("button", `${columnSize} Columns Selected`).should(
+      "be.visible",
+    );
 
     columns.optional.forEach((column) => {
       cy.get(`[data-dropdown-value="${column}"]`).click();
     });
 
-    cy.contains("button", "13 Columns Selected").should("be.visible");
+    cy.contains("button", `${requiredColumnsSize} Columns Selected`).should(
+      "be.visible",
+    );
 
     cy.get(
       '[data-component="modal:Table Columns"] [data-icon="modal-close-icon"]',
@@ -110,11 +115,11 @@ describe("Payment Operations Page - Columns Customization and Functionalities", 
       "be.visible",
       "have.attr",
       "placeholder",
-      "Search in 23 options",
+      `Search in ${columnSize} options`,
     );
 
     ["Merchant", "Profile", "Payment"].forEach((searchTerm) => {
-      cy.get('input[placeholder="Search in 23 options"]')
+      cy.get(`input[placeholder="Search in ${columnSize} options"]`)
         .clear()
         .type(searchTerm);
       cy.contains(searchTerm).should("exist");
@@ -124,10 +129,12 @@ describe("Payment Operations Page - Columns Customization and Functionalities", 
   it("Should show 'No matching records found' when searching for invalid column names", () => {
     cy.visit("http://localhost:9000/Dashboard/payments");
     cy.get('button[data-button-for="CustomIcon"]').click();
-    cy.get('input[placeholder="Search in 23 options"]').should("be.visible");
+    cy.get(`input[placeholder="Search in ${columnSize} options"]`).should(
+      "be.visible",
+    );
 
     ["abacd", "something", "createdAt"].forEach((searchTerm) => {
-      cy.get('input[placeholder="Search in 23 options"]')
+      cy.get(`input[placeholder="Search in ${columnSize} options"]`)
         .clear()
         .type(searchTerm);
       cy.contains("No matching records found").should("be.visible");
@@ -135,6 +142,6 @@ describe("Payment Operations Page - Columns Customization and Functionalities", 
     cy.get('[data-icon="searchExit"]').click();
     cy.get(
       '[data-component="modal:Table Columns"] [data-dropdown-numeric]',
-    ).should("have.length", 23);
+    ).should("have.length", columnSize);
   });
 });
