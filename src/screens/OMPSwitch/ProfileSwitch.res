@@ -49,7 +49,11 @@ module NewAccountCreationModal = {
     }
 
     let onSubmit = (values, _) => {
-      createNewAccount(values)
+      open LogicUtils
+      let dict = values->getDictFromJsonObject
+      let trimmedData = dict->getString("profile_name", "")->String.trim
+      Dict.set(dict, "profile_name", trimmedData->JSON.Encode.string)
+      createNewAccount(dict->JSON.Encode.object)
     }
 
     let profileName = FormRenderer.makeFieldInfo(

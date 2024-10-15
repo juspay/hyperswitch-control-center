@@ -24,7 +24,11 @@ module NewAccountCreationModal = {
     }
 
     let onSubmit = (values, _) => {
-      createNewAccount(values)
+      open LogicUtils
+      let dict = values->getDictFromJsonObject
+      let trimmedData = dict->getString("company_name", "")->String.trim
+      Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
+      createNewAccount(dict->JSON.Encode.object)
     }
 
     let merchantName = FormRenderer.makeFieldInfo(
