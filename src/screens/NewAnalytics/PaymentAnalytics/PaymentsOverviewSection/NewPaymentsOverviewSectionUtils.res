@@ -59,7 +59,7 @@ let getInfo = (~metric) => {
       description: "Overall successful payment intents divided by total payment intents excluding dropoffs",
       valueType: Rate,
     }
-  | #payment_processed_amount => {
+  | #sessionized_payment_processed_amount => {
       titleText: "Total Payments Processed",
       description: "The total amount of payments processed in the selected time range",
       valueType: Amount,
