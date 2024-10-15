@@ -43,7 +43,6 @@ describe("connector", () => {
         "contain",
         "Hey there, Welcome back!",
       );
-
       cy.get("[data-testid=email]").type(username);
       cy.get("[data-testid=password]").type(password);
       cy.get('button[type="submit"]').click({ force: true });

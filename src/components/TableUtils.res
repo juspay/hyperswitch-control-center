@@ -372,13 +372,13 @@ module ColoredTextCell = {
 module Numeric = {
   @react.component
   let make = (~num: float, ~mapper, ~clearFormatting) => {
-    if clearFormatting == false {
-      <AddDataAttributes attributes=[("data-numeric", num->mapper)]>
-        <div> {React.string(num->mapper)} </div>
-      </AddDataAttributes>
-    } else {
+    if clearFormatting {
       <AddDataAttributes attributes=[("data-numeric", num->Float.toString)]>
         <div> {React.string(num->Float.toString)} </div>
+      </AddDataAttributes>
+    } else {
+      <AddDataAttributes attributes=[("data-numeric", num->mapper)]>
+        <div> {React.string(num->mapper)} </div>
       </AddDataAttributes>
     }
   }
