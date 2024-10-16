@@ -44,12 +44,19 @@ let getMetaData = json =>
   ->getDictFromJsonObject
 
 open NewAnalyticsTypes
-let visibleColumns: array<metrics> = [#payment_processed_amount, #payment_count, #time_bucket]
+let visibleColumns: array<metrics> = [
+  #sessionized_payment_processed_amount,
+  #sessionized_payment_processed_count,
+  #time_bucket,
+]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
   {
-    payment_count: dict->getInt((#payment_count: metrics :> string), 0),
-    payment_processed_amount: dict->getFloat((#payment_processed_amount: metrics :> string), 0.0),
+    payment_count: dict->getInt((#sessionized_payment_processed_count: metrics :> string), 0),
+    payment_processed_amount: dict->getFloat(
+      (#sessionized_payment_processed_amount: metrics :> string),
+      0.0,
+    ),
     time_bucket: dict->getString((#time_bucket: metrics :> string), "NA"),
   }
 }
@@ -64,15 +71,15 @@ let getObjects: JSON.t => array<paymentsProcessedObject> = json => {
 
 let getHeading = (colType: metrics) => {
   switch colType {
-  | #payment_count =>
+  | #sessionized_payment_processed_count =>
     Table.makeHeaderInfo(
-      ~key=(#payment_count: metrics :> string),
+      ~key=(#sessionized_payment_processed_count: metrics :> string),
       ~title="Count",
       ~dataType=TextType,
     )
-  | #payment_processed_amount =>
+  | #sessionized_payment_processed_amount =>
     Table.makeHeaderInfo(
-      ~key=(#payment_processed_amount: metrics :> string),
+      ~key=(#sessionized_payment_processed_amount: metrics :> string),
       ~title="Amount",
       ~dataType=TextType,
     )
@@ -83,22 +90,22 @@ let getHeading = (colType: metrics) => {
 
 let getCell = (obj, colType: metrics): Table.cell => {
   switch colType {
-  | #payment_count => Text(obj.payment_count->Int.toString)
-  | #payment_processed_amount => Text(obj.payment_processed_amount->Float.toString)
+  | #sessionized_payment_processed_count => Text(obj.payment_count->Int.toString)
+  | #sessionized_payment_processed_amount => Text(obj.payment_processed_amount->Float.toString)
   | #time_bucket | _ => Text(obj.time_bucket)
   }
 }
 
 let dropDownOptions = [
-  {label: "By Amount", value: (#payment_processed_amount: metrics :> string)},
-  {label: "By Count", value: (#payment_count: metrics :> string)},
+  {label: "By Amount", value: (#sessionized_payment_processed_amount: metrics :> string)},
+  {label: "By Count", value: (#sessionized_payment_processed_count: metrics :> string)},
 ]
 
 let tabs = [{label: "Daily", value: (#G_ONEDAY: granularity :> string)}]
 
 let defaultMetric = {
   label: "By Amount",
-  value: (#payment_processed_amount: metrics :> string),
+  value: (#sessionized_payment_processed_amount: metrics :> string),
 }
 
 let defaulGranularity = {
