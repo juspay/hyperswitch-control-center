@@ -8,6 +8,16 @@ type customDateRange =
   | NextMonth
   | Hour(float)
   | Day(float)
+
+type compareOption =
+  | No_Comparison
+  | Previous_Period
+  | Custom
+
+type dropdownType =
+  | PrimaryDateRange
+  | CompareDateRange
+
 let getDateString = (value, isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString) => {
   try {
     let {year, month, date} = isoStringToCustomTimeZone(value)
@@ -180,4 +190,309 @@ let changeTimeFormat = (~customTimezoneToISOString, ~date, ~time, ~format) => {
     timeSecond,
   )
   TimeZoneHook.formattedISOString(dateTimeCheck, format)
+}
+
+let getComparisionTimePeriod = (~startDate, ~endDate) => {
+  let startingPoint = startDate->DayJs.getDayJsForString
+  let endingPoint = endDate->DayJs.getDayJsForString
+  let gap = endingPoint.diff(startingPoint.toString(), "millisecond") // diff between points
+
+  let startTimeValue = startingPoint.subtract(gap, "millisecond").toDate()->Date.toISOString
+  let endTimeVal = endingPoint.subtract(gap, "millisecond").toDate()->Date.toISOString
+
+  (startTimeValue, endTimeVal)
+}
+
+let getGapBetweenRange = (~startDate, ~endDate) => {
+  let startingPoint = startDate->DayJs.getDayJsForString
+  let endingPoint = endDate->DayJs.getDayJsForString
+  endingPoint.diff(startingPoint.toString(), "day") // diff between points
+}
+
+let defaultCellHighlighter = (_): Calendar.highlighter => {
+  {
+    highlightSelf: false,
+    highlightLeft: false,
+    highlightRight: false,
+  }
+}
+
+let useErroryValueResetter = (value: string, setValue: (string => string) => unit) => {
+  React.useEffect(() => {
+    let isErroryTimeValue = _ => {
+      try {
+        false
+      } catch {
+      | _error => true
+      }
+    }
+    if value->isErroryTimeValue {
+      setValue(_ => "")
+    }
+
+    None
+  }, [])
+}
+
+let getDateStringForValue = (
+  value,
+  isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
+) => {
+  if value->LogicUtils.isEmptyString {
+    ""
+  } else {
+    try {
+      let check = TimeZoneHook.formattedISOString(value, "YYYY-MM-DDTHH:mm:ss.SSS[Z]")
+      let {year, month, date} = isoStringToCustomTimeZone(check)
+      `${year}-${month}-${date}`
+    } catch {
+    | _error => ""
+    }
+  }
+}
+
+let getTimeStringForValue = (
+  value,
+  isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
+) => {
+  if value->LogicUtils.isEmptyString {
+    ""
+  } else {
+    try {
+      let check = TimeZoneHook.formattedISOString(value, "YYYY-MM-DDTHH:mm:ss.SSS[Z]")
+      let {hour, minute, second} = isoStringToCustomTimeZone(check)
+      `${hour}:${minute}:${second}`
+    } catch {
+    | _error => ""
+    }
+  }
+}
+
+let getFormattedDate = (date, format) => {
+  date->Date.fromString->Date.toISOString->TimeZoneHook.formattedISOString(format)
+}
+
+let isStartBeforeEndDate = (start, end) => {
+  let getDate = date => {
+    let datevalue = Js.Date.makeWithYMD(
+      ~year=Js.Float.fromString(date[0]->Option.getOr("")),
+      ~month=Js.Float.fromString(
+        String.make(Js.Float.fromString(date[1]->Option.getOr("")) -. 1.0),
+      ),
+      ~date=Js.Float.fromString(date[2]->Option.getOr("")),
+      (),
+    )
+    datevalue
+  }
+  let startDate = getDate(String.split(start, "-"))
+  let endDate = getDate(String.split(end, "-"))
+  startDate < endDate
+}
+
+let getStartEndDiff = (startDate, endDate) => {
+  let diffTime = Math.abs(
+    endDate->Date.fromString->Date.getTime -. startDate->Date.fromString->Date.getTime,
+  )
+  diffTime
+}
+
+let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
+  React.useMemo(() => {
+    let val = input.value->JSON.Decode.string->Option.getOr("")
+    let onChange = fn => {
+      let newVal = fn(val)
+      input.onChange(newVal->Identity.stringToFormReactEvent)
+    }
+
+    (val, onChange)
+  }, [input])
+}
+
+let formatTimeString = (~timeVal, ~defaultTime, ~showSeconds) => {
+  open LogicUtils
+  if timeVal->isNonEmptyString {
+    let timeArr = timeVal->String.split(":")
+    let timeTxt = `${timeArr->getValueFromArray(0, "00")}:${timeArr->getValueFromArray(1, "00")}`
+    showSeconds ? `${timeTxt}:${timeArr->getValueFromArray(2, "00")}` : timeTxt
+  } else {
+    defaultTime
+  }
+}
+
+let toggleDropdown = (
+  ~isDropdownExpanded,
+  ~setIsDropdownExpanded,
+  ~calendarVisibility,
+  ~setCalendarVisibility,
+  ~predefinedOptionsLength,
+  ~isCustomSelected,
+  ~setShowOption,
+) => {
+  if predefinedOptionsLength > 0 {
+    if calendarVisibility {
+      setCalendarVisibility(_ => false)
+      setIsDropdownExpanded(_ => !isDropdownExpanded)
+      setShowOption(_ => !isCustomSelected)
+    } else {
+      setIsDropdownExpanded(_ => true)
+      setCalendarVisibility(_ => true)
+      setShowOption(_ => true)
+    }
+  } else {
+    setIsDropdownExpanded(_ => !isDropdownExpanded)
+    setCalendarVisibility(_ => !isDropdownExpanded)
+  }
+}
+
+let formatDateString = (~dateVal, ~buttonText, ~defaultLabel, ~isoStringToCustomTimeZone) => {
+  open LogicUtils
+  if dateVal->isNonEmptyString {
+    getFormattedDate(dateVal->getDateStringForValue(isoStringToCustomTimeZone), "MMM DD, YYYY")
+  } else if buttonText->isNonEmptyString {
+    buttonText
+  } else {
+    defaultLabel
+  }
+}
+
+let getButtonText = (
+  ~predefinedOptionSelected,
+  ~disableFutureDates,
+  ~startDateVal,
+  ~endDateVal,
+  ~buttonText,
+  ~isoStringToCustomTimeZone,
+  ~isCompare=false,
+) => {
+  open LogicUtils
+
+  let startDateStr = formatDateString(
+    ~dateVal=startDateVal,
+    ~buttonText,
+    ~defaultLabel="[From-Date]",
+    ~isoStringToCustomTimeZone,
+  )
+
+  let endDateStr = formatDateString(
+    ~dateVal=endDateVal,
+    ~buttonText,
+    ~defaultLabel="[To-Date]",
+    ~isoStringToCustomTimeZone,
+  )
+
+  switch predefinedOptionSelected {
+  | Some(value) => datetext(value, disableFutureDates)
+  | None =>
+    if isCompare {
+      switch (startDateVal->isEmptyString, endDateVal->isEmptyString) {
+      | (true, true) => `No Comparison`
+      | (true, false) => `${endDateStr}` // When start date is empty, show only end date
+      | (false, true) => `${startDateStr} - Now` // When end date is empty, show start date and "Now"
+      | (false, false) =>
+        if startDateVal == "No_Value" && endDateVal == "No_Value" {
+          `No Comparison`
+        } else {
+          let separator = startDateStr === buttonText ? "" : "-"
+          `${startDateStr} ${separator} ${endDateStr}`
+        }
+      }
+    } else {
+      switch (startDateVal->isEmptyString, endDateVal->isEmptyString) {
+      | (true, true) => `Select Date`
+      | (true, false) => `${endDateStr}` // When start date is empty, show only end date
+      | (false, true) => `${startDateStr} - Now` // When end date is empty, show start date and "Now"
+      | (false, false) => {
+          let separator = startDateStr === buttonText ? "" : "-"
+          `${startDateStr} ${separator} ${endDateStr}`
+        }
+      }
+    }
+  }
+}
+
+let getDiffForPredefined = (
+  predefinedDay,
+  isoStringToCustomTimeZone,
+  isoStringToCustomTimezoneInFloat,
+  customTimezoneToISOString,
+  disableFutureDates,
+  disablePastDates,
+) => {
+  let todayDayJsObj = Date.make()->Date.toString->DayJs.getDayJsForString
+  let todayDate = todayDayJsObj.format("YYYY-MM-DD")
+  let todayTime = todayDayJsObj.format("HH:mm:ss")
+  let format = "YYYY-MM-DDTHH:mm:00[Z]"
+
+  let (stDate, enDate, stTime, enTime) = getPredefinedStartAndEndDate(
+    todayDayJsObj,
+    isoStringToCustomTimeZone,
+    isoStringToCustomTimezoneInFloat,
+    customTimezoneToISOString,
+    predefinedDay,
+    disableFutureDates,
+    disablePastDates,
+    todayDate,
+    todayTime,
+  )
+
+  let startTimestamp = changeTimeFormat(
+    ~date=stDate,
+    ~time=stTime,
+    ~customTimezoneToISOString,
+    ~format,
+  )
+  let endTimestamp = changeTimeFormat(
+    ~date=enDate,
+    ~time=enTime,
+    ~customTimezoneToISOString,
+    ~format,
+  )
+
+  getStartEndDiff(startTimestamp, endTimestamp)
+}
+
+let getIsPredefinedOptionSelected = (
+  predefinedDays,
+  startDateVal,
+  endDateVal,
+  isoStringToCustomTimeZone,
+  isoStringToCustomTimezoneInFloat,
+  customTimezoneToISOString,
+  disableFutureDates,
+  disablePastDates,
+) => {
+  let format = "YYYY-MM-DDTHH:mm:00[Z]"
+  predefinedDays->Array.find(item => {
+    let startDate = convertTimeStamp(~isoStringToCustomTimeZone, startDateVal, format)
+    let endDate = convertTimeStamp(~isoStringToCustomTimeZone, endDateVal, format)
+    let difference = getStartEndDiff(startDate, endDate)
+    getDiffForPredefined(
+      item,
+      isoStringToCustomTimeZone,
+      isoStringToCustomTimezoneInFloat,
+      customTimezoneToISOString,
+      disableFutureDates,
+      disablePastDates,
+    ) === difference
+  })
+}
+
+let getCustomeRangeBg = isPrimaryPredefinedOptionSelected =>
+  switch isPrimaryPredefinedOptionSelected {
+  | Some(_) => "bg-white dark:bg-jp-gray-lightgray_background"
+  | None => "bg-jp-gray-100 dark:bg-jp-gray-850"
+  }
+
+let getStrokeColor = (disable, isDropdownExpandedActualPrimary) =>
+  if disable {
+    "stroke-jp-2-light-gray-600"
+  } else if isDropdownExpandedActualPrimary {
+    "stroke-jp-2-light-gray-1700"
+  } else {
+    "stroke-jp-2-light-gray-1100"
+  }
+
+let resetStartEndInput = (~setStartDate, ~setEndDate) => {
+  setStartDate(_ => "")
+  setEndDate(_ => "")
 }

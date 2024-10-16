@@ -77,7 +77,7 @@ let make = (
         ~granularity=granularity.value->Some,
       )
 
-      let (prevStartTime, prevEndTime) = NewAnalyticsUtils.getComparisionTimePeriod(
+      let (prevStartTime, prevEndTime) = DateRangeUtils.getComparisionTimePeriod(
         ~startDate=startTimeVal,
         ~endDate=endTimeVal,
       )

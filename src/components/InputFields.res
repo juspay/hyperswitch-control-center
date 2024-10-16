@@ -471,35 +471,42 @@ let singleDatePickerInput = (
 let filterDateRangeField = (
   ~startKey: string,
   ~endKey: string,
+  ~seconStartKey="",
+  ~seconEndKey="",
   ~format,
   ~disablePastDates=false,
   ~disableFutureDates=false,
   ~showTime=false,
   ~predefinedDays=[],
+  ~compareOptions=[],
+  ~enableComparision=false,
   ~disableApply=false,
   ~numMonths=1,
   ~dateRangeLimit=?,
   ~removeFilterOption=?,
-  ~optFieldKey=?,
   ~showSeconds=true,
   ~hideDate=false,
   ~selectStandardTime=false,
   ~isTooltipVisible=true,
 ): comboCustomInputRecord => {
+  open LogicUtils
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
     <DateRangeField
       disablePastDates
       disableFutureDates
       format
       predefinedDays
+      enableComparision
+      compareOptions
       numMonths
       showTime
       disableApply
       startKey
       endKey
+      seconStartKey
+      seconEndKey
       ?dateRangeLimit
       ?removeFilterOption
-      ?optFieldKey
       showSeconds
       hideDate
       selectStandardTime
@@ -507,7 +514,15 @@ let filterDateRangeField = (
     />
   }
 
-  {fn, names: [startKey, endKey]}
+  let inputNames = [startKey, endKey]
+
+  let names = if seconStartKey->isNonEmptyString && seconEndKey->isNonEmptyString {
+    [...inputNames, seconStartKey, seconEndKey]
+  } else {
+    [...inputNames]
+  }
+
+  {fn, names}
 }
 
 let dateRangeField = (
