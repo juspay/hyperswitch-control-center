@@ -63,3 +63,33 @@ let downloadRecoveryCodes = (~recoveryCodes) => {
     ~content=JSON.stringifyWithIndent(recoveryCodes->getJsonFromArrayOfString, 3),
   )
 }
+
+let jsonToTwoFaValueType: Dict.t<'a> => TwoFaTypes.twoFaValueType = dict => {
+  open LogicUtils
+
+  {
+    isCompleted: dict->getBool("is_completed", false),
+    attemptsRemaining: dict->getInt("remaining_attempts", 4),
+  }
+}
+
+let jsonTocheckTwofaResponseType: JSON.t => TwoFaTypes.checkTwofaResponseType = json => {
+  open LogicUtils
+  let jsonToDict = json->getDictFromJsonObject->Dict.get("status")
+
+  let statusValue = switch jsonToDict {
+  | Some(json) => {
+      let dict = json->getDictFromJsonObject
+      let twoFaValue: TwoFaTypes.twoFatype = {
+        totp: dict->getDictfromDict("totp")->jsonToTwoFaValueType,
+        recoveryCode: dict->getDictfromDict("recovery_code")->jsonToTwoFaValueType,
+      }
+      Some(twoFaValue)
+    }
+  | None => None
+  }
+
+  {
+    status: statusValue,
+  }
+}

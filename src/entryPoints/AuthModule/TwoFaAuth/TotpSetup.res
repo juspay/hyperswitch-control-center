@@ -4,16 +4,15 @@ let p3Regular = HSwitchUtils.getTextClass((P3, Regular))
 
 module EnterAccessCode = {
   @react.component
-  let make = (~setTwoFaPageState, ~onClickVerifyAccessCode) => {
+  let make = (~setTwoFaPageState, ~onClickVerifyAccessCode, ~errorHandling) => {
     let showToast = ToastState.useShowToast()
     let verifyRecoveryCodeLogic = TotpHooks.useVerifyRecoveryCode()
     let (recoveryCode, setRecoveryCode) = React.useState(_ => "")
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
 
-    let verifyAccessCode = async () => {
+    let verifyAccessCode = async _ => {
+      open LogicUtils
       try {
-        open LogicUtils
-
         setButtonState(_ => Button.Loading)
 
         if recoveryCode->String.length > 0 {
@@ -25,7 +24,12 @@ module EnterAccessCode = {
         }
         setButtonState(_ => Button.Normal)
       } catch {
-      | _ => {
+      | Exn.Error(e) => {
+          let err = Exn.message(e)->Option.getOr("Something went wrong")
+          let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+          if errorCode == "UR_49" {
+            errorHandling(errorCode)
+          }
           setRecoveryCode(_ => "")
           setButtonState(_ => Button.Normal)
         }
@@ -105,6 +109,7 @@ module ConfigureTotpScreen = {
     ~twoFaStatus,
     ~setTwoFaPageState,
     ~terminateTwoFactorAuth,
+    ~errorHandling,
   ) => {
     open TwoFaTypes
 
@@ -115,9 +120,8 @@ module ConfigureTotpScreen = {
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
 
     let verifyTOTP = async () => {
+      open LogicUtils
       try {
-        open LogicUtils
-
         setButtonState(_ => Button.Loading)
 
         if otp->String.length > 0 {
@@ -135,7 +139,12 @@ module ConfigureTotpScreen = {
         }
         setButtonState(_ => Button.Normal)
       } catch {
-      | _ => {
+      | Exn.Error(e) => {
+          let err = Exn.message(e)->Option.getOr("Something went wrong")
+          let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+          if errorCode == "UR_48" {
+            errorHandling(errorCode)
+          }
           setOtp(_ => "")
           setButtonState(_ => Button.Normal)
         }
@@ -225,7 +234,7 @@ module ConfigureTotpScreen = {
 }
 
 @react.component
-let make = () => {
+let make = (~setTwoFaPageState, ~twoFaPageState, ~errorHandling) => {
   open HSwitchUtils
   open TwoFaTypes
 
@@ -238,7 +247,6 @@ let make = () => {
   let (isQrVisible, setIsQrVisible) = React.useState(_ => false)
   let (totpUrl, setTotpUrl) = React.useState(_ => "")
   let (twoFaStatus, setTwoFaStatus) = React.useState(_ => TWO_FA_NOT_SET)
-  let (twoFaPageState, setTwoFaPageState) = React.useState(_ => TOTP_SHOW_QR)
   let (showNewQR, setShowNewQR) = React.useState(_ => false)
 
   let delayTimer = () => {
@@ -325,14 +333,16 @@ let make = () => {
         {switch twoFaPageState {
         | TOTP_SHOW_QR =>
           <ConfigureTotpScreen
-            isQrVisible totpUrl twoFaStatus setTwoFaPageState terminateTwoFactorAuth
+            isQrVisible totpUrl twoFaStatus setTwoFaPageState terminateTwoFactorAuth errorHandling
           />
         | TOTP_SHOW_RC =>
           <TotpRecoveryCodes
             setTwoFaPageState onClickDownload={terminateTwoFactorAuth} setShowNewQR
           />
         | TOTP_INPUT_RECOVERY_CODE =>
-          <EnterAccessCode setTwoFaPageState onClickVerifyAccessCode={terminateTwoFactorAuth} />
+          <EnterAccessCode
+            setTwoFaPageState onClickVerifyAccessCode={terminateTwoFactorAuth} errorHandling
+          />
         }}
         <div className="text-grey-200 flex gap-2">
           {"Log in with a different account?"->React.string}
