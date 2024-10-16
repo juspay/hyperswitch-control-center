@@ -158,7 +158,7 @@ let make = () => {
               onClick={_ => setFormState(_ => Edit)}
               buttonType=Primary
               buttonSize={Small}
-              buttonState={!checkUserEntity([#Profile]) ? Normal : Disabled}
+              buttonState={checkUserEntity([#Profile]) ?Disabled :Normal}
               customButtonStyle="rounded-sm"
             />
           | Edit =>
