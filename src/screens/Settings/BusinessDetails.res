@@ -2,7 +2,7 @@ open HSwitchSettingTypes
 open MerchantAccountUtils
 open APIUtils
 open SettingsFieldsInfo
-
+open CommonAuthTypes
 module InfoOnlyView = {
   @react.component
   let make = (~heading, ~subHeading="Default value") => {
@@ -68,6 +68,13 @@ let make = () => {
   let (formState, setFormState) = React.useState(_ => Preview)
   let (fetchState, setFetchState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let authorizationLogic = {
+    switch userHasAccess(~groupAccess=MerchantDetailsManage) {
+    | NoAccess => NoAccess
+    | Access => checkUserEntity([#Profile]) ? NoAccess : Access
+    }
+  }
   let onSubmit = async (values, _) => {
     try {
       setFetchState(_ => Loading)
@@ -153,7 +160,7 @@ let make = () => {
           {switch formState {
           | Preview =>
             <ACLButton
-              authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
+              authorization={authorizationLogic}
               text="Edit"
               onClick={_ => setFormState(_ => Edit)}
               buttonType=Primary
