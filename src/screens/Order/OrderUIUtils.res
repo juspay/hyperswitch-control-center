@@ -6,6 +6,7 @@ type filterTypes = {
   payment_method_type: array<string>,
   status: array<string>,
   connector_label: array<string>,
+  card_network: array<string>,
 }
 
 type filter = [
@@ -16,6 +17,7 @@ type filter = [
   | #status
   | #payment_method_type
   | #connector_label
+  | #card_network
   | #unknown
 ]
 
@@ -28,6 +30,7 @@ let getFilterTypeFromString = filterType => {
   | "authentication_type" => #authentication_type
   | "payment_method_type" => #payment_method_type
   | "connector_label" => #connector_label
+  | "card_network" => #card_network
   | _ => #unknown
   }
 }
@@ -262,6 +265,7 @@ let itemToObjMapper = dict => {
     payment_method: dict->getDictfromDict("payment_method")->Dict.keysToArray,
     payment_method_type: getAllPaymentMethodType(dict),
     connector_label: [],
+    card_network: dict->getArrayFromDict("card_network", [])->getStrArrayFromJsonArray,
   }
 }
 
@@ -291,6 +295,7 @@ let initialFilters = (json, filtervalues) => {
         ? getConditionalFilter(key, filterDict, filtervalues)
         : filterArr.payment_method_type
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
+    | #card_network => filterArr.card_network
     | _ => []
     }
 
