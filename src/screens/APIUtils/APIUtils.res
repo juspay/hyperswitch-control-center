@@ -228,7 +228,8 @@ let useGetURL = () => {
         }
       | _ => ""
       }
-    | DISPUTES_AGGREGATE => switch methodType {
+    | DISPUTES_AGGREGATE =>
+      switch methodType {
       | Get =>
         switch queryParamerters {
         | Some(queryParams) =>
