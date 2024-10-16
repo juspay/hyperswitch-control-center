@@ -1,9 +1,16 @@
 describe("connector", () => {
-  const username = `cypress${Math.round(+new Date() / 1000)}@gmail.com`;
   const password = "Cypress98#";
+  const username = `cypress${Math.round(+new Date() / 1000)}@gmail.com`;
 
-  // Login before each testcase
-  beforeEach(() => {
+  const getIframeBody = () => {
+    return cy
+      .get("iframe")
+      .its("0.contentDocument.body")
+      .should("not.be.empty")
+      .then(cy.wrap);
+  };
+
+  before(() => {
     cy.visit("http://localhost:9000/dashboard/login");
     cy.url().should("include", "/login");
     cy.get("[data-testid=card-header]").should(
@@ -23,16 +30,27 @@ describe("connector", () => {
     cy.get('button[type="submit"]').click({ force: true });
     cy.get("[data-testid=skip-now]").click({ force: true });
 
-    cy.url().should("include", "/dashboard/home");
-  });
-
-  it("Create a dummy connector", () => {
-    cy.url().should("include", "/dashboard/home");
-
     cy.get('[data-form-label="Business name"]').should("exist");
     cy.get("[data-testid=merchant_name]").type("test_business");
     cy.get("[data-button-for=startExploring]").click();
-    cy.reload(true);
+  });
+
+  beforeEach(function () {
+    if (this.currentTest.title !== "Create a dummy connector") {
+      cy.visit("http://localhost:9000/dashboard/login");
+      cy.url().should("include", "/login");
+      cy.get("[data-testid=card-header]").should(
+        "contain",
+        "Hey there, Welcome back!",
+      );
+      cy.get("[data-testid=email]").type(username);
+      cy.get("[data-testid=password]").type(password);
+      cy.get('button[type="submit"]').click({ force: true });
+      cy.get("[data-testid=skip-now]").click({ force: true });
+    }
+  });
+
+  it("Create a dummy connector", () => {
     cy.get("[data-testid=connectors]").click();
     cy.get("[data-testid=paymentprocessors]").click();
     cy.contains("Payment Processors").should("be.visible");
@@ -68,5 +86,32 @@ describe("connector", () => {
     cy.contains("stripe_test_default_label")
       .scrollIntoView()
       .should("be.visible");
+  });
+  it("Use the SDK to process a payment", () => {
+    cy.get("[data-testid=connectors]").click();
+    cy.get("[data-testid=paymentprocessors]").click();
+    cy.contains("Payment Processors").should("be.visible");
+    cy.get("[data-testid=home]").click();
+    cy.get("[data-button-for=tryItOut]").click();
+    cy.get('[data-breadcrumb="Explore Demo Checkout Experience"]').should(
+      "exist",
+    );
+    cy.get('[data-value="unitedStates(USD)"]').click();
+    cy.get('[data-dropdown-value="Germany (EUR)"]').click();
+    cy.get("[data-testid=amount]").find("input").clear().type("77");
+    cy.get("[data-button-for=showPreview]").click();
+    getIframeBody()
+      .find("[data-testid=cardNoInput]", { timeout: 20000 })
+      .should("exist")
+      .type("4242424242424242");
+    getIframeBody()
+      .find("[data-testid=expiryInput]")
+      .should("exist")
+      .type("0127");
+    getIframeBody().find("[data-testid=cvvInput]").should("exist").type("492");
+    cy.get("[data-button-for=payEUR77]").should("exist").click();
+    cy.contains("Payment Successful").should("be.visible");
+    cy.get("[data-button-for=goToPayment]").should("exist").click();
+    cy.url().should("include", "dashboard/payments");
   });
 });

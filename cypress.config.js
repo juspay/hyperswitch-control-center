@@ -9,6 +9,7 @@ module.exports = defineConfig({
       // with any changed environment variables
       return config;
     },
+    chromeWebSecurity: false,
   },
   env: {
     CYPRESS_USERNAME: process.env.CYPRESS_USERNAME || "cypress@gmail.com",
