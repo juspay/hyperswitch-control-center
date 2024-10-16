@@ -69,12 +69,6 @@ let make = () => {
   let (fetchState, setFetchState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let authorizationLogic = {
-    switch userHasAccess(~groupAccess=MerchantDetailsManage) {
-    | NoAccess => NoAccess
-    | Access => checkUserEntity([#Profile]) ? NoAccess : Access
-    }
-  }
   let onSubmit = async (values, _) => {
     try {
       setFetchState(_ => Loading)
@@ -160,11 +154,12 @@ let make = () => {
           {switch formState {
           | Preview =>
             <ACLButton
-              authorization={authorizationLogic}
+              authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
               text="Edit"
               onClick={_ => setFormState(_ => Edit)}
               buttonType=Primary
               buttonSize={Small}
+              buttonState={!checkUserEntity([#Profile]) ? Normal : Disabled}
               customButtonStyle="rounded-sm"
             />
           | Edit =>
