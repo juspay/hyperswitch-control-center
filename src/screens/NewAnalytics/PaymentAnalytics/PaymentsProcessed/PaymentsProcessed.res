@@ -126,7 +126,7 @@ let make = (
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=ANALYTICS_PAYMENTS,
+        ~entityName=ANALYTICS_PAYMENTS_V2,
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
