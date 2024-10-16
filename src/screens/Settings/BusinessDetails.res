@@ -2,7 +2,6 @@ open HSwitchSettingTypes
 open MerchantAccountUtils
 open APIUtils
 open SettingsFieldsInfo
-open CommonAuthTypes
 module InfoOnlyView = {
   @react.component
   let make = (~heading, ~subHeading="Default value") => {
