@@ -233,6 +233,10 @@ let getOptionIntFromString = str => {
   str->Int.fromString
 }
 
+let getOptionStringFromInt = int => {
+  Some(int->Option.getOr(0)->Int.toString)
+}
+
 let getOptionFloatFromString = str => {
   str->Float.fromString
 }

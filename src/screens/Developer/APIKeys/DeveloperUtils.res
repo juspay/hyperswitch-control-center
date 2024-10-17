@@ -192,7 +192,7 @@ let maxAutoRetries = FormRenderer.makeFieldInfo(
   ~name="max_auto_retries_enabled",
   ~placeholder="Enter number of max auto retries",
   ~customInput=InputFields.textInput(~autoComplete="off"),
-  ~isRequired=false,
+  ~isRequired=true,
 )
 
 module ErrorUI = {
