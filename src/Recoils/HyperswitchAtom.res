@@ -24,10 +24,15 @@ let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatu
   "paypalAccountStatusAtom",
   PayPalFlowTypes.Connect_paypal_landing,
 )
-let userPermissionAtom: Recoil.recoilAtom<UserManagementTypes.permissionJson> = Recoil.atom(
+// TODO: remove this after userGroupPermissionsAtom is stable
+let userPermissionAtom: Recoil.recoilAtom<UserManagementTypes.groupAccessJsonType> = Recoil.atom(
   "userPermissionAtom",
-  PermissionUtils.defaultValueForPermission,
+  GroupACLMapper.defaultValueForGroupAccessJson,
 )
+
+let userGroupACLAtom: Recoil.recoilAtom<
+  option<Map.t<UserManagementTypes.groupAccessType, CommonAuthTypes.authorization>>,
+> = Recoil.atom("userGroupACLAtom", None)
 
 let switchMerchantListAtom: Recoil.recoilAtom<
   array<SwitchMerchantUtils.switchMerchantListResponse>,

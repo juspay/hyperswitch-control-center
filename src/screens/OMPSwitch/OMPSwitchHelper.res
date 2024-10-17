@@ -32,10 +32,12 @@ module AddNewMerchantProfileButton = {
     ~customHRTagStyle="",
     ~addItemBtnStyle="",
   ) => {
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-    let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let cursorStyles = GroupAccessUtils.cursorStyles(
+      userHasAccess(~groupAccess=MerchantDetailsManage),
+    )
     <ACLDiv
-      permission={userPermissionJson.merchantDetailsManage}
+      authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
       onClick={_ => setShowModal(_ => true)}
       isRelative=false
       contentAlign=Default

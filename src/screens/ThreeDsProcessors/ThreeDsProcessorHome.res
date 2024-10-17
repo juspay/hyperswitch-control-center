@@ -106,8 +106,6 @@ let make = () => {
   React.useEffect(() => {
     if connectorName->LogicUtils.isNonEmptyString {
       getDetails()->ignore
-    } else {
-      setScreenState(_ => Error("Connector name not found"))
     }
     None
   }, [connectorName])
@@ -241,8 +239,6 @@ let make = () => {
               ->LogicUtils.getDictFromJsonObject
               ->ConnectorListMapper.getProcessorPayloadType}
               connector=connectorName
-              setScreenState={_ => ()}
-              isPayoutFlow=false
               setCurrentStep={_ => ()}
               getConnectorDetails={Some(getConnectorDetails)}
             />

@@ -4,11 +4,13 @@ let paymentViewsArray: array<viewTypes> = [All, Succeeded, Failed, Dropoffs, Can
 
 let refundViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
 
+let disputeViewsArray: array<viewTypes> = [All, Succeeded, Failed, Pending]
+
 let getCustomFilterKey = entity =>
   switch entity {
   | Orders => "status"
   | Refunds => "refund_status"
-  | _ => ""
+  | Disputes => "dispute_status"
   }
 
 let getViewsDisplayName = (view: viewTypes) => {
@@ -40,7 +42,13 @@ let getViewTypeFromString = (view, entity) => {
     | "pending" => Pending
     | _ => All
     }
-  | _ => All
+  | Disputes =>
+    switch view {
+    | "dispute_won" => Succeeded
+    | "dispute_lost" => Failed
+    | "dispute_opened" => Pending
+    | _ => All
+    }
   }
 }
 
@@ -72,7 +80,14 @@ let getViewsString = (view, obj, entity) => {
     | Pending => "pending"
     | _ => ""
     }
-  | _ => ""
+  | Disputes =>
+    switch view {
+    | All => getAllViewsString(obj)
+    | Succeeded => "dispute_won"
+    | Failed => "dispute_lost"
+    | Pending => "dispute_opened"
+    | _ => ""
+    }
   }
 }
 

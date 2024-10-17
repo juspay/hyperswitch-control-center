@@ -4,7 +4,6 @@ module SmartRetryCard = {
   open NewAnalyticsHelper
   open NewPaymentsOverviewSectionTypes
   open NewPaymentsOverviewSectionUtils
-  open NewPaymentAnalyticsUtils
   open NewAnalyticsUtils
   @react.component
   let make = (~metric, ~data) => {
@@ -38,7 +37,6 @@ module SmartRetryCard = {
 module OverViewStat = {
   open NewAnalyticsHelper
   open NewAnalyticsUtils
-  open NewPaymentAnalyticsUtils
   open NewPaymentsOverviewSectionTypes
   open NewPaymentsOverviewSectionUtils
   @react.component
@@ -91,12 +89,6 @@ let make = (~entity: moduleEntity) => {
       let primaryData = defaultValue->Dict.copy
       let secondaryData = defaultValue->Dict.copy
 
-      let urlV1Payments = getURL(
-        ~entityName=ANALYTICS_PAYMENTS,
-        ~methodType=Post,
-        ~id=Some((#payments: domain :> string)),
-      )
-
       let urlV1Refunds = getURL(
         ~entityName=ANALYTICS_PAYMENTS,
         ~methodType=Post,
@@ -112,14 +104,11 @@ let make = (~entity: moduleEntity) => {
       // primary date range
       let primaryBodyV2Payments = getPayload(
         ~entity,
-        ~metrics=[#smart_retried_amount, #payments_success_rate],
-        ~startTime=startTimeVal,
-        ~endTime=endTimeVal,
-      )
-
-      let primaryBodyV1Payments = getPayload(
-        ~entity,
-        ~metrics=[#payment_processed_amount],
+        ~metrics=[
+          #smart_retried_amount,
+          #payments_success_rate,
+          #sessionized_payment_processed_amount,
+        ],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
       )
@@ -131,11 +120,6 @@ let make = (~entity: moduleEntity) => {
         ~endTime=endTimeVal,
       )
 
-      let primaryResponseV1Payments = await updateDetails(
-        urlV1Payments,
-        primaryBodyV1Payments,
-        Post,
-      )
       let primaryResponseV1Refunds = await updateDetails(urlV1Refunds, primaryBodyV1Refunds, Post)
       let primaryResponseV2Payments = await updateDetails(
         urlV2Payments,
@@ -143,15 +127,13 @@ let make = (~entity: moduleEntity) => {
         Post,
       )
 
-      let primaryDataV1Payments = primaryResponseV1Payments->parseResponse
       let primaryDataV1Refunds = primaryResponseV1Refunds->parseResponse
       let primaryDataV2Payments = primaryResponseV2Payments->parseResponse
 
-      primaryData->setValue(~data=primaryDataV1Payments, ~ids=[#payment_processed_amount])
       primaryData->setValue(~data=primaryDataV1Refunds, ~ids=[#refund_success_count])
       primaryData->setValue(
         ~data=primaryDataV2Payments,
-        ~ids=[#smart_retried_amount, #payments_success_rate],
+        ~ids=[#smart_retried_amount, #payments_success_rate, #sessionized_payment_processed_amount],
       )
 
       // secondary date range
@@ -162,14 +144,11 @@ let make = (~entity: moduleEntity) => {
 
       let secondaryBodyV2Payments = getPayload(
         ~entity,
-        ~metrics=[#smart_retried_amount, #payments_success_rate],
-        ~startTime=prevStartTime,
-        ~endTime=prevEndTime,
-      )
-
-      let secondaryBodyV1Payments = getPayload(
-        ~entity,
-        ~metrics=[#payment_processed_amount],
+        ~metrics=[
+          #smart_retried_amount,
+          #payments_success_rate,
+          #sessionized_payment_processed_amount,
+        ],
         ~startTime=prevStartTime,
         ~endTime=prevEndTime,
       )
@@ -181,11 +160,6 @@ let make = (~entity: moduleEntity) => {
         ~endTime=prevEndTime,
       )
 
-      let secondaryResponseV1Payments = await updateDetails(
-        urlV1Payments,
-        secondaryBodyV1Payments,
-        Post,
-      )
       let secondaryResponseV1Refunds = await updateDetails(
         urlV1Refunds,
         secondaryBodyV1Refunds,
@@ -197,15 +171,13 @@ let make = (~entity: moduleEntity) => {
         Post,
       )
 
-      let secondaryDataV1Payments = secondaryResponseV1Payments->parseResponse
       let secondaryDataV1Refunds = secondaryResponseV1Refunds->parseResponse
       let secondaryDataV2Payments = secondaryResponseV2Payments->parseResponse
 
-      secondaryData->setValue(~data=secondaryDataV1Payments, ~ids=[#payment_processed_amount])
       secondaryData->setValue(~data=secondaryDataV1Refunds, ~ids=[#refund_success_count])
       secondaryData->setValue(
         ~data=secondaryDataV2Payments,
-        ~ids=[#smart_retried_amount, #payments_success_rate],
+        ~ids=[#smart_retried_amount, #payments_success_rate, #sessionized_payment_processed_amount],
       )
 
       setData(_ =>
@@ -227,11 +199,11 @@ let make = (~entity: moduleEntity) => {
 
   <PageLoaderWrapper screenState customLoader={<Shimmer layoutId=entity.title />}>
     // Need to modify
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-3 gap-6">
       <SmartRetryCard data metric=#smart_retried_amount />
-      <div className="col-span-2 grid grid-cols-2 grid-rows-2 gap-3">
+      <div className="col-span-2 grid grid-cols-2 grid-rows-2 gap-6">
         <OverViewStat data metric=#payments_success_rate />
-        <OverViewStat data metric=#payment_processed_amount />
+        <OverViewStat data metric=#sessionized_payment_processed_amount />
         <OverViewStat data metric=#refund_success_count />
         <OverViewStat data metric=#dispute_status_metric />
       </div>

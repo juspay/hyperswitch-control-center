@@ -10,6 +10,7 @@ let defaultValue = {
   setIntegrationDetails: _ => (),
   dashboardPageState: #DEFAULT,
   setDashboardPageState: _ => (),
+  // TODO: change this when custom role for user-management revamp is picked
   permissionInfo: [],
   setPermissionInfo: _ => (),
   isProdIntentCompleted: None,

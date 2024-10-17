@@ -13,7 +13,7 @@ let overviewSectionEntity: moduleEntity = {
 let paymentsLifeCycleEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_processed_amount],
+    metrics: [#sessionized_payment_processed_amount],
   },
   title: "Payments Lifecycle",
   domain: #payments,
@@ -32,7 +32,7 @@ let paymentsLifeCycleChartEntity: chartEntity<
 let paymentsProcessedEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_processed_amount, #payment_count],
+    metrics: [#sessionized_payment_processed_amount, #sessionized_payment_processed_count],
   },
   title: "Payments Processed",
   domain: #payments,
@@ -80,13 +80,13 @@ let paymentsSuccessRateChartEntity: chartEntity<
   getChatOptions: LineGraphUtils.getLineGraphOptions,
 }
 
-// Payments Distribution
+// Successful Payments Distribution
 let successfulPaymentsDistributionEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_success_rate],
+    metrics: [#payments_distribution],
   },
-  title: "Payments Distribution",
+  title: "Successful Payments Distribution",
   domain: #payments,
 }
 
@@ -101,6 +101,39 @@ let successfulPaymentsDistributionChartEntity: chartEntity<
 
 let successfulPaymentsDistributionTableEntity = {
   open SuccessfulPaymentsDistributionUtils
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects,
+    ~dataKey="queryData",
+    ~defaultColumns=visibleColumns,
+    ~requiredSearchFieldsList=[],
+    ~allColumns=visibleColumns,
+    ~getCell,
+    ~getHeading,
+  )
+}
+
+// Failed Payments Distribution
+let failedPaymentsDistributionEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [#payments_distribution],
+  },
+  title: "Failed Payments Distribution",
+  domain: #payments,
+}
+
+let failedPaymentsDistributionChartEntity: chartEntity<
+  BarGraphTypes.barGraphPayload,
+  BarGraphTypes.barGraphOptions,
+  JSON.t,
+> = {
+  getObjects: FailedPaymentsDistributionUtils.failedPaymentsDistributionMapper,
+  getChatOptions: BarGraphUtils.getBarGraphOptions,
+}
+
+let failedPaymentsDistributionTableEntity = {
+  open FailedPaymentsDistributionUtils
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects,
