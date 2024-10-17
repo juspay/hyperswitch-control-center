@@ -14,6 +14,30 @@ module ProfileActions = {
     )
     let initialValues = [("profile_name", defaultProfileName->JSON.Encode.string)]->Dict.fromArray
 
+
+    let validateForm = (values: JSON.t) => {
+      open LogicUtils
+      let errors = Dict.make()
+      let profileName = values->getDictFromJsonObject->getString("profile_name", "")->String.trim
+      let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
+
+      let errorMessage = if profileName->isEmptyString {
+        "Profile name cannot be empty"
+      } else if profileName->String.length > 64 {
+        "Profile name cannot exceed 64 characters"
+      } else if !RegExp.test(RegExp.fromString(regexForProfileName), profileName) {
+        "Profile name should not contain special characters"
+      } else {
+        ""
+      }
+
+      if errorMessage->isNonEmptyString {
+        Dict.set(errors, "profile_name", errorMessage->JSON.Encode.string)
+      }
+
+      errors->JSON.Encode.object
+    }
+
     let onSubmit = async (values, _) => {
       try {
         let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(profileId))
@@ -72,7 +96,7 @@ module ProfileActions = {
         showModal
         setShowModal
         modalClass="w-1/4 m-auto">
-        <Form initialValues={initialValues->JSON.Encode.object} onSubmit>
+        <Form initialValues={initialValues->JSON.Encode.object} onSubmit validate={validateForm}>
           <div className="flex flex-col gap-12 h-full w-full">
             <FormRenderer.DesktopRow>
               <FormRenderer.FieldRenderer
