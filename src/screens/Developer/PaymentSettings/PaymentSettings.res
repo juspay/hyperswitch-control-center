@@ -308,9 +308,9 @@ module AutoRetries = {
     if !isAutoRetryEnabled {
       form.change("max_auto_retries_enabled", JSON.Encode.null->Identity.genericTypeToJson)
       setCheckMaxAutoRetry(_ => false)
-    } else { 
+    } else {
       setCheckMaxAutoRetry(_ => true)
-      }
+    }
 
     <>
       <DesktopRow>
@@ -380,9 +380,11 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let fieldsToValidate = () => {
     let defaultFieldsToValidate =
-      [WebhookUrl, ReturnUrl, checkMaxAutoRetry ? MaxAutoRetries : UnknownValidateFields("")]->Array.filter(urlField =>
-        urlField === WebhookUrl || !webhookOnly
-      )
+      [
+        WebhookUrl,
+        ReturnUrl,
+        checkMaxAutoRetry ? MaxAutoRetries : UnknownValidateFields(""),
+      ]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
     defaultFieldsToValidate
   }
 
@@ -525,7 +527,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </DesktopRow>
                 </RenderIf>
-                <AutoRetries setCheckMaxAutoRetry/>
+                <AutoRetries setCheckMaxAutoRetry />
                 <ReturnUrl />
                 <WebHook enableCustomHttpHeaders setCustomHttpHeaders />
                 <DesktopRow>

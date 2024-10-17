@@ -48,7 +48,10 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   )
 
   profileInfo->setOptionBool("is_auto_retries_enabled", is_auto_retries_enabled)
-  profileInfo->setOptionString("max_auto_retries_enabled", max_auto_retries_enabled->getOptionStringFromInt)
+  profileInfo->setOptionString(
+    "max_auto_retries_enabled",
+    max_auto_retries_enabled->getOptionStringFromInt,
+  )
 
   profileInfo->setDictNull("webhook_url", webhook_details.webhook_url)
   profileInfo->setOptionString("webhook_version", webhook_details.webhook_version)
@@ -404,8 +407,8 @@ let validateCustom = (key, errors, value, isLiveMode) => {
       }
     }
   | MaxAutoRetries =>
-  if !RegExp.test(%re("/^[1-5]$/"), value) {
-      Dict.set(  
+    if !RegExp.test(%re("/^[1-5]$/"), value) {
+      Dict.set(
         errors,
         key->validationFieldsMapper,
         "Please enter integer value from 1 to 5"->JSON.Encode.string,
@@ -418,9 +421,12 @@ let validateCustom = (key, errors, value, isLiveMode) => {
 let validateEmptyValue = (key, errors) => {
   switch key {
   | MaxAutoRetries =>
-    errors->Dict.set(key->validationFieldsMapper, "Please enter a max auto retries value"->JSON.Encode.string)
+    errors->Dict.set(
+      key->validationFieldsMapper,
+      "Please enter a max auto retries value"->JSON.Encode.string,
+    )
   | _ => ()
-}
+  }
 }
 
 let validateMerchantAccountForm = (
@@ -438,7 +444,7 @@ let validateMerchantAccountForm = (
     if value->String.length < 1 {
       key->validateEmptyValue(errors)
     } else {
-    key->validateCustom(errors, value, isLiveMode)
+      key->validateCustom(errors, value, isLiveMode)
     }
   })
 
