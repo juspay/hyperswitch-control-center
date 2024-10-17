@@ -1,4 +1,4 @@
-let defaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: ""}
+let ompDefaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: ""}
 let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(
   "merchantDetailsValue",
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
