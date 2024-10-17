@@ -49,12 +49,6 @@ let profileItemToObjMapper = dict => {
   }
 }
 
-let generateDropdownOptions = dropdownList => {
-  let options: array<SelectBox.dropdownOption> =
-    dropdownList->Array.map((item): SelectBox.dropdownOption => {label: item.name, value: item.id})
-  options
-}
-
 let org = {
   lable: "Organization",
   entity: #Organization,

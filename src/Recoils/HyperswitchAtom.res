@@ -1,3 +1,4 @@
+let ompDefaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: ""}
 let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(
   "merchantDetailsValue",
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
@@ -50,17 +51,17 @@ let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Reco
 
 let orgListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
   "orgListAtom",
-  OMPSwitchUtils.ompDefaultValue("", ""),
+  [ompDefaultValue],
 )
 
 let merchantListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
   "merchantListAtom",
-  OMPSwitchUtils.ompDefaultValue("", ""),
+  [ompDefaultValue],
 )
 
 let profileListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
   "profileListAtom",
-  OMPSwitchUtils.ompDefaultValue("", ""),
+  [ompDefaultValue],
 )
 
 let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType>> = Recoil.atom(
