@@ -14,7 +14,6 @@ module ProfileActions = {
     )
     let initialValues = [("profile_name", defaultProfileName->JSON.Encode.string)]->Dict.fromArray
 
-
     let validateForm = (values: JSON.t) => {
       open LogicUtils
       let errors = Dict.make()
