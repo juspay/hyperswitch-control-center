@@ -33,14 +33,14 @@ module UserAction = {
         value.profile.id->Option.getOr("") === profileId
       ) {
         ManageUser
-        } else if (
+      } else if (
         // Merchant level user
         value.org.id->Option.getOr("") === orgId &&
         value.merchant.id->Option.getOr("") === merchantId &&
         value.profile.id->Option.isNone
       ) {
         ManageUser
-      }  else {
+      } else {
         SwitchUser
       }
     }
