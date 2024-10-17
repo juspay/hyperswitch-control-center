@@ -1,0 +1,62 @@
+{
+  "amount": 10000,
+  "currency": "USD",
+  "customer_id": "hyperswitch_sdk_demo_id",
+  "description": "Default value",
+  "capture_method": "automatic",
+  "amount_to_capture": 10000,
+  "email": "guest@example.com",
+  "name": "John Doe",
+  "phone": "999999999",
+  "phone_country_code": "+65",
+  "authentication_type": "no_three_ds",
+  "shipping": {
+    "address": {
+      "line1": "1467",
+      "line2": "Harrison Street",
+      "line3": "Harrison Street",
+      "city": "San Fransico",
+      "state": "California",
+      "zip": "94122",
+      "country": "US",
+      "first_name": "John",
+      "last_name": "Doe"
+    },
+    "phone": {
+      "number": "1234567890",
+      "country_code": "+1"
+    }
+  },
+  "billing": {
+    "address": {
+      "line1": "1467",
+      "line2": "Harrison Street",
+      "line3": "Harrison Street",
+      "city": "San Fransico",
+      "state": "California",
+      "zip": "94122",
+      "country": "US",
+      "first_name": "John",
+      "last_name": "Doe"
+    },
+    "phone": {
+      "number": "1234567890",
+      "country_code": "+1"
+    },
+    "email": "billing_email@gmail.com"
+  },
+  "metadata": {
+    "order_details": {
+      "product_name": "Apple iphone 15",
+      "quantity": 1,
+      "amount": 10000
+    }
+  },
+  "return_url": "http://localhost:9000/dashboard/sdk",
+  "payment_type": null,
+  "setup_future_usage": null,
+  "mandate_data": null,
+  "frm_metadata": {
+    "order_channel": "web"
+  }
+}
