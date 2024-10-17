@@ -46,17 +46,17 @@ let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Reco
 
 let orgListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
   "orgListAtom",
-  [defaultValue],
+  [ompDefaultValue],
 )
 
 let merchantListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
   "merchantListAtom",
-  [defaultValue],
+  [ompDefaultValue],
 )
 
 let profileListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
   "profileListAtom",
-  [defaultValue],
+  [ompDefaultValue],
 )
 
 let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType>> = Recoil.atom(

@@ -25,9 +25,9 @@ let useClearRecoilValue = () => {
     setUserPermissionAtom(_ => PermissionUtils.defaultValueForPermission)
     setSwitchMerchantListAtom(_ => [SwitchMerchantUtils.defaultValue])
     setCurrentTabNameRecoilAtom(_ => "ActiveTab")
-    setOrgListRecoilAtom(_ => [defaultValue])
-    setMerchantListRecoilAtom(_ => [defaultValue])
-    setProfileListRecoilAtom(_ => [defaultValue])
+    setOrgListRecoilAtom(_ => [ompDefaultValue])
+    setMerchantListRecoilAtom(_ => [ompDefaultValue])
+    setProfileListRecoilAtom(_ => [ompDefaultValue])
     setModuleListListRecoilAtom(_ => [])
   }
   clearRecoilValue
