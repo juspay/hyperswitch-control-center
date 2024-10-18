@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.10.18.0
+
+### Features
+
+- Added search func (profile) and id in OMP dropdowns (scroll and sort fixed) ([#1584](https://github.com/juspay/hyperswitch-control-center/pull/1584)) ([`f40413c`](https://github.com/juspay/hyperswitch-control-center/commit/f40413cae89cd4124e6252d65eba95f33fa05e6f))
+
+### Bug Fixes
+
+- Disable edit for profile level user (Business section) ([#1613](https://github.com/juspay/hyperswitch-control-center/pull/1613)) ([`ac2b906`](https://github.com/juspay/hyperswitch-control-center/commit/ac2b906a4eddc81b43531725139748a771ba46f3))
+
+### Miscellaneous Tasks
+
+- Enhance transaction views ([#1562](https://github.com/juspay/hyperswitch-control-center/pull/1562)) ([`4bca186`](https://github.com/juspay/hyperswitch-control-center/commit/4bca186ae28a4cdf5a7c8870c5d649e35b3bc5a9))
+
+**Full Changelog:** [`2024.10.16.0...2024.10.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.10.16.0...2024.10.18.0)
+
+- - -
+
 ## 2024.10.16.0
 
 ### Features
