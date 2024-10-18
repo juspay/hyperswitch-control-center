@@ -403,6 +403,14 @@ let validateCustom = (key, errors, value, isLiveMode) => {
         Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->JSON.Encode.string)
       }
     }
+  | MaxAutoRetries =>
+    if !RegExp.test(%re("/^(?:[1-5])$/"), value) {
+      Dict.set(
+        errors,
+        key->validationFieldsMapper,
+        "Please enter integer value from 1 to 5"->JSON.Encode.string,
+      )
+    }
   | _ => ()
   }
 }
@@ -418,6 +426,20 @@ let validateMerchantAccountForm = (
 
   let valuesDict = values->getDictFromJsonObject
   fieldsToValidate->Array.forEach(key => {
+    let val = valuesDict->getJsonObjectFromDict(key->validationFieldsMapper)
+
+    switch val->JSON.Classify.classify {
+    | String(str) => {
+        let value = str->getNonEmptyString
+        switch value {
+        | Some(str) => key->validateCustom(errors, str, isLiveMode)
+        | _ => ()
+        }
+      }
+    | Number(num) => key->validateCustom(errors, num->Float.toString, isLiveMode)
+    | _ => ()
+    }
+
     switch key {
     | MaxAutoRetries => {
         let value = getInt(valuesDict, key->validationFieldsMapper, 0)
