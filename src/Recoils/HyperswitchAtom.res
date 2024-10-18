@@ -29,9 +29,15 @@ let userPermissionAtom: Recoil.recoilAtom<UserManagementTypes.groupAccessJsonTyp
   GroupACLMapper.defaultValueForGroupAccessJson,
 )
 
-let userGroupACLAtom: Recoil.recoilAtom<
-  option<Map.t<UserManagementTypes.groupAccessType, CommonAuthTypes.authorization>>,
-> = Recoil.atom("userGroupACLAtom", None)
+type accessMapping = {
+  groups: Map.t<UserManagementTypes.groupAccessType, CommonAuthTypes.authorization>,
+  resources: Map.t<UserManagementTypes.resourceAccessType, CommonAuthTypes.authorization>,
+}
+
+let userGroupACLAtom: Recoil.recoilAtom<option<accessMapping>> = Recoil.atom(
+  "userGroupACLAtom",
+  None,
+)
 
 let switchMerchantListAtom: Recoil.recoilAtom<
   array<SwitchMerchantUtils.switchMerchantListResponse>,
