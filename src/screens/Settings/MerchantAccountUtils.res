@@ -439,26 +439,6 @@ let validateMerchantAccountForm = (
     | Number(num) => key->validateCustom(errors, num->Float.toString, isLiveMode)
     | _ => ()
     }
-
-    switch key {
-    | MaxAutoRetries => {
-        let value = getInt(valuesDict, key->validationFieldsMapper, 0)
-        if !RegExp.test(%re("/^[1-5]$/"), value->Int.toString) {
-          Dict.set(
-            errors,
-            key->validationFieldsMapper,
-            "Please enter integer value from 1 to 5"->JSON.Encode.string,
-          )
-        }
-      }
-    | _ => {
-        let value = getString(valuesDict, key->validationFieldsMapper, "")->getNonEmptyString
-        switch value {
-        | Some(str) => key->validateCustom(errors, str, isLiveMode)
-        | _ => ()
-        }
-      }
-    }
   })
 
   let threedsArray = getArrayFromDict(valuesDict, "authentication_connectors", [])->getNonEmptyArray
