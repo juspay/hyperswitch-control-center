@@ -38,7 +38,8 @@ module NewAccountCreationModal = {
     let validateForm = (values: JSON.t) => {
       open LogicUtils
       let errors = Dict.make()
-      let companyName = values->getDictFromJsonObject->getString("organization_name", "")->String.trim
+      let companyName =
+        values->getDictFromJsonObject->getString("organization_name", "")->String.trim
       let regexForCompanyName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
 
       let errorMessage = if companyName->isEmptyString {
@@ -62,9 +63,7 @@ module NewAccountCreationModal = {
       <div className="p-2 m-2">
         <div className="py-5 px-3 flex justify-between align-top">
           <CardUtils.CardHeader
-            heading="Add a new org"
-            subHeading=""
-            customSubHeadingStyle="w-full !max-w-none pr-10"
+            heading="Add a new org" subHeading="" customSubHeadingStyle="w-full !max-w-none pr-10"
           />
           <div className="h-fit" onClick={_ => setShowModal(_ => false)}>
             <Icon
@@ -168,7 +167,7 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
- let customHRTagStyle = "border-t border-blue-830"
+  let customHRTagStyle = "border-t border-blue-830"
   let customPadding = "py-1 w-full"
   let customStyle = "w-56 text-gray-200 bg-blue-840 dark:bg-black hover:bg-popover-background-hover hover:text-gray-100 !w-full"
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
@@ -192,7 +191,12 @@ let make = () => {
       />}
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       bottomComponent={<OMPSwitchHelper.AddNewMerchantProfileButton
-        user="org" setShowModal customPadding customStyle customHRTagStyle groupAccess=OrganizationManage
+        user="org"
+        setShowModal
+        customPadding
+        customStyle
+        customHRTagStyle
+        groupAccess=OrganizationManage
       />}
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"

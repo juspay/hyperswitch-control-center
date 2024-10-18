@@ -56,22 +56,23 @@ let useOrgSwitch = () => {
         let body =
           [("org_id", expectedOrgId->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
         let responseDict = await updateDetails(url, body, Post)
-        Js.log2("test: responseDict",responseDict)
+        Js.log2("test: responseDict", responseDict)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
-        Js.log2("test: userInfoRes",userInfoRes)
-//         let a = {
-//     "email": "gitanjli524@gmail.com",
-//     "isTwoFactorAuthSetup": false,
-//     "merchantId": "merchant_1716809171",
-//     "name": "gitanjli524",
-//     "orgId": "org_BsTT8ircCeGGzQetAMC0",
-//     "roleId": "org_admin",
-//     "profileId": "pro_QhK4H8ICiLeN6Q3fZcYE",
-//     "userEntity": "Organization",
-//     "transactionEntity": "Merchant",
-//     "analyticsEntity": "Organization"
-// }
+        Js.log2("test: userInfoRes", userInfoRes)
+
+        //         let a = {
+        //     "email": "gitanjli524@gmail.com",
+        //     "isTwoFactorAuthSetup": false,
+        //     "merchantId": "merchant_1716809171",
+        //     "name": "gitanjli524",
+        //     "orgId": "org_BsTT8ircCeGGzQetAMC0",
+        //     "roleId": "org_admin",
+        //     "profileId": "pro_QhK4H8ICiLeN6Q3fZcYE",
+        //     "userEntity": "Organization",
+        //     "transactionEntity": "Merchant",
+        //     "analyticsEntity": "Organization"
+        // }
         userInfoRes
         // a
       } else {

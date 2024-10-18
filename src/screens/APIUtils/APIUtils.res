@@ -658,9 +658,8 @@ let useGetURL = () => {
       // ACCEPT INVITE PRE_LOGIN
       | #ACCEPT_INVITATION_PRE_LOGIN => `${userUrl}/user/invite/accept/v2/pre_auth`
 
-
       // CREATE ORG
-      | #CREATE_ORG =>`${userUrl}/organization`
+      | #CREATE_ORG => `${userUrl}/organization`
 
       // CREATE MERCHANT
       | #CREATE_MERCHANT =>

@@ -34,9 +34,7 @@ module AddNewMerchantProfileButton = {
     ~groupAccess: UserManagementTypes.groupAccessType=MerchantDetailsManage,
   ) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-    let cursorStyles = GroupAccessUtils.cursorStyles(
-      userHasAccess(~groupAccess),
-    )
+    let cursorStyles = GroupAccessUtils.cursorStyles(userHasAccess(~groupAccess))
     <ACLDiv
       authorization={userHasAccess(~groupAccess)}
       onClick={_ => setShowModal(_ => true)}

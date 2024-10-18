@@ -12,7 +12,8 @@ module OrganizationActions = {
     let (businessOrganizations, setBusinessOrganizations) = Recoil.useRecoilState(
       HyperswitchAtom.orgListAtom,
     )
-    let initialValues = [("profile_name", defaultOrganizationName->JSON.Encode.string)]->Dict.fromArray
+    let initialValues =
+      [("profile_name", defaultOrganizationName->JSON.Encode.string)]->Dict.fromArray
 
     let onSubmit = async (values, _) => {
       try {

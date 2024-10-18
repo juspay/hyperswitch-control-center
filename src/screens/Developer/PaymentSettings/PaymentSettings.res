@@ -351,7 +351,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let (busiProfieDetails, setBusiProfie) = React.useState(_ => businessProfileDetails)
 
-  Js.log2("test: busiProfieDetails",busiProfieDetails)
+  Js.log2("test: busiProfieDetails", busiProfieDetails)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (enableCustomHttpHeaders, setCustomHttpHeaders) = React.useState(_ => false)
