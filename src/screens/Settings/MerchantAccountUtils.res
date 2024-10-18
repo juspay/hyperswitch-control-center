@@ -429,12 +429,9 @@ let validateMerchantAccountForm = (
     let val = valuesDict->getJsonObjectFromDict(key->validationFieldsMapper)
 
     switch val->JSON.Classify.classify {
-    | String(str) => {
-        let value = str->getNonEmptyString
-        switch value {
-        | Some(str) => key->validateCustom(errors, str, isLiveMode)
-        | _ => ()
-        }
+    | String(str) => switch str->getNonEmptyString {
+      | Some(str) => key->validateCustom(errors, str, isLiveMode)
+      | _ => ()
       }
     | Number(num) => key->validateCustom(errors, num->Float.toString, isLiveMode)
     | _ => ()
