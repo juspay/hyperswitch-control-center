@@ -16,7 +16,29 @@ type groupAccessType =
   | MerchantDetailsView
   | MerchantDetailsManage
   | OrganizationManage
+  | AccountRead
+  | AccountWrite
   | UnknownGroupAccess(string)
+
+type resourceAccessType =
+  | Payment
+  | Refund
+  | ApiKey
+  | Account
+  | Connector
+  | Routing
+  | Dispute
+  | Mandate
+  | Customer
+  | Analytics
+  | ThreeDsDecisionManager
+  | SurchargeDecisionManager
+  | User
+  | WebhookEvent
+  | Payout
+  | Report
+  | Recon
+  | UnknownResourceAccess(string)
 
 open CommonAuthTypes
 type groupAccessJsonType = {
@@ -33,6 +55,26 @@ type groupAccessJsonType = {
   merchantDetailsManage: authorization,
   organizationManage: authorization,
 }
+
+// type resourceAccessJsonType = {
+//   payment: authorization,
+//   refund: authorization,
+//   apiKey: authorization,
+//   account: authorization,
+//   connector: authorization,
+//   routing: authorization,
+//   dispute: authorization,
+//   mandate: authorization,
+//   customer: authorization,
+//   analytics: authorization,
+//   threeDsDecisionManager: authorization,
+//   surchargeDecisionManager: authorization,
+//   user: authorization,
+//   webhookEvent: authorization,
+//   payout: authorization,
+//   report: authorization,
+//   recon: authorization,
+// }
 
 type getInfoType = {
   module_: string,

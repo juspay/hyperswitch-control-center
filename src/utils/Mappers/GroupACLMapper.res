@@ -15,6 +15,8 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | MerchantDetailsView => "merchant_details_view"
   | MerchantDetailsManage => "merchant_details_manage"
   | OrganizationManage => "organization_manage"
+  | AccountRead => "account_read"
+  | AccountWrite => "account_write"
   | UnknownGroupAccess(val) => val
   }
 
@@ -33,6 +35,28 @@ let mapStringToGroupAccessType = val =>
   | "merchant_details_manage" => MerchantDetailsManage
   | "organization_manage" => OrganizationManage
   | val => UnknownGroupAccess(val)
+  }
+
+let mapStringToResourceAccessType = val =>
+  switch val {
+  | "payments" => Payment
+  | "refunds" => Refund
+  | "apiKey" => ApiKey
+  | "account" => Account
+  | "connector" => Connector
+  | "routing" => Routing
+  | "dispute" => Dispute
+  | "mandate" => Mandate
+  | "customer" => Customer
+  | "analytics" => Analytics
+  | "three_ds_decision_Manager" => ThreeDsDecisionManager
+  | "surcharge_decision_manager" => SurchargeDecisionManager
+  | "user" => User
+  | "webhook_event" => WebhookEvent
+  | "payout" => Payout
+  | "report" => Report
+  | "recon" => Recon
+  | _ => UnknownResourceAccess(val)
   }
 
 let defaultValueForGroupAccessJson = {
@@ -80,3 +104,37 @@ let convertValueToMap = arrayValue => {
   arrayValue->Array.forEach(value => userGroupACLMap->Map.set(value, Access))
   userGroupACLMap
 }
+
+let convertValueToMapGroup = arrayValue => {
+  let userGroupACLMap: Map.t<groupAccessType, authorization> = Map.make()
+  arrayValue->Array.forEach(value => userGroupACLMap->Map.set(value, Access))
+  userGroupACLMap
+}
+let convertValueToMapResources = arrayValue => {
+  let resourceACLMap: Map.t<resourceAccessType, authorization> = Map.make()
+  arrayValue->Array.forEach(value => resourceACLMap->Map.set(value, Access))
+  resourceACLMap
+}
+
+// let convertValueToMap = (groupValues, resourceValues) => {
+//   let userGroupACLMap: Map.t<
+//     UserManagementTypes.groupAccessType,
+//     CommonAuthTypes.authorization,
+//   > = Map.make()
+//   let resourceACLMap: Map.t<
+//     UserManagementTypes.resourceAccessType,
+//     CommonAuthTypes.authorization,
+//   > = Map.make()
+
+//   groupValues->Array.forEach(value => {
+//     userGroupACLMap->Map.set(value, Access)
+//   })
+
+//   resourceValues->Array.forEach(value => {
+//     resourceACLMap->Map.set(value, Access)
+//   })
+//   {
+//     groups: userGroupACLMap,
+//     resources: resourceACLMap,
+//   }
+// }
