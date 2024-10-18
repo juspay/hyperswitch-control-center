@@ -380,11 +380,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let fieldsToValidate = () => {
     let defaultFieldsToValidate =
-      [
-        WebhookUrl,
-        ReturnUrl,
-        checkMaxAutoRetry ? MaxAutoRetries : UnknownValidateFields(""),
-      ]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
+      [WebhookUrl, ReturnUrl]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
+    if checkMaxAutoRetry {
+      defaultFieldsToValidate->Array.push(MaxAutoRetries)
+    }
     defaultFieldsToValidate
   }
 

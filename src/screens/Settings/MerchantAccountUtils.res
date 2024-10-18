@@ -48,10 +48,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   )
 
   profileInfo->setOptionBool("is_auto_retries_enabled", is_auto_retries_enabled)
-  profileInfo->setOptionString(
-    "max_auto_retries_enabled",
-    max_auto_retries_enabled->getOptionStringFromInt,
-  )
+  profileInfo->setOptionInt("max_auto_retries_enabled", max_auto_retries_enabled)
 
   profileInfo->setDictNull("webhook_url", webhook_details.webhook_url)
   profileInfo->setOptionString("webhook_version", webhook_details.webhook_version)
@@ -406,25 +403,6 @@ let validateCustom = (key, errors, value, isLiveMode) => {
         Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->JSON.Encode.string)
       }
     }
-  | MaxAutoRetries =>
-    if !RegExp.test(%re("/^[1-5]$/"), value) {
-      Dict.set(
-        errors,
-        key->validationFieldsMapper,
-        "Please enter integer value from 1 to 5"->JSON.Encode.string,
-      )
-    }
-  | _ => ()
-  }
-}
-
-let validateEmptyValue = (key, errors) => {
-  switch key {
-  | MaxAutoRetries =>
-    errors->Dict.set(
-      key->validationFieldsMapper,
-      "Please enter a max auto retries value"->JSON.Encode.string,
-    )
   | _ => ()
   }
 }
@@ -440,11 +418,24 @@ let validateMerchantAccountForm = (
 
   let valuesDict = values->getDictFromJsonObject
   fieldsToValidate->Array.forEach(key => {
-    let value = getString(valuesDict, key->validationFieldsMapper, "")
-    if value->String.length < 1 {
-      key->validateEmptyValue(errors)
-    } else {
-      key->validateCustom(errors, value, isLiveMode)
+    switch key {
+    | MaxAutoRetries => {
+        let value = getInt(valuesDict, key->validationFieldsMapper, 0)
+        if !RegExp.test(%re("/^[1-5]$/"), value->Int.toString) {
+          Dict.set(
+            errors,
+            key->validationFieldsMapper,
+            "Please enter integer value from 1 to 5"->JSON.Encode.string,
+          )
+        }
+      }
+    | _ => {
+        let value = getString(valuesDict, key->validationFieldsMapper, "")->getNonEmptyString
+        switch value {
+        | Some(str) => key->validateCustom(errors, str, isLiveMode)
+        | _ => ()
+        }
+      }
     }
   })
 
