@@ -26,6 +26,10 @@ let make = () => {
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
     // Business Profile Modules
+    | list{"organization-details", ..._} =>
+     <AccessControl isEnabled=featureFlagDetails.default authorization={Access}>
+        <OrganizationDetails />
+      </AccessControl>
     | list{"business-details"} =>
       <AccessControl isEnabled=featureFlagDetails.default authorization={Access}>
         <BusinessDetails />

@@ -432,6 +432,15 @@ let userManagement = userHasAccess => {
   })
 }
 
+let organizationDetails = () => {
+  SubLevelLink({
+    name: "Organization Details",
+    link: `/organization-details`,
+    access: Access,
+    searchOptions: [("Configure organization details", "")],
+  })
+}
+
 let businessDetails = () => {
   SubLevelLink({
     name: "Business Details",
@@ -469,7 +478,7 @@ let complianceCertificateSection = {
 }
 
 let settings = (~isConfigurePmtsEnabled, ~userHasAccess, ~complianceCertificate) => {
-  let settingsLinkArray = [businessDetails(), businessProfiles()]
+  let settingsLinkArray = [organizationDetails(), businessDetails(), businessProfiles()]
 
   if isConfigurePmtsEnabled {
     settingsLinkArray->Array.push(configurePMTs(userHasAccess))->ignore
