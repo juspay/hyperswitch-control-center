@@ -351,6 +351,8 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let (busiProfieDetails, setBusiProfie) = React.useState(_ => businessProfileDetails)
 
+  Js.log2("test: busiProfieDetails",busiProfieDetails)
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (enableCustomHttpHeaders, setCustomHttpHeaders) = React.useState(_ => false)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"

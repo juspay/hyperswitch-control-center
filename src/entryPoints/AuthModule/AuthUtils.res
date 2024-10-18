@@ -7,6 +7,7 @@ let getAuthInfo = json => {
   }
   totpInfo
 }
+
 let storeEmailTokenTmp = emailToken => {
   LocalStorage.setItem("email_token", emailToken)
 }
