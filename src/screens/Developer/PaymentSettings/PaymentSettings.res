@@ -292,7 +292,7 @@ module CollectDetails = {
 
 module AutoRetries = {
   @react.component
-  let make = () => {
+  let make = (~setCheckMaxAutoRetry) => {
     open FormRenderer
     open DeveloperUtils
     open LogicUtils
@@ -307,6 +307,9 @@ module AutoRetries = {
 
     if !isAutoRetryEnabled {
       form.change("max_auto_retries_enabled", JSON.Encode.null->Identity.genericTypeToJson)
+      setCheckMaxAutoRetry(_ => false)
+    } else {
+      setCheckMaxAutoRetry(_ => true)
     }
 
     <>
@@ -352,6 +355,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let (busiProfieDetails, setBusiProfie) = React.useState(_ => businessProfileDetails)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (checkMaxAutoRetry, setCheckMaxAutoRetry) = React.useState(_ => true)
   let (enableCustomHttpHeaders, setCustomHttpHeaders) = React.useState(_ => false)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
@@ -376,9 +380,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let fieldsToValidate = () => {
     let defaultFieldsToValidate =
-      [WebhookUrl, ReturnUrl, MaxAutoRetries]->Array.filter(urlField =>
-        urlField === WebhookUrl || !webhookOnly
-      )
+      [WebhookUrl, ReturnUrl]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
+    if checkMaxAutoRetry {
+      defaultFieldsToValidate->Array.push(MaxAutoRetries)
+    }
     defaultFieldsToValidate
   }
 
@@ -521,7 +526,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </DesktopRow>
                 </RenderIf>
-                <AutoRetries />
+                <AutoRetries setCheckMaxAutoRetry />
                 <ReturnUrl />
                 <WebHook enableCustomHttpHeaders setCustomHttpHeaders />
                 <DesktopRow>
