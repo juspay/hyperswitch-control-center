@@ -33,7 +33,7 @@ let make = (~entity: moduleEntity) => {
         ~id=Some((#refunds: domain :> string)),
       )
 
-      let disputesUrl = getURL(
+      let _disputesUrl = getURL(
         ~entityName=ANALYTICS_DISPUTES,
         ~methodType=Post,
         ~id=Some((#disputes: domain :> string)),
@@ -58,7 +58,7 @@ let make = (~entity: moduleEntity) => {
         ~endTime=endTimeVal,
       )
 
-      let primaryBodyDisputes = getPayload(
+      let _primaryBodyDisputes = getPayload(
         ~entity,
         ~metrics=[#dispute_status_metric],
         ~startTime=startTimeVal,
@@ -112,7 +112,7 @@ let make = (~entity: moduleEntity) => {
         ~endTime=prevEndTime,
       )
 
-      let secondaryBodyDisputes = getPayload(
+      let _secondaryBodyDisputes = getPayload(
         ~entity,
         ~metrics=[#dispute_status_metric],
         ~startTime=prevStartTime,

@@ -59,11 +59,15 @@ module PaymentsProcessedHeader = {
     ~granularity,
     ~setGranularity,
   ) => {
-    let primaryValue = getMetaDataValue(~data, ~index=0, ~key=selectedMetric.value->getMetaDataKey)
+    let primaryValue = getMetaDataValue(
+      ~data,
+      ~index=0,
+      ~key=selectedMetric.value->getMetaDataMapper,
+    )
     let secondaryValue = getMetaDataValue(
       ~data,
       ~index=1,
-      ~key=selectedMetric.value->getMetaDataKey,
+      ~key=selectedMetric.value->getMetaDataMapper,
     )
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
