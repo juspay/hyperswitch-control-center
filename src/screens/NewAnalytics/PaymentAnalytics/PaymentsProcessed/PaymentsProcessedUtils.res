@@ -137,14 +137,15 @@ let getHeading = colType => {
 }
 
 let getCell = (obj, colType): Table.cell => {
+  open NewAnalyticsUtils
   switch colType {
-  | Payment_Processed_Amount => Text(obj.payment_processed_amount->Float.toString)
+  | Payment_Processed_Amount => Text(obj.payment_processed_amount->valueFormatter(Amount))
   | Payment_Processed_Amount_Without_Smart_Retries =>
-    Text(obj.payment_processed_amount_without_smart_retries->Float.toString)
+    Text(obj.payment_processed_amount_without_smart_retries->valueFormatter(Amount))
   | Payment_Processed_Count => Text(obj.payment_processed_count->Int.toString)
   | Payment_Processed_Count_Without_Smart_Retries =>
     Text(obj.payment_processed_count_without_smart_retries->Int.toString)
-  | Time_Bucket => Text(obj.time_bucket)
+  | Time_Bucket => Text(obj.time_bucket->formatDateValue(~includeYear=true))
   | Total_Payment_Processed_Amount
   | Total_Payment_Processed_Count
   | Total_Payment_Processed_Amount_Without_Smart_Retries
