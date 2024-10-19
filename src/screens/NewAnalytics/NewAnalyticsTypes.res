@@ -14,8 +14,19 @@ type dimension = [
 ]
 type status = [#charged | #failure]
 type metrics = [
+  | #sessionized_smart_retried_amount
+  | #sessionized_payments_success_rate
   | #sessionized_payment_processed_amount
-  | #sessionized_payment_processed_count
+  | #refund_processed_amount
+  | #dispute_status_metric
+  | #payments_distribution
+  | #sessionized_payments_distribution // without smart retry
+  | #failure_reasons
+  | #time_bucket
+  | #payment_success_rate
+  | // need to remove this
+  #payment_processed_amount
+  | #payment_count
   | #payment_success_rate
   | #time_bucket
   | #connector
@@ -29,6 +40,7 @@ type metrics = [
   | #refund_success_count
   | #dispute_status_metric
   | #payment_failed_rate
+  | #sessionized_payment_processed_count
 ]
 type granularity = [
   | #G_ONEDAY
