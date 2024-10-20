@@ -60,7 +60,7 @@ let make = (
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=ANALYTICS_PAYMENTS,
+        ~entityName=ANALYTICS_PAYMENTS_V2,
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
@@ -109,7 +109,7 @@ let make = (
             ~data,
             ~startDate=startTimeVal,
             ~endDate=endTimeVal,
-            ~timeKey="time_bucket",
+            ~timeKey=Time_Bucket->getStringFromVariant,
             ~defaultValue={
               "payment_count": 0,
               "payment_success_rate": 0,
@@ -124,7 +124,7 @@ let make = (
             ~data,
             ~startDate=prevStartTime,
             ~endDate=prevEndTime,
-            ~timeKey="time_bucket",
+            ~timeKey=Time_Bucket->getStringFromVariant,
             ~defaultValue={
               "payment_count": 0,
               "payment_success_rate": 0,
@@ -162,7 +162,7 @@ let make = (
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
         <PaymentsSuccessRateHeader
           data={paymentsSuccessRateMetaData}
-          keyValue={"total_success_rate"}
+          keyValue={Payments_Success_Rate->getStringFromVariant}
           granularity
           setGranularity
         />
@@ -171,8 +171,8 @@ let make = (
             entity={chartEntity}
             data={chartEntity.getObjects(
               ~data=paymentsSuccessRateData,
-              ~xKey=(#payment_success_rate: metrics :> string),
-              ~yKey=(#time_bucket: metrics :> string),
+              ~xKey=Payments_Success_Rate->getStringFromVariant,
+              ~yKey=Time_Bucket->getStringFromVariant,
             )}
             className="mr-3"
           />

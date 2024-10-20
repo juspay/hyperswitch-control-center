@@ -22,8 +22,6 @@ type metrics = [
   | #payments_distribution
   | #sessionized_payments_distribution // without smart retry
   | #failure_reasons
-  | #time_bucket
-  | #payment_success_rate
   | // need to remove this
   #payment_processed_amount
   | #payment_count

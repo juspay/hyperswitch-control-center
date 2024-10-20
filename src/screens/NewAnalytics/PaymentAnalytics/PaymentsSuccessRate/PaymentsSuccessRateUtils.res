@@ -1,17 +1,19 @@
 open NewPaymentAnalyticsUtils
 open LogicUtils
+open PaymentsSuccessRateTypes
 
-let getMetaData = json => {
-  json
-  ->getArrayFromJson([])
-  ->getValueFromArray(0, JSON.Encode.array([]))
-  ->getDictFromJsonObject
-  ->getArrayFromDict("metaData", [])
-  ->getValueFromArray(0, JSON.Encode.null)
-  ->getDictFromJsonObject
+let getStringFromVariant = value => {
+  switch value {
+  | Successful_Payments => "successful_payments"
+  | Successful_Payments_Without_Smart_Retries => "successful_payments_without_smart_retries"
+  | Total_Payments => "total_payments"
+  | Payments_Success_Rate => "payments_success_rate"
+  | Payments_Success_Rate_Without_Smart_Retries => "payments_success_rate_without_smart_retries"
+  | Total_Success_Rate => "total_success_rate"
+  | Total_Success_Rate_Without_Smart_Retries => "total_success_rate_without_smart_retries"
+  | Time_Bucket => "time_bucket"
+  }
 }
-
-let graphTitle = json => getMetaData(json)->getInt("payments_success_rate", 0)->Int.toString
 
 let paymentsSuccessRateMapper = (
   ~data: JSON.t,

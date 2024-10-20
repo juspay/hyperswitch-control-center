@@ -65,7 +65,7 @@ let paymentsProcessedTableEntity = {
 let paymentsSuccessRateEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_success_rate],
+    metrics: [#sessionized_payments_success_rate],
   },
   title: "Payments Success Rate",
   domain: #payments,
