@@ -24,21 +24,6 @@ type metrics = [
   | #failure_reasons
   | #payments_distribution
   | #payment_success_rate
-  | // need to remove this
-  #payment_processed_amount
-  | #payment_count
-  | #time_bucket
-  | #connector
-  | #payment_method
-  | #payment_method_type
-  | #card_network
-  | #authentication_type
-  | #smart_retried_amount
-  | #payments_success_rate
-  | #refund_success_count
-  | #dispute_status_metric
-  | #payment_failed_rate
-  | #sessionized_payment_processed_count
 ]
 type granularity = [
   | #G_ONEDAY

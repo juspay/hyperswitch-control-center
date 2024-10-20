@@ -251,7 +251,7 @@ let make = (
               data={chartEntity.getObjects(
                 ~data=paymentsProcessedData,
                 ~xKey=selectedMetric.value,
-                ~yKey=(#time_bucket: metrics :> string),
+                ~yKey=Time_Bucket->getStringFromVariant,
               )}
               className="mr-3"
             />
