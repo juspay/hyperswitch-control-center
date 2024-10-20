@@ -54,3 +54,11 @@ let defaulGranularity = {
   label: "Hourly",
   value: (#G_ONEDAY: granularity :> string),
 }
+
+let getMetaDataMapper = key => {
+  switch key {
+  | "payments_success_rate" => "total_success_rate"
+  | "payments_success_rate_without_smart_retries" => "total_success_rate_without_smart_retries"
+  | _ => ""
+  }
+}

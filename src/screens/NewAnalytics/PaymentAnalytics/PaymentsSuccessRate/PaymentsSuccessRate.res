@@ -12,8 +12,8 @@ module PaymentsSuccessRateHeader = {
       setGranularity(_ => value)
     }
 
-    let primaryValue = getMetaDataValue(~data, ~index=0, ~key=keyValue)
-    let secondaryValue = getMetaDataValue(~data, ~index=1, ~key=keyValue)
+    let primaryValue = getMetaDataValue(~data, ~index=0, ~key=keyValue->getMetaDataMapper)
+    let secondaryValue = getMetaDataValue(~data, ~index=1, ~key=keyValue->getMetaDataMapper)
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
 
@@ -102,7 +102,7 @@ let make = (
       let secondaryData =
         secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
       let secondaryMetaData =
-        primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+        secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
       if primaryData->Array.length > 0 {
         let primaryModifiedData = [primaryData]->Array.map(data => {
           NewAnalyticsUtils.fillMissingDataPoints(
