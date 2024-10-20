@@ -22,17 +22,17 @@ type metrics = [
   | #payments_distribution
   | #sessionized_payments_distribution // without smart retry
   | #failure_reasons
+  | #payments_distribution
+  | #payment_success_rate
   | // need to remove this
   #payment_processed_amount
   | #payment_count
-  | #payment_success_rate
   | #time_bucket
   | #connector
   | #payment_method
   | #payment_method_type
   | #card_network
   | #authentication_type
-  | #payments_distribution
   | #smart_retried_amount
   | #payments_success_rate
   | #refund_success_count
