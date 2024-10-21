@@ -99,12 +99,6 @@ let getGroupAccessJson = groupACL => {
   organizationManage: getAccessValue(~groupAccess=OrganizationManage, ~groupACL),
 }
 
-let convertValueToMap = arrayValue => {
-  let userGroupACLMap: Map.t<groupAccessType, authorization> = Map.make()
-  arrayValue->Array.forEach(value => userGroupACLMap->Map.set(value, Access))
-  userGroupACLMap
-}
-
 let convertValueToMapGroup = arrayValue => {
   let userGroupACLMap: Map.t<groupAccessType, authorization> = Map.make()
   arrayValue->Array.forEach(value => userGroupACLMap->Map.set(value, Access))
