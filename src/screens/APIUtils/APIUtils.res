@@ -53,6 +53,7 @@ let useGetURL = () => {
         | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
         | None =>
           switch userEntity {
+          | #Tenant
           | #Organization
           | #Merchant
           | #Profile =>
@@ -274,6 +275,7 @@ let useGetURL = () => {
         | Some(routingId) => `routing/${routingId}`
         | None =>
           switch userEntity {
+          | #Tenant
           | #Organization
           | #Merchant
           | #Profile => `routing/list/profile`
@@ -295,7 +297,9 @@ let useGetURL = () => {
         switch id {
         | Some(domain) =>
           switch analyticsEntity {
-          | #Organization => `analytics/v2/org/metrics/${domain}`
+          | #Tenant
+          | #Organization =>
+            `analytics/v2/org/metrics/${domain}`
           | #Merchant => `analytics/v2/merchant/metrics/${domain}`
           | #Profile => `analytics/v2/profile/metrics/${domain}`
           }
@@ -319,7 +323,9 @@ let useGetURL = () => {
         // Need to write seperate enum for info api
         | Some(domain) =>
           switch analyticsEntity {
-          | #Organization => `analytics/v1/org/${domain}/info`
+          | #Tenant
+          | #Organization =>
+            `analytics/v1/org/${domain}/info`
           | #Merchant => `analytics/v1/merchant/${domain}/info`
           | #Profile => `analytics/v1/profile/${domain}/info`
           }
@@ -330,7 +336,9 @@ let useGetURL = () => {
         switch id {
         | Some(domain) =>
           switch analyticsEntity {
-          | #Organization => `analytics/v1/org/metrics/${domain}`
+          | #Tenant
+          | #Organization =>
+            `analytics/v1/org/metrics/${domain}`
           | #Merchant => `analytics/v1/merchant/metrics/${domain}`
           | #Profile => `analytics/v1/profile/metrics/${domain}`
           }
@@ -345,7 +353,9 @@ let useGetURL = () => {
         switch id {
         | Some(domain) =>
           switch analyticsEntity {
-          | #Organization => `analytics/v1/org/filters/${domain}`
+          | #Tenant
+          | #Organization =>
+            `analytics/v1/org/filters/${domain}`
           | #Merchant => `analytics/v1/merchant/filters/${domain}`
           | #Profile => `analytics/v1/profile/filters/${domain}`
           }
@@ -371,7 +381,9 @@ let useGetURL = () => {
         // Need to write seperate enum for info api
         | Some(domain) =>
           switch analyticsEntity {
-          | #Organization => `analytics/v2/org/${domain}/info`
+          | #Tenant
+          | #Organization =>
+            `analytics/v2/org/${domain}/info`
           | #Merchant => `analytics/v2/merchant/${domain}/info`
           | #Profile => `analytics/v2/profile/${domain}/info`
           }
@@ -382,7 +394,9 @@ let useGetURL = () => {
         switch id {
         | Some(domain) =>
           switch analyticsEntity {
-          | #Organization => `analytics/v2/org/metrics/${domain}`
+          | #Tenant
+          | #Organization =>
+            `analytics/v2/org/metrics/${domain}`
           | #Merchant => `analytics/v2/merchant/metrics/${domain}`
           | #Profile => `analytics/v2/profile/metrics/${domain}`
           }
@@ -395,6 +409,7 @@ let useGetURL = () => {
       switch methodType {
       | Post =>
         switch analyticsEntity {
+        | #Tenant
         | #Organization => `analytics/v1/org/metrics/sankey`
         | #Merchant => `analytics/v1/merchant/metrics/sankey`
         | #Profile => `analytics/v1/profile/metrics/sankey`
@@ -411,6 +426,7 @@ let useGetURL = () => {
         | Some(routingId) => `routing/${routingId}`
         | _ =>
           switch userEntity {
+          | #Tenant
           | #Organization
           | #Merchant
           | #Profile => `routing/payouts/list/profile`
@@ -443,6 +459,7 @@ let useGetURL = () => {
     /* REPORTS */
     | PAYMENT_REPORT =>
       switch transactionEntity {
+      | #Tenant
       | #Organization => `analytics/v1/org/report/payments`
       | #Merchant => `analytics/v1/merchant/report/payments`
       | #Profile => `analytics/v1/profile/report/payments`
@@ -450,6 +467,7 @@ let useGetURL = () => {
 
     | REFUND_REPORT =>
       switch transactionEntity {
+      | #Tenant
       | #Organization => `analytics/v1/org/report/refunds`
       | #Merchant => `analytics/v1/merchant/report/refunds`
       | #Profile => `analytics/v1/profile/report/refunds`
@@ -457,6 +475,7 @@ let useGetURL = () => {
 
     | DISPUTE_REPORT =>
       switch transactionEntity {
+      | #Tenant
       | #Organization => `analytics/v1/org/report/dispute`
       | #Merchant => `analytics/v1/merchant/report/dispute`
       | #Profile => `analytics/v1/profile/report/dispute`
@@ -505,6 +524,7 @@ let useGetURL = () => {
       switch methodType {
       | Get =>
         switch userEntity {
+        | #Tenant
         | #Organization
         | #Merchant
         | #Profile =>
