@@ -115,26 +115,3 @@ let convertValueToMapResources = arrayValue => {
   arrayValue->Array.forEach(value => resourceACLMap->Map.set(value, Access))
   resourceACLMap
 }
-
-// let convertValueToMap = (groupValues, resourceValues) => {
-//   let userGroupACLMap: Map.t<
-//     UserManagementTypes.groupAccessType,
-//     CommonAuthTypes.authorization,
-//   > = Map.make()
-//   let resourceACLMap: Map.t<
-//     UserManagementTypes.resourceAccessType,
-//     CommonAuthTypes.authorization,
-//   > = Map.make()
-
-//   groupValues->Array.forEach(value => {
-//     userGroupACLMap->Map.set(value, Access)
-//   })
-
-//   resourceValues->Array.forEach(value => {
-//     resourceACLMap->Map.set(value, Access)
-//   })
-//   {
-//     groups: userGroupACLMap,
-//     resources: resourceACLMap,
-//   }
-// }
