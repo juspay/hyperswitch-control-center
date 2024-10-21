@@ -56,26 +56,6 @@ type groupAccessJsonType = {
   organizationManage: authorization,
 }
 
-// type resourceAccessJsonType = {
-//   payment: authorization,
-//   refund: authorization,
-//   apiKey: authorization,
-//   account: authorization,
-//   connector: authorization,
-//   routing: authorization,
-//   dispute: authorization,
-//   mandate: authorization,
-//   customer: authorization,
-//   analytics: authorization,
-//   threeDsDecisionManager: authorization,
-//   surchargeDecisionManager: authorization,
-//   user: authorization,
-//   webhookEvent: authorization,
-//   payout: authorization,
-//   report: authorization,
-//   recon: authorization,
-// }
-
 type getInfoType = {
   module_: string,
   description: string,
