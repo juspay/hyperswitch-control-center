@@ -364,33 +364,6 @@ let useGetURL = () => {
         }
       | _ => ""
       }
-    | NEW_ANALYTICS =>
-      switch methodType {
-      | Get =>
-        switch id {
-        // Need to write seperate enum for info api
-        | Some(domain) =>
-          switch analyticsEntity {
-          | #Organization => `analytics/v2/org/${domain}/info`
-          | #Merchant => `analytics/v2/merchant/${domain}/info`
-          | #Profile => `analytics/v2/profile/${domain}/info`
-          }
-
-        | _ => ""
-        }
-      | Post =>
-        switch id {
-        | Some(domain) =>
-          switch analyticsEntity {
-          | #Organization => `analytics/v2/org/metrics/${domain}`
-          | #Merchant => `analytics/v2/merchant/metrics/${domain}`
-          | #Profile => `analytics/v2/profile/metrics/${domain}`
-          }
-
-        | _ => ""
-        }
-      | _ => ""
-      }
     | ANALYTICS_SANKEY =>
       switch methodType {
       | Post =>
