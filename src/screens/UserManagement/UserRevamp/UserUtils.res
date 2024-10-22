@@ -68,6 +68,17 @@ let itemToObjMapperForGetRoleInfro: Dict.t<JSON.t> => UserManagementTypes.userMo
   }
 }
 
+let itemToObjMapperFordetailedRoleInfo: Dict.t<
+  JSON.t,
+> => UserManagementTypes.detailedUserModuleType = dict => {
+  open LogicUtils
+  {
+    parentGroup: getString(dict, "name", ""),
+    description: getString(dict, "description", ""),
+    scope: getStrArrayFromDict(dict, "scope", []),
+  }
+}
+
 let mapToManageView = (scopes: array<string>) => {
   scopes->Array.map(scope => {
     switch scope {
@@ -85,7 +96,7 @@ let modulesWithUserAccess = (
   open UserManagementTypes
   let modulesWithAccess = []
   let modulesWithoutAccess = []
-
+  //array of groupnames accessible to the specific user role
   let accessGroupNames = userAccessGroup2->Array.map(item => item.parentGroup)
   roleInfo->Array.forEach(item => {
     if accessGroupNames->Array.includes(item.parentGroup) {

@@ -39,7 +39,11 @@ module RoleAccessOverview = {
   let make = (~roleDict, ~role) => {
     open LogicUtils
     let detailedUserAccess =
-      roleDict->getDictfromDict(role)->getStrArrayFromDict("parent_groups", [])
+      roleDict
+      ->getDictfromDict(role)
+      ->getJsonObjectFromDict("parent_groups")
+      ->getArrayDataFromJson(UserUtils.itemToObjMapperFordetailedRoleInfo)
+
     let roleInfo = Recoil.useRecoilValueFromAtom(HyperswitchAtom.moduleListRecoil)
     Js.log(roleInfo)
     let (modulesWithAccess, moduleWithoutAccess) = UserUtils.modulesWithUserAccess(
