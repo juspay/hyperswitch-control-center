@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.10.22.1
+
+### Bug Fixes
+
+- Single status view setting to all ([#1634](https://github.com/juspay/hyperswitch-control-center/pull/1634)) ([`20a1a38`](https://github.com/juspay/hyperswitch-control-center/commit/20a1a38e9282c729843081b880ff7fa2f7b010a5))
+
+**Full Changelog:** [`2024.10.22.0...2024.10.22.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.10.22.0...2024.10.22.1)
+
+- - -
+
 ## 2024.10.22.0
 
 ### Features
