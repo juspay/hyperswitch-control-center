@@ -7,13 +7,21 @@ module PaymentsSuccessRateHeader = {
   open NewPaymentAnalyticsUtils
   open NewAnalyticsUtils
   @react.component
-  let make = (~data, ~keyValue, ~granularity, ~setGranularity) => {
+  let make = (~data, ~keyValue, ~granularity, ~setGranularity, ~isSmartRetryEnabled) => {
     let setGranularity = value => {
       setGranularity(_ => value)
     }
 
-    let primaryValue = getMetaDataValue(~data, ~index=0, ~key=keyValue->getMetaDataMapper)
-    let secondaryValue = getMetaDataValue(~data, ~index=1, ~key=keyValue->getMetaDataMapper)
+    let primaryValue = getMetaDataValue(
+      ~data,
+      ~index=0,
+      ~key=keyValue->getMetaDataMapper(~isSmartRetryEnabled),
+    )
+    let secondaryValue = getMetaDataValue(
+      ~data,
+      ~index=1,
+      ~key=keyValue->getMetaDataMapper(~isSmartRetryEnabled),
+    )
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
 
@@ -55,6 +63,8 @@ let make = (
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let isSmartRetryEnabled =
+    filterValueJson->getString("is_smart_retry_enabled", "true")->getBoolFromString(true)
 
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -155,6 +165,19 @@ let make = (
     None
   }, [startTimeVal, endTimeVal])
 
+  let mockDelay = async () => {
+    if paymentsSuccessRateData != []->JSON.Encode.array {
+      setScreenState(_ => Loading)
+      await HyperSwitchUtils.delay(300)
+      setScreenState(_ => Success)
+    }
+  }
+
+  React.useEffect(() => {
+    mockDelay()->ignore
+    None
+  }, [isSmartRetryEnabled])
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -165,13 +188,14 @@ let make = (
           keyValue={Payments_Success_Rate->getStringFromVariant}
           granularity
           setGranularity
+          isSmartRetryEnabled
         />
         <div className="mb-5">
           <LineGraph
             entity={chartEntity}
             data={chartEntity.getObjects(
               ~data=paymentsSuccessRateData,
-              ~xKey=Payments_Success_Rate->getStringFromVariant,
+              ~xKey=Payments_Success_Rate->getKeyForModule(~isSmartRetryEnabled),
               ~yKey=Time_Bucket->getStringFromVariant,
             )}
             className="mr-3"
