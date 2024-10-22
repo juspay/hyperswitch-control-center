@@ -403,14 +403,6 @@ let validateCustom = (key, errors, value, isLiveMode) => {
         Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->JSON.Encode.string)
       }
     }
-  | MaxAutoRetries =>
-    if !RegExp.test(%re("/^(?:[1-5])$/"), value) {
-      Dict.set(
-        errors,
-        key->validationFieldsMapper,
-        "Please enter integer value from 1 to 5"->JSON.Encode.string,
-      )
-    }
   | _ => ()
   }
 }
@@ -426,15 +418,24 @@ let validateMerchantAccountForm = (
 
   let valuesDict = values->getDictFromJsonObject
   fieldsToValidate->Array.forEach(key => {
-    let val = valuesDict->getJsonObjectFromDict(key->validationFieldsMapper)
-
-    switch val->JSON.Classify.classify {
-    | String(str) => switch str->getNonEmptyString {
-      | Some(str) => key->validateCustom(errors, str, isLiveMode)
-      | _ => ()
+    switch key {
+    | MaxAutoRetries => {
+        let value = getInt(valuesDict, key->validationFieldsMapper, 0)
+        if !RegExp.test(%re("/^(?:[1-5])$/"), value->Int.toString) {
+          Dict.set(
+            errors,
+            key->validationFieldsMapper,
+            "Please enter integer value from 1 to 5"->JSON.Encode.string,
+          )
+        }
       }
-    | Number(num) => key->validateCustom(errors, num->Float.toString, isLiveMode)
-    | _ => ()
+    | _ => {
+        let value = getString(valuesDict, key->validationFieldsMapper, "")->getNonEmptyString
+        switch value {
+        | Some(str) => key->validateCustom(errors, str, isLiveMode)
+        | _ => ()
+        }
+      }
     }
   })
 
