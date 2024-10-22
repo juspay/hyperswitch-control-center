@@ -31,6 +31,7 @@ module AddNewMerchantProfileButton = {
     ~customStyle="",
     ~customHRTagStyle="",
     ~addItemBtnStyle="",
+    ~group: UserManagementTypes.groupAccessType=MerchantDetailsManage,
   ) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let cursorStyles = GroupAccessUtils.cursorStyles(

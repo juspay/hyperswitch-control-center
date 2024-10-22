@@ -36,6 +36,7 @@ type featureFlag = {
   taxProcessor: bool,
   transactionView: bool,
   xFeatureRoute: bool,
+  tenantUser: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -79,6 +80,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     taxProcessor: dict->getBool("tax_processor", false),
     transactionView: dict->getBool("transaction_view", false),
     xFeatureRoute: dict->getBool("x_feature_route", false),
+    tenantUser: dict->getBool("tenant_user", false),
   }
   typedFeatureFlag
 }
