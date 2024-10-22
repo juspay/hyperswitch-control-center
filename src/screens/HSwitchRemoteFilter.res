@@ -33,10 +33,13 @@ let useSetInitialFilters = (
   ~updateExistingKeys,
   ~startTimeFilterKey,
   ~endTimeFilterKey,
+  ~seconStartKey="",
+  ~seconEndKey="",
   ~range=7,
   ~origin,
   (),
 ) => {
+  open LogicUtils
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
@@ -49,6 +52,17 @@ let useSetInitialFilters = (
         origin !== "analytics"
           ? [(startTimeFilterKey, defaultDate.start_time)]
           : [(startTimeFilterKey, defaultDate.start_time), (endTimeFilterKey, defaultDate.end_time)]
+
+      let timeRange = if seconStartKey->isNonEmptyString && seconEndKey->isNonEmptyString {
+        let (compareStartTime, compareEndTime) = DateRangeUtils.getComparisionTimePeriod(
+          ~startDate=defaultDate.start_time,
+          ~endDate=defaultDate.end_time,
+        )
+        [...timeRange, (seconStartKey, compareStartTime), (seconEndKey, compareEndTime)]
+      } else {
+        [...timeRange]
+      }
+
       timeRange->Array.forEach(item => {
         let (key, defaultValue) = item
         switch inititalSearchParam->Dict.get(key) {

@@ -15,6 +15,8 @@ let make = () => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
+    ~seconStartKey=compareStartTimeFilterKey,
+    ~seconEndKey=compareEndTimeFilterKey,
     ~origin="analytics",
     (),
   )
@@ -43,7 +45,12 @@ let make = () => {
         options=[]
         popupFilterFields=[]
         initialFixedFilters={initialFixedFilterFields()}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        defaultFilterKeys=[
+          startTimeFilterKey,
+          endTimeFilterKey,
+          compareStartTimeFilterKey,
+          compareEndTimeFilterKey,
+        ]
         tabNames=[]
         key="0"
         updateUrlWith=updateExistingKeys

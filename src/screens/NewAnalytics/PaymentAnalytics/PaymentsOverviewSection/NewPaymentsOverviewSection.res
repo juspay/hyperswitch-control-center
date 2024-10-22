@@ -89,7 +89,7 @@ let make = (~entity: moduleEntity) => {
       //primaryData->setValue(~data=primaryDataDisputes, ~ids=[Total_Dispute])
 
       // secondary date range
-      let (prevStartTime, prevEndTime) = NewAnalyticsUtils.getComparisionTimePeriod(
+      let (prevStartTime, prevEndTime) = DateRangeUtils.getComparisionTimePeriod(
         ~startDate=startTimeVal,
         ~endDate=endTimeVal,
       )

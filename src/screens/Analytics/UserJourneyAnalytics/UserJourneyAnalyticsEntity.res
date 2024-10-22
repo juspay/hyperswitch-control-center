@@ -446,7 +446,6 @@ let fixedFilterFields = _json => {
             ~numMonths=2,
             ~disableApply=false,
             ~dateRangeLimit=180,
-            ~optFieldKey=optFilterKey,
           ),
           ~inputFields=[],
           ~isRequired=false,

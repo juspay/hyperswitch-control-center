@@ -18,7 +18,12 @@ let getPageFromIndex = index => {
   }
 }
 
-let (startTimeFilterKey, endTimeFilterKey) = ("startTime", "endTime")
+let (startTimeFilterKey, endTimeFilterKey, compareStartTimeFilterKey, compareEndTimeFilterKey) = (
+  "startTime",
+  "endTime",
+  "compareStartTime",
+  "compareEndTime",
+)
 
 let initialFixedFilterFields = () => {
   let newArr = [
@@ -34,18 +39,11 @@ let initialFixedFilterFields = () => {
             ~showTime=true,
             ~disablePastDates={false},
             ~disableFutureDates={true},
-            ~predefinedDays=[
-              Hour(0.5),
-              Hour(1.0),
-              Hour(2.0),
-              Today,
-              Yesterday,
-              Day(2.0),
-              Day(7.0),
-              Day(30.0),
-              ThisMonth,
-              LastMonth,
-            ],
+            ~predefinedDays=[Today, Yesterday, Day(2.0), Day(7.0), Day(30.0), ThisMonth, LastMonth],
+            ~enableComparision=true,
+            ~compareOptions=[Previous_Period, Custom, No_Comparison],
+            ~seconStartKey=compareStartTimeFilterKey,
+            ~seconEndKey=compareEndTimeFilterKey,
             ~numMonths=2,
             ~disableApply=false,
             ~dateRangeLimit=180,
