@@ -14,6 +14,8 @@ let make = (~entity: moduleEntity) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let isSmartRetryEnabled =
+    filterValueJson->getString("is_smart_retry_enabled", "true")->getBoolFromString(true)
 
   let getData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -159,15 +161,35 @@ let make = (~entity: moduleEntity) => {
     None
   }, [startTimeVal, endTimeVal])
 
+  let mockDelay = async () => {
+    if data != []->JSON.Encode.array {
+      setScreenState(_ => Loading)
+      await HyperSwitchUtils.delay(300)
+      setScreenState(_ => Success)
+    }
+  }
+
+  React.useEffect(() => {
+    mockDelay()->ignore
+    None
+  }, [isSmartRetryEnabled])
+
   <PageLoaderWrapper screenState customLoader={<Shimmer layoutId=entity.title />}>
-    // Need to modify
     <div className="grid grid-cols-3 gap-6">
-      <SmartRetryCard data responseKey=Total_Smart_Retried_Amount />
+      <SmartRetryCard
+        data responseKey={Total_Smart_Retried_Amount->getKeyForModule(~isSmartRetryEnabled)}
+      />
       <div className="col-span-2 grid grid-cols-2 grid-rows-2 gap-6">
-        <OverViewStat data responseKey=Total_Success_Rate />
-        <OverViewStat data responseKey=Total_Payment_Processed_Amount />
-        <OverViewStat data responseKey=Refund_Processed_Amount />
-        <OverViewStat data responseKey=Total_Dispute />
+        <OverViewStat
+          data responseKey={Total_Success_Rate->getKeyForModule(~isSmartRetryEnabled)}
+        />
+        <OverViewStat
+          data responseKey={Total_Payment_Processed_Amount->getKeyForModule(~isSmartRetryEnabled)}
+        />
+        <OverViewStat
+          data responseKey={Refund_Processed_Amount->getKeyForModule(~isSmartRetryEnabled)}
+        />
+        <OverViewStat data responseKey={Total_Dispute->getKeyForModule(~isSmartRetryEnabled)} />
       </div>
     </div>
   </PageLoaderWrapper>

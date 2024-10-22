@@ -104,3 +104,16 @@ let getValueFromObj = (data, index, responseKey) => {
   ->getDictFromJsonObject
   ->getFloat(responseKey, 0.0)
 }
+
+let getKeyForModule = (field, ~isSmartRetryEnabled) => {
+  switch (field, isSmartRetryEnabled) {
+  | (Total_Smart_Retried_Amount, true) => Total_Smart_Retried_Amount
+  | (Total_Smart_Retried_Amount, false) => Total_Smart_Retried_Amount_Without_Smart_Retries
+  | (Total_Success_Rate, true) => Total_Success_Rate
+  | (Total_Success_Rate, false) => Total_Success_Rate_Without_Smart_Retries
+  | (Total_Payment_Processed_Amount, true) => Total_Payment_Processed_Amount
+  | (Total_Payment_Processed_Amount, false) => Total_Payment_Processed_Amount_Without_Smart_Retries
+  | (Refund_Processed_Amount, _) => Refund_Processed_Amount
+  | (Total_Dispute, _) | _ => Total_Dispute
+  }
+}

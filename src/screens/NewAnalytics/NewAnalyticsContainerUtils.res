@@ -21,7 +21,7 @@ let getPageFromIndex = index => {
 let (startTimeFilterKey, endTimeFilterKey, smartRetryKey) = (
   "startTime",
   "endTime",
-  "is_smart_retry_included",
+  "is_smart_retry_enabled",
 )
 
 let initialFixedFilterFields = () => {
