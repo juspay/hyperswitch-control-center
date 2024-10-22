@@ -32,7 +32,7 @@ let paymentsLifeCycleChartEntity: chartEntity<
 let paymentsProcessedEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#sessionized_payment_processed_amount, #sessionized_payment_processed_count],
+    metrics: [#sessionized_payment_processed_amount],
   },
   title: "Payments Processed",
   domain: #payments,
@@ -65,7 +65,7 @@ let paymentsProcessedTableEntity = {
 let paymentsSuccessRateEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_success_rate],
+    metrics: [#sessionized_payments_success_rate],
   },
   title: "Payments Success Rate",
   domain: #payments,

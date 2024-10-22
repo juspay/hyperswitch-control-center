@@ -1,80 +1,12 @@
 open NewAnalyticsTypes
-
-module SmartRetryCard = {
-  open NewAnalyticsHelper
-  open NewPaymentsOverviewSectionTypes
-  open NewPaymentsOverviewSectionUtils
-  open NewAnalyticsUtils
-  @react.component
-  let make = (~metric, ~data) => {
-    let config = getInfo(~metric)
-
-    let primaryValue = getValueFromObj(data, 0, metric)
-    let secondaryValue = getValueFromObj(data, 1, metric)
-
-    let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
-
-    <Card>
-      <div className="p-6 flex flex-col gap-4 justify-between h-full gap-auto">
-        <div className="font-semibold  dark:text-white"> {config.titleText->React.string} </div>
-        <div className={"flex flex-col gap-1 justify-center  text-black h-full"}>
-          <img alt="connector-list" className="h-20 w-fit" src="/assets/smart-retry.svg" />
-          <div className="flex gap-1 items-center">
-            <div className="font-semibold  text-2xl dark:text-white">
-              {`Saved ${valueFormatter(primaryValue, config.valueType)}`->React.string}
-            </div>
-            <div className="scale-[0.9]">
-              <StatisticsCard value direction />
-            </div>
-          </div>
-          <div className="opacity-50 text-sm"> {config.description->React.string} </div>
-        </div>
-      </div>
-    </Card>
-  }
-}
-
-module OverViewStat = {
-  open NewAnalyticsHelper
-  open NewAnalyticsUtils
-  open NewPaymentsOverviewSectionTypes
-  open NewPaymentsOverviewSectionUtils
-  @react.component
-  let make = (~metric, ~data) => {
-    let config = getInfo(~metric)
-
-    let primaryValue = getValueFromObj(data, 0, metric)
-    let secondaryValue = getValueFromObj(data, 1, metric)
-
-    let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
-
-    <Card>
-      <div className="p-6 flex flex-col gap-4 justify-between h-full gap-auto relative">
-        <div className="flex justify-between w-full items-end">
-          <div className="flex gap-1 items-center">
-            <div className="font-bold text-3xl">
-              {valueFormatter(primaryValue, config.valueType)->React.string}
-            </div>
-            <div className="scale-[0.9]">
-              <StatisticsCard value direction />
-            </div>
-          </div>
-        </div>
-        <div className={"flex flex-col gap-1  text-black"}>
-          <div className="font-semibold  dark:text-white"> {config.titleText->React.string} </div>
-          <div className="opacity-50 text-sm"> {config.description->React.string} </div>
-        </div>
-      </div>
-    </Card>
-  }
-}
-
+open NewPaymentsOverviewSectionTypes
 @react.component
 let make = (~entity: moduleEntity) => {
   open NewPaymentsOverviewSectionUtils
   open LogicUtils
   open APIUtils
   open NewAnalyticsHelper
+  open NewPaymentsOverviewSectionHelper
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ => []->JSON.Encode.array)
@@ -89,52 +21,72 @@ let make = (~entity: moduleEntity) => {
       let primaryData = defaultValue->Dict.copy
       let secondaryData = defaultValue->Dict.copy
 
-      let urlV1Refunds = getURL(
-        ~entityName=ANALYTICS_PAYMENTS,
-        ~methodType=Post,
-        ~id=Some((#refunds: domain :> string)),
-      )
-
-      let urlV2Payments = getURL(
+      let paymentsUrl = getURL(
         ~entityName=ANALYTICS_PAYMENTS_V2,
         ~methodType=Post,
         ~id=Some((#payments: domain :> string)),
       )
 
+      let refundsUrl = getURL(
+        ~entityName=ANALYTICS_REFUNDS,
+        ~methodType=Post,
+        ~id=Some((#refunds: domain :> string)),
+      )
+
+      let _disputesUrl = getURL(
+        ~entityName=ANALYTICS_DISPUTES,
+        ~methodType=Post,
+        ~id=Some((#disputes: domain :> string)),
+      )
+
       // primary date range
-      let primaryBodyV2Payments = getPayload(
+      let primaryBodyPayments = getPayload(
         ~entity,
         ~metrics=[
-          #smart_retried_amount,
-          #payments_success_rate,
+          #sessionized_smart_retried_amount,
+          #sessionized_payments_success_rate,
           #sessionized_payment_processed_amount,
         ],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
       )
 
-      let primaryBodyV1Refunds = getPayload(
+      let primaryBodyRefunds = getPayload(
         ~entity,
-        ~metrics=[#refund_success_count],
+        ~metrics=[#refund_processed_amount],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
       )
 
-      let primaryResponseV1Refunds = await updateDetails(urlV1Refunds, primaryBodyV1Refunds, Post)
-      let primaryResponseV2Payments = await updateDetails(
-        urlV2Payments,
-        primaryBodyV2Payments,
-        Post,
+      let _primaryBodyDisputes = getPayload(
+        ~entity,
+        ~metrics=[#dispute_status_metric],
+        ~startTime=startTimeVal,
+        ~endTime=endTimeVal,
       )
 
-      let primaryDataV1Refunds = primaryResponseV1Refunds->parseResponse
-      let primaryDataV2Payments = primaryResponseV2Payments->parseResponse
+      let primaryResponsePayments = await updateDetails(paymentsUrl, primaryBodyPayments, Post)
+      let primaryResponseRefunds = await updateDetails(refundsUrl, primaryBodyRefunds, Post)
+      //let primaryResponseDisputes = await updateDetails(disputesUrl, primaryBodyDisputes, Post)
 
-      primaryData->setValue(~data=primaryDataV1Refunds, ~ids=[#refund_success_count])
+      let primaryDataPayments = primaryResponsePayments->parseResponse("metaData")
+      let primaryDataRefunds = primaryResponseRefunds->parseResponse("queryData")
+      //let primaryDataDisputes = primaryResponseDisputes->parseResponse("queryData")
+
       primaryData->setValue(
-        ~data=primaryDataV2Payments,
-        ~ids=[#smart_retried_amount, #payments_success_rate, #sessionized_payment_processed_amount],
+        ~data=primaryDataPayments,
+        ~ids=[
+          Total_Smart_Retried_Amount,
+          Total_Smart_Retried_Amount_Without_Smart_Retries,
+          Total_Success_Rate,
+          Total_Success_Rate_Without_Smart_Retries,
+          Total_Payment_Processed_Amount,
+          Total_Payment_Processed_Amount_Without_Smart_Retries,
+        ],
       )
+
+      primaryData->setValue(~data=primaryDataRefunds, ~ids=[Refund_Processed_Amount])
+      //primaryData->setValue(~data=primaryDataDisputes, ~ids=[Total_Dispute])
 
       // secondary date range
       let (prevStartTime, prevEndTime) = NewAnalyticsUtils.getComparisionTimePeriod(
@@ -142,43 +94,53 @@ let make = (~entity: moduleEntity) => {
         ~endDate=endTimeVal,
       )
 
-      let secondaryBodyV2Payments = getPayload(
+      let secondaryBodyPayments = getPayload(
         ~entity,
         ~metrics=[
-          #smart_retried_amount,
-          #payments_success_rate,
+          #sessionized_smart_retried_amount,
+          #sessionized_payments_success_rate,
           #sessionized_payment_processed_amount,
         ],
         ~startTime=prevStartTime,
         ~endTime=prevEndTime,
       )
 
-      let secondaryBodyV1Refunds = getPayload(
+      let secondaryBodyRefunds = getPayload(
         ~entity,
-        ~metrics=[#refund_success_count],
+        ~metrics=[#refund_processed_amount],
         ~startTime=prevStartTime,
         ~endTime=prevEndTime,
       )
 
-      let secondaryResponseV1Refunds = await updateDetails(
-        urlV1Refunds,
-        secondaryBodyV1Refunds,
-        Post,
-      )
-      let secondaryResponseV2Payments = await updateDetails(
-        urlV2Payments,
-        secondaryBodyV2Payments,
-        Post,
+      let _secondaryBodyDisputes = getPayload(
+        ~entity,
+        ~metrics=[#dispute_status_metric],
+        ~startTime=prevStartTime,
+        ~endTime=prevEndTime,
       )
 
-      let secondaryDataV1Refunds = secondaryResponseV1Refunds->parseResponse
-      let secondaryDataV2Payments = secondaryResponseV2Payments->parseResponse
+      let secondaryResponsePayments = await updateDetails(paymentsUrl, secondaryBodyPayments, Post)
+      let secondaryResponseRefunds = await updateDetails(refundsUrl, secondaryBodyRefunds, Post)
+      //let secondaryResponseDisputes = await updateDetails(disputesUrl, secondaryBodyDisputes, Post)
 
-      secondaryData->setValue(~data=secondaryDataV1Refunds, ~ids=[#refund_success_count])
+      let secondaryDataPayments = secondaryResponsePayments->parseResponse("metaData")
+      let secondaryDataRefunds = secondaryResponseRefunds->parseResponse("queryData")
+      //let secondaryDataDisputes = secondaryResponseDisputes->parseResponse("queryData")
+
       secondaryData->setValue(
-        ~data=secondaryDataV2Payments,
-        ~ids=[#smart_retried_amount, #payments_success_rate, #sessionized_payment_processed_amount],
+        ~data=secondaryDataPayments,
+        ~ids=[
+          Total_Smart_Retried_Amount,
+          Total_Smart_Retried_Amount_Without_Smart_Retries,
+          Total_Success_Rate,
+          Total_Success_Rate_Without_Smart_Retries,
+          Total_Payment_Processed_Amount,
+          Total_Payment_Processed_Amount_Without_Smart_Retries,
+        ],
       )
+
+      secondaryData->setValue(~data=secondaryDataRefunds, ~ids=[Refund_Processed_Amount])
+      //secondaryData->setValue(~data=secondaryDataDisputes, ~ids=[Total_Dispute])
 
       setData(_ =>
         [primaryData->JSON.Encode.object, secondaryData->JSON.Encode.object]->JSON.Encode.array
@@ -200,12 +162,12 @@ let make = (~entity: moduleEntity) => {
   <PageLoaderWrapper screenState customLoader={<Shimmer layoutId=entity.title />}>
     // Need to modify
     <div className="grid grid-cols-3 gap-6">
-      <SmartRetryCard data metric=#smart_retried_amount />
+      <SmartRetryCard data responseKey=Total_Smart_Retried_Amount />
       <div className="col-span-2 grid grid-cols-2 grid-rows-2 gap-6">
-        <OverViewStat data metric=#payments_success_rate />
-        <OverViewStat data metric=#sessionized_payment_processed_amount />
-        <OverViewStat data metric=#refund_success_count />
-        <OverViewStat data metric=#dispute_status_metric />
+        <OverViewStat data responseKey=Total_Success_Rate />
+        <OverViewStat data responseKey=Total_Payment_Processed_Amount />
+        <OverViewStat data responseKey=Refund_Processed_Amount />
+        <OverViewStat data responseKey=Total_Dispute />
       </div>
     </div>
   </PageLoaderWrapper>

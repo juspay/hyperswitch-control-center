@@ -147,6 +147,7 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open OMPSwitchUtils
+  open OMPSwitchHelper
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
@@ -219,13 +220,13 @@ let make = () => {
       options={profileList->generateDropdownOptions}
       hideMultiSelectButtons=true
       addButton=false
-      searchable=false
+      searchable=true
       customStyle="absolute w-fit right-0"
       baseComponent={<ListBaseCompForProfile
         currProfile={currentOMPName(profileList, profileId)} arrow
       />}
       baseComponentCustomStyle="bg-white"
-      bottomComponent={<OMPSwitchHelper.AddNewMerchantProfileButton
+      bottomComponent={<AddNewMerchantProfileButton
         user="profile" setShowModal customStyle addItemBtnStyle
       />}
       optionClass="text-gray-600 text-fs-14"
@@ -235,6 +236,7 @@ let make = () => {
       toggleChevronState
       customScrollStyle
       dropdownContainerStyle
+      shouldDisplaySelectedOnTop=true
     />
     <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getProfileList />
