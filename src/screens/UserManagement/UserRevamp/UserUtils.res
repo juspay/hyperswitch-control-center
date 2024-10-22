@@ -68,36 +68,45 @@ let itemToObjMapperForGetRoleInfro: Dict.t<JSON.t> => UserManagementTypes.userMo
   }
 }
 
-let groupsAccessWrtToArray = (groupsList, userRoleAccessValueList) => {
-  groupsList->Array.reduce([], (acc, value) => {
-    if userRoleAccessValueList->Array.includes(value) && value->String.includes("view") {
-      acc->Array.push("View")
-    } else if userRoleAccessValueList->Array.includes(value) && value->String.includes("manage") {
-      acc->Array.push("Manage")
+let mapToManageView = (scopes: array<string>) => {
+  scopes->Array.map(scope => {
+    switch scope {
+    | "read" => "view"
+    | "write" => "manage"
+    | _ => scope
     }
-    acc
   })
 }
 
 let modulesWithUserAccess = (
   roleInfo: array<UserManagementTypes.userModuleType>,
-  userAcessGroup,
+  userAccessGroup2: array<UserManagementTypes.detailedUserModuleType>,
 ) => {
   open UserManagementTypes
   let modulesWithAccess = []
   let modulesWithoutAccess = []
 
-  roleInfo->Array.forEach(items => {
-    let access = groupsAccessWrtToArray(items.groups, userAcessGroup)
-    let manipulatedObject = {
-      parentGroup: items.parentGroup,
-      description: items.description,
-      groups: access,
-    }
-
-    if access->Array.length > 0 {
-      modulesWithAccess->Array.push(manipulatedObject)
+  let accessGroupNames = userAccessGroup2->Array.map(item => item.parentGroup)
+  roleInfo->Array.forEach(item => {
+    if accessGroupNames->Array.includes(item.parentGroup) {
+      let accessGroup = userAccessGroup2->Array.find(group => group.parentGroup == item.parentGroup)
+      switch accessGroup {
+      | Some(val) => {
+          let manipulatedObject = {
+            parentGroup: item.parentGroup,
+            description: val.description,
+            groups: val.scope->mapToManageView,
+          }
+          modulesWithAccess->Array.push(manipulatedObject)
+        }
+      | None => ()
+      }
     } else {
+      let manipulatedObject = {
+        parentGroup: item.parentGroup,
+        description: item.description,
+        groups: [],
+      }
       modulesWithoutAccess->Array.push(manipulatedObject)
     }
   })

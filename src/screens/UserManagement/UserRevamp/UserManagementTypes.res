@@ -45,6 +45,12 @@ type userModuleType = {
   groups: array<string>,
 }
 
+type detailedUserModuleType = {
+  parentGroup: string,
+  description: string,
+  scope: array<string>,
+}
+
 type orgObjectType = {
   name: string,
   value: string,

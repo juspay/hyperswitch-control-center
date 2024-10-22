@@ -33,17 +33,19 @@ module ModuleAccessRenderer = {
     </div>
   }
 }
+
 module RoleAccessOverview = {
   @react.component
   let make = (~roleDict, ~role) => {
     open LogicUtils
-    let userAcessGroup = roleDict->getDictfromDict(role)->getStrArrayFromDict("groups", [])
+    let detailedUserAccess =
+      roleDict->getDictfromDict(role)->getStrArrayFromDict("parent_groups", [])
     let roleInfo = Recoil.useRecoilValueFromAtom(HyperswitchAtom.moduleListRecoil)
+    Js.log(roleInfo)
     let (modulesWithAccess, moduleWithoutAccess) = UserUtils.modulesWithUserAccess(
       roleInfo,
-      userAcessGroup,
+      detailedUserAccess,
     )
-
     <div className="flex flex-col gap-8">
       {modulesWithAccess
       ->Array.mapWithIndex((elem, index) => {
