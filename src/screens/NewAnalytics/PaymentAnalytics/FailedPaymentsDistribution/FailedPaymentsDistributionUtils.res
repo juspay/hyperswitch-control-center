@@ -2,20 +2,24 @@ open NewPaymentAnalyticsUtils
 open FailedPaymentsDistributionTypes
 open LogicUtils
 
-let getDimentionType = string => {
-  switch string {
-  | "connector" => #connector
-  | "payment_method" => #payment_method
-  | "payment_method_type" => #payment_method_type
-  | "card_network" => #card_network
-  | "authentication_type" | _ => #authentication_type
+let getStringFromVariant = value => {
+  switch value {
+  | Payments_Failure_Rate_Distribution => "payments_failure_rate_distribution"
+  | Payments_Failure_Rate_Distribution_Without_Smart_Retries => "payments_failure_rate_distribution_without_smart_retries"
+  | Connector => "connector"
+  | Payment_Method => "payment_method"
+  | Payment_Method_Type => "payment_method_type"
+  | Authentication_Type => "authentication_type"
   }
 }
 
-let getXKey = (~isSmartRetry) => {
-  switch isSmartRetry {
-  | true => "payments_failure_rate_distribution"
-  | false => "payments_failure_rate_distribution_without_smart_retries"
+let getColumn = string => {
+  switch string {
+  | "connector" => Connector
+  | "payment_method" => Payment_Method
+  | "payment_method_type" => Payment_Method_Type
+  | "authentication_type" => Authentication_Type
+  | _ => Connector
   }
 }
 
@@ -39,13 +43,22 @@ let failedPaymentsDistributionMapper = (
 }
 
 open NewAnalyticsTypes
-let visibleColumns: array<metrics> = [#payment_failed_rate]
+let visibleColumns = [Payments_Failure_Rate_Distribution]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => failedPaymentsDistributionObject = dict => {
   {
-    payments_failure_rate_distribution: dict->getInt("payments_failure_rate_distribution", 0),
-    connector: dict->getString((#connector: metrics :> string), ""),
-    payment_method: dict->getString((#payment_method: metrics :> string), ""),
+    payments_failure_rate_distribution: dict->getFloat(
+      Payments_Failure_Rate_Distribution->getStringFromVariant,
+      0.0,
+    ),
+    payments_failure_rate_distribution_without_smart_retries: dict->getFloat(
+      Payments_Failure_Rate_Distribution_Without_Smart_Retries->getStringFromVariant,
+      0.0,
+    ),
+    connector: dict->getString(Connector->getStringFromVariant, ""),
+    payment_method: dict->getString(Payment_Method->getStringFromVariant, ""),
+    payment_method_type: dict->getString(Payment_Method_Type->getStringFromVariant, ""),
+    authentication_type: dict->getString(Authentication_Type->getStringFromVariant, ""),
   }
 }
 
@@ -57,34 +70,59 @@ let getObjects: JSON.t => array<failedPaymentsDistributionObject> = json => {
   })
 }
 
-let getHeading = (colType: metrics) => {
+let getHeading = colType => {
   switch colType {
-  | #payment_failed_rate =>
+  | Payments_Failure_Rate_Distribution =>
     Table.makeHeaderInfo(
-      ~key=(#payment_failed_rate: metrics :> string),
-      ~title="Payments Failed Rate",
+      ~key=Payments_Failure_Rate_Distribution->getStringFromVariant,
+      ~title="Payments Failure Rate Distribution",
       ~dataType=TextType,
     )
-  | #connector =>
+  | Payments_Failure_Rate_Distribution_Without_Smart_Retries =>
     Table.makeHeaderInfo(
-      ~key=(#connector: metrics :> string),
+      ~key=Payments_Failure_Rate_Distribution_Without_Smart_Retries->getStringFromVariant,
+      ~title="Payments Failure Rate Distribution",
+      ~dataType=TextType,
+    )
+
+  | Connector =>
+    Table.makeHeaderInfo(
+      ~key=Connector->getStringFromVariant,
       ~title="Connector",
       ~dataType=TextType,
     )
-  | #payment_method | _ =>
+  | Payment_Method =>
     Table.makeHeaderInfo(
-      ~key=(#payment_method: metrics :> string),
+      ~key=Payment_Method->getStringFromVariant,
       ~title="Payment Method",
+      ~dataType=TextType,
+    )
+  | Payment_Method_Type =>
+    Table.makeHeaderInfo(
+      ~key=Payment_Method_Type->getStringFromVariant,
+      ~title="Payment Method Type",
+      ~dataType=TextType,
+    )
+  | Authentication_Type =>
+    Table.makeHeaderInfo(
+      ~key=Authentication_Type->getStringFromVariant,
+      ~title="Authentication Type",
       ~dataType=TextType,
     )
   }
 }
 
-let getCell = (obj, colType: metrics): Table.cell => {
+let getCell = (obj, colType): Table.cell => {
+  open NewAnalyticsUtils
   switch colType {
-  | #payment_failed_rate => Text(obj.payments_failure_rate_distribution->Int.toString)
-  | #connector => Text(obj.connector)
-  | #payment_method | _ => Text(obj.payment_method)
+  | Payments_Failure_Rate_Distribution =>
+    Text(obj.payments_failure_rate_distribution->valueFormatter(Amount))
+  | Payments_Failure_Rate_Distribution_Without_Smart_Retries =>
+    Text(obj.payments_failure_rate_distribution_without_smart_retries->valueFormatter(Amount))
+  | Connector => Text(obj.connector)
+  | Payment_Method => Text(obj.payment_method)
+  | Payment_Method_Type => Text(obj.payment_method_type)
+  | Authentication_Type => Text(obj.authentication_type)
   }
 }
 
@@ -95,23 +133,23 @@ let getTableData = json => {
 let tabs = [
   {
     label: "Connector",
-    value: (#connector: dimension :> string),
+    value: Connector->getStringFromVariant,
   },
   {
     label: "Payment Method",
-    value: (#payment_method: dimension :> string),
+    value: Payment_Method->getStringFromVariant,
   },
   {
     label: "Payment Method Type",
-    value: (#payment_method_type: dimension :> string),
+    value: Payment_Method_Type->getStringFromVariant,
   },
   {
     label: "Authentication Type",
-    value: (#authentication_type: dimension :> string),
+    value: Authentication_Type->getStringFromVariant,
   },
 ]
 
 let defaulGroupBy = {
   label: "Connector",
-  value: (#connector: dimension :> string),
+  value: Connector->getStringFromVariant,
 }

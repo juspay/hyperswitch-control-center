@@ -106,9 +106,7 @@ let modifyDataWithMissingPoints = (
 let getMetaDataValue = (~data, ~index, ~key) => {
   data
   ->getArrayFromJson([])
-  ->getValueFromArray(index, []->JSON.Encode.array)
-  ->getArrayFromJson([])
-  ->getValueFromArray(0, Dict.make()->JSON.Encode.object)
+  ->getValueFromArray(index, Dict.make()->JSON.Encode.object)
   ->getDictFromJsonObject
   ->getFloat(key, 0.0)
 }

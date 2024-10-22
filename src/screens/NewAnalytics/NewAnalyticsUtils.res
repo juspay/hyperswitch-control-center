@@ -119,6 +119,16 @@ let getMonthName = month => {
   }
 }
 
+let formatDateValue = (value: string, ~includeYear=false) => {
+  let dateObj = value->DayJs.getDayJsForString
+
+  if includeYear {
+    `${dateObj.month()->getMonthName} ${dateObj.format("DD")} ${dateObj.year()->Int.toString} `
+  } else {
+    `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+  }
+}
+
 let getLabelName = (~key, ~index, ~points) => {
   open LogicUtils
   let getDateObject = (array, index) => {
@@ -126,7 +136,6 @@ let getLabelName = (~key, ~index, ~points) => {
     ->getValueFromArray(index, Dict.make()->JSON.Encode.object)
     ->getDictFromJsonObject
     ->getString(key, "")
-    ->DayJs.getDayJsForString
   }
 
   if key === "time_bucket" {
@@ -134,9 +143,8 @@ let getLabelName = (~key, ~index, ~points) => {
     let startPoint = pointsArray->getDateObject(0)
     let endPoint = pointsArray->getDateObject(1)
 
-    let startDate = `${startPoint.month()->getMonthName} ${startPoint.format("DD")}`
-    let endDate = `${endPoint.month()->getMonthName} ${endPoint.format("DD")}`
-
+    let startDate = startPoint->formatDateValue
+    let endDate = endPoint->formatDateValue
     `${startDate}-${endDate}`
   } else {
     `Series ${(index + 1)->Int.toString}`
