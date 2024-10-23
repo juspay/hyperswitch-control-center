@@ -14,8 +14,11 @@ let make = (~entity: moduleEntity) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
-  let isSmartRetryEnabled =
-    filterValueJson->getString("is_smart_retry_enabled", "true")->getBoolFromString(true)
+  let metricType: metricType =
+    filterValueJson
+    ->getString("is_smart_retry_enabled", "true")
+    ->getBoolFromString(true)
+    ->NewPaymentAnalyticsUtils.getMetricType
 
   let getData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -172,24 +175,18 @@ let make = (~entity: moduleEntity) => {
   React.useEffect(() => {
     mockDelay()->ignore
     None
-  }, [isSmartRetryEnabled])
+  }, [metricType])
 
   <PageLoaderWrapper screenState customLoader={<Shimmer layoutId=entity.title />}>
     <div className="grid grid-cols-3 gap-6">
-      <SmartRetryCard
-        data responseKey={Total_Smart_Retried_Amount->getKeyForModule(~isSmartRetryEnabled)}
-      />
+      <SmartRetryCard data responseKey={Total_Smart_Retried_Amount->getKeyForModule(~metricType)} />
       <div className="col-span-2 grid grid-cols-2 grid-rows-2 gap-6">
+        <OverViewStat data responseKey={Total_Success_Rate->getKeyForModule(~metricType)} />
         <OverViewStat
-          data responseKey={Total_Success_Rate->getKeyForModule(~isSmartRetryEnabled)}
+          data responseKey={Total_Payment_Processed_Amount->getKeyForModule(~metricType)}
         />
-        <OverViewStat
-          data responseKey={Total_Payment_Processed_Amount->getKeyForModule(~isSmartRetryEnabled)}
-        />
-        <OverViewStat
-          data responseKey={Refund_Processed_Amount->getKeyForModule(~isSmartRetryEnabled)}
-        />
-        <OverViewStat data responseKey={Total_Dispute->getKeyForModule(~isSmartRetryEnabled)} />
+        <OverViewStat data responseKey={Refund_Processed_Amount->getKeyForModule(~metricType)} />
+        <OverViewStat data responseKey={Total_Dispute->getKeyForModule(~metricType)} />
       </div>
     </div>
   </PageLoaderWrapper>
