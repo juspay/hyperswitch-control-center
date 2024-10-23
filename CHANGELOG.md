@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.10.22.2
+
+### Bug Fixes
+
+- Card-network issue fix and removed calendly link ([#1637](https://github.com/juspay/hyperswitch-control-center/pull/1637)) ([`ed43df1`](https://github.com/juspay/hyperswitch-control-center/commit/ed43df1cb02b1d407934bf54eb035b1c207daf20))
+
+**Full Changelog:** [`2024.10.22.1...2024.10.22.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.10.22.1...2024.10.22.2)
+
+- - -
+
 ## 2024.10.22.1
 
 ### Bug Fixes
