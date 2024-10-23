@@ -229,6 +229,21 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | DISPUTES_AGGREGATE =>
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(queryParams) =>
+          switch transactionEntity {
+          | #Profile => `disputes/profile/aggregate?${queryParams}`
+          | #Merchant
+          | _ =>
+            `disputes/aggregate?${queryParams}`
+          }
+        | None => `disputes/aggregate`
+        }
+      | _ => `disputes/aggregate`
+      }
     | PAYOUTS =>
       switch methodType {
       | Get =>
@@ -356,37 +371,6 @@ let useGetURL = () => {
         switch queryParamerters {
         | Some(params) => `analytics/v1/profile/api_event_logs?${params}`
         | None => ``
-        }
-      | _ => ""
-      }
-    | NEW_ANALYTICS =>
-      switch methodType {
-      | Get =>
-        switch id {
-        // Need to write seperate enum for info api
-        | Some(domain) =>
-          switch analyticsEntity {
-          | #Tenant
-          | #Organization =>
-            `analytics/v2/org/${domain}/info`
-          | #Merchant => `analytics/v2/merchant/${domain}/info`
-          | #Profile => `analytics/v2/profile/${domain}/info`
-          }
-
-        | _ => ""
-        }
-      | Post =>
-        switch id {
-        | Some(domain) =>
-          switch analyticsEntity {
-          | #Tenant
-          | #Organization =>
-            `analytics/v2/org/metrics/${domain}`
-          | #Merchant => `analytics/v2/merchant/metrics/${domain}`
-          | #Profile => `analytics/v2/profile/metrics/${domain}`
-          }
-
-        | _ => ""
         }
       | _ => ""
       }

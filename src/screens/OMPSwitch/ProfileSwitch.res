@@ -49,44 +49,81 @@ module NewAccountCreationModal = {
     }
 
     let onSubmit = (values, _) => {
-      createNewAccount(values)
+      open LogicUtils
+      let dict = values->getDictFromJsonObject
+      let trimmedData = dict->getString("profile_name", "")->String.trim
+      Dict.set(dict, "profile_name", trimmedData->JSON.Encode.string)
+      createNewAccount(dict->JSON.Encode.object)
     }
 
     let profileName = FormRenderer.makeFieldInfo(
       ~label="Profile Name",
       ~name="profile_name",
-      ~placeholder="Eg: My New Profile",
-      ~customInput=InputFields.textInput(),
+      ~customInput=(~input, ~placeholder as _) =>
+        InputFields.textInput()(
+          ~input={
+            ...input,
+            onChange: event =>
+              ReactEvent.Form.target(event)["value"]
+              ->String.trimStart
+              ->Identity.stringToFormReactEvent
+              ->input.onChange,
+          },
+          ~placeholder="Eg: My New Profile",
+        ),
       ~isRequired=true,
     )
 
+    let validateForm = (values: JSON.t) => {
+      open LogicUtils
+      let errors = Dict.make()
+      let profileName = values->getDictFromJsonObject->getString("profile_name", "")->String.trim
+      let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
+
+      let errorMessage = if profileName->isEmptyString {
+        "Profile name cannot be empty"
+      } else if profileName->String.length > 64 {
+        "Profile name cannot exceed 64 characters"
+      } else if !RegExp.test(RegExp.fromString(regexForProfileName), profileName) {
+        "Profile name should not contain special characters"
+      } else {
+        ""
+      }
+
+      if errorMessage->isNonEmptyString {
+        Dict.set(errors, "profile_name", errorMessage->JSON.Encode.string)
+      }
+
+      errors->JSON.Encode.object
+    }
+
     let modalBody =
-      <div className="p-2 m-2">
-        <div className="py-5 px-3 flex justify-between align-top">
+      <div className="">
+        <div className="pt-3 m-3 flex justify-between">
           <CardUtils.CardHeader
             heading="Add a new profile"
             subHeading=""
             customSubHeadingStyle="w-full !max-w-none pr-10"
           />
           <div className="h-fit" onClick={_ => setShowModal(_ => false)}>
-            <Icon
-              name="close" className="border-2 p-2 rounded-2xl bg-gray-100 cursor-pointer" size=30
-            />
+            <Icon name="modal-close-icon" className="cursor-pointer" size=30 />
           </div>
         </div>
-        <Form key="new-account-creation" onSubmit>
-          <div className="flex flex-col gap-12 h-full w-full">
-            <FormRenderer.DesktopRow>
-              <div className="flex flex-col gap-5">
+        <hr />
+        <Form key="new-account-creation" onSubmit validate={validateForm}>
+          <div className="flex flex-col h-full w-full">
+            <div className="py-10">
+              <FormRenderer.DesktopRow>
                 <FormRenderer.FieldRenderer
                   fieldWrapperClass="w-full"
                   field={profileName}
                   errorClass={ProdVerifyModalUtils.errorClass}
                   labelClass="!text-black font-medium !-ml-[0.5px]"
                 />
-              </div>
-            </FormRenderer.DesktopRow>
-            <div className="flex justify-end w-full pr-5 pb-3">
+              </FormRenderer.DesktopRow>
+            </div>
+            <hr className="mt-4" />
+            <div className="flex justify-end w-full p-3">
               <FormRenderer.SubmitButton text="Add Profile" buttonSize=Small />
             </div>
           </div>
@@ -110,6 +147,7 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open OMPSwitchUtils
+  open OMPSwitchHelper
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
@@ -182,13 +220,13 @@ let make = () => {
       options={profileList->generateDropdownOptions}
       hideMultiSelectButtons=true
       addButton=false
-      searchable=false
+      searchable=true
       customStyle="absolute w-fit right-0"
       baseComponent={<ListBaseCompForProfile
         currProfile={currentOMPName(profileList, profileId)} arrow
       />}
       baseComponentCustomStyle="bg-white"
-      bottomComponent={<OMPSwitchHelper.AddNewMerchantProfileButton
+      bottomComponent={<AddNewMerchantProfileButton
         user="profile" setShowModal customStyle addItemBtnStyle group=MerchantDetailsManage
       />}
       optionClass="text-gray-600 text-fs-14"
@@ -198,6 +236,7 @@ let make = () => {
       toggleChevronState
       customScrollStyle
       dropdownContainerStyle
+      shouldDisplaySelectedOnTop=true
     />
     <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getProfileList />

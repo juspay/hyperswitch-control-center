@@ -1104,10 +1104,11 @@ module RenderListItemInBaseRadio = {
     ~optionClass="",
     ~selectClass="",
     ~customScrollStyle=?,
+    ~shouldDisplaySelectedOnTop,
   ) => {
     let decodedValue = value->JSON.Decode.string
-    switch decodedValue {
-    | Some(str) =>
+    switch (decodedValue, shouldDisplaySelectedOnTop) {
+    | (Some(str), true) =>
       newOptions->Array.sort((item1, item2) => {
         if item1.value == str {
           -1.
@@ -1117,7 +1118,7 @@ module RenderListItemInBaseRadio = {
           0.
         }
       })
-    | None => ()
+    | (_, _) => ()
     }
     let dropdownList =
       newOptions
@@ -1187,7 +1188,6 @@ module RenderListItemInBaseRadio = {
     let sidebarScrollbarCss = `
       @supports (-webkit-appearance: none) {
         .sidebar-scrollbar {
-          scrollbar-width: thin !important;
           scrollbar-color: #8a8c8f;
         }
 
@@ -1292,6 +1292,7 @@ module BaseRadio = {
     ~selectClass="",
     ~customScrollStyle=?,
     ~dropdownContainerStyle="",
+    ~shouldDisplaySelectedOnTop=false,
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1417,7 +1418,10 @@ module BaseRadio = {
       }
     }, (searchString, options, selectedString))
     let overflowClass = !isDropDown ? "" : "overflow-auto"
-
+    let heightScroll = switch customScrollStyle {
+    | Some(_) => "max-h-full"
+    | None => maxHeight
+    }
     let searchInputUI =
       <div
         className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 `}>
@@ -1445,7 +1449,7 @@ module BaseRadio = {
         </RenderIf>
       }}
       <div
-        className={`${maxHeight} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
+        className={`${heightScroll} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
         {if newOptions->Array.length === 0 && showMatchingRecordsText {
           <div className="flex justify-center items-center m-4">
             {React.string("No matching records found")}
@@ -1474,6 +1478,7 @@ module BaseRadio = {
             optionClass
             selectClass
             ?customScrollStyle
+            shouldDisplaySelectedOnTop
           />
         } else {
           {
@@ -1504,6 +1509,7 @@ module BaseRadio = {
                   isHorizontal
                   customMarginStyleOfListItem="ml-8 mx-3 py-2 gap-2"
                   ?customScrollStyle
+                  shouldDisplaySelectedOnTop
                 />
               </React.Fragment>
             })
@@ -1602,6 +1608,7 @@ module BaseDropdown = {
     ~customDropdownOuterClass="",
     ~customScrollStyle=?,
     ~dropdownContainerStyle="",
+    ~shouldDisplaySelectedOnTop=false,
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1871,6 +1878,7 @@ module BaseDropdown = {
         selectClass
         ?customScrollStyle
         dropdownContainerStyle
+        shouldDisplaySelectedOnTop
       />
     }
 
@@ -2282,6 +2290,7 @@ let make = (
   ~onItemSelect=(_, _) => (),
   ~wrapBasis="",
   ~customScrollStyle=?,
+  ~shouldDisplaySelectedOnTop=false,
   (),
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
@@ -2354,6 +2363,7 @@ let make = (
       ?searchInputPlaceHolder
       showSearchIcon
       ?customScrollStyle
+      shouldDisplaySelectedOnTop
     />
   } else if allowMultiSelect {
     <BaseSelect
@@ -2424,6 +2434,7 @@ let make = (
       descriptionOnHover
       showToolTipOptions
       ?customScrollStyle
+      shouldDisplaySelectedOnTop
     />
   }
 }

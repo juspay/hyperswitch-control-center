@@ -108,6 +108,7 @@ let make = () => {
   open APIUtils
   open LogicUtils
   open OMPSwitchUtils
+  open OMPSwitchHelper
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
@@ -185,7 +186,7 @@ let make = () => {
       customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
-      baseComponent={<OMPSwitchHelper.ListBaseComp
+      baseComponent={<ListBaseComp
         heading="Org" subHeading={currentOMPName(orgList, orgId)} arrow
       />}
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
@@ -198,6 +199,7 @@ let make = () => {
       fullLength=true
       toggleChevronState
       customScrollStyle
+      shouldDisplaySelectedOnTop=true
     />
     <RenderIf condition={showModal && tenantUser}>
       <NewAccountCreationModal setShowModal showModal getOrgList />

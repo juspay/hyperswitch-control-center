@@ -107,6 +107,7 @@ let useProfileSwitch = () => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let showToast = ToastState.useShowToast()
   let {getUserInfo} = useUserInfo()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let {userInfo: userInfoDefault} = React.useContext(UserInfoProvider.defaultContext)
@@ -121,6 +122,7 @@ let useProfileSwitch = () => {
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
+        showToast(~message=`Your profile has been switched successfully.`, ~toastType=ToastSuccess)
         userInfoRes
       } else {
         userInfoDefault
