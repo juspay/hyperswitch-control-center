@@ -81,6 +81,8 @@ type parentGroupType =
 @unboxed
 type groupControlType = View | Manage
 
+type groupControlType2 = Read | Write
+
 type allSelectionType = [#All_Merchants | #All_Profiles]
 
 type userActionType = SwitchUser | ManageUser | NoActionAccess

@@ -79,16 +79,6 @@ let itemToObjMapperFordetailedRoleInfo: Dict.t<
   }
 }
 
-let mapToManageView = (scopes: array<string>) => {
-  scopes->Array.map(scope => {
-    switch scope {
-    | "read" => "view"
-    | "write" => "manage"
-    | _ => scope
-    }
-  })
-}
-
 let modulesWithUserAccess = (
   roleInfo: array<UserManagementTypes.userModuleType>,
   userAccessGroup2: array<UserManagementTypes.detailedUserModuleType>,
@@ -106,7 +96,7 @@ let modulesWithUserAccess = (
           let manipulatedObject = {
             parentGroup: item.parentGroup,
             description: val.description,
-            groups: val.scope->mapToManageView,
+            groups: val.scope,
           }
           modulesWithAccess->Array.push(manipulatedObject)
         }
@@ -186,8 +176,8 @@ let getLabelForStatus = value => {
 let stringToVariantMapperForAccess = accessAvailable => {
   open UserManagementTypes
   switch accessAvailable {
-  | "Manage" => Manage
-  | "View" | _ => View
+  | "Write" => Write
+  | "Read" | _ => Read
   }
 }
 

@@ -10,8 +10,8 @@ module ModuleAccessRenderer = {
 
     let iconForAccess = access =>
       switch access->stringToVariantMapperForAccess {
-      | View => "eye-outlined"
-      | Manage => "pencil-outlined"
+      | Read => "eye-outlined"
+      | Write => "pencil-outlined"
       }
 
     <div key={index->Int.toString} className={`flex justify-between ${customCss}`}>
