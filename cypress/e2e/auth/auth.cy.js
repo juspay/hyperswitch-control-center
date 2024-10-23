@@ -45,7 +45,7 @@ describe("Auth Module", () => {
   });
 
   it("sets true the feature flag for magic link and forgot password,then checks auth page back button functioning", () => {
-    cy.intercept("GET", "feature/config?domain=default", {
+    cy.intercept("GET", "/dashboard/config/feature?domain=default", {
       statusCode: 200,
       body: {
         theme: {
