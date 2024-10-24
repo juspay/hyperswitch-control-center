@@ -1,5 +1,4 @@
 import * as Fs from "fs";
-import fetch from "node-fetch";
 const errorHandler = (res, result) => {
   res.writeHead(500, { "Content-Type": "application/json" });
   res.write(JSON.stringify(result));
