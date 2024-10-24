@@ -205,7 +205,12 @@ let make = () => {
       />}
       baseComponentCustomStyle="bg-popover-background border-blue-820 rounded text-white"
       bottomComponent={<AddNewMerchantProfileButton
-        user="merchant" setShowModal customPadding customStyle customHRTagStyle
+        user="merchant"
+        setShowModal
+        customPadding
+        customStyle
+        customHRTagStyle
+        group=OrganizationManage
       />}
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"
