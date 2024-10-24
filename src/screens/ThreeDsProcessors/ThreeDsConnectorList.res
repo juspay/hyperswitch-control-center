@@ -36,16 +36,6 @@ let make = () => {
     />
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-10">
-        <ProcessorCards
-          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
-            ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
-          )}
-          connectorsAvailableForIntegration={featureFlagDetails.isLiveMode
-            ? ConnectorUtils.threedsAuthenticatorListForLive
-            : ConnectorUtils.threedsAuthenticatorList}
-          urlPrefix="3ds-authenticators/new"
-          connectorType=ConnectorTypes.ThreeDsAuthenticator
-        />
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
@@ -62,6 +52,16 @@ let make = () => {
             collapseTableRow=false
           />
         </RenderIf>
+        <ProcessorCards
+          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
+            ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
+          )}
+          connectorsAvailableForIntegration={featureFlagDetails.isLiveMode
+            ? ConnectorUtils.threedsAuthenticatorListForLive
+            : ConnectorUtils.threedsAuthenticatorList}
+          urlPrefix="3ds-authenticators/new"
+          connectorType=ConnectorTypes.ThreeDsAuthenticator
+        />
       </div>
     </PageLoaderWrapper>
   </div>
