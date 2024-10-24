@@ -922,6 +922,7 @@ let configKeysToIgnore = [
   "metadata",
   "connector_webhook_details",
   "additional_merchant_data",
+  "connector_wallets_details",
 ]
 
 let verifyConnectorIgnoreField = [
