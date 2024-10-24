@@ -104,9 +104,9 @@ let make = () => {
   }
 
   let errorHandling = errorCode => {
-    if errorCode == "UR_48" {
+    if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_48 {
       setTwoFaStatus(_ => TwoFaExpired(TOTP_ATTEMPTS_EXPIRED))
-    } else if errorCode == "UR_49" {
+    } else if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_49 {
       setTwoFaStatus(_ => TwoFaExpired(RC_ATTEMPTS_EXPIRED))
     }
   }

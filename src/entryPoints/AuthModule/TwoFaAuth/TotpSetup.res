@@ -27,7 +27,7 @@ module EnterAccessCode = {
       | Exn.Error(e) => {
           let err = Exn.message(e)->Option.getOr("Something went wrong")
           let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
-          if errorCode == "UR_49" {
+          if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_49 {
             errorHandling(errorCode)
           }
           setRecoveryCode(_ => "")
@@ -142,7 +142,7 @@ module ConfigureTotpScreen = {
       | Exn.Error(e) => {
           let err = Exn.message(e)->Option.getOr("Something went wrong")
           let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
-          if errorCode == "UR_48" {
+          if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_48 {
             errorHandling(errorCode)
           }
           setOtp(_ => "")
