@@ -152,6 +152,8 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
   | "open_banking_pis" => OpenBankingPIS
+  | "samsung_pay" => SamsungPay
+
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
@@ -1404,6 +1406,7 @@ let itemToPMAuthMapper = dict => {
 let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) => {
   open LogicUtils
   let dict = payload->getDictFromJsonObject
+  Js.log2(dict, "DICT")
   let connectorAccountDetails =
     dict->getDictfromDict("connector_account_details")->JSON.Encode.object
   let connectorAdditionalMerchantData = dict->getDictfromDict("additional_merchant_data")
@@ -1434,6 +1437,12 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
       dict->getDictfromDict("pm_auth_config")->isEmptyDict
         ? JSON.Encode.null
         : dict->getDictfromDict("pm_auth_config")->JSON.Encode.object,
+    ),
+    (
+      "connector_wallets_details",
+      dict->getDictfromDict("connector_wallets_details")->isEmptyDict
+        ? JSON.Encode.null
+        : dict->getDictfromDict("connector_wallets_details")->JSON.Encode.object,
     ),
   ])
 

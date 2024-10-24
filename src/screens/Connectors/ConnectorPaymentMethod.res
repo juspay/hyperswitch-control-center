@@ -56,7 +56,7 @@ let make = (
 
   let mixpanelEventName = isUpdateFlow ? "processor_step2_onUpdate" : "processor_step2"
 
-  let onSubmit = async () => {
+  let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     mixpanelEvent(~eventName=mixpanelEventName)
     try {
       setScreenState(_ => Loading)
@@ -66,7 +66,7 @@ let make = (
         metadata: metaData,
       }
       let body =
-        constructConnectorRequestBody(obj, initialValues)->ignoreFields(
+        constructConnectorRequestBody(obj, values)->ignoreFields(
           connectorID->Option.getOr(""),
           connectorIgnoredField,
         )
@@ -98,10 +98,11 @@ let make = (
         }
       }
     }
+    Nullable.null
   }
 
   <PageLoaderWrapper screenState>
-    <Form initialValues={initialValues}>
+    <Form onSubmit initialValues={initialValues}>
       <div className="flex flex-col">
         <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
           <div className="flex gap-2 items-center">
@@ -111,7 +112,8 @@ let make = (
             </h2>
           </div>
           <div className="self-center">
-            <Button text="Proceed" buttonType={Primary} onClick={_ => onSubmit()->ignore} />
+            // <Button text="Proceed" buttonType={Primary} onClick={_ => onSubmit()->ignore} />
+            <FormRenderer.SubmitButton text="Proceed" />
           </div>
         </div>
         <div className="grid grid-cols-4 flex-1 p-2 md:p-10">
