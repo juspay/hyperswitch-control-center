@@ -45,7 +45,6 @@ let successfulPaymentsDistributionMapper = (
 }
 
 open NewAnalyticsTypes
-let visibleColumns = [Payments_Success_Rate_Distribution]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => successfulPaymentsDistributionObject = dict => {
   {
@@ -153,4 +152,12 @@ let tabs = [
 let defaulGroupBy = {
   label: "Connector",
   value: Connector->getStringFromVariant,
+}
+
+let getKeyForModule = (field, ~isSmartRetryEnabled) => {
+  switch (field, isSmartRetryEnabled) {
+  | (Payments_Success_Rate_Distribution, true) => Payments_Success_Rate_Distribution
+  | (Payments_Success_Rate_Distribution, false) | _ =>
+    Payments_Success_Rate_Distribution_Without_Smart_Retries
+  }->getStringFromVariant
 }

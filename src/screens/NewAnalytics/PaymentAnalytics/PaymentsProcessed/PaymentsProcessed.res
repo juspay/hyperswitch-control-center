@@ -6,8 +6,9 @@ open PaymentsProcessedUtils
 
 module TableModule = {
   open LogicUtils
+  open PaymentsProcessedTypes
   @react.component
-  let make = (~data, ~className="") => {
+  let make = (~data, ~className="", ~isSmartRetryEnabled) => {
     let (offset, setOffset) = React.useState(_ => 0)
     let defaultSort: Table.sortedObject = {
       key: "",
@@ -19,6 +20,14 @@ module TableModule = {
     | Some(val) => val->getArrayDataFromJson(tableItemToObjMapper)
     | _ => []
     }->Array.map(Nullable.make)
+
+    let defaultCols = isSmartRetryEnabled
+      ? [Payment_Processed_Amount, Payment_Processed_Count]
+      : [
+          Payment_Processed_Amount_Without_Smart_Retries,
+          Payment_Processed_Count_Without_Smart_Retries,
+        ]
+    let visibleColumns = defaultCols->Array.concat(visibleColumns)
 
     <div className>
       <LoadedTable
@@ -58,16 +67,17 @@ module PaymentsProcessedHeader = {
     ~setSelectedMetric,
     ~granularity,
     ~setGranularity,
+    ~isSmartRetryEnabled,
   ) => {
     let primaryValue = getMetaDataValue(
       ~data,
       ~index=0,
-      ~key=selectedMetric.value->getMetaDataMapper,
+      ~key=selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled),
     )
     let secondaryValue = getMetaDataValue(
       ~data,
       ~index=1,
-      ~key=selectedMetric.value->getMetaDataMapper,
+      ~key=selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled),
     )
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
@@ -127,6 +137,8 @@ let make = (
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let isSmartRetryEnabled =
+    filterValueJson->getString("is_smart_retry_enabled", "true")->getBoolFromString(true)
 
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -228,6 +240,19 @@ let make = (
     None
   }, [startTimeVal, endTimeVal])
 
+  let mockDelay = async () => {
+    if paymentsProcessedData != []->JSON.Encode.array {
+      setScreenState(_ => Loading)
+      await HyperSwitchUtils.delay(300)
+      setScreenState(_ => Success)
+    }
+  }
+
+  React.useEffect(() => {
+    mockDelay()->ignore
+    None
+  }, [isSmartRetryEnabled])
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -242,6 +267,7 @@ let make = (
           setSelectedMetric
           granularity
           setGranularity
+          isSmartRetryEnabled
         />
         <div className="mb-5">
           {switch viewType {
@@ -250,12 +276,13 @@ let make = (
               entity={chartEntity}
               data={chartEntity.getObjects(
                 ~data=paymentsProcessedData,
-                ~xKey=selectedMetric.value,
+                ~xKey=selectedMetric.value->getKeyForModule(~isSmartRetryEnabled),
                 ~yKey=Time_Bucket->getStringFromVariant,
               )}
               className="mr-3"
             />
-          | Table => <TableModule data={paymentsProcessedData} className="mx-7" />
+          | Table =>
+            <TableModule data={paymentsProcessedData} className="mx-7" isSmartRetryEnabled />
           }}
         </div>
       </PageLoaderWrapper>

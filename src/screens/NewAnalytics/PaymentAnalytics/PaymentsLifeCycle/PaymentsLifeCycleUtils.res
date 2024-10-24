@@ -23,11 +23,12 @@ let paymentLifeCycleResponseMapper = (json: JSON.t) => {
 
 let paymentsLifeCycleMapper = (
   ~data: paymentLifeCycle,
-  ~xKey as _,
+  ~xKey,
   ~yKey as _,
 ): SankeyGraphTypes.sankeyPayload => {
-  let success = data.normalSuccess + data.smartRetriedSuccess
-  let failure = data.normalFailure + data.smartRetriedFailure
+  let isSmartRetryEnabled = xKey->getBoolFromString(true)
+  let success = data.normalSuccess + (isSmartRetryEnabled ? data.smartRetriedSuccess : 0)
+  let failure = data.normalFailure + (isSmartRetryEnabled ? data.smartRetriedFailure : 0)
   let refunded = data.refunded
   let pending = data.pending // Attempted Pending
   let cancelled = data.cancelled

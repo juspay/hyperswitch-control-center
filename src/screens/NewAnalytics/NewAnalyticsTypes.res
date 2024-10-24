@@ -59,3 +59,7 @@ type valueType =
   | Latency
   | LatencyMs
   | No_Type
+
+type metricType =
+  | Smart_Retry
+  | Default

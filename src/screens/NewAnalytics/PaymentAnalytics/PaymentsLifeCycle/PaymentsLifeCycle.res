@@ -22,6 +22,8 @@ let make = (
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let isSmartRetryEnabled = filterValueJson->getString("is_smart_retry_enabled", "true")
+
   let getPaymentLieCycleData = async () => {
     try {
       let url = getURL(~entityName=ANALYTICS_SANKEY, ~methodType=Post)
@@ -61,6 +63,20 @@ let make = (
     }
     None
   }, (startTimeVal, endTimeVal))
+
+  let mockDelay = async () => {
+    if data != JSON.Encode.null->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper {
+      setScreenState(_ => Loading)
+      await HyperSwitchUtils.delay(300)
+      setScreenState(_ => Success)
+    }
+  }
+
+  React.useEffect(() => {
+    mockDelay()->ignore
+    None
+  }, [isSmartRetryEnabled])
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -68,7 +84,8 @@ let make = (
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
         <div className="mr-3 my-10">
           <SankeyGraph
-            entity={chartEntity} data={chartEntity.getObjects(~data, ~xKey="", ~yKey="")}
+            entity={chartEntity}
+            data={chartEntity.getObjects(~data, ~xKey=isSmartRetryEnabled, ~yKey="")}
           />
         </div>
       </PageLoaderWrapper>
