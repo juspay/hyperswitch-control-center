@@ -15,7 +15,6 @@ let make = () => {
 
   let checkTwoFaStatus = async () => {
     try {
-
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
         ~entityName=USERS,
