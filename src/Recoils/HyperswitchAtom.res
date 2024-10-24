@@ -20,6 +20,9 @@ let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.at
   "featureFlag",
   JSON.Encode.null->FeatureFlagUtils.featureFlagType,
 )
+let merchantSpecificConfigAtom: Recoil.recoilAtom<
+  FeatureFlagUtils.merchantSpecificConfig,
+> = Recoil.atom("merchantSpecificConfig", JSON.Encode.null->FeatureFlagUtils.merchantSpecificConfig)
 let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatus> = Recoil.atom(
   "paypalAccountStatusAtom",
   PayPalFlowTypes.Connect_paypal_landing,
