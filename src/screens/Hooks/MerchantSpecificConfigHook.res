@@ -36,9 +36,7 @@ let useMerchantSpecificConfig = () => {
           ("org_id", orgId->JSON.Encode.string),
           ("merchant_id", merchantId->JSON.Encode.string),
           ("profile_id", profileId->JSON.Encode.string),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
+        ]->LogicUtils.getJsonFromArrayOfJson
       let response = await updateAPIHook(merchantConfigURL, body, Post)
       let mapMerchantSpecificConfig = response->FeatureFlagUtils.merchantSpecificConfig
       setMerchantSpecificConfig(_ => mapMerchantSpecificConfig)
