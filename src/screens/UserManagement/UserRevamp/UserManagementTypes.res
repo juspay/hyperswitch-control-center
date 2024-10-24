@@ -45,6 +45,12 @@ type userModuleType = {
   groups: array<string>,
 }
 
+type detailedUserModuleType = {
+  parentGroup: string,
+  description: string,
+  scopes: array<string>,
+}
+
 type orgObjectType = {
   name: string,
   value: string,
@@ -74,6 +80,8 @@ type parentGroupType =
 
 @unboxed
 type groupControlType = View | Manage
+
+type groupControlType2 = Read | Write
 
 type allSelectionType = [#All_Merchants | #All_Profiles]
 
