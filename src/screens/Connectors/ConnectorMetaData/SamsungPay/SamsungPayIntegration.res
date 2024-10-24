@@ -85,6 +85,11 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     update()
     setShowWalletConfigurationModal(_ => false)
   }
+
+  let onCancel = () => {
+    onCloseClickCustomFun()
+    setShowWalletConfigurationModal(_ => false)
+  }
   let samsungPayFields =
     samsungPayFields
     ->Array.mapWithIndex((field, index) => {
@@ -123,11 +128,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     <div className="p-2">
       {samsungPayFields}
       <div className={`flex gap-2  justify-end m-2 p-6`}>
-        <Button
-          text="Cancel"
-          buttonType={Secondary}
-          onClick={_ => setShowWalletConfigurationModal(_ => false)}
-        />
+        <Button text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} />
         <Button
           onClick={_ => onSubmit()}
           text="Continue"

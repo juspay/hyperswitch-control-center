@@ -1407,7 +1407,6 @@ let itemToPMAuthMapper = dict => {
 let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) => {
   open LogicUtils
   let dict = payload->getDictFromJsonObject
-  Js.log2(dict, "DICT")
   let connectorAccountDetails =
     dict->getDictfromDict("connector_account_details")->JSON.Encode.object
   let connectorAdditionalMerchantData = dict->getDictfromDict("additional_merchant_data")
