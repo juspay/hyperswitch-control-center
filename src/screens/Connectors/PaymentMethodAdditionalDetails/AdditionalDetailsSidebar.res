@@ -47,6 +47,13 @@ module AdditionalDetailsSidebarComp = {
           <GooglePayIntegration
             connector setShowWalletConfigurationModal update=updateMetadata onCloseClickCustomFun
           />
+        | SamsungPay =>
+          <SamsungPayIntegration
+            connector
+            setShowWalletConfigurationModal
+            update=updatePaymentMethods
+            onCloseClickCustomFun
+          />
         | _ => React.null
         }}
       </RenderIf>
