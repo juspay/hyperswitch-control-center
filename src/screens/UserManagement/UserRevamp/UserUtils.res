@@ -75,7 +75,7 @@ let itemToObjMapperFordetailedRoleInfo: Dict.t<
   {
     parentGroup: getString(dict, "name", ""),
     description: getString(dict, "description", ""),
-    scope: getStrArrayFromDict(dict, "scope", []),
+    scopes: getStrArrayFromDict(dict, "scopes", []),
   }
 }
 
@@ -96,7 +96,7 @@ let modulesWithUserAccess = (
           let manipulatedObject = {
             parentGroup: item.parentGroup,
             description: val.description,
-            groups: val.scope,
+            scopes: val.scopes,
           }
           modulesWithAccess->Array.push(manipulatedObject)
         }
@@ -106,7 +106,7 @@ let modulesWithUserAccess = (
       let manipulatedObject = {
         parentGroup: item.parentGroup,
         description: item.description,
-        groups: [],
+        scopes: [],
       }
       modulesWithoutAccess->Array.push(manipulatedObject)
     }

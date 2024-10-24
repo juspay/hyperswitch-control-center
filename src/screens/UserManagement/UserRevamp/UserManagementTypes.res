@@ -48,7 +48,7 @@ type userModuleType = {
 type detailedUserModuleType = {
   parentGroup: string,
   description: string,
-  scope: array<string>,
+  scopes: array<string>,
 }
 
 type orgObjectType = {

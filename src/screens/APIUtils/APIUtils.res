@@ -228,7 +228,8 @@ let useGetURL = () => {
         }
       | _ => ""
       }
-    | DISPUTES_AGGREGATE => switch methodType {
+    | DISPUTES_AGGREGATE =>
+      switch methodType {
       | Get =>
         switch queryParamerters {
         | Some(queryParams) =>
@@ -581,6 +582,11 @@ let useGetURL = () => {
           switch queryParamerters {
           | Some(queryParams) => `${userUrl}/role/v2/list?${queryParams}`
           | None => `${userUrl}/role/v2/list`
+          }
+        | ROLE_ID =>
+          switch id {
+          | Some(key_id) => `${userUrl}/role/${key_id}/v2`
+          | None => ""
           }
         | _ => ""
         }

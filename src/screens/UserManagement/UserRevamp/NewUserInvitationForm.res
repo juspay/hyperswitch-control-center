@@ -5,9 +5,8 @@ let p3RegularTextClass = HSwitchUtils.getTextClass((P3, Regular))
 
 module ModuleAccessRenderer = {
   @react.component
-  let make = (~elem: UserManagementTypes.userModuleType, ~index, ~customCss="") => {
+  let make = (~elem: UserManagementTypes.detailedUserModuleType, ~index, ~customCss="") => {
     open UserUtils
-
     let iconForAccess = access =>
       switch access->stringToVariantMapperForAccess {
       | Read => "eye-outlined"
@@ -19,8 +18,8 @@ module ModuleAccessRenderer = {
         <p className=p2MediumTextClass> {elem.parentGroup->React.string} </p>
         <p className=p3RegularTextClass> {elem.description->React.string} </p>
       </div>
-      <div className="flex gap-2 h-fit">
-        {elem.groups
+      <div className="flex gap-2 h-fit ">
+        {elem.scopes
         ->Array.map(item => {
           <p
             className={`py-0.5 px-2 rounded-full bg-gray-200 ${p3RegularTextClass} flex gap-1 items-center`}>
@@ -117,11 +116,10 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
-        ~entityName=USER_MANAGEMENT,
+        ~entityName=USER_MANAGEMENT_V2,
         ~userRoleTypes=ROLE_ID,
         ~id=roleTypeValue,
         ~methodType=Get,
-        ~queryParamerters=Some("groups=true"),
       )
       let res = await fetchDetails(url)
       setRoleDict(prevDict => {
