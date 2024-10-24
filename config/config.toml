@@ -4,7 +4,7 @@ primary_hover_color="#005ED6"
 sidebar_color="#242F48"
 [default.endpoints]
 api_url="http://localhost:8080"
-sdk_url=""
+sdk_url="http://localhost:9050/HyperLoader.js"
 logo_url=""
 favicon_url=""
 agreement_url=""
@@ -49,3 +49,8 @@ down_time=false
 tax_processor=true
 transaction_view=false
 x_feature_route=false
+[default.merchant_config]
+[default.merchant_config.new_analytics]
+org_ids=[]
+merchant_ids=[]
+profile_ids=[]

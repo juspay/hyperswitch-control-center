@@ -97,11 +97,17 @@ let make = (~entity=TransactionViewTypes.Orders) => {
         ->Array.toSorted(compareLogic)
 
     if appliedStatusFilter->Array.length == 1 {
-      let statusValue =
-        appliedStatusFilter->getValueFromArray(0, ""->JSON.Encode.string)->JSON.Decode.string
+      let status =
+        appliedStatusFilter
+        ->getValueFromArray(0, ""->JSON.Encode.string)
+        ->JSON.Decode.string
+        ->Option.getOr("")
 
-      let status = statusValue->Option.getOr("")
-      setActiveView(_ => status->getViewTypeFromString(entity))
+      let viewType = status->getViewTypeFromString(entity)
+      switch viewType {
+      | All => setActiveView(_ => None)
+      | _ => setActiveView(_ => viewType)
+      }
     } else if setViewToAll {
       setActiveView(_ => All)
     } else {

@@ -28,4 +28,4 @@ echo "[network_tokenization_service] section removed from $toml_file."
 
 chmod +x /usr/local/bin/docker-compose
 # Start Docker Compose services in detached mode
-docker-compose up -d pg redis-standalone migration_runner hyperswitch-server
+docker-compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web
