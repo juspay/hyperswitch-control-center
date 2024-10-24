@@ -656,11 +656,11 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     newAnalytics,
   } = featureFlagDetails
   let {
-    useHasEnabledForMerchant,
+    useIsFeatureEnabledForMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let isNewAnalyticsEnable =
-    newAnalytics && useHasEnabledForMerchant(merchantSpecificConfig.newAnalytics)
+    newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
   let sidebar = [
     productionAccessComponent(quickStart, userHasAccess),
     default->home,

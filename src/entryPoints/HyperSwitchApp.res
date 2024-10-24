@@ -21,7 +21,7 @@ let make = () => {
 
   let {
     fetchMerchantSpecificConfig,
-    useHasEnabledForMerchant,
+    useIsFeatureEnabledForMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {fetchUserGroupACL, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -170,7 +170,7 @@ let make = () => {
                         | list{"new-analytics-payment"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.newAnalytics &&
-                            useHasEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
+                            useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
                             authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext key="NewAnalytics" index="NewAnalytics">
                               <NewAnalyticsContainer />

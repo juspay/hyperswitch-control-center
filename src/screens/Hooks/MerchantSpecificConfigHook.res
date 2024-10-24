@@ -6,7 +6,7 @@
  *
  *  @functions
  *  - fetchMerchantSpecificConfig : fetches the list of user group level access
- *  - useHasEnabledForMerchant: checks if the merchant has access
+ *  - useIsFeatureEnabledForMerchant: checks if the merchant has access
  *         @params
  *         - config : merchant config
  *
@@ -15,7 +15,7 @@
  */
 type useMerchantSpecificConfig = {
   fetchMerchantSpecificConfig: unit => promise<unit>,
-  useHasEnabledForMerchant: FeatureFlagUtils.config => bool,
+  useIsFeatureEnabledForMerchant: FeatureFlagUtils.config => bool,
   merchantSpecificConfig: FeatureFlagUtils.merchantSpecificConfig,
 }
 
@@ -49,11 +49,11 @@ let useMerchantSpecificConfig = () => {
       }
     }
   }
-  let useHasEnabledForMerchant = (config: FeatureFlagUtils.config) => {
+  let useIsFeatureEnabledForMerchant = (config: FeatureFlagUtils.config) => {
     config.orgIds->Array.length > 0 ||
     config.merchantIds->Array.length > 0 ||
     config.profileIds->Array.length > 0
   }
 
-  {fetchMerchantSpecificConfig, useHasEnabledForMerchant, merchantSpecificConfig}
+  {fetchMerchantSpecificConfig, useIsFeatureEnabledForMerchant, merchantSpecificConfig}
 }
