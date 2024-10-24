@@ -57,3 +57,54 @@ module Verify2FAModalComponent = {
     </div>
   }
 }
+
+module TwoFaWarningModal = {
+  @react.component
+  let make = (~expiredType, ~handleConfirmAction, ~handleOkAction) => {
+    open TwoFaTypes
+    open PopUpState
+    let showPopUp = PopUpState.useShowPopUp()
+
+    {
+      switch expiredType {
+      | TOTP_ATTEMPTS_EXPIRED =>
+        showPopUp({
+          popUpType: (Warning, WithIcon),
+          heading: "Maximum Attempts Reached",
+          description: React.string(
+            "You have 0 OTP attempts remaining. To continue, please use your recovery code or wait sometime before trying again.",
+          ),
+          handleCancel: {text: "OK", onClick: {_ => handleOkAction()}},
+          handleConfirm: {
+            text: "Use recovery code",
+            onClick: {_ => handleConfirmAction(expiredType)},
+          },
+        })
+      | RC_ATTEMPTS_EXPIRED =>
+        showPopUp({
+          popUpType: (Warning, WithIcon),
+          heading: "Maximum Attempts Reached",
+          description: React.string(
+            "You've reached the maximum number of attempts using your recovery code. To continue, please use your totp or wait sometime before trying again.",
+          ),
+          handleCancel: {text: "OK", onClick: {_ => handleOkAction()}},
+          handleConfirm: {text: "Use totp code", onClick: {_ => handleConfirmAction(expiredType)}},
+        })
+      | TWO_FA_EXPIRED =>
+        showPopUp({
+          popUpType: (Warning, WithIcon),
+          heading: "Maximum Attempts Reached",
+          description: React.string(
+            "You have reached the maximum limit for both TOTP and recovery code attempts. Please wait sometime before attempting to perform this action again",
+          ),
+          handleConfirm: {
+            text: "OK",
+            onClick: {_ => handleConfirmAction(expiredType)},
+          },
+        })
+      }
+    }
+
+    React.null
+  }
+}

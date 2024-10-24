@@ -1,7 +1,6 @@
 @react.component
 let make = () => {
   open APIUtils
-  open HSwitchProfileUtils
 
   let showToast = ToastState.useShowToast()
   let url = RescriptReactRouter.useUrl()
@@ -9,18 +8,22 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
 
-  let (checkStatusResponse, setCheckStatusResponse) = React.useState(_ =>
-    Dict.make()->typedValueForCheckStatus
+  let (checkTwoFaStatusResponse, setCheckTwoFaStatusResponse) = React.useState(_ =>
+    JSON.Encode.null->TwoFaUtils.jsonTocheckTwofaResponseType
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
   let checkTwoFaStatus = async () => {
     try {
-      open LogicUtils
+
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(~entityName=USERS, ~userType=#CHECK_TWO_FACTOR_AUTH_STATUS, ~methodType=Get)
-      let res = await fetchDetails(url)
-      setCheckStatusResponse(_ => res->getDictFromJsonObject->typedValueForCheckStatus)
+      let url = getURL(
+        ~entityName=USERS,
+        ~userType=#CHECK_TWO_FACTOR_AUTH_STATUS_V2,
+        ~methodType=Get,
+      )
+      let response = await fetchDetails(url)
+      setCheckTwoFaStatusResponse(_ => response->TwoFaUtils.jsonTocheckTwofaResponseType)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {
@@ -50,8 +53,8 @@ let make = () => {
       />
     </div>
     {switch twofactorAuthType->HSwitchProfileUtils.getTwoFaEnumFromString {
-    | ResetTotp => <ResetTotp checkStatusResponse />
-    | RegenerateRecoveryCode => <RegenerateRC checkStatusResponse />
+    | ResetTotp => <ResetTotp checkTwoFaStatusResponse />
+    | RegenerateRecoveryCode => <RegenerateRC checkTwoFaStatusResponse />
     }}
   </PageLoaderWrapper>
 }
