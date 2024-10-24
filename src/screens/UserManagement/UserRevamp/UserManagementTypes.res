@@ -16,7 +16,29 @@ type groupAccessType =
   | MerchantDetailsView
   | MerchantDetailsManage
   | OrganizationManage
+  | AccountRead
+  | AccountWrite
   | UnknownGroupAccess(string)
+
+type resourceAccessType =
+  | Payment
+  | Refund
+  | ApiKey
+  | Account
+  | Connector
+  | Routing
+  | Dispute
+  | Mandate
+  | Customer
+  | Analytics
+  | ThreeDsDecisionManager
+  | SurchargeDecisionManager
+  | User
+  | WebhookEvent
+  | Payout
+  | Report
+  | Recon
+  | UnknownResourceAccess(string)
 
 open CommonAuthTypes
 type groupAccessJsonType = {
