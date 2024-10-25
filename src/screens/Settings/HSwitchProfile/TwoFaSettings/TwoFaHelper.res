@@ -72,7 +72,7 @@ module TwoFaWarningModal = {
           popUpType: (Warning, WithIcon),
           heading: "Maximum Attempts Reached",
           description: React.string(
-            "You have 0 OTP attempts remaining. To continue, please use your recovery code or wait sometime before trying again.",
+            "You've reached the maximum number of TOTP attempts. To continue, please use your recovery code or wait sometime before trying again.",
           ),
           handleCancel: {text: "OK", onClick: {_ => handleOkAction()}},
           handleConfirm: {
@@ -85,7 +85,7 @@ module TwoFaWarningModal = {
           popUpType: (Warning, WithIcon),
           heading: "Maximum Attempts Reached",
           description: React.string(
-            "You've reached the maximum number of attempts using your recovery code. To continue, please use your totp or wait sometime before trying again.",
+            "You've reached the maximum number of recovery code attempts. To continue, please use your TOTP or wait a while before trying again.",
           ),
           handleCancel: {text: "OK", onClick: {_ => handleOkAction()}},
           handleConfirm: {text: "Use totp code", onClick: {_ => handleConfirmAction(expiredType)}},
@@ -95,7 +95,7 @@ module TwoFaWarningModal = {
           popUpType: (Warning, WithIcon),
           heading: "Maximum Attempts Reached",
           description: React.string(
-            "You have reached the maximum limit for both TOTP and recovery code attempts. Please wait sometime before attempting to perform this action again",
+            "You have exceeded the maximum number of TOTP and recovery code attempts. Please wait a while before trying again.",
           ),
           handleConfirm: {
             text: "OK",
