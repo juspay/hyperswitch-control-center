@@ -98,7 +98,7 @@ let useApiFetcher = () => {
           Fetch.RequestInit.make(
             ~method_,
             ~body?,
-            ~credentials=SameOrigin,
+            ~credentials=Omit,
             ~headers=getHeaders(~headers, ~uri, ~contentType, ~token, ~xFeatureRoute),
           ),
         )

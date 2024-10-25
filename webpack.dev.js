@@ -8,7 +8,13 @@ const appName = process.env.appName;
 const integ = process.env.integ;
 
 let port = 9000;
-let proxy = {};
+let proxy = {
+  "/api": {
+    target: "http://localhost:8080",
+    pathRewrite: { "^/api": "" },
+    changeOrigin: true,
+  },
+};
 
 let configMiddleware = (req, res, next) => {
   if (req.path.includes("/config/feature") && req.method == "GET") {
