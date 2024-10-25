@@ -8,10 +8,11 @@ let useUserInfo = () => {
   let fetchApi = AuthHooks.useApiFetcher()
   let {setUserInfoData, userInfo} = React.useContext(UserInfoProvider.defaultContext)
   let url = `${Window.env.apiBaseUrl}/user`
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let getUserInfo = async () => {
     try {
-      let res = await fetchApi(`${url}`, ~method_=Get)
+      let res = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute)
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
       setUserInfoData(userInfo)
@@ -106,6 +107,7 @@ let useProfileSwitch = () => {
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let showToast = ToastState.useShowToast()
   let {getUserInfo} = useUserInfo()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let {userInfo: userInfoDefault} = React.useContext(UserInfoProvider.defaultContext)
@@ -120,6 +122,7 @@ let useProfileSwitch = () => {
         let responseDict = await updateDetails(url, body, Post)
         setAuthStatus(LoggedIn(Auth(AuthUtils.getAuthInfo(responseDict))))
         let userInfoRes = await getUserInfo()
+        showToast(~message=`Your profile has been switched successfully.`, ~toastType=ToastSuccess)
         userInfoRes
       } else {
         userInfoDefault

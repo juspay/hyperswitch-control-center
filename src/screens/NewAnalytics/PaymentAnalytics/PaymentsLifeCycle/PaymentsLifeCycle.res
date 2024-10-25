@@ -63,15 +63,15 @@ let make = (
   }, (startTimeVal, endTimeVal))
   <div>
     <ModuleHeader title={entity.title} />
-    <PageLoaderWrapper
-      screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-      <Card>
+    <Card>
+      <PageLoaderWrapper
+        screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
         <div className="mr-3 my-10">
           <SankeyGraph
             entity={chartEntity} data={chartEntity.getObjects(~data, ~xKey="", ~yKey="")}
           />
         </div>
-      </Card>
-    </PageLoaderWrapper>
+      </PageLoaderWrapper>
+    </Card>
   </div>
 }

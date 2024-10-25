@@ -4,7 +4,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let getConnectorList = async _ => {
     try {
@@ -34,14 +34,6 @@ let make = () => {
     />
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-10">
-        <ProcessorCards
-          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
-            ~connectorType=ConnectorTypes.TaxProcessor,
-          )}
-          connectorsAvailableForIntegration=ConnectorUtils.taxProcessorList
-          urlPrefix="tax-processor/new"
-          connectorType=ConnectorTypes.TaxProcessor
-        />
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
@@ -50,7 +42,7 @@ let make = () => {
             resultsPerPage=20
             entity={TaxProcessorTableEntity.taxProcessorEntity(
               `tax-processor`,
-              ~permission=userPermissionJson.connectorsManage,
+              ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
             )}
             offset
             setOffset
@@ -58,6 +50,14 @@ let make = () => {
             collapseTableRow=false
           />
         </RenderIf>
+        <ProcessorCards
+          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
+            ~connectorType=ConnectorTypes.TaxProcessor,
+          )}
+          connectorsAvailableForIntegration=ConnectorUtils.taxProcessorList
+          urlPrefix="tax-processor/new"
+          connectorType=ConnectorTypes.TaxProcessor
+        />
       </div>
     </PageLoaderWrapper>
   </div>

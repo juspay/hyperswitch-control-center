@@ -13,7 +13,7 @@ module TableModule = {
       order: Table.INC,
     }
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
-    let visibleColumns = visibleColumns->Array.concat([selectedTab->getDimentionType])
+    let visibleColumns = visibleColumns->Array.concat([selectedTab->getColumn])
     let tableData = getTableData(data)
 
     <div className>
@@ -137,7 +137,7 @@ let make = (
               entity={chartEntity}
               object={chartEntity.getObjects(
                 ~data=paymentsDistribution,
-                ~xKey=(#payment_success_rate: metrics :> string),
+                ~xKey=Payments_Success_Rate_Distribution->getStringFromVariant,
                 ~yKey=groupBy.value,
               )}
               className="mr-3"

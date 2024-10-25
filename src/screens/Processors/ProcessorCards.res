@@ -23,11 +23,11 @@ module RequestConnector = {
 module CantFindProcessor = {
   @react.component
   let make = (~showRequestConnectorBtn, ~setShowModal) => {
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     <RenderIf condition={showRequestConnectorBtn}>
       <ACLButton
-        access={userPermissionJson.merchantDetailsManage}
+        authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
         text="Request a Processor"
         buttonType={Transparent}
         buttonSize={Small}
@@ -57,7 +57,7 @@ let make = (
 ) => {
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let unConfiguredConnectors =
@@ -121,7 +121,7 @@ let make = (
           showDummyConnectorButton &&
           urlPrefix == "connectors/new"}>
           <ACLButton
-            access={userPermissionJson.connectorsManage}
+            authorization={userHasAccess(~groupAccess=ConnectorsManage)}
             leftIcon={CustomIcon(
               <Icon
                 name="plus"
@@ -150,7 +150,7 @@ let make = (
             let size = "w-14 h-14 rounded-sm"
 
             <ACLDiv
-              permission={userPermissionJson.connectorsManage}
+              authorization={userHasAccess(~groupAccess=ConnectorsManage)}
               onClick={_ => ()}
               key={i->string_of_int}
               className="border p-6 gap-4 bg-white rounded flex flex-col justify-between"
@@ -165,7 +165,7 @@ let make = (
                 {connectorInfo.description->React.string}
               </p>
               <ACLButton
-                access={userPermissionJson.connectorsManage}
+                authorization={userHasAccess(~groupAccess=ConnectorsManage)}
                 text="Connect"
                 onClick={_ => handleClick(connectorName)}
                 buttonType={Transparent}

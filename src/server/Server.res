@@ -12,6 +12,10 @@ open NodeJs
 external configHandler: (Http.request, Http.response, bool, string, string) => unit =
   "configHandler"
 
+@module("./config.mjs")
+external merchantConfigHandler: (Http.request, Http.response, bool, string, string) => unit =
+  "merchantConfigHandler"
+
 @module("./health.mjs")
 external healthHandler: (Http.request, Http.response) => unit = "healthHandler"
 
@@ -69,7 +73,13 @@ let serverHandler: Http.serverHandler = (request, response) => {
     ->String.replaceRegExp(%re("/^\/\//"), "/")
     ->String.replaceRegExp(%re("/^\/v4\//"), "/")
 
-  if path->String.includes("/config/merchant-config") && request.method === "GET" {
+  if path->String.includes("/config/merchant") && request.method === "POST" {
+    let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/config.toml")
+    Promise.make((resolve, _reject) => {
+      merchantConfigHandler(request, response, true, domain, path)
+      ()->(resolve(_))
+    })
+  } else if path->String.includes("/config/feature") && request.method === "GET" {
     let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/config.toml")
     Promise.make((resolve, _reject) => {
       configHandler(request, response, true, domain, path)

@@ -6,6 +6,7 @@ type filterTypes = {
   payment_method_type: array<string>,
   status: array<string>,
   connector_label: array<string>,
+  card_network: array<string>,
 }
 
 type filter = [
@@ -16,6 +17,7 @@ type filter = [
   | #status
   | #payment_method_type
   | #connector_label
+  | #card_network
   | #unknown
 ]
 
@@ -28,6 +30,7 @@ let getFilterTypeFromString = filterType => {
   | "authentication_type" => #authentication_type
   | "payment_method_type" => #payment_method_type
   | "connector_label" => #connector_label
+  | "card_network" => #card_network
   | _ => #unknown
   }
 }
@@ -56,7 +59,7 @@ module GenerateSampleDataButton = {
     let showToast = ToastState.useShowToast()
     let showPopUp = PopUpState.useShowPopUp()
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
     let generateSampleData = async () => {
       mixpanelEvent(~eventName="generate_sample_data")
@@ -116,7 +119,7 @@ module GenerateSampleDataButton = {
     <RenderIf condition={sampleData && !previewOnly}>
       <div className="flex items-start">
         <ACLButton
-          access={userPermissionJson.operationsManage}
+          authorization={userHasAccess(~groupAccess=OperationsManage)}
           buttonType={Secondary}
           buttonSize={XSmall}
           text="Generate Sample Data"
@@ -126,7 +129,7 @@ module GenerateSampleDataButton = {
         />
         <ACLDiv
           height="h-fit"
-          permission={userPermissionJson.operationsManage}
+          authorization={userHasAccess(~groupAccess=OperationsManage)}
           className="bg-jp-gray-button_gray text-jp-gray-900 text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  focus:outline-none items-center border border-border_gray cursor-pointer p-2.5 overflow-hidden text-jp-gray-950 hover:text-black
           border flex items-center justify-center rounded-r-md"
           onClick={ev => rightIconClick(ev)}>
@@ -262,6 +265,7 @@ let itemToObjMapper = dict => {
     payment_method: dict->getDictfromDict("payment_method")->Dict.keysToArray,
     payment_method_type: getAllPaymentMethodType(dict),
     connector_label: [],
+    card_network: dict->getArrayFromDict("card_network", [])->getStrArrayFromJsonArray,
   }
 }
 
@@ -270,7 +274,12 @@ let initialFilters = (json, filtervalues) => {
 
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
 
-  let filterDict = json->getDictFromJsonObject
+  // TODO: Remove the card-network delete once card-network issue is fixed
+  let filterDict =
+    json
+    ->getDictFromJsonObject
+    ->DictionaryUtils.deleteKeys(["card_network"])
+
   let filterArr = filterDict->itemToObjMapper
   let arr = filterDict->Dict.keysToArray
 
@@ -291,6 +300,7 @@ let initialFilters = (json, filtervalues) => {
         ? getConditionalFilter(key, filterDict, filtervalues)
         : filterArr.payment_method_type
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
+    | #card_network => filterArr.card_network
     | _ => []
     }
 

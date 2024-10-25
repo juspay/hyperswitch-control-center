@@ -2,14 +2,17 @@ open HistoryEntity
 module HistoryTable = {
   @react.component
   let make = (~records, ~activeRoutingIds: array<string>) => {
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let (offset, setOffset) = React.useState(_ => 0)
 
     <LoadedTable
       title="History"
       hideTitle=true
       actualData=records
-      entity={historyEntity(activeRoutingIds, ~permission=userPermissionJson.workflowsManage)}
+      entity={historyEntity(
+        activeRoutingIds,
+        ~authorization=userHasAccess(~groupAccess=WorkflowsManage),
+      )}
       resultsPerPage=10
       showSerialNumber=true
       totalResults={records->Array.length}

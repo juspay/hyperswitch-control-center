@@ -228,6 +228,21 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | DISPUTES_AGGREGATE =>
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(queryParams) =>
+          switch transactionEntity {
+          | #Profile => `disputes/profile/aggregate?${queryParams}`
+          | #Merchant
+          | _ =>
+            `disputes/aggregate?${queryParams}`
+          }
+        | None => `disputes/aggregate`
+        }
+      | _ => `disputes/aggregate`
+      }
     | PAYOUTS =>
       switch methodType {
       | Get =>
@@ -346,33 +361,6 @@ let useGetURL = () => {
         switch queryParamerters {
         | Some(params) => `analytics/v1/profile/api_event_logs?${params}`
         | None => ``
-        }
-      | _ => ""
-      }
-    | NEW_ANALYTICS =>
-      switch methodType {
-      | Get =>
-        switch id {
-        // Need to write seperate enum for info api
-        | Some(domain) =>
-          switch analyticsEntity {
-          | #Organization => `analytics/v2/org/${domain}/info`
-          | #Merchant => `analytics/v2/merchant/${domain}/info`
-          | #Profile => `analytics/v2/profile/${domain}/info`
-          }
-
-        | _ => ""
-        }
-      | Post =>
-        switch id {
-        | Some(domain) =>
-          switch analyticsEntity {
-          | #Organization => `analytics/v2/org/metrics/${domain}`
-          | #Merchant => `analytics/v2/merchant/metrics/${domain}`
-          | #Profile => `analytics/v2/profile/metrics/${domain}`
-          }
-
-        | _ => ""
         }
       | _ => ""
       }
@@ -612,17 +600,18 @@ let useGetURL = () => {
       | #MERCHANT_DATA => `${userUrl}/data`
       | #USER_INFO => userUrl
 
-      // USER PERMISSIONS
-      | #GET_PERMISSIONS =>
+      // USER GROUP ACCESS
+      | #GET_GROUP_ACL =>
         switch queryParamerters {
         | Some(params) => `${userUrl}/role?${params}`
         | None => `${userUrl}/role`
         }
       | #ROLE_INFO => `${userUrl}/module/list`
-      | #PERMISSION_INFO =>
+
+      | #GROUP_ACCESS_INFO =>
         switch queryParamerters {
-        | Some(params) => `${userUrl}/${(userType :> string)->String.toLowerCase}?${params}`
-        | None => `${userUrl}/${(userType :> string)->String.toLowerCase}`
+        | Some(params) => `${userUrl}/permission_info?${params}`
+        | None => `${userUrl}/permission_info`
         }
 
       // USER ACTIONS
@@ -672,6 +661,7 @@ let useGetURL = () => {
 
       // SPT FLOWS (Totp)
       | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
+      | #CHECK_TWO_FACTOR_AUTH_STATUS_V2 => `${userUrl}/2fa/v2`
       | #VERIFY_TOTP => `${userUrl}/2fa/totp/verify`
       | #VERIFY_RECOVERY_CODE => `${userUrl}/2fa/recovery_code/verify`
       | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
@@ -722,13 +712,13 @@ let useHandleLogout = () => {
   let {setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
   let fetchApi = AuthHooks.useApiFetcher()
-
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   () => {
     try {
       let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT)
       open Promise
       let _ =
-        fetchApi(logoutUrl, ~method_=Post)
+        fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute)
         ->then(Fetch.Response.json)
         ->then(json => {
           json->resolve
@@ -883,10 +873,11 @@ let useGetMethod = (~showErrorToast=true) => {
         },
       },
     })
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async url => {
     try {
-      let res = await fetchApi(url, ~method_=Get)
+      let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute)
       await responseHandler(
         ~res,
         ~showErrorToast,
@@ -927,6 +918,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         },
       },
     })
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (
     url,
@@ -944,6 +936,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~bodyFormData,
         ~headers,
         ~contentType,
+        ~xFeatureRoute,
       )
       await responseHandler(
         ~res,

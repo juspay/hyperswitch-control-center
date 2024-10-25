@@ -326,8 +326,6 @@ let make = () => {
             <ConnectorPreview.ConnectorSummaryGrid
               connectorInfo
               connector=connectorName
-              setScreenState={_ => ()}
-              isPayoutFlow=false
               getConnectorDetails={Some(getConnectorDetails)}
               setCurrentStep={_ => ()}
             />

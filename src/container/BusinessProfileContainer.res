@@ -27,11 +27,11 @@ let make = () => {
     {switch url.path->urlPath {
     // Business Profile Modules
     | list{"business-details"} =>
-      <AccessControl isEnabled=featureFlagDetails.default permission={Access}>
+      <AccessControl isEnabled=featureFlagDetails.default authorization={Access}>
         <BusinessDetails />
       </AccessControl>
     | list{"business-profiles"} =>
-      <AccessControl permission=Access>
+      <AccessControl authorization=Access>
         <BusinessProfile />
       </AccessControl>
     | list{"payment-settings", ...remainingPath} =>

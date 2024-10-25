@@ -18,7 +18,7 @@ let make = () => {
   | MERCHANT_SELECT
   | ACCEPT_INVITE =>
     <ListInvitationScreen />
-  | TOTP => <TotpSetup />
+  | TOTP => <TwoFaLanding />
   | FORCE_SET_PASSWORD
   | RESET_PASSWORD =>
     <ResetPassword flowType />

@@ -47,6 +47,7 @@ module TableModule = {
 
 module PaymentsProcessedHeader = {
   open NewAnalyticsTypes
+  open NewAnalyticsUtils
   open NewPaymentAnalyticsUtils
   @react.component
   let make = (
@@ -58,11 +59,15 @@ module PaymentsProcessedHeader = {
     ~granularity,
     ~setGranularity,
   ) => {
-    let primaryValue = getMetaDataValue(~data, ~index=0, ~key=selectedMetric.value->getMetaDataKey)
+    let primaryValue = getMetaDataValue(
+      ~data,
+      ~index=0,
+      ~key=selectedMetric.value->getMetaDataMapper,
+    )
     let secondaryValue = getMetaDataValue(
       ~data,
       ~index=1,
-      ~key=selectedMetric.value->getMetaDataKey,
+      ~key=selectedMetric.value->getMetaDataMapper,
     )
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
@@ -81,7 +86,9 @@ module PaymentsProcessedHeader = {
 
     <div className="w-full px-7 py-8 grid grid-cols-1">
       <div className="flex gap-2 items-center">
-        <div className="text-3xl font-600"> {primaryValue->Float.toString->React.string} </div>
+        <div className="text-3xl font-600">
+          {primaryValue->valueFormatter(Amount)->React.string}
+        </div>
         <StatisticsCard value direction />
       </div>
       // will enable it in future
@@ -125,7 +132,7 @@ let make = (
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=ANALYTICS_PAYMENTS,
+        ~entityName=ANALYTICS_PAYMENTS_V2,
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
@@ -244,7 +251,7 @@ let make = (
               data={chartEntity.getObjects(
                 ~data=paymentsProcessedData,
                 ~xKey=selectedMetric.value,
-                ~yKey=(#time_bucket: metrics :> string),
+                ~yKey=Time_Bucket->getStringFromVariant,
               )}
               className="mr-3"
             />

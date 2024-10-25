@@ -2,13 +2,24 @@ open NewPaymentAnalyticsUtils
 open SuccessfulPaymentsDistributionTypes
 open LogicUtils
 
-let getDimentionType = string => {
+let getStringFromVariant = value => {
+  switch value {
+  | Payments_Success_Rate_Distribution => "payments_success_rate_distribution"
+  | Payments_Success_Rate_Distribution_Without_Smart_Retries => "payments_success_rate_distribution_without_smart_retries"
+  | Connector => "connector"
+  | Payment_Method => "payment_method"
+  | Payment_Method_Type => "payment_method_type"
+  | Authentication_Type => "authentication_type"
+  }
+}
+
+let getColumn = string => {
   switch string {
-  | "connector" => #connector
-  | "payment_method" => #payment_method
-  | "payment_method_type" => #payment_method_type
-  | "card_network" => #card_network
-  | "authentication_type" | _ => #authentication_type
+  | "connector" => Connector
+  | "payment_method" => Payment_Method
+  | "payment_method_type" => Payment_Method_Type
+  | "authentication_type" => Authentication_Type
+  | _ => Connector
   }
 }
 
@@ -18,10 +29,7 @@ let successfulPaymentsDistributionMapper = (
   ~yKey: string,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
-  let categories =
-    data
-    ->getArrayFromJson([])
-    ->getCategories(yKey)
+  let categories = [data]->JSON.Encode.array->getCategories(0, yKey)
 
   let barGraphData = getBarGraphObj(
     ~array=data->getArrayFromJson([]),
@@ -32,17 +40,27 @@ let successfulPaymentsDistributionMapper = (
   let title = {
     text: "",
   }
+
   {categories, data: [barGraphData], title}
 }
 
 open NewAnalyticsTypes
-let visibleColumns: array<metrics> = [#payment_success_rate]
+let visibleColumns = [Payments_Success_Rate_Distribution]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => successfulPaymentsDistributionObject = dict => {
   {
-    payments_success_rate: dict->getInt((#payment_success_rate: metrics :> string), 0),
-    connector: dict->getString((#connector: metrics :> string), ""),
-    payment_method: dict->getString((#payment_method: metrics :> string), ""),
+    payments_success_rate_distribution: dict->getFloat(
+      Payments_Success_Rate_Distribution->getStringFromVariant,
+      0.0,
+    ),
+    payments_success_rate_distribution_without_smart_retries: dict->getFloat(
+      Payments_Success_Rate_Distribution_Without_Smart_Retries->getStringFromVariant,
+      0.0,
+    ),
+    connector: dict->getString(Connector->getStringFromVariant, ""),
+    payment_method: dict->getString(Payment_Method->getStringFromVariant, ""),
+    payment_method_type: dict->getString(Payment_Method_Type->getStringFromVariant, ""),
+    authentication_type: dict->getString(Authentication_Type->getStringFromVariant, ""),
   }
 }
 
@@ -54,67 +72,85 @@ let getObjects: JSON.t => array<successfulPaymentsDistributionObject> = json => 
   })
 }
 
-let getHeading = (colType: metrics) => {
+let getHeading = colType => {
   switch colType {
-  | #payment_success_rate =>
+  | Payments_Success_Rate_Distribution =>
     Table.makeHeaderInfo(
-      ~key=(#payment_success_rate: metrics :> string),
+      ~key=Payments_Success_Rate_Distribution->getStringFromVariant,
       ~title="Payments Success Rate",
       ~dataType=TextType,
     )
-  | #connector =>
+  | Payments_Success_Rate_Distribution_Without_Smart_Retries =>
     Table.makeHeaderInfo(
-      ~key=(#connector: metrics :> string),
+      ~key=Payments_Success_Rate_Distribution_Without_Smart_Retries->getStringFromVariant,
+      ~title="Payments Success Rate",
+      ~dataType=TextType,
+    )
+  | Connector =>
+    Table.makeHeaderInfo(
+      ~key=Connector->getStringFromVariant,
       ~title="Connector",
       ~dataType=TextType,
     )
-  | #payment_method | _ =>
+  | Payment_Method =>
     Table.makeHeaderInfo(
-      ~key=(#payment_method: metrics :> string),
+      ~key=Payment_Method->getStringFromVariant,
       ~title="Payment Method",
+      ~dataType=TextType,
+    )
+  | Payment_Method_Type =>
+    Table.makeHeaderInfo(
+      ~key=Payment_Method_Type->getStringFromVariant,
+      ~title="Payment Method Type",
+      ~dataType=TextType,
+    )
+  | Authentication_Type =>
+    Table.makeHeaderInfo(
+      ~key=Authentication_Type->getStringFromVariant,
+      ~title="Authentication Type",
       ~dataType=TextType,
     )
   }
 }
 
-let getCell = (obj, colType: metrics): Table.cell => {
+let getCell = (obj, colType): Table.cell => {
+  open NewAnalyticsUtils
   switch colType {
-  | #payment_success_rate => Text(obj.payments_success_rate->Int.toString)
-  | #connector => Text(obj.connector)
-  | #payment_method | _ => Text(obj.payment_method)
+  | Payments_Success_Rate_Distribution =>
+    Text(obj.payments_success_rate_distribution->valueFormatter(Amount))
+  | Payments_Success_Rate_Distribution_Without_Smart_Retries =>
+    Text(obj.payments_success_rate_distribution_without_smart_retries->valueFormatter(Amount))
+  | Connector => Text(obj.connector)
+  | Payment_Method => Text(obj.payment_method)
+  | Payment_Method_Type => Text(obj.payment_method_type)
+  | Authentication_Type => Text(obj.authentication_type)
   }
 }
 
-let getTableData = json =>
-  json
-  ->getArrayFromJson([])
-  ->getValueFromArray(0, []->JSON.Encode.array)
-  ->getDictFromJsonObject
-  ->getArrayFromDict("queryData", [])
-  ->JSON.Encode.array
-  ->getArrayDataFromJson(tableItemToObjMapper)
-  ->Array.map(Nullable.make)
+let getTableData = json => {
+  json->getArrayDataFromJson(tableItemToObjMapper)->Array.map(Nullable.make)
+}
 
 let tabs = [
   {
     label: "Connector",
-    value: (#connector: dimension :> string),
+    value: Connector->getStringFromVariant,
   },
   {
     label: "Payment Method",
-    value: (#payment_method: dimension :> string),
+    value: Payment_Method->getStringFromVariant,
   },
   {
     label: "Payment Method Type",
-    value: (#payment_method_type: dimension :> string),
+    value: Payment_Method_Type->getStringFromVariant,
   },
   {
     label: "Authentication Type",
-    value: (#authentication_type: dimension :> string),
+    value: Authentication_Type->getStringFromVariant,
   },
 ]
 
 let defaulGroupBy = {
   label: "Connector",
-  value: (#connector: dimension :> string),
+  value: Connector->getStringFromVariant,
 }
