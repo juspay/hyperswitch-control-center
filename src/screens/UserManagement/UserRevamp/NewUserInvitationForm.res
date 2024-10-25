@@ -44,7 +44,6 @@ module RoleAccessOverview = {
       ->getArrayDataFromJson(UserUtils.itemToObjMapperFordetailedRoleInfo)
 
     let roleInfo = Recoil.useRecoilValueFromAtom(HyperswitchAtom.moduleListRecoil)
-    Js.log(roleInfo)
     let (modulesWithAccess, moduleWithoutAccess) = UserUtils.modulesWithUserAccess(
       roleInfo,
       detailedUserAccess,

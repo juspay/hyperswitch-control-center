@@ -79,9 +79,7 @@ type parentGroupType =
   | UnknownGroup(string)
 
 @unboxed
-type groupControlType = View | Manage
-
-type groupControlType2 = Read | Write
+type groupScopeType = Read | Write
 
 type allSelectionType = [#All_Merchants | #All_Profiles]
 

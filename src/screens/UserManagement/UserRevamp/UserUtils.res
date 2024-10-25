@@ -81,16 +81,16 @@ let itemToObjMapperFordetailedRoleInfo: Dict.t<
 
 let modulesWithUserAccess = (
   roleInfo: array<UserManagementTypes.userModuleType>,
-  userAccessGroup2: array<UserManagementTypes.detailedUserModuleType>,
+  userAccessGroup: array<UserManagementTypes.detailedUserModuleType>,
 ) => {
   open UserManagementTypes
   let modulesWithAccess = []
   let modulesWithoutAccess = []
   //array of groupnames accessible to the specific user role
-  let accessGroupNames = userAccessGroup2->Array.map(item => item.parentGroup)
+  let accessGroupNames = userAccessGroup->Array.map(item => item.parentGroup)
   roleInfo->Array.forEach(item => {
     if accessGroupNames->Array.includes(item.parentGroup) {
-      let accessGroup = userAccessGroup2->Array.find(group => group.parentGroup == item.parentGroup)
+      let accessGroup = userAccessGroup->Array.find(group => group.parentGroup == item.parentGroup)
       switch accessGroup {
       | Some(val) => {
           let manipulatedObject = {
