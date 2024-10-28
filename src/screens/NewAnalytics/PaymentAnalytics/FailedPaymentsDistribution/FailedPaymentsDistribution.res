@@ -12,14 +12,17 @@ module TableModule = {
     let (offset, setOffset) = React.useState(_ => 0)
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let isSmartRetryEnabled =
-      filterValueJson->getString("is_smart_retry_enabled", "true")->getBoolFromString(true)
+      filterValueJson
+      ->getString("is_smart_retry_enabled", "true")
+      ->getBoolFromString(true)
+      ->getSmartRetryMetricType
     let defaultSort: Table.sortedObject = {
       key: "",
       order: Table.INC,
     }
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
-    let defaultCol = isSmartRetryEnbldForFailedPmtDist(isSmartRetryEnabled->getSmartRetryMetricType)
+    let defaultCol = isSmartRetryEnbldForFailedPmtDist(isSmartRetryEnabled)
     let visibleColumns = [defaultCol]->Array.concat([selectedTab->getColumn])
     let tableData = getTableData(data)
 

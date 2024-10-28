@@ -192,19 +192,29 @@ let defaulGranularity = {
 let getKeyForModule = (key, ~isSmartRetryEnabled) => {
   let field = key->getVariantValueFromString
   switch (field, isSmartRetryEnabled) {
-  | (Payment_Processed_Amount, true) => Payment_Processed_Amount
-  | (Payment_Processed_Amount, false) => Payment_Processed_Amount_Without_Smart_Retries
-  | (Payment_Processed_Count, true) => Payment_Processed_Count
-  | (Payment_Processed_Count, false) | _ => Payment_Processed_Count_Without_Smart_Retries
+  | (Payment_Processed_Amount, Smart_Retry) => Payment_Processed_Amount
+  | (Payment_Processed_Count, Smart_Retry) => Payment_Processed_Count
+  | (Payment_Processed_Amount, Default) => Payment_Processed_Amount_Without_Smart_Retries
+  | (Payment_Processed_Count, Default) | _ => Payment_Processed_Count_Without_Smart_Retries
   }->getStringFromVariant
 }
 
 let getMetaDataMapper = (key, ~isSmartRetryEnabled) => {
   let field = key->getVariantValueFromString
   switch (field, isSmartRetryEnabled) {
-  | (Payment_Processed_Amount, true) => Total_Payment_Processed_Amount
-  | (Payment_Processed_Amount, false) => Total_Payment_Processed_Amount_Without_Smart_Retries
-  | (Payment_Processed_Count, true) => Total_Payment_Processed_Count
-  | (Payment_Processed_Count, false) | _ => Total_Payment_Processed_Count_Without_Smart_Retriess
+  | (Payment_Processed_Amount, Smart_Retry) => Total_Payment_Processed_Amount
+  | (Payment_Processed_Count, Smart_Retry) => Total_Payment_Processed_Count
+  | (Payment_Processed_Amount, Default) => Total_Payment_Processed_Amount_Without_Smart_Retries
+  | (Payment_Processed_Count, Default) | _ => Total_Payment_Processed_Count_Without_Smart_Retriess
   }->getStringFromVariant
+}
+
+let isSmartRetryEnbldForPmtProcessed = isEnabled => {
+  switch isEnabled {
+  | Smart_Retry => [Payment_Processed_Amount, Payment_Processed_Count]
+  | Default => [
+      Payment_Processed_Amount_Without_Smart_Retries,
+      Payment_Processed_Count_Without_Smart_Retries,
+    ]
+  }
 }
