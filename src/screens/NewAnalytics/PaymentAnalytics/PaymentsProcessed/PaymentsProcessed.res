@@ -3,9 +3,10 @@ open NewAnalyticsHelper
 open LineGraphTypes
 open NewPaymentAnalyticsEntity
 open PaymentsProcessedUtils
-
+open NewPaymentAnalyticsUtils
 module TableModule = {
   open LogicUtils
+
   @react.component
   let make = (~data, ~className="") => {
     let (offset, setOffset) = React.useState(_ => 0)
@@ -14,11 +15,20 @@ module TableModule = {
       order: Table.INC,
     }
     let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
-
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let paymentsProcessed = switch data->getArrayFromJson([])->Array.get(0) {
     | Some(val) => val->getArrayDataFromJson(tableItemToObjMapper)
     | _ => []
     }->Array.map(Nullable.make)
+
+    let isSmartRetryEnabled =
+      filterValueJson
+      ->getString("is_smart_retry_enabled", "true")
+      ->getBoolFromString(true)
+      ->getSmartRetryMetricType
+
+    let defaultCols = isSmartRetryEnabled->isSmartRetryEnbldForPmtProcessed
+    let visibleColumns = defaultCols->Array.concat(visibleColumns)
 
     <div className>
       <LoadedTable
@@ -48,7 +58,7 @@ module TableModule = {
 module PaymentsProcessedHeader = {
   open NewAnalyticsTypes
   open NewAnalyticsUtils
-  open NewPaymentAnalyticsUtils
+  open LogicUtils
   @react.component
   let make = (
     ~data: JSON.t,
@@ -59,15 +69,21 @@ module PaymentsProcessedHeader = {
     ~granularity,
     ~setGranularity,
   ) => {
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let isSmartRetryEnabled =
+      filterValueJson
+      ->getString("is_smart_retry_enabled", "true")
+      ->getBoolFromString(true)
+      ->getSmartRetryMetricType
     let primaryValue = getMetaDataValue(
       ~data,
       ~index=0,
-      ~key=selectedMetric.value->getMetaDataMapper,
+      ~key=selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled),
     )
     let secondaryValue = getMetaDataValue(
       ~data,
       ~index=1,
-      ~key=selectedMetric.value->getMetaDataMapper,
+      ~key=selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled),
     )
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
@@ -127,6 +143,11 @@ let make = (
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let isSmartRetryEnabled =
+    filterValueJson
+    ->getString("is_smart_retry_enabled", "true")
+    ->getBoolFromString(true)
+    ->getSmartRetryMetricType
 
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -228,6 +249,19 @@ let make = (
     None
   }, [startTimeVal, endTimeVal])
 
+  let mockDelay = async () => {
+    if paymentsProcessedData != []->JSON.Encode.array {
+      setScreenState(_ => Loading)
+      await HyperSwitchUtils.delay(300)
+      setScreenState(_ => Success)
+    }
+  }
+
+  React.useEffect(() => {
+    mockDelay()->ignore
+    None
+  }, [isSmartRetryEnabled])
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -250,7 +284,7 @@ let make = (
               entity={chartEntity}
               data={chartEntity.getObjects(
                 ~data=paymentsProcessedData,
-                ~xKey=selectedMetric.value,
+                ~xKey=selectedMetric.value->getKeyForModule(~isSmartRetryEnabled),
                 ~yKey=Time_Bucket->getStringFromVariant,
               )}
               className="mr-3"

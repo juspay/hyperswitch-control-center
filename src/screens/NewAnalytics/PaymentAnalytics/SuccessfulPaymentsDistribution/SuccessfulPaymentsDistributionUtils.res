@@ -45,7 +45,6 @@ let successfulPaymentsDistributionMapper = (
 }
 
 open NewAnalyticsTypes
-let visibleColumns = [Payments_Success_Rate_Distribution]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => successfulPaymentsDistributionObject = dict => {
   {
@@ -153,4 +152,26 @@ let tabs = [
 let defaulGroupBy = {
   label: "Connector",
   value: Connector->getStringFromVariant,
+}
+
+let getKeyForModule = (field, ~isSmartRetryEnabled) => {
+  switch (field, isSmartRetryEnabled) {
+  | (Payments_Success_Rate_Distribution, Smart_Retry) => Payments_Success_Rate_Distribution
+  | (Payments_Success_Rate_Distribution, Default) | _ =>
+    Payments_Success_Rate_Distribution_Without_Smart_Retries
+  }->getStringFromVariant
+}
+
+let isSmartRetryEnbldForSuccessPmtDist = isEnabled => {
+  switch isEnabled {
+  | Smart_Retry => Payments_Success_Rate_Distribution
+  | Default => Payments_Success_Rate_Distribution_Without_Smart_Retries
+  }
+}
+
+let getMetricsForSmartRetry = isEnabled => {
+  switch isEnabled {
+  | Smart_Retry => [#payments_distribution]
+  | Default => [#sessionized_payments_distribution]
+  }
 }
