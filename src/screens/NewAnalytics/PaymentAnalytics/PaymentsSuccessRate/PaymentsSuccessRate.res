@@ -31,7 +31,6 @@ module PaymentsSuccessRateHeader = {
     )
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
-
     <div className="w-full px-7 py-8 grid grid-cols-2">
       // will enable it in future
       <div className="flex gap-2 items-center">
