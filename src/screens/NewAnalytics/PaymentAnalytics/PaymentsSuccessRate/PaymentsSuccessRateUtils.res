@@ -15,6 +15,19 @@ let getStringFromVariant = value => {
   }
 }
 
+let getVariantValueFromString = value => {
+  switch value {
+  | "successful_payments" => Successful_Payments
+  | "successful_payments_without_smart_retries" => Successful_Payments_Without_Smart_Retries
+  | "total_payments" => Total_Payments
+  | "payments_success_rate" => Payments_Success_Rate
+  | "payments_success_rate_without_smart_retries" => Payments_Success_Rate_Without_Smart_Retries
+  | "total_success_rate" => Total_Success_Rate
+  | "total_success_rate_without_smart_retries" => Total_Success_Rate_Without_Smart_Retries
+  | "time_bucket" | _ => Time_Bucket
+  }
+}
+
 let paymentsSuccessRateMapper = (
   ~data: JSON.t,
   ~xKey: string,
@@ -55,10 +68,17 @@ let defaulGranularity = {
   value: (#G_ONEDAY: granularity :> string),
 }
 
-let getMetaDataMapper = key => {
-  switch key {
-  | "payments_success_rate" => "total_success_rate"
-  | "payments_success_rate_without_smart_retries" => "total_success_rate_without_smart_retries"
-  | _ => ""
-  }
+let getKeyForModule = (field, ~isSmartRetryEnabled) => {
+  switch (field, isSmartRetryEnabled) {
+  | (Payments_Success_Rate, Smart_Retry) => Payments_Success_Rate
+  | (Payments_Success_Rate, Default) | _ => Payments_Success_Rate_Without_Smart_Retries
+  }->getStringFromVariant
+}
+
+let getMetaDataMapper = (key, ~isSmartRetryEnabled) => {
+  let field = key->getVariantValueFromString
+  switch (field, isSmartRetryEnabled) {
+  | (Payments_Success_Rate, Smart_Retry) => Total_Success_Rate
+  | (Payments_Success_Rate, Default) | _ => Total_Success_Rate_Without_Smart_Retries
+  }->getStringFromVariant
 }
