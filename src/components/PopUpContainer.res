@@ -50,7 +50,10 @@ let make = (~children) => {
       | None => (None, None)
       }
 
-      let showCloseIcon = popUp.showCloseIcon
+      let showCloseIcon = switch (popUp.handleCancel, popUp.showCloseIcon) {
+      | (Some(_), Some(false)) => Some(false)
+      | (_, _) => None
+      }
 
       let (popUpTypeActual, showIcon) = popUpType
       let showIcon = switch showIcon {
