@@ -131,6 +131,7 @@ type paymentMethodTypes =
   | Debit
   | GooglePay
   | ApplePay
+  | SamsungPay
   | PayPal
   | BankDebit
   | OpenBankingPIS

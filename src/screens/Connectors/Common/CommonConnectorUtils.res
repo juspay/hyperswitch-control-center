@@ -5,6 +5,7 @@ let inputTypeMapperr = ipType => {
   | "Toggle" => Toggle
   | "Select" => Select
   | "MultiSelect" => MultiSelect
+  | "Radio" => Radio
   | _ => Text
   }
 }
