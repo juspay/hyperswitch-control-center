@@ -45,10 +45,12 @@ let make = (~children) => {
 
       let (buttonText, confirmButtonIcon) = (popUp.handleConfirm.text, popUp.handleConfirm.icon)
 
-      let (cancelButtonText, showCloseIcon, cancelButtonIcon) = switch popUp.handleCancel {
-      | Some(obj) => (Some(obj.text), Some(true), obj.icon)
-      | None => (None, None, None)
+      let (cancelButtonText, cancelButtonIcon) = switch popUp.handleCancel {
+      | Some(obj) => (Some(obj.text), obj.icon)
+      | None => (None, None)
       }
+
+      let showCloseIcon = popUp.showCloseIcon
 
       let (popUpTypeActual, showIcon) = popUpType
       let showIcon = switch showIcon {
