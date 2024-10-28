@@ -1,3 +1,9 @@
+type config = {
+  orgIds: array<string>,
+  merchantIds: array<string>,
+  profileIds: array<string>,
+}
+type merchantSpecificConfig = {newAnalytics: config}
 type featureFlag = {
   default: bool,
   testLiveToggle: bool,
@@ -81,4 +87,21 @@ let featureFlagType = (featureFlags: JSON.t) => {
     xFeatureRoute: dict->getBool("x_feature_route", false),
   }
   typedFeatureFlag
+}
+
+let configMapper = dict => {
+  open LogicUtils
+  {
+    orgIds: dict->getStrArrayFromDict("org_ids", []),
+    merchantIds: dict->getStrArrayFromDict("merchant_ids", []),
+    profileIds: dict->getStrArrayFromDict("profile_ids", []),
+  }
+}
+
+let merchantSpecificConfig = (config: JSON.t) => {
+  open LogicUtils
+  let dict = config->getDictFromJsonObject
+  {
+    newAnalytics: dict->getDictfromDict("new_analytics")->configMapper,
+  }
 }
