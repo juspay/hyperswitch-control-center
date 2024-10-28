@@ -25,6 +25,11 @@
     "lint:hooks": "eslint src/ --max-warnings 0",
     "lint:fix": "eslint src/ --fix && prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run pre-commit"
+    }
+  },
   "devDependencies": {
     "@cypress/code-coverage": "^3.12.24",
     "@eslint/create-config": "0.4.6",
