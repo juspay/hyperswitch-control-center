@@ -3,11 +3,12 @@ open NewAnalyticsHelper
 open NewPaymentAnalyticsEntity
 open BarGraphTypes
 open FailedPaymentsDistributionUtils
-
+open NewPaymentAnalyticsUtils
 module TableModule = {
   @react.component
   let make = (~data, ~className="", ~selectedTab: string) => {
     open LogicUtils
+
     let (offset, setOffset) = React.useState(_ => 0)
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let isSmartRetryEnabled =
@@ -18,9 +19,7 @@ module TableModule = {
     }
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
-    let defaultCol = isSmartRetryEnbldForFailedPmtDist(
-      isSmartRetryEnabled->NewPaymentAnalyticsUtils.getSmartRetryMetricType,
-    )
+    let defaultCol = isSmartRetryEnbldForFailedPmtDist(isSmartRetryEnabled->getSmartRetryMetricType)
     let visibleColumns = [defaultCol]->Array.concat([selectedTab->getColumn])
     let tableData = getTableData(data)
 
@@ -90,7 +89,7 @@ let make = (
     filterValueJson
     ->getString("is_smart_retry_enabled", "true")
     ->getBoolFromString(true)
-    ->NewPaymentAnalyticsUtils.getSmartRetryMetricType
+    ->getSmartRetryMetricType
 
   let getFailedPaymentsDistribution = async () => {
     try {
