@@ -15,13 +15,13 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
   let samsungPayFields = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
-        let dict =
+        let samsungPayInputFields =
           Window.getConnectorConfig(connector)
           ->getDictFromJsonObject
           ->getDictfromDict("connector_wallets_details")
           ->getArrayFromDict("samsung_pay", [])
 
-        dict
+        samsungPayInputFields
       } else {
         []
       }
@@ -52,7 +52,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       setScreenState(_ => Loading)
       let paymentMethoConfigUrl = getURL(~entityName=PAYMENT_METHOD_CONFIG, ~methodType=Get)
       let res = await fetchDetails(
-        `${paymentMethoConfigUrl}?connector=${connector}&paymentMethodType=apple_pay`,
+        `${paymentMethoConfigUrl}?connector=${connector}&paymentMethodType=samsung_pay`,
       )
       let countries =
         res
@@ -60,11 +60,11 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
         ->getArrayFromDict("countries", [])
         ->Array.map(item => {
           let dict = item->getDictFromJsonObject
-          let a: SelectBox.dropdownOption = {
+          let countryList: SelectBox.dropdownOption = {
             label: dict->getString("name", ""),
             value: dict->getString("code", ""),
           }
-          a
+          countryList
         })
 
       setMerchantBusinessCountry(_ => countries)

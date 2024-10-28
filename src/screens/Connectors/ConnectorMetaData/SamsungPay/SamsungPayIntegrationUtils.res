@@ -26,7 +26,6 @@ let samsungPayValueInput = (~samsungPayField: CommonConnectorTypes.inputField, ~
     | Select => selectInput(~field={samsungPayField}, ~formName)
     | MultiSelect => multiSelectInput(~field={samsungPayField}, ~formName)
     | Radio => radioInput(~field={samsungPayField}, ~formName, ~fill, ())
-
     | _ => textInput(~field={samsungPayField}, ~formName)
     }
   }

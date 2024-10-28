@@ -112,7 +112,6 @@ let make = (
             </h2>
           </div>
           <div className="self-center">
-            // <Button text="Proceed" buttonType={Primary} onClick={_ => onSubmit()->ignore} />
             <FormRenderer.SubmitButton text="Proceed" />
           </div>
         </div>
