@@ -108,13 +108,13 @@ let getValueFromObj = (data, index, responseKey) => {
 let getKeyForModule = (field, ~metricType) => {
   switch (field, metricType) {
   | (Total_Smart_Retried_Amount, Smart_Retry) => Total_Smart_Retried_Amount
-  | (Total_Smart_Retried_Amount, Default) => Total_Smart_Retried_Amount_Without_Smart_Retries
-  | (Total_Success_Rate, Smart_Retry) => Total_Success_Rate
-  | (Total_Success_Rate, Default) => Total_Success_Rate_Without_Smart_Retries
   | (Total_Payment_Processed_Amount, Smart_Retry) => Total_Payment_Processed_Amount
+  | (Total_Success_Rate, Smart_Retry) => Total_Success_Rate
+  | (Total_Smart_Retried_Amount, Default) => Total_Smart_Retried_Amount_Without_Smart_Retries
+  | (Total_Success_Rate, Default) => Total_Success_Rate_Without_Smart_Retries
   | (Total_Payment_Processed_Amount, Default) =>
     Total_Payment_Processed_Amount_Without_Smart_Retries
-  | (Refund_Processed_Amount, Default | Smart_Retry) => Refund_Processed_Amount
-  | (Total_Dispute, Default | Smart_Retry) | _ => Total_Dispute
+  | (Refund_Processed_Amount, _) => Refund_Processed_Amount
+  | (Total_Dispute, _) | _ => Total_Dispute
   }
 }
