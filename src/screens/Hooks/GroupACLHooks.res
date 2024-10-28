@@ -34,12 +34,7 @@ let useUserGroupACLHook = () => {
 
   let fetchUserGroupACL = async () => {
     try {
-      let url = getURL(
-        ~entityName=USERS,
-        ~userType=#GET_GROUP_ACL,
-        ~methodType=Get,
-        ~queryParamerters=Some(`groups=true`),
-      )
+      let url = getURL(~entityName=USERS, ~userType=#GET_GROUP_ACL, ~methodType=Get)
       let response = await fetchDetails(url)
       let dict = response->getDictFromJsonObject
 

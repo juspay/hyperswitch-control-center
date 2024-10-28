@@ -435,20 +435,20 @@ let userManagement = userHasResourceAccess => {
   })
 }
 
-let businessDetails = () => {
+let businessDetails = userHasResourceAccess => {
   SubLevelLink({
     name: "Business Details",
     link: `/business-details`,
-    access: Access,
+    access: userHasResourceAccess(~resourceAccess=Account),
     searchOptions: [("Configure business details", "")],
   })
 }
 
-let businessProfiles = () => {
+let businessProfiles = userHasResourceAccess => {
   SubLevelLink({
     name: "Business Profiles",
     link: `/business-profiles`,
-    access: Access,
+    access: userHasResourceAccess(~resourceAccess=Account),
     searchOptions: [("Configure business profiles", "")],
   })
 }
@@ -472,7 +472,10 @@ let complianceCertificateSection = {
 }
 
 let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
-  let settingsLinkArray = [businessDetails(), businessProfiles()]
+  let settingsLinkArray = [
+    businessDetails(userHasResourceAccess),
+    businessProfiles(userHasResourceAccess),
+  ]
 
   if isConfigurePmtsEnabled {
     settingsLinkArray->Array.push(configurePMTs(userHasResourceAccess))->ignore
