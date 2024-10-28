@@ -21,6 +21,7 @@ let getViewsDisplayName = (view: viewTypes) => {
   | Dropoffs => "Dropoffs"
   | Cancelled => "Cancelled"
   | Pending => "Pending"
+  | _ => ""
   }
 }
 
@@ -71,6 +72,7 @@ let getViewsString = (view, obj, entity) => {
     | Dropoffs => "requires_payment_method"
     | Cancelled => "cancelled"
     | Pending => "pending"
+    | _ => ""
     }
   | Refunds =>
     switch view {

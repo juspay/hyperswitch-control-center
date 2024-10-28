@@ -51,7 +51,7 @@ module HyperSwitchEntryComponent = {
     let fetchConfig = async () => {
       try {
         let domain = HyperSwitchEntryUtils.getSessionData(~key="domain", ~defaultValue="default")
-        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/merchant-config?domain=${domain}`
+        let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/feature?domain=${domain}`
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
         setFeatureFlag(_ => featureFlags)
