@@ -152,6 +152,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
   | "open_banking_pis" => OpenBankingPIS
+  | "samsung_pay" => SamsungPay
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
@@ -920,6 +921,7 @@ let configKeysToIgnore = [
   "metadata",
   "connector_webhook_details",
   "additional_merchant_data",
+  "connector_wallets_details",
 ]
 
 let verifyConnectorIgnoreField = [
@@ -1434,6 +1436,12 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
       dict->getDictfromDict("pm_auth_config")->isEmptyDict
         ? JSON.Encode.null
         : dict->getDictfromDict("pm_auth_config")->JSON.Encode.object,
+    ),
+    (
+      "connector_wallets_details",
+      dict->getDictfromDict("connector_wallets_details")->isEmptyDict
+        ? JSON.Encode.null
+        : dict->getDictfromDict("connector_wallets_details")->JSON.Encode.object,
     ),
   ])
 
