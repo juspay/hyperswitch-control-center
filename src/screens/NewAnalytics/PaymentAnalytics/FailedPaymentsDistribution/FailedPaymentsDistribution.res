@@ -5,18 +5,22 @@ open BarGraphTypes
 open FailedPaymentsDistributionUtils
 
 module TableModule = {
-  open FailedPaymentsDistributionTypes
   @react.component
-  let make = (~data, ~className="", ~selectedTab: string, ~isSmartRetryEnabled) => {
+  let make = (~data, ~className="", ~selectedTab: string) => {
+    open LogicUtils
     let (offset, setOffset) = React.useState(_ => 0)
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let isSmartRetryEnabled =
+      filterValueJson->getString("is_smart_retry_enabled", "true")->getBoolFromString(true)
     let defaultSort: Table.sortedObject = {
       key: "",
       order: Table.INC,
     }
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
-    let defaultCol = isSmartRetryEnabled
-      ? Payments_Failure_Rate_Distribution
-      : Payments_Failure_Rate_Distribution_Without_Smart_Retries
+
+    let defaultCol = isSmartRetryEnbldForFailedPmtDist(
+      isSmartRetryEnabled->NewPaymentAnalyticsUtils.getSmartRetryMetricType,
+    )
     let visibleColumns = [defaultCol]->Array.concat([selectedTab->getColumn])
     let tableData = getTableData(data)
 
@@ -154,10 +158,7 @@ let make = (
             />
           | Table =>
             <TableModule
-              data={failedPaymentsDistribution}
-              className="mx-7"
-              selectedTab={groupBy.value}
-              isSmartRetryEnabled
+              data={failedPaymentsDistribution} className="mx-7" selectedTab={groupBy.value}
             />
           }}
         </div>

@@ -160,3 +160,10 @@ let getKeyForModule = (field, ~isSmartRetryEnabled) => {
     Payments_Failure_Rate_Distribution_Without_Smart_Retries
   }->getStringFromVariant
 }
+
+let isSmartRetryEnbldForFailedPmtDist = isEnabled => {
+  switch isEnabled {
+  | Smart_Retry => Payments_Failure_Rate_Distribution
+  | Default => Payments_Failure_Rate_Distribution_Without_Smart_Retries
+  }
+}

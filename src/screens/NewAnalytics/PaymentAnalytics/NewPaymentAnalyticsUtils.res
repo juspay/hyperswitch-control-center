@@ -180,9 +180,9 @@ let tooltipFormatter = (~secondaryCategories, ~title, ~metricType) => {
   )->asTooltipPointFormatter
 }
 
-let getMetricType = is_smart_retry_enabled => {
+let getSmartRetryMetricType = isSmartRetryEnabled => {
   open NewAnalyticsTypes
-  switch is_smart_retry_enabled {
+  switch isSmartRetryEnabled {
   | true => Smart_Retry
   | false => Default
   }

@@ -18,7 +18,7 @@ let make = (~entity: moduleEntity) => {
     filterValueJson
     ->getString("is_smart_retry_enabled", "true")
     ->getBoolFromString(true)
-    ->NewPaymentAnalyticsUtils.getMetricType
+    ->NewPaymentAnalyticsUtils.getSmartRetryMetricType
 
   let getData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
