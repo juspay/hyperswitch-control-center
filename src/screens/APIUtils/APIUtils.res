@@ -611,7 +611,7 @@ let useGetURL = () => {
         | Some(params) => `${userUrl}/role?${params}`
         | None => `${userUrl}/role`
         }
-      | #ROLE_INFO => `${userUrl}/module/list`
+      | #ROLE_INFO => `${userUrl}/parent/list`
 
       | #GROUP_ACCESS_INFO =>
         switch queryParamerters {

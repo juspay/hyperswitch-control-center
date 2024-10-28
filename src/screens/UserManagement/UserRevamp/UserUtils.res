@@ -176,8 +176,8 @@ let getLabelForStatus = value => {
 let stringToVariantMapperForAccess = accessAvailable => {
   open UserManagementTypes
   switch accessAvailable {
-  | "Write" => Write
-  | "Read" | _ => Read
+  | "write" => Write
+  | "read" | _ => Read
   }
 }
 

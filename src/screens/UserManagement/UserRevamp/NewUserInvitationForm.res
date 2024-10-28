@@ -24,7 +24,7 @@ module ModuleAccessRenderer = {
           <p
             className={`py-0.5 px-2 rounded-full bg-gray-200 ${p3RegularTextClass} flex gap-1 items-center`}>
             <Icon name={item->iconForAccess} size=12 />
-            <span> {(item :> string)->React.string} </span>
+            <span> {(item :> string)->LogicUtils.camelCaseToTitle->React.string} </span>
           </p>
         })
         ->React.array}
