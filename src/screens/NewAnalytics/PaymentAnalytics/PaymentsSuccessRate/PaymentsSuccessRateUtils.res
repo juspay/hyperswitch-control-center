@@ -70,15 +70,15 @@ let defaulGranularity = {
 
 let getKeyForModule = (field, ~isSmartRetryEnabled) => {
   switch (field, isSmartRetryEnabled) {
-  | (Payments_Success_Rate, true) => Payments_Success_Rate
-  | (Payments_Success_Rate, false) | _ => Payments_Success_Rate_Without_Smart_Retries
+  | (Payments_Success_Rate, Smart_Retry) => Payments_Success_Rate
+  | (Payments_Success_Rate, Default) | _ => Payments_Success_Rate_Without_Smart_Retries
   }->getStringFromVariant
 }
 
 let getMetaDataMapper = (key, ~isSmartRetryEnabled) => {
   let field = key->getVariantValueFromString
   switch (field, isSmartRetryEnabled) {
-  | (Payments_Success_Rate, true) => Total_Success_Rate
-  | (Payments_Success_Rate, false) | _ => Total_Success_Rate_Without_Smart_Retries
+  | (Payments_Success_Rate, Smart_Retry) => Total_Success_Rate
+  | (Payments_Success_Rate, Default) | _ => Total_Success_Rate_Without_Smart_Retries
   }->getStringFromVariant
 }

@@ -2,15 +2,22 @@ open NewAnalyticsTypes
 open NewAnalyticsHelper
 open LineGraphTypes
 open PaymentsSuccessRateUtils
+open NewPaymentAnalyticsUtils
 
 module PaymentsSuccessRateHeader = {
-  open NewPaymentAnalyticsUtils
   open NewAnalyticsUtils
+  open LogicUtils
   @react.component
-  let make = (~data, ~keyValue, ~granularity, ~setGranularity, ~isSmartRetryEnabled) => {
+  let make = (~data, ~keyValue, ~granularity, ~setGranularity) => {
     let setGranularity = value => {
       setGranularity(_ => value)
     }
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let isSmartRetryEnabled =
+      filterValueJson
+      ->getString("is_smart_retry_enabled", "true")
+      ->getBoolFromString(true)
+      ->getSmartRetryMetricType
 
     let primaryValue = getMetaDataValue(
       ~data,
@@ -64,7 +71,10 @@ let make = (
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let isSmartRetryEnabled =
-    filterValueJson->getString("is_smart_retry_enabled", "true")->getBoolFromString(true)
+    filterValueJson
+    ->getString("is_smart_retry_enabled", "true")
+    ->getBoolFromString(true)
+    ->getSmartRetryMetricType
 
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -188,7 +198,6 @@ let make = (
           keyValue={Payments_Success_Rate->getStringFromVariant}
           granularity
           setGranularity
-          isSmartRetryEnabled
         />
         <div className="mb-5">
           <LineGraph
