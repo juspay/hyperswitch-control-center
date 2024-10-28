@@ -168,14 +168,6 @@ let isSmartRetryEnbldForFailedPmtDist = isEnabled => {
   }
 }
 
-let getEntityForSmartRetry = isEnabled => {
-  open APIUtilsTypes
-  switch isEnabled {
-  | Smart_Retry => ANALYTICS_PAYMENTS
-  | Default => ANALYTICS_PAYMENTS_V2
-  }
-}
-
 let getMetricsForSmartRetry = isEnabled => {
   switch isEnabled {
   | Smart_Retry => [#payments_distribution]

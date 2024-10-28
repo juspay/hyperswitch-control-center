@@ -3,20 +3,24 @@ open NewAnalyticsHelper
 open NewPaymentAnalyticsEntity
 open BarGraphTypes
 open SuccessfulPaymentsDistributionUtils
-
+open NewPaymentAnalyticsUtils
 module TableModule = {
-  open SuccessfulPaymentsDistributionTypes
+  open LogicUtils
   @react.component
-  let make = (~data, ~className="", ~selectedTab: string, ~isSmartRetryEnabled) => {
+  let make = (~data, ~className="", ~selectedTab: string) => {
     let (offset, setOffset) = React.useState(_ => 0)
     let defaultSort: Table.sortedObject = {
       key: "",
       order: Table.INC,
     }
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let isSmartRetryEnabled =
+      filterValueJson
+      ->getString("is_smart_retry_enabled", "true")
+      ->getBoolFromString(true)
+      ->getSmartRetryMetricType
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
-    let defaultCol = isSmartRetryEnabled
-      ? Payments_Success_Rate_Distribution
-      : Payments_Success_Rate_Distribution_Without_Smart_Retries
+    let defaultCol = isSmartRetryEnabled->isSmartRetryEnbldForSuccessPmtDist
     let visibleColumns = [defaultCol]->Array.concat([selectedTab->getColumn])
     let tableData = getTableData(data)
 
@@ -82,20 +86,21 @@ let make = (
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let isSmartRetryEnabled =
-    filterValueJson->getString("is_smart_retry_enabled", "true")->getBoolFromString(true)
+    filterValueJson
+    ->getString("is_smart_retry_enabled", "true")
+    ->getBoolFromString(true)
+    ->getSmartRetryMetricType
 
   let getPaymentsDistribution = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=isSmartRetryEnabled ? ANALYTICS_PAYMENTS : ANALYTICS_PAYMENTS_V2,
+        ~entityName=isSmartRetryEnabled->getEntityForSmartRetry,
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
 
-      let metrics = isSmartRetryEnabled
-        ? [#payments_distribution]
-        : [#sessionized_payments_distribution]
+      let metrics = isSmartRetryEnabled->getMetricsForSmartRetry
 
       let body = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
@@ -132,7 +137,7 @@ let make = (
       getPaymentsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value, isSmartRetryEnabled->getStringFromBool])
+  }, [startTimeVal, endTimeVal, groupBy.value, (isSmartRetryEnabled :> string)])
 
   <div>
     <ModuleHeader title={entity.title} />
@@ -153,12 +158,7 @@ let make = (
               className="mr-3"
             />
           | Table =>
-            <TableModule
-              data={paymentsDistribution}
-              className="mx-7"
-              selectedTab={groupBy.value}
-              isSmartRetryEnabled
-            />
+            <TableModule data={paymentsDistribution} className="mx-7" selectedTab={groupBy.value} />
           }}
         </div>
       </PageLoaderWrapper>
