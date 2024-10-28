@@ -4,7 +4,7 @@ let make = (~entityName) => {
   let (reportModal, setReportModal) = React.useState(_ => false)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
-  let accessForGenerateReports = GroupACLMapper.hasAnyGroupAccess(
+  let accessForGenerateReports = GroupACLHooks.hasAnyGroupAccess(
     userHasAccess(~groupAccess=OperationsView),
     userHasAccess(~groupAccess=AnalyticsView),
   )

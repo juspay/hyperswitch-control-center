@@ -67,7 +67,10 @@ let make = () => {
       }}
       <RenderIf
         condition={!featureFlagDetails.isLiveMode &&
-        userHasAccess(~groupAccess=MerchantDetailsManage) === Access &&
+        GroupACLHooks.hasAnyGroupAccess(
+          userHasAccess(~groupAccess=MerchantDetailsManage),
+          userHasAccess(~groupAccess=AccountManage),
+        ) === Access &&
         merchantDetailsTypedValue.merchant_name->Option.isNone}>
         <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
       </RenderIf>

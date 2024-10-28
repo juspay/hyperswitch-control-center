@@ -51,7 +51,10 @@ let emptyComponent = CustomComponent({
 
 let productionAccessComponent = (isProductionAccessEnabled, userHasAccess) =>
   isProductionAccessEnabled &&
-  userHasAccess(~groupAccess=MerchantDetailsManage) === CommonAuthTypes.Access
+  GroupACLHooks.hasAnyGroupAccess(
+    userHasAccess(~groupAccess=MerchantDetailsManage),
+    userHasAccess(~groupAccess=AccountManage),
+  ) === CommonAuthTypes.Access
     ? CustomComponent({
         component: <GetProductionAccess />,
       })
@@ -69,57 +72,57 @@ let home = isHomeEnabled =>
       })
     : emptyComponent
 
-let payments = userHasAccess => {
+let payments = userHasResourceAccess => {
   SubLevelLink({
     name: "Payments",
     link: `/payments`,
-    access: userHasAccess(~groupAccess=OperationsView),
+    access: userHasResourceAccess(~resourceAccess=Payment),
     searchOptions: [("View payment operations", "")],
   })
 }
 
-let refunds = userHasAccess => {
+let refunds = userHasResourceAccess => {
   SubLevelLink({
     name: "Refunds",
     link: `/refunds`,
-    access: userHasAccess(~groupAccess=OperationsView),
+    access: userHasResourceAccess(~resourceAccess=Refund),
     searchOptions: [("View refund operations", "")],
   })
 }
 
-let disputes = userHasAccess => {
+let disputes = userHasResourceAccess => {
   SubLevelLink({
     name: "Disputes",
     link: `/disputes`,
-    access: userHasAccess(~groupAccess=OperationsView),
+    access: userHasResourceAccess(~resourceAccess=Dispute),
     searchOptions: [("View dispute operations", "")],
   })
 }
 
-let customers = userHasAccess => {
+let customers = userHasResourceAccess => {
   SubLevelLink({
     name: "Customers",
     link: `/customers`,
-    access: userHasAccess(~groupAccess=OperationsView),
+    access: userHasResourceAccess(~resourceAccess=Customer),
     searchOptions: [("View customers", "")],
   })
 }
 
-let payouts = userHasAccess => {
+let payouts = userHasResourceAccess => {
   SubLevelLink({
     name: "Payouts",
     link: `/payouts`,
-    access: userHasAccess(~groupAccess=OperationsView),
+    access: userHasResourceAccess(~resourceAccess=Payout),
     searchOptions: [("View payouts operations", "")],
   })
 }
 
-let operations = (isOperationsEnabled, ~userHasAccess, ~isPayoutsEnabled, ~userEntity) => {
-  let payments = payments(userHasAccess)
-  let refunds = refunds(userHasAccess)
-  let disputes = disputes(userHasAccess)
-  let customers = customers(userHasAccess)
-  let payouts = payouts(userHasAccess)
+let operations = (isOperationsEnabled, ~userHasResourceAccess, ~isPayoutsEnabled, ~userEntity) => {
+  let payments = payments(userHasResourceAccess)
+  let refunds = refunds(userHasResourceAccess)
+  let disputes = disputes(userHasResourceAccess)
+  let customers = customers(userHasResourceAccess)
+  let payouts = payouts(userHasResourceAccess)
 
   let links = [payments, refunds, disputes]
   let isCustomersEnabled = userEntity !== #Profile
@@ -141,11 +144,11 @@ let operations = (isOperationsEnabled, ~userHasAccess, ~isPayoutsEnabled, ~userE
     : emptyComponent
 }
 
-let paymentProcessor = (isLiveMode, userHasAccess) => {
+let paymentProcessor = (isLiveMode, userHasResourceAccess) => {
   SubLevelLink({
     name: "Payment Processors",
     link: `/connectors`,
-    access: userHasAccess(~groupAccess=ConnectorsView),
+    access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
       ~processorList=isLiveMode
         ? ConnectorUtils.connectorListForLive
@@ -155,11 +158,11 @@ let paymentProcessor = (isLiveMode, userHasAccess) => {
   })
 }
 
-let payoutConnectors = (~userHasAccess) => {
+let payoutConnectors = (~userHasResourceAccess) => {
   SubLevelLink({
     name: "Payout Processors",
     link: `/payoutconnectors`,
-    access: userHasAccess(~groupAccess=ConnectorsView),
+    access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
       ~processorList=ConnectorUtils.payoutConnectorList,
       ~getNameFromString=ConnectorUtils.getConnectorNameString,
@@ -167,20 +170,20 @@ let payoutConnectors = (~userHasAccess) => {
   })
 }
 
-let fraudAndRisk = (~userHasAccess) => {
+let fraudAndRisk = (~userHasResourceAccess) => {
   SubLevelLink({
     name: "Fraud & Risk",
     link: `/fraud-risk-management`,
-    access: userHasAccess(~groupAccess=ConnectorsView),
+    access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: [],
   })
 }
 
-let threeDsConnector = (~userHasAccess) => {
+let threeDsConnector = (~userHasResourceAccess) => {
   SubLevelLink({
     name: "3DS Authenticator",
     link: "/3ds-authenticators",
-    access: userHasAccess(~groupAccess=ConnectorsView),
+    access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: [
       ("Connect 3dsecure.io", "/new?name=threedsecureio"),
       ("Connect threedsecureio", "/new?name=threedsecureio"),
@@ -188,11 +191,11 @@ let threeDsConnector = (~userHasAccess) => {
   })
 }
 
-let pmAuthenticationProcessor = (~userHasAccess) => {
+let pmAuthenticationProcessor = (~userHasResourceAccess) => {
   SubLevelLink({
     name: "PM Authentication Processor",
     link: `/pm-authentication-processor`,
-    access: userHasAccess(~groupAccess=ConnectorsView),
+    access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
       ~processorList=ConnectorUtils.pmAuthenticationConnectorList,
       ~getNameFromString=ConnectorUtils.getConnectorNameString,
@@ -200,11 +203,11 @@ let pmAuthenticationProcessor = (~userHasAccess) => {
   })
 }
 
-let taxProcessor = (~userHasAccess) => {
+let taxProcessor = (~userHasResourceAccess) => {
   SubLevelLink({
     name: "Tax Processor",
     link: `/tax-processor`,
-    access: userHasAccess(~groupAccess=ConnectorsView),
+    access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
       ~processorList=ConnectorUtils.taxProcessorList,
       ~getNameFromString=ConnectorUtils.getConnectorNameString,
@@ -220,27 +223,27 @@ let connectors = (
   ~isThreedsConnectorEnabled,
   ~isPMAuthenticationProcessor,
   ~isTaxProcessor,
-  ~userHasAccess,
+  ~userHasResourceAccess,
 ) => {
-  let connectorLinkArray = [paymentProcessor(isLiveMode, userHasAccess)]
+  let connectorLinkArray = [paymentProcessor(isLiveMode, userHasResourceAccess)]
 
   if isPayoutsEnabled {
-    connectorLinkArray->Array.push(payoutConnectors(~userHasAccess))->ignore
+    connectorLinkArray->Array.push(payoutConnectors(~userHasResourceAccess))->ignore
   }
   if isThreedsConnectorEnabled {
-    connectorLinkArray->Array.push(threeDsConnector(~userHasAccess))->ignore
+    connectorLinkArray->Array.push(threeDsConnector(~userHasResourceAccess))->ignore
   }
 
   if isFrmEnabled {
-    connectorLinkArray->Array.push(fraudAndRisk(~userHasAccess))->ignore
+    connectorLinkArray->Array.push(fraudAndRisk(~userHasResourceAccess))->ignore
   }
 
   if isPMAuthenticationProcessor {
-    connectorLinkArray->Array.push(pmAuthenticationProcessor(~userHasAccess))->ignore
+    connectorLinkArray->Array.push(pmAuthenticationProcessor(~userHasResourceAccess))->ignore
   }
 
   if isTaxProcessor {
-    connectorLinkArray->Array.push(taxProcessor(~userHasAccess))->ignore
+    connectorLinkArray->Array.push(taxProcessor(~userHasResourceAccess))->ignore
   }
 
   isConnectorsEnabled
@@ -311,7 +314,7 @@ let analytics = (
   disputeAnalyticsFlag,
   performanceMonitorFlag,
   newAnalyticsflag,
-  ~userHasAccess,
+  ~userHasResourceAccess,
 ) => {
   let links = [paymentAnalytcis, refundAnalytics]
 
@@ -338,16 +341,16 @@ let analytics = (
     ? Section({
         name: "Analytics",
         icon: "analytics",
-        showSection: userHasAccess(~groupAccess=AnalyticsView) === CommonAuthTypes.Access,
+        showSection: userHasResourceAccess(~resourceAccess=Analytics) === CommonAuthTypes.Access,
         links,
       })
     : emptyComponent
 }
-let routing = userHasAccess => {
+let routing = userHasResourceAccess => {
   SubLevelLink({
     name: "Routing",
     link: `/routing`,
-    access: userHasAccess(~groupAccess=WorkflowsView),
+    access: userHasResourceAccess(~resourceAccess=Routing),
     searchOptions: [
       ("Manage default routing configuration", "/default"),
       ("Create new volume based routing", "/volume"),
@@ -357,11 +360,11 @@ let routing = userHasAccess => {
   })
 }
 
-let payoutRouting = userHasAccess => {
+let payoutRouting = userHasResourceAccess => {
   SubLevelLink({
     name: "Payout Routing",
     link: `/payoutrouting`,
-    access: userHasAccess(~groupAccess=WorkflowsView),
+    access: userHasResourceAccess(~resourceAccess=Routing),
     searchOptions: [
       ("Manage default routing configuration", "/default"),
       ("Create new volume based routing", "/volume"),
@@ -371,19 +374,19 @@ let payoutRouting = userHasAccess => {
   })
 }
 
-let threeDs = userHasAccess => {
+let threeDs = userHasResourceAccess => {
   SubLevelLink({
     name: "3DS Decision Manager",
     link: `/3ds`,
-    access: userHasAccess(~groupAccess=WorkflowsView),
+    access: userHasResourceAccess(~resourceAccess=ThreeDsDecisionManager),
     searchOptions: [("Configure 3ds", "")],
   })
 }
-let surcharge = userHasAccess => {
+let surcharge = userHasResourceAccess => {
   SubLevelLink({
     name: "Surcharge",
     link: `/surcharge`,
-    access: userHasAccess(~groupAccess=WorkflowsView),
+    access: userHasResourceAccess(~resourceAccess=SurchargeDecisionManager),
     searchOptions: [("Add Surcharge", "")],
   })
 }
@@ -391,14 +394,14 @@ let surcharge = userHasAccess => {
 let workflow = (
   isWorkflowEnabled,
   isSurchargeEnabled,
-  ~userHasAccess,
+  ~userHasResourceAccess,
   ~isPayoutEnabled,
   ~userEntity,
 ) => {
-  let routing = routing(userHasAccess)
-  let threeDs = threeDs(userHasAccess)
-  let payoutRouting = payoutRouting(userHasAccess)
-  let surcharge = surcharge(userHasAccess)
+  let routing = routing(userHasResourceAccess)
+  let threeDs = threeDs(userHasResourceAccess)
+  let payoutRouting = payoutRouting(userHasResourceAccess)
+  let surcharge = surcharge(userHasResourceAccess)
 
   let defaultWorkFlow = [routing]
   let isNotProfileEntity = userEntity !== #Profile
@@ -423,11 +426,11 @@ let workflow = (
     : emptyComponent
 }
 
-let userManagement = userHasAccess => {
+let userManagement = userHasResourceAccess => {
   SubLevelLink({
     name: "Users",
     link: `/users`,
-    access: userHasAccess(~groupAccess=UsersView),
+    access: userHasResourceAccess(~resourceAccess=User),
     searchOptions: [("View user management", "")],
   })
 }
@@ -450,11 +453,11 @@ let businessProfiles = () => {
   })
 }
 
-let configurePMTs = userHasAccess => {
+let configurePMTs = userHasResourceAccess => {
   SubLevelLink({
     name: "Configure PMTs",
     link: `/configure-pmts`,
-    access: userHasAccess(~groupAccess=ConnectorsView),
+    access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: [("Configure payment methods", "Configure country currency")],
   })
 }
@@ -468,18 +471,18 @@ let complianceCertificateSection = {
   })
 }
 
-let settings = (~isConfigurePmtsEnabled, ~userHasAccess, ~complianceCertificate) => {
+let settings = (~isConfigurePmtsEnabled, ~userHasResourceAccess, ~complianceCertificate) => {
   let settingsLinkArray = [businessDetails(), businessProfiles()]
 
   if isConfigurePmtsEnabled {
-    settingsLinkArray->Array.push(configurePMTs(userHasAccess))->ignore
+    settingsLinkArray->Array.push(configurePMTs(userHasResourceAccess))->ignore
   }
 
   if complianceCertificate {
     settingsLinkArray->Array.push(complianceCertificateSection)->ignore
   }
 
-  settingsLinkArray->Array.push(userManagement(userHasAccess))->ignore
+  settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
 
   Section({
     name: "Settings",
@@ -489,30 +492,30 @@ let settings = (~isConfigurePmtsEnabled, ~userHasAccess, ~complianceCertificate)
   })
 }
 
-let apiKeys = userHasAccess => {
+let apiKeys = userHasResourceAccess => {
   SubLevelLink({
     name: "API Keys",
     link: `/developer-api-keys`,
-    access: userHasAccess(~groupAccess=MerchantDetailsManage),
+    access: userHasResourceAccess(~resourceAccess=ApiKey),
     searchOptions: [("View API Keys", "")],
   })
 }
 
-let systemMetric = userHasAccess => {
+let systemMetric = userHasResourceAccess => {
   SubLevelLink({
     name: "System Metrics",
     link: `/developer-system-metrics`,
-    access: userHasAccess(~groupAccess=AnalyticsView),
+    access: userHasResourceAccess(~resourceAccess=Analytics),
     iconTag: "betaTag",
     searchOptions: [("View System Metrics", "")],
   })
 }
 
-let paymentSettings = () => {
+let paymentSettings = userHasResourceAccess => {
   SubLevelLink({
     name: "Payment Settings",
     link: `/payment-settings`,
-    access: Access,
+    access: userHasResourceAccess(~resourceAccess=Account),
     searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
   })
 }
@@ -520,15 +523,15 @@ let paymentSettings = () => {
 let developers = (
   isDevelopersEnabled,
   systemMetrics,
-  ~userHasAccess,
+  ~userHasResourceAccess,
   ~checkUserEntity,
   ~roleId,
 ) => {
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let isProfileUser = checkUserEntity([#Profile])
-  let apiKeys = apiKeys(userHasAccess)
-  let paymentSettings = paymentSettings()
-  let systemMetric = systemMetric(userHasAccess)
+  let apiKeys = apiKeys(userHasResourceAccess)
+  let paymentSettings = paymentSettings(userHasResourceAccess)
+  let systemMetric = systemMetric(userHasResourceAccess)
 
   let defaultDevelopersOptions = [paymentSettings]
 
@@ -601,7 +604,7 @@ let reconFileProcessor = {
   })
 }
 
-let reconAndSettlement = (recon, isReconEnabled, checkUserEntity) => {
+let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourceAccess) => {
   switch (recon, isReconEnabled, checkUserEntity([#Merchant, #Organization])) {
   | (true, true, true) =>
     Section({
@@ -622,7 +625,7 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity) => {
       name: "Reconciliation",
       icon: isReconEnabled ? "recon" : "recon-lock",
       link: `/recon`,
-      access: Access,
+      access: userHasResourceAccess(~resourceAccess=Recon),
     })
 
   | _ => emptyComponent
@@ -632,6 +635,7 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity) => {
 let useGetSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {userEntity, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
@@ -659,7 +663,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   let sidebar = [
     productionAccessComponent(quickStart, userHasAccess),
     default->home,
-    default->operations(~userHasAccess, ~isPayoutsEnabled=payOut, ~userEntity),
+    default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
     default->connectors(
       ~isLiveMode,
       ~isFrmEnabled=frm,
@@ -667,7 +671,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~isThreedsConnectorEnabled=threedsAuthenticator,
       ~isPMAuthenticationProcessor=pmAuthenticationProcessor,
       ~isTaxProcessor=taxProcessor,
-      ~userHasAccess,
+      ~userHasResourceAccess,
     ),
     default->analytics(
       userJourneyAnalyticsFlag,
@@ -675,12 +679,17 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       disputeAnalytics,
       performanceMonitorFlag,
       newAnalytics,
-      ~userHasAccess,
+      ~userHasResourceAccess,
     ),
-    default->workflow(isSurchargeEnabled, ~userHasAccess, ~isPayoutEnabled=payOut, ~userEntity),
-    recon->reconAndSettlement(isReconEnabled, checkUserEntity),
-    default->developers(systemMetrics, ~userHasAccess, ~checkUserEntity, ~roleId),
-    settings(~isConfigurePmtsEnabled=configurePmts, ~userHasAccess, ~complianceCertificate),
+    default->workflow(
+      isSurchargeEnabled,
+      ~userHasResourceAccess,
+      ~isPayoutEnabled=payOut,
+      ~userEntity,
+    ),
+    recon->reconAndSettlement(isReconEnabled, checkUserEntity, userHasResourceAccess),
+    default->developers(systemMetrics, ~userHasResourceAccess, ~checkUserEntity, ~roleId),
+    settings(~isConfigurePmtsEnabled=configurePmts, ~userHasResourceAccess, ~complianceCertificate),
   ]
 
   sidebar

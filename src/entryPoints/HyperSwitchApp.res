@@ -201,7 +201,10 @@ let make = () => {
                           </AccessControl>
                         | list{"developer-api-keys"} =>
                           <AccessControl
-                            authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
+                            authorization={GroupACLHooks.hasAnyGroupAccess(
+                              userHasAccess(~groupAccess=MerchantDetailsManage),
+                              userHasAccess(~groupAccess=AccountManage),
+                            )}
                             isEnabled={!checkUserEntity([#Profile])}>
                             <KeyManagement.KeysManagement />
                           </AccessControl>
@@ -232,7 +235,10 @@ let make = () => {
                         | list{"account-settings"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.sampleData
-                            authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}>
+                            authorization={GroupACLHooks.hasAnyGroupAccess(
+                              userHasAccess(~groupAccess=MerchantDetailsManage),
+                              userHasAccess(~groupAccess=AccountManage),
+                            )}>
                             <HSwitchSettings />
                           </AccessControl>
                         | list{"account-settings", "profile", ...remainingPath} =>

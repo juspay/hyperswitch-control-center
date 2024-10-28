@@ -100,3 +100,9 @@ let useUserGroupACLHook = () => {
 
   {fetchUserGroupACL, userHasResourceAccess, userHasAccess}
 }
+open CommonAuthTypes
+let hasAnyGroupAccess = (group1, group2) =>
+  switch (group1, group2) {
+  | (NoAccess, NoAccess) => NoAccess
+  | (_, _) => Access
+  }

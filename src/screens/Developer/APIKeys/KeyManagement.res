@@ -191,7 +191,10 @@ module ApiKeyAddBtn = {
             name="plus" size=12 className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
           />,
         )}
-        authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
+        authorization={GroupACLHooks.hasAnyGroupAccess(
+          userHasAccess(~groupAccess=MerchantDetailsManage),
+          userHasAccess(~groupAccess=AccountManage),
+        )}
         buttonType=Secondary
         buttonSize=Small
         onClick={_ => {

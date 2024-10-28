@@ -14,9 +14,8 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | UsersManage => "users_manage"
   | MerchantDetailsView => "merchant_details_view"
   | MerchantDetailsManage => "merchant_details_manage"
-  | OrganizationManage => "organization_manage"
-  | AccountRead => "account_read"
-  | AccountWrite => "account_write"
+  | AccountView => "account_view"
+  | AccountManage => "account_manage"
   | UnknownGroupAccess(val) => val
   }
 
@@ -33,15 +32,16 @@ let mapStringToGroupAccessType = val =>
   | "users_manage" => UsersManage
   | "merchant_details_view" => MerchantDetailsView
   | "merchant_details_manage" => MerchantDetailsManage
-  | "organization_manage" => OrganizationManage
+  | "account_view" => AccountView
+  | "account_manage" => AccountManage
   | val => UnknownGroupAccess(val)
   }
 
 let mapStringToResourceAccessType = val =>
   switch val {
-  | "payments" => Payment
-  | "refunds" => Refund
-  | "apiKey" => ApiKey
+  | "payment" => Payment
+  | "refund" => Refund
+  | "api_key" => ApiKey
   | "account" => Account
   | "connector" => Connector
   | "routing" => Routing
@@ -49,7 +49,7 @@ let mapStringToResourceAccessType = val =>
   | "mandate" => Mandate
   | "customer" => Customer
   | "analytics" => Analytics
-  | "three_ds_decision_Manager" => ThreeDsDecisionManager
+  | "three_ds_decision_manager" => ThreeDsDecisionManager
   | "surcharge_decision_manager" => SurchargeDecisionManager
   | "user" => User
   | "webhook_event" => WebhookEvent
@@ -71,14 +71,9 @@ let defaultValueForGroupAccessJson = {
   usersManage: NoAccess,
   merchantDetailsView: NoAccess,
   merchantDetailsManage: NoAccess,
-  organizationManage: NoAccess,
+  accountView: NoAccess,
+  accountManage: NoAccess,
 }
-
-let hasAnyGroupAccess = (group1, group2) =>
-  switch (group1, group2) {
-  | (NoAccess, NoAccess) => NoAccess
-  | (_, _) => Access
-  }
 
 let getAccessValue = (~groupAccess: groupAccessType, ~groupACL) =>
   groupACL->Array.find(ele => ele == groupAccess)->Option.isSome ? Access : NoAccess
@@ -96,7 +91,8 @@ let getGroupAccessJson = groupACL => {
   usersManage: getAccessValue(~groupAccess=UsersManage, ~groupACL),
   merchantDetailsView: getAccessValue(~groupAccess=MerchantDetailsView, ~groupACL),
   merchantDetailsManage: getAccessValue(~groupAccess=MerchantDetailsManage, ~groupACL),
-  organizationManage: getAccessValue(~groupAccess=OrganizationManage, ~groupACL),
+  accountView: getAccessValue(~groupAccess=AccountView, ~groupACL),
+  accountManage: getAccessValue(~groupAccess=AccountManage, ~groupACL),
 }
 
 let convertValueToMapGroup = arrayValue => {

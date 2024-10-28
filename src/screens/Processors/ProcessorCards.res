@@ -27,7 +27,10 @@ module CantFindProcessor = {
 
     <RenderIf condition={showRequestConnectorBtn}>
       <ACLButton
-        authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
+        authorization={GroupACLHooks.hasAnyGroupAccess(
+          userHasAccess(~groupAccess=MerchantDetailsManage),
+          userHasAccess(~groupAccess=AccountManage),
+        )}
         text="Request a Processor"
         buttonType={Transparent}
         buttonSize={Small}

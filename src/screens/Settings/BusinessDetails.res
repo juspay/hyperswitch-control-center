@@ -153,7 +153,10 @@ let make = () => {
           {switch formState {
           | Preview =>
             <ACLButton
-              authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
+              authorization={GroupACLHooks.hasAnyGroupAccess(
+                userHasAccess(~groupAccess=MerchantDetailsManage),
+                userHasAccess(~groupAccess=AccountManage),
+              )}
               text="Edit"
               onClick={_ => setFormState(_ => Edit)}
               buttonType=Primary
