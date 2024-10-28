@@ -1,3 +1,4 @@
+let ompDefaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: ""}
 let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(
   "merchantDetailsValue",
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
@@ -19,6 +20,9 @@ let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.at
   "featureFlag",
   JSON.Encode.null->FeatureFlagUtils.featureFlagType,
 )
+let merchantSpecificConfigAtom: Recoil.recoilAtom<
+  FeatureFlagUtils.merchantSpecificConfig,
+> = Recoil.atom("merchantSpecificConfig", JSON.Encode.null->FeatureFlagUtils.merchantSpecificConfig)
 let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatus> = Recoil.atom(
   "paypalAccountStatusAtom",
   PayPalFlowTypes.Connect_paypal_landing,
@@ -56,17 +60,17 @@ let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Reco
 
 let orgListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
   "orgListAtom",
-  OMPSwitchUtils.ompDefaultValue("", ""),
+  [ompDefaultValue],
 )
 
 let merchantListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
   "merchantListAtom",
-  OMPSwitchUtils.ompDefaultValue("", ""),
+  [ompDefaultValue],
 )
 
 let profileListAtom: Recoil.recoilAtom<array<OMPSwitchTypes.ompListTypes>> = Recoil.atom(
   "profileListAtom",
-  OMPSwitchUtils.ompDefaultValue("", ""),
+  [ompDefaultValue],
 )
 
 let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType>> = Recoil.atom(

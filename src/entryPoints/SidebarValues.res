@@ -659,7 +659,12 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     taxProcessor,
     newAnalytics,
   } = featureFlagDetails
-
+  let {
+    useIsFeatureEnabledForMerchant,
+    merchantSpecificConfig,
+  } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
+  let isNewAnalyticsEnable =
+    newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
   let sidebar = [
     productionAccessComponent(quickStart, userHasAccess),
     default->home,
@@ -678,7 +683,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       authenticationAnalyticsFlag,
       disputeAnalytics,
       performanceMonitorFlag,
-      newAnalytics,
+      isNewAnalyticsEnable,
       ~userHasResourceAccess,
     ),
     default->workflow(

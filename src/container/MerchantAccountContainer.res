@@ -18,8 +18,9 @@ let make = () => {
   let setUpConnectoreContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-
-      let _ = await fetchMerchantAccountDetails()
+      if !checkUserEntity([#Profile]) {
+        let _ = await fetchMerchantAccountDetails()
+      }
       if userHasAccess(~groupAccess=ConnectorsView) === Access {
         if !featureFlagDetails.isLiveMode {
           let _ = await fetchConnectorListResponse()
@@ -71,6 +72,7 @@ let make = () => {
           userHasAccess(~groupAccess=MerchantDetailsManage),
           userHasAccess(~groupAccess=AccountManage),
         ) === Access &&
+        !checkUserEntity([#Profile]) &&
         merchantDetailsTypedValue.merchant_name->Option.isNone}>
         <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
       </RenderIf>
