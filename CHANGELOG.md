@@ -3,6 +3,32 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.10.25.0
+
+### Bug Fixes
+
+- Auto retry bug ([#1639](https://github.com/juspay/hyperswitch-control-center/pull/1639)) ([`46f4de6`](https://github.com/juspay/hyperswitch-control-center/commit/46f4de64f0c68e587a62c876b56e94a5e25ec26d))
+- Merchant account credentials not shown in profile view ([#1626](https://github.com/juspay/hyperswitch-control-center/pull/1626)) ([`9108801`](https://github.com/juspay/hyperswitch-control-center/commit/9108801555d2e3e03908dbe33f4a52ce9c0503a3))
+
+### Miscellaneous Tasks
+
+- TwoFa restriction after multiple failed attempts before login ([#1594](https://github.com/juspay/hyperswitch-control-center/pull/1594)) ([`9ff488b`](https://github.com/juspay/hyperswitch-control-center/commit/9ff488b8edc99af45fc8f77ab1f56e6cef34a838))
+- Add merchant specific config ([#1643](https://github.com/juspay/hyperswitch-control-center/pull/1643)) ([`aac4ada`](https://github.com/juspay/hyperswitch-control-center/commit/aac4adabf17e96ef7d02fe91048fca8b668030a8))
+
+**Full Changelog:** [`2024.10.24.0...2024.10.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.10.24.0...2024.10.25.0)
+
+- - -
+
+## 2024.10.24.0
+
+### Testing
+
+- Creation of test payment using sdk cypress ([#1555](https://github.com/juspay/hyperswitch-control-center/pull/1555)) ([`1bd1e56`](https://github.com/juspay/hyperswitch-control-center/commit/1bd1e563f993ec483ef43651996b9c836e33de0d))
+
+**Full Changelog:** [`2024.10.22.2...2024.10.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.10.22.2...2024.10.24.0)
+
+- - -
+
 ## 2024.10.22.2
 
 ### Bug Fixes
