@@ -26,9 +26,12 @@ let paymentsLifeCycleMapper = (
   ~xKey,
   ~yKey as _,
 ): SankeyGraphTypes.sankeyPayload => {
-  let isSmartRetryEnabled = xKey->getBoolFromString(true)
-  let success = data.normalSuccess + (isSmartRetryEnabled ? data.smartRetriedSuccess : 0)
-  let failure = data.normalFailure + (isSmartRetryEnabled ? data.smartRetriedFailure : 0)
+  let isSmartRetryEnabled =
+    xKey->getBoolFromString(true)->NewPaymentAnalyticsUtils.getSmartRetryMetricType
+  let success =
+    data.normalSuccess + (isSmartRetryEnabled === Smart_Retry ? data.smartRetriedSuccess : 0)
+  let failure =
+    data.normalFailure + (isSmartRetryEnabled === Smart_Retry ? data.smartRetriedFailure : 0)
   let refunded = data.refunded
   let pending = data.pending // Attempted Pending
   let cancelled = data.cancelled
