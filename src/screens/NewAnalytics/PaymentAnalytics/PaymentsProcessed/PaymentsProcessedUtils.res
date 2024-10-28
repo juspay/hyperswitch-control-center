@@ -16,6 +16,23 @@ let getStringFromVariant = value => {
   }
 }
 
+let getVariantValueFromString = value => {
+  switch value {
+  | "payment_processed_amount" => Payment_Processed_Amount
+  | "payment_processed_count" => Payment_Processed_Count
+  | "payment_processed_amount_without_smart_retries" =>
+    Payment_Processed_Amount_Without_Smart_Retries
+  | "payment_processed_count_without_smart_retries" => Payment_Processed_Count_Without_Smart_Retries
+  | "total_payment_processed_amount" => Total_Payment_Processed_Amount
+  | "total_payment_processed_count" => Total_Payment_Processed_Count
+  | "total_payment_processed_amount_without_smart_retries" =>
+    Total_Payment_Processed_Amount_Without_Smart_Retries
+  | "total_payment_processed_count_without_smart_retries" =>
+    Total_Payment_Processed_Count_Without_Smart_Retriess
+  | "time_bucket" | _ => Time_Bucket
+  }
+}
+
 let paymentsProcessedMapper = (
   ~data: JSON.t,
   ~xKey: string,
@@ -57,7 +74,7 @@ let getMetaData = json =>
   ->getValueFromArray(0, JSON.Encode.array([]))
   ->getDictFromJsonObject
 
-let visibleColumns = [Payment_Processed_Amount, Payment_Processed_Count, Time_Bucket]
+let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
   {
@@ -172,12 +189,32 @@ let defaulGranularity = {
   value: (#G_ONEDAY: granularity :> string),
 }
 
-let getMetaDataMapper = key => {
-  switch key {
-  | "payment_processed_amount" => "total_payment_processed_amount"
-  | "payment_processed_count" => "total_payment_processed_count"
-  | "payment_processed_amount_without_smart_retries" => "total_payment_processed_amount_without_smart_retries"
-  | "payment_processed_count_without_smart_retries" => "total_payment_processed_count_without_smart_retries"
-  | _ => ""
+let getKeyForModule = (key, ~isSmartRetryEnabled) => {
+  let field = key->getVariantValueFromString
+  switch (field, isSmartRetryEnabled) {
+  | (Payment_Processed_Amount, Smart_Retry) => Payment_Processed_Amount
+  | (Payment_Processed_Count, Smart_Retry) => Payment_Processed_Count
+  | (Payment_Processed_Amount, Default) => Payment_Processed_Amount_Without_Smart_Retries
+  | (Payment_Processed_Count, Default) | _ => Payment_Processed_Count_Without_Smart_Retries
+  }->getStringFromVariant
+}
+
+let getMetaDataMapper = (key, ~isSmartRetryEnabled) => {
+  let field = key->getVariantValueFromString
+  switch (field, isSmartRetryEnabled) {
+  | (Payment_Processed_Amount, Smart_Retry) => Total_Payment_Processed_Amount
+  | (Payment_Processed_Count, Smart_Retry) => Total_Payment_Processed_Count
+  | (Payment_Processed_Amount, Default) => Total_Payment_Processed_Amount_Without_Smart_Retries
+  | (Payment_Processed_Count, Default) | _ => Total_Payment_Processed_Count_Without_Smart_Retriess
+  }->getStringFromVariant
+}
+
+let isSmartRetryEnbldForPmtProcessed = isEnabled => {
+  switch isEnabled {
+  | Smart_Retry => [Payment_Processed_Amount, Payment_Processed_Count]
+  | Default => [
+      Payment_Processed_Amount_Without_Smart_Retries,
+      Payment_Processed_Count_Without_Smart_Retries,
+    ]
   }
 }
