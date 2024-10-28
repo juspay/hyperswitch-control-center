@@ -155,8 +155,8 @@ let defaulGroupBy = {
 
 let getKeyForModule = (field, ~isSmartRetryEnabled) => {
   switch (field, isSmartRetryEnabled) {
-  | (Payments_Failure_Rate_Distribution, true) => Payments_Failure_Rate_Distribution
-  | (Payments_Failure_Rate_Distribution, false) | _ =>
+  | (Payments_Failure_Rate_Distribution, Smart_Retry) => Payments_Failure_Rate_Distribution
+  | (Payments_Failure_Rate_Distribution, Default) | _ =>
     Payments_Failure_Rate_Distribution_Without_Smart_Retries
   }->getStringFromVariant
 }
@@ -165,5 +165,20 @@ let isSmartRetryEnbldForFailedPmtDist = isEnabled => {
   switch isEnabled {
   | Smart_Retry => Payments_Failure_Rate_Distribution
   | Default => Payments_Failure_Rate_Distribution_Without_Smart_Retries
+  }
+}
+
+let getEntityForSmartRetry = isEnabled => {
+  open APIUtilsTypes
+  switch isEnabled {
+  | Smart_Retry => ANALYTICS_PAYMENTS
+  | Default => ANALYTICS_PAYMENTS_V2
+  }
+}
+
+let getMetricsForSmartRetry = isEnabled => {
+  switch isEnabled {
+  | Smart_Retry => [#payments_distribution]
+  | Default => [#sessionized_payments_distribution]
   }
 }

@@ -87,19 +87,20 @@ let make = (
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
   let isSmartRetryEnabled =
-    filterValueJson->getString("is_smart_retry_enabled", "true")->getBoolFromString(true)
+    filterValueJson
+    ->getString("is_smart_retry_enabled", "true")
+    ->getBoolFromString(true)
+    ->NewPaymentAnalyticsUtils.getSmartRetryMetricType
 
   let getFailedPaymentsDistribution = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
-        ~entityName=isSmartRetryEnabled ? ANALYTICS_PAYMENTS : ANALYTICS_PAYMENTS_V2,
+        ~entityName=isSmartRetryEnabled->getEntityForSmartRetry,
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
-      let metrics = isSmartRetryEnabled
-        ? [#payments_distribution]
-        : [#sessionized_payments_distribution]
+      let metrics = isSmartRetryEnabled->getMetricsForSmartRetry
 
       let body = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
@@ -136,7 +137,7 @@ let make = (
       getFailedPaymentsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value, isSmartRetryEnabled->getStringFromBool])
+  }, [startTimeVal, endTimeVal, groupBy.value, (isSmartRetryEnabled :> string)])
 
   <div>
     <ModuleHeader title={entity.title} />
