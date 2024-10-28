@@ -52,6 +52,7 @@ let make = (~children) => {
 
       let showCloseIcon = switch (popUp.handleCancel, popUp.showCloseIcon) {
       | (Some(_), Some(false)) => Some(false)
+      | (Some(_), _) => Some(true)
       | (_, _) => None
       }
 
