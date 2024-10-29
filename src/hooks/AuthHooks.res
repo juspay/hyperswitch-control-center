@@ -98,7 +98,7 @@ let useApiFetcher = () => {
           Fetch.RequestInit.make(
             ~method_,
             ~body?,
-            ~credentials=Omit,
+            ~credentials=Omit, // change to SameOrigin (enable cookies) after backend fixes are done for cookies
             ~headers=getHeaders(~headers, ~uri, ~contentType, ~token, ~xFeatureRoute),
           ),
         )
