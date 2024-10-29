@@ -3,8 +3,9 @@ open NewAnalyticsHelper
 open NewPaymentAnalyticsEntity
 open BarGraphTypes
 open SuccessfulPaymentsDistributionUtils
-
+open NewPaymentAnalyticsUtils
 module TableModule = {
+  open LogicUtils
   @react.component
   let make = (~data, ~className="", ~selectedTab: string) => {
     let (offset, setOffset) = React.useState(_ => 0)
@@ -12,8 +13,15 @@ module TableModule = {
       key: "",
       order: Table.INC,
     }
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let isSmartRetryEnabled =
+      filterValueJson
+      ->getString("is_smart_retry_enabled", "true")
+      ->getBoolFromString(true)
+      ->getSmartRetryMetricType
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
-    let visibleColumns = visibleColumns->Array.concat([selectedTab->getDimentionType])
+    let defaultCol = isSmartRetryEnabled->isSmartRetryEnbldForSuccessPmtDist
+    let visibleColumns = [defaultCol]->Array.concat([selectedTab->getColumn])
     let tableData = getTableData(data)
 
     <div className>
@@ -77,15 +85,22 @@ let make = (
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let isSmartRetryEnabled =
+    filterValueJson
+    ->getString("is_smart_retry_enabled", "true")
+    ->getBoolFromString(true)
+    ->getSmartRetryMetricType
 
   let getPaymentsDistribution = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=ANALYTICS_PAYMENTS,
+        ~entityName=isSmartRetryEnabled->getEntityForSmartRetry,
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
+
+      let metrics = isSmartRetryEnabled->getMetricsForSmartRetry
 
       let body = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
@@ -93,7 +108,7 @@ let make = (
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~filters=entity.requestBodyConfig.filters,
-        ~metrics=entity.requestBodyConfig.metrics,
+        ~metrics,
         ~groupByNames=[groupBy.value]->Some,
         ~customFilter=entity.requestBodyConfig.customFilter,
         ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
@@ -122,7 +137,7 @@ let make = (
       getPaymentsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value])
+  }, [startTimeVal, endTimeVal, groupBy.value, (isSmartRetryEnabled :> string)])
 
   <div>
     <ModuleHeader title={entity.title} />
@@ -137,7 +152,7 @@ let make = (
               entity={chartEntity}
               object={chartEntity.getObjects(
                 ~data=paymentsDistribution,
-                ~xKey=getXKey(~isSmartRetry=true),
+                ~xKey=Payments_Success_Rate_Distribution->getKeyForModule(~isSmartRetryEnabled),
                 ~yKey=groupBy.value,
               )}
               className="mr-3"

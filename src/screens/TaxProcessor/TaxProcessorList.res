@@ -34,14 +34,6 @@ let make = () => {
     />
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-10">
-        <ProcessorCards
-          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
-            ~connectorType=ConnectorTypes.TaxProcessor,
-          )}
-          connectorsAvailableForIntegration=ConnectorUtils.taxProcessorList
-          urlPrefix="tax-processor/new"
-          connectorType=ConnectorTypes.TaxProcessor
-        />
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
@@ -58,6 +50,14 @@ let make = () => {
             collapseTableRow=false
           />
         </RenderIf>
+        <ProcessorCards
+          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
+            ~connectorType=ConnectorTypes.TaxProcessor,
+          )}
+          connectorsAvailableForIntegration=ConnectorUtils.taxProcessorList
+          urlPrefix="tax-processor/new"
+          connectorType=ConnectorTypes.TaxProcessor
+        />
       </div>
     </PageLoaderWrapper>
   </div>

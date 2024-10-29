@@ -18,12 +18,13 @@ let getPageFromIndex = index => {
   }
 }
 
-let (startTimeFilterKey, endTimeFilterKey, compareStartTimeFilterKey, compareEndTimeFilterKey) = (
-  "startTime",
-  "endTime",
-  "compareStartTime",
-  "compareEndTime",
-)
+let (
+  startTimeFilterKey,
+  endTimeFilterKey,
+  compareStartTimeFilterKey,
+  compareEndTimeFilterKey,
+  smartRetryKey,
+) = ("startTime", "endTime", "compareStartTime", "compareEndTime", "is_smart_retry_enabled")
 
 let initialFixedFilterFields = () => {
   let newArr = [

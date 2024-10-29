@@ -1,11 +1,30 @@
 open NewPaymentsOverviewSectionTypes
+
+let getStringFromVariant = value => {
+  switch value {
+  | Total_Smart_Retried_Amount => "total_smart_retried_amount"
+  | Total_Smart_Retried_Amount_Without_Smart_Retries => "total_smart_retried_amount_without_smart_retries"
+  | Total_Success_Rate => "total_success_rate"
+  | Total_Success_Rate_Without_Smart_Retries => "total_success_rate_without_smart_retries"
+  | Total_Payment_Processed_Amount => "total_payment_processed_amount"
+  | Total_Payment_Processed_Amount_Without_Smart_Retries => "total_payment_processed_amount_without_smart_retries"
+  | Refund_Processed_Amount => "refund_processed_amount"
+  | Total_Dispute => "total_dispute"
+  }
+}
+
 let defaultValue =
   {
-    smart_retried_amount: 0.0,
-    payments_success_rate: 0.0,
-    payment_processed_amount: 0.0,
-    refund_success_count: 0.0,
-    dispute_status_metric: 0.0,
+    total_smart_retried_amount: 0.0,
+    total_smart_retried_amount_without_smart_retries: 0.0,
+    total_success_rate: 0.0,
+    total_success_rate_without_smart_retries: 0.0,
+    total_payment_processed_amount: 0.0,
+    total_payment_processed_count: 0,
+    total_payment_processed_amount_without_smart_retries: 0.0,
+    total_payment_processed_count_without_smart_retries: 0,
+    refund_processed_amount: 0.0,
+    total_dispute: 0,
   }
   ->Identity.genericTypeToJson
   ->LogicUtils.getDictFromJsonObject
@@ -24,69 +43,78 @@ let getPayload = (~entity, ~metrics, ~startTime, ~endTime) => {
   )
 }
 
-let parseResponse = response => {
+let parseResponse = (response, key) => {
   open LogicUtils
   response
   ->getDictFromJsonObject
-  ->getArrayFromDict("queryData", [])
+  ->getArrayFromDict(key, [])
   ->getValueFromArray(0, Dict.make()->JSON.Encode.object)
   ->getDictFromJsonObject
 }
 
 open NewAnalyticsTypes
-let setValue = (dict, ~data, ~ids: array<metrics>) => {
+let setValue = (dict, ~data, ~ids: array<overviewColumns>) => {
   open LogicUtils
 
   ids->Array.forEach(id => {
     dict->Dict.set(
-      (id: metrics :> string),
+      id->getStringFromVariant,
       data
-      ->getFloat((id: metrics :> string), 0.0)
+      ->getFloat(id->getStringFromVariant, 0.0)
       ->JSON.Encode.float,
     )
   })
 }
 
-let getInfo = (~metric) => {
-  switch metric {
-  | #smart_retried_amount => {
+let getInfo = (~responseKey: overviewColumns) => {
+  switch responseKey {
+  | Total_Smart_Retried_Amount | Total_Smart_Retried_Amount_Without_Smart_Retries => {
       titleText: "Total Payment Savings",
       description: "Amount saved via payment retries",
       valueType: Amount,
     }
-  | #payments_success_rate => {
+  | Total_Success_Rate | Total_Success_Rate_Without_Smart_Retries => {
       titleText: "Total Authorization Rate",
       description: "Overall successful payment intents divided by total payment intents excluding dropoffs",
       valueType: Rate,
     }
-  | #payment_processed_amount => {
+  | Total_Payment_Processed_Amount | Total_Payment_Processed_Amount_Without_Smart_Retries => {
       titleText: "Total Payments Processed",
       description: "The total amount of payments processed in the selected time range",
       valueType: Amount,
     }
-  | #refund_success_count => {
+  | Refund_Processed_Amount => {
       titleText: "Total Refunds Processed",
       description: "The total amount of refund payments processed in the selected time range",
       valueType: Amount,
     }
-  | #dispute_status_metric => {
+  | Total_Dispute => {
       titleText: "All Disputes",
       description: "Total number of disputes irrespective of status in the selected time range",
       valueType: Volume,
     }
-  | _ => {
-      titleText: "",
-      description: "",
-      valueType: No_Type,
-    }
   }
 }
 
-let getValueFromObj = (data, index, metric) => {
+let getValueFromObj = (data, index, responseKey) => {
   open LogicUtils
   data
   ->getArrayFromJson([])
   ->getValueFromArray(index, Dict.make()->JSON.Encode.object)
   ->getDictFromJsonObject
-  ->getFloat((metric: metrics :> string), 0.0)
+  ->getFloat(responseKey, 0.0)
+}
+
+let getKeyForModule = (field, ~metricType) => {
+  switch (field, metricType) {
+  | (Total_Smart_Retried_Amount, Smart_Retry) => Total_Smart_Retried_Amount
+  | (Total_Payment_Processed_Amount, Smart_Retry) => Total_Payment_Processed_Amount
+  | (Total_Success_Rate, Smart_Retry) => Total_Success_Rate
+  | (Total_Smart_Retried_Amount, Default) => Total_Smart_Retried_Amount_Without_Smart_Retries
+  | (Total_Success_Rate, Default) => Total_Success_Rate_Without_Smart_Retries
+  | (Total_Payment_Processed_Amount, Default) =>
+    Total_Payment_Processed_Amount_Without_Smart_Retries
+  | (Refund_Processed_Amount, _) => Refund_Processed_Amount
+  | (Total_Dispute, _) | _ => Total_Dispute
+  }
 }

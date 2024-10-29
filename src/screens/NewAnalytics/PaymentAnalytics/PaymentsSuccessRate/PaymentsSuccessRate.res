@@ -2,21 +2,35 @@ open NewAnalyticsTypes
 open NewAnalyticsHelper
 open LineGraphTypes
 open PaymentsSuccessRateUtils
+open NewPaymentAnalyticsUtils
 
 module PaymentsSuccessRateHeader = {
-  open NewPaymentAnalyticsUtils
   open NewAnalyticsUtils
+  open LogicUtils
   @react.component
   let make = (~data, ~keyValue, ~granularity, ~setGranularity) => {
     let setGranularity = value => {
       setGranularity(_ => value)
     }
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let isSmartRetryEnabled =
+      filterValueJson
+      ->getString("is_smart_retry_enabled", "true")
+      ->getBoolFromString(true)
+      ->getSmartRetryMetricType
 
-    let primaryValue = getMetaDataValue(~data, ~index=0, ~key=keyValue)
-    let secondaryValue = getMetaDataValue(~data, ~index=1, ~key=keyValue)
+    let primaryValue = getMetaDataValue(
+      ~data,
+      ~index=0,
+      ~key=keyValue->getMetaDataMapper(~isSmartRetryEnabled),
+    )
+    let secondaryValue = getMetaDataValue(
+      ~data,
+      ~index=1,
+      ~key=keyValue->getMetaDataMapper(~isSmartRetryEnabled),
+    )
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
-
     <div className="w-full px-7 py-8 grid grid-cols-2">
       // will enable it in future
       <div className="flex gap-2 items-center">
@@ -55,12 +69,17 @@ let make = (
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let isSmartRetryEnabled =
+    filterValueJson
+    ->getString("is_smart_retry_enabled", "true")
+    ->getBoolFromString(true)
+    ->getSmartRetryMetricType
 
   let getPaymentsSuccessRate = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=ANALYTICS_PAYMENTS,
+        ~entityName=ANALYTICS_PAYMENTS_V2,
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
@@ -102,14 +121,14 @@ let make = (
       let secondaryData =
         secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
       let secondaryMetaData =
-        primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+        secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
       if primaryData->Array.length > 0 {
         let primaryModifiedData = [primaryData]->Array.map(data => {
           NewAnalyticsUtils.fillMissingDataPoints(
             ~data,
             ~startDate=startTimeVal,
             ~endDate=endTimeVal,
-            ~timeKey="time_bucket",
+            ~timeKey=Time_Bucket->getStringFromVariant,
             ~defaultValue={
               "payment_count": 0,
               "payment_success_rate": 0,
@@ -124,7 +143,7 @@ let make = (
             ~data,
             ~startDate=prevStartTime,
             ~endDate=prevEndTime,
-            ~timeKey="time_bucket",
+            ~timeKey=Time_Bucket->getStringFromVariant,
             ~defaultValue={
               "payment_count": 0,
               "payment_success_rate": 0,
@@ -155,6 +174,19 @@ let make = (
     None
   }, [startTimeVal, endTimeVal])
 
+  let mockDelay = async () => {
+    if paymentsSuccessRateData != []->JSON.Encode.array {
+      setScreenState(_ => Loading)
+      await HyperSwitchUtils.delay(300)
+      setScreenState(_ => Success)
+    }
+  }
+
+  React.useEffect(() => {
+    mockDelay()->ignore
+    None
+  }, [isSmartRetryEnabled])
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -162,7 +194,7 @@ let make = (
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
         <PaymentsSuccessRateHeader
           data={paymentsSuccessRateMetaData}
-          keyValue={"total_success_rate"}
+          keyValue={Payments_Success_Rate->getStringFromVariant}
           granularity
           setGranularity
         />
@@ -171,8 +203,8 @@ let make = (
             entity={chartEntity}
             data={chartEntity.getObjects(
               ~data=paymentsSuccessRateData,
-              ~xKey=(#payment_success_rate: metrics :> string),
-              ~yKey=(#time_bucket: metrics :> string),
+              ~xKey=Payments_Success_Rate->getKeyForModule(~isSmartRetryEnabled),
+              ~yKey=Time_Bucket->getStringFromVariant,
             )}
             className="mr-3"
           />

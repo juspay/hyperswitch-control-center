@@ -106,9 +106,7 @@ let modifyDataWithMissingPoints = (
 let getMetaDataValue = (~data, ~index, ~key) => {
   data
   ->getArrayFromJson([])
-  ->getValueFromArray(index, []->JSON.Encode.array)
-  ->getArrayFromJson([])
-  ->getValueFromArray(0, Dict.make()->JSON.Encode.object)
+  ->getValueFromArray(index, Dict.make()->JSON.Encode.object)
   ->getDictFromJsonObject
   ->getFloat(key, 0.0)
 }
@@ -180,4 +178,21 @@ let tooltipFormatter = (~secondaryCategories, ~title, ~metricType) => {
     </div>`
     }
   )->asTooltipPointFormatter
+}
+
+let getSmartRetryMetricType = isSmartRetryEnabled => {
+  open NewAnalyticsTypes
+  switch isSmartRetryEnabled {
+  | true => Smart_Retry
+  | false => Default
+  }
+}
+
+let getEntityForSmartRetry = isEnabled => {
+  open NewAnalyticsTypes
+  open APIUtilsTypes
+  switch isEnabled {
+  | Smart_Retry => ANALYTICS_PAYMENTS
+  | Default => ANALYTICS_PAYMENTS_V2
+  }
 }
