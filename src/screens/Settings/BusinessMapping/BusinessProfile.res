@@ -95,6 +95,7 @@ module AddEntryBtn = {
       <RenderIf condition=isFromSettings>
         <ACLButton
           text="Add"
+          // TODO: Remove `MerchantDetailsManage` permission in future
           authorization={GroupACLHooks.hasAnyGroupAccess(
             userHasAccess(~groupAccess=MerchantDetailsManage),
             userHasAccess(~groupAccess=AccountManage),

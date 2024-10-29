@@ -34,12 +34,14 @@ module AddNewMerchantProfileButton = {
   ) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let cursorStyles = GroupAccessUtils.cursorStyles(
+      // TODO: Remove `MerchantDetailsManage` permission in future
       GroupACLHooks.hasAnyGroupAccess(
         userHasAccess(~groupAccess=MerchantDetailsManage),
         userHasAccess(~groupAccess=AccountManage),
       ),
     )
     <ACLDiv
+      // TODO: Remove `MerchantDetailsManage` permission in future
       authorization={GroupACLHooks.hasAnyGroupAccess(
         userHasAccess(~groupAccess=MerchantDetailsManage),
         userHasAccess(~groupAccess=AccountManage),

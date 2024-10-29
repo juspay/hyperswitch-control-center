@@ -51,6 +51,7 @@ let emptyComponent = CustomComponent({
 
 let productionAccessComponent = (isProductionAccessEnabled, userHasAccess) =>
   isProductionAccessEnabled &&
+  // TODO: Remove `MerchantDetailsManage` permission in future
   GroupACLHooks.hasAnyGroupAccess(
     userHasAccess(~groupAccess=MerchantDetailsManage),
     userHasAccess(~groupAccess=AccountManage),

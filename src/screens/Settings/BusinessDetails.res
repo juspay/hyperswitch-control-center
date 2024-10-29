@@ -153,6 +153,7 @@ let make = () => {
           {switch formState {
           | Preview =>
             <ACLButton
+              // TODO: Remove `MerchantDetailsManage` permission in future
               authorization={GroupACLHooks.hasAnyGroupAccess(
                 userHasAccess(~groupAccess=MerchantDetailsManage),
                 userHasAccess(~groupAccess=AccountManage),

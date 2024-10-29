@@ -22,6 +22,7 @@ let make = (
           resultsPerPage=7
           visibleColumns
           entity={webhookProfileTableEntity(
+            // TODO: Remove `MerchantDetailsManage` permission in future
             ~authorization={
               GroupACLHooks.hasAnyGroupAccess(
                 userHasAccess(~groupAccess=MerchantDetailsManage),

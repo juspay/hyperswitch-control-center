@@ -68,6 +68,7 @@ let make = () => {
       }}
       <RenderIf
         condition={!featureFlagDetails.isLiveMode &&
+        // TODO: Remove `MerchantDetailsManage` permission in future
         GroupACLHooks.hasAnyGroupAccess(
           userHasAccess(~groupAccess=MerchantDetailsManage),
           userHasAccess(~groupAccess=AccountManage),

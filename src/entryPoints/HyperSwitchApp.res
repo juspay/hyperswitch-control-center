@@ -210,6 +210,7 @@ let make = () => {
                           </AccessControl>
                         | list{"developer-api-keys"} =>
                           <AccessControl
+                            // TODO: Remove `MerchantDetailsManage` permission in future
                             authorization={GroupACLHooks.hasAnyGroupAccess(
                               userHasAccess(~groupAccess=MerchantDetailsManage),
                               userHasAccess(~groupAccess=AccountManage),
@@ -244,6 +245,7 @@ let make = () => {
                         | list{"account-settings"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.sampleData
+                            // TODO: Remove `MerchantDetailsManage` permission in future
                             authorization={GroupACLHooks.hasAnyGroupAccess(
                               userHasAccess(~groupAccess=MerchantDetailsManage),
                               userHasAccess(~groupAccess=AccountManage),

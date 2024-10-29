@@ -27,6 +27,7 @@ module CantFindProcessor = {
 
     <RenderIf condition={showRequestConnectorBtn}>
       <ACLButton
+        // TODO: Remove `MerchantDetailsManage` permission in future
         authorization={GroupACLHooks.hasAnyGroupAccess(
           userHasAccess(~groupAccess=MerchantDetailsManage),
           userHasAccess(~groupAccess=AccountManage),
