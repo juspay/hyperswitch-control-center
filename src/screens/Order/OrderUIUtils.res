@@ -274,11 +274,7 @@ let initialFilters = (json, filtervalues) => {
 
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
 
-  // TODO: Remove the card-network delete once card-network issue is fixed
-  let filterDict =
-    json
-    ->getDictFromJsonObject
-    ->DictionaryUtils.deleteKeys(["card_network"])
+  let filterDict = json->getDictFromJsonObject
 
   let filterArr = filterDict->itemToObjMapper
   let arr = filterDict->Dict.keysToArray
