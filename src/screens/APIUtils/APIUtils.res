@@ -34,6 +34,17 @@ let useGetURL = () => {
     /* MERCHANT ACCOUNT DETAILS (Get and Post) */
     | MERCHANT_ACCOUNT => `accounts/${merchantId}`
 
+    /* ORGANIZATION UPDATE */
+    | UPDATE_ORGANIZATION =>
+      switch methodType {
+      | Put =>
+        switch id {
+        | Some(id) => `organization/${id}`
+        | None => `organization`
+        }
+      | _ => ""
+      }
+
     /* CUSTOMERS DETAILS */
     | CUSTOMERS =>
       switch methodType {
