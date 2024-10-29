@@ -13,15 +13,15 @@ module EditOrgName = {
 
     let validateForm = (values: JSON.t) => {
       let errors = Dict.make()
-      let profileName =
+      let organizationName =
         values->getDictFromJsonObject->getString("organization_name", "")->String.trim
-      let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
+      let regexForOrganizationName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
 
-      let errorMessage = if profileName->isEmptyString {
+      let errorMessage = if organizationName->isEmptyString {
         "Organization name cannot be empty"
-      } else if profileName->String.length > 64 {
+      } else if organizationName->String.length > 64 {
         "Organization name cannot exceed 64 characters"
-      } else if !RegExp.test(RegExp.fromString(regexForProfileName), profileName) {
+      } else if !RegExp.test(RegExp.fromString(regexForOrganizationName), organizationName) {
         "Organization name should not contain special characters"
       } else {
         ""
