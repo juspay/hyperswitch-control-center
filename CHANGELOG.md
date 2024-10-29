@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.10.29.0
+
+### Features
+
+- Smart retry analytics ([#1642](https://github.com/juspay/hyperswitch-control-center/pull/1642)) ([`e166495`](https://github.com/juspay/hyperswitch-control-center/commit/e166495d24fd6088423b4e9e8062d2524bd3202c))
+- Add samsung pay payment method support for cybersource ([#1650](https://github.com/juspay/hyperswitch-control-center/pull/1650)) ([`02d66da`](https://github.com/juspay/hyperswitch-control-center/commit/02d66da7495fa52c470261d0dba97e770a6c1ffe))
+
+### Bug Fixes
+
+- Changes to enable card-network ([#1655](https://github.com/juspay/hyperswitch-control-center/pull/1655)) ([`d910c1e`](https://github.com/juspay/hyperswitch-control-center/commit/d910c1e649ac7ae78f5d7cf02a20769abb5e17eb))
+
+**Full Changelog:** [`2024.10.25.0...2024.10.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.10.25.0...2024.10.29.0)
+
+- - -
+
 ## 2024.10.25.0
 
 ### Bug Fixes
