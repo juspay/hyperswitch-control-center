@@ -24,7 +24,18 @@ let make = () => {
     try {
       let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
-      setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
+      // Need to be removed
+      let ignoreSessionizedPayment =
+        infoDetails
+        ->getDictFromJsonObject
+        ->getArrayFromDict("metrics", [])
+        ->Array.filter(ele => {
+          let metricName = ele->getDictFromJsonObject->getString("name", "")
+          !String.includes(metricName, "sessionized") &&
+          metricName != "failure_reasons" &&
+          metricName != "payments_distribution"
+        })
+      setMetrics(_ => ignoreSessionizedPayment)
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
