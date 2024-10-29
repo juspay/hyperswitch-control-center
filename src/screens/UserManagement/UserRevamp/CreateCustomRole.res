@@ -3,7 +3,6 @@ module RenderCustomRoles = {
   let make = (~heading, ~description, ~groupName) => {
     let groupsInput = ReactFinalForm.useField(`groups`).input
     let groupsAdded = groupsInput.value->LogicUtils.getStrArryFromJson
-    let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
     let (checkboxSelected, setCheckboxSelected) = React.useState(_ =>
       groupsAdded->Array.includes(groupName)
     )
@@ -19,10 +18,9 @@ module RenderCustomRoles = {
       }
       setCheckboxSelected(prev => !prev)
     }
-    //TODO have to add check for >= org
+
     <RenderIf
-      condition={groupName->GroupACLMapper.mapStringToGroupAccessType !== UsersManage &&
-        checkUserEntity([#Organization])}>
+      condition={groupName->GroupACLMapper.mapStringToGroupAccessType !== OrganizationManage}>
       <div className="flex gap-6 items-start cursor-pointer" onClick={_ => onClickGroup(groupName)}>
         <div className="mt-1">
           <CheckBoxIcon isSelected={checkboxSelected} size={Large} />

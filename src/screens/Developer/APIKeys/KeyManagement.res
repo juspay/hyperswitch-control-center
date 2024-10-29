@@ -177,7 +177,7 @@ module ApiKeyAddBtn = {
   @react.component
   let make = (~getAPIKeyDetails) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let (showModal, setShowModal) = React.useState(_ => false)
     let initialValues = Dict.make()
     initialValues->Dict.set("expiration", Never->getStringFromRecordType->JSON.Encode.string)
@@ -192,7 +192,7 @@ module ApiKeyAddBtn = {
           />,
         )}
         // TODO: Remove `MerchantDetailsManage` permission in future
-        authorization={GroupACLHooks.hasAnyGroupAccess(
+        authorization={hasAnyGroupAccess(
           userHasAccess(~groupAccess=MerchantDetailsManage),
           userHasAccess(~groupAccess=AccountManage),
         )}

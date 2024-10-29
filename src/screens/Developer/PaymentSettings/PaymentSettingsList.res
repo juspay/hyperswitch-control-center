@@ -6,7 +6,7 @@ let make = (
 ) => {
   open PaymentSettingsListEntity
   let (offset, setOffset) = React.useState(_ => 0)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let businessProfileValues = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
 
   <RenderIf condition=isFromSettings>
@@ -24,7 +24,7 @@ let make = (
           entity={webhookProfileTableEntity(
             // TODO: Remove `MerchantDetailsManage` permission in future
             ~authorization={
-              GroupACLHooks.hasAnyGroupAccess(
+              hasAnyGroupAccess(
                 userHasAccess(~groupAccess=MerchantDetailsManage),
                 userHasAccess(~groupAccess=AccountManage),
               )

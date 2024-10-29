@@ -49,10 +49,10 @@ let emptyComponent = CustomComponent({
   component: React.null,
 })
 
-let productionAccessComponent = (isProductionAccessEnabled, userHasAccess) =>
+let productionAccessComponent = (isProductionAccessEnabled, userHasAccess, hasAnyGroupAccess) =>
   isProductionAccessEnabled &&
   // TODO: Remove `MerchantDetailsManage` permission in future
-  GroupACLHooks.hasAnyGroupAccess(
+  hasAnyGroupAccess(
     userHasAccess(~groupAccess=MerchantDetailsManage),
     userHasAccess(~groupAccess=AccountManage),
   ) === CommonAuthTypes.Access
@@ -638,7 +638,7 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourc
 
 let useGetSidebarValues = (~isReconEnabled: bool) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {userEntity, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -670,7 +670,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   let isNewAnalyticsEnable =
     newAnalytics && useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)
   let sidebar = [
-    productionAccessComponent(quickStart, userHasAccess),
+    productionAccessComponent(quickStart, userHasAccess, hasAnyGroupAccess),
     default->home,
     default->operations(~userHasResourceAccess, ~isPayoutsEnabled=payOut, ~userEntity),
     default->connectors(

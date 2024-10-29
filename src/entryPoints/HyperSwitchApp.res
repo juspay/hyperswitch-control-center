@@ -24,7 +24,7 @@ let make = () => {
     useIsFeatureEnabledForMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -211,7 +211,7 @@ let make = () => {
                         | list{"developer-api-keys"} =>
                           <AccessControl
                             // TODO: Remove `MerchantDetailsManage` permission in future
-                            authorization={GroupACLHooks.hasAnyGroupAccess(
+                            authorization={hasAnyGroupAccess(
                               userHasAccess(~groupAccess=MerchantDetailsManage),
                               userHasAccess(~groupAccess=AccountManage),
                             )}
@@ -246,7 +246,7 @@ let make = () => {
                           <AccessControl
                             isEnabled=featureFlagDetails.sampleData
                             // TODO: Remove `MerchantDetailsManage` permission in future
-                            authorization={GroupACLHooks.hasAnyGroupAccess(
+                            authorization={hasAnyGroupAccess(
                               userHasAccess(~groupAccess=MerchantDetailsManage),
                               userHasAccess(~groupAccess=AccountManage),
                             )}>

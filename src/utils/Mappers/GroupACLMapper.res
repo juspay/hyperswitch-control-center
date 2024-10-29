@@ -14,6 +14,7 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | UsersManage => "users_manage"
   | MerchantDetailsView => "merchant_details_view"
   | MerchantDetailsManage => "merchant_details_manage"
+  | OrganizationManage => "organization_manage"
   | AccountView => "account_view"
   | AccountManage => "account_manage"
   | UnknownGroupAccess(val) => val
@@ -32,6 +33,7 @@ let mapStringToGroupAccessType = val =>
   | "users_manage" => UsersManage
   | "merchant_details_view" => MerchantDetailsView
   | "merchant_details_manage" => MerchantDetailsManage
+  | "organization_manage" => OrganizationManage
   | "account_view" => AccountView
   | "account_manage" => AccountManage
   | val => UnknownGroupAccess(val)
@@ -71,6 +73,7 @@ let defaultValueForGroupAccessJson = {
   usersManage: NoAccess,
   merchantDetailsView: NoAccess,
   merchantDetailsManage: NoAccess,
+  organizationManage: NoAccess,
   accountView: NoAccess,
   accountManage: NoAccess,
 }
@@ -91,6 +94,7 @@ let getGroupAccessJson = groupACL => {
   usersManage: getAccessValue(~groupAccess=UsersManage, ~groupACL),
   merchantDetailsView: getAccessValue(~groupAccess=MerchantDetailsView, ~groupACL),
   merchantDetailsManage: getAccessValue(~groupAccess=MerchantDetailsManage, ~groupACL),
+  organizationManage: getAccessValue(~groupAccess=OrganizationManage, ~groupACL),
   accountView: getAccessValue(~groupAccess=AccountView, ~groupACL),
   accountManage: getAccessValue(~groupAccess=AccountManage, ~groupACL),
 }

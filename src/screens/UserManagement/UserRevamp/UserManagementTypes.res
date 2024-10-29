@@ -15,6 +15,7 @@ type groupAccessType =
   | UsersManage
   | MerchantDetailsView
   | MerchantDetailsManage
+  | OrganizationManage
   | AccountView
   | AccountManage
   | UnknownGroupAccess(string)
@@ -52,6 +53,7 @@ type groupAccessJsonType = {
   usersManage: authorization,
   merchantDetailsView: authorization,
   merchantDetailsManage: authorization,
+  organizationManage: authorization,
   accountView: authorization,
   accountManage: authorization,
 }
@@ -82,17 +84,8 @@ type userDetailstype = {
   status: string,
   entityType: string,
 }
-// type parentGroupType =
-//   | Operations
-//   | Connectors
-//   | Workflows
-//   | Analytics
-//   | Users
-//   | Merchant
-//   | Organization
-//   | UnknownGroup(string)
 
-@unboxed @unboxed
+@unboxed
 type groupControlType = View | Manage
 
 type allSelectionType = [#All_Merchants | #All_Profiles]

@@ -12,6 +12,7 @@
  *
  *
  */
+open CommonAuthTypes
 type userGroupACLType = {
   fetchUserGroupACL: unit => promise<UserManagementTypes.groupAccessJsonType>,
   userHasResourceAccess: (
@@ -19,6 +20,10 @@ type userGroupACLType = {
   ) => CommonAuthTypes.authorization,
   userHasAccess: (
     ~groupAccess: UserManagementTypes.groupAccessType,
+  ) => CommonAuthTypes.authorization,
+  hasAnyGroupAccess: (
+    CommonAuthTypes.authorization,
+    CommonAuthTypes.authorization,
   ) => CommonAuthTypes.authorization,
 }
 
@@ -38,15 +43,9 @@ let useUserGroupACLHook = () => {
       let response = await fetchDetails(url)
       let dict = response->getDictFromJsonObject
 
-      let groupsAccessValue =
-        getArrayFromDict(dict, "groups", [])->Array.map(ele =>
-          ele->JSON.Decode.string->Option.getOr("")
-        )
+      let groupsAccessValue = getStrArrayFromDict(dict, "groups", [])
 
-      let resourcesAccessValue =
-        getArrayFromDict(dict, "resources", [])->Array.map(ele =>
-          ele->JSON.Decode.string->Option.getOr("")
-        )
+      let resourcesAccessValue = getStrArrayFromDict(dict, "resources", [])
 
       let userGroupACLMap =
         groupsAccessValue->Array.map(ele => ele->mapStringToGroupAccessType)->convertValueToMapGroup
@@ -92,12 +91,11 @@ let useUserGroupACLHook = () => {
     | None => NoAccess
     }
   }
+  let hasAnyGroupAccess = (group1, group2) =>
+    switch (group1, group2) {
+    | (NoAccess, NoAccess) => NoAccess
+    | (_, _) => Access
+    }
 
-  {fetchUserGroupACL, userHasResourceAccess, userHasAccess}
+  {fetchUserGroupACL, userHasResourceAccess, userHasAccess, hasAnyGroupAccess}
 }
-open CommonAuthTypes
-let hasAnyGroupAccess = (group1, group2) =>
-  switch (group1, group2) {
-  | (NoAccess, NoAccess) => NoAccess
-  | (_, _) => Access
-  }
