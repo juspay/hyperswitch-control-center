@@ -35,7 +35,7 @@ let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime) => {
           ~label="",
           ~comboCustomInput=InputFields.filterDateRangeField(
             ~startKey=startTimeFilterKey,
-            ~endKey=compareToEndTimeKey,
+            ~endKey=endTimeFilterKey,
             ~format="YYYY-MM-DDTHH:mm:ss[Z]",
             ~showTime=true,
             ~disablePastDates={false},

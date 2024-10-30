@@ -746,7 +746,24 @@ let make = (
   let endInput = ReactFinalForm.useField(endKey).input
   let (startDateVal, setStartDateVal) = useStateForInput(startInput)
   let (endDateVal, setEndDateVal) = useStateForInput(endInput)
-
+  React.useEffect(() => {
+    if (
+      compareWithStartTime->LogicUtils.isNonEmptyString &&
+        compareWithEndTime->LogicUtils.isNonEmptyString
+    ) {
+      let (startTime, endTime) = DateRangeUtils.getComparisionTimePeriod(
+        ~startDate=compareWithStartTime,
+        ~endDate=compareWithEndTime,
+      )
+      setStartDateVal(_ => startTime)
+      setEndDateVal(_ => endTime)
+    }
+    None
+  }, [compareWithStartTime, compareWithEndTime])
+  let dateRangeLimit = DateRangeUtils.getGapBetweenRange(
+    ~startDate=compareWithStartTime,
+    ~endDate=compareWithEndTime,
+  )
   <Base
     startDateVal
     setStartDateVal
@@ -761,7 +778,7 @@ let make = (
     numMonths
     disableApply
     removeFilterOption
-    ?dateRangeLimit
+    dateRangeLimit
     ?optFieldKey
     textHideInMobileView
     showSeconds
