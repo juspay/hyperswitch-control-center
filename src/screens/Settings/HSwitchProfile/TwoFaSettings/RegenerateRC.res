@@ -49,7 +49,7 @@ module TwoFaVerifyModal = {
   }
 }
 @react.component
-let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType) => {
+let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~checkTwoFaStatus) => {
   open LogicUtils
   open APIUtils
 
@@ -84,6 +84,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType) => {
   }
 
   let handleModalClose = () => {
+    setTwofaExpiredModal(_ => TwoFaNotExpired)
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=`/account-settings/profile`))
   }
 
@@ -106,8 +107,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType) => {
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_49 {
-          setTwofaExpiredModal(_ => TwoFaExpired(RC_ATTEMPTS_EXPIRED))
-          setShowVerifyModal(_ => true)
+          checkTwoFaStatus()->ignore
         }
         setOtpInModal(_ => "")
         setErrorMessage(_ => errorMessage)
@@ -162,8 +162,17 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType) => {
     showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
   }
 
-  let handleConfirmAction = _ => {
-    handleModalClose()
+  let handleConfirmAction = expiredType => {
+    open TwoFaTypes
+    switch expiredType {
+    | RC_ATTEMPTS_EXPIRED => {
+        setOtpInModal(_ => "")
+        setErrorMessage(_ => "")
+        setTwofaExpiredModal(_ => TwoFaNotExpired)
+        setShowVerifyModal(_ => true)
+      }
+    | _ => handleModalClose()
+    }
   }
 
   <PageLoaderWrapper screenState>

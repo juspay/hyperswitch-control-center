@@ -18,6 +18,8 @@ module TwoFaVerifyModal = {
     ~twoFaState,
     ~setTwoFaState,
     ~handle2FaVerify,
+    ~showOnlyTotp=false,
+    ~showOnlyRc=false,
   ) => {
     open HSwitchSettingTypes
 
@@ -37,6 +39,8 @@ module TwoFaVerifyModal = {
           setRecoveryCode
           errorMessage
           setErrorMessage
+          showOnlyTotp
+          showOnlyRc
         />
         <div className="flex flex-1 justify-end">
           <Button
@@ -60,7 +64,7 @@ module TwoFaVerifyModal = {
 }
 
 @react.component
-let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType) => {
+let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~checkTwoFaStatus) => {
   open LogicUtils
   open HSwitchSettingTypes
   open APIUtils
@@ -133,8 +137,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType) => {
           setTotpSecret(_ => RegenerateQR)
         }
         if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_48 {
-          setTwofaExpiredModal(_ => TwoFaExpired(TOTP_ATTEMPTS_EXPIRED))
-          setShowVerifyModal(_ => true)
+          checkTwoFaStatus()->ignore
         }
         setOtpInModal(_ => "")
         setOtp(_ => "")
@@ -162,8 +165,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType) => {
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_49 {
-          setTwofaExpiredModal(_ => TwoFaExpired(RC_ATTEMPTS_EXPIRED))
-          setShowVerifyModal(_ => true)
+          checkTwoFaStatus()->ignore
         }
         setRecoveryCode(_ => "")
         setErrorMessage(_ => errorMessage)
@@ -223,27 +225,42 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType) => {
   }, [otpInModal, recoveryCode])
 
   let handleModalClose = () => {
-    setTwofaExpiredModal(_ => TwoFaNotExpired)
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=`/account-settings/profile`))
+    setTwofaExpiredModal(_ => TwoFaNotExpired)
   }
 
   let handleConfirmAction = expiredType => {
     open TwoFaTypes
     switch expiredType {
-    | TOTP_ATTEMPTS_EXPIRED => {
-        setOtp(_ => "")
-        setErrorMessage(_ => "")
-        setTwoFaState(_ => RecoveryCode)
-        setTwofaExpiredModal(_ => TwoFaNotExpired)
-      }
+    | TOTP_ATTEMPTS_EXPIRED =>
+      setOtp(_ => "")
+      setOtpInModal(_ => "")
+      setErrorMessage(_ => "")
+      setTwofaExpiredModal(_ => TwoFaNotExpired)
+      setTwoFaState(_ => RecoveryCode)
+      setShowVerifyModal(_ => true)
+
     | RC_ATTEMPTS_EXPIRED => {
         setRecoveryCode(_ => "")
         setErrorMessage(_ => "")
         setTwoFaState(_ => Totp)
+        setShowVerifyModal(_ => true)
         setTwofaExpiredModal(_ => TwoFaNotExpired)
       }
     | TWO_FA_EXPIRED => handleModalClose()
     }
+  }
+
+  let (showOnlyTotp, showOnlyRc) = switch checkTwoFaStatusResponse.status {
+  | Some(value) =>
+    if value.totp.attemptsRemaining === 0 && value.recoveryCode.attemptsRemaining > 0 {
+      (false, true)
+    } else if value.recoveryCode.attemptsRemaining === 0 && value.totp.attemptsRemaining > 0 {
+      (false, true)
+    } else {
+      (false, false)
+    }
+  | None => (true, true)
   }
 
   <div>
@@ -267,6 +284,8 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType) => {
         twoFaState
         setTwoFaState
         handle2FaVerify
+        showOnlyTotp
+        showOnlyRc
       />
     }}
     <div className={`bg-white h-40-rem w-200 rounded-2xl flex flex-col border`}>

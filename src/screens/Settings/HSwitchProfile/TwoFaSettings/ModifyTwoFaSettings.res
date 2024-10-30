@@ -52,8 +52,8 @@ let make = () => {
       />
     </div>
     {switch twofactorAuthType->HSwitchProfileUtils.getTwoFaEnumFromString {
-    | ResetTotp => <ResetTotp checkTwoFaStatusResponse />
-    | RegenerateRecoveryCode => <RegenerateRC checkTwoFaStatusResponse />
+    | ResetTotp => <ResetTotp checkTwoFaStatusResponse checkTwoFaStatus />
+    | RegenerateRecoveryCode => <RegenerateRC checkTwoFaStatusResponse checkTwoFaStatus />
     }}
   </PageLoaderWrapper>
 }

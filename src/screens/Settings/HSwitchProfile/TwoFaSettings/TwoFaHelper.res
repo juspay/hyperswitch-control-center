@@ -12,6 +12,7 @@ module Verify2FAModalComponent = {
     ~recoveryCode="",
     ~setRecoveryCode=_ => (),
     ~showOnlyTotp=false,
+    ~showOnlyRc=false,
   ) => {
     open HSwitchSettingTypes
     let handleOnClick = (~stateToSet) => {
@@ -41,14 +42,16 @@ module Verify2FAModalComponent = {
       | RecoveryCode =>
         <>
           <TwoFaElements.RecoveryCodesInput recoveryCode setRecoveryCode />
-          <p className={`${p2Regular} text-jp-gray-700`}>
-            {"Didn't get a code? "->React.string}
-            <span
-              className="cursor-pointer underline underline-offset-2 text-blue-600"
-              onClick={_ => handleOnClick(~stateToSet=Totp)}>
-              {"Use totp instead"->React.string}
-            </span>
-          </p>
+          <RenderIf condition={!showOnlyRc}>
+            <p className={`${p2Regular} text-jp-gray-700`}>
+              {"Didn't get a code? "->React.string}
+              <span
+                className="cursor-pointer underline underline-offset-2 text-blue-600"
+                onClick={_ => handleOnClick(~stateToSet=Totp)}>
+                {"Use totp instead"->React.string}
+              </span>
+            </p>
+          </RenderIf>
         </>
       }}
       <RenderIf condition={errorMessage->LogicUtils.isNonEmptyString}>
@@ -79,6 +82,7 @@ module TwoFaWarningModal = {
             text: "Use recovery code",
             onClick: {_ => handleConfirmAction(expiredType)},
           },
+          showCloseIcon: false,
         })
       | RC_ATTEMPTS_EXPIRED =>
         showPopUp({
@@ -89,6 +93,7 @@ module TwoFaWarningModal = {
           ),
           handleCancel: {text: "OK", onClick: {_ => handleOkAction()}},
           handleConfirm: {text: "Use totp code", onClick: {_ => handleConfirmAction(expiredType)}},
+          showCloseIcon: false,
         })
       | TWO_FA_EXPIRED =>
         showPopUp({
@@ -101,6 +106,7 @@ module TwoFaWarningModal = {
             text: "OK",
             onClick: {_ => handleConfirmAction(expiredType)},
           },
+          showCloseIcon: false,
         })
       }
     }
