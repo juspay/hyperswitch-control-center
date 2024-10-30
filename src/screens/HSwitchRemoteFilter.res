@@ -33,6 +33,9 @@ let useSetInitialFilters = (
   ~updateExistingKeys,
   ~startTimeFilterKey,
   ~endTimeFilterKey,
+  ~compareToStartTime="",
+  ~compareToEndTime="",
+  ~enableCompareTo=None,
   ~range=7,
   ~origin,
   (),
@@ -48,7 +51,19 @@ let useSetInitialFilters = (
       let timeRange =
         origin !== "analytics"
           ? [(startTimeFilterKey, defaultDate.start_time)]
-          : [(startTimeFilterKey, defaultDate.start_time), (endTimeFilterKey, defaultDate.end_time)]
+          : switch enableCompareTo {
+            | Some(_) => [
+                (startTimeFilterKey, defaultDate.start_time),
+                (endTimeFilterKey, defaultDate.end_time),
+                (compareToStartTime, defaultDate.start_time),
+                (compareToEndTime, defaultDate.end_time),
+              ]
+            | None => [
+                (startTimeFilterKey, defaultDate.start_time),
+                (endTimeFilterKey, defaultDate.end_time),
+              ]
+            }
+
       timeRange->Array.forEach(item => {
         let (key, defaultValue) = item
         switch inititalSearchParam->Dict.get(key) {
@@ -119,6 +134,8 @@ module RemoteTableFilters = {
     ~setFilters,
     ~endTimeFilterKey,
     ~startTimeFilterKey,
+    ~compareToStartTime="",
+    ~compareToEndTime="",
     ~initialFilters,
     ~initialFixedFilter,
     ~setOffset,
@@ -185,6 +202,8 @@ module RemoteTableFilters = {
       ~updateExistingKeys,
       ~startTimeFilterKey,
       ~endTimeFilterKey,
+      ~compareToStartTime,
+      ~compareToEndTime,
       ~range=30,
       ~origin="orders",
       (),

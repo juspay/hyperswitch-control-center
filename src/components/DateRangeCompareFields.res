@@ -64,7 +64,7 @@ module PredefinedOption = {
       "bg-transparent md:bg-white md:dark:bg-jp-gray-lightgray_background py-2"
     }
 
-    let (stDate, enDate, stTime, enTime) = DateRangeUtils.getPredefinedStartAndEndDate(
+    let (stDate, enDate, stTime, enTime) = getPredefinedStartAndEndDate(
       todayDayJsObj,
       isoStringToCustomTimeZone,
       isoStringToCustomTimezoneInFloat,
@@ -81,7 +81,7 @@ module PredefinedOption = {
     let handleClick = _value => {
       onClick(value, disableFutureDates)
     }
-    let dateRangeDropdownVal = DateRangeUtils.datetext(value, disableFutureDates)
+    let dateRangeDropdownVal = datetext(value, disableFutureDates)
     <ToolTip
       tooltipWidthClass="w-fit"
       tooltipForWidthClass="!block w-full"
@@ -90,7 +90,7 @@ module PredefinedOption = {
         attributes=[("data-daterange-dropdown-value", dateRangeDropdownVal)]>
         <div>
           <div
-            className={`${optionBG} px-4 py-2 hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100  cursor-pointer text-sm text-gray-500 dark:text-gray-400`}
+            className={`${optionBG} mx-2 rounded-md p-2 hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100  cursor-pointer text-sm font-medium text-grey-900`}
             onClick=handleClick>
             {React.string(dateRangeDropdownVal)}
           </div>
@@ -125,7 +125,6 @@ module Base = {
     ~hideDate=false,
     ~selectStandardTime=false,
     ~buttonType=?,
-    ~customButtonStyle=?,
     ~buttonText="",
     ~allowedDateRange=?,
     ~textStyle=?,
@@ -134,6 +133,7 @@ module Base = {
     ~customborderCSS="",
     ~isTooltipVisible=true,
   ) => {
+    open DateRangeHelper
     open DateRangeUtils
     open LogicUtils
     let (isCustomSelected, setIsCustomSelected) = React.useState(_ =>
@@ -150,10 +150,10 @@ module Base = {
     let (localStartDate, setLocalStartDate) = React.useState(_ => startDateVal)
     let (localEndDate, setLocalEndDate) = React.useState(_ => endDateVal)
     let (_localOpt, setLocalOpt) = React.useState(_ => "")
-    let (showMsg, setShowMsg) = React.useState(_ => false)
 
     let (isDropdownExpanded, setIsDropdownExpanded) = React.useState(_ => false)
     let (calendarVisibility, setCalendarVisibility) = React.useState(_ => false)
+
     let isMobileView = MatchMedia.useMobileChecker()
     let isFilterSection = React.useContext(TableFilterSectionContext.filterSectionContext)
 
@@ -189,7 +189,6 @@ module Base = {
       | Some(maxLen) => {
           let diff = getStartEndDiff(localStartDate, localEndDate)
           if diff > (maxLen->Int.toFloat *. 24. *. 60. *. 60. -. 1.) *. 1000. {
-            setShowMsg(_ => true)
             resetStartEndInput()
           }
         }
@@ -461,66 +460,6 @@ module Base = {
         : buttonText->isNonEmptyString
         ? ""
         : "[To-Date]"
-    let startTimeStr =
-      startDateVal->isNonEmptyString
-        ? startDateVal->getTimeStringForValue(isoStringToCustomTimeZone)
-        : "00:00:00"
-    let endTimeStr =
-      startDateVal->isNonEmptyString
-        ? endDateVal->getTimeStringForValue(isoStringToCustomTimeZone)
-        : "23:59:59"
-
-    let endTimeStr = {
-      let timeArr = endTimeStr->String.split(":")
-      let endTimeTxt = `${timeArr[0]->Option.getOr("00")}:${timeArr[1]->Option.getOr("00")}`
-      showSeconds ? `${endTimeTxt}:${timeArr[2]->Option.getOr("00")}` : endTimeTxt
-    }
-    let startTimeStr = {
-      let timeArr = startTimeStr->String.split(":")
-      let startTimeTxt = `${timeArr[0]->Option.getOr("00")}:${timeArr[1]->Option.getOr("00")}`
-      showSeconds ? `${startTimeTxt}:${timeArr[2]->Option.getOr("00")}` : startTimeTxt
-    }
-
-    let buttonText = {
-      startDateVal->isEmptyString && endDateVal->isEmptyString
-        ? `Select Date ${showTime ? "and Time" : ""}`
-        : showTime
-        ? `${startDateStr} ${startTimeStr} - ${endDateStr} ${endTimeStr}`
-        : `${startDateStr} ${startDateStr === buttonText ? "" : "-"} ${endDateStr}`
-    }
-
-    let buttonIcon = isDropdownExpanded ? "angle-up" : "angle-down"
-
-    let handlePredefinedOptionClick = (value, disableFutureDates) => {
-      setIsCustomSelected(_ => false)
-      setCalendarVisibility(_ => false)
-      setIsDropdownExpanded(_ => false)
-      setShowOption(_ => false)
-      let (stDate, enDate, stTime, enTime) = DateRangeUtils.getPredefinedStartAndEndDate(
-        todayDayJsObj,
-        isoStringToCustomTimeZone,
-        isoStringToCustomTimezoneInFloat,
-        customTimezoneToISOString,
-        value,
-        disableFutureDates,
-        disablePastDates,
-        todayDate,
-        todayTime,
-      )
-
-      resetStartEndInput()
-
-      setStartDate(~date=startDate, ~time=stTime)
-      setEndDate(~date=endDate, ~time=enTime)
-      setLocalOpt(_ =>
-        DateRangeUtils.datetext(value, disableFutureDates)
-        ->String.toLowerCase
-        ->String.split(" ")
-        ->Array.joinWith("_")
-      )
-      changeStartDate(stDate, false, Some(stTime))
-      changeEndDate(enDate, false, Some(enTime))
-    }
 
     let handleDropdownClick = () => {
       if predefinedDays->Array.length > 0 {
@@ -540,29 +479,6 @@ module Base = {
       }
     }
 
-    let displayStartDate = convertTimeStamp(
-      ~isoStringToCustomTimeZone,
-      localStartDate,
-      formatDateTime,
-    )
-    let modifiedStartDate = if removeConversion {
-      (displayStartDate->DayJs.getDayJsForString).subtract(330, "minute").format(
-        "YYYY-MM-DDTHH:mm:ss[Z]",
-      )
-    } else {
-      displayStartDate
-    }
-
-    let displayEndDate = convertTimeStamp(~isoStringToCustomTimeZone, localEndDate, formatDateTime)
-
-    let modifiedEndDate = if removeConversion {
-      (displayEndDate->DayJs.getDayJsForString).subtract(330, "minute").format(
-        "YYYY-MM-DDTHH:mm:ss[Z]",
-      )
-    } else {
-      displayEndDate
-    }
-
     React.useEffect(() => {
       if startDate->isNonEmptyString && endDate->isNonEmptyString {
         if (
@@ -580,9 +496,7 @@ module Base = {
       None
     }, (startDate, endDate, localStartDate, localEndDate))
 
-    let btnStyle = customButtonStyle->Option.getOr("")
-
-    let customStyleForBtn = btnStyle->isNonEmptyString ? btnStyle : ""
+    let customStyleForBtn = "rounded-lg bg-white"
 
     let timeVisibilityClass = showTime ? "block" : "hidden"
 
@@ -628,91 +542,80 @@ module Base = {
       getDiffForPredefined(item) === difference
     })
 
-    let filteredPredefinedDays = {
-      switch dateRangeLimit {
-      | Some(limit) =>
-        predefinedDays->Array.filter(item => {
-          getDiffForPredefined(item) <= (limit->Float.fromInt *. 24. *. 60. *. 60. -. 1.) *. 1000.
-        })
-      | None => predefinedDays
-      }
-    }
-
-    let customeRangeBg = switch predefinedOptionSelected {
-    | Some(_) => "bg-white dark:bg-jp-gray-lightgray_background"
-    | None => "bg-jp-gray-100 dark:bg-jp-gray-850"
-    }
-
-    let removeApplyFilter = ev => {
-      ev->ReactEvent.Mouse.stopPropagation
-      resetToInitalValues()
-      setStartDateVal(_ => "")
-      setEndDateVal(_ => "")
+    let buttonText = switch predefinedOptionSelected {
+    | Some(value) => DateRangeUtils.datetext(value, disableFutureDates)
+    | None =>
+      startDateVal->isEmptyString && endDateVal->isEmptyString
+        ? `Select Date`
+        : endDateVal->isEmptyString
+        ? `${startDateStr} - Now`
+        : `${startDateStr} ${startDateStr === buttonText ? "" : "-"} ${endDateStr}`
     }
 
     let buttonType: option<Button.buttonType> = buttonType
-    let calendarIcon = "calendar"
-    let arrowIconSize = 14
-    let strokeColor = if disable {
-      "stroke-jp-2-light-gray-600"
-    } else if isDropdownExpandedActual {
-      "stroke-jp-2-light-gray-1700"
-    } else {
-      "stroke-jp-2-light-gray-1100"
+
+    let setDateTime = (~date, ~time, setLocalDate) => {
+      if date->isNonEmptyString {
+        let timestamp = changeTimeFormat(~date, ~time, ~customTimezoneToISOString, ~format)
+        setLocalDate(_ => timestamp)
+      }
+    }
+    let handleCompareOptionClick = value => {
+      switch value {
+      | Custom =>
+        setCalendarVisibility(_ => true)
+        setIsCustomSelected(_ => true)
+
+      | No_Comparison => {
+          setCalendarVisibility(_ => false)
+          setIsDropdownExpanded(_ => false)
+          setIsCustomSelected(_ => false)
+          setShowOption(_ => false)
+
+          setLocalStartDate(_ => "No_Value")
+          setLocalEndDate(_ => "No_Value")
+          setStartDateVal(_ => "No_Value")
+          setEndDateVal(_ => "No_Value")
+        }
+      | Previous_Period => {
+          setCalendarVisibility(_ => false)
+          setIsDropdownExpanded(_ => false)
+          setShowOption(_ => false)
+
+          let (startDate, endDate) = getComparisionTimePeriod(
+            ~startDate=startDateVal,
+            ~endDate=endDateVal,
+          )
+
+          resetStartEndInput()
+
+          let stDate = getFormattedDate(startDate, "YYYY-MM-DD")
+          let edDate = getFormattedDate(endDate, "YYYY-MM-DD")
+          let stTime = getFormattedDate(startDate, "HH:MM:00")
+          let endTime = getFormattedDate(endDate, "HH:MM:00")
+
+          setDateTime(~date=stDate, ~time=stTime, setLocalStartDate)
+          setDateTime(~date=edDate, ~time=endTime, setLocalEndDate)
+
+          changeStartDate(stDate, false, Some(stTime))
+          changeEndDate(edDate, false, Some(endTime))
+        }
+      }
     }
 
-    let iconElement = {
-      <div className="flex flex-row gap-2">
-        <Icon className=strokeColor name=buttonIcon size=arrowIconSize />
-        {if removeFilterOption && startDateVal->isNonEmptyString && endDateVal->isNonEmptyString {
-          <Icon name="crossicon" size=16 onClick=removeApplyFilter />
-        } else {
-          React.null
-        }}
-      </div>
-    }
-
-    let calendarElement =
-      <div className={`flex md:flex-row flex-col w-full`}>
-        {if predefinedDays->Array.length > 0 && showOption {
-          <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
-            <div className="flex flex-wrap md:flex-col">
-              {filteredPredefinedDays
-              ->Array.mapWithIndex((value, i) => {
-                <div
-                  key={i->Int.toString}
-                  className="w-1/3 md:w-full md:min-w-max text-center md:text-start">
-                  <PredefinedOption
-                    predefinedOptionSelected
-                    value
-                    onClick=handlePredefinedOptionClick
-                    disableFutureDates
-                    disablePastDates
-                    todayDayJsObj
-                    isoStringToCustomTimeZone
-                    isoStringToCustomTimezoneInFloat
-                    customTimezoneToISOString
-                    todayDate
-                    todayTime
-                    formatDateTime
-                    isTooltipVisible
-                  />
-                </div>
-              })
-              ->React.array}
-              <div
-                className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3 px-4 py-2  hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer text-sm text-gray-500 dark:text-gray-400 ${customeRangeBg}}`}
-                onClick={_ => {
-                  setCalendarVisibility(_ => true)
-                  setIsCustomSelected(_ => true)
-                }}>
-                {React.string("Custom Range")}
+    let dropDownElement = () => {
+      <div className={"flex md:flex-row flex-col w-full py-2"}>
+        <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
+          <div className="flex flex-wrap gap-1 md:flex-col">
+            {[No_Comparison, Custom]
+            ->Array.mapWithIndex((value, i) => {
+              <div key={i->Int.toString} className="w-full md:min-w-max text-center md:text-start">
+                <CompareOption value startDateVal endDateVal onClick=handleCompareOptionClick />
               </div>
-            </div>
-          </AddDataAttributes>
-        } else {
-          React.null
-        }}
+            })
+            ->React.array}
+          </div>
+        </AddDataAttributes>
         <AddDataAttributes attributes=[("data-date-picker-section", "date-picker-calendar")]>
           <div
             className={calendarVisibility && isCustomSelected
@@ -727,8 +630,7 @@ module Base = {
               disablePastDates
               disableFutureDates
               ?dateRangeLimit
-              setShowMsg
-              calendarContaierStyle="md:m-3 border-0 md:border"
+              calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
               ?allowedDateRange
             />
             <div
@@ -741,47 +643,21 @@ module Base = {
             } else {
               <div
                 id="neglectTopbarTheme"
-                className="flex flex-row flex-wrap gap-4 bg-white dark:bg-jp-gray-lightgray_background p-3 align-center justify-end ">
-                <div
-                  className="text-gray-700 font-fira-code dark:text-gray-400 flex-wrap font-medium self-center text-sm">
-                  {if (
-                    displayStartDate->isNonEmptyString &&
-                    displayEndDate->isNonEmptyString &&
-                    !disableApply &&
-                    !hideDate
-                  ) {
-                    <div className="flex flex-col">
-                      <AddDataAttributes attributes=[("data-date-range-start", displayStartDate)]>
-                        <div> {React.string(modifiedStartDate)} </div>
-                      </AddDataAttributes>
-                      <AddDataAttributes attributes=[("data-date-range-end", displayEndDate)]>
-                        <div> {React.string(modifiedEndDate)} </div>
-                      </AddDataAttributes>
-                    </div>
-                  } else if showMsg {
-                    let msg = `Date Range should not exceed ${dateRangeLimit
-                      ->Option.getOr(0)
-                      ->Int.toString} days`
-                    <span className="w-full flex flex-row items-center mr-0 text-red-500">
-                      <FormErrorIcon />
-                      {React.string(msg)}
-                    </span>
-                  } else {
-                    React.null
-                  }}
-                </div>
+                className="flex flex-row flex-wrap gap-3 bg-white dark:bg-jp-gray-lightgray_background px-3 mt-3 mb-1 align-center justify-end ">
                 <Button
                   text="Cancel"
+                  customButtonStyle="rounded-lg"
                   buttonType=Secondary
                   buttonState=Normal
-                  buttonSize=Small
+                  buttonSize=XSmall
                   onClick={cancelButton}
                 />
                 <Button
                   text="Apply"
+                  customButtonStyle="rounded-lg"
                   buttonType=Primary
                   buttonState={endDate->LogicUtils.isEmptyString ? Disabled : Normal}
-                  buttonSize=Small
+                  buttonSize=XSmall
                   onClick={handleApply}
                 />
               </div>
@@ -789,48 +665,49 @@ module Base = {
           </div>
         </AddDataAttributes>
       </div>
+    }
+    let isPrimaryPredefinedOptionSelected = getIsPredefinedOptionSelected(
+      predefinedDays,
+      startDateVal,
+      endDateVal,
+      isoStringToCustomTimeZone,
+      isoStringToCustomTimezoneInFloat,
+      customTimezoneToISOString,
+      disableFutureDates,
+      disablePastDates,
+    )
+    let dropDownClass = `absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`
 
-    <>
-      <div className={"md:relative daterangSelection"}>
-        <AddDataAttributes
-          attributes=[
-            ("data-date-picker", `dateRangePicker${isFilterSection ? "-Filter" : ""}`),
-            ("data-date-picker-start-date", `${startDateStr} ${startTimeStr}`),
-            ("data-date-picker-end-date", `${endDateStr} ${endTimeStr}`),
-          ]>
-          <div ref={dateRangeRef->ReactDOM.Ref.domRef}>
-            <Button
-              text={isMobileView && textHideInMobileView ? "" : buttonText}
-              leftIcon={FontAwesome(calendarIcon)}
-              rightIcon={CustomIcon(iconElement)}
-              buttonSize=XSmall
-              isDropdownOpen=isDropdownExpandedActual
-              onClick={_ => handleDropdownClick()}
-              iconBorderColor={customborderCSS}
-              customButtonStyle={customStyleForBtn}
-              buttonState={disable ? Disabled : Normal}
-              ?buttonType
-              ?textStyle
-            />
-          </div>
-        </AddDataAttributes>
-        {if isDropdownExpandedActual {
-          if isMobileView {
-            <BottomModal headerText={buttonText} onCloseClick={cancelButton}>
-              calendarElement
-            </BottomModal>
-          } else {
-            <div
-              ref={dropdownRef->ReactDOM.Ref.domRef}
-              className={`${dropdownVisibilityClass} absolute ${dropdownPosition} z-20 bg-white dark:bg-jp-gray-lightgray_background rounded border-jp-gray-500 dark:border-jp-gray-960 shadow-md dark:shadow-sm dark:shadow-gray-700 max-h-min max-w-min overflow-auto`}>
-              calendarElement
-            </div>
-          }
-        } else {
-          React.null
-        }}
-      </div>
-    </>
+    <div ref={dateRangeRef->ReactDOM.Ref.domRef} className="daterangSelection relative">
+      <DateSelectorButton
+        startDateVal
+        endDateVal
+        setStartDateVal
+        setEndDateVal
+        disable
+        isDropdownOpen=isDropdownExpanded
+        removeFilterOption
+        resetToInitalValues
+        showTime
+        buttonText
+        showSeconds
+        predefinedOptionSelected=isPrimaryPredefinedOptionSelected
+        disableFutureDates
+        onClick={_ => handleDropdownClick()}
+        buttonType
+        textStyle
+        iconBorderColor=customborderCSS
+        customButtonStyle=customStyleForBtn
+        enableToolTip=false
+        showLeftIcon=false
+        isCompare=true
+      />
+      <RenderIf condition={isDropdownExpanded}>
+        <div ref={dropdownRef->ReactDOM.Ref.domRef} className=dropDownClass>
+          {dropDownElement()}
+        </div>
+      </RenderIf>
+    </div>
   }
 }
 
@@ -866,7 +743,6 @@ let make = (
   ~hideDate=false,
   ~allowedDateRange=?,
   ~selectStandardTime=false,
-  ~customButtonStyle=?,
   ~buttonText="",
   ~textStyle=?,
   ~standardTimeToday=false,
@@ -898,7 +774,6 @@ let make = (
     showSeconds
     hideDate
     selectStandardTime
-    ?customButtonStyle
     buttonText
     ?allowedDateRange
     ?textStyle

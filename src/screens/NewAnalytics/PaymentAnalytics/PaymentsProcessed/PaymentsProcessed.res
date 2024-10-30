@@ -143,6 +143,8 @@ let make = (
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
+  let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let isSmartRetryEnabled =
     filterValueJson
     ->getString("is_smart_retry_enabled", "true")
@@ -177,8 +179,8 @@ let make = (
 
       let secondaryBody = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
-        ~startTime=prevStartTime,
-        ~endTime=prevEndTime,
+        ~startTime=compareToStartTime,
+        ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
@@ -216,8 +218,8 @@ let make = (
         let secondaryModifiedData = [secondaryData]->Array.map(data => {
           NewAnalyticsUtils.fillMissingDataPoints(
             ~data,
-            ~startDate=prevStartTime,
-            ~endDate=prevEndTime,
+            ~startDate=compareToStartTime,
+            ~endDate=compareToEndTime,
             ~timeKey="time_bucket",
             ~defaultValue={
               "payment_count": 0,
@@ -247,7 +249,7 @@ let make = (
       getPaymentsProcessed()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal])
+  }, [startTimeVal, endTimeVal, compareToStartTime, compareToEndTime])
 
   let mockDelay = async () => {
     if paymentsProcessedData != []->JSON.Encode.array {

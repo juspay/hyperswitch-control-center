@@ -510,6 +510,48 @@ let filterDateRangeField = (
   {fn, names: [startKey, endKey]}
 }
 
+let filterCompareDateRangeField = (
+  ~startKey: string,
+  ~endKey: string,
+  ~format,
+  ~disablePastDates=false,
+  ~disableFutureDates=false,
+  ~showTime=false,
+  ~predefinedDays=[],
+  ~disableApply=false,
+  ~numMonths=1,
+  ~dateRangeLimit=?,
+  ~removeFilterOption=?,
+  ~optFieldKey=?,
+  ~showSeconds=true,
+  ~hideDate=false,
+  ~selectStandardTime=false,
+  ~isTooltipVisible=true,
+): comboCustomInputRecord => {
+  let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+    <DateRangeCompareFields
+      disablePastDates
+      disableFutureDates
+      format
+      predefinedDays
+      numMonths
+      showTime
+      disableApply
+      startKey
+      endKey
+      ?dateRangeLimit
+      ?removeFilterOption
+      ?optFieldKey
+      showSeconds
+      hideDate
+      selectStandardTime
+      isTooltipVisible
+    />
+  }
+
+  {fn, names: [startKey, endKey]}
+}
+
 let dateRangeField = (
   ~startKey: string,
   ~endKey: string,
