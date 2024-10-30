@@ -18,15 +18,15 @@ let getPageFromIndex = index => {
   }
 }
 
-let (startTimeFilterKey, endTimeFilterKey, smartRetryKey, compareToStartTime, compareToEndTime) = (
-  "startTime",
-  "endTime",
-  "is_smart_retry_enabled",
-  "compareToStartTime",
-  "compareToEndTime",
-)
+let (
+  startTimeFilterKey,
+  endTimeFilterKey,
+  smartRetryKey,
+  compareToStartTimeKey,
+  compareToEndTimeKey,
+) = ("startTime", "endTime", "is_smart_retry_enabled", "compareToStartTime", "compareToEndTime")
 
-let initialFixedFilterFields = () => {
+let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime) => {
   let newArr = [
     (
       {
@@ -35,7 +35,7 @@ let initialFixedFilterFields = () => {
           ~label="",
           ~comboCustomInput=InputFields.filterDateRangeField(
             ~startKey=startTimeFilterKey,
-            ~endKey=endTimeFilterKey,
+            ~endKey=compareToEndTimeKey,
             ~format="YYYY-MM-DDTHH:mm:ss[Z]",
             ~showTime=true,
             ~disablePastDates={false},
@@ -67,8 +67,8 @@ let initialFixedFilterFields = () => {
         field: FormRenderer.makeMultiInputFieldInfo(
           ~label="",
           ~comboCustomInput=InputFields.filterCompareDateRangeField(
-            ~startKey=compareToStartTime,
-            ~endKey=compareToEndTime,
+            ~startKey=compareToStartTimeKey,
+            ~endKey=compareToEndTimeKey,
             ~format="YYYY-MM-DDTHH:mm:ss[Z]",
             ~showTime=true,
             ~disablePastDates={false},
@@ -88,6 +88,8 @@ let initialFixedFilterFields = () => {
             ~numMonths=2,
             ~disableApply=false,
             ~dateRangeLimit=180,
+            ~compareWithStartTime,
+            ~compareWithEndTime,
           ),
           ~inputFields=[],
           ~isRequired=false,

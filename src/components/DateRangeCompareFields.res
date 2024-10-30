@@ -132,6 +132,8 @@ module Base = {
     ~removeConversion=false,
     ~customborderCSS="",
     ~isTooltipVisible=true,
+    ~compareWithStartTime: string,
+    ~compareWithEndTime: string,
   ) => {
     open DateRangeHelper
     open DateRangeUtils
@@ -139,8 +141,8 @@ module Base = {
     let (isCustomSelected, setIsCustomSelected) = React.useState(_ =>
       predefinedDays->Array.length === 0
     )
-    let formatDateTime = showSeconds ? "MMM DD, YYYY HH:mm:ss" : "MMM DD, YYYY HH:mm"
-    let (showOption, setShowOption) = React.useState(_ => false)
+
+    let (_showOption, setShowOption) = React.useState(_ => false)
     let customTimezoneToISOString = TimeZoneHook.useCustomTimeZoneToIsoString()
     let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
     let isoStringToCustomTimezoneInFloat = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
@@ -209,11 +211,6 @@ module Base = {
 
     let isDropdownExpandedActual = isDropdownExpanded && calendarVisibility
 
-    let dropdownVisibilityClass = if isDropdownExpandedActual {
-      "inline-block"
-    } else {
-      "hidden"
-    }
     let saveDates = () => {
       if localStartDate->isNonEmptyString && localEndDate->isNonEmptyString {
         setStartDateVal(_ => localStartDate)
@@ -582,13 +579,8 @@ module Base = {
           setIsDropdownExpanded(_ => false)
           setShowOption(_ => false)
 
-          let (startDate, endDate) = getComparisionTimePeriod(
-            ~startDate=startDateVal,
-            ~endDate=endDateVal,
-          )
-
+          let (startDate, endDate) = getComparisionTimePeriod(~startDate, ~endDate)
           resetStartEndInput()
-
           let stDate = getFormattedDate(startDate, "YYYY-MM-DD")
           let edDate = getFormattedDate(endDate, "YYYY-MM-DD")
           let stTime = getFormattedDate(startDate, "HH:MM:00")
@@ -607,7 +599,7 @@ module Base = {
       <div className={"flex md:flex-row flex-col w-full py-2"}>
         <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
           <div className="flex flex-wrap gap-1 md:flex-col">
-            {[No_Comparison, Custom]
+            {[No_Comparison, Previous_Period, Custom]
             ->Array.mapWithIndex((value, i) => {
               <div key={i->Int.toString} className="w-full md:min-w-max text-center md:text-start">
                 <CompareOption value startDateVal endDateVal onClick=handleCompareOptionClick />
@@ -677,7 +669,6 @@ module Base = {
       disablePastDates,
     )
     let dropDownClass = `absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`
-
     <div ref={dateRangeRef->ReactDOM.Ref.domRef} className="daterangSelection relative">
       <DateSelectorButton
         startDateVal
@@ -748,6 +739,8 @@ let make = (
   ~standardTimeToday=false,
   ~removeConversion=false,
   ~isTooltipVisible=true,
+  ~compareWithStartTime,
+  ~compareWithEndTime,
 ) => {
   let startInput = ReactFinalForm.useField(startKey).input
   let endInput = ReactFinalForm.useField(endKey).input
@@ -780,5 +773,7 @@ let make = (
     standardTimeToday
     removeConversion
     isTooltipVisible
+    compareWithStartTime
+    compareWithEndTime
   />
 }

@@ -257,6 +257,8 @@ let filterCompareDateRangeField: (
   ~hideDate: bool=?,
   ~selectStandardTime: bool=?,
   ~isTooltipVisible: bool=?,
+  ~compareWithStartTime: string,
+  ~compareWithEndTime: string,
 ) => comboCustomInputRecord
 
 let dateRangeField: (

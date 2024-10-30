@@ -3,16 +3,15 @@ open DateRangeUtils
 module CompareOption = {
   @react.component
   let make = (~value: compareOption, ~startDateVal, ~endDateVal, ~onClick) => {
-    Js.log2(startDateVal, "startDateVal")
-    // let (startDate, endDate) = getComparisionTimePeriod(
-    //   ~startDate=startDateVal,
-    //   ~endDate=endDateVal,
-    // )
+    let (startDate, endDate) = getComparisionTimePeriod(
+      ~startDate=startDateVal,
+      ~endDate=endDateVal,
+    )
 
-    // let format = "MMM DD, YYYY"
-    // let startDateStr = getFormattedDate(startDate, format)
-    // let endDateStr = getFormattedDate(endDate, format)
-    // let previousPeriod = `${startDateStr} - ${endDateStr}`
+    let format = "MMM DD, YYYY"
+    let startDateStr = getFormattedDate(startDate, format)
+    let endDateStr = getFormattedDate(endDate, format)
+    let previousPeriod = `${startDateStr} - ${endDateStr}`
 
     <div
       onClick={_ => onClick(value)}
@@ -22,7 +21,7 @@ module CompareOption = {
       | Previous_Period =>
         <div>
           {"Previous Period : "->React.string}
-          <span className="opacity-70"> {""->React.string} </span>
+          <span className="opacity-70"> {{previousPeriod}->React.string} </span>
         </div>
       | Custom => "Custom Range"->React.string
       }}

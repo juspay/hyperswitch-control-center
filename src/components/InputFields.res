@@ -527,6 +527,8 @@ let filterCompareDateRangeField = (
   ~hideDate=false,
   ~selectStandardTime=false,
   ~isTooltipVisible=true,
+  ~compareWithStartTime: string,
+  ~compareWithEndTime: string,
 ): comboCustomInputRecord => {
   let fn = (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
     <DateRangeCompareFields
@@ -546,6 +548,8 @@ let filterCompareDateRangeField = (
       hideDate
       selectStandardTime
       isTooltipVisible
+      compareWithStartTime
+      compareWithEndTime
     />
   }
 

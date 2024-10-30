@@ -33,8 +33,8 @@ let useSetInitialFilters = (
   ~updateExistingKeys,
   ~startTimeFilterKey,
   ~endTimeFilterKey,
-  ~compareToStartTime="",
-  ~compareToEndTime="",
+  ~compareToStartTimeKey="",
+  ~compareToEndTimeKey="",
   ~enableCompareTo=None,
   ~range=7,
   ~origin,
@@ -52,12 +52,21 @@ let useSetInitialFilters = (
         origin !== "analytics"
           ? [(startTimeFilterKey, defaultDate.start_time)]
           : switch enableCompareTo {
-            | Some(_) => [
-                (startTimeFilterKey, defaultDate.start_time),
-                (endTimeFilterKey, defaultDate.end_time),
-                (compareToStartTime, defaultDate.start_time),
-                (compareToEndTime, defaultDate.end_time),
-              ]
+            | Some(_) => {
+                let (
+                  compareToStartTime,
+                  compareToEndTime,
+                ) = DateRangeUtils.getComparisionTimePeriod(
+                  ~startDate=defaultDate.start_time,
+                  ~endDate=defaultDate.end_time,
+                )
+                [
+                  (startTimeFilterKey, defaultDate.start_time),
+                  (endTimeFilterKey, defaultDate.end_time),
+                  (compareToStartTimeKey, compareToStartTime),
+                  (compareToEndTimeKey, compareToEndTime),
+                ]
+              }
             | None => [
                 (startTimeFilterKey, defaultDate.start_time),
                 (endTimeFilterKey, defaultDate.end_time),
@@ -134,8 +143,8 @@ module RemoteTableFilters = {
     ~setFilters,
     ~endTimeFilterKey,
     ~startTimeFilterKey,
-    ~compareToStartTime="",
-    ~compareToEndTime="",
+    ~compareToStartTimeKey="",
+    ~compareToEndTimeKey="",
     ~initialFilters,
     ~initialFixedFilter,
     ~setOffset,
@@ -202,8 +211,8 @@ module RemoteTableFilters = {
       ~updateExistingKeys,
       ~startTimeFilterKey,
       ~endTimeFilterKey,
-      ~compareToStartTime,
-      ~compareToEndTime,
+      ~compareToStartTimeKey,
+      ~compareToEndTimeKey,
       ~range=30,
       ~origin="orders",
       (),
