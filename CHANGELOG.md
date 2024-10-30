@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.10.30.0
+
+### Bug Fixes
+
+- Analytics sessionizer bugs ([#1665](https://github.com/juspay/hyperswitch-control-center/pull/1665)) ([`af79394`](https://github.com/juspay/hyperswitch-control-center/commit/af7939491179c4b2d58338f94d060e4d21c90e79))
+
+### Testing
+
+- Verification of time range filters in payment operations page using cypress ([#1658](https://github.com/juspay/hyperswitch-control-center/pull/1658)) ([`8acfd0e`](https://github.com/juspay/hyperswitch-control-center/commit/8acfd0e7ecbf8a7ee6c98a68029c028b7ffc2f3e))
+- Verify Columns in Payment operations page ([#1667](https://github.com/juspay/hyperswitch-control-center/pull/1667)) ([`6c4338d`](https://github.com/juspay/hyperswitch-control-center/commit/6c4338d5eaa188ee9c9a4ef2db8cf4297fa13374))
+
+**Full Changelog:** [`2024.10.29.0...2024.10.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.10.29.0...2024.10.30.0)
+
+- - -
+
 ## 2024.10.29.0
 
 ### Features
