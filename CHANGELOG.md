@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.10.31.0
+
+### Miscellaneous Tasks
+
+- Pop-up modal extra prop addition ([#1660](https://github.com/juspay/hyperswitch-control-center/pull/1660)) ([`6421c4f`](https://github.com/juspay/hyperswitch-control-center/commit/6421c4f1a9ebba6b0cbecb1925ead5cb8cdf99a9))
+
+**Full Changelog:** [`2024.10.30.0...2024.10.31.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.10.30.0...2024.10.31.0)
+
+- - -
+
 ## 2024.10.30.0
 
 ### Bug Fixes
