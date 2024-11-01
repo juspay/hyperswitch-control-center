@@ -100,7 +100,17 @@ let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime) => {
             ~compareWithEndTime,
           ),
           ~inputFields=[],
-          ~isRequired=false,
+        ),
+      }: EntityType.initialFilters<'t>
+    ),
+    (
+      {
+        localFilter: None,
+        field: FormRenderer.makeFieldInfo(
+          ~label="",
+          ~name=comparisonKey,
+          ~placeholder="",
+          ~customInput=InputFields.textInput(),
         ),
       }: EntityType.initialFilters<'t>
     ),

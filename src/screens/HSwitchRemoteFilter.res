@@ -82,7 +82,6 @@ let useSetInitialFilters = (
         | None => inititalSearchParam->Dict.set(key, defaultValue)
         }
       })
-
       inititalSearchParam->updateExistingKeys
     }
   }
@@ -147,6 +146,7 @@ module RemoteTableFilters = {
     ~startTimeFilterKey,
     ~compareToStartTimeKey="",
     ~compareToEndTimeKey="",
+    ~comparisonKey="",
     ~initialFilters,
     ~initialFixedFilter,
     ~setOffset,
@@ -215,6 +215,7 @@ module RemoteTableFilters = {
       ~endTimeFilterKey,
       ~compareToStartTimeKey,
       ~compareToEndTimeKey,
+      ~comparisonKey,
       ~range=30,
       ~origin="orders",
       (),

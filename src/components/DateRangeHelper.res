@@ -4,18 +4,15 @@ module CompareOption = {
   @react.component
   let make = (
     ~value: compareOption,
+    ~comparison,
     ~startDateVal,
     ~endDateVal,
     ~compareWithStartTime,
     ~compareWithEndTime,
     ~onClick,
   ) => {
-    Js.log4(startDateVal, "startDateVal", endDateVal, "endDateVal")
-    Js.log4(compareWithStartTime, "compareWithStartTime", compareWithEndTime, "compareWithEndTime")
-
     let previousPeriod = React.useMemo(() => {
-      if startDateVal !== "No_Value" && endDateVal !== "No_Value" {
-        Js.log("LOG NO")
+      if comparison->DateRangeUtils.comparisonMapprer === EnableComparison {
         let (startDate, endDate) = getComparisionTimePeriod(
           ~startDate=startDateVal,
           ~endDate=endDateVal,
@@ -24,11 +21,7 @@ module CompareOption = {
         let startDateStr = getFormattedDate(startDate, format)
         let endDateStr = getFormattedDate(endDate, format)
         `${startDateStr} - ${endDateStr}`
-      } else if (
-        compareWithStartTime->LogicUtils.isNonEmptyString &&
-          compareWithEndTime->LogicUtils.isNonEmptyString
-      ) {
-        Js.log("LOG YES")
+      } else {
         let (startDate, endDate) = getComparisionTimePeriod(
           ~startDate=compareWithStartTime,
           ~endDate=compareWithEndTime,
@@ -37,10 +30,8 @@ module CompareOption = {
         let startDateStr = getFormattedDate(startDate, format)
         let endDateStr = getFormattedDate(endDate, format)
         `${startDateStr} - ${endDateStr}`
-      } else {
-        "Testing Date"
       }
-    }, [startDateVal, endDateVal, compareWithStartTime, compareWithEndTime])
+    }, [comparison])
     <div
       onClick={_ => onClick(value)}
       className={`text-center md:text-start min-w-max bg-white w-full   hover:bg-jp-gray-100 hover:bg-opacity-75 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 `}>

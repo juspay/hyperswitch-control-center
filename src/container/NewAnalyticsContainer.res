@@ -59,6 +59,7 @@ let make = () => {
           endTimeFilterKey,
           compareToStartTimeKey,
           compareToEndTimeKey,
+          comparisonKey,
         ]
         tabNames=[]
         key="0"

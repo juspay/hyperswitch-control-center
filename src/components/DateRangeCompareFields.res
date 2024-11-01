@@ -580,8 +580,10 @@ module Base = {
           setIsDropdownExpanded(_ => false)
           setShowOption(_ => false)
           let (startDate, endDate) = if comparisonMapprer(comparison) === DisableComparison {
+            setComparison(_ => (DisableComparison :> string))
             getComparisionTimePeriod(~startDate=compareWithStartTime, ~endDate=compareWithEndTime)
           } else {
+            setComparison(_ => (EnableComparison :> string))
             getComparisionTimePeriod(~startDate, ~endDate)
           }
 
@@ -591,7 +593,6 @@ module Base = {
           let stTime = getFormattedDate(startDate, "HH:MM:00")
           let endTime = getFormattedDate(endDate, "HH:MM:00")
 
-          setComparison(_ => (EnableComparison :> string))
           setDateTime(~date=stDate, ~time=stTime, setLocalStartDate)
           setDateTime(~date=edDate, ~time=endTime, setLocalEndDate)
 
@@ -610,6 +611,7 @@ module Base = {
               <div key={i->Int.toString} className="w-full md:min-w-max text-center md:text-start">
                 <CompareOption
                   value
+                  comparison
                   startDateVal
                   endDateVal
                   compareWithStartTime
@@ -634,7 +636,10 @@ module Base = {
               onDateClick
               disablePastDates
               disableFutureDates
-              ?dateRangeLimit
+              dateRangeLimit={DateRangeUtils.getGapBetweenRange(
+                ~startDate=compareWithStartTime,
+                ~endDate=compareWithEndTime,
+              )}
               calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
               ?allowedDateRange
             />
@@ -763,25 +768,23 @@ let make = (
   let (startDateVal, setStartDateVal) = useStateForInput(startInput)
   let (endDateVal, setEndDateVal) = useStateForInput(endInput)
   let (comparison, setComparison) = useStateForInput(comparisonInput)
+
   React.useEffect(() => {
     if (
       compareWithStartTime->LogicUtils.isNonEmptyString &&
       compareWithEndTime->LogicUtils.isNonEmptyString &&
       comparison->DateRangeUtils.comparisonMapprer === EnableComparison
     ) {
-      try {
-        let (startTime, endTime) = DateRangeUtils.getComparisionTimePeriod(
-          ~startDate=compareWithStartTime,
-          ~endDate=compareWithEndTime,
-        )
-        setStartDateVal(_ => startTime)
-        setEndDateVal(_ => endTime)
-      } catch {
-      | _ => Js.log("ERROR")
-      }
+      let (startTime, endTime) = DateRangeUtils.getComparisionTimePeriod(
+        ~startDate=compareWithStartTime,
+        ~endDate=compareWithEndTime,
+      )
+      setStartDateVal(_ => startTime)
+      setEndDateVal(_ => endTime)
     }
     None
   }, [compareWithStartTime, compareWithEndTime])
+
   <Base
     comparison
     setComparison
