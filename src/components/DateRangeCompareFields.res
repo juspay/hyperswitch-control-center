@@ -570,24 +570,18 @@ module Base = {
           setIsCustomSelected(_ => false)
           setShowOption(_ => false)
           setComparison(_ => (DisableComparison :> string))
-          setLocalStartDate(_ => "No_Value")
-          setLocalEndDate(_ => "No_Value")
-          setStartDateVal(_ => "No_Value")
-          setEndDateVal(_ => "No_Value")
+          setLocalStartDate(_ => compareWithStartTime)
+          setLocalEndDate(_ => compareWithEndTime)
+          setStartDateVal(_ => compareWithStartTime)
+          setEndDateVal(_ => compareWithEndTime)
         }
       | Previous_Period => {
           setCalendarVisibility(_ => false)
           setIsDropdownExpanded(_ => false)
+          setIsCustomSelected(_ => false)
           setShowOption(_ => false)
-          let (startDate, endDate) = if comparisonMapprer(comparison) === DisableComparison {
-            setComparison(_ => (DisableComparison :> string))
-            getComparisionTimePeriod(~startDate=compareWithStartTime, ~endDate=compareWithEndTime)
-          } else {
-            setComparison(_ => (EnableComparison :> string))
-            getComparisionTimePeriod(~startDate, ~endDate)
-          }
+          let (startDate, endDate) = getComparisionTimePeriod(~startDate, ~endDate)
 
-          resetStartEndInput()
           let stDate = getFormattedDate(startDate, "YYYY-MM-DD")
           let edDate = getFormattedDate(endDate, "YYYY-MM-DD")
           let stTime = getFormattedDate(startDate, "HH:MM:00")
@@ -595,9 +589,9 @@ module Base = {
 
           setDateTime(~date=stDate, ~time=stTime, setLocalStartDate)
           setDateTime(~date=edDate, ~time=endTime, setLocalEndDate)
-
-          changeStartDate(stDate, false, Some(stTime))
-          changeEndDate(edDate, false, Some(endTime))
+          let _ = setTimeout(() => {
+            setComparison(_ => (EnableComparison :> string))
+          }, 0)
         }
       }
     }
@@ -610,13 +604,7 @@ module Base = {
             ->Array.mapWithIndex((value, i) => {
               <div key={i->Int.toString} className="w-full md:min-w-max text-center md:text-start">
                 <CompareOption
-                  value
-                  comparison
-                  startDateVal
-                  endDateVal
-                  compareWithStartTime
-                  compareWithEndTime
-                  onClick=handleCompareOptionClick
+                  value comparison startDateVal endDateVal onClick=handleCompareOptionClick
                 />
               </div>
             })
@@ -710,6 +698,7 @@ module Base = {
         enableToolTip=false
         showLeftIcon=false
         isCompare=true
+        comparison
       />
       <RenderIf condition={isDropdownExpanded}>
         <div ref={dropdownRef->ReactDOM.Ref.domRef} className=dropDownClass>

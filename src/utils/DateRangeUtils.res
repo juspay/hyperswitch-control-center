@@ -267,6 +267,7 @@ let getButtonText = (
   ~buttonText,
   ~isoStringToCustomTimeZone,
   ~isCompare=false,
+  ~comparison,
 ) => {
   open LogicUtils
 
@@ -293,7 +294,7 @@ let getButtonText = (
       | (true, false) => `${endDateStr}` // When start date is empty, show only end date
       | (false, true) => `${startDateStr} - Now` // When end date is empty, show start date and "Now"
       | (false, false) =>
-        if startDateVal == "No_Value" && endDateVal == "No_Value" {
+        if comparison->comparisonMapprer == DisableComparison {
           `No Comparison`
         } else {
           let separator = startDateStr === buttonText ? "" : "-"

@@ -17,6 +17,21 @@ let getPageFromIndex = index => {
   | 1 | _ => NewAnalyticsPayment
   }
 }
+let renderValueInp = (~comparisonKey) => (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+  React.null
+}
+
+let operatorInput = (~comparisonKey) => {
+  FormRenderer.makeMultiInputFieldInfoOld(
+    ~label="",
+    ~comboCustomInput=renderValueInp(~comparisonKey),
+    ~inputFields=[
+      FormRenderer.makeInputFieldInfo(~name=`${comparisonKey}`, ~placeholder="ko"),
+      FormRenderer.makeInputFieldInfo(~name=`Test`, ~placeholder="ko"),
+    ],
+    (),
+  )
+}
 
 let (
   startTimeFilterKey,
@@ -106,12 +121,7 @@ let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime) => {
     (
       {
         localFilter: None,
-        field: FormRenderer.makeFieldInfo(
-          ~label="",
-          ~name=comparisonKey,
-          ~placeholder="",
-          ~customInput=InputFields.textInput(),
-        ),
+        field: operatorInput(~comparisonKey),
       }: EntityType.initialFilters<'t>
     ),
   ]

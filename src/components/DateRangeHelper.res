@@ -2,35 +2,16 @@ open DateRangeUtils
 
 module CompareOption = {
   @react.component
-  let make = (
-    ~value: compareOption,
-    ~comparison,
-    ~startDateVal,
-    ~endDateVal,
-    ~compareWithStartTime,
-    ~compareWithEndTime,
-    ~onClick,
-  ) => {
+  let make = (~value: compareOption, ~comparison, ~startDateVal, ~endDateVal, ~onClick) => {
     let previousPeriod = React.useMemo(() => {
-      if comparison->DateRangeUtils.comparisonMapprer === EnableComparison {
-        let (startDate, endDate) = getComparisionTimePeriod(
-          ~startDate=startDateVal,
-          ~endDate=endDateVal,
-        )
-        let format = "MMM DD, YYYY"
-        let startDateStr = getFormattedDate(startDate, format)
-        let endDateStr = getFormattedDate(endDate, format)
-        `${startDateStr} - ${endDateStr}`
-      } else {
-        let (startDate, endDate) = getComparisionTimePeriod(
-          ~startDate=compareWithStartTime,
-          ~endDate=compareWithEndTime,
-        )
-        let format = "MMM DD, YYYY"
-        let startDateStr = getFormattedDate(startDate, format)
-        let endDateStr = getFormattedDate(endDate, format)
-        `${startDateStr} - ${endDateStr}`
-      }
+      let (startDate, endDate) = getComparisionTimePeriod(
+        ~startDate=startDateVal,
+        ~endDate=endDateVal,
+      )
+      let format = "MMM DD, YYYY"
+      let startDateStr = getFormattedDate(startDate, format)
+      let endDateStr = getFormattedDate(endDate, format)
+      `${startDateStr} - ${endDateStr}`
     }, [comparison])
     <div
       onClick={_ => onClick(value)}
@@ -107,6 +88,7 @@ module DateSelectorButton = {
     ~enableToolTip=true,
     ~showLeftIcon=true,
     ~isCompare=false,
+    ~comparison,
   ) => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -159,6 +141,7 @@ module DateSelectorButton = {
         ~buttonText,
         ~isoStringToCustomTimeZone,
         ~isCompare,
+        ~comparison,
       )->formatText
 
     let leftIcon = if isCompare {
