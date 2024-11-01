@@ -2,16 +2,34 @@ open DateRangeUtils
 
 module CompareOption = {
   @react.component
-  let make = (~value: compareOption, ~startDateVal, ~endDateVal, ~onClick) => {
-    let (startDate, endDate) = getComparisionTimePeriod(
-      ~startDate=startDateVal,
-      ~endDate=endDateVal,
-    )
-
-    let format = "MMM DD, YYYY"
-    let startDateStr = getFormattedDate(startDate, format)
-    let endDateStr = getFormattedDate(endDate, format)
-    let previousPeriod = `${startDateStr} - ${endDateStr}`
+  let make = (
+    ~value: compareOption,
+    ~startDateVal,
+    ~endDateVal,
+    ~compareWithStartTime,
+    ~compareWithEndTime,
+    ~onClick,
+  ) => {
+    let previousPeriod = try {
+      let (startDate, endDate) = getComparisionTimePeriod(
+        ~startDate=startDateVal,
+        ~endDate=endDateVal,
+      )
+      let format = "MMM DD, YYYY"
+      let startDateStr = getFormattedDate(startDate, format)
+      let endDateStr = getFormattedDate(endDate, format)
+      `${startDateStr} - ${endDateStr}`
+    } catch {
+    | _ =>
+      let (startDate, endDate) = getComparisionTimePeriod(
+        ~startDate=compareWithStartTime,
+        ~endDate=compareWithEndTime,
+      )
+      let format = "MMM DD, YYYY"
+      let startDateStr = getFormattedDate(startDate, format)
+      let endDateStr = getFormattedDate(endDate, format)
+      `${startDateStr} - ${endDateStr}`
+    }
 
     <div
       onClick={_ => onClick(value)}

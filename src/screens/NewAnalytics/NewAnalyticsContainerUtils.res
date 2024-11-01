@@ -87,7 +87,6 @@ let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime) => {
             ],
             ~numMonths=2,
             ~disableApply=false,
-            ~dateRangeLimit=180,
             ~compareWithStartTime,
             ~compareWithEndTime,
           ),

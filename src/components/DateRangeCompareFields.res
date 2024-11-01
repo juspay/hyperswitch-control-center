@@ -578,7 +578,7 @@ module Base = {
           setCalendarVisibility(_ => false)
           setIsDropdownExpanded(_ => false)
           setShowOption(_ => false)
-
+          Js.log2(startDate, endDate)
           let (startDate, endDate) = getComparisionTimePeriod(~startDate, ~endDate)
           resetStartEndInput()
           let stDate = getFormattedDate(startDate, "YYYY-MM-DD")
@@ -602,7 +602,14 @@ module Base = {
             {[No_Comparison, Previous_Period, Custom]
             ->Array.mapWithIndex((value, i) => {
               <div key={i->Int.toString} className="w-full md:min-w-max text-center md:text-start">
-                <CompareOption value startDateVal endDateVal onClick=handleCompareOptionClick />
+                <CompareOption
+                  value
+                  startDateVal
+                  endDateVal
+                  compareWithStartTime
+                  compareWithEndTime
+                  onClick=handleCompareOptionClick
+                />
               </div>
             })
             ->React.array}
@@ -727,7 +734,6 @@ let make = (
   ~numMonths=1,
   ~disableApply=true,
   ~removeFilterOption=false,
-  ~dateRangeLimit=?,
   ~optFieldKey=?,
   ~textHideInMobileView=true,
   ~showSeconds=true,
@@ -751,19 +757,34 @@ let make = (
       compareWithStartTime->LogicUtils.isNonEmptyString &&
         compareWithEndTime->LogicUtils.isNonEmptyString
     ) {
-      let (startTime, endTime) = DateRangeUtils.getComparisionTimePeriod(
-        ~startDate=compareWithStartTime,
-        ~endDate=compareWithEndTime,
-      )
-      setStartDateVal(_ => startTime)
-      setEndDateVal(_ => endTime)
+      try {
+        let (startTime, endTime) = DateRangeUtils.getComparisionTimePeriod(
+          ~startDate=compareWithStartTime,
+          ~endDate=compareWithEndTime,
+        )
+        setStartDateVal(_ => startTime)
+        setEndDateVal(_ => endTime)
+      } catch {
+      | _ => Js.log("ERROR")
+      }
     }
     None
   }, [compareWithStartTime, compareWithEndTime])
-  let dateRangeLimit = DateRangeUtils.getGapBetweenRange(
-    ~startDate=compareWithStartTime,
-    ~endDate=compareWithEndTime,
-  )
+  let dateRangeLimit = React.useMemo(() => {
+    if (
+      compareWithStartTime->LogicUtils.isNonEmptyString &&
+        compareWithEndTime->LogicUtils.isNonEmptyString
+    ) {
+      let limit = DateRangeUtils.getGapBetweenRange(
+        ~startDate=compareWithStartTime,
+        ~endDate=compareWithEndTime,
+      )
+
+      Some(limit)
+    } else {
+      None
+    }
+  }, [compareWithStartTime, compareWithEndTime])
   <Base
     startDateVal
     setStartDateVal
@@ -778,7 +799,7 @@ let make = (
     numMonths
     disableApply
     removeFilterOption
-    dateRangeLimit
+    ?dateRangeLimit
     ?optFieldKey
     textHideInMobileView
     showSeconds

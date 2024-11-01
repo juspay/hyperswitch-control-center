@@ -250,7 +250,6 @@ let filterCompareDateRangeField: (
   ~predefinedDays: array<DateRangeUtils.customDateRange>=?,
   ~disableApply: bool=?,
   ~numMonths: int=?,
-  ~dateRangeLimit: int=?,
   ~removeFilterOption: bool=?,
   ~optFieldKey: 'a=?,
   ~showSeconds: bool=?,
