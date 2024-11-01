@@ -107,6 +107,8 @@ module Base = {
   let make = (
     ~startDateVal: string,
     ~setStartDateVal: (string => string) => unit,
+    ~comparison: string,
+    ~setComparison: (string => string) => unit,
     ~endDateVal: string,
     ~setEndDateVal: (string => string) => unit,
     ~showTime=false,
@@ -205,10 +207,8 @@ module Base = {
 
     useErroryValueResetter(startDateVal, setStartDateVal)
     useErroryValueResetter(endDateVal, setEndDateVal)
-
     let startDate = localStartDate->getDateStringForValue(isoStringToCustomTimeZone)
     let endDate = localEndDate->getDateStringForValue(isoStringToCustomTimeZone)
-
     let isDropdownExpandedActual = isDropdownExpanded && calendarVisibility
 
     let saveDates = () => {
@@ -562,13 +562,14 @@ module Base = {
       | Custom =>
         setCalendarVisibility(_ => true)
         setIsCustomSelected(_ => true)
+        setComparison(_ => (EnableComparison :> string))
 
       | No_Comparison => {
           setCalendarVisibility(_ => false)
           setIsDropdownExpanded(_ => false)
           setIsCustomSelected(_ => false)
           setShowOption(_ => false)
-
+          setComparison(_ => (DisableComparison :> string))
           setLocalStartDate(_ => "No_Value")
           setLocalEndDate(_ => "No_Value")
           setStartDateVal(_ => "No_Value")
@@ -578,14 +579,19 @@ module Base = {
           setCalendarVisibility(_ => false)
           setIsDropdownExpanded(_ => false)
           setShowOption(_ => false)
-          Js.log2(startDate, endDate)
-          let (startDate, endDate) = getComparisionTimePeriod(~startDate, ~endDate)
+          let (startDate, endDate) = if comparisonMapprer(comparison) === DisableComparison {
+            getComparisionTimePeriod(~startDate=compareWithStartTime, ~endDate=compareWithEndTime)
+          } else {
+            getComparisionTimePeriod(~startDate, ~endDate)
+          }
+
           resetStartEndInput()
           let stDate = getFormattedDate(startDate, "YYYY-MM-DD")
           let edDate = getFormattedDate(endDate, "YYYY-MM-DD")
           let stTime = getFormattedDate(startDate, "HH:MM:00")
           let endTime = getFormattedDate(endDate, "HH:MM:00")
 
+          setComparison(_ => (EnableComparison :> string))
           setDateTime(~date=stDate, ~time=stTime, setLocalStartDate)
           setDateTime(~date=edDate, ~time=endTime, setLocalEndDate)
 
@@ -725,6 +731,7 @@ let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
 let make = (
   ~startKey: string,
   ~endKey: string,
+  ~comparisonKey: string,
   ~showTime=false,
   ~disable=false,
   ~disablePastDates=true,
@@ -747,15 +754,20 @@ let make = (
   ~isTooltipVisible=true,
   ~compareWithStartTime,
   ~compareWithEndTime,
+  ~dateRangeLimit=?,
 ) => {
   let startInput = ReactFinalForm.useField(startKey).input
   let endInput = ReactFinalForm.useField(endKey).input
+  let comparisonInput = ReactFinalForm.useField(comparisonKey).input
+
   let (startDateVal, setStartDateVal) = useStateForInput(startInput)
   let (endDateVal, setEndDateVal) = useStateForInput(endInput)
+  let (comparison, setComparison) = useStateForInput(comparisonInput)
   React.useEffect(() => {
     if (
       compareWithStartTime->LogicUtils.isNonEmptyString &&
-        compareWithEndTime->LogicUtils.isNonEmptyString
+      compareWithEndTime->LogicUtils.isNonEmptyString &&
+      comparison->DateRangeUtils.comparisonMapprer === EnableComparison
     ) {
       try {
         let (startTime, endTime) = DateRangeUtils.getComparisionTimePeriod(
@@ -770,22 +782,9 @@ let make = (
     }
     None
   }, [compareWithStartTime, compareWithEndTime])
-  let dateRangeLimit = React.useMemo(() => {
-    if (
-      compareWithStartTime->LogicUtils.isNonEmptyString &&
-        compareWithEndTime->LogicUtils.isNonEmptyString
-    ) {
-      let limit = DateRangeUtils.getGapBetweenRange(
-        ~startDate=compareWithStartTime,
-        ~endDate=compareWithEndTime,
-      )
-
-      Some(limit)
-    } else {
-      None
-    }
-  }, [compareWithStartTime, compareWithEndTime])
   <Base
+    comparison
+    setComparison
     startDateVal
     setStartDateVal
     endDateVal

@@ -36,6 +36,7 @@ let useSetInitialFilters = (
   ~compareToStartTimeKey="",
   ~compareToEndTimeKey="",
   ~enableCompareTo=None,
+  ~comparisonKey="",
   ~range=7,
   ~origin,
   (),
@@ -65,6 +66,7 @@ let useSetInitialFilters = (
                   (endTimeFilterKey, defaultDate.end_time),
                   (compareToStartTimeKey, compareToStartTime),
                   (compareToEndTimeKey, compareToEndTime),
+                  (comparisonKey, (DateRangeUtils.DisableComparison :> string)),
                 ]
               }
             | None => [

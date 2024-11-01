@@ -12,6 +12,19 @@ type compareOption =
   | No_Comparison
   | Previous_Period
   | Custom
+@unboxed
+type comparison =
+  | EnableComparison
+  | DisableComparison
+
+let comparisonMapprer = val => {
+  switch val {
+  | "EnableComparison" => EnableComparison
+  | "DisableComparison" => DisableComparison
+  | _ => DisableComparison
+  }
+}
+
 let getDateString = (value, isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString) => {
   try {
     let {year, month, date} = isoStringToCustomTimeZone(value)

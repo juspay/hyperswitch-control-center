@@ -24,7 +24,15 @@ let (
   smartRetryKey,
   compareToStartTimeKey,
   compareToEndTimeKey,
-) = ("startTime", "endTime", "is_smart_retry_enabled", "compareToStartTime", "compareToEndTime")
+  comparisonKey,
+) = (
+  "startTime",
+  "endTime",
+  "is_smart_retry_enabled",
+  "compareToStartTime",
+  "compareToEndTime",
+  "comparison",
+)
 
 let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime) => {
   let newArr = [
@@ -69,6 +77,7 @@ let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime) => {
           ~comboCustomInput=InputFields.filterCompareDateRangeField(
             ~startKey=compareToStartTimeKey,
             ~endKey=compareToEndTimeKey,
+            ~comparisonKey,
             ~format="YYYY-MM-DDTHH:mm:ss[Z]",
             ~showTime=true,
             ~disablePastDates={false},
