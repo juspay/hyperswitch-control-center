@@ -761,8 +761,7 @@ let make = (
   React.useEffect(() => {
     if (
       compareWithStartTime->LogicUtils.isNonEmptyString &&
-      compareWithEndTime->LogicUtils.isNonEmptyString &&
-      comparison->DateRangeUtils.comparisonMapprer === EnableComparison
+        compareWithEndTime->LogicUtils.isNonEmptyString
     ) {
       let (startTime, endTime) = DateRangeUtils.getComparisionTimePeriod(
         ~startDate=compareWithStartTime,
