@@ -20,6 +20,10 @@ let make = (~entity: moduleEntity) => {
     ->getBoolFromString(true)
     ->NewPaymentAnalyticsUtils.getSmartRetryMetricType
 
+  let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
+  let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
+  let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+
   let getData = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
@@ -94,10 +98,10 @@ let make = (~entity: moduleEntity) => {
       //primaryData->setValue(~data=primaryDataDisputes, ~ids=[Total_Dispute])
 
       // secondary date range
-      let (prevStartTime, prevEndTime) = NewAnalyticsUtils.getComparisionTimePeriod(
-        ~startDate=startTimeVal,
-        ~endDate=endTimeVal,
-      )
+      // let (prevStartTime, prevEndTime) = NewAnalyticsUtils.getComparisionTimePeriod(
+      //   ~startDate=startTimeVal,
+      //   ~endDate=endTimeVal,
+      // )
 
       let secondaryBodyPayments = getPayload(
         ~entity,
@@ -106,50 +110,59 @@ let make = (~entity: moduleEntity) => {
           #sessionized_payments_success_rate,
           #sessionized_payment_processed_amount,
         ],
-        ~startTime=prevStartTime,
-        ~endTime=prevEndTime,
+        ~startTime=compareToStartTime,
+        ~endTime=compareToEndTime,
       )
 
       let secondaryBodyRefunds = getPayload(
         ~entity,
         ~metrics=[#refund_processed_amount],
-        ~startTime=prevStartTime,
-        ~endTime=prevEndTime,
+        ~startTime=compareToStartTime,
+        ~endTime=compareToEndTime,
       )
 
       let _secondaryBodyDisputes = getPayload(
         ~entity,
         ~metrics=[#dispute_status_metric],
-        ~startTime=prevStartTime,
-        ~endTime=prevEndTime,
+        ~startTime=compareToStartTime,
+        ~endTime=compareToEndTime,
       )
 
-      let secondaryResponsePayments = await updateDetails(paymentsUrl, secondaryBodyPayments, Post)
-      let secondaryResponseRefunds = await updateDetails(refundsUrl, secondaryBodyRefunds, Post)
-      //let secondaryResponseDisputes = await updateDetails(disputesUrl, secondaryBodyDisputes, Post)
+      let secondaryData = switch comparison {
+      | EnableComparison => {
+          let secondaryResponsePayments = await updateDetails(
+            paymentsUrl,
+            secondaryBodyPayments,
+            Post,
+          )
+          let secondaryResponseRefunds = await updateDetails(refundsUrl, secondaryBodyRefunds, Post)
+          //let secondaryResponseDisputes = await updateDetails(disputesUrl, secondaryBodyDisputes, Post)
 
-      let secondaryDataPayments = secondaryResponsePayments->parseResponse("metaData")
-      let secondaryDataRefunds = secondaryResponseRefunds->parseResponse("queryData")
-      //let secondaryDataDisputes = secondaryResponseDisputes->parseResponse("queryData")
+          let secondaryDataPayments = secondaryResponsePayments->parseResponse("metaData")
+          let secondaryDataRefunds = secondaryResponseRefunds->parseResponse("queryData")
+          //let secondaryDataDisputes = secondaryResponseDisputes->parseResponse("queryData")
 
-      secondaryData->setValue(
-        ~data=secondaryDataPayments,
-        ~ids=[
-          Total_Smart_Retried_Amount,
-          Total_Smart_Retried_Amount_Without_Smart_Retries,
-          Total_Success_Rate,
-          Total_Success_Rate_Without_Smart_Retries,
-          Total_Payment_Processed_Amount,
-          Total_Payment_Processed_Amount_Without_Smart_Retries,
-        ],
-      )
+          secondaryData->setValue(
+            ~data=secondaryDataPayments,
+            ~ids=[
+              Total_Smart_Retried_Amount,
+              Total_Smart_Retried_Amount_Without_Smart_Retries,
+              Total_Success_Rate,
+              Total_Success_Rate_Without_Smart_Retries,
+              Total_Payment_Processed_Amount,
+              Total_Payment_Processed_Amount_Without_Smart_Retries,
+            ],
+          )
 
-      secondaryData->setValue(~data=secondaryDataRefunds, ~ids=[Refund_Processed_Amount])
+          secondaryData->setValue(~data=secondaryDataRefunds, ~ids=[Refund_Processed_Amount])
+          secondaryData->JSON.Encode.object
+        }
+      | DisableComparison => JSON.Encode.null
+      }
+
       //secondaryData->setValue(~data=secondaryDataDisputes, ~ids=[Total_Dispute])
 
-      setData(_ =>
-        [primaryData->JSON.Encode.object, secondaryData->JSON.Encode.object]->JSON.Encode.array
-      )
+      setData(_ => [primaryData->JSON.Encode.object, secondaryData]->JSON.Encode.array)
 
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -162,7 +175,7 @@ let make = (~entity: moduleEntity) => {
       getData()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal])
+  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
 
   let mockDelay = async () => {
     if data != []->JSON.Encode.array {
