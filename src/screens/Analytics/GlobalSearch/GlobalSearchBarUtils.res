@@ -14,7 +14,13 @@ module ShowMoreLink = {
             : ""}`
 
         switch section.section {
-        | Local | Default | Others => React.null
+        | Local
+        | Default
+        | Others
+        | SessionizerPaymentAttempts
+        | SessionizerPaymentIntents
+        | SessionizerPaymentRefunds
+        | SessionizerPaymentDisputes => React.null
         | PaymentAttempts | PaymentIntents | Refunds | Disputes =>
           <div
             onClick={_ => {
@@ -23,7 +29,13 @@ module ShowMoreLink = {
               | PaymentIntents => `payment-intents?query=${searchText}`
               | Refunds => `refunds-global?query=${searchText}`
               | Disputes => `dispute-global?query=${searchText}`
-              | Local | Others | Default => ""
+              | Local
+              | Others
+              | Default
+              | SessionizerPaymentAttempts
+              | SessionizerPaymentIntents
+              | SessionizerPaymentRefunds
+              | SessionizerPaymentDisputes => ""
               }
               GlobalVars.appendDashboardPath(~url=link)->RescriptReactRouter.push
               cleanUpFunction()
@@ -210,7 +222,13 @@ let getElements = (hits, section) => {
         redirect_link: `/disputes/${disId}/${profileId}`->JSON.Encode.string,
       }
     })
-  | Local | Others | Default => []
+  | Local
+  | Others
+  | Default
+  | SessionizerPaymentAttempts
+  | SessionizerPaymentIntents
+  | SessionizerPaymentRefunds
+  | SessionizerPaymentDisputes => []
   }
 }
 

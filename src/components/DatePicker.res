@@ -28,7 +28,7 @@ let make = (
   let (selectedDate, setSelectedDate) = React.useState(_ =>
     input.value
     ->getStringFromJson("")
-    ->DateRangePicker.getDateStringForValue(isoStringToCustomTimeZone)
+    ->DateRangeUtils.getDateStringForValue(isoStringToCustomTimeZone)
   )
   let (date, setDate) = React.useState(_ => {
     if selectedDate->isNonEmptyString {
@@ -42,7 +42,7 @@ let make = (
         | Some(str) => str
         | None => ""
         }
-        ->DateRangePicker.getTimeStringForValue(isoStringToCustomTimeZone)
+        ->DateRangeUtils.getTimeStringForValue(isoStringToCustomTimeZone)
         ->String.split(":")
 
       let timeHour = timeSplit->Array.get(0)->Option.getOr(currentDateHourFormat)
@@ -124,7 +124,7 @@ let make = (
     } else if !showTime {
       selectedDate
     } else {
-      let time = date->DateRangePicker.getTimeStringForValue(isoStringToCustomTimeZone)
+      let time = date->DateRangeUtils.getTimeStringForValue(isoStringToCustomTimeZone)
       let splitTime = time->String.split(":")
       `${selectedDate} ${time->isEmptyString
           ? `${currentDateHourFormat}:${currentDateMinuteFormat}${showSeconds
@@ -193,7 +193,7 @@ let make = (
     },
     onFocus: _ => (),
     value: {
-      let time = date->DateRangePicker.getTimeStringForValue(isoStringToCustomTimeZone)
+      let time = date->DateRangeUtils.getTimeStringForValue(isoStringToCustomTimeZone)
       let time =
         time->isEmptyString
           ? `${currentDateHourFormat}:${currentDateMinuteFormat}:${currentDateSecondsFormat}`
