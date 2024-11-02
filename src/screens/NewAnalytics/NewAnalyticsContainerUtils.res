@@ -21,13 +21,13 @@ let renderValueInp = () => (_fieldsArray: array<ReactFinalForm.fieldRenderProps>
   React.null
 }
 
-let operatorInput = (~comparisonKey) => {
+let compareToInput = (~comparisonKey) => {
   FormRenderer.makeMultiInputFieldInfoOld(
     ~label="",
     ~comboCustomInput=renderValueInp(),
     ~inputFields=[
-      FormRenderer.makeInputFieldInfo(~name=`${comparisonKey}`, ~placeholder="ko"),
-      FormRenderer.makeInputFieldInfo(~name=`Test`, ~placeholder="ko"),
+      FormRenderer.makeInputFieldInfo(~name=`${comparisonKey}`),
+      FormRenderer.makeInputFieldInfo(~name=`extraKey`),
     ],
     (),
   )
@@ -110,7 +110,7 @@ let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime) => {
     (
       {
         localFilter: None,
-        field: operatorInput(~comparisonKey),
+        field: compareToInput(~comparisonKey),
       }: EntityType.initialFilters<'t>
     ),
   ]
