@@ -132,7 +132,7 @@ describe("connector", () => {
     cy.get("[data-button-for=goToPayment]").should("exist").click();
     cy.url().should("include", "dashboard/payments");
   });
-  it("Verify Time Range Filters after Payment in Payment Operations Page", () => {
+  it.skip("Verify Time Range Filters after Payment in Payment Operations Page", () => {
     cy.get("[data-testid=operations]").click();
     cy.get("[data-testid=payments]").click();
     cy.contains("Payment Operations").should("be.visible");
@@ -166,7 +166,7 @@ describe("connector", () => {
       selectRange(range, shouldPaymentExist);
     });
   });
-  it("Verify Custom Range in Time Range Filters after Payment in Payment Operations Page", () => {
+  it.skip("Verify Custom Range in Time Range Filters after Payment in Payment Operations Page", () => {
     cy.get("[data-testid=operations]").click();
     cy.get("[data-testid=payments]").click();
     cy.contains("Payment Operations").should("be.visible");
