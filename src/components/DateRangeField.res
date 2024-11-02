@@ -685,14 +685,14 @@ module Base = {
               })
               ->React.array}
               <AddDataAttributes attributes=[("data-daterange-dropdown-value", "Custom Range")]>
-                  <div
-                    className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3   hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customeRangeBg}}`}
-                    onClick={_ => {
-                      setCalendarVisibility(_ => true)
-                      setIsCustomSelected(_ => true)
-                    }}>
-                    {React.string("Custom Range")}
-                  </div>
+                <div
+                  className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3   hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customeRangeBg}}`}
+                  onClick={_ => {
+                    setCalendarVisibility(_ => true)
+                    setIsCustomSelected(_ => true)
+                  }}>
+                  {React.string("Custom Range")}
+                </div>
               </AddDataAttributes>
             </div>
           </AddDataAttributes>
