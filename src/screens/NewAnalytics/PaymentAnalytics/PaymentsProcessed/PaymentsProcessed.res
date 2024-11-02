@@ -143,8 +143,6 @@ let make = (
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
-  let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
-  let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
   let isSmartRetryEnabled =
     filterValueJson
     ->getString("is_smart_retry_enabled", "true")
@@ -218,8 +216,8 @@ let make = (
         let secondaryModifiedData = [secondaryData]->Array.map(data => {
           NewAnalyticsUtils.fillMissingDataPoints(
             ~data,
-            ~startDate=compareToStartTime,
-            ~endDate=compareToEndTime,
+            ~startDate=prevStartTime,
+            ~endDate=prevEndTime,
             ~timeKey="time_bucket",
             ~defaultValue={
               "payment_count": 0,
