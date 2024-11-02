@@ -140,7 +140,6 @@ module DateSelectorButton = {
         ~endDateVal,
         ~buttonText,
         ~isoStringToCustomTimeZone,
-        ~isCompare,
         ~comparison,
       )->formatText
 

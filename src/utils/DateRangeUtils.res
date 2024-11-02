@@ -266,7 +266,6 @@ let getButtonText = (
   ~endDateVal,
   ~buttonText,
   ~isoStringToCustomTimeZone,
-  ~isCompare=false,
   ~comparison,
 ) => {
   open LogicUtils
@@ -285,31 +284,19 @@ let getButtonText = (
     ~isoStringToCustomTimeZone,
   )
 
-  switch predefinedOptionSelected {
-  | Some(value) => datetext(value, disableFutureDates)
-  | None =>
-    if isCompare {
+  switch comparison->comparisonMapprer {
+  | DisableComparison => `No Comparison`
+  | EnableComparison =>
+    switch predefinedOptionSelected {
+    | Some(value) => datetext(value, disableFutureDates)
+    | None =>
       switch (startDateVal->isEmptyString, endDateVal->isEmptyString) {
       | (true, true) => `No Comparison`
       | (true, false) => `${endDateStr}` // When start date is empty, show only end date
       | (false, true) => `${startDateStr} - Now` // When end date is empty, show start date and "Now"
       | (false, false) =>
-        if comparison->comparisonMapprer == DisableComparison {
-          `No Comparison`
-        } else {
-          let separator = startDateStr === buttonText ? "" : "-"
-          `${startDateStr} ${separator} ${endDateStr}`
-        }
-      }
-    } else {
-      switch (startDateVal->isEmptyString, endDateVal->isEmptyString) {
-      | (true, true) => `Select Date`
-      | (true, false) => `${endDateStr}` // When start date is empty, show only end date
-      | (false, true) => `${startDateStr} - Now` // When end date is empty, show start date and "Now"
-      | (false, false) => {
-          let separator = startDateStr === buttonText ? "" : "-"
-          `${startDateStr} ${separator} ${endDateStr}`
-        }
+        let separator = startDateStr === buttonText ? "" : "-"
+        `${startDateStr} ${separator} ${endDateStr}`
       }
     }
   }

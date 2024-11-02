@@ -179,8 +179,8 @@ let make = (
 
       let secondaryBody = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
-        ~startTime=compareToStartTime,
-        ~endTime=compareToEndTime,
+        ~startTime=prevStartTime,
+        ~endTime=prevEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
@@ -249,7 +249,7 @@ let make = (
       getPaymentsProcessed()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, compareToStartTime, compareToEndTime])
+  }, [startTimeVal, endTimeVal])
 
   let mockDelay = async () => {
     if paymentsProcessedData != []->JSON.Encode.array {
