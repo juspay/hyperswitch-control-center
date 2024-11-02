@@ -24,11 +24,10 @@ let getColumn = string => {
 }
 
 let failedPaymentsDistributionMapper = (
-  ~data: JSON.t,
-  ~xKey: string,
-  ~yKey: string,
+  ~params: NewAnalyticsTypes.getObjects<JSON.t>,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
+  let {data, xKey, yKey} = params
   let categories = [data]->JSON.Encode.array->getCategories(0, yKey)
   let barGraphData = getBarGraphObj(
     ~array=data->getArrayFromJson([]),
