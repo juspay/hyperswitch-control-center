@@ -12,10 +12,18 @@
  *
  *
  */
+open CommonAuthTypes
 type userGroupACLType = {
   fetchUserGroupACL: unit => promise<UserManagementTypes.groupAccessJsonType>,
+  userHasResourceAccess: (
+    ~resourceAccess: UserManagementTypes.resourceAccessType,
+  ) => CommonAuthTypes.authorization,
   userHasAccess: (
     ~groupAccess: UserManagementTypes.groupAccessType,
+  ) => CommonAuthTypes.authorization,
+  hasAnyGroupAccess: (
+    CommonAuthTypes.authorization,
+    CommonAuthTypes.authorization,
   ) => CommonAuthTypes.authorization,
 }
 
@@ -31,20 +39,26 @@ let useUserGroupACLHook = () => {
 
   let fetchUserGroupACL = async () => {
     try {
-      let url = getURL(
-        ~entityName=USERS,
-        ~userType=#GET_GROUP_ACL,
-        ~methodType=Get,
-        ~queryParamerters=Some(`groups=true`),
-      )
+      let url = getURL(~entityName=USERS, ~userType=#GET_GROUP_ACL, ~methodType=Get)
       let response = await fetchDetails(url)
-      let groupsAccessValue =
-        response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
-      setuserGroupACL(_ => Some(
-        groupsAccessValue
-        ->Array.map(ele => ele->mapStringToGroupAccessType)
-        ->convertValueToMap,
-      ))
+      let dict = response->getDictFromJsonObject
+
+      let groupsAccessValue = getStrArrayFromDict(dict, "groups", [])
+
+      let resourcesAccessValue = getStrArrayFromDict(dict, "resources", [])
+
+      let userGroupACLMap =
+        groupsAccessValue->Array.map(ele => ele->mapStringToGroupAccessType)->convertValueToMapGroup
+      let resourceACLMap =
+        resourcesAccessValue
+        ->Array.map(ele => ele->mapStringToResourceAccessType)
+        ->convertValueToMapResources
+
+      setuserGroupACL(_ => Some({
+        groups: userGroupACLMap,
+        resources: resourceACLMap,
+      }))
+
       let permissionJson =
         groupsAccessValue->Array.map(ele => ele->mapStringToGroupAccessType)->getGroupAccessJson
       setuserPermissionJson(_ => permissionJson)
@@ -60,13 +74,28 @@ let useUserGroupACLHook = () => {
   let userHasAccess = (~groupAccess) => {
     switch userGroupACL {
     | Some(groupACLValue) =>
-      switch groupACLValue->Map.get(groupAccess) {
+      switch groupACLValue.groups->Map.get(groupAccess) {
       | Some(value) => value
       | None => NoAccess
       }
     | None => NoAccess
     }
   }
+  let userHasResourceAccess = (~resourceAccess) => {
+    switch userGroupACL {
+    | Some(groupACLValue) =>
+      switch groupACLValue.resources->Map.get(resourceAccess) {
+      | Some(value) => value
+      | None => NoAccess
+      }
+    | None => NoAccess
+    }
+  }
+  let hasAnyGroupAccess = (group1, group2) =>
+    switch (group1, group2) {
+    | (NoAccess, NoAccess) => NoAccess
+    | (_, _) => Access
+    }
 
-  {fetchUserGroupACL, userHasAccess}
+  {fetchUserGroupACL, userHasResourceAccess, userHasAccess, hasAnyGroupAccess}
 }

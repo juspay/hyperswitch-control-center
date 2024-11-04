@@ -601,12 +601,8 @@ let useGetURL = () => {
       | #USER_INFO => userUrl
 
       // USER GROUP ACCESS
-      | #GET_GROUP_ACL =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/role?${params}`
-        | None => `${userUrl}/role`
-        }
-      | #ROLE_INFO => `${userUrl}/module/list`
+      | #GET_GROUP_ACL => `${userUrl}/role/v2`
+      | #ROLE_INFO => `${userUrl}/parent/list`
 
       | #GROUP_ACCESS_INFO =>
         switch queryParamerters {

@@ -2,6 +2,7 @@ open HSwitchSettingTypes
 open MerchantAccountUtils
 open APIUtils
 open SettingsFieldsInfo
+
 module InfoOnlyView = {
   @react.component
   let make = (~heading, ~subHeading="Default value") => {
@@ -60,7 +61,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (uid, setUid) = React.useState(() => None)
   let (merchantInfo, setMerchantInfo) = React.useState(() => Dict.make())
@@ -153,7 +154,11 @@ let make = () => {
           {switch formState {
           | Preview =>
             <ACLButton
-              authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
+              // TODO: Remove `MerchantDetailsManage` permission in future
+              authorization={hasAnyGroupAccess(
+                userHasAccess(~groupAccess=MerchantDetailsManage),
+                userHasAccess(~groupAccess=AccountManage),
+              )}
               text="Edit"
               onClick={_ => setFormState(_ => Edit)}
               buttonType=Primary
