@@ -65,3 +65,12 @@ type defaultResult = {
 }
 
 type state = Loading | Loaded | Failed | Idle
+
+type category =
+  | Payment_Method
+  | Payment_Method_Type
+  | Connector
+  | Customer_Email
+  | Card_Network
+  | Last_4
+  | Date

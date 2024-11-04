@@ -176,7 +176,7 @@ let make = () => {
       </div>
     | _ =>
       if searchResults->Array.length === 0 {
-        <GlobalSearchBar.EmptyResult prefix searchText />
+        <GlobalSearchBarHelper.EmptyResult prefix searchText />
       } else {
         <SearchResultsComponent searchResults searchText={query} />
       }
