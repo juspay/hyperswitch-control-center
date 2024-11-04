@@ -13,6 +13,7 @@ module PaymentsSuccessRateHeader = {
       setGranularity(_ => value)
     }
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
     let isSmartRetryEnabled =
       filterValueJson
       ->getString("is_smart_retry_enabled", "true")
@@ -37,7 +38,9 @@ module PaymentsSuccessRateHeader = {
         <div className="text-3xl font-600">
           {primaryValue->valueFormatter(Rate)->React.string}
         </div>
-        <StatisticsCard value direction />
+        <RenderIf condition={comparison == EnableComparison}>
+          <StatisticsCard value direction />
+        </RenderIf>
       </div>
       <RenderIf condition={false}>
         <div className="flex justify-center">
@@ -71,6 +74,9 @@ let make = (
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
+  let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
+  let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
   let isSmartRetryEnabled =
     filterValueJson
     ->getString("is_smart_retry_enabled", "true")
@@ -98,15 +104,10 @@ let make = (
         ~granularity=granularity.value->Some,
       )
 
-      let (prevStartTime, prevEndTime) = NewAnalyticsUtils.getComparisionTimePeriod(
-        ~startDate=startTimeVal,
-        ~endDate=endTimeVal,
-      )
-
       let secondaryBody = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
-        ~startTime=prevStartTime,
-        ~endTime=prevEndTime,
+        ~startTime=compareToStartTime,
+        ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
@@ -116,14 +117,34 @@ let make = (
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
-      let secondaryResponse = await updateDetails(url, secondaryBody, Post)
       let primaryData = primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
-      let secondaryData =
-        secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
-      let secondaryMetaData =
-        secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+      let (secondaryMetaData, secondaryModifiedData) = switch comparison {
+      | EnableComparison => {
+          let secondaryResponse = await updateDetails(url, secondaryBody, Post)
+          let secondaryData =
+            secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
+          let secondaryMetaData =
+            primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+          let secondaryModifiedData = [secondaryData]->Array.map(data => {
+            NewAnalyticsUtils.fillMissingDataPoints(
+              ~data,
+              ~startDate=compareToStartTime,
+              ~endDate=compareToEndTime,
+              ~timeKey="time_bucket",
+              ~defaultValue={
+                "payment_count": 0,
+                "payment_processed_amount": 0,
+                "time_bucket": startTimeVal,
+              }->Identity.genericTypeToJson,
+              ~granularity=granularity.value,
+            )
+          })
+          (secondaryMetaData, secondaryModifiedData)
+        }
+      | DisableComparison => ([], [])
+      }
       if primaryData->Array.length > 0 {
         let primaryModifiedData = [primaryData]->Array.map(data => {
           NewAnalyticsUtils.fillMissingDataPoints(
@@ -140,20 +161,6 @@ let make = (
           )
         })
 
-        let secondaryModifiedData = [secondaryData]->Array.map(data => {
-          NewAnalyticsUtils.fillMissingDataPoints(
-            ~data,
-            ~startDate=prevStartTime,
-            ~endDate=prevEndTime,
-            ~timeKey=Time_Bucket->getStringFromVariant,
-            ~defaultValue={
-              "payment_count": 0,
-              "payment_success_rate": 0,
-              "time_bucket": startTimeVal,
-            }->Identity.genericTypeToJson,
-            ~granularity=granularity.value,
-          )
-        })
         setPaymentsSuccessRateData(_ =>
           primaryModifiedData->Array.concat(secondaryModifiedData)->Identity.genericTypeToJson
         )
@@ -174,7 +181,7 @@ let make = (
       getPaymentsSuccessRate()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal])
+  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
 
   let mockDelay = async () => {
     if paymentsSuccessRateData != []->JSON.Encode.array {
@@ -188,7 +195,12 @@ let make = (
     mockDelay()->ignore
     None
   }, [isSmartRetryEnabled])
-
+  let params = {
+    data: paymentsSuccessRateData,
+    xKey: Payments_Success_Rate->getKeyForModule(~isSmartRetryEnabled),
+    yKey: Time_Bucket->getStringFromVariant,
+    comparison,
+  }
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -201,15 +213,7 @@ let make = (
           setGranularity
         />
         <div className="mb-5">
-          <LineGraph
-            entity={chartEntity}
-            data={chartEntity.getObjects(
-              ~data=paymentsSuccessRateData,
-              ~xKey=Payments_Success_Rate->getKeyForModule(~isSmartRetryEnabled),
-              ~yKey=Time_Bucket->getStringFromVariant,
-            )}
-            className="mr-3"
-          />
+          <LineGraph entity={chartEntity} data={chartEntity.getObjects(~params)} className="mr-3" />
         </div>
       </PageLoaderWrapper>
     </Card>
