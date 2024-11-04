@@ -95,13 +95,6 @@ let make = (~entity: moduleEntity) => {
       )
 
       primaryData->setValue(~data=primaryDataRefunds, ~ids=[Refund_Processed_Amount])
-      //primaryData->setValue(~data=primaryDataDisputes, ~ids=[Total_Dispute])
-
-      // secondary date range
-      // let (prevStartTime, prevEndTime) = NewAnalyticsUtils.getComparisionTimePeriod(
-      //   ~startDate=startTimeVal,
-      //   ~endDate=endTimeVal,
-      // )
 
       let secondaryBodyPayments = getPayload(
         ~entity,
@@ -136,11 +129,9 @@ let make = (~entity: moduleEntity) => {
             Post,
           )
           let secondaryResponseRefunds = await updateDetails(refundsUrl, secondaryBodyRefunds, Post)
-          //let secondaryResponseDisputes = await updateDetails(disputesUrl, secondaryBodyDisputes, Post)
 
           let secondaryDataPayments = secondaryResponsePayments->parseResponse("metaData")
           let secondaryDataRefunds = secondaryResponseRefunds->parseResponse("queryData")
-          //let secondaryDataDisputes = secondaryResponseDisputes->parseResponse("queryData")
 
           secondaryData->setValue(
             ~data=secondaryDataPayments,
@@ -159,8 +150,6 @@ let make = (~entity: moduleEntity) => {
         }
       | DisableComparison => JSON.Encode.null
       }
-
-      //secondaryData->setValue(~data=secondaryDataDisputes, ~ids=[Total_Dispute])
 
       setData(_ => [primaryData->JSON.Encode.object, secondaryData]->JSON.Encode.array)
 
