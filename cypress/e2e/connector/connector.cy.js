@@ -132,7 +132,7 @@ describe("connector", () => {
     cy.get("[data-button-for=goToPayment]").should("exist").click();
     cy.url().should("include", "dashboard/payments");
   });
-  it.skip("Verify Time Range Filters after Payment in Payment Operations Page", () => {
+  it("Verify Time Range Filters after Payment in Payment Operations Page", () => {
     cy.get("[data-testid=operations]").click();
     cy.get("[data-testid=payments]").click();
     cy.contains("Payment Operations").should("be.visible");
@@ -143,7 +143,7 @@ describe("connector", () => {
       date30DaysAgo.toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
-        day: "numeric",
+        day: "2-digit",
       }) + " - Now";
     cy.get(`[data-button-text='${formattedDate30DaysAgo}']`).should("exist");
     cy.get("[data-table-location=Orders_tr1_td1]").should("exist");
@@ -166,7 +166,7 @@ describe("connector", () => {
       selectRange(range, shouldPaymentExist);
     });
   });
-  it.skip("Verify Custom Range in Time Range Filters after Payment in Payment Operations Page", () => {
+  it("Verify Custom Range in Time Range Filters after Payment in Payment Operations Page", () => {
     cy.get("[data-testid=operations]").click();
     cy.get("[data-testid=payments]").click();
     cy.contains("Payment Operations").should("be.visible");
@@ -194,7 +194,7 @@ describe("connector", () => {
     const formattedDate = today.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
-      day: "numeric",
+      day: "2-digit",
     });
     cy.get(`[data-testid="${formattedDate}"]`).click();
     cy.get("[data-button-for=apply]").click();
