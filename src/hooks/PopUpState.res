@@ -15,6 +15,7 @@ type popUpProps = {
   handleCancel?: popupAction,
   handleConfirm: popupAction,
   popUpSize?: popUpSize,
+  showCloseIcon?: bool,
 }
 
 let defaultOpenPopUp: array<popUpProps> = []
