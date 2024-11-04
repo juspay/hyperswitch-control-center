@@ -556,6 +556,11 @@ let useGetURL = () => {
           | Some(queryParams) => `${userUrl}/role/v2/list?${queryParams}`
           | None => `${userUrl}/role/v2/list`
           }
+        | ROLE_ID =>
+          switch id {
+          | Some(key_id) => `${userUrl}/role/${key_id}/v2`
+          | None => ""
+          }
         | _ => ""
         }
       }
