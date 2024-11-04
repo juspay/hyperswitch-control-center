@@ -75,7 +75,7 @@ module PredefinedOption = {
 
     let startDate = getFormattedDate(`${stDate}T${stTime}Z`, formatDateTime)
     let endDate = getFormattedDate(`${enDate}T${enTime}Z`, formatDateTime)
-    let handleClick = _value => {
+    let handleClick = () => {
       onClick(value, disableFutureDates)
     }
     let dateRangeDropdownVal = datetext(value, disableFutureDates)
@@ -88,7 +88,7 @@ module PredefinedOption = {
         <div>
           <div
             className={`${optionBG} mx-2 rounded-md p-2 hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100  cursor-pointer text-sm font-medium text-grey-900`}
-            onClick=handleClick>
+            onClick={_ev => handleClick()}>
             {React.string(dateRangeDropdownVal)}
           </div>
         </div>
