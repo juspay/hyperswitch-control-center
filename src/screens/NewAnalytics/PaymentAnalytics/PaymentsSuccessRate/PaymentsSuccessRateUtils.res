@@ -33,6 +33,10 @@ let paymentsSuccessRateMapper = (
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
   let {data, xKey, yKey} = params
+  let comparison = switch params.comparison {
+  | Some(val) => Some(val)
+  | None => None
+  }
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
@@ -55,6 +59,7 @@ let paymentsSuccessRateMapper = (
       ~secondaryCategories,
       ~title="Payments Success Rate",
       ~metricType=Rate,
+      ~comparison,
     ),
   }
 }

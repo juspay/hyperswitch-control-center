@@ -272,10 +272,10 @@ let performanceMonitor = SubLevelLink({
 })
 
 let newAnalytics = SubLevelLink({
-  name: "New Analytics",
+  name: "Insights",
   link: `/new-analytics-payment`,
   access: Access,
-  searchOptions: [("New Analytics", "")],
+  searchOptions: [("Insights", "")],
 })
 
 let disputeAnalytics = SubLevelLink({
