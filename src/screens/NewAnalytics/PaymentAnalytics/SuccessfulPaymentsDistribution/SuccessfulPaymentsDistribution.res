@@ -138,7 +138,11 @@ let make = (
     }
     None
   }, [startTimeVal, endTimeVal, groupBy.value, (isSmartRetryEnabled :> string)])
-
+  let params = {
+    data: paymentsDistribution,
+    xKey: Payments_Success_Rate_Distribution->getKeyForModule(~isSmartRetryEnabled),
+    yKey: groupBy.value,
+  }
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -149,13 +153,7 @@ let make = (
           {switch viewType {
           | Graph =>
             <BarGraph
-              entity={chartEntity}
-              object={chartEntity.getObjects(
-                ~data=paymentsDistribution,
-                ~xKey=Payments_Success_Rate_Distribution->getKeyForModule(~isSmartRetryEnabled),
-                ~yKey=groupBy.value,
-              )}
-              className="mr-3"
+              entity={chartEntity} object={chartEntity.getObjects(~params)} className="mr-3"
             />
           | Table =>
             <TableModule data={paymentsDistribution} className="mx-7" selectedTab={groupBy.value} />

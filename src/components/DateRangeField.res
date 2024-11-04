@@ -761,6 +761,7 @@ module Base = {
             <ToolTip
               description={tooltipText}
               toolTipFor={<Button
+                dataTestId="date-range-selector"
                 text={isMobileView && textHideInMobileView ? "" : buttonText}
                 leftIcon={CustomIcon(<Icon name="calendar-filter" size=22 />)}
                 rightIcon={CustomIcon(iconElement)}

@@ -173,7 +173,6 @@ module Base = {
     React.useEffect(() => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
-
       None
     }, (startDateVal, endDateVal))
 
