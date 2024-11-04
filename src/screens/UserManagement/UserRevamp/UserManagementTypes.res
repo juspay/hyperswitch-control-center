@@ -92,7 +92,7 @@ type userDetailstype = {
 }
 
 @unboxed
-type groupControlType = View | Manage
+type groupScopeType = Read | Write
 
 type allSelectionType = [#All_Merchants | #All_Profiles]
 
