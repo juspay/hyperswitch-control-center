@@ -33,6 +33,10 @@ let useSetInitialFilters = (
   ~updateExistingKeys,
   ~startTimeFilterKey,
   ~endTimeFilterKey,
+  ~compareToStartTimeKey="",
+  ~compareToEndTimeKey="",
+  ~enableCompareTo=None,
+  ~comparisonKey="",
   ~range=7,
   ~origin,
   (),
@@ -48,7 +52,29 @@ let useSetInitialFilters = (
       let timeRange =
         origin !== "analytics"
           ? [(startTimeFilterKey, defaultDate.start_time)]
-          : [(startTimeFilterKey, defaultDate.start_time), (endTimeFilterKey, defaultDate.end_time)]
+          : switch enableCompareTo {
+            | Some(_) => {
+                let (
+                  compareToStartTime,
+                  compareToEndTime,
+                ) = DateRangeUtils.getComparisionTimePeriod(
+                  ~startDate=defaultDate.start_time,
+                  ~endDate=defaultDate.end_time,
+                )
+                [
+                  (startTimeFilterKey, defaultDate.start_time),
+                  (endTimeFilterKey, defaultDate.end_time),
+                  (compareToStartTimeKey, compareToStartTime),
+                  (compareToEndTimeKey, compareToEndTime),
+                  (comparisonKey, (DateRangeUtils.DisableComparison :> string)),
+                ]
+              }
+            | None => [
+                (startTimeFilterKey, defaultDate.start_time),
+                (endTimeFilterKey, defaultDate.end_time),
+              ]
+            }
+
       timeRange->Array.forEach(item => {
         let (key, defaultValue) = item
         switch inititalSearchParam->Dict.get(key) {
@@ -56,7 +82,6 @@ let useSetInitialFilters = (
         | None => inititalSearchParam->Dict.set(key, defaultValue)
         }
       })
-
       inititalSearchParam->updateExistingKeys
     }
   }
@@ -119,6 +144,9 @@ module RemoteTableFilters = {
     ~setFilters,
     ~endTimeFilterKey,
     ~startTimeFilterKey,
+    ~compareToStartTimeKey="",
+    ~compareToEndTimeKey="",
+    ~comparisonKey="",
     ~initialFilters,
     ~initialFixedFilter,
     ~setOffset,
@@ -185,6 +213,9 @@ module RemoteTableFilters = {
       ~updateExistingKeys,
       ~startTimeFilterKey,
       ~endTimeFilterKey,
+      ~compareToStartTimeKey,
+      ~compareToEndTimeKey,
+      ~comparisonKey,
       ~range=30,
       ~origin="orders",
       (),

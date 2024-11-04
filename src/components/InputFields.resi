@@ -239,6 +239,29 @@ let filterDateRangeField: (
   ~selectStandardTime: bool=?,
   ~isTooltipVisible: bool=?,
 ) => comboCustomInputRecord
+
+let filterCompareDateRangeField: (
+  ~startKey: string,
+  ~endKey: string,
+  ~comparisonKey: string,
+  ~format: string,
+  ~disablePastDates: bool=?,
+  ~disableFutureDates: bool=?,
+  ~showTime: bool=?,
+  ~predefinedDays: array<DateRangeUtils.customDateRange>=?,
+  ~disableApply: bool=?,
+  ~numMonths: int=?,
+  ~dateRangeLimit: int=?,
+  ~removeFilterOption: bool=?,
+  ~optFieldKey: 'a=?,
+  ~showSeconds: bool=?,
+  ~hideDate: bool=?,
+  ~selectStandardTime: bool=?,
+  ~isTooltipVisible: bool=?,
+  ~compareWithStartTime: string,
+  ~compareWithEndTime: string,
+) => comboCustomInputRecord
+
 let dateRangeField: (
   ~startKey: string,
   ~endKey: string,
@@ -258,6 +281,7 @@ let dateRangeField: (
   ~customButtonStyle: string=?,
   ~isTooltipVisible: bool=?,
 ) => comboCustomInputRecord
+
 let multiLineTextInput: (
   ~isDisabled: bool,
   ~rows: option<int>,

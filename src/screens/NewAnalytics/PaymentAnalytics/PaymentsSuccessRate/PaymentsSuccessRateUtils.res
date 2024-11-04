@@ -29,11 +29,10 @@ let getVariantValueFromString = value => {
 }
 
 let paymentsSuccessRateMapper = (
-  ~data: JSON.t,
-  ~xKey: string,
-  ~yKey: string,
+  ~params: NewAnalyticsTypes.getObjects<JSON.t>,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
+  let {data, xKey, yKey} = params
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 

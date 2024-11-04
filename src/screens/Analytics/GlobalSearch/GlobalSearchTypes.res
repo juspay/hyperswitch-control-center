@@ -1,4 +1,15 @@
-type section = Local | PaymentIntents | PaymentAttempts | Refunds | Disputes | Others | Default
+type section =
+  | Local
+  | PaymentIntents
+  | PaymentAttempts
+  | Refunds
+  | SessionizerPaymentAttempts
+  | SessionizerPaymentIntents
+  | SessionizerPaymentRefunds
+  | SessionizerPaymentDisputes
+  | Disputes
+  | Others
+  | Default
 
 type element = {
   texts: array<JSON.t>,
@@ -19,7 +30,11 @@ let getSectionHeader = section => {
   | Refunds => "Refunds"
   | Others => "Others"
   | Disputes => "Disputes"
-  | Default => ""
+  | Default
+  | SessionizerPaymentAttempts
+  | SessionizerPaymentIntents
+  | SessionizerPaymentRefunds
+  | SessionizerPaymentDisputes => ""
   }
 }
 
@@ -29,6 +44,10 @@ let getSectionVariant = string => {
   | "payment_intents" => PaymentIntents
   | "refunds" => Refunds
   | "disputes" => Disputes
+  | "sessionizer_payment_attempts" => SessionizerPaymentAttempts
+  | "sessionizer_payment_intents" => SessionizerPaymentIntents
+  | "sessionizer_refunds" => SessionizerPaymentRefunds
+  | "sessionizer_disputes" => SessionizerPaymentDisputes
   | _ => Local
   }
 }

@@ -17,14 +17,39 @@ let getPageFromIndex = index => {
   | 1 | _ => NewAnalyticsPayment
   }
 }
+let renderValueInp = () => (_fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+  React.null
+}
 
-let (startTimeFilterKey, endTimeFilterKey, smartRetryKey) = (
+let compareToInput = (~comparisonKey) => {
+  FormRenderer.makeMultiInputFieldInfoOld(
+    ~label="",
+    ~comboCustomInput=renderValueInp(),
+    ~inputFields=[
+      FormRenderer.makeInputFieldInfo(~name=`${comparisonKey}`),
+      FormRenderer.makeInputFieldInfo(~name=`extraKey`),
+    ],
+    (),
+  )
+}
+
+let (
+  startTimeFilterKey,
+  endTimeFilterKey,
+  smartRetryKey,
+  compareToStartTimeKey,
+  compareToEndTimeKey,
+  comparisonKey,
+) = (
   "startTime",
   "endTime",
   "is_smart_retry_enabled",
+  "compareToStartTime",
+  "compareToEndTime",
+  "comparison",
 )
 
-let initialFixedFilterFields = () => {
+let initialFixedFilterFields = (~compareWithStartTime, ~compareWithEndTime) => {
   let newArr = [
     (
       {
@@ -57,6 +82,35 @@ let initialFixedFilterFields = () => {
           ~inputFields=[],
           ~isRequired=false,
         ),
+      }: EntityType.initialFilters<'t>
+    ),
+    (
+      {
+        localFilter: None,
+        field: FormRenderer.makeMultiInputFieldInfo(
+          ~label="",
+          ~comboCustomInput=InputFields.filterCompareDateRangeField(
+            ~startKey=compareToStartTimeKey,
+            ~endKey=compareToEndTimeKey,
+            ~comparisonKey,
+            ~format="YYYY-MM-DDTHH:mm:ss[Z]",
+            ~showTime=true,
+            ~disablePastDates={false},
+            ~disableFutureDates={true},
+            ~predefinedDays=[Today, Yesterday, Day(2.0), Day(7.0), Day(30.0), ThisMonth, LastMonth],
+            ~numMonths=2,
+            ~disableApply=false,
+            ~compareWithStartTime,
+            ~compareWithEndTime,
+          ),
+          ~inputFields=[],
+        ),
+      }: EntityType.initialFilters<'t>
+    ),
+    (
+      {
+        localFilter: None,
+        field: compareToInput(~comparisonKey),
       }: EntityType.initialFilters<'t>
     ),
   ]

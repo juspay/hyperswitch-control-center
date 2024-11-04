@@ -34,11 +34,14 @@ let getVariantValueFromString = value => {
 }
 
 let paymentsProcessedMapper = (
-  ~data: JSON.t,
-  ~xKey: string,
-  ~yKey: string,
+  ~params: NewAnalyticsTypes.getObjects<JSON.t>,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
+  let {data, xKey, yKey} = params
+  let comparison = switch params.comparison {
+  | Some(val) => Some(val)
+  | None => None
+  }
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
@@ -61,6 +64,7 @@ let paymentsProcessedMapper = (
       ~secondaryCategories,
       ~title="Payments Processed",
       ~metricType=Amount,
+      ~comparison,
     ),
   }
 }

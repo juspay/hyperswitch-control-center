@@ -22,10 +22,9 @@ let paymentLifeCycleResponseMapper = (json: JSON.t) => {
 }
 
 let paymentsLifeCycleMapper = (
-  ~data: paymentLifeCycle,
-  ~xKey,
-  ~yKey as _,
+  ~params: NewAnalyticsTypes.getObjects<paymentLifeCycle>,
 ): SankeyGraphTypes.sankeyPayload => {
+  let {data, xKey} = params
   let isSmartRetryEnabled =
     xKey->getBoolFromString(true)->NewPaymentAnalyticsUtils.getSmartRetryMetricType
   let success =
