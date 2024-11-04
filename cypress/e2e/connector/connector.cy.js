@@ -176,7 +176,7 @@ describe("connector", () => {
     const formattedDate30DaysAgo = date30DaysAgo.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
-      day: "numeric",
+      day: "2-digit",
     });
     cy.get(`[data-button-text='${formattedDate30DaysAgo} - Now']`).should(
       "exist",
