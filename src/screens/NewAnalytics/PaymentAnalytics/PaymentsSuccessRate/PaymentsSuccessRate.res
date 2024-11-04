@@ -35,7 +35,9 @@ module PaymentsSuccessRateHeader = {
     <div className="w-full px-7 py-8 grid grid-cols-2">
       // will enable it in future
       <div className="flex gap-2 items-center">
-        <div className="text-3xl font-600"> {primaryValue->Float.toString->React.string} </div>
+        <div className="text-3xl font-600">
+          {primaryValue->valueFormatter(Rate)->React.string}
+        </div>
         <RenderIf condition={comparison == EnableComparison}>
           <StatisticsCard value direction />
         </RenderIf>
