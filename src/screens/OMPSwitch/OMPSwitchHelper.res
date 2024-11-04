@@ -32,12 +32,20 @@ module AddNewMerchantProfileButton = {
     ~customHRTagStyle="",
     ~addItemBtnStyle="",
   ) => {
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let cursorStyles = GroupAccessUtils.cursorStyles(
-      userHasAccess(~groupAccess=MerchantDetailsManage),
+      // TODO: Remove `MerchantDetailsManage` permission in future
+      hasAnyGroupAccess(
+        userHasAccess(~groupAccess=MerchantDetailsManage),
+        userHasAccess(~groupAccess=AccountManage),
+      ),
     )
     <ACLDiv
-      authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
+      // TODO: Remove `MerchantDetailsManage` permission in future
+      authorization={hasAnyGroupAccess(
+        userHasAccess(~groupAccess=MerchantDetailsManage),
+        userHasAccess(~groupAccess=AccountManage),
+      )}
       onClick={_ => setShowModal(_ => true)}
       isRelative=false
       contentAlign=Default

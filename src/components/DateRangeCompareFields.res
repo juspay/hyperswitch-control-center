@@ -6,7 +6,7 @@ let defaultCellHighlighter = (_): Calendar.highlighter => {
   }
 }
 
-let useErroryValueResetter = (value: string, setValue: (string => string) => unit) => {
+let useErrorValueResetter = (value: string, setValue: (string => string) => unit) => {
   React.useEffect(() => {
     let isErroryTimeValue = _ => {
       try {
@@ -22,19 +22,16 @@ let useErroryValueResetter = (value: string, setValue: (string => string) => uni
     None
   }, [])
 }
-
+let getDate = date => {
+  let datevalue = Js.Date.makeWithYMD(
+    ~year=Js.Float.fromString(date[0]->Option.getOr("")),
+    ~month=Js.Float.fromString(String.make(Js.Float.fromString(date[1]->Option.getOr("")) -. 1.0)),
+    ~date=Js.Float.fromString(date[2]->Option.getOr("")),
+    (),
+  )
+  datevalue
+}
 let isStartBeforeEndDate = (start, end) => {
-  let getDate = date => {
-    let datevalue = Js.Date.makeWithYMD(
-      ~year=Js.Float.fromString(date[0]->Option.getOr("")),
-      ~month=Js.Float.fromString(
-        String.make(Js.Float.fromString(date[1]->Option.getOr("")) -. 1.0),
-      ),
-      ~date=Js.Float.fromString(date[2]->Option.getOr("")),
-      (),
-    )
-    datevalue
-  }
   let startDate = getDate(String.split(start, "-"))
   let endDate = getDate(String.split(end, "-"))
   startDate < endDate
@@ -78,7 +75,7 @@ module PredefinedOption = {
 
     let startDate = getFormattedDate(`${stDate}T${stTime}Z`, formatDateTime)
     let endDate = getFormattedDate(`${enDate}T${enTime}Z`, formatDateTime)
-    let handleClick = _value => {
+    let handleClick = () => {
       onClick(value, disableFutureDates)
     }
     let dateRangeDropdownVal = datetext(value, disableFutureDates)
@@ -91,7 +88,7 @@ module PredefinedOption = {
         <div>
           <div
             className={`${optionBG} mx-2 rounded-md p-2 hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100  cursor-pointer text-sm font-medium text-grey-900`}
-            onClick=handleClick>
+            onClick={_ev => handleClick()}>
             {React.string(dateRangeDropdownVal)}
           </div>
         </div>
@@ -144,7 +141,6 @@ module Base = {
       predefinedDays->Array.length === 0
     )
 
-    let (_showOption, setShowOption) = React.useState(_ => false)
     let customTimezoneToISOString = TimeZoneHook.useCustomTimeZoneToIsoString()
     let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
     let isoStringToCustomTimezoneInFloat = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
@@ -153,7 +149,6 @@ module Base = {
 
     let (localStartDate, setLocalStartDate) = React.useState(_ => startDateVal)
     let (localEndDate, setLocalEndDate) = React.useState(_ => endDateVal)
-    let (_localOpt, setLocalOpt) = React.useState(_ => "")
 
     let (isDropdownExpanded, setIsDropdownExpanded) = React.useState(_ => false)
     let (calendarVisibility, setCalendarVisibility) = React.useState(_ => false)
@@ -178,14 +173,12 @@ module Base = {
     React.useEffect(() => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
-      setLocalOpt(_ => "")
       None
     }, (startDateVal, endDateVal))
 
     let resetStartEndInput = () => {
       setLocalStartDate(_ => "")
       setLocalEndDate(_ => "")
-      setLocalOpt(_ => "")
     }
 
     React.useEffect(() => {
@@ -205,8 +198,8 @@ module Base = {
     let dateRangeRef = React.useRef(Nullable.null)
     let dropdownRef = React.useRef(Nullable.null)
 
-    useErroryValueResetter(startDateVal, setStartDateVal)
-    useErroryValueResetter(endDateVal, setEndDateVal)
+    useErrorValueResetter(startDateVal, setStartDateVal)
+    useErrorValueResetter(endDateVal, setEndDateVal)
     let startDate = localStartDate->getDateStringForValue(isoStringToCustomTimeZone)
     let endDate = localEndDate->getDateStringForValue(isoStringToCustomTimeZone)
     let isDropdownExpandedActual = isDropdownExpanded && calendarVisibility
@@ -220,7 +213,6 @@ module Base = {
     let resetToInitalValues = () => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
-      setLocalOpt(_ => "")
     }
 
     OutsideClick.useOutsideClick(
@@ -356,7 +348,6 @@ module Base = {
     }
 
     let handleApply = _ => {
-      setShowOption(_ => false)
       setCalendarVisibility(p => !p)
       setIsDropdownExpanded(_ => false)
       saveDates()
@@ -462,12 +453,9 @@ module Base = {
       if predefinedDays->Array.length > 0 {
         if calendarVisibility {
           setCalendarVisibility(_ => false)
-          setShowOption(_ => !isDropdownExpanded)
           setIsDropdownExpanded(_ => !isDropdownExpanded)
-          setShowOption(_ => !isCustomSelected)
         } else {
           setIsDropdownExpanded(_ => true)
-          setShowOption(_ => true)
           setCalendarVisibility(_ => true)
         }
       } else {
@@ -484,10 +472,6 @@ module Base = {
           (disableApply || !isCustomSelected)
         ) {
           saveDates()
-        }
-
-        if disableApply {
-          setShowOption(_ => false)
         }
       }
       None
@@ -568,7 +552,6 @@ module Base = {
           setCalendarVisibility(_ => false)
           setIsDropdownExpanded(_ => false)
           setIsCustomSelected(_ => false)
-          setShowOption(_ => false)
           setComparison(_ => (DisableComparison :> string))
           setLocalStartDate(_ => compareWithStartTime)
           setLocalEndDate(_ => compareWithEndTime)
@@ -579,9 +562,7 @@ module Base = {
           setCalendarVisibility(_ => false)
           setIsDropdownExpanded(_ => false)
           setIsCustomSelected(_ => false)
-          setShowOption(_ => false)
           let (startDate, endDate) = getComparisionTimePeriod(~startDate, ~endDate)
-
           let stDate = getFormattedDate(startDate, "YYYY-MM-DD")
           let edDate = getFormattedDate(endDate, "YYYY-MM-DD")
           let stTime = getFormattedDate(startDate, "HH:MM:00")
