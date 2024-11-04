@@ -105,9 +105,9 @@ let successfulPaymentsDistributionTableEntity = {
     ~uri=``,
     ~getObjects,
     ~dataKey="queryData",
-    ~defaultColumns=visibleColumns,
+    ~defaultColumns=[],
     ~requiredSearchFieldsList=[],
-    ~allColumns=visibleColumns,
+    ~allColumns=[],
     ~getCell,
     ~getHeading,
   )
@@ -138,9 +138,9 @@ let failedPaymentsDistributionTableEntity = {
     ~uri=``,
     ~getObjects,
     ~dataKey="queryData",
-    ~defaultColumns=visibleColumns,
+    ~defaultColumns=[],
     ~requiredSearchFieldsList=[],
-    ~allColumns=visibleColumns,
+    ~allColumns=[],
     ~getCell,
     ~getHeading,
   )

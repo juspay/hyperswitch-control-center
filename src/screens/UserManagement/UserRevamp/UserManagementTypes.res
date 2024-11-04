@@ -16,7 +16,29 @@ type groupAccessType =
   | MerchantDetailsView
   | MerchantDetailsManage
   | OrganizationManage
+  | AccountView
+  | AccountManage
   | UnknownGroupAccess(string)
+
+type resourceAccessType =
+  | Payment
+  | Refund
+  | Dispute
+  | Payout
+  | Customer
+  | Connector
+  | Analytics
+  | Routing
+  | ThreeDsDecisionManager
+  | SurchargeDecisionManager
+  | Recon
+  | Account
+  | ApiKey
+  | User
+  | Mandate
+  | WebhookEvent
+  | Report
+  | UnknownResourceAccess(string)
 
 open CommonAuthTypes
 type groupAccessJsonType = {
@@ -32,6 +54,8 @@ type groupAccessJsonType = {
   merchantDetailsView: authorization,
   merchantDetailsManage: authorization,
   organizationManage: authorization,
+  accountView: authorization,
+  accountManage: authorization,
 }
 
 type getInfoType = {
@@ -68,18 +92,7 @@ type userDetailstype = {
 }
 
 @unboxed
-type parentGroupType =
-  | Operations
-  | Connectors
-  | Workflows
-  | Analytics
-  | Users
-  | Merchant
-  | Organization
-  | UnknownGroup(string)
-
-@unboxed
-type groupScopeType = Read | Write
+type groupControlType = View | Manage
 
 type allSelectionType = [#All_Merchants | #All_Profiles]
 

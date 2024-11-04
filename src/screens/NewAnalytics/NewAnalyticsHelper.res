@@ -221,3 +221,44 @@ module GraphHeader = {
     </div>
   }
 }
+
+module SmartRetryToggle = {
+  open LogicUtils
+  open NewAnalyticsContainerUtils
+  @react.component
+  let make = () => {
+    let {updateExistingKeys, filterValue, filterValueJson} = React.useContext(
+      FilterContext.filterContext,
+    )
+    let (isEnabled, setIsEnabled) = React.useState(_ => false)
+
+    React.useEffect(() => {
+      let value = filterValueJson->getString(smartRetryKey, "true")->getBoolFromString(true)
+      setIsEnabled(_ => value)
+      None
+    }, [filterValueJson])
+
+    let onClick = _ => {
+      let updatedValue = !isEnabled
+      let newValue = filterValue->Dict.copy
+      newValue->Dict.set(smartRetryKey, updatedValue->getStringFromBool)
+      newValue->updateExistingKeys
+    }
+
+    <div
+      className="w-full py-3 -mb-5 -mt-2 px-4 border rounded-lg bg-white flex gap-2 items-center">
+      <BoolInput.BaseComponent
+        isSelected={isEnabled}
+        setIsSelected={onClick}
+        isDisabled=false
+        boolCustomClass="rounded-lg !bg-blue-500"
+      />
+      <p className="!text-base text-grey-700 ml-2">
+        <span className="font-semibold"> {"Include Payment Retries data: "->React.string} </span>
+        <span>
+          {"Your data will consist of all the payment retries that contributed to the success rate"->React.string}
+        </span>
+      </p>
+    </div>
+  }
+}

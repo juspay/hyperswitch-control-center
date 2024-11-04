@@ -269,6 +269,10 @@ module TableRow = {
                       ? "disabled"
                       : "enabled",
                   ),
+                  (
+                    "data-testid",
+                    (Date.toString(date)->DayJs.getDayJsForString).format("MMM D, YYYY"),
+                  ),
                 ]>
                 <span className={startDate->isEmptyString ? c2 : c3}>
                   {cellRenderer(
