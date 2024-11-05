@@ -231,7 +231,7 @@ let make = () => {
           }}>
           {_ => {
             <>
-              {modalSearchBox}
+              <ModalSearchBox leftIcon setShowModal />
               <FilterResultsComponent
                 categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)} searchText
               />

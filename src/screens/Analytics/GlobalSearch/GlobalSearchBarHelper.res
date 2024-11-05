@@ -234,3 +234,121 @@ module FilterResultsComponent = {
     </FramerMotion.Motion.Div>
   }
 }
+
+module GlobalSearchCustomInput = {
+  @react.component
+  let make = (
+    ~input: ReactFinalForm.fieldRenderPropsInput,
+    ~name="tag_value",
+    ~seperateBySpace=true,
+    ~leftIcon,
+    ~setShowModal,
+  ) => {
+    let currentTags = React.useMemo(() => {
+      input.value->JSON.Decode.array->Option.getOr([])->Belt.Array.keepMap(JSON.Decode.string)
+    }, [input.value])
+
+    let setTags = tags => {
+      tags->Identity.arrayOfGenericTypeToFormReactEvent->input.onChange
+    }
+
+    let (text, setText) = React.useState(_ => "")
+
+    let handleKeyDown = e => {
+      open ReactEvent.Keyboard
+      let isEmpty = text->LogicUtils.isEmptyString
+
+      if !isEmpty && e->keyCode === 32 {
+        let arr = text->String.split(" ")
+        let newArr = []
+        arr->Array.forEach(ele => {
+          if (
+            !(newArr->Array.includes(ele->String.trim)) &&
+            !(currentTags->Array.includes(ele->String.trim))
+          ) {
+            if ele->String.trim->LogicUtils.isNonEmptyString {
+              newArr->Array.push(ele->String.trim)->ignore
+            }
+          }
+        })
+
+        setTags(currentTags->Array.concat(newArr))
+        setText(_ => "")
+      }
+    }
+
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      {
+        name,
+        onBlur: _ => (),
+        onChange: ev => {
+          let value = {ev->ReactEvent.Form.target}["value"]
+          setText(_ => value)
+        },
+        onFocus: _ => (),
+        value: JSON.Encode.string(text),
+        checked: false,
+      }
+    }
+
+    <FramerMotion.Motion.Div layoutId="input" className="h-11 bg-white">
+      <div className={`flex flex-row items-center border-b dark:border-jp-gray-960`}>
+        {leftIcon}
+        <div className="w-full overflow-scroll flex flex-row items-center">
+          <TextInput
+            input
+            autoFocus=true
+            placeholder="Search"
+            autoComplete="off"
+            onKeyUp=handleKeyDown
+            customStyle="bg-white border-none"
+            onActiveStyle="bg-white"
+            onHoverCss="bg-white"
+            inputStyle="!text-lg"
+          />
+        </div>
+        <div
+          className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center mr-5 cursor-pointer ml-2 opacity-70"
+          onClick={_ => {
+            setShowModal(_ => false)
+          }}>
+          <span className="opacity-40 font-bold text-sm"> {"Esc"->React.string} </span>
+          <Icon size=15 name="times" parentClass="flex justify-end opacity-30" />
+        </div>
+      </div>
+    </FramerMotion.Motion.Div>
+  }
+}
+
+module ModalSearchBox = {
+  @react.component
+  let make = (~leftIcon, ~setShowModal) => {
+    let onSubmit = (_values, _) => {
+      Nullable.null->Promise.resolve
+    }
+
+    let validateForm = _values => {
+      let errors = Dict.make()
+      errors->JSON.Encode.object
+    }
+
+    <Form
+      key="invite-user-management"
+      initialValues={Dict.make()->JSON.Encode.object}
+      validate={values => values->validateForm}
+      onSubmit>
+      <LabelVisibilityContext showLabel=false>
+        <FormRenderer.FieldRenderer
+          field={FormRenderer.makeFieldInfo(
+            ~label="",
+            ~name="global_search",
+            ~customInput=(~input, ~placeholder as _) => {
+              <GlobalSearchCustomInput input leftIcon setShowModal />
+            },
+            ~isRequired=false,
+          )}
+        />
+      </LabelVisibilityContext>
+    </Form>
+  }
+}
