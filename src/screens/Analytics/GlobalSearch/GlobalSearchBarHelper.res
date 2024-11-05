@@ -238,16 +238,26 @@ module FilterResultsComponent = {
   }
 }
 
-module GlobalSearchCustomInput = {
+module ModalSearchBox = {
   @react.component
-  let make = (
-    ~input: ReactFinalForm.fieldRenderPropsInput,
-    ~name="tag_value",
-    ~leftIcon,
-    ~setShowModal,
-    ~setGlobalSearchText,
-    ~searchText,
-  ) => {
+  let make = (~leftIcon, ~setShowModal, ~setGlobalSearchText, ~searchText) => {
+    let (searchText, setSearchText) = React.useState(_ => "")
+
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      {
+        name: {"global_search"},
+        onBlur: _ => (),
+        onChange: ev => {
+          let value = {ev->ReactEvent.Form.target}["value"]
+          setSearchText(_ => value)
+          //setGlobalSearchText(value)
+        },
+        onFocus: _ => (),
+        value: JSON.Encode.string(searchText),
+        checked: false,
+      }
+    }
+
     // let currentTags = React.useMemo(() => {
     //   input.value->JSON.Decode.array->Option.getOr([])->Belt.Array.keepMap(JSON.Decode.string)
     // }, [input.value])
@@ -280,52 +290,6 @@ module GlobalSearchCustomInput = {
       Js.log2(">>", "here")
     }
 
-    let input: ReactFinalForm.fieldRenderPropsInput = {
-      {
-        name,
-        onBlur: _ => (),
-        onChange: ev => {
-          let value = {ev->ReactEvent.Form.target}["value"]
-          setGlobalSearchText(value)
-        },
-        onFocus: _ => (),
-        value: JSON.Encode.string(searchText),
-        checked: false,
-      }
-    }
-
-    <FramerMotion.Motion.Div layoutId="input" className="h-11 bg-white">
-      <div className={`flex flex-row items-center border-b dark:border-jp-gray-960`}>
-        {leftIcon}
-        <div className="w-full overflow-scroll flex flex-row items-center">
-          <TextInput
-            input
-            autoFocus=true
-            placeholder="Search"
-            autoComplete="off"
-            onKeyUp=handleKeyDown
-            customStyle="bg-white border-none"
-            onActiveStyle="bg-white"
-            onHoverCss="bg-white"
-            inputStyle="!text-lg"
-          />
-        </div>
-        <div
-          className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center mr-5 cursor-pointer ml-2 opacity-70"
-          onClick={_ => {
-            setShowModal(_ => false)
-          }}>
-          <span className="opacity-40 font-bold text-sm"> {"Esc"->React.string} </span>
-          <Icon size=15 name="times" parentClass="flex justify-end opacity-30" />
-        </div>
-      </div>
-    </FramerMotion.Motion.Div>
-  }
-}
-
-module ModalSearchBox = {
-  @react.component
-  let make = (~leftIcon, ~setShowModal, ~setGlobalSearchText, ~searchText) => {
     let onSubmit = (_values, _) => {
       Nullable.null->Promise.resolve
     }
@@ -345,8 +309,33 @@ module ModalSearchBox = {
           field={FormRenderer.makeFieldInfo(
             ~label="",
             ~name="global_search",
-            ~customInput=(~input, ~placeholder as _) => {
-              <GlobalSearchCustomInput input leftIcon setShowModal setGlobalSearchText searchText />
+            ~customInput=(~input as _, ~placeholder as _) => {
+              <FramerMotion.Motion.Div layoutId="input" className="h-11 bg-white">
+                <div className={`flex flex-row items-center border-b dark:border-jp-gray-960`}>
+                  {leftIcon}
+                  <div className="w-full overflow-scroll flex flex-row items-center">
+                    <TextInput
+                      input
+                      autoFocus=true
+                      placeholder="Search"
+                      autoComplete="off"
+                      onKeyUp=handleKeyDown
+                      customStyle="bg-white border-none"
+                      onActiveStyle="bg-white"
+                      onHoverCss="bg-white"
+                      inputStyle="!text-lg"
+                    />
+                  </div>
+                  <div
+                    className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center mr-5 cursor-pointer ml-2 opacity-70"
+                    onClick={_ => {
+                      setShowModal(_ => false)
+                    }}>
+                    <span className="opacity-40 font-bold text-sm"> {"Esc"->React.string} </span>
+                    <Icon size=15 name="times" parentClass="flex justify-end opacity-30" />
+                  </div>
+                </div>
+              </FramerMotion.Motion.Div>
             },
             ~isRequired=false,
           )}

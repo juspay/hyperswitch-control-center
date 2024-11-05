@@ -37,18 +37,6 @@ let make = () => {
     }
   }
 
-  let getFilterBody = groupByNames =>
-    {
-      let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=360)
-      let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
-        startTime: defaultDate.start_time,
-        endTime: defaultDate.end_time,
-        groupByNames,
-        source: "BATCH",
-      }
-      AnalyticsUtils.filterBody(filterBodyEntity)
-    }->Identity.genericTypeToJson
-
   let getCategoryOptions = async () => {
     setState(_ => Loading)
     try {
@@ -113,43 +101,38 @@ let make = () => {
     }
   }
 
-  React.useEffect(_ => {
-    let results = []
+  // React.useEffect(_ => {
+  //   let results = []
 
-    if searchText->String.length > 0 {
-      setState(_ => Loading)
-      let localResults: resultType = searchText->getLocalMatchedResults(hswitchTabs)
+  //   if searchText->String.length > 0 {
+  //     setState(_ => Loading)
+  //     let localResults: resultType = searchText->getLocalMatchedResults(hswitchTabs)
 
-      if localResults.results->Array.length > 0 {
-        results->Array.push(localResults)
-      }
+  //     if localResults.results->Array.length > 0 {
+  //       results->Array.push(localResults)
+  //     }
 
-      if isShowRemoteResults {
-        getSearchResults(results)->ignore
-      } else {
-        if results->Array.length > 0 {
-          let defaultItem = searchText->getDefaultResult
+  //     if isShowRemoteResults {
+  //       getSearchResults(results)->ignore
+  //     } else {
+  //       if results->Array.length > 0 {
+  //         let defaultItem = searchText->getDefaultResult
 
-          let arr = [defaultItem]->Array.concat(results)
+  //         let arr = [defaultItem]->Array.concat(results)
 
-          setSearchResults(_ => arr)
-        } else {
-          setSearchResults(_ => [])
-        }
-        setState(_ => Loaded)
-      }
-    } else {
-      setState(_ => Idle)
-      setSearchResults(_ => [])
-    }
+  //         setSearchResults(_ => arr)
+  //       } else {
+  //         setSearchResults(_ => [])
+  //       }
+  //       setState(_ => Loaded)
+  //     }
+  //   } else {
+  //     setState(_ => Idle)
+  //     setSearchResults(_ => [])
+  //   }
 
-    None
-  }, [searchText])
-
-  React.useEffect(_ => {
-    getCategoryOptions()->ignore
-    None
-  }, [])
+  //   None
+  // }, [searchText])
 
   React.useEffect(_ => {
     setSearchText(_ => "")
@@ -157,6 +140,8 @@ let make = () => {
   }, [showModal])
 
   React.useEffect(() => {
+    getCategoryOptions()->ignore
+
     let onKeyPress = event => {
       let metaKey = event->ReactEvent.Keyboard.metaKey
       let keyPressed = event->ReactEvent.Keyboard.key

@@ -403,3 +403,15 @@ let paymentsGroupByNames = [
 
 let refundsGroupByNames = ["currency", "refund_status", "connector", "refund_type", "profile_id"]
 let disputesGroupByNames = ["connector", "dispute_stage"]
+
+let getFilterBody = groupByNames =>
+  {
+    let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=360)
+    let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
+      startTime: defaultDate.start_time,
+      endTime: defaultDate.end_time,
+      groupByNames,
+      source: "BATCH",
+    }
+    AnalyticsUtils.filterBody(filterBodyEntity)
+  }->Identity.genericTypeToJson
