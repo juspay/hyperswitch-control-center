@@ -138,59 +138,61 @@ module SearchResultsComponent = {
       Some(() => Window.removeEventListener("keydown", onKeyPress))
     }, [])
 
-    <OptionsWrapper>
-      {searchResults
-      ->Array.mapWithIndex((section: resultType, index) => {
-        let borderClass =
-          index !== searchResults->Array.length - 1 ? "border-b-1 dark:border-jp-gray-960" : ""
-        <FramerMotion.Motion.Div
-          key={Int.toString(index)}
-          layoutId={section.section->getSectionHeader}
-          className={`px-3 mb-3 py-1 ${borderClass}`}>
-          <FramerMotion.Motion.Div
-            initial={{opacity: 0.5}}
-            animate={{opacity: 0.5}}
-            layoutId={`${section.section->getSectionHeader}-${index->Belt.Int.toString}`}
-            className="text-lightgray_background  px-2 pb-1 flex justify-between">
-            <div className="font-bold">
-              {section.section->getSectionHeader->String.toUpperCase->React.string}
-            </div>
-            <div>
-              <GlobalSearchBarUtils.ShowMoreLink
-                section
-                cleanUpFunction={() => {setShowModal(_ => false)}}
-                textStyleClass="text-xs"
-                searchText
-              />
-            </div>
-          </FramerMotion.Motion.Div>
-          {section.results
-          ->Array.mapWithIndex((item, i) => {
-            let elementsArray = item.texts
+    let borderClass = searchResults->Array.length > 0 ? "border-t dark:border-jp-gray-960" : ""
 
-            <OptionWrapper key={Int.toString(i)} index={i} value={item}>
-              {elementsArray
-              ->Array.mapWithIndex(
-                (item, index) => {
-                  let elementValue = item->JSON.Decode.string->Option.getOr("")
-                  <RenderIf condition={elementValue->isNonEmptyString} key={index->Int.toString}>
-                    <RenderedComponent ele=elementValue searchText />
-                    <RenderIf condition={index >= 0 && index < elementsArray->Array.length - 1}>
-                      <span className="mx-2 text-lightgray_background opacity-50">
-                        {">"->React.string}
-                      </span>
+    <div className=borderClass>
+      <OptionsWrapper>
+        {searchResults
+        ->Array.mapWithIndex((section: resultType, index) => {
+          <FramerMotion.Motion.Div
+            key={Int.toString(index)}
+            layoutId={section.section->getSectionHeader}
+            className={`px-3 mb-3 py-1`}>
+            <FramerMotion.Motion.Div
+              initial={{opacity: 0.5}}
+              animate={{opacity: 0.5}}
+              layoutId={`${section.section->getSectionHeader}-${index->Belt.Int.toString}`}
+              className="text-lightgray_background  px-2 pb-1 flex justify-between">
+              <div className="font-bold">
+                {section.section->getSectionHeader->String.toUpperCase->React.string}
+              </div>
+              <div>
+                <GlobalSearchBarUtils.ShowMoreLink
+                  section
+                  cleanUpFunction={() => {setShowModal(_ => false)}}
+                  textStyleClass="text-xs"
+                  searchText
+                />
+              </div>
+            </FramerMotion.Motion.Div>
+            {section.results
+            ->Array.mapWithIndex((item, i) => {
+              let elementsArray = item.texts
+
+              <OptionWrapper key={Int.toString(i)} index={i} value={item}>
+                {elementsArray
+                ->Array.mapWithIndex(
+                  (item, index) => {
+                    let elementValue = item->JSON.Decode.string->Option.getOr("")
+                    <RenderIf condition={elementValue->isNonEmptyString} key={index->Int.toString}>
+                      <RenderedComponent ele=elementValue searchText />
+                      <RenderIf condition={index >= 0 && index < elementsArray->Array.length - 1}>
+                        <span className="mx-2 text-lightgray_background opacity-50">
+                          {">"->React.string}
+                        </span>
+                      </RenderIf>
                     </RenderIf>
-                  </RenderIf>
-                },
-              )
-              ->React.array}
-            </OptionWrapper>
-          })
-          ->React.array}
-        </FramerMotion.Motion.Div>
-      })
-      ->React.array}
-    </OptionsWrapper>
+                  },
+                )
+                ->React.array}
+              </OptionWrapper>
+            })
+            ->React.array}
+          </FramerMotion.Motion.Div>
+        })
+        ->React.array}
+      </OptionsWrapper>
+    </div>
   }
 }
 
@@ -226,7 +228,7 @@ module FilterResultsComponent = {
         initial={{opacity: 0.5}}
         animate={{opacity: 0.5}}
         layoutId="categories-section"
-        className="px-2 pt-2 -mt-2 border-t dark:border-jp-gray-960">
+        className="px-2 pt-2 border-t dark:border-jp-gray-960">
         <FramerMotion.Motion.Div layoutId="categories-title" className="font-bold px-2">
           {"Suggested Filters"->String.toUpperCase->React.string}
         </FramerMotion.Motion.Div>
