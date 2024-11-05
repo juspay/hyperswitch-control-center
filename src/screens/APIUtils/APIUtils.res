@@ -740,6 +740,7 @@ let useHandleLogout = () => {
 let sessionExpired = ref(false)
 
 let responseHandler = async (
+  ~url,
   ~res,
   ~showToast: ToastState.showToastFn,
   ~showErrorToast: bool,
@@ -752,7 +753,7 @@ let responseHandler = async (
     ~email: string=?,
     ~description: option<'a>=?,
     ~section: string=?,
-    ~metadata: Dict.t<'b>=?,
+    ~metadata: JSON.t=?,
   ) => unit,
 ) => {
   let json = try {
@@ -764,11 +765,15 @@ let responseHandler = async (
   let responseStatus = res->Fetch.Response.status
 
   if responseStatus >= 500 && responseStatus < 600 {
-    sendEvent(
-      ~eventName="API Error",
-      ~description=Some(responseStatus),
-      ~metadata=json->getDictFromJsonObject,
-    )
+    let metaData =
+      [
+        ("url", url->JSON.Encode.string),
+        ("response", json),
+        ("status", responseStatus->JSON.Encode.int),
+      ]
+      ->Dict.fromArray
+      ->JSON.Encode.object
+    sendEvent(~eventName="API Error", ~description=Some(responseStatus), ~metadata=metaData)
   }
 
   switch responseStatus {
@@ -880,6 +885,7 @@ let useGetMethod = (~showErrorToast=true) => {
     try {
       let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute)
       await responseHandler(
+        ~url,
         ~res,
         ~showErrorToast,
         ~showToast,
@@ -940,6 +946,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~xFeatureRoute,
       )
       await responseHandler(
+        ~url,
         ~res,
         ~showErrorToast,
         ~showToast,
