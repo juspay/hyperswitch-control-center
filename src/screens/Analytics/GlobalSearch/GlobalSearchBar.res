@@ -102,38 +102,38 @@ let make = () => {
     }
   }
 
-  // React.useEffect(_ => {
-  //   let results = []
+  React.useEffect(_ => {
+    let results = []
 
-  //   if searchText->String.length > 0 {
-  //     setState(_ => Loading)
-  //     let localResults: resultType = searchText->getLocalMatchedResults(hswitchTabs)
+    if searchText->String.length > 0 && activeFilter->LogicUtils.isEmptyString {
+      setState(_ => Loading)
+      let localResults: resultType = searchText->getLocalMatchedResults(hswitchTabs)
 
-  //     if localResults.results->Array.length > 0 {
-  //       results->Array.push(localResults)
-  //     }
+      if localResults.results->Array.length > 0 {
+        results->Array.push(localResults)
+      }
 
-  //     if isShowRemoteResults {
-  //       getSearchResults(results)->ignore
-  //     } else {
-  //       if results->Array.length > 0 {
-  //         let defaultItem = searchText->getDefaultResult
+      if isShowRemoteResults {
+        getSearchResults(results)->ignore
+      } else {
+        if results->Array.length > 0 {
+          let defaultItem = searchText->getDefaultResult
 
-  //         let arr = [defaultItem]->Array.concat(results)
+          let arr = [defaultItem]->Array.concat(results)
 
-  //         setSearchResults(_ => arr)
-  //       } else {
-  //         setSearchResults(_ => [])
-  //       }
-  //       setState(_ => Loaded)
-  //     }
-  //   } else {
-  //     setState(_ => Idle)
-  //     setSearchResults(_ => [])
-  //   }
+          setSearchResults(_ => arr)
+        } else {
+          setSearchResults(_ => [])
+        }
+        setState(_ => Loaded)
+      }
+    } else {
+      setState(_ => Idle)
+      setSearchResults(_ => [])
+    }
 
-  //   None
-  // }, [searchText])
+    None
+  }, [searchText])
 
   React.useEffect(_ => {
     setSearchText(_ => "")
@@ -206,25 +206,29 @@ let make = () => {
               <ModalSearchBox
                 leftIcon setShowModal setFilterText localSearchText setLocalSearchText
               />
-              <FilterResultsComponent
-                categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
-                activeFilter
-                setActiveFilter
-                searchText
-                setLocalSearchText
-              />
-              // {switch state {
-              // | Loading =>
-              //   <div className="my-14 py-4">
-              //     <Loader />
-              //   </div>
-              // | _ =>
-              //   if searchText->isNonEmptyString && searchResults->Array.length === 0 {
-              //     <EmptyResult prefix searchText />
-              //   } else {
-              //     <SearchResultsComponent searchResults searchText setShowModal />
-              //   }
-              // }}
+              {switch state {
+              | Loading =>
+                <div className="my-14 py-4">
+                  <Loader />
+                </div>
+              | _ =>
+                if (
+                  activeFilter->isNonEmptyString ||
+                    (activeFilter->isEmptyString && searchText->isEmptyString)
+                ) {
+                  <FilterResultsComponent
+                    categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+                    activeFilter
+                    setActiveFilter
+                    searchText
+                    setLocalSearchText
+                  />
+                } else if searchText->isNonEmptyString && searchResults->Array.length === 0 {
+                  <EmptyResult prefix searchText />
+                } else {
+                  <SearchResultsComponent searchResults searchText setShowModal />
+                }
+              }}
             </>
           }}
         </Combobox>

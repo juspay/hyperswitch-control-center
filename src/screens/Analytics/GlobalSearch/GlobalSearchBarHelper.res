@@ -231,8 +231,8 @@ module FilterResultsComponent = {
           {"Suggested Filters"->String.toUpperCase->React.string}
         </FramerMotion.Motion.Div>
         <div className="">
-          {if filters->Array.length === 1 && filters->checkFilterKey {
-            switch filters->Array.get(0) {
+          <RenderIf condition={filters->Array.length === 1 && filters->checkFilterKey}>
+            {switch filters->Array.get(0) {
             | Some(value) =>
               value.options
               ->Array.map(option => {
@@ -254,35 +254,39 @@ module FilterResultsComponent = {
               })
               ->React.array
             | _ => React.null
-            }
-          } else {
-            {
-              filters
-              ->Array.map(category => {
+            }}
+          </RenderIf>
+          <RenderIf condition={!(filters->Array.length === 1 && filters->checkFilterKey)}>
+            {filters
+            ->Array.map(category => {
+              <div
+                className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
+                onClick={_ => {
+                  let newFilter = category.categoryType->getcategoryFromVariant
+                  let lastString = searchText->String.charAt(searchText->String.length - 1)
+                  if activeFilter->isNonEmptyString && lastString !== ":" {
+                    let end = searchText->String.length - activeFilter->String.length
+                    let newText = searchText->String.substring(~start=0, ~end)
+                    setLocalSearchText(_ => `${newText} ${newFilter}:`)
+                    setActiveFilter(_ => newFilter)
+                  } else if lastString !== ":" {
+                    setLocalSearchText(_ => `${searchText} ${newFilter}:`)
+                    setActiveFilter(_ => newFilter)
+                  }
+                }}>
                 <div
-                  className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
-                  onClick={_ => {
-                    let lastString = searchText->String.charAt(searchText->String.length - 1)
-                    if lastString !== ":" {
-                      let newFilter = category.categoryType->getcategoryFromVariant
-                      setLocalSearchText(_ => `${searchText} ${newFilter}:`)
-                      setActiveFilter(_ => newFilter)
-                    }
-                  }}>
-                  <div
-                    className="bg-gray-300 py-1 px-2 rounded-md flex gap-1 items-center opacity-80 w-fit">
-                    <span className="font-bold text-sm">
-                      {`${category.categoryType
-                        ->getcategoryFromVariant
-                        ->String.toLocaleLowerCase} : `->React.string}
-                    </span>
-                  </div>
-                  <div className="text-sm opacity-70"> {category.placeholder->React.string} </div>
+                  className="bg-gray-300 py-1 px-2 rounded-md flex gap-1 items-center opacity-80 w-fit">
+                  <span className="font-bold text-sm">
+                    {`${category.categoryType
+                      ->getcategoryFromVariant
+                      ->String.toLocaleLowerCase} : `->React.string}
+                  </span>
                 </div>
-              })
-              ->React.array
-            }
-          }}
+                <div className="text-sm opacity-70"> {category.placeholder->React.string} </div>
+              </div>
+            })
+            ->React.array}
+          </RenderIf>
         </div>
       </FramerMotion.Motion.Div>
     </RenderIf>
