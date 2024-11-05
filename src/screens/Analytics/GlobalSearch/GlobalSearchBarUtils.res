@@ -312,24 +312,79 @@ let categoryList = [
   Date,
 ]
 
-let categorySuggestions = categoryList->Array.map(category => {
-  {
-    categoryType: category,
-    options: ["Option1", "Option2"],
-    placeholder: "placeholder",
-  }
-})
-
 let getcategoryFromVariant = category => {
   switch category {
-  | Payment_Method => "Payment_Method"
-  | Payment_Method_Type => "Payment_Method_Type"
-  | Connector => "Connector"
-  | Customer_Email => "Customer_Email"
-  | Card_Network => "Card_Network"
-  | Last_4 => "Last_4"
-  | Date => "Date"
+  | Payment_Method => "payment_method"
+  | Payment_Method_Type => "payment_method_type"
+  | Connector => "connector"
+  | Customer_Email => "customer_email"
+  | Card_Network => "card_network"
+  | Last_4 => "last_4"
+  | Date => "date"
   }
+}
+
+let getDefaultPlaceholderValue = category => {
+  switch category {
+  | Payment_Method => "payment_method:card"
+  | Payment_Method_Type => "payment_method_type:credit"
+  | Connector => "connector:stripe"
+  | Customer_Email => "customer_email:abc@abc.com"
+  | Card_Network => "card_network:visa"
+  | Last_4 => "last_4:2326"
+  | Date => "date:today"
+  }
+}
+
+let getCategoryVariantFromString = category => {
+  switch category {
+  | "payment_method" => Payment_Method
+  | "payment_method_type" => Payment_Method_Type
+  | "connector" => Connector
+  | "customer_email" => Customer_Email
+  | "card_network" => Card_Network
+  | "last_4" => Last_4
+  | "date" | _ => Date
+  }
+}
+
+let generatePlaceHolderValue = (category, options) => {
+  switch options->Array.get(0) {
+  | Some(value) => `${category->getcategoryFromVariant}:${value}`
+  | _ => category->getDefaultPlaceholderValue
+  }
+}
+
+let getCategorySuggestions = json => {
+  open LogicUtils
+  let suggestions = Dict.make()
+
+  json
+  ->getDictFromJsonObject
+  ->getArrayFromDict("queryData", [])
+  ->Array.forEach(item => {
+    let itemDict = item->getDictFromJsonObject
+    let key = itemDict->getString("dimension", "")
+    let value =
+      itemDict
+      ->getArrayFromDict("values", [])
+      ->Array.map(value => {
+        value->JSON.Decode.string->Option.getOr("")
+      })
+    if key->isNonEmptyString && value->Array.length > 0 {
+      suggestions->Dict.set(key, value)
+    }
+  })
+
+  categoryList->Array.map(category => {
+    let options = suggestions->Dict.get(category->getcategoryFromVariant)->Option.getOr([])
+
+    {
+      categoryType: category,
+      options,
+      placeholder: generatePlaceHolderValue(category, options),
+    }
+  })
 }
 
 let paymentsGroupByNames = [

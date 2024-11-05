@@ -13,6 +13,9 @@ let make = () => {
   let (state, setState) = React.useState(_ => Idle)
   let (showModal, setShowModal) = React.useState(_ => true)
   let (searchText, setSearchText) = React.useState(_ => "")
+  let (categorieSuggestionResponse, setCategorieSuggestionResponse) = React.useState(_ =>
+    Dict.make()->JSON.Encode.object
+  )
   let (searchResults, setSearchResults) = React.useState(_ => [])
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let isReconEnabled = merchentDetails.recon_status === Active
@@ -54,14 +57,15 @@ let make = () => {
         ~methodType=Post,
         ~id=Some("payments"),
       )
-      let refundsUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some("refunds"))
+      //let refundsUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some("refunds"))
 
       let paymentsResponse = await fetchDetails(
         paymentsUrl,
         paymentsGroupByNames->getFilterBody,
         Post,
       )
-      let refundsResponse = await fetchDetails(refundsUrl, refundsGroupByNames->getFilterBody, Post)
+      setCategorieSuggestionResponse(_ => paymentsResponse)
+      //let refundsResponse = await fetchDetails(refundsUrl, refundsGroupByNames->getFilterBody, Post)
 
       setState(_ => Loaded)
     } catch {
@@ -144,10 +148,10 @@ let make = () => {
     None
   }, [searchText])
 
-  // React.useEffect(_ => {
-  //   getCategoryOptions()->ignore
-  //   None
-  // }, [showModal])
+  React.useEffect(_ => {
+    getCategoryOptions()->ignore
+    None
+  }, [])
 
   React.useEffect(_ => {
     setSearchText(_ => "")
@@ -176,8 +180,6 @@ let make = () => {
     setShowModal(_ => true)
   }
 
-  let borderClass = searchText->String.length > 0 ? "border-b dark:border-jp-gray-960" : ""
-
   let setGlobalSearchText = ReactDebounce.useDebounced(value => {
     setSearchText(_ => value)
   }, ~wait=500)
@@ -197,7 +199,7 @@ let make = () => {
 
   let modalSearchBox =
     <FramerMotion.Motion.Div layoutId="input" className="h-11 bg-white">
-      <div className={`flex flex-row items-center grow ${borderClass}`}>
+      <div className={`flex flex-row items-center grow border-b dark:border-jp-gray-960`}>
         {leftIcon}
         <Combobox.Input
           \"as"="input"
@@ -244,7 +246,11 @@ let make = () => {
                   <SearchResultsComponent searchResults searchText setShowModal />
                 }
               }}
-              <FilterResultsComponent categorySuggestions searchText setShowModal />
+              <FilterResultsComponent
+                categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+                searchText
+                setShowModal
+              />
             </>
           }}
         </Combobox>
