@@ -198,7 +198,7 @@ module FilterResultsComponent = {
   open GlobalSearchTypes
   open GlobalSearchBarUtils
   @react.component
-  let make = (~categorySuggestions: array<categoryOption>, ~searchText) => {
+  let make = (~categorySuggestions: array<categoryOption>, ~searchText, ~setGlobalSearchText) => {
     let filters = categorySuggestions->Array.filter(category => {
       category.categoryType
       ->getcategoryFromVariant
@@ -217,7 +217,10 @@ module FilterResultsComponent = {
         {filters
         ->Array.map(category => {
           <div
-            className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center">
+            className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
+            onClick={_ => {
+              setGlobalSearchText(`${searchText} ${category.categoryType->getcategoryFromVariant}:`)
+            }}>
             <div
               className="bg-gray-300 py-1 px-2 rounded-md flex gap-1 items-center opacity-80 w-fit">
               <span className="font-bold text-sm">
@@ -243,6 +246,7 @@ module GlobalSearchCustomInput = {
     ~leftIcon,
     ~setShowModal,
     ~setGlobalSearchText,
+    ~searchText,
   ) => {
     // let currentTags = React.useMemo(() => {
     //   input.value->JSON.Decode.array->Option.getOr([])->Belt.Array.keepMap(JSON.Decode.string)
@@ -251,8 +255,6 @@ module GlobalSearchCustomInput = {
     // let setTags = tags => {
     //   tags->Identity.arrayOfGenericTypeToFormReactEvent->input.onChange
     // }
-
-    let (text, setText) = React.useState(_ => "")
 
     let handleKeyDown = e => {
       //open ReactEvent.Keyboard
@@ -284,11 +286,10 @@ module GlobalSearchCustomInput = {
         onBlur: _ => (),
         onChange: ev => {
           let value = {ev->ReactEvent.Form.target}["value"]
-          setText(_ => value)
           setGlobalSearchText(value)
         },
         onFocus: _ => (),
-        value: JSON.Encode.string(text),
+        value: JSON.Encode.string(searchText),
         checked: false,
       }
     }
@@ -324,7 +325,7 @@ module GlobalSearchCustomInput = {
 
 module ModalSearchBox = {
   @react.component
-  let make = (~leftIcon, ~setShowModal, ~setGlobalSearchText) => {
+  let make = (~leftIcon, ~setShowModal, ~setGlobalSearchText, ~searchText) => {
     let onSubmit = (_values, _) => {
       Nullable.null->Promise.resolve
     }
@@ -335,7 +336,7 @@ module ModalSearchBox = {
     }
 
     <Form
-      key="invite-user-management"
+      key="global-search"
       initialValues={Dict.make()->JSON.Encode.object}
       validate={values => values->validateForm}
       onSubmit>
@@ -345,7 +346,7 @@ module ModalSearchBox = {
             ~label="",
             ~name="global_search",
             ~customInput=(~input, ~placeholder as _) => {
-              <GlobalSearchCustomInput input leftIcon setShowModal setGlobalSearchText />
+              <GlobalSearchCustomInput input leftIcon setShowModal setGlobalSearchText searchText />
             },
             ~isRequired=false,
           )}
