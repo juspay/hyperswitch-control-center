@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.04.1
+
+### Miscellaneous Tasks
+
+- Update new analytics ([`6572b00`](https://github.com/juspay/hyperswitch-control-center/commit/6572b00fc8c49db187d0ecdd268ae6804876d53d))
+
+**Full Changelog:** [`2024.11.04.0...2024.11.04.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.04.0...2024.11.04.1)
+
+- - -
+
 ## 2024.11.04.0
 
 ### Features
