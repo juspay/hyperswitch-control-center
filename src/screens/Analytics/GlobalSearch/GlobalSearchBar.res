@@ -11,8 +11,10 @@ let make = () => {
   let setGLobalSearchResults = HyperswitchAtom.globalSeacrchAtom->Recoil.useSetRecoilState
   let fetchDetails = APIUtils.useUpdateMethod()
   let (state, setState) = React.useState(_ => Idle)
-  let (showModal, setShowModal) = React.useState(_ => true)
+  let (showModal, setShowModal) = React.useState(_ => false)
   let (searchText, setSearchText) = React.useState(_ => "")
+  let (activeFilter, setActiveFilter) = React.useState(_ => "")
+  let (localSearchText, setLocalSearchText) = React.useState(_ => "")
   let (categorieSuggestionResponse, setCategorieSuggestionResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
@@ -20,7 +22,6 @@ let make = () => {
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let isReconEnabled = merchentDetails.recon_status === Active
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
-  let searchText = searchText->String.trim
   let loader = LottieFiles.useLottieJson("loader-circle.json")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -136,6 +137,8 @@ let make = () => {
 
   React.useEffect(_ => {
     setSearchText(_ => "")
+    setLocalSearchText(_ => "")
+    setActiveFilter(_ => "")
     None
   }, [showModal])
 
@@ -167,6 +170,15 @@ let make = () => {
     setSearchText(_ => value)
   }, ~wait=500)
 
+  React.useEffect(() => {
+    setGlobalSearchText(localSearchText)
+    None
+  }, [localSearchText])
+
+  let setFilterText = ReactDebounce.useDebounced(value => {
+    setActiveFilter(_ => value)
+  }, ~wait=500)
+
   let leftIcon = switch state {
   | Loading =>
     <div className="w-14 overflow-hidden mr-1">
@@ -191,11 +203,15 @@ let make = () => {
           }}>
           {_ => {
             <>
-              <ModalSearchBox leftIcon setShowModal setGlobalSearchText searchText />
+              <ModalSearchBox
+                leftIcon setShowModal setFilterText localSearchText setLocalSearchText
+              />
               <FilterResultsComponent
                 categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+                activeFilter
+                setActiveFilter
                 searchText
-                setGlobalSearchText
+                setLocalSearchText
               />
               // {switch state {
               // | Loading =>

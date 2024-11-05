@@ -195,99 +195,128 @@ module SearchResultsComponent = {
 }
 
 module FilterResultsComponent = {
+  open LogicUtils
   open GlobalSearchTypes
   open GlobalSearchBarUtils
   @react.component
-  let make = (~categorySuggestions: array<categoryOption>, ~searchText, ~setGlobalSearchText) => {
+  let make = (
+    ~categorySuggestions: array<categoryOption>,
+    ~activeFilter,
+    ~setActiveFilter,
+    ~searchText,
+    ~setLocalSearchText,
+  ) => {
+    let filterKey = activeFilter->String.split(":")->getValueFromArray(0, "")
     let filters = categorySuggestions->Array.filter(category => {
       category.categoryType
       ->getcategoryFromVariant
-      ->String.includes(searchText)
+      ->String.includes(filterKey)
     })
 
-    <FramerMotion.Motion.Div
-      initial={{opacity: 0.5}}
-      animate={{opacity: 0.5}}
-      layoutId="categories-section"
-      className="px-2 pb-1">
-      <FramerMotion.Motion.Div layoutId="categories-title" className="font-bold px-2 pt-2">
-        {"Suggested Filters"->String.toUpperCase->React.string}
+    let checkFilterKey = list => {
+      switch list->Array.get(0) {
+      | Some(value) =>
+        value.categoryType->getcategoryFromVariant === filterKey && value.options->Array.length > 0
+      | _ => false
+      }
+    }
+
+    <RenderIf condition={filters->Array.length > 0}>
+      <FramerMotion.Motion.Div
+        initial={{opacity: 0.5}}
+        animate={{opacity: 0.5}}
+        layoutId="categories-section"
+        className="px-2 pt-2 -mt-2 border-t dark:border-jp-gray-960">
+        <FramerMotion.Motion.Div layoutId="categories-title" className="font-bold px-2">
+          {"Suggested Filters"->String.toUpperCase->React.string}
+        </FramerMotion.Motion.Div>
+        <div className="">
+          {if filters->Array.length === 1 && filters->checkFilterKey {
+            switch filters->Array.get(0) {
+            | Some(value) =>
+              value.options
+              ->Array.map(option => {
+                <div
+                  className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
+                  onClick={_ => {
+                    setLocalSearchText(_ => `${searchText}${option}`)
+                    setActiveFilter(_ => "")
+                  }}>
+                  <div
+                    className="bg-gray-300 py-1 px-2 rounded-md flex gap-1 items-center opacity-80 w-fit">
+                    <span className="font-bold text-sm">
+                      {`${value.categoryType
+                        ->getcategoryFromVariant
+                        ->String.toLocaleLowerCase} : ${option}`->React.string}
+                    </span>
+                  </div>
+                </div>
+              })
+              ->React.array
+            | _ => React.null
+            }
+          } else {
+            {
+              filters
+              ->Array.map(category => {
+                <div
+                  className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
+                  onClick={_ => {
+                    let lastString = searchText->String.charAt(searchText->String.length - 1)
+                    if lastString !== ":" {
+                      let newFilter = category.categoryType->getcategoryFromVariant
+                      setLocalSearchText(_ => `${searchText} ${newFilter}:`)
+                      setActiveFilter(_ => newFilter)
+                    }
+                  }}>
+                  <div
+                    className="bg-gray-300 py-1 px-2 rounded-md flex gap-1 items-center opacity-80 w-fit">
+                    <span className="font-bold text-sm">
+                      {`${category.categoryType
+                        ->getcategoryFromVariant
+                        ->String.toLocaleLowerCase} : `->React.string}
+                    </span>
+                  </div>
+                  <div className="text-sm opacity-70"> {category.placeholder->React.string} </div>
+                </div>
+              })
+              ->React.array
+            }
+          }}
+        </div>
       </FramerMotion.Motion.Div>
-      <div className="">
-        {filters
-        ->Array.map(category => {
-          <div
-            className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
-            onClick={_ => {
-              setGlobalSearchText(`${searchText} ${category.categoryType->getcategoryFromVariant}:`)
-            }}>
-            <div
-              className="bg-gray-300 py-1 px-2 rounded-md flex gap-1 items-center opacity-80 w-fit">
-              <span className="font-bold text-sm">
-                {`${category.categoryType
-                  ->getcategoryFromVariant
-                  ->String.toLocaleLowerCase} : `->React.string}
-              </span>
-            </div>
-            <div className="text-sm opacity-70"> {category.placeholder->React.string} </div>
-          </div>
-        })
-        ->React.array}
-      </div>
-    </FramerMotion.Motion.Div>
+    </RenderIf>
   }
 }
 
 module ModalSearchBox = {
+  open LogicUtils
   @react.component
-  let make = (~leftIcon, ~setShowModal, ~setGlobalSearchText, ~searchText) => {
-    let (searchText, setSearchText) = React.useState(_ => "")
-
+  let make = (~leftIcon, ~setShowModal, ~setFilterText, ~localSearchText, ~setLocalSearchText) => {
     let input: ReactFinalForm.fieldRenderPropsInput = {
       {
-        name: {"global_search"},
+        name: "global_search",
         onBlur: _ => (),
         onChange: ev => {
           let value = {ev->ReactEvent.Form.target}["value"]
-          setSearchText(_ => value)
-          //setGlobalSearchText(value)
+          setLocalSearchText(_ => value)
         },
         onFocus: _ => (),
-        value: JSON.Encode.string(searchText),
+        value: localSearchText->JSON.Encode.string,
         checked: false,
       }
     }
 
-    // let currentTags = React.useMemo(() => {
-    //   input.value->JSON.Decode.array->Option.getOr([])->Belt.Array.keepMap(JSON.Decode.string)
-    // }, [input.value])
-
-    // let setTags = tags => {
-    //   tags->Identity.arrayOfGenericTypeToFormReactEvent->input.onChange
-    // }
-
     let handleKeyDown = e => {
-      //open ReactEvent.Keyboard
-      // let isEmpty = text->LogicUtils.isEmptyString
+      open ReactEvent.Keyboard
 
-      // if !isEmpty && e->keyCode === 32 {
-      //   let arr = text->String.split(" ")
-      //   let newArr = []
-      //   arr->Array.forEach(ele => {
-      //     if (
-      //       !(newArr->Array.includes(ele->String.trim)) &&
-      //       !(currentTags->Array.includes(ele->String.trim))
-      //     ) {
-      //       if ele->String.trim->LogicUtils.isNonEmptyString {
-      //         newArr->Array.push(ele->String.trim)->ignore
-      //       }
-      //     }
-      //   })
-
-      //   setTags(currentTags->Array.concat(newArr))
-      //   setText(_ => "")
-      // }
-      Js.log2(">>", "here")
+      if e->keyCode === 32 {
+        setFilterText("")
+      } else {
+        let values = localSearchText->String.split(" ")
+        let filter = values->getValueFromArray(values->Array.length - 1, "")
+        setFilterText(filter)
+      }
     }
 
     let onSubmit = (_values, _) => {
@@ -310,8 +339,8 @@ module ModalSearchBox = {
             ~label="",
             ~name="global_search",
             ~customInput=(~input as _, ~placeholder as _) => {
-              <FramerMotion.Motion.Div layoutId="input" className="h-11 bg-white">
-                <div className={`flex flex-row items-center border-b dark:border-jp-gray-960`}>
+              <FramerMotion.Motion.Div layoutId="input" className="h-fit bg-white">
+                <div className={`flex flex-row items-center `}>
                   {leftIcon}
                   <div className="w-full overflow-scroll flex flex-row items-center">
                     <TextInput

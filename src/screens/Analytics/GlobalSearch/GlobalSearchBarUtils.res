@@ -309,7 +309,6 @@ let categoryList = [
   Customer_Email,
   Card_Network,
   Last_4,
-  Date,
 ]
 
 let getcategoryFromVariant = category => {
@@ -371,6 +370,7 @@ let getCategorySuggestions = json => {
       ->Array.map(value => {
         value->JSON.Decode.string->Option.getOr("")
       })
+      ->Array.filter(item => item->String.length > 0)
     if key->isNonEmptyString && value->Array.length > 0 {
       suggestions->Dict.set(key, value)
     }
