@@ -196,7 +196,13 @@ describe("connector", () => {
       month: "short",
       day: "2-digit",
     });
-    cy.get(`[data-testid="${formattedDate}"]`).click();
+    const selectDate = today.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
+    cy.get(`[data-testid="${selectDate}"]`).click();
     cy.get("[data-button-for=apply]").click();
     const isStartDate = date30DaysAgo.getDate() === 1;
     const isEndDate =
