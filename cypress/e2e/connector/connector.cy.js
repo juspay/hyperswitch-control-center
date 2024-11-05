@@ -245,7 +245,8 @@ describe("connector", () => {
     cy.get('[data-id="Search payment id"]').should("exist");
     const paymentIds = ["abacd", "something", "createdAt"];
     paymentIds.forEach((id) => {
-      cy.get('[data-id="Search payment id"]').click().type(`${id}{enter}`);
+      cy.get('[data-id="Search payment id"]').click();
+      cy.get('[data-id="Search payment id"]').type(`${id}{enter}`);
       cy.get("[data-table-location=Orders_tr1_td1]").should("not.exist");
       cy.get('[placeholder="Search payment id"]').click().clear();
     });
