@@ -195,31 +195,6 @@ let make = () => {
     </div>
   }
 
-  let modalSearchBox =
-    <FramerMotion.Motion.Div layoutId="input" className="h-11 bg-white">
-      <div className={`flex flex-row items-center grow border-b dark:border-jp-gray-960`}>
-        {leftIcon}
-        <Combobox.Input
-          \"as"="input"
-          className="w-full py-3 !text-lg bg-transparent focus:outline-none cursor-default sm:text-sm"
-          autoFocus=true
-          placeholder="Search"
-          autoComplete="off"
-          onChange={event => {
-            setGlobalSearchText(event["target"]["value"])
-          }}
-        />
-        <div
-          className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center mr-5 cursor-pointer ml-2 opacity-70"
-          onClick={_ => {
-            setShowModal(_ => false)
-          }}>
-          <span className="opacity-40 font-bold text-sm"> {"Esc"->React.string} </span>
-          <Icon size=15 name="times" parentClass="flex justify-end opacity-30" />
-        </div>
-      </div>
-    </FramerMotion.Motion.Div>
-
   <div className="w-max">
     <SearchBox openModalOnClickHandler />
     <RenderIf condition={showModal}>
@@ -231,7 +206,7 @@ let make = () => {
           }}>
           {_ => {
             <>
-              <ModalSearchBox leftIcon setShowModal />
+              <ModalSearchBox leftIcon setShowModal setGlobalSearchText />
               <FilterResultsComponent
                 categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)} searchText
               />

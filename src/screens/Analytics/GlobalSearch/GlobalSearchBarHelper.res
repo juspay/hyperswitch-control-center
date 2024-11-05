@@ -240,41 +240,42 @@ module GlobalSearchCustomInput = {
   let make = (
     ~input: ReactFinalForm.fieldRenderPropsInput,
     ~name="tag_value",
-    ~seperateBySpace=true,
     ~leftIcon,
     ~setShowModal,
+    ~setGlobalSearchText,
   ) => {
-    let currentTags = React.useMemo(() => {
-      input.value->JSON.Decode.array->Option.getOr([])->Belt.Array.keepMap(JSON.Decode.string)
-    }, [input.value])
+    // let currentTags = React.useMemo(() => {
+    //   input.value->JSON.Decode.array->Option.getOr([])->Belt.Array.keepMap(JSON.Decode.string)
+    // }, [input.value])
 
-    let setTags = tags => {
-      tags->Identity.arrayOfGenericTypeToFormReactEvent->input.onChange
-    }
+    // let setTags = tags => {
+    //   tags->Identity.arrayOfGenericTypeToFormReactEvent->input.onChange
+    // }
 
     let (text, setText) = React.useState(_ => "")
 
     let handleKeyDown = e => {
-      open ReactEvent.Keyboard
-      let isEmpty = text->LogicUtils.isEmptyString
+      //open ReactEvent.Keyboard
+      // let isEmpty = text->LogicUtils.isEmptyString
 
-      if !isEmpty && e->keyCode === 32 {
-        let arr = text->String.split(" ")
-        let newArr = []
-        arr->Array.forEach(ele => {
-          if (
-            !(newArr->Array.includes(ele->String.trim)) &&
-            !(currentTags->Array.includes(ele->String.trim))
-          ) {
-            if ele->String.trim->LogicUtils.isNonEmptyString {
-              newArr->Array.push(ele->String.trim)->ignore
-            }
-          }
-        })
+      // if !isEmpty && e->keyCode === 32 {
+      //   let arr = text->String.split(" ")
+      //   let newArr = []
+      //   arr->Array.forEach(ele => {
+      //     if (
+      //       !(newArr->Array.includes(ele->String.trim)) &&
+      //       !(currentTags->Array.includes(ele->String.trim))
+      //     ) {
+      //       if ele->String.trim->LogicUtils.isNonEmptyString {
+      //         newArr->Array.push(ele->String.trim)->ignore
+      //       }
+      //     }
+      //   })
 
-        setTags(currentTags->Array.concat(newArr))
-        setText(_ => "")
-      }
+      //   setTags(currentTags->Array.concat(newArr))
+      //   setText(_ => "")
+      // }
+      Js.log2(">>", "here")
     }
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -284,6 +285,7 @@ module GlobalSearchCustomInput = {
         onChange: ev => {
           let value = {ev->ReactEvent.Form.target}["value"]
           setText(_ => value)
+          setGlobalSearchText(value)
         },
         onFocus: _ => (),
         value: JSON.Encode.string(text),
@@ -322,7 +324,7 @@ module GlobalSearchCustomInput = {
 
 module ModalSearchBox = {
   @react.component
-  let make = (~leftIcon, ~setShowModal) => {
+  let make = (~leftIcon, ~setShowModal, ~setGlobalSearchText) => {
     let onSubmit = (_values, _) => {
       Nullable.null->Promise.resolve
     }
@@ -343,7 +345,7 @@ module ModalSearchBox = {
             ~label="",
             ~name="global_search",
             ~customInput=(~input, ~placeholder as _) => {
-              <GlobalSearchCustomInput input leftIcon setShowModal />
+              <GlobalSearchCustomInput input leftIcon setShowModal setGlobalSearchText />
             },
             ~isRequired=false,
           )}
