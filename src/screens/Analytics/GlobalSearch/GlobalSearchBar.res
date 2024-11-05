@@ -57,7 +57,6 @@ let make = () => {
         ~methodType=Post,
         ~id=Some("payments"),
       )
-      //let refundsUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some("refunds"))
 
       let paymentsResponse = await fetchDetails(
         paymentsUrl,
@@ -65,7 +64,6 @@ let make = () => {
         Post,
       )
       setCategorieSuggestionResponse(_ => paymentsResponse)
-      //let refundsResponse = await fetchDetails(refundsUrl, refundsGroupByNames->getFilterBody, Post)
 
       setState(_ => Loaded)
     } catch {

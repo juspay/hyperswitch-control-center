@@ -196,75 +196,9 @@ module SearchResultsComponent = {
 
 module FilterResultsComponent = {
   open GlobalSearchTypes
-  open LogicUtils
   open GlobalSearchBarUtils
-
   @react.component
   let make = (~categorySuggestions: array<categoryOption>, ~searchText, ~setShowModal) => {
-    // React.useEffect(() => {
-    //   let onKeyPress = event => {
-    //     let keyPressed = event->ReactEvent.Keyboard.key
-
-    //     if keyPressed == "Enter" {
-    //       let redirectLink = `/search?query=${searchText}`
-    //       if redirectLink->isNonEmptyString {
-    //         setShowModal(_ => false)
-    //         GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
-    //       }
-    //     }
-    //   }
-    //   Window.addEventListener("keydown", onKeyPress)
-    //   Some(() => Window.removeEventListener("keydown", onKeyPress))
-    // }, [])
-
-    // <OptionsWrapper>
-    //   {categorySuggestions
-    //   ->Array.mapWithIndex((section: categoryOption, index) => {
-    //     let borderClass =
-    //       index !== categorySuggestions->Array.length - 1
-    //         ? "border-b-1 dark:border-jp-gray-960"
-    //         : ""
-    //     <FramerMotion.Motion.Div
-    //       key={Int.toString(index)}
-    //       layoutId={section.categoryType->getcategoryFromVariant}
-    //       className={`px-3 mb-3 py-1 ${borderClass}`}>
-    //       <FramerMotion.Motion.Div
-    //         initial={{opacity: 0.5}}
-    //         animate={{opacity: 0.5}}
-    //         layoutId={`${section.categoryType->getcategoryFromVariant}-${index->Belt.Int.toString}`}
-    //         className="text-lightgray_background  px-2 pb-1 flex justify-between">
-    //         <div className="font-bold">
-    //           {section.categoryType->getcategoryFromVariant->String.toUpperCase->React.string}
-    //         </div>
-    //       </FramerMotion.Motion.Div>
-    //       {section.options
-    //       ->Array.mapWithIndex((item, i) => {
-    //         let elementsArray = [] // item.texts
-
-    //         <OptionWrapper key={Int.toString(i)} index={i} value={item}>
-    //           {elementsArray
-    //           ->Array.mapWithIndex(
-    //             (item, index) => {
-    //               let elementValue = item->JSON.Decode.string->Option.getOr("")
-    //               <RenderIf condition={elementValue->isNonEmptyString} key={index->Int.toString}>
-    //                 <RenderedComponent ele=elementValue searchText />
-    //                 <RenderIf condition={index >= 0 && index < elementsArray->Array.length - 1}>
-    //                   <span className="mx-2 text-lightgray_background opacity-50">
-    //                     {">"->React.string}
-    //                   </span>
-    //                 </RenderIf>
-    //               </RenderIf>
-    //             },
-    //           )
-    //           ->React.array}
-    //         </OptionWrapper>
-    //       })
-    //       ->React.array}
-    //     </FramerMotion.Motion.Div>
-    //   })
-    //   ->React.array}
-    // </OptionsWrapper>
-
     <FramerMotion.Motion.Div
       initial={{opacity: 0.5}}
       animate={{opacity: 0.5}}
