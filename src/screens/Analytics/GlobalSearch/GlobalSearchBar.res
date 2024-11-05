@@ -235,18 +235,18 @@ let make = () => {
               <FilterResultsComponent
                 categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)} searchText
               />
-              // {switch state {
-              // | Loading =>
-              //   <div className="my-14 py-4">
-              //     <Loader />
-              //   </div>
-              // | _ =>
-              //   if searchText->isNonEmptyString && searchResults->Array.length === 0 {
-              //     <EmptyResult prefix searchText />
-              //   } else {
-              //     <SearchResultsComponent searchResults searchText setShowModal />
-              //   }
-              // }}
+              {switch state {
+              | Loading =>
+                <div className="my-14 py-4">
+                  <Loader />
+                </div>
+              | _ =>
+                if searchText->isNonEmptyString && searchResults->Array.length === 0 {
+                  <EmptyResult prefix searchText />
+                } else {
+                  <SearchResultsComponent searchResults searchText setShowModal />
+                }
+              }}
             </>
           }}
         </Combobox>

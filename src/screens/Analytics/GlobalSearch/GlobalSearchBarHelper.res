@@ -199,21 +199,27 @@ module FilterResultsComponent = {
   open GlobalSearchBarUtils
   @react.component
   let make = (~categorySuggestions: array<categoryOption>, ~searchText) => {
+    let filters = categorySuggestions->Array.filter(category => {
+      category.categoryType
+      ->getcategoryFromVariant
+      ->String.includes(searchText)
+    })
+
     <FramerMotion.Motion.Div
       initial={{opacity: 0.5}}
       animate={{opacity: 0.5}}
       layoutId="categories-section"
       className="px-2 pb-1">
-      <div className="font-bold px-2 pt-2">
+      <FramerMotion.Motion.Div layoutId="categories-title" className="font-bold px-2 pt-2">
         {"Suggested Filters"->String.toUpperCase->React.string}
-      </div>
+      </FramerMotion.Motion.Div>
       <div className="">
-        {categorySuggestions
+        {filters
         ->Array.map(category => {
           <div
-            className="flex justify-between hover:bg-gray-100 hover:cursor-pointer hover:rounded-lg p-2 group items-center">
+            className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center">
             <div
-              className="bg-gray-300 py-1 px-2 rounded-md flex gap-1 items-center opacity-70 w-fit">
+              className="bg-gray-300 py-1 px-2 rounded-md flex gap-1 items-center opacity-80 w-fit">
               <span className="font-bold text-sm">
                 {`${category.categoryType
                   ->getcategoryFromVariant
