@@ -11,7 +11,7 @@ let make = () => {
   let setGLobalSearchResults = HyperswitchAtom.globalSeacrchAtom->Recoil.useSetRecoilState
   let fetchDetails = APIUtils.useUpdateMethod()
   let (state, setState) = React.useState(_ => Idle)
-  let (showModal, setShowModal) = React.useState(_ => false)
+  let (showModal, setShowModal) = React.useState(_ => true)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (searchResults, setSearchResults) = React.useState(_ => [])
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
@@ -31,6 +31,41 @@ let make = () => {
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
       GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
+    }
+  }
+
+  let getFilterBody = groupByNames =>
+    {
+      let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=360)
+      let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
+        startTime: defaultDate.start_time,
+        endTime: defaultDate.end_time,
+        groupByNames,
+        source: "BATCH",
+      }
+      AnalyticsUtils.filterBody(filterBodyEntity)
+    }->Identity.genericTypeToJson
+
+  let getCategoryOptions = async () => {
+    setState(_ => Loading)
+    try {
+      let paymentsUrl = getURL(
+        ~entityName=ANALYTICS_FILTERS,
+        ~methodType=Post,
+        ~id=Some("payments"),
+      )
+      let refundsUrl = getURL(~entityName=ANALYTICS_FILTERS, ~methodType=Post, ~id=Some("refunds"))
+
+      let paymentsResponse = await fetchDetails(
+        paymentsUrl,
+        paymentsGroupByNames->getFilterBody,
+        Post,
+      )
+      let refundsResponse = await fetchDetails(refundsUrl, refundsGroupByNames->getFilterBody, Post)
+
+      setState(_ => Loaded)
+    } catch {
+    | _ => setState(_ => Loaded)
     }
   }
 
@@ -108,6 +143,11 @@ let make = () => {
 
     None
   }, [searchText])
+
+  // React.useEffect(_ => {
+  //   getCategoryOptions()->ignore
+  //   None
+  // }, [showModal])
 
   React.useEffect(_ => {
     setSearchText(_ => "")
@@ -204,6 +244,7 @@ let make = () => {
                   <SearchResultsComponent searchResults searchText setShowModal />
                 }
               }}
+              <FilterResultsComponent categorySuggestions searchText setShowModal />
             </>
           }}
         </Combobox>

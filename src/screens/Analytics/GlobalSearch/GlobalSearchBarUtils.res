@@ -300,3 +300,51 @@ let generateSearchBody = (~searchText, ~merchant_id) => {
     [("query", searchText->JSON.Encode.string)]->getJsonFromArrayOfJson
   }
 }
+
+open GlobalSearchTypes
+let categoryList = [
+  Payment_Method,
+  Payment_Method_Type,
+  Connector,
+  Customer_Email,
+  Card_Network,
+  Last_4,
+  Date,
+]
+
+let categorySuggestions = categoryList->Array.map(category => {
+  {
+    categoryType: category,
+    options: ["Option1", "Option2"],
+    placeholder: "placeholder",
+  }
+})
+
+let getcategoryFromVariant = category => {
+  switch category {
+  | Payment_Method => "Payment_Method"
+  | Payment_Method_Type => "Payment_Method_Type"
+  | Connector => "Connector"
+  | Customer_Email => "Customer_Email"
+  | Card_Network => "Card_Network"
+  | Last_4 => "Last_4"
+  | Date => "Date"
+  }
+}
+
+let paymentsGroupByNames = [
+  "connector",
+  "payment_method",
+  "payment_method_type",
+  "currency",
+  "authentication_type",
+  "status",
+  "client_source",
+  "client_version",
+  "profile_id",
+  "card_network",
+  "merchant_id",
+]
+
+let refundsGroupByNames = ["currency", "refund_status", "connector", "refund_type", "profile_id"]
+let disputesGroupByNames = ["connector", "dispute_stage"]

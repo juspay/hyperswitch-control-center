@@ -74,3 +74,9 @@ type category =
   | Card_Network
   | Last_4
   | Date
+
+type categoryOption = {
+  categoryType: category,
+  options: array<string>,
+  placeholder: string,
+}
