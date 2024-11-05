@@ -384,5 +384,6 @@ let make = (
         </div>
       </>}
     </AddDataAttributes>}
+    <FormValuesSpy />
   </Form>
 }

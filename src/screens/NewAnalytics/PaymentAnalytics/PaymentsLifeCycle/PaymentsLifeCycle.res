@@ -76,6 +76,11 @@ let make = (
     mockDelay()->ignore
     None
   }, [isSmartRetryEnabled])
+  let params = {
+    data,
+    xKey: isSmartRetryEnabled,
+    yKey: "",
+  }
 
   <div>
     <ModuleHeader title={entity.title} />
@@ -83,10 +88,7 @@ let make = (
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
         <div className="mr-3 my-10">
-          <SankeyGraph
-            entity={chartEntity}
-            data={chartEntity.getObjects(~data, ~xKey=isSmartRetryEnabled, ~yKey="")}
-          />
+          <SankeyGraph entity={chartEntity} data={chartEntity.getObjects(~params)} />
         </div>
       </PageLoaderWrapper>
     </Card>

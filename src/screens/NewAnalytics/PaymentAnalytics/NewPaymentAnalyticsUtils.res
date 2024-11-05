@@ -112,7 +112,12 @@ let getMetaDataValue = (~data, ~index, ~key) => {
 }
 
 open LineGraphTypes
-let tooltipFormatter = (~secondaryCategories, ~title, ~metricType) => {
+let tooltipFormatter = (
+  ~secondaryCategories,
+  ~title,
+  ~metricType,
+  ~comparison: option<DateRangeUtils.comparison>=None,
+) => {
   open NewAnalyticsUtils
 
   (
@@ -133,19 +138,26 @@ let tooltipFormatter = (~secondaryCategories, ~title, ~metricType) => {
         </div>`
       }
 
-      let tableItems =
-        [
-          getRowsHtml(~iconColor=primartPoint.color, ~date=primartPoint.x, ~value=primartPoint.y),
-          getRowsHtml(
-            ~iconColor=secondaryPoint.color,
-            ~date=secondaryCategories->getValueFromArray(secondaryPoint.point.index, ""),
-            ~value=secondaryPoint.y,
-            ~comparisionComponent=getToolTipConparision(
-              ~primaryValue=primartPoint.y,
-              ~secondaryValue=secondaryPoint.y,
-            ),
-          ),
-        ]->Array.joinWith("")
+      let tableItems = [
+        getRowsHtml(~iconColor=primartPoint.color, ~date=primartPoint.x, ~value=primartPoint.y),
+        {
+          switch comparison {
+          | Some(value) =>
+            value == DateRangeUtils.EnableComparison
+              ? getRowsHtml(
+                  ~iconColor=secondaryPoint.color,
+                  ~date=secondaryCategories->getValueFromArray(secondaryPoint.point.index, ""),
+                  ~value=secondaryPoint.y,
+                  ~comparisionComponent=getToolTipConparision(
+                    ~primaryValue=primartPoint.y,
+                    ~secondaryValue=secondaryPoint.y,
+                  ),
+                )
+              : ""
+          | None => ""
+          }
+        },
+      ]->Array.joinWith("")
 
       let content = `
           <div style=" 

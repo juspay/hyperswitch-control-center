@@ -24,7 +24,7 @@ let make = () => {
     useIsFeatureEnabledForMerchant,
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -210,7 +210,11 @@ let make = () => {
                           </AccessControl>
                         | list{"developer-api-keys"} =>
                           <AccessControl
-                            authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
+                            // TODO: Remove `MerchantDetailsManage` permission in future
+                            authorization={hasAnyGroupAccess(
+                              userHasAccess(~groupAccess=MerchantDetailsManage),
+                              userHasAccess(~groupAccess=AccountManage),
+                            )}
                             isEnabled={!checkUserEntity([#Profile])}>
                             <KeyManagement.KeysManagement />
                           </AccessControl>
@@ -241,7 +245,11 @@ let make = () => {
                         | list{"account-settings"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.sampleData
-                            authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}>
+                            // TODO: Remove `MerchantDetailsManage` permission in future
+                            authorization={hasAnyGroupAccess(
+                              userHasAccess(~groupAccess=MerchantDetailsManage),
+                              userHasAccess(~groupAccess=AccountManage),
+                            )}>
                             <HSwitchSettings />
                           </AccessControl>
                         | list{"account-settings", "profile", ...remainingPath} =>

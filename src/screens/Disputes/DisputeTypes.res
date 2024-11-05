@@ -5,7 +5,6 @@ type disputes = {
   attempt_id: string,
   amount: string,
   currency: string,
-  dispute_stage: string,
   dispute_status: string,
   connector: string,
   connector_status: string,
@@ -24,7 +23,6 @@ type disputesColsType =
   | AttemptId
   | Amount
   | Currency
-  | DisputeStage
   | DisputeStatus
   | Connector
   | ConnectorStatus
@@ -46,7 +44,6 @@ type disputeStatus =
   | DisputeLost
   | NotFound(string)
 
-type disputeStage = PreDispute | Dispute | PreArbitration | NotFound
 type disputeStatusType = Landing | EvidencePresent
 type filterTypes = {
   connector: array<string>,
