@@ -2,8 +2,69 @@ let h2TextStyle = HSwitchUtils.getTextClass((H2, Optional))
 let p2Regular = HSwitchUtils.getTextClass((P2, Regular))
 let p3Regular = HSwitchUtils.getTextClass((P3, Regular))
 
+module TwoFaVerifyModal = {
+  @react.component
+  let make = (
+    ~showVerifyModal,
+    ~setShowVerifyModal,
+    ~buttonState,
+    ~handleModalClose,
+    ~otpInModal,
+    ~setOtpInModal,
+    ~setErrorMessage,
+    ~errorMessage,
+    ~recoveryCode,
+    ~setRecoveryCode,
+    ~twoFaState,
+    ~setTwoFaState,
+    ~handle2FaVerify,
+    ~showOnlyTotp=false,
+    ~showOnlyRc=false,
+  ) => {
+    open HSwitchSettingTypes
+
+    <Modal
+      modalHeading={twoFaState === Totp ? "Verify OTP" : "Verify recovery code"}
+      showModal=showVerifyModal
+      setShowModal=setShowVerifyModal
+      onCloseClickCustomFun={handleModalClose}
+      modalClass="w-fit m-auto">
+      <div className="flex flex-col gap-12">
+        <TwoFaHelper.Verify2FAModalComponent
+          twoFaState
+          setTwoFaState
+          otp={otpInModal}
+          setOtp={setOtpInModal}
+          recoveryCode
+          setRecoveryCode
+          errorMessage
+          setErrorMessage
+          showOnlyTotp
+          showOnlyRc
+        />
+        <div className="flex flex-1 justify-end">
+          <Button
+            text={twoFaState === Totp ? "Verify OTP" : "Verify recovery code"}
+            buttonType=Primary
+            buttonSize=Small
+            buttonState={otpInModal->String.length < 6 && recoveryCode->String.length < 9
+              ? Disabled
+              : buttonState}
+            onClick={_ => handle2FaVerify()->ignore}
+            rightIcon={CustomIcon(
+              <Icon
+                name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
+              />,
+            )}
+          />
+        </div>
+      </div>
+    </Modal>
+  }
+}
+
 @react.component
-let make = (~checkStatusResponse) => {
+let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~checkTwoFaStatus) => {
   open LogicUtils
   open HSwitchSettingTypes
   open APIUtils
@@ -21,6 +82,7 @@ let make = (~checkStatusResponse) => {
   let (totpSecret, setTotpSecret) = React.useState(_ => RegenerateQR)
   let (twoFaState, setTwoFaState) = React.useState(_ => Totp)
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
+  let (twofaExpiredModal, setTwofaExpiredModal) = React.useState(_ => TwoFaTypes.TwoFaNotExpired)
 
   let generateNewSecret = async () => {
     try {
@@ -74,6 +136,9 @@ let make = (~checkStatusResponse) => {
         if errorCode->CommonAuthUtils.errorSubCodeMapper === UR_42 {
           setTotpSecret(_ => RegenerateQR)
         }
+        if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_48 {
+          checkTwoFaStatus()->ignore
+        }
         setOtpInModal(_ => "")
         setOtp(_ => "")
         setErrorMessage(_ => errorMessage)
@@ -98,6 +163,10 @@ let make = (~checkStatusResponse) => {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Verification Failed")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
+        let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+        if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_49 {
+          checkTwoFaStatus()->ignore
+        }
         setRecoveryCode(_ => "")
         setErrorMessage(_ => errorMessage)
         setButtonState(_ => Button.Normal)
@@ -111,16 +180,26 @@ let make = (~checkStatusResponse) => {
     | RecoveryCode => verifyRecoveryCode()
     }
   }
-
   React.useEffect(() => {
-    if checkStatusResponse.totp || checkStatusResponse.recovery_code {
-      generateNewSecret()->ignore
-    } else {
-      setShowVerifyModal(_ => true)
+    switch checkTwoFaStatusResponse.status {
+    | Some(value) =>
+      if value.totp.attemptsRemaining == 0 && value.recoveryCode.attemptsRemaining == 0 {
+        setTwofaExpiredModal(_ => TwoFaExpired(TWO_FA_EXPIRED))
+      } else if value.totp.attemptsRemaining == 0 {
+        setTwofaExpiredModal(_ => TwoFaExpired(TOTP_ATTEMPTS_EXPIRED))
+      } else if value.recoveryCode.attemptsRemaining == 0 {
+        setTwofaExpiredModal(_ => TwoFaExpired(RC_ATTEMPTS_EXPIRED))
+      } else if value.totp.isCompleted || value.recoveryCode.isCompleted {
+        generateNewSecret()->ignore
+      } else {
+        setShowVerifyModal(_ => true)
+      }
+
+    | None => ()
     }
+
     None
   }, [])
-
   let handleKeyUp = ev => {
     open ReactEvent.Keyboard
     let key = ev->key
@@ -147,44 +226,68 @@ let make = (~checkStatusResponse) => {
 
   let handleModalClose = () => {
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=`/account-settings/profile`))
+    setTwofaExpiredModal(_ => TwoFaNotExpired)
+  }
+
+  let handleConfirmAction = expiredType => {
+    open TwoFaTypes
+    switch expiredType {
+    | TOTP_ATTEMPTS_EXPIRED =>
+      setOtp(_ => "")
+      setOtpInModal(_ => "")
+      setErrorMessage(_ => "")
+      setTwofaExpiredModal(_ => TwoFaNotExpired)
+      setTwoFaState(_ => RecoveryCode)
+      setShowVerifyModal(_ => true)
+
+    | RC_ATTEMPTS_EXPIRED => {
+        setRecoveryCode(_ => "")
+        setErrorMessage(_ => "")
+        setTwoFaState(_ => Totp)
+        setShowVerifyModal(_ => true)
+        setTwofaExpiredModal(_ => TwoFaNotExpired)
+      }
+    | TWO_FA_EXPIRED => handleModalClose()
+    }
+  }
+
+  let (showOnlyTotp, showOnlyRc) = switch checkTwoFaStatusResponse.status {
+  | Some(value) =>
+    if value.totp.attemptsRemaining === 0 && value.recoveryCode.attemptsRemaining > 0 {
+      (false, true)
+    } else if value.recoveryCode.attemptsRemaining === 0 && value.totp.attemptsRemaining > 0 {
+      (false, true)
+    } else {
+      (false, false)
+    }
+  | None => (true, true)
   }
 
   <div>
-    <Modal
-      modalHeading={twoFaState === Totp ? "Verify OTP" : "Verify recovery code"}
-      showModal=showVerifyModal
-      setShowModal=setShowVerifyModal
-      onCloseClickCustomFun={handleModalClose}
-      modalClass="w-fit m-auto">
-      <div className="flex flex-col gap-12">
-        <TwoFaHelper.Verify2FAModalComponent
-          twoFaState
-          setTwoFaState
-          otp={otpInModal}
-          setOtp={setOtpInModal}
-          recoveryCode
-          setRecoveryCode
-          errorMessage
-          setErrorMessage
-        />
-        <div className="flex flex-1 justify-end">
-          <Button
-            text={twoFaState === Totp ? "Verify OTP" : "Verify recovery code"}
-            buttonType=Primary
-            buttonSize=Small
-            buttonState={otpInModal->String.length < 6 && recoveryCode->String.length < 9
-              ? Disabled
-              : buttonState}
-            onClick={_ => handle2FaVerify()->ignore}
-            rightIcon={CustomIcon(
-              <Icon
-                name="thin-right-arrow" size=20 className="group-hover:scale-125 cursor-pointer"
-              />,
-            )}
-          />
-        </div>
-      </div>
-    </Modal>
+    {switch twofaExpiredModal {
+    | TwoFaExpired(expiredType) =>
+      <TwoFaHelper.TwoFaWarningModal
+        expiredType handleConfirmAction handleOkAction={handleModalClose}
+      />
+    | TwoFaNotExpired =>
+      <TwoFaVerifyModal
+        showVerifyModal
+        setShowVerifyModal
+        buttonState
+        handleModalClose
+        otpInModal
+        setOtpInModal
+        setErrorMessage
+        errorMessage
+        recoveryCode
+        setRecoveryCode
+        twoFaState
+        setTwoFaState
+        handle2FaVerify
+        showOnlyTotp
+        showOnlyRc
+      />
+    }}
     <div className={`bg-white h-40-rem w-200 rounded-2xl flex flex-col border`}>
       <div className="p-6 border-b-2 flex justify-between items-center">
         <p className={`${h2TextStyle} text-grey-900`}> {"Enable new 2FA"->React.string} </p>
