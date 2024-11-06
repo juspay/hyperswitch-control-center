@@ -4,13 +4,13 @@ open LogicUtils
 
 let getStringFromVariant = value => {
   switch value {
-  | Payment_Processed_Amount => "payment_processed_amount"
+  | Payment_Processed_Amount => "payment_processed_amount_usd"
   | Payment_Processed_Count => "payment_processed_count"
-  | Payment_Processed_Amount_Without_Smart_Retries => "payment_processed_amount_without_smart_retries"
+  | Payment_Processed_Amount_Without_Smart_Retries => "payment_processed_amount_without_smart_retries_usd"
   | Payment_Processed_Count_Without_Smart_Retries => "payment_processed_count_without_smart_retries"
-  | Total_Payment_Processed_Amount => "total_payment_processed_amount"
+  | Total_Payment_Processed_Amount => "total_payment_processed_amount_usd"
   | Total_Payment_Processed_Count => "total_payment_processed_count"
-  | Total_Payment_Processed_Amount_Without_Smart_Retries => "total_payment_processed_amount_without_smart_retries"
+  | Total_Payment_Processed_Amount_Without_Smart_Retries => "total_payment_processed_amount_without_smart_retries_usd"
   | Total_Payment_Processed_Count_Without_Smart_Retriess => "total_payment_processed_count_without_smart_retries"
   | Time_Bucket => "time_bucket"
   }
@@ -18,18 +18,28 @@ let getStringFromVariant = value => {
 
 let getVariantValueFromString = value => {
   switch value {
-  | "payment_processed_amount" => Payment_Processed_Amount
+  | "payment_processed_amount_usd" => Payment_Processed_Amount
   | "payment_processed_count" => Payment_Processed_Count
-  | "payment_processed_amount_without_smart_retries" =>
+  | "payment_processed_amount_without_smart_retries_usd" =>
     Payment_Processed_Amount_Without_Smart_Retries
   | "payment_processed_count_without_smart_retries" => Payment_Processed_Count_Without_Smart_Retries
-  | "total_payment_processed_amount" => Total_Payment_Processed_Amount
+  | "total_payment_processed_amount_usd" => Total_Payment_Processed_Amount
   | "total_payment_processed_count" => Total_Payment_Processed_Count
-  | "total_payment_processed_amount_without_smart_retries" =>
+  | "total_payment_processed_amount_without_smart_retries_usd" =>
     Total_Payment_Processed_Amount_Without_Smart_Retries
   | "total_payment_processed_count_without_smart_retries" =>
     Total_Payment_Processed_Count_Without_Smart_Retriess
   | "time_bucket" | _ => Time_Bucket
+  }
+}
+
+let isAmountMetric = key => {
+  switch key->getVariantValueFromString {
+  | Payment_Processed_Amount
+  | Payment_Processed_Amount_Without_Smart_Retries
+  | Total_Payment_Processed_Amount
+  | Total_Payment_Processed_Amount_Without_Smart_Retries => true
+  | _ => false
   }
 }
 
@@ -51,7 +61,13 @@ let paymentsProcessedMapper = (
     ->Array.mapWithIndex((item, index) => {
       let name = NewAnalyticsUtils.getLabelName(~key=yKey, ~index, ~points=item)
       let color = index->getColor
-      getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color)
+      getLineGraphObj(
+        ~array=item->getArrayFromJson([]),
+        ~key=xKey,
+        ~name,
+        ~color,
+        ~isAmount=xKey->isAmountMetric,
+      )
     })
   let title = {
     text: "Payments Processed",
@@ -82,27 +98,26 @@ let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
   {
-    payment_processed_amount: dict->getFloat(Payment_Processed_Amount->getStringFromVariant, 0.0),
+    payment_processed_amount_usd: dict->getAmountValue(
+      ~id=Payment_Processed_Amount->getStringFromVariant,
+    ),
     payment_processed_count: dict->getInt(Payment_Processed_Count->getStringFromVariant, 0),
-    payment_processed_amount_without_smart_retries: dict->getFloat(
-      Payment_Processed_Amount_Without_Smart_Retries->getStringFromVariant,
-      0.0,
+    payment_processed_amount_without_smart_retries_usd: dict->getAmountValue(
+      ~id=Payment_Processed_Amount_Without_Smart_Retries->getStringFromVariant,
     ),
     payment_processed_count_without_smart_retries: dict->getInt(
       Payment_Processed_Count_Without_Smart_Retries->getStringFromVariant,
       0,
     ),
-    total_payment_processed_amount: dict->getFloat(
-      Total_Payment_Processed_Amount->getStringFromVariant,
-      0.0,
+    total_payment_processed_amount_usd: dict->getAmountValue(
+      ~id=Total_Payment_Processed_Amount->getStringFromVariant,
     ),
     total_payment_processed_count: dict->getInt(
       Total_Payment_Processed_Count->getStringFromVariant,
       0,
     ),
-    total_payment_processed_amount_without_smart_retries: dict->getFloat(
-      Total_Payment_Processed_Amount_Without_Smart_Retries->getStringFromVariant,
-      0.0,
+    total_payment_processed_amount_without_smart_retries_usd: dict->getAmountValue(
+      ~id=Total_Payment_Processed_Amount_Without_Smart_Retries->getStringFromVariant,
     ),
     total_payment_processed_count_without_smart_retries: dict->getInt(
       Total_Payment_Processed_Count_Without_Smart_Retriess->getStringFromVariant,
@@ -160,9 +175,9 @@ let getHeading = colType => {
 let getCell = (obj, colType): Table.cell => {
   open NewAnalyticsUtils
   switch colType {
-  | Payment_Processed_Amount => Text(obj.payment_processed_amount->valueFormatter(Amount))
+  | Payment_Processed_Amount => Text(obj.payment_processed_amount_usd->valueFormatter(Amount))
   | Payment_Processed_Amount_Without_Smart_Retries =>
-    Text(obj.payment_processed_amount_without_smart_retries->valueFormatter(Amount))
+    Text(obj.payment_processed_amount_without_smart_retries_usd->valueFormatter(Amount))
   | Payment_Processed_Count => Text(obj.payment_processed_count->Int.toString)
   | Payment_Processed_Count_Without_Smart_Retries =>
     Text(obj.payment_processed_count_without_smart_retries->Int.toString)
