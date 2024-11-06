@@ -770,9 +770,7 @@ let responseHandler = async (
         ("url", url->JSON.Encode.string),
         ("response", json),
         ("status", responseStatus->JSON.Encode.int),
-      ]
-      ->Dict.fromArray
-      ->JSON.Encode.object
+      ]->getJsonFromArrayOfJson
     sendEvent(~eventName="API Error", ~description=Some(responseStatus), ~metadata=metaData)
   }
 
