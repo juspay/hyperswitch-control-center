@@ -66,7 +66,7 @@ module SearchResultsComponent = {
           <div className="text-lightgray_background font-bold  text-lg pb-2">
             {section.section->getSectionHeader->React.string}
           </div>
-          <GlobalSearchBarUtils.ShowMoreLink
+          <GlobalSearchBarHelper.ShowMoreLink
             section textStyleClass="text-sm pt-2 font-medium text-blue-900" searchText
           />
         </div>

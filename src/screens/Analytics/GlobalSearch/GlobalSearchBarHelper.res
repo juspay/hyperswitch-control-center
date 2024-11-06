@@ -48,46 +48,33 @@ module SearchBox = {
 }
 
 module EmptyResult = {
+  open FramerMotion.Motion
   @react.component
   let make = (~prefix, ~searchText) => {
-    <FramerMotion.Motion.Div
-      layoutId="empty" initial={{scale: 0.9, opacity: 0.0}} animate={{scale: 1.0, opacity: 1.0}}>
+    <Div layoutId="empty" initial={{scale: 0.9, opacity: 0.0}} animate={{scale: 1.0, opacity: 1.0}}>
       <div className="flex flex-col w-full h-fit p-7 justify-center items-center gap-6">
         <img alt="no-result" className="w-1/9" src={`${prefix}/icons/globalSearchNoResult.svg`} />
         <div className="w-3/5 text-wrap text-center break-all">
           {`No Results for " ${searchText} "`->React.string}
         </div>
       </div>
-    </FramerMotion.Motion.Div>
-  }
-}
-
-module OptionsWrapper = {
-  @react.component
-  let make = (~children) => {
-    <FramerMotion.Motion.Div layoutId="options">
-      <div className="w-full overflow-auto text-base max-h-[60vh] focus:outline-none sm:text-sm">
-        {children}
-      </div>
-    </FramerMotion.Motion.Div>
+    </Div>
   }
 }
 
 module OptionWrapper = {
   @react.component
   let make = (~index, ~value, ~children) => {
-    // let activeClasses = isActive => {
-    //   let borderClass = isActive ? "bg-gray-100 dark:bg-jp-gray-960" : ""
-    //   `group flex items-center w-full p-2 text-sm rounded-lg ${borderClass}`
-    // }
-
-    <div className="flex flex-row cursor-pointer truncate" key={index->Int.toString}>
+    <div
+      className="flex flex-row truncate hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
+      key={index->Int.toString}>
       {children}
     </div>
   }
 }
 
 module ModalWrapper = {
+  open FramerMotion.Motion
   @react.component
   let make = (~showModal, ~setShowModal, ~children) => {
     <Modal
@@ -97,21 +84,73 @@ module ModalWrapper = {
       paddingClass="pt-24"
       closeOnOutsideClick=true
       bgClass="bg-transparent dark:bg-transparent border-transparent dark:border-transparent shadow-transparent">
-      <FramerMotion.Motion.Div
+      <Div
         layoutId="search"
         key="search"
         initial={{borderRadius: ["15px", "15px", "15px", "15px"], scale: 0.9}}
         animate={{borderRadius: ["15px", "15px", "15px", "15px"], scale: 1.0}}
         className={"flex flex-col bg-white gap-2 overflow-hidden py-2 !show-scrollbar"}>
         {children}
-      </FramerMotion.Motion.Div>
+      </Div>
     </Modal>
+  }
+}
+
+module ShowMoreLink = {
+  open GlobalSearchTypes
+  @react.component
+  let make = (
+    ~section: resultType,
+    ~cleanUpFunction=() => {()},
+    ~textStyleClass="",
+    ~searchText,
+  ) => {
+    <RenderIf condition={section.total_results > 10}>
+      {
+        let linkText = `View ${section.total_results->Int.toString} result${section.total_results > 1
+            ? "s"
+            : ""}`
+
+        switch section.section {
+        | Local
+        | Default
+        | Others
+        | SessionizerPaymentAttempts
+        | SessionizerPaymentIntents
+        | SessionizerPaymentRefunds
+        | SessionizerPaymentDisputes => React.null
+        | PaymentAttempts | PaymentIntents | Refunds | Disputes =>
+          <div
+            onClick={_ => {
+              let link = switch section.section {
+              | PaymentAttempts => `payment-attempts?query=${searchText}`
+              | PaymentIntents => `payment-intents?query=${searchText}`
+              | Refunds => `refunds-global?query=${searchText}`
+              | Disputes => `dispute-global?query=${searchText}`
+              | Local
+              | Others
+              | Default
+              | SessionizerPaymentAttempts
+              | SessionizerPaymentIntents
+              | SessionizerPaymentRefunds
+              | SessionizerPaymentDisputes => ""
+              }
+              GlobalVars.appendDashboardPath(~url=link)->RescriptReactRouter.push
+              cleanUpFunction()
+            }}
+            className={`font-medium cursor-pointer underline underline-offset-2 ${textStyleClass}`}>
+            {linkText->React.string}
+          </div>
+        }
+      }
+    </RenderIf>
   }
 }
 
 module SearchResultsComponent = {
   open GlobalSearchTypes
   open LogicUtils
+  open FramerMotion.Motion
   @react.component
   let make = (~searchResults, ~searchText, ~setShowModal) => {
     // React.useEffect(() => {
@@ -132,59 +171,57 @@ module SearchResultsComponent = {
 
     let borderClass = searchResults->Array.length > 0 ? "border-t dark:border-jp-gray-960" : ""
 
-    <div className=borderClass>
-      <OptionsWrapper>
-        {searchResults
-        ->Array.mapWithIndex((section: resultType, index) => {
-          <FramerMotion.Motion.Div
-            key={Int.toString(index)}
-            layoutId={section.section->getSectionHeader}
-            className={`px-3 mb-3 py-1`}>
-            <FramerMotion.Motion.Div
-              initial={{opacity: 0.5}}
-              animate={{opacity: 0.5}}
-              layoutId={`${section.section->getSectionHeader}-${index->Belt.Int.toString}`}
-              className="text-lightgray_background  px-2 pb-1 flex justify-between">
-              <div className="font-bold">
-                {section.section->getSectionHeader->String.toUpperCase->React.string}
-              </div>
-              <div>
-                <GlobalSearchBarUtils.ShowMoreLink
-                  section
-                  cleanUpFunction={() => {setShowModal(_ => false)}}
-                  textStyleClass="text-xs"
-                  searchText
-                />
-              </div>
-            </FramerMotion.Motion.Div>
-            {section.results
-            ->Array.mapWithIndex((item, i) => {
-              let elementsArray = item.texts
+    <Div
+      layoutId="options"
+      className={`w-full overflow-auto text-base max-h-[60vh] focus:outline-none sm:text-sm ${borderClass}`}>
+      {searchResults
+      ->Array.mapWithIndex((section: resultType, index) => {
+        <Div
+          key={Int.toString(index)}
+          layoutId={section.section->getSectionHeader}
+          className={`px-3 mb-3 py-1`}>
+          <Div
+            initial={{opacity: 0.5}}
+            animate={{opacity: 0.5}}
+            layoutId={`${section.section->getSectionHeader}-${index->Belt.Int.toString}`}
+            className="text-lightgray_background  px-2 pb-1 flex justify-between">
+            <div className="font-bold">
+              {section.section->getSectionHeader->String.toUpperCase->React.string}
+            </div>
+            <ShowMoreLink
+              section
+              cleanUpFunction={() => {setShowModal(_ => false)}}
+              textStyleClass="text-xs"
+              searchText
+            />
+          </Div>
+          {section.results
+          ->Array.mapWithIndex((item, i) => {
+            let elementsArray = item.texts
 
-              <OptionWrapper key={Int.toString(i)} index={i} value={item}>
-                {elementsArray
-                ->Array.mapWithIndex(
-                  (item, index) => {
-                    let elementValue = item->JSON.Decode.string->Option.getOr("")
-                    <RenderIf condition={elementValue->isNonEmptyString} key={index->Int.toString}>
-                      <RenderedComponent ele=elementValue searchText />
-                      <RenderIf condition={index >= 0 && index < elementsArray->Array.length - 1}>
-                        <span className="mx-2 text-lightgray_background opacity-50">
-                          {">"->React.string}
-                        </span>
-                      </RenderIf>
+            <OptionWrapper key={Int.toString(i)} index={i} value={item}>
+              {elementsArray
+              ->Array.mapWithIndex(
+                (item, index) => {
+                  let elementValue = item->JSON.Decode.string->Option.getOr("")
+                  <RenderIf condition={elementValue->isNonEmptyString} key={index->Int.toString}>
+                    <RenderedComponent ele=elementValue searchText />
+                    <RenderIf condition={index >= 0 && index < elementsArray->Array.length - 1}>
+                      <span className="mx-2 text-lightgray_background opacity-50">
+                        {">"->React.string}
+                      </span>
                     </RenderIf>
-                  },
-                )
-                ->React.array}
-              </OptionWrapper>
-            })
-            ->React.array}
-          </FramerMotion.Motion.Div>
-        })
-        ->React.array}
-      </OptionsWrapper>
-    </div>
+                  </RenderIf>
+                },
+              )
+              ->React.array}
+            </OptionWrapper>
+          })
+          ->React.array}
+        </Div>
+      })
+      ->React.array}
+    </Div>
   }
 }
 
@@ -192,6 +229,7 @@ module FilterResultsComponent = {
   open LogicUtils
   open GlobalSearchTypes
   open GlobalSearchBarUtils
+  open FramerMotion.Motion
   @react.component
   let make = (
     ~categorySuggestions: array<categoryOption>,
@@ -216,14 +254,14 @@ module FilterResultsComponent = {
     }
 
     <RenderIf condition={filters->Array.length > 0}>
-      <FramerMotion.Motion.Div
+      <Div
         initial={{opacity: 0.5}}
         animate={{opacity: 0.5}}
         layoutId="categories-section"
         className="px-2 pt-2 border-t dark:border-jp-gray-960">
-        <FramerMotion.Motion.Div layoutId="categories-title" className="font-bold px-2">
+        <Div layoutId="categories-title" className="font-bold px-2">
           {"Suggested Filters"->String.toUpperCase->React.string}
-        </FramerMotion.Motion.Div>
+        </Div>
         <div className="">
           <RenderIf condition={filters->Array.length === 1 && filters->checkFilterKey}>
             {switch filters->Array.get(0) {
@@ -282,13 +320,14 @@ module FilterResultsComponent = {
             ->React.array}
           </RenderIf>
         </div>
-      </FramerMotion.Motion.Div>
+      </Div>
     </RenderIf>
   }
 }
 
 module ModalSearchBox = {
   open LogicUtils
+  open FramerMotion.Motion
   @react.component
   let make = (~leftIcon, ~setShowModal, ~setFilterText, ~localSearchText, ~setLocalSearchText) => {
     let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -337,7 +376,7 @@ module ModalSearchBox = {
             ~label="",
             ~name="global_search",
             ~customInput=(~input as _, ~placeholder as _) => {
-              <FramerMotion.Motion.Div layoutId="input" className="h-fit bg-white">
+              <Div layoutId="input" className="h-fit bg-white">
                 <div className={`flex flex-row items-center `}>
                   {leftIcon}
                   <div className="w-full overflow-scroll flex flex-row items-center">
@@ -362,7 +401,7 @@ module ModalSearchBox = {
                     <Icon size=15 name="times" parentClass="flex justify-end opacity-30" />
                   </div>
                 </div>
-              </FramerMotion.Motion.Div>
+              </Div>
             },
             ~isRequired=false,
           )}
