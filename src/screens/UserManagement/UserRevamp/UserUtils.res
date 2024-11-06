@@ -46,6 +46,9 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
             errors->Dict.set("email", "Please enter a valid email"->JSON.Encode.string)
           }
         })
+        if listofemails->Array.length > 10 {
+          errors->Dict.set("Invite limit exceeded", "Max 10 at a time."->JSON.Encode.string)
+        }
         ()
       }
     | String(roleType) =>
