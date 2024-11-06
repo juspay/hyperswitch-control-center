@@ -329,6 +329,8 @@ module ModalSearchBox = {
     ~setSelectedOption,
     ~redirectOnSelect,
   ) => {
+    let (errorMessage, _setErrorMessage) = React.useState(_ => "")
+    // "Multiple free-text terms found"
     let input: ReactFinalForm.fieldRenderPropsInput = {
       {
         name: "global_search",
@@ -418,6 +420,11 @@ module ModalSearchBox = {
                     <Icon size=15 name="times" parentClass="flex justify-end opacity-30" />
                   </div>
                 </div>
+                <RenderIf condition={errorMessage->isNonEmptyString}>
+                  <div className="text-sm text-orange-500 ml-12 pl-2">
+                    {errorMessage->React.string}
+                  </div>
+                </RenderIf>
               </Div>
             },
             ~isRequired=false,
