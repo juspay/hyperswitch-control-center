@@ -377,10 +377,6 @@ module ModalSearchBox = {
       }
     }
 
-    let onSubmit = (_values, _) => {
-      Nullable.null->Promise.resolve
-    }
-
     let validateForm = _values => {
       let errors = Dict.make()
       errors->JSON.Encode.object
@@ -390,7 +386,7 @@ module ModalSearchBox = {
       key="global-search"
       initialValues={Dict.make()->JSON.Encode.object}
       validate={values => values->validateForm}
-      onSubmit>
+      onSubmit={(_, _) => Nullable.null->Promise.resolve}>
       <LabelVisibilityContext showLabel=false>
         <FormRenderer.FieldRenderer
           field={FormRenderer.makeFieldInfo(
