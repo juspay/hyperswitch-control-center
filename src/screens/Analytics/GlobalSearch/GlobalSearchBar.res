@@ -2,7 +2,6 @@
 let make = () => {
   open GlobalSearchTypes
   open GlobalSearchBarUtils
-  open HeadlessUI
   open LogicUtils
   open GlobalSearchBarHelper
 
@@ -196,42 +195,33 @@ let make = () => {
     <SearchBox openModalOnClickHandler />
     <RenderIf condition={showModal}>
       <ModalWrapper showModal setShowModal>
-        <Combobox
-          className="w-full"
-          onChange={element => {
-            element->redirectOnSelect
-          }}>
-          {_ => {
-            <>
-              <ModalSearchBox
-                leftIcon setShowModal setFilterText localSearchText setLocalSearchText
-              />
-              {switch state {
-              | Loading =>
-                <div className="my-14 py-4">
-                  <Loader />
-                </div>
-              | _ =>
-                if (
-                  activeFilter->isNonEmptyString ||
-                    (activeFilter->isEmptyString && searchText->isEmptyString)
-                ) {
-                  <FilterResultsComponent
-                    categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
-                    activeFilter
-                    setActiveFilter
-                    searchText
-                    setLocalSearchText
-                  />
-                } else if searchText->isNonEmptyString && searchResults->Array.length === 0 {
-                  <EmptyResult prefix searchText />
-                } else {
-                  <SearchResultsComponent searchResults searchText setShowModal />
-                }
-              }}
-            </>
+        <div className="w-full">
+          <ModalSearchBox leftIcon setShowModal setFilterText localSearchText setLocalSearchText />
+          {switch state {
+          | Loading =>
+            <div className="my-14 py-4">
+              <Loader />
+            </div>
+          | _ =>
+            // if (
+            //   activeFilter->isNonEmptyString ||
+            //     (activeFilter->isEmptyString && searchText->isEmptyString)
+            // ) {
+            //   <FilterResultsComponent
+            //     categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+            //     activeFilter
+            //     setActiveFilter
+            //     searchText
+            //     setLocalSearchText
+            //   />
+            // } else
+            if searchText->isNonEmptyString && searchResults->Array.length === 0 {
+              <EmptyResult prefix searchText />
+            } else {
+              <SearchResultsComponent searchResults searchText setShowModal />
+            }
           }}
-        </Combobox>
+        </div>
       </ModalWrapper>
     </RenderIf>
   </div>

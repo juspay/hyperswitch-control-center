@@ -63,34 +63,27 @@ module EmptyResult = {
 }
 
 module OptionsWrapper = {
-  open HeadlessUI
   @react.component
   let make = (~children) => {
     <FramerMotion.Motion.Div layoutId="options">
-      <Combobox.Options
-        static={true}
-        className="w-full overflow-auto text-base max-h-[60vh] focus:outline-none sm:text-sm">
-        {_ => {children}}
-      </Combobox.Options>
+      <div className="w-full overflow-auto text-base max-h-[60vh] focus:outline-none sm:text-sm">
+        {children}
+      </div>
     </FramerMotion.Motion.Div>
   }
 }
 
 module OptionWrapper = {
-  open HeadlessUI
   @react.component
   let make = (~index, ~value, ~children) => {
-    let activeClasses = isActive => {
-      let borderClass = isActive ? "bg-gray-100 dark:bg-jp-gray-960" : ""
-      `group flex items-center w-full p-2 text-sm rounded-lg ${borderClass}`
-    }
+    // let activeClasses = isActive => {
+    //   let borderClass = isActive ? "bg-gray-100 dark:bg-jp-gray-960" : ""
+    //   `group flex items-center w-full p-2 text-sm rounded-lg ${borderClass}`
+    // }
 
-    <Combobox.Option
-      className="flex flex-row cursor-pointer truncate" key={index->Int.toString} value>
-      {props => {
-        <div className={props["active"]->activeClasses}> {children} </div>
-      }}
-    </Combobox.Option>
+    <div className="flex flex-row cursor-pointer truncate" key={index->Int.toString}>
+      {children}
+    </div>
   }
 }
 
@@ -119,24 +112,23 @@ module ModalWrapper = {
 module SearchResultsComponent = {
   open GlobalSearchTypes
   open LogicUtils
-
   @react.component
   let make = (~searchResults, ~searchText, ~setShowModal) => {
-    React.useEffect(() => {
-      let onKeyPress = event => {
-        let keyPressed = event->ReactEvent.Keyboard.key
+    // React.useEffect(() => {
+    //   let onKeyPress = event => {
+    //     let keyPressed = event->ReactEvent.Keyboard.key
 
-        if keyPressed == "Enter" {
-          let redirectLink = `/search?query=${searchText}`
-          if redirectLink->isNonEmptyString {
-            setShowModal(_ => false)
-            GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
-          }
-        }
-      }
-      Window.addEventListener("keydown", onKeyPress)
-      Some(() => Window.removeEventListener("keydown", onKeyPress))
-    }, [])
+    //     if keyPressed == "Enter" {
+    //       let redirectLink = `/search?query=${searchText}`
+    //       if redirectLink->isNonEmptyString {
+    //         setShowModal(_ => false)
+    //         GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
+    //       }
+    //     }
+    //   }
+    //   Window.addEventListener("keydown", onKeyPress)
+    //   Some(() => Window.removeEventListener("keydown", onKeyPress))
+    // }, [])
 
     let borderClass = searchResults->Array.length > 0 ? "border-t dark:border-jp-gray-960" : ""
 
