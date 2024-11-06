@@ -273,7 +273,7 @@ let make = () => {
           moduleName="payments_analytics_amount"
           formaPayload
         />
-        <SmartRetryAnalytics filterKeys=tabKeys moduleName="payments_smart_retries" />
+        <SmartRetryAnalytics moduleName="payments_smart_retries" />
         <OverallSummary
           filteredTabVales=tabValues
           moduleName="overall_summary"

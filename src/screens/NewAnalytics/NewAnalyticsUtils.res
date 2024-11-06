@@ -141,7 +141,7 @@ let getLabelName = (~key, ~index, ~points) => {
   if key === "time_bucket" {
     let pointsArray = points->getArrayFromJson([])
     let startPoint = pointsArray->getDateObject(0)
-    let endPoint = pointsArray->getDateObject(1)
+    let endPoint = pointsArray->getDateObject(pointsArray->Array.length - 1)
 
     let startDate = startPoint->formatDateValue
     let endDate = endPoint->formatDateValue

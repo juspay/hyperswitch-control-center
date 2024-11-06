@@ -5,13 +5,14 @@ module SmartRetryCard = {
   open NewAnalyticsUtils
   @react.component
   let make = (~responseKey: overviewColumns, ~data) => {
+    open LogicUtils
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
     let config = getInfo(~responseKey)
-
     let primaryValue = getValueFromObj(data, 0, responseKey->getStringFromVariant)
     let secondaryValue = getValueFromObj(data, 1, responseKey->getStringFromVariant)
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
-
     <Card>
       <div className="p-6 flex flex-col gap-4 justify-between h-full gap-auto">
         <div className="font-semibold  dark:text-white"> {config.titleText->React.string} </div>
@@ -22,7 +23,9 @@ module SmartRetryCard = {
               {`Saved ${valueFormatter(primaryValue, config.valueType)}`->React.string}
             </div>
             <div className="scale-[0.9]">
-              <StatisticsCard value direction />
+              <RenderIf condition={comparison === EnableComparison}>
+                <StatisticsCard value direction />
+              </RenderIf>
             </div>
           </div>
           <div className="opacity-50 text-sm"> {config.description->React.string} </div>
@@ -39,6 +42,9 @@ module OverViewStat = {
   open NewPaymentsOverviewSectionUtils
   @react.component
   let make = (~responseKey, ~data) => {
+    open LogicUtils
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
     let config = getInfo(~responseKey)
 
     let primaryValue = getValueFromObj(data, 0, responseKey->getStringFromVariant)
@@ -54,7 +60,9 @@ module OverViewStat = {
               {valueFormatter(primaryValue, config.valueType)->React.string}
             </div>
             <div className="scale-[0.9]">
-              <StatisticsCard value direction />
+              <RenderIf condition={comparison === EnableComparison}>
+                <StatisticsCard value direction />
+              </RenderIf>
             </div>
           </div>
         </div>

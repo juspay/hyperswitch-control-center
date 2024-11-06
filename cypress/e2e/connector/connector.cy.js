@@ -143,7 +143,7 @@ describe("connector", () => {
       date30DaysAgo.toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
-        day: "numeric",
+        day: "2-digit",
       }) + " - Now";
     cy.get(`[data-button-text='${formattedDate30DaysAgo}']`).should("exist");
     cy.get("[data-table-location=Orders_tr1_td1]").should("exist");
@@ -176,7 +176,7 @@ describe("connector", () => {
     const formattedDate30DaysAgo = date30DaysAgo.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
-      day: "numeric",
+      day: "2-digit",
     });
     cy.get(`[data-button-text='${formattedDate30DaysAgo} - Now']`).should(
       "exist",
@@ -194,9 +194,15 @@ describe("connector", () => {
     const formattedDate = today.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
+      day: "2-digit",
+    });
+    const selectDate = today.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
       day: "numeric",
     });
-    cy.get(`[data-testid="${formattedDate}"]`).click();
+
+    cy.get(`[data-testid="${selectDate}"]`).click();
     cy.get("[data-button-for=apply]").click();
     cy.get(
       `[data-button-text='${formattedDate30DaysAgo} - ${formattedDate}']`,
