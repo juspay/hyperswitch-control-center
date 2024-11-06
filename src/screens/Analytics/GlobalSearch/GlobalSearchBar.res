@@ -14,6 +14,8 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (activeFilter, setActiveFilter) = React.useState(_ => "")
   let (localSearchText, setLocalSearchText) = React.useState(_ => "")
+  let (selectedOption, setSelectedOption) = React.useState(_ => ""->getDefaultOption)
+  let (allOptions, setAllOptions) = React.useState(_ => [])
   let (categorieSuggestionResponse, setCategorieSuggestionResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
@@ -88,7 +90,6 @@ let make = () => {
 
       if results->Array.length > 0 {
         let defaultItem = searchText->getDefaultResult
-
         let arr = [defaultItem]->Array.concat(results)
 
         setSearchResults(_ => arr)
@@ -100,6 +101,13 @@ let make = () => {
     | _ => setState(_ => Failed)
     }
   }
+
+  React.useEffect(() => {
+    let allOptions = searchResults->getAllOptions
+    setAllOptions(_ => allOptions)
+    setSelectedOption(_ => searchText->getDefaultOption)
+    None
+  }, [searchResults])
 
   React.useEffect(_ => {
     let results = []
@@ -117,7 +125,6 @@ let make = () => {
       } else {
         if results->Array.length > 0 {
           let defaultItem = searchText->getDefaultResult
-
           let arr = [defaultItem]->Array.concat(results)
 
           setSearchResults(_ => arr)
@@ -196,7 +203,17 @@ let make = () => {
     <RenderIf condition={showModal}>
       <ModalWrapper showModal setShowModal>
         <div className="w-full">
-          <ModalSearchBox leftIcon setShowModal setFilterText localSearchText setLocalSearchText />
+          <ModalSearchBox
+            leftIcon
+            setShowModal
+            setFilterText
+            localSearchText
+            setLocalSearchText
+            allOptions
+            selectedOption
+            setSelectedOption
+            redirectOnSelect
+          />
           {switch state {
           | Loading =>
             <div className="my-14 py-4">
@@ -218,7 +235,9 @@ let make = () => {
             if searchText->isNonEmptyString && searchResults->Array.length === 0 {
               <EmptyResult prefix searchText />
             } else {
-              <SearchResultsComponent searchResults searchText setShowModal />
+              <SearchResultsComponent
+                searchResults searchText setShowModal selectedOption redirectOnSelect
+              />
             }
           }}
         </div>

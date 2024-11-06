@@ -64,9 +64,13 @@ module EmptyResult = {
 
 module OptionWrapper = {
   @react.component
-  let make = (~index, ~value, ~children) => {
+  let make = (~index, ~value, ~children, ~selectedOption, ~redirectOnSelect) => {
+    let activeClass = value == selectedOption ? "bg-gray-100 rounded-lg p-2 group items-center" : ""
     <div
-      className="flex flex-row truncate hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
+      onClick={_ => {
+        value->redirectOnSelect
+      }}
+      className={`flex ${activeClass} flex-row truncate hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center`}
       key={index->Int.toString}>
       {children}
     </div>
@@ -152,23 +156,7 @@ module SearchResultsComponent = {
   open LogicUtils
   open FramerMotion.Motion
   @react.component
-  let make = (~searchResults, ~searchText, ~setShowModal) => {
-    // React.useEffect(() => {
-    //   let onKeyPress = event => {
-    //     let keyPressed = event->ReactEvent.Keyboard.key
-
-    //     if keyPressed == "Enter" {
-    //       let redirectLink = `/search?query=${searchText}`
-    //       if redirectLink->isNonEmptyString {
-    //         setShowModal(_ => false)
-    //         GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
-    //       }
-    //     }
-    //   }
-    //   Window.addEventListener("keydown", onKeyPress)
-    //   Some(() => Window.removeEventListener("keydown", onKeyPress))
-    // }, [])
-
+  let make = (~searchResults, ~searchText, ~setShowModal, ~selectedOption, ~redirectOnSelect) => {
     let borderClass = searchResults->Array.length > 0 ? "border-t dark:border-jp-gray-960" : ""
 
     <Div
@@ -199,7 +187,8 @@ module SearchResultsComponent = {
           ->Array.mapWithIndex((item, i) => {
             let elementsArray = item.texts
 
-            <OptionWrapper key={Int.toString(i)} index={i} value={item}>
+            <OptionWrapper
+              key={Int.toString(i)} index={i} value={item} selectedOption redirectOnSelect>
               {elementsArray
               ->Array.mapWithIndex(
                 (item, index) => {
@@ -329,7 +318,17 @@ module ModalSearchBox = {
   open LogicUtils
   open FramerMotion.Motion
   @react.component
-  let make = (~leftIcon, ~setShowModal, ~setFilterText, ~localSearchText, ~setLocalSearchText) => {
+  let make = (
+    ~leftIcon,
+    ~setShowModal,
+    ~setFilterText,
+    ~localSearchText,
+    ~setLocalSearchText,
+    ~allOptions,
+    ~selectedOption,
+    ~setSelectedOption,
+    ~redirectOnSelect,
+  ) => {
     let input: ReactFinalForm.fieldRenderPropsInput = {
       {
         name: "global_search",
@@ -346,6 +345,28 @@ module ModalSearchBox = {
 
     let handleKeyDown = e => {
       open ReactEvent.Keyboard
+
+      let index = allOptions->Array.findIndex(item => {
+        item == selectedOption
+      })
+
+      if e->keyCode == 40 {
+        let newIndex =
+          index == allOptions->Array.length - 1 ? 0 : Int.mod(index + 1, allOptions->Array.length)
+        switch allOptions->Array.get(newIndex) {
+        | Some(val) => setSelectedOption(_ => val)
+        | _ => ()
+        }
+      } else if e->keyCode == 38 {
+        let newIndex =
+          index === 0 ? allOptions->Array.length - 1 : Int.mod(index - 1, allOptions->Array.length)
+        switch allOptions->Array.get(newIndex) {
+        | Some(val) => setSelectedOption(_ => val)
+        | _ => ()
+        }
+      } else if e->keyCode == 13 {
+        selectedOption->redirectOnSelect
+      }
 
       if e->keyCode === 32 {
         setFilterText("")

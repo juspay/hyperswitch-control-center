@@ -221,6 +221,20 @@ let getDefaultResult = searchText => {
   }
 }
 
+let getDefaultOption = searchText => {
+  open GlobalSearchTypes
+  {
+    texts: ["Show all results for"->JSON.Encode.string, searchText->JSON.Encode.string],
+    redirect_link: `/search?query=${searchText}`->JSON.Encode.string,
+  }
+}
+
+let getAllOptions = (results: array<GlobalSearchTypes.resultType>) => {
+  open GlobalSearchTypes
+
+  []->Array.concatMany(results->Array.map(item => item.results))
+}
+
 let parseResponse = response => {
   open GlobalSearchTypes
   open LogicUtils
