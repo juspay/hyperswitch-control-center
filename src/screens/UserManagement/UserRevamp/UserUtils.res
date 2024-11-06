@@ -93,10 +93,15 @@ let modulesWithUserAccess = (
       let accessGroup = userAccessGroup->Array.find(group => group.parentGroup == item.parentGroup)
       switch accessGroup {
       | Some(val) => {
+          let updatedScopes = switch val.scopes {
+          | ["write", "read"] => ["read", "write"]
+          | [_, _] => val.scopes
+          | _ => val.scopes
+          }
           let manipulatedObject = {
             parentGroup: item.parentGroup,
             description: val.description,
-            scopes: val.scopes,
+            scopes: updatedScopes,
           }
           modulesWithAccess->Array.push(manipulatedObject)
         }
