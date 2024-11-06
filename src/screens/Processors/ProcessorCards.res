@@ -23,11 +23,15 @@ module RequestConnector = {
 module CantFindProcessor = {
   @react.component
   let make = (~showRequestConnectorBtn, ~setShowModal) => {
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
 
     <RenderIf condition={showRequestConnectorBtn}>
       <ACLButton
-        authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
+        // TODO: Remove `MerchantDetailsManage` permission in future
+        authorization={hasAnyGroupAccess(
+          userHasAccess(~groupAccess=MerchantDetailsManage),
+          userHasAccess(~groupAccess=AccountManage),
+        )}
         text="Request a Processor"
         buttonType={Transparent}
         buttonSize={Small}
