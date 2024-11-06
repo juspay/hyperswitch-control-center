@@ -562,7 +562,7 @@ module Base = {
           setCalendarVisibility(_ => false)
           setIsDropdownExpanded(_ => false)
           setIsCustomSelected(_ => false)
-          let (startDate, endDate) = getComparisionTimePeriod(~startDate, ~endDate)
+
           let stDate = getFormattedDate(startDate, "YYYY-MM-DD")
           let edDate = getFormattedDate(endDate, "YYYY-MM-DD")
           let stTime = getFormattedDate(startDate, "HH:MM:00")
