@@ -87,6 +87,14 @@ module PaymentsProcessedHeader = {
       ~key=selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled),
     )
 
+    let (primaryValue, secondaryValue) = if (
+      selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled)->isAmountMetric
+    ) {
+      (primaryValue /. 100.0, secondaryValue /. 100.0)
+    } else {
+      (primaryValue, secondaryValue)
+    }
+
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
 
     let setViewType = value => {

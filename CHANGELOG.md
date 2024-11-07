@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.07.1
+
+### Bug Fixes
+
+- Compare filter date display fix to ISO format ([#1692](https://github.com/juspay/hyperswitch-control-center/pull/1692)) ([`eb2ea9c`](https://github.com/juspay/hyperswitch-control-center/commit/eb2ea9cbe471dc3e45b9bec6ea48b0a73e62540e))
+
+### Miscellaneous Tasks
+
+- Disable cookies from frontend ([#1657](https://github.com/juspay/hyperswitch-control-center/pull/1657)) ([`f3f4416`](https://github.com/juspay/hyperswitch-control-center/commit/f3f441638bcd0e261a29dcccbdf3cfb1bf0cdc17))
+
+**Full Changelog:** [`2024.11.07.0...2024.11.07.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.07.0...2024.11.07.1)
+
+- - -
+
 ## 2024.11.07.0
 
 ### Testing
