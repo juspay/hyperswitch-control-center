@@ -3,6 +3,34 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.07.1
+
+### Bug Fixes
+
+- Compare filter date display fix to ISO format ([#1692](https://github.com/juspay/hyperswitch-control-center/pull/1692)) ([`eb2ea9c`](https://github.com/juspay/hyperswitch-control-center/commit/eb2ea9cbe471dc3e45b9bec6ea48b0a73e62540e))
+
+### Miscellaneous Tasks
+
+- Disable cookies from frontend ([#1657](https://github.com/juspay/hyperswitch-control-center/pull/1657)) ([`f3f4416`](https://github.com/juspay/hyperswitch-control-center/commit/f3f441638bcd0e261a29dcccbdf3cfb1bf0cdc17))
+
+**Full Changelog:** [`2024.11.07.0...2024.11.07.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.07.0...2024.11.07.1)
+
+- - -
+
+## 2024.11.07.0
+
+### Testing
+
+- Verification of search in payment operations page using cypress ([#1677](https://github.com/juspay/hyperswitch-control-center/pull/1677)) ([`bdc5c99`](https://github.com/juspay/hyperswitch-control-center/commit/bdc5c990f2537874823121c7cbb8acdb54e60bd3))
+
+### Miscellaneous Tasks
+
+- TwoFa restriction after multiple failed attempts after logging in ([#1651](https://github.com/juspay/hyperswitch-control-center/pull/1651)) ([`65bec34`](https://github.com/juspay/hyperswitch-control-center/commit/65bec340eabcabcb4b0ac52d364390a951f6835b))
+
+**Full Changelog:** [`2024.11.04.1...2024.11.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.04.1...2024.11.07.0)
+
+- - -
+
 ## 2024.11.04.1
 
 ### Miscellaneous Tasks

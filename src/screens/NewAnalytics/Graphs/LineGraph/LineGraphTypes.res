@@ -54,7 +54,7 @@ type chart = {
 type dataObj = {
   showInLegend: showInLegend,
   name: name,
-  data: array<int>,
+  data: array<float>,
   color: color,
 }
 

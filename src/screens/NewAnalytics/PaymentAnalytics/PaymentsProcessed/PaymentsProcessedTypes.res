@@ -10,13 +10,13 @@ type paymentsProcessedCols =
   | Time_Bucket
 
 type paymentsProcessedObject = {
-  payment_processed_amount: float,
+  payment_processed_amount_usd: float,
   payment_processed_count: int,
-  payment_processed_amount_without_smart_retries: float,
+  payment_processed_amount_without_smart_retries_usd: float,
   payment_processed_count_without_smart_retries: int,
-  total_payment_processed_amount: float,
+  total_payment_processed_amount_usd: float,
   total_payment_processed_count: int,
-  total_payment_processed_amount_without_smart_retries: float,
+  total_payment_processed_amount_without_smart_retries_usd: float,
   total_payment_processed_count_without_smart_retries: int,
   time_bucket: string,
 }
