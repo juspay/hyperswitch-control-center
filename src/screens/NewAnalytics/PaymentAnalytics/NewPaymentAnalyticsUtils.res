@@ -21,14 +21,27 @@ let getColor = index => {
   ["#1059C1B2", "#0EB025B2"]->Array.get(index)->Option.getOr("#1059C1B2")
 }
 
+let getAmountValue = (data, ~id) => {
+  switch data->getOptionFloat(id) {
+  | Some(value) => value /. 100.0
+  | _ => 0.0
+  }
+}
+
 let getLineGraphObj = (
   ~array: array<JSON.t>,
   ~key: string,
   ~name: string,
   ~color,
+  ~isAmount=false,
 ): LineGraphTypes.dataObj => {
   let data = array->Array.map(item => {
-    item->getDictFromJsonObject->getInt(key, 0)
+    let dict = item->getDictFromJsonObject
+    if isAmount {
+      dict->getAmountValue(~id=key)
+    } else {
+      dict->getFloat(key, 0.0)
+    }
   })
   let dataObj: LineGraphTypes.dataObj = {
     showInLegend: true,
