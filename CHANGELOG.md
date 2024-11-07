@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.07.0
+
+### Testing
+
+- Verification of search in payment operations page using cypress ([#1677](https://github.com/juspay/hyperswitch-control-center/pull/1677)) ([`bdc5c99`](https://github.com/juspay/hyperswitch-control-center/commit/bdc5c990f2537874823121c7cbb8acdb54e60bd3))
+
+### Miscellaneous Tasks
+
+- TwoFa restriction after multiple failed attempts after logging in ([#1651](https://github.com/juspay/hyperswitch-control-center/pull/1651)) ([`65bec34`](https://github.com/juspay/hyperswitch-control-center/commit/65bec340eabcabcb4b0ac52d364390a951f6835b))
+
+**Full Changelog:** [`2024.11.04.1...2024.11.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.04.1...2024.11.07.0)
+
+- - -
+
 ## 2024.11.04.1
 
 ### Miscellaneous Tasks
