@@ -3,69 +3,88 @@ open LogicUtils
 open PaymentsLifeCycleTypes
 let paymentLifeCycleResponseMapper = (json: JSON.t) => {
   let valueDict = json->getDictFromJsonObject
-  // response need to be changed to snake_case
-  // {
-  //   normalSuccess: valueDict->getInt("normal_success", 0),
-  //   normalFailure: valueDict->getInt("normal_failure", 0),
-  //   cancelled: valueDict->getInt("cancelled", 0),
-  //   smartRetriedSuccess: valueDict->getInt("smart_retried_success", 0),
-  //   smartRetriedFailure: valueDict->getInt("smart_retried_failure", 0),
-  //   pending: valueDict->getInt("pending", 0),
-  //   partialRefunded: valueDict->getInt("partial_refunded", 0),
-  //   refunded: valueDict->getInt("refunded", 0),
-  //   disputed: valueDict->getInt("disputed", 0),
-  //   pmAwaited: valueDict->getInt("pm_awaited", 0),
-  //   customerAwaited: valueDict->getInt("customer_awaited", 0),
-  //   merchantAwaited: valueDict->getInt("merchant_awaited", 0),
-  //   confirmationAwaited: valueDict->getInt("confirmation_awaited", 0),
-  // }
+
   {
-    normalSuccess: 15,
-    normalFailure: 10,
-    cancelled: 5,
-    smartRetriedSuccess: 5,
-    smartRetriedFailure: 5,
-    pending: 5,
-    partialRefunded: 5,
-    refunded: 5,
-    disputed: 5,
-    pmAwaited: 5,
-    customerAwaited: 5,
-    merchantAwaited: 5,
-    confirmationAwaited: 5,
+    normalSuccess: valueDict->getInt("normal_success", 0),
+    normalFailure: valueDict->getInt("normal_failure", 0),
+    cancelled: valueDict->getInt("cancelled", 0),
+    smartRetriedSuccess: valueDict->getInt("smart_retried_success", 0),
+    smartRetriedFailure: valueDict->getInt("smart_retried_failure", 0),
+    pending: valueDict->getInt("pending", 0),
+    partialRefunded: valueDict->getInt("partial_refunded", 0),
+    refunded: valueDict->getInt("refunded", 0),
+    disputed: valueDict->getInt("disputed", 0),
+    pmAwaited: valueDict->getInt("pm_awaited", 0),
+    customerAwaited: valueDict->getInt("customer_awaited", 0),
+    merchantAwaited: valueDict->getInt("merchant_awaited", 0),
+    confirmationAwaited: valueDict->getInt("confirmation_awaited", 0),
   }
+}
+
+let getTotalPayments = json => {
+  let data = json->paymentLifeCycleResponseMapper
+
+  let total =
+    data.normalSuccess +
+    data.normalFailure +
+    data.cancelled +
+    data.smartRetriedSuccess +
+    data.smartRetriedFailure +
+    data.pending +
+    data.partialRefunded +
+    data.refunded +
+    data.disputed +
+    data.pmAwaited +
+    data.customerAwaited +
+    data.merchantAwaited +
+    data.confirmationAwaited
+
+  total
 }
 
 let paymentsLifeCycleMapper = (
   ~params: NewAnalyticsTypes.getObjects<paymentLifeCycle>,
 ): SankeyGraphTypes.sankeyPayload => {
   let {data, xKey} = params
-  let isSmartRetryEnabled =
-    xKey->getBoolFromString(true)->NewPaymentAnalyticsUtils.getSmartRetryMetricType
-  let success =
-    data.normalSuccess + (isSmartRetryEnabled === Smart_Retry ? data.smartRetriedSuccess : 0)
-  let failure =
-    data.normalFailure + (isSmartRetryEnabled === Smart_Retry ? data.smartRetriedFailure : 0)
-  let refunded = data.refunded
-  let pending = data.pending // Attempted Pending
-  let cancelled = data.cancelled
-  let customerAwaited = data.customerAwaited // DropOff2
-  let attemptedPayments = pending + customerAwaited + success + failure
-  let pmAwaited = data.pmAwaited // Dropoff1
-  let _totalPayment = pmAwaited + attemptedPayments + cancelled
+
+  let isSmartRetryEnabled = xKey->getBoolFromString(true)
 
   let disputed = data.disputed
+  let refunded = data.refunded
+  let partialRefunded = data.partialRefunded
+
+  let success = disputed + refunded + partialRefunded
+
+  let normalSuccess = data.normalSuccess
+  let failure = data.normalFailure
+
+  let pending = data.pending
+  let cancelled = data.cancelled
+
+  let dropoff =
+    data.pmAwaited + data.customerAwaited + data.merchantAwaited + data.confirmationAwaited
 
   let processedData = [
-    ("Payments Initiated", "Success", success, "#E4EFFF"),
+    ("Payments Initiated", "Normal Success", normalSuccess, "#E4EFFF"),
     ("Payments Initiated", "Failed", failure, "#F7E0E0"),
-    ("Payments Initiated", "Pending", failure, "#F7E0E0"),
-    ("Payments Initiated", "Cancelled", customerAwaited, "#E4EFFF"),
-    ("Payments Initiated", "Drop-offs", 20, "#F7E0E0"),
+    ("Payments Initiated", "Pending", pending, "#E4EFFF"),
+    ("Payments Initiated", "Cancelled", cancelled, "#F7E0E0"),
+    ("Payments Initiated", "Drop-offs", dropoff, "#F7E0E0"),
+    ("Normal Success", "Success", success, "#E4EFFF"),
     ("Success", "Dispute Raised", disputed, "#F7E0E0"),
     ("Success", "Refunds Issued", refunded, "#E4EFFF"),
-    ("Success", "Partial Refunded", refunded, "#E4EFFF"),
+    ("Success", "Partial Refunded", partialRefunded, "#E4EFFF"),
   ]
+
+  let processedData = if isSmartRetryEnabled {
+    processedData->Array.concat([
+      ("Failed", "Success", data.smartRetriedSuccess, "#E4EFFF"),
+      ("Failed", "Smart Retrie dFailure", data.smartRetriedFailure, "#F7E0E0"),
+    ])
+  } else {
+    processedData
+  }
+
   let sankeyNodes = [
     {
       id: "Payments Initiated",
@@ -103,7 +122,14 @@ let paymentsLifeCycleMapper = (
       },
     },
     {
-      id: "Non-terminal state",
+      id: "Pending",
+      dataLabels: {
+        align: "left",
+        x: 20,
+      },
+    },
+    {
+      id: "Cancelled",
       dataLabels: {
         align: "left",
         x: 20,
@@ -127,7 +153,16 @@ let paymentsLifeCycleMapper = (
   let title = {
     text: "",
   }
-  let colors = ["#91B7EE"] // , "#91B7EE", "#91B7EE", "#EC6262", "#91B7EE", "#EC6262", "#BA3535"
+  let colors = [
+    "#91B7EE",
+    "#91B7EE",
+    "#EC6262",
+    "#91B7EE",
+    "#EC6262",
+    "#EC6262",
+    "#91B7EE",
+    "#EC6262",
+  ]
 
   {data: processedData, nodes: sankeyNodes, title, colors}
 }

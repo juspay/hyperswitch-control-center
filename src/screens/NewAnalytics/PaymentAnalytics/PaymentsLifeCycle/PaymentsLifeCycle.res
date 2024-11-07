@@ -51,8 +51,15 @@ let make = (
       //   "confirmation_awaited": 0,
       // }->Identity.genericTypeToJson
       let paymentLifeCycleResponse = await updateDetails(url, paymentLifeCycleBody, Post)
-      setData(_ => paymentLifeCycleResponse->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper)
-      setScreenState(_ => PageLoaderWrapper.Success)
+
+      if paymentLifeCycleResponse->PaymentsLifeCycleUtils.getTotalPayments > 0 {
+        setData(_ =>
+          paymentLifeCycleResponse->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper
+        )
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
