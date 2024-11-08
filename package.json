@@ -23,7 +23,8 @@
     "cy:open": "sh cypress/start_hyperswitch.sh && cypress open",
     "cy:run": "sh cypress/start_hyperswitch.sh && cypress run",
     "local:cy:open": "cypress open",
-    "lint:hooks": "eslint src/ --max-warnings 0"
+    "lint:hooks": "eslint src/ --max-warnings 0",
+    "dev": "concurrently --prefix-colors \"yellow,green\" \"npm run re:start\" \"npm run start\""
   },
   "husky": {
     "hooks": {
@@ -35,6 +36,7 @@
     "@eslint/create-config": "0.4.6",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.1",
     "babel-plugin-istanbul": "^6.1.1",
+    "concurrently": "^9.0.1",
     "copy-webpack-plugin": "^9.0.0",
     "css-loader": "^5.0.1",
     "css-minimizer-webpack-plugin": "^5.0.1",
