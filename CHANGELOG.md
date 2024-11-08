@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.08.0
+
+### Features
+
+- Analytics payment processed currency conversion ([#1691](https://github.com/juspay/hyperswitch-control-center/pull/1691)) ([`19d2c70`](https://github.com/juspay/hyperswitch-control-center/commit/19d2c702bcdea931c2de5d937989b6d8639c8c49))
+
+**Full Changelog:** [`2024.11.07.1...2024.11.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.07.1...2024.11.08.0)
+
+- - -
+
 ## 2024.11.07.1
 
 ### Bug Fixes
