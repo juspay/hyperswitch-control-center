@@ -69,7 +69,8 @@ module ModalHeading = {
         </div>
       | None => React.null
       }}
-      <div className={`flex ${headerAlignmentClass} ${justifyClass} ${headerTextClass}`}>
+      <div
+        className={`flex items-center ${headerAlignmentClass} ${justifyClass} ${headerTextClass}`}>
         <div className=modalParentHeadingClass>
           {if showCloseIcon && showCloseOnLeft && !showBackIcon {
             onCloseClick->ModalUtils.getCloseIcon
