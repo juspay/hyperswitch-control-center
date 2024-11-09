@@ -2,12 +2,12 @@ open NewPaymentsOverviewSectionTypes
 
 let getStringFromVariant = value => {
   switch value {
-  | Total_Smart_Retried_Amount => "total_smart_retried_amount_usd"
-  | Total_Smart_Retried_Amount_Without_Smart_Retries => "total_smart_retried_amount_without_smart_retries_usd"
+  | Total_Smart_Retried_Amount => "total_smart_retried_amount_in_usd"
+  | Total_Smart_Retried_Amount_Without_Smart_Retries => "total_smart_retried_amount_without_smart_retries_in_usd"
   | Total_Success_Rate => "total_success_rate"
   | Total_Success_Rate_Without_Smart_Retries => "total_success_rate_without_smart_retries"
-  | Total_Payment_Processed_Amount => "total_payment_processed_amount_usd"
-  | Total_Payment_Processed_Amount_Without_Smart_Retries => "total_payment_processed_amount_without_smart_retries_usd"
+  | Total_Payment_Processed_Amount => "total_payment_processed_amount_in_usd"
+  | Total_Payment_Processed_Amount_Without_Smart_Retries => "total_payment_processed_amount_without_smart_retries_in_usd"
   | Refund_Processed_Amount => "refund_processed_amount"
   | Total_Dispute => "total_dispute"
   }
@@ -15,13 +15,13 @@ let getStringFromVariant = value => {
 
 let defaultValue =
   {
-    total_smart_retried_amount_usd: 0.0,
-    total_smart_retried_amount_without_smart_retries_usd: 0.0,
+    total_smart_retried_amount_in_usd: 0.0,
+    total_smart_retried_amount_without_smart_retries_in_usd: 0.0,
     total_success_rate: 0.0,
     total_success_rate_without_smart_retries: 0.0,
-    total_payment_processed_amount_usd: 0.0,
+    total_payment_processed_amount_in_usd: 0.0,
     total_payment_processed_count: 0,
-    total_payment_processed_amount_without_smart_retries_usd: 0.0,
+    total_payment_processed_amount_without_smart_retries_in_usd: 0.0,
     total_payment_processed_count_without_smart_retries: 0,
     refund_processed_amount: 0.0,
     total_dispute: 0,
