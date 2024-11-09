@@ -142,12 +142,15 @@ let tooltipFormatter = (
       let primartPoint = this.points->getValueFromArray(0, defaultValue)
       let secondaryPoint = this.points->getValueFromArray(1, defaultValue)
 
+      // TODO:Currency need to be picked from filter
+      let suffix = metricType == NewAnalyticsTypes.Amount ? "USD" : ""
+
       let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
         let valueString = valueFormatter(value, metricType)
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
             <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
-            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
+            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString} ${suffix}</div>
         </div>`
       }
 

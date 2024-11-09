@@ -112,7 +112,7 @@ module PaymentsProcessedHeader = {
     <div className="w-full px-7 py-8 grid grid-cols-1">
       <div className="flex gap-2 items-center">
         <div className="text-3xl font-600">
-          {primaryValue->valueFormatter(Amount)->React.string}
+          {`${primaryValue->valueFormatter(Amount)} USD`->React.string} // TODO:Currency need to be picked from filter
         </div>
         <RenderIf condition={comparison == EnableComparison}>
           <StatisticsCard value direction />

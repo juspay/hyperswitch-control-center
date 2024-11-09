@@ -76,6 +76,7 @@ let paymentsProcessedMapper = (
     categories: primaryCategories,
     data: lineGraphData,
     title,
+    yAxisMaxValue: None,
     tooltipFormatter: tooltipFormatter(
       ~secondaryCategories,
       ~title="Payments Processed",
