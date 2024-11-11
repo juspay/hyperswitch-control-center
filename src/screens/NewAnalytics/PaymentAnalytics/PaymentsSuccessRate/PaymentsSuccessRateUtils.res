@@ -55,6 +55,7 @@ let paymentsSuccessRateMapper = (
     categories: primaryCategories,
     data: lineGraphData,
     title,
+    yAxisMaxValue: 100->Some,
     tooltipFormatter: tooltipFormatter(
       ~secondaryCategories,
       ~title="Payments Success Rate",
