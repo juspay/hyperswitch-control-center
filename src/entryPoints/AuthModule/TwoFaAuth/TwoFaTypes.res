@@ -15,7 +15,10 @@ type twoFatype = {
   recoveryCode: twoFaValueType,
 }
 
-type checkTwofaResponseType = {status: option<twoFatype>}
+type checkTwofaResponseType = {
+  status: option<twoFatype>,
+  isSkippable: bool,
+}
 
 type expiredTypes =
   | TOTP_ATTEMPTS_EXPIRED
