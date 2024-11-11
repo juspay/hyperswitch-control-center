@@ -82,17 +82,18 @@ let getPredefinedStartAndEndDate = (
     ->Js.Date.getDate
   let prevDate = (customDate->DayJs.getDayJsForJsDate).subtract(6, "month").toString()
   let daysInSixMonth = (customDate->DayJs.getDayJsForJsDate).diff(prevDate, "day")->Int.toFloat
-  let count = switch value {
-  | Today => 1.0
-  | Yesterday => 1.0
-  | Tomorrow => 1.0
-  | LastMonth => daysInMonth
-  | LastSixMonths => daysInSixMonth
-  | ThisMonth => customDate->Js.Date.getDate
-  | NextMonth => daysInMonth
-  | Day(val) => val
-  | Hour(val) => val /. 24.0 +. 1.
-  }
+  let count =
+    switch value {
+    | Today => 1.0
+    | Yesterday => 1.0
+    | Tomorrow => 1.0
+    | LastMonth => daysInMonth
+    | LastSixMonths => daysInSixMonth
+    | ThisMonth => customDate->Js.Date.getDate
+    | NextMonth => daysInMonth
+    | Day(val) => val
+    | Hour(val) => val /. 24.0 +. 1.
+    } +. 1.0
 
   let date =
     customTimezoneToISOString(
