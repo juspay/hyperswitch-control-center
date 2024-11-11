@@ -4,7 +4,13 @@ let p3Regular = HSwitchUtils.getTextClass((P3, Regular))
 
 module EnterAccessCode = {
   @react.component
-  let make = (~setTwoFaPageState, ~onClickVerifyAccessCode, ~errorHandling, ~isSkippable) => {
+  let make = (
+    ~setTwoFaPageState,
+    ~onClickVerifyAccessCode,
+    ~errorHandling,
+    ~isSkippable,
+    ~showOnlyRc=false,
+  ) => {
     let showToast = ToastState.useShowToast()
     let verifyRecoveryCodeLogic = TotpHooks.useVerifyRecoveryCode()
     let (recoveryCode, setRecoveryCode) = React.useState(_ => "")
@@ -58,6 +64,8 @@ module EnterAccessCode = {
         },
       )
     }, [recoveryCode])
+
+    Js.log2("showOnlyRcshowOnlyRc", showOnlyRc)
     <div className={`bg-white h-20-rem w-200 rounded-2xl flex flex-col`}>
       <div className="p-6 border-b-2 flex justify-between items-center">
         <p className={`${h2TextStyle} text-grey-900`}> {"Enter access code"->React.string} </p>
@@ -65,14 +73,16 @@ module EnterAccessCode = {
       <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
         <div className="flex flex-col justify-center items-center gap-4">
           <TwoFaElements.RecoveryCodesInput recoveryCode setRecoveryCode />
-          <p className={`${p2Regular} text-jp-gray-700`}>
-            {"Didn't get a code? "->React.string}
-            <span
-              className="cursor-pointer underline underline-offset-2 text-blue-600"
-              onClick={_ => setTwoFaPageState(_ => TwoFaTypes.TOTP_SHOW_QR)}>
-              {"Use totp instead"->React.string}
-            </span>
-          </p>
+          <RenderIf condition={!showOnlyRc}>
+            <p className={`${p2Regular} text-jp-gray-700`}>
+              {"Didn't get a code? "->React.string}
+              <span
+                className="cursor-pointer underline underline-offset-2 text-blue-600"
+                onClick={_ => setTwoFaPageState(_ => TwoFaTypes.TOTP_SHOW_QR)}>
+                {"Use totp instead"->React.string}
+              </span>
+            </p>
+          </RenderIf>
         </div>
         <div className="flex justify-end gap-4">
           <RenderIf condition={isSkippable}>
@@ -113,6 +123,7 @@ module ConfigureTotpScreen = {
     ~terminateTwoFactorAuth,
     ~errorHandling,
     ~isSkippable,
+    ~showOnlyTotp=false,
   ) => {
     open TwoFaTypes
 
@@ -185,6 +196,8 @@ module ConfigureTotpScreen = {
       )
     }, [otp])
 
+    Js.log2("showOnlyTotp", showOnlyTotp)
+
     <div
       className={`bg-white ${twoFaStatus === TWO_FA_SET
           ? "h-20-rem"
@@ -198,7 +211,7 @@ module ConfigureTotpScreen = {
         </RenderIf>
         <div className="flex flex-col justify-center items-center gap-4">
           <TwoFaElements.TotpInput otp setOtp />
-          <RenderIf condition={twoFaStatus === TWO_FA_SET}>
+          <RenderIf condition={twoFaStatus === TWO_FA_SET && !showOnlyTotp}>
             <p className={`${p2Regular} text-jp-gray-700`}>
               {"Didn't get a code? "->React.string}
               <span
@@ -239,7 +252,13 @@ module ConfigureTotpScreen = {
 }
 
 @react.component
-let make = (~setTwoFaPageState, ~twoFaPageState, ~errorHandling, ~isSkippable) => {
+let make = (
+  ~setTwoFaPageState,
+  ~twoFaPageState,
+  ~errorHandling,
+  ~isSkippable,
+  ~checkTwoFaResonse: TwoFaTypes.checkTwofaResponseType,
+) => {
   open HSwitchUtils
   open TwoFaTypes
 
@@ -332,6 +351,20 @@ let make = (~setTwoFaPageState, ~twoFaPageState, ~errorHandling, ~isSkippable) =
     None
   }, [showNewQR])
 
+  let (showOnlyTotp, showOnlyRc) = React.useMemo1(() => {
+    switch checkTwoFaResonse.status {
+    | Some(value) =>
+      if value.totp.attemptsRemaining === 0 && value.recoveryCode.attemptsRemaining > 0 {
+        (false, true)
+      } else if value.recoveryCode.attemptsRemaining === 0 && value.totp.attemptsRemaining > 0 {
+        (true, false)
+      } else {
+        (false, false)
+      }
+    | None => (true, true)
+    }
+  }, [checkTwoFaResonse.status])
+
   <PageLoaderWrapper screenState sectionHeight="h-screen">
     <BackgroundImageWrapper>
       <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
@@ -345,6 +378,7 @@ let make = (~setTwoFaPageState, ~twoFaPageState, ~errorHandling, ~isSkippable) =
             terminateTwoFactorAuth
             errorHandling
             isSkippable
+            showOnlyTotp
           />
         | TOTP_SHOW_RC =>
           <TotpRecoveryCodes
@@ -356,6 +390,7 @@ let make = (~setTwoFaPageState, ~twoFaPageState, ~errorHandling, ~isSkippable) =
             onClickVerifyAccessCode={terminateTwoFactorAuth}
             errorHandling
             isSkippable
+            showOnlyRc
           />
         }}
         <div className="text-grey-200 flex gap-2">
