@@ -670,7 +670,6 @@ module Base = {
         textStyle
         iconBorderColor=customborderCSS
         customButtonStyle=customStyleForBtn
-        enableToolTip=false
         showLeftIcon=false
         isCompare=true
         comparison
