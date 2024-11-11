@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.11.0
+
+### Refactors
+
+- Cluttered package json refactor ([#1649](https://github.com/juspay/hyperswitch-control-center/pull/1649)) ([`214c806`](https://github.com/juspay/hyperswitch-control-center/commit/214c806d9860ecf16b390d9db1f22a03fe8ed0c0))
+
+**Full Changelog:** [`2024.11.08.0...2024.11.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.08.0...2024.11.11.0)
+
+- - -
+
 ## 2024.11.08.0
 
 ### Features
