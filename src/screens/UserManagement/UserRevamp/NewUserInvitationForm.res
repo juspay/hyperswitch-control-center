@@ -197,19 +197,19 @@ let make = () => {
         // <FormValuesSpy />
       </div>
       <div className="p-6 flex flex-col gap-2 col-span-3">
-        {switch (roleTypeValue, roleNameValue) {
-        | (Some(role_id), role_name) =>
+        {switch roleTypeValue {
+        | Some(role) =>
           <>
             <p className={`${p1MediumTextClass} !font-semibold py-2`}>
-              {`Role Description - '${role_name->snakeToTitle}'`->React.string}
+              {`Role Description - '${roleNameValue->snakeToTitle}'`->React.string}
             </p>
             <PageLoaderWrapper screenState>
               <div className="border rounded-md p-4 flex flex-col">
-                <RoleAccessOverview roleDict role={role_id} />
+                <RoleAccessOverview roleDict role />
               </div>
             </PageLoaderWrapper>
           </>
-        | (_, _) =>
+        | None =>
           <>
             <p className={`${p1MediumTextClass} !font-semibold`}>
               {"Role Description"->React.string}
