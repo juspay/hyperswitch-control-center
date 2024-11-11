@@ -53,7 +53,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
         endTime: lte,
       },
     }
-    let metadata = body->Identity.genericTypeToDictOfJson
+    let metadata = body->Identity.genericTypeToJson
     mixpanelEvent(~eventName="generate_reports_download", ~metadata)
     downloadReport(body->Identity.genericTypeToJson)
   }
