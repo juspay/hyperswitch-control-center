@@ -1,6 +1,6 @@
 open BarGraphTypes
 let getBarGraphOptions = (barGraphOptions: barGraphPayload) => {
-  let {categories, data, title} = barGraphOptions
+  let {categories, data, title, tooltipFormatter} = barGraphOptions
   {
     chart: {
       \"type": "bar",
@@ -35,6 +35,21 @@ let getBarGraphOptions = (barGraphOptions: barGraphPayload) => {
       tickInterval: 25,
       min: 0,
       max: 100,
+    },
+    tooltip: {
+      style: {
+        padding: "0px",
+        fontFamily: "Arial, sans-serif", // Set the desired font family
+        fontSize: "14px", // Optional: Set the font size
+      },
+      shape: "square",
+      shadow: false,
+      backgroundColor: "transparent",
+      borderColor: "transparent",
+      borderWidth: 0.0,
+      formatter: tooltipFormatter,
+      useHTML: true,
+      shared: true, // Allows multiple series' data to be shown in a single tooltip
     },
     plotOptions: {
       bar: {

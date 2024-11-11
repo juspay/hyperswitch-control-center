@@ -72,6 +72,31 @@ type xAxis = {
   min: min,
 }
 
+type info = {index: int}
+type point = {color: string, x: string, y: float, point: info}
+type pointFormatter = {points: array<point>}
+
+external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => pointFormatter => string =
+  "%identity"
+
+type cssStyle = {
+  fontFamily: string,
+  fontSize: string,
+  padding: string,
+}
+
+type tooltip = {
+  shape: string,
+  backgroundColor: string,
+  borderColor: string,
+  useHTML: bool,
+  formatter: pointFormatter => string,
+  shared: bool,
+  style: cssStyle,
+  borderWidth: float,
+  shadow: bool,
+}
+
 type barGraphOptions = {
   chart: chart,
   title: title,
@@ -80,6 +105,12 @@ type barGraphOptions = {
   plotOptions: plotOptions,
   series: data,
   credits: credits,
+  tooltip: tooltip,
 }
 
-type barGraphPayload = {categories: categories, data: data, title: title}
+type barGraphPayload = {
+  categories: categories,
+  data: data,
+  title: title,
+  tooltipFormatter: pointFormatter => string,
+}
