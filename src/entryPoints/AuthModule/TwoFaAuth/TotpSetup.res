@@ -65,7 +65,6 @@ module EnterAccessCode = {
       )
     }, [recoveryCode])
 
-    Js.log2("showOnlyRcshowOnlyRc", showOnlyRc)
     <div className={`bg-white h-20-rem w-200 rounded-2xl flex flex-col`}>
       <div className="p-6 border-b-2 flex justify-between items-center">
         <p className={`${h2TextStyle} text-grey-900`}> {"Enter access code"->React.string} </p>
@@ -195,8 +194,6 @@ module ConfigureTotpScreen = {
         },
       )
     }, [otp])
-
-    Js.log2("showOnlyTotp", showOnlyTotp)
 
     <div
       className={`bg-white ${twoFaStatus === TWO_FA_SET
