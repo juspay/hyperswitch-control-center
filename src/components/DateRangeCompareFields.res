@@ -505,7 +505,7 @@ module Base = {
         ~customTimezoneToISOString,
         ~format="YYYY-MM-DDTHH:mm:00[Z]",
       )
-      getStartEndDiff(startTimestamp, endTimestamp)
+      (startTimestamp, endTimestamp)
     }
 
     let predefinedOptionSelected = predefinedDays->Array.find(item => {
@@ -519,8 +519,8 @@ module Base = {
         endDateVal,
         "YYYY-MM-DDTHH:mm:00[Z]",
       )
-      let difference = getStartEndDiff(startDate, endDate)
-      getDiffForPredefined(item) === difference
+      let (startTimestamp, endTimestamp) = getDiffForPredefined(item)
+      (startTimestamp, endTimestamp) == (startDate, endDate)
     })
 
     let buttonText = switch predefinedOptionSelected {
