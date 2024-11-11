@@ -80,6 +80,7 @@ let make = () => {
   let (twoFaStatus, setTwoFaStatus) = React.useState(_ => TwoFaNotExpired)
   let (twoFaPageState, setTwoFaPageState) = React.useState(_ => TOTP_SHOW_QR)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (isSkippable, setIsSkippable) = React.useState(_ => true)
 
   let handlePageBasedOnAttempts = responseDict => {
     switch responseDict {
@@ -108,6 +109,7 @@ let make = () => {
       let response = await fetchDetails(url)
       let responseDict = response->TwoFaUtils.jsonTocheckTwofaResponseType
       handlePageBasedOnAttempts(responseDict.status)
+      setIsSkippable(_ => responseDict.isSkippable)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {
@@ -130,7 +132,7 @@ let make = () => {
     {switch twoFaStatus {
     | TwoFaExpired(expiredType) =>
       <AttemptsExpiredComponent expiredType setTwoFaPageState setTwoFaStatus />
-    | TwoFaNotExpired => <TotpSetup twoFaPageState setTwoFaPageState errorHandling />
+    | TwoFaNotExpired => <TotpSetup twoFaPageState setTwoFaPageState errorHandling isSkippable />
     }}
   </PageLoaderWrapper>
 }

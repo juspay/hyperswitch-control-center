@@ -75,9 +75,12 @@ let jsonToTwoFaValueType: Dict.t<'a> => TwoFaTypes.twoFaValueType = dict => {
 
 let jsonTocheckTwofaResponseType: JSON.t => TwoFaTypes.checkTwofaResponseType = json => {
   open LogicUtils
-  let jsonToDict = json->getDictFromJsonObject->Dict.get("status")
+  let jsonToDict = json->getDictFromJsonObject
 
-  let statusValue = switch jsonToDict {
+  let statusValueDict = jsonToDict->Dict.get("status")
+  let isSkippable = jsonToDict->getBool("is_skippable", true)
+
+  let statusValue = switch statusValueDict {
   | Some(json) => {
       let dict = json->getDictFromJsonObject
       let twoFaValue: TwoFaTypes.twoFatype = {
@@ -91,5 +94,6 @@ let jsonTocheckTwofaResponseType: JSON.t => TwoFaTypes.checkTwofaResponseType = 
 
   {
     status: statusValue,
+    isSkippable,
   }
 }
