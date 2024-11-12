@@ -53,37 +53,28 @@ let paymentsLifeCycleMapper = (
   let refunded = data.refunded
   let partialRefunded = data.partialRefunded
 
-  let success = disputed + refunded + partialRefunded
-
-  let normalSuccess = data.normalSuccess
-  let failure = data.normalFailure
-
+  let success =
+    disputed +
+    refunded +
+    partialRefunded +
+    (isSmartRetryEnabled ? data.smartRetriedSuccess : 0) +
+    data.normalSuccess
+  let failure = data.normalFailure + (isSmartRetryEnabled ? data.smartRetriedFailure * 2 : 0)
   let pending = data.pending
   let cancelled = data.cancelled
-
   let dropoff =
     data.pmAwaited + data.customerAwaited + data.merchantAwaited + data.confirmationAwaited
 
   let processedData = [
-    ("Payments Initiated", "Normal Success", normalSuccess, "#E4EFFF"),
+    ("Payments Initiated", "Success", success, "#E4EFFF"),
     ("Payments Initiated", "Failed", failure, "#F7E0E0"),
     ("Payments Initiated", "Pending", pending, "#E4EFFF"),
     ("Payments Initiated", "Cancelled", cancelled, "#F7E0E0"),
     ("Payments Initiated", "Drop-offs", dropoff, "#F7E0E0"),
-    ("Normal Success", "Success", success, "#E4EFFF"),
     ("Success", "Dispute Raised", disputed, "#F7E0E0"),
     ("Success", "Refunds Issued", refunded, "#E4EFFF"),
     ("Success", "Partial Refunded", partialRefunded, "#E4EFFF"),
   ]
-
-  let processedData = if isSmartRetryEnabled {
-    processedData->Array.concat([
-      ("Failed", "Success", data.smartRetriedSuccess, "#E4EFFF"),
-      ("Failed", "Smart Retrie dFailure", data.smartRetriedFailure, "#F7E0E0"),
-    ])
-  } else {
-    processedData
-  }
 
   let sankeyNodes = [
     {
@@ -160,8 +151,8 @@ let paymentsLifeCycleMapper = (
     "#91B7EE",
     "#EC6262",
     "#EC6262",
-    "#91B7EE",
     "#EC6262",
+    "#91B7EE",
   ]
 
   {data: processedData, nodes: sankeyNodes, title, colors}
