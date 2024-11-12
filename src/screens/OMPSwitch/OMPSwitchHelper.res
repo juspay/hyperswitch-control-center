@@ -182,3 +182,81 @@ let generateDropdownOptions: array<OMPSwitchTypes.ompListTypes> => array<
   })
   options
 }
+
+module EditOrgName = {
+  @react.component
+  let make = (~showModal, ~setShowModal, ~orgList, ~orgId, ~getOrgList) => {
+    open LogicUtils
+    open APIUtils
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
+    let showToast = ToastState.useShowToast()
+    let initialValues =
+      [
+        ("organization_name", OMPSwitchUtils.currentOMPName(orgList, orgId)->JSON.Encode.string),
+      ]->Dict.fromArray
+
+    let validateForm = (values: JSON.t) => {
+      let errors = Dict.make()
+      let organizationName =
+        values->getDictFromJsonObject->getString("organization_name", "")->String.trim
+      let regexForOrganizationName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
+
+      let errorMessage = if organizationName->isEmptyString {
+        "Organization name cannot be empty"
+      } else if organizationName->String.length > 64 {
+        "Organization name cannot exceed 64 characters"
+      } else if !RegExp.test(RegExp.fromString(regexForOrganizationName), organizationName) {
+        "Organization name should not contain special characters"
+      } else {
+        ""
+      }
+
+      if errorMessage->isNonEmptyString {
+        Dict.set(errors, "organization_name", errorMessage->JSON.Encode.string)
+      }
+
+      errors->JSON.Encode.object
+    }
+
+    let businessName = FormRenderer.makeFieldInfo(
+      ~label="Org Name",
+      ~name="organization_name",
+      ~placeholder=`Eg: Hyperswitch`,
+      ~customInput=InputFields.textInput(),
+      ~isRequired=true,
+    )
+
+    let onSubmit = async (values, _) => {
+      try {
+        let url = getURL(~entityName=UPDATE_ORGANIZATION, ~methodType=Put, ~id=Some(orgId))
+        let _ = await updateDetails(url, values, Put)
+        let _ = await getOrgList()
+        showToast(~message="Updated organization name!", ~toastType=ToastSuccess)
+      } catch {
+      | _ => showToast(~message="Failed to update organization name!", ~toastType=ToastError)
+      }
+      setShowModal(_ => false)
+      Nullable.null
+    }
+
+    <>
+      <Modal modalHeading="Edit Org name" showModal setShowModal modalClass="w-1/4 m-auto">
+        <Form initialValues={initialValues->JSON.Encode.object} onSubmit validate={validateForm}>
+          <div className="flex flex-col gap-12 h-full w-full">
+            <FormRenderer.DesktopRow>
+              <FormRenderer.FieldRenderer
+                fieldWrapperClass="w-full"
+                field={businessName}
+                labelClass="!text-black font-medium !-ml-[0.5px]"
+              />
+            </FormRenderer.DesktopRow>
+            <div className="flex justify-end w-full pr-5 pb-3">
+              <FormRenderer.SubmitButton text="Submit changes" buttonSize={Small} />
+            </div>
+          </div>
+        </Form>
+      </Modal>
+    </>
+  }
+}
