@@ -1,9 +1,31 @@
 describe("connector", () => {
-  const username = `cypress${Math.round(+new Date() / 1000)}@gmail.com`;
   const password = "Cypress98#";
+  const username = `cypress${Math.round(+new Date() / 1000)}@gmail.com`;
 
-  // Login before each testcase
-  beforeEach(() => {
+  const getIframeBody = () => {
+    return cy
+      .get("iframe")
+      .its("0.contentDocument.body")
+      .should("not.be.empty")
+      .then(cy.wrap);
+  };
+
+  const selectRange = (range, shouldPaymentExist) => {
+    cy.get("[data-date-picker=dateRangePicker]").click();
+    cy.get("[data-date-picker-predifined=predefined-options]").should(
+      "be.visible",
+    );
+    cy.get(`[data-daterange-dropdown-value="${range}"]`)
+      .should("be.visible")
+      .click();
+    if (shouldPaymentExist) {
+      cy.get("[data-table-location=Orders_tr1_td1]").should("exist");
+    } else {
+      cy.get("[data-table-location=Orders_tr1_td1]").should("not.exist");
+    }
+  };
+
+  before(() => {
     cy.visit("http://localhost:9000/dashboard/login");
     cy.url().should("include", "/login");
     cy.get("[data-testid=card-header]").should(
@@ -23,16 +45,27 @@ describe("connector", () => {
     cy.get('button[type="submit"]').click({ force: true });
     cy.get("[data-testid=skip-now]").click({ force: true });
 
-    cy.url().should("include", "/dashboard/home");
-  });
-
-  it("Create a dummy connector", () => {
-    cy.url().should("include", "/dashboard/home");
-
     cy.get('[data-form-label="Business name"]').should("exist");
     cy.get("[data-testid=merchant_name]").type("test_business");
     cy.get("[data-button-for=startExploring]").click();
-    cy.reload(true);
+  });
+
+  beforeEach(function () {
+    if (this.currentTest.title !== "Create a dummy connector") {
+      cy.visit("http://localhost:9000/dashboard/login");
+      cy.url().should("include", "/login");
+      cy.get("[data-testid=card-header]").should(
+        "contain",
+        "Hey there, Welcome back!",
+      );
+      cy.get("[data-testid=email]").type(username);
+      cy.get("[data-testid=password]").type(password);
+      cy.get('button[type="submit"]').click({ force: true });
+      cy.get("[data-testid=skip-now]").click({ force: true });
+    }
+  });
+
+  it("Create a dummy connector", () => {
     cy.get("[data-testid=connectors]").click();
     cy.get("[data-testid=paymentprocessors]").click();
     cy.contains("Payment Processors").should("be.visible");
@@ -68,5 +101,154 @@ describe("connector", () => {
     cy.contains("stripe_test_default_label")
       .scrollIntoView()
       .should("be.visible");
+  });
+  it("Use the SDK to process a payment", () => {
+    cy.get("[data-testid=connectors]").click();
+    cy.get("[data-testid=paymentprocessors]").click();
+    cy.contains("Payment Processors").should("be.visible");
+    cy.get("[data-testid=home]").click();
+    cy.get("[data-button-for=tryItOut]").click();
+    cy.get('[data-breadcrumb="Explore Demo Checkout Experience"]').should(
+      "exist",
+    );
+    cy.get('[data-value="unitedStates(USD)"]').click();
+    cy.get('[data-dropdown-value="Germany (EUR)"]').click();
+    cy.get("[data-testid=amount]").find("input").clear().type("77");
+    cy.get("[data-button-for=showPreview]").click();
+    getIframeBody()
+      .find("[data-testid=cardNoInput]", { timeout: 20000 })
+      .should("exist")
+      .type("4242424242424242");
+    getIframeBody()
+      .find("[data-testid=expiryInput]")
+      .should("exist")
+      .type("0127");
+    getIframeBody()
+      .find("[data-testid=cvvInput]")
+      .should("exist")
+      .type("492", { force: true });
+    cy.get("[data-button-for=payEUR77]").should("exist").click();
+    cy.contains("Payment Successful").should("be.visible");
+    cy.get("[data-button-for=goToPayment]").should("exist").click();
+    cy.url().should("include", "dashboard/payments");
+  });
+  it("Verify Time Range Filters after Payment in Payment Operations Page", () => {
+    cy.get("[data-testid=operations]").click();
+    cy.get("[data-testid=payments]").click();
+    cy.contains("Payment Operations").should("be.visible");
+    const today = new Date();
+    const date30DaysAgo = new Date(today);
+    date30DaysAgo.setDate(today.getDate() - 30);
+    const formattedDate30DaysAgo =
+      date30DaysAgo.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      }) + " - Now";
+    cy.get(`[data-button-text='${formattedDate30DaysAgo}']`).should("exist");
+    cy.get("[data-table-location=Orders_tr1_td1]").should("exist");
+    cy.get("[data-icon=customise-columns]").should("exist");
+
+    const timeRanges = [
+      { range: "Last 30 Mins", shouldPaymentExist: true },
+      { range: "Last 1 Hour", shouldPaymentExist: true },
+      { range: "Last 2 Hours", shouldPaymentExist: true },
+      { range: "Today", shouldPaymentExist: true },
+      { range: "Yesterday", shouldPaymentExist: false },
+      { range: "Last 2 Days", shouldPaymentExist: true },
+      { range: "Last 7 Days", shouldPaymentExist: true },
+      { range: "Last 30 Days", shouldPaymentExist: true },
+      { range: "This Month", shouldPaymentExist: true },
+      { range: "Last Month", shouldPaymentExist: false },
+    ];
+
+    timeRanges.forEach(({ range, shouldPaymentExist }) => {
+      selectRange(range, shouldPaymentExist);
+    });
+  });
+  it("Verify Custom Range in Time Range Filters after Payment in Payment Operations Page", () => {
+    cy.get("[data-testid=operations]").click();
+    cy.get("[data-testid=payments]").click();
+    cy.contains("Payment Operations").should("be.visible");
+    const today = new Date();
+    const date30DaysAgo = new Date(today);
+    date30DaysAgo.setDate(today.getDate() - 30);
+    const formattedDate30DaysAgo = date30DaysAgo.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+    });
+    cy.get(`[data-button-text='${formattedDate30DaysAgo} - Now']`).should(
+      "exist",
+    );
+    cy.get(`[data-button-text='${formattedDate30DaysAgo} - Now']`).click();
+    cy.get("[data-date-picker-predifined=predefined-options]").should(
+      "be.visible",
+    );
+    cy.get('[data-daterange-dropdown-value="Custom Range"]')
+      .should("be.visible")
+      .click();
+    cy.get("[data-date-picker-section=date-picker-calendar]").should(
+      "be.visible",
+    );
+    const formattedDate = today.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+    });
+    const selectDate = today.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
+    cy.get(`[data-testid="${selectDate}"]`).click();
+    cy.get("[data-button-for=apply]").click();
+    const isStartDate = date30DaysAgo.getDate() === 1;
+    const isEndDate =
+      today.getDate() ===
+      new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    if (isStartDate && isEndDate) {
+      cy.get(`[data-button-text='This Month']`).should("exist");
+    } else {
+      cy.get(
+        `[data-button-text='${formattedDate30DaysAgo} - ${formattedDate}']`,
+      ).should("exist");
+    }
+
+    cy.get("[data-table-location=Orders_tr1_td1]").should("exist");
+  });
+
+  it("Verify Search for Payment Using Existing Payment ID in Payment Operations Page", () => {
+    cy.get("[data-testid=operations]").click();
+    cy.get("[data-testid=payments]").click();
+    cy.contains("Payment Operations").should("be.visible");
+    cy.get("[data-table-location=Orders_tr1_td2]")
+      .invoke("text")
+      .then((expectedPaymentId) => {
+        cy.get('[data-id="Search payment id"]').should("exist");
+        cy.get('[data-id="Search payment id"]')
+          .click()
+          .type(`${expectedPaymentId}{enter}`);
+        cy.get("[data-table-location=Orders_tr1_td1]").should("exist");
+        cy.get("[data-table-location=Orders_tr1_td2]")
+          .invoke("text")
+          .should((actualPaymentId) => {
+            expect(expectedPaymentId).to.eq(actualPaymentId);
+          });
+      });
+  });
+  it("Verify Search for Payment Using Invalid Payment ID in Payment Operations Page", () => {
+    cy.get("[data-testid=operations]").click();
+    cy.get("[data-testid=payments]").click();
+    cy.contains("Payment Operations").should("be.visible");
+    cy.get('[data-id="Search payment id"]').should("exist");
+    const paymentIds = ["abacd", "something", "createdAt"];
+    paymentIds.forEach((id) => {
+      cy.get('[data-id="Search payment id"]').click();
+      cy.get('[data-id="Search payment id"]').type(`${id}{enter}`);
+      cy.get("[data-table-location=Orders_tr1_td1]").should("not.exist");
+      cy.get('[placeholder="Search payment id"]').click().clear();
+    });
   });
 });

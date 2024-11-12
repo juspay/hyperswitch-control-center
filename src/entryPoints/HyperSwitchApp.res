@@ -18,7 +18,14 @@ let make = () => {
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
-  let {fetchUserGroupACL, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+
+  let {
+    fetchMerchantSpecificConfig,
+    useIsFeatureEnabledForMerchant,
+    merchantSpecificConfig,
+  } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
+  let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+
   let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
@@ -42,6 +49,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
+      let _ = await fetchMerchantSpecificConfig()
       let _ = await fetchUserGroupACL()
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
@@ -161,7 +169,8 @@ let make = () => {
                           <AnalyticsContainer />
                         | list{"new-analytics-payment"} =>
                           <AccessControl
-                            isEnabled={featureFlagDetails.newAnalytics}
+                            isEnabled={featureFlagDetails.newAnalytics &&
+                            useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
                             authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext key="NewAnalytics" index="NewAnalytics">
                               <NewAnalyticsContainer />
@@ -201,7 +210,11 @@ let make = () => {
                           </AccessControl>
                         | list{"developer-api-keys"} =>
                           <AccessControl
-                            authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
+                            // TODO: Remove `MerchantDetailsManage` permission in future
+                            authorization={hasAnyGroupAccess(
+                              userHasAccess(~groupAccess=MerchantDetailsManage),
+                              userHasAccess(~groupAccess=AccountManage),
+                            )}
                             isEnabled={!checkUserEntity([#Profile])}>
                             <KeyManagement.KeysManagement />
                           </AccessControl>
@@ -232,7 +245,11 @@ let make = () => {
                         | list{"account-settings"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.sampleData
-                            authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}>
+                            // TODO: Remove `MerchantDetailsManage` permission in future
+                            authorization={hasAnyGroupAccess(
+                              userHasAccess(~groupAccess=MerchantDetailsManage),
+                              userHasAccess(~groupAccess=AccountManage),
+                            )}>
                             <HSwitchSettings />
                           </AccessControl>
                         | list{"account-settings", "profile", ...remainingPath} =>

@@ -1,14 +1,5 @@
 open DisputeTypes
 open LogicUtils
-let disputeStageVariantMapper = stage => {
-  switch stage {
-  | "pre_dispute" => PreDispute
-  | "dispute" => Dispute
-  | "pre-arbitration" => PreArbitration
-  | _ => NotFound
-  }
-}
-
 let disputeStatusVariantMapper = status => {
   switch status {
   | "dispute_opened" => DisputeOpened

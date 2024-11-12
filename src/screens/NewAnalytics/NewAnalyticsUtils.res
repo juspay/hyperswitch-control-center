@@ -90,16 +90,6 @@ let valueFormatter = (value, statType: valueType) => {
   | No_Type => value->Float.toString
   }
 }
-let getComparisionTimePeriod = (~startDate, ~endDate) => {
-  let startingPoint = startDate->DayJs.getDayJsForString
-  let endingPoint = endDate->DayJs.getDayJsForString
-  let gap = endingPoint.diff(startingPoint.toString(), "millisecond") // diff between points
-
-  let startTimeValue = startingPoint.subtract(gap, "millisecond").toDate()->Date.toISOString
-  let endTimeVal = endingPoint.subtract(gap, "millisecond").toDate()->Date.toISOString
-
-  (startTimeValue, endTimeVal)
-}
 
 let getMonthName = month => {
   switch month {
@@ -141,7 +131,7 @@ let getLabelName = (~key, ~index, ~points) => {
   if key === "time_bucket" {
     let pointsArray = points->getArrayFromJson([])
     let startPoint = pointsArray->getDateObject(0)
-    let endPoint = pointsArray->getDateObject(1)
+    let endPoint = pointsArray->getDateObject(pointsArray->Array.length - 1)
 
     let startDate = startPoint->formatDateValue
     let endDate = endPoint->formatDateValue

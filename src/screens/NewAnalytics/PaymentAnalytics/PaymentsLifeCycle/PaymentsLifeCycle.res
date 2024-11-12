@@ -22,6 +22,8 @@ let make = (
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let isSmartRetryEnabled = filterValueJson->getString("is_smart_retry_enabled", "true")
+
   let getPaymentLieCycleData = async () => {
     try {
       let url = getURL(~entityName=ANALYTICS_SANKEY, ~methodType=Post)
@@ -49,8 +51,15 @@ let make = (
       //   "confirmation_awaited": 0,
       // }->Identity.genericTypeToJson
       let paymentLifeCycleResponse = await updateDetails(url, paymentLifeCycleBody, Post)
-      setData(_ => paymentLifeCycleResponse->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper)
-      setScreenState(_ => PageLoaderWrapper.Success)
+
+      if paymentLifeCycleResponse->PaymentsLifeCycleUtils.getTotalPayments > 0 {
+        setData(_ =>
+          paymentLifeCycleResponse->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper
+        )
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
@@ -61,15 +70,32 @@ let make = (
     }
     None
   }, (startTimeVal, endTimeVal))
+
+  let mockDelay = async () => {
+    if data != JSON.Encode.null->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper {
+      setScreenState(_ => Loading)
+      await HyperSwitchUtils.delay(300)
+      setScreenState(_ => Success)
+    }
+  }
+
+  React.useEffect(() => {
+    mockDelay()->ignore
+    None
+  }, [isSmartRetryEnabled])
+  let params = {
+    data,
+    xKey: isSmartRetryEnabled,
+    yKey: "",
+  }
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
         <div className="mr-3 my-10">
-          <SankeyGraph
-            entity={chartEntity} data={chartEntity.getObjects(~data, ~xKey="", ~yKey="")}
-          />
+          <SankeyGraph entity={chartEntity} data={chartEntity.getObjects(~params)} />
         </div>
       </PageLoaderWrapper>
     </Card>

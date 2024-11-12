@@ -1,6 +1,10 @@
 type contentType = Headers(string) | Unknown
 let headersForXFeature = (~uri, ~headers) => {
-  if uri->String.includes("lottie-files") || uri->String.includes("config/merchant-access") {
+  if (
+    uri->String.includes("lottie-files") ||
+    uri->String.includes("config/merchant") ||
+    uri->String.includes("config/feature")
+  ) {
     headers->Dict.set("Content-Type", `application/json`)
   } else {
     headers->Dict.set("x-feature", "integ-custom")
@@ -94,7 +98,7 @@ let useApiFetcher = () => {
           Fetch.RequestInit.make(
             ~method_,
             ~body?,
-            ~credentials=SameOrigin,
+            ~credentials=Omit, // change to SameOrigin (enable cookies) after backend fixes are done for cookies
             ~headers=getHeaders(~headers, ~uri, ~contentType, ~token, ~xFeatureRoute),
           ),
         )

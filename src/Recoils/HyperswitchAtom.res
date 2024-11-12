@@ -1,3 +1,7 @@
+type accessMapping = {
+  groups: Map.t<UserManagementTypes.groupAccessType, CommonAuthTypes.authorization>,
+  resources: Map.t<UserManagementTypes.resourceAccessType, CommonAuthTypes.authorization>,
+}
 let ompDefaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: ""}
 let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(
   "merchantDetailsValue",
@@ -20,6 +24,9 @@ let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.at
   "featureFlag",
   JSON.Encode.null->FeatureFlagUtils.featureFlagType,
 )
+let merchantSpecificConfigAtom: Recoil.recoilAtom<
+  FeatureFlagUtils.merchantSpecificConfig,
+> = Recoil.atom("merchantSpecificConfig", JSON.Encode.null->FeatureFlagUtils.merchantSpecificConfig)
 let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatus> = Recoil.atom(
   "paypalAccountStatusAtom",
   PayPalFlowTypes.Connect_paypal_landing,
@@ -30,9 +37,10 @@ let userPermissionAtom: Recoil.recoilAtom<UserManagementTypes.groupAccessJsonTyp
   GroupACLMapper.defaultValueForGroupAccessJson,
 )
 
-let userGroupACLAtom: Recoil.recoilAtom<
-  option<Map.t<UserManagementTypes.groupAccessType, CommonAuthTypes.authorization>>,
-> = Recoil.atom("userGroupACLAtom", None)
+let userGroupACLAtom: Recoil.recoilAtom<option<accessMapping>> = Recoil.atom(
+  "userGroupACLAtom",
+  None,
+)
 
 let switchMerchantListAtom: Recoil.recoilAtom<
   array<SwitchMerchantUtils.switchMerchantListResponse>,

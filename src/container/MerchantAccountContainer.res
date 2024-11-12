@@ -7,7 +7,7 @@ let make = () => {
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
   let (surveyModal, setSurveyModal) = React.useState(_ => false)
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
@@ -18,8 +18,9 @@ let make = () => {
   let setUpConnectoreContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-
-      let _ = await fetchMerchantAccountDetails()
+      if !checkUserEntity([#Profile]) {
+        let _ = await fetchMerchantAccountDetails()
+      }
       if userHasAccess(~groupAccess=ConnectorsView) === Access {
         if !featureFlagDetails.isLiveMode {
           let _ = await fetchConnectorListResponse()
@@ -67,7 +68,12 @@ let make = () => {
       }}
       <RenderIf
         condition={!featureFlagDetails.isLiveMode &&
-        userHasAccess(~groupAccess=MerchantDetailsManage) === Access &&
+        // TODO: Remove `MerchantDetailsManage` permission in future
+        hasAnyGroupAccess(
+          userHasAccess(~groupAccess=MerchantDetailsManage),
+          userHasAccess(~groupAccess=AccountManage),
+        ) === Access &&
+        !checkUserEntity([#Profile]) &&
         merchantDetailsTypedValue.merchant_name->Option.isNone}>
         <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
       </RenderIf>

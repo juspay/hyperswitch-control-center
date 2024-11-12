@@ -24,11 +24,10 @@ let getColumn = string => {
 }
 
 let failedPaymentsDistributionMapper = (
-  ~data: JSON.t,
-  ~xKey: string,
-  ~yKey: string,
+  ~params: NewAnalyticsTypes.getObjects<JSON.t>,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
+  let {data, xKey, yKey} = params
   let categories = [data]->JSON.Encode.array->getCategories(0, yKey)
   let barGraphData = getBarGraphObj(
     ~array=data->getArrayFromJson([]),
@@ -39,11 +38,18 @@ let failedPaymentsDistributionMapper = (
   let title = {
     text: "",
   }
-  {categories, data: [barGraphData], title}
+  {
+    categories,
+    data: [barGraphData],
+    title,
+    tooltipFormatter: bargraphTooltipFormatter(
+      ~title="Failed Payments Distribution",
+      ~metricType=Rate,
+    ),
+  }
 }
 
 open NewAnalyticsTypes
-let visibleColumns = [Payments_Failure_Rate_Distribution]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => failedPaymentsDistributionObject = dict => {
   {
@@ -152,4 +158,26 @@ let tabs = [
 let defaulGroupBy = {
   label: "Connector",
   value: Connector->getStringFromVariant,
+}
+
+let getKeyForModule = (field, ~isSmartRetryEnabled) => {
+  switch (field, isSmartRetryEnabled) {
+  | (Payments_Failure_Rate_Distribution, Smart_Retry) => Payments_Failure_Rate_Distribution
+  | (Payments_Failure_Rate_Distribution, Default) | _ =>
+    Payments_Failure_Rate_Distribution_Without_Smart_Retries
+  }->getStringFromVariant
+}
+
+let isSmartRetryEnbldForFailedPmtDist = isEnabled => {
+  switch isEnabled {
+  | Smart_Retry => Payments_Failure_Rate_Distribution
+  | Default => Payments_Failure_Rate_Distribution_Without_Smart_Retries
+  }
+}
+
+let getMetricsForSmartRetry = isEnabled => {
+  switch isEnabled {
+  | Smart_Retry => [#payments_distribution]
+  | Default => [#sessionized_payments_distribution]
+  }
 }
