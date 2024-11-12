@@ -40,6 +40,7 @@ let getHeaders = (
     | Headers(headerString) => headers->Dict.set("Content-Type", headerString)
     | Unknown => ()
     }
+    headers->Dict.set("x-tenant-id", `test`) // for testing purpose
     headers
   }
   Fetch.HeadersInit.make(headerObj->Identity.dictOfAnyTypeToObj)
