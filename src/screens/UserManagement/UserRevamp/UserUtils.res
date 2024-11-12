@@ -72,10 +72,17 @@ let itemToObjMapperFordetailedRoleInfo: Dict.t<
   JSON.t,
 > => UserManagementTypes.detailedUserModuleType = dict => {
   open LogicUtils
+  let sortedscopes = getStrArrayFromDict(dict, "scopes", [])->Array.toSorted((item, _) =>
+    switch item {
+    | "read" => -1.
+    | "write" => 1.
+    | _ => 0.
+    }
+  )
   {
     parentGroup: getString(dict, "name", ""),
     description: getString(dict, "description", ""),
-    scopes: getStrArrayFromDict(dict, "scopes", []),
+    scopes: sortedscopes,
   }
 }
 
@@ -93,15 +100,10 @@ let modulesWithUserAccess = (
       let accessGroup = userAccessGroup->Array.find(group => group.parentGroup == item.parentGroup)
       switch accessGroup {
       | Some(val) => {
-          let updatedScopes = switch val.scopes {
-          | ["write", "read"] => ["read", "write"]
-          | [_, _] => val.scopes
-          | _ => val.scopes
-          }
           let manipulatedObject = {
             parentGroup: item.parentGroup,
             description: val.description,
-            scopes: updatedScopes,
+            scopes: val.scopes,
           }
           modulesWithAccess->Array.push(manipulatedObject)
         }
