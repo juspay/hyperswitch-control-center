@@ -24,7 +24,9 @@ let validateTotpForm = (values: JSON.t, keys: array<string>) => {
         Dict.set(
           errors,
           key,
-          `${key->LogicUtils.capitalizeString} cannot be empty`->JSON.Encode.string,
+          `${key
+            ->LogicUtils.capitalizeString
+            ->LogicUtils.snakeToTitle} cannot be empty`->JSON.Encode.string,
         )
       }
     }
@@ -39,6 +41,7 @@ let validateTotpForm = (values: JSON.t, keys: array<string>) => {
     // password check
     switch key {
     | "password" => CommonAuthUtils.passwordKeyValidation(value, key, "password", errors)
+    | "new_password" => CommonAuthUtils.passwordKeyValidation(value, key, "new_password", errors)
     | _ => CommonAuthUtils.passwordKeyValidation(value, key, "create_password", errors)
     }
 
@@ -48,6 +51,15 @@ let validateTotpForm = (values: JSON.t, keys: array<string>) => {
       key,
       "comfirm_password",
       "create_password",
+      valuesDict,
+      errors,
+    )
+    //confirm password check for #change_password
+    CommonAuthUtils.confirmPasswordCheck(
+      value,
+      key,
+      "confirm_password",
+      "new_password",
       valuesDict,
       errors,
     )
@@ -75,9 +87,12 @@ let jsonToTwoFaValueType: Dict.t<'a> => TwoFaTypes.twoFaValueType = dict => {
 
 let jsonTocheckTwofaResponseType: JSON.t => TwoFaTypes.checkTwofaResponseType = json => {
   open LogicUtils
-  let jsonToDict = json->getDictFromJsonObject->Dict.get("status")
+  let jsonToDict = json->getDictFromJsonObject
 
-  let statusValue = switch jsonToDict {
+  let statusValueDict = jsonToDict->Dict.get("status")
+  let isSkippable = jsonToDict->getBool("is_skippable", true)
+
+  let statusValue = switch statusValueDict {
   | Some(json) => {
       let dict = json->getDictFromJsonObject
       let twoFaValue: TwoFaTypes.twoFatype = {
@@ -91,5 +106,6 @@ let jsonTocheckTwofaResponseType: JSON.t => TwoFaTypes.checkTwofaResponseType = 
 
   {
     status: statusValue,
+    isSkippable,
   }
 }

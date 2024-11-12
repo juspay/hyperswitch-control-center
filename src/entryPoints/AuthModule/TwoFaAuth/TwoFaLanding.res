@@ -5,8 +5,7 @@ module AttemptsExpiredComponent = {
   let make = (~expiredType, ~setTwoFaPageState, ~setTwoFaStatus) => {
     open TwoFaTypes
     open HSwitchUtils
-    let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-
+    let handleLogout = APIUtils.useHandleLogout()
     let expiredComponent = switch expiredType {
     | TOTP_ATTEMPTS_EXPIRED =>
       <div
@@ -62,7 +61,7 @@ module AttemptsExpiredComponent = {
           {"Log in with a different account?"->React.string}
           <p
             className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
-            onClick={_ => setAuthStatus(LoggedOut)}>
+            onClick={_ => handleLogout()->ignore}>
             {"Click here to log out."->React.string}
           </p>
         </div>
@@ -80,6 +79,7 @@ let make = () => {
   let (twoFaStatus, setTwoFaStatus) = React.useState(_ => TwoFaNotExpired)
   let (twoFaPageState, setTwoFaPageState) = React.useState(_ => TOTP_SHOW_QR)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (isSkippable, setIsSkippable) = React.useState(_ => true)
 
   let handlePageBasedOnAttempts = responseDict => {
     switch responseDict {
@@ -108,6 +108,7 @@ let make = () => {
       let response = await fetchDetails(url)
       let responseDict = response->TwoFaUtils.jsonTocheckTwofaResponseType
       handlePageBasedOnAttempts(responseDict.status)
+      setIsSkippable(_ => responseDict.isSkippable)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {
@@ -130,7 +131,7 @@ let make = () => {
     {switch twoFaStatus {
     | TwoFaExpired(expiredType) =>
       <AttemptsExpiredComponent expiredType setTwoFaPageState setTwoFaStatus />
-    | TwoFaNotExpired => <TotpSetup twoFaPageState setTwoFaPageState errorHandling />
+    | TwoFaNotExpired => <TotpSetup twoFaPageState setTwoFaPageState errorHandling isSkippable />
     }}
   </PageLoaderWrapper>
 }

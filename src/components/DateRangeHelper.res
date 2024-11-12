@@ -3,16 +3,25 @@ open DateRangeUtils
 module CompareOption = {
   @react.component
   let make = (~value: compareOption, ~comparison, ~startDateVal, ~endDateVal, ~onClick) => {
+    let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
+
     let previousPeriod = React.useMemo(() => {
-      let (startDate, endDate) = getComparisionTimePeriod(
-        ~startDate=startDateVal,
-        ~endDate=endDateVal,
+      let startDateStr = formatDateString(
+        ~dateVal=startDateVal,
+        ~buttonText="",
+        ~defaultLabel=startDateVal,
+        ~isoStringToCustomTimeZone,
       )
-      let format = "MMM DD, YYYY"
-      let startDateStr = getFormattedDate(startDate, format)
-      let endDateStr = getFormattedDate(endDate, format)
+      let endDateStr = formatDateString(
+        ~dateVal=endDateVal,
+        ~buttonText="",
+        ~defaultLabel=endDateVal,
+        ~isoStringToCustomTimeZone,
+      )
+
       `${startDateStr} - ${endDateStr}`
     }, [comparison])
+
     <div
       onClick={_ => onClick(value)}
       className={`text-center md:text-start min-w-max bg-white w-full   hover:bg-jp-gray-100 hover:bg-opacity-75 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 `}>

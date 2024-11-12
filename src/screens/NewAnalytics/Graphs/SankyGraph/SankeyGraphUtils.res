@@ -3,7 +3,9 @@ open SankeyGraphTypes
 let valueFormatter = (
   @this
   (this: nodeFormatter) => {
-    let label = `<span style="font-size: 15px; font-weight: bold;">${this.point.sum}</span><br/> <span style="font-size: 13px;">${this.point.id}</span>`
+    let weight = this.point.options.dataLabels.name
+    let sum = weight->Int.toFloat->NewAnalyticsUtils.valueFormatter(Volume)
+    let label = `<span style="font-size: 15px; font-weight: bold;">${sum}</span><br/> <span style="font-size: 13px;">${this.point.id}</span>`
     label
   }
 )->asTooltipPointFormatter
