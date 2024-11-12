@@ -174,7 +174,7 @@ let make = (
                   <p> {connectorName->React.string} </p>
                   <p className="text-sm opacity-50 "> {`(${connectorLabel})`->React.string} </p>
                   <RenderIf condition={isDisabled}>
-                    <p className="text-sm opacity-50 "> {`(disabled)`->React.string} </p>
+                    <p className="text-sm opacity-50 "> {"(disabled)"->React.string} </p>
                   </RenderIf>
                 </div>
               </div>
