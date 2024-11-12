@@ -93,6 +93,7 @@ let make = () => {
             startTimeFilterKey
             initialFilters
             initialFixedFilter
+            setOffset
             customLeftView={<SearchBarFilter
               placeholder="Search payment id or refund id"
               setSearchVal=setSearchText
