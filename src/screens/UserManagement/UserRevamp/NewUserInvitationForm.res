@@ -103,6 +103,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let roleTypeValue =
     ReactFinalForm.useField(`role_id`).input.value->getStringFromJson("")->getNonEmptyString
+  let (roleNameValue, setRoleNameValue) = React.useState(_ => "")
   let (options, setOptions) = React.useState(_ => []->SelectBox.makeOptions)
   let (dropDownLoaderState, setDropDownLoaderState) = React.useState(_ =>
     DropdownWithLoading.Success
@@ -122,6 +123,7 @@ let make = () => {
         ~methodType=Get,
       )
       let res = await fetchDetails(url)
+      setRoleNameValue(_ => res->getDictFromJsonObject->getString("role_name", ""))
       setRoleDict(prevDict => {
         prevDict->Dict.set(roleTypeValue->Option.getOr(""), res)
         prevDict
@@ -200,11 +202,11 @@ let make = () => {
         | Some(role) =>
           <>
             <p className={`${p1MediumTextClass} !font-semibold py-2`}>
-              {`Role Description - '${role->snakeToTitle}'`->React.string}
+              {`Role Description - '${roleNameValue->snakeToTitle}'`->React.string}
             </p>
             <PageLoaderWrapper screenState>
               <div className="border rounded-md p-4 flex flex-col">
-                <RoleAccessOverview roleDict role={roleTypeValue->Option.getOr("")} />
+                <RoleAccessOverview roleDict role />
               </div>
             </PageLoaderWrapper>
           </>

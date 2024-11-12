@@ -648,6 +648,8 @@ let useGetURL = () => {
       // ACCEPT INVITE PRE_LOGIN
       | #ACCEPT_INVITATION_PRE_LOGIN => `${userUrl}/user/invite/accept/v2/pre_auth`
 
+      // CREATE_ORG
+      | #CREATE_ORG => `organization`
       // CREATE MERCHANT
       | #CREATE_MERCHANT =>
         switch queryParamerters {
