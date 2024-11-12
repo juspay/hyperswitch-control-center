@@ -169,7 +169,6 @@ module RemoteTableFilters = {
     React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length === 0 {
         setFilters(_ => Some(Dict.make()))
-        setOffset(_ => 0)
       }
       None
     }, [])
@@ -231,10 +230,8 @@ module RemoteTableFilters = {
     React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length != 0 {
         setFilters(_ => Some(filterValueJson))
-        setOffset(_ => 0)
       } else {
         setFilters(_ => Some(Dict.make()))
-        setOffset(_ => 0)
       }
       None
     }, [filterValue])
