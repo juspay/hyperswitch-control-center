@@ -5,8 +5,7 @@ module AttemptsExpiredComponent = {
   let make = (~expiredType, ~setTwoFaPageState, ~setTwoFaStatus) => {
     open TwoFaTypes
     open HSwitchUtils
-    let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-
+    let handleLogout = APIUtils.useHandleLogout()
     let expiredComponent = switch expiredType {
     | TOTP_ATTEMPTS_EXPIRED =>
       <div
@@ -62,7 +61,7 @@ module AttemptsExpiredComponent = {
           {"Log in with a different account?"->React.string}
           <p
             className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
-            onClick={_ => setAuthStatus(LoggedOut)}>
+            onClick={_ => handleLogout()->ignore}>
             {"Click here to log out."->React.string}
           </p>
         </div>
