@@ -85,7 +85,6 @@ let make = () => {
       startTimeFilterKey
       initialFilters
       initialFixedFilter
-      setOffset
       customLeftView={<SearchBarFilter
         placeholder="Search disptue id" setSearchVal=setSearchText searchVal=searchText
       />}

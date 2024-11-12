@@ -149,7 +149,6 @@ module RemoteTableFilters = {
     ~comparisonKey="",
     ~initialFilters,
     ~initialFixedFilter,
-    ~setOffset,
     ~customLeftView,
     ~title="",
     ~entityName: APIUtilsTypes.entityName,
