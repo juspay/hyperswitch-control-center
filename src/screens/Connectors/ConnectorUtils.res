@@ -152,6 +152,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
   | "open_banking_pis" => OpenBankingPIS
+  | "samsung_pay" => SamsungPay
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
@@ -494,7 +495,7 @@ let taxJarInfo = {
   description: "TaxJar is reimagining how businesses manage sales tax compliance. Its cloud-based platform automates the entire sales tax life cycle across all sales channels — from calculations and nexus tracking to reporting and filing.",
 }
 let nexixpayInfo = {
-  description : "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online."
+  description: "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online.",
 }
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
@@ -920,6 +921,7 @@ let configKeysToIgnore = [
   "metadata",
   "connector_webhook_details",
   "additional_merchant_data",
+  "connector_wallets_details",
 ]
 
 let verifyConnectorIgnoreField = [
@@ -1434,6 +1436,12 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
       dict->getDictfromDict("pm_auth_config")->isEmptyDict
         ? JSON.Encode.null
         : dict->getDictfromDict("pm_auth_config")->JSON.Encode.object,
+    ),
+    (
+      "connector_wallets_details",
+      dict->getDictfromDict("connector_wallets_details")->isEmptyDict
+        ? JSON.Encode.null
+        : dict->getDictfromDict("connector_wallets_details")->JSON.Encode.object,
     ),
   ])
 

@@ -213,7 +213,7 @@ let smartRetrivesAmountColumns: array<DynamicSingleStat.columns<colT>> = [
 ]
 
 @react.component
-let make = (~filterKeys, ~moduleName) => {
+let make = (~moduleName) => {
   open APIUtils
   let getURL = useGetURL()
   let smartRetryAnalyticsUrl = getURL(
@@ -251,7 +251,7 @@ let make = (~filterKeys, ~moduleName) => {
   let formaPayload = (singleStatBodyEntity: DynamicSingleStat.singleStatBodyEntity) => {
     [
       AnalyticsUtils.getFilterRequestBody(
-        ~filter=singleStatBodyEntity.filter,
+        ~filter=None,
         ~metrics=singleStatBodyEntity.metrics,
         ~delta=?singleStatBodyEntity.delta,
         ~startDateTime=singleStatBodyEntity.startDateTime,
@@ -280,7 +280,7 @@ let make = (~filterKeys, ~moduleName) => {
         entity={singleStatEntity}
         startTimeFilterKey
         endTimeFilterKey
-        filterKeys
+        filterKeys=[]
         moduleName
         showPercentage=false
         statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
@@ -293,7 +293,7 @@ let make = (~filterKeys, ~moduleName) => {
             entity=singleStatAMountEntity
             startTimeFilterKey
             endTimeFilterKey
-            filterKeys
+            filterKeys=[]
             moduleName
             showPercentage=false
             statSentiment={singleStatAMountEntity.statSentiment->Option.getOr(Dict.make())}

@@ -3,17 +3,27 @@ open NewAnalyticsHelper
 open NewPaymentAnalyticsEntity
 open BarGraphTypes
 open FailedPaymentsDistributionUtils
-
+open NewPaymentAnalyticsUtils
 module TableModule = {
   @react.component
   let make = (~data, ~className="", ~selectedTab: string) => {
+    open LogicUtils
+
     let (offset, setOffset) = React.useState(_ => 0)
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let isSmartRetryEnabled =
+      filterValueJson
+      ->getString("is_smart_retry_enabled", "true")
+      ->getBoolFromString(true)
+      ->getSmartRetryMetricType
     let defaultSort: Table.sortedObject = {
       key: "",
       order: Table.INC,
     }
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
-    let visibleColumns = visibleColumns->Array.concat([selectedTab->getDimentionType])
+
+    let defaultCol = isSmartRetryEnbldForFailedPmtDist(isSmartRetryEnabled)
+    let visibleColumns = [defaultCol]->Array.concat([selectedTab->getColumn])
     let tableData = getTableData(data)
 
     <div className>
@@ -78,15 +88,21 @@ let make = (
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let isSmartRetryEnabled =
+    filterValueJson
+    ->getString("is_smart_retry_enabled", "true")
+    ->getBoolFromString(true)
+    ->getSmartRetryMetricType
 
   let getFailedPaymentsDistribution = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
-        ~entityName=ANALYTICS_PAYMENTS,
+        ~entityName=isSmartRetryEnabled->getEntityForSmartRetry,
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
+      let metrics = isSmartRetryEnabled->getMetricsForSmartRetry
 
       let body = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
@@ -94,7 +110,7 @@ let make = (
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~filters=entity.requestBodyConfig.filters,
-        ~metrics=entity.requestBodyConfig.metrics,
+        ~metrics,
         ~groupByNames=[groupBy.value]->Some,
         ~customFilter=entity.requestBodyConfig.customFilter,
         ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
@@ -123,8 +139,12 @@ let make = (
       getFailedPaymentsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value])
-
+  }, [startTimeVal, endTimeVal, groupBy.value, (isSmartRetryEnabled :> string)])
+  let params = {
+    data: failedPaymentsDistribution,
+    xKey: Payments_Failure_Rate_Distribution->getKeyForModule(~isSmartRetryEnabled),
+    yKey: groupBy.value,
+  }
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -135,13 +155,7 @@ let make = (
           {switch viewType {
           | Graph =>
             <BarGraph
-              entity={chartEntity}
-              object={chartEntity.getObjects(
-                ~data=failedPaymentsDistribution,
-                ~xKey=getXKey(~isSmartRetry=false),
-                ~yKey=groupBy.value,
-              )}
-              className="mr-3"
+              entity={chartEntity} object={chartEntity.getObjects(~params)} className="mr-3"
             />
           | Table =>
             <TableModule

@@ -37,7 +37,7 @@ let useSendEvent = () => {
     ~description,
     ~event,
     ~section,
-    ~metadata=Dict.make(),
+    ~metadata=JSON.Encode.null,
   ) => {
     let mixpanel_token = Window.env.mixpanelToken
 
@@ -77,7 +77,7 @@ let useSendEvent = () => {
     }
   }
 
-  (~eventName, ~email="", ~description=None, ~section="", ~metadata=Dict.make()) => {
+  (~eventName, ~email="", ~description=None, ~section="", ~metadata=JSON.Encode.null) => {
     let section = section->LogicUtils.isNonEmptyString ? section : getUrlEndpoint()
     let eventName = eventName->String.toLowerCase
 

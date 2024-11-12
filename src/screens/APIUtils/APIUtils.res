@@ -229,6 +229,21 @@ let useGetURL = () => {
         }
       | _ => ""
       }
+    | DISPUTES_AGGREGATE =>
+      switch methodType {
+      | Get =>
+        switch queryParamerters {
+        | Some(queryParams) =>
+          switch transactionEntity {
+          | #Profile => `disputes/profile/aggregate?${queryParams}`
+          | #Merchant
+          | _ =>
+            `disputes/aggregate?${queryParams}`
+          }
+        | None => `disputes/aggregate`
+        }
+      | _ => `disputes/aggregate`
+      }
     | PAYOUTS =>
       switch methodType {
       | Get =>
@@ -356,37 +371,6 @@ let useGetURL = () => {
         switch queryParamerters {
         | Some(params) => `analytics/v1/profile/api_event_logs?${params}`
         | None => ``
-        }
-      | _ => ""
-      }
-    | NEW_ANALYTICS =>
-      switch methodType {
-      | Get =>
-        switch id {
-        // Need to write seperate enum for info api
-        | Some(domain) =>
-          switch analyticsEntity {
-          | #Tenant
-          | #Organization =>
-            `analytics/v2/org/${domain}/info`
-          | #Merchant => `analytics/v2/merchant/${domain}/info`
-          | #Profile => `analytics/v2/profile/${domain}/info`
-          }
-
-        | _ => ""
-        }
-      | Post =>
-        switch id {
-        | Some(domain) =>
-          switch analyticsEntity {
-          | #Tenant
-          | #Organization =>
-            `analytics/v2/org/metrics/${domain}`
-          | #Merchant => `analytics/v2/merchant/metrics/${domain}`
-          | #Profile => `analytics/v2/profile/metrics/${domain}`
-          }
-
-        | _ => ""
         }
       | _ => ""
       }
@@ -588,6 +572,11 @@ let useGetURL = () => {
           | Some(queryParams) => `${userUrl}/role/v2/list?${queryParams}`
           | None => `${userUrl}/role/v2/list`
           }
+        | ROLE_ID =>
+          switch id {
+          | Some(key_id) => `${userUrl}/role/${key_id}/v2`
+          | None => ""
+          }
         | _ => ""
         }
       }
@@ -633,12 +622,8 @@ let useGetURL = () => {
       | #USER_INFO => userUrl
 
       // USER GROUP ACCESS
-      | #GET_GROUP_ACL =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/role?${params}`
-        | None => `${userUrl}/role`
-        }
-      | #ROLE_INFO => `${userUrl}/module/list`
+      | #GET_GROUP_ACL => `${userUrl}/role/v2`
+      | #ROLE_INFO => `${userUrl}/parent/list`
 
       | #GROUP_ACCESS_INFO =>
         switch queryParamerters {
@@ -693,6 +678,7 @@ let useGetURL = () => {
 
       // SPT FLOWS (Totp)
       | #BEGIN_TOTP => `${userUrl}/2fa/totp/begin`
+      | #CHECK_TWO_FACTOR_AUTH_STATUS_V2 => `${userUrl}/2fa/v2`
       | #VERIFY_TOTP => `${userUrl}/2fa/totp/verify`
       | #VERIFY_RECOVERY_CODE => `${userUrl}/2fa/recovery_code/verify`
       | #GENERATE_RECOVERY_CODES => `${userUrl}/2fa/recovery_code/generate`
@@ -770,6 +756,7 @@ let useHandleLogout = () => {
 let sessionExpired = ref(false)
 
 let responseHandler = async (
+  ~url,
   ~res,
   ~showToast: ToastState.showToastFn,
   ~showErrorToast: bool,
@@ -782,7 +769,7 @@ let responseHandler = async (
     ~email: string=?,
     ~description: option<'a>=?,
     ~section: string=?,
-    ~metadata: Dict.t<'b>=?,
+    ~metadata: JSON.t=?,
   ) => unit,
 ) => {
   let json = try {
@@ -794,11 +781,13 @@ let responseHandler = async (
   let responseStatus = res->Fetch.Response.status
 
   if responseStatus >= 500 && responseStatus < 600 {
-    sendEvent(
-      ~eventName="API Error",
-      ~description=Some(responseStatus),
-      ~metadata=json->getDictFromJsonObject,
-    )
+    let metaData =
+      [
+        ("url", url->JSON.Encode.string),
+        ("response", json),
+        ("status", responseStatus->JSON.Encode.int),
+      ]->getJsonFromArrayOfJson
+    sendEvent(~eventName="API Error", ~description=Some(responseStatus), ~metadata=metaData)
   }
 
   switch responseStatus {
@@ -910,6 +899,7 @@ let useGetMethod = (~showErrorToast=true) => {
     try {
       let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute)
       await responseHandler(
+        ~url,
         ~res,
         ~showErrorToast,
         ~showToast,
@@ -970,6 +960,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~xFeatureRoute,
       )
       await responseHandler(
+        ~url,
         ~res,
         ~showErrorToast,
         ~showToast,

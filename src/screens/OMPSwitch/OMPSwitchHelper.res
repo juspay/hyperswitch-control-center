@@ -32,12 +32,20 @@ module AddNewMerchantProfileButton = {
     ~customHRTagStyle="",
     ~addItemBtnStyle="",
   ) => {
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let cursorStyles = GroupAccessUtils.cursorStyles(
-      userHasAccess(~groupAccess=MerchantDetailsManage),
+      // TODO: Remove `MerchantDetailsManage` permission in future
+      hasAnyGroupAccess(
+        userHasAccess(~groupAccess=MerchantDetailsManage),
+        userHasAccess(~groupAccess=AccountManage),
+      ),
     )
     <ACLDiv
-      authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
+      // TODO: Remove `MerchantDetailsManage` permission in future
+      authorization={hasAnyGroupAccess(
+        userHasAccess(~groupAccess=MerchantDetailsManage),
+        userHasAccess(~groupAccess=AccountManage),
+      )}
       onClick={_ => setShowModal(_ => true)}
       isRelative=false
       contentAlign=Default
@@ -107,4 +115,65 @@ module OMPViews = {
       ->React.array}
     </div>
   }
+}
+
+module OMPCopyTextCustomComp = {
+  @react.component
+  let make = (
+    ~displayValue,
+    ~copyValue=None,
+    ~customTextCss="",
+    ~customParentClass="flex items-center",
+    ~customOnCopyClick=() => (),
+  ) => {
+    let showToast = ToastState.useShowToast()
+    let copyVal = switch copyValue {
+    | Some(val) => val
+    | None => displayValue
+    }
+    let onCopyClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      Clipboard.writeText(copyVal)
+      customOnCopyClick()
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
+    }
+
+    if displayValue->LogicUtils.isNonEmptyString {
+      <div className=customParentClass>
+        <div className=customTextCss> {displayValue->React.string} </div>
+        <img
+          alt="cursor"
+          src={`/assets/copyid.svg`}
+          className="cursor-pointer"
+          onClick={ev => {
+            onCopyClick(ev)
+          }}
+        />
+      </div>
+    } else {
+      "NA"->React.string
+    }
+  }
+}
+
+let generateDropdownOptions: array<OMPSwitchTypes.ompListTypes> => array<
+  SelectBox.dropdownOption,
+> = dropdownList => {
+  let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
+    item
+  ): SelectBox.dropdownOption => {
+    label: item.name,
+    value: item.id,
+    icon: Button.CustomRightIcon(
+      <ToolTip
+        description={item.id}
+        customStyle="!whitespace-nowrap"
+        toolTipFor={<div className="cursor-pointer">
+          <OMPCopyTextCustomComp displayValue=" " copyValue=Some({item.id}) />
+        </div>}
+        toolTipPosition=ToolTip.TopRight
+      />,
+    ),
+  })
+  options
 }

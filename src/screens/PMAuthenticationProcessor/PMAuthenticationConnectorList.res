@@ -35,14 +35,6 @@ let make = () => {
     />
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-10">
-        <ProcessorCards
-          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
-            ~connectorType=ConnectorTypes.PMAuthenticationProcessor,
-          )}
-          connectorsAvailableForIntegration=ConnectorUtils.pmAuthenticationConnectorList
-          urlPrefix="pm-authentication-processor/new"
-          connectorType=ConnectorTypes.PMAuthenticationProcessor
-        />
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
@@ -59,6 +51,14 @@ let make = () => {
             collapseTableRow=false
           />
         </RenderIf>
+        <ProcessorCards
+          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
+            ~connectorType=ConnectorTypes.PMAuthenticationProcessor,
+          )}
+          connectorsAvailableForIntegration=ConnectorUtils.pmAuthenticationConnectorList
+          urlPrefix="pm-authentication-processor/new"
+          connectorType=ConnectorTypes.PMAuthenticationProcessor
+        />
       </div>
     </PageLoaderWrapper>
   </div>

@@ -3,9 +3,10 @@ open NewAnalyticsHelper
 open LineGraphTypes
 open NewPaymentAnalyticsEntity
 open PaymentsProcessedUtils
-
+open NewPaymentAnalyticsUtils
 module TableModule = {
   open LogicUtils
+
   @react.component
   let make = (~data, ~className="") => {
     let (offset, setOffset) = React.useState(_ => 0)
@@ -14,11 +15,20 @@ module TableModule = {
       order: Table.INC,
     }
     let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
-
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let paymentsProcessed = switch data->getArrayFromJson([])->Array.get(0) {
     | Some(val) => val->getArrayDataFromJson(tableItemToObjMapper)
     | _ => []
     }->Array.map(Nullable.make)
+
+    let isSmartRetryEnabled =
+      filterValueJson
+      ->getString("is_smart_retry_enabled", "true")
+      ->getBoolFromString(true)
+      ->getSmartRetryMetricType
+
+    let defaultCols = isSmartRetryEnabled->isSmartRetryEnbldForPmtProcessed
+    let visibleColumns = defaultCols->Array.concat(visibleColumns)
 
     <div className>
       <LoadedTable
@@ -48,7 +58,7 @@ module TableModule = {
 module PaymentsProcessedHeader = {
   open NewAnalyticsTypes
   open NewAnalyticsUtils
-  open NewPaymentAnalyticsUtils
+  open LogicUtils
   @react.component
   let make = (
     ~data: JSON.t,
@@ -59,12 +69,31 @@ module PaymentsProcessedHeader = {
     ~granularity,
     ~setGranularity,
   ) => {
-    let primaryValue = getMetaDataValue(~data, ~index=0, ~key=selectedMetric.value->getMetaDataKey)
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+    let isSmartRetryEnabled =
+      filterValueJson
+      ->getString("is_smart_retry_enabled", "true")
+      ->getBoolFromString(true)
+      ->getSmartRetryMetricType
+    let primaryValue = getMetaDataValue(
+      ~data,
+      ~index=0,
+      ~key=selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled),
+    )
     let secondaryValue = getMetaDataValue(
       ~data,
       ~index=1,
-      ~key=selectedMetric.value->getMetaDataKey,
+      ~key=selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled),
     )
+
+    let (primaryValue, secondaryValue) = if (
+      selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled)->isAmountMetric
+    ) {
+      (primaryValue /. 100.0, secondaryValue /. 100.0)
+    } else {
+      (primaryValue, secondaryValue)
+    }
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
 
@@ -82,8 +111,12 @@ module PaymentsProcessedHeader = {
 
     <div className="w-full px-7 py-8 grid grid-cols-1">
       <div className="flex gap-2 items-center">
-        <div className="text-3xl font-600"> {primaryValue->Float.toString->React.string} </div>
-        <StatisticsCard value direction />
+        <div className="text-3xl font-600">
+          {`${primaryValue->valueFormatter(Amount)} USD`->React.string} // TODO:Currency need to be picked from filter
+        </div>
+        <RenderIf condition={comparison == EnableComparison}>
+          <StatisticsCard value direction />
+        </RenderIf>
       </div>
       // will enable it in future
       <RenderIf condition={false}>
@@ -121,12 +154,21 @@ let make = (
   let (viewType, setViewType) = React.useState(_ => Graph)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
+  let compareToStartTime = filterValueJson->getString("compareToStartTime", "")
+  let compareToEndTime = filterValueJson->getString("compareToEndTime", "")
+  let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+
+  let isSmartRetryEnabled =
+    filterValueJson
+    ->getString("is_smart_retry_enabled", "true")
+    ->getBoolFromString(true)
+    ->getSmartRetryMetricType
 
   let getPaymentsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=ANALYTICS_PAYMENTS,
+        ~entityName=ANALYTICS_PAYMENTS_V2,
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
@@ -143,15 +185,10 @@ let make = (
         ~granularity=granularity.value->Some,
       )
 
-      let (prevStartTime, prevEndTime) = NewAnalyticsUtils.getComparisionTimePeriod(
-        ~startDate=startTimeVal,
-        ~endDate=endTimeVal,
-      )
-
       let secondaryBody = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
-        ~startTime=prevStartTime,
-        ~endTime=prevEndTime,
+        ~startTime=compareToStartTime,
+        ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
@@ -161,14 +198,34 @@ let make = (
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
-      let secondaryResponse = await updateDetails(url, secondaryBody, Post)
       let primaryData = primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
-      let secondaryData =
-        secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
-      let secondaryMetaData =
-        primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+      let (secondaryMetaData, secondaryModifiedData) = switch comparison {
+      | EnableComparison => {
+          let secondaryResponse = await updateDetails(url, secondaryBody, Post)
+          let secondaryData =
+            secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
+          let secondaryMetaData =
+            primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+          let secondaryModifiedData = [secondaryData]->Array.map(data => {
+            NewAnalyticsUtils.fillMissingDataPoints(
+              ~data,
+              ~startDate=compareToStartTime,
+              ~endDate=compareToEndTime,
+              ~timeKey="time_bucket",
+              ~defaultValue={
+                "payment_count": 0,
+                "payment_processed_amount": 0,
+                "time_bucket": startTimeVal,
+              }->Identity.genericTypeToJson,
+              ~granularity=granularity.value,
+            )
+          })
+          (secondaryMetaData, secondaryModifiedData)
+        }
+      | DisableComparison => ([], [])
+      }
 
       if primaryData->Array.length > 0 {
         let primaryModifiedData = [primaryData]->Array.map(data => {
@@ -176,21 +233,6 @@ let make = (
             ~data,
             ~startDate=startTimeVal,
             ~endDate=endTimeVal,
-            ~timeKey="time_bucket",
-            ~defaultValue={
-              "payment_count": 0,
-              "payment_processed_amount": 0,
-              "time_bucket": startTimeVal,
-            }->Identity.genericTypeToJson,
-            ~granularity=granularity.value,
-          )
-        })
-
-        let secondaryModifiedData = [secondaryData]->Array.map(data => {
-          NewAnalyticsUtils.fillMissingDataPoints(
-            ~data,
-            ~startDate=prevStartTime,
-            ~endDate=prevEndTime,
             ~timeKey="time_bucket",
             ~defaultValue={
               "payment_count": 0,
@@ -220,8 +262,26 @@ let make = (
       getPaymentsProcessed()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal])
+  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
 
+  let mockDelay = async () => {
+    if paymentsProcessedData != []->JSON.Encode.array {
+      setScreenState(_ => Loading)
+      await HyperSwitchUtils.delay(300)
+      setScreenState(_ => Success)
+    }
+  }
+
+  React.useEffect(() => {
+    mockDelay()->ignore
+    None
+  }, [isSmartRetryEnabled])
+  let params = {
+    data: paymentsProcessedData,
+    xKey: selectedMetric.value->getKeyForModule(~isSmartRetryEnabled),
+    yKey: Time_Bucket->getStringFromVariant,
+    comparison,
+  }
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
@@ -241,13 +301,7 @@ let make = (
           {switch viewType {
           | Graph =>
             <LineGraph
-              entity={chartEntity}
-              data={chartEntity.getObjects(
-                ~data=paymentsProcessedData,
-                ~xKey=selectedMetric.value,
-                ~yKey=(#time_bucket: metrics :> string),
-              )}
-              className="mr-3"
+              entity={chartEntity} data={chartEntity.getObjects(~params)} className="mr-3"
             />
           | Table => <TableModule data={paymentsProcessedData} className="mx-7" />
           }}

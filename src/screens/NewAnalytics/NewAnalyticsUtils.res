@@ -90,16 +90,6 @@ let valueFormatter = (value, statType: valueType) => {
   | No_Type => value->Float.toString
   }
 }
-let getComparisionTimePeriod = (~startDate, ~endDate) => {
-  let startingPoint = startDate->DayJs.getDayJsForString
-  let endingPoint = endDate->DayJs.getDayJsForString
-  let gap = endingPoint.diff(startingPoint.toString(), "millisecond") // diff between points
-
-  let startTimeValue = startingPoint.subtract(gap, "millisecond").toDate()->Date.toISOString
-  let endTimeVal = endingPoint.subtract(gap, "millisecond").toDate()->Date.toISOString
-
-  (startTimeValue, endTimeVal)
-}
 
 let getMonthName = month => {
   switch month {
@@ -119,6 +109,16 @@ let getMonthName = month => {
   }
 }
 
+let formatDateValue = (value: string, ~includeYear=false) => {
+  let dateObj = value->DayJs.getDayJsForString
+
+  if includeYear {
+    `${dateObj.month()->getMonthName} ${dateObj.format("DD")} ${dateObj.year()->Int.toString} `
+  } else {
+    `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+  }
+}
+
 let getLabelName = (~key, ~index, ~points) => {
   open LogicUtils
   let getDateObject = (array, index) => {
@@ -126,17 +126,15 @@ let getLabelName = (~key, ~index, ~points) => {
     ->getValueFromArray(index, Dict.make()->JSON.Encode.object)
     ->getDictFromJsonObject
     ->getString(key, "")
-    ->DayJs.getDayJsForString
   }
 
   if key === "time_bucket" {
     let pointsArray = points->getArrayFromJson([])
     let startPoint = pointsArray->getDateObject(0)
-    let endPoint = pointsArray->getDateObject(1)
+    let endPoint = pointsArray->getDateObject(pointsArray->Array.length - 1)
 
-    let startDate = `${startPoint.month()->getMonthName} ${startPoint.format("DD")}`
-    let endDate = `${endPoint.month()->getMonthName} ${endPoint.format("DD")}`
-
+    let startDate = startPoint->formatDateValue
+    let endDate = endPoint->formatDateValue
     `${startDate}-${endDate}`
   } else {
     `Series ${(index + 1)->Int.toString}`

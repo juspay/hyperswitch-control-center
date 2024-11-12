@@ -45,6 +45,11 @@ module RenderSearchResultBody = {
     | Refunds => <RefundsTable.PreviewTable data={section.results} />
     | Disputes => <DisputeTable.PreviewTable data={section.results} />
     | Others | Default => "Not implemented"->React.string
+    | SessionizerPaymentAttempts
+    | SessionizerPaymentIntents
+    | SessionizerPaymentRefunds
+    | SessionizerPaymentDisputes =>
+      ""->React.string
     }
   }
 }

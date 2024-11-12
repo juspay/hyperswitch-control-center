@@ -23,44 +23,6 @@ let useErroryValueResetter = (value: string, setValue: (string => string) => uni
   }, [])
 }
 
-let getDateStringForValue = (
-  value,
-  isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
-) => {
-  if value->LogicUtils.isEmptyString {
-    ""
-  } else {
-    try {
-      let check = TimeZoneHook.formattedISOString(value, "YYYY-MM-DDTHH:mm:ss.SSS[Z]")
-      let {year, month, date} = isoStringToCustomTimeZone(check)
-      `${year}-${month}-${date}`
-    } catch {
-    | _error => ""
-    }
-  }
-}
-
-let getTimeStringForValue = (
-  value,
-  isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
-) => {
-  if value->LogicUtils.isEmptyString {
-    ""
-  } else {
-    try {
-      let check = TimeZoneHook.formattedISOString(value, "YYYY-MM-DDTHH:mm:ss.SSS[Z]")
-      let {hour, minute, second} = isoStringToCustomTimeZone(check)
-      `${hour}:${minute}:${second}`
-    } catch {
-    | _error => ""
-    }
-  }
-}
-
-let getFormattedDate = (date, format) => {
-  date->Date.fromString->Date.toISOString->TimeZoneHook.formattedISOString(format)
-}
-
 let isStartBeforeEndDate = (start, end) => {
   let getDate = date => {
     let datevalue = Js.Date.makeWithYMD(
@@ -76,13 +38,6 @@ let isStartBeforeEndDate = (start, end) => {
   let startDate = getDate(String.split(start, "-"))
   let endDate = getDate(String.split(end, "-"))
   startDate < endDate
-}
-
-let getStartEndDiff = (startDate, endDate) => {
-  let diffTime = Math.abs(
-    endDate->Date.fromString->Date.getTime -. startDate->Date.fromString->Date.getTime,
-  )
-  diffTime
 }
 
 module PredefinedOption = {
@@ -102,6 +57,7 @@ module PredefinedOption = {
     ~formatDateTime,
     ~isTooltipVisible=true,
   ) => {
+    open DateRangeUtils
     let optionBG = if predefinedOptionSelected === Some(value) {
       "bg-blue-100 dark:bg-jp-gray-850 py-2"
     } else {
@@ -125,7 +81,7 @@ module PredefinedOption = {
     let handleClick = _value => {
       onClick(value, disableFutureDates)
     }
-    let dateRangeDropdownVal = DateRangeUtils.datetext(value, disableFutureDates)
+    let dateRangeDropdownVal = datetext(value, disableFutureDates)
     <ToolTip
       tooltipWidthClass="w-fit"
       tooltipForWidthClass="!block w-full"
@@ -728,14 +684,16 @@ module Base = {
                 </div>
               })
               ->React.array}
-              <div
-                className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3   hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customeRangeBg}}`}
-                onClick={_ => {
-                  setCalendarVisibility(_ => true)
-                  setIsCustomSelected(_ => true)
-                }}>
-                {React.string("Custom Range")}
-              </div>
+              <AddDataAttributes attributes=[("data-daterange-dropdown-value", "Custom Range")]>
+                <div
+                  className={`text-center md:text-start min-w-max bg-white dark:bg-jp-gray-lightgray_background w-1/3   hover:bg-jp-gray-100 hover:bg-opacity-75 dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 cursor-pointer mx-2 rounded-md p-2 text-sm font-medium text-grey-900 ${customeRangeBg}}`}
+                  onClick={_ => {
+                    setCalendarVisibility(_ => true)
+                    setIsCustomSelected(_ => true)
+                  }}>
+                  {React.string("Custom Range")}
+                </div>
+              </AddDataAttributes>
             </div>
           </AddDataAttributes>
         } else {
@@ -803,6 +761,7 @@ module Base = {
             <ToolTip
               description={tooltipText}
               toolTipFor={<Button
+                dataTestId="date-range-selector"
                 text={isMobileView && textHideInMobileView ? "" : buttonText}
                 leftIcon={CustomIcon(<Icon name="calendar-filter" size=22 />)}
                 rightIcon={CustomIcon(iconElement)}

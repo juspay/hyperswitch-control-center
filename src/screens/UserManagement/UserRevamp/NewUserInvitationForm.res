@@ -5,13 +5,12 @@ let p3RegularTextClass = HSwitchUtils.getTextClass((P3, Regular))
 
 module ModuleAccessRenderer = {
   @react.component
-  let make = (~elem: UserManagementTypes.userModuleType, ~index, ~customCss="") => {
+  let make = (~elem: UserManagementTypes.detailedUserModuleType, ~index, ~customCss="") => {
     open UserUtils
-
     let iconForAccess = access =>
       switch access->stringToVariantMapperForAccess {
-      | View => "eye-outlined"
-      | Manage => "pencil-outlined"
+      | Read => "eye-outlined"
+      | Write => "pencil-outlined"
       }
 
     <div key={index->Int.toString} className={`flex justify-between ${customCss}`}>
@@ -19,13 +18,13 @@ module ModuleAccessRenderer = {
         <p className=p2MediumTextClass> {elem.parentGroup->React.string} </p>
         <p className=p3RegularTextClass> {elem.description->React.string} </p>
       </div>
-      <div className="flex gap-2 h-fit">
-        {elem.groups
+      <div className="flex gap-2 h-fit ">
+        {elem.scopes
         ->Array.map(item => {
           <p
             className={`py-0.5 px-2 rounded-full bg-gray-200 ${p3RegularTextClass} flex gap-1 items-center`}>
             <Icon name={item->iconForAccess} size=12 />
-            <span> {(item :> string)->React.string} </span>
+            <span> {(item :> string)->LogicUtils.camelCaseToTitle->React.string} </span>
           </p>
         })
         ->React.array}
@@ -33,17 +32,22 @@ module ModuleAccessRenderer = {
     </div>
   }
 }
+
 module RoleAccessOverview = {
   @react.component
   let make = (~roleDict, ~role) => {
     open LogicUtils
-    let userAcessGroup = roleDict->getDictfromDict(role)->getStrArrayFromDict("groups", [])
+    let detailedUserAccess =
+      roleDict
+      ->getDictfromDict(role)
+      ->getJsonObjectFromDict("parent_groups")
+      ->getArrayDataFromJson(UserUtils.itemToObjMapperFordetailedRoleInfo)
+
     let roleInfo = Recoil.useRecoilValueFromAtom(HyperswitchAtom.moduleListRecoil)
     let (modulesWithAccess, moduleWithoutAccess) = UserUtils.modulesWithUserAccess(
       roleInfo,
-      userAcessGroup,
+      detailedUserAccess,
     )
-
     <div className="flex flex-col gap-8">
       {modulesWithAccess
       ->Array.mapWithIndex((elem, index) => {
@@ -112,11 +116,10 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
-        ~entityName=USER_MANAGEMENT,
+        ~entityName=USER_MANAGEMENT_V2,
         ~userRoleTypes=ROLE_ID,
         ~id=roleTypeValue,
         ~methodType=Get,
-        ~queryParamerters=Some("groups=true"),
       )
       let res = await fetchDetails(url)
       setRoleDict(prevDict => {

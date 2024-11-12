@@ -61,13 +61,14 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (uid, setUid) = React.useState(() => None)
   let (merchantInfo, setMerchantInfo) = React.useState(() => Dict.make())
   let (formState, setFormState) = React.useState(_ => Preview)
   let (fetchState, setFetchState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let onSubmit = async (values, _) => {
     try {
       setFetchState(_ => Loading)
@@ -153,11 +154,16 @@ let make = () => {
           {switch formState {
           | Preview =>
             <ACLButton
-              authorization={userHasAccess(~groupAccess=MerchantDetailsManage)}
+              // TODO: Remove `MerchantDetailsManage` permission in future
+              authorization={hasAnyGroupAccess(
+                userHasAccess(~groupAccess=MerchantDetailsManage),
+                userHasAccess(~groupAccess=AccountManage),
+              )}
               text="Edit"
               onClick={_ => setFormState(_ => Edit)}
               buttonType=Primary
               buttonSize={Small}
+              buttonState={checkUserEntity([#Profile]) ? Disabled : Normal}
               customButtonStyle="rounded-sm"
             />
           | Edit =>

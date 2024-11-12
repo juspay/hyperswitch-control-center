@@ -8,14 +8,34 @@ const appName = process.env.appName;
 const integ = process.env.integ;
 
 let port = 9000;
-let proxy = {};
+// proxy is setup to make frontend and backend url same for local testing
+let proxy = {
+  "/api": {
+    target: "http://localhost:8080",
+    pathRewrite: { "^/api": "" },
+    changeOrigin: true,
+  },
+};
 
 let configMiddleware = (req, res, next) => {
-  if (req.path.includes("/config/merchant-config") && req.method == "GET") {
+  if (req.path.includes("/config/feature") && req.method == "GET") {
     let { domain = "default" } = req.query;
     config
       .then((result) => {
         result.configHandler(req, res, false, domain);
+      })
+      .catch((error) => {
+        console.log(error, "error");
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end("Internal Server Error");
+      });
+    return;
+  }
+  if (req.path.includes("/config/merchant") && req.method == "POST") {
+    let { domain = "default" } = req.query;
+    config
+      .then((result) => {
+        result.merchantConfigHandler(req, res, false, domain);
       })
       .catch((error) => {
         console.log(error, "error");
