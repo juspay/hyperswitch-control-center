@@ -1435,7 +1435,7 @@ module BaseRadio = {
             onChange=handleSearch
             searchRef
             placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
-              ? "Search by name or ID..."
+              ? "Search name or ID..."
               : searchInputPlaceHolder}
             showSearchIcon
           />
