@@ -78,9 +78,7 @@ module NewProcessorCards = {
 
 @react.component
 let make = () => {
-  let getURL = APIUtils.useGetURL()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let fetchDetails = APIUtils.useGetMethod()
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (
@@ -91,6 +89,7 @@ let make = () => {
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
+  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
 
   let customUI =
     <HelperComponents.BluredTableComponent
@@ -103,41 +102,27 @@ let make = () => {
     />
 
   React.useEffect(() => {
-    open Promise
-    open LogicUtils
-    fetchDetails(getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get))
-    ->thenResolve(json => {
-      let processorsList = json->getArrayFromJson([])->Array.map(getDictFromJsonObject)
+    let connectorsCount =
+      connectorList->FRMUtils.filterConnectorList(~removeFromList=FRMPlayer)->Array.length
 
-      let connectorsCount =
-        processorsList->FRMUtils.filterList(~removeFromList=FRMPlayer)->Array.length
-
-      if connectorsCount > 0 {
-        let frmList = processorsList->FRMUtils.filterList(~removeFromList=Connector)
-        let previousData = frmList->Array.map(ConnectorListMapper.getProcessorPayloadType)
-        setFilteredFRMData(_ => previousData->Array.map(Nullable.make))
-        setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
-        let arr: array<ConnectorTypes.connectorTypes> = frmList->Array.map(
-          paymentMethod =>
-            paymentMethod
-            ->getString("connector_name", "")
-            ->ConnectorUtils.getConnectorNameTypeFromString(
-              ~connectorType=ConnectorTypes.FRMPlayer,
-            ),
+    if connectorsCount > 0 {
+      let frmList = connectorList->FRMUtils.filterConnectorList(~removeFromList=Connector)
+      setFilteredFRMData(_ => frmList->Array.map(Nullable.make))
+      setPreviouslyConnectedData(_ => frmList->Array.map(Nullable.make))
+      let arr: array<ConnectorTypes.connectorTypes> =
+        frmList->Array.map(paymentMethod =>
+          paymentMethod.connector_name->ConnectorUtils.getConnectorNameTypeFromString(
+            ~connectorType=ConnectorTypes.FRMPlayer,
+          )
         )
-        setConfiguredFRMs(_ => arr)
-        setScreenState(_ => Success)
-      } else {
-        setScreenState(_ => Custom)
-      }
-    })
-    ->catch(_ => {
-      setScreenState(_ => Error("Failed to fetch"))
-      resolve()
-    })
-    ->ignore
+      setConfiguredFRMs(_ => arr)
+      setScreenState(_ => Success)
+    } else {
+      setScreenState(_ => Custom)
+    }
     None
   }, [])
+
   // TODO: Convert it to remote filter
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
