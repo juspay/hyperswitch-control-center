@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.12.0
+
+### Bug Fixes
+
+- Compare date range component minor fixes ([#1716](https://github.com/juspay/hyperswitch-control-center/pull/1716)) ([`5bb44e3`](https://github.com/juspay/hyperswitch-control-center/commit/5bb44e3c5a03bca60030411e92fa1513e6c732fb))
+- Sankey flow chart count fix ([#1711](https://github.com/juspay/hyperswitch-control-center/pull/1711)) ([`abddad9`](https://github.com/juspay/hyperswitch-control-center/commit/abddad9370d2ba847ee3f4cc38053d80cedcbc6c))
+- Handle logout ([#1710](https://github.com/juspay/hyperswitch-control-center/pull/1710)) ([`469e272`](https://github.com/juspay/hyperswitch-control-center/commit/469e272d56b4deecd18653f0abb0bbac38ccdfe7))
+
+**Full Changelog:** [`2024.11.11.1...2024.11.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.11.1...2024.11.12.0)
+
+- - -
+
 ## 2024.11.11.1
 
 ### Features

@@ -13,6 +13,7 @@ let make = () => {
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let (acceptedInvites, setAcceptedInvites) = React.useState(_ => [])
   let (pendindInvites, setPendingInvites) = React.useState(_ => [])
+  let handleLogout = useHandleLogout()
 
   let getListOfMerchantIds = async () => {
     try {
@@ -122,7 +123,7 @@ let make = () => {
         {"Log in with a different account?"->React.string}
         <p
           className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
-          onClick={_ => setAuthStatus(LoggedOut)}>
+          onClick={_ => handleLogout()->ignore}>
           {"Click here to log out."->React.string}
         </p>
       </div>

@@ -13,8 +13,7 @@ module ChangePasswordModal = {
     let getURL = useGetURL()
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod(~showErrorToast=false)
-    let fetchApi = AuthHooks.useApiFetcher()
-    let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let handleLogout = useHandleLogout()
     let onSubmit = async (values, _) => {
       let valuesDict = values->getDictFromJsonObject
       let oldPassword = getString(valuesDict, "old_password", "")
@@ -28,8 +27,7 @@ module ChangePasswordModal = {
           ]->getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post)
         showToast(~message="Password Changed Successfully", ~toastType=ToastSuccess)
-        let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT)
-        let _ = fetchApi(logoutUrl, ~method_=Post, ~xFeatureRoute)
+        let _ = handleLogout()->ignore
         setShowModal(_ => false)
       } catch {
       | Exn.Error(e) => {

@@ -505,7 +505,7 @@ module Base = {
         ~customTimezoneToISOString,
         ~format="YYYY-MM-DDTHH:mm:00[Z]",
       )
-      getStartEndDiff(startTimestamp, endTimestamp)
+      (startTimestamp, endTimestamp)
     }
 
     let predefinedOptionSelected = predefinedDays->Array.find(item => {
@@ -519,8 +519,8 @@ module Base = {
         endDateVal,
         "YYYY-MM-DDTHH:mm:00[Z]",
       )
-      let difference = getStartEndDiff(startDate, endDate)
-      getDiffForPredefined(item) === difference
+      let (startTimestamp, endTimestamp) = getDiffForPredefined(item)
+      (startTimestamp, endTimestamp) == (startDate, endDate)
     })
 
     let buttonText = switch predefinedOptionSelected {
@@ -535,10 +535,9 @@ module Base = {
 
     let buttonType: option<Button.buttonType> = buttonType
 
-    let setDateTime = (~date, ~time, setLocalDate) => {
+    let setDateTime = (~date, setLocalDate) => {
       if date->isNonEmptyString {
-        let timestamp = changeTimeFormat(~date, ~time, ~customTimezoneToISOString, ~format)
-        setLocalDate(_ => timestamp)
+        setLocalDate(_ => date)
       }
     }
     let handleCompareOptionClick = value => {
@@ -563,13 +562,8 @@ module Base = {
           setIsDropdownExpanded(_ => false)
           setIsCustomSelected(_ => false)
 
-          let stDate = getFormattedDate(startDate, "YYYY-MM-DD")
-          let edDate = getFormattedDate(endDate, "YYYY-MM-DD")
-          let stTime = getFormattedDate(startDate, "HH:MM:00")
-          let endTime = getFormattedDate(endDate, "HH:MM:00")
-
-          setDateTime(~date=stDate, ~time=stTime, setLocalStartDate)
-          setDateTime(~date=edDate, ~time=endTime, setLocalEndDate)
+          setDateTime(~date=startDateVal, setLocalStartDate)
+          setDateTime(~date=endDateVal, setLocalEndDate)
           let _ = setTimeout(() => {
             setComparison(_ => (EnableComparison :> string))
           }, 0)
@@ -608,7 +602,7 @@ module Base = {
               dateRangeLimit={DateRangeUtils.getGapBetweenRange(
                 ~startDate=compareWithStartTime,
                 ~endDate=compareWithEndTime,
-              )}
+              ) + 1}
               calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
               ?allowedDateRange
             />
@@ -676,7 +670,6 @@ module Base = {
         textStyle
         iconBorderColor=customborderCSS
         customButtonStyle=customStyleForBtn
-        enableToolTip=false
         showLeftIcon=false
         isCompare=true
         comparison
