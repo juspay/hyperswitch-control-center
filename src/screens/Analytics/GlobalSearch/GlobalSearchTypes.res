@@ -3,11 +3,11 @@ type section =
   | PaymentIntents
   | PaymentAttempts
   | Refunds
+  | Disputes
   | SessionizerPaymentAttempts
   | SessionizerPaymentIntents
   | SessionizerPaymentRefunds
   | SessionizerPaymentDisputes
-  | Disputes
   | Others
   | Default
 
