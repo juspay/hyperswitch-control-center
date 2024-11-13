@@ -4,6 +4,100 @@ let sectionHeadingClass = "font-semibold text-fs-18"
 let p1Leading1TextClass = HSwitchUtils.getTextClass((P1, Regular))
 let p3RegularTextClass = `${HSwitchUtils.getTextClass((P3, Regular))} text-gray-700 opacity-50`
 
+module ChangePasswordModal = {
+  @react.component
+  let make = (~setShowModal) => {
+    open APIUtils
+    open LogicUtils
+    open CommonAuthUtils
+    let getURL = useGetURL()
+    let showToast = ToastState.useShowToast()
+    let updateDetails = useUpdateMethod(~showErrorToast=false)
+    let handleLogout = useHandleLogout()
+    let onSubmit = async (values, _) => {
+      let valuesDict = values->getDictFromJsonObject
+      let oldPassword = getString(valuesDict, "old_password", "")
+      let newPassword = getString(valuesDict, "new_password", "")
+      try {
+        let url = getURL(~entityName=USERS, ~userType=#CHANGE_PASSWORD, ~methodType=Post)
+        let body =
+          [
+            ("old_password", oldPassword->JSON.Encode.string),
+            ("new_password", newPassword->JSON.Encode.string),
+          ]->getJsonFromArrayOfJson
+        let _ = await updateDetails(url, body, Post)
+        showToast(~message="Password Changed Successfully", ~toastType=ToastSuccess)
+        let _ = handleLogout()->ignore
+        setShowModal(_ => false)
+      } catch {
+      | Exn.Error(e) => {
+          let err = Exn.message(e)->Option.getOr("Something went wrong")
+          let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+          let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
+          setShowModal(_ => false)
+          if errorCode->errorSubCodeMapper === UR_06 {
+            showToast(~message=errorMessage, ~toastType=ToastError)
+          } else {
+            showToast(~message="Password Change Failed, Try again", ~toastType=ToastError)
+          }
+        }
+      }
+      Nullable.null
+    }
+
+    <Modal
+      modalHeading="Change Password"
+      setShowModal
+      showModal=true
+      closeOnOutsideClick=true
+      modalClass="w-full md:w-4/12 mx-auto my-auto">
+      <Form
+        key="auth"
+        validate={values =>
+          TwoFaUtils.validateTotpForm(values, ["old_password", "new_password", "confirm_password"])}
+        onSubmit>
+        <div className="flex flex-col gap-6 m-2">
+          <div
+            className="flex flex-col justify-evenly gap-5 h-full w-full !overflow-visible text-grey-600">
+            <CommonAuthForm.ChangePasswordForm />
+            <div id="auth-submit-btn" className="flex flex-col gap-2">
+              <FormRenderer.SubmitButton
+                customSumbitButtonStyle="!w-full !rounded"
+                text="Confirm"
+                userInteractionRequired=true
+                showToolTip=false
+                loadingText="Loading..."
+              />
+            </div>
+          </div>
+        </div>
+      </Form>
+    </Modal>
+  }
+}
+
+module ChangePassword = {
+  @react.component
+  let make = () => {
+    let (showModal, setShowModal) = React.useState(_ => false)
+    <div className="flex gap-10 items-center">
+      <p className="text-hyperswitch_black text-base  w-1/5"> {"Password:"->React.string} </p>
+      <div className="flex flex-col gap-5 items-start md:flex-row md:items-center flex-wrap">
+        <p className="text-hyperswitch_black opacity-50 text-base font-semibold break-all">
+          {"********"->React.string}
+        </p>
+        <Button
+          text={"Change Password"}
+          buttonType=Secondary
+          buttonSize={Small}
+          onClick={_ => setShowModal(_ => true)}
+        />
+        {showModal ? <ChangePasswordModal setShowModal /> : React.null}
+      </div>
+    </div>
+  }
+}
+
 module ResetPassword = {
   @react.component
   let make = () => {
@@ -123,8 +217,6 @@ module BasicDetailsSection = {
     let {name: userName, email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let userTitle = LogicUtils.userNameToTitle(userName)
 
-    let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     <div>
       <div className="border bg-gray-50 rounded-t-lg w-full px-10 py-6">
@@ -144,8 +236,11 @@ module BasicDetailsSection = {
           <p className=subTitleClass> {email->React.string} </p>
         </div>
         <hr />
-        <RenderIf condition={!isPlayground && featureFlagDetails.email}>
+        <RenderIf condition={featureFlagDetails.email}>
           <ResetPassword />
+        </RenderIf>
+        <RenderIf condition={!featureFlagDetails.email}>
+          <ChangePassword />
         </RenderIf>
       </div>
     </div>

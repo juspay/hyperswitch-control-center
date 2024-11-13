@@ -8,7 +8,14 @@ const appName = process.env.appName;
 const integ = process.env.integ;
 
 let port = 9000;
-let proxy = {};
+// proxy is setup to make frontend and backend url same for local testing
+let proxy = {
+  "/api": {
+    target: "http://localhost:8080",
+    pathRewrite: { "^/api": "" },
+    changeOrigin: true,
+  },
+};
 
 let configMiddleware = (req, res, next) => {
   if (req.path.includes("/config/feature") && req.method == "GET") {

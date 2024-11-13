@@ -40,7 +40,15 @@ let successfulPaymentsDistributionMapper = (
     text: "",
   }
 
-  {categories, data: [barGraphData], title}
+  {
+    categories,
+    data: [barGraphData],
+    title,
+    tooltipFormatter: bargraphTooltipFormatter(
+      ~title="Successful Payments Distribution",
+      ~metricType=Rate,
+    ),
+  }
 }
 
 open NewAnalyticsTypes

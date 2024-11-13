@@ -204,9 +204,51 @@ describe("connector", () => {
 
     cy.get(`[data-testid="${selectDate}"]`).click();
     cy.get("[data-button-for=apply]").click();
-    cy.get(
-      `[data-button-text='${formattedDate30DaysAgo} - ${formattedDate}']`,
-    ).should("exist");
+    const isStartDate = date30DaysAgo.getDate() === 1;
+    const isEndDate =
+      today.getDate() ===
+      new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    if (isStartDate && isEndDate) {
+      cy.get(`[data-button-text='This Month']`).should("exist");
+    } else {
+      cy.get(
+        `[data-button-text='${formattedDate30DaysAgo} - ${formattedDate}']`,
+      ).should("exist");
+    }
+
     cy.get("[data-table-location=Orders_tr1_td1]").should("exist");
+  });
+
+  it("Verify Search for Payment Using Existing Payment ID in Payment Operations Page", () => {
+    cy.get("[data-testid=operations]").click();
+    cy.get("[data-testid=payments]").click();
+    cy.contains("Payment Operations").should("be.visible");
+    cy.get("[data-table-location=Orders_tr1_td2]")
+      .invoke("text")
+      .then((expectedPaymentId) => {
+        cy.get('[data-id="Search payment id"]').should("exist");
+        cy.get('[data-id="Search payment id"]')
+          .click()
+          .type(`${expectedPaymentId}{enter}`);
+        cy.get("[data-table-location=Orders_tr1_td1]").should("exist");
+        cy.get("[data-table-location=Orders_tr1_td2]")
+          .invoke("text")
+          .should((actualPaymentId) => {
+            expect(expectedPaymentId).to.eq(actualPaymentId);
+          });
+      });
+  });
+  it("Verify Search for Payment Using Invalid Payment ID in Payment Operations Page", () => {
+    cy.get("[data-testid=operations]").click();
+    cy.get("[data-testid=payments]").click();
+    cy.contains("Payment Operations").should("be.visible");
+    cy.get('[data-id="Search payment id"]').should("exist");
+    const paymentIds = ["abacd", "something", "createdAt"];
+    paymentIds.forEach((id) => {
+      cy.get('[data-id="Search payment id"]').click();
+      cy.get('[data-id="Search payment id"]').type(`${id}{enter}`);
+      cy.get("[data-table-location=Orders_tr1_td1]").should("not.exist");
+      cy.get('[placeholder="Search payment id"]').click().clear();
+    });
   });
 });
