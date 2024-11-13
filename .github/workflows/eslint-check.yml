@@ -9,13 +9,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Generate GitHub app token
-        id: generate_app_token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.HYPERSWITCH_BOT_APP_ID }}
-          private-key: ${{ secrets.HYPERSWITCH_BOT_APP_PRIVATE_KEY }}
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
