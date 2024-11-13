@@ -1,19 +1,22 @@
 @react.component
 let make = () => {
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let connectorList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.connectorListAtom)
 
   let getConnectorList = async _ => {
     try {
-      let taxConnectorsList =
-        connectorList->Array.filter(item =>
+      let response = await fetchConnectorListResponse()
+      let connectorsList =
+        response
+        ->ConnectorListMapper.getArrayOfConnectorListPayloadType
+        ->Array.filter(item =>
           item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === TaxProcessor
         )
 
-      setConfiguredConnectors(_ => taxConnectorsList)
+      setConfiguredConnectors(_ => connectorsList)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
