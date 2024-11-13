@@ -587,6 +587,33 @@ module Base = {
       getStartEndDiff(startTimestamp, endTimestamp)
     }
 
+    let getPredefinedValues = predefinedDay => {
+      let (stDate, enDate, stTime, enTime) = DateRangeUtils.getPredefinedStartAndEndDate(
+        todayDayJsObj,
+        isoStringToCustomTimeZone,
+        isoStringToCustomTimezoneInFloat,
+        customTimezoneToISOString,
+        predefinedDay,
+        disableFutureDates,
+        disablePastDates,
+        todayDate,
+        todayTime,
+      )
+      let startTimestamp = changeTimeFormat(
+        ~date=stDate,
+        ~time=stTime,
+        ~customTimezoneToISOString,
+        ~format="YYYY-MM-DDTHH:mm:00[Z]",
+      )
+      let endTimestamp = changeTimeFormat(
+        ~date=enDate,
+        ~time=enTime,
+        ~customTimezoneToISOString,
+        ~format="YYYY-MM-DDTHH:mm:00[Z]",
+      )
+      (startTimestamp, endTimestamp)
+    }
+
     let predefinedOptionSelected = predefinedDays->Array.find(item => {
       let startDate = convertTimeStamp(
         ~isoStringToCustomTimeZone,
@@ -598,8 +625,21 @@ module Base = {
         endDateVal,
         "YYYY-MM-DDTHH:mm:00[Z]",
       )
-      let difference = getStartEndDiff(startDate, endDate)
-      getDiffForPredefined(item) === difference
+
+      let (startTimestamp, endTimestamp) = getPredefinedValues(item)
+
+      let prestartDate = convertTimeStamp(
+        ~isoStringToCustomTimeZone,
+        startTimestamp,
+        "YYYY-MM-DDTHH:mm:00[Z]",
+      )
+      let preendDate = convertTimeStamp(
+        ~isoStringToCustomTimeZone,
+        endTimestamp,
+        "YYYY-MM-DDTHH:mm:00[Z]",
+      )
+
+      startDate == prestartDate && endDate == preendDate
     })
 
     let buttonText = switch predefinedOptionSelected {
