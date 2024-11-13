@@ -214,6 +214,31 @@ module SearchResultsComponent = {
   }
 }
 
+let sidebarScrollbarCss = `
+  @supports (-webkit-appearance: none){
+    .sidebar-scrollbar {
+        scrollbar-width: auto;
+        scrollbar-color: #8a8c8f;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar {
+        display: block;
+        overflow: scroll;
+        height: 4px;
+        width: 5px;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #8a8c8f;
+        border-radius: 3px;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar-track {
+        display: none;
+      }
+}
+  `
+
 module FilterResultsComponent = {
   open LogicUtils
   open GlobalSearchTypes
@@ -251,31 +276,33 @@ module FilterResultsComponent = {
         <Div layoutId="categories-title" className="font-bold px-2">
           {"Suggested Filters"->String.toUpperCase->React.string}
         </Div>
-        <div className="">
+        <div>
           <RenderIf condition={filters->Array.length === 1 && filters->checkFilterKey}>
-            {switch filters->Array.get(0) {
-            | Some(value) =>
-              value.options
-              ->Array.map(option => {
-                <div
-                  className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
-                  onClick={_ => {
-                    setLocalSearchText(_ => `${searchText}${option}`)
-                    setActiveFilter(_ => "")
-                  }}>
+            <div className="h-full max-h-[450px] overflow-scroll sidebar-scrollbar">
+              <style> {React.string(sidebarScrollbarCss)} </style>
+              {switch filters->Array.get(0) {
+              | Some(value) =>
+                value.options
+                ->Array.map(option => {
                   <div
-                    className="bg-gray-300 py-1 px-2 rounded-md flex gap-1 items-center opacity-80 w-fit">
-                    <span className="font-bold text-sm">
-                      {`${value.categoryType
-                        ->getcategoryFromVariant
-                        ->String.toLocaleLowerCase} : ${option}`->React.string}
-                    </span>
+                    className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
+                    onClick={_ => {
+                      setLocalSearchText(_ => `${searchText}${option}`)
+                      setActiveFilter(_ => "")
+                    }}>
+                    <div className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center w-fit">
+                      <span className="font-medium text-sm">
+                        {`${value.categoryType
+                          ->getcategoryFromVariant
+                          ->String.toLocaleLowerCase} : ${option}`->React.string}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              })
-              ->React.array
-            | _ => React.null
-            }}
+                })
+                ->React.array
+              | _ => React.null
+              }}
+            </div>
           </RenderIf>
           <RenderIf condition={!(filters->Array.length === 1 && filters->checkFilterKey)}>
             {filters
@@ -295,9 +322,8 @@ module FilterResultsComponent = {
                     setActiveFilter(_ => newFilter)
                   }
                 }}>
-                <div
-                  className="bg-gray-300 py-1 px-2 rounded-md flex gap-1 items-center opacity-80 w-fit">
-                  <span className="font-bold text-sm">
+                <div className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center w-fit">
+                  <span className="font-medium text-sm">
                     {`${category.categoryType
                       ->getcategoryFromVariant
                       ->String.toLocaleLowerCase} : `->React.string}

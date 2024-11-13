@@ -378,3 +378,69 @@ let getFilterBody = groupByNames =>
     }
     AnalyticsUtils.filterBody(filterBodyEntity)
   }->Identity.genericTypeToJson
+
+let generateFilter = (queryArray: array<string>) => {
+  open LogicUtils
+  let filter = Dict.make()
+  queryArray->Array.forEach(query => {
+    let arr =
+      query
+      ->String.split(":")
+      ->Array.filter(query => {
+        let queryText = query->String.trim
+        queryText->isNonEmptyString
+      })
+
+    let key = arr->getValueFromArray(0, "")
+    let value = arr->getValueFromArray(1, "")
+
+    switch filter->Dict.get(key) {
+    | Some(prevArr) => filter->Dict.set(key, prevArr->Array.concat([value]))
+    | _ => filter->Dict.set(key, [value])
+    }
+  })
+
+  filter
+  ->Dict.toArray
+  ->Array.map(item => {
+    let (key, value) = item
+    let newValue = value->Array.map(JSON.Encode.string)
+    (key, newValue->JSON.Encode.array)
+  })
+  ->Dict.fromArray
+}
+
+let generateQuery = searchQuery => {
+  open LogicUtils
+
+  let filters = []
+  let queryText = ref("")
+
+  searchQuery
+  ->String.split(" ")
+  ->Array.filter(query => {
+    let queryText = query->String.trim
+    queryText->isNonEmptyString
+  })
+  ->Array.forEach(query => {
+    if RegExp.test(%re("/^[^:\s]+:[^:\s]+$/"), query) {
+      filters->Array.push(query)
+    } else {
+      queryText := query
+    }
+  })
+
+  let body = {
+    let query = if filters->Array.length > 0 {
+      [("filters", filters->generateFilter->JSON.Encode.object)]
+    } else {
+      []
+    }
+
+    let query = query->Array.concat([("query", queryText.contents->JSON.Encode.string)])
+
+    query->Dict.fromArray
+  }
+
+  body
+}

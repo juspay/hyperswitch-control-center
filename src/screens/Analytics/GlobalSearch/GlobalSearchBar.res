@@ -28,7 +28,6 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let isShowRemoteResults = globalSearch && userHasAccess(~groupAccess=OperationsView) === Access
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
 
   let redirectOnSelect = element => {
     mixpanelEvent(~eventName="global_search_redirect")
@@ -65,9 +64,9 @@ let make = () => {
     try {
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
 
-      let body = generateSearchBody(~searchText, ~merchant_id={merchantId})
+      let body = searchText->generateQuery
 
-      let response = await fetchDetails(url, body, Post)
+      let response = await fetchDetails(url, body->JSON.Encode.object, Post)
 
       let local_results = []
       results->Array.forEach((item: resultType) => {
@@ -220,19 +219,18 @@ let make = () => {
               <Loader />
             </div>
           | _ =>
-            // if (
-            //   activeFilter->isNonEmptyString ||
-            //     (activeFilter->isEmptyString && searchText->isEmptyString)
-            // ) {
-            //   <FilterResultsComponent
-            //     categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
-            //     activeFilter
-            //     setActiveFilter
-            //     searchText
-            //     setLocalSearchText
-            //   />
-            // } else
-            if searchText->isNonEmptyString && searchResults->Array.length === 0 {
+            if (
+              activeFilter->isNonEmptyString ||
+                (activeFilter->isEmptyString && searchText->isEmptyString)
+            ) {
+              <FilterResultsComponent
+                categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+                activeFilter
+                setActiveFilter
+                searchText
+                setLocalSearchText
+              />
+            } else if searchText->isNonEmptyString && searchResults->Array.length === 0 {
               <EmptyResult prefix searchText />
             } else {
               <SearchResultsComponent

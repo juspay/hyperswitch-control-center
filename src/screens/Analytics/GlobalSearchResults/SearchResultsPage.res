@@ -97,14 +97,15 @@ let make = () => {
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let isShowRemoteResults = globalSearch && userHasAccess(~groupAccess=OperationsView) === Access
+  let fallBackQuery = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("query", "")
 
   let getSearchResults = async results => {
     try {
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
-      let body = generateSearchBody(~searchText={query}, ~merchant_id={merchantId})
-      let response = await fetchDetails(url, body, Post)
+      let query = searchText->isNonEmptyString ? searchText : fallBackQuery
+      let body = query->generateQuery
+      let response = await fetchDetails(url, body->JSON.Encode.object, Post)
 
       let local_results = []
       results->Array.forEach((item: resultType) => {
@@ -165,7 +166,7 @@ let make = () => {
     }
 
     None
-  }, (query, url.search))
+  }, [query, url.search])
 
   <div>
     <PageUtils.PageHeading title="Search results" />
