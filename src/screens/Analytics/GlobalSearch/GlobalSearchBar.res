@@ -38,6 +38,18 @@ let make = () => {
     }
   }
 
+  React.useEffect(() => {
+    let onKeyPress = event => {
+      let keyPressed = event->ReactEvent.Keyboard.key
+
+      if keyPressed == "Enter" {
+        selectedOption->redirectOnSelect
+      }
+    }
+    Window.addEventListener("keydown", onKeyPress)
+    Some(() => Window.removeEventListener("keydown", onKeyPress))
+  }, [])
+
   let getCategoryOptions = async () => {
     setState(_ => Loading)
     try {
@@ -219,28 +231,24 @@ let make = () => {
               <Loader />
             </div>
           | _ =>
-            // if (
-            //   activeFilter->isNonEmptyString ||
-            //     (activeFilter->isEmptyString && searchText->isEmptyString)
-            // ) {
-            //   <FilterResultsComponent
-            //     categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
-            //     activeFilter
-            //     setActiveFilter
-            //     searchText
-            //     setLocalSearchText
-            //   />
-            // } else
-            // if searchText->isNonEmptyString && searchResults->Array.length === 0 {
-            //   <EmptyResult prefix searchText />
-            // } else {
-            //   <SearchResultsComponent
-            //     searchResults searchText setShowModal selectedOption redirectOnSelect
-            //   />
-            // }
-            <SearchResultsComponent
-              searchResults searchText setShowModal selectedOption redirectOnSelect
-            />
+            if (
+              activeFilter->isNonEmptyString ||
+                (activeFilter->isEmptyString && searchText->isEmptyString)
+            ) {
+              <FilterResultsComponent
+                categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+                activeFilter
+                setActiveFilter
+                searchText
+                setLocalSearchText
+              />
+            } else if searchText->isNonEmptyString && searchResults->Array.length === 0 {
+              <EmptyResult prefix searchText />
+            } else {
+              <SearchResultsComponent
+                searchResults searchText setShowModal selectedOption redirectOnSelect
+              />
+            }
           }}
         </div>
       </ModalWrapper>

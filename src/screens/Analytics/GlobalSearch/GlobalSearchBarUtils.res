@@ -489,3 +489,23 @@ let generateQuery = searchQuery => {
 
   body
 }
+
+let validateQuery = searchQuery => {
+  open LogicUtils
+
+  let freeTextCount = ref(0)
+
+  searchQuery
+  ->String.split(" ")
+  ->Array.filter(query => {
+    let queryText = query->String.trim
+    queryText->isNonEmptyString
+  })
+  ->Array.forEach(query => {
+    if !RegExp.test(%re("/^[^:\s]+:[^:\s]+$/"), query) {
+      freeTextCount := freeTextCount.contents + 1
+    }
+  })
+
+  freeTextCount.contents > 1
+}

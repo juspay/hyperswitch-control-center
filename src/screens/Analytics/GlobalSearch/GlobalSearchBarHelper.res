@@ -290,7 +290,9 @@ module FilterResultsComponent = {
                   <div
                     className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
                     onClick={_ => {
-                      setLocalSearchText(_ => `${searchText}${option}`)
+                      let saparater =
+                        searchText->String.charAt(searchText->String.length - 1) == ":" ? "" : ":"
+                      setLocalSearchText(_ => `${searchText}${saparater}${option}`)
                       setActiveFilter(_ => "")
                     }}>
                     <div className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center w-fit">
@@ -358,8 +360,8 @@ module ModalSearchBox = {
     ~setSelectedOption,
     ~redirectOnSelect,
   ) => {
-    let (errorMessage, _setErrorMessage) = React.useState(_ => "")
-    // "Multiple free-text terms found"
+    let (errorMessage, setErrorMessage) = React.useState(_ => "")
+
     let input: ReactFinalForm.fieldRenderPropsInput = {
       {
         name: "global_search",
@@ -410,6 +412,12 @@ module ModalSearchBox = {
 
     let validateForm = _values => {
       let errors = Dict.make()
+      let lastChar = localSearchText->String.charCodeAt(localSearchText->String.length - 1)
+      if localSearchText->GlobalSearchBarUtils.validateQuery && lastChar == 32.0 {
+        setErrorMessage(_ => "Multiple free-text terms found")
+      } else if !(localSearchText->GlobalSearchBarUtils.validateQuery) {
+        setErrorMessage(_ => "")
+      }
       errors->JSON.Encode.object
     }
 
