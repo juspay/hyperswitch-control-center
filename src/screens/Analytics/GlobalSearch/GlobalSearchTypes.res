@@ -74,7 +74,7 @@ type defaultResult = {
   searchText: string,
 }
 
-type state = Loading | Loaded | Failed | Idle
+type state = Loading | Loaded | Idle
 
 type category =
   | Payment_Method
@@ -90,3 +90,9 @@ type categoryOption = {
   options: array<string>,
   placeholder: string,
 }
+
+type viewType =
+  | Load
+  | Results
+  | FiltersSugsestions
+  | EmptyResult

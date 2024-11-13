@@ -111,14 +111,11 @@ module ShowMoreLink = {
   ) => {
     <RenderIf condition={section.total_results > 10}>
       {
-        let linkText = `View ${section.total_results->Int.toString} result${section.total_results > 1
-            ? "s"
-            : ""}`
+        let totalCount = section.total_results
+        let suffix = totalCount > 1 ? "s" : ""
+        let linkText = `View ${totalCount->Int.toString} result${suffix}`
 
         switch section.section {
-        | Local
-        | Default
-        | Others => React.null
         | SessionizerPaymentAttempts
         | SessionizerPaymentIntents
         | SessionizerPaymentRefunds
@@ -152,6 +149,9 @@ module ShowMoreLink = {
             className={`font-medium cursor-pointer underline underline-offset-2 opacity-50 ${textStyleClass}`}>
             {linkText->React.string}
           </div>
+        | Local
+        | Default
+        | Others => React.null
         }
       }
     </RenderIf>

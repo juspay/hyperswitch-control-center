@@ -66,9 +66,9 @@ let make = () => {
       )
       setCategorieSuggestionResponse(_ => paymentsResponse)
 
-      setState(_ => Loaded)
+      setState(_ => Idle)
     } catch {
-    | _ => setState(_ => Loaded)
+    | _ => setState(_ => Idle)
     }
   }
 
@@ -109,7 +109,7 @@ let make = () => {
       }
       setState(_ => Loaded)
     } catch {
-    | _ => setState(_ => Failed)
+    | _ => setState(_ => Loaded)
     }
   }
 
@@ -225,30 +225,24 @@ let make = () => {
             setSelectedOption
             redirectOnSelect
           />
-          {switch state {
-          | Loading =>
-            <div className="my-14 py-4">
+          {switch getViewType(~state, ~searchResults) {
+          | Load =>
+            <div className="mb-24">
               <Loader />
             </div>
-          | _ =>
-            if (
-              activeFilter->isNonEmptyString ||
-                (activeFilter->isEmptyString && searchText->isEmptyString)
-            ) {
-              <FilterResultsComponent
-                categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
-                activeFilter
-                setActiveFilter
-                searchText
-                setLocalSearchText
-              />
-            } else if searchText->isNonEmptyString && searchResults->Array.length === 0 {
-              <EmptyResult prefix searchText />
-            } else {
-              <SearchResultsComponent
-                searchResults searchText setShowModal selectedOption redirectOnSelect
-              />
-            }
+          | Results =>
+            <SearchResultsComponent
+              searchResults searchText setShowModal selectedOption redirectOnSelect
+            />
+          | FiltersSugsestions =>
+            <FilterResultsComponent
+              categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+              activeFilter
+              setActiveFilter
+              searchText
+              setLocalSearchText
+            />
+          | EmptyResult => <EmptyResult prefix searchText />
           }}
         </div>
       </ModalWrapper>

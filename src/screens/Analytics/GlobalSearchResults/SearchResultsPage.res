@@ -127,7 +127,7 @@ let make = () => {
 
       setState(_ => Loaded)
     } catch {
-    | _ => setState(_ => Failed)
+    | _ => setState(_ => Loaded)
     }
   }
 
