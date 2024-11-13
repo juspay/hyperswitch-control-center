@@ -217,7 +217,7 @@ module EditOrgName = {
       errors->JSON.Encode.object
     }
 
-    let businessName = FormRenderer.makeFieldInfo(
+    let orgName = FormRenderer.makeFieldInfo(
       ~label="Org Name",
       ~name="organization_name",
       ~placeholder=`Eg: Hyperswitch`,
@@ -245,7 +245,7 @@ module EditOrgName = {
             <FormRenderer.DesktopRow>
               <FormRenderer.FieldRenderer
                 fieldWrapperClass="w-full"
-                field={businessName}
+                field={orgName}
                 labelClass="!text-black font-medium !-ml-[0.5px]"
               />
             </FormRenderer.DesktopRow>
