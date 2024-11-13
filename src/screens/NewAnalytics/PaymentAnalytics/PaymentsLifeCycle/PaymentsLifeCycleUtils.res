@@ -105,7 +105,7 @@ let paymentsLifeCycleMapper = (
     partialRefunded +
     (isSmartRetryEnabled ? data.smartRetriedSuccess : 0) +
     data.normalSuccess
-  let failure = data.normalFailure + (isSmartRetryEnabled ? data.smartRetriedFailure * 2 : 0)
+  let failure = data.normalFailure + (isSmartRetryEnabled ? data.smartRetriedFailure : 0)
   let pending = data.pending
   let cancelled = data.cancelled
   let dropoff =
