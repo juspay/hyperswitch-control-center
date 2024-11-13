@@ -126,7 +126,7 @@ let getElements = (hits, section) => {
   }
 
   switch section {
-  | PaymentAttempts =>
+  | PaymentAttempts | SessionizerPaymentAttempts =>
     hits->Array.map(item => {
       let (payId, amount, status, profileId) = item->getValues
 
@@ -135,7 +135,7 @@ let getElements = (hits, section) => {
         redirect_link: `/payments/${payId}/${profileId}`->JSON.Encode.string,
       }
     })
-  | PaymentIntents =>
+  | PaymentIntents | SessionizerPaymentIntents =>
     hits->Array.map(item => {
       let (payId, amount, status, profileId) = item->getValues
 
@@ -145,7 +145,7 @@ let getElements = (hits, section) => {
       }
     })
 
-  | Refunds =>
+  | Refunds | SessionizerPaymentRefunds =>
     hits->Array.map(item => {
       let value = item->JSON.Decode.object->Option.getOr(Dict.make())
       let refId = value->getString("refund_id", "")
@@ -158,7 +158,7 @@ let getElements = (hits, section) => {
         redirect_link: `/refunds/${refId}/${profileId}`->JSON.Encode.string,
       }
     })
-  | Disputes =>
+  | Disputes | SessionizerPaymentDisputes =>
     hits->Array.map(item => {
       let value = item->JSON.Decode.object->Option.getOr(Dict.make())
       let disId = value->getString("dispute_id", "")
@@ -173,18 +173,38 @@ let getElements = (hits, section) => {
     })
   | Local
   | Others
-  | Default
-  | SessionizerPaymentAttempts
-  | SessionizerPaymentIntents
-  | SessionizerPaymentRefunds
-  | SessionizerPaymentDisputes => []
+  | Default => []
+  }
+}
+
+let getItemFromArray = (results, key1, key2, resultsData) => {
+  open GlobalSearchTypes
+  switch (resultsData->Dict.get(key1), resultsData->Dict.get(key2)) {
+  | (Some(data), Some(sessionizerData)) => {
+      let intentsCount = data.total_results
+      let sessionizerCount = sessionizerData.total_results
+      if intentsCount > 0 && sessionizerCount > 0 {
+        if intentsCount >= sessionizerCount {
+          results->Array.push(data)
+        } else {
+          results->Array.push(sessionizerData)
+        }
+      } else if intentsCount > 0 {
+        results->Array.push(data)
+      } else {
+        results->Array.push(sessionizerData)
+      }
+    }
+  | (None, Some(sessionizerData)) => results->Array.push(sessionizerData)
+  | (Some(data), None) => results->Array.push(data)
+  | _ => ()
   }
 }
 
 let getRemoteResults = json => {
   open GlobalSearchTypes
   open LogicUtils
-  let results = []
+  let data = Dict.make()
 
   json
   ->JSON.Decode.array
@@ -194,15 +214,41 @@ let getRemoteResults = json => {
     let section = value->getString("index", "")->getSectionVariant
     let hints = value->getArrayFromDict("hits", [])
     let total_results = value->getInt("count", hints->Array.length)
+    let key = value->getString("index", "")
 
     if hints->Array.length > 0 {
-      results->Array.push({
-        section,
-        results: hints->getElements(section),
-        total_results,
-      })
+      data->Dict.set(
+        key,
+        {
+          section,
+          results: hints->getElements(section),
+          total_results,
+        },
+      )
     }
   })
+
+  let results = []
+
+  // intents
+  let key1 = PaymentIntents->getSectionIndex
+  let key2 = SessionizerPaymentIntents->getSectionIndex
+  getItemFromArray(results, key1, key2, data)
+
+  // Attempts
+  let key1 = PaymentAttempts->getSectionIndex
+  let key2 = SessionizerPaymentAttempts->getSectionIndex
+  getItemFromArray(results, key1, key2, data)
+
+  // Refunds
+  let key1 = Refunds->getSectionIndex
+  let key2 = SessionizerPaymentRefunds->getSectionIndex
+  getItemFromArray(results, key1, key2, data)
+
+  // Disputes
+  let key1 = Disputes->getSectionIndex
+  let key2 = SessionizerPaymentDisputes->getSectionIndex
+  getItemFromArray(results, key1, key2, data)
 
   results
 }
@@ -242,7 +288,6 @@ let parseResponse = response => {
   ->getArrayFromJson([])
   ->Array.map(json => {
     let item = json->getDictFromJsonObject
-
     {
       count: item->getInt("count", 0),
       hits: item->getArrayFromDict("hits", []),

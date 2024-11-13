@@ -40,16 +40,13 @@ module RenderSearchResultBody = {
         </div>
       })
       ->React.array
-    | PaymentIntents => <PaymentIntentTable.PreviewTable data={section.results} />
-    | PaymentAttempts => <PaymentAttemptTable.PreviewTable data={section.results} />
-    | Refunds => <RefundsTable.PreviewTable data={section.results} />
-    | Disputes => <DisputeTable.PreviewTable data={section.results} />
+    | PaymentIntents | SessionizerPaymentIntents =>
+      <PaymentIntentTable.PreviewTable data={section.results} />
+    | PaymentAttempts | SessionizerPaymentAttempts =>
+      <PaymentAttemptTable.PreviewTable data={section.results} />
+    | Refunds | SessionizerPaymentRefunds => <RefundsTable.PreviewTable data={section.results} />
+    | Disputes | SessionizerPaymentDisputes => <DisputeTable.PreviewTable data={section.results} />
     | Others | Default => "Not implemented"->React.string
-    | SessionizerPaymentAttempts
-    | SessionizerPaymentIntents
-    | SessionizerPaymentRefunds
-    | SessionizerPaymentDisputes =>
-      ""->React.string
     }
   }
 }

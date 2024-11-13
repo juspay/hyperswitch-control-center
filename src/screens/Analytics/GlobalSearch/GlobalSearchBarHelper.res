@@ -118,31 +118,38 @@ module ShowMoreLink = {
         switch section.section {
         | Local
         | Default
-        | Others
+        | Others => React.null
         | SessionizerPaymentAttempts
         | SessionizerPaymentIntents
         | SessionizerPaymentRefunds
-        | SessionizerPaymentDisputes => React.null
-        | PaymentAttempts | PaymentIntents | Refunds | Disputes =>
+        | SessionizerPaymentDisputes
+        | PaymentAttempts
+        | PaymentIntents
+        | Refunds
+        | Disputes =>
           <div
             onClick={_ => {
               let link = switch section.section {
-              | PaymentAttempts => `payment-attempts?query=${searchText}`
-              | PaymentIntents => `payment-intents?query=${searchText}`
-              | Refunds => `refunds-global?query=${searchText}`
-              | Disputes => `dispute-global?query=${searchText}`
+              | PaymentAttempts => `payment-attempts?query=${searchText}&domain=payment_attempts`
+              | SessionizerPaymentAttempts =>
+                `payment-attempts?query=${searchText}&domain=sessionizer_payment_attempts`
+              | PaymentIntents => `payment-intents?query=${searchText}&domain=payment_intents`
+              | SessionizerPaymentIntents =>
+                `payment-intents?query=${searchText}&domain=sessionizer_payment_intents`
+              | Refunds => `refunds-global?query=${searchText}&domain=refunds`
+              | SessionizerPaymentRefunds =>
+                `refunds-global?query=${searchText}&domain=sessionizer_refunds`
+              | Disputes => `dispute-global?query=${searchText}&domain=disputes`
+              | SessionizerPaymentDisputes =>
+                `dispute-global?query=${searchText}&domain=sessionizer_disputes`
               | Local
               | Others
-              | Default
-              | SessionizerPaymentAttempts
-              | SessionizerPaymentIntents
-              | SessionizerPaymentRefunds
-              | SessionizerPaymentDisputes => ""
+              | Default => ""
               }
               GlobalVars.appendDashboardPath(~url=link)->RescriptReactRouter.push
               cleanUpFunction()
             }}
-            className={`font-medium cursor-pointer underline underline-offset-2 ${textStyleClass}`}>
+            className={`font-medium cursor-pointer underline underline-offset-2 opacity-50 ${textStyleClass}`}>
             {linkText->React.string}
           </div>
         }
@@ -159,21 +166,18 @@ module SearchResultsComponent = {
   let make = (~searchResults, ~searchText, ~setShowModal, ~selectedOption, ~redirectOnSelect) => {
     let borderClass = searchResults->Array.length > 0 ? "border-t dark:border-jp-gray-960" : ""
 
-    <Div
-      layoutId="options"
+    <div
       className={`w-full overflow-auto text-base max-h-[60vh] focus:outline-none sm:text-sm ${borderClass}`}>
       {searchResults
       ->Array.mapWithIndex((section: resultType, index) => {
         <Div
           key={Int.toString(index)}
-          layoutId={section.section->getSectionHeader}
+          layoutId={`${section.section->getSectionHeader} ${Int.toString(index)}`}
           className={`px-3 mb-3 py-1`}>
           <Div
-            initial={{opacity: 0.5}}
-            animate={{opacity: 0.5}}
             layoutId={`${section.section->getSectionHeader}-${index->Belt.Int.toString}`}
-            className="text-lightgray_background  px-2 pb-1 flex justify-between">
-            <div className="font-bold">
+            className="text-lightgray_background  px-2 pb-1 flex justify-between ">
+            <div className="font-bold opacity-50">
               {section.section->getSectionHeader->String.toUpperCase->React.string}
             </div>
             <ShowMoreLink
@@ -186,7 +190,6 @@ module SearchResultsComponent = {
           {section.results
           ->Array.mapWithIndex((item, i) => {
             let elementsArray = item.texts
-
             <OptionWrapper
               key={Int.toString(i)} index={i} value={item} selectedOption redirectOnSelect>
               {elementsArray
@@ -210,7 +213,7 @@ module SearchResultsComponent = {
         </Div>
       })
       ->React.array}
-    </Div>
+    </div>
   }
 }
 

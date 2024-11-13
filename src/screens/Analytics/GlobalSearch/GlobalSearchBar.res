@@ -219,24 +219,28 @@ let make = () => {
               <Loader />
             </div>
           | _ =>
-            if (
-              activeFilter->isNonEmptyString ||
-                (activeFilter->isEmptyString && searchText->isEmptyString)
-            ) {
-              <FilterResultsComponent
-                categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
-                activeFilter
-                setActiveFilter
-                searchText
-                setLocalSearchText
-              />
-            } else if searchText->isNonEmptyString && searchResults->Array.length === 0 {
-              <EmptyResult prefix searchText />
-            } else {
-              <SearchResultsComponent
-                searchResults searchText setShowModal selectedOption redirectOnSelect
-              />
-            }
+            // if (
+            //   activeFilter->isNonEmptyString ||
+            //     (activeFilter->isEmptyString && searchText->isEmptyString)
+            // ) {
+            //   <FilterResultsComponent
+            //     categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+            //     activeFilter
+            //     setActiveFilter
+            //     searchText
+            //     setLocalSearchText
+            //   />
+            // } else
+            // if searchText->isNonEmptyString && searchResults->Array.length === 0 {
+            //   <EmptyResult prefix searchText />
+            // } else {
+            //   <SearchResultsComponent
+            //     searchResults searchText setShowModal selectedOption redirectOnSelect
+            //   />
+            // }
+            <SearchResultsComponent
+              searchResults searchText setShowModal selectedOption redirectOnSelect
+            />
           }}
         </div>
       </ModalWrapper>
