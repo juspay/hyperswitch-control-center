@@ -124,19 +124,6 @@ let filterList = (items, ~removeFromList) => {
   })
 }
 
-let filterConnectorList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList) => {
-  items->Array.filter(item => {
-    let isConnector = item.connector_type !== "payment_vas"
-    let isThreedsConnector = item.connector_type !== "authentication_processor"
-
-    switch removeFromList {
-    | Connector => !isConnector
-    | FRMPlayer => isConnector
-    | ThreedsAuthenticator => isThreedsConnector
-    }
-  })
-}
-
 let createAllOptions = connectorsConfig => {
   open ConnectorTypes
   connectorsConfig
