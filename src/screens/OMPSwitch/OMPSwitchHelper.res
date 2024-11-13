@@ -250,7 +250,9 @@ module EditOrgName = {
               />
             </FormRenderer.DesktopRow>
             <div className="flex justify-end w-full pr-5 pb-3">
-              <FormRenderer.SubmitButton text="Submit changes" buttonSize={Small} />
+              <FormRenderer.SubmitButton
+                text="Submit changes" buttonSize={Small} loadingText="Processing..."
+              />
             </div>
           </div>
         </Form>
