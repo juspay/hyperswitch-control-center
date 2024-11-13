@@ -556,6 +556,11 @@ let useGetURL = () => {
           | Some(queryParams) => `${userUrl}/role/v2/list?${queryParams}`
           | None => `${userUrl}/role/v2/list`
           }
+        | ROLE_ID =>
+          switch id {
+          | Some(key_id) => `${userUrl}/role/${key_id}/v2`
+          | None => ""
+          }
         | _ => ""
         }
       }
@@ -601,12 +606,8 @@ let useGetURL = () => {
       | #USER_INFO => userUrl
 
       // USER GROUP ACCESS
-      | #GET_GROUP_ACL =>
-        switch queryParamerters {
-        | Some(params) => `${userUrl}/role?${params}`
-        | None => `${userUrl}/role`
-        }
-      | #ROLE_INFO => `${userUrl}/module/list`
+      | #GET_GROUP_ACL => `${userUrl}/role/v2`
+      | #ROLE_INFO => `${userUrl}/parent/list`
 
       | #GROUP_ACCESS_INFO =>
         switch queryParamerters {
@@ -739,6 +740,7 @@ let useHandleLogout = () => {
 let sessionExpired = ref(false)
 
 let responseHandler = async (
+  ~url,
   ~res,
   ~showToast: ToastState.showToastFn,
   ~showErrorToast: bool,
@@ -751,7 +753,7 @@ let responseHandler = async (
     ~email: string=?,
     ~description: option<'a>=?,
     ~section: string=?,
-    ~metadata: Dict.t<'b>=?,
+    ~metadata: JSON.t=?,
   ) => unit,
 ) => {
   let json = try {
@@ -763,11 +765,13 @@ let responseHandler = async (
   let responseStatus = res->Fetch.Response.status
 
   if responseStatus >= 500 && responseStatus < 600 {
-    sendEvent(
-      ~eventName="API Error",
-      ~description=Some(responseStatus),
-      ~metadata=json->getDictFromJsonObject,
-    )
+    let metaData =
+      [
+        ("url", url->JSON.Encode.string),
+        ("response", json),
+        ("status", responseStatus->JSON.Encode.int),
+      ]->getJsonFromArrayOfJson
+    sendEvent(~eventName="API Error", ~description=Some(responseStatus), ~metadata=metaData)
   }
 
   switch responseStatus {
@@ -879,6 +883,7 @@ let useGetMethod = (~showErrorToast=true) => {
     try {
       let res = await fetchApi(url, ~method_=Get, ~xFeatureRoute)
       await responseHandler(
+        ~url,
         ~res,
         ~showErrorToast,
         ~showToast,
@@ -939,6 +944,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~xFeatureRoute,
       )
       await responseHandler(
+        ~url,
         ~res,
         ~showErrorToast,
         ~showToast,

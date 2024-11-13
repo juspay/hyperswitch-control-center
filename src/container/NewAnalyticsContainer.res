@@ -1,9 +1,13 @@
 @react.component
 let make = () => {
   open NewAnalyticsContainerUtils
+  open LogicUtils
   let url = RescriptReactRouter.useUrl()
   let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let (tabIndex, setTabIndex) = React.useState(_ => url->getPageIndex)
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let startTimeVal = filterValueJson->getString("startTime", "")
+  let endTimeVal = filterValueJson->getString("endTime", "")
 
   React.useEffect(() => {
     let url = (getPageFromIndex(tabIndex) :> string)
@@ -15,7 +19,12 @@ let make = () => {
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
+    ~compareToStartTimeKey,
+    ~compareToEndTimeKey,
     ~origin="analytics",
+    ~enableCompareTo=Some(true),
+    ~range=6,
+    ~comparisonKey,
     (),
   )
 
@@ -42,8 +51,17 @@ let make = () => {
         initialFilters=[]
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields()}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        initialFixedFilters={initialFixedFilterFields(
+          ~compareWithStartTime=startTimeVal,
+          ~compareWithEndTime=endTimeVal,
+        )}
+        defaultFilterKeys=[
+          startTimeFilterKey,
+          endTimeFilterKey,
+          compareToStartTimeKey,
+          compareToEndTimeKey,
+          comparisonKey,
+        ]
         tabNames=[]
         key="0"
         updateUrlWith=updateExistingKeys

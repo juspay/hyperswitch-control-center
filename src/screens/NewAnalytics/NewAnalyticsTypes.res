@@ -45,8 +45,15 @@ type moduleEntity = {
   domain: domain,
 }
 
+type getObjects<'data> = {
+  data: 'data,
+  xKey: string,
+  yKey: string,
+  comparison?: DateRangeUtils.comparison,
+}
+
 type chartEntity<'t, 'chartOption, 'data> = {
-  getObjects: (~data: 'data, ~xKey: string, ~yKey: string) => 't,
+  getObjects: (~params: getObjects<'data>) => 't,
   getChatOptions: 't => 'chartOption,
 }
 
@@ -59,3 +66,7 @@ type valueType =
   | Latency
   | LatencyMs
   | No_Type
+
+type metricType =
+  | Smart_Retry
+  | Default

@@ -15,6 +15,8 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | MerchantDetailsView => "merchant_details_view"
   | MerchantDetailsManage => "merchant_details_manage"
   | OrganizationManage => "organization_manage"
+  | AccountView => "account_view"
+  | AccountManage => "account_manage"
   | UnknownGroupAccess(val) => val
   }
 
@@ -32,7 +34,31 @@ let mapStringToGroupAccessType = val =>
   | "merchant_details_view" => MerchantDetailsView
   | "merchant_details_manage" => MerchantDetailsManage
   | "organization_manage" => OrganizationManage
+  | "account_view" => AccountView
+  | "account_manage" => AccountManage
   | val => UnknownGroupAccess(val)
+  }
+
+let mapStringToResourceAccessType = val =>
+  switch val {
+  | "payment" => Payment
+  | "refund" => Refund
+  | "api_key" => ApiKey
+  | "account" => Account
+  | "connector" => Connector
+  | "routing" => Routing
+  | "dispute" => Dispute
+  | "mandate" => Mandate
+  | "customer" => Customer
+  | "analytics" => Analytics
+  | "three_ds_decision_manager" => ThreeDsDecisionManager
+  | "surcharge_decision_manager" => SurchargeDecisionManager
+  | "user" => User
+  | "webhook_event" => WebhookEvent
+  | "payout" => Payout
+  | "report" => Report
+  | "recon" => Recon
+  | _ => UnknownResourceAccess(val)
   }
 
 let defaultValueForGroupAccessJson = {
@@ -48,13 +74,9 @@ let defaultValueForGroupAccessJson = {
   merchantDetailsView: NoAccess,
   merchantDetailsManage: NoAccess,
   organizationManage: NoAccess,
+  accountView: NoAccess,
+  accountManage: NoAccess,
 }
-
-let hasAnyGroupAccess = (group1, group2) =>
-  switch (group1, group2) {
-  | (NoAccess, NoAccess) => NoAccess
-  | (_, _) => Access
-  }
 
 let getAccessValue = (~groupAccess: groupAccessType, ~groupACL) =>
   groupACL->Array.find(ele => ele == groupAccess)->Option.isSome ? Access : NoAccess
@@ -73,10 +95,17 @@ let getGroupAccessJson = groupACL => {
   merchantDetailsView: getAccessValue(~groupAccess=MerchantDetailsView, ~groupACL),
   merchantDetailsManage: getAccessValue(~groupAccess=MerchantDetailsManage, ~groupACL),
   organizationManage: getAccessValue(~groupAccess=OrganizationManage, ~groupACL),
+  accountView: getAccessValue(~groupAccess=AccountView, ~groupACL),
+  accountManage: getAccessValue(~groupAccess=AccountManage, ~groupACL),
 }
 
-let convertValueToMap = arrayValue => {
+let convertValueToMapGroup = arrayValue => {
   let userGroupACLMap: Map.t<groupAccessType, authorization> = Map.make()
   arrayValue->Array.forEach(value => userGroupACLMap->Map.set(value, Access))
   userGroupACLMap
+}
+let convertValueToMapResources = arrayValue => {
+  let resourceACLMap: Map.t<resourceAccessType, authorization> = Map.make()
+  arrayValue->Array.forEach(value => resourceACLMap->Map.set(value, Access))
+  resourceACLMap
 }
