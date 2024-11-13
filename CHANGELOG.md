@@ -3,6 +3,62 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.13.0
+
+### Bug Fixes
+
+- Read write ordering consistency ([#1685](https://github.com/juspay/hyperswitch-control-center/pull/1685)) ([`dfb7e02`](https://github.com/juspay/hyperswitch-control-center/commit/dfb7e02fff0c9db55b9143c04e98d176b007461a))
+- Show role name for custom roles ([#1701](https://github.com/juspay/hyperswitch-control-center/pull/1701)) ([`8bfc04b`](https://github.com/juspay/hyperswitch-control-center/commit/8bfc04b1c9a5921875d2318d57a3c8065d3f730a))
+- Sankey ui fixes ([#1722](https://github.com/juspay/hyperswitch-control-center/pull/1722)) ([`38fd02a`](https://github.com/juspay/hyperswitch-control-center/commit/38fd02aef24851e31bf6747924402722683bfdaa))
+- Payment processed USD string fix ([#1725](https://github.com/juspay/hyperswitch-control-center/pull/1725)) ([`509e7ad`](https://github.com/juspay/hyperswitch-control-center/commit/509e7ad3e8e5c61194057c05e8e430bef75d8705))
+
+**Full Changelog:** [`2024.11.12.0...2024.11.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.12.0...2024.11.13.0)
+
+- - -
+
+## 2024.11.12.0
+
+### Bug Fixes
+
+- Compare date range component minor fixes ([#1716](https://github.com/juspay/hyperswitch-control-center/pull/1716)) ([`5bb44e3`](https://github.com/juspay/hyperswitch-control-center/commit/5bb44e3c5a03bca60030411e92fa1513e6c732fb))
+- Sankey flow chart count fix ([#1711](https://github.com/juspay/hyperswitch-control-center/pull/1711)) ([`abddad9`](https://github.com/juspay/hyperswitch-control-center/commit/abddad9370d2ba847ee3f4cc38053d80cedcbc6c))
+- Handle logout ([#1710](https://github.com/juspay/hyperswitch-control-center/pull/1710)) ([`469e272`](https://github.com/juspay/hyperswitch-control-center/commit/469e272d56b4deecd18653f0abb0bbac38ccdfe7))
+
+**Full Changelog:** [`2024.11.11.1...2024.11.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.11.1...2024.11.12.0)
+
+- - -
+
+## 2024.11.11.1
+
+### Features
+
+- Sanky flow chart change ([#1695](https://github.com/juspay/hyperswitch-control-center/pull/1695)) ([`f8d4aae`](https://github.com/juspay/hyperswitch-control-center/commit/f8d4aae9ea0fc9ff932a0d93909b9de182d14fd9))
+- Add functionality to force two-fa ([#1697](https://github.com/juspay/hyperswitch-control-center/pull/1697)) ([`d478424`](https://github.com/juspay/hyperswitch-control-center/commit/d4784242112bc51b8d921e10c09a0f78a2143b62))
+- Change password feature ([#1700](https://github.com/juspay/hyperswitch-control-center/pull/1700)) ([`b51680c`](https://github.com/juspay/hyperswitch-control-center/commit/b51680cd0f0ba2e6622c3090f80636e6a418bb0c))
+
+### Bug Fixes
+
+- Analytics revamp bug fixes ([#1703](https://github.com/juspay/hyperswitch-control-center/pull/1703)) ([`d78dee1`](https://github.com/juspay/hyperswitch-control-center/commit/d78dee1415221de04043f3871f100a0c54700cb6))
+
+### Miscellaneous Tasks
+
+- Bar graph tooltip enhancement ([#1704](https://github.com/juspay/hyperswitch-control-center/pull/1704)) ([`eb37c2f`](https://github.com/juspay/hyperswitch-control-center/commit/eb37c2f3fb28c11ad8eda66ec456cb3bd375db69))
+- Update mixpanel details ([#1684](https://github.com/juspay/hyperswitch-control-center/pull/1684)) ([`aad2309`](https://github.com/juspay/hyperswitch-control-center/commit/aad2309f8bd0c752f5a4343bf211bb71af731a02))
+
+**Full Changelog:** [`2024.11.11.0...2024.11.11.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.11.0...2024.11.11.1)
+
+- - -
+
+## 2024.11.11.0
+
+### Refactors
+
+- Cluttered package json refactor ([#1649](https://github.com/juspay/hyperswitch-control-center/pull/1649)) ([`214c806`](https://github.com/juspay/hyperswitch-control-center/commit/214c806d9860ecf16b390d9db1f22a03fe8ed0c0))
+
+**Full Changelog:** [`2024.11.08.0...2024.11.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.08.0...2024.11.11.0)
+
+- - -
+
 ## 2024.11.08.0
 
 ### Features

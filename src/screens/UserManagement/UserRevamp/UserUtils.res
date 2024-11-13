@@ -72,10 +72,17 @@ let itemToObjMapperFordetailedRoleInfo: Dict.t<
   JSON.t,
 > => UserManagementTypes.detailedUserModuleType = dict => {
   open LogicUtils
+  let sortedscopes = getStrArrayFromDict(dict, "scopes", [])->Array.toSorted((item, _) =>
+    switch item {
+    | "read" => -1.
+    | "write" => 1.
+    | _ => 0.
+    }
+  )
   {
     parentGroup: getString(dict, "name", ""),
     description: getString(dict, "description", ""),
-    scopes: getStrArrayFromDict(dict, "scopes", []),
+    scopes: sortedscopes,
   }
 }
 
