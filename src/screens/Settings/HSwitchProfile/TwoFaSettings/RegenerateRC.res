@@ -106,7 +106,7 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
         let err = Exn.message(e)->Option.getOr("Verification Failed")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
-        if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_49 {
+        if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_48 {
           checkTwoFaStatus()->ignore
         }
         setOtpInModal(_ => "")

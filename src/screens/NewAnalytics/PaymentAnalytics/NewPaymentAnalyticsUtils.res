@@ -6,7 +6,7 @@ let getCategories = (data: JSON.t, index: int, key: string) => {
   ->getValueFromArray(index, []->JSON.Encode.array)
   ->getArrayFromJson([])
   ->Array.map(item => {
-    let value = item->getDictFromJsonObject->getString(key, "")
+    let value = item->getDictFromJsonObject->getString(key, "NA")
 
     if value->isNonEmptyString && key == "time_bucket" {
       let dateObj = value->DayJs.getDayJsForString
@@ -21,14 +21,27 @@ let getColor = index => {
   ["#1059C1B2", "#0EB025B2"]->Array.get(index)->Option.getOr("#1059C1B2")
 }
 
+let getAmountValue = (data, ~id) => {
+  switch data->getOptionFloat(id) {
+  | Some(value) => value /. 100.0
+  | _ => 0.0
+  }
+}
+
 let getLineGraphObj = (
   ~array: array<JSON.t>,
   ~key: string,
   ~name: string,
   ~color,
+  ~isAmount=false,
 ): LineGraphTypes.dataObj => {
   let data = array->Array.map(item => {
-    item->getDictFromJsonObject->getInt(key, 0)
+    let dict = item->getDictFromJsonObject
+    if isAmount {
+      dict->getAmountValue(~id=key)
+    } else {
+      dict->getFloat(key, 0.0)
+    }
   })
   let dataObj: LineGraphTypes.dataObj = {
     showInLegend: true,
@@ -111,13 +124,13 @@ let getMetaDataValue = (~data, ~index, ~key) => {
   ->getFloat(key, 0.0)
 }
 
-open LineGraphTypes
 let tooltipFormatter = (
   ~secondaryCategories,
   ~title,
   ~metricType,
   ~comparison: option<DateRangeUtils.comparison>=None,
 ) => {
+  open LineGraphTypes
   open NewAnalyticsUtils
 
   (
@@ -129,12 +142,15 @@ let tooltipFormatter = (
       let primartPoint = this.points->getValueFromArray(0, defaultValue)
       let secondaryPoint = this.points->getValueFromArray(1, defaultValue)
 
+      // TODO:Currency need to be picked from filter
+      let suffix = metricType == NewAnalyticsTypes.Amount ? "USD" : ""
+
       let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
         let valueString = valueFormatter(value, metricType)
         `<div style="display: flex; align-items: center;">
             <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
             <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
-            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
+            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString} ${suffix}</div>
         </div>`
       }
 
@@ -158,6 +174,65 @@ let tooltipFormatter = (
           }
         },
       ]->Array.joinWith("")
+
+      let content = `
+          <div style=" 
+          padding:5px 12px;
+          border-left: 3px solid #0069FD;
+          display:flex;
+          flex-direction:column;
+          justify-content: space-between;
+          gap: 7px;">
+              ${title}
+              <div style="
+                margin-top: 5px;
+                display:flex;
+                flex-direction:column;
+                gap: 7px;">
+                ${tableItems}
+              </div>
+        </div>`
+
+      `<div style="
+    padding: 10px;
+    width:fit-content;
+    border-radius: 7px;
+    background-color:#FFFFFF;
+    padding:10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid #E5E5E5;
+    position:relative;">
+        ${content}
+    </div>`
+    }
+  )->asTooltipPointFormatter
+}
+
+let bargraphTooltipFormatter = (~title, ~metricType) => {
+  open BarGraphTypes
+  open NewAnalyticsUtils
+
+  (
+    @this
+    (this: pointFormatter) => {
+      let title = `<div style="font-size: 16px; font-weight: bold;">${title}</div>`
+
+      let defaultValue = {color: "", x: "", y: 0.0, point: {index: 0}}
+      let primartPoint = this.points->getValueFromArray(0, defaultValue)
+
+      let getRowsHtml = (~iconColor, ~date, ~value, ~comparisionComponent="") => {
+        let valueString = valueFormatter(value, metricType)
+        `<div style="display: flex; align-items: center;">
+            <div style="width: 10px; height: 10px; background-color:${iconColor}; border-radius:3px;"></div>
+            <div style="margin-left: 8px;">${date}${comparisionComponent}</div>
+            <div style="flex: 1; text-align: right; font-weight: bold;margin-left: 25px;">${valueString}</div>
+        </div>`
+      }
+
+      let tableItems =
+        [
+          getRowsHtml(~iconColor=primartPoint.color, ~date=primartPoint.x, ~value=primartPoint.y),
+        ]->Array.joinWith("")
 
       let content = `
           <div style=" 

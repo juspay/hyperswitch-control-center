@@ -1,7 +1,3 @@
-let fetchRequestIdFromAPI = res => {
-  res->Fetch.Response.headers->Fetch.Headers.get("x-request-id")->Option.getOr("")
-}
-
 let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
   switch (url.path, url.search) {
   | (list{"payments", ""}, _)
