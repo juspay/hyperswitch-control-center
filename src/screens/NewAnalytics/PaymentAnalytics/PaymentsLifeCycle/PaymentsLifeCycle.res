@@ -25,6 +25,7 @@ let make = (
   let isSmartRetryEnabled = filterValueJson->getString("is_smart_retry_enabled", "true")
 
   let getPaymentLieCycleData = async () => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(~entityName=ANALYTICS_SANKEY, ~methodType=Post)
       let paymentLifeCycleBody =
@@ -51,8 +52,15 @@ let make = (
       //   "confirmation_awaited": 0,
       // }->Identity.genericTypeToJson
       let paymentLifeCycleResponse = await updateDetails(url, paymentLifeCycleBody, Post)
-      setData(_ => paymentLifeCycleResponse->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper)
-      setScreenState(_ => PageLoaderWrapper.Success)
+
+      if paymentLifeCycleResponse->PaymentsLifeCycleUtils.getTotalPayments > 0 {
+        setData(_ =>
+          paymentLifeCycleResponse->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper
+        )
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }

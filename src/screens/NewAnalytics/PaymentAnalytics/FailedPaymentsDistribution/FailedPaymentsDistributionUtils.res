@@ -38,7 +38,15 @@ let failedPaymentsDistributionMapper = (
   let title = {
     text: "",
   }
-  {categories, data: [barGraphData], title}
+  {
+    categories,
+    data: [barGraphData],
+    title,
+    tooltipFormatter: bargraphTooltipFormatter(
+      ~title="Failed Payments Distribution",
+      ~metricType=Rate,
+    ),
+  }
 }
 
 open NewAnalyticsTypes

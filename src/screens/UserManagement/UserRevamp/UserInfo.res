@@ -95,7 +95,7 @@ module TableRowForUserDetails = {
         </RenderIf>
         <td className=tableElementCss> {profileName->React.string} </td>
         <td className=tableElementCss>
-          {value.roleId->snakeToTitle->capitalizeString->React.string}
+          {value.roleName->snakeToTitle->capitalizeString->React.string}
         </td>
         <td className=tableElementCss>
           <p className={`${statusColor} px-4 py-1 w-fit rounded-full`}>

@@ -54,7 +54,7 @@ type chart = {
 type dataObj = {
   showInLegend: showInLegend,
   name: name,
-  data: array<int>,
+  data: array<float>,
   color: color,
 }
 
@@ -66,6 +66,7 @@ type yAxis = {
   gridLineColor: gridLineColor,
   gridLineDashStyle: gridLineDashStyle,
   min: min,
+  max?: option<int>,
 }
 
 type xAxis = {
@@ -115,5 +116,6 @@ type lineGraphPayload = {
   categories: categories,
   data: data,
   title: title,
+  yAxisMaxValue: option<int>,
   tooltipFormatter: pointFormatter => string,
 }
