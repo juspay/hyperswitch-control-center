@@ -1,8 +1,8 @@
 open LogicUtils
 open DisputeTypes
 
-let defaultColumns = [DisputeId, Amount, DisputeStage, DisputeStatus, PaymentId, CreatedAt]
-let columnsInPaymentPage = [DisputeId, DisputeStage, ConnectorReason, DisputeStatus, CreatedAt]
+let defaultColumns = [DisputeId, Amount, DisputeStatus, PaymentId, CreatedAt]
+let columnsInPaymentPage = [DisputeId, ConnectorReason, DisputeStatus, CreatedAt]
 
 let allColumns = [
   Amount,
@@ -18,7 +18,6 @@ let allColumns = [
   CreatedAt,
   Currency,
   DisputeId,
-  DisputeStage,
   DisputeStatus,
   PaymentId,
 ]
@@ -59,8 +58,6 @@ let getHeading = colType => {
   | AttemptId => Table.makeHeaderInfo(~key="attempt_id", ~title="Attempt Id")
   | Amount => Table.makeHeaderInfo(~key="amount", ~title="Amount")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
-  | DisputeStage =>
-    Table.makeHeaderInfo(~key="dispute_stage", ~title="Dispute Stage", ~dataType=DropDown)
   | DisputeStatus =>
     Table.makeHeaderInfo(~key="dispute_status", ~title="Dispute Status", ~dataType=DropDown)
   | Connector => Table.makeHeaderInfo(~key="connector", ~title="Connector")
@@ -101,16 +98,6 @@ let getCell = (disputesData, colType): Table.cell => {
   | AttemptId => DisplayCopyCell(disputesData.attempt_id)
   | Amount => Text(amountValue(disputesData.amount, disputesData.currency))
   | Currency => Text(disputesData.currency)
-  | DisputeStage =>
-    Label({
-      title: disputesData.dispute_stage->String.toUpperCase,
-      color: switch disputesData.dispute_stage->disputeStageVariantMapper {
-      | PreDispute => LabelOrange
-      | Dispute => LabelGreen
-      | PreArbitration => LabelYellow
-      | _ => LabelWhite
-      },
-    })
   | DisputeStatus =>
     Label({
       title: disputesData.dispute_status->String.toUpperCase,
@@ -145,7 +132,6 @@ let itemToObjMapper = dict => {
     attempt_id: dict->getString("attempt_id", ""),
     amount: dict->getString("amount", ""),
     currency: dict->getString("currency", ""),
-    dispute_stage: dict->getString("dispute_stage", ""),
     dispute_status: dict->getString("dispute_status", ""),
     connector: dict->getString("connector", ""),
     connector_status: dict->getString("connector_status", ""),

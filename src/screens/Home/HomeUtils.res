@@ -172,7 +172,7 @@ module CheckoutCard = {
     let (title, description) = isConfigureConnector
       ? (
           "Make a test payment - Try our unified checkout",
-          "Test your connector be making a payment and visualise the user checkout experience",
+          "Test your connector by making a payment and visualise the user checkout experience",
         )
       : (
           "Demo our checkout experience",
