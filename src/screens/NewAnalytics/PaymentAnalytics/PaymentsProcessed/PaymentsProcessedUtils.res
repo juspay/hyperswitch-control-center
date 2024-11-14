@@ -72,6 +72,13 @@ let paymentsProcessedMapper = (
   let title = {
     text: "Payments Processed",
   }
+
+  open NewAnalyticsTypes
+  let metricType = switch xKey->getVariantValueFromString {
+  | Payment_Processed_Amount => Amount
+  | _ => Volume
+  }
+
   {
     categories: primaryCategories,
     data: lineGraphData,
@@ -80,7 +87,7 @@ let paymentsProcessedMapper = (
     tooltipFormatter: tooltipFormatter(
       ~secondaryCategories,
       ~title="Payments Processed",
-      ~metricType=Amount,
+      ~metricType,
       ~comparison,
     ),
   }

@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.13.0
+
+### Bug Fixes
+
+- Read write ordering consistency ([#1685](https://github.com/juspay/hyperswitch-control-center/pull/1685)) ([`dfb7e02`](https://github.com/juspay/hyperswitch-control-center/commit/dfb7e02fff0c9db55b9143c04e98d176b007461a))
+- Show role name for custom roles ([#1701](https://github.com/juspay/hyperswitch-control-center/pull/1701)) ([`8bfc04b`](https://github.com/juspay/hyperswitch-control-center/commit/8bfc04b1c9a5921875d2318d57a3c8065d3f730a))
+- Sankey ui fixes ([#1722](https://github.com/juspay/hyperswitch-control-center/pull/1722)) ([`38fd02a`](https://github.com/juspay/hyperswitch-control-center/commit/38fd02aef24851e31bf6747924402722683bfdaa))
+- Payment processed USD string fix ([#1725](https://github.com/juspay/hyperswitch-control-center/pull/1725)) ([`509e7ad`](https://github.com/juspay/hyperswitch-control-center/commit/509e7ad3e8e5c61194057c05e8e430bef75d8705))
+
+**Full Changelog:** [`2024.11.12.0...2024.11.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.12.0...2024.11.13.0)
+
+- - -
+
 ## 2024.11.12.0
 
 ### Bug Fixes

@@ -1,4 +1,6 @@
-type point = {sum: string, id: string}
+type temp = {name: int}
+type options = {dataLabels: temp}
+type point = {sum: string, id: string, options: options}
 type nodeFormatter = {point: point}
 
 external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => nodeFormatter => string = "%identity"
@@ -28,6 +30,7 @@ type x = int
 type nodeDataLabels = {
   align: align,
   x: x,
+  name: int,
 }
 
 type node = {
