@@ -113,12 +113,13 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let orgSwitch = OMPSwitchHooks.useOrgSwitch()
-  let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfo: {orgId, roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showModal, setShowModal) = React.useState(_ => false)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
+  let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
 
   let getOrgList = async () => {
     try {
@@ -190,9 +191,16 @@ let make = () => {
         heading="Org" subHeading={currentOMPName(orgList, orgId)} arrow
       />}
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
-      bottomComponent={<OMPSwitchHelper.AddNewOMPButton
-        user="org" setShowModal customPadding customStyle customHRTagStyle group=OrganizationManage
-      />}
+      bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>
+        <OMPSwitchHelper.AddNewOMPButton
+          user="org"
+          setShowModal
+          customPadding
+          customStyle
+          customHRTagStyle
+          group=OrganizationManage
+        />
+      </RenderIf>}
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"
       customDropdownOuterClass="!border-none !w-full"
@@ -201,7 +209,7 @@ let make = () => {
       customScrollStyle
       shouldDisplaySelectedOnTop=true
     />
-    <RenderIf condition={showModal && tenantUser}>
+    <RenderIf condition={showModal}>
       <NewAccountCreationModal setShowModal showModal getOrgList />
     </RenderIf>
     <LoaderModal
