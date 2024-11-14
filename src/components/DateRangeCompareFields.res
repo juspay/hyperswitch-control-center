@@ -481,7 +481,7 @@ module Base = {
 
     let timeVisibilityClass = showTime ? "block" : "hidden"
 
-    let getDiffForPredefined = predefinedDay => {
+    let getPredefinedValues = predefinedDay => {
       let (stDate, enDate, stTime, enTime) = DateRangeUtils.getPredefinedStartAndEndDate(
         todayDayJsObj,
         isoStringToCustomTimeZone,
@@ -505,7 +505,7 @@ module Base = {
         ~customTimezoneToISOString,
         ~format="YYYY-MM-DDTHH:mm:00[Z]",
       )
-      getStartEndDiff(startTimestamp, endTimestamp)
+      (startTimestamp, endTimestamp)
     }
 
     let predefinedOptionSelected = predefinedDays->Array.find(item => {
@@ -519,8 +519,21 @@ module Base = {
         endDateVal,
         "YYYY-MM-DDTHH:mm:00[Z]",
       )
-      let difference = getStartEndDiff(startDate, endDate)
-      getDiffForPredefined(item) === difference
+
+      let (startTimestamp, endTimestamp) = getPredefinedValues(item)
+
+      let prestartDate = convertTimeStamp(
+        ~isoStringToCustomTimeZone,
+        startTimestamp,
+        "YYYY-MM-DDTHH:mm:00[Z]",
+      )
+      let preendDate = convertTimeStamp(
+        ~isoStringToCustomTimeZone,
+        endTimestamp,
+        "YYYY-MM-DDTHH:mm:00[Z]",
+      )
+
+      startDate == prestartDate && endDate == preendDate
     })
 
     let buttonText = switch predefinedOptionSelected {
@@ -535,10 +548,9 @@ module Base = {
 
     let buttonType: option<Button.buttonType> = buttonType
 
-    let setDateTime = (~date, ~time, setLocalDate) => {
+    let setDateTime = (~date, setLocalDate) => {
       if date->isNonEmptyString {
-        let timestamp = changeTimeFormat(~date, ~time, ~customTimezoneToISOString, ~format)
-        setLocalDate(_ => timestamp)
+        setLocalDate(_ => date)
       }
     }
     let handleCompareOptionClick = value => {
@@ -563,13 +575,8 @@ module Base = {
           setIsDropdownExpanded(_ => false)
           setIsCustomSelected(_ => false)
 
-          let stDate = getFormattedDate(startDate, "YYYY-MM-DD")
-          let edDate = getFormattedDate(endDate, "YYYY-MM-DD")
-          let stTime = getFormattedDate(startDate, "HH:MM:00")
-          let endTime = getFormattedDate(endDate, "HH:MM:00")
-
-          setDateTime(~date=stDate, ~time=stTime, setLocalStartDate)
-          setDateTime(~date=edDate, ~time=endTime, setLocalEndDate)
+          setDateTime(~date=startDateVal, setLocalStartDate)
+          setDateTime(~date=endDateVal, setLocalEndDate)
           let _ = setTimeout(() => {
             setComparison(_ => (EnableComparison :> string))
           }, 0)
@@ -608,7 +615,7 @@ module Base = {
               dateRangeLimit={DateRangeUtils.getGapBetweenRange(
                 ~startDate=compareWithStartTime,
                 ~endDate=compareWithEndTime,
-              )}
+              ) + 1}
               calendarContaierStyle="md:mx-3 md:my-1 border-0 md:border"
               ?allowedDateRange
             />
@@ -645,16 +652,6 @@ module Base = {
         </AddDataAttributes>
       </div>
     }
-    let isPrimaryPredefinedOptionSelected = getIsPredefinedOptionSelected(
-      predefinedDays,
-      startDateVal,
-      endDateVal,
-      isoStringToCustomTimeZone,
-      isoStringToCustomTimezoneInFloat,
-      customTimezoneToISOString,
-      disableFutureDates,
-      disablePastDates,
-    )
     let dropDownClass = `absolute ${dropdownPosition} z-20 max-h-min max-w-min overflow-auto bg-white dark:bg-jp-gray-950 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none mt-2 right-0`
     <div ref={dateRangeRef->ReactDOM.Ref.domRef} className="daterangSelection relative">
       <DateSelectorButton
@@ -669,14 +666,13 @@ module Base = {
         showTime
         buttonText
         showSeconds
-        predefinedOptionSelected=isPrimaryPredefinedOptionSelected
+        predefinedOptionSelected
         disableFutureDates
         onClick={_ => handleDropdownClick()}
         buttonType
         textStyle
         iconBorderColor=customborderCSS
         customButtonStyle=customStyleForBtn
-        enableToolTip=false
         showLeftIcon=false
         isCompare=true
         comparison

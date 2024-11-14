@@ -76,6 +76,7 @@ module PaymentsProcessedHeader = {
       ->getString("is_smart_retry_enabled", "true")
       ->getBoolFromString(true)
       ->getSmartRetryMetricType
+
     let primaryValue = getMetaDataValue(
       ~data,
       ~index=0,
@@ -86,6 +87,14 @@ module PaymentsProcessedHeader = {
       ~index=1,
       ~key=selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled),
     )
+
+    let (primaryValue, secondaryValue) = if (
+      selectedMetric.value->getMetaDataMapper(~isSmartRetryEnabled)->isAmountMetric
+    ) {
+      (primaryValue /. 100.0, secondaryValue /. 100.0)
+    } else {
+      (primaryValue, secondaryValue)
+    }
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
 
@@ -101,10 +110,17 @@ module PaymentsProcessedHeader = {
       setGranularity(_ => value)
     }
 
+    let metricType = switch selectedMetric.value->getVariantValueFromString {
+    | Payment_Processed_Amount => Amount
+    | _ => Volume
+    }
+
+    let suffix = metricType == Amount ? "USD" : ""
+
     <div className="w-full px-7 py-8 grid grid-cols-1">
       <div className="flex gap-2 items-center">
         <div className="text-3xl font-600">
-          {primaryValue->valueFormatter(Amount)->React.string}
+          {`${primaryValue->valueFormatter(metricType)} ${suffix}`->React.string} // TODO:Currency need to be picked from filter
         </div>
         <RenderIf condition={comparison == EnableComparison}>
           <StatisticsCard value direction />
@@ -199,7 +215,7 @@ let make = (
           let secondaryData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
           let secondaryMetaData =
-            primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+            secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
             NewAnalyticsUtils.fillMissingDataPoints(
               ~data,

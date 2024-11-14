@@ -4,7 +4,13 @@ let p3Regular = HSwitchUtils.getTextClass((P3, Regular))
 
 module EnterAccessCode = {
   @react.component
-  let make = (~setTwoFaPageState, ~onClickVerifyAccessCode, ~errorHandling) => {
+  let make = (
+    ~setTwoFaPageState,
+    ~onClickVerifyAccessCode,
+    ~errorHandling,
+    ~isSkippable,
+    ~showOnlyRc=false,
+  ) => {
     let showToast = ToastState.useShowToast()
     let verifyRecoveryCodeLogic = TotpHooks.useVerifyRecoveryCode()
     let (recoveryCode, setRecoveryCode) = React.useState(_ => "")
@@ -58,6 +64,7 @@ module EnterAccessCode = {
         },
       )
     }, [recoveryCode])
+
     <div className={`bg-white h-20-rem w-200 rounded-2xl flex flex-col`}>
       <div className="p-6 border-b-2 flex justify-between items-center">
         <p className={`${h2TextStyle} text-grey-900`}> {"Enter access code"->React.string} </p>
@@ -65,23 +72,27 @@ module EnterAccessCode = {
       <div className="px-12 py-8 flex flex-col gap-12 justify-between flex-1">
         <div className="flex flex-col justify-center items-center gap-4">
           <TwoFaElements.RecoveryCodesInput recoveryCode setRecoveryCode />
-          <p className={`${p2Regular} text-jp-gray-700`}>
-            {"Didn't get a code? "->React.string}
-            <span
-              className="cursor-pointer underline underline-offset-2 text-blue-600"
-              onClick={_ => setTwoFaPageState(_ => TwoFaTypes.TOTP_SHOW_QR)}>
-              {"Use totp instead"->React.string}
-            </span>
-          </p>
+          <RenderIf condition={!showOnlyRc}>
+            <p className={`${p2Regular} text-jp-gray-700`}>
+              {"Didn't get a code? "->React.string}
+              <span
+                className="cursor-pointer underline underline-offset-2 text-blue-600"
+                onClick={_ => setTwoFaPageState(_ => TwoFaTypes.TOTP_SHOW_QR)}>
+                {"Use totp instead"->React.string}
+              </span>
+            </p>
+          </RenderIf>
         </div>
         <div className="flex justify-end gap-4">
-          <Button
-            text="Skip now"
-            buttonType={Secondary}
-            buttonSize=Small
-            onClick={_ => onClickVerifyAccessCode(~skip_2fa=true)->ignore}
-            dataTestId="skip-now"
-          />
+          <RenderIf condition={isSkippable}>
+            <Button
+              text="Skip now"
+              buttonType={Secondary}
+              buttonSize=Small
+              onClick={_ => onClickVerifyAccessCode(~skip_2fa=true)->ignore}
+              dataTestId="skip-now"
+            />
+          </RenderIf>
           <Button
             text="Verify recovery code"
             buttonType=Primary
@@ -110,6 +121,8 @@ module ConfigureTotpScreen = {
     ~setTwoFaPageState,
     ~terminateTwoFactorAuth,
     ~errorHandling,
+    ~isSkippable,
+    ~showOnlyTotp=false,
   ) => {
     open TwoFaTypes
 
@@ -195,7 +208,7 @@ module ConfigureTotpScreen = {
         </RenderIf>
         <div className="flex flex-col justify-center items-center gap-4">
           <TwoFaElements.TotpInput otp setOtp />
-          <RenderIf condition={twoFaStatus === TWO_FA_SET}>
+          <RenderIf condition={twoFaStatus === TWO_FA_SET && !showOnlyTotp}>
             <p className={`${p2Regular} text-jp-gray-700`}>
               {"Didn't get a code? "->React.string}
               <span
@@ -207,13 +220,15 @@ module ConfigureTotpScreen = {
           </RenderIf>
         </div>
         <div className="flex justify-end gap-4">
-          <Button
-            text="Skip now"
-            buttonType={Secondary}
-            buttonSize=Small
-            onClick={_ => skipTotpSetup()->ignore}
-            dataTestId="skip-now"
-          />
+          <RenderIf condition={isSkippable}>
+            <Button
+              text="Skip now"
+              buttonType={Secondary}
+              buttonSize=Small
+              onClick={_ => skipTotpSetup()->ignore}
+              dataTestId="skip-now"
+            />
+          </RenderIf>
           <Button
             text=buttonText
             buttonType=Primary
@@ -234,14 +249,20 @@ module ConfigureTotpScreen = {
 }
 
 @react.component
-let make = (~setTwoFaPageState, ~twoFaPageState, ~errorHandling) => {
+let make = (
+  ~setTwoFaPageState,
+  ~twoFaPageState,
+  ~errorHandling,
+  ~isSkippable,
+  ~checkTwoFaResonse: TwoFaTypes.checkTwofaResponseType,
+) => {
   open HSwitchUtils
   open TwoFaTypes
 
   let getURL = APIUtils.useGetURL()
   let showToast = ToastState.useShowToast()
   let fetchDetails = APIUtils.useGetMethod()
-
+  let handleLogout = APIUtils.useHandleLogout()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (isQrVisible, setIsQrVisible) = React.useState(_ => false)
@@ -327,13 +348,34 @@ let make = (~setTwoFaPageState, ~twoFaPageState, ~errorHandling) => {
     None
   }, [showNewQR])
 
+  let (showOnlyTotp, showOnlyRc) = React.useMemo1(() => {
+    switch checkTwoFaResonse.status {
+    | Some(value) =>
+      if value.totp.attemptsRemaining === 0 && value.recoveryCode.attemptsRemaining > 0 {
+        (false, true)
+      } else if value.recoveryCode.attemptsRemaining === 0 && value.totp.attemptsRemaining > 0 {
+        (true, false)
+      } else {
+        (false, false)
+      }
+    | None => (true, true)
+    }
+  }, [checkTwoFaResonse.status])
+
   <PageLoaderWrapper screenState sectionHeight="h-screen">
     <BackgroundImageWrapper>
       <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
         {switch twoFaPageState {
         | TOTP_SHOW_QR =>
           <ConfigureTotpScreen
-            isQrVisible totpUrl twoFaStatus setTwoFaPageState terminateTwoFactorAuth errorHandling
+            isQrVisible
+            totpUrl
+            twoFaStatus
+            setTwoFaPageState
+            terminateTwoFactorAuth
+            errorHandling
+            isSkippable
+            showOnlyTotp
           />
         | TOTP_SHOW_RC =>
           <TotpRecoveryCodes
@@ -341,14 +383,18 @@ let make = (~setTwoFaPageState, ~twoFaPageState, ~errorHandling) => {
           />
         | TOTP_INPUT_RECOVERY_CODE =>
           <EnterAccessCode
-            setTwoFaPageState onClickVerifyAccessCode={terminateTwoFactorAuth} errorHandling
+            setTwoFaPageState
+            onClickVerifyAccessCode={terminateTwoFactorAuth}
+            errorHandling
+            isSkippable
+            showOnlyRc
           />
         }}
         <div className="text-grey-200 flex gap-2">
           {"Log in with a different account?"->React.string}
           <p
             className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
-            onClick={_ => setAuthStatus(LoggedOut)}>
+            onClick={_ => handleLogout()->ignore}>
             {"Click here to log out."->React.string}
           </p>
         </div>
