@@ -5,50 +5,63 @@ module AttemptsExpiredComponent = {
   let make = (~expiredType, ~setTwoFaPageState, ~setTwoFaStatus) => {
     open TwoFaTypes
     open HSwitchUtils
-    let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-
-    let belowComponent = switch expiredType {
+    let handleLogout = APIUtils.useHandleLogout()
+    let expiredComponent = switch expiredType {
     | TOTP_ATTEMPTS_EXPIRED =>
-      <p className={`${p2Regular} text-jp-gray-700`}>
-        {"or "->React.string}
-        <span
-          className="cursor-pointer underline underline-offset-2 text-blue-600"
-          onClick={_ => {
-            setTwoFaStatus(_ => TwoFaNotExpired)
-            setTwoFaPageState(_ => TOTP_INPUT_RECOVERY_CODE)
-          }}>
-          {"Use recovery-code"->React.string}
-        </span>
-      </p>
+      <div
+        className="bg-white px-6 py-12 rounded-md border w-1/3 text-center font-semibold flex flex-col gap-4">
+        <p>
+          {"There have been multiple unsuccessful TOTP attempts for this account. Please wait a moment before trying again."->React.string}
+        </p>
+        <p className={`${p2Regular} text-jp-gray-700`}>
+          {"or "->React.string}
+          <span
+            className="cursor-pointer underline underline-offset-2 text-blue-600"
+            onClick={_ => {
+              setTwoFaStatus(_ => TwoFaNotExpired)
+              setTwoFaPageState(_ => TOTP_INPUT_RECOVERY_CODE)
+            }}>
+            {"Use recovery-code"->React.string}
+          </span>
+        </p>
+      </div>
+
     | RC_ATTEMPTS_EXPIRED =>
-      <p className={`${p2Regular} text-jp-gray-700`}>
-        {"or "->React.string}
-        <span
-          className="cursor-pointer underline underline-offset-2 text-blue-600"
-          onClick={_ => {
-            setTwoFaStatus(_ => TwoFaNotExpired)
-            setTwoFaPageState(_ => TOTP_SHOW_QR)
-          }}>
-          {"Use totp"->React.string}
-        </span>
-      </p>
-    | TWO_FA_EXPIRED => React.null
+      <div
+        className="bg-white px-6 py-12 rounded-md border w-1/3 text-center font-semibold flex flex-col gap-4">
+        <p>
+          {"There have been multiple unsuccessful Recovery code attempts for this account. Please wait a moment before trying again."->React.string}
+        </p>
+        <p className={`${p2Regular} text-jp-gray-700`}>
+          {"or "->React.string}
+          <span
+            className="cursor-pointer underline underline-offset-2 text-blue-600"
+            onClick={_ => {
+              setTwoFaStatus(_ => TwoFaNotExpired)
+              setTwoFaPageState(_ => TOTP_SHOW_QR)
+            }}>
+            {"Use totp"->React.string}
+          </span>
+        </p>
+      </div>
+
+    | TWO_FA_EXPIRED =>
+      <div
+        className="bg-white px-6 py-12 rounded-md border w-1/3 text-center font-semibold flex flex-col gap-4">
+        <p>
+          {"There have been multiple unsuccessful two-factor attempts for this account. Please wait a moment before trying again."->React.string}
+        </p>
+      </div>
     }
 
     <BackgroundImageWrapper>
       <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6 ">
-        <div
-          className="bg-white px-6 py-12 rounded-md border w-1/3 text-center font-semibold flex flex-col gap-4">
-          <p>
-            {"There have been multiple unsuccessful sign-in attempts for this account. Please wait a moment before trying again."->React.string}
-          </p>
-          {belowComponent}
-        </div>
+        {expiredComponent}
         <div className="text-grey-200 flex gap-2">
           {"Log in with a different account?"->React.string}
           <p
             className="underline cursor-pointer underline-offset-2 hover:text-blue-700"
-            onClick={_ => setAuthStatus(LoggedOut)}>
+            onClick={_ => handleLogout()->ignore}>
             {"Click here to log out."->React.string}
           </p>
         </div>
@@ -66,6 +79,10 @@ let make = () => {
   let (twoFaStatus, setTwoFaStatus) = React.useState(_ => TwoFaNotExpired)
   let (twoFaPageState, setTwoFaPageState) = React.useState(_ => TOTP_SHOW_QR)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (isSkippable, setIsSkippable) = React.useState(_ => true)
+  let (checkTwoFaResonse, setCheckTwoFaResponse) = React.useState(_ =>
+    JSON.Encode.null->TwoFaUtils.jsonTocheckTwofaResponseType
+  )
 
   let handlePageBasedOnAttempts = responseDict => {
     switch responseDict {
@@ -94,6 +111,8 @@ let make = () => {
       let response = await fetchDetails(url)
       let responseDict = response->TwoFaUtils.jsonTocheckTwofaResponseType
       handlePageBasedOnAttempts(responseDict.status)
+      setCheckTwoFaResponse(_ => responseDict)
+      setIsSkippable(_ => responseDict.isSkippable)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {
@@ -103,12 +122,8 @@ let make = () => {
     }
   }
 
-  let errorHandling = errorCode => {
-    if errorCode == "UR_48" {
-      setTwoFaStatus(_ => TwoFaExpired(TOTP_ATTEMPTS_EXPIRED))
-    } else if errorCode == "UR_49" {
-      setTwoFaStatus(_ => TwoFaExpired(RC_ATTEMPTS_EXPIRED))
-    }
+  let errorHandling = () => {
+    checkTwofaStatus()->ignore
   }
 
   React.useEffect(() => {
@@ -120,7 +135,8 @@ let make = () => {
     {switch twoFaStatus {
     | TwoFaExpired(expiredType) =>
       <AttemptsExpiredComponent expiredType setTwoFaPageState setTwoFaStatus />
-    | TwoFaNotExpired => <TotpSetup twoFaPageState setTwoFaPageState errorHandling />
+    | TwoFaNotExpired =>
+      <TotpSetup twoFaPageState setTwoFaPageState errorHandling isSkippable checkTwoFaResonse />
     }}
   </PageLoaderWrapper>
 }
