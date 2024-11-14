@@ -277,14 +277,13 @@ let initialFilters = (json, filtervalues) => {
   open LogicUtils
 
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  let {removeKeys, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
+  let {removeKeys} = React.useContext(FilterContext.filterContext)
   let filterDict = json->getDictFromJsonObject
 
   let filterArr = filterDict->itemToObjMapper
   let arr = filterDict->Dict.keysToArray
   let onDeleteClick = name => {
     [name]->removeKeys
-    setfilterKeys(_ => filterKeys->Array.filter(item => item !== name))
   }
   if connectorFilter->Array.length !== 0 {
     arr->Array.push("connector_label")
@@ -324,7 +323,6 @@ let initialFilters = (json, filtervalues) => {
 
     let name = switch key->getFilterTypeFromString {
     | #connector_label => "merchant_connector_id"
-    | #customer_id => "customer_id"
     | _ => key
     }
     let customInput = switch key->getFilterTypeFromString {

@@ -91,7 +91,6 @@ module AutoSubmitter = {
       let onKeyDown = ev => {
         let keyCode = ev->ReactEvent.Keyboard.keyCode
         if keyCode === 13 && submitInputOnEnter {
-          Js.log("inside keydown useffect")
           form.submit()->ignore
         }
       }
