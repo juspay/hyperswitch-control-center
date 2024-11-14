@@ -226,7 +226,7 @@ let make = () => {
         currProfile={currentOMPName(profileList, profileId)} arrow
       />}
       baseComponentCustomStyle="bg-white"
-      bottomComponent={<AddNewMerchantProfileButton
+      bottomComponent={<AddNewOMPButton
         user="profile" setShowModal customStyle addItemBtnStyle group=MerchantDetailsManage
       />}
       optionClass="text-gray-600 text-fs-14"
