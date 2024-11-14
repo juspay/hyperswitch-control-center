@@ -2,6 +2,8 @@ type userManagementTypes = UsersTab | RolesTab
 
 type internalUserType = InternalViewOnly | InternalAdmin | NonInternal
 
+type admin = TenantAdmin | NonTenantAdmin
+
 @unboxed
 type groupAccessType =
   | OperationsView
