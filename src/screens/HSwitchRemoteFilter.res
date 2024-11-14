@@ -286,6 +286,7 @@ module RemoteTableFilters = {
         remoteOptions
         remoteFilters
         autoApply=false
+        submitInputOnEnter=true
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => reset()}
@@ -303,6 +304,7 @@ module RemoteTableFilters = {
         remoteOptions=[]
         remoteFilters=[]
         autoApply=false
+        submitInputOnEnter=true
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => reset()}
