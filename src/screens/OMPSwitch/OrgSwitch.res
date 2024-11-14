@@ -113,10 +113,10 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let orgSwitch = OMPSwitchHooks.useOrgSwitch()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {orgId, roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let (showModal, setShowModal) = React.useState(_ => false)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
