@@ -68,3 +68,5 @@ let itemMapper = dict => {
   analyticsEntity: dict->getString("entity_type", "")->analyticsEntityMapper,
   transactionEntity: dict->getString("entity_type", "")->transactionEntityMapper,
 }
+
+// let entityMapper

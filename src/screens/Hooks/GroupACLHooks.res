@@ -37,6 +37,8 @@ let useUserGroupACLHook = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let setuserPermissionJson = Recoil.useSetRecoilState(userPermissionAtom)
 
+  Js.log2("group acl hook", userGroupACL)
+
   let fetchUserGroupACL = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#GET_GROUP_ACL, ~methodType=Get)

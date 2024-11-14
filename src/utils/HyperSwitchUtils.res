@@ -36,6 +36,7 @@ let delay = ms =>
     let _ = setTimeout(() => resolve(), ms)
   })
 
+///
 let checkIsInternalUser = roleId => {
   open UserManagementUtils
   roleId->stringToVariantMapperInternalUser == InternalViewOnly ||

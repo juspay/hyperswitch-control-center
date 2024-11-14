@@ -23,6 +23,7 @@ module ListBaseComp = {
 }
 
 module AddNewOMPButton = {
+module AddNewOMPButton = {
   @react.component
   let make = (
     ~user,

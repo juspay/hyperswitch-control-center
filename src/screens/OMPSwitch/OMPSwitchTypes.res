@@ -1,3 +1,8 @@
+// type source =
+//   | OrgSwitch
+//   | MerchantSwitch
+//   | ProfileSwitch
+
 type ompListTypes = {id: string, name: string}
 
 type opmView = {
