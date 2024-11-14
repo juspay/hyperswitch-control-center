@@ -33,20 +33,12 @@ module AddNewOMPButton = {
     ~addItemBtnStyle="",
     ~group: UserManagementTypes.groupAccessType=MerchantDetailsManage,
   ) => {
-    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-    let cursorStyles = GroupAccessUtils.cursorStyles(
-      // TODO: Remove `MerchantDetailsManage` permission in future
-      hasAnyGroupAccess(
-        userHasAccess(~groupAccess=MerchantDetailsManage),
-        userHasAccess(~groupAccess=AccountManage),
-      ),
-    )
+    open OMPSwitchUtils
+    let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+    let cursorStyles = GroupAccessUtils.cursorStyles(hasAccess(user, roleId))
+
     <ACLDiv
-      // TODO: Remove `MerchantDetailsManage` permission in future
-      authorization={hasAnyGroupAccess(
-        userHasAccess(~groupAccess=MerchantDetailsManage),
-        userHasAccess(~groupAccess=AccountManage),
-      )}
+      authorization={hasAccess(user, roleId)}
       onClick={_ => setShowModal(_ => true)}
       isRelative=false
       contentAlign=Default
