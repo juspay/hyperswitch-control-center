@@ -190,7 +190,7 @@ let make = () => {
         heading="Org" subHeading={currentOMPName(orgList, orgId)} arrow
       />}
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
-      bottomComponent={<OMPSwitchHelper.AddNewMerchantProfileButton
+      bottomComponent={<OMPSwitchHelper.AddNewOMPButton
         user="org" setShowModal customPadding customStyle customHRTagStyle group=OrganizationManage
       />}
       optionClass="text-gray-200 text-fs-14"

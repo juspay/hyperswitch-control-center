@@ -5,7 +5,7 @@ module ListBaseComp = {
       className="flex items-center justify-between text-sm text-center text-white font-medium rounded hover:bg-opacity-80 bg-sidebar-blue cursor-pointer">
       <div className="flex flex-col items-start px-2 py-2 w-5/6">
         <p className="text-xs text-gray-400"> {heading->React.string} </p>
-        <div className="w-full text-left overflow-auto">
+        <div className="w-full text-left overflow-auto whitespace-nowrap">
           <p className="fs-10"> {subHeading->React.string} </p>
         </div>
       </div>
@@ -22,7 +22,7 @@ module ListBaseComp = {
   }
 }
 
-module AddNewMerchantProfileButton = {
+module AddNewOMPButton = {
   @react.component
   let make = (
     ~user,
@@ -33,20 +33,12 @@ module AddNewMerchantProfileButton = {
     ~addItemBtnStyle="",
     ~group: UserManagementTypes.groupAccessType=MerchantDetailsManage,
   ) => {
-    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-    let cursorStyles = GroupAccessUtils.cursorStyles(
-      // TODO: Remove `MerchantDetailsManage` permission in future
-      hasAnyGroupAccess(
-        userHasAccess(~groupAccess=MerchantDetailsManage),
-        userHasAccess(~groupAccess=AccountManage),
-      ),
-    )
+    open OMPSwitchUtils
+    let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+    let cursorStyles = GroupAccessUtils.cursorStyles(hasAccess(user, roleId))
+
     <ACLDiv
-      // TODO: Remove `MerchantDetailsManage` permission in future
-      authorization={hasAnyGroupAccess(
-        userHasAccess(~groupAccess=MerchantDetailsManage),
-        userHasAccess(~groupAccess=AccountManage),
-      )}
+      authorization={hasAccess(user, roleId)}
       onClick={_ => setShowModal(_ => true)}
       isRelative=false
       contentAlign=Default

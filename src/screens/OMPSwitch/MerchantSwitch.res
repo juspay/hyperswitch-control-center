@@ -204,7 +204,7 @@ let make = () => {
         heading="Merchant" subHeading={currentOMPName(merchantList, merchantId)} arrow
       />}
       baseComponentCustomStyle="bg-popover-background border-blue-820 rounded text-white"
-      bottomComponent={<AddNewMerchantProfileButton
+      bottomComponent={<AddNewOMPButton
         user="merchant"
         setShowModal
         customPadding
