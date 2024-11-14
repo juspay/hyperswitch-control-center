@@ -61,7 +61,7 @@ let transformData = (data: array<(string, int)>) => {
     let (key, count) = item
     let num = count -. minVal
     let dinom = maxVal -. minVal
-    let normalizedValue = num /. dinom
+    let normalizedValue = maxVal != minVal ? num /. dinom : 1.0
 
     (key, normalizedValue)
   })
