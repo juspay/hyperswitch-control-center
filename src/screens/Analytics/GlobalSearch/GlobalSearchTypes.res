@@ -84,6 +84,11 @@ type category =
   | Card_Network
   | Last_4
   | Date
+  | Currency
+  | Authentication_type
+  | Status
+  | Client_source
+  | Client_version
 
 type categoryOption = {
   categoryType: category,
