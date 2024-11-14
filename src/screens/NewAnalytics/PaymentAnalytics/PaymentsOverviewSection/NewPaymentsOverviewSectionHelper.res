@@ -20,7 +20,7 @@ module SmartRetryCard = {
           <img alt="connector-list" className="h-20 w-fit" src="/assets/smart-retry.svg" />
           <div className="flex gap-1 items-center">
             <div className="font-semibold  text-2xl dark:text-white">
-              {`Saved ${valueFormatter(primaryValue, config.valueType)}`->React.string}
+              {`Saved ${valueFormatter(primaryValue, config.valueType)} USD`->React.string} // TODO:Currency need to be picked from filter
             </div>
             <div className="scale-[0.9]">
               <RenderIf condition={comparison === EnableComparison}>
@@ -57,7 +57,12 @@ module OverViewStat = {
         <div className="flex justify-between w-full items-end">
           <div className="flex gap-1 items-center">
             <div className="font-bold text-3xl">
-              {valueFormatter(primaryValue, config.valueType)->React.string}
+              {
+                let value = valueFormatter(primaryValue, config.valueType)
+                let suffix = config.valueType == Amount ? "USD" : ""
+
+                `${value} ${suffix}`->React.string
+              }
             </div>
             <div className="scale-[0.9]">
               <RenderIf condition={comparison === EnableComparison}>

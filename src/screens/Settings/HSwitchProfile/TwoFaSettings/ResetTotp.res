@@ -251,17 +251,19 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
     }
   }
 
-  let (showOnlyTotp, showOnlyRc) = switch checkTwoFaStatusResponse.status {
-  | Some(value) =>
-    if value.totp.attemptsRemaining === 0 && value.recoveryCode.attemptsRemaining > 0 {
-      (false, true)
-    } else if value.recoveryCode.attemptsRemaining === 0 && value.totp.attemptsRemaining > 0 {
-      (false, true)
-    } else {
-      (false, false)
+  let (showOnlyTotp, showOnlyRc) = React.useMemo1(() => {
+    switch checkTwoFaStatusResponse.status {
+    | Some(value) =>
+      if value.totp.attemptsRemaining === 0 && value.recoveryCode.attemptsRemaining > 0 {
+        (false, true)
+      } else if value.recoveryCode.attemptsRemaining === 0 && value.totp.attemptsRemaining > 0 {
+        (true, false)
+      } else {
+        (false, false)
+      }
+    | None => (true, true)
     }
-  | None => (true, true)
-  }
+  }, [checkTwoFaStatusResponse.status])
 
   <div>
     {switch twofaExpiredModal {

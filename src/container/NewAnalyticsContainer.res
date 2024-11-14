@@ -23,6 +23,7 @@ let make = () => {
     ~compareToEndTimeKey,
     ~origin="analytics",
     ~enableCompareTo=Some(true),
+    ~range=6,
     ~comparisonKey,
     (),
   )

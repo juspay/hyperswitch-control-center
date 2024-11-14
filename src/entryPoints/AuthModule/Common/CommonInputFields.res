@@ -17,6 +17,47 @@ let emailField = FormRenderer.makeFieldInfo(
     ),
 )
 
+let oldPasswordField = FormRenderer.makeFieldInfo(
+  ~label="Old Password",
+  ~name="old_password",
+  ~placeholder="Enter your Old Password",
+  ~type_="password",
+  ~customInput=InputFields.passwordMatchField(
+    ~leftIcon={
+      <Icon name="password-lock" size=13 />
+    },
+  ),
+  ~isRequired=false,
+)
+
+let newPasswordField = FormRenderer.makeFieldInfo(
+  ~label="New Password",
+  ~name="new_password",
+  ~placeholder="Enter your New Password",
+  ~type_="password",
+  ~customInput=InputFields.passwordMatchField(
+    ~leftIcon={
+      <Icon name="password-lock" size=13 />
+    },
+  ),
+  ~isRequired=false,
+)
+
+let confirmNewPasswordField = FormRenderer.makeFieldInfo(
+  ~label="Confirm Password",
+  ~name="confirm_password",
+  ~placeholder="Re-enter your Password",
+  ~type_="password",
+  ~customInput=InputFields.textInput(
+    ~type_="password",
+    ~autoComplete="off",
+    ~leftIcon={
+      <Icon name="password-lock" size=13 />
+    },
+  ),
+  ~isRequired=false,
+)
+
 let createPasswordField = FormRenderer.makeFieldInfo(
   ~label="Password",
   ~name="create_password",

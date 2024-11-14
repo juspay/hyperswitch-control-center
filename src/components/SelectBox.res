@@ -1381,9 +1381,13 @@ module BaseRadio = {
       switch Js.String2.match_(option.label, regex("\\b", searchString)) {
       | Some(_) => true
       | None =>
-        switch Js.String2.match_(option.label, regex("_", searchString)) {
+        switch Js.String2.match_(option.value, regex("\\b", searchString)) {
         | Some(_) => true
-        | None => false
+        | None =>
+          switch Js.String2.match_(option.label, regex("_", searchString)) {
+          | Some(_) => true
+          | None => false
+          }
         }
       }
     }
@@ -1431,7 +1435,7 @@ module BaseRadio = {
             onChange=handleSearch
             searchRef
             placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
-              ? "Search..."
+              ? "Search name or ID..."
               : searchInputPlaceHolder}
             showSearchIcon
           />
