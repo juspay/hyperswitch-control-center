@@ -118,6 +118,7 @@ let make = () => {
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showModal, setShowModal) = React.useState(_ => false)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
+  let (showModal, setShowModal) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
 
@@ -150,6 +151,11 @@ let make = () => {
         setShowSwitchingOrg(_ => false)
       }
     }
+  }
+
+  let onEditClick = e => {
+    setShowModal(_ => true)
+    e->ReactEvent.Mouse.stopPropagation
   }
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -188,7 +194,11 @@ let make = () => {
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
       baseComponent={<ListBaseComp
-        heading="Org" subHeading={currentOMPName(orgList, orgId)} arrow
+        heading="Org"
+        subHeading={currentOMPName(orgList, orgId)}
+        arrow
+        showEditIcon={userHasAccess(~groupAccess=OrganizationManage) === Access}
+        onEditClick
       />}
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>

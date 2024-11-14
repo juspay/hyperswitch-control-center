@@ -76,6 +76,7 @@ module PaymentsProcessedHeader = {
       ->getString("is_smart_retry_enabled", "true")
       ->getBoolFromString(true)
       ->getSmartRetryMetricType
+
     let primaryValue = getMetaDataValue(
       ~data,
       ~index=0,
@@ -214,7 +215,7 @@ let make = (
           let secondaryData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
           let secondaryMetaData =
-            primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+            secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
             NewAnalyticsUtils.fillMissingDataPoints(
               ~data,
