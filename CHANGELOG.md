@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.14.1
+
+### Miscellaneous Tasks
+
+- Sankey single value fix ([#1736](https://github.com/juspay/hyperswitch-control-center/pull/1736)) ([`fcf906d`](https://github.com/juspay/hyperswitch-control-center/commit/fcf906d434250577bc2da2eaaa437497ab9e4379))
+
+**Full Changelog:** [`2024.11.14.0...2024.11.14.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.14.0...2024.11.14.1)
+
+- - -
+
 ## 2024.11.14.0
 
 ### Features
