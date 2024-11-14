@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.14.0
+
+### Features
+
+- Profile id search ([#1719](https://github.com/juspay/hyperswitch-control-center/pull/1719)) ([`85344dd`](https://github.com/juspay/hyperswitch-control-center/commit/85344dd6a5e475d30d903bd1d5cfa7e3142f6583))
+- Update org name ([#1669](https://github.com/juspay/hyperswitch-control-center/pull/1669)) ([`8b53637`](https://github.com/juspay/hyperswitch-control-center/commit/8b53637061fd954eae9ed93f9ede9051e9265fc2))
+
+### Bug Fixes
+
+- Bug fixes for two-fa restriction ([#1708](https://github.com/juspay/hyperswitch-control-center/pull/1708)) ([`e19f167`](https://github.com/juspay/hyperswitch-control-center/commit/e19f167b46219f23a28d6578f4efd179cebd199d))
+- Analytics minor bugs ([#1732](https://github.com/juspay/hyperswitch-control-center/pull/1732)) ([`f981ccb`](https://github.com/juspay/hyperswitch-control-center/commit/f981ccbebcc2d2c12ef78b26b4c34af5c00430d4))
+
+**Full Changelog:** [`2024.11.13.0...2024.11.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.13.0...2024.11.14.0)
+
+- - -
+
 ## 2024.11.13.0
 
 ### Bug Fixes
