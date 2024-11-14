@@ -116,9 +116,6 @@ let make = () => {
   let {userInfo: {orgId, roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {getUserInfoData} = React.useContext(UserInfoProvider.defaultContext)
-  let {userEntity} = getUserInfoData()
-  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
