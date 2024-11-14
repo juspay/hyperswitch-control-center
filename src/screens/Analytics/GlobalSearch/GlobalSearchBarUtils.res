@@ -313,21 +313,31 @@ open GlobalSearchTypes
 let categoryList = [
   Payment_Method,
   Payment_Method_Type,
+  Currency,
   Connector,
   Customer_Email,
   Card_Network,
   Last_4,
+  Authentication_type,
+  Status,
+  Client_source,
+  Client_version,
 ]
 
 let getcategoryFromVariant = category => {
   switch category {
   | Payment_Method => "payment_method"
   | Payment_Method_Type => "payment_method_type"
+  | Currency => "currency"
   | Connector => "connector"
   | Customer_Email => "customer_email"
   | Card_Network => "card_network"
   | Last_4 => "last_4"
   | Date => "date"
+  | Authentication_type => "authentication_type"
+  | Status => "status"
+  | Client_source => "client_source"
+  | Client_version => "client_version"
   }
 }
 
@@ -335,11 +345,16 @@ let getDefaultPlaceholderValue = category => {
   switch category {
   | Payment_Method => "payment_method:card"
   | Payment_Method_Type => "payment_method_type:credit"
+  | Currency => "currency:USD"
   | Connector => "connector:stripe"
   | Customer_Email => "customer_email:abc@abc.com"
   | Card_Network => "card_network:visa"
   | Last_4 => "last_4:2326"
   | Date => "date:today"
+  | Authentication_type => "authentication_type:no_three_ds"
+  | Status => "status:charged"
+  | Client_source => "client_source:Payment"
+  | Client_version => "client_version:0.55.0"
   }
 }
 
@@ -348,9 +363,14 @@ let getCategoryVariantFromString = category => {
   | "payment_method" => Payment_Method
   | "payment_method_type" => Payment_Method_Type
   | "connector" => Connector
+  | "currency" => Currency
   | "customer_email" => Customer_Email
   | "card_network" => Card_Network
   | "last_4" => Last_4
+  | "authentication_type" => Authentication_type
+  | "status" => Status
+  | "client_source" => Client_source
+  | "client_version" => Client_version
   | "date" | _ => Date
   }
 }
