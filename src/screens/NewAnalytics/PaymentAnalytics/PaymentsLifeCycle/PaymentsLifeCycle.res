@@ -25,6 +25,7 @@ let make = (
   let isSmartRetryEnabled = filterValueJson->getString("is_smart_retry_enabled", "true")
 
   let getPaymentLieCycleData = async () => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(~entityName=ANALYTICS_SANKEY, ~methodType=Post)
       let paymentLifeCycleBody =

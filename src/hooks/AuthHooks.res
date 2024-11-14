@@ -30,9 +30,6 @@ let getHeaders = (
     | Some(str) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
-        if xFeatureRoute {
-          headersForXFeature(~headers, ~uri)
-        }
       }
     | None => ()
     }
@@ -40,6 +37,10 @@ let getHeaders = (
     | Headers(headerString) => headers->Dict.set("Content-Type", headerString)
     | Unknown => ()
     }
+    if xFeatureRoute {
+      headersForXFeature(~headers, ~uri)
+    }
+    headers->Dict.set("x-tenant-id", `test`) // for testing purpose
     headers
   }
   Fetch.HeadersInit.make(headerObj->Identity.dictOfAnyTypeToObj)
