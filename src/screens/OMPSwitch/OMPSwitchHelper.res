@@ -42,6 +42,7 @@ module AddNewMerchantProfileButton = {
 
     <ACLDiv
       authorization={hasCreateNewOMPAccess(user, roleId)}
+      noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
       onClick={_ => setShowModal(_ => true)}
       isRelative=false
       contentAlign=Default
