@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.15.0
+
+### Bug Fixes
+
+- Metric value change ([#1740](https://github.com/juspay/hyperswitch-control-center/pull/1740)) ([`341a3c4`](https://github.com/juspay/hyperswitch-control-center/commit/341a3c46de62d4869e59d37fcdbe6d215013eb32))
+
+**Full Changelog:** [`2024.11.14.1...2024.11.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.14.1...2024.11.15.0)
+
+- - -
+
 ## 2024.11.14.1
 
 ### Miscellaneous Tasks
