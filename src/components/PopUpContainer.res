@@ -51,7 +51,11 @@ let make = (~children) => {
         | Some(false) => (Some(obj.text), Some(false), obj.icon)
         | _ => (Some(obj.text), Some(true), obj.icon)
         }
-      | None => (None, None, None)
+      | None =>
+        switch popUp.showCloseIcon {
+        | Some(false) => (None, Some(false), None)
+        | _ => (None, None, None)
+        }
       }
 
       let (popUpTypeActual, showIcon) = popUpType
