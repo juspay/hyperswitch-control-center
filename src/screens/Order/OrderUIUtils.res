@@ -273,11 +273,10 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues) => {
+let initialFilters = (json, filtervalues, removeKeys) => {
   open LogicUtils
 
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  let {removeKeys} = React.useContext(FilterContext.filterContext)
   let filterDict = json->getDictFromJsonObject
 
   let filterArr = filterDict->itemToObjMapper
