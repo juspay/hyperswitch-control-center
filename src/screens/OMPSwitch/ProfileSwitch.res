@@ -202,7 +202,9 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getProfileList()->ignore
+    if businessProfiles->Array.length !== 0 {
+      getProfileList()->ignore
+    }
     None
   }, [businessProfiles])
 
