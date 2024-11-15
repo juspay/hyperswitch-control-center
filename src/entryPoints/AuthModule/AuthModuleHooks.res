@@ -178,7 +178,7 @@ let useNote = (authType, setAuthType) => {
             let backState = switch authType {
             | ForgetPasswordEmailSent => ForgetPassword
             | ResendVerifyEmailSent => ResendVerifyEmail
-            | ForgetPassword | MagicLinkEmailSent | _ => LoginWithPassword
+            | ForgetPassword | MagicLinkEmailSent | _ => LoginWithEmail
             }
             setAuthType(_ => backState)
           }}
