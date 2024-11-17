@@ -215,7 +215,7 @@ module ControlCenter = {
           />
           <img
             alt="connector-list"
-            className="opacity-10 sm:opacity-100 inline-block absolute right-5 bottom-5  lg:block"
+            className="inline-block absolute right-5 bottom-5  lg:block"
             src="/assets/connectorsList.svg"
           />
           <CardFooter>
