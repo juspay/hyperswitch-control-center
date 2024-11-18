@@ -206,14 +206,18 @@ let make = (
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
-      let primaryData = primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      let primaryData =
+        primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])->modifyQueryData
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
           let secondaryResponse = await updateDetails(url, secondaryBody, Post)
           let secondaryData =
-            secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
+            secondaryResponse
+            ->getDictFromJsonObject
+            ->getArrayFromDict("queryData", [])
+            ->modifyQueryData
           let secondaryMetaData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
