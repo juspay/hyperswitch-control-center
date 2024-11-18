@@ -18,10 +18,8 @@ let useVerifyTotp = () => {
 
 let useVerifyRecoveryCode = () => {
   open APIUtils
-  open LogicUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
   async body => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#VERIFY_RECOVERY_CODE, ~methodType=Post)
@@ -30,11 +28,6 @@ let useVerifyRecoveryCode = () => {
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
-        let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
-        if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_39 {
-          showToast(~message=errorMessage, ~toastType=ToastError)
-        }
         Exn.raiseError(err)
       }
     }

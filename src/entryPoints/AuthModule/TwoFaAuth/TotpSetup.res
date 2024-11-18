@@ -33,8 +33,12 @@ module EnterAccessCode = {
       | Exn.Error(e) => {
           let err = Exn.message(e)->Option.getOr("Something went wrong")
           let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+          let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
           if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_49 {
             errorHandling()
+          }
+          if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_39 {
+            showToast(~message=errorMessage, ~toastType=ToastError)
           }
           setRecoveryCode(_ => "")
           setButtonState(_ => Button.Normal)
@@ -158,7 +162,8 @@ module ConfigureTotpScreen = {
           let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
           if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_48 {
             errorHandling()
-          } else if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_37 {
+          }
+          if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_37 {
             showToast(~message=errorMessage, ~toastType=ToastError)
           }
           setOtp(_ => "")
