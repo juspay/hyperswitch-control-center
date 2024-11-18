@@ -2,7 +2,9 @@ type analyticsPages = Payment
 type viewType = Graph | Table
 type statisticsDirection = Upward | Downward | No_Change
 
-type analyticsPagesRoutes = | @as("new-analytics-payment") NewAnalyticsPayment
+type analyticsPagesRoutes =
+  | @as("new-analytics-payment") NewAnalyticsPayment
+  | @as("new-analytics-smart-retry") NewAnalyticsSmartRetry
 
 type domain = [#payments | #refunds | #disputes]
 type dimension = [

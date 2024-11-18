@@ -41,6 +41,13 @@ let make = () => {
           <NewPaymentAnalytics />
         </div>,
     },
+    {
+      title: "Smart Retries",
+      renderContent: () =>
+        <div className="mt-5">
+          <NewSmartRetryAnalytics />
+        </div>,
+    },
   ]
 
   <div>
