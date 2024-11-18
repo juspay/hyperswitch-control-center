@@ -1,5 +1,5 @@
 open PaymentsProcessedTypes
-open NewPaymentAnalyticsUtils
+open NewAnalyticsUtils
 open LogicUtils
 
 let getStringFromVariant = value => {
@@ -181,7 +181,6 @@ let getHeading = colType => {
 }
 
 let getCell = (obj, colType): Table.cell => {
-  open NewAnalyticsUtils
   switch colType {
   | Payment_Processed_Amount => Text(obj.payment_processed_amount_in_usd->valueFormatter(Amount))
   | Payment_Processed_Amount_Without_Smart_Retries =>

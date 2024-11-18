@@ -1,4 +1,4 @@
-open NewPaymentAnalyticsUtils
+open NewAnalyticsUtils
 open FailedPaymentsDistributionTypes
 open LogicUtils
 
@@ -119,7 +119,6 @@ let getHeading = colType => {
 }
 
 let getCell = (obj, colType): Table.cell => {
-  open NewAnalyticsUtils
   switch colType {
   | Payments_Failure_Rate_Distribution =>
     Text(obj.payments_failure_rate_distribution->valueFormatter(Amount))

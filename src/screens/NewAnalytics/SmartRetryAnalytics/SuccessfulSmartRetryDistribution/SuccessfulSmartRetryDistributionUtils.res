@@ -1,11 +1,10 @@
-open NewAnalyticsUtils
-open SuccessfulPaymentsDistributionTypes
 open LogicUtils
+open NewAnalyticsUtils
+open SuccessfulSmartRetryDistributionTypes
 
 let getStringFromVariant = value => {
   switch value {
-  | Payments_Success_Rate_Distribution => "payments_success_rate_distribution"
-  | Payments_Success_Rate_Distribution_Without_Smart_Retries => "payments_success_rate_distribution_without_smart_retries"
+  | Payments_Success_Rate_Distribution_With_Only_Retries => "payments_success_rate_distribution_with_only_retries"
   | Connector => "connector"
   | Payment_Method => "payment_method"
   | Payment_Method_Type => "payment_method_type"
@@ -23,7 +22,7 @@ let getColumn = string => {
   }
 }
 
-let successfulPaymentsDistributionMapper = (
+let successfulSmartRetryDistributionMapper = (
   ~params: NewAnalyticsTypes.getObjects<JSON.t>,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
@@ -45,7 +44,7 @@ let successfulPaymentsDistributionMapper = (
     data: [barGraphData],
     title,
     tooltipFormatter: bargraphTooltipFormatter(
-      ~title="Successful Payments Distribution",
+      ~title="Successful Smart Retry Distribution",
       ~metricType=Rate,
     ),
   }
@@ -53,14 +52,10 @@ let successfulPaymentsDistributionMapper = (
 
 open NewAnalyticsTypes
 
-let tableItemToObjMapper: Dict.t<JSON.t> => successfulPaymentsDistributionObject = dict => {
+let tableItemToObjMapper: Dict.t<JSON.t> => successfulSmartRetryDistributionObject = dict => {
   {
-    payments_success_rate_distribution: dict->getFloat(
-      Payments_Success_Rate_Distribution->getStringFromVariant,
-      0.0,
-    ),
-    payments_success_rate_distribution_without_smart_retries: dict->getFloat(
-      Payments_Success_Rate_Distribution_Without_Smart_Retries->getStringFromVariant,
+    payments_success_rate_distribution_with_only_retries: dict->getFloat(
+      Payments_Success_Rate_Distribution_With_Only_Retries->getStringFromVariant,
       0.0,
     ),
     connector: dict->getString(Connector->getStringFromVariant, ""),
@@ -70,7 +65,7 @@ let tableItemToObjMapper: Dict.t<JSON.t> => successfulPaymentsDistributionObject
   }
 }
 
-let getObjects: JSON.t => array<successfulPaymentsDistributionObject> = json => {
+let getObjects: JSON.t => array<successfulSmartRetryDistributionObject> = json => {
   json
   ->LogicUtils.getArrayFromJson([])
   ->Array.map(item => {
@@ -80,16 +75,10 @@ let getObjects: JSON.t => array<successfulPaymentsDistributionObject> = json => 
 
 let getHeading = colType => {
   switch colType {
-  | Payments_Success_Rate_Distribution =>
+  | Payments_Success_Rate_Distribution_With_Only_Retries =>
     Table.makeHeaderInfo(
-      ~key=Payments_Success_Rate_Distribution->getStringFromVariant,
-      ~title="Payments Success Rate",
-      ~dataType=TextType,
-    )
-  | Payments_Success_Rate_Distribution_Without_Smart_Retries =>
-    Table.makeHeaderInfo(
-      ~key=Payments_Success_Rate_Distribution_Without_Smart_Retries->getStringFromVariant,
-      ~title="Payments Success Rate",
+      ~key=Payments_Success_Rate_Distribution_With_Only_Retries->getStringFromVariant,
+      ~title="Smart Retry Payments Success Rate",
       ~dataType=TextType,
     )
   | Connector =>
@@ -121,10 +110,8 @@ let getHeading = colType => {
 
 let getCell = (obj, colType): Table.cell => {
   switch colType {
-  | Payments_Success_Rate_Distribution =>
-    Text(obj.payments_success_rate_distribution->valueFormatter(Amount))
-  | Payments_Success_Rate_Distribution_Without_Smart_Retries =>
-    Text(obj.payments_success_rate_distribution_without_smart_retries->valueFormatter(Amount))
+  | Payments_Success_Rate_Distribution_With_Only_Retries =>
+    Text(obj.payments_success_rate_distribution_with_only_retries->valueFormatter(Rate))
   | Connector => Text(obj.connector)
   | Payment_Method => Text(obj.payment_method)
   | Payment_Method_Type => Text(obj.payment_method_type)
@@ -158,26 +145,4 @@ let tabs = [
 let defaulGroupBy = {
   label: "Connector",
   value: Connector->getStringFromVariant,
-}
-
-let getKeyForModule = (field, ~isSmartRetryEnabled) => {
-  switch (field, isSmartRetryEnabled) {
-  | (Payments_Success_Rate_Distribution, Smart_Retry) => Payments_Success_Rate_Distribution
-  | (Payments_Success_Rate_Distribution, Default) | _ =>
-    Payments_Success_Rate_Distribution_Without_Smart_Retries
-  }->getStringFromVariant
-}
-
-let isSmartRetryEnbldForSuccessPmtDist = isEnabled => {
-  switch isEnabled {
-  | Smart_Retry => Payments_Success_Rate_Distribution
-  | Default => Payments_Success_Rate_Distribution_Without_Smart_Retries
-  }
-}
-
-let getMetricsForSmartRetry = isEnabled => {
-  switch isEnabled {
-  | Smart_Retry => [#payments_distribution]
-  | Default => [#sessionized_payments_distribution]
-  }
 }

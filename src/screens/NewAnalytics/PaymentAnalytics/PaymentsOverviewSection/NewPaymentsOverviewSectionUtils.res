@@ -54,7 +54,7 @@ let parseResponse = (response, key) => {
 
 open NewAnalyticsTypes
 let setValue = (dict, ~data, ~ids: array<overviewColumns>) => {
-  open NewPaymentAnalyticsUtils
+  open NewAnalyticsUtils
   open LogicUtils
 
   ids->Array.forEach(id => {

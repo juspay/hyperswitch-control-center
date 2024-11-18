@@ -1,4 +1,4 @@
-open NewPaymentAnalyticsUtils
+open NewAnalyticsUtils
 open LogicUtils
 open PaymentsSuccessRateTypes
 
