@@ -155,8 +155,11 @@ module ConfigureTotpScreen = {
       | Exn.Error(e) => {
           let err = Exn.message(e)->Option.getOr("Something went wrong")
           let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+          let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
           if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_48 {
             errorHandling()
+          } else if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_37 {
+            showToast(~message=errorMessage, ~toastType=ToastError)
           }
           setOtp(_ => "")
           setButtonState(_ => Button.Normal)
