@@ -101,6 +101,9 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
         if errorCode->CommonAuthUtils.errorSubCodeMapper === UR_40 {
           setShowVerifyModal(_ => true)
         }
+        if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_39 {
+          showToast(~message=errorMessage, ~toastType=ToastError)
+        }
         setOtp(_ => "")
         setButtonState(_ => Button.Normal)
         RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/account-settings/profile"))
@@ -138,6 +141,9 @@ let make = (~checkTwoFaStatusResponse: TwoFaTypes.checkTwofaResponseType, ~check
         }
         if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_48 {
           checkTwoFaStatus()->ignore
+        }
+        if errorCode->CommonAuthUtils.errorSubCodeMapper == UR_37 && !fromModal {
+          showToast(~message=errorMessage, ~toastType=ToastError)
         }
         setOtpInModal(_ => "")
         setOtp(_ => "")
