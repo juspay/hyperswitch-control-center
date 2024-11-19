@@ -176,10 +176,9 @@ let useNote = (authType, setAuthType) => {
         <div
           onClick={_ => {
             let backState = switch authType {
-            | MagicLinkEmailSent => SignUP
             | ForgetPasswordEmailSent => ForgetPassword
             | ResendVerifyEmailSent => ResendVerifyEmail
-            | ForgetPassword | _ => LoginWithPassword
+            | ForgetPassword | MagicLinkEmailSent | _ => LoginWithEmail
             }
             setAuthType(_ => backState)
           }}
