@@ -205,12 +205,7 @@ let make = () => {
       />}
       baseComponentCustomStyle="bg-popover-background border-blue-820 rounded text-white"
       bottomComponent={<AddNewOMPButton
-        user="merchant"
-        setShowModal
-        customPadding
-        customStyle
-        customHRTagStyle
-        group=OrganizationManage
+        user="merchant" setShowModal customPadding customStyle customHRTagStyle
       />}
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"

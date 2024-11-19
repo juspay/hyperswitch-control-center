@@ -117,7 +117,6 @@ let make = () => {
   let {userInfo: {orgId, roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let (showModal, setShowModal) = React.useState(_ => false)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
@@ -204,12 +203,7 @@ let make = () => {
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>
         <OMPSwitchHelper.AddNewOMPButton
-          user="org"
-          setShowModal
-          customPadding
-          customStyle
-          customHRTagStyle
-          group=OrganizationManage
+          user="org" setShowModal customPadding customStyle customHRTagStyle
         />
       </RenderIf>}
       optionClass="text-gray-200 text-fs-14"

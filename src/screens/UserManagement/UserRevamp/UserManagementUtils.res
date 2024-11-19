@@ -121,7 +121,7 @@ let getUserManagementViewValues = (~checkUserEntity) => {
     entity: #Default,
   }
 
-  if checkUserEntity([#Organization]) {
+  if checkUserEntity([#Organization, #Tenant]) {
     [default, org, merchant, profile]
   } else if checkUserEntity([#Merchant]) {
     [default, merchant, profile]

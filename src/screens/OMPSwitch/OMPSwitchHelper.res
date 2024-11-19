@@ -34,7 +34,6 @@ module AddNewOMPButton = {
     ~customStyle="",
     ~customHRTagStyle="",
     ~addItemBtnStyle="",
-    ~group: UserManagementTypes.groupAccessType=MerchantDetailsManage,
   ) => {
     open OMPSwitchUtils
     let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
