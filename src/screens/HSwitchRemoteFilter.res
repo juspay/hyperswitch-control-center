@@ -152,6 +152,7 @@ module RemoteTableFilters = {
     ~setOffset,
     ~customLeftView,
     ~title="",
+    ~submitInputOnEnter=false,
     ~entityName: APIUtilsTypes.entityName,
     (),
   ) => {
@@ -286,7 +287,7 @@ module RemoteTableFilters = {
         remoteOptions
         remoteFilters
         autoApply=false
-        submitInputOnEnter=true
+        submitInputOnEnter
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => reset()}
@@ -304,7 +305,7 @@ module RemoteTableFilters = {
         remoteOptions=[]
         remoteFilters=[]
         autoApply=false
-        submitInputOnEnter=true
+        submitInputOnEnter
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => reset()}
