@@ -1,6 +1,7 @@
+open GlobalSearchTypes
+open LogicUtils
+
 let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName) => {
-  open GlobalSearchTypes
-  open LogicUtils
   searchOptions
   ->Option.getOr([])
   ->Array.filter(item => {
@@ -22,8 +23,6 @@ let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName) 
 }
 
 let getLocalMatchedResults = (searchText, tabs) => {
-  open LogicUtils
-  open GlobalSearchTypes
   open SidebarTypes
   let results = tabs->Array.reduce([], (acc, item) => {
     switch item {
@@ -109,9 +108,6 @@ let getLocalMatchedResults = (searchText, tabs) => {
 }
 
 let getElements = (hits, section) => {
-  open GlobalSearchTypes
-  open LogicUtils
-
   let getAmount = (value, amountKey, currencyKey) =>
     `${value->getFloat(amountKey, 0.0)->Belt.Float.toString} ${value->getString(currencyKey, "")}`
 
@@ -178,7 +174,6 @@ let getElements = (hits, section) => {
 }
 
 let getItemFromArray = (results, key1, key2, resultsData) => {
-  open GlobalSearchTypes
   switch (resultsData->Dict.get(key1), resultsData->Dict.get(key2)) {
   | (Some(data), Some(sessionizerData)) => {
       let intentsCount = data.total_results
@@ -202,8 +197,6 @@ let getItemFromArray = (results, key1, key2, resultsData) => {
 }
 
 let getRemoteResults = json => {
-  open GlobalSearchTypes
-  open LogicUtils
   let data = Dict.make()
 
   json
@@ -254,7 +247,6 @@ let getRemoteResults = json => {
 }
 
 let getDefaultResult = searchText => {
-  open GlobalSearchTypes
   {
     section: Default,
     results: [
@@ -268,7 +260,6 @@ let getDefaultResult = searchText => {
 }
 
 let getDefaultOption = searchText => {
-  open GlobalSearchTypes
   {
     texts: ["Show all results for"->JSON.Encode.string, searchText->JSON.Encode.string],
     redirect_link: `/search?query=${searchText}`->JSON.Encode.string,
@@ -276,14 +267,10 @@ let getDefaultOption = searchText => {
 }
 
 let getAllOptions = (results: array<GlobalSearchTypes.resultType>) => {
-  open GlobalSearchTypes
-
-  []->Array.concatMany(results->Array.map(item => item.results))
+  results->Array.flatMap(item => item.results)
 }
 
 let parseResponse = response => {
-  open GlobalSearchTypes
-  open LogicUtils
   response
   ->getArrayFromJson([])
   ->Array.map(json => {
@@ -297,7 +284,6 @@ let parseResponse = response => {
 }
 
 let generateSearchBody = (~searchText, ~merchant_id) => {
-  open LogicUtils
   if !(searchText->CommonAuthUtils.isValidEmail) {
     let filters =
       [
@@ -309,7 +295,6 @@ let generateSearchBody = (~searchText, ~merchant_id) => {
   }
 }
 
-open GlobalSearchTypes
 let categoryList = [
   Payment_Method,
   Payment_Method_Type,
@@ -383,7 +368,6 @@ let generatePlaceHolderValue = (category, options) => {
 }
 
 let getCategorySuggestions = json => {
-  open LogicUtils
   let suggestions = Dict.make()
 
   json
@@ -445,19 +429,17 @@ let getFilterBody = groupByNames =>
   }->Identity.genericTypeToJson
 
 let generateFilter = (queryArray: array<string>) => {
-  open LogicUtils
   let filter = Dict.make()
   queryArray->Array.forEach(query => {
-    let arr =
+    let keyValuePair =
       query
       ->String.split(":")
       ->Array.filter(query => {
-        let queryText = query->String.trim
-        queryText->isNonEmptyString
+        query->String.trim->isNonEmptyString
       })
 
-    let key = arr->getValueFromArray(0, "")
-    let value = arr->getValueFromArray(1, "")
+    let key = keyValuePair->getValueFromArray(0, "")
+    let value = keyValuePair->getValueFromArray(1, "")
 
     switch filter->Dict.get(key) {
     | Some(prevArr) => filter->Dict.set(key, prevArr->Array.concat([value]))
@@ -476,16 +458,13 @@ let generateFilter = (queryArray: array<string>) => {
 }
 
 let generateQuery = searchQuery => {
-  open LogicUtils
-
   let filters = []
   let queryText = ref("")
 
   searchQuery
   ->String.split(" ")
   ->Array.filter(query => {
-    let queryText = query->String.trim
-    queryText->isNonEmptyString
+    query->String.trim->isNonEmptyString
   })
   ->Array.forEach(query => {
     if RegExp.test(%re("/^[^:\s]+:[^:\s]+$/"), query) {
@@ -511,15 +490,12 @@ let generateQuery = searchQuery => {
 }
 
 let validateQuery = searchQuery => {
-  open LogicUtils
-
   let freeTextCount = ref(0)
 
   searchQuery
   ->String.split(" ")
   ->Array.filter(query => {
-    let queryText = query->String.trim
-    queryText->isNonEmptyString
+    query->String.trim->isNonEmptyString
   })
   ->Array.forEach(query => {
     if !RegExp.test(%re("/^[^:\s]+:[^:\s]+$/"), query) {

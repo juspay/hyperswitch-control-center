@@ -1,8 +1,8 @@
+open LogicUtils
+open GlobalSearchTypes
 module RenderedComponent = {
   @react.component
   let make = (~ele, ~searchText) => {
-    open LogicUtils
-
     listOfMatchedText(ele, searchText)
     ->Array.mapWithIndex((item, i) => {
       if (
@@ -67,9 +67,7 @@ module OptionWrapper = {
   let make = (~index, ~value, ~children, ~selectedOption, ~redirectOnSelect) => {
     let activeClass = value == selectedOption ? "bg-gray-100 rounded-lg p-2 group items-center" : ""
     <div
-      onClick={_ => {
-        value->redirectOnSelect
-      }}
+      onClick={_ => value->redirectOnSelect}
       className={`flex ${activeClass} flex-row truncate hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center`}
       key={index->Int.toString}>
       {children}
@@ -101,7 +99,6 @@ module ModalWrapper = {
 }
 
 module ShowMoreLink = {
-  open GlobalSearchTypes
   @react.component
   let make = (
     ~section: resultType,
@@ -159,8 +156,6 @@ module ShowMoreLink = {
 }
 
 module SearchResultsComponent = {
-  open GlobalSearchTypes
-  open LogicUtils
   open FramerMotion.Motion
   @react.component
   let make = (~searchResults, ~searchText, ~setShowModal, ~selectedOption, ~redirectOnSelect) => {
@@ -243,8 +238,6 @@ let sidebarScrollbarCss = `
   `
 
 module FilterResultsComponent = {
-  open LogicUtils
-  open GlobalSearchTypes
   open GlobalSearchBarUtils
   open FramerMotion.Motion
   @react.component
@@ -346,7 +339,6 @@ module FilterResultsComponent = {
 }
 
 module ModalSearchBox = {
-  open LogicUtils
   open FramerMotion.Motion
   @react.component
   let make = (
