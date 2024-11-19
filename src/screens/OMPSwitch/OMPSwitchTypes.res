@@ -12,4 +12,4 @@ type ompList = {
   profileList: array<ompListTypes>,
 }
 
-type adminType = [#org_admin | #merchant_admin | #non_admin]
+type adminType = [#tenant_admin | #org_admin | #merchant_admin | #non_admin]

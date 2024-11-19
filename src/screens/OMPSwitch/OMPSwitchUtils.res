@@ -91,6 +91,7 @@ let mapUserType = user => {
 
 let mapRoleId = roleId => {
   switch roleId {
+  | "tenant_admin" => #tenant_admin
   | "org_admin" => #org_admin
   | "merchant_admin" => #merchant_admin
   | _ => #non_admin
@@ -99,8 +100,9 @@ let mapRoleId = roleId => {
 
 let allowedRoles = user =>
   switch user->mapUserType {
-  | #Merchant => [#org_admin]
-  | #Profile => [#org_admin, #merchant_admin]
+  | #Org => [#tenant_admin]
+  | #Merchant => [#tenant_admin, #org_admin]
+  | #Profile => [#tenant_admin, #org_admin, #merchant_admin]
   | _ => []
   }
 
