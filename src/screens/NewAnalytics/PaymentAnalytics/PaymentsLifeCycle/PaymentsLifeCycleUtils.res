@@ -61,7 +61,7 @@ let transformData = (data: array<(string, int)>) => {
     let (key, count) = item
     let num = count -. minVal
     let dinom = maxVal -. minVal
-    let normalizedValue = num /. dinom
+    let normalizedValue = maxVal != minVal ? num /. dinom : 1.0
 
     (key, normalizedValue)
   })
@@ -105,7 +105,7 @@ let paymentsLifeCycleMapper = (
     partialRefunded +
     (isSmartRetryEnabled ? data.smartRetriedSuccess : 0) +
     data.normalSuccess
-  let failure = data.normalFailure + (isSmartRetryEnabled ? data.smartRetriedFailure * 2 : 0)
+  let failure = data.normalFailure + (isSmartRetryEnabled ? data.smartRetriedFailure : 0)
   let pending = data.pending
   let cancelled = data.cancelled
   let dropoff =

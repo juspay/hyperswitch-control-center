@@ -7,8 +7,8 @@ COPY . .
 ARG BRANCH_NAME=hyperswitch
 ARG RUN_TEST=false
 RUN echo git branch is $BRANCH_NAME
-RUN yarn install
-RUN yarn build:prod
+RUN npm i --force
+RUN npm run build:prod
 
 
 
@@ -21,4 +21,4 @@ COPY --from=base /usr/src/app/package*.json ./
 RUN apk add --no-cache bash
 RUN ls -l /usr/src/app/dist
 EXPOSE 8080 9000
-CMD [ "/bin/bash", "-c", "yarn serve" ]
+CMD [ "/bin/bash", "-c", "npm run serve" ]
