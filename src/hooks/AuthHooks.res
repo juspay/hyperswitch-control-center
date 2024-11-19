@@ -40,7 +40,8 @@ let getHeaders = (
     if xFeatureRoute {
       headersForXFeature(~headers, ~uri)
     }
-    headers->Dict.set("x-tenant-id", `test`) // for testing purpose
+
+    // headers->Dict.set("x-tenant-id", `public`) // for testing purpose
     headers
   }
   Fetch.HeadersInit.make(headerObj->Identity.dictOfAnyTypeToObj)

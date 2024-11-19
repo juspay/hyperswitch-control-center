@@ -118,7 +118,8 @@ let make = () => {
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let {tenantUser} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
-  let (showModal, setShowModal) = React.useState(_ => false)
+  let (showEditOrgModal, setShowEditOrgModal) = React.useState(_ => false)
+  let (showAddOrgModal, setShowAddOrgModal) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
   let isTenantAdmin = roleId->HyperSwitchUtils.checkIsTenantAdmin
 
@@ -154,7 +155,7 @@ let make = () => {
   }
 
   let onEditClick = e => {
-    setShowModal(_ => true)
+    setShowEditOrgModal(_ => true)
     e->ReactEvent.Mouse.stopPropagation
   }
 
@@ -203,7 +204,7 @@ let make = () => {
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>
         <OMPSwitchHelper.AddNewOMPButton
-          user="org" setShowModal customPadding customStyle customHRTagStyle
+          user="org" setShowModal={setShowAddOrgModal} customPadding customStyle customHRTagStyle
         />
       </RenderIf>}
       optionClass="text-gray-200 text-fs-14"
@@ -214,8 +215,13 @@ let make = () => {
       customScrollStyle
       shouldDisplaySelectedOnTop=true
     />
-    <RenderIf condition={showModal}>
-      <NewAccountCreationModal setShowModal showModal getOrgList />
+    <EditOrgName
+      showModal={showEditOrgModal} setShowModal={setShowEditOrgModal} orgList orgId getOrgList
+    />
+    <RenderIf condition={showAddOrgModal}>
+      <NewAccountCreationModal
+        setShowModal={setShowAddOrgModal} showModal={showAddOrgModal} getOrgList
+      />
     </RenderIf>
     <LoaderModal
       showModal={showSwitchingOrg}
