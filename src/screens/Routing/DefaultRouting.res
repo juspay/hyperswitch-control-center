@@ -27,12 +27,13 @@ let make = (
         value->getDictFromJsonObject->getString("profile_id", "") === profile
       )
 
-    let connectors =
-      profileList
-      ->Array.get(0)
-      ->Option.getOr(JSON.Encode.null)
+    let connectors = switch profileList->Array.get(0) {
+    | Some(json) =>
+      json
       ->getDictFromJsonObject
       ->getArrayFromDict("connectors", [])
+    | _ => routingRespArray
+    }
 
     let gatewayConnectors = connectors->Array.filter(connectorsItem => {
       connectorList->Array.some(connectorListItem => {
