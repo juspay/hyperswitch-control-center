@@ -185,7 +185,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues) => {
+let initialFilters = (json, filtervalues, _) => {
   open LogicUtils
 
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray

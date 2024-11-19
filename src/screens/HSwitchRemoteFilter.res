@@ -152,6 +152,7 @@ module RemoteTableFilters = {
     ~setOffset,
     ~customLeftView,
     ~title="",
+    ~submitInputOnEnter=false,
     ~entityName: APIUtilsTypes.entityName,
     (),
   ) => {
@@ -160,7 +161,7 @@ module RemoteTableFilters = {
 
     let getURL = useGetURL()
     let {userInfo: transactionEntity} = React.useContext(UserInfoProvider.defaultContext)
-
+    let {removeKeys} = React.useContext(FilterContext.filterContext)
     let {filterValue, updateExistingKeys, filterValueJson, reset} =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
@@ -264,7 +265,7 @@ module RemoteTableFilters = {
       ->Dict.fromArray
 
     let remoteFilters = React.useMemo(() => {
-      filterData->initialFilters(getAllFilter)
+      filterData->initialFilters(getAllFilter, removeKeys)
     }, [getAllFilter])
 
     let initialDisplayFilters =
@@ -286,6 +287,7 @@ module RemoteTableFilters = {
         remoteOptions
         remoteFilters
         autoApply=false
+        submitInputOnEnter
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => reset()}
@@ -303,6 +305,7 @@ module RemoteTableFilters = {
         remoteOptions=[]
         remoteFilters=[]
         autoApply=false
+        submitInputOnEnter
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters={() => reset()}

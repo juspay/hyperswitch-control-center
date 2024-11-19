@@ -121,6 +121,7 @@ let make = (~previewOnly=false) => {
       initialFilters
       initialFixedFilter
       setOffset
+      submitInputOnEnter=true
       customLeftView={<SearchBarFilter
         placeholder="Search payment id" setSearchVal=setSearchText searchVal=searchText
       />}
