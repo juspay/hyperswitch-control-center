@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.19.1
+
+### Features
+
+- Dispute count analytics for new analytics overview section ([#1759](https://github.com/juspay/hyperswitch-control-center/pull/1759)) ([`0ca639a`](https://github.com/juspay/hyperswitch-control-center/commit/0ca639aacdb8d395b3cffd1af6da95b36f241365))
+
+### Bug Fixes
+
+- Docker build ([`4b027be`](https://github.com/juspay/hyperswitch-control-center/commit/4b027bef47e90e27444bf206a17dae50c39415c2))
+- Totp error toast ([#1756](https://github.com/juspay/hyperswitch-control-center/pull/1756)) ([`1ad7cae`](https://github.com/juspay/hyperswitch-control-center/commit/1ad7caeca3aff13266c7a3ab97b242560c7fc698))
+- Filter sessionized metrics ([#1761](https://github.com/juspay/hyperswitch-control-center/pull/1761)) ([`8ab03a6`](https://github.com/juspay/hyperswitch-control-center/commit/8ab03a699a2e3749d19b65b42a1f99ba6d4d2f12))
+
+**Full Changelog:** [`2024.11.19.0...2024.11.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.19.0...2024.11.19.1)
+
+- - -
+
 ## 2024.11.19.0
 
 ### Bug Fixes
