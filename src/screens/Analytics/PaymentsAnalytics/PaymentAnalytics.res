@@ -249,8 +249,7 @@ let make = () => {
           onChange={updateAnalytcisEntity}
         />
       </div>
-      <div
-        className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
+      <div className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg">
         topFilterUi
       </div>
       <div className="flex flex-col gap-14">

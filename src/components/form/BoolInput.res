@@ -11,6 +11,7 @@ module BaseComponent = {
     ~isDisabled=false,
     ~boolCustomClass="",
     ~addAttributeId="",
+    ~toggleBorder="border-green-950",
   ) => {
     let toggleSelect = React.useCallback(_ => {
       if !isDisabled {
@@ -19,9 +20,8 @@ module BaseComponent = {
     }, (isDisabled, isSelected, setIsSelected))
     let isMobileView = MatchMedia.useMobileChecker()
 
+    let toggleBorder = `border ${toggleBorder}`
     let toggleEnableColor = "bg-green-950  border dark:bg-green-950"
-
-    let toggleBorder = "border border-green-950"
     let toggleColor = "bg-gradient-to-t from-jp-gray-200 to-jp-gray-250 dark:from-jp-gray-darkgray_background dark:to-jp-gray-darkgray_background"
 
     let boolCustomClass = if boolCustomClass->LogicUtils.isEmptyString {

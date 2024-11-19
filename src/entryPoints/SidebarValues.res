@@ -334,7 +334,7 @@ let analytics = (
     links->Array.push(performanceMonitor)
   }
 
-  if newAnalyticsflag {
+  if true {
     links->Array.push(newAnalytics)
   }
 

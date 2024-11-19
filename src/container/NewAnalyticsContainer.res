@@ -41,12 +41,16 @@ let make = () => {
           <NewPaymentAnalytics />
         </div>,
     },
+    {
+      title: "Temp",
+      renderContent: () => <div className="mt-5"> React.null </div>,
+    },
   ]
 
   <div>
-    <PageUtils.PageHeading title="Analytics" />
+    <PageUtils.PageHeading title="Insights" />
     <div
-      className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background py-1 rounded-lg border my-2">
+      className="-ml-1 sticky top-0 z-30 p-1 backdrop-blur-sm bg-hyperswitch_background/70 py-1 rounded-lg my-2">
       <DynamicFilter
         initialFilters=[]
         options=[]
@@ -73,12 +77,14 @@ let make = () => {
     <Tabs
       initialIndex={url->getPageIndex}
       tabs
+      onTitleClick={tabId => setTabIndex(_ => tabId)}
       disableIndicationArrow=true
       showBorder=true
       includeMargin=false
       lightThemeColor="black"
       defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-      onTitleClick={tabId => setTabIndex(_ => tabId)}
+      textStyle="text-blue-600"
+      selectTabBottomBorderColor="bg-blue-600"
     />
   </div>
 }
