@@ -785,3 +785,12 @@ type getFilters = {
   endTime: string,
   filterValueFromUrl?: JSON.t,
 }
+
+let filterMetrics = metrics => {
+  metrics->Array.filter(ele => {
+    let metricName = ele->getDictFromJsonObject->getString("name", "")
+    !String.includes(metricName, "sessionized") &&
+    metricName != "failure_reasons" &&
+    metricName != "payments_distribution"
+  })
+}

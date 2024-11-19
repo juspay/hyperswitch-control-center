@@ -745,7 +745,7 @@ let make = (
     ->Array.filter(item => item.profile_id === profile)
     ->Array.map((item): SelectBox.dropdownOption => {
       {
-        label: item.connector_label,
+        label: item.disabled ? `${item.connector_label} (disabled)` : item.connector_label,
         value: item.merchant_connector_id,
       }
     })

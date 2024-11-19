@@ -76,6 +76,7 @@ module PaymentsProcessedHeader = {
       ->getString("is_smart_retry_enabled", "true")
       ->getBoolFromString(true)
       ->getSmartRetryMetricType
+
     let primaryValue = getMetaDataValue(
       ~data,
       ~index=0,
@@ -205,16 +206,20 @@ let make = (
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
-      let primaryData = primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      let primaryData =
+        primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])->modifyQueryData
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
           let secondaryResponse = await updateDetails(url, secondaryBody, Post)
           let secondaryData =
-            secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
+            secondaryResponse
+            ->getDictFromJsonObject
+            ->getArrayFromDict("queryData", [])
+            ->modifyQueryData
           let secondaryMetaData =
-            primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+            secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
             NewAnalyticsUtils.fillMissingDataPoints(
               ~data,
