@@ -16,7 +16,12 @@ let make = () => {
     try {
       let infoUrl = getURL(~entityName=ANALYTICS_DISPUTES, ~methodType=Get, ~id=Some("dispute"))
       let infoDetails = await fetchDetails(infoUrl)
-      setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
+      let metrics =
+        infoDetails
+        ->getDictFromJsonObject
+        ->getArrayFromDict("metrics", [])
+        ->AnalyticsUtils.filterMetrics
+      setMetrics(_ => metrics)
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

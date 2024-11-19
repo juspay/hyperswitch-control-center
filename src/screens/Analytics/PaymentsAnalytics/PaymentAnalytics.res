@@ -29,12 +29,7 @@ let make = () => {
         infoDetails
         ->getDictFromJsonObject
         ->getArrayFromDict("metrics", [])
-        ->Array.filter(ele => {
-          let metricName = ele->getDictFromJsonObject->getString("name", "")
-          !String.includes(metricName, "sessionized") &&
-          metricName != "failure_reasons" &&
-          metricName != "payments_distribution"
-        })
+        ->AnalyticsUtils.filterMetrics
       setMetrics(_ => ignoreSessionizedPayment)
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
       setScreenState(_ => PageLoaderWrapper.Success)
