@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.20.0
+
+### Features
+
+- **assets:** Add welcome email assets ([#1763](https://github.com/juspay/hyperswitch-control-center/pull/1763)) ([`f27529a`](https://github.com/juspay/hyperswitch-control-center/commit/f27529a52d97a445be621e29bf3892ea5387561a))
+- Customer ID filter ([#1746](https://github.com/juspay/hyperswitch-control-center/pull/1746)) ([`d409b01`](https://github.com/juspay/hyperswitch-control-center/commit/d409b017a2f64f2a103530a2a685c5a43ec4b38d))
+
+### Bug Fixes
+
+- Default routing connector list extraction changes ([#1765](https://github.com/juspay/hyperswitch-control-center/pull/1765)) ([`0c4fc5d`](https://github.com/juspay/hyperswitch-control-center/commit/0c4fc5dbad9c6c38988a9f12bac7263ebe18b513))
+
+**Full Changelog:** [`2024.11.19.1...2024.11.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.19.1...2024.11.20.0)
+
+- - -
+
 ## 2024.11.19.1
 
 ### Features
