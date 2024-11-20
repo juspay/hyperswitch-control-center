@@ -1,5 +1,6 @@
 let username = `cypress+${Math.round(+new Date() / 1000)}@gmail.com`;
-describe("Auth Module", () => {
+
+describe("Signup", () => {
   it("check the components in the sign up page", () => {
     cy.visit("http://localhost:9000/");
     cy.get("#card-subtitle").click();
@@ -22,7 +23,9 @@ describe("Auth Module", () => {
     cy.get("[data-testid=skip-now]").click({ force: true });
     cy.url().should("eq", "http://localhost:9000/dashboard/home");
   });
+});
 
+describe("Login", () => {
   it("check the components in the login page", () => {
     cy.visit("http://localhost:9000/dashboard/login");
     cy.url().should("include", "/login");
@@ -146,3 +149,5 @@ describe("Auth Module", () => {
     cy.url().should("eq", "http://localhost:9000/dashboard/home");
   });
 });
+
+describe("Forgot password", () => {});
