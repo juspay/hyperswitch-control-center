@@ -273,7 +273,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues, removeKeys) => {
+let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys) => {
   open LogicUtils
 
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
@@ -283,6 +283,7 @@ let initialFilters = (json, filtervalues, removeKeys) => {
   let arr = filterDict->Dict.keysToArray
   let onDeleteClick = name => {
     [name]->removeKeys
+    setfilterKeys(_ => filterKeys->Array.filter(item => item !== name))
   }
   if connectorFilter->Array.length !== 0 {
     arr->Array.push("connector_label")

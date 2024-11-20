@@ -161,7 +161,7 @@ module RemoteTableFilters = {
 
     let getURL = useGetURL()
     let {userInfo: transactionEntity} = React.useContext(UserInfoProvider.defaultContext)
-    let {removeKeys} = React.useContext(FilterContext.filterContext)
+    let {removeKeys, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
     let {filterValue, updateExistingKeys, filterValueJson, reset} =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
@@ -265,7 +265,7 @@ module RemoteTableFilters = {
       ->Dict.fromArray
 
     let remoteFilters = React.useMemo(() => {
-      filterData->initialFilters(getAllFilter, removeKeys)
+      filterData->initialFilters(getAllFilter, removeKeys, filterKeys, setfilterKeys)
     }, [getAllFilter])
 
     let initialDisplayFilters =
