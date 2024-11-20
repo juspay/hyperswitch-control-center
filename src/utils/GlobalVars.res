@@ -29,6 +29,15 @@ let appendDashboardPath = (~url) => {
   }
 }
 
+let extractModulePath = (url: RescriptReactRouter.url) => {
+  let currentPathList = url.path->List.toArray
+  let path = switch currentPathList->Array.get(0) {
+  | Some("dashboard") => currentPathList->Array.slice(~start=0, ~end=2)->Array.joinWith("/")
+  | _ => currentPathList->LogicUtils.getValueFromArray(0, "home")
+  }
+  appendTrailingSlash(path)
+}
+
 type hostType = Live | Sandbox | Local | Integ
 
 let hostName = Window.Location.hostname
