@@ -2,11 +2,9 @@ open APIUtils
 open MerchantAccountUtils
 
 @react.component
-let make = (
-  ~urlEntityName,
-  ~baseUrlForRedirection,
-  ~connectorList: array<ConnectorTypes.connectorPayload>,
-) => {
+let make = (~urlEntityName, ~baseUrlForRedirection) => {
+  // ~connectorList: array<ConnectorTypes.connectorPayload>,
+
   open LogicUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -20,7 +18,7 @@ let make = (
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
   let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
-
+  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let settingUpConnectorsState = routingRespArray => {
     let profileList =
       routingRespArray->Array.filter(value =>
