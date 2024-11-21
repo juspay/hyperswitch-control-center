@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.21.0
+
+### Bug Fixes
+
+- Customer ID remove key ([#1769](https://github.com/juspay/hyperswitch-control-center/pull/1769)) ([`1e7105c`](https://github.com/juspay/hyperswitch-control-center/commit/1e7105c6075b00f70c98530056699b6fccaa89a4))
+
+**Full Changelog:** [`2024.11.20.0...2024.11.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.20.0...2024.11.21.0)
+
+- - -
+
 ## 2024.11.20.0
 
 ### Features
