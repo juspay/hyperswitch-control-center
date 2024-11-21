@@ -130,7 +130,7 @@ let getOptionsForPayoutFilters = (dict, filterValues) => {
   newArr
 }
 
-let initialFilters = (json, _) => {
+let initialFilters = (json, _, _, _, _) => {
   open LogicUtils
 
   let dropdownValue =
