@@ -26,7 +26,7 @@ describe("connector", () => {
   };
 
   before(() => {
-    cy.visit("http://localhost:9000/dashboard/login");
+    cy.visit("/dashboard/login");
     cy.url().should("include", "/login");
     cy.get("[data-testid=card-header]").should(
       "contain",
@@ -52,7 +52,7 @@ describe("connector", () => {
 
   beforeEach(function () {
     if (this.currentTest.title !== "Create a dummy connector") {
-      cy.visit("http://localhost:9000/dashboard/login");
+      cy.visit("/dashboard/login");
       cy.url().should("include", "/login");
       cy.get("[data-testid=card-header]").should(
         "contain",

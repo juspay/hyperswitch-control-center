@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from "uuid";
 describe("Payment Operations Page - Columns Customization and Functionalities", () => {
   const TEST_PASSWORD = "Cypress98#";
   const TEST_USERNAME = `cypress_${uuidv4().slice(0, 8)}@example.com`;
-  const BASE_URL = "http://localhost:9000";
   const columnSize = 23;
   const requiredColumnsSize = 13;
 
@@ -17,7 +16,7 @@ describe("Payment Operations Page - Columns Customization and Functionalities", 
   };
 
   before(() => {
-    cy.visit(`${BASE_URL}/dashboard/login`);
+    cy.visit(`/dashboard/login`);
     cy.get("[data-testid=card-subtitle]").contains("Sign up").click();
     cy.url().should("include", "/register");
     cy.get("[data-testid=auth-submit-btn]").should("exist");

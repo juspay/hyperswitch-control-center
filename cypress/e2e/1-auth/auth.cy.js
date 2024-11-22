@@ -1,33 +1,77 @@
 let username = `cypress+${Math.round(+new Date() / 1000)}@gmail.com`;
 
 describe("Signup", () => {
-  it("check the components in the sign up page", () => {
-    cy.visit("http://localhost:9000/");
+  it("Verify sign up page contains all components", () => {
+    cy.visit("/");
     cy.get("#card-subtitle").click();
     cy.url().should("include", "/register");
     cy.get("#card-header").should("contain", "Welcome to Hyperswitch");
     cy.get("#card-subtitle").should("contain", "Sign in");
-    cy.get("#auth-submit-btn").should("exist");
+    cy.get("#auth-submit-btn")
+      .contains("Get started, for free!")
+      .should("exist");
+    cy.get("[data-testid=email] input").should(
+      "have.attr",
+      "placeholder",
+      "Enter your Email",
+    );
+    cy.get("[data-testid=password] input").should(
+      "have.attr",
+      "placeholder",
+      "Enter your Password",
+    );
     cy.get("#tc-text").should("exist");
     cy.get("#footer").should("exist");
   });
 
+  it.skip('Verify "Email" field', () => {
+    const invalidEmails = [
+      "@#$%",
+      "plainaddress",
+      "missing@domain",
+      "user@.com",
+      "user@domain..com",
+      "user@domain,com",
+      "user@domain.123",
+      "user@domain.c",
+      "user@domain.",
+      "user@.com",
+      "12345678",
+      "abc@@xy.zi",
+      "@com.in",
+      "abc.in",
+      "abc..xyz@abc.com",
+    ];
+
+    Cypress._.each(invalidEmails, (invalidEmail) => {
+      cy.visit("/register");
+
+      cy.get("[data-testid=email]").type(invalidEmail);
+
+      cy.get("body").click(100, 100);
+
+      cy.get("[data-form-error]")
+        .should("be.visible")
+        .and("contain.text", "Please enter valid Email ID");
+    });
+  });
+
   it("check signup flow", () => {
     const password = "Cypress98#";
-    cy.visit("http://localhost:9000/");
+    cy.visit("/");
     cy.get("#card-subtitle").click();
     cy.url().should("include", "/register");
     cy.get("[data-testid=email]").type(username);
     cy.get("[data-testid=password]").type(password);
     cy.get('button[type="submit"]').click({ force: true });
     cy.get("[data-testid=skip-now]").click({ force: true });
-    cy.url().should("eq", "http://localhost:9000/dashboard/home");
+    cy.url().should("include", "/dashboard/home");
   });
 });
 
 describe("Login", () => {
   it("check the components in the login page", () => {
-    cy.visit("http://localhost:9000/dashboard/login");
+    cy.visit("/dashboard/login");
     cy.url().should("include", "/login");
     cy.get("#card-header").should("contain", "Hey there, Welcome back!");
     cy.get("#card-subtitle").should("contain", "Sign up");
@@ -37,7 +81,7 @@ describe("Login", () => {
   });
 
   it("check auth page back button functioning", () => {
-    cy.visit("http://localhost:9000/");
+    cy.visit("/");
     cy.get("#card-subtitle").click();
     cy.url().should("include", "/register");
     cy.get("#card-header").should("contain", "Welcome to Hyperswitch");
@@ -106,7 +150,7 @@ describe("Login", () => {
         },
       },
     }).as("getFeatureData");
-    cy.visit("http://localhost:9000");
+    cy.visit("");
     cy.wait("@getFeatureData");
     cy.get("[data-testid=card-foot-text]").click();
     cy.url().should("include", "/login");
@@ -123,16 +167,16 @@ describe("Login", () => {
 
   it("should successfully log in with valid credentials", () => {
     const password = "Cypress98#";
-    cy.visit("http://localhost:9000/dashboard/login");
+    cy.visit("/dashboard/login");
     cy.get("[data-testid=email]").type(username);
     cy.get("[data-testid=password]").type(password);
     cy.get('button[type="submit"]').click({ force: true });
     cy.get("[data-testid=skip-now]").click({ force: true });
-    cy.url().should("eq", "http://localhost:9000/dashboard/home");
+    cy.url().should("include", "/dashboard/home");
   });
 
   it("should display an error message with invalid credentials", () => {
-    cy.visit("http://localhost:9000/");
+    cy.visit("/");
     cy.get("[data-testid=email]").type("xxx@gmail.com");
     cy.get("[data-testid=password]").type("xxxx");
     cy.get('button[type="submit"]').click({ force: true });
@@ -141,12 +185,12 @@ describe("Login", () => {
 
   it("should login successfully with email containing spaces", () => {
     const password = "Cypress98#";
-    cy.visit("http://localhost:9000/");
+    cy.visit("/");
     cy.get("[data-testid=email]").type(`  ${username}  `);
     cy.get("[data-testid=password]").type(password);
     cy.get('button[type="submit"]').click({ force: true });
     cy.get("[data-testid=skip-now]").click({ force: true });
-    cy.url().should("eq", "http://localhost:9000/dashboard/home");
+    cy.url().should("include", "/dashboard/home");
   });
 });
 
