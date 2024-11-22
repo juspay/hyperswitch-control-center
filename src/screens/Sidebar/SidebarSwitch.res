@@ -14,14 +14,9 @@ module OrgMerchantSwitchCollapsed = {
 @react.component
 let make = (~isSidebarExpanded=false) => {
   let expandedContent =
-    <div className="flex flex-col gap-2 mx-2">
+    <div className="flex flex-col mx-2">
       <OrgSwitch />
-      <div className="flex gap-2">
-        <div
-          className="w-2.5 h-10 border-blue-810 ml-5 border-dashed border-b border-l rounded-bl-sm"
-        />
-        <MerchantSwitch />
-      </div>
+      <hr className="border-t border-blue-830" />
     </div>
 
   <>

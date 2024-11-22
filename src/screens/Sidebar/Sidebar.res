@@ -531,27 +531,17 @@ let make = (
         ref={sideBarRef->ReactDOM.Ref.domRef}
         className={`${backgroundColor.primaryNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
         style={width: sidebarWidth}>
-        <div className="flex items-center justify-between p-1 mr-2">
-          <div
-            className={`flex align-center mt-4 pl-3 mb-6 pr-4 ml-1 gap-5 cursor-default`}
-            onClick={ev => {
-              ev->ReactEvent.Mouse.preventDefault
-              ev->ReactEvent.Mouse.stopPropagation
-            }}>
-            <Icon size=20 name="hamburger-new" />
+        <RenderIf condition={isMobileView}>
+          <div className="flex align-center mt-4 pl-3 mb-6 pr-4 ml-1 gap-5 cursor-default">
+            <Icon
+              className="mr-1"
+              size=20
+              name="collapse-cross"
+              customIconColor="#FEFEFE"
+              onClick={_ => setIsSidebarExpanded(_ => false)}
+            />
           </div>
-          <RenderIf condition={isMobileView}>
-            <div className="flex align-center mt-4 pl-3 mb-6 pr-4 ml-1 gap-5 cursor-default">
-              <Icon
-                className="mr-1"
-                size=20
-                name="collapse-cross"
-                customIconColor="#FEFEFE"
-                onClick={_ => setIsSidebarExpanded(_ => false)}
-              />
-            </div>
-          </RenderIf>
-        </div>
+        </RenderIf>
         <RenderIf condition={!isInternalUser}>
           <SidebarSwitch isSidebarExpanded />
         </RenderIf>

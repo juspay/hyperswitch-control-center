@@ -1,25 +1,58 @@
 module ListBaseComp = {
   @react.component
-  let make = (~heading, ~subHeading, ~arrow, ~showEditIcon=false, ~onEditClick=_ => ()) => {
+  let make = (
+    ~heading,
+    ~subHeading,
+    ~arrow,
+    ~showEditIcon=false,
+    ~onEditClick=_ => (),
+    ~isDarkBg=false,
+  ) => {
+    Js.log2("omp arrow", arrow)
+
+    let baseCompStyle = switch isDarkBg {
+    | false => "text-black hover:bg-opacity-80"
+    | true => "text-white hover:bg-opacity-80 bg-sidebar-blue"
+    }
+
+    let iconName = switch isDarkBg {
+    | false => "arrow-without-tail"
+    | true => "arrow-without-tail-new"
+    }
+
+    let arrowDownClass = switch isDarkBg {
+    | false => "rotate-180 transition duration-[250ms] opacity-70"
+    | true => "rotate-0 transition duration-[250ms] opacity-70"
+    }
+
+    let arrowUpClass = switch isDarkBg {
+    | false => "rotate-0 transition duration-[250ms] opacity-70"
+    | true => "-rotate-180 transition duration-[250ms] opacity-70"
+    }
+
+    let textColor = switch isDarkBg {
+    | false => "text-grey-900"
+    | true => "text-white"
+    }
+
+    let width = switch isDarkBg {
+    | true => "w-5/6"
+    | false => "w-full"
+    }
+
     <div
-      className="flex items-center justify-between text-sm text-center text-white font-medium rounded hover:bg-opacity-80 bg-sidebar-blue cursor-pointer">
-      <div className="flex flex-col items-start px-2 py-2 w-5/6">
-        <p className="text-xs text-gray-400"> {heading->React.string} </p>
-        <div className="w-full text-left overflow-auto">
-          <p className="fs-10"> {subHeading->React.string} </p>
+      className={`flex items-center justify-between text-sm text-center font-medium  cursor-pointer w-full overflow-scroll ${baseCompStyle}`}>
+      <div className={`${width}`}>
+        <RenderIf condition={heading->LogicUtils.isNonEmptyString}>
+          <p className="text-xs text-left text-gray-400"> {heading->React.string} </p>
+        </RenderIf>
+        <div className="text-left flex gap-2">
+          <p className={`fs-10 ${textColor} overflow-scroll`}> {subHeading->React.string} </p>
+          <RenderIf condition={showEditIcon}>
+            <Icon name="pencil-alt" size=10 onClick=onEditClick className="mr-1" />
+          </RenderIf>
+          <Icon className={arrow ? arrowDownClass : arrowUpClass} name={iconName} size=15 />
         </div>
-      </div>
-      <RenderIf condition={showEditIcon}>
-        <Icon name="pencil-alt" size=10 onClick=onEditClick className="mt-4 mr-1" />
-      </RenderIf>
-      <div className="px-2 py-2">
-        <Icon
-          className={arrow
-            ? "rotate-0 transition duration-[250ms] opacity-70"
-            : "-rotate-180 transition duration-[250ms] opacity-70"}
-          name="arrow-without-tail-new"
-          size=15
-        />
       </div>
     </div>
   }

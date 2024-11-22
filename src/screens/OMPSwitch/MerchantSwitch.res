@@ -173,9 +173,7 @@ let make = () => {
     checked: true,
   }
 
-  let customHRTagStyle = "border-t border-blue-830"
-  let customPadding = "py-1 w-full"
-  let customStyle = "w-56 text-gray-200 bg-blue-840 dark:bg-black hover:bg-popover-background-hover hover:text-gray-100 !w-full"
+  let customStyle = "text-blue-500 bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-fit"
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
   React.useEffect(() => {
     getMerchantList()->ignore
@@ -186,7 +184,9 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
-  <div className="border border-popover-background rounded w-5/6">
+  let addItemBtnStyle = "w-fit"
+
+  <div className="w-fit">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
@@ -197,20 +197,18 @@ let make = () => {
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false
-      customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
-      customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
+      customStyle="rounded w-fit"
       searchable=false
       baseComponent={<ListBaseComp
         heading="Merchant" subHeading={currentOMPName(merchantList, merchantId)} arrow
       />}
-      baseComponentCustomStyle="bg-popover-background border-blue-820 rounded text-white"
+      baseComponentCustomStyle="bg-white rounded"
       bottomComponent={<AddNewMerchantProfileButton
-        user="merchant" setShowModal customPadding customStyle customHRTagStyle
+        user="merchant" setShowModal customStyle addItemBtnStyle
       />}
-      optionClass="text-gray-200 text-fs-14"
-      selectClass="text-gray-200 text-fs-14"
-      customDropdownOuterClass="!border-none !w-full"
-      fullLength=true
+      optionClass="text-gray-600 text-fs-14"
+      selectClass="text-gray-600 text-fs-14"
+      customDropdownOuterClass="w-fit"
       toggleChevronState
       customScrollStyle
       shouldDisplaySelectedOnTop=true

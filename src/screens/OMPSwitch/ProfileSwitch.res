@@ -1,26 +1,3 @@
-module ListBaseCompForProfile = {
-  @react.component
-  let make = (~currProfile, ~arrow) => {
-    <div
-      className="flex items-center justify-end text-sm text-center text-black font-medium rounded hover:bg-opacity-80 bg-white cursor-pointer">
-      <div className="flex flex-row gap-2 p-2 fs-10">
-        <p className="text-grey-900"> {"Profile"->React.string} </p>
-        <p className="text-gray-400"> {"|"->React.string} </p>
-        <p className="text-nowrap text-semibold"> {currProfile->React.string} </p>
-      </div>
-      <div className="px-2 py-2">
-        <Icon
-          className={arrow
-            ? "rotate-180 transition duration-[250ms] opacity-70"
-            : "rotate-0 transition duration-[250ms] opacity-70"}
-          name="arrow-without-tail"
-          size=15
-        />
-      </div>
-    </div>
-  }
-}
-
 module NewAccountCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal, ~getProfileList) => {
@@ -210,7 +187,7 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
-  <div className="border border-gray-200 rounded-md">
+  <div className="">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
@@ -222,8 +199,8 @@ let make = () => {
       addButton=false
       searchable=true
       customStyle="absolute w-fit right-0"
-      baseComponent={<ListBaseCompForProfile
-        currProfile={currentOMPName(profileList, profileId)} arrow
+      baseComponent={<ListBaseComp
+        heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
       />}
       baseComponentCustomStyle="bg-white"
       bottomComponent={<AddNewMerchantProfileButton
