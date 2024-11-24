@@ -181,7 +181,7 @@ module ConnectorSummaryGrid = {
     }
 
     <>
-      <div className="grid grid-cols-4 border-b md:px-10 py-8">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-1 border-b md:px-10 py-8">
         <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
         <AddDataAttributes attributes=[("data-testid", "connector_status"->String.toLowerCase)]>
           <div
@@ -190,7 +190,7 @@ module ConnectorSummaryGrid = {
           </div>
         </AddDataAttributes>
       </div>
-      <div className="grid grid-cols-4 border-b md:px-10 py-8">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-1 border-b md:px-10 py-8">
         <div className="flex items-start">
           <h4 className="text-lg font-semibold"> {"Webhook Endpoint"->React.string} </h4>
           <ToolTip
@@ -205,13 +205,13 @@ module ConnectorSummaryGrid = {
           <KeyAndCopyArea copyValue={copyValueOfWebhookEndpoint} />
         </div>
       </div>
-      <div className="grid grid-cols-4 border-b  md:px-10 py-8">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-1 border-b  md:px-10 py-8">
         <h4 className="text-lg font-semibold"> {"Profile"->React.string} </h4>
         <div className="col-span-3">
           {`${currentProfileName.profile_name} - ${connectorInfo.profile_id}`->React.string}
         </div>
       </div>
-      <div className="grid grid-cols-4 border-b  md:px-10 py-8">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-1 border-b  md:px-10 py-8">
         <div className="flex items-start">
           <h4 className="text-lg font-semibold"> {"Creds"->React.string} </h4>
         </div>
@@ -229,7 +229,7 @@ module ConnectorSummaryGrid = {
       </div>
       {switch updateStepValue {
       | Some(state) =>
-        <div className="grid grid-cols-4 border-b md:px-10 py-8">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-1 border-b md:px-10 py-8">
           <div className="flex items-start">
             <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
           </div>

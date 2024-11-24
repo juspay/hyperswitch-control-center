@@ -105,7 +105,7 @@ let make = (
           {heading->React.string}
         </h2>
       </AddDataAttributes>
-      <div className="flex w-full justify-start gap-4">
+      <div className="flex w-full justify-start gap-4 flex-wrap">
         <RenderIf condition={showSearch}>
           <AddDataAttributes attributes=[("data-testid", "search-processor")]>
             <input
@@ -114,7 +114,7 @@ let make = (
               value=searchedConnector
               onChange=handleSearch
               placeholder="Search a processor"
-              className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
+              className={`rounded-md px-4 py-2 focus:outline-none border`}
               id="search-processor"
             />
           </AddDataAttributes>
