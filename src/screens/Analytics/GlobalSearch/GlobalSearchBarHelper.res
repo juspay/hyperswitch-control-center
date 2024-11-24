@@ -249,10 +249,19 @@ module FilterResultsComponent = {
     ~setLocalSearchText,
   ) => {
     let filterKey = activeFilter->String.split(":")->getValueFromArray(0, "")
+
     let filters = categorySuggestions->Array.filter(category => {
-      category.categoryType
-      ->getcategoryFromVariant
-      ->String.includes(filterKey)
+      if !(activeFilter->isEmptyString) {
+        if searchText->String.charAt(searchText->String.length - 1) == ":" {
+          `${category.categoryType->getcategoryFromVariant}:` == `${filterKey}:`
+        } else {
+          category.categoryType
+          ->getcategoryFromVariant
+          ->String.includes(filterKey)
+        }
+      } else {
+        true
+      }
     })
 
     let checkFilterKey = list => {
