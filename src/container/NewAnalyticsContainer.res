@@ -72,12 +72,11 @@ let make = () => {
         </div>,
     },
   ]
-<<<<<<< HEAD
   <PageLoaderWrapper screenState>
     <div>
-      <PageUtils.PageHeading title="Analytics" />
+      <PageUtils.PageHeading title="Insights" />
       <div
-        className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background py-1 rounded-lg border my-2">
+        className="-ml-1 sticky top-0 z-30 p-1 backdrop-blur-sm bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         <DynamicFilter
           initialFilters=[]
           options=[]
@@ -104,56 +103,15 @@ let make = () => {
       <Tabs
         initialIndex={url->getPageIndex}
         tabs
+        onTitleClick={tabId => setTabIndex(_ => tabId)}
         disableIndicationArrow=true
         showBorder=true
         includeMargin=false
         lightThemeColor="black"
         defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-        onTitleClick={tabId => setTabIndex(_ => tabId)}
+        textStyle="text-blue-600"
+        selectTabBottomBorderColor="bg-blue-600"
       />
     </div>
   </PageLoaderWrapper>
-=======
-
-  <div>
-    <PageUtils.PageHeading title="Insights" />
-    <div
-      className="-ml-1 sticky top-0 z-30 p-1 backdrop-blur-sm bg-hyperswitch_background/70 py-1 rounded-lg my-2">
-      <DynamicFilter
-        initialFilters=[]
-        options=[]
-        popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(
-          ~compareWithStartTime=startTimeVal,
-          ~compareWithEndTime=endTimeVal,
-        )}
-        defaultFilterKeys=[
-          startTimeFilterKey,
-          endTimeFilterKey,
-          compareToStartTimeKey,
-          compareToEndTimeKey,
-          comparisonKey,
-        ]
-        tabNames=[]
-        key="0"
-        updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-        showCustomFilter=false
-        refreshFilters=false
-      />
-    </div>
-    <Tabs
-      initialIndex={url->getPageIndex}
-      tabs
-      onTitleClick={tabId => setTabIndex(_ => tabId)}
-      disableIndicationArrow=true
-      showBorder=true
-      includeMargin=false
-      lightThemeColor="black"
-      defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
-      textStyle="text-blue-600"
-      selectTabBottomBorderColor="bg-blue-600"
-    />
-  </div>
->>>>>>> 331c4cc29646c785875dfdfb2744a992301f1ece
 }
