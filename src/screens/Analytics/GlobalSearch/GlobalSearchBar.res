@@ -16,6 +16,8 @@ let make = () => {
   let (localSearchText, setLocalSearchText) = React.useState(_ => "")
   let (selectedOption, setSelectedOption) = React.useState(_ => ""->getDefaultOption)
   let (allOptions, setAllOptions) = React.useState(_ => [])
+  let (selectedFilter, setSelectedFilter) = React.useState(_ => None)
+  let (allFilters, setAllFilters) = React.useState(_ => [])
   let (categorieSuggestionResponse, setCategorieSuggestionResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
@@ -37,18 +39,6 @@ let make = () => {
       GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
     }
   }
-
-  React.useEffect(() => {
-    let onKeyPress = event => {
-      let keyPressed = event->ReactEvent.Keyboard.key
-
-      if keyPressed == "Enter" {
-        selectedOption->redirectOnSelect
-      }
-    }
-    Window.addEventListener("keydown", onKeyPress)
-    Some(() => Window.removeEventListener("keydown", onKeyPress))
-  }, [])
 
   let getCategoryOptions = async () => {
     setState(_ => Loading)
@@ -223,6 +213,10 @@ let make = () => {
             allOptions
             selectedOption
             setSelectedOption
+            allFilters
+            selectedFilter
+            setSelectedFilter
+            viewType={getViewType(~state, ~searchResults)}
             redirectOnSelect
           />
           {switch getViewType(~state, ~searchResults) {
@@ -241,6 +235,9 @@ let make = () => {
               setActiveFilter
               searchText
               setLocalSearchText
+              setAllFilters
+              selectedFilter
+              setSelectedFilter
             />
           | EmptyResult => <EmptyResult prefix searchText />
           }}

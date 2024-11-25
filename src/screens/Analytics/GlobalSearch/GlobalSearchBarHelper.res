@@ -237,6 +237,34 @@ let sidebarScrollbarCss = `
 }
   `
 
+module FilterOption = {
+  @react.component
+  let make = (~onClick, ~value, ~placeholder=None, ~filter, ~selectedFilter=None) => {
+    let activeClass = switch selectedFilter {
+    | Some(val) =>
+      filter == val
+        ? {
+            Js.log3(">>", filter, selectedFilter)
+            "bg-gray-100 rounded-lg"
+          }
+        : ""
+    | None => ""
+    }
+
+    <div
+      className={`flex justify-between p-2 group items-center cursor-pointer ${activeClass}`}
+      onClick>
+      <div className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center w-fit">
+        <span className="font-medium text-sm"> {value->React.string} </span>
+      </div>
+      {switch placeholder {
+      | Some(val) => <div className="text-sm opacity-70"> {val->React.string} </div>
+      | _ => React.null
+      }}
+    </div>
+  }
+}
+
 module FilterResultsComponent = {
   open GlobalSearchBarUtils
   open FramerMotion.Motion
@@ -246,7 +274,10 @@ module FilterResultsComponent = {
     ~activeFilter,
     ~setActiveFilter,
     ~searchText,
+    ~setAllFilters,
     ~setLocalSearchText,
+    ~selectedFilter,
+    ~setSelectedFilter,
   ) => {
     let filterKey = activeFilter->String.split(":")->getValueFromArray(0, "")
 
@@ -263,6 +294,15 @@ module FilterResultsComponent = {
         true
       }
     })
+
+    React.useEffect(() => {
+      setAllFilters(_ => filters)
+      setSelectedFilter(_ => filters->Array.get(0))
+      if filters->Array.length == 1 {
+        Js.log2(">>", "hello")
+      }
+      None
+    }, [activeFilter])
 
     let checkFilterKey = list => {
       switch list->Array.get(0) {
@@ -289,22 +329,19 @@ module FilterResultsComponent = {
               | Some(value) =>
                 value.options
                 ->Array.map(option => {
-                  <div
-                    className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
+                  <FilterOption
                     onClick={_ => {
                       let saparater =
                         searchText->String.charAt(searchText->String.length - 1) == ":" ? "" : ":"
                       setLocalSearchText(_ => `${searchText}${saparater}${option}`)
                       setActiveFilter(_ => "")
-                    }}>
-                    <div className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center w-fit">
-                      <span className="font-medium text-sm">
-                        {`${value.categoryType
-                          ->getcategoryFromVariant
-                          ->String.toLocaleLowerCase} : ${option}`->React.string}
-                      </span>
-                    </div>
-                  </div>
+                    }}
+                    value={`${value.categoryType
+                      ->getcategoryFromVariant
+                      ->String.toLocaleLowerCase} : ${option}`}
+                    filter={value}
+                    selectedFilter
+                  />
                 })
                 ->React.array
               | _ => React.null
@@ -314,8 +351,7 @@ module FilterResultsComponent = {
           <RenderIf condition={!(filters->Array.length === 1 && filters->checkFilterKey)}>
             {filters
             ->Array.map(category => {
-              <div
-                className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
+              <FilterOption
                 onClick={_ => {
                   let newFilter = category.categoryType->getcategoryFromVariant
                   let lastString = searchText->String.charAt(searchText->String.length - 1)
@@ -328,16 +364,14 @@ module FilterResultsComponent = {
                     setLocalSearchText(_ => `${searchText} ${newFilter}:`)
                     setActiveFilter(_ => newFilter)
                   }
-                }}>
-                <div className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center w-fit">
-                  <span className="font-medium text-sm">
-                    {`${category.categoryType
-                      ->getcategoryFromVariant
-                      ->String.toLocaleLowerCase} : `->React.string}
-                  </span>
-                </div>
-                <div className="text-sm opacity-70"> {category.placeholder->React.string} </div>
-              </div>
+                }}
+                value={`${category.categoryType
+                  ->getcategoryFromVariant
+                  ->String.toLocaleLowerCase} : `}
+                placeholder={Some(category.placeholder)}
+                filter={category}
+                selectedFilter
+              />
             })
             ->React.array}
           </RenderIf>
@@ -360,6 +394,10 @@ module ModalSearchBox = {
     ~selectedOption,
     ~setSelectedOption,
     ~redirectOnSelect,
+    ~allFilters,
+    ~selectedFilter,
+    ~setSelectedFilter,
+    ~viewType,
   ) => {
     let (errorMessage, setErrorMessage) = React.useState(_ => "")
 
@@ -380,26 +418,72 @@ module ModalSearchBox = {
     let handleKeyDown = e => {
       open ReactEvent.Keyboard
 
-      let index = allOptions->Array.findIndex(item => {
-        item == selectedOption
-      })
+      {
+        switch viewType {
+        | Results => {
+            let index = allOptions->Array.findIndex(item => {
+              item == selectedOption
+            })
 
-      if e->keyCode == 40 {
-        let newIndex =
-          index == allOptions->Array.length - 1 ? 0 : Int.mod(index + 1, allOptions->Array.length)
-        switch allOptions->Array.get(newIndex) {
-        | Some(val) => setSelectedOption(_ => val)
-        | _ => ()
+            if e->keyCode == 40 {
+              let newIndex =
+                index == allOptions->Array.length - 1
+                  ? 0
+                  : Int.mod(index + 1, allOptions->Array.length)
+              switch allOptions->Array.get(newIndex) {
+              | Some(val) => setSelectedOption(_ => val)
+              | _ => ()
+              }
+            } else if e->keyCode == 38 {
+              let newIndex =
+                index === 0
+                  ? allOptions->Array.length - 1
+                  : Int.mod(index - 1, allOptions->Array.length)
+              switch allOptions->Array.get(newIndex) {
+              | Some(val) => setSelectedOption(_ => val)
+              | _ => ()
+              }
+            } else if e->keyCode == 13 {
+              selectedOption->redirectOnSelect
+            }
+          }
+
+        | FiltersSugsestions => {
+            let index = allFilters->Array.findIndex(item => {
+              switch selectedFilter {
+              | Some(val) => item == val
+              | _ => false
+              }
+            })
+
+            if e->keyCode == 40 {
+              let newIndex =
+                index == allFilters->Array.length - 1
+                  ? 0
+                  : Int.mod(index + 1, allFilters->Array.length)
+
+              switch allFilters->Array.get(newIndex) {
+              | Some(val) => setSelectedFilter(_ => val->Some)
+              | _ => ()
+              }
+            } else if e->keyCode == 38 {
+              let newIndex =
+                index === 0
+                  ? allFilters->Array.length - 1
+                  : Int.mod(index - 1, allFilters->Array.length)
+              switch allFilters->Array.get(newIndex) {
+              | Some(val) => setSelectedFilter(_ => val->Some)
+              | _ => ()
+              }
+            } else if e->keyCode == 13 {
+              if allFilters->Array.length > 0 {
+                Js.log2(">>", "filter enter")
+              }
+            }
+          }
+
+        | EmptyResult | Load => ()
         }
-      } else if e->keyCode == 38 {
-        let newIndex =
-          index === 0 ? allOptions->Array.length - 1 : Int.mod(index - 1, allOptions->Array.length)
-        switch allOptions->Array.get(newIndex) {
-        | Some(val) => setSelectedOption(_ => val)
-        | _ => ()
-        }
-      } else if e->keyCode == 13 {
-        selectedOption->redirectOnSelect
       }
 
       if e->keyCode === 32 {

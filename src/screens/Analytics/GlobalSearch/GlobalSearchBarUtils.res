@@ -418,7 +418,7 @@ let disputesGroupByNames = ["connector", "dispute_stage"]
 
 let getFilterBody = groupByNames =>
   {
-    let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=360)
+    let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=7)
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
       startTime: defaultDate.start_time,
       endTime: defaultDate.end_time,
