@@ -100,3 +100,51 @@ let passwordField = FormRenderer.makeFieldInfo(
   ),
   ~isRequired=false,
 )
+
+let startamountField = FormRenderer.makeFieldInfo(
+  ~label="",
+  ~name="amount_filter.start_amount",
+  ~placeholder="0",
+  ~customInput=InputFields.numericTextInput(),
+  ~type_="number",
+)
+
+let endAmountField = FormRenderer.makeFieldInfo(
+  ~label="",
+  ~name="amount_filter.end_amount",
+  ~placeholder="0",
+  ~customInput=InputFields.numericTextInput(),
+  ~type_="number",
+)
+
+module CustomAmountField = {
+  @react.component
+  let make = (~customwidth) => {
+    let form = ReactFinalForm.useForm()
+    <>
+      <div className={`flex gap-5 items-center justify-center ${customwidth} ml-2`}>
+        <img alt="cursor" src={`/assets/arrowicon.svg`} className="cursor-pointer mt-3" />
+        <FormRenderer.FieldRenderer
+          labelClass="font-semibold !text-black"
+          field={FormRenderer.makeFieldInfo(
+            ~label="",
+            ~name="amount_filter.start_amount",
+            ~customInput=(~input, ~placeholder as _) =>
+              InputFields.numericTextInput()(
+                ~input={
+                  ...input,
+                  onChange: {
+                    ev => {
+                      form.change("amount_filter.end_amount", ev->Identity.genericTypeToJson)
+                      input.onChange(ev)
+                    }
+                  },
+                },
+                ~placeholder="0",
+              ),
+          )}
+        />
+      </div>
+    </>
+  }
+}

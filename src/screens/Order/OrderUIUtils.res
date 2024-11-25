@@ -8,6 +8,7 @@ type filterTypes = {
   connector_label: array<string>,
   card_network: array<string>,
   customer_id: array<string>,
+  amount: array<string>,
 }
 
 type filter = [
@@ -20,6 +21,7 @@ type filter = [
   | #connector_label
   | #card_network
   | #customer_id
+  | #amount
   | #unknown
 ]
 
@@ -34,6 +36,7 @@ let getFilterTypeFromString = filterType => {
   | "connector_label" => #connector_label
   | "card_network" => #card_network
   | "customer_id" => #customer_id
+  | "amount" => #amount
   | _ => #unknown
   }
 }
@@ -270,6 +273,7 @@ let itemToObjMapper = dict => {
     connector_label: [],
     card_network: dict->getArrayFromDict("card_network", [])->getStrArrayFromJsonArray,
     customer_id: [],
+    amount: [],
   }
 }
 
@@ -290,6 +294,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
   }
   arr->Array.push("payment_method_type")
   arr->Array.push("customer_id")
+  arr->Array.push("amount")
   arr->Array.map((key): EntityType.initialFilters<'t> => {
     let values = switch key->getFilterTypeFromString {
     | #connector => filterArr.connector
@@ -315,6 +320,8 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
         option
       })
     }
+    let amountFilterOptions =
+      ["Greater than equal to", "Less than equal to", "Equal to", "In between"]->makeOptions
 
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
@@ -335,6 +342,10 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
             <Icon name="cross-outline" size=13 />
           </div>,
         )(~input, ~placeholder=`Enter ${input.name->snakeToTitle}...`)
+    | #amount =>
+      (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
+        <OrdersHelper input options=amountFilterOptions />
+      }
 
     | _ =>
       InputFields.filterMultiSelectInput(

@@ -1898,7 +1898,7 @@ module BaseDropdown = {
                   <div
                     className={`flex ${customButtonStyle} ${showDropDown
                         ? buttonStyleOnDropDownOpened
-                        : ""} transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)]  border`}>
+                        : ""} transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] justify-between border`}>
                     {if (
                       showToolTip &&
                       newInputSelect.value !== ""->JSON.Encode.string &&
