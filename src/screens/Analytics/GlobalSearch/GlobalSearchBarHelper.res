@@ -408,6 +408,7 @@ module ModalSearchBox = {
     ~onFilterClicked,
     ~onSuggestionClicked,
   ) => {
+    let inputRef = React.useRef(Nullable.null)
     let (errorMessage, setErrorMessage) = React.useState(_ => "")
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -422,6 +423,11 @@ module ModalSearchBox = {
         value: localSearchText->JSON.Encode.string,
         checked: false,
       }
+    }
+
+    switch inputRef.current->Js.Nullable.toOption {
+    | Some(elem) => elem->MultipleFileUpload.focus
+    | None => ()
     }
 
     let handleKeyDown = e => {
@@ -541,16 +547,19 @@ module ModalSearchBox = {
                 <div className={`flex flex-row items-center `}>
                   {leftIcon}
                   <div className="w-full overflow-scroll flex flex-row items-center">
-                    <TextInput
-                      input
+                    <input
+                      ref={inputRef->ReactDOM.Ref.domRef}
+                      autoComplete="off"
                       autoFocus=true
                       placeholder="Search"
-                      autoComplete="off"
+                      className="w-full pr-2 pl-2 text-jp-gray-900 text-opacity-75 focus:text-opacity-100  placeholder-jp-gray-900  focus:outline-none rounded  h-10 text-lg font-normal     placeholder-opacity-50 "
+                      name={input.name}
+                      label="No"
+                      value=localSearchText
+                      type_="text"
+                      checked={false}
+                      onChange=input.onChange
                       onKeyUp=handleKeyDown
-                      customStyle="bg-white border-none"
-                      onActiveStyle="bg-white"
-                      onHoverCss="bg-white"
-                      inputStyle="!text-lg"
                     />
                   </div>
                   <div
