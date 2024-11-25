@@ -142,6 +142,7 @@ module CheckoutCard = {
     let showPopUp = PopUpState.useShowPopUp()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let handleLogout = APIUtils.useHandleLogout()
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
 
     let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
@@ -183,8 +184,12 @@ module CheckoutCard = {
       <CardHeader heading=title subHeading=description leftIcon=Some("checkout") />
       <img alt="sdk" className="w-10/12 -mt-7 hidden md:block" src="/assets/sdk.svg" />
       <CardFooter customFooterStyle="!m-1 !mt-2">
-        <Button
-          text="Try it out" buttonType={Secondary} buttonSize={Small} onClick={handleOnClick}
+        <ACLButton
+          text="Try it out"
+          authorization={userHasAccess(~groupAccess=OperationsManage)}
+          buttonType={Secondary}
+          buttonSize={Small}
+          onClick={handleOnClick}
         />
       </CardFooter>
     </CardLayout>
