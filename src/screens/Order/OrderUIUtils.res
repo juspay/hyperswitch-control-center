@@ -321,7 +321,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
       })
     }
     let amountFilterOptions =
-      ["Greater than equal to", "Less than equal to", "Equal to", "In between"]->makeOptions
+      ["Greater than Equal to", "Less than Equal to", "Equal to", "In Between"]->makeOptions
 
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
