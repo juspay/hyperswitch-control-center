@@ -206,7 +206,7 @@ module CheckoutForm = {
       setBtnState(_ => Button.Normal)
     }
 
-     React.useEffect(() => {
+    React.useEffect(() => {
       hyper.retrievePaymentIntent(clientSecret)
       ->then(_ => {
         resolve()
