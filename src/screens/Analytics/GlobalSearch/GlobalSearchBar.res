@@ -38,18 +38,6 @@ let make = () => {
     }
   }
 
-  React.useEffect(() => {
-    let onKeyPress = event => {
-      let keyPressed = event->ReactEvent.Keyboard.key
-
-      if keyPressed == "Enter" {
-        selectedOption->redirectOnSelect
-      }
-    }
-    Window.addEventListener("keydown", onKeyPress)
-    Some(() => Window.removeEventListener("keydown", onKeyPress))
-  }, [])
-
   let getCategoryOptions = async () => {
     setState(_ => Loading)
     try {
