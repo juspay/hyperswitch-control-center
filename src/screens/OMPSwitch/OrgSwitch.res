@@ -8,6 +8,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let orgSwitch = OMPSwitchHooks.useOrgSwitch()
+  let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
@@ -37,6 +38,7 @@ let make = () => {
     try {
       setShowSwitchingOrg(_ => true)
       let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
+      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingOrg(_ => false)
     } catch {
     | _ => {
