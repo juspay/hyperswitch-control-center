@@ -105,6 +105,7 @@ module CardRenderer = {
     }
 
     let removeOrAddMethods = (method: paymentMethodConfigType) => {
+      Js.log2("", "here")
       switch (
         method.payment_method_type->getPaymentMethodTypeFromString,
         paymentMethod->getPaymentMethodFromString,

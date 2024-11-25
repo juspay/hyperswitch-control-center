@@ -76,3 +76,13 @@ let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType
   "moduleListRecoil",
   [],
 )
+
+let paymentMethodAtom: Recoil.recoilAtom<array<ConnectorTypes.paymentMethodEnabled>> = Recoil.atom(
+  "paymentMethodAtom",
+  [],
+)
+
+// let paymentMethodAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom(
+//   "paymentMethodAtom",
+//   JSON.Encode.null,
+// )

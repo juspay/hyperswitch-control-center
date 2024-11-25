@@ -1420,7 +1420,9 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
     disabled: dict->getBool("disabled", false),
     test_mode: dict->getBool("test_mode", false),
   }
+  Js.log2(">>> utils wasmRequest", wasmRequest)
   let values = Window.getRequestPayload(wasmRequest, payLoadDetails)
+  Js.log2(">>> utils values", values)
   let dict = Dict.fromArray([
     ("connector_account_details", connectorAccountDetails),
     (

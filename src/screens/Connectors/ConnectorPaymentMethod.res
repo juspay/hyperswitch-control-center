@@ -23,6 +23,10 @@ let make = (
   let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
+  let (paymentMethodAtomData, setPaymentMethodAtomData) = Recoil.useRecoilState(
+    HyperswitchAtom.paymentMethodAtom,
+  )
+  let (disableCopy, setDisableCopy) = React.useState(_ => false)
 
   let updateDetails = value => {
     setPaymentMethods(_ => value->Array.copy)
@@ -101,6 +105,36 @@ let make = (
     Nullable.null
   }
 
+  // let paymentMethods =
+  //   initialValues
+  //   ->getDictFromJsonObject
+  //   ->getArrayFromDict("payment_methods_enabled", [])
+  //   ->JSON.Encode.array
+  // ->ConnectorListMapper.getPaymentMethodsEnabled
+
+  // let pMethods =
+  //   initialValues
+  //   ->getDictFromJsonObject
+  //   ->getArrayFromDict("payment_methods_enabled", [])
+  //   ->JSON.Encode.array
+  //   ->getArrayDataFromJson(ConnectorListMapper.getPaymentMethodsEnabled)
+
+  let handleCopy = _ => {
+    setPaymentMethodAtomData(_ => paymentMethodsEnabled->Array.copy)
+    Js.log2("CPMM copied data", paymentMethodsEnabled)
+    // setDisableCopy(_ => true)
+  }
+
+  let handlePaste = _ => {
+    // setPaymentMethodAtomData(_ => paymentMethods)
+    Js.log2("CPMM pasted data", paymentMethodAtomData)
+    // let data = paymentMethodAtomData->getPaymentMethodEnabled
+    setPaymentMethods(_ => paymentMethodAtomData)
+    // setDisableCopy(_ => false)
+  }
+  // Js.log2("initialValues", initialValues)
+  // Js.log2("CPMM", paymentMethods)
+
   <PageLoaderWrapper screenState>
     <Form onSubmit initialValues={initialValues}>
       <div className="flex flex-col">
@@ -114,6 +148,11 @@ let make = (
           <div className="self-center">
             <FormRenderer.SubmitButton text="Proceed" />
           </div>
+          <Button text={"Copy"} onClick={handleCopy} buttonState={disableCopy ? Normal : Normal} />
+          <Button
+            text={"Paste"} onClick={handlePaste} buttonState={disableCopy ? Normal : Normal}
+          />
+          // <Clipboard.Copy data={paymentMethods->JSON.stringify} />
         </div>
         <div className="grid grid-cols-4 flex-1 p-2 md:p-10">
           <div className="flex flex-col gap-6 col-span-3">
