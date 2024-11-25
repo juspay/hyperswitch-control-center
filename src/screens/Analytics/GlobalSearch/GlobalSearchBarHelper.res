@@ -398,7 +398,7 @@ module ModalSearchBox = {
         | Some(val) => setSelectedOption(_ => val)
         | _ => ()
         }
-      } else if e->keyCode == 13 {
+      } else if e->keyCode == 13 && localSearchText->isNonEmptyString {
         selectedOption->redirectOnSelect
       }
 
