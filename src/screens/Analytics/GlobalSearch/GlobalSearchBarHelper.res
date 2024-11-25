@@ -65,7 +65,8 @@ module EmptyResult = {
 module OptionWrapper = {
   @react.component
   let make = (~index, ~value, ~children, ~selectedOption, ~redirectOnSelect) => {
-    let activeClass = value == selectedOption ? "bg-gray-100 rounded-lg p-2 group items-center" : ""
+    let activeClass =
+      value == selectedOption ? "bg-gray-100 rounded-lg p-2 group items-center border" : ""
     <div
       onClick={_ => value->redirectOnSelect}
       className={`flex ${activeClass} flex-row truncate hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center`}
@@ -240,21 +241,18 @@ let sidebarScrollbarCss = `
 module FilterOption = {
   @react.component
   let make = (~onClick, ~value, ~placeholder=None, ~filter, ~selectedFilter=None) => {
-    let activeClass = switch selectedFilter {
+    let (activeWrapperClass, activeClass) = switch selectedFilter {
     | Some(val) =>
       filter == val
-        ? {
-            Js.log3(">>", filter, selectedFilter)
-            "bg-gray-100 rounded-lg"
-          }
-        : ""
-    | None => ""
+        ? ("bg-gray-200 rounded-lg border", "bg-gray-400/40 border")
+        : ("", "bg-gray-200")
+    | None => ("", "bg-gray-200")
     }
 
     <div
-      className={`flex justify-between p-2 group items-center cursor-pointer ${activeClass}`}
+      className={`flex justify-between p-2 group items-center cursor-pointer ${activeWrapperClass}`}
       onClick>
-      <div className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center w-fit">
+      <div className={`${activeClass} py-1 px-2 rounded-md flex gap-1 items-center w-fit`}>
         <span className="font-medium text-sm"> {value->React.string} </span>
       </div>
       {switch placeholder {
@@ -272,12 +270,12 @@ module FilterResultsComponent = {
   let make = (
     ~categorySuggestions: array<categoryOption>,
     ~activeFilter,
-    ~setActiveFilter,
     ~searchText,
     ~setAllFilters,
-    ~setLocalSearchText,
     ~selectedFilter,
     ~setSelectedFilter,
+    ~onFilterClicked,
+    ~onSuggestionClicked,
   ) => {
     let filterKey = activeFilter->String.split(":")->getValueFromArray(0, "")
 
@@ -296,11 +294,32 @@ module FilterResultsComponent = {
     })
 
     React.useEffect(() => {
-      setAllFilters(_ => filters)
-      setSelectedFilter(_ => filters->Array.get(0))
-      if filters->Array.length == 1 {
-        Js.log2(">>", "hello")
+      switch filters->Array.get(0) {
+      | Some(filter) =>
+        if filters->Array.length == 1 && filter.options->Array.length > 1 {
+          let newFilters = filter.options->Array.mapWithIndex((option, index) => {
+            let value = {
+              categoryType: filter.categoryType,
+              options: [option],
+              placeholder: filter.placeholder,
+            }
+
+            if index == 0 {
+              setSelectedFilter(_ => value->Some)
+            }
+            value
+          })
+          setAllFilters(_ => newFilters)
+        } else {
+          setAllFilters(_ => filters)
+          setSelectedFilter(_ => filter->Some)
+        }
+      | _ => {
+          setAllFilters(_ => filters)
+          setSelectedFilter(_ => filters->Array.get(0))
+        }
       }
+
       None
     }, [activeFilter])
 
@@ -330,16 +349,15 @@ module FilterResultsComponent = {
                 value.options
                 ->Array.map(option => {
                   <FilterOption
-                    onClick={_ => {
-                      let saparater =
-                        searchText->String.charAt(searchText->String.length - 1) == ":" ? "" : ":"
-                      setLocalSearchText(_ => `${searchText}${saparater}${option}`)
-                      setActiveFilter(_ => "")
-                    }}
+                    onClick={_ => option->onSuggestionClicked}
                     value={`${value.categoryType
                       ->getcategoryFromVariant
                       ->String.toLocaleLowerCase} : ${option}`}
-                    filter={value}
+                    filter={{
+                      categoryType: value.categoryType,
+                      options: [option],
+                      placeholder: value.placeholder,
+                    }}
                     selectedFilter
                   />
                 })
@@ -352,19 +370,7 @@ module FilterResultsComponent = {
             {filters
             ->Array.map(category => {
               <FilterOption
-                onClick={_ => {
-                  let newFilter = category.categoryType->getcategoryFromVariant
-                  let lastString = searchText->String.charAt(searchText->String.length - 1)
-                  if activeFilter->isNonEmptyString && lastString !== ":" {
-                    let end = searchText->String.length - activeFilter->String.length
-                    let newText = searchText->String.substring(~start=0, ~end)
-                    setLocalSearchText(_ => `${newText} ${newFilter}:`)
-                    setActiveFilter(_ => newFilter)
-                  } else if lastString !== ":" {
-                    setLocalSearchText(_ => `${searchText} ${newFilter}:`)
-                    setActiveFilter(_ => newFilter)
-                  }
-                }}
+                onClick={_ => category->onFilterClicked}
                 value={`${category.categoryType
                   ->getcategoryFromVariant
                   ->String.toLocaleLowerCase} : `}
@@ -398,6 +404,9 @@ module ModalSearchBox = {
     ~selectedFilter,
     ~setSelectedFilter,
     ~viewType,
+    ~activeFilter,
+    ~onFilterClicked,
+    ~onSuggestionClicked,
   ) => {
     let (errorMessage, setErrorMessage) = React.useState(_ => "")
 
@@ -477,7 +486,18 @@ module ModalSearchBox = {
               }
             } else if e->keyCode == 13 {
               if allFilters->Array.length > 0 {
-                Js.log2(">>", "filter enter")
+                switch selectedFilter {
+                | Some(filter) =>
+                  if activeFilter->String.charAt(activeFilter->String.length - 1) == ":" {
+                    switch filter.options->Array.get(0) {
+                    | Some(val) => val->onSuggestionClicked
+                    | _ => ()
+                    }
+                  } else {
+                    filter->onFilterClicked
+                  }
+                | _ => ()
+                }
               }
             }
           }

@@ -113,7 +113,7 @@ let make = () => {
   React.useEffect(_ => {
     let results = []
 
-    if searchText->String.length > 0 && activeFilter->LogicUtils.isEmptyString {
+    if searchText->String.length > 0 && activeFilter->isEmptyString {
       setState(_ => Loading)
       let localResults: resultType = searchText->getLocalMatchedResults(hswitchTabs)
 
@@ -177,6 +177,26 @@ let make = () => {
     setSearchText(_ => value)
   }, ~wait=500)
 
+  let onFilterClicked = category => {
+    let newFilter = category.categoryType->getcategoryFromVariant
+    let lastString = searchText->String.charAt(searchText->String.length - 1)
+    if activeFilter->isNonEmptyString && lastString !== ":" {
+      let end = searchText->String.length - activeFilter->String.length
+      let newText = searchText->String.substring(~start=0, ~end)
+      setLocalSearchText(_ => `${newText} ${newFilter}:`)
+      setActiveFilter(_ => newFilter)
+    } else if lastString !== ":" {
+      setLocalSearchText(_ => `${searchText} ${newFilter}:`)
+      setActiveFilter(_ => newFilter)
+    }
+  }
+
+  let onSuggestionClicked = option => {
+    let saparater = searchText->String.charAt(searchText->String.length - 1) == ":" ? "" : ":"
+    setLocalSearchText(_ => `${searchText}${saparater}${option}`)
+    setActiveFilter(_ => "")
+  }
+
   React.useEffect(() => {
     setGlobalSearchText(localSearchText)
     None
@@ -218,6 +238,9 @@ let make = () => {
             setSelectedFilter
             viewType={getViewType(~state, ~searchResults)}
             redirectOnSelect
+            activeFilter
+            onFilterClicked
+            onSuggestionClicked
           />
           {switch getViewType(~state, ~searchResults) {
           | Load =>
@@ -232,12 +255,12 @@ let make = () => {
             <FilterResultsComponent
               categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
               activeFilter
-              setActiveFilter
               searchText
-              setLocalSearchText
               setAllFilters
               selectedFilter
               setSelectedFilter
+              onFilterClicked
+              onSuggestionClicked
             />
           | EmptyResult => <EmptyResult prefix searchText />
           }}
