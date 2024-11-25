@@ -53,8 +53,7 @@ let make = (~routingType) => {
           urlEntityName=ROUTING
           baseUrlForRedirection
         />
-      | DEFAULTFALLBACK =>
-        <DefaultRouting urlEntityName=DEFAULT_FALLBACK baseUrlForRedirection connectorList />
+      | DEFAULTFALLBACK => <DefaultRouting urlEntityName=DEFAULT_FALLBACK baseUrlForRedirection />
       | _ => <> </>
       }}
     </History.BreadCrumbWrapper>
