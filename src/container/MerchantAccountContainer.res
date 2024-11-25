@@ -60,7 +60,7 @@ let make = () => {
       | list{"sdk"} =>
         <AccessControl
           isEnabled={!featureFlagDetails.isLiveMode}
-          authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+          authorization={userHasAccess(~groupAccess=OperationsManage)}>
           <SDKPage />
         </AccessControl>
       | list{"unauthorized"} => <UnauthorizedPage />
