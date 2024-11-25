@@ -1,4 +1,15 @@
-type section = Local | PaymentIntents | PaymentAttempts | Refunds | Disputes | Others | Default
+type section =
+  | Local
+  | PaymentIntents
+  | PaymentAttempts
+  | Refunds
+  | Disputes
+  | SessionizerPaymentAttempts
+  | SessionizerPaymentIntents
+  | SessionizerPaymentRefunds
+  | SessionizerPaymentDisputes
+  | Others
+  | Default
 
 type element = {
   texts: array<JSON.t>,
@@ -14,11 +25,11 @@ type resultType = {
 let getSectionHeader = section => {
   switch section {
   | Local => "Go To"
-  | PaymentIntents => "Payment Intents"
-  | PaymentAttempts => "Payment Attempts"
-  | Refunds => "Refunds"
+  | PaymentIntents | SessionizerPaymentIntents => "Payment Intents"
+  | PaymentAttempts | SessionizerPaymentAttempts => "Payment Attempts"
+  | Refunds | SessionizerPaymentRefunds => "Refunds"
+  | Disputes | SessionizerPaymentDisputes => "Disputes"
   | Others => "Others"
-  | Disputes => "Disputes"
   | Default => ""
   }
 }
@@ -29,7 +40,25 @@ let getSectionVariant = string => {
   | "payment_intents" => PaymentIntents
   | "refunds" => Refunds
   | "disputes" => Disputes
+  | "sessionizer_payment_attempts" => SessionizerPaymentAttempts
+  | "sessionizer_payment_intents" => SessionizerPaymentIntents
+  | "sessionizer_refunds" => SessionizerPaymentRefunds
+  | "sessionizer_disputes" => SessionizerPaymentDisputes
   | _ => Local
+  }
+}
+
+let getSectionIndex = string => {
+  switch string {
+  | PaymentAttempts => "payment_attempts"
+  | PaymentIntents => "payment_intents"
+  | Refunds => "refunds"
+  | Disputes => "disputes"
+  | SessionizerPaymentAttempts => "sessionizer_payment_attempts"
+  | SessionizerPaymentIntents => "sessionizer_payment_intents"
+  | SessionizerPaymentRefunds => "sessionizer_refunds"
+  | SessionizerPaymentDisputes => "sessionizer_disputes"
+  | _ => ""
   }
 }
 
@@ -45,4 +74,30 @@ type defaultResult = {
   searchText: string,
 }
 
-type state = Loading | Loaded | Failed | Idle
+type state = Loading | Loaded | Idle
+
+type category =
+  | Payment_Method
+  | Payment_Method_Type
+  | Connector
+  | Customer_Email
+  | Card_Network
+  | Last_4
+  | Date
+  | Currency
+  | Authentication_type
+  | Status
+  | Client_source
+  | Client_version
+
+type categoryOption = {
+  categoryType: category,
+  options: array<string>,
+  placeholder: string,
+}
+
+type viewType =
+  | Load
+  | Results
+  | FiltersSugsestions
+  | EmptyResult

@@ -43,3 +43,15 @@ module ResetPasswordForm = {
     </>
   }
 }
+
+module ChangePasswordForm = {
+  @react.component
+  let make = () => {
+    open CommonInputFields
+    <>
+      <FormRenderer.FieldRenderer field=oldPasswordField labelClass fieldWrapperClass />
+      <FormRenderer.FieldRenderer field=newPasswordField labelClass fieldWrapperClass />
+      <FormRenderer.FieldRenderer field=confirmNewPasswordField labelClass fieldWrapperClass />
+    </>
+  }
+}

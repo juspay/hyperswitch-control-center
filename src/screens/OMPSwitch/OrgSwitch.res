@@ -8,9 +8,12 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let orgSwitch = OMPSwitchHooks.useOrgSwitch()
+  let url = RescriptReactRouter.useUrl()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
   let (showSwitchingOrg, setShowSwitchingOrg) = React.useState(_ => false)
+  let (showModal, setShowModal) = React.useState(_ => false)
   let (arrow, setArrow) = React.useState(_ => false)
 
   let getOrgList = async () => {
@@ -35,6 +38,7 @@ let make = () => {
     try {
       setShowSwitchingOrg(_ => true)
       let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
+      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingOrg(_ => false)
     } catch {
     | _ => {
@@ -42,6 +46,11 @@ let make = () => {
         setShowSwitchingOrg(_ => false)
       }
     }
+  }
+
+  let onEditClick = e => {
+    setShowModal(_ => true)
+    e->ReactEvent.Mouse.stopPropagation
   }
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -77,7 +86,11 @@ let make = () => {
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
       baseComponent={<ListBaseComp
-        heading="Org" subHeading={currentOMPName(orgList, orgId)} arrow
+        heading="Org"
+        subHeading={currentOMPName(orgList, orgId)}
+        arrow
+        showEditIcon={userHasAccess(~groupAccess=OrganizationManage) === Access}
+        onEditClick
       />}
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       optionClass="text-gray-200 text-fs-14"
@@ -88,6 +101,7 @@ let make = () => {
       customScrollStyle
       shouldDisplaySelectedOnTop=true
     />
+    <EditOrgName showModal setShowModal orgList orgId getOrgList />
     <LoaderModal
       showModal={showSwitchingOrg}
       setShowModal={setShowSwitchingOrg}

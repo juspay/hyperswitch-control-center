@@ -1,14 +1,5 @@
 open DisputeTypes
 open LogicUtils
-let disputeStageVariantMapper = stage => {
-  switch stage {
-  | "pre_dispute" => PreDispute
-  | "dispute" => Dispute
-  | "pre-arbitration" => PreArbitration
-  | _ => NotFound
-  }
-}
-
 let disputeStatusVariantMapper = status => {
   switch status {
   | "dispute_opened" => DisputeOpened
@@ -200,7 +191,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues, setfilterKeys, filterKeys) => {
+let initialFilters = (json, filtervalues, _, filterKeys, setfilterKeys) => {
   let filterDict = json->getDictFromJsonObject
   let arr = filterDict->Dict.keysToArray->Array.filter(item => item != "currency")
 

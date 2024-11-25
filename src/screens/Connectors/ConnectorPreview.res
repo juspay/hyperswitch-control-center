@@ -224,6 +224,22 @@ module ConnectorSummaryGrid = {
               <ConnectorUpdateAuthCreds connectorInfo getConnectorDetails />
             </RenderIf>
           </div>
+          <RenderIf
+            condition={connectorInfo.connector_name->ConnectorUtils.getConnectorNameTypeFromString ==
+              Processors(FIUU)}>
+            <div
+              className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
+              <Icon name="info-vacent" size=18 />
+              <div>
+                <p className="mb-3">
+                  {"To ensure mandates work correctly with Fiuu, please verify that the Source Verification Key for webhooks is set accurately in your configuration. Without the correct Source Verification Key, mandates may not function as expected."->React.string}
+                </p>
+                <p>
+                  {"Please review your webhook settings and confirm that the Source Verification Key is properly configured to avoid any integration issues."->React.string}
+                </p>
+              </div>
+            </div>
+          </RenderIf>
         </div>
         <div />
       </div>

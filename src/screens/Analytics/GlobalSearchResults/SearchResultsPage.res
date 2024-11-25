@@ -40,10 +40,12 @@ module RenderSearchResultBody = {
         </div>
       })
       ->React.array
-    | PaymentIntents => <PaymentIntentTable.PreviewTable data={section.results} />
-    | PaymentAttempts => <PaymentAttemptTable.PreviewTable data={section.results} />
-    | Refunds => <RefundsTable.PreviewTable data={section.results} />
-    | Disputes => <DisputeTable.PreviewTable data={section.results} />
+    | PaymentIntents | SessionizerPaymentIntents =>
+      <PaymentIntentTable.PreviewTable data={section.results} />
+    | PaymentAttempts | SessionizerPaymentAttempts =>
+      <PaymentAttemptTable.PreviewTable data={section.results} />
+    | Refunds | SessionizerPaymentRefunds => <RefundsTable.PreviewTable data={section.results} />
+    | Disputes | SessionizerPaymentDisputes => <DisputeTable.PreviewTable data={section.results} />
     | Others | Default => "Not implemented"->React.string
     }
   }
@@ -61,7 +63,7 @@ module SearchResultsComponent = {
           <div className="text-lightgray_background font-bold  text-lg pb-2">
             {section.section->getSectionHeader->React.string}
           </div>
-          <GlobalSearchBarUtils.ShowMoreLink
+          <GlobalSearchBarHelper.ShowMoreLink
             section textStyleClass="text-sm pt-2 font-medium text-blue-900" searchText
           />
         </div>
@@ -92,14 +94,15 @@ let make = () => {
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let isShowRemoteResults = globalSearch && userHasAccess(~groupAccess=OperationsView) === Access
+  let fallBackQuery = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("query", "")
 
   let getSearchResults = async results => {
     try {
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
-      let body = generateSearchBody(~searchText={query}, ~merchant_id={merchantId})
-      let response = await fetchDetails(url, body, Post)
+      let query = searchText->isNonEmptyString ? searchText : fallBackQuery
+      let body = query->generateQuery
+      let response = await fetchDetails(url, body->JSON.Encode.object, Post)
 
       let local_results = []
       results->Array.forEach((item: resultType) => {
@@ -124,7 +127,7 @@ let make = () => {
 
       setState(_ => Loaded)
     } catch {
-    | _ => setState(_ => Failed)
+    | _ => setState(_ => Loaded)
     }
   }
 
@@ -160,7 +163,7 @@ let make = () => {
     }
 
     None
-  }, (query, url.search))
+  }, [query, url.search])
 
   <div>
     <PageUtils.PageHeading title="Search results" />
@@ -171,7 +174,7 @@ let make = () => {
       </div>
     | _ =>
       if searchResults->Array.length === 0 {
-        <GlobalSearchBar.EmptyResult prefix searchText />
+        <GlobalSearchBarHelper.EmptyResult prefix searchText />
       } else {
         <SearchResultsComponent searchResults searchText={query} />
       }

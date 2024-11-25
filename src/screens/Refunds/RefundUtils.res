@@ -193,7 +193,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues, setfilterKeys, filterKeys) => {
+let initialFilters = (json, filtervalues, _, filterKeys, setfilterKeys) => {
   open LogicUtils
 
   let filterDict = json->getDictFromJsonObject

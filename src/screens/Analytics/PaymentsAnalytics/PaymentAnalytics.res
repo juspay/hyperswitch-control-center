@@ -24,7 +24,13 @@ let make = () => {
     try {
       let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain))
       let infoDetails = await fetchDetails(infoUrl)
-      setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
+      // Need to be removed
+      let ignoreSessionizedPayment =
+        infoDetails
+        ->getDictFromJsonObject
+        ->getArrayFromDict("metrics", [])
+        ->AnalyticsUtils.filterMetrics
+      setMetrics(_ => ignoreSessionizedPayment)
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -244,7 +250,7 @@ let make = () => {
         />
       </div>
       <div
-        className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
+        className="-ml-1 sticky top-0 z-30 p-1 backdrop-blur-sm bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         topFilterUi
       </div>
       <div className="flex flex-col gap-14">
@@ -273,7 +279,7 @@ let make = () => {
           moduleName="payments_analytics_amount"
           formaPayload
         />
-        <SmartRetryAnalytics filterKeys=tabKeys moduleName="payments_smart_retries" />
+        <SmartRetryAnalytics moduleName="payments_smart_retries" />
         <OverallSummary
           filteredTabVales=tabValues
           moduleName="overall_summary"
