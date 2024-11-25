@@ -258,7 +258,6 @@ let make = () => {
               searchText
               setAllFilters
               selectedFilter
-              setSelectedFilter
               onFilterClicked
               onSuggestionClicked
             />

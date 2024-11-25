@@ -273,7 +273,6 @@ module FilterResultsComponent = {
     ~searchText,
     ~setAllFilters,
     ~selectedFilter,
-    ~setSelectedFilter,
     ~onFilterClicked,
     ~onSuggestionClicked,
   ) => {
@@ -304,20 +303,13 @@ module FilterResultsComponent = {
               placeholder: filter.placeholder,
             }
 
-            if index == 0 {
-              setSelectedFilter(_ => value->Some)
-            }
             value
           })
           setAllFilters(_ => newFilters)
         } else {
           setAllFilters(_ => filters)
-          setSelectedFilter(_ => filter->Some)
         }
-      | _ => {
-          setAllFilters(_ => filters)
-          setSelectedFilter(_ => filters->Array.get(0))
-        }
+      | _ => setAllFilters(_ => filters)
       }
 
       None
