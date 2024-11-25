@@ -14,7 +14,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let tempRecallAmountMetrics = async () => {
     try {
-      // Currency Conversion is failing in Backend so temp api is called once to avoide the error
+      //Currency Conversion is failing in Backend for the first time so to fix that we are the calling the api for one time and ignoring the error
       setScreenState(_ => Loading)
       let url = getURL(~entityName=ANALYTICS_PAYMENTS_V2, ~methodType=Post, ~id=Some("payments"))
       let date = (Date.make()->Date.toString->DayJs.getDayJsForString).format(
