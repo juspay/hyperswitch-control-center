@@ -296,7 +296,7 @@ module FilterResultsComponent = {
       switch filters->Array.get(0) {
       | Some(filter) =>
         if filters->Array.length == 1 && filter.options->Array.length > 1 {
-          let newFilters = filter.options->Array.mapWithIndex((option, index) => {
+          let newFilters = filter.options->Array.map(option => {
             let value = {
               categoryType: filter.categoryType,
               options: [option],
