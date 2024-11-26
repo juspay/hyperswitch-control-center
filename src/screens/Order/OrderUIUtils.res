@@ -365,8 +365,8 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
           </div>,
         )(~input, ~placeholder=`Enter ${input.name->snakeToTitle}...`)
     | #amount =>
-      (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
-        <OrdersHelper input options=amountFilterOptions />
+      (~input as _, ~placeholder as _) => {
+        <OrdersHelper options=amountFilterOptions />
       }
 
     | _ =>

@@ -1,7 +1,7 @@
 open CommonAuthForm
 open CommonInputFields
 @react.component
-let make = (~input, ~options) => {
+let make = (~options) => {
   let (selectedOption, setSelectedOption) = React.useState(_ => "Select Amount")
   let form = ReactFinalForm.useForm()
   let onClick = _ => {
