@@ -34,10 +34,10 @@ let make = (~input, ~options) => {
   let renderFields = () =>
     switch selectedOption {
     | "Greater than Equal to" => renderCommonFields(startamountField, "w-4/5")
-    | "Equal to" => <CustomAmountField customwidth="w-[162px]" />
+    | "Equal to" => <CustomAmountField />
     | "Less than Equal to" => renderCommonFields(endAmountField, "w-4/5")
     | "In Between" =>
-      <div className="flex gap-1 items-center justify-center mx-1 w-[164px]">
+      <div className="flex gap-1 items-center justify-center mx-1 w-[10.25rem]">
         <FormRenderer.FieldRenderer field=startamountField labelClass fieldWrapperClass />
         <img alt="cursor" src={`/assets/inBetweenIcon.svg`} className="cursor-pointer mt-3" />
         <FormRenderer.FieldRenderer field=endAmountField labelClass fieldWrapperClass />

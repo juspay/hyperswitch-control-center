@@ -53,32 +53,26 @@ let make = (~previewOnly=false) => {
             ]->getJsonFromArrayOfJson,
           )
         }
-        let obj = Dict.make()
-        obj->Dict.set(
-          "start_amount",
-          switch dict->Dict.get("amount_filter.start_amount") {
-          | Some(value) =>
-            value
-            ->JSON.Decode.string
-            ->Option.getOr("")
-            ->Float.fromString
-            ->Option.getOr(0.0)
-            ->JSON.Encode.float
-          | None => JSON.Encode.null
-          },
-        )
-        obj->Dict.set(
-          "end_amount",
-          switch dict->Dict.get("amount_filter.end_amount") {
-          | Some(value) =>
-            value
-            ->JSON.Decode.string
-            ->Option.getOr("")
-            ->Float.fromString
-            ->Option.getOr(0.0)
-            ->JSON.Encode.float
-          | None => JSON.Encode.null
-          },
+        filters->Dict.set(
+          "amount_filter",
+          [
+            (
+              "start_amount",
+              dict
+              ->Dict.get("amount_filter.start_amount")
+              ->Option.mapOr(JSON.Encode.null, value =>
+                value->getFloatFromJson(0.0)->JSON.Encode.float
+              ),
+            ),
+            (
+              "end_amount",
+              dict
+              ->Dict.get("amount_filter.end_amount")
+              ->Option.mapOr(JSON.Encode.null, value =>
+                value->getFloatFromJson(0.0)->JSON.Encode.float
+              ),
+            ),
+          ]->getJsonFromArrayOfJson,
         )
         dict
         ->Dict.toArray
@@ -86,9 +80,11 @@ let make = (~previewOnly=false) => {
           let (key, value) = item
           filters->Dict.set(key, value)
         })
-        filters->Dict.set("amount_filter", obj->JSON.Encode.object)
-        filters->Dict.delete("amount_filter.start_amount")
-        filters->Dict.delete("amount_filter.end_amount")
+        filters->OrderUIUtils.deleteNestedKeys([
+          "amount_filter.start_amount",
+          "amount_filter.end_amount",
+        ])
+
         filters
         ->getOrdersList(
           ~updateDetails,

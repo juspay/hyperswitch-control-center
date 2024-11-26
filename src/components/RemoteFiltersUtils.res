@@ -188,12 +188,12 @@ let getInitialValuesFromUrl = (
     })
     entriesList->Array.forEach(entry => {
       let (key, value) = entry
-      let isAmountCase = switch key {
+      let isAmountKey = switch key {
       | "amount_filter.start_amount"
       | "amount_filter.end_amount" => true
       | _ => false
       }
-      if isAmountCase {
+      if isAmountKey {
         Dict.set(dict, key, value->UrlFetchUtils.getFilterValue)
       } else {
         initialFilters->Array.forEach((filter: FormRenderer.fieldInfoType) => {

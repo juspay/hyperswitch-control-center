@@ -25,6 +25,12 @@ type filter = [
   | #unknown
 ]
 
+type amountFilterOption =
+  | GreaterThanEqualTo
+  | LessThanEqualTo
+  | EqualTo
+  | InBetween
+
 let getFilterTypeFromString = filterType => {
   switch filterType {
   | "connector" => #connector
@@ -320,8 +326,24 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
         option
       })
     }
-    let amountFilterOptions =
-      ["Greater than Equal to", "Less than Equal to", "Equal to", "In Between"]->makeOptions
+
+    let amountFilterOptions: array<FilterSelectBox.dropdownOption> = [
+      GreaterThanEqualTo,
+      LessThanEqualTo,
+      EqualTo,
+      InBetween,
+    ]->Array.map(option => {
+      let label = switch option {
+      | GreaterThanEqualTo => "Greater than Equal to"
+      | LessThanEqualTo => "Less than Equal to"
+      | EqualTo => "Equal to"
+      | InBetween => "In Between"
+      }
+      {
+        FilterSelectBox.label,
+        value: label,
+      }
+    })
 
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
@@ -523,3 +545,7 @@ let orderViewList: OMPSwitchTypes.ompViews = [
     entity: #Profile,
   },
 ]
+
+let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) => {
+  keys->Array.forEach(key => dict->Dict.delete(key))
+}

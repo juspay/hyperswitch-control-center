@@ -119,10 +119,10 @@ let endAmountField = FormRenderer.makeFieldInfo(
 
 module CustomAmountField = {
   @react.component
-  let make = (~customwidth) => {
+  let make = () => {
     let form = ReactFinalForm.useForm()
     <>
-      <div className={`flex gap-5 items-center justify-center ${customwidth} ml-2`}>
+      <div className={"flex gap-5 items-center justify-center w-[10.125rem] ml-2"}>
         <img alt="cursor" src={`/assets/arrowicon.svg`} className="cursor-pointer mt-3" />
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-black"
