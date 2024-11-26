@@ -19,6 +19,6 @@ type userInfoProviderTypes = {
   setUserInfoData: userInfo => unit,
   getUserInfoData: unit => userInfo,
   checkUserEntity: array<entity> => bool,
-  updateOptionalUserInfoRef: userInfo => unit,
+  updateUserInfoRef: userInfo => unit,
   userInfoFromRef: userInfo,
 }

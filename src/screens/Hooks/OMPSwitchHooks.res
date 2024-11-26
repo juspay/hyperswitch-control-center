@@ -6,7 +6,7 @@ type userInfo = {
 let useUserInfo = () => {
   open LogicUtils
   let fetchApi = AuthHooks.useApiFetcher()
-  let {setUserInfoData, userInfo, updateOptionalUserInfoRef} = React.useContext(
+  let {setUserInfoData, userInfo, updateUserInfoRef} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let url = `${Window.env.apiBaseUrl}/user`
@@ -18,7 +18,7 @@ let useUserInfo = () => {
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
       setUserInfoData(userInfo)
-      updateOptionalUserInfoRef(userInfo)
+      updateUserInfoRef(userInfo)
       userInfo
     } catch {
     | Exn.Error(e) => {

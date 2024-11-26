@@ -46,7 +46,7 @@ let defaultValueOfUserInfoProvider = {
   setUserInfoData: _ => (),
   getUserInfoData: _ => defaultValueOfUserInfo,
   checkUserEntity: _ => false,
-  updateOptionalUserInfoRef: _ => (),
+  updateUserInfoRef: _ => (),
   userInfoFromRef: defaultValueOfUserInfo,
 }
 open LogicUtils

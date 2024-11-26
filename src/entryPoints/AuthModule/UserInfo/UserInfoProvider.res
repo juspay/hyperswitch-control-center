@@ -10,16 +10,16 @@ let make = (~children) => {
   let (userInfo, setUserInfo) = React.useState(_ => UserInfoUtils.defaultValueOfUserInfo)
   let fetchApi = AuthHooks.useApiFetcher()
   let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let userOptionalRef = Some(React.useRef(userInfo))
+  let userInfoRef = Some(React.useRef(userInfo))
 
-  let updateOptionalUserInfoRef = updatedUserInfo => {
-    switch userOptionalRef {
+  let updateUserInfoRef = updatedUserInfo => {
+    switch userInfoRef {
     | Some(ref) => ref.current = updatedUserInfo
     | None => ()
     }
   }
 
-  let userInfoFromRef = switch userOptionalRef {
+  let userInfoFromRef = switch userInfoRef {
   | Some(ref) => ref.current
   | None => userInfo
   }
@@ -31,7 +31,7 @@ let make = (~children) => {
       let res = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute)
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
-      updateOptionalUserInfoRef(userInfo)
+      updateUserInfoRef(userInfo)
       setUserInfo(_ => userInfo)
       setScreenState(_ => Success)
     } catch {
@@ -58,7 +58,7 @@ let make = (~children) => {
 
   <Provider
     value={
-      updateOptionalUserInfoRef,
+      updateUserInfoRef,
       userInfoFromRef,
       userInfo,
       setUserInfoData,
