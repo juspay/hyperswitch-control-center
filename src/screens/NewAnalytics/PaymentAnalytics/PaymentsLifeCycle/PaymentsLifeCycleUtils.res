@@ -236,7 +236,7 @@ let paymentsLifeCycleMapper = (
       id: "Succeeded on First Attempt",
       dataLabels: {
         align: "right",
-        x: -25,
+        x: 183,
         name: normalSuccess,
       },
     },
@@ -316,7 +316,7 @@ let paymentsLifeCycleMapper = (
       id: "Succeeded on Subsequent Attempts",
       dataLabels: {
         align: "right",
-        x: 105,
+        x: 235,
         name: smartRetriedSuccess,
       },
     },
