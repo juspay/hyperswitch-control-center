@@ -81,6 +81,13 @@ let make = () => {
     None
   }, [userGroupACL])
 
+  let ompDropdowns =
+    <div className="flex gap-4 mx-4">
+      <MerchantSwitch />
+      <p className="text-gray-400"> {"/"->React.string} </p>
+      <ProfileSwitch />
+    </div>
+
   <>
     <div>
       {switch dashboardPageState {
@@ -106,11 +113,6 @@ let make = () => {
                       <Navbar
                         headerActions={<div className="relative flex space-around gap-4 my-2 ">
                           <div className="flex gap-4">
-                            <MerchantSwitch />
-                            <p className="text-gray-400"> {"/"->React.string} </p>
-                            <ProfileSwitch />
-                          </div>
-                          <div className="flex gap-4">
                             <GlobalSearchBar />
                             <RenderIf condition={isInternalUser}>
                               <SwitchMerchantForInternal />
@@ -122,8 +124,12 @@ let make = () => {
                           </div>
                         </div>}
                         headerLeftActions={switch Window.env.logoUrl {
-                        | Some(url) => <img alt="image" src={`${url}`} />
-                        | None => React.null
+                        | Some(url) =>
+                          <>
+                            <img alt="image" src={`${url}`} />
+                            {ompDropdowns}
+                          </>
+                        | None => ompDropdowns
                         }}
                       />
                     </div>

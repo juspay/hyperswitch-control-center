@@ -8,48 +8,36 @@ module ListBaseComp = {
     ~onEditClick=_ => (),
     ~isDarkBg=false,
   ) => {
-    Js.log2("omp arrow", arrow)
+    let baseCompStyle = isDarkBg
+      ? "text-white hover:bg-opacity-80 bg-sidebar-blue"
+      : "text-black hover:bg-opacity-80"
 
-    let baseCompStyle = switch isDarkBg {
-    | false => "text-black hover:bg-opacity-80"
-    | true => "text-white hover:bg-opacity-80 bg-sidebar-blue"
-    }
+    let iconName = isDarkBg ? "arrow-without-tail-new" : "arrow-without-tail"
 
-    let iconName = switch isDarkBg {
-    | false => "arrow-without-tail"
-    | true => "arrow-without-tail-new"
-    }
+    let arrowDownClass = isDarkBg
+      ? "rotate-0 transition duration-[250ms] opacity-70"
+      : "rotate-180 transition duration-[250ms] opacity-70"
 
-    let arrowDownClass = switch isDarkBg {
-    | false => "rotate-180 transition duration-[250ms] opacity-70"
-    | true => "rotate-0 transition duration-[250ms] opacity-70"
-    }
+    let arrowUpClass = isDarkBg
+      ? "-rotate-180 transition duration-[250ms] opacity-70"
+      : "rotate-0 transition duration-[250ms] opacity-70"
 
-    let arrowUpClass = switch isDarkBg {
-    | false => "rotate-0 transition duration-[250ms] opacity-70"
-    | true => "-rotate-180 transition duration-[250ms] opacity-70"
-    }
+    let textColor = isDarkBg ? "text-grey-300" : "text-grey-900"
+    let width = isDarkBg ? "w-[12rem]" : "w-fit max-w-[8rem]"
 
-    let textColor = switch isDarkBg {
-    | false => "text-grey-900"
-    | true => "text-white"
-    }
-
-    let width = switch isDarkBg {
-    | true => "w-5/6"
-    | false => "w-full"
-    }
-
-    <div
-      className={`flex items-center justify-between text-sm text-center font-medium  cursor-pointer w-full overflow-scroll ${baseCompStyle}`}>
-      <div className={`${width}`}>
+    <div className={`text-sm font-medium cursor-pointer ${baseCompStyle}`}>
+      <div className={`flex flex-col items-start`}>
         <RenderIf condition={heading->LogicUtils.isNonEmptyString}>
           <p className="text-xs text-left text-gray-400"> {heading->React.string} </p>
         </RenderIf>
         <div className="text-left flex gap-2">
-          <p className={`fs-10 ${textColor} overflow-scroll`}> {subHeading->React.string} </p>
+          <div>
+            <p className={`fs-10 ${textColor} ${width} overflow-scroll text-nowrap`}>
+              {subHeading->React.string}
+            </p>
+          </div>
           <RenderIf condition={showEditIcon}>
-            <Icon name="pencil-alt" size=10 onClick=onEditClick className="mr-1" />
+            <Icon name="pencil-edit" size=12 onClick=onEditClick className="mx-2" />
           </RenderIf>
           <Icon className={arrow ? arrowDownClass : arrowUpClass} name={iconName} size=15 />
         </div>

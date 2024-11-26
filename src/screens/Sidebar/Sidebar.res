@@ -537,7 +537,7 @@ let make = (
               className="mr-1"
               size=20
               name="collapse-cross"
-              customIconColor="#FEFEFE"
+              customIconColor="text-white"
               onClick={_ => setIsSidebarExpanded(_ => false)}
             />
           </div>

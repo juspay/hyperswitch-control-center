@@ -67,9 +67,10 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
-  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
+  let customScrollStyle = "bg-blue-840 max-h-72 overflow-scroll px-1 pt-1"
+  let dropdownContainerStyle = "min-w-[15rem] rounded"
 
-  <div className="w-full my-4 ">
+  <div className="w-full py-5 px-2 p-[1px]">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
@@ -98,6 +99,7 @@ let make = () => {
       fullLength=true
       toggleChevronState
       customScrollStyle
+      dropdownContainerStyle
       shouldDisplaySelectedOnTop=true
     />
     <EditOrgName showModal setShowModal orgList orgId getOrgList />
