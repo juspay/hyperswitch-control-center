@@ -27,7 +27,7 @@ let make = (~input, ~options) => {
 
   let renderCommonFields = (field, customwidth) =>
     <div className={`flex gap-5 items-center justify-center ${customwidth} ml-2`}>
-      <img alt="cursor" src={`/assets/arrowicon.svg`} className="cursor-pointer mt-3" />
+      <Icon name="arrow-icon" size=20 className="mt-3" />
       <FormRenderer.FieldRenderer field={field} labelClass fieldWrapperClass />
     </div>
 
@@ -37,14 +37,15 @@ let make = (~input, ~options) => {
     | "Equal to" => <CustomAmountField />
     | "Less than Equal to" => renderCommonFields(endAmountField, "w-4/5")
     | "In Between" =>
-      <div className="flex gap-1 items-center justify-center mx-1 w-[10.25rem]">
+      <div className="flex gap-1 items-center justify-center mx-1 w-10.25-rem">
         <FormRenderer.FieldRenderer field=startamountField labelClass fieldWrapperClass />
-        <img alt="cursor" src={`/assets/inBetweenIcon.svg`} className="cursor-pointer mt-3" />
+        <Icon name="in-between-icon" size=25 className="mt-3" />
         <FormRenderer.FieldRenderer field=endAmountField labelClass fieldWrapperClass />
       </div>
 
     | _ => React.null
     }
+
   <>
     <FilterSelectBox.BaseDropdown
       allowMultiSelect=false
