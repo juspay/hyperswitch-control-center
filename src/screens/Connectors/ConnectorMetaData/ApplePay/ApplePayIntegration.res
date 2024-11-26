@@ -114,7 +114,8 @@ module Landing = {
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE)
       | Processors(BANKOFAMERICA)
-      | Processors(CYBERSOURCE) =>
+      | Processors(CYBERSOURCE)
+      | Processors(FIUU) =>
         <div
           className="p-6 m-2 cursor-pointer"
           onClick={_ => setApplePayIntegrationType(_ => #simplified)}>

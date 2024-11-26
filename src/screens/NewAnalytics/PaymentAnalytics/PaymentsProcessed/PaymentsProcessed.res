@@ -16,10 +16,12 @@ module TableModule = {
     }
     let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
-    let paymentsProcessed = switch data->getArrayFromJson([])->Array.get(0) {
-    | Some(val) => val->getArrayDataFromJson(tableItemToObjMapper)
-    | _ => []
-    }->Array.map(Nullable.make)
+    let paymentsProcessed =
+      data
+      ->Array.map(item => {
+        item->getDictFromJsonObject->tableItemToObjMapper
+      })
+      ->Array.map(Nullable.make)
 
     let isSmartRetryEnabled =
       filterValueJson
@@ -119,7 +121,7 @@ module PaymentsProcessedHeader = {
 
     <div className="w-full px-7 py-8 grid grid-cols-1">
       <div className="flex gap-2 items-center">
-        <div className="text-3xl font-600">
+        <div className="text-fs-28 font-semibold">
           {`${primaryValue->valueFormatter(metricType)} ${suffix}`->React.string} // TODO:Currency need to be picked from filter
         </div>
         <RenderIf condition={comparison == EnableComparison}>
@@ -154,6 +156,7 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (paymentsProcessedData, setPaymentsProcessedData) = React.useState(_ => JSON.Encode.array([]))
+  let (paymentsProcessedTableData, setPaymentsProcessedTableData) = React.useState(_ => [])
   let (paymentsProcessedMetaData, setPaymentsProcessedMetaData) = React.useState(_ =>
     JSON.Encode.array([])
   )
@@ -206,14 +209,19 @@ let make = (
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
-      let primaryData = primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      let primaryData =
+        primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])->modifyQueryData
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+      setPaymentsProcessedTableData(_ => primaryData)
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
       | EnableComparison => {
           let secondaryResponse = await updateDetails(url, secondaryBody, Post)
           let secondaryData =
-            secondaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
+            secondaryResponse
+            ->getDictFromJsonObject
+            ->getArrayFromDict("queryData", [])
+            ->modifyQueryData
           let secondaryMetaData =
             secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
@@ -311,7 +319,7 @@ let make = (
             <LineGraph
               entity={chartEntity} data={chartEntity.getObjects(~params)} className="mr-3"
             />
-          | Table => <TableModule data={paymentsProcessedData} className="mx-7" />
+          | Table => <TableModule data={paymentsProcessedTableData} className="mx-7" />
           }}
         </div>
       </PageLoaderWrapper>

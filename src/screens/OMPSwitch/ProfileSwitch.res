@@ -152,6 +152,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let profileSwitch = OMPSwitchHooks.useProfileSwitch()
+  let url = RescriptReactRouter.useUrl()
   let (showModal, setShowModal) = React.useState(_ => false)
   let {userInfo: {profileId}} = React.useContext(UserInfoProvider.defaultContext)
   let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
@@ -175,11 +176,12 @@ let make = () => {
   let addItemBtnStyle = "border border-t-0 w-full"
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "min-w-[15rem] rounded-md border border-1"
+
   let profileSwitch = async value => {
     try {
       setShowSwitchingProfile(_ => true)
       let _ = await profileSwitch(~expectedProfileId=value, ~currentProfileId=profileId)
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/home"))
+      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingProfile(_ => false)
     } catch {
     | _ => {
@@ -202,9 +204,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if businessProfiles->Array.length !== 0 {
-      getProfileList()->ignore
-    }
+    getProfileList()->ignore
     None
   }, [businessProfiles])
 

@@ -25,6 +25,7 @@ type userGroupACLType = {
     CommonAuthTypes.authorization,
     CommonAuthTypes.authorization,
   ) => CommonAuthTypes.authorization,
+  hasAllGroupsAccess: array<CommonAuthTypes.authorization> => CommonAuthTypes.authorization,
 }
 
 let useUserGroupACLHook = () => {
@@ -96,6 +97,15 @@ let useUserGroupACLHook = () => {
     | (NoAccess, NoAccess) => NoAccess
     | (_, _) => Access
     }
+  let hasAllGroupsAccess = groups => {
+    groups->Array.every(group => group === Access) ? Access : NoAccess
+  }
 
-  {fetchUserGroupACL, userHasResourceAccess, userHasAccess, hasAnyGroupAccess}
+  {
+    fetchUserGroupACL,
+    userHasResourceAccess,
+    userHasAccess,
+    hasAnyGroupAccess,
+    hasAllGroupsAccess,
+  }
 }

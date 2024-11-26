@@ -86,6 +86,10 @@ let make = () => {
     defaultBusinessProfile->SDKPaymentUtils.initialValueForForm
   )
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+
+  let filterConnectorList =
+    connectorList->RoutingUtils.filterConnectorList(~retainInList=PaymentConnector)
+
   React.useEffect(() => {
     let paymentIntentOptional = filtersFromUrl->Dict.get("payment_intent_client_secret")
     if paymentIntentOptional->Option.isSome {
@@ -153,7 +157,7 @@ let make = () => {
               initialValues
             />
           </div>
-        } else if connectorList->Array.length <= 0 {
+        } else if filterConnectorList->Array.length <= 0 {
           <HelperComponents.BluredTableComponent
             infoText={"Connect to a payment processor to make your first payment"}
             buttonText={"Connect a connector"}

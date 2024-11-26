@@ -212,7 +212,6 @@ module CheckoutForm = {
         resolve()
       })
       ->ignore
-
       None
     }, [hyper])
 
