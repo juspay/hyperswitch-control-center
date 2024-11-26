@@ -79,35 +79,3 @@ let analyticsViewList = (~checkUserEntity): ompViews => {
     []
   }
 }
-
-let mapUserType = user => {
-  switch user {
-  | "merchant" => #Merchant
-  | "profile" => #Profile
-  | _ => #Merchant
-  }
-}
-
-let mapRoleId = roleId => {
-  switch roleId {
-  | "org_admin" => #org_admin
-  | "merchant_admin" => #merchant_admin
-  | _ => #non_admin
-  }
-}
-
-let allowedRoles = user =>
-  switch user->mapUserType {
-  | #Merchant => [#org_admin]
-  | #Profile => [#org_admin, #merchant_admin]
-  | _ => []
-  }
-
-let hasCreateNewOMPAccess = (user, roleId): CommonAuthTypes.authorization => {
-  let roles = allowedRoles(user)
-  if roles->Array.includes(roleId->mapRoleId) {
-    Access
-  } else {
-    NoAccess
-  }
-}

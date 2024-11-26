@@ -35,13 +35,16 @@ module AddNewMerchantProfileButton = {
     ~customHRTagStyle="",
     ~addItemBtnStyle="",
   ) => {
-    open OMPSwitchUtils
-    let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
-
-    let cursorStyles = GroupAccessUtils.cursorStyles(hasCreateNewOMPAccess(user, roleId))
+    let allowedRoles = switch user {
+    | "merchant" => ["org_admin"]
+    | "profile" => ["org_admin", "merchant_admin"]
+    | _ => []
+    }
+    let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
+    let cursorStyles = GroupAccessUtils.cursorStyles(hasOMPCreateAccess)
 
     <ACLDiv
-      authorization={hasCreateNewOMPAccess(user, roleId)}
+      authorization={hasOMPCreateAccess}
       noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
       onClick={_ => setShowModal(_ => true)}
       isRelative=false
