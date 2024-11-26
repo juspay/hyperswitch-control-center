@@ -170,14 +170,15 @@ let make = () => {
                         | list{"analytics-disputes"} =>
                           <AnalyticsContainer />
                         | list{"new-analytics-payment"} =>
-                          <AccessControl
-                            isEnabled={featureFlagDetails.newAnalytics &&
-                            useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
-                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
-                            <FilterContext key="NewAnalytics" index="NewAnalytics">
-                              <NewAnalyticsContainer />
-                            </FilterContext>
-                          </AccessControl>
+                          <FilterContext key="NewAnalytics" index="NewAnalytics">
+                            <NewAnalyticsContainer />
+                          </FilterContext>
+                        // <AccessControl
+                        //   isEnabled={featureFlagDetails.newAnalytics &&
+                        //   useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
+                        //   authorization={userHasAccess(~groupAccess=AnalyticsView)}>
+
+                        // </AccessControl>
                         | list{"customers", ...remainingPath} =>
                           <AccessControl
                             authorization={userHasAccess(~groupAccess=OperationsView)}

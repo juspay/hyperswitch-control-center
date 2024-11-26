@@ -191,6 +191,7 @@ let paymentsLifeCycleMapper = (
 
   let normalSuccess = data.normalSuccess
   let normalFailure = data.normalFailure
+  let totalFailure = normalFailure + (isSmartRetryEnabled ? 0 : data.smartRetriedSuccess)
   let pending = data.pending
   let cancelled = data.cancelled
   let dropoff = data.drop_offs
@@ -203,17 +204,16 @@ let paymentsLifeCycleMapper = (
 
   let valueDict =
     [
-      ("Normal Success", normalSuccess),
-      ("Failed", normalFailure),
+      ("Succeeded on First Attempt", normalSuccess),
+      ("Succeeded on Subsequent Attempts", smartRetriedSuccess),
+      ("Failed", totalFailure),
+      ("Smart Retried Failure", smartRetriedFailure),
       ("Pending", pending),
       ("Cancelled", cancelled),
       ("Drop-offs", dropoff),
-      ("Success", success),
       ("Dispute Raised", disputed),
       ("Refunds Issued", refunded),
       ("Partial Refunded", partialRefunded),
-      ("Smart Retried Failure", smartRetriedFailure),
-      ("Smart Retried Success", smartRetriedSuccess),
     ]
     ->Array.filter(item => {
       let (_, value) = item
@@ -221,7 +221,7 @@ let paymentsLifeCycleMapper = (
     })
     ->transformData
 
-  let total = success + normalFailure + pending + dropoff + cancelled
+  let total = success + totalFailure + pending + dropoff + cancelled
 
   let sankeyNodes = [
     {
@@ -233,7 +233,7 @@ let paymentsLifeCycleMapper = (
       },
     },
     {
-      id: "Normal Success",
+      id: "Succeeded on First Attempt",
       dataLabels: {
         align: "right",
         x: -25,
@@ -245,7 +245,7 @@ let paymentsLifeCycleMapper = (
       dataLabels: {
         align: "left",
         x: 20,
-        name: normalFailure,
+        name: totalFailure,
       },
     },
     {
@@ -313,7 +313,7 @@ let paymentsLifeCycleMapper = (
       },
     },
     {
-      id: "Smart Retried Success",
+      id: "Succeeded on Subsequent Attempts",
       dataLabels: {
         align: "right",
         x: 105,
@@ -322,27 +322,27 @@ let paymentsLifeCycleMapper = (
     },
   ]
 
-  let normalSuccess = valueDict->getInt("Normal Success", 0)
-  let normalFailure = valueDict->getInt("Failed", 0)
+  let normalSuccess = valueDict->getInt("Succeeded on First Attempt", 0)
+  let smartRetriedSuccess = valueDict->getInt("Succeeded on Subsequent Attempts", 0)
+  let totalFailure = valueDict->getInt("Failed", 0)
+  let smartRetriedFailure = valueDict->getInt("Smart Retried Failure", 0)
   let pending = valueDict->getInt("Pending", 0)
   let cancelled = valueDict->getInt("Cancelled", 0)
   let dropoff = valueDict->getInt("Drop-offs", 0)
-  let success = valueDict->getInt("Success", 0)
   let disputed = valueDict->getInt("Dispute Raised", 0)
   let refunded = valueDict->getInt("Refunds Issued", 0)
   let partialRefunded = valueDict->getInt("Partial Refunded", 0)
-  let smartRetriedFailure = valueDict->getInt("Smart Retried Failure", 0)
-  let smartRetriedSuccess = valueDict->getInt("Smart Retried Success", 0)
 
   let processedData = if isSmartRetryEnabled {
     [
-      ("Payments Initiated", "Normal Success", normalSuccess, "#E4EFFF"),
-      ("Payments Initiated", "Failed", normalFailure, "#F7E0E0"),
+      ("Payments Initiated", "Succeeded on First Attempt", normalSuccess, "#E4EFFF"),
+      ("Payments Initiated", "Succeeded on Subsequent Attempts", smartRetriedSuccess, "#E4EFFF"), // smart retry
+      ("Payments Initiated", "Failed", totalFailure, "#F7E0E0"),
       ("Payments Initiated", "Pending", pending, "#E4EFFF"),
       ("Payments Initiated", "Cancelled", cancelled, "#F7E0E0"),
       ("Payments Initiated", "Drop-offs", dropoff, "#F7E0E0"),
-      ("Normal Success", "Success", success, "#E4EFFF"),
-      ("Failed", "Success", smartRetriedSuccess, "#E4EFFF"), // smart retry
+      ("Succeeded on First Attempt", "Success", normalSuccess, "#E4EFFF"),
+      ("Succeeded on Subsequent Attempts", "Success", smartRetriedSuccess, "#E4EFFF"),
       ("Failed", "Smart Retried Failure", smartRetriedFailure, "#F7E0E0"), // smart retry
       ("Success", "Refunds Issued", refunded, "#E4EFFF"),
       ("Success", "Partial Refunded", partialRefunded, "#E4EFFF"),
@@ -350,12 +350,11 @@ let paymentsLifeCycleMapper = (
     ]
   } else {
     [
-      ("Payments Initiated", "Normal Success", normalSuccess, "#E4EFFF"),
-      ("Payments Initiated", "Failed", normalFailure, "#F7E0E0"),
+      ("Payments Initiated", "Success", normalSuccess, "#E4EFFF"),
+      ("Payments Initiated", "Failed", totalFailure, "#F7E0E0"),
       ("Payments Initiated", "Pending", pending, "#E4EFFF"),
       ("Payments Initiated", "Cancelled", cancelled, "#F7E0E0"),
       ("Payments Initiated", "Drop-offs", dropoff, "#F7E0E0"),
-      ("Normal Success", "Success", success, "#E4EFFF"),
       ("Success", "Refunds Issued", refunded, "#E4EFFF"),
       ("Success", "Partial Refunded", partialRefunded, "#E4EFFF"),
       ("Success", "Dispute Raised", disputed, "#F7E0E0"),
@@ -366,16 +365,35 @@ let paymentsLifeCycleMapper = (
     text: "",
   }
 
-  let colors = [
-    "#91B7EE",
-    "#91B7EE",
-    "#EC6262",
-    "#91B7EE",
-    "#EC6262",
-    "#EC6262",
-    "#91B7EE",
-    "#EC6262",
-  ]
+  let colors = if isSmartRetryEnabled {
+    [
+      "#91B7EE",
+      "#91B7EE",
+      "#91B7EE",
+      "#EC6262",
+      "#91B7EE",
+      "#EC6262",
+      "#EC6262",
+      "#91B7EE",
+      "#EC6262",
+      "#91B7EE",
+      "#91B7EE",
+      "#EC6262",
+    ]
+  } else {
+    [
+      "#91B7EE",
+      "#91B7EE",
+      "#EC6262",
+      "#91B7EE",
+      "#EC6262",
+      "#EC6262",
+      "#91B7EE",
+      "#91B7EE",
+      "#EC6262",
+      "#EC6262",
+    ]
+  }
 
   {data: processedData, nodes: sankeyNodes, title, colors}
 }
