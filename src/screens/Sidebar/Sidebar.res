@@ -532,7 +532,7 @@ let make = (
         className={`${backgroundColor.primaryNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
         style={width: sidebarWidth}>
         <RenderIf condition={isMobileView}>
-          <div className="flex align-center mt-4 pl-3 mb-6 pr-4 ml-1 gap-5 cursor-default">
+          <div className="flex align-center mt-4 mb-6 ml-1 pl-3 pr-4 gap-5 cursor-default">
             <Icon
               className="mr-1"
               size=20

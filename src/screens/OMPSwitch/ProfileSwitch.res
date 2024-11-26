@@ -187,7 +187,7 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
-  <div className="">
+  <>
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
@@ -224,5 +224,5 @@ let make = () => {
       setShowModal={setShowSwitchingProfile}
       text="Switching profile..."
     />
-  </div>
+  </>
 }

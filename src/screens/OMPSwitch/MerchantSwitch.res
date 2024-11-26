@@ -177,6 +177,7 @@ let make = () => {
   let addItemBtnStyle = "border border-t-0 w-full"
   let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
   let dropdownContainerStyle = "rounded-md border border-1 w-[15rem]"
+
   React.useEffect(() => {
     getMerchantList()->ignore
     None

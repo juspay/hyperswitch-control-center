@@ -57,7 +57,7 @@ let make = (
   switch authStatus {
   | LoggedIn(_info) =>
     <div id="navbar" className={`w-full mx-auto`}>
-      <div className={`flex flex-row justify-between min-h-16 items-center ${customHeight}`}>
+      <div className={`flex flex-row min-h-16 items-center justify-between ${customHeight}`}>
         {switch headerLeftActions {
         | Some(actions) => actions
         | None => React.null
