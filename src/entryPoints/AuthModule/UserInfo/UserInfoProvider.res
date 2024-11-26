@@ -10,6 +10,20 @@ let make = (~children) => {
   let (userInfo, setUserInfo) = React.useState(_ => UserInfoUtils.defaultValueOfUserInfo)
   let fetchApi = AuthHooks.useApiFetcher()
   let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let userOptionalRef = Some(React.useRef(userInfo))
+
+  let updateOptionalUserInfoRef = updatedUserInfo => {
+    switch userOptionalRef {
+    | Some(ref) => ref.current = updatedUserInfo
+    | None => ()
+    }
+  }
+
+  let userInfoFromRef = switch userOptionalRef {
+  | Some(ref) => ref.current
+  | None => userInfo
+  }
+
   let getUserInfo = async () => {
     open LogicUtils
     let url = `${Window.env.apiBaseUrl}/user`
@@ -17,6 +31,7 @@ let make = (~children) => {
       let res = await fetchApi(`${url}`, ~method_=Get, ~xFeatureRoute)
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
+      updateOptionalUserInfoRef(userInfo)
       setUserInfo(_ => userInfo)
       setScreenState(_ => Success)
     } catch {
@@ -41,7 +56,15 @@ let make = (~children) => {
     None
   }, [])
 
-  <Provider value={userInfo, setUserInfoData, getUserInfoData, checkUserEntity}>
+  <Provider
+    value={
+      updateOptionalUserInfoRef,
+      userInfoFromRef,
+      userInfo,
+      setUserInfoData,
+      getUserInfoData,
+      checkUserEntity,
+    }>
     <RenderIf condition={screenState === Success}> children </RenderIf>
     <RenderIf condition={screenState === Error}>
       <NoDataFound message="Something went wrong" renderType=Painting />
