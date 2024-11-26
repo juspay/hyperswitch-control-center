@@ -59,6 +59,7 @@ let make = () => {
   let pageDetail = pageDetailDict->Dict.get(domain)->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let searchText = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("query", "")
+  let path = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("domain", "")
 
   let clearPageDetails = () => {
     let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
@@ -70,12 +71,7 @@ let make = () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
 
     try {
-      let (data, total) = await fetchTableData(
-        ~updateDetails,
-        ~offset,
-        ~query={searchText},
-        ~path=domain,
-      )
+      let (data, total) = await fetchTableData(~updateDetails, ~offset, ~query={searchText}, ~path)
 
       let arr = Array.make(~length=offset, Dict.make())
       if total <= offset {
