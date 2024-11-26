@@ -21,4 +21,4 @@ COPY --from=base /usr/src/app/package*.json ./
 RUN apk add --no-cache bash
 RUN ls -l /usr/src/app/dist
 EXPOSE 8080 9000
-CMD [ "/bin/bash", "-c", "yarn serve" ]
+CMD [ "/bin/bash", "-c", "npm run serve" ]
