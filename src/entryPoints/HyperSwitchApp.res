@@ -82,9 +82,9 @@ let make = () => {
   }, [userGroupACL])
 
   let ompDropdowns =
-    <div className="flex gap-4 mx-4">
+    <div className="flex items-center gap-4 mx-4">
       <MerchantSwitch />
-      <p className="text-gray-400"> {"/"->React.string} </p>
+      <p className="text-gray-400 text-fs-14"> {"/"->React.string} </p>
       <ProfileSwitch />
     </div>
 

@@ -207,7 +207,7 @@ let make = () => {
       />}
       baseComponentCustomStyle="bg-white rounded"
       bottomComponent={<AddNewMerchantProfileButton
-        user="merchant" setShowModal customStyle addItemBtnStyle
+        user=#Merchant setShowModal customStyle addItemBtnStyle
       />}
       optionClass="text-gray-600 text-fs-14"
       selectClass="text-gray-600 text-fs-14"
