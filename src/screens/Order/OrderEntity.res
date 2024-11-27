@@ -330,12 +330,13 @@ let getAttempts: JSON.t => array<attempts> = json => {
 
 let defaultColumns: array<colType> = [
   PaymentId,
+  ProfileId,
   Connector,
-  ConnectorTransactionID,
   Amount,
   Status,
   PaymentMethod,
   PaymentMethodType,
+  ConnectorTransactionID,
   CardNetwork,
   Email,
   MerchantOrderReferenceId,
