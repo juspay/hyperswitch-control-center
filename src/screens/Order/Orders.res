@@ -53,6 +53,7 @@ let make = (~previewOnly=false) => {
             ]->getJsonFromArrayOfJson,
           )
         }
+        let encodeFloatOrDefault = val => (val->getFloatFromJson(0.0) *. 100.0)->JSON.Encode.float
         filters->Dict.set(
           "amount_filter",
           [
@@ -60,17 +61,13 @@ let make = (~previewOnly=false) => {
               "start_amount",
               dict
               ->Dict.get("amount_filter.start_amount")
-              ->Option.mapOr(JSON.Encode.null, value =>
-                value->getFloatFromJson(0.0)->JSON.Encode.float
-              ),
+              ->setOptionMap(JSON.Encode.null, encodeFloatOrDefault),
             ),
             (
               "end_amount",
               dict
               ->Dict.get("amount_filter.end_amount")
-              ->Option.mapOr(JSON.Encode.null, value =>
-                value->getFloatFromJson(0.0)->JSON.Encode.float
-              ),
+              ->setOptionMap(JSON.Encode.null, encodeFloatOrDefault),
             ),
           ]->getJsonFromArrayOfJson,
         )

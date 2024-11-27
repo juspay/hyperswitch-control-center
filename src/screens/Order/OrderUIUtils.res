@@ -1,3 +1,4 @@
+open OrderTypes
 type filterTypes = {
   connector: array<string>,
   currency: array<string>,
@@ -24,12 +25,6 @@ type filter = [
   | #amount
   | #unknown
 ]
-
-type amountFilterOption =
-  | GreaterThanEqualTo
-  | LessThanEqualTo
-  | EqualTo
-  | InBetween
 
 let getFilterTypeFromString = filterType => {
   switch filterType {
@@ -333,12 +328,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
       EqualTo,
       InBetween,
     ]->Array.map(option => {
-      let label = switch option {
-      | GreaterThanEqualTo => "Greater than Equal to"
-      | LessThanEqualTo => "Less than Equal to"
-      | EqualTo => "Equal to"
-      | InBetween => "In Between"
-      }
+      let label = option->mapRangeTypetoString
       {
         FilterSelectBox.label,
         value: label,

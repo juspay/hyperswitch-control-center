@@ -1,8 +1,9 @@
 open CommonAuthForm
 open CommonInputFields
+open OrderTypes
 @react.component
 let make = (~options) => {
-  let (selectedOption, setSelectedOption) = React.useState(_ => "Select Amount")
+  let (selectedOption, setSelectedOption) = React.useState(_ => UnknownRange("Select Amount"))
   let form = ReactFinalForm.useForm()
   let onClick = _ => {
     form.submit()->ignore
@@ -12,15 +13,15 @@ let make = (~options) => {
     onBlur: _ => (),
     onChange: ev => {
       let newValue = ev->Identity.formReactEventToString
-      if newValue != selectedOption && newValue != "" {
-        setSelectedOption(_ => newValue)
+      if newValue != selectedOption->mapRangeTypetoString && newValue != "" {
+        setSelectedOption(_ => newValue->mapStringToRange)
         form.change("amount_filter.end_amount", JSON.Encode.null)
         form.change("amount_filter.start_amount", JSON.Encode.null)
       }
     },
     onFocus: _ => (),
     value: {
-      selectedOption->JSON.Encode.string
+      selectedOption->mapRangeTypetoString->JSON.Encode.string
     },
     checked: true,
   }
@@ -33,13 +34,13 @@ let make = (~options) => {
 
   let renderFields = () =>
     switch selectedOption {
-    | "Greater than Equal to" => renderCommonFields(startamountField, "w-4/5")
-    | "Equal to" => <CustomAmountField />
-    | "Less than Equal to" => renderCommonFields(endAmountField, "w-4/5")
-    | "In Between" =>
+    | GreaterThanEqualTo => renderCommonFields(startamountField, "w-4/5")
+    | LessThanEqualTo => renderCommonFields(endAmountField, "w-4/5")
+    | EqualTo => <CustomAmountField />
+    | InBetween =>
       <div className="flex gap-1 items-center justify-center mx-1 w-10.25-rem">
         <FormRenderer.FieldRenderer field=startamountField labelClass fieldWrapperClass />
-        <Icon name="in-between-icon" size=25 className="mt-3" />
+        <p className="mt-3 text-xs text-jp-gray-700"> {"and"->React.string} </p>
         <FormRenderer.FieldRenderer field=endAmountField labelClass fieldWrapperClass />
       </div>
 
@@ -49,7 +50,7 @@ let make = (~options) => {
   <>
     <FilterSelectBox.BaseDropdown
       allowMultiSelect=false
-      buttonText={selectedOption}
+      buttonText={selectedOption->mapRangeTypetoString}
       buttonType=Button.SecondaryFilled
       input
       options
@@ -58,8 +59,9 @@ let make = (~options) => {
       fullLength=true
       customButtonStyle="bg-white rounded-md !px-4 !py-2 !h-10"
     />
-    {<RenderIf condition={selectedOption != "Select Amount"}>
-      <div className={"bg-[#e5e7eb] bg-opacity-50 rounded-bl-md rounded-br-md p-1.5 gap-2.5 "}>
+    {<RenderIf condition={selectedOption != UnknownRange("Select Amount")}>
+      <div
+        className={"border border-jp-gray-940 border-opacity-50 bg-white rounded-md p-1.5 gap-2.5 "}>
         {renderFields()}
         <Button
           buttonType=Primary

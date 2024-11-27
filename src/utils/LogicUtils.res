@@ -338,6 +338,8 @@ let setOptionDict = (dict, key, optionDictValue) =>
 let setOptionInt = (dict, key, optionInt) =>
   optionInt->Option.mapOr((), int => dict->Dict.set(key, int->JSON.Encode.int))
 
+let setOptionMap = (t, defaultVal, func) => t->Option.mapOr(defaultVal, value => value->func)
+
 let capitalizeString = str => {
   String.toUpperCase(String.charAt(str, 0)) ++ Js.String2.substringToEnd(str, ~from=1)
 }
