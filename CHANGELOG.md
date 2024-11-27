@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.27.1
+
+### Features
+
+- **authn:** Enable cookies ([#1810](https://github.com/juspay/hyperswitch-control-center/pull/1810)) ([`e88a857`](https://github.com/juspay/hyperswitch-control-center/commit/e88a8570ba00c40bcb24832ba1bc05d8cb6b2273))
+
+**Full Changelog:** [`2024.11.27.0...2024.11.27.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.27.0...2024.11.27.1)
+
+- - -
+
 ## 2024.11.27.0
 
 ### Bug Fixes
