@@ -28,7 +28,7 @@ module ListBaseComp = {
 module AddNewMerchantProfileButton = {
   @react.component
   let make = (
-    ~user,
+    ~user: UserInfoTypes.entity,
     ~setShowModal,
     ~customPadding="",
     ~customStyle="",
@@ -36,8 +36,8 @@ module AddNewMerchantProfileButton = {
     ~addItemBtnStyle="",
   ) => {
     let allowedRoles = switch user {
-    | "merchant" => ["org_admin"]
-    | "profile" => ["org_admin", "merchant_admin"]
+    | #Merchant => [#org_admin]
+    | #Profile => [#org_admin, #merchant_admin]
     | _ => []
     }
     let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
@@ -56,7 +56,7 @@ module AddNewMerchantProfileButton = {
         <div
           className={`group flex  items-center gap-2 font-medium px-2 py-2 text-sm ${customStyle}`}>
           <Icon name="plus-circle" size=15 />
-          {`Add new ${user}`->React.string}
+          {`Add new ${(user :> string)->String.toLowerCase}`->React.string}
         </div>
       </>}
     </ACLDiv>
