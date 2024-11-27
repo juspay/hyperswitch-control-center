@@ -113,6 +113,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let orgSwitch = OMPSwitchHooks.useOrgSwitch()
+  let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {orgId, roleId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
@@ -145,6 +146,7 @@ let make = () => {
     try {
       setShowSwitchingOrg(_ => true)
       let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
+      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingOrg(_ => false)
     } catch {
     | _ => {
@@ -204,7 +206,11 @@ let make = () => {
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>
         <OMPSwitchHelper.AddNewOMPButton
-          user="org" setShowModal={setShowAddOrgModal} customPadding customStyle customHRTagStyle
+          user=#Organization
+          setShowModal={setShowAddOrgModal}
+          customPadding
+          customStyle
+          customHRTagStyle
         />
       </RenderIf>}
       optionClass="text-gray-200 text-fs-14"

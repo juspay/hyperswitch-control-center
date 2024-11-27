@@ -184,7 +184,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues) => {
+let initialFilters = (json, filtervalues, _, _, _) => {
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
 
   let filterDict = json->getDictFromJsonObject

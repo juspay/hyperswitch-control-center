@@ -40,8 +40,6 @@ let getHeaders = (
     if xFeatureRoute {
       headersForXFeature(~headers, ~uri)
     }
-
-    // headers->Dict.set("x-tenant-id", `public`) // for testing purpose
     headers
   }
   Fetch.HeadersInit.make(headerObj->Identity.dictOfAnyTypeToObj)
@@ -100,7 +98,7 @@ let useApiFetcher = () => {
           Fetch.RequestInit.make(
             ~method_,
             ~body?,
-            ~credentials=Omit, // change to SameOrigin (enable cookies) after backend fixes are done for cookies
+            ~credentials=SameOrigin,
             ~headers=getHeaders(~headers, ~uri, ~contentType, ~token, ~xFeatureRoute),
           ),
         )

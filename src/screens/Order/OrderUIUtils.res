@@ -7,6 +7,7 @@ type filterTypes = {
   status: array<string>,
   connector_label: array<string>,
   card_network: array<string>,
+  customer_id: array<string>,
 }
 
 type filter = [
@@ -18,6 +19,7 @@ type filter = [
   | #payment_method_type
   | #connector_label
   | #card_network
+  | #customer_id
   | #unknown
 ]
 
@@ -31,6 +33,7 @@ let getFilterTypeFromString = filterType => {
   | "payment_method_type" => #payment_method_type
   | "connector_label" => #connector_label
   | "card_network" => #card_network
+  | "customer_id" => #customer_id
   | _ => #unknown
   }
 }
@@ -266,24 +269,27 @@ let itemToObjMapper = dict => {
     payment_method_type: getAllPaymentMethodType(dict),
     connector_label: [],
     card_network: dict->getArrayFromDict("card_network", [])->getStrArrayFromJsonArray,
+    customer_id: [],
   }
 }
 
-let initialFilters = (json, filtervalues) => {
+let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys) => {
   open LogicUtils
 
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-
   let filterDict = json->getDictFromJsonObject
 
   let filterArr = filterDict->itemToObjMapper
   let arr = filterDict->Dict.keysToArray
-
+  let onDeleteClick = name => {
+    [name]->removeKeys
+    setfilterKeys(_ => filterKeys->Array.filter(item => item !== name))
+  }
   if connectorFilter->Array.length !== 0 {
     arr->Array.push("connector_label")
   }
   arr->Array.push("payment_method_type")
-
+  arr->Array.push("customer_id")
   arr->Array.map((key): EntityType.initialFilters<'t> => {
     let values = switch key->getFilterTypeFromString {
     | #connector => filterArr.connector
@@ -297,6 +303,7 @@ let initialFilters = (json, filtervalues) => {
         : filterArr.payment_method_type
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
     | #card_network => filterArr.card_network
+    | #customer_id => filterArr.customer_id
     | _ => []
     }
 
@@ -318,22 +325,31 @@ let initialFilters = (json, filtervalues) => {
     | #connector_label => "merchant_connector_id"
     | _ => key
     }
+    let customInput = switch key->getFilterTypeFromString {
+    | #customer_id =>
+      (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) =>
+        InputFields.textInput(
+          ~rightIcon=<div
+            className="p-1 rounded-lg hover:bg-gray-200 cursor-pointer mr-6 "
+            onClick={_ => input.name->onDeleteClick}>
+            <Icon name="cross-outline" size=13 />
+          </div>,
+        )(~input, ~placeholder=`Enter ${input.name->snakeToTitle}...`)
 
+    | _ =>
+      InputFields.filterMultiSelectInput(
+        ~options,
+        ~buttonText=title,
+        ~showSelectionAsChips=false,
+        ~searchable=true,
+        ~showToolTip=true,
+        ~showNameAsToolTip=true,
+        ~customButtonStyle="bg-none",
+        (),
+      )
+    }
     {
-      field: FormRenderer.makeFieldInfo(
-        ~label=key,
-        ~name,
-        ~customInput=InputFields.filterMultiSelectInput(
-          ~options,
-          ~buttonText=title,
-          ~showSelectionAsChips=false,
-          ~searchable=true,
-          ~showToolTip=true,
-          ~showNameAsToolTip=true,
-          ~customButtonStyle="bg-none",
-          (),
-        ),
-      ),
+      field: FormRenderer.makeFieldInfo(~label=key, ~name, ~customInput),
       localFilter: Some(filterByData),
     }
   })

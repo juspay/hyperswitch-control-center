@@ -28,19 +28,25 @@ module ListBaseComp = {
 module AddNewOMPButton = {
   @react.component
   let make = (
-    ~user,
+    ~user: UserInfoTypes.entity,
     ~setShowModal,
     ~customPadding="",
     ~customStyle="",
     ~customHRTagStyle="",
     ~addItemBtnStyle="",
   ) => {
-    open OMPSwitchUtils
-    let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
-    let cursorStyles = GroupAccessUtils.cursorStyles(hasAccess(user, roleId))
+    let allowedRoles = switch user {
+    | #Organization => [#tenant_admin]
+    | #Merchant => [#tenant_admin, #org_admin]
+    | #Profile => [#tenant_admin, #org_admin, #merchant_admin]
+    | _ => []
+    }
+    let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
+    let cursorStyles = GroupAccessUtils.cursorStyles(hasOMPCreateAccess)
 
     <ACLDiv
-      authorization={hasAccess(user, roleId)}
+      authorization={hasOMPCreateAccess}
+      noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
       onClick={_ => setShowModal(_ => true)}
       isRelative=false
       contentAlign=Default
@@ -51,7 +57,7 @@ module AddNewOMPButton = {
         <div
           className={`group flex  items-center gap-2 font-medium px-2 py-2 text-sm ${customStyle}`}>
           <Icon name="plus-circle" size=15 />
-          {`Add new ${user}`->React.string}
+          {`Add new ${(user :> string)->String.toLowerCase}`->React.string}
         </div>
       </>}
     </ACLDiv>

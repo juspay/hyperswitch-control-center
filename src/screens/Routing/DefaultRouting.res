@@ -2,11 +2,7 @@ open APIUtils
 open MerchantAccountUtils
 
 @react.component
-let make = (
-  ~urlEntityName,
-  ~baseUrlForRedirection,
-  ~connectorList: array<ConnectorTypes.connectorPayload>,
-) => {
+let make = (~urlEntityName, ~baseUrlForRedirection) => {
   open LogicUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -19,6 +15,7 @@ let make = (
   let (gateways, setGateways) = React.useState(() => [])
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
+  let typedConnectorValue = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
 
   let settingUpConnectorsState = routingRespArray => {
@@ -27,22 +24,16 @@ let make = (
         value->getDictFromJsonObject->getString("profile_id", "") === profile
       )
 
-    let connectors =
-      profileList
-      ->Array.get(0)
-      ->Option.getOr(JSON.Encode.null)
+    let connectorList = switch profileList->Array.get(0) {
+    | Some(json) =>
+      json
       ->getDictFromJsonObject
       ->getArrayFromDict("connectors", [])
+    | _ => routingRespArray
+    }
 
-    let gatewayConnectors = connectors->Array.filter(connectorsItem => {
-      connectorList->Array.some(connectorListItem => {
-        connectorListItem.merchant_connector_id ===
-          connectorsItem->getDictFromJsonObject->getString("merchant_connector_id", "")
-      })
-    })
-
-    if gatewayConnectors->Array.length > 0 {
-      setGateways(_ => gatewayConnectors)
+    if connectorList->Array.length > 0 {
+      setGateways(_ => connectorList)
       setScreenState(_ => PageLoaderWrapper.Success)
     } else {
       setScreenState(_ => PageLoaderWrapper.Custom)
@@ -146,20 +137,9 @@ let make = (
             let merchantConnectorId =
               gateway->getDictFromJsonObject->getString("merchant_connector_id", "")
             let connectorLabel = ConnectorTableUtils.getConnectorObjectFromListViaId(
-              connectorList,
+              typedConnectorValue,
               merchantConnectorId,
             ).connector_label
-
-            let connector =
-              connectorList
-              ->Array.filter(item =>
-                item.merchant_connector_id ===
-                  gateway->getDictFromJsonObject->getString("merchant_connector_id", "")
-              )
-              ->Array.get(0)
-              ->Option.getOr(Dict.make()->ConnectorListMapper.getProcessorPayloadType)
-
-            let isDisabled = connector.disabled
 
             <div
               className={`h-14 px-3 flex flex-row items-center justify-between text-jp-gray-900 dark:text-jp-gray-600 border-jp-gray-500 dark:border-jp-gray-960
@@ -173,9 +153,6 @@ let make = (
                 <div className="flex gap-1 items-center">
                   <p> {connectorName->React.string} </p>
                   <p className="text-sm opacity-50 "> {`(${connectorLabel})`->React.string} </p>
-                  <RenderIf condition={isDisabled}>
-                    <p className="text-sm opacity-50 "> {"(disabled)"->React.string} </p>
-                  </RenderIf>
                 </div>
               </div>
             </div>
