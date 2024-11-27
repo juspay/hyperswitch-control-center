@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.27.0
+
+### Bug Fixes
+
+- Changed global search date range fix ([#1803](https://github.com/juspay/hyperswitch-control-center/pull/1803)) ([`70dc324`](https://github.com/juspay/hyperswitch-control-center/commit/70dc324e7724a2c980b9eee00ca98049c0cf76f3))
+
+### Miscellaneous Tasks
+
+- Disabled access to test payment not having operation manage ([#1794](https://github.com/juspay/hyperswitch-control-center/pull/1794)) ([`82d2e40`](https://github.com/juspay/hyperswitch-control-center/commit/82d2e40a0fb7c7a0c84a4e65e4c5cee979854e5e))
+
+**Full Changelog:** [`2024.11.25.2...2024.11.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.25.2...2024.11.27.0)
+
+- - -
+
 ## 2024.11.25.2
 
 ### Features
