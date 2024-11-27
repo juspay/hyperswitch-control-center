@@ -27,10 +27,18 @@ let tooltipFormatter = (
     | Link =>
       let fromValue = this.point.fromNode.options.dataLabels.name
       let toValue = this.point.toNode.options.dataLabels.name
-      let percentage = toValue->Int.toFloat /. fromValue->Int.toFloat *. 100.0
-      `${toValue->format} of ${fromValue->format} (${percentage->NewAnalyticsUtils.valueFormatter(
-          Rate,
-        )})`
+
+      let (fraction, percentage) = if toValue > fromValue {
+        (`${fromValue->format} to ${toValue->format}`, "100%")
+      } else {
+        let percentage = toValue->Int.toFloat /. fromValue->Int.toFloat *. 100.0
+        (
+          `${toValue->format} of ${fromValue->format}`,
+          `${percentage->NewAnalyticsUtils.valueFormatter(Rate)}`,
+        )
+      }
+
+      `${fraction} (${percentage})`
     }
 
     let title = `<div style="font-size: 16px; font-weight: bold;">${info}</div>`
