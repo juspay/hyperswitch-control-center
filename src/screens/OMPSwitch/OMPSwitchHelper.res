@@ -24,6 +24,7 @@ module ListBaseComp = {
 
     let textColor = isDarkBg ? "text-grey-300" : "text-grey-900"
     let width = isDarkBg ? "w-[12rem]" : "w-fit max-w-[8rem]"
+    let padding = isDarkBg ? "pl-2" : ""
 
     <div className={`text-sm font-medium cursor-pointer ${baseCompStyle}`}>
       <div className={`flex flex-col items-start`}>
@@ -32,7 +33,7 @@ module ListBaseComp = {
         </RenderIf>
         <div className="text-left flex gap-2">
           <div>
-            <p className={`fs-10 ${textColor} ${width} overflow-scroll text-nowrap`}>
+            <p className={`fs-10 ${textColor} ${width} ${padding} overflow-scroll text-nowrap`}>
               {subHeading->React.string}
             </p>
           </div>
