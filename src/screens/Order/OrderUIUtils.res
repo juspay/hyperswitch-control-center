@@ -340,7 +340,6 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
             onClick={_ => input.name->onDeleteClick}>
             <Icon name="cross-outline" size=13 />
           </div>,
-          ~customWidth="w-full",
         )(~input, ~placeholder=`Enter ${input.name->snakeToTitle}...`)
 
     | _ =>
