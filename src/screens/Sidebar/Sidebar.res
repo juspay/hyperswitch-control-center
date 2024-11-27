@@ -115,7 +115,7 @@ module SidebarItem = {
                 ref={sidebarItemRef->ReactDOM.Ref.domRef}
                 onClick={onSidebarItemClick}
                 className={`${textColor} relative overflow-hidden flex flex-row items-center cursor-pointer ${selectedClass} p-3 ${isSidebarExpanded
-                    ? "mx-2"
+                    ? ""
                     : "mx-1"} hover:bg-light_white my-0.5`}>
                 <SidebarOption name icon isSidebarExpanded isSelected />
               </div>
@@ -276,7 +276,7 @@ module NestedSectionItem = {
         <div
           ref={sidebarNestedSectionRef->ReactDOM.Ref.domRef}
           className={`${isSideBarExpanded
-              ? "mx-2"
+              ? ""
               : "mx-1"} text-sm ${textColor} ${bgColor} relative overflow-hidden flex flex-row items-center justify-between p-3 ${cursor} ${isSectionExpanded
               ? ""
               : sectionExpandedAnimation} border-l-2 ${isAnySubItemSelected
