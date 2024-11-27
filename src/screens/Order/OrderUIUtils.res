@@ -327,7 +327,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
 
     let name = switch key->getFilterTypeFromString {
     | #connector_label => "merchant_connector_id"
-    | #merchant_order_reference_id => "merchant_order_id"
+    | #merchant_order_reference_id => "merchant_order_reference_id"
     | _ => key
     }
     let customInput = switch key->getFilterTypeFromString {
