@@ -8,6 +8,7 @@ type filterTypes = {
   connector_label: array<string>,
   card_network: array<string>,
   customer_id: array<string>,
+  merchant_order_reference_id: array<string>,
 }
 
 type filter = [
@@ -20,6 +21,7 @@ type filter = [
   | #connector_label
   | #card_network
   | #customer_id
+  | #merchant_order_reference_id
   | #unknown
 ]
 
@@ -34,6 +36,7 @@ let getFilterTypeFromString = filterType => {
   | "connector_label" => #connector_label
   | "card_network" => #card_network
   | "customer_id" => #customer_id
+  | "merchant_order_reference_id" => #merchant_order_reference_id
   | _ => #unknown
   }
 }
@@ -270,6 +273,7 @@ let itemToObjMapper = dict => {
     connector_label: [],
     card_network: dict->getArrayFromDict("card_network", [])->getStrArrayFromJsonArray,
     customer_id: [],
+    merchant_order_reference_id: [],
   }
 }
 
@@ -290,6 +294,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
   }
   arr->Array.push("payment_method_type")
   arr->Array.push("customer_id")
+  arr->Array.push("merchant_order_reference_id")
   arr->Array.map((key): EntityType.initialFilters<'t> => {
     let values = switch key->getFilterTypeFromString {
     | #connector => filterArr.connector
@@ -303,7 +308,6 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
         : filterArr.payment_method_type
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
     | #card_network => filterArr.card_network
-    | #customer_id => filterArr.customer_id
     | _ => []
     }
 
@@ -323,10 +327,12 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
 
     let name = switch key->getFilterTypeFromString {
     | #connector_label => "merchant_connector_id"
+    | #merchant_order_reference_id => "merchant_order_id"
     | _ => key
     }
     let customInput = switch key->getFilterTypeFromString {
-    | #customer_id =>
+    | #customer_id
+    | #merchant_order_reference_id =>
       (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) =>
         InputFields.textInput(
           ~rightIcon=<div
@@ -334,6 +340,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
             onClick={_ => input.name->onDeleteClick}>
             <Icon name="cross-outline" size=13 />
           </div>,
+          ~customWidth="w-full",
         )(~input, ~placeholder=`Enter ${input.name->snakeToTitle}...`)
 
     | _ =>
