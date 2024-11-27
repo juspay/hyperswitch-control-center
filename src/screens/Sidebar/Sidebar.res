@@ -479,8 +479,12 @@ let make = (
   }
   let profileMaxWidth = "145px"
 
-  let firstPart = switch List.head(path) {
-  | Some(x) => `/${x}`
+  let firstPart = switch List.tail(path) {
+  | Some(tail) =>
+    switch List.head(tail) {
+    | Some(x) => `/${x}`
+    | None => "/"
+    }
   | None => "/"
   }
 
