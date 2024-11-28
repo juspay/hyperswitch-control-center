@@ -7,6 +7,8 @@ module SDKConfiguarationFields = {
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
     let disableSelectionForProfile = businessProfiles->HomeUtils.isDefaultBusinessProfile
     let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+    let paymentConnectorList =
+      connectorList->RoutingUtils.filterConnectorList(~retainInList=PaymentConnector)
     let dropDownOptions = HomeUtils.countries->Array.map((item): SelectBox.dropdownOption => {
       {
         label: `${item.countryName} (${item.currency})`,
@@ -66,7 +68,7 @@ module SDKConfiguarationFields = {
       <FormRenderer.SubmitButton
         text="Show preview"
         disabledParamter={initialValues.profile_id->LogicUtils.isEmptyString ||
-          connectorList->Array.length <= 0}
+          paymentConnectorList->Array.length <= 0}
         customSumbitButtonStyle="!mt-5"
       />
     </div>
@@ -87,7 +89,7 @@ let make = () => {
   )
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
-  let filterConnectorList =
+  let paymentConnectorList =
     connectorList->RoutingUtils.filterConnectorList(~retainInList=PaymentConnector)
 
   React.useEffect(() => {
@@ -157,7 +159,7 @@ let make = () => {
               initialValues
             />
           </div>
-        } else if filterConnectorList->Array.length <= 0 {
+        } else if paymentConnectorList->Array.length <= 0 {
           <HelperComponents.BluredTableComponent
             infoText={"Connect to a payment processor to make your first payment"}
             buttonText={"Connect a connector"}
