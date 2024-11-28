@@ -35,22 +35,7 @@ let make = (
         ]
         ->Dict.fromArray
         ->JSON.Encode.object
-      // Expected response
-      // let response = {
-      //   "normal_success": 15,
-      //   "normal_failure": 1,
-      //   "cancelled": 1,
-      //   "smart_retried_success": 1,
-      //   "smart_retried_failure": 0,
-      //   "pending": 0,
-      //   "partial_refunded": 0,
-      //   "refunded": 0,
-      //   "disputed": 0,
-      //   "pm_awaited": 0,
-      //   "customer_awaited": 2,
-      //   "merchant_awaited": 0,
-      //   "confirmation_awaited": 0,
-      // }->Identity.genericTypeToJson
+
       let paymentLifeCycleResponse = await updateDetails(url, paymentLifeCycleBody, Post)
 
       if paymentLifeCycleResponse->PaymentsLifeCycleUtils.getTotalPayments > 0 {
