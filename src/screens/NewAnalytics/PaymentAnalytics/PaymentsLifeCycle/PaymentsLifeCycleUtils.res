@@ -1,8 +1,117 @@
 open SankeyGraphTypes
 open LogicUtils
 open PaymentsLifeCycleTypes
+
+let getstatusVariantTypeFromString = value => {
+  switch value {
+  | "succeeded" => Succeeded
+  | "failed" => Failed
+  | "cancelled" => Cancelled
+  | "processing" => Processing
+  | "requires_customer_action" => RequiresCustomerAction
+  | "requires_merchant_action" => RequiresMerchantAction
+  | "requires_payment_method" => RequiresPaymentMethod
+  | "requires_confirmation" => RequiresConfirmation
+  | "requires_capture" => RequiresCapture
+  | "partially_captured" => PartiallyCaptured
+  | "partially_captured_and_capturable" => PartiallyCapturedAndCapturable
+  | "full_refunded" => Full_Refunded
+  | "partial_refunded" => Partial_Refunded
+  | "dispute_present" => Dispute_Present
+  | _ => Null
+  }
+}
+
 let paymentLifeCycleResponseMapper = (json: JSON.t) => {
-  let valueDict = json->getDictFromJsonObject
+  let valueDict =
+    [
+      "normal_success",
+      "normal_failure",
+      "pending",
+      "cancelled",
+      "drop_offs",
+      "smart_retried_success",
+      "smart_retried_failure",
+      "partial_refunded",
+      "refunded",
+      "disputed",
+    ]
+    ->Array.map(item => (item, 0))
+    ->Dict.fromArray
+
+  let queryItems =
+    json
+    ->getArrayFromJson([])
+    ->Array.map(query => {
+      let queryDict = query->getDictFromJsonObject
+
+      {
+        count: queryDict->getInt("count", 0),
+        dispute_status: queryDict->getString("dispute_status", "")->getstatusVariantTypeFromString,
+        first_attempt: queryDict->getInt("first_attempt", 0),
+        refunds_status: queryDict->getString("refunds_status", "")->getstatusVariantTypeFromString,
+        status: queryDict->getString("status", "")->getstatusVariantTypeFromString,
+      }
+    })
+
+  queryItems->Array.forEach(query => {
+    switch query.status {
+    | Succeeded => {
+        // normal_success or smart_retried_success
+        if query.first_attempt == 1 {
+          valueDict->Dict.set(
+            "normal_success",
+            valueDict->getInt("normal_success", 0) + query.count,
+          )
+        } else {
+          valueDict->Dict.set(
+            "smart_retried_success",
+            valueDict->getInt("smart_retried_success", 0) + query.count,
+          )
+        }
+
+        // "refunded" or "partial_refunded"
+        switch query.refunds_status {
+        | Full_Refunded =>
+          valueDict->Dict.set("refunded", valueDict->getInt("refunded", 0) + query.count)
+        | Partial_Refunded =>
+          valueDict->Dict.set(
+            "partial_refunded",
+            valueDict->getInt("partial_refunded", 0) + query.count,
+          )
+        | _ => ()
+        }
+
+        // "disputed"
+        switch query.dispute_status {
+        | Dispute_Present =>
+          valueDict->Dict.set("disputed", valueDict->getInt("disputed", 0) + query.count)
+        | _ => ()
+        }
+      }
+    | Failed => {
+        valueDict->Dict.set("normal_failure", valueDict->getInt("normal_failure", 0) + query.count)
+        if query.first_attempt != 1 {
+          valueDict->Dict.set(
+            "smart_retried_failure",
+            valueDict->getInt("smart_retried_failure", 0) + query.count,
+          )
+        }
+      }
+    | Cancelled => valueDict->Dict.set("cancelled", valueDict->getInt("cancelled", 0) + query.count)
+    | Processing => valueDict->Dict.set("pending", valueDict->getInt("pending", 0) + query.count)
+    | RequiresCustomerAction
+    | RequiresMerchantAction
+    | RequiresPaymentMethod
+    | RequiresConfirmation
+    | RequiresCapture
+    | PartiallyCaptured
+    | PartiallyCapturedAndCapturable
+    | Null
+    | _ =>
+      valueDict->Dict.set("drop_offs", valueDict->getInt("drop_offs", 0) + query.count)
+    }
+  })
 
   {
     normalSuccess: valueDict->getInt("normal_success", 0),
@@ -14,32 +123,17 @@ let paymentLifeCycleResponseMapper = (json: JSON.t) => {
     partialRefunded: valueDict->getInt("partial_refunded", 0),
     refunded: valueDict->getInt("refunded", 0),
     disputed: valueDict->getInt("disputed", 0),
-    pmAwaited: valueDict->getInt("pm_awaited", 0),
-    customerAwaited: valueDict->getInt("customer_awaited", 0),
-    merchantAwaited: valueDict->getInt("merchant_awaited", 0),
-    confirmationAwaited: valueDict->getInt("confirmation_awaited", 0),
+    drop_offs: valueDict->getInt("drop_offs", 0),
   }
 }
 
 let getTotalPayments = json => {
   let data = json->paymentLifeCycleResponseMapper
 
-  let total =
-    data.normalSuccess +
-    data.normalFailure +
-    data.cancelled +
-    data.smartRetriedSuccess +
-    data.smartRetriedFailure +
-    data.pending +
-    data.partialRefunded +
-    data.refunded +
-    data.disputed +
-    data.pmAwaited +
-    data.customerAwaited +
-    data.merchantAwaited +
-    data.confirmationAwaited
+  let payment_initiated =
+    data.normalSuccess + data.normalFailure + data.cancelled + data.pending + data.drop_offs
 
-  total
+  payment_initiated
 }
 
 let transformData = (data: array<(string, int)>) => {
@@ -95,26 +189,25 @@ let paymentsLifeCycleMapper = (
 
   let isSmartRetryEnabled = xKey->getBoolFromString(true)
 
+  let normalSuccess = data.normalSuccess
+  let normalFailure = data.normalFailure
+  let totalFailure = normalFailure + (isSmartRetryEnabled ? 0 : data.smartRetriedSuccess)
+  let pending = data.pending
+  let cancelled = data.cancelled
+  let dropoff = data.drop_offs
   let disputed = data.disputed
   let refunded = data.refunded
   let partialRefunded = data.partialRefunded
-
-  let success =
-    disputed +
-    refunded +
-    partialRefunded +
-    (isSmartRetryEnabled ? data.smartRetriedSuccess : 0) +
-    data.normalSuccess
-  let failure = data.normalFailure + (isSmartRetryEnabled ? data.smartRetriedFailure : 0)
-  let pending = data.pending
-  let cancelled = data.cancelled
-  let dropoff =
-    data.pmAwaited + data.customerAwaited + data.merchantAwaited + data.confirmationAwaited
+  let smartRetriedFailure = isSmartRetryEnabled ? data.smartRetriedFailure : 0
+  let smartRetriedSuccess = isSmartRetryEnabled ? data.smartRetriedSuccess : 0
+  let success = normalSuccess + smartRetriedSuccess
 
   let valueDict =
     [
-      ("Success", success),
-      ("Failed", failure),
+      ("Succeeded on First Attempt", normalSuccess),
+      ("Succeeded on Subsequent Attempts", smartRetriedSuccess),
+      ("Failed", totalFailure),
+      ("Smart Retried Failure", smartRetriedFailure),
       ("Pending", pending),
       ("Cancelled", cancelled),
       ("Drop-offs", dropoff),
@@ -128,7 +221,7 @@ let paymentsLifeCycleMapper = (
     })
     ->transformData
 
-  let total = success + failure + pending + cancelled + dropoff
+  let total = success + totalFailure + pending + dropoff + cancelled
 
   let sankeyNodes = [
     {
@@ -140,35 +233,19 @@ let paymentsLifeCycleMapper = (
       },
     },
     {
-      id: "Success",
+      id: "Succeeded on First Attempt",
       dataLabels: {
         align: "right",
-        x: -25,
-        name: success,
+        x: 183,
+        name: normalSuccess,
       },
     },
     {
-      id: "Dispute Raised",
+      id: "Failed",
       dataLabels: {
-        align: "right",
-        x: 105,
-        name: disputed,
-      },
-    },
-    {
-      id: "Refunds Issued",
-      dataLabels: {
-        align: "right",
-        x: 110,
-        name: refunded,
-      },
-    },
-    {
-      id: "Partial Refunded",
-      dataLabels: {
-        align: "right",
-        x: 115,
-        name: partialRefunded,
+        align: "left",
+        x: 20,
+        name: totalFailure,
       },
     },
     {
@@ -188,14 +265,6 @@ let paymentsLifeCycleMapper = (
       },
     },
     {
-      id: "Failed",
-      dataLabels: {
-        align: "left",
-        x: 20,
-        name: failure,
-      },
-    },
-    {
       id: "Drop-offs",
       dataLabels: {
         align: "left",
@@ -203,10 +272,60 @@ let paymentsLifeCycleMapper = (
         name: dropoff,
       },
     },
+    {
+      id: "Success",
+      dataLabels: {
+        align: "right",
+        x: -25,
+        name: success,
+      },
+    },
+    {
+      id: "Refunds Issued",
+      dataLabels: {
+        align: "right",
+        x: 110,
+        name: refunded,
+      },
+    },
+    {
+      id: "Partial Refunded",
+      dataLabels: {
+        align: "right",
+        x: 115,
+        name: partialRefunded,
+      },
+    },
+    {
+      id: "Dispute Raised",
+      dataLabels: {
+        align: "right",
+        x: 105,
+        name: disputed,
+      },
+    },
+    {
+      id: "Smart Retried Failure",
+      dataLabels: {
+        align: "right",
+        x: 105,
+        name: smartRetriedFailure,
+      },
+    },
+    {
+      id: "Succeeded on Subsequent Attempts",
+      dataLabels: {
+        align: "right",
+        x: 235,
+        name: smartRetriedSuccess,
+      },
+    },
   ]
 
-  let success = valueDict->getInt("Success", 0)
-  let failure = valueDict->getInt("Failed", 0)
+  let normalSuccess = valueDict->getInt("Succeeded on First Attempt", 0)
+  let smartRetriedSuccess = valueDict->getInt("Succeeded on Subsequent Attempts", 0)
+  let totalFailure = valueDict->getInt("Failed", 0)
+  let smartRetriedFailure = valueDict->getInt("Smart Retried Failure", 0)
   let pending = valueDict->getInt("Pending", 0)
   let cancelled = valueDict->getInt("Cancelled", 0)
   let dropoff = valueDict->getInt("Drop-offs", 0)
@@ -214,30 +333,67 @@ let paymentsLifeCycleMapper = (
   let refunded = valueDict->getInt("Refunds Issued", 0)
   let partialRefunded = valueDict->getInt("Partial Refunded", 0)
 
-  let processedData = [
-    ("Payments Initiated", "Success", success, "#E4EFFF"),
-    ("Payments Initiated", "Failed", failure, "#F7E0E0"),
-    ("Payments Initiated", "Pending", pending, "#E4EFFF"),
-    ("Payments Initiated", "Cancelled", cancelled, "#F7E0E0"),
-    ("Payments Initiated", "Drop-offs", dropoff, "#F7E0E0"),
-    ("Success", "Dispute Raised", disputed, "#F7E0E0"),
-    ("Success", "Refunds Issued", refunded, "#E4EFFF"),
-    ("Success", "Partial Refunded", partialRefunded, "#E4EFFF"),
-  ]
+  let processedData = if isSmartRetryEnabled {
+    [
+      ("Payments Initiated", "Succeeded on First Attempt", normalSuccess, "#E4EFFF"),
+      ("Payments Initiated", "Succeeded on Subsequent Attempts", smartRetriedSuccess, "#E4EFFF"), // smart retry
+      ("Payments Initiated", "Failed", totalFailure, "#F7E0E0"),
+      ("Payments Initiated", "Pending", pending, "#E4EFFF"),
+      ("Payments Initiated", "Cancelled", cancelled, "#F7E0E0"),
+      ("Payments Initiated", "Drop-offs", dropoff, "#F7E0E0"),
+      ("Succeeded on First Attempt", "Success", normalSuccess, "#E4EFFF"),
+      ("Succeeded on Subsequent Attempts", "Success", smartRetriedSuccess, "#E4EFFF"),
+      ("Failed", "Smart Retried Failure", smartRetriedFailure, "#F7E0E0"), // smart retry
+      ("Success", "Refunds Issued", refunded, "#E4EFFF"),
+      ("Success", "Partial Refunded", partialRefunded, "#E4EFFF"),
+      ("Success", "Dispute Raised", disputed, "#F7E0E0"),
+    ]
+  } else {
+    [
+      ("Payments Initiated", "Success", normalSuccess, "#E4EFFF"),
+      ("Payments Initiated", "Failed", totalFailure, "#F7E0E0"),
+      ("Payments Initiated", "Pending", pending, "#E4EFFF"),
+      ("Payments Initiated", "Cancelled", cancelled, "#F7E0E0"),
+      ("Payments Initiated", "Drop-offs", dropoff, "#F7E0E0"),
+      ("Success", "Refunds Issued", refunded, "#E4EFFF"),
+      ("Success", "Partial Refunded", partialRefunded, "#E4EFFF"),
+      ("Success", "Dispute Raised", disputed, "#F7E0E0"),
+    ]
+  }
 
   let title = {
     text: "",
   }
-  let colors = [
-    "#91B7EE",
-    "#91B7EE",
-    "#EC6262",
-    "#91B7EE",
-    "#EC6262",
-    "#EC6262",
-    "#EC6262",
-    "#91B7EE",
-  ]
+
+  let colors = if isSmartRetryEnabled {
+    [
+      "#91B7EE",
+      "#91B7EE",
+      "#91B7EE",
+      "#EC6262",
+      "#91B7EE",
+      "#EC6262",
+      "#EC6262",
+      "#91B7EE",
+      "#EC6262",
+      "#91B7EE",
+      "#91B7EE",
+      "#EC6262",
+    ]
+  } else {
+    [
+      "#91B7EE",
+      "#91B7EE",
+      "#EC6262",
+      "#91B7EE",
+      "#EC6262",
+      "#EC6262",
+      "#91B7EE",
+      "#91B7EE",
+      "#EC6262",
+      "#EC6262",
+    ]
+  }
 
   {data: processedData, nodes: sankeyNodes, title, colors}
 }
