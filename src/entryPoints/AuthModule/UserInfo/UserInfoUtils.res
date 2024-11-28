@@ -49,6 +49,8 @@ let defaultValueOfUserInfoProvider = {
   setUserInfoData: _ => (),
   getUserInfoData: _ => defaultValueOfUserInfo,
   checkUserEntity: _ => false,
+  updateUserInfoRef: _ => (),
+  userInfoFromRef: defaultValueOfUserInfo,
 }
 open LogicUtils
 let itemMapper = dict => {

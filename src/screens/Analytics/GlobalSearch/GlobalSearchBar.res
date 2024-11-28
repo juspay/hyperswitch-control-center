@@ -148,7 +148,9 @@ let make = () => {
   }, [showModal])
 
   React.useEffect(() => {
-    getCategoryOptions()->ignore
+    if userHasAccess(~groupAccess=AnalyticsView) === Access {
+      getCategoryOptions()->ignore
+    }
 
     let onKeyPress = event => {
       let metaKey = event->ReactEvent.Keyboard.metaKey

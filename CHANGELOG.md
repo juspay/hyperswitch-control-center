@@ -3,6 +3,33 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.28.1
+
+### Bug Fixes
+
+- Sanky flow chart change and tooltip ui advancements ([#1820](https://github.com/juspay/hyperswitch-control-center/pull/1820)) ([`868d15b`](https://github.com/juspay/hyperswitch-control-center/commit/868d15beaf5c01462c03d856124f72492be2c1e4))
+
+**Full Changelog:** [`2024.11.28.0...2024.11.28.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.28.0...2024.11.28.1)
+
+- - -
+
+## 2024.11.28.0
+
+### Bug Fixes
+
+- Move columns in payment operations ([#1819](https://github.com/juspay/hyperswitch-control-center/pull/1819)) ([`aeeb226`](https://github.com/juspay/hyperswitch-control-center/commit/aeeb226394600757d87db8b32d7d5f1b7bd44dbc))
+- Global search filters access check ([#1816](https://github.com/juspay/hyperswitch-control-center/pull/1816)) ([`5705b5d`](https://github.com/juspay/hyperswitch-control-center/commit/5705b5d50343b0f63da4a6a7bbe312c92865fdde))
+- Horizontal Scrollbar to Tables ([#1811](https://github.com/juspay/hyperswitch-control-center/pull/1811)) ([`3299a22`](https://github.com/juspay/hyperswitch-control-center/commit/3299a221f19383ade404a144acc7972e9e82e6c7))
+
+### Miscellaneous Tasks
+
+- Fix admin permission to create new omp ([#1747](https://github.com/juspay/hyperswitch-control-center/pull/1747)) ([`12843a5`](https://github.com/juspay/hyperswitch-control-center/commit/12843a5e659ca2653273301ef6562e5e482d8da6))
+- Added ref for user-info to get updated data ([#1804](https://github.com/juspay/hyperswitch-control-center/pull/1804)) ([`1bd5f44`](https://github.com/juspay/hyperswitch-control-center/commit/1bd5f44ce6e7c75cabee62846d68462e96aa76ba))
+
+**Full Changelog:** [`2024.11.27.1...2024.11.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.27.1...2024.11.28.0)
+
+- - -
+
 ## 2024.11.27.1
 
 ### Features
