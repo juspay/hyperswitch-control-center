@@ -113,7 +113,7 @@ let make = () => {
   React.useEffect(_ => {
     let results = []
 
-    if searchText->String.length > 0 && activeFilter->isEmptyString {
+    if searchText->String.length > 0 {
       setState(_ => Loading)
       let localResults: resultType = searchText->getLocalMatchedResults(hswitchTabs)
 
@@ -246,13 +246,13 @@ let make = () => {
             allFilters
             selectedFilter
             setSelectedFilter
-            viewType={getViewType(~state, ~searchResults)}
+            viewType={getViewType(~state, ~searchResults, ~searchText)}
             redirectOnSelect
             activeFilter
             onFilterClicked
             onSuggestionClicked
           />
-          {switch getViewType(~state, ~searchResults) {
+          {switch getViewType(~state, ~searchResults, ~searchText) {
           | Load =>
             <div className="mb-24">
               <Loader />
