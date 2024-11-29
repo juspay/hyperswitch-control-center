@@ -113,7 +113,7 @@ let make = () => {
   React.useEffect(_ => {
     let results = []
 
-    if searchText->String.length > 0 {
+    if searchText->String.length > 0 && searchText->getSearchValidation {
       setState(_ => Loading)
       let localResults: resultType = searchText->getLocalMatchedResults(hswitchTabs)
 

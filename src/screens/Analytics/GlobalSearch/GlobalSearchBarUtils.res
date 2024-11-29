@@ -488,7 +488,8 @@ let generateQuery = searchQuery => {
       []
     }
 
-    let query = query->Array.concat([("query", queryText.contents->JSON.Encode.string)])
+    let query =
+      query->Array.concat([("query", queryText.contents->String.trim->JSON.Encode.string)])
 
     query->Dict.fromArray
   }
@@ -517,7 +518,8 @@ let getViewType = (~state, ~searchResults, ~searchText) => {
   switch state {
   | Loading => Load
   | Loaded => {
-      let isFilter = searchText->String.charAt(searchText->String.length - 1) == ":"
+      let endChar = searchText->String.charAt(searchText->String.length - 1)
+      let isFilter = endChar == ":" || endChar == " "
 
       if isFilter {
         FiltersSugsestions
@@ -529,4 +531,11 @@ let getViewType = (~state, ~searchResults, ~searchText) => {
     }
   | Idle => FiltersSugsestions
   }
+}
+
+let getSearchValidation = query => {
+  let paylod = query->generateQuery
+  let query = paylod->getString("query", "")->String.trim
+
+  !(paylod->getObj("filters", Dict.make())->isEmptyDict && query->isEmptyString)
 }

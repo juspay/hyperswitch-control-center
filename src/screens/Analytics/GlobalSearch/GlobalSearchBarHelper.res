@@ -245,8 +245,14 @@ module FilterOption = {
     | Some(val) =>
       filter == val
         ? ("bg-gray-200 rounded-lg border", "bg-gray-400/40 border")
-        : ("", "bg-gray-200")
-    | None => ("", "bg-gray-200")
+        : (
+            "hover:bg-gray-200 hover:rounded-lg hover:border",
+            "hover:bg-gray-400/40 hover:border bg-gray-200",
+          )
+    | None => (
+        "hover:bg-gray-200 hover:rounded-lg hover:border",
+        "hover:bg-gray-400/40 hover:border bg-gray-200",
+      )
     }
 
     <div
