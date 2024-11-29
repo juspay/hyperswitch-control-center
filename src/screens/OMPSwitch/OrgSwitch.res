@@ -69,9 +69,10 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
-  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
+  let customScrollStyle = "bg-blue-840 max-h-72 overflow-scroll px-1 pt-1"
+  let dropdownContainerStyle = "min-w-[15rem] rounded"
 
-  <div className="border border-blue-820 rounded w-full">
+  <div className="w-full py-5 px-2 p-[1px]">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
@@ -86,11 +87,12 @@ let make = () => {
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
       baseComponent={<ListBaseComp
-        heading="Org"
+        heading=""
         subHeading={currentOMPName(orgList, orgId)}
         arrow
         showEditIcon={userHasAccess(~groupAccess=OrganizationManage) === Access}
         onEditClick
+        isDarkBg=true
       />}
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       optionClass="text-gray-200 text-fs-14"
@@ -99,6 +101,7 @@ let make = () => {
       fullLength=true
       toggleChevronState
       customScrollStyle
+      dropdownContainerStyle
       shouldDisplaySelectedOnTop=true
     />
     <EditOrgName showModal setShowModal orgList orgId getOrgList />
