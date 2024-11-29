@@ -145,6 +145,7 @@ let getPaymentMethodFromString = paymentMethod => {
 }
 
 let getPaymentMethodTypeFromString = paymentMethodType => {
+  Js.log2(paymentMethodType, "TYEO")
   switch paymentMethodType->String.toLowerCase {
   | "credit" => Credit
   | "debit" => Debit
@@ -153,6 +154,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "paypal" => PayPal
   | "open_banking_pis" => OpenBankingPIS
   | "samsung_pay" => SamsungPay
+  | "paze" => Paze
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
