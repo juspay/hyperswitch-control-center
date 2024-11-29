@@ -80,9 +80,9 @@ module SidebarItem = {
     let getSearchParamByLink = link => getSearchParamByLink(String.substringToEnd(link, ~start=0))
 
     let selectedClass = if isSelected {
-      "border-l-2 rounded-sm border-white bg-light_white"
+      "border-l-2 border-white bg-light_white"
     } else {
-      `border-l-2 rounded-sm border-transparent rounded-sm hover:transition hover:duration-300 rounded-lg`
+      `border-l-2  border-transparent hover:transition hover:duration-300 `
     }
 
     let textColor = if isSelected {
@@ -114,8 +114,8 @@ module SidebarItem = {
               <div
                 ref={sidebarItemRef->ReactDOM.Ref.domRef}
                 onClick={onSidebarItemClick}
-                className={`${textColor} relative overflow-hidden flex flex-row items-center rounded-lg cursor-pointer ${selectedClass} p-3 ${isSidebarExpanded
-                    ? "mx-2"
+                className={`${textColor} relative overflow-hidden flex flex-row items-center cursor-pointer ${selectedClass} p-3 ${isSidebarExpanded
+                    ? ""
                     : "mx-1"} hover:bg-light_white my-0.5`}>
                 <SidebarOption name icon isSidebarExpanded isSelected />
               </div>
@@ -276,7 +276,7 @@ module NestedSectionItem = {
         <div
           ref={sidebarNestedSectionRef->ReactDOM.Ref.domRef}
           className={`${isSideBarExpanded
-              ? "mx-2"
+              ? ""
               : "mx-1"} text-sm ${textColor} ${bgColor} relative overflow-hidden flex flex-row items-center justify-between p-3 ${cursor} ${isSectionExpanded
               ? ""
               : sectionExpandedAnimation} border-l-2 ${isAnySubItemSelected
@@ -395,9 +395,9 @@ module SidebarNestedSection = {
     }
 
     let cursor = if isAnySubItemSelected && isSideBarExpanded {
-      `cursor-default rounded-lg rounded-sm`
+      `cursor-default`
     } else {
-      `cursor-pointer rounded-lg rounded-sm`
+      `cursor-pointer`
     }
     let expandedTextColor = isAnySubItemSelected ? "text-white" : "!text-offset_white !opacity-60"
     let areAllSubLevelsHidden = section.links->Array.reduce(true, (acc, subLevelItem) => {
@@ -479,8 +479,12 @@ let make = (
   }
   let profileMaxWidth = "145px"
 
-  let firstPart = switch List.head(path) {
-  | Some(x) => `/${x}`
+  let firstPart = switch List.tail(path) {
+  | Some(tail) =>
+    switch List.head(tail) {
+    | Some(x) => `/${x}`
+    | None => "/"
+    }
   | None => "/"
   }
 
