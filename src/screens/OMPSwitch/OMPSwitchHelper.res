@@ -24,28 +24,32 @@ module ListBaseComp = {
 
     let textColor = isDarkBg ? "text-grey-300" : "text-grey-900"
     let width = isDarkBg ? "w-[12rem]" : "min-w-[5rem] w-fit max-w-[10rem]"
-    let padding = isDarkBg ? "pl-2" : ""
+    let paddingSubheading = isDarkBg ? "pl-2" : ""
+    let paddingHeading = isDarkBg ? "pl-2" : ""
 
-    let endValue = isDarkBg ? 22 : 8
+    let endValue = isDarkBg ? 23 : 15
 
-    let subHeadingElement = if subHeading->String.length > 8 {
+    let subHeadingElement = if subHeading->String.length > 15 {
       <HSwitchOrderUtils.EllipsisText
         displayValue=subHeading
         endValue
-        showCopy=true
+        showCopy=false
         customTextStyle={`${textColor} font-extrabold`}
       />
     } else {
-      <HelperComponents.CopyTextCustomComp displayValue=subHeading customTextCss="text-nowrap" />
+      {subHeading->React.string}
     }
 
     <div className={`text-sm font-medium cursor-pointer ${baseCompStyle}`}>
       <div className={`flex flex-col items-start`}>
         <RenderIf condition={heading->LogicUtils.isNonEmptyString}>
-          <p className="text-xs text-left text-gray-400"> {heading->React.string} </p>
+          <p className={`text-xs text-left text-gray-400 ${paddingHeading}`}>
+            {heading->React.string}
+          </p>
         </RenderIf>
         <div className="text-left flex gap-2">
-          <p className={`fs-10 ${textColor} ${width} ${padding} overflow-scroll text-nowrap`}>
+          <p
+            className={`fs-10 ${textColor} ${width} ${paddingSubheading} overflow-scroll text-nowrap`}>
             {subHeadingElement}
           </p>
           <RenderIf condition={showEditIcon}>
