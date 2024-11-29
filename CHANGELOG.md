@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.29.2
+
+### Bug Fixes
+
+- Tooltip fix for date range component ([#1821](https://github.com/juspay/hyperswitch-control-center/pull/1821)) ([`b797a6a`](https://github.com/juspay/hyperswitch-control-center/commit/b797a6a98c3a5a531701823f9a87345a251480cd))
+- Date range compare component end time fix 00:00 to 59.59 ([#1824](https://github.com/juspay/hyperswitch-control-center/pull/1824)) ([`dfdcd9c`](https://github.com/juspay/hyperswitch-control-center/commit/dfdcd9c9017d792954f92178451e83fba41feebe))
+
+### Miscellaneous Tasks
+
+- Omp remove copy icon ([#1826](https://github.com/juspay/hyperswitch-control-center/pull/1826)) ([`0216973`](https://github.com/juspay/hyperswitch-control-center/commit/021697341a08ebb66ce2eef63fa678fa4599ddc3))
+
+**Full Changelog:** [`2024.11.29.1...2024.11.29.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.29.1...2024.11.29.2)
+
+- - -
+
 ## 2024.11.29.1
 
 ### Features
