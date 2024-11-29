@@ -144,10 +144,14 @@ let make = () => {
     None
   }, [searchText])
 
+  let setFilterText = value => {
+    setActiveFilter(_ => value)
+  }
+
   React.useEffect(_ => {
     setSearchText(_ => "")
     setLocalSearchText(_ => "")
-    setActiveFilter(_ => "")
+    setFilterText("")
     setSelectedFilter(_ => None)
     None
   }, [showModal])
@@ -189,10 +193,10 @@ let make = () => {
       let end = searchText->String.length - activeFilter->String.length
       let newText = searchText->String.substring(~start=0, ~end)
       setLocalSearchText(_ => `${newText} ${newFilter}:`)
-      setActiveFilter(_ => newFilter)
+      setFilterText(newFilter)
     } else if lastString !== ":" {
       setLocalSearchText(_ => `${searchText} ${newFilter}:`)
-      setActiveFilter(_ => newFilter)
+      setFilterText(newFilter)
     }
   }
 
@@ -206,17 +210,13 @@ let make = () => {
     }
     let saparater = searchText->String.charAt(searchText->String.length - 1) == ":" ? "" : ":"
     setLocalSearchText(_ => `${key}${saparater}${option}`)
-    setActiveFilter(_ => "")
+    setFilterText("")
   }
 
   React.useEffect(() => {
     setGlobalSearchText(localSearchText)
     None
   }, [localSearchText])
-
-  let setFilterText = ReactDebounce.useDebounced(value => {
-    setActiveFilter(_ => value)
-  }, ~wait=500)
 
   let leftIcon = switch state {
   | Loading =>
@@ -254,36 +254,28 @@ let make = () => {
             onFilterClicked
             onSuggestionClicked
           />
-          <FilterResultsComponent
-            categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
-            activeFilter
-            searchText
-            setAllFilters
-            selectedFilter
-            onFilterClicked
-            onSuggestionClicked
-          />
-          // {switch getViewType(~state, ~searchResults) {
-          // | Load =>
-          //   <div className="mb-24">
-          //     <Loader />
-          //   </div>
-          // | Results =>
-          //   <SearchResultsComponent
-          //     searchResults searchText setShowModal selectedOption redirectOnSelect
-          //   />
-          // | FiltersSugsestions =>
-          //   <FilterResultsComponent
-          //     categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
-          //     activeFilter
-          //     searchText
-          //     setAllFilters
-          //     selectedFilter
-          //     onFilterClicked
-          //     onSuggestionClicked
-          //   />
-          // | EmptyResult => <EmptyResult prefix searchText />
-          // }}
+          {switch getViewType(~state, ~searchResults) {
+          | Load =>
+            <div className="mb-24">
+              <Loader />
+            </div>
+          | Results =>
+            <SearchResultsComponent
+              searchResults searchText setShowModal selectedOption redirectOnSelect
+            />
+          | FiltersSugsestions =>
+            <FilterResultsComponent
+              categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+              activeFilter
+              searchText
+              setAllFilters
+              selectedFilter
+              onFilterClicked
+              onSuggestionClicked
+              setSelectedFilter
+            />
+          | EmptyResult => <EmptyResult prefix searchText />
+          }}
         </div>
       </ModalWrapper>
     </RenderIf>

@@ -280,6 +280,7 @@ module FilterResultsComponent = {
     ~searchText,
     ~setAllFilters,
     ~selectedFilter,
+    ~setSelectedFilter,
     ~onFilterClicked,
     ~onSuggestionClicked,
   ) => {
@@ -299,37 +300,6 @@ module FilterResultsComponent = {
       }
     })
 
-    React.useEffect(() => {
-      switch filters->Array.get(0) {
-      | Some(filter) =>
-        if filters->Array.length == 1 && filter.options->Array.length > 1 {
-          let filterValue = activeFilter->String.split(":")->getValueFromArray(1, "")
-
-          let options = if filterValue->isNonEmptyString {
-            filter.options->Array.filter(option => option->String.includes(filterValue))
-          } else {
-            filter.options
-          }
-
-          let newFilters = options->Array.map(option => {
-            let value = {
-              categoryType: filter.categoryType,
-              options: [option],
-              placeholder: filter.placeholder,
-            }
-
-            value
-          })
-          setAllFilters(_ => newFilters)
-        } else {
-          setAllFilters(_ => filters)
-        }
-      | _ => setAllFilters(_ => filters)
-      }
-
-      None
-    }, [activeFilter])
-
     let checkFilterKey = list => {
       switch list->Array.get(0) {
       | Some(value) =>
@@ -337,6 +307,46 @@ module FilterResultsComponent = {
       | _ => false
       }
     }
+
+    React.useEffect(() => {
+      if filters->Array.length == 1 {
+        switch filters->Array.get(0) {
+        | Some(filter) =>
+          if filter.options->Array.length > 0 && filters->checkFilterKey {
+            let filterValue = activeFilter->String.split(":")->getValueFromArray(1, "")
+
+            let options = if filterValue->isNonEmptyString {
+              filter.options->Array.filter(option => option->String.includes(filterValue))
+            } else {
+              filter.options
+            }
+
+            let newFilters = options->Array.map(option => {
+              let value = {
+                categoryType: filter.categoryType,
+                options: [option],
+                placeholder: filter.placeholder,
+              }
+
+              value
+            })
+            setAllFilters(_ => newFilters)
+          } else {
+            setAllFilters(_ => filters)
+          }
+        | _ => ()
+        }
+      } else {
+        setAllFilters(_ => filters)
+      }
+
+      None
+    }, [activeFilter])
+
+    React.useEffect(() => {
+      setSelectedFilter(_ => None)
+      None
+    }, [filters->Array.length])
 
     <RenderIf condition={filters->Array.length > 0}>
       <Div
@@ -501,35 +511,35 @@ module ModalSearchBox = {
 
       {
         switch viewType {
-        // | Results => {
-        //     let index = allOptions->Array.findIndex(item => {
-        //       item == selectedOption
-        //     })
+        | Results => {
+            let index = allOptions->Array.findIndex(item => {
+              item == selectedOption
+            })
 
-        //     if e->keyCode == 40 {
-        //       let newIndex =
-        //         index == allOptions->Array.length - 1
-        //           ? 0
-        //           : Int.mod(index + 1, allOptions->Array.length)
-        //       switch allOptions->Array.get(newIndex) {
-        //       | Some(val) => setSelectedOption(_ => val)
-        //       | _ => ()
-        //       }
-        //     } else if e->keyCode == 38 {
-        //       let newIndex =
-        //         index === 0
-        //           ? allOptions->Array.length - 1
-        //           : Int.mod(index - 1, allOptions->Array.length)
-        //       switch allOptions->Array.get(newIndex) {
-        //       | Some(val) => setSelectedOption(_ => val)
-        //       | _ => ()
-        //       }
-        //     } else if e->keyCode == 13 {
-        //       selectedOption->redirectOnSelect
-        //     }
-        //   }
+            if e->keyCode == 40 {
+              let newIndex =
+                index == allOptions->Array.length - 1
+                  ? 0
+                  : Int.mod(index + 1, allOptions->Array.length)
+              switch allOptions->Array.get(newIndex) {
+              | Some(val) => setSelectedOption(_ => val)
+              | _ => ()
+              }
+            } else if e->keyCode == 38 {
+              let newIndex =
+                index === 0
+                  ? allOptions->Array.length - 1
+                  : Int.mod(index - 1, allOptions->Array.length)
+              switch allOptions->Array.get(newIndex) {
+              | Some(val) => setSelectedOption(_ => val)
+              | _ => ()
+              }
+            } else if e->keyCode == 13 {
+              selectedOption->redirectOnSelect
+            }
+          }
 
-        | Results | FiltersSugsestions => {
+        | FiltersSugsestions => {
             let index = allFilters->Array.findIndex(item => {
               switch selectedFilter {
               | Some(val) => item == val
@@ -557,21 +567,18 @@ module ModalSearchBox = {
               | _ => ()
               }
             } else if e->keyCode == 13 {
-              Js.log2(">>", "hello")
-              // if allFilters->Array.length > 0 {
-              //   switch selectedFilter {
-              //   | Some(filter) =>
-              //     if activeFilter->String.charAt(activeFilter->String.length - 1) == ":" {
-              //       switch filter.options->Array.get(0) {
-              //       | Some(val) => val->onSuggestionClicked
-              //       | _ => ()
-              //       }
-              //     } else {
-              //       filter->onFilterClicked
-              //     }
-              //   | _ => ()
-              //   }
-              // }
+              switch selectedFilter {
+              | Some(filter) =>
+                if activeFilter->String.includes(":") {
+                  switch filter.options->Array.get(0) {
+                  | Some(val) => val->onSuggestionClicked
+                  | _ => ()
+                  }
+                } else {
+                  filter->onFilterClicked
+                }
+              | _ => ()
+              }
             }
           }
 
@@ -584,7 +591,9 @@ module ModalSearchBox = {
       } else {
         let values = localSearchText->String.split(" ")
         let filter = values->getValueFromArray(values->Array.length - 1, "")
-        setFilterText(filter)
+        if activeFilter !== filter {
+          setFilterText(filter)
+        }
       }
     }
 
