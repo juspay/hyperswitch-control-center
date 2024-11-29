@@ -10,10 +10,17 @@ let make = (~options) => {
     onBlur: _ => (),
     onChange: ev => {
       let newValue = ev->Identity.formReactEventToString
+      Js.log(newValue)
       if newValue != selectedOption->mapRangeTypetoString && newValue->LogicUtils.isNonEmptyString {
         setSelectedOption(_ => newValue->mapStringToRange)
-        form.change("start_amount", JSON.Encode.null)
-        form.change("end_amount", JSON.Encode.null)
+        if newValue == "Greater than Equal to" {
+          form.change("start_amount", JSON.Encode.null)
+        }
+        if newValue == "In Between" {
+          form.change("start_amount", JSON.Encode.null)
+          form.change("end_amount", JSON.Encode.null)
+        }
+        // form.change("end_amount", JSON.Encode.null)
       }
     },
     onFocus: _ => (),
