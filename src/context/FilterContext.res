@@ -89,6 +89,11 @@ let make = (~index: string, ~children) => {
       setfilterDict(prev => {
         let updatedDict =
           prev->Dict.toArray->Array.copy->Dict.fromArray->DictionaryUtils.deleteKeys(arr)
+        let updatedDict = if arr == ["amount"] {
+          updatedDict->DictionaryUtils.deleteKeys(["start_amount", "end_amount"])
+        } else {
+          updatedDict
+        }
         let dict = if DictionaryUtils.equalDicts(updatedDict, prev) {
           prev
         } else {
