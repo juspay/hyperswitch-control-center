@@ -23,7 +23,7 @@ module ListBaseComp = {
       : "rotate-0 transition duration-[250ms] opacity-70"
 
     let textColor = isDarkBg ? "text-grey-300" : "text-grey-900"
-    let width = isDarkBg ? "w-[12rem]" : "w-fit max-w-[10rem]"
+    let width = isDarkBg ? "w-[12rem]" : "min-w-[5rem] w-fit max-w-[10rem]"
     let padding = isDarkBg ? "pl-2" : ""
 
     let endValue = isDarkBg ? 22 : 8
@@ -32,11 +32,11 @@ module ListBaseComp = {
       <HSwitchOrderUtils.EllipsisText
         displayValue=subHeading
         endValue
-        showCopy=false
+        showCopy=true
         customTextStyle={`${textColor} font-extrabold`}
       />
     } else {
-      {subHeading->React.string}
+      <HelperComponents.CopyTextCustomComp displayValue=subHeading customTextCss="text-nowrap" />
     }
 
     <div className={`text-sm font-medium cursor-pointer ${baseCompStyle}`}>
