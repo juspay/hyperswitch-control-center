@@ -540,21 +540,21 @@ let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) => {
   keys->Array.forEach(key => dict->Dict.delete(key))
 }
 
-let validateForm = (values, ~fieldsToValidate: array<amountFields>) => {
-  let errors = Dict.make()
+let validateForm = values => {
   open LogicUtils
-  let valuesDict = values->JsonFlattenUtils.flattenObject(false)
-  let amountValues = fieldsToValidate->Array.map(key => {
-    valuesDict->getJsonObjectFromDict(key->validationFieldsMapper)
-  })
-  let start_amount = amountValues->getValueFromArray(0, JSON.Encode.null)
-  let end_amount = amountValues->getValueFromArray(1, JSON.Encode.null)
-  if start_amount->isNullJson && end_amount->isNullJson {
-    errors->Dict.set("Invalid", "Please enter value."->JSON.Encode.string)
-  } else if !isNullJson(start_amount) && !isNullJson(end_amount) {
-    if end_amount < start_amount {
+  let valuesDict = values->getDictFromJsonObject
+  let startAmount = valuesDict->getvalFromDict("start_amount")
+  let endAmount = valuesDict->getvalFromDict("end_amount")
+  let errors = Dict.make()
+  switch (startAmount, endAmount) {
+  | (Some(start), Some(end)) =>
+    switch (start->isNullJson, end->isNullJson) {
+    | (true, true) => errors->Dict.set("Invalid", "Please enter value."->JSON.Encode.string)
+    | (false, false) if end < start =>
       errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+    | _ => ()
     }
+  | _ => ()
   }
   errors->JSON.Encode.object
 }
