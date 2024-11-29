@@ -13,7 +13,6 @@ module AdditionalDetailsSidebarComp = {
     ~setInitialValues,
   ) => {
     open LogicUtils
-    Js.log("LOG")
     let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
 
     let updateMetadata = json => {
@@ -54,7 +53,13 @@ module AdditionalDetailsSidebarComp = {
             update=updatePaymentMethods
             onCloseClickCustomFun
           />
-        | Paze => <PazeIntegration />
+        | Paze =>
+          <PazeIntegration
+            connector
+            setShowWalletConfigurationModal
+            update=updatePaymentMethods
+            onCloseClickCustomFun
+          />
         | _ => React.null
         }}
       </RenderIf>

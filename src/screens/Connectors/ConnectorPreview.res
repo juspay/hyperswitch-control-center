@@ -213,7 +213,7 @@ module ConnectorSummaryGrid = {
       </div>
       <div className="grid grid-cols-4 border-b  md:px-10 py-8">
         <div className="flex items-start">
-          <h4 className="text-lg font-semibold"> {"Creds"->React.string} </h4>
+          <h4 className="text-lg font-semibold"> {"Credentials"->React.string} </h4>
         </div>
         <div className="flex flex-col gap-6  col-span-3">
           <div className="flex gap-12">
