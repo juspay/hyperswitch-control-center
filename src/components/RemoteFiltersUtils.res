@@ -154,7 +154,7 @@ let getStrFromJson = (key, val) => {
   switch val->JSON.Classify.classify {
   | String(str) => str
   | Array(array) => array->Array.length > 0 ? `[${array->Array.joinWithUnsafe(",")}]` : ""
-  | Number(num) => key === "offset" ? "0" : num->Float.toInt->Int.toString
+  | Number(num) => key === "offset" ? "0" : num->Float.toString
   | _ => ""
   }
 }
@@ -188,16 +188,24 @@ let getInitialValuesFromUrl = (
     })
     entriesList->Array.forEach(entry => {
       let (key, value) = entry
-      initialFilters->Array.forEach((filter: FormRenderer.fieldInfoType) => {
-        filter.inputNames->Array.forEach(
-          name => {
-            if name === key {
-              Dict.set(dict, key, value->UrlFetchUtils.getFilterValue)
-            }
-          },
-        )
-      })
-
+      let isAmountKey = switch key {
+      | "start_amount"
+      | "end_amount" => true
+      | _ => false
+      }
+      if isAmountKey {
+        Dict.set(dict, key, value->UrlFetchUtils.getFilterValue)
+      } else {
+        initialFilters->Array.forEach((filter: FormRenderer.fieldInfoType) => {
+          filter.inputNames->Array.forEach(
+            name => {
+              if name === key {
+                Dict.set(dict, key, value->UrlFetchUtils.getFilterValue)
+              }
+            },
+          )
+        })
+      }
       options->Array.forEach(option => {
         let fieldName = option.urlKey
         if fieldName === key {

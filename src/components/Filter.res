@@ -365,7 +365,11 @@ let make = (
         </div>}
     </Menu>
 
-  <Form onSubmit initialValues=initialValueJson>
+  <Form
+    onSubmit
+    initialValues=initialValueJson
+    validate={values =>
+      values->OrderUIUtils.validateForm(~fieldsToValidate=[StartAmount, EndAmount])}>
     <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys submitInputOnEnter />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
       {<>
