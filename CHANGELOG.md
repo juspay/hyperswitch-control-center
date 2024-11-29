@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.29.1
+
+### Features
+
+- Payment Operations Amount Filter ([#1796](https://github.com/juspay/hyperswitch-control-center/pull/1796)) ([`8102096`](https://github.com/juspay/hyperswitch-control-center/commit/8102096df30e078d93fe7645ac9595ea838ae84b))
+
+### Bug Fixes
+
+- Sidebar-active-selection-resolution ([#1813](https://github.com/juspay/hyperswitch-control-center/pull/1813)) ([`41972e3`](https://github.com/juspay/hyperswitch-control-center/commit/41972e310ca90cf0b6bcfa6cde27b5dd7c5a0e59))
+
+### Miscellaneous Tasks
+
+- Redesign omp dropdowns ([#1785](https://github.com/juspay/hyperswitch-control-center/pull/1785)) ([`e2789d9`](https://github.com/juspay/hyperswitch-control-center/commit/e2789d9680f7ed9bd2e23393ab3ceb2a4d491c8e))
+
+**Full Changelog:** [`2024.11.29.0...2024.11.29.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.29.0...2024.11.29.1)
+
+- - -
+
 ## 2024.11.29.0
 
 ### Miscellaneous Tasks
