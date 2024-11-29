@@ -116,4 +116,5 @@ let make: (
   ~nonFrozenTableParentClass: string=?,
   ~loadedTableParentClass: string=?,
   ~remoteSortEnabled: bool=?,
+  ~showAutoScroll: bool=?,
 ) => React.element
