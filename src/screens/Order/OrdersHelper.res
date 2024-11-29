@@ -12,8 +12,8 @@ let make = (~options) => {
       let newValue = ev->Identity.formReactEventToString
       if newValue != selectedOption->mapRangeTypetoString && newValue->LogicUtils.isNonEmptyString {
         setSelectedOption(_ => newValue->mapStringToRange)
-        form.change("amount_filter.end_amount", JSON.Encode.null)
-        form.change("amount_filter.start_amount", JSON.Encode.null)
+        form.change("start_amount", JSON.Encode.null)
+        form.change("end_amount", JSON.Encode.null)
       }
     },
     onFocus: _ => (),

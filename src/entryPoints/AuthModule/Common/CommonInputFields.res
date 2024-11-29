@@ -103,7 +103,7 @@ let passwordField = FormRenderer.makeFieldInfo(
 
 let startamountField = FormRenderer.makeFieldInfo(
   ~label="",
-  ~name="amount_filter.start_amount",
+  ~name="start_amount",
   ~placeholder="0",
   ~customInput=InputFields.numericTextInput(),
   ~type_="number",
@@ -111,7 +111,7 @@ let startamountField = FormRenderer.makeFieldInfo(
 
 let endAmountField = FormRenderer.makeFieldInfo(
   ~label="",
-  ~name="amount_filter.end_amount",
+  ~name="end_amount",
   ~placeholder="0",
   ~customInput=InputFields.numericTextInput(),
   ~type_="number",
@@ -121,30 +121,28 @@ module CustomAmountEqualField = {
   @react.component
   let make = () => {
     let form = ReactFinalForm.useForm()
-    <>
-      <div className={"flex gap-5 items-center justify-center w-28 ml-2"}>
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-black"
-          field={FormRenderer.makeFieldInfo(
-            ~label="",
-            ~name="amount_filter.start_amount",
-            ~customInput=(~input, ~placeholder as _) =>
-              InputFields.numericTextInput()(
-                ~input={
-                  ...input,
-                  onChange: {
-                    ev => {
-                      form.change("amount_filter.end_amount", ev->Identity.genericTypeToJson)
-                      input.onChange(ev)
-                    }
-                  },
-                },
-                ~placeholder="0",
-              ),
-          )}
-        />
-      </div>
-    </>
+    <div className={"flex gap-5 items-center justify-center w-28 ml-2"}>
+      <FormRenderer.FieldRenderer
+        labelClass="font-semibold !text-black"
+        field={FormRenderer.makeFieldInfo(~label="", ~name="start_amount", ~customInput=(
+          ~input,
+          ~placeholder as _,
+        ) =>
+          InputFields.numericTextInput()(
+            ~input={
+              ...input,
+              onChange: {
+                ev => {
+                  form.change("end_amount", ev->Identity.genericTypeToJson)
+                  input.onChange(ev)
+                }
+              },
+            },
+            ~placeholder="0",
+          )
+        )}
+      />
+    </div>
   }
 }
 
@@ -152,31 +150,29 @@ module CustomAmountBetweenField = {
   @react.component
   let make = () => {
     let form = ReactFinalForm.useForm()
-    <>
-      <div className="flex gap-1 items-center justify-center mx-1 w-10.25-rem">
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-black"
-          field={FormRenderer.makeFieldInfo(
-            ~label="",
-            ~name="amount_filter.start_amount",
-            ~customInput=(~input, ~placeholder as _) =>
-              InputFields.numericTextInput()(
-                ~input={
-                  ...input,
-                  onChange: {
-                    ev => {
-                      form.change("amount_filter.end_amount", 0->Identity.genericTypeToJson)
-                      input.onChange(ev)
-                    }
-                  },
-                },
-                ~placeholder="0",
-              ),
-          )}
-        />
-        <p className="mt-3 text-xs text-jp-gray-700"> {"and"->React.string} </p>
-        <FormRenderer.FieldRenderer labelClass="font-semibold !text-black" field=endAmountField />
-      </div>
-    </>
+    <div className="flex gap-1 items-center justify-center mx-1 w-10.25-rem">
+      <FormRenderer.FieldRenderer
+        labelClass="font-semibold !text-black"
+        field={FormRenderer.makeFieldInfo(~label="", ~name="start_amount", ~customInput=(
+          ~input,
+          ~placeholder as _,
+        ) =>
+          InputFields.numericTextInput()(
+            ~input={
+              ...input,
+              onChange: {
+                ev => {
+                  form.change("end_amount", 0->Identity.genericTypeToJson)
+                  input.onChange(ev)
+                }
+              },
+            },
+            ~placeholder="0",
+          )
+        )}
+      />
+      <p className="mt-3 text-xs text-jp-gray-700"> {"and"->React.string} </p>
+      <FormRenderer.FieldRenderer labelClass="font-semibold !text-black" field=endAmountField />
+    </div>
   }
 }

@@ -59,14 +59,14 @@ let make = (~previewOnly=false) => {
           [
             (
               "start_amount",
-              getvalFromDict(dict, "amount_filter.start_amount")->mapOptionOrDefault(
+              getvalFromDict(dict, "start_amount")->mapOptionOrDefault(
                 JSON.Encode.null,
                 encodeFloatOrDefault,
               ),
             ),
             (
               "end_amount",
-              getvalFromDict(dict, "amount_filter.end_amount")->mapOptionOrDefault(
+              getvalFromDict(dict, "end_amount")->mapOptionOrDefault(
                 JSON.Encode.null,
                 encodeFloatOrDefault,
               ),
@@ -79,10 +79,7 @@ let make = (~previewOnly=false) => {
           let (key, value) = item
           filters->Dict.set(key, value)
         })
-        filters->OrderUIUtils.deleteNestedKeys([
-          "amount_filter.start_amount",
-          "amount_filter.end_amount",
-        ])
+        filters->OrderUIUtils.deleteNestedKeys(["start_amount", "end_amount"])
 
         filters
         ->getOrdersList(

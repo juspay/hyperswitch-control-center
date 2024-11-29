@@ -296,8 +296,8 @@ type amountFields =
 
 let validationFieldsMapper = key => {
   switch key {
-  | StartAmount => "amount_filter.start_amount"
-  | EndAmount => "amount_filter.end_amount"
+  | StartAmount => "start_amount"
+  | EndAmount => "end_amount"
   | UnknownValidateFields(key) => key
   }
 }

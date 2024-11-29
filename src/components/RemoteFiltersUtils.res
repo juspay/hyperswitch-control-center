@@ -189,8 +189,8 @@ let getInitialValuesFromUrl = (
     entriesList->Array.forEach(entry => {
       let (key, value) = entry
       let isAmountKey = switch key {
-      | "amount_filter.start_amount"
-      | "amount_filter.end_amount" => true
+      | "start_amount"
+      | "end_amount" => true
       | _ => false
       }
       if isAmountKey {

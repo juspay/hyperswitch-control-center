@@ -547,12 +547,12 @@ let validateForm = (values, ~fieldsToValidate: array<amountFields>) => {
   let amountValues = fieldsToValidate->Array.map(key => {
     valuesDict->getJsonObjectFromDict(key->validationFieldsMapper)
   })
-  let start_amount = amountValues->Array.getUnsafe(0)
-  let end_amount = amountValues->Array.getUnsafe(1)
-  if start_amount->LogicUtils.isNullJson && end_amount->LogicUtils.isNullJson {
+  let start_amount = amountValues->getValueFromArray(0, JSON.Encode.null)
+  let end_amount = amountValues->getValueFromArray(1, JSON.Encode.null)
+  if start_amount->isNullJson && end_amount->isNullJson {
     errors->Dict.set("Invalid", "Please enter value."->JSON.Encode.string)
-  } else if !LogicUtils.isNullJson(start_amount) && !LogicUtils.isNullJson(end_amount) {
-    if end_amount <= start_amount {
+  } else if !isNullJson(start_amount) && !isNullJson(end_amount) {
+    if end_amount < start_amount {
       errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
     }
   }
