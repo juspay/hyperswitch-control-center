@@ -539,3 +539,22 @@ let orderViewList: OMPSwitchTypes.ompViews = [
 let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) => {
   keys->Array.forEach(key => dict->Dict.delete(key))
 }
+
+let validateForm = (values, ~fieldsToValidate: array<amountFields>) => {
+  let errors = Dict.make()
+  open LogicUtils
+  let valuesDict = values->JsonFlattenUtils.flattenObject(false)
+  let amountValues = fieldsToValidate->Array.map(key => {
+    valuesDict->getJsonObjectFromDict(key->validationFieldsMapper)
+  })
+  let start_amount = amountValues->Array.getUnsafe(0)
+  let end_amount = amountValues->Array.getUnsafe(1)
+  if start_amount->LogicUtils.isNullJson && end_amount->LogicUtils.isNullJson {
+    errors->Dict.set("Invalid", "Please enter value."->JSON.Encode.string)
+  } else if !LogicUtils.isNullJson(start_amount) && !LogicUtils.isNullJson(end_amount) {
+    if end_amount <= start_amount {
+      errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+    }
+  }
+  errors->JSON.Encode.object
+}

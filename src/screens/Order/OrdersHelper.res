@@ -5,15 +5,12 @@ open OrderTypes
 let make = (~options) => {
   let (selectedOption, setSelectedOption) = React.useState(_ => UnknownRange("Select Amount"))
   let form = ReactFinalForm.useForm()
-  let onClick = _ => {
-    form.submit()->ignore
-  }
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "amount",
     onBlur: _ => (),
     onChange: ev => {
       let newValue = ev->Identity.formReactEventToString
-      if newValue != selectedOption->mapRangeTypetoString && newValue != "" {
+      if newValue != selectedOption->mapRangeTypetoString && newValue->LogicUtils.isNonEmptyString {
         setSelectedOption(_ => newValue->mapStringToRange)
         form.change("amount_filter.end_amount", JSON.Encode.null)
         form.change("amount_filter.start_amount", JSON.Encode.null)
@@ -26,24 +23,17 @@ let make = (~options) => {
     checked: true,
   }
 
-  let renderCommonFields = (field, customwidth) =>
-    <div className={`flex gap-5 items-center justify-center ${customwidth} ml-2`}>
-      <Icon name="arrow-icon" size=20 className="mt-3" />
+  let renderCommonFields = field =>
+    <div className={"flex gap-5 items-center justify-center w-28"}>
       <FormRenderer.FieldRenderer field={field} labelClass fieldWrapperClass />
     </div>
 
   let renderFields = () =>
     switch selectedOption {
-    | GreaterThanEqualTo => renderCommonFields(startamountField, "w-4/5")
-    | LessThanEqualTo => renderCommonFields(endAmountField, "w-4/5")
-    | EqualTo => <CustomAmountField />
-    | InBetween =>
-      <div className="flex gap-1 items-center justify-center mx-1 w-10.25-rem">
-        <FormRenderer.FieldRenderer field=startamountField labelClass fieldWrapperClass />
-        <p className="mt-3 text-xs text-jp-gray-700"> {"and"->React.string} </p>
-        <FormRenderer.FieldRenderer field=endAmountField labelClass fieldWrapperClass />
-      </div>
-
+    | GreaterThanEqualTo => renderCommonFields(startamountField)
+    | LessThanEqualTo => renderCommonFields(endAmountField)
+    | EqualTo => <CustomAmountEqualField />
+    | InBetween => <CustomAmountBetweenField />
     | _ => React.null
     }
 
@@ -61,14 +51,14 @@ let make = (~options) => {
     />
     {<RenderIf condition={selectedOption != UnknownRange("Select Amount")}>
       <div
-        className={"border border-jp-gray-940 border-opacity-50 bg-white rounded-md p-1.5 gap-2.5 "}>
+        className={"border border-jp-gray-940 border-opacity-50 bg-white rounded-md py-1.5 gap-2.5 flex justify-between px-2.5 pb-4 border-t-0"}>
         {renderFields()}
-        <Button
-          buttonType=Primary
+        <FormRenderer.SubmitButton
+          customSumbitButtonStyle="!mt-4 items-center"
           text="Apply"
-          flattenTop=false
-          customButtonStyle="w-full mt-4 items-center sticky bottom-0 !h-10"
-          onClick
+          userInteractionRequired=true
+          showToolTip=true
+          loadingText="Loading..."
         />
       </div>
     </RenderIf>}

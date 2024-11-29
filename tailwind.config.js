@@ -65,7 +65,6 @@ module.exports = {
         "77-rem": "77rem",
         "30-rem": "30rem",
         "10.25-rem": "10.25rem",
-        "10.125-rem": "10.125rem",
 
         pageWidth11: "75rem",
         fixedPageWidth: "75.5rem",

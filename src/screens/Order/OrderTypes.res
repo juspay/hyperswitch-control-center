@@ -289,6 +289,19 @@ type amountFilter =
   | InBetween
   | UnknownRange(string)
 
+type amountFields =
+  | StartAmount
+  | EndAmount
+  | UnknownValidateFields(string)
+
+let validationFieldsMapper = key => {
+  switch key {
+  | StartAmount => "amount_filter.start_amount"
+  | EndAmount => "amount_filter.end_amount"
+  | UnknownValidateFields(key) => key
+  }
+}
+
 let getSortString = (value: LoadedTable.sortOb) =>
   switch value.sortType {
   | ASC => "asc"

@@ -59,15 +59,17 @@ let make = (~previewOnly=false) => {
           [
             (
               "start_amount",
-              dict
-              ->Dict.get("amount_filter.start_amount")
-              ->setOptionMap(JSON.Encode.null, encodeFloatOrDefault),
+              getvalFromDict(dict, "amount_filter.start_amount")->mapOptionOrDefault(
+                JSON.Encode.null,
+                encodeFloatOrDefault,
+              ),
             ),
             (
               "end_amount",
-              dict
-              ->Dict.get("amount_filter.end_amount")
-              ->setOptionMap(JSON.Encode.null, encodeFloatOrDefault),
+              getvalFromDict(dict, "amount_filter.end_amount")->mapOptionOrDefault(
+                JSON.Encode.null,
+                encodeFloatOrDefault,
+              ),
             ),
           ]->getJsonFromArrayOfJson,
         )
