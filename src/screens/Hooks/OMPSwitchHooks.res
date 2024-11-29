@@ -6,7 +6,9 @@ type userInfo = {
 let useUserInfo = () => {
   open LogicUtils
   let fetchApi = AuthHooks.useApiFetcher()
-  let {setUserInfoData, userInfo} = React.useContext(UserInfoProvider.defaultContext)
+  let {setUserInfoData, userInfo, updateUserInfoRef} = React.useContext(
+    UserInfoProvider.defaultContext,
+  )
   let url = `${Window.env.apiBaseUrl}/user`
   let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -16,6 +18,7 @@ let useUserInfo = () => {
       let response = await res->(res => res->Fetch.Response.json)
       let userInfo = response->getDictFromJsonObject->UserInfoUtils.itemMapper
       setUserInfoData(userInfo)
+      updateUserInfoRef(userInfo)
       userInfo
     } catch {
     | Exn.Error(e) => {
@@ -47,7 +50,7 @@ let useOrgSwitch = () => {
   let updateDetails = useUpdateMethod()
   let {getUserInfo} = useUserInfo()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {userInfo: userInfoDefault} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfoFromRef} = React.useContext(UserInfoProvider.defaultContext)
 
   async (~expectedOrgId, ~currentOrgId) => {
     try {
@@ -60,7 +63,7 @@ let useOrgSwitch = () => {
         let userInfoRes = await getUserInfo()
         userInfoRes
       } else {
-        userInfoDefault
+        userInfoFromRef
       }
     } catch {
     | Exn.Error(e) => {
@@ -77,7 +80,7 @@ let useMerchantSwitch = () => {
   let updateDetails = useUpdateMethod()
   let {getUserInfo} = useUserInfo()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {userInfo: userInfoDefault} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfoFromRef} = React.useContext(UserInfoProvider.defaultContext)
 
   async (~expectedMerchantId, ~currentMerchantId) => {
     try {
@@ -92,7 +95,7 @@ let useMerchantSwitch = () => {
         let userInfoRes = await getUserInfo()
         userInfoRes
       } else {
-        userInfoDefault
+        userInfoFromRef
       }
     } catch {
     | Exn.Error(e) => {
@@ -110,7 +113,7 @@ let useProfileSwitch = () => {
   let showToast = ToastState.useShowToast()
   let {getUserInfo} = useUserInfo()
   let {setAuthStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let {userInfo: userInfoDefault} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfoFromRef} = React.useContext(UserInfoProvider.defaultContext)
 
   async (~expectedProfileId, ~currentProfileId) => {
     try {
@@ -125,7 +128,7 @@ let useProfileSwitch = () => {
         showToast(~message=`Your profile has been switched successfully.`, ~toastType=ToastSuccess)
         userInfoRes
       } else {
-        userInfoDefault
+        userInfoFromRef
       }
     } catch {
     | Exn.Error(e) => {
@@ -141,13 +144,13 @@ let useInternalSwitch = () => {
   let merchSwitch = useMerchantSwitch()
   let profileSwitch = useProfileSwitch()
 
-  let {userInfo: {orgId: currentOrgId}} = React.useContext(UserInfoProvider.defaultContext)
+  let {userInfoFromRef} = React.useContext(UserInfoProvider.defaultContext)
 
   async (~expectedOrgId=None, ~expectedMerchantId=None, ~expectedProfileId=None) => {
     try {
       let userInfoResFromSwitchOrg = await orgSwitch(
-        ~expectedOrgId=expectedOrgId->Option.getOr(currentOrgId),
-        ~currentOrgId,
+        ~expectedOrgId=expectedOrgId->Option.getOr(userInfoFromRef.orgId),
+        ~currentOrgId=userInfoFromRef.orgId,
       )
       let userInfoResFromSwitchMerch = await merchSwitch(
         ~expectedMerchantId=expectedMerchantId->Option.getOr(userInfoResFromSwitchOrg.merchantId),

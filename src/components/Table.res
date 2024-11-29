@@ -888,7 +888,22 @@ let make = (
       ? ""
       : "overflow-scroll"
   let parentBorderRadius = !isHighchartLegend ? "rounded-lg" : ""
+  let sidebarScrollbarCss = `
+      @supports (-webkit-appearance: none) {
+        .sidebar-scrollbar {
+          scrollbar-color: #8a8c8f;
+        }
 
+        .sidebar-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #8a8c8f;
+          border-radius: 3px;
+        }
+
+        .sidebar-scrollbar::-webkit-scrollbar-track {
+          display: none;
+        }
+      }
+    `
   <div
     className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getOr(
         parentBorderRadius,
@@ -905,8 +920,9 @@ let make = (
     } //replaced "overflow-auto" -> to be tested with master
   >
     <RenderIf condition={frozenUpto > 0}> {frozenTable} </RenderIf>
+    <style> {React.string(sidebarScrollbarCss)} </style>
     <div
-      className={`flex-1 ${overflowClass} no-scrollbar ${childMinWidthClass} ${nonFrozenTableParentClass}`}>
+      className={`flex-1 ${overflowClass} no-scrollbar ${childMinWidthClass} ${nonFrozenTableParentClass} sidebar-scrollbar`}>
       nonFrozenTable
     </div>
     {switch customizeColumnNewTheme {

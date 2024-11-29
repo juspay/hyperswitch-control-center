@@ -5,7 +5,7 @@ type overviewColumns =
   | Total_Success_Rate_Without_Smart_Retries
   | Total_Payment_Processed_Amount
   | Total_Payment_Processed_Amount_Without_Smart_Retries
-  | Refund_Processed_Amount
+  | Total_Refund_Processed_Amount
   | Total_Dispute
 
 type dataObj = {
@@ -17,7 +17,7 @@ type dataObj = {
   total_payment_processed_count: int,
   total_payment_processed_amount_without_smart_retries_in_usd: float,
   total_payment_processed_count_without_smart_retries: int,
-  refund_processed_amount: float,
+  total_refund_processed_amount_in_usd: float,
   total_dispute: int,
 }
 

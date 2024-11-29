@@ -129,6 +129,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let merchSwitch = OMPSwitchHooks.useMerchantSwitch()
+  let url = RescriptReactRouter.useUrl()
   let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (merchantList, setMerchantList) = Recoil.useRecoilState(HyperswitchAtom.merchantListAtom)
@@ -152,6 +153,7 @@ let make = () => {
     try {
       setShowSwitchingMerch(_ => true)
       let _ = await merchSwitch(~expectedMerchantId=value, ~currentMerchantId=merchantId)
+      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingMerch(_ => false)
     } catch {
     | _ => {
@@ -205,7 +207,7 @@ let make = () => {
       />}
       baseComponentCustomStyle="bg-popover-background border-blue-820 rounded text-white"
       bottomComponent={<AddNewMerchantProfileButton
-        user="merchant" setShowModal customPadding customStyle customHRTagStyle
+        user=#Merchant setShowModal customPadding customStyle customHRTagStyle
       />}
       optionClass="text-gray-200 text-fs-14"
       selectClass="text-gray-200 text-fs-14"

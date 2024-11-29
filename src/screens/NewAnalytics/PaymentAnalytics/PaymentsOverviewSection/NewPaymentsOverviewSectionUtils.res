@@ -8,7 +8,7 @@ let getStringFromVariant = value => {
   | Total_Success_Rate_Without_Smart_Retries => "total_success_rate_without_smart_retries"
   | Total_Payment_Processed_Amount => "total_payment_processed_amount_in_usd"
   | Total_Payment_Processed_Amount_Without_Smart_Retries => "total_payment_processed_amount_without_smart_retries_in_usd"
-  | Refund_Processed_Amount => "refund_processed_amount"
+  | Total_Refund_Processed_Amount => "total_refund_processed_amount_in_usd"
   | Total_Dispute => "total_dispute"
   }
 }
@@ -23,7 +23,7 @@ let defaultValue =
     total_payment_processed_count: 0,
     total_payment_processed_amount_without_smart_retries_in_usd: 0.0,
     total_payment_processed_count_without_smart_retries: 0,
-    refund_processed_amount: 0.0,
+    total_refund_processed_amount_in_usd: 0.0,
     total_dispute: 0,
   }
   ->Identity.genericTypeToJson
@@ -63,7 +63,8 @@ let setValue = (dict, ~data, ~ids: array<overviewColumns>) => {
     | Total_Smart_Retried_Amount
     | Total_Smart_Retried_Amount_Without_Smart_Retries
     | Total_Payment_Processed_Amount
-    | Total_Payment_Processed_Amount_Without_Smart_Retries =>
+    | Total_Payment_Processed_Amount_Without_Smart_Retries
+    | Total_Refund_Processed_Amount =>
       data->getAmountValue(~id=id->getStringFromVariant)->JSON.Encode.float
     | _ =>
       data
@@ -92,7 +93,7 @@ let getInfo = (~responseKey: overviewColumns) => {
       description: "The total amount of payments processed in the selected time range",
       valueType: Amount,
     }
-  | Refund_Processed_Amount => {
+  | Total_Refund_Processed_Amount => {
       titleText: "Total Refunds Processed",
       description: "The total amount of refund payments processed in the selected time range",
       valueType: Amount,
@@ -123,7 +124,7 @@ let getKeyForModule = (field, ~metricType) => {
   | (Total_Success_Rate, Default) => Total_Success_Rate_Without_Smart_Retries
   | (Total_Payment_Processed_Amount, Default) =>
     Total_Payment_Processed_Amount_Without_Smart_Retries
-  | (Refund_Processed_Amount, _) => Refund_Processed_Amount
+  | (Total_Refund_Processed_Amount, _) => Total_Refund_Processed_Amount
   | (Total_Dispute, _) | _ => Total_Dispute
   }
 }
