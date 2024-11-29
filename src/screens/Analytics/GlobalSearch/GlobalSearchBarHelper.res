@@ -417,22 +417,22 @@ module ModalSearchBox = {
       }
     }
 
-    switch inputRef.current->Js.Nullable.toOption {
-    | Some(elem) => elem->MultipleFileUpload.focus
-    | None => ()
-    }
-
-    let handleKeyDown = e => {
+    React.useEffect(() => {
       open ReactEvent.Keyboard
+      let onKeyPress = e => {
+        switch inputRef.current->Js.Nullable.toOption {
+        | Some(elem) => elem->MultipleFileUpload.focus
+        | None => ()
+        }
 
-      {
         switch viewType {
+        | EmptyResult | Load => ()
         | Results => {
             let index = allOptions->Array.findIndex(item => {
               item == selectedOption
             })
 
-            if e->keyCode == 40 {
+            if e->keyCode == 9 {
               let newIndex =
                 index == allOptions->Array.length - 1
                   ? 0
@@ -441,21 +441,68 @@ module ModalSearchBox = {
               | Some(val) => setSelectedOption(_ => val)
               | _ => ()
               }
-            } else if e->keyCode == 38 {
-              let newIndex =
-                index === 0
-                  ? allOptions->Array.length - 1
-                  : Int.mod(index - 1, allOptions->Array.length)
-              switch allOptions->Array.get(newIndex) {
-              | Some(val) => setSelectedOption(_ => val)
-              | _ => ()
-              }
-            } else if e->keyCode == 13 {
-              selectedOption->redirectOnSelect
             }
           }
-
         | FiltersSugsestions => {
+            let index = allFilters->Array.findIndex(item => {
+              switch selectedFilter {
+              | Some(val) => item == val
+              | _ => false
+              }
+            })
+
+            if e->keyCode == 9 {
+              let newIndex =
+                index == allFilters->Array.length - 1
+                  ? 0
+                  : Int.mod(index + 1, allFilters->Array.length)
+
+              switch allFilters->Array.get(newIndex) {
+              | Some(val) => setSelectedFilter(_ => val->Some)
+              | _ => ()
+              }
+            }
+          }
+        }
+      }
+      Window.addEventListener("keydown", onKeyPress)
+      Some(() => Window.removeEventListener("keydown", onKeyPress))
+    }, (selectedFilter, selectedOption))
+
+    let handleKeyDown = e => {
+      open ReactEvent.Keyboard
+
+      {
+        switch viewType {
+        // | Results => {
+        //     let index = allOptions->Array.findIndex(item => {
+        //       item == selectedOption
+        //     })
+
+        //     if e->keyCode == 40 {
+        //       let newIndex =
+        //         index == allOptions->Array.length - 1
+        //           ? 0
+        //           : Int.mod(index + 1, allOptions->Array.length)
+        //       switch allOptions->Array.get(newIndex) {
+        //       | Some(val) => setSelectedOption(_ => val)
+        //       | _ => ()
+        //       }
+        //     } else if e->keyCode == 38 {
+        //       let newIndex =
+        //         index === 0
+        //           ? allOptions->Array.length - 1
+        //           : Int.mod(index - 1, allOptions->Array.length)
+        //       switch allOptions->Array.get(newIndex) {
+        //       | Some(val) => setSelectedOption(_ => val)
+        //       | _ => ()
+        //       }
+        //     } else if e->keyCode == 13 {
+        //       selectedOption->redirectOnSelect
+        //     }
+        //   }
+
+        | Results | FiltersSugsestions => {
             let index = allFilters->Array.findIndex(item => {
               switch selectedFilter {
               | Some(val) => item == val
@@ -483,20 +530,21 @@ module ModalSearchBox = {
               | _ => ()
               }
             } else if e->keyCode == 13 {
-              if allFilters->Array.length > 0 {
-                switch selectedFilter {
-                | Some(filter) =>
-                  if activeFilter->String.charAt(activeFilter->String.length - 1) == ":" {
-                    switch filter.options->Array.get(0) {
-                    | Some(val) => val->onSuggestionClicked
-                    | _ => ()
-                    }
-                  } else {
-                    filter->onFilterClicked
-                  }
-                | _ => ()
-                }
-              }
+              Js.log2(">>", "hello")
+              // if allFilters->Array.length > 0 {
+              //   switch selectedFilter {
+              //   | Some(filter) =>
+              //     if activeFilter->String.charAt(activeFilter->String.length - 1) == ":" {
+              //       switch filter.options->Array.get(0) {
+              //       | Some(val) => val->onSuggestionClicked
+              //       | _ => ()
+              //       }
+              //     } else {
+              //       filter->onFilterClicked
+              //     }
+              //   | _ => ()
+              //   }
+              // }
             }
           }
 

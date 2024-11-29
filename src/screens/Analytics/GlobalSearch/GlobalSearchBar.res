@@ -146,6 +146,7 @@ let make = () => {
     setSearchText(_ => "")
     setLocalSearchText(_ => "")
     setActiveFilter(_ => "")
+    setSelectedFilter(_ => None)
     None
   }, [showModal])
 

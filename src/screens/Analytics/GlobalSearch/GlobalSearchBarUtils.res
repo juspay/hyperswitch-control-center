@@ -442,8 +442,14 @@ let generateFilter = (queryArray: array<string>) => {
     let value = keyValuePair->getValueFromArray(1, "")
 
     switch filter->Dict.get(key) {
-    | Some(prevArr) => filter->Dict.set(key, prevArr->Array.concat([value]))
-    | _ => filter->Dict.set(key, [value])
+    | Some(prevArr) =>
+      if !(prevArr->Array.includes(value)) && value->isNonEmptyString {
+        filter->Dict.set(key, prevArr->Array.concat([value]))
+      }
+    | _ =>
+      if value->isNonEmptyString {
+        filter->Dict.set(key, [value])
+      }
     }
   })
 
@@ -467,7 +473,7 @@ let generateQuery = searchQuery => {
     query->String.trim->isNonEmptyString
   })
   ->Array.forEach(query => {
-    if RegExp.test(%re("/^[^:\s]+:[^:\s]+$/"), query) {
+    if RegExp.test(%re("/^[^:\s]+:[^:\s]*$/"), query) {
       filters->Array.push(query)
     } else {
       queryText := query
@@ -475,8 +481,9 @@ let generateQuery = searchQuery => {
   })
 
   let body = {
-    let query = if filters->Array.length > 0 {
-      [("filters", filters->generateFilter->JSON.Encode.object)]
+    let filterObj = filters->generateFilter
+    let query = if filters->Array.length > 0 && filterObj->Dict.keysToArray->Array.length > 0 {
+      [("filters", filterObj->JSON.Encode.object)]
     } else {
       []
     }
