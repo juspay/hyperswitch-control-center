@@ -53,13 +53,34 @@ let make = (~previewOnly=false) => {
             ]->getJsonFromArrayOfJson,
           )
         }
-
+        let encodeFloatOrDefault = val => (val->getFloatFromJson(0.0) *. 100.0)->JSON.Encode.float
+        filters->Dict.set(
+          "amount_filter",
+          [
+            (
+              "start_amount",
+              getvalFromDict(dict, "start_amount")->mapOptionOrDefault(
+                JSON.Encode.null,
+                encodeFloatOrDefault,
+              ),
+            ),
+            (
+              "end_amount",
+              getvalFromDict(dict, "end_amount")->mapOptionOrDefault(
+                JSON.Encode.null,
+                encodeFloatOrDefault,
+              ),
+            ),
+          ]->getJsonFromArrayOfJson,
+        )
         dict
         ->Dict.toArray
         ->Array.forEach(item => {
           let (key, value) = item
           filters->Dict.set(key, value)
         })
+        filters->OrderUIUtils.deleteNestedKeys(["start_amount", "end_amount"])
+
         filters
         ->getOrdersList(
           ~updateDetails,

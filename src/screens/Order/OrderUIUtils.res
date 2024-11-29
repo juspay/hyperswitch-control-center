@@ -1,3 +1,4 @@
+open OrderTypes
 type filterTypes = {
   connector: array<string>,
   currency: array<string>,
@@ -8,6 +9,7 @@ type filterTypes = {
   connector_label: array<string>,
   card_network: array<string>,
   customer_id: array<string>,
+  amount: array<string>,
 }
 
 type filter = [
@@ -20,6 +22,7 @@ type filter = [
   | #connector_label
   | #card_network
   | #customer_id
+  | #amount
   | #unknown
 ]
 
@@ -34,6 +37,7 @@ let getFilterTypeFromString = filterType => {
   | "connector_label" => #connector_label
   | "card_network" => #card_network
   | "customer_id" => #customer_id
+  | "amount" => #amount
   | _ => #unknown
   }
 }
@@ -270,6 +274,7 @@ let itemToObjMapper = dict => {
     connector_label: [],
     card_network: dict->getArrayFromDict("card_network", [])->getStrArrayFromJsonArray,
     customer_id: [],
+    amount: [],
   }
 }
 
@@ -290,6 +295,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
   }
   arr->Array.push("payment_method_type")
   arr->Array.push("customer_id")
+  arr->Array.push("amount")
   arr->Array.map((key): EntityType.initialFilters<'t> => {
     let values = switch key->getFilterTypeFromString {
     | #connector => filterArr.connector
@@ -316,6 +322,19 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
       })
     }
 
+    let amountFilterOptions: array<FilterSelectBox.dropdownOption> = [
+      GreaterThanEqualTo,
+      LessThanEqualTo,
+      EqualTo,
+      InBetween,
+    ]->Array.map(option => {
+      let label = option->mapRangeTypetoString
+      {
+        FilterSelectBox.label,
+        value: label,
+      }
+    })
+
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
     | _ => values->makeOptions
@@ -335,6 +354,10 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
             <Icon name="cross-outline" size=13 />
           </div>,
         )(~input, ~placeholder=`Enter ${input.name->snakeToTitle}...`)
+    | #amount =>
+      (~input as _, ~placeholder as _) => {
+        <OrdersHelper options=amountFilterOptions />
+      }
 
     | _ =>
       InputFields.filterMultiSelectInput(
@@ -512,3 +535,26 @@ let orderViewList: OMPSwitchTypes.ompViews = [
     entity: #Profile,
   },
 ]
+
+let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) => {
+  keys->Array.forEach(key => dict->Dict.delete(key))
+}
+
+let validateForm = (values, ~fieldsToValidate: array<amountFields>) => {
+  let errors = Dict.make()
+  open LogicUtils
+  let valuesDict = values->JsonFlattenUtils.flattenObject(false)
+  let amountValues = fieldsToValidate->Array.map(key => {
+    valuesDict->getJsonObjectFromDict(key->validationFieldsMapper)
+  })
+  let start_amount = amountValues->getValueFromArray(0, JSON.Encode.null)
+  let end_amount = amountValues->getValueFromArray(1, JSON.Encode.null)
+  if start_amount->isNullJson && end_amount->isNullJson {
+    errors->Dict.set("Invalid", "Please enter value."->JSON.Encode.string)
+  } else if !isNullJson(start_amount) && !isNullJson(end_amount) {
+    if end_amount < start_amount {
+      errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+    }
+  }
+  errors->JSON.Encode.object
+}
