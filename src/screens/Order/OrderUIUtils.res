@@ -542,80 +542,28 @@ let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) => {
 let validateForm = values => {
   open LogicUtils
   let errors = Dict.make()
-  let d = values->getDictFromJsonObject
+  let dict = values->getDictFromJsonObject
+  let sAmntK = dict->getvalFromDict("start_amount")->mapOptionOrDefault(None, key => Some(key))
+  let eAmtK = dict->getvalFromDict("end_amount")->mapOptionOrDefault(None, key => Some(key))
 
-  let stK = d->getvalFromDict("start_time")->Option.mapOr(None, x => Some(x))
-  let etK = d->getvalFromDict("end_time")->Option.mapOr(None, x => Some(x))
-
-  if stK->Option.isSome && etK->Option.isSome {
+  // check only if the key is present
+  if sAmntK->Option.isSome && eAmtK->Option.isSome {
     let _ = if (
-      stK->Option.getOr(JSON.Encode.null) === JSON.Encode.null &&
-        etK->Option.getOr(JSON.Encode.null) === JSON.Encode.null
+      sAmntK->Option.getOr(JSON.Encode.null) === JSON.Encode.null &&
+        eAmtK->Option.getOr(JSON.Encode.null) === JSON.Encode.null
     ) {
-      // "Throw Error"
       errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
     } else {
-      let startAmt = stK->getFloatFromJson(0.0)
-
-      let endAmt = etK->getFloatFromJson(0.0)
-
-      let er = if startAmt < endAmt {
-        // "Throw Error"
+      let startAmt = sAmntK->getFloatFromJson(0.0)
+      let endAmt = eAmtK->getFloatFromJson(0.0)
+      if endAmt < startAmt {
         errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
-      } else {
-        ()
       }
-      er
     }
+  } else if sAmntK->Option.isSome && sAmntK->Option.getOr(JSON.Encode.null) === JSON.Encode.null {
+    errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+  } else if eAmtK->Option.isSome && eAmtK->Option.getOr(JSON.Encode.null) === JSON.Encode.null {
+    errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
   }
   errors->JSON.Encode.object
 }
-// let validateForm = values => {
-//   open LogicUtils
-//   let valuesDict = values->getDictFromJsonObject
-//   Js.log(values)
-//   let startAmount = valuesDict->getvalFromDict("start_amount")
-//   let endAmount = valuesDict->getvalFromDict("end_amount")
-//   let errors = Dict.make()
-//   switch (startAmount, endAmount) {
-//   | (Some(start), Some(end)) if start->isNullJson == true && end->isNullJson == true =>
-//     errors->Dict.set("Invalid", "Please enter value."->JSON.Encode.string)
-//   | (Some(start), Some(end)) if start->isNullJson == false && end->isNullJson == false =>
-//     switch (start, JSON.Classify.classify(end)) {
-//     | (start, String(end)) => {
-//         let endAmt = Float.fromString(end)->Option.getOr(0.0)
-//         let startAmt = start->getFloatFromJson(0.0)
-//         if endAmt < startAmt {
-//           errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
-//         }
-//       }
-//     | (start, end) => if end < start {
-//         errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
-//       }
-//     | _ => ()
-//     }
-//   }
-//   Js.log(errors)
-//   errors->JSON.Encode.object
-// }
-
-// let validateForm = values => {
-//   open LogicUtils
-//   let valuesDict = values->getDictFromJsonObject
-//   Js.log(valuesDict)
-//   let startAmount = valuesDict->getvalFromDict("start_amount")
-//   let endAmount = valuesDict->getvalFromDict("end_amount")
-//   let errors = Dict.make()
-//   switch (startAmount, endAmount) {
-//   | (Some(start), Some(end)) =>
-//     if start->isNullJson && end->isNullJson {
-//       errors->Dict.set("Invalid", "Please enter value."->JSON.Encode.string)
-//     } else if !(start->isNullJson) && !(end->isNullJson) {
-//       if end < start {
-//         errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
-//       }
-//     }
-//   | _ => ()
-//   }
-//   errors->JSON.Encode.object
-// }
