@@ -23,8 +23,21 @@ module ListBaseComp = {
       : "rotate-0 transition duration-[250ms] opacity-70"
 
     let textColor = isDarkBg ? "text-grey-300" : "text-grey-900"
-    let width = isDarkBg ? "w-[12rem]" : "w-fit max-w-[8rem]"
+    let width = isDarkBg ? "w-[12rem]" : "w-fit max-w-[10rem]"
     let padding = isDarkBg ? "pl-2" : ""
+
+    let endValue = isDarkBg ? 22 : 8
+
+    let subHeadingElement = if subHeading->String.length > 8 {
+      <HSwitchOrderUtils.EllipsisText
+        displayValue=subHeading
+        endValue
+        showCopy=false
+        customTextStyle={`${textColor} font-extrabold`}
+      />
+    } else {
+      {subHeading->React.string}
+    }
 
     <div className={`text-sm font-medium cursor-pointer ${baseCompStyle}`}>
       <div className={`flex flex-col items-start`}>
@@ -32,13 +45,11 @@ module ListBaseComp = {
           <p className="text-xs text-left text-gray-400"> {heading->React.string} </p>
         </RenderIf>
         <div className="text-left flex gap-2">
-          <div>
-            <p className={`fs-10 ${textColor} ${width} ${padding} overflow-scroll text-nowrap`}>
-              {subHeading->React.string}
-            </p>
-          </div>
+          <p className={`fs-10 ${textColor} ${width} ${padding} overflow-scroll text-nowrap`}>
+            {subHeadingElement}
+          </p>
           <RenderIf condition={showEditIcon}>
-            <Icon name="pencil-edit" size=12 onClick=onEditClick className="mx-2" />
+            <Icon name="pencil-edit" size=15 onClick=onEditClick className="mx-2" />
           </RenderIf>
           <Icon
             className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`} name={iconName} size=15

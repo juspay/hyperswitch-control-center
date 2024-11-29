@@ -457,8 +457,8 @@ let make = (
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
-  let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
-  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
+  // let {userInfo: {roleId}} = React.useContext(UserInfoProvider.defaultContext)
+  // let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (openItem, setOpenItem) = React.useState(_ => "")
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
@@ -542,9 +542,9 @@ let make = (
             />
           </div>
         </RenderIf>
-        <RenderIf condition={!isInternalUser}>
-          <SidebarSwitch isSidebarExpanded />
-        </RenderIf>
+        // <RenderIf condition={!isInternalUser}>  // to be removed later
+        <SidebarSwitch isSidebarExpanded />
+        // </RenderIf>
         <div
           className="h-full overflow-y-scroll transition-transform duration-1000 overflow-x-hidden sidebar-scrollbar"
           style={height: `calc(100vh - ${verticalOffset})`}>

@@ -114,9 +114,9 @@ let make = () => {
                         headerActions={<div className="relative flex space-around gap-4 my-2 ">
                           <div className="flex gap-4">
                             <GlobalSearchBar />
-                            <RenderIf condition={isInternalUser}>
-                              <SwitchMerchantForInternal />
-                            </RenderIf>
+                            // <RenderIf condition={isInternalUser}>      // to be removed later
+                            //   <SwitchMerchantForInternal />
+                            // </RenderIf>
                             <div
                               className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
                               {modeText->React.string}
