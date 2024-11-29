@@ -62,8 +62,6 @@ let make = () => {
     }
   }
 
-  Js.log2(">> body", searchText->generateQuery)
-
   let getSearchResults = async results => {
     try {
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
