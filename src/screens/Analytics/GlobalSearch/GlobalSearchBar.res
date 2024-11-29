@@ -62,6 +62,8 @@ let make = () => {
     }
   }
 
+  Js.log2(">> body", searchText->generateQuery)
+
   let getSearchResults = async results => {
     try {
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
@@ -195,8 +197,15 @@ let make = () => {
   }
 
   let onSuggestionClicked = option => {
+    let value = activeFilter->String.split(":")->getValueFromArray(1, "")
+    let key = if value->isNonEmptyString {
+      let end = searchText->String.length - (value->String.length + 1)
+      searchText->String.substring(~start=0, ~end)
+    } else {
+      searchText
+    }
     let saparater = searchText->String.charAt(searchText->String.length - 1) == ":" ? "" : ":"
-    setLocalSearchText(_ => `${searchText}${saparater}${option}`)
+    setLocalSearchText(_ => `${key}${saparater}${option}`)
     setActiveFilter(_ => "")
   }
 
@@ -245,27 +254,36 @@ let make = () => {
             onFilterClicked
             onSuggestionClicked
           />
-          {switch getViewType(~state, ~searchResults) {
-          | Load =>
-            <div className="mb-24">
-              <Loader />
-            </div>
-          | Results =>
-            <SearchResultsComponent
-              searchResults searchText setShowModal selectedOption redirectOnSelect
-            />
-          | FiltersSugsestions =>
-            <FilterResultsComponent
-              categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
-              activeFilter
-              searchText
-              setAllFilters
-              selectedFilter
-              onFilterClicked
-              onSuggestionClicked
-            />
-          | EmptyResult => <EmptyResult prefix searchText />
-          }}
+          <FilterResultsComponent
+            categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+            activeFilter
+            searchText
+            setAllFilters
+            selectedFilter
+            onFilterClicked
+            onSuggestionClicked
+          />
+          // {switch getViewType(~state, ~searchResults) {
+          // | Load =>
+          //   <div className="mb-24">
+          //     <Loader />
+          //   </div>
+          // | Results =>
+          //   <SearchResultsComponent
+          //     searchResults searchText setShowModal selectedOption redirectOnSelect
+          //   />
+          // | FiltersSugsestions =>
+          //   <FilterResultsComponent
+          //     categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
+          //     activeFilter
+          //     searchText
+          //     setAllFilters
+          //     selectedFilter
+          //     onFilterClicked
+          //     onSuggestionClicked
+          //   />
+          // | EmptyResult => <EmptyResult prefix searchText />
+          // }}
         </div>
       </ModalWrapper>
     </RenderIf>

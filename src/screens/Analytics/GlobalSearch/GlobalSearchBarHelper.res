@@ -263,6 +263,13 @@ module FilterOption = {
   }
 }
 
+module NoResults = {
+  @react.component
+  let make = () => {
+    <div className="text-sm p-2"> {"No Results"->React.string} </div>
+  }
+}
+
 module FilterResultsComponent = {
   open GlobalSearchBarUtils
   open FramerMotion.Motion
@@ -296,7 +303,15 @@ module FilterResultsComponent = {
       switch filters->Array.get(0) {
       | Some(filter) =>
         if filters->Array.length == 1 && filter.options->Array.length > 1 {
-          let newFilters = filter.options->Array.map(option => {
+          let filterValue = activeFilter->String.split(":")->getValueFromArray(1, "")
+
+          let options = if filterValue->isNonEmptyString {
+            filter.options->Array.filter(option => option->String.includes(filterValue))
+          } else {
+            filter.options
+          }
+
+          let newFilters = options->Array.map(option => {
             let value = {
               categoryType: filter.categoryType,
               options: [option],
@@ -338,23 +353,35 @@ module FilterResultsComponent = {
               <style> {React.string(sidebarScrollbarCss)} </style>
               {switch filters->Array.get(0) {
               | Some(value) =>
-                value.options
-                ->Array.map(option => {
-                  <FilterOption
-                    onClick={_ => option->onSuggestionClicked}
-                    value={`${value.categoryType
-                      ->getcategoryFromVariant
-                      ->String.toLocaleLowerCase} : ${option}`}
-                    filter={{
-                      categoryType: value.categoryType,
-                      options: [option],
-                      placeholder: value.placeholder,
-                    }}
-                    selectedFilter
-                  />
-                })
-                ->React.array
-              | _ => React.null
+                let filterValue = activeFilter->String.split(":")->getValueFromArray(1, "")
+
+                let options = if filterValue->isNonEmptyString {
+                  value.options->Array.filter(option => option->String.includes(filterValue))
+                } else {
+                  value.options
+                }
+
+                if options->Array.length > 0 {
+                  options
+                  ->Array.map(option => {
+                    <FilterOption
+                      onClick={_ => option->onSuggestionClicked}
+                      value={`${value.categoryType
+                        ->getcategoryFromVariant
+                        ->String.toLocaleLowerCase} : ${option}`}
+                      filter={{
+                        categoryType: value.categoryType,
+                        options: [option],
+                        placeholder: value.placeholder,
+                      }}
+                      selectedFilter
+                    />
+                  })
+                  ->React.array
+                } else {
+                  <NoResults />
+                }
+              | _ => <NoResults />
               }}
             </div>
           </RenderIf>
