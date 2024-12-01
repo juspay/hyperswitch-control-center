@@ -64,6 +64,7 @@ module.exports = {
         "1.1-rem": "1.125rem",
         "77-rem": "77rem",
         "30-rem": "30rem",
+        "10.25-rem": "10.25rem",
 
         pageWidth11: "75rem",
         fixedPageWidth: "75.5rem",
@@ -126,6 +127,7 @@ module.exports = {
           0: "#FEFEFE",
           200: "#B9BABC",
           300: "#CCCCCC",
+          400: "#D1D5DB",
           700: "#151A1F",
           900: "#333333",
           dark: "#1E1E1E",

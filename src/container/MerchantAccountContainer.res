@@ -8,8 +8,9 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let (surveyModal, setSurveyModal) = React.useState(_ => false)
   let {
-    hasAnyGroupAccess,
     userHasAccess,
+    hasAnyGroupAccess,
+    hasAllGroupsAccess,
     userHasResourceAccess,
   } = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -91,7 +92,10 @@ let make = () => {
       | list{"sdk"} =>
         <AccessControl
           isEnabled={!featureFlagDetails.isLiveMode}
-          authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+          authorization={hasAllGroupsAccess([
+            userHasAccess(~groupAccess=OperationsManage),
+            userHasAccess(~groupAccess=ConnectorsManage),
+          ])}>
           <SDKPage />
         </AccessControl>
       | list{"unauthorized"} => <UnauthorizedPage />

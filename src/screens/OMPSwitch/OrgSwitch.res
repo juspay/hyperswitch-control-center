@@ -8,6 +8,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
   let orgSwitch = OMPSwitchHooks.useOrgSwitch()
+  let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {orgId}} = React.useContext(UserInfoProvider.defaultContext)
   let (orgList, setOrgList) = Recoil.useRecoilState(HyperswitchAtom.orgListAtom)
@@ -37,6 +38,7 @@ let make = () => {
     try {
       setShowSwitchingOrg(_ => true)
       let _ = await orgSwitch(~expectedOrgId=value, ~currentOrgId=orgId)
+      RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingOrg(_ => false)
     } catch {
     | _ => {
@@ -67,9 +69,10 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
-  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
+  let customScrollStyle = "bg-blue-840 max-h-72 overflow-scroll px-1 pt-1"
+  let dropdownContainerStyle = "min-w-[15rem] rounded"
 
-  <div className="border border-blue-820 rounded w-full">
+  <div className="w-full py-5 px-2 p-[1px]">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
@@ -89,6 +92,7 @@ let make = () => {
         arrow
         showEditIcon={userHasAccess(~groupAccess=OrganizationManage) === Access}
         onEditClick
+        isDarkBg=true
       />}
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       optionClass="text-gray-200 text-fs-14"
@@ -97,6 +101,7 @@ let make = () => {
       fullLength=true
       toggleChevronState
       customScrollStyle
+      dropdownContainerStyle
       shouldDisplaySelectedOnTop=true
     />
     <EditOrgName showModal setShowModal orgList orgId getOrgList />
