@@ -317,7 +317,7 @@ let getComparisionTimePeriod = (~startDate, ~endDate) => {
   let gap = endingPoint.diff(startingPoint.toString(), "millisecond") // diff between points
 
   let startTimeValue = startingPoint.subtract(gap, "millisecond").toDate()->Date.toISOString
-  let endTimeVal = endingPoint.subtract(gap, "millisecond").toDate()->Date.toISOString
+  let endTimeVal = startingPoint.subtract(1, "millisecond").toDate()->Date.toISOString
 
   (startTimeValue, endTimeVal)
 }

@@ -180,9 +180,11 @@ let make = () => {
   let customHRTagStyle = "border-t border-blue-830"
   let customPadding = "py-1 w-full"
   let customStyle = "w-56 text-gray-200 bg-blue-840 dark:bg-black hover:bg-popover-background-hover hover:text-gray-100 !w-full"
-  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
 
-  <div className="border border-blue-820 rounded w-full">
+  let customScrollStyle = "bg-blue-840 max-h-72 overflow-scroll px-1 pt-1"
+  let dropdownContainerStyle = "min-w-[15rem] rounded"
+
+  <div className="w-full py-3.5 px-2">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
@@ -202,6 +204,7 @@ let make = () => {
         arrow
         showEditIcon={userHasAccess(~groupAccess=OrganizationManage) === Access}
         onEditClick
+        isDarkBg=true
       />}
       baseComponentCustomStyle="border-blue-820 rounded bg-popover-background rounded text-white"
       bottomComponent={<RenderIf condition={tenantUser && isTenantAdmin}>
@@ -219,6 +222,7 @@ let make = () => {
       fullLength=true
       toggleChevronState
       customScrollStyle
+      dropdownContainerStyle
       shouldDisplaySelectedOnTop=true
     />
     <EditOrgName
