@@ -34,27 +34,48 @@ module NewAccountCreationModal = {
       ~isRequired=true,
     )
 
-    let validateForm = (values: JSON.t) => {
+    let merchantName = FormRenderer.makeFieldInfo(
+      ~label="Merchant Name",
+      ~name="merchant_name",
+      ~placeholder="Eg: My New Merchant",
+      ~customInput=InputFields.textInput(),
+      ~isRequired=true,
+    )
+
+    let validateForm = (
+      ~values: JSON.t,
+      ~fieldstoValidate: array<OMPSwitchTypes.addOrgFormFields>,
+    ) => {
       open LogicUtils
       let errors = Dict.make()
-      let companyName =
-        values->getDictFromJsonObject->getString("organization_name", "")->String.trim
-      let regexForCompanyName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
+      let regexForOrgName = "^([a-z]|[A-Z]|[0-9]|_|\\s)+$"
 
-      let errorMessage = if companyName->isEmptyString {
-        "Org name cannot be empty"
-      } else if companyName->String.length > 64 {
-        "Org name too long"
-      } else if !RegExp.test(RegExp.fromString(regexForCompanyName), companyName) {
-        "Org name should not contain special characters"
-      } else {
-        ""
-      }
+      fieldstoValidate->Array.forEach(field => {
+        let name = switch field {
+        | OrgName => "Org"
+        | MerchantName => "Merchant"
+        }
 
-      if errorMessage->isNonEmptyString {
-        Dict.set(errors, "organization_name", errorMessage->JSON.Encode.string)
-      }
+        let value = switch field {
+        | OrgName => "organization_name"
+        | MerchantName => "merchant_name"
+        }
 
+        let fieldValue = values->getDictFromJsonObject->getString(value, "")->String.trim
+
+        let errorMsg = if fieldValue->isEmptyString {
+          `${name} name cannot be empty`
+        } else if fieldValue->String.length > 64 {
+          `${name} name too long`
+        } else if !RegExp.test(RegExp.fromString(regexForOrgName), fieldValue) {
+          `${name} name should not contain special characters`
+        } else {
+          ""
+        }
+        if errorMsg->isNonEmptyString {
+          Dict.set(errors, value, errorMsg->JSON.Encode.string)
+        }
+      })
       errors->JSON.Encode.object
     }
 
@@ -70,13 +91,23 @@ module NewAccountCreationModal = {
             />
           </div>
         </div>
-        <Form key="new-account-creation" onSubmit validate={validateForm}>
+        <Form
+          key="new-account-creation"
+          onSubmit
+          validate={values => validateForm(~values, ~fieldstoValidate=[OrgName, MerchantName])}>
           <div className="flex flex-col gap-12 h-full w-full">
             <FormRenderer.DesktopRow>
               <div className="flex flex-col gap-5">
                 <FormRenderer.FieldRenderer
                   fieldWrapperClass="w-full"
                   field={orgName}
+                  showErrorOnChange=true
+                  errorClass={ProdVerifyModalUtils.errorClass}
+                  labelClass="!text-black font-medium !-ml-[0.5px]"
+                />
+                <FormRenderer.FieldRenderer
+                  fieldWrapperClass="w-full"
+                  field={merchantName}
                   showErrorOnChange=true
                   errorClass={ProdVerifyModalUtils.errorClass}
                   labelClass="!text-black font-medium !-ml-[0.5px]"
