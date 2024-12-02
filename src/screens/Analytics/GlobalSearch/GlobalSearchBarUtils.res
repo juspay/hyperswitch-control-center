@@ -1,6 +1,14 @@
 open GlobalSearchTypes
 open LogicUtils
 
+let defaultRoute = "/search"
+let global_search_activate_key = "k"
+let filterSeparator = ":"
+
+let getEndChar = string => {
+  string->String.charAt(string->String.length - 1)
+}
+
 let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName) => {
   searchOptions
   ->Option.getOr([])
@@ -433,7 +441,7 @@ let generateFilter = (queryArray: array<string>) => {
   queryArray->Array.forEach(query => {
     let keyValuePair =
       query
-      ->String.split(":")
+      ->String.split(filterSeparator)
       ->Array.filter(query => {
         query->String.trim->isNonEmptyString
       })
@@ -519,7 +527,7 @@ let getViewType = (~state, ~searchResults, ~searchText) => {
   | Loading => Load
   | Loaded => {
       let endChar = searchText->String.charAt(searchText->String.length - 1)
-      let isFilter = endChar == ":" || endChar == " "
+      let isFilter = endChar == filterSeparator || endChar == " "
 
       if isFilter {
         FiltersSugsestions
@@ -539,3 +547,28 @@ let getSearchValidation = query => {
 
   !(paylod->getObj("filters", Dict.make())->isEmptyDict && query->isEmptyString)
 }
+
+let sidebarScrollbarCss = `
+  @supports (-webkit-appearance: none){
+    .sidebar-scrollbar {
+        scrollbar-width: auto;
+        scrollbar-color: #8a8c8f;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar {
+        display: block;
+        overflow: scroll;
+        height: 4px;
+        width: 5px;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #8a8c8f;
+        border-radius: 3px;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar-track {
+        display: none;
+      }
+}
+  `
