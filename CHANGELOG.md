@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.11.29.3
+
+### Bug Fixes
+
+- Amount filter validation ([#1834](https://github.com/juspay/hyperswitch-control-center/pull/1834)) ([`8be6040`](https://github.com/juspay/hyperswitch-control-center/commit/8be6040a9af511e48ad7abd78f8475ea6f7940da))
+
+**Full Changelog:** [`2024.11.29.2...2024.11.29.3`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.29.2...2024.11.29.3)
+
+- - -
+
 ## 2024.11.29.2
 
 ### Bug Fixes
