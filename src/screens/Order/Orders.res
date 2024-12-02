@@ -144,7 +144,7 @@ let make = (~previewOnly=false) => {
       setOffset
       submitInputOnEnter=true
       customLeftView={<SearchBarFilter
-        placeholder="Search payment id" setSearchVal=setSearchText searchVal=searchText
+        placeholder="Search for any payment id" setSearchVal=setSearchText searchVal=searchText
       />}
       entityName=ORDER_FILTERS
     />
