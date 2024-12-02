@@ -314,7 +314,7 @@ module FilterResultsComponent = {
       }
     }
 
-    React.useEffect(() => {
+    let updateAllFilters = () => {
       if filters->Array.length == 1 {
         switch filters->Array.get(0) {
         | Some(filter) =>
@@ -345,7 +345,10 @@ module FilterResultsComponent = {
       } else {
         setAllFilters(_ => filters)
       }
+    }
 
+    React.useEffect(() => {
+      updateAllFilters()
       None
     }, [activeFilter])
 
@@ -424,6 +427,7 @@ module FilterResultsComponent = {
 
 module ModalSearchBox = {
   open FramerMotion.Motion
+  open ReactEvent.Keyboard
   @react.component
   let make = (
     ~leftIcon,
@@ -460,61 +464,59 @@ module ModalSearchBox = {
       }
     }
 
-    React.useEffect(() => {
-      open ReactEvent.Keyboard
-      let onKeyPress = e => {
-        switch inputRef.current->Js.Nullable.toOption {
-        | Some(elem) => elem->MultipleFileUpload.focus
-        | None => ()
-        }
+    let tabKeyPressHandler = e => {
+      switch inputRef.current->Js.Nullable.toOption {
+      | Some(elem) => elem->MultipleFileUpload.focus
+      | None => ()
+      }
 
-        switch viewType {
-        | EmptyResult | Load => ()
-        | Results => {
-            let index = allOptions->Array.findIndex(item => {
-              item == selectedOption
-            })
+      switch viewType {
+      | EmptyResult | Load => ()
+      | Results => {
+          let index = allOptions->Array.findIndex(item => {
+            item == selectedOption
+          })
 
-            if e->keyCode == 9 {
-              let newIndex =
-                index == allOptions->Array.length - 1
-                  ? 0
-                  : Int.mod(index + 1, allOptions->Array.length)
-              switch allOptions->Array.get(newIndex) {
-              | Some(val) => setSelectedOption(_ => val)
-              | _ => ()
-              }
+          if e->keyCode == 9 {
+            let newIndex =
+              index == allOptions->Array.length - 1
+                ? 0
+                : Int.mod(index + 1, allOptions->Array.length)
+            switch allOptions->Array.get(newIndex) {
+            | Some(val) => setSelectedOption(_ => val)
+            | _ => ()
             }
           }
-        | FiltersSugsestions => {
-            let index = allFilters->Array.findIndex(item => {
-              switch selectedFilter {
-              | Some(val) => item == val
-              | _ => false
-              }
-            })
+        }
+      | FiltersSugsestions => {
+          let index = allFilters->Array.findIndex(item => {
+            switch selectedFilter {
+            | Some(val) => item == val
+            | _ => false
+            }
+          })
 
-            if e->keyCode == 9 {
-              let newIndex =
-                index == allFilters->Array.length - 1
-                  ? 0
-                  : Int.mod(index + 1, allFilters->Array.length)
+          if e->keyCode == 9 {
+            let newIndex =
+              index == allFilters->Array.length - 1
+                ? 0
+                : Int.mod(index + 1, allFilters->Array.length)
 
-              switch allFilters->Array.get(newIndex) {
-              | Some(val) => setSelectedFilter(_ => val->Some)
-              | _ => ()
-              }
+            switch allFilters->Array.get(newIndex) {
+            | Some(val) => setSelectedFilter(_ => val->Some)
+            | _ => ()
             }
           }
         }
       }
-      Window.addEventListener("keydown", onKeyPress)
-      Some(() => Window.removeEventListener("keydown", onKeyPress))
+    }
+
+    React.useEffect(() => {
+      Window.addEventListener("keydown", tabKeyPressHandler)
+      Some(() => Window.removeEventListener("keydown", tabKeyPressHandler))
     }, (selectedFilter, selectedOption))
 
     let handleKeyDown = e => {
-      open ReactEvent.Keyboard
-
       {
         switch viewType {
         | Results => {

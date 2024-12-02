@@ -154,24 +154,25 @@ let make = () => {
     None
   }, [showModal])
 
+  let onKeyPress = event => {
+    let metaKey = event->ReactEvent.Keyboard.metaKey
+    let keyPressed = event->ReactEvent.Keyboard.key
+    let ctrlKey = event->ReactEvent.Keyboard.ctrlKey
+
+    if Window.Navigator.platform->String.includes("Mac") && metaKey && keyPressed == "k" {
+      event->ReactEvent.Keyboard.preventDefault
+      setShowModal(_ => true)
+    } else if ctrlKey && keyPressed == "k" {
+      event->ReactEvent.Keyboard.preventDefault
+      setShowModal(_ => true)
+    }
+  }
+
   React.useEffect(() => {
     if userHasAccess(~groupAccess=AnalyticsView) === Access {
       getCategoryOptions()->ignore
     }
 
-    let onKeyPress = event => {
-      let metaKey = event->ReactEvent.Keyboard.metaKey
-      let keyPressed = event->ReactEvent.Keyboard.key
-      let ctrlKey = event->ReactEvent.Keyboard.ctrlKey
-
-      if Window.Navigator.platform->String.includes("Mac") && metaKey && keyPressed == "k" {
-        event->ReactEvent.Keyboard.preventDefault
-        setShowModal(_ => true)
-      } else if ctrlKey && keyPressed == "k" {
-        event->ReactEvent.Keyboard.preventDefault
-        setShowModal(_ => true)
-      }
-    }
     Window.addEventListener("keydown", onKeyPress)
     Some(() => Window.removeEventListener("keydown", onKeyPress))
   }, [])
