@@ -2,8 +2,6 @@ let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid b
 
 let useGetData = () => {
   open LogicUtils
-  let body = Dict.make()
-  let {userInfo: {merchantId}} = React.useContext(UserInfoProvider.defaultContext)
   let getURL = APIUtils.useGetURL()
   async (
     ~updateDetails: (
@@ -18,17 +16,9 @@ let useGetData = () => {
     ~query,
     ~path,
   ) => {
+    let body = query->GlobalSearchBarUtils.generateQuery
     body->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
     body->Dict.set("count", 10->Int.toFloat->JSON.Encode.float)
-    body->Dict.set("query", query->JSON.Encode.string)
-
-    if !(query->CommonAuthUtils.isValidEmail) {
-      let filters = [("customer_email", [query->JSON.Encode.string]->JSON.Encode.array)]
-      body->Dict.set("filters", filters->getJsonFromArrayOfJson)
-      body->Dict.set("query", merchantId->JSON.Encode.string)
-    } else {
-      body->Dict.set("query", query->JSON.Encode.string)
-    }
 
     try {
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ~id=Some(path))

@@ -57,8 +57,7 @@ let make = (
   switch authStatus {
   | LoggedIn(_info) =>
     <div id="navbar" className={`w-full mx-auto`}>
-      <div
-        className={`flex flex-row items-start justify-between min-h-16 items-center ${customHeight}`}>
+      <div className={`flex flex-row min-h-16 items-center justify-between ${customHeight}`}>
         {switch headerLeftActions {
         | Some(actions) => actions
         | None => React.null
@@ -119,7 +118,6 @@ let make = (
       </div>
       <HSwitchFeedBackModal modalHeading="We'd love to hear from you!" setShowModal showModal />
     </div>
-  // </div>
 
   | LoggedOut => React.null
   | PreLogin(_)

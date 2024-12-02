@@ -29,12 +29,7 @@ let make = () => {
         infoDetails
         ->getDictFromJsonObject
         ->getArrayFromDict("metrics", [])
-        ->Array.filter(ele => {
-          let metricName = ele->getDictFromJsonObject->getString("name", "")
-          !String.includes(metricName, "sessionized") &&
-          metricName != "failure_reasons" &&
-          metricName != "payments_distribution"
-        })
+        ->AnalyticsUtils.filterMetrics
       setMetrics(_ => ignoreSessionizedPayment)
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -255,7 +250,7 @@ let make = () => {
         />
       </div>
       <div
-        className="-ml-1 sticky top-0 z-10 p-1 bg-hyperswitch_background py-3 -mt-3 rounded-lg border">
+        className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         topFilterUi
       </div>
       <div className="flex flex-col gap-14">

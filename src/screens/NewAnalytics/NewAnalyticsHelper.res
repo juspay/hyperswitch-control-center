@@ -179,7 +179,7 @@ module StatisticsCard = {
     <div className={`${bgColor} ${textColor} w-fit h-fit rounded-2xl flex px-2 pt-0.5`}>
       <div className="-mb-0.5 flex">
         <Icon className="mt-1 -mr-1" name="arrow-increasing" size=25 />
-        <div className="font-semibold">
+        <div className="font-semibold text-sm pt-0.5 pr-0.5">
           {`${value->NewAnalyticsUtils.valueFormatter(Rate)}`->React.string}
         </div>
       </div>
@@ -252,6 +252,7 @@ module SmartRetryToggle = {
         setIsSelected={onClick}
         isDisabled=false
         boolCustomClass="rounded-lg !bg-blue-500"
+        toggleBorder="border-blue-500"
       />
       <p className="!text-base text-grey-700 ml-2">
         <span className="font-semibold"> {"Include Payment Retries data: "->React.string} </span>

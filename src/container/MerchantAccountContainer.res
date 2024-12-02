@@ -7,7 +7,7 @@ let make = () => {
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
   let (surveyModal, setSurveyModal) = React.useState(_ => false)
-  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasAccess, hasAnyGroupAccess, hasAllGroupsAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
@@ -60,7 +60,10 @@ let make = () => {
       | list{"sdk"} =>
         <AccessControl
           isEnabled={!featureFlagDetails.isLiveMode}
-          authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+          authorization={hasAllGroupsAccess([
+            userHasAccess(~groupAccess=OperationsManage),
+            userHasAccess(~groupAccess=ConnectorsManage),
+          ])}>
           <SDKPage />
         </AccessControl>
       | list{"unauthorized"} => <UnauthorizedPage />

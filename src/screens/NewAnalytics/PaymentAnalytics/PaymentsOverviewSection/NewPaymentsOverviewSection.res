@@ -42,7 +42,7 @@ let make = (~entity: moduleEntity) => {
         ~id=Some((#refunds: domain :> string)),
       )
 
-      let _disputesUrl = getURL(
+      let disputesUrl = getURL(
         ~entityName=ANALYTICS_DISPUTES,
         ~methodType=Post,
         ~id=Some((#disputes: domain :> string)),
@@ -67,7 +67,7 @@ let make = (~entity: moduleEntity) => {
         ~endTime=endTimeVal,
       )
 
-      let _primaryBodyDisputes = getPayload(
+      let primaryBodyDisputes = getPayload(
         ~entity,
         ~metrics=[#dispute_status_metric],
         ~startTime=startTimeVal,
@@ -76,11 +76,11 @@ let make = (~entity: moduleEntity) => {
 
       let primaryResponsePayments = await updateDetails(paymentsUrl, primaryBodyPayments, Post)
       let primaryResponseRefunds = await updateDetails(refundsUrl, primaryBodyRefunds, Post)
-      //let primaryResponseDisputes = await updateDetails(disputesUrl, primaryBodyDisputes, Post)
+      let primaryResponseDisputes = await updateDetails(disputesUrl, primaryBodyDisputes, Post)
 
       let primaryDataPayments = primaryResponsePayments->parseResponse("metaData")
-      let primaryDataRefunds = primaryResponseRefunds->parseResponse("queryData")
-      //let primaryDataDisputes = primaryResponseDisputes->parseResponse("queryData")
+      let primaryDataRefunds = primaryResponseRefunds->parseResponse("metaData")
+      let primaryDataDisputes = primaryResponseDisputes->parseResponse("queryData")
 
       primaryData->setValue(
         ~data=primaryDataPayments,
@@ -94,7 +94,8 @@ let make = (~entity: moduleEntity) => {
         ],
       )
 
-      primaryData->setValue(~data=primaryDataRefunds, ~ids=[Refund_Processed_Amount])
+      primaryData->setValue(~data=primaryDataRefunds, ~ids=[Total_Refund_Processed_Amount])
+      primaryData->setValue(~data=primaryDataDisputes, ~ids=[Total_Dispute])
 
       let secondaryBodyPayments = getPayload(
         ~entity,
@@ -114,7 +115,7 @@ let make = (~entity: moduleEntity) => {
         ~endTime=compareToEndTime,
       )
 
-      let _secondaryBodyDisputes = getPayload(
+      let secondaryBodyDisputes = getPayload(
         ~entity,
         ~metrics=[#dispute_status_metric],
         ~startTime=compareToStartTime,
@@ -129,9 +130,15 @@ let make = (~entity: moduleEntity) => {
             Post,
           )
           let secondaryResponseRefunds = await updateDetails(refundsUrl, secondaryBodyRefunds, Post)
+          let secondaryResponseDisputes = await updateDetails(
+            disputesUrl,
+            secondaryBodyDisputes,
+            Post,
+          )
 
           let secondaryDataPayments = secondaryResponsePayments->parseResponse("metaData")
-          let secondaryDataRefunds = secondaryResponseRefunds->parseResponse("queryData")
+          let secondaryDataRefunds = secondaryResponseRefunds->parseResponse("metaData")
+          let secondaryDataDisputes = secondaryResponseDisputes->parseResponse("queryData")
 
           secondaryData->setValue(
             ~data=secondaryDataPayments,
@@ -145,7 +152,8 @@ let make = (~entity: moduleEntity) => {
             ],
           )
 
-          secondaryData->setValue(~data=secondaryDataRefunds, ~ids=[Refund_Processed_Amount])
+          secondaryData->setValue(~data=secondaryDataRefunds, ~ids=[Total_Refund_Processed_Amount])
+          secondaryData->setValue(~data=secondaryDataDisputes, ~ids=[Total_Dispute])
           secondaryData->JSON.Encode.object
         }
       | DisableComparison => JSON.Encode.null
@@ -187,7 +195,9 @@ let make = (~entity: moduleEntity) => {
         <OverViewStat
           data responseKey={Total_Payment_Processed_Amount->getKeyForModule(~metricType)}
         />
-        <OverViewStat data responseKey={Refund_Processed_Amount->getKeyForModule(~metricType)} />
+        <OverViewStat
+          data responseKey={Total_Refund_Processed_Amount->getKeyForModule(~metricType)}
+        />
         <OverViewStat data responseKey={Total_Dispute->getKeyForModule(~metricType)} />
       </div>
     </div>
