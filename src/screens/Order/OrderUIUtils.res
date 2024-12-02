@@ -207,30 +207,30 @@ let getConditionalFilter = (key, dict, filterValues) => {
   open LogicUtils
 
   let filtersArr = switch key->getFilterTypeFromString {
-  | #connector_label => {
-      let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-      let newArr = arr->Array.flatMap(connector => {
-        let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
-        connectorLabelArr->Array.map(item => {
-          item->getDictFromJsonObject->getString("connector_label", "")
-        })
+  | #connector_label =>
+    filterValues
+    ->getArrayFromDict("connector", [])
+    ->getStrArrayFromJsonArray
+    ->Array.flatMap(connector => {
+      let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
+      connectorLabelArr->Array.map(item => {
+        item->getDictFromJsonObject->getString("connector_label", "")
       })
-      newArr
-    }
-  | #payment_method_type => {
-      let arr = filterValues->getArrayFromDict("payment_method", [])->getStrArrayFromJsonArray
-      let newArr = arr->Array.flatMap(paymentMethod => {
-        let paymentMethodTypeArr =
-          dict
-          ->getDictfromDict("payment_method")
-          ->getArrayFromDict(paymentMethod, [])
-          ->getStrArrayFromJsonArray
-        paymentMethodTypeArr->Array.map(item => {
-          item
-        })
+    })
+  | #payment_method_type =>
+    filterValues
+    ->getArrayFromDict("payment_method", [])
+    ->getStrArrayFromJsonArray
+    ->Array.flatMap(paymentMethod => {
+      let paymentMethodTypeArr =
+        dict
+        ->getDictfromDict("payment_method")
+        ->getArrayFromDict(paymentMethod, [])
+        ->getStrArrayFromJsonArray
+      paymentMethodTypeArr->Array.map(item => {
+        item
       })
-      newArr
-    }
+    })
   | _ => []
   }
 
@@ -239,8 +239,10 @@ let getConditionalFilter = (key, dict, filterValues) => {
 
 let getOptionsForOrderFilters = (dict, filterValues) => {
   open LogicUtils
-  let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  let newArr = arr->Array.flatMap(connector => {
+  filterValues
+  ->getArrayFromDict("connector", [])
+  ->getStrArrayFromJsonArray
+  ->Array.flatMap(connector => {
     let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
     connectorLabelArr->Array.map(item => {
       let label = item->getDictFromJsonObject->getString("connector_label", "")
@@ -252,7 +254,6 @@ let getOptionsForOrderFilters = (dict, filterValues) => {
       option
     })
   })
-  newArr
 }
 
 let getAllPaymentMethodType = dict => {
