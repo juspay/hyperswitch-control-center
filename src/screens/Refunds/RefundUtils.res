@@ -137,6 +137,10 @@ let initialFixedFilter = () => [
   ),
 ]
 
+let getLabelFromFilterType = (filter: filter) => {
+  (filter :> string)
+}
+
 let getValueFromFilterType = (filter: filter) => {
   switch filter {
   | #connector_label => "merchant_connector_id"
@@ -201,7 +205,7 @@ let initialFilters = (json, filtervalues, _, filterKeys, setfilterKeys) => {
 
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   if connectorFilter->Array.length !== 0 {
-    arr->Array.push((#connector_label: filter :> string))
+    arr->Array.push(#connector_label->getLabelFromFilterType)
 
     if !(filterKeys->Array.includes(getValueFromFilterType(#connector_label))) {
       filterKeys->Array.push(getValueFromFilterType(#connector_label))
