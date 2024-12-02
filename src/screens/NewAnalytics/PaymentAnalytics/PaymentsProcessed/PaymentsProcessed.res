@@ -278,7 +278,7 @@ let make = (
       getPaymentsProcessed()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (compareToStartTime, compareToEndTime, comparison))
 
   let mockDelay = async () => {
     if paymentsProcessedData != []->JSON.Encode.array {

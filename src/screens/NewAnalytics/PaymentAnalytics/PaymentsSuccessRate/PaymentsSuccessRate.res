@@ -181,7 +181,7 @@ let make = (
       getPaymentsSuccessRate()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal, compareToStartTime, compareToEndTime, comparison))
+  }, (compareToStartTime, compareToEndTime, comparison))
 
   let mockDelay = async () => {
     if paymentsSuccessRateData != []->JSON.Encode.array {
