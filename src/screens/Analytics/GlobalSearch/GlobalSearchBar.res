@@ -19,6 +19,7 @@ let make = () => {
   let (categorieSuggestionResponse, setCategorieSuggestionResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchResults, setSearchResults) = React.useState(_ => [])
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let isReconEnabled = merchentDetails.recon_status === Active
@@ -37,18 +38,6 @@ let make = () => {
       GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
     }
   }
-
-  React.useEffect(() => {
-    let onKeyPress = event => {
-      let keyPressed = event->ReactEvent.Keyboard.key
-
-      if keyPressed == "Enter" {
-        selectedOption->redirectOnSelect
-      }
-    }
-    Window.addEventListener("keydown", onKeyPress)
-    Some(() => Window.removeEventListener("keydown", onKeyPress))
-  }, [])
 
   let getCategoryOptions = async () => {
     setState(_ => Loading)
@@ -160,7 +149,9 @@ let make = () => {
   }, [showModal])
 
   React.useEffect(() => {
-    getCategoryOptions()->ignore
+    if userHasAccess(~groupAccess=AnalyticsView) === Access {
+      getCategoryOptions()->ignore
+    }
 
     let onKeyPress = event => {
       let metaKey = event->ReactEvent.Keyboard.metaKey

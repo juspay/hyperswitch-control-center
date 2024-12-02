@@ -1,3 +1,4 @@
+open OrderTypes
 type filterTypes = {
   connector: array<string>,
   currency: array<string>,
@@ -8,6 +9,7 @@ type filterTypes = {
   connector_label: array<string>,
   card_network: array<string>,
   customer_id: array<string>,
+  amount: array<string>,
 }
 
 type filter = [
@@ -20,6 +22,7 @@ type filter = [
   | #connector_label
   | #card_network
   | #customer_id
+  | #amount
   | #unknown
 ]
 
@@ -34,6 +37,7 @@ let getFilterTypeFromString = filterType => {
   | "connector_label" => #connector_label
   | "card_network" => #card_network
   | "customer_id" => #customer_id
+  | "amount" => #amount
   | _ => #unknown
   }
 }
@@ -188,6 +192,10 @@ let filterByData = (txnArr, value) => {
   })
 }
 
+let getLabelFromFilterType = (filter: filter) => {
+  (filter :> string)
+}
+
 let getValueFromFilterType = (filter: filter) => {
   switch filter {
   | #connector_label => "merchant_connector_id"
@@ -277,6 +285,7 @@ let itemToObjMapper = dict => {
     connector_label: [],
     card_network: dict->getArrayFromDict("card_network", [])->getStrArrayFromJsonArray,
     customer_id: [],
+    amount: [],
   }
 }
 
@@ -285,15 +294,15 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
 
   let filterDict = json->getDictFromJsonObject
 
-  let filterArr = filterDict->itemToObjMapper
-  let arr = filterDict->Dict.keysToArray
+  let filterData = filterDict->itemToObjMapper
+  let filtersArray = filterDict->Dict.keysToArray
   let onDeleteClick = name => {
     [name]->removeKeys
     setfilterKeys(_ => filterKeys->Array.filter(item => item !== name))
   }
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   if connectorFilter->Array.length !== 0 {
-    arr->Array.push((#connector_label: filter :> string))
+    filtersArray->Array.push(#connector_label->getLabelFromFilterType)
 
     if !(filterKeys->Array.includes(getValueFromFilterType(#connector_label))) {
       filterKeys->Array.push(getValueFromFilterType(#connector_label))
@@ -301,23 +310,25 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
     }
   }
 
-  arr->Array.push((#payment_method_type: filter :> string))
-  arr->Array.push((#customer_id: filter :> string))
+  let additionalFilters =
+    [#payment_method_type, #customer_id, #amount]->Array.map(getLabelFromFilterType)
 
-  arr->Array.map((key): EntityType.initialFilters<'t> => {
+  let allFiltersArray = filtersArray->Array.concat(additionalFilters)
+
+  allFiltersArray->Array.map((key): EntityType.initialFilters<'t> => {
     let values = switch key->getFilterTypeFromString {
-    | #connector => filterArr.connector
-    | #payment_method => filterArr.payment_method
-    | #currency => filterArr.currency
-    | #authentication_type => filterArr.authentication_type
-    | #status => filterArr.status
+    | #connector => filterData.connector
+    | #payment_method => filterData.payment_method
+    | #currency => filterData.currency
+    | #authentication_type => filterData.authentication_type
+    | #status => filterData.status
     | #payment_method_type =>
       getConditionalFilter(key, filterDict, filtervalues)->Array.length > 0
         ? getConditionalFilter(key, filterDict, filtervalues)
-        : filterArr.payment_method_type
+        : filterData.payment_method_type
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
-    | #card_network => filterArr.card_network
-    | #customer_id => filterArr.customer_id
+    | #card_network => filterData.card_network
+    | #customer_id => filterData.customer_id
     | _ => []
     }
 
@@ -329,6 +340,19 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
         option
       })
     }
+
+    let amountFilterOptions: array<FilterSelectBox.dropdownOption> = [
+      GreaterThanEqualTo,
+      LessThanEqualTo,
+      EqualTo,
+      InBetween,
+    ]->Array.map(option => {
+      let label = option->mapRangeTypetoString
+      {
+        FilterSelectBox.label,
+        value: label,
+      }
+    })
 
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
@@ -345,6 +369,10 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
             <Icon name="cross-outline" size=13 />
           </div>,
         )(~input, ~placeholder=`Enter ${input.name->snakeToTitle}...`)
+    | #amount =>
+      (~input as _, ~placeholder as _) => {
+        <OrdersHelper options=amountFilterOptions />
+      }
 
     | _ =>
       InputFields.filterMultiSelectInput(
@@ -526,3 +554,36 @@ let orderViewList: OMPSwitchTypes.ompViews = [
     entity: #Profile,
   },
 ]
+
+let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) => {
+  keys->Array.forEach(key => dict->Dict.delete(key))
+}
+
+let validateForm = values => {
+  open LogicUtils
+  let errors = Dict.make()
+  let dict = values->getDictFromJsonObject
+  let sAmntK = dict->getvalFromDict("start_amount")->mapOptionOrDefault(None, key => Some(key))
+  let eAmtK = dict->getvalFromDict("end_amount")->mapOptionOrDefault(None, key => Some(key))
+
+  // check only if the key is present
+  if sAmntK->Option.isSome && eAmtK->Option.isSome {
+    let _ = if (
+      sAmntK->Option.getOr(JSON.Encode.null) === JSON.Encode.null &&
+        eAmtK->Option.getOr(JSON.Encode.null) === JSON.Encode.null
+    ) {
+      errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+    } else {
+      let startAmt = sAmntK->getFloatFromJson(0.0)
+      let endAmt = eAmtK->getFloatFromJson(0.0)
+      if endAmt < startAmt {
+        errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+      }
+    }
+  } else if sAmntK->Option.isSome && sAmntK->Option.getOr(JSON.Encode.null) === JSON.Encode.null {
+    errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+  } else if eAmtK->Option.isSome && eAmtK->Option.getOr(JSON.Encode.null) === JSON.Encode.null {
+    errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+  }
+  errors->JSON.Encode.object
+}

@@ -81,6 +81,13 @@ let make = () => {
     None
   }, [userGroupACL])
 
+  let ompDropdowns =
+    <div className="flex items-center gap-4 mx-4">
+      <MerchantSwitch />
+      <p className="text-gray-400 text-fs-14"> {"/"->React.string} </p>
+      <ProfileSwitch />
+    </div>
+
   <>
     <div>
       {switch dashboardPageState {
@@ -104,20 +111,25 @@ let make = () => {
                   <div className="border-b shadow hyperswitch_box_shadow ">
                     <div className="w-full max-w-fixedPageWidth px-9">
                       <Navbar
-                        headerActions={<div className="relative flex items-center gap-4 my-2 ">
-                          <GlobalSearchBar />
-                          <RenderIf condition={isInternalUser}>
-                            <SwitchMerchantForInternal />
-                          </RenderIf>
-                          <ProfileSwitch />
-                          <div
-                            className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
-                            {modeText->React.string}
+                        headerActions={<div className="relative flex space-around gap-4 my-2 ">
+                          <div className="flex gap-4">
+                            <GlobalSearchBar />
+                            // <RenderIf condition={isInternalUser}>      // to be removed later
+                            //   <SwitchMerchantForInternal />
+                            // </RenderIf>
+                            <div
+                              className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
+                              {modeText->React.string}
+                            </div>
                           </div>
                         </div>}
                         headerLeftActions={switch Window.env.logoUrl {
-                        | Some(url) => <img alt="image" src={`${url}`} />
-                        | None => React.null
+                        | Some(url) =>
+                          <>
+                            <img className="w-40" alt="image" src={`${url}`} />
+                            {ompDropdowns}
+                          </>
+                        | None => ompDropdowns
                         }}
                       />
                     </div>

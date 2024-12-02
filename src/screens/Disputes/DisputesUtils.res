@@ -136,6 +136,10 @@ let initialFixedFilter = () => [
   ),
 ]
 
+let getLabelFromFilterType = (filter: filter) => {
+  (filter :> string)
+}
+
 let getValueFromFilterType = (filter: filter) => {
   switch filter {
   | #connector_label => "merchant_connector_id"
@@ -193,11 +197,11 @@ let itemToObjMapper = dict => {
 
 let initialFilters = (json, filtervalues, _, filterKeys, setfilterKeys) => {
   let filterDict = json->getDictFromJsonObject
-  let arr = filterDict->Dict.keysToArray->Array.filter(item => item != "currency")
+  let filtersArray = filterDict->Dict.keysToArray->Array.filter(item => item != "currency")
 
   let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   if connectorFilter->Array.length !== 0 {
-    arr->Array.push((#connector_label: filter :> string))
+    filtersArray->Array.push(#connector_label->getLabelFromFilterType)
 
     if !(filterKeys->Array.includes(getValueFromFilterType(#connector_label))) {
       filterKeys->Array.push(getValueFromFilterType(#connector_label))
@@ -205,16 +209,16 @@ let initialFilters = (json, filtervalues, _, filterKeys, setfilterKeys) => {
     }
   }
 
-  let filterArr = filterDict->itemToObjMapper
+  let filterData = filterDict->itemToObjMapper
 
-  arr->Array.map((key): EntityType.initialFilters<'t> => {
+  filtersArray->Array.map((key): EntityType.initialFilters<'t> => {
     let title = `Select ${key->snakeToTitle}`
 
     let values = switch key->getFilterTypeFromString {
-    | #connector => filterArr.connector
-    | #currency => filterArr.currency
-    | #dispute_status => filterArr.dispute_status
-    | #dispute_stage => filterArr.dispute_stage
+    | #connector => filterData.connector
+    | #currency => filterData.currency
+    | #dispute_status => filterData.dispute_status
+    | #dispute_stage => filterData.dispute_stage
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
     | _ => []
     }
