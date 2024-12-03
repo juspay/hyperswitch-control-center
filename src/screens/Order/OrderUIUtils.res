@@ -552,18 +552,26 @@ let validateForm = values => {
       sAmntK->Option.getOr(JSON.Encode.null) === JSON.Encode.null &&
         eAmtK->Option.getOr(JSON.Encode.null) === JSON.Encode.null
     ) {
-      errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+      errors->Dict.set("Invalid", "Please enter value."->JSON.Encode.string)
     } else {
-      let startAmt = sAmntK->getFloatFromJson(0.0)
-      let endAmt = eAmtK->getFloatFromJson(0.0)
-      if endAmt < startAmt {
-        errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+      switch (sAmntK, eAmtK) {
+      | (Some(start), Some(end)) =>
+        if end != JSON.Encode.null && end < start {
+          errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+        }
+      | (_, _) => ()
       }
+      // let startAmt = sAmntK->getFloatFromJson(0.0)
+      // let endAmt = eAmtK->getFloatFromJson(0.0)
+      // if endAmt < startAmt {
+      //   errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+      // }
     }
-  } else if sAmntK->Option.isSome && sAmntK->Option.getOr(JSON.Encode.null) === JSON.Encode.null {
-    errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
-  } else if eAmtK->Option.isSome && eAmtK->Option.getOr(JSON.Encode.null) === JSON.Encode.null {
-    errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
   }
+  //  else if sAmntK->Option.isSome && sAmntK->Option.getOr(JSON.Encode.null) === JSON.Encode.null {
+  //   errors->Dict.set("Invalid", "Please enter value."->JSON.Encode.string)
+  // } else if eAmtK->Option.isSome && eAmtK->Option.getOr(JSON.Encode.null) === JSON.Encode.null {
+  //   errors->Dict.set("Invalid", "Please enter value."->JSON.Encode.string)
+  // }
   errors->JSON.Encode.object
 }

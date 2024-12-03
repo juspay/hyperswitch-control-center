@@ -2,7 +2,7 @@ let startamountField = FormRenderer.makeFieldInfo(
   ~label="",
   ~name="start_amount",
   ~placeholder="0",
-  ~customInput=InputFields.numericTextInput(),
+  ~customInput=InputFields.numericTextInput(~precision=2),
   ~type_="number",
 )
 
@@ -10,7 +10,7 @@ let endAmountField = FormRenderer.makeFieldInfo(
   ~label="",
   ~name="end_amount",
   ~placeholder="0",
-  ~customInput=InputFields.numericTextInput(),
+  ~customInput=InputFields.numericTextInput(~precision=2),
   ~type_="number",
 )
 
@@ -25,7 +25,7 @@ module CustomAmountEqualField = {
           ~input,
           ~placeholder as _,
         ) =>
-          InputFields.numericTextInput()(
+          InputFields.numericTextInput(~precision=2)(
             ~input={
               ...input,
               onChange: {
@@ -46,6 +46,7 @@ module CustomAmountEqualField = {
 module CustomAmountBetweenField = {
   @react.component
   let make = () => {
+    let form = ReactFinalForm.useForm()
     <div className="flex gap-1 items-center justify-center mx-1 w-10.25-rem">
       <FormRenderer.FieldRenderer
         labelClass="font-semibold !text-black"
@@ -53,11 +54,12 @@ module CustomAmountBetweenField = {
           ~input,
           ~placeholder as _,
         ) =>
-          InputFields.numericTextInput()(
+          InputFields.numericTextInput(~precision=2)(
             ~input={
               ...input,
               onChange: {
                 ev => {
+                  form.change("end_amount", 0->Identity.genericTypeToJson)
                   input.onChange(ev)
                 }
               },
@@ -75,7 +77,7 @@ module CustomAmountBetweenField = {
 @react.component
 let make = (~options) => {
   open OrderTypes
-  open LogicUtils
+  // open LogicUtils
   open CommonAuthForm
   let (selectedOption, setSelectedOption) = React.useState(_ => UnknownRange("Select Amount"))
   let form = ReactFinalForm.useForm()
@@ -87,9 +89,12 @@ let make = (~options) => {
     onBlur: _ => (),
     onChange: ev => {
       let newValue = ev->Identity.formReactEventToString
-      form.change("start_amount", JSON.Encode.null)
-      form.change("end_amount", JSON.Encode.null)
-      setSelectedOption(_ => newValue->mapStringToRange)
+      if newValue != selectedOption->mapRangeTypetoString && newValue->LogicUtils.isNonEmptyString {
+        form.change("start_amount", JSON.Encode.null)
+        form.change("end_amount", JSON.Encode.null)
+        Js.log2("formstate", formState.values)
+        setSelectedOption(_ => newValue->mapStringToRange)
+      }
     },
     onFocus: _ => (),
     value: {
@@ -97,19 +102,26 @@ let make = (~options) => {
     },
     checked: true,
   }
-  React.useEffect(() => {
-    let formDict = formState.values->getDictFromJsonObject
-    if selectedOption == GreaterThanEqualTo {
-      let _ = formDict->Dict.delete("end_amount")
-    } else if selectedOption == LessThanEqualTo {
-      let _ = formDict->Dict.delete("start_amount")
-    }
-    // remove the object reference
-    let t = formDict->JSON.Encode.object->JSON.stringify->safeParse
-    form.reset(t->Nullable.make)
-    None
-  }, [selectedOption])
+  // React.useEffect(() => {
+  //   let formDict = formState.values->getDictFromJsonObject
+  //   if selectedOption == GreaterThanEqualTo {
+  //     // filtervalues->Dict.delete("end_amount")
+  //     let _ = formDict->Dict.delete("end_amount")
+  //   } else if selectedOption == LessThanEqualTo {
+  //     // filtervalues->Dict.delete("start_amount")
+  //     let _ = formDict->Dict.delete("start_amount")
+  //   }
+  //   // remove the object reference
+  //   Js.log2("useffect formdict", formDict)
+  //   let t = formDict->JSON.Encode.object->JSON.stringify->safeParse
+  //   Js.log2("parsed string", t)
+  //   form.reset(t->Nullable.make)
 
+  //   Js.log2("useffect obj ref after", formState.values)
+  //   None
+  // }, [selectedOption])
+
+  Js.log(formState.values)
   let renderCommonFields = field =>
     <div className={"flex gap-5 items-center justify-center w-28"}>
       <FormRenderer.FieldRenderer field={field} labelClass fieldWrapperClass />
