@@ -159,8 +159,6 @@ let make = () => {
     ) {
       setShowModal(_ => true)
     }
-
-    event->preventDefault
   }
 
   React.useEffect(() => {
