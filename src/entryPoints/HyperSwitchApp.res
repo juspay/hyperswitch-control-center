@@ -83,8 +83,10 @@ let make = () => {
 
   let ompDropdowns =
     <div className="flex items-center gap-4 mx-4">
-      <MerchantSwitch />
-      <p className="text-gray-400 text-fs-14"> {"/"->React.string} </p>
+      <RenderIf condition={!isInternalUser}>
+        <MerchantSwitch />
+        <p className="text-gray-400 text-fs-14"> {"/"->React.string} </p>
+      </RenderIf>
       <ProfileSwitch />
     </div>
 
@@ -114,9 +116,9 @@ let make = () => {
                         headerActions={<div className="relative flex space-around gap-4 my-2 ">
                           <div className="flex gap-4">
                             <GlobalSearchBar />
-                            // <RenderIf condition={isInternalUser}>      // to be removed later
-                            //   <SwitchMerchantForInternal />
-                            // </RenderIf>
+                            <RenderIf condition={isInternalUser}>
+                              <SwitchMerchantForInternal />
+                            </RenderIf>
                             <div
                               className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
                               {modeText->React.string}
