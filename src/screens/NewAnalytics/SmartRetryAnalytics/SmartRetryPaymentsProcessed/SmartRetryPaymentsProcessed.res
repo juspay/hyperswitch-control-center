@@ -190,8 +190,16 @@ let make = (
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
       let primaryData =
-        primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])->modifyQueryData
-      let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+        primaryResponse
+        ->getDictFromJsonObject
+        ->getArrayFromDict("queryData", [])
+        ->PaymentsProcessedUtils.modifyQueryData
+        ->modifySmartRetryQueryData
+      let primaryMetaData =
+        primaryResponse
+        ->getDictFromJsonObject
+        ->getArrayFromDict("metaData", [])
+        ->modifySmartRetryMetaData
       setSmartRetryPaymentsProcessedTableData(_ => primaryData)
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {
@@ -201,9 +209,13 @@ let make = (
             secondaryResponse
             ->getDictFromJsonObject
             ->getArrayFromDict("queryData", [])
-            ->modifyQueryData
+            ->PaymentsProcessedUtils.modifyQueryData
+            ->modifySmartRetryQueryData
           let secondaryMetaData =
-            secondaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
+            secondaryResponse
+            ->getDictFromJsonObject
+            ->getArrayFromDict("metaData", [])
+            ->modifySmartRetryMetaData
           let secondaryModifiedData = [secondaryData]->Array.map(data => {
             NewAnalyticsUtils.fillMissingDataPoints(
               ~data,

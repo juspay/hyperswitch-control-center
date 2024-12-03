@@ -1,12 +1,8 @@
 type smartRetryPaymentsProcessedCols =
   | Payment_Processed_Amount
   | Payment_Processed_Count
-  | Payment_Processed_Amount_Without_Smart_Retries
-  | Payment_Processed_Count_Without_Smart_Retries
   | Total_Payment_Processed_Amount
   | Total_Payment_Processed_Count
-  | Total_Payment_Processed_Amount_Without_Smart_Retries
-  | Total_Payment_Processed_Count_Without_Smart_Retriess
   | Time_Bucket
 
 type smartRetryPaymentsProcessedObject = {
