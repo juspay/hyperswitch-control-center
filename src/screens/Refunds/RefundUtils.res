@@ -137,9 +137,7 @@ let initialFixedFilter = () => [
   ),
 ]
 
-let getLabelFromFilterType = (filter: filter) => {
-  (filter :> string)
-}
+let getLabelFromFilterType = (filter: filter) => (filter :> string)
 
 let getValueFromFilterType = (filter: filter) => {
   switch filter {
@@ -158,8 +156,10 @@ let getConditionalFilter = (key, dict, filterValues) => {
     ->getArrayFromDict("connector", [])
     ->getStrArrayFromJsonArray
     ->Array.flatMap(connector => {
-      let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
-      connectorLabelArr->Array.map(item => {
+      dict
+      ->getDictfromDict("connector")
+      ->getArrayFromDict(connector, [])
+      ->Array.map(item => {
         item->getDictFromJsonObject->getString("connector_label", "")
       })
     })
@@ -205,6 +205,11 @@ let initialFilters = (json, filtervalues, _, _, _) => {
   let filtersArray =
     filterDict->Dict.keysToArray->Array.filterWithIndex((_item, index) => index <= 2)
   let filterData = filterDict->itemToObjMapper
+
+  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+  if connectorFilter->Array.length !== 0 {
+    filtersArray->Array.push(#connector_label->getLabelFromFilterType)
+  }
 
   filtersArray->Array.map((key): EntityType.initialFilters<'t> => {
     let title = `Select ${key->snakeToTitle}`

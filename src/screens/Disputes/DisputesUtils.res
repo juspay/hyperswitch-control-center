@@ -136,9 +136,7 @@ let initialFixedFilter = () => [
   ),
 ]
 
-let getLabelFromFilterType = (filter: filter) => {
-  (filter :> string)
-}
+let getLabelFromFilterType = (filter: filter) => (filter :> string)
 
 let getValueFromFilterType = (filter: filter) => {
   switch filter {
@@ -198,6 +196,11 @@ let itemToObjMapper = dict => {
 let initialFilters = (json, filtervalues, _, _, _) => {
   let filterDict = json->getDictFromJsonObject
   let filtersArray = filterDict->Dict.keysToArray->Array.filter(item => item != "currency")
+
+  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+  if connectorFilter->Array.length !== 0 {
+    filtersArray->Array.push(#connector_label->getLabelFromFilterType)
+  }
   let filterData = filterDict->itemToObjMapper
 
   filtersArray->Array.map((key): EntityType.initialFilters<'t> => {

@@ -192,9 +192,7 @@ let filterByData = (txnArr, value) => {
   })
 }
 
-let getLabelFromFilterType = (filter: filter) => {
-  (filter :> string)
-}
+let getLabelFromFilterType = (filter: filter) => (filter :> string)
 
 let getValueFromFilterType = (filter: filter) => {
   switch filter {
@@ -212,8 +210,10 @@ let getConditionalFilter = (key, dict, filterValues) => {
     ->getArrayFromDict("connector", [])
     ->getStrArrayFromJsonArray
     ->Array.flatMap(connector => {
-      let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
-      connectorLabelArr->Array.map(item => {
+      dict
+      ->getDictfromDict("connector")
+      ->getArrayFromDict(connector, [])
+      ->Array.map(item => {
         item->getDictFromJsonObject->getString("connector_label", "")
       })
     })
@@ -300,6 +300,11 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
   let onDeleteClick = name => {
     [name]->removeKeys
     setfilterKeys(_ => filterKeys->Array.filter(item => item !== name))
+  }
+
+  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
+  if connectorFilter->Array.length !== 0 {
+    filtersArray->Array.push(#connector_label->getLabelFromFilterType)
   }
 
   let additionalFilters =
