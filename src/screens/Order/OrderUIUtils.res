@@ -556,8 +556,12 @@ let validateForm = values => {
     } else {
       switch (sAmntK, eAmtK) {
       | (Some(start), Some(end)) =>
-        if end != JSON.Encode.null && end < start {
-          errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+        if end != JSON.Encode.null {
+          let startAmt = start->getFloatFromJson(0.0)
+          let endAmt = end->getFloatFromJson(0.0)
+          if endAmt < startAmt {
+            errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+          }
         }
       | (_, _) => ()
       }
