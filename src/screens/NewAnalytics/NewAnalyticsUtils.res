@@ -48,12 +48,12 @@ let requestBody = (
   ~endTime: string,
   ~metrics: array<metrics>,
   ~groupByNames: option<array<string>>=None,
+  ~filter: option<JSON.t>=None,
   ~delta: option<bool>=None,
   ~granularity: option<string>=None,
   ~distributionValues: option<JSON.t>=None,
 ) => {
   let metrics = metrics->Array.map(v => (v: metrics :> string))
-  let filter = Dict.make()->JSON.Encode.object->Some
 
   [
     AnalyticsUtils.getFilterRequestBody(

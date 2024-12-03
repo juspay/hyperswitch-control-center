@@ -89,15 +89,18 @@ let make = (
         ~id=Some((entity.domain: domain :> string)),
       )
 
+      // TODO: need refactor on filters
+      let filters = Dict.make()
+      filters->Dict.set("first_attempt", [false->JSON.Encode.bool]->JSON.Encode.array)
+
       let body = NewAnalyticsUtils.requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
+        ~filter=filters->JSON.Encode.object->Some,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~groupByNames=[groupBy.value]->Some,
       )
-
-      Js.log2(">>", body)
 
       let response = await updateDetails(url, body, Post)
       let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
