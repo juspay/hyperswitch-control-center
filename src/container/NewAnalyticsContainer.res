@@ -77,7 +77,15 @@ let make = () => {
           <NewSmartRetryAnalytics />
         </div>,
     },
+    {
+      title: "Refunds",
+      renderContent: () =>
+        <div className="mt-5">
+          <NewRefundsAnalytics />
+        </div>,
+    },
   ]
+
   <PageLoaderWrapper screenState>
     <div>
       <PageUtils.PageHeading title="Insights" />

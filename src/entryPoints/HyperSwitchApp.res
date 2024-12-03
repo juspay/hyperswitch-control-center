@@ -182,6 +182,7 @@ let make = () => {
                         | list{"analytics-disputes"} =>
                           <AnalyticsContainer />
                         | list{"new-analytics-payment"}
+                        | list{"new-analytics-refund"}
                         | list{"new-analytics-smart-retry"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.newAnalytics &&
