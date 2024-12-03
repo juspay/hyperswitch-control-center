@@ -49,7 +49,7 @@ down_time=false
 tax_processor=true
 transaction_view=false
 x_feature_route=false
-tenant_user=true
+tenant_user=false
 [default.merchant_config]
 [default.merchant_config.new_analytics]
 org_ids=[]
