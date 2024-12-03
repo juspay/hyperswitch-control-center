@@ -158,6 +158,7 @@ let make = () => {
         (ctrlKey && keyPressed == global_search_activate_key)
     ) {
       setShowModal(_ => true)
+      event->preventDefault
     }
   }
 
