@@ -116,7 +116,7 @@ let singleStateItemToObjMapper = json => {
     refund_success_rate: dict->getFloat("refund_success_rate", 0.0),
     refund_count: dict->getInt("refund_count", 0),
     refund_success_count: dict->getInt("refund_success_count", 0),
-    refund_processed_amount: dict->getFloat("refund_processed_amount", 0.0),
+    refund_processed_amount: dict->getFloat("refund_processed_amount_in_usd", 0.0),
   })
   ->Option.getOr({
     singleStateInitialValue
@@ -139,7 +139,28 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  json->getQueryData->Array.map(json => singleStateItemToObjMapper(json))
+  let refund_count = ref(0)
+  let refund_processed_amount = ref(0.0)
+  let refund_success_count = ref(0)
+  let refund_success_rate = ref(0.0)
+
+  let dataObj = json->getQueryData->Array.map(json => singleStateItemToObjMapper(json))
+
+  dataObj->Array.forEach(item => {
+    refund_count := refund_count.contents + item.refund_count
+    refund_processed_amount := refund_processed_amount.contents +. item.refund_processed_amount
+    refund_success_count := refund_success_count.contents + item.refund_success_count
+    refund_success_rate := refund_success_rate.contents +. item.refund_success_rate
+  })
+
+  [
+    {
+      refund_success_rate: refund_success_rate.contents,
+      refund_count: refund_count.contents,
+      refund_success_count: refund_success_count.contents,
+      refund_processed_amount: refund_processed_amount.contents,
+    },
+  ]
 }
 
 let timeSeriesObjMapper = json =>
