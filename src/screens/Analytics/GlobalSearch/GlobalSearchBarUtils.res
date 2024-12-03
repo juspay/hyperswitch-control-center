@@ -472,6 +472,9 @@ let generateQuery = searchQuery => {
   ->Array.forEach(query => {
     if RegExp.test(%re("/^[^:\s]+:[^:\s]*$/"), query) {
       filters->Array.push(query)
+    } else if !(query->CommonAuthUtils.isValidEmail) {
+      let filter = `${Customer_Email->getcategoryFromVariant}:${query}`
+      filters->Array.push(filter)
     } else {
       queryText := query
     }
