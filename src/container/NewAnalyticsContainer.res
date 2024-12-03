@@ -76,7 +76,7 @@ let make = () => {
     <div>
       <PageUtils.PageHeading title="Insights" />
       <div
-        className="-ml-1 sticky top-0 z-30 p-1 backdrop-blur-sm bg-hyperswitch_background/70 py-1 rounded-lg my-2">
+        className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">
         <DynamicFilter
           initialFilters=[]
           options=[]

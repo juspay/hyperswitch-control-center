@@ -175,10 +175,11 @@ let make = () => {
     checked: true,
   }
 
-  let customHRTagStyle = "border-t border-blue-830"
-  let customPadding = "py-1 w-full"
-  let customStyle = "w-56 text-gray-200 bg-blue-840 dark:bg-black hover:bg-popover-background-hover hover:text-gray-100 !w-full"
-  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
+  let customStyle = "text-blue-500 bg-white dark:bg-black hover:bg-jp-gray-100 text-nowrap w-full"
+  let addItemBtnStyle = "border border-t-0 w-full"
+  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
+  let dropdownContainerStyle = "rounded-md border border-1 w-[15rem]"
+
   React.useEffect(() => {
     getMerchantList()->ignore
     None
@@ -188,7 +189,7 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
-  <div className="border border-popover-background rounded w-5/6">
+  <div className="w-fit">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
@@ -199,22 +200,21 @@ let make = () => {
       marginTop="mt-14"
       hideMultiSelectButtons=true
       addButton=false
-      customStyle="bg-blue-840 hover:bg-popover-background-hover rounded !w-full"
-      customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
+      customStyle="rounded w-fit"
       searchable=false
       baseComponent={<ListBaseComp
         heading="Merchant" subHeading={currentOMPName(merchantList, merchantId)} arrow
       />}
-      baseComponentCustomStyle="bg-popover-background border-blue-820 rounded text-white"
+      baseComponentCustomStyle="bg-white rounded"
       bottomComponent={<AddNewMerchantProfileButton
-        user="merchant" setShowModal customPadding customStyle customHRTagStyle
+        user=#Merchant setShowModal customStyle addItemBtnStyle
       />}
-      optionClass="text-gray-200 text-fs-14"
-      selectClass="text-gray-200 text-fs-14"
-      customDropdownOuterClass="!border-none !w-full"
-      fullLength=true
+      optionClass="text-gray-600 text-fs-14"
+      selectClass="text-gray-600 text-fs-14"
+      customDropdownOuterClass="!border-none w-fit"
       toggleChevronState
       customScrollStyle
+      dropdownContainerStyle
       shouldDisplaySelectedOnTop=true
     />
     <RenderIf condition={showModal}>

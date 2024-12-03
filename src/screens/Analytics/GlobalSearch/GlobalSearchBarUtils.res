@@ -1,6 +1,14 @@
 open GlobalSearchTypes
 open LogicUtils
 
+let defaultRoute = "/search"
+let global_search_activate_key = "k"
+let filterSeparator = ":"
+
+let getEndChar = string => {
+  string->String.charAt(string->String.length - 1)
+}
+
 let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName) => {
   searchOptions
   ->Option.getOr([])
@@ -418,7 +426,7 @@ let disputesGroupByNames = ["connector", "dispute_stage"]
 
 let getFilterBody = groupByNames =>
   {
-    let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=360)
+    let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=7)
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
       startTime: defaultDate.start_time,
       endTime: defaultDate.end_time,
@@ -433,7 +441,7 @@ let generateFilter = (queryArray: array<string>) => {
   queryArray->Array.forEach(query => {
     let keyValuePair =
       query
-      ->String.split(":")
+      ->String.split(filterSeparator)
       ->Array.filter(query => {
         query->String.trim->isNonEmptyString
       })
@@ -442,8 +450,14 @@ let generateFilter = (queryArray: array<string>) => {
     let value = keyValuePair->getValueFromArray(1, "")
 
     switch filter->Dict.get(key) {
-    | Some(prevArr) => filter->Dict.set(key, prevArr->Array.concat([value]))
-    | _ => filter->Dict.set(key, [value])
+    | Some(prevArr) =>
+      if !(prevArr->Array.includes(value)) && value->isNonEmptyString {
+        filter->Dict.set(key, prevArr->Array.concat([value]))
+      }
+    | _ =>
+      if value->isNonEmptyString {
+        filter->Dict.set(key, [value])
+      }
     }
   })
 
@@ -467,7 +481,7 @@ let generateQuery = searchQuery => {
     query->String.trim->isNonEmptyString
   })
   ->Array.forEach(query => {
-    if RegExp.test(%re("/^[^:\s]+:[^:\s]+$/"), query) {
+    if RegExp.test(%re("/^[^:\s]+:[^:\s]*$/"), query) {
       filters->Array.push(query)
     } else {
       queryText := query
@@ -475,13 +489,15 @@ let generateQuery = searchQuery => {
   })
 
   let body = {
-    let query = if filters->Array.length > 0 {
-      [("filters", filters->generateFilter->JSON.Encode.object)]
+    let filterObj = filters->generateFilter
+    let query = if filters->Array.length > 0 && filterObj->Dict.keysToArray->Array.length > 0 {
+      [("filters", filterObj->JSON.Encode.object)]
     } else {
       []
     }
 
-    let query = query->Array.concat([("query", queryText.contents->JSON.Encode.string)])
+    let query =
+      query->Array.concat([("query", queryText.contents->String.trim->JSON.Encode.string)])
 
     query->Dict.fromArray
   }
@@ -506,15 +522,53 @@ let validateQuery = searchQuery => {
   freeTextCount.contents > 1
 }
 
-let getViewType = (~state, ~searchResults) => {
+let getViewType = (~state, ~searchResults, ~searchText) => {
   switch state {
   | Loading => Load
-  | Loaded =>
-    if searchResults->Array.length > 0 {
-      Results
-    } else {
-      EmptyResult
+  | Loaded => {
+      let endChar = searchText->String.charAt(searchText->String.length - 1)
+      let isFilter = endChar == filterSeparator || endChar == " "
+
+      if isFilter {
+        FiltersSugsestions
+      } else if searchResults->Array.length > 0 {
+        Results
+      } else {
+        EmptyResult
+      }
     }
   | Idle => FiltersSugsestions
   }
 }
+
+let getSearchValidation = query => {
+  let paylod = query->generateQuery
+  let query = paylod->getString("query", "")->String.trim
+
+  !(paylod->getObj("filters", Dict.make())->isEmptyDict && query->isEmptyString)
+}
+
+let sidebarScrollbarCss = `
+  @supports (-webkit-appearance: none){
+    .sidebar-scrollbar {
+        scrollbar-width: auto;
+        scrollbar-color: #8a8c8f;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar {
+        display: block;
+        overflow: scroll;
+        height: 4px;
+        width: 5px;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #8a8c8f;
+        border-radius: 3px;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar-track {
+        display: none;
+      }
+}
+  `

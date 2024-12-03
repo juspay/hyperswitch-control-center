@@ -3,6 +3,120 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.03.0
+
+### Bug Fixes
+
+- Global search fixes ([#1832](https://github.com/juspay/hyperswitch-control-center/pull/1832)) ([`b670e71`](https://github.com/juspay/hyperswitch-control-center/commit/b670e718d424f5d7cf19e5ad6d94b5a436aa7878))
+
+**Full Changelog:** [`2024.11.29.3...2024.12.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.29.3...2024.12.03.0)
+
+- - -
+
+## 2024.11.29.3
+
+### Bug Fixes
+
+- Amount filter validation ([#1834](https://github.com/juspay/hyperswitch-control-center/pull/1834)) ([`8be6040`](https://github.com/juspay/hyperswitch-control-center/commit/8be6040a9af511e48ad7abd78f8475ea6f7940da))
+
+**Full Changelog:** [`2024.11.29.2...2024.11.29.3`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.29.2...2024.11.29.3)
+
+- - -
+
+## 2024.11.29.2
+
+### Bug Fixes
+
+- Tooltip fix for date range component ([#1821](https://github.com/juspay/hyperswitch-control-center/pull/1821)) ([`b797a6a`](https://github.com/juspay/hyperswitch-control-center/commit/b797a6a98c3a5a531701823f9a87345a251480cd))
+- Date range compare component end time fix 00:00 to 59.59 ([#1824](https://github.com/juspay/hyperswitch-control-center/pull/1824)) ([`dfdcd9c`](https://github.com/juspay/hyperswitch-control-center/commit/dfdcd9c9017d792954f92178451e83fba41feebe))
+
+### Miscellaneous Tasks
+
+- Omp remove copy icon ([#1826](https://github.com/juspay/hyperswitch-control-center/pull/1826)) ([`0216973`](https://github.com/juspay/hyperswitch-control-center/commit/021697341a08ebb66ce2eef63fa678fa4599ddc3))
+
+**Full Changelog:** [`2024.11.29.1...2024.11.29.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.29.1...2024.11.29.2)
+
+- - -
+
+## 2024.11.29.1
+
+### Features
+
+- Payment Operations Amount Filter ([#1796](https://github.com/juspay/hyperswitch-control-center/pull/1796)) ([`8102096`](https://github.com/juspay/hyperswitch-control-center/commit/8102096df30e078d93fe7645ac9595ea838ae84b))
+
+### Bug Fixes
+
+- Sidebar-active-selection-resolution ([#1813](https://github.com/juspay/hyperswitch-control-center/pull/1813)) ([`41972e3`](https://github.com/juspay/hyperswitch-control-center/commit/41972e310ca90cf0b6bcfa6cde27b5dd7c5a0e59))
+
+### Miscellaneous Tasks
+
+- Redesign omp dropdowns ([#1785](https://github.com/juspay/hyperswitch-control-center/pull/1785)) ([`e2789d9`](https://github.com/juspay/hyperswitch-control-center/commit/e2789d9680f7ed9bd2e23393ab3ceb2a4d491c8e))
+
+**Full Changelog:** [`2024.11.29.0...2024.11.29.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.29.0...2024.11.29.1)
+
+- - -
+
+## 2024.11.29.0
+
+### Miscellaneous Tasks
+
+- Minor modification for enhancement and bugfix ([#1815](https://github.com/juspay/hyperswitch-control-center/pull/1815)) ([`491271f`](https://github.com/juspay/hyperswitch-control-center/commit/491271f20334455a497c6c5267548c9969f0236d))
+
+**Full Changelog:** [`2024.11.28.1...2024.11.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.28.1...2024.11.29.0)
+
+- - -
+
+## 2024.11.28.1
+
+### Bug Fixes
+
+- Sanky flow chart change and tooltip ui advancements ([#1820](https://github.com/juspay/hyperswitch-control-center/pull/1820)) ([`868d15b`](https://github.com/juspay/hyperswitch-control-center/commit/868d15beaf5c01462c03d856124f72492be2c1e4))
+
+**Full Changelog:** [`2024.11.28.0...2024.11.28.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.28.0...2024.11.28.1)
+
+- - -
+
+## 2024.11.28.0
+
+### Bug Fixes
+
+- Move columns in payment operations ([#1819](https://github.com/juspay/hyperswitch-control-center/pull/1819)) ([`aeeb226`](https://github.com/juspay/hyperswitch-control-center/commit/aeeb226394600757d87db8b32d7d5f1b7bd44dbc))
+- Global search filters access check ([#1816](https://github.com/juspay/hyperswitch-control-center/pull/1816)) ([`5705b5d`](https://github.com/juspay/hyperswitch-control-center/commit/5705b5d50343b0f63da4a6a7bbe312c92865fdde))
+- Horizontal Scrollbar to Tables ([#1811](https://github.com/juspay/hyperswitch-control-center/pull/1811)) ([`3299a22`](https://github.com/juspay/hyperswitch-control-center/commit/3299a221f19383ade404a144acc7972e9e82e6c7))
+
+### Miscellaneous Tasks
+
+- Fix admin permission to create new omp ([#1747](https://github.com/juspay/hyperswitch-control-center/pull/1747)) ([`12843a5`](https://github.com/juspay/hyperswitch-control-center/commit/12843a5e659ca2653273301ef6562e5e482d8da6))
+- Added ref for user-info to get updated data ([#1804](https://github.com/juspay/hyperswitch-control-center/pull/1804)) ([`1bd5f44`](https://github.com/juspay/hyperswitch-control-center/commit/1bd5f44ce6e7c75cabee62846d68462e96aa76ba))
+
+**Full Changelog:** [`2024.11.27.1...2024.11.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.27.1...2024.11.28.0)
+
+- - -
+
+## 2024.11.27.1
+
+### Features
+
+- **authn:** Enable cookies ([#1810](https://github.com/juspay/hyperswitch-control-center/pull/1810)) ([`e88a857`](https://github.com/juspay/hyperswitch-control-center/commit/e88a8570ba00c40bcb24832ba1bc05d8cb6b2273))
+
+**Full Changelog:** [`2024.11.27.0...2024.11.27.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.27.0...2024.11.27.1)
+
+- - -
+
+## 2024.11.27.0
+
+### Bug Fixes
+
+- Changed global search date range fix ([#1803](https://github.com/juspay/hyperswitch-control-center/pull/1803)) ([`70dc324`](https://github.com/juspay/hyperswitch-control-center/commit/70dc324e7724a2c980b9eee00ca98049c0cf76f3))
+
+### Miscellaneous Tasks
+
+- Disabled access to test payment not having operation manage ([#1794](https://github.com/juspay/hyperswitch-control-center/pull/1794)) ([`82d2e40`](https://github.com/juspay/hyperswitch-control-center/commit/82d2e40a0fb7c7a0c84a4e65e4c5cee979854e5e))
+
+**Full Changelog:** [`2024.11.25.2...2024.11.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.25.2...2024.11.27.0)
+
+- - -
+
 ## 2024.11.25.2
 
 ### Features

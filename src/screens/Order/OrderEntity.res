@@ -331,12 +331,13 @@ let getAttempts: JSON.t => array<attempts> = json => {
 let defaultColumns: array<colType> = [
   PaymentId,
   Connector,
-  ConnectorTransactionID,
+  ProfileId,
   Amount,
   Status,
   PaymentMethod,
   PaymentMethodType,
   CardNetwork,
+  ConnectorTransactionID,
   Email,
   MerchantOrderReferenceId,
   Description,
@@ -643,7 +644,12 @@ let getCell = (order, colType: colType): Table.cell => {
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
   | Metadata =>
-    CustomCell(<Metadata displayValue={order.metadata->JSON.Encode.object->JSON.stringify} />, "")
+    CustomCell(
+      <HSwitchOrderUtils.EllipsisText
+        displayValue={order.metadata->JSON.Encode.object->JSON.stringify}
+      />,
+      "",
+    )
   | PaymentId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
@@ -684,7 +690,8 @@ let getCell = (order, colType: colType): Table.cell => {
   | Created => Date(order.created)
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
-  | Description => CustomCell(<Metadata displayValue={order.description} endValue={5} />, "")
+  | Description =>
+    CustomCell(<HSwitchOrderUtils.EllipsisText displayValue={order.description} endValue={5} />, "")
   | MandateId => Text(order.mandate_id)
   | MandateData => Text(order.mandate_data)
   | SetupFutureUsage => Text(order.setup_future_usage)
