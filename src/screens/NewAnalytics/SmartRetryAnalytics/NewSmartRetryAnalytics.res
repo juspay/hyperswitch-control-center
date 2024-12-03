@@ -7,8 +7,10 @@ let make = () => {
       entity={successfulSmartRetryDistributionEntity}
       chartEntity={successfulSmartRetryDistributionChartEntity}
     />
-    // <FailedPaymentsDistribution
-    //   entity={failedPaymentsDistributionEntity} chartEntity={failedPaymentsDistributionChartEntity}
-    // />
+    <FailureSmartRetryDistribution
+      entity={failedSmartRetryDistributionEntity}
+      chartEntity={failedSmartRetryDistributionChartEntity}
+    />
+    // smart retry proccesed amount
   </div>
 }
