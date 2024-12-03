@@ -87,7 +87,7 @@ let make = () => {
       customSelectStyle="md:bg-blue-840 hover:bg-popover-background-hover rounded"
       searchable=false
       baseComponent={<ListBaseComp
-        heading=""
+        heading="Org"
         subHeading={currentOMPName(orgList, orgId)}
         arrow
         showEditIcon={userHasAccess(~groupAccess=OrganizationManage) === Access}

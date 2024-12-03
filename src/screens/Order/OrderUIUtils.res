@@ -539,22 +539,31 @@ let orderViewList: OMPSwitchTypes.ompViews = [
 let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) => {
   keys->Array.forEach(key => dict->Dict.delete(key))
 }
-
-let validateForm = (values, ~fieldsToValidate: array<amountFields>) => {
-  let errors = Dict.make()
+let validateForm = values => {
   open LogicUtils
-  let valuesDict = values->JsonFlattenUtils.flattenObject(false)
-  let amountValues = fieldsToValidate->Array.map(key => {
-    valuesDict->getJsonObjectFromDict(key->validationFieldsMapper)
-  })
-  let start_amount = amountValues->getValueFromArray(0, JSON.Encode.null)
-  let end_amount = amountValues->getValueFromArray(1, JSON.Encode.null)
-  if start_amount->isNullJson && end_amount->isNullJson {
-    errors->Dict.set("Invalid", "Please enter value."->JSON.Encode.string)
-  } else if !isNullJson(start_amount) && !isNullJson(end_amount) {
-    if end_amount < start_amount {
+  let errors = Dict.make()
+  let dict = values->getDictFromJsonObject
+  let sAmntK = dict->getvalFromDict("start_amount")->mapOptionOrDefault(None, key => Some(key))
+  let eAmtK = dict->getvalFromDict("end_amount")->mapOptionOrDefault(None, key => Some(key))
+
+  // check only if the key is present
+  if sAmntK->Option.isSome && eAmtK->Option.isSome {
+    let _ = if (
+      sAmntK->Option.getOr(JSON.Encode.null) === JSON.Encode.null &&
+        eAmtK->Option.getOr(JSON.Encode.null) === JSON.Encode.null
+    ) {
       errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+    } else {
+      let startAmt = sAmntK->getFloatFromJson(0.0)
+      let endAmt = eAmtK->getFloatFromJson(0.0)
+      if endAmt < startAmt {
+        errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+      }
     }
+  } else if sAmntK->Option.isSome && sAmntK->Option.getOr(JSON.Encode.null) === JSON.Encode.null {
+    errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
+  } else if eAmtK->Option.isSome && eAmtK->Option.getOr(JSON.Encode.null) === JSON.Encode.null {
+    errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
   }
   errors->JSON.Encode.object
 }
