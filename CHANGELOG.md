@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.03.1
+
+### Bug Fixes
+
+- Refunds amount overview fix ([#1838](https://github.com/juspay/hyperswitch-control-center/pull/1838)) ([`2224f61`](https://github.com/juspay/hyperswitch-control-center/commit/2224f6169a4b59c7c6fd872597f06fc56902511d))
+- Global search on key press fix ([#1840](https://github.com/juspay/hyperswitch-control-center/pull/1840)) ([`de5304c`](https://github.com/juspay/hyperswitch-control-center/commit/de5304cb7a037d054b5b1e0ef26d6539343c977a))
+
+**Full Changelog:** [`2024.12.03.0...2024.12.03.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.03.0...2024.12.03.1)
+
+- - -
+
 ## 2024.12.03.0
 
 ### Bug Fixes
