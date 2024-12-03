@@ -44,13 +44,13 @@ custom_webhook_headers=false
 compliance_certificate=false
 pm_authentication_processor=true
 performance_monitor=false
-new_analytics=false
+new_analytics=true
 down_time=false
 tax_processor=true
 transaction_view=false
 x_feature_route=false
 [default.merchant_config]
 [default.merchant_config.new_analytics]
-org_ids=[]
+org_ids=["org_QdOIvfj45PFxtUXBDzuw"]
 merchant_ids=[]
 profile_ids=[]

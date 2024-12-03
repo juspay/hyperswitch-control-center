@@ -93,26 +93,18 @@ let make = (
       )
 
       let primaryBody = NewAnalyticsUtils.requestBody(
-        ~dimensions=[],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
-        ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
-        ~customFilter=entity.requestBodyConfig.customFilter,
-        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
         ~granularity=granularity.value->Some,
       )
 
       let secondaryBody = NewAnalyticsUtils.requestBody(
-        ~dimensions=[],
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
-        ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
-        ~customFilter=entity.requestBodyConfig.customFilter,
-        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
         ~granularity=granularity.value->Some,
       )
 

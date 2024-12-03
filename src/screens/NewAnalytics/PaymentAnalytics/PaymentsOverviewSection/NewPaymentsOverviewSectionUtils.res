@@ -32,14 +32,10 @@ let defaultValue =
 let getPayload = (~entity, ~metrics, ~startTime, ~endTime) => {
   open NewAnalyticsTypes
   NewAnalyticsUtils.requestBody(
-    ~dimensions=[],
     ~startTime,
     ~endTime,
     ~delta=entity.requestBodyConfig.delta,
-    ~filters=entity.requestBodyConfig.filters,
     ~metrics,
-    ~customFilter=entity.requestBodyConfig.customFilter,
-    ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
   )
 }
 

@@ -21,7 +21,6 @@ let make = () => {
         "YYYY-MM-DDTHH:mm:00[Z]",
       )
       let body = NewAnalyticsUtils.requestBody(
-        ~dimensions=[],
         ~startTime=date,
         ~endTime=date,
         ~metrics=[#sessionized_payment_processed_amount],

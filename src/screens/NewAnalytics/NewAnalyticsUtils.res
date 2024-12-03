@@ -43,16 +43,54 @@ let fillMissingDataPoints = (
 
 open NewAnalyticsTypes
 
+// let getSpecificDimension = (dimensions: dimension, dimension: dimension) => {
+//   dimensions
+//   ->Array.filter(ele => ele.dimension == dimension)
+//   ->Array.at(0)
+//   ->Option.getOr(defaultDimesions)
+// }
+
+// let getFilterForPerformance = (
+//   ~dimensions: dimension,
+//   ~filters: option<array<dimension>>,
+//   ~custom: option<dimension>=None,
+//   ~customValue: option<array<status>>=None,
+//   ~excludeFilterValue: option<array<status>>=None,
+// ) => {
+//   let filtersDict = Dict.make()
+//   let customFilter = custom->Option.getOr(#no_value)
+
+//   // switch filters {
+//   // | Some(val) => {
+//   //     val->Array.forEach(filter => {
+//   //       let data = if filter == customFilter {
+//   //         customValue->Option.getOr([])->Array.map(v => (v: status :> string))
+//   //       } else {
+//   //         getSpecificDimension(dimensions, filter).values
+//   //       }
+
+//   //       let updatedFilters = switch excludeFilterValue {
+//   //       | Some(excludeValues) =>
+//   //         data->Array.filter(item => {
+//   //           !(excludeValues->Array.map(v => (v: status :> string))->Array.includes(item))
+//   //         })
+//   //       | None => data
+//   //       }->Array.map(str => str->JSON.Encode.string)
+
+//   //       filtersDict->Dict.set((filter: dimension :> string), updatedFilters->JSON.Encode.array)
+//   //     })
+//   //     filtersDict->JSON.Encode.object->Some
+//   //   }
+//   // | None => None
+//   // }
+//   filtersDict
+// }
+
 let requestBody = (
-  ~dimensions as _: array<dimension>,
   ~startTime: string,
   ~endTime: string,
   ~metrics: array<metrics>,
   ~groupByNames: option<array<string>>=None,
-  ~filters as _: option<array<dimension>>=[]->Some,
-  ~customFilter as _: option<dimension>=None,
-  ~excludeFilterValue as _: option<array<status>>=None,
-  ~applyFilterFor as _: option<array<status>>=None,
   ~delta: option<bool>=None,
   ~granularity: option<string>=None,
   ~distributionValues: option<JSON.t>=None,

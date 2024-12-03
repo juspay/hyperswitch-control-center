@@ -14,7 +14,7 @@ type dimension = [
   | #card_network
   | #authentication_type
 ]
-type status = [#charged | #failure]
+
 type metrics = [
   | #sessionized_smart_retried_amount
   | #sessionized_payments_success_rate
@@ -30,15 +30,11 @@ type metrics = [
 type granularity = [
   | #G_ONEDAY
 ]
-// will change this once we get the api srtcuture
+
 type requestBodyConfig = {
   metrics: array<metrics>,
   delta?: bool,
   groupBy?: array<dimension>,
-  filters?: array<dimension>,
-  customFilter?: dimension,
-  applyFilterFor?: array<status>,
-  excludeFilterValue?: array<status>,
 }
 
 type moduleEntity = {
