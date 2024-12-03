@@ -222,14 +222,11 @@ let getConditionalFilter = (key, dict, filterValues) => {
     ->getArrayFromDict("payment_method", [])
     ->getStrArrayFromJsonArray
     ->Array.flatMap(paymentMethod => {
-      let paymentMethodTypeArr =
-        dict
-        ->getDictfromDict("payment_method")
-        ->getArrayFromDict(paymentMethod, [])
-        ->getStrArrayFromJsonArray
-      paymentMethodTypeArr->Array.map(item => {
-        item
-      })
+      dict
+      ->getDictfromDict("payment_method")
+      ->getArrayFromDict(paymentMethod, [])
+      ->getStrArrayFromJsonArray
+      ->Array.map(item => item)
     })
   | _ => []
   }
