@@ -195,20 +195,9 @@ let itemToObjMapper = dict => {
   }
 }
 
-let initialFilters = (json, filtervalues, _, filterKeys, setfilterKeys) => {
+let initialFilters = (json, filtervalues, _, _, _) => {
   let filterDict = json->getDictFromJsonObject
   let filtersArray = filterDict->Dict.keysToArray->Array.filter(item => item != "currency")
-
-  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  if connectorFilter->Array.length !== 0 {
-    filtersArray->Array.push(#connector_label->getLabelFromFilterType)
-
-    if !(filterKeys->Array.includes(getValueFromFilterType(#connector_label))) {
-      filterKeys->Array.push(getValueFromFilterType(#connector_label))
-      setfilterKeys(_ => filterKeys)
-    }
-  }
-
   let filterData = filterDict->itemToObjMapper
 
   filtersArray->Array.map((key): EntityType.initialFilters<'t> => {

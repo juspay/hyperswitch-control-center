@@ -301,15 +301,6 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
     [name]->removeKeys
     setfilterKeys(_ => filterKeys->Array.filter(item => item !== name))
   }
-  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  if connectorFilter->Array.length !== 0 {
-    filtersArray->Array.push(#connector_label->getLabelFromFilterType)
-
-    if !(filterKeys->Array.includes(getValueFromFilterType(#connector_label))) {
-      filterKeys->Array.push(getValueFromFilterType(#connector_label))
-      setfilterKeys(_ => filterKeys)
-    }
-  }
 
   let additionalFilters =
     [#payment_method_type, #customer_id, #amount]->Array.map(getLabelFromFilterType)

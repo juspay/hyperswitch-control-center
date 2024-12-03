@@ -19,7 +19,6 @@ let make = () => {
   let (categorieSuggestionResponse, setCategorieSuggestionResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchResults, setSearchResults) = React.useState(_ => [])
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let isReconEnabled = merchentDetails.recon_status === Active
