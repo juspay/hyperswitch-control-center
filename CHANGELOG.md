@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.03.0
+
+### Bug Fixes
+
+- Global search fixes ([#1832](https://github.com/juspay/hyperswitch-control-center/pull/1832)) ([`b670e71`](https://github.com/juspay/hyperswitch-control-center/commit/b670e718d424f5d7cf19e5ad6d94b5a436aa7878))
+
+**Full Changelog:** [`2024.11.29.3...2024.12.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.11.29.3...2024.12.03.0)
+
+- - -
+
 ## 2024.11.29.3
 
 ### Bug Fixes
