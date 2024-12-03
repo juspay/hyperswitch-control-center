@@ -1,4 +1,8 @@
 @react.component
 let make = () => {
-  "hello"->React.string
+  open NewRefundsAnalyticsEntity
+
+  <div className="flex flex-col gap-14 mt-5 pt-7">
+    <RefundsProcessed entity={refundsProcessedEntity} chartEntity={refundsProcessedChartEntity} />
+  </div>
 }
