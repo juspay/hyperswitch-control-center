@@ -30,6 +30,7 @@ type metrics = [
   | #sessionized_refund_processed_amount
   | #sessionized_refund_success_count
   | #sessionized_refund_success_rate
+  | #sessionized_refund_count
 ]
 type granularity = [
   | #G_ONEDAY
