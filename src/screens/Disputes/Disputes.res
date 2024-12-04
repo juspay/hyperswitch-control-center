@@ -87,7 +87,7 @@ let make = () => {
       initialFixedFilter
       setOffset
       customLeftView={<SearchBarFilter
-        placeholder="Search disptue id" setSearchVal=setSearchText searchVal=searchText
+        placeholder="Search for any disptue id" setSearchVal=setSearchText searchVal=searchText
       />}
       entityName=DISPUTE_FILTERS
       title="Disputes"

@@ -161,8 +161,16 @@ module RemoteTableFilters = {
 
     let getURL = useGetURL()
     let {userInfo: transactionEntity} = React.useContext(UserInfoProvider.defaultContext)
-    let {removeKeys, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
-    let {filterValue, updateExistingKeys, filterValueJson, reset} =
+
+    let {
+      filterValue,
+      updateExistingKeys,
+      filterValueJson,
+      reset,
+      setfilterKeys,
+      filterKeys,
+      removeKeys,
+    } =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
     let showToast = ToastState.useShowToast()
