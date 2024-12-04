@@ -713,7 +713,10 @@ module TableCell = {
     | Link(ele) => <LinkCell data=ele trimLength=55 />
     | Progress(percent) => <ProgressCell progressPercentage=percent />
     | CustomCell(ele, _) => ele
-    | DisplayCopyCell(string) => <HelperComponents.CopyTextCustomComp displayValue=string />
+    | DisplayCopyCell(string) =>
+      <HelperComponents.CopyTextCustomComp
+        displayValue=string customTextCss="w-48 truncate whitespace-nowrap"
+      />
     | DeltaPercentage(value, delta) => <DeltaColumn value delta />
     | Numeric(num, mapper) => <Numeric num mapper clearFormatting />
     | ColoredText(x) => <ColoredTextCell labelColor=x.color text=x.title />

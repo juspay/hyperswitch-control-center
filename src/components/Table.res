@@ -195,7 +195,7 @@ module TableRow = {
           let tableRowPaddingClass = if isHighchartLegend {
             `box-border py-1 ${lastColProp} ${alignCellContent}`
           } else {
-            `box-border ${paddingClass} ${lastColProp} ${alignCellContent}`
+            `box-border ${paddingClass} ${lastColProp} ${alignCellContent} max-w-sm truncate whitespace-nowrap`
           }
           let location = `${title}_tr${(rowIndex + 1)->Int.toString}_td${(cellIndex + 1)
               ->Int.toString}`
