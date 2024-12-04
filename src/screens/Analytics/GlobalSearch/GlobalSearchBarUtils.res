@@ -514,14 +514,14 @@ let validateQuery = searchQuery => {
   freeTextCount.contents > 1
 }
 
-let getViewType = (~state, ~searchResults, ~searchText) => {
+let getViewType = (~state, ~searchResults, ~searchText, ~filtersEnabled) => {
   switch state {
   | Loading => Load
   | Loaded => {
       let endChar = searchText->String.charAt(searchText->String.length - 1)
       let isFilter = endChar == filterSeparator || endChar == " "
 
-      if isFilter {
+      if isFilter && filtersEnabled {
         FiltersSugsestions
       } else if searchResults->Array.length > 0 {
         Results
@@ -529,7 +529,7 @@ let getViewType = (~state, ~searchResults, ~searchText) => {
         EmptyResult
       }
     }
-  | Idle => FiltersSugsestions
+  | Idle => filtersEnabled ? FiltersSugsestions : Results
   }
 }
 
