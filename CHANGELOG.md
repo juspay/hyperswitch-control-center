@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.04.0
+
+### Miscellaneous Tasks
+
+- Hiding org merchant dropdown for internal user ([#1843](https://github.com/juspay/hyperswitch-control-center/pull/1843)) ([`c411e40`](https://github.com/juspay/hyperswitch-control-center/commit/c411e40d3c792fbba1d760d7c53562a209cf98f4))
+- Global search filters list update ([#1847](https://github.com/juspay/hyperswitch-control-center/pull/1847)) ([`b3672d1`](https://github.com/juspay/hyperswitch-control-center/commit/b3672d1ca89952705fc714692d38ce2febba6f4e))
+
+**Full Changelog:** [`2024.12.03.1...2024.12.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.03.1...2024.12.04.0)
+
+- - -
+
 ## 2024.12.03.1
 
 ### Bug Fixes
