@@ -237,7 +237,6 @@ let bargraphTooltipFormatter = (~title, ~metricType) => {
       let content = `
           <div style=" 
           padding:5px 12px;
-          border-left: 3px solid #0069FD;
           display:flex;
           flex-direction:column;
           justify-content: space-between;
