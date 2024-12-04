@@ -22,7 +22,7 @@ let getstatusVariantTypeFromString = value => {
   }
 }
 
-let paymentLifeCycleResponseMapper = (json: JSON.t) => {
+let paymentLifeCycleResponseMapper = (json: JSON.t, ~isSmartRetryEnabled=true) => {
   let valueDict =
     [
       "normal_success",
@@ -55,6 +55,8 @@ let paymentLifeCycleResponseMapper = (json: JSON.t) => {
     })
 
   queryItems->Array.forEach(query => {
+    let includeSmartRetry =
+      query.first_attempt == 1 || (query.first_attempt != 1 && isSmartRetryEnabled)
     switch query.status {
     | Succeeded => {
         // normal_success or smart_retried_success
@@ -70,23 +72,25 @@ let paymentLifeCycleResponseMapper = (json: JSON.t) => {
           )
         }
 
-        // "refunded" or "partial_refunded"
-        switch query.refunds_status {
-        | Full_Refunded =>
-          valueDict->Dict.set("refunded", valueDict->getInt("refunded", 0) + query.count)
-        | Partial_Refunded =>
-          valueDict->Dict.set(
-            "partial_refunded",
-            valueDict->getInt("partial_refunded", 0) + query.count,
-          )
-        | _ => ()
-        }
+        if includeSmartRetry {
+          // "refunded" or "partial_refunded"
+          switch query.refunds_status {
+          | Full_Refunded =>
+            valueDict->Dict.set("refunded", valueDict->getInt("refunded", 0) + query.count)
+          | Partial_Refunded =>
+            valueDict->Dict.set(
+              "partial_refunded",
+              valueDict->getInt("partial_refunded", 0) + query.count,
+            )
+          | _ => ()
+          }
 
-        // "disputed"
-        switch query.dispute_status {
-        | Dispute_Present =>
-          valueDict->Dict.set("disputed", valueDict->getInt("disputed", 0) + query.count)
-        | _ => ()
+          // "disputed"
+          switch query.dispute_status {
+          | Dispute_Present =>
+            valueDict->Dict.set("disputed", valueDict->getInt("disputed", 0) + query.count)
+          | _ => ()
+          }
         }
       }
     | Failed => {
@@ -98,8 +102,24 @@ let paymentLifeCycleResponseMapper = (json: JSON.t) => {
           )
         }
       }
-    | Cancelled => valueDict->Dict.set("cancelled", valueDict->getInt("cancelled", 0) + query.count)
-    | Processing => valueDict->Dict.set("pending", valueDict->getInt("pending", 0) + query.count)
+    | Cancelled =>
+      if includeSmartRetry {
+        valueDict->Dict.set("cancelled", valueDict->getInt("cancelled", 0) + query.count)
+      } else {
+        valueDict->Dict.set(
+          "smart_retried_failure",
+          valueDict->getInt("smart_retried_failure", 0) + query.count,
+        )
+      }
+    | Processing =>
+      if includeSmartRetry {
+        valueDict->Dict.set("pending", valueDict->getInt("pending", 0) + query.count)
+      } else {
+        valueDict->Dict.set(
+          "smart_retried_failure",
+          valueDict->getInt("smart_retried_failure", 0) + query.count,
+        )
+      }
     | RequiresCustomerAction
     | RequiresMerchantAction
     | RequiresPaymentMethod
@@ -109,7 +129,14 @@ let paymentLifeCycleResponseMapper = (json: JSON.t) => {
     | PartiallyCapturedAndCapturable
     | Null
     | _ =>
-      valueDict->Dict.set("drop_offs", valueDict->getInt("drop_offs", 0) + query.count)
+      if includeSmartRetry {
+        valueDict->Dict.set("drop_offs", valueDict->getInt("drop_offs", 0) + query.count)
+      } else {
+        valueDict->Dict.set(
+          "smart_retried_failure",
+          valueDict->getInt("smart_retried_failure", 0) + query.count,
+        )
+      }
     }
   })
 
@@ -276,7 +303,7 @@ let paymentsLifeCycleMapper = (
       id: "Success",
       dataLabels: {
         align: "right",
-        x: -25,
+        x: 65,
         name: success,
       },
     },
@@ -308,7 +335,7 @@ let paymentsLifeCycleMapper = (
       id: "Smart Retried Failure",
       dataLabels: {
         align: "right",
-        x: 105,
+        x: 145,
         name: smartRetriedFailure,
       },
     },
