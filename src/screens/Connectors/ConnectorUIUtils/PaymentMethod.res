@@ -201,13 +201,6 @@ module CardRenderer = {
 
     let modalHeading = `Additional Details to enable ${title}`
 
-    {
-      Js.log2(
-        selectedWallet.payment_method_type->getPaymentMethodTypeFromString,
-        "selectedWallet.payment_method_type->getPaymentMethodTypeFromString",
-      )
-    }
-
     <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>
         <RenderIf

@@ -145,7 +145,6 @@ let getPaymentMethodFromString = paymentMethod => {
 }
 
 let getPaymentMethodTypeFromString = paymentMethodType => {
-  Js.log2(paymentMethodType, "TYEO")
   switch paymentMethodType->String.toLowerCase {
   | "credit" => Credit
   | "debit" => Debit

@@ -19,7 +19,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     )
   }
   React.useEffect(() => {
-    if connector->LogicUtils.isNonEmptyString {
+    if connector->isNonEmptyString {
       setPazeFormData()
     }
     None
@@ -38,13 +38,10 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
         []
       }
     } catch {
-    | Exn.Error(e) => {
-        Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-        []
-      }
+    | Exn.Error(_) => []
     }
   }, [connector])
-  let onSubmit = () => {
+  let onSubmit = _ => {
     update()
     setShowWalletConfigurationModal(_ => false)
   }
@@ -69,10 +66,10 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
     <div className={`flex gap-2  justify-end m-2 p-6`}>
       <Button text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} />
       <Button
-        onClick={_ => onSubmit()}
+        onClick={onSubmit}
         text="Continue"
         buttonType={Primary}
-        buttonState={formState.values->PazeIntegrationUtils.validatePaze}
+        buttonState={formState.values->validatePaze}
       />
     </div>
     <FormValuesSpy />
