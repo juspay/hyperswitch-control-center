@@ -40,7 +40,9 @@ let make = (
 
       if paymentLifeCycleResponse->PaymentsLifeCycleUtils.getTotalPayments > 0 {
         setData(_ =>
-          paymentLifeCycleResponse->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper
+          paymentLifeCycleResponse->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper(
+            ~isSmartRetryEnabled=isSmartRetryEnabled->LogicUtils.getBoolFromString(true),
+          )
         )
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
@@ -55,20 +57,8 @@ let make = (
       getPaymentLieCycleData()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal))
+  }, (startTimeVal, endTimeVal, isSmartRetryEnabled))
 
-  let mockDelay = async () => {
-    if data != JSON.Encode.null->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper {
-      setScreenState(_ => Loading)
-      await HyperSwitchUtils.delay(300)
-      setScreenState(_ => Success)
-    }
-  }
-
-  React.useEffect(() => {
-    mockDelay()->ignore
-    None
-  }, [isSmartRetryEnabled])
   let params = {
     data,
     xKey: isSmartRetryEnabled,
