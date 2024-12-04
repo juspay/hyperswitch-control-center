@@ -5,8 +5,8 @@ open SuccessfulRefundsDistributionTypes
 let getStringFromVariant = value => {
   switch value {
   | Refunds_Success_Rate => "refunds_success_rate"
-  | Refund_Count => "refund_success_count"
-  | Refund_Success_Count => "refund_count"
+  | Refund_Count => "refund_count"
+  | Refund_Success_Count => "refund_success_count"
   | Connector => "connector"
   }
 }
