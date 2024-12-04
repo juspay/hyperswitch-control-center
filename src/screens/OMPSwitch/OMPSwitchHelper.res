@@ -64,7 +64,7 @@ module ListBaseComp = {
   }
 }
 
-module AddNewMerchantProfileButton = {
+module AddNewOMPButton = {
   @react.component
   let make = (
     ~user: UserInfoTypes.entity,
@@ -75,8 +75,9 @@ module AddNewMerchantProfileButton = {
     ~addItemBtnStyle="",
   ) => {
     let allowedRoles = switch user {
-    | #Merchant => [#org_admin]
-    | #Profile => [#org_admin, #merchant_admin]
+    | #Organization => [#tenant_admin]
+    | #Merchant => [#tenant_admin, #org_admin]
+    | #Profile => [#tenant_admin, #org_admin, #merchant_admin]
     | _ => []
     }
     let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
