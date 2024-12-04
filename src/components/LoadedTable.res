@@ -230,6 +230,7 @@ let make = (
   ~nonFrozenTableParentClass="",
   ~loadedTableParentClass="",
   ~remoteSortEnabled=false,
+  ~showAutoScroll=false,
 ) => {
   open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
@@ -828,6 +829,7 @@ let make = (
                 ?showborderColor
                 tableHeadingTextClass
                 nonFrozenTableParentClass
+                showAutoScroll
               />
             switch tableLocalFilter {
             | true =>

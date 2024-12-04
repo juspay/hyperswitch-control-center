@@ -82,13 +82,11 @@ type category =
   | Connector
   | Customer_Email
   | Card_Network
-  | Last_4
+  | Card_Last_4
   | Date
   | Currency
-  | Authentication_type
   | Status
-  | Client_source
-  | Client_version
+  | Payment_id
 
 type categoryOption = {
   categoryType: category,

@@ -593,7 +593,7 @@ module ModalSearchBox = {
     let validateForm = _ => {
       let errors = Dict.make()
       let lastChar = localSearchText->getEndChar
-      if lastChar == " " {
+      if lastChar == " " && localSearchText->GlobalSearchBarUtils.validateQuery {
         setErrorMessage(_ => "Multiple free-text terms found")
       } else if !(localSearchText->GlobalSearchBarUtils.validateQuery) {
         setErrorMessage(_ => "")

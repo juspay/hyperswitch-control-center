@@ -210,7 +210,12 @@ let make = (
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
       let primaryData =
-        primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])->modifyQueryData
+        primaryResponse
+        ->getDictFromJsonObject
+        ->getArrayFromDict("queryData", [])
+        ->modifyQueryData
+        ->NewAnalyticsUtils.sortQueryDataByDate
+
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
       setPaymentsProcessedTableData(_ => primaryData)
 
