@@ -95,12 +95,10 @@ let make = (
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=isSmartRetryEnabled->getEntityForSmartRetry,
+        ~entityName=ANALYTICS_PAYMENTS,
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
-
-      let metrics = isSmartRetryEnabled->getMetricsForSmartRetry
 
       let body = NewAnalyticsUtils.requestBody(
         ~dimensions=[],
@@ -108,7 +106,7 @@ let make = (
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~filters=entity.requestBodyConfig.filters,
-        ~metrics,
+        ~metrics=entity.requestBodyConfig.metrics,
         ~groupByNames=[groupBy.value]->Some,
         ~customFilter=entity.requestBodyConfig.customFilter,
         ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
@@ -137,12 +135,14 @@ let make = (
       getPaymentsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value, (isSmartRetryEnabled :> string)])
+  }, [startTimeVal, endTimeVal, groupBy.value])
+
   let params = {
     data: paymentsDistribution,
     xKey: Payments_Success_Rate_Distribution->getKeyForModule(~isSmartRetryEnabled),
     yKey: groupBy.value,
   }
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>

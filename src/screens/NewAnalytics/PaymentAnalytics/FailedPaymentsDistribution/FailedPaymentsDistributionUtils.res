@@ -174,10 +174,3 @@ let isSmartRetryEnbldForFailedPmtDist = isEnabled => {
   | Default => Payments_Failure_Rate_Distribution_Without_Smart_Retries
   }
 }
-
-let getMetricsForSmartRetry = isEnabled => {
-  switch isEnabled {
-  | Smart_Retry => [#payments_distribution]
-  | Default => [#sessionized_payments_distribution]
-  }
-}

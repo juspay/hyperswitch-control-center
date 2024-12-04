@@ -175,10 +175,3 @@ let isSmartRetryEnbldForSuccessPmtDist = isEnabled => {
   | Default => Payments_Success_Rate_Distribution_Without_Smart_Retries
   }
 }
-
-let getMetricsForSmartRetry = isEnabled => {
-  switch isEnabled {
-  | Smart_Retry => [#payments_distribution]
-  | Default => [#sessionized_payments_distribution]
-  }
-}
