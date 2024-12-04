@@ -33,7 +33,13 @@ type resourceAccessType =
   | Routing
   | ThreeDsDecisionManager
   | SurchargeDecisionManager
-  | Recon
+  | ReconToken
+  | ReconFiles
+  | ReconAndSettlementAnalytics
+  | ReconUpload
+  | ReconReports
+  | RunRecon
+  | ReconConfig
   | Account
   | ApiKey
   | User
