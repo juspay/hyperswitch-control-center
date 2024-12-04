@@ -29,6 +29,7 @@ type metrics = [
   | #payment_success_rate
   | #sessionized_refund_processed_amount
   | #sessionized_refund_success_count
+  | #sessionized_refund_success_rate
 ]
 type granularity = [
   | #G_ONEDAY
