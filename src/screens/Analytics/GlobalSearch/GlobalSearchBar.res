@@ -16,6 +16,8 @@ let make = () => {
   let (localSearchText, setLocalSearchText) = React.useState(_ => "")
   let (selectedOption, setSelectedOption) = React.useState(_ => ""->getDefaultOption)
   let (allOptions, setAllOptions) = React.useState(_ => [])
+  let (selectedFilter, setSelectedFilter) = React.useState(_ => None)
+  let (allFilters, setAllFilters) = React.useState(_ => [])
   let (categorieSuggestionResponse, setCategorieSuggestionResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
@@ -31,7 +33,7 @@ let make = () => {
 
   let redirectOnSelect = element => {
     mixpanelEvent(~eventName="global_search_redirect")
-    let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
+    let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr(defaultRoute)
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
       GlobalVars.appendDashboardPath(~url=redirectLink)->RescriptReactRouter.push
@@ -62,13 +64,13 @@ let make = () => {
 
   let getSearchResults = async results => {
     try {
-      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
+      let local_results = []
 
+      let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
       let body = searchText->generateQuery
 
       let response = await fetchDetails(url, body->JSON.Encode.object, Post)
 
-      let local_results = []
       results->Array.forEach((item: resultType) => {
         switch item.section {
         | Local => local_results->Array.pushMany(item.results)
@@ -86,15 +88,11 @@ let make = () => {
 
       let values = response->getRemoteResults
       results->Array.pushMany(values)
+      let defaultItem = searchText->getDefaultResult
 
-      if results->Array.length > 0 {
-        let defaultItem = searchText->getDefaultResult
-        let arr = [defaultItem]->Array.concat(results)
+      let finalResults = results->Array.length > 0 ? [defaultItem]->Array.concat(results) : []
 
-        setSearchResults(_ => arr)
-      } else {
-        setSearchResults(_ => [])
-      }
+      setSearchResults(_ => finalResults)
       setState(_ => Loaded)
     } catch {
     | _ => setState(_ => Loaded)
@@ -111,7 +109,7 @@ let make = () => {
   React.useEffect(_ => {
     let results = []
 
-    if searchText->String.length > 0 && activeFilter->LogicUtils.isEmptyString {
+    if searchText->isNonEmptyString && searchText->getSearchValidation {
       setState(_ => Loading)
       let localResults: resultType = searchText->getLocalMatchedResults(hswitchTabs)
 
@@ -122,14 +120,10 @@ let make = () => {
       if isShowRemoteResults {
         getSearchResults(results)->ignore
       } else {
-        if results->Array.length > 0 {
-          let defaultItem = searchText->getDefaultResult
-          let arr = [defaultItem]->Array.concat(results)
+        let defaultItem = searchText->getDefaultResult
+        let finalResults = results->Array.length > 0 ? [defaultItem]->Array.concat(results) : []
 
-          setSearchResults(_ => arr)
-        } else {
-          setSearchResults(_ => [])
-        }
+        setSearchResults(_ => finalResults)
         setState(_ => Loaded)
       }
     } else {
@@ -140,31 +134,39 @@ let make = () => {
     None
   }, [searchText])
 
+  let setFilterText = value => {
+    setActiveFilter(_ => value)
+  }
+
   React.useEffect(_ => {
     setSearchText(_ => "")
     setLocalSearchText(_ => "")
-    setActiveFilter(_ => "")
+    setFilterText("")
+    setSelectedFilter(_ => None)
     None
   }, [showModal])
+
+  let onKeyPress = event => {
+    open ReactEvent.Keyboard
+    let metaKey = event->metaKey
+    let keyPressed = event->key
+    let ctrlKey = event->ctrlKey
+    let cmdKey = Window.Navigator.platform->String.includes("Mac")
+
+    if (
+      (cmdKey && metaKey && keyPressed == global_search_activate_key) ||
+        (ctrlKey && keyPressed == global_search_activate_key)
+    ) {
+      setShowModal(_ => true)
+      event->preventDefault
+    }
+  }
 
   React.useEffect(() => {
     if userHasAccess(~groupAccess=AnalyticsView) === Access {
       getCategoryOptions()->ignore
     }
 
-    let onKeyPress = event => {
-      let metaKey = event->ReactEvent.Keyboard.metaKey
-      let keyPressed = event->ReactEvent.Keyboard.key
-      let ctrlKey = event->ReactEvent.Keyboard.ctrlKey
-
-      if Window.Navigator.platform->String.includes("Mac") && metaKey && keyPressed == "k" {
-        event->ReactEvent.Keyboard.preventDefault
-        setShowModal(_ => true)
-      } else if ctrlKey && keyPressed == "k" {
-        event->ReactEvent.Keyboard.preventDefault
-        setShowModal(_ => true)
-      }
-    }
     Window.addEventListener("keydown", onKeyPress)
     Some(() => Window.removeEventListener("keydown", onKeyPress))
   }, [])
@@ -177,14 +179,37 @@ let make = () => {
     setSearchText(_ => value)
   }, ~wait=500)
 
+  let onFilterClicked = category => {
+    let newFilter = category.categoryType->getcategoryFromVariant
+    let lastString = searchText->getEndChar
+    if activeFilter->isNonEmptyString && lastString !== filterSeparator {
+      let end = searchText->String.length - activeFilter->String.length
+      let newText = searchText->String.substring(~start=0, ~end)
+      setLocalSearchText(_ => `${newText} ${newFilter}:`)
+      setFilterText(newFilter)
+    } else if lastString !== filterSeparator {
+      setLocalSearchText(_ => `${searchText} ${newFilter}:`)
+      setFilterText(newFilter)
+    }
+  }
+
+  let onSuggestionClicked = option => {
+    let value = activeFilter->String.split(filterSeparator)->getValueFromArray(1, "")
+    let key = if value->isNonEmptyString {
+      let end = searchText->String.length - (value->String.length + 1)
+      searchText->String.substring(~start=0, ~end)
+    } else {
+      searchText
+    }
+    let saparater = searchText->getEndChar == filterSeparator ? "" : filterSeparator
+    setLocalSearchText(_ => `${key}${saparater}${option}`)
+    setFilterText("")
+  }
+
   React.useEffect(() => {
     setGlobalSearchText(localSearchText)
     None
   }, [localSearchText])
-
-  let setFilterText = ReactDebounce.useDebounced(value => {
-    setActiveFilter(_ => value)
-  }, ~wait=500)
 
   let leftIcon = switch state {
   | Loading =>
@@ -198,6 +223,8 @@ let make = () => {
       <Icon size=18 name="search" />
     </div>
   }
+
+  let viewType = getViewType(~state, ~searchResults, ~searchText)
 
   <div className="w-max">
     <SearchBox openModalOnClickHandler />
@@ -213,9 +240,16 @@ let make = () => {
             allOptions
             selectedOption
             setSelectedOption
+            allFilters
+            selectedFilter
+            setSelectedFilter
+            viewType
             redirectOnSelect
+            activeFilter
+            onFilterClicked
+            onSuggestionClicked
           />
-          {switch getViewType(~state, ~searchResults) {
+          {switch viewType {
           | Load =>
             <div className="mb-24">
               <Loader />
@@ -228,9 +262,12 @@ let make = () => {
             <FilterResultsComponent
               categorySuggestions={getCategorySuggestions(categorieSuggestionResponse)}
               activeFilter
-              setActiveFilter
               searchText
-              setLocalSearchText
+              setAllFilters
+              selectedFilter
+              onFilterClicked
+              onSuggestionClicked
+              setSelectedFilter
             />
           | EmptyResult => <EmptyResult prefix searchText />
           }}

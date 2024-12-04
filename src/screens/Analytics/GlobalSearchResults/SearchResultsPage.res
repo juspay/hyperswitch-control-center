@@ -95,12 +95,11 @@ let make = () => {
   let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let isShowRemoteResults = globalSearch && userHasAccess(~groupAccess=OperationsView) === Access
-  let fallBackQuery = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("query", "")
 
   let getSearchResults = async results => {
     try {
       let url = getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post)
-      let query = searchText->isNonEmptyString ? searchText : fallBackQuery
+
       let body = query->generateQuery
       let response = await fetchDetails(url, body->JSON.Encode.object, Post)
 
