@@ -75,7 +75,7 @@ module Toast = {
     let stopPropagation = React.useCallback(ev => {
       ev->convertToWebapiEvent->Webapi.Dom.Event.stopPropagation
     }, [])
-    <div className=" m-2 shadow-lg z-100 pointer-events-auto" onClick=stopPropagation>
+    <div className=" m-2 shadow-lg pointer-events-auto z-50" onClick=stopPropagation>
       <ToastHeading toastProps hideToast toastDuration />
     </div>
   }

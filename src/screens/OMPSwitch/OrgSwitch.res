@@ -1,29 +1,25 @@
-module NewAccountCreationModal = {
+module NewOrgCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal, ~getOrgList) => {
     open APIUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let createNewAccount = async values => {
+    let createNewOrg = async values => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#CREATE_ORG, ~methodType=Post)
         let _ = await updateDetails(url, values, Post)
         getOrgList()->ignore
-        showToast(
-          ~toastType=ToastSuccess,
-          ~message="Account Created Successfully!",
-          ~autoClose=true,
-        )
+        showToast(~toastType=ToastSuccess, ~message="Org Created Successfully!", ~autoClose=true)
       } catch {
-      | _ => showToast(~toastType=ToastError, ~message="Account Creation Failed", ~autoClose=true)
+      | _ => showToast(~toastType=ToastError, ~message="Org Creation Failed", ~autoClose=true)
       }
       setShowModal(_ => false)
       Nullable.null
     }
 
     let onSubmit = (values, _) => {
-      createNewAccount(values)
+      createNewOrg(values)
     }
 
     let orgName = FormRenderer.makeFieldInfo(
@@ -92,7 +88,7 @@ module NewAccountCreationModal = {
           </div>
         </div>
         <Form
-          key="new-account-creation"
+          key="new-org-creation"
           onSubmit
           validate={values => validateForm(~values, ~fieldstoValidate=[OrgName, MerchantName])}>
           <div className="flex flex-col gap-12 h-full w-full">
@@ -260,7 +256,7 @@ let make = () => {
       showModal={showEditOrgModal} setShowModal={setShowEditOrgModal} orgList orgId getOrgList
     />
     <RenderIf condition={showAddOrgModal}>
-      <NewAccountCreationModal
+      <NewOrgCreationModal
         setShowModal={setShowAddOrgModal} showModal={showAddOrgModal} getOrgList
       />
     </RenderIf>
