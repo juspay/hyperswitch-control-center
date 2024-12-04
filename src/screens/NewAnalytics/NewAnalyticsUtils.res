@@ -168,3 +168,11 @@ let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
 
   `<span style="color:${textColor};margin-left:7px;" >${icon}${value->valueFormatter(Rate)}</span>`
 }
+
+let filterQueryData = (query, key) => {
+  open LogicUtils
+  query->Array.filter(data => {
+    let valueDict = data->getDictFromJsonObject
+    valueDict->getString(key, "")->isNonEmptyString
+  })
+}

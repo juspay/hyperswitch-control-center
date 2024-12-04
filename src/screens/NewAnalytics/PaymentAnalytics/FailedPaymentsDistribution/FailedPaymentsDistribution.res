@@ -116,13 +116,13 @@ let make = (
       )
 
       let response = await updateDetails(url, body, Post)
-      let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
-      let arr =
+      let responseData =
         response
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
+        ->NewAnalyticsUtils.filterQueryData(groupBy.value)
 
-      if arr->Array.length > 0 {
+      if responseData->Array.length > 0 {
         setfailedPaymentsDistribution(_ => responseData->JSON.Encode.array)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {

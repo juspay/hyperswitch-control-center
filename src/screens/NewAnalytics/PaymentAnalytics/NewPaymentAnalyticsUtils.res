@@ -59,7 +59,7 @@ let getBarGraphObj = (
   ~color,
 ): BarGraphTypes.dataObj => {
   let data = array->Array.map(item => {
-    item->getDictFromJsonObject->getInt(key, 0)
+    item->getDictFromJsonObject->getFloat(key, 0.0)
   })
   let dataObj: BarGraphTypes.dataObj = {
     showInLegend: false,
@@ -79,7 +79,7 @@ let getBarGraphData = (json: JSON.t, key: string, barColor: string): BarGraphTyp
       ->getDictFromJsonObject
       ->getArrayFromDict("queryData", [])
       ->Array.map(item => {
-        item->getDictFromJsonObject->getInt(key, 0)
+        item->getDictFromJsonObject->getFloat(key, 0.0)
       })
     let dataObj: BarGraphTypes.dataObj = {
       showInLegend: false,
