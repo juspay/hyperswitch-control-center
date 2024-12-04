@@ -117,7 +117,11 @@ let make = (
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
-      let primaryData = primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      let primaryData =
+        primaryResponse
+        ->getDictFromJsonObject
+        ->getArrayFromDict("queryData", [])
+        ->NewAnalyticsUtils.sortQueryDataByDate
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {

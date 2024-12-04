@@ -169,10 +169,19 @@ let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
   `<span style="color:${textColor};margin-left:7px;" >${icon}${value->valueFormatter(Rate)}</span>`
 }
 
+open LogicUtils
 let filterQueryData = (query, key) => {
-  open LogicUtils
   query->Array.filter(data => {
     let valueDict = data->getDictFromJsonObject
     valueDict->getString(key, "")->isNonEmptyString
   })
+}
+
+let sortQueryDataByDate = query => {
+  query->Array.sort((a, b) => {
+    let valueA = a->getDictFromJsonObject->getString("time_bucket", "")
+    let valueB = b->getDictFromJsonObject->getString("time_bucket", "")
+    compareLogic(valueB, valueA)
+  })
+  query
 }
