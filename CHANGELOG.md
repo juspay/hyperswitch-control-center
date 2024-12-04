@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.04.1
+
+### Features
+
+- Multitenancy changes to support tenant entity ([#1641](https://github.com/juspay/hyperswitch-control-center/pull/1641)) ([`84dcdf0`](https://github.com/juspay/hyperswitch-control-center/commit/84dcdf0820f8913c958d4fe5a7e384ba98769961))
+
+### Bug Fixes
+
+- Global search filters feature flag ([#1851](https://github.com/juspay/hyperswitch-control-center/pull/1851)) ([`64c8647`](https://github.com/juspay/hyperswitch-control-center/commit/64c8647452da211f96cd28e1a63c7176c4a30f7d))
+- Horizontal scroll in views ([#1830](https://github.com/juspay/hyperswitch-control-center/pull/1830)) ([`b017689`](https://github.com/juspay/hyperswitch-control-center/commit/b01768924e108e6535b7b5f6fbbf9050c9bcf910))
+
+### Miscellaneous Tasks
+
+- Refactoring ops utils file ([#1590](https://github.com/juspay/hyperswitch-control-center/pull/1590)) ([`fa199af`](https://github.com/juspay/hyperswitch-control-center/commit/fa199af6e3b1760ca743b7b7c318d9fcfb4e45f9))
+- New analytics minor changes ([#1853](https://github.com/juspay/hyperswitch-control-center/pull/1853)) ([`dcf82b0`](https://github.com/juspay/hyperswitch-control-center/commit/dcf82b004da3de2483edfced5f37c27a1eb2c98a))
+
+**Full Changelog:** [`2024.12.04.0...2024.12.04.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.04.0...2024.12.04.1)
+
+- - -
+
 ## 2024.12.04.0
 
 ### Miscellaneous Tasks
