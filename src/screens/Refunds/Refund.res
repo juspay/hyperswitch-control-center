@@ -120,6 +120,7 @@ let make = () => {
           customColumnMapper=TableAtoms.refundsMapDefaultCols
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
+          showAutoScroll=true
         />
       </PageLoaderWrapper>
     </div>

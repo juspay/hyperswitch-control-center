@@ -193,6 +193,7 @@ let make = (~previewOnly=false) => {
           hideTitle=true
           previewOnly
           remoteSortEnabled=true
+          showAutoScroll=true
         />
       </PageLoaderWrapper>
     </div>

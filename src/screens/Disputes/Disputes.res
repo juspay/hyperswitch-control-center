@@ -130,6 +130,7 @@ let make = () => {
           customColumnMapper={TableAtoms.disputesMapDefaultCols}
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
+          showAutoScroll=true
         />
       </div>
     </PageLoaderWrapper>
