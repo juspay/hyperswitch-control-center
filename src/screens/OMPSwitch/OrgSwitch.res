@@ -72,7 +72,7 @@ let make = () => {
   let customScrollStyle = "bg-blue-840 max-h-72 overflow-scroll px-1 pt-1"
   let dropdownContainerStyle = "min-w-[15rem] rounded"
 
-  <div className="w-full py-5 px-2 p-[1px]">
+  <div className="w-full py-3.5 px-2">
     <SelectBox.BaseDropdown
       allowMultiSelect=false
       buttonText=""
