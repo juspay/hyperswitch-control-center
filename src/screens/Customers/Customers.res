@@ -44,6 +44,7 @@ let make = () => {
       customColumnMapper={TableAtoms.customersMapDefaultCols}
       showSerialNumberInCustomizeColumns=false
       sortingBasedOnDisabled=false
+      showAutoScroll=true
     />
   </PageLoaderWrapper>
 }
