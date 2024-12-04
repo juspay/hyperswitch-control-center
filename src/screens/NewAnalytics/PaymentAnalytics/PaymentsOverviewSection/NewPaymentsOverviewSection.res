@@ -6,7 +6,7 @@ let make = (~entity: moduleEntity) => {
   open LogicUtils
   open APIUtils
   open NewAnalyticsHelper
-  open NewPaymentsOverviewSectionHelper
+
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let (data, setData) = React.useState(_ => []->JSON.Encode.array)
@@ -189,16 +189,38 @@ let make = (~entity: moduleEntity) => {
 
   <PageLoaderWrapper screenState customLoader={<Shimmer layoutId=entity.title />}>
     <div className="grid grid-cols-3 gap-6">
-      <SmartRetryCard data responseKey={Total_Smart_Retried_Amount->getKeyForModule(~metricType)} />
+      <NewPaymentsOverviewSectionHelper.SmartRetryCard
+        data responseKey={Total_Smart_Retried_Amount->getKeyForModule(~metricType)}
+      />
       <div className="col-span-2 grid grid-cols-2 grid-rows-2 gap-6">
-        <OverViewStat data responseKey={Total_Success_Rate->getKeyForModule(~metricType)} />
         <OverViewStat
-          data responseKey={Total_Payment_Processed_Amount->getKeyForModule(~metricType)}
+          data
+          responseKey={Total_Success_Rate}
+          config={getInfo(~responseKey=Total_Success_Rate)}
+          getValueFromObj
+          getStringFromVariant
         />
         <OverViewStat
-          data responseKey={Total_Refund_Processed_Amount->getKeyForModule(~metricType)}
+          data
+          responseKey={Total_Payment_Processed_Amount}
+          config={getInfo(~responseKey=Total_Payment_Processed_Amount)}
+          getValueFromObj
+          getStringFromVariant
         />
-        <OverViewStat data responseKey={Total_Dispute->getKeyForModule(~metricType)} />
+        <OverViewStat
+          data
+          responseKey={Total_Refund_Processed_Amount}
+          config={getInfo(~responseKey=Total_Refund_Processed_Amount)}
+          getValueFromObj
+          getStringFromVariant
+        />
+        <OverViewStat
+          data
+          responseKey={Total_Dispute}
+          config={getInfo(~responseKey=Total_Dispute)}
+          getValueFromObj
+          getStringFromVariant
+        />
       </div>
     </div>
   </PageLoaderWrapper>

@@ -1,4 +1,14 @@
 open NewAnalyticsTypes
+// OverView section
+let overviewSectionEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: true,
+    metrics: [],
+  },
+  title: "OverView Section",
+  domain: #refunds,
+}
+
 // Refunds Processed
 let refundsProcessedEntity: moduleEntity = {
   requestBodyConfig: {

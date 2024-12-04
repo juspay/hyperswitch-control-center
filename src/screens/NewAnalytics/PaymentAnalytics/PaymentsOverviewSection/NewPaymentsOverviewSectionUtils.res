@@ -48,7 +48,6 @@ let parseResponse = (response, key) => {
   ->getDictFromJsonObject
 }
 
-open NewAnalyticsTypes
 let setValue = (dict, ~data, ~ids: array<overviewColumns>) => {
   open NewAnalyticsUtils
   open LogicUtils
@@ -73,6 +72,7 @@ let setValue = (dict, ~data, ~ids: array<overviewColumns>) => {
 }
 
 let getInfo = (~responseKey: overviewColumns) => {
+  open NewAnalyticsTypes
   switch responseKey {
   | Total_Smart_Retried_Amount | Total_Smart_Retried_Amount_Without_Smart_Retries => {
       titleText: "Total Payment Savings",
@@ -112,6 +112,7 @@ let getValueFromObj = (data, index, responseKey) => {
 }
 
 let getKeyForModule = (field, ~metricType) => {
+  open NewAnalyticsTypes
   switch (field, metricType) {
   | (Total_Smart_Retried_Amount, Smart_Retry) => Total_Smart_Retried_Amount
   | (Total_Payment_Processed_Amount, Smart_Retry) => Total_Payment_Processed_Amount

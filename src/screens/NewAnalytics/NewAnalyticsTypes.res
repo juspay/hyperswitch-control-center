@@ -72,3 +72,9 @@ type valueType =
 type metricType =
   | Smart_Retry
   | Default
+
+type singleStatConfig = {
+  titleText: string,
+  description: string,
+  valueType: valueType,
+}
