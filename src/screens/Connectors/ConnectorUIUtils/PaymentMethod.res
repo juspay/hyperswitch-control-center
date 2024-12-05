@@ -93,7 +93,8 @@ module CardRenderer = {
     let showSideModal = methodVariant => {
       ((methodVariant === GooglePay ||
       methodVariant === ApplePay ||
-      methodVariant === SamsungPay) &&
+      methodVariant === SamsungPay ||
+      methodVariant === Paze) &&
         {
           switch connector->getConnectorNameTypeFromString {
           | Processors(TRUSTPAY)
@@ -298,6 +299,7 @@ module CardRenderer = {
             ApplePay ||
           selectedWallet.payment_method_type->getPaymentMethodTypeFromString === GooglePay ||
           selectedWallet.payment_method_type->getPaymentMethodTypeFromString === SamsungPay ||
+          selectedWallet.payment_method_type->getPaymentMethodTypeFromString === Paze ||
           (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)}>
           <Modal
             modalHeading
