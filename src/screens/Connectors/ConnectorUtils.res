@@ -153,6 +153,7 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "paypal" => PayPal
   | "open_banking_pis" => OpenBankingPIS
   | "samsung_pay" => SamsungPay
+  | "paze" => Paze
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }

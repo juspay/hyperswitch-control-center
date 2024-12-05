@@ -35,6 +35,7 @@ dispute_evidence_upload=false
 paypal_automatic_flow=false
 threeds_authenticator=false
 global_search=false
+global_search_filters=false
 dispute_analytics=false
 configure_pmts=false
 branding=false
@@ -49,8 +50,10 @@ down_time=false
 tax_processor=true
 transaction_view=false
 x_feature_route=false
+tenant_user=false
 [default.merchant_config]
 [default.merchant_config.new_analytics]
 org_ids=[]
 merchant_ids=[]
 profile_ids=[]
+
