@@ -26,6 +26,22 @@ type filter = [
   | #unknown
 ]
 
+type amountFilterChild = [
+  | #start_amount
+  | #end_amount
+  | #amount_option
+  | #unknownchild
+]
+
+let mapStringToamountFilterChild = (key: string) => {
+  switch key {
+  | "start_amount" => #start_amount
+  | "end_amount" => #end_amount
+  | "amount_option" => #amount_option
+  | _ => #unknownchild
+  }
+}
+
 let getFilterTypeFromString = filterType => {
   switch filterType {
   | "connector" => #connector
@@ -39,6 +55,16 @@ let getFilterTypeFromString = filterType => {
   | "customer_id" => #customer_id
   | "amount" => #amount
   | _ => #unknown
+  }
+}
+let isParentChildFilterMatch = (name, key) => {
+  let parentFilter = name->getFilterTypeFromString
+  let child = key->mapStringToamountFilterChild
+  switch (parentFilter, child) {
+  | (#amount, #start_amount) => true
+  | (#amount, #end_amount) => true
+  | (#amount, #amount_option) => true
+  | _ => false
   }
 }
 
@@ -323,8 +349,8 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
     }
 
     let amountFilterOptions: array<FilterSelectBox.dropdownOption> = [
-      GreaterThanEqualTo,
-      LessThanEqualTo,
+      GreaterThanOrEqualTo,
+      LessThanOrEqualTo,
       EqualTo,
       InBetween,
     ]->Array.map(option => {
@@ -538,44 +564,4 @@ let orderViewList: OMPSwitchTypes.ompViews = [
 
 let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) => {
   keys->Array.forEach(key => dict->Dict.delete(key))
-}
-let validateForm = values => {
-  open LogicUtils
-  let errors = Dict.make()
-  let dict = values->getDictFromJsonObject
-  let sAmntK = dict->getvalFromDict("start_amount")->mapOptionOrDefault(None, key => Some(key))
-  let eAmtK = dict->getvalFromDict("end_amount")->mapOptionOrDefault(None, key => Some(key))
-
-  // check only if the key is present
-  if sAmntK->Option.isSome && eAmtK->Option.isSome {
-    let _ = if (
-      sAmntK->Option.getOr(JSON.Encode.null) === JSON.Encode.null &&
-        eAmtK->Option.getOr(JSON.Encode.null) === JSON.Encode.null
-    ) {
-      errors->Dict.set("Invalid", "Please enter value."->JSON.Encode.string)
-    } else {
-      switch (sAmntK, eAmtK) {
-      | (Some(start), Some(end)) =>
-        if end != JSON.Encode.null {
-          let startAmt = start->getFloatFromJson(0.0)
-          let endAmt = end->getFloatFromJson(0.0)
-          if endAmt < startAmt {
-            errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
-          }
-        }
-      | (_, _) => ()
-      }
-      // let startAmt = sAmntK->getFloatFromJson(0.0)
-      // let endAmt = eAmtK->getFloatFromJson(0.0)
-      // if endAmt < startAmt {
-      //   errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
-      // }
-    }
-  }
-  //  else if sAmntK->Option.isSome && sAmntK->Option.getOr(JSON.Encode.null) === JSON.Encode.null {
-  //   errors->Dict.set("Invalid", "Please enter value."->JSON.Encode.string)
-  // } else if eAmtK->Option.isSome && eAmtK->Option.getOr(JSON.Encode.null) === JSON.Encode.null {
-  //   errors->Dict.set("Invalid", "Please enter value."->JSON.Encode.string)
-  // }
-  errors->JSON.Encode.object
 }

@@ -188,24 +188,15 @@ let getInitialValuesFromUrl = (
     })
     entriesList->Array.forEach(entry => {
       let (key, value) = entry
-      let isAmountKey = switch key {
-      | "start_amount"
-      | "end_amount" => true
-      | _ => false
-      }
-      if isAmountKey {
-        Dict.set(dict, key, value->UrlFetchUtils.getFilterValue)
-      } else {
-        initialFilters->Array.forEach((filter: FormRenderer.fieldInfoType) => {
-          filter.inputNames->Array.forEach(
-            name => {
-              if name === key {
-                Dict.set(dict, key, value->UrlFetchUtils.getFilterValue)
-              }
-            },
-          )
-        })
-      }
+      initialFilters->Array.forEach((filter: FormRenderer.fieldInfoType) => {
+        filter.inputNames->Array.forEach(
+          name => {
+            if name === key || OrderUIUtils.isParentChildFilterMatch(name, key) {
+              Dict.set(dict, key, value->UrlFetchUtils.getFilterValue)
+            }
+          },
+        )
+      })
       options->Array.forEach(option => {
         let fieldName = option.urlKey
         if fieldName === key {

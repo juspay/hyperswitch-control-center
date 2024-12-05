@@ -224,3 +224,48 @@ module EllipsisText = {
     </div>
   }
 }
+let validateIsNull = value => {
+  switch value {
+  | Some(val) if val->LogicUtils.isNullJson => true
+  | None => true
+  | _ => false
+  }
+}
+let validateAmountLessThanMax = amount =>
+  // Ensure the entered amount (multiplied by 100) does not exceed the maximum value for a 64-bit signed integer
+  amount->LogicUtils.getFloatFromJson(0.0) *. 100.0 > 9223372036854775807.0
+
+let validateInBetween = (sAmntK, eAmtK) => {
+  switch (sAmntK, eAmtK) {
+  | (start, end) =>
+    let startAmt = start->LogicUtils.getFloatFromJson(0.0)
+    let endAmt = end->LogicUtils.getFloatFromJson(0.0)
+    if (
+      validateIsNull(start) ||
+      validateIsNull(end) ||
+      validateAmountLessThanMax(start) ||
+      validateAmountLessThanMax(end) ||
+      endAmt <= startAmt
+    ) {
+      true
+    } else {
+      false
+    }
+  }
+}
+
+let validateAmount = dict => {
+  open LogicUtils
+  let sAmntK = dict->getvalFromDict("start_amount")
+  let eAmtK = dict->getvalFromDict("end_amount")
+  let amountOption = dict->getvalFromDict("amount_option")->Option.getOr(JSON.Encode.null)
+  let haserror = switch amountOption->JSON.Decode.string {
+  | Some("GreaterThanOrEqualTo")
+  | Some("EqualTo") =>
+    validateIsNull(sAmntK) || validateAmountLessThanMax(sAmntK)
+  | Some("LessThanOrEqualTo") => validateIsNull(eAmtK) || validateAmountLessThanMax(eAmtK)
+  | Some("InBetween") => validateInBetween(sAmntK, eAmtK)
+  | _ => false
+  }
+  haserror
+}
