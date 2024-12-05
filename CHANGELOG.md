@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.05.0
+
+### Features
+
+- Paze additional details ([#1835](https://github.com/juspay/hyperswitch-control-center/pull/1835)) ([`ecdffa2`](https://github.com/juspay/hyperswitch-control-center/commit/ecdffa2dca940099154d15220ce505dfbca27b8f))
+
+### Refactors
+
+- Recon - update recon resources for rendering sidebar values based on permissions ([#1787](https://github.com/juspay/hyperswitch-control-center/pull/1787)) ([`bba3315`](https://github.com/juspay/hyperswitch-control-center/commit/bba33153a46cae32850b44a22655e6dcc864ee9c))
+
+**Full Changelog:** [`2024.12.04.1...2024.12.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.04.1...2024.12.05.0)
+
+- - -
+
 ## 2024.12.04.1
 
 ### Features
