@@ -2,7 +2,9 @@ type analyticsPages = Payment
 type viewType = Graph | Table
 type statisticsDirection = Upward | Downward | No_Change
 
-type analyticsPagesRoutes = | @as("new-analytics-payment") NewAnalyticsPayment
+type analyticsPagesRoutes =
+  | @as("new-analytics-payment") NewAnalyticsPayment
+  | @as("new-analytics-smart-retry") NewAnalyticsSmartRetry
 
 type domain = [#payments | #refunds | #disputes]
 type dimension = [
@@ -28,7 +30,7 @@ type metrics = [
 type granularity = [
   | #G_ONEDAY
 ]
-// will change this once we get the api srtcuture
+
 type requestBodyConfig = {
   metrics: array<metrics>,
   delta?: bool,
