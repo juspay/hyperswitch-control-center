@@ -136,6 +136,15 @@ let initialFixedFilter = () => [
   ),
 ]
 
+let getLabelFromFilterType = (filter: filter) => (filter :> string)
+
+let getValueFromFilterType = (filter: filter) => {
+  switch filter {
+  | #connector_label => "merchant_connector_id"
+  | _ => (filter :> string)
+  }
+}
+
 let getConditionalFilter = (key, dict, filterValues) => {
   switch key->getFilterTypeFromString {
   | #connector_label =>
@@ -185,25 +194,23 @@ let itemToObjMapper = dict => {
 }
 
 let initialFilters = (json, filtervalues, _, _, _) => {
-  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-
   let filterDict = json->getDictFromJsonObject
-  let arr = filterDict->Dict.keysToArray->Array.filter(item => item != "currency")
+  let filtersArray = filterDict->Dict.keysToArray->Array.filter(item => item != "currency")
 
+  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   if connectorFilter->Array.length !== 0 {
-    arr->Array.push("connector_label")
+    filtersArray->Array.push(#connector_label->getLabelFromFilterType)
   }
+  let filterData = filterDict->itemToObjMapper
 
-  let filterArr = filterDict->itemToObjMapper
-
-  arr->Array.map((key): EntityType.initialFilters<'t> => {
+  filtersArray->Array.map((key): EntityType.initialFilters<'t> => {
     let title = `Select ${key->snakeToTitle}`
 
     let values = switch key->getFilterTypeFromString {
-    | #connector => filterArr.connector
-    | #currency => filterArr.currency
-    | #dispute_status => filterArr.dispute_status
-    | #dispute_stage => filterArr.dispute_stage
+    | #connector => filterData.connector
+    | #currency => filterData.currency
+    | #dispute_status => filterData.dispute_status
+    | #dispute_stage => filterData.dispute_stage
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
     | _ => []
     }
@@ -213,15 +220,10 @@ let initialFilters = (json, filtervalues, _, _, _) => {
     | _ => values->FilterSelectBox.makeOptions
     }
 
-    let name = switch key->getFilterTypeFromString {
-    | #connector_label => "merchant_connector_id"
-    | _ => key
-    }
-
     {
       field: FormRenderer.makeFieldInfo(
         ~label=key,
-        ~name,
+        ~name=getValueFromFilterType(key->getFilterTypeFromString),
         ~customInput=InputFields.filterMultiSelectInput(
           ~options,
           ~buttonText=title,

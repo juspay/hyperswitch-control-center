@@ -1,4 +1,4 @@
-module NewAccountCreationModal = {
+module NewProfileCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal, ~getProfileList) => {
     open APIUtils
@@ -6,7 +6,7 @@ module NewAccountCreationModal = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
 
-    let createNewAccount = async values => {
+    let createNewProfile = async values => {
       try {
         let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post)
         let body = values
@@ -14,11 +14,11 @@ module NewAccountCreationModal = {
         getProfileList()->ignore
         showToast(
           ~toastType=ToastSuccess,
-          ~message="Account Created Successfully!",
+          ~message="Profile Created Successfully!",
           ~autoClose=true,
         )
       } catch {
-      | _ => showToast(~toastType=ToastError, ~message="Account Creation Failed", ~autoClose=true)
+      | _ => showToast(~toastType=ToastError, ~message="Profile Creation Failed", ~autoClose=true)
       }
 
       setShowModal(_ => false)
@@ -30,7 +30,7 @@ module NewAccountCreationModal = {
       let dict = values->getDictFromJsonObject
       let trimmedData = dict->getString("profile_name", "")->String.trim
       Dict.set(dict, "profile_name", trimmedData->JSON.Encode.string)
-      createNewAccount(dict->JSON.Encode.object)
+      createNewProfile(dict->JSON.Encode.object)
     }
 
     let profileName = FormRenderer.makeFieldInfo(
@@ -87,7 +87,7 @@ module NewAccountCreationModal = {
           </div>
         </div>
         <hr />
-        <Form key="new-account-creation" onSubmit validate={validateForm}>
+        <Form key="new-profile-creation" onSubmit validate={validateForm}>
           <div className="flex flex-col h-full w-full">
             <div className="py-10">
               <FormRenderer.DesktopRow>
@@ -205,9 +205,7 @@ let make = () => {
         heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
       />}
       baseComponentCustomStyle="bg-white"
-      bottomComponent={<AddNewMerchantProfileButton
-        user=#Profile setShowModal customStyle addItemBtnStyle
-      />}
+      bottomComponent={<AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />}
       optionClass="text-gray-600 text-fs-14"
       selectClass="text-gray-600 text-fs-14"
       customDropdownOuterClass="!border-none !w-full"
@@ -218,7 +216,7 @@ let make = () => {
       shouldDisplaySelectedOnTop=true
     />
     <RenderIf condition={showModal}>
-      <NewAccountCreationModal setShowModal showModal getProfileList />
+      <NewProfileCreationModal setShowModal showModal getProfileList />
     </RenderIf>
     <LoaderModal
       showModal={showSwitchingProfile}

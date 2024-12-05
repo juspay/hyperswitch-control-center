@@ -1919,7 +1919,7 @@ module BaseDropdown = {
                       selectButton
                     }}
                     <div
-                      className="p-1 hover:bg-gray-200 cursor-pointer border-l-2 pl-2.5 "
+                      className="p-1 hover:bg-gray-200 cursor-pointer border-l-2 "
                       onClick={_ => newInputSelect.name->onDeleteClick}>
                       <Icon size={13} name="cross-outline" />
                     </div>

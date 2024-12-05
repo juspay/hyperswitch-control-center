@@ -27,6 +27,7 @@ let failedPaymentsDistributionMapper = (
   ~params: NewAnalyticsTypes.getObjects<JSON.t>,
 ): BarGraphTypes.barGraphPayload => {
   open BarGraphTypes
+  open NewAnalyticsUtils
   let {data, xKey, yKey} = params
   let categories = [data]->JSON.Encode.array->getCategories(0, yKey)
   let barGraphData = getBarGraphObj(
@@ -172,12 +173,5 @@ let isSmartRetryEnbldForFailedPmtDist = isEnabled => {
   switch isEnabled {
   | Smart_Retry => Payments_Failure_Rate_Distribution
   | Default => Payments_Failure_Rate_Distribution_Without_Smart_Retries
-  }
-}
-
-let getMetricsForSmartRetry = isEnabled => {
-  switch isEnabled {
-  | Smart_Retry => [#payments_distribution]
-  | Default => [#sessionized_payments_distribution]
   }
 }

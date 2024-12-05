@@ -135,6 +135,7 @@ type paymentMethodTypes =
   | PayPal
   | BankDebit
   | OpenBankingPIS
+  | Paze
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {

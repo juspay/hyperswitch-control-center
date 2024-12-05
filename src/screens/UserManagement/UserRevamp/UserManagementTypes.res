@@ -2,6 +2,8 @@ type userManagementTypes = UsersTab | RolesTab
 
 type internalUserType = InternalViewOnly | InternalAdmin | NonInternal
 
+type admin = TenantAdmin | NonTenantAdmin
+
 @unboxed
 type groupAccessType =
   | OperationsView
@@ -31,7 +33,13 @@ type resourceAccessType =
   | Routing
   | ThreeDsDecisionManager
   | SurchargeDecisionManager
-  | Recon
+  | ReconToken
+  | ReconFiles
+  | ReconAndSettlementAnalytics
+  | ReconUpload
+  | ReconReports
+  | RunRecon
+  | ReconConfig
   | Account
   | ApiKey
   | User

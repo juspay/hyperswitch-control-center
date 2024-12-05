@@ -1,22 +1,22 @@
-module NewAccountCreationModal = {
+module NewMerchantCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal, ~getMerchantList) => {
     open APIUtils
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let createNewAccount = async values => {
+    let createNewMerchant = async values => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Post)
         let _ = await updateDetails(url, values, Post)
         getMerchantList()->ignore
         showToast(
           ~toastType=ToastSuccess,
-          ~message="Account Created Successfully!",
+          ~message="Merchant Created Successfully!",
           ~autoClose=true,
         )
       } catch {
-      | _ => showToast(~toastType=ToastError, ~message="Account Creation Failed", ~autoClose=true)
+      | _ => showToast(~toastType=ToastError, ~message="Merchant Creation Failed", ~autoClose=true)
       }
 
       setShowModal(_ => false)
@@ -28,7 +28,7 @@ module NewAccountCreationModal = {
       let dict = values->getDictFromJsonObject
       let trimmedData = dict->getString("company_name", "")->String.trim
       Dict.set(dict, "company_name", trimmedData->JSON.Encode.string)
-      createNewAccount(dict->JSON.Encode.object)
+      createNewMerchant(dict->JSON.Encode.object)
     }
 
     let merchantName = FormRenderer.makeFieldInfo(
@@ -85,7 +85,7 @@ module NewAccountCreationModal = {
           </div>
         </div>
         <hr />
-        <Form key="new-account-creation" onSubmit validate={validateForm}>
+        <Form key="new-merchant-creation" onSubmit validate={validateForm}>
           <div className="flex flex-col h-full w-full">
             <div className="py-10">
               <FormRenderer.DesktopRow>
@@ -206,9 +206,7 @@ let make = () => {
         heading="Merchant" subHeading={currentOMPName(merchantList, merchantId)} arrow
       />}
       baseComponentCustomStyle="bg-white rounded"
-      bottomComponent={<AddNewMerchantProfileButton
-        user=#Merchant setShowModal customStyle addItemBtnStyle
-      />}
+      bottomComponent={<AddNewOMPButton user=#Merchant setShowModal customStyle addItemBtnStyle />}
       optionClass="text-gray-600 text-fs-14"
       selectClass="text-gray-600 text-fs-14"
       customDropdownOuterClass="!border-none w-fit"
@@ -218,7 +216,7 @@ let make = () => {
       shouldDisplaySelectedOnTop=true
     />
     <RenderIf condition={showModal}>
-      <NewAccountCreationModal setShowModal showModal getMerchantList />
+      <NewMerchantCreationModal setShowModal showModal getMerchantList />
     </RenderIf>
     <LoaderModal
       showModal={showSwitchingMerch}
