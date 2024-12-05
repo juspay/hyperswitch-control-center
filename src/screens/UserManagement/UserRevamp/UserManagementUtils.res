@@ -121,7 +121,7 @@ let getUserManagementViewValues = (~checkUserEntity) => {
     entity: #Default,
   }
 
-  if checkUserEntity([#Organization]) {
+  if checkUserEntity([#Organization, #Tenant]) {
     [default, org, merchant, profile]
   } else if checkUserEntity([#Merchant]) {
     [default, merchant, profile]
@@ -130,11 +130,17 @@ let getUserManagementViewValues = (~checkUserEntity) => {
   }
 }
 
-let stringToVariantMapper = roleId => {
-  open UserManagementTypes
+let stringToVariantMapperInternalUser: string => UserManagementTypes.internalUserType = roleId => {
   switch roleId {
   | "internal_view_only" => InternalViewOnly
   | "internal_admin" => InternalAdmin
   | _ => NonInternal
+  }
+}
+
+let stringToVariantMapperTenantAdmin: string => UserManagementTypes.admin = roleId => {
+  switch roleId {
+  | "tenant_admin" => TenantAdmin
+  | _ => NonTenantAdmin
   }
 }

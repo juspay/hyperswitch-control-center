@@ -9,7 +9,7 @@ module OrganisationSelection = {
     let {userInfo: {userEntity}} = React.useContext(UserInfoProvider.defaultContext)
 
     let disableSelect = switch userEntity {
-    | #Organization | #Merchant | #Profile => true
+    | #Tenant | #Organization | #Merchant | #Profile => true
     }
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
@@ -61,7 +61,7 @@ module MerchantSelection = {
 
     let disableSelect = switch userEntity {
     | #Merchant | #Profile => true
-    | #Organization => false
+    | #Tenant | #Organization => false
     }
 
     let handleOnChange = async (event, input: ReactFinalForm.fieldRenderPropsInput) => {
@@ -120,6 +120,7 @@ module ProfileSelection = {
 
     let disableSelect = switch userEntity {
     | #Profile => true
+    | #Tenant
     | #Organization => {
         let selected_merchant =
           formState.values
