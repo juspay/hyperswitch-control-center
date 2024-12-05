@@ -1,6 +1,8 @@
 module Heading = {
   @react.component
   let make = () => {
+    open HyperswitchAtom
+    let {isLiveMode} = featureFlagAtom->Recoil.useRecoilValueFromAtom
     <>
       <div className="flex gap-3 p-2 m-2">
         <Icon name={"applepay"} size=56 />
@@ -14,7 +16,9 @@ module Heading = {
               <div>
                 <Icon name={"ellipse-black"} size=4 />
               </div>
-              <div> {"Test Mode"->React.string} </div>
+              <RenderIf condition={!isLiveMode}>
+                <div> {"Test Mode"->React.string} </div>
+              </RenderIf>
             </div>
           </div>
           <div className={` mt-2 text-sm text-hyperswitch_black opacity-50  font-normal`}>
