@@ -185,3 +185,28 @@ let sortQueryDataByDate = query => {
   })
   query
 }
+
+let getCategories = (data: JSON.t, index: int, key: string) => {
+  data
+  ->getArrayFromJson([])
+  ->getValueFromArray(index, []->JSON.Encode.array)
+  ->getArrayFromJson([])
+  ->Array.map(item => {
+    let value = item->getDictFromJsonObject->getString(key, "NA")
+
+    if value->isNonEmptyString && key == "time_bucket" {
+      let dateObj = value->DayJs.getDayJsForString
+      `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+    } else {
+      value
+    }
+  })
+}
+
+let getMetaDataValue = (~data, ~index, ~key) => {
+  data
+  ->getArrayFromJson([])
+  ->getValueFromArray(index, Dict.make()->JSON.Encode.object)
+  ->getDictFromJsonObject
+  ->getFloat(key, 0.0)
+}
