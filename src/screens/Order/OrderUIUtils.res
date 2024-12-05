@@ -309,7 +309,9 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
   }
 
   let additionalFilters =
-    [#payment_method_type, #customer_id, #amount]->Array.map(getLabelFromFilterType)
+    [#payment_method_type, #customer_id, #amount, #merchant_order_reference_id]->Array.map(
+      getLabelFromFilterType,
+    )
 
   let allFiltersArray = filtersArray->Array.concat(additionalFilters)
 
@@ -326,7 +328,6 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
         : filterData.payment_method_type
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
     | #card_network => filterData.card_network
-    | #customer_id => filterData.customer_id
     | _ => []
     }
 
@@ -357,11 +358,6 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
     | _ => values->makeOptions
     }
 
-    let name = switch key->getFilterTypeFromString {
-    | #connector_label => "merchant_connector_id"
-    | #merchant_order_reference_id => "merchant_order_reference_id"
-    | _ => key
-    }
     let customInput = switch key->getFilterTypeFromString {
     | #customer_id
     | #merchant_order_reference_id =>
@@ -372,7 +368,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
             onClick={_ => input.name->onDeleteClick}>
             <Icon name="cross-outline" size=13 />
           </div>,
-          ~customWidth="w-64",
+          ~customWidth="w-48",
         )(~input, ~placeholder=`Enter ${input.name->snakeToTitle}...`)
     | #amount =>
       (~input as _, ~placeholder as _) => {
