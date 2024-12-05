@@ -1,6 +1,14 @@
 open GlobalSearchTypes
 open LogicUtils
 
+let defaultRoute = "/search"
+let global_search_activate_key = "k"
+let filterSeparator = ":"
+
+let getEndChar = string => {
+  string->String.charAt(string->String.length - 1)
+}
+
 let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName) => {
   searchOptions
   ->Option.getOr([])
@@ -302,11 +310,9 @@ let categoryList = [
   Connector,
   Customer_Email,
   Card_Network,
-  Last_4,
-  Authentication_type,
+  Card_Last_4,
   Status,
-  Client_source,
-  Client_version,
+  Payment_id,
 ]
 
 let getcategoryFromVariant = category => {
@@ -317,12 +323,10 @@ let getcategoryFromVariant = category => {
   | Connector => "connector"
   | Customer_Email => "customer_email"
   | Card_Network => "card_network"
-  | Last_4 => "last_4"
+  | Card_Last_4 => "card_last_4"
   | Date => "date"
-  | Authentication_type => "authentication_type"
   | Status => "status"
-  | Client_source => "client_source"
-  | Client_version => "client_version"
+  | Payment_id => "payment_id"
   }
 }
 
@@ -334,12 +338,10 @@ let getDefaultPlaceholderValue = category => {
   | Connector => "connector:stripe"
   | Customer_Email => "customer_email:abc@abc.com"
   | Card_Network => "card_network:visa"
-  | Last_4 => "last_4:2326"
+  | Card_Last_4 => "card_last_4:2326"
   | Date => "date:today"
-  | Authentication_type => "authentication_type:no_three_ds"
   | Status => "status:charged"
-  | Client_source => "client_source:Payment"
-  | Client_version => "client_version:0.55.0"
+  | Payment_id => "payment_id:pay_xxxxxxxxx"
   }
 }
 
@@ -351,11 +353,9 @@ let getCategoryVariantFromString = category => {
   | "currency" => Currency
   | "customer_email" => Customer_Email
   | "card_network" => Card_Network
-  | "last_4" => Last_4
-  | "authentication_type" => Authentication_type
+  | "card_last_4" => Card_Last_4
+  | "payment_id" => Payment_id
   | "status" => Status
-  | "client_source" => Client_source
-  | "client_version" => Client_version
   | "date" | _ => Date
   }
 }
@@ -404,10 +404,7 @@ let paymentsGroupByNames = [
   "payment_method",
   "payment_method_type",
   "currency",
-  "authentication_type",
   "status",
-  "client_source",
-  "client_version",
   "profile_id",
   "card_network",
   "merchant_id",
@@ -433,7 +430,7 @@ let generateFilter = (queryArray: array<string>) => {
   queryArray->Array.forEach(query => {
     let keyValuePair =
       query
-      ->String.split(":")
+      ->String.split(filterSeparator)
       ->Array.filter(query => {
         query->String.trim->isNonEmptyString
       })
@@ -442,8 +439,14 @@ let generateFilter = (queryArray: array<string>) => {
     let value = keyValuePair->getValueFromArray(1, "")
 
     switch filter->Dict.get(key) {
-    | Some(prevArr) => filter->Dict.set(key, prevArr->Array.concat([value]))
-    | _ => filter->Dict.set(key, [value])
+    | Some(prevArr) =>
+      if !(prevArr->Array.includes(value)) && value->isNonEmptyString {
+        filter->Dict.set(key, prevArr->Array.concat([value]))
+      }
+    | _ =>
+      if value->isNonEmptyString {
+        filter->Dict.set(key, [value])
+      }
     }
   })
 
@@ -467,21 +470,26 @@ let generateQuery = searchQuery => {
     query->String.trim->isNonEmptyString
   })
   ->Array.forEach(query => {
-    if RegExp.test(%re("/^[^:\s]+:[^:\s]+$/"), query) {
+    if RegExp.test(%re("/^[^:\s]+:[^:\s]*$/"), query) {
       filters->Array.push(query)
+    } else if !(query->CommonAuthUtils.isValidEmail) {
+      let filter = `${Customer_Email->getcategoryFromVariant}:${query}`
+      filters->Array.push(filter)
     } else {
       queryText := query
     }
   })
 
   let body = {
-    let query = if filters->Array.length > 0 {
-      [("filters", filters->generateFilter->JSON.Encode.object)]
+    let filterObj = filters->generateFilter
+    let query = if filters->Array.length > 0 && filterObj->Dict.keysToArray->Array.length > 0 {
+      [("filters", filterObj->JSON.Encode.object)]
     } else {
       []
     }
 
-    let query = query->Array.concat([("query", queryText.contents->JSON.Encode.string)])
+    let query =
+      query->Array.concat([("query", queryText.contents->String.trim->JSON.Encode.string)])
 
     query->Dict.fromArray
   }
@@ -506,15 +514,53 @@ let validateQuery = searchQuery => {
   freeTextCount.contents > 1
 }
 
-let getViewType = (~state, ~searchResults) => {
+let getViewType = (~state, ~searchResults, ~searchText, ~filtersEnabled) => {
   switch state {
   | Loading => Load
-  | Loaded =>
-    if searchResults->Array.length > 0 {
-      Results
-    } else {
-      EmptyResult
+  | Loaded => {
+      let endChar = searchText->String.charAt(searchText->String.length - 1)
+      let isFilter = endChar == filterSeparator || endChar == " "
+
+      if isFilter && filtersEnabled {
+        FiltersSugsestions
+      } else if searchResults->Array.length > 0 {
+        Results
+      } else {
+        EmptyResult
+      }
     }
-  | Idle => FiltersSugsestions
+  | Idle => filtersEnabled ? FiltersSugsestions : Results
   }
 }
+
+let getSearchValidation = query => {
+  let paylod = query->generateQuery
+  let query = paylod->getString("query", "")->String.trim
+
+  !(paylod->getObj("filters", Dict.make())->isEmptyDict && query->isEmptyString)
+}
+
+let sidebarScrollbarCss = `
+  @supports (-webkit-appearance: none){
+    .sidebar-scrollbar {
+        scrollbar-width: auto;
+        scrollbar-color: #8a8c8f;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar {
+        display: block;
+        overflow: scroll;
+        height: 4px;
+        width: 5px;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #8a8c8f;
+        border-radius: 3px;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar-track {
+        display: none;
+      }
+}
+  `

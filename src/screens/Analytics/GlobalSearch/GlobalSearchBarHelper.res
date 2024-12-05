@@ -1,24 +1,22 @@
 open LogicUtils
 open GlobalSearchTypes
 module RenderedComponent = {
+  open String
   @react.component
   let make = (~ele, ~searchText) => {
+    let defaultStyle = "font-medium text-fs-14 text-lightgray_background opacity-50"
+
     listOfMatchedText(ele, searchText)
-    ->Array.mapWithIndex((item, i) => {
-      if (
-        String.toLowerCase(item) == String.toLowerCase(searchText) && String.length(searchText) > 0
-      ) {
-        <mark
-          key={i->Int.toString}
-          className="border-searched_text_border bg-yellow-searched_text font-medium text-fs-14 text-lightgray_background opacity-50">
-          {item->React.string}
+    ->Array.mapWithIndex((item, index) => {
+      let key = index->Int.toString
+      let element = item->React.string
+
+      if item->toLowerCase == searchText->toLowerCase && searchText->isNonEmptyString {
+        <mark key className={`border-searched_text_border bg-yellow-searched_text ${defaultStyle}`}>
+          element
         </mark>
       } else {
-        <span
-          key={i->Int.toString}
-          className="font-medium text-fs-14 text-lightgray_background opacity-50">
-          {item->React.string}
-        </span>
+        <span key className=defaultStyle> element </span>
       }
     })
     ->React.array
@@ -65,7 +63,8 @@ module EmptyResult = {
 module OptionWrapper = {
   @react.component
   let make = (~index, ~value, ~children, ~selectedOption, ~redirectOnSelect) => {
-    let activeClass = value == selectedOption ? "bg-gray-100 rounded-lg p-2 group items-center" : ""
+    let activeClass = value == selectedOption ? "bg-gray-100 rounded-lg border" : ""
+
     <div
       onClick={_ => value->redirectOnSelect}
       className={`flex ${activeClass} flex-row truncate hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center`}
@@ -79,6 +78,8 @@ module ModalWrapper = {
   open FramerMotion.Motion
   @react.component
   let make = (~showModal, ~setShowModal, ~children) => {
+    let borderRadius = ["15px", "15px", "15px", "15px"]
+
     <Modal
       showModal
       setShowModal
@@ -89,8 +90,8 @@ module ModalWrapper = {
       <Div
         layoutId="search"
         key="search"
-        initial={{borderRadius: ["15px", "15px", "15px", "15px"], scale: 0.9}}
-        animate={{borderRadius: ["15px", "15px", "15px", "15px"], scale: 1.0}}
+        initial={{borderRadius, scale: 0.9}}
+        animate={{borderRadius, scale: 1.0}}
         className={"flex flex-col bg-white gap-2 overflow-hidden py-2 !show-scrollbar"}>
         {children}
       </Div>
@@ -106,9 +107,33 @@ module ShowMoreLink = {
     ~textStyleClass="",
     ~searchText,
   ) => {
-    <RenderIf condition={section.total_results > 10}>
+    let totalCount = section.total_results
+
+    let generateLink = (path, domain) => {
+      `${path}?query=${searchText}&domain=${domain}`
+    }
+
+    let onClick = _ => {
+      let link = switch section.section {
+      | PaymentAttempts => generateLink("payment-attempts", "payment_attempts")
+      | SessionizerPaymentAttempts =>
+        generateLink("payment-attempts", "sessionizer_payment_attempts")
+      | PaymentIntents => generateLink("payment-intents", "payment_intents")
+      | SessionizerPaymentIntents => generateLink("payment-intents", "sessionizer_payment_intents")
+      | Refunds => generateLink("refunds-global", "refunds")
+      | SessionizerPaymentRefunds => generateLink("refunds-global", "sessionizer_refunds")
+      | Disputes => generateLink("dispute-global", "disputes")
+      | SessionizerPaymentDisputes => generateLink("dispute-global", "sessionizer_disputes")
+      | Local
+      | Others
+      | Default => ""
+      }
+      GlobalVars.appendDashboardPath(~url=link)->RescriptReactRouter.push
+      cleanUpFunction()
+    }
+
+    <RenderIf condition={totalCount > 10}>
       {
-        let totalCount = section.total_results
         let suffix = totalCount > 1 ? "s" : ""
         let linkText = `View ${totalCount->Int.toString} result${suffix}`
 
@@ -122,27 +147,7 @@ module ShowMoreLink = {
         | Refunds
         | Disputes =>
           <div
-            onClick={_ => {
-              let link = switch section.section {
-              | PaymentAttempts => `payment-attempts?query=${searchText}&domain=payment_attempts`
-              | SessionizerPaymentAttempts =>
-                `payment-attempts?query=${searchText}&domain=sessionizer_payment_attempts`
-              | PaymentIntents => `payment-intents?query=${searchText}&domain=payment_intents`
-              | SessionizerPaymentIntents =>
-                `payment-intents?query=${searchText}&domain=sessionizer_payment_intents`
-              | Refunds => `refunds-global?query=${searchText}&domain=refunds`
-              | SessionizerPaymentRefunds =>
-                `refunds-global?query=${searchText}&domain=sessionizer_refunds`
-              | Disputes => `dispute-global?query=${searchText}&domain=disputes`
-              | SessionizerPaymentDisputes =>
-                `dispute-global?query=${searchText}&domain=sessionizer_disputes`
-              | Local
-              | Others
-              | Default => ""
-              }
-              GlobalVars.appendDashboardPath(~url=link)->RescriptReactRouter.push
-              cleanUpFunction()
-            }}
+            onClick
             className={`font-medium cursor-pointer underline underline-offset-2 opacity-50 ${textStyleClass}`}>
             {linkText->React.string}
           </div>
@@ -212,30 +217,46 @@ module SearchResultsComponent = {
   }
 }
 
-let sidebarScrollbarCss = `
-  @supports (-webkit-appearance: none){
-    .sidebar-scrollbar {
-        scrollbar-width: auto;
-        scrollbar-color: #8a8c8f;
-      }
-      
-      .sidebar-scrollbar::-webkit-scrollbar {
-        display: block;
-        overflow: scroll;
-        height: 4px;
-        width: 5px;
-      }
-      
-      .sidebar-scrollbar::-webkit-scrollbar-thumb {
-        background-color: #8a8c8f;
-        border-radius: 3px;
-      }
-      
-      .sidebar-scrollbar::-webkit-scrollbar-track {
-        display: none;
-      }
+module FilterOption = {
+  @react.component
+  let make = (~onClick, ~value, ~placeholder=None, ~filter, ~selectedFilter=None) => {
+    let activeBg = "bg-gray-200"
+    let wrapperBg = "bg-gray-400/40"
+    let rounded = "rounded-lg"
+
+    let (activeWrapperClass, activeClass) = switch selectedFilter {
+    | Some(val) =>
+      filter == val
+        ? (`${activeBg} ${rounded} border`, `${wrapperBg} border`)
+        : (
+            `hover:${activeBg} hover:${rounded} hover:border`,
+            `hover:${wrapperBg} hover:border ${activeBg}`,
+          )
+    | None => (
+        `hover:${activeBg} hover:${rounded} hover:border`,
+        `hover:${wrapperBg} hover:border ${activeBg}`,
+      )
+    }
+
+    <div
+      className={`flex justify-between p-2 group items-center cursor-pointer ${activeWrapperClass}`}
+      onClick>
+      <div className={`${activeClass} py-1 px-2 rounded-md flex gap-1 items-center w-fit`}>
+        <span className="font-medium text-sm"> {value->React.string} </span>
+      </div>
+      <RenderIf condition={placeholder->Option.isSome}>
+        <div className="text-sm opacity-70"> {placeholder->Option.getOr("")->React.string} </div>
+      </RenderIf>
+    </div>
+  }
 }
-  `
+
+module NoResults = {
+  @react.component
+  let make = () => {
+    <div className="text-sm p-2"> {"No Results"->React.string} </div>
+  }
+}
 
 module FilterResultsComponent = {
   open GlobalSearchBarUtils
@@ -244,20 +265,22 @@ module FilterResultsComponent = {
   let make = (
     ~categorySuggestions: array<categoryOption>,
     ~activeFilter,
-    ~setActiveFilter,
     ~searchText,
-    ~setLocalSearchText,
+    ~setAllFilters,
+    ~selectedFilter,
+    ~setSelectedFilter,
+    ~onFilterClicked,
+    ~onSuggestionClicked,
   ) => {
-    let filterKey = activeFilter->String.split(":")->getValueFromArray(0, "")
+    let filterKey = activeFilter->String.split(filterSeparator)->getValueFromArray(0, "")
 
     let filters = categorySuggestions->Array.filter(category => {
-      if !(activeFilter->isEmptyString) {
-        if searchText->String.charAt(searchText->String.length - 1) == ":" {
-          `${category.categoryType->getcategoryFromVariant}:` == `${filterKey}:`
+      if activeFilter->isNonEmptyString {
+        let categoryType = category.categoryType->getcategoryFromVariant
+        if searchText->getEndChar == filterSeparator {
+          `${categoryType}:` == `${filterKey}:`
         } else {
-          category.categoryType
-          ->getcategoryFromVariant
-          ->String.includes(filterKey)
+          categoryType->String.includes(filterKey)
         }
       } else {
         true
@@ -271,6 +294,49 @@ module FilterResultsComponent = {
       | _ => false
       }
     }
+
+    let updateAllFilters = () => {
+      if filters->Array.length == 1 {
+        switch filters->Array.get(0) {
+        | Some(filter) =>
+          if filter.options->Array.length > 0 && filters->checkFilterKey {
+            let filterValue = activeFilter->String.split(filterSeparator)->getValueFromArray(1, "")
+
+            let options = if filterValue->isNonEmptyString {
+              filter.options->Array.filter(option => option->String.includes(filterValue))
+            } else {
+              filter.options
+            }
+
+            let newFilters = options->Array.map(option => {
+              let value = {
+                categoryType: filter.categoryType,
+                options: [option],
+                placeholder: filter.placeholder,
+              }
+
+              value
+            })
+            setAllFilters(_ => newFilters)
+          } else {
+            setAllFilters(_ => filters)
+          }
+        | _ => ()
+        }
+      } else {
+        setAllFilters(_ => filters)
+      }
+    }
+
+    React.useEffect(() => {
+      updateAllFilters()
+      None
+    }, [activeFilter])
+
+    React.useEffect(() => {
+      setSelectedFilter(_ => None)
+      None
+    }, [filters->Array.length])
 
     <RenderIf condition={filters->Array.length > 0}>
       <Div
@@ -287,57 +353,56 @@ module FilterResultsComponent = {
               <style> {React.string(sidebarScrollbarCss)} </style>
               {switch filters->Array.get(0) {
               | Some(value) =>
-                value.options
-                ->Array.map(option => {
-                  <div
-                    className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
-                    onClick={_ => {
-                      let saparater =
-                        searchText->String.charAt(searchText->String.length - 1) == ":" ? "" : ":"
-                      setLocalSearchText(_ => `${searchText}${saparater}${option}`)
-                      setActiveFilter(_ => "")
-                    }}>
-                    <div className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center w-fit">
-                      <span className="font-medium text-sm">
-                        {`${value.categoryType
-                          ->getcategoryFromVariant
-                          ->String.toLocaleLowerCase} : ${option}`->React.string}
-                      </span>
-                    </div>
-                  </div>
-                })
-                ->React.array
-              | _ => React.null
+                let filterValue =
+                  activeFilter->String.split(filterSeparator)->getValueFromArray(1, "")
+
+                let options = if filterValue->isNonEmptyString {
+                  value.options->Array.filter(option => option->String.includes(filterValue))
+                } else {
+                  value.options
+                }
+
+                if options->Array.length > 0 {
+                  options
+                  ->Array.map(option => {
+                    let filter = {
+                      categoryType: value.categoryType,
+                      options: [option],
+                      placeholder: value.placeholder,
+                    }
+
+                    let itemValue = `${value.categoryType
+                      ->getcategoryFromVariant
+                      ->String.toLocaleLowerCase} : ${option}`
+
+                    <FilterOption
+                      onClick={_ => option->onSuggestionClicked}
+                      value=itemValue
+                      filter
+                      selectedFilter
+                    />
+                  })
+                  ->React.array
+                } else {
+                  <NoResults />
+                }
+              | _ => <NoResults />
               }}
             </div>
           </RenderIf>
           <RenderIf condition={!(filters->Array.length === 1 && filters->checkFilterKey)}>
             {filters
             ->Array.map(category => {
-              <div
-                className="flex justify-between hover:bg-gray-100 cursor-pointer hover:rounded-lg p-2 group items-center"
-                onClick={_ => {
-                  let newFilter = category.categoryType->getcategoryFromVariant
-                  let lastString = searchText->String.charAt(searchText->String.length - 1)
-                  if activeFilter->isNonEmptyString && lastString !== ":" {
-                    let end = searchText->String.length - activeFilter->String.length
-                    let newText = searchText->String.substring(~start=0, ~end)
-                    setLocalSearchText(_ => `${newText} ${newFilter}:`)
-                    setActiveFilter(_ => newFilter)
-                  } else if lastString !== ":" {
-                    setLocalSearchText(_ => `${searchText} ${newFilter}:`)
-                    setActiveFilter(_ => newFilter)
-                  }
-                }}>
-                <div className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center w-fit">
-                  <span className="font-medium text-sm">
-                    {`${category.categoryType
-                      ->getcategoryFromVariant
-                      ->String.toLocaleLowerCase} : `->React.string}
-                  </span>
-                </div>
-                <div className="text-sm opacity-70"> {category.placeholder->React.string} </div>
-              </div>
+              let itemValue = `${category.categoryType
+                ->getcategoryFromVariant
+                ->String.toLocaleLowerCase} : `
+              <FilterOption
+                onClick={_ => category->onFilterClicked}
+                value=itemValue
+                placeholder={Some(category.placeholder)}
+                filter={category}
+                selectedFilter
+              />
             })
             ->React.array}
           </RenderIf>
@@ -348,7 +413,9 @@ module FilterResultsComponent = {
 }
 
 module ModalSearchBox = {
+  open GlobalSearchBarUtils
   open FramerMotion.Motion
+  open ReactEvent.Keyboard
   @react.component
   let make = (
     ~leftIcon,
@@ -360,8 +427,22 @@ module ModalSearchBox = {
     ~selectedOption,
     ~setSelectedOption,
     ~redirectOnSelect,
+    ~allFilters,
+    ~selectedFilter,
+    ~setSelectedFilter,
+    ~viewType,
+    ~activeFilter,
+    ~onFilterClicked,
+    ~onSuggestionClicked,
   ) => {
+    let inputRef = React.useRef(Nullable.null)
     let (errorMessage, setErrorMessage) = React.useState(_ => "")
+
+    let tabKey = 9
+    let arrowDown = 40
+    let arrowUp = 38
+    let enterKey = 13
+    let spaceKey = 32
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       {
@@ -377,44 +458,142 @@ module ModalSearchBox = {
       }
     }
 
-    let handleKeyDown = e => {
-      open ReactEvent.Keyboard
+    let getNextIndex = (selectedIndex, options) => {
+      let count = options->Array.length
+      selectedIndex == count - 1 ? 0 : Int.mod(selectedIndex + 1, count)
+    }
+    let getPrevIndex = (selectedIndex, options) => {
+      let count = options->Array.length
+      selectedIndex === 0 ? count - 1 : Int.mod(selectedIndex - 1, count)
+    }
 
-      let index = allOptions->Array.findIndex(item => {
-        item == selectedOption
-      })
-
-      if e->keyCode == 40 {
-        let newIndex =
-          index == allOptions->Array.length - 1 ? 0 : Int.mod(index + 1, allOptions->Array.length)
-        switch allOptions->Array.get(newIndex) {
-        | Some(val) => setSelectedOption(_ => val)
-        | _ => ()
-        }
-      } else if e->keyCode == 38 {
-        let newIndex =
-          index === 0 ? allOptions->Array.length - 1 : Int.mod(index - 1, allOptions->Array.length)
-        switch allOptions->Array.get(newIndex) {
-        | Some(val) => setSelectedOption(_ => val)
-        | _ => ()
-        }
-      } else if e->keyCode == 13 && localSearchText->isNonEmptyString {
-        selectedOption->redirectOnSelect
+    let tabKeyPressHandler = e => {
+      switch inputRef.current->Js.Nullable.toOption {
+      | Some(elem) => elem->MultipleFileUpload.focus
+      | None => ()
       }
 
-      if e->keyCode === 32 {
+      let keyPressed = e->keyCode
+
+      switch viewType {
+      | EmptyResult | Load => ()
+      | Results => {
+          let index = allOptions->Array.findIndex(item => {
+            item == selectedOption
+          })
+
+          if keyPressed == tabKey {
+            let newIndex = getNextIndex(index, allOptions)
+            switch allOptions->Array.get(newIndex) {
+            | Some(val) => setSelectedOption(_ => val)
+            | _ => ()
+            }
+          }
+        }
+      | FiltersSugsestions => {
+          let index = allFilters->Array.findIndex(item => {
+            switch selectedFilter {
+            | Some(val) => item == val
+            | _ => false
+            }
+          })
+
+          if keyPressed == tabKey {
+            let newIndex = getNextIndex(index, allFilters)
+            switch allFilters->Array.get(newIndex) {
+            | Some(val) => setSelectedFilter(_ => val->Some)
+            | _ => ()
+            }
+          }
+        }
+      }
+    }
+
+    React.useEffect(() => {
+      Window.addEventListener("keydown", tabKeyPressHandler)
+      Some(() => Window.removeEventListener("keydown", tabKeyPressHandler))
+    }, (selectedFilter, selectedOption))
+
+    let handleKeyDown = e => {
+      let keyPressed = e->keyCode
+
+      switch viewType {
+      | Results => {
+          let index = allOptions->Array.findIndex(item => {
+            item == selectedOption
+          })
+
+          if keyPressed == arrowDown {
+            let newIndex = getNextIndex(index, allOptions)
+            switch allOptions->Array.get(newIndex) {
+            | Some(val) => setSelectedOption(_ => val)
+            | _ => ()
+            }
+          } else if keyPressed == arrowUp {
+            let newIndex = getPrevIndex(index, allOptions)
+            switch allOptions->Array.get(newIndex) {
+            | Some(val) => setSelectedOption(_ => val)
+            | _ => ()
+            }
+          } else if keyPressed == enterKey {
+            selectedOption->redirectOnSelect
+          }
+        }
+
+      | FiltersSugsestions => {
+          let index = allFilters->Array.findIndex(item => {
+            switch selectedFilter {
+            | Some(val) => item == val
+            | _ => false
+            }
+          })
+
+          if keyPressed == arrowDown {
+            let newIndex = getNextIndex(index, allFilters)
+            switch allFilters->Array.get(newIndex) {
+            | Some(val) => setSelectedFilter(_ => val->Some)
+            | _ => ()
+            }
+          } else if keyPressed == arrowUp {
+            let newIndex = getPrevIndex(index, allFilters)
+            switch allFilters->Array.get(newIndex) {
+            | Some(val) => setSelectedFilter(_ => val->Some)
+            | _ => ()
+            }
+          } else if keyPressed == enterKey {
+            switch selectedFilter {
+            | Some(filter) =>
+              if activeFilter->String.includes(filterSeparator) {
+                switch filter.options->Array.get(0) {
+                | Some(val) => val->onSuggestionClicked
+                | _ => ()
+                }
+              } else {
+                filter->onFilterClicked
+              }
+            | _ => ()
+            }
+          }
+        }
+
+      | EmptyResult | Load => ()
+      }
+
+      if keyPressed == spaceKey {
         setFilterText("")
       } else {
         let values = localSearchText->String.split(" ")
         let filter = values->getValueFromArray(values->Array.length - 1, "")
-        setFilterText(filter)
+        if activeFilter !== filter {
+          setFilterText(filter)
+        }
       }
     }
 
-    let validateForm = _values => {
+    let validateForm = _ => {
       let errors = Dict.make()
-      let lastChar = localSearchText->String.charCodeAt(localSearchText->String.length - 1)
-      if localSearchText->GlobalSearchBarUtils.validateQuery && lastChar == 32.0 {
+      let lastChar = localSearchText->getEndChar
+      if lastChar == " " && localSearchText->GlobalSearchBarUtils.validateQuery {
         setErrorMessage(_ => "Multiple free-text terms found")
       } else if !(localSearchText->GlobalSearchBarUtils.validateQuery) {
         setErrorMessage(_ => "")
@@ -437,16 +616,19 @@ module ModalSearchBox = {
                 <div className={`flex flex-row items-center `}>
                   {leftIcon}
                   <div className="w-full overflow-scroll flex flex-row items-center">
-                    <TextInput
-                      input
+                    <input
+                      ref={inputRef->ReactDOM.Ref.domRef}
+                      autoComplete="off"
                       autoFocus=true
                       placeholder="Search"
-                      autoComplete="off"
+                      className="w-full pr-2 pl-2 text-jp-gray-900 text-opacity-75 focus:text-opacity-100  placeholder-jp-gray-900  focus:outline-none rounded  h-10 text-lg font-normal  placeholder-opacity-50 "
+                      name={input.name}
+                      label="No"
+                      value=localSearchText
+                      type_="text"
+                      checked={false}
+                      onChange=input.onChange
                       onKeyUp=handleKeyDown
-                      customStyle="bg-white border-none"
-                      onActiveStyle="bg-white"
-                      onHoverCss="bg-white"
-                      inputStyle="!text-lg"
                     />
                   </div>
                   <div

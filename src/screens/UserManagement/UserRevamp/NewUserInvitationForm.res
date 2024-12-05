@@ -72,6 +72,7 @@ module NoteComponent = {
 
     // TODO : Chnage id to name once backend starts sending name in userinfo
     let descriptionBasedOnEntity = switch userEntity {
+    | #Tenant
     | #Organization =>
       `You can only invite people for ${orgId} here. To invite users to another organisation, please switch the organisation.`
     | #Merchant =>

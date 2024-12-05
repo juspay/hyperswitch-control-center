@@ -95,7 +95,7 @@ let make = () => {
             initialFixedFilter
             setOffset
             customLeftView={<SearchBarFilter
-              placeholder="Search payment id or refund id"
+              placeholder="Search for any payment id or refund id"
               setSearchVal=setSearchText
               searchVal=searchText
             />}
@@ -120,6 +120,7 @@ let make = () => {
           customColumnMapper=TableAtoms.refundsMapDefaultCols
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
+          showAutoScroll=true
         />
       </PageLoaderWrapper>
     </div>
