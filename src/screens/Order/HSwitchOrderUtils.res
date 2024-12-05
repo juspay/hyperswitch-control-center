@@ -232,8 +232,7 @@ let validateIsNull = value => {
   }
 }
 let validateAmountLessThanMax = amount =>
-  // Ensure the entered amount (multiplied by 100) does not exceed the maximum value for a 64-bit signed integer
-  amount->LogicUtils.getFloatFromJson(0.0) *. 100.0 > 9223372036854775807.0
+  amount->LogicUtils.getFloatFromJson(0.0)->Float.toString->String.length > 6
 
 let validateInBetween = (sAmntK, eAmtK) => {
   switch (sAmntK, eAmtK) {
