@@ -6,6 +6,7 @@ let make = () => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
+  let {newAnalyticsSmartRetries} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let (tabIndex, setTabIndex) = React.useState(_ => url->getPageIndex)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
@@ -63,7 +64,7 @@ let make = () => {
     None
   }, [])
 
-  let tabs: array<Tabs.tab> = [
+  let defaultTabs: array<Tabs.tab> = [
     {
       title: "Payments",
       renderContent: () =>
@@ -71,14 +72,19 @@ let make = () => {
           <NewPaymentAnalytics />
         </div>,
     },
-    {
-      title: "Smart Retries",
-      renderContent: () =>
-        <div className="mt-5">
-          <NewSmartRetryAnalytics />
-        </div>,
-    },
   ]
+
+  let tabs = if newAnalyticsSmartRetries {
+    defaultTabs->Array.concat([
+      {
+        title: "Smart Retries",
+        renderContent: () => React.null,
+      },
+    ])
+  } else {
+    defaultTabs
+  }
+
   <PageLoaderWrapper screenState>
     <div>
       <PageUtils.PageHeading title="Insights" />
