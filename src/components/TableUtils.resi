@@ -230,11 +230,11 @@ module SortIcons: {
 module HeaderActions: {
   @react.component
   let make: (
-  ~order: sortOrder,
-  ~actionOptions: array<SelectBox.dropdownOption>=?,
-  ~onChange: ReactEvent.Form.t => unit,
-  ~filterRow: option<filterRow>,
-  ~isLastCol: bool=?,
-  ~filterKey: string,
-) => React.element
+    ~order: sortOrder,
+    ~actionOptions: array<SelectBox.dropdownOption>=?,
+    ~onChange: ReactEvent.Form.t => unit,
+    ~filterRow: option<filterRow>,
+    ~isLastCol: bool=?,
+    ~filterKey: string,
+  ) => React.element
 }

@@ -8,14 +8,6 @@ module CurrencyCell = {
   }
 }
 
-module ConnectorTransactionIDCell = {
-  @react.component
-  let make = (~id) => {
-    <HelperComponents.CopyTextCustomComp
-      customTextCss="max-w-xs truncate whitespace-nowrap" displayValue={id}
-    />
-  }
-}
 let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.cell => {
   switch refundsColType {
   | Amount =>
@@ -579,7 +571,13 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | ProductName => Text(order.product_name)
   | ErrorMessage => Text(order.error_message)
   | ConnectorTransactionID =>
-    CustomCell(<ConnectorTransactionIDCell id={order.connector_transaction_id} />, "")
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="max-w-xs truncate whitespace-nowrap"
+        displayValue=order.connector_transaction_id
+      />,
+      "",
+    )
   }
 }
 
@@ -725,7 +723,13 @@ let getCell = (order, colType: colType): Table.cell => {
   | ErrorCode => Text(order.error_code)
   | ErrorMessage => Text(order.error_message)
   | ConnectorTransactionID =>
-    CustomCell(<ConnectorTransactionIDCell id={order.connector_transaction_id} />, "")
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="max-w-xs truncate whitespace-nowrap"
+        displayValue=order.connector_transaction_id
+      />,
+      "",
+    )
   | ProfileId => Text(order.profile_id)
   | Refunds =>
     Text(
