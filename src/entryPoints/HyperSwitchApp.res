@@ -19,7 +19,7 @@ let make = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let retainCloneModal = Recoil.useRecoilValueFromAtom(HyperswitchAtom.retainCloneModalAtom)
-  let (showModal, setShowModal) = React.useState(_ => true)
+  let (showModal, setShowModal) = React.useState(_ => false)
 
   let {
     fetchMerchantSpecificConfig,

@@ -7,7 +7,7 @@ module ClonePaymentMethodsModal = {
       HyperswitchAtom.cloneModalButtonStateAtom,
     )
 
-    let handleNext = _ => {
+    let onNextClick = _ => {
       RescriptReactRouter.push(
         GlobalVars.appendDashboardPath(~url=`/connectors/new?name=${cloneConnector}`),
       )
@@ -19,7 +19,7 @@ module ClonePaymentMethodsModal = {
         <div className="pt-3 m-3 flex justify-between">
           <CardUtils.CardHeader
             heading="Clone Payment Method"
-            subHeading=""
+            subHeading="Select the target profile where you want to clone payment methods"
             customSubHeadingStyle="w-full !max-w-none pr-10"
           />
           <div
@@ -32,17 +32,16 @@ module ClonePaymentMethodsModal = {
           </div>
         </div>
         <div className="m-4 flex flex-col gap-2">
-          <p className="my-2">
-            {"Select the target profile where you want to clone payment methods"->React.string}
+          <p className="text-md font-medium leading-7 text-gray-700">
+            {"Target Profile"->React.string}
           </p>
-          <p> {"Target Profile"->React.string} </p>
           <div className="w-48">
             <ProfileSwitch
               showSwitchModal=false setButtonState showHeading=false customMargin="mt-8"
             />
           </div>
           <div className="flex justify-center my-4">
-            <Button text="Next" onClick={_ => handleNext()} buttonState buttonType={Primary} />
+            <Button text="Next" onClick={_ => onNextClick()} buttonState buttonType={Primary} />
           </div>
         </div>
       </div>
@@ -80,7 +79,7 @@ let make = (~connectorID, ~connectorName) => {
 
   let setPaymentMethodDetails = async () => {
     try {
-      let _ = initialValues->getConnectorPaymentMethods(setPaymentMethods)
+      initialValues->setConnectorPaymentMethods(setPaymentMethods)->ignore
     } catch {
     | _ => showToast(~message="Failed to Clone Payment methods", ~toastType=ToastError)
     }
@@ -95,13 +94,13 @@ let make = (~connectorID, ~connectorName) => {
 
   React.useEffect(() => {
     if paymentMethodsEnabled->Array.length > 0 {
-      let pmCLone =
+      let paymentMethodsClone =
         paymentMethodsEnabled
         ->Identity.genericTypeToJson
         ->JSON.stringify
         ->LogicUtils.safeParse
         ->getPaymentMethodEnabled
-      setPaymentMethodsClone(_ => pmCLone)
+      setPaymentMethodsClone(_ => paymentMethodsClone)
 
       setShowModal(_ => true)
       setRetainCloneModal(_ => true)
@@ -119,13 +118,13 @@ let make = (~connectorID, ~connectorName) => {
     }
   }
 
-  let handleClick = e => {
+  let handleCloneClick = e => {
     e->ReactEvent.Mouse.stopPropagation
     getConnectorDetails()->ignore
     setCloneConnector(_ => connectorName)
   }
   <>
-    <div className="flex" onClick={handleClick}>
+    <div className="flex" onClick={handleCloneClick}>
       <p> {"Clone"->React.string} </p>
       <img alt="copy" src={`/assets/CopyToClipboard.svg`} />
     </div>

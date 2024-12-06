@@ -1506,7 +1506,7 @@ let defaultSelectAllCards = (
   }
 }
 
-let getConnectorPaymentMethods = async (initialValues, setPaymentMethods) => {
+let setConnectorPaymentMethods = async (initialValues, setPaymentMethods) => {
   open LogicUtils
   try {
     let json = Window.getResponsePayload(initialValues)
