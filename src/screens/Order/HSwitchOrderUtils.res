@@ -225,45 +225,20 @@ module EllipsisText = {
     </div>
   }
 }
-let validateIsNull = value => {
-  switch value {
-  | Some(val) if val->isNullJson => true
-  | None => true
-  | _ => false
-  }
-}
-let validateAmountLessThanMax = amount => amount->getFloatFromJson(0.0) > 100000.0
-
-let validateInBetween = (sAmntK, eAmtK) => {
-  switch (sAmntK, eAmtK) {
-  | (start, end) =>
-    let startAmt = start->getFloatFromJson(0.0)
-    let endAmt = end->getFloatFromJson(0.0)
-    validateIsNull(start) ||
-    validateIsNull(end) ||
-    validateAmountLessThanMax(start) ||
-    validateAmountLessThanMax(end) ||
-    endAmt <= startAmt
-  }
-}
-
 let validateAmount = dict => {
-  let sAmntK = dict->getvalFromDict(#start_amount->OrderTypes.mapAmountFilterChildToString)
-  let eAmtK = dict->getvalFromDict(#end_amount->OrderTypes.mapAmountFilterChildToString)
-  let amountOption =
-    dict
-    ->getvalFromDict(#amount_option->OrderTypes.mapAmountFilterChildToString)
-    ->Option.getOr(JSON.Encode.null)
-    ->getStringFromJson("")
-    ->OrderTypes.mapStringToRange
-
+  let sAmntK = dict->getFloat((#start_amount: OrderTypes.amountFilterChild :> string), -1.0)
+  let eAmtK = dict->getFloat((#end_amount: OrderTypes.amountFilterChild :> string), -1.0)
+  let key = (#amount_option: OrderTypes.amountFilterChild :> string)
+  let amountOption = dict->getString(key, "")->OrderTypes.stringRangetoTypeAmount
+  Js.log(amountOption)
   let haserror = switch amountOption {
   | GreaterThanOrEqualTo
   | EqualTo =>
-    validateIsNull(sAmntK) || validateAmountLessThanMax(sAmntK)
-  | LessThanOrEqualTo => validateIsNull(eAmtK) || validateAmountLessThanMax(eAmtK)
-  | InBetween => validateInBetween(sAmntK, eAmtK)
+    sAmntK > 100000.0 || sAmntK < 0.0
+  | LessThanOrEqualTo => eAmtK > 100000.0 || eAmtK < 0.0
+  | InBetween => eAmtK <= sAmntK
   | _ => false
   }
+  Js.log2("haserror", haserror)
   haserror
 }

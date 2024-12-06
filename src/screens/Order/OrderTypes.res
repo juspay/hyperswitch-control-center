@@ -336,3 +336,12 @@ let mapRangeTypetoString = amountFilter => {
   | UnknownRange(string) => string
   }
 }
+
+let stringRangetoTypeAmount = str =>
+  switch str {
+  | "GreaterThanOrEqualTo" => GreaterThanOrEqualTo
+  | "LessThanOrEqualTo" => LessThanOrEqualTo
+  | "EqualTo" => EqualTo
+  | "InBetween" => InBetween
+  | _ => UnknownRange(str)
+  }
