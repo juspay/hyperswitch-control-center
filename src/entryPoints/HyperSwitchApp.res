@@ -3,28 +3,29 @@ let make = () => {
   open HSwitchUtils
   open GlobalVars
   open APIUtils
-  open PermissionUtils
-  open LogicUtils
+
   open HyperswitchAtom
   let pageViewEvent = MixpanelHook.usePageView()
-  let getURL = useGetURL()
   let url = RescriptReactRouter.useUrl()
-  let fetchDetails = useGetMethod()
+
   let {
     showFeedbackModal,
     setShowFeedbackModal,
     dashboardPageState,
     setDashboardPageState,
-    setQuickStartPageState,
-    isProdIntentCompleted,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
-  let enumDetails =
-    enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
-  let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
+  let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
+
+  let {
+    fetchMerchantSpecificConfig,
+    useIsFeatureEnabledForMerchant,
+    merchantSpecificConfig,
+  } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
+  let {fetchUserGroupACL, userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+
   let {userInfo: {orgId, merchantId, profileId, roleId}, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
   )
@@ -41,61 +42,22 @@ let make = () => {
   let isLiveUsersCounterEnabled = featureFlagDetails.liveUsersCounter
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   sessionExpired := false
-  let fetchInitialEnums = async () => {
-    try {
-      let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
-      let responseValueDict = response->getValFromNullableValue(Dict.make())
-      let pageStateToSet = responseValueDict->QuickStartUtils.getCurrentStep
-      setQuickStartPageState(_ => pageStateToSet->QuickStartUtils.enumToVarinatMapper)
-      responseValueDict
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
-
-  let fetchPermissions = async () => {
-    try {
-      let url = getURL(
-        ~entityName=USERS,
-        ~userType=#GET_PERMISSIONS,
-        ~methodType=Get,
-        ~queryParamerters=Some(`groups=true`),
-      )
-      let response = await fetchDetails(url)
-      let permissionsValue =
-        response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
-      let permissionJson =
-        permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
-      setuserPermissionJson(_ => permissionJson)
-      permissionJson
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
-  let (renderKey, setRenderkey) = React.useState(_ => "")
 
   let setUpDashboard = async () => {
     try {
+      // NOTE: Treat groupACL map similar to screenstate
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      setuserGroupACL(_ => None)
       Window.connectorWasmInit()->ignore
-      let _ = await fetchPermissions()
-      if featureFlagDetails.quickStart {
-        let _ = await fetchInitialEnums()
-      }
+      let _ = await fetchMerchantSpecificConfig()
+      let _ = await fetchUserGroupACL()
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
       }
       setDashboardPageState(_ => #HOME)
-      setRenderkey(_ => profileId)
-      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
   }
   let path = url.path->List.toArray->Array.joinWith("/")
@@ -112,65 +74,64 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
-  let determineStripePlusPayPal = () => {
-    enumDetails->checkStripePlusPayPal
-      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-      : setDashboardPageState(_ => #STRIPE_PLUS_PAYPAL)
+  React.useEffect1(() => {
+    if userGroupACL->Option.isSome {
+      setScreenState(_ => PageLoaderWrapper.Success)
+    }
+    None
+  }, [userGroupACL])
 
-    React.null
-  }
+  let ompDropdowns =
+    <div className="flex items-center gap-4 mx-4">
+      <RenderIf condition={!isInternalUser}>
+        <MerchantSwitch />
+        <p className="text-gray-400 text-fs-14"> {"/"->React.string} </p>
+      </RenderIf>
+      <ProfileSwitch />
+    </div>
 
-  let determineWooCommerce = () => {
-    enumDetails->checkWooCommerce
-      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-      : setDashboardPageState(_ => #WOOCOMMERCE_FLOW)
-
-    React.null
-  }
-
-  let determineQuickStartPageState = () => {
-    isProdIntentCompleted->Option.getOr(false) &&
-    enumDetails.integrationCompleted &&
-    !(enumDetails.testPayment.payment_id->isEmptyString)
-      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-      : setDashboardPageState(_ => #QUICK_START)
-
-    React.null
-  }
   <>
-    <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
-      <div>
-        {switch dashboardPageState {
-        | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
-        // INTEGRATION_DOC AND PROD_ONBOARDING Need to be removed
-        | #INTEGRATION_DOC => <UserOnboarding />
-        | #PROD_ONBOARDING => <ProdOnboardingLanding />
-        | #QUICK_START => <ConfigureControlCenter />
-        | #HOME =>
-          <div className="relative" key={renderKey}>
-            // TODO: Change the key to only profileId once the userInfo starts sending profileId
-            <div className={`h-screen flex flex-col`}>
-              <div className="flex relative overflow-auto h-screen ">
-                <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
+    <div>
+      {switch dashboardPageState {
+      | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
+      // INTEGRATION_DOC Need to be removed
+      | #INTEGRATION_DOC => <UserOnboarding />
+      | #HOME =>
+        <div className="relative">
+          // TODO: Change the key to only profileId once the userInfo starts sending profileId
+          <div className={`h-screen flex flex-col`}>
+            <div className="flex relative overflow-auto h-screen ">
+              <RenderIf condition={screenState === Success}>
+                <Sidebar
+                  path={url.path} sidebars={hyperSwitchAppSidebars} key={(screenState :> string)}
+                />
+              </RenderIf>
+              <PageLoaderWrapper
+                screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
                   <div className="border-b shadow hyperswitch_box_shadow ">
                     <div className="w-full max-w-fixedPageWidth px-9">
                       <Navbar
-                        headerActions={<div className="relative flex items-center gap-4 my-2 ">
-                          <GlobalSearchBar />
-                          <RenderIf condition={isInternalUser}>
-                            <SwitchMerchantForInternal />
-                          </RenderIf>
-                          <ProfileSwitch />
-                          <div
-                            className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
-                            {modeText->React.string}
+                        headerActions={<div className="relative flex space-around gap-4 my-2 ">
+                          <div className="flex gap-4">
+                            <GlobalSearchBar />
+                            <RenderIf condition={isInternalUser}>
+                              <SwitchMerchantForInternal />
+                            </RenderIf>
+                            <div
+                              className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
+                              {modeText->React.string}
+                            </div>
                           </div>
                         </div>}
                         headerLeftActions={switch Window.env.logoUrl {
-                        | Some(url) => <img alt="image" src={`${url}`} />
-                        | None => React.null
+                        | Some(url) =>
+                          <>
+                            <img className="w-40" alt="image" src={`${url}`} />
+                            {ompDropdowns}
+                          </>
+                        | None => ompDropdowns
                         }}
                       />
                     </div>
@@ -221,18 +182,19 @@ let make = () => {
                         | list{"performance-monitor"}
                         | list{"analytics-refunds"}
                         | list{"analytics-disputes"} =>
-                          <AnalyticsContainser />
+                          <AnalyticsContainer />
                         | list{"new-analytics-payment"} =>
                           <AccessControl
-                            isEnabled={featureFlagDetails.newAnalytics}
-                            permission=userPermissionJson.analyticsView>
+                            isEnabled={featureFlagDetails.newAnalytics &&
+                            useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
+                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext key="NewAnalytics" index="NewAnalytics">
                               <NewAnalyticsContainer />
                             </FilterContext>
                           </AccessControl>
                         | list{"customers", ...remainingPath} =>
                           <AccessControl
-                            permission={userPermissionJson.operationsView}
+                            authorization={userHasAccess(~groupAccess=OperationsView)}
                             isEnabled={[#Organization, #Merchant]->checkUserEntity}>
                             <EntityScaffold
                               entityName="Customers"
@@ -247,7 +209,7 @@ let make = () => {
                           <AccessControl
                             isEnabled={featureFlagDetails.userJourneyAnalytics &&
                             [#Organization, #Merchant]->checkUserEntity}
-                            permission=userPermissionJson.analyticsView>
+                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                               <UserJourneyAnalytics />
                             </FilterContext>
@@ -256,7 +218,7 @@ let make = () => {
                           <AccessControl
                             isEnabled={featureFlagDetails.authenticationAnalytics &&
                             [#Organization, #Merchant]->checkUserEntity}
-                            permission=userPermissionJson.analyticsView>
+                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext
                               key="AuthenticationAnalytics" index="AuthenticationAnalytics">
                               <AuthenticationAnalytics />
@@ -264,14 +226,18 @@ let make = () => {
                           </AccessControl>
                         | list{"developer-api-keys"} =>
                           <AccessControl
-                            permission=userPermissionJson.merchantDetailsManage
+                            // TODO: Remove `MerchantDetailsManage` permission in future
+                            authorization={hasAnyGroupAccess(
+                              userHasAccess(~groupAccess=MerchantDetailsManage),
+                              userHasAccess(~groupAccess=AccountManage),
+                            )}
                             isEnabled={!checkUserEntity([#Profile])}>
                             <KeyManagement.KeysManagement />
                           </AccessControl>
                         | list{"developer-system-metrics"} =>
                           <AccessControl
                             isEnabled={isInternalUser && featureFlagDetails.systemMetrics}
-                            permission=userPermissionJson.analyticsView>
+                            authorization={userHasAccess(~groupAccess=AnalyticsView)}>
                             <FilterContext key="SystemMetrics" index="SystemMetrics">
                               <SystemMetricsAnalytics />
                             </FilterContext>
@@ -279,23 +245,27 @@ let make = () => {
 
                         | list{"compliance"} =>
                           <AccessControl
-                            isEnabled=featureFlagDetails.complianceCertificate permission=Access>
+                            isEnabled=featureFlagDetails.complianceCertificate authorization=Access>
                             <Compliance />
                           </AccessControl>
                         | list{"3ds"} =>
-                          <AccessControl permission=userPermissionJson.workflowsView>
+                          <AccessControl authorization={userHasAccess(~groupAccess=WorkflowsView)}>
                             <HSwitchThreeDS />
                           </AccessControl>
                         | list{"surcharge"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.surcharge}
-                            permission=userPermissionJson.workflowsView>
+                            authorization={userHasAccess(~groupAccess=WorkflowsView)}>
                             <Surcharge />
                           </AccessControl>
                         | list{"account-settings"} =>
                           <AccessControl
                             isEnabled=featureFlagDetails.sampleData
-                            permission=userPermissionJson.merchantDetailsManage>
+                            // TODO: Remove `MerchantDetailsManage` permission in future
+                            authorization={hasAnyGroupAccess(
+                              userHasAccess(~groupAccess=MerchantDetailsManage),
+                              userHasAccess(~groupAccess=AccountManage),
+                            )}>
                             <HSwitchSettings />
                           </AccessControl>
                         | list{"account-settings", "profile", ...remainingPath} =>
@@ -305,32 +275,29 @@ let make = () => {
                             renderList={() => <HSwitchProfileSettings />}
                             renderShow={(_, _) => <ModifyTwoFaSettings />}
                           />
-                        | list{"quick-start"} => determineQuickStartPageState()
-                        | list{"woocommerce"} => determineWooCommerce()
-                        | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
                         | list{"search"} => <SearchResultsPage />
                         | list{"payment-attempts"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission=userPermissionJson.operationsView>
+                            authorization={userHasAccess(~groupAccess=OperationsView)}>
                             <PaymentAttemptTable />
                           </AccessControl>
                         | list{"payment-intents"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission=userPermissionJson.operationsView>
+                            authorization={userHasAccess(~groupAccess=OperationsView)}>
                             <PaymentIntentTable />
                           </AccessControl>
                         | list{"refunds-global"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission=userPermissionJson.operationsView>
+                            authorization={userHasAccess(~groupAccess=OperationsView)}>
                             <RefundsTable />
                           </AccessControl>
                         | list{"dispute-global"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.globalSearch}
-                            permission=userPermissionJson.operationsView>
+                            authorization={userHasAccess(~groupAccess=OperationsView)}>
                             <DisputeTable />
                           </AccessControl>
                         | list{"unauthorized"} => <UnauthorizedPage />
@@ -342,27 +309,25 @@ let make = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-              <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
-                <HSwitchFeedBackModal
-                  modalHeading="We'd love to hear from you!"
-                  showModal={showFeedbackModal}
-                  setShowModal={setShowFeedbackModal}
-                />
-              </RenderIf>
-              <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
-                <ProdIntentForm />
-              </RenderIf>
+              </PageLoaderWrapper>
             </div>
+            <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
+              <HSwitchFeedBackModal
+                modalHeading="We'd love to hear from you!"
+                showModal={showFeedbackModal}
+                setShowModal={setShowFeedbackModal}
+              />
+            </RenderIf>
+            <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
+              <ProdIntentForm />
+            </RenderIf>
           </div>
-        | #WOOCOMMERCE_FLOW => <WooCommerce />
-        | #DEFAULT =>
-          <div className="h-screen flex justify-center items-center">
-            <Loader />
-          </div>
-        | #STRIPE_PLUS_PAYPAL => <StripePlusPaypal />
-        }}
-      </div>
-    </PageLoaderWrapper>
+        </div>
+      | #DEFAULT =>
+        <div className="h-screen flex justify-center items-center">
+          <Loader />
+        </div>
+      }}
+    </div>
   </>
 }

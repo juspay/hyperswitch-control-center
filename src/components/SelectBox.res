@@ -1103,7 +1103,23 @@ module RenderListItemInBaseRadio = {
     ~bottomComponent=?,
     ~optionClass="",
     ~selectClass="",
+    ~customScrollStyle=?,
+    ~shouldDisplaySelectedOnTop,
   ) => {
+    let decodedValue = value->JSON.Decode.string
+    switch (decodedValue, shouldDisplaySelectedOnTop) {
+    | (Some(str), true) =>
+      newOptions->Array.sort((item1, item2) => {
+        if item1.value == str {
+          -1.
+        } else if item2.value == str {
+          1.
+        } else {
+          0.
+        }
+      })
+    | (_, _) => ()
+    }
     let dropdownList =
       newOptions
       ->Array.mapWithIndex((option, i) => {
@@ -1169,8 +1185,34 @@ module RenderListItemInBaseRadio = {
       })
       ->React.array
 
+    let sidebarScrollbarCss = `
+      @supports (-webkit-appearance: none) {
+        .sidebar-scrollbar {
+          scrollbar-color: #8a8c8f;
+        }
+
+        .sidebar-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #8a8c8f;
+          border-radius: 3px;
+        }
+
+        .sidebar-scrollbar::-webkit-scrollbar-track {
+          display: none;
+        }
+      }
+    `
+    let (className, styleElement) = switch customScrollStyle {
+    | None => ("", React.null)
+    | Some(style) => (
+        `${style}  sidebar-scrollbar`,
+        <style> {React.string(sidebarScrollbarCss)} </style>,
+      )
+    }
     <>
-      <div className=""> {dropdownList} </div>
+      <div className={className}>
+        {styleElement}
+        {dropdownList}
+      </div>
       <div className="sticky bottom-0">
         {switch bottomComponent {
         | Some(comp) => <span> {comp} </span>
@@ -1248,6 +1290,9 @@ module BaseRadio = {
     ~bottomComponent=React.null,
     ~optionClass="",
     ~selectClass="",
+    ~customScrollStyle=?,
+    ~dropdownContainerStyle="",
+    ~shouldDisplaySelectedOnTop=false,
   ) => {
     let options = React.useMemo(() => {
       options->Array.map(makeNonOptional)
@@ -1336,9 +1381,13 @@ module BaseRadio = {
       switch Js.String2.match_(option.label, regex("\\b", searchString)) {
       | Some(_) => true
       | None =>
-        switch Js.String2.match_(option.label, regex("_", searchString)) {
+        switch Js.String2.match_(option.value, regex("\\b", searchString)) {
         | Some(_) => true
-        | None => false
+        | None =>
+          switch Js.String2.match_(option.label, regex("_", searchString)) {
+          | Some(_) => true
+          | None => false
+          }
         }
       }
     }
@@ -1373,7 +1422,10 @@ module BaseRadio = {
       }
     }, (searchString, options, selectedString))
     let overflowClass = !isDropDown ? "" : "overflow-auto"
-
+    let heightScroll = switch customScrollStyle {
+    | Some(_) => "max-h-full"
+    | None => maxHeight
+    }
     let searchInputUI =
       <div
         className={`${customSearchStyle} border-b border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 `}>
@@ -1383,14 +1435,14 @@ module BaseRadio = {
             onChange=handleSearch
             searchRef
             placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
-              ? "Search..."
+              ? "Search name or ID..."
               : searchInputPlaceHolder}
             showSearchIcon
           />
         </div>
       </div>
     <div
-      className={`${dropDownbgClass} ${roundedClass} dark:bg-jp-gray-lightgray_background ${width} ${overflowClass} font-medium flex flex-col ${showDropDown
+      className={`${dropDownbgClass} ${roundedClass} dark:bg-jp-gray-lightgray_background ${dropdownContainerStyle} ${width} ${overflowClass} font-medium flex flex-col ${showDropDown
           ? "animate-textTransition transition duration-400"
           : "animate-textTransitionOff transition duration-400"}`}>
       {switch searchable {
@@ -1401,7 +1453,7 @@ module BaseRadio = {
         </RenderIf>
       }}
       <div
-        className={`${maxHeight} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
+        className={`${heightScroll} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
         {if newOptions->Array.length === 0 && showMatchingRecordsText {
           <div className="flex justify-center items-center m-4">
             {React.string("No matching records found")}
@@ -1429,6 +1481,8 @@ module BaseRadio = {
             bottomComponent
             optionClass
             selectClass
+            ?customScrollStyle
+            shouldDisplaySelectedOnTop
           />
         } else {
           {
@@ -1458,6 +1512,8 @@ module BaseRadio = {
                   textEllipsisForDropDownOptions
                   isHorizontal
                   customMarginStyleOfListItem="ml-8 mx-3 py-2 gap-2"
+                  ?customScrollStyle
+                  shouldDisplaySelectedOnTop
                 />
               </React.Fragment>
             })
@@ -1504,7 +1560,7 @@ module BaseDropdown = {
     ~onAssignClick=?,
     ~fixedDropDownDirection=?,
     ~addButton=false,
-    ~marginTop="mt-12", //to position dropdown below the button,
+    ~marginTop="mt-10", //to position dropdown below the button,
     ~customStyle="",
     ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
     ~showSelectionAsChips=true,
@@ -1554,6 +1610,9 @@ module BaseDropdown = {
     ~optionClass="",
     ~selectClass="",
     ~customDropdownOuterClass="",
+    ~customScrollStyle=?,
+    ~dropdownContainerStyle="",
+    ~shouldDisplaySelectedOnTop=false,
   ) => {
     let transformedOptions = useTransformed(options)
     let isMobileView = MatchMedia.useMobileChecker()
@@ -1564,7 +1623,7 @@ module BaseDropdown = {
 
     let showBorder = isFilterSection && !isMobileView ? Some(false) : showBorder
 
-    let dropdownOuterClass = "border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded  shadow-generic_shadow dark:shadow-generic_shadow_dark"
+    let dropdownOuterClass = "border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded  shadow-generic_shadow dark:shadow-generic_shadow_dark z-40"
 
     let newInputSelect = input->ffInputToSelectInput
     let newInputRadio = input->ffInputToRadioInput
@@ -1821,6 +1880,9 @@ module BaseDropdown = {
         bottomComponent
         optionClass
         selectClass
+        ?customScrollStyle
+        dropdownContainerStyle
+        shouldDisplaySelectedOnTop
       />
     }
 
@@ -2231,6 +2293,8 @@ let make = (
   ~dropdownClassName="",
   ~onItemSelect=(_, _) => (),
   ~wrapBasis="",
+  ~customScrollStyle=?,
+  ~shouldDisplaySelectedOnTop=false,
   (),
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
@@ -2302,6 +2366,8 @@ let make = (
       dropdownClassName
       ?searchInputPlaceHolder
       showSearchIcon
+      ?customScrollStyle
+      shouldDisplaySelectedOnTop
     />
   } else if allowMultiSelect {
     <BaseSelect
@@ -2371,6 +2437,8 @@ let make = (
       showSearchIcon
       descriptionOnHover
       showToolTipOptions
+      ?customScrollStyle
+      shouldDisplaySelectedOnTop
     />
   }
 }

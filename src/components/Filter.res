@@ -81,12 +81,22 @@ module ClearFilters = {
 
 module AutoSubmitter = {
   @react.component
-  let make = (~autoApply, ~submit, ~defaultFilterKeys) => {
+  let make = (~autoApply, ~submit, ~defaultFilterKeys, ~submitInputOnEnter) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Nullable.make,
     )
-
+    let form = ReactFinalForm.useForm()
     let values = formState.values
+    React.useEffect(() => {
+      let onKeyDown = ev => {
+        let keyCode = ev->ReactEvent.Keyboard.keyCode
+        if keyCode === 13 && submitInputOnEnter {
+          form.submit()->ignore
+        }
+      }
+      Window.addEventListener("keydown", onKeyDown)
+      Some(() => Window.removeEventListener("keydown", onKeyDown))
+    }, [])
 
     React.useEffect(() => {
       if formState.dirty {
@@ -132,6 +142,7 @@ let make = (
   ~popupFilterFields: array<EntityType.optionType<'t>>=[],
   ~tableName=?,
   ~autoApply=false,
+  ~submitInputOnEnter=false,
   ~addFilterStyle="",
   ~filterButtonStyle="",
   ~defaultFilterKeys=[],
@@ -354,8 +365,9 @@ let make = (
         </div>}
     </Menu>
 
-  <Form onSubmit initialValues=initialValueJson>
-    <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys />
+  <Form
+    onSubmit initialValues=initialValueJson validate={values => values->OrderUIUtils.validateForm}>
+    <AutoSubmitter autoApply submit=onSubmit defaultFilterKeys submitInputOnEnter />
     {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
       {<>
         <div className="flex gap-2 justify-between my-2">
@@ -384,5 +396,6 @@ let make = (
         </div>
       </>}
     </AddDataAttributes>}
+    <FormValuesSpy />
   </Form>
 }

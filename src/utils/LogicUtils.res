@@ -210,6 +210,10 @@ let getJsonObjectFromDict = (dict, key) => {
   dict->Dict.get(key)->Option.getOr(JSON.Encode.object(Dict.make()))
 }
 
+let getvalFromDict = (dict, key) => {
+  dict->Dict.get(key)
+}
+
 let getBoolFromString = (boolString, default: bool) => {
   switch boolString->String.toLowerCase {
   | "true" => true
@@ -334,6 +338,11 @@ let setOptionArray = (dict, key, optionArray) =>
 
 let setOptionDict = (dict, key, optionDictValue) =>
   optionDictValue->Option.mapOr((), value => dict->Dict.set(key, value->JSON.Encode.object))
+
+let setOptionInt = (dict, key, optionInt) =>
+  optionInt->Option.mapOr((), int => dict->Dict.set(key, int->JSON.Encode.int))
+
+let mapOptionOrDefault = (t, defaultVal, func) => t->Option.mapOr(defaultVal, value => value->func)
 
 let capitalizeString = str => {
   String.toUpperCase(String.charAt(str, 0)) ++ Js.String2.substringToEnd(str, ~from=1)
@@ -495,6 +504,10 @@ let numericArraySortComperator = (a, b) => {
 
 let isEmptyDict = dict => {
   dict->Dict.keysToArray->Array.length === 0
+}
+
+let isNullJson = val => {
+  val == JSON.Encode.null || checkEmptyJson(val)
 }
 
 let stringReplaceAll = (str, old, new) => {

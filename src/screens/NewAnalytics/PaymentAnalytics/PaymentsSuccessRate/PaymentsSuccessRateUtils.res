@@ -1,47 +1,90 @@
 open NewPaymentAnalyticsUtils
-open PaymentsSuccessRateTypes
 open LogicUtils
+open PaymentsSuccessRateTypes
 
-let getMetaData = json => {
-  json
-  ->getArrayFromJson([])
-  ->getValueFromArray(0, JSON.Encode.array([]))
-  ->getDictFromJsonObject
-  ->getArrayFromDict("metaData", [])
-  ->getValueFromArray(0, JSON.Encode.null)
-  ->getDictFromJsonObject
+let getStringFromVariant = value => {
+  switch value {
+  | Successful_Payments => "successful_payments"
+  | Successful_Payments_Without_Smart_Retries => "successful_payments_without_smart_retries"
+  | Total_Payments => "total_payments"
+  | Payments_Success_Rate => "payments_success_rate"
+  | Payments_Success_Rate_Without_Smart_Retries => "payments_success_rate_without_smart_retries"
+  | Total_Success_Rate => "total_success_rate"
+  | Total_Success_Rate_Without_Smart_Retries => "total_success_rate_without_smart_retries"
+  | Time_Bucket => "time_bucket"
+  }
 }
 
-let graphTitle = json => getMetaData(json)->getInt("payments_success_rate", 0)->Int.toString
-
-let colMapper = queryData =>
-  switch queryData {
-  | PaymentSuccessRate => "payments_success_rate"
-  | TimeBucket => "time_bucket"
+let getVariantValueFromString = value => {
+  switch value {
+  | "successful_payments" => Successful_Payments
+  | "successful_payments_without_smart_retries" => Successful_Payments_Without_Smart_Retries
+  | "total_payments" => Total_Payments
+  | "payments_success_rate" => Payments_Success_Rate
+  | "payments_success_rate_without_smart_retries" => Payments_Success_Rate_Without_Smart_Retries
+  | "total_success_rate" => Total_Success_Rate
+  | "total_success_rate_without_smart_retries" => Total_Success_Rate_Without_Smart_Retries
+  | "time_bucket" | _ => Time_Bucket
   }
+}
 
 let paymentsSuccessRateMapper = (
-  ~data: JSON.t,
-  ~xKey: string,
-  ~yKey: string,
+  ~params: NewAnalyticsTypes.getObjects<JSON.t>,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  let categories = getCategories(data, yKey)
-  let data = getLineGraphData(data, xKey)
+  open NewAnalyticsUtils
+  let {data, xKey, yKey} = params
+  let comparison = switch params.comparison {
+  | Some(val) => Some(val)
+  | None => None
+  }
+  let primaryCategories = data->getCategories(0, yKey)
+  let secondaryCategories = data->getCategories(1, yKey)
+
+  let lineGraphData =
+    data
+    ->getArrayFromJson([])
+    ->Array.mapWithIndex((item, index) => {
+      let name = NewAnalyticsUtils.getLabelName(~key=yKey, ~index, ~points=item)
+      let color = index->getColor
+      getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color)
+    })
   let title = {
     text: "Payments Success Rate",
   }
-  {categories, data, title}
+  {
+    categories: primaryCategories,
+    data: lineGraphData,
+    title,
+    yAxisMaxValue: 100->Some,
+    tooltipFormatter: tooltipFormatter(
+      ~secondaryCategories,
+      ~title="Payments Success Rate",
+      ~metricType=Rate,
+      ~comparison,
+    ),
+  }
 }
 
 open NewAnalyticsTypes
-let tabs = [
-  {label: "Hourly", value: (#hour_wise: granularity :> string)},
-  {label: "Daily", value: (#day_wise: granularity :> string)},
-  {label: "Weekly", value: (#week_wise: granularity :> string)},
-]
+let tabs = [{label: "Daily", value: (#G_ONEDAY: granularity :> string)}]
 
 let defaulGranularity = {
   label: "Hourly",
-  value: (#hour_wise: granularity :> string),
+  value: (#G_ONEDAY: granularity :> string),
+}
+
+let getKeyForModule = (field, ~isSmartRetryEnabled) => {
+  switch (field, isSmartRetryEnabled) {
+  | (Payments_Success_Rate, Smart_Retry) => Payments_Success_Rate
+  | (Payments_Success_Rate, Default) | _ => Payments_Success_Rate_Without_Smart_Retries
+  }->getStringFromVariant
+}
+
+let getMetaDataMapper = (key, ~isSmartRetryEnabled) => {
+  let field = key->getVariantValueFromString
+  switch (field, isSmartRetryEnabled) {
+  | (Payments_Success_Rate, Smart_Retry) => Total_Success_Rate
+  | (Payments_Success_Rate, Default) | _ => Total_Success_Rate_Without_Smart_Retries
+  }->getStringFromVariant
 }

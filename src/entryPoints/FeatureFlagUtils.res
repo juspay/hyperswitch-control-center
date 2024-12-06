@@ -1,3 +1,9 @@
+type config = {
+  orgIds: array<string>,
+  merchantIds: array<string>,
+  profileIds: array<string>,
+}
+type merchantSpecificConfig = {newAnalytics: config}
 type featureFlag = {
   default: bool,
   testLiveToggle: bool,
@@ -22,6 +28,7 @@ type featureFlag = {
   paypalAutomaticFlow: bool,
   threedsAuthenticator: bool,
   globalSearch: bool,
+  globalSearchFilters: bool,
   disputeAnalytics: bool,
   configurePmts: bool,
   branding: bool,
@@ -35,6 +42,8 @@ type featureFlag = {
   downTime: bool,
   taxProcessor: bool,
   transactionView: bool,
+  xFeatureRoute: bool,
+  tenantUser: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -64,6 +73,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     paypalAutomaticFlow: dict->getBool("paypal_automatic_flow", false),
     threedsAuthenticator: dict->getBool("threeds_authenticator", false),
     globalSearch: dict->getBool("global_search", false),
+    globalSearchFilters: dict->getBool("global_search_filters", false),
     disputeAnalytics: dict->getBool("dispute_analytics", false),
     configurePmts: dict->getBool("configure_pmts", false),
     branding: dict->getBool("branding", false),
@@ -77,6 +87,25 @@ let featureFlagType = (featureFlags: JSON.t) => {
     downTime: dict->getBool("down_time", false),
     taxProcessor: dict->getBool("tax_processor", false),
     transactionView: dict->getBool("transaction_view", false),
+    xFeatureRoute: dict->getBool("x_feature_route", false),
+    tenantUser: dict->getBool("tenant_user", false),
   }
   typedFeatureFlag
+}
+
+let configMapper = dict => {
+  open LogicUtils
+  {
+    orgIds: dict->getStrArrayFromDict("org_ids", []),
+    merchantIds: dict->getStrArrayFromDict("merchant_ids", []),
+    profileIds: dict->getStrArrayFromDict("profile_ids", []),
+  }
+}
+
+let merchantSpecificConfig = (config: JSON.t) => {
+  open LogicUtils
+  let dict = config->getDictFromJsonObject
+  {
+    newAnalytics: dict->getDictfromDict("new_analytics")->configMapper,
+  }
 }

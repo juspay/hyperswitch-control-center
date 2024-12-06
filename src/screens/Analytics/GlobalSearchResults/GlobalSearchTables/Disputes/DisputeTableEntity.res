@@ -4,7 +4,6 @@ type disputesObject = {
   dispute_id: string,
   dispute_amount: float,
   currency: string,
-  dispute_stage: string,
   dispute_status: string,
   payment_id: string,
   attempt_id: string,
@@ -30,7 +29,6 @@ type cols =
   | DisputeId
   | DisputeAmount
   | Currency
-  | DisputeStage
   | DisputeStatus
   | PaymentId
   | AttemptId
@@ -58,7 +56,6 @@ let colMapper = (col: cols) => {
   | DisputeId => "dispute_id"
   | DisputeAmount => "dispute_amount"
   | Currency => "currency"
-  | DisputeStage => "dispute_stage"
   | DisputeStatus => "dispute_status"
   | PaymentId => "payment_id"
   | AttemptId => "attempt_id"
@@ -87,7 +84,6 @@ let tableItemToObjMapper: Dict.t<JSON.t> => disputesObject = dict => {
     dispute_id: dict->getString(DisputeId->colMapper, "NA"),
     dispute_amount: dict->getFloat(DisputeAmount->colMapper, 0.0),
     currency: dict->getString(Currency->colMapper, "NA"),
-    dispute_stage: dict->getString(DisputeStage->colMapper, "NA"),
     dispute_status: dict->getString(DisputeStatus->colMapper, "NA"),
     payment_id: dict->getString(PaymentId->colMapper, "NA"),
     attempt_id: dict->getString(AttemptId->colMapper, "NA"),
@@ -125,7 +121,6 @@ let getHeading = colType => {
   | DisputeId => Table.makeHeaderInfo(~key, ~title="Dispute Id", ~dataType=TextType)
   | DisputeAmount => Table.makeHeaderInfo(~key, ~title="Dispute Amount", ~dataType=TextType)
   | Currency => Table.makeHeaderInfo(~key, ~title="Currency", ~dataType=TextType)
-  | DisputeStage => Table.makeHeaderInfo(~key, ~title="Dispute Stage", ~dataType=TextType)
   | DisputeStatus => Table.makeHeaderInfo(~key, ~title="Dispute Status", ~dataType=TextType)
   | PaymentId => Table.makeHeaderInfo(~key, ~title="Payment Id", ~dataType=TextType)
   | AttemptId => Table.makeHeaderInfo(~key, ~title="Attempt Id", ~dataType=TextType)
@@ -167,7 +162,6 @@ let getCell = (disputeObj, colType): Table.cell => {
       "",
     )
   | Currency => Text(disputeObj.currency)
-  | DisputeStage => Text(disputeObj.dispute_stage)
   | DisputeStatus =>
     Label({
       title: disputeObj.dispute_status->String.toUpperCase,

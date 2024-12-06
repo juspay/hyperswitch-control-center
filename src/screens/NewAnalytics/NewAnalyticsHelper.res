@@ -11,12 +11,24 @@ module Card = {
 module NoData = {
   @react.component
   let make = (~height="h-96") => {
-    <Card>
-      <div
-        className={`${height} border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
-        {"No Data"->React.string}
-      </div>
-    </Card>
+    <div
+      className={`${height} border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
+      {"No entires in selected time period."->React.string}
+    </div>
+  }
+}
+
+module Shimmer = {
+  @react.component
+  let make = (~className="w-full h-96", ~layoutId) => {
+    <FramerMotion.Motion.Div
+      className={`${className} bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100`}
+      initial={{backgroundPosition: "-200% 0"}}
+      animate={{backgroundPosition: "200% 0"}}
+      transition={{duration: 1.5, ease: "easeInOut", repeat: 10000}}
+      style={{backgroundSize: "200% 100%"}}
+      layoutId
+    />
   }
 }
 
@@ -71,6 +83,7 @@ module Tabs = {
       {options
       ->Array.mapWithIndex((tabValue, index) =>
         <div
+          key={index->Int.toString}
           className={`px-3 py-2 ${tabValue.value->getStyle(index)} selection:bg-white`}
           onClick={_ => setOption(tabValue)}>
           {tabValue.label->React.string}
@@ -160,11 +173,20 @@ module StatisticsCard = {
     let (bgColor, textColor) = switch direction {
     | Upward => ("bg-green-light", "text-green-dark")
     | Downward => ("bg-red-light", "text-red-dark")
+    | No_Change => ("bg-gray-100", "text-gray-500")
     }
+
+    let icon = switch direction {
+    | Downward => <img alt="image" className="h-6 w-5 mb-1 mr-1" src={`/icons/arrow.svg`} />
+    | Upward | No_Change => <Icon className="mt-1 -mr-1" name="arrow-increasing" size=25 />
+    }
+
     <div className={`${bgColor} ${textColor} w-fit h-fit rounded-2xl flex px-2 pt-0.5`}>
       <div className="-mb-0.5 flex">
-        <Icon className="mt-1 -mr-1" name="arrow-increasing" size=25 />
-        <div className="font-semibold"> {`${value}%`->React.string} </div>
+        {icon}
+        <div className="font-semibold text-sm pt-0.5 pr-0.5">
+          {`${value->NewAnalyticsUtils.valueFormatter(Rate)}`->React.string}
+        </div>
       </div>
     </div>
   }
@@ -194,13 +216,55 @@ module GraphHeader = {
     <div className="w-full px-7 py-8 flex justify-between">
       <div className="flex gap-2 items-center">
         <div className="text-3xl font-600"> {title->React.string} </div>
-        <StatisticsCard value="8" direction={Upward} />
+        <StatisticsCard value=8.8 direction={Upward} />
       </div>
       <RenderIf condition={showTabSwitch}>
         <div className="flex gap-2">
           <TabSwitch viewType setViewType />
         </div>
       </RenderIf>
+    </div>
+  }
+}
+
+module SmartRetryToggle = {
+  open LogicUtils
+  open NewAnalyticsContainerUtils
+  @react.component
+  let make = () => {
+    let {updateExistingKeys, filterValue, filterValueJson} = React.useContext(
+      FilterContext.filterContext,
+    )
+    let (isEnabled, setIsEnabled) = React.useState(_ => false)
+
+    React.useEffect(() => {
+      let value = filterValueJson->getString(smartRetryKey, "true")->getBoolFromString(true)
+      setIsEnabled(_ => value)
+      None
+    }, [filterValueJson])
+
+    let onClick = _ => {
+      let updatedValue = !isEnabled
+      let newValue = filterValue->Dict.copy
+      newValue->Dict.set(smartRetryKey, updatedValue->getStringFromBool)
+      newValue->updateExistingKeys
+    }
+
+    <div
+      className="w-full py-3 -mb-5 -mt-2 px-4 border rounded-lg bg-white flex gap-2 items-center">
+      <BoolInput.BaseComponent
+        isSelected={isEnabled}
+        setIsSelected={onClick}
+        isDisabled=false
+        boolCustomClass="rounded-lg !bg-blue-500"
+        toggleBorder="border-blue-500"
+      />
+      <p className="!text-base text-grey-700 ml-2">
+        <span className="font-semibold"> {"Include Payment Retries data: "->React.string} </span>
+        <span>
+          {"Your data will consist of all the payment retries that contributed to the success rate"->React.string}
+        </span>
+      </p>
     </div>
   }
 }

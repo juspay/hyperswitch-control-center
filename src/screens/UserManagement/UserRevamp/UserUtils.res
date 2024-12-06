@@ -46,6 +46,9 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
             errors->Dict.set("email", "Please enter a valid email"->JSON.Encode.string)
           }
         })
+        if listofemails->Array.length > 10 {
+          errors->Dict.set("Invite limit exceeded", "Max 10 at a time."->JSON.Encode.string)
+        }
         ()
       }
     | String(roleType) =>
@@ -68,36 +71,53 @@ let itemToObjMapperForGetRoleInfro: Dict.t<JSON.t> => UserManagementTypes.userMo
   }
 }
 
-let groupsAccessWrtToArray = (groupsList, userRoleAccessValueList) => {
-  groupsList->Array.reduce([], (acc, value) => {
-    if userRoleAccessValueList->Array.includes(value) && value->String.includes("view") {
-      acc->Array.push("View")
-    } else if userRoleAccessValueList->Array.includes(value) && value->String.includes("manage") {
-      acc->Array.push("Manage")
+let itemToObjMapperFordetailedRoleInfo: Dict.t<
+  JSON.t,
+> => UserManagementTypes.detailedUserModuleType = dict => {
+  open LogicUtils
+  let sortedscopes = getStrArrayFromDict(dict, "scopes", [])->Array.toSorted((item, _) =>
+    switch item {
+    | "read" => -1.
+    | "write" => 1.
+    | _ => 0.
     }
-    acc
-  })
+  )
+  {
+    parentGroup: getString(dict, "name", ""),
+    description: getString(dict, "description", ""),
+    scopes: sortedscopes,
+  }
 }
 
 let modulesWithUserAccess = (
   roleInfo: array<UserManagementTypes.userModuleType>,
-  userAcessGroup,
+  userAccessGroup: array<UserManagementTypes.detailedUserModuleType>,
 ) => {
   open UserManagementTypes
   let modulesWithAccess = []
   let modulesWithoutAccess = []
-
-  roleInfo->Array.forEach(items => {
-    let access = groupsAccessWrtToArray(items.groups, userAcessGroup)
-    let manipulatedObject = {
-      parentGroup: items.parentGroup,
-      description: items.description,
-      groups: access,
-    }
-
-    if access->Array.length > 0 {
-      modulesWithAccess->Array.push(manipulatedObject)
+  //array of groupnames accessible to the specific user role
+  let accessGroupNames = userAccessGroup->Array.map(item => item.parentGroup)
+  roleInfo->Array.forEach(item => {
+    if accessGroupNames->Array.includes(item.parentGroup) {
+      let accessGroup = userAccessGroup->Array.find(group => group.parentGroup == item.parentGroup)
+      switch accessGroup {
+      | Some(val) => {
+          let manipulatedObject = {
+            parentGroup: item.parentGroup,
+            description: val.description,
+            scopes: val.scopes,
+          }
+          modulesWithAccess->Array.push(manipulatedObject)
+        }
+      | None => ()
+      }
     } else {
+      let manipulatedObject = {
+        parentGroup: item.parentGroup,
+        description: item.description,
+        scopes: [],
+      }
       modulesWithoutAccess->Array.push(manipulatedObject)
     }
   })
@@ -166,8 +186,8 @@ let getLabelForStatus = value => {
 let stringToVariantMapperForAccess = accessAvailable => {
   open UserManagementTypes
   switch accessAvailable {
-  | "Manage" => Manage
-  | "View" | _ => View
+  | "write" => Write
+  | "read" | _ => Read
   }
 }
 
@@ -200,7 +220,7 @@ let getEntityType = valueDict => {
   let profileValue = valueDict->getOptionString("profile_value")
 
   switch (orgValue, merchantValue, profileValue) {
-  | (Some(_orgId), Some("all_merchants"), Some("all_profiles")) => "organisation"
+  | (Some(_orgId), Some("all_merchants"), Some("all_profiles")) => "organization"
   | (Some(_orgId), Some(_merchnatId), Some("all_profiles")) => "merchant"
   | (Some(_orgId), Some(_merchnatId), Some(_profileId)) => "profile"
   | _ => ""

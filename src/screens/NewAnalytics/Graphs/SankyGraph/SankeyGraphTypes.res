@@ -1,5 +1,26 @@
-type point = {sum: string, id: string}
+type temp = {name: int}
+type options = {dataLabels: temp}
+type point = {sum: string, id: string, options: options}
 type nodeFormatter = {point: point}
+
+type tooltipType = Node | Link
+
+type fromNode = {options: options}
+
+type toNode = {options: options}
+
+type pointFormat = {
+  sum: string,
+  id: string,
+  options: options,
+  color: string,
+  formatPrefix: string,
+  to: string,
+  from: string,
+  fromNode: fromNode,
+  toNode: toNode,
+}
+type pointFormatter = {point: pointFormat, key: string}
 
 external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => nodeFormatter => string = "%identity"
 
@@ -28,6 +49,7 @@ type x = int
 type nodeDataLabels = {
   align: align,
   x: x,
+  name: int,
 }
 
 type node = {
@@ -38,6 +60,7 @@ type style = {
   fontWeight: fontWeight,
   fontSize: fontSize,
   color: color,
+  fontFamily: string,
 }
 type dataLabels = {
   style: style,
@@ -53,6 +76,19 @@ type chart = {
   spacingLeft: int,
   spacingRight: int,
 }
+type tooltip = {
+  style: style,
+  enabled: bool,
+  useHTML: bool,
+  formatter: nodeFormatter => string,
+  crosshairs: bool,
+  shadow: bool,
+  shape: string,
+  backgroundColor: string,
+  borderColor: string,
+  borderWidth: float,
+}
+
 type series = {
   exporting: exporting,
   credits: credits,
@@ -67,7 +103,13 @@ type series = {
 }
 
 type title = {text: string}
-type sankeyGraphOptions = {title: title, series: array<series>, chart: chart}
+type sankeyGraphOptions = {
+  title: title,
+  series: array<series>,
+  chart: chart,
+  credits: credits,
+  tooltip: tooltip,
+}
 
 type sankeyPayload = {
   title: title,

@@ -177,7 +177,7 @@ module ApiKeyAddBtn = {
   @react.component
   let make = (~getAPIKeyDetails) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
     let (showModal, setShowModal) = React.useState(_ => false)
     let initialValues = Dict.make()
     initialValues->Dict.set("expiration", Never->getStringFromRecordType->JSON.Encode.string)
@@ -191,7 +191,11 @@ module ApiKeyAddBtn = {
             name="plus" size=12 className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
           />,
         )}
-        access=userPermissionJson.merchantDetailsManage
+        // TODO: Remove `MerchantDetailsManage` permission in future
+        authorization={hasAnyGroupAccess(
+          userHasAccess(~groupAccess=MerchantDetailsManage),
+          userHasAccess(~groupAccess=AccountManage),
+        )}
         buttonType=Secondary
         buttonSize=Small
         onClick={_ => {

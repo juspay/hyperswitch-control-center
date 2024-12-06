@@ -1,6 +1,23 @@
 type contentType = Headers(string) | Unknown
+let headersForXFeature = (~uri, ~headers) => {
+  if (
+    uri->String.includes("lottie-files") ||
+    uri->String.includes("config/merchant") ||
+    uri->String.includes("config/feature")
+  ) {
+    headers->Dict.set("Content-Type", `application/json`)
+  } else {
+    headers->Dict.set("x-feature", "integ-custom")
+  }
+}
 
-let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ~token) => {
+let getHeaders = (
+  ~uri,
+  ~headers,
+  ~contentType=Headers("application/json"),
+  ~xFeatureRoute,
+  ~token,
+) => {
   let isMixpanel = uri->String.includes("mixpanel")
 
   let headerObj = if isMixpanel {
@@ -9,19 +26,21 @@ let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ~tok
       ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
-    let res = switch token {
+    switch token {
     | Some(str) => {
         headers->Dict.set("authorization", `Bearer ${str}`)
         headers->Dict.set("api-key", `hyperswitch`)
-        headers
       }
-    | None => headers
+    | None => ()
     }
     switch contentType {
     | Headers(headerString) => headers->Dict.set("Content-Type", headerString)
     | Unknown => ()
     }
-    res
+    if xFeatureRoute {
+      headersForXFeature(~headers, ~uri)
+    }
+    headers
   }
   Fetch.HeadersInit.make(headerObj->Identity.dictOfAnyTypeToObj)
 }
@@ -37,7 +56,6 @@ let useApiFetcher = () => {
   let {authStatus, setAuthStateToLogout} = React.useContext(AuthInfoProvider.authStatusContext)
 
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
-
   React.useCallback(
     (
       uri,
@@ -47,6 +65,7 @@ let useApiFetcher = () => {
       ~method_: Fetch.requestMethod,
       ~betaEndpointConfig=?,
       ~contentType=Headers("application/json"),
+      ~xFeatureRoute,
     ) => {
       let token = {
         switch authStatus {
@@ -80,7 +99,7 @@ let useApiFetcher = () => {
             ~method_,
             ~body?,
             ~credentials=SameOrigin,
-            ~headers=getHeaders(~headers, ~uri, ~contentType, ~token),
+            ~headers=getHeaders(~headers, ~uri, ~contentType, ~token, ~xFeatureRoute),
           ),
         )
         ->catch(

@@ -36,8 +36,12 @@ module CardRenderer = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let form = ReactFinalForm.useForm()
-    let initalFormValue = React.useMemo(() => {
-      formState.values->getDictFromJsonObject->getDictfromDict("metadata")
+    let (meteDataInitialValues, connectorWalletsInitialValues) = React.useMemo(() => {
+      let formValues = formState.values->getDictFromJsonObject
+      (
+        formValues->getDictfromDict("metadata"),
+        formValues->getDictfromDict("connector_wallets_details"),
+      )
     }, [])
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
@@ -57,7 +61,7 @@ module CardRenderer = {
 
     let isProfileIdConfiguredPMAuth =
       pmAuthProcessorList
-      ->Array.filter(item => item.profile_id === currentProfile && item.disabled == false)
+      ->Array.filter(item => item.profile_id === currentProfile && !item.disabled)
       ->Array.length > 0
 
     let shouldShowPMAuthSidebar =
@@ -87,7 +91,10 @@ module CardRenderer = {
     }
 
     let showSideModal = methodVariant => {
-      ((methodVariant === GooglePay || methodVariant === ApplePay) &&
+      ((methodVariant === GooglePay ||
+      methodVariant === ApplePay ||
+      methodVariant === SamsungPay ||
+      methodVariant === Paze) &&
         {
           switch connector->getConnectorNameTypeFromString {
           | Processors(TRUSTPAY)
@@ -177,7 +184,12 @@ module CardRenderer = {
     let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
 
     let removeSelectedWallet = () => {
-      form.change("metadata", initalFormValue->Identity.genericTypeToJson)
+      form.change("metadata", meteDataInitialValues->Identity.genericTypeToJson)
+      form.change(
+        "connector_wallets_details",
+        connectorWalletsInitialValues->Identity.genericTypeToJson,
+      )
+
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
     }
 
@@ -286,6 +298,8 @@ module CardRenderer = {
           condition={selectedWallet.payment_method_type->getPaymentMethodTypeFromString ===
             ApplePay ||
           selectedWallet.payment_method_type->getPaymentMethodTypeFromString === GooglePay ||
+          selectedWallet.payment_method_type->getPaymentMethodTypeFromString === SamsungPay ||
+          selectedWallet.payment_method_type->getPaymentMethodTypeFromString === Paze ||
           (paymentMethod->getPaymentMethodFromString === BankDebit && shouldShowPMAuthSidebar)}>
           <Modal
             modalHeading

@@ -17,18 +17,20 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
   let typedConnectorValue = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
+
   let settingUpConnectorsState = routingRespArray => {
     let profileList =
       routingRespArray->Array.filter(value =>
         value->getDictFromJsonObject->getString("profile_id", "") === profile
       )
 
-    let connectorList =
-      profileList
-      ->Array.get(0)
-      ->Option.getOr(JSON.Encode.null)
+    let connectorList = switch profileList->Array.get(0) {
+    | Some(json) =>
+      json
       ->getDictFromJsonObject
       ->getArrayFromDict("connectors", [])
+    | _ => routingRespArray
+    }
 
     if connectorList->Array.length > 0 {
       setGateways(_ => connectorList)

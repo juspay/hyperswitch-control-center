@@ -2,11 +2,11 @@
 let make = (~entityName) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (reportModal, setReportModal) = React.useState(_ => false)
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
 
-  let accessForGenerateReports = PermissionUtils.hasAnyPermission(
-    userPermissionJson.operationsView,
-    userPermissionJson.analyticsView,
+  let accessForGenerateReports = hasAnyGroupAccess(
+    userHasAccess(~groupAccess=OperationsView),
+    userHasAccess(~groupAccess=AnalyticsView),
   )
 
   <>
@@ -18,7 +18,7 @@ let make = (~entityName) => {
         setReportModal(_ => true)
         mixpanelEvent(~eventName="generate_reports")
       }}
-      access={accessForGenerateReports}
+      authorization={accessForGenerateReports}
       toolTipPosition={Left}
     />
     <RenderIf condition={reportModal}>

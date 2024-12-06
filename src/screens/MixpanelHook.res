@@ -37,7 +37,7 @@ let useSendEvent = () => {
     ~description,
     ~event,
     ~section,
-    ~metadata=Dict.make(),
+    ~metadata=JSON.Encode.null,
   ) => {
     let mixpanel_token = Window.env.mixpanelToken
 
@@ -70,13 +70,14 @@ let useSendEvent = () => {
         `${getHostUrl}/mixpanel/track`,
         ~method_=Post,
         ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+        ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
       )
     } catch {
     | _ => ()
     }
   }
 
-  (~eventName, ~email="", ~description=None, ~section="", ~metadata=Dict.make()) => {
+  (~eventName, ~email="", ~description=None, ~section="", ~metadata=JSON.Encode.null) => {
     let section = section->LogicUtils.isNonEmptyString ? section : getUrlEndpoint()
     let eventName = eventName->String.toLowerCase
 
@@ -133,6 +134,7 @@ let usePageView = () => {
           `${getHostUrl}/mixpanel/track`,
           ~method_=Post,
           ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+          ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
         )
       }
     } catch {
@@ -171,11 +173,13 @@ let useSetIdentity = () => {
           `${getHostUrl}/mixpanel/track`,
           ~method_=Post,
           ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+          ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
         )
         let _ = await fetchApi(
           `${getHostUrl}/mixpanel/engage`,
           ~method_=Post,
           ~bodyStr=`data=${peopleProperties->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+          ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
         )
       }
     } catch {

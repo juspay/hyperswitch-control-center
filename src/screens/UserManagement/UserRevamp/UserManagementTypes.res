@@ -2,7 +2,10 @@ type userManagementTypes = UsersTab | RolesTab
 
 type internalUserType = InternalViewOnly | InternalAdmin | NonInternal
 
-type permissionType =
+type admin = TenantAdmin | NonTenantAdmin
+
+@unboxed
+type groupAccessType =
   | OperationsView
   | OperationsManage
   | ConnectorsView
@@ -15,10 +18,38 @@ type permissionType =
   | MerchantDetailsView
   | MerchantDetailsManage
   | OrganizationManage
-  | UnknownPermission(string)
+  | AccountView
+  | AccountManage
+  | UnknownGroupAccess(string)
+
+type resourceAccessType =
+  | Payment
+  | Refund
+  | Dispute
+  | Payout
+  | Customer
+  | Connector
+  | Analytics
+  | Routing
+  | ThreeDsDecisionManager
+  | SurchargeDecisionManager
+  | ReconToken
+  | ReconFiles
+  | ReconAndSettlementAnalytics
+  | ReconUpload
+  | ReconReports
+  | RunRecon
+  | ReconConfig
+  | Account
+  | ApiKey
+  | User
+  | Mandate
+  | WebhookEvent
+  | Report
+  | UnknownResourceAccess(string)
 
 open CommonAuthTypes
-type permissionJson = {
+type groupAccessJsonType = {
   operationsView: authorization,
   operationsManage: authorization,
   connectorsView: authorization,
@@ -31,18 +62,25 @@ type permissionJson = {
   merchantDetailsView: authorization,
   merchantDetailsManage: authorization,
   organizationManage: authorization,
+  accountView: authorization,
+  accountManage: authorization,
 }
 
 type getInfoType = {
   module_: string,
   description: string,
-  mutable isPermissionAllowed: bool,
 }
 
 type userModuleType = {
   parentGroup: string,
   description: string,
   groups: array<string>,
+}
+
+type detailedUserModuleType = {
+  parentGroup: string,
+  description: string,
+  scopes: array<string>,
 }
 
 type orgObjectType = {
@@ -62,18 +100,7 @@ type userDetailstype = {
 }
 
 @unboxed
-type parentGroupType =
-  | Operations
-  | Connectors
-  | Workflows
-  | Analytics
-  | Users
-  | Merchant
-  | Organization
-  | UnknownPermission(string)
-
-@unboxed
-type groupPermissionType = View | Manage
+type groupScopeType = Read | Write
 
 type allSelectionType = [#All_Merchants | #All_Profiles]
 

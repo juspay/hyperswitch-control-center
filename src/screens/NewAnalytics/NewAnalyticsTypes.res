@@ -1,10 +1,10 @@
 type analyticsPages = Payment
 type viewType = Graph | Table
-type statisticsDirection = Upward | Downward
+type statisticsDirection = Upward | Downward | No_Change
 
 type analyticsPagesRoutes = | @as("new-analytics-payment") NewAnalyticsPayment
 
-type domain = [#payments]
+type domain = [#payments | #refunds | #disputes]
 type dimension = [
   | #connector
   | #payment_method
@@ -13,11 +13,20 @@ type dimension = [
   | #authentication_type
 ]
 type status = [#charged | #failure]
-type metrics = [#payment_processed_amount | #payment_success_rate]
+type metrics = [
+  | #sessionized_smart_retried_amount
+  | #sessionized_payments_success_rate
+  | #sessionized_payment_processed_amount
+  | #refund_processed_amount
+  | #dispute_status_metric
+  | #payments_distribution
+  | #sessionized_payments_distribution // without smart retry
+  | #failure_reasons
+  | #payments_distribution
+  | #payment_success_rate
+]
 type granularity = [
-  | #hour_wise
-  | #day_wise
-  | #week_wise
+  | #G_ONEDAY
 ]
 // will change this once we get the api srtcuture
 type requestBodyConfig = {
@@ -36,9 +45,28 @@ type moduleEntity = {
   domain: domain,
 }
 
-type chartEntity<'t, 'chartOption> = {
-  getObjects: (~data: JSON.t, ~xKey: string, ~yKey: string) => 't,
+type getObjects<'data> = {
+  data: 'data,
+  xKey: string,
+  yKey: string,
+  comparison?: DateRangeUtils.comparison,
+}
+
+type chartEntity<'t, 'chartOption, 'data> = {
+  getObjects: (~params: getObjects<'data>) => 't,
   getChatOptions: 't => 'chartOption,
 }
 
 type optionType = {label: string, value: string}
+
+type valueType =
+  | Amount
+  | Rate
+  | Volume
+  | Latency
+  | LatencyMs
+  | No_Type
+
+type metricType =
+  | Smart_Retry
+  | Default

@@ -3,15 +3,14 @@ let p2MediumTextClass = HSwitchUtils.getTextClass((P2, Medium))
 let p3MediumTextClass = HSwitchUtils.getTextClass((P3, Medium))
 let p3RegularTextClass = HSwitchUtils.getTextClass((P3, Regular))
 
-module ModulePermissionRender = {
+module ModuleAccessRenderer = {
   @react.component
-  let make = (~elem: UserManagementTypes.userModuleType, ~index, ~customCss="") => {
+  let make = (~elem: UserManagementTypes.detailedUserModuleType, ~index, ~customCss="") => {
     open UserUtils
-
     let iconForAccess = access =>
       switch access->stringToVariantMapperForAccess {
-      | View => "eye-outlined"
-      | Manage => "pencil-outlined"
+      | Read => "eye-outlined"
+      | Write => "pencil-outlined"
       }
 
     <div key={index->Int.toString} className={`flex justify-between ${customCss}`}>
@@ -19,13 +18,13 @@ module ModulePermissionRender = {
         <p className=p2MediumTextClass> {elem.parentGroup->React.string} </p>
         <p className=p3RegularTextClass> {elem.description->React.string} </p>
       </div>
-      <div className="flex gap-2 h-fit">
-        {elem.groups
+      <div className="flex gap-2 h-fit ">
+        {elem.scopes
         ->Array.map(item => {
           <p
             className={`py-0.5 px-2 rounded-full bg-gray-200 ${p3RegularTextClass} flex gap-1 items-center`}>
             <Icon name={item->iconForAccess} size=12 />
-            <span> {(item :> string)->React.string} </span>
+            <span> {(item :> string)->LogicUtils.camelCaseToTitle->React.string} </span>
           </p>
         })
         ->React.array}
@@ -33,26 +32,31 @@ module ModulePermissionRender = {
     </div>
   }
 }
-module RoleToPermission = {
+
+module RoleAccessOverview = {
   @react.component
   let make = (~roleDict, ~role) => {
     open LogicUtils
-    let userAcessGroup = roleDict->getDictfromDict(role)->getStrArrayFromDict("groups", [])
+    let detailedUserAccess =
+      roleDict
+      ->getDictfromDict(role)
+      ->getJsonObjectFromDict("parent_groups")
+      ->getArrayDataFromJson(UserUtils.itemToObjMapperFordetailedRoleInfo)
+
     let roleInfo = Recoil.useRecoilValueFromAtom(HyperswitchAtom.moduleListRecoil)
     let (modulesWithAccess, moduleWithoutAccess) = UserUtils.modulesWithUserAccess(
       roleInfo,
-      userAcessGroup,
+      detailedUserAccess,
     )
-
     <div className="flex flex-col gap-8">
       {modulesWithAccess
       ->Array.mapWithIndex((elem, index) => {
-        <ModulePermissionRender elem index />
+        <ModuleAccessRenderer elem index />
       })
       ->React.array}
       {moduleWithoutAccess
       ->Array.mapWithIndex((elem, index) => {
-        <ModulePermissionRender elem index customCss="text-grey-200" />
+        <ModuleAccessRenderer elem index customCss="text-grey-200" />
       })
       ->React.array}
     </div>
@@ -68,6 +72,7 @@ module NoteComponent = {
 
     // TODO : Chnage id to name once backend starts sending name in userinfo
     let descriptionBasedOnEntity = switch userEntity {
+    | #Tenant
     | #Organization =>
       `You can only invite people for ${orgId} here. To invite users to another organisation, please switch the organisation.`
     | #Merchant =>
@@ -98,6 +103,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let roleTypeValue =
     ReactFinalForm.useField(`role_id`).input.value->getStringFromJson("")->getNonEmptyString
+  let (roleNameValue, setRoleNameValue) = React.useState(_ => "")
   let (options, setOptions) = React.useState(_ => []->SelectBox.makeOptions)
   let (dropDownLoaderState, setDropDownLoaderState) = React.useState(_ =>
     DropdownWithLoading.Success
@@ -111,13 +117,13 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
-        ~entityName=USER_MANAGEMENT,
+        ~entityName=USER_MANAGEMENT_V2,
         ~userRoleTypes=ROLE_ID,
         ~id=roleTypeValue,
         ~methodType=Get,
-        ~queryParamerters=Some("groups=true"),
       )
       let res = await fetchDetails(url)
+      setRoleNameValue(_ => res->getDictFromJsonObject->getString("role_name", ""))
       setRoleDict(prevDict => {
         prevDict->Dict.set(roleTypeValue->Option.getOr(""), res)
         prevDict
@@ -196,11 +202,11 @@ let make = () => {
         | Some(role) =>
           <>
             <p className={`${p1MediumTextClass} !font-semibold py-2`}>
-              {`Role Description - '${role->snakeToTitle}'`->React.string}
+              {`Role Description - '${roleNameValue->snakeToTitle}'`->React.string}
             </p>
             <PageLoaderWrapper screenState>
               <div className="border rounded-md p-4 flex flex-col">
-                <RoleToPermission roleDict role={roleTypeValue->Option.getOr("")} />
+                <RoleAccessOverview roleDict role />
               </div>
             </PageLoaderWrapper>
           </>

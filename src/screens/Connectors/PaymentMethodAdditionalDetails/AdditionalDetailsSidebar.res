@@ -13,7 +13,6 @@ module AdditionalDetailsSidebarComp = {
     ~setInitialValues,
   ) => {
     open LogicUtils
-
     let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
 
     let updateMetadata = json => {
@@ -46,6 +45,20 @@ module AdditionalDetailsSidebarComp = {
         | GooglePay =>
           <GooglePayIntegration
             connector setShowWalletConfigurationModal update=updateMetadata onCloseClickCustomFun
+          />
+        | SamsungPay =>
+          <SamsungPayIntegration
+            connector
+            setShowWalletConfigurationModal
+            update=updatePaymentMethods
+            onCloseClickCustomFun
+          />
+        | Paze =>
+          <PazeIntegration
+            connector
+            setShowWalletConfigurationModal
+            update=updatePaymentMethods
+            onCloseClickCustomFun
           />
         | _ => React.null
         }}

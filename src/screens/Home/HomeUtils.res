@@ -142,6 +142,7 @@ module CheckoutCard = {
     let showPopUp = PopUpState.useShowPopUp()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let handleLogout = APIUtils.useHandleLogout()
+    let {userHasAccess, hasAllGroupsAccess} = GroupACLHooks.useUserGroupACLHook()
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
 
     let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
@@ -172,7 +173,7 @@ module CheckoutCard = {
     let (title, description) = isConfigureConnector
       ? (
           "Make a test payment - Try our unified checkout",
-          "Test your connector be making a payment and visualise the user checkout experience",
+          "Test your connector by making a payment and visualise the user checkout experience",
         )
       : (
           "Demo our checkout experience",
@@ -183,8 +184,15 @@ module CheckoutCard = {
       <CardHeader heading=title subHeading=description leftIcon=Some("checkout") />
       <img alt="sdk" className="w-10/12 -mt-7 hidden md:block" src="/assets/sdk.svg" />
       <CardFooter customFooterStyle="!m-1 !mt-2">
-        <Button
-          text="Try it out" buttonType={Secondary} buttonSize={Small} onClick={handleOnClick}
+        <ACLButton
+          text="Try it out"
+          authorization={hasAllGroupsAccess([
+            userHasAccess(~groupAccess=OperationsManage),
+            userHasAccess(~groupAccess=ConnectorsManage),
+          ])}
+          buttonType={Secondary}
+          buttonSize={Small}
+          onClick={handleOnClick}
         />
       </CardFooter>
     </CardLayout>
@@ -333,41 +341,6 @@ let responseDataMapper = (res: JSON.t, mapper: (Dict.t<JSON.t>, string) => JSON.
     resDict->Dict.set(key, value1->mapper(key))
   })
   resDict
-}
-
-let getValueMapped = (value, key) => {
-  open LogicUtils
-  let keyVariant = key->QuickStartUtils.stringToVariantMapperForUserData
-  switch keyVariant {
-  | #ProductionAgreement
-  | #IntegrationCompleted
-  | #SPTestPayment
-  | #DownloadWoocom
-  | #ConfigureWoocom
-  | #SetupWoocomWebhook =>
-    value->getBool(key, false)->JSON.Encode.bool
-  | #ConfigurationType => value->getString(key, "")->JSON.Encode.string
-  | #FirstProcessorConnected
-  | #SecondProcessorConnected
-  | #StripeConnected
-  | #PaypalConnected
-  | #IntegrationMethod =>
-    value->getJsonObjectFromDict(key)
-  | #TestPayment => value->getJsonObjectFromDict(key)
-  | #ConfiguredRouting | #SPRoutingConfigured => value->getJsonObjectFromDict(key)
-  }
-}
-
-let getValueMappedForProd = (value, key) => {
-  open LogicUtils
-  let keyVariant = key->ProdOnboardingUtils.stringToVariantMapperForUserData
-  switch keyVariant {
-  | #ProductionAgreement
-  | #ConfigureEndpoint
-  | #SetupComplete =>
-    value->getBool(key, false)->JSON.Encode.bool
-  | #SetupProcessor => value->getJsonObjectFromDict(key)
-  }
 }
 
 module LowRecoveryCodeBanner = {

@@ -93,51 +93,6 @@ let validateFormForRoles = values => {
   errors->JSON.Encode.object
 }
 
-let getArrayOfPermissionData = json => {
-  json
-  ->LogicUtils.getDictFromJsonObject
-  ->LogicUtils.getArrayFromDict("groups", [])
-  ->Array.map(i => i->JSON.Decode.string->Option.getOr(""))
-}
-
-let updatePresentInInfoList = (infoData, permissionsData) => {
-  let copyOfInfoData = infoData->Array.copy
-  let copyOfPermissionsData = permissionsData->Array.copy
-
-  copyOfInfoData->Array.map((infoValItem: UserManagementTypes.getInfoType) => {
-    if copyOfPermissionsData->Array.includes(infoValItem.module_) {
-      infoValItem.isPermissionAllowed = true
-    } else {
-      infoValItem.isPermissionAllowed = false
-    }
-    infoValItem
-  })
-}
-
-let defaultPresentInInfoList = infoData => {
-  let copyOfInfoData = infoData->Array.copy
-
-  copyOfInfoData->Array.map((infoValItem: UserManagementTypes.getInfoType) => {
-    infoValItem.isPermissionAllowed = false
-    infoValItem
-  })
-}
-
-module RolePermissionValueRenderer = {
-  @react.component
-  let make = (~heading: string, ~description: string, ~isPermissionAllowed: bool=false) => {
-    <div className="flex justify-between">
-      <div className="flex flex-col gap-3 items-start col-span-1">
-        <div className="font-semibold"> {heading->React.string} </div>
-        <div className="text-base text-hyperswitch_black opacity-50 flex-1">
-          {description->React.string}
-        </div>
-      </div>
-      <Icon size=22 name={isPermissionAllowed ? "permitted" : "not-permitted"} />
-    </div>
-  }
-}
-
 let tabIndeToVariantMapper = index => {
   open UserManagementTypes
   switch index {
@@ -166,7 +121,7 @@ let getUserManagementViewValues = (~checkUserEntity) => {
     entity: #Default,
   }
 
-  if checkUserEntity([#Organization]) {
+  if checkUserEntity([#Organization, #Tenant]) {
     [default, org, merchant, profile]
   } else if checkUserEntity([#Merchant]) {
     [default, merchant, profile]
@@ -175,11 +130,17 @@ let getUserManagementViewValues = (~checkUserEntity) => {
   }
 }
 
-let stringToVariantMapper = roleId => {
-  open UserManagementTypes
+let stringToVariantMapperInternalUser: string => UserManagementTypes.internalUserType = roleId => {
   switch roleId {
   | "internal_view_only" => InternalViewOnly
   | "internal_admin" => InternalAdmin
   | _ => NonInternal
+  }
+}
+
+let stringToVariantMapperTenantAdmin: string => UserManagementTypes.admin = roleId => {
+  switch roleId {
+  | "tenant_admin" => TenantAdmin
+  | _ => NonTenantAdmin
   }
 }

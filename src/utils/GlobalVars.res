@@ -11,7 +11,8 @@ type appEnv = [#production | #sandbox | #integration | #development]
 let isLocalhost =
   Window.Location.hostname === "localhost" || Window.Location.hostname === "127.0.0.1"
 
-let dashboardBasePath = Some("/dashboard")
+let dashboardPrefix = "dashboard"
+let dashboardBasePath = Some(`/${dashboardPrefix}`)
 
 let appendTrailingSlash = url => {
   url->String.startsWith("/") ? url : `/${url}`
@@ -27,6 +28,17 @@ let appendDashboardPath = (~url) => {
     }
   | None => url
   }
+}
+
+let extractModulePath = (url: RescriptReactRouter.url) => {
+  let currentPathList = url.path->List.toArray
+
+  let modulePath = if currentPathList->Array.includes(dashboardPrefix) {
+    currentPathList->Array.slice(~start=0, ~end=2)->Array.joinWith("/")->appendTrailingSlash
+  } else {
+    currentPathList->Array.slice(~start=0, ~end=1)->Array.joinWith("/")->appendTrailingSlash
+  }
+  modulePath
 }
 
 type hostType = Live | Sandbox | Local | Integ

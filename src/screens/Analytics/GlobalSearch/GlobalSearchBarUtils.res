@@ -1,45 +1,15 @@
-module ShowMoreLink = {
-  open GlobalSearchTypes
-  @react.component
-  let make = (
-    ~section: resultType,
-    ~cleanUpFunction=() => {()},
-    ~textStyleClass="",
-    ~searchText,
-  ) => {
-    <RenderIf condition={section.total_results > 10}>
-      {
-        let linkText = `View ${section.total_results->Int.toString} result${section.total_results > 1
-            ? "s"
-            : ""}`
+open GlobalSearchTypes
+open LogicUtils
 
-        switch section.section {
-        | Local | Default | Others => React.null
-        | PaymentAttempts | PaymentIntents | Refunds | Disputes =>
-          <div
-            onClick={_ => {
-              let link = switch section.section {
-              | PaymentAttempts => `payment-attempts?query=${searchText}`
-              | PaymentIntents => `payment-intents?query=${searchText}`
-              | Refunds => `refunds-global?query=${searchText}`
-              | Disputes => `dispute-global?query=${searchText}`
-              | Local | Others | Default => ""
-              }
-              GlobalVars.appendDashboardPath(~url=link)->RescriptReactRouter.push
-              cleanUpFunction()
-            }}
-            className={`font-medium cursor-pointer underline underline-offset-2 ${textStyleClass}`}>
-            {linkText->React.string}
-          </div>
-        }
-      }
-    </RenderIf>
-  }
+let defaultRoute = "/search"
+let global_search_activate_key = "k"
+let filterSeparator = ":"
+
+let getEndChar = string => {
+  string->String.charAt(string->String.length - 1)
 }
 
 let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName) => {
-  open GlobalSearchTypes
-  open LogicUtils
   searchOptions
   ->Option.getOr([])
   ->Array.filter(item => {
@@ -61,8 +31,6 @@ let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName) 
 }
 
 let getLocalMatchedResults = (searchText, tabs) => {
-  open LogicUtils
-  open GlobalSearchTypes
   open SidebarTypes
   let results = tabs->Array.reduce([], (acc, item) => {
     switch item {
@@ -148,9 +116,6 @@ let getLocalMatchedResults = (searchText, tabs) => {
 }
 
 let getElements = (hits, section) => {
-  open GlobalSearchTypes
-  open LogicUtils
-
   let getAmount = (value, amountKey, currencyKey) =>
     `${value->getFloat(amountKey, 0.0)->Belt.Float.toString} ${value->getString(currencyKey, "")}`
 
@@ -165,7 +130,7 @@ let getElements = (hits, section) => {
   }
 
   switch section {
-  | PaymentAttempts =>
+  | PaymentAttempts | SessionizerPaymentAttempts =>
     hits->Array.map(item => {
       let (payId, amount, status, profileId) = item->getValues
 
@@ -174,7 +139,7 @@ let getElements = (hits, section) => {
         redirect_link: `/payments/${payId}/${profileId}`->JSON.Encode.string,
       }
     })
-  | PaymentIntents =>
+  | PaymentIntents | SessionizerPaymentIntents =>
     hits->Array.map(item => {
       let (payId, amount, status, profileId) = item->getValues
 
@@ -184,7 +149,7 @@ let getElements = (hits, section) => {
       }
     })
 
-  | Refunds =>
+  | Refunds | SessionizerPaymentRefunds =>
     hits->Array.map(item => {
       let value = item->JSON.Decode.object->Option.getOr(Dict.make())
       let refId = value->getString("refund_id", "")
@@ -197,7 +162,7 @@ let getElements = (hits, section) => {
         redirect_link: `/refunds/${refId}/${profileId}`->JSON.Encode.string,
       }
     })
-  | Disputes =>
+  | Disputes | SessionizerPaymentDisputes =>
     hits->Array.map(item => {
       let value = item->JSON.Decode.object->Option.getOr(Dict.make())
       let disId = value->getString("dispute_id", "")
@@ -210,14 +175,37 @@ let getElements = (hits, section) => {
         redirect_link: `/disputes/${disId}/${profileId}`->JSON.Encode.string,
       }
     })
-  | Local | Others | Default => []
+  | Local
+  | Others
+  | Default => []
+  }
+}
+
+let getItemFromArray = (results, key1, key2, resultsData) => {
+  switch (resultsData->Dict.get(key1), resultsData->Dict.get(key2)) {
+  | (Some(data), Some(sessionizerData)) => {
+      let intentsCount = data.total_results
+      let sessionizerCount = sessionizerData.total_results
+      if intentsCount > 0 && sessionizerCount > 0 {
+        if intentsCount >= sessionizerCount {
+          results->Array.push(data)
+        } else {
+          results->Array.push(sessionizerData)
+        }
+      } else if intentsCount > 0 {
+        results->Array.push(data)
+      } else {
+        results->Array.push(sessionizerData)
+      }
+    }
+  | (None, Some(sessionizerData)) => results->Array.push(sessionizerData)
+  | (Some(data), None) => results->Array.push(data)
+  | _ => ()
   }
 }
 
 let getRemoteResults = json => {
-  open GlobalSearchTypes
-  open LogicUtils
-  let results = []
+  let data = Dict.make()
 
   json
   ->JSON.Decode.array
@@ -227,21 +215,46 @@ let getRemoteResults = json => {
     let section = value->getString("index", "")->getSectionVariant
     let hints = value->getArrayFromDict("hits", [])
     let total_results = value->getInt("count", hints->Array.length)
+    let key = value->getString("index", "")
 
     if hints->Array.length > 0 {
-      results->Array.push({
-        section,
-        results: hints->getElements(section),
-        total_results,
-      })
+      data->Dict.set(
+        key,
+        {
+          section,
+          results: hints->getElements(section),
+          total_results,
+        },
+      )
     }
   })
+
+  let results = []
+
+  // intents
+  let key1 = PaymentIntents->getSectionIndex
+  let key2 = SessionizerPaymentIntents->getSectionIndex
+  getItemFromArray(results, key1, key2, data)
+
+  // Attempts
+  let key1 = PaymentAttempts->getSectionIndex
+  let key2 = SessionizerPaymentAttempts->getSectionIndex
+  getItemFromArray(results, key1, key2, data)
+
+  // Refunds
+  let key1 = Refunds->getSectionIndex
+  let key2 = SessionizerPaymentRefunds->getSectionIndex
+  getItemFromArray(results, key1, key2, data)
+
+  // Disputes
+  let key1 = Disputes->getSectionIndex
+  let key2 = SessionizerPaymentDisputes->getSectionIndex
+  getItemFromArray(results, key1, key2, data)
 
   results
 }
 
 let getDefaultResult = searchText => {
-  open GlobalSearchTypes
   {
     section: Default,
     results: [
@@ -254,14 +267,22 @@ let getDefaultResult = searchText => {
   }
 }
 
+let getDefaultOption = searchText => {
+  {
+    texts: ["Show all results for"->JSON.Encode.string, searchText->JSON.Encode.string],
+    redirect_link: `/search?query=${searchText}`->JSON.Encode.string,
+  }
+}
+
+let getAllOptions = (results: array<GlobalSearchTypes.resultType>) => {
+  results->Array.flatMap(item => item.results)
+}
+
 let parseResponse = response => {
-  open GlobalSearchTypes
-  open LogicUtils
   response
   ->getArrayFromJson([])
   ->Array.map(json => {
     let item = json->getDictFromJsonObject
-
     {
       count: item->getInt("count", 0),
       hits: item->getArrayFromDict("hits", []),
@@ -271,7 +292,6 @@ let parseResponse = response => {
 }
 
 let generateSearchBody = (~searchText, ~merchant_id) => {
-  open LogicUtils
   if !(searchText->CommonAuthUtils.isValidEmail) {
     let filters =
       [
@@ -282,3 +302,265 @@ let generateSearchBody = (~searchText, ~merchant_id) => {
     [("query", searchText->JSON.Encode.string)]->getJsonFromArrayOfJson
   }
 }
+
+let categoryList = [
+  Payment_Method,
+  Payment_Method_Type,
+  Currency,
+  Connector,
+  Customer_Email,
+  Card_Network,
+  Card_Last_4,
+  Status,
+  Payment_id,
+]
+
+let getcategoryFromVariant = category => {
+  switch category {
+  | Payment_Method => "payment_method"
+  | Payment_Method_Type => "payment_method_type"
+  | Currency => "currency"
+  | Connector => "connector"
+  | Customer_Email => "customer_email"
+  | Card_Network => "card_network"
+  | Card_Last_4 => "card_last_4"
+  | Date => "date"
+  | Status => "status"
+  | Payment_id => "payment_id"
+  }
+}
+
+let getDefaultPlaceholderValue = category => {
+  switch category {
+  | Payment_Method => "payment_method:card"
+  | Payment_Method_Type => "payment_method_type:credit"
+  | Currency => "currency:USD"
+  | Connector => "connector:stripe"
+  | Customer_Email => "customer_email:abc@abc.com"
+  | Card_Network => "card_network:visa"
+  | Card_Last_4 => "card_last_4:2326"
+  | Date => "date:today"
+  | Status => "status:charged"
+  | Payment_id => "payment_id:pay_xxxxxxxxx"
+  }
+}
+
+let getCategoryVariantFromString = category => {
+  switch category {
+  | "payment_method" => Payment_Method
+  | "payment_method_type" => Payment_Method_Type
+  | "connector" => Connector
+  | "currency" => Currency
+  | "customer_email" => Customer_Email
+  | "card_network" => Card_Network
+  | "card_last_4" => Card_Last_4
+  | "payment_id" => Payment_id
+  | "status" => Status
+  | "date" | _ => Date
+  }
+}
+
+let generatePlaceHolderValue = (category, options) => {
+  switch options->Array.get(0) {
+  | Some(value) => `${category->getcategoryFromVariant}:${value}`
+  | _ => category->getDefaultPlaceholderValue
+  }
+}
+
+let getCategorySuggestions = json => {
+  let suggestions = Dict.make()
+
+  json
+  ->getDictFromJsonObject
+  ->getArrayFromDict("queryData", [])
+  ->Array.forEach(item => {
+    let itemDict = item->getDictFromJsonObject
+    let key = itemDict->getString("dimension", "")
+    let value =
+      itemDict
+      ->getArrayFromDict("values", [])
+      ->Array.map(value => {
+        value->JSON.Decode.string->Option.getOr("")
+      })
+      ->Array.filter(item => item->String.length > 0)
+    if key->isNonEmptyString && value->Array.length > 0 {
+      suggestions->Dict.set(key, value)
+    }
+  })
+
+  categoryList->Array.map(category => {
+    let options = suggestions->Dict.get(category->getcategoryFromVariant)->Option.getOr([])
+
+    {
+      categoryType: category,
+      options,
+      placeholder: generatePlaceHolderValue(category, options),
+    }
+  })
+}
+
+let paymentsGroupByNames = [
+  "connector",
+  "payment_method",
+  "payment_method_type",
+  "currency",
+  "status",
+  "profile_id",
+  "card_network",
+  "merchant_id",
+]
+
+let refundsGroupByNames = ["currency", "refund_status", "connector", "refund_type", "profile_id"]
+let disputesGroupByNames = ["connector", "dispute_stage"]
+
+let getFilterBody = groupByNames =>
+  {
+    let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=7)
+    let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
+      startTime: defaultDate.start_time,
+      endTime: defaultDate.end_time,
+      groupByNames,
+      source: "BATCH",
+    }
+    AnalyticsUtils.filterBody(filterBodyEntity)
+  }->Identity.genericTypeToJson
+
+let generateFilter = (queryArray: array<string>) => {
+  let filter = Dict.make()
+  queryArray->Array.forEach(query => {
+    let keyValuePair =
+      query
+      ->String.split(filterSeparator)
+      ->Array.filter(query => {
+        query->String.trim->isNonEmptyString
+      })
+
+    let key = keyValuePair->getValueFromArray(0, "")
+    let value = keyValuePair->getValueFromArray(1, "")
+
+    switch filter->Dict.get(key) {
+    | Some(prevArr) =>
+      if !(prevArr->Array.includes(value)) && value->isNonEmptyString {
+        filter->Dict.set(key, prevArr->Array.concat([value]))
+      }
+    | _ =>
+      if value->isNonEmptyString {
+        filter->Dict.set(key, [value])
+      }
+    }
+  })
+
+  filter
+  ->Dict.toArray
+  ->Array.map(item => {
+    let (key, value) = item
+    let newValue = value->Array.map(JSON.Encode.string)
+    (key, newValue->JSON.Encode.array)
+  })
+  ->Dict.fromArray
+}
+
+let generateQuery = searchQuery => {
+  let filters = []
+  let queryText = ref("")
+
+  searchQuery
+  ->String.split(" ")
+  ->Array.filter(query => {
+    query->String.trim->isNonEmptyString
+  })
+  ->Array.forEach(query => {
+    if RegExp.test(%re("/^[^:\s]+:[^:\s]*$/"), query) {
+      filters->Array.push(query)
+    } else if !(query->CommonAuthUtils.isValidEmail) {
+      let filter = `${Customer_Email->getcategoryFromVariant}:${query}`
+      filters->Array.push(filter)
+    } else {
+      queryText := query
+    }
+  })
+
+  let body = {
+    let filterObj = filters->generateFilter
+    let query = if filters->Array.length > 0 && filterObj->Dict.keysToArray->Array.length > 0 {
+      [("filters", filterObj->JSON.Encode.object)]
+    } else {
+      []
+    }
+
+    let query =
+      query->Array.concat([("query", queryText.contents->String.trim->JSON.Encode.string)])
+
+    query->Dict.fromArray
+  }
+
+  body
+}
+
+let validateQuery = searchQuery => {
+  let freeTextCount = ref(0)
+
+  searchQuery
+  ->String.split(" ")
+  ->Array.filter(query => {
+    query->String.trim->isNonEmptyString
+  })
+  ->Array.forEach(query => {
+    if !RegExp.test(%re("/^[^:\s]+:[^:\s]+$/"), query) {
+      freeTextCount := freeTextCount.contents + 1
+    }
+  })
+
+  freeTextCount.contents > 1
+}
+
+let getViewType = (~state, ~searchResults, ~searchText, ~filtersEnabled) => {
+  switch state {
+  | Loading => Load
+  | Loaded => {
+      let endChar = searchText->String.charAt(searchText->String.length - 1)
+      let isFilter = endChar == filterSeparator || endChar == " "
+
+      if isFilter && filtersEnabled {
+        FiltersSugsestions
+      } else if searchResults->Array.length > 0 {
+        Results
+      } else {
+        EmptyResult
+      }
+    }
+  | Idle => filtersEnabled ? FiltersSugsestions : Results
+  }
+}
+
+let getSearchValidation = query => {
+  let paylod = query->generateQuery
+  let query = paylod->getString("query", "")->String.trim
+
+  !(paylod->getObj("filters", Dict.make())->isEmptyDict && query->isEmptyString)
+}
+
+let sidebarScrollbarCss = `
+  @supports (-webkit-appearance: none){
+    .sidebar-scrollbar {
+        scrollbar-width: auto;
+        scrollbar-color: #8a8c8f;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar {
+        display: block;
+        overflow: scroll;
+        height: 4px;
+        width: 5px;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #8a8c8f;
+        border-radius: 3px;
+      }
+      
+      .sidebar-scrollbar::-webkit-scrollbar-track {
+        display: none;
+      }
+}
+  `

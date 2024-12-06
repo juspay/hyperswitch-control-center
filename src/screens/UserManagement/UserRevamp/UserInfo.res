@@ -6,7 +6,7 @@ module UserAction = {
     open UserManagementTypes
 
     let url = RescriptReactRouter.useUrl()
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let userEmail =
       url.search
       ->LogicUtils.getDictFromUrlSearchParams
@@ -17,14 +17,11 @@ module UserAction = {
     )
 
     let decideWhatToShow = {
-      if value.entityType->UserInfoUtils.entityMapper === #Organization {
-        // User is at org level
-        NoActionAccess
-      } else if userEmail === email {
+      if userEmail === email {
         // User cannot update its own role
         NoActionAccess
-      } else if userPermissionJson.usersManage === NoAccess {
-        // User doesn't have user write permission
+      } else if userHasAccess(~groupAccess=UsersManage) === NoAccess {
+        // User doesn't have user write access
         NoActionAccess
       } else if (
         // Profile level user
@@ -37,6 +34,13 @@ module UserAction = {
         // Merchant level user
         value.org.id->Option.getOr("") === orgId &&
         value.merchant.id->Option.getOr("") === merchantId &&
+        value.profile.id->Option.isNone
+      ) {
+        ManageUser
+      } else if (
+        // Org level user
+        value.org.id->Option.getOr("") === orgId &&
+        value.merchant.id->Option.isNone &&
         value.profile.id->Option.isNone
       ) {
         ManageUser
@@ -91,7 +95,7 @@ module TableRowForUserDetails = {
         </RenderIf>
         <td className=tableElementCss> {profileName->React.string} </td>
         <td className=tableElementCss>
-          {value.roleId->snakeToTitle->capitalizeString->React.string}
+          {value.roleName->snakeToTitle->capitalizeString->React.string}
         </td>
         <td className=tableElementCss>
           <p className={`${statusColor} px-4 py-1 w-fit rounded-full`}>

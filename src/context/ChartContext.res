@@ -91,6 +91,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
   let {allFilterDimension} = chartEntity
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let sortingParams = React.useMemo((): option<AnalyticsNewUtils.sortedBasedOn> => {
     switch chartEntity {
@@ -342,6 +343,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               )->JSON.stringify,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
               ~betaEndpointConfig=?betaEndPointConfig,
+              ~xFeatureRoute,
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch`)
             ->then(
@@ -400,6 +402,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             )->JSON.stringify,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
+            ~xFeatureRoute,
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
           ->then(text => {
@@ -467,6 +470,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               )->JSON.stringify,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
               ~betaEndpointConfig=?betaEndPointConfig,
+              ~xFeatureRoute,
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch bottomChart`)
             ->then(
@@ -522,6 +526,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             )->JSON.stringify,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
             ~betaEndpointConfig=?betaEndPointConfig,
+            ~xFeatureRoute,
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
           ->then(text => {
@@ -579,6 +584,7 @@ module SDKAnalyticsChartContext = {
     ~segmentValue: option<array<string>>=?,
     ~differentTimeValues: option<array<AnalyticsUtils.timeRanges>>=?,
   ) => {
+    let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let parentToken = AuthWrapperUtils.useTokenParent(Original)
     let addLogsAroundFetch = AnalyticsLogUtilsHook.useAddLogsAroundFetchNew()
     let betaEndPointConfig = React.useContext(BetaEndPointConfigProvider.betaEndPointConfig)
@@ -810,6 +816,7 @@ module SDKAnalyticsChartContext = {
                   )->JSON.stringify,
                   ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
                   ~betaEndpointConfig=?betaEndPointConfig,
+                  ~xFeatureRoute,
                 )
                 ->addLogsAroundFetch(~logTitle=`Chart fetch`)
                 ->then(text => {
@@ -849,6 +856,7 @@ module SDKAnalyticsChartContext = {
                         )->JSON.stringify,
                         ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
                         ~betaEndpointConfig=?betaEndPointConfig,
+                        ~xFeatureRoute,
                       )
                       ->addLogsAroundFetch(~logTitle=`Chart fetch`)
                       ->then(

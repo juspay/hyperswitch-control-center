@@ -187,6 +187,14 @@ let threeDsRequestorUrl = FormRenderer.makeFieldInfo(
   ~isRequired=false,
 )
 
+let maxAutoRetries = FormRenderer.makeFieldInfo(
+  ~label="Max Auto Retries",
+  ~name="max_auto_retries_enabled",
+  ~placeholder="Enter number of max auto retries",
+  ~customInput=InputFields.numericTextInput(),
+  ~isRequired=true,
+)
+
 module ErrorUI = {
   @react.component
   let make = (~text) => {

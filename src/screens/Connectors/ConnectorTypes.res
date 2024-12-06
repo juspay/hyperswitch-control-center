@@ -96,6 +96,7 @@ type processorTypes =
   | FIUU
   | NOVALNET
   | DEUTSCHEBANK
+  | NEXIXPAY
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO | NETCETERA
 
@@ -130,9 +131,11 @@ type paymentMethodTypes =
   | Debit
   | GooglePay
   | ApplePay
+  | SamsungPay
   | PayPal
   | BankDebit
   | OpenBankingPIS
+  | Paze
   | UnknownPaymentMethodType(string)
 
 type advancedConfigurationList = {
@@ -214,6 +217,56 @@ type wasmExtraPayload = {
 
 // This type are used for FRM configuration which need to moved to wasm
 
+type headerKey = {auth_type: string, api_key: string}
+type bodyKey = {
+  auth_type: string,
+  api_key: string,
+  key1: string,
+}
+type signatureKey = {
+  auth_type: string,
+  api_key: string,
+  key1: string,
+  api_secret: string,
+}
+type multiAuthKey = {
+  auth_type: string,
+  api_key: string,
+  key1: string,
+  api_secret: string,
+  key2: string,
+}
+type currencyKey = {
+  auth_type: string,
+  merchant_id_classic: string,
+  password_classic: string,
+  username_classic: string,
+}
+type currencyAuthKey = {auth_key_map: Js.Dict.t<JSON.t>, auth_type: string}
+type certificateAuth = {
+  auth_type: string,
+  certificate: string,
+  private_key: string,
+}
+
+type connectorAuthType =
+  | HeaderKey
+  | BodyKey
+  | SignatureKey
+  | MultiAuthKey
+  | CurrencyAuthKey
+  | CertificateAuth
+  | UnKnownAuthType
+
+type connectorAuthTypeObj =
+  | HeaderKey(headerKey)
+  | BodyKey(bodyKey)
+  | SignatureKey(signatureKey)
+  | MultiAuthKey(multiAuthKey)
+  | CurrencyAuthKey(currencyAuthKey)
+  | CertificateAuth(certificateAuth)
+  | UnKnownAuthType(JSON.t)
+
 type connectorAccountDetails = {
   auth_type: string,
   api_secret?: string,
@@ -250,7 +303,7 @@ type connectorPayload = {
   connector_type: string,
   connector_name: string,
   connector_label: string,
-  connector_account_details: connectorAccountDetails,
+  connector_account_details: connectorAuthTypeObj,
   test_mode: bool,
   disabled: bool,
   payment_methods_enabled: payment_methods_enabled,

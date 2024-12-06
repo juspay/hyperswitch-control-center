@@ -101,6 +101,7 @@ let connectorList: array<connectorTypes> = [
   Processors(WELLSFARGO),
   Processors(NOVALNET),
   Processors(DEUTSCHEBANK),
+  Processors(NEXIXPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -151,6 +152,8 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
   | "apple_pay" => ApplePay
   | "paypal" => PayPal
   | "open_banking_pis" => OpenBankingPIS
+  | "samsung_pay" => SamsungPay
+  | "paze" => Paze
   | _ => UnknownPaymentMethodType(paymentMethodType)
   }
 }
@@ -492,7 +495,9 @@ let deutscheBankInfo = {
 let taxJarInfo = {
   description: "TaxJar is reimagining how businesses manage sales tax compliance. Its cloud-based platform automates the entire sales tax life cycle across all sales channels — from calculations and nexus tracking to reporting and filing.",
 }
-
+let nexixpayInfo = {
+  description: "Nexi's latest generation virtual POS is designed for those who, through a website, want to sell goods or services by managing payments online.",
+}
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -597,6 +602,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | FIUU => "fiuu"
   | NOVALNET => "novalnet"
   | DEUTSCHEBANK => "deutschebank"
+  | NEXIXPAY => "nexixpay"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -712,6 +718,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "fiuu" => Processors(FIUU)
     | "novalnet" => Processors(NOVALNET)
     | "deutschebank" => Processors(DEUTSCHEBANK)
+    | "nexixpay" => Processors(NEXIXPAY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -811,6 +818,7 @@ let getProcessorInfo = connector => {
   | FIUU => fiuuInfo
   | NOVALNET => novalnetInfo
   | DEUTSCHEBANK => deutscheBankInfo
+  | NEXIXPAY => nexixpayInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -914,6 +922,7 @@ let configKeysToIgnore = [
   "metadata",
   "connector_webhook_details",
   "additional_merchant_data",
+  "connector_wallets_details",
 ]
 
 let verifyConnectorIgnoreField = [
@@ -1179,7 +1188,7 @@ let validateConnectorRequiredFields = (
         vector->Js.Vector.set(index, res)
       })
 
-      let _ = Js.Vector.filterInPlace(val => val == true, vector)
+      Js.Vector.filterInPlace(val => val, vector)
 
       if vector->Js.Vector.length === 0 {
         Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
@@ -1248,16 +1257,6 @@ let getPlaceHolder = label => {
   `Enter ${label->LogicUtils.snakeToTitle}`
 }
 
-let getConnectorDetailsValue = (connectorInfo: connectorPayload, str) => {
-  switch str {
-  | "api_key" => connectorInfo.connector_account_details.api_key
-  | "api_secret" => connectorInfo.connector_account_details.api_secret
-  | "key1" => connectorInfo.connector_account_details.key1
-  | "key2" => connectorInfo.connector_account_details.key2
-  | "auth_type" => Some(connectorInfo.connector_account_details.auth_type)
-  | _ => Some("")
-  }
-}
 let connectorLabelDetailField = Dict.fromArray([
   ("connector_label", "Connector label"->JSON.Encode.string),
 ])
@@ -1438,6 +1437,12 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
       dict->getDictfromDict("pm_auth_config")->isEmptyDict
         ? JSON.Encode.null
         : dict->getDictfromDict("pm_auth_config")->JSON.Encode.object,
+    ),
+    (
+      "connector_wallets_details",
+      dict->getDictfromDict("connector_wallets_details")->isEmptyDict
+        ? JSON.Encode.null
+        : dict->getDictfromDict("connector_wallets_details")->JSON.Encode.object,
     ),
   ])
 
@@ -1639,6 +1644,7 @@ let getDisplayNameForProcessor = connector =>
   | FIUU => "Fiuu"
   | NOVALNET => "Novalnet"
   | DEUTSCHEBANK => "Deutsche Bank"
+  | NEXIXPAY => "Nexixpay"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

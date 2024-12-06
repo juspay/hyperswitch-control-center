@@ -656,6 +656,7 @@ let make = (
   ~showborderColor=true,
   ~tableHeadingTextClass="",
   ~nonFrozenTableParentClass="",
+  ~showAutoScroll=false,
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
@@ -888,7 +889,30 @@ let make = (
       ? ""
       : "overflow-scroll"
   let parentBorderRadius = !isHighchartLegend ? "rounded-lg" : ""
+  let tableScrollbarCss = `
+  @supports (-webkit-appearance: none) {
+    .table-scrollbar {
+      scrollbar-width: auto;
+      scrollbar-color: #8a8c8f; 
+    }
 
+    .table-scrollbar::-webkit-scrollbar {
+      display: block;
+      height: 4px;
+      width: 5px;
+    }
+
+    .table-scrollbar::-webkit-scrollbar-thumb {
+      background-color: #8a8c8f; 
+      border-radius: 3px;
+    }
+
+    .table-scrollbar::-webkit-scrollbar-track {
+      display:none;
+    }
+  }
+    `
+  let autoscrollcss = showAutoScroll ? "table-scrollbar" : ""
   <div
     className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getOr(
         parentBorderRadius,
@@ -905,8 +929,9 @@ let make = (
     } //replaced "overflow-auto" -> to be tested with master
   >
     <RenderIf condition={frozenUpto > 0}> {frozenTable} </RenderIf>
+    <style> {React.string(tableScrollbarCss)} </style>
     <div
-      className={`flex-1 ${overflowClass} no-scrollbar ${childMinWidthClass} ${nonFrozenTableParentClass}`}>
+      className={`flex-1 ${overflowClass} no-scrollbar ${childMinWidthClass} ${nonFrozenTableParentClass} ${autoscrollcss} `}>
       nonFrozenTable
     </div>
     {switch customizeColumnNewTheme {

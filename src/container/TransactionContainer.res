@@ -3,13 +3,14 @@ let make = () => {
   open HSwitchUtils
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(userPermissionAtom)
+
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
   let {payOut} = featureFlagAtom->Recoil.useRecoilValueFromAtom
   <div key={(transactionEntity :> string)}>
     {switch url.path->urlPath {
     | list{"payments", ...remainingPath} =>
-      <AccessControl permission=userPermissionJson.operationsView>
+      <AccessControl authorization={userHasAccess(~groupAccess=OperationsView)}>
         <FilterContext key="payments" index="payments">
           <EntityScaffold
             entityName="Payments"
@@ -21,7 +22,7 @@ let make = () => {
         </FilterContext>
       </AccessControl>
     | list{"payouts", ...remainingPath} =>
-      <AccessControl isEnabled={payOut} permission=userPermissionJson.operationsView>
+      <AccessControl isEnabled={payOut} authorization={userHasAccess(~groupAccess=OperationsView)}>
         <FilterContext key="payouts" index="payouts">
           <EntityScaffold
             entityName="Payouts"
@@ -33,7 +34,7 @@ let make = () => {
         </FilterContext>
       </AccessControl>
     | list{"refunds", ...remainingPath} =>
-      <AccessControl permission=userPermissionJson.operationsView>
+      <AccessControl authorization={userHasAccess(~groupAccess=OperationsView)}>
         <FilterContext key="refunds" index="refunds">
           <EntityScaffold
             entityName="Refunds"
@@ -45,14 +46,16 @@ let make = () => {
         </FilterContext>
       </AccessControl>
     | list{"disputes", ...remainingPath} =>
-      <AccessControl permission=userPermissionJson.operationsView>
-        <EntityScaffold
-          entityName="Disputes"
-          remainingPath
-          access=Access
-          renderList={() => <Disputes />}
-          renderShow={(id, key) => <ShowDisputes id profileId={key} />}
-        />
+      <AccessControl authorization={userHasAccess(~groupAccess=OperationsView)}>
+        <FilterContext key="disputes" index="disputes">
+          <EntityScaffold
+            entityName="Disputes"
+            remainingPath
+            access=Access
+            renderList={() => <Disputes />}
+            renderShow={(id, key) => <ShowDisputes id profileId={key} />}
+          />
+        </FilterContext>
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />

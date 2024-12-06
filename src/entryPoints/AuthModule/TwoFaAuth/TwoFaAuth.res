@@ -147,7 +147,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     try {
       open CommonAuthUtils
       let valuesDict = values->getDictFromJsonObject
-      let email = valuesDict->getString("email", "")
+      let email = valuesDict->getString("email", "")->String.toLowerCase
       setEmail(_ => email)
       logMixpanelEvents(email)
       setMixpanelIdentity(~distinctId=email)->ignore
@@ -291,24 +291,26 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
             <ResendBtn callBackFun={resendEmail} />
           | _ => React.null
           }}
-          <div id="auth-submit-btn" className="flex flex-col gap-2">
-            {switch authType {
-            | LoginWithPassword
-            | LoginWithEmail
-            | ResetPassword
-            | ForgetPassword
-            | ResendVerifyEmail
-            | SignUP =>
-              <FormRenderer.SubmitButton
-                customSumbitButtonStyle="!w-full !rounded"
-                text=submitBtnText
-                userInteractionRequired=true
-                showToolTip=false
-                loadingText="Loading..."
-              />
-            | _ => React.null
-            }}
-          </div>
+          <AddDataAttributes attributes=[("data-testid", "auth-submit-btn")]>
+            <div id="auth-submit-btn" className="flex flex-col gap-2">
+              {switch authType {
+              | LoginWithPassword
+              | LoginWithEmail
+              | ResetPassword
+              | ForgetPassword
+              | ResendVerifyEmail
+              | SignUP =>
+                <FormRenderer.SubmitButton
+                  customSumbitButtonStyle="!w-full !rounded"
+                  text=submitBtnText
+                  userInteractionRequired=true
+                  showToolTip=false
+                  loadingText="Loading..."
+                />
+              | _ => React.null
+              }}
+            </div>
+          </AddDataAttributes>
           <AddDataAttributes attributes=[("data-testid", "card-foot-text")]>
             <div> {note} </div>
           </AddDataAttributes>

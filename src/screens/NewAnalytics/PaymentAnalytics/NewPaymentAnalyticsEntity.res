@@ -1,9 +1,19 @@
 open NewAnalyticsTypes
+// OverView section
+let overviewSectionEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: true,
+    metrics: [],
+  },
+  title: "OverView Section",
+  domain: #payments,
+}
+
 // Payments Lifecycle
 let paymentsLifeCycleEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_processed_amount],
+    metrics: [#sessionized_payment_processed_amount],
   },
   title: "Payments Lifecycle",
   domain: #payments,
@@ -12,6 +22,7 @@ let paymentsLifeCycleEntity: moduleEntity = {
 let paymentsLifeCycleChartEntity: chartEntity<
   SankeyGraphTypes.sankeyPayload,
   SankeyGraphTypes.sankeyGraphOptions,
+  PaymentsLifeCycleTypes.paymentLifeCycle,
 > = {
   getObjects: PaymentsLifeCycleUtils.paymentsLifeCycleMapper,
   getChatOptions: SankeyGraphUtils.getSankyGraphOptions,
@@ -21,7 +32,7 @@ let paymentsLifeCycleChartEntity: chartEntity<
 let paymentsProcessedEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_processed_amount],
+    metrics: [#sessionized_payment_processed_amount],
   },
   title: "Payments Processed",
   domain: #payments,
@@ -30,6 +41,7 @@ let paymentsProcessedEntity: moduleEntity = {
 let paymentsProcessedChartEntity: chartEntity<
   LineGraphTypes.lineGraphPayload,
   LineGraphTypes.lineGraphOptions,
+  JSON.t,
 > = {
   getObjects: PaymentsProcessedUtils.paymentsProcessedMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
@@ -53,7 +65,7 @@ let paymentsProcessedTableEntity = {
 let paymentsSuccessRateEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_success_rate],
+    metrics: [#sessionized_payments_success_rate],
   },
   title: "Payments Success Rate",
   domain: #payments,
@@ -62,38 +74,73 @@ let paymentsSuccessRateEntity: moduleEntity = {
 let paymentsSuccessRateChartEntity: chartEntity<
   LineGraphTypes.lineGraphPayload,
   LineGraphTypes.lineGraphOptions,
+  JSON.t,
 > = {
   getObjects: PaymentsSuccessRateUtils.paymentsSuccessRateMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
 }
 
-// Payments Distribution
-let paymentsDistributionEntity: moduleEntity = {
+// Successful Payments Distribution
+let successfulPaymentsDistributionEntity: moduleEntity = {
   requestBodyConfig: {
     delta: false,
-    metrics: [#payment_success_rate],
+    metrics: [#payments_distribution],
   },
-  title: "Payments Distribution",
+  title: "Successful Payments Distribution",
   domain: #payments,
 }
 
-let paymentsDistributionChartEntity: chartEntity<
+let successfulPaymentsDistributionChartEntity: chartEntity<
   BarGraphTypes.barGraphPayload,
   BarGraphTypes.barGraphOptions,
+  JSON.t,
 > = {
-  getObjects: PaymentsDistributionUtils.paymentsDistributionMapper,
+  getObjects: SuccessfulPaymentsDistributionUtils.successfulPaymentsDistributionMapper,
   getChatOptions: BarGraphUtils.getBarGraphOptions,
 }
 
-let paymentsDistributionTableEntity = {
-  open PaymentsDistributionUtils
+let successfulPaymentsDistributionTableEntity = {
+  open SuccessfulPaymentsDistributionUtils
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects,
     ~dataKey="queryData",
-    ~defaultColumns=visibleColumns,
+    ~defaultColumns=[],
     ~requiredSearchFieldsList=[],
-    ~allColumns=visibleColumns,
+    ~allColumns=[],
+    ~getCell,
+    ~getHeading,
+  )
+}
+
+// Failed Payments Distribution
+let failedPaymentsDistributionEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [#payments_distribution],
+  },
+  title: "Failed Payments Distribution",
+  domain: #payments,
+}
+
+let failedPaymentsDistributionChartEntity: chartEntity<
+  BarGraphTypes.barGraphPayload,
+  BarGraphTypes.barGraphOptions,
+  JSON.t,
+> = {
+  getObjects: FailedPaymentsDistributionUtils.failedPaymentsDistributionMapper,
+  getChatOptions: BarGraphUtils.getBarGraphOptions,
+}
+
+let failedPaymentsDistributionTableEntity = {
+  open FailedPaymentsDistributionUtils
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects,
+    ~dataKey="queryData",
+    ~defaultColumns=[],
+    ~requiredSearchFieldsList=[],
+    ~allColumns=[],
     ~getCell,
     ~getHeading,
   )

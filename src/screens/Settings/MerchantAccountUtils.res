@@ -19,6 +19,8 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     collect_billing_details_from_wallet_connector,
     always_collect_billing_details_from_wallet_connector,
     always_collect_shipping_details_from_wallet_connector,
+    is_auto_retries_enabled,
+    max_auto_retries_enabled,
   } = profileRecord
 
   let profileInfo =
@@ -44,6 +46,9 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     "always_collect_shipping_details_from_wallet_connector",
     always_collect_shipping_details_from_wallet_connector,
   )
+
+  profileInfo->setOptionBool("is_auto_retries_enabled", is_auto_retries_enabled)
+  profileInfo->setOptionInt("max_auto_retries_enabled", max_auto_retries_enabled)
 
   profileInfo->setDictNull("webhook_url", webhook_details.webhook_url)
   profileInfo->setOptionString("webhook_version", webhook_details.webhook_version)
@@ -189,6 +194,17 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "always_collect_billing_details_from_wallet_connector",
     valuesDict->getOptionBool("always_collect_billing_details_from_wallet_connector"),
   )
+
+  profileDetailsDict->setOptionBool(
+    "is_auto_retries_enabled",
+    valuesDict->getOptionBool("is_auto_retries_enabled"),
+  )
+
+  profileDetailsDict->setOptionInt(
+    "max_auto_retries_enabled",
+    valuesDict->getOptionInt("max_auto_retries_enabled"),
+  )
+
   profileDetailsDict->setOptionBool(
     "is_connector_agnostic_mit_enabled",
     valuesDict->getOptionBool("is_connector_agnostic_mit_enabled"),
@@ -308,6 +324,7 @@ let validationFieldsMapper = key => {
   | AuthetnticationConnectors(_) => "authentication_connectors"
   | ThreeDsRequestorUrl => "three_ds_requestor_url"
   | UnknownValidateFields(key) => key
+  | MaxAutoRetries => "max_auto_retries_enabled"
   }
 }
 
@@ -343,14 +360,6 @@ let checkValueChange = (~initialDict, ~valuesDict) => {
       }
     })
   key->Option.isSome || updatedKeys > initialKeys
-}
-
-let validateEmptyValue = (key, errors) => {
-  switch key {
-  | ReturnUrl =>
-    Dict.set(errors, key->validationFieldsMapper, "Please enter a return url"->JSON.Encode.string)
-  | _ => ()
-  }
 }
 
 let validateEmptyArray = (key, errors, arrayValue) => {
@@ -394,7 +403,6 @@ let validateCustom = (key, errors, value, isLiveMode) => {
         Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->JSON.Encode.string)
       }
     }
-
   | _ => ()
   }
 }
@@ -410,10 +418,24 @@ let validateMerchantAccountForm = (
 
   let valuesDict = values->getDictFromJsonObject
   fieldsToValidate->Array.forEach(key => {
-    let value = getString(valuesDict, key->validationFieldsMapper, "")->getNonEmptyString
-    switch value {
-    | Some(str) => key->validateCustom(errors, str, isLiveMode)
-    | _ => ()
+    switch key {
+    | MaxAutoRetries => {
+        let value = getInt(valuesDict, key->validationFieldsMapper, 0)
+        if !RegExp.test(%re("/^(?:[1-5])$/"), value->Int.toString) {
+          Dict.set(
+            errors,
+            key->validationFieldsMapper,
+            "Please enter integer value from 1 to 5"->JSON.Encode.string,
+          )
+        }
+      }
+    | _ => {
+        let value = getString(valuesDict, key->validationFieldsMapper, "")->getNonEmptyString
+        switch value {
+        | Some(str) => key->validateCustom(errors, str, isLiveMode)
+        | _ => ()
+        }
+      }
     }
   })
 
@@ -464,6 +486,8 @@ let defaultValueForBusinessProfile = {
   always_collect_billing_details_from_wallet_connector: None,
   outgoing_webhook_custom_http_headers: None,
   is_connector_agnostic_mit_enabled: None,
+  is_auto_retries_enabled: None,
+  max_auto_retries_enabled: None,
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {

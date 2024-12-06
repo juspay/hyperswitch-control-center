@@ -1,7 +1,3 @@
-let fetchRequestIdFromAPI = res => {
-  res->Fetch.Response.headers->Fetch.Headers.get("x-request-id")->Option.getOr("")
-}
-
 let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
   switch (url.path, url.search) {
   | (list{"payments", ""}, _)
@@ -42,6 +38,11 @@ let delay = ms =>
 
 let checkIsInternalUser = roleId => {
   open UserManagementUtils
-  roleId->stringToVariantMapper == InternalViewOnly ||
-    roleId->stringToVariantMapper == InternalAdmin
+  let userType = roleId->stringToVariantMapperInternalUser
+  userType == InternalViewOnly || userType == InternalAdmin
+}
+
+let checkIsTenantAdmin = roleId => {
+  open UserManagementUtils
+  roleId->stringToVariantMapperTenantAdmin == TenantAdmin
 }

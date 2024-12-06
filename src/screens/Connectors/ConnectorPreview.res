@@ -21,7 +21,7 @@ module KeyAndCopyArea = {
         {copyValue->React.string}
       </p>
       <div
-        className="cursor-pointer h-20 w-20 pt-1"
+        className="cursor-pointer w-20 pt-1"
         onClick={_ => {
           Clipboard.writeText(copyValue)
           showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
@@ -127,8 +127,6 @@ module ConnectorSummaryGrid = {
   let make = (
     ~connectorInfo: ConnectorTypes.connectorPayload,
     ~connector,
-    ~isPayoutFlow,
-    ~setScreenState,
     ~setCurrentStep,
     ~updateStepValue=None,
     ~getConnectorDetails=None,
@@ -148,26 +146,32 @@ module ConnectorSummaryGrid = {
       ~connectorName={connectorInfo.merchant_connector_id},
       ~merchantId,
     )
+    let (processorType, _) = connectorInfo.connector_type->ConnectorUtils.connectorTypeTuple
+    let {connector_name: connectorName} = connectorInfo
+
     let connectorDetails = React.useMemo(() => {
       try {
-        if connector->LogicUtils.isNonEmptyString {
-          let dict = isPayoutFlow
-            ? Window.getPayoutConnectorConfig(connector)
-            : Window.getConnectorConfig(connector)
-
+        if connectorName->LogicUtils.isNonEmptyString {
+          let dict = switch processorType {
+          | PaymentProcessor => Window.getConnectorConfig(connectorName)
+          | PayoutProcessor => Window.getPayoutConnectorConfig(connectorName)
+          | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
+          | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
+          | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
+          | PaymentVas => JSON.Encode.null
+          }
           dict
         } else {
-          Dict.make()->JSON.Encode.object
+          JSON.Encode.null
         }
       } catch {
       | Exn.Error(e) => {
           Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-          let err = Exn.message(e)->Option.getOr("Something went wrong")
-          setScreenState(_ => PageLoaderWrapper.Error(err))
-          Dict.make()->JSON.Encode.object
+          let _ = Exn.message(e)->Option.getOr("Something went wrong")
+          JSON.Encode.null
         }
       }
-    }, [connector])
+    }, [connectorInfo.merchant_connector_id])
     let (_, connectorAccountFields, _, _, _, _, _) = ConnectorUtils.getConnectorFields(
       connectorDetails,
     )
@@ -176,8 +180,8 @@ module ConnectorSummaryGrid = {
     | _ => true
     }
 
-    <div className="p-2 md:px-10">
-      <div className="grid grid-cols-4 my-12">
+    <>
+      <div className="grid grid-cols-4 border-b md:px-10 py-8">
         <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
         <AddDataAttributes attributes=[("data-testid", "connector_status"->String.toLowerCase)]>
           <div
@@ -186,7 +190,7 @@ module ConnectorSummaryGrid = {
           </div>
         </AddDataAttributes>
       </div>
-      <div className="grid grid-cols-4 my-12">
+      <div className="grid grid-cols-4 border-b md:px-10 py-8">
         <div className="flex items-start">
           <h4 className="text-lg font-semibold"> {"Webhook Endpoint"->React.string} </h4>
           <ToolTip
@@ -201,42 +205,47 @@ module ConnectorSummaryGrid = {
           <KeyAndCopyArea copyValue={copyValueOfWebhookEndpoint} />
         </div>
       </div>
-      <div className="grid grid-cols-4 my-12">
+      <div className="grid grid-cols-4 border-b  md:px-10 py-8">
         <h4 className="text-lg font-semibold"> {"Profile"->React.string} </h4>
         <div className="col-span-3">
           {`${currentProfileName.profile_name} - ${connectorInfo.profile_id}`->React.string}
         </div>
       </div>
-      <div className="grid grid-cols-4 my-12">
+      <div className="grid grid-cols-4 border-b  md:px-10 py-8">
         <div className="flex items-start">
-          <h4 className="text-lg font-semibold"> {"API Keys"->React.string} </h4>
+          <h4 className="text-lg font-semibold"> {"Credentials"->React.string} </h4>
         </div>
-        <div className="flex flex-col gap-6 col-span-3">
+        <div className="flex flex-col gap-6  col-span-3">
           <div className="flex gap-12">
             <div className="flex flex-col gap-6 w-1/2">
-              {connectorAccountFields
-              ->Dict.keysToArray
-              ->Array.mapWithIndex((field, index) => {
-                open LogicUtils
-                let label = connectorAccountFields->getString(field, "")
-                <InfoField
-                  key={index->Int.toString}
-                  label={label}
-                  render={connectorInfo->ConnectorUtils.getConnectorDetailsValue(field)}
-                />
-              })
-              ->React.array}
+              <ConnectorPreviewHelper.PreviewCreds connectorAccountFields connectorInfo />
             </div>
             <RenderIf condition={isUpdateFlow}>
               <ConnectorUpdateAuthCreds connectorInfo getConnectorDetails />
             </RenderIf>
           </div>
+          <RenderIf
+            condition={connectorInfo.connector_name->ConnectorUtils.getConnectorNameTypeFromString ==
+              Processors(FIUU)}>
+            <div
+              className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
+              <Icon name="info-vacent" size=18 />
+              <div>
+                <p className="mb-3">
+                  {"To ensure mandates work correctly with Fiuu, please verify that the Source Verification Key for webhooks is set accurately in your configuration. Without the correct Source Verification Key, mandates may not function as expected."->React.string}
+                </p>
+                <p>
+                  {"Please review your webhook settings and confirm that the Source Verification Key is properly configured to avoid any integration issues."->React.string}
+                </p>
+              </div>
+            </div>
+          </RenderIf>
         </div>
         <div />
       </div>
       {switch updateStepValue {
       | Some(state) =>
-        <div className="grid grid-cols-4  my-12">
+        <div className="grid grid-cols-4 border-b md:px-10 py-8">
           <div className="flex items-start">
             <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
           </div>
@@ -302,7 +311,7 @@ module ConnectorSummaryGrid = {
 
       | None => React.null
       }}
-    </div>
+    </>
   }
 }
 
@@ -312,7 +321,6 @@ let make = (
   ~currentStep: ConnectorTypes.steps,
   ~setCurrentStep,
   ~isUpdateFlow,
-  ~isPayoutFlow,
   ~showMenuOption=true,
   ~setInitialValues,
   ~getPayPalStatus,
@@ -327,6 +335,7 @@ let make = (
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let {setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -354,9 +363,10 @@ let make = (
         isConnectorDisabled,
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID))
-      let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      let res = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post)
+      fetchConnectorListResponse()->ignore
+      setInitialValues(_ => res)
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess)
-      RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=redirectPath))
     } catch {
     | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
     }
@@ -432,8 +442,6 @@ let make = (
       <ConnectorSummaryGrid
         connectorInfo
         connector
-        isPayoutFlow
-        setScreenState
         setCurrentStep
         updateStepValue={Some(ConnectorTypes.PaymentMethods)}
         getConnectorDetails
