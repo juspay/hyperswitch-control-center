@@ -340,12 +340,12 @@ let make = (
                                 `group flex rounded-md items-center w-48 px-2 py-2 text-sm font-medium ${activeClasses}`
                               }>
                               <RenderIf condition={option.label->isNonEmptyString}>
-                                <div className="mr-5">
+                                <div className="mr-5 text-left">
                                   {option.label->snakeToTitle->React.string}
                                 </div>
                               </RenderIf>
                               <RenderIf condition={option.label->isEmptyString}>
-                                <div className="mr-5">
+                                <div className="mr-5 text-left">
                                   {option.inputNames
                                   ->getValueFromArray(0, "")
                                   ->snakeToTitle
