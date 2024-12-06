@@ -289,6 +289,29 @@ type amountFilter =
   | InBetween
   | UnknownRange(string)
 
+type amountFilterChild = [
+  | #start_amount
+  | #end_amount
+  | #amount_option
+  | #unknownchild
+]
+
+let mapStringToamountFilterChild = key => {
+  switch key {
+  | "start_amount" => #start_amount
+  | "end_amount" => #end_amount
+  | "amount_option" => #amount_option
+  | _ => #unknownchild
+  }
+}
+let mapAmountFilterChildToString = key => {
+  switch key {
+  | #start_amount => "start_amount"
+  | #end_amount => "end_amount"
+  | #amount_option => "amount_option"
+  | #unknownchild => "unknownchild"
+  }
+}
 let getSortString = (value: LoadedTable.sortOb) =>
   switch value.sortType {
   | ASC => "asc"

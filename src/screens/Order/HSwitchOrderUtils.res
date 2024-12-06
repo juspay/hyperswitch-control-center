@@ -1,3 +1,4 @@
+open LogicUtils
 type status =
   | Succeeded
   | Failed
@@ -146,14 +147,14 @@ module CopyLinkTableCell = {
     }
 
     <div className="flex items-center">
-      {if displayValue->LogicUtils.isNonEmptyString {
+      {if displayValue->isNonEmptyString {
         <div className=customParentClass>
           <RenderIf condition={isTextVisible || displayValue->String.length <= endValue}>
             <div className=customTextCss> {displayValue->React.string} </div>
           </RenderIf>
           <RenderIf
             condition={!isTextVisible &&
-            displayValue->LogicUtils.isNonEmptyString &&
+            displayValue->isNonEmptyString &&
             displayValue->String.length > endValue}>
             <div className="flex text-nowrap gap-1">
               <p className="">
@@ -209,7 +210,7 @@ module EllipsisText = {
       <RenderIf condition={isTextVisible}>
         <div> {text} </div>
       </RenderIf>
-      <RenderIf condition={!isTextVisible && displayValue->LogicUtils.isNonEmptyString}>
+      <RenderIf condition={!isTextVisible && displayValue->isNonEmptyString}>
         <div className="flex text-nowrap gap-1">
           <p className="">
             {`${displayValue->String.slice(~start=0, ~end=endValue)}`->React.string}
@@ -226,44 +227,42 @@ module EllipsisText = {
 }
 let validateIsNull = value => {
   switch value {
-  | Some(val) if val->LogicUtils.isNullJson => true
+  | Some(val) if val->isNullJson => true
   | None => true
   | _ => false
   }
 }
-let validateAmountLessThanMax = amount =>
-  amount->LogicUtils.getFloatFromJson(0.0)->Float.toString->String.length > 6
+let validateAmountLessThanMax = amount => amount->getFloatFromJson(0.0) > 100000.0
 
 let validateInBetween = (sAmntK, eAmtK) => {
   switch (sAmntK, eAmtK) {
   | (start, end) =>
-    let startAmt = start->LogicUtils.getFloatFromJson(0.0)
-    let endAmt = end->LogicUtils.getFloatFromJson(0.0)
-    if (
-      validateIsNull(start) ||
-      validateIsNull(end) ||
-      validateAmountLessThanMax(start) ||
-      validateAmountLessThanMax(end) ||
-      endAmt <= startAmt
-    ) {
-      true
-    } else {
-      false
-    }
+    let startAmt = start->getFloatFromJson(0.0)
+    let endAmt = end->getFloatFromJson(0.0)
+    validateIsNull(start) ||
+    validateIsNull(end) ||
+    validateAmountLessThanMax(start) ||
+    validateAmountLessThanMax(end) ||
+    endAmt <= startAmt
   }
 }
 
 let validateAmount = dict => {
-  open LogicUtils
-  let sAmntK = dict->getvalFromDict("start_amount")
-  let eAmtK = dict->getvalFromDict("end_amount")
-  let amountOption = dict->getvalFromDict("amount_option")->Option.getOr(JSON.Encode.null)
-  let haserror = switch amountOption->JSON.Decode.string {
-  | Some("GreaterThanOrEqualTo")
-  | Some("EqualTo") =>
+  let sAmntK = dict->getvalFromDict(#start_amount->OrderTypes.mapAmountFilterChildToString)
+  let eAmtK = dict->getvalFromDict(#end_amount->OrderTypes.mapAmountFilterChildToString)
+  let amountOption =
+    dict
+    ->getvalFromDict(#amount_option->OrderTypes.mapAmountFilterChildToString)
+    ->Option.getOr(JSON.Encode.null)
+    ->getStringFromJson("")
+    ->OrderTypes.mapStringToRange
+
+  let haserror = switch amountOption {
+  | GreaterThanOrEqualTo
+  | EqualTo =>
     validateIsNull(sAmntK) || validateAmountLessThanMax(sAmntK)
-  | Some("LessThanOrEqualTo") => validateIsNull(eAmtK) || validateAmountLessThanMax(eAmtK)
-  | Some("InBetween") => validateInBetween(sAmntK, eAmtK)
+  | LessThanOrEqualTo => validateIsNull(eAmtK) || validateAmountLessThanMax(eAmtK)
+  | InBetween => validateInBetween(sAmntK, eAmtK)
   | _ => false
   }
   haserror

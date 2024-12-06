@@ -26,22 +26,6 @@ type filter = [
   | #unknown
 ]
 
-type amountFilterChild = [
-  | #start_amount
-  | #end_amount
-  | #amount_option
-  | #unknownchild
-]
-
-let mapStringToamountFilterChild = (key: string) => {
-  switch key {
-  | "start_amount" => #start_amount
-  | "end_amount" => #end_amount
-  | "amount_option" => #amount_option
-  | _ => #unknownchild
-  }
-}
-
 let getFilterTypeFromString = filterType => {
   switch filterType {
   | "connector" => #connector
@@ -61,8 +45,8 @@ let isParentChildFilterMatch = (name, key) => {
   let parentFilter = name->getFilterTypeFromString
   let child = key->mapStringToamountFilterChild
   switch (parentFilter, child) {
-  | (#amount, #start_amount) => true
-  | (#amount, #end_amount) => true
+  | (#amount, #start_amount)
+  | (#amount, #end_amount)
   | (#amount, #amount_option) => true
   | _ => false
   }

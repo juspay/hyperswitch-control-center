@@ -157,10 +157,13 @@ let make = (~options) => {
     let startValue = dict->getvalFromDict("start_amount")->getFloatFromJson(0.0)->Float.toString
     let endValue = dict->getvalFromDict("end_amount")->getFloatFromJson(0.0)->Float.toString
     switch (selectedOption, startValue, endValue) {
-    | (GreaterThanOrEqualTo, s, _) if s != "0" => (true, `More or Equal to ${s}`)
-    | (EqualTo, s, _) if s != "0" => (true, `Exactly ${s}`)
-    | (LessThanOrEqualTo, _, e) if e != "0" => (true, `Less or Equal to ${e}`)
-    | (InBetween, s, e) if e != "0" && s != "0" => (true, `In Between ${s} and ${e}`)
+    | (GreaterThanOrEqualTo, start, _) if start != "0" => (true, `More or Equal to ${start}`)
+    | (EqualTo, start, _) if start != "0" => (true, `Exactly ${start}`)
+    | (LessThanOrEqualTo, _, end) if end != "0" => (true, `Less or Equal to ${end}`)
+    | (InBetween, start, end) if end != "0" && start != "0" => (
+        true,
+        `In Between ${start} and ${end}`,
+      )
     | _ => (false, selectedOption->mapRangeTypetoString)
     }
   }
