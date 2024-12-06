@@ -570,7 +570,14 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | OrderQuantity => Text(order.order_quantity)
   | ProductName => Text(order.product_name)
   | ErrorMessage => Text(order.error_message)
-  | ConnectorTransactionID => DisplayCopyCell(order.connector_transaction_id)
+  | ConnectorTransactionID =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="max-w-xs truncate whitespace-nowrap"
+        displayValue=order.connector_transaction_id
+      />,
+      "",
+    )
   }
 }
 
@@ -715,7 +722,14 @@ let getCell = (order, colType: colType): Table.cell => {
   | CancellationReason => Text(order.cancellation_reason)
   | ErrorCode => Text(order.error_code)
   | ErrorMessage => Text(order.error_message)
-  | ConnectorTransactionID => Text(order.connector_transaction_id)
+  | ConnectorTransactionID =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="max-w-xs truncate whitespace-nowrap"
+        displayValue=order.connector_transaction_id
+      />,
+      "",
+    )
   | ProfileId => Text(order.profile_id)
   | Refunds =>
     Text(
