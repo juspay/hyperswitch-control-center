@@ -51,6 +51,7 @@ tax_processor=true
 transaction_view=false
 x_feature_route=false
 tenant_user=false
+clone_payment_methods=false
 [default.merchant_config]
 [default.merchant_config.new_analytics]
 org_ids=[]
