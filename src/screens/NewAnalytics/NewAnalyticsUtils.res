@@ -142,16 +142,16 @@ let getLabelName = (~key, ~index, ~points) => {
 }
 let calculatePercentageChange = (~primaryValue, ~secondaryValue) => {
   open NewAnalyticsTypes
-  let change = secondaryValue -. primaryValue
+  let change = primaryValue -. secondaryValue
 
-  if primaryValue === 0.0 || change === 0.0 {
+  if secondaryValue === 0.0 || change === 0.0 {
     (0.0, No_Change)
   } else if change > 0.0 {
-    let diff = change /. primaryValue
+    let diff = change /. secondaryValue
     let percentage = diff *. 100.0
     (percentage, Upward)
   } else {
-    let diff = change *. -1.0 /. primaryValue
+    let diff = change *. -1.0 /. secondaryValue
     let percentage = diff *. 100.0
     (percentage, Downward)
   }
@@ -184,4 +184,29 @@ let sortQueryDataByDate = query => {
     compareLogic(valueB, valueA)
   })
   query
+}
+
+let getCategories = (data: JSON.t, index: int, key: string) => {
+  data
+  ->getArrayFromJson([])
+  ->getValueFromArray(index, []->JSON.Encode.array)
+  ->getArrayFromJson([])
+  ->Array.map(item => {
+    let value = item->getDictFromJsonObject->getString(key, "NA")
+
+    if value->isNonEmptyString && key == "time_bucket" {
+      let dateObj = value->DayJs.getDayJsForString
+      `${dateObj.month()->getMonthName} ${dateObj.format("DD")}`
+    } else {
+      value
+    }
+  })
+}
+
+let getMetaDataValue = (~data, ~index, ~key) => {
+  data
+  ->getArrayFromJson([])
+  ->getValueFromArray(index, Dict.make()->JSON.Encode.object)
+  ->getDictFromJsonObject
+  ->getFloat(key, 0.0)
 }
