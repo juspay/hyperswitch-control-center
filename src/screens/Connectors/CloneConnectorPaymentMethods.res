@@ -1,7 +1,10 @@
 module ClonePaymentMethodsModal = {
   @react.component
   let make = (~setShowModal, ~showModal) => {
-    let setRetainCloneModal = Recoil.useSetRecoilState(HyperswitchAtom.retainCloneModalAtom)
+    let showToast = ToastState.useShowToast()
+    let (retainCloneModal, setRetainCloneModal) = Recoil.useRecoilState(
+      HyperswitchAtom.retainCloneModalAtom,
+    )
     let cloneConnector = Recoil.useRecoilValueFromAtom(HyperswitchAtom.cloneConnectorAtom)
     let (buttonState, setButtonState) = Recoil.useRecoilState(
       HyperswitchAtom.cloneModalButtonStateAtom,
@@ -12,6 +15,11 @@ module ClonePaymentMethodsModal = {
         GlobalVars.appendDashboardPath(~url=`/connectors/new?name=${cloneConnector}`),
       )
       setRetainCloneModal(_ => false)
+      showToast(
+        ~toastType=ToastSuccess,
+        ~message="Payment Methods Cloned Successfully",
+        ~autoClose=true,
+      )
     }
 
     let modalBody = {
@@ -35,11 +43,13 @@ module ClonePaymentMethodsModal = {
           <p className="text-md font-medium leading-7 text-gray-700">
             {"Target Profile"->React.string}
           </p>
-          <div className="w-48">
-            <ProfileSwitch
-              showSwitchModal=false setButtonState showHeading=false customMargin="mt-8"
-            />
-          </div>
+          <RenderIf condition={retainCloneModal}>
+            <div className="w-48">
+              <ProfileSwitch
+                showSwitchModal=false setButtonState showHeading=false customMargin="mt-8"
+              />
+            </div>
+          </RenderIf>
           <div className="flex justify-center my-4">
             <Button text="Next" onClick={_ => onNextClick()} buttonState buttonType={Primary} />
           </div>
