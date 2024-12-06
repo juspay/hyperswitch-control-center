@@ -54,7 +54,7 @@ let make = (~previewOnly=false) => {
           )
         }
         let encodeFloatOrDefault = val => (val->getFloatFromJson(0.0) *. 100.0)->JSON.Encode.float
-        let hasAmountError = HSwitchOrderUtils.validateAmount(dict)
+        let hasAmountError = AmountFilterUtils.validateAmount(dict)
         if !hasAmountError {
           filters->Dict.set(
             "amount_filter",

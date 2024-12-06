@@ -225,20 +225,3 @@ module EllipsisText = {
     </div>
   }
 }
-let validateAmount = dict => {
-  let sAmntK = dict->getFloat((#start_amount: OrderTypes.amountFilterChild :> string), -1.0)
-  let eAmtK = dict->getFloat((#end_amount: OrderTypes.amountFilterChild :> string), -1.0)
-  let key = (#amount_option: OrderTypes.amountFilterChild :> string)
-  let amountOption = dict->getString(key, "")->OrderTypes.stringRangetoTypeAmount
-  Js.log(amountOption)
-  let haserror = switch amountOption {
-  | GreaterThanOrEqualTo
-  | EqualTo =>
-    sAmntK > 100000.0 || sAmntK < 0.0
-  | LessThanOrEqualTo => eAmtK > 100000.0 || eAmtK < 0.0
-  | InBetween => eAmtK <= sAmntK
-  | _ => false
-  }
-  Js.log2("haserror", haserror)
-  haserror
-}

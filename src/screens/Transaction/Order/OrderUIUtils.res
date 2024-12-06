@@ -1,4 +1,3 @@
-open OrderTypes
 type filterTypes = {
   connector: array<string>,
   currency: array<string>,
@@ -43,7 +42,7 @@ let getFilterTypeFromString = filterType => {
 }
 let isParentChildFilterMatch = (name, key) => {
   let parentFilter = name->getFilterTypeFromString
-  let child = key->mapStringToamountFilterChild
+  let child = key->AmountFilterTypes.mapStringToamountFilterChild
   switch (parentFilter, child) {
   | (#amount, #start_amount)
   | (#amount, #end_amount)
@@ -51,7 +50,6 @@ let isParentChildFilterMatch = (name, key) => {
   | _ => false
   }
 }
-
 module RenderAccordian = {
   @react.component
   let make = (~initialExpandedArray=[], ~accordion) => {
@@ -345,19 +343,6 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
       })
     }
 
-    let amountFilterOptions: array<FilterSelectBox.dropdownOption> = [
-      GreaterThanOrEqualTo,
-      LessThanOrEqualTo,
-      EqualTo,
-      InBetween,
-    ]->Array.map(option => {
-      let label = option->mapRangeTypetoString
-      {
-        FilterSelectBox.label,
-        value: label,
-      }
-    })
-
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
     | _ => values->makeOptions
@@ -375,7 +360,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
         )(~input, ~placeholder=`Enter ${input.name->snakeToTitle}...`)
     | #amount =>
       (~input as _, ~placeholder as _) => {
-        <OrdersHelper options=amountFilterOptions />
+        <AmountFilter options=AmountFilterUtils.amountFilterOptions />
       }
 
     | _ =>

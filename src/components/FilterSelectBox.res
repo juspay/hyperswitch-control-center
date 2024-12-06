@@ -1824,6 +1824,7 @@ module BaseDropdown = {
       dropDowntext
     }
 
+    Js.log2(selectButtonText, "title")
     let buttonIcon =
       <Icon
         name=downArrowIcon
@@ -1838,13 +1839,13 @@ module BaseDropdown = {
     } else {
       textStyle
     }
-
+    Js.log2("buttonText filterselect", buttonText)
     let onDeleteClick = name => {
       [name]->removeKeys
 
       setfilterKeys(_ => filterKeys->Array.filter(item => item !== name))
     }
-
+    Js.log2("selectbtnText filterselect", selectButtonText)
     <div className={`flex relative  flex-row  flex-wrap`}>
       <div className={`flex relative ${flexWrapper} ${fullLength ? "w-full" : ""}`}>
         <div

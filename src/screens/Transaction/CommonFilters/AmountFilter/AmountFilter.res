@@ -73,7 +73,7 @@ module CustomAmountBetweenField = {
 }
 @react.component
 let make = (~options) => {
-  open OrderTypes
+  open AmountFilterTypes
   open LogicUtils
   let (selectedOption, setSelectedOption) = React.useState(_ => UnknownRange("Select Amount"))
   let (isAmountRangeVisible, setIsAmountRangeVisible) = React.useState(_ => true)
@@ -83,7 +83,7 @@ let make = (~options) => {
   )
 
   let isApplyButtonDisabled = React.useMemo(() => {
-    HSwitchOrderUtils.validateAmount(formState.values->getDictFromJsonObject)
+    AmountFilterUtils.validateAmount(formState.values->getDictFromJsonObject)
   }, [formState.values])
 
   let handleInputChange = newValue => {
@@ -154,22 +154,24 @@ let make = (~options) => {
 
   let displaySelectedRange = () => {
     let dict = formState.values->getDictFromJsonObject
-    let startValue = dict->getvalFromDict("start_amount")->getFloatFromJson(0.0)->Float.toString
-    let endValue = dict->getvalFromDict("end_amount")->getFloatFromJson(0.0)->Float.toString
-    switch (selectedOption, startValue, endValue) {
-    | (GreaterThanOrEqualTo, start, _) if start != "0" => (true, `More or Equal to ${start}`)
-    | (EqualTo, start, _) if start != "0" => (true, `Exactly ${start}`)
-    | (LessThanOrEqualTo, _, end) if end != "0" => (true, `Less or Equal to ${end}`)
-    | (InBetween, start, end) if end != "0" && start != "0" => (
+    let start = dict->getOptionFloat("start_amount")
+    let end = dict->getOptionFloat("end_amount")
+    switch (selectedOption, start, end) {
+    | (GreaterThanOrEqualTo, Some(start), _) => (true, `More or Equal to ${start->Float.toString}`)
+    | (EqualTo, Some(start), _) => (true, `Exactly ${start->Float.toString}`)
+    | (LessThanOrEqualTo, _, Some(end)) => (true, `Less or Equal to ${end->Float.toString}`)
+    | (InBetween, Some(start), Some(end)) => (
         true,
-        `In Between ${start} and ${end}`,
+        `In Between ${start->Float.toString} and ${end->Float.toString}`,
       )
     | _ => (false, selectedOption->mapRangeTypetoString)
     }
   }
+
   let (displayCustomCss, buttonText) = displaySelectedRange()
   <>
     <FilterSelectBox.BaseDropdown
+      key={buttonText}
       allowMultiSelect=false
       buttonText={buttonText}
       textStyle={displayCustomCss ? "text-blue-500" : ""}
