@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.06.1
+
+### Miscellaneous Tasks
+
+- Percentage calculation changes ([#1870](https://github.com/juspay/hyperswitch-control-center/pull/1870)) ([`6cddccc`](https://github.com/juspay/hyperswitch-control-center/commit/6cddccc5b19966c0abe0288caddf92b8ecb4af66))
+
+**Full Changelog:** [`2024.12.06.0...2024.12.06.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.06.0...2024.12.06.1)
+
+- - -
+
 ## 2024.12.06.0
 
 ### Miscellaneous Tasks
