@@ -1506,6 +1506,25 @@ let defaultSelectAllCards = (
   }
 }
 
+let getConnectorPaymentMethods = async (initialValues, setPaymentMethods) => {
+  open LogicUtils
+  try {
+    let json = Window.getResponsePayload(initialValues)
+
+    let paymentMethodEnabled =
+      json
+      ->getDictFromJsonObject
+      ->getJsonObjectFromDict("payment_methods_enabled")
+      ->getPaymentMethodEnabled
+    setPaymentMethods(_ => paymentMethodEnabled)
+  } catch {
+  | Exn.Error(e) => {
+      let err = Exn.message(e)->Option.getOr("Something went wrong")
+      Exn.raiseError(err)
+    }
+  }
+}
+
 let getConnectorPaymentMethodDetails = async (
   initialValues,
   setPaymentMethods,

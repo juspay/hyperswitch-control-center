@@ -76,3 +76,16 @@ let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType
   "moduleListRecoil",
   [],
 )
+
+let paymentMethodsClonedAtom: Recoil.recoilAtom<
+  array<ConnectorTypes.paymentMethodEnabled>,
+> = Recoil.atom("paymentMethodsClonedAtom", [])
+
+let retainCloneModalAtom: Recoil.recoilAtom<bool> = Recoil.atom("retainCloneModalAtom", false)
+
+let cloneModalButtonStateAtom: Recoil.recoilAtom<Button.buttonState> = Recoil.atom(
+  "cloneModalButtonStateAtom",
+  Button.Disabled,
+)
+
+let cloneConnectorAtom: Recoil.recoilAtom<string> = Recoil.atom("cloneConnectorAtom", "")

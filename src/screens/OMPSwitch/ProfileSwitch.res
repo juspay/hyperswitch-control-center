@@ -120,7 +120,12 @@ module NewProfileCreationModal = {
 }
 
 @react.component
-let make = () => {
+let make = (
+  ~showSwitchModal=true,
+  ~setButtonState=_ => (),
+  ~showHeading=true,
+  ~customMargin="",
+) => {
   open APIUtils
   open LogicUtils
   open OMPSwitchUtils
@@ -156,9 +161,11 @@ let make = () => {
   let profileSwitch = async value => {
     try {
       setShowSwitchingProfile(_ => true)
+      setButtonState(_ => Button.Disabled)
       let _ = await profileSwitch(~expectedProfileId=value, ~currentProfileId=profileId)
       RescriptReactRouter.replace(GlobalVars.extractModulePath(url))
       setShowSwitchingProfile(_ => false)
+      setButtonState(_ => Button.Normal)
     } catch {
     | _ => {
         showToast(~message="Failed to switch profile", ~toastType=ToastError)
@@ -188,6 +195,8 @@ let make = () => {
     setArrow(prev => !prev)
   }
 
+  let heading = showHeading ? "Profile" : ""
+
   <>
     <SelectBox.BaseDropdown
       allowMultiSelect=false
@@ -196,13 +205,13 @@ let make = () => {
       deselectDisable=true
       customButtonStyle="!rounded-md"
       options={profileList->generateDropdownOptions}
-      marginTop="mt-14"
+      marginTop={customMargin->LogicUtils.isNonEmptyString ? customMargin : "mt-14"}
       hideMultiSelectButtons=true
       addButton=false
       searchable=true
       customStyle="absolute w-fit left-0"
       baseComponent={<ListBaseComp
-        heading="Profile" subHeading={currentOMPName(profileList, profileId)} arrow
+        heading subHeading={currentOMPName(profileList, profileId)} arrow
       />}
       baseComponentCustomStyle="bg-white"
       bottomComponent={<AddNewOMPButton user=#Profile setShowModal customStyle addItemBtnStyle />}
@@ -218,10 +227,12 @@ let make = () => {
     <RenderIf condition={showModal}>
       <NewProfileCreationModal setShowModal showModal getProfileList />
     </RenderIf>
-    <LoaderModal
-      showModal={showSwitchingProfile}
-      setShowModal={setShowSwitchingProfile}
-      text="Switching profile..."
-    />
+    <RenderIf condition={showSwitchModal}>
+      <LoaderModal
+        showModal={showSwitchingProfile}
+        setShowModal={setShowSwitchingProfile}
+        text="Switching profile..."
+      />
+    </RenderIf>
   </>
 }

@@ -23,6 +23,9 @@ let make = (
   let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
+  let (paymentMethodsClone, setPaymentMethodsClone) = Recoil.useRecoilState(
+    HyperswitchAtom.paymentMethodsClonedAtom,
+  )
 
   let updateDetails = value => {
     setPaymentMethods(_ => value->Array.copy)
@@ -100,6 +103,20 @@ let make = (
     }
     Nullable.null
   }
+
+  React.useEffect(() => {
+    if paymentMethodsClone->Array.length > 0 {
+      let clonedData =
+        paymentMethodsClone
+        ->Identity.genericTypeToJson
+        ->JSON.stringify
+        ->LogicUtils.safeParse
+        ->getPaymentMethodEnabled
+      setPaymentMethods(_ => clonedData)
+      setPaymentMethodsClone(_ => [])
+    }
+    None
+  }, [paymentMethodsClone])
 
   <PageLoaderWrapper screenState>
     <Form onSubmit initialValues={initialValues}>
