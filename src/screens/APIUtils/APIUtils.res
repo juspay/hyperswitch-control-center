@@ -546,26 +546,8 @@ let useGetURL = () => {
     /* PMTS COUNTRY-CURRENCY DETAILS */
     | PAYMENT_METHOD_CONFIG => `payment_methods/filter`
 
-    /* USER MANAGEMENT */
-    | USER_MANAGEMENT => {
-        let userUrl = `user`
-        switch userRoleTypes {
-        | ROLE_ID =>
-          switch id {
-          | Some(key_id) =>
-            switch queryParamerters {
-            | Some(queryParams) => `${userUrl}/role/${key_id}?${queryParams}`
-            | None => `${userUrl}/role/${key_id}`
-            }
-          | None => ""
-          }
-        | NONE => ""
-        | _ => ""
-        }
-      }
-
     /* USER MANGEMENT REVAMP */
-    | USER_MANAGEMENT_V2 => {
+    | USER_MANAGEMENT => {
         let userUrl = `user`
         switch userRoleTypes {
         | USER_LIST =>
