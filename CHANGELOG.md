@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.06.0
+
+### Miscellaneous Tasks
+
+- New analytics code refactor ([#1856](https://github.com/juspay/hyperswitch-control-center/pull/1856)) ([`30e223f`](https://github.com/juspay/hyperswitch-control-center/commit/30e223f2d5cc70c0bf200937a3c23c765bac780e))
+
+**Full Changelog:** [`2024.12.05.0...2024.12.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.05.0...2024.12.06.0)
+
+- - -
+
 ## 2024.12.05.0
 
 ### Features

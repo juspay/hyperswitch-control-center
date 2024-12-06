@@ -176,9 +176,14 @@ module StatisticsCard = {
     | No_Change => ("bg-gray-100", "text-gray-500")
     }
 
+    let icon = switch direction {
+    | Downward => <img alt="image" className="h-6 w-5 mb-1 mr-1" src={`/icons/arrow.svg`} />
+    | Upward | No_Change => <Icon className="mt-1 -mr-1" name="arrow-increasing" size=25 />
+    }
+
     <div className={`${bgColor} ${textColor} w-fit h-fit rounded-2xl flex px-2 pt-0.5`}>
       <div className="-mb-0.5 flex">
-        <Icon className="mt-1 -mr-1" name="arrow-increasing" size=25 />
+        {icon}
         <div className="font-semibold text-sm pt-0.5 pr-0.5">
           {`${value->NewAnalyticsUtils.valueFormatter(Rate)}`->React.string}
         </div>
