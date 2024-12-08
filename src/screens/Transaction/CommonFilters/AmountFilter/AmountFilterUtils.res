@@ -17,7 +17,6 @@ let validateAmount = dict => {
   let eAmtK = dict->getFloat((#end_amount: AmountFilterTypes.amountFilterChild :> string), -1.0)
   let key = (#amount_option: AmountFilterTypes.amountFilterChild :> string)
   let amountOption = dict->getString(key, "")->AmountFilterTypes.stringRangetoTypeAmount
-  Js.log(amountOption)
   let haserror = switch amountOption {
   | GreaterThanOrEqualTo
   | EqualTo =>
@@ -26,6 +25,5 @@ let validateAmount = dict => {
   | InBetween => eAmtK <= sAmntK
   | _ => false
   }
-  Js.log2("haserror", haserror)
   haserror
 }
