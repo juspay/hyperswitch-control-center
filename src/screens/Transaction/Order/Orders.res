@@ -54,8 +54,8 @@ let make = (~previewOnly=false) => {
           )
         }
         //to create amount_filter query
-        AmountFilterUtils.createAmountQuery(~dict, ~filters)
-        dict
+        let newDict = AmountFilterUtils.createAmountQuery(~dict)
+        newDict
         ->Dict.toArray
         ->Array.forEach(item => {
           let (key, value) = item

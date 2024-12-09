@@ -33,8 +33,8 @@ let make = () => {
         filters->Dict.set("refund_id", searchText->String.trim->JSON.Encode.string)
       }
       //to create amount_filter query
-      AmountFilterUtils.createAmountQuery(~dict, ~filters)
-      dict
+      let newdict = AmountFilterUtils.createAmountQuery(~dict)
+      newdict
       ->Dict.toArray
       ->Array.forEach(item => {
         let (key, value) = item

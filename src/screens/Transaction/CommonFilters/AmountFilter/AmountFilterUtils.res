@@ -28,11 +28,11 @@ let validateAmount = dict => {
   }
   haserror
 }
-let createAmountQuery = (~dict, ~filters) => {
+let createAmountQuery = (~dict) => {
   let hasAmountError = validateAmount(dict)
   if !hasAmountError {
     let encodeAmount = value => value->mapOptionOrDefault(JSON.Encode.null, encodeFloatOrDefault)
-    filters->Dict.set(
+    dict->Dict.set(
       "amount_filter",
       [
         ("start_amount", dict->getvalFromDict("start_amount")->encodeAmount),
@@ -40,4 +40,5 @@ let createAmountQuery = (~dict, ~filters) => {
       ]->getJsonFromArrayOfJson,
     )
   }
+  dict
 }
