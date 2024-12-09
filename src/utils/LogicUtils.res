@@ -40,25 +40,6 @@ let safeParse = st => {
   safeParseOpt(st)->Option.getOr(JSON.Encode.null)
 }
 
-type numericComparisionType =
-  | LessThan(int, bool)
-  | GreaterThan(int, bool)
-  | EqualTo(array<int>)
-
-type numericConditionCheck = {key: string, validRules: array<numericComparisionType>}
-type conditionCheck = {key: string, vals: array<string>, not: bool}
-
-type condition =
-  | NoCondition
-  | NumericCondition(numericConditionCheck)
-  | ComparisionCheck(conditionCheck)
-
-type rec logics = Return(array<(int, array<string>)>) | IfElse(array<logic>)
-and logic = {
-  condition: condition,
-  logics: logics,
-}
-
 let getDictFromJsonObject = json => {
   switch json->JSON.Decode.object {
   | Some(dict) => dict

@@ -282,34 +282,8 @@ type optionObj = {
 
 type frmStatus = [#APPROVE | #REJECT]
 
-type amountFilter =
-  | GreaterThanEqualTo
-  | LessThanEqualTo
-  | EqualTo
-  | InBetween
-  | UnknownRange(string)
-
 let getSortString = (value: LoadedTable.sortOb) =>
   switch value.sortType {
   | ASC => "asc"
   | DSC => "desc"
   }
-
-let mapStringToRange = val =>
-  switch val {
-  | "Greater than Equal to" => GreaterThanEqualTo
-  | "Less than Equal to" => LessThanEqualTo
-  | "Equal to" => EqualTo
-  | "In Between" => InBetween
-  | _ => UnknownRange(val)
-  }
-
-let mapRangeTypetoString = amountFilter => {
-  switch amountFilter {
-  | GreaterThanEqualTo => "Greater than Equal to"
-  | LessThanEqualTo => "Less than Equal to"
-  | EqualTo => "Equal to"
-  | InBetween => "In Between"
-  | UnknownRange(string) => string
-  }
-}
