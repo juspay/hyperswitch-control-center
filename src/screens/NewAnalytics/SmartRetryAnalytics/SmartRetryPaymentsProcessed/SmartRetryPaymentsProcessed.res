@@ -163,7 +163,6 @@ let make = (
       )
 
       let primaryBody = NewAnalyticsUtils.requestBody(
-        ~dimensions=[],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
@@ -172,7 +171,6 @@ let make = (
       )
 
       let secondaryBody = NewAnalyticsUtils.requestBody(
-        ~dimensions=[],
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
