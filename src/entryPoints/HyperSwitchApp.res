@@ -182,7 +182,8 @@ let make = () => {
                         | list{"analytics-refunds"}
                         | list{"analytics-disputes"} =>
                           <AnalyticsContainer />
-                        | list{"new-analytics-payment"} =>
+                        | list{"new-analytics-payment"}
+                        | list{"new-analytics-smart-retry"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.newAnalytics &&
                             useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
