@@ -34,8 +34,7 @@ let mapStringToRange = val =>
   | "Less than or Equal to" => LessThanOrEqualTo
   | "Equal to" => EqualTo
   | "In Between" => InBetween
-  | _ => EqualTo
-  //   | _ => UnknownRange(val)
+  | _ => UnknownRange(val)
   }
 
 let mapRangeTypetoString = amountFilter => {
