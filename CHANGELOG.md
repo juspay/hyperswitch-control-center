@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.09.2
+
+### Features
+
+- Paymants failure reasons ([#1892](https://github.com/juspay/hyperswitch-control-center/pull/1892)) ([`807e047`](https://github.com/juspay/hyperswitch-control-center/commit/807e0478b06f05168bd78365ced8df302f1b13f8))
+
+**Full Changelog:** [`2024.12.09.1...2024.12.09.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.09.1...2024.12.09.2)
+
+- - -
+
 ## 2024.12.09.1
 
 ### Features
