@@ -3,6 +3,7 @@ type filterTypes = {
   currency: array<string>,
   status: array<string>,
   connector_label: array<string>,
+  amount: array<string>,
 }
 
 type filter = [
@@ -10,6 +11,7 @@ type filter = [
   | #currency
   | #status
   | #connector_label
+  | #amount
   | #unknown
 ]
 
@@ -19,6 +21,7 @@ let getFilterTypeFromString = filterType => {
   | "currency" => #currency
   | "connector_label" => #connector_label
   | "refund_status" => #status
+  | "amount" => #amount
   | _ => #unknown
   }
 }
@@ -195,6 +198,7 @@ let itemToObjMapper = dict => {
     currency: dict->getArrayFromDict("currency", [])->getStrArrayFromJsonArray,
     status: dict->getArrayFromDict("refund_status", [])->getStrArrayFromJsonArray,
     connector_label: [],
+    amount: [],
   }
 }
 
@@ -210,8 +214,9 @@ let initialFilters = (json, filtervalues, _, _, _) => {
   if connectorFilter->Array.length !== 0 {
     filtersArray->Array.push(#connector_label->getLabelFromFilterType)
   }
-
-  filtersArray->Array.map((key): EntityType.initialFilters<'t> => {
+  let additionalFilters = [#amount]->Array.map(getLabelFromFilterType)
+  let allFiltersArray = filtersArray->Array.concat(additionalFilters)
+  allFiltersArray->Array.map((key): EntityType.initialFilters<'t> => {
     let title = `Select ${key->snakeToTitle}`
 
     let values = switch key->getFilterTypeFromString {
@@ -226,21 +231,28 @@ let initialFilters = (json, filtervalues, _, _, _) => {
     | #connector_label => getOptionsForRefundFilters(filterDict, filtervalues)
     | _ => values->FilterSelectBox.makeOptions
     }
-
+    let customInput = switch key->getFilterTypeFromString {
+    | #amount =>
+      (~input as _, ~placeholder as _) => {
+        <AmountFilter options=AmountFilterUtils.amountFilterOptions />
+      }
+    | _ =>
+      InputFields.filterMultiSelectInput(
+        ~options,
+        ~buttonText=title,
+        ~showSelectionAsChips=false,
+        ~searchable=true,
+        ~showToolTip=true,
+        ~showNameAsToolTip=true,
+        ~customButtonStyle="bg-none",
+        (),
+      )
+    }
     {
       field: FormRenderer.makeFieldInfo(
         ~label=key,
         ~name=getValueFromFilterType(key->getFilterTypeFromString),
-        ~customInput=InputFields.filterMultiSelectInput(
-          ~options,
-          ~buttonText=title,
-          ~showSelectionAsChips=false,
-          ~searchable=true,
-          ~showToolTip=true,
-          ~showNameAsToolTip=true,
-          ~customButtonStyle="bg-none",
-          (),
-        ),
+        ~customInput,
       ),
       localFilter: Some(filterByData),
     }
