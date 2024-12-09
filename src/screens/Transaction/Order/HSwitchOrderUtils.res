@@ -192,12 +192,20 @@ module CopyLinkTableCell = {
 
 module EllipsisText = {
   @react.component
-  let make = (~displayValue, ~endValue=17, ~showCopy=true, ~customTextStyle="") => {
+  let make = (
+    ~displayValue,
+    ~endValue=17,
+    ~showCopy=true,
+    ~customTextStyle="",
+    ~expandText=true,
+  ) => {
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
 
     let handleClick = ev => {
       ev->ReactEvent.Mouse.stopPropagation
-      setIsTextVisible(_ => true)
+      if expandText {
+        setIsTextVisible(_ => true)
+      }
     }
 
     let text = if showCopy {
