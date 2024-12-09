@@ -1,4 +1,3 @@
-open NewPaymentAnalyticsUtils
 open SuccessfulPaymentsDistributionTypes
 open LogicUtils
 
