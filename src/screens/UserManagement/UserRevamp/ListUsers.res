@@ -18,7 +18,7 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
     setScreenStateUsers(_ => PageLoaderWrapper.Loading)
     try {
       let userDataURL = getURL(
-        ~entityName=USER_MANAGEMENT_V2,
+        ~entityName=USER_MANAGEMENT,
         ~methodType=Get,
         ~userRoleTypes=USER_LIST,
         ~queryParamerters=userModuleEntity == #Default
