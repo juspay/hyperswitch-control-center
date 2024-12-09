@@ -53,36 +53,16 @@ let make = (~previewOnly=false) => {
             ]->getJsonFromArrayOfJson,
           )
         }
-        let encodeFloatOrDefault = val => (val->getFloatFromJson(0.0) *. 100.0)->JSON.Encode.float
-        let hasAmountError = AmountFilterUtils.validateAmount(dict)
-        if !hasAmountError {
-          filters->Dict.set(
-            "amount_filter",
-            [
-              (
-                "start_amount",
-                getvalFromDict(dict, "start_amount")->mapOptionOrDefault(
-                  JSON.Encode.null,
-                  encodeFloatOrDefault,
-                ),
-              ),
-              (
-                "end_amount",
-                getvalFromDict(dict, "end_amount")->mapOptionOrDefault(
-                  JSON.Encode.null,
-                  encodeFloatOrDefault,
-                ),
-              ),
-            ]->getJsonFromArrayOfJson,
-          )
-        }
+        //to create amount_filter query
+        AmountFilterUtils.createAmountQuery(~dict, ~filters)
         dict
         ->Dict.toArray
         ->Array.forEach(item => {
           let (key, value) = item
           filters->Dict.set(key, value)
         })
-        filters->OrderUIUtils.deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
+        //to delete unused keys
+        filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
         filters
         ->getOrdersList(
           ~updateDetails,
@@ -146,7 +126,7 @@ let make = (~previewOnly=false) => {
       setOffset
       submitInputOnEnter=true
       customLeftView={<SearchBarFilter
-        placeholder="Search for any payment id" setSearchVal=setSearchText searchVal=searchText
+        placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
       />}
       entityName=ORDER_FILTERS
     />

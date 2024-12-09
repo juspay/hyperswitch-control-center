@@ -1,4 +1,5 @@
 open AmountFilterTypes
+open LogicUtils
 let amountFilterOptions: array<FilterSelectBox.dropdownOption> = [
   GreaterThanOrEqualTo,
   LessThanOrEqualTo,
@@ -11,8 +12,8 @@ let amountFilterOptions: array<FilterSelectBox.dropdownOption> = [
     value: label,
   }
 })
+let encodeFloatOrDefault = val => (val->getFloatFromJson(0.0) *. 100.0)->JSON.Encode.float
 let validateAmount = dict => {
-  open LogicUtils
   let sAmntK = dict->getFloat((#start_amount: AmountFilterTypes.amountFilterChild :> string), -1.0)
   let eAmtK = dict->getFloat((#end_amount: AmountFilterTypes.amountFilterChild :> string), -1.0)
   let key = (#amount_option: AmountFilterTypes.amountFilterChild :> string)
@@ -26,4 +27,17 @@ let validateAmount = dict => {
   | _ => false
   }
   haserror
+}
+let createAmountQuery = (~dict, ~filters) => {
+  let hasAmountError = validateAmount(dict)
+  if !hasAmountError {
+    let encodeAmount = value => value->mapOptionOrDefault(JSON.Encode.null, encodeFloatOrDefault)
+    filters->Dict.set(
+      "amount_filter",
+      [
+        ("start_amount", dict->getvalFromDict("start_amount")->encodeAmount),
+        ("end_amount", dict->getvalFromDict("end_amount")->encodeAmount),
+      ]->getJsonFromArrayOfJson,
+    )
+  }
 }
