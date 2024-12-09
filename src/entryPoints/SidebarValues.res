@@ -265,10 +265,10 @@ let paymentAnalytcis = SubLevelLink({
 })
 
 let performanceMonitor = SubLevelLink({
-  name: "Performance Monitor",
+  name: "Performance",
   link: `/performance-monitor`,
   access: Access,
-  searchOptions: [("View Performance Monitor", "")],
+  searchOptions: [("View Performance", "")],
 })
 
 let newAnalytics = SubLevelLink({
@@ -330,12 +330,13 @@ let analytics = (
   if disputeAnalyticsFlag {
     links->Array.push(disputeAnalytics)
   }
-  if performanceMonitorFlag {
-    links->Array.push(performanceMonitor)
-  }
 
   if newAnalyticsflag {
     links->Array.push(newAnalytics)
+  }
+
+  if performanceMonitorFlag {
+    links->Array.push(performanceMonitor)
   }
 
   isAnalyticsEnabled
