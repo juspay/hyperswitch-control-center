@@ -142,16 +142,16 @@ let getLabelName = (~key, ~index, ~points) => {
 }
 let calculatePercentageChange = (~primaryValue, ~secondaryValue) => {
   open NewAnalyticsTypes
-  let change = secondaryValue -. primaryValue
+  let change = primaryValue -. secondaryValue
 
-  if primaryValue === 0.0 || change === 0.0 {
+  if secondaryValue === 0.0 || change === 0.0 {
     (0.0, No_Change)
   } else if change > 0.0 {
-    let diff = change /. primaryValue
+    let diff = change /. secondaryValue
     let percentage = diff *. 100.0
     (percentage, Upward)
   } else {
-    let diff = change *. -1.0 /. primaryValue
+    let diff = change *. -1.0 /. secondaryValue
     let percentage = diff *. 100.0
     (percentage, Downward)
   }

@@ -117,7 +117,7 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
-        ~entityName=USER_MANAGEMENT_V2,
+        ~entityName=USER_MANAGEMENT,
         ~userRoleTypes=ROLE_ID,
         ~id=roleTypeValue,
         ~methodType=Get,
