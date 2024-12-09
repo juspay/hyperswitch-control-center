@@ -10,6 +10,7 @@ type filterTypes = {
   card_network: array<string>,
   customer_id: array<string>,
   amount: array<string>,
+  merchant_order_reference_id: array<string>,
 }
 
 type filter = [
@@ -23,6 +24,7 @@ type filter = [
   | #card_network
   | #customer_id
   | #amount
+  | #merchant_order_reference_id
   | #unknown
 ]
 
@@ -38,6 +40,7 @@ let getFilterTypeFromString = filterType => {
   | "card_network" => #card_network
   | "customer_id" => #customer_id
   | "amount" => #amount
+  | "merchant_order_reference_id" => #merchant_order_reference_id
   | _ => #unknown
   }
 }
@@ -284,6 +287,7 @@ let itemToObjMapper = dict => {
     card_network: dict->getArrayFromDict("card_network", [])->getStrArrayFromJsonArray,
     customer_id: [],
     amount: [],
+    merchant_order_reference_id: [],
   }
 }
 
@@ -305,7 +309,9 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
   }
 
   let additionalFilters =
-    [#payment_method_type, #customer_id, #amount]->Array.map(getLabelFromFilterType)
+    [#payment_method_type, #customer_id, #amount, #merchant_order_reference_id]->Array.map(
+      getLabelFromFilterType,
+    )
 
   let allFiltersArray = filtersArray->Array.concat(additionalFilters)
 
@@ -322,7 +328,6 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
         : filterData.payment_method_type
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
     | #card_network => filterData.card_network
-    | #customer_id => filterData.customer_id
     | _ => []
     }
 
@@ -354,7 +359,8 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
     }
 
     let customInput = switch key->getFilterTypeFromString {
-    | #customer_id =>
+    | #customer_id
+    | #merchant_order_reference_id =>
       (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) =>
         InputFields.textInput(
           ~rightIcon=<div
@@ -362,6 +368,7 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
             onClick={_ => input.name->onDeleteClick}>
             <Icon name="cross-outline" size=13 />
           </div>,
+          ~customWidth="w-48",
         )(~input, ~placeholder=`Enter ${input.name->snakeToTitle}...`)
     | #amount =>
       (~input as _, ~placeholder as _) => {
