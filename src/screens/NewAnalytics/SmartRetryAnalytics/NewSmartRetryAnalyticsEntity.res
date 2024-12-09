@@ -31,3 +31,36 @@ let smartRetryPaymentsProcessedTableEntity = {
     ~getHeading,
   )
 }
+
+// Failed SmartRetry Distribution
+let failedSmartRetryDistributionEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    metrics: [#payments_distribution],
+  },
+  title: "Failed Distribution of Smart Retry Payments",
+  domain: #payments,
+}
+
+let failedSmartRetryDistributionChartEntity: chartEntity<
+  BarGraphTypes.barGraphPayload,
+  BarGraphTypes.barGraphOptions,
+  JSON.t,
+> = {
+  getObjects: FailureSmartRetryDistributionUtils.failedSmartRetryDistributionMapper,
+  getChatOptions: BarGraphUtils.getBarGraphOptions,
+}
+
+let failedSmartRetryDistributionTableEntity = {
+  open FailureSmartRetryDistributionUtils
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects,
+    ~dataKey="queryData",
+    ~defaultColumns=[],
+    ~requiredSearchFieldsList=[],
+    ~allColumns=[],
+    ~getCell,
+    ~getHeading,
+  )
+}
