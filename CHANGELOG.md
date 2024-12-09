@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.09.0
+
+### Bug Fixes
+
+- Update list on accept invite ([#1873](https://github.com/juspay/hyperswitch-control-center/pull/1873)) ([`945ce14`](https://github.com/juspay/hyperswitch-control-center/commit/945ce14bab0c7a95170bf4ad72509b76a102049c))
+
+### Miscellaneous Tasks
+
+- Organize transaction modules ([#1876](https://github.com/juspay/hyperswitch-control-center/pull/1876)) ([`58e3731`](https://github.com/juspay/hyperswitch-control-center/commit/58e37314a3911f235fe619521940660fdeec58df))
+
+**Full Changelog:** [`2024.12.06.1...2024.12.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.06.1...2024.12.09.0)
+
+- - -
+
 ## 2024.12.06.1
 
 ### Miscellaneous Tasks
