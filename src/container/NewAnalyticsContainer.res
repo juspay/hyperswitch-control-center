@@ -77,7 +77,7 @@ let make = () => {
     defaultTabs->Array.concat([
       {
         title: "Smart Retries",
-        renderContent: () => React.null,
+        renderContent: () => <NewSmartRetryAnalytics />,
       },
     ])
   } else {
