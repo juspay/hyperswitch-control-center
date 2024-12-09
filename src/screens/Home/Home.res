@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~setAppScreenState) => {
   open HomeUtils
   open PageUtils
   let greeting = getGreeting()
@@ -11,7 +11,7 @@ let make = () => {
       <RenderIf condition={recoveryCodesLeft->Option.isSome && recoveryCode < 3}>
         <HomeUtils.LowRecoveryCodeBanner recoveryCode />
       </RenderIf>
-      <PendingInvitationsHome />
+      <PendingInvitationsHome setAppScreenState />
     </div>
     <PageHeading
       title={`${greeting}, it's great to see you!`}

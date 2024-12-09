@@ -89,7 +89,6 @@ let make = () => {
       </RenderIf>
       <ProfileSwitch />
     </div>
-
   <>
     <div>
       {switch dashboardPageState {
@@ -158,7 +157,7 @@ let make = () => {
                         | list{"config-settings"}
                         | list{"file-processor"}
                         | list{"sdk"} =>
-                          <MerchantAccountContainer />
+                          <MerchantAccountContainer setAppScreenState=setScreenState />
                         | list{"connectors", ..._}
                         | list{"payoutconnectors", ..._}
                         | list{"3ds-authenticators", ..._}
@@ -183,7 +182,8 @@ let make = () => {
                         | list{"analytics-refunds"}
                         | list{"analytics-disputes"} =>
                           <AnalyticsContainer />
-                        | list{"new-analytics-payment"} =>
+                        | list{"new-analytics-payment"}
+                        | list{"new-analytics-smart-retry"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.newAnalytics &&
                             useIsFeatureEnabledForMerchant(merchantSpecificConfig.newAnalytics)}
@@ -303,7 +303,7 @@ let make = () => {
                         | list{"unauthorized"} => <UnauthorizedPage />
                         | _ =>
                           RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
-                          <MerchantAccountContainer />
+                          <MerchantAccountContainer setAppScreenState=setScreenState />
                         }}
                       </ErrorBoundary>
                     </div>

@@ -93,15 +93,6 @@ let paymentsProcessedMapper = (
     ),
   }
 }
-// Need to modify
-let getMetaData = json =>
-  json
-  ->getArrayFromJson([])
-  ->getValueFromArray(0, JSON.Encode.array([]))
-  ->getDictFromJsonObject
-  ->getArrayFromDict("metaData", [])
-  ->getValueFromArray(0, JSON.Encode.array([]))
-  ->getDictFromJsonObject
 
 let visibleColumns = [Time_Bucket]
 

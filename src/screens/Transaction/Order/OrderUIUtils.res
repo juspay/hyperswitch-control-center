@@ -1,4 +1,3 @@
-open OrderTypes
 type filterTypes = {
   connector: array<string>,
   currency: array<string>,
@@ -10,6 +9,7 @@ type filterTypes = {
   card_network: array<string>,
   customer_id: array<string>,
   amount: array<string>,
+  merchant_order_reference_id: array<string>,
 }
 
 type filter = [
@@ -23,6 +23,7 @@ type filter = [
   | #card_network
   | #customer_id
   | #amount
+  | #merchant_order_reference_id
   | #unknown
 ]
 
@@ -38,10 +39,20 @@ let getFilterTypeFromString = filterType => {
   | "card_network" => #card_network
   | "customer_id" => #customer_id
   | "amount" => #amount
+  | "merchant_order_reference_id" => #merchant_order_reference_id
   | _ => #unknown
   }
 }
-
+let isParentChildFilterMatch = (name, key) => {
+  let parentFilter = name->getFilterTypeFromString
+  let child = key->AmountFilterTypes.mapStringToamountFilterChild
+  switch (parentFilter, child) {
+  | (#amount, #start_amount)
+  | (#amount, #end_amount)
+  | (#amount, #amount_option) => true
+  | _ => false
+  }
+}
 module RenderAccordian = {
   @react.component
   let make = (~initialExpandedArray=[], ~accordion) => {
@@ -284,6 +295,7 @@ let itemToObjMapper = dict => {
     card_network: dict->getArrayFromDict("card_network", [])->getStrArrayFromJsonArray,
     customer_id: [],
     amount: [],
+    merchant_order_reference_id: [],
   }
 }
 
@@ -305,7 +317,9 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
   }
 
   let additionalFilters =
-    [#payment_method_type, #customer_id, #amount]->Array.map(getLabelFromFilterType)
+    [#payment_method_type, #customer_id, #amount, #merchant_order_reference_id]->Array.map(
+      getLabelFromFilterType,
+    )
 
   let allFiltersArray = filtersArray->Array.concat(additionalFilters)
 
@@ -322,7 +336,6 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
         : filterData.payment_method_type
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
     | #card_network => filterData.card_network
-    | #customer_id => filterData.customer_id
     | _ => []
     }
 
@@ -335,26 +348,14 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
       })
     }
 
-    let amountFilterOptions: array<FilterSelectBox.dropdownOption> = [
-      GreaterThanEqualTo,
-      LessThanEqualTo,
-      EqualTo,
-      InBetween,
-    ]->Array.map(option => {
-      let label = option->mapRangeTypetoString
-      {
-        FilterSelectBox.label,
-        value: label,
-      }
-    })
-
     let options = switch key->getFilterTypeFromString {
     | #connector_label => getOptionsForOrderFilters(filterDict, filtervalues)
     | _ => values->makeOptions
     }
 
     let customInput = switch key->getFilterTypeFromString {
-    | #customer_id =>
+    | #customer_id
+    | #merchant_order_reference_id =>
       (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) =>
         InputFields.textInput(
           ~rightIcon=<div
@@ -362,10 +363,11 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
             onClick={_ => input.name->onDeleteClick}>
             <Icon name="cross-outline" size=13 />
           </div>,
+          ~customWidth="w-48",
         )(~input, ~placeholder=`Enter ${input.name->snakeToTitle}...`)
     | #amount =>
       (~input as _, ~placeholder as _) => {
-        <OrdersHelper options=amountFilterOptions />
+        <AmountFilter options=AmountFilterUtils.amountFilterOptions />
       }
 
     | _ =>
@@ -551,33 +553,4 @@ let orderViewList: OMPSwitchTypes.ompViews = [
 
 let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) => {
   keys->Array.forEach(key => dict->Dict.delete(key))
-}
-
-let validateForm = values => {
-  open LogicUtils
-  let errors = Dict.make()
-  let dict = values->getDictFromJsonObject
-  let sAmntK = dict->getvalFromDict("start_amount")->mapOptionOrDefault(None, key => Some(key))
-  let eAmtK = dict->getvalFromDict("end_amount")->mapOptionOrDefault(None, key => Some(key))
-
-  // check only if the key is present
-  if sAmntK->Option.isSome && eAmtK->Option.isSome {
-    let _ = if (
-      sAmntK->Option.getOr(JSON.Encode.null) === JSON.Encode.null &&
-        eAmtK->Option.getOr(JSON.Encode.null) === JSON.Encode.null
-    ) {
-      errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
-    } else {
-      let startAmt = sAmntK->getFloatFromJson(0.0)
-      let endAmt = eAmtK->getFloatFromJson(0.0)
-      if endAmt < startAmt {
-        errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
-      }
-    }
-  } else if sAmntK->Option.isSome && sAmntK->Option.getOr(JSON.Encode.null) === JSON.Encode.null {
-    errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
-  } else if eAmtK->Option.isSome && eAmtK->Option.getOr(JSON.Encode.null) === JSON.Encode.null {
-    errors->Dict.set("Invalid", "Please enter valid range."->JSON.Encode.string)
-  }
-  errors->JSON.Encode.object
 }

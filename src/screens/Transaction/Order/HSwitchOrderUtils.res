@@ -1,3 +1,4 @@
+open LogicUtils
 type status =
   | Succeeded
   | Failed
@@ -146,14 +147,14 @@ module CopyLinkTableCell = {
     }
 
     <div className="flex items-center">
-      {if displayValue->LogicUtils.isNonEmptyString {
+      {if displayValue->isNonEmptyString {
         <div className=customParentClass>
           <RenderIf condition={isTextVisible || displayValue->String.length <= endValue}>
             <div className=customTextCss> {displayValue->React.string} </div>
           </RenderIf>
           <RenderIf
             condition={!isTextVisible &&
-            displayValue->LogicUtils.isNonEmptyString &&
+            displayValue->isNonEmptyString &&
             displayValue->String.length > endValue}>
             <div className="flex text-nowrap gap-1">
               <p className="">
@@ -209,7 +210,7 @@ module EllipsisText = {
       <RenderIf condition={isTextVisible}>
         <div> {text} </div>
       </RenderIf>
-      <RenderIf condition={!isTextVisible && displayValue->LogicUtils.isNonEmptyString}>
+      <RenderIf condition={!isTextVisible && displayValue->isNonEmptyString}>
         <div className="flex text-nowrap gap-1">
           <p className="">
             {`${displayValue->String.slice(~start=0, ~end=endValue)}`->React.string}
