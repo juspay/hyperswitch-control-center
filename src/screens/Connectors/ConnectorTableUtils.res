@@ -5,12 +5,12 @@ type colType =
   | TestMode
   | Status
   | Disabled
-  | Actions
   | ProfileId
   | ProfileName
   | ConnectorLabel
   | PaymentMethods
   | MerchantConnectorId
+  | Actions
 
 let defaultColumns = [
   Name,
@@ -21,9 +21,10 @@ let defaultColumns = [
   Status,
   Disabled,
   TestMode,
-  Actions,
   PaymentMethods,
 ]
+
+let defaultPaymentColumns = defaultColumns->Array.concat([Actions])
 
 let getConnectorObjectFromListViaId = (
   connectorList: array<ConnectorTypes.connectorPayload>,
@@ -47,13 +48,13 @@ let getHeading = colType => {
   | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status")
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled")
-  | Actions => Table.makeHeaderInfo(~key="actions", ~title="")
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id")
   | MerchantConnectorId =>
     Table.makeHeaderInfo(~key="merchant_connector_id", ~title="Merchant Connector Id")
   | ProfileName => Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name")
   | ConnectorLabel => Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label")
   | PaymentMethods => Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods")
+  | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
   }
 }
 let connectorStatusStyle = connectorStatus =>
@@ -93,10 +94,6 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         "",
       )
     | ConnectorLabel => Text(connector.connector_label)
-
-    // | Actions =>
-    //   Table.CustomCell(<ConnectorActions connector_id={connector.merchant_connector_id} />, "")
-    | Actions => Table.CustomCell(<div />, "")
     | PaymentMethods =>
       Table.CustomCell(
         <div>
@@ -108,6 +105,13 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
         "",
       )
     | MerchantConnectorId => DisplayCopyCell(connector.merchant_connector_id)
+    | Actions =>
+      CustomCell(
+        <CloneConnectorPaymentMethods
+          connectorID=connector.merchant_connector_id connectorName=connector.connector_name
+        />,
+        "",
+      )
     }
   }
   getCell
@@ -125,11 +129,16 @@ let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
   LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
 }
 
-let connectorEntity = (path: string, ~authorization: CommonAuthTypes.authorization) => {
+let connectorEntity = (
+  path: string,
+  ~authorization: CommonAuthTypes.authorization,
+  ~isPayoutFlow=false,
+  ~isCloningEnabled=false,
+) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,
-    ~defaultColumns,
+    ~defaultColumns={isCloningEnabled && !isPayoutFlow ? defaultPaymentColumns : defaultColumns},
     ~getHeading,
     ~getCell=getTableCell(~connectorType=Processor),
     ~dataKey="",
