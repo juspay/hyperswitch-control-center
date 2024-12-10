@@ -12,7 +12,8 @@ let amountFilterOptions: array<FilterSelectBox.dropdownOption> = [
     value: label,
   }
 })
-let encodeFloatOrDefault = val => (val->getFloatFromJson(0.0) *. 100.0)->JSON.Encode.float
+let encodeFloatOrDefault = val =>
+  (val->getFloatFromJson(0.0) *. 100.0)->Float.toFixed->getFloatFromString(0.0)->JSON.Encode.float
 let validateAmount = dict => {
   let sAmntK = dict->getFloat((#start_amount: AmountFilterTypes.amountFilterChild :> string), -1.0)
   let eAmtK = dict->getFloat((#end_amount: AmountFilterTypes.amountFilterChild :> string), -1.0)
