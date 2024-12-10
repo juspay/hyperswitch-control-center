@@ -251,7 +251,7 @@ module OMPViewBaseComp = {
 
     <div className={`text-sm font-medium cursor-pointer}`}>
       <div className={`flex flex-col items-start`}>
-        <div className="text-left flex items-center gap-2">
+        <div className="text-left flex items-center gap-1">
           <Icon name="settings-new" size=18 />
           <p className={`text-jp-gray-900 fs-10 overflow-scroll text-nowrap`}>
             {`Viewing data for:`->React.string}
@@ -319,7 +319,7 @@ module NewUserOmpView = {
       setArrow(prev => !prev)
     }
 
-    let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
+    let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
     let dropdownContainerStyle = "rounded-ls border w-fit min-w-[15rem] max-w-[20rem]"
 
     <div className="flex">
