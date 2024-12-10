@@ -4,37 +4,27 @@ open LogicUtils
 
 let getStringFromVariant = value => {
   switch value {
-  | Error_Reason => "error_reason"
-  | Failure_Reason_Count => "failure_reason_count"
-  | Reasons_Count_Ratio => "reasons_count_ratio"
-  | Total_Failure_Reasons_Count => "total_failure_reasons_count"
+  | Refund_Error_Message => "refund_error_message"
+  | Refund_Error_Message_Count => "refund_error_message_count"
+  | Total_Refund_Error_Message_Count => "total_refund_error_message_count"
+  | Refund_Error_Message_Count_Ratio => "refund_error_message_count_ratio"
   | Connector => "connector"
-  | Payment_Method => "payment_method"
-  | Payment_Method_Type => "payment_method_type"
-  | Authentication_Type => "authentication_type"
-  }
-}
-
-let getColumn = string => {
-  switch string {
-  | "connector" => Connector
-  | "payment_method" => Payment_Method
-  | "payment_method_type" => Payment_Method_Type
-  | "authentication_type" => Authentication_Type
-  | _ => Connector
   }
 }
 
 let tableItemToObjMapper: Dict.t<JSON.t> => failreResonsObjectType = dict => {
   {
-    error_reason: dict->getString(Error_Reason->getStringFromVariant, ""),
-    failure_reason_count: dict->getInt(Failure_Reason_Count->getStringFromVariant, 0),
-    total_failure_reasons_count: dict->getInt(Total_Failure_Reasons_Count->getStringFromVariant, 0),
-    reasons_count_ratio: dict->getFloat(Reasons_Count_Ratio->getStringFromVariant, 0.0),
+    refund_error_message: dict->getString(Refund_Error_Message->getStringFromVariant, ""),
+    refund_error_message_count: dict->getInt(Refund_Error_Message_Count->getStringFromVariant, 0),
+    total_refund_error_message_count: dict->getInt(
+      Total_Refund_Error_Message_Count->getStringFromVariant,
+      0,
+    ),
+    refund_error_message_count_ratio: dict->getFloat(
+      Refund_Error_Message_Count_Ratio->getStringFromVariant,
+      0.0,
+    ),
     connector: dict->getString(Connector->getStringFromVariant, ""),
-    payment_method: dict->getString(Payment_Method->getStringFromVariant, ""),
-    payment_method_type: dict->getString(Payment_Method_Type->getStringFromVariant, ""),
-    authentication_type: dict->getString(Authentication_Type->getStringFromVariant, ""),
   }
 }
 
@@ -48,28 +38,28 @@ let getObjects: JSON.t => array<failreResonsObjectType> = json => {
 
 let getHeading = colType => {
   switch colType {
-  | Error_Reason =>
+  | Refund_Error_Message =>
     Table.makeHeaderInfo(
-      ~key=Error_Reason->getStringFromVariant,
+      ~key=Refund_Error_Message->getStringFromVariant,
       ~title="Error Reason",
       ~dataType=TextType,
     )
-  | Failure_Reason_Count =>
+  | Refund_Error_Message_Count =>
     Table.makeHeaderInfo(
-      ~key=Failure_Reason_Count->getStringFromVariant,
+      ~key=Refund_Error_Message_Count->getStringFromVariant,
       ~title="Count",
       ~dataType=TextType,
     )
-  | Reasons_Count_Ratio =>
+  | Total_Refund_Error_Message_Count =>
     Table.makeHeaderInfo(
-      ~key=Reasons_Count_Ratio->getStringFromVariant,
-      ~title="Ratio (%)",
+      ~key=Total_Refund_Error_Message_Count->getStringFromVariant,
+      ~title="",
       ~dataType=TextType,
     )
-  | Total_Failure_Reasons_Count =>
+  | Refund_Error_Message_Count_Ratio =>
     Table.makeHeaderInfo(
-      ~key=Total_Failure_Reasons_Count->getStringFromVariant,
-      ~title="",
+      ~key=Refund_Error_Message_Count_Ratio->getStringFromVariant,
+      ~title="Ratio",
       ~dataType=TextType,
     )
   | Connector =>
@@ -78,38 +68,18 @@ let getHeading = colType => {
       ~title="Connector",
       ~dataType=TextType,
     )
-  | Payment_Method =>
-    Table.makeHeaderInfo(
-      ~key=Payment_Method->getStringFromVariant,
-      ~title="Payment Method",
-      ~dataType=TextType,
-    )
-  | Payment_Method_Type =>
-    Table.makeHeaderInfo(
-      ~key=Payment_Method_Type->getStringFromVariant,
-      ~title="Payment Method Type",
-      ~dataType=TextType,
-    )
-  | Authentication_Type =>
-    Table.makeHeaderInfo(
-      ~key=Authentication_Type->getStringFromVariant,
-      ~title="Authentication Type",
-      ~dataType=TextType,
-    )
   }
 }
 
 let getCell = (obj, colType): Table.cell => {
   open NewAnalyticsUtils
   switch colType {
-  | Error_Reason => Text(obj.error_reason)
-  | Failure_Reason_Count => Text(obj.failure_reason_count->Int.toString)
-  | Reasons_Count_Ratio => Text(obj.reasons_count_ratio->valueFormatter(Rate))
-  | Total_Failure_Reasons_Count => Text(obj.total_failure_reasons_count->Int.toString)
+  | Refund_Error_Message => Text(obj.refund_error_message)
+  | Refund_Error_Message_Count => Text(obj.refund_error_message_count->Int.toString)
+  | Total_Refund_Error_Message_Count => Text(obj.total_refund_error_message_count->Int.toString)
+  | Refund_Error_Message_Count_Ratio =>
+    Text(obj.refund_error_message_count_ratio->valueFormatter(Rate))
   | Connector => Text(obj.connector)
-  | Payment_Method => Text(obj.payment_method)
-  | Payment_Method_Type => Text(obj.payment_method_type)
-  | Authentication_Type => Text(obj.authentication_type)
   }
 }
 
@@ -117,40 +87,12 @@ let getTableData = json => {
   json->getArrayDataFromJson(tableItemToObjMapper)->Array.map(Nullable.make)
 }
 
-let tabs = [
-  {
-    label: "Connector",
-    value: Connector->getStringFromVariant,
-  },
-  {
-    label: "Payment Method",
-    value: Payment_Method->getStringFromVariant,
-  },
-  {
-    label: "Payment Method Type",
-    value: Payment_Method_Type->getStringFromVariant,
-  },
-  {
-    label: "Authentication Type",
-    value: Authentication_Type->getStringFromVariant,
-  },
-  {
-    label: "Payment Method + Payment Method Type",
-    value: `${Payment_Method->getStringFromVariant},${Payment_Method_Type->getStringFromVariant}`,
-  },
-]
-
-let defaulGroupBy = {
-  label: "Connector",
-  value: Connector->getStringFromVariant,
-}
-
 let modifyQuery = (queryData, metaData) => {
   let totalCount = switch metaData->Array.get(0) {
   | Some(val) => {
       let valueDict = val->getDictFromJsonObject
       let failure_reason_count =
-        valueDict->getInt(Total_Failure_Reasons_Count->getStringFromVariant, 0)
+        valueDict->getInt(Total_Refund_Error_Message_Count->getStringFromVariant, 0)
       failure_reason_count
     }
   | _ => 0
@@ -159,10 +101,14 @@ let modifyQuery = (queryData, metaData) => {
   let modifiedQuery = if totalCount > 0 {
     queryData->Array.map(query => {
       let valueDict = query->getDictFromJsonObject
-      let failure_reason_count = valueDict->getInt(Failure_Reason_Count->getStringFromVariant, 0)
+      let failure_reason_count =
+        valueDict->getInt(Refund_Error_Message_Count->getStringFromVariant, 0)
       let ratio = failure_reason_count->Int.toFloat /. totalCount->Int.toFloat *. 100.0
 
-      valueDict->Dict.set(Reasons_Count_Ratio->getStringFromVariant, ratio->JSON.Encode.float)
+      valueDict->Dict.set(
+        Refund_Error_Message_Count_Ratio->getStringFromVariant,
+        ratio->JSON.Encode.float,
+      )
       valueDict->JSON.Encode.object
     })
   } else {
@@ -173,8 +119,10 @@ let modifyQuery = (queryData, metaData) => {
     let valueDictA = queryA->getDictFromJsonObject
     let valueDictB = queryB->getDictFromJsonObject
 
-    let failure_reason_countA = valueDictA->getInt(Failure_Reason_Count->getStringFromVariant, 0)
-    let failure_reason_countB = valueDictB->getInt(Failure_Reason_Count->getStringFromVariant, 0)
+    let failure_reason_countA =
+      valueDictA->getInt(Refund_Error_Message_Count->getStringFromVariant, 0)
+    let failure_reason_countB =
+      valueDictB->getInt(Refund_Error_Message_Count->getStringFromVariant, 0)
 
     compareLogic(failure_reason_countA, failure_reason_countB)
   })

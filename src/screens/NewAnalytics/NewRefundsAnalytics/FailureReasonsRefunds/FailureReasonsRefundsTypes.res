@@ -1,20 +1,14 @@
 type failreResonsColsTypes =
-  | Error_Reason
-  | Failure_Reason_Count
-  | Reasons_Count_Ratio
-  | Total_Failure_Reasons_Count
+  | Refund_Error_Message
+  | Refund_Error_Message_Count
+  | Total_Refund_Error_Message_Count
+  | Refund_Error_Message_Count_Ratio
   | Connector
-  | Payment_Method
-  | Payment_Method_Type
-  | Authentication_Type
 
 type failreResonsObjectType = {
-  error_reason: string,
-  failure_reason_count: int,
-  total_failure_reasons_count: int,
-  reasons_count_ratio: float,
   connector: string,
-  payment_method: string,
-  payment_method_type: string,
-  authentication_type: string,
+  refund_error_message: string,
+  refund_error_message_count: int,
+  total_refund_error_message_count: int,
+  refund_error_message_count_ratio: float,
 }

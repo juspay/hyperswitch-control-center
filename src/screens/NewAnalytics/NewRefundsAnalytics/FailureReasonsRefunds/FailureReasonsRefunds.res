@@ -1,12 +1,12 @@
 open NewAnalyticsTypes
 open FailureReasonsRefundsTypes
-open NewPaymentAnalyticsEntity
+open NewRefundsAnalyticsEntity
 open FailureReasonsRefundsUtils
 open NewAnalyticsHelper
 
 module TableModule = {
   @react.component
-  let make = (~data, ~className="", ~selectedTab: string) => {
+  let make = (~data, ~className="") => {
     let (offset, setOffset) = React.useState(_ => 0)
 
     let defaultSort: Table.sortedObject = {
@@ -15,9 +15,13 @@ module TableModule = {
     }
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
-    let defaultCols = [Error_Reason, Failure_Reason_Count, Reasons_Count_Ratio]
-    let extraTabs = selectedTab->String.split(",")->Array.map(getColumn)
-    let visibleColumns = defaultCols->Array.concat(extraTabs)
+    let visibleColumns = [
+      Refund_Error_Message,
+      Refund_Error_Message_Count,
+      Refund_Error_Message_Count_Ratio,
+      Connector,
+    ]
+
     let tableData = getTableData(data)
 
     <div className>
@@ -44,19 +48,6 @@ module TableModule = {
   }
 }
 
-module FailureReasonsPaymentsHeader = {
-  @react.component
-  let make = (~groupBy, ~setGroupBy) => {
-    let setGroupBy = value => {
-      setGroupBy(_ => value)
-    }
-
-    <div className="w-full px-7 py-8 flex justify-between">
-      <Tabs option={groupBy} setOption={setGroupBy} options={tabs} />
-    </div>
-  }
-}
-
 @react.component
 let make = (~entity: moduleEntity) => {
   open LogicUtils
@@ -66,15 +57,14 @@ let make = (~entity: moduleEntity) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let (tableData, setTableData) = React.useState(_ => JSON.Encode.array([]))
-  let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
 
-  let getPaymentsProcessed = async () => {
+  let getRefundsProcessed = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let url = getURL(
-        ~entityName=ANALYTICS_PAYMENTS,
+        ~entityName=ANALYTICS_REFUNDS,
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
@@ -83,7 +73,6 @@ let make = (~entity: moduleEntity) => {
       | Some(dimentions) =>
         dimentions
         ->Array.map(item => (item: dimension :> string))
-        ->Array.concat(groupBy.value->String.split(","))
         ->Some
       | _ => None
       }
@@ -116,21 +105,21 @@ let make = (~entity: moduleEntity) => {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
+
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      getPaymentsProcessed()->ignore
+      getRefundsProcessed()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value])
+  }, [startTimeVal, endTimeVal])
 
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        <FailureReasonsPaymentsHeader groupBy setGroupBy />
         <div className="mb-5">
-          <TableModule data={tableData} className="mx-7" selectedTab={groupBy.value} />
+          <TableModule data={tableData} className="mx-7" />
         </div>
       </PageLoaderWrapper>
     </Card>
