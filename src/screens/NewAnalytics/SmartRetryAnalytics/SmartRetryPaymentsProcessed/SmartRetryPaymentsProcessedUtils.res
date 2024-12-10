@@ -71,7 +71,7 @@ let smartRetryPaymentsProcessedMapper = (
     categories: primaryCategories,
     data: lineGraphData,
     title,
-    yAxisMaxValue: None,
+    yAxisMaxValue: data->isEmptyGraph(xKey) ? Some(1) : None,
     tooltipFormatter: tooltipFormatter(
       ~secondaryCategories,
       ~title="Smart Retry Payments Processed",
