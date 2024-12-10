@@ -1,29 +1,23 @@
 open NewAnalyticsTypes
-open NewAnalyticsHelper
+open FailureReasonsPaymentsTypes
 open NewPaymentAnalyticsEntity
-open BarGraphTypes
-open FailedPaymentsDistributionUtils
-open NewPaymentAnalyticsUtils
+open FailureReasonsPaymentsUtils
+open NewAnalyticsHelper
+
 module TableModule = {
   @react.component
   let make = (~data, ~className="", ~selectedTab: string) => {
-    open LogicUtils
-
     let (offset, setOffset) = React.useState(_ => 0)
-    let {filterValueJson} = React.useContext(FilterContext.filterContext)
-    let isSmartRetryEnabled =
-      filterValueJson
-      ->getString("is_smart_retry_enabled", "true")
-      ->getBoolFromString(true)
-      ->getSmartRetryMetricType
+
     let defaultSort: Table.sortedObject = {
       key: "",
       order: Table.INC,
     }
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
-    let defaultCol = isSmartRetryEnbldForFailedPmtDist(isSmartRetryEnabled)
-    let visibleColumns = [selectedTab->getColumn]->Array.concat([defaultCol])
+    let defaultCols = [Error_Reason, Failure_Reason_Count, Reasons_Count_Ratio]
+    let extraTabs = selectedTab->String.split(",")->Array.map(getColumn)
+    let visibleColumns = defaultCols->Array.concat(extraTabs)
     let tableData = getTableData(data)
 
     <div className>
@@ -32,7 +26,7 @@ module TableModule = {
         title=" "
         hideTitle=true
         actualData={tableData}
-        entity=failedPaymentsDistributionTableEntity
+        entity=failureReasonsTableEntity
         resultsPerPage=10
         totalResults={tableData->Array.length}
         offset
@@ -50,76 +44,70 @@ module TableModule = {
   }
 }
 
-module FailedPaymentsDistributionHeader = {
+module FailureReasonsPaymentsHeader = {
   @react.component
-  let make = (~viewType, ~setViewType, ~groupBy, ~setGroupBy) => {
-    let setViewType = value => {
-      setViewType(_ => value)
-    }
-
+  let make = (~groupBy, ~setGroupBy) => {
     let setGroupBy = value => {
       setGroupBy(_ => value)
     }
 
     <div className="w-full px-7 py-8 flex justify-between">
       <Tabs option={groupBy} setOption={setGroupBy} options={tabs} />
-      <div className="flex gap-2">
-        <TabSwitch viewType setViewType />
-      </div>
     </div>
   }
 }
 
 @react.component
-let make = (
-  ~entity: moduleEntity,
-  ~chartEntity: chartEntity<barGraphPayload, barGraphOptions, JSON.t>,
-) => {
+let make = (~entity: moduleEntity) => {
   open LogicUtils
   open APIUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let (failedPaymentsDistribution, setfailedPaymentsDistribution) = React.useState(_ =>
-    JSON.Encode.array([])
-  )
-  let (viewType, setViewType) = React.useState(_ => Graph)
+  let (tableData, setTableData) = React.useState(_ => JSON.Encode.array([]))
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
-  let isSmartRetryEnabled =
-    filterValueJson
-    ->getString("is_smart_retry_enabled", "true")
-    ->getBoolFromString(true)
-    ->getSmartRetryMetricType
 
-  let getFailedPaymentsDistribution = async () => {
+  let getPaymentsProcessed = async () => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
         ~entityName=ANALYTICS_PAYMENTS,
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
 
+      let groupByNames = switch entity.requestBodyConfig.groupBy {
+      | Some(dimentions) =>
+        dimentions
+        ->Array.map(item => (item: dimension :> string))
+        ->Array.concat(groupBy.value->String.split(","))
+        ->Some
+      | _ => None
+      }
+
       let body = NewAnalyticsUtils.requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
-        ~groupByNames=[groupBy.value]->Some,
+        ~groupByNames,
       )
 
       let response = await updateDetails(url, body, Post)
-      let responseData =
+
+      let metaData = response->getDictFromJsonObject->getArrayFromDict("metaData", [])
+
+      let data =
         response
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-        ->NewAnalyticsUtils.filterQueryData(groupBy.value)
+        ->modifyQuery(metaData)
 
-      if responseData->Array.length > 0 {
-        setfailedPaymentsDistribution(_ => responseData->JSON.Encode.array)
+      if data->Array.length > 0 {
+        setTableData(_ => data->JSON.Encode.array)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
@@ -128,35 +116,21 @@ let make = (
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
-
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      getFailedPaymentsDistribution()->ignore
+      getPaymentsProcessed()->ignore
     }
     None
   }, [startTimeVal, endTimeVal, groupBy.value])
-  let params = {
-    data: failedPaymentsDistribution,
-    xKey: Payments_Failure_Rate_Distribution->getKeyForModule(~isSmartRetryEnabled),
-    yKey: groupBy.value,
-  }
+
   <div>
     <ModuleHeader title={entity.title} />
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        <FailedPaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
+        <FailureReasonsPaymentsHeader groupBy setGroupBy />
         <div className="mb-5">
-          {switch viewType {
-          | Graph =>
-            <BarGraph
-              entity={chartEntity} object={chartEntity.getObjects(~params)} className="mr-3"
-            />
-          | Table =>
-            <TableModule
-              data={failedPaymentsDistribution} className="mx-7" selectedTab={groupBy.value}
-            />
-          }}
+          <TableModule data={tableData} className="mx-7" selectedTab={groupBy.value} />
         </div>
       </PageLoaderWrapper>
     </Card>

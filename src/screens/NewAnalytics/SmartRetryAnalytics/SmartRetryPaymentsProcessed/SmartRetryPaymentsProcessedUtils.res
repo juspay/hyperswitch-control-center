@@ -238,3 +238,11 @@ let modifySmartRetryMetaData = data => {
     valueDict->JSON.Encode.object
   })
 }
+
+let getMetaDataMapper = key => {
+  let field = key->getVariantValueFromString
+  switch field {
+  | Payment_Processed_Amount => Total_Payment_Processed_Amount
+  | Payment_Processed_Count | _ => Total_Payment_Processed_Count
+  }->getStringFromVariant
+}

@@ -67,8 +67,16 @@ module SmartRetryPaymentsProcessedHeader = {
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
 
-    let primaryValue = getMetaDataValue(~data, ~index=0, ~key=selectedMetric.value)
-    let secondaryValue = getMetaDataValue(~data, ~index=1, ~key=selectedMetric.value)
+    let primaryValue = getMetaDataValue(
+      ~data,
+      ~index=0,
+      ~key=selectedMetric.value->getMetaDataMapper,
+    )
+    let secondaryValue = getMetaDataValue(
+      ~data,
+      ~index=1,
+      ~key=selectedMetric.value->getMetaDataMapper,
+    )
 
     let (primaryValue, secondaryValue) = if selectedMetric.value->isAmountMetric {
       (primaryValue /. 100.0, secondaryValue /. 100.0)
@@ -163,7 +171,6 @@ let make = (
       )
 
       let primaryBody = NewAnalyticsUtils.requestBody(
-        ~dimensions=[],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
@@ -172,7 +179,6 @@ let make = (
       )
 
       let secondaryBody = NewAnalyticsUtils.requestBody(
-        ~dimensions=[],
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,

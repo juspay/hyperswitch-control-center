@@ -1,29 +1,21 @@
 open NewAnalyticsTypes
 open NewAnalyticsHelper
-open NewPaymentAnalyticsEntity
 open BarGraphTypes
-open FailedPaymentsDistributionUtils
-open NewPaymentAnalyticsUtils
+open NewSmartRetryAnalyticsEntity
+open SuccessfulSmartRetryDistributionUtils
+open SuccessfulSmartRetryDistributionTypes
+
 module TableModule = {
   @react.component
   let make = (~data, ~className="", ~selectedTab: string) => {
-    open LogicUtils
-
     let (offset, setOffset) = React.useState(_ => 0)
-    let {filterValueJson} = React.useContext(FilterContext.filterContext)
-    let isSmartRetryEnabled =
-      filterValueJson
-      ->getString("is_smart_retry_enabled", "true")
-      ->getBoolFromString(true)
-      ->getSmartRetryMetricType
     let defaultSort: Table.sortedObject = {
       key: "",
       order: Table.INC,
     }
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
-
-    let defaultCol = isSmartRetryEnbldForFailedPmtDist(isSmartRetryEnabled)
-    let visibleColumns = [selectedTab->getColumn]->Array.concat([defaultCol])
+    let visibleColumns =
+      [selectedTab->getColumn]->Array.concat([Payments_Success_Rate_Distribution_With_Only_Retries])
     let tableData = getTableData(data)
 
     <div className>
@@ -32,7 +24,7 @@ module TableModule = {
         title=" "
         hideTitle=true
         actualData={tableData}
-        entity=failedPaymentsDistributionTableEntity
+        entity=successfulSmartRetryDistributionTableEntity
         resultsPerPage=10
         totalResults={tableData->Array.length}
         offset
@@ -50,7 +42,7 @@ module TableModule = {
   }
 }
 
-module FailedPaymentsDistributionHeader = {
+module SuccessfulSmartRetryDistributionHeader = {
   @react.component
   let make = (~viewType, ~setViewType, ~groupBy, ~setGroupBy) => {
     let setViewType = value => {
@@ -80,46 +72,45 @@ let make = (
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let (failedPaymentsDistribution, setfailedPaymentsDistribution) = React.useState(_ =>
-    JSON.Encode.array([])
-  )
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (paymentsDistribution, setpaymentsDistribution) = React.useState(_ => JSON.Encode.array([]))
+
   let (viewType, setViewType) = React.useState(_ => Graph)
   let (groupBy, setGroupBy) = React.useState(_ => defaulGroupBy)
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
-  let isSmartRetryEnabled =
-    filterValueJson
-    ->getString("is_smart_retry_enabled", "true")
-    ->getBoolFromString(true)
-    ->getSmartRetryMetricType
 
-  let getFailedPaymentsDistribution = async () => {
+  let getPaymentsDistribution = async () => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
         ~entityName=ANALYTICS_PAYMENTS,
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
 
+      // TODO: need refactor on filters
+      let filters = Dict.make()
+      filters->Dict.set("first_attempt", [false->JSON.Encode.bool]->JSON.Encode.array)
+
       let body = NewAnalyticsUtils.requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
+        ~filter=filters->JSON.Encode.object->Some,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=entity.requestBodyConfig.metrics,
         ~groupByNames=[groupBy.value]->Some,
       )
 
       let response = await updateDetails(url, body, Post)
-      let responseData =
+      let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      let arr =
         response
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
-        ->NewAnalyticsUtils.filterQueryData(groupBy.value)
 
-      if responseData->Array.length > 0 {
-        setfailedPaymentsDistribution(_ => responseData->JSON.Encode.array)
+      if arr->Array.length > 0 {
+        setpaymentsDistribution(_ => responseData->JSON.Encode.array)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)
@@ -131,13 +122,13 @@ let make = (
 
   React.useEffect(() => {
     if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
-      getFailedPaymentsDistribution()->ignore
+      getPaymentsDistribution()->ignore
     }
     None
   }, [startTimeVal, endTimeVal, groupBy.value])
   let params = {
-    data: failedPaymentsDistribution,
-    xKey: Payments_Failure_Rate_Distribution->getKeyForModule(~isSmartRetryEnabled),
+    data: paymentsDistribution,
+    xKey: Payments_Success_Rate_Distribution_With_Only_Retries->getStringFromVariant,
     yKey: groupBy.value,
   }
   <div>
@@ -145,7 +136,7 @@ let make = (
     <Card>
       <PageLoaderWrapper
         screenState customLoader={<Shimmer layoutId=entity.title />} customUI={<NoData />}>
-        <FailedPaymentsDistributionHeader viewType setViewType groupBy setGroupBy />
+        <SuccessfulSmartRetryDistributionHeader viewType setViewType groupBy setGroupBy />
         <div className="mb-5">
           {switch viewType {
           | Graph =>
@@ -153,9 +144,7 @@ let make = (
               entity={chartEntity} object={chartEntity.getObjects(~params)} className="mr-3"
             />
           | Table =>
-            <TableModule
-              data={failedPaymentsDistribution} className="mx-7" selectedTab={groupBy.value}
-            />
+            <TableModule data={paymentsDistribution} className="mx-7" selectedTab={groupBy.value} />
           }}
         </div>
       </PageLoaderWrapper>
