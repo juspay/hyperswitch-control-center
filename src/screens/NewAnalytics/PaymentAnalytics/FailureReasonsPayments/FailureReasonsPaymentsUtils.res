@@ -156,7 +156,7 @@ let modifyQuery = (queryData, metaData) => {
   | _ => 0
   }
 
-  if totalCount > 0 {
+  let modifiedQuery = if totalCount > 0 {
     queryData->Array.map(query => {
       let valueDict = query->getDictFromJsonObject
       let failure_reason_count = valueDict->getInt(Failure_Reason_Count->getStringFromVariant, 0)
@@ -168,4 +168,16 @@ let modifyQuery = (queryData, metaData) => {
   } else {
     queryData
   }
+
+  modifiedQuery->Array.sort((queryA, queryB) => {
+    let valueDictA = queryA->getDictFromJsonObject
+    let valueDictB = queryB->getDictFromJsonObject
+
+    let failure_reason_countA = valueDictA->getInt(Failure_Reason_Count->getStringFromVariant, 0)
+    let failure_reason_countB = valueDictB->getInt(Failure_Reason_Count->getStringFromVariant, 0)
+
+    compareLogic(failure_reason_countA, failure_reason_countB)
+  })
+
+  modifiedQuery
 }
