@@ -15,6 +15,7 @@ let make = () => {
     <FailedRefundsDistribution
       entity={failedRefundsDistributionEntity} chartEntity={failedRefundsDistributionChartEntity}
     />
+    <RefundsReasons entity={refundsReasonsEntity} />
     <FailureReasonsRefunds entity={failureReasonsEntity} />
   </div>
 }

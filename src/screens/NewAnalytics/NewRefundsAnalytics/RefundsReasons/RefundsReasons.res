@@ -1,7 +1,7 @@
 open NewAnalyticsTypes
-open FailureReasonsRefundsTypes
+open RefundsReasonsTypes
 open NewRefundsAnalyticsEntity
-open FailureReasonsRefundsUtils
+open RefundsReasonsUtils
 open NewAnalyticsHelper
 
 module TableModule = {
@@ -15,12 +15,7 @@ module TableModule = {
     }
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
-    let visibleColumns = [
-      Refund_Error_Message,
-      Refund_Error_Message_Count,
-      Refund_Error_Message_Count_Ratio,
-      Connector,
-    ]
+    let visibleColumns = [Refund_Reason, Refund_Reason_Count, Refund_Reason_Count_Ratio, Connector]
 
     let tableData = getTableData(data)
 
@@ -30,7 +25,7 @@ module TableModule = {
         title=" "
         hideTitle=true
         actualData={tableData}
-        entity=failureReasonsTableEntity
+        entity=refundsReasonsTableEntity
         resultsPerPage=10
         totalResults={tableData->Array.length}
         offset

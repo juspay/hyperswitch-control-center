@@ -15,6 +15,7 @@ type dimension = [
   | #card_network
   | #authentication_type
   | #refund_error_message
+  | #refund_reason
 ]
 
 type metrics = [
@@ -33,6 +34,7 @@ type metrics = [
   | #sessionized_refund_success_rate
   | #sessionized_refund_count
   | #sessionized_refund_error_message
+  | #sessionized_refund_reason
 ]
 type granularity = [
   | #G_ONEDAY
