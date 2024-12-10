@@ -111,7 +111,9 @@ module SmartRetryPaymentsProcessedHeader = {
           {`${primaryValue->valueFormatter(metricType)} ${suffix}`->React.string} // TODO:Currency need to be picked from filter
         </div>
         <RenderIf condition={comparison == EnableComparison}>
-          <StatisticsCard value direction />
+          <StatisticsCard
+            value direction tooltipValue={`${secondaryValue->valueFormatter(metricType)} ${suffix}`}
+          />
         </RenderIf>
       </div>
       // will enable it in future

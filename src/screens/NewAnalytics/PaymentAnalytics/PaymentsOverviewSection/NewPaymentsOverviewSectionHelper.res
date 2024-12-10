@@ -22,11 +22,14 @@ module SmartRetryCard = {
             <div className="font-semibold  text-2xl dark:text-white">
               {`Saved ${valueFormatter(primaryValue, config.valueType)} USD`->React.string} // TODO:Currency need to be picked from filter
             </div>
-            <div className="scale-[0.9]">
-              <RenderIf condition={comparison === EnableComparison}>
-                <StatisticsCard value direction />
-              </RenderIf>
-            </div>
+            <RenderIf condition={comparison === EnableComparison}>
+              <StatisticsCard
+                value
+                direction
+                isOverviewComponent=true
+                tooltipValue={`${valueFormatter(secondaryValue, config.valueType)} USD`}
+              />
+            </RenderIf>
           </div>
           <div className="opacity-50 text-sm"> {config.description->React.string} </div>
         </div>
@@ -52,23 +55,22 @@ module OverViewStat = {
 
     let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
 
+    let displayValue = valueFormatter(primaryValue, config.valueType)
+    let suffix = config.valueType == Amount ? "USD" : ""
+
     <Card>
       <div className="p-6 flex flex-col gap-4 justify-between h-full gap-auto relative">
         <div className="flex justify-between w-full items-end">
           <div className="flex gap-1 items-center">
-            <div className="font-bold text-3xl">
-              {
-                let value = valueFormatter(primaryValue, config.valueType)
-                let suffix = config.valueType == Amount ? "USD" : ""
-
-                `${value} ${suffix}`->React.string
-              }
-            </div>
-            <div className="scale-[0.9]">
-              <RenderIf condition={comparison === EnableComparison}>
-                <StatisticsCard value direction />
-              </RenderIf>
-            </div>
+            <div className="font-bold text-3xl"> {`${displayValue} ${suffix}`->React.string} </div>
+            <RenderIf condition={comparison === EnableComparison}>
+              <StatisticsCard
+                value
+                direction
+                isOverviewComponent=true
+                tooltipValue={`${valueFormatter(secondaryValue, config.valueType)} ${suffix}`}
+              />
+            </RenderIf>
           </div>
         </div>
         <div className={"flex flex-col gap-1  text-black"}>

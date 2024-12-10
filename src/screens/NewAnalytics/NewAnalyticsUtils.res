@@ -180,6 +180,24 @@ let sortQueryDataByDate = query => {
   query
 }
 
+let getMaxValue = (data: JSON.t, index: int, key: string) => {
+  data
+  ->getArrayFromJson([])
+  ->getValueFromArray(index, []->JSON.Encode.array)
+  ->getArrayFromJson([])
+  ->Array.reduce(0.0, (acc, item) => {
+    let value = item->getDictFromJsonObject->getFloat(key, 0.0)
+    Math.max(acc, value)
+  })
+}
+
+let isEmptyGraph = (data: JSON.t, key: string) => {
+  let primaryMaxValue = data->getMaxValue(0, key)
+  let secondaryMaxValue = data->getMaxValue(1, key)
+
+  Math.max(primaryMaxValue, secondaryMaxValue) == 0.0
+}
+
 let getCategories = (data: JSON.t, index: int, key: string) => {
   data
   ->getArrayFromJson([])

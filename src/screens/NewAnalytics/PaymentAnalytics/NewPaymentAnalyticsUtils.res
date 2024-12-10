@@ -112,7 +112,23 @@ let tooltipFormatter = (
       }
 
       let tableItems = [
-        getRowsHtml(~iconColor=primartPoint.color, ~date=primartPoint.x, ~value=primartPoint.y),
+        getRowsHtml(
+          ~iconColor=primartPoint.color,
+          ~date=primartPoint.x,
+          ~value=primartPoint.y,
+          ~comparisionComponent={
+            switch comparison {
+            | Some(value) =>
+              value == DateRangeUtils.EnableComparison
+                ? getToolTipConparision(
+                    ~primaryValue=primartPoint.y,
+                    ~secondaryValue=secondaryPoint.y,
+                  )
+                : ""
+            | None => ""
+            }
+          },
+        ),
         {
           switch comparison {
           | Some(value) =>
@@ -121,10 +137,6 @@ let tooltipFormatter = (
                   ~iconColor=secondaryPoint.color,
                   ~date=secondaryCategories->getValueFromArray(secondaryPoint.point.index, ""),
                   ~value=secondaryPoint.y,
-                  ~comparisionComponent=getToolTipConparision(
-                    ~primaryValue=primartPoint.y,
-                    ~secondaryValue=secondaryPoint.y,
-                  ),
                 )
               : ""
           | None => ""
