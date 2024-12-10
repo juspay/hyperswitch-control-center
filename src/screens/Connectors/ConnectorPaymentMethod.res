@@ -110,7 +110,7 @@ let make = (
         paymentMethodsClone
         ->Identity.genericTypeToJson
         ->JSON.stringify
-        ->LogicUtils.safeParse
+        ->safeParse
         ->getPaymentMethodEnabled
       setPaymentMethods(_ => clonedData)
       setPaymentMethodsClone(_ => [])

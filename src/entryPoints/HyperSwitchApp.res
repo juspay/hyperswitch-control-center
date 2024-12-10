@@ -46,7 +46,7 @@ let make = () => {
   sessionExpired := false
 
   React.useEffect(() => {
-    if retainCloneModal == true {
+    if retainCloneModal {
       setShowModal(_ => true)
       setScreenState(_ => PageLoaderWrapper.Custom)
     } else {
@@ -90,7 +90,7 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if userGroupACL->Option.isSome {
       setScreenState(_ => PageLoaderWrapper.Success)
     }

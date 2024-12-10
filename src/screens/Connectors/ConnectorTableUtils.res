@@ -24,7 +24,7 @@ let defaultColumns = [
   PaymentMethods,
 ]
 
-let defaultPaymentColumns = defaultColumns->Array.concat([Actions])
+let defaultPaymentColumns = [...defaultColumns, Actions]
 
 let getConnectorObjectFromListViaId = (
   connectorList: array<ConnectorTypes.connectorPayload>,
