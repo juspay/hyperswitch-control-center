@@ -1,5 +1,5 @@
 @react.component
-let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
+let make = () => {
   open APIUtils
   open ListRolesTableEntity
   let getURL = useGetURL()
@@ -10,6 +10,10 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let (
+    userModuleEntity: UserManagementTypes.userModuleTypes,
+    setUserModuleEntity,
+  ) = React.useState(_ => #Default)
 
   let getRolesAvailable = async () => {
     setScreenStateRoles(_ => PageLoaderWrapper.Loading)
@@ -38,7 +42,12 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
 
   <div className="relative mt-5 flex flex-col gap-6">
     <PageLoaderWrapper screenState={screenStateRoles}>
-      <div className="flex flex-1 justify-end">
+      <div className="flex flex-1 gap-2 items-center justify-end">
+        <UserManagementHelper.NewUserOmpView
+          views={UserManagementUtils.getUserManagementViewValues(~checkUserEntity)}
+          userModuleEntity
+          setUserModuleEntity
+        />
         <ACLButton
           authorization={userHasAccess(~groupAccess=UsersManage)}
           text={"Create custom roles"}

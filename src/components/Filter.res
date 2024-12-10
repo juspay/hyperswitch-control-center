@@ -382,6 +382,7 @@ let make = (
                 fieldWrapperClass="p-0"
               />
             </RenderIf>
+            <PortalCapture key={`${title}OMPView`} name={`${title}OMPView`} />
             <PortalCapture key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} />
           </div>
         </div>

@@ -1,18 +1,23 @@
 open ListUserTableEntity
 
 @react.component
-let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
+let make = () => {
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (usersData, setUsersData) = React.useState(_ => [])
   let (usersFilterData, setUsersFilterData) = React.useState(_ => [])
   let (screenStateUsers, setScreenStateUsers) = React.useState(_ => PageLoaderWrapper.Loading)
   let (userOffset, setUserOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
+  let (
+    userModuleEntity: UserManagementTypes.userModuleTypes,
+    setUserModuleEntity,
+  ) = React.useState(_ => #Default)
 
   let getUserData = async () => {
     setScreenStateUsers(_ => PageLoaderWrapper.Loading)
@@ -57,7 +62,12 @@ let make = (~userModuleEntity: UserManagementTypes.userModuleTypes) => {
 
   <PageLoaderWrapper screenState={screenStateUsers}>
     <div className="relative mt-5 w-full flex flex-col gap-12">
-      <div className="absolute right-0 z-10">
+      <div className="flex gap-2 items-center absolute right-0 z-10">
+        <UserManagementHelper.NewUserOmpView
+          views={UserManagementUtils.getUserManagementViewValues(~checkUserEntity)}
+          userModuleEntity
+          setUserModuleEntity
+        />
         <ACLButton
           authorization={userHasAccess(~groupAccess=UsersManage)}
           text={"Invite users"}
