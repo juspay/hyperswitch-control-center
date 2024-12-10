@@ -685,6 +685,7 @@ let make = (
               views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
               selectedEntity={analyticsEntity}
               onChange={updateAnalytcisEntity}
+              entityMapper=UserInfoUtils.analyticsEntityMapper
             />
           </RenderIf>
         </div>
