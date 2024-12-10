@@ -207,6 +207,7 @@ let make = () => {
   | Some(filterData) =>
     <div className="flex flex-row">
       <DynamicFilter
+        title="PaymentAnalytics"
         initialFilters={initialFilterFields(filterData)}
         options=[]
         popupFilterFields={options(filterData)}
@@ -223,6 +224,7 @@ let make = () => {
   | None =>
     <div className="flex flex-row">
       <DynamicFilter
+        title="PaymentAnalytics"
         initialFilters=[]
         options=[]
         popupFilterFields=[]
@@ -243,11 +245,14 @@ let make = () => {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between ">
         <PageUtils.PageHeading title />
-        <OMPSwitchHelper.OMPViews
-          views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
-          selectedEntity={analyticsEntity}
-          onChange={updateAnalytcisEntity}
-        />
+        <Portal to="PaymentAnalyticsOMPView">
+          <OMPSwitchHelper.OMPViews
+            views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
+            selectedEntity={analyticsEntity}
+            onChange={updateAnalytcisEntity}
+            entityMapper=UserInfoUtils.analyticsEntityMapper
+          />
+        </Portal>
       </div>
       <div
         className="-ml-1 sticky top-0 z-30 p-1 bg-hyperswitch_background/70 py-1 rounded-lg my-2">

@@ -228,6 +228,130 @@ module SwitchMerchantForUserAction = {
   }
 }
 
+module OMPViewBaseComp = {
+  @react.component
+  let make = (~userModuleEntity: UserManagementTypes.userModuleTypes, ~arrow) => {
+    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
+
+    let arrowUpClass = "rotate-0 transition duration-[250ms] opacity-70"
+    let arrowDownClass = "rotate-180 transition duration-[250ms] opacity-70"
+
+    let displayName = switch userModuleEntity {
+    | #Default => "My Team"
+    | _ => userModuleEntity->getNameForId
+    }
+
+    let truncatedDisplayName = if displayName->String.length > 15 {
+      <HSwitchOrderUtils.EllipsisText
+        displayValue=displayName endValue=15 showCopy=false expandText=false
+      />
+    } else {
+      {displayName->React.string}
+    }
+
+    <div className={`text-sm font-medium cursor-pointer}`}>
+      <div className={`flex flex-col items-start`}>
+        <div className="text-left flex items-center gap-2">
+          <Icon name="settings-new" size=18 />
+          <p className={`text-jp-gray-900 fs-10 overflow-scroll text-nowrap`}>
+            {`Viewing data for:`->React.string}
+          </p>
+          <span className="text-blue-500"> {truncatedDisplayName} </span>
+          <Icon
+            className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`}
+            name="arrow-without-tail"
+            size=15
+          />
+        </div>
+      </div>
+    </div>
+  }
+}
+
+let newGenerateDropdownOptions = (
+  dropdownList: array<UserManagementTypes.ompViewType>,
+  getNameForId,
+) => {
+  let options: array<SelectBox.dropdownOption> = dropdownList->Array.map((
+    item
+  ): SelectBox.dropdownOption => {
+    switch item.entity {
+    | #Default => {
+        label: `${item.label} (${(item.entity :> string)})`,
+        value: `${(item.entity :> string)}`,
+      }
+    | _ => {
+        label: `${item.entity->getNameForId} (${(item.entity :> string)})`,
+        value: `${(item.entity :> string)}`,
+      }
+    }
+  })
+  options
+}
+
+module NewUserOmpView = {
+  @react.component
+  let make = (
+    ~views: array<UserManagementTypes.ompViewType>,
+    ~userModuleEntity: UserManagementTypes.userModuleTypes,
+    ~setUserModuleEntity,
+  ) => {
+    let (arrow, setArrow) = React.useState(_ => false)
+    let (_, getNameForId) = OMPSwitchHooks.useOMPData()
+
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      name: "name",
+      onBlur: _ => (),
+      onChange: ev => {
+        let value = ev->Identity.formReactEventToString
+        let selection = switch value {
+        | "Default" => #Default
+        | _ => value->UserInfoUtils.entityMapper
+        }
+        setUserModuleEntity(_ => selection)
+      },
+      onFocus: _ => (),
+      value: (userModuleEntity :> string)->JSON.Encode.string,
+      checked: true,
+    }
+
+    let toggleChevronState = () => {
+      setArrow(prev => !prev)
+    }
+
+    let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
+    let dropdownContainerStyle = "rounded-ls border w-fit min-w-[15rem] max-w-[20rem]"
+
+    <div className="flex">
+      <div
+        className="flex h-fit border border-grey-100 bg-white rounded-lg px-4 py-2 hover:bg-opacity-80">
+        <SelectBox.BaseDropdown
+          allowMultiSelect=false
+          buttonText=""
+          input
+          deselectDisable=true
+          customButtonStyle="!rounded-md"
+          options={views->newGenerateDropdownOptions(getNameForId)}
+          marginTop="mt-10"
+          hideMultiSelectButtons=true
+          addButton=false
+          customStyle="rounded w-fit absolute left-0"
+          searchable=false
+          baseComponent={<OMPViewBaseComp userModuleEntity arrow />}
+          baseComponentCustomStyle="bg-white rounded"
+          optionClass="text-jp-gray-900 text-opacity-75 text-fs-14"
+          selectClass="text-jp-gray-900 text-opacity-75 text-fs-14"
+          customDropdownOuterClass="!border-none min-w-[20rem] w-fit max-w-[20rem]"
+          toggleChevronState
+          customScrollStyle
+          dropdownContainerStyle
+          shouldDisplaySelectedOnTop=true
+        />
+      </div>
+    </div>
+  }
+}
+
 module UserOmpView = {
   @react.component
   let make = (

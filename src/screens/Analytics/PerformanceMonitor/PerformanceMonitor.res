@@ -98,6 +98,7 @@ let make = (~domain="payments") => {
           views={OMPSwitchUtils.analyticsViewList(~checkUserEntity)}
           selectedEntity={analyticsEntity}
           onChange={updateAnalytcisEntity}
+          entityMapper=UserInfoUtils.analyticsEntityMapper
         />
       </div>
       <div
