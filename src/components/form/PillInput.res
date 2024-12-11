@@ -70,8 +70,10 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
   }
 
   let handleKeyDown = e => {
-    let key = ReactEvent.Keyboard.key(e)
-    if key == "Enter" {
+    open ReactEvent.Keyboard
+    let key = e->key
+    let keyCode = e->keyCode
+    if key === "Enter" || keyCode === 13 {
       ReactEvent.Keyboard.preventDefault(e)
       addItem(inputValue)
     }
@@ -95,8 +97,10 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
               onBlur={_ => saveItem(item)}
               onInput=handleEditChange
               onKeyDown={ev => {
-                let key = ReactEvent.Keyboard.key(ev)
-                if key == "Enter" {
+                open ReactEvent.Keyboard
+                let key = ev->key
+                let keyCode = ev->keyCode
+                if key === "Enter" || keyCode === 13 {
                   ReactEvent.Keyboard.preventDefault(ev)
                   saveItem(item)
                 }
