@@ -140,6 +140,8 @@ let make = (~isPayoutFlow=false) => {
             entity={ConnectorTableUtils.connectorEntity(
               `${entityPrefix}connectors`,
               ~authorization=userHasAccess(~groupAccess=ConnectorsManage),
+              ~isPayoutFlow,
+              ~isCloningEnabled=featureFlagDetails.clonePaymentMethods,
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false

@@ -18,6 +18,8 @@ let make = () => {
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
+  let retainCloneModal = Recoil.useRecoilValueFromAtom(HyperswitchAtom.retainCloneModalAtom)
+  let (showModal, setShowModal) = React.useState(_ => false)
 
   let {
     fetchMerchantSpecificConfig,
@@ -43,6 +45,17 @@ let make = () => {
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
   sessionExpired := false
 
+  React.useEffect(() => {
+    if retainCloneModal {
+      setShowModal(_ => true)
+      setScreenState(_ => PageLoaderWrapper.Custom)
+    } else {
+      setShowModal(_ => false)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    }
+    None
+  }, [retainCloneModal])
+
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
@@ -54,6 +67,9 @@ let make = () => {
       switch url.path->urlPath {
       | list{"unauthorized"} => RescriptReactRouter.push(appendDashboardPath(~url="/home"))
       | _ => ()
+      }
+      if retainCloneModal {
+        setScreenState(_ => PageLoaderWrapper.Custom)
       }
       setDashboardPageState(_ => #HOME)
     } catch {
@@ -74,9 +90,12 @@ let make = () => {
     None
   }, (featureFlagDetails.mixpanel, path))
 
-  React.useEffect1(() => {
+  React.useEffect(() => {
     if userGroupACL->Option.isSome {
       setScreenState(_ => PageLoaderWrapper.Success)
+    }
+    if retainCloneModal {
+      setScreenState(_ => PageLoaderWrapper.Custom)
     }
     None
   }, [userGroupACL])
@@ -89,6 +108,9 @@ let make = () => {
       </RenderIf>
       <ProfileSwitch />
     </div>
+
+  let customUI = <CloneConnectorPaymentMethods.ClonePaymentMethodsModal setShowModal showModal />
+
   <>
     <div>
       {switch dashboardPageState {
@@ -106,7 +128,10 @@ let make = () => {
                 />
               </RenderIf>
               <PageLoaderWrapper
-                screenState={screenState} sectionHeight="!h-screen w-full" showLogoutButton=true>
+                screenState={screenState}
+                customUI
+                sectionHeight="!h-screen w-full"
+                showLogoutButton=true>
                 <div
                   className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
                   <div className="border-b shadow hyperswitch_box_shadow ">
