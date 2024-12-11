@@ -19,7 +19,7 @@ let tooltipFormatter = (
 
     let titleString = switch pointType {
     | Node => this.key
-    | Link => `${this.point.from} -> ${this.point.to}`
+    | Link => `${this.point.from} &#8594; ${this.point.to}`
     }
 
     let info = switch pointType {

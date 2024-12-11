@@ -15,7 +15,9 @@ let getBarGraphOptions = (barGraphOptions: barGraphPayload) => {
       labels: {
         align: "center",
         style: {
-          color: "#999",
+          fontFamily: "Arial, sans-serif",
+          fontSize: "12px",
+          color: "#666666",
         },
       },
       tickWidth: 1,
@@ -29,6 +31,14 @@ let getBarGraphOptions = (barGraphOptions: barGraphPayload) => {
     },
     yAxis: {
       title,
+      labels: {
+        align: "center",
+        style: {
+          fontFamily: "Arial, sans-serif",
+          fontSize: "12px",
+          color: "#666666",
+        },
+      },
       gridLineWidth: 1,
       gridLineDashStyle: "Solid",
       gridLineColor: "#e6e6e6",

@@ -26,8 +26,12 @@ type min = int
 type showInLegend = bool
 type name = string
 
-type title = {text: string}
-type style = {color: color}
+type style = {
+  color: color,
+  fontFamily?: string,
+  fontSize?: string,
+}
+type title = {text: string, style?: style}
 type enabled = {enabled: bool}
 type credits = {
   ...enabled,
@@ -43,7 +47,8 @@ type plotOptions = {line: line}
 type labels = {
   align: align,
   style: style,
-  y: y,
+  y?: y,
+  x?: int,
 }
 type chart = {
   \"type": \"type",
@@ -62,6 +67,7 @@ type data = array<dataObj>
 
 type yAxis = {
   title: title,
+  labels: labels,
   gridLineWidth: gridLineWidth,
   gridLineColor: gridLineColor,
   gridLineDashStyle: gridLineDashStyle,
@@ -101,8 +107,30 @@ type tooltip = {
   shadow: bool,
 }
 
+type itemStyle = {
+  fontFamily: string,
+  fontSize: string,
+  color: string,
+}
+
+type legendPoint = {
+  color: string,
+  name: string,
+}
+
+external asLegendsFormatter: Js_OO.Callback.arity1<'a> => legendPoint => string = "%identity"
+
+type legend = {
+  itemStyle: itemStyle,
+  useHTML: bool,
+  labelFormatter: legendPoint => string,
+  symbolPadding: int,
+  symbolWidth: int,
+}
+
 type lineGraphOptions = {
   chart: chart,
+  legend: legend,
   title: title,
   xAxis: xAxis,
   yAxis: yAxis,
