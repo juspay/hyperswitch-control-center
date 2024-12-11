@@ -1,5 +1,15 @@
 open LineGraphTypes
 
+let valueFormatter = (
+  @this
+  this => {
+    `<div style="display: flex; align-items: center;">
+        <div style="width: 13px; height: 13px; background-color:${this.color}; border-radius:3px;"></div>
+        <div style="margin-left: 5px;">${this.name}</div>
+    </div>`
+  }
+)->asLegendsFormatter
+
 let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
   let {categories, data, title, tooltipFormatter, yAxisMaxValue} = lineGraphOptions
 
@@ -9,10 +19,24 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
   )
 
   let yAxis: LineGraphTypes.yAxis = {
-    title,
+    title: {
+      ...title,
+      style: {
+        color: "#666666",
+        fontFamily: "Arial, sans-serif", // Set the desired font family
+      },
+    },
     gridLineWidth: 1,
     gridLineColor: "#e6e6e6",
     gridLineDashStyle: "Dash",
+    labels: {
+      align: "center",
+      style: {
+        color: "#999999",
+        fontFamily: "Arial, sans-serif", // Set the desired font family
+      },
+      x: 5,
+    },
     min: 0,
   }
 
@@ -33,7 +57,8 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       labels: {
         align: "center",
         style: {
-          color: "#666",
+          color: "#999999",
+          fontFamily: "Arial, sans-serif", // Set the desired font family
         },
         y: 35,
       },
@@ -67,6 +92,17 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
         }
       | _ => yAxis
       }
+    },
+    legend: {
+      useHTML: true,
+      labelFormatter: valueFormatter,
+      symbolPadding: 0,
+      symbolWidth: 0,
+      itemStyle: {
+        fontFamily: "Arial, sans-serif", // Set font family for legend items
+        fontSize: "12px", // Set font size
+        color: "#666666", // Set font color
+      },
     },
     plotOptions: {
       line: {

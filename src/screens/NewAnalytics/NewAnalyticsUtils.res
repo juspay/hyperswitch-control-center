@@ -129,7 +129,7 @@ let getLabelName = (~key, ~index, ~points) => {
 
     let startDate = startPoint->formatDateValue
     let endDate = endPoint->formatDateValue
-    `${startDate}-${endDate}`
+    `${startDate} - ${endDate}`
   } else {
     `Series ${(index + 1)->Int.toString}`
   }
