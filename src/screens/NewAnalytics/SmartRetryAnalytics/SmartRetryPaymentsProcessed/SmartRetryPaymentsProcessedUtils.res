@@ -34,7 +34,6 @@ let smartRetryPaymentsProcessedMapper = (
   ~params: NewAnalyticsTypes.getObjects<JSON.t>,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
-  open NewPaymentAnalyticsUtils
   let {data, xKey, yKey} = params
   let comparison = switch params.comparison {
   | Some(val) => Some(val)
@@ -84,7 +83,6 @@ let smartRetryPaymentsProcessedMapper = (
 let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => smartRetryPaymentsProcessedObject = dict => {
-  open NewPaymentAnalyticsUtils
   {
     smart_retry_payment_processed_amount_in_usd: dict->getAmountValue(
       ~id=Payment_Processed_Amount->getStringFromVariant,
