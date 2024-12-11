@@ -35,11 +35,11 @@ module PaymentsSuccessRateHeader = {
     <div className="w-full px-7 py-8 grid grid-cols-2">
       // will enable it in future
       <div className="flex gap-2 items-center">
-        <div className="text-3xl font-600">
+        <div className="text-fs-28 font-semibold">
           {primaryValue->valueFormatter(Rate)->React.string}
         </div>
         <RenderIf condition={comparison == EnableComparison}>
-          <StatisticsCard value direction />
+          <StatisticsCard value direction tooltipValue={secondaryValue->valueFormatter(Rate)} />
         </RenderIf>
       </div>
       <RenderIf condition={false}>
@@ -93,31 +93,27 @@ let make = (
       )
 
       let primaryBody = NewAnalyticsUtils.requestBody(
-        ~dimensions=[],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
-        ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
-        ~customFilter=entity.requestBodyConfig.customFilter,
-        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
         ~granularity=granularity.value->Some,
       )
 
       let secondaryBody = NewAnalyticsUtils.requestBody(
-        ~dimensions=[],
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
-        ~filters=entity.requestBodyConfig.filters,
         ~metrics=entity.requestBodyConfig.metrics,
-        ~customFilter=entity.requestBodyConfig.customFilter,
-        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
         ~granularity=granularity.value->Some,
       )
 
       let primaryResponse = await updateDetails(url, primaryBody, Post)
-      let primaryData = primaryResponse->getDictFromJsonObject->getArrayFromDict("queryData", [])
+      let primaryData =
+        primaryResponse
+        ->getDictFromJsonObject
+        ->getArrayFromDict("queryData", [])
+        ->NewAnalyticsUtils.sortQueryDataByDate
       let primaryMetaData = primaryResponse->getDictFromJsonObject->getArrayFromDict("metaData", [])
 
       let (secondaryMetaData, secondaryModifiedData) = switch comparison {

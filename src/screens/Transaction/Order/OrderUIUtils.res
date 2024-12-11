@@ -8,6 +8,8 @@ type filterTypes = {
   connector_label: array<string>,
   card_network: array<string>,
   customer_id: array<string>,
+  amount: array<string>,
+  merchant_order_reference_id: array<string>,
 }
 
 type filter = [
@@ -20,6 +22,8 @@ type filter = [
   | #connector_label
   | #card_network
   | #customer_id
+  | #amount
+  | #merchant_order_reference_id
   | #unknown
 ]
 
@@ -34,10 +38,21 @@ let getFilterTypeFromString = filterType => {
   | "connector_label" => #connector_label
   | "card_network" => #card_network
   | "customer_id" => #customer_id
+  | "amount" => #amount
+  | "merchant_order_reference_id" => #merchant_order_reference_id
   | _ => #unknown
   }
 }
-
+let isParentChildFilterMatch = (name, key) => {
+  let parentFilter = name->getFilterTypeFromString
+  let child = key->AmountFilterTypes.mapStringToamountFilterChild
+  switch (parentFilter, child) {
+  | (#amount, #start_amount)
+  | (#amount, #end_amount)
+  | (#amount, #amount_option) => true
+  | _ => false
+  }
+}
 module RenderAccordian = {
   @react.component
   let make = (~initialExpandedArray=[], ~accordion) => {
@@ -188,34 +203,42 @@ let filterByData = (txnArr, value) => {
   })
 }
 
+let getLabelFromFilterType = (filter: filter) => (filter :> string)
+
+let getValueFromFilterType = (filter: filter) => {
+  switch filter {
+  | #connector_label => "merchant_connector_id"
+  | _ => (filter :> string)
+  }
+}
+
 let getConditionalFilter = (key, dict, filterValues) => {
   open LogicUtils
 
   let filtersArr = switch key->getFilterTypeFromString {
-  | #connector_label => {
-      let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-      let newArr = arr->Array.flatMap(connector => {
-        let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
-        connectorLabelArr->Array.map(item => {
-          item->getDictFromJsonObject->getString("connector_label", "")
-        })
+  | #connector_label =>
+    filterValues
+    ->getArrayFromDict("connector", [])
+    ->getStrArrayFromJsonArray
+    ->Array.flatMap(connector => {
+      dict
+      ->getDictfromDict("connector")
+      ->getArrayFromDict(connector, [])
+      ->Array.map(item => {
+        item->getDictFromJsonObject->getString("connector_label", "")
       })
-      newArr
-    }
-  | #payment_method_type => {
-      let arr = filterValues->getArrayFromDict("payment_method", [])->getStrArrayFromJsonArray
-      let newArr = arr->Array.flatMap(paymentMethod => {
-        let paymentMethodTypeArr =
-          dict
-          ->getDictfromDict("payment_method")
-          ->getArrayFromDict(paymentMethod, [])
-          ->getStrArrayFromJsonArray
-        paymentMethodTypeArr->Array.map(item => {
-          item
-        })
-      })
-      newArr
-    }
+    })
+  | #payment_method_type =>
+    filterValues
+    ->getArrayFromDict("payment_method", [])
+    ->getStrArrayFromJsonArray
+    ->Array.flatMap(paymentMethod => {
+      dict
+      ->getDictfromDict("payment_method")
+      ->getArrayFromDict(paymentMethod, [])
+      ->getStrArrayFromJsonArray
+      ->Array.map(item => item)
+    })
   | _ => []
   }
 
@@ -224,8 +247,10 @@ let getConditionalFilter = (key, dict, filterValues) => {
 
 let getOptionsForOrderFilters = (dict, filterValues) => {
   open LogicUtils
-  let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  let newArr = arr->Array.flatMap(connector => {
+  filterValues
+  ->getArrayFromDict("connector", [])
+  ->getStrArrayFromJsonArray
+  ->Array.flatMap(connector => {
     let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
     connectorLabelArr->Array.map(item => {
       let label = item->getDictFromJsonObject->getString("connector_label", "")
@@ -237,7 +262,6 @@ let getOptionsForOrderFilters = (dict, filterValues) => {
       option
     })
   })
-  newArr
 }
 
 let getAllPaymentMethodType = dict => {
@@ -270,40 +294,48 @@ let itemToObjMapper = dict => {
     connector_label: [],
     card_network: dict->getArrayFromDict("card_network", [])->getStrArrayFromJsonArray,
     customer_id: [],
+    amount: [],
+    merchant_order_reference_id: [],
   }
 }
 
 let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys) => {
   open LogicUtils
 
-  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   let filterDict = json->getDictFromJsonObject
 
-  let filterArr = filterDict->itemToObjMapper
-  let arr = filterDict->Dict.keysToArray
+  let filterData = filterDict->itemToObjMapper
+  let filtersArray = filterDict->Dict.keysToArray
   let onDeleteClick = name => {
     [name]->removeKeys
     setfilterKeys(_ => filterKeys->Array.filter(item => item !== name))
   }
+
+  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   if connectorFilter->Array.length !== 0 {
-    arr->Array.push("connector_label")
+    filtersArray->Array.push(#connector_label->getLabelFromFilterType)
   }
-  arr->Array.push("payment_method_type")
-  arr->Array.push("customer_id")
-  arr->Array.map((key): EntityType.initialFilters<'t> => {
+
+  let additionalFilters =
+    [#payment_method_type, #customer_id, #amount, #merchant_order_reference_id]->Array.map(
+      getLabelFromFilterType,
+    )
+
+  let allFiltersArray = filtersArray->Array.concat(additionalFilters)
+
+  allFiltersArray->Array.map((key): EntityType.initialFilters<'t> => {
     let values = switch key->getFilterTypeFromString {
-    | #connector => filterArr.connector
-    | #payment_method => filterArr.payment_method
-    | #currency => filterArr.currency
-    | #authentication_type => filterArr.authentication_type
-    | #status => filterArr.status
+    | #connector => filterData.connector
+    | #payment_method => filterData.payment_method
+    | #currency => filterData.currency
+    | #authentication_type => filterData.authentication_type
+    | #status => filterData.status
     | #payment_method_type =>
       getConditionalFilter(key, filterDict, filtervalues)->Array.length > 0
         ? getConditionalFilter(key, filterDict, filtervalues)
-        : filterArr.payment_method_type
+        : filterData.payment_method_type
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
-    | #card_network => filterArr.card_network
-    | #customer_id => filterArr.customer_id
+    | #card_network => filterData.card_network
     | _ => []
     }
 
@@ -321,12 +353,9 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
     | _ => values->makeOptions
     }
 
-    let name = switch key->getFilterTypeFromString {
-    | #connector_label => "merchant_connector_id"
-    | _ => key
-    }
     let customInput = switch key->getFilterTypeFromString {
-    | #customer_id =>
+    | #customer_id
+    | #merchant_order_reference_id =>
       (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) =>
         InputFields.textInput(
           ~rightIcon=<div
@@ -334,7 +363,12 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
             onClick={_ => input.name->onDeleteClick}>
             <Icon name="cross-outline" size=13 />
           </div>,
+          ~customWidth="w-48",
         )(~input, ~placeholder=`Enter ${input.name->snakeToTitle}...`)
+    | #amount =>
+      (~input as _, ~placeholder as _) => {
+        <AmountFilter options=AmountFilterUtils.amountFilterOptions />
+      }
 
     | _ =>
       InputFields.filterMultiSelectInput(
@@ -349,7 +383,11 @@ let initialFilters = (json, filtervalues, removeKeys, filterKeys, setfilterKeys)
       )
     }
     {
-      field: FormRenderer.makeFieldInfo(~label=key, ~name, ~customInput),
+      field: FormRenderer.makeFieldInfo(
+        ~label=key,
+        ~name=getValueFromFilterType(key->getFilterTypeFromString),
+        ~customInput,
+      ),
       localFilter: Some(filterByData),
     }
   })

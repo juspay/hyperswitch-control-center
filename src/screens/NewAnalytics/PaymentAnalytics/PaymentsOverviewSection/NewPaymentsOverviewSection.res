@@ -79,7 +79,7 @@ let make = (~entity: moduleEntity) => {
       let primaryResponseDisputes = await updateDetails(disputesUrl, primaryBodyDisputes, Post)
 
       let primaryDataPayments = primaryResponsePayments->parseResponse("metaData")
-      let primaryDataRefunds = primaryResponseRefunds->parseResponse("queryData")
+      let primaryDataRefunds = primaryResponseRefunds->parseResponse("metaData")
       let primaryDataDisputes = primaryResponseDisputes->parseResponse("queryData")
 
       primaryData->setValue(
@@ -94,7 +94,7 @@ let make = (~entity: moduleEntity) => {
         ],
       )
 
-      primaryData->setValue(~data=primaryDataRefunds, ~ids=[Refund_Processed_Amount])
+      primaryData->setValue(~data=primaryDataRefunds, ~ids=[Total_Refund_Processed_Amount])
       primaryData->setValue(~data=primaryDataDisputes, ~ids=[Total_Dispute])
 
       let secondaryBodyPayments = getPayload(
@@ -137,7 +137,7 @@ let make = (~entity: moduleEntity) => {
           )
 
           let secondaryDataPayments = secondaryResponsePayments->parseResponse("metaData")
-          let secondaryDataRefunds = secondaryResponseRefunds->parseResponse("queryData")
+          let secondaryDataRefunds = secondaryResponseRefunds->parseResponse("metaData")
           let secondaryDataDisputes = secondaryResponseDisputes->parseResponse("queryData")
 
           secondaryData->setValue(
@@ -152,7 +152,7 @@ let make = (~entity: moduleEntity) => {
             ],
           )
 
-          secondaryData->setValue(~data=secondaryDataRefunds, ~ids=[Refund_Processed_Amount])
+          secondaryData->setValue(~data=secondaryDataRefunds, ~ids=[Total_Refund_Processed_Amount])
           secondaryData->setValue(~data=secondaryDataDisputes, ~ids=[Total_Dispute])
           secondaryData->JSON.Encode.object
         }
@@ -195,7 +195,9 @@ let make = (~entity: moduleEntity) => {
         <OverViewStat
           data responseKey={Total_Payment_Processed_Amount->getKeyForModule(~metricType)}
         />
-        <OverViewStat data responseKey={Refund_Processed_Amount->getKeyForModule(~metricType)} />
+        <OverViewStat
+          data responseKey={Total_Refund_Processed_Amount->getKeyForModule(~metricType)}
+        />
         <OverViewStat data responseKey={Total_Dispute->getKeyForModule(~metricType)} />
       </div>
     </div>

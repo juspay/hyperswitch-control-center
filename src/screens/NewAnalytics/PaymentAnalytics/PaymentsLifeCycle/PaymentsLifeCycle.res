@@ -35,27 +35,14 @@ let make = (
         ]
         ->Dict.fromArray
         ->JSON.Encode.object
-      // Expected response
-      // let response = {
-      //   "normal_success": 15,
-      //   "normal_failure": 1,
-      //   "cancelled": 1,
-      //   "smart_retried_success": 1,
-      //   "smart_retried_failure": 0,
-      //   "pending": 0,
-      //   "partial_refunded": 0,
-      //   "refunded": 0,
-      //   "disputed": 0,
-      //   "pm_awaited": 0,
-      //   "customer_awaited": 2,
-      //   "merchant_awaited": 0,
-      //   "confirmation_awaited": 0,
-      // }->Identity.genericTypeToJson
+
       let paymentLifeCycleResponse = await updateDetails(url, paymentLifeCycleBody, Post)
 
       if paymentLifeCycleResponse->PaymentsLifeCycleUtils.getTotalPayments > 0 {
         setData(_ =>
-          paymentLifeCycleResponse->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper
+          paymentLifeCycleResponse->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper(
+            ~isSmartRetryEnabled=isSmartRetryEnabled->LogicUtils.getBoolFromString(true),
+          )
         )
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
@@ -70,20 +57,8 @@ let make = (
       getPaymentLieCycleData()->ignore
     }
     None
-  }, (startTimeVal, endTimeVal))
+  }, (startTimeVal, endTimeVal, isSmartRetryEnabled))
 
-  let mockDelay = async () => {
-    if data != JSON.Encode.null->PaymentsLifeCycleUtils.paymentLifeCycleResponseMapper {
-      setScreenState(_ => Loading)
-      await HyperSwitchUtils.delay(300)
-      setScreenState(_ => Success)
-    }
-  }
-
-  React.useEffect(() => {
-    mockDelay()->ignore
-    None
-  }, [isSmartRetryEnabled])
   let params = {
     data,
     xKey: isSmartRetryEnabled,

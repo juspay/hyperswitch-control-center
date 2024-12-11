@@ -3,6 +3,7 @@ type filterTypes = {
   currency: array<string>,
   status: array<string>,
   connector_label: array<string>,
+  amount: array<string>,
 }
 
 type filter = [
@@ -10,6 +11,7 @@ type filter = [
   | #currency
   | #status
   | #connector_label
+  | #amount
   | #unknown
 ]
 
@@ -19,6 +21,7 @@ let getFilterTypeFromString = filterType => {
   | "currency" => #currency
   | "connector_label" => #connector_label
   | "refund_status" => #status
+  | "amount" => #amount
   | _ => #unknown
   }
 }
@@ -137,20 +140,32 @@ let initialFixedFilter = () => [
   ),
 ]
 
+let getLabelFromFilterType = (filter: filter) => (filter :> string)
+
+let getValueFromFilterType = (filter: filter) => {
+  switch filter {
+  | #connector_label => "merchant_connector_id"
+  | #status => "refund_status"
+  | _ => (filter :> string)
+  }
+}
+
 let getConditionalFilter = (key, dict, filterValues) => {
   open LogicUtils
 
   let filtersArr = switch key->getFilterTypeFromString {
-  | #connector_label => {
-      let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-      let newArr = arr->Array.flatMap(connector => {
-        let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
-        connectorLabelArr->Array.map(item => {
-          item->getDictFromJsonObject->getString("connector_label", "")
-        })
+  | #connector_label =>
+    filterValues
+    ->getArrayFromDict("connector", [])
+    ->getStrArrayFromJsonArray
+    ->Array.flatMap(connector => {
+      dict
+      ->getDictfromDict("connector")
+      ->getArrayFromDict(connector, [])
+      ->Array.map(item => {
+        item->getDictFromJsonObject->getString("connector_label", "")
       })
-      newArr
-    }
+    })
   | _ => []
   }
 
@@ -159,8 +174,10 @@ let getConditionalFilter = (key, dict, filterValues) => {
 
 let getOptionsForRefundFilters = (dict, filterValues) => {
   open LogicUtils
-  let arr = filterValues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-  let newArr = arr->Array.flatMap(connector => {
+  filterValues
+  ->getArrayFromDict("connector", [])
+  ->getStrArrayFromJsonArray
+  ->Array.flatMap(connector => {
     let connectorLabelArr = dict->getDictfromDict("connector")->getArrayFromDict(connector, [])
     connectorLabelArr->Array.map(item => {
       let label = item->getDictFromJsonObject->getString("connector_label", "")
@@ -172,7 +189,6 @@ let getOptionsForRefundFilters = (dict, filterValues) => {
       option
     })
   })
-  newArr
 }
 
 let itemToObjMapper = dict => {
@@ -182,30 +198,31 @@ let itemToObjMapper = dict => {
     currency: dict->getArrayFromDict("currency", [])->getStrArrayFromJsonArray,
     status: dict->getArrayFromDict("refund_status", [])->getStrArrayFromJsonArray,
     connector_label: [],
+    amount: [],
   }
 }
 
 let initialFilters = (json, filtervalues, _, _, _) => {
   open LogicUtils
 
-  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
-
   let filterDict = json->getDictFromJsonObject
-  let arr = filterDict->Dict.keysToArray->Array.filterWithIndex((_item, index) => index <= 2)
+  let filtersArray =
+    filterDict->Dict.keysToArray->Array.filterWithIndex((_item, index) => index <= 2)
+  let filterData = filterDict->itemToObjMapper
 
+  let connectorFilter = filtervalues->getArrayFromDict("connector", [])->getStrArrayFromJsonArray
   if connectorFilter->Array.length !== 0 {
-    arr->Array.push("connector_label")
+    filtersArray->Array.push(#connector_label->getLabelFromFilterType)
   }
-
-  let filterArr = filterDict->itemToObjMapper
-
-  arr->Array.map((key): EntityType.initialFilters<'t> => {
+  let additionalFilters = [#amount]->Array.map(getLabelFromFilterType)
+  let allFiltersArray = filtersArray->Array.concat(additionalFilters)
+  allFiltersArray->Array.map((key): EntityType.initialFilters<'t> => {
     let title = `Select ${key->snakeToTitle}`
 
     let values = switch key->getFilterTypeFromString {
-    | #connector => filterArr.connector
-    | #currency => filterArr.currency
-    | #status => filterArr.status
+    | #connector => filterData.connector
+    | #currency => filterData.currency
+    | #status => filterData.status
     | #connector_label => getConditionalFilter(key, filterDict, filtervalues)
     | _ => []
     }
@@ -214,26 +231,28 @@ let initialFilters = (json, filtervalues, _, _, _) => {
     | #connector_label => getOptionsForRefundFilters(filterDict, filtervalues)
     | _ => values->FilterSelectBox.makeOptions
     }
-
-    let name = switch key->getFilterTypeFromString {
-    | #connector_label => "merchant_connector_id"
-    | _ => key
+    let customInput = switch key->getFilterTypeFromString {
+    | #amount =>
+      (~input as _, ~placeholder as _) => {
+        <AmountFilter options=AmountFilterUtils.amountFilterOptions />
+      }
+    | _ =>
+      InputFields.filterMultiSelectInput(
+        ~options,
+        ~buttonText=title,
+        ~showSelectionAsChips=false,
+        ~searchable=true,
+        ~showToolTip=true,
+        ~showNameAsToolTip=true,
+        ~customButtonStyle="bg-none",
+        (),
+      )
     }
-
     {
       field: FormRenderer.makeFieldInfo(
         ~label=key,
-        ~name,
-        ~customInput=InputFields.filterMultiSelectInput(
-          ~options,
-          ~buttonText=title,
-          ~showSelectionAsChips=false,
-          ~searchable=true,
-          ~showToolTip=true,
-          ~showNameAsToolTip=true,
-          ~customButtonStyle="bg-none",
-          (),
-        ),
+        ~name=getValueFromFilterType(key->getFilterTypeFromString),
+        ~customInput,
       ),
       localFilter: Some(filterByData),
     }

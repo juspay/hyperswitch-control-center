@@ -331,12 +331,13 @@ let getAttempts: JSON.t => array<attempts> = json => {
 let defaultColumns: array<colType> = [
   PaymentId,
   Connector,
-  ConnectorTransactionID,
+  ProfileId,
   Amount,
   Status,
   PaymentMethod,
   PaymentMethodType,
   CardNetwork,
+  ConnectorTransactionID,
   Email,
   MerchantOrderReferenceId,
   Description,
@@ -569,7 +570,14 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | OrderQuantity => Text(order.order_quantity)
   | ProductName => Text(order.product_name)
   | ErrorMessage => Text(order.error_message)
-  | ConnectorTransactionID => DisplayCopyCell(order.connector_transaction_id)
+  | ConnectorTransactionID =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="max-w-xs truncate whitespace-nowrap"
+        displayValue=order.connector_transaction_id
+      />,
+      "",
+    )
   }
 }
 
@@ -643,7 +651,12 @@ let getCell = (order, colType: colType): Table.cell => {
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
   | Metadata =>
-    CustomCell(<Metadata displayValue={order.metadata->JSON.Encode.object->JSON.stringify} />, "")
+    CustomCell(
+      <HSwitchOrderUtils.EllipsisText
+        displayValue={order.metadata->JSON.Encode.object->JSON.stringify}
+      />,
+      "",
+    )
   | PaymentId =>
     CustomCell(
       <HSwitchOrderUtils.CopyLinkTableCell
@@ -684,7 +697,8 @@ let getCell = (order, colType: colType): Table.cell => {
   | Created => Date(order.created)
   | Currency => Text(order.currency)
   | CustomerId => Text(order.customer_id)
-  | Description => CustomCell(<Metadata displayValue={order.description} endValue={5} />, "")
+  | Description =>
+    CustomCell(<HSwitchOrderUtils.EllipsisText displayValue={order.description} endValue={5} />, "")
   | MandateId => Text(order.mandate_id)
   | MandateData => Text(order.mandate_data)
   | SetupFutureUsage => Text(order.setup_future_usage)
@@ -708,7 +722,14 @@ let getCell = (order, colType: colType): Table.cell => {
   | CancellationReason => Text(order.cancellation_reason)
   | ErrorCode => Text(order.error_code)
   | ErrorMessage => Text(order.error_message)
-  | ConnectorTransactionID => Text(order.connector_transaction_id)
+  | ConnectorTransactionID =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="max-w-xs truncate whitespace-nowrap"
+        displayValue=order.connector_transaction_id
+      />,
+      "",
+    )
   | ProfileId => Text(order.profile_id)
   | Refunds =>
     Text(

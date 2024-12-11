@@ -47,6 +47,7 @@ let paymentsProcessedMapper = (
   ~params: NewAnalyticsTypes.getObjects<JSON.t>,
 ): LineGraphTypes.lineGraphPayload => {
   open LineGraphTypes
+  open NewAnalyticsUtils
   let {data, xKey, yKey} = params
   let comparison = switch params.comparison {
   | Some(val) => Some(val)
@@ -92,15 +93,6 @@ let paymentsProcessedMapper = (
     ),
   }
 }
-// Need to modify
-let getMetaData = json =>
-  json
-  ->getArrayFromJson([])
-  ->getValueFromArray(0, JSON.Encode.array([]))
-  ->getDictFromJsonObject
-  ->getArrayFromDict("metaData", [])
-  ->getValueFromArray(0, JSON.Encode.array([]))
-  ->getDictFromJsonObject
 
 let visibleColumns = [Time_Bucket]
 

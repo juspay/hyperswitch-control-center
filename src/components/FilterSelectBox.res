@@ -1882,7 +1882,7 @@ module BaseDropdown = {
                       onClick
                       className={`${textStyle->Option.getOr(
                           "",
-                        )} flex justify-center items-center whitespace-pre leading-5  text-sm  font-medium hover:bg-opacity-80  cursor-pointer mr-2 border-r-2 pr-1`}>
+                        )} flex justify-center items-center whitespace-pre leading-5  text-sm  font-medium hover:bg-opacity-80  cursor-pointer mr-2 pr-1`}>
                       <div className="text-ellipsis overflow-hidden w-full max-w-sm h-fit">
                         {selectButtonText->React.string}
                       </div>
@@ -1898,7 +1898,7 @@ module BaseDropdown = {
                   <div
                     className={`flex ${customButtonStyle} ${showDropDown
                         ? buttonStyleOnDropDownOpened
-                        : ""} transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)]  border`}>
+                        : ""} transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] justify-between border`}>
                     {if (
                       showToolTip &&
                       newInputSelect.value !== ""->JSON.Encode.string &&
@@ -1919,7 +1919,7 @@ module BaseDropdown = {
                       selectButton
                     }}
                     <div
-                      className="p-1 rounded-lg hover:bg-gray-200 cursor-pointer "
+                      className="p-1 hover:bg-gray-200 cursor-pointer border-l-2 "
                       onClick={_ => newInputSelect.name->onDeleteClick}>
                       <Icon size={13} name="cross-outline" />
                     </div>

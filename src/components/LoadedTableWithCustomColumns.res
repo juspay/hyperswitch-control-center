@@ -64,6 +64,7 @@ let make = (
   ~noScrollbar=false,
   ~previewOnly=false,
   ~remoteSortEnabled=false,
+  ~showAutoScroll=false,
 ) => {
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
   let activeColumnsAtom = customColumnMapper->Some
@@ -151,5 +152,6 @@ let make = (
     ?setExtFilteredDataLength
     noScrollbar
     remoteSortEnabled
+    showAutoScroll
   />
 }

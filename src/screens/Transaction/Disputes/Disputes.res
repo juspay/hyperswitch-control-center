@@ -87,7 +87,7 @@ let make = () => {
       initialFixedFilter
       setOffset
       customLeftView={<SearchBarFilter
-        placeholder="Search disptue id" setSearchVal=setSearchText searchVal=searchText
+        placeholder="Search for dispute ID" setSearchVal=setSearchText searchVal=searchText
       />}
       entityName=DISPUTE_FILTERS
       title="Disputes"
@@ -130,6 +130,7 @@ let make = () => {
           customColumnMapper={TableAtoms.disputesMapDefaultCols}
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
+          showAutoScroll=true
         />
       </div>
     </PageLoaderWrapper>

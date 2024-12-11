@@ -1,4 +1,4 @@
-type entity = [#Organization | #Merchant | #Profile]
+type entity = [#Tenant | #Organization | #Merchant | #Profile]
 type userInfo = {
   email: string,
   isTwoFactorAuthSetup: bool,
@@ -19,4 +19,6 @@ type userInfoProviderTypes = {
   setUserInfoData: userInfo => unit,
   getUserInfoData: unit => userInfo,
   checkUserEntity: array<entity> => bool,
+  updateUserInfoRef: userInfo => unit,
+  userInfoFromRef: userInfo,
 }

@@ -124,7 +124,7 @@ module SearchBarFilter = {
       checked: true,
     }
 
-    <div className="w-64">
+    <div className="w-max">
       {InputFields.textInput(
         ~customStyle="rounded-lg placeholder:opacity-90",
         ~customPaddingClass="px-0",
@@ -132,6 +132,7 @@ module SearchBarFilter = {
         ~iconOpacity="opacity-100",
         ~leftIconCustomStyle="pl-4",
         ~inputStyle="!placeholder:opacity-90",
+        ~customWidth="w-72",
       )(~input=inputSearch, ~placeholder)}
     </div>
   }
@@ -161,8 +162,16 @@ module RemoteTableFilters = {
 
     let getURL = useGetURL()
     let {userInfo: transactionEntity} = React.useContext(UserInfoProvider.defaultContext)
-    let {removeKeys, filterKeys, setfilterKeys} = React.useContext(FilterContext.filterContext)
-    let {filterValue, updateExistingKeys, filterValueJson, reset} =
+
+    let {
+      filterValue,
+      updateExistingKeys,
+      filterValueJson,
+      reset,
+      setfilterKeys,
+      filterKeys,
+      removeKeys,
+    } =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
     let showToast = ToastState.useShowToast()

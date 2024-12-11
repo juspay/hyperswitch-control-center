@@ -23,7 +23,7 @@ module TableModule = {
     let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
     let defaultCol = isSmartRetryEnbldForFailedPmtDist(isSmartRetryEnabled)
-    let visibleColumns = [defaultCol]->Array.concat([selectedTab->getColumn])
+    let visibleColumns = [selectedTab->getColumn]->Array.concat([defaultCol])
     let tableData = getTableData(data)
 
     <div className>
@@ -98,32 +98,27 @@ let make = (
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
-        ~entityName=isSmartRetryEnabled->getEntityForSmartRetry,
+        ~entityName=ANALYTICS_PAYMENTS,
         ~methodType=Post,
         ~id=Some((entity.domain: domain :> string)),
       )
-      let metrics = isSmartRetryEnabled->getMetricsForSmartRetry
 
       let body = NewAnalyticsUtils.requestBody(
-        ~dimensions=[],
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
-        ~filters=entity.requestBodyConfig.filters,
-        ~metrics,
+        ~metrics=entity.requestBodyConfig.metrics,
         ~groupByNames=[groupBy.value]->Some,
-        ~customFilter=entity.requestBodyConfig.customFilter,
-        ~applyFilterFor=entity.requestBodyConfig.applyFilterFor,
       )
 
       let response = await updateDetails(url, body, Post)
-      let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
-      let arr =
+      let responseData =
         response
         ->getDictFromJsonObject
         ->getArrayFromDict("queryData", [])
+        ->NewAnalyticsUtils.filterQueryData(groupBy.value)
 
-      if arr->Array.length > 0 {
+      if responseData->Array.length > 0 {
         setfailedPaymentsDistribution(_ => responseData->JSON.Encode.array)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
@@ -139,7 +134,7 @@ let make = (
       getFailedPaymentsDistribution()->ignore
     }
     None
-  }, [startTimeVal, endTimeVal, groupBy.value, (isSmartRetryEnabled :> string)])
+  }, [startTimeVal, endTimeVal, groupBy.value])
   let params = {
     data: failedPaymentsDistribution,
     xKey: Payments_Failure_Rate_Distribution->getKeyForModule(~isSmartRetryEnabled),

@@ -53,13 +53,16 @@ let make = (~previewOnly=false) => {
             ]->getJsonFromArrayOfJson,
           )
         }
-
-        dict
+        //to create amount_filter query
+        let newDict = AmountFilterUtils.createAmountQuery(~dict)
+        newDict
         ->Dict.toArray
         ->Array.forEach(item => {
           let (key, value) = item
           filters->Dict.set(key, value)
         })
+        //to delete unused keys
+        filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
         filters
         ->getOrdersList(
           ~updateDetails,
@@ -123,7 +126,7 @@ let make = (~previewOnly=false) => {
       setOffset
       submitInputOnEnter=true
       customLeftView={<SearchBarFilter
-        placeholder="Search payment id" setSearchVal=setSearchText searchVal=searchText
+        placeholder="Search for payment ID" setSearchVal=setSearchText searchVal=searchText
       />}
       entityName=ORDER_FILTERS
     />
@@ -172,6 +175,7 @@ let make = (~previewOnly=false) => {
           hideTitle=true
           previewOnly
           remoteSortEnabled=true
+          showAutoScroll=true
         />
       </PageLoaderWrapper>
     </div>

@@ -169,21 +169,35 @@ module CustomDropDown = {
 module StatisticsCard = {
   open NewAnalyticsTypes
   @react.component
-  let make = (~value, ~direction) => {
+  let make = (~value, ~tooltipValue, ~direction, ~isOverviewComponent=false) => {
     let (bgColor, textColor) = switch direction {
     | Upward => ("bg-green-light", "text-green-dark")
     | Downward => ("bg-red-light", "text-red-dark")
     | No_Change => ("bg-gray-100", "text-gray-500")
     }
 
-    <div className={`${bgColor} ${textColor} w-fit h-fit rounded-2xl flex px-2 pt-0.5`}>
-      <div className="-mb-0.5 flex">
-        <Icon className="mt-1 -mr-1" name="arrow-increasing" size=25 />
-        <div className="font-semibold">
-          {`${value->NewAnalyticsUtils.valueFormatter(Rate)}`->React.string}
+    let icon = switch direction {
+    | Downward => <img alt="image" className="h-6 w-5 mb-1 mr-1" src={`/icons/arrow.svg`} />
+    | Upward | No_Change => <Icon className="mt-1 -mr-1" name="arrow-increasing" size=25 />
+    }
+
+    let wrapperClass = isOverviewComponent ? "scale-[0.9]" : ""
+
+    <ToolTip
+      description=tooltipValue
+      toolTipFor={<div
+        className={`${wrapperClass} ${bgColor} ${textColor} cursor-pointer w-fit h-fit rounded-2xl flex px-2 pt-0.5`}>
+        <div className="-mb-0.5 flex">
+          {icon}
+          <div className="font-semibold text-sm pt-0.5 pr-0.5">
+            {`${value->NewAnalyticsUtils.valueFormatter(Rate)}`->React.string}
+          </div>
         </div>
-      </div>
-    </div>
+      </div>}
+      toolTipPosition={Top}
+      newDesign=true
+      tooltipArrowSize=0
+    />
   }
 }
 
@@ -201,24 +215,6 @@ module ModuleHeader = {
   @react.component
   let make = (~title) => {
     <h2 className="font-semibold text-xl text-jp-gray-900 pb-5"> {title->React.string} </h2>
-  }
-}
-
-module GraphHeader = {
-  open NewAnalyticsTypes
-  @react.component
-  let make = (~title, ~showTabSwitch, ~viewType, ~setViewType=_ => ()) => {
-    <div className="w-full px-7 py-8 flex justify-between">
-      <div className="flex gap-2 items-center">
-        <div className="text-3xl font-600"> {title->React.string} </div>
-        <StatisticsCard value=8.8 direction={Upward} />
-      </div>
-      <RenderIf condition={showTabSwitch}>
-        <div className="flex gap-2">
-          <TabSwitch viewType setViewType />
-        </div>
-      </RenderIf>
-    </div>
   }
 }
 
@@ -252,6 +248,7 @@ module SmartRetryToggle = {
         setIsSelected={onClick}
         isDisabled=false
         boolCustomClass="rounded-lg !bg-blue-500"
+        toggleBorder="border-blue-500"
       />
       <p className="!text-base text-grey-700 ml-2">
         <span className="font-semibold"> {"Include Payment Retries data: "->React.string} </span>

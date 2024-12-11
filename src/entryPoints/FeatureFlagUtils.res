@@ -28,6 +28,7 @@ type featureFlag = {
   paypalAutomaticFlow: bool,
   threedsAuthenticator: bool,
   globalSearch: bool,
+  globalSearchFilters: bool,
   disputeAnalytics: bool,
   configurePmts: bool,
   branding: bool,
@@ -38,10 +39,12 @@ type featureFlag = {
   pmAuthenticationProcessor: bool,
   performanceMonitor: bool,
   newAnalytics: bool,
+  newAnalyticsSmartRetries: bool,
   downTime: bool,
   taxProcessor: bool,
   transactionView: bool,
   xFeatureRoute: bool,
+  tenantUser: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -71,6 +74,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     paypalAutomaticFlow: dict->getBool("paypal_automatic_flow", false),
     threedsAuthenticator: dict->getBool("threeds_authenticator", false),
     globalSearch: dict->getBool("global_search", false),
+    globalSearchFilters: dict->getBool("global_search_filters", false),
     disputeAnalytics: dict->getBool("dispute_analytics", false),
     configurePmts: dict->getBool("configure_pmts", false),
     branding: dict->getBool("branding", false),
@@ -81,10 +85,12 @@ let featureFlagType = (featureFlags: JSON.t) => {
     pmAuthenticationProcessor: dict->getBool("pm_authentication_processor", false),
     performanceMonitor: dict->getBool("performance_monitor", false),
     newAnalytics: dict->getBool("new_analytics", false),
+    newAnalyticsSmartRetries: dict->getBool("new_analytics_smart_retries", false),
     downTime: dict->getBool("down_time", false),
     taxProcessor: dict->getBool("tax_processor", false),
     transactionView: dict->getBool("transaction_view", false),
     xFeatureRoute: dict->getBool("x_feature_route", false),
+    tenantUser: dict->getBool("tenant_user", false),
   }
   typedFeatureFlag
 }

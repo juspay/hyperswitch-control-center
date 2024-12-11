@@ -11,3 +11,7 @@ type ompList = {
   merchantList: array<ompListTypes>,
   profileList: array<ompListTypes>,
 }
+
+type adminType = [#tenant_admin | #org_admin | #merchant_admin | #non_admin]
+
+type addOrgFormFields = OrgName | MerchantName

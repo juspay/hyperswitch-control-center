@@ -38,6 +38,11 @@ let delay = ms =>
 
 let checkIsInternalUser = roleId => {
   open UserManagementUtils
-  roleId->stringToVariantMapper == InternalViewOnly ||
-    roleId->stringToVariantMapper == InternalAdmin
+  let userType = roleId->stringToVariantMapperInternalUser
+  userType == InternalViewOnly || userType == InternalAdmin
+}
+
+let checkIsTenantAdmin = roleId => {
+  open UserManagementUtils
+  roleId->stringToVariantMapperTenantAdmin == TenantAdmin
 }

@@ -2,7 +2,9 @@ type analyticsPages = Payment
 type viewType = Graph | Table
 type statisticsDirection = Upward | Downward | No_Change
 
-type analyticsPagesRoutes = | @as("new-analytics-payment") NewAnalyticsPayment
+type analyticsPagesRoutes =
+  | @as("new-analytics-payment") NewAnalyticsPayment
+  | @as("new-analytics-smart-retry") NewAnalyticsSmartRetry
 
 type domain = [#payments | #refunds | #disputes]
 type dimension = [
@@ -11,6 +13,7 @@ type dimension = [
   | #payment_method_type
   | #card_network
   | #authentication_type
+  | #error_reason
 ]
 type status = [#charged | #failure]
 type metrics = [
@@ -24,11 +27,12 @@ type metrics = [
   | #failure_reasons
   | #payments_distribution
   | #payment_success_rate
+  | #failure_reasons
 ]
 type granularity = [
   | #G_ONEDAY
 ]
-// will change this once we get the api srtcuture
+
 type requestBodyConfig = {
   metrics: array<metrics>,
   delta?: bool,

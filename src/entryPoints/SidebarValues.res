@@ -265,10 +265,10 @@ let paymentAnalytcis = SubLevelLink({
 })
 
 let performanceMonitor = SubLevelLink({
-  name: "Performance Monitor",
+  name: "Performance",
   link: `/performance-monitor`,
   access: Access,
-  searchOptions: [("View Performance Monitor", "")],
+  searchOptions: [("View Performance", "")],
 })
 
 let newAnalytics = SubLevelLink({
@@ -330,12 +330,13 @@ let analytics = (
   if disputeAnalyticsFlag {
     links->Array.push(disputeAnalytics)
   }
-  if performanceMonitorFlag {
-    links->Array.push(performanceMonitor)
-  }
 
   if newAnalyticsflag {
     links->Array.push(newAnalytics)
+  }
+
+  if performanceMonitorFlag {
+    links->Array.push(performanceMonitor)
   }
 
   isAnalyticsEnabled
@@ -610,26 +611,41 @@ let reconFileProcessor = {
 
 let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourceAccess) => {
   switch (recon, isReconEnabled, checkUserEntity([#Merchant, #Organization])) {
-  | (true, true, true) =>
-    Section({
-      name: "Recon And Settlement",
-      icon: "recon",
-      showSection: true,
-      links: [
-        uploadReconFiles,
-        runRecon,
-        reconAnalytics,
-        reconReports,
-        reconConfigurator,
-        reconFileProcessor,
-      ],
-    })
+  | (true, true, true) => {
+      let links = []
+      if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
+        links->Array.push(uploadReconFiles)
+      }
+      if userHasResourceAccess(~resourceAccess=RunRecon) == CommonAuthTypes.Access {
+        links->Array.push(runRecon)
+      }
+      if (
+        userHasResourceAccess(~resourceAccess=ReconAndSettlementAnalytics) == CommonAuthTypes.Access
+      ) {
+        links->Array.push(reconAnalytics)
+      }
+      if userHasResourceAccess(~resourceAccess=ReconReports) == CommonAuthTypes.Access {
+        links->Array.push(reconReports)
+      }
+      if userHasResourceAccess(~resourceAccess=ReconConfig) == CommonAuthTypes.Access {
+        links->Array.push(reconConfigurator)
+      }
+      if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
+        links->Array.push(reconFileProcessor)
+      }
+      Section({
+        name: "Recon And Settlement",
+        icon: "recon",
+        showSection: true,
+        links,
+      })
+    }
   | (true, false, true) =>
     Link({
       name: "Reconciliation",
       icon: isReconEnabled ? "recon" : "recon-lock",
       link: `/recon`,
-      access: userHasResourceAccess(~resourceAccess=Recon),
+      access: userHasResourceAccess(~resourceAccess=ReconToken),
     })
 
   | _ => emptyComponent

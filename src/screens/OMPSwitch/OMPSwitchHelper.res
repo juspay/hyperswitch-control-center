@@ -1,54 +1,91 @@
 module ListBaseComp = {
   @react.component
-  let make = (~heading, ~subHeading, ~arrow, ~showEditIcon=false, ~onEditClick=_ => ()) => {
-    <div
-      className="flex items-center justify-between text-sm text-center text-white font-medium rounded hover:bg-opacity-80 bg-sidebar-blue cursor-pointer">
-      <div className="flex flex-col items-start px-2 py-2 w-5/6">
-        <p className="text-xs text-gray-400"> {heading->React.string} </p>
-        <div className="w-full text-left overflow-auto">
-          <p className="fs-10"> {subHeading->React.string} </p>
+  let make = (
+    ~heading,
+    ~subHeading,
+    ~arrow,
+    ~showEditIcon=false,
+    ~onEditClick=_ => (),
+    ~isDarkBg=false,
+  ) => {
+    let baseCompStyle = isDarkBg
+      ? "text-white hover:bg-opacity-80 bg-sidebar-blue"
+      : "text-black hover:bg-opacity-80"
+
+    let iconName = isDarkBg ? "arrow-without-tail-new" : "arrow-without-tail"
+
+    let arrowDownClass = isDarkBg
+      ? "rotate-0 transition duration-[250ms] opacity-70"
+      : "rotate-180 transition duration-[250ms] opacity-70"
+
+    let arrowUpClass = isDarkBg
+      ? "-rotate-180 transition duration-[250ms] opacity-70"
+      : "rotate-0 transition duration-[250ms] opacity-70"
+
+    let textColor = isDarkBg ? "text-grey-300" : "text-grey-900"
+    let width = isDarkBg ? "w-[12rem]" : "min-w-[5rem] w-fit max-w-[10rem]"
+    let paddingSubheading = isDarkBg ? "pl-2" : ""
+    let paddingHeading = isDarkBg ? "pl-2" : ""
+
+    let endValue = isDarkBg ? 23 : 15
+
+    let subHeadingElement = if subHeading->String.length > 15 {
+      <HSwitchOrderUtils.EllipsisText
+        displayValue=subHeading
+        endValue
+        showCopy=false
+        customTextStyle={`${textColor} font-extrabold`}
+      />
+    } else {
+      {subHeading->React.string}
+    }
+
+    <div className={`text-sm font-medium cursor-pointer ${baseCompStyle}`}>
+      <div className={`flex flex-col items-start`}>
+        <RenderIf condition={heading->LogicUtils.isNonEmptyString}>
+          <p className={`text-xs text-left text-gray-400 ${paddingHeading}`}>
+            {heading->React.string}
+          </p>
+        </RenderIf>
+        <div className="text-left flex gap-2">
+          <p
+            className={`fs-10 ${textColor} ${width} ${paddingSubheading} overflow-scroll text-nowrap`}>
+            {subHeadingElement}
+          </p>
+          <RenderIf condition={showEditIcon}>
+            <Icon name="pencil-edit" size=15 onClick=onEditClick className="mx-2" />
+          </RenderIf>
+          <Icon
+            className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`} name={iconName} size=15
+          />
         </div>
-      </div>
-      <RenderIf condition={showEditIcon}>
-        <Icon name="pencil-alt" size=10 onClick=onEditClick className="mt-4 mr-1" />
-      </RenderIf>
-      <div className="px-2 py-2">
-        <Icon
-          className={arrow
-            ? "rotate-0 transition duration-[250ms] opacity-70"
-            : "-rotate-180 transition duration-[250ms] opacity-70"}
-          name="arrow-without-tail-new"
-          size=15
-        />
       </div>
     </div>
   }
 }
 
-module AddNewMerchantProfileButton = {
+module AddNewOMPButton = {
   @react.component
   let make = (
-    ~user,
+    ~user: UserInfoTypes.entity,
     ~setShowModal,
     ~customPadding="",
     ~customStyle="",
     ~customHRTagStyle="",
     ~addItemBtnStyle="",
   ) => {
-    let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-    let cursorStyles = GroupAccessUtils.cursorStyles(
-      // TODO: Remove `MerchantDetailsManage` permission in future
-      hasAnyGroupAccess(
-        userHasAccess(~groupAccess=MerchantDetailsManage),
-        userHasAccess(~groupAccess=AccountManage),
-      ),
-    )
+    let allowedRoles = switch user {
+    | #Organization => [#tenant_admin]
+    | #Merchant => [#tenant_admin, #org_admin]
+    | #Profile => [#tenant_admin, #org_admin, #merchant_admin]
+    | _ => []
+    }
+    let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
+    let cursorStyles = GroupAccessUtils.cursorStyles(hasOMPCreateAccess)
+
     <ACLDiv
-      // TODO: Remove `MerchantDetailsManage` permission in future
-      authorization={hasAnyGroupAccess(
-        userHasAccess(~groupAccess=MerchantDetailsManage),
-        userHasAccess(~groupAccess=AccountManage),
-      )}
+      authorization={hasOMPCreateAccess}
+      noAccessDescription="You do not have the required permissions for this action. Please contact your admin."
       onClick={_ => setShowModal(_ => true)}
       isRelative=false
       contentAlign=Default
@@ -59,7 +96,7 @@ module AddNewMerchantProfileButton = {
         <div
           className={`group flex  items-center gap-2 font-medium px-2 py-2 text-sm ${customStyle}`}>
           <Icon name="plus-circle" size=15 />
-          {`Add new ${user}`->React.string}
+          {`Add new ${(user :> string)->String.toLowerCase}`->React.string}
         </div>
       </>}
     </ACLDiv>

@@ -32,14 +32,16 @@ let make = () => {
         filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
         filters->Dict.set("refund_id", searchText->String.trim->JSON.Encode.string)
       }
-
-      dict
+      //to create amount_filter query
+      let newdict = AmountFilterUtils.createAmountQuery(~dict)
+      newdict
       ->Dict.toArray
       ->Array.forEach(item => {
         let (key, value) = item
         filters->Dict.set(key, value)
       })
-
+      //to delete unused keys
+      filters->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
       filters
       ->getRefundsList(
         ~updateDetails,
@@ -95,7 +97,7 @@ let make = () => {
             initialFixedFilter
             setOffset
             customLeftView={<SearchBarFilter
-              placeholder="Search payment id or refund id"
+              placeholder="Search for payment ID or refund ID"
               setSearchVal=setSearchText
               searchVal=searchText
             />}
@@ -120,6 +122,7 @@ let make = () => {
           customColumnMapper=TableAtoms.refundsMapDefaultCols
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
+          showAutoScroll=true
         />
       </PageLoaderWrapper>
     </div>
