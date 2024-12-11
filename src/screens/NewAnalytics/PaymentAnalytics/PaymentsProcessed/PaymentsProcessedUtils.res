@@ -1,5 +1,4 @@
 open PaymentsProcessedTypes
-open NewPaymentAnalyticsUtils
 open LogicUtils
 
 let getStringFromVariant = value => {
@@ -97,6 +96,7 @@ let paymentsProcessedMapper = (
 let visibleColumns = [Time_Bucket]
 
 let tableItemToObjMapper: Dict.t<JSON.t> => paymentsProcessedObject = dict => {
+  open NewAnalyticsUtils
   {
     payment_processed_amount_in_usd: dict->getAmountValue(
       ~id=Payment_Processed_Amount->getStringFromVariant,
