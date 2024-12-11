@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.10.0
+
+### Bug Fixes
+
+- Analytics minor changes ([#1897](https://github.com/juspay/hyperswitch-control-center/pull/1897)) ([`feae8ba`](https://github.com/juspay/hyperswitch-control-center/commit/feae8baa147b837ec75783445327990593214579))
+
+**Full Changelog:** [`2024.12.09.2...2024.12.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.09.2...2024.12.10.0)
+
+- - -
+
 ## 2024.12.09.2
 
 ### Features
