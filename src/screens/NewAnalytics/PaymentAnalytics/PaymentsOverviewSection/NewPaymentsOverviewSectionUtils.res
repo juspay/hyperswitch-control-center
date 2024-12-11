@@ -50,7 +50,6 @@ let parseResponse = (response, key) => {
 
 open NewAnalyticsTypes
 let setValue = (dict, ~data, ~ids: array<overviewColumns>) => {
-  open NewPaymentAnalyticsUtils
   open LogicUtils
 
   ids->Array.forEach(id => {
@@ -61,7 +60,7 @@ let setValue = (dict, ~data, ~ids: array<overviewColumns>) => {
     | Total_Payment_Processed_Amount
     | Total_Payment_Processed_Amount_Without_Smart_Retries
     | Total_Refund_Processed_Amount =>
-      data->getAmountValue(~id=id->getStringFromVariant)->JSON.Encode.float
+      data->NewAnalyticsUtils.getAmountValue(~id=id->getStringFromVariant)->JSON.Encode.float
     | _ =>
       data
       ->getFloat(id->getStringFromVariant, 0.0)
