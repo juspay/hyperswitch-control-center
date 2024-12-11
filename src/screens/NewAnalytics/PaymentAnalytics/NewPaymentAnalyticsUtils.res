@@ -1,7 +1,10 @@
 open LogicUtils
 
 let getColor = index => {
-  ["#1059C1B2", "#0EB025B2"]->Array.get(index)->Option.getOr("#1059C1B2")
+  let blueColor = "#1059C1B2"
+  let greenColor = "#0EB025B2"
+
+  [blueColor, greenColor]->Array.get(index)->Option.getOr(greenColor)
 }
 
 let getAmountValue = (data, ~id) => {
