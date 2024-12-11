@@ -94,13 +94,17 @@ let make = (~options) => {
       form.change("end_amount", JSON.Encode.null)
       form.change("amount_option", mappedRange->Identity.genericTypeToJson)
       setSelectedOption(_ => {newValue->mapStringToRange})
+    } else {
+      setIsAmountRangeVisible(_ => true)
     }
   }
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "amount",
     onBlur: _ => (),
-    onChange: ev => handleInputChange(ev->Identity.formReactEventToString),
+    onChange: ev => {
+      handleInputChange(ev->Identity.formReactEventToString)
+    },
     onFocus: _ => (),
     value: selectedOption->mapRangeTypetoString->JSON.Encode.string,
     checked: true,
