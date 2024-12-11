@@ -77,7 +77,7 @@ let make = () => {
   if newAnalyticsSmartRetries {
     tabs->Array.push({
       title: "Smart Retries",
-      renderContent: () => React.null,
+      renderContent: () => <NewSmartRetryAnalytics />,
     })
   }
 
