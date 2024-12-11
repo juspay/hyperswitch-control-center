@@ -79,7 +79,7 @@ let make = () => {
             initialFixedFilter
             setOffset
             customLeftView={<SearchBarFilter
-              placeholder="Search payout id" setSearchVal=setSearchText searchVal=searchText
+              placeholder="Search for payout ID" setSearchVal=setSearchText searchVal=searchText
             />}
             entityName=PAYOUTS_FILTERS
           />

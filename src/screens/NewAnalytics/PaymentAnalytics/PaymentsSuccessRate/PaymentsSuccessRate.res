@@ -39,7 +39,7 @@ module PaymentsSuccessRateHeader = {
           {primaryValue->valueFormatter(Rate)->React.string}
         </div>
         <RenderIf condition={comparison == EnableComparison}>
-          <StatisticsCard value direction />
+          <StatisticsCard value direction tooltipValue={secondaryValue->valueFormatter(Rate)} />
         </RenderIf>
       </div>
       <RenderIf condition={false}>

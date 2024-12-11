@@ -550,7 +550,3 @@ let orderViewList: OMPSwitchTypes.ompViews = [
     entity: #Profile,
   },
 ]
-
-let deleteNestedKeys = (dict: Dict.t<'a>, keys: array<string>) => {
-  keys->Array.forEach(key => dict->Dict.delete(key))
-}

@@ -3,6 +3,52 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.10.0
+
+### Bug Fixes
+
+- Analytics minor changes ([#1897](https://github.com/juspay/hyperswitch-control-center/pull/1897)) ([`feae8ba`](https://github.com/juspay/hyperswitch-control-center/commit/feae8baa147b837ec75783445327990593214579))
+
+**Full Changelog:** [`2024.12.09.2...2024.12.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.09.2...2024.12.10.0)
+
+- - -
+
+## 2024.12.09.2
+
+### Features
+
+- Paymants failure reasons ([#1892](https://github.com/juspay/hyperswitch-control-center/pull/1892)) ([`807e047`](https://github.com/juspay/hyperswitch-control-center/commit/807e0478b06f05168bd78365ced8df302f1b13f8))
+
+**Full Changelog:** [`2024.12.09.1...2024.12.09.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.09.1...2024.12.09.2)
+
+- - -
+
+## 2024.12.09.1
+
+### Features
+
+- Merchant Reference ID filter PaymentOps ([#1807](https://github.com/juspay/hyperswitch-control-center/pull/1807)) ([`7164693`](https://github.com/juspay/hyperswitch-control-center/commit/7164693da549cfc34578aafc616c587baaef1e14))
+- Smart retry amount analytics ([#1872](https://github.com/juspay/hyperswitch-control-center/pull/1872)) ([`c5c5542`](https://github.com/juspay/hyperswitch-control-center/commit/c5c554284ede550bc527fbf11bd834d0276f7b26))
+- Successful smart retry distribution ([#1882](https://github.com/juspay/hyperswitch-control-center/pull/1882)) ([`72602c1`](https://github.com/juspay/hyperswitch-control-center/commit/72602c167daae61d5146c277de2ea2f9a602e1b3))
+- New analytics smart retry failure distribution ([#1886](https://github.com/juspay/hyperswitch-control-center/pull/1886)) ([`698e17a`](https://github.com/juspay/hyperswitch-control-center/commit/698e17a6c6a12ac492c82c564a562354fb793466))
+- Smart retry analytics modules ([#1890](https://github.com/juspay/hyperswitch-control-center/pull/1890)) ([`5b1b2e9`](https://github.com/juspay/hyperswitch-control-center/commit/5b1b2e99497ba200e634b19d3953453007afe55b))
+- Refunds amount filter and UI enhancements ([#1884](https://github.com/juspay/hyperswitch-control-center/pull/1884)) ([`2134cbf`](https://github.com/juspay/hyperswitch-control-center/commit/2134cbf6b41d2f2744909ed4872c2d6323a11ecc))
+
+### Bug Fixes
+
+- Truncate cols of connector transaction ID in Payment ops ([#1855](https://github.com/juspay/hyperswitch-control-center/pull/1855)) ([`b481bd8`](https://github.com/juspay/hyperswitch-control-center/commit/b481bd8cc4883505861c9672eabbd23ab7eb40bb))
+- Amount Filter Validations and Changes ([#1869](https://github.com/juspay/hyperswitch-control-center/pull/1869)) ([`e2d1591`](https://github.com/juspay/hyperswitch-control-center/commit/e2d15915f75b26666da50957e9c14be8522cfe64))
+
+### Miscellaneous Tasks
+
+- Updated api endpoints /removed v2 urls ([#1515](https://github.com/juspay/hyperswitch-control-center/pull/1515)) ([`70881b4`](https://github.com/juspay/hyperswitch-control-center/commit/70881b47c871f6d2414f93afb3c1d5814b2fd55f))
+- Smart retry tab code ([#1865](https://github.com/juspay/hyperswitch-control-center/pull/1865)) ([`25c9d23`](https://github.com/juspay/hyperswitch-control-center/commit/25c9d2394cdf3aafb5739c169dfc4364259f3f07))
+- New analytics bar file refactor ([#1880](https://github.com/juspay/hyperswitch-control-center/pull/1880)) ([`71714a4`](https://github.com/juspay/hyperswitch-control-center/commit/71714a41eea537241dff4630f69ea355f73d8bf2))
+
+**Full Changelog:** [`2024.12.09.0...2024.12.09.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.09.0...2024.12.09.1)
+
+- - -
+
 ## 2024.12.09.0
 
 ### Bug Fixes
