@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.12.2
+
+### Features
+
+- New pill input type ([#1901](https://github.com/juspay/hyperswitch-control-center/pull/1901)) ([`9c4c673`](https://github.com/juspay/hyperswitch-control-center/commit/9c4c673eb60454a723ee39219792a160f16a1152))
+
+### Bug Fixes
+
+- Custom http headers ([#1910](https://github.com/juspay/hyperswitch-control-center/pull/1910)) ([`4fcbce6`](https://github.com/juspay/hyperswitch-control-center/commit/4fcbce62ebac9432f68c084a81fa74c99c6f7da5))
+
+**Full Changelog:** [`2024.12.12.1...2024.12.12.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.12.1...2024.12.12.2)
+
+- - -
+
 ## 2024.12.12.1
 
 ### Features
