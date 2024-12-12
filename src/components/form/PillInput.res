@@ -113,38 +113,34 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
     setEditInput(_ => item)
   }
 
-  <div className="w-full ">
+  <div className="w-full">
     <div className="w-full flex flex-wrap gap-2 border p-2 text-sm rounded-md">
       {items
       ->Array.mapWithIndex((item, i) =>
         switch editingItem {
         | Some(selected) =>
           <RenderIf condition={selected == item}>
-            <div
-              key={Int.toString(i)} className="flex flex-wrap gap-1 p-1 border text-sm rounded-md">
+            <div key={Int.toString(i)} className="flex flex-wrap gap-1 p-1 border rounded-md">
               <input
                 type_="text"
                 value={editInput}
                 onBlur={_ => saveItem(item)}
                 onInput=handleEditChange
                 onKeyDown={ev => handleEditKeydown(item, ev)}
-                className="rounded-md p-1 text-sm flex-grow"
+                className="rounded-md p-1 flex-grow"
               />
-              <button
-                onClick={_ => removeItem(item)} className="ml-2 hover:bg-gray-300 rounded-md p-1">
+              <button onClick={_ => removeItem(item)} className=" hover:bg-gray-300 rounded-md p-1">
                 <Icon name="cross-outline" size=14 />
               </button>
             </div>
           </RenderIf>
         | None =>
-          <div key={Int.toString(i)} className="flex flex-wrap gap-1 p-1 border text-sm rounded-md">
+          <div key={Int.toString(i)} className="flex flex-wrap gap-1 p-1 border rounded-md">
             <div
-              className="cursor-pointer rounded-md px-2 py-1 text-sm text-gray-600 flex-grow"
-              onClick={_ => toggleEditingItem(item)}>
+              className="cursor-pointer px-2 py-1 flex-grow" onClick={_ => toggleEditingItem(item)}>
               {React.string(item)}
             </div>
-            <button
-              onClick={_ => removeItem(item)} className="ml-2 hover:bg-gray-300 rounded-md p-1">
+            <button onClick={_ => removeItem(item)} className=" hover:bg-gray-300 rounded-md p-1">
               <Icon name="cross-outline" size=14 />
             </button>
           </div>
@@ -158,13 +154,13 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
           placeholder
           onChange=handleInputChange
           onKeyDown=handleKeyDown
-          className="max-w-fit outline-none p-2 flex-grow"
+          className="outline-none p-2 flex-grow"
           name
         />
         <RenderIf condition={suggestion->Option.isSome}>
           <div
             onClick={_ => handleSuggestionClick()}
-            className="absolute z-10  w-full min-w-80 bg-white border border-gray-300 rounded-md shadow-lg mt-1 cursor-pointer top-10 h-16">
+            className="absolute z-10 min-w-80 bg-white border rounded-md shadow-lg mt-1 cursor-pointer top-10 h-16">
             <div className="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4">
               <div className="flex items-center gap-2">
                 <img alt="user_icon" src={`/icons/user_icon.svg`} className="h-6 w-6" />
@@ -176,9 +172,9 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
       </div>
     </div>
     <RenderIf condition={!(error->LogicUtils.isEmptyString)}>
-      <div className="flex gap-1">
-        <Icon name="exclamation-circle" size=14 className="!text-red-500 mt-1" />
-        <p className="text-red-700 text-sm mt-1"> {React.string(error)} </p>
+      <div className="flex gap-1 mt-2">
+        <Icon name="exclamation-circle" size=12 className="text-red-600" />
+        <p className="text-red-600 text-xs"> {React.string(error)} </p>
       </div>
     </RenderIf>
   </div>
