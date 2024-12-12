@@ -1,12 +1,3 @@
-type lteGte = {
-  gte: JSON.t,
-  lte: JSON.t,
-}
-
-type dateCreated = {dateCreated: lteGte}
-
-type filters = {filters: dateCreated}
-
 type startAndEndTime = {
   startTime: JSON.t,
   endTime: JSON.t,
@@ -21,6 +12,8 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let {userInfo: {transactionEntity}} = React.useContext(UserInfoProvider.defaultContext)
+  let (_, getNameForId) = OMPSwitchHooks.useOMPData()
 
   let downloadReport = async body => {
     try {
@@ -35,24 +28,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   }
 
   let onSubmit = (values, _) => {
-    open LogicUtils
-    let dateCreatedDict =
-      values
-      ->getDictFromJsonObject
-      ->getJsonObjectFromDict("filters")
-      ->getDictFromJsonObject
-      ->getJsonObjectFromDict("dateCreated")
-      ->getDictFromJsonObject
-
-    let gte = dateCreatedDict->getJsonObjectFromDict("gte")
-    let lte = dateCreatedDict->getJsonObjectFromDict("lte")
-
-    let body = {
-      timeRange: {
-        startTime: gte,
-        endTime: lte,
-      },
-    }
+    let body = values
     let metadata = body->Identity.genericTypeToJson
     mixpanelEvent(~eventName="generate_reports_download", ~metadata)
     downloadReport(body->Identity.genericTypeToJson)
@@ -66,11 +42,9 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   }
 
   let initialValues = {
-    filters: {
-      dateCreated: {
-        gte: getPreviousDate()->JSON.Encode.string,
-        lte: Date.now()->Js.Date.fromFloat->Date.toISOString->JSON.Encode.string,
-      },
+    timeRange: {
+      startTime: getPreviousDate()->JSON.Encode.string,
+      endTime: Date.now()->Js.Date.fromFloat->Date.toISOString->JSON.Encode.string,
     },
   }->Identity.genericTypeToJson
 
@@ -80,7 +54,15 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   | DISPUTE_REPORT => "Dispute"
   | _ => ""
   }
-
+  let currentview = `${(transactionEntity :> string)} (${getNameForId(transactionEntity)})`
+  let viewInput: ReactFinalForm.fieldRenderPropsInput = {
+    name: "view",
+    onBlur: _ => (),
+    onChange: _ => (),
+    onFocus: _ => (),
+    value: currentview->JSON.Encode.string,
+    checked: true,
+  }
   <Modal
     modalHeading={`Generate ${category} Reports`}
     showModal=reportModal
@@ -92,11 +74,17 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
     modalClass="w-1/4 m-auto">
     <Form onSubmit initialValues>
       <FormRenderer.FieldRenderer
+        field={FormRenderer.makeFieldInfo(~label="Report Type", ~name="view", ~customInput=(
+          ~input as _,
+          ~placeholder as _,
+        ) => <TextInput input={viewInput} placeholder="" isDisabled=true />)}
+      />
+      <FormRenderer.FieldRenderer
         field={FormRenderer.makeMultiInputFieldInfo(
           ~label="Date Range",
           ~comboCustomInput=InputFields.dateRangeField(
-            ~startKey="filters.dateCreated.gte",
-            ~endKey="filters.dateCreated.lte",
+            ~startKey="timeRange.startTime",
+            ~endKey="timeRange.endTime",
             ~format="YYYY-MM-DDTHH:mm:ss[Z]",
             ~showTime=false,
             ~disablePastDates={false},
@@ -105,14 +93,24 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
             ~numMonths=2,
             ~dateRangeLimit=400,
             ~disableApply=false,
-            ~optFieldKey="filters.dateCreated.opt",
+            ~optFieldKey="timeRange.opt",
             ~isTooltipVisible=false,
           ),
           ~inputFields=[],
           ~isRequired=true,
         )}
       />
-      <FormRenderer.SubmitButton text="Generate" customSumbitButtonStyle="mt-10 ml-3" />
+      <FormRenderer.FieldRenderer
+        field={FormRenderer.makeFieldInfo(
+          ~label="Additional Recipients",
+          ~name="emails",
+          ~customInput=(~input as _, ~placeholder as _) => {
+            <PillInput name="emails" placeholder="Enter email(s)" />
+          },
+        )}
+      />
+      <FormRenderer.SubmitButton text="Generate" customSumbitButtonStyle="mt-5 mb-3  " />
+      // <FormValuesSpy />
     </Form>
   </Modal>
 }
