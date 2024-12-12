@@ -1,3 +1,13 @@
+// colors
+let redColor = "#BA3535"
+let blue = "#1059C1B2"
+let green = "#0EB025B2"
+let barGreenColor = "#7CC88F"
+let sankyBlue = "#E4EFFF"
+let sankyRed = "#F7E0E0"
+let sankyLightBlue = "#91B7EE"
+let sankyLightRed = "#EC6262"
+
 let getBucketSize = granularity => {
   switch granularity {
   | "hour_wise" => "hour"

@@ -1,5 +1,9 @@
 open SankeyGraphTypes
 
+// contants
+let textColor = "#333333"
+let fontFamily = "Arial, sans-serif"
+
 let valueFormatter = (
   @this
   (this: nodeFormatter) => {
@@ -17,9 +21,11 @@ let tooltipFormatter = (
 
     let format = value => value->Int.toFloat->NewAnalyticsUtils.valueFormatter(Volume)
 
+    let arrowIcon = "&#8594;"
+
     let titleString = switch pointType {
     | Node => this.key
-    | Link => `${this.point.from} &#8594; ${this.point.to}`
+    | Link => `${this.point.from} ${arrowIcon} ${this.point.to}`
     }
 
     let info = switch pointType {
@@ -76,6 +82,13 @@ let tooltipFormatter = (
 
 let getSankyGraphOptions = (payload: sankeyPayload) => {
   let {data, nodes, title, colors} = payload
+  let style = {
+    fontWeight: "normal",
+    fontSize: "14px",
+    color: textColor,
+    fontFamily,
+  }
+
   let options = {
     title,
     series: [
@@ -87,19 +100,14 @@ let getSankyGraphOptions = (payload: sankeyPayload) => {
         credits: {
           enabled: false,
         },
-        colors, // Payments Initiated // Success // Non-terminal state // Dispute Raised // Refunds Issued // Failed // Drop-offs
+        colors,
         keys: ["from", "to", "weight", "color"],
         data,
         nodePadding: 35,
-        borderRadius: 3, // Set the border radius of the bars to 0
+        borderRadius: 3,
         dataLabels: {
           nodeFormatter: valueFormatter,
-          style: {
-            fontWeight: "normal",
-            fontSize: "14px",
-            color: "#333333",
-            fontFamily: "Arial, sans-serif",
-          },
+          style,
           allowOverlap: true, // Allow labels to overlap
           crop: false, // Prevent labels from being cropped
           overflow: "allow", // Allow labels to overflow the chart area
@@ -112,12 +120,7 @@ let getSankyGraphOptions = (payload: sankeyPayload) => {
     tooltip: {
       enabled: true,
       useHTML: true,
-      style: {
-        fontWeight: "normal",
-        fontSize: "14px",
-        color: "#333333",
-        fontFamily: "Arial, sans-serif",
-      },
+      style,
       formatter: tooltipFormatter,
       crosshairs: false,
       shape: "square",

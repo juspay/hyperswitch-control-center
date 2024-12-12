@@ -1,6 +1,18 @@
+// constants
+let fontFamily = "Arial, sans-serif"
+let darkGray = "#666666"
+let gridLineColor = "#e6e6e6"
+
 open BarGraphTypes
 let getBarGraphOptions = (barGraphOptions: barGraphPayload) => {
   let {categories, data, title, tooltipFormatter} = barGraphOptions
+
+  let style = {
+    fontFamily,
+    fontSize: "12px",
+    color: darkGray,
+  }
+
   {
     chart: {
       \"type": "bar",
@@ -14,11 +26,7 @@ let getBarGraphOptions = (barGraphOptions: barGraphPayload) => {
       categories,
       labels: {
         align: "center",
-        style: {
-          fontFamily: "Arial, sans-serif",
-          fontSize: "12px",
-          color: "#666666",
-        },
+        style,
       },
       tickWidth: 1,
       tickmarkPlacement: "on",
@@ -26,22 +34,18 @@ let getBarGraphOptions = (barGraphOptions: barGraphPayload) => {
       startOnTick: false,
       gridLineWidth: 1,
       gridLineDashStyle: "Dash",
-      gridLineColor: "#e6e6e6",
+      gridLineColor,
       min: 0,
     },
     yAxis: {
       title,
       labels: {
         align: "center",
-        style: {
-          fontFamily: "Arial, sans-serif",
-          fontSize: "12px",
-          color: "#666666",
-        },
+        style,
       },
       gridLineWidth: 1,
       gridLineDashStyle: "Solid",
-      gridLineColor: "#e6e6e6",
+      gridLineColor,
       tickInterval: 25,
       min: 0,
       max: 100,
@@ -49,7 +53,7 @@ let getBarGraphOptions = (barGraphOptions: barGraphPayload) => {
     tooltip: {
       style: {
         padding: "0px",
-        fontFamily: "Arial, sans-serif", // Set the desired font family
+        fontFamily, // Set the desired font family
         fontSize: "14px", // Optional: Set the font size
       },
       shape: "square",

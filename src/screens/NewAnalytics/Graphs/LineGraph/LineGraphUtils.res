@@ -1,5 +1,11 @@
 open LineGraphTypes
 
+// colors
+let darkGray = "#666666"
+let lightGray = "#999999"
+let gridLineColor = "#e6e6e6"
+let fontFamily = "Arial, sans-serif"
+
 let valueFormatter = (
   @this
   this => {
@@ -22,18 +28,18 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
     title: {
       ...title,
       style: {
-        color: "#666666",
-        fontFamily: "Arial, sans-serif", // Set the desired font family
+        color: darkGray,
+        fontFamily, // Set the desired font family
       },
     },
     gridLineWidth: 1,
-    gridLineColor: "#e6e6e6",
+    gridLineColor,
     gridLineDashStyle: "Dash",
     labels: {
       align: "center",
       style: {
-        color: "#999999",
-        fontFamily: "Arial, sans-serif", // Set the desired font family
+        color: lightGray,
+        fontFamily, // Set the desired font family
       },
       x: 5,
     },
@@ -57,14 +63,14 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       labels: {
         align: "center",
         style: {
-          color: "#999999",
-          fontFamily: "Arial, sans-serif", // Set the desired font family
+          color: lightGray,
+          fontFamily, // Set the desired font family
         },
         y: 35,
       },
       tickInterval: stepInterval,
       gridLineWidth: 1,
-      gridLineColor: "#e6e6e6",
+      gridLineColor,
       tickmarkPlacement: "on",
       endOnTick: false,
       startOnTick: false,
@@ -72,7 +78,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
     tooltip: {
       style: {
         padding: "0px",
-        fontFamily: "Arial, sans-serif", // Set the desired font family
+        fontFamily, // Set the desired font family
         fontSize: "14px", // Optional: Set the font size
       },
       shape: "square",
@@ -99,9 +105,9 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       symbolPadding: 0,
       symbolWidth: 0,
       itemStyle: {
-        fontFamily: "Arial, sans-serif", // Set font family for legend items
+        fontFamily, // Set font family for legend items
         fontSize: "12px", // Set font size
-        color: "#666666", // Set font color
+        color: darkGray, // Set font color
       },
     },
     plotOptions: {
