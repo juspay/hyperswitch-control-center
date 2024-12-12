@@ -14,7 +14,7 @@ let make = (~connector, ~setShowWalletConfigurationModal, ~update, ~onCloseClick
       ->getDictfromDict("paze")
 
     form.change(
-      "connector_wallets_details.samsung_pay.merchant_credentials",
+      "connector_wallets_details.paze",
       initalFormValue->pazePayRequest->Identity.genericTypeToJson,
     )
   }
