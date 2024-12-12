@@ -1,18 +1,23 @@
 @react.component
 let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateCheck=true) => {
   let form = ReactFinalForm.useForm()
-  let (items, setItems) = React.useState(() => initialItems)
-  let (inputValue, setInputValue) = React.useState(() => "")
-  //to get edited input val
-  let (editInput, setEditInput) = React.useState(() => "")
-  //to keep track item getting edited
-  let (editingItem, setEditingItem) = React.useState(() => None)
-  let (error, setError) = React.useState(() => "")
+  let (items, setItems) = React.useState(_ => initialItems)
+  let (inputValue, setInputValue) = React.useState(_ => "")
+  let (editInput, setEditInput) = React.useState(_ => "")
+  let (editingItem, setEditingItem) = React.useState(_ => None)
+  let (error, setError) = React.useState(_ => "")
+  let (suggestion, setSuggestion) = React.useState(_ => None)
 
   let handleInputChange = e => {
     let value = ReactEvent.Form.target(e)["value"]
     setInputValue(_ => value)
     setError(_ => "")
+
+    if !CommonAuthUtils.isValidEmail(value) {
+      setSuggestion(_ => Some(value))
+    } else {
+      setSuggestion(_ => None)
+    }
   }
 
   let handleEditChange = e => {
@@ -21,21 +26,33 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
     setError(_ => "")
   }
 
-  let addItem = item => {
-    let trimmedItem = String.trim(item)
-    if trimmedItem == "" {
+  let addItem = elem => {
+    let trimmedItem = String.trim(elem)
+    if trimmedItem->LogicUtils.isEmptyString {
       setInputValue(_ => "")
       setError(_ => "")
+      setSuggestion(_ => None)
     }
+
     if duplicateCheck && Array.some(items, existingItem => existingItem == trimmedItem) {
       setError(_ => "Email already exists")
+      setSuggestion(_ => None)
     } else if !CommonAuthUtils.isValidEmail(trimmedItem) {
       setItems(prev => Array.concat(prev, [trimmedItem]))
-      form.change(name, items->Array.concat([item])->Identity.genericTypeToJson)
+      form.change(name, [...items, elem]->Identity.genericTypeToJson)
       setInputValue(_ => "")
       setError(_ => "")
+      setSuggestion(_ => None)
     } else {
       setError(_ => "Invalid Email")
+      setSuggestion(_ => None)
+    }
+  }
+
+  let handleSuggestionClick = () => {
+    switch suggestion {
+    | Some(suggestedEmail) => addItem(suggestedEmail)
+    | None => ()
     }
   }
 
@@ -70,21 +87,23 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
   }
 
   let handleKeyDown = e => {
-    open ReactEvent.Keyboard
-    let key = e->key
-    let keyCode = e->keyCode
+    let key = e->ReactEvent.Keyboard.key
+    let keyCode = e->ReactEvent.Keyboard.keyCode
     if key === "Enter" || keyCode === 13 {
       ReactEvent.Keyboard.preventDefault(e)
-      addItem(inputValue)
+      switch suggestion {
+      | Some(suggestedEmail) => addItem(suggestedEmail)
+      | None => addItem(inputValue)
+      }
     }
   }
-  // Toggle editing mode for an item
+
   let toggleEditingItem = item => {
     setEditingItem(_ => Some(item))
     setEditInput(_ => item)
   }
 
-  <div className="w-full">
+  <div className="w-full ">
     <div className="w-full flex flex-wrap gap-2 border p-2 text-sm rounded-md">
       {items
       ->Array.mapWithIndex((item, i) =>
@@ -97,9 +116,8 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
               onBlur={_ => saveItem(item)}
               onInput=handleEditChange
               onKeyDown={ev => {
-                open ReactEvent.Keyboard
-                let key = ev->key
-                let keyCode = ev->keyCode
+                let key = ev->ReactEvent.Keyboard.key
+                let keyCode = ev->ReactEvent.Keyboard.keyCode
                 if key === "Enter" || keyCode === 13 {
                   ReactEvent.Keyboard.preventDefault(ev)
                   saveItem(item)
@@ -127,21 +145,37 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
         }
       )
       ->React.array}
-      <input
-        type_="text"
-        value={inputValue}
-        placeholder
-        onChange=handleInputChange
-        onKeyDown=handleKeyDown
-        className="outline-none p-2 flex-grow"
-        name
-      />
+      <div className="relative">
+        <input
+          type_="text"
+          value={inputValue}
+          placeholder
+          onChange=handleInputChange
+          onKeyDown=handleKeyDown
+          className="max-w-fit outline-none p-2 flex-grow"
+          name
+        />
+        {switch suggestion {
+        | Some(suggestedEmail) =>
+          <div
+            onClick={_ => handleSuggestionClick()}
+            className="absolute z-10  w-full min-w-80 bg-white border border-gray-300 rounded-md shadow-lg mt-1 cursor-pointer top-10 h-16">
+            <div className="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4">
+              <div className="flex items-center gap-2">
+                <img alt="user_icon" src={`/icons/user_icon.svg`} className="h-6 w-6" />
+                <span className="font-medium"> {React.string(suggestedEmail)} </span>
+              </div>
+            </div>
+          </div>
+        | None => React.null
+        }}
+      </div>
     </div>
-    {error != ""
-      ? <div className="flex gap-1">
-          <Icon name="exclamation-circle" size=14 className="!text-red-500 mt-1" />
-          <p className="text-red-700 text-sm mt-1"> {React.string(error)} </p>
-        </div>
-      : React.null}
+    <RenderIf condition={!(error->LogicUtils.isEmptyString)}>
+      <div className="flex gap-1">
+        <Icon name="exclamation-circle" size=14 className="!text-red-500 mt-1" />
+        <p className="text-red-700 text-sm mt-1"> {React.string(error)} </p>
+      </div>
+    </RenderIf>
   </div>
 }
