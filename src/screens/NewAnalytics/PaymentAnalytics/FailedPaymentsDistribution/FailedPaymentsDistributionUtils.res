@@ -33,7 +33,7 @@ let failedPaymentsDistributionMapper = (
     ~array=data->getArrayFromJson([]),
     ~key=xKey,
     ~name=xKey->snakeToTitle,
-    ~color="#BA3535",
+    ~color=redColor,
   )
   let title = {
     text: "",
