@@ -3,6 +3,36 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.12.1
+
+### Features
+
+- Update custom webhook headers ([#1908](https://github.com/juspay/hyperswitch-control-center/pull/1908)) ([`39b0bb0`](https://github.com/juspay/hyperswitch-control-center/commit/39b0bb0ed314957b312541fd3f38651f810251a6))
+
+**Full Changelog:** [`2024.12.12.0...2024.12.12.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.12.0...2024.12.12.1)
+
+- - -
+
+## 2024.12.12.0
+
+### Bug Fixes
+
+- Amount Filter bug ([#1900](https://github.com/juspay/hyperswitch-control-center/pull/1900)) ([`5761c53`](https://github.com/juspay/hyperswitch-control-center/commit/5761c53c5804095b01262b1a19bfe3db03c40fe6))
+
+**Full Changelog:** [`2024.12.10.0...2024.12.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.10.0...2024.12.12.0)
+
+- - -
+
+## 2024.12.10.0
+
+### Bug Fixes
+
+- Analytics minor changes ([#1897](https://github.com/juspay/hyperswitch-control-center/pull/1897)) ([`feae8ba`](https://github.com/juspay/hyperswitch-control-center/commit/feae8baa147b837ec75783445327990593214579))
+
+**Full Changelog:** [`2024.12.09.2...2024.12.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.09.2...2024.12.10.0)
+
+- - -
+
 ## 2024.12.09.2
 
 ### Features
