@@ -55,20 +55,8 @@ let paymentsProcessedMapper = (
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
-  let lineGraphData =
-    data
-    ->getArrayFromJson([])
-    ->Array.mapWithIndex((item, index) => {
-      let name = NewAnalyticsUtils.getLabelName(~key=yKey, ~index, ~points=item)
-      let color = index->getColor
-      getLineGraphObj(
-        ~array=item->getArrayFromJson([]),
-        ~key=xKey,
-        ~name,
-        ~color,
-        ~isAmount=xKey->isAmountMetric,
-      )
-    })
+  let lineGraphData = getLineGraphData(data, xKey, yKey, isAmountMetric)
+
   let title = {
     text: "Payments Processed",
   }
@@ -79,17 +67,19 @@ let paymentsProcessedMapper = (
   | _ => Volume
   }
 
+  let tooltipFormatter = tooltipFormatter(
+    ~secondaryCategories,
+    ~title="Payments Processed",
+    ~metricType,
+    ~comparison,
+  )
+
   {
     categories: primaryCategories,
     data: lineGraphData,
     title,
     yAxisMaxValue: None,
-    tooltipFormatter: tooltipFormatter(
-      ~secondaryCategories,
-      ~title="Payments Processed",
-      ~metricType,
-      ~comparison,
-    ),
+    tooltipFormatter,
   }
 }
 

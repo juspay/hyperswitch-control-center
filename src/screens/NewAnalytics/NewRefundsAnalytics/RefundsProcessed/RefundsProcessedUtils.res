@@ -43,20 +43,8 @@ let refundsProcessedMapper = (
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
-  let lineGraphData =
-    data
-    ->getArrayFromJson([])
-    ->Array.mapWithIndex((item, index) => {
-      let name = getLabelName(~key=yKey, ~index, ~points=item)
-      let color = index->getColor
-      getLineGraphObj(
-        ~array=item->getArrayFromJson([]),
-        ~key=xKey,
-        ~name,
-        ~color,
-        ~isAmount=xKey->isAmountMetric,
-      )
-    })
+  let lineGraphData = getLineGraphData(data, xKey, yKey, isAmountMetric)
+
   let title = {
     text: "Refunds Processed",
   }
@@ -67,28 +55,21 @@ let refundsProcessedMapper = (
   | _ => Volume
   }
 
+  let tooltipFormatter = tooltipFormatter(
+    ~secondaryCategories,
+    ~title="Refunds Processed",
+    ~metricType,
+    ~comparison,
+  )
+
   {
     categories: primaryCategories,
     data: lineGraphData,
     title,
     yAxisMaxValue: None,
-    tooltipFormatter: tooltipFormatter(
-      ~secondaryCategories,
-      ~title="Refunds Processed",
-      ~metricType,
-      ~comparison,
-    ),
+    tooltipFormatter,
   }
 }
-// Need to modify
-let getMetaData = json =>
-  json
-  ->getArrayFromJson([])
-  ->getValueFromArray(0, JSON.Encode.array([]))
-  ->getDictFromJsonObject
-  ->getArrayFromDict("metaData", [])
-  ->getValueFromArray(0, JSON.Encode.array([]))
-  ->getDictFromJsonObject
 
 let visibleColumns = [Time_Bucket]
 

@@ -174,6 +174,7 @@ let getToolTipConparision = (~primaryValue, ~secondaryValue) => {
 }
 
 open LogicUtils
+// removes the NA buckets
 let filterQueryData = (query, key) => {
   query->Array.filter(data => {
     let valueDict = data->getDictFromJsonObject
@@ -341,6 +342,22 @@ let getLineGraphObj = (
     color,
   }
   dataObj
+}
+
+let getLineGraphData = (data, xKey, yKey, isAmountMetric) => {
+  data
+  ->getArrayFromJson([])
+  ->Array.mapWithIndex((item, index) => {
+    let name = getLabelName(~key=yKey, ~index, ~points=item)
+    let color = index->getColor
+    getLineGraphObj(
+      ~array=item->getArrayFromJson([]),
+      ~key=xKey,
+      ~name,
+      ~color,
+      ~isAmount=xKey->isAmountMetric,
+    )
+  })
 }
 
 let tooltipFormatter = (
