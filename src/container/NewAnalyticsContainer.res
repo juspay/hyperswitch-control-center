@@ -68,7 +68,7 @@ let make = () => {
       title: "Payments",
       renderContent: () =>
         <div className="mt-5">
-          <NewPaymentAnalytics />
+          <NewRefundsAnalytics />
         </div>,
     },
   ]
