@@ -55,8 +55,7 @@ let paymentsProcessedMapper = (
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
-  let lineGraphData = getLineGraphData(data, xKey, yKey, isAmountMetric)
-
+  let lineGraphData = data->getLineGraphData(~xKey, ~yKey, ~isAmount=xKey->isAmountMetric)
   let title = {
     text: "Payments Processed",
   }

@@ -344,19 +344,13 @@ let getLineGraphObj = (
   dataObj
 }
 
-let getLineGraphData = (data, xKey, yKey, isAmountMetric) => {
+let getLineGraphData = (data, ~xKey, ~yKey, ~isAmount=false) => {
   data
   ->getArrayFromJson([])
   ->Array.mapWithIndex((item, index) => {
     let name = getLabelName(~key=yKey, ~index, ~points=item)
     let color = index->getColor
-    getLineGraphObj(
-      ~array=item->getArrayFromJson([]),
-      ~key=xKey,
-      ~name,
-      ~color,
-      ~isAmount=xKey->isAmountMetric,
-    )
+    getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color, ~isAmount)
   })
 }
 

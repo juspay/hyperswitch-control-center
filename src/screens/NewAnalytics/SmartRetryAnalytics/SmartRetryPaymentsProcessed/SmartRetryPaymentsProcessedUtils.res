@@ -42,20 +42,8 @@ let smartRetryPaymentsProcessedMapper = (
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
-  let lineGraphData =
-    data
-    ->getArrayFromJson([])
-    ->Array.mapWithIndex((item, index) => {
-      let name = NewAnalyticsUtils.getLabelName(~key=yKey, ~index, ~points=item)
-      let color = index->getColor
-      getLineGraphObj(
-        ~array=item->getArrayFromJson([]),
-        ~key=xKey,
-        ~name,
-        ~color,
-        ~isAmount=xKey->isAmountMetric,
-      )
-    })
+  let lineGraphData = data->getLineGraphData(~xKey, ~yKey, ~isAmount=xKey->isAmountMetric)
+
   let title = {
     text: "Smart Retry Payments Processed",
   }

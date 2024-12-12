@@ -1,4 +1,3 @@
-open LogicUtils
 open PaymentsSuccessRateTypes
 
 let getStringFromVariant = value => {
@@ -40,14 +39,8 @@ let paymentsSuccessRateMapper = (
   let primaryCategories = data->getCategories(0, yKey)
   let secondaryCategories = data->getCategories(1, yKey)
 
-  let lineGraphData =
-    data
-    ->getArrayFromJson([])
-    ->Array.mapWithIndex((item, index) => {
-      let name = NewAnalyticsUtils.getLabelName(~key=yKey, ~index, ~points=item)
-      let color = index->getColor
-      getLineGraphObj(~array=item->getArrayFromJson([]), ~key=xKey, ~name, ~color)
-    })
+  let lineGraphData = data->getLineGraphData(~xKey, ~yKey)
+
   let title = {
     text: "Payments Success Rate",
   }
