@@ -22,20 +22,23 @@ let successfulRefundsDistributionMapper = (
     ~array=data->getArrayFromJson([]),
     ~key=xKey,
     ~name=xKey->snakeToTitle,
-    ~color="#7CC88F",
+    ~color=barGreenColor,
   )
+
   let title = {
     text: "",
   }
+
+  let tooltipFormatter = bargraphTooltipFormatter(
+    ~title="Successful Refunds Distribution",
+    ~metricType=Rate,
+  )
 
   {
     categories,
     data: [barGraphData],
     title,
-    tooltipFormatter: bargraphTooltipFormatter(
-      ~title="Successful Refunds Distribution",
-      ~metricType=Rate,
-    ),
+    tooltipFormatter,
   }
 }
 

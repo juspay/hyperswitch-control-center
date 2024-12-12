@@ -1,5 +1,4 @@
 open NewAnalyticsUtils
-open LogicUtils
 open RefundsSuccessRateTypes
 
 let getStringFromVariant = value => {
