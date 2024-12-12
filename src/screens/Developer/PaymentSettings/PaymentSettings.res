@@ -35,6 +35,9 @@ module AuthenticationInput = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
+    let (isDisabled, setDisabled) = React.useState(_ => true)
+    let (showModal, setShowModal) = React.useState(_ => false)
+    let (allowEdit, setAllowEdit) = React.useState(_ => false)
     let (key, setKey) = React.useState(_ => "")
     let (metaValue, setValue) = React.useState(_ => "")
     let getOutGoingWebhook = () => {
@@ -49,11 +52,12 @@ module AuthenticationInput = {
       | _ => ("", "")
       }
     }
+
     React.useEffect(() => {
       let (outGoingWebhookKey, outGoingWebHookValue) = getOutGoingWebhook()
       setValue(_ => outGoingWebHookValue)
       setKey(_ => outGoingWebhookKey)
-
+      setDisabled(_ => outGoingWebhookKey->LogicUtils.isNonEmptyString)
       None
     }, [])
     let form = ReactFinalForm.useForm()
@@ -62,12 +66,24 @@ module AuthenticationInput = {
       onBlur: _ => (),
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
+        let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|-)+$"
+        let isValid = if value->String.length <= 2 {
+          true
+        } else if (
+          value->isEmptyString ||
+          value->String.length > 64 ||
+          !RegExp.test(RegExp.fromString(regexForProfileName), value)
+        ) {
+          false
+        } else {
+          true
+        }
         if value->String.length <= 0 {
           let name = `outgoing_webhook_custom_http_headers.${key}`
           form.change(name, JSON.Encode.null)
         }
-        switch value->getOptionIntFromString->Option.isNone {
-        | true => setKey(_ => value)
+        switch (value->getOptionIntFromString->Option.isNone, isValid) {
+        | (true, true) => setKey(_ => value)
         | _ => ()
         }
       },
@@ -92,14 +108,73 @@ module AuthenticationInput = {
       checked: true,
     }
 
-    <DesktopRow wrapperClass="flex-1">
-      <div className="mt-5">
-        <TextInput input={keyInput} placeholder={"Enter key"} />
-      </div>
-      <div className="mt-5">
-        <TextInput input={valueInput} placeholder={"Enter value"} />
-      </div>
-    </DesktopRow>
+    let allowEditConfiguration = () => {
+      setValue(_ => "")
+      form.change(`outgoing_webhook_custom_http_headers.${key}`, JSON.Encode.null)
+      setAllowEdit(_ => true)
+      setShowModal(_ => false)
+    }
+    <>
+      <DesktopRow wrapperClass="flex-1">
+        <div className="mt-5">
+          <TextInput
+            input={keyInput} placeholder={"Enter key"} isDisabled={isDisabled && !allowEdit}
+          />
+        </div>
+        <div className="mt-5">
+          <TextInput
+            input={valueInput} placeholder={"Enter value"} isDisabled={isDisabled && !allowEdit}
+          />
+        </div>
+        <RenderIf condition={key->LogicUtils.isNonEmptyString}>
+          <div className="cursor-pointer">
+            <RenderIf condition={isDisabled && !allowEdit}>
+              <div className="mt-6">
+                <Button
+                  text=""
+                  customButtonStyle="bg-none !border-none"
+                  customBackColor="bg-transparent"
+                  rightIcon={FontAwesome("edit")}
+                  customIconSize={18}
+                  buttonSize={XSmall}
+                  onClick={_ => setShowModal(_ => true)}
+                />
+              </div>
+            </RenderIf>
+          </div>
+        </RenderIf>
+      </DesktopRow>
+      <Modal
+        showModal
+        setShowModal
+        modalClass="w-full md:w-4/12 mx-auto my-40 border-t-8 border-t-orange-960 rounded-xl">
+        <div className="relative flex items-start px-4 pb-10 pt-8 gap-4">
+          <Icon
+            name="warning-outlined" size=25 className="w-8" onClick={_ => setShowModal(_ => false)}
+          />
+          <div className="flex flex-col gap-5">
+            <p className="font-bold text-2xl"> {"Edit the Current Configuration"->React.string} </p>
+            <p className=" text-hyperswitch_black opacity-50 font-medium">
+              {"Editing the current configuration will override the current active configuration."->React.string}
+            </p>
+          </div>
+          <Icon
+            className="absolute top-2 right-2"
+            name="hswitch-close"
+            size=22
+            onClick={_ => setShowModal(_ => false)}
+          />
+        </div>
+        <div className="flex items-end justify-end gap-4">
+          <Button
+            buttonType=Button.Primary onClick={_ => allowEditConfiguration()} text="Proceed"
+          />
+          <Button
+            buttonType=Button.Secondary onClick={_ => setShowModal(_ => false)} text="Cancel"
+          />
+        </div>
+      </Modal>
+    </>
   }
 }
 module WebHookAuthenticationHeaders = {
@@ -530,12 +605,20 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 <ReturnUrl />
                 <WebHook enableCustomHttpHeaders setCustomHttpHeaders />
                 <DesktopRow>
-                  <div className="flex justify-start w-full">
+                  <div className="flex justify-start w-full gap-2">
                     <SubmitButton
                       customSumbitButtonStyle="justify-start"
                       text="Update"
                       buttonType=Button.Primary
                       buttonSize=Button.Small
+                    />
+                    <Button
+                      buttonType=Button.Secondary
+                      onClick={_ =>
+                        RescriptReactRouter.push(
+                          GlobalVars.appendDashboardPath(~url="/payment-settings"),
+                        )}
+                      text="Cancel"
                     />
                   </div>
                 </DesktopRow>

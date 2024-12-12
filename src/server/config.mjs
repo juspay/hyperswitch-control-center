@@ -105,10 +105,10 @@ const configHandler = async (
   try {
     const config = await readTomlConfig(filePath, res);
     let merchantConfig = config.default;
-
+    let isDomainExitsInEnv = process.env[`${domain}`];
     if (config[domain] && Object.keys(config[domain]).length > 0) {
       merchantConfig = updateConfigWithEnv(config[domain], domain, "theme");
-    } else if (domain.length > 0) {
+    } else if (domain.length > 0 && isDomainExitsInEnv) {
       merchantConfig = updateConfigWithEnv(config.default, domain, "theme");
     } else {
       merchantConfig = updateConfigWithEnv(merchantConfig, "default", "");
