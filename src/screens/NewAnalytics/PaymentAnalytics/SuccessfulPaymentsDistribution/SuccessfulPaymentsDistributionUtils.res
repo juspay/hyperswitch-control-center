@@ -34,7 +34,7 @@ let successfulPaymentsDistributionMapper = (
     ~array=data->getArrayFromJson([]),
     ~key=xKey,
     ~name=xKey->snakeToTitle,
-    ~color="#7CC88F",
+    ~color=barGreenColor,
   )
   let title = {
     text: "",
