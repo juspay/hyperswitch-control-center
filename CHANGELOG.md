@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.12.1
+
+### Features
+
+- Update custom webhook headers ([#1908](https://github.com/juspay/hyperswitch-control-center/pull/1908)) ([`39b0bb0`](https://github.com/juspay/hyperswitch-control-center/commit/39b0bb0ed314957b312541fd3f38651f810251a6))
+
+**Full Changelog:** [`2024.12.12.0...2024.12.12.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.12.0...2024.12.12.1)
+
+- - -
+
 ## 2024.12.12.0
 
 ### Bug Fixes
