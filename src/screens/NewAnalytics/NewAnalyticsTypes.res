@@ -14,6 +14,8 @@ type dimension = [
   | #card_network
   | #authentication_type
   | #error_reason
+  | #refund_error_message
+  | #refund_reason
 ]
 type status = [#charged | #failure]
 type metrics = [
