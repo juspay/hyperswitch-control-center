@@ -69,7 +69,7 @@ let make = () => {
       title: "Payments",
       renderContent: () =>
         <div className="mt-5">
-          <NewRefundsAnalytics />
+          <NewPaymentAnalytics />
         </div>,
     },
   ]
@@ -84,7 +84,7 @@ let make = () => {
   if newAnalyticsRefunds {
     tabs->Array.push({
       title: "Refunds",
-      renderContent: () => React.null,
+      renderContent: () => <NewRefundsAnalytics />,
     })
   }
 
