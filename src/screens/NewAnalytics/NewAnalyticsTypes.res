@@ -5,6 +5,7 @@ type statisticsDirection = Upward | Downward | No_Change
 type analyticsPagesRoutes =
   | @as("new-analytics-payment") NewAnalyticsPayment
   | @as("new-analytics-smart-retry") NewAnalyticsSmartRetry
+  | @as("new-analytics-refund") NewAnalyticsRefund
 
 type domain = [#payments | #refunds | #disputes]
 type dimension = [
@@ -25,7 +26,6 @@ type metrics = [
   | #refund_processed_amount
   | #dispute_status_metric
   | #payments_distribution
-  | #sessionized_payments_distribution // without smart retry
   | #failure_reasons
   | #payments_distribution
   | #payment_success_rate
