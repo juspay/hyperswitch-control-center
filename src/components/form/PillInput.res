@@ -155,20 +155,18 @@ let make = (~name, ~initialItems: array<string>=[], ~placeholder, ~duplicateChec
           className="max-w-fit outline-none p-2 flex-grow"
           name
         />
-        {switch suggestion {
-        | Some(suggestedEmail) =>
+        <RenderIf condition={suggestion->Option.isSome}>
           <div
             onClick={_ => handleSuggestionClick()}
             className="absolute z-10  w-full min-w-80 bg-white border border-gray-300 rounded-md shadow-lg mt-1 cursor-pointer top-10 h-16">
             <div className="bg-gray-200 w-full h-[calc(100%-16px)] my-2 flex items-center px-4">
               <div className="flex items-center gap-2">
                 <img alt="user_icon" src={`/icons/user_icon.svg`} className="h-6 w-6" />
-                <span className="font-medium"> {React.string(suggestedEmail)} </span>
+                <span className="font-medium"> {React.string(suggestion->Option.getOr(""))} </span>
               </div>
             </div>
           </div>
-        | None => React.null
-        }}
+        </RenderIf>
       </div>
     </div>
     <RenderIf condition={!(error->LogicUtils.isEmptyString)}>
