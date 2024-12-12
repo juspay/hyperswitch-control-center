@@ -50,3 +50,37 @@ let refundsSuccessRateChartEntity: chartEntity<
   getObjects: RefundsSuccessRateUtils.refundsSuccessRateMapper,
   getChatOptions: LineGraphUtils.getLineGraphOptions,
 }
+
+// Successful Refunds Distribution
+let successfulRefundsDistributionEntity: moduleEntity = {
+  requestBodyConfig: {
+    delta: false,
+    groupBy: [#connector],
+    metrics: [#sessionized_refund_count, #sessionized_refund_success_count],
+  },
+  title: "Successful Refunds Distribution By Connector",
+  domain: #refunds,
+}
+
+let successfulRefundsDistributionChartEntity: chartEntity<
+  BarGraphTypes.barGraphPayload,
+  BarGraphTypes.barGraphOptions,
+  JSON.t,
+> = {
+  getObjects: SuccessfulRefundsDistributionUtils.successfulRefundsDistributionMapper,
+  getChatOptions: BarGraphUtils.getBarGraphOptions,
+}
+
+let successfulRefundsDistributionTableEntity = {
+  open SuccessfulRefundsDistributionUtils
+  EntityType.makeEntity(
+    ~uri=``,
+    ~getObjects,
+    ~dataKey="queryData",
+    ~defaultColumns=[],
+    ~requiredSearchFieldsList=[],
+    ~allColumns=[],
+    ~getCell,
+    ~getHeading,
+  )
+}
