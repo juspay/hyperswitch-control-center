@@ -66,12 +66,24 @@ module AuthenticationInput = {
       onBlur: _ => (),
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
+        let regexForProfileName = "^([a-z]|[A-Z]|[0-9]|_|-)+$"
+        let isValid = if value->String.length <= 2 {
+          true
+        } else if (
+          value->isEmptyString ||
+          value->String.length > 64 ||
+          !RegExp.test(RegExp.fromString(regexForProfileName), value)
+        ) {
+          false
+        } else {
+          true
+        }
         if value->String.length <= 0 {
           let name = `outgoing_webhook_custom_http_headers.${key}`
           form.change(name, JSON.Encode.null)
         }
-        switch value->getOptionIntFromString->Option.isNone {
-        | true => setKey(_ => value)
+        switch (value->getOptionIntFromString->Option.isNone, isValid) {
+        | (true, true) => setKey(_ => value)
         | _ => ()
         }
       },
@@ -85,7 +97,6 @@ module AuthenticationInput = {
         if key->String.length > 0 {
           let name = `outgoing_webhook_custom_http_headers.${key}`
           form.change(name, metaValue->JSON.Encode.string)
-          setAllowEdit(_ => false)
         }
       },
       onChange: ev => {
@@ -99,6 +110,7 @@ module AuthenticationInput = {
 
     let allowEditConfiguration = () => {
       setValue(_ => "")
+      form.change(`outgoing_webhook_custom_http_headers.${key}`, JSON.Encode.null)
       setAllowEdit(_ => true)
       setShowModal(_ => false)
     }
@@ -126,19 +138,6 @@ module AuthenticationInput = {
                   customIconSize={18}
                   buttonSize={XSmall}
                   onClick={_ => setShowModal(_ => true)}
-                />
-              </div>
-            </RenderIf>
-            <RenderIf condition={allowEdit}>
-              <div className="flex flex-row gap-2 mt-6">
-                <Button
-                  text=""
-                  customButtonStyle="bg-none !border-none"
-                  customBackColor="bg-transparent"
-                  rightIcon={FontAwesome("blue-tick")}
-                  customIconSize={18}
-                  buttonSize={XSmall}
-                  onClick={_ => setAllowEdit(_ => false)}
                 />
               </div>
             </RenderIf>

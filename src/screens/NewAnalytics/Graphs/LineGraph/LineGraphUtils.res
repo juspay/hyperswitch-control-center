@@ -1,5 +1,21 @@
 open LineGraphTypes
 
+// colors
+let darkGray = "#666666"
+let lightGray = "#999999"
+let gridLineColor = "#e6e6e6"
+let fontFamily = "Arial, sans-serif"
+
+let valueFormatter = (
+  @this
+  this => {
+    `<div style="display: flex; align-items: center;">
+        <div style="width: 13px; height: 13px; background-color:${this.color}; border-radius:3px;"></div>
+        <div style="margin-left: 5px;">${this.name}</div>
+    </div>`
+  }
+)->asLegendsFormatter
+
 let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
   let {categories, data, title, tooltipFormatter, yAxisMaxValue} = lineGraphOptions
 
@@ -9,10 +25,24 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
   )
 
   let yAxis: LineGraphTypes.yAxis = {
-    title,
+    title: {
+      ...title,
+      style: {
+        color: darkGray,
+        fontFamily, // Set the desired font family
+      },
+    },
     gridLineWidth: 1,
-    gridLineColor: "#e6e6e6",
+    gridLineColor,
     gridLineDashStyle: "Dash",
+    labels: {
+      align: "center",
+      style: {
+        color: lightGray,
+        fontFamily, // Set the desired font family
+      },
+      x: 5,
+    },
     min: 0,
   }
 
@@ -33,13 +63,14 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
       labels: {
         align: "center",
         style: {
-          color: "#666",
+          color: lightGray,
+          fontFamily, // Set the desired font family
         },
         y: 35,
       },
       tickInterval: stepInterval,
       gridLineWidth: 1,
-      gridLineColor: "#e6e6e6",
+      gridLineColor,
       tickmarkPlacement: "on",
       endOnTick: false,
       startOnTick: false,
@@ -47,7 +78,7 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
     tooltip: {
       style: {
         padding: "0px",
-        fontFamily: "Arial, sans-serif", // Set the desired font family
+        fontFamily, // Set the desired font family
         fontSize: "14px", // Optional: Set the font size
       },
       shape: "square",
@@ -67,6 +98,17 @@ let getLineGraphOptions = (lineGraphOptions: lineGraphPayload) => {
         }
       | _ => yAxis
       }
+    },
+    legend: {
+      useHTML: true,
+      labelFormatter: valueFormatter,
+      symbolPadding: 0,
+      symbolWidth: 0,
+      itemStyle: {
+        fontFamily, // Set font family for legend items
+        fontSize: "12px", // Set font size
+        color: darkGray, // Set font color
+      },
     },
     plotOptions: {
       line: {
