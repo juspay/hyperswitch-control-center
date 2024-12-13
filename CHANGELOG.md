@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.12.13.0
+
+### Features
+
+- New analytics refunds tab ([#1889](https://github.com/juspay/hyperswitch-control-center/pull/1889)) ([`fc5392f`](https://github.com/juspay/hyperswitch-control-center/commit/fc5392f0079c0961def238df1cc1ee96c714202e))
+
+### Miscellaneous Tasks
+
+- New analytics text font and color changes ([#1902](https://github.com/juspay/hyperswitch-control-center/pull/1902)) ([`054b6c4`](https://github.com/juspay/hyperswitch-control-center/commit/054b6c47b5c7d2fd09c901e638da9a32d5792c4e))
+
+**Full Changelog:** [`2024.12.12.2...2024.12.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.12.12.2...2024.12.13.0)
+
+- - -
+
 ## 2024.12.12.2
 
 ### Features
