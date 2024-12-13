@@ -29,39 +29,91 @@ let make = (~entity: moduleEntity) => {
         ~id=Some((#refunds: domain :> string)),
       )
 
-      // primary date range
-      let primaryBodyRefunds = NewAnalyticsUtils.requestBody(
+      let amountRateBodyRefunds = NewAnalyticsUtils.requestBody(
         ~startTime=startTimeVal,
         ~endTime=endTimeVal,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=[#sessionized_refund_processed_amount, #sessionized_refund_success_rate],
       )
 
-      let primaryResponseRefunds = await updateDetails(refundsUrl, primaryBodyRefunds, Post)
+      // TODO: need refactor on filters
+      let filters = Dict.make()
+      filters->Dict.set(
+        "refund_status",
+        [#success, #failure, #pending]
+        ->Array.map(item => {
+          (item: status :> string)->JSON.Encode.string
+        })
+        ->JSON.Encode.array,
+      )
 
-      let primaryDataRefunds = primaryResponseRefunds->parseResponse("metaData")
+      let statusCountBodyRefunds = NewAnalyticsUtils.requestBody(
+        ~startTime=startTimeVal,
+        ~endTime=endTimeVal,
+        ~groupByNames=["refund_status"]->Some,
+        ~filter=filters->JSON.Encode.object->Some,
+        ~delta=entity.requestBodyConfig.delta,
+        ~metrics=[#sessionized_refund_count],
+      )
+
+      let amountRateResponseRefunds = await updateDetails(refundsUrl, amountRateBodyRefunds, Post)
+      let statusCountResponseRefunds = await updateDetails(refundsUrl, statusCountBodyRefunds, Post)
+
+      let amountRateDataRefunds = amountRateResponseRefunds->parseResponse("metaData")
+      let statusCountDataRefunds = statusCountResponseRefunds->modifyStatusCountResponse
 
       primaryData->setValue(
-        ~data=primaryDataRefunds,
+        ~data=amountRateDataRefunds,
         ~ids=[Total_Refund_Processed_Amount, Total_Refund_Success_Rate],
       )
 
-      let secondaryBodyRefunds = NewAnalyticsUtils.requestBody(
+      primaryData->setValue(
+        ~data=statusCountDataRefunds,
+        ~ids=[Successful_Refund_Count, Failed_Refund_Count, Pending_Refund_Count],
+      )
+
+      let secondaryAmountRateBodyRefunds = NewAnalyticsUtils.requestBody(
         ~startTime=compareToStartTime,
         ~endTime=compareToEndTime,
         ~delta=entity.requestBodyConfig.delta,
         ~metrics=[#sessionized_refund_processed_amount, #sessionized_refund_success_rate],
       )
 
+      let secondaryStatusCountBodyRefunds = NewAnalyticsUtils.requestBody(
+        ~startTime=compareToStartTime,
+        ~endTime=compareToEndTime,
+        ~groupByNames=["refund_status"]->Some,
+        ~filter=filters->JSON.Encode.object->Some,
+        ~delta=entity.requestBodyConfig.delta,
+        ~metrics=[#sessionized_refund_count],
+      )
+
       let secondaryData = switch comparison {
       | EnableComparison => {
-          let secondaryResponseRefunds = await updateDetails(refundsUrl, secondaryBodyRefunds, Post)
+          let secondaryResponseRefunds = await updateDetails(
+            refundsUrl,
+            secondaryAmountRateBodyRefunds,
+            Post,
+          )
 
-          let secondaryDataRefunds = secondaryResponseRefunds->parseResponse("metaData")
+          let secondaryStatusCountResponseRefunds = await updateDetails(
+            refundsUrl,
+            secondaryStatusCountBodyRefunds,
+            Post,
+          )
+
+          let secondaryAmountRateDataRefunds = secondaryResponseRefunds->parseResponse("metaData")
+          let secondaryStatusCountDataRefunds =
+            secondaryStatusCountResponseRefunds->modifyStatusCountResponse
 
           secondaryData->setValue(
-            ~data=secondaryDataRefunds,
+            ~data=secondaryAmountRateDataRefunds,
             ~ids=[Total_Refund_Processed_Amount, Total_Refund_Success_Rate],
+          )
+
+          secondaryData->setValue(
+            ~data=secondaryStatusCountDataRefunds,
+            ~ids=[Successful_Refund_Count, Failed_Refund_Count, Pending_Refund_Count],
           )
 
           secondaryData->JSON.Encode.object

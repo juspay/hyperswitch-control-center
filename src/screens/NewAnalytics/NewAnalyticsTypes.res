@@ -18,7 +18,7 @@ type dimension = [
   | #refund_error_message
   | #refund_reason
 ]
-type status = [#charged | #failure]
+type status = [#charged | #failure | #success | #pending]
 type metrics = [
   | #sessionized_smart_retried_amount
   | #sessionized_payments_success_rate

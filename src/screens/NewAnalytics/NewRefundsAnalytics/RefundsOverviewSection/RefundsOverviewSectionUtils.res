@@ -88,3 +88,28 @@ let getInfo = (~responseKey: overviewColumns) => {
     }
   }
 }
+
+let modifyStatusCountResponse = response => {
+  open LogicUtils
+  let queryData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
+
+  let mapDict = Dict.make()
+
+  queryData->Array.forEach(query => {
+    let value = query->getDictFromJsonObject
+    let status = value->getString("refund_status", "")
+    let count = value->getInt("refund_count", 0)
+
+    if status == (#success: status :> string) {
+      mapDict->Dict.set(Successful_Refund_Count->getStringFromVariant, count->JSON.Encode.int)
+    }
+    if status == (#failure: status :> string) {
+      mapDict->Dict.set(Failed_Refund_Count->getStringFromVariant, count->JSON.Encode.int)
+    }
+    if status == (#pending: status :> string) {
+      mapDict->Dict.set(Pending_Refund_Count->getStringFromVariant, count->JSON.Encode.int)
+    }
+  })
+
+  mapDict
+}
