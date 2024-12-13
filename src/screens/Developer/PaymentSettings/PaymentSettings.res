@@ -29,15 +29,12 @@ module InfoViewForWebhooks = {
 
 module AuthenticationInput = {
   @react.component
-  let make = (~index) => {
+  let make = (~index, ~allowEdit, ~isDisabled) => {
     open LogicUtils
     open FormRenderer
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
-    let (isDisabled, setDisabled) = React.useState(_ => true)
-    let (showModal, setShowModal) = React.useState(_ => false)
-    let (allowEdit, setAllowEdit) = React.useState(_ => false)
     let (key, setKey) = React.useState(_ => "")
     let (metaValue, setValue) = React.useState(_ => "")
     let getOutGoingWebhook = () => {
@@ -57,9 +54,15 @@ module AuthenticationInput = {
       let (outGoingWebhookKey, outGoingWebHookValue) = getOutGoingWebhook()
       setValue(_ => outGoingWebHookValue)
       setKey(_ => outGoingWebhookKey)
-      setDisabled(_ => outGoingWebhookKey->LogicUtils.isNonEmptyString)
       None
     }, [])
+
+    React.useEffect(() => {
+      if allowEdit {
+        setValue(_ => "")
+      }
+      None
+    }, [allowEdit])
     let form = ReactFinalForm.useForm()
     let keyInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
@@ -108,12 +111,6 @@ module AuthenticationInput = {
       checked: true,
     }
 
-    let allowEditConfiguration = () => {
-      setValue(_ => "")
-      form.change(`outgoing_webhook_custom_http_headers.${key}`, JSON.Encode.null)
-      setAllowEdit(_ => true)
-      setShowModal(_ => false)
-    }
     <>
       <DesktopRow wrapperClass="flex-1">
         <div className="mt-5">
@@ -126,7 +123,43 @@ module AuthenticationInput = {
             input={valueInput} placeholder={"Enter value"} isDisabled={isDisabled && !allowEdit}
           />
         </div>
-        <RenderIf condition={key->LogicUtils.isNonEmptyString}>
+      </DesktopRow>
+    </>
+  }
+}
+module WebHookAuthenticationHeaders = {
+  @react.component
+  let make = (~setAllowEdit, ~allowEdit) => {
+    open LogicUtils
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let form = ReactFinalForm.useForm()
+    let outGoingWebhookDict =
+      formState.values
+      ->getDictFromJsonObject
+      ->getDictfromDict("outgoing_webhook_custom_http_headers")
+    let (showModal, setShowModal) = React.useState(_ => false)
+    let (isDisabled, setDisabled) = React.useState(_ => true)
+
+    let allowEditConfiguration = () => {
+      form.change(`outgoing_webhook_custom_http_headers`, JSON.Encode.null)
+      setAllowEdit(_ => true)
+      setShowModal(_ => false)
+    }
+    React.useEffect(() => {
+      let isEmpty = outGoingWebhookDict->LogicUtils.isEmptyDict
+      setDisabled(_ => !isEmpty)
+      setAllowEdit(_ => isEmpty)
+      None
+    }, [])
+    <div className="flex-1">
+      <div className="flex flex-row">
+        <p
+          className={`ml-4 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 !text-base !text-grey-700 font-semibold ml-1`}>
+          {"Custom HTTP Headers"->React.string}
+        </p>
+        <RenderIf condition={!(outGoingWebhookDict->LogicUtils.isEmptyDict)}>
           <div className="cursor-pointer">
             <RenderIf condition={isDisabled && !allowEdit}>
               <div className="mt-6">
@@ -143,7 +176,16 @@ module AuthenticationInput = {
             </RenderIf>
           </div>
         </RenderIf>
-      </DesktopRow>
+      </div>
+      <div className="grid grid-cols-5 flex gap-2">
+        {Array.fromInitializer(~length=4, i => i)
+        ->Array.mapWithIndex((_, index) =>
+          <div key={index->Int.toString} className="col-span-4">
+            <AuthenticationInput index={index} allowEdit isDisabled />
+          </div>
+        )
+        ->React.array}
+      </div>
       <Modal
         showModal
         setShowModal
@@ -174,69 +216,88 @@ module AuthenticationInput = {
           />
         </div>
       </Modal>
-    </>
+    </div>
   }
 }
-module WebHookAuthenticationHeaders = {
+
+module WebHookSection = {
   @react.component
-  let make = () => {
-    <div className="flex-1">
-      <p
-        className={`ml-4 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 !text-base !text-grey-700 font-semibold ml-1`}>
-        {"Custom HTTP Headers"->React.string}
-      </p>
-      <div className="grid grid-cols-5 flex gap-2">
-        {Array.fromInitializer(~length=4, i => i)
-        ->Array.mapWithIndex((_, index) =>
-          <div key={index->Int.toString} className="col-span-4">
-            <AuthenticationInput index={index} />
-          </div>
-        )
-        ->React.array}
-      </div>
-    </div>
+  let make = (~busiProfieDetails, ~setBusiProfie, ~setScreenState, ~profileId="") => {
+    open APIUtils
+    open LogicUtils
+    open FormRenderer
+    open MerchantAccountUtils
+    let getURL = useGetURL()
+    let updateDetails = useUpdateMethod()
+    let url = RescriptReactRouter.useUrl()
+    let id = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, profileId)
+    let showToast = ToastState.useShowToast()
+    let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
+    let (allowEdit, setAllowEdit) = React.useState(_ => false)
+    let onSubmit = async (values, _) => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let valuesDict = values->getDictFromJsonObject
+
+        let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id))
+        let body = valuesDict->JSON.Encode.object->getCustomHeadersPayload->JSON.Encode.object
+        let res = await updateDetails(url, body, Post)
+        setBusiProfie(_ => res->BusinessProfileMapper.businessProfileTypeMapper)
+        showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
+        setScreenState(_ => PageLoaderWrapper.Success)
+        setAllowEdit(_ => false)
+        fetchBusinessProfiles()->ignore
+      } catch {
+      | _ => {
+          setScreenState(_ => PageLoaderWrapper.Success)
+          showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError)
+        }
+      }
+      Nullable.null
+    }
+    <>
+      <ReactFinalForm.Form
+        key="auth"
+        initialValues={busiProfieDetails->parseBussinessProfileJson->JSON.Encode.object}
+        subscription=ReactFinalForm.subscribeToValues
+        onSubmit
+        render={({handleSubmit}) => {
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3 h-full w-full">
+            <WebHookAuthenticationHeaders setAllowEdit allowEdit />
+            <DesktopRow>
+              <div className="flex justify-start w-full gap-2">
+                <SubmitButton
+                  customSumbitButtonStyle="justify-start"
+                  text="Update"
+                  buttonType=Button.Primary
+                  buttonSize=Button.Small
+                  disabledParamter={!allowEdit}
+                />
+                <Button
+                  buttonType=Button.Secondary
+                  onClick={_ =>
+                    RescriptReactRouter.push(
+                      GlobalVars.appendDashboardPath(~url="/payment-settings"),
+                    )}
+                  text="Cancel"
+                />
+              </div>
+            </DesktopRow>
+            // <FormValuesSpy />
+          </form>
+        }}
+      />
+    </>
   }
 }
 
 module WebHook = {
   @react.component
-  let make = (~setCustomHttpHeaders, ~enableCustomHttpHeaders) => {
+  let make = () => {
     open FormRenderer
-    open LogicUtils
-    let {customWebhookHeaders} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let form = ReactFinalForm.useForm()
-    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-    )
+
     let h2RegularTextStyle = `${HSwitchUtils.getTextClass((H3, Leading_1))}`
-    let webHookURL =
-      formState.values
-      ->getDictFromJsonObject
-      ->getOptionString("webhook_url")
-      ->Option.isSome
-    let outGoingHeaders =
-      formState.values
-      ->getDictFromJsonObject
-      ->getDictfromDict("outgoing_webhook_custom_http_headers")
-      ->isEmptyDict
 
-    React.useEffect(() => {
-      if !webHookURL {
-        setCustomHttpHeaders(_ => false)
-        form.change("outgoing_webhook_custom_http_headers", JSON.Encode.null)
-      }
-      None
-    }, [webHookURL])
-
-    let updateCustomHttpHeaders = () => {
-      setCustomHttpHeaders(_ => !enableCustomHttpHeaders)
-    }
-    React.useEffect(() => {
-      if webHookURL && !outGoingHeaders {
-        setCustomHttpHeaders(_ => true)
-      }
-      None
-    }, [])
     <>
       <div>
         <div className="ml-4">
@@ -249,28 +310,7 @@ module WebHook = {
             fieldWrapperClass="max-w-xl"
           />
         </div>
-        <RenderIf condition={customWebhookHeaders}>
-          <div className="ml-4">
-            <div className={"mt-4 flex items-center text-jp-gray-700 font-bold self-start"}>
-              <div className="font-semibold text-base text-black dark:text-white">
-                {"Enable Custom HTTP Headers"->React.string}
-              </div>
-              <ToolTip description="Enter Webhook url to enable" toolTipPosition=ToolTip.Right />
-            </div>
-            <div className="mt-4">
-              <BoolInput.BaseComponent
-                boolCustomClass="rounded-lg"
-                isSelected=enableCustomHttpHeaders
-                size={Large}
-                setIsSelected={_ => webHookURL ? updateCustomHttpHeaders() : ()}
-              />
-            </div>
-          </div>
-        </RenderIf>
       </div>
-      <RenderIf condition={enableCustomHttpHeaders && customWebhookHeaders}>
-        <WebHookAuthenticationHeaders />
-      </RenderIf>
     </>
   }
 }
@@ -428,10 +468,8 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let updateDetails = useUpdateMethod()
 
   let (busiProfieDetails, setBusiProfie) = React.useState(_ => businessProfileDetails)
-
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (checkMaxAutoRetry, setCheckMaxAutoRetry) = React.useState(_ => true)
-  let (enableCustomHttpHeaders, setCustomHttpHeaders) = React.useState(_ => false)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
 
@@ -467,9 +505,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       open LogicUtils
       setScreenState(_ => PageLoaderWrapper.Loading)
       let valuesDict = values->getDictFromJsonObject
-      if !enableCustomHttpHeaders {
-        valuesDict->Dict.set("outgoing_webhook_custom_http_headers", JSON.Encode.null)
-      }
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id))
       let body = valuesDict->JSON.Encode.object->getBusinessProfilePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post)
@@ -603,7 +638,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 </RenderIf>
                 <AutoRetries setCheckMaxAutoRetry />
                 <ReturnUrl />
-                <WebHook enableCustomHttpHeaders setCustomHttpHeaders />
+                <WebHook />
                 <DesktopRow>
                   <div className="flex justify-start w-full gap-2">
                     <SubmitButton
@@ -622,11 +657,16 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </div>
                 </DesktopRow>
-                <FormValuesSpy />
+                // <FormValuesSpy />
               </form>
             }}
           />
         </div>
+      </div>
+    </div>
+    <div className={` py-4 md:py-10 h-full flex flex-col`}>
+      <div className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
+        <WebHookSection busiProfieDetails setBusiProfie setScreenState profileId />
       </div>
     </div>
   </PageLoaderWrapper>
