@@ -156,7 +156,7 @@ module WebHookAuthenticationHeaders = {
     <div className="flex-1">
       <div className="flex flex-row">
         <p
-          className={`ml-4 text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1 !text-base !text-grey-700 font-semibold ml-1`}>
+          className={`ml-4 text-xl text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1  !text-grey-700 font-semibold ml-1`}>
           {"Custom HTTP Headers"->React.string}
         </p>
         <RenderIf condition={!(outGoingWebhookDict->LogicUtils.isEmptyDict)}>
@@ -262,7 +262,7 @@ module WebHookSection = {
         subscription=ReactFinalForm.subscribeToValues
         onSubmit
         render={({handleSubmit}) => {
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3 h-full w-full">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-8 h-full w-full py-6 px-4">
             <WebHookAuthenticationHeaders setAllowEdit allowEdit />
             <DesktopRow>
               <div className="flex justify-start w-full gap-2">
@@ -296,22 +296,13 @@ module WebHook = {
   let make = () => {
     open FormRenderer
 
-    let h2RegularTextStyle = `${HSwitchUtils.getTextClass((H3, Leading_1))}`
-
-    <>
-      <div>
-        <div className="ml-4">
-          <p className=h2RegularTextStyle> {"Webhook Setup"->React.string} </p>
-        </div>
-        <div className="ml-4 mt-4">
-          <FieldRenderer
-            field={DeveloperUtils.webhookUrl}
-            labelClass="!text-base !text-grey-700 font-semibold"
-            fieldWrapperClass="max-w-xl"
-          />
-        </div>
-      </div>
-    </>
+    <div className="ml-4 mt-4">
+      <FieldRenderer
+        field={DeveloperUtils.webhookUrl}
+        labelClass="!text-base !text-grey-700 font-semibold"
+        fieldWrapperClass="max-w-xl"
+      />
+    </div>
   }
 }
 
