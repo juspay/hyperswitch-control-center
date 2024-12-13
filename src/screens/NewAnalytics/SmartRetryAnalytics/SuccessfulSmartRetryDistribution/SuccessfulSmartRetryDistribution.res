@@ -13,7 +13,7 @@ module TableModule = {
       key: "",
       order: Table.INC,
     }
-    let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
+
     let visibleColumns =
       [selectedTab->getColumn]->Array.concat([Payments_Success_Rate_Distribution_With_Only_Retries])
     let tableData = getTableData(data)
@@ -104,12 +104,8 @@ let make = (
 
       let response = await updateDetails(url, body, Post)
       let responseData = response->getDictFromJsonObject->getArrayFromDict("queryData", [])
-      let arr =
-        response
-        ->getDictFromJsonObject
-        ->getArrayFromDict("queryData", [])
 
-      if arr->Array.length > 0 {
+      if responseData->Array.length > 0 {
         setpaymentsDistribution(_ => responseData->JSON.Encode.array)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
