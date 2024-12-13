@@ -116,6 +116,40 @@ let parseMerchantJson = (merchantDict: merchantPayload) => {
   merchantInfo
 }
 
+let getCustomHeadersPayload = (values: JSON.t) => {
+  open LogicUtils
+  let customHeaderDict = Dict.make()
+  let valuesDict = values->getDictFromJsonObject
+  let outGoingWebHookCustomHttpHeaders = Dict.make()
+  let formValues = valuesDict->getDictfromDict("outgoing_webhook_custom_http_headers")
+
+  let _ =
+    valuesDict
+    ->getDictfromDict("outgoing_webhook_custom_http_headers")
+    ->Dict.keysToArray
+    ->Array.forEach(val => {
+      outGoingWebHookCustomHttpHeaders->setOptionString(
+        val,
+        formValues->getString(val, "")->getNonEmptyString,
+      )
+    })
+  let _ =
+    valuesDict
+    ->getDictfromDict("outgoing_webhook_custom_http_headers")
+    ->Dict.keysToArray
+    ->Array.forEach(val => {
+      outGoingWebHookCustomHttpHeaders->setOptionString(
+        val,
+        formValues->getString(val, "")->getNonEmptyString,
+      )
+    })
+  customHeaderDict->setOptionDict(
+    "outgoing_webhook_custom_http_headers",
+    Some(outGoingWebHookCustomHttpHeaders),
+  )
+  customHeaderDict
+}
+
 let getBusinessProfilePayload = (values: JSON.t) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
@@ -158,20 +192,6 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "three_ds_requestor_url",
     valuesDict->getString("three_ds_requestor_url", "")->getNonEmptyString,
   )
-
-  let outGoingWebHookCustomHttpHeaders = Dict.make()
-  let formValues = valuesDict->getDictfromDict("outgoing_webhook_custom_http_headers")
-
-  let _ =
-    valuesDict
-    ->getDictfromDict("outgoing_webhook_custom_http_headers")
-    ->Dict.keysToArray
-    ->Array.forEach(val => {
-      outGoingWebHookCustomHttpHeaders->setOptionString(
-        val,
-        formValues->getString(val, "")->getNonEmptyString,
-      )
-    })
 
   let profileDetailsDict = Dict.make()
   profileDetailsDict->setDictNull(
@@ -218,10 +238,7 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     "authentication_connector_details",
     !(authenticationConnectorDetails->isEmptyDict) ? Some(authenticationConnectorDetails) : None,
   )
-  profileDetailsDict->setOptionDict(
-    "outgoing_webhook_custom_http_headers",
-    Some(outGoingWebHookCustomHttpHeaders),
-  )
+
   profileDetailsDict
 }
 
