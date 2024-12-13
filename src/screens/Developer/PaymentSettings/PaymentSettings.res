@@ -154,27 +154,22 @@ module WebHookAuthenticationHeaders = {
       None
     }, [])
     <div className="flex-1">
-      <div className="flex flex-row">
+      <div className="flex flex-row items-center gap-4 ">
         <p
           className={`ml-4 text-xl text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1  !text-grey-700 font-semibold ml-1`}>
-          {"Custom HTTP Headers"->React.string}
+          {"Custom Headers"->React.string}
         </p>
-        <RenderIf condition={!(outGoingWebhookDict->LogicUtils.isEmptyDict)}>
-          <div className="cursor-pointer">
-            <RenderIf condition={isDisabled && !allowEdit}>
-              <div className="mt-6">
-                <Button
-                  text=""
-                  customButtonStyle="bg-none !border-none"
-                  customBackColor="bg-transparent"
-                  rightIcon={FontAwesome("edit")}
-                  customIconSize={18}
-                  buttonSize={XSmall}
-                  onClick={_ => setShowModal(_ => true)}
-                />
-              </div>
-            </RenderIf>
-          </div>
+        <RenderIf
+          condition={!(outGoingWebhookDict->LogicUtils.isEmptyDict) && isDisabled && !allowEdit}>
+          <Button
+            text=""
+            customButtonStyle="bg-none !border-none cursor-pointer !p-0"
+            customBackColor="bg-transparent"
+            rightIcon={FontAwesome("edit")}
+            customIconSize={18}
+            buttonSize={XSmall}
+            onClick={_ => setShowModal(_ => true)}
+          />
         </RenderIf>
       </div>
       <div className="grid grid-cols-5 flex gap-2">
@@ -526,7 +521,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
           cursorStyle="cursor-pointer"
         />
       </RenderIf>
-      <div className={`${showFormOnly ? "" : "mt-4"}`}>
+      <div className={`${showFormOnly ? "" : "mt-4"} flex flex-col gap-6`}>
         <div
           className={`w-full ${showFormOnly
               ? ""
@@ -653,11 +648,12 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
             }}
           />
         </div>
-      </div>
-    </div>
-    <div className={` py-4 md:py-10 h-full flex flex-col`}>
-      <div className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
-        <WebHookSection busiProfieDetails setBusiProfie setScreenState profileId />
+        <div className={` py-4 md:py-10 h-full flex flex-col `}>
+          <div
+            className={`border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass}`}>
+            <WebHookSection busiProfieDetails setBusiProfie setScreenState profileId />
+          </div>
+        </div>
       </div>
     </div>
   </PageLoaderWrapper>
