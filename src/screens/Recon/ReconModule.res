@@ -4,6 +4,7 @@ let make = (~urlList) => {
   open LogicUtils
 
   let getURL = useGetURL()
+  let handleLogout = useHandleLogout()
   let fetchDetails = useGetMethod()
   let (redirectToken, setRedirectToken) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -23,20 +24,47 @@ let make = (~urlList) => {
   }
 
   let redirectUrl = switch urlList {
-  | list{"upload-files"}
-  | list{"run-recon"}
-  | list{"reports"}
-  | list{"config-settings"}
-  | list{"file-processor"} =>
-    urlList->List.toArray->Array.joinWith("/")
-  | list{"recon-analytics"} => "analytics"
+  | list{"upload-files"} => "upload-recon-files"
+  | list{"run-recon"} => "run-recon/home"
+  | list{"reports"} => "report/reconciliation"
+  | list{"config-settings"} => "reconcilation-config"
+
+  | list{"recon-analytics"} => "analytics-recon-and-settlement"
   | _ => ""
+  // commented as not needed as of now
+  // | list{"file-processor"} => "file-processor"
   }
 
   React.useEffect(() => {
     getReconToken()->ignore
     None
   }, (iframeLoaded, redirectUrl))
+
+  React.useEffect(() => {
+    // Event listner to check if the session is expired in iframe
+    let handleIframeMessage = event => {
+      let dictFromEvent = event->Identity.genericTypeToJson->getDictFromJsonObject
+
+      let eventType =
+        dictFromEvent
+        ->getDictfromDict("data")
+        ->getString("event", "")
+
+      let status =
+        dictFromEvent
+        ->getDictfromDict("data")
+        ->getString("AuthenticationStatus", "")
+        ->ReconUtils.getAuthStatusFromMessage
+
+      if eventType == "AuthenticationStatus" && status == IframeLoggedOut {
+        handleLogout()->ignore
+      }
+    }
+
+    Window.addEventListener("message", handleIframeMessage)
+
+    Some(() => Window.removeEventListener("message", handleIframeMessage))
+  }, [])
 
   <>
     {
