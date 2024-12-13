@@ -1,3 +1,4 @@
+let tableBorderClass = "border-2 border-solid  border-jp-gray-940 border-collapse border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 module Card = {
   @react.component
   let make = (~children) => {
@@ -257,5 +258,53 @@ module SmartRetryToggle = {
         </span>
       </p>
     </div>
+  }
+}
+
+module OverViewStat = {
+  open NewAnalyticsUtils
+  open NewAnalyticsTypes
+  @react.component
+  let make = (
+    ~responseKey,
+    ~data,
+    ~config: singleStatConfig,
+    ~getValueFromObj,
+    ~getStringFromVariant,
+  ) => {
+    open LogicUtils
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let comparison = filterValueJson->getString("comparison", "")->DateRangeUtils.comparisonMapprer
+
+    let primaryValue = getValueFromObj(data, 0, responseKey->getStringFromVariant)
+    let secondaryValue = getValueFromObj(data, 1, responseKey->getStringFromVariant)
+
+    let (value, direction) = calculatePercentageChange(~primaryValue, ~secondaryValue)
+
+    let displyValue = valueFormatter(primaryValue, config.valueType)
+    let suffix = config.valueType == Amount ? "USD" : ""
+
+    <Card>
+      <div className="p-6 flex flex-col gap-4 justify-between h-full gap-auto relative">
+        <div className="flex justify-between w-full items-end">
+          <div className="flex gap-1 items-center">
+            <div className="font-bold text-3xl"> {`${displyValue} ${suffix}`->React.string} </div>
+            <div className="scale-[0.9]">
+              <RenderIf condition={comparison === EnableComparison}>
+                <StatisticsCard
+                  value
+                  direction
+                  tooltipValue={`${valueFormatter(secondaryValue, config.valueType)} ${suffix}`}
+                />
+              </RenderIf>
+            </div>
+          </div>
+        </div>
+        <div className={"flex flex-col gap-1  text-black"}>
+          <div className="font-semibold  dark:text-white"> {config.titleText->React.string} </div>
+          <div className="opacity-50 text-sm"> {config.description->React.string} </div>
+        </div>
+      </div>
+    </Card>
   }
 }
