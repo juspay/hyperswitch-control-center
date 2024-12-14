@@ -15,6 +15,8 @@ type dimension = [
   | #card_network
   | #authentication_type
   | #error_reason
+  | #refund_error_message
+  | #refund_reason
 ]
 type status = [#charged | #failure]
 type metrics = [
@@ -28,6 +30,13 @@ type metrics = [
   | #payments_distribution
   | #payment_success_rate
   | #failure_reasons
+  | // Refunds
+  #sessionized_refund_processed_amount
+  | #sessionized_refund_success_count
+  | #sessionized_refund_success_rate
+  | #sessionized_refund_count
+  | #sessionized_refund_error_message
+  | #sessionized_refund_reason
 ]
 type granularity = [
   | #G_ONEDAY
@@ -74,3 +83,9 @@ type valueType =
 type metricType =
   | Smart_Retry
   | Default
+
+type singleStatConfig = {
+  titleText: string,
+  description: string,
+  valueType: valueType,
+}
