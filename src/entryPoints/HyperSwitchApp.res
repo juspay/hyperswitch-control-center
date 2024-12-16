@@ -81,8 +81,6 @@ let make = () => {
     None
   }, [userGroupACL])
 
-  Console.log2("sdhcjaxs", url.path->urlPath)
-
   let ompDropdowns =
     <div className="flex items-center gap-4 mx-4">
       <RenderIf condition={!isInternalUser}>

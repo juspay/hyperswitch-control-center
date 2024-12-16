@@ -71,9 +71,9 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   )
   profileInfo->setOptionBool("is_connector_agnostic_mit_enabled", is_connector_agnostic_mit_enabled)
   profileInfo->setOptionBool("is_click_to_pay_enabled", is_click_to_pay_enabled)
-  profileInfo->setOptionString(
+  profileInfo->setOptionJson(
     "authentication_product_ids",
-    authentication_product_ids->getDictFromJsonObject->getOptionString("click_to_pay"),
+    Some(authentication_product_ids->getDictFromJsonObject->getJsonObjectFromDict("click_to_pay")),
   )
 
   profileInfo->setOptionDict(
@@ -251,6 +251,11 @@ let getBusinessProfilePayload = (values: JSON.t) => {
   profileDetailsDict->setOptionBool(
     "is_click_to_pay_enabled",
     valuesDict->getOptionBool("is_click_to_pay_enabled"),
+  )
+
+  profileDetailsDict->Dict.set(
+    "authentication_product_ids",
+    valuesDict->getJsonObjectFromDict("authentication_product_ids"),
   )
 
   profileDetailsDict
