@@ -155,9 +155,11 @@ let make = () => {
                         | list{"recon-analytics"}
                         | list{"reports"}
                         | list{"config-settings"}
-                        | list{"file-processor"}
                         | list{"sdk"} =>
                           <MerchantAccountContainer setAppScreenState=setScreenState />
+                        // Commented as not needed now
+                        // list{"file-processor"}
+
                         | list{"connectors", ..._}
                         | list{"payoutconnectors", ..._}
                         | list{"3ds-authenticators", ..._}
@@ -183,6 +185,7 @@ let make = () => {
                         | list{"analytics-disputes"} =>
                           <AnalyticsContainer />
                         | list{"new-analytics-payment"}
+                        | list{"new-analytics-refund"}
                         | list{"new-analytics-smart-retry"} =>
                           <AccessControl
                             isEnabled={featureFlagDetails.newAnalytics &&
@@ -318,7 +321,7 @@ let make = () => {
                 setShowModal={setShowFeedbackModal}
               />
             </RenderIf>
-            <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
+            <RenderIf condition={!featureFlagDetails.isLiveMode}>
               <ProdIntentForm />
             </RenderIf>
           </div>
