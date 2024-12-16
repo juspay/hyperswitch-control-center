@@ -321,7 +321,7 @@ let make = () => {
                 setShowModal={setShowFeedbackModal}
               />
             </RenderIf>
-            <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
+            <RenderIf condition={!featureFlagDetails.isLiveMode}>
               <ProdIntentForm />
             </RenderIf>
           </div>
