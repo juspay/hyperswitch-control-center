@@ -136,10 +136,6 @@ In Live mode, current users are not allowed to sign up. Users must be created ma
 
 The `email` feature flag enables user sign-in and sign-up using magic links instead of passwords. When enabled, users can request a magic link via email that logs them into their account or creates a new account if they are signing up.
 
-#### Quick Start
-
-The `quick_start` feature flag enables the simplified onboarding flow for new users, where they connect to processors, configure payment routing and test a payment, all in one flow.
-
 ### Surcharge
 
 The `surcharge` feature flag enables the ability to apply surcharges to payments. When enabled, you can create advanced rules based on payment parameters like amount, currency, and payment method to enforce surcharges as needed.
