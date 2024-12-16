@@ -84,7 +84,7 @@ let make = () => {
   if newAnalyticsRefunds {
     tabs->Array.push({
       title: "Refunds",
-      renderContent: () => React.null,
+      renderContent: () => <NewRefundsAnalytics />,
     })
   }
 
