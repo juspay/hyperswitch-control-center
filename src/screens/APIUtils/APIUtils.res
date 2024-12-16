@@ -779,6 +779,8 @@ let responseHandler = async (
     sendEvent(~eventName="API Error", ~description=Some(responseStatus), ~metadata=metaData)
   }
 
+  let noAccessControlText = "You do not have the required permissions to access this module. Please contact your admin."
+
   switch responseStatus {
   | 200 => json
   | _ => {
@@ -810,7 +812,7 @@ let responseHandler = async (
             popUpType: (Warning, WithIcon),
             heading: "Access Forbidden",
             description: {
-              HSwitchUtils.noAccessControlText->React.string
+              noAccessControlText->React.string
             },
             handleConfirm: {
               text: "Close",

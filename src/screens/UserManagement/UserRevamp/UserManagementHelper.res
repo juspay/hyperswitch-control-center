@@ -242,7 +242,7 @@ module OMPViewBaseComp = {
     }
 
     let truncatedDisplayName = if displayName->String.length > 15 {
-      <HSwitchOrderUtils.EllipsisText
+      <HelperComponents.EllipsisText
         displayValue=displayName endValue=15 showCopy=false expandText=false
       />
     } else {

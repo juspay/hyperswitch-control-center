@@ -89,7 +89,7 @@ let getTableCell = (~connectorType: ConnectorTypes.connector=Processor) => {
     | ProfileId => DisplayCopyCell(connector.profile_id)
     | ProfileName =>
       Table.CustomCell(
-        <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
+        <BusinessProfileHook.BusinessProfileComponent profile_id={connector.profile_id} />,
         "",
       )
     | ConnectorLabel => Text(connector.connector_label)

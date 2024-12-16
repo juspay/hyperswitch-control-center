@@ -30,7 +30,7 @@ module ListBaseComp = {
     let endValue = isDarkBg ? 23 : 15
 
     let subHeadingElement = if subHeading->String.length > 15 {
-      <HSwitchOrderUtils.EllipsisText
+      <HelperComponents.EllipsisText
         displayValue=subHeading
         endValue
         showCopy=false
@@ -114,7 +114,7 @@ module OMPViewBaseComp = {
     let name = selectedEntity->getNameForId
 
     let displayName = if name->String.length > 15 {
-      <HSwitchOrderUtils.EllipsisText
+      <HelperComponents.EllipsisText
         displayValue=name endValue=15 showCopy=false expandText=false
       />
     } else {
