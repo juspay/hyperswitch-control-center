@@ -249,14 +249,14 @@ module OMPViewBaseComp = {
       {displayName->React.string}
     }
 
-    <div className={`text-sm font-medium cursor-pointer}`}>
+    <div className={`text-sm font-medium cursor-pointer px-4`}>
       <div className={`flex flex-col items-start`}>
         <div className="text-left flex items-center gap-1">
           <Icon name="settings-new" size=18 />
           <p className={`text-jp-gray-900 fs-10 overflow-scroll text-nowrap`}>
-            {`Viewing data for:`->React.string}
+            {`View data for:`->React.string}
           </p>
-          <span className="text-blue-500"> {truncatedDisplayName} </span>
+          <span className="text-blue-500 text-nowrap"> {truncatedDisplayName} </span>
           <Icon
             className={`${arrow ? arrowDownClass : arrowUpClass} ml-1`}
             name="arrow-without-tail"
@@ -268,7 +268,7 @@ module OMPViewBaseComp = {
   }
 }
 
-let newGenerateDropdownOptions = (
+let generateDropdownOptionsOMPViews = (
   dropdownList: array<UserManagementTypes.ompViewType>,
   getNameForId,
 ) => {
@@ -277,12 +277,16 @@ let newGenerateDropdownOptions = (
   ): SelectBox.dropdownOption => {
     switch item.entity {
     | #Default => {
-        label: `${item.label} (${(item.entity :> string)})`,
+        label: `${item.label}`,
         value: `${(item.entity :> string)}`,
+        labelDescription: `(${(item.entity :> string)})`,
+        description: `${item.label}`,
       }
     | _ => {
         label: `${item.entity->getNameForId} (${(item.entity :> string)})`,
         value: `${(item.entity :> string)}`,
+        labelDescription: `(${(item.entity :> string)})`,
+        description: `${item.entity->getNameForId}`,
       }
     }
   })
@@ -320,32 +324,35 @@ module NewUserOmpView = {
     }
 
     let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1"
-    let dropdownContainerStyle = "rounded-ls border w-fit min-w-[15rem] max-w-[20rem]"
+    let dropdownContainerStyle = "rounded-ls border w-full shadow-md"
 
     <div className="flex">
       <div
-        className="flex h-fit border border-grey-100 bg-white rounded-lg px-4 py-2 hover:bg-opacity-80">
+        className="flex h-fit border border-grey-100 bg-white rounded-lg py-2 hover:bg-opacity-80">
         <SelectBox.BaseDropdown
           allowMultiSelect=false
           buttonText=""
           input
           deselectDisable=true
           customButtonStyle="!rounded-md"
-          options={views->newGenerateDropdownOptions(getNameForId)}
-          marginTop="mt-10"
+          options={views->generateDropdownOptionsOMPViews(getNameForId)}
+          marginTop="mt-8"
           hideMultiSelectButtons=true
           addButton=false
-          customStyle="rounded w-fit absolute left-0"
+          customStyle="rounded absolute w-fit left-0"
           searchable=false
           baseComponent={<OMPViewBaseComp userModuleEntity arrow />}
           baseComponentCustomStyle="bg-white rounded"
-          optionClass="text-jp-gray-900 text-opacity-75 text-fs-14"
-          selectClass="text-jp-gray-900 text-opacity-75 text-fs-14"
-          customDropdownOuterClass="!border-none min-w-[20rem] w-fit max-w-[20rem]"
+          optionClass="font-inter text-fs-14 font-normal leading-5"
+          selectClass="font-inter text-fs-14 font-normal leading-5 font-semibold"
+          labelDescriptionClass="font-inter text-fs-12 font-normal leading-4"
+          customDropdownOuterClass="!border-none !w-full"
           toggleChevronState
           customScrollStyle
           dropdownContainerStyle
           shouldDisplaySelectedOnTop=true
+          descriptionOnHover=true
+          textEllipsisForDropDownOptions=true
         />
       </div>
     </div>
