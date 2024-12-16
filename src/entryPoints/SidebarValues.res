@@ -600,14 +600,15 @@ let reconConfigurator = {
     searchOptions: [("Recon configurator", "")],
   })
 }
-let reconFileProcessor = {
-  SubLevelLink({
-    name: "File Processor",
-    link: `/file-processor`,
-    access: Access,
-    searchOptions: [("Recon file processor", "")],
-  })
-}
+// Commented as not needed now
+// let reconFileProcessor = {
+//   SubLevelLink({
+//     name: "File Processor",
+//     link: `/file-processor`,
+//     access: Access,
+//     searchOptions: [("Recon file processor", "")],
+//   })
+// }
 
 let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourceAccess) => {
   switch (recon, isReconEnabled, checkUserEntity([#Merchant, #Organization])) {
@@ -630,9 +631,10 @@ let reconAndSettlement = (recon, isReconEnabled, checkUserEntity, userHasResourc
       if userHasResourceAccess(~resourceAccess=ReconConfig) == CommonAuthTypes.Access {
         links->Array.push(reconConfigurator)
       }
-      if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
-        links->Array.push(reconFileProcessor)
-      }
+      // Commented as not needed now
+      // if userHasResourceAccess(~resourceAccess=ReconFiles) == CommonAuthTypes.Access {
+      //   links->Array.push(reconFileProcessor)
+      // }
       Section({
         name: "Recon And Settlement",
         icon: "recon",
